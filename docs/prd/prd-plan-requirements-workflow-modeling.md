@@ -47,7 +47,7 @@ Status: Scope, delegated execution, worker-account route and split G1 source-con
 
 ### Business objective seed
 
-- `BRD-OBJ-001`: discover missing or conflicting requirements before implementation without adding unnecessary ceremonies. Owner: maintainer; status: proposed.
+- **Objective ID**: BRD-OBJ-001 — discover missing or conflicting requirements before implementation without adding unnecessary ceremonies. Owner: maintainer; status: proposed.
 - Proposed SMART metric: in the ten-case pilot, detect all seeded safety-critical gaps and at least 90% of other seeded gaps; no unsafe readiness decisions or unnecessary intake restarts. Compare preparation time and missed gaps against the aligned baseline, targeting ≤15% median time overhead and ≥30% fewer missed gaps. These are targets, not measured results.
 - Domain validation owner: human BA/domain reviewer nominated by the maintainer. Independent technical/QE review: eligible Analysis & Review profile, separate from implementers.
 
@@ -84,41 +84,41 @@ Status: Scope, delegated execution, worker-account route and split G1 source-con
 
 All requirements are Draft, linked to `BRD-OBJ-001`; owner is the maintainer with the assigned task worker responsible for delivery.
 
-| Requirement | Outcome | Priority | Delivery task |
-| --- | --- | --- | --- |
-| REQ-001 | Existing requirement guidance has one consistent decision/unknown/atomicity policy. | P0 | T1 |
-| REQ-002 | Substantial discovery produces a scope/scenario model and finds missing coverage. | P0 | T2 |
-| REQ-003 | Existing diagrams are selected by question and linked to requirement behavior. | P1 | T2, T3 |
-| REQ-004 | Handoffs preserve authority, risk floors, ready slices, and change impact. | P0 | T3 |
-| REQ-005 | Delivered packages and native workflow exports contain the approved guidance. | P0 | T4 |
-| REQ-006 | Semantic evidence compares current/aligned/candidate behavior without coaching or score editing. | P0 | T5 |
-| REQ-007 | Humans can inspect tasks, evidence, remaining risk, and approval boundaries. | P0 | T0, T6 |
+| Requirement | Outcome                                                                                          | Priority | Delivery task | Objective   |
+| ----------- | ------------------------------------------------------------------------------------------------ | -------- | ------------- | ----------- |
+| REQ-001     | Existing requirement guidance has one consistent decision/unknown/atomicity policy.              | P0       | T1            | BRD-OBJ-001 |
+| REQ-002     | Substantial discovery produces a scope/scenario model and finds missing coverage.                | P0       | T2            | BRD-OBJ-001 |
+| REQ-003     | Existing diagrams are selected by question and linked to requirement behavior.                   | P1       | T2, T3        | BRD-OBJ-001 |
+| REQ-004     | Handoffs preserve authority, risk floors, ready slices, and change impact.                       | P0       | T3            | BRD-OBJ-001 |
+| REQ-005     | Delivered packages and native workflow exports contain the approved guidance.                    | P0       | T4            | BRD-OBJ-001 |
+| REQ-006     | Semantic evidence compares current/aligned/candidate behavior without coaching or score editing. | P0       | T5            | BRD-OBJ-001 |
+| REQ-007     | Humans can inspect tasks, evidence, remaining risk, and approval boundaries.                     | P0       | T0, T6        | BRD-OBJ-001 |
 
 ### Acceptance scenarios
 
-- **AC-001 → REQ-001:** Given existing approved decisions, when requirement planning continues, it carries them forward rather than restarting intake or asking a conflicting question count.
-- **AC-002 → REQ-001:** Given one behavior with multiple preconditions and a non-critical unknown, when the AC is refined, it remains one testable behavior and records the assumption; a consequential unknown blocks only its affected slices.
-- **AC-003 → REQ-002:** Given a lending scope missing overdue handling, when scope completeness is reviewed, the gap is raised for an explicit in-scope/deferred/excluded decision; it is not silently implemented or silently omitted.
-- **AC-004 → REQ-002:** Given customer verification referenced by intake and disbursement, when the model is created, one canonical function/rule is referenced from both flows without contradictory duplicate definitions.
-- **AC-005 → REQ-003:** Given an OTP error followed by apparent success, when behavior is reviewed, success and failure outcomes are clarified before readiness; no expiry/PIN/API policy is invented.
-- **AC-006 → REQ-003:** Given a scope/order/lifecycle/interaction question, when a view is selected, its stated purpose matches that question; diagrams remain optional when prose/tables answer it precisely.
-- **AC-007 → REQ-004:** Given approved low-risk ticket evidence without BRD/PRD/SRS filenames, when readiness is assessed, it may be READY without unnecessary document creation.
-- **AC-008 → REQ-004:** Given one ready slice and one blocked environment/permission-dependent slice, when handoff occurs, only the ready slice is authorized; sensitive changes still require the applicable design/human gate.
-- **AC-009 → REQ-004:** Given a changed requirement, when impact is reviewed, affected ACs/contracts/approvals/evidence are identified; unrelated settled decisions are not reopened.
-- **AC-010 → REQ-005:** Given the frozen candidate package, when native exports are generated and consumed, the shared reference is accessible and selected workflow guidance is exercised; a sync-success line alone is insufficient.
-- **AC-011 → REQ-006:** Given identical case inputs and pinned model/settings across isolated arms, when graded against the pre-approved rubric, each finding cites output evidence; historical results and failed cases remain intact.
-- **AC-012 → REQ-007:** Given worker reports and the final candidate, when a human reviews, each AC has evidence or an explicit gap and no agent review is recorded as human approval.
+- **AC ID**: AC-001 → REQ-001: Given existing approved decisions, when requirement planning continues, it carries them forward rather than restarting intake or asking a conflicting question count.
+- **AC ID**: AC-002 → REQ-001: Given one behavior with multiple preconditions and a non-critical unknown, when the AC is refined, it remains one testable behavior and records the assumption; a consequential unknown blocks only its affected slices.
+- **AC ID**: AC-003 → REQ-002: Given a lending scope missing overdue handling, when scope completeness is reviewed, the gap is raised for an explicit in-scope/deferred/excluded decision; it is not silently implemented or silently omitted.
+- **AC ID**: AC-004 → REQ-002: Given customer verification referenced by intake and disbursement, when the model is created, one canonical function/rule is referenced from both flows without contradictory duplicate definitions.
+- **AC ID**: AC-005 → REQ-003: Given an OTP error followed by apparent success, when behavior is reviewed, success and failure outcomes are clarified before readiness; no expiry/PIN/API policy is invented.
+- **AC ID**: AC-006 → REQ-003: Given a scope/order/lifecycle/interaction question, when a view is selected, its stated purpose matches that question; diagrams remain optional when prose/tables answer it precisely.
+- **AC ID**: AC-007 → REQ-004: Given approved low-risk ticket evidence without BRD/PRD/SRS filenames, when readiness is assessed, it may be READY without unnecessary document creation.
+- **AC ID**: AC-008 → REQ-004: Given one ready slice and one blocked environment/permission-dependent slice, when handoff occurs, only the ready slice is authorized; sensitive changes still require the applicable design/human gate.
+- **AC ID**: AC-009 → REQ-004: Given a changed requirement, when impact is reviewed, affected ACs/contracts/approvals/evidence are identified; unrelated settled decisions are not reopened.
+- **AC ID**: AC-010 → REQ-005: Given the frozen candidate package, when native exports are generated and consumed, the shared reference is accessible and selected workflow guidance is exercised; a sync-success line alone is insufficient.
+- **AC ID**: AC-011 → REQ-006: Given identical case inputs and pinned model/settings across isolated arms, when graded against the pre-approved rubric, each finding cites output evidence; historical results and failed cases remain intact.
+- **AC ID**: AC-012 → REQ-007: Given worker reports and the final candidate, when a human reviews, each AC has evidence or an explicit gap and no agent review is recorded as human approval.
 
 ## 5. Profile Routing and Launch Gates
 
 Profiles were discovered from the configured host; their eligibility must be confirmed before launch. Do not infer permission from the orchestrator's provider or the GitHub remote.
 
-| Role | Exact profile | Provider/model | Settings | Restrictions |
-| --- | --- | --- | --- | --- |
-| Routine implementation | `Personal - Cheap` | `omp/google-antigravity/gemini-3.8-flash` | mode `write`, thinking `medium` | Conditional first choice; execute the fixed brief, no design decisions. |
-| Standard delivery fallback | `Personal · Delivery` | `omp/openai-codex/gpt-6-luna` | mode `write`, thinking `high` | Only after Personal project eligibility is established. |
-| Plan review, semantic assessment, final review | `Personal · Analysis & Review` | `omp/openai-codex/gpt-6.1-sol` | mode `write`, thinking `high` | Separate read-only review session; artifact writes only when explicitly authorized in the evaluation brief. |
-| Premium advice | `Personal · Premium Advisor` | `omp/openai-codex/gpt-6-astra` | mode `write`, thinking `high` | Not assigned. One analysis-only consultation requires a separate qualifying human approval. |
+| Role                                           | Exact profile                  | Provider/model                            | Settings                        | Restrictions                                                                                                |
+| ---------------------------------------------- | ------------------------------ | ----------------------------------------- | ------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Routine implementation                         | `Personal - Cheap`             | `omp/google-antigravity/gemini-3.8-flash` | mode `write`, thinking `medium` | Conditional first choice; execute the fixed brief, no design decisions.                                     |
+| Standard delivery fallback                     | `Personal · Delivery`          | `omp/openai-codex/gpt-6-luna`             | mode `write`, thinking `high`   | Only after Personal project eligibility is established.                                                     |
+| Plan review, semantic assessment, final review | `Personal · Analysis & Review` | `omp/openai-codex/gpt-6.1-sol`            | mode `write`, thinking `high`   | Separate read-only review session; artifact writes only when explicitly authorized in the evaluation brief. |
+| Premium advice                                 | `Personal · Premium Advisor`   | `omp/openai-codex/gpt-6-astra`            | mode `write`, thinking `high`   | Not assigned. One analysis-only consultation requires a separate qualifying human approval.                 |
 
 **Observed conflict:** `Personal - Cheap` selects Google Antigravity but its notes also say “Must remain on Personal Codex route.” Do not silently discard that restriction or edit the profile to make it eligible. G0 must clarify its intended authorized route. If it is ineligible and the Personal standard delivery profile is eligible, use that standard route; otherwise block dispatch.
 
@@ -139,15 +139,15 @@ Profiles were discovered from the configured host; their eligibility must be con
 
 Estimates are relative effort, not promised delivery dates: XS=1, S=2, M=3, L=5 points. Total initial plan: 21 points, medium confidence. Live evaluation volume and review/fix effort remain separately metered; any scope increase requires replanning, not hidden expansion.
 
-| Task | Owner profile role | Depends on | Size | Exclusive ownership/output |
-| --- | --- | --- | --- | --- |
-| T0 Review plan and pilot contract | Analysis & Review | G0 eligibility | S / 2 | Findings only; no implementation edits. |
-| T1 Align existing requirement policies | Delivery | G1 source-contract milestone | M / 3 | Four requirement/BA skill packages and their existing eval definitions. |
-| T2 Add modeling guidance | Delivery | T1 snapshot B | M / 3 | Product-requirements package additions/refinement after T1 ownership transfer. |
-| T3 Integrate lifecycle handoffs | Delivery | T1; fixed shared contract | M / 3 | Five canonical lifecycle workflow files; no generated mirrors. |
-| T4 Integrate, sync, document | Delivery integration owner | T2, T3 reviewed | M / 3 | Native exports, metadata, docs/changelog, frozen source candidate. |
-| T5 Verify and evaluate candidate | Analysis & Review; orchestrator runs deterministic gates | T4; G2 for generation | L / 5 | Immutable evaluation outputs, rubric grading, smoke evidence; no source edits. |
-| T6 Independent final review | Fresh Analysis & Review session | T5 | S / 2 | AC/review matrix and human acceptance packet. |
+| Task                                   | Owner profile role                                       | Depends on                   | Size  | Exclusive ownership/output                                                     |
+| -------------------------------------- | -------------------------------------------------------- | ---------------------------- | ----- | ------------------------------------------------------------------------------ |
+| T0 Review plan and pilot contract      | Analysis & Review                                        | G0 eligibility               | S / 2 | Findings only; no implementation edits.                                        |
+| T1 Align existing requirement policies | Delivery                                                 | G1 source-contract milestone | M / 3 | Four requirement/BA skill packages and their existing eval definitions.        |
+| T2 Add modeling guidance               | Delivery                                                 | T1 snapshot B                | M / 3 | Product-requirements package additions/refinement after T1 ownership transfer. |
+| T3 Integrate lifecycle handoffs        | Delivery                                                 | T1; fixed shared contract    | M / 3 | Five canonical lifecycle workflow files; no generated mirrors.                 |
+| T4 Integrate, sync, document           | Delivery integration owner                               | T2, T3 reviewed              | M / 3 | Native exports, metadata, docs/changelog, frozen source candidate.             |
+| T5 Verify and evaluate candidate       | Analysis & Review; orchestrator runs deterministic gates | T4; G2 for generation        | L / 5 | Immutable evaluation outputs, rubric grading, smoke evidence; no source edits. |
+| T6 Independent final review            | Fresh Analysis & Review session                          | T5                           | S / 2 | AC/review matrix and human acceptance packet.                                  |
 
 **Waves:** T0 → human G1 source contract → T1/freeze B → T2 and T3 concurrently → task reviews → T4 → deterministic verification → corrected pilot review/human G1 pilot freeze → human G2 → T5 → T6 → human G3.
 
