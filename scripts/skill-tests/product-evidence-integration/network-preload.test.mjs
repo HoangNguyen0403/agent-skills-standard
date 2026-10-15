@@ -126,23 +126,22 @@ test('network-preload isolated proxy unit suite', async (t) => {
     );
   });
 
-  await t.test('global fetch also redirects approved HTTPS requests', async () => {
+  await t.test('global fetch rejects the approved HTTPS host without forwarding a request', async () => {
     receivedRequests.length = 0;
-    const res = await globalThis.fetch('https://api.github.com/repos/TestOwner/TestRepo', {
-      headers: { Authorization: 'Bearer test-token' }
+    await assert.rejects(async () => {
+      await globalThis.fetch('https://api.github.com/repos/TestOwner/TestRepo', {
+        headers: { Authorization: 'Bearer test-token' }
+      });
     });
-    const data = await res.json();
-    assert.strictEqual(data.ok, true);
-    assert.strictEqual(receivedRequests.length, 1);
-    assert.strictEqual(receivedRequests[0].headers['authorization'], undefined);
+    assert.strictEqual(receivedRequests.length, 0);
   });
 
-  await t.test('global fetch rejects unapproved external egress', async () => {
-    await assert.rejects(
-      async () => {
-        await globalThis.fetch('https://unapproved.example.com/test');
-      },
-      /Denied external egress via fetch: unapproved.example.com/
-    );
+  await t.test('global fetch rejects unapproved external egress without forwarding a request', async () => {
+    receivedRequests.length = 0;
+    await assert.rejects(async () => {
+      await globalThis.fetch('https://unapproved.example.com/test');
+    });
+    assert.strictEqual(receivedRequests.length, 0);
   });
+
 });
