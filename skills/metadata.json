@@ -120,6 +120,9 @@
       "nestjs",
       "angular"
     ],
+    "json": [
+      "common"
+    ],
     "spec.ts": [
       "common"
     ],
@@ -846,6 +849,20 @@
       "owners": [
         "HoangNguyen0403"
       ]
+    },
+    "product-management": {
+      "version": "1.0.0",
+      "last_updated": "2026-10-14",
+      "tag_prefix": "product-management-v",
+      "owners": [
+        "HoangNguyen0403"
+      ],
+      "token_metrics": {
+        "total_skills": 7,
+        "total_tokens": 9841,
+        "avg_tokens_per_skill": 1406,
+        "largest_skill": "product-metrics (1797 tokens)"
+      }
     }
   },
   "releases": {

@@ -1,0 +1,314 @@
+{
+  "schema_version": 1,
+  "slug": "synthetic-product-strategy",
+  "product_id": "synthetic-strategy-product",
+  "revision": "r1",
+  "synthetic": true,
+  "updated_at": "2026-10-12T10:00:00Z",
+  "strategy_authority": null,
+  "strategy_gap": "No approved strategy authority is supplied; binding decisions are out of scope",
+  "authorities": [],
+  "records": [
+    {
+      "id": "SRC-001",
+      "kind": "SRC",
+      "revision": "r1",
+      "owner": "Strategy Lead",
+      "scope": {
+        "segment": "Mid-market B2B SaaS Operations",
+        "geography": "North America",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2027-03-31T23:59:59Z"
+        }
+      },
+      "depends_on": [],
+      "freshness": {
+        "status": "current",
+        "rationale": "Fictional bytes are stored beside this ledger; they describe a missing-authority input, not a reviewed mandate.",
+        "reviewed_at": "2026-10-12T00:00:00Z",
+        "expires_at": "2027-04-12T00:00:00Z",
+        "review_triggers": [
+          "Strategy planning cycle"
+        ]
+      },
+      "data": {
+        "locator": {
+          "kind": "local",
+          "path": "source-observation.txt",
+          "sha256": "fb73f5ca6321479a09e64a2a21221de34d9e2e547fcf3bf148ae9a98ed1986e1"
+        },
+        "origin": {
+          "publisher": "Fictional training source",
+          "origin_id": "SYN-STRATEGY-01",
+          "classification": "first_party",
+          "revision": "r1",
+          "observed_at": "2026-10-05T14:30:00Z",
+          "scope": {
+            "segment": "Mid-market B2B SaaS Operations",
+            "geography": "North America",
+            "window": {
+              "start": "2026-10-01T00:00:00Z",
+              "end": "2027-03-31T23:59:59Z"
+            }
+          }
+        },
+        "retrieved_at": "2026-10-12T10:00:00Z",
+        "privacy": {
+          "classification": "internal",
+          "redaction": "redacted",
+          "access": "available"
+        },
+        "license": {
+          "identifier": "synthetic-training",
+          "usage": "citation_only",
+          "restrictions": ["No real authority or mandate represented."]
+        },
+        "status": "available",
+        "limitations": [
+          "Fictional training input; not a real authority.",
+          "No approved strategy, validated claim, budget, or action is provided."
+        ]
+      }
+    },
+    {
+      "id": "CLM-001",
+      "kind": "CLM",
+      "revision": "r1",
+      "owner": "Strategy Lead",
+      "scope": {
+        "segment": "Mid-market B2B SaaS Operations",
+        "geography": "North America",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2027-03-31T23:59:59Z"
+        }
+      },
+      "depends_on": [
+        {
+          "id": "SRC-001",
+          "revision": "r1"
+        }
+      ],
+      "freshness": {
+        "status": "current",
+        "rationale": "Fictional source identifies no approved strategy authority; no product claim is established.",
+        "reviewed_at": "2026-10-12T00:00:00Z",
+        "expires_at": "2027-04-12T00:00:00Z",
+        "review_triggers": [
+          "Operational review"
+        ]
+      },
+      "data": {
+        "statement": "This fictional intake contains no approved product-strategy authority.",
+        "classification": "unknown",
+        "sources": [
+          {
+            "id": "SRC-001",
+            "revision": "r1"
+          }
+        ],
+        "counterevidence": [],
+        "rationale": "The supplied fictional input explicitly states that no approved strategy document is present.",
+        "uncertainty": "This is a training gap, not a claim about any real organization.",
+        "status": "unresolved",
+        "critical": true
+      }
+    },
+    {
+      "id": "OPP-001",
+      "kind": "OPP",
+      "revision": "r1",
+      "owner": "Strategy Lead",
+      "scope": {
+        "segment": "Mid-market B2B SaaS Operations",
+        "geography": "North America",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2027-03-31T23:59:59Z"
+        }
+      },
+      "depends_on": [
+        {
+          "id": "CLM-001",
+          "revision": "r1"
+        }
+      ],
+      "freshness": {
+        "status": "current",
+        "rationale": "Training-only candidate; the supplied bytes establish no product problem or mandate.",
+        "reviewed_at": "2026-10-12T00:00:00Z",
+        "expires_at": "2027-04-12T00:00:00Z",
+        "review_triggers": [
+          "Separately authorized evidence becomes available",
+          "Strategy authority is reviewed"
+        ]
+      },
+      "data": {
+        "problem": "No approved product-strategy authority or validated customer problem is supplied.",
+        "customer_job": "Unknown until appropriately authorized research establishes a customer job.",
+        "claims": [
+          {
+            "id": "CLM-001",
+            "revision": "r1"
+          }
+        ],
+        "substitutes": [
+          "Unknown; no scoped substitute research supplied"
+        ],
+        "alternatives": [
+          "Obtain separate strategy authority and scoped evidence",
+          "Defer product work",
+          "Do nothing"
+        ],
+        "status": "candidate",
+        "rationale": "Candidate framing only. Non-goals: no product build, customer outreach, budget, or claim of validated need before authority and evidence review."
+      }
+    },
+    {
+      "id": "HYP-001",
+      "kind": "HYP",
+      "revision": "r1",
+      "owner": "Strategy Lead",
+      "scope": {
+        "segment": "Mid-market B2B SaaS Operations",
+        "geography": "North America",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2027-03-31T23:59:59Z"
+        }
+      },
+      "depends_on": [
+        {
+          "id": "OPP-001",
+          "revision": "r1"
+        },
+        {
+          "id": "CLM-001",
+          "revision": "r1"
+        }
+      ],
+      "freshness": {
+        "status": "current",
+        "rationale": "Proposal only; authority and scoped customer evidence are prerequisites.",
+        "reviewed_at": "2026-10-12T00:00:00Z",
+        "expires_at": "2027-04-12T00:00:00Z",
+        "review_triggers": [
+          "Authority review",
+          "Separately authorized scoped research"
+        ]
+      },
+      "data": {
+        "opportunity": {
+          "id": "OPP-001",
+          "revision": "r1"
+        },
+        "prediction": "Only if separately authorized scoped research observes recurring cross-form report-value copying and participants describe concrete friction may this candidate merit renewed strategy review; no product outcome is asserted now.",
+        "mechanism": "No product mechanism is asserted; the future test is limited to whether accessible scoped evidence shows repeated copying and participant-described friction.",
+        "claims": [
+          {
+            "id": "CLM-001",
+            "revision": "r1"
+          }
+        ],
+        "primary_metric": null,
+        "disconfirmation": "Authorized scoped research finds no repeated copying or participants describe no concrete friction; keep the opportunity deferred. Current inputs cannot evaluate either condition.",
+        "status": "proposed"
+      }
+    },
+    {
+      "id": "DEC-001",
+      "kind": "DEC",
+      "revision": "r1",
+      "owner": "Strategy Lead",
+      "scope": {
+        "segment": "Mid-market B2B SaaS Operations",
+        "geography": "North America",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2027-03-31T23:59:59Z"
+        }
+      },
+      "depends_on": [
+        {
+          "id": "OPP-001",
+          "revision": "r1"
+        },
+        {
+          "id": "HYP-001",
+          "revision": "r1"
+        },
+        {
+          "id": "CLM-001",
+          "revision": "r1"
+        }
+      ],
+      "freshness": {
+        "status": "current",
+        "rationale": "Proposed decision recommendation awaiting governance review",
+        "reviewed_at": "2026-10-12T00:00:00Z",
+        "expires_at": "2027-04-12T00:00:00Z",
+        "review_triggers": [
+          "Executive strategy gate meeting",
+          "Pilot test conclusion"
+        ]
+      },
+      "data": {
+        "purpose": "learning",
+        "status": "proposed",
+        "outcome": "propose",
+        "consumes": [
+          {
+            "id": "OPP-001",
+            "revision": "r1"
+          },
+          {
+            "id": "HYP-001",
+            "revision": "r1"
+          }
+        ],
+        "critical_claims": [
+          {
+            "id": "CLM-001",
+            "revision": "r1"
+          }
+        ],
+        "authority_id": null,
+        "authority_revision": null,
+        "strategy_binding": null,
+        "artifact_bindings": [],
+        "decided_at": null,
+        "rationale": "Recommend deferring product work and taking no product action until a legitimate strategy authority and scoped evidence are separately reviewed. This is proposal rationale, not a DEC stop outcome, approval, or action.",
+        "uncertainties": [
+          "No approved strategy authority is supplied.",
+          "No validated customer problem, job, or substitute evidence is supplied.",
+          "No research, product action, or budget is authorized."
+        ],
+        "revisit_triggers": [
+          "Strategy authority is separately reviewed",
+          "Authorized scoped customer evidence becomes available"
+        ],
+        "supersedes": null
+      }
+    }
+  ],
+  "record_history": [],
+  "authority_history": [],
+  "bridges": [],
+  "product_state": {
+    "value": "unvalidated",
+    "reason": "Strategy proposal awaiting authority resolution",
+    "scope": {
+      "segment": "Mid-market B2B SaaS Operations",
+      "geography": "North America",
+      "window": {
+        "start": "2026-10-01T00:00:00Z",
+        "end": "2027-03-31T23:59:59Z"
+      }
+    },
+    "hypotheses": [],
+    "decision": null,
+    "assessed_at": "2026-10-12T10:00:00Z",
+    "history": []
+  }
+}

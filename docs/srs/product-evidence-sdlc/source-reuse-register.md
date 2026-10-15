@@ -1,0 +1,54 @@
+# Product-Evidence SDLC — pinned source/reuse register
+
+Status: reviewed design input; H1 pending. Decision SR-001: **new registry skills, workflows, schemas and calculators are independently authored; no supplied upstream text, template, script, distinctive schema or example is copied/adapted.** Conceptual citations are retained transparently. This is an engineering reuse/exclusion decision, not legal certification. Rights review is reopened before any direct reuse.
+
+## 1. Capture scope and reproducibility
+
+Supplied revision pins originate in [BRD section 2](../../brd/brd-product-evidence-sdlc.md). T01 retrieved recursive Git trees at these immutable revisions and selected raw files below. Selected raw bytes are SHA256-fingerprinted; their Git blob SHA1 is checked against pinned tree entries in final T01 verification. This is a selected-file capture, **not an atomic archive or full content/security audit of the upstream repository/package**. A matching hash proves byte identity, not authenticity of claims or legal rights. Initial BRD live-main inspection was not silently upgraded to a complete immutable package audit.
+
+The source links below are canonical immutable GitHub URLs; reproduce a row by fetching its raw.githubusercontent.com equivalent and applying `shasum -a 256`. No upstream scripts/plugins were executed or installed. Final check reads only the ten captured files plus their tree metadata; temporary captures are removed after reporting.
+
+| Prefix | Repository / immutable revision |
+| --- | --- |
+| A | [anthropics/knowledge-work-plugins](https://github.com/anthropics/knowledge-work-plugins/tree/02ffa99ff00ce4d3046ccebabb8357cb39f3ab06), `02ffa99ff00ce4d3046ccebabb8357cb39f3ab06` |
+| P | [product-on-purpose/pm-skills](https://github.com/product-on-purpose/pm-skills/tree/1cef1a9eae10017389863d51e289e0ae41e17fcb), `1cef1a9eae10017389863d51e289e0ae41e17fcb` |
+| D | [deanpeters/Product-Manager-Skills](https://github.com/deanpeters/Product-Manager-Skills/tree/1b5a524ebb95e9497fa3f25002d8b8ec528d4444), `1b5a524ebb95e9497fa3f25002d8b8ec528d4444` |
+
+## 2. File-level register
+
+All rows have disposition **not copied / not adapted**. A/P method rows are conceptual comparison inputs for original work. D method row is inspected for exclusion/financial correction only; its wording, prompts, distinctive workflow, examples and ratios are not implementation source material.
+
+| ID | Pinned selected file | SHA256 of raw bytes | Rights / disposition / target |
+| --- | --- | --- | --- |
+| A-L1 | [LICENSE](https://github.com/anthropics/knowledge-work-plugins/blob/02ffa99ff00ce4d3046ccebabb8357cb39f3ab06/LICENSE) | `a6946284993aeec75c7d75906064b66210c46051e562077efb30eb6dcfe72e26` | Root Apache-2.0 text plus trailing non-license prose; not transplanted or interpreted as executable instructions. Root differs from PM license. No legal conclusion about that trailing prose. |
+| A-L2 | [product-management/LICENSE](https://github.com/anthropics/knowledge-work-plugins/blob/02ffa99ff00ce4d3046ccebabb8357cb39f3ab06/product-management/LICENSE) | `cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30` | Apache-2.0 license inspected, including redistribution/NOTICE/marked-change duties. No derivative selected. |
+| A-M1 | [product-management/skills/competitive-brief/SKILL.md](https://github.com/anthropics/knowledge-work-plugins/blob/02ffa99ff00ce4d3046ccebabb8357cb39f3ab06/product-management/skills/competitive-brief/SKILL.md) | `720916695f99a70e723be02d0123908c9c968ce56e1ffdeeb423014587017cd2` | Conceptual citation for T03 market method: compare substitutes and buyer context. Independent local requirements add unknown/not-verified states; no matrices/scoring/template imported. |
+| A-M2 | [product-management/skills/synthesize-research/SKILL.md](https://github.com/anthropics/knowledge-work-plugins/blob/02ffa99ff00ce4d3046ccebabb8357cb39f3ab06/product-management/skills/synthesize-research/SKILL.md) | `ae98c11102545c911a1ea5d8527be0e08a3db8e53327f2865f0db19bbb2d7e9c` | Conceptual citation for T03: observation/interpretation, sample context, contradictory evidence. Do not import its personas, wording, taxonomy, templates or frequency-based score as local authority. |
+| A-M3 | [product-management/skills/metrics-review/SKILL.md](https://github.com/anthropics/knowledge-work-plugins/blob/02ffa99ff00ce4d3046ccebabb8357cb39f3ab06/product-management/skills/metrics-review/SKILL.md) | `e92f364b668074c72b36fd0f69a6adef2ead66640b2c17dc824c043fb613d278` | Conceptual citation for T05 metrics: explicit denominators, cohorts and attribution limits. No dashboard/cadence/template copied; no universal benchmark treated as fact. |
+| P-L1 | [LICENSE](https://github.com/product-on-purpose/pm-skills/blob/1cef1a9eae10017389863d51e289e0ae41e17fcb/LICENSE) | `e5fe46f4634972731b752114e9992023e95e89e37c11713fdbee92dbc5141e85` | Apache-2.0; supplied copyright `2026 Jonathan Prisant` inspected. Preserve if future derivative adopted; current work is original. |
+| P-M1 | [skills/define-hypothesis/SKILL.md](https://github.com/product-on-purpose/pm-skills/blob/1cef1a9eae10017389863d51e289e0ae41e17fcb/skills/define-hypothesis/SKILL.md) | `532e6df9892ed3d5925c95b538ff4107d971893c0a7c2edace6f665870cec0af` | Conceptual citation for T04: target cohort, falsifiability, explicit success/disconfirmation. Header names Apache-2.0 and product-on-purpose. No instruction sequence or references/TEMPLATE/EXAMPLE imported. |
+| P-M2 | [skills/measure-experiment-design/SKILL.md](https://github.com/product-on-purpose/pm-skills/blob/1cef1a9eae10017389863d51e289e0ae41e17fcb/skills/measure-experiment-design/SKILL.md) | `f6f2f4d84cda845773443e44b30af3c63ac146f1216329b6d78e303782c78122` | Conceptual citation for T04: predeclared tests, eligibility, guardrails and inconclusive outcomes. No template/example copied; statistical defaults remain chosen assumptions, not universal requirements. |
+| D-L1 | [LICENSE](https://github.com/deanpeters/Product-Manager-Skills/blob/1b5a524ebb95e9497fa3f25002d8b8ec528d4444/LICENSE) | `e66c269d4819aaab34b49ef5220c4ddab6756f21bb5180761a4eb8561f2b7bbd` | CC BY-NC-SA 4.0; commercial MIT registry adoption excluded. Attribution alone is not sufficient permission for MIT/commercial relicensing. |
+| D-X1 | [skills/feature-investment-advisor/SKILL.md](https://github.com/deanpeters/Product-Manager-Skills/blob/1b5a524ebb95e9497fa3f25002d8b8ec528d4444/skills/feature-investment-advisor/SKILL.md) | `85de70777c85797bdff63388826e676c4a6d2019760a8276273056aedb270937` | **Excluded** from T04 implementation inputs. Relevant financial section inspected; no claim of full upstream skill/security audit. Benefit/cost termed ROI and fixed investment heuristics conflict with approved contract; independently define standard net ROI. No paraphrasing/translation workaround. |
+
+### NOTICE and applicable license search
+
+Pinned recursive trees were not truncated in capture. The capture searches basename LICENSE/NOTICE and `.md`/`.txt` variants case-insensitively. There is no matching NOTICE file in the captured trees. A tree contains many other category LICENSE files; only root and `product-management/LICENSE` apply to the selected PM candidates inspected here. P and D matching attribution files consist of root LICENSE only. No legal inference that notices embedded in selected content can be discarded: those headers and copyright attributions were inspected. Full-package adoption would require all selected dependencies, nested license/notice files, referenced templates/assets and package manifest to be fetched/audited at the same revision.
+
+### If direct Apache reuse is later requested
+
+Stop the affected task and return it to the orchestrator/H1 contract owner. Record upstream path/revision/hash, exact copied/changed portions, target files and derivative license boundary. Supply applicable Apache license copy to recipients, retain relevant copyright/patent/trademark/attribution, preserve applicable NOTICE if upstream distribution includes one, prominently mark modified files, and avoid endorsement claims. Ship package-local LICENSE/NOTICE/attribution through existing resource support; do not relabel inherited content wholly MIT. Root/package license precedence and doubtful derivation require human/legal review, not an agent certification. A new source/reuse choice changes this contract and invalidates dependent package/eval hashes.
+
+### Restricted and uninspected source exclusion
+
+All Dean Peters text/templates/scripts/distinctive schemas, not just D-X1, remain excluded without separately resolved rights. No original-author claim may disguise a derivative. Other BRD candidate upstream files (Anthropic roadmap/brainstorming/connectors, Product on Purpose post-launch/template/example, Dean discovery/market sizing, article-linked catalogs) are **not selected for direct reuse and not claimed file-audited by T01**. BRD links remain research history, not a reuse license. The three new workflows and financial/evidence contracts are designed from this project's approved requirements and general methods, not copies of those catalogs.
+
+## 3. Conceptual primary sources and boundaries
+
+[Scrum Guide Product Owner](https://scrumguides.org/scrum-guide.html#product-owner), [Scrum.org EBM](https://www.scrum.org/resources/online-evidence-based-management-guide), [SVPG four risks](https://www.svpg.com/four-big-risks/), and [Snyk discovery article](https://snyk.io/articles/7-claude-skills-product-managers/) are carried forward as conceptual citations from the BRD, not newly certified source/licensing audits. No primary-source expression, diagram, proprietary model, article list or licensed EBM text is imported. EBM CC BY-SA material is not converted into MIT-only text. Snyk is an index, not authority for package counts, safety or efficacy.
+
+Finance uses independently stated arithmetic: net value B−C; net ROI (B−C)/C; benefit/cost B/C; cumulative period-end payback; timing-sensitive discounted cash flows. No upstream heuristic/hurdle ratio, example customer dataset or claimed productivity gain is adopted. Pilot demand, actual return and source truth remain unknown until eligible observations exist.
+
+## 4. Ownership and readiness
+
+T03/T04/T05 cite relevant conceptual source IDs/immutable links in package-local references and describe their work as independently authored, without importing source expression. T02 owns original ledger/schema and validator; T06/T07 own original portable workflows/integration; T08 owns packaging/license retention if any future approved reuse changes scope. T11 independently verifies provenance and package bytes before H3. H1 must explicitly accept independent authorship/exclusion and the no-derivative boundary; no content rights blocker remains for this selected route, but agents cannot certify non-infringement or grant legal permission.

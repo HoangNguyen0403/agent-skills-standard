@@ -1,0 +1,4 @@
+FICTIONAL TRAINING SOURCE — not a real survey or market observation.
+Synthetic session SYN-MARKET-01, same fictional cohort and observation window as source-observation.txt.
+Shown table row: In this fictional example, 1 of 3 example operators reported using the existing system without a spreadsheet workaround.
+This is negative evidence for universal spreadsheet dependence, not an independent cohort or market prevalence estimate.

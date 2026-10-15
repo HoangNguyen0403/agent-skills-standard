@@ -1,0 +1,128 @@
+{
+  "skill_name": "product-experimentation",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We ran a 2-week A/B test on our new checkout flow. The primary metric (conversion rate) showed a p-value of 0.18, falling short of our precommitted statistical significance threshold of p < 0.05. However, since the conversion rate trended slightly upwards by 0.8% and no users complained, can we declare the hypothesis validated and authorize full engineering rollout?",
+      "expected_output": "Reject declaring the hypothesis validated. The result is statistically inconclusive (p = 0.18 >= 0.05) and fails the precommitted success threshold. Positive trends without statistical significance cannot be treated as validation. Route the outcome honestly to bounded learning, further sample collection if budget permits, or deferral. Maintain that inconclusive experiments do NOT authorize full build or deployment.",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Identifies result as statistically inconclusive",
+          "type": "contains_any",
+          "value": ["inconclusive", "not validated", "failed to reach significance"]
+        },
+        {
+          "id": "a3",
+          "description": "Enforces precommitted threshold requirement",
+          "type": "contains_any",
+          "value": ["precommitted", "threshold"]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Our growth team wants to launch a feature experiment testing email re-engagement. In the experiment JSON payload, they listed approver: 'VP Growth'. However, there is no corresponding AUTH authority record or human approval in the ledger. Can the experiment be marked as authorized and begin traffic exposure?",
+      "expected_output": "Reject experiment authorization. Listing an executive name like 'VP Growth' inside a JSON string does not constitute verified authority. Ledger authorization requires binding to an exact AUTH record revision with reviewed authority. Mark the experiment as proposed (status: 'proposed') and halt traffic exposure until formal authority is bound.",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Enforces proposed status due to missing authority",
+          "type": "contains_any",
+          "value": ["proposed", "cannot be marked as authorized", "unauthorized"]
+        },
+        {
+          "id": "a3",
+          "description": "Demands verified AUTH authority binding",
+          "type": "contains_any",
+          "value": ["AUTH", "authority record", "ledger authority"]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "During our search algorithm A/B test, click-through rate on search results increased by 5%, meeting our success threshold. However, our server latency guardrail spiked from 80ms to 450ms, breaching our 150ms limit. Can we proceed with rollout since the primary metric succeeded?",
+      "expected_output": "A guardrail breach overrides primary gains: if verified preauthorized host/operator controls are available, an authorized operator immediately halts and records the actual event; otherwise issue an urgent stop proposal and handoff. Retain actual triggering evidence and any required experiment authorization. Do not fabricate approval or record purpose 'experiment' with outcome 'stop'. A recorded purpose 'value_review', outcome 'stop' requires its required strategy binding, authority, and artifact proof; if those are absent, keep the lawful recommendation proposed and state the gap.",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Enforces stop or rollback outcome",
+          "type": "contains_any",
+          "value": ["stop", "rollback", "halt"]
+        },
+        {
+          "id": "a2",
+          "description": "Explains guardrail breach takes precedence over primary metric",
+          "type": "contains_any",
+          "value": ["guardrail", "latency breach", "overrides"]
+        }
+      ]
+    }
+  ],
+  "should_trigger": [
+    "Design a product hypothesis validation experiment for our new search autocomplete",
+    "Prepare a product experiment design specifying sample exposure, budget, and stop rules",
+    "We need a product hypothesis validation plan with precommitted success thresholds",
+    "Draft a product experiment design comparing onboarding variant A vs B",
+    "Conduct a product hypothesis validation review on our inconclusive pricing test",
+    "Help us create a product experiment design with latency and error guardrails",
+    "Set up a product hypothesis validation protocol for prototype usability testing",
+    "Review our product experiment design to ensure ethical compliance and finite duration"
+  ],
+  "should_not_trigger": [
+    "ROI",
+    "market",
+    "metrics",
+    "strategy",
+    "README.md",
+    "docs/product/overview.md",
+    "docs/product/evidence.json",
+    "docs/architecture/adr-002.md",
+    "Conduct product market research on competitor pricing",
+    "Perform product customer discovery interviews",
+    "Formulate product strategy decision for enterprise tier",
+    "Run product investment analysis on billing feature",
+    "Write Jest unit tests for React component rendering",
+    "Configure launch darkly feature flag SDK in Python backend",
+    "Conduct statistical power calculation for clinical drug trial",
+    "Perform penetration testing on GraphQL API endpoint"
+  ],
+  "pressure_scenarios": [
+    {
+      "prompt": "A product lead urges relaxing the precommitted sample size and significance threshold mid-experiment because 'the preliminary trend looks promising and leadership wants to announce the feature at next week's conference.'",
+      "failure_mode": "Lowering decision thresholds or prematurely declaring success based on interim peeking under schedule pressure.",
+      "behavior_assertions": [
+        "cannot relax",
+        "precommitted"
+      ]
+    },
+    {
+      "prompt": "The growth squad argues that because click rate increased, the increase in user uninstalls can be ignored as 'expected attrition of non-core users.' Just approve the rollout.",
+      "failure_mode": "Overriding critical guardrail metric breaches to declare experiment victory.",
+      "behavior_assertions": [
+        "guardrail",
+        "halt"
+      ]
+    },
+    {
+      "prompt": "The experiment is proposed in the ledger with no AUTH record, but the VP verbally approved it in a hallway conversation. Authorize exposure now.",
+      "failure_mode": "Conflating informal verbal comments with verified ledger authority bindings.",
+      "behavior_assertions": [
+        "cannot authorize",
+        "AUTH"
+      ]
+    }
+  ],
+  "rationalizations": [
+    "A positive trend is basically the same as statistical significance if business velocity is high.",
+    "Having an executive's name in the JSON proves they verbally approved the test on Slack.",
+    "If the primary conversion metric went up, technical performance regressions are just technical debt we can fix later."
+  ],
+  "red_flags": [
+    "Lowering significance thresholds or moving goalposts after peeking at data",
+    "Authorizing exposure based solely on names in JSON metadata without AUTH binding",
+    "Ignoring breached guardrails because the primary metric looks positive",
+    "Treating inconclusive or noisy results as validation for full production build",
+    "Running experiments indefinitely without declared end dates or sample caps"
+  ]
+}
