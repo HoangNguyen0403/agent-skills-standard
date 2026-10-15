@@ -19,10 +19,10 @@ Sequence outcome-driven roadmaps, manage finite capacity and displaced work, anc
 ## 1. Capability Preflight
 
 Resolve and verify execution prerequisites across installed layouts before prioritizing roadmaps or evaluating portfolio trade-offs:
-1. **Installed Common Location**: Locate `<agent-skill-root>/common/common-product-evidence/` (standard) or `<agent-skill-root>/common-common-product-evidence/` (Kiro flattened). Body lookup via MCP is not local script/runtime proof.
+1. **Installed Location**: Locate `<agent-skill-root>/product-management/product-evidence/` (standard) or `<agent-skill-root>/product-management-product-evidence/` (Kiro flattened). Body lookup via MCP is not local script/runtime proof.
 2. **Component Integrity**:
-   - Package missing or excluded: emit gap `Capability gap: common/common-product-evidence not installed or excluded; opt in at a reviewed ref and sync.`
-   - Script missing: emit gap `Capability gap: validate-product-evidence.mjs missing from installed package; repair common-product-evidence installation.`
+   - Package missing or excluded: emit gap `Capability gap: product-management/product-evidence not installed or excluded; opt in at a reviewed ref and sync.`
+   - Script missing: emit gap `Capability gap: validate-product-evidence.mjs missing from installed package; repair product-evidence installation.`
    - Runtime engine: confirm Node.js $\ge 20.0.0$ (`node --version`). If $< 20$, emit gap `Capability gap: Node.js runtime >= 20.0.0 required for local validator; current environment does not meet minimum engine requirement.`
 3. **Invocation inputs**: confirm an existing absolute canonical authorized narrow authority root (not `/`, home, or a parent workspace), contained regular ledger file, concrete valid UTC `--as-of`, and `--gate` exactly `structural|experiment|commit|release`. CLI may take a contained relative ledger; library `ledgerPath` is absolute.
 4. **Authority and data**: inspect current exact strategy/business/authorization pairs, artifact bindings, source access/privacy/status/freshness, dependencies and cohort/team-capacity overlap. External/protected data are never fetched. Report installation, path/root, authority and evidence gaps separately; do not infer demand, consent or capacity.

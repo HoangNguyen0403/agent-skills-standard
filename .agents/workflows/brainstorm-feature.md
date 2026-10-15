@@ -9,7 +9,7 @@ Goal: Turn rough intent into an approved, evidence-backed brief sized to the tas
 ## Steps
 
 1. Frame:
-   - Load `common-decision-discipline`, `common-operator-profile`, `common-task-complexity-routing`; load `common-business-requirements` for Why lane.
+   - Load `common-decision-discipline`, `common-operator-profile`, `common-task-complexity-routing`; load `product-management/product-business-requirements` for Why lane.
    - Infer `operator_profile` (never ask). Score SNC: `tier=low` -> Quick (contract in chat, no file), `tier=medium` -> Standard, `tier=high` -> Deep. Tier only rises.
    - Lane: `business` -> Why (solution-free BRD-lite); `technical` or unclear technical direction -> Direction (delivery contract); `hybrid` -> both, compact.
    - Substantial feature discovery warrants a compact verb-object capability inventory; keep Why solution-free.

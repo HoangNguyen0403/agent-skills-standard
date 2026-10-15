@@ -52,7 +52,7 @@
     "test:metrics": "node --import tsx --test scripts/metrics/*.test.ts",
     "test:release": "node --import tsx --test scripts/release/*.test.ts",
     "test:harness": "node --import tsx --test scripts/harness-smoke/*.test.ts",
-    "test:product-evidence": "node --import tsx --test scripts/audit-sdlc.product-evidence.test.ts scripts/skill-tests/common-product-evidence/validate-product-evidence.test.mjs scripts/skill-tests/product-investment/evaluate-investment.test.mjs scripts/skill-tests/product-evidence-integration/consumer-smoke.test.mjs scripts/skill-tests/product-evidence-integration/network-preload.test.mjs",
+    "test:product-evidence": "node --import tsx --test scripts/audit-sdlc.product-evidence.test.ts scripts/skill-tests/product-evidence/validate-product-evidence.test.mjs scripts/skill-tests/product-investment/evaluate-investment.test.mjs scripts/skill-tests/product-evidence-integration/consumer-smoke.test.mjs scripts/skill-tests/product-evidence-integration/network-preload.test.mjs",
     "harness:smoke": "tsx scripts/harness-smoke/run.ts",
     "metrics:report": "tsx scripts/metrics/index.ts",
     "metrics:check": "tsx scripts/metrics/index.ts --check",

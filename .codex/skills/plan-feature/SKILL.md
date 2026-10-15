@@ -27,8 +27,8 @@ Goal: Produce a PM-owned decision-complete PRD, delivery plan, and IT Department
 ## Steps
 1. Load context:
    - Load baseline PRD section, task-linked evidence, and canonical ledger (`docs/product/<slug>/evidence.json`) with stable slug; when intent is unclear, ask which matching ticket/brief is authoritative rather than selecting an unrelated recent document; link strategy, OPP, DEC, critical assumption, and MET refs without duplicating records or minting product IDs as requirement IDs.
-   - Explicitly load `common-product-requirements` and its on-demand `references/requirements-modeling.md`; report truthfully if unavailable.
-   - Load BRD-lite, ticket text, existing specs, repo patterns, `common-operator-profile`, `common-decision-discipline`, `quality-engineering-business-analysis`, matched framework skills.
+   - Explicitly load `product-management/product-requirements` and its on-demand `references/requirements-modeling.md`; report truthfully if unavailable.
+   - Load `product-management/product-business-requirements` when BRD-lite context applies; also load ticket text, existing specs, repo patterns, `common-operator-profile`, `common-decision-discipline`, `quality-engineering-business-analysis`, and matched framework skills.
    - Carry forward `operator_profile`, `lane`, `snc_tier`, `approval`, BRD objective IDs, SMART metric, scope fence, assumptions, evidence ledger, glossary, risks, delivery context. Equivalent approved evidence suffices without separate BRD/PRD/SRS filenames; reused approved context skips rediscovery.
 2. Interview:
    - Draft provisional PRD direction from current context before asking; ask only for business logic, scope, constraints, and acceptance criteria that cannot be inferred.

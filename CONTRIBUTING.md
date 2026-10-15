@@ -99,16 +99,9 @@ Rules:
 
 ## 6. Product management packages and evidence lifecycle
 
-- `product-management` is opt-in, not part of default initialization. Select it in
-  `.skillsrc` under `skills` with a reviewed immutable `ref`; before the first
-  category release, use a reviewed commit SHA, not the unpublished
-  `product-management-v1.0.0` tag. Add `discover-product`, `validate-product`
-  and/or `review-product-value` explicitly to `workflows` (or set `workflows: true`).
-- All product decisions ground in `docs/product/<slug>/evidence.json` via
-  `common/common-product-evidence`. Never fabricate customer observations,
-  interview quotes, or causal ROI.
-- Keep seven PM skills keyword-only (`triggers.files: []`); never add broad markdown
-  globs or universal file triggers that activate PM skills unexpectedly.
+- `product-management` defaults to two foundation skills (`product-business-requirements` and `product-requirements`) via category include allowlist during `ags init`. The eight advanced skills (`product-evidence` and the seven discovery/validation methods) are opt-in. Select them in `.skillsrc` under `skills` with a reviewed immutable `ref` (omit `include` or list desired skills explicitly); before the first category release, use a reviewed commit SHA. Add `discover-product`, `validate-product` and/or `review-product-value` explicitly to `workflows` (or set `workflows: true`).
+- All product decisions ground in `docs/product/<slug>/evidence.json` via `product-management/product-evidence`. Never fabricate customer observations, interview quotes, or causal ROI.
+- Keep seven advanced PM skills keyword-only (`triggers.files: []`); keep `product-evidence` scoped to `docs/product/*/evidence.json`; keep foundation BRD/PRD skills scoped to their respective spec files. Never add broad markdown globs or universal file triggers that activate PM skills unexpectedly.
 - Standalone validator (`validate-product-evidence.mjs`) and investment calculator
   (`evaluate-investment.mjs`) require Node >=20. In contrast, CLI sync and the T09
   integration harness require Node 22+ (using `Promise.withResolvers`).
@@ -119,9 +112,7 @@ Rules:
 - MCP workflow discovery (`list_workflows`, `get_workflow`) scans only canonical
   `<root>/.agents/workflows` (Antigravity/Kiro). Other agents export workflows to
   their native surfaces; no runtime scanner expansion is performed.
-- Setting `file_routing.json: ["common"]` restores dormant common JSON file triggers
-  (e.g. `package.json` matching common audit skills). Common audit skills may match
-  relevant JSON files, while PM skills are strictly keyword-only and never match.
+- JSON routing maps `*.json` to `common` and `product-management`. `product-evidence` matches exclusively `docs/product/*/evidence.json`, while advanced PM skills are strictly keyword-only and never match `package.json` or unrelated JSON files.
 
 ## 7. Default Init Standards
 

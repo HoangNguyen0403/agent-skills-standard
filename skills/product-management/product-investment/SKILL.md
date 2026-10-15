@@ -20,7 +20,7 @@ Evaluate feature and product investment options with rigorous incremental accoun
 
 Before numeric evaluation:
 - Confirm Node >=20, the installed package's `scripts/evaluate-investment.mjs`, and `assets/investment.schema.json` separately. Invoke with `node <installed-root>/scripts/evaluate-investment.mjs <absolute-input.json>`; resolve companion assets from the package, never the monorepo root or current directory. Do not install missing resources.
-- Resolve ledger capability from `<agent-skill-root>/common/common-product-evidence/SKILL.md` (ordinary install), `<agent-skill-root>/common-common-product-evidence/SKILL.md` (flattened Kiro install), or MCP `get_skill("common", "common-product-evidence")`. Distinguish explicit exclusion from missing pack; if configuration cannot establish status, say unknown.
+- Resolve ledger capability from `<agent-skill-root>/product-management/product-evidence/SKILL.md` (ordinary install), `<agent-skill-root>/product-management-product-evidence/SKILL.md` (flattened Kiro install), or MCP `get_skill("product-management", "product-evidence")`. Distinguish explicit exclusion from missing pack; if configuration cannot establish status, say unknown.
 - Missing script/schema/runtime is a resource/runtime gap; missing accounting data means unknown or qualitative-only analysis; missing budget authority permits proposal only, never commitment. If ledger capability is absent, continue standalone only when supplied inputs do not require ledger validation.
 - Never simulate ledger validation, infer financial completeness, or call an analysis approved without required human authority.
 

@@ -35,7 +35,7 @@ Goal: Select the next native workflow without loading every workflow body, while
    - Unclear idea, missing business case, owner, or measurable value (Why lane), or unclear technical direction without BRD/PRD (Direction lane; exempts routine low-risk maintenance) -> `brainstorm-feature`
    - Task-linked unmet customer-evidence/problem/market gap that the decision depends on -> `discover-product` (when selected/installed; else `brainstorm-feature` with capability gap)
    - Material unresolved critical value hypothesis or assumption needing empirical test -> `validate-product` (when selected/installed; else `plan-feature` with capability gap)
-   - BRD-lite exists or business direction clear but product scope, priorities, ACs, rollout, delivery plan unclear -> `plan-feature` (explicitly loads `common-product-requirements` and on-demand `references/requirements-modeling.md`)
+   - BRD-lite exists or business direction clear but product scope, priorities, ACs, rollout, delivery plan unclear -> `plan-feature` (explicitly loads `product-management/product-requirements` and on-demand `references/requirements-modeling.md`)
    - Scale, topology, capacity, or store choice unsettled, or existing system needs architecture audit -> `system-design-session`
    - PRD exists but technical behavior/contracts unclear (SRS/FRS / How), or auth/trust-boundary/sensitive validation needed -> `design-solution`
    - Architecture, compliance controls, or agent/runtime safety need deeper technical validation -> `design-solution`

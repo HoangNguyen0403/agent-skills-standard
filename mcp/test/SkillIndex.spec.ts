@@ -618,14 +618,25 @@ async function makeProductEvidenceFixture(): Promise<{
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "ags-mcp-pe-fixture-"));
   const skills = path.join(root, "skills");
   await fs.ensureDir(skills);
+  const commonSkill = path.join(
+    __dirname,
+    "../../skills/common/common-software-requirements",
+  );
+  await fs.copy(
+    commonSkill,
+    path.join(skills, "common", "common-software-requirements"),
+  );
 
   await fs.writeJson(path.join(skills, "metadata.json"), {
-    file_routing: { json: ["common"] },
+    file_routing: {
+      json: ["common", "product-management"],
+      md: ["common", "product-management"],
+    },
     broad_globs: [],
     base_language_skills: {},
   });
 
-  await writeSkill(skills, "common", "common-product-evidence", {
+  await writeSkill(skills, "product-management", "product-evidence", {
     triggers: {
       files: ["docs/product/*/evidence.json"],
       keywords: [
@@ -682,6 +693,16 @@ async function makeProductEvidenceFixture(): Promise<{
     },
   });
 
+  for (const skillName of [
+    "product-business-requirements",
+    "product-requirements",
+  ]) {
+    await fs.copy(
+      path.join(__dirname, "../../skills/product-management", skillName),
+      path.join(skills, "product-management", skillName),
+    );
+  }
+
   await fs.writeFile(path.join(root, "AGENTS.md"), "# fixture\n");
   return { root, cleanup: () => fs.remove(root) };
 }
@@ -703,10 +724,11 @@ describe("SkillIndex — product evidence routing & qualified keywords", () => {
     await fixture.cleanup();
   });
 
-  it("routes narrow common JSON docs/product/*/evidence.json to common-product-evidence", () => {
+  it("routes narrow JSON docs/product/*/evidence.json to product-evidence under product-management", () => {
     const matches = index.matchFiles(["docs/product/analytics/evidence.json"]);
     const ids = matches.map((m) => m.skill.id);
-    expect(ids).toEqual(["common-product-evidence"]);
+    expect(ids).toEqual(["product-evidence"]);
+    expect(matches[0].skill.category).toBe("product-management");
   });
 
   it("does not match unrelated JSON files or generic docs paths", () => {
@@ -717,15 +739,32 @@ describe("SkillIndex — product evidence routing & qualified keywords", () => {
     expect(index.matchFiles(["README.md"])).toEqual([]);
   });
 
-  it("keeps all product-management skills keyword-only (files: [])", () => {
+  it("routes BRD and PRD paths to their real PM foundation skills only", () => {
+    expect(
+      index
+        .matchFiles(["docs/brd/brd-onboarding.md"])
+        .map((match) => match.skill.id),
+    ).toEqual(["product-business-requirements"]);
+    expect(
+      index
+        .matchFiles(["docs/prd/prd-onboarding.md"])
+        .map((match) => match.skill.id),
+    ).toEqual(["product-requirements"]);
+    expect(index.matchFiles(["docs/notes.md"])).toEqual([]);
+    expect(index.matchFiles(["docs/product/strategy.json"])).toEqual([]);
+  });
+
+  it("keeps advanced product-management skills keyword-only (files: [])", () => {
     expect(index.matchFiles(["docs/product/strategy.md"])).toEqual([]);
     const evidenceMatches = index.matchFiles([
       "docs/product/core/evidence.json",
     ]);
-    const pmMatches = evidenceMatches.filter(
-      (m) => m.skill.category === "product-management",
+    const pmNonEvidenceMatches = evidenceMatches.filter(
+      (m) =>
+        m.skill.category === "product-management" &&
+        m.skill.id !== "product-evidence",
     );
-    expect(pmMatches).toEqual([]);
+    expect(pmNonEvidenceMatches).toEqual([]);
   });
 
   it("matches qualified PM keywords exactly", () => {
@@ -810,15 +849,6 @@ async function makeRealProductEvidenceFixture(): Promise<{
   const realMetadataPath = path.join(__dirname, "../../skills/metadata.json");
   await fs.copy(realMetadataPath, path.join(skills, "metadata.json"));
 
-  const realCpe = path.join(
-    __dirname,
-    "../../skills/common/common-product-evidence",
-  );
-  await fs.copy(
-    realCpe,
-    path.join(skills, "common", "common-product-evidence"),
-  );
-
   const realArchAudit = path.join(
     __dirname,
     "../../skills/common/common-architecture-audit",
@@ -854,9 +884,9 @@ describe("SkillIndex — real registry byte-backed product evidence routing", ()
     await realFixture.cleanup();
   });
 
-  it("parses real common-product-evidence and all seven real PM skills", () => {
+  it("parses real product-evidence and all real PM skills", () => {
     expect(
-      realIndex.findSkill("common", "common-product-evidence"),
+      realIndex.findSkill("product-management", "product-evidence"),
     ).toBeDefined();
 
     const expectedPmSkills = [
@@ -867,6 +897,9 @@ describe("SkillIndex — real registry byte-backed product evidence routing", ()
       "product-experimentation",
       "product-metrics",
       "product-roadmap",
+      "product-evidence",
+      "product-requirements",
+      "product-business-requirements",
     ];
     for (const id of expectedPmSkills) {
       expect(realIndex.findSkill("product-management", id)).toBeDefined();
@@ -889,9 +922,9 @@ describe("SkillIndex — real registry byte-backed product evidence routing", ()
       ["product value review", "product-metrics"],
       ["product roadmap prioritization", "product-roadmap"],
       ["product portfolio trade-off", "product-roadmap"],
-      ["product evidence ledger", "common-product-evidence"],
-      ["product decision authority", "common-product-evidence"],
-      ["product evidence freshness", "common-product-evidence"],
+      ["product evidence ledger", "product-evidence"],
+      ["product decision authority", "product-evidence"],
+      ["product evidence freshness", "product-evidence"],
     ];
 
     for (const [phrase, expectedId] of cases) {
@@ -937,12 +970,67 @@ describe("SkillIndex — real registry byte-backed product evidence routing", ()
     expect(matchIds).toContain("common-architecture-audit");
   });
 
-  it("routes docs/product/*/evidence.json to common-product-evidence and NEVER to product-management", () => {
+  it("routes docs/product/*/evidence.json to product-evidence under product-management", () => {
     const matches = realIndex.matchFiles(["docs/product/beta/evidence.json"]);
-    expect(matches.map((m) => m.skill.id)).toContain("common-product-evidence");
+    expect(matches.map((m) => m.skill.id)).toContain("product-evidence");
     const pmMatches = matches.filter(
       (m) => m.skill.category === "product-management",
     );
-    expect(pmMatches).toEqual([]);
+    expect(pmMatches.map((m) => m.skill.id)).toEqual(["product-evidence"]);
+  });
+  it("routes BRD and PRD paths to their real PM foundations only", () => {
+    const brdMatches = realIndex.matchFiles(["docs/brd/brd-onboarding.md"]);
+    expect(brdMatches.map((match) => match.skill.id)).toEqual([
+      "product-business-requirements",
+    ]);
+    expect(brdMatches[0].skill.category).toBe("product-management");
+
+    const prdMatches = realIndex.matchFiles(["docs/prd/prd-onboarding.md"]);
+    expect(prdMatches.map((match) => match.skill.id)).toEqual([
+      "product-requirements",
+    ]);
+    expect(prdMatches[0].skill.category).toBe("product-management");
+
+    expect(realIndex.matchFiles(["docs/product/strategy.json"])).toEqual([]);
+    expect(realIndex.matchFiles(["src/feature.ts"])).toEqual([]);
+    expect(realIndex.matchFiles(["docs/notes.md"])).toEqual([]);
+    expect(realIndex.matchFiles(["README.md"])).toEqual([]);
+  });
+
+  it("routes requirements keywords to the relocated PM foundations", () => {
+    expect(realIndex.matchKeywords(["business requirements"])).toContainEqual(
+      expect.objectContaining({
+        skill: expect.objectContaining({
+          id: "product-business-requirements",
+          category: "product-management",
+        }),
+      }),
+    );
+    expect(realIndex.matchKeywords(["product requirements"])).toContainEqual(
+      expect.objectContaining({
+        skill: expect.objectContaining({
+          id: "product-requirements",
+          category: "product-management",
+        }),
+      }),
+    );
+  });
+
+  it("still routes the evidence ledger only to product-evidence", () => {
+    const matches = realIndex.matchFiles(["docs/product/beta/evidence.json"]);
+    const pmMatches = matches.filter(
+      (match) => match.skill.category === "product-management",
+    );
+    expect(pmMatches.map((match) => match.skill.id)).toEqual([
+      "product-evidence",
+    ]);
+  });
+
+  it("retains existing product discovery keyword routing", () => {
+    expect(
+      realIndex
+        .matchKeywords(["product customer discovery"])
+        .map((match) => match.skill.id),
+    ).toContain("product-customer-discovery");
   });
 });

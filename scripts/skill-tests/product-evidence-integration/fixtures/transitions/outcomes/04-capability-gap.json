@@ -14,10 +14,10 @@
   },
   "completed_evidence": [],
   "missing_evidence": [
-    "Capability gap: common/common-product-evidence excluded; opt in at a reviewed ref and sync"
+    "Capability gap: product-management/product-evidence excluded; opt in at a reviewed ref and sync"
   ],
   "decision_needed": [
-    "Operator enables common/common-product-evidence in .skillsrc"
+    "Operator enables product-management/product-evidence in .skillsrc"
   ],
   "recommended_next_workflow": null,
   "cost": {

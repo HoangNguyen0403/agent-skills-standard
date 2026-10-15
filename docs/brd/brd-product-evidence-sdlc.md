@@ -83,6 +83,8 @@ Confirmed local evidence:
 | Outcome Report distinguishes implementation and release states | `scripts/outcome/schema.ts` | Do not equate released with value proven |
 | Delivery metrics and process/standards feedback already exist | `common-sdlc-metrics`; `.agents/workflows/retro-learn.md` | Keep delivery performance distinct from product benefit |
 
+> **Current category relocation (2026-10-15; historical baseline note):** `skills/common/common-business-requirements` → `skills/product-management/product-business-requirements`; `skills/common/common-product-requirements` → `skills/product-management/product-requirements`; `skills/common/common-product-evidence` → `skills/product-management/product-evidence`. Current PM initialization selects the two foundation skills (`product-business-requirements`, `product-requirements`); the other eight, including `product-evidence`, are opt-in. This supersedes only the historical installation layout, not schema, authority, or Outcome contracts. See the [current migration guide](../../skills/product-management/references/framework-map.md).
+
 The inspected chain has no dedicated product-discovery, experiment-decision, or post-release investment-value workflow. This is a scoped finding about the inspected chain/contracts, not a claim that nobody in the project researches products.
 
 Specific gaps:
@@ -358,6 +360,8 @@ The initial target is seven cohesive PM skills plus one shared evidence contract
 | `product-experimentation` | Hypothesis, risk test, authorization, results rules; trigger: validate hypothesis / product experiment | Experiment decision and observed evidence |
 | `product-metrics` | Baseline, instrumentation, cohort and attribution, value review; trigger: product outcomes / value review | Measurement contract and impact assessment |
 | `product-roadmap` | Evidence-based portfolio ordering, capacity/dependencies, revisits; trigger: prioritize opportunities / product roadmap | Decision-linked Now/Next/Later view |
+
+> **Current category relocation (2026-10-15; historical candidate names retained above):** `skills/common/common-business-requirements` → `skills/product-management/product-business-requirements`; `skills/common/common-product-requirements` → `skills/product-management/product-requirements`; `skills/common/common-product-evidence` → `skills/product-management/product-evidence`. Only the two foundation packages are default-selected; the other eight PM skills are opt-in. This updates installation layout only, not schema, authority, or Outcome contracts. See the [current migration guide](../../skills/product-management/references/framework-map.md).
 
 No broad `**/*.md` trigger. File triggers target product artifacts narrowly; keywords distinguish product metrics from DORA, business-market research from regional AC rules, and product experiments from software tests. The current router returned no skill matches for a BRD markdown path during this session despite keyword availability; add consumer routing coverage rather than assuming file globs suffice. This observation does not establish its root cause.
 

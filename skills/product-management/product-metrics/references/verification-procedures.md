@@ -6,7 +6,7 @@ These are authored, offline procedures against explicit fictional fixtures. They
 
 ## Authorized-input preflight
 
-1. Resolve the selected agent skill root. Inspect `<root>/common/common-product-evidence/` (standard) and `<root>/common-common-product-evidence/` (Kiro flattened). The installed body, an MCP body lookup, or a repository checkout path is not proof that a local resource is installed. Check the chosen package's pack/exclusion state, then check that `scripts/validate-product-evidence.mjs` is a regular readable file.
+1. Resolve the selected agent skill root. Inspect `<root>/product-management/product-evidence/` (standard) and `<root>/product-management-product-evidence/` (Kiro flattened). The installed body, an MCP body lookup, or a repository checkout path is not proof that a local resource is installed. Check the chosen package's pack/exclusion state, then check that `scripts/validate-product-evidence.mjs` is a regular readable file.
 2. Check `node --version`; require Node.js >=20. A missing/excluded package, absent script, or unsupported runtime is an installation/capability gap. Do not try another layout by guessing or install/sync silently.
 3. Select an existing absolute authority root authorized for this initiative and scope. Resolve its canonical path; reject `/`, the user home directory, a parent workspace, or any broader root not expressly authorized. Confirm it is a directory and that it contains the intended ledger as a regular file. The CLI may receive a contained relative ledger path; the library `ledgerPath` must be absolute. Do not follow symlinks or broaden the root to make a fixture pass.
 4. Supply a concrete UTC `--as-of` instant and exactly one supported `--gate` (`structural`, `experiment`, `commit`, or `release`). Reject placeholder values, malformed/future assessment times, unknown gates, or missing arguments before invoking the script.
@@ -16,7 +16,7 @@ These are authored, offline procedures against explicit fictional fixtures. They
 Use the actual installed layout in the invocation, for example:
 
 ```sh
-node <installed-common-root>/scripts/validate-product-evidence.mjs docs/product/<slug>/evidence.json --authority-root /authorized/narrow/root --as-of 2026-11-18T10:00:00Z --gate structural
+node <installed-package-root>/scripts/validate-product-evidence.mjs docs/product/<slug>/evidence.json --authority-root /authorized/narrow/root --as-of 2026-11-18T10:00:00Z --gate structural
 ```
 
 Do not use this example's placeholder ledger path, root or timestamp as values. Replace each only after checking it against the selected scope.

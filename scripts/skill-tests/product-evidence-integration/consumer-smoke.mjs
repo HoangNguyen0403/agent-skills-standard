@@ -498,8 +498,6 @@ agents:
 skills:
   common:
     ref: "${commitSha}"
-    include:
-      - common-product-evidence
   product-management:
     ref: "${commitSha}"
 workflows:
@@ -532,7 +530,7 @@ telemetry: false
     const valScriptInstalled = findFileRecursive(consumer1, 'validate-product-evidence.mjs');
     const evalScriptInstalled = findFileRecursive(consumer1, 'evaluate-investment.mjs');
 
-    const valCandidateBytes = fs.readFileSync(path.join(candidateRoot, 'skills/common/common-product-evidence/scripts/validate-product-evidence.mjs'));
+    const valCandidateBytes = fs.readFileSync(path.join(candidateRoot, 'skills/product-management/product-evidence/scripts/validate-product-evidence.mjs'));
     const evalCandidateBytes = fs.readFileSync(path.join(candidateRoot, 'skills/product-management/product-investment/scripts/evaluate-investment.mjs'));
 
     const valInstalledBytes = valScriptInstalled ? fs.readFileSync(valScriptInstalled) : null;
@@ -589,7 +587,7 @@ telemetry: false
 
     // Second sync: edited owned output remains user-owned and unrelated file survives.
     const userFilePath = path.join(consumer1, 'user-notes.txt');
-    const managedSkillPath = path.join(consumer1, '.claude/skills/common/common-product-evidence/SKILL.md');
+    const managedSkillPath = path.join(consumer1, '.claude/skills/product-management/product-evidence/SKILL.md');
     const managedSkillRel = path.relative(consumer1, managedSkillPath).split(path.sep).join('/');
     const lockBefore = JSON.parse(fs.readFileSync(lockPath, 'utf8'));
     const lockEntryBefore = lockBefore.entries?.[managedSkillRel];
@@ -871,14 +869,14 @@ telemetry: false
       const toolNames = toolsRes.tools.map(t => t.name);
       console.log(`  MCP tools listed (${toolNames.length}): ${toolNames.join(', ')}`);
 
-      // get_skill common/common-product-evidence
-      const cpeRes = await withTimeout(mcpClient.callTool({
+      // get_skill product-management/product-evidence
+      const evidenceRes = await withTimeout(mcpClient.callTool({
         name: 'get_skill',
-        arguments: { category: 'common', name: 'common-product-evidence' }
-      }), 5000, 'get_skill(CPE)');
-      const cpeContent = cpeRes.content?.[0]?.text || '';
-      const cpeBody = fixtureServer.fileMap.get('skills/common/common-product-evidence/SKILL.md')?.toString('utf8') || '';
-      const cpeLoaded = Boolean(cpeBody) && cpeContent === `<!-- skill: common/common-product-evidence | matched: direct -->\n${cpeBody}`;
+        arguments: { category: 'product-management', name: 'product-evidence' }
+      }), 5000, 'get_skill(product-evidence)');
+      const evidenceContent = evidenceRes.content?.[0]?.text || '';
+      const evidenceBody = fixtureServer.fileMap.get('skills/product-management/product-evidence/SKILL.md')?.toString('utf8') || '';
+      const evidenceLoaded = Boolean(evidenceBody) && evidenceContent === `<!-- skill: product-management/product-evidence | matched: direct -->\n${evidenceBody}`;
 
       const invRes = await withTimeout(mcpClient.callTool({
         name: 'get_skill',
@@ -909,8 +907,8 @@ telemetry: false
         arguments: { files: ['docs/product/test/evidence.json', 'README.md', 'docs/product/test/unrelated.json'], force_reload: true }
       }), 5000, 'load_skills_for_files');
       const filesText = filesRes.content?.[0]?.text || '';
-      const ledgerMatched = filesText.includes('<!-- skill: common/common-product-evidence | matched: file:docs/product/*/evidence.json -->') &&
-        filesText.includes(cpeBody);
+      const ledgerMatched = filesText.includes('<!-- skill: product-management/product-evidence | matched: file:docs/product/*/evidence.json -->') &&
+        filesText.includes(evidenceBody);
       const unrelatedFilesUnmatched = !filesText.includes('product-management/product-investment');
 
       const auditRes = await withTimeout(mcpClient.callTool({
@@ -918,7 +916,7 @@ telemetry: false
         arguments: {}
       }), 5000, 'audit_session_compliance');
       const auditText = auditRes.content?.[0]?.text || '';
-      const auditTracksLoads = auditText.includes('common/common-product-evidence') &&
+      const auditTracksLoads = auditText.includes('product-management/product-evidence') &&
         auditText.includes('product-management/product-investment');
       const listWorkflowsRes = await withTimeout(mcpClient.callTool({
         name: 'list_workflows',
@@ -934,12 +932,12 @@ telemetry: false
         nativeOnlyWorkflowRes.isError === true && nativeOnlyWorkflowText.includes("Workflow 'discover-product' not found");
       mcpTested = ['get_skill', 'load_skills_for_keywords', 'load_skills_for_files',
         'audit_session_compliance', 'list_workflows', 'get_workflow'].every((name) => toolNames.includes(name)) &&
-        cpeLoaded && invLoaded && kwMatched && bareTermUnmatched && ledgerMatched &&
+        evidenceLoaded && invLoaded && kwMatched && bareTermUnmatched && ledgerMatched &&
         unrelatedFilesUnmatched && auditTracksLoads && nativeOnlyGap;
       if (!mcpTested) {
         allStepsPassed = false;
         missingEvidence.push(`Primary MCP assertions failed: ${JSON.stringify({
-          cpe_body: cpeLoaded,
+          product_evidence_body: evidenceLoaded,
           investment_body: invLoaded,
           qualified_keyword: kwMatched,
           bare_keyword_negative: bareTermUnmatched,
@@ -954,7 +952,7 @@ telemetry: false
         step: '3_mcp_client_stdio',
         tools: toolNames,
         get_skill: {
-          common_product_evidence: { matched: cpeLoaded, canonical_body_sha256: sha256(cpeBody), response: cpeContent },
+          product_evidence: { matched: evidenceLoaded, canonical_body_sha256: sha256(evidenceBody), response: evidenceContent },
           product_investment: { matched: invLoaded, canonical_body_sha256: sha256(invBody), response: invContent }
         },
         qualified_keyword: { matched: kwMatched, response: kwText },
@@ -991,11 +989,10 @@ agents:
 skills:
   common:
     ref: "${commitSha}"
-    exclude:
-      - common-product-evidence
   product-management:
     ref: "${commitSha}"
     exclude:
+      - product-evidence
       - product-investment
 workflows: false
 mcp:
@@ -1251,7 +1248,7 @@ telemetry: false
       '01-reused-context.json': (item) => item.feature_status === 'requirements_ready' && item.recommended_next_workflow === 'plan-feature',
       '02-no-access.json': (item) => item.missing_evidence.some((line) => line.includes('informed consent')) && item.decision_needed.some((line) => line.includes('authorizes customer recruitment')),
       '03-invalidated-assumption.json': (item) => item.decision_needed.some((line) => line.includes('defer / no-build')) && item.recommended_next_workflow === 'retro-learn',
-      '04-capability-gap.json': (item) => item.missing_evidence.some((line) => line.includes('common-product-evidence excluded')),
+      '04-capability-gap.json': (item) => item.missing_evidence.some((line) => line.includes('product-management/product-evidence excluded')),
       '05-unauthorized-experiment.json': (item) => item.feature_status === 'not_started' && item.missing_evidence.some((line) => line.includes('Host authorization')),
       '06-supported-handoff.json': (item) => item.feature_status === 'not_started' && item.missing_evidence.some((line) => line.includes('synthetic evidence and host approval gate')),
       '07-material-query-change.json': (item) => item.feature_status === 'not_started' && item.missing_evidence.some((line) => line.includes('query-v2')),

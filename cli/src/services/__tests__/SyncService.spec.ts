@@ -1221,6 +1221,48 @@ describe('SyncService', () => {
         }),
       );
     });
+    it('completeInstall awaits requested index refresh with local metadata before writing the lock', async () => {
+      const config = makeConfig({ agents: [Agent.Cursor] });
+      const localMetadata = {
+        global: { author: 'test', repository: 'local' },
+        categories: {},
+      };
+      const p = privatesOf(syncService);
+      p.lockfileService.load.mockResolvedValue({
+        lock: null,
+        migratedFromV1: false,
+      });
+      const refreshStarted = Promise.withResolvers<void>();
+      const finishRefresh = Promise.withResolvers<void>();
+      const refreshIndices = vi
+        .spyOn(syncService, 'applyIndices')
+        .mockImplementation(async () => {
+          refreshStarted.resolve();
+          await finishRefresh.promise;
+        });
+
+      await syncService.beginInstall(config, { dryRun: false, force: [] });
+      const completion = syncService.completeInstall(config, {
+        skills: [],
+        workflows: [],
+        specialistsOk: true,
+        refreshIndices: true,
+        localMetadata,
+      });
+      await refreshStarted.promise;
+
+      expect(p.lockfileService.write).not.toHaveBeenCalled();
+      finishRefresh.resolve();
+      await completion;
+
+      expect(refreshIndices).toHaveBeenCalledWith(
+        config,
+        [Agent.Cursor],
+        localMetadata,
+      );
+      expect(p.lockfileService.write).toHaveBeenCalled();
+    });
+
 
     it('assembleWorkflows uses the resolved tag from resolvePins', async () => {
       const config = makeConfig({

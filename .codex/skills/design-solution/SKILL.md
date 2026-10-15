@@ -27,7 +27,7 @@ Goal: Produce a build-ready technical design with explicit boundaries, contracts
 ## Steps
 
 1. Load inputs:
-   - Load baseline SRS/FRS section, `common-software-requirements`, `common-decision-discipline` (option cards, evidence ledger), PRD or ticket, implementation plan, matched framework skills, architecture docs, trace source `BRD-OBJ-* -> REQ-* -> AC-*`, and `common-product-requirements/references/requirements-modeling.md` from the owning package when modeling guidance applies; report excluded or unavailable resources without guessing.
+   - Load baseline SRS/FRS section, `common-software-requirements`, `common-decision-discipline` (option cards, evidence ledger), PRD or ticket, implementation plan, matched framework skills, architecture docs, trace source `BRD-OBJ-* -> REQ-* -> AC-*`, and `product-management/product-requirements/references/requirements-modeling.md` from the owning package when modeling guidance applies; report excluded or unavailable resources without guessing.
 2. Define architecture:
    - Name bounded contexts, module/data owners, migration needs; select technical contracts/views without inventing product scope.
    - Consume or create HLD trace: requirements, audience, scope, shaping constraints, lifecycle status, ownership, failure domains, decisions.

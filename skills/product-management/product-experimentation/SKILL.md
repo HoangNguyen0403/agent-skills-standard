@@ -19,7 +19,7 @@ Design and validate product experiments with strict falsifiability, precommitted
 ## 1. Capability Preflight
 
 Verify installed evidence capabilities before designing or reviewing experiments:
-- Resolve `common-product-evidence` from `<agent-skill-root>/common/common-product-evidence/SKILL.md` (ordinary install), `<agent-skill-root>/common-common-product-evidence/SKILL.md` (flattened Kiro install), or MCP `get_skill("common", "common-product-evidence")`. Distinguish an explicitly excluded pack from a missing pack; if host configuration cannot establish which, report unknown.
+- Resolve `product-evidence` from `<agent-skill-root>/product-management/product-evidence/SKILL.md` (ordinary install), `<agent-skill-root>/product-management-product-evidence/SKILL.md` (flattened Kiro install), or MCP `get_skill("product-management", "product-evidence")`. Distinguish an explicitly excluded pack from a missing pack; if host configuration cannot establish which, report unknown.
 - Separately check installed `scripts/validate-product-evidence.mjs`, its package-local `assets/product-evidence.schema.json`, and Node >=20. Missing script/schema/runtime blocks validation, not safe proposal drafting. MCP body access is not proof that local executable resources are installed.
 - Missing AUTH/DEC, consent, eligible data, or measurement query/baseline is an authority/data gap, not a runtime failure. Keep the experiment proposed and state the missing input; never simulate validation, install dependencies, or fabricate authorization.
 

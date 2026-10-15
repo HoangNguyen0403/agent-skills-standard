@@ -324,7 +324,7 @@ export class IndexGeneratorServiceImpl extends IndexGeneratorService {
     if (availableCategories.includes('product-management')) {
       coveredCategories.add('product-management');
       routerRows.push(
-        '| Product discovery, investment, validation or value-review request | `<SKILLS>/product-management/_INDEX.md` |',
+        '| Product discovery, investment, validation, value-review, business requirements, product requirements, BRD or PRD authoring request | `<SKILLS>/product-management/_INDEX.md` |',
       );
     }
 

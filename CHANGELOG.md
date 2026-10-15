@@ -11,11 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Requirements modeling**: Added canonical requirements modeling reference (`skills/common/common-product-requirements/references/requirements-modeling.md`) covering scope trees, process flows, decision tables, state models, and delivery dependency graphs.
-- **Common `2.8.8` candidate**: Aligned requirements skills (`common-business-requirements`, `common-product-requirements`, `common-software-requirements`) with INVEST criteria, truth tables, and canonical requirements modeling reference.
+- **Requirements modeling**: Added canonical requirements modeling reference (`skills/product-management/product-requirements/references/requirements-modeling.md`) covering scope trees, process flows, decision tables, state models, and delivery dependency graphs.
+- **MCP `0.7.0` candidate**: Added explicit-manifest Codex JSONL and OMP v3 session accounting, including separately grouped OMP `model_usage`, preserved orchestration/cache-write buckets, Codex derived-delta containment with baseline recovery, order-independent cross-journal provenance redaction with a bounded global privacy-membership set, invalid-to-valid same-ID recovery with accepted-signature conflict detection, incomplete unknown metrics, and stop-on-limit behavior. Human output labels the transcript-message count accurately; packaged command is `ags-mcp-session-report`. Real-journal authorization remains a separate acceptance gate.
+- **Common `2.8.7` candidate**: Added version-2 revision-, workspace-, dirty-identity-, and evidence-content-bound progress receipts. Declared owner pause remains metadata, not host enforcement.
+- **Requirements alignment**: Aligned requirements skills (`product-business-requirements`, `product-requirements`, `common-software-requirements`) with INVEST criteria, truth tables, and canonical requirements modeling reference.
 - **Quality Engineering `1.6.1` candidate**: Aligned `quality-engineering-business-analysis` with slice readiness checks and user story decision table truth matrices.
 - **Product Management `1.0.0` candidate**: Added optional, opt-in `product-management` category (`product-management-v1.0.0` candidate; select in `.skillsrc` with reviewed immutable ref). Includes seven keyword-only skills (`product-market-research`, `product-customer-discovery`, `product-strategy`, `product-investment`, `product-experimentation`, `product-metrics`, `product-roadmap`), category framework map, and conditional router row in `AGENTS.md`. No broad file globs or universal triggers.
-- **Common `2.8.8` candidate**: Added `common-product-evidence` standard for canonical product evidence ledgers with narrow file trigger (`docs/product/*/evidence.json`), typed record provenance, immutable recorded decisions (`DEC`), and host-check action gates. Added `file_routing.json: ["common"]` routing `*.json` to `common/_INDEX.md`, which restores dormant common JSON file triggers (e.g. `package.json` matching common audit skills) while product-management skills remain keyword-only.
+- **Product Evidence**: Added `product-evidence` standard for canonical product evidence ledgers with narrow file trigger (`docs/product/*/evidence.json`), typed record provenance, immutable recorded decisions (`DEC`), and host-check action gates. Added JSON routing mapping `*.json` to candidate categories (`common` and `product-management`), where `product-evidence` activates exclusively on its scoped path while PM methods remain keyword-only.
 - **Product Evidence SDLC Workflows (`workflows` `1.1.6` candidate)**: Added optional workflows `discover-product`, `validate-product`, and `review-product-value` with structured capability preflights, finite experiment budget declarations, and machine-readable outcome report templates. Synced on explicit selection (`workflows: true` or named array); default workflows spine and core SDLC chain remain unchanged.
 - **SDLC Audit**: Added structural audit rules and test coverage for optional workflows, verifying line budgets, portable runtime content, operator handoff contracts, and explicit outcome templates.
 
@@ -31,17 +33,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **System design**: Select specialist dives from unresolved consequential risks across linked references; make redraw conditional across intake and review outputs; qualify scorecard anchors, readiness and verdicts by evidence scope; choose sync/async boundaries from consistency and failure requirements.
 - **Website**: Added a static Agent Skills Standard landing page with keyboard-scrollable native commands; corrected motion-controller disposal so stale observer callbacks cannot reactivate retired work; publication verification passed 63/63 Chromium browser cases and a three-run Lighthouse lab audit (median score 99).
+- **Product category relocation (Breaking change for Common)**: Relocated `common-business-requirements` to `skills/product-management/product-business-requirements`, `common-product-requirements` to `skills/product-management/product-requirements`, and `common-product-evidence` to `skills/product-management/product-evidence`.
+  - Breaking removal triggers bump for `common` from `2.8.7` to `3.0.0`.
+  - Additive migration for `product-management` from `1.0.0` to `1.1.0`, bringing category to 10 total skills (2 foundation + 8 opt-in).
+  - Workflows bump from `1.1.6` to `1.1.7` for dependency-name alignment across preflights and docs.
+  - **Default foundation selection**: Preserves default BRD/PRD planning availability by configuring `ags init` to select exactly the two foundation skills (`product-business-requirements` and `product-requirements`) via category include allowlist (`include: ["product-business-requirements", "product-requirements"]`). The eight advanced skills (`product-evidence` plus seven discovery/validation methods) remain strictly opt-in and are not auto-installed.
+  - **Migration config**: Existing users wishing to access the full 10-skill PM pack can omit `include` in `.skillsrc` or specify the desired skills.
 - **SDLC workflows**: Bind routing to task-linked approved evidence, keep product planning separate from technical design, make readiness handoffs explicitly slice-scoped with distinct source-ready and machine-activation states, and connect planning directly to requirements modeling and change-impact tracing.
-- **Requirements skills**: Aligned `common-business-requirements`, `common-product-requirements`, `common-software-requirements`, and `quality-engineering-business-analysis` with INVEST checks, decision tables, truth tables, and expanded evaluation assertions.
+- **Requirements skills**: Aligned `product-business-requirements`, `product-requirements`, `common-software-requirements`, and `quality-engineering-business-analysis` with INVEST checks, decision tables, truth tables, and expanded evaluation assertions.
 - **Evaluations**: Replace fixed-quota/label/optional-mechanism snapshots with invariant-focused cases; keep semantic acceptance separate from lexical smoke checks.
 - **Agent learning log**: Added iterations #11–#13 candidate lessons and trigger evaluations in `AGENTS_LEARNING.md`.
 
 ### Versions
 
-- **Workflows**: `1.1.5` → `1.1.6`
-- **Product Management**: `1.0.0` candidate
+- **Workflows**: `1.1.5` → `1.1.7`
+- **Product Management**: `1.0.0` → `1.1.0` candidate
 - **System Design**: `1.2.2` → `1.2.3`
-- **Common**: `2.8.7` → `2.8.8`
+- **Common**: `2.8.7` → `3.0.0`
 - **Quality Engineering**: `1.6.0` → `1.6.1`
 
 ## [common-v2.8.7] - 2026-10-09

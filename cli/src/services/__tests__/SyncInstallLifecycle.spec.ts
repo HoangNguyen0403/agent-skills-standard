@@ -1,10 +1,11 @@
 import fs from 'fs-extra';
 import os from 'os';
 import path from 'path';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Agent } from '../../constants';
 import { SkillConfig } from '../../models/config';
-import { CollectedSkill } from '../../models/types';
+import { CollectedSkill, RegistryMetadata } from '../../models/types';
+import { GithubService } from '../GithubService';
 import { LOCKFILE_NAME, sha256 } from '../LockfileService';
 import { SyncService } from '../SyncService';
 
@@ -69,6 +70,7 @@ describe('SyncInstallLifecycle', () => {
   afterEach(async () => {
     process.chdir(originalCwd);
     await fs.remove(tempDir);
+    vi.restoreAllMocks();
   });
 
   it('1. first run writes files and a v2 lock with skill entries', async () => {
@@ -167,6 +169,202 @@ describe('SyncInstallLifecycle', () => {
     const backupDir = path.join(tempDir, '.ags/backups', plan.backupId!);
     expect(await fs.pathExists(backupDir)).toBe(true);
   });
+  it('prunes retired members, adds PM, refreshes owned indexes, and keeps them on no-op sync', async () => {
+    const skillContent = (skill: string): string =>
+      [
+        '---',
+        `name: ${skill}`,
+        `description: ${skill} test skill`,
+        'metadata:',
+        '  triggers:',
+        '    files: []',
+        '    keywords: []',
+        '---',
+        '## **Priority: P1**',
+        '',
+      ].join('\n');
+    const common = (skill: string): CollectedSkill => ({
+      category: 'common',
+      skill,
+      files: [{ name: 'SKILL.md', content: skillContent(skill) }],
+    });
+    const retiredSkills = [
+      common('common-business-requirements'),
+      common('common-product-requirements'),
+      common('common-product-evidence'),
+    ];
+    const oldConfig = makeConfig({
+      agents: [Agent.Codex],
+      skills: { common: { ref: 'common-v2.0.0' } },
+    });
+    const repoInfoLookup = vi
+      .spyOn(GithubService.prototype, 'getRepoInfo')
+      .mockResolvedValue(null);
+    const rawMetadataLookup = vi
+      .spyOn(GithubService.prototype, 'getRawFile')
+      .mockResolvedValue(null);
+    const localMetadata = (await fs.readJson(
+      path.resolve(originalCwd, '..', 'skills', 'metadata.json'),
+    )) as RegistryMetadata;
+    await syncService.beginInstall(oldConfig, { dryRun: false, force: [] });
+    await syncService.writeSkills(retiredSkills, oldConfig);
+    await syncService.completeInstall(oldConfig, {
+      skills: retiredSkills,
+      workflows: [],
+      specialistsOk: true,
+      refreshIndices: true,
+      localMetadata,
+    });
+    const bridgeRel = '.codex/rules/agent-skill-standard-rule.md';
+    const bridgePath = path.join(tempDir, bridgeRel);
+    const originalBridgeBytes = await fs.readFile(bridgePath);
+    const originalLock = await fs.readJson(path.join(tempDir, LOCKFILE_NAME));
+    expect(originalLock.entries[bridgeRel].sha256).toBe(
+      sha256(originalBridgeBytes),
+    );
+    const customPath = path.join(
+      tempDir,
+      '.codex/skills/common/custom/private/SKILL.md',
+    );
+    await fs.outputFile(customPath, 'user-owned content');
+    const upgradedConfig = makeConfig({
+      agents: [Agent.Codex],
+      skills: {
+        common: { ref: 'common-v3.0.0' },
+        'product-management': { ref: 'product-management-v1.1.0' },
+      },
+    });
+    const productManagement = (skill: string): CollectedSkill => ({
+      category: 'product-management',
+      skill,
+      files: [{ name: 'SKILL.md', content: skillContent(skill) }],
+    });
+
+    const upgradedSkills = [
+      common('common-retained'),
+      productManagement('product-business-requirements'),
+      productManagement('product-requirements'),
+    ];
+    await syncService.beginInstall(upgradedConfig, {
+      dryRun: false,
+      force: [],
+    });
+    await syncService.writeSkills(upgradedSkills, upgradedConfig);
+    const plan = await syncService.completeInstall(upgradedConfig, {
+      skills: upgradedSkills,
+      workflows: [],
+      specialistsOk: true,
+      refreshIndices: true,
+      localMetadata,
+    });
+
+    const commonIndexPath = path.join(
+      tempDir,
+      '.codex/skills/common/_INDEX.md',
+    );
+    const commonIndex = await fs.readFile(commonIndexPath, 'utf8');
+    expect(commonIndex).toContain('common-retained');
+    const productManagementIndexPath = path.join(
+      tempDir,
+      '.codex/skills/product-management/_INDEX.md',
+    );
+    const productManagementIndex = await fs.readFile(
+      productManagementIndexPath,
+      'utf8',
+    );
+    expect(productManagementIndex).toContain('product-business-requirements');
+    expect(productManagementIndex).toContain('product-requirements');
+    const router = await fs.readFile(path.join(tempDir, 'AGENTS.md'), 'utf8');
+    expect(router).toContain(
+      '| `*.json`, `*.md` | `<SKILLS>/common/_INDEX.md`, `<SKILLS>/product-management/_INDEX.md` |',
+    );
+    expect(router).not.toMatch(
+      /common-(business-requirements|product-requirements|product-evidence)/,
+    );
+    const lock = await fs.readJson(path.join(tempDir, LOCKFILE_NAME));
+    expect(lock.entries['.codex/skills/common/_INDEX.md'].sha256).toBe(
+      sha256(await fs.readFile(commonIndexPath)),
+    );
+    expect(
+      lock.entries['.codex/skills/product-management/_INDEX.md'].sha256,
+    ).toBe(sha256(await fs.readFile(productManagementIndexPath)));
+    const upgradedBridgeBytes = await fs.readFile(bridgePath);
+    expect(upgradedBridgeBytes).toEqual(originalBridgeBytes);
+    expect(lock.entries[bridgeRel].sha256).toBe(sha256(upgradedBridgeBytes));
+    expect(plan.pruned).not.toContain(bridgeRel);
+    expect(plan.added).not.toContain(bridgeRel);
+    expect(plan.updated).not.toContain(bridgeRel);
+    expect(repoInfoLookup).not.toHaveBeenCalled();
+    expect(rawMetadataLookup).not.toHaveBeenCalled();
+
+    for (const retired of [
+      'common-business-requirements',
+      'common-product-requirements',
+      'common-product-evidence',
+    ]) {
+      expect(commonIndex).not.toContain(retired);
+      expect(productManagementIndex).not.toContain(retired);
+      expect(
+        await fs.pathExists(
+          path.join(tempDir, '.codex/skills/common', retired, 'SKILL.md'),
+        ),
+      ).toBe(false);
+    }
+    expect(plan.pruned).toHaveLength(3);
+    expect(
+      await fs.pathExists(
+        path.join(
+          tempDir,
+          '.codex/skills/product-management/product-business-requirements/SKILL.md',
+        ),
+      ),
+    ).toBe(true);
+    expect(
+      await fs.pathExists(
+        path.join(
+          tempDir,
+          '.codex/skills/product-management/product-requirements/SKILL.md',
+        ),
+      ),
+    ).toBe(true);
+    expect(await fs.readFile(customPath, 'utf8')).toBe('user-owned content');
+    await syncService.beginInstall(upgradedConfig, {
+      dryRun: false,
+      force: [],
+    });
+    await syncService.writeSkills(upgradedSkills, upgradedConfig);
+    const noOpPlan = await syncService.completeInstall(upgradedConfig, {
+      skills: upgradedSkills,
+      workflows: [],
+      specialistsOk: true,
+      refreshIndices: true,
+      localMetadata,
+    });
+    const noOpIndexPaths = [
+      '.codex/skills/common/_INDEX.md',
+      '.codex/skills/product-management/_INDEX.md',
+    ];
+    for (const indexPath of noOpIndexPaths) {
+      expect(noOpPlan.pruned).not.toContain(indexPath);
+      expect(noOpPlan.added).not.toContain(indexPath);
+      expect(noOpPlan.updated).not.toContain(indexPath);
+    }
+    expect(noOpPlan.pruned).not.toContain(bridgeRel);
+    expect(noOpPlan.added).not.toContain(bridgeRel);
+    expect(noOpPlan.updated).not.toContain(bridgeRel);
+    const noOpBridgeBytes = await fs.readFile(bridgePath);
+    expect(noOpBridgeBytes).toEqual(upgradedBridgeBytes);
+    expect(noOpPlan.backupId).toBeNull();
+    const noOpLock = await fs.readJson(path.join(tempDir, LOCKFILE_NAME));
+    expect(noOpLock.entries[bridgeRel].sha256).toBe(sha256(noOpBridgeBytes));
+    expect(noOpLock.entries[noOpIndexPaths[0]].sha256).toBe(
+      sha256(await fs.readFile(commonIndexPath)),
+    );
+    expect(noOpLock.entries[noOpIndexPaths[1]].sha256).toBe(
+      sha256(await fs.readFile(productManagementIndexPath)),
+    );
+  });
+
 
   it('4. category still configured but zero skills assembled does not prune', async () => {
     const config = makeConfig();

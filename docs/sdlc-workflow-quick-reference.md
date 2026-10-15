@@ -67,7 +67,7 @@ Approval is strictly bounded: approving a brief or validation plan approves that
 
 ### Opt-in product evidence workflows
 
-Add the `product-management` category with a reviewed ref and select these workflow names explicitly in `.skillsrc`; they are not added by default initialization.
+The `product-management` category defaults to two foundation skills (`product-business-requirements` and `product-requirements`). The three advanced product workflows and their underlying specialist skills (`product-evidence` and the seven discovery/validation methods) are opt-in: configure `product-management` in `.skillsrc` to include them (or omit the `include` filter) and select these workflow names explicitly in `workflows`; they are not enabled by default initialization.
 
 | Need | Workflow | Output |
 | --- | --- | --- |
@@ -75,7 +75,7 @@ Add the `product-management` category with a reviewed ref and select these workf
 | Bounded hypothesis validation and precommitted experiments | `validate-product` | bounded `EXP` proposal, primary/guardrail `MET` contracts, validation results |
 | Post-release value review against registered measurement contracts | `review-product-value` | observed `MET` vs baseline, attribution/confounders, advisory `REV` |
 
-Prerequisites: `common-product-evidence`, respective PM packages (`product-market-research`, `product-customer-discovery`, `product-strategy` for discovery; `product-investment`, `product-experimentation`, plus `product-metrics` when designing executable measurement for validation; `product-metrics`, `product-investment` for review), companion scripts, and Node >= 20.
+Prerequisites: `product-evidence`, respective PM packages (`product-market-research`, `product-customer-discovery`, `product-strategy` for discovery; `product-investment`, `product-experimentation`, plus `product-metrics` when designing executable measurement for validation; `product-metrics`, `product-investment` for review), companion scripts, and Node >= 20.
 
 When any package or script is absent or excluded, workflows emit a concrete capability gap in `missing_evidence` (e.g. `Capability gap: product-management/product-investment not installed; opt in at a reviewed ref and sync`) and proceed safely as unvalidated proposals without simulated validation or silent installs. Missing monetary data does not block qualitative investment framing.
 

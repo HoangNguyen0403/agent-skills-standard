@@ -32,7 +32,7 @@ At every step, technical detail (file paths, commands, framework choices) is kep
 
 ## What happens when tools or packages are missing
 
-Product discovery, validation, and value-review workflows are optional opt-in capabilities that rely on specialized packages (`common-product-evidence`, `product-management/*`, Node >= 20). If your workspace has not opted into those packages, the agent will never fake validation or get stuck:
+Product discovery, validation, and value-review workflows are optional opt-in capabilities that rely on specialized packages (the opt-in skills in `product-management`, including `product-evidence`, and Node >= 20). If your workspace has not opted into those packages, the agent will never fake validation or get stuck:
 - It records a concrete capability gap in `missing_evidence` (e.g. `Capability gap: product-management/product-investment not installed; opt in at a reviewed ref and sync`).
 - It continues safely as an unvalidated proposal or directs you to standard planning (`brainstorm-feature` / `plan-feature`).
 - Missing financial numbers never block qualitative opportunity decisions: you can evaluate customer desirability even before monetary ROI is modeled.

@@ -117,7 +117,10 @@ export class OwnershipWriter implements InstallWriter {
     this.plan.unknown.push(rel);
   }
 
-  async finalize(shouldPrune: (rel: string, entry: ManifestEntry) => boolean) {
+  async finalize(
+    shouldPrune: (rel: string, entry: ManifestEntry) => boolean,
+    afterPrune?: () => Promise<void>,
+  ) {
     for (const rel of Object.keys(this.opts.previous).sort()) {
       if (this.touched.has(rel)) continue;
       const prev = this.opts.previous[rel];
@@ -142,6 +145,8 @@ export class OwnershipWriter implements InstallWriter {
       }
       this.plan.pruned.push(rel);
     }
+    await afterPrune?.();
+
     if (this.session) this.plan.backupId = await this.session.commit();
     const entries = Object.fromEntries(
       Object.keys(this.next)

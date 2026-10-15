@@ -18,9 +18,9 @@ Frame strategic opportunities and falsifiable hypotheses anchored in reviewed st
 
 ## 1. Capability Preflight
 
-Verify `common-product-evidence` capability before validating or committing changes to `docs/product/<slug>/evidence.json`:
-1. **Skill Resolution**: Load through MCP (`get_skill("common", "common-product-evidence")`) or resolve installed root paths `<root>/common/common-product-evidence/SKILL.md`, `<root>/common-product-evidence/SKILL.md`, or flattened Kiro `<root>/common-common-product-evidence/SKILL.md`. A missing/excluded skill is a capability gap; never infer installation from source checkout.
-2. **Companion Resource**: Resolve `scripts/validate-product-evidence.mjs` relative to the loaded package directory (ordinary `<root>/common/common-product-evidence/`; flattened `<root>/common-common-product-evidence/`). Missing companion is a separate resource gap.
+Verify `product-evidence` capability before validating or committing changes to `docs/product/<slug>/evidence.json`:
+1. **Skill Resolution**: Load through MCP (`get_skill("product-management", "product-evidence")`) or resolve installed root paths `<root>/product-management/product-evidence/SKILL.md`, `<root>/product-evidence/SKILL.md`, or flattened Kiro `<root>/product-management-product-evidence/SKILL.md`. A missing/excluded skill is a capability gap; never infer installation from source checkout.
+2. **Companion Resource**: Resolve `scripts/validate-product-evidence.mjs` relative to the loaded package directory (ordinary `<root>/product-management/product-evidence/`; flattened `<root>/product-management-product-evidence/`). Missing companion is a separate resource gap.
 3. **Runtime**: Check Node.js >=20 separately. Missing runtime is not a missing skill/resource.
 4. **Offline Mode**: If any prerequisite is absent, safe research/proposal work may proceed only as `unvalidated`; no simulated validation, readiness claim, or silent sync/install.
 

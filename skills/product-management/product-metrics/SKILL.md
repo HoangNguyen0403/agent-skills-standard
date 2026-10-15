@@ -19,10 +19,10 @@ Establish outcome-focused measurement contracts before release and conduct rigor
 ## 1. Capability Preflight
 
 Resolve and verify execution prerequisites across installed layouts before validating measurement contracts or value reviews:
-1. **Installed Location**: Locate `<agent-skill-root>/common/common-product-evidence/` (standard) or `<agent-skill-root>/common-common-product-evidence/` (Kiro flattened). MCP lookup is not local script proof.
+1. **Installed Location**: Locate `<agent-skill-root>/product-management/product-evidence/` (standard) or `<agent-skill-root>/product-management-product-evidence/` (Kiro flattened). MCP lookup is not local script proof.
 2. **Component Integrity**:
-   - Package missing/excluded: emit `Capability gap: common/common-product-evidence not installed or excluded; opt in at a reviewed ref and sync.`
-   - Script missing: emit `Capability gap: validate-product-evidence.mjs missing from installed package; repair common-product-evidence installation.`
+   - Package missing/excluded: emit `Capability gap: product-management/product-evidence not installed or excluded; opt in at a reviewed ref and sync.`
+   - Script missing: emit `Capability gap: validate-product-evidence.mjs missing from installed package; repair product-evidence installation.`
    - Runtime engine: require Node.js $\ge 20.0.0$ (`node --version`). If $< 20$, emit `Capability gap: Node.js runtime >= 20.0.0 required for local validator; current environment does not meet minimum engine requirement.`
 3. **Invocation inputs**: confirm existing absolute canonical narrow authority root (reject `/`, home, parent workspace), contained regular ledger, valid UTC `--as-of`, and `--gate structural|experiment|commit|release`.
 4. **Current evidence**: check authority/artifact pairs, query/revision, source access/freshness, baseline or exception helper, guardrails, and analytics availability. Missing analytics yields `inconclusive` value and preserves `released` delivery.

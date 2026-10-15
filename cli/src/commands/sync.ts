@@ -196,13 +196,13 @@ export class SyncCommand {
       // 5b. Sync specialists (sub-agents)
       const specialistsOk = await this.syncService.syncSpecialists(config);
 
-      // 6. Automatically apply framework-specific indices to AGENTS.md
-      await this.syncService.applyIndices(config, config.agents);
-
+      // Finalize ownership before refreshing indices so pruned members do not
+      // remain in the generated category indexes or router.
       const plan = await this.syncService.completeInstall(config, {
         skills,
         workflows,
         specialistsOk,
+        refreshIndices: true,
       });
 
       if (options.dryRun) {

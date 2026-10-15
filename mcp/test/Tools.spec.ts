@@ -649,12 +649,23 @@ async function productEvidenceToolsFixture(): Promise<{
   const skills = path.join(root, "skills");
   await fs.ensureDir(skills);
   await fs.writeJson(path.join(skills, "metadata.json"), {
-    file_routing: { json: ["common"] },
+    file_routing: {
+      json: ["common", "product-management"],
+      md: ["common", "product-management"],
+    },
     broad_globs: [],
     base_language_skills: {},
   });
+  const realCommon = path.join(
+    __dirname,
+    "../../skills/common/common-software-requirements",
+  );
+  await fs.copy(
+    realCommon,
+    path.join(skills, "common", "common-software-requirements"),
+  );
 
-  await writeSkill(skills, "common", "common-product-evidence", {
+  await writeSkill(skills, "product-management", "product-evidence", {
     files: ["docs/product/*/evidence.json"],
     keywords: [
       "product evidence ledger",
@@ -733,7 +744,7 @@ describe("tools — product evidence & PM routing", () => {
       { files: ["docs/product/analytics/evidence.json"] },
       ctx,
     );
-    expect(text(matched)).toContain("# common-product-evidence");
+    expect(text(matched)).toContain("# product-evidence");
     expect(text(matched)).toContain(
       "matched: file:docs/product/*/evidence.json",
     );
@@ -742,10 +753,8 @@ describe("tools — product evidence & PM routing", () => {
       { files: ["README.md", "package.json"] },
       ctx,
     );
-    expect(text(unrelated)).not.toContain("common-product-evidence");
-    expect(text(unrelated)).toContain(
-      "No skills are routed to file extensions",
-    );
+    expect(text(unrelated)).not.toContain("product-evidence");
+    expect(text(unrelated)).toContain("did not match any tier-eligible skill");
   });
 
   it("routes qualified PM keywords and rejects bare negative keywords", async () => {

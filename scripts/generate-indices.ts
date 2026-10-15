@@ -8,7 +8,7 @@ import { MarkdownUtils } from '../cli/src/services/utils/MarkdownUtils';
 import { SpecialistSyncService } from '../cli/src/services/SpecialistSyncService';
 import { ConfigService } from '../cli/src/services/ConfigService';
 import { SyncService } from '../cli/src/services/SyncService';
-import { CollectedSkill } from '../cli/src/models/types';
+import { CollectedSkill, RegistryMetadata } from '../cli/src/models/types';
 
 function getFirstLine(text: string): string {
   if (!text) return "";
@@ -181,6 +181,9 @@ async function generate() {
   const configService = new ConfigService();
   const syncService = new SyncService();
   const config = await configService.loadConfig();
+  const localMetadata = (await fs.readJson(
+    path.join(skillsDir, "metadata.json"),
+  )) as RegistryMetadata;
 
   // Use the same resolution logic as the CLI (config > detection > empty)
   const agents = config ? await syncService.resolveTargetAgents(config) : [];
@@ -296,10 +299,30 @@ async function generate() {
     }
   }
 
-  // Local Sync Phase: Sync local skills and workflows to target agent folders
+  // These native indices are tracked generator outputs, not lockfile-owned
+  // consumer files. Refresh them before ownership starts; the owned pass below
+  // records their resulting bytes without forcing unknown files.
+  if (
+    agents.length > 0 &&
+    config &&
+    !(await fs.pathExists(path.join(repoRoot, ".skills-lock.json")))
+  ) {
+    await syncService.applyIndices(config, agents, localMetadata);
+    await MarkdownUtils.injectIndex(
+      repoRoot,
+      ["AGENTS.md"],
+      routerIndexContent,
+    );
+  }
+
+  // Local Sync Phase: sync through the ownership lifecycle so removed members
+  // of still-selected categories are pruned only when previously owned.
   if (agents.length > 0 && config) {
     try {
-      // Sync local workflows
+      await syncService.beginInstall(config, { dryRun: false, force: [] });
+      const collectedWorkflows: CollectedSkill[] = [];
+      const collectedSkills: CollectedSkill[] = [];
+
       const localWorkflowsDir = path.join(repoRoot, ".agents/workflows");
       if ((await fs.pathExists(localWorkflowsDir)) && config.workflows) {
         let workflowFiles = (await fs.readdir(localWorkflowsDir)).filter((f) =>
@@ -311,34 +334,26 @@ async function generate() {
             allowed.includes(path.basename(f, ".md")),
           );
         }
-        const collectedWorkflows = [
-          {
-            category: ".agents",
-            skill: "workflows",
-            files: await Promise.all(
-              workflowFiles.map(async (wfFile) => {
-                const content = await fs.readFile(
-                  path.join(localWorkflowsDir, wfFile),
-                  "utf8",
-                );
-                return {
-                  name: wfFile,
-                  content,
-                };
-              }),
-            ),
-          },
-        ];
+        collectedWorkflows.push({
+          category: ".agents",
+          skill: "workflows",
+          files: await Promise.all(
+            workflowFiles.map(async (wfFile) => ({
+              name: wfFile,
+              content: await fs.readFile(
+                path.join(localWorkflowsDir, wfFile),
+                "utf8",
+              ),
+            })),
+          ),
+        });
         await syncService.writeWorkflows(collectedWorkflows, config);
         console.log(
           `✅ Synced ${workflowFiles.length} local workflows to target agent folders`,
         );
       }
 
-      // Sync local skills
-      const collectedSkills = [];
       const skillCategories = Object.keys(config.skills || {});
-
       for (const category of skillCategories) {
         const catPath = path.join(skillsDir, category);
         if (!(await fs.pathExists(catPath))) continue;
@@ -348,7 +363,6 @@ async function generate() {
           const p = path.join(catPath, f);
           return fs.statSync(p).isDirectory() && !f.startsWith(".");
         });
-
         const filteredFolders = skillFolders.filter((folder) => {
           if (catConfig.include && !catConfig.include.includes(folder))
             return false;
@@ -363,9 +377,7 @@ async function generate() {
             folder,
             path.join(catPath, folder),
           );
-          if (skill) {
-            collectedSkills.push(skill);
-          }
+          if (skill) collectedSkills.push(skill);
         }
       }
 
@@ -375,6 +387,21 @@ async function generate() {
           `✅ Synced ${collectedSkills.length} local skills to target agent folders`,
         );
       }
+
+      // Refresh indices after ownership pruning so retired members cannot remain
+      // in the generated category indexes or their lockfile snapshots.
+      await syncService.completeInstall(config, {
+        skills: collectedSkills,
+        workflows: collectedWorkflows,
+        specialistsOk: false,
+        refreshIndices: true,
+        localMetadata,
+      });
+      await MarkdownUtils.injectIndex(
+        repoRoot,
+        ["AGENTS.md"],
+        routerIndexContent,
+      );
     } catch (error) {
       console.error("❌ Failed to sync local skills/workflows:", error);
     }

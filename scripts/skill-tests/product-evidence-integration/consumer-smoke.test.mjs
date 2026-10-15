@@ -12,16 +12,23 @@ test('registry refs stay bound to frozen metadata bytes after candidate mutation
   try {
     fs.mkdirSync(path.join(candidateRoot, 'skills'), { recursive: true });
     fs.writeFileSync(path.join(candidateRoot, 'skills/metadata.json'), JSON.stringify({
-      categories: { common: { tag_prefix: 'common-v', version: '1.2.3' } }
+      categories: {
+        common: { tag_prefix: 'common-v', version: '3.0.0' },
+        'product-management': { tag_prefix: 'product-management-v', version: '1.1.0' }
+      }
     }));
     const snapshot = buildNarrowSnapshot(candidateRoot);
     fs.writeFileSync(path.join(candidateRoot, 'skills/metadata.json'), JSON.stringify({
-      categories: { common: { tag_prefix: 'common-v', version: '99.99.99' } }
+      categories: {
+        common: { tag_prefix: 'common-v', version: '99.99.99' },
+        'product-management': { tag_prefix: 'product-management-v', version: '99.99.99' }
+      }
     }));
-
     const refs = getAllowedRefs(snapshot, '1111222233334444555566667777888899990000');
-    assert.equal(refs.has('common-v1.2.3'), true);
+    assert.equal(refs.has('common-v3.0.0'), true);
     assert.equal(refs.has('common-v99.99.99'), false);
+    assert.equal(refs.has('product-management-v1.1.0'), true);
+    assert.equal(refs.has('product-management-v99.99.99'), false);
   } finally {
     fs.rmSync(candidateRoot, { recursive: true, force: true });
   }

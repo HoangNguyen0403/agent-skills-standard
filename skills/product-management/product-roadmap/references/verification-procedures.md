@@ -6,7 +6,7 @@ These are authored offline procedures against fictional records. They are not ve
 
 ## Authorized-input preflight
 
-1. Resolve the selected agent skill root. Check `<root>/common/common-product-evidence/` (standard) and `<root>/common-common-product-evidence/` (Kiro flattened), pack/exclusion status, and the installed `scripts/validate-product-evidence.mjs` regular readable file. MCP body retrieval is not proof of local resource/script availability; repository checkout paths are not installed-resource paths.
+1. Resolve the selected agent skill root. Check `<root>/product-management/product-evidence/` (standard) and `<root>/product-management-product-evidence/` (Kiro flattened), pack/exclusion status, and the installed `scripts/validate-product-evidence.mjs` regular readable file. MCP body retrieval is not proof of local resource/script availability; repository checkout paths are not installed-resource paths.
 2. Check `node --version` and require Node.js >=20. Distinguish package missing/excluded, script missing, and unsupported runtime. Do not install/sync or guess a different root silently.
 3. Choose an existing absolute canonical authority root expressly authorized for the selected initiative and scope. Reject `/`, home, a parent workspace, or any broader root not authorized. Check it is a directory; check the chosen ledger is a contained regular file. CLI may resolve a contained relative ledger path; library `ledgerPath` is absolute. Never broaden the root or follow symlinks to make validation succeed.
 4. Use a concrete valid UTC `--as-of` instant and one of `structural|experiment|commit|release`. Reject placeholders, malformed/future instants, unknown gate values and missing arguments before calling the validator.
@@ -16,7 +16,7 @@ These are authored offline procedures against fictional records. They are not ve
 Portable invocation shape (replace every placeholder only after the checks above):
 
 ```sh
-node <installed-common-root>/scripts/validate-product-evidence.mjs docs/product/<slug>/evidence.json --authority-root /authorized/narrow/root --as-of 2026-11-18T10:00:00Z --gate structural
+node <installed-package-root>/scripts/validate-product-evidence.mjs docs/product/<slug>/evidence.json --authority-root /authorized/narrow/root --as-of 2026-11-18T10:00:00Z --gate structural
 ```
 
 ## Artifact/history case matrix
