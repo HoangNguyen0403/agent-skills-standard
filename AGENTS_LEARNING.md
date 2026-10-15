@@ -576,3 +576,26 @@ Read the actual authorized directory inventory, replace only the wrong selected 
 
 ### Trigger Miss
 None established: inventory/procedure error, not a missing tool.
+
+---
+
+## Agent Learning Log: Iteration #24
+
+**Date**: 2026-10-15 | **Task**: Move product-owned skills without native ownership churn.
+**Signal**: Session retrospective
+**Skills**: common/common-session-retrospective, common/common-learning-log
+**Scope**: project
+**Candidate**: post-prune-render-retains-active-owners | **Status**: proposed
+**Provenance**: rebased migration `d2116357`; plan-local product-category-move-rereview-3.md.
+**Evaluation**: deterministic lifecycle regression passed; no held-out skill evaluation or promotion
+**Review**: scoped implementation review PASS; not maintainer approval of a guidance change
+**Rollback**: no shared guidance changed
+
+### Mistake Made
+The first migration renderer refreshed indexes before pruning. Deferring rendering then exposed unchanged index and bridge entries to pruning, causing redundant backups on no-op syncs.
+
+### Better Approach
+Exercise the production completion path: prune retired owners, retain still-selected deferred-render owners, refresh their files before manifest persistence, and verify final hashes. Use a non-Claude owned bridge and a third no-op sync to assert no delete/re-add or backup churn while preserving unowned files.
+
+### Trigger Miss
+None established. The missing case was lifecycle ordering and ownership interaction, not an unavailable skill.
