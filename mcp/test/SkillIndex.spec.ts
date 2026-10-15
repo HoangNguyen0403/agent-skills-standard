@@ -610,3 +610,327 @@ describe("SkillIndex — composite triggers", () => {
     expect(second).toEqual([]);
   });
 });
+
+async function makeProductEvidenceFixture(): Promise<{
+  root: string;
+  cleanup: () => Promise<void>;
+}> {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "ags-mcp-pe-fixture-"));
+  const skills = path.join(root, "skills");
+  await fs.ensureDir(skills);
+
+  await fs.writeJson(path.join(skills, "metadata.json"), {
+    file_routing: { json: ["common"] },
+    broad_globs: [],
+    base_language_skills: {},
+  });
+
+  await writeSkill(skills, "common", "common-product-evidence", {
+    triggers: {
+      files: ["docs/product/*/evidence.json"],
+      keywords: [
+        "product evidence ledger",
+        "product decision authority",
+        "product evidence freshness",
+      ],
+    },
+  });
+
+  await writeSkill(skills, "product-management", "product-market-research", {
+    triggers: {
+      files: [],
+      keywords: ["product market research", "product competitive analysis"],
+    },
+  });
+  await writeSkill(skills, "product-management", "product-customer-discovery", {
+    triggers: {
+      files: [],
+      keywords: ["product customer discovery", "product research synthesis"],
+    },
+  });
+  await writeSkill(skills, "product-management", "product-strategy", {
+    triggers: {
+      files: [],
+      keywords: ["product strategy decision", "product opportunity framing"],
+    },
+  });
+  await writeSkill(skills, "product-management", "product-investment", {
+    triggers: {
+      files: [],
+      keywords: ["product investment analysis", "product ROI scenario"],
+    },
+  });
+  await writeSkill(skills, "product-management", "product-experimentation", {
+    triggers: {
+      files: [],
+      keywords: [
+        "product hypothesis validation",
+        "product experiment design",
+      ],
+    },
+  });
+  await writeSkill(skills, "product-management", "product-metrics", {
+    triggers: {
+      files: [],
+      keywords: ["product measurement contract", "product value review"],
+    },
+  });
+  await writeSkill(skills, "product-management", "product-roadmap", {
+    triggers: {
+      files: [],
+      keywords: [
+        "product roadmap prioritization",
+        "product portfolio trade-off",
+      ],
+    },
+  });
+
+  await fs.writeFile(path.join(root, "AGENTS.md"), "# fixture\n");
+  return { root, cleanup: () => fs.remove(root) };
+}
+
+describe("SkillIndex — product evidence routing & qualified keywords", () => {
+  let fixture: { root: string; cleanup: () => Promise<void> };
+  let index: SkillIndex;
+
+  beforeEach(async () => {
+    fixture = await makeProductEvidenceFixture();
+    index = new SkillIndex(
+      path.join(fixture.root, "skills"),
+      path.join(fixture.root, "skills", "metadata.json"),
+    );
+    await index.load();
+  });
+
+  afterEach(async () => {
+    await fixture.cleanup();
+  });
+
+  it("routes narrow common JSON docs/product/*/evidence.json to common-product-evidence", () => {
+    const matches = index.matchFiles(["docs/product/analytics/evidence.json"]);
+    const ids = matches.map((m) => m.skill.id);
+    expect(ids).toEqual(["common-product-evidence"]);
+  });
+
+  it("does not match unrelated JSON files or generic docs paths", () => {
+    expect(index.matchFiles(["package.json"])).toEqual([]);
+    expect(index.matchFiles(["tsconfig.json"])).toEqual([]);
+    expect(index.matchFiles(["docs/product/strategy.json"])).toEqual([]);
+    expect(index.matchFiles(["docs/evidence.json"])).toEqual([]);
+    expect(index.matchFiles(["README.md"])).toEqual([]);
+  });
+
+  it("keeps all product-management skills keyword-only (files: [])", () => {
+    expect(index.matchFiles(["docs/product/strategy.md"])).toEqual([]);
+    const evidenceMatches = index.matchFiles(["docs/product/core/evidence.json"]);
+    const pmMatches = evidenceMatches.filter((m) =>
+      m.skill.category === "product-management",
+    );
+    expect(pmMatches).toEqual([]);
+  });
+
+  it("matches qualified PM keywords exactly", () => {
+    const research = index.matchKeywords(["product market research"]);
+    expect(research.map((m) => m.skill.id)).toEqual(["product-market-research"]);
+
+    const competitive = index.matchKeywords(["product competitive analysis"]);
+    expect(competitive.map((m) => m.skill.id)).toEqual(["product-market-research"]);
+
+    const discovery = index.matchKeywords(["product customer discovery"]);
+    expect(discovery.map((m) => m.skill.id)).toEqual(["product-customer-discovery"]);
+
+    const strategy = index.matchKeywords(["product strategy decision"]);
+    expect(strategy.map((m) => m.skill.id)).toEqual(["product-strategy"]);
+
+    const investment = index.matchKeywords(["product investment analysis"]);
+    expect(investment.map((m) => m.skill.id)).toEqual(["product-investment"]);
+
+    const experiment = index.matchKeywords(["product hypothesis validation"]);
+    expect(experiment.map((m) => m.skill.id)).toEqual(["product-experimentation"]);
+
+    const metrics = index.matchKeywords(["product measurement contract"]);
+    expect(metrics.map((m) => m.skill.id)).toEqual(["product-metrics"]);
+
+    const roadmap = index.matchKeywords(["product roadmap prioritization"]);
+    expect(roadmap.map((m) => m.skill.id)).toEqual(["product-roadmap"]);
+  });
+
+  it("matches qualified phrases case-insensitively", () => {
+    const matches = index.matchKeywords(["PRODUCT INVESTMENT ANALYSIS"]);
+    expect(matches.map((m) => m.skill.id)).toEqual(["product-investment"]);
+  });
+
+  it("rejects bare negative keywords without qualified phrase context", () => {
+    expect(index.matchKeywords(["market"])).toEqual([]);
+    expect(index.matchKeywords(["metrics"])).toEqual([]);
+    expect(index.matchKeywords(["ROI"])).toEqual([]);
+    expect(index.matchKeywords(["strategy"])).toEqual([]);
+    expect(index.matchKeywords(["research"])).toEqual([]);
+    expect(index.matchKeywords(["discovery"])).toEqual([]);
+    expect(index.matchKeywords(["roadmap"])).toEqual([]);
+    expect(index.matchKeywords(["experiment"])).toEqual([]);
+  });
+
+  it("handles absence/exclusion cleanly when category is omitted", async () => {
+    await fs.remove(path.join(fixture.root, "skills", "product-management"));
+    const omittedIndex = new SkillIndex(
+      path.join(fixture.root, "skills"),
+      path.join(fixture.root, "skills", "metadata.json"),
+    );
+    await omittedIndex.load();
+
+    expect(omittedIndex.listCategories()).toEqual(["common"]);
+    expect(
+      omittedIndex.findSkill("product-management", "product-investment"),
+    ).toBeUndefined();
+    expect(
+      index.findSkill("product-management", "product-investment"),
+    ).toBeDefined();
+    expect(omittedIndex.matchKeywords(["product investment analysis"])).toEqual([]);
+  });
+});
+
+async function makeRealProductEvidenceFixture(): Promise<{
+  root: string;
+  cleanup: () => Promise<void>;
+}> {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "ags-mcp-real-pe-"));
+  const skills = path.join(root, "skills");
+  await fs.ensureDir(skills);
+
+  const realMetadataPath = path.join(__dirname, "../../skills/metadata.json");
+  await fs.copy(realMetadataPath, path.join(skills, "metadata.json"));
+
+  const realCpe = path.join(
+    __dirname,
+    "../../skills/common/common-product-evidence",
+  );
+  await fs.copy(realCpe, path.join(skills, "common", "common-product-evidence"));
+
+  const realArchAudit = path.join(
+    __dirname,
+    "../../skills/common/common-architecture-audit",
+  );
+  if (await fs.pathExists(realArchAudit)) {
+    await fs.copy(
+      realArchAudit,
+      path.join(skills, "common", "common-architecture-audit"),
+    );
+  }
+
+  const realPm = path.join(__dirname, "../../skills/product-management");
+  await fs.copy(realPm, path.join(skills, "product-management"));
+
+  await fs.writeFile(path.join(root, "AGENTS.md"), "# fixture\n");
+  return { root, cleanup: () => fs.remove(root) };
+}
+
+describe("SkillIndex — real registry byte-backed product evidence routing", () => {
+  let realFixture: { root: string; cleanup: () => Promise<void> };
+  let realIndex: SkillIndex;
+
+  beforeEach(async () => {
+    realFixture = await makeRealProductEvidenceFixture();
+    realIndex = new SkillIndex(
+      path.join(realFixture.root, "skills"),
+      path.join(realFixture.root, "skills", "metadata.json"),
+    );
+    await realIndex.load();
+  });
+
+  afterEach(async () => {
+    await realFixture.cleanup();
+  });
+
+  it("parses real common-product-evidence and all seven real PM skills", () => {
+    expect(
+      realIndex.findSkill("common", "common-product-evidence"),
+    ).toBeDefined();
+
+    const expectedPmSkills = [
+      "product-market-research",
+      "product-customer-discovery",
+      "product-strategy",
+      "product-investment",
+      "product-experimentation",
+      "product-metrics",
+      "product-roadmap",
+    ];
+    for (const id of expectedPmSkills) {
+      expect(realIndex.findSkill("product-management", id)).toBeDefined();
+    }
+  });
+
+  it("routes approved qualified phrases to real skills from real metadata", () => {
+    const cases: Array<[string, string]> = [
+      ["product market research", "product-market-research"],
+      ["product competitive analysis", "product-market-research"],
+      ["product customer discovery", "product-customer-discovery"],
+      ["product research synthesis", "product-customer-discovery"],
+      ["product strategy decision", "product-strategy"],
+      ["product opportunity framing", "product-strategy"],
+      ["product investment analysis", "product-investment"],
+      ["product ROI scenario", "product-investment"],
+      ["product hypothesis validation", "product-experimentation"],
+      ["product experiment design", "product-experimentation"],
+      ["product measurement contract", "product-metrics"],
+      ["product value review", "product-metrics"],
+      ["product roadmap prioritization", "product-roadmap"],
+      ["product portfolio trade-off", "product-roadmap"],
+      ["product evidence ledger", "common-product-evidence"],
+      ["product decision authority", "common-product-evidence"],
+      ["product evidence freshness", "common-product-evidence"],
+    ];
+
+    for (const [phrase, expectedId] of cases) {
+      const matches = realIndex.matchKeywords([phrase]);
+      expect(
+        matches.map((m) => m.skill.id),
+        `Phrase "${phrase}" must route to ${expectedId}`,
+      ).toContain(expectedId);
+    }
+  });
+
+  it("rejects bare keywords on real skills", () => {
+    const bareWords = [
+      "market",
+      "metrics",
+      "ROI",
+      "strategy",
+      "research",
+      "discovery",
+      "roadmap",
+      "experiment",
+    ];
+    for (const word of bareWords) {
+      const matches = realIndex.matchKeywords([word]);
+      const pmMatches = matches.filter(
+        (m) => m.skill.category === "product-management",
+      );
+      expect(
+        pmMatches,
+        `Bare word "${word}" must never match any product-management skill`,
+      ).toEqual([]);
+    }
+  });
+
+  it("routes package.json to common audit skills and NEVER to product-management", () => {
+    const matches = realIndex.matchFiles(["package.json"]);
+    const pmMatches = matches.filter(
+      (m) => m.skill.category === "product-management",
+    );
+    expect(pmMatches).toEqual([]);
+
+    const matchIds = matches.map((m) => m.skill.id);
+    expect(matchIds).toContain("common-architecture-audit");
+  });
+
+  it("routes docs/product/*/evidence.json to common-product-evidence and NEVER to product-management", () => {
+    const matches = realIndex.matchFiles(["docs/product/beta/evidence.json"]);
+    expect(matches.map((m) => m.skill.id)).toContain("common-product-evidence");
+    const pmMatches = matches.filter(
+      (m) => m.skill.category === "product-management",
+    );
+    expect(pmMatches).toEqual([]);
+  });
+});

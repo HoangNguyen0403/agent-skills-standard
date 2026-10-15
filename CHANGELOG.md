@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Requirements modeling**: Added canonical requirements modeling reference (`skills/common/common-product-requirements/references/requirements-modeling.md`) covering scope trees, process flows, decision tables, state models, and delivery dependency graphs.
 - **Common `2.8.8` candidate**: Aligned requirements skills (`common-business-requirements`, `common-product-requirements`, `common-software-requirements`) with INVEST criteria, truth tables, and canonical requirements modeling reference.
 - **Quality Engineering `1.6.1` candidate**: Aligned `quality-engineering-business-analysis` with slice readiness checks and user story decision table truth matrices.
+- **Product Management `1.0.0` candidate**: Added optional, opt-in `product-management` category (`product-management-v1.0.0` candidate; select in `.skillsrc` with reviewed immutable ref). Includes seven keyword-only skills (`product-market-research`, `product-customer-discovery`, `product-strategy`, `product-investment`, `product-experimentation`, `product-metrics`, `product-roadmap`), category framework map, and conditional router row in `AGENTS.md`. No broad file globs or universal triggers.
+- **Common `2.8.8` candidate**: Added `common-product-evidence` standard for canonical product evidence ledgers with narrow file trigger (`docs/product/*/evidence.json`), typed record provenance, immutable recorded decisions (`DEC`), and host-check action gates. Added `file_routing.json: ["common"]` routing `*.json` to `common/_INDEX.md`, which restores dormant common JSON file triggers (e.g. `package.json` matching common audit skills) while product-management skills remain keyword-only.
+- **Product Evidence SDLC Workflows (`workflows` `1.1.6` candidate)**: Added optional workflows `discover-product`, `validate-product`, and `review-product-value` with structured capability preflights, finite experiment budget declarations, and machine-readable outcome report templates. Synced on explicit selection (`workflows: true` or named array); default workflows spine and core SDLC chain remain unchanged.
+- **SDLC Audit**: Added structural audit rules and test coverage for optional workflows, verifying line budgets, portable runtime content, operator handoff contracts, and explicit outcome templates.
 
 ### Fixed
 
@@ -32,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Versions
 
 - **Workflows**: `1.1.5` → `1.1.6`
+- **Product Management**: `1.0.0` candidate
 - **System Design**: `1.2.2` → `1.2.3`
 - **Common**: `2.8.7` → `2.8.8`
 - **Quality Engineering**: `1.6.0` → `1.6.1`

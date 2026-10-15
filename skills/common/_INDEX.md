@@ -18,6 +18,7 @@
 | common-mobile-animation | `**/*_page.dart`, `**/*_screen.dart`, `**/*Activity.kt`, `**/*Screen.tsx` | Animation, AnimationController, Animated, MotionLayout, transition, gesture |
 | **common-mobile-ux-core** | `**/*_page.dart`, `**/*_screen.dart`, `**/*_view.dart`, `**/*Activity.kt`, `**/*Screen.tsx` | mobile, responsive, SafeArea, touch, gesture, viewport |
 | common-observability | `**/*.service.ts`, `**/*.handler.ts`, `**/*.middleware.ts`, `**/*.interceptor.ts` | logging, tracing, metrics, opentelemetry, observability, slo |
+| **common-product-evidence** | `docs/product/*/evidence.json` | product evidence ledger, product decision authority, product evidence freshness |
 | **common-product-requirements** | `PRD.md`, `docs/prd/prd-*.md`, `specs/*.md` | create prd, product requirements, draft requirements, new feature spec, acceptance criteria |
 | common-review-policy | `docs/review-policy.md`, `REVIEW.md`, `CODEOWNERS` | review policy, severity ladder, review noise, nit cap, review tuning, who approves |
 | common-sdlc-metrics | `docs/ops/bands.yaml`, `artifacts/sdlc-metrics.md` | dora metrics, lead time, change failure rate, plan adherence, control band, delivery metrics |

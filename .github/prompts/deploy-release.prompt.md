@@ -10,8 +10,8 @@ Goal: Ship verified work with explicit deployment steps, smoke checks, and rollb
 
 1. Confirm readiness:
    - Verification report is PASS or accepted with documented risk.
-   - Required approvals are present, and production carries a named release owner's authorization.
-   - Migrations and feature flags are accounted for.
+   - Required approvals are present, and production carries a named release owner's authorization; proposal in ledger is not execution or release permission.
+   - Migrations, feature flags, and measurement contracts are accounted for. When initiative uses product evidence (`docs/product/<slug>/evidence.json`), carry measurement owner, registered MET baseline OR exact scoped exception DEC, query, instrumentation, cohort, window, guardrails, and review trigger; never fabricate agent-created baselines, approval, or causal ROI.
    - `release_confidence` is `high`, or `medium` with documented risk; `low` means NO-GO unless the release owner overrides in writing.
 2. Prepare release:
    - Identify version, environment, deploy command, and owner.
@@ -25,18 +25,17 @@ Goal: Ship verified work with explicit deployment steps, smoke checks, and rollb
    - Promote only when smoke checks pass.
 4. Monitor:
    - Check logs, metrics, errors, latency, and core user flows.
-   - Stop or roll back on defined failure signals.
+   - Guardrail harm or regression escalates immediately to authorized incident controls (`incident-hotfix`); stop or roll back on defined failure signals.
 5. Persist and route:
-   - Write the run record to `artifacts/runs/[slug]/[compactISO]-deploy-release.json` when file writes are allowed.
+   - Write run record to `artifacts/runs/[slug]/[compactISO]-deploy-release.json` when file writes allowed. Feature `feature_status=released` is preserved even when product value observations remain pending or inconclusive.
    - User-facing notes -> `publish-notes`.
    - Process and standards feedback -> `retro-learn`.
-
 ## Runtime Contract
 - Use once verification/UAT signoff is PASS and a release window is open.
-- Required inputs: verification report plus release version, environment, and rollback path.
-- Return BLOCKED when required approvals, migrations, or rollback path are unresolved, or when a production deploy has no named authorizer.
+- Required inputs: verification report plus release version, environment, and rollback path. Proposal in ledger is not host deployment authorization.
+- Return BLOCKED when required approvals, migrations, or rollback path are unresolved, when a production deploy has no named authorizer, or when a product-evidence initiative lacks a registered MET baseline (or scoped exception), measurement owner, instrumentation, guardrails, or review trigger. Feature released status is retained when product value is pending or inconclusive.
 ## Handoff Payload
-- `slug`, `release_confidence`, release verdict (GO/NO-GO/ROLLED-BACK), smoke check results, rollback path, outcome report, next workflow.
+- `slug`, `release_confidence`, release verdict (GO/NO-GO/ROLLED-BACK), smoke check results, measurement contract refs when present, rollback path, outcome report, next workflow.
 ## Blocking Questions
 - Ask max 3 at a time with a recommended default and 2-3 options.
 

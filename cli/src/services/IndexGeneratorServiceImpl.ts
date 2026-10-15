@@ -321,6 +321,13 @@ export class IndexGeneratorServiceImpl extends IndexGeneratorService {
       );
     }
 
+    if (availableCategories.includes('product-management')) {
+      coveredCategories.add('product-management');
+      routerRows.push(
+        '| Product discovery, investment, validation or value-review request | `<SKILLS>/product-management/_INDEX.md` |',
+      );
+    }
+
     // The MCP block is always present (not conditional on .skillsrc.mcp.enabled)
     // because:
     //   1. .skillsrc.mcp.enabled records CLI consent to manage configs — it's

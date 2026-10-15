@@ -1,0 +1,1340 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-skills-standard.dev/schemas/product-evidence.schema.json",
+  "title": "ProductEvidenceLedger",
+  "description": "Canonical product evidence ledger JSON v1 specification according to SDLC contract t01-v2.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "slug",
+    "product_id",
+    "revision",
+    "synthetic",
+    "updated_at",
+    "strategy_authority",
+    "strategy_gap",
+    "authorities",
+    "authority_history",
+    "records",
+    "record_history",
+    "bridges",
+    "product_state"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "slug": {
+      "$ref": "#/$defs/slugType"
+    },
+    "product_id": {
+      "$ref": "#/$defs/productIdType"
+    },
+    "revision": {
+      "$ref": "#/$defs/revisionType"
+    },
+    "synthetic": {
+      "type": "boolean"
+    },
+    "updated_at": {
+      "$ref": "#/$defs/utcInstantType"
+    },
+    "strategy_authority": {
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "^AUTH-[0-9]{3,}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "strategy_gap": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/nonEmptyStringType"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "authorities": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/authorityType"
+      }
+    },
+    "authority_history": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/authorityType"
+      }
+    },
+    "records": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/recordType"
+      }
+    },
+    "record_history": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/recordType"
+      }
+    },
+    "bridges": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/bridgeType"
+      }
+    },
+    "product_state": {
+      "$ref": "#/$defs/stateType"
+    },
+    "extensions": {
+      "$ref": "#/$defs/extensionsType"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "strategy_authority": { "type": "string" }
+        },
+        "required": ["strategy_authority"]
+      },
+      "then": {
+        "properties": {
+          "strategy_gap": { "type": "null" }
+        }
+      },
+      "else": {
+        "properties": {
+          "strategy_gap": { "type": "string" }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "nonEmptyStringType": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!\\s*$).+"
+    },
+    "slugType": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "maxLength": 40
+    },
+    "productIdType": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "maxLength": 64
+    },
+    "revisionType": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+    },
+    "authorityRevisionType": {
+      "$ref": "#/$defs/nonEmptyStringType"
+    },
+    "utcInstantType": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    },
+    "sha256Type": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "extensionsType": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*$"
+      }
+    },
+    "refType": {
+      "type": "object",
+      "required": ["id", "revision"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^(SRC|CLM|OPP|HYP|EXP|INV|DEC|MET|REV)-[0-9]{3,}$"
+        },
+        "revision": {
+          "$ref": "#/$defs/revisionType"
+        }
+      }
+    },
+    "windowType": {
+      "type": "object",
+      "required": ["start", "end"],
+      "additionalProperties": false,
+      "properties": {
+        "start": {
+          "$ref": "#/$defs/utcInstantType"
+        },
+        "end": {
+          "$ref": "#/$defs/utcInstantType"
+        }
+      }
+    },
+    "scopeType": {
+      "type": "object",
+      "required": ["segment", "geography", "window"],
+      "additionalProperties": false,
+      "properties": {
+        "segment": {
+          "$ref": "#/$defs/nonEmptyStringType"
+        },
+        "geography": {
+          "$ref": "#/$defs/nonEmptyStringType"
+        },
+        "window": {
+          "$ref": "#/$defs/windowType"
+        }
+      }
+    },
+    "freshnessType": {
+      "type": "object",
+      "required": ["status", "rationale", "reviewed_at", "expires_at", "review_triggers"],
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["current", "stale", "disputed", "unknown"]
+        },
+        "rationale": {
+          "$ref": "#/$defs/nonEmptyStringType"
+        },
+        "reviewed_at": {
+          "oneOf": [
+            { "$ref": "#/$defs/utcInstantType" },
+            { "type": "null" }
+          ]
+        },
+        "expires_at": {
+          "oneOf": [
+            { "$ref": "#/$defs/utcInstantType" },
+            { "type": "null" }
+          ]
+        },
+        "review_triggers": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/nonEmptyStringType"
+          }
+        }
+      }
+    },
+    "locatorLocalType": {
+      "type": "object",
+      "required": ["kind", "path", "sha256"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "type": "string", "const": "local" },
+        "path": { "$ref": "#/$defs/nonEmptyStringType" },
+        "sha256": { "$ref": "#/$defs/sha256Type" }
+      }
+    },
+    "locatorExternalType": {
+      "type": "object",
+      "required": ["kind", "uri", "snapshot_sha256"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "type": "string", "const": "external" },
+        "uri": { "$ref": "#/$defs/nonEmptyStringType" },
+        "snapshot_sha256": {
+          "oneOf": [
+            { "$ref": "#/$defs/sha256Type" },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "locatorUnionType": {
+      "oneOf": [
+        { "$ref": "#/$defs/locatorLocalType" },
+        { "$ref": "#/$defs/locatorExternalType" }
+      ]
+    },
+    "authorityType": {
+      "type": "object",
+      "required": ["id", "domain", "locator", "revision", "owner", "scope", "declared_ids", "access"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^AUTH-[0-9]{3,}$"
+        },
+        "domain": {
+          "type": "string",
+          "enum": ["strategy", "business", "requirements", "technical", "authorization"]
+        },
+        "locator": {
+          "$ref": "#/$defs/locatorUnionType"
+        },
+        "revision": {
+          "$ref": "#/$defs/authorityRevisionType"
+        },
+        "owner": {
+          "$ref": "#/$defs/nonEmptyStringType"
+        },
+        "scope": {
+          "$ref": "#/$defs/scopeType"
+        },
+        "declared_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^(BRD-OBJ|REQ|AC|SRS)-[0-9]{3,}$"
+          }
+        },
+        "access": {
+          "type": "string",
+          "enum": ["available", "protected", "unavailable"]
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensionsType"
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "locator": { "properties": { "kind": { "const": "local" } }, "required": ["kind"] } }, "required": ["locator"] },
+          "then": { "properties": { "revision": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" } } }
+        },
+        {
+          "if": { "properties": { "locator": { "properties": { "kind": { "const": "external" } }, "required": ["kind"] } }, "required": ["locator"] },
+          "then": { "properties": { "revision": { "$ref": "#/$defs/nonEmptyStringType" } } }
+        },
+        {
+          "if": {
+            "properties": {
+              "locator": {
+                "properties": {
+                  "kind": { "const": "external" },
+                  "snapshot_sha256": { "type": "null" }
+                },
+                "required": ["kind", "snapshot_sha256"]
+              }
+            },
+            "required": ["locator"]
+          },
+          "then": { "properties": { "access": { "const": "unavailable" } } }
+        }
+      ]
+    },
+    "bridgeType": {
+      "type": "object",
+      "required": ["record", "authority_id", "authority_revision", "ids"],
+      "additionalProperties": false,
+      "properties": {
+        "record": {
+          "$ref": "#/$defs/refType"
+        },
+        "authority_id": {
+          "type": "string",
+          "pattern": "^AUTH-[0-9]{3,}$"
+        },
+        "authority_revision": {
+          "$ref": "#/$defs/authorityRevisionType"
+        },
+        "ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^(BRD-OBJ|REQ|AC|SRS)-[0-9]{3,}$"
+          }
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensionsType"
+        }
+      }
+    },
+    "stateHistoryEntryType": {
+      "type": "object",
+      "required": ["from", "to", "at", "reason", "decision"],
+      "additionalProperties": false,
+      "properties": {
+        "from": {
+          "type": "string",
+          "enum": ["unvalidated", "validating", "validated_for_scope", "invalidated", "inconclusive", "not_applicable"]
+        },
+        "to": {
+          "type": "string",
+          "enum": ["unvalidated", "validating", "validated_for_scope", "invalidated", "inconclusive", "not_applicable"]
+        },
+        "at": {
+          "$ref": "#/$defs/utcInstantType"
+        },
+        "reason": {
+          "$ref": "#/$defs/nonEmptyStringType"
+        },
+        "decision": {
+          "oneOf": [
+            {
+              "type": "object",
+              "required": ["id", "revision"],
+              "additionalProperties": false,
+              "properties": {
+                "id": { "type": "string", "pattern": "^DEC-[0-9]{3,}$" },
+                "revision": { "$ref": "#/$defs/revisionType" }
+              }
+            },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "stateType": {
+      "type": "object",
+      "required": ["value", "reason", "scope", "hypotheses", "decision", "assessed_at", "history"],
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "type": "string",
+          "enum": ["unvalidated", "validating", "validated_for_scope", "invalidated", "inconclusive", "not_applicable"]
+        },
+        "reason": {
+          "$ref": "#/$defs/nonEmptyStringType"
+        },
+        "scope": {
+          "$ref": "#/$defs/scopeType"
+        },
+        "hypotheses": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "required": ["id", "revision"],
+            "additionalProperties": false,
+            "properties": {
+              "id": { "type": "string", "pattern": "^HYP-[0-9]{3,}$" },
+              "revision": { "$ref": "#/$defs/revisionType" }
+            }
+          }
+        },
+        "decision": {
+          "oneOf": [
+            {
+              "type": "object",
+              "required": ["id", "revision"],
+              "additionalProperties": false,
+              "properties": {
+                "id": { "type": "string", "pattern": "^DEC-[0-9]{3,}$" },
+                "revision": { "$ref": "#/$defs/revisionType" }
+              }
+            },
+            { "type": "null" }
+          ]
+        },
+        "assessed_at": {
+          "$ref": "#/$defs/utcInstantType"
+        },
+        "history": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/stateHistoryEntryType"
+          }
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensionsType"
+        }
+      }
+    },
+    "recordCommonFields": {
+      "type": "object",
+      "required": ["id", "kind", "revision", "owner", "scope", "depends_on", "freshness", "data"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^(SRC|CLM|OPP|HYP|EXP|INV|DEC|MET|REV)-[0-9]{3,}$" },
+        "kind": { "type": "string", "enum": ["SRC", "CLM", "OPP", "HYP", "EXP", "INV", "DEC", "MET", "REV"] },
+        "revision": { "$ref": "#/$defs/revisionType" },
+        "owner": { "$ref": "#/$defs/nonEmptyStringType" },
+        "scope": { "$ref": "#/$defs/scopeType" },
+        "depends_on": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/refType" }
+        },
+        "freshness": { "$ref": "#/$defs/freshnessType" },
+        "extensions": { "$ref": "#/$defs/extensionsType" }
+      }
+    },
+    "srcData": {
+      "type": "object",
+      "required": ["locator", "origin", "retrieved_at", "privacy", "license", "status", "limitations"],
+      "additionalProperties": false,
+      "properties": {
+        "locator": { "$ref": "#/$defs/locatorUnionType" },
+        "origin": {
+          "type": "object",
+          "required": ["publisher", "origin_id", "classification", "revision", "observed_at", "scope"],
+          "additionalProperties": false,
+          "properties": {
+            "publisher": { "$ref": "#/$defs/nonEmptyStringType" },
+            "origin_id": { "$ref": "#/$defs/nonEmptyStringType" },
+            "classification": { "type": "string", "enum": ["primary", "secondary", "first_party"] },
+            "revision": { "$ref": "#/$defs/nonEmptyStringType" },
+            "observed_at": {
+              "oneOf": [
+                { "$ref": "#/$defs/utcInstantType" },
+                { "type": "null" }
+              ]
+            },
+            "scope": { "$ref": "#/$defs/scopeType" }
+          }
+        },
+        "retrieved_at": { "$ref": "#/$defs/utcInstantType" },
+        "privacy": {
+          "type": "object",
+          "required": ["classification", "redaction", "access"],
+          "additionalProperties": false,
+          "properties": {
+            "classification": { "type": "string", "enum": ["public", "internal", "restricted"] },
+            "redaction": { "type": "string", "enum": ["none", "redacted", "pointer_only"] },
+            "access": { "type": "string", "enum": ["available", "protected", "unavailable"] }
+          }
+        },
+        "license": {
+          "type": "object",
+          "required": ["identifier", "usage", "restrictions"],
+          "additionalProperties": false,
+          "properties": {
+            "identifier": { "$ref": "#/$defs/nonEmptyStringType" },
+            "usage": { "type": "string", "enum": ["citation_only", "reuse_permitted", "unresolved"] },
+            "restrictions": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/nonEmptyStringType" } }
+          }
+        },
+        "status": { "type": "string", "enum": ["available", "unavailable", "withdrawn"] },
+        "limitations": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/nonEmptyStringType" } }
+      }
+    },
+    "clmData": {
+      "type": "object",
+      "required": ["statement", "classification", "sources", "counterevidence", "rationale", "uncertainty", "status", "critical"],
+      "additionalProperties": false,
+      "properties": {
+        "statement": { "$ref": "#/$defs/nonEmptyStringType" },
+        "classification": { "type": "string", "enum": ["confirmed", "inference", "assumption", "unknown"] },
+        "sources": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "required": ["id", "revision"],
+            "additionalProperties": false,
+            "properties": {
+              "id": { "type": "string", "pattern": "^SRC-[0-9]{3,}$" },
+              "revision": { "$ref": "#/$defs/revisionType" }
+            }
+          }
+        },
+        "counterevidence": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "required": ["id", "revision"],
+            "additionalProperties": false,
+            "properties": {
+              "id": { "type": "string", "pattern": "^(SRC|CLM)-[0-9]{3,}$" },
+              "revision": { "$ref": "#/$defs/revisionType" }
+            }
+          }
+        },
+        "rationale": { "$ref": "#/$defs/nonEmptyStringType" },
+        "uncertainty": { "$ref": "#/$defs/nonEmptyStringType" },
+        "status": { "type": "string", "enum": ["supported", "unresolved", "refuted", "disputed"] },
+        "critical": { "type": "boolean" }
+      }
+    },
+    "oppData": {
+      "type": "object",
+      "required": ["problem", "customer_job", "claims", "substitutes", "alternatives", "status", "rationale"],
+      "additionalProperties": false,
+      "properties": {
+        "problem": { "$ref": "#/$defs/nonEmptyStringType" },
+        "customer_job": { "$ref": "#/$defs/nonEmptyStringType" },
+        "claims": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "required": ["id", "revision"],
+            "additionalProperties": false,
+            "properties": {
+              "id": { "type": "string", "pattern": "^CLM-[0-9]{3,}$" },
+              "revision": { "$ref": "#/$defs/revisionType" }
+            }
+          }
+        },
+        "substitutes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/nonEmptyStringType" }
+        },
+        "alternatives": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/nonEmptyStringType" }
+        },
+        "status": { "type": "string", "enum": ["candidate", "selected", "deferred", "rejected"] },
+        "rationale": { "$ref": "#/$defs/nonEmptyStringType" }
+      }
+    },
+    "hypData": {
+      "type": "object",
+      "required": ["opportunity", "prediction", "mechanism", "claims", "primary_metric", "disconfirmation", "status"],
+      "additionalProperties": false,
+      "properties": {
+        "opportunity": {
+          "type": "object",
+          "required": ["id", "revision"],
+          "additionalProperties": false,
+          "properties": {
+            "id": { "type": "string", "pattern": "^OPP-[0-9]{3,}$" },
+            "revision": { "$ref": "#/$defs/revisionType" }
+          }
+        },
+        "prediction": { "$ref": "#/$defs/nonEmptyStringType" },
+        "mechanism": { "$ref": "#/$defs/nonEmptyStringType" },
+        "claims": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "required": ["id", "revision"],
+            "additionalProperties": false,
+            "properties": {
+              "id": { "type": "string", "pattern": "^CLM-[0-9]{3,}$" },
+              "revision": { "$ref": "#/$defs/revisionType" }
+            }
+          }
+        },
+        "primary_metric": {
+          "oneOf": [
+            {
+              "type": "object",
+              "required": ["id", "revision"],
+              "additionalProperties": false,
+              "properties": {
+                "id": { "type": "string", "pattern": "^MET-[0-9]{3,}$" },
+                "revision": { "$ref": "#/$defs/revisionType" }
+              }
+            },
+            { "type": "null" }
+          ]
+        },
+        "disconfirmation": { "$ref": "#/$defs/nonEmptyStringType" },
+        "status": { "type": "string", "enum": ["proposed", "testing", "supported", "refuted", "inconclusive"] }
+      }
+    },
+    "expData": {
+      "type": "object",
+      "required": ["hypothesis", "method", "eligibility", "sample_plan", "primary_metric", "guardrails", "rules", "bounds", "authorization", "status", "result"],
+      "additionalProperties": false,
+      "properties": {
+        "hypothesis": {
+          "type": "object",
+          "required": ["id", "revision"],
+          "additionalProperties": false,
+          "properties": {
+            "id": { "type": "string", "pattern": "^HYP-[0-9]{3,}$" },
+            "revision": { "$ref": "#/$defs/revisionType" }
+          }
+        },
+        "method": { "$ref": "#/$defs/nonEmptyStringType" },
+        "eligibility": { "$ref": "#/$defs/nonEmptyStringType" },
+        "sample_plan": { "$ref": "#/$defs/nonEmptyStringType" },
+        "primary_metric": {
+          "type": "object",
+          "required": ["id", "revision"],
+          "additionalProperties": false,
+          "properties": {
+            "id": { "type": "string", "pattern": "^MET-[0-9]{3,}$" },
+            "revision": { "$ref": "#/$defs/revisionType" }
+          }
+        },
+        "guardrails": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "required": ["id", "revision"],
+            "additionalProperties": false,
+            "properties": {
+              "id": { "type": "string", "pattern": "^MET-[0-9]{3,}$" },
+              "revision": { "$ref": "#/$defs/revisionType" }
+            }
+          }
+        },
+        "rules": {
+          "type": "object",
+          "required": ["success", "failure", "inconclusive"],
+          "additionalProperties": false,
+          "properties": {
+            "success": { "$ref": "#/$defs/nonEmptyStringType" },
+            "failure": { "$ref": "#/$defs/nonEmptyStringType" },
+            "inconclusive": { "$ref": "#/$defs/nonEmptyStringType" }
+          }
+        },
+        "bounds": {
+          "type": "object",
+          "required": ["starts_at", "ends_at", "budget_cap", "currency", "exposure_cap", "stop_rules"],
+          "additionalProperties": false,
+          "properties": {
+            "starts_at": { "$ref": "#/$defs/utcInstantType" },
+            "ends_at": { "$ref": "#/$defs/utcInstantType" },
+            "budget_cap": {
+              "oneOf": [
+                { "type": "string", "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]{1,4})?$" },
+                { "type": "null" }
+              ]
+            },
+            "currency": {
+              "oneOf": [
+                { "type": "string", "pattern": "^[A-Z]{3}$" },
+                { "type": "null" }
+              ]
+            },
+            "exposure_cap": {
+              "oneOf": [
+                { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+                { "type": "null" }
+              ]
+            },
+            "stop_rules": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": { "$ref": "#/$defs/nonEmptyStringType" }
+            }
+          }
+        },
+        "authorization": {
+          "oneOf": [
+            {
+              "type": "object",
+              "required": ["id", "revision"],
+              "additionalProperties": false,
+              "properties": {
+                "id": { "type": "string", "pattern": "^DEC-[0-9]{3,}$" },
+                "revision": { "$ref": "#/$defs/revisionType" }
+              }
+            },
+            { "type": "null" }
+          ]
+        },
+        "status": { "type": "string", "enum": ["proposed", "authorized", "running", "completed", "stopped"] },
+        "result": {
+          "oneOf": [
+            {
+              "type": "object",
+              "required": ["classification", "sources", "limitations"],
+              "additionalProperties": false,
+              "properties": {
+                "classification": { "type": "string", "enum": ["supported", "refuted", "inconclusive"] },
+                "sources": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "object",
+                    "required": ["id", "revision"],
+                    "additionalProperties": false,
+                    "properties": {
+                      "id": { "type": "string", "pattern": "^SRC-[0-9]{3,}$" },
+                      "revision": { "$ref": "#/$defs/revisionType" }
+                    }
+                  }
+                },
+                "limitations": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/nonEmptyStringType" } }
+              }
+            },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "invData": {
+      "type": "object",
+      "required": ["alternatives", "claims", "financial_input", "financial_result", "nonmonetary", "status", "accounting_rationale"],
+      "additionalProperties": false,
+      "properties": {
+        "alternatives": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["name", "rationale"],
+            "additionalProperties": false,
+            "properties": {
+              "name": { "$ref": "#/$defs/nonEmptyStringType" },
+              "rationale": { "$ref": "#/$defs/nonEmptyStringType" }
+            }
+          }
+        },
+        "claims": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "required": ["id", "revision"],
+            "additionalProperties": false,
+            "properties": {
+              "id": { "type": "string", "pattern": "^CLM-[0-9]{3,}$" },
+              "revision": { "$ref": "#/$defs/revisionType" }
+            }
+          }
+        },
+        "financial_input": {
+          "oneOf": [
+            {
+              "type": "object",
+              "required": ["path", "sha256"],
+              "additionalProperties": false,
+              "properties": {
+                "path": { "$ref": "#/$defs/nonEmptyStringType" },
+                "sha256": { "$ref": "#/$defs/sha256Type" }
+              }
+            },
+            { "type": "null" }
+          ]
+        },
+        "financial_result": {
+          "oneOf": [
+            {
+              "type": "object",
+              "required": ["path", "sha256"],
+              "additionalProperties": false,
+              "properties": {
+                "path": { "$ref": "#/$defs/nonEmptyStringType" },
+                "sha256": { "$ref": "#/$defs/sha256Type" }
+              }
+            },
+            { "type": "null" }
+          ]
+        },
+        "nonmonetary": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/nonEmptyStringType" } },
+        "status": { "type": "string", "enum": ["proposal", "reviewed", "deferred", "rejected"] },
+        "accounting_rationale": { "$ref": "#/$defs/nonEmptyStringType" }
+      }
+    },
+    "decData": {
+      "type": "object",
+      "required": [
+        "purpose",
+        "status",
+        "outcome",
+        "consumes",
+        "critical_claims",
+        "authority_id",
+        "authority_revision",
+        "strategy_binding",
+        "artifact_bindings",
+        "decided_at",
+        "rationale",
+        "uncertainties",
+        "revisit_triggers",
+        "supersedes"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "purpose": {
+          "type": "string",
+          "enum": ["learning", "experiment", "investment", "specification", "uat", "release", "retirement", "value_review"]
+        },
+        "status": {
+          "type": "string",
+          "enum": ["proposed", "recorded", "superseded", "revoked"]
+        },
+        "outcome": {
+          "type": "string",
+          "enum": ["propose", "authorize", "reject", "defer", "risk_accept", "scale", "iterate", "stop", "inconclusive"]
+        },
+        "consumes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "required": ["id", "revision"],
+            "additionalProperties": false,
+            "properties": {
+              "id": { "type": "string", "pattern": "^(CLM|OPP|HYP|EXP|INV|MET|REV)-[0-9]{3,}$" },
+              "revision": { "$ref": "#/$defs/revisionType" }
+            }
+          }
+        },
+        "critical_claims": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "required": ["id", "revision"],
+            "additionalProperties": false,
+            "properties": {
+              "id": { "type": "string", "pattern": "^CLM-[0-9]{3,}$" },
+              "revision": { "$ref": "#/$defs/revisionType" }
+            }
+          }
+        },
+        "authority_id": {
+          "oneOf": [
+            { "type": "string", "pattern": "^AUTH-[0-9]{3,}$" },
+            { "type": "null" }
+          ]
+        },
+        "authority_revision": {
+          "oneOf": [
+            { "$ref": "#/$defs/authorityRevisionType" },
+            { "type": "null" }
+          ]
+        },
+        "strategy_binding": {
+          "oneOf": [
+            {
+              "type": "object",
+              "required": ["authority_id", "revision"],
+              "additionalProperties": false,
+              "properties": {
+                "authority_id": { "type": "string", "pattern": "^AUTH-[0-9]{3,}$" },
+                "revision": { "$ref": "#/$defs/authorityRevisionType" }
+              }
+            },
+            { "type": "null" }
+          ]
+        },
+        "artifact_bindings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["path", "sha256"],
+            "additionalProperties": false,
+            "properties": {
+              "path": { "$ref": "#/$defs/nonEmptyStringType" },
+              "sha256": { "$ref": "#/$defs/sha256Type" }
+            }
+          }
+        },
+        "decided_at": {
+          "oneOf": [
+            { "$ref": "#/$defs/utcInstantType" },
+            { "type": "null" }
+          ]
+        },
+        "rationale": { "$ref": "#/$defs/nonEmptyStringType" },
+        "uncertainties": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/nonEmptyStringType" } },
+        "revisit_triggers": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/nonEmptyStringType" }
+        },
+        "supersedes": {
+          "oneOf": [
+            {
+              "type": "object",
+              "required": ["id", "revision"],
+              "additionalProperties": false,
+              "properties": {
+                "id": { "type": "string", "pattern": "^DEC-[0-9]{3,}$" },
+                "revision": { "$ref": "#/$defs/revisionType" }
+              }
+            },
+            { "type": "null" }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "authority_id": { "type": "null" },
+                "authority_revision": { "type": "null" }
+              }
+            },
+            {
+              "properties": {
+                "authority_id": { "type": "string", "pattern": "^AUTH-[0-9]{3,}$" },
+                "authority_revision": { "$ref": "#/$defs/authorityRevisionType" }
+              }
+            }
+          ]
+        },
+        {
+          "if": { "properties": { "status": { "const": "recorded" } }, "required": ["status"] },
+          "then": {
+            "properties": {
+              "artifact_bindings": { "minItems": 1 },
+              "decided_at": { "$ref": "#/$defs/utcInstantType" },
+              "outcome": { "not": { "const": "propose" } }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "status": { "const": "proposed" } }, "required": ["status"] },
+          "then": {
+            "properties": {
+              "outcome": { "not": { "enum": ["authorize", "scale", "stop", "risk_accept"] } },
+              "decided_at": { "type": "null" }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "status": { "enum": ["superseded", "revoked"] } }, "required": ["status"] },
+          "then": {
+            "properties": {
+              "artifact_bindings": { "minItems": 1 },
+              "decided_at": { "$ref": "#/$defs/utcInstantType" },
+              "outcome": { "not": { "const": "propose" } }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "outcome": { "const": "authorize" } }, "required": ["outcome"] },
+          "then": {
+            "properties": {
+              "purpose": { "enum": ["learning", "experiment", "investment", "specification", "uat", "release", "retirement"] }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "outcome": { "const": "risk_accept" } }, "required": ["outcome"] },
+          "then": { "properties": { "purpose": { "enum": ["investment", "release"] } } }
+        },
+        {
+          "if": {
+            "properties": {
+              "outcome": { "enum": ["scale", "iterate", "stop", "inconclusive"] }
+            },
+            "required": ["outcome"]
+          },
+          "then": { "properties": { "purpose": { "const": "value_review" } } }
+        }
+      ]
+    },
+    "metData": {
+      "type": "object",
+      "required": [
+        "definition",
+        "unit",
+        "denominator",
+        "query",
+        "query_revision",
+        "baseline",
+        "baseline_exception",
+        "comparison_window",
+        "eligibility",
+        "target",
+        "guardrail",
+        "measurement_owner",
+        "review_trigger",
+        "status"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "definition": { "$ref": "#/$defs/nonEmptyStringType" },
+        "unit": { "$ref": "#/$defs/nonEmptyStringType" },
+        "denominator": { "$ref": "#/$defs/nonEmptyStringType" },
+        "query": {
+          "oneOf": [
+            {
+              "type": "object",
+              "required": ["id", "revision"],
+              "additionalProperties": false,
+              "properties": {
+                "id": { "type": "string", "pattern": "^SRC-[0-9]{3,}$" },
+                "revision": { "$ref": "#/$defs/revisionType" }
+              }
+            },
+            { "type": "null" }
+          ]
+        },
+        "query_revision": {
+          "oneOf": [
+            { "$ref": "#/$defs/nonEmptyStringType" },
+            { "type": "null" }
+          ]
+        },
+        "baseline": {
+          "oneOf": [
+            {
+              "type": "object",
+              "required": ["value", "source", "window"],
+              "additionalProperties": false,
+              "properties": {
+                "value": { "type": "string", "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,8})?$" },
+                "source": {
+                  "type": "object",
+                  "required": ["id", "revision"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": { "type": "string", "pattern": "^SRC-[0-9]{3,}$" },
+                    "revision": { "$ref": "#/$defs/revisionType" }
+                  }
+                },
+                "window": { "$ref": "#/$defs/windowType" }
+              }
+            },
+            { "type": "null" }
+          ]
+        },
+        "baseline_exception": {
+          "oneOf": [
+            {
+              "type": "object",
+              "required": ["id", "revision"],
+              "additionalProperties": false,
+              "properties": {
+                "id": { "type": "string", "pattern": "^DEC-[0-9]{3,}$" },
+                "revision": { "$ref": "#/$defs/revisionType" }
+              }
+            },
+            { "type": "null" }
+          ]
+        },
+        "comparison_window": { "$ref": "#/$defs/windowType" },
+        "eligibility": { "$ref": "#/$defs/nonEmptyStringType" },
+        "target": { "$ref": "#/$defs/nonEmptyStringType" },
+        "guardrail": { "$ref": "#/$defs/nonEmptyStringType" },
+        "measurement_owner": { "$ref": "#/$defs/nonEmptyStringType" },
+        "review_trigger": { "$ref": "#/$defs/nonEmptyStringType" },
+        "status": { "type": "string", "enum": ["planned", "instrumented", "observed", "unavailable"] }
+      },
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "query": { "type": "null" },
+                "query_revision": { "type": "null" }
+              }
+            },
+            {
+              "properties": {
+                "query": { "type": "object" },
+                "query_revision": { "$ref": "#/$defs/nonEmptyStringType" }
+              }
+            }
+          ]
+        },
+        {
+          "not": {
+            "properties": {
+              "baseline": { "type": "object" },
+              "baseline_exception": { "type": "object" }
+            },
+            "required": ["baseline", "baseline_exception"]
+          }
+        },
+        {
+          "if": {
+            "properties": { "status": { "enum": ["instrumented", "observed"] } },
+            "required": ["status"]
+          },
+          "then": {
+            "properties": {
+              "query": { "type": "object" },
+              "query_revision": { "$ref": "#/$defs/nonEmptyStringType" }
+            }
+          }
+        }
+      ]
+    },
+    "revData": {
+      "type": "object",
+      "required": ["decision", "hypotheses", "metrics", "observations", "actual_costs", "attribution", "recommendation", "limitations", "reviewed_at"],
+      "additionalProperties": false,
+      "properties": {
+        "decision": {
+          "type": "object",
+          "required": ["id", "revision"],
+          "additionalProperties": false,
+          "properties": {
+            "id": { "type": "string", "pattern": "^DEC-[0-9]{3,}$" },
+            "revision": { "$ref": "#/$defs/revisionType" }
+          }
+        },
+        "hypotheses": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "required": ["id", "revision"],
+            "additionalProperties": false,
+            "properties": {
+              "id": { "type": "string", "pattern": "^HYP-[0-9]{3,}$" },
+              "revision": { "$ref": "#/$defs/revisionType" }
+            }
+          }
+        },
+        "metrics": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "required": ["id", "revision"],
+            "additionalProperties": false,
+            "properties": {
+              "id": { "type": "string", "pattern": "^MET-[0-9]{3,}$" },
+              "revision": { "$ref": "#/$defs/revisionType" }
+            }
+          }
+        },
+        "observations": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "required": ["id", "revision"],
+            "additionalProperties": false,
+            "properties": {
+              "id": { "type": "string", "pattern": "^SRC-[0-9]{3,}$" },
+              "revision": { "$ref": "#/$defs/revisionType" }
+            }
+          }
+        },
+        "actual_costs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "required": ["id", "revision"],
+            "additionalProperties": false,
+            "properties": {
+              "id": { "type": "string", "pattern": "^SRC-[0-9]{3,}$" },
+              "revision": { "$ref": "#/$defs/revisionType" }
+            }
+          }
+        },
+        "attribution": {
+          "type": "object",
+          "required": ["classification", "rationale", "confounders"],
+          "additionalProperties": false,
+          "properties": {
+            "classification": { "type": "string", "enum": ["descriptive", "causal_supported", "unknown"] },
+            "rationale": { "$ref": "#/$defs/nonEmptyStringType" },
+            "confounders": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/nonEmptyStringType" } }
+          }
+        },
+        "recommendation": { "type": "string", "enum": ["scale", "iterate", "stop", "inconclusive"] },
+        "limitations": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/nonEmptyStringType" } },
+        "reviewed_at": { "$ref": "#/$defs/utcInstantType" }
+      }
+    },
+    "recordType": {
+      "type": "object",
+      "required": ["id", "kind", "revision", "owner", "scope", "depends_on", "freshness", "data"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^(SRC|CLM|OPP|HYP|EXP|INV|DEC|MET|REV)-[0-9]{3,}$" },
+        "kind": { "type": "string", "enum": ["SRC", "CLM", "OPP", "HYP", "EXP", "INV", "DEC", "MET", "REV"] },
+        "revision": { "$ref": "#/$defs/revisionType" },
+        "owner": { "$ref": "#/$defs/nonEmptyStringType" },
+        "scope": { "$ref": "#/$defs/scopeType" },
+        "depends_on": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/refType" }
+        },
+        "freshness": { "$ref": "#/$defs/freshnessType" },
+        "data": { "type": "object" },
+        "extensions": { "$ref": "#/$defs/extensionsType" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "kind": { "const": "SRC" } } },
+          "then": {
+            "properties": {
+              "id": { "pattern": "^SRC-[0-9]{3,}$" },
+              "data": { "$ref": "#/$defs/srcData" }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "CLM" } } },
+          "then": {
+            "properties": {
+              "id": { "pattern": "^CLM-[0-9]{3,}$" },
+              "data": { "$ref": "#/$defs/clmData" }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "OPP" } } },
+          "then": {
+            "properties": {
+              "id": { "pattern": "^OPP-[0-9]{3,}$" },
+              "data": { "$ref": "#/$defs/oppData" }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "HYP" } } },
+          "then": {
+            "properties": {
+              "id": { "pattern": "^HYP-[0-9]{3,}$" },
+              "data": { "$ref": "#/$defs/hypData" }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "EXP" } } },
+          "then": {
+            "properties": {
+              "id": { "pattern": "^EXP-[0-9]{3,}$" },
+              "data": { "$ref": "#/$defs/expData" }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "INV" } } },
+          "then": {
+            "properties": {
+              "id": { "pattern": "^INV-[0-9]{3,}$" },
+              "data": { "$ref": "#/$defs/invData" }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "DEC" } } },
+          "then": {
+            "properties": {
+              "id": { "pattern": "^DEC-[0-9]{3,}$" },
+              "data": { "$ref": "#/$defs/decData" }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "MET" } } },
+          "then": {
+            "properties": {
+              "id": { "pattern": "^MET-[0-9]{3,}$" },
+              "data": { "$ref": "#/$defs/metData" }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "REV" } } },
+          "then": {
+            "properties": {
+              "id": { "pattern": "^REV-[0-9]{3,}$" },
+              "data": { "$ref": "#/$defs/revData" }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

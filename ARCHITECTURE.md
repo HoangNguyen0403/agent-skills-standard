@@ -109,6 +109,22 @@ Complex feature discovery uses progressive disclosure: `common-product-requireme
 
 Canonical guidance remains host-neutral; provider, account, profile, model, and machine specifics belong in host planning records only.
 
+### 3.1 Optional Product Evidence Layer (Release Candidate)
+
+Initiatives requiring rigorous, audit-grade decision backing can opt into the product evidence lifecycle. This introduces three optional workflows without altering default sync or core chain reachability:
+
+- **`discover-product`**: Frames evidence-grounded product opportunities, verified problem context, non-goals, and falsifiable hypotheses upstream of or alongside `brainstorm-feature`/`plan-feature`.
+- **`validate-product`**: Validates prioritized hypotheses through bounded experiments, precommitted thresholds, and host authorization gates before committing implementation capacity.
+- **`review-product-value`**: Audits realized post-release product value against registered measurement contracts and baseline evidence, decoupling delivery completion from causal ROI.
+
+All product decisions ground in a versioned local evidence ledger at `docs/product/<slug>/evidence.json` managed by `common/common-product-evidence`, featuring immutable recorded decisions (`DEC`), structured provenance, and host authorization boundaries.
+
+### 3.2 Discovery & Runtime Boundaries
+
+- **Runtime Versions**: Standalone resource scripts (`skills/common/common-product-evidence/scripts/validate-product-evidence.mjs` and `skills/product-management/product-investment/scripts/evaluate-investment.mjs`) are standalone ECMAScript modules requiring Node >=20. In contrast, the CLI sync engine (`SyncService.ts` using `Promise.withResolvers`) and the T09 consumer integration test harness require Node 22+.
+- **Workflow Discovery Surface**: The MCP server (`list_workflows`, `get_workflow`) scans only the canonical `<root>/.agents/workflows` directory, which is exported by default to Antigravity and Kiro. Other agents (Codex, Claude, Gemini, Roo, OpenCode) receive workflows through their respective native command or skill surfaces (`.codex/skills`, `.claude/commands`, `.gemini/commands`, etc.). No runtime scanner expansion into native directories is introduced.
+- **JSON Routing & Common Triggers**: Adding `file_routing.json: ["common"]` in `metadata.json` maps `*.json` to `<SKILLS>/common/_INDEX.md`. This deliberately restores dormant common JSON file triggers (e.g. `package.json` matching `common-architecture-audit` and `common-security-audit`, `hooks.json` matching `common-agent-guardrails`, `evals.json` matching `common-skill-creator`). In contrast, all seven `product-management` skills remain strictly keyword-only (`triggers.files: []`), and `common-product-evidence` uses a narrow scoped file trigger (`docs/product/*/evidence.json`). Neither `product-management` nor `common-product-evidence` is ever activated by `package.json` or unrelated JSON files.
+
 ## 4. Hook-Based Transparency
 
 Inspired by **Rust Token Killer (RTK)**, we aim for a zero-trust, low-overhead context model. This means:
