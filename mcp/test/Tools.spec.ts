@@ -638,3 +638,186 @@ describe("tools — project policy integration", () => {
     );
   });
 });
+
+async function productEvidenceToolsFixture(): Promise<{
+  root: string;
+  cleanup: () => Promise<void>;
+}> {
+  const root = await fs.mkdtemp(
+    path.join(os.tmpdir(), "ags-tools-pe-fixture-"),
+  );
+  const skills = path.join(root, "skills");
+  await fs.ensureDir(skills);
+  await fs.writeJson(path.join(skills, "metadata.json"), {
+    file_routing: {
+      json: ["common", "product-management"],
+      md: ["common", "product-management"],
+    },
+    broad_globs: [],
+    base_language_skills: {},
+  });
+  const realCommon = path.join(
+    __dirname,
+    "../../skills/common/common-software-requirements",
+  );
+  await fs.copy(
+    realCommon,
+    path.join(skills, "common", "common-software-requirements"),
+  );
+
+  await writeSkill(skills, "product-management", "product-evidence", {
+    files: ["docs/product/*/evidence.json"],
+    keywords: [
+      "product evidence ledger",
+      "product decision authority",
+      "product evidence freshness",
+    ],
+  });
+
+  await writeSkill(skills, "product-management", "product-investment", {
+    files: [],
+    keywords: ["product investment analysis", "product ROI scenario"],
+  });
+
+  await fs.ensureDir(path.join(skills, "product-management", "references"));
+  const realFrameworkMap = path.join(
+    __dirname,
+    "../../skills/product-management/references/framework-map.md",
+  );
+  await fs.copy(
+    realFrameworkMap,
+    path.join(skills, "product-management", "references", "framework-map.md"),
+  );
+
+  await fs.writeFile(path.join(root, "AGENTS.md"), "# fixture\n");
+  return { root, cleanup: () => fs.remove(root) };
+}
+
+describe("tools — product evidence & PM routing", () => {
+  let peFixture: { root: string; cleanup: () => Promise<void> };
+
+  beforeEach(async () => {
+    peFixture = await productEvidenceToolsFixture();
+  });
+
+  afterEach(async () => {
+    await peFixture.cleanup();
+  });
+
+  it("returns exact body and direct provenance for getSkill on installed PM skill", async () => {
+    const ctx = await makeCtx(
+      path.join(peFixture.root, "skills"),
+      { kind: "ready" },
+      peFixture.root,
+    );
+    const out = await getSkill(
+      { category: "product-management", name: "product-investment" },
+      ctx,
+    );
+    const body = text(out);
+    expect(body).toContain("# product-investment");
+    expect(body).toContain("matched: direct");
+  });
+
+  it("returns gap guidance when a skill does not exist in installed category", async () => {
+    const ctx = await makeCtx(
+      path.join(peFixture.root, "skills"),
+      { kind: "ready" },
+      peFixture.root,
+    );
+    const out = await getSkill(
+      { category: "product-management", name: "missing-skill" },
+      ctx,
+    );
+    expect(text(out)).toContain(
+      'it does not contain a skill named "missing-skill"',
+    );
+  });
+
+  it("routes scoped docs/product/*/evidence.json and rejects unrelated files", async () => {
+    const ctx = await makeCtx(
+      path.join(peFixture.root, "skills"),
+      { kind: "ready" },
+      peFixture.root,
+    );
+    const matched = await loadSkillsForFiles(
+      { files: ["docs/product/analytics/evidence.json"] },
+      ctx,
+    );
+    expect(text(matched)).toContain("# product-evidence");
+    expect(text(matched)).toContain(
+      "matched: file:docs/product/*/evidence.json",
+    );
+
+    const unrelated = await loadSkillsForFiles(
+      { files: ["README.md", "package.json"] },
+      ctx,
+    );
+    expect(text(unrelated)).not.toContain("product-evidence");
+    expect(text(unrelated)).toContain("did not match any tier-eligible skill");
+  });
+
+  it("routes qualified PM keywords and rejects bare negative keywords", async () => {
+    const ctx = await makeCtx(
+      path.join(peFixture.root, "skills"),
+      { kind: "ready" },
+      peFixture.root,
+    );
+    const matched = await loadSkillsForKeywords(
+      { keywords: ["product investment analysis"] },
+      ctx,
+    );
+    expect(text(matched)).toContain("# product-investment");
+    expect(text(matched)).toContain(
+      "matched: keyword:product investment analysis",
+    );
+
+    const bare = await loadSkillsForKeywords(
+      { keywords: ["ROI", "market", "strategy"] },
+      ctx,
+    );
+    expect(text(bare)).not.toContain("product-investment");
+    expect(text(bare)).toContain(
+      "No skill keyword triggers matched: ROI, market, strategy",
+    );
+  });
+
+  it("serves category guide for product-management", async () => {
+    const ctx = await makeCtx(
+      path.join(peFixture.root, "skills"),
+      { kind: "ready" },
+      peFixture.root,
+    );
+    const out = await getCategoryGuide({ category: "product-management" }, ctx);
+    const body = text(out);
+    expect(body).toContain("# Product Management Framework Map");
+    expect(body).toContain("Evidence-Based Management");
+    expect(body).toContain("validate-product-evidence.mjs");
+    expect(body).toContain("evaluate-investment.mjs");
+  });
+
+  it("handles absence/exclusion when product-management is removed", async () => {
+    await fs.remove(path.join(peFixture.root, "skills", "product-management"));
+    const ctx = await makeCtx(
+      path.join(peFixture.root, "skills"),
+      { kind: "ready" },
+      peFixture.root,
+    );
+
+    const out = await getSkill(
+      { category: "product-management", name: "product-investment" },
+      ctx,
+    );
+    expect(text(out)).toContain(
+      'Category "product-management" does not exist in this project.',
+    );
+
+    const kw = await loadSkillsForKeywords(
+      { keywords: ["product investment analysis"] },
+      ctx,
+    );
+    expect(text(kw)).toContain(
+      "No skill keyword triggers matched: product investment analysis",
+    );
+  });
+});

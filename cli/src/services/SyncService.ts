@@ -175,12 +175,15 @@ export class SyncService {
       skills: CollectedSkill[];
       workflows: CollectedSkill[];
       specialistsOk: boolean;
+      refreshIndices?: boolean;
+      localMetadata?: RegistryMetadata;
     },
   ): Promise<InstallPlan> {
     if (!this.ownership) {
       throw new Error('beginInstall() must run before completeInstall()');
     }
-    const agents = new Set<string>(await this.resolveTargetAgents(config));
+    const resolvedAgents = await this.resolveTargetAgents(config);
+    const agents = new Set<string>(resolvedAgents);
     const configured = new Set(Object.keys(config.skills));
     const fetched = new Set(run.skills.map((s) => s.category));
     const workflowsOk =
@@ -192,23 +195,32 @@ export class SyncService {
         .replace(/^(skill|index):/, '')
         .split('/')[0]
         .split('@')[0];
-    const { plan, entries } = await this.ownership.finalize((_rel, e) => {
-      if (!pruneEnabled) return false;
-      if (!agents.has(e.agent)) return true;
-      switch (e.owner) {
-        case 'skill':
-        case 'index': {
-          const cat = categoryOf(e.source);
-          return !configured.has(cat) || fetched.has(cat);
+    const { plan, entries } = await this.ownership.finalize(
+      (_rel, e) => {
+        if (!pruneEnabled) return false;
+        if (!agents.has(e.agent)) return true;
+        switch (e.owner) {
+          case 'skill':
+          case 'index': {
+            const cat = categoryOf(e.source);
+            if (e.owner === 'index' && run.refreshIndices && configured.has(cat)) {
+              return false;
+            }
+            return !configured.has(cat) || fetched.has(cat);
+          }
+          case 'workflow':
+            return workflowsOk;
+          case 'specialist':
+            return run.specialistsOk;
+          case 'bridge':
+            return !run.refreshIndices;
         }
-        case 'workflow':
-          return workflowsOk;
-        case 'specialist':
-          return run.specialistsOk;
-        case 'bridge':
-          return true;
-      }
-    });
+      },
+      run.refreshIndices
+        ? () =>
+            this.applyIndices(config, resolvedAgents, run.localMetadata)
+        : undefined,
+    );
     if (!this.dryRun) {
       await this.lockfileService.write(process.cwd(), {
         version: 2,
@@ -462,6 +474,7 @@ export class SyncService {
   async applyIndices(
     config: SkillConfig,
     targetAgents?: Agent[],
+    localMetadata?: RegistryMetadata,
   ): Promise<void> {
     const agents = targetAgents || (await this.resolveTargetAgents(config));
     if (agents.length === 0) return;
@@ -485,7 +498,7 @@ export class SyncService {
       // Use cached/fetched metadata.json from the registry and inject it into the
       // generator in-memory. This gives assembleRouterIndex the file_routing, broad_globs,
       // and base_language_skills it needs without writing anything to disk.
-      const meta = await this.fetchRegistryMetadata(config);
+      const meta = localMetadata ?? (await this.fetchRegistryMetadata(config));
       if (meta) {
         generator.withMetadata(meta);
       }

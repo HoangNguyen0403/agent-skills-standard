@@ -1,0 +1,252 @@
+{
+  "skill_name": "product-requirements",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Create product requirements for notifications. Supplied facts: delivery is required through both in-app and email channels; quiet-hours policy is unconfirmed. Product Owner is responsible for deciding quiet-hours policy. Return distinct rows using these field schemas: REQUIREMENT|<scope>|<supplied fact>|<status>|<owner>|<verification>; DECISION|<open question>|<status>|<owner>|required-input=<input>. Do not merge distinct requirements or decisions.",
+      "expected_output": "Two confirmed channel records and one owned quiet-hours decision with required input.\nExpected controlled outcome records:\nREQUIREMENT|notification-delivery|in-app|CONFIRMED|Product Owner|approved notification acceptance check\nREQUIREMENT|notification-delivery|email|CONFIRMED|Product Owner|approved notification acceptance check\nDECISION|quiet-hours|UNRESOLVED|Product Owner|required-input=approved quiet-hours policy",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)REQUIREMENT\\|notification-delivery\\|in-app\\|CONFIRMED\\|Product Owner\\|[^|\\r\\n]+(?:\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)REQUIREMENT\\|notification-delivery\\|email\\|CONFIRMED\\|Product Owner\\|[^|\\r\\n]+(?:\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)DECISION\\|quiet-hours\\|UNRESOLVED\\|Product Owner\\|required-input=[^|\\r\\n]*quiet-hours[^|\\r\\n]*(?:\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)DECISION\\|quiet-hours\\|(?!UNRESOLVED\\|Product Owner\\|required-input=[^|\\r\\n]*quiet-hours)[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)DECISION\\|quiet-hours\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?DECISION\\|quiet-hours\\|)[\\s\\S]*$"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Draft product requirements for checkout performance. Supplied approved evidence: current baseline P95 latency is 1.2 seconds. The target latency SLA has not been decided. Product Owner supplies the approved target SLA. Use separate rows with these neutral schemas: BASELINE|<scope>|<value>|<unit>|<measure>|<evidence status>; TARGET|<scope>|<decision status>|<owner>|required-input=<input>. Do not infer target from baseline.",
+      "expected_output": "Keep 1.2 seconds as the approved P95 baseline; keep the target SLA unresolved with an owner and required input.\nExpected controlled outcome records:\nBASELINE|checkout-latency|1.2|seconds|P95|APPROVED\nTARGET|checkout-latency|UNRESOLVED|Product Owner|required-input=approved target SLA",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)BASELINE\\|checkout-latency\\|1\\.2\\|seconds\\|P95\\|APPROVED(?:\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)TARGET\\|checkout-latency\\|UNRESOLVED\\|Product Owner\\|required-input=approved target SLA(?:\\r?\\n|$)"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Draft product requirements for payment checkout. Supplied facts: payment provider is Stripe; supported currencies are USD and EUR; 3DS authentication is mandatory before payment authorization. The guest-checkout policy is undecided and Product Owner owns that decision. Return distinct rows using only these neutral schemas: FACT|<scope>|<attribute>|<supplied value>|<status>; RULE|<condition>|<required consequence>|<verification>; OUTCOME|<condition result>|<authorization consequence>|<completion consequence>; DECISION|<open question>|<status>|<owner>|required-input=<input>. Describe outcomes of successful and failed 3DS results in relation to payment authorization and checkout completion.",
+      "expected_output": "Preserve Stripe, USD and EUR, and mandatory 3DS before authorization. Successful 3DS may allow authorization to proceed subject to the payment result; failed 3DS must not authorize payment. Keep guest checkout unresolved with Product Owner and required input.\nExpected controlled outcome records:\nFACT|payment checkout|provider|Stripe|CONFIRMED\nFACT|payment checkout|supported currency|USD|CONFIRMED\nFACT|payment checkout|supported currency|EUR|CONFIRMED\nRULE|3DS authentication|required before payment authorization|checked before authorization\nOUTCOME|3DS passed|authorization may proceed|payment outcome still determines completion\nOUTCOME|3DS failed|payment authorization not granted|checkout does not complete\nDECISION|guest checkout|UNRESOLVED|Product Owner|required-input=approved guest-checkout policy",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)FACT\\|payment checkout\\|provider\\|Stripe\\|CONFIRMED(?:\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)FACT\\|payment checkout\\|supported currency\\|USD\\|CONFIRMED(?:\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)FACT\\|payment checkout\\|supported currency\\|EUR\\|CONFIRMED(?:\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)RULE\\|3DS authentication\\|required before payment authorization\\|[^\\r\\n|]+(?:\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)OUTCOME\\|3DS passed\\|authorization may proceed\\|payment outcome still determines completion(?:\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)OUTCOME\\|3DS failed\\|payment authorization not granted\\|checkout does not complete(?:\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)DECISION\\|guest checkout\\|UNRESOLVED\\|Product Owner\\|required-input=approved guest-checkout policy(?:\\r?\\n|$)"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "The code seems already done, but this controlled ticket has no behavioral acceptance criteria. Can engineering mark the feature complete and close the ticket? Product Owner is accountable for supplying the missing behavioral AC. Use neutral unpadded rows following READINESS|<decision subject>|<verdict>|<authorization>|<basis>|<owner> and NEXT|<subject>|<gate>|<required artifact>|<destination>|<owner>.",
+      "expected_output": "Do not authorize completion or closure. Record the affected feature as not ready because behavioral AC are missing, and route to PM planning for those AC with Product Owner accountable.\nExpected controlled outcome records:\nREADINESS|feature completion|NOT READY|NOT AUTHORIZED|missing behavioral acceptance criteria|Product Owner\nNEXT|ticket closure|BLOCKED UNTIL|behavioral acceptance criteria|PM planning|Product Owner",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)READINESS\\|feature completion\\|NOT READY\\|NOT AUTHORIZED\\|[^|\\r\\n]*(?:missing|absent)[^|\\r\\n]*behavioral acceptance criteria[^|\\r\\n]*\\|Product Owner(?:\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)NEXT\\|ticket closure\\|BLOCKED UNTIL\\|[^|\\r\\n]*behavioral acceptance criteria[^|\\r\\n]*\\|PM planning\\|Product Owner(?:\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)READINESS\\|feature completion\\|(?!NOT READY\\|NOT AUTHORIZED\\|)[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)NEXT\\|ticket closure\\|(?!BLOCKED UNTIL\\|)[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)READINESS\\|feature completion\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?READINESS\\|feature completion\\|)[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)NEXT\\|ticket closure\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?NEXT\\|ticket closure\\|)[\\s\\S]*$"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "We are an offshore delivery team planning a new multi-service feature before development starts. In this controlled case, no role-accountability map, validation owner, or behavioral acceptance criteria have been recorded. State which governance, validation ownership, and acceptance prerequisites are missing and how they gate development. Use neutral unpadded rows following REQUIREMENT|<prerequisite>|<status>|<required input> and GATE|<handoff>|<verdict>|<condition>.",
+      "expected_output": "Identify unresolved role accountability, validation ownership, and behavioral acceptance criteria; block development handoff until all three are supplied.\nExpected controlled outcome records:\nREQUIREMENT|role accountability|MISSING|named role/owner mapping\nREQUIREMENT|validation ownership|MISSING|named validation owner\nREQUIREMENT|behavioral acceptance criteria|MISSING|approved observable criteria\nGATE|development handoff|BLOCKED|role accountability, validation ownership, and behavioral acceptance criteria must be supplied",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)REQUIREMENT\\|role accountability\\|MISSING\\|[^|\\r\\n]*(?:role|owner|mapping)[^|\\r\\n]*(?:\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)REQUIREMENT\\|validation ownership\\|MISSING\\|[^|\\r\\n]*validation owner[^|\\r\\n]*(?:\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)REQUIREMENT\\|behavioral acceptance criteria\\|MISSING\\|[^|\\r\\n]*(?:behavioral|observable)[^|\\r\\n]*criteria[^|\\r\\n]*(?:\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)GATE\\|development handoff\\|BLOCKED\\|(?=[^|\\r\\n]*\\brole accountability\\b)(?=[^|\\r\\n]*\\bvalidation ownership\\b)(?=[^|\\r\\n]*\\bbehavioral acceptance criteria\\b)[^|\\r\\n]+(?:\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)GATE\\|development handoff\\|(?!BLOCKED\\|)[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)GATE\\|development handoff\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?GATE\\|development handoff\\|)[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)REQUIREMENT\\|(?:role accountability|validation ownership|behavioral acceptance criteria)\\|(?!MISSING\\|)[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)REQUIREMENT\\|role accountability\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?REQUIREMENT\\|role accountability\\|)[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)REQUIREMENT\\|validation ownership\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?REQUIREMENT\\|validation ownership\\|)[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)REQUIREMENT\\|behavioral acceptance criteria\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?REQUIREMENT\\|behavioral acceptance criteria\\|)[\\s\\S]*$"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Review product scope completeness and capability boundaries for loan management. Supplied facts: approved Release 1.0 scope commitments include loan application intake, collateral appraisal, fund disbursement, and payment collection; borrower accounts may incur late payments or default after the payment due date; Product Owner is responsible for decisions on uncommitted capability scope. Return distinct records with no padding around | using: CAPABILITY|<capability>|<disposition>|<status>, and DECISION|<uncommitted capability>|<status>|<owner>|required-input=<input>. Permitted disposition values: IN_SCOPE, DEFERRED, EXCLUDED. Permitted decision status values: RESOLVED, UNRESOLVED. Do not invent release commitments or silently omit uncommitted capabilities.",
+      "expected_output": "Classify each approved committed capability as IN_SCOPE and identify uncommitted overdue loan handling as an UNRESOLVED scope decision for Product Owner disposition; do not invent an in-scope status for overdue handling.\nExpected controlled outcome records:\nCAPABILITY|loan application intake|IN_SCOPE|CONFIRMED\nCAPABILITY|collateral appraisal|IN_SCOPE|CONFIRMED\nCAPABILITY|fund disbursement|IN_SCOPE|CONFIRMED\nCAPABILITY|payment collection|IN_SCOPE|CONFIRMED\nDECISION|overdue loan handling|UNRESOLVED|Product Owner|required-input=scope disposition (in_scope, deferred, or excluded)",
+      "assertions": [
+        { "type": "regex", "value": "(?:^|\\r?\\n)CAPABILITY\\|loan application intake\\|IN_SCOPE\\|CONFIRMED(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)CAPABILITY\\|collateral appraisal\\|IN_SCOPE\\|CONFIRMED(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)CAPABILITY\\|fund disbursement\\|IN_SCOPE\\|CONFIRMED(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)CAPABILITY\\|payment collection\\|IN_SCOPE\\|CONFIRMED(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)CAPABILITY\\|loan application intake\\|(?!IN_SCOPE\\|CONFIRMED(?:\\r?\\n|$))[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)CAPABILITY\\|collateral appraisal\\|(?!IN_SCOPE\\|CONFIRMED(?:\\r?\\n|$))[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)CAPABILITY\\|fund disbursement\\|(?!IN_SCOPE\\|CONFIRMED(?:\\r?\\n|$))[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)CAPABILITY\\|payment collection\\|(?!IN_SCOPE\\|CONFIRMED(?:\\r?\\n|$))[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)CAPABILITY\\|loan application intake\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?CAPABILITY\\|loan application intake\\|)[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)CAPABILITY\\|collateral appraisal\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?CAPABILITY\\|collateral appraisal\\|)[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)CAPABILITY\\|fund disbursement\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?CAPABILITY\\|fund disbursement\\|)[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)CAPABILITY\\|payment collection\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?CAPABILITY\\|payment collection\\|)[\\s\\S]*$" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)DECISION\\|(?:overdue loan handling|overdue handling|delinquent loan handling)\\|UNRESOLVED\\|Product Owner\\|required-input=[^|\\r\\n]*(?:in_scope|disposition)[^|\\r\\n]*(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)CAPABILITY\\|[^|\\r\\n]*(?:overdue|delinquent)[^|\\r\\n]*\\|)[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)DECISION\\|(?:overdue loan handling|overdue handling|delinquent loan handling)\\|(?!UNRESOLVED\\|Product Owner\\|required-input=[^|\\r\\n]*(?:in_scope|disposition)[^|\\r\\n]*(?:\\r?\\n|$))[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)DECISION\\|(?:overdue loan handling|overdue handling|delinquent loan handling)\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?DECISION\\|(?:overdue loan handling|overdue handling|delinquent loan handling)\\|)[\\s\\S]*$" }
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Model requirement specifications for customer identity verification across user onboarding intake and loan disbursement flows. Supplied facts: Flow 1 user onboarding intake validates customer legal identity and sanctions records; Flow 2 loan disbursement re-validates customer legal identity before releasing loan proceeds. Return distinct records with no padding around | using: RULE_DEFINITION|<rule name>|<definition role>|<authority>, and FLOW_REFERENCE|<flow name>|<referenced rule>|<usage>. Permitted definition roles: CANONICAL, DUPLICATE. Permitted usage values: REFERENCE, INLINE_COPY.",
+      "expected_output": "Define customer identity verification once as CANONICAL and reference it from both user onboarding intake and loan disbursement flows; do not create duplicate definitions or inline copies.\nExpected controlled outcome records:\nRULE_DEFINITION|customer identity verification|CANONICAL|Product requirements\nFLOW_REFERENCE|user onboarding intake|customer identity verification|REFERENCE\nFLOW_REFERENCE|loan disbursement|customer identity verification|REFERENCE",
+      "assertions": [
+        { "type": "regex", "value": "(?:^|\\r?\\n)FLOW_REFERENCE\\|user onboarding intake\\|customer identity verification\\|REFERENCE(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)FLOW_REFERENCE\\|loan disbursement\\|customer identity verification\\|REFERENCE(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)RULE_DEFINITION\\|customer identity verification\\|CANONICAL\\|[^|\\r\\n]+(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)RULE_DEFINITION\\|customer identity verification\\|CANONICAL\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?RULE_DEFINITION\\|customer identity verification\\|CANONICAL\\|)[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)(?:RULE_DEFINITION\\|customer identity verification\\|DUPLICATE\\||FLOW_REFERENCE\\|(?:user onboarding intake|loan disbursement)\\|customer identity verification\\|INLINE_COPY)(?:[^\\r\\n]*)(?:\\r?\\n|$))[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)FLOW_REFERENCE\\|user onboarding intake\\|customer identity verification\\|REFERENCE[^\\r\\n]*\\r?\\n[\\s\\S]*?FLOW_REFERENCE\\|user onboarding intake\\|customer identity verification\\|REFERENCE)[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)FLOW_REFERENCE\\|loan disbursement\\|customer identity verification\\|REFERENCE[^\\r\\n]*\\r?\\n[\\s\\S]*?FLOW_REFERENCE\\|loan disbursement\\|customer identity verification\\|REFERENCE)[\\s\\S]*$" }
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Select requirement views and assess readiness for three distinct items. Supplied facts: Item A needs to clarify message exchange order and call protocol between checkout service, payment gateway, and fraud engine during payment authorization (question category: participant interactions over time); Item B needs to clarify multi-condition customer tier, cart total, and promo coupon combinations for discount eligibility (question category: interacting rules; markdown truth tables clarify all combinations without visual drawings); Item C is an approved low-risk UI maintenance change TICK-4521 updating submit button text from 'Pay' to 'Complete Purchase', with accountable owner UI Engineer, approver Product Owner, scope fence submit button label only, behavioral AC TICK-4521-AC-1 (Given user on review step When page loads Then submit button text displays 'Complete Purchase'), and verification lane checkout UI component test. Return distinct records with no padding around | using: VIEW_SELECTION|<item>|<question category>|<selected view>|<diagram requirement>, and TICKET_ROUTING|<item>|<risk tier>|modeling=<modeling required>|verdict=<verdict>|owner=<owner>|approval=<approval>|scope_fence=<scope fence>|ac=<ac>|verification=<lane>. Permitted question categories: participant interactions, interacting rules, state lifecycle. Permitted views: sequence, decision table, state. Permitted diagram requirements: OPTIONAL, NOT_REQUIRED, MANDATORY. Permitted modeling: REQUIRED, NOT_REQUIRED. Permitted verdicts: READY, BLOCKED.",
+      "expected_output": "Map Item A to sequence with an OPTIONAL or NOT_REQUIRED diagram, Item B to a decision table with an OPTIONAL or NOT_REQUIRED diagram, and route Item C directly to READY without modeling using its approved AC, owner, approval, scope fence, and verification.\nExpected controlled outcome records:\nVIEW_SELECTION|Item A|participant interactions|sequence|OPTIONAL\nVIEW_SELECTION|Item B|interacting rules|decision table|OPTIONAL\nTICKET_ROUTING|Item C|low-risk|modeling=NOT_REQUIRED|verdict=READY|owner=UI Engineer|approval=Product Owner|scope_fence=submit button label only|ac=TICK-4521-AC-1|verification=checkout UI component test",
+      "assertions": [
+        { "type": "regex", "value": "(?:^|\\r?\\n)VIEW_SELECTION\\|Item A\\|participant interactions\\|sequence\\|(?:OPTIONAL|NOT_REQUIRED)(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)VIEW_SELECTION\\|Item B\\|interacting rules\\|decision table\\|(?:OPTIONAL|NOT_REQUIRED)(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)TICKET_ROUTING\\|Item C\\|low-risk\\|modeling=NOT_REQUIRED\\|verdict=READY\\|owner=UI Engineer\\|approval=Product Owner\\|scope_fence=[^|\\r\\n]+\\|ac=TICK-4521-AC-1\\|verification=checkout UI component test(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)VIEW_SELECTION\\|Item A\\|(?!participant interactions\\|sequence\\|(?:OPTIONAL|NOT_REQUIRED)(?:\\r?\\n|$))[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)VIEW_SELECTION\\|Item B\\|(?!interacting rules\\|decision table\\|(?:OPTIONAL|NOT_REQUIRED)(?:\\r?\\n|$))[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)VIEW_SELECTION\\|Item A\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?VIEW_SELECTION\\|Item A\\|)[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)VIEW_SELECTION\\|Item B\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?VIEW_SELECTION\\|Item B\\|)[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)TICKET_ROUTING\\|Item C\\|(?!low-risk\\|modeling=NOT_REQUIRED\\|verdict=READY\\|owner=UI Engineer\\|approval=Product Owner\\|scope_fence=[^|\\r\\n]+\\|ac=TICK-4521-AC-1\\|verification=checkout UI component test(?:\\r?\\n|$))[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)TICKET_ROUTING\\|Item C\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?TICKET_ROUTING\\|Item C\\|)[\\s\\S]*$" }
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Perform a scoped change-impact review for a requirement modification. Supplied facts: Approved baseline has Requirement REQ-010 (Notification delivery), linked AC AC-025 (SMS delivery timeout behavior), linked contract notification-contract (SMS gateway payload), linked governance approval APPROVAL-010 (Product Owner signoff on SMS delivery), and linked verification evidence EVIDENCE-025 (SMS integration test walkthrough); Unrelated settled baseline has Requirement REQ-001 (User authentication), linked AC AC-002 (Password complexity check), linked contract auth-contract (JWT token spec), linked governance approval APPROVAL-001 (Security Owner signoff on auth), and linked verification evidence EVIDENCE-002 (Auth unit test suite). Change event: REQ-010 delivery channel requirement changes from SMS to push notification. Return distinct records with no padding around | using: IMPACTED|<artifact id>|<artifact type>|<action>, and PRESERVED|<artifact id>|<artifact type>|<action>. Permitted action values for IMPACTED: UPDATE_AC, UPDATE_CONTRACT, REFRESH_APPROVAL, REFRESH_EVIDENCE. Permitted action values for PRESERVED: RETAIN_SETTLED.",
+      "expected_output": "Identify AC-025, notification-contract, APPROVAL-010, and EVIDENCE-025 as IMPACTED with their matching update/refresh actions. Preserve REQ-001, AC-002, auth-contract, APPROVAL-001, and EVIDENCE-002 as PRESERVED with RETAIN_SETTLED.\nExpected controlled outcome records:\nIMPACTED|AC-025|acceptance criterion|UPDATE_AC\nIMPACTED|notification-contract|contract|UPDATE_CONTRACT\nIMPACTED|APPROVAL-010|governance approval|REFRESH_APPROVAL\nIMPACTED|EVIDENCE-025|verification evidence|REFRESH_EVIDENCE\nPRESERVED|REQ-001|requirement|RETAIN_SETTLED\nPRESERVED|AC-002|acceptance criterion|RETAIN_SETTLED\nPRESERVED|auth-contract|contract|RETAIN_SETTLED\nPRESERVED|APPROVAL-001|governance approval|RETAIN_SETTLED\nPRESERVED|EVIDENCE-002|verification evidence|RETAIN_SETTLED",
+      "assertions": [
+        { "type": "regex", "value": "(?:^|\\r?\\n)IMPACTED\\|AC-025\\|acceptance criterion\\|UPDATE_AC(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)IMPACTED\\|notification-contract\\|contract\\|UPDATE_CONTRACT(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)IMPACTED\\|APPROVAL-010\\|governance approval\\|REFRESH_APPROVAL(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)IMPACTED\\|EVIDENCE-025\\|verification evidence\\|REFRESH_EVIDENCE(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)PRESERVED\\|REQ-001\\|requirement\\|RETAIN_SETTLED(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)PRESERVED\\|AC-002\\|acceptance criterion\\|RETAIN_SETTLED(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)PRESERVED\\|auth-contract\\|contract\\|RETAIN_SETTLED(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)PRESERVED\\|APPROVAL-001\\|governance approval\\|RETAIN_SETTLED(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)PRESERVED\\|EVIDENCE-002\\|verification evidence\\|RETAIN_SETTLED(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)(?:IMPACTED|PRESERVED)\\|(?!AC-025\\|acceptance criterion\\|UPDATE_AC(?:\\r?\\n|$)|notification-contract\\|contract\\|UPDATE_CONTRACT(?:\\r?\\n|$)|APPROVAL-010\\|governance approval\\|REFRESH_APPROVAL(?:\\r?\\n|$)|EVIDENCE-025\\|verification evidence\\|REFRESH_EVIDENCE(?:\\r?\\n|$)|REQ-001\\|requirement\\|RETAIN_SETTLED(?:\\r?\\n|$)|AC-002\\|acceptance criterion\\|RETAIN_SETTLED(?:\\r?\\n|$)|auth-contract\\|contract\\|RETAIN_SETTLED(?:\\r?\\n|$)|APPROVAL-001\\|governance approval\\|RETAIN_SETTLED(?:\\r?\\n|$)|EVIDENCE-002\\|verification evidence\\|RETAIN_SETTLED(?:\\r?\\n|$))[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)(?:IMPACTED|PRESERVED)\\|(?!AC-025|notification-contract|APPROVAL-010|EVIDENCE-025|REQ-001|AC-002|auth-contract|APPROVAL-001|EVIDENCE-002)[^|\\r\\n]*\\|[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)(?:IMPACTED|PRESERVED)\\|AC-025\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?(?:IMPACTED|PRESERVED)\\|AC-025\\|)[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)(?:IMPACTED|PRESERVED)\\|notification-contract\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?(?:IMPACTED|PRESERVED)\\|notification-contract\\|)[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)(?:IMPACTED|PRESERVED)\\|APPROVAL-010\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?(?:IMPACTED|PRESERVED)\\|APPROVAL-010\\|)[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)(?:IMPACTED|PRESERVED)\\|EVIDENCE-025\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?(?:IMPACTED|PRESERVED)\\|EVIDENCE-025\\|)[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)(?:IMPACTED|PRESERVED)\\|REQ-001\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?(?:IMPACTED|PRESERVED)\\|REQ-001\\|)[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)(?:IMPACTED|PRESERVED)\\|AC-002\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?(?:IMPACTED|PRESERVED)\\|AC-002\\|)[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)(?:IMPACTED|PRESERVED)\\|auth-contract\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?(?:IMPACTED|PRESERVED)\\|auth-contract\\|)[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)(?:IMPACTED|PRESERVED)\\|APPROVAL-001\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?(?:IMPACTED|PRESERVED)\\|APPROVAL-001\\|)[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)(?:IMPACTED|PRESERVED)\\|EVIDENCE-002\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?(?:IMPACTED|PRESERVED)\\|EVIDENCE-002\\|)[\\s\\S]*$" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Create a BRD for reducing claims processing cost",
+    "Write an SRS for payment retry state transitions",
+    "Design architecture for event-driven order sync",
+    "Write a Go function to parse JSON",
+    "Add unit tests for the auth service",
+    "Fix a typo in the login button label"
+  ],
+  "should_trigger": [
+    "Create a PRD for a new user notifications feature.",
+    "Decompose product scope and define acceptance criteria for lending intake."
+  ]
+}

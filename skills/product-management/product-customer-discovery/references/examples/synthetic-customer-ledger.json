@@ -1,0 +1,276 @@
+{
+  "schema_version": 1,
+  "slug": "synthetic-customer-discovery",
+  "product_id": "synthetic-discovery-product",
+  "revision": "r1",
+  "synthetic": true,
+  "updated_at": "2026-10-12T10:00:00Z",
+  "strategy_authority": null,
+  "strategy_gap": "Synthetic customer discovery intake has no approved strategy authority",
+  "authorities": [],
+  "records": [
+    {
+      "id": "SRC-001",
+      "kind": "SRC",
+      "revision": "r1",
+      "owner": "Customer Research Lead",
+      "scope": {
+        "segment": "Mid-market B2B SaaS Operations",
+        "geography": "North America",
+        "window": {
+          "start": "2026-09-01T00:00:00Z",
+          "end": "2026-10-10T23:59:59Z"
+        }
+      },
+      "depends_on": [],
+      "freshness": {
+        "status": "current",
+        "rationale": "Fictional training bytes are stored beside this ledger; the digest is derived from those exact bytes.",
+        "reviewed_at": "2026-10-11T00:00:00Z",
+        "expires_at": "2027-04-11T00:00:00Z",
+        "review_triggers": [
+          "Target customer segment changes",
+          "Workflow software migration"
+        ]
+      },
+      "data": {
+        "locator": {
+          "kind": "local",
+          "path": "source-observation.txt",
+          "sha256": "b1e704db6899d1f293ee6b166230dd043575e35474177b450a596ed4b6502045"
+        },
+        "origin": {
+          "publisher": "Fictional training source",
+          "origin_id": "SYN-CUSTOMER-01",
+          "classification": "first_party",
+          "revision": "r1",
+          "observed_at": "2026-10-05T14:30:00Z",
+          "scope": {
+            "segment": "Mid-market B2B SaaS Operations",
+            "geography": "North America",
+            "window": {
+              "start": "2026-09-01T00:00:00Z",
+              "end": "2026-10-10T23:59:59Z"
+            }
+          }
+        },
+        "retrieved_at": "2026-10-05T16:00:00Z",
+        "privacy": {
+          "classification": "internal",
+          "redaction": "redacted",
+          "access": "available"
+        },
+        "license": {
+          "identifier": "synthetic-training",
+          "usage": "citation_only",
+          "restrictions": [
+            "Fictional training bytes only; no participant or consent is represented."
+          ]
+        },
+        "status": "available",
+        "limitations": [
+          "Fictional one-session training data; no real customer or consent is represented.",
+          "Only the literal action in source-observation.txt is illustrated; no broader cohort claim is made."
+        ]
+      }
+    },
+    {
+      "id": "CLM-001",
+      "kind": "CLM",
+      "revision": "r1",
+      "owner": "Customer Research Lead",
+      "scope": {
+        "segment": "Mid-market B2B SaaS Operations",
+        "geography": "North America",
+        "window": {
+          "start": "2026-09-01T00:00:00Z",
+          "end": "2026-10-10T23:59:59Z"
+        }
+      },
+      "depends_on": [
+        {
+          "id": "SRC-001",
+          "revision": "r1"
+        }
+      ],
+      "freshness": {
+        "status": "current",
+        "rationale": "Bounded to the literal observation in the supplied fictional source bytes.",
+        "reviewed_at": "2026-10-11T00:00:00Z",
+        "expires_at": "2027-04-11T00:00:00Z",
+        "review_triggers": [
+          "Follow-up interview cohort results",
+          "Product workflow redesign"
+        ]
+      },
+      "data": {
+        "statement": "In the fictional source, the example operator copies one report value from a spreadsheet into a second form.",
+        "classification": "confirmed",
+        "sources": [
+          {
+            "id": "SRC-001",
+            "revision": "r1"
+          }
+        ],
+        "counterevidence": [],
+        "rationale": "This is the literal shown action in one fictional session; cause and interpretation are not observed.",
+        "uncertainty": "No participant, consent, real customer, cause, frequency beyond this session, duration, motive, demand, prevalence, or API explanation is represented.",
+        "status": "supported",
+        "critical": true
+      }
+    },
+    {
+      "id": "OPP-001",
+      "kind": "OPP",
+      "revision": "r1",
+      "owner": "Customer Research Lead",
+      "scope": {
+        "segment": "Mid-market B2B SaaS Operations",
+        "geography": "North America",
+        "window": {
+          "start": "2026-09-01T00:00:00Z",
+          "end": "2026-10-10T23:59:59Z"
+        }
+      },
+      "depends_on": [
+        {
+          "id": "CLM-001",
+          "revision": "r1"
+        }
+      ],
+      "freshness": {
+        "status": "current",
+        "rationale": "Training-only candidate; no interview or customer is represented.",
+        "reviewed_at": "2026-10-11T00:00:00Z",
+        "expires_at": "2027-04-11T00:00:00Z",
+        "review_triggers": [
+          "Authorized scoped customer research",
+          "Product workflow change"
+        ]
+      },
+      "data": {
+        "problem": "One fictional example shows a value copied between two forms; whether this is a recurring customer problem or product opportunity is unknown.",
+        "customer_job": "Unknown; the source does not describe the operator's goal or motivation.",
+        "claims": [
+          {
+            "id": "CLM-001",
+            "revision": "r1"
+          }
+        ],
+        "substitutes": [
+          "Unknown; no scoped substitute research supplied"
+        ],
+        "alternatives": [
+          "Obtain separate authority and scoped customer research",
+          "Defer product work",
+          "Do nothing"
+        ],
+        "status": "candidate",
+        "rationale": "Training-only candidate; do not infer a recurring problem, cause, demand, time impact, or need."
+      }
+    },
+    {
+      "id": "HYP-001",
+      "kind": "HYP",
+      "revision": "r1",
+      "owner": "Customer Research Lead",
+      "scope": {
+        "segment": "Mid-market B2B SaaS Operations",
+        "geography": "North America",
+        "window": {
+          "start": "2026-09-01T00:00:00Z",
+          "end": "2026-10-10T23:59:59Z"
+        }
+      },
+      "depends_on": [
+        {"id": "OPP-001", "revision": "r1"},
+        {"id": "CLM-001", "revision": "r1"}
+      ],
+      "freshness": {
+        "status": "current",
+        "rationale": "A proposal for future appropriately consented research; this fictional one-session input establishes no recurring problem.",
+        "reviewed_at": "2026-10-12T10:00:00Z",
+        "expires_at": "2027-04-12T10:00:00Z",
+        "review_triggers": ["Separately authorized and consented research becomes available", "Target scope changes"]
+      },
+      "data": {
+        "opportunity": {"id": "OPP-001", "revision": "r1"},
+        "prediction": "If future appropriately consented observations in this exact scope show repeated copying for the same workflow and participants describe concrete friction, the candidate may merit renewed review; this single fictional action does not show recurrence, impact, or need.",
+        "mechanism": "No causal mechanism is established. Repeated cross-form copying with participant-described friction is an untested possibility, not a finding in the supplied source.",
+        "claims": [{"id": "CLM-001", "revision": "r1"}],
+        "primary_metric": null,
+        "disconfirmation": "If appropriately consented scoped follow-up finds no repeated copying or no participant-described friction, keep the candidate deferred; the current one-session source cannot determine this.",
+        "status": "proposed"
+      }
+    },
+    {
+      "id": "DEC-001",
+      "kind": "DEC",
+      "revision": "r1",
+      "owner": "Customer Research Lead",
+      "scope": {
+        "segment": "Mid-market B2B SaaS Operations",
+        "geography": "North America",
+        "window": {
+          "start": "2026-09-01T00:00:00Z",
+          "end": "2026-10-10T23:59:59Z"
+        }
+      },
+      "depends_on": [
+        {"id": "OPP-001", "revision": "r1"},
+        {"id": "HYP-001", "revision": "r1"},
+        {"id": "CLM-001", "revision": "r1"}
+      ],
+      "freshness": {
+        "status": "current",
+        "rationale": "Unvalidated, no-action recommendation pending separately reviewed strategy authority and research permission.",
+        "reviewed_at": "2026-10-12T10:00:00Z",
+        "expires_at": "2027-04-12T10:00:00Z",
+        "review_triggers": ["Strategy authority is separately reviewed", "Appropriately authorized and consented scoped evidence becomes available"]
+      },
+      "data": {
+        "purpose": "learning",
+        "status": "proposed",
+        "outcome": "defer",
+        "consumes": [
+          {"id": "OPP-001", "revision": "r1"},
+          {"id": "HYP-001", "revision": "r1"}
+        ],
+        "critical_claims": [{"id": "CLM-001", "revision": "r1"}],
+        "authority_id": null,
+        "authority_revision": null,
+        "strategy_binding": null,
+        "artifact_bindings": [],
+        "decided_at": null,
+        "rationale": "Defer product work; this proposal authorizes no outreach, research, or product action. Preserve the single literal copying action and unknowns; do not infer API causality, recurrence, duration, time savings, demand, or need. Reconsider only after separate authority, appropriate consent, and scoped evidence review.",
+        "uncertainties": [
+          "One fictional session shows one report value copied between two forms.",
+          "No actual participant, customer, interview, or consent is represented.",
+          "Recurrence, cause, duration, motive, API behavior, demand, prevalence, and impact are unknown.",
+          "No research authorization or strategy authority is represented."
+        ],
+        "revisit_triggers": ["Strategy authority is separately reviewed", "Appropriately consented scoped research is available"],
+        "supersedes": null
+      }
+    }
+  ],
+  "record_history": [],
+  "authority_history": [],
+  "bridges": [],
+  "product_state": {
+    "value": "unvalidated",
+    "reason": "Synthetic customer discovery proposal only",
+    "scope": {
+      "segment": "Mid-market B2B SaaS Operations",
+      "geography": "North America",
+      "window": {
+        "start": "2026-09-01T00:00:00Z",
+        "end": "2026-10-10T23:59:59Z"
+      }
+    },
+    "hypotheses": [{"id": "HYP-001", "revision": "r1"}],
+    "decision": null,
+    "assessed_at": "2026-10-12T10:00:00Z",
+    "history": []
+  }
+}

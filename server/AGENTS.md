@@ -42,11 +42,13 @@ Each `_INDEX.md` has two sections - follow both:
 | File type | Read category index |
 | --------- | ------------------- |
 | `*.ts`, `*.tsx` | `<SKILLS>/typescript/_INDEX.md` |
+| `*.json`, `*.md` | `<SKILLS>/common/_INDEX.md`, `<SKILLS>/product-management/_INDEX.md` |
 | `*.spec.ts`, `*.test.ts` | `<SKILLS>/common/_INDEX.md` |
 | Any file (keyword match) | `<SKILLS>/common/_INDEX.md` |
 | QE workflow | `<SKILLS>/quality-engineering/_INDEX.md` |
 | Architecture or scale request | `<SKILLS>/system-design/_INDEX.md` |
 | Cybersecurity investigation or authorized exercise | `<SKILLS>/cybersecurity/_INDEX.md` |
+| Product discovery, investment, validation, value-review, business requirements, product requirements, BRD or PRD authoring request | `<SKILLS>/product-management/_INDEX.md` |
 
 > [!NOTE] **Test/spec file precedence:** `.spec.ts`, `.test.ts` -> use the `common` row (takes precedence over the generic `*.ts` row). `.spec.tsx`, `.test.tsx` -> use the `react` row (takes precedence over the generic `*.tsx` row).
 

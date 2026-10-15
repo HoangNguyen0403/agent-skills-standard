@@ -33,7 +33,9 @@ Agent Skills Standard syncs workflows into each agent's native surface. Run `ags
 
 ## Approved Evidence And Readiness
 
-Use the task-linked approved brief/ticket and its stable slug. An unrelated newest document or working-tree change is not task authority or approval. Equivalent approved evidence can satisfy a requirement without a separate BRD/PRD/SRS filename.
+Use the task-linked approved brief/ticket and its stable slug. An unrelated newest document or working-tree change is not task authority or approval. Equivalent approved evidence can satisfy a requirement without a separate BRD/PRD/SRS filename. Reused approved exact-revision context skips rediscovery; missing document filenames never reset settled work.
+
+A stale or disputed decision blocks only its consuming action; unaffected approved decisions and independent scopes remain reusable without global reset. Production harm or urgent regressions always route to `incident-hotfix` first, even if product learning is stale. Known low-risk routine maintenance routes directly to `dev-fix` or `implement-feature` with proportional evidence, avoiding universal market research.
 
 `plan-feature` owns outcome, scope, acceptance criteria, dependencies and provisional product slices; consequential architecture, API/data contracts, migrations and technical decisions route to `design-solution`.
 
@@ -41,7 +43,7 @@ Use the task-linked approved brief/ticket and its stable slug. An unrelated newe
 
 ### Question-Driven Modeling And Completeness
 
-For substantial scope, multi-actor workflows, interacting rules, or multiple delivery slices, load `common-product-requirements/references/requirements-modeling.md` on demand for verb-object capability scope trees, stop rules, canonical shared definitions, question-driven view selection, and change impact.
+For substantial scope, multi-actor workflows, interacting rules, or multiple delivery slices, load `product-management/product-requirements/references/requirements-modeling.md` on demand for verb-object capability scope trees, stop rules, canonical shared definitions, question-driven view selection, and change impact.
 
 ### Low-Risk Evidence And Sensitive Floors
 
@@ -50,6 +52,32 @@ Sufficiently specified routine fixes or maintenance tickets with approved behavi
 ### Scoped Change Impact And Canonical Guidance
 
 When requirements change, trace affected ACs, contracts, approvals, and verification evidence carrying existing IDs without reopening settled decisions. Keep provider, account, profile, model, and workstation specifics in host planning records only, not canonical guidance.
+
+### Canonical Evidence Ledger vs Delivery Requirement Trace
+
+Initiative evidence is maintained at `docs/product/<slug>/evidence.json`. Point readable views to ledger IDs (`SRC-*`, `CLM-*`, `OPP-*`, `HYP-*`, `EXP-*`, `INV-*`, `DEC-*`, `MET-*`, `REV-*`); never duplicate editable records or mint product IDs as requirement IDs (`REQ-*`, `AC-*`, `BRD-OBJ-*`). Requirement trace remains clean, portable, and decoupled.
+
+### Shipping vs Realized Value
+
+Technical delivery (`feature_status: released` or `verified`) proves that implementation satisfies explicit acceptance criteria. It does not prove customer adoption, market success, or causal ROI. Realized value requires observed metrics over an elapsed comparison window; value review can be inconclusive without un-shipping working software.
+
+### Approval Scope and Host Controls
+
+Approval is strictly bounded: approving a brief or validation plan approves that artifact only; it does not grant deployment, spend, or runtime exposure authority. The validator returns `proposal_only` (`AUTHORIZATION_REQUIRED`) when a recorded experiment authorization decision is missing; validation exit 0 indicates `eligible_for_host_check` only, never host authorization consent. Production rollouts require explicit release owner authorization.
+
+### Opt-in product evidence workflows
+
+The `product-management` category defaults to two foundation skills (`product-business-requirements` and `product-requirements`). The three advanced product workflows and their underlying specialist skills (`product-evidence` and the seven discovery/validation methods) are opt-in: configure `product-management` in `.skillsrc` to include them (or omit the `include` filter) and select these workflow names explicitly in `workflows`; they are not enabled by default initialization.
+
+| Need | Workflow | Output |
+| --- | --- | --- |
+| Customer friction, market evidence, and opportunity framing | `discover-product` | candidate `OPP` and `HYP` records, proposed learning/investment `DEC` |
+| Bounded hypothesis validation and precommitted experiments | `validate-product` | bounded `EXP` proposal, primary/guardrail `MET` contracts, validation results |
+| Post-release value review against registered measurement contracts | `review-product-value` | observed `MET` vs baseline, attribution/confounders, advisory `REV` |
+
+Prerequisites: `product-evidence`, respective PM packages (`product-market-research`, `product-customer-discovery`, `product-strategy` for discovery; `product-investment`, `product-experimentation`, plus `product-metrics` when designing executable measurement for validation; `product-metrics`, `product-investment` for review), companion scripts, and Node >= 20.
+
+When any package or script is absent or excluded, workflows emit a concrete capability gap in `missing_evidence` (e.g. `Capability gap: product-management/product-investment not installed; opt in at a reviewed ref and sync`) and proceed safely as unvalidated proposals without simulated validation or silent installs. Missing monetary data does not block qualitative investment framing.
 
 ## Guidance Release And Activation
 
@@ -128,7 +156,7 @@ Start with any practice that has no prerequisite, then follow the arrows.
 
 - No prerequisite: `common-agent-guardrails`, `brainstorm-feature`, `common-tdd` feedback loop, instruction-file hygiene.
 - `plan-feature`, `design-solution` <- task-linked approved intent or product evidence (sufficiently specified low-risk maintenance with approved task tickets may proceed without a separate BRD-lite).
-- `implementation-readiness`, `implement-feature` <- behavioral ACs, accountable owner, approved scope fence, and verification lane plus applicable design/test prerequisites (supplied by PRD and SRS or an equivalent approved low-risk record); sensitive changes still require technical design and human/governance approval per [requirements modeling §1](../skills/common/common-product-requirements/references/requirements-modeling.md#1-applicability--sizing-gate), and PARTIAL authorizes ready slices only.
+- `implementation-readiness`, `implement-feature` <- behavioral ACs, accountable owner, approved scope fence, and verification lane plus applicable design/test prerequisites (supplied by PRD and SRS or an equivalent approved low-risk record); sensitive changes still require technical design and human/governance approval per [requirements modeling §1](../skills/product-management/product-requirements/references/requirements-modeling.md#1-applicability--sizing-gate), and PARTIAL authorizes ready slices only.
 - `code-review`, `review-ticket` <- `docs/review-policy.md` and the framework skills.
 - `evals-run` config gate <- eval definitions plus a stable command to run them.
 - `deploy-release` tiers <- guardrail approval gates and a rehearsed rollback.

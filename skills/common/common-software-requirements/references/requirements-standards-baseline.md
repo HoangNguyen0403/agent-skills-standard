@@ -1,8 +1,8 @@
 # Requirements Standards Baseline
 
 This baseline defines where BRD, PRD, and SRS/FRS workflow guidance is derived from. It ships
-with `common-software-requirements` so consumers always have it; `common-business-requirements`,
-`common-product-requirements` and the `sdlc` workflow link here.
+with `common-software-requirements`; `product-management/product-business-requirements`,
+`product-management/product-requirements`, and the `sdlc` workflow link here.
 
 ## Why You Can Trust This Baseline
 

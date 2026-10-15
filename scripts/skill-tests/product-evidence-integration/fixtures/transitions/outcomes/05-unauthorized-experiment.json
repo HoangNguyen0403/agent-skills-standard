@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "run_id": "run-20261014-t06-05",
+  "slug": "unauthorized-exp",
+  "workflow": "validate-product",
+  "feature_status": "not_started",
+  "started_at": "2026-10-14T09:40:00Z",
+  "completed_at": "2026-10-14T09:45:00Z",
+  "requirement_trace": {
+    "brd_objectives": [],
+    "requirements": [],
+    "acceptance_criteria": [],
+    "srs": []
+  },
+  "completed_evidence": [
+    "docs/product/unauthorized-exp/evidence.json#EXP-001:r1"
+  ],
+  "missing_evidence": [
+    "Host authorization DEC for experiment execution"
+  ],
+  "decision_needed": [
+    "Host operator reviews and authorizes experiment EXP-001"
+  ],
+  "recommended_next_workflow": null,
+  "cost": {
+    "source": "unavailable"
+  },
+  "agent": {
+    "identity": "omp/google-antigravity/gemini-3.8-flash:medium",
+    "model": "gemini-3.8-flash"
+  }
+}

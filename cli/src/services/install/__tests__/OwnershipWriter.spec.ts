@@ -207,6 +207,28 @@ describe('OwnershipWriter', () => {
     );
     expect(await fs.pathExists(path.join(root, '.claude'))).toBe(true);
   });
+  it('runs the asynchronous post-prune callback before returning the manifest snapshot', async () => {
+    const absPath = path.join(root, testRel);
+    await fs.outputFile(absPath, 'file content');
+    const prevEntry: ManifestEntry = {
+      ...meta,
+      sha256: sha256('file content'),
+    };
+    const writer = makeWriter({ previous: { [testRel]: prevEntry } });
+    let callbackObservedPrunedFile = false;
+
+    const finalized = await writer.finalize(
+      () => true,
+      async () => {
+        callbackObservedPrunedFile = !(await fs.pathExists(absPath));
+      },
+    );
+
+    expect(callbackObservedPrunedFile).toBe(true);
+    expect(finalized.plan.pruned).toEqual([testRel]);
+    expect(finalized.entries[testRel]).toBeUndefined();
+  });
+
 
   it('9. finalize: previous entry not written this run, user-edited -> file kept, keptOrphans, not in entries', async () => {
     const absPath = path.join(root, testRel);

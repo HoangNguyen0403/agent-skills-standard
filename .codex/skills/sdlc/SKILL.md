@@ -34,11 +34,14 @@ Goal: Select the next native workflow without loading every workflow body, while
    - Requirement trace health: `BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> test evidence`
    - SNC tier per `common-task-complexity-routing` or the scout `SNC:` line; label as inference until scouted.
 
-2. Choose next workflow (apply tie-break order when multiple bullets match: (1) workflow explicitly named by the operator or latest `recommended_next_workflow`, (2) production-incident/urgent-regression signals, (3) earliest missing required decision or task-linked authority/input—not a missing document filename—except sufficiently specified low-risk maintenance with approved evidence, (4) cross-cutting audits only on request or as a pre-release gate):
+2. Choose next workflow (apply tie-break order: (1) explicit operator request or latest approved/recommended stage unless safety prerequisite blocks affected scope, (2) urgent task-linked production harm/incident -> `incident-hotfix` first, even if product learning stale; do not load unrelated incident as task context, (3) earliest missing required decision or task-linked authority/input—not a missing filename—except sufficiently specified low-risk maintenance with approved evidence; reused approved context skips rediscovery, (4) cross-cutting audits only on request or as a pre-release gate):
    - Unclear idea, missing business case, owner, or measurable value (Why lane), or unclear technical direction without BRD/PRD (Direction lane; exempts routine low-risk maintenance) -> `brainstorm-feature`
-   - BRD-lite exists or business direction clear but product scope, priorities, ACs, rollout, delivery plan unclear -> `plan-feature` (explicitly loads `common-product-requirements` and on-demand `references/requirements-modeling.md`)
+   - Task-linked unmet customer-evidence/problem/market gap that the decision depends on -> `discover-product` (when selected/installed; else `brainstorm-feature` with capability gap)
+   - Material unresolved critical value hypothesis or assumption needing empirical test -> `validate-product` (when selected/installed; else `plan-feature` with capability gap)
+   - BRD-lite exists or business direction clear but product scope, priorities, ACs, rollout, delivery plan unclear -> `plan-feature` (explicitly loads `product-management/product-requirements` and on-demand `references/requirements-modeling.md`)
    - Scale, topology, capacity, or store choice unsettled, or existing system needs architecture audit -> `system-design-session`
    - PRD exists but technical behavior/contracts unclear (SRS/FRS / How), or auth/trust-boundary/sensitive validation needed -> `design-solution`
+   - Architecture, compliance controls, or agent/runtime safety need deeper technical validation -> `design-solution`
    - BRD-lite, PRD, or SRS/FRS exists but readiness/change impact unclear -> `implementation-readiness`
    - Approved plan with trace and testable ACs, or approved low-risk maintenance contract, needs code -> `implement-feature`
    - Production incident or urgent regression -> `incident-hotfix`
@@ -52,6 +55,7 @@ Goal: Select the next native workflow without loading every workflow body, while
    - Fix implemented and ticket has a UAT/Jira flow -> `verify-bug`
    - `verify-work` PASS on a feature, business acceptance not yet granted -> `uat-signoff`
    - Business acceptance granted and release window open -> `deploy-release`
+   - Post-release observation window open, registered metric review, or value evaluation -> `review-product-value` (when selected/installed; else `publish-notes` with capability gap)
    - Deployed and needs user-facing communication -> `publish-notes`
    - Trace health unknown before release or handoff -> `traceability-audit`
    - Session ending with unfinished work or context handoff -> `session-report`
@@ -59,7 +63,8 @@ Goal: Select the next native workflow without loading every workflow body, while
    - Repo-wide health/debt question with no single feature in scope -> `codebase-review`
 3. Enforce handoff quality:
    - Governed/high-risk delivery requires full traceability: BA output links business objectives; PM links requirements/ACs in `docs/prd/`; IT handoff defines architecture in `docs/srs/`.
-   - Low-risk maintenance exception: Sufficiently specified routine fixes/maintenance with approved in-chat/brief contract route directly to `dev-fix` or `implement-feature` without creating separate BRD/PRD/SRS files or restarting intake; never waives behavioral ACs, owner, approval, scope fence, or verification lane.
+   - Low-risk maintenance exception: Sufficiently specified routine fixes/maintenance with approved in-chat/brief contract route directly to `dev-fix` or `implement-feature` without creating separate BRD/PRD/SRS files or restarting intake; never waives behavioral ACs, owner, approval, scope fence, or verification lane. Negative or inconclusive product evidence requires no-build, pivot, or bounded learning—never unconditional full build.
+   - Reopen affected scope only: A stale or disputed decision blocks only its consuming action; unaffected approved decisions and independent scopes remain reusable without global reset.
    - Downstream specialist workers execute against assigned briefs and must not reload or repeat parent intake.
    - Sensitive-change risk floor: Changes touching auth, payments, data integrity, secrets, or trust boundaries enforce minimum `tier=medium` (or `tier=high`), requiring `design-solution` and human approval before coding.
    - Change impact & scope gaps: Changing requirements review affected ACs, contracts, approvals, and evidence without reopening settled decisions; product scope gaps route to planning and technical contract uncertainty routes to design.

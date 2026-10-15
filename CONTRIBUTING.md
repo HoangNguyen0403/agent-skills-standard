@@ -97,7 +97,24 @@ Rules:
   Resource changes invalidate skill-loaded evidence. Historical evidence remains
   readable but is not upgraded retroactively into whole-package proof.
 
-## 6. Default Init Standards
+## 6. Product management packages and evidence lifecycle
+
+- `product-management` defaults to two foundation skills (`product-business-requirements` and `product-requirements`) via category include allowlist during `ags init`. The eight advanced skills (`product-evidence` and the seven discovery/validation methods) are opt-in. Select them in `.skillsrc` under `skills` with a reviewed immutable `ref` (omit `include` or list desired skills explicitly); before the first category release, use a reviewed commit SHA. Add `discover-product`, `validate-product` and/or `review-product-value` explicitly to `workflows` (or set `workflows: true`).
+- All product decisions ground in `docs/product/<slug>/evidence.json` via `product-management/product-evidence`. Never fabricate customer observations, interview quotes, or causal ROI.
+- Keep seven advanced PM skills keyword-only (`triggers.files: []`); keep `product-evidence` scoped to `docs/product/*/evidence.json`; keep foundation BRD/PRD skills scoped to their respective spec files. Never add broad markdown globs or universal file triggers that activate PM skills unexpectedly.
+- Standalone validator (`validate-product-evidence.mjs`) and investment calculator
+  (`evaluate-investment.mjs`) require Node >=20. In contrast, CLI sync and the T09
+  integration harness require Node 22+ (using `Promise.withResolvers`).
+- Invocation of standalone resources returns structural findings and host-check
+  eligibility, never autonomous action consent. Review scripts before execution;
+  sync preserves bytes and ownership but does not grant autonomous spend,
+  experiment exposure, or rollout authority.
+- MCP workflow discovery (`list_workflows`, `get_workflow`) scans only canonical
+  `<root>/.agents/workflows` (Antigravity/Kiro). Other agents export workflows to
+  their native surfaces; no runtime scanner expansion is performed.
+- JSON routing maps `*.json` to `common` and `product-management`. `product-evidence` matches exclusively `docs/product/*/evidence.json`, while advanced PM skills are strictly keyword-only and never match `package.json` or unrelated JSON files.
+
+## 7. Default Init Standards
 
 `ags init` should create a useful SDLC standards layer without requiring profile files.
 
@@ -113,7 +130,7 @@ Rules:
 8. New specialists must include `evals/evals.json`, strict budgets, structured output, and `No sub-agents`.
 9. Specialists and generated workflow skills set `metadata.internal: true` so skill installers (`npx skills`) don't offer them as installable skills.
 
-## 7. Quality Gates
+## 8. Quality Gates
 
 Run these before PR:
 
@@ -173,7 +190,7 @@ pnpm benchmark:report
 
 Guardrail-oriented skill changes should also verify that the benchmark report shows behavior coverage for the edited skills.
 
-## 8. Release Process
+## 9. Release Process
 
 We use specialized scripts for releasing components independently:
 

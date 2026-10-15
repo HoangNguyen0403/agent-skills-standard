@@ -44,7 +44,7 @@ metadata:
 ## 4. Anti-Patterns (Analysis)
 
 - **No Surface Reading**: investigate _implications_, don't restate.
-- **No Unowned Unknowns**: Carry confirmed evidence and explicit non-critical assumptions. Consequential undefined states block only affected slices (naming owner, consequence, and required input); preserve PARTIAL readiness boundaries. Sensitive changes require technical design and explicit human/governance approval per [requirements modeling §1](../../common/common-product-requirements/references/requirements-modeling.md#1-applicability--sizing-gate), not blanket P0 blocking.
+- **No Unowned Unknowns**: Carry confirmed evidence and explicit non-critical assumptions. Consequential undefined states block only affected slices (naming owner, consequence, and required input); preserve PARTIAL readiness boundaries. Sensitive changes require technical design and explicit human/governance approval per [requirements modeling §1](../../product-management/product-requirements/references/requirements-modeling.md#1-applicability--sizing-gate), not blanket P0 blocking.
 - **No Loose Mapping**: Ensure AC aligns 100% with Technical Impact notes.
 
 ## 5. User Story Authoring Standards

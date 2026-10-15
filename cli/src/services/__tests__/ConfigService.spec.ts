@@ -368,6 +368,96 @@ agents:
       expect(config.skills.specialists).toBeUndefined();
     });
 
+    it('should include product-management with foundation skills allowlist when metadata contains it', () => {
+      const metadata: RegistryMetadata = {
+        global: { author: 'test', repository: 'test' },
+        categories: {
+          flutter: { version: '1.0.0', tag_prefix: 'v' },
+          'product-management': {
+            version: '1.1.0',
+            tag_prefix: 'product-management-v',
+          },
+        },
+      };
+
+      const config = configService.buildInitialConfig(
+        'flutter',
+        [Agent.Cursor],
+        'https://registry.com',
+        metadata,
+      );
+
+      expect(config.skills['product-management']).toEqual({
+        ref: 'product-management-v1.1.0',
+        include: ['product-business-requirements', 'product-requirements'],
+      });
+    });
+
+    it('should fallback to main and retain foundation allowlist when product-management version is missing', () => {
+      const metadata: RegistryMetadata = {
+        global: { author: 'test', repository: 'test' },
+        categories: {
+          flutter: { version: '1.0.0', tag_prefix: 'v' },
+          'product-management': {},
+        },
+      };
+
+      const config = configService.buildInitialConfig(
+        'flutter',
+        [Agent.Cursor],
+        'https://registry.com',
+        metadata,
+      );
+
+      expect(config.skills['product-management']).toEqual({
+        ref: 'main',
+        include: ['product-business-requirements', 'product-requirements'],
+      });
+    });
+
+    it('should omit product-management when metadata omits product-management', () => {
+      const metadata: RegistryMetadata = {
+        global: { author: 'test', repository: 'test' },
+        categories: {
+          flutter: { version: '1.0.0', tag_prefix: 'v' },
+        },
+      };
+
+      const config = configService.buildInitialConfig(
+        'flutter',
+        [Agent.Cursor],
+        'https://registry.com',
+        metadata,
+      );
+
+      expect(config.skills['product-management']).toBeUndefined();
+    });
+
+    it('should preserve explicit product-management configuration when provided', () => {
+      const metadata: RegistryMetadata = {
+        global: { author: 'test', repository: 'test' },
+        categories: {
+          'product-management': {
+            version: '1.1.0',
+            tag_prefix: 'product-management-v',
+          },
+        },
+      };
+
+      // Framework is product-management, which acts as explicit initial skill
+      const config = configService.buildInitialConfig(
+        'product-management',
+        [Agent.Cursor],
+        'https://registry.com',
+        metadata,
+      );
+
+      expect(config.skills['product-management']).toEqual({
+        ref: 'product-management-v1.1.0',
+      });
+      expect(config.skills['product-management']?.include).toBeUndefined();
+    });
+
     it('should not add SDLC support categories when registry metadata omits them', () => {
       const metadata: RegistryMetadata = {
         global: { author: 'test', repository: 'test' },

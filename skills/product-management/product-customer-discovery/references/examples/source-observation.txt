@@ -1,0 +1,4 @@
+FICTIONAL TRAINING SOURCE — not a real participant, interview, consent, or customer fact.
+Synthetic session SYN-CUSTOMER-01, fictional example cohort of one.
+Shown observation: The example operator copies one report value from a spreadsheet into a second form.
+No cause, frequency beyond this session, duration, motive, demand, population prevalence, or API explanation is observed.

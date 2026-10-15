@@ -28,7 +28,7 @@ Define the technical "How" with verifiable requirements.
 - Preserve trace: `BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> test evidence`.
 - Missing behavioral acceptance criteria, accountable owner, consequential design approval, or verification prerequisites route EVERY affected slice back to requirements/planning regardless of new or existing scope. Bounded low-risk equivalence (approved ticket with behavioral AC, owner, scope fence, approval, verification lane) may replace separate SRS files and formal IDs, but never waives behavioral prerequisites; do not infer product scope from code.
 
-- Sensitive changes require technical design and explicit human/governance approval per [requirements modeling §1](../common-product-requirements/references/requirements-modeling.md#1-applicability--sizing-gate); low-risk equivalence never removes that floor.
+- Sensitive changes require technical design and explicit human/governance approval per [requirements modeling §1](../../product-management/product-requirements/references/requirements-modeling.md#1-applicability--sizing-gate); low-risk equivalence never removes that floor.
 - Define functional flows: trigger, inputs, validations, outputs, errors.
 - For complex flows, use one actor, one goal, one session; split normal, alternate, and exception courses.
 - Define interface contracts: API, events, storage, external integrations.

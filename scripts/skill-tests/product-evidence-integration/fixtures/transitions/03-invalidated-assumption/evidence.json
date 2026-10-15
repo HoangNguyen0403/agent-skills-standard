@@ -1,0 +1,491 @@
+{
+  "schema_version": 1,
+  "slug": "invalidated-assumption",
+  "product_id": "prod-003",
+  "revision": "r1",
+  "synthetic": true,
+  "updated_at": "2026-10-12T00:00:00Z",
+  "strategy_authority": null,
+  "strategy_gap": "Learning initiative",
+  "authorities": [
+    {
+      "id": "AUTH-001",
+      "domain": "authorization",
+      "locator": {
+        "kind": "local",
+        "path": "auth.md",
+        "sha256": "452b31be0fcacc7c8656a5ca080733271e6ea4220230d2b5fcb5c844aa877473"
+      },
+      "revision": "sha256:452b31be0fcacc7c8656a5ca080733271e6ea4220230d2b5fcb5c844aa877473",
+      "owner": "sponsor",
+      "scope": {
+        "segment": "enterprise-ops",
+        "geography": "global",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        }
+      },
+      "declared_ids": [],
+      "access": "available"
+    }
+  ],
+  "authority_history": [],
+  "record_history": [],
+  "records": [
+    {
+      "id": "SRC-001",
+      "kind": "SRC",
+      "revision": "r1",
+      "owner": "experimenter",
+      "scope": {
+        "segment": "enterprise-ops",
+        "geography": "global",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        }
+      },
+      "depends_on": [],
+      "freshness": {
+        "status": "current",
+        "rationale": "Synthetic fixture",
+        "reviewed_at": "2026-10-10T00:00:00Z",
+        "expires_at": "2026-11-01T00:00:00Z",
+        "review_triggers": [
+          "fixture update"
+        ]
+      },
+      "data": {
+        "locator": {
+          "kind": "external",
+          "uri": "urn:synthetic:experiment-logs",
+          "snapshot_sha256": null
+        },
+        "origin": {
+          "publisher": "Telemetry",
+          "origin_id": "urn:synthetic:prototype-test",
+          "classification": "primary",
+          "revision": "test-v1",
+          "observed_at": "2026-10-10T00:00:00Z",
+          "scope": {
+            "segment": "enterprise-ops",
+            "geography": "global",
+            "window": {
+              "start": "2026-10-01T00:00:00Z",
+              "end": "2026-11-01T00:00:00Z"
+            }
+          }
+        },
+        "retrieved_at": "2026-10-11T00:00:00Z",
+        "privacy": {
+          "classification": "public",
+          "redaction": "none",
+          "access": "available"
+        },
+        "license": {
+          "identifier": "unknown",
+          "usage": "citation_only",
+          "restrictions": []
+        },
+        "status": "available",
+        "limitations": [
+          "Completed prototype test"
+        ]
+      }
+    },
+    {
+      "id": "MET-001",
+      "kind": "MET",
+      "revision": "r1",
+      "owner": "experimenter",
+      "scope": {
+        "segment": "enterprise-ops",
+        "geography": "global",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        }
+      },
+      "depends_on": [
+        {
+          "id": "SRC-001",
+          "revision": "r1"
+        }
+      ],
+      "freshness": {
+        "status": "current",
+        "rationale": "Synthetic fixture",
+        "reviewed_at": "2026-10-10T00:00:00Z",
+        "expires_at": "2026-11-01T00:00:00Z",
+        "review_triggers": [
+          "fixture update"
+        ]
+      },
+      "data": {
+        "definition": "Task completion rate",
+        "unit": "ratio",
+        "denominator": "participating users",
+        "query": {
+          "id": "SRC-001",
+          "revision": "r1"
+        },
+        "query_revision": "test-v1",
+        "baseline": null,
+        "baseline_exception": null,
+        "comparison_window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        },
+        "eligibility": "Target segment",
+        "target": "0.70",
+        "guardrail": "churn < 0.01",
+        "measurement_owner": "analytics",
+        "review_trigger": "test completes",
+        "status": "observed"
+      }
+    },
+    {
+      "id": "OPP-001",
+      "kind": "OPP",
+      "revision": "r1",
+      "owner": "experimenter",
+      "scope": {
+        "segment": "enterprise-ops",
+        "geography": "global",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        }
+      },
+      "depends_on": [],
+      "freshness": {
+        "status": "current",
+        "rationale": "Synthetic fixture",
+        "reviewed_at": "2026-10-10T00:00:00Z",
+        "expires_at": "2026-11-01T00:00:00Z",
+        "review_triggers": [
+          "fixture update"
+        ]
+      },
+      "data": {
+        "problem": "Onboarding dropoff",
+        "customer_job": "Fast setup",
+        "claims": [],
+        "substitutes": [
+          "manual setup"
+        ],
+        "alternatives": [
+          "defer"
+        ],
+        "status": "rejected",
+        "rationale": "Hypothesis refuted by experiment"
+      }
+    },
+    {
+      "id": "HYP-001",
+      "kind": "HYP",
+      "revision": "r1",
+      "owner": "experimenter",
+      "scope": {
+        "segment": "enterprise-ops",
+        "geography": "global",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        }
+      },
+      "depends_on": [
+        {
+          "id": "OPP-001",
+          "revision": "r1"
+        },
+        {
+          "id": "MET-001",
+          "revision": "r1"
+        }
+      ],
+      "freshness": {
+        "status": "current",
+        "rationale": "Synthetic fixture",
+        "reviewed_at": "2026-10-10T00:00:00Z",
+        "expires_at": "2026-11-01T00:00:00Z",
+        "review_triggers": [
+          "fixture update"
+        ]
+      },
+      "data": {
+        "opportunity": {
+          "id": "OPP-001",
+          "revision": "r1"
+        },
+        "prediction": "Automated suggestion wizard doubles completion rate",
+        "mechanism": "Fewer manual choices",
+        "claims": [],
+        "primary_metric": {
+          "id": "MET-001",
+          "revision": "r1"
+        },
+        "disconfirmation": "Completion rate <= 0.50",
+        "status": "refuted"
+      }
+    },
+    {
+      "id": "EXP-001",
+      "kind": "EXP",
+      "revision": "r1",
+      "owner": "experimenter",
+      "scope": {
+        "segment": "enterprise-ops",
+        "geography": "global",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        }
+      },
+      "depends_on": [
+        {
+          "id": "HYP-001",
+          "revision": "r1"
+        },
+        {
+          "id": "MET-001",
+          "revision": "r1"
+        }
+      ],
+      "freshness": {
+        "status": "current",
+        "rationale": "Synthetic fixture",
+        "reviewed_at": "2026-10-10T00:00:00Z",
+        "expires_at": "2026-11-01T00:00:00Z",
+        "review_triggers": [
+          "fixture update"
+        ]
+      },
+      "data": {
+        "hypothesis": {
+          "id": "HYP-001",
+          "revision": "r1"
+        },
+        "method": "Prototype test",
+        "eligibility": "New users",
+        "sample_plan": "100 users",
+        "primary_metric": {
+          "id": "MET-001",
+          "revision": "r1"
+        },
+        "guardrails": [
+          {
+            "id": "MET-001",
+            "revision": "r1"
+          }
+        ],
+        "rules": {
+          "success": "rate >= 0.70",
+          "failure": "rate <= 0.50",
+          "inconclusive": "0.50 < rate < 0.70"
+        },
+        "bounds": {
+          "starts_at": "2026-10-02T00:00:00Z",
+          "ends_at": "2026-10-09T00:00:00Z",
+          "budget_cap": "0",
+          "currency": "USD",
+          "exposure_cap": 100,
+          "stop_rules": [
+            "stop on failure"
+          ]
+        },
+        "authorization": null,
+        "status": "completed",
+        "result": {
+          "classification": "refuted",
+          "sources": [
+            {
+              "id": "SRC-001",
+              "revision": "r1"
+            }
+          ],
+          "limitations": [
+            "Result shows 0.42 completion rate"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DEC-001",
+      "kind": "DEC",
+      "revision": "r1",
+      "owner": "sponsor",
+      "scope": {
+        "segment": "enterprise-ops",
+        "geography": "global",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        }
+      },
+      "depends_on": [
+        {
+          "id": "HYP-001",
+          "revision": "r1"
+        },
+        {
+          "id": "EXP-001",
+          "revision": "r1"
+        }
+      ],
+      "freshness": {
+        "status": "current",
+        "rationale": "Synthetic fixture",
+        "reviewed_at": "2026-10-10T00:00:00Z",
+        "expires_at": "2026-11-01T00:00:00Z",
+        "review_triggers": [
+          "fixture update"
+        ]
+      },
+      "data": {
+        "purpose": "learning",
+        "status": "recorded",
+        "outcome": "authorize",
+        "consumes": [
+          {
+            "id": "HYP-001",
+            "revision": "r1"
+          },
+          {
+            "id": "EXP-001",
+            "revision": "r1"
+          }
+        ],
+        "critical_claims": [],
+        "authority_id": "AUTH-001",
+        "authority_revision": "sha256:452b31be0fcacc7c8656a5ca080733271e6ea4220230d2b5fcb5c844aa877473",
+        "strategy_binding": null,
+        "artifact_bindings": [
+          {
+            "path": "auth.md",
+            "sha256": "452b31be0fcacc7c8656a5ca080733271e6ea4220230d2b5fcb5c844aa877473"
+          }
+        ],
+        "decided_at": "2026-10-02T00:00:00Z",
+        "rationale": "Authorized prototype testing",
+        "uncertainties": [],
+        "revisit_triggers": [
+          "test completes"
+        ],
+        "supersedes": null
+      }
+    },
+    {
+      "id": "DEC-002",
+      "kind": "DEC",
+      "revision": "r1",
+      "owner": "product-lead",
+      "scope": {
+        "segment": "enterprise-ops",
+        "geography": "global",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        }
+      },
+      "depends_on": [
+        {
+          "id": "HYP-001",
+          "revision": "r1"
+        },
+        {
+          "id": "EXP-001",
+          "revision": "r1"
+        }
+      ],
+      "freshness": {
+        "status": "current",
+        "rationale": "Synthetic fixture",
+        "reviewed_at": "2026-10-10T00:00:00Z",
+        "expires_at": "2026-11-01T00:00:00Z",
+        "review_triggers": [
+          "fixture update"
+        ]
+      },
+      "data": {
+        "purpose": "learning",
+        "status": "recorded",
+        "outcome": "defer",
+        "consumes": [
+          {
+            "id": "HYP-001",
+            "revision": "r1"
+          },
+          {
+            "id": "EXP-001",
+            "revision": "r1"
+          }
+        ],
+        "critical_claims": [],
+        "authority_id": "AUTH-001",
+        "authority_revision": "sha256:452b31be0fcacc7c8656a5ca080733271e6ea4220230d2b5fcb5c844aa877473",
+        "strategy_binding": null,
+        "artifact_bindings": [
+          {
+            "path": "auth.md",
+            "sha256": "452b31be0fcacc7c8656a5ca080733271e6ea4220230d2b5fcb5c844aa877473"
+          }
+        ],
+        "decided_at": "2026-10-12T00:00:00Z",
+        "rationale": "Hypothesis refuted by prototype experiment; delivery not justified, deferring",
+        "uncertainties": [],
+        "revisit_triggers": [
+          "new user friction discovered"
+        ],
+        "supersedes": null
+      }
+    }
+  ],
+  "bridges": [],
+  "product_state": {
+    "value": "invalidated",
+    "reason": "Critical hypothesis refuted by prototype experiment; delivery not justified",
+    "scope": {
+      "segment": "enterprise-ops",
+      "geography": "global",
+      "window": {
+        "start": "2026-10-01T00:00:00Z",
+        "end": "2026-11-01T00:00:00Z"
+      }
+    },
+    "hypotheses": [
+      {
+        "id": "HYP-001",
+        "revision": "r1"
+      }
+    ],
+    "decision": {
+      "id": "DEC-002",
+      "revision": "r1"
+    },
+    "assessed_at": "2026-10-12T00:00:00Z",
+    "history": [
+      {
+        "from": "unvalidated",
+        "to": "validating",
+        "at": "2026-10-02T00:00:00Z",
+        "reason": "Starting prototype test",
+        "decision": {
+          "id": "DEC-001",
+          "revision": "r1"
+        }
+      },
+      {
+        "from": "validating",
+        "to": "invalidated",
+        "at": "2026-10-12T00:00:00Z",
+        "reason": "Test refuted completion gain",
+        "decision": {
+          "id": "DEC-002",
+          "revision": "r1"
+        }
+      }
+    ]
+  }
+}

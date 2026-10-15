@@ -74,14 +74,46 @@ jobs:
         run: pnpm test:cov
       - name: Run Eval/Outcome/Trace Script Tests
         run: pnpm test:evals && pnpm test:outcome && pnpm test:trace
+      - name: Run Product Evidence Suite and Integration Tests
+        run: pnpm test:product-evidence
       - name: Run E2E Tests
         run: pnpm test:e2e
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
+  product-evidence-consumer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22.x"
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Build CLI and MCP for consumer smoke
+        run: pnpm build && pnpm mcp:build
+      - name: Run offline consumer smoke
+        run: |
+          ROOT="${GITHUB_WORKSPACE:-$PWD}"
+          node scripts/skill-tests/product-evidence-integration/consumer-smoke.mjs \
+            --cli "$ROOT/cli/dist/index.js" \
+            --mcp "$ROOT/mcp/dist/index.js" \
+            --candidate-root "$ROOT" \
+            --out "$RUNNER_TEMP/consumer-smoke.json"
+      - name: Verify clean working tree
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "❌ Working tree dirty after consumer smoke!"
+            git status --porcelain
+            exit 1
+          fi
+          echo "✅ Working tree is clean."
+
   validate-skills:
     runs-on: ubuntu-latest
-    needs: [lint-and-format, unit-tests]
+    needs: [lint-and-format, unit-tests, product-evidence-consumer]
     steps:
       - uses: actions/checkout@v7
         with:
@@ -122,8 +154,7 @@ jobs:
           BASE="origin/${{ github.base_ref || 'main' }}"
           git fetch --no-tags --depth=1 origin "${{ github.base_ref || 'main' }}" || true
           git diff --name-only "$BASE"...HEAD \
-            | sed -n 's#^skills/\([^/]*\)/\([^/]*\)/.*#\1/\2#p' \
-            | sort -u > "$RUNNER_TEMP/changed-skills.txt"
+            | node --import tsx scripts/evals/changed-skills.ts > "$RUNNER_TEMP/changed-skills.txt"
           if [ ! -s "$RUNNER_TEMP/changed-skills.txt" ]; then
             echo "No skill changes in this diff; skipping preflight."
             exit 0

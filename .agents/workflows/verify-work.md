@@ -11,16 +11,15 @@ Goal: Prove the delivered change works against explicit acceptance criteria befo
 3. Run smallest reliable checks first. Use Playwright/Appium only for changed user behavior; run driver `scripts/preflight.sh` and use first available rung (web: CLI then MCP; mobile: local then cloud). Missing required driver without exported proof is `BLOCKED (driver: <name>)`. Use ticket/TC integrations only when configured; otherwise request exports or mark that lane BLOCKED.
    - Capture applicable logs, screenshots, traces, or terminal summaries as `<AC|step>-<before|after>.*` under `.playwright-cli/<session>/` or `.appium-mcp/<session>/`.
    - For bug fixes, prove before-failure and after-success; preserve every applicable driver and verification lane.
-4. PASS only when all approved criteria are proven and required approval/independent review gates are met; FAIL when a defect or missed requirement remains; BLOCKED when environment, credentials, or approval prevents proof.
+4. PASS only when all approved criteria are proven and required approval/independent review gates are met; FAIL when a defect or missed requirement remains; BLOCKED when environment, credentials, or approval prevents proof. Feature verified status confirms technical delivery against contract; separate delivery proof from observed business success (delivery != causal ROI).
 5. If observed behavior exceeds the approved low-risk brief, do not silently change scope or redefine criteria: route the decision to the owner, then verify against the resolved contract. Governed behavior drift requires PRD/SRS updates before PASS.
-6. Record low-risk checks, outcomes, and evidence in chat/task report; do not require new BRD/PRD/SRS, task-list, REQ/AC-ID, trace, or walkthrough artifacts. Governed work updates BRD-to-PRD-to-SRS/FRS trace and `docs/srs/srs-walkthrough-[slug].md`. Hand off the risk-sized evidence location.
-
+6. Record low-risk checks, outcomes, and evidence in chat/task report; do not require new BRD/PRD/SRS, task-list, REQ/AC-ID, trace, or walkthrough artifacts. Governed work updates BRD-to-PRD-to-SRS/FRS trace and `docs/srs/srs-walkthrough-[slug].md`. When initiative uses product evidence (`docs/product/<slug>/evidence.json`), carry measurement owner, registered MET baseline OR exact scoped exception DEC, query, instrumentation, cohort, window, guardrails, and review trigger; never fabricate agent-created baselines, approvals, or ROI. Proposal in ledger is not host execution or deployment permission.
 ## Runtime Contract
 - Use after implementation, before handoff, or when validating a bug fix.
 - Required inputs: explicit scope plus acceptance criteria or expected behavior.
-- Return BLOCKED only when environment, credentials, or approval prevents proof.
+- Return BLOCKED only when environment, credentials, or approval prevents proof. Feature verified status is retained when product value is pending or inconclusive.
 ## Handoff Payload
-- `operator_profile`, criteria results, comparative evidence, risks, evidence location (chat/task report for low-risk; governed trace/walkthrough path when governed), outcome report, next workflow.
+- `operator_profile`, criteria results, comparative evidence, measurement contract refs (owner, baseline or exception, guardrails) when present, risks, evidence location (chat/task report for low-risk; governed trace/walkthrough path when governed), outcome report, next workflow.
 ## Blocking Questions
 - Ask max 3 at a time with a recommended default and 2-3 options.
 ## Governed Walkthrough Template

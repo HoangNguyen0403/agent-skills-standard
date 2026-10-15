@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "run_id": "run-20261014-t06-02",
+  "slug": "no-access",
+  "workflow": "discover-product",
+  "feature_status": "not_started",
+  "started_at": "2026-10-14T09:10:00Z",
+  "completed_at": "2026-10-14T09:15:00Z",
+  "requirement_trace": {
+    "brd_objectives": [],
+    "requirements": [],
+    "acceptance_criteria": [],
+    "srs": []
+  },
+  "completed_evidence": [
+    "docs/product/no-access/evidence.json#CLM-001:r1"
+  ],
+  "missing_evidence": [
+    "Direct customer interview access and informed consent"
+  ],
+  "decision_needed": [
+    "Operator authorizes customer recruitment and participant consent"
+  ],
+  "recommended_next_workflow": "validate-product",
+  "cost": {
+    "source": "unavailable"
+  },
+  "agent": {
+    "identity": "omp/google-antigravity/gemini-3.8-flash:medium",
+    "model": "gemini-3.8-flash"
+  }
+}
