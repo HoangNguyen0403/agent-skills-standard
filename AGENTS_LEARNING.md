@@ -599,3 +599,26 @@ Exercise the production completion path: prune retired owners, retain still-sele
 
 ### Trigger Miss
 None established. The missing case was lifecycle ordering and ownership interaction, not an unavailable skill.
+
+---
+
+## Agent Learning Log: Iteration #25
+
+**Date**: 2026-10-15 | **Task**: Keep lifecycle tests compatible with the CI runtime.
+**Signal**: Session retrospective
+**Skills**: common/common-session-retrospective, common/common-learning-log
+**Scope**: project
+**Candidate**: exercise-existing-ci-runtime-floor | **Status**: proposed
+**Provenance**: PR234 CI38745679668, unit job116458568144, source `c23c2614`
+**Evaluation**: CI observed one Node20 failure; local Node22 passed. No held-out skill evaluation.
+**Review**: pending; no guidance promotion
+**Rollback**: no shared guidance changed
+
+### Mistake Made
+The asynchronous lifecycle regression used `Promise.withResolvers`, which is available locally on Node22 but unavailable in the existing Node20 coverage job. All other CLI tests and the actual installed-consumer job passed.
+
+### Better Approach
+Use standard Promise executors with captured resolvers for deterministic barriers. Preserve ordering assertions and the existing CI runtime; verify the actual coverage command and observe the next Node20 CI result rather than inferring compatibility from a newer local runtime.
+
+### Trigger Miss
+None established. The missed verification boundary was the existing CI runtime, not a missing project skill.

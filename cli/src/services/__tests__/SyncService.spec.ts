@@ -1232,13 +1232,19 @@ describe('SyncService', () => {
         lock: null,
         migratedFromV1: false,
       });
-      const refreshStarted = Promise.withResolvers<void>();
-      const finishRefresh = Promise.withResolvers<void>();
+      let signalRefreshStarted!: () => void;
+      const refreshStarted = new Promise<void>((resolve) => {
+        signalRefreshStarted = resolve;
+      });
+      let finishRefresh!: () => void;
+      const refreshFinished = new Promise<void>((resolve) => {
+        finishRefresh = resolve;
+      });
       const refreshIndices = vi
         .spyOn(syncService, 'applyIndices')
         .mockImplementation(async () => {
-          refreshStarted.resolve();
-          await finishRefresh.promise;
+          signalRefreshStarted();
+          await refreshFinished;
         });
 
       await syncService.beginInstall(config, { dryRun: false, force: [] });
@@ -1249,10 +1255,10 @@ describe('SyncService', () => {
         refreshIndices: true,
         localMetadata,
       });
-      await refreshStarted.promise;
+      await refreshStarted;
 
       expect(p.lockfileService.write).not.toHaveBeenCalled();
-      finishRefresh.resolve();
+      finishRefresh();
       await completion;
 
       expect(refreshIndices).toHaveBeenCalledWith(
@@ -1262,7 +1268,6 @@ describe('SyncService', () => {
       );
       expect(p.lockfileService.write).toHaveBeenCalled();
     });
-
 
     it('assembleWorkflows uses the resolved tag from resolvePins', async () => {
       const config = makeConfig({
