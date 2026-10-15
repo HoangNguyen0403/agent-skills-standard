@@ -50,6 +50,11 @@ Skills are the core value of this project.
 7. **Evidence first**: Retain applicable earlier cases, remove obsolete expectations, and add preventing cases for corrected behavior. Candidate fixtures are not live efficacy evidence.
 8. **Public package boundary**: Do not ship project-specific environment, VPN, account-selection, or credential-handling recipes in reusable skills or references.
 9. **Trigger precision**: Qualify collision-prone framework topics; retain unrelated workflow negatives and intended qualified positives. Test consumer routing, not metadata copies.
+10. **Requirements modeling & scope trees**: For complex feature discovery, load `references/requirements-modeling.md` on demand for verb-object scope trees, stop rules, and canonical shared definitions.
+11. **Question-driven representations & diagram reuse**: Select views by question per `references/requirements-modeling.md`. Diagrams remain optional when markdown tables or prose answer precisely; reuse existing diagram capabilities.
+12. **Low-risk equivalence & sensitive floors**: Low-risk maintenance tickets with approved behavioral AC, owner, scope fence, approval, and verification lane satisfy readiness without document creation. Enforce sensitive floors per `references/requirements-modeling.md`.
+13. **Scoped change impact**: When requirements change, trace affected ACs, contracts, approvals, and evidence carrying existing IDs without reopening settled decisions.
+14. **Host-neutral guidance**: Keep provider, account, profile, model, and machine specifics in host planning records only, not canonical guidance.
 
 ## 4. Creating Workflows
 

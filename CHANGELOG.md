@@ -12,22 +12,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **Requirements modeling**: Added canonical requirements modeling reference (`skills/common/common-product-requirements/references/requirements-modeling.md`) covering scope trees, process flows, decision tables, state models, and delivery dependency graphs.
-- **MCP `0.7.0` candidate**: Added explicit-manifest Codex JSONL and OMP v3 session accounting, including separately grouped OMP `model_usage`, preserved orchestration/cache-write buckets, Codex derived-delta containment with baseline recovery, order-independent cross-journal provenance redaction with a bounded global privacy-membership set, invalid-to-valid same-ID recovery with accepted-signature conflict detection, incomplete unknown metrics, and stop-on-limit behavior. Human output labels the transcript-message count accurately; packaged command is `ags-mcp-session-report`. Real-journal authorization remains a separate acceptance gate.
-- **Common `2.8.7` candidate**: Added version-2 revision-, workspace-, dirty-identity-, and evidence-content-bound progress receipts. Declared owner pause remains metadata, not host enforcement.
 - **Common `2.8.8` candidate**: Aligned requirements skills (`common-business-requirements`, `common-product-requirements`, `common-software-requirements`) with INVEST criteria, truth tables, and canonical requirements modeling reference.
 - **Quality Engineering `1.6.1` candidate**: Aligned `quality-engineering-business-analysis` with slice readiness checks and user story decision table truth matrices.
+
 ### Fixed
 
 - **Website verification tools**: Move to the Node 20-compatible Vitest 4.1.11 native worker pool to remove vulnerable Tinypool, upgrade Playwright to 1.55.1 for verified browser-installer certificates, and narrowly pin Lighthouse's FTP dependency to `basic-ftp` 6.2.1 and the local preview server to patched compression 1.8.2/minimatch 3.1.4. Keep dependency review and production dependency audit enabled. Retain exact animation-identity cancellation checks instead of duplicate CSS-event timestamp assumptions.
-- **MCP Streamable HTTP**: Create a fresh server and stateless transport for each request, allowing initialization to be followed by further calls while cleaning up request-scoped state. Stdio remains unchanged.
 - **Dependencies**: Bumped `inquirer` to 14.2.3, `js-yaml` to 5.4.3, and `pino-pretty` to 13.2.0 across cli, mcp, server, and root packages (combining PR #230 and PR #231); configured `allow-ghsas` in dependency review for unpatchable devDependency advisories GHSA-jmr9-qjv8-65gv and GHSA-7pqw-9j4j-h8q3 in website Lighthouse tooling.
 
 ### Changed
 
+- **System design**: Select specialist dives from unresolved consequential risks across linked references; make redraw conditional across intake and review outputs; qualify scorecard anchors, readiness and verdicts by evidence scope; choose sync/async boundaries from consistency and failure requirements.
 - **Website**: Added a static Agent Skills Standard landing page with keyboard-scrollable native commands; corrected motion-controller disposal so stale observer callbacks cannot reactivate retired work; publication verification passed 63/63 Chromium browser cases and a three-run Lighthouse lab audit (median score 99).
 - **SDLC workflows**: Bind routing to task-linked approved evidence, keep product planning separate from technical design, make readiness handoffs explicitly slice-scoped with distinct source-ready and machine-activation states, and connect planning directly to requirements modeling and change-impact tracing.
 - **Requirements skills**: Aligned `common-business-requirements`, `common-product-requirements`, `common-software-requirements`, and `quality-engineering-business-analysis` with INVEST checks, decision tables, truth tables, and expanded evaluation assertions.
-- **System design**: Select specialist dives from unresolved consequential risks across linked references; make redraw conditional across intake and review outputs; qualify scorecard anchors, readiness and verdicts by evidence scope; choose sync/async boundaries from consistency and failure requirements.
 - **Evaluations**: Replace fixed-quota/label/optional-mechanism snapshots with invariant-focused cases; keep semantic acceptance separate from lexical smoke checks.
 - **Agent learning log**: Added iterations #11–#13 candidate lessons and trigger evaluations in `AGENTS_LEARNING.md`.
 
@@ -37,6 +35,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **System Design**: `1.2.2` → `1.2.3`
 - **Common**: `2.8.7` → `2.8.8`
 - **Quality Engineering**: `1.6.0` → `1.6.1`
+
+## [common-v2.8.7] - 2026-10-09
+
+**Category**: Progress Receipts
+
+### Added
+
+- **Common `2.8.7`**: Added version-2 revision-, workspace-, dirty-identity-, and evidence-content-bound progress receipts. Declared owner pause remains metadata, not host enforcement.
+
+### Versions
+
+- **Common Skills**: `2.8.6` → `2.8.7`
+
+## [mcp-v0.7.0] - 2026-10-09
+
+**Category**: MCP Session Reporting
+
+### Added
+
+- **MCP `0.7.0`**: Added explicit-manifest Codex JSONL and OMP v3 session accounting, including separately grouped OMP `model_usage`, preserved orchestration/cache-write buckets, Codex derived-delta containment with baseline recovery, order-independent cross-journal provenance redaction with a bounded global privacy-membership set, invalid-to-valid same-ID recovery with accepted-signature conflict detection, incomplete unknown metrics, and stop-on-limit behavior. Human output labels the transcript-message count accurately; packaged command is `ags-mcp-session-report`. Real-journal authorization remains a separate acceptance gate.
+
+### Fixed
+
+- **MCP Streamable HTTP**: Create a fresh server and stateless transport for each request, allowing initialization to be followed by further calls while cleaning up request-scoped state. Stdio remains unchanged.
+
+### Versions
+
+- **MCP**: `0.6.1` → `0.7.0`
+
+## [workflows-v1.1.5] - 2026-10-09
+
+**Category**: SDLC Workflow Readiness
+
+### Changed
+
+- **SDLC workflows**: Bind routing to task-linked approved evidence, keep product planning separate from technical design, and make readiness handoffs explicitly slice-scoped with distinct source-ready and machine-activation states.
+
+### Versions
+
+- **Workflows**: `1.1.4` → `1.1.5`
+
 ## [cli-v2.6.6] / [mcp-v0.6.1] - 2026-10-07
 
 **Category**: CLI Tool, MCP Server, Dependency Security
@@ -620,7 +659,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Locator Ladder** (`quality-engineering-selector-stability`, #169): cross-stack locator ladder (web `getByRole` > `getByLabel` > `getByTestId`; mobile a11y id > resource-id/testTag), test-id naming `<screen>-<element>-<role>`, never XPath.
 - **Test Healing Taxonomy** (`quality-engineering-test-healing`, #169): failure taxonomy `SELECTOR_DRIFT / TIMING_SYNC / DATA_ENV / INFRA / REAL_REGRESSION`, allowed and forbidden repairs, verdict contract.
-- **Test Plan Authoring** (`quality-engineering-test-plan-authoring`, #169): AC-* into an executable test plan with lanes, seed, and `Selector Gaps`.
+- **Test Plan Authoring** (`quality-engineering-test-plan-authoring`, #169): AC-\* into an executable test plan with lanes, seed, and `Selector Gaps`.
 - **Automation Health Metrics** (`quality-engineering-automation-health`, #184): feedback-loop, suite reliability, release cadence and prod-escape metrics rolled into a `release_confidence` verdict.
 - **Playwright POM Generation** (`quality-engineering-playwright-pom-generation`, #186): one page object per screen, ladder-compliant locators, no assertions, `pages` fixture; MCP-assisted locator confirmation.
 - **Flaky Test Triage** (`quality-engineering-flaky-triage`, #188): quarantine behind a ticket with owner and 14-day expiry, root-cause buckets, 10-run isolated evidence, un-quarantine criteria.

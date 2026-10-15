@@ -4,7 +4,7 @@
     {
       "id": 1,
       "prompt": "Write technical specifications for checkout retry. Supplied facts: maximum 3 retries with exponential backoff; requests are idempotent on order_id; a duplicate idempotency key returns HTTP 409 Conflict. Use distinct neutral unpadded rows following RETRY|<operation>|<count>|<unit>|<strategy>, IDEMPOTENCY|<operation>|<key>|<duplicate-key behavior>, and RESPONSE|<condition>|<HTTP status>|<outcome>.",
-      "expected_output": "Preserve the retry count and strategy, order_id idempotency key, and HTTP 409 Conflict duplicate-key outcome:\nRETRY|checkout|3|retries|exponential backoff\nIDEMPOTENCY|checkout|order_id|duplicate key returns HTTP 409 Conflict\nRESPONSE|duplicate idempotency key|HTTP 409|Conflict",
+      "expected_output": "Preserve the retry count and strategy, order_id idempotency key, and HTTP 409 Conflict duplicate-key outcome.\nExpected controlled outcome records:\nRETRY|checkout|3|retries|exponential backoff\nIDEMPOTENCY|checkout|order_id|duplicate key returns HTTP 409 Conflict\nRESPONSE|duplicate idempotency key|HTTP 409|Conflict",
       "assertions": [
         {
           "type": "regex",
@@ -23,7 +23,7 @@
     {
       "id": 2,
       "prompt": "Create technical requirements for API timeout fallback. Supplied facts: the gateway timeout threshold is 2500ms; when that timeout occurs, use cached inventory and emit a warning log event. Use distinct neutral unpadded rows following TRIGGER|<source>|<condition>|<threshold>|<unit>, ACTION|<condition>|<fallback behavior>, and EVENT|<condition>|<event>|<emission behavior>.",
-      "expected_output": "Bind the 2500ms gateway timeout to cached-inventory fallback and warning-event emission:\nTRIGGER|gateway|timeout|2500|ms\nACTION|timeout|cached inventory fallback\nEVENT|timeout|warning log event|emitted",
+      "expected_output": "Bind the 2500ms gateway timeout to cached-inventory fallback and warning-event emission.\nExpected controlled outcome records:\nTRIGGER|gateway|timeout|2500|ms\nACTION|timeout|cached inventory fallback\nEVENT|timeout|warning log event|emitted",
       "assertions": [
         {
           "type": "regex",
@@ -42,15 +42,31 @@
     {
       "id": 3,
       "prompt": "Design technical implementation for order cancellation. Controlled facts: no behavioral acceptance criteria exist and implementation prerequisites have not been verified. Can engineering proceed with development? Use neutral unpadded rows following READINESS|<decision subject>|<verdict>|<authorization>|<basis> and NEXT|<subject>|<gate>|<required prerequisites>|<destination>.",
-      "expected_output": "Do not authorize implementation. Record the affected slice as not ready because behavioral acceptance criteria and verified prerequisites are absent; route to requirements/planning before development:\nREADINESS|order cancellation implementation|NOT READY|NOT AUTHORIZED|behavioral acceptance criteria and verified prerequisites absent\nNEXT|implementation|BLOCKED UNTIL|behavioral acceptance criteria and verified prerequisites|requirements/planning",
+      "expected_output": "Do not authorize implementation. Record the affected slice as not ready because behavioral acceptance criteria and verified prerequisites are absent; route to requirements/planning before development.\nExpected controlled outcome records:\nREADINESS|order cancellation implementation|NOT READY|NOT AUTHORIZED|behavioral acceptance criteria and verified prerequisites absent\nNEXT|implementation|BLOCKED UNTIL|behavioral acceptance criteria and verified prerequisites|requirements/planning",
       "assertions": [
         {
           "type": "regex",
-          "value": "(?:^|\\r?\\n)READINESS\\|order cancellation implementation\\|NOT READY\\|NOT AUTHORIZED\\|behavioral acceptance criteria and verified prerequisites absent(?:\\r?\\n|$)"
+          "value": "(?:^|\\r?\\n)READINESS\\|order cancellation implementation\\|NOT READY\\|NOT AUTHORIZED\\|(?=[^|\\r\\n]*\\bbehavioral acceptance criteria\\b)(?=[^|\\r\\n]*(?:absent|missing|unverified))[^|\\r\\n]*(?:\\r?\\n|$)"
         },
         {
           "type": "regex",
-          "value": "(?:^|\\r?\\n)NEXT\\|implementation\\|BLOCKED UNTIL\\|behavioral acceptance criteria and verified prerequisites\\|requirements/planning(?:\\r?\\n|$)"
+          "value": "(?:^|\\r?\\n)NEXT\\|implementation\\|BLOCKED UNTIL\\|(?=[^|\\r\\n]*\\bbehavioral acceptance criteria\\b)(?=[^|\\r\\n]*\\bprerequisites\\b)[^|\\r\\n]+\\|requirements/planning(?:\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)READINESS\\|order cancellation implementation\\|(?!NOT READY\\|NOT AUTHORIZED\\|)[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)NEXT\\|implementation\\|(?!BLOCKED UNTIL\\|)[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)READINESS\\|order cancellation implementation\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?READINESS\\|order cancellation implementation\\|)[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)NEXT\\|implementation\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?NEXT\\|implementation\\|)[\\s\\S]*$"
         }
       ]
     }

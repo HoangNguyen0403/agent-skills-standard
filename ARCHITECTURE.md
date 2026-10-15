@@ -103,6 +103,12 @@ Requirement layering is explicit in the SDLC workflow names and outputs:
 - `implementation-readiness` and later phases enforce living traceability updates across BRD-lite -> PRD -> SRS/FRS -> verification evidence
 - Core SDLC outputs include an adapter-neutral Outcome Report (`feature_status`, `requirement_trace`, completed evidence, missing evidence, decision needed, recommended next workflow) so runtimes can report whether work is not started, requirements-ready, design-ready, partial, implemented, or blocked without embedding project-specific orchestration concepts.
 
+### Requirements Modeling & View Selection
+
+Complex feature discovery uses progressive disclosure: `common-product-requirements` loads `references/requirements-modeling.md` on demand for scope trees, completeness, canonical rules, question-driven view selection, low-risk ticket equivalence, sensitive-change floors (technical design plus explicit human/governance approval), and scoped change impact carrying existing IDs.
+
+Canonical guidance remains host-neutral; provider, account, profile, model, and machine specifics belong in host planning records only.
+
 ## 4. Hook-Based Transparency
 
 Inspired by **Rust Token Killer (RTK)**, we aim for a zero-trust, low-overhead context model. This means:

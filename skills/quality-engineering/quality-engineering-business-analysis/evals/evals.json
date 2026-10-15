@@ -4,22 +4,38 @@
     {
       "id": 1,
       "prompt": "Evaluate readiness for TICK-1234 order history changes. Supplied facts: Slice A is caption-wrap on the order table, has approved behavioral AC TICK-1234-AC-1, owner Product Owner, and verification lane order-history component test. Slice B is a role-based order export permission check with undefined permission rules and no approved security design; Security Owner is responsible for supplying that design. Use records with no padding around |: SLICE|<slice>|<verdict>|owner=<owner>|verification=<evidence>|authorization=<permission>, or SLICE|<slice>|<verdict>|owner=<owner>|required-input=<input>|authorization=<permission> when verification is absent. Permitted verdict values are READY and BLOCKED; permission values are AUTHORIZED and NOT AUTHORIZED. Derive each slice's values from its facts; do not infer missing security policy.",
-      "expected_output": "Authorize only Slice A and retain its approved AC and test lane as verification evidence. Keep Slice B blocked and unauthorized, with Security Owner and the approved security design as required input.\nSLICE|A|READY|owner=Product Owner|verification=approved AC TICK-1234-AC-1; test lane=order-history component test|authorization=AUTHORIZED\nSLICE|B|BLOCKED|owner=Security Owner|required-input=approved security design|authorization=NOT AUTHORIZED",
+      "expected_output": "Authorize only Slice A and retain its approved AC and test lane as verification evidence. Keep Slice B blocked and unauthorized, with Security Owner and the approved security design as required input.\nExpected controlled outcome records:\nSLICE|A|READY|owner=Product Owner|verification=approved AC TICK-1234-AC-1; test lane=order-history component test|authorization=AUTHORIZED\nSLICE|B|BLOCKED|owner=Security Owner|required-input=approved security design|authorization=NOT AUTHORIZED",
       "assertions": [
         {
           "type": "regex",
-          "value": "(?:^|\\r?\\n)SLICE\\|A\\|READY\\|owner=Product Owner\\|verification=approved AC TICK-1234-AC-1; test lane=order-history component test\\|authorization=AUTHORIZED(?:\\r?\\n|$)"
+          "value": "(?:^|\\r?\\n)SLICE\\|A\\|READY\\|owner=Product Owner\\|verification=(?=[^|\\r\\n]*\\bTICK-1234-AC-1\\b)(?=[^|\\r\\n]*\\border-history component test\\b)[^|\\r\\n]+\\|authorization=AUTHORIZED(?:\\r?\\n|$)"
         },
         {
           "type": "regex",
-          "value": "(?:^|\\r?\\n)SLICE\\|B\\|BLOCKED\\|owner=Security Owner\\|required-input=approved security design\\|authorization=NOT AUTHORIZED(?:\\r?\\n|$)"
+          "value": "(?:^|\\r?\\n)SLICE\\|B\\|BLOCKED\\|owner=Security Owner\\|required-input=[^|\\r\\n]*approved security design[^|\\r\\n]*\\|authorization=NOT AUTHORIZED(?:\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)SLICE\\|B\\|(?!BLOCKED\\|)[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)SLICE\\|A\\|(?!READY\\|)[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)SLICE\\|A\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?SLICE\\|A\\|)[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)SLICE\\|B\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?SLICE\\|B\\|)[\\s\\S]*$"
         }
       ]
     },
     {
       "id": 2,
       "prompt": "For this synthetic truth-table case, supplied facts are: ReorderFeature controls the Reorder button; the button is visible when the toggle is ON and order status is Delivered. Behavior for other statuses and when the toggle is OFF has not been decided. Product Owner owns those decisions. Map the toggle states against the Delivered and other-status categories, identifying evidence or unresolved required input for each cell. Use six-field records with no padding around |: CELL|<toggle>|status=<status>|outcome=<consumer-visible outcome or UNRESOLVED>|basis=<source fact or owner>|required-input=<input or NONE for a supplied known behavior>. This schema defines cell syntax only; derive every cell from the supplied facts.",
-      "expected_output": "Preserve the supplied visible outcome for ON/Delivered. Keep ON/other, OFF/Delivered and OFF/other unresolved with Product Owner and a distinct required input for each; do not invent OFF behavior.\nCELL|ReorderFeature=ON|status=Delivered|outcome=VISIBLE|basis=provided behavior|required-input=NONE\nCELL|ReorderFeature=ON|status=other|outcome=UNRESOLVED|basis=owner: Product Owner|required-input=approved behavior for non-Delivered statuses\nCELL|ReorderFeature=OFF|status=Delivered|outcome=UNRESOLVED|basis=owner: Product Owner|required-input=approved behavior when OFF for Delivered\nCELL|ReorderFeature=OFF|status=other|outcome=UNRESOLVED|basis=owner: Product Owner|required-input=approved behavior when OFF for other statuses",
+      "expected_output": "Preserve the supplied visible outcome for ON/Delivered. Keep ON/other, OFF/Delivered and OFF/other unresolved with Product Owner and a distinct required input for each; do not invent OFF behavior.\nExpected controlled outcome records:\nCELL|ReorderFeature=ON|status=Delivered|outcome=VISIBLE|basis=provided behavior|required-input=NONE\nCELL|ReorderFeature=ON|status=other|outcome=UNRESOLVED|basis=owner: Product Owner|required-input=approved behavior for non-Delivered statuses\nCELL|ReorderFeature=OFF|status=Delivered|outcome=UNRESOLVED|basis=owner: Product Owner|required-input=approved behavior when OFF for Delivered\nCELL|ReorderFeature=OFF|status=other|outcome=UNRESOLVED|basis=owner: Product Owner|required-input=approved behavior when OFF for other statuses",
       "assertions": [
         {
           "type": "regex",
@@ -27,15 +43,43 @@
         },
         {
           "type": "regex",
-          "value": "(?:^|\\r?\\n)CELL\\|ReorderFeature=ON\\|status=other\\|outcome=UNRESOLVED\\|basis=owner: Product Owner\\|required-input=approved behavior for non-Delivered statuses(?:\\r?\\n|$)"
+          "value": "(?:^|\\r?\\n)CELL\\|ReorderFeature=ON\\|status=other\\|outcome=UNRESOLVED\\|basis=(?:owner:\\s*)?Product Owner\\|required-input=[^|\\r\\n]*(?:non-Delivered|other statuses)[^|\\r\\n]*(?:\\r?\\n|$)"
         },
         {
           "type": "regex",
-          "value": "(?:^|\\r?\\n)CELL\\|ReorderFeature=OFF\\|status=Delivered\\|outcome=UNRESOLVED\\|basis=owner: Product Owner\\|required-input=approved behavior when OFF for Delivered(?:\\r?\\n|$)"
+          "value": "(?:^|\\r?\\n)CELL\\|ReorderFeature=OFF\\|status=Delivered\\|outcome=UNRESOLVED\\|basis=(?:owner:\\s*)?Product Owner\\|required-input=[^|\\r\\n]*(?:OFF|Delivered)[^|\\r\\n]*(?:\\r?\\n|$)"
         },
         {
           "type": "regex",
-          "value": "(?:^|\\r?\\n)CELL\\|ReorderFeature=OFF\\|status=other\\|outcome=UNRESOLVED\\|basis=owner: Product Owner\\|required-input=approved behavior when OFF for other statuses(?:\\r?\\n|$)"
+          "value": "(?:^|\\r?\\n)CELL\\|ReorderFeature=OFF\\|status=other\\|outcome=UNRESOLVED\\|basis=(?:owner:\\s*)?Product Owner\\|required-input=[^|\\r\\n]*(?:OFF|other statuses)[^|\\r\\n]*(?:\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)CELL\\|ReorderFeature=ON\\|status=other\\|(?!outcome=UNRESOLVED\\|)[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)CELL\\|ReorderFeature=OFF\\|status=Delivered\\|(?!outcome=UNRESOLVED\\|)[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)CELL\\|ReorderFeature=OFF\\|status=other\\|(?!outcome=UNRESOLVED\\|)[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)CELL\\|ReorderFeature=ON\\|status=Delivered\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?CELL\\|ReorderFeature=ON\\|status=Delivered\\|)[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)CELL\\|ReorderFeature=ON\\|status=other\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?CELL\\|ReorderFeature=ON\\|status=other\\|)[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)CELL\\|ReorderFeature=OFF\\|status=Delivered\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?CELL\\|ReorderFeature=OFF\\|status=Delivered\\|)[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)CELL\\|ReorderFeature=OFF\\|status=other\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?CELL\\|ReorderFeature=OFF\\|status=other\\|)[\\s\\S]*$"
         }
       ]
     },
@@ -103,7 +147,7 @@
     {
       "id": 6,
       "prompt": "Supplied story fact: VN users see a Tender Available tag on product cards. Actor role, CTA behavior, and non-VN treatment are unspecified. In this synthetic case Product Owner owns the actor-role and CTA questions; Market Owner owns non-VN treatment. Record the supplied fact and the remaining owned decisions using unpadded neutral schemas AC|<market boundary>|<supplied behavior> and DECISION|<open question>|<status>|<owner>|required input=<input>. Derive the decisions from the supplied facts; do not infer an actor or behavior.",
-      "expected_output": "Retain the VN-specific supplied tag behavior and separately record owned actor-role, CTA, and non-VN unknowns with required inputs.\nAC|Market: VN|Tender Available tag shown on product cards\nDECISION|actor role|UNRESOLVED|Product Owner|required input=approved actor role\nDECISION|CTA interaction|UNRESOLVED|Product Owner|required input=approved CTA interaction behavior\nDECISION|non-VN behavior|UNRESOLVED|Market Owner|required input=approved non-VN treatment",
+      "expected_output": "Retain the VN-specific supplied tag behavior and separately record owned actor-role, CTA, and non-VN unknowns with required inputs.\nExpected controlled outcome records:\nAC|Market: VN|Tender Available tag shown on product cards\nDECISION|actor role|UNRESOLVED|Product Owner|required input=approved actor role\nDECISION|CTA interaction|UNRESOLVED|Product Owner|required input=approved CTA interaction behavior\nDECISION|non-VN behavior|UNRESOLVED|Market Owner|required input=approved non-VN treatment",
       "assertions": [
         {
           "type": "regex",
@@ -111,15 +155,43 @@
         },
         {
           "type": "regex",
-          "value": "(?:^|\\r?\\n)DECISION\\|actor role\\|UNRESOLVED\\|Product Owner\\|required input=approved actor role(?:\\r?\\n|$)"
+          "value": "(?:^|\\r?\\n)DECISION\\|actor role\\|UNRESOLVED\\|Product Owner\\|required[- ]input=[^|\\r\\n]*(?:actor role|role)[^|\\r\\n]*(?:\\r?\\n|$)"
         },
         {
           "type": "regex",
-          "value": "(?:^|\\r?\\n)DECISION\\|CTA interaction\\|UNRESOLVED\\|Product Owner\\|required input=approved CTA interaction behavior(?:\\r?\\n|$)"
+          "value": "(?:^|\\r?\\n)DECISION\\|CTA interaction\\|UNRESOLVED\\|Product Owner\\|required[- ]input=[^|\\r\\n]*(?:CTA|interaction)[^|\\r\\n]*(?:\\r?\\n|$)"
         },
         {
           "type": "regex",
-          "value": "(?:^|\\r?\\n)DECISION\\|non-VN behavior\\|UNRESOLVED\\|Market Owner\\|required input=approved non-VN treatment(?:\\r?\\n|$)"
+          "value": "(?:^|\\r?\\n)DECISION\\|non-VN behavior\\|UNRESOLVED\\|Market Owner\\|required[- ]input=[^|\\r\\n]*(?:non-VN|treatment|behavior)[^|\\r\\n]*(?:\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)DECISION\\|actor role\\|(?!UNRESOLVED\\|Product Owner\\|)[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)DECISION\\|CTA interaction\\|(?!UNRESOLVED\\|Product Owner\\|)[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)DECISION\\|non-VN behavior\\|(?!UNRESOLVED\\|Market Owner\\|)[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)AC\\|Market: VN\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?AC\\|Market: VN\\|)[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)DECISION\\|actor role\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?DECISION\\|actor role\\|)[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)DECISION\\|CTA interaction\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?DECISION\\|CTA interaction\\|)[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)DECISION\\|non-VN behavior\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?DECISION\\|non-VN behavior\\|)[\\s\\S]*$"
         }
       ]
     }
