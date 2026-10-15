@@ -495,8 +495,8 @@
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 44,
-        "total_tokens": 38319,
-        "avg_tokens_per_skill": 871,
+        "total_tokens": 38388,
+        "avg_tokens_per_skill": 872,
         "largest_skill": "common-skill-creator (1693 tokens)"
       },
       "owners": [
@@ -509,7 +509,7 @@
       "tag_prefix": "quality-engineering-v",
       "token_metrics": {
         "total_skills": 14,
-        "total_tokens": 12008,
+        "total_tokens": 12010,
         "avg_tokens_per_skill": 858,
         "largest_skill": "quality-engineering-zephyr-test-generation (1278 tokens)"
       },
@@ -864,9 +864,9 @@
       ],
       "token_metrics": {
         "total_skills": 10,
-        "total_tokens": 13909,
-        "avg_tokens_per_skill": 1391,
-        "largest_skill": "product-requirements (1741 tokens)"
+        "total_tokens": 13868,
+        "avg_tokens_per_skill": 1387,
+        "largest_skill": "product-metrics (1717 tokens)"
       }
     }
   },

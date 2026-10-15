@@ -105,7 +105,7 @@ Requirement layering is explicit in the SDLC workflow names and outputs:
 
 ### Requirements Modeling & View Selection
 
-Complex feature discovery uses progressive disclosure: `common-product-requirements` loads `references/requirements-modeling.md` on demand for scope trees, completeness, canonical rules, question-driven view selection, low-risk ticket equivalence, sensitive-change floors (technical design plus explicit human/governance approval), and scoped change impact carrying existing IDs.
+Complex feature discovery uses progressive disclosure: `product-management/product-requirements` loads `references/requirements-modeling.md` on demand for scope trees, completeness, canonical rules, question-driven view selection, low-risk ticket equivalence, sensitive-change floors (technical design plus explicit human/governance approval), and scoped change impact carrying existing IDs.
 
 Canonical guidance remains host-neutral; provider, account, profile, model, and machine specifics belong in host planning records only.
 

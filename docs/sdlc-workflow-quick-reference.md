@@ -43,7 +43,7 @@ A stale or disputed decision blocks only its consuming action; unaffected approv
 
 ### Question-Driven Modeling And Completeness
 
-For substantial scope, multi-actor workflows, interacting rules, or multiple delivery slices, load `common-product-requirements/references/requirements-modeling.md` on demand for verb-object capability scope trees, stop rules, canonical shared definitions, question-driven view selection, and change impact.
+For substantial scope, multi-actor workflows, interacting rules, or multiple delivery slices, load `product-management/product-requirements/references/requirements-modeling.md` on demand for verb-object capability scope trees, stop rules, canonical shared definitions, question-driven view selection, and change impact.
 
 ### Low-Risk Evidence And Sensitive Floors
 
@@ -156,7 +156,7 @@ Start with any practice that has no prerequisite, then follow the arrows.
 
 - No prerequisite: `common-agent-guardrails`, `brainstorm-feature`, `common-tdd` feedback loop, instruction-file hygiene.
 - `plan-feature`, `design-solution` <- task-linked approved intent or product evidence (sufficiently specified low-risk maintenance with approved task tickets may proceed without a separate BRD-lite).
-- `implementation-readiness`, `implement-feature` <- behavioral ACs, accountable owner, approved scope fence, and verification lane plus applicable design/test prerequisites (supplied by PRD and SRS or an equivalent approved low-risk record); sensitive changes still require technical design and human/governance approval per [requirements modeling §1](../skills/common/common-product-requirements/references/requirements-modeling.md#1-applicability--sizing-gate), and PARTIAL authorizes ready slices only.
+- `implementation-readiness`, `implement-feature` <- behavioral ACs, accountable owner, approved scope fence, and verification lane plus applicable design/test prerequisites (supplied by PRD and SRS or an equivalent approved low-risk record); sensitive changes still require technical design and human/governance approval per [requirements modeling §1](../skills/product-management/product-requirements/references/requirements-modeling.md#1-applicability--sizing-gate), and PARTIAL authorizes ready slices only.
 - `code-review`, `review-ticket` <- `docs/review-policy.md` and the framework skills.
 - `evals-run` config gate <- eval definitions plus a stable command to run them.
 - `deploy-release` tiers <- guardrail approval gates and a rehearsed rollback.

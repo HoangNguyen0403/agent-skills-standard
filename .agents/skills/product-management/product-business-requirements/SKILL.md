@@ -53,7 +53,7 @@ Frame the business "Why" before product or technical specs.
 - Functional behavior is routed to PRD/SRS, not buried in BRD.
 - Sufficiently specified low-risk ticket maintenance may proceed with an in-chat contract without mandatory BRD document detours, provided it carries an accountable owner, approved scope fence, value rationale, and verification target.
 
-- Sensitive changes still require technical design and explicit human/governance approval per [requirements modeling §1](../common-product-requirements/references/requirements-modeling.md#1-applicability--sizing-gate); low-risk ticket equivalence never removes that floor.
+- Sensitive changes still require technical design and explicit human/governance approval per [requirements modeling §1](../product-requirements/references/requirements-modeling.md#1-applicability--sizing-gate); low-risk ticket equivalence never removes that floor.
 
 ## Anti-Patterns
 
