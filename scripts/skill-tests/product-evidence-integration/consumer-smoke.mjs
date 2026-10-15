@@ -61,6 +61,69 @@ function sha256(content) {
   const buf = Buffer.isBuffer(content) ? content : Buffer.from(content);
   return crypto.createHash('sha256').update(buf).digest('hex');
 }
+function getCandidateCommitSha(candidateRoot) {
+  let res;
+  try {
+    res = spawnSync('git', ['rev-parse', 'HEAD'], {
+      cwd: candidateRoot,
+      encoding: 'utf8',
+      timeout: 5000,
+    });
+  } catch (error) {
+    throw new Error(`Failed to resolve candidate commit SHA from git HEAD: ${error.message}`);
+  }
+  if (res.status !== 0 || !res.stdout || !/^[a-f0-9]{40}$/i.test(res.stdout.trim())) {
+    throw new Error(`Candidate root at ${candidateRoot} does not have an available git HEAD commit SHA (exit ${res.status}): ${res.stderr || res.stdout}`);
+  }
+  return res.stdout.trim().toLowerCase();
+}
+
+function getGitDirtyStatus(candidateRoot) {
+  try {
+    const res = spawnSync('git', ['status', '--porcelain'], {
+      cwd: candidateRoot,
+      encoding: 'utf8',
+      timeout: 5000,
+    });
+    return res.status === 0 ? res.stdout.trim().length > 0 : null;
+  } catch {
+    return null;
+  }
+}
+
+function requireFileHash(filePath, label) {
+  if (!fs.existsSync(filePath) || !fs.lstatSync(filePath).isFile()) {
+    throw new Error(`Required file missing for verification inputs: ${label} (${filePath})`);
+  }
+  return sha256(fs.readFileSync(filePath));
+}
+
+function hashDirectoryFiles(baseDir, dirRel = '.') {
+  const dirAbs = path.resolve(baseDir, dirRel);
+  if (!fs.existsSync(dirAbs) || !fs.lstatSync(dirAbs).isDirectory()) {
+    throw new Error(`Required directory missing for provenance hashing: ${dirRel}`);
+  }
+  const hashes = [];
+  function walk(current) {
+    const entries = fs.readdirSync(current, { withFileTypes: true });
+    entries.sort((a, b) => a.name.localeCompare(b.name));
+    for (const entry of entries) {
+      if (entry.name === '.git' || entry.name === 'node_modules' || entry.name.startsWith('.')) continue;
+      const full = path.join(current, entry.name);
+      if (entry.isDirectory()) walk(full);
+      else if (entry.isFile()) {
+        const rel = path.relative(baseDir, full).split(path.sep).join('/');
+        hashes.push(`${rel}:${sha256(fs.readFileSync(full))}`);
+      }
+    }
+  }
+  walk(dirAbs);
+  if (hashes.length === 0) {
+    throw new Error(`Required directory has no files for provenance hashing: ${dirRel}`);
+  }
+  return sha256(hashes.join('\n'));
+}
+
 
 /** Wraps a promise with a hard timeout to prevent any deadlock or hang. */
 function withTimeout(promise, ms, label) {
@@ -169,7 +232,7 @@ function spawnNodeAsync(args, options = {}) {
   });
 }
 /** Runs bounded filesystem-only resource CLIs synchronously into temporary
- * files because their production entrypoints call process.exit immediately.
+ * files for deterministic capture and status inspection.
  * Networked CLI/MCP consumers remain asynchronous. */
 function spawnNodeSync(args, options = {}) {
   const timeoutMs = options.timeoutMs ?? 15000;
@@ -314,7 +377,13 @@ export async function main() {
     // -------------------------------------------------------------------------
     // Start Loopback Registry Fixture
     // -------------------------------------------------------------------------
-    const commitSha = '1111222233334444555566667777888899990000';
+    const commitSha = getCandidateCommitSha(candidateRoot);
+    const gitDirty = getGitDirtyStatus(candidateRoot);
+    const pnpmLockSha = requireFileHash(path.join(candidateRoot, 'pnpm-lock.yaml'), 'pnpm-lock.yaml');
+    const cliSourceSha = hashDirectoryFiles(candidateRoot, 'cli/src');
+    const mcpSourceSha = hashDirectoryFiles(candidateRoot, 'mcp/src');
+    const harnessAndFixturesSha = hashDirectoryFiles(candidateRoot, 'scripts/skill-tests/product-evidence-integration');
+
     fixtureServer = await startRegistryFixture(candidateRoot, {
       owner: 'HoangNguyen0403',
       repo: 'agent-skills-standard',
@@ -326,17 +395,24 @@ export async function main() {
     completedEvidence.push(JSON.stringify({
       step: 'candidate_binding',
       node: process.version,
+      candidate_commit_sha: commitSha,
+      git_dirty: gitDirty,
       cli_path: cliPath,
       cli_sha256: sha256(fs.readFileSync(cliPath)),
       mcp_path: mcpPath,
       mcp_sha256: sha256(fs.readFileSync(mcpPath)),
       package_version: JSON.parse(fs.readFileSync(path.join(candidateRoot, 'package.json'), 'utf8')).version,
       package_json_sha256: sha256(fs.readFileSync(path.join(candidateRoot, 'package.json'))),
+      pnpm_lock_sha256: pnpmLockSha,
+      cli_source_sha256: cliSourceSha,
+      mcp_source_sha256: mcpSourceSha,
+      harness_and_fixtures_sha256: harnessAndFixturesSha,
       registry: `https://github.com/${fixtureServer.owner}/${fixtureServer.repo}`,
       fixture_commit_ref: commitSha,
-      snapshot_sha256: fixtureServer.treeSha,
+      served_bytes_registry_hash: fixtureServer.treeSha,
       snapshot_file_count: fixtureServer.tree.length,
-      snapshot_files: fixtureServer.tree.map(({ path: filePath, sha, size }) => ({ path: filePath, git_blob_sha1: sha, size }))
+      snapshot_files: fixtureServer.tree.map(({ path: filePath, sha, size }) => ({ path: filePath, git_blob_sha1: sha, size })),
+      provenance_attribution: 'Candidate identity resolved from git HEAD; verification inputs hashed without private or environment variables. No live GitHub publication or authenticated user authority claimed.'
     }));
 
     async function runCliAsync(consumerDir, cliArgs, envOverrides = {}) {
@@ -1149,6 +1225,9 @@ telemetry: false
       const passed = exitMatched && validMatched && readinessMatched && issueMatched;
       routeCommands.push({
         fixture: dir,
+        route_assertion_type: 'FIXTURE_ONLY',
+        model_behavior_status: 'PENDING_H2',
+        note: 'Route walkthrough checks verify static fixture transitions and package execution only. Live model and agent behavior for AC-010, AC-011, and AC-012 remain pending H2 evaluation.',
         cwd: emptyCwd,
         argv,
         expected: { exit: expectedExit, valid: expectedValid, readiness: expectedReadiness, issue: expectedIssue ?? null },
@@ -1200,6 +1279,9 @@ telemetry: false
     if (!transitionsPassed || !outcomesOk) allStepsPassed = false;
     completedEvidence.push(JSON.stringify({
       step: '6_artifact_walkthroughs',
+      route_assertion_type: 'FIXTURE_ONLY',
+      behavioral_semantics_status: 'PENDING_H2',
+      behavioral_semantics_note: 'Static route verification proves package transition mechanics and Outcome collector schema validity only. Behavioral model efficacy and live agent decisions for AC-010, AC-011, and AC-012 remain pending separate H2 evaluation.',
       transitions_passed: transitionsPassed,
       route_commands: routeCommands,
       outcomes_validated: outcomesOk,

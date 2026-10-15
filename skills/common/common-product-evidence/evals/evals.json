@@ -53,7 +53,7 @@
       "id": 4,
       "name": "protected-sources",
       "prompt": "We have customer discovery interview transcripts containing PII and enterprise NDA data marked privacy.classification: restricted and access: unavailable. How should this be handled during validation?",
-      "expected_output": "Restricted and unavailable sources must remain opaque pointers (e.g. pointer_only or URNs) and must never be fetched, logged, or fabricated into verified observed support. The validator will mark evidence unavailable for positive proof requirements if access is unavailable, but structural validation remains sound with limitations noted. Never log PII or expose confidential customer data.",
+      "expected_output": "Restricted and unavailable sources must remain opaque pointers (e.g. pointer_only or URNs) and must never be fetched, logged, or fabricated into verified observed support. The validator will mark evidence unavailable (recording EVIDENCE_UNAVAILABLE) for positive proof requirements if access is unavailable, but structural validation remains sound with limitations noted. Never log PII or expose confidential customer data.",
       "assertions": [
         {
           "type": "regex",

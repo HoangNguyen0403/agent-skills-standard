@@ -643,7 +643,9 @@ async function productEvidenceToolsFixture(): Promise<{
   root: string;
   cleanup: () => Promise<void>;
 }> {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "ags-tools-pe-fixture-"));
+  const root = await fs.mkdtemp(
+    path.join(os.tmpdir(), "ags-tools-pe-fixture-"),
+  );
   const skills = path.join(root, "skills");
   await fs.ensureDir(skills);
   await fs.writeJson(path.join(skills, "metadata.json"), {
@@ -732,14 +734,18 @@ describe("tools — product evidence & PM routing", () => {
       ctx,
     );
     expect(text(matched)).toContain("# common-product-evidence");
-    expect(text(matched)).toContain("matched: file:docs/product/*/evidence.json");
+    expect(text(matched)).toContain(
+      "matched: file:docs/product/*/evidence.json",
+    );
 
     const unrelated = await loadSkillsForFiles(
       { files: ["README.md", "package.json"] },
       ctx,
     );
     expect(text(unrelated)).not.toContain("common-product-evidence");
-    expect(text(unrelated)).toContain("No skills are routed to file extensions");
+    expect(text(unrelated)).toContain(
+      "No skills are routed to file extensions",
+    );
   });
 
   it("routes qualified PM keywords and rejects bare negative keywords", async () => {
@@ -753,14 +759,18 @@ describe("tools — product evidence & PM routing", () => {
       ctx,
     );
     expect(text(matched)).toContain("# product-investment");
-    expect(text(matched)).toContain("matched: keyword:product investment analysis");
+    expect(text(matched)).toContain(
+      "matched: keyword:product investment analysis",
+    );
 
     const bare = await loadSkillsForKeywords(
       { keywords: ["ROI", "market", "strategy"] },
       ctx,
     );
     expect(text(bare)).not.toContain("product-investment");
-    expect(text(bare)).toContain("No skill keyword triggers matched: ROI, market, strategy");
+    expect(text(bare)).toContain(
+      "No skill keyword triggers matched: ROI, market, strategy",
+    );
   });
 
   it("serves category guide for product-management", async () => {

@@ -49,7 +49,7 @@ Goal: Frame evidence-grounded product opportunities and falsifiable hypotheses f
 ## Handoff Payload
 
 - `slug`, `operator_profile`, scope, strategy authority/gap, candidate `OPP` and `HYP` records, `SRC`/`CLM` evidence ledger, non-goals, capability gaps, proposed `DEC`, next workflow.
-- Outcome report: carry current delivery `feature_status` from parent handoff unchanged (use `requirements_ready` only if this run produced an approved requirements-ready handoff for an unstarted initiative; never set `blocked` for product-evidence gaps alone — record in `missing_evidence`/`decision_needed`). Seed requirement trace (`brd_objectives` only; product IDs stay in evidence strings).
+- Outcome report: carry current delivery `feature_status` and parent `requirement_trace` (`brd_objectives`, `requirements`, `acceptance_criteria`, `srs`) from parent handoff unchanged (use `requirements_ready` only if this run produced an approved requirements-ready handoff for an unstarted initiative); for a new initiative without parent trace, seed `brd_objectives` only (never place product IDs in requirement IDs). Never set `blocked` for product-evidence gaps alone — record in `missing_evidence`/`decision_needed`.
 
 ## Blocking Questions
 

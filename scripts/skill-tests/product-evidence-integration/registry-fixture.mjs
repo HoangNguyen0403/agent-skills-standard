@@ -3,6 +3,7 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import { spawnSync } from 'node:child_process';
 
 export function gitBlobSha1(content) {
   const buf = Buffer.isBuffer(content) ? content : Buffer.from(content);
@@ -86,11 +87,52 @@ export function getAllowedRefs(snapshot, commitSha) {
   }
   return allowed;
 }
+export function getCandidateCommitSha(candidateRoot) {
+  let res;
+  try {
+    res = spawnSync('git', ['rev-parse', 'HEAD'], {
+      cwd: candidateRoot,
+      encoding: 'utf8',
+      timeout: 5000,
+    });
+  } catch (error) {
+    throw new Error(`Failed to resolve candidate commit SHA from git HEAD: ${error.message}`);
+  }
+  if (res.status !== 0 || !res.stdout || !/^[a-f0-9]{40}$/i.test(res.stdout.trim())) {
+    throw new Error(`Candidate root at ${candidateRoot} does not have an available git HEAD commit SHA (exit ${res.status}): ${res.stderr || res.stdout}`);
+  }
+  return res.stdout.trim().toLowerCase();
+}
 
+export function hashDirectoryFiles(baseDir, dirRel = '.') {
+  const dirAbs = path.resolve(baseDir, dirRel);
+  if (!fs.existsSync(dirAbs) || !fs.lstatSync(dirAbs).isDirectory()) {
+    throw new Error(`Required directory missing for provenance hashing: ${dirRel}`);
+  }
+  const hashes = [];
+  function walk(current) {
+    const entries = fs.readdirSync(current, { withFileTypes: true });
+    entries.sort((a, b) => a.name.localeCompare(b.name));
+    for (const entry of entries) {
+      if (entry.name === '.git' || entry.name === 'node_modules' || entry.name.startsWith('.')) continue;
+      const full = path.join(current, entry.name);
+      if (entry.isDirectory()) walk(full);
+      else if (entry.isFile()) {
+        const rel = path.relative(baseDir, full).split(path.sep).join('/');
+        hashes.push(`${rel}:${crypto.createHash('sha256').update(fs.readFileSync(full)).digest('hex')}`);
+      }
+    }
+  }
+  walk(dirAbs);
+  if (hashes.length === 0) {
+    throw new Error(`Required directory has no files for provenance hashing: ${dirRel}`);
+  }
+  return crypto.createHash('sha256').update(hashes.join('\n')).digest('hex');
+}
 export async function startRegistryFixture(candidateRoot, options = {}) {
   const owner = options.owner || 'HoangNguyen0403';
   const repo = options.repo || 'agent-skills-standard';
-  const commitSha = options.commitSha || '1111222233334444555566667777888899990000';
+  const commitSha = options.commitSha || getCandidateCommitSha(candidateRoot);
 
   const snapshot = buildNarrowSnapshot(candidateRoot);
   const { fileMap, tree, treeSha } = snapshot;

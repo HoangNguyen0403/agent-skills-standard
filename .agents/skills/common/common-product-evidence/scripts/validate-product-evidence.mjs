@@ -162,6 +162,20 @@ function getProofMessage(code) {
   }
   return `Recorded proof does not satisfy ${code}.`;
 }
+function hasBoldIdField(line) {
+  let openIdx = 0;
+  while ((openIdx = line.indexOf("**", openIdx)) !== -1) {
+    const closeIdx = line.indexOf("**", openIdx + 2);
+    if (closeIdx === -1) break;
+    const inner = line.slice(openIdx + 2, closeIdx);
+    if (!inner.includes("*") && /\bID\b/i.test(inner)) {
+      return true;
+    }
+    openIdx = inner.includes("*") ? openIdx + 1 : closeIdx + 2;
+  }
+  return false;
+}
+
 
 // Markdown declaration parser mirroring scripts/trace/parse.ts
 function scanMarkdownDeclarations(content) {
@@ -199,7 +213,7 @@ function scanMarkdownDeclarations(content) {
 
     const headingMarker = line.match(/^#{1,6}\s+/);
     const headingStart = headingMarker ? headingMarker[0].length : undefined;
-    const idField = /\*\*[^*]*\bID\b[^*]*\*\*\s*:?/i.test(line);
+    const idField = hasBoldIdField(line);
     const cellSpan = firstCellSpan(line);
 
     TOKEN_RE.lastIndex = 0;
@@ -1477,34 +1491,46 @@ export async function validateProductEvidence(value, options = {}) {
       }
     };
     if (rec.kind === "CLM") {
-      for (let index = 0; index < (data.sources || []).length; index++) {
-        requireDeclaredDependency(data.sources[index], `${jsonPath}/data/sources/${index}`);
+      if (Array.isArray(data.sources)) {
+        for (let index = 0; index < data.sources.length; index++) {
+          requireDeclaredDependency(data.sources[index], `${jsonPath}/data/sources/${index}`);
+        }
       }
     } else if (rec.kind === "OPP") {
-      for (let index = 0; index < (data.claims || []).length; index++) {
-        requireDeclaredDependency(data.claims[index], `${jsonPath}/data/claims/${index}`);
+      if (Array.isArray(data.claims)) {
+        for (let index = 0; index < data.claims.length; index++) {
+          requireDeclaredDependency(data.claims[index], `${jsonPath}/data/claims/${index}`);
+        }
       }
     } else if (rec.kind === "HYP") {
       requireDeclaredDependency(data.opportunity, `${jsonPath}/data/opportunity`);
-      for (let index = 0; index < (data.claims || []).length; index++) {
-        requireDeclaredDependency(data.claims[index], `${jsonPath}/data/claims/${index}`);
+      if (Array.isArray(data.claims)) {
+        for (let index = 0; index < data.claims.length; index++) {
+          requireDeclaredDependency(data.claims[index], `${jsonPath}/data/claims/${index}`);
+        }
       }
     } else if (rec.kind === "EXP") {
       requireDeclaredDependency(data.hypothesis, `${jsonPath}/data/hypothesis`);
     } else if (rec.kind === "INV") {
-      for (let index = 0; index < (data.claims || []).length; index++) {
-        requireDeclaredDependency(data.claims[index], `${jsonPath}/data/claims/${index}`);
+      if (Array.isArray(data.claims)) {
+        for (let index = 0; index < data.claims.length; index++) {
+          requireDeclaredDependency(data.claims[index], `${jsonPath}/data/claims/${index}`);
+        }
       }
     } else if (rec.kind === "DEC") {
       for (const field of ["consumes", "critical_claims"]) {
-        for (let index = 0; index < (data[field] || []).length; index++) {
-          requireDeclaredDependency(data[field][index], `${jsonPath}/data/${field}/${index}`);
+        if (Array.isArray(data[field])) {
+          for (let index = 0; index < data[field].length; index++) {
+            requireDeclaredDependency(data[field][index], `${jsonPath}/data/${field}/${index}`);
+          }
         }
       }
     } else if (rec.kind === "REV") {
       for (const field of ["hypotheses", "metrics", "observations", "actual_costs"]) {
-        for (let index = 0; index < (data[field] || []).length; index++) {
-          requireDeclaredDependency(data[field][index], `${jsonPath}/data/${field}/${index}`);
+        if (Array.isArray(data[field])) {
+          for (let index = 0; index < data[field].length; index++) {
+            requireDeclaredDependency(data[field][index], `${jsonPath}/data/${field}/${index}`);
+          }
         }
       }
     }
@@ -1726,8 +1752,8 @@ export async function validateProductEvidence(value, options = {}) {
       }[resolvedAuth.domain];
       if (!allowedId) {
         addIssue("BRIDGE_DECLARATION", "error", `/bridges/${i}/authority_id`, null, "Authority domain is not valid for a bridge.");
-      } else {
-        for (let idIndex = 0; idIndex < (bridge.ids || []).length; idIndex++) {
+      } else if (Array.isArray(bridge.ids)) {
+        for (let idIndex = 0; idIndex < bridge.ids.length; idIndex++) {
           if (!allowedId(bridge.ids[idIndex])) {
             addIssue("BRIDGE_DECLARATION", "error", `/bridges/${i}/ids/${idIndex}`, null, "Bridge ID type does not match authority domain.");
           }
@@ -1803,44 +1829,60 @@ export async function validateProductEvidence(value, options = {}) {
     const isHist = jsonPath.startsWith("/record_history");
 
     if (rec.kind === "CLM") {
-      for (let i = 0; i < (data.sources || []).length; i++) {
-        checkTypedRef(data.sources[i], `${jsonPath}/data/sources/${i}`, ["SRC"], recId, isHist);
+      if (Array.isArray(data.sources)) {
+        for (let i = 0; i < data.sources.length; i++) {
+          checkTypedRef(data.sources[i], `${jsonPath}/data/sources/${i}`, ["SRC"], recId, isHist);
+        }
       }
-      for (let i = 0; i < (data.counterevidence || []).length; i++) {
-        checkTypedRef(data.counterevidence[i], `${jsonPath}/data/counterevidence/${i}`, ["SRC", "CLM"], recId, isHist);
+      if (Array.isArray(data.counterevidence)) {
+        for (let i = 0; i < data.counterevidence.length; i++) {
+          checkTypedRef(data.counterevidence[i], `${jsonPath}/data/counterevidence/${i}`, ["SRC", "CLM"], recId, isHist);
+        }
       }
     } else if (rec.kind === "OPP") {
-      for (let i = 0; i < (data.claims || []).length; i++) {
-        checkTypedRef(data.claims[i], `${jsonPath}/data/claims/${i}`, ["CLM"], recId, isHist);
+      if (Array.isArray(data.claims)) {
+        for (let i = 0; i < data.claims.length; i++) {
+          checkTypedRef(data.claims[i], `${jsonPath}/data/claims/${i}`, ["CLM"], recId, isHist);
+        }
       }
     } else if (rec.kind === "HYP") {
       if (data.opportunity) checkTypedRef(data.opportunity, `${jsonPath}/data/opportunity`, ["OPP"], recId, isHist);
-      for (let i = 0; i < (data.claims || []).length; i++) {
-        checkTypedRef(data.claims[i], `${jsonPath}/data/claims/${i}`, ["CLM"], recId, isHist);
+      if (Array.isArray(data.claims)) {
+        for (let i = 0; i < data.claims.length; i++) {
+          checkTypedRef(data.claims[i], `${jsonPath}/data/claims/${i}`, ["CLM"], recId, isHist);
+        }
       }
       if (data.primary_metric) checkTypedRef(data.primary_metric, `${jsonPath}/data/primary_metric`, ["MET"], recId, isHist);
     } else if (rec.kind === "EXP") {
       if (data.hypothesis) checkTypedRef(data.hypothesis, `${jsonPath}/data/hypothesis`, ["HYP"], recId, isHist);
       if (data.primary_metric) checkTypedRef(data.primary_metric, `${jsonPath}/data/primary_metric`, ["MET"], recId, isHist);
-      for (let i = 0; i < (data.guardrails || []).length; i++) {
-        checkTypedRef(data.guardrails[i], `${jsonPath}/data/guardrails/${i}`, ["MET"], recId, isHist);
+      if (Array.isArray(data.guardrails)) {
+        for (let i = 0; i < data.guardrails.length; i++) {
+          checkTypedRef(data.guardrails[i], `${jsonPath}/data/guardrails/${i}`, ["MET"], recId, isHist);
+        }
       }
       if (data.authorization) checkTypedRef(data.authorization, `${jsonPath}/data/authorization`, ["DEC"], recId, isHist);
-      if (data.result?.sources) {
+      if (Array.isArray(data.result?.sources)) {
         for (let i = 0; i < data.result.sources.length; i++) {
           checkTypedRef(data.result.sources[i], `${jsonPath}/data/result/sources/${i}`, ["SRC"], recId, isHist);
         }
       }
     } else if (rec.kind === "INV") {
-      for (let i = 0; i < (data.claims || []).length; i++) {
-        checkTypedRef(data.claims[i], `${jsonPath}/data/claims/${i}`, ["CLM"], recId, isHist);
+      if (Array.isArray(data.claims)) {
+        for (let i = 0; i < data.claims.length; i++) {
+          checkTypedRef(data.claims[i], `${jsonPath}/data/claims/${i}`, ["CLM"], recId, isHist);
+        }
       }
     } else if (rec.kind === "DEC") {
-      for (let i = 0; i < (data.consumes || []).length; i++) {
-        checkTypedRef(data.consumes[i], `${jsonPath}/data/consumes/${i}`, ["CLM", "OPP", "HYP", "EXP", "INV", "MET", "REV"], recId, isHist);
+      if (Array.isArray(data.consumes)) {
+        for (let i = 0; i < data.consumes.length; i++) {
+          checkTypedRef(data.consumes[i], `${jsonPath}/data/consumes/${i}`, ["CLM", "OPP", "HYP", "EXP", "INV", "MET", "REV"], recId, isHist);
+        }
       }
-      for (let i = 0; i < (data.critical_claims || []).length; i++) {
-        checkTypedRef(data.critical_claims[i], `${jsonPath}/data/critical_claims/${i}`, ["CLM"], recId, isHist);
+      if (Array.isArray(data.critical_claims)) {
+        for (let i = 0; i < data.critical_claims.length; i++) {
+          checkTypedRef(data.critical_claims[i], `${jsonPath}/data/critical_claims/${i}`, ["CLM"], recId, isHist);
+        }
       }
       if (data.authority_id && data.authority_revision) {
         checkTypedRef({ id: data.authority_id, revision: data.authority_revision }, `${jsonPath}/data/authority_id`, ["AUTH"], recId, isHist);
@@ -1875,22 +1917,32 @@ export async function validateProductEvidence(value, options = {}) {
           addIssue("REFERENCE_KIND", "error", `${jsonPath}/data/decision`, recId, "REV decision reference must target an investment DEC.");
         }
       }
-      for (let i = 0; i < (data.hypotheses || []).length; i++) {
-        checkTypedRef(data.hypotheses[i], `${jsonPath}/data/hypotheses/${i}`, ["HYP"], recId, isHist);
+      if (Array.isArray(data.hypotheses)) {
+        for (let i = 0; i < data.hypotheses.length; i++) {
+          checkTypedRef(data.hypotheses[i], `${jsonPath}/data/hypotheses/${i}`, ["HYP"], recId, isHist);
+        }
       }
-      for (let i = 0; i < (data.metrics || []).length; i++) {
-        checkTypedRef(data.metrics[i], `${jsonPath}/data/metrics/${i}`, ["MET"], recId, isHist);
+      if (Array.isArray(data.metrics)) {
+        for (let i = 0; i < data.metrics.length; i++) {
+          checkTypedRef(data.metrics[i], `${jsonPath}/data/metrics/${i}`, ["MET"], recId, isHist);
+        }
       }
-      for (let i = 0; i < (data.observations || []).length; i++) {
-        checkTypedRef(data.observations[i], `${jsonPath}/data/observations/${i}`, ["SRC"], recId, isHist);
+      if (Array.isArray(data.observations)) {
+        for (let i = 0; i < data.observations.length; i++) {
+          checkTypedRef(data.observations[i], `${jsonPath}/data/observations/${i}`, ["SRC"], recId, isHist);
+        }
       }
-      for (let i = 0; i < (data.actual_costs || []).length; i++) {
-        checkTypedRef(data.actual_costs[i], `${jsonPath}/data/actual_costs/${i}`, ["SRC"], recId, isHist);
+      if (Array.isArray(data.actual_costs)) {
+        for (let i = 0; i < data.actual_costs.length; i++) {
+          checkTypedRef(data.actual_costs[i], `${jsonPath}/data/actual_costs/${i}`, ["SRC"], recId, isHist);
+        }
       }
     }
 
-    for (let i = 0; i < (rec.depends_on || []).length; i++) {
-      checkTypedRef(rec.depends_on[i], `${jsonPath}/depends_on/${i}`, null, recId, isHist);
+    if (Array.isArray(rec.depends_on)) {
+      for (let i = 0; i < rec.depends_on.length; i++) {
+        checkTypedRef(rec.depends_on[i], `${jsonPath}/depends_on/${i}`, null, recId, isHist);
+      }
     }
   }
 
@@ -1910,12 +1962,16 @@ export async function validateProductEvidence(value, options = {}) {
   if (state.decision) {
     checkTypedRef(state.decision, "/product_state/decision", ["DEC"], null, false);
   }
-  for (let i = 0; i < (state.hypotheses || []).length; i++) {
-    checkTypedRef(state.hypotheses[i], `/product_state/hypotheses/${i}`, ["HYP"], null, false);
+  if (Array.isArray(state.hypotheses)) {
+    for (let i = 0; i < state.hypotheses.length; i++) {
+      checkTypedRef(state.hypotheses[i], `/product_state/hypotheses/${i}`, ["HYP"], null, false);
+    }
   }
-  for (let i = 0; i < (state.history || []).length; i++) {
-    if (state.history[i]?.decision) {
-      checkTypedRef(state.history[i].decision, `/product_state/history/${i}/decision`, ["DEC"], null, false);
+  if (Array.isArray(state.history)) {
+    for (let i = 0; i < state.history.length; i++) {
+      if (state.history[i]?.decision) {
+        checkTypedRef(state.history[i].decision, `/product_state/history/${i}/decision`, ["DEC"], null, false);
+      }
     }
   }
 
@@ -1927,12 +1983,14 @@ export async function validateProductEvidence(value, options = {}) {
       if (!rec || !rec.id || !rec.revision) continue;
       const source = `${rec.id}@${rec.revision}`;
       if (!dagAdj.has(source)) dagAdj.set(source, []);
-      for (let depIndex = 0; depIndex < (rec.depends_on || []).length; depIndex++) {
-        const dep = rec.depends_on[depIndex];
-        if (!dep || !dep.id || !dep.revision) continue;
-        const pointerPath = `/${isHistorical ? "record_history" : "records"}/${index}/depends_on/${depIndex}`;
-        if (dep.id === rec.id) addIssue("DEPENDENCY_CYCLE", "error", pointerPath, rec.id, "Record cannot depend on itself.");
-        dagAdj.get(source).push({ target: `${dep.id}@${dep.revision}`, pointerPath, recordId: rec.id });
+      if (Array.isArray(rec.depends_on)) {
+        for (let depIndex = 0; depIndex < rec.depends_on.length; depIndex++) {
+          const dep = rec.depends_on[depIndex];
+          if (!dep || !dep.id || !dep.revision) continue;
+          const pointerPath = `/${isHistorical ? "record_history" : "records"}/${index}/depends_on/${depIndex}`;
+          if (dep.id === rec.id) addIssue("DEPENDENCY_CYCLE", "error", pointerPath, rec.id, "Record cannot depend on itself.");
+          dagAdj.get(source).push({ target: `${dep.id}@${dep.revision}`, pointerPath, recordId: rec.id });
+        }
       }
     }
   }
@@ -2283,7 +2341,7 @@ export async function validateProductEvidence(value, options = {}) {
       if (frame.exit) {
         dependencyActive.delete(key);
         let depth = 0;
-        for (const ref of frame.record.depends_on || []) {
+        for (const ref of (Array.isArray(frame.record.depends_on) ? frame.record.depends_on : [])) {
           const entry = recMap.get(ref.id);
           const dependency = entry?.current?.revision === ref.revision
             ? entry.current
@@ -2297,7 +2355,7 @@ export async function validateProductEvidence(value, options = {}) {
       if (dependencyActive.has(key)) continue;
       dependencyActive.add(key);
       stack.push({ record: frame.record, exit: true });
-      for (const ref of frame.record.depends_on || []) {
+      for (const ref of (Array.isArray(frame.record.depends_on) ? frame.record.depends_on : [])) {
         const entry = recMap.get(ref.id);
         const dependency = entry?.current?.revision === ref.revision
           ? entry.current
@@ -2395,7 +2453,7 @@ export async function validateProductEvidence(value, options = {}) {
     }
 
     // Check artifact bindings on DEC (F09: bounded read, hash check)
-    for (let artifactIndex = 0; artifactIndex < (decRoot.data?.artifact_bindings || []).length; artifactIndex++) {
+    for (let artifactIndex = 0; artifactIndex < (Array.isArray(decRoot.data?.artifact_bindings) ? decRoot.data.artifact_bindings.length : 0); artifactIndex++) {
       const binding = decRoot.data.artifact_bindings[artifactIndex];
       const artifactPath = `/records/${recordIndexMap.get(decRoot.id) ?? 0}/data/artifact_bindings/${artifactIndex}/path`;
       const pathSec = validateLocalPathSecurity(binding.path, canonicalRoot);
@@ -2445,13 +2503,13 @@ export async function validateProductEvidence(value, options = {}) {
         const exactMetric = metric?.kind === "MET" && metric.revision === ref.revision;
         enqueue(ref, exactMetric ? "exception" : "evidence", exactMetric ? metric : decRoot);
       };
-      for (const ref of decRoot.data?.consumes || []) enqueueExceptionSupport(ref);
-      for (const ref of decRoot.data?.critical_claims || []) enqueue(ref, "evidence", decRoot);
-      for (const ref of decRoot.depends_on || []) enqueueExceptionSupport(ref);
+      for (const ref of (Array.isArray(decRoot.data?.consumes) ? decRoot.data.consumes : [])) enqueueExceptionSupport(ref);
+      for (const ref of (Array.isArray(decRoot.data?.critical_claims) ? decRoot.data.critical_claims : [])) enqueue(ref, "evidence", decRoot);
+      for (const ref of (Array.isArray(decRoot.depends_on) ? decRoot.depends_on : [])) enqueueExceptionSupport(ref);
     } else if (!riskAcceptance) {
-      for (const c of decRoot.data?.consumes || []) enqueue(c, rootRole, decRoot);
-      for (const c of decRoot.data?.critical_claims || []) enqueue(c, "evidence", decRoot);
-      for (const dep of decRoot.depends_on || []) enqueue(dep, rootRole, decRoot);
+      for (const c of (Array.isArray(decRoot.data?.consumes) ? decRoot.data.consumes : [])) enqueue(c, rootRole, decRoot);
+      for (const c of (Array.isArray(decRoot.data?.critical_claims) ? decRoot.data.critical_claims : [])) enqueue(c, "evidence", decRoot);
+      for (const dep of (Array.isArray(decRoot.depends_on) ? decRoot.depends_on : [])) enqueue(dep, rootRole, decRoot);
     }
 
     while (worklistIndex < worklist.length) {
@@ -2525,25 +2583,25 @@ export async function validateProductEvidence(value, options = {}) {
         if (data.status === "unavailable" || data.status === "withdrawn" || data.privacy?.access === "unavailable" || data.privacy?.access === "protected") {
           setFailure("EVIDENCE_UNAVAILABLE");
         }
-        for (const dep of snapshot.depends_on || []) enqueue(dep, role, snapshot);
+        for (const dep of (Array.isArray(snapshot.depends_on) ? snapshot.depends_on : [])) enqueue(dep, role, snapshot);
       } else if (snapshot.kind === "CLM") {
         if (role === "evidence") {
           if (data.status !== "supported") setFailure("EVIDENCE_UNAVAILABLE");
           if (data.classification === "unknown" || data.classification === "assumption") setFailure("EVIDENCE_UNAVAILABLE");
         }
-        for (const source of data.sources || []) enqueue(source, "evidence", snapshot);
-        for (const counterevidence of data.counterevidence || []) {
+        for (const source of (Array.isArray(data.sources) ? data.sources : [])) enqueue(source, "evidence", snapshot);
+        for (const counterevidence of (Array.isArray(data.counterevidence) ? data.counterevidence : [])) {
           enqueue(counterevidence, "evidence", snapshot);
           const counterRecord = recMap.get(counterevidence.id)?.current;
           if (counterRecord && (counterRecord.data?.status === "refuted" || counterRecord.data?.status === "disputed")) {
             setFailure("DISPUTED_EVIDENCE");
           }
         }
-        for (const dep of snapshot.depends_on || []) enqueue(dep, role, snapshot);
+        for (const dep of (Array.isArray(snapshot.depends_on) ? snapshot.depends_on : [])) enqueue(dep, role, snapshot);
       } else if (snapshot.kind === "OPP") {
         if (role === "evidence" && data.status !== "selected") setFailure("EVIDENCE_UNAVAILABLE");
-        for (const c of data.claims || []) enqueue(c, "evidence", snapshot);
-        for (const dep of snapshot.depends_on || []) enqueue(dep, role, snapshot);
+        for (const c of (Array.isArray(data.claims) ? data.claims : [])) enqueue(c, "evidence", snapshot);
+        for (const dep of (Array.isArray(snapshot.depends_on) ? snapshot.depends_on : [])) enqueue(dep, role, snapshot);
       } else if (snapshot.kind === "HYP") {
         if (role === "evidence" && data.status !== "supported" &&
             !(decRoot.data?.purpose === "investment" && decRoot.data?.outcome === "risk_accept")) {
@@ -2562,12 +2620,12 @@ export async function validateProductEvidence(value, options = {}) {
           if (!linkedExperiment) setFailure("EVIDENCE_UNAVAILABLE");
         }
         if (data.opportunity) enqueue(data.opportunity, "evidence", snapshot);
-        for (const c of data.claims || []) enqueue(c, "evidence", snapshot);
+        for (const c of (Array.isArray(data.claims) ? data.claims : [])) enqueue(c, "evidence", snapshot);
         if (data.primary_metric) {
           // In plan role, metrics continue in plan role! (F05)
           enqueue(data.primary_metric, role === "plan" ? "plan" : "evidence", snapshot);
         }
-        for (const dep of snapshot.depends_on || []) enqueue(dep, role, snapshot);
+        for (const dep of (Array.isArray(snapshot.depends_on) ? snapshot.depends_on : [])) enqueue(dep, role, snapshot);
       } else if (snapshot.kind === "EXP") {
         if (role === "evidence" &&
             !(decRoot.data?.purpose === "investment" && decRoot.data?.outcome === "risk_accept")) {
@@ -2576,11 +2634,11 @@ export async function validateProductEvidence(value, options = {}) {
         }
         if (data.hypothesis) enqueue(data.hypothesis, role, snapshot);
         if (data.primary_metric) enqueue(data.primary_metric, role === "plan" ? "plan" : "evidence", snapshot);
-        for (const g of data.guardrails || []) enqueue(g, role === "plan" ? "plan" : "evidence", snapshot);
+        for (const g of (Array.isArray(data.guardrails) ? data.guardrails : [])) enqueue(g, role === "plan" ? "plan" : "evidence", snapshot);
 
         // In plan role, omit EXP result and authorization backedge! (F05)
         if (role !== "plan") {
-          if (data.result?.sources) {
+          if (Array.isArray(data.result?.sources)) {
             for (const s of data.result.sources) enqueue(s, "evidence", snapshot);
           }
           if (["authorized", "running", "completed", "stopped"].includes(data.status)) {
@@ -2588,7 +2646,7 @@ export async function validateProductEvidence(value, options = {}) {
             else setFailure("AUTHORIZATION_REQUIRED");
           }
         }
-        for (const dep of snapshot.depends_on || []) enqueue(dep, role, snapshot);
+        for (const dep of (Array.isArray(snapshot.depends_on) ? snapshot.depends_on : [])) enqueue(dep, role, snapshot);
       } else if (snapshot.kind === "INV") {
         if (role === "evidence" && data.status !== "reviewed") setFailure("EVIDENCE_UNAVAILABLE");
         if (data.financial_input && data.financial_result) {
@@ -2614,8 +2672,8 @@ export async function validateProductEvidence(value, options = {}) {
             }
           }
         }
-        for (const c of data.claims || []) enqueue(c, "evidence", snapshot);
-        for (const dep of snapshot.depends_on || []) enqueue(dep, role, snapshot);
+        for (const c of (Array.isArray(data.claims) ? data.claims : [])) enqueue(c, "evidence", snapshot);
+        for (const dep of (Array.isArray(snapshot.depends_on) ? snapshot.depends_on : [])) enqueue(dep, role, snapshot);
       } else if (snapshot.kind === "MET") {
         if (role === "plan" || role === "exception") {
           if (!["planned", "instrumented", "observed"].includes(data.status)) setFailure("EVIDENCE_UNAVAILABLE");
@@ -2648,7 +2706,7 @@ export async function validateProductEvidence(value, options = {}) {
         } else if (role !== "plan" && decRoot.data?.purpose === "release") {
           setFailure("EVIDENCE_UNAVAILABLE");
         }
-        for (const dep of snapshot.depends_on || []) enqueue(dep, role, snapshot);
+        for (const dep of (Array.isArray(snapshot.depends_on) ? snapshot.depends_on : [])) enqueue(dep, role, snapshot);
       } else if (snapshot.kind === "DEC") {
         if (snapshot.id !== decRoot.id) {
           visitedHelpers.add(snapshot.id);
@@ -2677,7 +2735,7 @@ export async function validateProductEvidence(value, options = {}) {
             }
           }
           if (isCur && !isRetired(snapshot)) {
-            for (let index = 0; index < (snapshot.data?.artifact_bindings || []).length; index++) {
+            for (let index = 0; index < (Array.isArray(snapshot.data?.artifact_bindings) ? snapshot.data.artifact_bindings.length : 0); index++) {
               const binding = snapshot.data.artifact_bindings[index];
               const artifactPath = `/records/${recordIndexMap.get(snapshot.id) ?? 0}/data/artifact_bindings/${index}/path`;
               const pathResult = validateLocalPathSecurity(binding.path, canonicalRoot);
@@ -2742,12 +2800,12 @@ export async function validateProductEvidence(value, options = {}) {
             if (!consumedMet) setFailure("OBSOLETE_BINDING");
           }
         }
-        for (const ref of data.consumes || []) {
+        for (const ref of (Array.isArray(data.consumes) ? data.consumes : [])) {
           const exceptionMetric = role === "exception" && isExactCurrentMetricBinding(ref, sourceContext);
           enqueue(ref, role === "exception" && !exceptionMetric ? "evidence" : role, exceptionMetric ? sourceContext : snapshot);
         }
-        for (const ref of data.critical_claims || []) enqueue(ref, "evidence", snapshot);
-        for (const ref of snapshot.depends_on || []) {
+        for (const ref of (Array.isArray(data.critical_claims) ? data.critical_claims : [])) enqueue(ref, "evidence", snapshot);
+        for (const ref of (Array.isArray(snapshot.depends_on) ? snapshot.depends_on : [])) {
           const exceptionMetric = role === "exception" && isExactCurrentMetricBinding(ref, sourceContext);
           enqueue(ref, role === "exception" && !exceptionMetric ? "evidence" : role, exceptionMetric ? sourceContext : snapshot);
         }
@@ -2755,14 +2813,16 @@ export async function validateProductEvidence(value, options = {}) {
         const needsObservedOutcome = data.recommendation === "scale" ||
           data.attribution?.classification === "causal_supported";
         if (needsObservedOutcome &&
-            (!data.metrics.length || !data.observations.length || !data.actual_costs.length)) {
+            (!Array.isArray(data.metrics) || !data.metrics.length ||
+             !Array.isArray(data.observations) || !data.observations.length ||
+             !Array.isArray(data.actual_costs) || !data.actual_costs.length)) {
           setFailure("EVIDENCE_UNAVAILABLE");
         }
-        for (const h of data.hypotheses || []) enqueue(h, "evidence", snapshot);
-        for (const m of data.metrics || []) enqueue(m, "evidence", snapshot);
-        for (const o of data.observations || []) enqueue(o, "evidence", snapshot);
-        for (const c of data.actual_costs || []) enqueue(c, "evidence", snapshot);
-        for (const dep of snapshot.depends_on || []) enqueue(dep, role, snapshot);
+        for (const h of (Array.isArray(data.hypotheses) ? data.hypotheses : [])) enqueue(h, "evidence", snapshot);
+        for (const m of (Array.isArray(data.metrics) ? data.metrics : [])) enqueue(m, "evidence", snapshot);
+        for (const o of (Array.isArray(data.observations) ? data.observations : [])) enqueue(o, "evidence", snapshot);
+        for (const c of (Array.isArray(data.actual_costs) ? data.actual_costs : [])) enqueue(c, "evidence", snapshot);
+        for (const dep of (Array.isArray(snapshot.depends_on) ? snapshot.depends_on : [])) enqueue(dep, role, snapshot);
       }
     }
 
@@ -3033,7 +3093,7 @@ export async function validateProductEvidence(value, options = {}) {
     };
     for (const list of [records, recordHistory]) {
       for (const record of list) {
-        for (const dep of record.depends_on || []) collectDecisionUse(dep);
+        for (const dep of (Array.isArray(record.depends_on) ? record.depends_on : [])) collectDecisionUse(dep);
         collectDecisionUse(record.data?.authorization);
         collectDecisionUse(record.data?.decision);
         collectDecisionUse(record.data?.supersedes);
@@ -3216,6 +3276,10 @@ function emitCliErrorEnvelope(code, message, exitCode) {
     gate: "structural",
     readiness: "blocked",
     effective_product_state: null,
+    authority_verification: "failed",
+    risk_acceptance: "none",
+    accounting_integrity: "inconclusive",
+    provenance_verified: false,
     affected_decisions: [],
     issues: [
       {
@@ -3229,13 +3293,14 @@ function emitCliErrorEnvelope(code, message, exitCode) {
     limitations: MANDATORY_LIMITATIONS,
   };
   process.stdout.write(JSON.stringify(envelope, null, 2) + "\n");
-  process.exit(exitCode);
+  process.exitCode = exitCode;
 }
 
 async function cliMain() {
   const nodeMajor = parseInt(process.versions.node.split(".")[0], 10);
   if (nodeMajor < 20) {
     emitCliErrorEnvelope("INVALID_ARGUMENT", "Node version must be >= 20.0.0", 2);
+    return;
   }
 
   const rawArgs = process.argv.slice(2);
@@ -3244,9 +3309,11 @@ async function cliMain() {
   if (rawArgs.includes("--help")) {
     if (rawArgs.length === 1) {
       printUsage();
-      process.exit(0);
+      process.exitCode = 0;
+      return;
     } else {
       emitCliErrorEnvelope("INVALID_ARGUMENT", "--help must be standalone.", 2);
+      return;
     }
   }
 
@@ -3261,26 +3328,31 @@ async function cliMain() {
     if (arg === "--authority-root") {
       if (seenFlags.has("--authority-root") || i + 1 >= rawArgs.length) {
         emitCliErrorEnvelope("INVALID_ARGUMENT", "Invalid or duplicate --authority-root argument.", 2);
+        return;
       }
       seenFlags.add("--authority-root");
       authorityRoot = rawArgs[++i];
     } else if (arg === "--as-of") {
       if (seenFlags.has("--as-of") || i + 1 >= rawArgs.length) {
         emitCliErrorEnvelope("INVALID_ARGUMENT", "Invalid or duplicate --as-of argument.", 2);
+        return;
       }
       seenFlags.add("--as-of");
       asOf = rawArgs[++i];
     } else if (arg === "--gate") {
       if (seenFlags.has("--gate") || i + 1 >= rawArgs.length) {
         emitCliErrorEnvelope("INVALID_ARGUMENT", "Invalid or duplicate --gate argument.", 2);
+        return;
       }
       seenFlags.add("--gate");
       gate = rawArgs[++i];
     } else if (arg.startsWith("-")) {
       emitCliErrorEnvelope("INVALID_ARGUMENT", "Unknown option.", 2);
+      return;
     } else {
       if (ledgerFile !== null) {
         emitCliErrorEnvelope("INVALID_ARGUMENT", "Extra positional argument.", 2);
+        return;
       }
       ledgerFile = arg;
     }
@@ -3288,14 +3360,17 @@ async function cliMain() {
 
   if (!ledgerFile || !authorityRoot || !asOf) {
     emitCliErrorEnvelope("INVALID_ARGUMENT", "Missing required arguments.", 2);
+    return;
   }
 
   if (!path.isAbsolute(authorityRoot)) {
     emitCliErrorEnvelope("INVALID_ARGUMENT", "Authority root must be an absolute path.", 2);
+    return;
   }
   const resolvedRoot = path.resolve(authorityRoot);
   if (resolvedRoot === path.parse(resolvedRoot).root || resolvedRoot === path.resolve(os.homedir())) {
     emitCliErrorEnvelope("UNSAFE_PATH", "Authority root cannot be filesystem root or user home.", 2);
+    return;
   }
 
   let canonicalRoot;
@@ -3303,14 +3378,17 @@ async function cliMain() {
     const rootStat = fs.lstatSync(resolvedRoot);
     if (rootStat.isSymbolicLink() || !rootStat.isDirectory()) {
       emitCliErrorEnvelope("UNSAFE_PATH", "Authority root must be a canonical existing directory.", 2);
+      return;
     }
     canonicalRoot = fs.realpathSync(resolvedRoot);
   } catch {
     emitCliErrorEnvelope("IO_ERROR", "Authority root cannot be accessed.", 2);
+    return;
   }
   if (canonicalRoot !== resolvedRoot || canonicalRoot === path.parse(canonicalRoot).root ||
       canonicalRoot === path.resolve(os.homedir())) {
     emitCliErrorEnvelope("UNSAFE_PATH", "Canonical authority root must be narrow and not an alias.", 2);
+    return;
   }
 
   const resolvedLedger = path.isAbsolute(ledgerFile) ? path.resolve(ledgerFile) : path.resolve(process.cwd(), ledgerFile);
@@ -3318,12 +3396,14 @@ async function cliMain() {
   if (!relativeLedger || relativeLedger.startsWith(`..${path.sep}`) || relativeLedger === ".." ||
       path.isAbsolute(relativeLedger)) {
     emitCliErrorEnvelope("UNSAFE_PATH", "Ledger path must reside below the authority root.", 2);
+    return;
   }
 
   const ledgerRead = readBoundedLocalFile(resolvedLedger, new Set(), canonicalRoot);
   if (!ledgerRead.ok) {
     const code = ledgerRead.code === "ENOENT" ? "IO_ERROR" : ledgerRead.code;
     emitCliErrorEnvelope(code, ledgerRead.message, 2);
+    return;
   }
   const fileContent = ledgerRead.buffer.toString("utf8");
 
@@ -3337,6 +3417,7 @@ async function cliMain() {
     });
   } catch (err) {
     emitCliErrorEnvelope("INTERNAL_ERROR", "Unexpected validator fault.", 4);
+    return;
   }
 
   process.stdout.write(JSON.stringify(envelope, null, 2) + "\n");
@@ -3344,18 +3425,28 @@ async function cliMain() {
   // Exit precedence: 4 > 2 > 1 > 3 > 0
   const issueCodes = new Set(envelope.issues.map((i) => i.code));
   if (issueCodes.has("UNSUPPORTED_VERSION") || issueCodes.has("INVALID_ARGUMENT") || issueCodes.has("INVALID_JSON") || issueCodes.has("IO_ERROR") || issueCodes.has("UNSAFE_PATH") || issueCodes.has("INPUT_CHANGED") || issueCodes.has("LIMIT_EXCEEDED")) {
-    process.exit(2);
+    process.exitCode = 2;
+    return;
   }
   if (!envelope.valid) {
-    process.exit(1);
+    process.exitCode = 1;
+    return;
   }
   if (envelope.readiness === "blocked" || envelope.readiness === "proposal_only") {
-    process.exit(3);
+    process.exitCode = 3;
+    return;
   }
-  process.exit(0);
+  process.exitCode = 0;
 }
 
-const isEntry = process.argv[1] && import.meta.url === pathToFileURL(fs.realpathSync(process.argv[1])).href;
+let isEntry = false;
+if (process.argv[1]) {
+  try {
+    isEntry = import.meta.url === pathToFileURL(fs.realpathSync(process.argv[1])).href;
+  } catch {
+    isEntry = false;
+  }
+}
 if (isEntry) {
   cliMain().catch(() => emitCliErrorEnvelope("INTERNAL_ERROR", "Unexpected fatal CLI error.", 4));
 }

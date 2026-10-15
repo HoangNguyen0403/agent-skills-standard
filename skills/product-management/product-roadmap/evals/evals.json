@@ -4,7 +4,7 @@
     {
       "id": 1,
       "prompt": "An executive says an enterprise prospect will sign a contract if we add a Custom Audit Log Export to the upcoming sprint. They offered $50,000 in additional budget to cover it, so they want us to add it to the active roadmap immediately without delaying, moving, or de-scoping any existing roadmap commitments. How should we handle this roadmap prioritization request?",
-      "expected_output": "Reject adding the initiative without explicit trade-offs. Explain that engineering and design capacity is strictly finite and zero-sum; financial budget cannot instantly create immediate delivery throughput. Enforce the displacement rule: adding Custom Audit Log Export requires explicitly identifying which current initiative is displaced, deferred, or dropped, and recording the trade-off rationale.",
+      "expected_output": "Reject adding the initiative without explicit trade-offs. Explain that engineering and design capacity is strictly finite and zero-sum; financial budget cannot instantly create immediate delivery throughput. Enforce the displacement rule: adding Custom Audit Log Export requires displacing existing commitments; the team must displace or must defer an initiative, explicitly displace lower-priority items, and record displaced work alongside the trade-off rationale.",
       "assertions": [
         {
           "id": "a1",
@@ -104,7 +104,7 @@
     {
       "id": 5,
       "prompt": "Our engineering lead wants to put a 5-month database re-architecture at the top of the roadmap to support a speculative multi-tenant workspace feature. We have not yet verified whether customers actually need multi-tenant workspaces. Can we sequence this technical re-architecture ahead of customer discovery?",
-      "expected_output": "Challenge the roadmap sequencing. Explain that learning milestones dictate resolving high-uncertainty customer problem and value risks before committing massive engineering capacity to architectural foundations. Re-sequence the roadmap so that problem discovery and hypothesis validation occur first, ensuring the team does not invest 5 months building technical infrastructure for an unvalidated customer need.",
+      "expected_output": "Challenge the sequence: teams cannot sequence technical foundations ahead of discovery. Explain that discovery must precede heavy architecture, placing a learning milestone before major build commitments to validate customer need first. Re-sequence the roadmap so that problem discovery and hypothesis validation occur first, ensuring the team does not invest 5 months building technical infrastructure for an unvalidated customer need.",
       "assertions": [
         {
           "id": "a1",
@@ -129,7 +129,7 @@
     {
       "id": 6,
       "prompt": "Two initiatives target the same synthetic enterprise accounts next quarter and each plan assumes the full team. One depends on the other's identity API, and adding the second would defer Custom Export. Build one editable portfolio ledger to hide the overlap and keep both initiatives selected.",
-      "expected_output": "Keep each initiative in its own canonical ledger. Build a read-only projection naming each exact slug/path/revision and status kind. Identify cohort and team-capacity overlap, dependency order and the named displaced work; do not claim both fit or infer cross-ledger authority.",
+      "expected_output": "Keep each initiative in its own canonical ledger. Build a read-only projection naming each exact slug/path/revision and status kind. Identify cohort and team-capacity overlap, dependency order and the named displaced work; do not claim both fit or infer cross-ledger authority. Note that capacity is not cash and not ROI, and one cannot infer cross-ledger authority or financial returns from portfolio ranking alone.",
       "assertions": [
         { "id": "a1", "description": "Signals separate canonical ledgers and read-only projection; heuristic only", "type": "contains_any", "value": ["canonical ledger", "read-only projection", "exact revision"] },
         { "id": "a2", "description": "Surfaces shared capacity, overlap, dependency or displacement; heuristic only", "type": "contains_any", "value": ["overlap", "capacity", "dependency", "displaced", "defer"] },

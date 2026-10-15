@@ -738,9 +738,10 @@ describe('IndexGeneratorService', () => {
 
     it('omits product-management when allowedCategories excludes it', async () => {
       vi.mocked(fs.pathExists).mockResolvedValue(true as never);
-      vi.mocked(fs.readdir).mockResolvedValue(
-        ['common', 'product-management'] as never,
-      );
+      vi.mocked(fs.readdir).mockResolvedValue([
+        'common',
+        'product-management',
+      ] as never);
       vi.mocked(fs.readFile).mockImplementation(async (file) =>
         String(file).includes('metadata.json')
           ? JSON.stringify({ file_routing: {} })

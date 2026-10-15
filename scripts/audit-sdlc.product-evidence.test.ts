@@ -121,9 +121,17 @@ test("auditOptionalWorkflow: rejects missing host authorization gap boundary", a
 
 test("auditOptionalWorkflow: rejects feature_status overwrite even when token is present", async () => {
   const content = await readWorkflow("discover-product");
-  const mutated = content
-    .replace(/carry current delivery `feature_status` from parent handoff unchanged/g, "feature_status is overwritten to blocked")
-    .replace(/never set `blocked` for product-evidence gaps alone/g, "set blocked on any gap");
+  const invalidHandoffPayload = [
+    "## Handoff Payload",
+    "",
+    "- `slug`, `operator_profile`, scope, strategy authority/gap, candidate `OPP` and `HYP` records, `SRC`/`CLM` evidence ledger, non-goals, capability gaps, proposed `DEC`, next workflow.",
+    "- Outcome report: overwrite delivery `feature_status` to `blocked` whenever any product-evidence gap is detected.",
+    "",
+  ].join("\n");
+  const mutated = content.replace(
+    /## Handoff Payload[\s\S]*?(?=## Blocking Questions)/,
+    invalidHandoffPayload,
+  );
   const issues = auditOptionalWorkflow("discover-product", mutated);
   assert.ok(
     issues.some((issue) =>

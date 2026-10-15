@@ -663,10 +663,7 @@ async function makeProductEvidenceFixture(): Promise<{
   await writeSkill(skills, "product-management", "product-experimentation", {
     triggers: {
       files: [],
-      keywords: [
-        "product hypothesis validation",
-        "product experiment design",
-      ],
+      keywords: ["product hypothesis validation", "product experiment design"],
     },
   });
   await writeSkill(skills, "product-management", "product-metrics", {
@@ -722,22 +719,30 @@ describe("SkillIndex — product evidence routing & qualified keywords", () => {
 
   it("keeps all product-management skills keyword-only (files: [])", () => {
     expect(index.matchFiles(["docs/product/strategy.md"])).toEqual([]);
-    const evidenceMatches = index.matchFiles(["docs/product/core/evidence.json"]);
-    const pmMatches = evidenceMatches.filter((m) =>
-      m.skill.category === "product-management",
+    const evidenceMatches = index.matchFiles([
+      "docs/product/core/evidence.json",
+    ]);
+    const pmMatches = evidenceMatches.filter(
+      (m) => m.skill.category === "product-management",
     );
     expect(pmMatches).toEqual([]);
   });
 
   it("matches qualified PM keywords exactly", () => {
     const research = index.matchKeywords(["product market research"]);
-    expect(research.map((m) => m.skill.id)).toEqual(["product-market-research"]);
+    expect(research.map((m) => m.skill.id)).toEqual([
+      "product-market-research",
+    ]);
 
     const competitive = index.matchKeywords(["product competitive analysis"]);
-    expect(competitive.map((m) => m.skill.id)).toEqual(["product-market-research"]);
+    expect(competitive.map((m) => m.skill.id)).toEqual([
+      "product-market-research",
+    ]);
 
     const discovery = index.matchKeywords(["product customer discovery"]);
-    expect(discovery.map((m) => m.skill.id)).toEqual(["product-customer-discovery"]);
+    expect(discovery.map((m) => m.skill.id)).toEqual([
+      "product-customer-discovery",
+    ]);
 
     const strategy = index.matchKeywords(["product strategy decision"]);
     expect(strategy.map((m) => m.skill.id)).toEqual(["product-strategy"]);
@@ -746,7 +751,9 @@ describe("SkillIndex — product evidence routing & qualified keywords", () => {
     expect(investment.map((m) => m.skill.id)).toEqual(["product-investment"]);
 
     const experiment = index.matchKeywords(["product hypothesis validation"]);
-    expect(experiment.map((m) => m.skill.id)).toEqual(["product-experimentation"]);
+    expect(experiment.map((m) => m.skill.id)).toEqual([
+      "product-experimentation",
+    ]);
 
     const metrics = index.matchKeywords(["product measurement contract"]);
     expect(metrics.map((m) => m.skill.id)).toEqual(["product-metrics"]);
@@ -786,7 +793,9 @@ describe("SkillIndex — product evidence routing & qualified keywords", () => {
     expect(
       index.findSkill("product-management", "product-investment"),
     ).toBeDefined();
-    expect(omittedIndex.matchKeywords(["product investment analysis"])).toEqual([]);
+    expect(omittedIndex.matchKeywords(["product investment analysis"])).toEqual(
+      [],
+    );
   });
 });
 
@@ -805,7 +814,10 @@ async function makeRealProductEvidenceFixture(): Promise<{
     __dirname,
     "../../skills/common/common-product-evidence",
   );
-  await fs.copy(realCpe, path.join(skills, "common", "common-product-evidence"));
+  await fs.copy(
+    realCpe,
+    path.join(skills, "common", "common-product-evidence"),
+  );
 
   const realArchAudit = path.join(
     __dirname,

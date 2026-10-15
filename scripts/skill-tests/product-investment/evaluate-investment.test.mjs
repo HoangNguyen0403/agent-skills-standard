@@ -59,35 +59,25 @@ test("2. Direct Library: Closed Payback Keys and Paired Timing Metadata Receipt 
   const output = evaluateInvestment(fixture);
   const res = output.results[0];
 
-  // Retain paired evidence from this actual invocation, not a copied fixture output.
-  const pairedReceipt = {
-    fixture: "paired-payback-metadata",
-    contract_revision: "t01-v2",
-    input_horizon: fixture.horizon,
-    convention: "undiscounted_durable_period_end",
-    actual_payback_output: structuredClone(res.payback),
-    closed_payback_keys: ["status", "period", "reason", "terminal_balance"]
-  };
-
-  assert.equal(pairedReceipt.contract_revision, "t01-v2");
-  assert.equal(pairedReceipt.convention, "undiscounted_durable_period_end");
-  assert.deepEqual(pairedReceipt.input_horizon, {
-    start_date: "2026-10-01",
-    period: "year",
-    periods: 1
-  });
-  assert.deepEqual(pairedReceipt.actual_payback_output, {
+  // Verify closed 4-key payback output contract
+  assert.deepEqual(Object.keys(res.payback).sort(), ["period", "reason", "status", "terminal_balance"]);
+  assert.deepEqual(res.payback, {
     status: "reached",
     period: 1,
     reason: null,
     terminal_balance: "50000.00"
   });
-  assert.deepEqual(Object.keys(res.payback).sort(), ["period", "reason", "status", "terminal_balance"].sort());
 
-  // Confirm no output API pollution: no synthetic horizon or convention on payback output
-  assert.equal(res.payback.horizon, undefined);
-  assert.equal(res.payback.convention, undefined);
-  assert.equal(res.payback.start_date, undefined);
+  // Section 7.4 consumer oracle: timing metadata pairing outside closed calculator output
+  assert.ok(Number.isInteger(res.payback.period));
+  assert.ok(res.payback.period >= 0 && res.payback.period <= fixture.horizon.periods);
+  // Terminal balance must match undiscounted cumulative net cash flow at the end of horizon
+  assert.equal(res.payback.terminal_balance, "50000.00");
+
+  // Confirm no output API pollution: calculator output does not leak input horizon or convention keys
+  assert.equal(Reflect.has(res.payback, "horizon"), false);
+  assert.equal(Reflect.has(res.payback, "convention"), false);
+  assert.equal(Reflect.has(res.payback, "start_date"), false);
 });
 
 // --- 2. Rational Presentation Half-Away Rounding Ties ---
@@ -230,6 +220,62 @@ test("4. Direct Library: Exact NPV Half-Away Rounding Ties (+/-)", () => {
   const outB = evaluateInvestment(inputA);
   assert.equal(outB.issues.length, 0);
   assert.equal(outB.results[0].npv.value, "-1");
+
+  // Case C: Non-100% rate r = 0.04 (4%), t = 1 year, factor = 25/26.
+  // 39 / 1.04 = 37.5 -> half away from zero rounds to +38.
+  // Signed negative: -39 / 1.04 = -37.5 -> half away from zero rounds to -38.
+  const inputC = structuredClone(inputA);
+  inputC.discount.rate = "0.04";
+  inputC.scenarios[0].items[0].amount = "0"; // C = 0 at t=0
+  inputC.scenarios[0].items[1].amount = "39"; // B = 39 at t=1
+  const outCPos = evaluateInvestment(inputC);
+  assert.equal(outCPos.issues.length, 0);
+  assert.equal(outCPos.results[0].npv.value, "38");
+
+  inputC.scenarios[0].items[0].amount = "39"; // C = 39 at t=1
+  inputC.scenarios[0].items[0].period = 1;
+  inputC.scenarios[0].items[1].amount = "0";  // B = 0
+  const outCNeg = evaluateInvestment(inputC);
+  assert.equal(outCNeg.issues.length, 0);
+  assert.equal(outCNeg.results[0].npv.value, "-38");
+
+  // Case D: Additional non-100% tie vectors (13/1.04=12.5 -> 13; 65/1.04=62.5 -> 63; 91/1.04=87.5 -> 88)
+  for (const [amount, expected] of [["13", "13"], ["65", "63"], ["91", "88"]]) {
+    const inputVec = structuredClone(inputA);
+    inputVec.discount.rate = "0.04";
+    inputVec.scenarios[0].items[0].amount = "0";
+    inputVec.scenarios[0].items[1].amount = amount;
+    const resPos = evaluateInvestment(inputVec);
+    assert.equal(resPos.issues.length, 0);
+    assert.equal(resPos.results[0].npv.value, expected);
+
+    inputVec.scenarios[0].items[0].amount = amount;
+    inputVec.scenarios[0].items[0].period = 1;
+    inputVec.scenarios[0].items[1].amount = "0";
+    const resNeg = evaluateInvestment(inputVec);
+    assert.equal(resNeg.issues.length, 0);
+    assert.equal(resNeg.results[0].npv.value, `-${expected}`);
+  }
+
+  // Case E: Multi-period non-100% tie vector (t = 2 years, r = 0.04)
+  // (1 + 0.04)^2 = 1.0816 = 676 / 625. For amount 338 at t=2:
+  // 338 * 625 / 676 = 625 / 2 = 312.5 -> rounds half away to +313 (and -313).
+  const inputMulti = structuredClone(inputA);
+  inputMulti.horizon.periods = 2;
+  inputMulti.discount.rate = "0.04";
+  inputMulti.scenarios[0].items[0].amount = "0";
+  inputMulti.scenarios[0].items[1].period = 2;
+  inputMulti.scenarios[0].items[1].amount = "338";
+  const outMultiPos = evaluateInvestment(inputMulti);
+  assert.equal(outMultiPos.issues.length, 0);
+  assert.equal(outMultiPos.results[0].npv.value, "313");
+
+  inputMulti.scenarios[0].items[0].period = 2;
+  inputMulti.scenarios[0].items[0].amount = "338";
+  inputMulti.scenarios[0].items[1].amount = "0";
+  const outMultiNeg = evaluateInvestment(inputMulti);
+  assert.equal(outMultiNeg.issues.length, 0);
+  assert.equal(outMultiNeg.results[0].npv.value, "-313");
 });
 
 test("5. Direct Library: Monthly Intermediate Timing & Long Horizon NPV Oracles", () => {
@@ -1117,6 +1163,91 @@ test("CLI invoked through a symlink executes without changing import-only behavi
     assert.equal(imported.status, 0, imported.stderr);
     assert.equal(imported.stdout, "IMPORT_ONLY\n");
     assert.equal(imported.stderr, "");
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
+});
+
+test("Rejected money_scale stops scale-dependent parsing and preserves INVALID_FIELD", () => {
+  const fixture = JSON.parse(fs.readFileSync(path.join(FIXTURES_DIR, "baseline-positive.json"), "utf-8"));
+
+  // Huge rejected scale (100,000,000) stops scale-dependent parsing
+  fixture.money_scale = 100000000;
+  const outHuge = evaluateInvestment(fixture);
+  assert.equal(outHuge.results.length, 0);
+  assert.deepEqual(outHuge.issues, [
+    {
+      code: "INVALID_FIELD",
+      severity: "error",
+      path: "/money_scale",
+      record_id: null,
+      message: "money_scale must be an integer between 0 and 4"
+    }
+  ]);
+
+  // Negative rejected scale
+  fixture.money_scale = -1;
+  const outNeg = evaluateInvestment(fixture);
+  assert.equal(outNeg.results.length, 0);
+  assert.deepEqual(outNeg.issues, [
+    {
+      code: "INVALID_FIELD",
+      severity: "error",
+      path: "/money_scale",
+      record_id: null,
+      message: "money_scale must be an integer between 0 and 4"
+    }
+  ]);
+
+  // Non-integer scale
+  fixture.money_scale = 2.5;
+  const outFloat = evaluateInvestment(fixture);
+  assert.equal(outFloat.results.length, 0);
+  assert.deepEqual(outFloat.issues, [
+    {
+      code: "INVALID_FIELD",
+      severity: "error",
+      path: "/money_scale",
+      record_id: null,
+      message: "money_scale must be an integer between 0 and 4"
+    }
+  ]);
+});
+
+test("CLI drains output completely across piped stdout with exact exit semantics", () => {
+  const tmpDir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), "calc-drain-test-")));
+  try {
+    // 1. Valid execution piped through consumer: exits 0, valid JSON output
+    const validFixturePath = path.join(FIXTURES_DIR, "baseline-positive.json");
+    const validRun = spawnSync(process.execPath, [CALCULATOR_CLI, validFixturePath], {
+      encoding: "utf-8",
+      maxBuffer: 8 * 1024 * 1024
+    });
+    assert.equal(validRun.status, 0);
+    assert.equal(validRun.stderr, "");
+    const validJson = JSON.parse(validRun.stdout);
+    assert.equal(validJson.tool, "investment-calculator");
+    assert.equal(validJson.results.length, 1);
+    assert.equal(validJson.issues.length, 0);
+
+    // 2. Invalid execution with large issue output (~1.5 MB): exits 1, complete JSON, no truncation
+    const fixture = JSON.parse(fs.readFileSync(validFixturePath, "utf-8"));
+    fixture.scenarios[0].items = Array.from({ length: 1000 }, () => ({}));
+    const filePath = path.join(tmpDir, "many-errors.json");
+    fs.writeFileSync(filePath, JSON.stringify(fixture));
+
+    const invalidRun = spawnSync(process.execPath, [CALCULATOR_CLI, filePath], {
+      encoding: "utf-8",
+      maxBuffer: 8 * 1024 * 1024
+    });
+
+    assert.equal(invalidRun.status, 1);
+    assert.equal(invalidRun.stderr, "");
+    assert.ok(invalidRun.stdout.length > 65536, `Expected stdout to exceed 64KB pipe buffer, got ${invalidRun.stdout.length}`);
+    const invalidJson = JSON.parse(invalidRun.stdout);
+    assert.equal(invalidJson.tool, "investment-calculator");
+    assert.equal(invalidJson.results.length, 0);
+    assert.ok(invalidJson.issues.length >= 1000);
   } finally {
     fs.rmSync(tmpDir, { recursive: true, force: true });
   }

@@ -1,6 +1,8 @@
 // scripts/skill-tests/product-evidence-integration/network-preload.cjs
+// Request-level interception proxy for node:http, node:https, and globalThis.fetch.
+// Note: Intercepts standard application HTTP/HTTPS/fetch requests only; does not provide
+// a full OS/network sandbox or host-level kernel isolation (raw sockets/net remain unrestricted).
 'use strict';
-
 const http = require('node:http');
 const https = require('node:https');
 

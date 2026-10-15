@@ -85,7 +85,7 @@ This document specifies the exact accounting rules, numeric representation, arit
    - Monthly factor $d_t = (1 + r_{\text{annual}})^{-t / 12}$; annual factor $d_t = (1 + r_{\text{annual}})^{-t}$.
    - The annual effective rate is a decimal string from 0 through 1 inclusive, with at most 8 fractional digits. Negative rates, rates above 100%, exponent notation, and excess precision are invalid.
    - Period-end cumulative balances determine durable payback; they are not period cash-flow inputs to NPV. NPV discounts each actual period net cash flow at the declared rate. Do not treat cumulative balance as a cash-flow series.
-   - Neumaier compensated summation in ascending period order; final minor units rounded half away from zero.
+   - Whole-year periods use exact rational discounting and accumulation; monthly periods use Neumaier compensated summation in ascending period order within the bounded numeric domain. Final minor units round half away from zero in both paths.
 
 ---
 

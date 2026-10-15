@@ -19,14 +19,14 @@ Establish outcome-focused measurement contracts before release and conduct rigor
 ## 1. Capability Preflight
 
 Resolve and verify execution prerequisites across installed layouts before validating measurement contracts or value reviews:
-1. **Installed Common Location**: Locate `<agent-skill-root>/common/common-product-evidence/` (standard) or `<agent-skill-root>/common-common-product-evidence/` (Kiro flattened). Body lookup via MCP is not local script/runtime proof.
+1. **Installed Location**: Locate `<agent-skill-root>/common/common-product-evidence/` (standard) or `<agent-skill-root>/common-common-product-evidence/` (Kiro flattened). MCP lookup is not local script proof.
 2. **Component Integrity**:
-   - Package missing or excluded: emit gap `Capability gap: common/common-product-evidence not installed or excluded; opt in at a reviewed ref and sync.`
-   - Script missing: emit gap `Capability gap: validate-product-evidence.mjs missing from installed package; repair common-product-evidence installation.`
-   - Runtime engine: confirm Node.js $\ge 20.0.0$ (`node --version`). If $< 20$, emit gap `Capability gap: Node.js runtime >= 20.0.0 required for local validator; current environment does not meet minimum engine requirement.`
-3. **Invocation inputs**: before running, confirm an existing absolute canonical authorized narrow authority root (not `/`, home, or a parent workspace), a contained regular ledger file, concrete valid UTC `--as-of`, and `--gate` exactly `structural|experiment|commit|release`. CLI may take a contained relative ledger; library `ledgerPath` is absolute.
-4. **Current evidence**: check selected authority/artifact pairs, query and revision, source access/privacy/status/freshness, baseline or helper, guardrails, and actual analytics/cost availability. External/protected sources are never fetched. Separate installation, invocation/root, authority and data gaps; missing analytics yields inconclusive value and preserves released delivery.
-5. Follow [Verification Procedures](references/verification-procedures.md) for root/data checks and exact artifact/history predicates. No placeholder inputs, simulated validation, silent install, broadened roots, query/guardrail waivers, or permission inferred from a body lookup or green result.
+   - Package missing/excluded: emit `Capability gap: common/common-product-evidence not installed or excluded; opt in at a reviewed ref and sync.`
+   - Script missing: emit `Capability gap: validate-product-evidence.mjs missing from installed package; repair common-product-evidence installation.`
+   - Runtime engine: require Node.js $\ge 20.0.0$ (`node --version`). If $< 20$, emit `Capability gap: Node.js runtime >= 20.0.0 required for local validator; current environment does not meet minimum engine requirement.`
+3. **Invocation inputs**: confirm existing absolute canonical narrow authority root (reject `/`, home, parent workspace), contained regular ledger, valid UTC `--as-of`, and `--gate structural|experiment|commit|release`.
+4. **Current evidence**: check authority/artifact pairs, query/revision, source access/freshness, baseline or exception helper, guardrails, and analytics availability. Missing analytics yields `inconclusive` value and preserves `released` delivery.
+5. Follow [Verification Procedures](references/verification-procedures.md) for root/data checks and exact artifact/history predicates. No placeholder inputs, simulated validation, silent installs, broadened roots, query/guardrail waivers, or permission inferred from body lookups.
 
 ## 2. Core Protocol
 

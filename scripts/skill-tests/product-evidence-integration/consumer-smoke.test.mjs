@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import http from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
-import { buildNarrowSnapshot, getAllowedRefs, startRegistryFixture } from './registry-fixture.mjs';
+import { buildNarrowSnapshot, getAllowedRefs, startRegistryFixture, getCandidateCommitSha, hashDirectoryFiles } from './registry-fixture.mjs';
 
 test('registry refs stay bound to frozen metadata bytes after candidate mutation', () => {
   const candidateRoot = fs.mkdtempSync(path.join(os.tmpdir(), 't09-ref-snapshot-'));
@@ -89,5 +89,51 @@ test('registry denies credentials and serves only pinned snapshot entries', asyn
   } finally {
     if (fixture) await fixture.close();
     fs.rmSync(candidateRoot, { recursive: true, force: true });
+  }
+});
+
+test('harness fixture mutation alters verification input provenance while registry served bytes snapshot remains separate', () => {
+  const candidateRoot = fs.mkdtempSync(path.join(os.tmpdir(), 't09-provenance-test-'));
+  try {
+    const harnessDir = path.join(candidateRoot, 'scripts/skill-tests/product-evidence-integration');
+    const skillsDir = path.join(candidateRoot, 'skills/common/demo');
+    const workflowsDir = path.join(candidateRoot, '.agents/workflows');
+    fs.mkdirSync(harnessDir, { recursive: true });
+    fs.mkdirSync(path.join(harnessDir, 'fixtures'), { recursive: true });
+    fs.mkdirSync(skillsDir, { recursive: true });
+    fs.mkdirSync(workflowsDir, { recursive: true });
+
+    fs.writeFileSync(path.join(skillsDir, 'SKILL.md'), 'skill bytes');
+    fs.writeFileSync(path.join(workflowsDir, 'test.md'), 'workflow bytes');
+    fs.writeFileSync(path.join(harnessDir, 'fixtures/evidence.json'), '{"initial":true}');
+
+    const initialHarnessHash = hashDirectoryFiles(candidateRoot, 'scripts/skill-tests/product-evidence-integration');
+    const initialSnapshot = buildNarrowSnapshot(candidateRoot);
+
+    // Mutate fixture file inside harness directory
+    fs.writeFileSync(path.join(harnessDir, 'fixtures/evidence.json'), '{"mutated":true}');
+    const mutatedHarnessHash = hashDirectoryFiles(candidateRoot, 'scripts/skill-tests/product-evidence-integration');
+    const secondSnapshot = buildNarrowSnapshot(candidateRoot);
+
+    // Harness provenance hash changes
+    assert.notEqual(mutatedHarnessHash, initialHarnessHash);
+
+    // Served registry bytes snapshot remains completely separate and identical
+    assert.equal(secondSnapshot.treeSha, initialSnapshot.treeSha);
+    assert.equal(initialSnapshot.fileMap.has('scripts/skill-tests/product-evidence-integration/fixtures/evidence.json'), false);
+    assert.equal(secondSnapshot.fileMap.has('scripts/skill-tests/product-evidence-integration/fixtures/evidence.json'), false);
+  } finally {
+    fs.rmSync(candidateRoot, { recursive: true, force: true });
+  }
+});
+
+test('getCandidateCommitSha fails closed when git HEAD is unavailable', () => {
+  const emptyDir = fs.mkdtempSync(path.join(os.tmpdir(), 't09-no-git-'));
+  try {
+    assert.throws(() => {
+      getCandidateCommitSha(emptyDir);
+    }, /does not have an available git HEAD commit SHA|Failed to resolve candidate commit SHA/);
+  } finally {
+    fs.rmSync(emptyDir, { recursive: true, force: true });
   }
 });

@@ -160,6 +160,56 @@ function formatRational(P, Q, decimalPlaces) {
   }
   return (isNegative ? "-" : "") + intPartStr + "." + fracPartStr;
 }
+/**
+ * Greatest common divisor for positive BigInts.
+ */
+function gcdBigInt(a, b) {
+  let x = a < 0n ? -a : a;
+  let y = b < 0n ? -b : b;
+  while (y > 0n) {
+    const t = y;
+    y = x % y;
+    x = t;
+  }
+  return x;
+}
+
+/**
+ * Rational division of P / Q with half-away-from-zero rounding to nearest integer.
+ * Q must be positive BigInt.
+ */
+function roundHalfAwayRational(P, Q) {
+  if (P === 0n) return 0n;
+  if (Q <= 0n) {
+    throw new Error("Rational denominator Q must be positive BigInt");
+  }
+  const isNeg = P < 0n;
+  const absP = isNeg ? -P : P;
+  const div = absP / Q;
+  const rem = absP % Q;
+  const rounded = (rem * 2n >= Q) ? div + 1n : div;
+  return isNeg ? -rounded : rounded;
+}
+
+/**
+ * Parse effective annual discount rate decimal string into exact rational factor 1 + r = N / D.
+ * N and D are positive BigInts in lowest terms.
+ */
+function parseDiscountRatio(rateStr) {
+  const parts = rateStr.split(".");
+  const intPart = BigInt(parts[0] || "0");
+  const fracStr = parts[1] || "";
+  const scale = 10n ** BigInt(fracStr.length);
+  const fracPart = BigInt(fracStr || "0");
+  const rateNumerator = intPart * scale + fracPart;
+  const onePlusRNum = scale + rateNumerator;
+  const onePlusRDen = scale;
+  const g = gcdBigInt(onePlusRNum, onePlusRDen);
+  return {
+    N: onePlusRNum / g,
+    D: onePlusRDen / g
+  };
+}
 
 /**
  * Deduplicate and sort issues by ASCII path, code, and record_id.
@@ -541,19 +591,25 @@ export function evaluateInvestment(input) {
                 addIssue("INVALID_AMOUNT", `${iPath}/amount`, "capacity amount may have at most 4 fractional digits");
               }
             } else {
-              const maxScale = typeof input.money_scale === "number" ? input.money_scale : 4;
-              if (frac.length > maxScale) {
-                addIssue("INVALID_AMOUNT", `${iPath}/amount`, "monetary amount has too many fractional digits");
-              } else {
-                try {
-                  const intPart = BigInt(parts[0]);
-                  const paddedFrac = frac.padEnd(maxScale, "0");
-                  const minorUnits = intPart * (10n ** BigInt(maxScale)) + BigInt(paddedFrac || "0");
-                  if (minorUnits > MAX_MAGNITUDE) {
-                    addIssue("NUMERIC_RANGE", `${iPath}/amount`, "monetary amount magnitude exceeds maximum safe integer magnitude (9007199254740991)");
+              const hasValidScale = typeof input.money_scale === "number"
+                && Number.isInteger(input.money_scale)
+                && input.money_scale >= 0
+                && input.money_scale <= 4;
+              if (hasValidScale) {
+                const maxScale = input.money_scale;
+                if (frac.length > maxScale) {
+                  addIssue("INVALID_AMOUNT", `${iPath}/amount`, "monetary amount has too many fractional digits");
+                } else {
+                  try {
+                    const intPart = BigInt(parts[0]);
+                    const paddedFrac = frac.padEnd(maxScale, "0");
+                    const minorUnits = intPart * (10n ** BigInt(maxScale)) + BigInt(paddedFrac || "0");
+                    if (minorUnits > MAX_MAGNITUDE) {
+                      addIssue("NUMERIC_RANGE", `${iPath}/amount`, "monetary amount magnitude exceeds maximum safe integer magnitude (9007199254740991)");
+                    }
+                  } catch {
+                    addIssue("INVALID_AMOUNT", `${iPath}/amount`, "failed to parse monetary amount");
                   }
-                } catch {
-                  addIssue("INVALID_AMOUNT", `${iPath}/amount`, "failed to parse monetary amount");
                 }
               }
             }
@@ -858,41 +914,67 @@ export function evaluateInvestment(input) {
       if (sumBenefitMinor + sumCostMinor > MAX_NPV_TOTAL_DOMAIN) {
         addIssue("NUMERIC_RANGE", `/scenarios/${sIdx}`, `B+C in minor units exceeds bounded NPV domain (${MAX_NPV_TOTAL_DOMAIN})`);
       } else {
-        const annualRate = Number(input.discount.rate);
-        let sum = 0.0;
-        let c = 0.0;
-
-        for (let t = 0; t <= horizonPeriods; t++) {
-          const factor = input.horizon.period === "month"
-            ? Math.pow(1.0 + annualRate, -t / 12)
-            : Math.pow(1.0 + annualRate, -t);
-          const netTMinor = periodBenefit[t] - periodCost[t];
-          const valT = Number(netTMinor) * factor;
-
-          const tSum = sum + valT;
-          if (Math.abs(sum) >= Math.abs(valT)) {
-            c += (sum - tSum) + valT;
-          } else {
-            c += (valT - tSum) + sum;
+        if (input.horizon.period === "year") {
+          const { N, D } = parseDiscountRatio(input.discount.rate);
+          const nPowers = new Array(horizonPeriods + 1);
+          nPowers[0] = 1n;
+          for (let i = 1; i <= horizonPeriods; i++) {
+            nPowers[i] = nPowers[i - 1] * N;
           }
-          sum = tSum;
-        }
 
-        const npvMinorFloat = sum + c;
-        if (!Number.isFinite(npvMinorFloat)) {
-          addIssue("NUMERIC_RANGE", `/scenarios/${sIdx}`, "computed NPV is not finite");
-        } else {
-          let npvMinorBigInt;
-          if (npvMinorFloat >= 0) {
-            npvMinorBigInt = BigInt(Math.floor(npvMinorFloat + 0.5));
-          } else {
-            npvMinorBigInt = -BigInt(Math.floor(-npvMinorFloat + 0.5));
+          let P = 0n;
+          let dPower = 1n;
+          for (let t = 0; t <= horizonPeriods; t++) {
+            const netTMinor = periodBenefit[t] - periodCost[t];
+            if (netTMinor !== 0n) {
+              P += netTMinor * dPower * nPowers[horizonPeriods - t];
+            }
+            if (t < horizonPeriods) {
+              dPower *= D;
+            }
           }
+          const Q = nPowers[horizonPeriods];
+          const npvMinorBigInt = roundHalfAwayRational(P, Q);
           npvResult = {
             status: "available",
             value: formatMoney(npvMinorBigInt, moneyScaleInt),
             reason: null
           };
+        } else {
+          const annualRate = Number(input.discount.rate);
+          let sum = 0.0;
+          let c = 0.0;
+
+          for (let t = 0; t <= horizonPeriods; t++) {
+            const factor = Math.pow(1.0 + annualRate, -t / 12);
+            const netTMinor = periodBenefit[t] - periodCost[t];
+            const valT = Number(netTMinor) * factor;
+
+            const tSum = sum + valT;
+            if (Math.abs(sum) >= Math.abs(valT)) {
+              c += (sum - tSum) + valT;
+            } else {
+              c += (valT - tSum) + sum;
+            }
+            sum = tSum;
+          }
+
+          const npvMinorFloat = sum + c;
+          if (!Number.isFinite(npvMinorFloat)) {
+            addIssue("NUMERIC_RANGE", `/scenarios/${sIdx}`, "computed NPV is not finite");
+          } else {
+            let npvMinorBigInt;
+            if (npvMinorFloat >= 0) {
+              npvMinorBigInt = BigInt(Math.floor(npvMinorFloat + 0.5));
+            } else {
+              npvMinorBigInt = -BigInt(Math.floor(-npvMinorFloat + 0.5));
+            }
+            npvResult = {
+              status: "available",
+              value: formatMoney(npvMinorBigInt, moneyScaleInt),
+              reason: null
+            };
+          }
         }
       }
     }
@@ -1026,8 +1108,13 @@ function readInputFileSafely(filePath) {
   return result;
 }
 
+function writeOutput(content, exitCode) {
+  process.exitCode = exitCode;
+  process.stdout.write(content);
+}
+
 function writeInputFailure(code, message) {
-  process.stdout.write(JSON.stringify({
+  const envelope = {
     schema_version: 1,
     tool: "investment-calculator",
     analysis_id: null,
@@ -1035,8 +1122,8 @@ function writeInputFailure(code, message) {
     money_scale: null,
     results: [],
     issues: [{ code, severity: "error", path: "", record_id: null, message }]
-  }, null, 2) + "\n");
-  process.exitCode = 2;
+  };
+  writeOutput(JSON.stringify(envelope, null, 2) + "\n", 2);
 }
 
 /**
@@ -1046,15 +1133,16 @@ function runCli() {
   const nodeMajor = Number(process.versions.node.split(".")[0]);
   if (nodeMajor < 20) {
     process.stderr.write("Node.js version 20 or higher is required.\n");
-    process.exit(2);
+    process.exitCode = 2;
+    return;
   }
 
   const args = process.argv.slice(2);
 
   // Exact --help alone is supported; -h and other flags are rejected per frozen contract
   if (args.length === 1 && args[0] === "--help") {
-    process.stdout.write("Usage: node evaluate-investment.mjs <scenario.json>\n\nSynchronous deterministic product investment evaluator.\n");
-    process.exit(0);
+    writeOutput("Usage: node evaluate-investment.mjs <scenario.json>\n\nSynchronous deterministic product investment evaluator.\n", 0);
+    return;
   }
 
   if (args.length !== 1 || args[0].startsWith("-")) {
@@ -1075,8 +1163,8 @@ function runCli() {
         }
       ]
     };
-    process.stdout.write(JSON.stringify(errorEnvelope, null, 2) + "\n");
-    process.exit(2);
+    writeOutput(JSON.stringify(errorEnvelope, null, 2) + "\n", 2);
+    return;
   }
 
   const readResult = readInputFileSafely(args[0]);
@@ -1111,31 +1199,13 @@ function runCli() {
         }
       ]
     };
-    process.stdout.write(JSON.stringify(envelope, null, 2) + "\n");
-    process.exit(2);
+    writeOutput(JSON.stringify(envelope, null, 2) + "\n", 2);
+    return;
   }
 
+  let output;
   try {
-    const output = evaluateInvestment(parsed);
-    process.stdout.write(JSON.stringify(output, null, 2) + "\n");
-
-    if (output.issues.length > 0) {
-      const exit2Codes = new Set([
-        "INVALID_ARGUMENT",
-        "INVALID_JSON",
-        "UNSUPPORTED_VERSION",
-        "IO_ERROR",
-        "LIMIT_EXCEEDED"
-      ]);
-      const hasExit2 = output.issues.some((iss) => exit2Codes.has(iss.code));
-      if (hasExit2) {
-        process.exit(2);
-      } else {
-        process.exit(1);
-      }
-    }
-
-    process.exit(0);
+    output = evaluateInvestment(parsed);
   } catch {
     const envelope = {
       schema_version: 1,
@@ -1154,9 +1224,23 @@ function runCli() {
         }
       ]
     };
-    process.stdout.write(JSON.stringify(envelope, null, 2) + "\n");
-    process.exit(4);
+    writeOutput(JSON.stringify(envelope, null, 2) + "\n", 4);
+    return;
   }
+
+  let exitCode = 0;
+  if (output.issues.length > 0) {
+    const exit2Codes = new Set([
+      "INVALID_ARGUMENT",
+      "INVALID_JSON",
+      "UNSUPPORTED_VERSION",
+      "IO_ERROR",
+      "LIMIT_EXCEEDED"
+    ]);
+    const hasExit2 = output.issues.some((iss) => exit2Codes.has(iss.code));
+    exitCode = hasExit2 ? 2 : 1;
+  }
+  writeOutput(JSON.stringify(output, null, 2) + "\n", exitCode);
 }
 
 // Check if run directly

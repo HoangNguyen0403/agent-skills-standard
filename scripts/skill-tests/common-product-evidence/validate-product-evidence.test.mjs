@@ -2868,3 +2868,182 @@ test("Importing the validator module does not invoke its CLI", () => {
   assert.equal(run.stdout, "IMPORT_ONLY\n");
   assert.equal(run.stderr, "");
 });
+
+test("Regression S1: Malformed array object { length: 1e12 } terminates promptly and reports INVALID_FIELD", async () => {
+  const { root, ledgerPath, ledger } = createResidualClosureFixture();
+  try {
+    const malformed = JSON.parse(JSON.stringify(ledger));
+    const claimRecord = {
+      id: "CLM-701",
+      kind: "CLM",
+      revision: "r1",
+      owner: "Synthetic owner",
+      scope: ledger.records[0].scope,
+      depends_on: { length: 1e12 },
+      freshness: ledger.records[0].freshness,
+      data: {
+        statement: "Synthetic statement",
+        rationale: "Synthetic rationale",
+        uncertainty: "Synthetic uncertainty",
+        classification: "confirmed",
+        status: "supported",
+        sources: { length: 1e12 },
+        counterevidence: { length: 1e12 },
+        critical: false,
+      },
+    };
+    malformed.records.push(claimRecord);
+
+    fs.writeFileSync(ledgerPath, JSON.stringify(malformed, null, 2));
+    const startTime = Date.now();
+    const result = await validateProductEvidence(malformed, {
+      authorityRoot: root,
+      ledgerPath,
+      asOf: "2026-10-10T00:00:00Z",
+      gate: "structural",
+    });
+    const elapsed = Date.now() - startTime;
+    assert.ok(elapsed < 2000, `Expected prompt execution under 2000ms, took ${elapsed}ms`);
+    assert.equal(result.valid, false);
+
+    const issuePaths = result.issues.map((i) => i.path);
+    assert.ok(issuePaths.includes("/records/8/data/sources"), "Expected issue on /records/8/data/sources");
+    assert.ok(issuePaths.includes("/records/8/data/counterevidence"), "Expected issue on /records/8/data/counterevidence");
+    assert.ok(issuePaths.includes("/records/8/depends_on"), "Expected issue on /records/8/depends_on");
+
+    const cliRun = spawnSync(process.execPath, [
+      VALIDATOR_CLI, ledgerPath, "--authority-root", root, "--as-of", "2026-10-10T00:00:00Z", "--gate", "structural",
+    ], { encoding: "utf8", timeout: 10000 });
+
+    assert.equal(cliRun.status, 1, cliRun.stderr);
+    const cliEnvelope = JSON.parse(cliRun.stdout);
+    assert.equal(cliEnvelope.valid, false);
+    assert.equal(cliEnvelope.tool, "product-evidence-validator");
+  } finally {
+    cleanupTempRoot(root);
+  }
+});
+
+test("Regression S2: Unclosed markdown bold span on large document scans linearly without ReDoS, and bold IDs >256 chars are supported", async () => {
+  const { root, ledgerPath, ledger } = createResidualClosureFixture();
+  try {
+    const mdPath = path.join(root, "large-spec.md");
+    // Legitimate declarations including a long valid closed bold ID label exceeding 256 chars
+    const longBoldIdLabel = "**" + "Domain Specification Long Enterprise Business Header Requirement Identifier with ID ".repeat(4) + "**: BRD-OBJ-002\n";
+    const legitimateDeclarations = [
+      "# Specifications\n",
+      "**ID**: BRD-OBJ-001\n",
+      longBoldIdLabel,
+      "| ID | Description |\n",
+      "| :--- | :--- |\n",
+      "| SRS-001 | System requirement |\n",
+    ].join("");
+    // Hostile pathological unclosed bold delimiter followed by 480KB content
+    const pathologicalLine = "**" + "B".repeat(480000) + "\n";
+    fs.writeFileSync(mdPath, legitimateDeclarations + pathologicalLine);
+
+    const fileHash = sha256(fs.readFileSync(mdPath));
+    const authRecord = {
+      id: "AUTH-801",
+      domain: "business",
+      locator: { kind: "local", path: "large-spec.md", sha256: fileHash },
+      revision: `sha256:${fileHash}`,
+      owner: "Product Owner",
+      scope: ledger.records[0].scope,
+      declared_ids: ["BRD-OBJ-001", "BRD-OBJ-002"],
+      access: "available",
+    };
+    const s2Ledger = JSON.parse(JSON.stringify(ledger));
+    s2Ledger.authorities.push(authRecord);
+    fs.writeFileSync(ledgerPath, JSON.stringify(s2Ledger, null, 2));
+
+    // Direct API verification under bounded execution
+    const result = await validateProductEvidence(s2Ledger, {
+      authorityRoot: root,
+      ledgerPath,
+      asOf: "2026-10-10T00:00:00Z",
+      gate: "structural",
+    });
+    const authIssues = result.issues.filter((i) => i.record_id === "AUTH-801");
+    assert.equal(authIssues.length, 0, `Unexpected issues on AUTH-801: ${JSON.stringify(authIssues)}`);
+
+    // CLI verification with bounded child timeout
+    const run = spawnSync(process.execPath, [
+      VALIDATOR_CLI, ledgerPath, "--authority-root", root, "--as-of", "2026-10-10T00:00:00Z", "--gate", "structural",
+    ], { encoding: "utf8", timeout: 10000 });
+
+    assert.equal(run.status, 0, run.stderr);
+    const envelope = JSON.parse(run.stdout);
+    assert.equal(envelope.tool, "product-evidence-validator");
+    assert.equal(envelope.valid, true);
+    const cliAuthIssues = envelope.issues.filter((i) => i.record_id === "AUTH-801");
+    assert.equal(cliAuthIssues.length, 0);
+  } finally {
+    cleanupTempRoot(root);
+  }
+});
+
+test("Regression S4: Large CLI stdout (>8192 bytes) drains completely to piped consumer without truncation", () => {
+  const { root, ledgerPath, ledger } = createResidualClosureFixture();
+  try {
+    const largeLedger = JSON.parse(JSON.stringify(ledger));
+    for (let i = 0; i < 70; i++) {
+      largeLedger.records.push({
+        id: `CLM-8${String(i).padStart(3, "0")}`,
+        kind: "CLM",
+        revision: "r1",
+        owner: "Owner",
+        scope: ledger.records[0].scope,
+        freshness: ledger.records[0].freshness,
+        depends_on: [],
+        data: {
+          statement: "Statement",
+          rationale: "Rationale",
+          uncertainty: "Uncertainty",
+          classification: "confirmed",
+          status: "supported",
+          sources: [{ id: `SRC-NONEXISTENT-${i}`, revision: "r1" }],
+          counterevidence: [],
+          critical: false,
+        },
+      });
+    }
+    fs.writeFileSync(ledgerPath, JSON.stringify(largeLedger, null, 2));
+
+    const run = spawnSync(process.execPath, [
+      VALIDATOR_CLI, ledgerPath, "--authority-root", root, "--as-of", "2026-10-10T00:00:00Z", "--gate", "structural",
+    ], { encoding: "utf8", timeout: 10000 });
+
+    assert.ok(run.stdout.length > 8192, `Expected stdout > 8192 bytes, received ${run.stdout.length}`);
+    let parsed;
+    assert.doesNotThrow(() => {
+      parsed = JSON.parse(run.stdout);
+    }, "stdout must be complete and valid JSON without pipe truncation");
+    assert.equal(parsed.tool, "product-evidence-validator");
+    assert.equal(parsed.schema_version, 1);
+    assert.equal(run.status, 1, run.stderr);
+  } finally {
+    cleanupTempRoot(root);
+  }
+});
+
+test("Regression EntryGuard: Importing validator module with arbitrary or nonexistent argv[1] does not throw", () => {
+  const runNonexistentArgv = spawnSync(process.execPath, [
+    "-e",
+    `import(${JSON.stringify(pathToFileURL(VALIDATOR_CLI).href)}).then(() => process.stdout.write("SAFE_IMPORT\\n"));`,
+    "nonexistent-arbitrary-file.js",
+  ], { encoding: "utf8", timeout: 10000 });
+
+  assert.equal(runNonexistentArgv.status, 0, runNonexistentArgv.stderr);
+  assert.equal(runNonexistentArgv.stdout, "SAFE_IMPORT\n");
+  assert.equal(runNonexistentArgv.stderr, "");
+
+  const runEvalArgv = spawnSync(process.execPath, [
+    "-e",
+    `import(${JSON.stringify(pathToFileURL(VALIDATOR_CLI).href)}).then(() => process.stdout.write("SAFE_EVAL\\n"));`,
+  ], { encoding: "utf8", timeout: 10000 });
+
+  assert.equal(runEvalArgv.status, 0, runEvalArgv.stderr);
+  assert.equal(runEvalArgv.stdout, "SAFE_EVAL\n");
+  assert.equal(runEvalArgv.stderr, "");
+});

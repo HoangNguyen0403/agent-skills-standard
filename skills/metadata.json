@@ -859,9 +859,9 @@
       ],
       "token_metrics": {
         "total_skills": 7,
-        "total_tokens": 9841,
-        "avg_tokens_per_skill": 1406,
-        "largest_skill": "product-metrics (1797 tokens)"
+        "total_tokens": 9759,
+        "avg_tokens_per_skill": 1394,
+        "largest_skill": "product-metrics (1715 tokens)"
       }
     }
   },

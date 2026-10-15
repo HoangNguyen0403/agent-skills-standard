@@ -79,7 +79,7 @@
     {
       "id": 4,
       "prompt": "We are ready to deploy the checkout optimization to production today. We don't have historical baseline telemetry for checkout duration, but the engineering manager says we can just ship now and measure the baseline directly in production next week. Can this pass the release gate?",
-      "expected_output": "Block the release gate. Explain that release readiness strictly requires verified historical baseline evidence (with baseline window ending prior to comparison window start) XOR an explicit recorded baseline exception decision (purpose: release, outcome: risk_accept). Explain that informal verbal waivers or measuring baseline concurrently with treatment in production violates the measurement contract.",
+      "expected_output": "Block the release gate and refuse or reject informal waivers. Explain that release readiness strictly requires baseline XOR recorded exception: verified historical baseline evidence (with baseline window ending prior to comparison window start) XOR an explicit recorded baseline exception decision (purpose: release, outcome: risk_accept). Explain that informal verbal waivers or measuring baseline concurrently with treatment in production violates the measurement contract, and teams cannot bypass this requirement.",
       "assertions": [
         {
           "id": "a1",
@@ -104,7 +104,7 @@
     {
       "id": 5,
       "prompt": "In our pilot rollout, primary metric conversion improved by 3.5%, meeting our target. However, checkout latency degraded from 1.2s to 3.8s and customer cancellation complaints increased by 150%, blowing through our guardrails. The product manager wants to record a value review recommending scaling to 100% rollout immediately. How do we proceed?",
-      "expected_output": "Refuse to recommend scaling. Identify the severe guardrail breach in latency degradation and customer cancellation complaints. Explain that guardrails exist to protect against net-negative outcomes, and positive primary metric movement cannot override guardrail failures. Recommend iterating to fix the regressions or stopping/rolling back the pilot.",
+      "expected_output": "Refuse to scale and reject scaling: teams cannot scale and do not scale when guardrails are breached. Identify the severe guardrail breach in latency degradation and customer cancellation complaints. Explain that guardrails exist to protect against net-negative outcomes, and positive primary metric movement cannot override guardrail failures. Recommend that the team must iterate or stop (rolling back the pilot) until regressions are resolved.",
       "assertions": [
         {
           "id": "a1",
