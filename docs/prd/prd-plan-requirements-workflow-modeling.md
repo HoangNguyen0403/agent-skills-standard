@@ -316,11 +316,18 @@ Each worker returns task ID, profile/session identity, source revision, owned/ch
 
 ## 12. PR delivery disposition
 
-The maintainer requested PR publication rather than further unpublished readiness iterations. Publish the accepted T1–T4 source, generated native projections, evaluation definitions and source documentation as a **draft PR**. This is review visibility for the existing full plan, not a reduction of REQ-006, AC-010/011, T5 or T6.
+The maintainer initially requested draft publication rather than further unpublished readiness iterations, then explicitly requested readiness for human code review. The accepted T1–T4 source, generated native projections, evaluation definitions and source documentation are **ready for source review**. This is review visibility for the existing full plan, not a reduction of REQ-006, AC-010/011, T5 or T6. Review-ready status does not mean merge-ready or plan-complete.
 
 - Source implementation has independent scoped acceptance. Fresh repository tests, build, SDLC audit and alignment checks are recorded in the PR.
 - Native-consumer behavior, the controlled semantic comparison, protected timing/resource controls and final T6 acceptance remain incomplete. The PR must not claim semantic efficacy or readiness to merge.
 - Local `.agent/sdd/` readiness helpers, frozen receipts, machine-specific diagnostics, generated evaluation runs and unrelated learning-log changes are not shipped as product source.
-- P0's newly exposed raw testing-export gate bypass remains an owned local readiness defect; correction must authenticate an opaque synthetic context before filesystem access and never expose the private live core. No real target operation is permitted.
+- P0's raw testing-export gate bypass was corrected locally and independently smoke-verified: unsafe exports are absent, opaque synthetic contexts are required, and eight invalid-context calls produced zero filesystem operations. P0's 24-case and integrated P1's 49-case synthetic suites pass. These ignored helpers are not shipped here, and the results do not establish complete source admission or physical host enforcement.
 - The fixed readiness authorization expiry remains `2026-10-14T11:01:30Z`; source or PR publication does not renew it. Any expired live authorization remains unusable.
 - No merge, release, deployment, paid evaluation allocation or final human acceptance is supplied by opening the PR.
+
+### Human review handoff
+
+- Review the canonical requirement packages and shared modeling reference first, then the five lifecycle workflows, evaluation definitions, generated projections and documentation. T1–T4 have prior scoped independent acceptance; repository CI is an additional deterministic gate, not semantic proof.
+- Confirm preserved low-risk ticket shortcuts, behavior-based ACs, sensitive-change approval floors, ready-only PARTIAL handoffs and on-demand modeling rather than mandatory diagrams.
+- Remaining merge blockers: end-to-end native/reference consumption evidence for AC-010, the approved controlled comparison for REQ-006/AC-011, authentic timing/resource controls and final integrated T6/human acceptance. Existing acceptance targets remain unchanged.
+- No human approval is inferred from an agent report, passing CI, linked trace IDs or changing the PR from draft to ready for review. Do not merge, release or activate consumers while the required acceptance gates remain unresolved.
