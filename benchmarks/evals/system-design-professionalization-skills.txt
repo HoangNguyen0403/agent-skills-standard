@@ -1,0 +1,11 @@
+system-design/system-design-principles
+system-design/system-design-case-catalog
+system-design/system-design-estimation
+system-design/system-design-communication
+system-design/system-design-data-architecture
+system-design/system-design-mobile-client
+system-design/system-design-methodology
+system-design/system-design-interview-coaching
+system-design/system-design-resilience-ops
+system-design/system-design-review
+common/common-architecture-diagramming

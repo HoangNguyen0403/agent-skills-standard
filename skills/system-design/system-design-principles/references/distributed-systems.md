@@ -2,64 +2,22 @@
 
 ## CAP Theorem
 
-> A distributed system can guarantee only **two of three** properties simultaneously:
->
-> - **Consistency (C)**: Every read receives the most recent write or an error.
-> - **Availability (A)**: Every request receives a response (not necessarily the most recent).
-> - **Partition Tolerance (P)**: The system continues operating despite network partitions.
+CAP constrains a distributed data system's choices **when a network partition occurs**. When the network may partition, a distributed read/write object cannot guarantee both linearizability and CAP availability in all executions. Linearizability means each concurrent operation history is equivalent to a legal sequential history that preserves real-time order: if one operation completes before another begins, it must appear first; each read returns the value of the latest preceding write in that order. CAP availability requires every request received by a non-failing node to terminate with a valid result for the requested operation. Refusing or failing a request because the node cannot satisfy that result sacrifices availability; an error response is not availability. Partition tolerance describes operation despite lost communication; it is not an optional product mode for a networked system. Outside a partition, this theorem does not say a system must choose consistency or availability.
 
-Network partitions are inevitable in distributed systems — **P is non-negotiable**. The real trade-off is **C vs A**.
-
-### Decision Tree
-
-```bash
-Is strong consistency required?
-├── YES → CP system (e.g., relational DB, ZooKeeper, etcd)
-│         Accept: returns error during partition rather than stale data
-└── NO  → AP system (e.g., DynamoDB, Cassandra, CouchDB)
-          Accept: may return stale data; resolves via eventual consistency
-```
-
-### Common System Profiles
-
-| System              | Profile | Rationale                            |
-| ------------------- | ------- | ------------------------------------ |
-| Banking ledger      | CP      | Money cannot be double-spent         |
-| Shopping cart       | AP      | Better to show stale cart than error |
-| Session store       | AP      | Availability > consistency for UX    |
-| Config store (etcd) | CP      | All nodes must see same config       |
+Do not label products “CP” or “AP” as a complete design decision, and do not equate CAP availability with an uptime percentage. State which requests may fail, block, or return stale data during a partition, and which consistency guarantee is retained. Gilbert and Lynch formalize the result for atomic/linearizable objects in asynchronous networks and discuss partially synchronous models: [Brewer’s Conjecture and the Feasibility of Consistent, Available, Partition-Tolerant Web Services](https://www.cs.princeton.edu/courses/archive/spr22/cos418/papers/cap.pdf).
 
 ## Eventual Consistency {#eventual-consistency}
 
-Data written to one node will propagate to all nodes — **eventually** (milliseconds to seconds).
+“Eventually” provides no fixed freshness bound by itself. State the freshness or convergence objective, its measurement point, and what clients or operators observe when it is missed. The achievable bound depends on the mechanism and failure conditions; under a prolonged partition, convergence may wait for communication to recover.
 
-**Design rules for eventually consistent systems:**
+Design rules:
 
-1. **Idempotent writes**: Safe to replay the same write multiple times.
-2. **Conflict resolution**: Define a strategy — Last Write Wins (LWW), vector clocks, CRDTs, or application-level merge.
-3. **Read-your-writes**: If a user writes data, they must see their own write. Use sticky sessions or read from the primary for the writer's session.
-4. **Monotonic reads**: A user should never see older data after seeing newer data.
+1. Define replay and conflict behavior for writes; use the [idempotency contract](idempotency-contract.md) where retries can repeat effects.
+2. Choose conflict resolution (for example, last-write-wins, versioning, CRDT merge, or application decision) from the business invariant.
+3. State read-your-writes and monotonic-read needs, and the mechanism or explicit limitation for each.
 
 ## Idempotency {#idempotency}
 
-An idempotent operation: calling it once or N times has the same result.
+Idempotency preserves the intended effect of one business operation when a request is repeated; it does not require every API to return byte-identical responses. Define a stable business-operation identity, parameter matching, concurrent duplicate handling, retention/replay boundary, commit/crash recovery, and API-specific client result. See the [idempotency contract](idempotency-contract.md) for the required scenario ladder and verification.
 
-**HTTP verbs**: `GET`, `PUT`, `DELETE` are idempotent by spec. `POST` is not.
-
-**Pattern — Idempotency Key**:
-
-```bash
-POST /payments
-Idempotency-Key: uuid-v4-client-generated
-
-Server: store (idempotency_key, result) in durable store.
-On duplicate key: return stored result without re-processing.
-```
-
-**Database upserts** are a common idempotency mechanism:
-
-```sql
-INSERT INTO payments (id, amount, status)
-VALUES ($1, $2, 'pending')
-ON CONFLICT (id) DO NOTHING;
-```
+HTTP method semantics and API contracts differ: `GET`, `PUT`, and `DELETE` are idempotent by HTTP semantics; `POST` is not inherently so. An API may provide idempotent `POST` behavior through an explicit contract. Stripe documents API-version-specific response replay, parameter mismatch, concurrent conflicts, and key pruning in its [idempotent requests contract](https://docs.stripe.com/api/idempotent_requests).

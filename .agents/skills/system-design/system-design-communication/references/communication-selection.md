@@ -11,6 +11,12 @@
 | SSE | Client needs to send data too; some corporate proxies buffer | Pair with plain POST for the upstream direction; send periodic heartbeats |
 | Webhook | Receiver is down or slow; duplicate deliveries corrupt state | At-least-once with backoff and jitter, DLQ, signed payloads, idempotency key per event |
 
+
+## Synchronous Dependency Budget
+
+For a user-facing flow, count required dependencies and allocate their work, queueing, network, and caller overhead against one end-to-end deadline. A hop count alone does not determine acceptability: a short bounded chain may protect an immediate invariant, while a single slow or fragile dependency may exceed the budget. State timeouts and failure behavior at each boundary; move work out of the synchronous path only when delayed completion preserves the invariant and the caller contract. Do not add per-hop p95/p99 measurements as if they were the end-to-end percentile; see the [capacity-estimation guidance](../../system-design-estimation/SKILL.md#latency-and-availability-budgets) and [AWS timeout/retry discussion](https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/).
+
+Retries can increase dependency load and tail latency, especially when failures correlate or multiple layers retry independently. Set a bounded retry budget, backoff/jitter, and a single retrying layer where practical; make side-effecting retries safe through an explicit idempotency contract. See [AWS timeouts, retries, and backoff with jitter](https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/).
 ## Hop-by-Hop Guidance
 
 A single user action commonly crosses three different paradigms, and that is correct:
@@ -36,7 +42,6 @@ browser --REST/HTTPS--> edge/API gateway --gRPC--> internal services
 | Client tolerates delay of seconds | Polling with `ETag` / `If-None-Match` |
 
 Polling is not a failure. At low update rates it is cheaper and simpler than any connection-based option; move off it when poll frequency times client count exceeds the push cost.
-
 ## Webhook Contract Checklist
 
 - Signature: HMAC over the raw body with a shared secret, timestamp included to bound replay.

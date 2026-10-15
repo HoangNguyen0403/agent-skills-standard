@@ -1,0 +1,137 @@
+{
+  "skill_name": "system-design-mobile-client",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Two devices edit a travel journal offline; the first reconnects from an older revision and sees a conflicting change. Design the sync behavior.",
+      "expected_output": "Keeps server authority distinct from pending local edits, detects the stale base, preserves or resolves both edits, and verifies no silent loss.",
+      "assertions": [
+        { "type": "contains_any", "value": ["pending", "server-confirmed", "server authority"], "description": "Separates pending state from accepted state" },
+        { "type": "contains_any", "value": ["conflict", "base revision", "merge", "resolve"], "description": "Handles competing edits without silent overwrite" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "The journal owner logs out and requests deletion while a second device is offline with queued edits. What must change before that device reconnects?",
+      "expected_output": "Binds queued work to the prior account, prevents replay or resurrection after logout/deletion, and describes server and local deletion limits honestly.",
+      "assertions": [
+        { "type": "contains_any", "value": ["account-bound", "account", "logout"], "description": "Prevents cross-account queued work" },
+        { "type": "contains_any", "value": ["deletion", "deleted", "resurrect"], "description": "Carries deletion through offline lifecycle" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "A chat send is committed, but the acknowledgment disappears during reconnection. How should the client retry and display the message?",
+      "expected_output": "Reuses stable operation identity, deduplicates the committed effect, uses authoritative conversation order, and distinguishes pending from acknowledged delivery.",
+      "assertions": [
+        { "type": "contains_any", "value": ["same operation ID", "stable operation ID", "client message ID"], "description": "Keeps identity across transport retry" },
+        { "type": "contains_any", "value": ["pending", "acknowledged", "server sequence", "conversation order"], "description": "Shows authority and ordering behavior" }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "The chat service shortens deduplication retention, and uploads can now be interrupted when the app is killed. Revisit retry and attachment behavior.",
+      "expected_output": "Defines retry horizon/reconciliation after dedupe expiry, preserves one message effect, and separates resumable bounded attachment transfer from message commit.",
+      "assertions": [
+        { "type": "contains_any", "value": ["retention", "retry horizon", "reconcile", "expired"], "description": "Adapts to changed deduplication window" },
+        { "type": "contains_any", "value": ["attachment", "resume", "message commit"], "description": "Separates resumable upload from send effect" }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "A transit app must show a current server authorization before it can issue a fare adjustment. What happens when the device has no network?",
+      "expected_output": "Uses online-only authorization, shows unavailable or unknown instead of local success, and avoids queuing a decision that requires current authority.",
+      "assertions": [
+        { "type": "contains_any", "value": ["online-only", "online only", "server decision"], "description": "Requires current authoritative decision" },
+        { "type": "contains_any", "value": ["unavailable", "unknown", "not authorized", "do not queue"], "description": "Does not invent offline acceptance" }
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "The fare service may commit while its response is lost, and the app may be killed before the result appears. How should restart behave?",
+      "expected_output": "Retains a non-sensitive operation reference only when justified, queries or reconciles authoritative status after restart, and does not show success or repeat the effect blindly.",
+      "assertions": [
+        { "type": "contains_any", "value": ["status", "reconcile", "operation reference"], "description": "Resolves the interrupted unknown result" },
+        { "type": "contains_any", "value": ["not show success", "pending", "unknown", "same operation"], "description": "Avoids false confirmation or duplicate effect" }
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "A field-recording app uploads large files in chunks over unstable cellular service. Define safe resume and publication behavior.",
+      "expected_output": "Uses stable chunk identity and integrity checks, finalizes only after server completeness validation, bounds local/device resources, and exposes indeterminate completion.",
+      "assertions": [
+        { "type": "contains_any", "value": ["chunk", "range identity", "checksum"], "description": "Makes repeated chunk transfer safe" },
+        { "type": "contains_any", "value": ["integrity", "complete", "finalize", "bounded"], "description": "Protects published asset and device resources" }
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "The operating system may suspend uploads indefinitely, and the account can be revoked before resume. Update the upload contract.",
+      "expected_output": "Treats background scheduling as best effort, reauthorizes the account before resume, and cancels/expires or deletes material copies according to the lifecycle contract.",
+      "assertions": [
+        { "type": "contains_any", "value": ["best effort", "suspended", "background"], "description": "Does not promise exact background completion" },
+        { "type": "contains_any", "value": ["reauthorize", "revoked", "account", "delete"], "description": "Applies account and deletion lifecycle" }
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Design a reusable client library for concurrent transfers. Specify its public result, cancellation race, and host responsibilities.",
+      "expected_output": "Defines typed accepted/completed/cancelled/failed or indeterminate outcomes, cancellation cleanup and remote uncertainty, concurrency ownership, and host-versus-library duties.",
+      "assertions": [
+        { "type": "contains_any", "value": ["cancelled", "cancellation", "indeterminate", "unknown"], "description": "Distinguishes cancellation from remote rollback" },
+        { "type": "contains_any", "value": ["host", "concurrency", "thread", "callback"], "description": "Makes ownership and host contract explicit" }
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "A new SDK release changes a serialized field and raises its minimum host runtime. Which compatibility guarantees and migration steps should be documented?",
+      "expected_output": "States supported host/runtime versions, semantic compatibility/deprecation window, wire/serialized-data behavior, and a migration path before removing a supported contract.",
+      "assertions": [
+        { "type": "contains_any", "value": ["compatibility", "supported version", "deprecation"], "description": "Documents supported contract and transition" },
+        { "type": "contains_any", "value": ["migration", "serialized", "wire", "host runtime"], "description": "Covers stored and host-facing compatibility" }
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "A library can enqueue unlimited requests while the host is offline. Set resource and caller-visible failure behavior without choosing a framework.",
+      "expected_output": "Bounds in-flight work, buffers, retries, and storage; defines backpressure or rejection; distinguishes retryable, permanent, cancelled, and indeterminate results where relevant.",
+      "assertions": [
+        { "type": "contains_any", "value": ["bounded", "limit", "backpressure", "reject"], "description": "Prevents unbounded client resource growth" },
+        { "type": "contains_any", "value": ["retryable", "permanent", "indeterminate", "typed"], "description": "Returns actionable failure semantics" }
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "A host closes the library while a callback and a remote write are racing. Define cleanup, callback affinity, and what the caller can safely infer.",
+      "expected_output": "Assigns execution/callback ownership, defines close and cancellation cleanup, and reports unknown remote outcome rather than claiming cancellation rolled back a committed effect.",
+      "assertions": [
+        { "type": "contains_any", "value": ["callback", "thread", "execution context", "actor"], "description": "Specifies callback/concurrency contract" },
+        { "type": "contains_any", "value": ["unknown", "indeterminate", "remote outcome", "cleanup"], "description": "Handles close race without false rollback claim" }
+      ]
+    }
+  ],
+  "should_trigger": [
+    "Design an offline-first mobile note synchronization system.",
+    "What should a client show while a server write is pending?",
+    "How do we stop queued work replaying after account logout?",
+    "Design reliable message sending across reconnects.",
+    "Should this authorization work while the device is offline?",
+    "How should a mobile upload resume after process death?",
+    "What happens to local records after remote deletion?",
+    "Define cancellation and concurrency behavior for our SDK.",
+    "How should a client library version its public data contract?",
+    "Bound the SDK's offline queue and failure results."
+  ],
+  "should_not_trigger": [
+    "Write a React Native screen that lists downloaded files.",
+    "Fix this Swift compiler error.",
+    "Implement an Android WorkManager worker in Kotlin.",
+    "Add a Flutter button and navigation route.",
+    "Choose a backend sharding key for a server-only database.",
+    "Convert this callback to async syntax without changing its contract.",
+    "Format the iOS project and update dependencies.",
+    "Write a unit test for this UI component.",
+    "How do I use a collection view cell?",
+    "Add a CSS breakpoint for a responsive page."
+  ]
+}

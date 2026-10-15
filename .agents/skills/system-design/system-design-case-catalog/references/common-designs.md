@@ -63,3 +63,9 @@ Each sketch: defining constraint, minimal component set, and the trade-off that 
 - Constraint: query latency over a derived view that must be rebuildable from the owning store.
 - Components: owning store, CDC or event stream, indexer, index cluster, query service, result cache.
 - Trade-offs: index freshness versus indexing cost; always keep the rebuild path tested, because the index will need to be rebuilt after a mapping change or a bug.
+
+## Payment Ledger
+
+- Constraint: preserve one intended ledger effect for a business operation despite lost responses, retries, or partial failure.
+- Components: ledger owner arbitrates operation identity atomically at the effect owner and either commits its operation record and local ledger effect in one consistency boundary, or uses a durable recovery protocol that detects a prior effect by operation ID; processor attempt and reconciliation records handle effects outside that boundary.
+- Trade-offs: an idempotency key identifies the business operation across transport attempts, not each attempt. Parameter conflicts and concurrent duplicates have explicit outcomes. A crash after the effect but before a completion marker must recover by finding the existing effect and completing the operation without reapplying it. Unknown processor outcomes must be reconciled before retry; do not claim distributed “exactly once.” Follow the [idempotency contract](../../system-design-principles/references/idempotency-contract.md) and API-specific response semantics.

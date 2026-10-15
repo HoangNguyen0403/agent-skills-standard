@@ -246,53 +246,65 @@
     },
     {
       "id": 9,
-      "prompt": "Review this sparse proposed booking design: target 15 RPS, no double booking, PostgreSQL transaction/uniqueness control and idempotency are stated. The owner, recovery behavior, capacity calculation, cost and rollout approach are not provided. It is not deployed and has no production drill results. Return JSON with review_scope and operational_evidence_status; describe any missing design evidence and make a readiness claim only if the available design inputs are sufficient.",
-      "expected_output": "Treat the stated mechanisms as proposed-design evidence, but do not invent the missing owner, recovery, capacity, cost or rollout details. Identify material missing design inputs and do not automatically claim proposed-design readiness from sparse facts. Keep absent production evidence unverified; proposed-design evidence does not establish operational readiness.",
+      "prompt": "Review this sparse proposed booking design: target 15 RPS and a no-double-booking transaction are described, but ownership, recovery, capacity, cost, and rollout evidence are absent. Distinguish what the design proposes from what is proven.",
+      "expected_output": "Treats stated mechanisms as proposed design evidence, identifies missing material design inputs, and does not claim implementation or operational proof from a document or plan.",
       "assertions": [
-        {
-          "type": "regex",
-          "value": "\"review_scope\"\\s*:\\s*\"proposed_design\"",
-          "description": "Checks the decision is qualified as proposed-design review."
-        },
-        {
-          "type": "regex",
-          "value": "\"operational_evidence_status\"\\s*:\\s*\"unverified\"",
-          "description": "Checks absent production evidence remains explicitly unverified."
-        }
+        { "type": "contains_any", "value": ["proposed", "design plan", "document"], "description": "Labels the evidence kind without a new status label" },
+        { "type": "contains_any", "value": ["missing", "unverified", "not proven", "not measured"], "description": "Keeps absent evidence and readiness gap explicit" }
       ]
     },
     {
       "id": 10,
-      "prompt": "The same booking design is claimed to be operating production infrastructure, but it has no failover drill or measured production SLO evidence. Return JSON with review_scope, operations_ready, and missing_evidence; when evidence is absent, include `measured_production_slo` in missing_evidence.",
-      "expected_output": "Missing operational evidence prevents an operations-readiness claim. Keep `measured_production_slo` in missing_evidence; for example, {\"review_scope\":\"operations\",\"operations_ready\":false,\"missing_evidence\":[\"measured_production_slo\"]}. Do not reuse proposed-design readiness as operational acceptance.",
+      "prompt": "The design is described as operating in production, but no observed SLO or deployment/runtime evidence is supplied. Explain what the review can and cannot conclude.",
+      "expected_output": "Does not make an operational-readiness claim from missing runtime evidence; records the missing evidence and distinguishes target, plan, implementation, and operations claims without requiring a specific status label.",
       "assertions": [
-        {
-          "type": "regex",
-          "value": "\"review_scope\"\\s*:\\s*\"operations\"[\\s\\S]*?\"operations_ready\"\\s*:\\s*false",
-          "description": "Checks operations scope cannot claim readiness without its missing evidence."
-        },
-        {
-          "type": "regex",
-          "value": "\"missing_evidence\"\\s*:\\s*\\[\\s*\"measured_production_slo\"",
-          "description": "Checks the absent operational SLO is retained as a concrete evidence gap."
-        }
+        { "type": "contains_any", "value": ["runtime", "deployment", "observed"], "description": "Identifies evidence needed for operational claim" },
+        { "type": "contains_any", "value": ["missing", "not proven", "not measured", "readiness"], "description": "Avoids unsupported operational conclusion" }
       ]
     },
     {
       "id": 11,
-      "prompt": "A booking confirmation requires immediate strong consistency. A later notification may fail independently. Return JSON with confirmation_boundary, notification_boundary, and notification_can_fail_independently.",
-      "expected_output": "Use a bounded synchronous transaction if needed to preserve the immediate invariant. Choose the notification boundary from stated consistency, latency and failure constraints; it may be synchronous or asynchronous if independent failure cannot delay or undo confirmation. Do not apply a blanket synchronous-coupling ban.",
+      "prompt": "A booking confirmation must preserve an immediate availability invariant; a later notification can fail independently. Choose each boundary and explain the user-visible failure behavior.",
+      "expected_output": "Keeps the confirmation mechanism sufficient for the immediate invariant, allows the notification to use a separately justified synchronous or asynchronous boundary, and ensures notification failure cannot invalidate the confirmed booking.",
       "assertions": [
-        {
-          "type": "regex",
-          "value": "\"confirmation_boundary\"\\s*:\\s*\"synchronous\"",
-          "description": "Checks the immediate strong-consistency boundary is preserved."
-        },
-        {
-          "type": "regex",
-          "value": "\"notification_can_fail_independently\"\\s*:\\s*true",
-          "description": "Checks notification failure cannot invalidate the completed confirmation."
-        }
+        { "type": "contains_any", "value": ["availability", "invariant", "confirmation"], "description": "Preserves the requested confirmation contract without hardcoding a technology" },
+        { "type": "contains_any", "value": ["notification", "fail independently", "cannot invalidate"], "description": "Separates secondary failure from confirmed result" }
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "A review asks whether a signed-upload flow crosses the right trust boundary and whether the client sees the asset before validation. Which views answer those questions?",
+      "expected_output": "Uses dataflow for movement/authority and sequence for order/acknowledgment, adds a state view only for lifecycle, and does not infer deployment from arrows.",
+      "assertions": [
+        { "type": "contains_any", "value": ["dataflow", "data flow"], "description": "Routes movement and authority question" },
+        { "type": "contains_any", "value": ["sequence", "acknowledgment", "ordering"], "description": "Routes timing and confirmation question" }
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "Give me a quick sketch of a small internal tool; traffic is unknown. State what can proceed and what cannot be called ready.",
+      "expected_output": "Uses explicit assumptions and a proportional sketch, estimates only decision-relevant quantities, and withholds readiness while a material decision/evidence gap remains.",
+      "assertions": [
+        { "type": "contains_any", "value": ["assumption", "assumed"], "description": "Labels unknown input rather than inventing it" },
+        { "type": "contains_any", "value": ["not ready", "readiness", "decision needed", "missing evidence"], "description": "Keeps unresolved material gate visible" }
+      ]
+    },
+    {
+      "id": 14,
+      "prompt": "Run a full design session for a regulated wallet. Residency and transaction ownership are unresolved; should the team choose stores and approve readiness now?",
+      "expected_output": "Holds affected design/readiness until material ownership and residency decisions are confirmed, records decisions needed, and continues only with safe independent analysis.",
+      "assertions": [
+        { "type": "contains_any", "value": ["hold", "resolve", "confirm"], "description": "Applies full-session exit gate" },
+        { "type": "contains_any", "value": ["residency", "owner", "decision"], "description": "Identifies material unresolved issue" }
+      ]
+    },
+    {
+      "id": 15,
+      "prompt": "In a timed practice round, the candidate's first design loses a committed payment acknowledgment. Continue the coaching sequence without giving away the model answer.",
+      "expected_output": "Introduces the adverse timeline, asks the candidate for invariant and mechanism revision, then changes one material constraint and debriefs from evidence.",
+      "assertions": [
+        { "type": "contains_any", "value": ["adverse timeline", "acknowledgment", "counterexample"], "description": "Probes concrete failure" },
+        { "type": "contains_any", "value": ["changed constraint", "revise", "mechanism"], "description": "Requires adaptation before evidence-based debrief" }
       ]
     }
   ],

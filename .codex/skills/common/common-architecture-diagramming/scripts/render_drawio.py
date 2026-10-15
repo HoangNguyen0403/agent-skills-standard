@@ -139,7 +139,7 @@ def _unverified_style(style):
                                              "dashed", "dashPattern", "strokeWidth"))]
     kept += ["fillColor=#FFFFFF", "fontColor=%s" % WARN_TEXT, "strokeColor=%s" % WARN,
              "dashed=1", "dashPattern=6 4", "strokeWidth=2"]
-    return ";".join(kept)
+    return ";".join(kept) + ";"
 
 
 def _footprint(kind):

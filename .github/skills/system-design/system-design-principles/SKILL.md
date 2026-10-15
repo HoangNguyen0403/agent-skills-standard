@@ -56,10 +56,10 @@ See [implementation examples](references/implementation.md) for dependency flow 
 
 ## Distributed Systems
 
-- **CAP**: Trade-off Consistency/Availability/Partition tolerance. See [CAP & Consistency Patterns](references/distributed-systems.md).
-- **Idempotency**: Operations repeatable without side effects. See [Idempotency Patterns](references/distributed-systems.md#idempotency).
+- **CAP**: Apply only to behavior during a network partition in a distributed data system. See [CAP & Consistency Patterns](references/distributed-systems.md); consistency, availability, and partition tolerance are not product labels or uptime percentages.
+- **Idempotency**: Preserve one intended effect for retries of the same business operation. Use the [idempotency contract](references/idempotency-contract.md), not “without side effects” or a fresh key per transport attempt.
 - **Circuit Breaker**: Fail fast on failing services. See [Resilience Patterns](references/resilience-patterns.md).
-- **Eventual Consistency**: Design for async data sync. See [CAP & Consistency Patterns](references/distributed-systems.md#eventual-consistency).
+- **Eventual Consistency**: State a freshness/convergence objective, how it is measured, and behavior when it is missed; do not promise a generic convergence time.
 
 ## Documentation & Evolution
 

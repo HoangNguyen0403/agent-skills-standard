@@ -4,7 +4,7 @@
     {
       "id": 1,
       "prompt": "Review this design doc for our new booking service and tell me if it is ready to build.",
-      "expected_output": "Scores the nine axes with the evidence used, marks any unverifiable claim UNVERIFIED, traces the critical path end to end, and returns a verdict plus a prioritized roadmap.",
+      "expected_output": "Scores the nine axes with cited evidence, marks unsupported claims as unverified or otherwise not established, traces the critical path end to end, and returns a verdict plus a prioritized roadmap.",
       "assertions": [
         {
           "type": "contains_any",
@@ -19,9 +19,11 @@
           "type": "contains_any",
           "value": [
             "No score without evidence",
-            "UNVERIFIED"
+            "unsupported claim",
+            "not verified",
+            "not substantiated"
           ],
-          "description": "Refuses to score intent as evidence"
+          "description": "Refuses to score intent as evidence without requiring an exact status word"
         },
         {
           "type": "contains_any",
@@ -35,63 +37,40 @@
     },
     {
       "id": 2,
-      "prompt": "Our checkout is slow and the team wants to rewrite it in Go with microservices. Thoughts?",
-      "expected_output": "Establishes ground truth first, then traces the hottest and most critical path because the worst hop is the real bottleneck, and prefers the smallest fix that removes the proven bottleneck over a rewrite.",
+      "prompt": "Checkout p95 is 1.2 seconds. Traces from the same period show the pricing call at 800 ms p95 and the database at 100 ms p95. The team proposes a Go/microservices rewrite. What should be investigated or changed first?",
+      "expected_output": "Use the measured path to investigate pricing-call time and confirm it is part of the user-visible 1.2-second checkout path; inspect call timing and failure behavior before choosing a remedy. Recommend a change only when it removes measured delay; these measurements alone do not justify a rewrite.",
       "assertions": [
         {
           "type": "contains_any",
-          "value": [
-            "ground truth",
-            "incident history"
-          ],
-          "description": "Measures before recommending"
+          "value": ["pricing", "800 ms"],
+          "description": "Uses the observed largest span as investigation evidence"
         },
         {
           "type": "contains_any",
-          "value": [
-            "the worst hop is the real bottleneck",
-            "Trace the hottest"
-          ],
-          "description": "Locates the bottleneck on the critical path"
+          "value": ["1.2 seconds", "1.2s"],
+          "description": "Keeps the service span tied to the end-to-end result"
         },
         {
           "type": "contains_any",
-          "value": [
-            "No rewrite recommendation by default",
-            "smallest fix"
-          ],
-          "description": "Resists rewrite-by-default"
+          "value": ["not justify a rewrite", "do not rewrite", "rewrite is not justified"],
+          "description": "Does not infer a rewrite from latency evidence alone"
         }
       ]
     },
     {
       "id": 3,
-      "prompt": "It is a small internal admin tool at 100 requests per second. The reviewer failed it for having no multi-region failover.",
-      "expected_output": "Weights the axes by the profile's real risk so a low-traffic internal tool is not failed for lacking multi-region, redirects to the Requirements and Rollout axes that matter for this profile, and ranks findings by user impact and reversibility.",
+      "prompt": "A 40-person internal admin tool serves 100 requests/s and has no stated cross-region recovery objective. Its proposed data migration can irreversibly lose existing records and has no tested rollback. Which finding should be addressed first?",
+      "expected_output": "Prioritize the migration's untested rollback because it exposes existing records to irreversible loss; establish a recoverable migration/restore path before release. Do not fail the tool solely for lacking multi-region when no cross-region objective is stated.",
       "assertions": [
         {
           "type": "contains_any",
-          "value": [
-            "Weight axes by the system's actual risk",
-            "internal tool is not failed for lacking multi-region"
-          ],
-          "description": "Applies risk-proportionate weighting"
+          "value": ["migration", "rollback"],
+          "description": "Prioritizes the concrete irreversible data-loss risk"
         },
         {
           "type": "contains_any",
-          "value": [
-            "No uniform severity",
-            "user impact and reversibility"
-          ],
-          "description": "Ranks findings by impact, not by checklist order"
-        },
-        {
-          "type": "contains_any",
-          "value": [
-            "Requirements",
-            "Rollout"
-          ],
-          "description": "Redirects to the axes that matter for this profile"
+          "value": ["no stated cross-region", "no cross-region objective", "not required"],
+          "description": "Does not impose an unstated regional recovery requirement"
         }
       ]
     },
@@ -114,53 +93,56 @@
     },
     {
       "id": 5,
-      "prompt": "Review this sparse proposed booking design: target 15 RPS, no double booking, PostgreSQL transaction/uniqueness control and idempotency are stated. The owner, recovery behavior, capacity calculation, cost and rollout approach are not provided. It is not deployed and has no production drill results. Return JSON with review_scope and operational_evidence_status; describe any missing design evidence and make a readiness claim only if the available design inputs are sufficient.",
-      "expected_output": "Treat the stated mechanisms as proposed-design evidence, but do not invent missing design inputs or automatically claim proposed-design readiness from sparse facts. Keep absent production evidence unverified; proposed-design evidence does not establish operational readiness.",
+      "prompt": "A booking proposal states its no-double-booking mechanism and 15 RPS target, but omits owner, capacity, cost, rollout and recovery detail. It is not deployed. Evaluate what conclusion the available evidence supports.",
+      "expected_output": "Treats the mechanism as proposed design evidence, identifies missing material design inputs, and avoids claiming deployment or operational readiness from documentation.",
       "assertions": [
-        {
-          "type": "regex",
-          "value": "\"review_scope\"\\s*:\\s*\"proposed_design\"",
-          "description": "Checks the decision is qualified as proposed-design review."
-        },
-        {
-          "type": "regex",
-          "value": "\"operational_evidence_status\"\\s*:\\s*\"unverified\"",
-          "description": "Checks absent production evidence remains explicitly unverified."
-        }
+        { "type": "contains_any", "value": ["proposed", "design", "document"], "description": "Keeps source evidence category explicit" },
+        { "type": "contains_any", "value": ["missing", "unverified", "not proven", "not measured"], "description": "Surfaces evidence gap without pinning a status label" }
       ]
     },
     {
       "id": 6,
-      "prompt": "The same booking design is claimed to be operating production infrastructure, but it has no failover drill or measured production SLO evidence. Return JSON with review_scope, operations_ready, and missing_evidence; when evidence is absent, include `measured_production_slo` in missing_evidence.",
-      "expected_output": "Missing operational evidence prevents an operations-readiness claim. Keep `measured_production_slo` in missing_evidence; for example, {\"review_scope\":\"operations\",\"operations_ready\":false,\"missing_evidence\":[\"measured_production_slo\"]}. Do not recycle proposed-design readiness into operational acceptance.",
+      "prompt": "A team says its booking service has measured recovery, but provides neither a dated drill result nor observed journey SLO data. What does this support?",
+      "expected_output": "Does not support the claimed recovery or operations conclusion without corresponding measured evidence; identifies the relevant gap and distinguishes it from a proposed recovery plan.",
       "assertions": [
-        {
-          "type": "regex",
-          "value": "\"review_scope\"\\s*:\\s*\"operations\"[\\s\\S]*?\"operations_ready\"\\s*:\\s*false",
-          "description": "Checks absent production evidence withholds operations readiness."
-        },
-        {
-          "type": "regex",
-          "value": "\"missing_evidence\"\\s*:\\s*\\[\\s*\"measured_production_slo\"",
-          "description": "Checks the missing production SLO remains a concrete evidence gap."
-        }
+        { "type": "contains_any", "value": ["dated", "drill", "observed", "measured"], "description": "Names relevant evidence needed for operations claim" },
+        { "type": "contains_any", "value": ["not support", "missing", "unverified", "not measured"], "description": "Rejects unsubstantiated operations claim" }
       ]
     },
     {
       "id": 7,
-      "prompt": "A booking confirmation needs immediate strong consistency; a later notification may fail independently. Return JSON with confirmation_boundary, notification_boundary, and notification_can_fail_independently.",
-      "expected_output": "A bounded synchronous transaction may preserve the immediate invariant. Choose a notification boundary from the stated consistency, latency and failure constraints; synchronous or asynchronous handling is valid if an independent notification failure cannot undo or delay confirmation.",
+      "prompt": "A reservation must not confirm two customers for the same seat; sending a receipt can fail independently. Choose mechanisms and explain the boundary.",
+      "expected_output": "Requires an authoritative mechanism that preserves unique reservation, permits a separately justified notification path, and ensures notification failure cannot undo a confirmed booking.",
       "assertions": [
-        {
-          "type": "regex",
-          "value": "\"confirmation_boundary\"\\s*:\\s*\"synchronous\"",
-          "description": "Checks the immediate strong-consistency boundary is preserved."
-        },
-        {
-          "type": "regex",
-          "value": "\"notification_can_fail_independently\"\\s*:\\s*true",
-          "description": "Checks notification failure cannot invalidate the completed confirmation."
-        }
+        { "type": "contains_any", "value": ["reservation", "unique", "invariant"], "description": "Preserves the immediate business invariant" },
+        { "type": "contains_any", "value": ["notification", "receipt", "independently", "cannot undo"], "description": "Separates secondary failure from confirmation" }
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "The nine-axis score is high, but one query path exposes a different tenant's records. Is the design sound?",
+      "expected_output": "Reports tenant isolation as a non-compensable flow gate that blocks a sound/readiness verdict despite aggregate score, with evidence, consequence, owner, and smallest fix.",
+      "assertions": [
+        { "type": "contains_any", "value": ["tenant", "isolation"], "description": "Identifies material trust-boundary failure" },
+        { "type": "contains_any", "value": ["blocks", "block", "regardless", "non-compensable"], "description": "Does not compensate hard gate with score" }
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Review a stateless image-resizing endpoint that meets its stated workload and has no persistence or recovery objective. Is a queue, database, and restore drill required?",
+      "expected_output": "Allows a concise justified stateless/no-infrastructure design, does not require storage, queue, or unrelated drill, and scores only applicable axes with scoped N/A rationale.",
+      "assertions": [
+        { "type": "contains_any", "value": ["stateless", "no store", "no database"], "description": "Accepts justified null infrastructure" },
+        { "type": "contains_any", "value": ["not required", "not necessary", "N/A", "out of scope"], "description": "Keeps assessment scope-qualified" }
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "The design document proposes a recovery process and claims production recovery was measured, but provides no runtime or deployment evidence. Review the claim.",
+      "expected_output": "Separates proposed plan/documentation from implementation and observed operations evidence, marks the unsupported claim as unverified, and does not claim operational readiness.",
+      "assertions": [
+        { "type": "contains_any", "value": ["document", "plan", "proposed"], "description": "Recognizes documentary evidence scope" },
+        { "type": "contains_any", "value": ["unverified", "not measured", "not operational"], "description": "Rejects unsupported operations claim" }
       ]
     }
   ],

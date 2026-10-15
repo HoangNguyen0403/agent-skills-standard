@@ -33,11 +33,44 @@ timeouts and shedding for the slow case first.
 
 ## Disaster Recovery
 
-- Define per data class: RPO (acceptable data loss window) and RTO (acceptable time to restore).
-- Backups: automated, encrypted, stored in a separate account or region, with retention matched to compliance.
-- Restore drills: scheduled, timed, and recorded. Track measured restore time against RTO as a metric.
-- Runbook contents: detection signal, decision owner, promotion steps, DNS/traffic switch, data reconciliation, and the rollback path if the failover itself fails.
-- Document the dependency order for recovery; a service that starts before its store simply crash-loops.
+- Define RPO (acceptable data loss) and RTO (acceptable time to restore) only for data and journeys whose loss or downtime matters to the declared scope.
+- Specify automated, encrypted backups and separate-account/region storage when backup/restore is the selected recovery path; match retention to applicable compliance requirements.
+- For a proposed design, record in-scope recovery targets, mechanism, assumptions, and planned restore/failover drill. For implementation, verify the mechanism; for an operations claim of material recovery, record a dated drill and measured result against the target. No drill is required for a justified out-of-scope stateless-recovery `N/A`.
+- Runbooks for an in-scope failover identify the detection signal, decision owner, promotion steps, traffic switch, data reconciliation, and rollback if failover fails.
+- Document recovery dependency order when it affects restoration; avoid prescriptive recovery steps for components outside the declared scope.
+
+## Journey SLOs and Critical-Flow Evidence
+
+Define objectives for a user-visible journey, not an isolated retry attempt or infrastructure metric. For each material SLO, record:
+
+| Field | Required meaning |
+| --- | --- |
+| Journey and indicator | Named user operation and the success/failure or latency condition visible to that user |
+| Basis and population | Request-based or time-based; identify eligible unique business operations or eligible time intervals |
+| Numerator / denominator | Count successful operations over eligible operations; for time objectives use summed good eligible duration / summed eligible duration, or unweighted counts of fixed-duration intervals only |
+| Window and target | Rolling or calendar window and objective; label target, estimate, or measurement with its source |
+| Exclusions | Explicit, bounded exclusions; do not exclude pending, failed, or degraded outcomes merely because they are inconvenient |
+| Pending / degraded | Pending is not success until the promised completion condition occurs; degraded counts as success only if it satisfies the journey contract without violating an invariant |
+| Owner and action | Accountable owner, alert/burn response, and the action when the error budget is consumed or burning too quickly |
+
+For a request-based SLO, define the denominator as eligible unique business operations entering the declared boundary during the window, and the numerator as those meeting the user-visible condition within its deadline. For a time-based SLO, use summed good eligible duration over summed eligible duration, or fixed-duration interval counts only. State eligibility and bounded exclusions before measurement; retries never add denominator entries or numerator successes. With target fraction `t`, the request error budget is at most `denominator × (1 - t)` bad operations; the time error budget is `eligible duration × (1 - t)` bad duration. State the burn/consumption trigger and owner action (for example, pause risky non-emergency rollout and prioritize reliability work); choose thresholds for the declared service, not as a universal constant.
+
+For asynchronous work, count one user operation, not each retry or worker attempt. Completion within the promised journey deadline may satisfy the objective; a timeout, terminal failure, or unresolved outcome does not. A later background completion changes the result only if it meets the declared completion condition and deadline. State separately whether a retry returns current status, resumes the same operation, or reports an unknown outcome.
+
+For each critical flow, assess only material concerns: durable acknowledgment and authoritative state; freshness/convergence at the consumer; ordering, deduplication, and bounded retry; backlog size/age, drain capacity, and backpressure; retention/deletion of derived copies; and recovery after loss or corruption. Link each concern to the flow invariant, adverse timeline, owner, and observable verification. A justified out-of-scope `N/A` names the scope/risk reason; it is not evidence that a material concern is safe.
+
+Describe target, plan, implementation, and operations as prose claim categories, not schema values, evidence kinds, or confidence levels. For source citations, preserve `evidence_kind: code|document|runtime|deployment` and its applicable `evidence_confidence: unverified|assumed|documented|observed`; metrics separately label target, estimated, or measured provenance.
+
+| Prose claim category | Typical supporting evidence |
+| --- | --- |
+| Target | Declared objective, such as freshness, RPO, RTO, or completion deadline; not a measured result |
+| Plan | Proposed mechanism, assumptions, and planned validation, cited as documentation where applicable |
+| Implementation | Evidence the mechanism exists and enforces the contract, with its source kind/confidence stated |
+| Operations claim | Observed telemetry, backlog/freshness results, and a dated timed recovery drill only when material recovery is claimed and in scope |
+
+A proposed design may state in-scope recovery targets and planned validation. Do not claim an implemented mechanism from a plan, or measured recovery from an unrun drill. Require RPO/RTO and timed drill evidence only for an in-scope recovery/restore claim; a stateless flow may record `N/A` with its scope/risk reason.
+
+For time-based SLOs, define the numerator as the sum of good eligible time and the denominator as the sum of all eligible time in the window. Alternatively, count good versus total intervals only when every interval has the same fixed duration. Do not give unequal intervals equal weight. Calculate time error budget as `eligible duration × (1 - target fraction)` using the same duration unit as the SLO window.
 
 ## Observability Baseline
 

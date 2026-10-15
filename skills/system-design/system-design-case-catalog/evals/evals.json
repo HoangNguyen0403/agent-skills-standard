@@ -65,32 +65,191 @@
     },
     {
       "id": 3,
-      "prompt": "Our internal audit tool needs a feed of recent events. Can we just copy the Twitter feed design?",
-      "expected_output": "Maps the problem to the nearest catalog shape, must state where the analogy breaks, treats the catalog answer as a starting hypothesis rather than an interview answer as a build plan, and requires re-deriving capacity for this system.",
+      "prompt": "An internal audit feed serves 300 staff and receives about 30 events/s. It has no follower graph or celebrity-account skew. Can we copy the Twitter feed design?",
+      "expected_output": "Reuse the feed problem shape only where it fits: the Twitter design's follower fan-out and celebrity skew do not describe this audit feed. Use the stated 30 events/s as an input, ask for retention and reader/update patterns before sizing storage or delivery, and treat the catalog sketch as a starting hypothesis rather than a production plan.",
       "assertions": [
-        {
-          "type": "contains_any",
-          "value": [
-            "nearest catalog shape",
-            "The shape transfers, the sizing never does"
-          ],
-          "description": "Reuses shape, not sizing"
-        },
-        {
-          "type": "contains_any",
-          "value": [
-            "State where the analogy breaks"
-          ],
-          "description": "Names the limits of the analogy"
-        },
-        {
-          "type": "contains_any",
-          "value": [
-            "starting hypothesis",
-            "No interview answer as a build plan"
-          ],
-          "description": "Distinguishes catalog answer from production plan"
-        }
+        { "type": "contains_any", "value": ["no follower graph", "no celebrity-account skew", "does not have celebrity skew"], "description": "Uses the stated difference from the Twitter workload" },
+        { "type": "contains_any", "value": ["30 events/s", "30 events per second"], "description": "Bases sizing on this feed's stated arrival rate" }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Synthetic checkout exercise: 50k attempts/minute at peak, 99.95% capture-effect objective, p99 response 500 ms; the provider may commit before a timeout. Design the smallest safe payment path.",
+      "expected_output": "Uses one stable business-operation identity and payload match, explicit operation/ledger ownership, deduplicated webhook or reconciliation, and pending/queryable status after an unknown processor outcome; verifies one capture and ledger effect.",
+      "assertions": [
+        { "type": "contains_any", "value": ["stable operation", "business-operation identity", "same operation ID"], "description": "Ties retry to one business intent" },
+        { "type": "contains_any", "value": ["pending", "reconcile", "one ledger effect"], "description": "Defines unknown-result recovery" }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Payment variant: assume 50k attempts/minute, a 99.95% capture-effect objective, and 500 ms p99 response; the invariant is one capture and one ledger effect per business operation. The processor may capture funds before a timeout response is lost, leaving the outcome unknown. The processor offers no idempotency and peak rises to 500k attempts/minute. Re-evaluate retry safety and the guarantee you can make.",
+      "expected_output": "Prohibits blind automatic capture retry, polls/reconciles provider outcome before another effect, and limits the guarantee to the locally controlled effect rather than claiming processor exactly-once.",
+      "assertions": [
+        { "type": "contains_any", "value": ["blind", "reconcile", "poll"], "description": "Changes retry behavior for missing provider dedupe" },
+        { "type": "contains_any", "value": ["local", "processor", "guarantee"], "description": "States the boundary of the guarantee" }
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Synthetic flash-sale exercise: one SKU receives 20k reservation requests/s, reserve p99 is 200 ms, and payment can take 30 seconds. Preserve inventory correctness with a minimal design.",
+      "expected_output": "Uses atomic conditional reservation with an owner and expiry/version, keeps payment outside the scarce inventory transaction, and reconciles expiry-versus-payment race so inventory never goes negative or fulfills twice.",
+      "assertions": [
+        { "type": "contains_any", "value": ["atomic", "conditional decrement", "reservation"], "description": "Protects inventory invariant under contention" },
+        { "type": "contains_any", "value": ["expiry", "version", "refund", "reconcile"], "description": "Recovers the payment/expiry race" }
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Flash-sale variant: one SKU receives 20k reservation requests/s with 200 ms reserve p99; payment may take 30 seconds. Inventory must never go negative and an order may consume at most one reservation. Now payment p99 is 90 seconds and peak reaches 200k requests/s. Re-derive the reservation and recovery decisions.",
+      "expected_output": "Retains a single inventory authority, adjusts lease/expiry and hot-SKU isolation only for the changed constraint, and bounds reconciliation of late payment without a global lock or unbudgeted queue.",
+      "assertions": [
+        { "type": "contains_any", "value": ["90 seconds", "lease", "expiry"], "description": "Adapts the reservation window to longer payment" },
+        { "type": "contains_any", "value": ["hot-SKU isolation", "single inventory authority"], "description": "Addresses changed burst at the invariant owner" }
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Synthetic multi-tenant SaaS exercise: 500 tenants, 2k requests/s, three tenants produce 80% of traffic, and records are confidential. Design tenant isolation and recovery.",
+      "expected_output": "Derives tenant scope from authenticated identity, enforces scope in data/cache/jobs, scopes quotas/deletion, and contains a leak without affecting unaffected tenants.",
+      "assertions": [
+        { "type": "contains_any", "value": ["authenticated", "tenant scope", "tenant ID"], "description": "Propagates tenant identity to data access" },
+        { "type": "contains_any", "value": ["cache", "queued job", "quota", "unaffected"], "description": "Covers derived copies and containment" }
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Tenant variant: a 500-tenant service handles 2k requests/s, with three tenants generating 80% of traffic; confidential records remain scoped to their authenticated tenant and deletion must stay tenant-scoped. One regulated tenant now requires residency and a dedicated encryption key. Change placement without changing that isolation contract.",
+      "expected_output": "Moves that tenant to an explicit region/cell and key boundary, retains scoped authorization and recovery, and states the added operational cost rather than isolating every tenant by default.",
+      "assertions": [
+        { "type": "contains_any", "value": ["region", "cell", "residency"], "description": "Adapts physical boundary to regulation" },
+        { "type": "contains_any", "value": ["key", "tenant", "cost"], "description": "Preserves scoped contract and prices duplication" }
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "Synthetic hot-product exercise: 5k reads/s, origin safely serves 300/s, and data must be no more than 60 seconds stale. Design cache behavior for concurrent misses and writes.",
+      "expected_output": "Optimizes origin first, bounds one fill per hot key and total origin concurrency, versions invalidation so stale refill cannot overwrite newer state, and returns degraded behavior past freshness limit.",
+      "assertions": [
+        { "type": "contains_any", "value": ["60 seconds", "freshness", "stale"], "description": "Keeps cache within declared freshness" },
+        { "type": "contains_any", "value": ["coalesc", "version", "invalidation"], "description": "Prevents stampede and stale overwrite" }
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "Cache variant: baseline is 5k reads/s, origin capacity 300 reads/s, and maximum data age 60 seconds. A slow fill or invalidation must not overwrite a newer write. Origin capacity now falls to 100 reads/s and freshness tightens to five seconds. Revisit concurrent-miss and write behavior, including the outcome if the freshness bound cannot be met.",
+      "expected_output": "Re-derives fill and refresh behavior for both the 100 reads/s origin limit and five-second freshness bound; measures query cost before narrowing the projection, prevents stale refill from replacing newer data, and degrades rather than serving data past the bound.",
+      "assertions": [
+        { "type": "contains_any", "value": ["100 reads/s", "five seconds", "5 seconds"], "description": "Uses both changed origin and freshness constraints" },
+        { "type": "contains_any", "value": ["measure", "projection", "degraded"], "description": "Adapts the mechanism and miss/failure outcome" }
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "Synthetic notification exercise: 100k intents/hour; normal delivery target is 15 minutes. Email fails for 20 minutes while push works. Keep channels independent and state what misses its SLO.",
+      "expected_output": "Persists intent, isolates per-channel workers, bounds retry/DLQ and provider failover by contract, keeps push flowing, and marks expired intents rather than silently redefining the deadline.",
+      "assertions": [
+        { "type": "contains_any", "value": ["channel", "push", "email"], "description": "Contains the failing channel blast radius" },
+        { "type": "contains_any", "value": ["15 minutes", "expired", "retry budget"], "description": "Preserves deadline and recovery state" }
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "Notification variant: baseline is 100k intents/hour, 15-minute delivery target, and a 20-minute email outage while push remains healthy. Channels remain independent and expired intents are not sent as current. A regulated message class cannot be replayed by a second provider. Decide its state and recovery.",
+      "expected_output": "Moves the intent to an auditable human-review/resend decision instead of replaying it, while maintaining separate channel health, age visibility, and bounded retry behavior.",
+      "assertions": [
+        { "type": "regex", "value": "(?<!not\\s+)(?<!never\\s+)(?<!don't\\s+)\\b(prohibit|prohibits|prevent|prevents|forbid|forbids)\\b[^.;!?]{0,20}\\b(replay|resend|fail over)\\b[^.;!?]{0,20}\\b(via|through|to)\\b[^.;!?]{0,10}\\b(a\\s+)?(second|another|backup)\\s+provider\\b|\\b(never|do not|don't)\\s+(replay|resend|fail over)\\s+(via|through|to)\\s+(a\\s+)?(second|another|backup)\\s+provider\\b", "description": "Prevents unapproved provider replay" },
+        { "type": "regex", "value": "\\b(audit|record|log|track)\\s+(the\\s+)?(review|resend|recovery)\\s+(decision|state|action)\\b", "description": "Records an accountable recovery decision" }
+      ]
+    },
+    {
+      "id": 14,
+      "prompt": "Synthetic chat exercise: 50k connections, 5k messages/s, seven-day history, and 300 ms acknowledgment p99. Preserve per-conversation ordering and durable acceptance.",
+      "expected_output": "Uses conversation-owned append with client identity, acknowledges only durable acceptance, resumes via cursors, and bounds offline delivery without global ordering.",
+      "assertions": [
+        { "type": "contains_any", "value": ["conversation", "order"], "description": "Preserves the stated ordering scope" },
+        { "type": "contains_any", "value": ["durable", "cursor", "resume", "client ID"], "description": "Defines acknowledgment and reconnect behavior" }
+      ]
+    },
+    {
+      "id": 15,
+      "prompt": "Chat variant: baseline is 50k concurrent connections, 5k messages/s, seven-day history, and 300 ms acknowledgment p99. Messages are ordered per conversation, acknowledged only after durable acceptance, and retries must not create a second message; expired history requires an explicit resync outcome. Mobile clients now reconnect intermittently and traffic grows tenfold. Re-evaluate resume and partitioning.",
+      "expected_output": "Caps resume windows, applies admission control/backoff, partitions by conversation while retaining per-conversation order, and returns explicit resync-required when history expired.",
+      "assertions": [
+        { "type": "contains_any", "value": ["10x", "tenfold", "intermittent"], "description": "Acknowledges the changed reconnect load" },
+        { "type": "contains_any", "value": ["resync", "cursor", "per-conversation"], "description": "Keeps recovery and ordering contract" }
+      ]
+    },
+    {
+      "id": 16,
+      "prompt": "Synthetic live search migration: 200M source rows, 5k writes/s; cutover requires 99.99% sampled parity and CDC lag below 30 seconds. Explain backfill and rollback.",
+      "expected_output": "Keeps the source authoritative and prevents an older snapshot from overwriting a newer change, using conditional source-version fencing or a phase-separated consistent snapshot followed by ordered, retained change-log replay. Throttles/checkpoints work, gates cutover on parity and lag, and keeps source reads available on rollback.",
+      "assertions": [
+        { "type": "contains_any", "value": ["version", "LSN", "fence", "phase-separated snapshot", "ordered replay"], "description": "Checks stale-write prevention with a correct migration alternative" },
+        { "type": "contains_any", "value": ["99.99", "30 seconds", "parity", "source reads"], "description": "Uses declared cutover and rollback evidence" }
+      ]
+    },
+    {
+      "id": 17,
+      "prompt": "Migration variant: baseline is 200M source rows and 5k writes/s; the source remains authoritative, no committed source write may be lost, and cutover requires 99.99% parity with CDC lag below 30 seconds for 15 minutes. Backfill work now competes at four times the normal write volume. Decide whether to speed up or defer cutover.",
+      "expected_output": "Throttles based on source lag, checkpoints to resume, and defers the read switch whenever the original parity or lag gate cannot be maintained.",
+      "assertions": [
+        { "type": "contains_any", "value": ["4x", "four times", "throttle"], "description": "Adapts migration load control" },
+        { "type": "contains_any", "value": ["defer", "do not switch", "lag", "parity"], "description": "Keeps acceptance gate non-negotiable" }
+      ]
+    },
+    {
+      "id": 18,
+      "prompt": "Synthetic internal counter: 40 staff, 2 requests/s peak, one maintainer, $200/month. Each increment must apply once and remain auditable. What is the smallest design?",
+      "expected_output": "Uses a modular monolith and one relational transaction with a stable operation key/payload check and managed backup; rejects cache, broker, and microservices absent a measured constraint.",
+      "assertions": [
+        { "type": "contains_any", "value": ["transaction", "operation key", "relational"], "description": "Implements the one-effect invariant simply" },
+        { "type": "regex", "value": "(?<!not\\s+)(?<!never\\s+)(?<!don't\\s+)\\b(reject|rejects|omit|omits|avoid|avoids|exclude|excludes|skip|skips|leave out)\\b[^.;!?]{0,20}\\b(cache|broker|microservices|Kafka|Redis|separate services?)\\b", "description": "Excludes unnecessary infrastructure" }
+      ]
+    },
+    {
+      "id": 19,
+      "prompt": "Counter variant: baseline is a 40-staff tool at 2 requests/s peak, one maintainer, and a $200/month budget; every increment must apply once and remain auditable. Usage reaches 100 requests/s, service becomes 24x7, and a second team owns part of the system. What evidence warrants a boundary change?",
+      "expected_output": "Measures the database and operational boundary first, splits only a proven ownership/scaling constraint, and retains the simple transaction until an explicit trigger is met.",
+      "assertions": [
+        { "type": "contains_any", "value": ["100", "24x7", "second team"], "description": "Re-evaluates the changed workload/ownership" },
+        { "type": "contains_any", "value": ["measure", "proven", "trigger"], "description": "Avoids premature service split" }
+      ]
+    },
+    {
+      "id": 20,
+      "prompt": "Synthetic video-publishing exercise: uploads arrive at 100/minute, average 1 GB, with seven-year source retention and a $10k/month budget. Is the tuple viable before selecting a pipeline?",
+      "expected_output": "Calculates about 367.9 million GB (roughly 367.9 PB) before renditions, rejects the infeasible rate/retention/budget tuple, and requires an approved revised envelope before claiming viability.",
+      "assertions": [
+        { "type": "contains_any", "value": ["367.9 PB", "367.9 million GB", "roughly 368 PB"], "description": "Checks the scale-driving storage calculation" },
+        { "type": "contains_any", "value": ["infeasible", "not viable", "re-baseline", "revised envelope"], "description": "Does not present an infeasible topology as solved" }
+      ]
+    },
+    {
+      "id": 21,
+      "prompt": "Video variant: baseline proposal was 100 uploads/minute at 1 GB each with seven-year source retention and a $10k/month budget, an infeasible tuple before renditions. The approved revised envelope is one upload/minute, 30-day hot retention, then archive. A partial rendition must never be published as complete. Define publication and recovery after a rendition worker dies.",
+      "expected_output": "Treats the revised one-upload/minute and 30-day-hot-then-archive envelope as the current proposal but does not claim it is viable without pricing it. Resumes idempotent stages and keeps the asset unpublished until integrity and manifest validation pass; observes queue age and playback objective.",
+      "assertions": [
+        { "type": "contains_any", "value": ["one upload", "30-day", "archive"], "description": "Uses the changed approved capacity envelope" },
+        { "type": "contains_any", "value": ["idempotent", "integrity", "unpublished", "manifest"], "description": "Prevents partial output from becoming publishable" }
+      ]
+    },
+    {
+      "id": 22,
+      "prompt": "Synthetic ride-dispatch exercise: 20k concurrent rides, 1k location updates/s, two-second match p95. A driver accepts but the acknowledgment is lost. How do you recover?",
+      "expected_output": "Keeps location ephemeral and assignment durable, reconciles authoritative trip state with fencing/version before re-offer, and ensures one active assignment per driver.",
+      "assertions": [
+        { "type": "contains_any", "value": ["authoritative", "trip state", "fencing", "version"], "description": "Prevents stale acceptance from changing assignment" },
+        { "type": "contains_any", "value": ["one active", "re-offer", "reconcile"], "description": "Defines safe lost-ack recovery" }
+      ]
+    },
+    {
+      "id": 23,
+      "prompt": "Dispatch variant: baseline is 20k concurrent rides, 1k location updates/s, and two-second match p95. A driver accepts but the acknowledgment is lost; one driver may have at most one active assignment. Now cover ten cities at 10k location updates/s with a tighter pickup radius. Re-evaluate matching and safe recovery.",
+      "expected_output": "Partitions by city/cell, measures false-negative matches and handoff behavior, and adds regional coordination only if observed constraints require it while preserving assignment fencing.",
+      "assertions": [
+        { "type": "contains_any", "value": ["ten cities", "10x", "city", "cell"], "description": "Adapts placement to changed geography and rate" },
+        { "type": "contains_any", "value": ["measure", "coordinator", "fencing"], "description": "Uses evidence while retaining trip invariant" }
       ]
     }
   ],
@@ -98,7 +257,14 @@
     "Design a URL shortener",
     "Run a mock system design interview with me",
     "How would you build a rate limiter?",
-    "Design a chat system like WhatsApp"
+    "Design a chat system like WhatsApp",
+    "How should a payment service recover after its processor commits but the reply is lost?",
+    "What changes when a flash-sale SKU receives a tenfold reservation burst?",
+    "How do we isolate a regulated tenant's data and deletion lifecycle?",
+    "Can this search backfill safely cut over while CDC is still running?",
+    "What is the smallest design for a tiny internal counter service?",
+    "Does this video retention and upload budget fit the workload?",
+    "How should driver assignment recover after a lost acceptance acknowledgment?"
   ],
   "should_not_trigger": [
     "Fix this null pointer exception",

@@ -16,18 +16,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **System-design diagram renderer**: Preserve the style delimiter between unverified edge properties and routed anchor coordinates so rendered edge styles remain parseable.
+
 - **MCP Streamable HTTP**: Create a fresh server and stateless transport for each request, allowing initialization to be followed by further calls while cleaning up request-scoped state. Stdio remains unchanged.
 
 ### Changed
 
-- **SDLC workflows**: Bind routing to task-linked approved evidence, keep product planning separate from technical design, and make readiness handoffs explicitly slice-scoped with distinct source-ready and machine-activation states.
-- **System design**: Select specialist dives from unresolved consequential risks across linked references; make redraw conditional across intake and review outputs; qualify scorecard anchors, readiness and verdicts by evidence scope; choose sync/async boundaries from consistency and failure requirements.
-- **Evaluations**: Replace fixed-quota/label/optional-mechanism snapshots with invariant-focused cases; keep semantic acceptance separate from lexical smoke checks.
+- **System design**: Consolidated critical-flow ownership under data architecture, routed mobile/client guidance by surface, kept views conditional, and separated documentation/design evidence from runtime evidence and lexical checks from semantic evaluation.
+- **Evaluations**: Clarified the boundary between body-only comparisons and full-package evidence; historical scores and candidate fixtures are not live efficacy.
 
 ### Versions
 
-- **Workflows**: `1.1.4` → `1.1.5`
-- **System Design**: `1.2.2` → `1.2.3`
+- **Common Skills**: `2.8.7` → `2.8.8`
+- **Workflows**: `1.1.5` → `1.1.6`
+- **System Design**: `1.2.3` → `1.2.4`
 
 ## [cli-v2.6.6] / [mcp-v0.6.1] - 2026-10-07
 

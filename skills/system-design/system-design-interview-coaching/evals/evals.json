@@ -15,50 +15,31 @@
           "description": "Opens with the clock"
         },
         {
-          "type": "contains_any",
-          "value": [
-            "scope",
-            "requirements"
-          ],
-          "description": "Asks for scope first"
+          "type": "regex",
+          "value": "\\b(who|which|what|how)\\b[^.;!?]{0,30}\\b(users?|clients?|endpoints?|quotas?|burst|limits?|requirements?|limiter)\\b[^.;!?]{0,25}\\?",
+          "description": "Asks a rate-limiter scoping question"
         },
         {
-          "type": "contains_any",
-          "value": [
-            "interviewer during the round",
-            "start by scoping it"
-          ],
-          "description": "Takes the interviewer role, not the designer's"
+          "type": "regex",
+          "value": "\\b(walk me through|tell me|show me|please explain|describe)\\b[^.;!?]{0,25}\\b(your|the)\\b[^.;!?]{0,25}\\b(approach|design|architecture)\\b|\\byou\\s+(can\\s+|should\\s+|will\\s+|please\\s+)?(propose|design|explain|describe)\\b|\\b(I|interviewer|the interviewer|assistant|the assistant|model|the model)\\s+(will not|won't|does not|doesn't)\\s+(design|solve|provide|supply|give|answer)\\b",
+          "description": "Invites candidate-owned design or withholds the model answer"
         }
       ]
     },
     {
       "id": 2,
-      "prompt": "I've spent twelve minutes on estimation and I'm still refining the storage number. Keep going with me on it.",
-      "expected_output": "Interrupts with the remaining time and the next phase's question, names the shaping quantity as the thing to settle, and moves the candidate to high-level design rather than refining storage further.",
+      "prompt": "In a 45-minute mock round, we are at minute 12 of estimation and I'm still refining the storage number. Keep going with me on it.",
+      "expected_output": "State that 33 minutes remain, ask whether another storage refinement would change a design decision, and move to high-level design instead of spending the remaining round on diminishing precision.",
       "assertions": [
         {
           "type": "contains_any",
-          "value": [
-            "remaining time",
-            "minutes left"
-          ],
-          "description": "States the time"
+          "value": ["33 minutes", "33 min"],
+          "description": "Calculates the remaining time from the round clock"
         },
         {
           "type": "contains_any",
-          "value": [
-            "shaping quantity"
-          ],
-          "description": "Names what estimation must settle"
-        },
-        {
-          "type": "contains_any",
-          "value": [
-            "high-level design",
-            "next phase"
-          ],
-          "description": "Moves the round on"
+          "value": ["high-level design"],
+          "description": "Moves to the next phase after checking decision value"
         }
       ]
     },
@@ -121,6 +102,24 @@
           ],
           "description": "Scored under trade-offs"
         }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "The candidate proposes a chat design, then the server commits a send while its acknowledgment is lost. Coach the candidate without supplying the solution.",
+      "expected_output": "Asks for the invariant and adverse timeline, lets the candidate revise the mechanism, introduces one changed constraint, and debriefs against quoted evidence.",
+      "assertions": [
+        { "type": "contains_any", "value": ["invariant", "adverse timeline", "acknowledgment"], "description": "Uses a concrete failure probe" },
+        { "type": "contains_any", "value": ["changed constraint", "revise", "quoted evidence"], "description": "Completes the learning loop without answer dump" }
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Debrief a round where the candidate used only six of the existing criteria, scored each 0–3, and gave one quoted line per score. Keep calibration evidence-based.",
+      "expected_output": "Retains the existing six-criterion rubric and 0–3 scale, supports each score with a quotation, and applies the band from the total rather than inventing criteria.",
+      "assertions": [
+        { "type": "contains_any", "value": ["six criteria", "six-criterion", "0–3"], "description": "Preserves existing score contract" },
+        { "type": "contains_any", "value": ["quoted", "quote", "evidence"], "description": "Requires evidence for every score" }
       ]
     }
   ],

@@ -1,6 +1,6 @@
 ---
 name: system-design-data-architecture
-description: "Choose and scale the data layer: SQL versus NoSQL per access pattern, single data ownership, replication and read scaling, partition key choice, hot partition and celebrity key mitigation. Use when selecting a store, planning sharding, or fixing a data-tier bottleneck."
+description: "Design system data flows and data-layer ownership, consistency, and store choices from access patterns. Use for critical-flow design, DFD semantic review, data lineage, authority, replication, retention, or a data-tier bottleneck. Avoid unrelated framework stream/dataframe implementation questions."
 metadata:
   triggers:
     keywords:
@@ -13,13 +13,19 @@ metadata:
       - data store choice
       - read replica
       - polyglot persistence
+      - system data flow
+      - critical data flow
+      - DFD review
+      - data lineage
+      - data authority
+      - deletion propagation
 ---
 
 # Data Architecture
 
 ## **Priority: P1 (HIGH)**
 
-Access patterns choose the store. Ownership precedes schema. Shard last, not first.
+Access patterns and per-operation invariants choose the store. Ownership precedes schema. Shard last, not first. Trace critical flows before committing to stores or transport; diagrams are conditional.
 
 ## Store Selection
 
@@ -33,10 +39,10 @@ Access patterns choose the store. Ownership precedes schema. Shard last, not fir
 
 ## Ownership and Consistency
 
-- One writer owns each entity. Cross-service reads use an API or an event stream, never a shared table.
-- Classify each flow before choosing replication: money, stock, and identity need strong consistency; feeds, counters, and analytics tolerate eventual.
-- Read replicas serve reads only, and replica lag is visible to users. Route read-after-write to the primary or pin the session.
-- Cross-entity atomicity across services needs a saga with compensations, not a distributed transaction.
+- Name one authoritative writer per entity or state boundary. Distinguish derived copies, replicas, caches, queues, projections, files, and client state; each needs an owner and refresh/rebuild or lifecycle rule.
+- Choose consistency per operation and invariant. Strong consistency is not implied by a domain label; state the consequence of stale or conflicting reads/writes.
+- Read replicas serve reads only when the consistency contract permits; expose lag and use primary routing, session pinning, or a write token where read-after-write matters.
+- Choose a bounded synchronous transaction, asynchronous event, saga, or another mechanism from transaction boundaries and failure semantics. A saga is not a universal substitute for atomicity; define recovery and compensations when it is used.
 
 ## Scaling Order
 
@@ -61,12 +67,19 @@ because it costs cross-shard queries, rebalancing, and a permanent partition key
 
 ## Verify
 
-- [ ] Every access pattern mapped to exactly one store with a stated reason
-- [ ] Single writer named per entity
-- [ ] Consistency class stated per flow
-- [ ] Partition key chosen with a hot-partition mitigation
-- [ ] Retention and archival defined
+- [ ] Critical paths name source, sink, transformations, authoritative owner, derived copies, invariant, user-visible outcome, adverse timeline, and observable verification; see [flow contract](references/flow-contracts.md).
+- [ ] Every selected store has a stated access-pattern reason; identify single-writer ownership where applicable.
+- [ ] Consistency and freshness are stated per relevant operation/flow.
+- [ ] Partitioning, hot-key mitigation, retention, archival, and deletion are addressed when workload or lifecycle makes them material.
 
 ## References
 
 - [Database Scaling](references/database-scaling.md) - store comparison, replication topologies, sharding mechanics, migration patterns
+
+## Critical Flows and DFD Review
+
+Before choosing stores or transport, trace ingress, transformations, authority, derived state, consumers, trust boundaries, invariant, adverse timeline, and verification for each critical journey. Add delivery, durability, ordering, deduplication, backlog, recovery, capacity, and lifecycle details when material; explain significant omissions. A diagram is optional when prose or a table answers the question.
+
+Load [flow contracts](references/flow-contracts.md) for the canonical record, [DFD review](references/dfd-review.md) for semantic/scope checks, and [worked flows](references/worked-flows.md) for concise payment, CDC/backfill, and client-sync examples. DFD levels are not C4 levels. Use sequence/state/ERD/deployment views for ordering, lifecycle, schema, and placement; do not claim those from dataflow arrows.
+
+Stateless computations and SDK functions may need no store, queue, or database. Select a mechanism from the invariant and constraints, not a domain-name recipe.

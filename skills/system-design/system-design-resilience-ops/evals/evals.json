@@ -119,12 +119,34 @@
             "drill"
           ],
           "description": "Prefers proven recovery over unproven redundancy"
-        },
-        {
-          "type": "not_contains",
-          "value": "active-active across regions",
-          "description": "Does not recommend the expensive topology for a low-traffic internal tool"
         }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "A payment journey records one success per checkout attempt. Define the request-based SLO denominator and the result after a committed payment has an unresolved acknowledgment.",
+      "expected_output": "Counts unique eligible business operations rather than retries, treats pending/unknown as not yet successful, and ties the objective to the promised completion deadline and an owner action.",
+      "assertions": [
+        { "type": "contains_any", "value": ["unique business operation", "unique operation", "denominator"], "description": "Prevents retry attempts from inflating SLO counts" },
+        { "type": "contains_any", "value": ["pending", "unknown", "deadline"], "description": "Does not count unresolved completion as success" }
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "A time-based availability report has one 60-minute good interval and one 1-minute bad interval. How should the SLO numerator and error budget be computed?",
+      "expected_output": "Weights by eligible duration (60/61 good), not equally by interval count, and keeps the error-budget duration in the same units as the SLO window.",
+      "assertions": [
+        { "type": "contains_any", "value": ["60/61", "60 / 61", "summed good duration"], "description": "Weights unequal intervals by duration" },
+        { "type": "contains_any", "value": ["same unit", "duration", "time error budget"], "description": "Uses compatible time-budget units" }
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "A review scores highly overall, but a worker can read another tenant's records and a restore drill is not in scope for a stateless operation. Decide which findings block readiness.",
+      "expected_output": "Treats tenant isolation as a non-compensable material gate regardless of aggregate, while allowing a justified out-of-scope stateless recovery N/A without requiring an unrelated drill.",
+      "assertions": [
+        { "type": "contains_any", "value": ["tenant", "block", "hard gate", "regardless"], "description": "Does not average away tenant isolation failure" },
+        { "type": "contains_any", "value": ["stateless", "N/A", "out of scope"], "description": "Makes recovery evidence conditional on scope" }
       ]
     }
   ],

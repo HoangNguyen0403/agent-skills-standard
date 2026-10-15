@@ -7,12 +7,12 @@ Six criteria, each scored 0-3 with one quoted line from the round as evidence. T
 
 | Criterion | 0 | 1 | 2 | 3 |
 |---|---|---|---|---|
-| Requirements and scoping | drew boxes before asking anything | asked, but no out-of-scope fence or NFR targets | functional list, NFR targets, fence; assumptions unlabelled | all of that, with every unknown labelled `ASSUMED` and confirmed |
-| Estimation | no numbers, or numbers after the design | numbers, but no peak, no storage, or off by 10x unnoticed | QPS peak, storage, bandwidth within an order of magnitude | that, plus named the shaping quantity and let it drive the design |
-| Structure and time use | one phase ate the round | followed the phases, overran two of them | followed the phases inside the budget | followed the phases, banked time, spent it on the deep dive |
-| Trade-offs | one option, no reasons | alternatives named, none rejected with a reason | each major choice has a rejected alternative and a reason | that, plus absorbed the changed requirement by re-deriving, not patching |
-| Communication and collaboration | interviewer had to drive | talked 80 %, but answered questions with buzzwords | clear, checked in at phase boundaries, treated the interviewer as a teammate | that, plus corrected themselves when shown a gap |
-| Depth on the defining constraint | never named it | named it late or vaguely | named it and designed around it | named it, sized it, and showed its failure mode in the deep dive |
+| Requirements and scoping | drew boxes before asking anything | asked, but no journey or quality target | relevant journeys, quality scenario, scope and assumptions | also surfaced material ownership/trust boundaries and evidence gaps |
+| Estimation | invented irrelevant numbers or designed before estimates | relevant quantities, but key shaping factor absent | applicable estimates and assumptions, with shaping quantity | provenance is clear and estimates shape only decisions they affect |
+| Structure and time use | one phase ate the round | followed phases but missed a material risk or adaptation | paced the session and examined a relevant risk | adapted pacing to surface/time and used a counterexample to improve the design |
+| Trade-offs | one option, no reasons | alternatives named, none rejected with a reason | major choices have a rejected alternative and reason | revised the affected mechanism after an adverse timeline or changed constraint |
+| Communication and collaboration | interviewer had to drive | talked 80 %, but answered questions with buzzwords | clear, checked in at phase boundaries, treated interviewer as teammate | corrected reasoning when evidence exposed a gap |
+| Depth on the defining constraint | never named it | named it late or vaguely | named it and designed around it | traced the relevant invariant, failure behavior, and verification |
 
 ## Bands
 
@@ -25,10 +25,17 @@ Six criteria, each scored 0-3 with one quoted line from the round as evidence. T
 
 The band follows the total. Confidence, seniority, and effort are not criteria.
 
-## Report template
+## Design and Flow Evidence
 
-```md
+- Initial commitment: [candidate's chosen design and constraint]
+- Critical flow: [`FLOW-*` linked to `REQ-* -> HLD-* -> CMP-* -> LLD-* -> VER-*` with an observable `VER-*` condition, or scope-justified `N/A`]; see canonical [C1 flow contract](../../system-design-data-architecture/references/flow-contracts.md), not a duplicate checklist.
+- Counterexample/adverse timeline: [event and user-visible failure or uncertainty]
+- Mechanism revision: [changed mechanism, preserved invariant, expected outcome]
+- Changed constraint: [what changed and how the candidate re-evaluated the decision]
+- Verification and gaps: [observable pass/fail condition; distinguish proposed from exercised evidence; remaining owner/invariant/evidence decisions]
+
 ## Interview Scorecard: [problem], [length] minutes
+
 | Criterion | Score | Quoted evidence | Note |
 | --- | --- | --- | --- |
 | Requirements and scoping | n/3 | "..." | |
@@ -37,12 +44,14 @@ The band follows the total. Confidence, seniority, and effort are not criteria.
 | Trade-offs | n/3 | "..." | |
 | Communication and collaboration | n/3 | "..." | |
 | Depth on the defining constraint | n/3 | "..." | |
+
 **Total**: n/18 — [band]
 
 ### Two fixes to work on first
+
 1. [mistake row from mistakes.md] — [what to do differently next round]
 2. ...
 
-### Next practice problem
-[catalog problem] — exercises [weakest criterion]
-```
+### Next practice problem (optional)
+
+Include only when useful: [catalog problem] — exercises [weakest criterion]

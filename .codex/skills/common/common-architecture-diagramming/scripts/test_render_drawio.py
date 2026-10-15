@@ -8,6 +8,8 @@ import contextlib
 import io
 import json
 import hashlib
+import math
+
 import os
 import sys
 import tempfile
@@ -510,6 +512,29 @@ class TestRendererCommon(unittest.TestCase):
         edge = [c for c in cells(root) if c.get("edge") == "1"][0]
         self.assertTrue(edge.get("value"))
         self.assertIn("labelBackgroundColor=#ffffff", edge.get("style"))
+
+    def test_unverified_routed_edge_style_keeps_numeric_width_and_anchor_coordinates(self):
+        spec = container_spec()
+        spec["edges"][0].pop("evidence_kind")
+        spec["edges"][0].pop("evidence_confidence")
+        root = parse(render_drawio.render(spec))
+        edge = next(
+            cell for cell in cells(root)
+            if cell.get("source") == "web" and cell.get("target") == "api"
+        )
+        style = dict(
+            part.split("=", 1) for part in edge.get("style", "").split(";")
+            if "=" in part
+        )
+
+        stroke_width = float(style["strokeWidth"])
+        self.assertTrue(math.isfinite(stroke_width))
+
+        for coordinate in ("exitX", "exitY", "entryX", "entryY"):
+            value = float(style[coordinate])
+            self.assertTrue(math.isfinite(value), coordinate)
+            self.assertGreaterEqual(value, 0.0, coordinate)
+            self.assertLessEqual(value, 1.0, coordinate)
 
     def test_async_edge_is_dashed_and_sync_edge_is_not(self):
         root = parse(render_drawio.render(context_spec()))

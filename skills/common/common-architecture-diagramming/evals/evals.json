@@ -254,6 +254,33 @@
           "description": "Verifies the corrected render"
         }
       ]
+    },
+    {
+      "id": 13,
+      "prompt": "A logical DFD decomposition omits one payment input from its parent view, while a runtime browser uploads the bytes directly to object storage with a signed URL. Review both claims.",
+      "expected_output": "Requires balanced parent/child logical boundaries, and treats signed-URL direct upload as a valid physical path whose controls and scope must be described rather than forbidden by logical notation.",
+      "assertions": [
+        { "type": "contains_any", "value": ["balanced", "boundary input", "parent and child"], "description": "Checks semantic boundary balance" },
+        { "type": "contains_any", "value": ["physical", "signed URL", "direct upload"], "description": "Does not confuse logical convention with runtime ban" }
+      ]
+    },
+    {
+      "id": 14,
+      "prompt": "A dataflow view is being used to answer whether two messages are ordered and whether a client is pending or confirmed. Which views should the review use instead?",
+      "expected_output": "Uses sequence for ordering/acknowledgments and state for lifecycle, while limiting dataflow to movement, transformation, and authority.",
+      "assertions": [
+        { "type": "contains_any", "value": ["sequence", "ordering", "acknowledgment"], "description": "Routes temporal question to sequence view" },
+        { "type": "contains_any", "value": ["state", "lifecycle", "pending"], "description": "Routes lifecycle question to state view" }
+      ]
+    },
+    {
+      "id": 15,
+      "prompt": "The renderer uses house-style DFD symbols, not formal classical glyphs. What may the design review claim, and how should it treat a crossing edge?",
+      "expected_output": "Describes notation honestly as adapted/house-style, judges semantics before layout, and treats crossing edges as readability rather than proof of invalid data behavior.",
+      "assertions": [
+        { "type": "contains_any", "value": ["house-style", "adapted"], "description": "Does not claim unsupported formal notation" },
+        { "type": "contains_any", "value": ["readability", "crossing", "semantics"], "description": "Separates layout concern from semantic defect" }
+      ]
     }
   ],
   "should_trigger": [

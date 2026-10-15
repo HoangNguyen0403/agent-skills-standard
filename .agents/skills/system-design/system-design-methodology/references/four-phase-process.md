@@ -1,53 +1,42 @@
 # Four-Phase Process
 
-Each phase has an entry condition, an output, and an exit gate. A gate is a user confirmation
-in full-session depth, and a labeled assumption in quick-sketch depth.
+Classify mode, depth, and surface independently. A full session advances only when its phase exit predicate is confirmed. A quick sketch may proceed with explicit assumptions, but unresolved material decisions prevent a readiness claim.
 
 ## Phase 0 - Classify
 
-- Entry: any design request.
-- Output: one line stating mode (new design | review existing | interview practice) and depth (quick | full).
-- Signals for full session: money moves, data migrates, contracts cross teams, hardware or vendor spend, an irreversible store choice.
-- Signals for quick sketch: "roughly", "at a high level", "which approach", exploration with no committed build.
-- Escalation is one-way: a quick sketch that hits a hard constraint becomes a full session, announced explicitly.
+- Output: mode (new design | review existing | interview practice), depth (quick | full), and surface (backend | mobile/client | SDK/library | full stack); mixed systems may name multiple surfaces.
+- Full-session exit: confirm classification and load only relevant siblings/views. Quick sketches label defaults and escalate when a hard constraint or irreversible decision appears.
 
 ## Phase 1 - Intake
 
-- Entry: depth chosen.
-- Output: requirements table (functional, non-functional, out of scope) with every unknown labeled `ASSUMED`.
-- Gate: user confirms the requirement table, or the assumptions are stated in writing.
+- Output: bounded journeys, functional needs, quality scenarios (trigger, environment, response, measurable condition, owner), scope fence, trust/ownership boundaries, assumptions, and evidence gaps.
+- Full-session exit: user confirms material requirements and scope. Record unresolved material owner/invariant, compliance/residency, or topology-changing budget decisions in existing `decision_needed`; do not commit the affected design or claim readiness until resolved.
+- Ask no more than 3 blocking questions per turn. Review-existing maps current components, owners, traffic, incidents, and binding constraint first. SDK/client prompts remain surface-specific.
 
-## Phase 2 - Estimation
+## Phase 2 - Estimate
 
-- Entry: requirement table exists.
-- Output: QPS (average and peak), storage per year, bandwidth, working-set memory, and the single shaping quantity.
-- Gate: user confirms the order of magnitude. Wrong-by-10x here invalidates every later decision.
+- Output only decision-relevant estimates, marked target, estimated, or measured with provenance; name the shaping quantity. Do not force QPS or invent quantities for client/SDK work.
+- Full-session exit: user confirms applicable shaping estimates and order of magnitude before physical component selection. If a material input or topology-changing budget remains undecided, record it and hold that decision/readiness. Quick sketches may proceed only with labeled assumptions.
 
-## Phase 3 - High-Level Design
+## Phase 3 - Logical Flow and Physical Design
 
-- Entry: numbers confirmed.
-- Output: component list, API surface, data ownership map, and any views needed to answer a named question; prose or tables are sufficient when no view adds decision value.
-- Method: begin with client, API, service, store. Add each further component with one line of the form
-  `constraint -> component -> cost`, for example `120k read QPS on a 3k QPS store -> read-through cache -> stale reads up to TTL`.
-- Gate: user agrees to the component set before any diagram is rendered.
+- Trace the critical journey logically before choosing technology: source/sink, data/purpose, transformations, authoritative owner/derived copies, invariant, user outcomes, and observable verification. Use the canonical [critical-flow contract](../../system-design-data-architecture/references/flow-contracts.md).
+- Bind accepted decisions to physical components, stores, and contracts afterward. Link applicable `FLOW-*` records to `REQ-* -> HLD-* -> CMP-* -> LLD-* -> VER-*`; `FLOW-*` is not an outcome field. Choose views only for named questions; prose/table is sufficient.
+- Full-session exit: user accepts the component/contract decisions and material flow owners/invariants are resolved. Unresolved owner, invariant, compliance/residency, or topology-changing budget decisions hold the affected design and readiness. Never hide them as harmless assumptions.
 
-## Phase 4 - Deep Dives and Trade-offs
+## Phase 4 - Risk, Review, and Handoff
 
-- Entry: component set agreed.
-- Output: zero or more risk-driven deep dives for unresolved consequential decisions, bottlenecks, SPOFs, rejected alternatives with reasons, ADRs, scorecard, and next scaling step.
-- Stage the design: what to build now, the seam that makes the next step cheap, and the metric threshold that triggers it.
-- Every ADR carries a reversal trigger: the observation that would make us revisit the decision. A decision with no reversal trigger is a decision nobody can revisit safely.
-- Deep-dive candidates: the highest-QPS path, the strongest consistency requirement, the largest data set, the least reversible choice.
-- Gate: use an agreed, scope-appropriate scorecard threshold when the available design evidence is sufficient; otherwise record the missing design evidence and follow-up work without claiming readiness.
-
+- Select zero or more deep dives by consequential risk, surface, and time. For selected risks, examine an adverse timeline, invariant, mechanism/recovery, and verification; in practice require counterexample -> revision -> changed constraint -> evidence-based debrief.
+- Full-session exit: run the declared-profile, scope-aware nine-axis scorecard and independent [semantic evaluator](../../system-design-review/references/semantic-evaluation.md). Use the scorecard's applicable-axis denominator and justified `N/A`; semantic soundness requires at least 85%, no applicable zero, and no hard failure. A failed material gate or unresolved material decision blocks readiness. Agree a scope-appropriate scorecard threshold before claiming readiness.
+- Preserve existing outcome fields and status values. Put unresolved evidence/decisions in `missing_evidence`/`decision_needed`; a quick sketch with assumptions is not a readiness verdict. Documents/planned checks do not prove implementation or operations.
 ## Session Outputs
 
 | Artifact | When produced | Consumer |
 | --- | --- | --- |
-| Requirement table | Phase 1 | design doc, downstream SRS |
-| Capacity numbers | Phase 2 | provisioning, cost model |
-| Component and data map | Phase 3 | design-solution, implementation plan |
-| Selected view, only when it answers a named question | Phase 3 | design doc, review-system-design, design-solution |
-| ADRs with reversal triggers | Phase 4 | future maintainers, review |
-| Staged plan (now / seam / trigger) | Phase 4 | roadmap, implementation sequencing |
-| Scorecard and risk register | Phase 4 | readiness gate, roadmap |
+| Journeys, quality scenarios, scope, assumptions | Intake | Design record, downstream requirements |
+| Relevant estimates and shaping quantity | Estimate | Component and cost decisions |
+| Critical-flow record or canonical pointer, linked to `REQ-* -> HLD-* -> CMP-* -> LLD-* -> VER-*` | Logical design / LLD | Design record and verification |
+| Physical component/ownership map | After logical flow | HLD, implementation planning |
+| Selected views, only for named questions | As needed | Decision and review |
+| Adverse timeline, recovery, changed-constraint revision | Risk review / practice | Readiness, learning |
+| Staged plan, scorecard, risk register | Handoff | Roadmap and next workflow |

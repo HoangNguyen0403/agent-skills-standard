@@ -34,9 +34,9 @@ Choose the paradigm per hop from the constraint, not from familiarity. One flow 
 
 ## Sync vs Async per Flow
 
-- The caller needs the answer to proceed -> synchronous call with a timeout and a fallback.
-- The caller needs completion, not the answer now -> queue or event; return an id to poll or push the result.
-- Never chain more than 2 synchronous internal hops on a user-facing path; each hop multiplies latency and failure.
+- Choose synchronous work when the caller needs its result to continue and the invariant requires it; bound it by the end-to-end deadline and define timeout, failure, and fallback behavior.
+- Choose asynchronous work when the caller needs eventual completion rather than the result now; return a trackable operation ID or use a defined push contract.
+- Set the number of synchronous dependencies from the invariant, dependency budgets, deadline, operational coupling, and failure semantics. A bounded chain of more than two hops can be valid; even one hop can be unacceptable if it breaks those constraints.
 
 ## Service Discovery
 

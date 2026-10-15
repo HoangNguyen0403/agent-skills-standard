@@ -3,32 +3,28 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Our order service calls the pricing service on the hot path, and it is a JSON REST call today. Should we move it to gRPC?",
-      "expected_output": "Selects gRPC for the internal hot path by constraint (low latency, streaming, schema-first) rather than preference, states the cost that a browser needs a proxy and L7 balancers need HTTP/2 awareness, and warns that each hop multiplies latency on a user-facing path.",
+      "prompt": "Our order service synchronously calls pricing over JSON REST. Checkout has a 300 ms p95 end-to-end objective; traces show pricing at 180 ms p95 but do not separate application time from transport. The call is unary, and an order cannot be priced without its response. Should we move to gRPC? Compare the protocol tradeoff and define timeout behavior.",
+      "expected_output": "Compare REST and gRPC against the stated 300 ms end-to-end objective without assuming the protocol is the bottleneck: the 180 ms pricing span is not a transport measurement, and this unary flow has no streaming need. REST preserves the existing JSON/HTTP contract and tooling; gRPC offers a typed schema and may reduce call overhead, but adds schema/code-generation and client/proxy compatibility cost. Keep REST if representative tests show it meets the deadline; choose gRPC only if measured protocol/schema benefits justify that cost. Bound the call by the remaining deadline; on timeout, do not create an order at an unknown price, and return a retryable failure rather than waiting or retrying blindly.",
       "assertions": [
         {
           "type": "contains_any",
-          "value": [
-            "Internal service-to-service, low latency, streaming, schema-first",
-            "gRPC"
-          ],
-          "description": "Matches the paradigm to the internal hot-path constraint"
+          "value": ["REST", "gRPC"],
+          "description": "Compares valid protocol choices rather than requiring one"
         },
         {
           "type": "contains_any",
-          "value": [
-            "Browser needs a proxy",
-            "L7 balancers need HTTP/2 awareness"
-          ],
-          "description": "States the cost accepted"
+          "value": ["transport", "measured protocol", "representative tests"],
+          "description": "Separates protocol cost from the observed service span"
         },
         {
           "type": "contains_any",
-          "value": [
-            "Never chain more than 2 synchronous internal hops",
-            "each hop multiplies latency"
-          ],
-          "description": "Checks the synchronous chain depth"
+          "value": ["300 ms", "300ms"],
+          "description": "Uses the prompt's end-to-end deadline"
+        },
+        {
+          "type": "contains_any",
+          "value": ["timeout", "timed out"],
+          "description": "Defines the failure outcome for a required price"
         }
       ]
     },
@@ -117,11 +113,6 @@
             "cold"
           ],
           "description": "Keeps the simpler protocol for a cold path"
-        },
-        {
-          "type": "not_contains",
-          "value": "bidirectional streaming",
-          "description": "Does not add streaming machinery for one call per night"
         }
       ]
     }

@@ -102,6 +102,42 @@
           ]
         }
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "A payment processor captures an order, but the response times out. The client retries the same checkout; explain how to avoid charging twice and how to resolve the unknown result.",
+      "expected_output": "Keeps the same operation ID for this checkout across retries, arbitrates the capture at its authoritative owner, and reconciles an unknown processor result before another capture.",
+      "assertions": [
+        { "type": "contains_any", "value": ["same operation ID", "stable operation ID", "same idempotency key"], "description": "Uses business-operation identity across transport retry" },
+        { "type": "contains_any", "value": ["reconcile", "query status", "processor report"], "description": "Resolves ambiguous commit before retrying effect" }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "The processor does not support idempotency, and its response can be lost after a capture. Operations wants automatic retries to keep checkout moving.",
+      "expected_output": "Does not blindly repeat an external effect with unknown outcome; records the operation and reconciles authoritative provider evidence before any further capture, while returning an explicit pending or unknown result.",
+      "assertions": [
+        { "type": "regex", "value": "(?<!not\\s+)(?<!never\\s+)(?<!don't\\s+)\\b(suspend|suspends|disable|disables|withhold|withholds|defer|defers|stop|stops|avoid|avoids|prevent|prevents|prohibit|prohibits)\\b[^.;!?]{0,20}\\b(capture|charge|resubmit|retry|retries|repeat)\\b|\\b(do not|does not|don't|never)\\s+(blindly\\s+)?(capture|charge|resubmit|retry|retries|repeat)\\b", "description": "Withholds repeated capture until provider outcome is known" },
+        { "type": "contains_any", "value": ["reconcile", "authoritative status", "processor report"], "description": "Requires an outcome-resolution mechanism" }
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "During a network partition, a distributed account balance must remain linearizable. What should reads and writes do when a replica cannot reach the authority?",
+      "expected_output": "Scopes the consistency/availability choice to partition behavior, preserves linearizability by refusing or blocking operations that cannot be safely served, and does not treat CAP availability as an uptime percentage.",
+      "assertions": [
+        { "type": "contains_any", "value": ["partition", "network partition"], "description": "Scopes the trade-off to partition behavior" },
+        { "type": "contains_any", "value": ["reject", "fail", "block", "cannot serve"], "description": "Names user-visible request behavior under partition" }
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "The product now permits stale balance reads during a partition, but transfers must still never spend funds twice. Revisit the partition behavior.",
+      "expected_output": "Separates read freshness from the transfer invariant, states which reads may be stale and how transfers remain safe or unavailable during partition, and ties any convergence objective to a measurement and missed-target behavior.",
+      "assertions": [
+        { "type": "contains_any", "value": ["stale", "freshness"], "description": "Adapts read behavior to the changed constraint" },
+        { "type": "contains_any", "value": ["transfer", "spend", "invariant"], "description": "Preserves the distinct write invariant" }
+      ]
     }
   ],
   "should_not_trigger": [
