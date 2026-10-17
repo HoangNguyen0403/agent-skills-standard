@@ -37,7 +37,7 @@
     "@types/node": "^22.14.0",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
-    "@vitest/coverage-v8": "4.1.11",
+    "@vitest/coverage-v8": "5.0.4",
     "@vitest/expect": "4.1.11",
     "chrome-launcher": "1.2.2",
     "eslint": "^10.12.0",
