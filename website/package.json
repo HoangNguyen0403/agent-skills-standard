@@ -44,7 +44,7 @@
     "globals": "17.13.0",
     "jsdom": "26.0.0",
     "lighthouse": "12.3.0",
-    "parse5": "7.3.0",
+    "parse5": "8.0.1",
     "prettier": "^3.9.7",
     "serve": "14.2.4",
     "typescript": "^5.8.2",
