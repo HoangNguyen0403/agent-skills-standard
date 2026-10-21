@@ -64,6 +64,169 @@ import { CORE_SDLC_CHAIN } from "./workflow-chain";
 
 export { CORE_SDLC_CHAIN };
 
+export const OPTIONAL_PRODUCT_WORKFLOWS = [
+  "discover-product",
+  "validate-product",
+  "review-product-value",
+] as const;
+
+export type OptionalProductWorkflow =
+  (typeof OPTIONAL_PRODUCT_WORKFLOWS)[number];
+
+export function auditOptionalWorkflow(
+  workflow: string,
+  content: string,
+  relPath: string = `.agents/workflows/${workflow}.md`,
+): string[] {
+  const issues: string[] = [];
+  const lines = content.trimEnd().split(/\r?\n/).length;
+
+  if (lines > 80) {
+    issues.push(`${workflow}.md exceeds 80 lines (${lines})`);
+  }
+
+  const hasGoal =
+    content.includes("Goal:") ||
+    content.includes("Goal**:") ||
+    /\*\*Goal\*\*:/i.test(content);
+  if (!hasGoal) {
+    issues.push(`${workflow}.md missing Goal section`);
+  }
+
+  for (const { pattern, label } of PORTABILITY_PATTERNS) {
+    if (content.includes(pattern)) {
+      issues.push(`${relPath} contains non-portable ${label}: ${pattern}`);
+    }
+  }
+  const docsLinkPattern = /\]\((?:\.\.\/)*docs\//;
+  if (docsLinkPattern.test(content)) {
+    issues.push(`${relPath} links to unsynced docs/ runtime material`);
+  }
+
+  for (const section of REQUIRED_RUNTIME_SECTIONS) {
+    if (!content.includes(section)) {
+      issues.push(`${workflow}.md missing ${section}`);
+    }
+  }
+
+  const costCallExact = `get_session_cost(workflow="${workflow}")`;
+  if (!content.includes(costCallExact)) {
+    issues.push(`${workflow}.md Cost Report must call ${costCallExact}`);
+  }
+
+  const contractIndex = content.indexOf("## Runtime Contract");
+  const firstFenceIndex = content.indexOf("```md");
+  if (contractIndex === -1 || firstFenceIndex === -1) {
+    issues.push(
+      `${workflow}.md cannot verify contract placement (missing section or fence)`,
+    );
+  } else if (contractIndex > firstFenceIndex) {
+    issues.push(
+      `${workflow}.md Runtime Contract must appear before the fenced Output Template, not as a placeholder inside it`,
+    );
+  }
+
+  const hasOutputTemplate = content.toLowerCase().includes("output template");
+  if (!hasOutputTemplate) {
+    issues.push(`${workflow}.md missing Output Template`);
+  } else {
+    const outcomeIssues = validateOutcomeReportTemplate(
+      workflow,
+      content,
+      relPath,
+    );
+    for (const issue of outcomeIssues) {
+      issues.push(issue.message);
+    }
+  }
+
+  const validWorkflowPool = [
+    ...REQUIRED_WORKFLOWS,
+    ...OPTIONAL_PRODUCT_WORKFLOWS,
+  ];
+  const nextWorkflowTokens = extractNextWorkflowTokens(content);
+  for (const token of nextWorkflowTokens) {
+    if (!validWorkflowPool.includes(token)) {
+      issues.push(
+        `${workflow}.md Next Workflow references unknown workflow: ${token}`,
+      );
+    }
+  }
+
+  const handoffMatch = content.match(
+    /## Handoff Payload\r?\n([\s\S]*?)(?=\r?\n## |\r?\n```|$)/,
+  );
+  const handoffPayload = handoffMatch ? handoffMatch[1] : "";
+  if (!handoffPayload.includes("operator_profile")) {
+    issues.push(`${workflow}.md missing operator_profile in Handoff Payload`);
+  }
+  const hasHostAuthorityBoundary =
+    content.includes("host-check-eligible") ||
+    content.includes("host approval") ||
+    content.includes("proposal_only") ||
+    content.includes("proposal-only") ||
+    content.includes("AUTHORIZATION_REQUIRED") ||
+    content.includes("host authorization") ||
+    content.includes("host check") ||
+    content.includes("host decision");
+  if (!hasHostAuthorityBoundary) {
+    issues.push(
+      `${workflow}.md missing host authorization gap boundary (proposal is not host approval)`,
+    );
+  }
+
+  if (workflow === "validate-product") {
+    const hasFiniteBudget =
+      content.includes("budget_cap") &&
+      (content.includes("finite bounds") || content.includes("exposure_cap"));
+    if (!hasFiniteBudget) {
+      issues.push(
+        `${workflow}.md missing explicit finite bounds or budget_cap declaration`,
+      );
+    }
+  }
+
+  const hasStatusRule =
+    content.includes("feature_status") &&
+    (content.includes("carry current delivery `feature_status`") ||
+      content.includes("carry current delivery feature_status") ||
+      content.includes("never set `blocked` for product-evidence gaps alone") ||
+      content.includes("never downgrade `released` to `blocked`") ||
+      content.includes("never downgrade"));
+  if (!hasStatusRule) {
+    issues.push(
+      `${workflow}.md missing delivery feature_status preservation rule`,
+    );
+  }
+
+  return issues;
+}
+
+export function validateOptionalWorkflowReachability(
+  canonicalWorkflows: Set<string> | string[],
+  sdlcContent: string,
+  optionalWorkflows: readonly string[] = OPTIONAL_PRODUCT_WORKFLOWS,
+): string[] {
+  const issues: string[] = [];
+  const set =
+    canonicalWorkflows instanceof Set
+      ? canonicalWorkflows
+      : new Set(canonicalWorkflows);
+
+  for (const workflow of optionalWorkflows) {
+    if (!set.has(workflow)) {
+      issues.push(`Missing canonical optional workflow: ${workflow}`);
+      continue;
+    }
+    const hasDirectRoute = new RegExp(`->\\s*\`${workflow}\``).test(sdlcContent);
+    if (!hasDirectRoute) {
+      issues.push(`sdlc.md router cannot reach optional workflow: ${workflow}`);
+    }
+  }
+
+  return issues;
+}
+
 // Workflows that talk directly to the requesting operator and must carry `operator_profile`
 // in their Handoff Payload per `common-operator-profile`. Implementation-side workflows only
 // carry the key without register rules and are not required to declare it explicitly.
@@ -447,7 +610,10 @@ async function main() {
 
       const nextWorkflowTokens = extractNextWorkflowTokens(content);
       for (const token of nextWorkflowTokens) {
-        if (!REQUIRED_WORKFLOWS.includes(token)) {
+        if (
+          !REQUIRED_WORKFLOWS.includes(token) &&
+          !OPTIONAL_PRODUCT_WORKFLOWS.includes(token as OptionalProductWorkflow)
+        ) {
           fail(
             `${workflow}.md Next Workflow references unknown workflow: ${token}`,
             failures,
@@ -513,6 +679,26 @@ async function main() {
     }
   }
 
+  for (const workflow of OPTIONAL_PRODUCT_WORKFLOWS) {
+    if (!canonicalWorkflows.has(workflow)) {
+      continue;
+    }
+    const file = path.join(WORKFLOWS_DIR, `${workflow}.md`);
+    const content = await fs.readFile(file, "utf8");
+    const issues = auditOptionalWorkflow(
+      workflow,
+      content,
+      path.relative(ROOT, file),
+    );
+    if (issues.length > 0) {
+      for (const issue of issues) {
+        fail(issue, failures);
+      }
+    } else {
+      pass(`optional workflow ${workflow}.md conforms to structural audit rules`);
+    }
+  }
+
   const sdlcFile = path.join(WORKFLOWS_DIR, "sdlc.md");
   if (await fs.pathExists(sdlcFile)) {
     const sdlcContent = await fs.readFile(sdlcFile, "utf8");
@@ -521,6 +707,20 @@ async function main() {
         pass(`sdlc.md router can reach ${workflow}`);
       } else {
         fail(`sdlc.md router cannot reach core workflow: ${workflow}`, failures);
+      }
+    }
+    const reachabilityIssues = validateOptionalWorkflowReachability(
+      canonicalWorkflows,
+      sdlcContent,
+      OPTIONAL_PRODUCT_WORKFLOWS,
+    );
+    if (reachabilityIssues.length > 0) {
+      for (const issue of reachabilityIssues) {
+        fail(issue, failures);
+      }
+    } else {
+      for (const workflow of OPTIONAL_PRODUCT_WORKFLOWS) {
+        pass(`sdlc.md router can reach optional workflow: ${workflow}`);
       }
     }
   }

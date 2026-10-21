@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "analysis_id": "analytics-export-v1",
+  "currency": "USD",
+  "money_scale": 2,
+  "price_basis": "nominal",
+  "price_date": "2026-10-01",
+  "horizon": {
+    "start_date": "2026-10-01",
+    "period": "year",
+    "periods": 1
+  },
+  "cohort": "enterprise-self-serve",
+  "counterfactual": "maintain-manual-csv-export",
+  "accounting_boundary": "incremental engineering and server costs vs export fee revenue",
+  "discount": {
+    "rate": "0.10000000",
+    "convention": "effective_annual",
+    "price_basis": "nominal"
+  },
+  "scenarios": [
+    {
+      "id": "base",
+      "label": "Base scenario",
+      "assumptions": ["30 accounts purchase automated export at $5,000/yr"],
+      "items": [
+        {
+          "id": "dev-cost",
+          "side": "cost",
+          "category": "development",
+          "mechanism_id": "core-export-engine",
+          "period": 0,
+          "amount": "100000.00",
+          "currency": "USD",
+          "basis": "cash_cost",
+          "netted_cost_categories": [],
+          "rationale": "2 engineers for 4 months",
+          "evidence_ids": ["CLM-001"]
+        },
+        {
+          "id": "export-revenue",
+          "side": "benefit",
+          "category": "expansion",
+          "mechanism_id": "export-fee",
+          "period": 1,
+          "amount": "150000.00",
+          "currency": "USD",
+          "basis": "gross_revenue",
+          "netted_cost_categories": [],
+          "rationale": "Year 1 export add-on revenue",
+          "evidence_ids": ["CLM-002"]
+        }
+      ],
+      "nonmonetary": []
+    }
+  ]
+}

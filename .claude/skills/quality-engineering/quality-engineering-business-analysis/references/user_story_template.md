@@ -33,7 +33,7 @@
 
 ## Acceptance Criteria
 
-> One `Given / When / Then` block per AC. One condition per block. Tag every AC with platform and toggle state.
+> One `Given / When / Then` block per AC verifying one observable behavior (multiple necessary preconditions permitted). Tag every AC with platform and toggle state.
 
 ### AC 1 — [Short Label]
 
@@ -64,7 +64,7 @@ Then   the product card shows the price highlighted (style update only)
        AND the product UI structure is unchanged
 ```
 
-### AC 3 — [Market: VN] Tender Contract Tag
+### AC 3 — [Market: VN] Tender Contract Tag Display
 
 ```
 Toggle: N/A
@@ -76,7 +76,20 @@ Given  the user is a VN Customer
   AND  a Tender Contract product is available in the product catalog
 When   the user views the product card
 Then   the product card shows a "Tender available" tag with icon
-  AND  if the product has a mandatory tender contract, the CTA reads "Buy with tender"
+```
+
+### AC 4 — [Market: VN] Tender Contract Mandatory CTA
+
+```
+Toggle: N/A
+Platform: [BOTH]
+Market: VN
+Actor: VN Customer
+
+Given  the user is a VN Customer
+  AND  a product with a mandatory tender contract is available in the product catalog
+When   the user views the product card
+Then   the product card CTA reads "Buy with tender"
 ```
 
 ---
@@ -88,6 +101,7 @@ Then   the product card shows a "Tender available" tag with icon
 | AC 1 | Customer     | BOTH     | DisplayItemTaxBreakdown=ON  | All    |
 | AC 2 | Customer     | BOTH     | DisplayItemTaxBreakdown=OFF | All    |
 | AC 3 | VN Customer  | BOTH     | N/A                         | VN     |
+| AC 4 | VN Customer  | BOTH     | N/A                         | VN     |
 
 ---
 

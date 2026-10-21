@@ -103,6 +103,28 @@ Requirement layering is explicit in the SDLC workflow names and outputs:
 - `implementation-readiness` and later phases enforce living traceability updates across BRD-lite -> PRD -> SRS/FRS -> verification evidence
 - Core SDLC outputs include an adapter-neutral Outcome Report (`feature_status`, `requirement_trace`, completed evidence, missing evidence, decision needed, recommended next workflow) so runtimes can report whether work is not started, requirements-ready, design-ready, partial, implemented, or blocked without embedding project-specific orchestration concepts.
 
+### Requirements Modeling & View Selection
+
+Complex feature discovery uses progressive disclosure: `product-management/product-requirements` loads `references/requirements-modeling.md` on demand for scope trees, completeness, canonical rules, question-driven view selection, low-risk ticket equivalence, sensitive-change floors (technical design plus explicit human/governance approval), and scoped change impact carrying existing IDs.
+
+Canonical guidance remains host-neutral; provider, account, profile, model, and machine specifics belong in host planning records only.
+
+### 3.1 Optional Product Evidence Layer (Release Candidate)
+
+Initiatives requiring rigorous, audit-grade decision backing can opt into the product evidence lifecycle. This introduces three optional workflows without altering default sync or core chain reachability:
+
+- **`discover-product`**: Frames evidence-grounded product opportunities, verified problem context, non-goals, and falsifiable hypotheses upstream of or alongside `brainstorm-feature`/`plan-feature`.
+- **`validate-product`**: Validates prioritized hypotheses through bounded experiments, precommitted thresholds, and host authorization gates before committing implementation capacity.
+- **`review-product-value`**: Audits realized post-release product value against registered measurement contracts and baseline evidence, decoupling delivery completion from causal ROI.
+
+All product decisions ground in a versioned local evidence ledger at `docs/product/<slug>/evidence.json` managed by `product-management/product-evidence`, featuring immutable recorded decisions (`DEC`), structured provenance, and host authorization boundaries.
+
+### 3.2 Discovery & Runtime Boundaries
+
+- **Runtime Versions**: Standalone resource scripts (`skills/product-management/product-evidence/scripts/validate-product-evidence.mjs` and `skills/product-management/product-investment/scripts/evaluate-investment.mjs`) are standalone ECMAScript modules requiring Node >=20. In contrast, the CLI sync engine (`SyncService.ts` using `Promise.withResolvers`) and the T09 consumer integration test harness require Node 22+.
+- **Workflow Discovery Surface**: The MCP server (`list_workflows`, `get_workflow`) scans only the canonical `<root>/.agents/workflows` directory, which is exported by default to Antigravity and Kiro. Other agents (Codex, Claude, Gemini, Roo, OpenCode) receive workflows through their respective native command or skill surfaces (`.codex/skills`, `.claude/commands`, `.gemini/commands`, etc.). No runtime scanner expansion into native directories is introduced.
+- **JSON Routing & Trigger Boundaries**: With `product-evidence` in `product-management`, JSON routing maps `*.json` to candidate categories (`common` and `product-management`). `product-evidence` activates exclusively on its narrow scoped file trigger (`docs/product/*/evidence.json`); the seven advanced PM methods remain strictly keyword-only (`triggers.files: []`); and the two PM foundation skills (`product-business-requirements` and `product-requirements`) match only their specific markdown specs (`BRD.md`, `PRD.md`, `docs/brd/brd-*.md`, `docs/prd/prd-*.md`, `specs/*.md`). `package.json` and unrelated JSON files trigger only appropriate common audit skills and NEVER match any `product-management` skills.
+
 ## 4. Hook-Based Transparency
 
 Inspired by **Rust Token Killer (RTK)**, we aim for a zero-trust, low-overhead context model. This means:

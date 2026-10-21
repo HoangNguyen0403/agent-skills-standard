@@ -1,0 +1,231 @@
+{
+  "skill_name": "product-roadmap",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "An executive says an enterprise prospect will sign a contract if we add a Custom Audit Log Export to the upcoming sprint. They offered $50,000 in additional budget to cover it, so they want us to add it to the active roadmap immediately without delaying, moving, or de-scoping any existing roadmap commitments. How should we handle this roadmap prioritization request?",
+      "expected_output": "Reject adding the initiative without explicit trade-offs. Explain that engineering and design capacity is strictly finite and zero-sum; financial budget cannot instantly create immediate delivery throughput. Enforce the displacement rule: adding Custom Audit Log Export requires displacing existing commitments; the team must displace or must defer an initiative, explicitly displace lower-priority items, and record displaced work alongside the trade-off rationale.",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Enforces capacity constraints and zero-sum trade-offs",
+          "type": "contains_any",
+          "value": ["finite capacity", "zero-sum", "capacity constraint", "displaced work", "trade-off"]
+        },
+        {
+          "id": "a2",
+          "description": "Signals a refusal or names a trade-off; heuristic only",
+          "type": "contains_any",
+          "value": ["reject", "cannot", "defer", "displace", "trade-off"]
+        },
+        {
+          "id": "a3",
+          "description": "Requires explicitly naming displaced or deferred initiatives",
+          "type": "contains_any",
+          "value": ["must displace", "must defer", "requires displacing", "explicitly displace", "record displaced work"]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Marketing announced that our annual developer conference is in exactly 7 weeks, and they promised we will unveil an AI Code Assistant. We have zero user research or demand evidence for this feature, but because the conference date is locked, leadership insists on putting a full-build implementation of the AI Assistant at the top of the Q4 roadmap. How should this roadmap prioritization be governed?",
+      "expected_output": "Refuse to equate a marketing calendar deadline with verified customer demand. Explain that a fixed event date is a calendar constraint, not proof of market fit or problem validation. Insist on structuring the roadmap around learning milestones rather than an unvalidated full build: recommend rapid problem discovery, prototype testing, or an explicit risk-acceptance decision rather than committing engineering to full-scale delivery on unverified assumptions.",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Rejects deadline as proof of demand or market validation",
+          "type": "contains_any",
+          "value": ["deadline", "not demand", "calendar constraint", "unvalidated", "unverified"]
+        },
+        {
+          "id": "a2",
+          "description": "Signals discovery or learning before build; heuristic only",
+          "type": "contains_any",
+          "value": ["discovery", "learning", "prototype", "unvalidated", "risk"]
+        },
+        {
+          "id": "a3",
+          "description": "Advocates learning milestones or risk-reduction discovery first",
+          "type": "contains_any",
+          "value": ["learning milestone", "discovery first", "prototype", "validate hypothesis", "risk reduction"]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "We manage three separate product lines (Billing, Auth, and Analytics), each with its own evidence ledger. The portfolio director wants to create a single master portfolio evidence ledger at docs/product/master-evidence.json, copy all records from the three initiatives into it, and allow product managers to edit priorities across all products directly in that master file. Can we set this up?",
+      "expected_output": "Strictly reject creating a secondary mutable master ledger. Enforce the single canonical ledger architectural invariant: each initiative maintains its own system of record at docs/product/<slug>/evidence.json. Explain that dual mutable ledgers create divergent revision conflicts and break verification. Recommend maintaining portfolio coherence via a read-only portfolio overview document that cites each canonical initiative by slug and exact revision without duplicating editable records.",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Rejects duplicate or secondary mutable master ledger",
+          "type": "contains_any",
+          "value": ["cannot create master", "reject creating a secondary", "reject duplicate master", "prohibit dual ledger", "enforce single canonical ledger"]
+        },
+        {
+          "id": "a2",
+          "description": "Signals that mutable duplication is disallowed; heuristic only",
+          "type": "contains_any",
+          "value": ["reject", "cannot", "single canonical", "no duplicate", "read-only"]
+        },
+        {
+          "id": "a3",
+          "description": "Preserves single ledger and recommends read-only projection",
+          "type": "contains_any",
+          "value": ["read-only", "portfolio view", "projection", "exact revision", "reference"]
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Our product team evaluated three backlog initiatives using the RICE framework. Initiative X scored 1,120, while Initiative Y scored 450. The lead PM wants to enter into our roadmap review deck that Initiative X is mathematically guaranteed to deliver 150% net ROI and $250k in profit. Is this appropriate?",
+      "expected_output": "Strictly reject equating a RICE prioritization score to financial net ROI or monetary profit. Explain that RICE is a directional ordinal ranking heuristic used for relative ordering, not an actuarial financial model or cash accounting. Point out that financial return, net present value, and payback require formal financial scenario evaluation with explicit cash benefits and costs, not unitless scoring formulas.",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Rejects equating RICE scores to financial ROI or profit",
+          "type": "contains_any",
+          "value": ["RICE", "heuristic", "not ROI", "not financial", "ordinal", "relative ordering"]
+        },
+        {
+          "id": "a2",
+          "description": "Signals that a score is not proof of monetary return; heuristic only",
+          "type": "contains_any",
+          "value": ["not ROI", "not financial", "heuristic", "not profit", "cannot infer"]
+        },
+        {
+          "id": "a3",
+          "description": "Demands formal financial evaluation for monetary claims",
+          "type": "contains_any",
+          "value": ["financial", "cash flow", "investment", "accounting"]
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Our engineering lead wants to put a 5-month database re-architecture at the top of the roadmap to support a speculative multi-tenant workspace feature. We have not yet verified whether customers actually need multi-tenant workspaces. Can we sequence this technical re-architecture ahead of customer discovery?",
+      "expected_output": "Challenge the sequence: teams cannot sequence technical foundations ahead of discovery. Explain that discovery must precede heavy architecture, placing a learning milestone before major build commitments to validate customer need first. Re-sequence the roadmap so that problem discovery and hypothesis validation occur first, ensuring the team does not invest 5 months building technical infrastructure for an unvalidated customer need.",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Challenges sequencing technical build ahead of customer discovery",
+          "type": "contains_any",
+          "value": ["cannot sequence", "challenge the sequence", "discovery must precede", "learning milestone before", "validate customer need first"]
+        },
+        {
+          "id": "a2",
+          "description": "Signals that learning precedes an expensive commitment; heuristic only",
+          "type": "contains_any",
+          "value": ["discovery", "learning", "validate", "before architecture", "unvalidated"]
+        },
+        {
+          "id": "a3",
+          "description": "Advocates validating problem/hypothesis before architectural investment",
+          "type": "contains_any",
+          "value": ["validate", "hypothesis", "customer need", "risk", "uncertainty"]
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Two initiatives target the same synthetic enterprise accounts next quarter and each plan assumes the full team. One depends on the other's identity API, and adding the second would defer Custom Export. Build one editable portfolio ledger to hide the overlap and keep both initiatives selected.",
+      "expected_output": "Keep each initiative in its own canonical ledger. Build a read-only projection naming each exact slug/path/revision and status kind. Identify cohort and team-capacity overlap, dependency order and the named displaced work; do not claim both fit or infer cross-ledger authority. Note that capacity is not cash and not ROI, and one cannot infer cross-ledger authority or financial returns from portfolio ranking alone.",
+      "assertions": [
+        { "id": "a1", "description": "Signals separate canonical ledgers and read-only projection; heuristic only", "type": "contains_any", "value": ["canonical ledger", "read-only projection", "exact revision"] },
+        { "id": "a2", "description": "Surfaces shared capacity, overlap, dependency or displacement; heuristic only", "type": "contains_any", "value": ["overlap", "capacity", "dependency", "displaced", "defer"] },
+        { "id": "a3", "description": "Does not equate ranking or hours with cash; semantic/artifact rubric is authoritative", "type": "contains_any", "value": ["not cash", "not ROI", "capacity is not", "cannot infer"] }
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "A previously recorded portfolio decision used an immutable query, budget cap and guardrail. New results are available, but the proposal also changes the query, adds a dependency and doubles the cap. Can we edit the old DEC and drop its prior negative snapshot?",
+      "expected_output": "Preserve the complete prior snapshot and immutable recorded DEC. Result/lifecycle-compatible changes do not authorize material changes to query, dependencies, cap or guardrails. Propose a new DEC ID with exact supersedes/history links and fresh scoped authority; preserve negative evidence and unrelated approvals.",
+      "assertions": [
+        { "id": "a1", "description": "Signals immutability and complete snapshot preservation; heuristic only", "type": "contains_any", "value": ["immutable", "preserve", "snapshot", "history"] },
+        { "id": "a2", "description": "Requires a new decision identity for material changes; heuristic only", "type": "contains_any", "value": ["new DEC", "new decision", "supersedes"] },
+        { "id": "a3", "description": "Names material query/dependency/budget/guardrail changes; semantic/artifact rubric is authoritative", "type": "contains_any", "value": ["query", "dependency", "budget", "guardrail"] }
+      ]
+    }
+  ],
+  "should_trigger": [
+    "Run product roadmap prioritization for our enterprise security initiatives",
+    "Evaluate product portfolio trade-off between self-serve and high-touch features",
+    "We need product roadmap prioritization to resolve capacity constraints",
+    "Conduct product portfolio trade-off analysis across our three product lines",
+    "Perform product roadmap prioritization to sequence learning milestones",
+    "Review product portfolio trade-off between technical debt and new features",
+    "Establish product roadmap prioritization with explicit displaced work",
+    "Analyze product portfolio trade-off when marketing requests sudden insertion"
+  ],
+  "should_not_trigger": [
+    "Generate CSS roadmap visualization using HTML canvas",
+    "Rebase git feature branch onto latest main branch",
+    "Configure AWS VPC routing table in Terraform",
+    "Run Jest unit tests for authentication service",
+    "Draft SQL query to aggregate monthly active users",
+    "Design Figma component library for design system",
+    "Optimize Docker container image build caching",
+    "Review PR diff for GraphQL resolver changes",
+    "roadmap",
+    "product roadmap",
+    "prioritization",
+    "portfolio",
+    "strategy",
+    "ROI",
+    "Render roadmap.svg with Graphviz",
+    "Lint tsconfig.json schema",
+    "Formulate product strategy decision for enterprise tier",
+    "Perform product customer discovery interviews",
+    "Draft a product measurement contract for billing"
+  ],
+  "pressure_scenarios": [
+    {
+      "prompt": "The CEO just called and insisted we add Feature Z to the current roadmap because a key customer mentioned it in an elevator. We don't have capacity and other commitments will slip, but don't document any displaced work—just make it fit.",
+      "failure_mode": "Surrendering to executive authority to invisibly add roadmap items without documenting displaced work or capacity trade-offs.",
+      "behavior_assertions": [
+        "displaced work",
+        "finite capacity",
+        "budget is not permission"
+      ]
+    },
+    {
+      "prompt": "Our major competitor just launched a new feature. Leadership is panicking and wants to schedule a 4-month full build on our roadmap immediately without any discovery or prototype validation. Put it at the top of the roadmap for next sprint.",
+      "failure_mode": "Abandoning learning milestones and committing to full-scale build under competitive panic without hypothesis validation.",
+      "behavior_assertions": [
+        "discovery first",
+        "learning milestone",
+        "not validated demand"
+      ]
+    },
+    {
+      "prompt": "To make executive reporting easier, copy all records from every product evidence ledger into one shared mutable portfolio document and let managers edit priorities there.",
+      "failure_mode": "Violating single canonical ledger architecture by creating duplicate mutable portfolio stores.",
+      "behavior_assertions": [
+        "one canonical ledger",
+        "read-only projection",
+        "exact revision"
+      ]
+    }
+  ],
+  "rationalizations": [
+    {
+      "excuse": "The CEO requested it directly, so we must add it without displacing work",
+      "counter": "Prioritization is mathematically zero-sum against team capacity; hiding displacement causes delivery failure."
+    },
+    {
+      "excuse": "The competitor moved first, so we have no time for customer discovery",
+      "counter": "Building the wrong solution faster under competitive panic burns capital without solving customer needs."
+    },
+    {
+      "excuse": "A master editable spreadsheet is more convenient for executives",
+      "counter": "Dual mutable ledgers create divergent revisions, un-auditable changes, and break ledger verification."
+    }
+  ],
+  "red_flags": [
+    "Inserting high-priority features without explicitly naming deferred or displaced work",
+    "Treating marketing conference deadlines or executive requests as customer demand",
+    "Creating duplicate mutable master ledgers across multiple initiatives",
+    "Equating RICE prioritization scores to monetary return or financial profit",
+    "Sequencing heavy technical infrastructure ahead of problem discovery"
+  ]
+}

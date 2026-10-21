@@ -50,8 +50,12 @@ Skills are the core value of this project.
 7. **Evidence first**: Retain applicable earlier cases, remove obsolete expectations, and add preventing cases for corrected behavior. Candidate fixtures are not live efficacy evidence.
 8. **Public package boundary**: Do not ship project-specific environment, VPN, account-selection, or credential-handling recipes in reusable skills or references.
 9. **Trigger precision**: Qualify collision-prone framework topics; retain unrelated workflow negatives and intended qualified positives. Test consumer routing, not metadata copies.
-10. **System-design package**: Keep design-process ownership in `system-design-methodology` and critical-flow semantics in `system-design-data-architecture`; link to the canonical flow contract instead of copying it. Route mobile/client or SDK guidance only when those surface constraints affect correctness. Select views from decisions; do not impose infrastructure or diagram quotas.
-
+10. **Requirements modeling & scope trees**: For complex feature discovery, load `references/requirements-modeling.md` on demand for verb-object scope trees, stop rules, and canonical shared definitions.
+11. **Question-driven representations & diagram reuse**: Select views by question per `references/requirements-modeling.md`. Diagrams remain optional when markdown tables or prose answer precisely; reuse existing diagram capabilities.
+12. **Low-risk equivalence & sensitive floors**: Low-risk maintenance tickets with approved behavioral AC, owner, scope fence, approval, and verification lane satisfy readiness without document creation. Enforce sensitive floors per `references/requirements-modeling.md`.
+13. **Scoped change impact**: When requirements change, trace affected ACs, contracts, approvals, and evidence carrying existing IDs without reopening settled decisions.
+14. **Host-neutral guidance**: Keep provider, account, profile, model, and machine specifics in host planning records only, not canonical guidance.
+15. **System-design package**: Keep design-process ownership in `system-design-methodology` and critical-flow semantics in `system-design-data-architecture`; link to the canonical flow contract instead of copying it. Route mobile/client or SDK guidance only when those surface constraints affect correctness. Select views from decisions; do not impose infrastructure or diagram quotas.
 
 ## 4. Creating Workflows
 
@@ -94,7 +98,24 @@ Rules:
   Resource changes invalidate skill-loaded evidence. Historical evidence remains
   readable but is not upgraded retroactively into whole-package proof.
 
-## 6. Default Init Standards
+## 6. Product management packages and evidence lifecycle
+
+- `product-management` defaults to two foundation skills (`product-business-requirements` and `product-requirements`) via category include allowlist during `ags init`. The eight advanced skills (`product-evidence` and the seven discovery/validation methods) are opt-in. Select them in `.skillsrc` under `skills` with a reviewed immutable `ref` (omit `include` or list desired skills explicitly); before the first category release, use a reviewed commit SHA. Add `discover-product`, `validate-product` and/or `review-product-value` explicitly to `workflows` (or set `workflows: true`).
+- All product decisions ground in `docs/product/<slug>/evidence.json` via `product-management/product-evidence`. Never fabricate customer observations, interview quotes, or causal ROI.
+- Keep seven advanced PM skills keyword-only (`triggers.files: []`); keep `product-evidence` scoped to `docs/product/*/evidence.json`; keep foundation BRD/PRD skills scoped to their respective spec files. Never add broad markdown globs or universal file triggers that activate PM skills unexpectedly.
+- Standalone validator (`validate-product-evidence.mjs`) and investment calculator
+  (`evaluate-investment.mjs`) require Node >=20. In contrast, CLI sync and the T09
+  integration harness require Node 22+ (using `Promise.withResolvers`).
+- Invocation of standalone resources returns structural findings and host-check
+  eligibility, never autonomous action consent. Review scripts before execution;
+  sync preserves bytes and ownership but does not grant autonomous spend,
+  experiment exposure, or rollout authority.
+- MCP workflow discovery (`list_workflows`, `get_workflow`) scans only canonical
+  `<root>/.agents/workflows` (Antigravity/Kiro). Other agents export workflows to
+  their native surfaces; no runtime scanner expansion is performed.
+- JSON routing maps `*.json` to `common` and `product-management`. `product-evidence` matches exclusively `docs/product/*/evidence.json`, while advanced PM skills are strictly keyword-only and never match `package.json` or unrelated JSON files.
+
+## 7. Default Init Standards
 
 `ags init` should create a useful SDLC standards layer without requiring profile files.
 
@@ -110,7 +131,7 @@ Rules:
 8. New specialists must include `evals/evals.json`, strict budgets, structured output, and `No sub-agents`.
 9. Specialists and generated workflow skills set `metadata.internal: true` so skill installers (`npx skills`) don't offer them as installable skills.
 
-## 7. Quality Gates
+## 8. Quality Gates
 
 Run these before PR:
 
@@ -173,7 +194,7 @@ pnpm benchmark:report
 
 Guardrail-oriented skill changes should also verify that the benchmark report shows behavior coverage for the edited skills.
 
-## 8. Release Process
+## 9. Release Process
 
 We use specialized scripts for releasing components independently:
 

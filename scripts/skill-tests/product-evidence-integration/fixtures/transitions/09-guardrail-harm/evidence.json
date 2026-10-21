@@ -1,0 +1,418 @@
+{
+  "schema_version": 1,
+  "slug": "guardrail-harm",
+  "product_id": "prod-009",
+  "revision": "r1",
+  "synthetic": true,
+  "updated_at": "2026-10-12T00:00:00Z",
+  "strategy_authority": null,
+  "strategy_gap": "Post-release review",
+  "authorities": [
+    {
+      "id": "AUTH-001",
+      "domain": "authorization",
+      "locator": {
+        "kind": "local",
+        "path": "auth.md",
+        "sha256": "5b94d375964fa6fc2b901ce9a2a7f823dc23856049f290b5c1cf095689afaf5c"
+      },
+      "revision": "sha256:5b94d375964fa6fc2b901ce9a2a7f823dc23856049f290b5c1cf095689afaf5c",
+      "owner": "sre-director",
+      "scope": {
+        "segment": "enterprise-ops",
+        "geography": "global",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        }
+      },
+      "declared_ids": [],
+      "access": "available"
+    }
+  ],
+  "authority_history": [],
+  "record_history": [],
+  "records": [
+    {
+      "id": "DEC-000",
+      "kind": "DEC",
+      "revision": "r1",
+      "owner": "sponsor",
+      "scope": {
+        "segment": "enterprise-ops",
+        "geography": "global",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        }
+      },
+      "depends_on": [],
+      "freshness": {
+        "status": "current",
+        "rationale": "Synthetic fixture",
+        "reviewed_at": "2026-10-10T00:00:00Z",
+        "expires_at": "2026-11-01T00:00:00Z",
+        "review_triggers": [
+          "fixture update"
+        ]
+      },
+      "data": {
+        "purpose": "learning",
+        "status": "recorded",
+        "outcome": "authorize",
+        "consumes": [],
+        "critical_claims": [],
+        "authority_id": "AUTH-001",
+        "authority_revision": "sha256:5b94d375964fa6fc2b901ce9a2a7f823dc23856049f290b5c1cf095689afaf5c",
+        "strategy_binding": null,
+        "artifact_bindings": [
+          {
+            "path": "auth.md",
+            "sha256": "5b94d375964fa6fc2b901ce9a2a7f823dc23856049f290b5c1cf095689afaf5c"
+          }
+        ],
+        "decided_at": "2026-08-01T00:00:00Z",
+        "rationale": "Initial exploratory testing",
+        "uncertainties": [],
+        "revisit_triggers": [
+          "testing completes"
+        ],
+        "supersedes": null
+      }
+    },
+    {
+      "id": "SRC-001",
+      "kind": "SRC",
+      "revision": "r1",
+      "owner": "sre-lead",
+      "scope": {
+        "segment": "enterprise-ops",
+        "geography": "global",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        }
+      },
+      "depends_on": [],
+      "freshness": {
+        "status": "current",
+        "rationale": "Synthetic fixture",
+        "reviewed_at": "2026-10-10T00:00:00Z",
+        "expires_at": "2026-11-01T00:00:00Z",
+        "review_triggers": [
+          "fixture update"
+        ]
+      },
+      "data": {
+        "locator": {
+          "kind": "external",
+          "uri": "urn:synthetic:error-metrics",
+          "snapshot_sha256": null
+        },
+        "origin": {
+          "publisher": "SRE Gateway",
+          "origin_id": "urn:synthetic:error-rate",
+          "classification": "primary",
+          "revision": "log-r1",
+          "observed_at": "2026-10-11T00:00:00Z",
+          "scope": {
+            "segment": "enterprise-ops",
+            "geography": "global",
+            "window": {
+              "start": "2026-10-01T00:00:00Z",
+              "end": "2026-11-01T00:00:00Z"
+            }
+          }
+        },
+        "retrieved_at": "2026-10-12T00:00:00Z",
+        "privacy": {
+          "classification": "internal",
+          "redaction": "none",
+          "access": "available"
+        },
+        "license": {
+          "identifier": "unknown",
+          "usage": "citation_only",
+          "restrictions": []
+        },
+        "status": "available",
+        "limitations": [
+          "Live error spike detected"
+        ]
+      }
+    },
+    {
+      "id": "MET-001",
+      "kind": "MET",
+      "revision": "r1",
+      "owner": "sre-lead",
+      "scope": {
+        "segment": "enterprise-ops",
+        "geography": "global",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        }
+      },
+      "depends_on": [
+        {
+          "id": "SRC-001",
+          "revision": "r1"
+        }
+      ],
+      "freshness": {
+        "status": "current",
+        "rationale": "Synthetic fixture",
+        "reviewed_at": "2026-10-10T00:00:00Z",
+        "expires_at": "2026-11-01T00:00:00Z",
+        "review_triggers": [
+          "fixture update"
+        ]
+      },
+      "data": {
+        "definition": "Payment gateway timeout rate",
+        "unit": "ratio",
+        "denominator": "checkout transactions",
+        "query": {
+          "id": "SRC-001",
+          "revision": "r1"
+        },
+        "query_revision": "log-r1",
+        "baseline": null,
+        "baseline_exception": null,
+        "comparison_window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        },
+        "eligibility": "All checkout traffic",
+        "target": "0.001",
+        "guardrail": "timeout rate < 0.005",
+        "measurement_owner": "sre",
+        "review_trigger": "real-time anomaly",
+        "status": "observed"
+      }
+    },
+    {
+      "id": "REV-001",
+      "kind": "REV",
+      "revision": "r1",
+      "owner": "product-lead",
+      "scope": {
+        "segment": "enterprise-ops",
+        "geography": "global",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        }
+      },
+      "depends_on": [
+        {
+          "id": "MET-001",
+          "revision": "r1"
+        },
+        {
+          "id": "SRC-001",
+          "revision": "r1"
+        }
+      ],
+      "freshness": {
+        "status": "current",
+        "rationale": "Synthetic fixture",
+        "reviewed_at": "2026-10-10T00:00:00Z",
+        "expires_at": "2026-11-01T00:00:00Z",
+        "review_triggers": [
+          "fixture update"
+        ]
+      },
+      "data": {
+        "decision": {
+          "id": "DEC-001",
+          "revision": "r1"
+        },
+        "hypotheses": [],
+        "metrics": [
+          {
+            "id": "MET-001",
+            "revision": "r1"
+          }
+        ],
+        "observations": [
+          {
+            "id": "SRC-001",
+            "revision": "r1"
+          }
+        ],
+        "actual_costs": [],
+        "attribution": {
+          "classification": "causal_supported",
+          "rationale": "Gateway timeouts directly caused by checkout-v2 deployment",
+          "confounders": []
+        },
+        "recommendation": "stop",
+        "limitations": [
+          "Guardrail breached; payment timeouts escalated to incident-hotfix"
+        ],
+        "reviewed_at": "2026-10-12T00:00:00Z"
+      }
+    },
+    {
+      "id": "DEC-001",
+      "kind": "DEC",
+      "revision": "r1",
+      "owner": "sponsor",
+      "scope": {
+        "segment": "enterprise-ops",
+        "geography": "global",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        }
+      },
+      "depends_on": [],
+      "freshness": {
+        "status": "current",
+        "rationale": "Synthetic fixture",
+        "reviewed_at": "2026-10-10T00:00:00Z",
+        "expires_at": "2026-11-01T00:00:00Z",
+        "review_triggers": [
+          "fixture update"
+        ]
+      },
+      "data": {
+        "purpose": "investment",
+        "status": "recorded",
+        "outcome": "authorize",
+        "consumes": [],
+        "critical_claims": [],
+        "authority_id": "AUTH-001",
+        "authority_revision": "sha256:5b94d375964fa6fc2b901ce9a2a7f823dc23856049f290b5c1cf095689afaf5c",
+        "strategy_binding": null,
+        "artifact_bindings": [
+          {
+            "path": "auth.md",
+            "sha256": "5b94d375964fa6fc2b901ce9a2a7f823dc23856049f290b5c1cf095689afaf5c"
+          }
+        ],
+        "decided_at": "2026-09-01T00:00:00Z",
+        "rationale": "Original feature authorization",
+        "uncertainties": [],
+        "revisit_triggers": [
+          "post-release monitoring"
+        ],
+        "supersedes": null
+      }
+    },
+    {
+      "id": "DEC-002",
+      "kind": "DEC",
+      "revision": "r1",
+      "owner": "sre-director",
+      "scope": {
+        "segment": "enterprise-ops",
+        "geography": "global",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        }
+      },
+      "depends_on": [
+        {
+          "id": "MET-001",
+          "revision": "r1"
+        },
+        {
+          "id": "SRC-001",
+          "revision": "r1"
+        }
+      ],
+      "freshness": {
+        "status": "current",
+        "rationale": "Synthetic fixture",
+        "reviewed_at": "2026-10-10T00:00:00Z",
+        "expires_at": "2026-11-01T00:00:00Z",
+        "review_triggers": [
+          "fixture update"
+        ]
+      },
+      "data": {
+        "purpose": "value_review",
+        "status": "recorded",
+        "outcome": "stop",
+        "consumes": [
+          {
+            "id": "MET-001",
+            "revision": "r1"
+          }
+        ],
+        "critical_claims": [],
+        "authority_id": "AUTH-001",
+        "authority_revision": "sha256:5b94d375964fa6fc2b901ce9a2a7f823dc23856049f290b5c1cf095689afaf5c",
+        "strategy_binding": null,
+        "artifact_bindings": [
+          {
+            "path": "auth.md",
+            "sha256": "5b94d375964fa6fc2b901ce9a2a7f823dc23856049f290b5c1cf095689afaf5c"
+          }
+        ],
+        "decided_at": "2026-10-12T00:00:00Z",
+        "rationale": "Guardrail timeout breach detected; stop further exposure and escalate to incident-hotfix",
+        "uncertainties": [],
+        "revisit_triggers": [
+          "incident remediation"
+        ],
+        "supersedes": null
+      }
+    }
+  ],
+  "bridges": [],
+  "product_state": {
+    "value": "invalidated",
+    "reason": "Guardrail metric breached threshold; incident response initiated",
+    "scope": {
+      "segment": "enterprise-ops",
+      "geography": "global",
+      "window": {
+        "start": "2026-10-01T00:00:00Z",
+        "end": "2026-11-01T00:00:00Z"
+      }
+    },
+    "hypotheses": [],
+    "decision": {
+      "id": "DEC-002",
+      "revision": "r1"
+    },
+    "assessed_at": "2026-10-12T00:00:00Z",
+    "history": [
+      {
+        "from": "unvalidated",
+        "to": "validating",
+        "at": "2026-08-01T00:00:00Z",
+        "reason": "Initial exploratory testing",
+        "decision": {
+          "id": "DEC-000",
+          "revision": "r1"
+        }
+      },
+      {
+        "from": "validating",
+        "to": "validated_for_scope",
+        "at": "2026-09-01T00:00:00Z",
+        "reason": "Feature verified and released",
+        "decision": {
+          "id": "DEC-001",
+          "revision": "r1"
+        }
+      },
+      {
+        "from": "validated_for_scope",
+        "to": "invalidated",
+        "at": "2026-10-12T00:00:00Z",
+        "reason": "Guardrail metric breached threshold; incident response initiated",
+        "decision": {
+          "id": "DEC-002",
+          "revision": "r1"
+        }
+      }
+    ]
+  }
+}

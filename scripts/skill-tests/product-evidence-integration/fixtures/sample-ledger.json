@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "slug": "smoke-structural-valid",
+  "product_id": "smoke-product",
+  "revision": "r1",
+  "synthetic": true,
+  "updated_at": "2026-10-14T00:00:00Z",
+  "strategy_authority": null,
+  "strategy_gap": "Synthetic test ledger",
+  "authorities": [],
+  "authority_history": [],
+  "records": [],
+  "record_history": [],
+  "bridges": [],
+  "product_state": {
+    "value": "unvalidated",
+    "reason": "Synthetic structural intake test",
+    "scope": {
+      "segment": "smoke-cohort",
+      "geography": "global",
+      "window": {
+        "start": "2026-10-01T00:00:00Z",
+        "end": "2026-11-01T00:00:00Z"
+      }
+    },
+    "hypotheses": [],
+    "decision": null,
+    "assessed_at": "2026-10-14T00:00:00Z",
+    "history": []
+  }
+}

@@ -1,0 +1,409 @@
+{
+  "schema_version": 1,
+  "slug": "released-inconclusive",
+  "product_id": "prod-008",
+  "revision": "r1",
+  "synthetic": true,
+  "updated_at": "2026-10-12T00:00:00Z",
+  "strategy_authority": null,
+  "strategy_gap": "Post-release review",
+  "authorities": [
+    {
+      "id": "AUTH-001",
+      "domain": "authorization",
+      "locator": {
+        "kind": "local",
+        "path": "auth.md",
+        "sha256": "a66f3c445862d5bd7be43842e087e31d493791a627ae4ce741d3c97606950cc4"
+      },
+      "revision": "sha256:a66f3c445862d5bd7be43842e087e31d493791a627ae4ce741d3c97606950cc4",
+      "owner": "sponsor",
+      "scope": {
+        "segment": "enterprise-ops",
+        "geography": "global",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        }
+      },
+      "declared_ids": [],
+      "access": "available"
+    }
+  ],
+  "authority_history": [],
+  "record_history": [],
+  "records": [
+    {
+      "id": "DEC-000",
+      "kind": "DEC",
+      "revision": "r1",
+      "owner": "sponsor",
+      "scope": {
+        "segment": "enterprise-ops",
+        "geography": "global",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        }
+      },
+      "depends_on": [],
+      "freshness": {
+        "status": "current",
+        "rationale": "Synthetic fixture",
+        "reviewed_at": "2026-10-10T00:00:00Z",
+        "expires_at": "2026-11-01T00:00:00Z",
+        "review_triggers": [
+          "fixture update"
+        ]
+      },
+      "data": {
+        "purpose": "learning",
+        "status": "recorded",
+        "outcome": "authorize",
+        "consumes": [],
+        "critical_claims": [],
+        "authority_id": "AUTH-001",
+        "authority_revision": "sha256:a66f3c445862d5bd7be43842e087e31d493791a627ae4ce741d3c97606950cc4",
+        "strategy_binding": null,
+        "artifact_bindings": [
+          {
+            "path": "auth.md",
+            "sha256": "a66f3c445862d5bd7be43842e087e31d493791a627ae4ce741d3c97606950cc4"
+          }
+        ],
+        "decided_at": "2026-08-01T00:00:00Z",
+        "rationale": "Initial exploratory testing",
+        "uncertainties": [],
+        "revisit_triggers": [
+          "testing completes"
+        ],
+        "supersedes": null
+      }
+    },
+    {
+      "id": "SRC-001",
+      "kind": "SRC",
+      "revision": "r1",
+      "owner": "analytics",
+      "scope": {
+        "segment": "enterprise-ops",
+        "geography": "global",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        }
+      },
+      "depends_on": [],
+      "freshness": {
+        "status": "unknown",
+        "rationale": "Synthetic fixture",
+        "reviewed_at": "2026-10-10T00:00:00Z",
+        "expires_at": "2026-11-01T00:00:00Z",
+        "review_triggers": [
+          "fixture update"
+        ]
+      },
+      "data": {
+        "locator": {
+          "kind": "external",
+          "uri": "urn:synthetic:telemetry-feed",
+          "snapshot_sha256": null
+        },
+        "origin": {
+          "publisher": "Telemetry",
+          "origin_id": "urn:synthetic:pipeline-latency",
+          "classification": "primary",
+          "revision": "obs-r1",
+          "observed_at": null,
+          "scope": {
+            "segment": "enterprise-ops",
+            "geography": "global",
+            "window": {
+              "start": "2026-10-01T00:00:00Z",
+              "end": "2026-11-01T00:00:00Z"
+            }
+          }
+        },
+        "retrieved_at": "2026-10-10T00:00:00Z",
+        "privacy": {
+          "classification": "internal",
+          "redaction": "none",
+          "access": "available"
+        },
+        "license": {
+          "identifier": "unknown",
+          "usage": "citation_only",
+          "restrictions": []
+        },
+        "status": "unavailable",
+        "limitations": [
+          "Telemetry pipeline active only 3 days; observations unseasoned"
+        ]
+      }
+    },
+    {
+      "id": "MET-001",
+      "kind": "MET",
+      "revision": "r1",
+      "owner": "analytics",
+      "scope": {
+        "segment": "enterprise-ops",
+        "geography": "global",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        }
+      },
+      "depends_on": [
+        {
+          "id": "SRC-001",
+          "revision": "r1"
+        }
+      ],
+      "freshness": {
+        "status": "unknown",
+        "rationale": "Synthetic fixture",
+        "reviewed_at": "2026-10-10T00:00:00Z",
+        "expires_at": "2026-11-01T00:00:00Z",
+        "review_triggers": [
+          "fixture update"
+        ]
+      },
+      "data": {
+        "definition": "Export utilization",
+        "unit": "count",
+        "denominator": "active users",
+        "query": {
+          "id": "SRC-001",
+          "revision": "r1"
+        },
+        "query_revision": "obs-r1",
+        "baseline": null,
+        "baseline_exception": null,
+        "comparison_window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        },
+        "eligibility": "Active accounts",
+        "target": "500",
+        "guardrail": "server errors < 0.001",
+        "measurement_owner": "analytics",
+        "review_trigger": "30-day review",
+        "status": "unavailable"
+      }
+    },
+    {
+      "id": "REV-001",
+      "kind": "REV",
+      "revision": "r1",
+      "owner": "product-lead",
+      "scope": {
+        "segment": "enterprise-ops",
+        "geography": "global",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        }
+      },
+      "depends_on": [
+        {
+          "id": "MET-001",
+          "revision": "r1"
+        }
+      ],
+      "freshness": {
+        "status": "current",
+        "rationale": "Synthetic fixture",
+        "reviewed_at": "2026-10-10T00:00:00Z",
+        "expires_at": "2026-11-01T00:00:00Z",
+        "review_triggers": [
+          "fixture update"
+        ]
+      },
+      "data": {
+        "decision": {
+          "id": "DEC-001",
+          "revision": "r1"
+        },
+        "hypotheses": [],
+        "metrics": [
+          {
+            "id": "MET-001",
+            "revision": "r1"
+          }
+        ],
+        "observations": [],
+        "actual_costs": [],
+        "attribution": {
+          "classification": "unknown",
+          "rationale": "Telemetry pipeline delay",
+          "confounders": [
+            "Promo event concurrently"
+          ]
+        },
+        "recommendation": "inconclusive",
+        "limitations": [
+          "Unseasoned observation window"
+        ],
+        "reviewed_at": "2026-10-12T00:00:00Z"
+      }
+    },
+    {
+      "id": "DEC-001",
+      "kind": "DEC",
+      "revision": "r1",
+      "owner": "sponsor",
+      "scope": {
+        "segment": "enterprise-ops",
+        "geography": "global",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        }
+      },
+      "depends_on": [],
+      "freshness": {
+        "status": "current",
+        "rationale": "Synthetic fixture",
+        "reviewed_at": "2026-10-10T00:00:00Z",
+        "expires_at": "2026-11-01T00:00:00Z",
+        "review_triggers": [
+          "fixture update"
+        ]
+      },
+      "data": {
+        "purpose": "investment",
+        "status": "recorded",
+        "outcome": "authorize",
+        "consumes": [],
+        "critical_claims": [],
+        "authority_id": "AUTH-001",
+        "authority_revision": "sha256:a66f3c445862d5bd7be43842e087e31d493791a627ae4ce741d3c97606950cc4",
+        "strategy_binding": null,
+        "artifact_bindings": [
+          {
+            "path": "auth.md",
+            "sha256": "a66f3c445862d5bd7be43842e087e31d493791a627ae4ce741d3c97606950cc4"
+          }
+        ],
+        "decided_at": "2026-09-01T00:00:00Z",
+        "rationale": "Original feature authorization",
+        "uncertainties": [],
+        "revisit_triggers": [
+          "post-release review window"
+        ],
+        "supersedes": null
+      }
+    },
+    {
+      "id": "DEC-002",
+      "kind": "DEC",
+      "revision": "r1",
+      "owner": "product-lead",
+      "scope": {
+        "segment": "enterprise-ops",
+        "geography": "global",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        }
+      },
+      "depends_on": [
+        {
+          "id": "MET-001",
+          "revision": "r1"
+        }
+      ],
+      "freshness": {
+        "status": "current",
+        "rationale": "Synthetic fixture",
+        "reviewed_at": "2026-10-10T00:00:00Z",
+        "expires_at": "2026-11-01T00:00:00Z",
+        "review_triggers": [
+          "fixture update"
+        ]
+      },
+      "data": {
+        "purpose": "value_review",
+        "status": "recorded",
+        "outcome": "inconclusive",
+        "consumes": [
+          {
+            "id": "MET-001",
+            "revision": "r1"
+          }
+        ],
+        "critical_claims": [],
+        "authority_id": "AUTH-001",
+        "authority_revision": "sha256:a66f3c445862d5bd7be43842e087e31d493791a627ae4ce741d3c97606950cc4",
+        "strategy_binding": null,
+        "artifact_bindings": [
+          {
+            "path": "auth.md",
+            "sha256": "a66f3c445862d5bd7be43842e087e31d493791a627ae4ce741d3c97606950cc4"
+          }
+        ],
+        "decided_at": "2026-10-12T00:00:00Z",
+        "rationale": "Analytics window unseasoned; product value inconclusive",
+        "uncertainties": [
+          "Telemetry pipeline latency"
+        ],
+        "revisit_triggers": [
+          "mature 30-day window"
+        ],
+        "supersedes": null
+      }
+    }
+  ],
+  "bridges": [],
+  "product_state": {
+    "value": "inconclusive",
+    "reason": "Product value inconclusive due to unseasoned analytics; delivery state released unchanged",
+    "scope": {
+      "segment": "enterprise-ops",
+      "geography": "global",
+      "window": {
+        "start": "2026-10-01T00:00:00Z",
+        "end": "2026-11-01T00:00:00Z"
+      }
+    },
+    "hypotheses": [],
+    "decision": {
+      "id": "DEC-002",
+      "revision": "r1"
+    },
+    "assessed_at": "2026-10-12T00:00:00Z",
+    "history": [
+      {
+        "from": "unvalidated",
+        "to": "validating",
+        "at": "2026-08-01T00:00:00Z",
+        "reason": "Initial exploratory testing",
+        "decision": {
+          "id": "DEC-000",
+          "revision": "r1"
+        }
+      },
+      {
+        "from": "validating",
+        "to": "validated_for_scope",
+        "at": "2026-09-01T00:00:00Z",
+        "reason": "Feature verified and released",
+        "decision": {
+          "id": "DEC-001",
+          "revision": "r1"
+        }
+      },
+      {
+        "from": "validated_for_scope",
+        "to": "inconclusive",
+        "at": "2026-10-12T00:00:00Z",
+        "reason": "Post-release review found unseasoned observations",
+        "decision": {
+          "id": "DEC-002",
+          "revision": "r1"
+        }
+      }
+    ]
+  }
+}

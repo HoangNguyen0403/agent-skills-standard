@@ -713,6 +713,104 @@ describe('IndexGeneratorService', () => {
       },
     );
 
+    it.each([true, false])(
+      'routes product-management only when installed (%s)',
+      async (installed) => {
+        vi.mocked(fs.pathExists).mockResolvedValue(true as never);
+        vi.mocked(fs.readdir).mockResolvedValue(
+          (installed ? ['common', 'product-management'] : ['common']) as never,
+        );
+        vi.mocked(fs.readFile).mockImplementation(async (file) =>
+          String(file).includes('metadata.json')
+            ? JSON.stringify({ file_routing: {} })
+            : '',
+        );
+
+        const result = await service.assembleRouterIndex('/skills');
+        expect(result.includes('product-management/_INDEX.md')).toBe(installed);
+        if (installed) {
+          expect(result).toContain(
+            '| Product discovery, investment, validation, value-review, business requirements, product requirements, BRD or PRD authoring request | `<SKILLS>/product-management/_INDEX.md` |',
+          );
+        }
+      },
+    );
+
+    it('omits product-management when allowedCategories excludes it', async () => {
+      vi.mocked(fs.pathExists).mockResolvedValue(true as never);
+      vi.mocked(fs.readdir).mockResolvedValue([
+        'common',
+        'product-management',
+      ] as never);
+      vi.mocked(fs.readFile).mockImplementation(async (file) =>
+        String(file).includes('metadata.json')
+          ? JSON.stringify({ file_routing: {} })
+          : '',
+      );
+
+      const result = await service.assembleRouterIndex('/skills', ['common']);
+      expect(result).not.toContain('product-management/_INDEX.md');
+    });
+
+    it('routes json extension to common/_INDEX.md via file_routing', async () => {
+      vi.mocked(fs.pathExists).mockResolvedValue(true as never);
+      vi.mocked(fs.readdir).mockResolvedValue(['common'] as never);
+      vi.mocked(fs.readFile).mockImplementation(async (file) =>
+        String(file).includes('metadata.json')
+          ? JSON.stringify({ file_routing: { json: ['common'] } })
+          : '',
+      );
+
+      const result = await service.assembleRouterIndex('/skills');
+      expect(result).toContain('| `*.json` | `<SKILLS>/common/_INDEX.md` |');
+      expect(result).not.toContain('product-management/_INDEX.md');
+    });
+
+    it('routes json extension to both common and product-management when both are installed', async () => {
+      vi.mocked(fs.pathExists).mockResolvedValue(true as never);
+      vi.mocked(fs.readdir).mockResolvedValue([
+        'common',
+        'product-management',
+      ] as never);
+      vi.mocked(fs.readFile).mockImplementation(async (file) =>
+        String(file).includes('metadata.json')
+          ? JSON.stringify({
+              file_routing: { json: ['common', 'product-management'] },
+            })
+          : '',
+      );
+
+      const result = await service.assembleRouterIndex('/skills');
+      expect(result).toContain(
+        '| `*.json` | `<SKILLS>/common/_INDEX.md`, `<SKILLS>/product-management/_INDEX.md` |',
+      );
+      expect(result).toContain(
+        '| Product discovery, investment, validation, value-review, business requirements, product requirements, BRD or PRD authoring request | `<SKILLS>/product-management/_INDEX.md` |',
+      );
+    });
+    it('routes Markdown files to the configured Common and product-management indexes', async () => {
+      vi.mocked(fs.pathExists).mockResolvedValue(true as never);
+      vi.mocked(fs.readdir).mockResolvedValue([
+        'common',
+        'product-management',
+      ] as never);
+      vi.mocked(fs.readFile).mockImplementation(async (file) =>
+        String(file).includes('metadata.json')
+          ? JSON.stringify({
+              file_routing: { md: ['common', 'product-management'] },
+            })
+          : '',
+      );
+
+      const result = await service.assembleRouterIndex('/skills');
+
+      expect(result).toContain(
+        '| `*.md` | `<SKILLS>/common/_INDEX.md`, `<SKILLS>/product-management/_INDEX.md` |',
+      );
+    });
+
+
+
     it('should handle missing metadata.json gracefully', async () => {
       (fs.pathExists as any).mockResolvedValue(true);
       (fs.readdir as any).mockResolvedValue(['common']);

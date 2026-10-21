@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "run_id": "run-20261014-t06-07",
+  "slug": "material-query-change",
+  "workflow": "validate-product",
+  "feature_status": "not_started",
+  "started_at": "2026-10-14T10:00:00Z",
+  "completed_at": "2026-10-14T10:05:00Z",
+  "requirement_trace": {
+    "brd_objectives": [],
+    "requirements": [],
+    "acceptance_criteria": [],
+    "srs": []
+  },
+  "completed_evidence": [
+    "docs/product/material-query-change/evidence.json#DEC-001:r1"
+  ],
+  "missing_evidence": [
+    "New authorization DEC for revised metric query-v2"
+  ],
+  "decision_needed": [
+    "Host authorizes revised metric query definition"
+  ],
+  "recommended_next_workflow": null,
+  "cost": {
+    "source": "unavailable"
+  },
+  "agent": {
+    "identity": "omp/google-antigravity/gemini-3.8-flash:medium",
+    "model": "gemini-3.8-flash"
+  }
+}

@@ -8,7 +8,12 @@ skills:
   typescript:
     ref: typescript-v1.3.4
   common:
-    ref: common-v2.7.0
+    ref: common-v3.0.0
+  product-management:
+    ref: product-management-v1.1.0
+    include:
+      - product-business-requirements
+      - product-requirements
   exclude: {}
   quality-engineering:
     ref: quality-engineering-v1.6.0

@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "analysis_id": "zero-cost-feature",
+  "currency": "USD",
+  "money_scale": 2,
+  "price_basis": "nominal",
+  "price_date": "2026-10-01",
+  "horizon": {
+    "start_date": "2026-10-01",
+    "period": "year",
+    "periods": 1
+  },
+  "cohort": "existing-users",
+  "counterfactual": "do-nothing",
+  "accounting_boundary": "zero incremental cost feature flag enable",
+  "discount": null,
+  "scenarios": [
+    {
+      "id": "base",
+      "label": "Base scenario",
+      "assumptions": ["Feature is already built and requires 0 marginal spend"],
+      "items": [
+        {
+          "id": "zero-cost-item",
+          "side": "cost",
+          "category": "operations",
+          "mechanism_id": "flag-toggle",
+          "period": 0,
+          "amount": "0.00",
+          "currency": "USD",
+          "basis": "cash_cost",
+          "netted_cost_categories": [],
+          "rationale": "Zero marginal operational cost",
+          "evidence_ids": []
+        },
+        {
+          "id": "uplift-revenue",
+          "side": "benefit",
+          "category": "expansion",
+          "mechanism_id": "upsell-fee",
+          "period": 1,
+          "amount": "50000.00",
+          "currency": "USD",
+          "basis": "gross_revenue",
+          "netted_cost_categories": [],
+          "rationale": "Direct revenue uplift",
+          "evidence_ids": []
+        }
+      ],
+      "nonmonetary": []
+    }
+  ]
+}

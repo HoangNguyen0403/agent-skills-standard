@@ -39,6 +39,8 @@ jobs:
           # advisory is a false positive or an accepted risk for this repo —
           # keeps the gate blocking by default without an escape hatch that
           # silently widens over time.
-          # allow-ghsas: GHSA-xxxx-xxxx-xxxx
+          # Unpatched extract-zip@2.0.1 devDependency in website Lighthouse performance tooling
+          # (puppeteer-core -> @puppeteer/browsers); no production impact and no patched release on npm.
+          allow-ghsas: GHSA-jmr9-qjv8-65gv, GHSA-7pqw-9j4j-h8q3
         #   deny-licenses: GPL-1.0-or-later, LGPL-2.0-or-later
         #   retry-on-snapshot-warnings: true

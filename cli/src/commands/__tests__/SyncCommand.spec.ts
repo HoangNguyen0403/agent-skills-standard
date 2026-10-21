@@ -111,7 +111,7 @@ describe('SyncCommand', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
-  it('should run sync successfully', async () => {
+  it('should finalize sync with a post-prune index refresh', async () => {
     await command.run();
     expect(mockConfigService.loadConfig).toHaveBeenCalled();
     expect(console.log).toHaveBeenCalledWith(
@@ -119,6 +119,16 @@ describe('SyncCommand', () => {
     );
     expect(console.log).toHaveBeenCalledWith(
       expect.stringContaining('All skills synced successfully'),
+    );
+    expect(mockSyncService.applyIndices).not.toHaveBeenCalled();
+    expect(mockSyncService.completeInstall).toHaveBeenCalledWith(
+      expect.any(Object),
+      expect.objectContaining({
+        skills: [],
+        workflows: [],
+        specialistsOk: true,
+        refreshIndices: true,
+      }),
     );
   });
   describe('--dry-run and --force options', () => {

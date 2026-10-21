@@ -1,0 +1,348 @@
+{
+  "schema_version": 1,
+  "slug": "synthetic-market-research",
+  "product_id": "synthetic-market-product",
+  "revision": "r1",
+  "synthetic": true,
+  "updated_at": "2026-10-12T10:00:00Z",
+  "strategy_authority": null,
+  "strategy_gap": "Synthetic market research intake has no approved strategy authority",
+  "authorities": [],
+  "records": [
+    {
+      "id": "SRC-001",
+      "kind": "SRC",
+      "revision": "r1",
+      "owner": "Market Research Lead",
+      "scope": {
+        "segment": "Mid-market B2B SaaS Operations",
+        "geography": "North America",
+        "window": {
+          "start": "2026-01-01T00:00:00Z",
+          "end": "2026-06-30T23:59:59Z"
+        }
+      },
+      "depends_on": [],
+      "freshness": {
+        "status": "current",
+        "rationale": "Fictional bytes are stored beside this ledger; the digest is derived from those exact bytes.",
+        "reviewed_at": "2026-10-12T00:00:00Z",
+        "expires_at": "2027-04-12T00:00:00Z",
+        "review_triggers": [
+          "Vendor pricing model changes",
+          "Annual benchmark report update"
+        ]
+      },
+      "data": {
+        "locator": {
+          "kind": "local",
+          "path": "source-observation.txt",
+          "sha256": "6a6df1dc1e76e9aec2d65bf2f979c6c15626e99105ae3eb81e0ef4e05222be96"
+        },
+        "origin": {
+          "publisher": "Fictional training source",
+          "origin_id": "SYN-MARKET-01",
+          "classification": "first_party",
+          "revision": "r1",
+          "observed_at": "2026-04-10T00:00:00Z",
+          "scope": {
+            "segment": "Mid-market B2B SaaS Operations",
+            "geography": "North America",
+            "window": {
+              "start": "2026-01-01T00:00:00Z",
+              "end": "2026-06-30T23:59:59Z"
+            }
+          }
+        },
+        "retrieved_at": "2026-10-12T10:00:00Z",
+        "privacy": {
+          "classification": "public",
+          "redaction": "none",
+          "access": "available"
+        },
+        "license": {
+          "identifier": "synthetic-training",
+          "usage": "citation_only",
+          "restrictions": ["Fictional training bytes only; no external license is represented."]
+        },
+        "status": "available",
+        "limitations": [
+          "Fictional source; not a real survey or market observation.",
+          "Literal row: 2 of 3 fictional example operators used a spreadsheet for one monthly report.",
+          "Cause, demand, market prevalence, competitor performance, pricing, and broader impact are not supplied."
+        ]
+      }
+    },
+    {
+      "id": "SRC-002",
+      "kind": "SRC",
+      "revision": "r1",
+      "owner": "Market Research Lead",
+      "scope": {
+        "segment": "Mid-market B2B SaaS Operations",
+        "geography": "North America",
+        "window": {
+          "start": "2026-01-01T00:00:00Z",
+          "end": "2026-06-30T23:59:59Z"
+        }
+      },
+      "depends_on": [],
+      "freshness": {
+        "status": "current",
+        "rationale": "Fictional contrast bytes are stored beside this ledger; the digest is derived from those exact bytes.",
+        "reviewed_at": "2026-10-12T00:00:00Z",
+        "expires_at": "2027-04-12T00:00:00Z",
+        "review_triggers": [
+          "Enterprise tool pricing model changes"
+        ]
+      },
+      "data": {
+        "locator": {
+          "kind": "local",
+          "path": "source-counterevidence.txt",
+          "sha256": "2be11e730655dcaf4f7622951d323dcc98696d3f898a5140f559bfb97fe2cf70"
+        },
+        "origin": {
+          "publisher": "Fictional training source",
+          "origin_id": "SYN-MARKET-01",
+          "classification": "first_party",
+          "revision": "r1",
+          "observed_at": "2026-04-10T00:00:00Z",
+          "scope": {
+            "segment": "Mid-market B2B SaaS Operations",
+            "geography": "North America",
+            "window": {
+              "start": "2026-01-01T00:00:00Z",
+              "end": "2026-06-30T23:59:59Z"
+            }
+          }
+        },
+        "retrieved_at": "2026-10-12T10:00:00Z",
+        "privacy": {
+          "classification": "public",
+          "redaction": "none",
+          "access": "available"
+        },
+        "license": {
+          "identifier": "synthetic-training",
+          "usage": "citation_only",
+          "restrictions": ["Fictional training bytes only; no external license is represented."]
+        },
+        "status": "available",
+        "limitations": [
+          "One fictional example operator used the existing non-spreadsheet workflow.",
+          "Negative observation in the same illustrative cohort, not independent corroboration."
+        ]
+      }
+    },
+    {
+      "id": "CLM-001",
+      "kind": "CLM",
+      "revision": "r1",
+      "owner": "Market Research Lead",
+      "scope": {
+        "segment": "Mid-market B2B SaaS Operations",
+        "geography": "North America",
+        "window": {
+          "start": "2026-01-01T00:00:00Z",
+          "end": "2026-06-30T23:59:59Z"
+        }
+      },
+      "depends_on": [
+        {
+          "id": "SRC-001",
+          "revision": "r1"
+        },
+        {
+          "id": "SRC-002",
+          "revision": "r1"
+        }
+      ],
+      "freshness": {
+        "status": "current",
+        "rationale": "Fictional source observation limited to the displayed cohort and row.",
+        "reviewed_at": "2026-10-12T00:00:00Z",
+        "expires_at": "2027-04-12T00:00:00Z",
+        "review_triggers": [
+          "New competitor entry",
+          "Customer churn data refresh"
+        ]
+      },
+      "data": {
+        "statement": "The fictional source table reports that 2 of 3 example operators used a spreadsheet to reconcile one monthly report.",
+        "classification": "confirmed",
+        "sources": [
+          {
+            "id": "SRC-001",
+            "revision": "r1"
+          }
+        ],
+        "counterevidence": [
+          {
+            "id": "SRC-002",
+            "revision": "r1"
+          }
+        ],
+        "rationale": "SRC-001/source-observation.txt contains the literal observation; SRC-002 is retained negative evidence from the same cohort.",
+        "uncertainty": "Training-only single cohort. Cause, customer demand, broader prevalence, market size, pricing, and multi-period impact remain unknown.",
+        "status": "supported",
+        "critical": true
+      }
+    },
+    {
+      "id": "OPP-001",
+      "kind": "OPP",
+      "revision": "r1",
+      "owner": "Market Research Lead",
+      "scope": {
+        "segment": "Mid-market B2B SaaS Operations",
+        "geography": "North America",
+        "window": {
+          "start": "2026-01-01T00:00:00Z",
+          "end": "2026-06-30T23:59:59Z"
+        }
+      },
+      "depends_on": [
+        {
+          "id": "CLM-001",
+          "revision": "r1"
+        }
+      ],
+      "freshness": {
+        "status": "current",
+        "rationale": "Fictional candidate only; review when actual scoped evidence becomes available.",
+        "reviewed_at": "2026-10-12T00:00:00Z",
+        "expires_at": "2027-04-12T00:00:00Z",
+        "review_triggers": [
+          "Authorized market research becomes available",
+          "Target scope changes"
+        ]
+      },
+      "data": {
+        "problem": "A fictional table shows mixed spreadsheet use among three example operators; whether this is a product problem is unknown.",
+        "customer_job": "Understand how operators reconcile one monthly report; actual customer needs are unknown.",
+        "claims": [
+          {
+            "id": "CLM-001",
+            "revision": "r1"
+          }
+        ],
+        "substitutes": [
+          "Spreadsheet",
+          "Existing workflow",
+          "Unknown"
+        ],
+        "alternatives": [
+          "Collect authorized evidence",
+          "Defer product work",
+          "Do nothing"
+        ],
+        "status": "candidate",
+        "rationale": "Training-only candidate; do not infer causality, demand, prevalence, market size, price, competitor performance, or impact."
+      }
+    },
+    {
+      "id": "HYP-001",
+      "kind": "HYP",
+      "revision": "r1",
+      "owner": "Market Research Lead",
+      "scope": {
+        "segment": "Mid-market B2B SaaS Operations",
+        "geography": "North America",
+        "window": {
+          "start": "2026-01-01T00:00:00Z",
+          "end": "2026-06-30T23:59:59Z"
+        }
+      },
+      "depends_on": [
+        {"id": "OPP-001", "revision": "r1"},
+        {"id": "CLM-001", "revision": "r1"}
+      ],
+      "freshness": {
+        "status": "current",
+        "rationale": "A proposal for separately authorized scoped research; current fictional inputs do not establish a product problem.",
+        "reviewed_at": "2026-10-12T10:00:00Z",
+        "expires_at": "2027-04-12T10:00:00Z",
+        "review_triggers": ["Authorized independent evidence becomes available", "Target scope changes"]
+      },
+      "data": {
+        "opportunity": {"id": "OPP-001", "revision": "r1"},
+        "prediction": "If separately authorized independent evidence in this exact scope later shows recurring reconciliation friction, the candidate may merit renewed review; the present one-report 2-of-3 row does not establish recurrence or a problem.",
+        "mechanism": "No causal mechanism is established. Repeated reconciliation friction is an untested possibility, not a finding in either retained source.",
+        "claims": [{"id": "CLM-001", "revision": "r1"}],
+        "primary_metric": null,
+        "disconfirmation": "If appropriately sourced scoped follow-up shows no recurring problem and the existing workflow remains suitable, keep the candidate deferred; the current fixture cannot determine this.",
+        "status": "proposed"
+      }
+    },
+    {
+      "id": "DEC-001",
+      "kind": "DEC",
+      "revision": "r1",
+      "owner": "Market Research Lead",
+      "scope": {
+        "segment": "Mid-market B2B SaaS Operations",
+        "geography": "North America",
+        "window": {
+          "start": "2026-01-01T00:00:00Z",
+          "end": "2026-06-30T23:59:59Z"
+        }
+      },
+      "depends_on": [
+        {"id": "OPP-001", "revision": "r1"},
+        {"id": "HYP-001", "revision": "r1"},
+        {"id": "CLM-001", "revision": "r1"}
+      ],
+      "freshness": {
+        "status": "current",
+        "rationale": "Unvalidated, no-action recommendation pending separate strategy authority and evidence review.",
+        "reviewed_at": "2026-10-12T10:00:00Z",
+        "expires_at": "2027-04-12T10:00:00Z",
+        "review_triggers": ["Strategy authority is separately reviewed", "Authorized scoped evidence becomes available"]
+      },
+      "data": {
+        "purpose": "learning",
+        "status": "proposed",
+        "outcome": "defer",
+        "consumes": [
+          {"id": "OPP-001", "revision": "r1"},
+          {"id": "HYP-001", "revision": "r1"}
+        ],
+        "critical_claims": [{"id": "CLM-001", "revision": "r1"}],
+        "authority_id": null,
+        "authority_revision": null,
+        "strategy_binding": null,
+        "artifact_bindings": [],
+        "decided_at": null,
+        "rationale": "Defer product work; no research, outreach, or product action is authorized. Retain the 2-of-3 one-report observation and the same-cohort contrary observation; neither establishes recurring need, demand, or market prevalence. Reconsider only after independent scoped evidence and separately reviewed strategy authority.",
+        "uncertainties": [
+          "The two-of-three row concerns one monthly report in a fictional cohort only.",
+          "One same-cohort example used the existing workflow without a spreadsheet.",
+          "Recurrence, cause, demand, market prevalence, price, and impact are unknown.",
+          "No strategy authority or research authorization is represented."
+        ],
+        "revisit_triggers": ["Strategy authority is separately reviewed", "Authorized independent scoped research is available"],
+        "supersedes": null
+      }
+    }
+  ],
+  "record_history": [],
+  "authority_history": [],
+  "bridges": [],
+  "product_state": {
+    "value": "unvalidated",
+    "reason": "Synthetic market research proposal only",
+    "scope": {
+      "segment": "Mid-market B2B SaaS Operations",
+      "geography": "North America",
+      "window": {
+        "start": "2026-01-01T00:00:00Z",
+        "end": "2026-06-30T23:59:59Z"
+      }
+    },
+    "hypotheses": [{"id": "HYP-001", "revision": "r1"}],
+    "decision": null,
+    "assessed_at": "2026-10-12T10:00:00Z",
+    "history": []
+  }
+}

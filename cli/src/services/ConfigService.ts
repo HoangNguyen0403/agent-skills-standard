@@ -58,6 +58,10 @@ const SkillConfigSchema = z.object({
 });
 
 const DEFAULT_SDLC_SUPPORT_CATEGORIES = ['quality-engineering'] as const;
+const DEFAULT_PRODUCT_MANAGEMENT_FOUNDATION_SKILLS = [
+  'product-business-requirements',
+  'product-requirements',
+] as const;
 const PRIMARY_CONFIG_FILE = '.skillsrc';
 const LEGACY_YAML_CONFIG_FILE = '.skillsrc.yaml';
 
@@ -488,6 +492,18 @@ export class ConfigService {
           ref: this.getCategoryRef(category, metadata),
         };
       }
+    }
+
+    // Add product-management category if available in metadata, pinned using getCategoryRef
+    // with include allowlist restricted exactly to the two foundation skills (preserving default BRD/PRD planning).
+    if (
+      metadata.categories?.['product-management'] &&
+      !skills['product-management']
+    ) {
+      skills['product-management'] = {
+        ref: this.getCategoryRef('product-management', metadata),
+        include: [...DEFAULT_PRODUCT_MANAGEMENT_FOUNDATION_SKILLS],
+      };
     }
 
     // Add database category for backend frameworks

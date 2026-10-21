@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "analysis_id": "smoke-ac005-analysis",
+  "currency": "USD",
+  "money_scale": 2,
+  "price_basis": "nominal",
+  "price_date": "2026-10-01",
+  "horizon": {
+    "start_date": "2026-10-01",
+    "period": "month",
+    "periods": 12
+  },
+  "cohort": "enterprise-tier1",
+  "counterfactual": "do-nothing manual workflow",
+  "accounting_boundary": "Incremental operational costs and direct subscription expansion",
+  "discount": {
+    "rate": "0.08",
+    "convention": "effective_annual",
+    "price_basis": "nominal"
+  },
+  "scenarios": [
+    {
+      "id": "base",
+      "label": "Base investment scenario",
+      "assumptions": ["Stable adoption rate", "No cost overruns"],
+      "nonmonetary": ["Enhanced audit compliance"],
+      "items": [
+        {
+          "id": "dev-cost",
+          "side": "cost",
+          "category": "development",
+          "mechanism_id": "initial-build",
+          "period": 0,
+          "amount": "50000.00",
+          "currency": "USD",
+          "basis": "cash_cost",
+          "netted_cost_categories": [],
+          "rationale": "Initial sprint engineering",
+          "evidence_ids": ["SRC-001"]
+        },
+        {
+          "id": "sub-expansion-1",
+          "side": "benefit",
+          "category": "expansion",
+          "mechanism_id": "tier-upgrade",
+          "period": 6,
+          "amount": "40000.00",
+          "currency": "USD",
+          "basis": "gross_revenue",
+          "netted_cost_categories": [],
+          "rationale": "Mid-year renewals",
+          "evidence_ids": ["SRC-001"]
+        },
+        {
+          "id": "sub-expansion-2",
+          "side": "benefit",
+          "category": "expansion",
+          "mechanism_id": "tier-upgrade",
+          "period": 12,
+          "amount": "40000.00",
+          "currency": "USD",
+          "basis": "gross_revenue",
+          "netted_cost_categories": [],
+          "rationale": "Year-end renewals",
+          "evidence_ids": ["SRC-001"]
+        }
+      ]
+    }
+  ]
+}

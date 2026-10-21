@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "run_id": "run-20261014-t06-01",
+  "slug": "reused-context",
+  "workflow": "discover-product",
+  "feature_status": "requirements_ready",
+  "started_at": "2026-10-14T09:00:00Z",
+  "completed_at": "2026-10-14T09:05:00Z",
+  "requirement_trace": {
+    "brd_objectives": [
+      "BRD-OBJ-001"
+    ],
+    "requirements": [],
+    "acceptance_criteria": [],
+    "srs": []
+  },
+  "completed_evidence": [
+    "docs/product/reused-context/evidence.json#OPP-001:r1",
+    "docs/brd/brd-synthetic.md"
+  ],
+  "missing_evidence": [],
+  "decision_needed": [],
+  "recommended_next_workflow": "plan-feature",
+  "cost": {
+    "source": "unavailable"
+  },
+  "agent": {
+    "identity": "omp/google-antigravity/gemini-3.8-flash:medium",
+    "model": "gemini-3.8-flash"
+  }
+}

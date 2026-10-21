@@ -1,0 +1,5 @@
+{
+  "schema_version": 1,
+  "analysis_id": "malformed-json-test",
+  "currency": "USD"
+  // missing closing brackets and invalid syntax

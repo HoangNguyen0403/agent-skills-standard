@@ -779,4 +779,64 @@ describe('WorkflowSyncService', () => {
       );
     });
   });
+
+  describe('optional product evidence workflows sync semantics', () => {
+    const OPTIONAL_PM_WORKFLOWS = [
+      'discover-product',
+      'validate-product',
+      'review-product-value',
+    ];
+
+    it('does not include optional PM workflows in DEFAULT_WORKFLOWS spine', () => {
+      for (const wf of OPTIONAL_PM_WORKFLOWS) {
+        expect(DEFAULT_WORKFLOWS).not.toContain(wf);
+      }
+    });
+
+    it('initializes omitted workflows with available defaults and excludes optional PM workflows', async () => {
+      const config = {
+        registry: 'https://github.com/o/r',
+      } as unknown as SkillConfig;
+      mockGithubService.getRepoInfo.mockResolvedValue({
+        default_branch: 'main',
+      });
+      mockGithubService.getRepoTree.mockResolvedValue({
+        tree: [
+          { path: '.agents/workflows/code-review.md' },
+          { path: '.agents/workflows/discover-product.md' },
+          { path: '.agents/workflows/validate-product.md' },
+        ],
+      });
+
+      await workflowSyncService.reconcileWorkflows(config);
+
+      expect(config.workflows).toEqual(['code-review']);
+    });
+
+    it('preserves explicitly selected optional workflow and reconciles defaults without unselected optionals', async () => {
+      const config = {
+        registry: 'https://github.com/o/r',
+        workflows: ['discover-product'],
+      } as unknown as SkillConfig;
+      mockGithubService.getRepoInfo.mockResolvedValue({
+        default_branch: 'main',
+      });
+      mockGithubService.getRepoTree.mockResolvedValue({
+        tree: [
+          { path: '.agents/workflows/code-review.md' },
+          { path: '.agents/workflows/discover-product.md' },
+          { path: '.agents/workflows/validate-product.md' },
+          { path: '.agents/workflows/review-product-value.md' },
+        ],
+      });
+
+      const changed = await workflowSyncService.reconcileWorkflows(config);
+
+      expect(changed).toBe(true);
+      expect(config.workflows).toContain('discover-product');
+      expect(config.workflows).toContain('code-review');
+      expect(config.workflows).not.toContain('validate-product');
+      expect(config.workflows).not.toContain('review-product-value');
+    });
+  });
 });

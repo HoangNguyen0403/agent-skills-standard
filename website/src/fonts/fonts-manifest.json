@@ -1,0 +1,89 @@
+{
+  "version": "3.0.0",
+  "description": "Locally reproducible Unicode-subset WOFF2 fonts for Next.js next/font/local.",
+  "provenance": {
+    "upstream": "Google Fonts Open Font License repository",
+    "sourceDirectory": "website/src/fonts",
+    "coverageSources": [
+      "website/src/landing/content.ts",
+      "website/src/fonts/font-subset-extra.txt"
+    ],
+    "outputDirectory": "website/src/fonts"
+  },
+  "subsetSettings": {
+    "tool": "fonttools pyftsubset",
+    "flavor": "woff2",
+    "layoutFeatures": "*",
+    "glyphClosure": "FontTools default composite and layout dependency closure",
+    "unicodeCoverage": "All characters in reviewed landing copy plus UI/status/retry text, exact commands, and punctuation/symbols in font-subset-extra.txt",
+    "renamedFamilies": {
+      "heading": "AGS Display",
+      "body-regular": "AGS Text",
+      "body-semibold": "AGS Text",
+      "mono-code": "AGS Code"
+    },
+    "reservedFontNameHandling": "Modified subsets are renamed to AGS Display, AGS Text, or AGS Code."
+  },
+  "roles": [
+    {
+      "role": "heading",
+      "family": "Space Grotesk",
+      "modifiedFamily": "AGS Display",
+      "weight": "600",
+      "style": "normal",
+      "file": "space-grotesk-600.woff2",
+      "sourceTtf": "space-grotesk-600.ttf",
+      "license": "space-grotesk-OFL.txt",
+      "subset": {
+        "sourceSha256": "6c0346b8d297ebdc225832833e03e884a26ad99d265ecd3924d46e1ba285ea87",
+        "outputSha256": "a238145974164a3810884f3493270cb3c4ac239d247b73188f7e7ff4972ff0c6",
+        "bytes": 8216
+      }
+    },
+    {
+      "role": "body-regular",
+      "family": "Source Sans 3",
+      "modifiedFamily": "AGS Text",
+      "weight": "400",
+      "style": "normal",
+      "file": "source-sans-3-400.woff2",
+      "sourceTtf": "source-sans-3-400.ttf",
+      "license": "source-sans-3-OFL.txt",
+      "subset": {
+        "sourceSha256": "20ab9752bd19a373dba627393b6c142e6cf8fc2f219119a8e0cb1442ef679ec5",
+        "outputSha256": "ad40c1cc1d507c4b886be9d3eb2354586cadfad58b883a8d7dfd87e265d6219e",
+        "bytes": 9252
+      }
+    },
+    {
+      "role": "body-semibold",
+      "family": "Source Sans 3",
+      "modifiedFamily": "AGS Text",
+      "weight": "600",
+      "style": "normal",
+      "file": "source-sans-3-600.woff2",
+      "sourceTtf": "source-sans-3-600.ttf",
+      "license": "source-sans-3-OFL.txt",
+      "subset": {
+        "sourceSha256": "950e66c48e5e60c9407421d0fa601047176f17e0d22a598bbd084dde45a98be2",
+        "outputSha256": "2f127d84661fd378548675f11c5f7b77fd10550ae2f4f3b3d4b5382eb6c7878d",
+        "bytes": 9356
+      }
+    },
+    {
+      "role": "mono-code",
+      "family": "IBM Plex Mono",
+      "modifiedFamily": "AGS Code",
+      "weight": "400",
+      "style": "normal",
+      "file": "ibm-plex-mono-400.woff2",
+      "sourceTtf": "ibm-plex-mono-400.ttf",
+      "license": "ibm-plex-mono-OFL.txt",
+      "subset": {
+        "sourceSha256": "a7fdc993f9f0387caedba4e42521136fa97e4c0837ae6239bf0413ccf8af00c2",
+        "outputSha256": "4b217415b5029305b4a110d5a16c906aba534ede85b06d46069c70bb8d6aa624",
+        "bytes": 9444
+      }
+    }
+  ]
+}
