@@ -490,8 +490,8 @@
       ]
     },
     "common": {
-      "version": "3.0.0",
-      "last_updated": "2026-10-15",
+      "version": "3.0.1",
+      "last_updated": "2026-10-21",
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 44,

@@ -34,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **System design**: Select specialist dives from unresolved consequential risks across linked references; make redraw conditional across intake and review outputs; qualify scorecard anchors, readiness and verdicts by evidence scope; choose sync/async boundaries from consistency and failure requirements.
 - **System design ownership**: Consolidated critical-flow ownership under data architecture, routed mobile/client guidance by surface, kept views conditional, and separated documentation/design evidence from runtime evidence and lexical checks from semantic evaluation.
 - **Evaluation evidence**: Clarified the boundary between body-only comparisons and full-package evidence; historical scores and candidate fixtures are not live efficacy.
+- **Common architecture diagramming**: Clarified dataflow scope and boundary-balance review, distinguished logical notation from physical upload/replication paths, added semantic evaluation cases, and fixed Draw.io edge-style serialization.
 - **Website**: Added a static Agent Skills Standard landing page with keyboard-scrollable native commands; corrected motion-controller disposal so stale observer callbacks cannot reactivate retired work; publication verification passed 63/63 Chromium browser cases and a three-run Lighthouse lab audit (median score 99).
 - **Product category relocation (Breaking change for Common)**: Relocated `common-business-requirements` to `skills/product-management/product-business-requirements`, `common-product-requirements` to `skills/product-management/product-requirements`, and `common-product-evidence` to `skills/product-management/product-evidence`.
   - Breaking removal triggers bump for `common` from `2.8.7` to `3.0.0`.
@@ -52,6 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Product Management**: `1.0.0` → `1.1.0` candidate
 - **System Design**: `1.2.2` → `1.2.4`
 - **Common**: `2.8.7` → `3.0.0`
+- **Common Skills**: `3.0.0` → `3.0.1`
 - **Quality Engineering**: `1.6.0` → `1.6.1`
 
 ## [common-v2.8.7] - 2026-10-09
