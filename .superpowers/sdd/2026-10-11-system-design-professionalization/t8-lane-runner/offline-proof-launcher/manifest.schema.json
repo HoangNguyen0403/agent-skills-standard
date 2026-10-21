@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "offline-proof-manifest-v1",
+  "title": "Offline proof launcher manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "approved_plan_sha256", "source_pins", "packet_inventory", "source_files", "packet_files", "grader_files", "native_manifest", "source_map", "guest_runtime", "execution_policy", "manifest_sha256"],
+  "properties": {
+    "schema": {"const": "offline-proof-manifest-v1"},
+    "approved_plan_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "source_pins": {
+      "type": "object", "additionalProperties": false,
+      "required": ["operator_sha256", "collector_report_sha256", "assembler_sha256", "adapter_sha256", "native_entry_sha256", "candidate_sha256", "renewal_sha256", "contract_sha256"],
+      "properties": {
+        "operator_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "collector_report_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "assembler_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "adapter_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "native_entry_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "candidate_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "renewal_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "contract_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "packet_inventory": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "staged_path", "sha256", "inventory_sha256", "package_count", "native_count", "total_count"],
+      "properties": {
+        "path": {"const": "analysis/packet-inventory.json"},
+        "staged_path": {"const": ".superpowers/sdd/2026-10-11-system-design-professionalization/t8-packets/prepared-78304406-ccdd-43d8-b5ec-69e76321de02/analysis/packet-inventory.json"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "inventory_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "package_count": {"const": 114},
+        "native_count": {"const": 349},
+        "total_count": {"const": 463}
+      }
+    },
+    "source_files": {"$ref": "#/$defs/fileList"},
+    "packet_files": {"$ref": "#/$defs/fileList"},
+    "grader_files": {"$ref": "#/$defs/fileList"},
+    "native_manifest": {"$ref": "#/$defs/file"},
+    "source_map": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "raw_sha256", "phase_context"],
+      "properties": {
+        "path": {"const": "authority/source-map.json"},
+        "raw_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "phase_context": {
+          "type": "object", "additionalProperties": false,
+          "required": ["phase", "approved_plan_sha256"],
+          "properties": {
+            "phase": {"const": "preparation"},
+            "approved_plan_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+          }
+        }
+      }
+    },
+    "guest_runtime": {
+      "type": "object", "additionalProperties": false,
+      "required": ["architecture", "kernel_release", "python", "libseccomp", "ext4_tools", "package_versions", "rootfs_sha512"],
+      "properties": {
+        "architecture": {"const": "aarch64"},
+        "kernel_release": {"const": "6.12.113-1"},
+        "python": {"const": "3.13.5-2+deb13u5"},
+        "libseccomp": {"const": "2.6.0-2"},
+        "ext4_tools": {"const": "1.47.2-3+b12"},
+        "package_versions": {"type": "object", "minProperties": 5},
+        "rootfs_sha512": {"type": "string", "pattern": "^[0-9a-f]{128}$"}
+      }
+    },
+    "execution_policy": {
+      "type": "object", "additionalProperties": false,
+      "required": ["operator_execution", "permitted_target", "host_shares", "guest_network", "vsock", "rosetta", "gpu", "cgroup_pids_max", "target_control_fd", "automatic_retry"],
+      "properties": {
+        "operator_execution": {"const": "DENY"},
+        "permitted_target": {"const": "harmless-fixture.py"},
+        "host_shares": {"const": false},
+        "guest_network": {"const": false},
+        "vsock": {"const": false},
+        "rosetta": {"const": false},
+        "gpu": {"const": false},
+        "cgroup_pids_max": {"const": 3},
+        "target_control_fd": {"const": false},
+        "automatic_retry": {"const": false}
+      }
+    },
+    "manifest_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "$defs": {
+    "file": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "bytes", "sha256", "class"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1, "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9._/-]+$"},
+        "bytes": {"type": "integer", "minimum": 0},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "class": {"enum": ["operator-source-inert", "contract", "review", "adapter-source-inert", "assembler-source-inert", "binding", "inventory", "grader", "native-manifest", "packet"]}
+      }
+    },
+    "fileList": {"type": "array", "items": {"$ref": "#/$defs/file"}, "uniqueItems": true}
+  }
+}

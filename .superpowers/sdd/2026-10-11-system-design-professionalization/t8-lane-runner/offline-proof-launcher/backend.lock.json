@@ -1,0 +1,79 @@
+{
+  "schema": "offline-proof-backend-lock-v1",
+  "approved_plan_sha256": "da2f39921fe5fde68452733b75406db716d824e625e03d686f82256084b7dffe",
+  "operator_execution": "DENY",
+  "platform": {
+    "host": "darwin-arm64",
+    "guest": "debian-13-arm64",
+    "vm_backend": "vfkit",
+    "vm_backend_version": "0.6.4",
+    "vcpus": 2,
+    "memory_mib": 4096
+  },
+  "storage": {
+    "root": "/Users/Shared/ass-qf5-linux-v1",
+    "mode": "0700",
+    "campaign_logical_bytes_max": 68719476736,
+    "runtime_image_bytes_max": 8589934592,
+    "per_run_writable_image_bytes": 4294967296,
+    "proof_stream_bytes_each_max": 16777216,
+    "trusted_records_bytes_max": 67108864
+  },
+  "limits": {
+    "preparation_vm_count": 1,
+    "preparation_vm_seconds_max": 900,
+    "fixture_vm_count": 8,
+    "fixture_vm_seconds_max": 300,
+    "inspection_vm_count": 2,
+    "inspection_vm_seconds_max": 300,
+    "automatic_retry": false,
+    "host_watchdog_includes_startup": true,
+    "vm_network": false,
+    "host_shares": false,
+    "vsock": false,
+    "rosetta": false,
+    "gpu": false
+  },
+  "source_pins": {
+    "operator_sha256": "2aa558bc5750b362a54a960c92ff23311153c6428c372203c2e5a0f37f8f16d1",
+    "collector_report_sha256": "28b92f8abb02feebb4adc07d7594ee9a25e146cc3ef13a7d9f5940ec318b982d",
+    "package_packet_count": 114,
+    "native_packet_count": 349,
+    "packet_count": 463,
+    "target_allowlist": ["harmless-fixture.py", "manifest-only"]
+  },
+  "assets": {
+    "vfkit": {
+      "version": "0.6.4",
+      "asset_id": 469356258,
+      "asset_name": "vfkit",
+      "release_metadata_url": "https://api.github.com/repos/crc-org/vfkit/releases/tags/v0.6.4",
+      "download_url": "https://github.com/crc-org/vfkit/releases/download/v0.6.4/vfkit",
+      "sha256": "0ed83fc8ca7aa708598835480dba1362406aa7cd1dab3b27464eb76327d9652d",
+      "max_download_bytes": 134217728,
+      "allowed_hosts": ["api.github.com", "github.com", "release-assets.githubusercontent.com", "objects.githubusercontent.com"]
+    },
+    "debian": {
+      "release": "13",
+      "build": "20261017-2634",
+      "architecture": "arm64",
+      "package_inventory_url": "https://cloud.debian.org/images/cloud/trixie/20261017-2634/debian-13-generic-arm64-20261017-2634.json",
+      "archive_url": "https://cloud.debian.org/images/cloud/trixie/20261017-2634/debian-13-generic-arm64-20261017-2634.tar.xz",
+      "checksums_url": "https://cloud.debian.org/images/cloud/trixie/20261017-2634/SHA512SUMS",
+      "archive_sha512": "c133560624623d8b691945866790f718e210b33a8fb7902b4d5f019b3bfd25e5a5e7ba55bb4277b2be69106a06d839baac97fc586a2161b2896417b0c85d6709",
+      "raw_image_sha512": "cef8d43df3b850235cdd477e248ab6af14cc706fd0869d7b9defd82ce82f70839c031459be884ef2d3647f8bcc4df142e083b6291f334c887e6efaee6c1f15d1",
+      "max_metadata_bytes": 16777216,
+      "max_archive_bytes": 536870912,
+      "max_expanded_bytes": 8589934592,
+      "allowed_hosts": ["cloud.debian.org"]
+    }
+  },
+  "guest_packages": {
+    "linux-image-6.12.113+deb13-arm64": "6.12.113-1",
+    "python3.13": "3.13.5-2+deb13u5",
+    "libseccomp2": "2.6.0-2",
+    "e2fsprogs": "1.47.2-3+b12",
+    "cloud-init": "25.1.4-1+deb13u1",
+    "systemd": "257.13-1~deb13u1"
+  }
+}

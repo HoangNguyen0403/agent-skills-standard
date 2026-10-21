@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **System design**: Consolidated critical-flow ownership under data architecture, routed mobile/client guidance by surface, kept views conditional, and separated documentation/design evidence from runtime evidence and lexical checks from semantic evaluation.
 - **Evaluations**: Clarified the boundary between body-only comparisons and full-package evidence; historical scores and candidate fixtures are not live efficacy.
+- **Offline proof launcher**: Bound serial delivery by a cooperative deadline. Guest cleanup is cooperative; the external host watchdog owns the hard whole-VM deadline, and interrupted artifact durability or terminal delivery remains `UNKNOWN`/`INCOMPLETE`, never PASS. Fixture input now embeds the GPT-validated prepared root extent rather than the whole prepared disk, capacity admission reserves the complete composite and bounded evidence growth, H2 writes under the existing output root, and `start` returns nonzero for non-captured lifecycle results.
 
 ### Versions
 
