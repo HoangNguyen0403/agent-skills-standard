@@ -3,7 +3,6 @@
 **Status:** Approved for Subagent-Driven implementation. Human selected Personal standard profiles; live evaluations, final acceptance, promotion, and release remain separately gated.
 **Owner / approver:** Requesting maintainer. **Integration owner:** Execution lead. **Independent assurance:** Eligible analysis/review agent plus human acceptance.
 **Source snapshot:** `b529c2d99112db2af63aa2c32365a37759613cc6`, inspected 2026-10-11.
-**Execution plan:** [Delegation-ready implementation plan](../superpowers/plans/2026-10-11-system-design-professionalization.md).
 **Planning context:** `operator_profile=hybrid` (inferred); `lane=Direction` (registry-maintenance delivery); SNC working assessment `S2/N1/C1`, total 4, medium. G0 scope and G1 execution/account authorization approved.
 
 ## 1. Five-minute human review
@@ -62,16 +61,16 @@ User stories:
 
 All requirements are **approved for implementation**. P0 is required for acceptance; P1 is included in this delivery, not deferred.
 
-| ID      | Requirement                                                                                     | Priority / objective | Acceptance criteria    | Owner task   |
-| ------- | ----------------------------------------------------------------------------------------------- | -------------------- | ---------------------- | ------------ |
-| REQ-001 | Correct distributed-system and quantitative guidance across primary skills and linked references | P0 / OBJ-001         | AC-001, AC-002         | T1           |
+| ID      | Requirement                                                                                      | Priority / objective  | Acceptance criteria    | Owner task   |
+| ------- | ------------------------------------------------------------------------------------------------ | --------------------- | ---------------------- | ------------ |
+| REQ-001 | Correct distributed-system and quantitative guidance across primary skills and linked references | P0 / OBJ-001          | AC-001, AC-002         | T1           |
 | REQ-002 | Make critical data-flow design explicit, proportional, and traceable                             | P0 / OBJ-001, OBJ-002 | AC-003, AC-004, AC-005 | T2, T4, T5   |
-| REQ-003 | Support mobile/client and SDK design without prescribing universal layers or storage             | P1 / OBJ-002         | AC-006, AC-007         | T3, T4       |
-| REQ-004 | Integrate mode/surface routing and risk-driven practice into existing workflows                   | P1 / OBJ-001, OBJ-002 | AC-008, AC-009         | T4           |
-| REQ-005 | Use journey SLOs, hard gates, and evidence-qualified readiness                                    | P0 / OBJ-001         | AC-010, AC-011         | T5           |
-| REQ-006 | Expand grounded, behavior-focused evaluation and independent semantic calibration                 | P0 / OBJ-001, OBJ-002 | AC-012, AC-013         | T6, T8       |
-| REQ-007 | Publish coherent canonical guidance and generated exports within token budgets                   | P0 / OBJ-003         | AC-014, AC-015         | T7           |
-| REQ-008 | Deliver profile-safe execution and independent human-reviewable acceptance                        | P0 / OBJ-003         | AC-016, AC-017, AC-018 | T8, T9, lead |
+| REQ-003 | Support mobile/client and SDK design without prescribing universal layers or storage             | P1 / OBJ-002          | AC-006, AC-007         | T3, T4       |
+| REQ-004 | Integrate mode/surface routing and risk-driven practice into existing workflows                  | P1 / OBJ-001, OBJ-002 | AC-008, AC-009         | T4           |
+| REQ-005 | Use journey SLOs, hard gates, and evidence-qualified readiness                                   | P0 / OBJ-001          | AC-010, AC-011         | T5           |
+| REQ-006 | Expand grounded, behavior-focused evaluation and independent semantic calibration                | P0 / OBJ-001, OBJ-002 | AC-012, AC-013         | T6, T8       |
+| REQ-007 | Publish coherent canonical guidance and generated exports within token budgets                   | P0 / OBJ-003          | AC-014, AC-015         | T7           |
+| REQ-008 | Deliver profile-safe execution and independent human-reviewable acceptance                       | P0 / OBJ-003          | AC-016, AC-017, AC-018 | T8, T9, lead |
 
 ### Observable criteria
 
