@@ -43,17 +43,14 @@ Estimate before you architect. One order of magnitude decides cache, shard, and 
 - Cost is a design constraint, not an afterthought. A topology the budget cannot hold is not a design, it is a proposal to be rejected later.
 - State cost per unit of value where it clarifies: cost per 1k requests, per GB retained, per nine of availability added.
 
-## Latency Budget
+## Latency and Availability Budgets
 
-- Build the p95 budget as a sum of hops; every remote call spends from one fixed budget.
-- Use order-of-magnitude anchors: memory 100ns, SSD read 100us, same-DC round trip 500us, cross-region round trip 100ms+.
-- A synchronous fan-out of N calls costs the slowest call, not the average. Budget with p99, not the mean.
-
-## Availability Math
-
-- Serial dependencies multiply: three 99.9% services in one path yield 99.7%.
-- Redundant replicas add nines only when failure modes are independent; a shared store or config plane cancels the gain.
-- Convert the target into an error budget in minutes per month before promising it.
+- Allocate the end-to-end latency objective across work, queueing, and dependencies; make each allocation fit the same request deadline and reserve time for caller/network overhead.
+- A measured per-hop p95 or p99 is not an additive end-to-end percentile. Percentiles describe distributions, and their joint tail depends on correlation and fan-out. Measure the end-to-end distribution, or use explicit per-hop bounds whose sum fits the deadline; do not add independently observed p95/p99 values and call the result the path percentile. Define latency at the user/request boundary as a measurable SLI, for example the proportion of requests completing within a threshold ([Google SRE SLO guidance](https://sre.google/workbook/implementing-slos/)).
+- For parallel fan-out, response latency is governed by the slowest required branch; budget that tail against the end-to-end objective.
+- Serial dependency availability is the joint probability that every required dependency is available. Multiply their availability values only when independence is a justified assumption; common causes, shared infrastructure, and correlated failures change the result.
+- Redundancy can reduce independent failure risk. Common-mode failures impose a ceiling on the gain, so include shared stores, configuration planes, and other correlated failures in the joint availability model; they do not necessarily erase all benefit.
+- Translate the target into an error budget for the declared window before promising it.
 
 ## Anti-Patterns
 

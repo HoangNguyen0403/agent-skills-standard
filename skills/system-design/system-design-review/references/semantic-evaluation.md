@@ -58,6 +58,10 @@ Mark the answer **unsound** if any applicable rule is true:
 - It routes an executive boundary decision to schema/class/pod detail, or routes an implementation/data relationship question only to a context diagram.
 - It presents documentation, code, or a target metric as proof that a relationship is deployed or a metric is measured.
 
+Flow-specific hard failures include (when applicable to the prompt): a lost acknowledgment with no safe operation-status/reconciliation path; duplicate or out-of-order delivery that violates the stated invariant; a stale derived projection presented as current; unbalanced logical parent/child boundary flows or semantically impossible input/output; treating a valid physical direct-upload or replication route as forbidden solely by logical-DFD conventions (or omitting its material trust controls); a tenant boundary leak; deletion defeated by retained copies or replay; and client synchronization that silently overwrites a conflict, crosses accounts, or resurrects deleted state. Assess the actual scope and mechanism; these examples do not make each concern universally applicable.
+
+A material gate failure is unsound regardless of the eight-dimension aggregate. If no such failure exists, preserve the existing rule: sound requires at least 85%, no hard failure, and no applicable dimension at 0. A concise design with a justified null/smallest option can be sound; a vocabulary-rich design with unsafe behavior cannot.
+
 A wrong but confidently precise number is not rescued by a correct technology name. A correct number is not rescued by a list of components with no causal chain.
 
 ## Case-specific mandatory evidence

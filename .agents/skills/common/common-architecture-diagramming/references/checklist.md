@@ -1,7 +1,6 @@
 # Validation Checklist
 
-`validate_spec.py` enforces the mechanical half. This page covers the half a script cannot
-judge. Run through it before handing a diagram to anyone.
+`validate_spec.py` checks the mechanical half only. This page covers human review; neither the validator nor a rendered diagram proves flow correctness. Review semantic scope and completeness separately using the canonical [DFD review guide](../../../system-design/system-design-data-architecture/references/dfd-review.md).
 
 ## Automated (the validator fails the build)
 
@@ -22,6 +21,18 @@ provenance. This applies to context, container, component, deployment, dataflow,
 and ERD views. For related views, require bounded allowlisted source records and expected
 relationship IDs; treat changed captures as `review-needed`, not proof of runtime drift.
 
+
+## Dataflow semantics (when applicable)
+
+- [ ] State the question, system boundary, logical/physical scope, and decomposition level; do not confuse DFD decomposition with C4.
+- [ ] Check external entities, transforming processes, stores, and directional data flows; label payloads as data and transformations as actions.
+- [ ] Every process has plausible inputs and outputs; identify black-hole input with no modeled result, miracle output without a source, and transformations lacking sufficient input.
+- [ ] Parent and child views preserve boundary inputs/outputs. State excluded flows and the reason; explicitly mark filtered/write-only views whose reads are omitted.
+- [ ] Preserve actual physical upload, CDC, and replication topology. Do not apply logical-only routing conventions to physical views.
+- [ ] Treat crossing edges as readability concerns, not semantic failure. Use sequence/state/ERD/deployment for ordering, lifecycle, schema, or placement claims.
+- [ ] Confirm that a stateless path may require no store or queue, and a flow view is optional when prose or a table answers the question.
+
+The validator checks shape, metadata, supported kinds, edges, and layout; it cannot judge transformations, authoritative ownership, freshness, lifecycle, or whether a flow is plausible.
 ## Judgement (yours)
 
 - [ ] **One question.** Can you state in a sentence what this diagram answers?

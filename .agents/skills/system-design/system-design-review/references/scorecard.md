@@ -32,6 +32,17 @@ rollout and observability no matter how elegant the topology is.
 
 - A profile may mark an axis `N/A` only with a written reason and evidence that the axis is outside the system's risk envelope. Preserve the reason in the report and calculate the denominator from applicable axes; do not score it as zero or quietly remove a known risk.
 - Caches, queues, replicas, and regions earn no credit merely because they appear. Require a measured constraint, invariant, owner, cost, and failure/recovery path; unnecessary machinery is a cost and operability finding.
+
+## Journey SLO and Flow Gate Check
+
+Keep flow completeness and derived-copy review within the existing axes: Requirements for the journey/invariant/owner and exclusions; Data scaling for authoritative state, derived copies, freshness, and backlog; Redundancy for durability and recovery; Observability for user-visible indicators, SLO ownership, alert/action, and evidence. Do not create a tenth axis or a new score/status.
+
+For each material journey SLO, record the user-visible indicator, request or time basis, eligible population and numerator/denominator, window, target, exclusions, pending/degraded semantics, owner, and error-budget action. Count a business operation once: retries are not extra successes. For asynchronous completion, pending is not success; only completion satisfying the declared condition within its promised deadline counts. A later completion must not retroactively hide a missed deadline.
+
+Check each critical flow's durable-ack point, freshness, ordering/deduplication, retry/replay bounds, backlog/backpressure, derived-copy deletion, and recovery where material. Describe target, plan, implementation, or operations as prose claim categories, not evidence kinds or confidence values. Source citations retain the existing `evidence_kind: code|document|runtime|deployment` and applicable `evidence_confidence: unverified|assumed|documented|observed`; metrics separately state target, estimated, or measured provenance. Require RPO/RTO and drill evidence only when the declared scope includes recovery objectives; proposals may state targets and planned checks, while implementation and operations claims require their corresponding evidence.
+
+Non-compensable gates apply regardless of score: material correctness/invariant failure; tenant-authorization leak; sensitive-data or deletion failure; unsafe migration/cutover/restore; or absent/unsupported recoverability where material. Each failure has a finding with adverse timeline, consequence, flow/invariant trace, owner, and smallest corrective action. Unrelated axes may be justified `N/A`; a failed material gate cannot.
+
 - For HLD/LLD review, trace `requirement -> decision -> component -> contract -> verification`; a selected diagram is optional when prose or a table answers the question.
 
 ## Review Scope And Evidence
@@ -40,7 +51,7 @@ Declare one scope before scoring:
 
 - **Proposed design:** documented mechanisms, calculations and planned validation count as design evidence. Name runtime/operations evidence still unverified; missing design-shaping inputs or mechanisms remain explicit gaps and prevent a readiness claim when material.
 - **Implementation:** implementation evidence must establish that the design is realized; planned mechanisms alone are insufficient.
-- **Operations:** require production runtime/deployment evidence for operational claims, including measured SLO/telemetry and relevant failover/recovery exercises. Missing evidence withholds operations-readiness.
+- **Operations:** require production runtime/deployment evidence for the behavior claimed. Measured telemetry/SLO evidence is required for the corresponding SLO/observability claim; a timed recovery/failover result is required only for a material in-scope recovery claim. Missing applicable evidence withholds that claim/readiness; a non-material drill may be `N/A` with its scope reason.
 
 Keep lifecycle (`proposed|implemented|retired`), evidence kind (`code|document|runtime|deployment`) and confidence (`unverified|assumed|documented|observed`) distinct. Existing `feature_status: design_ready` may report a proposed design; it does not authorize implementation, UAT, release or deployment.
 

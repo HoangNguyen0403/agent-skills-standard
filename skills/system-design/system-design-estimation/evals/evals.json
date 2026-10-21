@@ -35,7 +35,7 @@
     {
       "id": 2,
       "prompt": "Our API calls three services in sequence, each 99.9% available, with one cross-region hop. Can we promise 99.9% and 200ms p95?",
-      "expected_output": "Shows that serial dependencies multiply to 99.7%, rejects a 99.9% end-to-end promise without more redundancy, sums the latency budget including the cross-region round trip against 200ms p95, and converts the target into an error budget while budgeting with p99 rather than the mean.",
+      "expected_output": "Under an explicit independence assumption, multiplies the three serial availability values to about 99.7%, so the 99.9% end-to-end target needs additional evidence or protection. Does not add per-hop p95 values as an end-to-end p95; measures the end-to-end distribution or allocates explicit per-hop bounds within the deadline, and converts the availability target into an error budget.",
       "assertions": [
         {
           "type": "regex",
@@ -44,8 +44,8 @@
         },
         {
           "type": "contains_any",
-          "value": ["latency budget", "sum of hops", "cross-region round trip"],
-          "description": "Builds a latency budget from hop costs"
+          "value": ["end-to-end latency", "per-hop bounds", "percentiles do not add", "not additive"],
+          "description": "Rejects percentile addition while preserving a measurable latency budget"
         },
         {
           "type": "contains_any",

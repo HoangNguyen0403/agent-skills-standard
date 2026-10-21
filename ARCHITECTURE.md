@@ -188,13 +188,13 @@ Creates agent-specific rule files that point to AGENTS.md.
 
 ### System-Design Diagram Pipeline
 
-System-design methodology owns requirements, capacity, and the HLD → component → LLD → verification trace. Worked production cases stay lazy-loaded under `system-design-case-catalog/references/`; views are selected for a named audience and decision, not as a required checklist.
+System-design methodology owns the design process: requirements, decision-relevant capacity, and the HLD → component → LLD → verification trace. `system-design-data-architecture` owns the canonical critical-flow contract; other skills link to it instead of creating competing checklists. Worked cases and deep-dive references load lazily. Mobile/client guidance applies only when client authority, offline behavior, lifecycle, device constraints, or SDK compatibility changes correctness. No database, queue, cache, region, specialist, or diagram is mandatory by default.
 
-`common-architecture-diagramming/scripts/` remains the only production renderer. The JSON spec is semantic authority, draw.io is editable presentation, and exported images are derived artifacts. Lifecycle, evidence source kind/confidence, and metric provenance are independent. Compact citation-only nodes remain unverified.
+Views answer named questions and remain conditional. Dataflow explains movement, transformation, and authority; sequence explains ordering and acknowledgments; state explains lifecycle; ERD explains relationships; deployment explains runtime placement. A table or prose suffices when no diagram adds decision value. The common diagram scripts remain the sole renderer; JSON spec is semantic authority, draw.io is editable presentation, and exported images are derived copies.
 
-Optional manifests bind scoped views through canonical identities, refinement, ownership, and relationship IDs. Validation reads only bounded regular local files under the manifest directory, compares captured hashes, and reports evidence requiring review without claiming production drift. Generated draw.io content baselines protect manual edits while allowing normal spec updates.
+Lifecycle, evidence source kind/confidence, and metric provenance are independent. Documentation and code citations do not establish runtime or deployment observations. Compact citation-only nodes remain unverified. Optional manifests compare captured hashes for bounded local sources; they do not claim production drift.
 
-System-design eval assertions are lexical smoke checks. The independent semantic rubric verifies calculations, mechanisms, failure outcomes, and justified simplicity; historical catalog scores are not rewritten to imply unmeasured improvement.
+Lexical assertions are routing/content smoke checks, not semantic design evaluation. Candidate or body-only comparisons do not prove whole-package behavior or live efficacy; package evidence must identify the evaluated sources, applicable fresh answers, and execution route. Paid model execution requires separate approval.
 
 ## 6. Token Economy (Design Constraint)
 

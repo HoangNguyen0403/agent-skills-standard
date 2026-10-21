@@ -4,6 +4,13 @@ permissions:
   contents: read
 
 on:
+  workflow_dispatch:
+    inputs:
+      base_ref:
+        description: Base branch for changed-skill preflight
+        required: true
+        default: develop
+        type: string
   push:
     branches: [main, develop]
   pull_request:
@@ -150,9 +157,11 @@ jobs:
         run: pnpm audit:injection
 
       - name: Eval Preflight Gate (changed skills)
+        env:
+          BASE_REF: ${{ github.base_ref || inputs.base_ref || 'main' }}
         run: |
-          BASE="origin/${{ github.base_ref || 'main' }}"
-          git fetch --no-tags --depth=1 origin "${{ github.base_ref || 'main' }}" || true
+          BASE="origin/$BASE_REF"
+          git fetch --no-tags --depth=1 origin "$BASE_REF" || true
           git diff --name-only "$BASE"...HEAD \
             | node --import tsx scripts/evals/changed-skills.ts > "$RUNNER_TEMP/changed-skills.txt"
           if [ ! -s "$RUNNER_TEMP/changed-skills.txt" ]; then

@@ -1,6 +1,6 @@
 ---
 name: system-design-resilience-ops
-description: "Make a design survivable and operable: eliminate single points of failure, pick failover topology, set RPO/RTO, define readiness signals and observability, choose a deployment and rollback strategy. Use when reviewing availability, planning DR, or deciding rollout mechanics."
+description: "Design failure behavior and operability for a declared scope: evaluate journey SLOs, resilience, recovery, and rollout evidence. Use when reviewing availability, planning recovery, or deciding rollout mechanics."
 metadata:
   triggers:
     keywords:
@@ -31,15 +31,15 @@ A design is not done until its failure and its rollout are designed.
 
 ## Failover and Recovery
 
-| Topology | Recovery time | Cost | Fits |
+| Topology | Recovery characteristics | Cost | Fits |
 | --- | --- | --- | --- |
-| Single region, multi-AZ | Minutes, automatic | Low | Most products |
-| Active-passive across regions | Minutes to hours, drill-dependent | Medium | Regulated or high-value flows |
-| Active-active across regions | Seconds | High | Global low-latency, conflict-tolerant data |
+| Single region, multi-AZ | Zone recovery depends on health detection and failover behavior | Low | In-region availability objective |
+| Active-passive across regions | Promotion, data reconciliation, and traffic switch determine recovery | Medium | Cross-region recovery when the objective warrants it |
+| Active-active across regions | Conflict handling and regional independence determine continuity | High | Regional latency or failover objective justifies the added complexity |
 
-- Set **RPO** (tolerable data loss) and **RTO** (tolerable downtime) as numbers before choosing a topology; the numbers pick the topology, not the reverse.
-- Untested failover is a hypothesis. Schedule a drill and record the measured RTO against the target.
-- Backups need a restore test. A backup that has never been restored is not a backup.
+- Set recovery objectives only for data and journeys whose loss or downtime matters to the declared scope. Record RPO (tolerable data loss) and RTO (tolerable restoration time) as targets before selecting a recovery mechanism; do not invent objectives to justify a topology.
+- A proposed design may state an in-scope recovery target, mechanism, and planned drill. An implementation claim needs implementation evidence; an operations claim about recovery needs a dated drill and measured result against the target.
+- Backups and restore tests are required when the flow's recovery contract depends on backup/restore; otherwise state the applicable recovery path and why a backup is not material.
 
 ## Observability
 
@@ -47,6 +47,7 @@ A design is not done until its failure and its rollout are designed.
 - Alert on user-visible symptoms and on error-budget burn rate, not on raw CPU.
 - Propagate a trace and correlation id across every hop, including queue messages.
 - Every alert needs an owner, a runbook link, and a defined next action; an alert nobody acts on is noise.
+- Define user-journey SLOs and evaluate data-flow correctness, durability, freshness, backlog, and recovery per critical flow; use [Reliability Operations](references/reliability-operations.md) for scope-qualified evidence.
 
 ## Rollout
 
@@ -62,7 +63,7 @@ A design is not done until its failure and its rollout are designed.
 
 ## Anti-Patterns
 
-- **No untested failover**: no DR claim without a drill date and a measured RTO.
+- **No unsupported recovery claim**: match RPO/RTO targets, recovery plans, implementation evidence, and observed drills to the declared scope; a plan is not a measured result.
 - **No unbounded retry**: retries need budget, backoff with jitter, and a stop condition, or they amplify an outage.
 - **No liveness probe on dependencies**: a downstream outage must not restart the fleet.
 - **No deploy without rollback**: irreversible releases are outages waiting for a bad build.

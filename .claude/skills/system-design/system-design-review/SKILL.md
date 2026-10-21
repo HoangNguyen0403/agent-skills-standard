@@ -25,13 +25,25 @@ Score claims against evidence appropriate to the declared review scope. A propos
 | --- | --- | --- |
 | Requirements | Functional, NFR, and out-of-scope written with owners | Only a feature description exists |
 | Capacity evidence | Peak QPS, storage, and bandwidth computed and current | Numbers absent or older than the last traffic change |
-| Redundancy | Failure domains, recovery mechanisms and ownership fit the stated objective; proposals include validation criteria, operations claims require measured drills | Critical SPOF or no viable recovery for the stated objective |
-| Data scaling | Access patterns mapped, ownership single, growth path stated | One shared store, no growth plan, unbounded tables |
+| Redundancy | Failure domains, recovery mechanisms and ownership fit the stated objective; proposals include validation criteria, operations claims require measured drills when recovery is in scope | Critical SPOF or no viable recovery for the stated objective |
+| Data scaling | Access patterns mapped, ownership single, growth path stated; critical-flow authority, derived copies, freshness, and backlog are checked when material | One shared store, no growth plan, unbounded tables, or a material flow invariant/copy risk left unresolved |
 | Caching | Hot read paths cached with TTL and invalidation defined | No cache on a proven hot path, or uninvalidatable cache |
 | Async offload | Slow/bursty work is isolated when required by stated SLO or failure constraints, with bounded drain/recovery; bounded synchronous work is valid when it meets them | Required isolation is absent or synchronous coupling violates the stated constraints |
-| Observability | Signals, alert ownership, runbooks and validation fit the declared scope; operations claims require observed telemetry | No relevant signals, owner or response path for a material risk |
+| Observability | Journey indicators, signal/alert ownership, runbooks and validation fit declared scope; operations claims require observed SLO/telemetry | No relevant journey signals, owner or response path for a material risk |
 | Rollout | Canary or flag with metric rollback trigger and reversible migrations | Big-bang deploy, irreversible migration |
 | Cost proportionality | Spend is sized to the traffic and the risk, and someone can state it | Topology bought for an imagined scale nobody measured |
+
+## Non-Compensable Flow Gates
+
+Apply gates to material risks in the declared scope, independent of the aggregate score. A failed gate blocks a sound verdict/readiness claim; points on unrelated axes cannot compensate. Report the evidence, user consequence, owner, adverse timeline, smallest corrective action, and trace to the violated invariant. A justified `N/A` applies only when that concern is genuinely outside the declared flow/risk scope and records why.
+
+- **Correctness:** lost, duplicated, reordered, or stale effects violate the user/business invariant; missing acknowledgment/reconciliation leaves the outcome unknown without a safe resolution.
+- **Tenant authorization:** a flow crosses or exposes tenant data without enforcement at the relevant trust boundary.
+- **Sensitive data and deletion:** sensitive data is mishandled, or a deletion/retention promise fails across authoritative and derived copies, including replay or offline sync.
+- **Migration:** a backfill, CDC, cutover, rollback, or restore can lose or overwrite authoritative data, or exposes unverified state as current.
+- **Recoverability:** material data loss/downtime has no viable in-scope recovery mechanism or the claimed recovery outcome is unsupported at the declared lifecycle scope.
+
+These gates do not require every proposal to prove deployment or operations. Proposals need sufficient mechanisms, assumptions, and planned checks for design readiness; implementation and operations claims require their corresponding evidence.
 
 Report each applicable axis with evidence and a declared profile weighting. Use an applicable-axis denominator
 (`10 × applicable-axis count`), not a fixed `/90`, when an axis is justified `N/A`.

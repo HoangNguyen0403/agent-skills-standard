@@ -27,8 +27,7 @@ Useful anchors: 86,400 seconds per day (round to 100k), 2.6M seconds per month, 
 | Disk seek (HDD) | 10 ms |
 | Round trip CA to Netherlands | 150 ms |
 
-Consequences: memory is ~100x faster than SSD; cross-region is ~300x a same-DC hop. A design that
-crosses a region synchronously on the hot path has already spent its latency budget.
+Consequences: memory is ~1,000x faster than SSD based on the 100 ns memory and 100 us random-read anchors above; cross-region is ~300x a same-DC hop. Treat these as rough anchors, not per-hop percentile guarantees; measure the path against its end-to-end deadline.
 
 ## Single-Node Ceilings (conservative planning defaults)
 
@@ -41,14 +40,16 @@ crosses a region synchronously on the hot path has already spent its latency bud
 | NIC (10 Gbps) | ~1.2 GB/s | CDN offload, compression, more nodes |
 | Instance RAM | 64-256 GB working set | Sharded cache, hot/cold tiering |
 
-## Availability Table
+## Availability Reference
 
-| Nines | Downtime per year | Downtime per month |
+| Availability | Downtime per year | Downtime per month |
 | --- | --- | --- |
 | 99% | 3.65 days | 7.2 hours |
 | 99.9% | 8.77 hours | 43.8 minutes |
 | 99.99% | 52.6 minutes | 4.4 minutes |
 | 99.999% | 5.26 minutes | 26 seconds |
+
+This is an uptime conversion, not CAP availability. For a serial request path, multiply component availabilities only under a stated independence assumption (e.g., three independent 99.9% dependencies give about 99.7%); correlated failures require the joint availability, not that product.
 
 ## Worked Example - Read-Heavy Feed
 

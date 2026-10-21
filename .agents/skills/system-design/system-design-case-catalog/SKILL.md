@@ -45,7 +45,7 @@ Each classic problem has one defining constraint. Name it first; the rest of the
 | Unique id | Ordered, unique, generated without a central lock | Snowflake-style timestamp plus node plus sequence; clock-skew handling |
 | Video streaming | Bitrate ladder and CDN economics, not the upload | Transcode pipeline per rendition, adaptive manifests (HLS/DASH), edge cache hit ratio as the cost lever |
 | Ride hailing | Geo matching under moving supply and demand | Geohash or S2 cells, driver location stream with TTL, matching window and surge as a pricing signal |
-| Payment ledger | Exactly-once effect under retries and partial failure | Idempotency key per attempt, double-entry ledger, reconciliation job against the processor |
+| Payment ledger | One ledger effect per business operation despite retries and partial failure | Stable business-operation identity, double-entry ledger, and reconciliation; see the [idempotency contract](../system-design-principles/references/idempotency-contract.md) |
 
 ## Coaching Mode
 

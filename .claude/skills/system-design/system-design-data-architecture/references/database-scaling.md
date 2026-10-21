@@ -70,3 +70,11 @@ to physical shards. Growth moves buckets, never keys, and the mapping is small e
   reconciliation job, then cut over reads.
 - **Backfill safety**: batch with limits, throttle by replica lag, make every batch resumable, and
   record progress outside the job.
+
+## Flow and Lifecycle Checks
+
+- Name the authoritative source before adding a replica, cache, search index, or other derived copy. Record who writes each entity/state boundary and how a copy is refreshed, rebuilt, reconciled, or invalidated.
+- Derive consistency and freshness from the operation's invariant and user-visible consequence. A payment, feed, identity, or analytics label alone does not prescribe one consistency class or store; explain where stale/duplicate/reordered results are safe or unsafe.
+- For CDC plus backfill, fence stale backfill against source versions, checkpoint resumably, bound and observe lag, compare parity, and define cutover/rollback gates before switching authority or reads.
+- Treat deletion, retention, schema migration, restore, and expiry as flow-wide lifecycle events: identify affected derived copies and clients, propagation/verification, and the path that prevents stale replay or resurrection.
+- Add a saga, specialized store, queue, or strong-consistency mechanism only when the operation's boundary and failure model require it. Name the invariant and recovery behavior; preserve simple transactional or stateless paths where sufficient.

@@ -1,6 +1,6 @@
 ---
 name: system-design-methodology
-description: "Drives an interactive system design session: classifies depth, elicits scale/SLO/consistency inputs, computes capacity, then reveals components one by one, each justified by a constraint. Use when designing a system or running a design session; diagrams go through `common-architecture-diagramming`."
+description: "Facilitate system design by classifying mode, depth, and surface independently; scoping journeys; estimating only decision-relevant quantities; tracing logical flows before physical binding; and selecting risk-driven views and deep dives. Use for system design sessions and reviews."
 metadata:
   triggers:
     keywords:
@@ -20,80 +20,56 @@ metadata:
 
 ## **Priority: P0 (CRITICAL)**
 
-Requirements before solutions. Never draw a full architecture before numbers justify it.
+Classify work mode, depth, and system surface independently. Load only the relevant skill siblings: data-architecture for consequential data/state flows, mobile-client for mobile/client or SDK/library concerns, and diagramming only when a view is selected. Backend, mobile/client, SDK/library, and full-stack are surfaces; none is a mode.
 
-## Phase 0 - Classify Depth (always first)
+## Phase 0 - Classify
 
-- **Quick sketch**: exploratory ask, no scale numbers available, answer needed now. Assume defaults, label each one `ASSUMED`, skip gates.
-- **Full session**: real build, migration, or budget commitment. Run every phase gate.
-- State depth and mode (new design | review existing | interview practice) in one line, then continue. Interview practice runs through `system-design-interview-coaching`: the round on a clock, the rubric after.
-- Escalate quick to full when a hard constraint or irreversible choice appears.
+- State mode (new design | review existing | interview practice), depth (quick | full), and surface (backend | mobile/client | SDK/library | full stack). A mixed system may name multiple surfaces.
+- Quick sketches use explicit assumptions and skip confirmation gates; full sessions follow the per-phase exit predicates in the [four-phase process](references/four-phase-process.md) and confirm consequential decisions. Escalate quick to full for hard constraints or irreversible choices; an unresolved material decision prevents a readiness claim.
+- Interview practice follows [interview coaching](../system-design-interview-coaching/SKILL.md); production review/design follows this process.
 
-## Phase 1 - Intake (gate)
+## Phase 1 - Intake
 
-- Parse request: verbs to use cases, nouns to entities, adjectives to constraints.
-- Ask max 3 blocking questions per turn, each with a recommended default. See [intake checklist](references/intake-checklist.md).
-- Required before design: DAU/actors, top 3 use cases, read:write ratio, latency SLO, consistency need, retention, peak shape, budget, team size.
-- Freeze scope: list what is explicitly out of scope.
+- Bound questions to what changes the design. Identify journeys, inputs/outputs, actors, trust and ownership boundaries, team/budget, and scope.
+- For each consequential journey, state a quality scenario: trigger, environment, response, measurable condition, and owner. Ask at most 3 blocking questions per turn; label usable defaults as `ASSUMED`.
+- Review-existing mode maps current components, owners, traffic, incidents, and binding constraint before proposing change. SDK scope includes host responsibilities and compatibility; client scope includes authority, lifecycle, and offline need.
+- See [intake checklist](references/intake-checklist.md); do not require every backend intake field for every surface.
 
-## Phase 2 - Estimation (gate)
+## Phase 2 - Estimation
 
-- Compute QPS, storage, bandwidth, and working-set memory via `system-design-estimation`.
-- Present the numbers, name the one quantity that shapes the design, confirm before drawing anything.
+- Estimate only quantities that shape the chosen surface and decisions. For backend/data paths, derive rates, payload/bandwidth, retention/storage, fan-out, backlog or working set as applicable. For client/device work, estimate relevant memory, disk, network, battery-sensitive work, and queue bounds. For SDKs, bound calls, concurrency, buffers, and lifecycle when material; do not force backend QPS.
+- Label quantities target, estimated, or measured; state provenance and assumptions. Name the shaping quantity. Do not fabricate values or compute irrelevant metrics to fill a template.
 
-## Phase 3 - High-Level Design (incremental)
+## Phase 3 - Logical Design and Physical Binding
 
-- Price the null option first: do nothing, buy it, or let an existing service absorb it. Rejecting it needs a stated reason, not silence.
-- Start with the smallest system satisfying functional requirements: client, API, service, store.
-- Add one component at a time. For each, state `constraint -> component -> cost` in one line. No component without a named constraint.
-- Define API surface (one endpoint per functional requirement) and data ownership before optimizing.
-- Select views only when they answer a named question, per `common-architecture-diagramming`: a context/container, sequence, dataflow, deployment, or state view may be used when useful; prose or a table is sufficient otherwise. Carry `metric` and `constraint` only when the design states them; never invent a number to populate a node. See [phase deliverables](references/phase-deliverables.md).
+- Before choosing components or transport, trace consequential journeys logically: source/sink, payload/purpose, transformations, authority/copies, invariant, user-visible outcomes, and observable verification. Use the canonical [critical-flow contract](../system-design-data-architecture/references/flow-contracts.md), adding conditional fields only when material.
+- Price the null option where a build/buy/extend decision exists. Start from the smallest design satisfying requirements; add a component only for a named constraint and state its cost.
+- Bind accepted decisions to physical owners, stores, and contracts afterward. Link applicable `FLOW-*` design records to `REQ-* -> HLD-* -> CMP-* -> LLD-* -> VER-*`; `FLOW-*` is not an outcome-schema field. Keep unresolved assumptions and owner/invariant gaps visible.
+- Select a view only for a named question: dataflow for movement/transformation/authority, sequence for ordering/acknowledgment, state for lifecycle, ERD for relationships, deployment for placement. Prose or a table is enough when it resolves the decision. Do not infer runtime properties from a DFD.
+- Diagram JSON is the semantic source of truth; draw.io is editable presentation and the image is an exported copy. Follow [phase deliverables](references/phase-deliverables.md).
 
-## HLD, LLD, and Low-Level Design Routing
+## Phase 4 - Risk, Learning, and Handoff
 
-- **HLD** answers audience-level boundaries, shaping constraints, ownership, failure domains, and the decision to make. Use context/container or prose only when that is enough; no diagram is mandatory.
-- **LLD** (the same lane as “low-level design”) answers one component or critical flow: data/state ownership, API or event contracts, ordering, idempotency, failure behavior, and verification. Use sequence, dataflow, or state only when that view resolves a named question.
-- Trace every handoff as `requirement -> HLD decision -> component -> LLD contract -> verification`. Give each link a stable ID and carry unresolved assumptions forward; an LLD must not silently change the HLD invariant.
-- Each selected view declares `audience`, `question`, `decision`, `scenario`, `invariant`, `scope`, `status`, `evidence`, and `omissions`. Lifecycle is `proposed|implemented|retired`; `evidence` is a citation, not confidence. Keep `evidence_kind` and `evidence_confidence` separate per the renderer-owned [diagram spec](../../common/common-architecture-diagramming/references/diagram-spec.md) and [view manifest](../../common/common-architecture-diagramming/references/view-manifest.md); never infer deployment from a code/document citation.
-- Views are evidence for a question, not a completeness checklist. Prefer a precise paragraph or table over a diagram that adds no decision value.
+- Select zero or more deep dives/views from unresolved consequential risks, surface, and available time; no component, specialist, or diagram quota. Each dive resolves a named decision and covers adverse timeline, invariant, mechanism/recovery, verification, and reversal trigger where applicable.
+- In practice, use initial design -> concrete adverse timeline -> revise affected mechanism -> change a constraint -> evidence-based debrief. Grade reasoning and adaptation, not technology counts.
+- Readiness requires a declared-profile, scope-aware nine-axis design scorecard ([system-design-review](../system-design-review/SKILL.md), applicable axes only, justified `N/A` excluded from its denominator) and an independent semantic evaluation ([canonical evaluator](../system-design-review/references/semantic-evaluation.md)); the interview's six-criterion rubric is separate.
+- Semantic soundness requires at least 85%, no applicable dimension at 0, and no hard failure. Any failed material gate blocks readiness regardless of aggregate score. Justify `N/A` by scope; preserve existing outcome values and report unresolved evidence/decisions in existing fields. Do not claim implementation/operations readiness from a design score.
+- Stage now/seam/trigger only after recording scorecard findings and semantic gaps.
 
-## Specialist Deep-Dive Contract
+## Delivery
 
-Select zero, one or multiple dives only for unresolved consequential risks; no quota or invented risks. Each brief names its decision, specialist profile, audience/question, workload/SLO/team/budget, invariant, scope, evidence status and HLD decision. Omit dives without decision impact.
-- Require options with rejection reasons, the recommended LLD contract, failure timeline/recovery, verification hooks, and any ADR reversal trigger. Merge the result back into the HLD-to-LLD trace before scoring.
+- HLD gives boundaries and decisions; LLD gives one component/flow's contract and behavior. Flow records link to the existing trace without expanding machine-readable fields.
+- Keep requirements, estimates, assumptions, missing evidence, ownership, and verification connected. A document or planned check is not runtime/deployment evidence.
 
-## Brownfield Path (review-existing mode)
+## Design-to-Delivery Boundary
 
-- Map current state before proposing anything: components, owners, traffic, incidents.
-- Measure, do not assume: pull real QPS, data volume, and p99 from the running system.
-- Find the binding constraint - the one that fails first at the next growth step.
-- Design the smallest change that moves it, then re-measure. A rewrite needs a structural constraint the current shape cannot satisfy.
+- When independent post-decision document/diagram slices are warranted, define exact files, acceptance criteria, evidence sources, verification checks, and integrator before execution. Use only the configured route eligible for the project/account/data; the lead retains decisions and final review.
+- For a defective slice, allow one focused correction, then use the configured eligible fallback or report `BLOCKED`. Record executor/model/settings, corrections, fallback reason, and actual usage/cost or `unavailable`. This gate hard-codes no model/provider and grants no premium authorization.
 
-## Phase 4 - Deep Dives and Trade-offs
-
-- Stage what to build now, the enabling seam and metric threshold; record one ADR per irreversible decision with its reversal trigger, then score with `system-design-review`.
-
-## Design-to-Delivery Gate
-
-- Once HLD/LLD is fixed, list bounded docs/diagram slices: exact files, evidence, acceptance, verification, integrator. Route production to the cheapest qualified configured executor if available; lead owns decisions and final review.
-- If still defective after one focused correction, use the configured fallback or report BLOCKED. Log executor/model, corrections, exceptions and fallback reason; report actual usage/cost or `unavailable`, never assumed savings.
 
 ## Anti-Patterns
 
-- **No architecture before requirements**: no diagram until Phase 1 answers exist or defaults are flagged.
-- **No unjustified components**: every box names the constraint it solves.
-- **No design without the null option**: state why doing nothing or buying loses before building.
-- **No silent assumptions**: an unknown input becomes a labeled `ASSUMED` default, never a hidden guess.
-- **No full-stack reveal**: never dump a finished diagram before incremental agreement.
+- **No architecture before requirements**: no component set before relevant quantities exist or assumptions are labeled.
+- **No universal infrastructure**: a stateless computation or SDK may need no store, queue, or database.
+- **No silent assumptions or quota**: do not invent numbers, diagram types, components, or deep dives to complete a template.
 
-## Red Flags
-
-- **Stop if "just give me the architecture"**: deliver a quick sketch with `ASSUMED` labels, not fake precision.
-- **Stop if scale is unknown at Phase 3**: return to Phase 2 and estimate from a stated assumption.
-
-## References
-
-- [Four-Phase Process](references/four-phase-process.md) - per-phase gates, outputs, escalation rules
-- [Intake Checklist](references/intake-checklist.md) - question bank with defaults
-- [Phase Deliverables](references/phase-deliverables.md) - interview phase to artifact and diagram map
-- [Interview Coaching](../system-design-interview-coaching/SKILL.md) - timed mock rounds, rubric, mistakes

@@ -490,8 +490,8 @@
       ]
     },
     "common": {
-      "version": "3.0.0",
-      "last_updated": "2026-10-15",
+      "version": "3.0.1",
+      "last_updated": "2026-10-21",
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 44,
@@ -814,14 +814,14 @@
       ]
     },
     "system-design": {
-      "version": "1.2.3",
-      "last_updated": "2026-10-08",
+      "version": "1.2.4",
+      "last_updated": "2026-10-12",
       "tag_prefix": "system-design-v",
       "token_metrics": {
-        "total_skills": 12,
-        "total_tokens": 13478,
-        "avg_tokens_per_skill": 1123,
-        "largest_skill": "system-design-methodology (1788 tokens)"
+        "total_skills": 13,
+        "total_tokens": 15657,
+        "avg_tokens_per_skill": 1204,
+        "largest_skill": "system-design-review (1935 tokens)"
       },
       "owners": [
         "HoangNguyen0403"

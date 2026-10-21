@@ -55,6 +55,7 @@ Skills are the core value of this project.
 12. **Low-risk equivalence & sensitive floors**: Low-risk maintenance tickets with approved behavioral AC, owner, scope fence, approval, and verification lane satisfy readiness without document creation. Enforce sensitive floors per `references/requirements-modeling.md`.
 13. **Scoped change impact**: When requirements change, trace affected ACs, contracts, approvals, and evidence carrying existing IDs without reopening settled decisions.
 14. **Host-neutral guidance**: Keep provider, account, profile, model, and machine specifics in host planning records only, not canonical guidance.
+15. **System-design package**: Keep design-process ownership in `system-design-methodology` and critical-flow semantics in `system-design-data-architecture`; link to the canonical flow contract instead of copying it. Route mobile/client or SDK guidance only when those surface constraints affect correctness. Select views from decisions; do not impose infrastructure or diagram quotas.
 
 ## 4. Creating Workflows
 
@@ -180,6 +181,9 @@ recall/specificity must each be at least 90%. A composite or reused run may be
 kept as historical evidence but cannot be promoted as release proof.
 
 Never hand-edit `results.json` or historical transcripts. New runs must be complete, must contain immutable `inputs.json`, and must use the canonical `.agents/workflows/evals-run.md` workflow; regenerate exported workflow copies from the canonical source.
+
+For system-design evaluations, lexical assertions check presence or routing only; they do not judge mechanism correctness or prove runtime behavior. A body-only comparison is not whole-package evidence: references, workflow guidance, package resources, and generated exports may change behavior. Report source scope and evidence kind separately, and require fresh applicable package-bound evidence before claiming release efficacy. Model execution remains subject to its separately authorized route and approval gate.
+
 
 For release candidates, also run:
 

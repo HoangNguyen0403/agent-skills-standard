@@ -1,0 +1,274 @@
+{
+  "cases": [
+    {
+      "case_id": "PROD-01",
+      "family": "production-payment",
+      "surface": "backend",
+      "base_prompt": "Assume a regional marketplace processes 32,000 checkout attempts per minute at peak, expects a 99.95% capture-effect objective, and allows 600 ms p99 at the client. A processor may capture funds before its reply reaches you. Propose the smallest safe payment design and its recovery behavior.",
+      "variant_prompt": "Keep the same marketplace invariant, but the acquirer has no duplicate-request contract and a campaign raises peak attempts to 320,000 per minute. Revise retries and state the guarantee boundary.",
+      "changed_constraint": "Provider deduplication removed; peak load increases tenfold.",
+      "expected_invariant": "One business operation creates at most one capture and one ledger effect; unknown outcome is not reported as success or failure until resolved.",
+      "mandatory_evidence": ["Stable operation identity across retries", "Authoritative operation and ledger owners", "Pending/queryable unknown outcome", "Reconciliation before another external effect", "Variant explicitly rejects blind provider retry and limits guarantee scope"],
+      "hard_failures": ["Claims exactly-once across processor and local ledger without a shared transaction/protocol", "Treats timeout as proof capture did not commit", "Variant repeats capture blindly or leaves ambiguous effect unresolved"],
+      "source_fixture": "skills/system-design/system-design-case-catalog/references/production-case-packs.md#1"
+    },
+    {
+      "case_id": "PROD-02",
+      "family": "production-flash-sale",
+      "surface": "backend",
+      "base_prompt": "Assume a collectibles drop sends 18,000 reserve attempts per second to one scarce item; authorization may take 25 seconds. Protect inventory and describe the payment/expiry race, including recovery.",
+      "variant_prompt": "Demand increases to 180,000 attempts per second and payment p99 reaches 75 seconds. Re-evaluate hot-item isolation and reservation expiry without changing the inventory invariant.",
+      "changed_constraint": "Peak reserve rate rises tenfold (18,000 to 180,000 attempts/s); payment duration rises threefold (25 to 75 seconds).",
+      "expected_invariant": "Inventory never goes negative and a single order cannot consume multiple reservations.",
+      "mandatory_evidence": ["Atomic owner-mediated reserve", "Versioned expiry/payment winner", "Late payment void/refund or equivalent reconciliation", "Variant adjusts lease/isolation from rate and duration", "No scarce inventory lock across slow payment"],
+      "hard_failures": ["Concurrent requests can oversell", "Late payment can fulfill an expired reservation", "Variant adds unbounded queue/global lock without bounded recovery"],
+      "source_fixture": "skills/system-design/system-design-case-catalog/references/production-case-packs.md#2"
+    },
+    {
+      "case_id": "PROD-03",
+      "family": "production-multitenant",
+      "surface": "backend",
+      "base_prompt": "Assume a hosted compliance workspace has 420 customers; four customers generate about three quarters of traffic. Records are confidential and customers can request deletion. Design isolation, quota, and incident containment.",
+      "variant_prompt": "One customer now requires in-country residency and a dedicated encryption key. Revise placement and operational costs while preserving the same authorization contract.",
+      "changed_constraint": "A tenant adds residency and dedicated-key requirements.",
+      "expected_invariant": "A principal can read or mutate only its tenant's records; copies, jobs, quotas, and deletion remain tenant-scoped.",
+      "mandatory_evidence": ["Authenticated tenant scope enforced at data and cache/job boundaries", "Tenant-scoped quota and deletion", "Leak containment protecting unaffected tenants", "Variant names explicit region/cell and key boundary with cost"],
+      "hard_failures": ["Any unscoped query/cache/job can cross tenant boundary", "Deletion or restore can affect unrelated tenant state", "Variant claims residency without a placement boundary"],
+      "source_fixture": "skills/system-design/system-design-case-catalog/references/production-case-packs.md#3"
+    },
+    {
+      "case_id": "PROD-04",
+      "family": "production-cache",
+      "surface": "backend",
+      "base_prompt": "Assume a catalog detail endpoint receives 4,500 reads/s for a hot item, its origin sustains 250/s, and freshness must remain within 45 seconds. Design cache fill and invalidation under simultaneous misses and writes.",
+      "variant_prompt": "Origin capacity falls to 90 reads/s and the freshness limit tightens to four seconds. Re-derive which mechanism and response behavior must change.",
+      "changed_constraint": "Lower origin ceiling and much tighter freshness objective.",
+      "expected_invariant": "No served cache value exceeds the freshness policy, and stale refill cannot overwrite a newer version.",
+      "mandatory_evidence": ["Origin query optimization and bounded/coalesced fill", "Version-aware invalidation/refill ordering", "Degraded behavior when freshness bound is exceeded", "Variant reconsidered against 90/s and four-second bound"],
+      "hard_failures": ["Unbounded origin stampede", "Stale data served past declared bound", "Permanent TTL/manual invalidation treated as correctness"],
+      "source_fixture": "skills/system-design/system-design-case-catalog/references/production-case-packs.md#4"
+    },
+    {
+      "case_id": "PROD-05",
+      "family": "production-notifications",
+      "surface": "backend",
+      "base_prompt": "Assume a travel service creates 85,000 alerts per hour, normally delivers within 12 minutes, and uses push, mail, and SMS. Mail is unavailable for 18 minutes while push remains healthy. Preserve intent and explain the SLO impact and recovery.",
+      "variant_prompt": "A protected alert category may not be replayed by another provider. Change failure handling and the operator's recovery decision.",
+      "changed_constraint": "One message class prohibits provider replay/failover.",
+      "expected_invariant": "Accepted intent is not silently lost, retries do not create duplicate user-visible delivery where dedupe exists, and expired alerts are not sent as current.",
+      "mandatory_evidence": ["Durable intent and channel isolation", "Bounded retries/backoff and backlog age/drain visibility", "12-minute target breach is not redefined", "Variant moves prohibited replay to auditable human decision"],
+      "hard_failures": ["Mail outage blocks healthy channels", "Unbounded retries or stale expired alert sent as current", "Variant silently fails over despite prohibition"],
+      "source_fixture": "skills/system-design/system-design-case-catalog/references/production-case-packs.md#5"
+    },
+    {
+      "case_id": "PROD-06",
+      "family": "production-chat",
+      "surface": "backend",
+      "base_prompt": "Assume a collaboration service carries 42,000 concurrent sessions and 4,000 messages per second, retains seven days, and targets 280 ms send-ack p99. Preserve order within each room and make reconnect recoverable.",
+      "variant_prompt": "Mobile reconnect gaps become frequent and message volume grows tenfold. Revise admission/resume behavior while preserving room ordering and durable acknowledgment.",
+      "changed_constraint": "Intermittent mobile reconnects and tenfold volume.",
+      "expected_invariant": "Each room's messages are ordered, acknowledged only after durable acceptance, and a retry does not create a second message.",
+      "mandatory_evidence": ["Room-scoped authority/order", "Stable client identity and durable ack", "Cursor-based resume and explicit expired-history outcome", "Variant bounds reconnect storm and preserves ordering"],
+      "hard_failures": ["Global ordering imposed without need or room ordering lost", "Socket write/local bubble treated as durable acceptance", "Expired cursor presented as full history"],
+      "source_fixture": "skills/system-design/system-design-case-catalog/references/production-case-packs.md#6"
+    },
+    {
+      "case_id": "PROD-07",
+      "family": "production-search-migration",
+      "surface": "backend",
+      "base_prompt": "Assume an authoritative catalog has 180 million rows and receives 4,000 writes/s. Search cutover needs 99.99% sampled parity and CDC lag under 25 seconds. No committed source write may be lost and search stays a derived view. Explain backfill, cutover, and rollback.",
+      "variant_prompt": "Backfill now competes with production writes at three times normal volume. Re-evaluate throttling and whether the read switch should proceed while preserving the 99.99% parity and 25-second lag gates.",
+      "changed_constraint": "Migration workload competes with writes at 3x current volume.",
+      "expected_invariant": "No committed source write is lost; search remains a derived view and unverified/stale data is not presented as current.",
+      "mandatory_evidence": ["A stale snapshot cannot overwrite a newer CDC change (for example, version/LSN fencing or a phase-separated consistent snapshot followed by ordered retained-log replay)", "Replay ordering and log-retention/checkpoint assumptions", "Parity and lag cutover gates", "Source reads preserved on hold/rollback; variant throttles and defers when gates cannot hold"],
+      "hard_failures": ["Stale backfill overwrites newer CDC data", "Cutover despite failed parity/lag", "Rollback loses authoritative writes"],
+      "source_fixture": "skills/system-design/system-design-case-catalog/references/production-case-packs.md#7"
+    },
+    {
+      "case_id": "PROD-08",
+      "family": "production-small-counter",
+      "surface": "backend",
+      "base_prompt": "Assume an internal equipment checkout tool serves 35 employees at 2 requests/s peak, has one maintainer and a $250 monthly budget. Every counter update must be auditable and applied once. Propose the smallest adequate design.",
+      "variant_prompt": "Usage grows to 90 requests/s, service becomes continuous, and a second team owns reporting. State what evidence would justify an architectural boundary change.",
+      "changed_constraint": "Higher observed load, continuous service, and a second owning team.",
+      "expected_invariant": "Each submitted increment has one auditable effect and retries do not duplicate it.",
+      "mandatory_evidence": ["Small transaction-based design with stable operation identity", "No infrastructure quota for cache/broker/services", "Variant measures bottleneck and ownership before splitting", "Explicit trigger and proportionate recovery"],
+      "hard_failures": ["Adds queue/microservices/multi-region by fashion", "Allows duplicate increments or lost audit", "Treats variant as automatic rewrite without evidence"],
+      "source_fixture": "skills/system-design/system-design-case-catalog/references/production-case-packs.md#8"
+    },
+    {
+      "case_id": "PROD-09",
+      "family": "production-video-publishing",
+      "surface": "full stack",
+      "base_prompt": "Assume a creator service accepts 90 videos per minute averaging 1 GB, keeps originals six years, and has a $12,000 monthly budget. Validate the capacity tuple before proposing the publishing pipeline.",
+      "variant_prompt": "The approved envelope changes to one upload per minute, 30-day hot retention, and an archival tier. Explain safe publication and recovery after a worker dies midway.",
+      "changed_constraint": "Approved ingest/retention envelope is drastically smaller and tiered.",
+      "expected_invariant": "An asset becomes publishable only after required renditions and manifest pass validation; incomplete output remains unpublished.",
+      "mandatory_evidence": ["Recompute source storage and reject infeasible original tuple", "Revised envelope is explicit, not presented as guaranteed cost", "Idempotent stage resume and integrity/manifest check", "Variant retains deletion and queue-age observability"],
+      "hard_failures": ["Claims the base budget can hold the unexamined storage total", "Publishes partial/corrupt rendition", "Treats worker completion as proof of asset validity"],
+      "source_fixture": "skills/system-design/system-design-case-catalog/references/production-case-packs.md#9"
+    },
+    {
+      "case_id": "PROD-10",
+      "family": "production-ride-dispatch",
+      "surface": "backend",
+      "base_prompt": "Assume a dispatch service has 18,000 active trips and ingests 900 driver-location updates per second; match p95 is two seconds. A driver accepts, but the acknowledgment is lost. State the authoritative trip result and safe recovery.",
+      "variant_prompt": "The service expands to eight cities with eight times as many updates and a tighter pickup radius. Re-evaluate partitioning and whether a regional coordinator is justified.",
+      "changed_constraint": "More cities, higher location rate, tighter geographic match requirement.",
+      "expected_invariant": "A driver has at most one active assignment and riders see one authoritative trip state.",
+      "mandatory_evidence": ["Ephemeral location separated from durable assignment", "Fencing/version checked against authoritative state before re-offer", "Variant partitions by geography and measures match error/handoff", "Coordinator only if evidence requires it"],
+      "hard_failures": ["Lost acknowledgment causes duplicate assignment or stale re-offer", "Location treated as durable trip assignment", "Adds global coordination without a measured constraint"],
+      "source_fixture": "skills/system-design/system-design-case-catalog/references/production-case-packs.md#10"
+    },
+    {
+      "case_id": "MOBILE-01",
+      "family": "mobile-offline-notes",
+      "surface": "mobile/client",
+      "base_prompt": "An expedition journal lets two devices edit a page offline; one reconnects with an obsolete base revision after the other device has committed changes. How should the user see and resolve the result?",
+      "variant_prompt": "The owner requests account deletion while the second device is offline with unsent edits. Revise reconnect and deletion handling.",
+      "changed_constraint": "Logout/deletion occurs before offline queue can reconnect.",
+      "expected_invariant": "An acknowledged server revision is not silently lost; pending local content is not represented as durable success and cannot cross accounts or resurrect deleted data.",
+      "mandatory_evidence": ["Base revision conflict detection/resolution", "Pending versus confirmed state", "Account-bound queued operation", "Server/local deletion path and offline-device limit"],
+      "hard_failures": ["Blind last-write-wins erases concurrent edit", "Queue replays under next account", "Deleted state is resurrected"],
+      "source_fixture": "skills/system-design/system-design-mobile-client/references/practice-cases.md#1"
+    },
+    {
+      "case_id": "MOBILE-02",
+      "family": "mobile-chat-send",
+      "surface": "mobile/client",
+      "base_prompt": "A messaging client sends from two devices; the server commits one message but the network drops its acknowledgment. Define retry identity, visible state, and conversation ordering.",
+      "variant_prompt": "Dedup records expire sooner than the retry window and the app can be killed during large attachment upload. Revisit reconciliation and resumability.",
+      "changed_constraint": "Dedup retention no longer covers supported client retries; upload is process-interruptible.",
+      "expected_invariant": "A repeated client operation creates one message, accepted order is server-defined, and uncertain send stays pending/queryable.",
+      "mandatory_evidence": ["Stable business operation ID reused on retry", "Retention horizon and durable lookup/reconciliation", "Server conversation sequence", "Separate resumable attachment from final message commit"],
+      "hard_failures": ["Expired key is treated as new message", "Client clock determines authoritative order", "Socket write is treated as durable delivery"],
+      "source_fixture": "skills/system-design/system-design-mobile-client/references/practice-cases.md#2"
+    },
+    {
+      "case_id": "MOBILE-03",
+      "family": "mobile-online-authorization",
+      "surface": "mobile/client",
+      "base_prompt": "A transit purchase must use a current server authorization; offline approvals are prohibited. Describe network-loss UI and safe retry behavior.",
+      "variant_prompt": "The authorization can commit while the response is lost, and the process can terminate before the user sees a result. Revise restart recovery.",
+      "changed_constraint": "Server commit may precede lost response and client process death.",
+      "expected_invariant": "No client-visible authorized state without authoritative result; unresolved outcome does not become a second purchase.",
+      "mandatory_evidence": ["Online-only decision and unavailable/unknown UX", "Stable operation identity on retry", "Restart status query/reconciliation", "Only justified non-sensitive operation reference is persisted"],
+      "hard_failures": ["Queues authorization as eventual offline work", "Displays local optimistic success", "Blindly retries ambiguous committed purchase"],
+      "source_fixture": "skills/system-design/system-design-mobile-client/references/practice-cases.md#3"
+    },
+    {
+      "case_id": "MOBILE-04",
+      "family": "mobile-resumable-upload",
+      "surface": "mobile/client",
+      "base_prompt": "A field team uploads multi-gigabyte recordings over interrupted service; bytes may be accepted even when the client misses the acknowledgment. Define resume, integrity, and publication behavior.",
+      "variant_prompt": "The OS may suspend the app indefinitely, and the account may be revoked before resume. Re-evaluate scheduling, authorization, and deletion.",
+      "changed_constraint": "Unbounded suspension and revocation/deletion during pause.",
+      "expected_invariant": "Only a complete integrity-verified object is exposed; interrupted transfer does not duplicate/corrupt bytes or resume under a revoked account.",
+      "mandatory_evidence": ["Stable chunk/range identity and checksum", "Server completeness validation before finalize", "Bounded device resources and explicit indeterminate/cancel result", "Best-effort scheduling, reauthorization, expiry/deletion"],
+      "hard_failures": ["Promises exact background completion", "Exposes partial asset", "Resumes cross-account after revocation"],
+      "source_fixture": "skills/system-design/system-design-mobile-client/references/practice-cases.md#4"
+    },
+    {
+      "case_id": "FLOW-01",
+      "family": "flow-payment-lost-ack",
+      "surface": "full stack",
+      "base_prompt": "An online checkout commits a card capture, but the customer-facing response is dropped. Trace data authority and user-visible result through retry and status lookup.",
+      "variant_prompt": "The processor's result remains indeterminate and its API supplies no idempotency key. Re-evaluate whether another capture can be attempted.",
+      "changed_constraint": "External processor deduplication is unavailable and result ambiguity persists.",
+      "expected_invariant": "One intended checkout yields one financial effect; unknown status remains explicit until authoritative reconciliation.",
+      "mandatory_evidence": ["Source/sink and payload purpose", "Stable operation and effect owner", "Pending/unknown outcome", "Reconciliation and observable one-effect verification"],
+      "hard_failures": ["Timeout interpreted as no commit", "Blind retry creates second effect", "DFD alone claimed to prove order/concurrency"],
+      "source_fixture": "skills/system-design/system-design-data-architecture/references/worked-flows.md:5-7"
+    },
+    {
+      "case_id": "FLOW-02",
+      "family": "flow-cdc-backfill",
+      "surface": "backend",
+      "base_prompt": "A catalog search projection is rebuilt from a snapshot while change events continue arriving. The source remains authoritative; cutover requires at least 99.99% sampled parity and CDC lag below 30 seconds for 15 minutes. Explain how the rebuild preserves committed changes and avoids exposing stale results.",
+      "variant_prompt": "Parity remains below the 99.99% gate or CDC lag exceeds 30 seconds. Decide what users read, how to hold or roll back safely, and how to resume without losing or reordering retained changes.",
+      "changed_constraint": "The agreed parity and lag acceptance gates fail during migration.",
+      "expected_invariant": "The source remains authoritative; no stale projection is presented as current after unsafe cutover, and no committed source change is lost.",
+      "mandatory_evidence": ["A mechanism that prevents an older snapshot value from overwriting a newer change (for example, conditional version fencing or a phase-separated consistent snapshot followed by ordered retained-log replay)", "Replay ordering, retention, and restart/checkpoint assumptions", "Observable parity and lag gates", "Hold or rollback keeps source reads available; resume/replay begins from a safe checkpoint"],
+      "hard_failures": ["Snapshot overwrites a newer event result", "Failed gate ignored", "Projection treated as second authority"],
+      "source_fixture": "skills/system-design/system-design-data-architecture/references/worked-flows.md:9-11"
+    },
+    {
+      "case_id": "FLOW-03",
+      "family": "flow-tenant-delete",
+      "surface": "backend",
+      "base_prompt": "A tenant's workspace is deleted while a cache, an export job, and an audit projection may retain copies. Trace authority and propagation without disturbing other tenants.",
+      "variant_prompt": "An old queued export is delivered after deletion and has lost its tenant authorization context. Re-evaluate replay and recovery.",
+      "changed_constraint": "Delayed replay arrives after deletion without verifiable tenant scope.",
+      "expected_invariant": "Tenant isolation holds across original and derived copies; deletion cannot be undone by retained data or replay.",
+      "mandatory_evidence": ["Tenant boundary on each flow/copy", "Deletion/retention handling", "Fail-closed missing scope", "No cross-tenant recovery side effect"],
+      "hard_failures": ["Cross-tenant read/write", "Replay resurrects deleted data", "Restoring shared snapshot damages unaffected tenants"],
+      "source_fixture": "skills/system-design/system-design-case-catalog/references/production-case-packs.md#3; skills/system-design/system-design-data-architecture/references/worked-flows.md:13-15"
+    },
+    {
+      "case_id": "FLOW-04",
+      "family": "flow-mobile-sync-logout",
+      "surface": "mobile/client",
+      "base_prompt": "A field note is changed offline on two devices. One account session ends before the pending device reconnects. Define authority, conflict handling, and visible state.",
+      "variant_prompt": "Deletion is accepted server-side while the stale device remains offline, then that device reconnects with its prior queued edit.",
+      "changed_constraint": "Deletion races with delayed offline write/replay.",
+      "expected_invariant": "Pending state is not server-confirmed; queued work remains identity-bound and cannot overwrite or resurrect deleted authoritative state.",
+      "mandatory_evidence": ["Server versus local/pending state distinction", "Base-version conflict or explicit rejected outcome", "Account binding and logout behavior", "Deletion/tombstone and replay verification"],
+      "hard_failures": ["Silent last-write-wins loss", "Cross-account replay", "Deleted state returns from stale client"],
+      "source_fixture": "skills/system-design/system-design-data-architecture/references/worked-flows.md:13-15"
+    },
+    {
+      "case_id": "FLOW-05",
+      "family": "flow-dfd-logical-physical",
+      "surface": "full stack",
+      "base_prompt": "A logical order DFD decomposition drops a refund-result output at the child boundary. Separately, production clients upload bytes directly to object storage through signed URLs. Review semantics without conflating the two scopes.",
+      "variant_prompt": "The view is narrowed to an audit projection that records writes only, and a neighboring transform is stateless. Reassess missing store inputs and infrastructure assumptions.",
+      "changed_constraint": "Filtered write-only view and stateless process are explicitly in scope.",
+      "expected_invariant": "Logical parent/child data boundaries balance; valid physical direct upload is not prohibited by logical conventions; omitted reads/no-store are accepted only with scope reason.",
+      "mandatory_evidence": ["Named process/data roles and plausible inputs/outputs", "Balanced boundary reconciliation", "Physical path trust/control boundary", "Explicit filtered write-only omission and stateless/no-store rationale", "Select sequence/state/deployment only for their actual question"],
+      "hard_failures": ["Unexplained dropped/added logical boundary flow", "Treats physical signed upload as forbidden solely by DFD rule", "Invents read path for explicitly write-only view", "Requires store for stateless transform"],
+      "source_fixture": "skills/system-design/system-design-data-architecture/references/dfd-review.md:12-20"
+    }
+  ],
+  "calibration": [
+    {
+      "case_id": "CAL-01",
+      "example_type": "vocabulary-only answer",
+      "prompt": "The applicant is asked to design checkout with one-effect payment retries and a lost processor acknowledgment.",
+      "answer": "Intake. QPS. Constraint leads to component. Add a queue, cache, and database for scale.",
+      "expected_verdict": "unsound",
+      "rationale": "Repeats design vocabulary but gives no stable operation identity, effect owner, unknown-result behavior, recovery, or evidence. Technology list has no causal link."
+    },
+    {
+      "case_id": "CAL-02",
+      "example_type": "precise wrong calculation",
+      "prompt": "10 million active users each read a feed 20 times daily; use a 5x peak and 4 KB response. Estimate average/peak QPS and egress.",
+      "answer": "Average is 2,315 QPS; 5x peak is 11,575 QPS; peak egress is 92 MB/s at 4 KB per response.",
+      "expected_verdict": "unsound",
+      "rationale": "The QPS values are plausible, but 11,575 x 4 KB is about 46 MB/s, not 92 MB/s. The wrong bandwidth multiplier is a material calculation failure; precision and correct surrounding vocabulary do not rescue it."
+    },
+    {
+      "case_id": "CAL-03",
+      "example_type": "high-score tenant leak",
+      "prompt": "Review a nine-axis architecture with otherwise strong evidence; one worker query omits tenant scope and can expose another customer's records.",
+      "answer": "The weighted score is 88/90, so the design is sound. The tenant filter can be added later.",
+      "expected_verdict": "unsound",
+      "rationale": "A material tenant-authorization gate is non-compensable. Aggregate points cannot offset cross-tenant exposure; the finding blocks soundness/readiness."
+    },
+    {
+      "case_id": "CAL-04",
+      "example_type": "unbalanced logical flow",
+      "prompt": "A parent logical DFD sends a refund request to a payment process; its decomposed child view shows no incoming request but emits a refund confirmation.",
+      "answer": "The child view is balanced because the payment process eventually sends a confirmation; the diagram is readable.",
+      "expected_verdict": "unsound",
+      "rationale": "The required parent input is absent at the child boundary, and the output has no plausible input. Readability cannot repair a semantic boundary mismatch/miracle output."
+    },
+    {
+      "case_id": "CAL-05",
+      "example_type": "concise valid no-infrastructure answer",
+      "prompt": "A stateless image transformation processes 20 internal requests per day under a stated 1-second target. It has no persistence, retry, or recovery requirement. Is a queue, database, cache, and multi-region deployment required?",
+      "answer": "No. Assuming the stated 20 internal requests/day is representative, a single stateless handler is the smallest initial design; the 1-second value is a target, not an observed result, and capacity has not been measured here. There is no persistence, retry, or background-completion requirement. Measure representative latency and resource headroom before claiming the target is met; if it misses or observed bursts exceed the handler's capacity, revisit the design. On handler failure, return a retryable error.",
+      "expected_verdict": "sound",
+      "rationale": "The answer treats 20/day as a stated assumption, labels the one-second latency as an unverified target, proposes a proportionate measurement and changed-constraint trigger, and adds no unsupported infrastructure."
+    }
+  ]
+}
