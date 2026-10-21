@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Quick Navigation
 
-## [Unreleased]
+## [common-v2.9.0] [workflow-v1.1.6] [system-design-v1.2.4] [quality-engineering-v1.6.1] [product-management-v1.0.1] - 2026-10-21
 
 ### Added
 
@@ -49,11 +49,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Versions
 
-- **Workflows**: `1.1.5` → `1.1.7`
-- **Product Management**: `1.0.0` → `1.1.0` candidate
-- **System Design**: `1.2.2` → `1.2.4`
-- **Common**: `2.8.7` → `3.0.0`
-- **Common Skills**: `3.0.0` → `3.0.1`
+- **Workflows**: `1.1.5` → `1.1.6`
+- **Product Management**: `1.0.0` → `1.0.1` candidate
+- **System Design**: `1.2.3` → `1.2.4`
+- **Common**: `2.8.7` → `2.9.0`
 - **Quality Engineering**: `1.6.0` → `1.6.1`
 
 ## [common-v2.8.7] - 2026-10-09

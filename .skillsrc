@@ -8,7 +8,7 @@ skills:
   typescript:
     ref: typescript-v1.3.4
   common:
-    ref: common-v3.0.0
+    ref: common-v2.9.0
   product-management:
     ref: product-management-v1.1.0
     include:

@@ -490,7 +490,7 @@
       ]
     },
     "common": {
-      "version": "3.0.1",
+      "version": "2.9.0",
       "last_updated": "2026-10-21",
       "tag_prefix": "common-v",
       "token_metrics": {
@@ -856,7 +856,7 @@
       ]
     },
     "product-management": {
-      "version": "1.1.0",
+      "version": "1.0.1",
       "last_updated": "2026-10-15",
       "tag_prefix": "product-management-v",
       "owners": [
@@ -872,7 +872,7 @@
   },
   "releases": {
     "workflows": {
-      "version": "1.1.7",
+      "version": "1.1.6",
       "tag_prefix": "workflows-v"
     }
   },
