@@ -21,19 +21,19 @@
     "performance": "node scripts/performance.mjs"
   },
   "dependencies": {
-    "next": "16.4.0",
-    "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "next": "16.4.1",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",
     "@eslint/js": "^10.0.1",
-    "@playwright/test": "1.55.1",
+    "@playwright/test": "1.64.1",
     "@resvg/resvg-js": "2.6.2",
-    "@testing-library/dom": "10.4.0",
+    "@testing-library/dom": "10.4.2",
     "@testing-library/jest-dom": "6.6.4",
     "@testing-library/react": "16.3.3",
-    "@testing-library/user-event": "14.6.7",
+    "@testing-library/user-event": "14.6.8",
     "@types/node": "^22.14.0",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
@@ -45,10 +45,10 @@
     "jsdom": "26.0.0",
     "lighthouse": "12.3.0",
     "parse5": "7.3.0",
-    "prettier": "^3.9.7",
-    "serve": "14.2.4",
+    "prettier": "^3.9.10",
+    "serve": "14.2.6",
     "typescript": "^5.8.2",
-    "typescript-eslint": "^8.71.0",
+    "typescript-eslint": "^8.71.2",
     "vitest": "4.1.11"
   }
 }
