@@ -1,8 +1,9 @@
 import type { TestingLibraryMatchers } from '@testing-library/jest-dom/matchers';
+import 'vitest';
 
-// Augment @vitest/expect: Vitest's Assertion is declared by this package,
-// even though tests import the expect function through the vitest re-export.
-declare module '@vitest/expect' {
-  interface Assertion<T> extends TestingLibraryMatchers<HTMLElement, T> {}
-  interface AsymmetricMatchersContaining extends TestingLibraryMatchers<HTMLElement, unknown> {}
+declare module 'vitest' {
+  interface Assertion<R extends void | Promise<void> = void, T = unknown>
+    extends TestingLibraryMatchers<T, R> {}
+  interface AsymmetricMatchersContaining
+    extends TestingLibraryMatchers<HTMLElement, unknown> {}
 }
