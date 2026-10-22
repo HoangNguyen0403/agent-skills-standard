@@ -23,7 +23,7 @@ Goal: Turn a product brief into a linted DESIGN.md, a Stitch design system, and 
 5. Generate:
    - `generate_screen_from_text` per core task with layout and content only, explicitly passing the new `assets/<id>` as `designSystem` in every `deviceType: MOBILE` and `deviceType: TABLET` (two-pane or rail) generation call.
 6. Gate:
-   - Run `review-stitch-design` steps 3-7 on every generated screen; unresolved Blockers keep the design out of handoff.
+   - Run `review-stitch-design` steps 3-7 on every generated screen; unresolved Blockers keep the design out of handoff. Collect and visually inspect images only through the bounded preview procedure in `common-stitch-design/references/stitch-mcp.md`; preserve originals and never bypass the original-screen approval gate.
 
 ## Runtime Contract
 

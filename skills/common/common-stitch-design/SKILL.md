@@ -27,7 +27,10 @@ metadata:
 ## Read
 
 - `list_screens`, then group by `title`: many versions share one title. Confirm the current one with the author; default most recent.
-- Screenshot `screenshot.downloadUrl` + `=w390` (phone) or `=w1280` (tablet); HTML `htmlCode.downloadUrl`. Save to `.stitch/review/<YYYY-MM-DD>/`.
+- Before opening an image, fetch it to disk without attaching it to the model; verify decoded width and height and create a proportional preview with a longest edge <=1600 px. This is a conservative workflow budget, not a guaranteed model limit. `=w390`/`=w1280` is optional optimization, not a size guarantee. Preserve originals; use the bounded review procedure in [Stitch MCP](references/stitch-mcp.md#bounded-image-review).
+- Read SVG source as text first. Bound raster output and both browser screenshot dimensions before image ingestion; never request `fullPage`. Account for physical pixels (`CSS pixels × devicePixelRatio`); review tall pages with an overview and separate viewport captures.
+- A rejected image in a generation/edit response does not prove the backend write failed. Recover IDs, metadata, and completed screens before any retry. If documented tool behavior can embed an oversized image and no host-supported resize/text-only route exists, stop before the write call.
+- If a retained conversation image blocks work, query advertised commands and follow [OMP image recovery](references/stitch-mcp.md#omp-image-recovery); preserve source screenshots before `/shake images`.
 - Run `node scripts/audit_html.js <dir>`. Audit output is evidence; screenshots confirm visual judgement.
 
 ## Write Safely
