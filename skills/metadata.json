@@ -490,13 +490,13 @@
       ]
     },
     "common": {
-      "version": "2.9.0",
-      "last_updated": "2026-10-21",
+      "version": "2.9.1",
+      "last_updated": "2026-10-22",
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 44,
-        "total_tokens": 38388,
-        "avg_tokens_per_skill": 872,
+        "total_tokens": 38650,
+        "avg_tokens_per_skill": 878,
         "largest_skill": "common-skill-creator (1693 tokens)"
       },
       "owners": [
@@ -872,7 +872,7 @@
   },
   "releases": {
     "workflows": {
-      "version": "1.1.6",
+      "version": "1.1.7",
       "tag_prefix": "workflows-v"
     }
   },

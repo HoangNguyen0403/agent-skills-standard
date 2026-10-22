@@ -15,7 +15,7 @@ Goal: Score the chosen Stitch screens with evidence, get approval for fixes, and
    - `list_projects`, then `list_screens`; group by title and pick the current version per title with the author (default: most recent).
    - Declare surfaces (parent, child), age band, locale, and devices.
 3. Collect:
-   - Download each selected screenshot and HTML to `.stitch/review/<YYYY-MM-DD>/`.
+   - Download selected screenshot and HTML to `.stitch/review/<YYYY-MM-DD>/`. Do not open or attach screenshots yet: fetch to disk, then use the bounded image review procedure in `common-stitch-design/references/stitch-mcp.md` (verify decoded width and height; inspect only a proportional <=1600 px longest-edge preview). Width URL suffixes are optional, not proof.
    - Run `node <common-stitch-design>/scripts/audit_html.js .stitch/review/<YYYY-MM-DD>/`; read `list_design_systems`.
 4. Score:
    - Six-axis rubric per screen plus project findings; audit output is evidence, visual claims cite the screenshot.

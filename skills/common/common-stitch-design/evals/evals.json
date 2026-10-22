@@ -29,6 +29,49 @@
         { "type": "contains_any", "value": ["instance", "instance ids"] },
         { "type": "contains", "value": "get_project" }
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "A Stitch screenshot URL ends in =w390, but the downloaded screen is very tall. How can I inspect it safely?",
+      "expected_output": "Metadata/HTML may be read first, but do not read or attach any image until checking decoded width and height, creating a proportional preview with a longest edge <=1600 px, and verifying the preview dimensions. Preserve the original.",
+      "assertions": [
+        { "type": "regex", "value": "(?:decoded )?(?:width and height|height and width|both dimensions)" },
+        { "type": "regex", "value": "(?:verify|check|confirm)[\\s\\S]*(?:preview dimensions|dimensions of (?:the )?preview|preview(?:'s)? width and height)" },
+        { "type": "regex", "value": "(?:preview|longest edge)[\\s\\S]*(?:1600|1,600)|(?:1600|1,600)[\\s\\S]*(?:preview|longest edge)" },
+        { "type": "regex", "value": "(?:before|prior to|until|then|next|step\\s*\\d+|\\n\\s*\\d+[.)])[\\s\\S]*(?:first image read|image read|reading (?:the )?image|open(?:ing)?[\\s\\S]*(?:image|preview)|attach(?:ing)?[\\s\\S]*(?:image|preview)|read(?:ing)?[\\s\\S]*(?:image|preview)|image ingestion)" }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "I need a visual review of a tall Stitch page in the browser. Can I use a full-page screenshot at device scale 2?",
+      "expected_output": "Rejects full-page screenshots, checks devicePixelRatio and both physical width/height bounds derived from CSS dimensions before capture, and uses bounded viewport captures for tall content.",
+      "assertions": [
+        { "type": "regex", "value": "(?:avoid|do not|don't|never|not use|reject)[\\s\\S]*(?:full[- ]page|fullPage)|fullPage\\s*:\\s*false|viewport[- ]only" },
+        { "type": "regex", "value": "(?:DPR|devicePixelRatio)[\\s\\S]*(?:physical width and height|physical dimensions|both physical dimensions|both axes|CSS width and height|physical output dimensions|both dimensions)" },
+        { "type": "regex", "value": "(?:both|each)[\\s\\S]*(?:dimensions|axes|width and height)[\\s\\S]*(?:<=|at most|within|fit|no greater than)[\\s\\S]*(?:1600|1,600)|(?:CSS width[\\s\\S]*(?:DPR|devicePixelRatio)[\\s\\S]*(?:<=|at most|within|fit)\\s*1600[\\s\\S]*CSS height[\\s\\S]*(?:DPR|devicePixelRatio)[\\s\\S]*(?:<=|at most|within|fit)\\s*1600)|(?:1600\\s*[×x]\\s*\\d+|\\d+\\s*[×x]\\s*1600)[\\s\\S]*(?:both|each)" },
+        { "type": "regex", "value": "(?:before|prior to|then|next|step\\s*\\d+|\\n\\s*\\d+[.)]|\\s\\d+[.)]|after sizing|after calculation|once (?:the )?(?:bounds|viewport) (?:are )?(?:set|calculated))[\\s\\S]*(?:capture|screenshot)|(?:capture|screenshot)[\\s\\S]*(?:after sizing|after calculation|after bounding)" }
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Stitch generation returned an image-size error. Should I call generate_screen_from_text again?",
+      "expected_output": "Does not infer the backend write failed; checks returned screen IDs, get_screen, or metadata/completed output before retrying and never blindly repeats a write. If oversized inline images are possible, requires a documented host resize/text-only route before the call or blocks.",
+      "assertions": [
+        { "type": "regex", "value": "(?:existing|returned|completed)[\\s\\S]*(?:screen IDs?|get_screen|metadata|completed output)|(?:screen IDs?|get_screen|metadata)[\\s\\S]*(?:existing|completed output)" },
+        { "type": "regex", "value": "(?:avoid|no|without|do not|don't|never)[\\s\\S]*(?:blindly retry|blind retry|duplicate|repeat generation|generate again|retry)|(?:only retry|retry only)[\\s\\S]*(?:after|when|if)[\\s\\S]*(?:checking|inspect|existing|completed|metadata)" },
+        { "type": "regex", "value": "(?:no documented|not documented|unsupported)[\\s\\S]*(?:resize|screenshot)[\\s\\S]*(?:parameter|argument)|(?:no|without)[\\s\\S]*(?:resize|screenshot)[\\s\\S]*(?:parameter|argument)[\\s\\S]*(?:documented|supported)|(?:do not|don't|never|avoid)[\\s\\S]*(?:invent|assume|add)[\\s\\S]*(?:resize|screenshot)[\\s\\S]*(?:parameter|argument)" }
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "An existing OMP session is failing because it retained a huge screenshot. Is /compact enough, and can I use /help to find cleanup?",
+      "expected_output": "Discovers advertised commands before invoking /shake images, preserves source screenshots before cleanup, acknowledges that all conversation image blocks are removed, and states /compact is not guaranteed and /help is not assumed supported.",
+      "assertions": [
+        { "type": "regex", "value": "(?:get_available_commands|advertised commands)[\\s\\S]*(?:before|prior to|until|then|next|step\\s*\\d+)[\\s\\S]*(?:invok(?:e|ing)|us(?:e|ing)|run(?:ning)?|execut(?:e|ing))\\b[\\s\\S]*\\/shake images|(?:do not|don't|never|avoid)[\\s\\S]*\\/shake images[\\s\\S]*(?:until|after|once)[\\s\\S]*(?:get_available_commands|advertised commands)" },
+        { "type": "regex", "value": "(?:preserve|save|copy)[\\s\\S]*(?:source|original)[\\s\\S]*(?:screenshots?|images?|files?)[\\s\\S]*(?:before|prior to|until|then|next|step\\s*\\d+)[\\s\\S]*\\/shake images|\\/shake images[\\s\\S]*(?:until|after|once|before)[\\s\\S]*(?:preserve|save|copy)[\\s\\S]*(?:source|original)[\\s\\S]*(?:screenshots?|images?|files?)" },
+        { "type": "regex", "value": "(?:remove|strip|clear)s?\\s+all\\s+(?:conversation )?(?:image blocks?|images?)|all\\s+(?:conversation )?(?:image blocks?|images?)[\\s\\S]*(?:are|were|will be)?\\s*(?:removed|stripped|cleared)|(?:every|all)\\s+(?:conversation )?(?:image blocks?|images?)[\\s\\S]*(?:not just|not only)[\\s\\S]*(?:the )?(?:failing|selected|offending|one)" },
+        { "type": "regex", "value": "\\/compact[\\s\\S]*(?:not guaranteed|not a guaranteed|may retain|not reliable)|\\/help[\\s\\S]*(?:not advertised|not supported|don't assume|do not assume)" }
+      ]
     }
   ],
   "should_not_trigger": [
