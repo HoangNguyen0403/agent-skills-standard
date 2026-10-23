@@ -45,6 +45,8 @@ metadata:
 
 - **No Surface Reading**: investigate _implications_, don't restate.
 - **No Unowned Unknowns**: Carry confirmed evidence and explicit non-critical assumptions. Consequential undefined states block only affected slices (naming owner, consequence, and required input); preserve PARTIAL readiness boundaries. Sensitive changes require technical design and explicit human/governance approval per [requirements modeling §1](../../product-management/product-requirements/references/requirements-modeling.md#1-applicability--sizing-gate), not blanket P0 blocking.
+- Consume [shared requirements modeling](../../product-management/product-requirements/references/requirements-modeling.md#7-conflict-validation-and-transition-needs) for preserved stakeholder conflicts, quality review versus need validation, and applicable temporary transition needs; retain existing IDs and only reopen affected slices.
+- For general BA/elicitation requests requiring confirmation of captured meaning, directly load the BRD-owned [analysis and elicitation procedure](../../product-management/product-business-requirements/references/analysis-planning-and-elicitation.md) without requiring brainstorm-feature or full BRD intake. Participant confirmation does not imply approval.
 - **No Loose Mapping**: Ensure AC aligns 100% with Technical Impact notes.
 
 ## 5. User Story Authoring Standards

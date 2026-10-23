@@ -13,3 +13,4 @@
 - [ ] Domain terms that can be misread appear in the glossary.
 - [ ] Handoff links to candidate PRD requirements exist.
 - [ ] Functional behavior is routed to PRD/SRS instead of BRD.
+- [ ] When elicitation informs a decision, the approach and any participant confirmation are proportionate; confirmation is not treated as need validation or approval.
