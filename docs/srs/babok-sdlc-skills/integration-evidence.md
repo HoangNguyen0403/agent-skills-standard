@@ -60,6 +60,10 @@ Independent grading covered 12 paired synthetic scenarios (24 graded outputs): b
 
 Thirty-five raw runtime-usage fields were observed, but counter semantics, coverage of all agents, and pricing remain unverified. No session total, invoice total, uncached-token total, cost, or savings claim is made. The bounded CLI captures and scenarios do not establish every host's read-first behavior, alias resolution, aggregate context assembly, bytes actually consumed, or host-level isolation/containment.
 
+## CI wrapper-parity follow-up
+
+The first CI unit-test run failed the repository-wide checked-in workflow-wrapper parity case for `review-product-value`: its three derived host wrappers did not yet include the canonical workflow's latest limitation-diagnosis reference. This repository-wide test surface is broader than the configured-root generation proof above. The three wrappers were regenerated using the existing `WorkflowSyncService` and `WorkflowTransformer`; the targeted parity test then passed (1 passed, 42 skipped, 0 failed). This is a targeted local test result, not a full-suite pass. A CI rerun is pending the parent-owned push.
+
 ## Acceptance boundary
 
 Implementation, packaging, and bounded verification are complete. Separate final review, PR preparation, and maintainer human acceptance are pending. No merge, release, activation, private-reference publication, or legal clearance is implied.
