@@ -921,19 +921,23 @@ telemetry: false
       const listWorkflowsRes = await withTimeout(mcpClient.callTool({
         name: 'list_workflows',
         arguments: {}
-      }), 5000, 'list_workflows(native-only)');
+      }), 5000, 'list_workflows(managed)');
       const listWorkflowsText = listWorkflowsRes.content?.[0]?.text || '';
-      const nativeOnlyWorkflowRes = await withTimeout(mcpClient.callTool({
+      const managedWorkflowRes = await withTimeout(mcpClient.callTool({
         name: 'get_workflow',
         arguments: { name: 'discover-product' }
-      }), 5000, 'get_workflow(native-only)');
-      const nativeOnlyWorkflowText = nativeOnlyWorkflowRes.content?.[0]?.text || '';
-      const nativeOnlyGap = !listWorkflowsText.includes('discover-product') &&
-        nativeOnlyWorkflowRes.isError === true && nativeOnlyWorkflowText.includes("Workflow 'discover-product' not found");
+      }), 5000, 'get_workflow(managed)');
+      const managedWorkflowText = managedWorkflowRes.content?.[0]?.text || '';
+      const managedWorkflowSource = fixtureServer.fileMap.get('.agents/workflows/discover-product.md')?.toString('utf8') ?? '';
+      const managedWorkflowBody = managedWorkflowSource.replace(/^---\n[\s\S]*?\n---\n/, '').trimEnd();
+      const managedWorkflowAvailable = Boolean(managedWorkflowBody) &&
+        listWorkflowsText.includes('discover-product') &&
+        managedWorkflowRes.isError !== true &&
+        managedWorkflowText.includes(managedWorkflowBody);
       mcpTested = ['get_skill', 'load_skills_for_keywords', 'load_skills_for_files',
         'audit_session_compliance', 'list_workflows', 'get_workflow'].every((name) => toolNames.includes(name)) &&
         evidenceLoaded && invLoaded && kwMatched && bareTermUnmatched && ledgerMatched &&
-        unrelatedFilesUnmatched && auditTracksLoads && nativeOnlyGap;
+        unrelatedFilesUnmatched && auditTracksLoads && managedWorkflowAvailable;
       if (!mcpTested) {
         allStepsPassed = false;
         missingEvidence.push(`Primary MCP assertions failed: ${JSON.stringify({
@@ -944,7 +948,7 @@ telemetry: false
           ledger_file_route: ledgerMatched,
           unrelated_files_negative: unrelatedFilesUnmatched,
           audit: auditTracksLoads,
-          native_only_gap: nativeOnlyGap,
+          managed_workflow_available: managedWorkflowAvailable,
           missing_tools: ['get_skill', 'load_skills_for_keywords', 'load_skills_for_files', 'audit_session_compliance', 'list_workflows', 'get_workflow'].filter((name) => !toolNames.includes(name))
         })}`);
       }
@@ -959,7 +963,7 @@ telemetry: false
         bare_keyword: { unmatched: bareTermUnmatched, response: bareText },
         scoped_files: { matched_ledger: ledgerMatched, unrelated_files_unmatched: unrelatedFilesUnmatched, response: filesText },
         audit_session_compliance: { loaded_ids_present: auditTracksLoads, response: auditText },
-        native_only_workflow_gap: { verified: nativeOnlyGap, list_response: listWorkflowsText, get_response: nativeOnlyWorkflowText }
+        managed_workflow: { available: managedWorkflowAvailable, list_response: listWorkflowsText, get_response: managedWorkflowText }
       }));
     } catch (err) {
       console.error(`  MCP test error: ${err.message}`);
@@ -1032,18 +1036,19 @@ telemetry: false
       const workflowText = workflowRes.content?.[0]?.text || '';
       const noInvestmentInstall = !fs.existsSync(path.join(consumerNeg, '.claude/skills/product-management/product-investment/SKILL.md'));
       const missingGuidancePresent = missingText.includes('Category "product-management" exists, but it does not contain a skill named "product-investment".');
-      const workflowGapPresent = workflowRes.isError === true && workflowText.includes("Workflow 'discover-product' not found");
-      negMcpPassed = syncNegRes.status === 0 && noInvestmentInstall && missingGuidancePresent && workflowGapPresent;
+      const workflowDisabled = workflowRes.isError === true &&
+        !fs.existsSync(path.join(consumerNeg, '.agents/workflows/discover-product.md'));
+      negMcpPassed = syncNegRes.status === 0 && noInvestmentInstall && missingGuidancePresent && workflowDisabled;
       if (!negMcpPassed) {
         allStepsPassed = false;
-        missingEvidence.push(`Negative MCP configuration failed: PM install absent=${noInvestmentInstall}, precise missing-skill guidance=${missingGuidancePresent}, workflow gap=${workflowGapPresent}, sync exit=${syncNegRes.status}.`);
+        missingEvidence.push(`Negative MCP configuration failed: PM install absent=${noInvestmentInstall}, precise missing-skill guidance=${missingGuidancePresent}, workflow disabled=${workflowDisabled}, sync exit=${syncNegRes.status}.`);
       }
       completedEvidence.push(JSON.stringify({
         step: '4_negative_configs',
         sync: { argv: ['sync', '--yes'], exit: syncNegRes.status, duration_ms: syncNegRes.durationMs, stdout: syncNegRes.stdout, stderr: syncNegRes.stderr },
         product_investment_not_installed: noInvestmentInstall,
         missing_skill_guidance: { passed: missingGuidancePresent, response: missingText },
-        workflow_dependency_gap: { passed: workflowGapPresent, response: workflowText }
+        workflow_disabled: { passed: workflowDisabled, response: workflowText }
       }));
     } catch (error) {
       console.error(`  Negative MCP error: ${error.message}`);

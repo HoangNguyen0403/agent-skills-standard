@@ -284,6 +284,17 @@ describe('LockfileService v2', () => {
       await expect(service.load(root, [])).rejects.toThrow(/workflowCatalog/i);
     });
 
+    it('rejects a catalog whose workflows collection is not an object', async () => {
+      await fs.writeJson(path.join(root, LOCKFILE_NAME), {
+        ...baseLock(),
+        workflowCatalog: { version: 1, workflows: [] },
+      });
+
+      await expect(service.load(root, [])).rejects.toThrow(
+        /workflows must be an object/i,
+      );
+    });
+
     it('allows aliased providers to share one output path when their digests agree', async () => {
       const aliased = catalog();
       const [binding] = aliased.workflows['dev-fix'].nativeBindings;
@@ -371,6 +382,37 @@ describe('LockfileService v2', () => {
         expect(await fs.readFile(lockPath)).toEqual(previous);
       },
     );
+
+    it('rejects workflow names outside the canonical identifier contract', async () => {
+      await service.write(root, baseLock());
+      const lockPath = path.join(root, LOCKFILE_NAME);
+      const previous = await fs.readFile(lockPath);
+      const validWorkflow = catalog().workflows['dev-fix'];
+      const invalidCatalog = catalog({
+        workflows: { '../dev-fix': validWorkflow },
+      });
+
+      await expect(
+        service.write(root, {
+          ...baseLock(),
+          workflowCatalog: invalidCatalog,
+        }),
+      ).rejects.toThrow(/invalid workflow name/i);
+      expect(await fs.readFile(lockPath)).toEqual(previous);
+    });
+
+    it('rejects duplicate provider and output-path identity even when bytes agree', async () => {
+      const duplicate = catalog();
+      const [binding] = duplicate.workflows['dev-fix'].nativeBindings;
+      duplicate.workflows['dev-fix'].nativeBindings.push({ ...binding });
+
+      await expect(
+        service.write(root, {
+          ...baseLock(),
+          workflowCatalog: duplicate,
+        }),
+      ).rejects.toThrow(/duplicate native binding/i);
+    });
 
     it('rejects duplicate JSON keys before ordinary parsing', async () => {
       const text = `{"version":2,"registry":"r","generatedAt":"t","sources":{},"entries":{},"workflowCatalog":{"version":1,"workflows":{"dev-fix":{},"dev-fix":{}}}}`;

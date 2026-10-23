@@ -208,6 +208,28 @@ describe('delegationStatus', () => {
     ).toBe('not_verified');
   });
 
+  it('ignores a failure recorded for an earlier revision', () => {
+    const def = AGENT_CAPABILITIES[Agent.Claude];
+    const currentPass = evidence({
+      revision: 'rev-b',
+      controls: ['tool_allowlist'],
+    });
+    const staleFailure = evidence({
+      revision: 'rev-a',
+      outcome: 'observed_fail',
+      controls: ['tool_allowlist'],
+    });
+
+    expect(
+      delegationStatus(def, 'dispatch', {
+        version: '2.1.289',
+        revision: 'rev-b',
+        requiredControls: ['tool_allowlist'],
+        evidence: [currentPass, staleFailure],
+      }),
+    ).toBe('supported');
+  });
+
   it('requires evidence to cover every required control', () => {
     const def = AGENT_CAPABILITIES[Agent.Claude];
     const withoutControls = evidence({ controls: [] });
