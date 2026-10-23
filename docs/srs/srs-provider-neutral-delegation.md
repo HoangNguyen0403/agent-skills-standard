@@ -13,7 +13,7 @@ personal_pool_authorization: Gemini cheap -> eligible DeepSeek -> Personal Codex
 
 ## Context and trace
 
-Sources: [approved direction](../brd/brd-provider-neutral-delegation.md), [PRD](../prd/prd-provider-neutral-delegation.md), [delivery plan](../plans/provider-neutral-delegation.md), [review evidence](../../artifacts/subagent-optimization-review.md). The PRD's REQ-1–REQ-10 and AC groups remain authoritative. No approval of model spend, release or activation is implied.
+Sources: [approved direction](../brd/brd-provider-neutral-delegation.md), [PRD](../prd/prd-provider-neutral-delegation.md), [delivery plan](../plans/provider-neutral-delegation.md), [review evidence](../../artifacts/subagent-optimization-review.md). The PRD's REQ-001–REQ-010 and AC groups remain authoritative. No approval of model spend, release or activation is implied.
 
 HLD-1: preserve registry -> CLI-managed installation/exports -> host execution. The standards MCP selects and serves content; it is not an execution/authentication service. CMP-1 owns content delivery, CMP-2 task packets, CMP-3 semantic host support, CMP-4 workflow catalog and CMP-5 acceptance/usage evidence.
 
@@ -75,7 +75,7 @@ Copilot native agent output uses its actual documented agent-definition surface,
 
 A runtime receipt identifies operation, task/actor/revision, terminal/nonterminal state, evidence and limitations. User/host policy supplies profile/model/effort and resource limits; canonical `fast | standard | strong` is only a capability hint. Never encode private profile names/account routes in shared registry policy.
 
-Failure handling is cause-specific: unavailable prerequisite -> needs_context/blocked; defective output -> one concrete AC-focused corrective assignment according to host policy; observed provider exhaustion -> only an eligible authorized fallback; consequential unresolved safety/design issue -> human decision. Retry count alone cannot authorize premium. Timeout/cancellation is not successful completion. Resume keeps the same task/authority; independent review uses a separate owner/context.
+Failure handling is cause-specific: unavailable prerequisite -> needs_context/blocked; defective output -> one concrete acceptance-focused corrective assignment according to host policy; observed provider exhaustion -> only an eligible authorized fallback; consequential unresolved safety/design issue -> human decision. Retry count alone cannot authorize premium. Timeout/cancellation is not successful completion. Resume keeps the same task/authority; independent review uses a separate owner/context.
 
 Verification VER-3: held-out semantic lifecycle cases plus actual authorized native discovery/invocation/negative-control scenarios for each claimed surface/version. Serialization and fake-executor fixtures are separate evidence layers. No provider-native support is certified by this design document.
 
@@ -119,16 +119,16 @@ Each card is Must, priority as in the PRD, status proposed_for_review. The state
 
 | SRS | Source / AC group | Contract and input/output/error behavior | Component / design | Verification |
 | --- | --- | --- | --- | --- |
-| SRS-1 | REQ-1 / AC-1 | Required current skill request -> full body; unreadable content -> explicit error, not delivery | CMP-1 / D1 / LLD-1 | VER-1 shared MCP integration |
-| SRS-2 | REQ-2 / AC-2 | Valid explicit assignment + task -> complete standalone packet; absent/stale input -> no usable packet | CMP-2 / D2 / LLD-2 | VER-2 helper smoke/regression |
-| SRS-3 | REQ-3 / AC-3 | Eligible supported semantic operation -> valid receipt; absent controls -> unsupported, no dispatch claim | CMP-3 / D3 / LLD-3 | VER-3 host contracts/native scenarios |
-| SRS-4 | REQ-4 / AC-4 | Classified failure -> authorized specific route; retry count -> no premium authorization | CMP-3 / D3 | VER-3 adverse recovery scenarios |
-| SRS-5 | REQ-5 / AC-5 | Native surface/version + evidence -> scoped support claim; serialization alone -> not_verified | CMP-3 / D3 | VER-3 actual discovery/invocation/denial |
-| SRS-6 | REQ-6 / AC-6 | Coherent lifecycle -> bounded ownership and independent acceptance; stop/cleanup -> preserve status/evidence truth | CMP-2, CMP-3 / D2, D3 | VER-2, VER-3 lifecycle/retention |
-| SRS-7 | REQ-7 / AC-7 | Expected actor sessions -> complete/partial usage report; missing data -> no savings claim | CMP-5 / D5 / LLD-5 | VER-5 real report + authorized trials |
-| SRS-8 | REQ-8 / AC-8 | Installed canonical workflow -> same-revision native/MCP lookup; absent -> unavailable | CMP-4 / D4 / LLD-4 | VER-4 actual temporary installs |
-| SRS-9 | REQ-9 / AC-9 | Settled canonical changes -> reproducible exports + rollback evidence; publication -> no inferred activation | CLI integration / D4, D5 | VER-4 parity + final covering gate |
-| SRS-10 | REQ-10 / AC-10 | Assigned packet -> narrow required standard consultation; no global intake or cross-context omission | CMP-1, CMP-3 / D1, D3 | VER-1 plus positive/negative bootstrap cases |
+| SRS-001 | REQ-001 / AC-001, AC-101, AC-102, AC-103, AC-104 | Required current skill request -> full body; unreadable content -> explicit error, not delivery | CMP-1 / D1 / LLD-1 | VER-1 shared MCP integration |
+| SRS-002 | REQ-002 / AC-002, AC-105, AC-106, AC-107, AC-108 | Valid explicit assignment + task -> complete standalone packet; absent/stale input -> no usable packet | CMP-2 / D2 / LLD-2 | VER-2 helper smoke/regression |
+| SRS-003 | REQ-003 / AC-003, AC-109, AC-110, AC-111 | Eligible supported semantic operation -> valid receipt; absent controls -> unsupported, no dispatch claim | CMP-3 / D3 / LLD-3 | VER-3 host contracts/native scenarios |
+| SRS-004 | REQ-004 / AC-004, AC-112, AC-113, AC-114, AC-115 | Classified failure -> authorized specific route; retry count -> no premium authorization | CMP-3 / D3 | VER-3 adverse recovery scenarios |
+| SRS-005 | REQ-005 / AC-005, AC-116, AC-117, AC-118 | Native surface/version + evidence -> scoped support claim; serialization alone -> not_verified | CMP-3 / D3 | VER-3 actual discovery/invocation/denial |
+| SRS-006 | REQ-006 / AC-006, AC-119, AC-120, AC-121, AC-122, AC-123, AC-124 | Coherent lifecycle -> bounded ownership and independent acceptance; stop/cleanup -> preserve status/evidence truth | CMP-2, CMP-3 / D2, D3 | VER-2, VER-3 lifecycle/retention |
+| SRS-007 | REQ-007 / AC-007, AC-125, AC-126, AC-127, AC-128 | Expected actor sessions -> complete/partial usage report; missing data -> no savings claim | CMP-5 / D5 / LLD-5 | VER-5 real report + authorized trials |
+| SRS-008 | REQ-008 / AC-008, AC-129, AC-130 | Installed canonical workflow -> same-revision native/MCP lookup; absent -> unavailable | CMP-4 / D4 / LLD-4 | VER-4 actual temporary installs |
+| SRS-009 | REQ-009 / AC-009, AC-131, AC-132, AC-133 | Settled canonical changes -> reproducible exports + rollback evidence; publication -> no inferred activation | CLI integration / D4, D5 | VER-4 parity + final covering gate |
+| SRS-010 | REQ-010 / AC-010, AC-134, AC-135, AC-136 | Assigned packet -> narrow required standard consultation; no global intake or cross-context omission | CMP-1, CMP-3 / D1, D3 | VER-1 plus positive/negative bootstrap cases |
 
 ## Functional flows and adverse timelines
 

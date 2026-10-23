@@ -20,6 +20,7 @@ SNC: S=2 N=1 C=2 total=5 tier=high. Proposed changes span shared workflow, loadi
 ## Contract
 
 **Outcome:** bounded delegation improves accepted-task economics without losing requirements, safety, review independence or provider portability.
+- **Objective ID**: BRD-OBJ-001
 
 **Constraints:** retain registry -> CLI -> host architecture; canonical instructions remain provider-neutral; host policy and account eligibility win; no automatic premium escalation; no inference that context isolation is filesystem isolation; preserve required approvals and durable evidence.
 
@@ -38,16 +39,16 @@ SNC: S=2 N=1 C=2 total=5 tier=high. Proposed changes span shared workflow, loadi
 
 ## Acceptance Criteria / Trace Seed
 
-- **AC-1 / REQ-1:** parent and fresh sibling/child lookups cannot suppress a required skill body merely because another context loaded it; prove content-revision delivery, with safe behavior when context identity is unavailable.
-- **AC-2 / REQ-2:** the generated task packet retains applicable plan-level authority, invariants, dependencies, owned paths, ACs and verification while excluding unrelated tasks; fail preparation when required fields are missing.
-- **AC-3 / REQ-3:** canonical delegation rules describe operations semantically; profile/model/effort/tool bindings remain host-owned, explicitly eligible, and capability-checked. Missing controls produce an explicit gap rather than false parity.
-- **AC-4 / REQ-4:** exhausted provider, bad output, missing prerequisite and consequential unresolved decision take distinct authorized routes; premium cannot be reached by automatic retry count.
-- **AC-5 / REQ-5:** demonstrate native discovery and bounded invocation on each claimed supported host surface/version, including artifact access and necessary tool/permission restrictions; unsupported surfaces are disclosed and not certified by serialization tests.
-- **AC-6 / REQ-6:** coherent-task freshness/resume and dependency-ready concurrency preserve ownership, settled verification and mandatory independent reviews. Approved inline exceptions and evidence retention are unambiguous.
-- **AC-7 / REQ-7:** matched current/proposed/baseline executable trials report accepted-task rate, retries, wall time and full-actor cost/usage; incomplete usage prevents savings claims. Preserve failed and cancelled attempts.
-- **AC-8 / REQ-8:** required workflow discovery and native invocation resolve the same installed canonical catalog, independent of provider export layout.
-- **AC-9 / REQ-9:** changes update canonical sources/transformers and regenerate mirrors through existing tooling; evidence and rollout records identify source revision and rollback target.
-- **AC-10 / REQ-10:** worker bootstrap consumes the assigned contract and necessary standards without repeating parent intake/global workflow discovery; held-out routing cases distinguish relevant worker standards from unrelated keyword/composite matches.
+- **AC-001 / REQ-001:** parent and fresh sibling/child lookups cannot suppress a required skill body merely because another context loaded it; prove content-revision delivery, with safe behavior when context identity is unavailable.
+- **AC-002 / REQ-002:** the generated task packet retains applicable plan-level authority, invariants, dependencies, owned paths, ACs and verification while excluding unrelated tasks; fail preparation when required fields are missing.
+- **AC-003 / REQ-003:** canonical delegation rules describe operations semantically; profile/model/effort/tool bindings remain host-owned, explicitly eligible, and capability-checked. Missing controls produce an explicit gap rather than false parity.
+- **AC-004 / REQ-004:** exhausted provider, bad output, missing prerequisite and consequential unresolved decision take distinct authorized routes; premium cannot be reached by automatic retry count.
+- **AC-005 / REQ-005:** demonstrate native discovery and bounded invocation on each claimed supported host surface/version, including artifact access and necessary tool/permission restrictions; unsupported surfaces are disclosed and not certified by serialization tests.
+- **AC-006 / REQ-006:** coherent-task freshness/resume and dependency-ready concurrency preserve ownership, settled verification and mandatory independent reviews. Approved inline exceptions and evidence retention are unambiguous.
+- **AC-007 / REQ-007:** matched current/proposed/baseline executable trials report accepted-task rate, retries, wall time and full-actor cost/usage; incomplete usage prevents savings claims. Preserve failed and cancelled attempts.
+- **AC-008 / REQ-008:** required workflow discovery and native invocation resolve the same installed canonical catalog, independent of provider export layout.
+- **AC-009 / REQ-009:** changes update canonical sources/transformers and regenerate mirrors through existing tooling; evidence and rollout records identify source revision and rollback target.
+- **AC-010 / REQ-010:** worker bootstrap consumes the assigned contract and necessary standards without repeating parent intake/global workflow discovery; held-out routing cases distinguish relevant worker standards from unrelated keyword/composite matches.
 
 ## Value and Measurement Contract
 
