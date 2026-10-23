@@ -39,6 +39,11 @@ The following external works provided high-level conceptual background regarding
    - Canonical Link: [SVPG Four Big Risks](https://www.svpg.com/four-big-risks/)
    - Conceptual Influence: The fundamental separation of output (shipping features, managing backlogs) from outcome (moving customer behaviors and business health); value risk validation.
 
+4. **IIBA, *A Guide to the Business Analysis Body of Knowledge* (BABOK Guide), v3**:
+   - Conceptual Influence: Distinguishing solution limitations from broader organizational constraints when diagnosing outcome gaps; this is conceptual input, not a copied practice or claim that the Guide mandates this repository's workflow.
+   - Public navigation: [IIBA task navigation](https://www.iiba.org/knowledgehub/business-analysis-body-of-knowledge-babok-guide/tasks/). Citation is conceptual navigation only; no source passage, table, figure, private extraction, or matrix is reproduced.
+Repository-specific evidence, authority, delivery-state, and human-governance rules remain independently authored; the source concept does not supply or override them.
+
 ## 4. Explicit Exclusions
 
 - **Dean Peters Materials (`D-L1`, `D-X1`)**: Excluded. All schemas, formulas, prompts, and text are strictly excluded due to license incompatibility (CC BY-NC-SA 4.0) and conflicting definitions of ROI and investment heuristics.

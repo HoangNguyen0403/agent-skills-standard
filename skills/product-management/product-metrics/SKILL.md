@@ -52,6 +52,7 @@ Resolve and verify execution prerequisites across installed layouts before valid
    - Classify attribution as `causal_supported | descriptive | unknown`. Document counterfactuals and confounders (seasonality, marketing spend, promotions).
    - Set `recommendation` to `scale | iterate | stop | inconclusive`. REV has no status field.
    - When evidence is unseasoned or confounded, record `recommendation: "inconclusive"`, `attribution.classification: "unknown"` or `"descriptive"`, keeping delivery status `released`.
+   - Diagnose solution-internal and organizational limitations separately using [Value Review Protocol](references/value-review-protocol.md#7-limitation-diagnosis); a KPI shortfall alone establishes neither cause.
 
 ## 3. Anti-Patterns & Red Flags
 

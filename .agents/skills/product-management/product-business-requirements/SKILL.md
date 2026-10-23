@@ -1,6 +1,6 @@
 ---
 name: product-business-requirements
-description: Standardize BRD and BRD-lite discovery for business goals, stakeholder impact, current-to-future state, and measurable value outcomes. Use when creating BRD, business case, project justification, ROI narrative, or AS-IS to TO-BE scope.
+description: Standardize BRD and BRD-lite discovery for business goals, stakeholder impact, current-to-future state, and measurable value outcomes. Use for business analysis or elicitation results and stakeholder elicitation without requiring BRD intake.
 metadata:
   triggers:
     files:
@@ -14,6 +14,8 @@ metadata:
       - stakeholder impact
       - as-is to to-be
       - roi justification
+      - elicitation results
+      - stakeholder elicitation
 ---
 
 # Business Requirements Expert
@@ -24,6 +26,7 @@ Frame the business "Why" before product or technical specs.
 
 ## 1. Discovery Workflow
 
+- For business-analysis or elicitation requests that do not require a BRD, load [Analysis Planning and Elicitation](references/analysis-planning-and-elicitation.md) directly; do not route through BRD-lite intake.
 - Draft executive summary: purpose, outcome, sponsor, validation owner.
 - For vague "implement X" requests, draft BRD-lite first from supplied evidence; ask at most 3 consequential blocking questions with recommended defaults per `common-decision-discipline`. Never re-ask settled decisions.
 - Confirm business objective and success metric.
@@ -69,3 +72,4 @@ Frame the business "Why" before product or technical specs.
 - [BRD Template](references/brd-template.md)
 - [BRD Checklist](references/checklist.md)
 - [Requirements Baseline](references/standards-baseline.md)
+- [Analysis Planning and Elicitation](references/analysis-planning-and-elicitation.md) — load for applicable elicitation without full BRD intake.

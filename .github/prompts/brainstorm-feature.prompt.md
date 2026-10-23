@@ -16,6 +16,7 @@ Goal: Turn rough intent into an approved, evidence-backed brief sized to the tas
    - Bug symptom without root cause -> stop and route to `dev-fix`. Multi-subsystem idea -> list slices, brainstorm first only.
 2. Ground:
    - Read smallest useful set of code, tests, docs, and existing `docs/brd|prd|srs` for slug before feasibility/AS-IS claims. Reused approved exact-revision/equivalent context skips rediscovery; missing filename never resets settled work.
+   - When general elicitation needs result confirmation, load the applicable section of `product-management/product-business-requirements/references/analysis-planning-and-elicitation.md`; do not require full BRD intake for confirmation alone.
    - If canonical product evidence ledger (`docs/product/<slug>/evidence.json`) exists, link exact strategy, OPP, DEC, critical assumption, and MET IDs in evidence; never duplicate editable records or mint product IDs as requirement IDs.
    - Tag each claim in Evidence ledger: `confirmed(<path>)`, `assumed`, or `unknown`.
    - Draft provisional brief; write back "You said / I assumed" unless outcome, constraints, non-goals, and ACs already stated.
