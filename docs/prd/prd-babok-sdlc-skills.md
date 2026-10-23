@@ -28,10 +28,10 @@ Local measurement was authorized using the supplied read-only PDF in a private, 
 
 ### Objectives
 
-- **BRD-OBJ-001 — Improve BA judgment:** source-grounded elicitation, requirements analysis, governance, change assessment, and solution evaluation improve agent decisions rather than merely vocabulary.
-- **BRD-OBJ-002 — Cover the entire SDLC:** map BABOK practices into existing lifecycle owners without creating a competing six-stage pipeline or second requirements database.
-- **BRD-OBJ-003 — Control conversion cost:** measure source size locally, bound generation, checkpoint results, and expose actual usage before committing to remaining work.
-- **BRD-OBJ-004 — Preserve distribution boundaries:** separate private book-derived artifacts from independently authored registry changes and reviewed reusable material.
+- **Objective ID**: BRD-OBJ-001 — Improve BA judgment: source-grounded elicitation, requirements analysis, governance, change assessment, and solution evaluation improve agent decisions rather than merely vocabulary.
+- **Objective ID**: BRD-OBJ-002 — Cover the entire SDLC: map BABOK practices into existing lifecycle owners without creating a competing six-stage pipeline or second requirements database.
+- **Objective ID**: BRD-OBJ-003 — Control conversion cost: measure source size locally, bound generation, checkpoint results, and expose actual usage before committing to remaining work.
+- **Objective ID**: BRD-OBJ-004 — Preserve distribution boundaries: separate private book-derived artifacts from independently authored registry changes and reviewed reusable material.
 
 ### Users / Jobs
 
@@ -100,16 +100,27 @@ The IIBA article returned HTTP 403 directly; discovery used indexed content. The
 
 All requirements: priority P0, status Draft. Product owner: maintainer; engineering owner: assigned slice owner; verification owner: separate reviewer/QE role. IDs below are local to this plan and do not replace IDs in existing plans.
 
-| Requirement / objective | Accountable delivery role | Observable acceptance criterion |
+| Requirement / objective | Accountable delivery role | Acceptance criterion |
 | --- | --- | --- |
-| REQ-001 / OBJ-004: establish source and reuse authority | Maintainer + provenance reviewer | AC-001: before source text reaches any model, record edition, hash, permitted uses, private/public destinations, eligible provider/account, and handling terms; unresolved rights block the affected processing/distribution lane |
-| REQ-002 / OBJ-003: measure extraction without LLM ingestion | Local preparation owner | AC-002: report actual pages, per-section token counts with tokenizer/method, blank or low-text pages, table/diagram limitations, and printed/PDF page mapping; do not send full text to the orchestrator |
-| REQ-003 / OBJ-001,003: qualify conversion method | Conversion owner + independent reviewer | AC-003: bounded representative pilot has source-checked outputs, actual usage or explicitly unavailable fields, correction costs, and approved remaining-work forecast; fail closed if enforceable limits are unavailable |
-| REQ-004 / OBJ-001,004: produce full private reference | Conversion owner | AC-004: every source section has a completion or explicit exclusion disposition; reference skill routes topics to source-linked notes and reports unreadable content without inventing it |
-| REQ-005 / OBJ-002: establish complete crosswalk | BA mapping owner | AC-005: all tasks in verified edition mapped to existing ownership with covered/partial/missing/intentionally-out-of-scope dispositions; techniques, key concepts, competencies, and perspectives each have a reuse/disposition inventory |
-| REQ-006 / OBJ-001,002: integrate approved improvements | Canonical component owners | AC-006: every accepted gap maps to one canonical behavioral rule/reference and a verification scenario; callers reference it without competing definitions; existing low-risk and sensitive-change gates remain intact |
-| REQ-007 / OBJ-001,003: prove behavior and quota discipline | Independent reviewer / QE | AC-007: deterministic checks, actual native reference-consumption smoke, and frozen baseline/candidate scenarios have revision-bound evidence; no critical regressions; no claim of improvement from formatting/keyword checks alone |
-| REQ-008 / OBJ-002,004: deliver reviewable package | Integration owner + maintainer | AC-008: changed files, coverage dispositions, rights decisions, token deltas, verification evidence, actual costs/limits, and remaining restrictions are handed off; no automatic merge/release/activation |
+| **Requirement ID**: REQ-001 — BRD-OBJ-004: establish source and reuse authority | Maintainer + provenance reviewer | AC-001 |
+| **Requirement ID**: REQ-002 — BRD-OBJ-003: measure extraction without LLM ingestion | Local preparation owner | AC-002 |
+| **Requirement ID**: REQ-003 — BRD-OBJ-001, BRD-OBJ-003: qualify conversion method | Conversion owner + independent reviewer | AC-003 |
+| **Requirement ID**: REQ-004 — BRD-OBJ-001, BRD-OBJ-004: produce full private reference | Conversion owner | AC-004 |
+| **Requirement ID**: REQ-005 — BRD-OBJ-002: establish complete crosswalk | BA mapping owner | AC-005 |
+| **Requirement ID**: REQ-006 — BRD-OBJ-001, BRD-OBJ-002: integrate approved improvements | Canonical component owners | AC-006 |
+| **Requirement ID**: REQ-007 — BRD-OBJ-001, BRD-OBJ-003: prove behavior and quota discipline | Independent reviewer / QE | AC-007 |
+| **Requirement ID**: REQ-008 — BRD-OBJ-002, BRD-OBJ-004: deliver reviewable package | Integration owner + maintainer | AC-008 |
+
+### Acceptance criteria
+
+- **AC ID**: AC-001 → REQ-001: before source text reaches any model, record edition, hash, permitted uses, private/public destinations, eligible provider/account, and handling terms; unresolved rights block the affected processing/distribution lane.
+- **AC ID**: AC-002 → REQ-002: report actual pages, per-section token counts with tokenizer/method, blank or low-text pages, table/diagram limitations, and printed/PDF page mapping; do not send full text to the orchestrator.
+- **AC ID**: AC-003 → REQ-003: bounded representative pilot has source-checked outputs, actual usage or explicitly unavailable fields, correction costs, and approved remaining-work forecast; fail closed if enforceable limits are unavailable.
+- **AC ID**: AC-004 → REQ-004: every source section has a completion or explicit exclusion disposition; reference skill routes topics to source-linked notes and reports unreadable content without inventing it.
+- **AC ID**: AC-005 → REQ-005: all tasks in verified edition mapped to existing ownership with covered/partial/missing/intentionally-out-of-scope dispositions; techniques, key concepts, competencies, and perspectives each have a reuse/disposition inventory.
+- **AC ID**: AC-006 → REQ-006: every accepted gap maps to one canonical behavioral rule/reference and a verification scenario; callers reference it without competing definitions; existing low-risk and sensitive-change gates remain intact.
+- **AC ID**: AC-007 → REQ-007: deterministic checks, actual native reference-consumption smoke, and frozen baseline/candidate scenarios have revision-bound evidence; no critical regressions; no claim of improvement from formatting/keyword checks alone.
+- **AC ID**: AC-008 → REQ-008: changed files, coverage dispositions, rights decisions, token deltas, verification evidence, actual costs/limits, and remaining restrictions are handed off; no automatic merge/release/activation.
 
 Failure cases include unreadable extraction, missing source context, contradictory stakeholder evidence, quota exhaustion, output truncation, stale checkpoints, incomplete source anchors, unapproved derivative distribution, and a reviewer unable to verify claims. These produce explicit failure/partial states, not fabricated successful fallbacks.
 
