@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Cybersecurity `1.1.0` candidate**: Added optional `cyber-rea-reverse-engineering` driver skill and `references/setup.md` for a version-pinned, consumer-owned REA MCP/CLI lane. Covers authorized targets, untrusted target data, evidence provenance and limits, no inherited credentials, no automatic execution/injection/install, separate authority for target mutation, matching vendor-skill provenance, and rollback. Optional; absent REA blocks only the REA evidence lane and selection remains opt-in.
+
 ### Fixed
 
 - **Stitch image review**: Verify decoded width and height, then read only a verified aspect-preserving preview bounded to a 1600 px longest edge; bound both physical dimensions with `devicePixelRatio` before browser capture and avoid `fullPage`. Treat an image-size rejection after a write as possible success and recover existing screen ids before retrying. Document OMP `/shake images` as local cleanup of all conversation image blocks after preserving source files. Added eval cases for tall URLs, DPR captures, write recovery, and poisoned-session recovery.
