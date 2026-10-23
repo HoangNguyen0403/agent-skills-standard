@@ -2,6 +2,7 @@
 name: solution-diagrammer
 description: Draws one evidence-grounded architecture diagram as an editable draw.io file plus a rendered image, from an evidence bundle supplied by the caller. Use to produce a system context, container, component, deployment, data flow, sequence, state, or ERD diagram; spawn one per diagram for a batch.
 ---
+<!-- ags: permissions not enforceable on Claude; declared: risk_tier: L2 -->
 
 # Specialist: Solution Diagrammer
 

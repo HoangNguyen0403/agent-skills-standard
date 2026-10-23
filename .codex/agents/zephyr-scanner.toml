@@ -1,6 +1,5 @@
 name = "zephyr-scanner"
 description = "Finds Zephyr Scale test cases linked or relevant to Jira stories, ACs, modules, and release risks. Use for coverage analysis and traceability checks."
-sandbox_mode = "read-only"
 developer_instructions = """
 # Specialist: Zephyr Scanner
 

@@ -186,8 +186,20 @@ export class SyncCommand {
         config,
       );
 
-      // 4b. Assemble workflows
-      const workflows = await this.syncService.assembleWorkflows(config);
+      // 4b. Acquire workflows with an explicit completeness outcome
+      const workflowAcquisition =
+        await this.syncService.acquireWorkflows(config);
+      const workflows = workflowAcquisition.workflows;
+      if (workflowAcquisition.status === 'incomplete') {
+        console.error(
+          pc.red(
+            '❌ Workflow acquisition incomplete; existing workflows were preserved and no success is claimed.',
+          ),
+        );
+        for (const failure of workflowAcquisition.failures) {
+          console.error(pc.red(`   ❌ ${failure.path} — ${failure.reason}`));
+        }
+      }
 
       // 5. Write skills and workflows to target
       await this.syncService.writeSkills(skills, config);
@@ -203,6 +215,7 @@ export class SyncCommand {
         workflows,
         specialistsOk,
         refreshIndices: true,
+        workflowAcquisition,
       });
 
       if (options.dryRun) {
@@ -231,7 +244,9 @@ export class SyncCommand {
 
       this.printSummary(plan);
       await this.syncService.discloseCapabilities(config);
-      console.log(pc.green('✅ All skills synced successfully!'));
+      if (workflowAcquisition.status !== 'incomplete') {
+        console.log(pc.green('✅ All skills synced successfully!'));
+      }
 
       // 7. MCP integration (consent-respecting — see McpConfigService).
       await this.runMcpPhase(config, options);
@@ -513,6 +528,17 @@ export class SyncCommand {
       console.log(
         pc.yellow(
           `   Kept your edits: ${preview}${more} — overwrite with ags sync --force <path>`,
+        ),
+      );
+    }
+
+    const legacyCopilot = allKept.filter((p) =>
+      p.startsWith('.github/copilot-agents/'),
+    );
+    if (legacyCopilot.length > 0) {
+      console.log(
+        pc.yellow(
+          `   ⚠️  ${legacyCopilot.length} legacy Copilot instruction export(s) kept; Copilot may still discover them as instructions next to .github/agents/*.agent.md.`,
         ),
       );
     }

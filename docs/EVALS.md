@@ -252,6 +252,23 @@ carry `promptTokens`, `completionTokens`, `cachedPromptTokens`, `reasoningTokens
 `wallMs`, `lanesMetered`, `lanesUnmetered`, and `estimatedUsd`. Resumed and quota-paused runs merge
 usage cumulatively across `--execute` invocations rather than overwriting it.
 
+`RunMetadata.taskUsage` records every attempted lane with its outcome
+(`completed`, `failed`, `retried`, `interrupted`, `cancelled`) and the parsed
+sample or `null`. Failed, interrupted and cancelled attempts stay in task-cost
+accounting; a lane with no usage is unmetered, never zero. Attempt records may
+carry explicit `taskId`, `parentTaskId`, `actorRole` and `attemptId`; an absent
+identity is unknown membership, never assumed complete.
+
+Baseline provenance is explicit: a v2 manifest's top-level `baselineRunId` is
+copied into `results.json`, and the report compares only against that immutable
+run. The generated report adds a Task Economics section that reports the actors
+actually observed and withholds monetary savings unless a full declared actor
+inventory (parent, workers, review, integration, auxiliary) is certified for a
+single task scope, both cohorts are fully metered, the model price resolves, and
+both cohorts share the same task. Executed lanes are worker attempts only, so
+the report normally records observed coverage and withholds savings rather than
+inferring completeness from the attempt array.
+
 `estimatedUsd` resolves against the fixed pricing table in `scripts/benchmark/models.ts` by an
 exact, case-insensitive model-name match only. There is no fuzzy matching and no fallback price:
 an unresolved model (which includes the default `gpt-5.6-luna` worker model today) reports

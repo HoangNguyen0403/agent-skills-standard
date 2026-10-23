@@ -888,7 +888,7 @@ telemetry: false
 
       const kwRes = await withTimeout(mcpClient.callTool({
         name: 'load_skills_for_keywords',
-        arguments: { keywords: ['product investment analysis'], force_reload: true }
+        arguments: { keywords: ['product investment analysis'] }
       }), 5000, 'load_skills_for_keywords');
       const kwText = kwRes.content?.[0]?.text || '';
       const kwMatched = kwText.includes('<!-- skill: product-management/product-investment | matched: keyword:product investment analysis -->') &&
@@ -896,7 +896,7 @@ telemetry: false
 
       const bareRes = await withTimeout(mcpClient.callTool({
         name: 'load_skills_for_keywords',
-        arguments: { keywords: ['investment'], force_reload: true }
+        arguments: { keywords: ['investment'] }
       }), 5000, 'load_skills_for_keywords(bare)');
       const bareText = bareRes.content?.[0]?.text || '';
       const bareTermUnmatched = bareText.includes('No skill keyword triggers matched: investment') &&
@@ -904,7 +904,7 @@ telemetry: false
 
       const filesRes = await withTimeout(mcpClient.callTool({
         name: 'load_skills_for_files',
-        arguments: { files: ['docs/product/test/evidence.json', 'README.md', 'docs/product/test/unrelated.json'], force_reload: true }
+        arguments: { files: ['docs/product/test/evidence.json', 'README.md', 'docs/product/test/unrelated.json'] }
       }), 5000, 'load_skills_for_files');
       const filesText = filesRes.content?.[0]?.text || '';
       const ledgerMatched = filesText.includes('<!-- skill: product-management/product-evidence | matched: file:docs/product/*/evidence.json -->') &&

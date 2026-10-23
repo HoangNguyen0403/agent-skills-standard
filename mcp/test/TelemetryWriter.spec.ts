@@ -20,7 +20,6 @@ function tracker(): SessionTracker {
     via: "load_skills_for_keywords",
     input: ["jwt"],
     loaded: ["typescript/typescript-language"],
-    dedupedSkills: ["typescript/typescript-language"],
   });
   t.record({
     via: "get_workflow",

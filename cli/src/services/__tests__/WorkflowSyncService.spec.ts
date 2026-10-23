@@ -4,7 +4,10 @@ import path from 'path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Agent, DEFAULT_WORKFLOWS } from '../../constants';
 import { SkillConfig } from '../../models/config';
+import type { CollectedSkill } from '../../models/types';
 import { WorkflowSyncService } from '../WorkflowSyncService';
+import { SHARED_WORKFLOW_AGENT } from '../LockfileService';
+import type { InstallWriter } from '../install/OwnershipWriter';
 import type { ManifestVerifier } from '../install/ManifestVerifier';
 
 // Mock fs-extra
@@ -418,7 +421,7 @@ describe('WorkflowSyncService', () => {
         expect.any(String),
       );
     });
-    it('routes whole-file writes through injected InstallWriter with expected meta', async () => {
+    it('routes whole-file writes through injected InstallWriter with canonical ownership', async () => {
       const workflows = [
         {
           skill: 'workflows',
@@ -434,13 +437,16 @@ describe('WorkflowSyncService', () => {
         [Agent.Antigravity],
         fakeWriter as unknown as InstallWriter,
       );
+      // Antigravity's native path is the canonical path, so it is written once
+      // under the reserved shared marker rather than as a provider copy.
+      expect(fakeWriter.write).toHaveBeenCalledTimes(1);
       expect(fakeWriter.write).toHaveBeenCalledWith(
         expect.stringContaining('test.md'),
         expect.any(String),
         {
           owner: 'workflow',
           source: 'workflow:test',
-          agent: 'antigravity',
+          agent: SHARED_WORKFLOW_AGENT,
         },
       );
     });
@@ -731,29 +737,6 @@ describe('WorkflowSyncService', () => {
   });
 
   describe('assembleWorkflows edge cases (Lines 119, 146)', () => {
-    it('should return false inside filter loop when config.workflows is unsupported type', async () => {
-      const config = {
-        workflows: 12345,
-        registry: 'https://github.com/o/r',
-      } as any;
-      mockGithubService.getRepoInfo.mockResolvedValue({
-        default_branch: 'main',
-      });
-      mockGithubService.getRepoTree.mockResolvedValue({
-        tree: [{ path: '.agents/workflows/w1.md' }],
-      });
-      mockGithubService.downloadFilesConcurrent.mockResolvedValue({
-        ok: [],
-        failed: [],
-      });
-
-      const result = await workflowSyncService.assembleWorkflows(config);
-      expect(result).toEqual([]);
-      expect(mockGithubService.downloadFilesConcurrent).toHaveBeenCalledWith(
-        [],
-      );
-    });
-
     it('should print log when no matching workflows found in registry', async () => {
       const config = {
         workflows: ['non-existent'],

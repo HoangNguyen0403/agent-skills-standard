@@ -31,12 +31,13 @@ export async function runSessionJournalCli(
     `Window: ${report.window.startedAt} → ${report.window.completedAt}`,
     `Coverage: ${report.coverage.complete ? "complete within supplied journals" : "incomplete / uncertain"}`,
     `Selected actors: ${report.coverage.selectedSessions}; expected: ${report.coverage.expectedSessions}; missing: ${report.coverage.missingSessions}; with usage: ${report.coverage.sessionsWithUsage}; malformed records: ${report.coverage.malformedLines}; invalid usage records: ${report.coverage.invalidUsageRecords}; aborted actors: ${report.coverage.abortedSessions}; resource limit reached: ${report.coverage.resourceLimitReached}`,
+    `Missing declared actors: ${report.coverage.missingActors.length === 0 ? "none" : report.coverage.missingActors.map((actor) => `${actor.role}@${actor.taskId ?? "unknown-task"}/${actor.parentTaskId ?? "no-parent"}${actor.auxiliaryPurpose ? `#${actor.auxiliaryPurpose}` : ""}`).join(", ")}`,
     "",
-    "| Role | Usage kind | Phase | Outcome | Model | Purpose | Native role | Native purpose | Transcript messages | Uncached input | Cached input | Cache write | Output | Reasoning | Orchestration input | Orchestration cache read | Orchestration output | Recorded cost |",
-    "|---|---|---|---|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+    "| Role | Task | Parent | Usage kind | Phase | Outcome | Model | Purpose | Native role | Native purpose | Transcript messages | Uncached input | Cached input | Cache write | Output | Reasoning | Orchestration input | Orchestration cache read | Orchestration output | Recorded cost |",
+    "|---|---|---|---|---|---|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ...report.groups.map(
       (group) =>
-        `| ${group.role} | ${group.usageKind} | ${group.phase ?? "unknown"} | ${group.attemptOutcome ?? "unknown"} | ${group.model} | ${group.auxiliaryPurpose ?? "—"} | ${group.nativeModelRole ?? "—"} | ${group.nativePurpose ?? "—"} | ${group.messages} | ${group.uncachedInputTokens ?? "unknown"} | ${group.cachedInputTokens ?? "unknown"} | ${group.cacheWriteTokens ?? "unknown"} | ${group.outputTokens} | ${group.reasoningTokens ?? "unknown"} | ${group.orchestrationInputTokens ?? "unknown"} | ${group.orchestrationCacheReadTokens ?? "unknown"} | ${group.orchestrationOutputTokens ?? "unknown"} | ${group.recordedCostEstimate ?? "unknown"} |`,
+        `| ${group.role} | ${group.taskId ?? "unknown"} | ${group.parentTaskId ?? "unknown"} | ${group.usageKind} | ${group.phase ?? "unknown"} | ${group.attemptOutcome ?? "unknown"} | ${group.model} | ${group.auxiliaryPurpose ?? "—"} | ${group.nativeModelRole ?? "—"} | ${group.nativePurpose ?? "—"} | ${group.messages} | ${group.uncachedInputTokens ?? "unknown"} | ${group.cachedInputTokens ?? "unknown"} | ${group.cacheWriteTokens ?? "unknown"} | ${group.outputTokens} | ${group.reasoningTokens ?? "unknown"} | ${group.orchestrationInputTokens ?? "unknown"} | ${group.orchestrationCacheReadTokens ?? "unknown"} | ${group.orchestrationOutputTokens ?? "unknown"} | ${group.recordedCostEstimate ?? "unknown"} |`,
     ),
     "",
     "## Limits",

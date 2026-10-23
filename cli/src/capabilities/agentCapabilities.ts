@@ -16,13 +16,153 @@ export type WorkflowFormat =
 export type SpecialistFormat =
   | 'claude-md'
   | 'cursor-mdc'
-  | 'copilot-instructions'
+  | 'copilot-agent-md'
   | 'opencode-md'
   | 'gemini-md'
   | 'kiro-md'
   | 'codex-toml';
 
 export type HookKind = 'js-pretooluse' | 'kiro-md';
+
+/**
+ * Canonical delegation operations from SRS D3. Names are shared with the
+ * conformance evidence records in `scripts/harness-smoke/qualification.ts`
+ * so a capability claim and its evidence use one vocabulary.
+ */
+export type DelegationOperation =
+  | 'prepare'
+  | 'dispatch'
+  | 'receive_completion'
+  | 'resume'
+  | 'cancel'
+  | 'collect_receipt'
+  | 'verify_acceptance';
+
+export const DELEGATION_OPERATIONS: readonly DelegationOperation[] = [
+  'prepare',
+  'dispatch',
+  'receive_completion',
+  'resume',
+  'cancel',
+  'collect_receipt',
+  'verify_acceptance',
+];
+
+/** `supported` / `unsupported` are claims; absence of evidence is not proof. */
+export type SupportStatus = 'supported' | 'unsupported' | 'not_verified';
+
+/**
+ * - `native-agent`: a native agent definition file the host may load as an agent.
+ * - `instruction-only`: a serialized persona/instruction file; not a runnable agent.
+ * - `none`: no delegation artifact is written for this host.
+ */
+export type DelegationSurfaceKind =
+  'native-agent' | 'instruction-only' | 'none';
+
+export interface DelegationSurface {
+  kind: DelegationSurfaceKind;
+  /** Host-surface id carried by conformance evidence; null when kind is 'none'. */
+  surface: string | null;
+}
+
+/**
+ * One validated conformance observation. Mirrors the evidence record fields
+ * owned by the qualification harness (host/surface/version/revision/operation,
+ * layer/executor/outcome, trace artifact, controls) — keep the vocabulary in
+ * sync rather than adding a second runtime-status type.
+ *
+ * A boolean or a bare in-memory observation is not evidence: promotion to
+ * `supported` requires a live `execution` layer observation backed by a
+ * non-empty trace artifact reference.
+ */
+export interface RuntimeEvidence {
+  host: string;
+  surface: string;
+  version: string;
+  revision: string;
+  operation: DelegationOperation;
+  layer: 'serialization' | 'discovery' | 'execution' | 'denial';
+  executor: 'live' | 'synthetic';
+  outcome: 'observed_pass' | 'observed_fail';
+  /** Relative artifact/trace path proving the observation. */
+  trace: string;
+  /** Controls exercised by the observation (e.g. `tool_allowlist`). */
+  controls: readonly string[];
+}
+
+export interface RuntimeQuery {
+  /** Exact host version the evidence must have been collected on. */
+  version: string;
+  /** Exact source revision the evidence must have been collected on. */
+  revision: string;
+  /** Controls the claim depends on; evidence must have exercised all of them. */
+  requiredControls: readonly string[];
+  evidence: readonly RuntimeEvidence[];
+}
+
+export function delegationSurface(def: AgentDefinition): DelegationSurface {
+  return def.delegation;
+}
+
+function isLiveExecutionEvidence(record: RuntimeEvidence): boolean {
+  return (
+    record.layer === 'execution' &&
+    record.executor === 'live' &&
+    record.outcome === 'observed_pass' &&
+    record.trace.trim().length > 0
+  );
+}
+
+function coversControls(
+  record: RuntimeEvidence,
+  requiredControls: readonly string[],
+): boolean {
+  return requiredControls.every((control) => record.controls.includes(control));
+}
+
+/**
+ * Resolves one operation's support status for the exact host surface,
+ * version, revision and required controls.
+ *
+ * No evidence, fixture evidence, evidence from another revision, or evidence
+ * that did not exercise the required controls leaves the claim at
+ * `not_verified`; a host without a delegation artifact is a definite
+ * `unsupported`. A conformance record is evidence of an observation, never
+ * authentication of the actor or of host enforcement.
+ */
+export function delegationStatus(
+  def: AgentDefinition,
+  operation: DelegationOperation,
+  query?: RuntimeQuery,
+): SupportStatus {
+  if (def.delegation.kind !== 'native-agent') return 'unsupported';
+  if (!def.delegation.surface || !query) return 'not_verified';
+
+  const evidence = query.evidence.filter(
+    (record) =>
+      record.host === def.id &&
+      record.surface === def.delegation.surface &&
+      record.version === query.version &&
+      record.revision === query.revision &&
+      record.operation === operation,
+  );
+
+  const failing = evidence.some(
+    (record) =>
+      record.outcome === 'observed_fail' &&
+      (query.requiredControls.length === 0 ||
+        query.requiredControls.some((control) =>
+          record.controls.includes(control),
+        )),
+  );
+  if (failing) return 'unsupported';
+  const promoting = evidence.filter(
+    (record) =>
+      isLiveExecutionEvidence(record) &&
+      coversControls(record, query.requiredControls),
+  );
+  return promoting.length > 0 ? 'supported' : 'not_verified';
+}
 
 export interface McpSpec {
   /** Project-scope file, relative to project root; null = no project scope. */
@@ -66,11 +206,18 @@ export interface AgentDefinition {
   /** MCP registration target; null = no MCP support. */
   mcp: McpSpec | null;
   limits: { skillBodyBytes: number | null };
+  /**
+   * Serialized delegation artifact this agent receives. This is a
+   * serialization fact, not a runtime capability: support is decided per
+   * operation by `delegationStatus` from versioned evidence.
+   */
+  delegation: DelegationSurface;
 }
 
 export const AGENT_CAPABILITIES: Record<Agent, AgentDefinition> = {
   [Agent.Cursor]: {
     id: Agent.Cursor,
+    delegation: { kind: 'instruction-only', surface: null },
     name: 'Cursor',
     path: '.cursor/skills',
     ruleFile: '.cursor/rules',
@@ -128,6 +275,7 @@ export const AGENT_CAPABILITIES: Record<Agent, AgentDefinition> = {
   },
   [Agent.Trae]: {
     id: Agent.Trae,
+    delegation: { kind: 'none', surface: null },
     name: 'Trae',
     path: '.trae/skills',
     ruleFile: '.trae/rules',
@@ -148,6 +296,7 @@ export const AGENT_CAPABILITIES: Record<Agent, AgentDefinition> = {
   },
   [Agent.Claude]: {
     id: Agent.Claude,
+    delegation: { kind: 'native-agent', surface: 'claude-code-subagents' },
     name: 'Claude Code',
     path: '.claude/skills',
     ruleFile: '.',
@@ -172,6 +321,7 @@ export const AGENT_CAPABILITIES: Record<Agent, AgentDefinition> = {
   },
   [Agent.Copilot]: {
     id: Agent.Copilot,
+    delegation: { kind: 'native-agent', surface: 'copilot-custom-agents' },
     name: 'GitHub Copilot',
     path: '.github/skills',
     ruleFile: '.github/instructions',
@@ -180,10 +330,10 @@ export const AGENT_CAPABILITIES: Record<Agent, AgentDefinition> = {
     detectionFiles: ['.github'],
     workflowFormat: 'prompt',
     workflowPath: '.github/prompts',
-    agentPath: '.github/copilot-agents',
+    agentPath: '.github/agents',
     hookScriptPath: '.github/hooks/preedit-skill-loader.js',
     hookConfigPath: '.github/hooks.json',
-    specialistFormat: 'copilot-instructions',
+    specialistFormat: 'copilot-agent-md',
     hookKind: 'js-pretooluse',
     mcp: {
       projectFile: '.github/mcp.json',
@@ -232,6 +382,7 @@ export const AGENT_CAPABILITIES: Record<Agent, AgentDefinition> = {
   },
   [Agent.Antigravity]: {
     id: Agent.Antigravity,
+    delegation: { kind: 'none', surface: null },
     name: 'Antigravity',
     path: '.agents/skills',
     ruleFile: '.agents/rules',
@@ -274,6 +425,7 @@ export const AGENT_CAPABILITIES: Record<Agent, AgentDefinition> = {
   },
   [Agent.Codex]: {
     id: Agent.Codex,
+    delegation: { kind: 'native-agent', surface: 'codex-subagents' },
     name: 'Codex',
     path: '.codex/skills',
     ruleFile: '.codex/rules',
@@ -302,6 +454,7 @@ export const AGENT_CAPABILITIES: Record<Agent, AgentDefinition> = {
   },
   [Agent.OpenCode]: {
     id: Agent.OpenCode,
+    delegation: { kind: 'native-agent', surface: 'opencode-agents' },
     name: 'OpenCode',
     path: '.opencode/skills',
     ruleFile: '.opencode/rules',
@@ -323,6 +476,7 @@ export const AGENT_CAPABILITIES: Record<Agent, AgentDefinition> = {
   },
   [Agent.Gemini]: {
     id: Agent.Gemini,
+    delegation: { kind: 'native-agent', surface: 'gemini-cli-subagents' },
     name: 'Gemini',
     path: '.gemini/skills',
     ruleFile: '.gemini/rules',
@@ -346,6 +500,7 @@ export const AGENT_CAPABILITIES: Record<Agent, AgentDefinition> = {
   },
   [Agent.Roo]: {
     id: Agent.Roo,
+    delegation: { kind: 'none', surface: null },
     name: 'Roo Code',
     path: '.roo/skills',
     ruleFile: '.roo/rules',
@@ -366,6 +521,7 @@ export const AGENT_CAPABILITIES: Record<Agent, AgentDefinition> = {
   },
   [Agent.Windsurf]: {
     id: Agent.Windsurf,
+    delegation: { kind: 'none', surface: null },
     name: 'Windsurf',
     path: '.windsurf/skills',
     ruleFile: '.windsurf/rules',
@@ -410,6 +566,7 @@ export const AGENT_CAPABILITIES: Record<Agent, AgentDefinition> = {
   },
   [Agent.Kiro]: {
     id: Agent.Kiro,
+    delegation: { kind: 'instruction-only', surface: null },
     name: 'Kiro',
     path: '.kiro/skills',
     ruleFile: '.kiro/rules',

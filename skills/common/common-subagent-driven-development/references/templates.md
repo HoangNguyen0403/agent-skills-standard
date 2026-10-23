@@ -5,18 +5,22 @@
 Use this template when dispatching an implementer subagent.
 
 ```markdown
-Subagent (general-purpose):
+Worker dispatch (host binding):
   description: "Implement Task N: [task name]"
-  model: [MODEL — REQUIRED: choose per Model Selection; default to cheap execution tier]
+  effort_hint: [fast | standard | strong — host maps to its model ladder]
   prompt: |
     You are implementing Task N: [task name]
 
-    ## Task Description
-    Read your task brief first: [BRIEF_FILE]
-    It contains the full task requirements, files, and verification commands.
+    ## Assignment Packet
+    Your packet is authoritative: [BRIEF_FILE]
+    It carries authority, global invariants, one owner, scope, ACs, verification,
+    required standards and revision identities. Do not repeat parent workflow
+    discovery or global intake. If anything you add would contradict the packet,
+    the packet wins.
 
     ## Context
-    [Scene-setting: project domain, dependencies, architectural context, prior task outputs]
+    [Only missing scene-setting not already in the packet: external dependency,
+     prior-task output reference, or environment note]
 
     ## Implementation Methodology: Strict TDD
     Follow Test-Driven Development (TDD) for any new logic or bug fixes:
@@ -25,12 +29,13 @@ Subagent (general-purpose):
     3. **REFACTOR:** Clean up duplication, naming, and dead code while staying green.
 
     ## Your Job (Single Worker Contract)
-    1. Implement exactly what the task specifies on owned files (YAGNI — build nothing unrequested)
-    2. Run focused tests for your changed paths; do NOT run full project test suites by default
-    3. Do NOT commit your changes with git; orchestrator owns git integration and commits
-    4. Conduct a self-review of your diff
-    5. Write your detailed report to [REPORT_FILE]
-    6. Return your short status contract
+    1. Request only the exact required standards named in the packet; another
+       context's earlier load does not supply your body.
+    2. Implement exactly what the task specifies on owned files (YAGNI — build nothing unrequested)
+    3. Run focused tests for your changed paths; do NOT run full project test suites by default
+    4. Do NOT commit your changes with git; orchestrator owns git integration and commits
+    5. Conduct a self-review of your diff; it does not replace independent review
+    6. Write your detailed report to [REPORT_FILE] and return the status contract
 
     Work from: [directory]
 
@@ -47,6 +52,7 @@ Subagent (general-purpose):
     - Diff summary and uncommitted changes
     - Self-review notes or doubts
     - Proposed verification commands for orchestrator integration
+    - Receipt: operation, task/actor/revision, terminal state, evidence, limitations
 
     Then reply with ONLY this short contract (under 15 lines):
     - **Status:** DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT
@@ -63,19 +69,20 @@ Subagent (general-purpose):
 Use this template when dispatching a task reviewer subagent. The reviewer reads the task's diff once and returns two verdicts: spec compliance and code quality.
 
 ```markdown
-Subagent (general-purpose):
+Independent reviewer dispatch (host binding):
   description: "Review Task N (spec + quality)"
-  model: [MODEL — REQUIRED: choose per Model Selection; default to cheap or analysis tier]
+  effort_hint: [fast | standard | strong — host maps to its model ladder]
   prompt: |
     You are reviewing one task's implementation: first whether it matches its
     requirements, then whether it is well-built. This is a task-scoped gate,
-    not a merge review.
+    not a merge review. You are a separate owner/context from the implementer;
+    your verdict is required for acceptance.
 
     ## What Was Requested
-    Read the task brief: [BRIEF_FILE]
+    Read the task packet: [BRIEF_FILE]
 
-    Global constraints from spec/design binding this task:
-    [GLOBAL_CONSTRAINTS]
+    Global constraints from the packet binding this task:
+    [PACKET_INVARIANTS — do not add duplicate constraints that contradict the packet]
 
     ## What the Implementer Claims They Built
     Read the implementer's report: [REPORT_FILE]
@@ -131,9 +138,9 @@ Subagent (general-purpose):
 Use this template when re-reviewing a task after a fix round.
 
 ```markdown
-Subagent (general-purpose):
+Independent re-reviewer dispatch (host binding):
   description: "Re-review Task N Fixes (scoped)"
-  model: [MODEL — cheap or mid-tier model]
+  effort_hint: [fast | standard | strong — host maps to its model ladder]
   prompt: |
     You are re-reviewing Task N after a fix round.
     The package supplied below is cumulative from the original baseline to the current workspace, not a fix-only diff.

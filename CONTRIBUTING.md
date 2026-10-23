@@ -36,6 +36,7 @@ npx vitest run --coverage
 - Unit tests live alongside source files in `__tests__` directories.
 - Integration tests verify the CLI commands end-to-end.
 - Snapshot testing is encouraged for critical outputs like `AGENTS.md`.
+- Prefer consumer-visible behavior over pinned implementation detail. Do not snapshot the per-agent capability table merely to detect drift: capability and generated-export drift belongs to `pnpm docs:capabilities:check` and real transformer/ownership checks. When a test pins incidental wiring, source wording or a capability descriptor that is changing by design, remove it rather than repinning the old value.
 
 ## 3. Creating Skills
 
@@ -56,6 +57,8 @@ Skills are the core value of this project.
 13. **Scoped change impact**: When requirements change, trace affected ACs, contracts, approvals, and evidence carrying existing IDs without reopening settled decisions.
 14. **Host-neutral guidance**: Keep provider, account, profile, model, and machine specifics in host planning records only, not canonical guidance.
 15. **System-design package**: Keep design-process ownership in `system-design-methodology` and critical-flow semantics in `system-design-data-architecture`; link to the canonical flow contract instead of copying it. Route mobile/client or SDK guidance only when those surface constraints affect correctness. Select views from decisions; do not impose infrastructure or diagram quotas.
+16. **Delivery evidence**: Skill bodies are delivered per request in full. Never propose suppressing required content as a token optimization, and never claim savings from omitted bodies. Selection, returned-body and body-digest counts are different measurements.
+17. **Routing metadata**: Keyword and composite patterns are consumer routing contracts. Qualify collision-prone substrings (for example delimiter-qualified `-view` / `-form`) and keep a positive control proving the intended match still fires.
 
 ## 4. Creating Workflows
 
@@ -71,6 +74,9 @@ Rules:
 6. Add to `DEFAULT_WORKFLOWS` only for the standard SDLC spine; add canonical source at `.agents/workflows/<name>.md`.
 7. Core SDLC workflows expose `Runtime Contract`, `Handoff Payload`, `Blocking Questions`, and `Next Workflow`.
 8. Run `pnpm audit:sdlc` after changes.
+9. Never hand-edit a generated native workflow export. Sync installs the canonical body once for every configured provider and derives native output from it; regenerate through `pnpm generate-indices` and the normal sync tooling. In this repository, committed mirrors have no per-file lock ownership, so the generator forces only the deterministic export paths for the selected canonical workflows and backs up the replaced bytes first. It refuses to run from any working directory whose realpath differs from the authoring repository root, and it never forces `.agents/workflows/**` — the canonical catalog (including the Antigravity/Kiro native destination) is authored source, not a mirror.
+10. Ownership is per canonical body: a workflow still bound by a configured agent or carrying a recorded native conflict survives partial uninstall; an edited, unowned or overridden canonical body is preserved and reported instead of being certified as managed.
+11. MCP workflow lookup reads the installed catalog from `.skills-lock.json`; if a lock exists but the catalog metadata is missing, lookup reports `unverified` and asks for a sync instead of falling back to local or native copies.
 
 ## 5. Cybersecurity packages and governed evolution
 
@@ -140,9 +146,20 @@ pnpm --filter ./cli validate:all
 pnpm audit:skills
 pnpm audit:sdlc
 pnpm check-alignment
+pnpm docs:capabilities:check
 pnpm freshness:audit
 pnpm test
 pnpm build
+```
+
+`pnpm check-alignment` checks lexical eval alignment (that eval `contains` anchors exist in the skill body); it is not export parity, native capability or runtime-success proof. Capability-table drift is checked separately by `pnpm docs:capabilities:check`, and generated mirrors must come from `pnpm generate-indices` rather than manual edits.
+
+For the subagent-driven-development packet helper, run its behavioral suite:
+
+```bash
+python3 scripts/skill-tests/common-subagent-driven-development/test_task_brief.py
+python3 scripts/skill-tests/common-subagent-driven-development/test_review_package.py
+python3 scripts/skill-tests/test_sdd_progress.py
 ```
 
 `pnpm freshness:check` is the weekly upstream drift job (`.github/workflows/skill-freshness.yml`), not a PR gate: it needs a `GITHUB_TOKEN` (up to ~110 GitHub requests) and exits 1 whenever any upstream has shipped a new major, regardless of your change. Run it locally only when reviewing pins; see `docs/FRESHNESS.md`.
