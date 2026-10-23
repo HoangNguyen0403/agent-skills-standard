@@ -5,7 +5,7 @@
 
 | Skill | File pattern | Keywords |
 | ----- | ------------ | -------- |
-| **product-business-requirements** | `BRD.md`, `docs/brd/brd-*.md`, `specs/*.md` | create brd, business requirements, business case, stakeholder impact, as-is to to-be, roi justification |
+| **product-business-requirements** | `BRD.md`, `docs/brd/brd-*.md`, `specs/*.md` | create brd, business requirements, business case, stakeholder impact, as-is to to-be, roi justification, elicitation results, stakeholder elicitation |
 | **product-evidence** | `docs/product/*/evidence.json` | product evidence ledger, product decision authority, product evidence freshness |
 | **product-requirements** | `PRD.md`, `docs/prd/prd-*.md`, `specs/*.md` | create prd, product requirements, draft requirements, new feature spec, acceptance criteria |
 

@@ -74,3 +74,13 @@ The review concludes with one of four explicit recommendations via `REV.data.rec
   - Decommission, disable, or retire production features.
   - Reallocate capital, budget, or engineering headcount.
 - **New Decision Gate**: Executing any recommendation requires formulating a new `DEC` record (`purpose: "value_review"`, `status: "proposed"`), which must obtain human operator authorization through authorized governance channels.
+
+## 7. Limitation Diagnosis
+
+When outcomes miss their target or value is unavailable, distinguish a limitation inside the solution from a surrounding organizational constraint before recommending action:
+
+- **Solution-internal**: investigate evidenced defects, capacity limits, or design constraints. Identify the observed behavior, affected cohort/window, and the evidence needed to test the suspected mechanism.
+- **Organizational or enterprise**: investigate evidenced process, policy, skills, or adoption constraints. Identify the relevant context, the evidence supporting the suspected constraint, and the accountable owner for deciding or investigating it.
+- **Do not infer cause from the KPI alone.** Record observations separately from causal hypotheses and uncertainty. If evidence does not distinguish the explanations, say so and recommend investigation rather than asserting a cause, prescribing a software change, or claiming value.
+- A similar metric shortfall can imply different next steps; match the advisory recommendation to the supported explanation and its accountable decision/action owner. Do not promise that shipping will cause value or infer ROI from a proposed fix.
+- Keep technical delivery, business acceptance, release authority, and realized value distinct. Negative or unavailable value does not downgrade `released` delivery. Recommendations do not authorize policy changes, rollout, or retirement.
