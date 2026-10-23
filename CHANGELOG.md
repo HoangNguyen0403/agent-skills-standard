@@ -9,9 +9,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Provider-neutral delegation (source candidates)**: `common-subagent-driven-development` now defines seven semantic lifecycle operations (prepare, dispatch, completion, resume, cancel, receipt, verify acceptance) with host-neutral model-tier hints and failure-specific recovery (missing prerequisite, corrective assignment, observed exhaustion, human decision). `implement-feature` and `review-ticket` were updated to the packet-first flow with independent review and durable evidence.
+- **Assignment packets**: `task_brief.py <PLAN_FILE> <TASK_NUMBER> --assignment <ASSIGNMENT_JSON> [--out <BRIEF_FILE>]` publishes one standalone, validated packet from a versioned assignment manifest (authority, invariants, owner, owned paths, ACs, verification, required standards, source/dependency digests, limits). Invalid or stale prerequisites exit `2`, missing/ambiguous task or output collision exits `3`, and default output is content-addressed under the resolved workspace.
+- **Delegation surfaces and support statuses**: capability entries declare `native-agent`, `instruction-only` or `none` with stable surface ids (`claude-code-subagents`, `codex-subagents`, `gemini-cli-subagents`, `copilot-custom-agents`, `opencode-agents`). `delegationStatus` returns `supported` only for retained live execution evidence matching the exact host/surface/version/revision/operation and exercising every required control; missing, revision-mismatched or fixture-only evidence is `not_verified`, and serialized output never promotes a claim. `docs/agent-capabilities.md` gains delegation-surface and runtime-support columns.
+- **Installed workflow catalog**: `ags sync` installs each selected canonical workflow once at `.agents/workflows/<name>.md` for every configured provider, derives native exports from the same content, and records a versioned `workflowCatalog` section in `.skills-lock.json` (path, digest, registry identity, requested ref, resolved commit, native bindings, native conflicts). Antigravity/Kiro share one physical write to the canonical path while retaining a binding for each provider; an export whose bytes differ from the deterministic output is recorded as a conflict instead of a verified binding. MCP `list_workflows` / `get_workflow` report `managed`, `local_source`, `unverified` or `unavailable` with no cross-layer fallback.
+- **Full-actor task economics**: session journals accept `cancelled` attempts plus declared `taskId` / `parentTaskId` labels and optional `expectedActors`; missing declared actors are listed by label. Eval runs persist per-attempt `taskUsage`, and the generated report adds a Task Economics section that withholds monetary savings unless actor coverage, metering, pricing and task identity are all complete. Reasoning usage requires explicit `separate` or `included-in-output` billing semantics; ambiguity leaves cost `unavailable`.
+- **Qualification harness**: `pnpm harness:smoke -- --qualification-only --claim <path>` validates recorded conformance traces offline (no probes, network or model calls) and reports `not_verified` for synthetic evidence.
+
+- **Release candidates**: Common `2.9.2`; workflows `1.1.8`, both based on `origin/develop`.
+
+### Changed
+
+- **Skill delivery**: every MCP skill request returns complete matched bodies read at request time; the process-global body suppression and its `force_reload` option were removed. Session accounting now separates `selected` ids, returned bodies (`loaded`), repeat-inclusive `bodyReturnCount` and per-body SHA-256 digests, and reports no deduplicated-body savings.
+- **Copilot specialists**: exported as `.github/agents/<name>.agent.md` native agent definitions (documented tool aliases, unknown names disclosed, all-unknown allowlist emitted as `tools: []`). Broad `applyTo` instruction files are no longer treated as runnable subagents; legacy `.github/copilot-agents/` residue is disclosed after sync when kept.
+- **Codex specialists**: drop the ineffective `sandbox_mode` projection; declared controls are disclosed as advisory comments.
+- **OpenCode/Gemini specialists**: OpenCode `.opencode/agents/<name>.md` files are declared `native-agent` (`opencode-agents`) subagent definitions that disclose declared restrictions rather than projecting them. Gemini agent frontmatter projects a declared native `tools` list verbatim, including an explicit empty list, and reports universal `allowed-tools` names separately instead of translating them.
+- **Capability support scope**: `delegationStatus` now matches evidence on host, surface, version, revision, operation and every required control; evidence from another revision or an unexercised control stays `not_verified`.
+- **Worker routing metadata**: `common-performance-engineering` keyword `profile` → `profiling`; accessibility/mobile composite patterns `form`/`view` → `-form`/`-view`; mobile `page` composite removed; bare `subagent` now selects the SDD policy.
+- **Workflow uninstall**: canonical workflow bodies survive while a configured native binding or recorded native conflict remains and are removed only when both lists are empty; edited canonical bodies are retained and reported.
+- **Generated exports**: regenerated native skill/workflow/specialist mirrors, category indices, `skills/index.json` and `docs/agent-capabilities.md` from settled canonical sources through the existing generators; no mirror was hand-edited and `.skillsrc` target/category selection is unchanged.
+- **Eval reporting**: reason about attempt outcomes (`completed`, `failed`, `retried`, `interrupted`, `cancelled`) instead of token-only summaries; a baseline run is compared only against the declared immutable baseline.
+
 ### Fixed
 
+- **Workflow wrapper parity**: checked-in generated workflow mirrors had no lockfile ownership, so the repo generator preserved stale wrappers while reporting success. `generate-indices` now forces only the deterministic export paths for selected canonical workflows (derived from each agent's declared workflow path/format) and keeps ownership backups.
+- **Skill delivery regression**: parent/sibling lookups could return stubs or suppress a fresh worker's required body, and an edited `SKILL.md` could serve stale content; delivery is now per request and revision-current. Session audit no longer implies acknowledgment or enforcement.
+- **Workflow discovery divergence**: MCP workflow lookup could disagree with the installed native exports; lookup now verifies the catalog digest and reports explicit parity/unavailability.
+- **Usage accounting**: included reasoning could be billed twice, and failed or cancelled attempts dropped out of cost cohorts; both are corrected, and incomplete coverage withholds savings instead of reporting zero or inflating savings.
+- **Live requirement trace IDs**: after `audit:trace` identified short-form IDs in the provider-neutral delegation docs, normalized the BRD/PRD/SRS, delivery plan and walkthrough to the repository's zero-padded `BRD-OBJ-001`, `REQ-001`, `AC-001` / atomic `AC-101`…`AC-136`, and `SRS-001` grammar. The PRD records the live mapping; archived reviewed artifacts keep their original IDs unchanged. Parent-observed `audit:trace` then passed with BRD 1, REQ 10, AC 46 and SRS 10 declarations, zero errors; existing professionalization warnings remain.
 - **Stitch image review**: Verify decoded width and height, then read only a verified aspect-preserving preview bounded to a 1600 px longest edge; bound both physical dimensions with `devicePixelRatio` before browser capture and avoid `fullPage`. Treat an image-size rejection after a write as possible success and recover existing screen ids before retrying. Document OMP `/shake images` as local cleanup of all conversation image blocks after preserving source files. Added eval cases for tall URLs, DPR captures, write recovery, and poisoned-session recovery.
+
+- **Consumer-smoke and coverage follow-up (2026-10-23)**: Corrected the installed-workflow consumer smoke to assert actual catalog discovery, successful complete canonical-body delivery, and the disabled-workflows error/no-file boundary. The earlier expectation treated explicitly installed `discover-product` as unavailable and pinned the `workflows: false` error sentence. Parent-observed CLI/MCP rebuild and full installed-consumer smoke passed; independent consumer review approved. Coverage history: the initial run had 1332 passing CLI tests at 89.84%; five boundary additions raised coverage to 89.98%; a sixth array-shaped `workflowCatalog.workflows` boundary then brought local `test:cov` to 1338/1338 and 90.01% branch coverage. Independent coverage-test review approved with no blocker or major finding. Local correction gates passed. At this local pre-push verification checkpoint, corrective remote CI had not yet run. No production behavior changed.
+
+### Breaking
+
+- `load_skills_for_files` / `load_skills_for_keywords` no longer accept `force_reload`; clients must drop the argument.
+- `task_brief.py` requires `--assignment`; bare task-section generation is removed.
+- Copilot specialist exports move from `.github/copilot-agents/` to `.github/agents/<name>.agent.md`.
+- `specialistFormat: 'copilot-instructions'` is replaced by `'copilot-agent-md'` with no alias.
+- Session cost requests that supply `reasoningTokens` and `reasoningCostPer1M` without `reasoningBilling` now report unavailable cost rather than assuming separate billing.
+
+> Native delegation support and measured task savings remain unverified. This entry records repository-local implementation and deterministic contract tests, not host activation, permission enforcement or live qualification.
 
 ## [common-v2.9.0] [workflow-v1.1.6] [system-design-v1.2.4] [quality-engineering-v1.6.1] [product-management-v1.0.1] - 2026-10-21
 

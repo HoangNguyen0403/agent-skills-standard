@@ -7,14 +7,57 @@ interface SpecialistSource {
   content: string;
 }
 
+export interface PermissionProjection {
+  /** Declared controls with a native equivalent in this export. */
+  projected: string[];
+  /**
+   * Declared controls with no native equivalent, as stable tokens:
+   * `risk_tier`, `allowed-tools`, `tools`, `permissions.<scope>`, and
+   * `tool:<name>` for individual names nothing can map. Disclosure only —
+   * never an enforcement claim.
+   */
+  unprojected: string[];
+}
+
 interface TransformedSpecialist {
   name: string;
   content: string;
+  projection: PermissionProjection;
 }
 
 // Anchored: a `---` line inside the body can no longer shift where the
 // frontmatter block is believed to end.
 const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/;
+
+/**
+ * Documented Copilot custom-agent tool aliases (primary alias ← accepted
+ * names), from the "Tool aliases" table in GitHub's custom-agents
+ * configuration reference. Names outside this table have no verified
+ * Copilot meaning and are disclosed rather than copied through.
+ */
+const COPILOT_TOOL_ALIASES: Record<string, string> = {
+  read: 'read',
+  notebookread: 'read',
+  edit: 'edit',
+  multiedit: 'edit',
+  write: 'edit',
+  notebookedit: 'edit',
+  execute: 'execute',
+  shell: 'execute',
+  bash: 'execute',
+  powershell: 'execute',
+  search: 'search',
+  grep: 'search',
+  glob: 'search',
+  agent: 'agent',
+  'custom-agent': 'agent',
+  task: 'agent',
+  web: 'web',
+  websearch: 'web',
+  webfetch: 'web',
+  todo: 'todo',
+  todowrite: 'todo',
+};
 
 /**
  * Serializes frontmatter fields via js-yaml so every value — including a
@@ -27,45 +70,82 @@ function dumpFrontmatter(fields: Record<string, unknown>): string {
   return yaml.dump(fields, { lineWidth: -1 }).trimEnd();
 }
 
-/**
- * Codex is the only target with a native least-privilege primitive
- * (sandbox_mode). L2/L3 map to workspace-write; danger-full-access is never
- * auto-granted regardless of declared risk_tier — that always requires
- * explicit user configuration outside the sync pipeline.
- */
-function sandboxModeFor(riskTier: unknown): 'read-only' | 'workspace-write' {
-  return riskTier === 'L2' || riskTier === 'L3'
-    ? 'workspace-write'
-    : 'read-only';
+/** Normalizes a declared tool list from either an array or a comma string. */
+function toolNames(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value
+      .filter((item): item is string => typeof item === 'string')
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0);
+  }
+  if (typeof value === 'string') {
+    return value
+      .split(',')
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0);
+  }
+  return [];
 }
 
-/** Summarizes whichever of risk_tier/allowed-tools/permissions a specialist declared, for a warning comment. */
-function summarizeDeclaredPermissions(
+function declaredPermissions(
   metadata: Record<string, unknown>,
-): string | null {
+): { filesystem?: unknown; network?: unknown } | undefined {
+  return metadata.permissions as
+    { filesystem?: unknown; network?: unknown } | undefined;
+}
+
+/**
+ * Declared controls this export cannot enforce, as stable tokens. Callers
+ * suppress the fields they did project.
+ */
+function unprojectedControlTokens(
+  metadata: Record<string, unknown>,
+  projected: { allowedTools?: boolean; tools?: boolean } = {},
+): string[] {
+  const tokens: string[] = [];
+  if (metadata.risk_tier) tokens.push('risk_tier');
+  if (!projected.allowedTools && metadata['allowed-tools']) {
+    tokens.push('allowed-tools');
+  }
+  if (!projected.tools && metadata.tools) tokens.push('tools');
+  const permissions = declaredPermissions(metadata);
+  if (permissions?.filesystem) tokens.push('permissions.filesystem');
+  if (permissions?.network) tokens.push('permissions.network');
+  return tokens;
+}
+
+/** Human-readable declaration summary used in disclosure comments. */
+function permissionSummary(metadata: Record<string, unknown>): string[] {
   const parts: string[] = [];
   if (metadata.risk_tier) parts.push(`risk_tier: ${metadata.risk_tier}`);
   if (metadata['allowed-tools']) {
     parts.push(`allowed-tools: ${JSON.stringify(metadata['allowed-tools'])}`);
   }
-  if (metadata.permissions) {
-    parts.push(`permissions: ${JSON.stringify(metadata.permissions)}`);
+  if (metadata.tools) {
+    parts.push(`tools: ${JSON.stringify(metadata.tools)}`);
   }
-  return parts.length > 0 ? parts.join('; ') : null;
+  const permissions = declaredPermissions(metadata);
+  if (permissions?.filesystem) {
+    parts.push(
+      `permissions.filesystem: ${JSON.stringify(permissions.filesystem)}`,
+    );
+  }
+  if (permissions?.network) {
+    parts.push(`permissions.network: ${JSON.stringify(permissions.network)}`);
+  }
+  return parts;
 }
 
 /**
- * For platforms with no way to express a declared risk_tier/permissions/
- * allowed-tools, emit a visible warning after native frontmatter rather than
- * silently dropping the declaration.
+ * Emits a visible disclosure for declared controls this export cannot
+ * enforce. A comment is a disclosure, never an enforcement mechanism.
  */
-function unenforceableWarningComment(
-  metadata: Record<string, unknown>,
+function permissionWarning(
   agentName: string,
+  declared: readonly string[],
 ): string {
-  const declared = summarizeDeclaredPermissions(metadata);
-  if (!declared) return '';
-  return `<!-- ags: permissions not enforceable on ${agentName}; declared: ${declared} -->\n`;
+  if (declared.length === 0) return '';
+  return `<!-- ags: permissions not enforceable on ${agentName}; declared: ${declared.join('; ')} -->\n`;
 }
 
 /**
@@ -93,88 +173,221 @@ export class SpecialistTransformer {
 
     switch (agentDef.specialistFormat) {
       case 'claude-md': {
+        const nativeTools = toolNames(metadata.tools);
+        const allowedTools = toolNames(metadata['allowed-tools']);
         const fm: Record<string, unknown> = { name: baseName, description };
-        const allowedTools = metadata['allowed-tools'];
-        if (metadata.tools) {
-          fm.tools = Array.isArray(metadata.tools)
-            ? metadata.tools.join(', ')
-            : metadata.tools;
-        } else if (Array.isArray(allowedTools) && allowedTools.length > 0) {
+        const projected: string[] = [];
+        if (nativeTools.length > 0) {
+          fm.tools = nativeTools.join(', ');
+          projected.push('tools');
+        } else if (allowedTools.length > 0) {
           // Project the Universal-Skill-Format field onto Claude's native shape.
           fm.tools = allowedTools.join(', ');
-        } else if (
-          typeof allowedTools === 'string' &&
-          allowedTools.trim().length > 0
-        ) {
-          fm.tools = allowedTools.trim();
+          projected.push('allowed-tools');
         }
         if (metadata.model) fm.model = metadata.model;
         if (metadata.color) fm.color = metadata.color;
+        const unprojected = unprojectedControlTokens(metadata, {
+          allowedTools: projected.includes('allowed-tools'),
+          tools: projected.includes('tools'),
+        });
+        const disclosed = permissionSummary(metadata).filter((part) => {
+          if (projected.includes('tools') && part.startsWith('tools:')) {
+            return false;
+          }
+          if (
+            projected.includes('allowed-tools') &&
+            part.startsWith('allowed-tools:')
+          ) {
+            return false;
+          }
+          return true;
+        });
         return {
           name: `${baseName}.md`,
-          content: `---\n${dumpFrontmatter(fm)}\n---\n\n${body}`,
+          content: `---\n${dumpFrontmatter(fm)}\n---\n${permissionWarning('Claude', disclosed)}\n${body}`,
+          projection: { projected, unprojected },
         };
       }
 
-      case 'cursor-mdc':
+      case 'copilot-agent-md': {
+        // Deterministic precedence: the native `tools` field wins over the
+        // universal `allowed-tools` field. Presence of a field is what counts,
+        // so an explicitly empty declaration stays an explicit empty allowlist.
+        const hasNativeTools = metadata.tools !== undefined;
+        const hasAllowedTools = metadata['allowed-tools'] !== undefined;
+        const consumesNativeTools = hasNativeTools;
+        const names = consumesNativeTools
+          ? toolNames(metadata.tools)
+          : toolNames(metadata['allowed-tools']);
+        const mapped: string[] = [];
+        const unknown: string[] = [];
+        for (const name of names) {
+          const alias = COPILOT_TOOL_ALIASES[name.toLowerCase()];
+          if (alias) {
+            if (!mapped.includes(alias)) mapped.push(alias);
+          } else {
+            unknown.push(name);
+          }
+        }
+
+        const fm: Record<string, unknown> = { name: baseName, description };
+        const declaredAllowlist = consumesNativeTools
+          ? hasNativeTools
+          : hasAllowedTools;
+        if (declaredAllowlist) {
+          // Documented behaviour: `tools: []` disables all tools. Omitting the
+          // key would silently grant every tool, so a declared allowlist is
+          // always written — including an explicitly empty one.
+          fm.tools = mapped;
+        }
+        const honorsEmptyAllowlist = declaredAllowlist && names.length === 0;
+        const projected =
+          mapped.length > 0 || honorsEmptyAllowlist
+            ? [consumesNativeTools ? 'tools' : 'allowed-tools']
+            : [];
+        const unprojected: string[] = [];
+        if (metadata.risk_tier) unprojected.push('risk_tier');
+        // The consumed field's names are represented by the `tool:` tokens
+        // below; the unconsumed field is a whole unprojected declaration.
+        if (consumesNativeTools) {
+          if (hasAllowedTools) unprojected.push('allowed-tools');
+        } else if (hasNativeTools) {
+          unprojected.push('tools');
+        }
+        const permissions = declaredPermissions(metadata);
+        if (permissions?.filesystem) {
+          unprojected.push('permissions.filesystem');
+        }
+        if (permissions?.network) unprojected.push('permissions.network');
+        unprojected.push(...unknown.map((name) => `tool:${name}`));
+
+        const consumedField = consumesNativeTools ? 'tools:' : 'allowed-tools:';
+        const conflictingField = consumesNativeTools
+          ? 'allowed-tools:'
+          : 'tools:';
+        const summary = permissionSummary(metadata)
+          .filter((part) => !part.startsWith(consumedField))
+          .map((part) =>
+            part.startsWith(conflictingField)
+              ? `${part} (ignored: ${
+                  consumesNativeTools ? 'native tools' : 'allowed-tools'
+                } takes precedence)`
+              : part,
+          );
+        const warning = permissionWarning('Copilot', [
+          ...summary,
+          ...(unknown.length > 0
+            ? [`unknown tools: ${unknown.join(', ')}`]
+            : []),
+        ]);
+        return {
+          name: `${baseName}.agent.md`,
+          content: `---\n${dumpFrontmatter(fm)}\n---\n${warning}${body}`,
+          projection: { projected, unprojected },
+        };
+      }
+
+      case 'cursor-mdc': {
+        const projection = {
+          projected: [] as string[],
+          unprojected: unprojectedControlTokens(metadata),
+        };
         return {
           name: `${fullName}.mdc`,
-          content: `---\n${dumpFrontmatter({ description, globs: ['**/*'] })}\n---\n${unenforceableWarningComment(metadata, 'Cursor')}\n# Specialist: ${baseName}\n\n${body}`,
+          content: `---\n${dumpFrontmatter({ description, globs: ['**/*'] })}\n---\n${permissionWarning('Cursor', permissionSummary(metadata))}\n# Specialist: ${baseName}\n\n${body}`,
+          projection,
         };
+      }
 
-      case 'copilot-instructions':
-        return {
-          name: `${fullName}.instructions.md`,
-          content: `---\n${dumpFrontmatter({ description, applyTo: '**/*' })}\n---\n${unenforceableWarningComment(metadata, 'Copilot')}\n${body}`,
+      case 'opencode-md': {
+        const projection = {
+          projected: [] as string[],
+          unprojected: unprojectedControlTokens(metadata),
         };
-
-      case 'opencode-md':
-        return {
-          name: `${baseName}.md`,
-          content: `---\n${dumpFrontmatter({ description, mode: 'subagent' })}\n---\n${unenforceableWarningComment(metadata, 'OpenCode')}\n${body}`,
-        };
-
-      case 'gemini-md':
         return {
           name: `${baseName}.md`,
-          content: `---\n${dumpFrontmatter({ name: baseName, description, kind: 'local' })}\n---\n${unenforceableWarningComment(metadata, 'Gemini')}\n${body}`,
+          content: `---\n${dumpFrontmatter({ description, mode: 'subagent' })}\n---\n${permissionWarning('OpenCode', permissionSummary(metadata))}\n${body}`,
+          projection,
         };
+      }
 
-      case 'kiro-md':
+      case 'gemini-md': {
+        // Gemini CLI agents accept a native `tools` list (tool names such as
+        // `read_file`, wildcards, MCP scopes). Project it verbatim, including
+        // an explicitly empty list. Universal `allowed-tools` names belong to
+        // another host vocabulary, so they are reported per name instead of
+        // being silently translated.
+        const hasNativeTools = metadata.tools !== undefined;
+        const nativeTools = toolNames(metadata.tools);
+        const crossVendorTools = toolNames(metadata['allowed-tools']);
+        const fm: Record<string, unknown> = {
+          name: baseName,
+          description,
+          kind: 'local',
+        };
+        const projected: string[] = [];
+        if (hasNativeTools) {
+          fm.tools = nativeTools;
+          projected.push('tools');
+        }
+        const unprojected = [
+          ...unprojectedControlTokens(metadata, { tools: hasNativeTools }),
+          ...crossVendorTools.map((name) => `tool:${name}`),
+        ];
+        const disclosed = permissionSummary(metadata).filter(
+          (part) => !(hasNativeTools && part.startsWith('tools:')),
+        );
         return {
           name: `${baseName}.md`,
-          content: `---\n${dumpFrontmatter({ name: baseName, description })}\n---\n${unenforceableWarningComment(metadata, 'Kiro')}\n${body}`,
+          content: `---\n${dumpFrontmatter(fm)}\n---\n${permissionWarning('Gemini', disclosed)}\n${body}`,
+          projection: { projected, unprojected },
         };
+      }
+
+      case 'kiro-md': {
+        const projection = {
+          projected: [] as string[],
+          unprojected: unprojectedControlTokens(metadata),
+        };
+        return {
+          name: `${baseName}.md`,
+          content: `---\n${dumpFrontmatter({ name: baseName, description })}\n---\n${permissionWarning('Kiro', permissionSummary(metadata))}\n${body}`,
+          projection,
+        };
+      }
 
       case 'codex-toml': {
-        // Codex uses TOML, not YAML — escape separately. sandbox_mode is a
-        // real least-privilege primitive; allowed-tools/permissions.network/
-        // permissions.filesystem have no TOML equivalent here, so those are
-        // called out in a plain '#' comment instead of silently dropped.
-        const sandboxMode = sandboxModeFor(metadata.risk_tier);
-        const unenforceable: string[] = [];
-        if (metadata['allowed-tools']) unenforceable.push('allowed-tools');
-        const permissions = metadata.permissions as
-          { network?: unknown; filesystem?: unknown } | undefined;
-        if (permissions?.network) unenforceable.push('permissions.network');
-        if (permissions?.filesystem) {
-          unenforceable.push('permissions.filesystem');
-        }
+        // Codex custom-agent files inherit sandbox/approval policy and MCP
+        // servers from the parent session: `sandbox_mode` here is ignored by
+        // the host, so emitting it would be a false enforcement claim.
+        // Declared restrictions are disclosed, never projected.
+        const projection = {
+          projected: [] as string[],
+          unprojected: unprojectedControlTokens(metadata),
+        };
         const comment =
-          unenforceable.length > 0
-            ? `# ags: ${unenforceable.join(', ')} declared but not enforceable via Codex TOML (only sandbox_mode is projected)\n`
+          projection.unprojected.length > 0
+            ? `# ags: declared controls are not enforced by this Codex agent file: ${projection.unprojected.join(', ')}\n`
             : '';
         return {
           name: `${baseName}.toml`,
-          content: `${comment}name = "${escapeTomlString(baseName)}"\ndescription = "${escapeTomlString(description)}"\nsandbox_mode = "${sandboxMode}"\ndeveloper_instructions = """\n${escapeTomlString(body)}\n"""`,
+          content: `${comment}name = "${escapeTomlString(baseName)}"\ndescription = "${escapeTomlString(description)}"\ndeveloper_instructions = """\n${escapeTomlString(body)}\n"""`,
+          projection,
         };
       }
 
-      default:
+      default: {
+        const projection = {
+          projected: [] as string[],
+          unprojected: unprojectedControlTokens(metadata),
+        };
         return {
           name: `${baseName}${agentDef.ruleExtension || '.md'}`,
-          content: `${unenforceableWarningComment(metadata, agentDef.name)}${body}`,
+          content: `${permissionWarning(agentDef.name, permissionSummary(metadata))}${body}`,
+          projection,
         };
+      }
     }
   }
 }

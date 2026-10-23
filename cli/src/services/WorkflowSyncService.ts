@@ -9,11 +9,58 @@ import {
 import { SkillConfig } from '../models/config';
 import { CollectedSkill } from '../models/types';
 import { GithubService } from './GithubService';
+import { SHARED_WORKFLOW_AGENT, sha256 } from './LockfileService';
 import { WorkflowTransformer } from './utils/WorkflowTransformer';
 
 import { isOverriddenRel, toPosixRel } from './install/pathMatch';
 import { InstallWriter, PassthroughWriter } from './install/OwnershipWriter';
 import { ManifestVerifier } from './install/ManifestVerifier';
+
+export type WorkflowAcquisitionStatus = 'complete' | 'disabled' | 'incomplete';
+
+export interface WorkflowAcquisitionFailure {
+  path: string;
+  reason: string;
+}
+
+/**
+ * Explicit outcome of workflow acquisition. `incomplete` must never be treated
+ * as "the desired set is empty": absence-based deletion is only allowed for
+ * `complete` and deliberate `disabled` selections.
+ */
+export interface WorkflowAcquisition {
+  status: WorkflowAcquisitionStatus;
+  workflows: CollectedSkill[];
+  failures: WorkflowAcquisitionFailure[];
+}
+
+export interface PlannedWorkflowBinding {
+  name: string;
+  agent: Agent;
+  /** Project-relative native output path. */
+  path: string;
+  /** Digest of the deterministic generated export. */
+  outputDigest: string;
+  /** Digest of the canonical body that generated the export. */
+  canonicalDigest: string;
+}
+
+export interface PlannedWorkflowCanonical {
+  name: string;
+  /** Project-relative canonical path. */
+  path: string;
+  digest: string;
+}
+
+/**
+ * What the writer attempted for this run. Publication still re-reads the bytes
+ * from disk, because an ownership write may have preserved a user edit.
+ */
+export interface WorkflowWriteResult {
+  canonical: PlannedWorkflowCanonical[];
+  bindings: PlannedWorkflowBinding[];
+}
+
 /**
  * Service responsible for synchronizing agent workflows from a remote registry.
  */
@@ -91,17 +138,48 @@ export class WorkflowSyncService {
   }
 
   /**
-   * Assembles workflows from the remote registry.
+   * Assembles workflows from the remote registry. Kept for callers that only
+   * need the collected files; new callers must use `acquireWorkflows` so an
+   * incomplete fetch is distinguishable from a deliberate empty selection.
    */
   async assembleWorkflows(
     config: SkillConfig,
     ref: string = 'main',
     verifier?: ManifestVerifier,
   ): Promise<CollectedSkill[]> {
-    if (!config.workflows) return [];
+    return (await this.acquireWorkflows(config, ref, verifier)).workflows;
+  }
+
+  /**
+   * Acquires the selected canonical workflows and reports whether the desired
+   * set is complete. Partial discovery/download/integrity failures are
+   * `incomplete` and never authorize absence-based pruning.
+   */
+  async acquireWorkflows(
+    config: SkillConfig,
+    ref: string = 'main',
+    verifier?: ManifestVerifier,
+  ): Promise<WorkflowAcquisition> {
+    if (config.workflows === false || config.workflows === undefined) {
+      return { status: 'disabled', workflows: [], failures: [] };
+    }
+    if (Array.isArray(config.workflows) && config.workflows.length === 0) {
+      return { status: 'disabled', workflows: [], failures: [] };
+    }
 
     const githubMatch = GithubService.parseGitHubUrl(config.registry);
-    if (!githubMatch) return [];
+    if (!githubMatch) {
+      return {
+        status: 'incomplete',
+        workflows: [],
+        failures: [
+          {
+            path: 'registry',
+            reason: `Unsupported registry URL '${config.registry}'.`,
+          },
+        ],
+      };
+    }
 
     const { owner, repo } = githubMatch;
     console.log(pc.gray(`  - Discovering workflows (${ref})...`));
@@ -109,7 +187,13 @@ export class WorkflowSyncService {
     const treeData = await this.githubService.getRepoTree(owner, repo, ref);
     if (!treeData) {
       console.log(pc.red(`    ❌ Failed to fetch workflows@${ref}.`));
-      return [];
+      return {
+        status: 'incomplete',
+        workflows: [],
+        failures: [
+          { path: 'workflows', reason: `Failed to fetch workflows@${ref}.` },
+        ],
+      };
     }
 
     const workflowFiles = treeData.tree.filter((f) => {
@@ -128,6 +212,13 @@ export class WorkflowSyncService {
       }
       return false;
     });
+
+    // A successfully discovered tree with no matching files is a complete
+    // empty set (including a selected workflow that was removed upstream).
+    if (workflowFiles.length === 0) {
+      console.log(pc.gray(`    ℹ️  No matching workflows found in registry.`));
+      return { status: 'complete', workflows: [], failures: [] };
+    }
 
     const { ok: files, failed } =
       await this.githubService.downloadFilesConcurrent(
@@ -154,9 +245,26 @@ export class WorkflowSyncService {
       console.log(pc.red(`    ❌ ${failure.path} — ${failure.reason}`));
     }
 
-    if (okFiles.length > 0) {
-      console.log(pc.gray(`    + Fetched ${okFiles.length} workflows`));
-      return [
+    const status: WorkflowAcquisitionStatus =
+      failed.length > 0 ? 'incomplete' : 'complete';
+    if (okFiles.length === 0) {
+      if (failed.length === 0) {
+        console.log(
+          pc.gray(`    ℹ️  No matching workflows found in registry.`),
+        );
+      }
+      return {
+        status,
+        workflows: [],
+        failures: failed.map((f) => ({ path: f.path, reason: f.reason })),
+      };
+    }
+
+    console.log(pc.gray(`    + Fetched ${okFiles.length} workflows`));
+    return {
+      status,
+      failures: failed.map((f) => ({ path: f.path, reason: f.reason })),
+      workflows: [
         {
           category: '.agents',
           skill: 'workflows',
@@ -165,28 +273,14 @@ export class WorkflowSyncService {
             content: f.content,
           })),
         },
-      ];
-    } else {
-      if (workflowFiles.length > 0) {
-        console.log(
-          pc.red(
-            `    ❌ Failed to download ${workflowFiles.length} matched workflows.`,
-          ),
-        );
-      } else {
-        console.log(
-          pc.gray(`    ℹ️  No matching workflows found in registry.`),
-        );
-      }
-    }
-
-    return [];
+      ],
+    };
   }
 
   /**
-   * Writes collected workflows from `.agents/workflows/*.md` to each active
-   * agent's native invocation surface.
-   * - Antigravity/Kiro: keep native markdown workflows
+   * Installs each selected canonical workflow once at `.agents/workflows/*.md`
+   * and derives every native export from the same collected content.
+   * - Antigravity/Kiro: canonical markdown path (native == canonical)
    * - Claude/Roo/OpenCode: markdown command files
    * - Gemini: TOML command files
    * - Copilot: prompt files
@@ -197,25 +291,65 @@ export class WorkflowSyncService {
     config: SkillConfig,
     agents?: Agent[],
     writer: InstallWriter = new PassthroughWriter(process.cwd()),
-  ) {
-    if (workflows.length === 0) return;
+  ): Promise<WorkflowWriteResult> {
+    const result: WorkflowWriteResult = { canonical: [], bindings: [] };
+    if (workflows.length === 0) return result;
 
     const overrides = config.custom_overrides || [];
     const targetAgents = agents || [Agent.Antigravity];
+    // One physical write per path; every provider that aliases it still keeps
+    // its own binding record so uninstall/prune ownership is complete.
+    const writtenDigests = new Map<string, string>();
+    const canonicalDir = path.join(process.cwd(), '.agents', 'workflows');
+
+    // Canonical pass: the shared installed catalog, independent of provider.
+    for (const wf of workflows) {
+      if (wf.skill !== 'workflows') continue;
+      for (const fileItem of wf.files) {
+        if (path.basename(fileItem.name) !== fileItem.name) {
+          console.log(
+            pc.red(
+              `    ❌ Security Error: workflow file names must be flat (${fileItem.name})`,
+            ),
+          );
+          continue;
+        }
+        const workflowName = fileItem.name.replace(/\.md$/, '');
+        const canonicalPath = path.join(canonicalDir, fileItem.name);
+        if (!this.isPathSafe(canonicalPath, canonicalDir)) {
+          console.log(
+            pc.red(`    ❌ Security Error: Invalid path ${canonicalPath}`),
+          );
+          continue;
+        }
+        if (this.isOverridden(canonicalPath, overrides)) continue;
+
+        await writer.write(canonicalPath, fileItem.content, {
+          owner: 'workflow',
+          source: `workflow:${workflowName}`,
+          agent: SHARED_WORKFLOW_AGENT,
+        });
+        const canonicalDigest = sha256(fileItem.content);
+        writtenDigests.set(canonicalPath, canonicalDigest);
+        result.canonical.push({
+          name: workflowName,
+          path: this.normalizePath(canonicalPath),
+          digest: canonicalDigest,
+        });
+      }
+    }
 
     for (const agentId of targetAgents) {
       const agentDef = SUPPORTED_AGENTS.find((a) => a.id === agentId);
       if (!agentDef || agentDef.workflowFormat === 'none') continue;
 
       const workflowDir = path.join(process.cwd(), agentDef.workflowPath);
-
-      // Calculate relative path from workflow dir to the source workflow files (.agents/workflows)
-      // This is used by Gemini (TOML) to reference the canonical markdown source.
       let written = 0;
       for (const wf of workflows) {
         if (wf.skill !== 'workflows') continue;
 
         for (const fileItem of wf.files) {
+          const workflowName = fileItem.name.replace(/\.md$/, '');
           const parsed = WorkflowTransformer.parse({
             name: fileItem.name,
             content: fileItem.content,
@@ -228,7 +362,6 @@ export class WorkflowSyncService {
 
           let targetFilePath: string;
           if (agentDef.workflowFormat === 'skill') {
-            const workflowName = fileItem.name.replace(/\.md$/, '');
             targetFilePath = path.join(
               workflowDir,
               workflowName,
@@ -244,17 +377,36 @@ export class WorkflowSyncService {
             );
             continue;
           }
+          if (this.isOverridden(targetFilePath, overrides)) continue;
 
-          if (this.isOverridden(targetFilePath, overrides)) {
+          const outputDigest = sha256(transformed.content);
+          const existingDigest = writtenDigests.get(targetFilePath);
+          if (existingDigest === undefined) {
+            await writer.write(targetFilePath, transformed.content, {
+              owner: 'workflow',
+              source: `workflow:${workflowName}`,
+              agent: agentId,
+            });
+            writtenDigests.set(targetFilePath, outputDigest);
+            written++;
+          } else if (existingDigest !== outputDigest) {
+            // Two surfaces map to one path but disagree on bytes; refuse to
+            // certify either alias instead of picking a winner silently.
+            console.log(
+              pc.red(
+                `    ❌ Conflicting same-path native outputs for ${targetFilePath}`,
+              ),
+            );
             continue;
           }
 
-          await writer.write(targetFilePath, transformed.content, {
-            owner: 'workflow',
-            source: `workflow:${fileItem.name.replace(/\.md$/, '')}`,
+          result.bindings.push({
+            name: workflowName,
             agent: agentId,
+            path: this.normalizePath(targetFilePath),
+            outputDigest,
+            canonicalDigest: sha256(fileItem.content),
           });
-          written++;
         }
       }
 
@@ -266,6 +418,8 @@ export class WorkflowSyncService {
         );
       }
     }
+
+    return result;
   }
 
   private isPathSafe(targetPath: string, subPath: string): boolean {

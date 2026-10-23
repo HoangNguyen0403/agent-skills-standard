@@ -9,6 +9,7 @@ import {
   ManifestEntry,
   SkillsLockFile,
   sha256,
+  type WorkflowCatalog,
 } from '../LockfileService';
 
 describe('LockfileService v2', () => {
@@ -220,6 +221,233 @@ describe('LockfileService v2', () => {
       ok: false,
       mismatches: [rel],
       missing: [],
+    });
+  });
+
+  describe('workflowCatalog', () => {
+    const canonicalDigest = sha256('canonical-body');
+    const nativeDigest = sha256('native-output');
+
+    function baseLock(): SkillsLockFile {
+      return {
+        version: 2,
+        registry: 'https://github.com/test/repo',
+        generatedAt: '2026-10-23T00:00:00.000Z',
+        sources: {},
+        entries: {},
+      };
+    }
+
+    function catalog(
+      overrides: Partial<WorkflowCatalog> = {},
+    ): WorkflowCatalog {
+      return {
+        version: 1,
+        workflows: {
+          'dev-fix': {
+            path: '.agents/workflows/dev-fix.md',
+            digest: canonicalDigest,
+            registry: 'https://github.com/test/repo',
+            requestedRef: 'workflows-v1.0.0',
+            resolvedCommit: 'abc123',
+            nativeBindings: [
+              {
+                agent: 'claude',
+                path: '.claude/commands/dev-fix.md',
+                outputDigest: nativeDigest,
+                canonicalDigest,
+              },
+            ],
+          },
+        },
+        ...overrides,
+      };
+    }
+
+    it('round-trips an optional versioned workflow catalog with native bindings', async () => {
+      const lock = baseLock();
+      lock.workflowCatalog = catalog();
+
+      await service.write(root, lock);
+      const loaded = await service.load(root, []);
+
+      expect(loaded.lock?.workflowCatalog).toEqual(catalog());
+    });
+
+    it('rejects a malformed catalog at load instead of treating it as a legacy lock', async () => {
+      const lock = baseLock();
+      await fs.writeJson(path.join(root, LOCKFILE_NAME), {
+        ...lock,
+        workflowCatalog: { version: 2, workflows: {} },
+      });
+
+      await expect(service.load(root, [])).rejects.toThrow(/workflowCatalog/i);
+    });
+
+    it('rejects a catalog whose workflows collection is not an object', async () => {
+      await fs.writeJson(path.join(root, LOCKFILE_NAME), {
+        ...baseLock(),
+        workflowCatalog: { version: 1, workflows: [] },
+      });
+
+      await expect(service.load(root, [])).rejects.toThrow(
+        /workflows must be an object/i,
+      );
+    });
+
+    it('allows aliased providers to share one output path when their digests agree', async () => {
+      const aliased = catalog();
+      const [binding] = aliased.workflows['dev-fix'].nativeBindings;
+      aliased.workflows['dev-fix'].nativeBindings = [
+        binding,
+        { ...binding, agent: 'kiro' },
+      ];
+
+      await service.write(root, { ...baseLock(), workflowCatalog: aliased });
+      const loaded = await service.load(root, []);
+
+      expect(
+        loaded.lock?.workflowCatalog?.workflows['dev-fix'].nativeBindings,
+      ).toHaveLength(2);
+    });
+
+    it.each([
+      [
+        'an unsupported version',
+        { version: 2, workflows: {} } as unknown as WorkflowCatalog,
+      ],
+      [
+        'a traversal canonical path',
+        catalog({
+          workflows: {
+            'dev-fix': {
+              ...catalog().workflows['dev-fix'],
+              path: '../outside.md',
+            },
+          },
+        }),
+      ],
+      [
+        'an absolute canonical path',
+        catalog({
+          workflows: {
+            'dev-fix': {
+              ...catalog().workflows['dev-fix'],
+              path: '/tmp/dev-fix.md',
+            },
+          },
+        }),
+      ],
+      [
+        'a malformed digest',
+        catalog({
+          workflows: {
+            'dev-fix': {
+              ...catalog().workflows['dev-fix'],
+              digest: 'not-a-digest',
+            },
+          },
+        }),
+      ],
+      [
+        'conflicting native bindings for one output path',
+        catalog({
+          workflows: {
+            'dev-fix': {
+              ...catalog().workflows['dev-fix'],
+              nativeBindings: [
+                ...catalog().workflows['dev-fix'].nativeBindings,
+                {
+                  ...catalog().workflows['dev-fix'].nativeBindings[0],
+                  agent: 'kiro',
+                  outputDigest: sha256('different-bytes'),
+                },
+              ],
+            },
+          },
+        }),
+      ],
+    ])(
+      'rejects %s before publishing and preserves the previous lock',
+      async (_label, bad) => {
+        const lock = baseLock();
+        await service.write(root, lock);
+        const lockPath = path.join(root, LOCKFILE_NAME);
+        const previous = await fs.readFile(lockPath);
+
+        await expect(
+          service.write(root, { ...baseLock(), workflowCatalog: bad }),
+        ).rejects.toThrow(/workflowCatalog/i);
+
+        expect(await fs.readFile(lockPath)).toEqual(previous);
+      },
+    );
+
+    it('rejects workflow names outside the canonical identifier contract', async () => {
+      await service.write(root, baseLock());
+      const lockPath = path.join(root, LOCKFILE_NAME);
+      const previous = await fs.readFile(lockPath);
+      const validWorkflow = catalog().workflows['dev-fix'];
+      const invalidCatalog = catalog({
+        workflows: { '../dev-fix': validWorkflow },
+      });
+
+      await expect(
+        service.write(root, {
+          ...baseLock(),
+          workflowCatalog: invalidCatalog,
+        }),
+      ).rejects.toThrow(/invalid workflow name/i);
+      expect(await fs.readFile(lockPath)).toEqual(previous);
+    });
+
+    it('rejects duplicate provider and output-path identity even when bytes agree', async () => {
+      const duplicate = catalog();
+      const [binding] = duplicate.workflows['dev-fix'].nativeBindings;
+      duplicate.workflows['dev-fix'].nativeBindings.push({ ...binding });
+
+      await expect(
+        service.write(root, {
+          ...baseLock(),
+          workflowCatalog: duplicate,
+        }),
+      ).rejects.toThrow(/duplicate native binding/i);
+    });
+
+    it('rejects duplicate JSON keys before ordinary parsing', async () => {
+      const text = `{"version":2,"registry":"r","generatedAt":"t","sources":{},"entries":{},"workflowCatalog":{"version":1,"workflows":{"dev-fix":{},"dev-fix":{}}}}`;
+      await fs.writeFile(path.join(root, LOCKFILE_NAME), text);
+
+      await expect(service.load(root, [])).rejects.toThrow(
+        /duplicate JSON keys/i,
+      );
+    });
+
+    it('disclosure updates publish atomically and preserve the catalog', async () => {
+      await service.write(root, { ...baseLock(), workflowCatalog: catalog() });
+
+      await service.writeDisclosed(root, { claude: ['hooks'] });
+
+      const loaded = await service.load(root, []);
+      expect(loaded.lock?.disclosed).toEqual({ claude: ['hooks'] });
+      expect(loaded.lock?.workflowCatalog).toEqual(catalog());
+    });
+
+    it('a failed disclosure publication preserves the previous lock bytes', async () => {
+      await service.write(root, { ...baseLock(), workflowCatalog: catalog() });
+      const lockPath = path.join(root, LOCKFILE_NAME);
+      const previous = await fs.readFile(lockPath);
+
+      await fs.chmod(root, 0o500);
+      try {
+        await expect(
+          service.writeDisclosed(root, { claude: ['hooks'] }),
+        ).rejects.toThrow();
+      } finally {
+        await fs.chmod(root, 0o700);
+      }
+
+      expect(await fs.readFile(lockPath)).toEqual(previous);
     });
   });
 });

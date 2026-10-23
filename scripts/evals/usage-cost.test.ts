@@ -7,10 +7,12 @@ import fs from "fs-extra";
 import { buildManifest, loadManifest, saveManifest } from "./manifest";
 import {
   aggregateUsage,
+  compareTaskUsage,
   emptyUsageTotals,
   mergeRunUsage,
   parseUsageFromJsonl,
   resolvePriceForModel,
+  summarizeTaskUsage,
 } from "./usage";
 import {
   findPreviousHistoryRecord,
@@ -137,6 +139,130 @@ test("aggregates usage samples into overall and per-arm totals, counting unmeter
   assert.equal(usage.byArm["with-skill"]?.lanesMetered, 1);
   assert.equal(usage.byArm["with-skill"]?.lanesUnmetered, 1);
   assert.equal(usage.overall.estimatedUsd, null);
+});
+
+const workerIdentity = {
+  taskId: "task-a",
+  parentTaskId: null,
+  actorRole: "worker" as const,
+};
+
+function claimedAttempt(
+  attemptId: string,
+  usage: { promptTokens: number; completionTokens: number },
+) {
+  return {
+    ...workerIdentity,
+    attemptId,
+    outcome: "completed" as const,
+    usage: { ...usage, wallMs: 10 },
+  };
+}
+
+test("keeps failed, retried and cancelled attempts in task-cohort usage totals", () => {
+  const summary = summarizeTaskUsage(
+    [
+      {
+        ...workerIdentity,
+        attemptId: "attempt-1",
+        outcome: "completed",
+        usage: { promptTokens: 100, completionTokens: 50, wallMs: 10 },
+      },
+      {
+        ...workerIdentity,
+        attemptId: "attempt-2",
+        outcome: "failed",
+        usage: { promptTokens: 40, completionTokens: 10, wallMs: 5 },
+      },
+      {
+        ...workerIdentity,
+        attemptId: "attempt-3",
+        outcome: "cancelled",
+        usage: { promptTokens: 20, completionTokens: 5, wallMs: 3 },
+      },
+    ],
+    "GPT-5",
+    { expectedActors: [{ role: "worker", taskId: "task-a", parentTaskId: null }] },
+  );
+
+  assert.equal(summary.totals.promptTokens, 160);
+  assert.equal(summary.totals.completionTokens, 65);
+  assert.equal(summary.totals.lanesMetered, 3);
+  assert.deepEqual(summary.attemptsByOutcome, {
+    completed: 1,
+    failed: 1,
+    retried: 0,
+    interrupted: 0,
+    cancelled: 1,
+  });
+  assert.deepEqual(summary.observedActors, [
+    { role: "worker", taskId: "task-a", parentTaskId: null },
+  ]);
+  assert.equal(summary.unknownActorAttempts, 0);
+  assert.equal(summary.complete, true);
+});
+
+test("withholds monetary savings when an attempt lane is unmetered or the model price is unresolved", () => {
+  const complete = [claimedAttempt("attempt-1", { promptTokens: 100, completionTokens: 50 })];
+  const expectedActors = [
+    { role: "worker" as const, taskId: "task-a", parentTaskId: null },
+  ];
+  const gap = compareTaskUsage(
+    complete,
+    [
+      complete[0],
+      { outcome: "retried" as const, usage: null },
+    ],
+    "GPT-5",
+    { baselineExpectedActors: expectedActors, currentExpectedActors: expectedActors },
+  );
+  assert.equal(gap.savingsUsd, null);
+  assert.match(gap.withheldReason ?? "", /unmetered/);
+
+  const unpriced = compareTaskUsage(complete, complete, "unpriced-test-model");
+  assert.equal(unpriced.savingsUsd, null);
+  assert.match(unpriced.withheldReason ?? "", /price/);
+
+  const priced = compareTaskUsage(
+    complete,
+    [claimedAttempt("attempt-2", { promptTokens: 80, completionTokens: 40 })],
+    "GPT-5",
+    { baselineExpectedActors: expectedActors, currentExpectedActors: expectedActors },
+  );
+  assert.ok(priced.savingsUsd !== null && priced.savingsUsd > 0);
+  assert.equal(priced.withheldReason, null);
+});
+
+test("withholds monetary savings until every expected actor is covered", () => {
+  const baseline = [claimedAttempt("attempt-1", { promptTokens: 100, completionTokens: 50 })];
+  const current = [claimedAttempt("attempt-2", { promptTokens: 80, completionTokens: 40 })];
+  const expectedActors = [
+    { role: "worker" as const, taskId: "task-a", parentTaskId: null },
+    { role: "review" as const, taskId: "task-a", parentTaskId: null },
+  ];
+
+  const uncertified = compareTaskUsage(baseline, current, "GPT-5");
+  assert.equal(uncertified.savingsUsd, null);
+  assert.match(uncertified.withheldReason ?? "", /coverage|certified/);
+
+  const partial = compareTaskUsage(baseline, current, "GPT-5", {
+    baselineExpectedActors: expectedActors,
+    currentExpectedActors: expectedActors,
+  });
+  assert.equal(partial.savingsUsd, null);
+  assert.match(partial.withheldReason ?? "", /coverage|certified/);
+});
+
+test("withholds monetary savings when attempt membership is unknown", () => {
+  const anonymous = [
+    {
+      outcome: "completed" as const,
+      usage: { promptTokens: 100, completionTokens: 50, wallMs: 10 },
+    },
+  ];
+  const comparison = compareTaskUsage(anonymous, anonymous, "GPT-5");
+  assert.equal(comparison.savingsUsd, null);
+  assert.match(comparison.withheldReason ?? "", /membership is unknown/);
 });
 
 test("resolves a known model price case-insensitively and returns null for an unresolved model", () => {

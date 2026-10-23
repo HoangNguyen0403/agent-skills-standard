@@ -1,6 +1,5 @@
 name = "architecture-guard"
 description = "Audits PR diffs for architecture boundary violations, design simplicity, dependency drift, and established-pattern mismatches. Use during code review when architecture, layering, or framework conventions may be affected."
-sandbox_mode = "read-only"
 developer_instructions = """
 # Specialist: Architecture Guard
 

@@ -1,7 +1,7 @@
 # 🧪 Live Skill Evals Report
 
-> Generated: 2026-09-22T07:37:23.350Z
-> Measured, not structural: outcome assertions are evaluated against immutable run inputs. Baseline and with-skill arms are generated in isolated workers; trigger arms receive only the skill name and description.
+> Generated: 2026-10-23T05:14:42.993Z
+> Measured transcript-assertion evidence, not structural or executable task verification: outcome assertions are evaluated against transcripts from isolated evaluation workers. Workers are instructed not to use tools and have read-only filesystem capability, but neither tool-use prohibition nor tool invocation is host-enforced or retained here; tool-free execution is unverified. Trigger arms receive only the skill name and description.
 > Historical v1 runs remain readable through the compatibility adapter. v2 metrics report case pass rate, assertion pass rate, trigger recall, trigger specificity, and balanced trigger accuracy.
 > Activation metrics are omitted for legacy trigger evidence until a clean activation-evidence v2 run replaces it.
 
@@ -14,6 +14,8 @@
 | Outcome readiness | **NOT READY** |
 | Activation readiness | **NOT READY** |
 | Evidence mode | **composite** |
+| Protocol provenance | **unknown** |
+| Unresolved protocol contributors | **227** |
 | Strict outcome-ready skills | **133/265** |
 | Activation-ready skills | **226/265** |
 | Strict release-ready skills | **113/265** |
@@ -27,310 +29,312 @@
 | Avg. trigger specificity | **94.14%** |
 | Skills meeting ≥90% recall and specificity | **226/265** |
 
+> ⚠️ **Unresolved Protocol Provenance Notice**: At least one contributing skill has unresolved protocol provenance. This is uncertainty, not evidence that the contributor used a different protocol; protocol-specific aggregate comparisons cannot be certified.
+
 ## 📜 Physical Run History
 
-| Run | Category | Date | Skills | Baseline | With-Skill | Delta | Evidence | Agent |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `all-v2.6.1-2026-09-22T07-28-44-830Z-0e7f8fb4` | all | 2026-09-22 | 14 | 10% | 68% | +57% | incremental | Codex CLI isolated worker |
-| `governed-cybersecurity-20260922-attribution` | all | 2026-09-22 | 14 | 4% | 67% | +63% | fresh | Codex CLI isolated worker |
-| `all-v2.6.0` | all | 2026-07-14 | 265 | 42% | 72% | +30% | composite | Composite immutable evidence |
+| Run | Category | Date | Skills | Baseline | With-Skill | Delta | Evidence | Protocol | Unresolved | Agent |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `all-v2.6.1-2026-09-22T07-28-44-830Z-0e7f8fb4` | all | 2026-09-22 | 14 | 10% | 68% | +57% | incremental | governing-skill-v3 | 0 | Codex CLI isolated worker |
+| `governed-cybersecurity-20260922-attribution` | all | 2026-09-22 | 14 | 4% | 67% | +63% | fresh | governing-skill-v3 | 0 | Codex CLI isolated worker |
+| `all-v2.6.0` | all | 2026-07-14 | 265 | 42% | 72% | +30% | composite | unknown | 227 | Composite immutable evidence |
 
 ## 📦 Per-Category Results (latest complete partition)
 
-| Category | Run | Scored | Skills | Baseline | With-Skill | Delta | Assertions | Trigger Recall | Trigger Specificity | Balanced Trigger |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| android | `all-v2.6.0` | 2026-07-14 | 26 | 68% | 92% | 24% | 96% | 100% | 75% | 87% |
-| angular | `all-v2.6.0` | 2026-07-14 | 15 | 30% | 56% | 26% | 79% | 100% | 100% | 100% |
-| common | `all-v2.6.0` | 2026-07-14 | 39 | 24% | 68% | 44% | 82% | 100% | 99% | 100% |
-| dart | `all-v2.6.0` | 2026-07-14 | 3 | 89% | 100% | 11% | 100% | 100% | 92% | 96% |
-| database | `all-v2.6.0` | 2026-07-14 | 7 | 57% | 81% | 24% | 90% | 100% | 100% | 100% |
-| flutter | `all-v2.6.0` | 2026-07-14 | 22 | 29% | 68% | 39% | 82% | 95% | 78% | 87% |
-| golang | `all-v2.6.0` | 2026-07-14 | 11 | 67% | 85% | 18% | 93% | 100% | 100% | 100% |
-| ios | `all-v2.6.0` | 2026-07-14 | 15 | 7% | 49% | 42% | 70% | 100% | 100% | 100% |
-| java | `all-v2.6.0` | 2026-07-14 | 5 | 47% | 73% | 27% | 88% | 100% | 74% | 87% |
-| javascript | `all-v2.6.0` | 2026-07-14 | 3 | 0% | 100% | 100% | 100% | 100% | 100% | 100% |
-| kotlin | `all-v2.6.0` | 2026-07-14 | 4 | 58% | 92% | 33% | 97% | 100% | 75% | 88% |
-| laravel | `all-v2.6.0` | 2026-07-14 | 10 | 23% | 50% | 27% | 75% | 100% | 98% | 99% |
-| nestjs | `all-v2.6.0` | 2026-07-14 | 21 | 41% | 67% | 25% | 83% | 100% | 98% | 99% |
-| nextjs | `all-v2.6.0` | 2026-07-14 | 18 | 55% | 72% | 18% | 83% | 100% | 100% | 100% |
-| php | `all-v2.6.0` | 2026-07-14 | 7 | 31% | 45% | 14% | 66% | 100% | 93% | 96% |
-| python | `all-v2.6.0` | 2026-07-14 | 9 | 83% | 100% | 17% | 100% | 100% | 100% | 100% |
-| quality-engineering | `all-v2.6.0` | 2026-07-14 | 7 | 21% | 100% | 79% | 100% | 100% | 100% | 100% |
-| react | `all-v2.6.0` | 2026-07-14 | 8 | 50% | 92% | 42% | 96% | 100% | 100% | 100% |
-| react-native | `all-v2.6.0` | 2026-07-14 | 13 | 38% | 41% | 3% | 70% | 100% | 100% | 100% |
-| spring-boot | `all-v2.6.0` | 2026-07-14 | 10 | 63% | 93% | 30% | 97% | 100% | 100% | 100% |
-| swift | `all-v2.6.0` | 2026-07-14 | 8 | 41% | 65% | 24% | 78% | 100% | 100% | 100% |
-| typescript | `all-v2.6.0` | 2026-07-14 | 4 | 57% | 68% | 12% | 78% | 100% | 92% | 96% |
+| Category | Run | Scored | Protocol | Skills | Baseline | With-Skill | Delta | Assertions | Trigger Recall | Trigger Specificity | Balanced Trigger |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| android | `all-v2.6.0` | 2026-07-14 | unknown | 26 | 68% | 92% | 24% | 96% | 100% | 75% | 87% |
+| angular | `all-v2.6.0` | 2026-07-14 | unknown | 15 | 30% | 56% | 26% | 79% | 100% | 100% | 100% |
+| common | `all-v2.6.0` | 2026-07-14 | unknown | 39 | 24% | 68% | 44% | 82% | 100% | 99% | 100% |
+| dart | `all-v2.6.0` | 2026-07-14 | unknown | 3 | 89% | 100% | 11% | 100% | 100% | 92% | 96% |
+| database | `all-v2.6.0` | 2026-07-14 | unknown | 7 | 57% | 81% | 24% | 90% | 100% | 100% | 100% |
+| flutter | `all-v2.6.0` | 2026-07-14 | unknown | 22 | 29% | 68% | 39% | 82% | 95% | 78% | 87% |
+| golang | `all-v2.6.0` | 2026-07-14 | unknown | 11 | 67% | 85% | 18% | 93% | 100% | 100% | 100% |
+| ios | `all-v2.6.0` | 2026-07-14 | unknown | 15 | 7% | 49% | 42% | 70% | 100% | 100% | 100% |
+| java | `all-v2.6.0` | 2026-07-14 | unknown | 5 | 47% | 73% | 27% | 88% | 100% | 74% | 87% |
+| javascript | `all-v2.6.0` | 2026-07-14 | unknown | 3 | 0% | 100% | 100% | 100% | 100% | 100% | 100% |
+| kotlin | `all-v2.6.0` | 2026-07-14 | unknown | 4 | 58% | 92% | 33% | 97% | 100% | 75% | 88% |
+| laravel | `all-v2.6.0` | 2026-07-14 | unknown | 10 | 23% | 50% | 27% | 75% | 100% | 98% | 99% |
+| nestjs | `all-v2.6.0` | 2026-07-14 | unknown | 21 | 41% | 67% | 25% | 83% | 100% | 98% | 99% |
+| nextjs | `all-v2.6.0` | 2026-07-14 | unknown | 18 | 55% | 72% | 18% | 83% | 100% | 100% | 100% |
+| php | `all-v2.6.0` | 2026-07-14 | unknown | 7 | 31% | 45% | 14% | 66% | 100% | 93% | 96% |
+| python | `all-v2.6.0` | 2026-07-14 | unknown | 9 | 83% | 100% | 17% | 100% | 100% | 100% | 100% |
+| quality-engineering | `all-v2.6.0` | 2026-07-14 | unknown | 7 | 21% | 100% | 79% | 100% | 100% | 100% | 100% |
+| react | `all-v2.6.0` | 2026-07-14 | unknown | 8 | 50% | 92% | 42% | 96% | 100% | 100% | 100% |
+| react-native | `all-v2.6.0` | 2026-07-14 | unknown | 13 | 38% | 41% | 3% | 70% | 100% | 100% | 100% |
+| spring-boot | `all-v2.6.0` | 2026-07-14 | unknown | 10 | 63% | 93% | 30% | 97% | 100% | 100% | 100% |
+| swift | `all-v2.6.0` | 2026-07-14 | unknown | 8 | 41% | 65% | 24% | 78% | 100% | 100% | 100% |
+| typescript | `all-v2.6.0` | 2026-07-14 | unknown | 4 | 57% | 68% | 12% | 78% | 100% | 92% | 96% |
 
 ## 📋 Per-Skill Detail (latest complete partition per category)
 
-| Skill | Category | Baseline Cases | With-Skill Cases | Delta | With-Skill Assertions | Recall | Specificity | Balanced | Guardrail |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `android-agp-upgrade` | android | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
-| `android-architecture` | android | 67% | 100% | 33% | 100% | 100% | 80% | 90% | no |
-| `android-background-work` | android | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
-| `android-compose` | android | 33% | 67% | 33% | 88% | 100% | 90% | 95% | no |
-| `android-compose-migration` | android | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
-| `android-concurrency` | android | 67% | 67% | 0% | 89% | 100% | 60% | 80% | no |
-| `android-deployment` | android | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
-| `android-design-system` | android | 67% | 67% | 0% | 88% | 100% | 100% | 100% | no |
-| `android-di` | android | 100% | 67% | -33% | 86% | 100% | 50% | 75% | no |
-| `android-edge-to-edge` | android | 33% | 100% | 67% | 100% | 100% | 100% | 100% | no |
-| `android-legacy-navigation` | android | 67% | 67% | 0% | 71% | 100% | 90% | 95% | no |
-| `android-legacy-security` | android | 67% | 100% | 33% | 100% | 100% | 80% | 90% | no |
-| `android-legacy-state` | android | 100% | 100% | 0% | 100% | 100% | 70% | 85% | no |
-| `android-navigation` | android | 33% | 100% | 67% | 100% | 100% | 60% | 80% | no |
-| `android-navigation-3` | android | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
-| `android-navigation-type-safe` | android | 100% | 67% | -33% | 86% | 100% | 100% | 100% | no |
-| `android-networking` | android | 67% | 100% | 33% | 100% | 100% | 25% | 63% | no |
-| `android-notifications` | android | 0% | 100% | 100% | 100% | 100% | 50% | 75% | no |
-| `android-performance` | android | 0% | 100% | 100% | 100% | 100% | 70% | 85% | no |
-| `android-persistence` | android | 100% | 100% | 0% | 100% | 100% | 50% | 75% | no |
-| `android-resources` | android | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
-| `android-security` | android | 67% | 100% | 33% | 100% | 100% | 40% | 70% | no |
-| `android-state` | android | 67% | 100% | 33% | 100% | 100% | 10% | 55% | no |
-| `android-testing` | android | 67% | 100% | 33% | 100% | 100% | 80% | 90% | no |
-| `android-tooling` | android | 100% | 100% | 0% | 100% | 100% | 70% | 85% | no |
-| `android-xml-views` | android | 100% | 100% | 0% | 100% | 100% | 70% | 85% | no |
-| `angular-architecture` | angular | 17% | 17% | 0% | 73% | 100% | 100% | 100% | no |
-| `angular-components` | angular | 11% | 56% | 44% | 65% | 100% | 100% | 100% | no |
-| `angular-dependency-injection` | angular | 0% | 17% | 17% | 53% | 100% | 100% | 100% | no |
-| `angular-directives-pipes` | angular | 17% | 33% | 17% | 73% | 100% | 100% | 100% | no |
-| `angular-forms` | angular | 50% | 100% | 50% | 100% | 100% | 100% | 100% | no |
-| `angular-http-client` | angular | 17% | 100% | 83% | 100% | 100% | 100% | 100% | no |
-| `angular-performance` | angular | 50% | 100% | 50% | 100% | 100% | 100% | 100% | no |
-| `angular-routing` | angular | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
-| `angular-rxjs-interop` | angular | 50% | 50% | 0% | 82% | 100% | 100% | 100% | no |
-| `angular-security` | angular | 0% | 17% | 17% | 43% | 100% | 100% | 100% | no |
-| `angular-ssr` | angular | 50% | 83% | 33% | 95% | 100% | 100% | 100% | no |
-| `angular-state-management` | angular | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
-| `angular-style-guide` | angular | 0% | 0% | 0% | 44% | 100% | 100% | 100% | no |
-| `angular-testing` | angular | 33% | 50% | 17% | 84% | 100% | 100% | 100% | no |
-| `angular-tooling` | angular | 17% | 17% | 0% | 74% | 100% | 100% | 100% | no |
-| `common-accessibility` | common | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
-| `common-api-design` | common | 33% | 67% | 33% | 78% | 100% | 100% | 100% | no |
-| `common-architecture-audit` | common | 67% | 67% | 0% | 83% | 100% | 100% | 100% | no |
-| `common-architecture-diagramming` | common | 0% | 0% | 0% | 22% | 100% | 100% | 100% | no |
-| `common-best-practices` | common | 33% | 33% | 0% | 67% | 100% | 100% | 100% | no |
-| `common-business-requirements` | common | 33% | 100% | 67% | 100% | 100% | 100% | 100% | no |
-| `common-code-review` | common | 20% | 100% | 80% | 100% | 100% | 100% | 100% | yes |
-| `common-context-optimization` | common | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
-| `common-dast-tooling` | common | 33% | 100% | 67% | 100% | 100% | 100% | 100% | no |
-| `common-debugging` | common | 40% | 60% | 20% | 75% | 100% | 100% | 100% | yes |
-| `common-documentation` | common | 33% | 100% | 67% | 100% | 100% | 100% | 100% | no |
-| `common-error-handling` | common | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
-| `common-exploit-verification` | common | 50% | 0% | -50% | 50% | 100% | 100% | 100% | no |
-| `common-feedback-reporter` | common | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
-| `common-git-collaboration` | common | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
-| `common-learning-log` | common | 0% | 33% | 33% | 67% | 100% | 100% | 100% | no |
-| `common-llm-security` | common | 0% | 67% | 67% | 83% | 100% | 100% | 100% | no |
-| `common-mobile-animation` | common | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
-| `common-mobile-ux-core` | common | 0% | 0% | 0% | 44% | 100% | 100% | 100% | no |
-| `common-mobile-visual-testing` | common | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
-| `common-observability` | common | 0% | 0% | 0% | 33% | 100% | 100% | 100% | no |
-| `common-operator-profile` | common | 50% | 100% | 50% | 100% | 100% | 100% | 100% | no |
-| `common-owasp` | common | 33% | 100% | 67% | 100% | 100% | 100% | 100% | no |
-| `common-pentest-methodology` | common | 0% | 0% | 0% | 50% | 100% | 100% | 100% | no |
-| `common-performance-engineering` | common | 33% | 100% | 67% | 100% | 100% | 100% | 100% | no |
-| `common-product-requirements` | common | 40% | 100% | 60% | 100% | 100% | 100% | 100% | no |
-| `common-protocol-enforcement` | common | 0% | 20% | 20% | 64% | 100% | 100% | 100% | yes |
-| `common-security-audit` | common | 33% | 67% | 33% | 83% | 100% | 100% | 100% | yes |
-| `common-security-standards` | common | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
-| `common-session-retrospective` | common | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
-| `common-skill-creator` | common | 0% | 40% | 40% | 67% | 100% | 100% | 100% | yes |
-| `common-software-requirements` | common | 0% | 67% | 67% | 86% | 100% | 100% | 100% | no |
-| `common-store-changelog` | common | 0% | 25% | 25% | 73% | 100% | 100% | 100% | no |
-| `common-system-design` | common | 0% | 0% | 0% | 33% | 100% | 75% | 88% | no |
-| `common-tdd` | common | 0% | 40% | 40% | 58% | 100% | 100% | 100% | yes |
-| `common-telemetry` | common | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
-| `common-ui-design` | common | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
-| `common-web-visual-testing` | common | 50% | 100% | 50% | 100% | 100% | 100% | 100% | no |
-| `common-workflow-writing` | common | 0% | 50% | 50% | 75% | 100% | 100% | 100% | yes |
-| `dart-best-practices` | dart | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
-| `dart-language` | dart | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
-| `dart-tooling` | dart | 67% | 100% | 33% | 100% | 100% | 75% | 88% | no |
-| `database-migrations` | database | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
-| `database-mongodb` | database | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
-| `database-postgresql` | database | 67% | 0% | -67% | 43% | 100% | 100% | 100% | no |
-| `database-query-performance` | database | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
-| `database-redis` | database | 67% | 67% | 0% | 86% | 100% | 100% | 100% | no |
-| `database-schema-design` | database | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
-| `database-transactions` | database | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
-| `flutter-auto-route-navigation` | flutter | 33% | 100% | 67% | 100% | 100% | 75% | 88% | no |
-| `flutter-bloc-state-management` | flutter | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
-| `flutter-cicd` | flutter | 67% | 67% | 0% | 88% | 100% | 100% | 100% | no |
-| `flutter-concurrency` | flutter | 67% | 67% | 0% | 86% | 100% | 100% | 100% | no |
-| `flutter-dependency-injection` | flutter | 33% | 33% | 0% | 71% | 100% | 100% | 100% | no |
-| `flutter-design-system` | flutter | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
-| `flutter-error-handling` | flutter | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
-| `flutter-feature-based-clean-architecture` | flutter | 33% | 100% | 67% | 100% | 100% | 100% | 100% | no |
-| `flutter-getx-navigation` | flutter | 67% | 67% | 0% | 86% | 100% | 100% | 100% | no |
-| `flutter-getx-state-management` | flutter | 33% | 67% | 33% | 71% | 100% | 75% | 88% | no |
-| `flutter-go-router-navigation` | flutter | 33% | 67% | 33% | 88% | 100% | 75% | 88% | no |
-| `flutter-idiomatic-flutter` | flutter | 0% | 0% | 0% | 50% | 0% | 75% | 38% | no |
-| `flutter-layer-based-clean-architecture` | flutter | 33% | 100% | 67% | 100% | 100% | 100% | 100% | no |
-| `flutter-localization` | flutter | 33% | 33% | 0% | 43% | 100% | 25% | 63% | no |
-| `flutter-navigation` | flutter | 0% | 33% | 33% | 50% | 100% | 25% | 63% | no |
-| `flutter-notifications` | flutter | 33% | 33% | 0% | 50% | 100% | 50% | 75% | no |
-| `flutter-performance` | flutter | 0% | 67% | 67% | 86% | 100% | 75% | 88% | no |
-| `flutter-retrofit-networking` | flutter | 100% | 100% | 0% | 100% | 100% | 75% | 88% | no |
-| `flutter-riverpod-state-management` | flutter | 33% | 67% | 33% | 83% | 100% | 100% | 100% | no |
-| `flutter-security` | flutter | 33% | 33% | 0% | 57% | 100% | 25% | 63% | no |
-| `flutter-testing` | flutter | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
-| `flutter-widgets` | flutter | 0% | 67% | 67% | 88% | 100% | 50% | 75% | no |
-| `golang-api-server` | golang | 67% | 67% | 0% | 83% | 100% | 100% | 100% | no |
-| `golang-architecture` | golang | 67% | 33% | -33% | 75% | 100% | 100% | 100% | no |
-| `golang-concurrency` | golang | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
-| `golang-configuration` | golang | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
-| `golang-database` | golang | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
-| `golang-error-handling` | golang | 67% | 67% | 0% | 83% | 100% | 100% | 100% | no |
-| `golang-language` | golang | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
-| `golang-logging` | golang | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
-| `golang-security` | golang | 33% | 100% | 67% | 100% | 100% | 100% | 100% | no |
-| `golang-testing` | golang | 67% | 67% | 0% | 83% | 100% | 100% | 100% | no |
-| `golang-tooling` | golang | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
-| `ios-app-lifecycle` | ios | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
-| `ios-architecture` | ios | 0% | 0% | 0% | 56% | 100% | 100% | 100% | no |
-| `ios-dependency-injection` | ios | 0% | 33% | 33% | 75% | 100% | 100% | 100% | no |
-| `ios-deployment` | ios | 0% | 67% | 67% | 88% | 100% | 100% | 100% | no |
-| `ios-design-system` | ios | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
-| `ios-localization` | ios | 0% | 0% | 0% | 50% | 100% | 100% | 100% | no |
-| `ios-navigation` | ios | 0% | 33% | 33% | 56% | 100% | 100% | 100% | no |
-| `ios-networking` | ios | 33% | 67% | 33% | 83% | 100% | 100% | 100% | no |
-| `ios-notifications` | ios | 0% | 33% | 33% | 67% | 100% | 100% | 100% | no |
-| `ios-performance` | ios | 33% | 67% | 33% | 67% | 100% | 100% | 100% | no |
-| `ios-persistence` | ios | 0% | 67% | 67% | 83% | 100% | 100% | 100% | no |
-| `ios-security` | ios | 0% | 33% | 33% | 56% | 100% | 100% | 100% | no |
-| `ios-state-management` | ios | 33% | 67% | 33% | 83% | 100% | 100% | 100% | no |
-| `ios-swiftui` | ios | 0% | 33% | 33% | 25% | 100% | 100% | 100% | no |
-| `ios-ui-navigation` | ios | 0% | 33% | 33% | 67% | 100% | 100% | 100% | no |
-| `java-best-practices` | java | 33% | 100% | 67% | 100% | 100% | 70% | 85% | no |
-| `java-concurrency` | java | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
-| `java-language` | java | 0% | 0% | 0% | 55% | 100% | 70% | 85% | no |
-| `java-testing` | java | 33% | 67% | 33% | 88% | 100% | 50% | 75% | no |
-| `java-tooling` | java | 100% | 100% | 0% | 100% | 100% | 80% | 90% | no |
-| `javascript-best-practices` | javascript | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
-| `javascript-language` | javascript | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
-| `javascript-tooling` | javascript | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
-| `kotlin-best-practices` | kotlin | 67% | 100% | 33% | 100% | 100% | 90% | 95% | no |
-| `kotlin-coroutines` | kotlin | 33% | 67% | 33% | 88% | 100% | 60% | 80% | no |
-| `kotlin-language` | kotlin | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
-| `kotlin-tooling` | kotlin | 67% | 100% | 33% | 100% | 100% | 50% | 75% | no |
-| `laravel-api` | laravel | 33% | 33% | 0% | 71% | 100% | 100% | 100% | no |
-| `laravel-architecture` | laravel | 33% | 50% | 17% | 67% | 100% | 100% | 100% | no |
-| `laravel-background-processing` | laravel | 0% | 83% | 83% | 97% | 100% | 100% | 100% | no |
-| `laravel-clean-architecture` | laravel | 0% | 17% | 17% | 57% | 100% | 100% | 100% | no |
-| `laravel-database-expert` | laravel | 17% | 17% | 0% | 72% | 100% | 100% | 100% | no |
-| `laravel-eloquent` | laravel | 17% | 17% | 0% | 47% | 100% | 100% | 100% | no |
-| `laravel-security` | laravel | 33% | 100% | 67% | 100% | 100% | 100% | 100% | no |
-| `laravel-sessions-middleware` | laravel | 83% | 100% | 17% | 100% | 100% | 100% | 100% | no |
-| `laravel-testing` | laravel | 0% | 33% | 33% | 68% | 100% | 75% | 88% | no |
-| `laravel-tooling` | laravel | 17% | 50% | 33% | 73% | 100% | 100% | 100% | no |
-| `nestjs-api-standards` | nestjs | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
-| `nestjs-architecture` | nestjs | 0% | 0% | 0% | 20% | 100% | 100% | 100% | no |
-| `nestjs-bullmq` | nestjs | 0% | 0% | 0% | 64% | 100% | 100% | 100% | no |
-| `nestjs-caching` | nestjs | 33% | 100% | 67% | 100% | 100% | 100% | 100% | no |
-| `nestjs-configuration` | nestjs | 33% | 67% | 33% | 83% | 100% | 100% | 100% | no |
-| `nestjs-controllers-services` | nestjs | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
-| `nestjs-database` | nestjs | 100% | 67% | -33% | 83% | 100% | 67% | 83% | no |
-| `nestjs-deployment` | nestjs | 33% | 100% | 67% | 100% | 100% | 100% | 100% | no |
-| `nestjs-documentation` | nestjs | 33% | 33% | 0% | 67% | 100% | 100% | 100% | no |
-| `nestjs-error-handling` | nestjs | 33% | 100% | 67% | 100% | 100% | 100% | 100% | no |
-| `nestjs-file-uploads` | nestjs | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
-| `nestjs-notification` | nestjs | 33% | 33% | 0% | 67% | 100% | 100% | 100% | no |
-| `nestjs-observability` | nestjs | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
-| `nestjs-performance` | nestjs | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
-| `nestjs-real-time` | nestjs | 33% | 67% | 33% | 83% | 100% | 100% | 100% | no |
-| `nestjs-scheduling` | nestjs | 33% | 67% | 33% | 83% | 100% | 100% | 100% | no |
-| `nestjs-search` | nestjs | 33% | 0% | -33% | 50% | 100% | 100% | 100% | no |
-| `nestjs-security` | nestjs | 33% | 67% | 33% | 83% | 100% | 100% | 100% | no |
-| `nestjs-security-isolation` | nestjs | 0% | 67% | 67% | 83% | 100% | 100% | 100% | no |
-| `nestjs-testing` | nestjs | 33% | 67% | 33% | 83% | 100% | 100% | 100% | no |
-| `nestjs-transport` | nestjs | 67% | 67% | 0% | 83% | 100% | 100% | 100% | no |
-| `nextjs-app-router` | nextjs | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
-| `nextjs-architecture` | nextjs | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
-| `nextjs-authentication` | nextjs | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
-| `nextjs-caching` | nextjs | 33% | 67% | 33% | 83% | 100% | 100% | 100% | no |
-| `nextjs-data-access-layer` | nextjs | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
-| `nextjs-data-fetching` | nextjs | 83% | 67% | -17% | 79% | 100% | 100% | 100% | no |
-| `nextjs-i18n` | nextjs | 0% | 33% | 33% | 67% | 100% | 100% | 100% | no |
-| `nextjs-optimization` | nextjs | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
-| `nextjs-pages-router` | nextjs | 100% | 67% | -33% | 86% | 100% | 100% | 100% | no |
-| `nextjs-rendering` | nextjs | 33% | 67% | 33% | 67% | 100% | 100% | 100% | no |
-| `nextjs-security` | nextjs | 67% | 67% | 0% | 83% | 100% | 100% | 100% | no |
-| `nextjs-server-actions` | nextjs | 50% | 33% | -17% | 62% | 100% | 100% | 100% | no |
-| `nextjs-server-components` | nextjs | 17% | 0% | -17% | 25% | 100% | 100% | 100% | no |
-| `nextjs-state-management` | nextjs | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
-| `nextjs-styling` | nextjs | 33% | 100% | 67% | 100% | 100% | 100% | 100% | no |
-| `nextjs-testing` | nextjs | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
-| `nextjs-tooling` | nextjs | 67% | 33% | -33% | 67% | 100% | 100% | 100% | no |
-| `nextjs-upgrade` | nextjs | 0% | 67% | 67% | 83% | 100% | 100% | 100% | no |
-| `php-best-practices` | php | 17% | 17% | 0% | 38% | 100% | 75% | 88% | no |
-| `php-concurrency` | php | 33% | 50% | 17% | 62% | 100% | 100% | 100% | no |
-| `php-error-handling` | php | 33% | 33% | 0% | 62% | 100% | 100% | 100% | no |
-| `php-language` | php | 17% | 33% | 17% | 69% | 100% | 100% | 100% | no |
-| `php-security` | php | 50% | 83% | 33% | 93% | 100% | 75% | 88% | no |
-| `php-testing` | php | 33% | 50% | 17% | 75% | 100% | 100% | 100% | no |
-| `php-tooling` | php | 33% | 50% | 17% | 64% | 100% | 100% | 100% | no |
-| `python-architecture` | python | 50% | 100% | 50% | 100% | 100% | 100% | 100% | no |
-| `python-async-runtime` | python | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
-| `python-best-practices` | python | 50% | 100% | 50% | 100% | 100% | 100% | 100% | no |
-| `python-database` | python | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
-| `python-error-handling` | python | 50% | 100% | 50% | 100% | 100% | 100% | 100% | no |
-| `python-language` | python | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
-| `python-security` | python | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
-| `python-testing` | python | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
-| `python-tooling` | python | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
-| `quality-engineering-appium-mcp` | quality-engineering | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
-| `quality-engineering-business-analysis` | quality-engineering | 17% | 100% | 83% | 100% | 100% | 100% | 100% | no |
-| `quality-engineering-jira-integration` | quality-engineering | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
-| `quality-engineering-playwright-cli` | quality-engineering | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
-| `quality-engineering-quality-assurance` | quality-engineering | 33% | 100% | 67% | 100% | 100% | 100% | 100% | no |
-| `quality-engineering-zephyr-coverage-analysis` | quality-engineering | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
-| `quality-engineering-zephyr-test-generation` | quality-engineering | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
-| `react-component-patterns` | react | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
-| `react-hooks` | react | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
-| `react-performance` | react | 33% | 100% | 67% | 100% | 100% | 100% | 100% | no |
-| `react-security` | react | 33% | 100% | 67% | 100% | 100% | 100% | 100% | no |
-| `react-state-management` | react | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
-| `react-testing` | react | 33% | 67% | 33% | 83% | 100% | 100% | 100% | no |
-| `react-tooling` | react | 33% | 67% | 33% | 83% | 100% | 100% | 100% | no |
-| `react-typescript` | react | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
-| `react-native-architecture` | react-native | 0% | 0% | 0% | 40% | 100% | 100% | 100% | no |
-| `react-native-components` | react-native | 0% | 0% | 0% | 44% | 100% | 100% | 100% | no |
-| `react-native-deployment` | react-native | 33% | 33% | 0% | 78% | 100% | 100% | 100% | no |
-| `react-native-dls` | react-native | 0% | 33% | 33% | 63% | 100% | 100% | 100% | no |
-| `react-native-navigation` | react-native | 100% | 67% | -33% | 88% | 100% | 100% | 100% | no |
-| `react-native-navigation-v6` | react-native | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
-| `react-native-notifications` | react-native | 33% | 33% | 0% | 67% | 100% | 100% | 100% | no |
-| `react-native-performance` | react-native | 0% | 67% | 67% | 88% | 100% | 100% | 100% | no |
-| `react-native-platform-specific` | react-native | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
-| `react-native-security` | react-native | 67% | 33% | -33% | 56% | 100% | 100% | 100% | no |
-| `react-native-state-management` | react-native | 0% | 0% | 0% | 63% | 100% | 100% | 100% | no |
-| `react-native-styling` | react-native | 33% | 0% | -33% | 67% | 100% | 100% | 100% | no |
-| `react-native-testing` | react-native | 33% | 67% | 33% | 63% | 100% | 100% | 100% | no |
-| `spring-boot-api-design` | spring-boot | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
-| `spring-boot-architecture` | spring-boot | 33% | 67% | 33% | 83% | 100% | 100% | 100% | no |
-| `spring-boot-best-practices` | spring-boot | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
-| `spring-boot-data-access` | spring-boot | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
-| `spring-boot-deployment` | spring-boot | 67% | 67% | 0% | 83% | 100% | 100% | 100% | no |
-| `spring-boot-microservices` | spring-boot | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
-| `spring-boot-observability` | spring-boot | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
-| `spring-boot-scheduling` | spring-boot | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
-| `spring-boot-security` | spring-boot | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
-| `spring-boot-testing` | spring-boot | 33% | 100% | 67% | 100% | 100% | 100% | 100% | no |
-| `swift-best-practices` | swift | 0% | 0% | 0% | 33% | 100% | 100% | 100% | no |
-| `swift-concurrency` | swift | 80% | 100% | 20% | 100% | 100% | 100% | 100% | no |
-| `swift-error-handling` | swift | 50% | 75% | 25% | 88% | 100% | 100% | 100% | no |
-| `swift-language` | swift | 0% | 20% | 20% | 56% | 100% | 100% | 100% | no |
-| `swift-memory-management` | swift | 50% | 100% | 50% | 100% | 100% | 100% | 100% | no |
-| `swift-swiftui` | swift | 50% | 100% | 50% | 100% | 100% | 100% | 100% | no |
-| `swift-testing` | swift | 50% | 50% | 0% | 67% | 100% | 100% | 100% | no |
-| `swift-tooling` | swift | 50% | 75% | 25% | 78% | 100% | 100% | 100% | no |
-| `typescript-best-practices` | typescript | 33% | 67% | 33% | 83% | 100% | 100% | 100% | no |
-| `typescript-language` | typescript | 67% | 67% | 0% | 67% | 100% | 100% | 100% | no |
-| `typescript-security` | typescript | 60% | 40% | -20% | 64% | 100% | 100% | 100% | no |
-| `typescript-tooling` | typescript | 67% | 100% | 33% | 100% | 100% | 67% | 83% | no |
+| Skill | Category | Protocol | Baseline Cases | With-Skill Cases | Delta | With-Skill Assertions | Recall | Specificity | Balanced | Guardrail |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `android-agp-upgrade` | android | unknown | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
+| `android-architecture` | android | unknown | 67% | 100% | 33% | 100% | 100% | 80% | 90% | no |
+| `android-background-work` | android | unknown | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
+| `android-compose` | android | unknown | 33% | 67% | 33% | 88% | 100% | 90% | 95% | no |
+| `android-compose-migration` | android | unknown | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
+| `android-concurrency` | android | unknown | 67% | 67% | 0% | 89% | 100% | 60% | 80% | no |
+| `android-deployment` | android | unknown | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
+| `android-design-system` | android | unknown | 67% | 67% | 0% | 88% | 100% | 100% | 100% | no |
+| `android-di` | android | unknown | 100% | 67% | -33% | 86% | 100% | 50% | 75% | no |
+| `android-edge-to-edge` | android | unknown | 33% | 100% | 67% | 100% | 100% | 100% | 100% | no |
+| `android-legacy-navigation` | android | unknown | 67% | 67% | 0% | 71% | 100% | 90% | 95% | no |
+| `android-legacy-security` | android | unknown | 67% | 100% | 33% | 100% | 100% | 80% | 90% | no |
+| `android-legacy-state` | android | unknown | 100% | 100% | 0% | 100% | 100% | 70% | 85% | no |
+| `android-navigation` | android | unknown | 33% | 100% | 67% | 100% | 100% | 60% | 80% | no |
+| `android-navigation-3` | android | unknown | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
+| `android-navigation-type-safe` | android | unknown | 100% | 67% | -33% | 86% | 100% | 100% | 100% | no |
+| `android-networking` | android | unknown | 67% | 100% | 33% | 100% | 100% | 25% | 63% | no |
+| `android-notifications` | android | unknown | 0% | 100% | 100% | 100% | 100% | 50% | 75% | no |
+| `android-performance` | android | unknown | 0% | 100% | 100% | 100% | 100% | 70% | 85% | no |
+| `android-persistence` | android | unknown | 100% | 100% | 0% | 100% | 100% | 50% | 75% | no |
+| `android-resources` | android | governing-skill-v3 | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
+| `android-security` | android | unknown | 67% | 100% | 33% | 100% | 100% | 40% | 70% | no |
+| `android-state` | android | unknown | 67% | 100% | 33% | 100% | 100% | 10% | 55% | no |
+| `android-testing` | android | unknown | 67% | 100% | 33% | 100% | 100% | 80% | 90% | no |
+| `android-tooling` | android | unknown | 100% | 100% | 0% | 100% | 100% | 70% | 85% | no |
+| `android-xml-views` | android | unknown | 100% | 100% | 0% | 100% | 100% | 70% | 85% | no |
+| `angular-architecture` | angular | unknown | 17% | 17% | 0% | 73% | 100% | 100% | 100% | no |
+| `angular-components` | angular | unknown | 11% | 56% | 44% | 65% | 100% | 100% | 100% | no |
+| `angular-dependency-injection` | angular | unknown | 0% | 17% | 17% | 53% | 100% | 100% | 100% | no |
+| `angular-directives-pipes` | angular | unknown | 17% | 33% | 17% | 73% | 100% | 100% | 100% | no |
+| `angular-forms` | angular | governing-skill-v3 | 50% | 100% | 50% | 100% | 100% | 100% | 100% | no |
+| `angular-http-client` | angular | governing-skill-v3 | 17% | 100% | 83% | 100% | 100% | 100% | 100% | no |
+| `angular-performance` | angular | governing-skill-v3 | 50% | 100% | 50% | 100% | 100% | 100% | 100% | no |
+| `angular-routing` | angular | governing-skill-v3 | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
+| `angular-rxjs-interop` | angular | unknown | 50% | 50% | 0% | 82% | 100% | 100% | 100% | no |
+| `angular-security` | angular | unknown | 0% | 17% | 17% | 43% | 100% | 100% | 100% | no |
+| `angular-ssr` | angular | unknown | 50% | 83% | 33% | 95% | 100% | 100% | 100% | no |
+| `angular-state-management` | angular | governing-skill-v3 | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
+| `angular-style-guide` | angular | unknown | 0% | 0% | 0% | 44% | 100% | 100% | 100% | no |
+| `angular-testing` | angular | unknown | 33% | 50% | 17% | 84% | 100% | 100% | 100% | no |
+| `angular-tooling` | angular | unknown | 17% | 17% | 0% | 74% | 100% | 100% | 100% | no |
+| `common-accessibility` | common | unknown | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
+| `common-api-design` | common | unknown | 33% | 67% | 33% | 78% | 100% | 100% | 100% | no |
+| `common-architecture-audit` | common | unknown | 67% | 67% | 0% | 83% | 100% | 100% | 100% | no |
+| `common-architecture-diagramming` | common | unknown | 0% | 0% | 0% | 22% | 100% | 100% | 100% | no |
+| `common-best-practices` | common | unknown | 33% | 33% | 0% | 67% | 100% | 100% | 100% | no |
+| `common-business-requirements` | common | unknown | 33% | 100% | 67% | 100% | 100% | 100% | 100% | no |
+| `common-code-review` | common | governing-skill-v3 | 20% | 100% | 80% | 100% | 100% | 100% | 100% | yes |
+| `common-context-optimization` | common | unknown | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
+| `common-dast-tooling` | common | unknown | 33% | 100% | 67% | 100% | 100% | 100% | 100% | no |
+| `common-debugging` | common | unknown | 40% | 60% | 20% | 75% | 100% | 100% | 100% | yes |
+| `common-documentation` | common | governing-skill-v3 | 33% | 100% | 67% | 100% | 100% | 100% | 100% | no |
+| `common-error-handling` | common | governing-skill-v3 | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
+| `common-exploit-verification` | common | unknown | 50% | 0% | -50% | 50% | 100% | 100% | 100% | no |
+| `common-feedback-reporter` | common | governing-skill-v3 | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
+| `common-git-collaboration` | common | unknown | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
+| `common-learning-log` | common | unknown | 0% | 33% | 33% | 67% | 100% | 100% | 100% | no |
+| `common-llm-security` | common | unknown | 0% | 67% | 67% | 83% | 100% | 100% | 100% | no |
+| `common-mobile-animation` | common | governing-skill-v3 | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
+| `common-mobile-ux-core` | common | unknown | 0% | 0% | 0% | 44% | 100% | 100% | 100% | no |
+| `common-mobile-visual-testing` | common | governing-skill-v3 | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
+| `common-observability` | common | unknown | 0% | 0% | 0% | 33% | 100% | 100% | 100% | no |
+| `common-operator-profile` | common | governing-skill-v3 | 50% | 100% | 50% | 100% | 100% | 100% | 100% | no |
+| `common-owasp` | common | governing-skill-v3 | 33% | 100% | 67% | 100% | 100% | 100% | 100% | no |
+| `common-pentest-methodology` | common | unknown | 0% | 0% | 0% | 50% | 100% | 100% | 100% | no |
+| `common-performance-engineering` | common | unknown | 33% | 100% | 67% | 100% | 100% | 100% | 100% | no |
+| `common-product-requirements` | common | governing-skill-v3 | 40% | 100% | 60% | 100% | 100% | 100% | 100% | no |
+| `common-protocol-enforcement` | common | unknown | 0% | 20% | 20% | 64% | 100% | 100% | 100% | yes |
+| `common-security-audit` | common | unknown | 33% | 67% | 33% | 83% | 100% | 100% | 100% | yes |
+| `common-security-standards` | common | governing-skill-v3 | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
+| `common-session-retrospective` | common | governing-skill-v3 | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
+| `common-skill-creator` | common | unknown | 0% | 40% | 40% | 67% | 100% | 100% | 100% | yes |
+| `common-software-requirements` | common | unknown | 0% | 67% | 67% | 86% | 100% | 100% | 100% | no |
+| `common-store-changelog` | common | unknown | 0% | 25% | 25% | 73% | 100% | 100% | 100% | no |
+| `common-system-design` | common | unknown | 0% | 0% | 0% | 33% | 100% | 75% | 88% | no |
+| `common-tdd` | common | unknown | 0% | 40% | 40% | 58% | 100% | 100% | 100% | yes |
+| `common-telemetry` | common | governing-skill-v3 | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
+| `common-ui-design` | common | governing-skill-v3 | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
+| `common-web-visual-testing` | common | governing-skill-v3 | 50% | 100% | 50% | 100% | 100% | 100% | 100% | no |
+| `common-workflow-writing` | common | unknown | 0% | 50% | 50% | 75% | 100% | 100% | 100% | yes |
+| `dart-best-practices` | dart | unknown | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
+| `dart-language` | dart | unknown | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
+| `dart-tooling` | dart | unknown | 67% | 100% | 33% | 100% | 100% | 75% | 88% | no |
+| `database-migrations` | database | unknown | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
+| `database-mongodb` | database | unknown | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
+| `database-postgresql` | database | unknown | 67% | 0% | -67% | 43% | 100% | 100% | 100% | no |
+| `database-query-performance` | database | unknown | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
+| `database-redis` | database | unknown | 67% | 67% | 0% | 86% | 100% | 100% | 100% | no |
+| `database-schema-design` | database | unknown | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
+| `database-transactions` | database | unknown | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
+| `flutter-auto-route-navigation` | flutter | unknown | 33% | 100% | 67% | 100% | 100% | 75% | 88% | no |
+| `flutter-bloc-state-management` | flutter | governing-skill-v3 | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
+| `flutter-cicd` | flutter | unknown | 67% | 67% | 0% | 88% | 100% | 100% | 100% | no |
+| `flutter-concurrency` | flutter | unknown | 67% | 67% | 0% | 86% | 100% | 100% | 100% | no |
+| `flutter-dependency-injection` | flutter | unknown | 33% | 33% | 0% | 71% | 100% | 100% | 100% | no |
+| `flutter-design-system` | flutter | governing-skill-v3 | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
+| `flutter-error-handling` | flutter | unknown | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
+| `flutter-feature-based-clean-architecture` | flutter | governing-skill-v3 | 33% | 100% | 67% | 100% | 100% | 100% | 100% | no |
+| `flutter-getx-navigation` | flutter | unknown | 67% | 67% | 0% | 86% | 100% | 100% | 100% | no |
+| `flutter-getx-state-management` | flutter | unknown | 33% | 67% | 33% | 71% | 100% | 75% | 88% | no |
+| `flutter-go-router-navigation` | flutter | unknown | 33% | 67% | 33% | 88% | 100% | 75% | 88% | no |
+| `flutter-idiomatic-flutter` | flutter | unknown | 0% | 0% | 0% | 50% | 0% | 75% | 38% | no |
+| `flutter-layer-based-clean-architecture` | flutter | unknown | 33% | 100% | 67% | 100% | 100% | 100% | 100% | no |
+| `flutter-localization` | flutter | unknown | 33% | 33% | 0% | 43% | 100% | 25% | 63% | no |
+| `flutter-navigation` | flutter | unknown | 0% | 33% | 33% | 50% | 100% | 25% | 63% | no |
+| `flutter-notifications` | flutter | unknown | 33% | 33% | 0% | 50% | 100% | 50% | 75% | no |
+| `flutter-performance` | flutter | unknown | 0% | 67% | 67% | 86% | 100% | 75% | 88% | no |
+| `flutter-retrofit-networking` | flutter | unknown | 100% | 100% | 0% | 100% | 100% | 75% | 88% | no |
+| `flutter-riverpod-state-management` | flutter | unknown | 33% | 67% | 33% | 83% | 100% | 100% | 100% | no |
+| `flutter-security` | flutter | unknown | 33% | 33% | 0% | 57% | 100% | 25% | 63% | no |
+| `flutter-testing` | flutter | governing-skill-v3 | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
+| `flutter-widgets` | flutter | unknown | 0% | 67% | 67% | 88% | 100% | 50% | 75% | no |
+| `golang-api-server` | golang | unknown | 67% | 67% | 0% | 83% | 100% | 100% | 100% | no |
+| `golang-architecture` | golang | unknown | 67% | 33% | -33% | 75% | 100% | 100% | 100% | no |
+| `golang-concurrency` | golang | unknown | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
+| `golang-configuration` | golang | unknown | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
+| `golang-database` | golang | unknown | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
+| `golang-error-handling` | golang | unknown | 67% | 67% | 0% | 83% | 100% | 100% | 100% | no |
+| `golang-language` | golang | unknown | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
+| `golang-logging` | golang | unknown | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
+| `golang-security` | golang | unknown | 33% | 100% | 67% | 100% | 100% | 100% | 100% | no |
+| `golang-testing` | golang | unknown | 67% | 67% | 0% | 83% | 100% | 100% | 100% | no |
+| `golang-tooling` | golang | unknown | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
+| `ios-app-lifecycle` | ios | unknown | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
+| `ios-architecture` | ios | unknown | 0% | 0% | 0% | 56% | 100% | 100% | 100% | no |
+| `ios-dependency-injection` | ios | unknown | 0% | 33% | 33% | 75% | 100% | 100% | 100% | no |
+| `ios-deployment` | ios | unknown | 0% | 67% | 67% | 88% | 100% | 100% | 100% | no |
+| `ios-design-system` | ios | governing-skill-v3 | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
+| `ios-localization` | ios | unknown | 0% | 0% | 0% | 50% | 100% | 100% | 100% | no |
+| `ios-navigation` | ios | unknown | 0% | 33% | 33% | 56% | 100% | 100% | 100% | no |
+| `ios-networking` | ios | unknown | 33% | 67% | 33% | 83% | 100% | 100% | 100% | no |
+| `ios-notifications` | ios | unknown | 0% | 33% | 33% | 67% | 100% | 100% | 100% | no |
+| `ios-performance` | ios | unknown | 33% | 67% | 33% | 67% | 100% | 100% | 100% | no |
+| `ios-persistence` | ios | unknown | 0% | 67% | 67% | 83% | 100% | 100% | 100% | no |
+| `ios-security` | ios | unknown | 0% | 33% | 33% | 56% | 100% | 100% | 100% | no |
+| `ios-state-management` | ios | unknown | 33% | 67% | 33% | 83% | 100% | 100% | 100% | no |
+| `ios-swiftui` | ios | unknown | 0% | 33% | 33% | 25% | 100% | 100% | 100% | no |
+| `ios-ui-navigation` | ios | unknown | 0% | 33% | 33% | 67% | 100% | 100% | 100% | no |
+| `java-best-practices` | java | unknown | 33% | 100% | 67% | 100% | 100% | 70% | 85% | no |
+| `java-concurrency` | java | unknown | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
+| `java-language` | java | unknown | 0% | 0% | 0% | 55% | 100% | 70% | 85% | no |
+| `java-testing` | java | unknown | 33% | 67% | 33% | 88% | 100% | 50% | 75% | no |
+| `java-tooling` | java | unknown | 100% | 100% | 0% | 100% | 100% | 80% | 90% | no |
+| `javascript-best-practices` | javascript | unknown | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
+| `javascript-language` | javascript | unknown | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
+| `javascript-tooling` | javascript | governing-skill-v3 | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
+| `kotlin-best-practices` | kotlin | unknown | 67% | 100% | 33% | 100% | 100% | 90% | 95% | no |
+| `kotlin-coroutines` | kotlin | unknown | 33% | 67% | 33% | 88% | 100% | 60% | 80% | no |
+| `kotlin-language` | kotlin | governing-skill-v3 | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
+| `kotlin-tooling` | kotlin | unknown | 67% | 100% | 33% | 100% | 100% | 50% | 75% | no |
+| `laravel-api` | laravel | unknown | 33% | 33% | 0% | 71% | 100% | 100% | 100% | no |
+| `laravel-architecture` | laravel | unknown | 33% | 50% | 17% | 67% | 100% | 100% | 100% | no |
+| `laravel-background-processing` | laravel | unknown | 0% | 83% | 83% | 97% | 100% | 100% | 100% | no |
+| `laravel-clean-architecture` | laravel | unknown | 0% | 17% | 17% | 57% | 100% | 100% | 100% | no |
+| `laravel-database-expert` | laravel | unknown | 17% | 17% | 0% | 72% | 100% | 100% | 100% | no |
+| `laravel-eloquent` | laravel | unknown | 17% | 17% | 0% | 47% | 100% | 100% | 100% | no |
+| `laravel-security` | laravel | governing-skill-v3 | 33% | 100% | 67% | 100% | 100% | 100% | 100% | no |
+| `laravel-sessions-middleware` | laravel | governing-skill-v3 | 83% | 100% | 17% | 100% | 100% | 100% | 100% | no |
+| `laravel-testing` | laravel | unknown | 0% | 33% | 33% | 68% | 100% | 75% | 88% | no |
+| `laravel-tooling` | laravel | unknown | 17% | 50% | 33% | 73% | 100% | 100% | 100% | no |
+| `nestjs-api-standards` | nestjs | unknown | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
+| `nestjs-architecture` | nestjs | unknown | 0% | 0% | 0% | 20% | 100% | 100% | 100% | no |
+| `nestjs-bullmq` | nestjs | unknown | 0% | 0% | 0% | 64% | 100% | 100% | 100% | no |
+| `nestjs-caching` | nestjs | unknown | 33% | 100% | 67% | 100% | 100% | 100% | 100% | no |
+| `nestjs-configuration` | nestjs | unknown | 33% | 67% | 33% | 83% | 100% | 100% | 100% | no |
+| `nestjs-controllers-services` | nestjs | unknown | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
+| `nestjs-database` | nestjs | unknown | 100% | 67% | -33% | 83% | 100% | 67% | 83% | no |
+| `nestjs-deployment` | nestjs | unknown | 33% | 100% | 67% | 100% | 100% | 100% | 100% | no |
+| `nestjs-documentation` | nestjs | unknown | 33% | 33% | 0% | 67% | 100% | 100% | 100% | no |
+| `nestjs-error-handling` | nestjs | unknown | 33% | 100% | 67% | 100% | 100% | 100% | 100% | no |
+| `nestjs-file-uploads` | nestjs | unknown | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
+| `nestjs-notification` | nestjs | unknown | 33% | 33% | 0% | 67% | 100% | 100% | 100% | no |
+| `nestjs-observability` | nestjs | unknown | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
+| `nestjs-performance` | nestjs | unknown | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
+| `nestjs-real-time` | nestjs | unknown | 33% | 67% | 33% | 83% | 100% | 100% | 100% | no |
+| `nestjs-scheduling` | nestjs | unknown | 33% | 67% | 33% | 83% | 100% | 100% | 100% | no |
+| `nestjs-search` | nestjs | unknown | 33% | 0% | -33% | 50% | 100% | 100% | 100% | no |
+| `nestjs-security` | nestjs | unknown | 33% | 67% | 33% | 83% | 100% | 100% | 100% | no |
+| `nestjs-security-isolation` | nestjs | unknown | 0% | 67% | 67% | 83% | 100% | 100% | 100% | no |
+| `nestjs-testing` | nestjs | unknown | 33% | 67% | 33% | 83% | 100% | 100% | 100% | no |
+| `nestjs-transport` | nestjs | unknown | 67% | 67% | 0% | 83% | 100% | 100% | 100% | no |
+| `nextjs-app-router` | nextjs | unknown | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
+| `nextjs-architecture` | nextjs | unknown | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
+| `nextjs-authentication` | nextjs | unknown | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
+| `nextjs-caching` | nextjs | unknown | 33% | 67% | 33% | 83% | 100% | 100% | 100% | no |
+| `nextjs-data-access-layer` | nextjs | unknown | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
+| `nextjs-data-fetching` | nextjs | unknown | 83% | 67% | -17% | 79% | 100% | 100% | 100% | no |
+| `nextjs-i18n` | nextjs | unknown | 0% | 33% | 33% | 67% | 100% | 100% | 100% | no |
+| `nextjs-optimization` | nextjs | unknown | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
+| `nextjs-pages-router` | nextjs | unknown | 100% | 67% | -33% | 86% | 100% | 100% | 100% | no |
+| `nextjs-rendering` | nextjs | unknown | 33% | 67% | 33% | 67% | 100% | 100% | 100% | no |
+| `nextjs-security` | nextjs | unknown | 67% | 67% | 0% | 83% | 100% | 100% | 100% | no |
+| `nextjs-server-actions` | nextjs | unknown | 50% | 33% | -17% | 62% | 100% | 100% | 100% | no |
+| `nextjs-server-components` | nextjs | unknown | 17% | 0% | -17% | 25% | 100% | 100% | 100% | no |
+| `nextjs-state-management` | nextjs | unknown | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
+| `nextjs-styling` | nextjs | governing-skill-v3 | 33% | 100% | 67% | 100% | 100% | 100% | 100% | no |
+| `nextjs-testing` | nextjs | unknown | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
+| `nextjs-tooling` | nextjs | unknown | 67% | 33% | -33% | 67% | 100% | 100% | 100% | no |
+| `nextjs-upgrade` | nextjs | unknown | 0% | 67% | 67% | 83% | 100% | 100% | 100% | no |
+| `php-best-practices` | php | unknown | 17% | 17% | 0% | 38% | 100% | 75% | 88% | no |
+| `php-concurrency` | php | unknown | 33% | 50% | 17% | 62% | 100% | 100% | 100% | no |
+| `php-error-handling` | php | unknown | 33% | 33% | 0% | 62% | 100% | 100% | 100% | no |
+| `php-language` | php | unknown | 17% | 33% | 17% | 69% | 100% | 100% | 100% | no |
+| `php-security` | php | unknown | 50% | 83% | 33% | 93% | 100% | 75% | 88% | no |
+| `php-testing` | php | unknown | 33% | 50% | 17% | 75% | 100% | 100% | 100% | no |
+| `php-tooling` | php | unknown | 33% | 50% | 17% | 64% | 100% | 100% | 100% | no |
+| `python-architecture` | python | governing-skill-v3 | 50% | 100% | 50% | 100% | 100% | 100% | 100% | no |
+| `python-async-runtime` | python | unknown | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
+| `python-best-practices` | python | unknown | 50% | 100% | 50% | 100% | 100% | 100% | 100% | no |
+| `python-database` | python | unknown | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
+| `python-error-handling` | python | unknown | 50% | 100% | 50% | 100% | 100% | 100% | 100% | no |
+| `python-language` | python | unknown | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
+| `python-security` | python | unknown | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
+| `python-testing` | python | unknown | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
+| `python-tooling` | python | unknown | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
+| `quality-engineering-appium-mcp` | quality-engineering | unknown | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
+| `quality-engineering-business-analysis` | quality-engineering | governing-skill-v3 | 17% | 100% | 83% | 100% | 100% | 100% | 100% | no |
+| `quality-engineering-jira-integration` | quality-engineering | governing-skill-v3 | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
+| `quality-engineering-playwright-cli` | quality-engineering | unknown | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
+| `quality-engineering-quality-assurance` | quality-engineering | governing-skill-v3 | 33% | 100% | 67% | 100% | 100% | 100% | 100% | no |
+| `quality-engineering-zephyr-coverage-analysis` | quality-engineering | unknown | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
+| `quality-engineering-zephyr-test-generation` | quality-engineering | unknown | 0% | 100% | 100% | 100% | 100% | 100% | 100% | no |
+| `react-component-patterns` | react | unknown | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
+| `react-hooks` | react | unknown | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
+| `react-performance` | react | unknown | 33% | 100% | 67% | 100% | 100% | 100% | 100% | no |
+| `react-security` | react | governing-skill-v3 | 33% | 100% | 67% | 100% | 100% | 100% | 100% | no |
+| `react-state-management` | react | unknown | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
+| `react-testing` | react | unknown | 33% | 67% | 33% | 83% | 100% | 100% | 100% | no |
+| `react-tooling` | react | unknown | 33% | 67% | 33% | 83% | 100% | 100% | 100% | no |
+| `react-typescript` | react | unknown | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
+| `react-native-architecture` | react-native | unknown | 0% | 0% | 0% | 40% | 100% | 100% | 100% | no |
+| `react-native-components` | react-native | unknown | 0% | 0% | 0% | 44% | 100% | 100% | 100% | no |
+| `react-native-deployment` | react-native | unknown | 33% | 33% | 0% | 78% | 100% | 100% | 100% | no |
+| `react-native-dls` | react-native | unknown | 0% | 33% | 33% | 63% | 100% | 100% | 100% | no |
+| `react-native-navigation` | react-native | unknown | 100% | 67% | -33% | 88% | 100% | 100% | 100% | no |
+| `react-native-navigation-v6` | react-native | unknown | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
+| `react-native-notifications` | react-native | unknown | 33% | 33% | 0% | 67% | 100% | 100% | 100% | no |
+| `react-native-performance` | react-native | unknown | 0% | 67% | 67% | 88% | 100% | 100% | 100% | no |
+| `react-native-platform-specific` | react-native | unknown | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
+| `react-native-security` | react-native | unknown | 67% | 33% | -33% | 56% | 100% | 100% | 100% | no |
+| `react-native-state-management` | react-native | unknown | 0% | 0% | 0% | 63% | 100% | 100% | 100% | no |
+| `react-native-styling` | react-native | unknown | 33% | 0% | -33% | 67% | 100% | 100% | 100% | no |
+| `react-native-testing` | react-native | unknown | 33% | 67% | 33% | 63% | 100% | 100% | 100% | no |
+| `spring-boot-api-design` | spring-boot | unknown | 100% | 100% | 0% | 100% | 100% | 100% | 100% | no |
+| `spring-boot-architecture` | spring-boot | unknown | 33% | 67% | 33% | 83% | 100% | 100% | 100% | no |
+| `spring-boot-best-practices` | spring-boot | unknown | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
+| `spring-boot-data-access` | spring-boot | unknown | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
+| `spring-boot-deployment` | spring-boot | unknown | 67% | 67% | 0% | 83% | 100% | 100% | 100% | no |
+| `spring-boot-microservices` | spring-boot | unknown | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
+| `spring-boot-observability` | spring-boot | unknown | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
+| `spring-boot-scheduling` | spring-boot | unknown | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
+| `spring-boot-security` | spring-boot | unknown | 67% | 100% | 33% | 100% | 100% | 100% | 100% | no |
+| `spring-boot-testing` | spring-boot | unknown | 33% | 100% | 67% | 100% | 100% | 100% | 100% | no |
+| `swift-best-practices` | swift | unknown | 0% | 0% | 0% | 33% | 100% | 100% | 100% | no |
+| `swift-concurrency` | swift | governing-skill-v3 | 80% | 100% | 20% | 100% | 100% | 100% | 100% | no |
+| `swift-error-handling` | swift | unknown | 50% | 75% | 25% | 88% | 100% | 100% | 100% | no |
+| `swift-language` | swift | unknown | 0% | 20% | 20% | 56% | 100% | 100% | 100% | no |
+| `swift-memory-management` | swift | governing-skill-v3 | 50% | 100% | 50% | 100% | 100% | 100% | 100% | no |
+| `swift-swiftui` | swift | governing-skill-v3 | 50% | 100% | 50% | 100% | 100% | 100% | 100% | no |
+| `swift-testing` | swift | unknown | 50% | 50% | 0% | 67% | 100% | 100% | 100% | no |
+| `swift-tooling` | swift | unknown | 50% | 75% | 25% | 78% | 100% | 100% | 100% | no |
+| `typescript-best-practices` | typescript | unknown | 33% | 67% | 33% | 83% | 100% | 100% | 100% | no |
+| `typescript-language` | typescript | unknown | 67% | 67% | 0% | 67% | 100% | 100% | 100% | no |
+| `typescript-security` | typescript | unknown | 60% | 40% | -20% | 64% | 100% | 100% | 100% | no |
+| `typescript-tooling` | typescript | unknown | 67% | 100% | 33% | 100% | 100% | 67% | 83% | no |
 
 ## 🚫 Skills Below Strict Release Gate
 
@@ -915,6 +919,35 @@ This matrix records every failed non-baseline transcript arm for a skill below t
 | `react-native-security` | react-native | -33% |
 | `react-native-styling` | react-native | -33% |
 | `typescript-security` | typescript | -20% |
+
+## 💰 Task Economics
+
+> Per-attempt usage joined to its outcome, so parent, worker, review and failed/retried/interrupted/cancelled attempts stay in task-cost accounting. A missing usage sample is unmetered and unknown, never zero. Executed lanes are worker attempts only, so this report records the observed actor coverage and withholds monetary savings until a full declared actor inventory (parent, workers, review, integration, auxiliary) is certified for a single task scope, both cohorts are fully metered and priced, and the baseline provenance is explicit.
+
+| Run | Model | Attempts | Outcomes | Actors observed | Unknown actors | Metered | Unmetered | Tokens | Est. USD | Savings vs baseline |
+| --- | --- | ---: | --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
+| all-v2.6.0 | GPT-5 + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna | 0 | unavailable | 0 | 0 | 0 | 0 | unavailable | unavailable | withheld: no per-attempt usage recorded |
+| all-v2.6.0 | GPT-5 + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna | 0 | unavailable | 0 | 0 | 0 | 0 | unavailable | unavailable | withheld: no per-attempt usage recorded |
+| all-v2.6.0 | GPT-5 + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna | 0 | unavailable | 0 | 0 | 0 | 0 | unavailable | unavailable | withheld: no per-attempt usage recorded |
+| all-v2.6.0 | GPT-5 + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna | 0 | unavailable | 0 | 0 | 0 | 0 | unavailable | unavailable | withheld: no per-attempt usage recorded |
+| all-v2.6.0 | GPT-5 + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna | 0 | unavailable | 0 | 0 | 0 | 0 | unavailable | unavailable | withheld: no per-attempt usage recorded |
+| all-v2.6.0 | GPT-5 + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna | 0 | unavailable | 0 | 0 | 0 | 0 | unavailable | unavailable | withheld: no per-attempt usage recorded |
+| all-v2.6.0 | GPT-5 + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna | 0 | unavailable | 0 | 0 | 0 | 0 | unavailable | unavailable | withheld: no per-attempt usage recorded |
+| all-v2.6.0 | GPT-5 + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna | 0 | unavailable | 0 | 0 | 0 | 0 | unavailable | unavailable | withheld: no per-attempt usage recorded |
+| all-v2.6.0 | GPT-5 + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna | 0 | unavailable | 0 | 0 | 0 | 0 | unavailable | unavailable | withheld: no per-attempt usage recorded |
+| all-v2.6.0 | GPT-5 + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna | 0 | unavailable | 0 | 0 | 0 | 0 | unavailable | unavailable | withheld: no per-attempt usage recorded |
+| all-v2.6.0 | GPT-5 + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna | 0 | unavailable | 0 | 0 | 0 | 0 | unavailable | unavailable | withheld: no per-attempt usage recorded |
+| all-v2.6.0 | GPT-5 + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna | 0 | unavailable | 0 | 0 | 0 | 0 | unavailable | unavailable | withheld: no per-attempt usage recorded |
+| all-v2.6.0 | GPT-5 + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna | 0 | unavailable | 0 | 0 | 0 | 0 | unavailable | unavailable | withheld: no per-attempt usage recorded |
+| all-v2.6.0 | GPT-5 + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna | 0 | unavailable | 0 | 0 | 0 | 0 | unavailable | unavailable | withheld: no per-attempt usage recorded |
+| all-v2.6.0 | GPT-5 + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna | 0 | unavailable | 0 | 0 | 0 | 0 | unavailable | unavailable | withheld: no per-attempt usage recorded |
+| all-v2.6.0 | GPT-5 + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna | 0 | unavailable | 0 | 0 | 0 | 0 | unavailable | unavailable | withheld: no per-attempt usage recorded |
+| all-v2.6.0 | GPT-5 + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna | 0 | unavailable | 0 | 0 | 0 | 0 | unavailable | unavailable | withheld: no per-attempt usage recorded |
+| all-v2.6.0 | GPT-5 + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna | 0 | unavailable | 0 | 0 | 0 | 0 | unavailable | unavailable | withheld: no per-attempt usage recorded |
+| all-v2.6.0 | GPT-5 + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna | 0 | unavailable | 0 | 0 | 0 | 0 | unavailable | unavailable | withheld: no per-attempt usage recorded |
+| all-v2.6.0 | GPT-5 + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna | 0 | unavailable | 0 | 0 | 0 | 0 | unavailable | unavailable | withheld: no per-attempt usage recorded |
+| all-v2.6.0 | GPT-5 + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna | 0 | unavailable | 0 | 0 | 0 | 0 | unavailable | unavailable | withheld: no per-attempt usage recorded |
+| all-v2.6.0 | GPT-5 + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna | 0 | unavailable | 0 | 0 | 0 | 0 | unavailable | unavailable | withheld: no per-attempt usage recorded |
 
 ## 🛡️ How to Verify This Report
 

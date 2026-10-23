@@ -8,9 +8,12 @@ The manifest contains:
 
 - `workspace`: existing workspace directory, matched against each native journal header.
 - `startedAt` and `completedAt`: increasing ISO timestamps; report windows are start-inclusive/end-exclusive.
-- `sessions`: selected `{path, format, role, attemptOutcome, auxiliaryPurpose?}` entries. `format` is `codex` or `omp`; `attemptOutcome` is `completed`, `failed`, `retried`, `interrupted`, or `null`. Roles are `main`, `implementation`, `review`, and `auxiliary`. Auxiliary sessions require an explicit purpose label.
+- `sessions`: selected `{path, format, role, attemptOutcome, auxiliaryPurpose?, taskId?, parentTaskId?}` entries. `format` is `codex` or `omp`; `attemptOutcome` is `completed`, `failed`, `retried`, `interrupted`, `cancelled`, or `null`. Roles are `main`, `implementation`, `review`, and `auxiliary`. Auxiliary sessions require an explicit purpose label. `taskId`/`parentTaskId` are declared labels; they must not be native session identities or paths, and absent attribution is reported as unknown (`null`).
 - `expectedSessionIds`: independently inventoried native session IDs. Every selected journal identity must belong to this list; missing expected IDs make coverage incomplete. This caller-provided scope does not discover all host activity.
+- `expectedActors` (optional): declared `{role, taskId, parentTaskId, auxiliaryPurpose?}` labels for every expected actor. Missing declared actors are listed by those labels only (never by native session ID); counts alone do not satisfy actor coverage.
 - `phaseWindows`: zero or more non-overlapping `{phase, startedAt, completedAt}` windows inside report bounds. Supported phases: `planning`, `repair`, `acceptance`, `analysis`, `delivery`, `auxiliary`. Gaps and usage outside annotations remain phase `null`.
+
+Every attempt outcome groups separately, so failed, retried, interrupted, and cancelled attempts remain in task-cohort accounting rather than disappearing from the report. Declared `taskId`, `parentTaskId`, and `auxiliaryPurpose` labels that collide with an expected or selected native identity (session or row ID) are redacted to unknown in groups and missing-actor entries, usage stays accounted, and `coverage.redactedActorLabels` makes coverage incomplete.
 
 Journal paths are resolved relative to the manifest. Keep the manifest and journal files local to an authorized Personal workspace; do not provide employer journals or credentials.
 

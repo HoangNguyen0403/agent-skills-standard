@@ -590,7 +590,9 @@ export function scoreRun(
   if (manifest.schemaVersion === 2) {
     if (!inputs) {
       if (options.writeResults === false) {
-        throw new Error(`Run ${manifest.runId} has no immutable inputs snapshot`);
+        throw new Error(
+          `Run ${manifest.runId} has no immutable inputs snapshot`,
+        );
       }
       writeInputsSnapshot(runDir, manifest, { repoRoot });
     } else {
@@ -615,6 +617,9 @@ export function scoreRun(
   const results: RunResults = {
     ...(manifest.schemaVersion === 2 ? { schemaVersion: 2 as const } : {}),
     runId: manifest.runId,
+    ...(manifest.schemaVersion === 2 && manifest.baselineRunId
+      ? { baselineRunId: manifest.baselineRunId }
+      : {}),
     category: manifest.category,
     version: manifest.version,
     scoredAt: new Date().toISOString(),

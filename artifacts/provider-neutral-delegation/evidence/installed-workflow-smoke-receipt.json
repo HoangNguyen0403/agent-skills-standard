@@ -1,0 +1,8 @@
+{
+ "scenario":"Actual regenerated authoring checkout: lookupWorkflow(process.cwd(), implement-feature)",
+ "command":"rtk pnpm exec tsx -e \"import { lookupWorkflow } from './mcp/src/services/WorkflowIndex'; import assert from 'node:assert/strict'; lookupWorkflow(process.cwd(), 'implement-feature').then(result => { assert.equal(result.status, 'managed'); assert.equal(result.nativeParity, true); assert.ok(result.body?.includes('Independent review')); console.log(JSON.stringify({status:result.status,nativeParity:result.nativeParity,digest:result.digest,independentReviewPresent:true,nativeRuntimeVerified:false})); });\"",
+ "result":"passed",
+ "observed":{"status":"managed","nativeParity":true,"digest":"96b71bb86d234d36fffb662f3ac1b8ce3e8c7f1d9294e0731cd131bd668911cc","independentReviewPresent":true,"nativeRuntimeVerified":false},
+ "checks":"Observed managed canonical body, verified native binding byte parity and independent-review guidance after regenerating configured mirrors.",
+ "limits":"Local installed-file/catalog lookup only; not native discovery, agent invocation, restriction enforcement, authentication or economic savings."
+}

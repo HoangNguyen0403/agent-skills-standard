@@ -14,9 +14,22 @@ import { GithubService } from './GithubService';
 import { IndexGeneratorServiceImpl } from './IndexGeneratorServiceImpl';
 import { SkillSyncService } from './SkillSyncService';
 import { WorkflowSyncService } from './WorkflowSyncService';
+import type {
+  WorkflowAcquisition,
+  WorkflowWriteResult,
+} from './WorkflowSyncService';
 import { SpecialistSyncService } from './SpecialistSyncService';
 import { GitService } from './GitService';
-import { LockfileService } from './LockfileService';
+import {
+  LockfileService,
+  SHARED_WORKFLOW_AGENT,
+  sha256,
+} from './LockfileService';
+import type {
+  SkillsLockFile,
+  WorkflowCatalog,
+  WorkflowCatalogWorkflow,
+} from './LockfileService';
 import { MarkdownUtils } from './utils/MarkdownUtils';
 import { BackupService } from './install/BackupService';
 import {
@@ -78,6 +91,11 @@ export class SyncService {
     specialists?: ManifestVerifier;
   } = { skills: {} };
   private previousLockSources: Record<string, SourceRef> | null = null;
+  private previousLock: SkillsLockFile | null = null;
+  private pendingWorkflowWrites: WorkflowWriteResult = {
+    canonical: [],
+    bindings: [],
+  };
   private warnedMovedTags = new Set<string>();
 
   async reconcileConfig(
@@ -155,6 +173,8 @@ export class SyncService {
       agents,
     );
     this.dryRun = opts.dryRun;
+    this.previousLock = lock;
+    this.pendingWorkflowWrites = { canonical: [], bindings: [] };
     this.ownership = new OwnershipWriter({
       rootDir: process.cwd(),
       previous: lock?.entries ?? {},
@@ -177,6 +197,7 @@ export class SyncService {
       specialistsOk: boolean;
       refreshIndices?: boolean;
       localMetadata?: RegistryMetadata;
+      workflowAcquisition?: WorkflowAcquisition;
     },
   ): Promise<InstallPlan> {
     if (!this.ownership) {
@@ -186,9 +207,13 @@ export class SyncService {
     const agents = new Set<string>(resolvedAgents);
     const configured = new Set(Object.keys(config.skills));
     const fetched = new Set(run.skills.map((s) => s.category));
+    // An incomplete acquisition never authorizes absence-based pruning. A
+    // complete or deliberately disabled acquisition carries the desired set.
     const workflowsOk =
-      run.workflows.length > 0 ||
-      (Array.isArray(config.workflows) && config.workflows.length === 0);
+      run.workflowAcquisition?.status !== 'incomplete' &&
+      (run.workflowAcquisition !== undefined ||
+        run.workflows.length > 0 ||
+        (Array.isArray(config.workflows) && config.workflows.length === 0));
     const pruneEnabled = config.prune !== false;
     const categoryOf = (source: string) =>
       source
@@ -198,12 +223,21 @@ export class SyncService {
     const { plan, entries } = await this.ownership.finalize(
       (_rel, e) => {
         if (!pruneEnabled) return false;
+        // The shared canonical body is not owned by a provider; handle it
+        // before the per-agent gate so it is never treated as an unknown agent.
+        if (e.owner === 'workflow' && e.agent === SHARED_WORKFLOW_AGENT) {
+          return workflowsOk;
+        }
         if (!agents.has(e.agent)) return true;
         switch (e.owner) {
           case 'skill':
           case 'index': {
             const cat = categoryOf(e.source);
-            if (e.owner === 'index' && run.refreshIndices && configured.has(cat)) {
+            if (
+              e.owner === 'index' &&
+              run.refreshIndices &&
+              configured.has(cat)
+            ) {
               return false;
             }
             return !configured.has(cat) || fetched.has(cat);
@@ -217,20 +251,129 @@ export class SyncService {
         }
       },
       run.refreshIndices
-        ? () =>
-            this.applyIndices(config, resolvedAgents, run.localMetadata)
+        ? () => this.applyIndices(config, resolvedAgents, run.localMetadata)
         : undefined,
     );
     if (!this.dryRun) {
-      await this.lockfileService.write(process.cwd(), {
+      // Publish the lock last; the workflow catalog is derived from the actual
+      // post-reconciliation bytes, never from the intended download only.
+      const catalog = await this.buildWorkflowCatalog(
+        config,
+        run.workflowAcquisition,
+        entries,
+      );
+      const lock: SkillsLockFile = {
         version: 2,
         registry: config.registry,
         generatedAt: new Date().toISOString(),
         sources: this.buildSources(config),
         entries,
-      });
+      };
+      if (catalog) lock.workflowCatalog = catalog;
+      await this.lockfileService.write(process.cwd(), lock);
     }
     return plan;
+  }
+
+  /**
+   * Builds the catalog from files that survived ownership reconciliation.
+   * Canonical bodies that were kept edited/overridden and native exports whose
+   * on-disk bytes differ from the deterministic output are omitted rather than
+   * falsely certified.
+   */
+  private async buildWorkflowCatalog(
+    config: SkillConfig,
+    acquisition: WorkflowAcquisition | undefined,
+    entries: Record<string, { owner: string; agent: string }>,
+  ): Promise<WorkflowCatalog | undefined> {
+    const previous = this.previousLock?.workflowCatalog;
+    if (acquisition?.status === 'incomplete') {
+      // Retain prior provenance for still-valid prior bytes; never re-stamp.
+      return previous;
+    }
+
+    if (this.pendingWorkflowWrites.canonical.length === 0) {
+      if (previous) return { version: 1, workflows: {} };
+      if (!config.workflows) return undefined;
+      return { version: 1, workflows: {} };
+    }
+
+    const workflowSource = this.buildSources(config)['workflows'] ?? {
+      ref: config.workflows_ref ?? 'default-branch',
+      commit: null,
+    };
+    const workflows: Record<string, WorkflowCatalogWorkflow> = {};
+
+    for (const planned of this.pendingWorkflowWrites.canonical) {
+      const manifest = entries[planned.path];
+      if (
+        !manifest ||
+        manifest.owner !== 'workflow' ||
+        manifest.agent !== SHARED_WORKFLOW_AGENT
+      ) {
+        continue;
+      }
+      const canonicalPath = path.join(process.cwd(), planned.path);
+      let canonicalBytes: Buffer;
+      try {
+        canonicalBytes = await fs.readFile(canonicalPath);
+      } catch {
+        continue;
+      }
+      const digest = sha256(canonicalBytes);
+      if (digest !== planned.digest) {
+        // Preserved user edit/override: conflict, not a new revision.
+        continue;
+      }
+
+      const nativeBindings: WorkflowCatalogWorkflow['nativeBindings'] = [];
+      const nativeConflicts: NonNullable<
+        WorkflowCatalogWorkflow['nativeConflicts']
+      > = [];
+      for (const binding of this.pendingWorkflowWrites.bindings) {
+        if (binding.name !== planned.name) continue;
+        const outputPath = path.join(process.cwd(), binding.path);
+        let outputBytes: Buffer | null = null;
+        try {
+          outputBytes = await fs.readFile(outputPath);
+        } catch {
+          // Missing/unreadable export is recorded as a conflict below.
+        }
+        if (
+          outputBytes === null ||
+          sha256(outputBytes) !== binding.outputDigest
+        ) {
+          // The expected export exists (or should exist) but its actual bytes
+          // differ; record the provider conflict so parity is never certified
+          // from the remaining verified bindings alone.
+          nativeConflicts.push({
+            agent: binding.agent,
+            path: binding.path,
+          });
+          continue;
+        }
+        nativeBindings.push({
+          agent: binding.agent,
+          path: binding.path,
+          outputDigest: binding.outputDigest,
+          canonicalDigest: binding.canonicalDigest,
+        });
+      }
+
+      const priorEntry = previous?.workflows[planned.name];
+      const provenance = priorEntry?.digest === digest ? priorEntry : null;
+      workflows[planned.name] = {
+        path: planned.path,
+        digest,
+        registry: provenance?.registry ?? config.registry,
+        requestedRef: provenance?.requestedRef ?? workflowSource.ref,
+        resolvedCommit: provenance?.resolvedCommit ?? workflowSource.commit,
+        nativeBindings,
+        nativeConflicts,
+      };
+    }
+
+    return { version: 1, workflows };
   }
 
   private buildSources(config: SkillConfig): Record<string, SourceRef> {
@@ -427,12 +570,22 @@ export class SyncService {
     );
   }
 
+  async acquireWorkflows(config: SkillConfig): Promise<WorkflowAcquisition> {
+    const ref =
+      this.resolvedRefs?.workflows.ref || config.workflows_ref || 'main';
+    return this.workflowSyncService.acquireWorkflows(
+      config,
+      ref,
+      this.manifestVerifiers.workflows,
+    );
+  }
+
   async writeWorkflows(
     workflows: CollectedSkill[],
     config: SkillConfig,
   ): Promise<void> {
     const agents = await this.resolveTargetAgents(config);
-    return this.workflowSyncService.writeWorkflows(
+    this.pendingWorkflowWrites = await this.workflowSyncService.writeWorkflows(
       workflows,
       config,
       agents,
@@ -732,17 +885,40 @@ export class SyncService {
   private async cleanupOldFolders(): Promise<void> {
     const oldPath = path.join(process.cwd(), '.agent');
     const newPath = path.join(process.cwd(), '.agents');
+    // Reserved active workspace (packet/report artifacts). It must never be
+    // migrated or removed by the legacy `.agent` cleanup.
+    const reservedSdd = 'sdd';
 
     if (await fs.pathExists(oldPath)) {
       try {
-        // Merge old content into the new folder without overwriting user files.
-        await fs.copy(oldPath, newPath, {
-          overwrite: false,
-          errorOnExist: false,
-        });
+        const entries = await fs.readdir(oldPath);
+        const legacyEntries = entries.filter((entry) => entry !== reservedSdd);
 
-        await fs.remove(oldPath);
-        console.log(pc.gray('  - Migrated and cleaned up old .agent folder.'));
+        // Merge only legacy content into the new folder without overwriting
+        // user files; the active SDD tree keeps its original bytes and paths.
+        for (const entry of legacyEntries) {
+          await fs.copy(path.join(oldPath, entry), path.join(newPath, entry), {
+            overwrite: false,
+            errorOnExist: false,
+          });
+        }
+        for (const entry of legacyEntries) {
+          await fs.remove(path.join(oldPath, entry));
+        }
+
+        const remaining = await fs.readdir(oldPath);
+        if (remaining.length === 0) {
+          await fs.remove(oldPath);
+          console.log(
+            pc.gray('  - Migrated and cleaned up old .agent folder.'),
+          );
+        } else {
+          console.log(
+            pc.gray(
+              '  - Migrated legacy .agent entries; kept active .agent/sdd workspace.',
+            ),
+          );
+        }
       } catch (error) {
         if (process.env.DEBUG) {
           console.debug(

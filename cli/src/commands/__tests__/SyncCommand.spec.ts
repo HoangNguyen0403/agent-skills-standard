@@ -6,6 +6,7 @@ import {
   expect,
   it,
   Mocked,
+  type Mock,
   vi,
 } from 'vitest';
 import { ConfigService } from '../../services/ConfigService';
@@ -36,18 +37,27 @@ vi.mock('picocolors', () => ({
 describe('SyncCommand', () => {
   let command: SyncCommand;
   let mockSyncService: Mocked<SyncService>;
+  let acquireWorkflowsMock: Mock;
   let mockConfigService: Mocked<ConfigService>;
   let mockDetectionService: Mocked<DetectionService>;
   let mockHookService: Mocked<HookService>;
 
   beforeEach(() => {
     vi.clearAllMocks();
+    acquireWorkflowsMock = vi.fn().mockResolvedValue({
+      status: 'complete',
+      workflows: [],
+      failures: [],
+    });
     mockSyncService = {
       reconcileConfig: vi.fn().mockResolvedValue(false),
       assembleSkills: vi.fn().mockResolvedValue([]),
       writeSkills: vi.fn(),
       applyIndices: vi.fn(),
       checkForUpdates: vi.fn().mockResolvedValue(null),
+      acquireWorkflows: acquireWorkflowsMock,
+      // Retained so the pre-acquisition production path still runs; the
+      // command is expected to stop using it once acquisition is wired.
       assembleWorkflows: vi.fn().mockResolvedValue([]),
       writeWorkflows: vi.fn(),
       reconcileWorkflows: vi.fn().mockResolvedValue(false),
@@ -872,6 +882,47 @@ describe('SyncCommand', () => {
       // Manually trigger the 'when' callback to cover the arrow function
       expect(scopeQuestion.when({ enabled: true })).toBe(true);
       expect(scopeQuestion.when({ enabled: false })).toBe(false);
+    });
+  });
+
+  describe('workflow acquisition results', () => {
+    function output(): string {
+      return [
+        ...vi.mocked(console.log).mock.calls,
+        ...vi.mocked(console.error).mock.calls,
+      ]
+        .flat()
+        .join('\n');
+    }
+
+    it('reports incomplete acquisition and does not claim sync success', async () => {
+      acquireWorkflowsMock.mockResolvedValue({
+        status: 'incomplete',
+        workflows: [],
+        failures: [
+          {
+            path: '.agents/workflows/plan-feature.md',
+            reason: 'download failed',
+          },
+        ],
+      });
+
+      await command.run();
+
+      expect(output()).toContain('.agents/workflows/plan-feature.md');
+      expect(output()).toContain('download failed');
+      expect(output()).not.toContain('All skills synced successfully');
+      // The acquisition result must reach finalization so incomplete fetches
+      // cannot authorize absence-based pruning; byte-level retention is
+      // covered by WorkflowCatalogInstall against a real install.
+      expect(mockSyncService.completeInstall).toHaveBeenCalledWith(
+        expect.any(Object),
+        expect.objectContaining({
+          workflowAcquisition: expect.objectContaining({
+            status: 'incomplete',
+          }),
+        }),
+      );
     });
   });
 });

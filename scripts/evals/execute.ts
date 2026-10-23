@@ -10,9 +10,15 @@ import {
   sourceKey,
 } from "./snapshot";
 import { aggregateUsage, mergeRunUsage, parseUsageFromJsonl } from "./usage";
-import type { ArmName, ManifestSkill, UsageSample } from "./types";
+import type {
+  ArmName,
+  ManifestSkill,
+  TaskAttemptRecord,
+  UsageSample,
+} from "./types";
 
-export type EvalRunnerResult = string | { answer: string; usage: UsageSample | null };
+export type EvalRunnerResult =
+  string | { answer: string; usage: UsageSample | null };
 export type EvalRunner = (prompt: string) => Promise<EvalRunnerResult>;
 
 export class EvalQuotaPausedError extends Error {
@@ -276,23 +282,33 @@ export async function executeMissingAnswers(
     options.concurrency ?? Number(process.env.EVALS_CONCURRENCY ?? 1);
   const concurrency = Math.max(1, Math.min(4, configuredConcurrency || 1));
   const initialMissing = new Set(jobs.map((job) => job.output));
-  const usageSamples: Array<{ arm?: ArmName; usage: UsageSample | null }> = [];
+  const attempts: TaskAttemptRecord[] = [];
   let next = 0;
   const executions = await Promise.allSettled(
     Array.from({ length: Math.min(concurrency, jobs.length) }, async () => {
       while (next < jobs.length) {
         const job = jobs[next++];
         if (!job) return;
-        const result = await runner(job.prompt);
-        if (!result) throw new Error(`Empty response for ${job.evidence}`);
-        const { answer, usage } =
-          typeof result === "string"
-            ? { answer: result, usage: null as UsageSample | null }
-            : result;
-        if (!answer) throw new Error(`Empty response for ${job.evidence}`);
-        fs.ensureDirSync(path.dirname(job.output));
-        fs.writeFileSync(job.output, `${answer}\n`);
-        usageSamples.push({ arm: job.arm, usage });
+        try {
+          const result = await runner(job.prompt);
+          if (!result) throw new Error(`Empty response for ${job.evidence}`);
+          const { answer, usage } =
+            typeof result === "string"
+              ? { answer: result, usage: null as UsageSample | null }
+              : result;
+          if (!answer) throw new Error(`Empty response for ${job.evidence}`);
+          fs.ensureDirSync(path.dirname(job.output));
+          fs.writeFileSync(job.output, `${answer}\n`);
+          attempts.push({ arm: job.arm, outcome: "completed", usage });
+        } catch (error) {
+          attempts.push({
+            arm: job.arm,
+            outcome:
+              error instanceof EvalQuotaPausedError ? "interrupted" : "failed",
+            usage: null,
+          });
+          throw error;
+        }
       }
     }),
   );
@@ -309,7 +325,10 @@ export async function executeMissingAnswers(
     (manifest.schemaVersion === 2 && manifest.baselineRunId
       ? "incremental"
       : "fresh");
-  const freshUsage = aggregateUsage(usageSamples, workerConfig.model);
+  const freshUsage = aggregateUsage(
+    attempts.map((attempt) => ({ arm: attempt.arm, usage: attempt.usage })),
+    workerConfig.model,
+  );
   manifest.metadata = {
     ...manifest.metadata,
     agent: "Codex CLI isolated worker",
@@ -326,6 +345,7 @@ export async function executeMissingAnswers(
       freshUsage,
       workerConfig.model,
     ),
+    taskUsage: [...(manifest.metadata.taskUsage ?? []), ...attempts],
   };
   saveManifest(runDir, manifest);
   if (failed) {
