@@ -828,7 +828,7 @@
       ]
     },
     "cybersecurity": {
-      "version": "1.1.0",
+      "version": "1.0.1",
       "last_updated": "2026-10-23",
       "tag_prefix": "cybersecurity-v",
       "owners": [

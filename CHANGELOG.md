@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Cybersecurity `1.1.0` candidate**: Added optional `cyber-rea-reverse-engineering` driver skill and `references/setup.md` for a version-pinned, consumer-owned REA MCP/CLI lane. Covers authorized targets, untrusted target data, evidence provenance and limits, no inherited credentials, no automatic execution/injection/install, separate authority for target mutation, matching vendor-skill provenance, and rollback. Optional; absent REA blocks only the REA evidence lane and selection remains opt-in.
+- **Cybersecurity `1.0.1` candidate**: Added optional `cyber-rea-reverse-engineering` driver skill and `references/setup.md` for a version-pinned, consumer-owned REA MCP/CLI lane. Covers authorized targets, untrusted target data, evidence provenance and limits, no inherited credentials, no automatic execution/injection/install, separate authority for target mutation, matching vendor-skill provenance, and rollback. Optional; absent REA blocks only the REA evidence lane and selection remains opt-in.
 
 ### Fixed
 
