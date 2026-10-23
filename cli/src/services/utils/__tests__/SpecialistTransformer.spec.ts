@@ -192,6 +192,25 @@ describe('SpecialistTransformer', () => {
       });
     });
 
+    it('deduplicates Copilot aliases case-insensitively while preserving first-seen order', () => {
+      const source = specialistSource(
+        `description: "reviews code"\nallowed-tools:\n  - Read\n  - NotebookRead\n  - BASH\n  - Shell`,
+      );
+      const result = SpecialistTransformer.transform(source, Agent.Copilot);
+      if (!result) throw new Error('Expected a Copilot agent export');
+      const frontmatterMatch = result.content.match(
+        /^---\r?\n([\s\S]*?)\r?\n---/,
+      );
+      if (!frontmatterMatch) throw new Error('Expected YAML frontmatter');
+      const fm = yaml.load(frontmatterMatch[1]) as Record<string, unknown>;
+
+      expect(fm.tools).toEqual(['read', 'execute']);
+      expect(result.projection).toEqual({
+        projected: ['allowed-tools'],
+        unprojected: [],
+      });
+    });
+
     it('discloses Copilot tool names with no documented alias instead of echoing them', () => {
       const source = specialistSource(
         `description: "reviews code"\nallowed-tools:\n  - Read\n  - TotallyUnknownTool`,
@@ -335,6 +354,23 @@ describe('SpecialistTransformer', () => {
         projected: ['tools'],
         unprojected: ['permissions.filesystem'],
       });
+    });
+
+    it('discloses network permissions when Gemini has no native tools declaration', () => {
+      const result = SpecialistTransformer.transform(
+        specialistSource(
+          `description: "reviews code"\npermissions:\n  network: true`,
+        ),
+        Agent.Gemini,
+      );
+      if (!result) throw new Error('Expected a Gemini agent export');
+
+      expect(result.projection).toEqual({
+        projected: [],
+        unprojected: ['permissions.network'],
+      });
+      expect(result.content).toContain('permissions.network: true');
+      expect(result.content).not.toContain('tools:');
     });
 
     it('reports which Claude controls it projected and which remain disclosures', () => {
