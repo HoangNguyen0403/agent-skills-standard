@@ -33,6 +33,7 @@
 | Skill | Match when user mentions |
 | ----- | ----------------------- |
 | **common-best-practices** | solid, kiss, dry, yagni, naming, conventions, refactor, clean code |
+| common-book-to-skill | book to skill, book-to-skill, convert a book to a skill |
 | common-code-review | review, pr, critique, analyze code |
 | common-dast-tooling | DAST, dynamic scan, zap, nuclei, nikto, curl probe, pentest, dynamic analysis, sqlmap, ffuf, mobile proxy |
 | common-debugging | debug, fix bug, crash, error, exception, troubleshooting |
