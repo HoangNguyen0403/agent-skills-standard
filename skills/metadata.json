@@ -254,8 +254,8 @@
       "compose",
       "page",
       "screen",
-      "view",
-      "form"
+      "-view",
+      "-form"
     ],
     "common/api-design": [
       "api",
@@ -281,8 +281,7 @@
     ],
     "common/mobile-ux-core": [
       "screen",
-      "page",
-      "view",
+      "-view",
       "activity",
       "fragment"
     ],

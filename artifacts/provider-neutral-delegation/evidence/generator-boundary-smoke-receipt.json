@@ -1,0 +1,8 @@
+{
+  "scenario": "Foreign CWD must not authorize registry generation or automatic mirror force",
+  "exitCode": 1,
+  "consumerUnchanged": true,
+  "watchedAuthoringFilesUnchanged": true,
+  "diagnostic": "Error: generate-indices must run from the authoring repository root (/Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/flawless-mule); refusing to run from /private/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-authoring-boundary-d2lPJy\n    at generate (/Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/flawless-mule/scripts/generate-indices.ts:125:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)",
+  "nativeRuntimeVerified": false
+}

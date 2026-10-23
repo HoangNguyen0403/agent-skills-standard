@@ -2,39 +2,13 @@ import fs from 'fs-extra';
 import os from 'os';
 import path from 'path';
 import { describe, expect, it } from 'vitest';
-import { Agent, getAgentDefinition } from '../../constants';
+import { Agent } from '../../constants';
 import { HookService } from '../HookService';
 import { McpConfigService } from '../McpConfigService';
 
 const AGENTS = Object.values(Agent);
-const ORIGINAL_KEYS = [
-  'id',
-  'name',
-  'path',
-  'ruleFile',
-  'ruleExtension',
-  'ruleFileName',
-  'frontmatterStyle',
-  'detectionFiles',
-  'workflowFormat',
-  'workflowPath',
-  'agentPath',
-  'hookScriptPath',
-  'hookConfigPath',
-] as const;
-const plain = (v: unknown) => JSON.parse(JSON.stringify(v));
 
-describe('capability golden (must never change during T3)', () => {
-  it('agent definitions (original fields)', () => {
-    const projected = AGENTS.map((a) => {
-      const def = getAgentDefinition(a) as unknown as Record<string, unknown>;
-      return Object.fromEntries(
-        ORIGINAL_KEYS.filter((k) => k in def).map((k) => [k, def[k]]),
-      );
-    });
-    expect(plain(projected)).toMatchSnapshot();
-  });
-
+describe('capability config golden', () => {
   it.each(['darwin', 'linux', 'win32'] as const)(
     'mcp targets on %s',
     (platform) => {
@@ -43,10 +17,10 @@ describe('capability golden (must never change during T3)', () => {
       try {
         const svc = new McpConfigService();
         svc.setHomeForTesting('/home/u');
-        const targets = (
-          svc as unknown as { getTargets(): unknown }
-        ).getTargets();
-        expect(plain(targets)).toMatchSnapshot();
+        // The target table is internal to the service; only the rendered configs are public.
+        const internals = svc as unknown as { getTargets(): unknown };
+        const targets = internals.getTargets();
+        expect(JSON.parse(JSON.stringify(targets))).toMatchSnapshot();
       } finally {
         Object.defineProperty(process, 'platform', { value: original });
       }

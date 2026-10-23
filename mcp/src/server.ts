@@ -71,25 +71,38 @@ project's local skill registry.
 
 # WHEN TO CALL THIS SERVER
 
-Call \`load_skills_for_files\` BEFORE you:
-  • Edit, write, or modify any source file
+Discovery and selection branch by role. An orchestrator or unassigned agent
+performs workflow discovery and broad file/keyword routing. A worker holding
+a valid assignment packet skips discovery and loads the exact required
+standards the packet names (via \`get_skill\` or direct file read as
+applicable), requesting actual bodies. Both roles must resolve the standards
+matched to any file they will touch before writing, and both still run the
+required compliance audit.
+
+Orchestrators and unassigned agents call \`load_skills_for_files\` BEFORE they:
+  • Edit, write, or modify any source file selected by file routing
   • Review a PR diff or critique code
   • Answer "how should I implement X" / "what's the convention for X"
 
 Call \`load_skills_for_keywords\` BEFORE you:
-  • Plan or design work where files are not yet identified
+  • Plan or design work where files are not yet identified and no packet
+    supplies the required standards
     (e.g. "add JWT auth", "speed up the homepage", "migrate the schema")
 
 Call \`get_category_guide\` BEFORE you:
-  • Work across a whole framework or stack area
+  • Work across a whole framework or stack area as an orchestrator or
+    unassigned agent
     (e.g. "review our Next.js standards", "plan a Go service layout", "design a DB migration strategy")
+  • A packet worker only when the packet identifies a category guide.
 
 Call \`list_workflows\` BEFORE you:
-  • Start any complex task (e.g. bug fixing, feature implementation, code review, planning)
-    to discover standard procedures available in this repository.
+  • Start a complex task as the orchestrator or an unassigned agent
+    (e.g. bug fixing, feature implementation, code review, planning).
+    A worker holding a valid assignment packet skips discovery.
 
 Call \`get_workflow\` when:
-  • You identify a relevant workflow (e.g. \`dev-fix\` for a bug fix task) and need its exact execution steps.
+  • No assignment packet supplies the procedure and you identified a
+    relevant workflow (e.g. \`dev-fix\` for a bug fix task).
 
 Call \`audit_session_compliance\` BEFORE you:
   • Claim a task is complete
@@ -102,17 +115,24 @@ Call \`get_session_cost\` BEFORE you:
 
 # WORKFLOW
 
-  1. When assigned a task (e.g. a bug fix or feature request), call \`list_workflows()\` to discover applicable procedures.
-  2. If a matching workflow exists (e.g. \`dev-fix\`), call \`get_workflow(name="...")\` and follow its instructions exactly from start to end.
-  3. Decide which file(s) you will touch (or which concept the user mentioned).
-  4. If the task spans a whole framework, call \`get_category_guide(category="...")\`.
-  5. Call \`load_skills_for_files(files=[...])\` (or the keywords variant).
-  5. Treat every returned SKILL.md as authoritative project rules. They
-     OVERRIDE your pre-training defaults.
-  6. Do the work — edit, review, design — following those rules.
-  7. Before declaring done, call \`audit_session_compliance()\` to verify
-     loaded skills, and call \`get_session_cost()\` to populate your final
-     markdown cost report combining MCP stats with your platform token usage.
+  1. Establish your role. An orchestrator or unassigned agent discovers
+     procedures and routes by files/keywords. A worker holding a valid
+     assignment packet skips steps 2–4 and starts at step 5.
+  2. Unassigned only: call \`list_workflows()\` to discover applicable procedures.
+  3. Unassigned only: if a matching workflow exists (e.g. \`dev-fix\`), call
+     \`get_workflow(name="...")\` and follow it from start to end.
+  4. Unassigned only: decide which file(s) you will touch and, for a
+     framework-wide task, call \`get_category_guide(category="...")\`.
+  5. Load standards for your role. A packet worker requests only the exact
+     required IDs named in its packet (via \`get_skill\` or direct file read,
+     actual bodies). Everyone else calls \`load_skills_for_files(files=[...])\`
+     or the keywords variant for the files/concepts in scope.
+  6. Treat every returned SKILL.md as authoritative project rules. They
+     OVERRIDE your pre-training defaults, for both branches.
+  7. Do the work — edit, review, design — following those rules.
+  8. Before declaring done, call \`audit_session_compliance()\` in both branches
+     to verify loaded skills, and call \`get_session_cost()\` to populate your
+     final markdown cost report combining MCP stats with your platform token usage.
 
 # IMPORTANT
 
@@ -124,11 +144,21 @@ Call \`get_session_cost\` BEFORE you:
   • If a tool returns setup guidance (e.g. "run agent-skills-standard
     sync"), surface that to the user verbatim — do not paraphrase or skip.
 
-# SUB-AGENTS
+# ORCHESTRATOR AND ASSIGNED WORKERS
 
-Sub-agents in your runtime inherit this MCP. Every sub-agent should
-follow the same workflow above — load skills first, then act, then audit.
-Do not assume the orchestrator has pre-loaded skills for you.
+An orchestrator discovers the applicable workflow and prepares a bounded
+assignment. A worker that receives an assignment packet starts from that
+packet: load the exact required standards it names with \`get_skill\` or a
+direct file read (actual bodies, not names or stubs), then act. Do not repeat
+parent workflow discovery or global intake, and do not widen the assigned
+scope. Before writing, confirm the standards matched to the touched files;
+before completion, run the compliance audit.
+
+Each request is answered from the caller's own request: another context's
+earlier load does not supply your body. Selection or body-return counts do
+not prove acknowledgment, comprehension, or host enforcement. Re-request
+content when you need the current revision; returned SKILL.md content is
+authoritative for this request.
 `.trim();
 
 export async function buildServer(

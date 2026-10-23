@@ -365,7 +365,6 @@ describe('SyncInstallLifecycle', () => {
     );
   });
 
-
   it('4. category still configured but zero skills assembled does not prune', async () => {
     const config = makeConfig();
     await runSync(config, [skillFixture]);
@@ -787,5 +786,50 @@ describe('SyncInstallLifecycle', () => {
     expect(updated.entries[codexSpecialistRel]).toEqual(
       lock.entries[codexSpecialistRel],
     );
+  it('preserves active .agent/sdd packet artifacts while migrating legacy .agent content', async () => {
+    const packetPath = path.join(
+      tempDir,
+      '.agent/sdd/provider-neutral-delegation/plan/task-4-report.md',
+    );
+    const planPath = path.join(
+      tempDir,
+      '.agent/sdd/provider-neutral-delegation/plan-path',
+    );
+    await fs.outputFile(packetPath, 'immutable packet bytes');
+    await fs.outputFile(planPath, 'plan.md');
+    await fs.outputFile(
+      path.join(tempDir, '.agent/legacy-native/SKILL.md'),
+      'legacy content',
+    );
+
+    await syncService.writeSkills([], makeConfig());
+
+    expect(await fs.readFile(packetPath, 'utf8')).toBe(
+      'immutable packet bytes',
+    );
+    expect(await fs.readFile(planPath, 'utf8')).toBe('plan.md');
+    expect(await fs.pathExists(packetPath)).toBe(true);
+    expect(await fs.pathExists(planPath)).toBe(true);
+    expect(
+      await fs.pathExists(path.join(tempDir, '.agents/legacy-native/SKILL.md')),
+    ).toBe(true);
+    expect(
+      await fs.pathExists(path.join(tempDir, '.agent/legacy-native')),
+    ).toBe(false);
+    expect(await fs.pathExists(path.join(tempDir, '.agent'))).toBe(true);
+  });
+
+  it('removes the legacy .agent root when no active sdd workspace exists', async () => {
+    await fs.outputFile(
+      path.join(tempDir, '.agent/legacy-native/SKILL.md'),
+      'legacy content',
+    );
+
+    await syncService.writeSkills([], makeConfig());
+
+    expect(await fs.pathExists(path.join(tempDir, '.agent'))).toBe(false);
+    expect(
+      await fs.pathExists(path.join(tempDir, '.agents/legacy-native/SKILL.md')),
+    ).toBe(true);
   });
 });

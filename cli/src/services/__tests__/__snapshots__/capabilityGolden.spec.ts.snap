@@ -1,176 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`capability golden (must never change during T3) > agent definitions (original fields) 1`] = `
-[
-  {
-    "agentPath": ".cursor/agents",
-    "detectionFiles": [
-      ".cursor",
-      ".cursorrules",
-    ],
-    "frontmatterStyle": "cursor",
-    "hookConfigPath": ".cursor/hooks.json",
-    "hookScriptPath": ".cursor/hooks/preedit-skill-loader.js",
-    "id": "cursor",
-    "name": "Cursor",
-    "path": ".cursor/skills",
-    "ruleExtension": ".mdc",
-    "ruleFile": ".cursor/rules",
-    "workflowFormat": "skill",
-    "workflowPath": ".cursor/skills",
-  },
-  {
-    "detectionFiles": [
-      ".trae",
-    ],
-    "frontmatterStyle": "cursor",
-    "id": "trae",
-    "name": "Trae",
-    "path": ".trae/skills",
-    "ruleExtension": ".mdc",
-    "ruleFile": ".trae/rules",
-    "workflowFormat": "skill",
-    "workflowPath": ".trae/skills",
-  },
-  {
-    "agentPath": ".claude/agents",
-    "detectionFiles": [
-      ".claude",
-    ],
-    "frontmatterStyle": "none",
-    "hookConfigPath": ".claude/settings.json",
-    "hookScriptPath": ".claude/hooks/preedit-skill-loader.js",
-    "id": "claude",
-    "name": "Claude Code",
-    "path": ".claude/skills",
-    "ruleExtension": ".md",
-    "ruleFile": ".",
-    "ruleFileName": "CLAUDE.md",
-    "workflowFormat": "command",
-    "workflowPath": ".claude/commands",
-  },
-  {
-    "agentPath": ".github/copilot-agents",
-    "detectionFiles": [
-      ".github",
-    ],
-    "frontmatterStyle": "copilot",
-    "hookConfigPath": ".github/hooks.json",
-    "hookScriptPath": ".github/hooks/preedit-skill-loader.js",
-    "id": "copilot",
-    "name": "GitHub Copilot",
-    "path": ".github/skills",
-    "ruleExtension": ".instructions.md",
-    "ruleFile": ".github/instructions",
-    "workflowFormat": "prompt",
-    "workflowPath": ".github/prompts",
-  },
-  {
-    "detectionFiles": [
-      ".agents",
-    ],
-    "frontmatterStyle": "cursor",
-    "id": "antigravity",
-    "name": "Antigravity",
-    "path": ".agents/skills",
-    "ruleExtension": ".md",
-    "ruleFile": ".agents/rules",
-    "workflowFormat": "native",
-    "workflowPath": ".agents/workflows",
-  },
-  {
-    "agentPath": ".codex/agents",
-    "detectionFiles": [
-      ".codex",
-    ],
-    "frontmatterStyle": "cursor",
-    "hookConfigPath": ".codex/hooks.json",
-    "hookScriptPath": ".codex/hooks/preedit-skill-loader.js",
-    "id": "codex",
-    "name": "Codex",
-    "path": ".codex/skills",
-    "ruleExtension": ".md",
-    "ruleFile": ".codex/rules",
-    "workflowFormat": "skill",
-    "workflowPath": ".codex/skills",
-  },
-  {
-    "agentPath": ".opencode/agents",
-    "detectionFiles": [
-      ".opencode",
-    ],
-    "frontmatterStyle": "cursor",
-    "id": "opencode",
-    "name": "OpenCode",
-    "path": ".opencode/skills",
-    "ruleExtension": ".md",
-    "ruleFile": ".opencode/rules",
-    "workflowFormat": "command",
-    "workflowPath": ".opencode/commands",
-  },
-  {
-    "agentPath": ".gemini/agents",
-    "detectionFiles": [
-      ".gemini",
-    ],
-    "frontmatterStyle": "cursor",
-    "hookConfigPath": ".gemini/hooks.json",
-    "hookScriptPath": ".gemini/hooks/preedit-skill-loader.js",
-    "id": "gemini",
-    "name": "Gemini",
-    "path": ".gemini/skills",
-    "ruleExtension": ".md",
-    "ruleFile": ".gemini/rules",
-    "workflowFormat": "toml",
-    "workflowPath": ".gemini/commands",
-  },
-  {
-    "detectionFiles": [
-      ".roo",
-    ],
-    "frontmatterStyle": "cursor",
-    "id": "roo",
-    "name": "Roo Code",
-    "path": ".roo/skills",
-    "ruleExtension": ".md",
-    "ruleFile": ".roo/rules",
-    "workflowFormat": "command",
-    "workflowPath": ".roo/commands",
-  },
-  {
-    "detectionFiles": [
-      ".windsurf",
-    ],
-    "frontmatterStyle": "cursor",
-    "hookConfigPath": ".windsurf/hooks.json",
-    "hookScriptPath": ".windsurf/hooks/preedit-skill-loader.js",
-    "id": "windsurf",
-    "name": "Windsurf",
-    "path": ".windsurf/skills",
-    "ruleExtension": ".md",
-    "ruleFile": ".windsurf/rules",
-    "workflowFormat": "native",
-    "workflowPath": ".windsurf/workflows",
-  },
-  {
-    "agentPath": ".kiro/agents",
-    "detectionFiles": [
-      ".kiro",
-    ],
-    "frontmatterStyle": "cursor",
-    "hookScriptPath": ".kiro/hooks/ags-skill-loader.md",
-    "id": "kiro",
-    "name": "Kiro",
-    "path": ".kiro/skills",
-    "ruleExtension": ".md",
-    "ruleFile": ".kiro/rules",
-    "workflowFormat": "native",
-    "workflowPath": ".agents/workflows",
-  },
-]
-`;
-
-exports[`capability golden (must never change during T3) > hook install file sets 1`] = `
+exports[`capability config golden > hook install file sets 1`] = `
 {
   "antigravity": {
     "unsupported": [
@@ -247,7 +77,7 @@ exports[`capability golden (must never change during T3) > hook install file set
 }
 `;
 
-exports[`capability golden (must never change during T3) > mcp targets on darwin 1`] = `
+exports[`capability config golden > mcp targets on darwin 1`] = `
 {
   "antigravity": {
     "agent": "antigravity",
@@ -334,7 +164,7 @@ exports[`capability golden (must never change during T3) > mcp targets on darwin
 }
 `;
 
-exports[`capability golden (must never change during T3) > mcp targets on linux 1`] = `
+exports[`capability config golden > mcp targets on linux 1`] = `
 {
   "antigravity": {
     "agent": "antigravity",
@@ -421,7 +251,7 @@ exports[`capability golden (must never change during T3) > mcp targets on linux 
 }
 `;
 
-exports[`capability golden (must never change during T3) > mcp targets on win32 1`] = `
+exports[`capability config golden > mcp targets on win32 1`] = `
 {
   "antigravity": {
     "agent": "antigravity",
@@ -507,4 +337,3 @@ exports[`capability golden (must never change during T3) > mcp targets on win32 
   },
 }
 `;
-

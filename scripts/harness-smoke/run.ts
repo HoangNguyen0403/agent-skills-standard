@@ -1,6 +1,6 @@
-import { execFileSync } from 'node:child_process';
-import fs from 'node:fs';
-import path from 'node:path';
+import { execFileSync } from "node:child_process";
+import fs from "node:fs";
+import path from "node:path";
 import {
   checkCodexMcp,
   checkGhSkill,
@@ -10,26 +10,51 @@ import {
   defaultExec,
   renderResults,
   type CheckResult,
-} from './checks';
+} from "./checks";
+import { checkDelegationQualification } from "./qualification";
 
 async function main() {
-  const repoRoot = path.resolve(__dirname, '../..');
-  const isWrite = process.argv.includes('--write');
-
-  let commit = process.env.GITHUB_SHA ? process.env.GITHUB_SHA.slice(0, 7) : '';
-  if (!commit) {
-    try {
-      commit = execFileSync('git', ['rev-parse', '--short', 'HEAD'], {
-        cwd: repoRoot,
-        encoding: 'utf8',
-        stdio: ['ignore', 'pipe', 'ignore'],
-      }).trim();
-    } catch {
-      commit = 'unknown';
+  const repoRoot = path.resolve(__dirname, "../..");
+  const isWrite = process.argv.includes("--write");
+  const date = new Date().toISOString().split("T")[0];
+  const claimIndex = process.argv.indexOf("--claim");
+  const claimPath =
+    claimIndex !== -1 && process.argv[claimIndex + 1]
+      ? path.resolve(process.argv[claimIndex + 1])
+      : null;
+  if (process.argv.includes("--qualification-only")) {
+    if (!claimPath) {
+      console.error(
+        "--qualification-only requires --claim <path> with recorded conformance traces.",
+      );
+      process.exit(2);
     }
+    const result = checkDelegationQualification(repoRoot, claimPath);
+    console.log(
+      "\n" +
+        renderResults([result], {
+          date,
+          commit: process.env.GITHUB_SHA
+            ? process.env.GITHUB_SHA.slice(0, 7)
+            : "uncommitted",
+        }) +
+        "\n",
+    );
+    process.exit(computeExitCode([result]));
   }
 
-  const date = new Date().toISOString().split('T')[0];
+  let commit = process.env.GITHUB_SHA ? process.env.GITHUB_SHA.slice(0, 7) : "";
+  if (!commit) {
+    try {
+      commit = execFileSync("git", ["rev-parse", "--short", "HEAD"], {
+        cwd: repoRoot,
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "ignore"],
+      }).trim();
+    } catch {
+      commit = "unknown";
+    }
+  }
   const meta = { date, commit };
 
   const results: CheckResult[] = [
@@ -37,27 +62,28 @@ async function main() {
     await checkGhSkill(repoRoot, defaultExec),
     await checkCodexMcp(repoRoot, defaultExec),
     await checkOpencodeAgents(repoRoot, defaultExec),
+    checkDelegationQualification(repoRoot, claimPath),
   ];
 
   const table = renderResults(results, meta);
-  console.log('\n' + table + '\n');
+  console.log("\n" + table + "\n");
 
   if (isWrite) {
-    const docPath = path.join(repoRoot, 'docs', 'round-trip-results.md');
+    const docPath = path.join(repoRoot, "docs", "round-trip-results.md");
     const content = [
-      '# Round-Trip CLI Smoke Test Results',
-      '',
+      "# Round-Trip CLI Smoke Test Results",
+      "",
       table,
-      '',
-      '## How to reproduce',
-      '',
-      '```bash',
-      'pnpm harness:smoke',
-      '```',
-      '',
-    ].join('\n');
+      "",
+      "## How to reproduce",
+      "",
+      "```bash",
+      "pnpm harness:smoke",
+      "```",
+      "",
+    ].join("\n");
 
-    fs.writeFileSync(docPath, content, 'utf8');
+    fs.writeFileSync(docPath, content, "utf8");
     console.log(`Wrote results to ${path.relative(repoRoot, docPath)}`);
   }
 

@@ -51,13 +51,25 @@ and per-call count-only telemetry are different measurements. Audit/cost output
 does not certify edits, executed checks, enforcement, or outgoing worker-body
 delivery. Those require evidence at the actual host/runtime boundary.
 
+Skill delivery is request-scoped: every matched skill body is read at request
+time and returned in full, so a parent's or sibling's earlier consultation can
+never suppress another context's instructions and an edited `SKILL.md` is
+re-read on the next call. The ledger records `selected` ids, the bodies actually
+returned (`loaded`), repeat-inclusive `bodyReturnCount` and per-body SHA-256
+digests; it no longer reports deduplicated bodies or estimated token savings.
+The `force_reload` request option was removed with the process-global
+suppression it existed to bypass. A stored digest identifies content; it is not
+an acknowledgment, comprehension or enforcement signal.
+
 ## 2. Multi-Agent Compatibility (The "Integration Taxonomy")
 
 This project maintains a standardized bridge for multiple AI agents, each with varying levels of native support for hooks and context injection. The canonical per-agent capability matrix is maintained in `cli/src/capabilities/agentCapabilities.ts` and generated to [docs/agent-capabilities.md](docs/agent-capabilities.md).
 
+Each capability entry also declares a delegation surface kind — `native-agent`, `instruction-only` or `none` — and, for native surfaces, a stable surface id (`claude-code-subagents`, `codex-subagents`, `gemini-cli-subagents`, `copilot-custom-agents`, `opencode-agents`). Runtime support is a separate, version- and revision-scoped result: an operation is `supported` only with retained live execution evidence for that host, surface, version, revision and operation that exercised every required control; missing, revision-mismatched or fixture-only evidence is `not_verified`; a host without a delegation artifact is `unsupported`. Emitting a serialized definition is not evidence of spawn, resume, cancel, artifact access, permission enforcement or usage capture. Copilot native agents are written as `.github/agents/<name>.agent.md`; the older broad `applyTo` instruction files are a different surface and are never presented as runnable subagents. Gemini agent files project a declared native `tools` list verbatim, including an explicit empty list, and do not translate universal `allowed-tools` names. OpenCode agent files are native subagent definitions whose declared restrictions are disclosed rather than projected. Claude and Copilot project only catalogued tool names; Codex inherits the parent sandbox policy and discloses declared controls instead of emitting an ineffective projection.
+
 | Agent / Tool        | Integration Strategy       | Primary Hook/Config                      | Scope        |
 | :------------------ | :------------------------- | :--------------------------------------- | :----------- |
-| **VS Code Copilot** | **Prompt Instructions**    | `.github/instructions/*.instructions.md` | Session      |
+| **VS Code Copilot** | **Prompt Instructions + Native Agents** | `.github/instructions/*.instructions.md`, `.github/agents/*.agent.md` | Session/Project |
 | **Cursor**          | **MCP + Rules**            | `hooks.json` / `.cursor/rules/`          | Project      |
 | **Windsurf**        | **MCP + Rule Persistence** | `.codeium/windsurf/mcp_config.json`      | Project      |
 | **Trae**            | **MCP + Rule Persistence** | `.trae/mcp.json`                         | Project      |
@@ -95,6 +107,8 @@ Workflow export still follows the agent integration taxonomy:
 - Copilot: prompt files
 - Cursor/Trae/Codex: skill folders with `SKILL.md`
 
+Sync installs each selected canonical workflow once at `.agents/workflows/<name>.md` for every configured provider, including provider-only installations, then derives native exports from that same content. `.skills-lock.json` v2 carries an optional versioned `workflowCatalog` section (canonical path/digest, registry identity, requested ref, resolved commit, and per-binding output paths/digests). Antigravity and Kiro resolve to the same canonical path, so that pair produces one write and one binding rather than a duplicate writer. A native output whose actual bytes differ from the deterministic export (user-edited, unowned, or written by another alias) is recorded as a `nativeConflicts` entry rather than a verified binding, so parity is never certified from the remaining bindings; the catalog entry and canonical body survive while any binding or conflict still references them, and are dropped only when all are removed. The lock is validated before publication and replaced atomically; an incomplete acquisition suppresses pruning and retains the previous catalog instead of certifying a partial set. Workflows authored in the registry without an installation lock remain readable as `local_source` with no native-parity claim.
+
 Requirement layering is explicit in the SDLC workflow names and outputs:
 
 - `brainstorm-feature` = BRD-lite ("Why")
@@ -122,8 +136,15 @@ All product decisions ground in a versioned local evidence ledger at `docs/produ
 ### 3.2 Discovery & Runtime Boundaries
 
 - **Runtime Versions**: Standalone resource scripts (`skills/product-management/product-evidence/scripts/validate-product-evidence.mjs` and `skills/product-management/product-investment/scripts/evaluate-investment.mjs`) are standalone ECMAScript modules requiring Node >=20. In contrast, the CLI sync engine (`SyncService.ts` using `Promise.withResolvers`) and the T09 consumer integration test harness require Node 22+.
-- **Workflow Discovery Surface**: The MCP server (`list_workflows`, `get_workflow`) scans only the canonical `<root>/.agents/workflows` directory, which is exported by default to Antigravity and Kiro. Other agents (Codex, Claude, Gemini, Roo, OpenCode) receive workflows through their respective native command or skill surfaces (`.codex/skills`, `.claude/commands`, `.gemini/commands`, etc.). No runtime scanner expansion into native directories is introduced.
+- **Workflow Discovery Surface**: The MCP server (`list_workflows`, `get_workflow`) reads only the installed canonical `<root>/.agents/workflows` catalog recorded in `.skills-lock.json`. Lookup statuses are explicit: `managed` (canonical bytes verified against the catalog digest, with native parity only when every listed binding still matches its recorded digest), `local_source` (no installation lock; computed digest, no parity claim), `unverified` (lock exists without catalog metadata; sync required) and `unavailable` (missing or mismatched content, unlisted residue, invalid name or containment failure). `unavailable` never degrades into local or native content. No network lookup or runtime scanner expansion into native directories is introduced.
 - **JSON Routing & Trigger Boundaries**: With `product-evidence` in `product-management`, JSON routing maps `*.json` to candidate categories (`common` and `product-management`). `product-evidence` activates exclusively on its narrow scoped file trigger (`docs/product/*/evidence.json`); the seven advanced PM methods remain strictly keyword-only (`triggers.files: []`); and the two PM foundation skills (`product-business-requirements` and `product-requirements`) match only their specific markdown specs (`BRD.md`, `PRD.md`, `docs/brd/brd-*.md`, `docs/prd/prd-*.md`, `specs/*.md`). `package.json` and unrelated JSON files trigger only appropriate common audit skills and NEVER match any `product-management` skills.
+
+### 3.3 Delegation Packets, Lifecycle and Task Economics
+
+- **Semantic operations**: `common-subagent-driven-development` names seven provider-neutral operations — prepare, dispatch, completion, resume, cancel, collect receipt, verify acceptance. Host instructions bind them to native invocation; canonical policy contains no runtime tool names or commercial profile identifiers. An unavailable operation or permission control is reported unsupported, never claimed successful.
+- **Assignment packets**: `task_brief.py <PLAN_FILE> <TASK_NUMBER> --assignment <ASSIGNMENT_JSON> [--out <BRIEF_FILE>]` publishes one standalone, validated packet. The assignment manifest (`schema_version: 1`) carries goal, owner, project domain, workspace root, plan digest, non-goals, authority, global invariants, owned paths, acceptance criteria, verification, required standards with revisions, source/dependency digests, output contract and limits. Validation happens before publication: exit `2` for invalid or stale prerequisites, exit `3` for absent/ambiguous task selection or output collision, exit `0` only after a packet exists. Default output is content-addressed under the resolved workspace so prior evidence is never replaced. Path containment uses local realpath checks; it is validation, not sandbox enforcement against a concurrent path swap.
+- **Lifecycle truth**: Cancellation and timeout are stopped states, not completion. Resume preserves the same task, authority and owned paths; a different task is a fresh dispatch. Independent acceptance requires a reviewer distinct from the implementer.
+- **Task economics**: `SessionJournal` records `taskId`/`parentTaskId` labels and optional `expectedActors`; a declared actor with no journal is listed missing by label, and failed, retried, interrupted and cancelled attempts remain in cohort accounting. Reasoning usage must declare `separate` or `included-in-output` semantics; an ambiguous declaration leaves cost `unavailable` instead of pricing it twice. Eval runs persist per-attempt `taskUsage`, and the generated report withholds monetary savings unless the actor inventory is complete, every lane is metered, the price resolves and both cohorts measure the same task. Fixture or synthetic traces never promote a native support claim.
 
 ## 4. Hook-Based Transparency
 
@@ -170,14 +191,16 @@ Handles fetching and writing skill files from the remote registry.
 
 Handles workflow distribution from a single canonical source.
 
-- **Canonical Source**: `.agents/workflows/*.md` remains the authoring surface in this repository.
-- **Responsibility**: Fetching canonical workflows from the registry and exporting them into each agent's native invocation format.
+- **Canonical Source**: `.agents/workflows/*.md` remains the authoring surface in this repository and the installed canonical catalog in a consumer project.
+- **Responsibility**: Acquiring the selected workflow set (`complete` / `disabled` / `incomplete`), installing each canonical body once through the ownership writer, and deriving native exports from the same collected content.
 - **Export Model**:
-  - Antigravity/Kiro: native markdown workflow files
+  - Antigravity/Kiro: native markdown workflow files (same path as the canonical body: one write, one binding)
   - Claude/Roo/OpenCode: command markdown
   - Gemini: TOML command files
   - Copilot: prompt files
   - Cursor/Trae/Codex: skill folders (`SKILL.md`)
+- **Acquisition Note**: An incomplete discovery/download/integrity result never authorizes pruning and retains the previous manifest and catalog provenance; a complete empty selection prunes owned workflows.
+- **Provenance Note**: Native bindings are recorded only when the on-disk bytes match the deterministic generated output; edited, unowned or overridden canonical bodies produce no managed catalog entry and are reported rather than silently certified.
 - **Codex Note**: Codex does not consume `.agents/workflows` directly; it receives transformed workflow skills under `.codex/skills/<workflow>/SKILL.md`.
 - **SDLC Note**: Default workflows include the full SDLC spine from `sdlc` through `retro-learn`; teams may sync a subset through `.skillsrc`.
 - **Agentic Runtime Note**: Core SDLC workflows emit `Runtime Contract`, `Handoff Payload`, `Blocking Questions`, and `Next Workflow` sections so slash-command agents and channel agents can continue, pause, or delegate with the same artifact shape.
@@ -214,6 +237,7 @@ This is a **High-Density** project. Every feature must be evaluated against its 
 - **References**: Heavy content goes to `references/` folder, loaded only on demand.
 - **Framework Maps**: Large framework packs may add category-level `references/framework-map.md` for stack-wide routing and official-doc freshness notes without bloating individual `SKILL.md` files.
 - **Behavior Guardrails**: Discipline skills may add pressure scenarios, rationalizations, red flags, and behavior assertions in `evals/evals.json`, not by bloating `SKILL.md`.
+- **No omission-as-optimization**: Required bodies are never suppressed to reduce prompt bytes. Repeat-inclusive body returns are recorded so repeated delivery is measured honestly; savings claims require complete coverage, not a shorter prompt.
 - **Quality Model**: Treat skill health as four axes: routing accuracy, structural quality, token economy, and behavior-pressure coverage for guardrail skills.
 
 ## 7. Metadata Configuration (`skills/metadata.json`)
@@ -367,3 +391,9 @@ _Date: 2026-09-27_
 _Date: 2026-09-28_
 **Decision**: Machine-checkable project policy rules live in `.ags/policy.json` (`schema_version: 1`), covering three rule kinds: `protected_path` (`paths`, action `block | warn`), `command` (`executables`, action `block | warn | rewrite`, `rewrite_to`), and `required_check` (`when_changed`, `checks`, action `block | warn`). `ags policy compile` scans project agent docs (`AGENTS.md`, `CLAUDE.md`) line-by-line to propose rules into `.ags/policy-candidates.json`; compiled rules can only `warn` or `rewrite` (never `block`). `ags policy adopt <id...>` activates candidate rules into `.ags/policy.json` after conflict validation. The PreToolUse hook (`HookService`) reads `.ags/policy.json` dependency-free; `block` rules only block when `AGS_HOOK_ENFORCE=1` is set (e.g. `ags hooks install --enforce`), otherwise issuing warnings (warning-first). The MCP server surfaces policy rules advisory-only next to loaded skills. `AGS_POLICY_BYPASS=1` turns decisions into `allow` and reports waived rules. Policy prevents mistakes by cooperating agents; it is not a security boundary.
 **Reason**: Agent instructions in markdown files (`AGENTS.md`, `CLAUDE.md`) are advisory and frequently ignored or forgotten during multi-step tasks. Turning deterministic rules into machine-checkable policy enables early warning and hook/MCP enforcement without introducing disruptive hard blocks by default or treating cooperating AI agents as malicious adversaries.
+
+### ADR-018: Provider-Neutral Delegation Contracts
+
+_Date: 2026-10-23_
+**Decision**: Four boundaries are fixed rather than provider-specific. (1) Skill delivery is request-scoped and complete: no process-global body suppression, no `force_reload` escape hatch, and selection, returned bodies and body digests are reported separately. (2) Multi-task execution requires a versioned assignment manifest (`task_brief.py --assignment`) with authority, invariants, owned paths, ACs, verification, required standards and source/dependency digests; incomplete input publishes no packet. (3) Delegation is expressed as seven semantic operations; per-agent capability entries declare `native-agent`, `instruction-only` or `none`, and support stays `not_verified` without versioned live execution evidence. (4) `.agents/workflows` is the installed canonical workflow catalog for every configured provider, verified through an optional `workflowCatalog` section in `.skills-lock.json`; MCP lookup reports `managed`, `local_source`, `unverified` or `unavailable` and never falls back across those layers.
+**Reason**: Parent/sibling body dedup silently withheld required standards from fresh workers, prose templates let workers infer authority, format exports were being read as runtime parity, and MCP workflow discovery could disagree with what native invocation ran. Each fix replaces an ambiguous convention with an explicit, evidence-bound contract; none of them claims host activation, permission enforcement or measured task savings without separate evidence.

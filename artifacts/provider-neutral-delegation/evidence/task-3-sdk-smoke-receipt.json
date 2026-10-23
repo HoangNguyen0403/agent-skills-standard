@@ -1,0 +1,9 @@
+{
+  "scenario": "Real MCP SDK client against buildServer and actual repository skill registry",
+  "command": "rtk proxy node --import tsx .delegation-smoke.ts",
+  "cwd": "mcp",
+  "result": "passed",
+  "observed": {"repeatedBodyReturns": 2, "forceReloadAbsent": true, "operatorProfileCollisionAbsent": true, "includedReasoningUsd": 7, "nativeDelegationVerified": false},
+  "limits": "Local in-memory SDK transport. Separate shared-HTTP regressions exercise sibling clients. No native host/model invocation, remote packet delivery, economic-savings or authentication claim.",
+  "cleanup": "Throwaway mcp/.delegation-smoke.ts deleted after successful observation."
+}

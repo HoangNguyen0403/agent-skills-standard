@@ -18,6 +18,7 @@ import {
   SkillResult,
 } from "./types";
 import { evaluateSkillReadiness } from "./readiness";
+import { compareTaskUsage, summarizeTaskUsage } from "./usage";
 
 function numericMetric(
   value: number | "n/a" | null | undefined,
@@ -390,7 +391,6 @@ export function resolveSkillProtocol(
   return "unknown";
 }
 
-
 export function buildEvalsReportMarkdown(
   allResults: RunResults[],
   history?: EvalsHistory,
@@ -455,8 +455,7 @@ export function buildEvalsReportMarkdown(
   );
   const hasUnknownProtocols =
     summaryProtocolFacts.unresolvedContributorCount > 0;
-  const hasMixedProtocols =
-    summaryProtocolFacts.hasKnownHeterogeneity;
+  const hasMixedProtocols = summaryProtocolFacts.hasKnownHeterogeneity;
   const protocolSummary = protocolLabel(summaryProtocolFacts);
 
   lines.push(
@@ -529,9 +528,7 @@ export function buildEvalsReportMarkdown(
   }
 
   if (history && history.records.length > 0) {
-    const physicalRuns = new Map(
-      allResults.map((run) => [run.runId, run]),
-    );
+    const physicalRuns = new Map(allResults.map((run) => [run.runId, run]));
     lines.push(
       "## 📜 Physical Run History",
       "",
@@ -596,7 +593,6 @@ export function buildEvalsReportMarkdown(
     );
   }
   lines.push("");
-
 
   const notReadySkills = allSkillResults.flatMap((skill) => {
     const run = sourceRuns.get(`${skill.category}/${skill.skillName}`);
@@ -679,6 +675,49 @@ export function buildEvalsReportMarkdown(
       );
     lines.push("");
   }
+
+  lines.push(
+    "## 💰 Task Economics",
+    "",
+    "> Per-attempt usage joined to its outcome, so parent, worker, review and failed/retried/interrupted/cancelled attempts stay in task-cost accounting. A missing usage sample is unmetered and unknown, never zero. Executed lanes are worker attempts only, so this report records the observed actor coverage and withholds monetary savings until a full declared actor inventory (parent, workers, review, integration, auxiliary) is certified for a single task scope, both cohorts are fully metered and priced, and the baseline provenance is explicit.",
+    "",
+    "| Run | Model | Attempts | Outcomes | Actors observed | Unknown actors | Metered | Unmetered | Tokens | Est. USD | Savings vs baseline |",
+    "| --- | --- | ---: | --- | --- | ---: | ---: | ---: | ---: | ---: | --- |",
+  );
+  for (const run of latest.values()) {
+    const attempts = run.metadata.taskUsage ?? [];
+    const model = run.metadata.model ?? "unresolved";
+    if (attempts.length === 0) {
+      lines.push(
+        `| ${run.runId} | ${model} | 0 | unavailable | 0 | 0 | 0 | 0 | unavailable | unavailable | withheld: no per-attempt usage recorded |`,
+      );
+      continue;
+    }
+    const cohort = summarizeTaskUsage(attempts, model);
+    const outcomes = Object.entries(cohort.attemptsByOutcome)
+      .filter(([, count]) => count > 0)
+      .map(([outcome, count]) => `${outcome} ${count}`)
+      .join(", ");
+    const baselineRun = run.baselineRunId
+      ? allResults.find((candidate) => candidate.runId === run.baselineRunId)
+      : undefined;
+    const comparison =
+      baselineRun?.metadata.taskUsage &&
+      baselineRun.metadata.taskUsage.length > 0 &&
+      (baselineRun.metadata.model ?? "unresolved") === model
+        ? compareTaskUsage(baselineRun.metadata.taskUsage, attempts, model)
+        : null;
+    const savings =
+      comparison === null
+        ? "withheld: no comparable baseline cohort"
+        : comparison.savingsUsd === null
+          ? `withheld: ${comparison.withheldReason}`
+          : comparison.savingsUsd.toFixed(6);
+    lines.push(
+      `| ${run.runId} | ${model} | ${attempts.length} | ${outcomes} | ${cohort.observedActors.map((actor) => `${actor.role}:${actor.taskId}`).join(", ") || "none recorded"} | ${cohort.unknownActorAttempts} | ${cohort.totals.lanesMetered} | ${cohort.totals.lanesUnmetered} | ${cohort.totals.totalTokens} | ${cohort.totals.estimatedUsd === null ? "unavailable" : cohort.totals.estimatedUsd.toFixed(6)} | ${savings} |`,
+    );
+  }
+  lines.push("");
 
   lines.push(
     "## 🛡️ How to Verify This Report",

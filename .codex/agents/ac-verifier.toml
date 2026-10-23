@@ -1,6 +1,5 @@
 name = "ac-verifier"
 description = "Maps acceptance criteria to implementation evidence, tests, and scope creep. Use during review when a diff, PR, ticket, or story includes numbered ACs."
-sandbox_mode = "read-only"
 developer_instructions = """
 # Specialist: AC Verifier
 
