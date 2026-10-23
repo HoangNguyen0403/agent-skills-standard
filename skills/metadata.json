@@ -828,17 +828,17 @@
       ]
     },
     "cybersecurity": {
-      "version": "1.0.0",
-      "last_updated": "2026-09-22",
+      "version": "1.0.1",
+      "last_updated": "2026-10-23",
       "tag_prefix": "cybersecurity-v",
       "owners": [
         "HoangNguyen0403"
       ],
       "token_metrics": {
-        "total_skills": 11,
-        "total_tokens": 6760,
-        "avg_tokens_per_skill": 615,
-        "largest_skill": "cyber-scoped-validation (732 tokens)"
+        "total_skills": 12,
+        "total_tokens": 8150,
+        "avg_tokens_per_skill": 679,
+        "largest_skill": "cyber-rea-reverse-engineering (1390 tokens)"
       }
     },
     "database": {
