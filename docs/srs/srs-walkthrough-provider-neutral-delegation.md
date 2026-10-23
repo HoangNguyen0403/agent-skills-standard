@@ -196,6 +196,36 @@ Remaining items are explicitly gated and do not weaken the documented behavior:
    existing unrelated construct diagnostics, CLI format has 2 existing warnings,
    and `check-alignment` is lexical (3 historical warnings).
 
+## Post-publication CI correction — 2026-10-23
+
+The initial CI run passed 1332 CLI tests but reported 89.84% branch coverage,
+below the 90% threshold. Its real installed-consumer smoke also expected
+`discover-product` to be available when it was not installed and asserted the
+wrong error sentence for pinned `workflows: false`.
+
+The consumer script was corrected to assert installed catalog discovery,
+successful delivery of the complete canonical fixture body, and the disabled
+workflow boundary (error plus no canonical workflow file). Parent-observed CLI
+and MCP rebuilds and the full real installed-consumer smoke then passed:
+`t09-smoke-1792742529410`, `feature_status: verified`, 13 completed evidence
+items, no missing evidence, and `cost.source: unavailable`. The independent
+review of immutable snapshot
+`review-e236ff00-workspace-cc22a307fcc2-6ae806d44739.diff` approved the
+correction. No production behavior changed.
+
+Five meaningful CLI boundary tests passed (1337 total), raising branch coverage
+to 89.98%, still below 90%; this was an intermediate local result. A sixth
+boundary rejects array-shaped `workflowCatalog.workflows`. The later local
+`rtk pnpm --filter ./cli test:cov` run passed 1338/1338 tests with branch
+coverage 90.01% (3147/3496), statements 94.92%, functions 94.4%, and lines
+95.95%. Independent review of the coverage addition approved with no blocker or
+major finding (`review-e236ff00-workspace-6abf22b51803-b6a08fd4b0d4.diff`).
+The consumer correction was separately approved
+(`review-e236ff00-workspace-cc22a307fcc2-6ae806d44739.diff`). Both correction
+gates passed locally. At this local pre-push verification checkpoint,
+corrective remote CI had not yet run; no remote-green or skipped-job pass is
+claimed. Native qualification and savings remain unverified.
+
 feature_status: implementation_verified_native_qualification_pending
 completed_evidence: source-settled D1–D5 implementation; focused deterministic regressions plus actual packet/MCP SDK/offline-journal smokes; native mirrors, indices and capability docs regenerated from settled sources with SDD evidence preserved; full CLI 1332/1332 (66 files, wrapper parity), full MCP 236, MCP bundle + strict type + format check, CLI/MCP lint, CLI build, docs:capabilities:check, check-alignment (lexical), eval 89 and product-evidence 85 observed; foreign-CWD guard smoke exit 1 with unchanged consumer/authoring files; post-guard normal generator run PASS; managed/native export parity observed with digest 96b71bb8…911cc; packet 3b277f2a…66bc and recovery receipt eaa3eca1…4b61f unchanged across runs; independent Task 1–8 approvals; AC-6.d recovery executed with durable archived evidence; session compliance audit performed with cost unavailable
 missing_evidence: native-host qualification and denial traces; matched repeated task-class trials; billing-complete actor/attempt usage; release/activation approval
