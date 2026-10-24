@@ -204,8 +204,8 @@ describe('SkillSelectionApplyService', () => {
   let originalCwd: string;
   let transport: FakeTransport;
   let configService: ConfigService;
+  let syncService: SyncService;
   let applyService: SkillSelectionApplyService;
-
   const projectPath = (...segments: string[]): string =>
     path.join(tempDir, ...segments);
 
@@ -323,9 +323,10 @@ describe('SkillSelectionApplyService', () => {
       },
     );
     configService = new ConfigService();
+    syncService = new SyncService(asGithub(transport));
     applyService = new SkillSelectionApplyService({
       configService,
-      syncService: new SyncService(asGithub(transport)),
+      syncService,
     });
   });
 
@@ -1150,6 +1151,40 @@ describe('SkillSelectionApplyService', () => {
     );
   });
 
+  it.each([
+    ['null category entry', { common: null }],
+    ['non-object category entry', { common: 'invalid' }],
+    [
+      'non-string include member',
+      { common: { ref: COMMON_V1, include: ['alpha', 3] } },
+    ],
+    [
+      'non-array include list',
+      { common: { ref: COMMON_V1, include: 'alpha' } },
+    ],
+    [
+      'non-string exclude member',
+      { common: { ref: COMMON_V1, exclude: ['obsolete', 3] } },
+    ],
+    ['non-string ref', { common: { ref: 3 } }],
+  ] as const)(
+    'rejects a %s without changing the saved configuration',
+    async (_description, skills) => {
+      await writeProjectConfig(rawConfig());
+      const initial = await snapshot();
+      const configBytes = await readConfigBytes();
+
+      await expect(
+        applyService.prepare(initial, {
+          ...initial.config,
+          skills,
+        } as unknown as SkillConfig),
+      ).rejects.toBeInstanceOf(SkillAssemblyError);
+
+      expect(await readConfigBytes()).toBe(configBytes);
+    },
+  );
+
   it('returns a prepared change whose config is the desired selection', async () => {
     await writeProjectConfig(rawConfig());
     const initial = await snapshot();
@@ -1163,5 +1198,61 @@ describe('SkillSelectionApplyService', () => {
       'beta',
     ]);
     expect(prepared.snapshot).toBe(initial);
+  });
+
+  it('does not install when saving rejects with a non-Error value', async () => {
+    await writeProjectConfig(rawConfig());
+    const initial = await snapshot();
+    const configBytes = await readConfigBytes();
+    const prepared = await applyService.prepare(initial, {
+      ...initial.config,
+      skills: { common: { ref: COMMON_V1, include: ['alpha', 'beta'] } },
+    });
+    vi.spyOn(configService, 'saveSelection').mockRejectedValue(
+      'read-only filesystem',
+    );
+
+    const result = await applyService.apply(prepared);
+
+    expect(result.status).toBe('incomplete');
+    if (result.status !== 'incomplete') return;
+    expect(result.stage).toBe('saving');
+    expect(result.saved).toBe(false);
+    expect(result.message).toBe('read-only filesystem');
+    expect(await readConfigBytes()).toBe(configBytes);
+    expect(
+      await fs.pathExists(
+        projectPath('.claude/skills/common/beta/SKILL.md'),
+      ),
+    ).toBe(false);
+  });
+
+  it('reports a non-Error install rejection after preserving the saved selection', async () => {
+    await writeProjectConfig(rawConfig());
+    const initial = await snapshot();
+    const prepared = await applyService.prepare(initial, {
+      ...initial.config,
+      skills: { common: { ref: COMMON_V1, include: ['alpha', 'beta'] } },
+    });
+    vi.spyOn(syncService, 'beginInstall').mockRejectedValue(
+      'install lock unavailable',
+    );
+
+    const result = await applyService.apply(prepared);
+
+    expect(result.status).toBe('incomplete');
+    if (result.status !== 'incomplete') return;
+    expect(result.stage).toBe('installing');
+    expect(result.saved).toBe(true);
+    expect(result.message).toContain('install lock unavailable');
+    const saved = yaml.load(await readConfigBytes()) as {
+      skills: Record<string, { include?: string[] }>;
+    };
+    expect(saved.skills.common.include).toEqual(['alpha', 'beta']);
+    expect(
+      await fs.pathExists(
+        projectPath('.claude/skills/common/beta/SKILL.md'),
+      ),
+    ).toBe(false);
   });
 });

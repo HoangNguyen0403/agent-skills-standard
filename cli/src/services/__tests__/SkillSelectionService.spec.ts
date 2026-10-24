@@ -40,6 +40,23 @@ describe('resolveSkillFolders', () => {
     ]);
   });
 
+  it('preserves loose discovery for legacy folders without SKILL.md', () => {
+    const files = tree(
+      'skills/react/legacy-folder/README.md',
+      'skills/react/legacy-folder/references/guide.md',
+      'skills/react/references/guide.md',
+      'skills/react/references',
+      'skills/react/_INDEX.md',
+    );
+
+    expect(resolveSkillFolders('react', { ref: 'v1' }, files)).toEqual([
+      'legacy-folder',
+    ]);
+    expect(
+      resolveSkillFolders('react', { ref: 'v1' }, files, true),
+    ).toEqual([]);
+  });
+
   it('applies an unqualified exclusion to the declaring category only', () => {
     const files = tree(
       'skills/react/common-tdd/SKILL.md',
@@ -253,6 +270,23 @@ describe('setSkillSelection', () => {
       true,
     );
     expect(reenabled).toEqual({ include: ['react/*'] });
+  });
+
+  it('preserves unrelated exclusions when re-enabling one included member', () => {
+    const next = setSkillSelection(
+      'react',
+      {
+        include: ['hooks', 'signals'],
+        exclude: ['hooks', 'signals'],
+      },
+      'react/hooks',
+      true,
+    );
+
+    expect(next).toEqual({
+      include: ['hooks', 'signals'],
+      exclude: ['signals'],
+    });
   });
 
   it('keeps existing exclusions when another nested skill is disabled', () => {

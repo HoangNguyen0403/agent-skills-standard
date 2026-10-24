@@ -220,6 +220,10 @@ class RecordingApplyService {
   readonly behaviors: ApplyBehavior[] = [];
   prepareError: Error | null = null;
   planUnknown: string[] = [];
+  planKept: string[] = [];
+  planKeptOrphans: string[] = [];
+  preparedSkills: PreparedSkillChange['skills'] = [];
+  preparedRefs: ResolvedRefs = emptyResolvedRefs();
   private readonly configService: ConfigService;
 
   constructor(configService: ConfigService, behaviors: ApplyBehavior[] = []) {
@@ -242,9 +246,9 @@ class RecordingApplyService {
         ...proposed,
         skills_mode: selectionChanged ? 'explicit' : proposed.skills_mode,
       },
-      skills: [],
+      skills: this.preparedSkills,
       completedCategories: Object.keys(proposed.skills),
-      resolvedRefs: emptyResolvedRefs(),
+      resolvedRefs: this.preparedRefs,
     };
   }
 
@@ -287,10 +291,10 @@ class RecordingApplyService {
         added: [],
         updated: [],
         unchanged: [],
-        kept: [],
+        kept: [...this.planKept],
         unknown: [...this.planUnknown],
         pruned: [],
-        keptOrphans: [],
+        keptOrphans: [...this.planKeptOrphans],
         backupId: null,
       },
     };
@@ -395,7 +399,9 @@ async function resolveSemanticAnswer(
   );
   const skillId = answer.skillId;
   if (typeof skillId === 'string' && searchQuestion?.source) {
-    const options = await searchQuestion.source(skillId);
+    const searchTerm =
+      typeof answer.searchTerm === 'string' ? answer.searchTerm : skillId;
+    const options = await searchQuestion.source(searchTerm);
     const option = options.find(
       (choice) =>
         choice.value === skillId || choice.name?.includes(skillId),
@@ -405,6 +411,7 @@ async function resolveSemanticAnswer(
     }
     const rest = { ...answer };
     delete rest.skillId;
+    delete rest.searchTerm;
     return { ...rest, skill: option.value };
   }
 
@@ -418,6 +425,29 @@ let originalCwd: string;
 let originalExitCode: string | number | null | undefined;
 let logSpy: MockInstance;
 let errorSpy: MockInstance;
+
+function cancelAtPrompt(
+  matches: (question: PromptQuestion) => boolean,
+): { wasReached: () => boolean } {
+  const fallback = promptMock.getMockImplementation();
+  if (!fallback) throw new Error('Prompt implementation is unavailable');
+  let reached = false;
+
+  promptMock.mockImplementation(async (questions: unknown) => {
+    const promptQuestions = (
+      Array.isArray(questions) ? questions : []
+    ) as PromptQuestion[];
+    if (promptQuestions.some(matches)) {
+      reached = true;
+      const error = new Error('Prompt cancelled at targeted question');
+      error.name = 'ExitPromptError';
+      throw error;
+    }
+    return fallback(questions);
+  });
+
+  return { wasReached: () => reached };
+}
 
 beforeEach(async () => {
   originalCwd = process.cwd();
@@ -461,12 +491,18 @@ async function readConfig(fileName = '.skillsrc'): Promise<SkillConfig> {
 
 function buildCommand(
   applyService: RecordingApplyService,
-  options: { interactive?: boolean } = {},
+  options: {
+    interactive?: boolean;
+    configService?: ConfigService;
+    catalogService?: SkillCatalogService;
+  } = {},
 ): SkillsCommand {
-  const configService = new ConfigService();
-  const catalogService = new SkillCatalogService(
-    new FakeCatalogTransport(registryFiles()) as never,
-  );
+  const configService = options.configService ?? new ConfigService();
+  const catalogService =
+    options.catalogService ??
+    new SkillCatalogService(
+      new FakeCatalogTransport(registryFiles()) as never,
+    );
   return new SkillsCommand(
     configService,
     catalogService,
@@ -666,6 +702,40 @@ describe('SkillsCommand advanced customization', () => {
     });
   });
 
+  it('keeps missing declared imports visible so they can be removed', async () => {
+    await seedConfig({
+      ...baseConfig(),
+      skills: {
+        common: {
+          ref: COMMON_V1,
+          include: ['react/missing-import', 'absent/*'],
+        },
+      },
+    });
+    const applyService = new RecordingApplyService(new ConfigService());
+    const command = buildCommand(applyService);
+
+    answers.push({ categories: ['common'] });
+    answers.push({ next: 'customize' });
+    answers.push({ category: 'common' });
+    answers.push({ action: 'toggle' });
+    answers.push({
+      uncheckSkillIds: ['react/missing-import', 'absent/*'],
+    });
+    answers.push({ action: 'back' });
+    answers.push({ next: 'review' });
+    answers.push({ apply: true });
+
+    await command.run();
+
+    const saved = await readConfig();
+    expect(saved.skills.common).toEqual({ ref: COMMON_V1, include: [] });
+    expect(applyService.prepareCalls[0].proposed.skills.common.include).toEqual(
+      [],
+    );
+    expect(applyService.applyCalls).toHaveLength(1);
+  });
+
   it('excludes one wildcard-imported member while keeping the wildcard expression', async () => {
     await seedConfig({
       ...baseConfig(),
@@ -768,6 +838,33 @@ describe('SkillsCommand advanced customization', () => {
     );
     expect(output).toContain('not every path was replaced');
   });
+
+  it('reports retained managed files when applying with prune disabled', async () => {
+    await seedConfig({ ...baseConfig(), prune: false });
+    const applyService = new RecordingApplyService(new ConfigService());
+    applyService.planKept = ['.claude/skills/react/signals/SKILL.md'];
+    applyService.planKeptOrphans = [
+      '.claude/skills/common/removed/SKILL.md',
+    ];
+    const command = buildCommand(applyService);
+
+    answers.push({ categories: ['common', 'react'] });
+    answers.push({ next: 'review' });
+    answers.push({ apply: true });
+
+    await command.run();
+
+    const saved = await readConfig();
+    expect(saved.skills.react.ref).toBe(REACT_V2);
+    const output = logSpy.mock.calls.flat().join('\n');
+    expect(output).toContain(
+      'kept (edited by you, not overwritten): .claude/skills/react/signals/SKILL.md',
+    );
+    expect(output).toContain(
+      'kept (edited, no longer selected): .claude/skills/common/removed/SKILL.md',
+    );
+    expect(output).toContain('obsolete managed files were retained');
+  });
   it('changes an existing category to the published release only when explicitly selected', async () => {
     await seedConfig({
       ...baseConfig(),
@@ -788,6 +885,170 @@ describe('SkillsCommand advanced customization', () => {
 
     const saved = await readConfig();
     expect(saved.skills.react.ref).toBe(REACT_V2);
+  });
+
+  it('keeps a category pin when no published release is available', async () => {
+    await seedConfig({
+      ...baseConfig(),
+      skills: { react: { ref: REACT_V1 } },
+    });
+    const applyService = new RecordingApplyService(new ConfigService());
+    const catalogService = new SkillCatalogService(
+      new FakeCatalogTransport(registryFiles()) as never,
+    );
+    vi.spyOn(catalogService, 'load').mockResolvedValue({
+      registry: REGISTRY,
+      categories: ['react'],
+      metadata: { categories: { react: {} } },
+    });
+    const before = await fs.readFile(configPath());
+    const command = buildCommand(applyService, { catalogService });
+
+    answers.push({ categories: ['react'] });
+    answers.push({ next: 'customize' });
+    answers.push({ category: 'react' });
+    answers.push({ action: 'release' });
+    answers.push({ action: 'back' });
+    answers.push({ next: 'review' });
+
+    await command.run();
+
+    expect((await readConfig()).skills.react.ref).toBe(REACT_V1);
+    expect(applyService.prepareCalls).toHaveLength(0);
+    expect(await fs.readFile(configPath())).toEqual(before);
+  });
+
+  it('does not change a category already pinned to its published release', async () => {
+    await seedConfig({
+      ...baseConfig(),
+      skills: { react: { ref: REACT_V2 } },
+    });
+    const before = await fs.readFile(configPath());
+    const applyService = new RecordingApplyService(new ConfigService());
+    const command = buildCommand(applyService);
+
+    answers.push({ categories: ['react'] });
+    answers.push({ next: 'customize' });
+    answers.push({ category: 'react' });
+    answers.push({ action: 'release' });
+    answers.push({ action: 'back' });
+
+    answers.push({ next: 'review' });
+    await command.run();
+
+    expect(await fs.readFile(configPath())).toEqual(before);
+    expect(applyService.prepareCalls).toHaveLength(0);
+  });
+
+  it('keeps the saved pin when a published release cannot be resolved', async () => {
+    await seedConfig({
+      ...baseConfig(),
+      skills: { react: { ref: REACT_V1 } },
+    });
+    const before = await fs.readFile(configPath());
+    const applyService = new RecordingApplyService(new ConfigService());
+    const catalogService = new SkillCatalogService(
+      new FakeCatalogTransport(registryFiles()) as never,
+    );
+    const resolveRelease = vi
+      .spyOn(catalogService, 'resolveRelease')
+      .mockRejectedValue(new SkillCatalogError('release unavailable'));
+    const command = buildCommand(applyService, { catalogService });
+
+    answers.push({ categories: ['react'] });
+    answers.push({ next: 'customize' });
+    answers.push({ category: 'react' });
+    answers.push({ action: 'release' });
+    answers.push({ action: 'back' });
+    answers.push({ next: 'review' });
+
+    await command.run();
+
+    expect(resolveRelease).toHaveBeenCalledTimes(1);
+    expect(await fs.readFile(configPath())).toEqual(before);
+    expect(applyService.prepareCalls).toHaveLength(0);
+  });
+
+  it('shows every candidate when search begins with an empty query', async () => {
+    await seedConfig({
+      ...baseConfig(),
+      skills: { react: { ref: REACT_V2, exclude: ['signals'] } },
+    });
+    const applyService = new RecordingApplyService(new ConfigService());
+    const command = buildCommand(applyService);
+
+    answers.push({ categories: ['react'] });
+    answers.push({ next: 'customize' });
+    answers.push({ category: 'react' });
+    answers.push({ action: 'search' });
+    answers.push({ skillId: 'react/signals', searchTerm: '' });
+    answers.push({ include: true });
+    answers.push({ action: 'back' });
+    answers.push({ next: 'review' });
+    answers.push({ apply: true });
+
+    await command.run();
+
+    expect((await readConfig()).skills.react).toEqual({ ref: REACT_V2 });
+  });
+
+  it('finds an excluded skill by its description', async () => {
+    await seedConfig({
+      ...baseConfig(),
+      skills: { react: { ref: REACT_V2, exclude: ['signals'] } },
+    });
+    const applyService = new RecordingApplyService(new ConfigService());
+    const command = buildCommand(applyService);
+
+    answers.push({ categories: ['react'] });
+    answers.push({ next: 'customize' });
+    answers.push({ category: 'react' });
+    answers.push({ action: 'search' });
+    answers.push({
+      skillId: 'react/signals',
+      searchTerm: 'signals guidance',
+    });
+    answers.push({ include: true });
+    answers.push({ action: 'back' });
+    answers.push({ next: 'review' });
+    answers.push({ apply: true });
+
+    await command.run();
+
+    expect((await readConfig()).skills.react).toEqual({ ref: REACT_V2 });
+  });
+
+  it('reviews the prepared source commit and effective packages before Apply', async () => {
+    await seedConfig(baseConfig());
+    const before = await fs.readFile(configPath());
+    const applyService = new RecordingApplyService(new ConfigService());
+    const commit = sha('5');
+    applyService.preparedSkills = [
+      {
+        category: 'react',
+        skill: 'signals',
+        files: [{ name: 'SKILL.md', content: skillFile('signals', 'guidance') }],
+        origin: { category: 'react', ref: REACT_V2, commit },
+      },
+    ];
+    applyService.preparedRefs.skills.react = {
+      ref: REACT_V2,
+      commit,
+      pinned: true,
+    };
+    const command = buildCommand(applyService);
+
+    answers.push({ categories: ['common', 'react'] });
+    answers.push({ next: 'review' });
+    answers.push({ apply: false });
+
+    await command.run();
+
+    const output = logSpy.mock.calls.flat().join('\n');
+    expect(output).toContain(`react: ${REACT_V2} → ${commit}`);
+    expect(output).toContain('react effective packages: react/signals');
+    expect(await fs.readFile(configPath())).toEqual(before);
+    expect(applyService.applyCalls).toHaveLength(0);
   });
 });
 
@@ -896,6 +1157,144 @@ describe('SkillsCommand write boundaries', () => {
     expect(applyService.prepareCalls).toHaveLength(0);
   });
 
+  it('exits without prompting when the project has no skill configuration', async () => {
+    const applyService = new RecordingApplyService(new ConfigService());
+    const command = buildCommand(applyService);
+
+    await command.run();
+
+    expect(process.exitCode).toBe(1);
+    expect(await fs.pathExists(configPath())).toBe(false);
+    expect(promptMock).not.toHaveBeenCalled();
+    expect(applyService.prepareCalls).toHaveLength(0);
+  });
+
+  it('reports an invalid configuration before loading the registry', async () => {
+    await fs.writeFile(configPath(), 'registry: not-a-url\nskills: {}\n');
+    const before = await fs.readFile(configPath());
+    const applyService = new RecordingApplyService(new ConfigService());
+    const catalogService = new SkillCatalogService(
+      new FakeCatalogTransport(registryFiles()) as never,
+    );
+    const load = vi.spyOn(catalogService, 'load');
+    const command = buildCommand(applyService, { catalogService });
+
+    await command.run();
+
+    expect(process.exitCode).toBe(1);
+    expect(await fs.readFile(configPath())).toEqual(before);
+    expect(load).not.toHaveBeenCalled();
+    expect(promptMock).not.toHaveBeenCalled();
+  });
+
+  it('does not prompt or write when registry catalog loading fails', async () => {
+    await seedConfig(baseConfig());
+    const before = await fs.readFile(configPath());
+    const applyService = new RecordingApplyService(new ConfigService());
+    const catalogService = new SkillCatalogService(
+      new FakeCatalogTransport(registryFiles()) as never,
+    );
+    vi.spyOn(catalogService, 'load').mockRejectedValue(
+      new SkillCatalogError('registry unavailable'),
+    );
+    const command = buildCommand(applyService, { catalogService });
+
+    await command.run();
+
+    expect(process.exitCode).toBe(1);
+    expect(await fs.readFile(configPath())).toEqual(before);
+    expect(promptMock).not.toHaveBeenCalled();
+    expect(applyService.prepareCalls).toHaveLength(0);
+    expect(errorSpy.mock.calls.flat().join('\n')).toContain(
+      'Could not read the registry catalog',
+    );
+  });
+
+  it('leaves the saved selection unchanged when nested customization is cancelled', async () => {
+    await seedConfig(baseConfig());
+    const before = await fs.readFile(configPath());
+    const applyService = new RecordingApplyService(new ConfigService());
+    const command = buildCommand(applyService);
+
+    answers.push({ categories: ['common'] });
+    answers.push({ next: 'customize' });
+    answers.push({ category: 'common' });
+    const cancellation = cancelAtPrompt(
+      (question) => question.type === 'select' && question.name === 'action',
+    );
+
+    await command.run();
+
+    expect(await fs.readFile(configPath())).toEqual(before);
+    expect(applyService.prepareCalls).toHaveLength(0);
+    expect(applyService.applyCalls).toHaveLength(0);
+    expect(process.exitCode).toBe(0);
+    expect(cancellation.wasReached()).toBe(true);
+  });
+
+  it('preserves the selection when a nested search confirmation is cancelled', async () => {
+    await seedConfig({
+      ...baseConfig(),
+      skills: { react: { ref: REACT_V2, exclude: ['signals'] } },
+    });
+    const before = await fs.readFile(configPath());
+    const applyService = new RecordingApplyService(new ConfigService());
+    const command = buildCommand(applyService);
+
+    answers.push({ categories: ['react'] });
+    answers.push({ next: 'customize' });
+    answers.push({ category: 'react' });
+    answers.push({ action: 'search' });
+    answers.push({ skillId: 'react/signals' });
+    const cancellation = cancelAtPrompt(
+      (question) => question.type === 'confirm' && question.name === 'include',
+    );
+
+    await command.run();
+
+    expect(await fs.readFile(configPath())).toEqual(before);
+    expect(applyService.prepareCalls).toHaveLength(0);
+    expect(applyService.applyCalls).toHaveLength(0);
+    expect(process.exitCode).toBe(0);
+    expect(cancellation.wasReached()).toBe(true);
+  });
+
+  it('does not write when Apply is declined at the final review', async () => {
+    await seedConfig(baseConfig());
+    const before = await fs.readFile(configPath());
+    const applyService = new RecordingApplyService(new ConfigService());
+    const command = buildCommand(applyService);
+
+    answers.push({ categories: ['common', 'react'] });
+    answers.push({ next: 'review' });
+    answers.push({ apply: false });
+
+    await command.run();
+
+    expect(await fs.readFile(configPath())).toEqual(before);
+    expect(applyService.prepareCalls).toHaveLength(1);
+    expect(applyService.applyCalls).toHaveLength(0);
+    expect(process.exitCode).toBe(0);
+  });
+
+  it('allows the empty category selection to be customized and applied', async () => {
+    await seedConfig(baseConfig());
+    const applyService = new RecordingApplyService(new ConfigService());
+    const command = buildCommand(applyService);
+
+    answers.push({ categories: [] });
+    answers.push({ next: 'customize' });
+    answers.push({ next: 'review' });
+    answers.push({ apply: true });
+
+    await command.run();
+
+    const saved = await readConfig();
+    expect(saved.skills).toEqual({});
+    expect(saved.skills_mode).toBe('explicit');
+    expect(applyService.applyCalls).toHaveLength(1);
+  });
+
   it('keeps selection mode unchanged after failed preparation is reverted', async () => {
     await seedConfig(baseConfig());
     const before = await fs.readFile(configPath());
@@ -916,6 +1315,228 @@ describe('SkillsCommand write boundaries', () => {
     expect(await fs.readFile(configPath())).toEqual(before);
     expect(applyService.prepareCalls).toHaveLength(1);
     expect(applyService.applyCalls).toHaveLength(0);
+  });
+
+  it('cancels the initial category picker without changing the saved config', async () => {
+    await seedConfig(baseConfig());
+    const before = await fs.readFile(configPath());
+    const applyService = new RecordingApplyService(new ConfigService());
+    const command = buildCommand(applyService);
+    const cancellation = cancelAtPrompt(
+      (question) =>
+        question.type === 'checkbox' && question.name === 'categories',
+    );
+
+    await command.run();
+
+    expect(cancellation.wasReached()).toBe(true);
+    expect(await fs.readFile(configPath())).toEqual(before);
+    expect(applyService.prepareCalls).toHaveLength(0);
+    expect(applyService.applyCalls).toHaveLength(0);
+  });
+
+  it('cancels category choice before nested customization without writing', async () => {
+    await seedConfig(baseConfig());
+    const before = await fs.readFile(configPath());
+    const applyService = new RecordingApplyService(new ConfigService());
+    const command = buildCommand(applyService);
+
+    answers.push({ categories: ['common'] });
+    answers.push({ next: 'customize' });
+    const cancellation = cancelAtPrompt(
+      (question) => question.type === 'select' && question.name === 'category',
+    );
+
+    await command.run();
+
+    expect(cancellation.wasReached()).toBe(true);
+    expect(await fs.readFile(configPath())).toEqual(before);
+    expect(applyService.prepareCalls).toHaveLength(0);
+  });
+
+  it('preserves selection when the skill checkbox is cancelled', async () => {
+    await seedConfig({
+      ...baseConfig(),
+      skills: { react: { ref: REACT_V2, exclude: ['signals'] } },
+    });
+    const before = await fs.readFile(configPath());
+    const applyService = new RecordingApplyService(new ConfigService());
+    const command = buildCommand(applyService);
+
+    answers.push({ categories: ['react'] });
+    answers.push({ next: 'customize' });
+    answers.push({ category: 'react' });
+    answers.push({ action: 'toggle' });
+    const cancellation = cancelAtPrompt(
+      (question) => question.type === 'checkbox' && question.name === 'skills',
+    );
+
+    await command.run();
+
+    expect(cancellation.wasReached()).toBe(true);
+    expect(await fs.readFile(configPath())).toEqual(before);
+    expect(applyService.prepareCalls).toHaveLength(0);
+  });
+
+  it('preserves selection when the skill search is cancelled before choosing', async () => {
+    await seedConfig({
+      ...baseConfig(),
+      skills: { react: { ref: REACT_V2, exclude: ['signals'] } },
+    });
+    const before = await fs.readFile(configPath());
+    const applyService = new RecordingApplyService(new ConfigService());
+    const command = buildCommand(applyService);
+
+    answers.push({ categories: ['react'] });
+    answers.push({ next: 'customize' });
+    answers.push({ category: 'react' });
+    answers.push({ action: 'search' });
+    const cancellation = cancelAtPrompt(
+      (question) => question.type === 'search' && question.name === 'skill',
+    );
+
+    await command.run();
+
+    expect(cancellation.wasReached()).toBe(true);
+    expect(await fs.readFile(configPath())).toEqual(before);
+    expect(applyService.prepareCalls).toHaveLength(0);
+  });
+
+  it('shows custom override protection before Apply and leaves bytes unchanged on decline', async () => {
+    await seedConfig({
+      ...baseConfig(),
+      custom_overrides: ['README.md'],
+    });
+    const before = await fs.readFile(configPath());
+    const applyService = new RecordingApplyService(new ConfigService());
+    const command = buildCommand(applyService);
+
+    answers.push({ categories: ['common', 'react'] });
+    answers.push({ next: 'review' });
+    answers.push({ apply: false });
+
+    await command.run();
+
+    expect(await fs.readFile(configPath())).toEqual(before);
+    expect(applyService.prepareCalls).toHaveLength(1);
+    expect(applyService.applyCalls).toHaveLength(0);
+    expect(logSpy.mock.calls.flat().join('\n')).toContain(
+      'protected paths: README.md keep local edits and are not overwritten',
+    );
+  });
+
+  it('restores an existing category pin after removing it in a failed draft', async () => {
+    await seedConfig({
+      ...baseConfig(),
+      skills: {
+        common: { ref: COMMON_V1 },
+        react: { ref: REACT_V1, include: ['signals'] },
+      },
+    });
+    const before = await fs.readFile(configPath());
+    const applyService = new RecordingApplyService(new ConfigService());
+    applyService.prepareError = new SkillCatalogError('preflight failed');
+    const command = buildCommand(applyService);
+
+    answers.push({ categories: ['common'] });
+    answers.push({ next: 'review' });
+    answers.push({ categories: ['common', 'react'] });
+    answers.push({ next: 'review' });
+
+    await command.run();
+
+    expect(await fs.readFile(configPath())).toEqual(before);
+    expect(applyService.prepareCalls).toHaveLength(1);
+    expect(applyService.applyCalls).toHaveLength(0);
+  });
+
+  it('warns that retry will retain obsolete managed files when prune is disabled', async () => {
+    await seedConfig({ ...baseConfig(), prune: false });
+    const applyService = new RecordingApplyService(
+      new ConfigService(),
+      ['fail-after-save'],
+    );
+    const command = buildCommand(applyService);
+
+    answers.push({ categories: ['common', 'react'] });
+    answers.push({ next: 'review' });
+    answers.push({ apply: true });
+    answers.push({ retry: false });
+
+    await command.run();
+
+    expect((await readConfig()).prune).toBe(false);
+    expect(applyService.applyCalls).toHaveLength(1);
+    expect(logSpy.mock.calls.flat().join('\n')).toContain(
+      'prune is false: obsolete managed files are retained',
+    );
+  });
+
+  it('leaves a new category unselected when its published ref cannot resolve', async () => {
+    await seedConfig(baseConfig());
+    const before = await fs.readFile(configPath());
+    const applyService = new RecordingApplyService(new ConfigService());
+    const catalogService = new SkillCatalogService(
+      new FakeCatalogTransport(registryFiles()) as never,
+    );
+    const resolveRelease = vi
+      .spyOn(catalogService, 'resolveRelease')
+      .mockRejectedValue(new SkillCatalogError('release unavailable'));
+    const command = buildCommand(applyService, { catalogService });
+
+    answers.push({ categories: ['common', 'react'] });
+    answers.push({ next: 'review' });
+
+    await command.run();
+
+    expect(resolveRelease).toHaveBeenCalledTimes(1);
+    expect(await fs.readFile(configPath())).toEqual(before);
+    expect(applyService.prepareCalls).toHaveLength(0);
+  });
+
+  it('does not write when a category skill listing fails during customization', async () => {
+    await seedConfig(baseConfig());
+    const before = await fs.readFile(configPath());
+    const applyService = new RecordingApplyService(new ConfigService());
+    const catalogService = new SkillCatalogService(
+      new FakeCatalogTransport(registryFiles()) as never,
+    );
+    const listSkills = vi
+      .spyOn(catalogService, 'listSkills')
+      .mockRejectedValue(new SkillCatalogError('category tree unavailable'));
+    const command = buildCommand(applyService, { catalogService });
+
+    answers.push({ categories: ['common'] });
+    answers.push({ next: 'customize' });
+    answers.push({ category: 'common' });
+    answers.push({ next: 'cancel' });
+
+    await command.run();
+
+    expect(listSkills).toHaveBeenCalledTimes(1);
+    expect(await fs.readFile(configPath())).toEqual(before);
+    expect(applyService.prepareCalls).toHaveLength(0);
+    expect(applyService.applyCalls).toHaveLength(0);
+  });
+
+  it('renders a non-Error catalog rejection without prompting or writing', async () => {
+    await seedConfig(baseConfig());
+    const before = await fs.readFile(configPath());
+    const applyService = new RecordingApplyService(new ConfigService());
+    const catalogService = new SkillCatalogService(
+      new FakeCatalogTransport(registryFiles()) as never,
+    );
+    vi.spyOn(catalogService, 'load').mockRejectedValue('registry offline');
+    const command = buildCommand(applyService, { catalogService });
+
+    await command.run();
+
+    expect(await fs.readFile(configPath())).toEqual(before);
+    expect(promptMock).not.toHaveBeenCalled();
+    expect(applyService.prepareCalls).toHaveLength(0);
+    expect(errorSpy.mock.calls.flat().join('\n')).toContain(
+      'registry offline',
+    );
   });
 });
 
@@ -965,6 +1586,56 @@ describe('SkillsCommand retry and reload', () => {
     expect(saved.skills.react.ref).toBe(REACT_V2);
     expect(applyService.applyCalls).toHaveLength(1);
     expect(process.exitCode).toBe(1);
+  });
+
+  it('keeps the external configuration when an unsaved retry is refused', async () => {
+    await seedConfig(baseConfig());
+    const applyService = new RecordingApplyService(new ConfigService(), [
+      'conflict',
+    ]);
+    const command = buildCommand(applyService);
+
+    answers.push({ categories: ['common', 'react'] });
+    answers.push({ next: 'review' });
+    answers.push({ apply: true });
+    answers.push({ retry: false });
+
+    await command.run();
+
+    const saved = await readConfig();
+    expect(saved.prune).toBe(false);
+    expect(applyService.applyCalls).toHaveLength(1);
+    expect(process.exitCode).toBe(1);
+    expect(logSpy.mock.calls.flat().join('\n')).toContain(
+      'reopen `ags skills`, review the selection, and Apply again',
+    );
+  });
+
+  it('stops a retry when the saved configuration cannot be reloaded', async () => {
+    await seedConfig(baseConfig());
+    const configService = new ConfigService();
+    const readSnapshot = configService.readSnapshot.bind(configService);
+    const read = vi.spyOn(configService, 'readSnapshot');
+    read.mockImplementationOnce((cwd?: string) => readSnapshot(cwd));
+    read.mockResolvedValueOnce(null);
+    const applyService = new RecordingApplyService(new ConfigService(), [
+      'fail-after-save',
+    ]);
+    const command = buildCommand(applyService, { configService });
+
+    answers.push({ categories: ['common', 'react'] });
+    answers.push({ next: 'review' });
+    answers.push({ apply: true });
+    answers.push({ retry: true });
+
+    await command.run();
+
+    expect((await readConfig()).skills.react.ref).toBe(REACT_V2);
+    expect(applyService.applyCalls).toHaveLength(1);
+    expect(process.exitCode).toBe(1);
+    expect(errorSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Could not reload .skillsrc for the retry'),
+    );
   });
 
   it('reloads instead of overwriting a configuration changed on disk', async () => {
