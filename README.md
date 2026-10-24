@@ -118,13 +118,23 @@ npx agent-skills-standard@latest sync
 - **Restore**: Undo destructive changes with `ags restore <id>` or view backups with `ags restore --list`.
 - **Safe Uninstall**: `ags uninstall [--all] [--agent <agents...>] [--category <categories...>]` removes only owned-unchanged files, preserving user edits and backing up first.
 
-### 3. Code
+### 3. (Optional) Manage skill selections
+
+Add or remove guidance without editing YAML or looking up release tags:
+
+```bash
+npx agent-skills-standard@latest skills
+```
+
+Categories are checked from your current `.skillsrc`; newly enabled categories resolve their published release automatically, while existing pins stay untouched. Optionally customize nested skills (with search) or switch a category to its published release, review the full effect, then confirm once — the command saves the selection and installs it for every configured agent. Cancel or an unchanged selection writes nothing. On a real change the command records `skills_mode: explicit`, so a later ordinary `sync` will not silently re-add the categories or skills you removed.
+
+### 4. Code
 
 Your AI agent now reads `AGENTS.md` automatically. Skills activate based on what file you're editing and what you ask for.
 
 > **Works instantly** with Cursor, Claude Code, GitHub Copilot, Gemini CLI, Windsurf, Trae, Kiro, and Roo. No plugin or extension needed — the CLI generates each agent's native format.
 
-### 4. (Optional) Enable runtime enforcement via the MCP server
+### 5. (Optional) Enable runtime enforcement via the MCP server
 
 The CLI **distributes** skills to disk. The companion MCP server **serves** them to your AI agent at runtime as explicit tool calls — closing the gap where agents read `AGENTS.md` but forget to load matched `SKILL.md` files (especially in sub-agents).
 
@@ -296,6 +306,9 @@ The `.skillsrc` file controls what gets synced:
 ```yaml
 registry: https://github.com/HoangNguyen0403/agent-skills-standard
 agents: [cursor, copilot, claude, gemini]
+# `ags skills` records explicit mode after a real selection change so ordinary
+# sync no longer re-adds categories you deliberately removed.
+# skills_mode: explicit
 # Standard registry skills
 skills:
   flutter:

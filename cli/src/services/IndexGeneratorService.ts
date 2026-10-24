@@ -47,17 +47,20 @@ export abstract class IndexGeneratorService {
   abstract generateCategoryIndex(
     baseDir: string,
     category: string,
+    allowedSkillIds?: Record<string, readonly string[]>,
   ): Promise<string>;
 
   abstract generateAllCategoryIndices(
     baseDir: string,
     allowedCategories?: string[],
+    allowedSkillIds?: Record<string, readonly string[]>,
   ): Promise<Record<string, string>>;
 
   abstract assembleRouterIndex(
     baseDir: string,
     allowedCategories?: string[],
     mcpEnabled?: boolean,
+    allowedSkillIds?: Record<string, readonly string[]>,
   ): Promise<string>;
 
   abstract assembleIndex(entries: string[]): string;

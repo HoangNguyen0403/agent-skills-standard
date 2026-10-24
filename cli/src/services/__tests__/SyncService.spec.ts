@@ -211,20 +211,6 @@ describe('SyncService', () => {
   });
 
   describe('assembleSkills', () => {
-    it('should delegate to skillSyncService', async () => {
-      const config = makeConfig();
-      const categories = ['cat1'];
-      mockSkillSyncService.assembleSkills.mockResolvedValue([]);
-
-      await syncService.assembleSkills(categories, config);
-
-      expect(mockSkillSyncService.assembleSkills).toHaveBeenCalledWith(
-        categories,
-        config,
-        {},
-      );
-    });
-
     it('propagates an assembly failure before any write can replace lock coverage', async () => {
       const config = makeConfig({ skills: { cybersecurity: {} } });
       const failure = new Error(

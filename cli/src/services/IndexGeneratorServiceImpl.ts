@@ -106,18 +106,18 @@ export class IndexGeneratorServiceImpl extends IndexGeneratorService {
   async generateAllCategoryIndices(
     baseDir: string,
     allowedCategories?: string[],
+    allowedSkillIds?: Record<string, readonly string[]>,
   ): Promise<Record<string, string>> {
     if (!(await fs.pathExists(baseDir))) return {};
 
     let categories = await fs.readdir(baseDir);
     categories = categories.filter((c) => {
       if (c.startsWith('.') || c === '_INDEX.md') return false;
-      if (
-        allowedCategories &&
-        !allowedCategories.includes(c) &&
-        c !== 'common'
-      ) {
-        return false;
+      if (allowedCategories && !allowedCategories.includes(c)) {
+        // Under an explicit selection the category set is authoritative: the
+        // historic implicit `common` inclusion would advertise deselected
+        // skills from a directory nobody selected.
+        if (allowedSkillIds || c !== 'common') return false;
       }
       return true;
     });
@@ -128,7 +128,11 @@ export class IndexGeneratorServiceImpl extends IndexGeneratorService {
       const categoryPath = path.join(baseDir, category);
       if (!(await fs.stat(categoryPath)).isDirectory()) continue;
 
-      const index = await this.generateCategoryIndex(baseDir, category);
+      const index = await this.generateCategoryIndex(
+        baseDir,
+        category,
+        allowedSkillIds,
+      );
       if (index) result[category] = index;
     }
     return result;
@@ -137,6 +141,7 @@ export class IndexGeneratorServiceImpl extends IndexGeneratorService {
   async generateCategoryIndex(
     baseDir: string,
     category: string,
+    allowedSkillIds?: Record<string, readonly string[]>,
   ): Promise<string> {
     const categoryPath = path.join(baseDir, category);
     if (!(await fs.pathExists(categoryPath))) return '';
@@ -169,6 +174,11 @@ export class IndexGeneratorServiceImpl extends IndexGeneratorService {
       const skillId = isStandaloneSkill
         ? entryName.replace('.md', '')
         : entryName;
+
+      const allowed = allowedSkillIds?.[category];
+      if (allowed && !isStandaloneSkill && !allowed.includes(skillId)) {
+        continue;
+      }
 
       const metadata = await this.reader.parseSkill(targetPath);
       if (!metadata) continue;
@@ -241,6 +251,7 @@ export class IndexGeneratorServiceImpl extends IndexGeneratorService {
     baseDir: string,
     allowedCategories?: string[],
     mcpEnabled: boolean = false,
+    allowedSkillIds?: Record<string, readonly string[]>,
   ): Promise<string> {
     const fileRouting = await this.reader.loadFileRouting(baseDir);
 
@@ -249,11 +260,11 @@ export class IndexGeneratorServiceImpl extends IndexGeneratorService {
       const dirs = await fs.readdir(baseDir);
       availableCategories = dirs.filter((d) => {
         if (d.startsWith('.') || d === '_INDEX.md') return false;
-        if (
-          allowedCategories &&
-          !allowedCategories.includes(d) &&
-          d !== 'common'
-        ) {
+        if (allowedCategories && !allowedCategories.includes(d)) {
+          if (allowedSkillIds || d !== 'common') return false;
+        }
+        if (allowedSkillIds && (allowedSkillIds[d]?.length ?? 0) === 0) {
+          // An empty selection has no index to route to.
           return false;
         }
         return true;
