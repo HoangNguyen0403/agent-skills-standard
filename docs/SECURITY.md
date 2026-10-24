@@ -59,11 +59,11 @@ SkillSpector checks **64 vulnerability patterns across 16 categories**:
 
 | Score    | Status        | Meaning                                |
 | -------- | ------------- | -------------------------------------- |
-| 0 – 25   | ✅ **PASS**   | Skills are safe to install             |
-| 26 – 50  | ⚠️ **REVIEW** | Moderate risk — manual review required |
-| 51 – 100 | ❌ **FAIL**   | High risk — blocked from publishing    |
+| 0–25 | ✅ **PASS** | Within the configured score threshold, with no CRITICAL findings; non-critical findings may remain. Not an install-safety or execution verdict. |
+| 26 – 50 | ⚠️ **REVIEW** | Moderate risk — manual review required |
+| 51 – 100 | ❌ **FAIL** | High risk — blocked from publishing |
 
-**Any CRITICAL-severity finding automatically fails the gate**, regardless of the overall score.
+**Any CRITICAL-severity finding automatically fails the gate**, regardless of the overall score. PASS means only that the score meets the configured threshold and no CRITICAL finding is present; it does not prove a skill safe to install, benign, authorized, or contained by the host. Say “no findings” only when the actual report contains zero findings.
 
 ---
 
@@ -120,10 +120,10 @@ Severity: INFO
 Findings: 0
 ```
 
-A score of **0** with no findings means your skill is clean. If you see findings:
+A score of **0** with no findings means only that this scan found no matching issues in the content and patterns it examined. It does not mean the skill is clean or safe to install, nor does it prove setup/lifecycle behavior, effective host controls, or runtime isolation. If you see findings:
 
-1. Read the pattern description — most findings in skill files are `INFO` or `LOW` (false positives from keywords)
-2. MEDIUM/HIGH findings in a skill file should be investigated — ensure the instructions don't accidentally look like injection patterns
+1. Read the pattern description — most findings in skill files are INFO or LOW (false positives from keywords)
+2. Investigate MEDIUM/HIGH findings; do not treat a clean scan as a substitute for source review or host-control evidence
 3. Never include executable code, secret patterns, or external URLs with credentials in a `SKILL.md`
 
 ---

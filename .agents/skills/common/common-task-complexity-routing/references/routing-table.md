@@ -4,7 +4,7 @@
 | --- | --- | --- | --- |
 | Autonomy | Autonomous; proceed without plan approval in autonomous mode | Guided; plan shared, self-review before handoff | Plan-first; **HARD STOP** for plan approval before any code |
 | Verification | Focused tests + lint on changed files | Full TDD loop per `common-tdd`, self-review of diff | Full TDD loop + independent verification via `verify-work` |
-| Review mode (`code-review`) | `fast`: changed files + direct call graph | `deep`: related flows, boundaries, prior incidents | `deep` plus specialist fanout |
+| Review mode (`code-review`) | `fast`: changed files + direct call graph | `deep`: related flows, boundaries, prior incidents | `deep` plus the relevant specialist fanout |
 | Reviewer specialists | none required | `specialist-test-gap-finder` when tests changed | `specialist-architecture-guard`; `specialist-security-reviewer` when auth/trust/money touched; `specialist-test-gap-finder` |
 | Human approval | none | plan acknowledged | plan approved before code, merge approved by a human |
 | `model_tier` | `fast` | `standard` | `strong` |

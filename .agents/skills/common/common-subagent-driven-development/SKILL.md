@@ -1,6 +1,6 @@
 ---
 name: common-subagent-driven-development
-description: Execute multi-task implementation plans by dispatching a fresh implementer subagent per task with independent review gates. Use when implementing plans, executing multi-task PRs, or transitioning from planning to implementation.
+description: Execute multi-task implementation plans by dispatching one bounded implementer per task with independent review gates. Use when implementing plans, executing multi-task PRs, or transitioning from planning to implementation.
 metadata:
   triggers:
     files:
@@ -10,6 +10,7 @@ metadata:
     - 'TODO.md'
     keywords:
     - subagent-driven-development
+    - subagent
     - implement plan
     - execute plan
     - implement this plan
@@ -22,57 +23,77 @@ metadata:
     - multi-task implementation
     - sdd
 ---
-
 # Subagent-Driven Development (SDD)
 
 ## **Priority: P1 (HIGH)**
 
-Execute multi-task implementation plans by dispatching a fresh implementer subagent per task, an independent task review (spec compliance + code quality) after each, and a whole-branch review at the end.
+Execute a multi-task plan through one bounded implementer per task, an independent review after each task, and a whole-branch review at the end.
 
-## 1. Execution Confirmation Gate (Scenario A & B)
+## 1. Execution Gate and Inline Exception
 
 Before editing code for any multi-task plan:
-1. **DO NOT start editing files directly in this orchestrator session.**
-2. **Confirm with human partner:** Host approval policy overrides defaults. Offer Subagent-Driven (Recommended — fresh workers per task for context isolation + task review gate) vs. Inline (direct implementation in orchestrator session for small bounded changes).
-3. If approved (or user replies "yes", "proceed", "start", "approve"), invoke SDD. See [methodology.md](references/methodology.md#1-execution-confirmation-gate).
+1. Do not make implementation edits in the orchestrator session unless the Inline exception in step 3 has been selected and recorded; otherwise dispatch a bounded worker.
+2. Confirm the approach: Subagent-Driven (recommended) vs. Inline. Record the decision.
+3. Inline is allowed only when host policy explicitly permits it and the change is genuinely small and low risk. Record the permitting policy and the bounded scope; that recorded branch then authorizes direct orchestrator edits within it. A plan approval, silence, or missing host support does not grant inline permission.
 
-## 2. SDD & The Single Worker Contract
+## 2. Semantic Lifecycle
 
-- **Macro (SDD Orchestrator):** Manages task decomposition, workspace isolation, brief generation, independent review gates, Git commits, and final integration verification.
-- **Worker Contract:** Implementer subagents own bounded implementation and focused verification of touched files. Workers do NOT commit changes with Git, recursively delegate to other agents, or run full project test suites by default.
-- **Micro (TDD):** Implementer subagents follow the RED -> GREEN -> REFACTOR cycle inside their assigned brief.
-## 3. Setup & Workspace Resolution
+| Operation | Required evidence |
+| --- | --- |
+| prepare | Standalone packet: assignment manifest, task text, authority, invariants, owner, owned paths, required standards with revision, ACs, verification, source/dependency identities |
+| dispatch | One implementation owner per slice; authority and data eligibility checked before any task context is sent |
+| completion | Terminal state reported by the host, not inferred from silence or elapsed time |
+| resume | Same task, same authority, same owned paths; a new task is a fresh dispatch |
+| cancel | Reported as cancelled/stopped; never as completed or verified |
+| receipt | Operation, task/actor/revision, terminal state, evidence, limitations |
+| verify acceptance | Independent reviewer, separate from the implementer, against ACs and evidence |
 
-Resolve the isolated, git-ignored workspace directory before Task 1:
-```bash
-python3 skills/common/common-subagent-driven-development/scripts/sdd_workspace.py <PLAN_FILE>
-```
-Track task completion in `<workspace>/progress.md` so work survives context compaction.
+Host instructions bind these operations to native invocation. Canonical text names semantics only. If a required operation or permission control is unavailable on the host surface, report the affected operation unsupported; do not claim success.
 
-Use the local version-2 explicit progress helper for revision/evidence-bound checkpoints; it does not enforce host pauses, authorization, or wakeups. See [Progress Receipts](references/progress-receipts.md).
+## 3. Bootstrap and Batching
 
-## 4. The Task Loop
+- Orchestrator owns plan discovery, assignment and dispatch.
+- Worker bootstrap reads its packet, requests the exact required standards it names, and executes. It does not repeat workflow discovery or parent intake unless the packet says so.
+- Missing required standards or inaccessible evidence is a dispatch prerequisite, not a reason to re-run global intake.
+- Dispatch disjoint, dependency-ready slices concurrently with one non-overlapping owner each. Sequence true dependencies. Do not fan out unrelated lenses.
 
-For each task in the plan:
-1. **Record Baseline & Dispatch Implementer:** Record `BASE=$(git rev-parse HEAD)`. From the repository root, generate the brief with `python3 skills/common/common-subagent-driven-development/scripts/task_brief.py <PLAN_FILE> <TASK_NUMBER>`. Dispatch worker with `[BRIEF_FILE]` and `[REPORT_FILE]`.
-2. **Passive Wait (No Polling):** Call `wait()` and yield control. Never poll status or activity in a loop.
-3. **Scoped Review Package & Review:** From the repository root, run `python3 skills/common/common-subagent-driven-development/scripts/review_package.py <PLAN_FILE> $BASE WORKSPACE --paths <OWNED_PATHS...>`. Workspace mode requires explicit literal file paths or bounded owned directories (no Git pathspec magic, globs, `.`, or overlapping scopes). Each changed workspace snapshot gets a content-addressed immutable default filename; same-base/scope packages are cumulative from `$BASE`, not fix-only. Dispatch reviewer with `[BRIEF_FILE]`, `[REPORT_FILE]`, and `[DIFF_FILE]`.
-4. **Fix Loop (Up to 5 Rounds):** Re-prompt the worker; regenerate the cumulative package from the original `$BASE` and identical owned paths. The latest package includes all task changes through that round; re-review the open findings against that cumulative state and do not describe it as a fix-only diff.
-5. **Orchestrator Integration:** Orchestrator verifies diff, runs full suite checks if required, and creates git commit.
+## 4. Failure-Specific Recovery
 
-## 5. Final Review & Completion
+| Observed failure | Route |
+| --- | --- |
+| Missing prerequisite/context | `needs_context` or `blocked` with the exact missing item; no fallback |
+| Defective output | One corrective assignment naming the failed AC and expected result |
+| Observed provider exhaustion | Only an eligible, authorized fallback; the receipt records the exhaustion evidence and selected route |
+| Consequential safety/design issue | Human decision |
 
-Run whole-branch review from the repository root: `python3 skills/common/common-subagent-driven-development/scripts/review_package.py <PLAN_FILE> $MERGE_BASE HEAD`. Dispatch senior reviewer on capable model. Once clean, delete `<workspace>` and complete branch.
+Retry count alone never authorizes premium. Timeout and cancellation are not completion. Required human approvals remain external to agent verdicts.
+
+## 5. Task Loop
+For each task:
+1. **Prepare:** Record `BASE=$(git rev-parse HEAD)`. Generate the packet with `task_brief.py <PLAN_FILE> <TASK_NUMBER> --assignment <ASSIGNMENT_JSON> --out <BRIEF_FILE>`. The assignment manifest is required; never dispatch a bare task section.
+2. **Dispatch:** One implementer per task, with a host-selected `fast | standard | strong` hint. The packet, not repeated prose, carries authority and acceptance.
+3. **Yield:** Wait for a completion notification; never poll status in a loop.
+4. **Review:** Generate the scoped cumulative package from `$BASE` and the owned paths. Dispatch an independent reviewer with brief, report, and package. Implementer self-review never satisfies this gate.
+5. **Fix:** Re-prompt the same worker with concrete failed ACs. Regenerate the cumulative package; re-review against cumulative state.
+6. **Integrate:** Orchestrator verifies the diff, runs required covering checks, and commits.
+
+## 6. Final Review and Evidence
+
+- Run whole-branch review on a capable host hint; then complete the branch.
+- Before deleting the workspace, archive packets, reports, immutable review snapshots and verification receipts at durable references. Cleanup must not invalidate handoff links.
+
 ## Anti-Patterns
 
-- **No Worker Commits:** Workers leave edits in the workspace and report diffs/evidence; the orchestrator commits.
-- **No Recursive Delegation:** Implementers do not spawn subagents.
-- **No Full-Suite Runs by Workers:** Workers run focused tests; orchestrator runs broad verification during integration.
-- **No Speculative Savings Claims:** Describe context isolation factually, not with guaranteed percentages.
-- **No Inline Edits on Multi-Task Plans:** Do not burn orchestrator context editing files directly.
-- **No Polling Loops:** Yield control via `wait()`; do not loop `get_agent_status`.
-- **No Inlined Context Bloat:** Pass briefs and diffs as file paths, never paste full bodies into chat prompts.
+- **No worker commits**: workers leave changes; the orchestrator commits.
+- **No recursive delegation**: workers do not spawn agents.
+- **No self-approval**: implementer verdicts do not satisfy independent review.
+- **No premium by retry**: retries, task size, or a strong hint do not authorize premium.
+- **No polling loops**: yield until a completion event.
+- **No fabricated savings**: never claim token or cost savings without complete measured coverage.
+- **No enforcement claims**: prompt text and warnings are not a sandbox.
+
 ## References
 
-- [Methodology & Gates](references/methodology.md) — execution confirmation scenarios & task loop rules
-- [Subagent Prompt Templates](references/templates.md) — implementer, reviewer, and re-reviewer templates
+- [Methodology & Gates](references/methodology.md)
+- [Prompt Templates](references/templates.md)
+- [Progress Receipts](references/progress-receipts.md)

@@ -31,8 +31,9 @@ metadata:
 
 - **No history rewrite assumption**: Project outputs or create artifact references; use only host-supported controls.
 - **No fixed threshold**: Compact from observed context pressure and task needs, not a universal turn/token count.
-- **No evidence deletion**: Keep stable references to source outputs, decisions, and verification.
-- **No partial cost claim**: Include cache reads, replay, and total actor cost; label estimates.
+- **No evidence deletion**: Keep stable references to source outputs, decisions, and verification. Archive required packets, reports and receipts at durable references before cleanup.
+- **No omission-as-optimization**: Never claim savings from suppressing required instruction bodies. Selection or body-return counts are not acknowledgment, comprehension, or enforcement.
+- **No partial cost claim**: Include cache reads, replay, and total actor cost; label estimates. Missing coverage or rates means no savings claim.
 
 ## References
 

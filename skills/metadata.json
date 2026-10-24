@@ -489,13 +489,13 @@
       ]
     },
     "common": {
-      "version": "2.9.3",
+      "version": "2.9.1",
       "last_updated": "2026-10-26",
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 45,
-        "total_tokens": 39904,
-        "avg_tokens_per_skill": 887,
+        "total_tokens": 40152,
+        "avg_tokens_per_skill": 892,
         "largest_skill": "common-skill-creator (1693 tokens)"
       },
       "owners": [

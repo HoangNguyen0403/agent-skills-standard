@@ -25,13 +25,13 @@ Hosts differ in how they signal a decision. Normalize to the three outcomes in t
 
 ## Enforcement Caveats
 
-- A hook that only prints a reminder is advisory. Do not record an advisory hook as an enforced control.
-- Only some hosts honour a blocking exit from a pre-tool hook. Verify with a deliberate violation
-  before claiming the class is enforced.
-- Organization-managed settings outrank project config. Put secret deny and production gates there
-  so a project cannot relax them.
-- Subagents and background runs may not inherit project hooks. Confirm inheritance, or enforce the
-  same class in CI where the work lands.
+- A hook that only prints a reminder is advisory. Do not record it as an enforced control.
+- A host's installed policy, hook, or capability declaration is not proof that all relevant routes are intercepted. Verify the exact host, configuration, action, and alternate routes before claiming enforcement.
+- Only some hosts honour a blocking exit from a pre-tool hook. Verify with a safe deliberate violation and preserve the observed result.
+- Skills, prompts, indexes, hashes, scans, and repository settings communicate or inspect policy; they do not themselves prevent reads, execution, network access, credential exposure, or descendant actions.
+- Organization-managed settings may outrank project config. Confirm the effective configuration instead of assuming precedence or inheritance.
+- Subagents and background runs may not inherit project hooks. Confirm inheritance, or enforce the same class in CI where the work lands.
+- For untrusted-workspace review, distinguish declared policy from observed/verified behavior and report unknown or untested routes as unavailable or not run. A scan result is not install-safety or isolation evidence; see [admission guidance](untrusted-workspace-admission.md).
 
 ## Verification
 
