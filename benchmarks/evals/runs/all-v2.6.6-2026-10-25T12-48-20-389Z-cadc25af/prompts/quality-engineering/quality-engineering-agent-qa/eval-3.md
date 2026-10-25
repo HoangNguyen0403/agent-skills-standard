@@ -1,0 +1,1 @@
+Triage agent-qa run r-42. The failed-run list is []; runs overview r-42 has no completed verdict; runs knowledge r-42 reports evidence-incomplete. Summarize the verification result and what evidence is still needed. Do not run the app or modify memory.

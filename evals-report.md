@@ -1,6 +1,6 @@
 # 🧪 Live Skill Evals Report
 
-> Generated: 2026-10-23T05:14:42.993Z
+> Generated: 2026-10-25T12:50:28.408Z
 > Measured transcript-assertion evidence, not structural or executable task verification: outcome assertions are evaluated against transcripts from isolated evaluation workers. Workers are instructed not to use tools and have read-only filesystem capability, but neither tool-use prohibition nor tool invocation is host-enforced or retained here; tool-free execution is unverified. Trigger arms receive only the skill name and description.
 > Historical v1 runs remain readable through the compatibility adapter. v2 metrics report case pass rate, assertion pass rate, trigger recall, trigger specificity, and balanced trigger accuracy.
 > Activation metrics are omitted for legacy trigger evidence until a clean activation-evidence v2 run replaces it.
@@ -35,6 +35,10 @@
 
 | Run | Category | Date | Skills | Baseline | With-Skill | Delta | Evidence | Protocol | Unresolved | Agent |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `all-v2.6.6-2026-10-25T12-50-13-711Z-9d7134e0` | all | 2026-10-25 | 1 | 80% | 100% | +20% | regraded | neutral-skill-v4 | 0 | n/a |
+| `all-v2.6.6-2026-10-25T12-48-20-389Z-cadc25af` | all | 2026-10-25 | 1 | 40% | 100% | +60% | regraded | neutral-skill-v4 | 0 | n/a |
+| `agent-qa-development-2026-10-25-iteration2` | all | 2026-10-25 | 1 | 20% | 80% | +60% | fresh | neutral-skill-v4 | 0 | Codex CLI isolated worker |
+| `agent-qa-development-2026-10-25-iteration1` | all | 2026-10-25 | 1 | 0% | 75% | +75% | fresh | neutral-skill-v4 | 0 | Codex CLI isolated worker |
 | `all-v2.6.1-2026-09-22T07-28-44-830Z-0e7f8fb4` | all | 2026-09-22 | 14 | 10% | 68% | +57% | incremental | governing-skill-v3 | 0 | Codex CLI isolated worker |
 | `governed-cybersecurity-20260922-attribution` | all | 2026-09-22 | 14 | 4% | 67% | +63% | fresh | governing-skill-v3 | 0 | Codex CLI isolated worker |
 | `all-v2.6.0` | all | 2026-07-14 | 265 | 42% | 72% | +30% | composite | unknown | 227 | Composite immutable evidence |

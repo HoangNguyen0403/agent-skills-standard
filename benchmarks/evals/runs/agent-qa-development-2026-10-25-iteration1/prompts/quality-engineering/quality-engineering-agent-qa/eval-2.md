@@ -1,0 +1,1 @@
+agent-qa 0.2.3 run tests/checkout.yaml --dry-run exited 1 with "Env file not found: .env". The dashboard has no new run verdict. Did checkout fail? State the outcome and next action without changing configuration.
