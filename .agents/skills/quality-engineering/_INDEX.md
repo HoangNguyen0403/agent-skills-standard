@@ -5,6 +5,7 @@
 
 | Skill | File pattern | Keywords |
 | ----- | ------------ | -------- |
+| quality-engineering-agent-qa | `**/agent-qa.config.yaml` | agent-qa, memidex, agent-qa run evidence |
 | **quality-engineering-business-analysis** | `**/user_story.md` | acceptance criteria, AC, business rules, jira story, toggle, market, write user story, improve user story, review story, BA |
 | **quality-engineering-flaky-triage** | `**/quarantine.json`, `**/.flaky-tests*` | flaky test, flake triage, quarantine test, intermittent failure, unquarantine, retry budget, passes on rerun |
 | quality-engineering-playwright-pom-generation | `tests/pages/**/*.ts`, `**/page-objects/**/*.ts`, `**/*.page.ts` | page object, page object model, pom generation, generate page objects, playwright fixture, pages fixture |

@@ -1,4 +1,5 @@
 import { fileURLToPath } from "node:url";
+import { readFile } from "node:fs/promises";
 import { beforeAll, describe, expect, it } from "vitest";
 import { SkillIndex } from "../src/services/SkillIndex";
 
@@ -38,4 +39,22 @@ describe("agent-qa registry routing", () => {
       ).not.toContain(skillId);
     }
   });
+
+  it.each([".agents", ".claude", ".codex", ".github"])(
+    "lists the skill in the %s consumer's file and keyword routing index",
+    async (surface) => {
+      const text = await readFile(
+        new URL(
+          `../../${surface}/skills/quality-engineering/_INDEX.md`,
+          import.meta.url,
+        ),
+        "utf8",
+      );
+      const row = text
+        .split("\n")
+        .find((line) => line.startsWith(`| ${skillId} |`));
+      expect(row).toContain("**/agent-qa.config.yaml");
+      expect(row).toContain("memidex");
+    },
+  );
 });

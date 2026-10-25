@@ -43,9 +43,15 @@ queries selected correctly; no description tuning was performed.
 `mcp/test/AgentQaRouting.spec.ts` uses the real SkillIndex and registry files.
 Before the YAML category route was added, exact-config lookup returned no match.
 Afterward, root/nested configs and explicit keywords select agent-qa, while
-generic YAML/Markdown and adjacent driver concepts do not. The focused tests and
-full MCP suite pass. This proves local registry selection, not end-host skill
-delivery or browser/device execution.
+generic YAML/Markdown and adjacent driver concepts do not.
+
+The PR review then identified missing agent-qa rows in the four checked-in agent
+indexes. Four parameterized checks reproduced those omissions while both MCP
+routing checks still passed. Regenerating the affected category with
+`IndexGeneratorServiceImpl.generateCategoryIndex` and canonical metadata changed
+only the missing row in each export; a second generation was byte-identical.
+All six focused checks pass. This covers local registry selection and static
+index discovery, not end-host skill delivery or browser/device execution.
 
 The required root test suite and build pass. Skill validation, SDLC audit,
 redundancy audit, injection scan, freshness audit, and ordinary alignment gate
@@ -66,6 +72,16 @@ pnpm evals:verify -- --all
 pnpm evals:gate -- --run all-v2.6.6-2026-10-25T12-50-13-711Z-9d7134e0
 ```
 
-Reproduce generation from canonical skills with `pnpm generate-indices` and
-`pnpm calculate-tokens`. The new README link label is normalized to the product's
-lowercase spelling after generation; the generator otherwise title-cases it.
+Reproduce canonical generation with `pnpm generate-indices` and
+`pnpm calculate-tokens`. The four checked-in quality-engineering indexes match
+the canonical generated category byte-for-byte. If the general sync retains an
+older snapshot, refresh those identical category exports after generation:
+
+```sh
+for surface in .agents .claude .codex .github; do
+  cp skills/quality-engineering/_INDEX.md "$surface/skills/quality-engineering/_INDEX.md"
+done
+```
+
+The new README link label is normalized to the product's lowercase spelling
+after generation; the generator otherwise title-cases it.

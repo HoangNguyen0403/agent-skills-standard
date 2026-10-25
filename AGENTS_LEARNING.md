@@ -676,3 +676,29 @@ Exercise the production SkillIndex against real registry content, including exac
 
 ### Trigger Miss
 The runtime router lacked the extension mapping; the skill's explicit keyword triggers already worked.
+
+---
+
+## Agent Learning Log: Iteration #28
+
+**Date**: 2026-10-25 | **Task**: Restore agent-qa discovery in exported indexes.
+**Signal**: Session retrospective
+**Skills**: common/common-tdd, common/common-session-retrospective
+**Scope**: project
+**Candidate**: agent-qa-exported-index-discovery | **Status**: proposed
+**Provenance**: PR #262 review on `eb09a8b`; the four checked-in consumer indexes omit the canonical agent-qa row
+**Evaluation**: the two MCP routing cases pass; all four new exported-index cases fail before regeneration
+**Review**: pending; no guidance promotion
+**Rollback**: `eb09a8b`; retain the regression evidence
+
+### Mistake Made
+The previous checks compared exported skill bodies and exercised MCP routing, but did not inspect `.agents`, `.claude`, `.codex`, and `.github` category indexes. Those indexes still omitted agent-qa after the canonical index was regenerated, preventing documented file-based discovery.
+
+### Pattern to Avoid
+- **No body parity as discovery proof**: matching skill files do not establish that each consumer's index links to them.
+
+### Better Approach
+Check each actual exported index for the exact config glob and memidex keyword. Regenerate the affected category with the existing index generator, verify that only the missing row changes, and keep the static-index checks alongside the separate MCP routing checks.
+
+### Trigger Miss
+No missing skill trigger was established. The missed boundary was the exported discovery artifact, distinct from the canonical extension route.
