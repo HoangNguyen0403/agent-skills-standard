@@ -66,6 +66,7 @@ Each `_INDEX.md` has two sections - follow both:
 | `*.py`, `*.pyi` | `<SKILLS>/python/_INDEX.md` |
 | `*.php` | `<SKILLS>/laravel/_INDEX.md`, `<SKILLS>/php/_INDEX.md` |
 | `*.sql`, `*.entity.ts`, `*.prisma` | `<SKILLS>/database/_INDEX.md` |
+| `*.yaml` | `<SKILLS>/quality-engineering/_INDEX.md` |
 | `*.component.ts`, `*.component.html` | `<SKILLS>/angular/_INDEX.md` |
 | `*.service.ts`, `*.module.ts` | `<SKILLS>/angular/_INDEX.md`, `<SKILLS>/nestjs/_INDEX.md` |
 | `*.json`, `*.md` | `<SKILLS>/common/_INDEX.md`, `<SKILLS>/product-management/_INDEX.md` |

@@ -42,6 +42,7 @@ Each `_INDEX.md` has two sections - follow both:
 | File type | Read category index |
 | --------- | ------------------- |
 | `*.ts`, `*.tsx` | `<SKILLS>/typescript/_INDEX.md` |
+| `*.yaml` | `<SKILLS>/quality-engineering/_INDEX.md` |
 | `*.json`, `*.md` | `<SKILLS>/common/_INDEX.md`, `<SKILLS>/product-management/_INDEX.md` |
 | `*.spec.ts`, `*.test.ts` | `<SKILLS>/common/_INDEX.md` |
 | Any file (keyword match) | `<SKILLS>/common/_INDEX.md` |

@@ -622,3 +622,57 @@ Use standard Promise executors with captured resolvers for deterministic barrier
 
 ### Trigger Miss
 None established. The missed verification boundary was the existing CI runtime, not a missing project skill.
+
+
+---
+
+## Agent Learning Log: Iteration #26
+
+**Date**: 2026-10-25 | **Task**: Evaluate agent-qa regression evidence guidance.
+**Signal**: Session retrospective
+**Skills**: common/common-skill-creator, quality-engineering/quality-engineering-agent-qa
+**Scope**: project
+**Candidate**: agent-qa-eval-command-and-outcome-contract | **Status**: proposed
+**Provenance**: base `a2228857e4cf5b8ee2d71d96630c586618ec2edd`; immutable `agent-qa-development-2026-10-25-iteration1` inputs and answers
+**Evaluation**: iteration 1 retained; fresh iteration 2 planned with unchanged model and worker isolation
+**Review**: pending; no release promotion
+**Rollback**: iteration 1 immutable inputs
+
+### Mistake Made
+The initial eval-1 string assertions accepted an invalid `agent-qa select` command while rejecting a correct explanation that a dry run does not establish passing tests. Initial wording checks also rejected valid uncertainty phrasing in baseline answers.
+
+### Pattern to Avoid
+- **No lexical score as behavioral proof**: inspect commands and meaning before attributing a score difference to the skill.
+
+### Better Approach
+Use exact command regexes and outcome checks that accept equivalent uncertainty phrasing; retain failed iterations and review grader changes separately from skill efficacy claims. Keep native verdicts, registry healing evidence, and executable results distinct.
+
+### Trigger Miss
+None established; the root cause was evaluator precision, not routing.
+
+
+---
+
+## Agent Learning Log: Iteration #27
+
+**Date**: 2026-10-25 | **Task**: Verify agent-qa consumer routing.
+**Signal**: Session retrospective
+**Skills**: common/common-skill-creator, common/common-tdd
+**Scope**: project
+**Candidate**: agent-qa-exact-config-routing | **Status**: proposed
+**Provenance**: `mcp/test/AgentQaRouting.spec.ts`; initial real-registry config lookup returned no match
+**Evaluation**: expected RED before adding the missing YAML category route; focused GREEN check follows
+**Review**: pending; no guidance promotion
+**Rollback**: remove the new YAML route and agent-qa catalog entry together
+
+### Mistake Made
+The new skill declared an exact `agent-qa.config.yaml` trigger, but `skills/metadata.json` did not route the YAML extension to quality-engineering. Frontmatter validation and language-model routing answers did not detect this consumer integration gap.
+
+### Pattern to Avoid
+- **No metadata-only routing proof**: a valid skill trigger can still be unreachable through the real category router.
+
+### Better Approach
+Exercise the production SkillIndex against real registry content, including exact-config positives and generic-file negatives. Add the missing extension route while retaining the narrow filename glob.
+
+### Trigger Miss
+The runtime router lacked the extension mapping; the skill's explicit keyword triggers already worked.

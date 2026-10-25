@@ -106,6 +106,9 @@
     "prisma": [
       "database"
     ],
+    "yaml": [
+      "quality-engineering"
+    ],
     "component.ts": [
       "angular"
     ],
