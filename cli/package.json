@@ -7,11 +7,14 @@
     "agent-skills-standard": "dist/index.js",
     "ags": "dist/index.js"
   },
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "vite build",
+    "build": "vite build && vite build --config vite.worker.config.ts",
     "start": "node dist/index.js",
     "dev": "tsx src/index.ts",
     "validate": "tsx src/index.ts validate",
@@ -46,6 +49,7 @@
   },
   "homepage": "https://github.com/HoangNguyen0403/agent-skills-standard#readme",
   "dependencies": {
+    "@getpaseo/client": "0.13.0",
     "commander": "^15.0.0",
     "cross-fetch": "^4.1.0",
     "dotenv": "^18.0.8",

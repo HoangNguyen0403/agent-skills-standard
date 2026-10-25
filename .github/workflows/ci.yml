@@ -57,7 +57,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
-          node-version: "20.x"
+          node-version: "22.x"
 
       - name: Install pnpm
         uses: pnpm/action-setup@v6
@@ -88,6 +88,8 @@ jobs:
         uses: pnpm/action-setup@v6
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      - name: Build CLI runtime assets
+        run: pnpm build
       - name: Run Review Package Regression Tests
         run: python3 scripts/skill-tests/common-subagent-driven-development/test_review_package.py
       - name: Run Unit Tests with Coverage
@@ -141,7 +143,7 @@ jobs:
 
       - uses: actions/setup-node@v7
         with:
-          node-version: "20.x"
+          node-version: "22.x"
 
       - name: Install pnpm
         uses: pnpm/action-setup@v6

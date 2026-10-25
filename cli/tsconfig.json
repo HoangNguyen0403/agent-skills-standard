@@ -1,5 +1,14 @@
 {
   "extends": "../tsconfig.json",
-  "include": ["src/**/*", "scripts/**/*", "vitest.config.ts", "vite.config.ts"],
+  "compilerOptions": {
+    "lib": ["ES2024", "DOM", "DOM.Iterable", "DOM.AsyncIterable", "ScriptHost"]
+  },
+  "include": [
+    "src/**/*",
+    "scripts/**/*",
+    "vitest.config.ts",
+    "vite.config.ts",
+    "vite.worker.config.ts"
+  ],
   "exclude": ["node_modules", "dist"]
 }

@@ -6,14 +6,20 @@ export default defineConfig({
     ssr: true,
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
-      formats: ['cjs'],
-      fileName: () => 'index.js',
+      formats: ['cjs', 'es'],
+      fileName: (format) => (format === 'es' ? 'index.mjs' : 'index.js'),
     },
     outDir: 'dist',
-    target: 'node18',
+    target: 'node22',
     rollupOptions: {
+      output: {
+        dynamicImportInCjs: false,
+      },
       external: [
         /^node:.*/,
+        /^@getpaseo\/.*/,
+        '@getpaseo/client',
+        '@getpaseo/client/node',
         'commander',
         'dotenv',
         'fs-extra',

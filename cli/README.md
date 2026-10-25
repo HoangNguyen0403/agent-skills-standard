@@ -12,6 +12,8 @@ npx agent-skills-standard@latest init   # detect your stack
 npx agent-skills-standard@latest sync   # install skills
 ```
 
+The CLI requires Node.js >=22.12.0.
+
 If `ags -V` still shows an old version after reinstalling, check your PATH order. `~/Library/pnpm` must come before `~/Library/pnpm/bin`, then run `hash -r` and verify with `ags -V` again.
 
 ---

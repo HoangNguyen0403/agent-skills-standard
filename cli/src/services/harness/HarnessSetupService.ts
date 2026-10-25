@@ -30,7 +30,7 @@ export class HarnessError extends Error {
  * Validates a Paseo origin string according to strict security boundaries.
  * Throws a sanitized HarnessError with code 'INVALID_ORIGIN' on invalid input.
  */
-export function validateHarnessOrigin(origin: string): void {
+export function validateHarnessOrigin(origin: unknown): void {
   if (typeof origin !== 'string' || origin.trim().length === 0) {
     throw new HarnessError(
       'INVALID_ORIGIN',

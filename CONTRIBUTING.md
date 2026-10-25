@@ -6,7 +6,7 @@ Thank you for your interest in contributing! This document provides guidelines f
 
 ### Prequisites
 
-- Node.js v18+
+- Node.js >=22.12.0 (CLI engine requirement)
 - pnpm (v9+)
 
 ### Installation
@@ -37,6 +37,7 @@ npx vitest run --coverage
 - Integration tests verify the CLI commands end-to-end.
 - Snapshot testing is encouraged for critical outputs like `AGENTS.md`.
 - Prefer consumer-visible behavior over pinned implementation detail. Do not snapshot the per-agent capability table merely to detect drift: capability and generated-export drift belongs to `pnpm docs:capabilities:check` and real transformer/ownership checks. When a test pins incidental wiring, source wording or a capability descriptor that is changing by design, remove it rather than repinning the old value.
+- Harness and fleet orchestration tests use temporary state directories with synthetic tasks; avoid running paid model calls, actual host installs, or modifying user configuration files during tests.
 
 ## 3. Creating Skills
 
@@ -112,9 +113,7 @@ Rules:
 - `product-management` defaults to two foundation skills (`product-business-requirements` and `product-requirements`) via category include allowlist during `ags init`. The eight advanced skills (`product-evidence` and the seven discovery/validation methods) are opt-in. Select them in `.skillsrc` under `skills` with a reviewed immutable `ref` (omit `include` or list desired skills explicitly); before the first category release, use a reviewed commit SHA. Add `discover-product`, `validate-product` and/or `review-product-value` explicitly to `workflows` (or set `workflows: true`).
 - All product decisions ground in `docs/product/<slug>/evidence.json` via `product-management/product-evidence`. Never fabricate customer observations, interview quotes, or causal ROI.
 - Keep seven advanced PM skills keyword-only (`triggers.files: []`); keep `product-evidence` scoped to `docs/product/*/evidence.json`; keep foundation BRD/PRD skills scoped to their respective spec files. Never add broad markdown globs or universal file triggers that activate PM skills unexpectedly.
-- Standalone validator (`validate-product-evidence.mjs`) and investment calculator
-  (`evaluate-investment.mjs`) require Node >=20. In contrast, CLI sync and the T09
-  integration harness require Node 22+ (using `Promise.withResolvers`).
+- Standalone validator (`validate-product-evidence.mjs`) and investment calculator (`evaluate-investment.mjs`) require Node >=20. The CLI package and T09 integration harness require Node >=22.12.0 (including `Promise.withResolvers`).
 - Invocation of standalone resources returns structural findings and host-check
   eligibility, never autonomous action consent. Review scripts before execution;
   sync preserves bytes and ownership but does not grant autonomous spend,
@@ -207,11 +206,20 @@ For system-design evaluations, lexical assertions check presence or routing only
 For changes to global harness fleet configuration and discovery (`cli/src/commands/harness.ts`, `cli/src/services/harness/**`):
 
 ```bash
-pnpm --filter ./cli test -- src/commands/__tests__/HarnessCommand.spec.ts src/services/harness/__tests__/HarnessSetupService.spec.ts src/services/harness/__tests__/HarnessDiscoveryService.spec.ts
+pnpm --filter ./cli test -- src/commands/__tests__/HarnessCommand.spec.ts src/commands/__tests__/FleetCommand.spec.ts src/services/harness/__tests__/HarnessSetupService.spec.ts src/services/harness/__tests__/HarnessDiscoveryService.spec.ts src/services/harness/runtime/__tests__
 pnpm --filter ./cli build
 ```
 
-Verify behavior using an isolated temporary state directory (e.g., `--state-dir <tmp-dir>`) to avoid mutating user home configuration or repository `.skillsrc` files.
+Verify behavior using an isolated temporary state directory (e.g., `--state-dir <tmp-dir>`) and a temporary `--paseo-home` to avoid mutating user home configuration or repository `.skillsrc` files. Integration tests pass explicit `--cli-path`, `--node-command`, and a fake OMP executable; they must not perform a real global install, daemon reload, model call, or write to the operator's `~/.paseo/config.json`.
+
+Fleet integration follow-up verification must exercise the actual package-bin symlink and provider inheritance behavior, version drift without blocking ordinary OMP launch, session pin stability across nested cwd/symlink scopes, bounded FIFO rejection in a subprocess, uninstall dry-run immutability during pending recovery, exact private-mode ownership checks, and whole-document parsing of production pretty-printed `fleet context` JSON. Malformed or extraneous CLI stdout must fail closed.
+
+Receipt/journal lifecycle tests must round-trip synthesized command pointers whose original key was absent, preserve explicit `null` distinctly, validate serialized state before config commit, and cover idempotent reinstall, uninstall pruning, and recovery. Scope/guidance caching must compare canonical host/project/logical/root identity, deny changed-identity results, and preserve cached context or null without pin rereads for the same scope.
+
+Evaluation tests must use the exported plan result shape, reject malformed required case data, preserve preview mode without authoritative draft IDs, and return nonzero for ineligible evaluations or unresolved/blocked execution sides. Runtime-manifest tests must use the exported manifest I/O bound consistently, reject oversized serialized output before staging, and read/replace accepted manifests larger than the runtime-spec input bound under exact digest CAS. Frozen execution fixtures must include valid verifier files and explicit script/interpreter configuration.
+
+Runtime-pin tests should prove that the default path performs no executable probes or writes, while `--apply` derives genuine hashes and refuses stale-digest replacement. Final integration acceptance also requires the built CLI's default entrypoint and temporary-home pin/bootstrap scenario; do not replace these with source-text assertions or claim unrun checks.
+
 
 For release candidates, also run:
 

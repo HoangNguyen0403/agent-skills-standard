@@ -1,6 +1,7 @@
 import { Command } from 'commander';
 import { HarnessSetupService } from '../services/harness/HarnessSetupService';
 import { HarnessDiscoveryService } from '../services/harness/HarnessDiscoveryService';
+import { FleetCommand, registerFleetCommands } from './fleet';
 
 export interface HarnessSetupOptions {
   paseoCommand?: string;
@@ -188,6 +189,7 @@ export function registerHarnessCommands(
   commandInstance?: HarnessCommand,
   exitFn?: (code: number) => void,
   printFn?: (msg: string) => void,
+  fleetCommandInstance?: FleetCommand,
 ): Command {
   const effectiveExit =
     exitFn ??
@@ -268,6 +270,12 @@ export function registerHarnessCommands(
       await harnessCommand.uninstall(options);
     });
   configureHarnessOutput(uninstallCmd, effectivePrint, effectiveExit);
+  registerFleetCommands(
+    harnessCmd,
+    fleetCommandInstance,
+    effectiveExit,
+    effectivePrint,
+  );
 
   return harnessCmd;
 }
