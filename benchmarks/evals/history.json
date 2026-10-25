@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-10-25T12:50:24.075Z",
+  "lastUpdated": "2026-10-25T14:54:43.384Z",
   "records": [
     {
       "runId": "all-v2.6.0",
@@ -91,6 +91,62 @@
       "avgBaselinePassRate": 0.8,
       "avgWithSkillPassRate": 1,
       "avgDelta": 0.19999999999999996,
+      "evidenceMode": "regraded",
+      "protocolProvenance": "neutral-skill-v4"
+    },
+    {
+      "runId": "all-v2.6.6-2026-10-25T14-50-18-679Z-44d4f328",
+      "category": "all",
+      "version": "2.6.6",
+      "date": "2026-10-25T14:51:19.560Z",
+      "skillCount": 1,
+      "avgBaselinePassRate": 0.2,
+      "avgWithSkillPassRate": 0,
+      "avgDelta": -0.2,
+      "agent": "Codex CLI isolated worker",
+      "model": "gpt-5.6-luna",
+      "evidenceMode": "incremental",
+      "protocolProvenance": "neutral-skill-v4"
+    },
+    {
+      "runId": "all-v2.6.6-2026-10-25T14-52-02-146Z-d9287e57",
+      "category": "all",
+      "version": "2.6.6",
+      "date": "2026-10-25T14:52:33.406Z",
+      "skillCount": 1,
+      "avgBaselinePassRate": 0.2,
+      "avgWithSkillPassRate": 0,
+      "avgDelta": -0.2,
+      "agent": "Codex CLI isolated worker",
+      "model": "gpt-5.6-luna",
+      "evidenceMode": "regraded",
+      "protocolProvenance": "neutral-skill-v4"
+    },
+    {
+      "runId": "all-v2.6.6-2026-10-25T14-53-20-073Z-3dfeec38",
+      "category": "all",
+      "version": "2.6.6",
+      "date": "2026-10-25T14:53:21.296Z",
+      "skillCount": 1,
+      "avgBaselinePassRate": 0.2,
+      "avgWithSkillPassRate": 1,
+      "avgDelta": 0.8,
+      "agent": "Codex CLI isolated worker",
+      "model": "gpt-5.6-luna",
+      "evidenceMode": "regraded",
+      "protocolProvenance": "neutral-skill-v4"
+    },
+    {
+      "runId": "all-v2.6.6-2026-10-25T14-54-42-791Z-16dd0416",
+      "category": "all",
+      "version": "2.6.6",
+      "date": "2026-10-25T14:54:43.384Z",
+      "skillCount": 1,
+      "avgBaselinePassRate": 0.2,
+      "avgWithSkillPassRate": 1,
+      "avgDelta": 0.8,
+      "agent": "Codex CLI isolated worker",
+      "model": "gpt-5.6-luna",
       "evidenceMode": "regraded",
       "protocolProvenance": "neutral-skill-v4"
     }

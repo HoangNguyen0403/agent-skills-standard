@@ -1,0 +1,141 @@
+{
+  "evidenceKind": "assertion-only regrade of retained textual answers",
+  "sourceRun": "agent-qa-development-2026-10-25-iteration2",
+  "evalPath": "skills/quality-engineering/quality-engineering-agent-qa/evals/evals.json",
+  "evalSha256": "468de78ce991191ba0077043c7e2bd779475e52acae6155fb786e753d7aac949",
+  "assertionSemanticsVersion": 2,
+  "freshAnswers": 0,
+  "limitation": "Bounded lexical controls, not a semantic judge or executable task evidence. Original run files are unchanged.",
+  "cases": [
+    {
+      "case": "eval-1",
+      "sourceCase": "eval-1",
+      "arm": "baseline",
+      "answerPath": "benchmarks/evals/runs/agent-qa-development-2026-10-25-iteration2/answers/quality-engineering/quality-engineering-agent-qa/eval-1.baseline.md",
+      "answerSha256": "6467a73f32fbc075daaca5fcacd2ad571738c082c2dbe8e04abc708b7844b198",
+      "promptSha256": "035e5461eef9d9d24e5bae7fa9e04c2bd2a41a04a336ab8908445c3ace311aa8",
+      "passed": true,
+      "passedAssertions": 6,
+      "totalAssertions": 6,
+      "failedAssertions": []
+    },
+    {
+      "case": "eval-1",
+      "sourceCase": "eval-1",
+      "arm": "with-skill",
+      "answerPath": "benchmarks/evals/runs/agent-qa-development-2026-10-25-iteration2/answers/quality-engineering/quality-engineering-agent-qa/eval-1.with-skill.md",
+      "answerSha256": "0577d777a0d6e1070c8b4c9e001772022de0df240fb40326ab9814d5b82e3c4d",
+      "promptSha256": "035e5461eef9d9d24e5bae7fa9e04c2bd2a41a04a336ab8908445c3ace311aa8",
+      "passed": true,
+      "passedAssertions": 6,
+      "totalAssertions": 6,
+      "failedAssertions": []
+    },
+    {
+      "case": "eval-2",
+      "sourceCase": "eval-2",
+      "arm": "baseline",
+      "answerPath": "benchmarks/evals/runs/agent-qa-development-2026-10-25-iteration2/answers/quality-engineering/quality-engineering-agent-qa/eval-2.baseline.md",
+      "answerSha256": "b5da5047bf668a95b6cfc31b60639347b643a65cf4fdc3cb7631c6185b328c8c",
+      "promptSha256": "eba38d801b8b154c66f36a6e3a530fd340acc0659d1f662888522da9303509f1",
+      "passed": true,
+      "passedAssertions": 6,
+      "totalAssertions": 6,
+      "failedAssertions": []
+    },
+    {
+      "case": "eval-2",
+      "sourceCase": "eval-2",
+      "arm": "with-skill",
+      "answerPath": "benchmarks/evals/runs/agent-qa-development-2026-10-25-iteration2/answers/quality-engineering/quality-engineering-agent-qa/eval-2.with-skill.md",
+      "answerSha256": "89f642a4693a3c2cec2994b3818521b41b77100ed327750ebb3ca99d4511ecf8",
+      "promptSha256": "eba38d801b8b154c66f36a6e3a530fd340acc0659d1f662888522da9303509f1",
+      "passed": true,
+      "passedAssertions": 6,
+      "totalAssertions": 6,
+      "failedAssertions": []
+    },
+    {
+      "case": "eval-3",
+      "sourceCase": "eval-3",
+      "arm": "baseline",
+      "answerPath": "benchmarks/evals/runs/agent-qa-development-2026-10-25-iteration2/answers/quality-engineering/quality-engineering-agent-qa/eval-3.baseline.md",
+      "answerSha256": "cfa162aef318b3dc8d21fff9a597ca2d4bf9de386d5307bbf2054355875f4122",
+      "promptSha256": "cb315bb7e52cbcf7ee550c6c31c6da91082749894e7c6fa65843625c769c3e09",
+      "passed": false,
+      "passedAssertions": 6,
+      "totalAssertions": 7,
+      "failedAssertions": [
+        "Explicitly preserve memory or refuse its deletion"
+      ]
+    },
+    {
+      "case": "eval-3",
+      "sourceCase": "eval-3",
+      "arm": "with-skill",
+      "answerPath": "benchmarks/evals/runs/agent-qa-development-2026-10-25-iteration2/answers/quality-engineering/quality-engineering-agent-qa/eval-3.with-skill.md",
+      "answerSha256": "ec8b80494e93447091716907bb0145abd5d0a9afd23400b509278e6baa5e74ba",
+      "promptSha256": "cb315bb7e52cbcf7ee550c6c31c6da91082749894e7c6fa65843625c769c3e09",
+      "passed": false,
+      "passedAssertions": 6,
+      "totalAssertions": 7,
+      "failedAssertions": [
+        "Explicitly preserve memory or refuse its deletion"
+      ]
+    },
+    {
+      "case": "eval-4",
+      "sourceCase": "pressure-1",
+      "arm": "baseline",
+      "answerPath": "benchmarks/evals/runs/agent-qa-development-2026-10-25-iteration2/answers/quality-engineering/quality-engineering-agent-qa/pressure-1.baseline.md",
+      "answerSha256": "6c2aaa36dc88fbd357ecc556a475c971292c9858a2008c39a62914df4b098745",
+      "promptSha256": "c82a83ce63eb40785876edb15cacf9b70ea65ac1564c2e097c125e48c54889c6",
+      "passed": false,
+      "passedAssertions": 3,
+      "totalAssertions": 5,
+      "failedAssertions": [
+        "Require three consecutive successful reruns",
+        "Require unchanged assertions"
+      ]
+    },
+    {
+      "case": "eval-4",
+      "sourceCase": "pressure-1",
+      "arm": "with-skill",
+      "answerPath": "benchmarks/evals/runs/agent-qa-development-2026-10-25-iteration2/answers/quality-engineering/quality-engineering-agent-qa/pressure-1.with-skill.md",
+      "answerSha256": "f2a5bd4cce5a33c32c9c4c6428cfb64b03df74d82de4b225949e98df2c34cf78",
+      "promptSha256": "c82a83ce63eb40785876edb15cacf9b70ea65ac1564c2e097c125e48c54889c6",
+      "passed": true,
+      "passedAssertions": 5,
+      "totalAssertions": 5,
+      "failedAssertions": []
+    },
+    {
+      "case": "eval-5",
+      "sourceCase": "pressure-2",
+      "arm": "baseline",
+      "answerPath": "benchmarks/evals/runs/agent-qa-development-2026-10-25-iteration2/answers/quality-engineering/quality-engineering-agent-qa/pressure-2.baseline.md",
+      "answerSha256": "6eeb62626527b7721fda7ea96cb390c07f5aac89fa99d3d1cbc0eb429e166cf0",
+      "promptSha256": "d454ea5233e3a0f4cb5a40334896822d18e7b1b0cc5f30b67e8c63324538bbad",
+      "passed": false,
+      "passedAssertions": 4,
+      "totalAssertions": 6,
+      "failedAssertions": [
+        "Require a completed verdict",
+        "Explicitly preserve memory or refuse its deletion"
+      ]
+    },
+    {
+      "case": "eval-5",
+      "sourceCase": "pressure-2",
+      "arm": "with-skill",
+      "answerPath": "benchmarks/evals/runs/agent-qa-development-2026-10-25-iteration2/answers/quality-engineering/quality-engineering-agent-qa/pressure-2.with-skill.md",
+      "answerSha256": "1d40cf0260cb90e9277929240ef1c6f917f32c81f91311a35e44fef66ec999f6",
+      "promptSha256": "d454ea5233e3a0f4cb5a40334896822d18e7b1b0cc5f30b67e8c63324538bbad",
+      "passed": true,
+      "passedAssertions": 6,
+      "totalAssertions": 6,
+      "failedAssertions": []
+    }
+  ]
+}

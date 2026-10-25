@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "baselineRunId": "agent-qa-development-2026-10-25-iteration2",
+  "category": "all",
+  "createdAt": "2026-10-25T14:50:18.672Z",
+  "impacts": [
+    {
+      "key": "quality-engineering/quality-engineering-agent-qa",
+      "category": "quality-engineering",
+      "skillName": "quality-engineering-agent-qa",
+      "reason": "outcome prompts, assertions",
+      "outcome": "generate",
+      "activation": "reuse",
+      "reuseBaselineOutcome": false
+    }
+  ],
+  "reusedLanes": 1,
+  "generatedLanes": 1,
+  "regradedLanes": 0
+}

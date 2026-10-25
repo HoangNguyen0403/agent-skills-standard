@@ -1,0 +1,1 @@
+Checkout did not fail; the dry run was blocked because `.env` was missing, so no verdict was produced. Next action: supply the expected `.env` file or correct environment path, then rerun the command without changing configuration.

@@ -1,6 +1,6 @@
 # 🧪 Live Skill Evals Report
 
-> Generated: 2026-10-25T12:50:28.408Z
+> Generated: 2026-10-25T14:54:44.738Z
 > Measured transcript-assertion evidence, not structural or executable task verification: outcome assertions are evaluated against transcripts from isolated evaluation workers. Workers are instructed not to use tools and have read-only filesystem capability, but neither tool-use prohibition nor tool invocation is host-enforced or retained here; tool-free execution is unverified. Trigger arms receive only the skill name and description.
 > Historical v1 runs remain readable through the compatibility adapter. v2 metrics report case pass rate, assertion pass rate, trigger recall, trigger specificity, and balanced trigger accuracy.
 > Activation metrics are omitted for legacy trigger evidence until a clean activation-evidence v2 run replaces it.
@@ -35,6 +35,10 @@
 
 | Run | Category | Date | Skills | Baseline | With-Skill | Delta | Evidence | Protocol | Unresolved | Agent |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `all-v2.6.6-2026-10-25T14-54-42-791Z-16dd0416` | all | 2026-10-25 | 1 | 20% | 100% | +80% | regraded | neutral-skill-v4 | 0 | Codex CLI isolated worker |
+| `all-v2.6.6-2026-10-25T14-53-20-073Z-3dfeec38` | all | 2026-10-25 | 1 | 20% | 100% | +80% | regraded | neutral-skill-v4 | 0 | Codex CLI isolated worker |
+| `all-v2.6.6-2026-10-25T14-52-02-146Z-d9287e57` | all | 2026-10-25 | 1 | 20% | 0% | -20% | regraded | neutral-skill-v4 | 0 | Codex CLI isolated worker |
+| `all-v2.6.6-2026-10-25T14-50-18-679Z-44d4f328` | all | 2026-10-25 | 1 | 20% | 0% | -20% | incremental | neutral-skill-v4 | 0 | Codex CLI isolated worker |
 | `all-v2.6.6-2026-10-25T12-50-13-711Z-9d7134e0` | all | 2026-10-25 | 1 | 80% | 100% | +20% | regraded | neutral-skill-v4 | 0 | n/a |
 | `all-v2.6.6-2026-10-25T12-48-20-389Z-cadc25af` | all | 2026-10-25 | 1 | 40% | 100% | +60% | regraded | neutral-skill-v4 | 0 | n/a |
 | `agent-qa-development-2026-10-25-iteration2` | all | 2026-10-25 | 1 | 20% | 80% | +60% | fresh | neutral-skill-v4 | 0 | Codex CLI isolated worker |

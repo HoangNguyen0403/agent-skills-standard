@@ -1,0 +1,1 @@
+Report r-43 as unresolved: evidence is incomplete, and an empty failed-run list does not prove checkout passed. Do not delete memidex; retain or update it to record the missing verdict and insufficient evidence.

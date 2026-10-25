@@ -1,6 +1,6 @@
 # 🧪 Live Skill Evals Report
 
-> Generated: 2026-10-25T12:50:27.069Z
+> Generated: 2026-10-25T14:54:43.406Z
 > Measured transcript-assertion evidence, not structural or executable task verification: outcome assertions are evaluated against transcripts from isolated evaluation workers. Workers are instructed not to use tools and have read-only filesystem capability, but neither tool-use prohibition nor tool invocation is host-enforced or retained here; tool-free execution is unverified. Trigger arms receive only the skill name and description.
 > Historical v1 runs remain readable through the compatibility adapter. v2 metrics report case pass rate, assertion pass rate, trigger recall, trigger specificity, and balanced trigger accuracy.
 > Activation metrics are omitted for legacy trigger evidence until a clean activation-evidence v2 run replaces it.

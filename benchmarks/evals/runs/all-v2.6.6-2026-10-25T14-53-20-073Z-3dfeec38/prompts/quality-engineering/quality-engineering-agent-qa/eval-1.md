@@ -1,0 +1,1 @@
+This project already uses agent-qa. I only want to validate tests/checkout.yaml and see which tests it selects; do not execute the application. Give the commands and describe what their success would establish.

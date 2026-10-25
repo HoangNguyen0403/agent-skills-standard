@@ -702,3 +702,26 @@ Check each actual exported index for the exact config glob and memidex keyword. 
 
 ### Trigger Miss
 No missing skill trigger was established. The missed boundary was the exported discovery artifact, distinct from the canonical extension route.
+
+---
+
+## Agent Learning Log: Iteration #29
+
+**Date**: 2026-10-25 | **Task**: Correct agent-qa evaluation decision checks.
+**Signal**: Session retrospective
+**Skills**: common/common-skill-creator, common/common-tdd
+**Scope**: project
+**Candidate**: agent-qa-evaluation-decisions | **Status**: proposed
+**Provenance**: PR #262 review on `4a1b4dde550f6ffd3506060bcfc63d04455b08bc`, issuecomment-6399017858
+**Evaluation**: adversarial scorer controls and preserved-transcript regrade; results recorded in development notes
+**Review**: pending; no guidance promotion
+**Rollback**: `4a1b4dde550f6ffd3506060bcfc63d04455b08bc`; preserve original transcripts
+
+### Mistake Made
+The agent-qa rubric rewarded safeguard phrases even when an answer bypassed those safeguards. Pressure assertions used presence-only matching, and regular cases did not reject contradictory execution, outcome, or memory decisions.
+
+### Pattern to Avoid
+- **No vocabulary as compliance proof**: naming a safeguard does not establish the decision follows it.
+
+### Better Approach
+Exercise the actual scorer with unsafe recommendations and valid refusal paraphrases before accepting a rubric. Keep old transcripts immutable, document regrading, and distinguish lexical regression checks from executable or semantic proof.

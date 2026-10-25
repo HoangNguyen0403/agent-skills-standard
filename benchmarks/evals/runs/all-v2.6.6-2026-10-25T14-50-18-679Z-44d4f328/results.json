@@ -1,0 +1,503 @@
+{
+  "schemaVersion": 2,
+  "runId": "all-v2.6.6-2026-10-25T14-50-18-679Z-44d4f328",
+  "category": "all",
+  "version": "2.6.6",
+  "scoredAt": "2026-10-25T14:51:19.560Z",
+  "metadata": {
+    "startedAt": "2026-10-25T14:50:18.679Z",
+    "evidenceMode": "incremental",
+    "freshAnswerCount": 10,
+    "reusedAnswerCount": 20,
+    "agent": "Codex CLI isolated worker",
+    "model": "gpt-5.6-luna",
+    "reasoningEffort": "high",
+    "usage": {
+      "overall": {
+        "promptTokens": 0,
+        "completionTokens": 0,
+        "cachedPromptTokens": 0,
+        "reasoningTokens": 0,
+        "totalTokens": 0,
+        "wallMs": 0,
+        "lanesMetered": 0,
+        "lanesUnmetered": 10,
+        "estimatedUsd": null
+      },
+      "byArm": {
+        "baseline": {
+          "promptTokens": 0,
+          "completionTokens": 0,
+          "cachedPromptTokens": 0,
+          "reasoningTokens": 0,
+          "totalTokens": 0,
+          "wallMs": 0,
+          "lanesMetered": 0,
+          "lanesUnmetered": 5,
+          "estimatedUsd": null
+        },
+        "with-skill": {
+          "promptTokens": 0,
+          "completionTokens": 0,
+          "cachedPromptTokens": 0,
+          "reasoningTokens": 0,
+          "totalTokens": 0,
+          "wallMs": 0,
+          "lanesMetered": 0,
+          "lanesUnmetered": 5,
+          "estimatedUsd": null
+        }
+      }
+    },
+    "completedAt": "2026-10-25T14:51:19.541Z"
+  },
+  "scope": {
+    "kind": "selective",
+    "categories": [
+      "android",
+      "angular",
+      "common",
+      "cybersecurity",
+      "dart",
+      "database",
+      "flutter",
+      "golang",
+      "ios",
+      "java",
+      "javascript",
+      "kotlin",
+      "laravel",
+      "nestjs",
+      "nextjs",
+      "php",
+      "product-management",
+      "python",
+      "quality-engineering",
+      "react",
+      "react-native",
+      "spring-boot",
+      "swift",
+      "system-design",
+      "typescript"
+    ]
+  },
+  "compromisedSkills": [],
+  "skills": [
+    {
+      "category": "quality-engineering",
+      "skillName": "quality-engineering-agent-qa",
+      "guardrailApplicable": true,
+      "totalEvalCases": 5,
+      "baselinePassRate": 0.2,
+      "withSkillPassRate": 0,
+      "delta": -0.2,
+      "triggerPrecision": 1,
+      "casePassRate": {
+        "baseline": 0.2,
+        "withSkill": 0
+      },
+      "assertionPassRate": {
+        "baseline": 0.7666666666666667,
+        "withSkill": 0.8
+      },
+      "triggerRecall": 1,
+      "triggerSpecificity": 1,
+      "balancedTriggerAccuracy": 1,
+      "scores": [
+        {
+          "id": "eval-1",
+          "kind": "eval",
+          "arm": "baseline",
+          "passed": false,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [
+            "regex:agent-qa\\s+run\\s+tests/checkout\\.yaml\\s+--dry-run",
+            "regex:\\b(?:unresolved|unverified|inconclusive|not verifiable|(?:cannot|can\\x27t) (?:be )?(?:establish(?:ed)?|conclude|determine)|not (?:a pass|passing)|does not (?:establish|prove)|without (?:starting|running|executing) (?:the )?application)\\b"
+          ],
+          "passedAssertions": 4,
+          "totalAssertions": 6
+        },
+        {
+          "id": "eval-1",
+          "kind": "eval",
+          "arm": "with-skill",
+          "passed": false,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [
+            "regex:\\b(?:unresolved|unverified|inconclusive|not verifiable|(?:cannot|can\\x27t) (?:be )?(?:establish(?:ed)?|conclude|determine)|not (?:a pass|passing)|does not (?:establish|prove)|without (?:starting|running|executing) (?:the )?application)\\b",
+            "regex:^(?![\\s\\S]*(?:(?<!\\b(?:do not|don't|never|will not|won't|cannot|can't|avoid)\\s+(?:(?!\\b(?:but|however|actually|instead)\\b)[^.!?;\\n]){0,80})(?<!-)\\b(?:execute|start|launch|run)[ \\t]+(?:the[ \\t]+)?(?:app(?:lication)?|checkout)(?:[ \\t]+live)?\\b))[\\s\\S]*$"
+          ],
+          "passedAssertions": 4,
+          "totalAssertions": 6
+        },
+        {
+          "id": "eval-2",
+          "kind": "eval",
+          "arm": "baseline",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "passedAssertions": 6,
+          "totalAssertions": 6
+        },
+        {
+          "id": "eval-2",
+          "kind": "eval",
+          "arm": "with-skill",
+          "passed": false,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [
+            "regex:(?:setup|preflight|environment|precondition|blocked.{0,80}(?:missing|required))"
+          ],
+          "passedAssertions": 5,
+          "totalAssertions": 6
+        },
+        {
+          "id": "eval-3",
+          "kind": "eval",
+          "arm": "baseline",
+          "passed": false,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [
+            "regex:(?:preserve|retain|keep|leave)\\s+(?:the\\s+)?(?:memidex|memory|evidence)\\b|(?:do not|don\\x27t|never|will not|won\\x27t|cannot)\\s+(?:delete|erase|clear|purge|modify|reset)\\s+(?:the\\s+)?(?:memidex|memory)"
+          ],
+          "passedAssertions": 6,
+          "totalAssertions": 7
+        },
+        {
+          "id": "eval-3",
+          "kind": "eval",
+          "arm": "with-skill",
+          "passed": false,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [
+            "regex:(?:preserve|retain|keep|leave)\\s+(?:the\\s+)?(?:memidex|memory|evidence)\\b|(?:do not|don\\x27t|never|will not|won\\x27t|cannot)\\s+(?:delete|erase|clear|purge|modify|reset)\\s+(?:the\\s+)?(?:memidex|memory)"
+          ],
+          "passedAssertions": 6,
+          "totalAssertions": 7
+        },
+        {
+          "id": "eval-4",
+          "kind": "eval",
+          "arm": "baseline",
+          "passed": false,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [
+            "regex:(?:do not|don\\x27t|will not|won\\x27t|cannot|can\\x27t|refuse to)\\s+(?:mark|grant|approve|declare)\\s+(?:registry\\s+)?[`*_]*HEALED|registry(?:\\s+healing)?\\s+(?:remains?\\s+)?(?:unresolved|unverified|not healed)",
+            "regex:(?:three|3)\\s+consecutive\\s+(?:green|passing|successful)\\s+(?:re)?runs",
+            "regex:ASSERTION_DELTA\\s*:\\s*none|unchanged\\s+assertions|assertions\\s+(?:must\\s+)?(?:remain|stay)\\s+unchanged"
+          ],
+          "passedAssertions": 2,
+          "totalAssertions": 5
+        },
+        {
+          "id": "eval-4",
+          "kind": "eval",
+          "arm": "with-skill",
+          "passed": false,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [
+            "regex:(?:do not|don\\x27t|will not|won\\x27t|cannot|can\\x27t|refuse to)\\s+(?:mark|grant|approve|declare)\\s+(?:registry\\s+)?[`*_]*HEALED|registry(?:\\s+healing)?\\s+(?:remains?\\s+)?(?:unresolved|unverified|not healed)"
+          ],
+          "passedAssertions": 4,
+          "totalAssertions": 5
+        },
+        {
+          "id": "eval-5",
+          "kind": "eval",
+          "arm": "baseline",
+          "passed": false,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [
+            "regex:completed\\s+verdict"
+          ],
+          "passedAssertions": 5,
+          "totalAssertions": 6
+        },
+        {
+          "id": "eval-5",
+          "kind": "eval",
+          "arm": "with-skill",
+          "passed": false,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [
+            "regex:completed\\s+verdict"
+          ],
+          "passedAssertions": 5,
+          "totalAssertions": 6
+        },
+        {
+          "id": "trigger-1",
+          "kind": "trigger",
+          "arm": "with-skill",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "expectedTrigger": "yes",
+          "actualTrigger": "yes",
+          "passedAssertions": 2,
+          "totalAssertions": 2
+        },
+        {
+          "id": "trigger-2",
+          "kind": "trigger",
+          "arm": "with-skill",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "expectedTrigger": "yes",
+          "actualTrigger": "yes",
+          "passedAssertions": 2,
+          "totalAssertions": 2
+        },
+        {
+          "id": "trigger-3",
+          "kind": "trigger",
+          "arm": "with-skill",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "expectedTrigger": "yes",
+          "actualTrigger": "yes",
+          "passedAssertions": 2,
+          "totalAssertions": 2
+        },
+        {
+          "id": "trigger-4",
+          "kind": "trigger",
+          "arm": "with-skill",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "expectedTrigger": "yes",
+          "actualTrigger": "yes",
+          "passedAssertions": 2,
+          "totalAssertions": 2
+        },
+        {
+          "id": "trigger-5",
+          "kind": "trigger",
+          "arm": "with-skill",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "expectedTrigger": "yes",
+          "actualTrigger": "yes",
+          "passedAssertions": 2,
+          "totalAssertions": 2
+        },
+        {
+          "id": "trigger-6",
+          "kind": "trigger",
+          "arm": "with-skill",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "expectedTrigger": "yes",
+          "actualTrigger": "yes",
+          "passedAssertions": 2,
+          "totalAssertions": 2
+        },
+        {
+          "id": "trigger-7",
+          "kind": "trigger",
+          "arm": "with-skill",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "expectedTrigger": "yes",
+          "actualTrigger": "yes",
+          "passedAssertions": 2,
+          "totalAssertions": 2
+        },
+        {
+          "id": "trigger-8",
+          "kind": "trigger",
+          "arm": "with-skill",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "expectedTrigger": "yes",
+          "actualTrigger": "yes",
+          "passedAssertions": 2,
+          "totalAssertions": 2
+        },
+        {
+          "id": "trigger-9",
+          "kind": "trigger",
+          "arm": "with-skill",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "expectedTrigger": "yes",
+          "actualTrigger": "yes",
+          "passedAssertions": 2,
+          "totalAssertions": 2
+        },
+        {
+          "id": "trigger-10",
+          "kind": "trigger",
+          "arm": "with-skill",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "expectedTrigger": "yes",
+          "actualTrigger": "yes",
+          "passedAssertions": 2,
+          "totalAssertions": 2
+        },
+        {
+          "id": "trigger-11",
+          "kind": "trigger",
+          "arm": "with-skill",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "expectedTrigger": "no",
+          "actualTrigger": "no",
+          "passedAssertions": 2,
+          "totalAssertions": 2
+        },
+        {
+          "id": "trigger-12",
+          "kind": "trigger",
+          "arm": "with-skill",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "expectedTrigger": "no",
+          "actualTrigger": "no",
+          "passedAssertions": 2,
+          "totalAssertions": 2
+        },
+        {
+          "id": "trigger-13",
+          "kind": "trigger",
+          "arm": "with-skill",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "expectedTrigger": "no",
+          "actualTrigger": "no",
+          "passedAssertions": 2,
+          "totalAssertions": 2
+        },
+        {
+          "id": "trigger-14",
+          "kind": "trigger",
+          "arm": "with-skill",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "expectedTrigger": "no",
+          "actualTrigger": "no",
+          "passedAssertions": 2,
+          "totalAssertions": 2
+        },
+        {
+          "id": "trigger-15",
+          "kind": "trigger",
+          "arm": "with-skill",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "expectedTrigger": "no",
+          "actualTrigger": "no",
+          "passedAssertions": 2,
+          "totalAssertions": 2
+        },
+        {
+          "id": "trigger-16",
+          "kind": "trigger",
+          "arm": "with-skill",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "expectedTrigger": "no",
+          "actualTrigger": "no",
+          "passedAssertions": 2,
+          "totalAssertions": 2
+        },
+        {
+          "id": "trigger-17",
+          "kind": "trigger",
+          "arm": "with-skill",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "expectedTrigger": "no",
+          "actualTrigger": "no",
+          "passedAssertions": 2,
+          "totalAssertions": 2
+        },
+        {
+          "id": "trigger-18",
+          "kind": "trigger",
+          "arm": "with-skill",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "expectedTrigger": "no",
+          "actualTrigger": "no",
+          "passedAssertions": 2,
+          "totalAssertions": 2
+        },
+        {
+          "id": "trigger-19",
+          "kind": "trigger",
+          "arm": "with-skill",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "expectedTrigger": "no",
+          "actualTrigger": "no",
+          "passedAssertions": 2,
+          "totalAssertions": 2
+        },
+        {
+          "id": "trigger-20",
+          "kind": "trigger",
+          "arm": "with-skill",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "expectedTrigger": "no",
+          "actualTrigger": "no",
+          "passedAssertions": 2,
+          "totalAssertions": 2
+        }
+      ],
+      "incompleteArms": []
+    }
+  ]
+}

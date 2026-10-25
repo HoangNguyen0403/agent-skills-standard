@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "baselineRunId": "all-v2.6.6-2026-10-25T14-50-18-679Z-44d4f328",
+  "category": "all",
+  "createdAt": "2026-10-25T14:52:02.138Z",
+  "impacts": [
+    {
+      "key": "quality-engineering/quality-engineering-agent-qa",
+      "category": "quality-engineering",
+      "skillName": "quality-engineering-agent-qa",
+      "reason": "assertions",
+      "outcome": "regrade",
+      "activation": "reuse",
+      "reuseBaselineOutcome": true
+    }
+  ],
+  "reusedLanes": 1,
+  "generatedLanes": 0,
+  "regradedLanes": 1
+}
