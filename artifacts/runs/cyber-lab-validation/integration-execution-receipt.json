@@ -1,0 +1,79 @@
+{
+  "recorded_at": "2026-10-24",
+  "candidate": {
+    "base_commit": "a2228857e4cf5b8ee2d71d96630c586618ec2edd",
+    "snapshot_sha256": "5617aefed711d3b38301c1bf5d22d64e816c88a369d905511cbbc8c10dca1c59",
+    "snapshot_file_count": 1377,
+    "dirty_working_tree": true,
+    "stage_root": "/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/tmp.8Xg7t9dNe5",
+    "retained_for_parent_validation": true,
+    "package_manager": "pnpm@10.0.0",
+    "node": "v22.14.0",
+    "lockfile_sha256": "09690165486f083cd9eaf2d8c38c459b871fce3a1815dd1a265f42de54200984",
+    "dependency_source": "Disposable staging workspace installed from candidate's exact frozen pnpm-lock.yaml; primary-checkout dependencies were not reused.",
+    "install_command": "rtk pnpm install --frozen-lockfile --offline",
+    "install_result": "success; completed in 6.45s; no registry fetch",
+    "install_script_policy": "No HUSKY override and no --ignore-scripts. pnpm reported ignored dependency build scripts: @parcel/watcher, @scarf/scarf, esbuild, unrs-resolver. No approval bypass was used."
+  },
+  "generation": {
+    "first_attempt": {
+      "calculate_tokens": "success; cybersecurity 12 skills; total 229868 tokens across 334 skills",
+      "generate_indices": "success; emitted 26 categories, 33 workflows on each of three derived wrapper surfaces, 89 skills, 21 specialists",
+      "freshness_status": "Not accepted as final parity/freshness proof because it preceded the staging-only mirror reset."
+    },
+    "staging_only_mirror_reset": "Removed only .claude/skills, .claude/commands, .claude/agents, .codex/skills, .codex/agents, .github/skills, .github/prompts, .github/copilot-agents, and .agents/skills in the disposable stage. Preserved .agents/workflows canonical sources.",
+    "second_attempt": {
+      "calculate_tokens": "success; cybersecurity 12 skills; total 229868 tokens across 334 skills",
+      "generate_indices": "success; emitted 26 categories, root/skills indexes, 33 configured workflows to each of three derived wrapper surfaces, 89 skills, and 21 specialists",
+      "generator_log_review": "No destructive .agent cleanup line observed; .agent was structurally excluded from staging."
+    },
+    "build": "rtk pnpm --filter ./cli build succeeded in stage; Vite 8.3.5; cli/dist/index.js 360.08 kB; built in 31 ms. Vite printed a CJS config feature warning."
+  },
+  "copyback": {
+    "changed_staged_paths": 142,
+    "unexpected_paths": 0,
+    "copied_allowlisted_files_individually": 132,
+    "excluded_generated_lockfile": ".skills-lock.json (not copied)",
+    "preserved_unowned_orphans": 9,
+    "stage_diff_receipt": "stage-diff.json",
+    "per_file_copy_receipt": "copyback-files.json",
+    "postcheck_receipt": "post-integration-checks.json",
+    "postcheck": {
+      "agent_evidence_file_count": 15,
+      "agent_evidence_hashes_match": true,
+      "active_lock_absent": true,
+      "orphan_wrappers_unchanged": true,
+      "canonical_workflows_match_stage": true
+    }
+  },
+  "consumer_smoke": {
+    "command": "rtk pnpm exec tsx /Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/suave-vulture/artifacts/runs/cyber-lab-validation/consumer-smoke.mjs /Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/suave-vulture /var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/tmp.8Xg7t9dNe5",
+    "cwd": "/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/tmp.8Xg7t9dNe5",
+    "result": "PASS",
+    "scope": "AC-CLV-16 local registry-fixture consumer packaging/workflow/checksum smoke; no live cyber or model activity",
+    "approved_package_files_per_agent": 18,
+    "source_skill_directory_file_count": 19,
+    "excluded_internal_source_file": "evals/evals.json (not a consumer resource; staged SkillSyncService.isPackageResource only admits SKILL.md, references/, scripts/, assets/, LICENSE, and NOTICE)",
+    "skill_surfaces_checked": 4,
+    "workflow_transform_comparisons": 16,
+    "workflows_checked": ["cyber-exercise", "cyber-triage", "cyber-purple-validation", "pentest"],
+    "fixture_requests": 97,
+    "verify_tracked_files": 87,
+    "consumer_lock_sha256": "9f8c7c191067e2fe1fb62d8f228fb5a06ce0aa98a611e5f78f854957bff6e2ad",
+    "candidate_snapshot_sha256": "5617aefed711d3b38301c1bf5d22d64e816c88a369d905511cbbc8c10dca1c59",
+    "result_receipt": "consumer-smoke-result.json",
+    "candidate_manifest": "consumer-candidate-manifest.json",
+    "helper_edit_receipt": "consumer-smoke-edit-receipt.json",
+    "initial_nonexecuted_denials": {"count": 2, "reason": "Parent denied execution because spawnSync would block the in-process registry fixture server and the helper had incomplete portable-resource/workflow assertions; the second request still used the unchanged defective helper.", "classification": "Smoke-helper implementation defects, not a missing operator authorization or environment permission prerequisite", "resolution": "Helper changed to awaited asynchronous subprocesses, portable-resource filtering and all-four workflow transformations before execution approval."},
+    "consumer_attribution_limit": "The 18 explicit consumer resource comparisons exclude inherited root LICENSE; generated LICENSE byte parity is covered by parent stage/active checks, but this consumer run does not independently establish installed root LICENSE presence.",
+    "prior_failures": [
+      "consumer-smoke-attempt-1.json: invalid isolated MCP config; CLI logged Sync failed but returned exit 0. Corrected config and added a failure-message assertion.",
+      "consumer-smoke-attempt-2.json: overly narrow api.github.com-only host assertion; corrected to the three existing network-preload approved hosts routed to the fixture."
+    ]
+  },
+  "scope_limits": [
+    "No full repository validation suite; parent-owned, its outcome is not asserted here.",
+    "No live lab action, model run, paid evaluation, commit, push, publication, or release.",
+    "Staging workspace intentionally retained for parent integrated checks."
+  ]
+}

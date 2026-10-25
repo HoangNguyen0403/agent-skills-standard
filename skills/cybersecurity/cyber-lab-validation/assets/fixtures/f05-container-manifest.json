@@ -1,0 +1,49 @@
+{
+  "fixture_version": "1.1.0",
+  "fixture_id": "FIX-F05-CONTAINER-MANIFEST",
+  "notice": "Synthetic, non-authorizing test fixture. Local manifests are mock configurations for static linting; cloud cluster fidelity is explicitly excluded.",
+  "flawed_manifest": {
+    "apiVersion": "v1",
+    "kind": "Pod",
+    "metadata": { "name": "synth-lab-workload-local" },
+    "spec": {
+      "containers": [
+        {
+          "name": "worker",
+          "image": "synth-worker:local-debug-sha256-1111",
+          "securityContext": {
+            "privileged": true,
+            "readOnlyRootFilesystem": false,
+            "allowPrivilegeEscalation": true,
+            "capabilities": { "add": ["SYS_ADMIN", "NET_ADMIN"] }
+          }
+        }
+      ]
+    }
+  },
+  "remediated_manifest": {
+    "apiVersion": "v1",
+    "kind": "Pod",
+    "metadata": { "name": "synth-lab-workload-local-hardened" },
+    "spec": {
+      "containers": [
+        {
+          "name": "worker",
+          "image": "synth-worker:local-hardened-sha256-2222",
+          "securityContext": {
+            "privileged": false,
+            "readOnlyRootFilesystem": true,
+            "allowPrivilegeEscalation": false,
+            "capabilities": { "drop": ["ALL"] },
+            "runAsNonRoot": true,
+            "runAsUser": 10001
+          }
+        }
+      ]
+    }
+  },
+  "cloud_fidelity_boundary": {
+    "supported_inference": "Local configuration linting and static policy evaluation against CIS/Pod Security Standards",
+    "prohibited_inference": "Claiming live cloud tenant, AWS/GCP node-level containment, or kernel isolation from local YAML review"
+  }
+}

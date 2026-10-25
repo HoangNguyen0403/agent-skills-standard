@@ -1,0 +1,23 @@
+{
+  "fixture_version": "1.1.0",
+  "fixture_id": "FIX-F01-REQUEST-VALIDATOR",
+  "notice": "Synthetic, non-authorizing test fixture. Pseudocode and request records are mock examples for boundary testing.",
+  "validator_code": "function validateRequest(req) {\n  const url = new URL(req.destination);\n  if (url.protocol !== 'http:' && url.protocol !== 'https:') {\n    return { valid: false, reason: 'unsupported-protocol' };\n  }\n  if (url.hostname.startsWith('127.0.0.1') || url.hostname === 'localhost') {\n    return { valid: true, target: 'local-isolated-service' };\n  }\n  return { valid: false, reason: 'prohibited-external-destination' };\n}",
+  "test_records": [
+    {
+      "record_id": "REC-01-BENIGN",
+      "destination": "http://127.0.0.1:8080/health",
+      "correlation_key": { "run_id": "RUN-20261024-F01", "attempt_id": 1, "test_id": "TEST-F01-S" }
+    },
+    {
+      "record_id": "REC-02-DEFECT-REPRO",
+      "destination": "http://127.0.0.1.attacker.example.org:8080/probe",
+      "correlation_key": { "run_id": "RUN-20261024-F01", "attempt_id": 1, "test_id": "TEST-F01-DEFECT" }
+    },
+    {
+      "record_id": "REC-03-EXTERNAL-REJECTED",
+      "destination": "http://203.0.113.50/api",
+      "correlation_key": { "run_id": "RUN-20261024-F01", "attempt_id": 1, "test_id": "TEST-F01-N" }
+    }
+  ]
+}

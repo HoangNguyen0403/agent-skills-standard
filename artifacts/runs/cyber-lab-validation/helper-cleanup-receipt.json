@@ -1,0 +1,37 @@
+{
+  "recorded_at": "2026-10-25",
+  "authorization": "Explicit parent cleanup directive after final review; named disposable helper files only.",
+  "method": "SHA-256 and byte size captured before deletion; source files then removed with the repository edit tool. Durable result receipts and reports remain.",
+  "removed_helpers": [
+    {
+      "path": "artifacts/runs/cyber-lab-validation/consumer-smoke.mjs",
+      "sha256_before_removal": "e22ed560a346fe326f87bbaa1c207de1d053aa17e77afc9e8121a5c3095b6876",
+      "size_bytes": 10526,
+      "role": "Integration worker consumer-smoke helper; final and failed attempt receipts remain in the evidence directory."
+    },
+    {
+      "path": "artifacts/runs/cyber-lab-validation/parent-parity.mjs",
+      "sha256_before_removal": "e5522725d82d703df492dbf4cbcfaef18a3f302972d04e12ba88b58a5cc02c5d",
+      "size_bytes": 4323,
+      "role": "Parent-run parity helper; parent-validation.json and parent-parity-result.json preserve results. Removed only under the explicit cleanup directive."
+    },
+    {
+      "path": "artifacts/runs/cyber-lab-validation/integration-helper.mjs",
+      "sha256_before_removal": "b928f40446f9ef600b6056b01208e90821a1b69ce3ac528e32c57f37af63856f",
+      "size_bytes": 10565,
+      "role": "Integration worker staging snapshot/inventory/copy-back/postcheck helper; generated receipts remain."
+    },
+    {
+      "path": ".agent/sdd/prd-cyber-lab-validation/check-omissions.cjs",
+      "sha256_before_removal": "6d516109bdcad38757f313a9f00bd5fc3748d976e806b623e2d3941d9ae98576",
+      "size_bytes": 3020,
+      "role": "Parent-run focused X05 omission smoke helper; 20261025-omission-smoke.json and historical failure evidence remain. Removed only under the explicit cleanup directive."
+    }
+  ],
+  "not_removed": [
+    "scripts/skill-tests/product-evidence-integration/consumer-smoke.mjs (unrelated existing CI/product-evidence test helper)",
+    "All source reports under .agent/sdd/prd-cyber-lab-validation/",
+    "All test, parity, install, generation, copy-back, and review receipts under artifacts/runs/cyber-lab-validation/",
+    "Disposable staging workspace /var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/tmp.8Xg7t9dNe5 (retained for parent; not required runtime)"
+  ]
+}

@@ -44,6 +44,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Untrusted-workspace admission guidance**: Added a portable admission checklist plus runtime-adapter caveats separating declared policy from observed host behavior, provider/account/model eligibility from context-transfer authorization, sealed starting identity, private-workflow mutation and output promotion, and truthful scan/hook reporting. Replaced the two lexical `evals.json` word-matching files in `common-agent-guardrails` and `common-llm-security` with a human-graded, explicitly unrun behavior rubric. No admission service, sandbox, or runtime control is added, and no eval PASS is claimed.
 
+### Added
+
+- **Cybersecurity lab validation candidate (`cybersecurity` `1.0.1` candidate)**: Added dormant candidate contract (`skills/cybersecurity/cyber-lab-validation/`), approved baseline amendment (ADR-CLV-01), and four-mode routing across canonical security workflows (`cyber-exercise`, `cyber-purple-validation`, `cyber-triage`, `pentest`). Bounded lab validation requires action-specific approval, host isolation/cancellation boundaries, paired evidence, and synthetic disposable fixtures; `cyber-scoped-validation` is preserved as the offline/supplied-evidence standard.
+  - Baseline amendment recorded in `docs/srs/srs-task-list-governed-cybersecurity.md` and `ARCHITECTURE.md` (ADR-018 / ADR-CLV-01) following G2 operator approval on 2026-10-24.
+  - Workflows bump to `1.1.8` candidate for four-mode and effects-gate routing.
+  - Contract remains dormant in repository: no operational attack scripts, no live tool autoactivation, no G3/G4/G5 promotion, and no measured model compatibility improvement claimed.
+
 ### Fixed
 - **Dependency security**: Override Express 5 to patched `body-parser` 2.4.0 and NestJS Express platform to patched `multer` 2.5.0, addressing the production dependency-audit DoS advisories without changing direct dependency ranges.
 

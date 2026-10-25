@@ -1,0 +1,10 @@
+{
+  "candidate_label": "dirty working-tree candidate at base commit a2228857e4cf5b8ee2d71d96630c586618ec2edd",
+  "candidate_root": "/Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/suave-vulture",
+  "base_commit": "a2228857e4cf5b8ee2d71d96630c586618ec2edd",
+  "dirty": true,
+  "git_status_exit": 0,
+  "snapshot_sha256": "5617aefed711d3b38301c1bf5d22d64e816c88a369d905511cbbc8c10dca1c59",
+  "file_count": 1377,
+  "generated_at": "2026-10-24T17:43:26.201Z"
+}

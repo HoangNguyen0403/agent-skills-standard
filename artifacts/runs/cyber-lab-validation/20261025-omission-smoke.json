@@ -1,0 +1,9 @@
+{
+  "workflow": "implement-feature",
+  "check": "X05 supplied Contract C top-level key-set invariants",
+  "command": "rtk proxy node .agent/sdd/prd-cyber-lab-validation/check-omissions.cjs",
+  "before": {"status": "FAIL", "case": "CLV-X05-missing-auth", "reason": "authorization remained present; 21 keys instead of the expected 20"},
+  "after": {"status": "PASS", "cases_checked": 21, "cases_passed": 21, "expected_present_keys_per_case": 20, "unexpected_keys": 0, "missing_required_remaining_keys": 0, "marker_utf8_bytes": 32},
+  "method": "Dependency-free scanner extracts only top-level fields from each embedded Contract C YAML flow-map, excluding appended supporting records; compares with canonical 21-field set minus the case's designated omission.",
+  "limitations": ["Not full YAML or nested schema validation", "Not proof-reference closure validation", "Not a model evaluation", "Not live lab or runtime evidence", "Independent source-review closure and generated-consumer verification remain separate"]
+}

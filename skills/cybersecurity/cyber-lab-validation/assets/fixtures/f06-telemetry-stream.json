@@ -1,0 +1,79 @@
+{
+  "fixture_version": "1.2.0",
+  "fixture_id": "FIX-F06-TELEMETRY-STREAM",
+  "notice": "Synthetic, non-authorizing telemetry and correlation inputs. Every authorization, proof, timestamp, receipt, observation, and evidence record is invented fixture data; no live replay or host observation occurred.",
+  "replayed_events_stream_s": [
+    {"event_id":"EVT-INGEST-001","timestamp":"2026-10-24T12:00:00Z","entity":"host-synth-01.lab.local","event_type":"PROCESS_START","process":"/usr/local/bin/synth-agent --test","correlation_key":{"run_id":"RUN-20261024-F06S","attempt_id":1,"test_id":"TEST-F06-REPLAY"},"exercised_stages":["ingestion","parser","schema-validation"]},
+    {"event_id":"EVT-CORRELATE-002","timestamp":"2026-10-24T12:00:01Z","entity":"host-synth-01.lab.local","event_type":"ALERT_TRIGGERED","rule_id":"RULE-SYNTH-HIGH-RATE","correlation_key":{"run_id":"RUN-20261024-F06S","attempt_id":1,"test_id":"TEST-F06-REPLAY"},"exercised_stages":["rule-evaluation","alert-generation"]}
+  ],
+  "negative_instance_1_mismatched_window": {
+    "expected_observation": {"entity":"host-synth-01.lab.local","source":"pipeline-replay-driver","channel":"pipeline-replay","exercised_stages":["ingestion","parser"],"window":{"start_at":"2026-10-24T12:00:00Z","end_at":"2026-10-24T12:05:00Z"},"owner":"qa-f06-synthetic-fixture-owner"},
+    "authorization_record": {"record_id":"SYNTH-AUTH","engagement_scope_ref":"SYNTH-SCOPE-F06-N1","authorization_ref":"SYNTH-AUTH","requester":"qa-f06-synthetic-requester","approver":"qa-f06-synthetic-approver","accountable_owner":"qa-f06-synthetic-fixture-owner","valid_from":"2026-10-24T12:00:00Z","expires_at":"2026-10-24T13:00:00Z","restart_authority":"qa-f06-synthetic-fixture-owner","review_status":"hypothetical-not-approved","limitations":"Invented, non-authorizing fixture input."},
+    "proof_envelope": {"proof_id":"PROOF-A","capability_id":"disposable-isolation","host_id":"host-f06-synthetic","host_version":"fixture-host-v1","lab_id":"LAB-SYNTH","target_identity":"LAB-SYNTH/host-synth-01.lab.local/rev-A","tool/action_versions":["ACT-REPLAY@1.0"],"configuration_revision":"cfg-f06-n1-synthetic-v1","method":"Hypothetical fixture binding check","observed_at":"2026-10-24T11:50:00Z","valid_until":"2026-10-24T12:10:00Z","observer":"qa-f06-synthetic-fixture-owner","original_evidence_refs":["SYNTH-RAW-RCPT-1"],"redacted_evidence_refs":["SYNTH-REDACTED-OBS-1"],"limitations":"Invented fixture only; no host observation, G3 evidence, or authority.","review_status":"hypothetical"},
+    "limits": {"max_duration_seconds":60,"max_actions":1,"concurrency_limit":1,"network_egress":"none","fixture_only":true},
+    "cleanup_plan": {"cleanup_plan_ref":"CLEANUP-A","accountable_owner":"qa-f06-synthetic-fixture-owner","planned_resources":[],"teardown_action_ids":[],"expected_residual_state_predicates":["No resources created"],"review_status":"hypothetical"},
+    "task_inputs": {
+      "action_request": {"schema_version":1,"run_id":"RUN-F06N1","attempt_id":1,"step_id":"STEP-1","scenario_id":"F06-SYNTH","scenario_version":"1.0.0","action_id":"ACT-REPLAY","action_version":"1.0","mode":"replay","active":false,"target":{"lab_id":"LAB-SYNTH","asset_id":"host-synth-01.lab.local","fixture_revision":"rev-A","identity_proof_ref":"PROOF-A"},"input_refs":["digest-A"],"dependency_refs":[],"authorization_ref":"SYNTH-AUTH","capability_proof_refs":["PROOF-A"],"limits":{"max_duration_seconds":60,"max_actions":1,"concurrency_limit":1,"network_egress":"none","fixture_only":true},"cleanup_plan_ref":"CLEANUP-A"},
+      "gate_decision": {"request_ref":"REQ-1","decision":"eligible","evaluated_at":"2026-10-24T12:00:00Z","valid_until":"2026-10-24T12:05:00Z","bound_target_identity":"host-synth-01.lab.local/rev-A","bound_input_revisions":["digest-A"],"authorization_ref":"SYNTH-AUTH","capability_proof_refs":["PROOF-A"],"reason_codes":[],"missing_prerequisites":[],"owner":"qa-f06-synthetic-fixture-owner"},
+      "action_receipt": {"run_id":"RUN-F06N1","attempt_id":1,"step_id":"STEP-1","test_id":"TEST-1","entity":"host-synth-01.lab.local","target_identity":"host-synth-01.lab.local/rev-A","action_id":"ACT-REPLAY","action_version":"1.0","gate_ref":"GATE-1","started_at":"2026-10-24T12:00:00Z","ended_at":"2026-10-24T12:01:00Z","host_source":"pipeline-replay-driver","result":"completed","original_evidence_refs":["SYNTH-RAW-RCPT-1"]},
+      "candidate_observation": {"observation_id":"OBS-1","action_receipt_ref":"RCPT-1","test_id":"TEST-1","entity":"unrelated-host-99.lab.local","window":{"start_at":"2026-10-20T00:00:00Z","end_at":"2026-10-20T01:00:00Z"},"source":"wrong-source","observed_at":"2026-10-20T00:30:00Z","exercised_stages":["ingestion"],"method":"file-grep","redacted_evidence_refs":["SYNTH-REDACTED-OBS-1"],"limitations":"Wrong entity and source; outside the declared fixture-A window."}
+    }
+    ,
+    "synthetic_evidence_records": [
+      {"evidence_id":"SYNTH-RAW-RCPT-1","record_type":"hypothetical_fixture_evidence","limitations":"Fabricated receipt/proof evidence only; no real source exists."},
+      {"evidence_id":"SYNTH-REDACTED-OBS-1","record_type":"hypothetical_redacted_fixture_evidence","source_ref":"SYNTH-RAW-RCPT-1","limitations":"Fabricated redacted evidence only; no real source exists."}
+    ]
+  },
+  "negative_instance_2_correlation_key_conflict": {
+    "shared_authorization": {"record_id":"SYNTH-AUTH-F06-N2","engagement_scope_ref":"SYNTH-SCOPE-F06-N2","authorization_ref":"SYNTH-AUTH-F06-N2","requester":"qa-f06-requester","approver":"qa-f06-approver","accountable_owner":"qa-f06-owner","valid_from":"2026-10-24T12:00:00Z","expires_at":"2026-10-24T13:00:00Z","restart_authority":"qa-f06-owner","review_status":"hypothetical-not-approved","limitations":"Invented fixture only; not authorization."},
+    "cleanup_authorizations": [
+      {"record_id":"SYNTH-CLEANUP-A","authorization_ref":"SYNTH-CLEANUP-A","accountable_owner":"qa-f06-owner","valid_from":"2026-10-24T12:00:00Z","expires_at":"2026-10-24T13:00:00Z","permitted_action_ids":[],"review_status":"hypothetical-not-approved","limitations":"Invented fixture only."},
+      {"record_id":"SYNTH-CLEANUP-B","authorization_ref":"SYNTH-CLEANUP-B","accountable_owner":"qa-f06-owner","valid_from":"2026-10-24T12:00:00Z","expires_at":"2026-10-24T13:00:00Z","permitted_action_ids":[],"review_status":"hypothetical-not-approved","limitations":"Invented fixture only."}
+    ],
+    "proof_envelopes": [
+      {"proof_id":"SYNTH-PROOF-F06-A","capability_id":"disposable-isolation","host_id":"host-f06-synthetic","host_version":"fixture-host-v1","lab_id":"LAB-SYNTH","target_identity":"LAB-SYNTH/FIX-A-VULNERABLE/rev-A","tool/action_versions":["ACT-REPLAY@1.0"],"configuration_revision":"cfg-f06-a-v1","method":"hypothetical fixture isolation check","observed_at":"2026-10-24T11:50:00Z","valid_until":"2026-10-24T12:10:00Z","observer":"qa-f06-owner","original_evidence_refs":["SYNTH-RAW-PROOF-A"],"redacted_evidence_refs":["SYNTH-REDACTED-PROOF-A"],"limitations":"Invented fixture only; no host observation or G3 evidence.","review_status":"hypothetical"},
+      {"proof_id":"SYNTH-PROOF-F06-B","capability_id":"disposable-isolation","host_id":"host-f06-synthetic","host_version":"fixture-host-v1","lab_id":"LAB-SYNTH","target_identity":"LAB-SYNTH/FIX-B-PATCHED/rev-B","tool/action_versions":["ACT-REPLAY@1.0"],"configuration_revision":"cfg-f06-b-v1","method":"hypothetical fixture isolation check","observed_at":"2026-10-24T11:50:00Z","valid_until":"2026-10-24T12:10:00Z","observer":"qa-f06-owner","original_evidence_refs":["SYNTH-RAW-PROOF-B"],"redacted_evidence_refs":["SYNTH-REDACTED-PROOF-B"],"limitations":"Invented fixture only; no host observation or G3 evidence.","review_status":"hypothetical"}
+    ],
+    "limits": {
+      "A":{"max_duration_seconds":60,"max_actions":1,"concurrency_limit":1,"network_egress":"none","filesystem_scope":"supplied fixture only","resource_data_effect_bounds":{"max_memory":{"value":64,"unit":"MiB"},"max_cpu":{"value":1,"unit":"core"},"max_data":{"value":3,"unit":"synthetic-records"},"permitted_effects":["read supplied fixture only"]},"host_enforcement_method":"hypothetical only; no enforcement"},
+      "B":{"max_duration_seconds":60,"max_actions":1,"concurrency_limit":1,"network_egress":"none","filesystem_scope":"supplied fixture only","resource_data_effect_bounds":{"max_memory":{"value":64,"unit":"MiB"},"max_cpu":{"value":1,"unit":"core"},"max_data":{"value":3,"unit":"synthetic-records"},"permitted_effects":["read supplied fixture only"]},"host_enforcement_method":"hypothetical only; no enforcement"}
+    },
+    "cleanup_plans": [
+      {"cleanup_plan_ref":"CLEANUP-A","planned_resources":[],"teardown_action_ids":[],"surviving_authority_ref":"SYNTH-CLEANUP-A","expected_residual_state_predicates":["no fixture resource created"],"observer_role":"qa-f06-owner","verification_source":"synthetic-fixture-state-check"},
+      {"cleanup_plan_ref":"CLEANUP-B","planned_resources":[],"teardown_action_ids":[],"surviving_authority_ref":"SYNTH-CLEANUP-B","expected_residual_state_predicates":["no fixture resource created"],"observer_role":"qa-f06-owner","verification_source":"synthetic-fixture-state-check"}
+    ],
+    "task_inputs": {
+      "record_ref_map": {"REQ-A":"requests[0]","REQ-B":"requests[1]","GATE-A":"gates[0]","GATE-B":"gates[1]","RCPT-A":"receipts[0]","RCPT-B":"receipts[1]","OBS-F06-N2-A":"observations[0]","OBS-F06-N2-B":"observations[1]"},
+      "requests": [
+        {"schema_version":1,"run_id":"RUN-F06-N2","attempt_id":1,"step_id":"STEP-A","scenario_id":"CLV-F06-N","scenario_version":"1.0.0","action_id":"ACT-REPLAY","action_version":"1.0","mode":"replay","active":false,"target":{"lab_id":"LAB-SYNTH","asset_id":"FIX-A-VULNERABLE","fixture_revision":"rev-A","identity_proof_ref":"SYNTH-PROOF-F06-A"},"input_refs":["sha256:fixture-A-v1"],"dependency_refs":[],"authorization_ref":"SYNTH-AUTH-F06-N2","capability_proof_refs":["SYNTH-PROOF-F06-A"],"limits":{"max_duration_seconds":60,"max_actions":1,"concurrency_limit":1,"network_egress":"none","filesystem_scope":"supplied fixture only","resource_data_effect_bounds":{"max_memory":{"value":64,"unit":"MiB"},"max_cpu":{"value":1,"unit":"core"},"max_data":{"value":3,"unit":"synthetic-records"},"permitted_effects":["read supplied fixture only"]},"host_enforcement_method":"hypothetical only; no enforcement"},"cleanup_plan_ref":"CLEANUP-A"},
+        {"schema_version":1,"run_id":"RUN-F06-N2","attempt_id":1,"step_id":"STEP-B","scenario_id":"CLV-F06-N","scenario_version":"1.0.0","action_id":"ACT-REPLAY","action_version":"1.0","mode":"replay","active":false,"target":{"lab_id":"LAB-SYNTH","asset_id":"FIX-B-PATCHED","fixture_revision":"rev-B","identity_proof_ref":"SYNTH-PROOF-F06-B"},"input_refs":["sha256:fixture-B-v1"],"dependency_refs":[],"authorization_ref":"SYNTH-AUTH-F06-N2","capability_proof_refs":["SYNTH-PROOF-F06-B"],"limits":{"max_duration_seconds":60,"max_actions":1,"concurrency_limit":1,"network_egress":"none","filesystem_scope":"supplied fixture only","resource_data_effect_bounds":{"max_memory":{"value":64,"unit":"MiB"},"max_cpu":{"value":1,"unit":"core"},"max_data":{"value":3,"unit":"synthetic-records"},"permitted_effects":["read supplied fixture only"]},"host_enforcement_method":"hypothetical only; no enforcement"},"cleanup_plan_ref":"CLEANUP-B"}
+      ],
+      "gates": [
+        {"request_ref":"REQ-A","decision":"eligible","evaluated_at":"2026-10-24T12:00:00Z","valid_until":"2026-10-24T12:05:00Z","bound_target_identity":"LAB-SYNTH/FIX-A-VULNERABLE/rev-A","bound_input_revisions":["sha256:fixture-A-v1"],"authorization_ref":"SYNTH-AUTH-F06-N2","capability_proof_refs":["SYNTH-PROOF-F06-A"],"reason_codes":[],"missing_prerequisites":[],"owner":"qa-f06-owner"},
+        {"request_ref":"REQ-B","decision":"eligible","evaluated_at":"2026-10-24T12:00:00Z","valid_until":"2026-10-24T12:05:00Z","bound_target_identity":"LAB-SYNTH/FIX-B-PATCHED/rev-B","bound_input_revisions":["sha256:fixture-B-v1"],"authorization_ref":"SYNTH-AUTH-F06-N2","capability_proof_refs":["SYNTH-PROOF-F06-B"],"reason_codes":[],"missing_prerequisites":[],"owner":"qa-f06-owner"}
+      ],
+      "receipts": [
+        {"run_id":"RUN-F06-N2","attempt_id":1,"step_id":"STEP-A","test_id":"TEST-F06-N2","entity":"host-f06-a.synthetic","target_identity":"LAB-SYNTH/FIX-A-VULNERABLE/rev-A","action_id":"ACT-REPLAY","action_version":"1.0","gate_ref":"GATE-A","started_at":"2026-10-24T12:01:00Z","ended_at":"2026-10-24T12:02:00Z","host_source":"synthetic-replay-fixture","result":"completed","original_evidence_refs":["SYNTH-RAW-RECEIPT-A"]},
+        {"run_id":"RUN-F06-N2","attempt_id":1,"step_id":"STEP-B","test_id":"TEST-F06-N2","entity":"host-f06-b.synthetic","target_identity":"LAB-SYNTH/FIX-B-PATCHED/rev-B","action_id":"ACT-REPLAY","action_version":"1.0","gate_ref":"GATE-B","started_at":"2026-10-24T12:01:00Z","ended_at":"2026-10-24T12:02:00Z","host_source":"synthetic-replay-fixture","result":"completed","original_evidence_refs":["SYNTH-RAW-RECEIPT-B"]}
+      ],
+      "expected_observations": [
+        {"entity":"host-f06-a.synthetic","source":"pipeline-A","exercised_stages":["parser"],"window":{"start_at":"2026-10-24T12:01:00Z","end_at":"2026-10-24T12:05:00Z"},"owner":"qa-f06-owner"},
+        {"entity":"host-f06-b.synthetic","source":"pipeline-B","exercised_stages":["parser"],"window":{"start_at":"2026-10-24T12:01:00Z","end_at":"2026-10-24T12:05:00Z"},"owner":"qa-f06-owner"}
+      ],
+      "observations": [
+        {"observation_id":"OBS-F06-N2","action_receipt_ref":"RCPT-A","test_id":"TEST-F06-N2","entity":"host-f06-a.synthetic","window":{"start_at":"2026-10-24T12:01:00Z","end_at":"2026-10-24T12:05:00Z"},"source":"pipeline-A","observed_at":"2026-10-24T12:03:00Z","exercised_stages":["parser"],"method":"synthetic-replay","redacted_evidence_refs":["SYNTH-REDACTED-OBS-A"],"limitations":"Fictional fixture only."},
+        {"observation_id":"OBS-F06-N2","action_receipt_ref":"RCPT-B","test_id":"TEST-F06-N2","entity":"host-f06-b.synthetic","window":{"start_at":"2026-10-24T12:01:00Z","end_at":"2026-10-24T12:05:00Z"},"source":"pipeline-B","observed_at":"2026-10-24T12:04:00Z","exercised_stages":["parser"],"method":"synthetic-replay","redacted_evidence_refs":["SYNTH-REDACTED-OBS-B"],"limitations":"Fictional fixture only."}
+      ],
+      "evidence_records": [
+        {"evidence_id":"SYNTH-RAW-PROOF-A","record_type":"hypothetical_fixture_evidence","proof_ref":"SYNTH-PROOF-F06-A","limitations":"No real source exists."},
+        {"evidence_id":"SYNTH-REDACTED-PROOF-A","record_type":"hypothetical_redacted_fixture_evidence","source_ref":"SYNTH-RAW-PROOF-A","limitations":"No real source exists."},
+        {"evidence_id":"SYNTH-RAW-PROOF-B","record_type":"hypothetical_fixture_evidence","proof_ref":"SYNTH-PROOF-F06-B","limitations":"No real source exists."},
+        {"evidence_id":"SYNTH-REDACTED-PROOF-B","record_type":"hypothetical_redacted_fixture_evidence","source_ref":"SYNTH-RAW-PROOF-B","limitations":"No real source exists."},
+        {"evidence_id":"SYNTH-RAW-RECEIPT-A","record_type":"hypothetical_fixture_evidence","receipt_ref":"RCPT-A","limitations":"No real action exists."},
+        {"evidence_id":"SYNTH-RAW-RECEIPT-B","record_type":"hypothetical_fixture_evidence","receipt_ref":"RCPT-B","limitations":"No real action exists."},
+        {"evidence_id":"SYNTH-REDACTED-OBS-A","record_type":"hypothetical_redacted_fixture_evidence","source_ref":"SYNTH-RAW-RECEIPT-A","observation_ref":"OBS-F06-N2","limitations":"No real source exists."},
+        {"evidence_id":"SYNTH-REDACTED-OBS-B","record_type":"hypothetical_redacted_fixture_evidence","source_ref":"SYNTH-RAW-RECEIPT-B","observation_ref":"OBS-F06-N2","limitations":"No real source exists."}
+      ]
+    }
+  }
+}

@@ -1,0 +1,798 @@
+{
+  "copied_at": "2026-10-24T17:30:38.138Z",
+  "files": [
+    {
+      "path": ".agents/skills/cybersecurity/_INDEX.md",
+      "source_sha256": "80dbbd77eef41edac9e2efdeac23c91bcf224fa8fe606d8dc56028ffb7402f34",
+      "dest_sha256": "80dbbd77eef41edac9e2efdeac23c91bcf224fa8fe606d8dc56028ffb7402f34",
+      "bytes": 2104
+    },
+    {
+      "path": ".agents/skills/cybersecurity/cyber-authorization/SKILL.md",
+      "source_sha256": "59bad98c9f2d414f557a9a35b310c0ac8f4ebce7e6fbfa2e79f5680eba444ef4",
+      "dest_sha256": "59bad98c9f2d414f557a9a35b310c0ac8f4ebce7e6fbfa2e79f5680eba444ef4",
+      "bytes": 3788
+    },
+    {
+      "path": ".agents/skills/cybersecurity/cyber-authorization/references/runtime-authorization-matrix.md",
+      "source_sha256": "b0d73e39d6a29050bc56f609987603e78b8e01c90d15fe75adde0bae44873209",
+      "dest_sha256": "b0d73e39d6a29050bc56f609987603e78b8e01c90d15fe75adde0bae44873209",
+      "bytes": 6157
+    },
+    {
+      "path": ".agents/skills/cybersecurity/cyber-detection-validation/SKILL.md",
+      "source_sha256": "5cafcc7db51b740119bc47aaeb374afd548d351e8d9f0483fe5c84c1a4cfb312",
+      "dest_sha256": "5cafcc7db51b740119bc47aaeb374afd548d351e8d9f0483fe5c84c1a4cfb312",
+      "bytes": 4276
+    },
+    {
+      "path": ".agents/skills/cybersecurity/cyber-engagement-planning/SKILL.md",
+      "source_sha256": "87421c999081620d08c52a9ecf7d5bcabaf2c01245d337dca1645a37cb9eb732",
+      "dest_sha256": "87421c999081620d08c52a9ecf7d5bcabaf2c01245d337dca1645a37cb9eb732",
+      "bytes": 3457
+    },
+    {
+      "path": ".agents/skills/cybersecurity/cyber-evidence/SKILL.md",
+      "source_sha256": "d0b37d14007c7e4ccfd1bad429de7eaab083b3654fb8151baf7d902544556a72",
+      "dest_sha256": "d0b37d14007c7e4ccfd1bad429de7eaab083b3654fb8151baf7d902544556a72",
+      "bytes": 3855
+    },
+    {
+      "path": ".agents/skills/cybersecurity/cyber-evidence/references/evidence-record.md",
+      "source_sha256": "9eb2874d53067c594c00a5021ba81ea49ff7e40b49252fea2867da0d85fe6c4e",
+      "dest_sha256": "9eb2874d53067c594c00a5021ba81ea49ff7e40b49252fea2867da0d85fe6c4e",
+      "bytes": 9682
+    },
+    {
+      "path": ".agents/skills/cybersecurity/cyber-exercise-control/SKILL.md",
+      "source_sha256": "2aef51a2b485b359016b62b42e2728c67c0979e8152c6890f7700efd70650fcd",
+      "dest_sha256": "2aef51a2b485b359016b62b42e2728c67c0979e8152c6890f7700efd70650fcd",
+      "bytes": 3747
+    },
+    {
+      "path": ".agents/skills/cybersecurity/cyber-lab-validation/LICENSE",
+      "source_sha256": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+      "dest_sha256": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+      "bytes": 1069
+    },
+    {
+      "path": ".agents/skills/cybersecurity/cyber-lab-validation/SKILL.md",
+      "source_sha256": "a3ad162f637249de3641e9d7a4efa0a6f7b5c4e601cd4abc6367c9e6ad52941f",
+      "dest_sha256": "a3ad162f637249de3641e9d7a4efa0a6f7b5c4e601cd4abc6367c9e6ad52941f",
+      "bytes": 5065
+    },
+    {
+      "path": ".agents/skills/cybersecurity/cyber-lab-validation/assets/behavioral-rubric.json",
+      "source_sha256": "5960eef64d78cac3ebf8c4a8aa310234824eab1d67f14ed51391701c409949ac",
+      "dest_sha256": "5960eef64d78cac3ebf8c4a8aa310234824eab1d67f14ed51391701c409949ac",
+      "bytes": 40724
+    },
+    {
+      "path": ".agents/skills/cybersecurity/cyber-lab-validation/assets/catalog-mapping.json",
+      "source_sha256": "ce82b62274e07c07d3a133703da32a8aee0f7ce8a96cbbf7f95b17bc2bd7a256",
+      "dest_sha256": "ce82b62274e07c07d3a133703da32a8aee0f7ce8a96cbbf7f95b17bc2bd7a256",
+      "bytes": 32369
+    },
+    {
+      "path": ".agents/skills/cybersecurity/cyber-lab-validation/assets/consumer-catalog.json",
+      "source_sha256": "e8963d1787851906973b34024e3ccf1008aa99e98eccb96b5c9b3a46bd42204b",
+      "dest_sha256": "e8963d1787851906973b34024e3ccf1008aa99e98eccb96b5c9b3a46bd42204b",
+      "bytes": 5723
+    },
+    {
+      "path": ".agents/skills/cybersecurity/cyber-lab-validation/assets/fixtures/cross-cutting-contracts.json",
+      "source_sha256": "ae25bc1f5887ac56803ee52e9d4cd3020a682925df707ced2260a387890d443c",
+      "dest_sha256": "ae25bc1f5887ac56803ee52e9d4cd3020a682925df707ced2260a387890d443c",
+      "bytes": 8467
+    },
+    {
+      "path": ".agents/skills/cybersecurity/cyber-lab-validation/assets/fixtures/f01-request-validator.json",
+      "source_sha256": "e30ce95d2fdb77361daa2c6f9010b669dc9989c0d47dd5d21e69752460fa191b",
+      "dest_sha256": "e30ce95d2fdb77361daa2c6f9010b669dc9989c0d47dd5d21e69752460fa191b",
+      "bytes": 1320
+    },
+    {
+      "path": ".agents/skills/cybersecurity/cyber-lab-validation/assets/fixtures/f02-access-matrix.json",
+      "source_sha256": "a0ef3bbb0720f43b83d9b07f6deb45f8b93d2b127881cd83d40d46a13f2ec2f7",
+      "dest_sha256": "a0ef3bbb0720f43b83d9b07f6deb45f8b93d2b127881cd83d40d46a13f2ec2f7",
+      "bytes": 1758
+    },
+    {
+      "path": ".agents/skills/cybersecurity/cyber-lab-validation/assets/fixtures/f03-filesystem-marker.json",
+      "source_sha256": "89974927b651de278a95b5ed746d3f0b9435be30fdbf6fbdda052e7000439679",
+      "dest_sha256": "89974927b651de278a95b5ed746d3f0b9435be30fdbf6fbdda052e7000439679",
+      "bytes": 1304
+    },
+    {
+      "path": ".agents/skills/cybersecurity/cyber-lab-validation/assets/fixtures/f04-component-diff.json",
+      "source_sha256": "797e773d14cbb5abb859f744d0790812d5f577b462f6cd4822c5e66484f58b69",
+      "dest_sha256": "797e773d14cbb5abb859f744d0790812d5f577b462f6cd4822c5e66484f58b69",
+      "bytes": 1581
+    },
+    {
+      "path": ".agents/skills/cybersecurity/cyber-lab-validation/assets/fixtures/f05-container-manifest.json",
+      "source_sha256": "b2f4750299c88836dba11737f3737b09e50738806832c7b2fbe426f59380afce",
+      "dest_sha256": "b2f4750299c88836dba11737f3737b09e50738806832c7b2fbe426f59380afce",
+      "bytes": 1630
+    },
+    {
+      "path": ".agents/skills/cybersecurity/cyber-lab-validation/assets/fixtures/f06-telemetry-stream.json",
+      "source_sha256": "f17b0a1d9c2b603da59641b11e61c36edcd5e97d314f2453c4641c408c2458a1",
+      "dest_sha256": "f17b0a1d9c2b603da59641b11e61c36edcd5e97d314f2453c4641c408c2458a1",
+      "bytes": 15729
+    },
+    {
+      "path": ".agents/skills/cybersecurity/cyber-lab-validation/assets/fixtures/f07-incident-timeline.json",
+      "source_sha256": "65de1bf6091b6f7f3a99867d8a87c6141161b97b8de234b39b918c2c59802634",
+      "dest_sha256": "65de1bf6091b6f7f3a99867d8a87c6141161b97b8de234b39b918c2c59802634",
+      "bytes": 1389
+    },
+    {
+      "path": ".agents/skills/cybersecurity/cyber-lab-validation/assets/fixtures/synthetic-positive-proof-envelopes.json",
+      "source_sha256": "a3bcc06b32e2c373a56e8171e581f1b47de8520dfe82bce2ab0690d80dc20582",
+      "dest_sha256": "a3bcc06b32e2c373a56e8171e581f1b47de8520dfe82bce2ab0690d80dc20582",
+      "bytes": 26406
+    },
+    {
+      "path": ".agents/skills/cybersecurity/cyber-lab-validation/assets/scenario-catalog.json",
+      "source_sha256": "023ab43f9a22d2089622359ed0e558cf36219342bdf58a9c00e8e0dd51565efb",
+      "dest_sha256": "023ab43f9a22d2089622359ed0e558cf36219342bdf58a9c00e8e0dd51565efb",
+      "bytes": 146079
+    },
+    {
+      "path": ".agents/skills/cybersecurity/cyber-lab-validation/references/execution-gate.md",
+      "source_sha256": "8030ce88958866f3556aa38555da6bd0d418deacb196dfda1fdfb8559429429a",
+      "dest_sha256": "8030ce88958866f3556aa38555da6bd0d418deacb196dfda1fdfb8559429429a",
+      "bytes": 11252
+    },
+    {
+      "path": ".agents/skills/cybersecurity/cyber-lab-validation/references/scenario-catalog.md",
+      "source_sha256": "968450ab05e3b34eec2c1af6f80dcc900ced013bb7b11d2ab7b5de48df48bf4b",
+      "dest_sha256": "968450ab05e3b34eec2c1af6f80dcc900ced013bb7b11d2ab7b5de48df48bf4b",
+      "bytes": 20301
+    },
+    {
+      "path": ".agents/skills/cybersecurity/cyber-lab-validation/references/scenario-schema.md",
+      "source_sha256": "22e3326b0d7437888c3497c64db481f51c689c324149909e34eab51d78c6116f",
+      "dest_sha256": "22e3326b0d7437888c3497c64db481f51c689c324149909e34eab51d78c6116f",
+      "bytes": 6085
+    },
+    {
+      "path": ".agents/skills/cybersecurity/cyber-lab-validation/references/validation-record.md",
+      "source_sha256": "fbc23dc41f88ed4f0d96b9ee68ed83e0be99ea82a300e714708ce85e54919a79",
+      "dest_sha256": "fbc23dc41f88ed4f0d96b9ee68ed83e0be99ea82a300e714708ce85e54919a79",
+      "bytes": 5053
+    },
+    {
+      "path": ".agents/skills/cybersecurity/cyber-scoped-validation/SKILL.md",
+      "source_sha256": "2977cb88aaff5e9974097529082b257db65c7df48125a3e1e4e6f806245d126c",
+      "dest_sha256": "2977cb88aaff5e9974097529082b257db65c7df48125a3e1e4e6f806245d126c",
+      "bytes": 3231
+    },
+    {
+      "path": ".agents/skills/cybersecurity/cyber-scoped-validation/references/validation-record.md",
+      "source_sha256": "8ba662410f095eab51560b216fd2cf8ec16eeaf901279ed17c018d6e8c76fa6e",
+      "dest_sha256": "8ba662410f095eab51560b216fd2cf8ec16eeaf901279ed17c018d6e8c76fa6e",
+      "bytes": 2134
+    },
+    {
+      "path": ".claude/commands/cyber-exercise.md",
+      "source_sha256": "2a391d42d391e67e3d55dbda125bde9b6f82f9eda6f6ecb5057b92b5dc17e64d",
+      "dest_sha256": "2a391d42d391e67e3d55dbda125bde9b6f82f9eda6f6ecb5057b92b5dc17e64d",
+      "bytes": 4315
+    },
+    {
+      "path": ".claude/commands/cyber-purple-validation.md",
+      "source_sha256": "5d83363effa98069309d6585f10539ee53ca73eec0f3dfb0172bc3ec5207a627",
+      "dest_sha256": "5d83363effa98069309d6585f10539ee53ca73eec0f3dfb0172bc3ec5207a627",
+      "bytes": 4011
+    },
+    {
+      "path": ".claude/commands/cyber-triage.md",
+      "source_sha256": "ec2cc1103ba858241d7c2d5e5d407f0b82f5dd35cc0b82c96beb858a3cfeea15",
+      "dest_sha256": "ec2cc1103ba858241d7c2d5e5d407f0b82f5dd35cc0b82c96beb858a3cfeea15",
+      "bytes": 3965
+    },
+    {
+      "path": ".claude/commands/pentest.md",
+      "source_sha256": "6c193b68b1b99e5f3bd7153a8198d9364910c7c1e7b4f260a20b525fb070ad12",
+      "dest_sha256": "6c193b68b1b99e5f3bd7153a8198d9364910c7c1e7b4f260a20b525fb070ad12",
+      "bytes": 3785
+    },
+    {
+      "path": ".claude/skills/cybersecurity/_INDEX.md",
+      "source_sha256": "80dbbd77eef41edac9e2efdeac23c91bcf224fa8fe606d8dc56028ffb7402f34",
+      "dest_sha256": "80dbbd77eef41edac9e2efdeac23c91bcf224fa8fe606d8dc56028ffb7402f34",
+      "bytes": 2104
+    },
+    {
+      "path": ".claude/skills/cybersecurity/cyber-authorization/SKILL.md",
+      "source_sha256": "59bad98c9f2d414f557a9a35b310c0ac8f4ebce7e6fbfa2e79f5680eba444ef4",
+      "dest_sha256": "59bad98c9f2d414f557a9a35b310c0ac8f4ebce7e6fbfa2e79f5680eba444ef4",
+      "bytes": 3788
+    },
+    {
+      "path": ".claude/skills/cybersecurity/cyber-authorization/references/runtime-authorization-matrix.md",
+      "source_sha256": "b0d73e39d6a29050bc56f609987603e78b8e01c90d15fe75adde0bae44873209",
+      "dest_sha256": "b0d73e39d6a29050bc56f609987603e78b8e01c90d15fe75adde0bae44873209",
+      "bytes": 6157
+    },
+    {
+      "path": ".claude/skills/cybersecurity/cyber-detection-validation/SKILL.md",
+      "source_sha256": "5cafcc7db51b740119bc47aaeb374afd548d351e8d9f0483fe5c84c1a4cfb312",
+      "dest_sha256": "5cafcc7db51b740119bc47aaeb374afd548d351e8d9f0483fe5c84c1a4cfb312",
+      "bytes": 4276
+    },
+    {
+      "path": ".claude/skills/cybersecurity/cyber-engagement-planning/SKILL.md",
+      "source_sha256": "87421c999081620d08c52a9ecf7d5bcabaf2c01245d337dca1645a37cb9eb732",
+      "dest_sha256": "87421c999081620d08c52a9ecf7d5bcabaf2c01245d337dca1645a37cb9eb732",
+      "bytes": 3457
+    },
+    {
+      "path": ".claude/skills/cybersecurity/cyber-evidence/SKILL.md",
+      "source_sha256": "d0b37d14007c7e4ccfd1bad429de7eaab083b3654fb8151baf7d902544556a72",
+      "dest_sha256": "d0b37d14007c7e4ccfd1bad429de7eaab083b3654fb8151baf7d902544556a72",
+      "bytes": 3855
+    },
+    {
+      "path": ".claude/skills/cybersecurity/cyber-evidence/references/evidence-record.md",
+      "source_sha256": "9eb2874d53067c594c00a5021ba81ea49ff7e40b49252fea2867da0d85fe6c4e",
+      "dest_sha256": "9eb2874d53067c594c00a5021ba81ea49ff7e40b49252fea2867da0d85fe6c4e",
+      "bytes": 9682
+    },
+    {
+      "path": ".claude/skills/cybersecurity/cyber-exercise-control/SKILL.md",
+      "source_sha256": "2aef51a2b485b359016b62b42e2728c67c0979e8152c6890f7700efd70650fcd",
+      "dest_sha256": "2aef51a2b485b359016b62b42e2728c67c0979e8152c6890f7700efd70650fcd",
+      "bytes": 3747
+    },
+    {
+      "path": ".claude/skills/cybersecurity/cyber-lab-validation/LICENSE",
+      "source_sha256": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+      "dest_sha256": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+      "bytes": 1069
+    },
+    {
+      "path": ".claude/skills/cybersecurity/cyber-lab-validation/SKILL.md",
+      "source_sha256": "a3ad162f637249de3641e9d7a4efa0a6f7b5c4e601cd4abc6367c9e6ad52941f",
+      "dest_sha256": "a3ad162f637249de3641e9d7a4efa0a6f7b5c4e601cd4abc6367c9e6ad52941f",
+      "bytes": 5065
+    },
+    {
+      "path": ".claude/skills/cybersecurity/cyber-lab-validation/assets/behavioral-rubric.json",
+      "source_sha256": "5960eef64d78cac3ebf8c4a8aa310234824eab1d67f14ed51391701c409949ac",
+      "dest_sha256": "5960eef64d78cac3ebf8c4a8aa310234824eab1d67f14ed51391701c409949ac",
+      "bytes": 40724
+    },
+    {
+      "path": ".claude/skills/cybersecurity/cyber-lab-validation/assets/catalog-mapping.json",
+      "source_sha256": "ce82b62274e07c07d3a133703da32a8aee0f7ce8a96cbbf7f95b17bc2bd7a256",
+      "dest_sha256": "ce82b62274e07c07d3a133703da32a8aee0f7ce8a96cbbf7f95b17bc2bd7a256",
+      "bytes": 32369
+    },
+    {
+      "path": ".claude/skills/cybersecurity/cyber-lab-validation/assets/consumer-catalog.json",
+      "source_sha256": "e8963d1787851906973b34024e3ccf1008aa99e98eccb96b5c9b3a46bd42204b",
+      "dest_sha256": "e8963d1787851906973b34024e3ccf1008aa99e98eccb96b5c9b3a46bd42204b",
+      "bytes": 5723
+    },
+    {
+      "path": ".claude/skills/cybersecurity/cyber-lab-validation/assets/fixtures/cross-cutting-contracts.json",
+      "source_sha256": "ae25bc1f5887ac56803ee52e9d4cd3020a682925df707ced2260a387890d443c",
+      "dest_sha256": "ae25bc1f5887ac56803ee52e9d4cd3020a682925df707ced2260a387890d443c",
+      "bytes": 8467
+    },
+    {
+      "path": ".claude/skills/cybersecurity/cyber-lab-validation/assets/fixtures/f01-request-validator.json",
+      "source_sha256": "e30ce95d2fdb77361daa2c6f9010b669dc9989c0d47dd5d21e69752460fa191b",
+      "dest_sha256": "e30ce95d2fdb77361daa2c6f9010b669dc9989c0d47dd5d21e69752460fa191b",
+      "bytes": 1320
+    },
+    {
+      "path": ".claude/skills/cybersecurity/cyber-lab-validation/assets/fixtures/f02-access-matrix.json",
+      "source_sha256": "a0ef3bbb0720f43b83d9b07f6deb45f8b93d2b127881cd83d40d46a13f2ec2f7",
+      "dest_sha256": "a0ef3bbb0720f43b83d9b07f6deb45f8b93d2b127881cd83d40d46a13f2ec2f7",
+      "bytes": 1758
+    },
+    {
+      "path": ".claude/skills/cybersecurity/cyber-lab-validation/assets/fixtures/f03-filesystem-marker.json",
+      "source_sha256": "89974927b651de278a95b5ed746d3f0b9435be30fdbf6fbdda052e7000439679",
+      "dest_sha256": "89974927b651de278a95b5ed746d3f0b9435be30fdbf6fbdda052e7000439679",
+      "bytes": 1304
+    },
+    {
+      "path": ".claude/skills/cybersecurity/cyber-lab-validation/assets/fixtures/f04-component-diff.json",
+      "source_sha256": "797e773d14cbb5abb859f744d0790812d5f577b462f6cd4822c5e66484f58b69",
+      "dest_sha256": "797e773d14cbb5abb859f744d0790812d5f577b462f6cd4822c5e66484f58b69",
+      "bytes": 1581
+    },
+    {
+      "path": ".claude/skills/cybersecurity/cyber-lab-validation/assets/fixtures/f05-container-manifest.json",
+      "source_sha256": "b2f4750299c88836dba11737f3737b09e50738806832c7b2fbe426f59380afce",
+      "dest_sha256": "b2f4750299c88836dba11737f3737b09e50738806832c7b2fbe426f59380afce",
+      "bytes": 1630
+    },
+    {
+      "path": ".claude/skills/cybersecurity/cyber-lab-validation/assets/fixtures/f06-telemetry-stream.json",
+      "source_sha256": "f17b0a1d9c2b603da59641b11e61c36edcd5e97d314f2453c4641c408c2458a1",
+      "dest_sha256": "f17b0a1d9c2b603da59641b11e61c36edcd5e97d314f2453c4641c408c2458a1",
+      "bytes": 15729
+    },
+    {
+      "path": ".claude/skills/cybersecurity/cyber-lab-validation/assets/fixtures/f07-incident-timeline.json",
+      "source_sha256": "65de1bf6091b6f7f3a99867d8a87c6141161b97b8de234b39b918c2c59802634",
+      "dest_sha256": "65de1bf6091b6f7f3a99867d8a87c6141161b97b8de234b39b918c2c59802634",
+      "bytes": 1389
+    },
+    {
+      "path": ".claude/skills/cybersecurity/cyber-lab-validation/assets/fixtures/synthetic-positive-proof-envelopes.json",
+      "source_sha256": "a3bcc06b32e2c373a56e8171e581f1b47de8520dfe82bce2ab0690d80dc20582",
+      "dest_sha256": "a3bcc06b32e2c373a56e8171e581f1b47de8520dfe82bce2ab0690d80dc20582",
+      "bytes": 26406
+    },
+    {
+      "path": ".claude/skills/cybersecurity/cyber-lab-validation/assets/scenario-catalog.json",
+      "source_sha256": "023ab43f9a22d2089622359ed0e558cf36219342bdf58a9c00e8e0dd51565efb",
+      "dest_sha256": "023ab43f9a22d2089622359ed0e558cf36219342bdf58a9c00e8e0dd51565efb",
+      "bytes": 146079
+    },
+    {
+      "path": ".claude/skills/cybersecurity/cyber-lab-validation/references/execution-gate.md",
+      "source_sha256": "8030ce88958866f3556aa38555da6bd0d418deacb196dfda1fdfb8559429429a",
+      "dest_sha256": "8030ce88958866f3556aa38555da6bd0d418deacb196dfda1fdfb8559429429a",
+      "bytes": 11252
+    },
+    {
+      "path": ".claude/skills/cybersecurity/cyber-lab-validation/references/scenario-catalog.md",
+      "source_sha256": "968450ab05e3b34eec2c1af6f80dcc900ced013bb7b11d2ab7b5de48df48bf4b",
+      "dest_sha256": "968450ab05e3b34eec2c1af6f80dcc900ced013bb7b11d2ab7b5de48df48bf4b",
+      "bytes": 20301
+    },
+    {
+      "path": ".claude/skills/cybersecurity/cyber-lab-validation/references/scenario-schema.md",
+      "source_sha256": "22e3326b0d7437888c3497c64db481f51c689c324149909e34eab51d78c6116f",
+      "dest_sha256": "22e3326b0d7437888c3497c64db481f51c689c324149909e34eab51d78c6116f",
+      "bytes": 6085
+    },
+    {
+      "path": ".claude/skills/cybersecurity/cyber-lab-validation/references/validation-record.md",
+      "source_sha256": "fbc23dc41f88ed4f0d96b9ee68ed83e0be99ea82a300e714708ce85e54919a79",
+      "dest_sha256": "fbc23dc41f88ed4f0d96b9ee68ed83e0be99ea82a300e714708ce85e54919a79",
+      "bytes": 5053
+    },
+    {
+      "path": ".claude/skills/cybersecurity/cyber-scoped-validation/SKILL.md",
+      "source_sha256": "2977cb88aaff5e9974097529082b257db65c7df48125a3e1e4e6f806245d126c",
+      "dest_sha256": "2977cb88aaff5e9974097529082b257db65c7df48125a3e1e4e6f806245d126c",
+      "bytes": 3231
+    },
+    {
+      "path": ".claude/skills/cybersecurity/cyber-scoped-validation/references/validation-record.md",
+      "source_sha256": "8ba662410f095eab51560b216fd2cf8ec16eeaf901279ed17c018d6e8c76fa6e",
+      "dest_sha256": "8ba662410f095eab51560b216fd2cf8ec16eeaf901279ed17c018d6e8c76fa6e",
+      "bytes": 2134
+    },
+    {
+      "path": ".codex/skills/cyber-exercise/SKILL.md",
+      "source_sha256": "b7dd3b284adeef45b284ab8cd7caf2216a0682037e60c962b6d4d20427273d79",
+      "dest_sha256": "b7dd3b284adeef45b284ab8cd7caf2216a0682037e60c962b6d4d20427273d79",
+      "bytes": 4489
+    },
+    {
+      "path": ".codex/skills/cyber-purple-validation/SKILL.md",
+      "source_sha256": "57c865f61778bcefcebde96379b8a3b7cbd6051d705a89e17e4f855a57f6b082",
+      "dest_sha256": "57c865f61778bcefcebde96379b8a3b7cbd6051d705a89e17e4f855a57f6b082",
+      "bytes": 4139
+    },
+    {
+      "path": ".codex/skills/cyber-triage/SKILL.md",
+      "source_sha256": "b10b58e63621d881d567733d8ad3728f663765677b405b0405f3a881fcc634dc",
+      "dest_sha256": "b10b58e63621d881d567733d8ad3728f663765677b405b0405f3a881fcc634dc",
+      "bytes": 4047
+    },
+    {
+      "path": ".codex/skills/cybersecurity/_INDEX.md",
+      "source_sha256": "80dbbd77eef41edac9e2efdeac23c91bcf224fa8fe606d8dc56028ffb7402f34",
+      "dest_sha256": "80dbbd77eef41edac9e2efdeac23c91bcf224fa8fe606d8dc56028ffb7402f34",
+      "bytes": 2104
+    },
+    {
+      "path": ".codex/skills/cybersecurity/cyber-authorization/SKILL.md",
+      "source_sha256": "59bad98c9f2d414f557a9a35b310c0ac8f4ebce7e6fbfa2e79f5680eba444ef4",
+      "dest_sha256": "59bad98c9f2d414f557a9a35b310c0ac8f4ebce7e6fbfa2e79f5680eba444ef4",
+      "bytes": 3788
+    },
+    {
+      "path": ".codex/skills/cybersecurity/cyber-authorization/references/runtime-authorization-matrix.md",
+      "source_sha256": "b0d73e39d6a29050bc56f609987603e78b8e01c90d15fe75adde0bae44873209",
+      "dest_sha256": "b0d73e39d6a29050bc56f609987603e78b8e01c90d15fe75adde0bae44873209",
+      "bytes": 6157
+    },
+    {
+      "path": ".codex/skills/cybersecurity/cyber-detection-validation/SKILL.md",
+      "source_sha256": "5cafcc7db51b740119bc47aaeb374afd548d351e8d9f0483fe5c84c1a4cfb312",
+      "dest_sha256": "5cafcc7db51b740119bc47aaeb374afd548d351e8d9f0483fe5c84c1a4cfb312",
+      "bytes": 4276
+    },
+    {
+      "path": ".codex/skills/cybersecurity/cyber-engagement-planning/SKILL.md",
+      "source_sha256": "87421c999081620d08c52a9ecf7d5bcabaf2c01245d337dca1645a37cb9eb732",
+      "dest_sha256": "87421c999081620d08c52a9ecf7d5bcabaf2c01245d337dca1645a37cb9eb732",
+      "bytes": 3457
+    },
+    {
+      "path": ".codex/skills/cybersecurity/cyber-evidence/SKILL.md",
+      "source_sha256": "d0b37d14007c7e4ccfd1bad429de7eaab083b3654fb8151baf7d902544556a72",
+      "dest_sha256": "d0b37d14007c7e4ccfd1bad429de7eaab083b3654fb8151baf7d902544556a72",
+      "bytes": 3855
+    },
+    {
+      "path": ".codex/skills/cybersecurity/cyber-evidence/references/evidence-record.md",
+      "source_sha256": "9eb2874d53067c594c00a5021ba81ea49ff7e40b49252fea2867da0d85fe6c4e",
+      "dest_sha256": "9eb2874d53067c594c00a5021ba81ea49ff7e40b49252fea2867da0d85fe6c4e",
+      "bytes": 9682
+    },
+    {
+      "path": ".codex/skills/cybersecurity/cyber-exercise-control/SKILL.md",
+      "source_sha256": "2aef51a2b485b359016b62b42e2728c67c0979e8152c6890f7700efd70650fcd",
+      "dest_sha256": "2aef51a2b485b359016b62b42e2728c67c0979e8152c6890f7700efd70650fcd",
+      "bytes": 3747
+    },
+    {
+      "path": ".codex/skills/cybersecurity/cyber-lab-validation/LICENSE",
+      "source_sha256": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+      "dest_sha256": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+      "bytes": 1069
+    },
+    {
+      "path": ".codex/skills/cybersecurity/cyber-lab-validation/SKILL.md",
+      "source_sha256": "a3ad162f637249de3641e9d7a4efa0a6f7b5c4e601cd4abc6367c9e6ad52941f",
+      "dest_sha256": "a3ad162f637249de3641e9d7a4efa0a6f7b5c4e601cd4abc6367c9e6ad52941f",
+      "bytes": 5065
+    },
+    {
+      "path": ".codex/skills/cybersecurity/cyber-lab-validation/assets/behavioral-rubric.json",
+      "source_sha256": "5960eef64d78cac3ebf8c4a8aa310234824eab1d67f14ed51391701c409949ac",
+      "dest_sha256": "5960eef64d78cac3ebf8c4a8aa310234824eab1d67f14ed51391701c409949ac",
+      "bytes": 40724
+    },
+    {
+      "path": ".codex/skills/cybersecurity/cyber-lab-validation/assets/catalog-mapping.json",
+      "source_sha256": "ce82b62274e07c07d3a133703da32a8aee0f7ce8a96cbbf7f95b17bc2bd7a256",
+      "dest_sha256": "ce82b62274e07c07d3a133703da32a8aee0f7ce8a96cbbf7f95b17bc2bd7a256",
+      "bytes": 32369
+    },
+    {
+      "path": ".codex/skills/cybersecurity/cyber-lab-validation/assets/consumer-catalog.json",
+      "source_sha256": "e8963d1787851906973b34024e3ccf1008aa99e98eccb96b5c9b3a46bd42204b",
+      "dest_sha256": "e8963d1787851906973b34024e3ccf1008aa99e98eccb96b5c9b3a46bd42204b",
+      "bytes": 5723
+    },
+    {
+      "path": ".codex/skills/cybersecurity/cyber-lab-validation/assets/fixtures/cross-cutting-contracts.json",
+      "source_sha256": "ae25bc1f5887ac56803ee52e9d4cd3020a682925df707ced2260a387890d443c",
+      "dest_sha256": "ae25bc1f5887ac56803ee52e9d4cd3020a682925df707ced2260a387890d443c",
+      "bytes": 8467
+    },
+    {
+      "path": ".codex/skills/cybersecurity/cyber-lab-validation/assets/fixtures/f01-request-validator.json",
+      "source_sha256": "e30ce95d2fdb77361daa2c6f9010b669dc9989c0d47dd5d21e69752460fa191b",
+      "dest_sha256": "e30ce95d2fdb77361daa2c6f9010b669dc9989c0d47dd5d21e69752460fa191b",
+      "bytes": 1320
+    },
+    {
+      "path": ".codex/skills/cybersecurity/cyber-lab-validation/assets/fixtures/f02-access-matrix.json",
+      "source_sha256": "a0ef3bbb0720f43b83d9b07f6deb45f8b93d2b127881cd83d40d46a13f2ec2f7",
+      "dest_sha256": "a0ef3bbb0720f43b83d9b07f6deb45f8b93d2b127881cd83d40d46a13f2ec2f7",
+      "bytes": 1758
+    },
+    {
+      "path": ".codex/skills/cybersecurity/cyber-lab-validation/assets/fixtures/f03-filesystem-marker.json",
+      "source_sha256": "89974927b651de278a95b5ed746d3f0b9435be30fdbf6fbdda052e7000439679",
+      "dest_sha256": "89974927b651de278a95b5ed746d3f0b9435be30fdbf6fbdda052e7000439679",
+      "bytes": 1304
+    },
+    {
+      "path": ".codex/skills/cybersecurity/cyber-lab-validation/assets/fixtures/f04-component-diff.json",
+      "source_sha256": "797e773d14cbb5abb859f744d0790812d5f577b462f6cd4822c5e66484f58b69",
+      "dest_sha256": "797e773d14cbb5abb859f744d0790812d5f577b462f6cd4822c5e66484f58b69",
+      "bytes": 1581
+    },
+    {
+      "path": ".codex/skills/cybersecurity/cyber-lab-validation/assets/fixtures/f05-container-manifest.json",
+      "source_sha256": "b2f4750299c88836dba11737f3737b09e50738806832c7b2fbe426f59380afce",
+      "dest_sha256": "b2f4750299c88836dba11737f3737b09e50738806832c7b2fbe426f59380afce",
+      "bytes": 1630
+    },
+    {
+      "path": ".codex/skills/cybersecurity/cyber-lab-validation/assets/fixtures/f06-telemetry-stream.json",
+      "source_sha256": "f17b0a1d9c2b603da59641b11e61c36edcd5e97d314f2453c4641c408c2458a1",
+      "dest_sha256": "f17b0a1d9c2b603da59641b11e61c36edcd5e97d314f2453c4641c408c2458a1",
+      "bytes": 15729
+    },
+    {
+      "path": ".codex/skills/cybersecurity/cyber-lab-validation/assets/fixtures/f07-incident-timeline.json",
+      "source_sha256": "65de1bf6091b6f7f3a99867d8a87c6141161b97b8de234b39b918c2c59802634",
+      "dest_sha256": "65de1bf6091b6f7f3a99867d8a87c6141161b97b8de234b39b918c2c59802634",
+      "bytes": 1389
+    },
+    {
+      "path": ".codex/skills/cybersecurity/cyber-lab-validation/assets/fixtures/synthetic-positive-proof-envelopes.json",
+      "source_sha256": "a3bcc06b32e2c373a56e8171e581f1b47de8520dfe82bce2ab0690d80dc20582",
+      "dest_sha256": "a3bcc06b32e2c373a56e8171e581f1b47de8520dfe82bce2ab0690d80dc20582",
+      "bytes": 26406
+    },
+    {
+      "path": ".codex/skills/cybersecurity/cyber-lab-validation/assets/scenario-catalog.json",
+      "source_sha256": "023ab43f9a22d2089622359ed0e558cf36219342bdf58a9c00e8e0dd51565efb",
+      "dest_sha256": "023ab43f9a22d2089622359ed0e558cf36219342bdf58a9c00e8e0dd51565efb",
+      "bytes": 146079
+    },
+    {
+      "path": ".codex/skills/cybersecurity/cyber-lab-validation/references/execution-gate.md",
+      "source_sha256": "8030ce88958866f3556aa38555da6bd0d418deacb196dfda1fdfb8559429429a",
+      "dest_sha256": "8030ce88958866f3556aa38555da6bd0d418deacb196dfda1fdfb8559429429a",
+      "bytes": 11252
+    },
+    {
+      "path": ".codex/skills/cybersecurity/cyber-lab-validation/references/scenario-catalog.md",
+      "source_sha256": "968450ab05e3b34eec2c1af6f80dcc900ced013bb7b11d2ab7b5de48df48bf4b",
+      "dest_sha256": "968450ab05e3b34eec2c1af6f80dcc900ced013bb7b11d2ab7b5de48df48bf4b",
+      "bytes": 20301
+    },
+    {
+      "path": ".codex/skills/cybersecurity/cyber-lab-validation/references/scenario-schema.md",
+      "source_sha256": "22e3326b0d7437888c3497c64db481f51c689c324149909e34eab51d78c6116f",
+      "dest_sha256": "22e3326b0d7437888c3497c64db481f51c689c324149909e34eab51d78c6116f",
+      "bytes": 6085
+    },
+    {
+      "path": ".codex/skills/cybersecurity/cyber-lab-validation/references/validation-record.md",
+      "source_sha256": "fbc23dc41f88ed4f0d96b9ee68ed83e0be99ea82a300e714708ce85e54919a79",
+      "dest_sha256": "fbc23dc41f88ed4f0d96b9ee68ed83e0be99ea82a300e714708ce85e54919a79",
+      "bytes": 5053
+    },
+    {
+      "path": ".codex/skills/cybersecurity/cyber-scoped-validation/SKILL.md",
+      "source_sha256": "2977cb88aaff5e9974097529082b257db65c7df48125a3e1e4e6f806245d126c",
+      "dest_sha256": "2977cb88aaff5e9974097529082b257db65c7df48125a3e1e4e6f806245d126c",
+      "bytes": 3231
+    },
+    {
+      "path": ".codex/skills/cybersecurity/cyber-scoped-validation/references/validation-record.md",
+      "source_sha256": "8ba662410f095eab51560b216fd2cf8ec16eeaf901279ed17c018d6e8c76fa6e",
+      "dest_sha256": "8ba662410f095eab51560b216fd2cf8ec16eeaf901279ed17c018d6e8c76fa6e",
+      "bytes": 2134
+    },
+    {
+      "path": ".codex/skills/pentest/SKILL.md",
+      "source_sha256": "90a6807cdcf30940a752be8ffb16d97fdf1d36880befa623b14331719c0230d3",
+      "dest_sha256": "90a6807cdcf30940a752be8ffb16d97fdf1d36880befa623b14331719c0230d3",
+      "bytes": 3914
+    },
+    {
+      "path": ".github/prompts/cyber-exercise.prompt.md",
+      "source_sha256": "2819c9692000e8d8522e2645ffb20786a5440056741c86fcfe769a356f240dd1",
+      "dest_sha256": "2819c9692000e8d8522e2645ffb20786a5440056741c86fcfe769a356f240dd1",
+      "bytes": 3884
+    },
+    {
+      "path": ".github/prompts/cyber-purple-validation.prompt.md",
+      "source_sha256": "98733d21ffc8b131e5b3cadb9cdde48c9c3ab46a3243923d79523e48947ae7f0",
+      "dest_sha256": "98733d21ffc8b131e5b3cadb9cdde48c9c3ab46a3243923d79523e48947ae7f0",
+      "bytes": 3571
+    },
+    {
+      "path": ".github/prompts/cyber-triage.prompt.md",
+      "source_sha256": "8be788f4151d2fd74629b55701b3aafd090a30c03e7b6b572a1e22ac9c14590c",
+      "dest_sha256": "8be788f4151d2fd74629b55701b3aafd090a30c03e7b6b572a1e22ac9c14590c",
+      "bytes": 3536
+    },
+    {
+      "path": ".github/prompts/pentest.prompt.md",
+      "source_sha256": "7b20dc746f7d3118908097290fee93f3d1f91ff6e99afafa0a75e3595d1c58ea",
+      "dest_sha256": "7b20dc746f7d3118908097290fee93f3d1f91ff6e99afafa0a75e3595d1c58ea",
+      "bytes": 3361
+    },
+    {
+      "path": ".github/skills/cybersecurity/_INDEX.md",
+      "source_sha256": "80dbbd77eef41edac9e2efdeac23c91bcf224fa8fe606d8dc56028ffb7402f34",
+      "dest_sha256": "80dbbd77eef41edac9e2efdeac23c91bcf224fa8fe606d8dc56028ffb7402f34",
+      "bytes": 2104
+    },
+    {
+      "path": ".github/skills/cybersecurity/cyber-authorization/SKILL.md",
+      "source_sha256": "59bad98c9f2d414f557a9a35b310c0ac8f4ebce7e6fbfa2e79f5680eba444ef4",
+      "dest_sha256": "59bad98c9f2d414f557a9a35b310c0ac8f4ebce7e6fbfa2e79f5680eba444ef4",
+      "bytes": 3788
+    },
+    {
+      "path": ".github/skills/cybersecurity/cyber-authorization/references/runtime-authorization-matrix.md",
+      "source_sha256": "b0d73e39d6a29050bc56f609987603e78b8e01c90d15fe75adde0bae44873209",
+      "dest_sha256": "b0d73e39d6a29050bc56f609987603e78b8e01c90d15fe75adde0bae44873209",
+      "bytes": 6157
+    },
+    {
+      "path": ".github/skills/cybersecurity/cyber-detection-validation/SKILL.md",
+      "source_sha256": "5cafcc7db51b740119bc47aaeb374afd548d351e8d9f0483fe5c84c1a4cfb312",
+      "dest_sha256": "5cafcc7db51b740119bc47aaeb374afd548d351e8d9f0483fe5c84c1a4cfb312",
+      "bytes": 4276
+    },
+    {
+      "path": ".github/skills/cybersecurity/cyber-engagement-planning/SKILL.md",
+      "source_sha256": "87421c999081620d08c52a9ecf7d5bcabaf2c01245d337dca1645a37cb9eb732",
+      "dest_sha256": "87421c999081620d08c52a9ecf7d5bcabaf2c01245d337dca1645a37cb9eb732",
+      "bytes": 3457
+    },
+    {
+      "path": ".github/skills/cybersecurity/cyber-evidence/SKILL.md",
+      "source_sha256": "d0b37d14007c7e4ccfd1bad429de7eaab083b3654fb8151baf7d902544556a72",
+      "dest_sha256": "d0b37d14007c7e4ccfd1bad429de7eaab083b3654fb8151baf7d902544556a72",
+      "bytes": 3855
+    },
+    {
+      "path": ".github/skills/cybersecurity/cyber-evidence/references/evidence-record.md",
+      "source_sha256": "9eb2874d53067c594c00a5021ba81ea49ff7e40b49252fea2867da0d85fe6c4e",
+      "dest_sha256": "9eb2874d53067c594c00a5021ba81ea49ff7e40b49252fea2867da0d85fe6c4e",
+      "bytes": 9682
+    },
+    {
+      "path": ".github/skills/cybersecurity/cyber-exercise-control/SKILL.md",
+      "source_sha256": "2aef51a2b485b359016b62b42e2728c67c0979e8152c6890f7700efd70650fcd",
+      "dest_sha256": "2aef51a2b485b359016b62b42e2728c67c0979e8152c6890f7700efd70650fcd",
+      "bytes": 3747
+    },
+    {
+      "path": ".github/skills/cybersecurity/cyber-lab-validation/LICENSE",
+      "source_sha256": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+      "dest_sha256": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+      "bytes": 1069
+    },
+    {
+      "path": ".github/skills/cybersecurity/cyber-lab-validation/SKILL.md",
+      "source_sha256": "a3ad162f637249de3641e9d7a4efa0a6f7b5c4e601cd4abc6367c9e6ad52941f",
+      "dest_sha256": "a3ad162f637249de3641e9d7a4efa0a6f7b5c4e601cd4abc6367c9e6ad52941f",
+      "bytes": 5065
+    },
+    {
+      "path": ".github/skills/cybersecurity/cyber-lab-validation/assets/behavioral-rubric.json",
+      "source_sha256": "5960eef64d78cac3ebf8c4a8aa310234824eab1d67f14ed51391701c409949ac",
+      "dest_sha256": "5960eef64d78cac3ebf8c4a8aa310234824eab1d67f14ed51391701c409949ac",
+      "bytes": 40724
+    },
+    {
+      "path": ".github/skills/cybersecurity/cyber-lab-validation/assets/catalog-mapping.json",
+      "source_sha256": "ce82b62274e07c07d3a133703da32a8aee0f7ce8a96cbbf7f95b17bc2bd7a256",
+      "dest_sha256": "ce82b62274e07c07d3a133703da32a8aee0f7ce8a96cbbf7f95b17bc2bd7a256",
+      "bytes": 32369
+    },
+    {
+      "path": ".github/skills/cybersecurity/cyber-lab-validation/assets/consumer-catalog.json",
+      "source_sha256": "e8963d1787851906973b34024e3ccf1008aa99e98eccb96b5c9b3a46bd42204b",
+      "dest_sha256": "e8963d1787851906973b34024e3ccf1008aa99e98eccb96b5c9b3a46bd42204b",
+      "bytes": 5723
+    },
+    {
+      "path": ".github/skills/cybersecurity/cyber-lab-validation/assets/fixtures/cross-cutting-contracts.json",
+      "source_sha256": "ae25bc1f5887ac56803ee52e9d4cd3020a682925df707ced2260a387890d443c",
+      "dest_sha256": "ae25bc1f5887ac56803ee52e9d4cd3020a682925df707ced2260a387890d443c",
+      "bytes": 8467
+    },
+    {
+      "path": ".github/skills/cybersecurity/cyber-lab-validation/assets/fixtures/f01-request-validator.json",
+      "source_sha256": "e30ce95d2fdb77361daa2c6f9010b669dc9989c0d47dd5d21e69752460fa191b",
+      "dest_sha256": "e30ce95d2fdb77361daa2c6f9010b669dc9989c0d47dd5d21e69752460fa191b",
+      "bytes": 1320
+    },
+    {
+      "path": ".github/skills/cybersecurity/cyber-lab-validation/assets/fixtures/f02-access-matrix.json",
+      "source_sha256": "a0ef3bbb0720f43b83d9b07f6deb45f8b93d2b127881cd83d40d46a13f2ec2f7",
+      "dest_sha256": "a0ef3bbb0720f43b83d9b07f6deb45f8b93d2b127881cd83d40d46a13f2ec2f7",
+      "bytes": 1758
+    },
+    {
+      "path": ".github/skills/cybersecurity/cyber-lab-validation/assets/fixtures/f03-filesystem-marker.json",
+      "source_sha256": "89974927b651de278a95b5ed746d3f0b9435be30fdbf6fbdda052e7000439679",
+      "dest_sha256": "89974927b651de278a95b5ed746d3f0b9435be30fdbf6fbdda052e7000439679",
+      "bytes": 1304
+    },
+    {
+      "path": ".github/skills/cybersecurity/cyber-lab-validation/assets/fixtures/f04-component-diff.json",
+      "source_sha256": "797e773d14cbb5abb859f744d0790812d5f577b462f6cd4822c5e66484f58b69",
+      "dest_sha256": "797e773d14cbb5abb859f744d0790812d5f577b462f6cd4822c5e66484f58b69",
+      "bytes": 1581
+    },
+    {
+      "path": ".github/skills/cybersecurity/cyber-lab-validation/assets/fixtures/f05-container-manifest.json",
+      "source_sha256": "b2f4750299c88836dba11737f3737b09e50738806832c7b2fbe426f59380afce",
+      "dest_sha256": "b2f4750299c88836dba11737f3737b09e50738806832c7b2fbe426f59380afce",
+      "bytes": 1630
+    },
+    {
+      "path": ".github/skills/cybersecurity/cyber-lab-validation/assets/fixtures/f06-telemetry-stream.json",
+      "source_sha256": "f17b0a1d9c2b603da59641b11e61c36edcd5e97d314f2453c4641c408c2458a1",
+      "dest_sha256": "f17b0a1d9c2b603da59641b11e61c36edcd5e97d314f2453c4641c408c2458a1",
+      "bytes": 15729
+    },
+    {
+      "path": ".github/skills/cybersecurity/cyber-lab-validation/assets/fixtures/f07-incident-timeline.json",
+      "source_sha256": "65de1bf6091b6f7f3a99867d8a87c6141161b97b8de234b39b918c2c59802634",
+      "dest_sha256": "65de1bf6091b6f7f3a99867d8a87c6141161b97b8de234b39b918c2c59802634",
+      "bytes": 1389
+    },
+    {
+      "path": ".github/skills/cybersecurity/cyber-lab-validation/assets/fixtures/synthetic-positive-proof-envelopes.json",
+      "source_sha256": "a3bcc06b32e2c373a56e8171e581f1b47de8520dfe82bce2ab0690d80dc20582",
+      "dest_sha256": "a3bcc06b32e2c373a56e8171e581f1b47de8520dfe82bce2ab0690d80dc20582",
+      "bytes": 26406
+    },
+    {
+      "path": ".github/skills/cybersecurity/cyber-lab-validation/assets/scenario-catalog.json",
+      "source_sha256": "023ab43f9a22d2089622359ed0e558cf36219342bdf58a9c00e8e0dd51565efb",
+      "dest_sha256": "023ab43f9a22d2089622359ed0e558cf36219342bdf58a9c00e8e0dd51565efb",
+      "bytes": 146079
+    },
+    {
+      "path": ".github/skills/cybersecurity/cyber-lab-validation/references/execution-gate.md",
+      "source_sha256": "8030ce88958866f3556aa38555da6bd0d418deacb196dfda1fdfb8559429429a",
+      "dest_sha256": "8030ce88958866f3556aa38555da6bd0d418deacb196dfda1fdfb8559429429a",
+      "bytes": 11252
+    },
+    {
+      "path": ".github/skills/cybersecurity/cyber-lab-validation/references/scenario-catalog.md",
+      "source_sha256": "968450ab05e3b34eec2c1af6f80dcc900ced013bb7b11d2ab7b5de48df48bf4b",
+      "dest_sha256": "968450ab05e3b34eec2c1af6f80dcc900ced013bb7b11d2ab7b5de48df48bf4b",
+      "bytes": 20301
+    },
+    {
+      "path": ".github/skills/cybersecurity/cyber-lab-validation/references/scenario-schema.md",
+      "source_sha256": "22e3326b0d7437888c3497c64db481f51c689c324149909e34eab51d78c6116f",
+      "dest_sha256": "22e3326b0d7437888c3497c64db481f51c689c324149909e34eab51d78c6116f",
+      "bytes": 6085
+    },
+    {
+      "path": ".github/skills/cybersecurity/cyber-lab-validation/references/validation-record.md",
+      "source_sha256": "fbc23dc41f88ed4f0d96b9ee68ed83e0be99ea82a300e714708ce85e54919a79",
+      "dest_sha256": "fbc23dc41f88ed4f0d96b9ee68ed83e0be99ea82a300e714708ce85e54919a79",
+      "bytes": 5053
+    },
+    {
+      "path": ".github/skills/cybersecurity/cyber-scoped-validation/SKILL.md",
+      "source_sha256": "2977cb88aaff5e9974097529082b257db65c7df48125a3e1e4e6f806245d126c",
+      "dest_sha256": "2977cb88aaff5e9974097529082b257db65c7df48125a3e1e4e6f806245d126c",
+      "bytes": 3231
+    },
+    {
+      "path": ".github/skills/cybersecurity/cyber-scoped-validation/references/validation-record.md",
+      "source_sha256": "8ba662410f095eab51560b216fd2cf8ec16eeaf901279ed17c018d6e8c76fa6e",
+      "dest_sha256": "8ba662410f095eab51560b216fd2cf8ec16eeaf901279ed17c018d6e8c76fa6e",
+      "bytes": 2134
+    },
+    {
+      "path": "skills/README.md",
+      "source_sha256": "5c9a6ad8a8172197e971368db51c2c6e28c99dc8ecc0e929a5bed22a0b578c63",
+      "dest_sha256": "5c9a6ad8a8172197e971368db51c2c6e28c99dc8ecc0e929a5bed22a0b578c63",
+      "bytes": 100426
+    },
+    {
+      "path": "skills/cybersecurity/_INDEX.md",
+      "source_sha256": "80dbbd77eef41edac9e2efdeac23c91bcf224fa8fe606d8dc56028ffb7402f34",
+      "dest_sha256": "80dbbd77eef41edac9e2efdeac23c91bcf224fa8fe606d8dc56028ffb7402f34",
+      "bytes": 2104
+    },
+    {
+      "path": "skills/index.json",
+      "source_sha256": "bb86dc4ef00f0fe5ae68875c79c0661e3be79f44e8d85269815984bed3f8a8a1",
+      "dest_sha256": "bb86dc4ef00f0fe5ae68875c79c0661e3be79f44e8d85269815984bed3f8a8a1",
+      "bytes": 87652
+    },
+    {
+      "path": "skills/metadata.json",
+      "source_sha256": "f9ba328fc7fe16bd14ef19824af0e226b67f80ed82f3b953be6ee2addf77f302",
+      "dest_sha256": "f9ba328fc7fe16bd14ef19824af0e226b67f80ed82f3b953be6ee2addf77f302",
+      "bytes": 21029
+    }
+  ],
+  "lockfile_copied": false
+}

@@ -1,0 +1,15 @@
+{
+  "status": "FAIL",
+  "attempt": 1,
+  "candidate": {
+    "base_commit": "a2228857e4cf5b8ee2d71d96630c586618ec2edd",
+    "snapshot_sha256": "5617aefed711d3b38301c1bf5d22d64e816c88a369d905511cbbc8c10dca1c59"
+  },
+  "sync": {
+    "process_exit": 0,
+    "stdout_prefix": "Sync failed: Failed to load config",
+    "stderr": "◇ injected env (0) from .env\n"
+  },
+  "failure": "The disposable .skillsrc set mcp.enabled=false but omitted required mcp.scope and mcp.prompted fields. The CLI logged Sync failed while returning exit 0; the old helper trusted only process status and then reported the misleading downstream error 'claude missing SKILL.md'.",
+  "correction": "Added disabled scope and prompted fields to the fixture-only consumer config, and asserted the CLI failure message is absent in addition to checking exit status."
+}

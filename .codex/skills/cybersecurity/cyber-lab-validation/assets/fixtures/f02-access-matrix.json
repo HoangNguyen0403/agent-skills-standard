@@ -1,0 +1,34 @@
+{
+  "fixture_version": "1.1.0",
+  "fixture_id": "FIX-F02-ACCESS-MATRIX",
+  "notice": "Synthetic, non-authorizing test input only. Proof references are hypothetical example tokens that do not establish live host authority.",
+  "target": {
+    "lab_id": "LAB-DISPOSABLE-02",
+    "asset_id": "SVC-SYNTH-RBAC",
+    "fixture_revision": "rev-20261024-f02",
+    "identity_proof_ref": "SYNTH-PROOF-F02-DISPOSABLE"
+  },
+  "identities": [
+    { "principal_id": "synth-analyst-alpha", "role": "analyst", "synthetic": true },
+    { "principal_id": "synth-auditor-beta", "role": "auditor", "synthetic": true }
+  ],
+  "resources": [
+    { "resource_id": "res-audit-log", "classification": "synthetic-telemetry" },
+    { "resource_id": "res-confidential-report", "classification": "synthetic-restricted" }
+  ],
+  "access_matrix": [
+    { "principal": "synth-analyst-alpha", "resource": "res-audit-log", "action": "read", "policy_verdict": "allow" },
+    { "principal": "synth-analyst-alpha", "resource": "res-confidential-report", "action": "read", "policy_verdict": "deny" },
+    { "principal": "synth-auditor-beta", "resource": "res-audit-log", "action": "read", "policy_verdict": "allow" },
+    { "principal": "synth-auditor-beta", "resource": "res-confidential-report", "action": "read", "policy_verdict": "allow" }
+  ],
+  "hypothetical_capability_proof_refs": {
+    "isolation_proof_ref": "SYNTH-PROOF-F02-DISPOSABLE",
+    "credential_proof_ref": "SYNTH-PROOF-F02-CREDENTIAL",
+    "cancellation_proof_ref": "SYNTH-PROOF-F02-CANCELLATION",
+    "network_proof_ref": "SYNTH-PROOF-F02-NETWORK",
+    "tool_allowlist_proof_ref": "SYNTH-PROOF-F02-TOOL-ALLOWLIST",
+    "logging_proof_ref": "SYNTH-PROOF-F02-LOGGING",
+    "teardown_proof_ref": "SYNTH-PROOF-F02-TEARDOWN"
+  }
+}

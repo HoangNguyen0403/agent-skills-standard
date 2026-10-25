@@ -828,7 +828,7 @@
     },
     "cybersecurity": {
       "version": "1.0.1",
-      "last_updated": "2026-10-23",
+      "last_updated": "2026-10-26",
       "tag_prefix": "cybersecurity-v",
       "owners": [
         "HoangNguyen0403"
@@ -871,7 +871,7 @@
   },
   "releases": {
     "workflows": {
-      "version": "1.1.9",
+      "version": "1.1.10",
       "tag_prefix": "workflows-v"
     }
   },
