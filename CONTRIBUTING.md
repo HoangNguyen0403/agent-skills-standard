@@ -204,6 +204,14 @@ Never hand-edit `results.json` or historical transcripts. New runs must be compl
 
 For system-design evaluations, lexical assertions check presence or routing only; they do not judge mechanism correctness or prove runtime behavior. A body-only comparison is not whole-package evidence: references, workflow guidance, package resources, and generated exports may change behavior. Report source scope and evidence kind separately, and require fresh applicable package-bound evidence before claiming release efficacy. Model execution remains subject to its separately authorized route and approval gate.
 
+For changes to global harness fleet configuration and discovery (`cli/src/commands/harness.ts`, `cli/src/services/harness/**`):
+
+```bash
+pnpm --filter ./cli test -- src/commands/__tests__/HarnessCommand.spec.ts src/services/harness/__tests__/HarnessSetupService.spec.ts src/services/harness/__tests__/HarnessDiscoveryService.spec.ts
+pnpm --filter ./cli build
+```
+
+Verify behavior using an isolated temporary state directory (e.g., `--state-dir <tmp-dir>`) to avoid mutating user home configuration or repository `.skillsrc` files.
 
 For release candidates, also run:
 

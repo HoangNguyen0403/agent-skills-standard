@@ -19,9 +19,36 @@ import { VerifyCommand } from './commands/verify';
 import { RestoreCommand } from './commands/restore';
 import { UninstallCommand } from './commands/uninstall';
 import { PolicyCommand } from './commands/policy';
+import { registerHarnessCommands } from './commands/harness';
 
-// Load .env from current directory (for development and other env vars)
-dotenv.config();
+// Top-level command position detection: account for supported global options
+// so non-harness argument values (e.g. `ags sync --force harness`) do not disable dotenv.
+function isHarnessCommand(argv: string[]): boolean {
+  for (let i = 2; i < argv.length; i++) {
+    const arg = argv[i];
+    if (arg === '--') {
+      return argv[i + 1] === 'harness';
+    }
+    if (
+      arg === '-V' ||
+      arg === '--version' ||
+      arg === '-v' ||
+      arg === '-h' ||
+      arg === '--help'
+    ) {
+      continue;
+    }
+    if (arg.startsWith('-')) {
+      continue;
+    }
+    return arg === 'harness';
+  }
+  return false;
+}
+
+if (!isHarnessCommand(process.argv)) {
+  dotenv.config();
+}
 
 // Detect stale pnpm shim: old pnpm global stores don't embed the version tag
 // in the shim path (e.g. /global/v11/<hash>/node_modules/...).  When such a
@@ -340,4 +367,18 @@ policyCmd
     await new PolicyCommand().adopt(ids, options);
   });
 
-program.parse();
+registerHarnessCommands(program);
+
+program.parseAsync().catch((err: unknown) => {
+  if (
+    err &&
+    typeof err === 'object' &&
+    'code' in err &&
+    typeof err.code === 'string' &&
+    err.code.startsWith('commander.')
+  ) {
+    // Handled by Commander configureOutput and exitOverride
+    return;
+  }
+  throw err;
+});
