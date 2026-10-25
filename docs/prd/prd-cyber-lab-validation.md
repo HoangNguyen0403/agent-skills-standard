@@ -40,13 +40,13 @@ This plan extends rather than replaces [governed cybersecurity](../srs/srs-task-
 
 | Capability group | Leaf capability | Requirement |
 | --- | --- | --- |
-| Route work | Classify analysis, replay, lab validation, or defensive verification | REQ-CLV-01 |
-| Govern validation | Bind permitted behavior to a disposable lab and proven host controls | REQ-CLV-02 |
-| Exercise scenarios | Select bounded claims across the scenario catalog | REQ-CLV-03 |
-| Continue work | Isolate blocked steps and execute independent permitted work | REQ-CLV-04 |
-| Report evidence | Separate execution, finding, and defensive outcomes | REQ-CLV-05 |
-| Measure compatibility | Compare fixed scenarios by model/version and host | REQ-CLV-06 |
-| Distribute changes | Update canonical sources and generated consumers consistently | REQ-CLV-07 |
+| Route work | Classify analysis, replay, lab validation, or defensive verification | REQ-001 |
+| Govern validation | Bind permitted behavior to a disposable lab and proven host controls | REQ-002 |
+| Exercise scenarios | Select bounded claims across the scenario catalog | REQ-003 |
+| Continue work | Isolate blocked steps and execute independent permitted work | REQ-004 |
+| Report evidence | Separate execution, finding, and defensive outcomes | REQ-005 |
+| Measure compatibility | Compare fixed scenarios by model/version and host | REQ-006 |
+| Distribute changes | Update canonical sources and generated consumers consistently | REQ-007 |
 
 ### Out of scope
 
@@ -58,10 +58,10 @@ No deferred implementation commitments. Any production lane, runtime platform, o
 
 ## 3. Personas and user stories
 
-- US-CLV-01: As a blue-team analyst, I want a request routed to the appropriate validation mode so that unsupported active work does not prevent useful analysis. REQ-CLV-01, REQ-CLV-04.
-- US-CLV-02: As a lab operator, I want a bounded proof and stop contract so that I can validate a finding without expanding the engagement. REQ-CLV-02, REQ-CLV-03.
-- US-CLV-03: As a detection engineer, I want linked action and observation evidence so that replay success is not mistaken for sensor efficacy. REQ-CLV-05.
-- US-CLV-04: As a registry maintainer, I want reproducible cross-model results and consistent exports so that I can publish only supported compatibility claims. REQ-CLV-06, REQ-CLV-07.
+- US-CLV-01: As a blue-team analyst, I want a request routed to the appropriate validation mode so that unsupported active work does not prevent useful analysis. REQ-001, REQ-004.
+- US-CLV-02: As a lab operator, I want a bounded proof and stop contract so that I can validate a finding without expanding the engagement. REQ-002, REQ-003.
+- US-CLV-03: As a detection engineer, I want linked action and observation evidence so that replay success is not mistaken for sensor efficacy. REQ-005.
+- US-CLV-04: As a registry maintainer, I want reproducible cross-model results and consistent exports so that I can publish only supported compatibility claims. REQ-006, REQ-007.
 
 Stories are independently valuable; implementation slices below supply estimable boundaries and testable ACs. No web/mobile UI, locale, market, or feature-toggle change is proposed; acceptance criteria concern agent workflows and CLI distribution.
 
@@ -71,13 +71,13 @@ All requirements are proposed, not approved implementation instructions. Product
 
 | ID | Requirement | Priority | Engineering owner | Goal |
 | --- | --- | --- | --- | --- |
-| REQ-CLV-01 | Route a request to analysis, replay, isolated-lab validation, or defensive verification without conflating their evidence | P0 | Workflow owner | O1 |
-| REQ-CLV-02 | Permit a lab step only when its action is supported, authorized, and runtime-bounded; retain fresh stop/restart gates | P0 | Authorization contract owner | O1, O2 |
-| REQ-CLV-03 | Provide a reusable scenario contract and broad catalog with explicit supported and unsupported cases | P0 | Scenario owner | O1, O2 |
-| REQ-CLV-04 | Report a blocked step precisely and continue independent permitted tasks without fabricating inputs or bypassing the block | P0 | Workflow owner | O1 |
-| REQ-CLV-05 | Preserve existing finding statuses and paired defensive outcomes; report provenance, limitations, and cleanup | P0 | Evidence contract owner | O2 |
-| REQ-CLV-06 | Measure completion, fidelity, correct blocking, and continuation separately for exact model/host configurations | P0 | Evaluation owner | O3 |
-| REQ-CLV-07 | Preserve opt-in distribution, canonical ownership, existing consumers, and immutable historical evidence | P0 | Integration owner | O3 |
+| REQ-001 | Route a request to analysis, replay, isolated-lab validation, or defensive verification without conflating their evidence | P0 | Workflow owner | O1 |
+| REQ-002 | Permit a lab step only when its action is supported, authorized, and runtime-bounded; retain fresh stop/restart gates | P0 | Authorization contract owner | O1, O2 |
+| REQ-003 | Provide a reusable scenario contract and broad catalog with explicit supported and unsupported cases | P0 | Scenario owner | O1, O2 |
+| REQ-004 | Report a blocked step precisely and continue independent permitted tasks without fabricating inputs or bypassing the block | P0 | Workflow owner | O1 |
+| REQ-005 | Preserve existing finding statuses and paired defensive outcomes; report provenance, limitations, and cleanup | P0 | Evidence contract owner | O2 |
+| REQ-006 | Measure completion, fidelity, correct blocking, and continuation separately for exact model/host configurations | P0 | Evaluation owner | O3 |
+| REQ-007 | Preserve opt-in distribution, canonical ownership, existing consumers, and immutable historical evidence | P0 | Integration owner | O3 |
 
 ## 5. Behavioral acceptance criteria
 
@@ -85,25 +85,25 @@ All ACs are draft. Each maps to the goals of its linked requirement.
 
 | ID | Requirement | Given | When | Then |
 | --- | --- | --- | --- | --- |
-| AC-CLV-01 | REQ-CLV-01 | A source-review task with no live host | Routing runs | Analysis proceeds without requiring live-execution controls. |
-| AC-CLV-02 | REQ-CLV-01 | A telemetry replay scenario | Results are reported | The claim is limited to the pipeline stages actually exercised. |
-| AC-CLV-03 | REQ-CLV-02 | A supported lab action with valid scope and verified controls | Its execution gate passes | Only the specified bounded action is eligible for execution. |
-| AC-CLV-04 | REQ-CLV-02 | Missing isolation or cancellation support | Active validation is requested | The active step is blocked with the missing capability identified. |
-| AC-CLV-05 | REQ-CLV-02 | Expiry, target drift, or operator stop during a run | The condition is observed | Further active actions stop. |
-| AC-CLV-06 | REQ-CLV-02 | A stopped run | Restart is requested without a fresh valid gate | Restart remains blocked. |
-| AC-CLV-07 | REQ-CLV-03 | A catalog scenario | Its contract is checked | It supplies all shared contract fields and a bounded observable proof. |
-| AC-CLV-08 | REQ-CLV-03 | The initial catalog | Coverage is reviewed | Every family in section 6 has distinct positive, negative, and boundary cases. |
-| AC-CLV-09 | REQ-CLV-04 | A refused or unavailable active step and an independent remediation task | The workflow continues | The remediation task proceeds without retrying or disguising the blocked action. |
-| AC-CLV-10 | REQ-CLV-04 | A downstream step depends on missing execution evidence | Its predecessor is blocked | The dependent step remains unexecuted with the dependency explained. |
-| AC-CLV-11 | REQ-CLV-05 | No supplied or exercised evidence | A finding is reported | Its finding status is `not-tested`, not confirmed or secure. |
-| AC-CLV-12 | REQ-CLV-05 | An exercised action with no corresponding observation | Defensive results are classified | The outcome is `telemetry-gap`, not detected. |
-| AC-CLV-13 | REQ-CLV-05 | Cleanup cannot be verified | The scenario ends | The report discloses residual lab state instead of claiming clean completion. |
-| AC-CLV-14 | REQ-CLV-06 | A baseline and candidate on the same model/host configuration | They are compared | The report includes case-level outcomes and denominators, not a pooled refusal score. |
-| AC-CLV-15 | REQ-CLV-06 | Quota, provider failure, or unsupported runner | An evaluation stops | The report distinguishes infrastructure failure from model refusal and task failure. |
-| AC-CLV-16 | REQ-CLV-07 | Generated consumers from approved canonical sources | A temporary-project sync smoke runs | Consumers expose the intended workflows and packaged references without direct mirror edits. |
-| AC-CLV-17 | REQ-CLV-07 | Historical evaluation evidence | New results are produced | Historical artifacts and grades remain unchanged. |
-| AC-CLV-18 | REQ-CLV-05 | A failed reproduction | Findings are summarized | The result does not claim absence of the vulnerability. |
-| AC-CLV-19 | REQ-CLV-06 | An out-of-scope action framed as urgent blue-team work | Evaluation runs | It does not authorize the action merely from claimed intent. |
+| AC-001 | REQ-001 | A source-review task with no live host | Routing runs | Analysis proceeds without requiring live-execution controls. |
+| AC-002 | REQ-001 | A telemetry replay scenario | Results are reported | The claim is limited to the pipeline stages actually exercised. |
+| AC-003 | REQ-002 | A supported lab action with valid scope and verified controls | Its execution gate passes | Only the specified bounded action is eligible for execution. |
+| AC-004 | REQ-002 | Missing isolation or cancellation support | Active validation is requested | The active step is blocked with the missing capability identified. |
+| AC-005 | REQ-002 | Expiry, target drift, or operator stop during a run | The condition is observed | Further active actions stop. |
+| AC-006 | REQ-002 | A stopped run | Restart is requested without a fresh valid gate | Restart remains blocked. |
+| AC-007 | REQ-003 | A catalog scenario | Its contract is checked | It supplies all shared contract fields and a bounded observable proof. |
+| AC-008 | REQ-003 | The initial catalog | Coverage is reviewed | Every family in section 6 has distinct positive, negative, and boundary cases. |
+| AC-009 | REQ-004 | A refused or unavailable active step and an independent remediation task | The workflow continues | The remediation task proceeds without retrying or disguising the blocked action. |
+| AC-010 | REQ-004 | A downstream step depends on missing execution evidence | Its predecessor is blocked | The dependent step remains unexecuted with the dependency explained. |
+| AC-011 | REQ-005 | No supplied or exercised evidence | A finding is reported | Its finding status is `not-tested`, not confirmed or secure. |
+| AC-012 | REQ-005 | An exercised action with no corresponding observation | Defensive results are classified | The outcome is `telemetry-gap`, not detected. |
+| AC-013 | REQ-005 | Cleanup cannot be verified | The scenario ends | The report discloses residual lab state instead of claiming clean completion. |
+| AC-014 | REQ-006 | A baseline and candidate on the same model/host configuration | They are compared | The report includes case-level outcomes and denominators, not a pooled refusal score. |
+| AC-015 | REQ-006 | Quota, provider failure, or unsupported runner | An evaluation stops | The report distinguishes infrastructure failure from model refusal and task failure. |
+| AC-016 | REQ-007 | Generated consumers from approved canonical sources | A temporary-project sync smoke runs | Consumers expose the intended workflows and packaged references without direct mirror edits. |
+| AC-017 | REQ-007 | Historical evaluation evidence | New results are produced | Historical artifacts and grades remain unchanged. |
+| AC-018 | REQ-005 | A failed reproduction | Findings are summarized | The result does not claim absence of the vulnerability. |
+| AC-019 | REQ-006 | An out-of-scope action framed as urgent blue-team work | Evaluation runs | It does not authorize the action merely from claimed intent. |
 
 ## 6. Scenario catalog and fidelity
 
@@ -145,11 +145,11 @@ No code starts before design and approval gates. Size estimates are relative pla
 
 | Slice | Work and likely files | Trace | Owner | Depends on | Size/confidence | Verification |
 | --- | --- | --- | --- | --- | --- | --- |
-| S1 | Reconcile baseline prohibitions with proposed bounded lab capability; design permitted-action, status, and runtime interfaces; identify host capability gaps | REQ-CLV-01–05; AC-CLV-01–13,18,19 | Architect + security reviewer | Plan acknowledgment | M / medium | Independent contract/security review; decision-table walkthrough |
-| S2 | Author shared authorization/evidence changes and separate lab-capability contract; preserve offline scoped-validation semantics | REQ-CLV-02,03,05 | Contract owner | S1 approval | L / low until host gaps resolved | Gate, stop, evidence, and cleanup scenarios |
-| S3 | Update `.agents/workflows/cyber-exercise.md`, `cyber-purple-validation.md`, and relevant `cyber-triage.md` handoffs; audit pentest/security-test routing without broadening their scope | REQ-CLV-01,04 | Workflow owner | S1 frozen interfaces | M / medium | Offline/mixed-work/blocked-dependency walkthroughs |
-| S4 | Author catalog fixtures and eval cases under relevant `skills/cybersecurity/*/evals/`; reuse `scripts/evals/`, changing runner code only if a demonstrated gap requires it | REQ-CLV-03,06; cross-cutting ACs | Evaluation owner | S1 frozen interfaces | L / medium | Case preflight, independent rubric review, isolated model runs |
-| S5 | Integrate canonical sources, mirrors, docs/changelog, and opt-in package exports; update baseline SRS through an explicit amendment | REQ-CLV-07 | Integration owner | S2–S4 | M / medium | Registry checks, package sync smoke, evidence integrity |
+| S1 | Reconcile baseline prohibitions with proposed bounded lab capability; design permitted-action, status, and runtime interfaces; identify host capability gaps | REQ-001–05; AC-001–13,18,19 | Architect + security reviewer | Plan acknowledgment | M / medium | Independent contract/security review; decision-table walkthrough |
+| S2 | Author shared authorization/evidence changes and separate lab-capability contract; preserve offline scoped-validation semantics | REQ-002,03,05 | Contract owner | S1 approval | L / low until host gaps resolved | Gate, stop, evidence, and cleanup scenarios |
+| S3 | Update `.agents/workflows/cyber-exercise.md`, `cyber-purple-validation.md`, and relevant `cyber-triage.md` handoffs; audit pentest/security-test routing without broadening their scope | REQ-001,04 | Workflow owner | S1 frozen interfaces | M / medium | Offline/mixed-work/blocked-dependency walkthroughs |
+| S4 | Author catalog fixtures and eval cases under relevant `skills/cybersecurity/*/evals/`; reuse `scripts/evals/`, changing runner code only if a demonstrated gap requires it | REQ-003,06; cross-cutting ACs | Evaluation owner | S1 frozen interfaces | L / medium | Case preflight, independent rubric review, isolated model runs |
+| S5 | Integrate canonical sources, mirrors, docs/changelog, and opt-in package exports; update baseline SRS through an explicit amendment | REQ-007 | Integration owner | S2–S4 | M / medium | Registry checks, package sync smoke, evidence integrity |
 | S6 | Run integrated scenario acceptance and independent security/architecture review; publish compatibility limitations | All requirements and ACs | QA lead + independent reviewers | S5 | L / low until providers/host verified | Fresh measured results, lab smoke, negative cases, release gate |
 
 Parallelism: after S1, S2/S3/S4 may run concurrently only against frozen interfaces, with disjoint file ownership. Contract owner exclusively owns shared skill bodies/references; evaluation owner owns eval definitions/fixtures; workflow owner owns canonical workflow files; integration owner owns generated files and publication docs. Workers do not run shared generators or validation mid-flight. Integrated checks run after edits settle. The orchestrator owns the plan and integration, not competing implementations.

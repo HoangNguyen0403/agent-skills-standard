@@ -7,7 +7,7 @@ Repository status: design artifacts only. Activation status: dormant. G1 approve
 
 ## 1. Context, evidence and scope
 
-The design preserves the PRD's seven requirements, nineteen acceptance criteria, four modes and seven scenario families. It extends baseline Objectives 001–002 and Requirements 003–007 without renumbering them. No separate BRD or product-ledger IDs were supplied; none are invented. Goal trace: O1 -> REQ-CLV-01/02/03/04; O2 -> REQ-CLV-02/03/05; O3 -> REQ-CLV-06/07.
+The design preserves the PRD's seven requirements, nineteen acceptance criteria, four modes and seven scenario families. It extends baseline Objectives 001–002 and Requirements 003–007 without renumbering them. No separate BRD or product-ledger IDs were supplied; none are invented. Goal trace: O1 -> REQ-001/02/03/04; O2 -> REQ-002/03/05; O3 -> REQ-006/07.
 
 ### Evidence ledger
 
@@ -32,12 +32,12 @@ Audience: contract, workflow, scenario/evaluation and integration owners. Decisi
 
 | HLD | Context / requirement | Component and single implementation owner | Input -> output / failure boundary |
 | --- | --- | --- | --- |
-| HLD-CLV-01 | Mode selection and continuation; REQ-CLV-01/04 | CMP-ROUTE, workflow owner | Request + dependency graph -> mode and per-step dispositions; no host action on ambiguous mode |
-| HLD-CLV-02 | Authorization and control proof; REQ-CLV-02 | CMP-GATE, authorization contract owner | Scenario + authority + host proof -> action-specific gate; host owns enforcement, registry cannot fabricate proof |
-| HLD-CLV-03 | Bounded catalog; REQ-CLV-03 | CMP-SCENARIO, scenario owner | Versioned scenario -> contract validation, required evidence and capability set; unknown action unsupported |
-| HLD-CLV-04 | Evidence truthfulness; REQ-CLV-05 | CMP-EVIDENCE, evidence contract owner | Action/observation + custody -> finding and defensive outcome with limitations; no inference from missing evidence |
-| HLD-CLV-05 | Reproducible comparison; REQ-CLV-06 | CMP-EVAL, evaluation owner | Frozen corpus/configuration -> case ledger, independent adjudication and denominators; infrastructure is not refusal |
-| HLD-CLV-06 | Portable distribution; REQ-CLV-07 | CMP-DIST, integration owner | Reviewed canonical package -> generated exports and temporary-consumer smoke; never edit mirrors as source |
+| HLD-CLV-01 | Mode selection and continuation; REQ-001/04 | CMP-ROUTE, workflow owner | Request + dependency graph -> mode and per-step dispositions; no host action on ambiguous mode |
+| HLD-CLV-02 | Authorization and control proof; REQ-002 | CMP-GATE, authorization contract owner | Scenario + authority + host proof -> action-specific gate; host owns enforcement, registry cannot fabricate proof |
+| HLD-CLV-03 | Bounded catalog; REQ-003 | CMP-SCENARIO, scenario owner | Versioned scenario -> contract validation, required evidence and capability set; unknown action unsupported |
+| HLD-CLV-04 | Evidence truthfulness; REQ-005 | CMP-EVIDENCE, evidence contract owner | Action/observation + custody -> finding and defensive outcome with limitations; no inference from missing evidence |
+| HLD-CLV-05 | Reproducible comparison; REQ-006 | CMP-EVAL, evaluation owner | Frozen corpus/configuration -> case ledger, independent adjudication and denominators; infrastructure is not refusal |
+| HLD-CLV-06 | Portable distribution; REQ-007 | CMP-DIST, integration owner | Reviewed canonical package -> generated exports and temporary-consumer smoke; never edit mirrors as source |
 
 Dependency direction: installed workflow reads scenario and shared contracts; CMP-ROUTE requests CMP-GATE decision before host invocation; host emits evidence consumed by CMP-EVIDENCE; CMP-EVAL consumes immutable results; CMP-DIST distributes reviewed definitions, not action permission. No registry-to-host execution API or new service is introduced.
 
@@ -45,17 +45,17 @@ RACI: requesting operator is product accountable; assigned engineering owner is 
 
 ## 3. Requirement cards and end-to-end trace
 
-All cards: priority P0/Must; status Proposed, pending G2. Evidence targets are future acceptance artifacts, not completed tests. `VER-CLV-NN` maps one-to-one to `AC-CLV-NN` in section 9. Categorical NFRs N1–N5 apply as referenced.
+All cards: priority P0/Must; status Proposed, pending G2. Evidence targets are future acceptance artifacts, not completed tests. `VER-001` to `VER-019` map one-to-one to `AC-001` to `AC-019` in section 9. Categorical NFRs N1–N5 apply as referenced.
 
-| SRS / statement | Source and trace | Trigger -> behavior/output | Error / fallback | NFR, measurement and lane |
-| --- | --- | --- | --- | --- |
-| SRS-CLV-01: Select exactly one declared mode per step, not one permission level per engagement. | REQ-CLV-01 -> HLD-CLV-01 -> CMP-ROUTE -> LLD-ROUTE; AC-CLV-01/02; VER-CLV-01/02 | Request -> mode, exercised stages and fidelity statement; source review needs no live-host proof | Ambiguous active request remains unexecuted; continue classified analysis | N1/N3; decision-table answer/replay review |
-| SRS-CLV-02: A supported active action is eligible only under current action-specific authority and demonstrated host controls. | REQ-CLV-02 -> HLD-CLV-02 -> CMP-GATE -> LLD-GATE; AC-CLV-03/04/05/06; VER-CLV-03/04/05/06 | Pre-action/restart -> gate binding exact target, fixture, action, limits and proof | Missing/expired/drift/stop -> block or stop and independent safe continuation | N1/N2; security contract walkthrough and real host stop smoke |
-| SRS-CLV-03: Validate each catalog entry against one shared scenario schema and minimum observable proof. | REQ-CLV-03 -> HLD-CLV-03 -> CMP-SCENARIO -> LLD-SCENARIO; AC-CLV-07/08; VER-CLV-07/08 | Catalog selection -> all fields plus positive/negative/boundary coverage for seven families | Missing prerequisite/action support -> explicit unsupported or blocked cell, no family dropped | N1/N3; schema review, catalog review and per-family runtime evidence |
-| SRS-CLV-04: Isolate blocked predecessors while progressing only independent permitted steps. | REQ-CLV-04 -> HLD-CLV-01 -> CMP-ROUTE -> LLD-ROUTE; AC-CLV-09/10; VER-CLV-09/10 | Step block/refusal -> dependency impact and independent remediation output | Missing producer evidence -> dependency-blocked, never fabricated substitute or disguised retry | N1/N3; mixed-work answer and host workflow cases |
-| SRS-CLV-05: Preserve finding/defensive enums, provenance and residual state without inventing certainty. | REQ-CLV-05 -> HLD-CLV-04 -> CMP-EVIDENCE -> LLD-EVIDENCE; AC-CLV-11/12/13/18; VER-CLV-11/12/13/18 | Supplied/exercised evidence -> redacted record, justified finding, optional defensive outcome, cleanup disclosure | No evidence -> not-tested; failed reproduction does not prove absence; absent observation -> telemetry-gap | N3/N4; independent evidence adjudication and cleanup timeline |
-| SRS-CLV-06: Compare only frozen case/configuration cells and separate refusal, task and infrastructure results. | REQ-CLV-06 -> HLD-CLV-05 -> CMP-EVAL -> appendix contracts; AC-CLV-14/15/19; VER-CLV-14/15/19 | Approved evaluation -> case outcomes, denominators, provenance and cost/latency only where measured | Unsupported adapter/quota -> infrastructure result; urgent blue-team framing grants no authority | N1/N3/N4; answer evaluation plus separately approved runtime lane |
-| SRS-CLV-07: Distribute opt-in reviewed canonical definitions without rewriting history or bypassing native export rules. | REQ-CLV-07 -> HLD-CLV-06 -> CMP-DIST -> section 10; AC-CLV-16/17; VER-CLV-16/17 | Approved sources -> generated consumers/resources, temporary-project exercise | Missing resources/export mismatch -> block promotion, retain prior reviewed package | N4/N5; package sync smoke and immutable-evidence comparison |
+| ID | Statement | Source and trace | Trigger -> behavior/output | Error / fallback | NFR, measurement and lane |
+| --- | --- | --- | --- | --- | --- |
+| SRS-001 | Select exactly one declared mode per step, not one permission level per engagement. | REQ-001 -> HLD-CLV-01 -> CMP-ROUTE -> LLD-ROUTE; AC-001/002; VER-001/002 | Request -> mode, exercised stages and fidelity statement; source review needs no live-host proof | Ambiguous active request remains unexecuted; continue classified analysis | N1/N3; decision-table answer/replay review |
+| SRS-002 | A supported active action is eligible only under current action-specific authority and demonstrated host controls. | REQ-002 -> HLD-CLV-02 -> CMP-GATE -> LLD-GATE; AC-003/004/005/006; VER-003/004/005/006 | Pre-action/restart -> gate binding exact target, fixture, action, limits and proof | Missing/expired/drift/stop -> block or stop and independent safe continuation | N1/N2; security contract walkthrough and real host stop smoke |
+| SRS-003 | Validate each catalog entry against one shared scenario schema and minimum observable proof. | REQ-003 -> HLD-CLV-03 -> CMP-SCENARIO -> LLD-SCENARIO; AC-007/008; VER-007/008 | Catalog selection -> all fields plus positive/negative/boundary coverage for seven families | Missing prerequisite/action support -> explicit unsupported or blocked cell, no family dropped | N1/N3; schema review, catalog review and per-family runtime evidence |
+| SRS-004 | Isolate blocked predecessors while progressing only independent permitted steps. | REQ-004 -> HLD-CLV-01 -> CMP-ROUTE -> LLD-ROUTE; AC-009/010; VER-009/010 | Step block/refusal -> dependency impact and independent remediation output | Missing producer evidence -> dependency-blocked, never fabricated substitute or disguised retry | N1/N3; mixed-work answer and host workflow cases |
+| SRS-005 | Preserve finding/defensive enums, provenance and residual state without inventing certainty. | REQ-005 -> HLD-CLV-04 -> CMP-EVIDENCE -> LLD-EVIDENCE; AC-011/012/013/018; VER-011/012/013/018 | Supplied/exercised evidence -> redacted record, justified finding, optional defensive outcome, cleanup disclosure | No evidence -> not-tested; failed reproduction does not prove absence; absent observation -> telemetry-gap | N3/N4; independent evidence adjudication and cleanup timeline |
+| SRS-006 | Compare only frozen case/configuration cells and separate refusal, task and infrastructure results. | REQ-006 -> HLD-CLV-05 -> CMP-EVAL -> appendix contracts; AC-014/015/019; VER-014/015/019 | Approved evaluation -> case outcomes, denominators, provenance and cost/latency only where measured | Unsupported adapter/quota -> infrastructure result; urgent blue-team framing grants no authority | N1/N3/N4; answer evaluation plus separately approved runtime lane |
+| SRS-007 | Distribute opt-in reviewed canonical definitions without rewriting history or bypassing native export rules. | REQ-007 -> HLD-CLV-06 -> CMP-DIST -> section 10; AC-016/017; VER-016/017 | Approved sources -> generated consumers/resources, temporary-project exercise | Missing resources/export mismatch -> block promotion, retain prior reviewed package | N4/N5; package sync smoke and immutable-evidence comparison |
 
 ## 4. Contracts and selected LLD
 
@@ -127,7 +127,7 @@ Mandatory binding chain: `ObservationRecord.action_receipt_ref -> ActionReceipt.
 
 Correlation key is `(run_id, attempt_id, test_id)`. Allocate it before dispatch and bind it to exactly one step, action receipt, gate and target/fixture revision/digest set; never reassign that key to another fixture, action or attempt. Retries/restarts require a new attempt and key. Each `observation_id` is unique within `(run_id, attempt_id)` and identifies one immutable observation; multiple distinct observations may reference the same receipt. Byte-identical repeated delivery of the same record/reference is de-duplicated, not a second action or proof. Conflicting records under a reused key/reference/observation ID are rejected, not overwritten or resolved by latest timestamp.
 
-Paired validation must resolve the full chain, then check key, entity, approved time window, source and exact inherited target/fixture values before classifying a defensive outcome. Reject missing/ambiguous links, cross-run/attempt references, cross-fixture joins, reused IDs with conflicting bindings, out-of-window observations and source-only/test-label matches. Preserve rejected originals with a provenance limitation; they cannot establish prevented/detected/responded. An evidenced action left without a usable matched observation is `telemetry-gap`; an observation alone cannot prove that action occurred. Verification obligation VER-CLV-12 includes a fixed patched-fixture/restart mismatch and reused-correlation-key negative instance, owned by the evaluation appendix (for example CLV-F06-N); this defines planned rejection behavior, not an executed test.
+Paired validation must resolve the full chain, then check key, entity, approved time window, source and exact inherited target/fixture values before classifying a defensive outcome. Reject missing/ambiguous links, cross-run/attempt references, cross-fixture joins, reused IDs with conflicting bindings, out-of-window observations and source-only/test-label matches. Preserve rejected originals with a provenance limitation; they cannot establish prevented/detected/responded. An evidenced action left without a usable matched observation is `telemetry-gap`; an observation alone cannot prove that action occurred. Verification obligation VER-012 includes a fixed patched-fixture/restart mismatch and reused-correlation-key negative instance, owned by the evaluation appendix (for example CLV-F06-N); this defines planned rejection behavior, not an executed test.
 
 Purple enum remains `blocked | prevented | detected | responded | telemetry-gap`; it is optional for non-defensive findings. `blocked` means action could not run, never prevention. `prevented` requires an evidenced control interruption; `detected` requires the specified observation; `responded` requires independently evidenced authorized response, not detection alone. An exercised action without usable corresponding observation is `telemetry-gap`. Observation-only output cannot prove action occurrence. Replay classification reports only stages exercised (for example parser/correlation), never sensor acquisition, prevention or endpoint response unless independently exercised and evidenced. Source reasoning, event replay and exercised lab behavior are distinct fidelity labels, not authority levels.
 
@@ -157,18 +157,18 @@ Purple enum remains `blocked | prevented | detected | responded | telemetry-gap`
 
 | Failure | Observable disposition | Independent continuation / recovery | Verification |
 | --- | --- | --- | --- |
-| Prohibited effect or public/production target | blocked/out-of-scope | Analysis/remediation only; no lab relabeling | VER-CLV-19 |
-| Unknown action/version | blocked/unsupported-action | Contract review; no generic executor | VER-CLV-07 |
-| Missing isolation/cancel proof | blocked/unsupported-runtime | Offline plan; G3 proof owned by lab host owner | VER-CLV-04 |
-| Missing/expired authority | blocked/authorization-missing or authorization-expired; if running, stopped | Fresh approval and gate; no exception waiver | VER-CLV-03/05/06 |
-| Drift/operator stop/unsafe effect | stopped with exact reason and partial receipts | Surviving teardown only; new attempt for restart | VER-CLV-05/06/13 |
-| Model policy refusal | blocked/policy-refused | Independent remediation; no provider switching | VER-CLV-09/19 |
-| Provider quota/adapter outage | blocked or failed/infrastructure-failure according to whether action began | Preserve incomplete cell and actual partial evidence | VER-CLV-15 |
-| Missing producer evidence | dependency-blocked/evidence-missing | Independent branches only | VER-CLV-10 |
-| No evidence / reproduction unsuccessful | not-tested when none; otherwise justified existing finding status with limits | Do not infer secure/absent vulnerability | VER-CLV-11/18 |
-| Action without observation | telemetry-gap | Authorized evidence-path review, not escalation | VER-CLV-12 |
-| Cleanup verification unavailable | residual or unverified | Report resources/owner; no clean closure | VER-CLV-13 |
-| Export/resource mismatch | distribution promotion blocked | Prior reviewed package retained/restored; never direct mirror repair | VER-CLV-16/17 |
+| Prohibited effect or public/production target | blocked/out-of-scope | Analysis/remediation only; no lab relabeling | VER-019 |
+| Unknown action/version | blocked/unsupported-action | Contract review; no generic executor | VER-007 |
+| Missing isolation/cancel proof | blocked/unsupported-runtime | Offline plan; G3 proof owned by lab host owner | VER-004 |
+| Missing/expired authority | blocked/authorization-missing or authorization-expired; if running, stopped | Fresh approval and gate; no exception waiver | VER-003/05/06 |
+| Drift/operator stop/unsafe effect | stopped with exact reason and partial receipts | Surviving teardown only; new attempt for restart | VER-005/06/13 |
+| Model policy refusal | blocked/policy-refused | Independent remediation; no provider switching | VER-009/19 |
+| Provider quota/adapter outage | blocked or failed/infrastructure-failure according to whether action began | Preserve incomplete cell and actual partial evidence | VER-015 |
+| Missing producer evidence | dependency-blocked/evidence-missing | Independent branches only | VER-010 |
+| No evidence / reproduction unsuccessful | not-tested when none; otherwise justified existing finding status with limits | Do not infer secure/absent vulnerability | VER-011/18 |
+| Action without observation | telemetry-gap | Authorized evidence-path review, not escalation | VER-012 |
+| Cleanup verification unavailable | residual or unverified | Report resources/owner; no clean closure | VER-013 |
+| Export/resource mismatch | distribution promotion blocked | Prior reviewed package retained/restored; never direct mirror repair | VER-016/17 |
 
 ## 7. NFRs, privacy and data ownership
 
@@ -208,25 +208,25 @@ Detailed case inputs/rubrics belong only to the [evaluation appendix](srs-cyber-
 
 | Verification / AC | Required observable evidence | Lane and acceptance |
 | --- | --- | --- |
-| VER-CLV-01 / AC-CLV-01 | Source analysis completes without live-host prerequisite | Answer review; no fabricated collection |
-| VER-CLV-02 / AC-CLV-02 | Replay report names only exercised stages | Replay/answer; no sensor efficacy inference |
-| VER-CLV-03 / AC-CLV-03 | Gate and actual receipt match exact authorized bounded action | Security integration + runtime; eligibility alone insufficient |
-| VER-CLV-04 / AC-CLV-04 | Missing isolation/cancellation named; no active invocation | Negative contract + runtime denial |
-| VER-CLV-05 / AC-CLV-05 | Expiry, drift and operator-stop timelines prevent further action | Real safe host stop smoke; each trigger covered |
-| VER-CLV-06 / AC-CLV-06 | Old gate cannot restart; new attempt needs fresh valid gate | Negative runtime/contract case |
-| VER-CLV-07 / AC-CLV-07 | Every shared field and bounded minimum-proof predicate validated | Catalog/schema review; no non-empty-only proof |
-| VER-CLV-08 / AC-CLV-08 | Seven families each have distinct positive/negative/boundary cases | Appendix coverage review; active family smoke separately required |
-| VER-CLV-09 / AC-CLV-09 | Independent remediation output despite blocked/refused action; no disguised retry | Mixed-task answer/workflow review |
-| VER-CLV-10 / AC-CLV-10 | Missing producer evidence explicitly dependency-blocks consumer | Dependency workflow case; no fake inputs |
-| VER-CLV-11 / AC-CLV-11 | No supplied/exercised evidence produces not-tested finding | Evidence adjudication |
-| VER-CLV-12 / AC-CLV-12 | Exercised action without observation produces telemetry-gap | Paired evidence/runtime negative |
-| VER-CLV-13 / AC-CLV-13 | Unverified cleanup lists residual/unknown state and owner | Actual teardown adverse-path smoke |
-| VER-CLV-14 / AC-CLV-14 | Same configuration baseline/candidate ledger has case outcomes and denominators | Frozen per-model answer evaluation; runtime results separate |
-| VER-CLV-15 / AC-CLV-15 | Quota/provider/unsupported runner categorized infrastructure, not refusal | Runner preflight/failure review; no unreported fallback |
-| VER-CLV-16 / AC-CLV-16 | Temporary consumer exposes workflows and packaged references and exercises handoff | Distribution smoke after generators settle |
-| VER-CLV-17 / AC-CLV-17 | Historical bytes/grades unchanged while new results append | Provenance/integrity verification; not behavioral certification |
-| VER-CLV-18 / AC-CLV-18 | Failed reproduction report does not assert vulnerability absence | Independent evidence adjudication |
-| VER-CLV-19 / AC-CLV-19 | Urgent blue-team framing cannot authorize excluded action | Pressure/negative answer and gate review |
+| VER-001 / AC-001 | Source analysis completes without live-host prerequisite | Answer review; no fabricated collection |
+| VER-002 / AC-002 | Replay report names only exercised stages | Replay/answer; no sensor efficacy inference |
+| VER-003 / AC-003 | Gate and actual receipt match exact authorized bounded action | Security integration + runtime; eligibility alone insufficient |
+| VER-004 / AC-004 | Missing isolation/cancellation named; no active invocation | Negative contract + runtime denial |
+| VER-005 / AC-005 | Expiry, drift and operator-stop timelines prevent further action | Real safe host stop smoke; each trigger covered |
+| VER-006 / AC-006 | Old gate cannot restart; new attempt needs fresh valid gate | Negative runtime/contract case |
+| VER-007 / AC-007 | Every shared field and bounded minimum-proof predicate validated | Catalog/schema review; no non-empty-only proof |
+| VER-008 / AC-008 | Seven families each have distinct positive/negative/boundary cases | Appendix coverage review; active family smoke separately required |
+| VER-009 / AC-009 | Independent remediation output despite blocked/refused action; no disguised retry | Mixed-task answer/workflow review |
+| VER-010 / AC-010 | Missing producer evidence explicitly dependency-blocks consumer | Dependency workflow case; no fake inputs |
+| VER-011 / AC-011 | No supplied/exercised evidence produces not-tested finding | Evidence adjudication |
+| VER-012 / AC-012 | Exercised action without observation produces telemetry-gap | Paired evidence/runtime negative |
+| VER-013 / AC-013 | Unverified cleanup lists residual/unknown state and owner | Actual teardown adverse-path smoke |
+| VER-014 / AC-014 | Same configuration baseline/candidate ledger has case outcomes and denominators | Frozen per-model answer evaluation; runtime results separate |
+| VER-015 / AC-015 | Quota/provider/unsupported runner categorized infrastructure, not refusal | Runner preflight/failure review; no unreported fallback |
+| VER-016 / AC-016 | Temporary consumer exposes workflows and packaged references and exercises handoff | Distribution smoke after generators settle |
+| VER-017 / AC-017 | Historical bytes/grades unchanged while new results append | Provenance/integrity verification; not behavioral certification |
+| VER-018 / AC-018 | Failed reproduction report does not assert vulnerability absence | Independent evidence adjudication |
+| VER-019 / AC-019 | Urgent blue-team framing cannot authorize excluded action | Pressure/negative answer and gate review |
 
 Release criteria remain PRD section 9: zero observed scope escapes/invented evidence/bypass; every applicable stop/negative case passes; at least 90% supported-positive completion separately for each advertised exact model/configuration; all continuation/evidence-integrity ACs pass; at least one actual disposable-lab smoke with stop/cleanup per advertised active family. Unsupported families remain planning/replay-only and cannot establish full plan acceptance; narrowing committed scope requires operator approval. Infrastructure gaps do not vanish from coverage denominators by being called refusals. Corpus/denominators/exclusions are frozen before run. Source inspections and answer assertions cannot establish host efficacy.
 
@@ -271,9 +271,9 @@ activation_status: dormant
 approval: pending
 requirement_trace:
   objectives: [baseline-Objective-001, baseline-Objective-002, O1, O2, O3]
-  requirements: [REQ-CLV-01, REQ-CLV-02, REQ-CLV-03, REQ-CLV-04, REQ-CLV-05, REQ-CLV-06, REQ-CLV-07]
-  acceptance_criteria: AC-CLV-01 through AC-CLV-19
-  srs: SRS-CLV-01 through SRS-CLV-07
+  requirements: [REQ-001, REQ-002, REQ-003, REQ-004, REQ-005, REQ-006, REQ-007]
+  acceptance_criteria: AC-001 through AC-019
+  srs: SRS-001 through SRS-007
 completed_evidence:
   - repository source contract inspection
   - proposed interfaces and nineteen acceptance mappings

@@ -46,13 +46,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Cybersecurity lab validation candidate (`cybersecurity` `1.0.1` candidate)**: Added dormant candidate contract (`skills/cybersecurity/cyber-lab-validation/`), approved baseline amendment (ADR-CLV-01), and four-mode routing across canonical security workflows (`cyber-exercise`, `cyber-purple-validation`, `cyber-triage`, `pentest`). Bounded lab validation requires action-specific approval, host isolation/cancellation boundaries, paired evidence, and synthetic disposable fixtures; `cyber-scoped-validation` is preserved as the offline/supplied-evidence standard.
-  - Baseline amendment recorded in `docs/srs/srs-task-list-governed-cybersecurity.md` and `ARCHITECTURE.md` (ADR-018 / ADR-CLV-01) following G2 operator approval on 2026-10-24.
-  - Workflows bump to `1.1.8` candidate for four-mode and effects-gate routing.
+- **Cybersecurity lab validation candidate (`cybersecurity` `1.0.2` candidate)**: Added dormant candidate contract (`skills/cybersecurity/cyber-lab-validation/`), approved baseline amendment (ADR-CLV-01), and four-mode routing across canonical security workflows (`cyber-exercise`, `cyber-purple-validation`, `cyber-triage`, `pentest`). Bounded lab validation requires action-specific approval, host isolation/cancellation boundaries, paired evidence, and synthetic disposable fixtures; `cyber-scoped-validation` is preserved as the offline/supplied-evidence standard.
+  - Baseline amendment recorded in `docs/srs/srs-task-list-governed-cybersecurity.md` and `ARCHITECTURE.md` (ADR-019 / ADR-CLV-01) following G2 operator approval on 2026-10-24.
+  - Workflows bump to `1.1.10` candidate for four-mode and effects-gate routing.
   - Contract remains dormant in repository: no operational attack scripts, no live tool autoactivation, no G3/G4/G5 promotion, and no measured model compatibility improvement claimed.
 
 ### Fixed
 - **Dependency security**: Override Express 5 to patched `body-parser` 2.4.0 and NestJS Express platform to patched `multer` 2.5.0, addressing the production dependency-audit DoS advisories without changing direct dependency ranges.
+
+- **Cyber-lab validation safety wording**: State the operational-attack prohibition and host-enforced safety boundaries declaratively so negation-blind static checks recognize the prohibition. Gitleaks exceptions are limited to 16 verified hash-only snapshot fingerprints; scanner rules, thresholds, and full-history scanning remain unchanged.
 
 - **Secret scan blast radius**: `secret-scan` ran `gitleaks detect` without `--log-opts`, which defaults to `git log --full-history --all`; with the job's `fetch-depth: 0` checkout that scanned every branch in the repository, so unrelated work-in-progress branches failed the job on every pull request (PR #257 was blocked by three such commits, none of them in the PR). Pull requests now scan `origin/<base_ref>..HEAD`; push runs on `main`/`develop` keep the full-history scan. Added `condition = "AND"` allowlists for three verified false-positive shapes — SHA-256 digest manifests whose keys contain `api`, `laneKeyHash` audit metadata, and the `HarnessDiscoveryService` sanitized-env fixture — scoped by path so the same values elsewhere stay detectable.
 - **Workflow wrapper parity**: checked-in generated workflow mirrors had no lockfile ownership, so the repo generator preserved stale wrappers while reporting success. `generate-indices` now forces only the deterministic export paths for selected canonical workflows (derived from each agent's declared workflow path/format) and keeps ownership backups.

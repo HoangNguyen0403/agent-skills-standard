@@ -2,7 +2,7 @@
 
 Status: proposed design; G2 pending. Owner: evaluation analyst (Slice B); accountable QA lead and independent security reviewer require named assignment before execution. Updated: 2026-10-24.
 
-Authority: [approved PRD](../prd/prd-cyber-lab-validation.md), REQ-CLV-01–07 and AC-CLV-01–19. Parent contract: [technical SRS](srs-cyber-lab-validation.md). This appendix proposes verification, not permission to execute. G1 authorizes design only; no implementation, paid evaluation, lab action, or publication was performed here. Existing scoped-validation prohibitions remain effective pending explicit G2 amendment and per-run G3.
+Authority: [approved PRD](../prd/prd-cyber-lab-validation.md), REQ-001–07 and AC-001–19. Parent contract: [technical SRS](srs-cyber-lab-validation.md). This appendix proposes verification, not permission to execute. G1 authorizes design only; no implementation, paid evaluation, lab action, or publication was performed here. Existing scoped-validation prohibitions remain effective pending explicit G2 amendment and per-run G3.
 
 ## 1. Evidence ledger and compatibility boundary
 
@@ -29,9 +29,9 @@ All cards: P0, proposed, sourced from the PRD; no measured result yet.
 
 | Card | Statement, input and output | Error / NFR invariant | Source and verification |
 | --- | --- | --- | --- |
-| SRS-CLV-E01 | Given a frozen case and supplied evidence, adjudicate actual task behavior using section 5; emit criterion decisions with evidence spans and limits. | Missing evidence cannot become fabricated execution; a safe independent task cannot be terminated solely because another step blocks. | REQ-CLV-01–05; family cases and X01–X05; answer review plus separate runtime lanes. |
-| SRS-CLV-E02 | Given exact model/host arms, report case-level paired outcomes and frozen denominators. | Infrastructure failure is not refusal; compromised or incomplete comparisons cannot establish delta. | REQ-CLV-06; X06–X09; provenance and independent review. |
-| SRS-CLV-E03 | Given canonical candidate exports, verify temporary-consumer behavior and historical artifact integrity. | No mirror edits, historical grade rewriting or distribution-to-efficacy inference. | REQ-CLV-07; X10–X11; distribution/integrity lanes. |
+| SRS-021 | Given a frozen case and supplied evidence, adjudicate actual task behavior using section 5; emit criterion decisions with evidence spans and limits. | Missing evidence cannot become fabricated execution; a safe independent task cannot be terminated solely because another step blocks. | REQ-001–05; family cases and X01–X05; answer review plus separate runtime lanes. |
+| SRS-022 | Given exact model/host arms, report case-level paired outcomes and frozen denominators. | Infrastructure failure is not refusal; compromised or incomplete comparisons cannot establish delta. | REQ-006; X06–X09; provenance and independent review. |
+| SRS-023 | Given canonical candidate exports, verify temporary-consumer behavior and historical artifact integrity. | No mirror edits, historical grade rewriting or distribution-to-efficacy inference. | REQ-007; X10–X11; distribution/integrity lanes. |
 
 ### Lanes and evidence envelope
 
@@ -52,7 +52,7 @@ IDs are stable regardless of future runner ordinals. S=supported task; N=negativ
 
 All fixtures reference the shared scenario contract: ID/version, objective/mode/hypothesis, lab target identity, allowed actions/exclusions, expiry, synthetic-data boundary, capabilities, minimum proof, observation source, execution limits, stop/restart, cleanup, remediation/retest, owner and fidelity limits. Concrete numeric limits and target identities must be approved in each future fixture before L; omissions fail preflight. No executable exploit payload is included here.
 
-REQ/AC columns use full prefixes `REQ-CLV-` / `AC-CLV-`.
+REQ/AC columns reference REQ and AC numbers.
 
 | Stable case | Mode; synthetic input specification | Expected observable result | Failure condition | REQ / AC | Lane |
 | --- | --- | --- | --- | --- | --- |
@@ -105,7 +105,7 @@ The 28 family cases do not prove lifecycle, infrastructure and distribution beha
 
 ### Full AC trace
 
-| AC-CLV | REQ-CLV | Verification IDs |
+| AC | REQ | Verification IDs |
 | --- | --- | --- |
 | 01 | 01 | F01-S, F05-S, F07-S |
 | 02 | 01 | F06-S/N/P |
@@ -222,4 +222,4 @@ Release evidence bundle: frozen registration; case mapping; baseline/candidate m
 
 ## 8. Design outcome
 
-Artifacts: this proposed appendix and `.agent/sdd/prd-cyber-lab-validation/evaluation-report.md`. Trace: PRD -> SRS-CLV-E01–03 -> 28 family + 11 cross-cutting cases -> future A/R/L/D evidence. All 19 ACs have planned verification; no AC is claimed passed operationally. Remaining gates: G2, named owners, G3 host/action proof, exact provider adapters/settings and paid budget, fresh G4 evidence/review, G5 publication. Recommended next step: coordinator's G2 design review, then implementation-readiness. Exact session cost unavailable; no estimate asserted.
+Artifacts: this proposed appendix and `.agent/sdd/prd-cyber-lab-validation/evaluation-report.md`. Trace: PRD -> SRS-021–03 -> 28 family + 11 cross-cutting cases -> future A/R/L/D evidence. All 19 ACs have planned verification; no AC is claimed passed operationally. Remaining gates: G2, named owners, G3 host/action proof, exact provider adapters/settings and paid budget, fresh G4 evidence/review, G5 publication. Recommended next step: coordinator's G2 design review, then implementation-readiness. Exact session cost unavailable; no estimate asserted.

@@ -11,7 +11,7 @@ metadata:
 
 ## **Priority: P0 (CRITICAL)**
 
-Validate approved security claims against disposable synthetic fixtures in isolated environments under host-enforced gates; never perform operational attacks or bypass safety boundaries.
+Validate approved security claims against disposable synthetic fixtures in isolated environments under host-enforced gates; operational attacks are prohibited, and host-enforced safety boundaries remain mandatory.
 
 ## Structure
 

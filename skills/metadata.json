@@ -827,16 +827,16 @@
       ]
     },
     "cybersecurity": {
-      "version": "1.0.1",
+      "version": "1.0.2",
       "last_updated": "2026-10-26",
       "tag_prefix": "cybersecurity-v",
       "owners": [
         "HoangNguyen0403"
       ],
       "token_metrics": {
-        "total_skills": 12,
-        "total_tokens": 8150,
-        "avg_tokens_per_skill": 679,
+        "total_skills": 13,
+        "total_tokens": 11113,
+        "avg_tokens_per_skill": 855,
         "largest_skill": "cyber-rea-reverse-engineering (1390 tokens)"
       }
     },

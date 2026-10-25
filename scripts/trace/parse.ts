@@ -15,11 +15,15 @@ const FILENAME_RE = /^(brd|prd|srs)-(.+)\.md$/;
  * mint a phantom slug (`task-list-<slug>`) whose ids all dangle.
  */
 const SRS_ARTIFACT_PREFIXES = ["task-list-", "walkthrough-"] as const;
+const SRS_ARTIFACT_SUFFIXES = ["-evaluation"] as const;
 
-/** Strips a known SRS artifact-kind prefix so the file joins its feature's slug. */
+/** Strips a known SRS artifact-kind prefix or suffix so the file joins its feature's slug. */
 function slugFromFilenameTail(tail: string): string {
   for (const prefix of SRS_ARTIFACT_PREFIXES) {
     if (tail.startsWith(prefix)) return tail.slice(prefix.length);
+  }
+  for (const suffix of SRS_ARTIFACT_SUFFIXES) {
+    if (tail.endsWith(suffix)) return tail.slice(0, -suffix.length);
   }
   return tail;
 }
