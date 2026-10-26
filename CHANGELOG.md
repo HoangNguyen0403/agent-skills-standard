@@ -8,8 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Quick Navigation
 
 ## [Unreleased]
-
 ### Added
+
+- **Reusable book-to-skill reference skill**: Added a portable, rights-aware technique for converting authorized book material into discoverable skills, including a bounded large-source delegation reference for coordinator-led multi-packet synthesis.
+- **UI human-direction refinement protocol**: Added canonical reference `skills/common/common-ui-design/references/human-direction.md` establishing human direction as foundational. For existing designs, polish is default (preserving layout and behavior) while restyle preserves structure without frozen pixel coordinates, and rethink requires explicit human request. Added four-step critique loop (`Observation -> Impact -> Smallest Change -> Preserve Constraint`), explicit keep/change/avoid brief structure, borrow vs avoid separation for references, and finding classification into defects, context concerns, and taste. Replaced blanket anti-system-font and forced aesthetic-novelty rules in `common-ui-design` with domain-grounded platform typography, deliberate color systems, and WCAG AA accessibility.
+- **Stitch design human direction alignment**: Aligned `common-stitch-design` and `references/prompting.md` with human direction refinement modes (`polish`, `restyle`, `rethink`, `tablet`, `justified no-change`), explicit `keep / change / avoid` prompt blocks, avoidance of rigid geometry locks, and branching to justified no-change before writes when existing screens satisfy direction.
+- **Stitch workflows (`workflows` `1.1.9` candidate)**: Updated `.agents/workflows/create-stitch-design.md` and `.agents/workflows/review-stitch-design.md` with human-directed brief inputs, observed proof vs subjective preference verification, justified no-change gate branching before asset generation, defect/context/taste findings taxonomy, and preservation checks against baseline regressions.
 
 - **Cybersecurity `1.0.1` candidate**: Added optional `cyber-rea-reverse-engineering` driver skill and `references/setup.md` for a version-pinned, consumer-owned REA MCP/CLI lane. Covers authorized targets, untrusted target data, evidence provenance and limits, no inherited credentials, no automatic execution/injection/install, separate authority for target mutation, matching vendor-skill provenance, and rollback. Optional; absent REA blocks only the REA evidence lane and selection remains opt-in.
 - **`ags skills` category manager (CLI `2.7.0`)**: Interactive category-first skill selection that adds and removes guidance without hand-editing `.skillsrc` or looking up release tags. Existing category pins and include/exclude policy are preserved; newly enabled categories use their published release (no `main` fallback), and Product Management starts with only its two foundation skills. Unavailable configured categories stay checked by default but can be explicitly removed. Optional customization toggles nested skills, searches names and descriptions, keeps hidden selections, preserves qualified cross-category imports, and can explicitly switch a category to its published release.
@@ -21,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Full-actor task economics**: session journals accept `cancelled` attempts plus declared `taskId` / `parentTaskId` labels and optional `expectedActors`; missing declared actors are listed by label. Eval runs persist per-attempt `taskUsage`, and the generated report adds a Task Economics section that withholds monetary savings unless actor coverage, metering, pricing and task identity are all complete. Reasoning usage requires explicit `separate` or `included-in-output` billing semantics; ambiguity leaves cost `unavailable`.
 - **Qualification harness**: `pnpm harness:smoke -- --qualification-only --claim <path>` validates recorded conformance traces offline (no probes, network or model calls) and reports `not_verified` for synthetic evidence.
 
-- **Release candidates**: MCP `0.8.0`; CLI `2.7.0`; Common `2.9.2`; workflows `1.1.8` (the latter two based on `origin/develop`).
+- **Release candidates**: MCP `0.8.0`; CLI `2.7.0`; Common `2.9.1`; workflows `1.1.8` (the latter two based on `origin/develop`).
 
 ### Changed
 
@@ -35,6 +39,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Generated exports**: regenerated native skill/workflow/specialist mirrors, category indices, `skills/index.json` and `docs/agent-capabilities.md` from settled canonical sources through the existing generators; no mirror was hand-edited and `.skillsrc` target/category selection is unchanged.
 - **Eval reporting**: reason about attempt outcomes (`completed`, `failed`, `retried`, `interrupted`, `cancelled`) instead of token-only summaries; a baseline run is compared only against the declared immutable baseline.
 - **BA and SDLC guidance**: Added proportionate elicitation planning and source confirmation, shared requirements distinctions for conflict, quality versus need, and temporary transitions, and evidence-based diagnosis of solution versus organizational limitations. Updated four selected workflow references; bounded independent grading of 12 paired synthetic cases observed one completeness improvement, 11 ties, and no critical regression, without establishing broad or causal superiority.
+
+### Changed
+
+- **Untrusted-workspace admission guidance**: Added a portable admission checklist plus runtime-adapter caveats separating declared policy from observed host behavior, provider/account/model eligibility from context-transfer authorization, sealed starting identity, private-workflow mutation and output promotion, and truthful scan/hook reporting. Replaced the two lexical `evals.json` word-matching files in `common-agent-guardrails` and `common-llm-security` with a human-graded, explicitly unrun behavior rubric. No admission service, sandbox, or runtime control is added, and no eval PASS is claimed.
 
 ### Fixed
 - **Dependency security**: Override Express 5 to patched `body-parser` 2.4.0 and NestJS Express platform to patched `multer` 2.5.0, addressing the production dependency-audit DoS advisories without changing direct dependency ranges.
@@ -62,7 +70,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Versions
 
 - **CLI**: `2.6.6` → `2.7.0`
-- **Common**: `2.9.1` → `2.9.2`; **Product Management**: `1.0.1` → `1.0.2`; **Quality Engineering**: `1.6.1` → `1.6.2`; **Workflows**: `1.1.7` → `1.1.8`
+- **Common**: `2.9.1` → `2.9.2`; **Product Management**: `1.0.1` → `1.0.2`; **Quality Engineering**: `1.6.1` → `1.6.2`; **Workflows**: `1.1.8` → `1.1.9`
 
 ## [common-v2.9.0] [workflow-v1.1.6] [system-design-v1.2.4] [quality-engineering-v1.6.1] [product-management-v1.0.1] - 2026-10-21
 

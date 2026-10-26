@@ -1,0 +1,124 @@
+/* QuickStart.module.css - Colocated styles for QuickStartSection */
+
+.prereqNotice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 32px;
+  padding: 16px 20px;
+  background-color: rgba(187, 195, 186, 0.05);
+  border: 1px solid rgba(187, 195, 186, 0.16);
+  border-left: 3px solid var(--lime, #c7f36b);
+  border-radius: 4px;
+}
+
+.prereqText {
+  font-family: var(--font-mono), "IBM Plex Mono", monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--muted, #bbc3ba);
+  flex: 1 1 300px;
+  margin: 0;
+}
+
+.stepsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.stepItem {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.stepHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.stepBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
+  background-color: rgba(199, 243, 107, 0.12);
+  border: 1px solid rgba(199, 243, 107, 0.4);
+  color: var(--lime, #c7f36b);
+  font-family: var(--font-mono), "IBM Plex Mono", monospace;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+.stepMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.stepTitle {
+  font-family: var(--font-heading), "Space Grotesk", sans-serif;
+  font-weight: 600;
+  font-size: clamp(18px, 2.2vw, 22px);
+  line-height: 1.25;
+  color: var(--paper, #f5f2e9);
+  margin: 0;
+}
+
+.stepPurpose {
+  font-family: var(--font-body), "Source Sans 3", sans-serif;
+  font-size: clamp(15px, 1.8vw, 17px);
+  line-height: 1.5;
+  color: var(--muted, #bbc3ba);
+  margin: 0;
+}
+
+.inlineCode {
+  font-family: var(--font-mono), "IBM Plex Mono", monospace;
+  font-size: 13px;
+  color: var(--lime, #c7f36b);
+  background-color: rgba(199, 243, 107, 0.08);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+.stepCommand {
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .prereqNotice {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+  }
+
+  .prereqText {
+    flex: none;
+    flex-basis: auto;
+  }
+
+  .stepHeader {
+    gap: 12px;
+  }
+
+  .stepBadge {
+    width: 32px;
+    height: 32px;
+    font-size: 13px;
+  }
+}

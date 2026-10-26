@@ -1,0 +1,328 @@
+{
+  "receiptVersion": "2.1.0",
+  "timestamp": "2026-10-25T07:34:00.046Z",
+  "environment": {
+    "worktree": "/Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/cheerful-termite",
+    "nodeVersion": "v22.14.0",
+    "dependencyProvenance": {
+      "primaryCheckout": "/Users/nguyenhuyhoang/OtherProjects/agent-skills-standard",
+      "mode": "same-source checkout, patch-divergent from lock",
+      "stagingProcedure": "isolated mktemp -d staging, read-only symlink to primary node_modules, safe allowlist copyback"
+    }
+  },
+  "exportResourceRules": {
+    "rule": "scripts/generate-indices.ts:44 explicitly excludes evals/ from collected export files (allowlist: SKILL.md, references/**, scripts/**, assets/**, LICENSE/NOTICE)",
+    "evalsLocation": "Canonical-only test resource at skills/common/common-ui-design/evals/evals.json, excluded by design from agent mirrors"
+  },
+  "workflowExportStatus": {
+    "status": "Unselected optional workflows",
+    "note": ".skillsrc lines 25-58 configures 33 standard SDLC workflows. create-stitch-design and review-stitch-design are not in the selected list, so no command/prompt wrappers exist or were generated. They remain canonically in .agents/workflows/."
+  },
+  "canonicalSources": {
+    "exported": {
+      "_INDEX.md": {
+        "path": "skills/common/_INDEX.md",
+        "sha256": "b1a4796bfd89a24260306873563173a24553cf90fc3fe3cc4f375f3b69351767"
+      },
+      "common-ui-design/SKILL.md": {
+        "path": "skills/common/common-ui-design/SKILL.md",
+        "sha256": "8ecc00ddab7c7d05086280fa11945f3b5c992cc96d90f6a1cc32ca4fdcc1f19e"
+      },
+      "common-ui-design/references/human-direction.md": {
+        "path": "skills/common/common-ui-design/references/human-direction.md",
+        "sha256": "dc64c86d842a3e0f2046b15488be3612a60e357251f04f3290ddf46c0fa21dff"
+      },
+      "common-ui-design/references/tones.md": {
+        "path": "skills/common/common-ui-design/references/tones.md",
+        "sha256": "a302e412eb0a59646a70a2defff2849715889f9aac6505e7c411430fc0577dfa"
+      },
+      "common-stitch-design/SKILL.md": {
+        "path": "skills/common/common-stitch-design/SKILL.md",
+        "sha256": "97f4ea072bda52ff98fce1711b60fe1edcf97670b2a882be753885409ff0f561"
+      },
+      "common-stitch-design/references/prompting.md": {
+        "path": "skills/common/common-stitch-design/references/prompting.md",
+        "sha256": "a760e42e328654c2473f0078722cdc08f54add05d1870dd154ee4aa65cef9cd0"
+      }
+    },
+    "canonicalOnly": {
+      "metadata.json": {
+        "path": "skills/metadata.json",
+        "sha256": "37c6c6f9068ca3e14241272a24bf255c9c0a13da2a8a37c381f79df79c8b15fb"
+      },
+      "create-stitch-design.md": {
+        "path": ".agents/workflows/create-stitch-design.md",
+        "sha256": "2c453a5657d6cf3ab5dddad61eb730e1a67253d5d45975d848f43e43d2490532"
+      },
+      "review-stitch-design.md": {
+        "path": ".agents/workflows/review-stitch-design.md",
+        "sha256": "8ebf2e4ef408cfad4fe9a5274f50b8fff270f7d11a58789767c2ac28b1693d9b"
+      },
+      "common-ui-design/evals/evals.json": {
+        "path": "skills/common/common-ui-design/evals/evals.json",
+        "sha256": "ceeec7dbf4fe5abfaa1d8b4d5056aa5a9f611cf460d2241c22745afab95ae894"
+      }
+    }
+  },
+  "mirrorParityMatrix": [
+    {
+      "host": "antigravity",
+      "relPath": "_INDEX.md",
+      "mirrorPath": ".agents/skills/common/_INDEX.md",
+      "mirrorSha256": "b1a4796bfd89a24260306873563173a24553cf90fc3fe3cc4f375f3b69351767",
+      "canonicalPath": "skills/common/_INDEX.md",
+      "canonicalSha256": "b1a4796bfd89a24260306873563173a24553cf90fc3fe3cc4f375f3b69351767",
+      "parity": true
+    },
+    {
+      "host": "claude",
+      "relPath": "_INDEX.md",
+      "mirrorPath": ".claude/skills/common/_INDEX.md",
+      "mirrorSha256": "b1a4796bfd89a24260306873563173a24553cf90fc3fe3cc4f375f3b69351767",
+      "canonicalPath": "skills/common/_INDEX.md",
+      "canonicalSha256": "b1a4796bfd89a24260306873563173a24553cf90fc3fe3cc4f375f3b69351767",
+      "parity": true
+    },
+    {
+      "host": "codex",
+      "relPath": "_INDEX.md",
+      "mirrorPath": ".codex/skills/common/_INDEX.md",
+      "mirrorSha256": "b1a4796bfd89a24260306873563173a24553cf90fc3fe3cc4f375f3b69351767",
+      "canonicalPath": "skills/common/_INDEX.md",
+      "canonicalSha256": "b1a4796bfd89a24260306873563173a24553cf90fc3fe3cc4f375f3b69351767",
+      "parity": true
+    },
+    {
+      "host": "copilot",
+      "relPath": "_INDEX.md",
+      "mirrorPath": ".github/skills/common/_INDEX.md",
+      "mirrorSha256": "b1a4796bfd89a24260306873563173a24553cf90fc3fe3cc4f375f3b69351767",
+      "canonicalPath": "skills/common/_INDEX.md",
+      "canonicalSha256": "b1a4796bfd89a24260306873563173a24553cf90fc3fe3cc4f375f3b69351767",
+      "parity": true
+    },
+    {
+      "host": "antigravity",
+      "relPath": "common-ui-design/SKILL.md",
+      "mirrorPath": ".agents/skills/common/common-ui-design/SKILL.md",
+      "mirrorSha256": "8ecc00ddab7c7d05086280fa11945f3b5c992cc96d90f6a1cc32ca4fdcc1f19e",
+      "canonicalPath": "skills/common/common-ui-design/SKILL.md",
+      "canonicalSha256": "8ecc00ddab7c7d05086280fa11945f3b5c992cc96d90f6a1cc32ca4fdcc1f19e",
+      "parity": true
+    },
+    {
+      "host": "claude",
+      "relPath": "common-ui-design/SKILL.md",
+      "mirrorPath": ".claude/skills/common/common-ui-design/SKILL.md",
+      "mirrorSha256": "8ecc00ddab7c7d05086280fa11945f3b5c992cc96d90f6a1cc32ca4fdcc1f19e",
+      "canonicalPath": "skills/common/common-ui-design/SKILL.md",
+      "canonicalSha256": "8ecc00ddab7c7d05086280fa11945f3b5c992cc96d90f6a1cc32ca4fdcc1f19e",
+      "parity": true
+    },
+    {
+      "host": "codex",
+      "relPath": "common-ui-design/SKILL.md",
+      "mirrorPath": ".codex/skills/common/common-ui-design/SKILL.md",
+      "mirrorSha256": "8ecc00ddab7c7d05086280fa11945f3b5c992cc96d90f6a1cc32ca4fdcc1f19e",
+      "canonicalPath": "skills/common/common-ui-design/SKILL.md",
+      "canonicalSha256": "8ecc00ddab7c7d05086280fa11945f3b5c992cc96d90f6a1cc32ca4fdcc1f19e",
+      "parity": true
+    },
+    {
+      "host": "copilot",
+      "relPath": "common-ui-design/SKILL.md",
+      "mirrorPath": ".github/skills/common/common-ui-design/SKILL.md",
+      "mirrorSha256": "8ecc00ddab7c7d05086280fa11945f3b5c992cc96d90f6a1cc32ca4fdcc1f19e",
+      "canonicalPath": "skills/common/common-ui-design/SKILL.md",
+      "canonicalSha256": "8ecc00ddab7c7d05086280fa11945f3b5c992cc96d90f6a1cc32ca4fdcc1f19e",
+      "parity": true
+    },
+    {
+      "host": "antigravity",
+      "relPath": "common-ui-design/references/human-direction.md",
+      "mirrorPath": ".agents/skills/common/common-ui-design/references/human-direction.md",
+      "mirrorSha256": "dc64c86d842a3e0f2046b15488be3612a60e357251f04f3290ddf46c0fa21dff",
+      "canonicalPath": "skills/common/common-ui-design/references/human-direction.md",
+      "canonicalSha256": "dc64c86d842a3e0f2046b15488be3612a60e357251f04f3290ddf46c0fa21dff",
+      "parity": true
+    },
+    {
+      "host": "claude",
+      "relPath": "common-ui-design/references/human-direction.md",
+      "mirrorPath": ".claude/skills/common/common-ui-design/references/human-direction.md",
+      "mirrorSha256": "dc64c86d842a3e0f2046b15488be3612a60e357251f04f3290ddf46c0fa21dff",
+      "canonicalPath": "skills/common/common-ui-design/references/human-direction.md",
+      "canonicalSha256": "dc64c86d842a3e0f2046b15488be3612a60e357251f04f3290ddf46c0fa21dff",
+      "parity": true
+    },
+    {
+      "host": "codex",
+      "relPath": "common-ui-design/references/human-direction.md",
+      "mirrorPath": ".codex/skills/common/common-ui-design/references/human-direction.md",
+      "mirrorSha256": "dc64c86d842a3e0f2046b15488be3612a60e357251f04f3290ddf46c0fa21dff",
+      "canonicalPath": "skills/common/common-ui-design/references/human-direction.md",
+      "canonicalSha256": "dc64c86d842a3e0f2046b15488be3612a60e357251f04f3290ddf46c0fa21dff",
+      "parity": true
+    },
+    {
+      "host": "copilot",
+      "relPath": "common-ui-design/references/human-direction.md",
+      "mirrorPath": ".github/skills/common/common-ui-design/references/human-direction.md",
+      "mirrorSha256": "dc64c86d842a3e0f2046b15488be3612a60e357251f04f3290ddf46c0fa21dff",
+      "canonicalPath": "skills/common/common-ui-design/references/human-direction.md",
+      "canonicalSha256": "dc64c86d842a3e0f2046b15488be3612a60e357251f04f3290ddf46c0fa21dff",
+      "parity": true
+    },
+    {
+      "host": "antigravity",
+      "relPath": "common-ui-design/references/tones.md",
+      "mirrorPath": ".agents/skills/common/common-ui-design/references/tones.md",
+      "mirrorSha256": "a302e412eb0a59646a70a2defff2849715889f9aac6505e7c411430fc0577dfa",
+      "canonicalPath": "skills/common/common-ui-design/references/tones.md",
+      "canonicalSha256": "a302e412eb0a59646a70a2defff2849715889f9aac6505e7c411430fc0577dfa",
+      "parity": true
+    },
+    {
+      "host": "claude",
+      "relPath": "common-ui-design/references/tones.md",
+      "mirrorPath": ".claude/skills/common/common-ui-design/references/tones.md",
+      "mirrorSha256": "a302e412eb0a59646a70a2defff2849715889f9aac6505e7c411430fc0577dfa",
+      "canonicalPath": "skills/common/common-ui-design/references/tones.md",
+      "canonicalSha256": "a302e412eb0a59646a70a2defff2849715889f9aac6505e7c411430fc0577dfa",
+      "parity": true
+    },
+    {
+      "host": "codex",
+      "relPath": "common-ui-design/references/tones.md",
+      "mirrorPath": ".codex/skills/common/common-ui-design/references/tones.md",
+      "mirrorSha256": "a302e412eb0a59646a70a2defff2849715889f9aac6505e7c411430fc0577dfa",
+      "canonicalPath": "skills/common/common-ui-design/references/tones.md",
+      "canonicalSha256": "a302e412eb0a59646a70a2defff2849715889f9aac6505e7c411430fc0577dfa",
+      "parity": true
+    },
+    {
+      "host": "copilot",
+      "relPath": "common-ui-design/references/tones.md",
+      "mirrorPath": ".github/skills/common/common-ui-design/references/tones.md",
+      "mirrorSha256": "a302e412eb0a59646a70a2defff2849715889f9aac6505e7c411430fc0577dfa",
+      "canonicalPath": "skills/common/common-ui-design/references/tones.md",
+      "canonicalSha256": "a302e412eb0a59646a70a2defff2849715889f9aac6505e7c411430fc0577dfa",
+      "parity": true
+    },
+    {
+      "host": "antigravity",
+      "relPath": "common-stitch-design/SKILL.md",
+      "mirrorPath": ".agents/skills/common/common-stitch-design/SKILL.md",
+      "mirrorSha256": "97f4ea072bda52ff98fce1711b60fe1edcf97670b2a882be753885409ff0f561",
+      "canonicalPath": "skills/common/common-stitch-design/SKILL.md",
+      "canonicalSha256": "97f4ea072bda52ff98fce1711b60fe1edcf97670b2a882be753885409ff0f561",
+      "parity": true
+    },
+    {
+      "host": "claude",
+      "relPath": "common-stitch-design/SKILL.md",
+      "mirrorPath": ".claude/skills/common/common-stitch-design/SKILL.md",
+      "mirrorSha256": "97f4ea072bda52ff98fce1711b60fe1edcf97670b2a882be753885409ff0f561",
+      "canonicalPath": "skills/common/common-stitch-design/SKILL.md",
+      "canonicalSha256": "97f4ea072bda52ff98fce1711b60fe1edcf97670b2a882be753885409ff0f561",
+      "parity": true
+    },
+    {
+      "host": "codex",
+      "relPath": "common-stitch-design/SKILL.md",
+      "mirrorPath": ".codex/skills/common/common-stitch-design/SKILL.md",
+      "mirrorSha256": "97f4ea072bda52ff98fce1711b60fe1edcf97670b2a882be753885409ff0f561",
+      "canonicalPath": "skills/common/common-stitch-design/SKILL.md",
+      "canonicalSha256": "97f4ea072bda52ff98fce1711b60fe1edcf97670b2a882be753885409ff0f561",
+      "parity": true
+    },
+    {
+      "host": "copilot",
+      "relPath": "common-stitch-design/SKILL.md",
+      "mirrorPath": ".github/skills/common/common-stitch-design/SKILL.md",
+      "mirrorSha256": "97f4ea072bda52ff98fce1711b60fe1edcf97670b2a882be753885409ff0f561",
+      "canonicalPath": "skills/common/common-stitch-design/SKILL.md",
+      "canonicalSha256": "97f4ea072bda52ff98fce1711b60fe1edcf97670b2a882be753885409ff0f561",
+      "parity": true
+    },
+    {
+      "host": "antigravity",
+      "relPath": "common-stitch-design/references/prompting.md",
+      "mirrorPath": ".agents/skills/common/common-stitch-design/references/prompting.md",
+      "mirrorSha256": "a760e42e328654c2473f0078722cdc08f54add05d1870dd154ee4aa65cef9cd0",
+      "canonicalPath": "skills/common/common-stitch-design/references/prompting.md",
+      "canonicalSha256": "a760e42e328654c2473f0078722cdc08f54add05d1870dd154ee4aa65cef9cd0",
+      "parity": true
+    },
+    {
+      "host": "claude",
+      "relPath": "common-stitch-design/references/prompting.md",
+      "mirrorPath": ".claude/skills/common/common-stitch-design/references/prompting.md",
+      "mirrorSha256": "a760e42e328654c2473f0078722cdc08f54add05d1870dd154ee4aa65cef9cd0",
+      "canonicalPath": "skills/common/common-stitch-design/references/prompting.md",
+      "canonicalSha256": "a760e42e328654c2473f0078722cdc08f54add05d1870dd154ee4aa65cef9cd0",
+      "parity": true
+    },
+    {
+      "host": "codex",
+      "relPath": "common-stitch-design/references/prompting.md",
+      "mirrorPath": ".codex/skills/common/common-stitch-design/references/prompting.md",
+      "mirrorSha256": "a760e42e328654c2473f0078722cdc08f54add05d1870dd154ee4aa65cef9cd0",
+      "canonicalPath": "skills/common/common-stitch-design/references/prompting.md",
+      "canonicalSha256": "a760e42e328654c2473f0078722cdc08f54add05d1870dd154ee4aa65cef9cd0",
+      "parity": true
+    },
+    {
+      "host": "copilot",
+      "relPath": "common-stitch-design/references/prompting.md",
+      "mirrorPath": ".github/skills/common/common-stitch-design/references/prompting.md",
+      "mirrorSha256": "a760e42e328654c2473f0078722cdc08f54add05d1870dd154ee4aa65cef9cd0",
+      "canonicalPath": "skills/common/common-stitch-design/references/prompting.md",
+      "canonicalSha256": "a760e42e328654c2473f0078722cdc08f54add05d1870dd154ee4aa65cef9cd0",
+      "parity": true
+    }
+  ],
+  "mirrorParitySummary": {
+    "totalChecks": 24,
+    "passedChecks": 24,
+    "allParity": true
+  },
+  "validationGates": {
+    "audit:skills": {
+      "status": "PASS",
+      "detail": "No obvious redundancy found"
+    },
+    "audit:sdlc": {
+      "status": "PASS",
+      "detail": "SDLC audit passed across all workflows and specialists"
+    },
+    "check-alignment": {
+      "status": "PASS",
+      "detail": "All skills meet the 70% threshold (eval alignment)"
+    },
+    "audit:injection": {
+      "status": "PASS",
+      "detail": "No error-level injection patterns detected"
+    },
+    "freshness:audit": {
+      "status": "PASS",
+      "detail": "0 high-severity freshness issues"
+    },
+    "validate:all": {
+      "command": "cli/src/index.ts validate --all",
+      "status": "PASS",
+      "summary": {
+        "passed": 333,
+        "failed": 0,
+        "warnings": 55
+      },
+      "detail": "All 333 skills passed structure/frontmatter/format validation with 0 failures; common category v2.9.2 metadata verified valid"
+    }
+  },
+  "sddEvidencePreservation": {
+    "workingLocation": ".agent/sdd/stitch-human-direction",
+    "archiveLocation": "artifacts/stitch-human-direction/evidence",
+    "fileCount": 26,
+    "preGenerateHashVerification": "PASS (all 26 files match pre-generate-hashes.txt)"
+  }
+}

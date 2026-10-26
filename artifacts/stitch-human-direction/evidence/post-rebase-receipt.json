@@ -1,0 +1,292 @@
+{
+  "receiptVersion": "2.2.0-post-rebase",
+  "timestamp": "2026-10-26T10:04:08.909Z",
+  "environment": {
+    "worktree": "/Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/cheerful-termite",
+    "nodeVersion": "v26.12.1",
+    "rebaseBase": "origin/develop (4 upstream commits merged)",
+    "dependencyProvenance": {
+      "primaryCheckout": "/Users/nguyenhuyhoang/OtherProjects/agent-skills-standard",
+      "mode": "same-source checkout, patch-divergent from lock",
+      "stagingProcedure": "isolated mktemp -d staging, read-only symlink to primary node_modules, safe allowlist copyback"
+    }
+  },
+  "postRebaseBump": {
+    "common": {
+      "version": "2.9.2",
+      "last_updated": "2026-10-26"
+    },
+    "workflows": {
+      "version": "1.1.9"
+    }
+  },
+  "canonicalSources": {
+    "exported": {
+      "_INDEX.md": {
+        "path": "skills/common/_INDEX.md",
+        "sha256": "b1a4796bfd89a24260306873563173a24553cf90fc3fe3cc4f375f3b69351767"
+      },
+      "common-ui-design/SKILL.md": {
+        "path": "skills/common/common-ui-design/SKILL.md",
+        "sha256": "8ecc00ddab7c7d05086280fa11945f3b5c992cc96d90f6a1cc32ca4fdcc1f19e"
+      },
+      "common-ui-design/references/human-direction.md": {
+        "path": "skills/common/common-ui-design/references/human-direction.md",
+        "sha256": "dc64c86d842a3e0f2046b15488be3612a60e357251f04f3290ddf46c0fa21dff"
+      },
+      "common-ui-design/references/tones.md": {
+        "path": "skills/common/common-ui-design/references/tones.md",
+        "sha256": "a302e412eb0a59646a70a2defff2849715889f9aac6505e7c411430fc0577dfa"
+      },
+      "common-stitch-design/SKILL.md": {
+        "path": "skills/common/common-stitch-design/SKILL.md",
+        "sha256": "97f4ea072bda52ff98fce1711b60fe1edcf97670b2a882be753885409ff0f561"
+      },
+      "common-stitch-design/references/prompting.md": {
+        "path": "skills/common/common-stitch-design/references/prompting.md",
+        "sha256": "a760e42e328654c2473f0078722cdc08f54add05d1870dd154ee4aa65cef9cd0"
+      }
+    },
+    "canonicalOnly": {
+      "metadata.json": {
+        "path": "skills/metadata.json",
+        "sha256": "ca9384071b1193ec833879e86e729e2dc1a1789e19a199bb83c45b3b960dd596"
+      },
+      "create-stitch-design.md": {
+        "path": ".agents/workflows/create-stitch-design.md",
+        "sha256": "2c453a5657d6cf3ab5dddad61eb730e1a67253d5d45975d848f43e43d2490532"
+      },
+      "review-stitch-design.md": {
+        "path": ".agents/workflows/review-stitch-design.md",
+        "sha256": "8ebf2e4ef408cfad4fe9a5274f50b8fff270f7d11a58789767c2ac28b1693d9b"
+      },
+      "common-ui-design/evals/evals.json": {
+        "path": "skills/common/common-ui-design/evals/evals.json",
+        "sha256": "ceeec7dbf4fe5abfaa1d8b4d5056aa5a9f611cf460d2241c22745afab95ae894"
+      }
+    }
+  },
+  "mirrorParityMatrix": [
+    {
+      "host": "antigravity",
+      "relPath": "_INDEX.md",
+      "mirrorPath": ".agents/skills/common/_INDEX.md",
+      "mirrorSha256": "b1a4796bfd89a24260306873563173a24553cf90fc3fe3cc4f375f3b69351767",
+      "canonicalPath": "skills/common/_INDEX.md",
+      "canonicalSha256": "b1a4796bfd89a24260306873563173a24553cf90fc3fe3cc4f375f3b69351767",
+      "parity": true
+    },
+    {
+      "host": "claude",
+      "relPath": "_INDEX.md",
+      "mirrorPath": ".claude/skills/common/_INDEX.md",
+      "mirrorSha256": "b1a4796bfd89a24260306873563173a24553cf90fc3fe3cc4f375f3b69351767",
+      "canonicalPath": "skills/common/_INDEX.md",
+      "canonicalSha256": "b1a4796bfd89a24260306873563173a24553cf90fc3fe3cc4f375f3b69351767",
+      "parity": true
+    },
+    {
+      "host": "codex",
+      "relPath": "_INDEX.md",
+      "mirrorPath": ".codex/skills/common/_INDEX.md",
+      "mirrorSha256": "b1a4796bfd89a24260306873563173a24553cf90fc3fe3cc4f375f3b69351767",
+      "canonicalPath": "skills/common/_INDEX.md",
+      "canonicalSha256": "b1a4796bfd89a24260306873563173a24553cf90fc3fe3cc4f375f3b69351767",
+      "parity": true
+    },
+    {
+      "host": "copilot",
+      "relPath": "_INDEX.md",
+      "mirrorPath": ".github/skills/common/_INDEX.md",
+      "mirrorSha256": "b1a4796bfd89a24260306873563173a24553cf90fc3fe3cc4f375f3b69351767",
+      "canonicalPath": "skills/common/_INDEX.md",
+      "canonicalSha256": "b1a4796bfd89a24260306873563173a24553cf90fc3fe3cc4f375f3b69351767",
+      "parity": true
+    },
+    {
+      "host": "antigravity",
+      "relPath": "common-ui-design/SKILL.md",
+      "mirrorPath": ".agents/skills/common/common-ui-design/SKILL.md",
+      "mirrorSha256": "8ecc00ddab7c7d05086280fa11945f3b5c992cc96d90f6a1cc32ca4fdcc1f19e",
+      "canonicalPath": "skills/common/common-ui-design/SKILL.md",
+      "canonicalSha256": "8ecc00ddab7c7d05086280fa11945f3b5c992cc96d90f6a1cc32ca4fdcc1f19e",
+      "parity": true
+    },
+    {
+      "host": "claude",
+      "relPath": "common-ui-design/SKILL.md",
+      "mirrorPath": ".claude/skills/common/common-ui-design/SKILL.md",
+      "mirrorSha256": "8ecc00ddab7c7d05086280fa11945f3b5c992cc96d90f6a1cc32ca4fdcc1f19e",
+      "canonicalPath": "skills/common/common-ui-design/SKILL.md",
+      "canonicalSha256": "8ecc00ddab7c7d05086280fa11945f3b5c992cc96d90f6a1cc32ca4fdcc1f19e",
+      "parity": true
+    },
+    {
+      "host": "codex",
+      "relPath": "common-ui-design/SKILL.md",
+      "mirrorPath": ".codex/skills/common/common-ui-design/SKILL.md",
+      "mirrorSha256": "8ecc00ddab7c7d05086280fa11945f3b5c992cc96d90f6a1cc32ca4fdcc1f19e",
+      "canonicalPath": "skills/common/common-ui-design/SKILL.md",
+      "canonicalSha256": "8ecc00ddab7c7d05086280fa11945f3b5c992cc96d90f6a1cc32ca4fdcc1f19e",
+      "parity": true
+    },
+    {
+      "host": "copilot",
+      "relPath": "common-ui-design/SKILL.md",
+      "mirrorPath": ".github/skills/common/common-ui-design/SKILL.md",
+      "mirrorSha256": "8ecc00ddab7c7d05086280fa11945f3b5c992cc96d90f6a1cc32ca4fdcc1f19e",
+      "canonicalPath": "skills/common/common-ui-design/SKILL.md",
+      "canonicalSha256": "8ecc00ddab7c7d05086280fa11945f3b5c992cc96d90f6a1cc32ca4fdcc1f19e",
+      "parity": true
+    },
+    {
+      "host": "antigravity",
+      "relPath": "common-ui-design/references/human-direction.md",
+      "mirrorPath": ".agents/skills/common/common-ui-design/references/human-direction.md",
+      "mirrorSha256": "dc64c86d842a3e0f2046b15488be3612a60e357251f04f3290ddf46c0fa21dff",
+      "canonicalPath": "skills/common/common-ui-design/references/human-direction.md",
+      "canonicalSha256": "dc64c86d842a3e0f2046b15488be3612a60e357251f04f3290ddf46c0fa21dff",
+      "parity": true
+    },
+    {
+      "host": "claude",
+      "relPath": "common-ui-design/references/human-direction.md",
+      "mirrorPath": ".claude/skills/common/common-ui-design/references/human-direction.md",
+      "mirrorSha256": "dc64c86d842a3e0f2046b15488be3612a60e357251f04f3290ddf46c0fa21dff",
+      "canonicalPath": "skills/common/common-ui-design/references/human-direction.md",
+      "canonicalSha256": "dc64c86d842a3e0f2046b15488be3612a60e357251f04f3290ddf46c0fa21dff",
+      "parity": true
+    },
+    {
+      "host": "codex",
+      "relPath": "common-ui-design/references/human-direction.md",
+      "mirrorPath": ".codex/skills/common/common-ui-design/references/human-direction.md",
+      "mirrorSha256": "dc64c86d842a3e0f2046b15488be3612a60e357251f04f3290ddf46c0fa21dff",
+      "canonicalPath": "skills/common/common-ui-design/references/human-direction.md",
+      "canonicalSha256": "dc64c86d842a3e0f2046b15488be3612a60e357251f04f3290ddf46c0fa21dff",
+      "parity": true
+    },
+    {
+      "host": "copilot",
+      "relPath": "common-ui-design/references/human-direction.md",
+      "mirrorPath": ".github/skills/common/common-ui-design/references/human-direction.md",
+      "mirrorSha256": "dc64c86d842a3e0f2046b15488be3612a60e357251f04f3290ddf46c0fa21dff",
+      "canonicalPath": "skills/common/common-ui-design/references/human-direction.md",
+      "canonicalSha256": "dc64c86d842a3e0f2046b15488be3612a60e357251f04f3290ddf46c0fa21dff",
+      "parity": true
+    },
+    {
+      "host": "antigravity",
+      "relPath": "common-ui-design/references/tones.md",
+      "mirrorPath": ".agents/skills/common/common-ui-design/references/tones.md",
+      "mirrorSha256": "a302e412eb0a59646a70a2defff2849715889f9aac6505e7c411430fc0577dfa",
+      "canonicalPath": "skills/common/common-ui-design/references/tones.md",
+      "canonicalSha256": "a302e412eb0a59646a70a2defff2849715889f9aac6505e7c411430fc0577dfa",
+      "parity": true
+    },
+    {
+      "host": "claude",
+      "relPath": "common-ui-design/references/tones.md",
+      "mirrorPath": ".claude/skills/common/common-ui-design/references/tones.md",
+      "mirrorSha256": "a302e412eb0a59646a70a2defff2849715889f9aac6505e7c411430fc0577dfa",
+      "canonicalPath": "skills/common/common-ui-design/references/tones.md",
+      "canonicalSha256": "a302e412eb0a59646a70a2defff2849715889f9aac6505e7c411430fc0577dfa",
+      "parity": true
+    },
+    {
+      "host": "codex",
+      "relPath": "common-ui-design/references/tones.md",
+      "mirrorPath": ".codex/skills/common/common-ui-design/references/tones.md",
+      "mirrorSha256": "a302e412eb0a59646a70a2defff2849715889f9aac6505e7c411430fc0577dfa",
+      "canonicalPath": "skills/common/common-ui-design/references/tones.md",
+      "canonicalSha256": "a302e412eb0a59646a70a2defff2849715889f9aac6505e7c411430fc0577dfa",
+      "parity": true
+    },
+    {
+      "host": "copilot",
+      "relPath": "common-ui-design/references/tones.md",
+      "mirrorPath": ".github/skills/common/common-ui-design/references/tones.md",
+      "mirrorSha256": "a302e412eb0a59646a70a2defff2849715889f9aac6505e7c411430fc0577dfa",
+      "canonicalPath": "skills/common/common-ui-design/references/tones.md",
+      "canonicalSha256": "a302e412eb0a59646a70a2defff2849715889f9aac6505e7c411430fc0577dfa",
+      "parity": true
+    },
+    {
+      "host": "antigravity",
+      "relPath": "common-stitch-design/SKILL.md",
+      "mirrorPath": ".agents/skills/common/common-stitch-design/SKILL.md",
+      "mirrorSha256": "97f4ea072bda52ff98fce1711b60fe1edcf97670b2a882be753885409ff0f561",
+      "canonicalPath": "skills/common/common-stitch-design/SKILL.md",
+      "canonicalSha256": "97f4ea072bda52ff98fce1711b60fe1edcf97670b2a882be753885409ff0f561",
+      "parity": true
+    },
+    {
+      "host": "claude",
+      "relPath": "common-stitch-design/SKILL.md",
+      "mirrorPath": ".claude/skills/common/common-stitch-design/SKILL.md",
+      "mirrorSha256": "97f4ea072bda52ff98fce1711b60fe1edcf97670b2a882be753885409ff0f561",
+      "canonicalPath": "skills/common/common-stitch-design/SKILL.md",
+      "canonicalSha256": "97f4ea072bda52ff98fce1711b60fe1edcf97670b2a882be753885409ff0f561",
+      "parity": true
+    },
+    {
+      "host": "codex",
+      "relPath": "common-stitch-design/SKILL.md",
+      "mirrorPath": ".codex/skills/common/common-stitch-design/SKILL.md",
+      "mirrorSha256": "97f4ea072bda52ff98fce1711b60fe1edcf97670b2a882be753885409ff0f561",
+      "canonicalPath": "skills/common/common-stitch-design/SKILL.md",
+      "canonicalSha256": "97f4ea072bda52ff98fce1711b60fe1edcf97670b2a882be753885409ff0f561",
+      "parity": true
+    },
+    {
+      "host": "copilot",
+      "relPath": "common-stitch-design/SKILL.md",
+      "mirrorPath": ".github/skills/common/common-stitch-design/SKILL.md",
+      "mirrorSha256": "97f4ea072bda52ff98fce1711b60fe1edcf97670b2a882be753885409ff0f561",
+      "canonicalPath": "skills/common/common-stitch-design/SKILL.md",
+      "canonicalSha256": "97f4ea072bda52ff98fce1711b60fe1edcf97670b2a882be753885409ff0f561",
+      "parity": true
+    },
+    {
+      "host": "antigravity",
+      "relPath": "common-stitch-design/references/prompting.md",
+      "mirrorPath": ".agents/skills/common/common-stitch-design/references/prompting.md",
+      "mirrorSha256": "a760e42e328654c2473f0078722cdc08f54add05d1870dd154ee4aa65cef9cd0",
+      "canonicalPath": "skills/common/common-stitch-design/references/prompting.md",
+      "canonicalSha256": "a760e42e328654c2473f0078722cdc08f54add05d1870dd154ee4aa65cef9cd0",
+      "parity": true
+    },
+    {
+      "host": "claude",
+      "relPath": "common-stitch-design/references/prompting.md",
+      "mirrorPath": ".claude/skills/common/common-stitch-design/references/prompting.md",
+      "mirrorSha256": "a760e42e328654c2473f0078722cdc08f54add05d1870dd154ee4aa65cef9cd0",
+      "canonicalPath": "skills/common/common-stitch-design/references/prompting.md",
+      "canonicalSha256": "a760e42e328654c2473f0078722cdc08f54add05d1870dd154ee4aa65cef9cd0",
+      "parity": true
+    },
+    {
+      "host": "codex",
+      "relPath": "common-stitch-design/references/prompting.md",
+      "mirrorPath": ".codex/skills/common/common-stitch-design/references/prompting.md",
+      "mirrorSha256": "a760e42e328654c2473f0078722cdc08f54add05d1870dd154ee4aa65cef9cd0",
+      "canonicalPath": "skills/common/common-stitch-design/references/prompting.md",
+      "canonicalSha256": "a760e42e328654c2473f0078722cdc08f54add05d1870dd154ee4aa65cef9cd0",
+      "parity": true
+    },
+    {
+      "host": "copilot",
+      "relPath": "common-stitch-design/references/prompting.md",
+      "mirrorPath": ".github/skills/common/common-stitch-design/references/prompting.md",
+      "mirrorSha256": "a760e42e328654c2473f0078722cdc08f54add05d1870dd154ee4aa65cef9cd0",
+      "canonicalPath": "skills/common/common-stitch-design/references/prompting.md",
+      "canonicalSha256": "a760e42e328654c2473f0078722cdc08f54add05d1870dd154ee4aa65cef9cd0",
+      "parity": true
+    }
+  ],
+  "mirrorParitySummary": {
+    "totalChecks": 24,
+    "passedChecks": 24,
+    "allParity": true
+  }
+}

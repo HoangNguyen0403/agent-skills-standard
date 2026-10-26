@@ -1,0 +1,205 @@
+/* hero-routing.module.css - Styles for interactive hero curated selector and rule preview */
+
+.selectorContainer {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 16px;
+}
+
+.selectorLabel {
+  display: block;
+  font-family: var(--font-mono, "IBM Plex Mono", monospace);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted, #bbc3ba);
+  margin-bottom: 8px;
+}
+
+.selectorOptions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.selectorPill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  border: 1px solid rgba(187, 195, 186, 0.25);
+  background: rgba(16, 19, 18, 0.5);
+  color: var(--muted, #bbc3ba);
+  font-family: var(--font-mono, "IBM Plex Mono", monospace);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
+  box-sizing: border-box;
+}
+
+.selectorPill:hover {
+  border-color: rgba(199, 243, 107, 0.5);
+  color: var(--paper, #f5f2e9);
+}
+
+.selectorPill:focus-visible {
+  outline: 2px solid var(--lime, #c7f36b);
+  outline-offset: 2px;
+}
+
+.selectorPillActive {
+  background: rgba(199, 243, 107, 0.12);
+  border-color: var(--lime, #c7f36b);
+  color: var(--lime, #c7f36b);
+  font-weight: 600;
+}
+
+/* CSS Grid Stack: All options occupy the exact same grid cell (1/1).
+   The active option is visible; inactive options are inert and visibility:hidden,
+   naturally expanding the stack to the max-height of the tallest option.
+   Zero layout shifts or guessed min-height across viewport sizes (320px, 375px, desktop). */
+.nodeStack {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+  align-items: stretch;
+}
+
+.nodeStackLayer {
+  grid-column: 1 / 2;
+  grid-row: 1 / 2;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 140ms ease;
+}
+
+.nodeStackLayerActive {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.pathWrap {
+  word-break: break-all;
+  overflow-wrap: anywhere;
+}
+
+/* Typewriter reveal for sample file in Node 1.
+   Inline-block with natural DOM text preserves 100% of the reserved geometry.
+   Stepped clip-path reveals characters cleanly without layout shift. */
+.sampleFile {
+  display: inline-block;
+  vertical-align: bottom;
+  white-space: nowrap;
+}
+
+[data-motion="routing"][data-motion-state="running"]
+  .nodeStackLayerActive
+  .sampleFile {
+  animation: sampleFileTypewriter 480ms steps(12, end) forwards;
+}
+
+[data-motion="routing"][data-motion-state="running"]
+  .nodeStackLayerActive
+  .sampleFile[data-sample-file="checkout.ts"] {
+  animation-timing-function: steps(11, end);
+}
+
+[data-motion="routing"][data-motion-state="running"]
+  .nodeStackLayerActive
+  .sampleFile[data-sample-file="Button.tsx"] {
+  animation-timing-function: steps(10, end);
+}
+
+[data-motion="routing"][data-motion-state="running"]
+  .nodeStackLayerActive
+  .sampleFile[data-sample-file="checkout_test.go"] {
+  animation-timing-function: steps(16, end);
+}
+
+[data-motion="routing"][data-motion-state="complete"] .sampleFile {
+  -webkit-clip-path: none;
+  clip-path: none;
+}
+
+@keyframes sampleFileTypewriter {
+  0% {
+    -webkit-clip-path: inset(0 100% 0 0);
+    clip-path: inset(0 100% 0 0);
+  }
+  100% {
+    -webkit-clip-path: inset(0 0 0 0);
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.ruleExcerptBox {
+  margin-top: 10px;
+  padding: 8px 10px;
+  box-sizing: border-box;
+  background: rgba(16, 19, 18, 0.7);
+  border-left: 2px solid var(--lime, #c7f36b);
+  border-radius: 0 4px 4px 0;
+  font-family: var(--font-mono, "IBM Plex Mono", monospace);
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--paper, #f5f2e9);
+  word-break: break-word;
+}
+
+.ruleSourceLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-family: var(--font-mono, "IBM Plex Mono", monospace);
+  font-size: 12px;
+  color: var(--lime, #c7f36b);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: opacity 150ms ease;
+}
+
+.ruleSourceLink:hover {
+  opacity: 0.85;
+}
+
+.ruleSourceLink:focus-visible {
+  outline: 2px solid var(--lime, #c7f36b);
+  outline-offset: 2px;
+}
+
+/* Visually hidden utility for screen readers */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Reduced motion overrides */
+@media (prefers-reduced-motion: reduce) {
+  .selectorPill,
+  .nodeStackLayer,
+  .ruleSourceLink {
+    transition-duration: 0.001ms !important;
+  }
+
+  .sampleFile {
+    animation: none !important;
+    -webkit-clip-path: none !important;
+    clip-path: none !important;
+  }
+}

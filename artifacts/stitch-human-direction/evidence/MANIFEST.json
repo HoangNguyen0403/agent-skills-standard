@@ -1,0 +1,205 @@
+[
+  {
+    "artifact": "artifacts/stitch-human-direction/evidence/eval-criteria.json",
+    "sha256": "451979bea8237b0db6b8f95541c36a923c89223779a0e1aea2bc398c3c7ad698",
+    "source": ".agent/sdd/stitch-human-direction/eval-criteria.json",
+    "sourceSha256": "451979bea8237b0db6b8f95541c36a923c89223779a0e1aea2bc398c3c7ad698",
+    "identical": true
+  },
+  {
+    "artifact": "artifacts/stitch-human-direction/evidence/eval/assessment.json",
+    "sha256": "0217c81f353bd88cef3f3a9746c0ab35202417b0ce86afce0d73c798175ce7da",
+    "source": ".agent/sdd/stitch-human-direction/eval/assessment.json",
+    "sourceSha256": "0217c81f353bd88cef3f3a9746c0ab35202417b0ce86afce0d73c798175ce7da",
+    "identical": true
+  },
+  {
+    "artifact": "artifacts/stitch-human-direction/evidence/eval/baseline.json",
+    "sha256": "2a2fef44b2c5a4a5728793a4640c3e160aeb4e6a7a0d8faf05bb72baadefe330",
+    "source": ".agent/sdd/stitch-human-direction/eval/baseline.json",
+    "sourceSha256": "2a2fef44b2c5a4a5728793a4640c3e160aeb4e6a7a0d8faf05bb72baadefe330",
+    "identical": true
+  },
+  {
+    "artifact": "artifacts/stitch-human-direction/evidence/eval/candidate.json",
+    "sha256": "c4d4253b662cfa7e257059d501460eb4441d0063a9e547ee2a608d420035d858",
+    "source": ".agent/sdd/stitch-human-direction/eval/candidate.json",
+    "sourceSha256": "c4d4253b662cfa7e257059d501460eb4441d0063a9e547ee2a608d420035d858",
+    "identical": true
+  },
+  {
+    "artifact": "artifacts/stitch-human-direction/evidence/eval/comparison-limits.json",
+    "sha256": "6d6d88f2ddcaa2af76abbd47568dc4cbdd819bb625be94dc7bca9c2f3ec5719b",
+    "source": ".agent/sdd/stitch-human-direction/eval/comparison-limits.json",
+    "sourceSha256": "6d6d88f2ddcaa2af76abbd47568dc4cbdd819bb625be94dc7bca9c2f3ec5719b",
+    "identical": true
+  },
+  {
+    "artifact": "artifacts/stitch-human-direction/evidence/final-contract-review.json",
+    "sha256": "aa520d2e8730a5861a97380b178def809d50c905017bc0b421fcbd8ae9d08cc8",
+    "source": ".agent/sdd/stitch-human-direction/final-contract-review.json",
+    "sourceSha256": "aa520d2e8730a5861a97380b178def809d50c905017bc0b421fcbd8ae9d08cc8",
+    "identical": true
+  },
+  {
+    "artifact": "artifacts/stitch-human-direction/evidence/integration-receipt.json",
+    "sha256": "96aec9c66138e46b7ebab56c6c02bf69e723b608482370bf874165f6b9f69b1a",
+    "source": ".agent/sdd/stitch-human-direction/integration-receipt.json",
+    "sourceSha256": "96aec9c66138e46b7ebab56c6c02bf69e723b608482370bf874165f6b9f69b1a",
+    "identical": true
+  },
+  {
+    "artifact": "artifacts/stitch-human-direction/evidence/parent-smoke.json",
+    "sha256": "6b8148a27bad2b857df9ed07cf7fbb92b11940debed6251e162575bc0c1eceff",
+    "source": ".agent/sdd/stitch-human-direction/parent-smoke.json",
+    "sourceSha256": "6b8148a27bad2b857df9ed07cf7fbb92b11940debed6251e162575bc0c1eceff",
+    "identical": true
+  },
+  {
+    "artifact": "artifacts/stitch-human-direction/evidence/progress.md",
+    "sha256": "8543f1874ea1430a4c52ba8f88a6f5f7aef8c6dc520886ee3284e254faec9ac3",
+    "source": ".agent/sdd/stitch-human-direction/progress.md",
+    "sourceSha256": "8543f1874ea1430a4c52ba8f88a6f5f7aef8c6dc520886ee3284e254faec9ac3",
+    "identical": true
+  },
+  {
+    "artifact": "artifacts/stitch-human-direction/evidence/scenarios.json",
+    "sha256": "0969492113b92fe2f2726f5b985d8f082c5fb667b4c7bdf410db9604c628e2eb",
+    "source": ".agent/sdd/stitch-human-direction/scenarios.json",
+    "sourceSha256": "0969492113b92fe2f2726f5b985d8f082c5fb667b4c7bdf410db9604c628e2eb",
+    "identical": true
+  },
+  {
+    "artifact": "artifacts/stitch-human-direction/evidence/skill-snapshot/SKILL.md",
+    "sha256": "309c229e2d47b6dcd4fdf8a269c4e735a51aa6880b141536445ef94eb000d277",
+    "source": ".agent/sdd/stitch-human-direction/skill-snapshot/SKILL.md",
+    "sourceSha256": "309c229e2d47b6dcd4fdf8a269c4e735a51aa6880b141536445ef94eb000d277",
+    "identical": true
+  },
+  {
+    "artifact": "artifacts/stitch-human-direction/evidence/skill-snapshot/common-stitch-design/SKILL.md",
+    "sha256": "157e933bf2b195a7fba0abf34e3454b42d8d5486d9a7bec36d3f4b4d657d9857",
+    "source": ".agent/sdd/stitch-human-direction/skill-snapshot/common-stitch-design/SKILL.md",
+    "sourceSha256": "157e933bf2b195a7fba0abf34e3454b42d8d5486d9a7bec36d3f4b4d657d9857",
+    "identical": true
+  },
+  {
+    "artifact": "artifacts/stitch-human-direction/evidence/skill-snapshot/common-stitch-design/evals/evals.json",
+    "sha256": "f2adcb9fdb7e68e6a8a75689c132c548dcbfb552cdca8073d9b6893aae93858f",
+    "source": ".agent/sdd/stitch-human-direction/skill-snapshot/common-stitch-design/evals/evals.json",
+    "sourceSha256": "f2adcb9fdb7e68e6a8a75689c132c548dcbfb552cdca8073d9b6893aae93858f",
+    "identical": true
+  },
+  {
+    "artifact": "artifacts/stitch-human-direction/evidence/skill-snapshot/common-stitch-design/references/design-md.md",
+    "sha256": "858990de8d3d8b9ea3fa3435b0e4064dbd44adc4d6ea04d476e1b21004d6a24a",
+    "source": ".agent/sdd/stitch-human-direction/skill-snapshot/common-stitch-design/references/design-md.md",
+    "sourceSha256": "858990de8d3d8b9ea3fa3435b0e4064dbd44adc4d6ea04d476e1b21004d6a24a",
+    "identical": true
+  },
+  {
+    "artifact": "artifacts/stitch-human-direction/evidence/skill-snapshot/common-stitch-design/references/prompting.md",
+    "sha256": "38252b6b4a7885ca3609efb553beaadd8543f58108429393b1b8814157089e35",
+    "source": ".agent/sdd/stitch-human-direction/skill-snapshot/common-stitch-design/references/prompting.md",
+    "sourceSha256": "38252b6b4a7885ca3609efb553beaadd8543f58108429393b1b8814157089e35",
+    "identical": true
+  },
+  {
+    "artifact": "artifacts/stitch-human-direction/evidence/skill-snapshot/common-stitch-design/references/stitch-mcp.md",
+    "sha256": "081a5150e14febe72972c8d3d6243ecff5e4cdfdf95979c6b188522f96121acb",
+    "source": ".agent/sdd/stitch-human-direction/skill-snapshot/common-stitch-design/references/stitch-mcp.md",
+    "sourceSha256": "081a5150e14febe72972c8d3d6243ecff5e4cdfdf95979c6b188522f96121acb",
+    "identical": true
+  },
+  {
+    "artifact": "artifacts/stitch-human-direction/evidence/skill-snapshot/common-stitch-design/scripts/audit_html.js",
+    "sha256": "75beccf5fab2820f2755fbe6a6f8ff69e17898b2eef4487b8bbb29833366bcde",
+    "source": ".agent/sdd/stitch-human-direction/skill-snapshot/common-stitch-design/scripts/audit_html.js",
+    "sourceSha256": "75beccf5fab2820f2755fbe6a6f8ff69e17898b2eef4487b8bbb29833366bcde",
+    "identical": true
+  },
+  {
+    "artifact": "artifacts/stitch-human-direction/evidence/skill-snapshot/common-stitch-design/scripts/audit_html.test.js",
+    "sha256": "a8cd3311df093158b9d22bcbb5ec595e3d2f3f7ff73403dee8c4b062735185ef",
+    "source": ".agent/sdd/stitch-human-direction/skill-snapshot/common-stitch-design/scripts/audit_html.test.js",
+    "sourceSha256": "a8cd3311df093158b9d22bcbb5ec595e3d2f3f7ff73403dee8c4b062735185ef",
+    "identical": true
+  },
+  {
+    "artifact": "artifacts/stitch-human-direction/evidence/skill-snapshot/common-ui-design/SKILL.md",
+    "sha256": "309c229e2d47b6dcd4fdf8a269c4e735a51aa6880b141536445ef94eb000d277",
+    "source": ".agent/sdd/stitch-human-direction/skill-snapshot/common-ui-design/SKILL.md",
+    "sourceSha256": "309c229e2d47b6dcd4fdf8a269c4e735a51aa6880b141536445ef94eb000d277",
+    "identical": true
+  },
+  {
+    "artifact": "artifacts/stitch-human-direction/evidence/skill-snapshot/common-ui-design/evals/evals.json",
+    "sha256": "538a7ecb24e9a58efdc5a499221c8c40dae42fabccba8709e5a4d6df00efb74a",
+    "source": ".agent/sdd/stitch-human-direction/skill-snapshot/common-ui-design/evals/evals.json",
+    "sourceSha256": "538a7ecb24e9a58efdc5a499221c8c40dae42fabccba8709e5a4d6df00efb74a",
+    "identical": true
+  },
+  {
+    "artifact": "artifacts/stitch-human-direction/evidence/skill-snapshot/common-ui-design/references/motion.md",
+    "sha256": "779f48806d18ad3f33eb5b6765c13888359f36c076fbc17852470575e98c9528",
+    "source": ".agent/sdd/stitch-human-direction/skill-snapshot/common-ui-design/references/motion.md",
+    "sourceSha256": "779f48806d18ad3f33eb5b6765c13888359f36c076fbc17852470575e98c9528",
+    "identical": true
+  },
+  {
+    "artifact": "artifacts/stitch-human-direction/evidence/skill-snapshot/common-ui-design/references/tones.md",
+    "sha256": "bbc1f418c102420f47a1ef7a1238fcc229d8259520c3e3081ed57c34ae8ee239",
+    "source": ".agent/sdd/stitch-human-direction/skill-snapshot/common-ui-design/references/tones.md",
+    "sourceSha256": "bbc1f418c102420f47a1ef7a1238fcc229d8259520c3e3081ed57c34ae8ee239",
+    "identical": true
+  },
+  {
+    "artifact": "artifacts/stitch-human-direction/evidence/skill-snapshot/evals/evals.json",
+    "sha256": "538a7ecb24e9a58efdc5a499221c8c40dae42fabccba8709e5a4d6df00efb74a",
+    "source": ".agent/sdd/stitch-human-direction/skill-snapshot/evals/evals.json",
+    "sourceSha256": "538a7ecb24e9a58efdc5a499221c8c40dae42fabccba8709e5a4d6df00efb74a",
+    "identical": true
+  },
+  {
+    "artifact": "artifacts/stitch-human-direction/evidence/skill-snapshot/references/motion.md",
+    "sha256": "779f48806d18ad3f33eb5b6765c13888359f36c076fbc17852470575e98c9528",
+    "source": ".agent/sdd/stitch-human-direction/skill-snapshot/references/motion.md",
+    "sourceSha256": "779f48806d18ad3f33eb5b6765c13888359f36c076fbc17852470575e98c9528",
+    "identical": true
+  },
+  {
+    "artifact": "artifacts/stitch-human-direction/evidence/skill-snapshot/references/tones.md",
+    "sha256": "bbc1f418c102420f47a1ef7a1238fcc229d8259520c3e3081ed57c34ae8ee239",
+    "source": ".agent/sdd/stitch-human-direction/skill-snapshot/references/tones.md",
+    "sourceSha256": "bbc1f418c102420f47a1ef7a1238fcc229d8259520c3e3081ed57c34ae8ee239",
+    "identical": true
+  },
+  {
+    "artifact": "artifacts/stitch-human-direction/evidence/skill-snapshot/workflows/create-stitch-design.md",
+    "sha256": "6686795fa56ca76755a36050aaddefbefe1dbaa4454932293941ccaf64b031c2",
+    "source": ".agent/sdd/stitch-human-direction/skill-snapshot/workflows/create-stitch-design.md",
+    "sourceSha256": "6686795fa56ca76755a36050aaddefbefe1dbaa4454932293941ccaf64b031c2",
+    "identical": true
+  },
+  {
+    "artifact": "artifacts/stitch-human-direction/evidence/skill-snapshot/workflows/review-stitch-design.md",
+    "sha256": "a850e36b9cc135ec608a8d712109e0b111c46821f303eabbb7272409c5e793cb",
+    "source": ".agent/sdd/stitch-human-direction/skill-snapshot/workflows/review-stitch-design.md",
+    "sourceSha256": "a850e36b9cc135ec608a8d712109e0b111c46821f303eabbb7272409c5e793cb",
+    "identical": true
+  },
+  {
+    "artifact": "artifacts/stitch-human-direction/evidence/source-review.json",
+    "sha256": "80e9c3d9b542be913105547a8534aff9991c246f84a7743b23ea3e21dc75bd95",
+    "source": ".agent/sdd/stitch-human-direction/source-review.json",
+    "sourceSha256": "80e9c3d9b542be913105547a8534aff9991c246f84a7743b23ea3e21dc75bd95",
+    "identical": true
+  },
+  {
+    "artifact": "artifacts/stitch-human-direction/evidence/post-rebase-receipt.json",
+    "sha256": "e33409ea2a2cc4118d67a53b2030392b27797f1cf8cb1c7b167dd894cc6bb622",
+    "source": ".agent/sdd/stitch-human-direction/post-rebase-receipt.json",
+    "sourceSha256": "e33409ea2a2cc4118d67a53b2030392b27797f1cf8cb1c7b167dd894cc6bb622",
+    "identical": true
+  }
+]

@@ -36,6 +36,22 @@ For website-local licensed font and image generation, first provision the pinned
 
 The Lighthouse script writes the complete three-run JSON receipt to ignored `website/test-results/lighthouse-summary.json`; failures and incomplete runs are recorded and fail closed. It compares unrounded medians against the score/LCP/CLS thresholds. This is lab evidence only, not a field INP measurement. The script does not claim that audits were run or passed merely because it exists. Lighthouse requires a separately served, verified export and a recorded actual Chrome executable/version; Playwright manages its own server and must not share a manually started listener.
 
+## Interactive hero and setup handoff — 2026-10-25
+
+The hero offers curated TypeScript (`checkout.ts`), React (`Button.tsx`), and Go (`checkout_test.go`) examples. Each selection displays its file trigger, category index, matching skill, source excerpt, and GitHub source link. This is an illustrative walkthrough, not live agent execution. Update `src/landing/hero-examples.data.ts` against the canonical skill files when changing examples.
+
+Headline and CTA entrances share one observed motion boundary, completing within 520ms; the existing finite routing highlight and Replay lifecycle remain intact. Overlaid, accessibility-hidden sizing layers reserve the complete example geometry so switching does not resize the panel. Reduced-motion visitors receive immediate states. Without JavaScript, the default explanation and source link remain readable, selectors are disabled, and Replay is absent.
+
+Quick start presents prerequisites and setup documentation before two numbered steps: initialize repository configuration, then sync standards. Copy feedback does not imply that either command has executed.
+
+Local verification passed typecheck, lint, formatting, static export/CSP generation, 14 unit tests, and all 63 existing Chromium browser cases across desktop/mobile/tablet. The installed lockfile's jsdom/Undici stack failed to initialize under the host Node 22.14 runtime; the same unit suite passed under an isolated Node 24.22.1 runtime, without dependency or configuration changes. The Vite native-config migration warning remains.
+
+A separate production-export browser smoke verified keyboard selection, source-link alignment, setup navigation, reduced motion, no-JavaScript content, and no horizontal page overflow. Panel heights stayed identical through all example switches at 320px, 375px, 768px, and 1440px. Independent source review found no remaining substantive findings after motion ownership and sizing fixes. These are local implementation receipts, not measured conversion uplift, a new Lighthouse result, human usability sign-off, or deployment approval.
+
+The specimen no longer displays its source-revision badge; its pinned **View source** link remains. Hero sample filenames now use a 480ms stepped typewriter reveal on routing entry and Replay, without timers, looping cursors, or changing layout width. Reduced-motion and no-JavaScript states show the complete filename.
+
+After this refinement, typecheck, lint, static export/CSP generation, 14 unit tests (isolated Node 24), and all 63 Chromium browser cases passed. A targeted real-animation smoke measured clip progression from 100% hidden through 54.5455% to fully revealed, with the filename width unchanged at 92.40625px. It also verified no page overflow at 320px/375px/768px, reduced-motion/static no-JavaScript fallbacks, retained source links, and no browser page errors. Independent source review reported no substantive findings; mobile visual inspection confirmed removal of the badge.
+
 ## Final local verification checkpoint — 2026-10-09
 
 The settled website source passed scoped typecheck, lint, format check, and Next.js static export/CSP generation. Unit tests passed 12/12 across three files, including the motion-observer disposal regression (actual RED: stale callback changed `idle` to `complete`; unchanged test GREEN after the disposed-effect guard). The complete Playwright run passed 63/63 cases: 21 consumer cases across Chromium desktop, mobile, and tablet presets, with retries disabled, in 39.1 seconds. Coverage is diagnostic only; these results do not establish full-page coverage or substitute for root recursive CI.

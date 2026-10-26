@@ -24,7 +24,7 @@
 | **common-skill-creator** | `SKILL.md`, `evals/evals.json` | create skill, audit skill, trigger rate, optimize description |
 | **common-software-requirements** | `SRS.md`, `docs/srs/srs-*.md`, `specs/*.md` | create srs, software requirements, functional specification, system behavior spec, technical requirements, non-functional requirements |
 | common-stitch-design | `DESIGN.md`, `.stitch/**` | stitch, google stitch, stitch mcp, design.md, stitch screen, stitch variants |
-| common-subagent-driven-development | `docs/**/plans/*.md`, `.agent/sdd/**`, `*plan*.md`, `TODO.md` | subagent-driven-development, implement plan, execute plan, implement this plan, implement PR, implement tasks, execute tasks, start implementation, plan implementation, subagent driven, multi-task implementation, sdd |
+| common-subagent-driven-development | `docs/**/plans/*.md`, `.agent/sdd/**`, `*plan*.md`, `TODO.md` | subagent-driven-development, subagent, implement plan, execute plan, implement this plan, implement PR, implement tasks, execute tasks, start implementation, plan implementation, subagent driven, multi-task implementation, sdd |
 | **common-tdd** | `**/*.test.ts`, `**/*.spec.ts`, `**/*_test.go`, `**/*Test.java`, `**/*_test.dart`, `**/*_spec.rb` | tdd, unit test, write test, red green refactor, failing test, test coverage |
 | **common-workflow-writing** | `.agents/workflows/*.md`, `SKILL.md` | create workflow, write workflow, new skill, new workflow |
 
@@ -33,6 +33,7 @@
 | Skill | Match when user mentions |
 | ----- | ----------------------- |
 | **common-best-practices** | solid, kiss, dry, yagni, naming, conventions, refactor, clean code |
+| common-book-to-skill | book to skill, book-to-skill, convert a book to a skill |
 | common-code-review | review, pr, critique, analyze code |
 | common-dast-tooling | DAST, dynamic scan, zap, nuclei, nikto, curl probe, pentest, dynamic analysis, sqlmap, ffuf, mobile proxy |
 | common-debugging | debug, fix bug, crash, error, exception, troubleshooting |
@@ -46,7 +47,7 @@
 | **common-operator-profile** | operator profile, audience adaptation, non-technical stakeholder, business owner, plain language summary |
 | **common-owasp** | security review, OWASP, broken access control, IDOR, BOLA, injection, broken auth, API review, authorization, access control, mobile security |
 | **common-pentest-methodology** | pentest, penetration test, red team, attack surface, threat model, PTES, security assessment, exploit, hacker score |
-| **common-performance-engineering** | performance, optimize, profile, scalability, latency, throughput, memory leak, bottleneck |
+| **common-performance-engineering** | performance, optimize, profiling, scalability, latency, throughput, memory leak, bottleneck |
 | **common-protocol-enforcement** | verify done, protocol check, self-scan, pre-write audit, task complete, audit violations, retrospective, scan, red-team |
 | **common-security-standards** | security, encrypt, authenticate, authorize |
 | common-store-changelog | generate changelog, app store notes, play store release, what's new, release notes, version notes, store release |

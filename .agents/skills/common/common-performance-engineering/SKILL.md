@@ -15,7 +15,7 @@ metadata:
     keywords:
     - performance
     - optimize
-    - profile
+    - profiling
     - scalability
     - latency
     - throughput
