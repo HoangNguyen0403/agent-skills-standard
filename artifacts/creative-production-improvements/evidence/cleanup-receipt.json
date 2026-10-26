@@ -1,0 +1,52 @@
+{
+  "receipt_version": "1.0.0",
+  "recorded_on": "2026-10-27",
+  "operation": "Archive and remove only the plan-specific SDD scratch directory after report byte-parity and successor-manifest resolution checks.",
+  "removed_scratch_directory": ".superpowers/sdd/creative-production-improvements",
+  "removed_files_count": 23,
+  "removed_directory_absent_after_cleanup": true,
+  "archived_reports_directory": "artifacts/creative-production-improvements/evidence/reports/",
+  "archive_byte_parity_verified_before_cleanup": true,
+  "predecessor_manifest": {
+    "path": "artifacts/creative-production-improvements/evidence/reviewed-manifest.json",
+    "sha256": "c27870968cba87d5d993dcf81f449f6df2e7a6e1f388a6f404b45603f62cefef"
+  },
+  "successor_manifest_checkpoint": {
+    "path": "artifacts/creative-production-improvements/evidence/MANIFEST.json",
+    "sha256": "b7d428dd7e85c7ec3fca9530f4d12b426d52c3d38d513aa4d30b99bf6c09d215",
+    "meaning": "Successor manifest hash resolved all evidence and archive paths immediately before the verified scratch cleanup. The final successor adds this receipt and its digest, avoiding a circular self-hash."
+  },
+  "final_successor_manifest_binding": "The final MANIFEST.json lists this cleanup receipt and its SHA-256; that final manifest is the successor to the checkpoint above and the predecessor manifest recorded here.",
+  "removed_files": [
+    {"scratch_path":".superpowers/sdd/creative-production-improvements/alignment-fix-report.md","archive_path":"artifacts/creative-production-improvements/evidence/reports/alignment-fix-report.md","sha256":"1da1c443bf02d9a8ccd57757771419ff055a859be06776a381db5a19ec259134"},
+    {"scratch_path":".superpowers/sdd/creative-production-improvements/alignment-fix-review.md","archive_path":"artifacts/creative-production-improvements/evidence/reports/alignment-fix-review.md","sha256":"a8db35b867d6e5d49f0b64aefa09f718d66ef92584460de4fd3b36b624925d52"},
+    {"scratch_path":".superpowers/sdd/creative-production-improvements/alignment-ruling.md","archive_path":"artifacts/creative-production-improvements/evidence/reports/alignment-ruling.md","sha256":"f6a09839534641aec192eca410182a6976597bf0066bde08878a143705a5ca19"},
+    {"scratch_path":".superpowers/sdd/creative-production-improvements/integration-addendum.md","archive_path":"artifacts/creative-production-improvements/evidence/reports/integration-addendum.md","sha256":"971d51414699c62c64ea2dae0c09cdd75b71a232839badd9c561e6fb4571490b"},
+    {"scratch_path":".superpowers/sdd/creative-production-improvements/integration-status.md","archive_path":"artifacts/creative-production-improvements/evidence/reports/integration-status.md","sha256":"49992032a8a98d5ea723be9a5aca4caba7aa7f22a7f424d11b2307f28f054fe1"},
+    {"scratch_path":".superpowers/sdd/creative-production-improvements/parallel-briefs.md","archive_path":"artifacts/creative-production-improvements/evidence/reports/parallel-briefs.md","sha256":"3b3965def1dc7fd6901663549ce6896209131238fd4366ffacd28847f415b218"},
+    {"scratch_path":".superpowers/sdd/creative-production-improvements/parallel-status.md","archive_path":"artifacts/creative-production-improvements/evidence/reports/parallel-status.md","sha256":"df30db210171bb66157f23590bcc693f25353b31b395303e1e287cbece7bfd5c"},
+    {"scratch_path":".superpowers/sdd/creative-production-improvements/progress.md","archive_path":"artifacts/creative-production-improvements/evidence/reports/progress.md","sha256":"011ecd70ae4d82599a2f8d878e649b1f486ea3e794c97941f5beaa8d9e11279c"},
+    {"scratch_path":".superpowers/sdd/creative-production-improvements/review-gate.md","archive_path":"artifacts/creative-production-improvements/evidence/reports/review-gate.md","sha256":"3a8e7f0260ae030b47eb63f987d9d89e3e21bc5a01c2461dcc06606e5239fd69"},
+    {"scratch_path":".superpowers/sdd/creative-production-improvements/source-gates.md","archive_path":"artifacts/creative-production-improvements/evidence/reports/source-gates.md","sha256":"40840b5aded06138d84d62cbd9b847d72ba2eb1e193a994b8e072305c9d44713"},
+    {"scratch_path":".superpowers/sdd/creative-production-improvements/task-1-brief.md","archive_path":"artifacts/creative-production-improvements/evidence/reports/task-1-brief.md","sha256":"a668c8e84f8de1f1fdab0bf9da1fea6971fcf54126feeebb2fc0a1267aa4818b"},
+    {"scratch_path":".superpowers/sdd/creative-production-improvements/task-1-report.md","archive_path":"artifacts/creative-production-improvements/evidence/reports/task-1-report.md","sha256":"1544bfb226aeb8786d827fc8d512d758f6615b70cdde76e826c51b68c5fb1d52"},
+    {"scratch_path":".superpowers/sdd/creative-production-improvements/task-1-review.md","archive_path":"artifacts/creative-production-improvements/evidence/reports/task-1-review.md","sha256":"b344df197e6e6e9190712290748013700203ba81b6192c61eb7bf61bee165797"},
+    {"scratch_path":".superpowers/sdd/creative-production-improvements/task-2-report.md","archive_path":"artifacts/creative-production-improvements/evidence/reports/task-2-report.md","sha256":"3125dc8bceef9c57840e7c385a685446aae2e2fbfe4bd625312c6373febad854"},
+    {"scratch_path":".superpowers/sdd/creative-production-improvements/task-2-review.md","archive_path":"artifacts/creative-production-improvements/evidence/reports/task-2-review.md","sha256":"e8166b97203e8ef8512baa7399fb46ded4bc2be1b9ec8dddfe4dce19599cd445"},
+    {"scratch_path":".superpowers/sdd/creative-production-improvements/task-3-report.md","archive_path":"artifacts/creative-production-improvements/evidence/reports/task-3-report.md","sha256":"6e240e0367e3153f6b2915f4303ffc8eb3bd1a6e9df559367843ddc8cec554ae"},
+    {"scratch_path":".superpowers/sdd/creative-production-improvements/task-3-review.md","archive_path":"artifacts/creative-production-improvements/evidence/reports/task-3-review.md","sha256":"5f563ea62fc7ee5df282b4441db170f0cf0e9a5e1a37514e79dbbffd371f9036"},
+    {"scratch_path":".superpowers/sdd/creative-production-improvements/task-4-report.md","archive_path":"artifacts/creative-production-improvements/evidence/reports/task-4-report.md","sha256":"604ce18f9e437e36cc7dcf2c3e4f4b037e4a1f435e4830f10171572333479d9a"},
+    {"scratch_path":".superpowers/sdd/creative-production-improvements/task-4-review.md","archive_path":"artifacts/creative-production-improvements/evidence/reports/task-4-review.md","sha256":"a3d75982f63771efc9f5411aa7744dec97b56adfe8a904ec145ecc0f39c28b56"},
+    {"scratch_path":".superpowers/sdd/creative-production-improvements/task-5-brief.md","archive_path":"artifacts/creative-production-improvements/evidence/reports/task-5-brief.md","sha256":"309722c3f2acad70dbb16c7ab6bcc08e23027effa1112fa2bc6ee90485407684"},
+    {"scratch_path":".superpowers/sdd/creative-production-improvements/task-5-report.md","archive_path":"artifacts/creative-production-improvements/evidence/reports/task-5-report.md","sha256":"cdf458591ca41efc8f87954f8c6b05a7f167c074a199dc41257e484bde482c05"},
+    {"scratch_path":".superpowers/sdd/creative-production-improvements/task-6-brief.md","archive_path":"artifacts/creative-production-improvements/evidence/reports/task-6-brief.md","sha256":"4b9a1c1c3c04f5aef238de26c92204b9c904a0f246ae8e4f1906a3cf7c05dbf2"},
+    {"scratch_path":".superpowers/sdd/creative-production-improvements/task-6-review.md","archive_path":"artifacts/creative-production-improvements/evidence/reports/task-6-review.md","sha256":"41d89b5a204c0e652ae3a7cc06530581ed63aedfb479a7c3fa1cb531053b5de2"}
+  ],
+  "retained_reproducibility_artifacts": [
+    {
+      "path": "artifacts/creative-production-improvements/evidence/archive-session-receipts.mjs",
+      "reason": "Replayable allowlist-based native session receipt extractor; retained to reproduce the evidence transformation, not used as a test."
+    }
+  ],
+  "scope_guard": "No sibling scratch directories, preimage, user artifacts, or unrelated state were removed."
+}

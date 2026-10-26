@@ -1,0 +1,269 @@
+{
+  "manifest_version": "1.0.0",
+  "task": "Creative production improvements — final handoff",
+  "slug": "creative-production-improvements",
+  "base_commit": "1aecf6c3f3b49c01b2d66cd3afac856d29cc538d",
+  "predecessor_manifest": {
+    "path": "artifacts/creative-production-improvements/evidence/reviewed-manifest.json",
+    "sha256": "c27870968cba87d5d993dcf81f449f6df2e7a6e1f388a6f404b45603f62cefef"
+  },
+  "predecessor_generated_at": "2026-10-27T02:20:00.000Z",
+  "provenance": {
+    "node_version": "v26.12.1",
+    "pnpm_version": "10.0.0",
+    "dependency_source": "sibling ../marketing-pr-delivery (provenance checked, exact byte match for package.json, cli/package.json, mcp/package.json, pnpm-lock.yaml)"
+  },
+  "evidence_artifacts": [
+    {
+      "artifact": "artifacts/creative-production-improvements/evidence/command-receipts.json",
+      "sha256": "91942078d5858cf0118be2556ec36a5cf377002ceb798958d60463ae05dc3d62",
+      "description": "Selected authentic native tool_execution_start records and matching toolResult records; includes timestamps, native isError and wall time where available, with authored annotations separated. Native records provide no synthetic numeric exit-code field."
+    },
+    {
+      "artifact": "artifacts/creative-production-improvements/evidence/target-skills.txt",
+      "sha256": "ab0af8981b85e7d1528040d1cf95e2408ed8b6b1999737d47a5d08bca376bbb0",
+      "description": "Resolved list of target skill keys for evals:preflight"
+    },
+    {
+      "artifact": "artifacts/creative-production-improvements/evidence/score-candidates.ts",
+      "sha256": "364a9cabce5fd764bea2f429e572bf884ef4078c6ba55a4a33105bccc3f0ac3e",
+      "description": "Executable harness running real scripts/evals/scorer.ts checkAssertion on candidate corpus"
+    },
+    {
+      "artifact": "artifacts/creative-production-improvements/evidence/scorer-results.json",
+      "sha256": "873b9fb87be6f82965a453c0711858b7f9c5c7b775fb5b9ee577a3e985975c01",
+      "description": "Full execution results across 73 typed eval cases, 18 diagnostic pressure cases, and 10 manual cases"
+    },
+    {
+      "artifact": "artifacts/creative-production-improvements/evidence/marketing-consumer-smoke.mjs",
+      "sha256": "e499cebdf5ee9882d81a280c870887042006b19c595c459758f3698e01cee753",
+      "description": "Retained replayable local-consumer smoke harness: syncs the candidate snapshot, checks keyword routing and companion resources, and exercises the installed storyboard validator."
+    },
+    {
+      "artifact": "artifacts/creative-production-improvements/evidence/consumer-smoke-results.json",
+      "sha256": "817db2be51d5f94f00a8510314cb1d65c171807c53f09c2a09c4cb4ebc38a06a",
+      "description": "Recorded outcomes of real consumer sync, installed file hashes, lower-level SkillIndex router unit matches, and storyboard smoke"
+    },
+    {
+      "artifact": "artifacts/creative-production-improvements/evidence/offline-walkthrough.md",
+      "sha256": "fc15188437cf2c7fd6f83f9abdc43a79c9b98d572898b57639156d0a077f236b",
+      "description": "Corrected complete fictional walkthrough with direct-dependency ledger, explicit authority inputs, exact prior states, and declared audience/rights/dimensions."
+    },
+    {
+      "artifact": "artifacts/creative-production-improvements/evidence/mcp-transport-smoke.mjs",
+      "sha256": "e5b1d920b68a5a339e627e04f15071be6d20ff2159ded0d70187ddd9a4f497ca",
+      "description": "Retained replayable smoke harness for real MCP stdio JSON-RPC transport and tool invocations; separate from lower-level SkillIndex checks."
+    },
+    {
+      "artifact": "artifacts/creative-production-improvements/evidence/mcp-transport-smoke-results.json",
+      "sha256": "24e052ea71c55deb66309f917eb03f522d61204e1082f1553fb09d90cf96236b",
+      "description": "Recorded outcomes of live MCP stdio connection, 11 tools listed, keyword routing, and direct get_skill tool calls"
+    },
+    {
+      "artifact": "artifacts/creative-production-improvements/evidence/video-recipe-smoke.mjs",
+      "sha256": "072d624a7bfd889cd60e811863cf5c4d909b2ad11c4c0ea0dfd0f27f42e730f7",
+      "description": "Retained replayable synthetic ffmpeg/ffprobe recipe smoke harness; exercises the documented synthetic media workflow only."
+    },
+    {
+      "artifact": "artifacts/creative-production-improvements/evidence/video-recipe-smoke-results.json",
+      "sha256": "94b80d09e9cc79bf88b0103024207263b2eb533cc123daccd1b417e4c2fd77a9",
+      "description": "Observed results of synthetic audio lead-in silencedetect, concat assembly, sampled packet PTS, selective repair, and caption retiming"
+    },
+    {
+      "artifact": "artifacts/creative-production-improvements/evidence/archive-session-receipts.mjs",
+      "sha256": "5fbb391aaa07a18f9dc463cc9f7ce513201448ae6e7dd572cf9808b9b60cc49a",
+      "description": "Retained allowlist-based evidence extractor so archived native tool records can be reproduced from the recorded local session when available; not a runtime test."
+    },
+    {
+      "artifact": "artifacts/creative-production-improvements/evidence/generator-run-receipt.json",
+      "sha256": "71f05257cbafb30c6774ffe68c0128444699e1f74c88589983041bba0022e648",
+      "description": "Raw generator output, captured preimage/postimage path comparison, cleanup proof, and 345-entry/27-category generated catalog parity result."
+    },
+    {
+      "artifact": "artifacts/creative-production-improvements/evidence/final-fix-report.md",
+      "sha256": "c1115f436e22ef52db25f72d2fa8503e0e658a234fadd4e93709385905ef4957",
+      "description": "Historical consolidated Task 6 B1–B4 correction report authored before independent final review; final disposition is in task-6-final-review.md."
+    },
+    {
+      "artifact": "artifacts/creative-production-improvements/evidence/reviewed-manifest.json",
+      "sha256": "c27870968cba87d5d993dcf81f449f6df2e7a6e1f388a6f404b45603f62cefef",
+      "description": "Byte-preserved predecessor manifest reviewed during the final acceptance re-review."
+    },
+    {
+      "artifact": "artifacts/creative-production-improvements/evidence/task-6-final-review.md",
+      "sha256": "45aa48cfeb9b1c2e1324791ec3df9f0191260df796f330c4282eec17425f6444",
+      "description": "Independent final Task 6 review: spec and quality PASS, no blocking findings; human acceptance remains separate."
+    },
+    {
+      "artifact": "skills/index.json",
+      "sha256": "50e2d06251c46ef6d24f1fd7e0d3d31d56af33ae025c8b3c940df1941f683fb9",
+      "description": "Generated catalog containing the current source frontmatter descriptions."
+    },
+    {
+      "artifact": "skills/README.md",
+      "sha256": "0f29ce41479a77e52a64bfb66e7a49db1ce5823bc70227b5f9e961f896c0d109",
+      "description": "Generated human-readable catalog containing the current source frontmatter descriptions."
+    },
+    {
+      "artifact": "artifacts/creative-production-improvements/evidence/cleanup-receipt.json",
+      "sha256": "7a69137fc7505d8d6159b05a47523d538d0748e1801262ba15fe7c137d381c90",
+      "description": "Exact-file digest ledger for plan-scoped scratch archival cleanup; binds the reviewed predecessor and pre-cleanup successor manifest checkpoint."
+    }
+  ],
+  "frozen_source_hashes": [
+    {
+      "path": "skills/marketing/marketing-content-strategy/SKILL.md",
+      "sha256": "e8d74982c87f5ec74c317536e75c3e31d1f2526acb6da3d7504cf1c1cb0c6608"
+    },
+    {
+      "path": "skills/marketing/marketing-content-strategy/evals/evals.json",
+      "sha256": "8c537e7f7b96d55494681e832796611a145dd7b0be44a5bd06e9f660309c98b8"
+    },
+    {
+      "path": "skills/marketing/marketing-content-strategy/evals/creative-production-candidates.json",
+      "sha256": "3349bdfe91478d1d0e2e60ee783cc17ab9e7dd5e407e1b18214b0f43238c0cd0"
+    },
+    {
+      "path": "skills/marketing/marketing-content-strategy/references/creative-production-contract.md",
+      "sha256": "f99c809820fac4fbfde964d1239b0b072a675f0d98140f774b571cd16d4627e8"
+    },
+    {
+      "path": "skills/marketing/marketing-content-strategy/references/content-mapping.md",
+      "sha256": "6ed23542f67f60c669d66215208580d2b95f7e7fb02b145b52e265d68dcf696d"
+    },
+    {
+      "path": "skills/marketing/marketing-content-strategy/references/editorial-governance.md",
+      "sha256": "5842fe0efe7a5e51c63917be0a10a4142ef4bd3358dd867d784e49f42b8ac125"
+    },
+    {
+      "path": "skills/marketing/marketing-copywriting/SKILL.md",
+      "sha256": "09e266f1ec500f0a173f92cea06bbe4d4ce5022c66ad049b03e4e4b97bbe83fa"
+    },
+    {
+      "path": "skills/marketing/marketing-copywriting/evals/evals.json",
+      "sha256": "f2ad0f91688342e3d3281d4e2d05186145859af5a8b61f799da6ee593a641a72"
+    },
+    {
+      "path": "skills/marketing/marketing-copywriting/evals/creative-production-candidates.json",
+      "sha256": "1a2af8a95cfcb45007b858b2545de69eaa596022c13ce5ad48fda5bcaf21445d"
+    },
+    {
+      "path": "skills/marketing/marketing-copywriting/references/copy-templates.md",
+      "sha256": "be444cb6228ddac3bc8799a29dc182b40866cfb41a57da21c5d39371502e7946"
+    },
+    {
+      "path": "skills/marketing/marketing-copywriting/references/proof-binding.md",
+      "sha256": "b44c086bd328df049335b1c7cf4314ffe597b6ed8a72562b206897ed105c8961"
+    },
+    {
+      "path": "skills/marketing/marketing-demo-video/SKILL.md",
+      "sha256": "122c340c241031ba0cd7c80cec9439c9cb3b8d921331e39541ab070908be52f0"
+    },
+    {
+      "path": "skills/marketing/marketing-demo-video/evals/evals.json",
+      "sha256": "cf9ba9696f1ab1bba8724aaf2c16477a8d3f7d1c79a85370a1c31d77fd9babac"
+    },
+    {
+      "path": "skills/marketing/marketing-demo-video/evals/creative-production-candidates.json",
+      "sha256": "ba51b20353929cfe1f10d4d841311f530edf1d3a6c69d091044b17403766384d"
+    },
+    {
+      "path": "skills/marketing/marketing-demo-video/references/capture-edit-recipe.md",
+      "sha256": "51804922c05435c64ca66b3add23d6370a9c78db3c2f04c690cd3a45337ea751"
+    },
+    {
+      "path": "skills/marketing/marketing-demo-video/references/rights-cost-checklist.md",
+      "sha256": "e2ae3c17b578b45d526625d2f9af7925bdc9b2cd91e0ed7a864184c200ac3bc3"
+    },
+    {
+      "path": "scripts/evals/scorer.ts",
+      "sha256": "c79dcf88f940cc275032ab60105c5705ad48be6c28cd67e800514d7dd8001759"
+    },
+    {
+      "path": "scripts/check-alignment.ts",
+      "sha256": "4a46b698aaeeb86a3ab747f6aa626d134df005116386627b092225cfd2eb4f1a"
+    },
+    {
+      "path": "scripts/evals/alignment.ts",
+      "sha256": "01cf20ed8be87ae537ed2e4bc55623473b099fea0183c6411843ef1f3450180c"
+    },
+    {
+      "path": "scripts/evals/alignment.test.ts",
+      "sha256": "52e107ecb74fdbea6eef706b701fe5ba1f526738ef94a60f6f667e8d6cd6165a"
+    },
+    {
+      "path": "skills/metadata.json",
+      "sha256": "b6b79c017a3a68a4dc67feb9f0526db37866bfe571cdc53c3431f56947c2eb71"
+    }
+  ],
+  "correction_wave": {
+    "date": "2026-10-27",
+    "report": "artifacts/creative-production-improvements/evidence/final-fix-report.md",
+    "generator_catalog_check": {
+      "source_entries_checked": 345,
+      "categories_checked": 27,
+      "problems": [],
+      "generator_receipt": "artifacts/creative-production-improvements/evidence/generator-run-receipt.json"
+    },
+    "retrospective_source_state_binding": "Phase A/B/C in command-receipts.json are chronological source-state mappings. No immutable source digest was captured at every command invocation; final hashes retrospectively bind the final source state and are not represented as per-command snapshots.",
+    "status_documents": [
+      {
+        "path": "docs/prd/prd-creative-production-improvements.md",
+        "sha256": "76d116e076ea2ac7e81b5cee818abd7ab4891a22eb2721b19107a0eb2d6d5421"
+      },
+      {
+        "path": "artifacts/creative-production-improvements/evidence/reports/source-gates.md",
+        "sha256": "40840b5aded06138d84d62cbd9b847d72ba2eb1e193a994b8e072305c9d44713"
+      },
+      {
+        "path": "artifacts/creative-production-improvements/evidence/reports/integration-status.md",
+        "sha256": "49992032a8a98d5ea723be9a5aca4caba7aa7f22a7f424d11b2307f28f054fe1"
+      },
+      {
+        "path": "artifacts/creative-production-improvements/evidence/reports/task-5-report.md",
+        "sha256": "cdf458591ca41efc8f87954f8c6b05a7f167c074a199dc41257e484bde482c05"
+      }
+    ],
+    "acceptance": "Task 6 independent final review: spec PASS, quality PASS, no blockers. Maintainer acceptance remains pending; no merge, publication, release, or live-provider authorization is granted."
+  },
+  "handoff_archive": {
+    "directory": "artifacts/creative-production-improvements/evidence/reports/",
+    "copied_report_count": 23,
+    "byte_parity": "rtk diff -qr reported no differences between the plan-specific SDD scratch directory and this archive before cleanup.",
+    "report_files": [
+      {"path":"artifacts/creative-production-improvements/evidence/reports/alignment-fix-report.md","sha256":"1da1c443bf02d9a8ccd57757771419ff055a859be06776a381db5a19ec259134"},
+      {"path":"artifacts/creative-production-improvements/evidence/reports/alignment-fix-review.md","sha256":"a8db35b867d6e5d49f0b64aefa09f718d66ef92584460de4fd3b36b624925d52"},
+      {"path":"artifacts/creative-production-improvements/evidence/reports/alignment-ruling.md","sha256":"f6a09839534641aec192eca410182a6976597bf0066bde08878a143705a5ca19"},
+      {"path":"artifacts/creative-production-improvements/evidence/reports/integration-addendum.md","sha256":"971d51414699c62c64ea2dae0c09cdd75b71a232839badd9c561e6fb4571490b"},
+      {"path":"artifacts/creative-production-improvements/evidence/reports/integration-status.md","sha256":"49992032a8a98d5ea723be9a5aca4caba7aa7f22a7f424d11b2307f28f054fe1"},
+      {"path":"artifacts/creative-production-improvements/evidence/reports/parallel-briefs.md","sha256":"3b3965def1dc7fd6901663549ce6896209131238fd4366ffacd28847f415b218"},
+      {"path":"artifacts/creative-production-improvements/evidence/reports/parallel-status.md","sha256":"df30db210171bb66157f23590bcc693f25353b31b395303e1e287cbece7bfd5c"},
+      {"path":"artifacts/creative-production-improvements/evidence/reports/progress.md","sha256":"011ecd70ae4d82599a2f8d878e649b1f486ea3e794c97941f5beaa8d9e11279c"},
+      {"path":"artifacts/creative-production-improvements/evidence/reports/review-gate.md","sha256":"3a8e7f0260ae030b47eb63f987d9d89e3e21bc5a01c2461dcc06606e5239fd69"},
+      {"path":"artifacts/creative-production-improvements/evidence/reports/source-gates.md","sha256":"40840b5aded06138d84d62cbd9b847d72ba2eb1e193a994b8e072305c9d44713"},
+      {"path":"artifacts/creative-production-improvements/evidence/reports/task-1-brief.md","sha256":"a668c8e84f8de1f1fdab0bf9da1fea6971fcf54126feeebb2fc0a1267aa4818b"},
+      {"path":"artifacts/creative-production-improvements/evidence/reports/task-1-report.md","sha256":"1544bfb226aeb8786d827fc8d512d758f6615b70cdde76e826c51b68c5fb1d52"},
+      {"path":"artifacts/creative-production-improvements/evidence/reports/task-1-review.md","sha256":"b344df197e6e6e9190712290748013700203ba81b6192c61eb7bf61bee165797"},
+      {"path":"artifacts/creative-production-improvements/evidence/reports/task-2-report.md","sha256":"3125dc8bceef9c57840e7c385a685446aae2e2fbfe4bd625312c6373febad854"},
+      {"path":"artifacts/creative-production-improvements/evidence/reports/task-2-review.md","sha256":"e8166b97203e8ef8512baa7399fb46ded4bc2be1b9ec8dddfe4dce19599cd445"},
+      {"path":"artifacts/creative-production-improvements/evidence/reports/task-3-report.md","sha256":"6e240e0367e3153f6b2915f4303ffc8eb3bd1a6e9df559367843ddc8cec554ae"},
+      {"path":"artifacts/creative-production-improvements/evidence/reports/task-3-review.md","sha256":"5f563ea62fc7ee5df282b4441db170f0cf0e9a5e1a37514e79dbbffd371f9036"},
+      {"path":"artifacts/creative-production-improvements/evidence/reports/task-4-report.md","sha256":"604ce18f9e437e36cc7dcf2c3e4f4b037e4a1f435e4830f10171572333479d9a"},
+      {"path":"artifacts/creative-production-improvements/evidence/reports/task-4-review.md","sha256":"a3d75982f63771efc9f5411aa7744dec97b56adfe8a904ec145ecc0f39c28b56"},
+      {"path":"artifacts/creative-production-improvements/evidence/reports/task-5-brief.md","sha256":"309722c3f2acad70dbb16c7ab6bcc08e23027effa1112fa2bc6ee90485407684"},
+      {"path":"artifacts/creative-production-improvements/evidence/reports/task-5-report.md","sha256":"cdf458591ca41efc8f87954f8c6b05a7f167c074a199dc41257e484bde482c05"},
+      {"path":"artifacts/creative-production-improvements/evidence/reports/task-6-brief.md","sha256":"4b9a1c1c3c04f5aef238de26c92204b9c904a0f246ae8e4f1906a3cf7c05dbf2"},
+      {"path":"artifacts/creative-production-improvements/evidence/reports/task-6-review.md","sha256":"41d89b5a204c0e652ae3a7cc06530581ed63aedfb479a7c3fa1cb531053b5de2"}
+    ],
+    "final_review": {
+      "path": "artifacts/creative-production-improvements/evidence/task-6-final-review.md",
+      "sha256": "45aa48cfeb9b1c2e1324791ec3df9f0191260df796f330c4282eec17425f6444"
+    },
+    "cleanup_receipt": {
+      "path": "artifacts/creative-production-improvements/evidence/cleanup-receipt.json",
+      "sha256": "7a69137fc7505d8d6159b05a47523d538d0748e1801262ba15fe7c137d381c90",
+      "successor_checkpoint_sha256": "b7d428dd7e85c7ec3fca9530f4d12b426d52c3d38d513aa4d30b99bf6c09d215",
+      "predecessor_manifest_sha256": "c27870968cba87d5d993dcf81f449f6df2e7a6e1f388a6f404b45603f62cefef"
+    }
+  }
+}

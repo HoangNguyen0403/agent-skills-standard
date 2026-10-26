@@ -12,6 +12,7 @@
 import fs from "fs-extra";
 import path from "path";
 import pc from "picocolors";
+import { checkRegexAlignment } from "./evals/alignment";
 
 const THRESHOLD = (() => {
   const idx = process.argv.indexOf("--threshold");
@@ -152,17 +153,25 @@ async function main() {
           }
           case "regex": {
             total++;
+            let re: RegExp;
             try {
-              const re = new RegExp(assertion.value ?? "", "i");
-              if (re.test(strippedContent) || re.test(taskContract)) {
-                matched++;
-              } else {
-                misses.push(`eval ${ev.id}: regex /${assertion.value}/i`);
-              }
+              re = new RegExp(assertion.value ?? "", "i");
             } catch {
               misses.push(
                 `eval ${ev.id}: regex /${assertion.value}/i (invalid pattern)`,
               );
+              break;
+            }
+            if (
+              checkRegexAlignment(re, {
+                strippedContent,
+                prompt: ev.prompt,
+                expectedOutput: ev.expected_output,
+              })
+            ) {
+              matched++;
+            } else {
+              misses.push(`eval ${ev.id}: regex /${assertion.value}/i`);
             }
             break;
           }
