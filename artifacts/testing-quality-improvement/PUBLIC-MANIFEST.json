@@ -1,14 +1,15 @@
 {
   "schemaVersion": 1,
   "kind": "testing-quality-improvement-public-manifest",
-  "generatedAt": "2026-10-26T23:08:44.661Z",
+  "generatedAt": "2026-10-26T23:14:51.296Z",
   "attribution": "SANITIZED_DERIVATIVE",
   "retainedPrivateBundle": {
     "path": "artifacts/testing-quality-improvement/evidence/",
     "compositeSha256": "ab34929166e123b6907a19d1ba565580374ffdd51fd6237dd9f5e9906fa7f12c",
     "fileCount": 190,
     "attribution": "PRIVATE_ORIGINAL",
-    "status": "RETAINED_LOCALLY"
+    "status": "RETAINED_LOCALLY",
+    "storage": "UNPUBLISHED_LOCAL_HISTORICAL_ARCHIVE"
   },
   "files": [
     {
@@ -18,13 +19,13 @@
     },
     {
       "path": "artifacts/testing-quality-improvement/verification-summary.md",
-      "sha256": "3ff039b1b3772e071bda0ee487c4f7ec945c9cd7815b8b26178894b365802280",
-      "bytes": 4994
+      "sha256": "de9fb40b29e88ceb05de7eee537830c7662af65684acce52a86f805182a5ade0",
+      "bytes": 5913
     },
     {
       "path": "artifacts/testing-quality-improvement/final-inventory-and-gates.json",
-      "sha256": "0fe23e8d5ebb5254698125ef56c910791c2a503aba77fe814e799074191d26b0",
-      "bytes": 4504
+      "sha256": "b5d4eeffd603aa80f592cc41b1eb536ab1bd6742ee65dff8487cf547c194eea1",
+      "bytes": 59418
     }
   ]
 }

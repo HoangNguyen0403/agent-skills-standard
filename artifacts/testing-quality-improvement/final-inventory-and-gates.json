@@ -2,13 +2,15 @@
   "schemaVersion": 1,
   "kind": "sanitized-publication-inventory-and-gates",
   "baseCommit": "92d06c420f6a41f08e11579423e4e3eacdb7880d",
+  "checkpointCommit": "6e4d482dedd3676b7cdfcdcd2f641f31908ad4b7",
   "targetBranch": "develop",
   "taskScope": "testing-quality-improvement",
   "attribution": {
     "privateOriginalBundle": {
       "fileCount": 190,
       "compositeSha256": "ab34929166e123b6907a19d1ba565580374ffdd51fd6237dd9f5e9906fa7f12c",
-      "status": "PRESERVED_LOCALLY_BYTEWISE"
+      "status": "PRESERVED_LOCALLY_BYTEWISE",
+      "storage": "UNPUBLISHED_LOCAL_HISTORICAL_ARCHIVE"
     },
     "publicationDerivative": {
       "status": "SANITIZED_DERIVATIVE",
@@ -27,36 +29,169 @@
     "decision": "ACCEPT_DOCUMENTED_HISTORICAL_GAP",
     "reference": "artifacts/testing-quality-improvement/pr-readiness-acceptance-decision.json"
   },
+  "permanentHarness": [
+    {
+      "path": "scripts/skill-tests/testing-quality-improvement/test-fixtures.test.mjs",
+      "sha256": "ba0f57d003cbb5f0c482bd4068a319829b7ec5819e472d00c5f38f1174b03e11",
+      "bytes": 63083
+    },
+    {
+      "path": "scripts/skill-tests/testing-quality-improvement/http-fixture-server.mjs",
+      "sha256": "9446f3918acd1729be3f7688e3abc65ad3c746b13157a6de4eee35d829605cd3",
+      "bytes": 22340
+    },
+    {
+      "path": "scripts/skill-tests/testing-quality-improvement/synthetic-oracles.mjs",
+      "sha256": "6e7a5a53188daeb2ed5dc3789881acc64cb76152b0a509fa61d3662372503615",
+      "bytes": 70465
+    },
+    {
+      "path": "scripts/skill-tests/testing-quality-improvement/playwright-fixture-runner.mjs",
+      "sha256": "0397114bdb043b0f0c59ffa67bf75a24efeb183a57a68c9ed948777e24de9996",
+      "bytes": 20268
+    },
+    {
+      "path": "scripts/skill-tests/testing-quality-improvement/router-matrix.mjs",
+      "sha256": "ae22bfac5ecd72b96eb7b275f8154d9cdf813d4e4ad2cf1000df81829c736c2f",
+      "bytes": 24450
+    },
+    {
+      "path": "scripts/skill-tests/testing-quality-improvement/eval-calibration.mjs",
+      "sha256": "786f1a16c28026cb8450e826255b1e2354b96e1c2a033da1dee071652122d012",
+      "bytes": 40387
+    },
+    {
+      "path": "scripts/skill-tests/testing-quality-improvement/fixtures/api-fixtures.json",
+      "sha256": "a91083c206180445719a6512f0474d745bdd999bc2f6ff527efa8847c22aa1e5",
+      "bytes": 9509
+    },
+    {
+      "path": "scripts/skill-tests/testing-quality-improvement/fixtures/mobile-scenarios.json",
+      "sha256": "b924236ad197f7cf00f2cefe94055438bbd5ac163dea08849b505aea974924b7",
+      "bytes": 54722
+    }
+  ],
+  "engineSources": [
+    {
+      "path": "mcp/src/services/SkillIndex.ts",
+      "sha256": "fecbf1c3248188df73c4bfc4be74fb09542452d8f7eda9ab0a2c79670abaca69",
+      "bytes": 14610,
+      "matchesPrimaryCheckout": true
+    },
+    {
+      "path": "scripts/evals/scorer.ts",
+      "candidateSha256": "5f2547ec911309d11b4c3db54982fcc09769f7a08678ff1e4ebfd8efacdf7142",
+      "primarySha256": "c79dcf88f940cc275032ab60105c5705ad48be6c28cd67e800514d7dd8001759",
+      "bytes": 18676,
+      "calibratedOnCandidate": true
+    },
+    {
+      "path": "scripts/evals/quality.ts",
+      "sha256": "b1c7751b635ed3be745dc15ec19d8f688f8beaa7de12e8894819a4e5ec4578f0",
+      "bytes": 23241,
+      "matchesPrimaryCheckout": true
+    },
+    {
+      "path": "skills/metadata.json",
+      "sha256": "de99d8445dac23ea472a022da2798cb9035b3c33ac017afb595024f1c5dcb947",
+      "bytes": 21019
+    },
+    {
+      "path": "skills/index.json",
+      "sha256": "8f02ac5041be643fd02970289aa6d9169f1aa61b6310476fa3803e0ec26f8141",
+      "bytes": 89148
+    }
+  ],
+  "portableBrowserSmoke": {
+    "command": "node scripts/skill-tests/testing-quality-improvement/test-fixtures.test.mjs",
+    "runnerSourcePath": "scripts/skill-tests/testing-quality-improvement/playwright-fixture-runner.mjs",
+    "runnerSha256": "0397114bdb043b0f0c59ffa67bf75a24efeb183a57a68c9ed948777e24de9996",
+    "exitCode": 0,
+    "testsPassed": 18,
+    "testsTotal": 18,
+    "durationMs": 7748.784375,
+    "browserScenarioDurationMs": 3919.579208,
+    "browserScenarioStatus": "PASS",
+    "resolvedBrowserExecutable": "Chromium (Google Chrome for Testing 156.0.8078.4)",
+    "resolutionSource": "host-cache-fallback",
+    "playwrightPackageVersion": "1.64.0-alpha-1790635538000"
+  },
   "gates": [
     {
       "id": "synthetic-fixtures",
       "name": "test-fixtures.test.mjs",
-      "command": "node --test scripts/skill-tests/testing-quality-improvement/test-fixtures.test.mjs",
+      "runnableCommand": "node --test scripts/skill-tests/testing-quality-improvement/test-fixtures.test.mjs",
+      "executionStatus": "GENUINELY_RERUN_ON_CURRENT_TREE",
       "exitCode": 0,
       "passed": 18,
       "total": 18,
-      "browserScenario": "Chromium (Google Chrome for Testing 156.0.8078.4)"
+      "durationMs": 7748.784375
     },
     {
       "id": "router-matrix",
       "name": "router-matrix.mjs",
-      "command": "node --import tsx scripts/skill-tests/testing-quality-improvement/router-matrix.mjs",
+      "runnableCommand": "node --import tsx scripts/skill-tests/testing-quality-improvement/router-matrix.mjs --engine-root <checkout-with-node_modules> [--skills-dir skills]",
+      "requiredFlags": [
+        "--engine-root",
+        "--skills-dir"
+      ],
+      "executionStatus": "GENUINELY_RERUN_ON_CURRENT_TREE",
       "exitCode": 0,
       "passed": 31,
-      "total": 31
+      "total": 31,
+      "cases": {
+        "apiPurposePrompts": 9,
+        "mobileScenarios": 16,
+        "negatives": 6
+      }
     },
     {
       "id": "eval-calibration",
       "name": "eval-calibration.mjs",
-      "command": "node --import tsx scripts/skill-tests/testing-quality-improvement/eval-calibration.mjs --engine-root .",
+      "runnableCommand": "node --import tsx scripts/skill-tests/testing-quality-improvement/eval-calibration.mjs --engine-root <checkout-with-node_modules>",
+      "requiredFlags": [
+        "--engine-root"
+      ],
+      "executionStatus": "GENUINELY_RERUN_ON_CURRENT_TREE",
       "exitCode": 0,
       "passed": 44,
-      "total": 44
+      "total": 44,
+      "semantics": "v2"
+    },
+    {
+      "id": "eval-regression-covering-suite",
+      "name": "scripts/evals/*.test.ts (covering full suite)",
+      "runnableCommand": "node --import tsx --test scripts/evals/assertion-parity.test.ts scripts/evals/changed-skills.test.ts scripts/evals/evals-v2.test.ts scripts/evals/quality.test.ts scripts/evals/system-design-behavior.test.ts scripts/evals/usage-cost.test.ts",
+      "executionStatus": "GENUINELY_RERUN_ON_CURRENT_TREE",
+      "exitCode": 0,
+      "passed": 89,
+      "total": 89,
+      "durationMs": 658.997167,
+      "discoveredEntrypoints": [
+        "scripts/evals/assertion-parity.test.ts",
+        "scripts/evals/changed-skills.test.ts",
+        "scripts/evals/evals-v2.test.ts",
+        "scripts/evals/quality.test.ts",
+        "scripts/evals/system-design-behavior.test.ts",
+        "scripts/evals/usage-cost.test.ts"
+      ],
+      "relationshipToHistoricalRun": "Covering full suite; supersedes partial 2/2 run."
+    },
+    {
+      "id": "eval-regression-historical-partial",
+      "name": "scripts/evals/quality.test.ts (historical partial)",
+      "runnableCommand": "node --import tsx --test scripts/evals/quality.test.ts",
+      "executionStatus": "RETAINED_HISTORICAL_RUN",
+      "exitCode": 0,
+      "passed": 2,
+      "total": 2,
+      "relationshipToCoveringSuite": "Preserved historical partial run from initial integration pass."
     },
     {
       "id": "cli-validate-all",
       "name": "cli validate --all",
-      "command": "cli validate --all",
+      "runnableCommand": "cli validate --all",
+      "executionStatus": "GENUINELY_RERUN_ON_CURRENT_TREE",
       "exitCode": 0,
       "passed": 339,
       "total": 339,
@@ -65,14 +200,16 @@
     {
       "id": "audit-skills",
       "name": "audit-skills.ts",
-      "command": "tsx scripts/audit-skills.ts",
+      "runnableCommand": "tsx scripts/audit-skills.ts",
+      "executionStatus": "GENUINELY_RERUN_ON_CURRENT_TREE",
       "exitCode": 0,
       "passed": true
     },
     {
       "id": "check-keyword-collisions",
       "name": "check-keyword-collisions.ts",
-      "command": "tsx scripts/check-keyword-collisions.ts",
+      "runnableCommand": "tsx scripts/check-keyword-collisions.ts",
+      "executionStatus": "GENUINELY_RERUN_ON_CURRENT_TREE",
       "exitCode": 0,
       "collisions": 134,
       "passed": true
@@ -80,28 +217,32 @@
     {
       "id": "audit-sdlc",
       "name": "audit-sdlc.ts",
-      "command": "tsx scripts/audit-sdlc.ts",
+      "runnableCommand": "tsx scripts/audit-sdlc.ts",
+      "executionStatus": "GENUINELY_RERUN_ON_CURRENT_TREE",
       "exitCode": 0,
       "passed": true
     },
     {
       "id": "capabilities-check",
       "name": "generate-capabilities-doc.ts --check",
-      "command": "tsx scripts/generate-capabilities-doc.ts --check",
+      "runnableCommand": "tsx scripts/generate-capabilities-doc.ts --check",
+      "executionStatus": "GENUINELY_RERUN_ON_CURRENT_TREE",
       "exitCode": 0,
       "inSync": true
     },
     {
       "id": "check-alignment",
       "name": "check-alignment.ts",
-      "command": "tsx scripts/check-alignment.ts",
+      "runnableCommand": "tsx scripts/check-alignment.ts",
+      "executionStatus": "GENUINELY_RERUN_ON_CURRENT_TREE",
       "exitCode": 0,
       "minThresholdMet": true
     },
     {
       "id": "scan-injection",
       "name": "scan-injection.ts",
-      "command": "tsx scripts/scan-injection.ts",
+      "runnableCommand": "tsx scripts/scan-injection.ts",
+      "executionStatus": "GENUINELY_RERUN_ON_CURRENT_TREE",
       "exitCode": 0,
       "errors": 0,
       "warnings": 1
@@ -109,17 +250,10 @@
     {
       "id": "freshness-audit",
       "name": "freshness/index.ts audit",
-      "command": "tsx scripts/freshness/index.ts audit",
+      "runnableCommand": "tsx scripts/freshness/index.ts audit",
+      "executionStatus": "GENUINELY_RERUN_ON_CURRENT_TREE",
       "exitCode": 0,
       "highSeverityIssues": 0
-    },
-    {
-      "id": "eval-regression-suite",
-      "name": "scripts/evals/*.test.ts",
-      "command": "node --import tsx --test scripts/evals/*.test.ts",
-      "exitCode": 0,
-      "passed": 2,
-      "total": 2
     }
   ],
   "stagedGenerationSummary": {
@@ -135,14 +269,1206 @@
     "driftRefusalRuleTestCases": 5,
     "driftRefusalRulePassed": 5
   },
-  "retainedPermanentTestFiles": [
-    "scripts/skill-tests/testing-quality-improvement/test-fixtures.test.mjs",
-    "scripts/skill-tests/testing-quality-improvement/http-fixture-server.mjs",
-    "scripts/skill-tests/testing-quality-improvement/synthetic-oracles.mjs",
-    "scripts/skill-tests/testing-quality-improvement/playwright-fixture-runner.mjs",
-    "scripts/skill-tests/testing-quality-improvement/fixtures/api-fixtures.json",
-    "scripts/skill-tests/testing-quality-improvement/fixtures/mobile-scenarios.json",
-    "scripts/skill-tests/testing-quality-improvement/router-matrix.mjs",
-    "scripts/skill-tests/testing-quality-improvement/eval-calibration.mjs"
+  "sourceInventory": [
+    {
+      "path": ".agents/skills/common/common-api-design/SKILL.md",
+      "sha256": "aa30d38cc00683697d86ba1bbc7391d49f89cfca938815b1b9be2c9b8d1bbfb7",
+      "bytes": 3756
+    },
+    {
+      "path": ".agents/skills/common/common-dast-tooling/SKILL.md",
+      "sha256": "197ec91c2cea4f60c075f4300fc6d5d46bd35b551009c1ee485fa9b5c1774b4b",
+      "bytes": 4748
+    },
+    {
+      "path": ".agents/skills/common/common-dast-tooling/references/implementation.md",
+      "sha256": "0fe387eac2283538a96dcc849169504ad9662b10b8ab843ced764f989edab65e",
+      "bytes": 5031
+    },
+    {
+      "path": ".agents/skills/common/common-mobile-visual-testing/SKILL.md",
+      "sha256": "c9654b47ba400cf41b1448cab265fd534ba14ebdc5e50278ab1ea1ddd9250f33",
+      "bytes": 4204
+    },
+    {
+      "path": ".agents/skills/common/common-mobile-visual-testing/references/mobile-testing-matrix.md",
+      "sha256": "6d65921fc02d1ca3b3392e1d271aed4ff9545bc4e341f164e926198c0d7b84ba",
+      "bytes": 28384
+    },
+    {
+      "path": ".agents/skills/common/common-mobile-visual-testing/references/scenarios.md",
+      "sha256": "2f6c70f01f305792c1f7d68c6555b7f104d86edb4e95aeeef5e50a306560a3bd",
+      "bytes": 19013
+    },
+    {
+      "path": ".agents/skills/common/common-performance-engineering/SKILL.md",
+      "sha256": "c8ea64dbe2f782bf09f7e48bb11161c51e7427aad598a521227cea4446ec46f7",
+      "bytes": 3409
+    },
+    {
+      "path": ".agents/skills/common/common-security-audit/SKILL.md",
+      "sha256": "d79e10ee435942df716aa5b9ef8a87001e8fc77b6ea9c105d2b8d76babc36eef",
+      "bytes": 4385
+    },
+    {
+      "path": ".agents/skills/quality-engineering/_INDEX.md",
+      "sha256": "5d5a13691e186dc618f1d5b7b48a429835f53ff197d4f9d343f4309af959eb42",
+      "bytes": 3790
+    },
+    {
+      "path": ".agents/skills/quality-engineering/quality-engineering-api-fuzz-testing/LICENSE",
+      "sha256": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+      "bytes": 1069
+    },
+    {
+      "path": ".agents/skills/quality-engineering/quality-engineering-api-fuzz-testing/SKILL.md",
+      "sha256": "ffbee5a3c107e5bd50caeedffcef58dfa7e2dd6dd3c689488d393e21350e0c07",
+      "bytes": 5030
+    },
+    {
+      "path": ".agents/skills/quality-engineering/quality-engineering-api-fuzz-testing/references/fuzz-methodology.md",
+      "sha256": "59432c1414e57093a4e5a65013f7fccfc4112a0be0b09d0f13f56a14fc01e622",
+      "bytes": 10766
+    },
+    {
+      "path": ".agents/skills/quality-engineering/quality-engineering-api-fuzz-testing/references/fuzz-scenarios.md",
+      "sha256": "8acf26a07d28da97977299f406ba8402521ac0cb446eb33cae9426cc62a01315",
+      "bytes": 17898
+    },
+    {
+      "path": ".agents/skills/quality-engineering/quality-engineering-api-performance-testing/LICENSE",
+      "sha256": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+      "bytes": 1069
+    },
+    {
+      "path": ".agents/skills/quality-engineering/quality-engineering-api-performance-testing/SKILL.md",
+      "sha256": "c7d76ae4db87ee8c1b6d341c3b519e776d77b4ccdaf368f632f2b505205512a9",
+      "bytes": 5183
+    },
+    {
+      "path": ".agents/skills/quality-engineering/quality-engineering-api-performance-testing/references/driver-execution.md",
+      "sha256": "3a678d6a9134b45fa8f6972831b443464fce7a6623563a844e54c745eb507766",
+      "bytes": 10315
+    },
+    {
+      "path": ".agents/skills/quality-engineering/quality-engineering-api-performance-testing/references/overload-and-recovery.md",
+      "sha256": "d2b3c334574787a3451512faf6d08fdcaefc43652e0cb24c7b325f6774d2adde",
+      "bytes": 9873
+    },
+    {
+      "path": ".agents/skills/quality-engineering/quality-engineering-api-performance-testing/references/workload-modeling.md",
+      "sha256": "a81abd6b7e151ded52083dee156dcb33c3736d640973c4daec4c7caeb5f7d48a",
+      "bytes": 5130
+    },
+    {
+      "path": ".agents/skills/quality-engineering/quality-engineering-api-testing/LICENSE",
+      "sha256": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+      "bytes": 1069
+    },
+    {
+      "path": ".agents/skills/quality-engineering/quality-engineering-api-testing/SKILL.md",
+      "sha256": "7e8152e311c5663537d55bd1e049d9f074f0b7c8d052f99b03d83f82ce9dd216",
+      "bytes": 6523
+    },
+    {
+      "path": ".agents/skills/quality-engineering/quality-engineering-api-testing/references/api-testing-methodology.md",
+      "sha256": "94f33c5a7755a44c28a257a2ccf66dc0d47d020fbe2195417a95114684b91a69",
+      "bytes": 14771
+    },
+    {
+      "path": ".agents/skills/quality-engineering/quality-engineering-api-testing/references/synthetic-order-example.md",
+      "sha256": "ecf8391fc8d714bb6995379545728b91a5b32b60aeaa8309c7e454d329dd7461",
+      "bytes": 16765
+    },
+    {
+      "path": ".agents/skills/quality-engineering/quality-engineering-appium-mcp/SKILL.md",
+      "sha256": "649b91601cf263ea20fb26f46d1f5de1a8aff6369df1696f2c60835b12674807",
+      "bytes": 5028
+    },
+    {
+      "path": ".agents/skills/quality-engineering/quality-engineering-appium-mcp/references/driver-ladder.md",
+      "sha256": "86ef63ff7c5b9516b98cc2a796692268f2261af15f86540284a03ac364d45b04",
+      "bytes": 5587
+    },
+    {
+      "path": ".agents/skills/quality-engineering/quality-engineering-appium-mcp/references/tool-cheatsheet.md",
+      "sha256": "99e8aad7c18ecc302d289a749c9775e6430a48fe40de00381c6b389e6aadedf5",
+      "bytes": 5675
+    },
+    {
+      "path": ".agents/skills/quality-engineering/quality-engineering-playwright-pom-generation/SKILL.md",
+      "sha256": "058b2e596c2e5e848b8f572837b2f6caa0279b4aec31dd036be1613fd8cab4e9",
+      "bytes": 4468
+    },
+    {
+      "path": ".agents/skills/quality-engineering/quality-engineering-playwright-pom-generation/references/page-object-template.md",
+      "sha256": "d6c5f4ce7e9f0ad08544820733171ceab3f6205b74307bb4b9355654daa4cd75",
+      "bytes": 3897
+    },
+    {
+      "path": ".agents/skills/quality-engineering/quality-engineering-selector-stability/SKILL.md",
+      "sha256": "1a2a8236ca998219af0e7c802406d0f814358ca72fb746184fb5cc2d1aea5ffe",
+      "bytes": 2396
+    },
+    {
+      "path": ".agents/skills/quality-engineering/quality-engineering-selector-stability/references/selector-ladder.md",
+      "sha256": "79d13c6383c7b477303d3c4fd85e25edc1b6adc75203858f85bb84fd31332efd",
+      "bytes": 4017
+    },
+    {
+      "path": ".agents/skills/quality-engineering/quality-engineering-test-plan-authoring/SKILL.md",
+      "sha256": "0fed085586b513ffb62a1b0838e2ea48943a1a4c5bce6490a68eb35dcaa3e793",
+      "bytes": 4232
+    },
+    {
+      "path": ".agents/skills/quality-engineering/quality-engineering-test-plan-authoring/references/lifecycle-and-roles.md",
+      "sha256": "49b6bd99cd0b80404cdc9f045e3c41f30bb0308d60d5ad216f00fea89765b44e",
+      "bytes": 9634
+    },
+    {
+      "path": ".agents/skills/quality-engineering/quality-engineering-test-plan-authoring/references/test-plan-template.md",
+      "sha256": "623c87d334cca14deb7647073bccb0ffbc05a18d4b6299e3ea51fd8e350d6598",
+      "bytes": 7450
+    },
+    {
+      "path": ".agents/skills/quality-engineering/quality-engineering-zephyr-test-generation/references/impact_analysis.md",
+      "sha256": "164b641f3c031d064eadbc60422ef008ce94b93509eca60281341616c016aa0c",
+      "bytes": 5026
+    },
+    {
+      "path": ".agents/workflows/deploy-release.md",
+      "sha256": "3e01960493a0250502836e4b74a8af19d7caa23409c644ba8b77fcfea73ae02f",
+      "bytes": 4009
+    },
+    {
+      "path": ".agents/workflows/implementation-readiness.md",
+      "sha256": "6bdde08891dda034e56c01ac80300ed1930b5c2bab44987428b2f85f4fb4b029",
+      "bytes": 6647
+    },
+    {
+      "path": ".agents/workflows/publish-notes.md",
+      "sha256": "02b2d35a112072df6f0a47ce1fad98c9fd4a637ad731bb296d85633a672a4231",
+      "bytes": 3004
+    },
+    {
+      "path": ".agents/workflows/retro-learn.md",
+      "sha256": "60e78437b62f4c657a9516914cae1bd97befc6bf532d99c763b3e1929b5b89b8",
+      "bytes": 3903
+    },
+    {
+      "path": ".agents/workflows/test-loop.md",
+      "sha256": "953aa9097720ee1a55bdcf6d5ba0e68ca56a7fdcf28b21efa5eac042c08c390b",
+      "bytes": 4469
+    },
+    {
+      "path": ".agents/workflows/traceability-audit.md",
+      "sha256": "8793f7a26099b7bb91a5e587f44023b43fc49caa5ce20dd2fc9446543675322c",
+      "bytes": 3530
+    },
+    {
+      "path": ".agents/workflows/uat-signoff.md",
+      "sha256": "7739ef7aa61488d2ec16af84bf7740b7be9619f987a56373b8f9767f42a0b4ce",
+      "bytes": 3004
+    },
+    {
+      "path": ".agents/workflows/verify-work.md",
+      "sha256": "6fb94a8bda19e979af328dc12891adba5fe35212c46c10e7bc825c670e578597",
+      "bytes": 4151
+    },
+    {
+      "path": ".claude/agents/integration-test-generator.md",
+      "sha256": "eb2480f2388a5d753814bb4e25980782bc8cf4d5319d712c069728e780d633cd",
+      "bytes": 2410
+    },
+    {
+      "path": ".claude/commands/deploy-release.md",
+      "sha256": "0ccdd8cb09ee0920df2143e2da39824396c417207e756aa1914b73006cc960fb",
+      "bytes": 4442
+    },
+    {
+      "path": ".claude/commands/implementation-readiness.md",
+      "sha256": "959019ba6917d49d10903669d2556a4553b26299dfac334b53702e66873b52a5",
+      "bytes": 7090
+    },
+    {
+      "path": ".claude/commands/publish-notes.md",
+      "sha256": "84aa9627fe03de260c436bfbaa01c5e402ce525f7009159e8994b063b42b8014",
+      "bytes": 3436
+    },
+    {
+      "path": ".claude/commands/retro-learn.md",
+      "sha256": "c828725b6b48eb69eb010197216c9271ef3e86e96fe8fb95505badf3813b87ad",
+      "bytes": 4333
+    },
+    {
+      "path": ".claude/commands/test-loop.md",
+      "sha256": "5443c3e524691a2b78bd49ceae6432ee659833df73bdac70cfc0e3581e2d4580",
+      "bytes": 4897
+    },
+    {
+      "path": ".claude/commands/traceability-audit.md",
+      "sha256": "1c8845f867d7d370554142229c6832d37368c88ea560038da7f7006c46b94dc0",
+      "bytes": 3967
+    },
+    {
+      "path": ".claude/commands/uat-signoff.md",
+      "sha256": "a1be7df5ad97e4665b98e00e580a4d7a8c21712c4f717b156fc6f00b91ecf56f",
+      "bytes": 3434
+    },
+    {
+      "path": ".claude/commands/verify-work.md",
+      "sha256": "715e48288d5e18457976351e8f352a2692a508153eb285a39745520489804276",
+      "bytes": 4581
+    },
+    {
+      "path": ".claude/skills/common/common-api-design/SKILL.md",
+      "sha256": "aa30d38cc00683697d86ba1bbc7391d49f89cfca938815b1b9be2c9b8d1bbfb7",
+      "bytes": 3756
+    },
+    {
+      "path": ".claude/skills/common/common-dast-tooling/SKILL.md",
+      "sha256": "197ec91c2cea4f60c075f4300fc6d5d46bd35b551009c1ee485fa9b5c1774b4b",
+      "bytes": 4748
+    },
+    {
+      "path": ".claude/skills/common/common-dast-tooling/references/implementation.md",
+      "sha256": "0fe387eac2283538a96dcc849169504ad9662b10b8ab843ced764f989edab65e",
+      "bytes": 5031
+    },
+    {
+      "path": ".claude/skills/common/common-mobile-visual-testing/SKILL.md",
+      "sha256": "c9654b47ba400cf41b1448cab265fd534ba14ebdc5e50278ab1ea1ddd9250f33",
+      "bytes": 4204
+    },
+    {
+      "path": ".claude/skills/common/common-mobile-visual-testing/references/mobile-testing-matrix.md",
+      "sha256": "6d65921fc02d1ca3b3392e1d271aed4ff9545bc4e341f164e926198c0d7b84ba",
+      "bytes": 28384
+    },
+    {
+      "path": ".claude/skills/common/common-mobile-visual-testing/references/scenarios.md",
+      "sha256": "2f6c70f01f305792c1f7d68c6555b7f104d86edb4e95aeeef5e50a306560a3bd",
+      "bytes": 19013
+    },
+    {
+      "path": ".claude/skills/common/common-performance-engineering/SKILL.md",
+      "sha256": "c8ea64dbe2f782bf09f7e48bb11161c51e7427aad598a521227cea4446ec46f7",
+      "bytes": 3409
+    },
+    {
+      "path": ".claude/skills/common/common-security-audit/SKILL.md",
+      "sha256": "d79e10ee435942df716aa5b9ef8a87001e8fc77b6ea9c105d2b8d76babc36eef",
+      "bytes": 4385
+    },
+    {
+      "path": ".claude/skills/quality-engineering/_INDEX.md",
+      "sha256": "5d5a13691e186dc618f1d5b7b48a429835f53ff197d4f9d343f4309af959eb42",
+      "bytes": 3790
+    },
+    {
+      "path": ".claude/skills/quality-engineering/quality-engineering-api-fuzz-testing/LICENSE",
+      "sha256": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+      "bytes": 1069
+    },
+    {
+      "path": ".claude/skills/quality-engineering/quality-engineering-api-fuzz-testing/SKILL.md",
+      "sha256": "ffbee5a3c107e5bd50caeedffcef58dfa7e2dd6dd3c689488d393e21350e0c07",
+      "bytes": 5030
+    },
+    {
+      "path": ".claude/skills/quality-engineering/quality-engineering-api-fuzz-testing/references/fuzz-methodology.md",
+      "sha256": "59432c1414e57093a4e5a65013f7fccfc4112a0be0b09d0f13f56a14fc01e622",
+      "bytes": 10766
+    },
+    {
+      "path": ".claude/skills/quality-engineering/quality-engineering-api-fuzz-testing/references/fuzz-scenarios.md",
+      "sha256": "8acf26a07d28da97977299f406ba8402521ac0cb446eb33cae9426cc62a01315",
+      "bytes": 17898
+    },
+    {
+      "path": ".claude/skills/quality-engineering/quality-engineering-api-performance-testing/LICENSE",
+      "sha256": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+      "bytes": 1069
+    },
+    {
+      "path": ".claude/skills/quality-engineering/quality-engineering-api-performance-testing/SKILL.md",
+      "sha256": "c7d76ae4db87ee8c1b6d341c3b519e776d77b4ccdaf368f632f2b505205512a9",
+      "bytes": 5183
+    },
+    {
+      "path": ".claude/skills/quality-engineering/quality-engineering-api-performance-testing/references/driver-execution.md",
+      "sha256": "3a678d6a9134b45fa8f6972831b443464fce7a6623563a844e54c745eb507766",
+      "bytes": 10315
+    },
+    {
+      "path": ".claude/skills/quality-engineering/quality-engineering-api-performance-testing/references/overload-and-recovery.md",
+      "sha256": "d2b3c334574787a3451512faf6d08fdcaefc43652e0cb24c7b325f6774d2adde",
+      "bytes": 9873
+    },
+    {
+      "path": ".claude/skills/quality-engineering/quality-engineering-api-performance-testing/references/workload-modeling.md",
+      "sha256": "a81abd6b7e151ded52083dee156dcb33c3736d640973c4daec4c7caeb5f7d48a",
+      "bytes": 5130
+    },
+    {
+      "path": ".claude/skills/quality-engineering/quality-engineering-api-testing/LICENSE",
+      "sha256": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+      "bytes": 1069
+    },
+    {
+      "path": ".claude/skills/quality-engineering/quality-engineering-api-testing/SKILL.md",
+      "sha256": "7e8152e311c5663537d55bd1e049d9f074f0b7c8d052f99b03d83f82ce9dd216",
+      "bytes": 6523
+    },
+    {
+      "path": ".claude/skills/quality-engineering/quality-engineering-api-testing/references/api-testing-methodology.md",
+      "sha256": "94f33c5a7755a44c28a257a2ccf66dc0d47d020fbe2195417a95114684b91a69",
+      "bytes": 14771
+    },
+    {
+      "path": ".claude/skills/quality-engineering/quality-engineering-api-testing/references/synthetic-order-example.md",
+      "sha256": "ecf8391fc8d714bb6995379545728b91a5b32b60aeaa8309c7e454d329dd7461",
+      "bytes": 16765
+    },
+    {
+      "path": ".claude/skills/quality-engineering/quality-engineering-appium-mcp/SKILL.md",
+      "sha256": "649b91601cf263ea20fb26f46d1f5de1a8aff6369df1696f2c60835b12674807",
+      "bytes": 5028
+    },
+    {
+      "path": ".claude/skills/quality-engineering/quality-engineering-appium-mcp/references/driver-ladder.md",
+      "sha256": "86ef63ff7c5b9516b98cc2a796692268f2261af15f86540284a03ac364d45b04",
+      "bytes": 5587
+    },
+    {
+      "path": ".claude/skills/quality-engineering/quality-engineering-appium-mcp/references/tool-cheatsheet.md",
+      "sha256": "99e8aad7c18ecc302d289a749c9775e6430a48fe40de00381c6b389e6aadedf5",
+      "bytes": 5675
+    },
+    {
+      "path": ".claude/skills/quality-engineering/quality-engineering-playwright-pom-generation/SKILL.md",
+      "sha256": "058b2e596c2e5e848b8f572837b2f6caa0279b4aec31dd036be1613fd8cab4e9",
+      "bytes": 4468
+    },
+    {
+      "path": ".claude/skills/quality-engineering/quality-engineering-playwright-pom-generation/references/page-object-template.md",
+      "sha256": "d6c5f4ce7e9f0ad08544820733171ceab3f6205b74307bb4b9355654daa4cd75",
+      "bytes": 3897
+    },
+    {
+      "path": ".claude/skills/quality-engineering/quality-engineering-selector-stability/SKILL.md",
+      "sha256": "1a2a8236ca998219af0e7c802406d0f814358ca72fb746184fb5cc2d1aea5ffe",
+      "bytes": 2396
+    },
+    {
+      "path": ".claude/skills/quality-engineering/quality-engineering-selector-stability/references/selector-ladder.md",
+      "sha256": "79d13c6383c7b477303d3c4fd85e25edc1b6adc75203858f85bb84fd31332efd",
+      "bytes": 4017
+    },
+    {
+      "path": ".claude/skills/quality-engineering/quality-engineering-test-plan-authoring/SKILL.md",
+      "sha256": "0fed085586b513ffb62a1b0838e2ea48943a1a4c5bce6490a68eb35dcaa3e793",
+      "bytes": 4232
+    },
+    {
+      "path": ".claude/skills/quality-engineering/quality-engineering-test-plan-authoring/references/lifecycle-and-roles.md",
+      "sha256": "49b6bd99cd0b80404cdc9f045e3c41f30bb0308d60d5ad216f00fea89765b44e",
+      "bytes": 9634
+    },
+    {
+      "path": ".claude/skills/quality-engineering/quality-engineering-test-plan-authoring/references/test-plan-template.md",
+      "sha256": "623c87d334cca14deb7647073bccb0ffbc05a18d4b6299e3ea51fd8e350d6598",
+      "bytes": 7450
+    },
+    {
+      "path": ".claude/skills/quality-engineering/quality-engineering-zephyr-test-generation/references/impact_analysis.md",
+      "sha256": "164b641f3c031d064eadbc60422ef008ce94b93509eca60281341616c016aa0c",
+      "bytes": 5026
+    },
+    {
+      "path": ".codex/agents/integration-test-generator.toml",
+      "sha256": "90473ccb9c410a83480958204636404874313e5d72a3a8f9ba1047048458eb11",
+      "bytes": 2416
+    },
+    {
+      "path": ".codex/skills/common/common-api-design/SKILL.md",
+      "sha256": "aa30d38cc00683697d86ba1bbc7391d49f89cfca938815b1b9be2c9b8d1bbfb7",
+      "bytes": 3756
+    },
+    {
+      "path": ".codex/skills/common/common-dast-tooling/SKILL.md",
+      "sha256": "197ec91c2cea4f60c075f4300fc6d5d46bd35b551009c1ee485fa9b5c1774b4b",
+      "bytes": 4748
+    },
+    {
+      "path": ".codex/skills/common/common-dast-tooling/references/implementation.md",
+      "sha256": "0fe387eac2283538a96dcc849169504ad9662b10b8ab843ced764f989edab65e",
+      "bytes": 5031
+    },
+    {
+      "path": ".codex/skills/common/common-mobile-visual-testing/SKILL.md",
+      "sha256": "c9654b47ba400cf41b1448cab265fd534ba14ebdc5e50278ab1ea1ddd9250f33",
+      "bytes": 4204
+    },
+    {
+      "path": ".codex/skills/common/common-mobile-visual-testing/references/mobile-testing-matrix.md",
+      "sha256": "6d65921fc02d1ca3b3392e1d271aed4ff9545bc4e341f164e926198c0d7b84ba",
+      "bytes": 28384
+    },
+    {
+      "path": ".codex/skills/common/common-mobile-visual-testing/references/scenarios.md",
+      "sha256": "2f6c70f01f305792c1f7d68c6555b7f104d86edb4e95aeeef5e50a306560a3bd",
+      "bytes": 19013
+    },
+    {
+      "path": ".codex/skills/common/common-performance-engineering/SKILL.md",
+      "sha256": "c8ea64dbe2f782bf09f7e48bb11161c51e7427aad598a521227cea4446ec46f7",
+      "bytes": 3409
+    },
+    {
+      "path": ".codex/skills/common/common-security-audit/SKILL.md",
+      "sha256": "d79e10ee435942df716aa5b9ef8a87001e8fc77b6ea9c105d2b8d76babc36eef",
+      "bytes": 4385
+    },
+    {
+      "path": ".codex/skills/deploy-release/SKILL.md",
+      "sha256": "700c66426214a54effabf7a54392c528971672a4a5afc2c002c26efaed64a613",
+      "bytes": 4502
+    },
+    {
+      "path": ".codex/skills/implementation-readiness/SKILL.md",
+      "sha256": "1df06cd73bab4a4f893bc875f5fa708eacc20c7440e2c394fc2264e79187b33e",
+      "bytes": 7173
+    },
+    {
+      "path": ".codex/skills/publish-notes/SKILL.md",
+      "sha256": "78592063a1413848f0212e155a2f9dff682763be8616846bdb412a505d40dc39",
+      "bytes": 3492
+    },
+    {
+      "path": ".codex/skills/quality-engineering/_INDEX.md",
+      "sha256": "5d5a13691e186dc618f1d5b7b48a429835f53ff197d4f9d343f4309af959eb42",
+      "bytes": 3790
+    },
+    {
+      "path": ".codex/skills/quality-engineering/quality-engineering-api-fuzz-testing/LICENSE",
+      "sha256": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+      "bytes": 1069
+    },
+    {
+      "path": ".codex/skills/quality-engineering/quality-engineering-api-fuzz-testing/SKILL.md",
+      "sha256": "ffbee5a3c107e5bd50caeedffcef58dfa7e2dd6dd3c689488d393e21350e0c07",
+      "bytes": 5030
+    },
+    {
+      "path": ".codex/skills/quality-engineering/quality-engineering-api-fuzz-testing/references/fuzz-methodology.md",
+      "sha256": "59432c1414e57093a4e5a65013f7fccfc4112a0be0b09d0f13f56a14fc01e622",
+      "bytes": 10766
+    },
+    {
+      "path": ".codex/skills/quality-engineering/quality-engineering-api-fuzz-testing/references/fuzz-scenarios.md",
+      "sha256": "8acf26a07d28da97977299f406ba8402521ac0cb446eb33cae9426cc62a01315",
+      "bytes": 17898
+    },
+    {
+      "path": ".codex/skills/quality-engineering/quality-engineering-api-performance-testing/LICENSE",
+      "sha256": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+      "bytes": 1069
+    },
+    {
+      "path": ".codex/skills/quality-engineering/quality-engineering-api-performance-testing/SKILL.md",
+      "sha256": "c7d76ae4db87ee8c1b6d341c3b519e776d77b4ccdaf368f632f2b505205512a9",
+      "bytes": 5183
+    },
+    {
+      "path": ".codex/skills/quality-engineering/quality-engineering-api-performance-testing/references/driver-execution.md",
+      "sha256": "3a678d6a9134b45fa8f6972831b443464fce7a6623563a844e54c745eb507766",
+      "bytes": 10315
+    },
+    {
+      "path": ".codex/skills/quality-engineering/quality-engineering-api-performance-testing/references/overload-and-recovery.md",
+      "sha256": "d2b3c334574787a3451512faf6d08fdcaefc43652e0cb24c7b325f6774d2adde",
+      "bytes": 9873
+    },
+    {
+      "path": ".codex/skills/quality-engineering/quality-engineering-api-performance-testing/references/workload-modeling.md",
+      "sha256": "a81abd6b7e151ded52083dee156dcb33c3736d640973c4daec4c7caeb5f7d48a",
+      "bytes": 5130
+    },
+    {
+      "path": ".codex/skills/quality-engineering/quality-engineering-api-testing/LICENSE",
+      "sha256": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+      "bytes": 1069
+    },
+    {
+      "path": ".codex/skills/quality-engineering/quality-engineering-api-testing/SKILL.md",
+      "sha256": "7e8152e311c5663537d55bd1e049d9f074f0b7c8d052f99b03d83f82ce9dd216",
+      "bytes": 6523
+    },
+    {
+      "path": ".codex/skills/quality-engineering/quality-engineering-api-testing/references/api-testing-methodology.md",
+      "sha256": "94f33c5a7755a44c28a257a2ccf66dc0d47d020fbe2195417a95114684b91a69",
+      "bytes": 14771
+    },
+    {
+      "path": ".codex/skills/quality-engineering/quality-engineering-api-testing/references/synthetic-order-example.md",
+      "sha256": "ecf8391fc8d714bb6995379545728b91a5b32b60aeaa8309c7e454d329dd7461",
+      "bytes": 16765
+    },
+    {
+      "path": ".codex/skills/quality-engineering/quality-engineering-appium-mcp/SKILL.md",
+      "sha256": "649b91601cf263ea20fb26f46d1f5de1a8aff6369df1696f2c60835b12674807",
+      "bytes": 5028
+    },
+    {
+      "path": ".codex/skills/quality-engineering/quality-engineering-appium-mcp/references/driver-ladder.md",
+      "sha256": "86ef63ff7c5b9516b98cc2a796692268f2261af15f86540284a03ac364d45b04",
+      "bytes": 5587
+    },
+    {
+      "path": ".codex/skills/quality-engineering/quality-engineering-appium-mcp/references/tool-cheatsheet.md",
+      "sha256": "99e8aad7c18ecc302d289a749c9775e6430a48fe40de00381c6b389e6aadedf5",
+      "bytes": 5675
+    },
+    {
+      "path": ".codex/skills/quality-engineering/quality-engineering-playwright-pom-generation/SKILL.md",
+      "sha256": "058b2e596c2e5e848b8f572837b2f6caa0279b4aec31dd036be1613fd8cab4e9",
+      "bytes": 4468
+    },
+    {
+      "path": ".codex/skills/quality-engineering/quality-engineering-playwright-pom-generation/references/page-object-template.md",
+      "sha256": "d6c5f4ce7e9f0ad08544820733171ceab3f6205b74307bb4b9355654daa4cd75",
+      "bytes": 3897
+    },
+    {
+      "path": ".codex/skills/quality-engineering/quality-engineering-selector-stability/SKILL.md",
+      "sha256": "1a2a8236ca998219af0e7c802406d0f814358ca72fb746184fb5cc2d1aea5ffe",
+      "bytes": 2396
+    },
+    {
+      "path": ".codex/skills/quality-engineering/quality-engineering-selector-stability/references/selector-ladder.md",
+      "sha256": "79d13c6383c7b477303d3c4fd85e25edc1b6adc75203858f85bb84fd31332efd",
+      "bytes": 4017
+    },
+    {
+      "path": ".codex/skills/quality-engineering/quality-engineering-test-plan-authoring/SKILL.md",
+      "sha256": "0fed085586b513ffb62a1b0838e2ea48943a1a4c5bce6490a68eb35dcaa3e793",
+      "bytes": 4232
+    },
+    {
+      "path": ".codex/skills/quality-engineering/quality-engineering-test-plan-authoring/references/lifecycle-and-roles.md",
+      "sha256": "49b6bd99cd0b80404cdc9f045e3c41f30bb0308d60d5ad216f00fea89765b44e",
+      "bytes": 9634
+    },
+    {
+      "path": ".codex/skills/quality-engineering/quality-engineering-test-plan-authoring/references/test-plan-template.md",
+      "sha256": "623c87d334cca14deb7647073bccb0ffbc05a18d4b6299e3ea51fd8e350d6598",
+      "bytes": 7450
+    },
+    {
+      "path": ".codex/skills/quality-engineering/quality-engineering-zephyr-test-generation/references/impact_analysis.md",
+      "sha256": "164b641f3c031d064eadbc60422ef008ce94b93509eca60281341616c016aa0c",
+      "bytes": 5026
+    },
+    {
+      "path": ".codex/skills/retro-learn/SKILL.md",
+      "sha256": "64db93bb1f2f63ebf992537d620a41f8609d76660757f77ce3c8a1fc75cbefe8",
+      "bytes": 4388
+    },
+    {
+      "path": ".codex/skills/test-loop/SKILL.md",
+      "sha256": "1176cafbee96a2d73d54429e57fc49b241cfa17c8653eb9eb69e8f99f1a88f4d",
+      "bytes": 4968
+    },
+    {
+      "path": ".codex/skills/traceability-audit/SKILL.md",
+      "sha256": "b33fba4b5c74a02fd37efcc4eac7b839d55dc4a83bd226396890edc9b7df5aa8",
+      "bytes": 4064
+    },
+    {
+      "path": ".codex/skills/uat-signoff/SKILL.md",
+      "sha256": "750afa39cef89959c8a319ee61c4e45d66371302ca7f4a02ca06afc5cef18a31",
+      "bytes": 3525
+    },
+    {
+      "path": ".codex/skills/verify-work/SKILL.md",
+      "sha256": "f94f0afc9f97047be14ef94be7669b24f2a0e0816f8119c8debd69f096193046",
+      "bytes": 4646
+    },
+    {
+      "path": ".github/agents/integration-test-generator.agent.md",
+      "sha256": "505b918b8ed226aacd46cb0f049cd1b919bb1dd3645fe89a5dadb5ccdd28c9b8",
+      "bytes": 2385
+    },
+    {
+      "path": ".github/prompts/deploy-release.prompt.md",
+      "sha256": "66522b7ba9328260bc1c6b23bee283c20691ca27739f4589eef404b931aa45e4",
+      "bytes": 4011
+    },
+    {
+      "path": ".github/prompts/implementation-readiness.prompt.md",
+      "sha256": "3cff0cc9a5830ea2a1a57f2f6583cdec398db50084e76680358bc9ce2be7f6ab",
+      "bytes": 6649
+    },
+    {
+      "path": ".github/prompts/publish-notes.prompt.md",
+      "sha256": "139aab440a427ac48645b6fabe5840c598afa020642f1cb3e5987dd528fde51a",
+      "bytes": 3006
+    },
+    {
+      "path": ".github/prompts/retro-learn.prompt.md",
+      "sha256": "14de6dbda5a6ad171c62718094ac41e920067c679eb60b77c0e39380fb82efb9",
+      "bytes": 3905
+    },
+    {
+      "path": ".github/prompts/test-loop.prompt.md",
+      "sha256": "37c70cfc95d41758f093e3e77db29ed23d26003341b1cd1ff0ab79117c419218",
+      "bytes": 4471
+    },
+    {
+      "path": ".github/prompts/traceability-audit.prompt.md",
+      "sha256": "f90448cdf1f63f680cfcd664fd86c1e94e94a0245329fb746cf121dc5e55c38a",
+      "bytes": 3532
+    },
+    {
+      "path": ".github/prompts/uat-signoff.prompt.md",
+      "sha256": "80fff8c36ba86c000c3d55790d6751eed4f45e9094166265fb3478c9391bd6dc",
+      "bytes": 3006
+    },
+    {
+      "path": ".github/prompts/verify-work.prompt.md",
+      "sha256": "16d3828e6a1475562a8b8c806e2f77e5baea1709ed48a3e6ef582a2b6829bfd2",
+      "bytes": 4153
+    },
+    {
+      "path": ".github/skills/common/common-api-design/SKILL.md",
+      "sha256": "aa30d38cc00683697d86ba1bbc7391d49f89cfca938815b1b9be2c9b8d1bbfb7",
+      "bytes": 3756
+    },
+    {
+      "path": ".github/skills/common/common-dast-tooling/SKILL.md",
+      "sha256": "197ec91c2cea4f60c075f4300fc6d5d46bd35b551009c1ee485fa9b5c1774b4b",
+      "bytes": 4748
+    },
+    {
+      "path": ".github/skills/common/common-dast-tooling/references/implementation.md",
+      "sha256": "0fe387eac2283538a96dcc849169504ad9662b10b8ab843ced764f989edab65e",
+      "bytes": 5031
+    },
+    {
+      "path": ".github/skills/common/common-mobile-visual-testing/SKILL.md",
+      "sha256": "c9654b47ba400cf41b1448cab265fd534ba14ebdc5e50278ab1ea1ddd9250f33",
+      "bytes": 4204
+    },
+    {
+      "path": ".github/skills/common/common-mobile-visual-testing/references/mobile-testing-matrix.md",
+      "sha256": "6d65921fc02d1ca3b3392e1d271aed4ff9545bc4e341f164e926198c0d7b84ba",
+      "bytes": 28384
+    },
+    {
+      "path": ".github/skills/common/common-mobile-visual-testing/references/scenarios.md",
+      "sha256": "2f6c70f01f305792c1f7d68c6555b7f104d86edb4e95aeeef5e50a306560a3bd",
+      "bytes": 19013
+    },
+    {
+      "path": ".github/skills/common/common-performance-engineering/SKILL.md",
+      "sha256": "c8ea64dbe2f782bf09f7e48bb11161c51e7427aad598a521227cea4446ec46f7",
+      "bytes": 3409
+    },
+    {
+      "path": ".github/skills/common/common-security-audit/SKILL.md",
+      "sha256": "d79e10ee435942df716aa5b9ef8a87001e8fc77b6ea9c105d2b8d76babc36eef",
+      "bytes": 4385
+    },
+    {
+      "path": ".github/skills/quality-engineering/_INDEX.md",
+      "sha256": "5d5a13691e186dc618f1d5b7b48a429835f53ff197d4f9d343f4309af959eb42",
+      "bytes": 3790
+    },
+    {
+      "path": ".github/skills/quality-engineering/quality-engineering-api-fuzz-testing/LICENSE",
+      "sha256": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+      "bytes": 1069
+    },
+    {
+      "path": ".github/skills/quality-engineering/quality-engineering-api-fuzz-testing/SKILL.md",
+      "sha256": "ffbee5a3c107e5bd50caeedffcef58dfa7e2dd6dd3c689488d393e21350e0c07",
+      "bytes": 5030
+    },
+    {
+      "path": ".github/skills/quality-engineering/quality-engineering-api-fuzz-testing/references/fuzz-methodology.md",
+      "sha256": "59432c1414e57093a4e5a65013f7fccfc4112a0be0b09d0f13f56a14fc01e622",
+      "bytes": 10766
+    },
+    {
+      "path": ".github/skills/quality-engineering/quality-engineering-api-fuzz-testing/references/fuzz-scenarios.md",
+      "sha256": "8acf26a07d28da97977299f406ba8402521ac0cb446eb33cae9426cc62a01315",
+      "bytes": 17898
+    },
+    {
+      "path": ".github/skills/quality-engineering/quality-engineering-api-performance-testing/LICENSE",
+      "sha256": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+      "bytes": 1069
+    },
+    {
+      "path": ".github/skills/quality-engineering/quality-engineering-api-performance-testing/SKILL.md",
+      "sha256": "c7d76ae4db87ee8c1b6d341c3b519e776d77b4ccdaf368f632f2b505205512a9",
+      "bytes": 5183
+    },
+    {
+      "path": ".github/skills/quality-engineering/quality-engineering-api-performance-testing/references/driver-execution.md",
+      "sha256": "3a678d6a9134b45fa8f6972831b443464fce7a6623563a844e54c745eb507766",
+      "bytes": 10315
+    },
+    {
+      "path": ".github/skills/quality-engineering/quality-engineering-api-performance-testing/references/overload-and-recovery.md",
+      "sha256": "d2b3c334574787a3451512faf6d08fdcaefc43652e0cb24c7b325f6774d2adde",
+      "bytes": 9873
+    },
+    {
+      "path": ".github/skills/quality-engineering/quality-engineering-api-performance-testing/references/workload-modeling.md",
+      "sha256": "a81abd6b7e151ded52083dee156dcb33c3736d640973c4daec4c7caeb5f7d48a",
+      "bytes": 5130
+    },
+    {
+      "path": ".github/skills/quality-engineering/quality-engineering-api-testing/LICENSE",
+      "sha256": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+      "bytes": 1069
+    },
+    {
+      "path": ".github/skills/quality-engineering/quality-engineering-api-testing/SKILL.md",
+      "sha256": "7e8152e311c5663537d55bd1e049d9f074f0b7c8d052f99b03d83f82ce9dd216",
+      "bytes": 6523
+    },
+    {
+      "path": ".github/skills/quality-engineering/quality-engineering-api-testing/references/api-testing-methodology.md",
+      "sha256": "94f33c5a7755a44c28a257a2ccf66dc0d47d020fbe2195417a95114684b91a69",
+      "bytes": 14771
+    },
+    {
+      "path": ".github/skills/quality-engineering/quality-engineering-api-testing/references/synthetic-order-example.md",
+      "sha256": "ecf8391fc8d714bb6995379545728b91a5b32b60aeaa8309c7e454d329dd7461",
+      "bytes": 16765
+    },
+    {
+      "path": ".github/skills/quality-engineering/quality-engineering-appium-mcp/SKILL.md",
+      "sha256": "649b91601cf263ea20fb26f46d1f5de1a8aff6369df1696f2c60835b12674807",
+      "bytes": 5028
+    },
+    {
+      "path": ".github/skills/quality-engineering/quality-engineering-appium-mcp/references/driver-ladder.md",
+      "sha256": "86ef63ff7c5b9516b98cc2a796692268f2261af15f86540284a03ac364d45b04",
+      "bytes": 5587
+    },
+    {
+      "path": ".github/skills/quality-engineering/quality-engineering-appium-mcp/references/tool-cheatsheet.md",
+      "sha256": "99e8aad7c18ecc302d289a749c9775e6430a48fe40de00381c6b389e6aadedf5",
+      "bytes": 5675
+    },
+    {
+      "path": ".github/skills/quality-engineering/quality-engineering-playwright-pom-generation/SKILL.md",
+      "sha256": "058b2e596c2e5e848b8f572837b2f6caa0279b4aec31dd036be1613fd8cab4e9",
+      "bytes": 4468
+    },
+    {
+      "path": ".github/skills/quality-engineering/quality-engineering-playwright-pom-generation/references/page-object-template.md",
+      "sha256": "d6c5f4ce7e9f0ad08544820733171ceab3f6205b74307bb4b9355654daa4cd75",
+      "bytes": 3897
+    },
+    {
+      "path": ".github/skills/quality-engineering/quality-engineering-selector-stability/SKILL.md",
+      "sha256": "1a2a8236ca998219af0e7c802406d0f814358ca72fb746184fb5cc2d1aea5ffe",
+      "bytes": 2396
+    },
+    {
+      "path": ".github/skills/quality-engineering/quality-engineering-selector-stability/references/selector-ladder.md",
+      "sha256": "79d13c6383c7b477303d3c4fd85e25edc1b6adc75203858f85bb84fd31332efd",
+      "bytes": 4017
+    },
+    {
+      "path": ".github/skills/quality-engineering/quality-engineering-test-plan-authoring/SKILL.md",
+      "sha256": "0fed085586b513ffb62a1b0838e2ea48943a1a4c5bce6490a68eb35dcaa3e793",
+      "bytes": 4232
+    },
+    {
+      "path": ".github/skills/quality-engineering/quality-engineering-test-plan-authoring/references/lifecycle-and-roles.md",
+      "sha256": "49b6bd99cd0b80404cdc9f045e3c41f30bb0308d60d5ad216f00fea89765b44e",
+      "bytes": 9634
+    },
+    {
+      "path": ".github/skills/quality-engineering/quality-engineering-test-plan-authoring/references/test-plan-template.md",
+      "sha256": "623c87d334cca14deb7647073bccb0ffbc05a18d4b6299e3ea51fd8e350d6598",
+      "bytes": 7450
+    },
+    {
+      "path": ".github/skills/quality-engineering/quality-engineering-zephyr-test-generation/references/impact_analysis.md",
+      "sha256": "164b641f3c031d064eadbc60422ef008ce94b93509eca60281341616c016aa0c",
+      "bytes": 5026
+    },
+    {
+      "path": "CHANGELOG.md",
+      "sha256": "f3c30f8b7294664a4a634d8daf3aeac46d79d81979acb12515568f8c647b7e71",
+      "bytes": 235029
+    },
+    {
+      "path": "artifacts/testing-quality-improvement/PUBLIC-MANIFEST.json",
+      "sha256": "e3f034a23627dd497c6cf0fcdb2a94a87e41625fd758b5c2814343584840b3e5",
+      "bytes": 1076
+    },
+    {
+      "path": "artifacts/testing-quality-improvement/final-inventory-and-gates.json",
+      "sha256": "0d1b41bec3522dd0fb763cc870e2f50db2345031233c2d7e265a2c9159f17253",
+      "bytes": 57050
+    },
+    {
+      "path": "artifacts/testing-quality-improvement/pr-readiness-acceptance-decision.json",
+      "sha256": "26bc522f3bea3342eca6e23e7134fb3a5869399d01fdef94200517ff1765625e",
+      "bytes": 1258
+    },
+    {
+      "path": "artifacts/testing-quality-improvement/verification-summary.md",
+      "sha256": "de9fb40b29e88ceb05de7eee537830c7662af65684acce52a86f805182a5ade0",
+      "bytes": 5913
+    },
+    {
+      "path": "docs/prd/prd-testing-quality-improvement.md",
+      "sha256": "766b57bdcd770fe2056a8259ad5a5350b55c064316b5e19941ebba265cfa4de2",
+      "bytes": 42782
+    },
+    {
+      "path": "scripts/skill-tests/testing-quality-improvement/eval-calibration.mjs",
+      "sha256": "786f1a16c28026cb8450e826255b1e2354b96e1c2a033da1dee071652122d012",
+      "bytes": 40387
+    },
+    {
+      "path": "scripts/skill-tests/testing-quality-improvement/fixtures/api-fixtures.json",
+      "sha256": "a91083c206180445719a6512f0474d745bdd999bc2f6ff527efa8847c22aa1e5",
+      "bytes": 9509
+    },
+    {
+      "path": "scripts/skill-tests/testing-quality-improvement/fixtures/mobile-scenarios.json",
+      "sha256": "b924236ad197f7cf00f2cefe94055438bbd5ac163dea08849b505aea974924b7",
+      "bytes": 54722
+    },
+    {
+      "path": "scripts/skill-tests/testing-quality-improvement/http-fixture-server.mjs",
+      "sha256": "9446f3918acd1729be3f7688e3abc65ad3c746b13157a6de4eee35d829605cd3",
+      "bytes": 22340
+    },
+    {
+      "path": "scripts/skill-tests/testing-quality-improvement/playwright-fixture-runner.mjs",
+      "sha256": "0397114bdb043b0f0c59ffa67bf75a24efeb183a57a68c9ed948777e24de9996",
+      "bytes": 20268
+    },
+    {
+      "path": "scripts/skill-tests/testing-quality-improvement/router-matrix.mjs",
+      "sha256": "ae22bfac5ecd72b96eb7b275f8154d9cdf813d4e4ad2cf1000df81829c736c2f",
+      "bytes": 24450
+    },
+    {
+      "path": "scripts/skill-tests/testing-quality-improvement/synthetic-oracles.mjs",
+      "sha256": "6e7a5a53188daeb2ed5dc3789881acc64cb76152b0a509fa61d3662372503615",
+      "bytes": 70465
+    },
+    {
+      "path": "scripts/skill-tests/testing-quality-improvement/test-fixtures.test.mjs",
+      "sha256": "ba0f57d003cbb5f0c482bd4068a319829b7ec5819e472d00c5f38f1174b03e11",
+      "bytes": 63083
+    },
+    {
+      "path": "skills/android/_INDEX.md",
+      "sha256": "30f7d12344f485b028adb65ef2042a05719a97f081a0c6d947e080299b52bfa3",
+      "bytes": 4263
+    },
+    {
+      "path": "skills/android/android-testing/SKILL.md",
+      "sha256": "2cf9658809579214e07f69d7976799f68ef79cffc7f0012e03ae4b9b1da5d515",
+      "bytes": 4239
+    },
+    {
+      "path": "skills/android/android-testing/evals/evals.json",
+      "sha256": "bda78622bb1da0254c06246ecbaea45497bf25ca1ddcfdaef1c0b46ff9f80319",
+      "bytes": 5959
+    },
+    {
+      "path": "skills/android/android-testing/references/implementation.md",
+      "sha256": "2d1415ed018215fddeb62781a30bce23d85289f29830129050bea15d78eecfed",
+      "bytes": 5321
+    },
+    {
+      "path": "skills/common/common-api-design/SKILL.md",
+      "sha256": "aa30d38cc00683697d86ba1bbc7391d49f89cfca938815b1b9be2c9b8d1bbfb7",
+      "bytes": 3756
+    },
+    {
+      "path": "skills/common/common-dast-tooling/SKILL.md",
+      "sha256": "197ec91c2cea4f60c075f4300fc6d5d46bd35b551009c1ee485fa9b5c1774b4b",
+      "bytes": 4748
+    },
+    {
+      "path": "skills/common/common-dast-tooling/references/implementation.md",
+      "sha256": "0fe387eac2283538a96dcc849169504ad9662b10b8ab843ced764f989edab65e",
+      "bytes": 5031
+    },
+    {
+      "path": "skills/common/common-mobile-visual-testing/SKILL.md",
+      "sha256": "c9654b47ba400cf41b1448cab265fd534ba14ebdc5e50278ab1ea1ddd9250f33",
+      "bytes": 4204
+    },
+    {
+      "path": "skills/common/common-mobile-visual-testing/evals/evals.json",
+      "sha256": "e313c4287f6999d2a7801d76f893e80a3f0ec2f22d70f674543510c01c6cd394",
+      "bytes": 4511
+    },
+    {
+      "path": "skills/common/common-mobile-visual-testing/references/mobile-testing-matrix.md",
+      "sha256": "6d65921fc02d1ca3b3392e1d271aed4ff9545bc4e341f164e926198c0d7b84ba",
+      "bytes": 28384
+    },
+    {
+      "path": "skills/common/common-mobile-visual-testing/references/scenarios.md",
+      "sha256": "2f6c70f01f305792c1f7d68c6555b7f104d86edb4e95aeeef5e50a306560a3bd",
+      "bytes": 19013
+    },
+    {
+      "path": "skills/common/common-performance-engineering/SKILL.md",
+      "sha256": "c8ea64dbe2f782bf09f7e48bb11161c51e7427aad598a521227cea4446ec46f7",
+      "bytes": 3409
+    },
+    {
+      "path": "skills/common/common-security-audit/SKILL.md",
+      "sha256": "d79e10ee435942df716aa5b9ef8a87001e8fc77b6ea9c105d2b8d76babc36eef",
+      "bytes": 4385
+    },
+    {
+      "path": "skills/flutter/_INDEX.md",
+      "sha256": "923e39eeefbec39a0135e6b9a2c3ed68df4fcf457008e77cf51dcae1cedb22a3",
+      "bytes": 3664
+    },
+    {
+      "path": "skills/flutter/flutter-testing/SKILL.md",
+      "sha256": "21c1626c0b7747d96300fba461c0b788b295f9258523479179d8f78cbe3b6503",
+      "bytes": 6024
+    },
+    {
+      "path": "skills/flutter/flutter-testing/evals/evals.json",
+      "sha256": "9fd2c013a3b4fd31223fe31d6a6e38c781dd8dc8430b6f59951be9d9523e918e",
+      "bytes": 3837
+    },
+    {
+      "path": "skills/flutter/flutter-testing/references/integration-testing.md",
+      "sha256": "3f7a8021deaec3e5895971526c47b249bde45f10ddf4d72646d59c7a2b0d89ac",
+      "bytes": 10199
+    },
+    {
+      "path": "skills/index.json",
+      "sha256": "8f02ac5041be643fd02970289aa6d9169f1aa61b6310476fa3803e0ec26f8141",
+      "bytes": 89148
+    },
+    {
+      "path": "skills/metadata.json",
+      "sha256": "de99d8445dac23ea472a022da2798cb9035b3c33ac017afb595024f1c5dcb947",
+      "bytes": 21019
+    },
+    {
+      "path": "skills/nestjs/nestjs-testing/SKILL.md",
+      "sha256": "784d471a48ec23ed727ed213d84f9b0781cb236db30277f717f609ad550c3a7e",
+      "bytes": 4958
+    },
+    {
+      "path": "skills/quality-engineering/_INDEX.md",
+      "sha256": "5d5a13691e186dc618f1d5b7b48a429835f53ff197d4f9d343f4309af959eb42",
+      "bytes": 3790
+    },
+    {
+      "path": "skills/quality-engineering/quality-engineering-api-fuzz-testing/SKILL.md",
+      "sha256": "ffbee5a3c107e5bd50caeedffcef58dfa7e2dd6dd3c689488d393e21350e0c07",
+      "bytes": 5030
+    },
+    {
+      "path": "skills/quality-engineering/quality-engineering-api-fuzz-testing/evals/evals.json",
+      "sha256": "5ad4fe43dc5bca164e05dbdaaf44cded6dd82428da87156e1f6d5b0885bb8bc6",
+      "bytes": 3682
+    },
+    {
+      "path": "skills/quality-engineering/quality-engineering-api-fuzz-testing/references/fuzz-methodology.md",
+      "sha256": "59432c1414e57093a4e5a65013f7fccfc4112a0be0b09d0f13f56a14fc01e622",
+      "bytes": 10766
+    },
+    {
+      "path": "skills/quality-engineering/quality-engineering-api-fuzz-testing/references/fuzz-scenarios.md",
+      "sha256": "8acf26a07d28da97977299f406ba8402521ac0cb446eb33cae9426cc62a01315",
+      "bytes": 17898
+    },
+    {
+      "path": "skills/quality-engineering/quality-engineering-api-performance-testing/SKILL.md",
+      "sha256": "c7d76ae4db87ee8c1b6d341c3b519e776d77b4ccdaf368f632f2b505205512a9",
+      "bytes": 5183
+    },
+    {
+      "path": "skills/quality-engineering/quality-engineering-api-performance-testing/evals/evals.json",
+      "sha256": "9062e5ace47193cfbd0f375c02c43cb28554ddf29d94fefc8a119156fac20cbc",
+      "bytes": 3454
+    },
+    {
+      "path": "skills/quality-engineering/quality-engineering-api-performance-testing/references/driver-execution.md",
+      "sha256": "3a678d6a9134b45fa8f6972831b443464fce7a6623563a844e54c745eb507766",
+      "bytes": 10315
+    },
+    {
+      "path": "skills/quality-engineering/quality-engineering-api-performance-testing/references/overload-and-recovery.md",
+      "sha256": "d2b3c334574787a3451512faf6d08fdcaefc43652e0cb24c7b325f6774d2adde",
+      "bytes": 9873
+    },
+    {
+      "path": "skills/quality-engineering/quality-engineering-api-performance-testing/references/workload-modeling.md",
+      "sha256": "a81abd6b7e151ded52083dee156dcb33c3736d640973c4daec4c7caeb5f7d48a",
+      "bytes": 5130
+    },
+    {
+      "path": "skills/quality-engineering/quality-engineering-api-testing/SKILL.md",
+      "sha256": "7e8152e311c5663537d55bd1e049d9f074f0b7c8d052f99b03d83f82ce9dd216",
+      "bytes": 6523
+    },
+    {
+      "path": "skills/quality-engineering/quality-engineering-api-testing/evals/evals.json",
+      "sha256": "3c045a50adb5aefd9b73b4238bd643346809d80bde378407f3bfa198d5fde229",
+      "bytes": 7289
+    },
+    {
+      "path": "skills/quality-engineering/quality-engineering-api-testing/references/api-testing-methodology.md",
+      "sha256": "94f33c5a7755a44c28a257a2ccf66dc0d47d020fbe2195417a95114684b91a69",
+      "bytes": 14771
+    },
+    {
+      "path": "skills/quality-engineering/quality-engineering-api-testing/references/synthetic-order-example.md",
+      "sha256": "ecf8391fc8d714bb6995379545728b91a5b32b60aeaa8309c7e454d329dd7461",
+      "bytes": 16765
+    },
+    {
+      "path": "skills/quality-engineering/quality-engineering-appium-mcp/SKILL.md",
+      "sha256": "649b91601cf263ea20fb26f46d1f5de1a8aff6369df1696f2c60835b12674807",
+      "bytes": 5028
+    },
+    {
+      "path": "skills/quality-engineering/quality-engineering-appium-mcp/evals/evals.json",
+      "sha256": "17e0c266a1df3f24afb606df400afdd25868977f0db4166a075b09df7d34eb90",
+      "bytes": 3943
+    },
+    {
+      "path": "skills/quality-engineering/quality-engineering-appium-mcp/references/driver-ladder.md",
+      "sha256": "86ef63ff7c5b9516b98cc2a796692268f2261af15f86540284a03ac364d45b04",
+      "bytes": 5587
+    },
+    {
+      "path": "skills/quality-engineering/quality-engineering-appium-mcp/references/tool-cheatsheet.md",
+      "sha256": "99e8aad7c18ecc302d289a749c9775e6430a48fe40de00381c6b389e6aadedf5",
+      "bytes": 5675
+    },
+    {
+      "path": "skills/quality-engineering/quality-engineering-playwright-pom-generation/SKILL.md",
+      "sha256": "058b2e596c2e5e848b8f572837b2f6caa0279b4aec31dd036be1613fd8cab4e9",
+      "bytes": 4468
+    },
+    {
+      "path": "skills/quality-engineering/quality-engineering-playwright-pom-generation/evals/evals.json",
+      "sha256": "6132520a4acbf3885ba23da7ed9b71148c00938953b52ca267b8b1374f769861",
+      "bytes": 3709
+    },
+    {
+      "path": "skills/quality-engineering/quality-engineering-playwright-pom-generation/references/page-object-template.md",
+      "sha256": "d6c5f4ce7e9f0ad08544820733171ceab3f6205b74307bb4b9355654daa4cd75",
+      "bytes": 3897
+    },
+    {
+      "path": "skills/quality-engineering/quality-engineering-selector-stability/SKILL.md",
+      "sha256": "1a2a8236ca998219af0e7c802406d0f814358ca72fb746184fb5cc2d1aea5ffe",
+      "bytes": 2396
+    },
+    {
+      "path": "skills/quality-engineering/quality-engineering-selector-stability/evals/evals.json",
+      "sha256": "229c2ca5b488dbade8bb4ae41ae5f98f9050236f99e7140c26749b31d089d4e7",
+      "bytes": 2835
+    },
+    {
+      "path": "skills/quality-engineering/quality-engineering-selector-stability/references/selector-ladder.md",
+      "sha256": "79d13c6383c7b477303d3c4fd85e25edc1b6adc75203858f85bb84fd31332efd",
+      "bytes": 4017
+    },
+    {
+      "path": "skills/quality-engineering/quality-engineering-test-plan-authoring/SKILL.md",
+      "sha256": "0fed085586b513ffb62a1b0838e2ea48943a1a4c5bce6490a68eb35dcaa3e793",
+      "bytes": 4232
+    },
+    {
+      "path": "skills/quality-engineering/quality-engineering-test-plan-authoring/evals/evals.json",
+      "sha256": "ca818cd148de59f2527faa67fdd023d733e00b15b2615e2d9f8dfb86df1b9611",
+      "bytes": 7821
+    },
+    {
+      "path": "skills/quality-engineering/quality-engineering-test-plan-authoring/references/lifecycle-and-roles.md",
+      "sha256": "49b6bd99cd0b80404cdc9f045e3c41f30bb0308d60d5ad216f00fea89765b44e",
+      "bytes": 9634
+    },
+    {
+      "path": "skills/quality-engineering/quality-engineering-test-plan-authoring/references/test-plan-template.md",
+      "sha256": "623c87d334cca14deb7647073bccb0ffbc05a18d4b6299e3ea51fd8e350d6598",
+      "bytes": 7450
+    },
+    {
+      "path": "skills/quality-engineering/quality-engineering-zephyr-test-generation/references/impact_analysis.md",
+      "sha256": "164b641f3c031d064eadbc60422ef008ce94b93509eca60281341616c016aa0c",
+      "bytes": 5026
+    },
+    {
+      "path": "skills/react-native/_INDEX.md",
+      "sha256": "da4f775c3024fb7a63254eed2cf39146f1bad0f0428884cbc3d7ec6bd644d792",
+      "bytes": 2241
+    },
+    {
+      "path": "skills/react-native/react-native-testing/SKILL.md",
+      "sha256": "01d099b7182e7e416d7b87bd6707b4382f55e3be53cfad1e49155543f4463627",
+      "bytes": 2970
+    },
+    {
+      "path": "skills/react-native/react-native-testing/evals/evals.json",
+      "sha256": "717584a8657d42c1bb3ecc53bf35fea04040f95a946651bbe7e07b326353aa64",
+      "bytes": 4129
+    },
+    {
+      "path": "skills/react-native/react-native-testing/references/testing-library.md",
+      "sha256": "5edd5736d4f97b6257250d6caf5fe609f751a3b58b700fe91dc3ff99a8c90c43",
+      "bytes": 5493
+    },
+    {
+      "path": "skills/specialists/specialist-integration-test-generator/SKILL.md",
+      "sha256": "9f926c66b172a7645904eee23e41d8838da4832115634ade55a124bd5a2fe8a5",
+      "bytes": 2497
+    },
+    {
+      "path": "skills/specialists/specialist-integration-test-generator/evals/evals.json",
+      "sha256": "bcb0e9c1791bc1180d571fb45b08e9c2486062967414c6eb2a84015dc81acc60",
+      "bytes": 2745
+    },
+    {
+      "path": "skills/swift/_INDEX.md",
+      "sha256": "5352fba5565b84822294342dba59bab6904b9b11169d19b4e2689f8a71b831a8",
+      "bytes": 1239
+    },
+    {
+      "path": "skills/swift/swift-testing/SKILL.md",
+      "sha256": "359f7a68c924afccc823893385f7f0bb733d68519a3769d99e9f7190d0aefab7",
+      "bytes": 3957
+    },
+    {
+      "path": "skills/swift/swift-testing/evals/evals.json",
+      "sha256": "0f70e99089b8d6129e131f74643bc15e9716082ea599e3949de3637d06ebdb13",
+      "bytes": 3309
+    },
+    {
+      "path": "skills/swift/swift-testing/references/implementation.md",
+      "sha256": "7e4b2a2b62efd27d19e8fae7d00b14c13fedf60cae4340d70fc8caa5b7a5cf11",
+      "bytes": 8065
+    }
   ]
 }

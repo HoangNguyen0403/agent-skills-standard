@@ -83,7 +83,9 @@ function fileSha256(filePath) {
 function envOverrides() {
   return {
     TQI_PLAYWRIGHT_TEST_MODULE: process.env.TQI_PLAYWRIGHT_TEST_MODULE ?? null,
-    PLAYWRIGHT_CHROMIUM_EXECUTABLE: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE ?? null
+    PLAYWRIGHT_PACKAGE_DIR: process.env.PLAYWRIGHT_PACKAGE_DIR ?? null,
+    PLAYWRIGHT_CHROMIUM_EXECUTABLE: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE ?? null,
+    CHROME_BIN: process.env.CHROME_BIN ?? null
   };
 }
 
@@ -107,9 +109,12 @@ export function resolvePlaywrightDependency() {
     process.env.TQI_PLAYWRIGHT_TEST_MODULE
       ? { kind: "env-module-override", value: process.env.TQI_PLAYWRIGHT_TEST_MODULE }
       : null,
+    process.env.PLAYWRIGHT_PACKAGE_DIR
+      ? { kind: "env-package-dir-override", value: path.join(process.env.PLAYWRIGHT_PACKAGE_DIR, "test.mjs") }
+      : null,
     { kind: "package", value: "@playwright/test" },
     { kind: "package", value: "playwright" },
-    hostPackageDir
+    hostPackageDir && hostPackageDir !== process.env.PLAYWRIGHT_PACKAGE_DIR
       ? { kind: "host-package-file", value: path.join(hostPackageDir, "test.mjs") }
       : null
   ].filter(Boolean);
@@ -165,8 +170,10 @@ export function resolvePlaywrightDependency() {
           packageJsonSha256: packageJsonPath ? fileSha256(packageJsonPath) : null,
           packageVersion: version,
           browserExecutableSource: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE
-            ? "env-override"
-            : (hostExecutable ? "host-cache-fallback" : "none"),
+            ? "env-chromium-executable-override"
+            : (process.env.CHROME_BIN
+              ? "env-chrome-bin-override"
+              : (hostExecutable ? "host-cache-fallback" : "none")),
           browserExecutable: executableAvailable ? browserExecutable : null,
           browserExecutableBytes: executableAvailable ? fs.statSync(browserExecutable).size : null
         }
