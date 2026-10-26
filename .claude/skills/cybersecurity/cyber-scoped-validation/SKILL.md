@@ -25,21 +25,19 @@ cyber-scoped-validation/
 ## Workflow
 
 1. Bind claim to engagement/scope reference, authorization window, exclusions, and expected observation.
-2. Preflight host controls: tool allowlist, credential source, filesystem, network, logging, and cancellation.
-3. Choose safe offline analysis or authorized runtime validation; do not cross scope.
-4. Observe once within bounds, capture redacted evidence, and record time, source, limitations, and owner.
-5. Assign exactly one `finding_status`: `confirmed`, `suspected`, `blocked`, `not-tested`, or `false-positive`; describe offline scope separately, never invent a status.
-6. Stop on expiry, drift, unsafe impact, missing control, or operator stop; route results to independent review.
-
+2. Check required mode: safe offline analysis/replay or authorized lab validation.
+3. For safe offline analysis or supplied evidence review, execute bounded observation without host mutations.
+4. For active lab validation against disposable synthetic fixtures, route explicitly to [cyber-lab-validation](../cyber-lab-validation/SKILL.md); scoped-validation alone does not authorize active actions.
+5. Observe within bounds, capture redacted evidence, and assign `finding_status` based on corroboration (`confirmed`, `suspected`, `blocked`, `not-tested`, `false-positive`). Retain prior corroborated findings if a retest step blocks.
+6. Stop on expiry, drift, unsafe impact, or missing controls; route results to independent adjudication.
 ## Rules
 
 - No exploit scripts, operational attack commands, real targets, malware, exfiltration, or credential collection.
-- Unsupported runtime blocks live validation. Every blocked response must also offer safe offline plan review or analysis of supplied synthetic/redacted artifacts; do not imply that this fallback executed live validation or collected new evidence.
-- Never claim efficacy, compliance, or authorization from a validation result.
-- Do not invent observations, timestamps, approvals, runtime attestation or evidence references. With no supplied/exercised evidence, record `not-tested`; label examples illustrative, never completed validation.
-- Use `artifacts/security-review.md` for a continuous security-review chain.
-Validation records carry `engagement_scope_ref`, `skill_version`, `source`, `observed_at`, `finding_status`, `evidence_refs`, `limitations`, and `accountable_owner`.
-
+- Scoped validation governs offline analysis and supplied evidence review. It does NOT execute active lab attacks or bypass runtime boundaries.
+- Bounded lab handoff: When active validation in an isolated disposable lab is required, hand off to `cyber-lab-validation`. That skill requires independent host gates and does not grant blanket execution permission.
+- Positive continuation: Unsupported runtime blocks active validation. Continue safe offline plan review, architecture analysis, or remediation drafting without halting independent work.
+- Finding status is separate from step state: a blocked retest step never erases prior corroborated findings or forces them to not-tested (IR03).
+- Do not invent observations, timestamps, approvals, or runtime attestations. With no supplied/exercised evidence, record `finding_status: not-tested` (AC-CLV-11).
 ## Anti-Patterns
 
 - **No scope probing**: Do not discover beyond approved boundaries.
@@ -50,5 +48,6 @@ Validation records carry `engagement_scope_ref`, `skill_version`, `source`, `obs
 ## References
 
 - [Validation record](references/validation-record.md)
+- [Lab validation contract](../cyber-lab-validation/SKILL.md)
 - [Authorization matrix](../cyber-authorization/references/runtime-authorization-matrix.md)
 - [Evidence record](../cyber-evidence/references/evidence-record.md)

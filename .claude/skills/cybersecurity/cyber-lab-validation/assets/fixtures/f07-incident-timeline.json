@@ -1,0 +1,22 @@
+{
+  "fixture_version": "1.1.0",
+  "fixture_id": "FIX-F07-INCIDENT-TIMELINE",
+  "notice": "Synthetic, non-authorizing test fixture. Events and timelines are mock data for triage analysis; active containment requires demonstrable cancellation proof.",
+  "incident_event_timeline": [
+    { "step": 1, "time": "2026-10-24T08:00:00Z", "event": "SYNTH_ALERT: multiple failed logins detected on local simulated bastion", "status": "observed" },
+    { "step": 2, "time": "2026-10-24T08:05:00Z", "event": "SYNTH_ALERT: nonstandard shell session spawned by service worker", "status": "observed" },
+    { "step": 3, "time": "2026-10-24T08:15:00Z", "event": "PROPOSED_ACTION: isolate container network namespace and capture volatile memory", "status": "proposed_not_executed" }
+  ],
+  "authorization_status": {
+    "investigation_analysis": "authorized",
+    "active_network_isolation": "unauthorized_missing_gate",
+    "host_cancellation_demonstrated": false
+  },
+  "recovery_plan_contract": {
+    "ordered_steps": [
+      { "id": "PLAN-01", "action": "Timeline artifact correlation", "mode": "analysis", "authorized": true },
+      { "id": "PLAN-02", "action": "Determine root cause indicator", "mode": "analysis", "authorized": true },
+      { "id": "PLAN-03", "action": "Request operator gate for container reboot/containment", "mode": "isolated-lab-validation", "authorized": false }
+    ]
+  }
+}

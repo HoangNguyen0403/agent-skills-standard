@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-10-25",
+  "scope": "Full source reports preserved from the ignored SDD working directory; source files were not removed.",
+  "candidate_snapshot_sha256": "5617aefed711d3b38301c1bf5d22d64e816c88a369d905511cbbc8c10dca1c59",
+  "candidate_snapshot_scope": "Identifies the dirty integration candidate in the recorded smoke receipts; documentation/evidence archive updates and helper cleanup performed afterward are not included in this digest.",
+  "items": [
+    {
+      "artifact": "design-report.md",
+      "source_path": ".agent/sdd/prd-cyber-lab-validation/design-report.md",
+      "source_sha256": "091bb681eba2883077ff66f6b9aff03d1a1ee4815428260e4482cb09c081b67e",
+      "destination_path": "artifacts/runs/cyber-lab-validation/evidence/design-report.md",
+      "destination_sha256": "091bb681eba2883077ff66f6b9aff03d1a1ee4815428260e4482cb09c081b67e",
+      "size_bytes": 15747,
+      "identical": true
+    },
+    {
+      "artifact": "evaluation-report.md",
+      "source_path": ".agent/sdd/prd-cyber-lab-validation/evaluation-report.md",
+      "source_sha256": "cb01300332dd8edaacb546aa927d699c72ec9cc26ab6716189fe6c416c8776f4",
+      "destination_path": "artifacts/runs/cyber-lab-validation/evidence/evaluation-report.md",
+      "destination_sha256": "cb01300332dd8edaacb546aa927d699c72ec9cc26ab6716189fe6c416c8776f4",
+      "size_bytes": 13290,
+      "identical": true
+    },
+    {
+      "artifact": "review-report.md",
+      "source_path": ".agent/sdd/prd-cyber-lab-validation/review-report.md",
+      "source_sha256": "b8bd55ad6451169aee2e29ed2661d62ac10141ef26519d931d445f90deddf7e1",
+      "destination_path": "artifacts/runs/cyber-lab-validation/evidence/review-report.md",
+      "destination_sha256": "b8bd55ad6451169aee2e29ed2661d62ac10141ef26519d931d445f90deddf7e1",
+      "size_bytes": 20294,
+      "identical": true
+    },
+    {
+      "artifact": "contracts-implementation-report.md",
+      "source_path": ".agent/sdd/prd-cyber-lab-validation/contracts-implementation-report.md",
+      "source_sha256": "7fe415be523e59dc6cc462afea4998ec4d8c441187eb6c3a5f3c72a64e0ab870",
+      "destination_path": "artifacts/runs/cyber-lab-validation/evidence/contracts-implementation-report.md",
+      "destination_sha256": "7fe415be523e59dc6cc462afea4998ec4d8c441187eb6c3a5f3c72a64e0ab870",
+      "size_bytes": 13956,
+      "identical": true
+    },
+    {
+      "artifact": "workflows-implementation-report.md",
+      "source_path": ".agent/sdd/prd-cyber-lab-validation/workflows-implementation-report.md",
+      "source_sha256": "9a6596c911380024c4c5ccbcc13772122df9ac493f9b724593afe5a89f8844f6",
+      "destination_path": "artifacts/runs/cyber-lab-validation/evidence/workflows-implementation-report.md",
+      "destination_sha256": "9a6596c911380024c4c5ccbcc13772122df9ac493f9b724593afe5a89f8844f6",
+      "size_bytes": 8838,
+      "identical": true
+    },
+    {
+      "artifact": "evaluation-implementation-report.md",
+      "source_path": ".agent/sdd/prd-cyber-lab-validation/evaluation-implementation-report.md",
+      "source_sha256": "f23c2d3ca5bc0214497468a137e9acf6f51aac740173d33114ba801e334af9b0",
+      "destination_path": "artifacts/runs/cyber-lab-validation/evidence/evaluation-implementation-report.md",
+      "destination_sha256": "f23c2d3ca5bc0214497468a137e9acf6f51aac740173d33114ba801e334af9b0",
+      "size_bytes": 35048,
+      "identical": true
+    },
+    {
+      "artifact": "integration-implementation-report.md",
+      "source_path": ".agent/sdd/prd-cyber-lab-validation/integration-implementation-report.md",
+      "source_sha256": "f4728ffd49ca62b79bcddfae0dd50d391ffcca1e6f48dbfe148600ed42824b8f",
+      "destination_path": "artifacts/runs/cyber-lab-validation/evidence/integration-implementation-report.md",
+      "destination_sha256": "f4728ffd49ca62b79bcddfae0dd50d391ffcca1e6f48dbfe148600ed42824b8f",
+      "size_bytes": 28760,
+      "identical": true
+    },
+    {
+      "artifact": "implementation-review-report.md",
+      "source_path": ".agent/sdd/prd-cyber-lab-validation/implementation-review-report.md",
+      "source_sha256": "94d1707edebbec797127640a041a8ca632fbaa818b99860cfe9819e3ac016c70",
+      "destination_path": "artifacts/runs/cyber-lab-validation/evidence/implementation-review-report.md",
+      "destination_sha256": "94d1707edebbec797127640a041a8ca632fbaa818b99860cfe9819e3ac016c70",
+      "size_bytes": 120539,
+      "identical": true
+    }
+  ]
+}

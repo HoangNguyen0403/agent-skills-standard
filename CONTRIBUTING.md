@@ -103,6 +103,9 @@ Rules:
 - New release evidence must bind the complete package and immutable eval inputs.
   Resource changes invalidate skill-loaded evidence. Historical evidence remains
   readable but is not upgraded retroactively into whole-package proof.
+- `cyber-lab-validation` is a strictly separate, opt-in candidate contract package within `cybersecurity`. It describes eligibility criteria for predeclared minimum-proof actions against pinned disposable synthetic local fixtures only. It requires explicit action- and version-specific approval, independently demonstrated host isolation and cancellation controls, finite limits, paired evidence, and bounded teardown. It is not an attack platform or general executor.
+- `cyber-scoped-validation` remains the canonical offline and supplied-evidence validation lane. Canonical workflows (`cyber-exercise`, `cyber-purple-validation`, `cyber-triage`, `pentest`) route between safe offline analysis/replay and optional isolated lab validation through explicit preflights; if an active step is blocked or refused, dependent downstream steps are marked `dependency-blocked` (`evidence-missing`) while independent remediation, analysis, and rule drafting continue safely.
+- Candidate contracts in `cyber-lab-validation` remain dormant in the repository without tool autoactivation. Multi-gate progression governs any future activation: G3 requires per-run host containment/cancellation proof; G4 requires evaluated model acceptance and independent review; G5 requires explicit publication approval.
 
 ## 6. Product management packages and evidence lifecycle
 

@@ -23,22 +23,23 @@ cyber-exercise-control/
 ```
 
 ## Workflow
-
-1. Confirm approved plan, authorization, exclusions, runtime support, roles, and synthetic-data boundary.
-2. Publish schedule and injects with owner, trigger, expected channel, and abort condition.
-3. Log each release, pause, stop, restart, scope change, and escalation with time and authority.
-4. Stop on authorization expiry, scope drift, unsafe impact, data exposure, or unsupported runtime.
-5. Restart only after fresh authorization/runtime gates and a recorded decision.
-6. Hand observations to independent adjudication; preserve evidence and ground truth separately.
-
+1. Confirm approved plan, mode per step (`analysis`, `replay`, `isolated-lab-validation`, `defensive-verification`), authorization, exclusions, runtime support, and synthetic boundaries.
+2. Manage execution states using StepResult schema (`planned`, `eligible`, `running`, `completed`, `blocked`, `stopped`, `failed`, `dependency-blocked`).
+3. Publish schedule and injects with step ID, trigger, expected channel, limits, and abort conditions.
+4. Stop immediately on expiry, drift, unsafe impact, data exposure, or operator signal; host stop dominates concurrent dispatch.
+5. Record partial receipts upon cancellation; execute teardown under surviving authority; disclose residual state in CleanupResult.
+6. Mark steps lacking predecessor evidence as `dependency-blocked` with `evidence-missing` naming producer; advance independent permitted steps.
+7. Restart requires explicit restart authority, reconciled residual boundary, fresh host proofs, new attempt ID, fresh correlation key, and a fresh GateDecision.
 ## Rules
 
-- White team means exercise control and adjudication coordination here; it does not mean compliance or whitehat testing.
-- Keep offline inject design available when live controls are unsupported.
-- Do not issue attack commands, alter production, handle real credentials, or contact real targets.
-- Use shared evidence fields and canonical `artifacts/security-review.md` when applicable.
-Control records carry `engagement_scope_ref`, `skill_version`, `source`, `observed_at`, `finding_status`, `evidence_refs`, `limitations`, and `accountable_owner`.
-
+- Coordinate safety and lifecycle; do not issue attack commands, alter production, handle real credentials, or contact real targets.
+- StepResult invariants: `block_reason` required on `blocked`, `stopped`, `failed`, `dependency-blocked`; null on `planned`, `eligible`, `running`, `completed`.
+- Adverse timeline dominance: Host enforces constraints continuously. Pre-dispatch failure is `blocked`; running failure, drift, or stop transitions to `stopped` with partial receipts (never merely `blocked`).
+- Lost acknowledgement: If action or cancellation acknowledgement is lost, stop dispatch immediately to reconcile unknown in-flight effects; automatic active replay is strictly prohibited.
+- Dependency isolation: Predecessor blocks never halt independent branches (AC-CLV-09); missing producer evidence marks dependent steps `dependency-blocked` without guessing inputs (AC-CLV-10).
+- Teardown lifecycle: Cleanup requires valid surviving teardown authority; unverified teardown reports `residual` or `unverified` with accountable owner (AC-CLV-13).
+- Terminal attempt immutability: Reusing prior or expired gates is forbidden; restarts require explicit restart authority, reconciled residual boundary, fresh proofs, and a new attempt/gate (AC-CLV-06).
+- Hand observations to independent adjudication; preserve evidence and ground truth separately.
 ## Anti-Patterns
 
 - **No silent scope change**: Pause and re-authorize.
@@ -49,4 +50,5 @@ Control records carry `engagement_scope_ref`, `skill_version`, `source`, `observ
 ## References
 
 - [Control log](references/control-log.md)
-- [Authorization matrix](../cyber-authorization/references/runtime-authorization-matrix.md)
+- [Lab execution gate and lifecycle](../cyber-lab-validation/references/execution-gate.md)
+- [Runtime authorization matrix](../cyber-authorization/references/runtime-authorization-matrix.md)

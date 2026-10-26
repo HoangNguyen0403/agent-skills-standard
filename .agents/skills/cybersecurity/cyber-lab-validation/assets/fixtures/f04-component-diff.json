@@ -1,0 +1,29 @@
+{
+  "fixture_version": "1.1.0",
+  "fixture_id": "FIX-F04-COMPONENT-DIFF",
+  "notice": "Synthetic, non-authorizing test fixture. Digests are mock tokens for differential testing, not live binary package pins.",
+  "vulnerable_version": {
+    "package_name": "@synth-lab/token-lexer",
+    "version": "1.4.2",
+    "digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "behavior_with_malformed_header": "BufferOverflowSimulatedError: token string exceeded 64 chars without null terminator"
+  },
+  "patched_version": {
+    "package_name": "@synth-lab/token-lexer",
+    "version": "1.4.3",
+    "digest": "sha256:ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb",
+    "behavior_with_malformed_header": "SafeTokenParseError: token truncated at max permitted length (64 chars)"
+  },
+  "benign_test_vector": {
+    "header_name": "X-Synth-Token",
+    "header_value": "SYNTH_TOKEN_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA_OVERFLOW_TEST",
+    "length_bytes": 79
+  },
+  "supplied_execution_receipt": {
+    "receipt_id": "ACT-RCPT-F04-DIFF",
+    "status": "completed",
+    "vulnerable_outcome": "Process exited with unhandled exception BufferOverflowSimulatedError",
+    "patched_outcome": "Process completed cleanly returning SafeTokenParseError truncation at 64 chars"
+  },
+  "verification_criterion": "Differential observation confirms 1.4.2 throws unhandled parser exception whereas 1.4.3 returns bounded parse error without process termination; evaluation adjudicates supplied receipt rather than executing live npm binaries."
+}

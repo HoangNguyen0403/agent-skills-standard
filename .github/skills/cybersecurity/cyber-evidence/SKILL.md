@@ -23,23 +23,26 @@ cyber-evidence/
 ```
 
 ## Workflow
-
 1. Bind record to `engagement_scope_ref`, `skill_version`, and `source`.
 2. Capture `observed_at`, observer, method, and evidence references; redact secrets and sensitive payloads.
-3. Set exactly one `finding_status`: `confirmed`, `suspected`, `blocked`, `not-tested`, or `false-positive`.
-4. State limitations, missing runtime controls, synthetic-data boundaries, and accountable owner.
-5. Preserve independently held ground truth; compare it only through an independent adjudicator.
-6. Update the canonical `artifacts/security-review.md` when a workflow chain already owns that artifact.
-Shared record fields: `engagement_scope_ref`, `skill_version`, `source`, `observed_at`, `finding_status`, `evidence_refs`, `limitations`, `accountable_owner`.
+3. For paired exercised-lab validation claims, attach optional `lab_validation` extension with transitive binding chain: `ObservationRecord.action_receipt_ref -> ActionReceipt.gate_ref -> GateDecision.request_ref -> ActionRequest`. Unpaired analysis uses the base record directly.
+4. Set exactly one `finding_status`: `confirmed`, `suspected`, `blocked`, `not-tested`, or `false-positive`. Retain prior corroborated findings if a retest step blocks.
+5. For paired defensive controls, set outcome: `blocked`, `prevented`, `detected`, `responded`, or `telemetry-gap`.
+6. State limitations, missing controls, residual cleanup state, and accountable owner.
+7. Update canonical `artifacts/security-review.md` when a continuous workflow chain owns it.
+Base fields: `engagement_scope_ref`, `skill_version`, `source`, `observed_at`, `finding_status`, `evidence_refs`, `limitations`, `accountable_owner`. Optional metadata: `observer`, `method`, `expected_observation`, `authorization_ref`, `redaction_note`, `independent_ground_truth_ref`.
 
 ## Rules
-
 - Hashes and timestamps support provenance; they do not prove trusted origin or efficacy.
+- Paired exercised-lab claims require complete transitive binding; ordinary source or supplied-evidence confirmation does not require host receipts.
+- Retain corroborated confirmed or suspected findings across blocked retests; attempting a blocked retest never erases prior findings or forces them to not-tested (IR03).
+- Default to `finding_status: not-tested` only when no supplied or exercised evidence exists (AC-CLV-11); `blocked` finding denotes an evidence-backed barrier, not a mechanical step-state copy.
+- Failed reproduction does not prove vulnerability absence (AC-CLV-18); mark negative/insufficient, never `false-positive` without independent invalidating evidence.
+- An exercised action without observation yields `telemetry-gap` (AC-CLV-12). An observation alone cannot prove an action occurred.
+- Unverified or failed teardown must disclose `residual` or `unverified` state (AC-CLV-13); post-expiry teardown requires surviving authority.
+- Correlation key `(run_id, attempt_id, test_id)` is immutable per attempt; conflicting or reused keys are rejected.
 - Keep raw evidence separate from sanitized reports; never persist credentials, real secrets, or unnecessary personal data.
-- Preserve blocked and not-tested outcomes; do not downgrade them into clean results.
 - Promotion requires independent review; an operator cannot approve their own result.
-- Link [authorization](../cyber-authorization/SKILL.md) and [mapping](../cyber-framework-mapping/SKILL.md) only when evidenced.
-
 ## Anti-Patterns
 
 - **No scanner-only finding**: Corroborate tool output or mark suspected.
