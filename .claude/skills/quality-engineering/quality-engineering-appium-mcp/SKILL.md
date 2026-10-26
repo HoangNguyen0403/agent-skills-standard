@@ -46,7 +46,7 @@ metadata:
 | Step | Tool | Purpose |
 | :--- | :--- | :--- |
 | 0 | `select_device` / `prepare_ios_simulator` | Pick target per ladder rung; cloud skips this. |
-| 1 | `appium_session_management` (`create`) | Open session. **Resiliency**: Retry with `noReset: true` on failure. |
+| 1 | `appium_session_management` (`create`) | Open session with explicit reset semantics (`fullReset` for clean install; `noReset` only for migration/resumed sessions). `noReset` re-attaching an installed package installs nothing — run the in-place install and verify the installed build before creating the session. |
 | 2 | `appium_get_window_size` | Scale coordinates for high-density displays. |
 | 3 | `appium_screenshot` | Capture visual state for **Semantic Reasoning**. |
 | 4 | `appium_gesture` / `appium_set_value` | Interact. **Self-Healing**: Re-scan hierarchy if UUID stale. |
@@ -54,7 +54,7 @@ metadata:
 
 ## 💡 AI-Driven Methodologies
 - **Semantic Intent**: Find element in hierarchy (e.g., "Login button") instead of raw coordinates. Resilient to layout shifts.
-- **Dynamic Handling**: Unexpected pop-up appears? Pause, reason about alert, dismiss, resume.
+- **Dynamic Handling**: Unexpected system alert? Dismiss if unrelated; NEVER dismiss or auto-grant the permission dialog under test.
 - **Visual Anchors**: Find stable "Anchor" (e.g., Header) and derive coordinates relative to it.
 
 ## 🚫 Anti-Patterns (Zero-Tolerance)
@@ -63,7 +63,9 @@ metadata:
 - **Implicit Wait-Only**: Never assume page loaded. Poll for "Source of Truth" element.
 - **Ignoring QoS**: Audit CPU/Memory via `appium_mobile_performance_data`. Prevent lag/crashes.
 - **Orphaned Sessions**: Teardown mandatory. Call `delete` in cleanup block.
-
+- **Silent Reset Flipping**: Never switch from `fullReset` to `noReset` to mask clean-install/upgrade failures.
+- **Interruption Suppression**: Never auto-dismiss or bypass permission dialogs being tested.
+- **Mock Substitution**: Never claim native device verification from browser emulation or component mocks.
 ## 📁 Evidence
 
 `.appium-mcp/<session>/`: `<AC|step>-<before|after>.png` (nav shots at `maxWidth` budget, verdict full-res), `<label>.source.xml` from `appium_get_page_source`, `perf.json`, `video.url`. Walkthrough records `driver:` + `evidence_dir:`.

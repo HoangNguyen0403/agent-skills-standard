@@ -29,24 +29,26 @@ Goal: Prove every acceptance criterion has implementation and verification evide
 1. Load sources:
    - BRD-lite, PRD, SRS/FRS, AC list, implementation plan, changed files, tests, walkthrough, PR comments, release notes.
    - Jira/GitHub/GitLab/ADO/Zephyr/Confluence MCPs when configured; otherwise use exported files and local evidence.
-2. Build trace map:
-   - BRD objective -> PRD requirement ID.
-   - PRD requirement ID -> SRS/FRS contract.
-   - AC -> implementation file/function.
-   - AC -> automated test, manual/Zephyr TC, or verification step.
-   - Release note -> shipped user-visible change.
-3. Classify each AC:
-   - Covered: code and verification evidence exists.
-   - Partial: code or evidence incomplete.
-   - Missing: no implementation or no verification.
-   - Out of scope: explicitly deferred with owner/link.
-4. Flag gaps:
-   - Missing requirement mapping.
-   - Missing AC implementation.
-   - Missing test or manual coverage.
-   - Release note missing shipped user impact.
-5. Persist:
-   - Write the run record to `artifacts/runs/[slug]/[compactISO]-traceability-audit.json` when file writes are allowed.
+2. Build trace map across 4 V-Model levels (`skills/quality-engineering/quality-engineering-test-plan-authoring/references/lifecycle-and-roles.md`):
+   - BRD objective -> PRD requirement ID <-> Acceptance Testing (UAT/signoff).
+   - PRD requirement ID -> SRS/FRS contract <-> System Testing (E2E web/mobile scenarios).
+   - AC -> exact implementation file/function.
+   - AC -> automated test ID, manual/Zephyr TC, or verification step <-> Integration / Unit Testing.
+   - Mobile trace (Contract C6): map mobile ACs to app artifact digest/build, OS/device cells, and driver evidence.
+   - Release note -> shipped user-visible change. Low-risk work uses equivalent existing evidence; four new docs not required.
+3. Classify each AC & test disposition (STLC Stage 6 Closure):
+   - Covered / PASS: implementation file/function exists AND fresh verification evidence verified.
+   - Partial: code or verification evidence incomplete.
+   - Missing: no implementation or unverified.
+   - BLOCKED: missing environment, driver, or credential; listed under `missing_evidence`.
+   - Deferred / Risk-Accepted: formally waived with named human owner, rationale, and expiry.
+4. Flag gaps and open defects:
+   - Missing requirement or V-model interface mapping.
+   - Missing AC implementation (unmapped file/function).
+   - Missing test or manual coverage (unmapped automated test, manual/Zephyr TC, or untested device cell).
+   - Open defect ledger with severity, affected AC impact, and owner.
+   - Release notes claiming unverified or unreleased capabilities.
+   - Write run record to `artifacts/runs/[slug]/[compactISO]-traceability-audit.json` when file writes allowed.
 
 ## Runtime Contract
 - Use pre-release or handoff to prove requirement-to-evidence coverage.
@@ -66,9 +68,9 @@ Goal: Prove every acceptance criterion has implementation and verification evide
 
 ## Requirement Map
 
-| Requirement | SRS/FRS Contract | Verification | Status |
-| --- | --- | --- | --- |
-| [REQ] | [contract] | [test/evidence] | [status] |
+| Requirement | SRS/FRS Contract | Implementation (File/Fn) | Verification (Test/TC) | Status |
+| --- | --- | --- | --- | --- |
+| [REQ] | [contract] | [file:fn] | [test/evidence] | [status] |
 
 ## Gaps
 

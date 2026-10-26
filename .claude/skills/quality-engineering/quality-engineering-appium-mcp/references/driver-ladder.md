@@ -61,15 +61,18 @@ Nothing is installed by the skill. Missing items print as `INSTALL:` lines from 
 they produce candidate code that still goes through `specialist-integration-test-generator`
 and the selector ladder in `quality-engineering-selector-stability`.
 
-## Evidence layout
+## Evidence layout (C6 Mobile Contract)
 
 `.appium-mcp/<session>/` with:
 
+- `artifact.json` — build artifact metadata: file name, SHA-256 digest, build variant, signing context, and bundle/package ID
+- `device.json` — target device model, OS version, hardware class (simulator/emulator vs physical device), and execution tier (Tier 1/2/3)
+- `reset_mode.txt` — explicit session reset state (`fullReset` for clean-install verification; for upgrade migration, records prior-build install, in-place candidate install, the observed installed `versionName`/`versionCode` (or iOS bundle version) and `noReset: true` on the session)
+- `cleanup.txt` — restored device settings, closed scenarios, purged synthetic secure entries, and session `delete` result; a cleanup failure is recorded here (with the executed scenario keeping its own PASS/FAIL), marks the run incomplete, and forces any subsequently contaminated scenario to `BLOCKED`
 - `<AC|step>-<before|after>.png` — navigation shots at the project `maxWidth` budget, verdict shots full resolution
 - `<label>.source.xml` — `appium_get_page_source` output backing an assertion
-- `perf.json` — `appium_mobile_performance_data` sample for the QoS check
+- `perf.json` — `appium_mobile_performance_data` sample for the QoS check (note: simulator data does not establish physical hardware performance)
 - `video.url` — cloud recording link pulled after `delete`
-
 ## Security boundary
 
 Appium MCP is a local single-user server or a trusted CI job. Never expose it as a shared
@@ -81,3 +84,4 @@ logs, reports and tool arguments echoed back to chat.
 - `MODE: none` with cloud creds but no `REMOTE_SERVER_URL_ALLOW_REGEX`: report the missing env line, stay on rung 3.
 - Rung 3 evidence is labelled `human-provided` in the AC trace and can support PASS only for the checks it actually shows.
 - Rung 4 text is exactly `BLOCKED (driver: appium)` so `verify-work` and `test-loop` can route it.
+- **Honest Reporting Gate (AC-30)**: Missing app artifacts, device cloud credentials, USB physical devices, or platform automation drivers MUST remain `BLOCKED (driver: appium)` or `NOT RUN`. Never substitute browser responsive emulation or mocked component tests for missing native device execution.

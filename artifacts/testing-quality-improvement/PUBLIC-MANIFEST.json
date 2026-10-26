@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "kind": "testing-quality-improvement-public-manifest",
+  "generatedAt": "2026-10-26T23:08:44.661Z",
+  "attribution": "SANITIZED_DERIVATIVE",
+  "retainedPrivateBundle": {
+    "path": "artifacts/testing-quality-improvement/evidence/",
+    "compositeSha256": "ab34929166e123b6907a19d1ba565580374ffdd51fd6237dd9f5e9906fa7f12c",
+    "fileCount": 190,
+    "attribution": "PRIVATE_ORIGINAL",
+    "status": "RETAINED_LOCALLY"
+  },
+  "files": [
+    {
+      "path": "artifacts/testing-quality-improvement/pr-readiness-acceptance-decision.json",
+      "sha256": "26bc522f3bea3342eca6e23e7134fb3a5869399d01fdef94200517ff1765625e",
+      "bytes": 1258
+    },
+    {
+      "path": "artifacts/testing-quality-improvement/verification-summary.md",
+      "sha256": "3ff039b1b3772e071bda0ee487c4f7ec945c9cd7815b8b26178894b365802280",
+      "bytes": 4994
+    },
+    {
+      "path": "artifacts/testing-quality-improvement/final-inventory-and-gates.json",
+      "sha256": "0fe23e8d5ebb5254698125ef56c910791c2a503aba77fe814e799074191d26b0",
+      "bytes": 4504
+    }
+  ]
+}

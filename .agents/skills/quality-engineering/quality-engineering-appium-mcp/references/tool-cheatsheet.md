@@ -17,22 +17,59 @@ Prefix `mcp__appium-mcp__` assumes the server key `appium-mcp`; if the user regi
 
 ## Session lifecycle
 
-### Create remote session (LambdaTest)
-
-The URL must match the server's `REMOTE_SERVER_URL_ALLOW_REGEX` env or the create call is refused.
+### Create session (Explicit Reset Semantics)
 
 ```jsonc
 // mcp__appium-mcp__appium_session_management
+// 1. Clean Install Scenario (AC-26) — fullReset=true, ungranted permissions:
+{
+  "action": "create",
+  "platform": "android",
+  "capabilities": {
+    "appium:app": "/path/to/app-release.apk",
+    "appium:fullReset": true,
+    "appium:noReset": false,
+    "appium:autoGrantPermissions": false // NEVER auto-grant when testing permission flows (AC-24)
+  }
+}
+
+// 2. Upgrade / Migration Scenario (AC-26) — the session does NOT install the candidate.
+// With noReset:true and the package already installed, the driver skips the `app` capability,
+// so a different app path here proves nothing. Install and VERIFY the candidate first:
+//
+//   a) adb install -r /path/to/app-v1-release.apk        # supported prior build
+//   b) launch v1, seed synthetic session + DB + secure storage
+//   c) adb install -r /path/to/app-v2-release.apk        # in-place upgrade, same signing key
+//   d) adb shell dumpsys package <pkg> | grep -E 'versionName|versionCode|lastUpdateTime'
+//      -> must show v2 before you attach the session; otherwise BLOCKED
+//
+// iOS: install the candidate .app/.ipa over the prior build (same signing identity),
+// then confirm the installed bundle version before attaching the session.
+{
+  "action": "create",
+  "platform": "android",
+  "capabilities": {
+    "appium:noReset": true,                          // preserves the seeded prior-state data; install happened in (c)
+    "appium:udid": "<device-serial-from-step-(d)>",  // the device you verified the candidate on
+    "appium:appPackage": "com.example.app",          // AUT selection: supplied explicitly, since noReset installs nothing
+    "appium:appActivity": ".MainActivity"            // launch entry for the installed candidate
+  }
+}
+// iOS equivalent: keep noReset-style state preservation and pass the installed
+// bundleId (XCUITest driver) instead of relying on a stale `app` path.
+// Signing/entitlement mismatch blocks the in-place upgrade — report BLOCKED (artifact: signing),
+// never flip reset flags to obtain a passing run.
+
+// 3. Remote Cloud Session (LambdaTest) — URL must match REMOTE_SERVER_URL_ALLOW_REGEX:
 {
   "action": "create",
   "remoteServerUrl": "https://${LAMBDATEST_USERNAME}:${LAMBDATEST_ACCESSKEY}@mobile-hub.lambdatest.com/wd/hub",
   "platform": "android",
   "capabilities": {
     /* see lambdatest-cloud-setup.md */
-  },
+  }
 }
 ```
-
 ### List / select / delete
 
 ```jsonc

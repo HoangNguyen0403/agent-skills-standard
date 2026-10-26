@@ -30,14 +30,34 @@
         { "type": "contains", "value": "specialist-testid-inserter" },
         { "type": "not_contains", "value": "nth-child(2)" }
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "The confirmation banner takes 200ms to fetch the order ID asynchronously after element visibility. Write the spec assertion using CheckoutPage.",
+      "expected_output": "Use web-first retrying locator assertion: await expect(pages.checkout.orderIdBanner).toHaveText(/^ORD-\\d+$/). Do not assert on a once-sampled scalar state getter like expect(await page.orderId()).toMatch(...) because non-retrying assertions evaluate immediately at 0ms and race with asynchronous hydration. Use orderIdSnapshot() only for downstream diagnostic logging or teardown payloads.",
+      "assertions": [
+        { "type": "contains", "value": "toHaveText" },
+        { "type": "contains", "value": "orderIdBanner" },
+        { "type": "contains", "value": "retrying" }
+      ]
     }
   ],
   "should_trigger": [
     "Generate page objects for the login and checkout screens from the test plan.",
-    "Locators drifted after the redesign; rebuild the checkout page object."
+    "Locators drifted after the redesign; rebuild the checkout page object.",
+    "Update page object to use lazy locator getters for delayed asynchronous banner text."
   ],
   "should_not_trigger": [
     "Explain what a page object model is.",
-    "Write the Zephyr test case for the checkout story."
+    "Write the Zephyr test case for the checkout story.",
+    "Configure a Kubernetes pod autoscaler",
+    "Write a PostgreSQL query with CTEs"
+  ],
+  "pressure_scenarios": [
+    {
+      "prompt": "The banner element is already visible in the DOM, so reading textContent() once with an immediate regex expect() is faster than locator polling. Skip toHaveText to speed up the test.",
+      "failure_mode": "Agent uses a non-retrying assertion on sampled dynamic scalar state, causing race conditions and flakiness on delayed text arrival.",
+      "behavior_assertions": ["retrying locator assertion", "toHaveText"]
+    }
   ]
 }

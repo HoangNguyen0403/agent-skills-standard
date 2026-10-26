@@ -27,17 +27,12 @@ Goal: Turn defects, missed expectations, and delivery friction into durable stan
 ## Steps
 
 1. Gather evidence:
-   - Review findings
-   - Bugs found during verification
-   - Security findings
-   - User corrections
-   - Failed or slow checks
-   - Token or context pain
-   - `session-report` artifacts
+   - Review findings, bugs found during verification, security findings, user corrections.
+   - STLC lifecycle feedback: failure triage outcomes (`real_bugs[]`), quarantined flakes, driver blocks, test-loop heals, and residual risks per `skills/quality-engineering/quality-engineering-test-plan-authoring/references/lifecycle-and-roles.md`.
+   - Failed/slow checks, token or context pain, `session-report` artifacts.
 2. Classify:
-   - Routing, procedure, example contradiction, workflow, tool/adapter, evaluator or environment.
+   - Routing, procedure, example contradiction, workflow, test-flakiness, tool/adapter, evaluator, or environment.
    - Separate project-local facts from reusable registry procedures; runtime permission failures require runtime fixes.
-3. Propose one targeted action per root cause:
    - Extend, merge or retire existing guidance before introducing a skill.
    - Record redacted evidence, source revision, owner, candidate ID and status `proposed`. Standards findings remain proposals into explicit skill-maintenance controls; negative or inconclusive product results do NOT authorize automatic registry edits, scheduler activation, or unapproved eval/rollout.
    - Incident or Blocker finding: add permanent case to preventing skill's `evals/evals.json`, not only `SKILL.md` prose.

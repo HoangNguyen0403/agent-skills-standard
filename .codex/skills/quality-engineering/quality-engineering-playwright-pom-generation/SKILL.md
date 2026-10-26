@@ -34,10 +34,14 @@ A web-lane scenario block from `docs/srs/test-plan-[slug].md` (`Steps`, `Expecte
 
 Follow the web ladder in `quality-engineering-selector-stability`: `getByRole` / `getByLabel` first, then `getByTestId` using the `<screen>-<element>-<role>` id, then attribute CSS. Never XPath, `nth`, text on translated strings, or generated class names. When the element has no stable locator, do not invent one: record it as a selector gap for `specialist-testid-inserter`.
 
+## Locator vs Sampled Scalar State
+
+- **Lazy Locators for Retrying Expectations**: Page objects expose elements as `Locator` getters (`orderIdBanner`, `submitButton`). Specs assert on locators using web-first retrying assertions (`await expect(pages.checkout.orderIdBanner).toHaveText(...)`). This automatically retries until timeout against delayed text, async rendering, and DOM re-attachment.
+- **Sampled Scalar Reads for Point-in-Time Snapshots**: Scalar methods (`await locator.textContent()`, `inputValue()`) capture a single point-in-time value without retrying. Reserve scalar reads for legitimate data extraction (e.g., passing an ID to an API call, logging, or comparing immutable snapshots). Never wrap sampled scalars in non-retrying `expect(val)...` for dynamic or eventual state.
+
 ## No Assertions in Page Objects
 
-Page objects expose state (`orderId()`, `isVisible()`), specs assert on it. An `expect` inside a page object hides the assertion from the scenario and breaks reuse across positive and negative cases.
-
+Page objects expose locators and action methods; specs assert on them. An `expect` inside a page object hides the assertion from the scenario, breaks retrying assertion semantics, and prevents reuse across positive and negative cases.
 ## Workflow
 
 1. Read the scenario block and the screen's existing page object, if any; extend rather than duplicate.
@@ -49,6 +53,8 @@ Page objects expose state (`orderId()`, `isVisible()`), specs assert on it. An `
 ## Anti-Patterns
 
 - **No assertions in page objects**: `expect` belongs in the spec.
+- **No sampled-state race in assertions**: never sample text/value once with `expect(await page.orderId()).toMatch(...)`; assert directly on the locator with `await expect(page.orderIdBanner).toHaveText(...)`.
+- **No boolean state wrappers**: avoid wrapping locators in `async isVisible(): Promise<boolean>` methods that strip retrying capability; expose the `Locator` so specs can `await expect(locator).toBeVisible()`.
 - **No DOM-crawl page objects**: a class with forty getters nobody's scenario uses is noise, not coverage.
 - **No duplicate page object**: search `tests/pages/` before creating; extend the existing class.
 - **No raw `page` in specs**: every interaction goes through a page object or the seed.

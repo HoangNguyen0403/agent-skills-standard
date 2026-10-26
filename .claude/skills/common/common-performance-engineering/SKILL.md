@@ -63,7 +63,7 @@ See [implementation examples](references/implementation.md) for memoization and 
 
 - **Benchmarking**: Write micro-benchmarks for performance-critical functions.
 - **SLIs/SLOs**: Define Service Level Indicators (latency, throughput) and Objectives.
-- **Load Testing**: Test system behavior under peak and stress conditions.
+- **Load Testing**: Test system behavior under peak and stress conditions; for API workloads, follow [API Performance Testing](../../quality-engineering/quality-engineering-api-performance-testing/SKILL.md) for workload modeling, percentiles, and recovery bounds.
 
 ## Anti-Patterns
 
@@ -74,6 +74,7 @@ See [implementation examples](references/implementation.md) for memoization and 
 ## References
 
 - [Implementation Patterns](references/implementation.md) — profiling patterns, benchmark setup
+- [API Performance Testing](../../quality-engineering/quality-engineering-api-performance-testing/SKILL.md) — workload models, latency percentiles, overload recovery
 
 ## Canonical response anchors
 

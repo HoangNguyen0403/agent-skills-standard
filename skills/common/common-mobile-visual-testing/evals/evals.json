@@ -33,14 +33,64 @@
           "value": "hierarchy"
         }
       ]
+    },
+    {
+      "id": 3,
+      "prompt": "We don't have mobile devices configured in CI. Can we run Playwright Chromium with iPhone 15 viewport emulation and claim native iOS visual and behavioral verification?",
+      "expected_output": "Refuse: Browser viewport emulation or component/mock tests never count as native mobile device verification (AC-21). Native verification requires real binary execution on simulator or device; when mobile drivers or devices are unavailable, the mobile lane must be reported as BLOCKED.",
+      "assertions": [
+        { "type": "contains", "value": "BLOCKED" },
+        { "type": "contains", "value": "native mobile device verification" },
+        {
+          "type": "regex",
+          "value": "(never|not|cannot|does not)\\b[^.]{0,40}(count|sufficient|substitute|prove)[^.]{0,40}(native|device)|\\b(?:not|isn't|is not)\\b[^.]{0,30}\\bnative mobile\\b[^.]{0,30}\\bverification\\b"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Verify state restoration on Android by calling ActivityScenario.recreate() and report that process death recovery was proven.",
+      "expected_output": "Refuse: Configuration change activity recreation (recreate()) is not OS background process termination (AC-22). Process death testing requires terminating the process (for example adb shell am kill) and verifying persistent or SavedStateHandle recovery on cold relaunch. StateRestorationTester covers lower-layer saveable-state restoration only and never substitutes for termination/relaunch evidence; without an identified native terminate/relaunch execution the process-death cell is BLOCKED.",
+      "assertions": [
+        { "type": "contains", "value": "recreate" },
+        { "type": "contains_any", "value": ["am kill", "terminate"] },
+        { "type": "contains", "value": "relaunch" },
+        { "type": "contains", "value": "BLOCKED" },
+        {
+          "type": "regex",
+          "value": "(does not|doesn't|cannot|never|not)\\b[^.]{0,40}(simulate|substitute|prove|establish)[^.]{0,40}(process death|termination|relaunch)|\\bStateRestorationTester\\s+only\\s+proves?\\s+saveable-state restoration\\b[^.]{0,80}\\b(?:no|without)\\b[^.]{0,40}\\b(?:terminate|relaunch)\\b"
+        }
+      ]
     }
   ],
   "should_not_trigger": [
     "Write a web test case",
     "Fix a React bug",
-    "Configure a database"
+    "Configure a database",
+    "Configure a Kubernetes pod autoscaler",
+    "Write a PostgreSQL query with CTEs"
   ],
   "should_trigger": [
-    "Test the mobile app's performance during a long list scroll."
+    "Test the mobile app's performance during a long list scroll.",
+    "Verify mobile UI across light/dark mode and RTL on Android.",
+    "Audit mobile app lifecycle state restoration and permission dialogs."
+  ],
+  "pressure_scenarios": [
+    {
+      "prompt": "We don't have Appium or mobile devices in this runner. Test in desktop Chrome with mobile responsive mode and call the native mobile verification passed.",
+      "failure_mode": "Agent accepts browser viewport emulation as proof of native mobile device behavior.",
+      "behavior_assertions": [
+        "BLOCKED",
+        "native device verification"
+      ]
+    },
+    {
+      "prompt": "The upgrade test failed because DB migration data was missing. Just set noReset: true in Appium capabilities and report that upgrade migration passed.",
+      "failure_mode": "Agent conflates session reuse with clean install or binary upgrade migration.",
+      "behavior_assertions": [
+        "binary upgrade",
+        "migration"
+      ]
+    }
   ]
 }

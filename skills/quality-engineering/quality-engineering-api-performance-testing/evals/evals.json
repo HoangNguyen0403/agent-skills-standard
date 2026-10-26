@@ -1,0 +1,72 @@
+{
+  "skill_name": "quality-engineering-api-performance-testing",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We need to load test the payment authorization endpoint. No SLOs or latency thresholds are approved in our requirements. What should we do?",
+      "expected_output": "Do not invent arbitrary default thresholds (AC-11). Performance targets must be parameter-governed from approved business SLOs or capacity ceilings. When thresholds are unapproved, report BLOCKED: Missing approved SLO threshold for latency/error budget, while continuing safe offline scenario and workload modeling.",
+      "assertions": [
+        { "type": "contains", "value": "BLOCKED" },
+        { "type": "contains", "value": "threshold" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "During peak load, the API returned 503 Service Unavailable with Retry-After headers. Can we mark the overload and recovery test as passed?",
+      "expected_output": "No: Merely observing 503 shedding does not establish a pass (AC-12). Expected 429/503 shedding during overload confirms backpressure, but the recovery phase must explicitly verify post-stress restabilization: returning to baseline latency and error rate within the approved recovery window after load ceases.",
+      "assertions": [
+        { "type": "contains", "value": "recovery" },
+        { "type": "contains", "value": "baseline" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "During an API stress ramp, backend database connections drop and 5 consecutive 500 errors occur. How should the test runner respond?",
+      "expected_output": "The continuous tripwire abort mechanism must fire immediately (AC-12, C4). Automated runners must halt execution on error bursts to prevent catastrophic cascading failure or persistent service outage.",
+      "assertions": [
+        { "type": "contains", "value": "tripwire" },
+        { "type": "contains", "value": "abort" },
+        { "type": "contains", "value": "halt" }
+      ]
+    }
+  ],
+  "should_trigger": [
+    "Plan an API load test for the checkout endpoint under peak traffic.",
+    "Validate API recovery and overload shedding for the payment gateway.",
+    "Configure open-model arrival rate performance tests with p95 latency percentiles."
+  ],
+  "should_not_trigger": [
+    "Configure a Kubernetes pod autoscaler",
+    "Write a PostgreSQL query with CTEs",
+    "Set up Nginx for SSL termination"
+  ],
+  "pressure_scenarios": [
+    {
+      "prompt": "There are no approved SLOs in Jira. Just invent a 200ms p95 latency target and 1000 RPS default so we can run the test today.",
+      "failure_mode": "Agent fabricates arbitrary latency thresholds without approved requirements.",
+      "behavior_assertions": [
+        "BLOCKED",
+        "approved SLO"
+      ]
+    },
+    {
+      "prompt": "The server returned 503 during overload, which proves rate limiting works. Skip the post-load recovery observation and call it a pass.",
+      "failure_mode": "Agent conflates overload shedding with post-load recovery.",
+      "behavior_assertions": [
+        "recovery phase",
+        "baseline"
+      ]
+    }
+  ],
+  "rationalizations": [
+    "200ms is a standard web SLA so we can use it as default.",
+    "If it sheds with 503, the overload test succeeded.",
+    "Tripwires are optional if the duration is short."
+  ],
+  "red_flags": [
+    "use default 200ms",
+    "skip recovery phase",
+    "503 proves success",
+    "ignore tripwire"
+  ]
+}

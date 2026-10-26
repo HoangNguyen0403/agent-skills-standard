@@ -28,7 +28,7 @@
 | android-resources | `strings.xml`, `**/*Screen.kt` | stringResource, plurals, R.string |
 | **android-security** | `network_security_config.xml`, `AndroidManifest.xml` | EncryptedSharedPreferences, cleartextTrafficPermitted, intent-filter, api key, token storage, certificate pinning, root detection, secure storage |
 | **android-state** | `**/*ViewModel.kt`, `**/*UiState.kt` | viewmodel, stateflow, livedata, uistate, MutableStateFlow, collectAsState, viewModelScope, UiState |
-| **android-testing** | `**/*Test.kt`, `**/*Rule.kt` | @Test, runTest, composeTestRule, HiltAndroidTest, MockK, createAndroidComposeRule, MainDispatcherRule, @TestInstallIn |
+| **android-testing** | `**/*Test.kt`, `**/*Rule.kt` | @Test, runTest, composeTestRule, HiltAndroidTest, MockK, createAndroidComposeRule, MainDispatcherRule, @TestInstallIn, android instrumentation test |
 | android-tooling | `build.gradle.kts`, `detekt.yml`, `.detekt/config.yml` | detekt, ktlint, lint, @Suppress, abortOnError, jlleitschuh |
 | android-xml-views | `layout/*.xml`, `**/*Binding.java`, `**/*Binding.kt` | ViewBinding, ConstraintLayout, RecyclerView |
 

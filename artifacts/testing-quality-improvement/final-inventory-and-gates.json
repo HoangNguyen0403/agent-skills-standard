@@ -1,0 +1,148 @@
+{
+  "schemaVersion": 1,
+  "kind": "sanitized-publication-inventory-and-gates",
+  "baseCommit": "92d06c420f6a41f08e11579423e4e3eacdb7880d",
+  "targetBranch": "develop",
+  "taskScope": "testing-quality-improvement",
+  "attribution": {
+    "privateOriginalBundle": {
+      "fileCount": 190,
+      "compositeSha256": "ab34929166e123b6907a19d1ba565580374ffdd51fd6237dd9f5e9906fa7f12c",
+      "status": "PRESERVED_LOCALLY_BYTEWISE"
+    },
+    "publicationDerivative": {
+      "status": "SANITIZED_DERIVATIVE",
+      "sanitizedFields": [
+        "HOME",
+        "USER",
+        "fullPATH",
+        "NODE_PATH",
+        "privatecwd",
+        "sessionIDs"
+      ]
+    }
+  },
+  "acceptanceDecision": {
+    "kind": "superseding-user-acceptance-decision",
+    "decision": "ACCEPT_DOCUMENTED_HISTORICAL_GAP",
+    "reference": "artifacts/testing-quality-improvement/pr-readiness-acceptance-decision.json"
+  },
+  "gates": [
+    {
+      "id": "synthetic-fixtures",
+      "name": "test-fixtures.test.mjs",
+      "command": "node --test scripts/skill-tests/testing-quality-improvement/test-fixtures.test.mjs",
+      "exitCode": 0,
+      "passed": 18,
+      "total": 18,
+      "browserScenario": "Chromium (Google Chrome for Testing 156.0.8078.4)"
+    },
+    {
+      "id": "router-matrix",
+      "name": "router-matrix.mjs",
+      "command": "node --import tsx scripts/skill-tests/testing-quality-improvement/router-matrix.mjs",
+      "exitCode": 0,
+      "passed": 31,
+      "total": 31
+    },
+    {
+      "id": "eval-calibration",
+      "name": "eval-calibration.mjs",
+      "command": "node --import tsx scripts/skill-tests/testing-quality-improvement/eval-calibration.mjs --engine-root .",
+      "exitCode": 0,
+      "passed": 44,
+      "total": 44
+    },
+    {
+      "id": "cli-validate-all",
+      "name": "cli validate --all",
+      "command": "cli validate --all",
+      "exitCode": 0,
+      "passed": 339,
+      "total": 339,
+      "warnings": 56
+    },
+    {
+      "id": "audit-skills",
+      "name": "audit-skills.ts",
+      "command": "tsx scripts/audit-skills.ts",
+      "exitCode": 0,
+      "passed": true
+    },
+    {
+      "id": "check-keyword-collisions",
+      "name": "check-keyword-collisions.ts",
+      "command": "tsx scripts/check-keyword-collisions.ts",
+      "exitCode": 0,
+      "collisions": 134,
+      "passed": true
+    },
+    {
+      "id": "audit-sdlc",
+      "name": "audit-sdlc.ts",
+      "command": "tsx scripts/audit-sdlc.ts",
+      "exitCode": 0,
+      "passed": true
+    },
+    {
+      "id": "capabilities-check",
+      "name": "generate-capabilities-doc.ts --check",
+      "command": "tsx scripts/generate-capabilities-doc.ts --check",
+      "exitCode": 0,
+      "inSync": true
+    },
+    {
+      "id": "check-alignment",
+      "name": "check-alignment.ts",
+      "command": "tsx scripts/check-alignment.ts",
+      "exitCode": 0,
+      "minThresholdMet": true
+    },
+    {
+      "id": "scan-injection",
+      "name": "scan-injection.ts",
+      "command": "tsx scripts/scan-injection.ts",
+      "exitCode": 0,
+      "errors": 0,
+      "warnings": 1
+    },
+    {
+      "id": "freshness-audit",
+      "name": "freshness/index.ts audit",
+      "command": "tsx scripts/freshness/index.ts audit",
+      "exitCode": 0,
+      "highSeverityIssues": 0
+    },
+    {
+      "id": "eval-regression-suite",
+      "name": "scripts/evals/*.test.ts",
+      "command": "node --import tsx --test scripts/evals/*.test.ts",
+      "exitCode": 0,
+      "passed": 2,
+      "total": 2
+    }
+  ],
+  "stagedGenerationSummary": {
+    "sealedDestinations": 2209,
+    "emittedTargets": 2174,
+    "copied": 0,
+    "created": 0,
+    "refused": 0,
+    "unrelatedDeltas": 0,
+    "sddFilesUnchanged": 103,
+    "protectedAssetsUnchanged": 42,
+    "ownershipLockAbsent": true,
+    "driftRefusalRuleTestCases": 5,
+    "driftRefusalRulePassed": 5
+  },
+  "retainedPermanentTestFiles": [
+    "scripts/skill-tests/testing-quality-improvement/test-fixtures.test.mjs",
+    "scripts/skill-tests/testing-quality-improvement/http-fixture-server.mjs",
+    "scripts/skill-tests/testing-quality-improvement/synthetic-oracles.mjs",
+    "scripts/skill-tests/testing-quality-improvement/playwright-fixture-runner.mjs",
+    "scripts/skill-tests/testing-quality-improvement/fixtures/api-fixtures.json",
+    "scripts/skill-tests/testing-quality-improvement/fixtures/mobile-scenarios.json",
+    "scripts/skill-tests/testing-quality-improvement/router-matrix.mjs",
+    "scripts/skill-tests/testing-quality-improvement/eval-calibration.mjs"
+  ]
+}

@@ -35,7 +35,7 @@ See [implementation examples](references/implementation.md) for log leakage scan
 
 ## 3. Map Injection Surfaces & Auth Coverage
 
-See [implementation examples](references/implementation.md) for injection detection and auth coverage measurement.
+See [implementation examples](references/implementation.md) for injection detection and auth coverage. Static SAST/SCA identifies candidate gaps but is not dynamic authorization proof; dynamic API tests must exercise real policy chains across authentication (401), role permissions (403), tenant isolation (403/404), and mass-assignment immutability with synthetic identities.
 
 ## 4. Run Dependency CVE Scans
 
@@ -79,6 +79,7 @@ See [mobile audit commands](references/mobile-audit.md) for insecure storage (cr
 
 ## Anti-Patterns
 
+- **No equating SAST/SCA with authorization proof**: Static scans flag candidate flaws; dynamic API execution with real guards across auth, role, tenant, and mutation boundaries is required to prove access control.
 - **No applying generic patterns over project-specific rules**: Respect existing security constraints.
 - **No ignoring error handling or edge cases**: Audit must cover boundary conditions.
 - **No backend-only audit**: Always check frontend AND mobile when in-scope.

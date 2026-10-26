@@ -6,7 +6,7 @@
 | Skill | File pattern | Keywords |
 | ----- | ------------ | -------- |
 | **swift-language** | `**/*.swift` | protocol, extension, optional, guard, enum |
-| **swift-testing** | `**/*Tests.swift` | XCTestCase, XCTestExpectation, XCTAssert |
+| **swift-testing** | `**/*Tests.swift` | XCTestCase, XCTestExpectation, XCTAssert, ios ui test |
 | **swift-tooling** | `Package.swift`, `.swiftlint.yml` | package, target, dependency |
 
 ## Keyword Match (only when user's request mentions these)

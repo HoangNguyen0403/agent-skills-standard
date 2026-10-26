@@ -154,13 +154,82 @@ Future<bool> navigateToDeepScreen(PatrolIntegrationTester $) async {
 - Navigation infrastructure may use raw `find.*` — test body must NOT.
 - One helper per deep screen; reuse across all tests in the file.
 
+## Native Platform Interactions & Lifecycle (Patrol)
+
+### Permission Handling (Dual-Path)
+
+Two tests, one per path, each from a declared permission state. The dialog is asserted before it is answered; the granted/denied outcome comes from the approved requirement.
+
+```dart
+patrolTest('camera permission - allowed path shows approved enabled outcome', ($) async {
+  // Precondition: camera permission NOT yet granted (fresh install / OS permission reset).
+  final robot = ScannerRobot($.tester);
+  await robot.tapScanButton();
+
+  // Assert the OS prompt exists before answering it.
+  expect(
+    await $.native.isPermissionDialogVisible(timeout: const Duration(seconds: 10)),
+    isTrue,
+    reason: 'OS permission prompt did not appear',
+  );
+  await $.native.grantPermissionWhenInUse();
+
+  robot.expectCameraPreviewVisible(); // substitute the requirement's own granted outcome
+});
+
+patrolTest('camera permission - denied path shows approved denied outcome', ($) async {
+  // Precondition: OS permission reset to "not determined" before this run (see the
+  // reset mechanisms below). Denying is only possible while the dialog is showing,
+  // and a grant from the allowed test must not leak into this test.
+  final robot = ScannerRobot($.tester);
+  await robot.tapScanButton();
+
+  expect(
+    await $.native.isPermissionDialogVisible(timeout: const Duration(seconds: 10)),
+    isTrue,
+    reason: 'OS permission prompt did not appear',
+  );
+  await $.native.denyPermission();
+
+  robot.expectPermissionDeniedBannerVisible(); // substitute the requirement's own denied outcome
+});
+```
+
+- Each test needs the **OS** permission returned to "not determined" first. Ordering the tests is not a reset: on iOS a denial persists, so a later allowed test still gets no prompt.
+  - Simulator: `xcrun simctl privacy <device> reset all <bundleId>` before each test (or `reset location`/`reset camera` for one resource).
+  - Emulator/device: revoke via system settings or `adb shell pm revoke <pkg> <permission>` / `pm reset-permissions`, then verify the state before launching.
+  - Fresh install with `fullReset` also yields "not determined" on Android; on iOS Keychain/preference state may survive, so verify rather than assume.
+  - If none of these controls is available in the environment, the cell is `BLOCKED (device: permission control)` — never fall back to ordering.
+- If `nativeAutomation` is unavailable in the runner, record the case as `partial`/`BLOCKED` rather than claiming permission coverage.
+- Cleanup: restore the original grant state for the app under test after the run.
+
+### App Lifecycle & State Restoration
+
+Assert the **approved** restoration outcome; retained drafts are a product decision.
+
+```dart
+patrolTest('background and foreground meet the approved state outcome', ($) async {
+  final robot = CheckoutRobot($.tester);
+  await robot.enterDeliveryNotes('Ring doorbell twice');
+
+  // Warm background (no process kill), then foreground
+  await $.native.pressHome();
+  await Future.delayed(const Duration(seconds: 3));
+  await $.native.openApp();
+
+  // Replace with the approved expectation (draft retained, or intentional reset).
+  robot.expectDeliveryNotesEqual('Ring doorbell twice');
+});
+```
+
+`openApp()` returns the app to the foreground; it does not prove process replacement. Termination/restoration semantics need an explicit terminate step plus evidence that a new process started (see the mobile matrix §3), otherwise the case is `BLOCKED`.
+
 ## Patrol Tips
 
 - `$.native.tap()` for OS-level dialogs — never in robot class.
 - `waitUntilVisible()` instead of `pumpAndSettle()` for screens with spinners.
-- `nativeAutomation: true` to enable native interactions (permissions, notifications).
+- `nativeAutomation: true` in `patrolTest` config to enable native OS interactions (permissions, notifications).
 - Run: `patrol test -t integration_test/app_test.dart --dart-define=ENV=staging`
-
 ## Import Hygiene
 
 ```dart

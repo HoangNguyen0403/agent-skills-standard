@@ -1,0 +1,956 @@
+{
+  "$comment": "Synthetic AC-21..AC-30 scenario records with known-good controls, seeded faults and adversarial controls, plus a per-cell four-stack handoff. No consumer app, driver or device exists in this worktree, so every automated command is an ILLUSTRATIVE_NON_EXECUTABLE template and every cell is BLOCKED/NOT_RUN. Nothing here asserts device execution.",
+  "requirementId": "REQ-08",
+  "syntheticExample": true,
+  "handoffSemantics": {
+    "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+    "reason": "No consuming app project, configuration, driver or device exists in this repository worktree; commands name the intended consumer lane and must be replaced with that project's real commands before execution."
+  },
+  "unavailablePrerequisites": [
+    "no compiled iOS/Android/Flutter/React Native app artifact in this worktree",
+    "no provisioning, signing identity or device-cloud authorization",
+    "no booted simulator/emulator or connected physical device reserved for this run",
+    "human VoiceOver/TalkBack and physical-device checks require a person"
+  ],
+  "scenarios": {
+    "AC-21": {
+      "name": "Native selector strategy and layer fidelity",
+      "controls": {
+        "knownGood": {
+          "acId": "AC-21",
+          "evidenceClass": "SYNTHETIC_EXAMPLE",
+          "testLayer": "device-e2e",
+          "evidenceType": "xcresult",
+          "claimsNativeDeviceProof": true,
+          "selector": { "strategy": "accessibility-id", "value": "checkout-order-id-banner" },
+          "outcome": "PASS"
+        },
+        "seededFault": {
+          "acId": "AC-21",
+          "evidenceClass": "SYNTHETIC_EXAMPLE",
+          "testLayer": "component",
+          "evidenceType": "browser-emulation",
+          "claimsNativeDeviceProof": true,
+          "selector": { "strategy": "css", "value": "div[data-testid='checkout-order-id-banner']" },
+          "outcome": "PASS",
+          "expectedFaultClass": "DISALLOWED_SIMULATED_DEVICE_CLAIM"
+        },
+        "adversarialControls": [
+          {
+            "acId": "AC-21",
+            "evidenceClass": "SYNTHETIC_EXAMPLE",
+            "testLayer": "device-e2e",
+            "evidenceType": "xcresult",
+            "claimsNativeDeviceProof": true,
+            "selector": { "strategy": "text", "value": "Order #12345 Confirmed" },
+            "outcome": "PASS",
+            "expectedFaultClass": "UNSTABLE_SELECTOR_STRATEGY"
+          }
+        ]
+      },
+      "handoff": {
+        "ios": {
+          "lane": "ios", "framework": "swiftui", "status": "BLOCKED",
+          "reason": "No CheckoutApp iOS project or XCUITest runner in this worktree",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["consumer iOS app project with a CheckoutAppUITests scheme", "accessibilityIdentifier on the order banner", "booted iPhone simulator"],
+          "automatedCommand": "xcodebuild test -project \"$IOS_PROJECT\" -scheme \"$IOS_UI_SCHEME\" -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.0' -only-testing:CheckoutAppUITests/SelectorTests/testAccessibilityIdentifierResolution",
+          "expectedOutcome": "The identified native element is found by accessibility identifier and the assertion passes",
+          "cleanup": "xcrun simctl shutdown booted",
+          "manualLane": "VoiceOver rotor check of the same element on a physical iPhone",
+          "manualStatus": "NOT_RUN"
+        },
+        "android": {
+          "lane": "android", "framework": "compose", "status": "BLOCKED",
+          "reason": "No Android module, debug APK or connected emulator",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["consumer Android module with androidTest source set", "compose testTag or resource-id on the banner", "booted emulator"],
+          "automatedCommand": "./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.checkout.SelectorTest#accessibilityIdResolution",
+          "expectedOutcome": "The identified node is matched by resource-id/testTag and the assertion passes",
+          "cleanup": "adb emu kill",
+          "manualLane": "TalkBack focus traversal of the same node on a physical device",
+          "manualStatus": "NOT_RUN"
+        },
+        "flutter": {
+          "lane": "android", "framework": "flutter", "status": "BLOCKED",
+          "reason": "No Flutter project, Patrol dependency or device",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["consumer Flutter project with Patrol configured", "Semantics label or Key on the banner", "running emulator/device"],
+          "automatedCommand": "patrol test -t integration_test/selector_test.dart --dart-define=ENV=synthetic",
+          "expectedOutcome": "The Patrol finder resolves the keyed node and the assertion passes",
+          "cleanup": "flutter clean",
+          "manualLane": "TalkBack check of the Flutter semantics node on a physical device",
+          "manualStatus": "NOT_RUN"
+        },
+        "react-native": {
+          "lane": "ios", "framework": "react-native", "status": "BLOCKED",
+          "reason": "No React Native app, Detox configuration or simulator build",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["consumer RN app with Detox configured", "testID on the banner", "built ios.sim.debug app"],
+          "automatedCommand": "npx detox test -c ios.sim.debug e2e/selector.e2e.js --grep \"testID resolution\"",
+          "expectedOutcome": "Detox matches by testID and the assertion passes",
+          "cleanup": "npx detox clean-framework-cache",
+          "manualLane": "VoiceOver check of the testID-backed element on a physical iPhone",
+          "manualStatus": "NOT_RUN"
+        }
+      }
+    },
+    "AC-22": {
+      "name": "Lifecycle: background/resume versus process death",
+      "controls": {
+        "knownGood": {
+          "acId": "AC-22",
+          "evidenceClass": "SYNTHETIC_EXAMPLE",
+          "transition": "background_then_resume",
+          "claim": "resume_recovery",
+          "expected": { "inputRestored": true },
+          "observed": { "sessionPreserved": true, "inputRestored": true },
+          "outcome": "PASS"
+        },
+        "seededFault": {
+          "acId": "AC-22",
+          "evidenceClass": "SYNTHETIC_EXAMPLE",
+          "transition": "kill_process_and_cold_launch",
+          "claim": "resume_recovery",
+          "expected": { "inputRestored": true },
+          "observed": { "sessionPreserved": false, "inputRestored": false },
+          "outcome": "FAIL",
+          "expectedFaultClass": "RELAUNCH_EQUATED_WITH_RESUME"
+        },
+        "adversarialControls": [
+          {
+            "acId": "AC-22",
+            "evidenceClass": "SYNTHETIC_EXAMPLE",
+            "transition": "kill_process_and_cold_launch",
+            "claim": "relaunch_recovery",
+            "expected": { "persistedStateRestored": true },
+            "observed": { "sessionPreserved": false, "persistedStateRestored": false },
+            "outcome": "PASS",
+            "expectedFaultClass": "RELAUNCH_STATE_NOT_RESTORED"
+          },
+          {
+            "acId": "AC-22",
+            "evidenceClass": "SYNTHETIC_EXAMPLE",
+            "transition": "background_then_resume",
+            "claim": "resume_recovery",
+            "expected": { "inputRestored": true },
+            "observed": { "sessionPreserved": true, "inputRestored": false },
+            "outcome": "PASS",
+            "expectedFaultClass": "RESUME_STATE_NOT_RESTORED"
+          }
+        ]
+      },
+      "handoff": {
+        "ios": {
+          "lane": "ios", "framework": "swiftui", "status": "BLOCKED",
+          "reason": "No simulator build for background/terminate scenarios",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["consumer iOS UI test target", "access to the app's form state through the UI", "booted simulator"],
+          "automatedCommand": "xcodebuild test -project \"$IOS_PROJECT\" -scheme \"$IOS_UI_SCHEME\" -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.0' -only-testing:CheckoutAppUITests/LifecycleTests/testBackgroundResume -only-testing:CheckoutAppUITests/LifecycleTests/testProcessTerminationRelaunch",
+          "expectedOutcome": "Resume keeps in-flight input; relaunch restores only persisted state and never claims resume",
+          "cleanup": "xcrun simctl terminate booted \"$IOS_BUNDLE_ID\"",
+          "manualLane": "Background from the app switcher, then force-quit and relaunch by hand",
+          "manualStatus": "NOT_RUN"
+        },
+        "android": {
+          "lane": "android", "framework": "compose", "status": "BLOCKED",
+          "reason": "No APK and no emulator to force-stop and relaunch",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["consumer Android androidTest source set", "developer-options do-not-keep-activities toggle for the resume case", "booted emulator"],
+          "automatedCommand": "./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.checkout.LifecycleTest#backgroundResume -Pandroid.testInstrumentationRunnerArguments.class=com.example.checkout.LifecycleTest#processDeathRelaunch",
+          "expectedOutcome": "Recreate/resume preserves the form; process death restores from SavedStateHandle only",
+          "cleanup": "adb shell am force-stop com.example.checkout",
+          "manualLane": "Developer options > Don't keep activities plus a manual force-stop/relaunch",
+          "manualStatus": "NOT_RUN"
+        },
+        "flutter": {
+          "lane": "android", "framework": "flutter", "status": "BLOCKED",
+          "reason": "No built Flutter app or Patrol driver",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["consumer Flutter app with Patrol", "RestorationScope or persistence configured as the requirement states"],
+          "automatedCommand": "patrol test -t integration_test/lifecycle_test.dart --dart-define=ENV=synthetic",
+          "expectedOutcome": "Background/resume restores in-memory state; relaunch restores only persisted state",
+          "cleanup": "adb shell am force-stop \"$ANDROID_APP_ID\"",
+          "manualLane": "Manual background/relaunch of the installed Flutter build",
+          "manualStatus": "NOT_RUN"
+        },
+        "react-native": {
+          "lane": "ios", "framework": "react-native", "status": "BLOCKED",
+          "reason": "No RN build for relaunch testing",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["consumer RN app with Detox", "persisted state store wired to the requirement"],
+          "automatedCommand": "npx detox test -c ios.sim.debug e2e/lifecycle.e2e.js --grep \"process death\"",
+          "expectedOutcome": "Resume keeps the mounted session; relaunch restores only persisted state",
+          "cleanup": "xcrun simctl terminate booted \"$IOS_BUNDLE_ID\"",
+          "manualLane": "Manual app-switcher swipe-away and relaunch",
+          "manualStatus": "NOT_RUN"
+        }
+      }
+    },
+    "AC-23": {
+      "name": "OS/device matrix with per-cell gap accounting",
+      "controls": {
+        "knownGood": {
+          "acId": "AC-23",
+          "evidenceClass": "SYNTHETIC_EXAMPLE",
+          "claim": "per_cell",
+          "cells": [
+            { "platform": "ios", "device": "iPhone 16 Pro", "os": "iOS 18.0", "type": "simulator", "status": "PASS" },
+            { "platform": "android", "device": "Pixel 7a", "os": "API 34", "type": "emulator", "status": "PASS" },
+            { "platform": "flutter", "device": "Galaxy S24", "os": "API 34", "type": "physical", "status": "BLOCKED", "reason": "No physical device reserved" },
+            { "platform": "react-native", "device": "iPad Air", "os": "iPadOS 17.0", "type": "simulator", "status": "NOT_RUN", "reason": "iPad artifact not built" }
+          ],
+          "outcome": "PASS"
+        },
+        "seededFault": {
+          "acId": "AC-23",
+          "evidenceClass": "SYNTHETIC_EXAMPLE",
+          "claim": "all_platforms_pass",
+          "cells": [
+            { "platform": "ios", "device": "iPhone 16 Pro", "os": "iOS 18.0", "type": "simulator", "status": "PASS" },
+            { "platform": "android", "device": "Pixel 7a", "os": "API 34", "type": "emulator", "status": "BLOCKED", "reason": "No emulator" },
+            { "platform": "flutter", "device": "Galaxy S24", "os": "API 34", "type": "physical", "status": "BLOCKED", "reason": "No device" },
+            { "platform": "react-native", "device": "iPad Air", "os": "iPadOS 17.0", "type": "simulator", "status": "NOT_RUN", "reason": "Not built" }
+          ],
+          "outcome": "FAIL",
+          "expectedFaultClass": "FALSE_GENERALIZATION_ACROSS_PLATFORMS"
+        },
+        "adversarialControls": [
+          {
+            "acId": "AC-23",
+            "evidenceClass": "SYNTHETIC_EXAMPLE",
+            "claim": "per_cell",
+            "cells": [
+              { "platform": "ios", "device": "iPhone 16 Pro", "os": "iOS 18.0", "type": "simulator", "status": "PASS" },
+              { "platform": "android", "device": "Pixel 7a", "os": "API 34", "type": "emulator", "status": "BLOCKED" }
+            ],
+            "outcome": "PASS",
+            "expectedFaultClass": "MISSING_PLATFORM_CELL"
+          }
+        ]
+      },
+      "handoff": {
+        "ios": {
+          "lane": "ios", "framework": "swiftui", "status": "BLOCKED",
+          "reason": "Matrix cell ios/iPhone 16 Pro/iOS 18.0 unavailable in this worktree",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["consumer iOS project", "reserved simulator/device per matrix cell"],
+          "automatedCommand": "xcrun simctl list devices available && xcodebuild test -project \"$IOS_PROJECT\" -scheme \"$IOS_UI_SCHEME\" -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.0'",
+          "expectedOutcome": "One cell result per reserved device, with gaps recorded rather than generalized",
+          "cleanup": "xcrun simctl shutdown booted",
+          "manualLane": "Record the physical-device cell by hand against an identified build",
+          "manualStatus": "NOT_RUN"
+        },
+        "android": {
+          "lane": "android", "framework": "compose", "status": "BLOCKED",
+          "reason": "Matrix cell android/Pixel 7a/API 34 unavailable",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["consumer Android module", "reserved emulator/device per matrix cell"],
+          "automatedCommand": "adb devices && ./gradlew :app:connectedDebugAndroidTest",
+          "expectedOutcome": "Per-device results only; blocked cells stay blocked with a reason",
+          "cleanup": "adb emu kill",
+          "manualLane": "Record the physical-device cell by hand against an identified APK",
+          "manualStatus": "NOT_RUN"
+        },
+        "flutter": {
+          "lane": "android", "framework": "flutter", "status": "BLOCKED",
+          "reason": "Matrix cell flutter/Galaxy S24 unavailable",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["consumer Flutter project with Patrol", "reserved device per matrix cell"],
+          "automatedCommand": "flutter devices && patrol test -t integration_test/matrix_test.dart --dart-define=ENV=synthetic",
+          "expectedOutcome": "Each reserved device yields its own recorded cell",
+          "cleanup": "adb shell am force-stop \"$ANDROID_APP_ID\"",
+          "manualLane": "Record the physical-device cell by hand against an identified Flutter build",
+          "manualStatus": "NOT_RUN"
+        },
+        "react-native": {
+          "lane": "ios", "framework": "react-native", "status": "BLOCKED",
+          "reason": "Matrix cell react-native/iPad Air unavailable",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["consumer RN app with Detox", "reserved iPhone/iPad simulators"],
+          "automatedCommand": "xcrun simctl list devices available && npx detox test -c ios.sim.debug e2e/matrix.e2e.js",
+          "expectedOutcome": "Per-simulator cells recorded without generalization",
+          "cleanup": "xcrun simctl shutdown all",
+          "manualLane": "Record the iPad cell by hand against an identified RN build",
+          "manualStatus": "NOT_RUN"
+        }
+      }
+    },
+    "AC-24": {
+      "name": "Permission denial and system interruption",
+      "controls": {
+        "knownGood": {
+          "acId": "AC-24",
+          "evidenceClass": "SYNTHETIC_EXAMPLE",
+          "requiredPaths": ["allow", "deny"],
+          "permissions": [
+            {
+              "name": "camera",
+              "decision": "allow",
+              "expectedOutcome": "live_scanner_opened",
+              "appOutcome": "live_scanner_opened"
+            },
+            {
+              "name": "camera",
+              "decision": "deny",
+              "expectedOutcome": "manual_barcode_entry_shown",
+              "appOutcome": "manual_barcode_entry_shown"
+            }
+          ],
+          "autoGranted": false,
+          "interruptionDismissed": false,
+          "outcome": "PASS"
+        },
+        "seededFault": {
+          "acId": "AC-24",
+          "evidenceClass": "SYNTHETIC_EXAMPLE",
+          "requiredPaths": ["allow", "deny"],
+          "permissions": [
+            { "name": "camera", "decision": "auto-grant", "expectedOutcome": "system_dialog_shown", "appOutcome": "permission_flow_bypassed" }
+          ],
+          "autoGranted": true,
+          "interruptionDismissed": true,
+          "outcome": "FAIL",
+          "expectedFaultClass": "TEST_SUPPRESSED_INTERRUPTION_UNDER_TEST"
+        },
+        "adversarialControls": [
+          {
+            "acId": "AC-24",
+            "evidenceClass": "SYNTHETIC_EXAMPLE",
+            "requiredPaths": ["allow", "deny"],
+            "permissions": [
+              { "name": "camera", "decision": "allow", "expectedOutcome": "live_scanner_opened", "appOutcome": "live_scanner_opened" }
+            ],
+            "autoGranted": false,
+            "outcome": "PASS",
+            "expectedFaultClass": "MISSING_PERMISSION_PATH"
+          },
+          {
+            "acId": "AC-24",
+            "evidenceClass": "SYNTHETIC_EXAMPLE",
+            "requiredPaths": ["allow", "deny"],
+            "permissions": [
+              { "name": "camera", "decision": "allow", "expectedOutcome": "live_scanner_opened", "appOutcome": "live_scanner_opened" },
+              { "name": "camera", "decision": "deny", "expectedOutcome": "manual_barcode_entry_shown", "appOutcome": "hard_crash" }
+            ],
+            "autoGranted": false,
+            "outcome": "PASS",
+            "expectedFaultClass": "PERMISSION_OUTCOME_MISMATCH"
+          }
+        ]
+      },
+      "handoff": {
+        "ios": {
+          "lane": "ios", "framework": "swiftui", "status": "BLOCKED",
+          "reason": "No simulator build; camera is unavailable on simulator regardless",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["consumer iOS UI test target", "physical iPhone for the camera path", "no automatic permission pre-grant"],
+          "automatedCommand": "xcodebuild test -project \"$IOS_PROJECT\" -scheme \"$IOS_UI_SCHEME\" -destination 'platform=iOS,id=\"$PHYSICAL_UDID\"' -only-testing:CheckoutAppUITests/PermissionTests",
+          "expectedOutcome": "Allow reaches the scanner; deny shows the manual entry fallback",
+          "cleanup": "xcrun simctl privacy booted reset camera \"$IOS_BUNDLE_ID\"",
+          "manualLane": "Physical iPhone: deny camera at the first prompt and confirm the fallback",
+          "manualStatus": "NOT_RUN"
+        },
+        "android": {
+          "lane": "android", "framework": "compose", "status": "BLOCKED",
+          "reason": "No APK; permission dialogs must not be auto-granted by the harness",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["consumer Android instrumentation test", "physical device or emulator with a real dialog", "no grant-all instrumentation flags"],
+          "automatedCommand": "./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.checkout.PermissionTest#cameraDenied",
+          "expectedOutcome": "Deny path shows the fallback; revoke path re-prompts as the requirement states",
+          "cleanup": "adb shell pm revoke com.example.checkout android.permission.CAMERA",
+          "manualLane": "Physical device: deny then revoke camera in Settings and re-check the fallback",
+          "manualStatus": "NOT_RUN"
+        },
+        "flutter": {
+          "lane": "android", "framework": "flutter", "status": "BLOCKED",
+          "reason": "No Flutter build or Patrol driver",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["consumer Flutter project with Patrol", "permission_handler plugin as the app uses it"],
+          "automatedCommand": "patrol test -t integration_test/permission_test.dart --dart-define=ENV=synthetic",
+          "expectedOutcome": "System dialog is exercised, not pre-granted; deny path matches the requirement",
+          "cleanup": "adb shell pm revoke \"$ANDROID_APP_ID\" android.permission.CAMERA",
+          "manualLane": "Manual deny/revoke on a physical device with the real system dialog",
+          "manualStatus": "NOT_RUN"
+        },
+        "react-native": {
+          "lane": "ios", "framework": "react-native", "status": "BLOCKED",
+          "reason": "No RN build; Detox permission helpers must not pre-grant",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["consumer RN app with Detox", "physical device for the camera path"],
+          "automatedCommand": "npx detox test -c ios.sim.debug e2e/permission.e2e.js --grep \"camera denied\"",
+          "expectedOutcome": "Deny leaves the documented fallback visible",
+          "cleanup": "npx detox clean-framework-cache",
+          "manualLane": "Manual first-run prompt on a physical iPhone",
+          "manualStatus": "NOT_RUN"
+        }
+      }
+    },
+    "AC-25": {
+      "name": "Offline queue and reconnect synchronization",
+      "controls": {
+        "knownGood": {
+          "acId": "AC-25",
+          "evidenceClass": "SYNTHETIC_EXAMPLE",
+          "offlineMutations": 1,
+          "syncedMutations": 1,
+          "duplicateCount": 0,
+          "expected": { "offlineMutations": 1, "syncedMutations": 1 },
+          "conflictPolicySource": "requirements",
+          "outcome": "PASS"
+        },
+        "seededFault": {
+          "acId": "AC-25",
+          "evidenceClass": "SYNTHETIC_EXAMPLE",
+          "offlineMutations": 1,
+          "syncedMutations": 2,
+          "duplicateCount": 1,
+          "expected": { "offlineMutations": 1, "syncedMutations": 1 },
+          "conflictPolicySource": "requirements",
+          "outcome": "FAIL",
+          "expectedFaultClass": "FORBIDDEN_DUPLICATE_SIDE_EFFECT"
+        },
+        "adversarialControls": [
+          {
+            "acId": "AC-25",
+            "evidenceClass": "SYNTHETIC_EXAMPLE",
+            "offlineMutations": 1,
+            "syncedMutations": 0,
+            "duplicateCount": 0,
+            "expected": { "offlineMutations": 1, "syncedMutations": 1 },
+            "conflictPolicySource": "requirements",
+            "outcome": "PASS",
+            "expectedFaultClass": "SYNC_RESULT_MISMATCH"
+          },
+          {
+            "acId": "AC-25",
+            "evidenceClass": "SYNTHETIC_EXAMPLE",
+            "offlineMutations": 1,
+            "syncedMutations": 1,
+            "duplicateCount": 0,
+            "expected": { "offlineMutations": 1, "syncedMutations": 1 },
+            "conflictPolicySource": "test-author-preference",
+            "outcome": "PASS",
+            "expectedFaultClass": "INVENTED_CONFLICT_POLICY"
+          }
+        ]
+      },
+      "handoff": {
+        "ios": {
+          "lane": "ios", "framework": "swiftui", "status": "BLOCKED",
+          "reason": "No build and no network-condition driver",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["consumer iOS UI test target", "Network Link Conditioner or simulator network toggling", "fixture server reachable from the simulator"],
+          "automatedCommand": "xcodebuild test -project \"$IOS_PROJECT\" -scheme \"$IOS_UI_SCHEME\" -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.0' -only-testing:CheckoutAppUITests/OfflineSyncTests",
+          "expectedOutcome": "One queued mutation synchronizes once with no duplicate effect",
+          "cleanup": "Delete the synthetic account's queued data",
+          "manualLane": "Airplane mode toggle on a physical iPhone with one queued mutation",
+          "manualStatus": "NOT_RUN"
+        },
+        "android": {
+          "lane": "android", "framework": "compose", "status": "BLOCKED",
+          "reason": "No APK; airplane-mode automation requires a device",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["consumer Android instrumentation test", "device with network toggling permission"],
+          "automatedCommand": "./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.checkout.OfflineSyncTest#reconnectNoDuplicate",
+          "expectedOutcome": "Exactly one synchronization per queued mutation; duplicates fail the check",
+          "cleanup": "adb shell svc wifi enable",
+          "manualLane": "Manual airplane-mode toggle with one queued mutation, then inspect server ledgers",
+          "manualStatus": "NOT_RUN"
+        },
+        "flutter": {
+          "lane": "android", "framework": "flutter", "status": "BLOCKED",
+          "reason": "No Flutter build for offline queue verification",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["consumer Flutter project with Patrol", "connectivity plugin as the app uses it"],
+          "automatedCommand": "patrol test -t integration_test/offline_sync_test.dart --dart-define=ENV=synthetic",
+          "expectedOutcome": "Queued mutation synchronizes once against the fixture",
+          "cleanup": "Clear the app's local queue",
+          "manualLane": "Manual network loss and reconnect on a physical device",
+          "manualStatus": "NOT_RUN"
+        },
+        "react-native": {
+          "lane": "ios", "framework": "react-native", "status": "BLOCKED",
+          "reason": "No RN build; NetInfo cannot be exercised without a device",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["consumer RN app with Detox", "NetInfo wired to the queue as the requirement states"],
+          "automatedCommand": "npx detox test -c ios.sim.debug e2e/offline-sync.e2e.js --grep \"reconnect\"",
+          "expectedOutcome": "Reconnect flushes the queue once with no duplicate",
+          "cleanup": "Reset the synthetic account's queue",
+          "manualLane": "Manual airplane-mode cycle on a physical iPhone",
+          "manualStatus": "NOT_RUN"
+        }
+      }
+    },
+    "AC-26": {
+      "name": "Clean install versus upgrade migration semantics",
+      "controls": {
+        "knownGood": {
+          "acId": "AC-26",
+          "evidenceClass": "SYNTHETIC_EXAMPLE",
+          "installMode": "noReset",
+          "priorBuild": "1.0.0",
+          "targetBuild": "1.1.0",
+          "binaryArtifacts": {
+            "prior": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+            "target": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+          },
+          "seededPriorData": true,
+          "installationObserved": true,
+          "migrationPrecondition": "prior build completed one order and stored a local draft",
+          "claimedUpgradeMigration": true,
+          "expected": { "migratedUserDataPreserved": true },
+          "observed": { "migratedUserDataPreserved": true },
+          "outcome": "PASS"
+        },
+        "seededFault": {
+          "acId": "AC-26",
+          "evidenceClass": "SYNTHETIC_EXAMPLE",
+          "installMode": "reset",
+          "priorBuild": "1.0.0",
+          "targetBuild": "1.1.0",
+          "binaryArtifacts": {
+            "prior": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+            "target": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+          },
+          "seededPriorData": true,
+          "installationObserved": true,
+          "migrationPrecondition": "prior build completed one order and stored a local draft",
+          "claimedUpgradeMigration": true,
+          "expected": { "migratedUserDataPreserved": true },
+          "observed": { "migratedUserDataPreserved": false },
+          "outcome": "FAIL",
+          "expectedFaultClass": "SEMANTIC_INSTALL_RESET_VIOLATION"
+        },
+        "adversarialControls": [
+          {
+            "acId": "AC-26",
+            "evidenceClass": "SYNTHETIC_EXAMPLE",
+            "installMode": "noReset",
+            "priorBuild": "1.0.0",
+            "targetBuild": "1.1.0",
+            "binaryArtifacts": {
+              "prior": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+              "target": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+            },
+            "seededPriorData": true,
+            "installationObserved": true,
+            "migrationPrecondition": "prior build completed one order and stored a local draft",
+            "claimedUpgradeMigration": true,
+            "expected": { "migratedUserDataPreserved": true },
+            "observed": { "migratedUserDataPreserved": false },
+            "outcome": "PASS",
+            "expectedFaultClass": "MIGRATION_OUTCOME_MISMATCH"
+          },
+          {
+            "acId": "AC-26",
+            "evidenceClass": "SYNTHETIC_EXAMPLE",
+            "installMode": "noReset",
+            "priorBuild": "1.0.0",
+            "targetBuild": "1.1.0",
+            "binaryArtifacts": {
+              "prior": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+              "target": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+            },
+            "seededPriorData": true,
+            "installationObserved": true,
+            "migrationPrecondition": "prior build completed one order and stored a local draft",
+            "claimedUpgradeMigration": true,
+            "expected": { "migratedUserDataPreserved": true },
+            "observed": { "migratedUserDataPreserved": true },
+            "outcome": "PASS",
+            "expectedFaultClass": "NO_BINARY_UPGRADE_PROOF"
+          }
+        ]
+      },
+      "handoff": {
+        "ios": {
+          "lane": "ios", "framework": "swiftui", "status": "BLOCKED",
+          "reason": "No prior and target iOS builds to install in sequence",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["prior build .app for the simulator", "target build .app for the simulator", "a seeding step that writes user data in the prior build"],
+          "automatedCommand": "xcrun simctl install booted \"$PRIOR_APP\" && xcodebuild test -project \"$IOS_PROJECT\" -scheme \"$IOS_UI_SCHEME\" -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.0' -only-testing:CheckoutAppUITests/SeedPriorDataTests && xcrun simctl install booted \"$TARGET_APP\" && xcodebuild test -project \"$IOS_PROJECT\" -scheme \"$IOS_UI_SCHEME\" -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.0' -only-testing:CheckoutAppUITests/MigrationTests",
+          "expectedOutcome": "Priority: prior install, seeded data, install-over-install of the target, then migrated data is verified",
+          "cleanup": "xcrun simctl uninstall booted \"$IOS_BUNDLE_ID\"",
+          "manualLane": "Install prior build from TestFlight, upgrade, and verify migrated local data by hand",
+          "manualStatus": "NOT_RUN"
+        },
+        "android": {
+          "lane": "android", "framework": "compose", "status": "BLOCKED",
+          "reason": "No prior/target APKs for install-over-install",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["prior APK", "target APK with a higher versionCode", "instrumented seeding step"],
+          "automatedCommand": "adb install -r \"$PRIOR_APK\" && ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.checkout.SeedPriorDataTest && adb install -r \"$TARGET_APK\" && ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.checkout.MigrationTest",
+          "expectedOutcome": "Seeded prior data survives the upgrade; no silent full reset",
+          "cleanup": "adb uninstall com.example.checkout",
+          "manualLane": "Install v1.0.0, use it, upgrade to v1.1.0 and check migrated data by hand",
+          "manualStatus": "NOT_RUN"
+        },
+        "flutter": {
+          "lane": "android", "framework": "flutter", "status": "BLOCKED",
+          "reason": "No Flutter prior/target builds for the upgrade sequence",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["prior Flutter build artifact from the released tag", "target build artifact", "instrumented seeding step"],
+          "automatedCommand": "git -C \"$FLUTTER_REPO\" checkout \"$PRIOR_TAG\" && flutter build apk --release && adb install -r build/app/outputs/flutter-apk/app-release.apk && patrol test -t integration_test/seed_prior_data_test.dart && git -C \"$FLUTTER_REPO\" checkout \"$TARGET_TAG\" && flutter build apk --release && adb install -r build/app/outputs/flutter-apk/app-release.apk && patrol test -t integration_test/migration_test.dart",
+          "expectedOutcome": "Prior-tag data is seeded, then the target-tag build preserves it",
+          "cleanup": "adb uninstall \"$ANDROID_APP_ID\"",
+          "manualLane": "Manual upgrade with persisted local data",
+          "manualStatus": "NOT_RUN"
+        },
+        "react-native": {
+          "lane": "ios", "framework": "react-native", "status": "BLOCKED",
+          "reason": "No RN prior/target artifacts for the upgrade sequence",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["prior RN .app", "target RN .app", "Detox seeding test"],
+          "automatedCommand": "xcrun simctl install booted \"$PRIOR_APP\" && npx detox test -c ios.sim.debug e2e/seed-prior-data.e2e.js && xcrun simctl install booted \"$TARGET_APP\" && npx detox test -c ios.sim.debug e2e/migration.e2e.js",
+          "expectedOutcome": "Data seeded by the prior build is present after the target build is installed over it",
+          "cleanup": "xcrun simctl uninstall booted \"$IOS_BUNDLE_ID\"",
+          "manualLane": "Manual upgrade over a used install",
+          "manualStatus": "NOT_RUN"
+        }
+      }
+    },
+    "AC-27": {
+      "name": "Native accessibility and dynamic type",
+      "controls": {
+        "knownGood": {
+          "acId": "AC-27",
+          "evidenceClass": "SYNTHETIC_EXAMPLE",
+          "proof": ["native-voiceover", "manual-attestation"],
+          "voiceOver": { "label": "Confirm Order", "traits": ["button"], "focusOrder": 2 },
+          "textScaling": true,
+          "orientation": true,
+          "keyboard": true,
+          "safeArea": true,
+          "outcome": "PASS"
+        },
+        "seededFault": {
+          "acId": "AC-27",
+          "evidenceClass": "SYNTHETIC_EXAMPLE",
+          "proof": ["axe-web", "screenshot"],
+          "voiceOver": null,
+          "textScaling": false,
+          "orientation": false,
+          "keyboard": false,
+          "safeArea": false,
+          "outcome": "FAIL",
+          "expectedFaultClass": "WEB_AUDIT_SUBSTITUTED_FOR_NATIVE_ACCESSIBILITY"
+        },
+        "adversarialControls": [
+          {
+            "acId": "AC-27",
+            "evidenceClass": "SYNTHETIC_EXAMPLE",
+            "proof": ["native-voiceover"],
+            "voiceOver": { "label": "Confirm Order", "traits": ["button"], "focusOrder": 2 },
+            "textScaling": true,
+            "orientation": false,
+            "keyboard": false,
+            "safeArea": false,
+            "outcome": "PASS",
+            "expectedFaultClass": "INCOMPLETE_ACCESSIBILITY_COVERAGE"
+          }
+        ]
+      },
+      "handoff": {
+        "ios": {
+          "lane": "ios", "framework": "swiftui", "status": "BLOCKED",
+          "reason": "VoiceOver semantics need a device or simulator plus a human listener",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["consumer iOS UI test target", "human VoiceOver reviewer", "largest Dynamic Type setting available"],
+          "automatedCommand": "xcodebuild test -project \"$IOS_PROJECT\" -scheme \"$IOS_UI_SCHEME\" -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.0' -only-testing:CheckoutAppUITests/AccessibilityTests",
+          "expectedOutcome": "Labels, traits and focus order match the approved accessibility requirement",
+          "cleanup": "Reset Dynamic Type and orientation to defaults",
+          "manualLane": "VoiceOver + largest Dynamic Type + landscape + hardware keyboard checklist",
+          "manualStatus": "NOT_RUN"
+        },
+        "android": {
+          "lane": "android", "framework": "compose", "status": "BLOCKED",
+          "reason": "TalkBack and font-scale checks require a running device",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["consumer Android instrumentation test", "human TalkBack reviewer", "device that accepts font_scale changes"],
+          "automatedCommand": "adb shell settings put system font_scale 2.0 && ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.checkout.AccessibilityTest",
+          "expectedOutcome": "Semantics, focus order and large-font layout match the requirement",
+          "cleanup": "adb shell settings put system font_scale 1.0",
+          "manualLane": "TalkBack focus order and large-font checklist on a physical device",
+          "manualStatus": "NOT_RUN"
+        },
+        "flutter": {
+          "lane": "android", "framework": "flutter", "status": "BLOCKED",
+          "reason": "Semantics tree needs a running Flutter build",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["consumer Flutter project with Patrol", "human TalkBack reviewer"],
+          "automatedCommand": "patrol test -t integration_test/accessibility_test.dart --dart-define=ENV=synthetic",
+          "expectedOutcome": "Semantics nodes expose the approved labels and order",
+          "cleanup": "Reset text scaling to default",
+          "manualLane": "TalkBack semantics and text-scale checklist on a physical device",
+          "manualStatus": "NOT_RUN"
+        },
+        "react-native": {
+          "lane": "ios", "framework": "react-native", "status": "BLOCKED",
+          "reason": "accessibilityLabel/role need a running RN build",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["consumer RN app with Detox", "human VoiceOver reviewer"],
+          "automatedCommand": "npx detox test -c ios.sim.debug e2e/accessibility.e2e.js",
+          "expectedOutcome": "accessibilityLabel/role and focus order match the requirement",
+          "cleanup": "Reset Dynamic Type to default",
+          "manualLane": "VoiceOver checklist on a physical iPhone",
+          "manualStatus": "NOT_RUN"
+        }
+      }
+    },
+    "AC-28": {
+      "name": "Startup, ANR and memory performance",
+      "controls": {
+        "knownGood": {
+          "acId": "AC-28",
+          "evidenceClass": "SYNTHETIC_EXAMPLE",
+          "coldStartMs": 850,
+          "warmStartMs": 220,
+          "peakMemoryMb": 115,
+          "anrCount": 0,
+          "deviceClass": "physical",
+          "claim": "physical_device_performance",
+          "outcome": "PASS"
+        },
+        "seededFault": {
+          "acId": "AC-28",
+          "evidenceClass": "SYNTHETIC_EXAMPLE",
+          "coldStartMs": 120,
+          "warmStartMs": 40,
+          "peakMemoryMb": 60,
+          "anrCount": 0,
+          "deviceClass": "simulator",
+          "claim": "physical_device_performance",
+          "outcome": "FAIL",
+          "expectedFaultClass": "HOST_HARDWARE_CONFUSED_WITH_DEVICE_PERFORMANCE"
+        },
+        "adversarialControls": [
+          {
+            "acId": "AC-28",
+            "evidenceClass": "SYNTHETIC_EXAMPLE",
+            "coldStartMs": 850,
+            "deviceClass": "physical",
+            "claim": "physical_device_performance",
+            "outcome": "PASS",
+            "expectedFaultClass": "INCOMPLETE_PERFORMANCE_OBSERVATION"
+          }
+        ]
+      },
+      "handoff": {
+        "ios": {
+          "lane": "ios", "framework": "swiftui", "status": "BLOCKED",
+          "reason": "Simulator timings cannot prove physical performance; no physical device reserved",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["consumer iOS performance test target", "physical device UDID", "release build installed on that device"],
+          "automatedCommand": "xcodebuild test -project \"$IOS_PROJECT\" -scheme \"$IOS_PERF_SCHEME\" -destination 'platform=iOS,id=\"$PHYSICAL_UDID\"' -only-testing:CheckoutAppPerfTests/LaunchTests",
+          "expectedOutcome": "Cold/warm launch, memory and hang metrics are recorded against the identified physical device",
+          "cleanup": "Uninstall the performance build from the device",
+          "manualLane": "Instruments Time Profiler and memory graph on a physical device",
+          "manualStatus": "NOT_RUN"
+        },
+        "android": {
+          "lane": "android", "framework": "compose", "status": "BLOCKED",
+          "reason": "Macrobenchmark needs a physical device build",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["consumer Android benchmark module", "physical device", "release-signed benchmark build"],
+          "automatedCommand": "./gradlew :benchmark:connectedCheck -Pandroid.testInstrumentationRunnerArguments.class=com.example.checkout.LaunchBenchmark",
+          "expectedOutcome": "Startup, ANR and memory metrics reported for the identified physical device",
+          "cleanup": "adb uninstall com.example.checkout.benchmark",
+          "manualLane": "Perfetto trace and memory profile on a physical device",
+          "manualStatus": "NOT_RUN"
+        },
+        "flutter": {
+          "lane": "android", "framework": "flutter", "status": "BLOCKED",
+          "reason": "Flutter profile build and device absent",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["consumer Flutter app", "physical device id", "profile build"],
+          "automatedCommand": "flutter drive --profile --target=integration_test/perf_test.dart -d \"$PHYSICAL_DEVICE_ID\"",
+          "expectedOutcome": "Startup and jank metrics recorded on the identified physical device",
+          "cleanup": "adb shell am force-stop \"$ANDROID_APP_ID\"",
+          "manualLane": "Physical-device startup trace and memory inspection",
+          "manualStatus": "NOT_RUN"
+        },
+        "react-native": {
+          "lane": "ios", "framework": "react-native", "status": "BLOCKED",
+          "reason": "RN release build on a physical device absent",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["consumer RN app with a device Detox configuration", "physical iPhone", "release build"],
+          "automatedCommand": "npx detox test -c ios.device.release e2e/perf.e2e.js --grep \"cold start\"",
+          "expectedOutcome": "Cold/warm startup recorded on the identified physical device",
+          "cleanup": "npx detox clean-framework-cache",
+          "manualLane": "Instruments trace on a physical iPhone release build",
+          "manualStatus": "NOT_RUN"
+        }
+      }
+    },
+    "AC-29": {
+      "name": "Secure storage, logout and log hygiene",
+      "controls": {
+        "knownGood": {
+          "acId": "AC-29",
+          "evidenceClass": "SYNTHETIC_EXAMPLE",
+          "tokenStorage": "platform-keychain",
+          "tokenInPlainPreferences": false,
+          "tokenInSystemLog": false,
+          "credentialsCollected": false,
+          "logoutInvalidatesSession": true,
+          "outcome": "PASS"
+        },
+        "seededFault": {
+          "acId": "AC-29",
+          "evidenceClass": "SYNTHETIC_EXAMPLE",
+          "tokenStorage": "platform-keychain",
+          "tokenInPlainPreferences": false,
+          "tokenInSystemLog": true,
+          "credentialsCollected": false,
+          "logoutInvalidatesSession": true,
+          "outcome": "FAIL",
+          "expectedFaultClass": "SENSITIVE_CREDENTIAL_EXPOSURE"
+        },
+        "adversarialControls": [
+          {
+            "acId": "AC-29",
+            "evidenceClass": "SYNTHETIC_EXAMPLE",
+            "tokenStorage": "platform-keychain",
+            "tokenInPlainPreferences": false,
+            "tokenInSystemLog": false,
+            "credentialsCollected": false,
+            "logoutInvalidatesSession": false,
+            "outcome": "PASS",
+            "expectedFaultClass": "SESSION_NOT_INVALIDATED_ON_LOGOUT"
+          }
+        ]
+      },
+      "handoff": {
+        "ios": {
+          "lane": "ios", "framework": "swiftui", "status": "BLOCKED",
+          "reason": "No build; synthetic session token required",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["consumer iOS UI test target", "synthetic account token issued by the fixture", "log capture time limit"],
+          "automatedCommand": "timeout 60 xcrun simctl spawn booted log stream --level debug --predicate 'process == \"CheckoutApp\"' > \"$LOG_CAPTURE\" & xcodebuild test -project \"$IOS_PROJECT\" -scheme \"$IOS_UI_SCHEME\" -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.0' -only-testing:CheckoutAppUITests/SessionTests; grep -c \"$SYNTHETIC_TOKEN\" \"$LOG_CAPTURE\"",
+          "expectedOutcome": "Zero token matches in the bounded, redacted log capture; logout invalidates the stored session",
+          "cleanup": "Delete \"$LOG_CAPTURE\" and stop the log stream (timeout bounds it)",
+          "manualLane": "Inspect Console logs and Keychain contents after a synthetic login/logout",
+          "manualStatus": "NOT_RUN"
+        },
+        "android": {
+          "lane": "android", "framework": "compose", "status": "BLOCKED",
+          "reason": "No APK; logcat session inspection needs a device",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["consumer Android instrumentation test", "synthetic account token", "bounded logcat capture"],
+          "automatedCommand": "adb logcat -c && ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.checkout.SessionTest && adb logcat -d -t 500 > \"$LOGCAT_CAPTURE\"; grep -c \"$SYNTHETIC_TOKEN\" \"$LOGCAT_CAPTURE\"",
+          "expectedOutcome": "Zero token matches in the bounded, redacted capture; logout clears the session",
+          "cleanup": "Delete \"$LOGCAT_CAPTURE\"",
+          "manualLane": "Manual logcat and EncryptedSharedPreferences inspection after logout",
+          "manualStatus": "NOT_RUN"
+        },
+        "flutter": {
+          "lane": "android", "framework": "flutter", "status": "BLOCKED",
+          "reason": "No Flutter build for secure storage checks",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["consumer Flutter project with Patrol", "flutter_secure_storage as the app uses it", "bounded logcat capture"],
+          "automatedCommand": "adb logcat -c && patrol test -t integration_test/session_test.dart --dart-define=ENV=synthetic && adb logcat -d -t 500 > \"$LOGCAT_CAPTURE\"; grep -c \"$SYNTHETIC_TOKEN\" \"$LOGCAT_CAPTURE\"",
+          "expectedOutcome": "No token material in the bounded capture; logout clears secure storage",
+          "cleanup": "Delete \"$LOGCAT_CAPTURE\"",
+          "manualLane": "Manual logcat and secure-storage inspection on a physical device",
+          "manualStatus": "NOT_RUN"
+        },
+        "react-native": {
+          "lane": "ios", "framework": "react-native", "status": "BLOCKED",
+          "reason": "No RN build for keychain/log checks",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["consumer RN app with Detox", "keychain-backed storage", "bounded log capture"],
+          "automatedCommand": "timeout 60 xcrun simctl spawn booted log stream --level debug --predicate 'process == \"CheckoutApp\"' > \"$LOG_CAPTURE\" & npx detox test -c ios.sim.debug e2e/session.e2e.js --grep \"logout invalidates\"; grep -c \"$SYNTHETIC_TOKEN\" \"$LOG_CAPTURE\"",
+          "expectedOutcome": "No token material in the bounded capture; logout invalidates the stored session",
+          "cleanup": "Delete \"$LOG_CAPTURE\" and stop the log stream (timeout bounds it)",
+          "manualLane": "Manual Console log and Keychain inspection on a physical iPhone",
+          "manualStatus": "NOT_RUN"
+        }
+      }
+    },
+    "AC-30": {
+      "name": "Release candidate smoke and artifact provenance",
+      "controls": {
+        "knownGood": {
+          "acId": "AC-30",
+          "evidenceClass": "SYNTHETIC_EXAMPLE",
+          "artifact": {
+            "digest": "sha256:4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a",
+            "signing": "Apple Distribution: Example Corp (XYZ123)",
+            "distribution": "TestFlight internal"
+          },
+          "device": { "model": "iPhone 16 Pro", "osVersion": "iOS 18.0", "type": "physical" },
+          "outcome": "PASS"
+        },
+        "seededFault": {
+          "acId": "AC-30",
+          "evidenceClass": "SYNTHETIC_EXAMPLE",
+          "artifact": { "digest": null, "signing": null, "distribution": null },
+          "device": { "model": null, "osVersion": null, "type": "simulator" },
+          "outcome": "PASS",
+          "expectedFaultClass": "FALSE_PASS_WITHOUT_RUNTIME"
+        },
+        "adversarialControls": [
+          {
+            "acId": "AC-30",
+            "evidenceClass": "SYNTHETIC_EXAMPLE",
+            "artifact": {
+              "digest": "sha256:4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a",
+              "signing": null,
+              "distribution": null
+            },
+            "device": { "model": "iPhone 16 Pro", "osVersion": "iOS 18.0", "type": "physical" },
+            "outcome": "PASS",
+            "expectedFaultClass": "FALSE_PASS_WITHOUT_RUNTIME"
+          }
+        ]
+      },
+      "handoff": {
+        "ios": {
+          "lane": "ios", "framework": "swiftui", "status": "BLOCKED",
+          "reason": "No simulator build and no signed distribution artifact",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["consumer iOS project", "simulator .app build for the simulator smoke", "separately signed .ipa for the physical release smoke", "human operator for the physical lane"],
+          "automatedCommand": "xcodebuild -project \"$IOS_PROJECT\" -scheme \"$IOS_APP_SCHEME\" -sdk iphonesimulator -configuration Release build && xcrun simctl install booted \"$SIMULATOR_APP\" && ditto -c -k --keepParent \"$SIMULATOR_APP\" \"$SIMULATOR_APP.zip\" && shasum -a 256 \"$SIMULATOR_APP.zip\"",
+          "expectedOutcome": "Simulator smoke runs against the identified .app; its ZIP archive SHA-256 digest is recorded",
+          "cleanup": "rm -f \"$SIMULATOR_APP.zip\" && xcrun simctl uninstall booted \"$IOS_BUNDLE_ID\"",
+          "manualLane": "Physical release smoke: install the signed distribution artifact from TestFlight on a physical iPhone, record signing identity, distribution and device/OS",
+          "manualStatus": "NOT_RUN"
+        },
+        "android": {
+          "lane": "android", "framework": "compose", "status": "BLOCKED",
+          "reason": "No signed AAB/APK or distribution track",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["consumer Android app", "signed APK for the emulator smoke", "internal-testing track for the physical lane"],
+          "automatedCommand": "apksigner verify --print-certs \"$RELEASE_APK\" && adb install -r \"$RELEASE_APK\" && shasum -a 256 \"$RELEASE_APK\"",
+          "expectedOutcome": "Signature, digest and install on the identified emulator are recorded",
+          "cleanup": "adb uninstall com.example.checkout",
+          "manualLane": "Internal-testing track install on a physical device plus smoke checklist",
+          "manualStatus": "NOT_RUN"
+        },
+        "flutter": {
+          "lane": "android", "framework": "flutter", "status": "BLOCKED",
+          "reason": "No Flutter release artifact",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["consumer Flutter app with a release signing config", "release build output"],
+          "automatedCommand": "flutter build apk --release && apksigner verify --print-certs build/app/outputs/flutter-apk/app-release.apk && shasum -a 256 build/app/outputs/flutter-apk/app-release.apk",
+          "expectedOutcome": "Signed release artifact with recorded digest",
+          "cleanup": "adb uninstall \"$ANDROID_APP_ID\"",
+          "manualLane": "Physical-device release smoke on the built artifact",
+          "manualStatus": "NOT_RUN"
+        },
+        "react-native": {
+          "lane": "ios", "framework": "react-native", "status": "BLOCKED",
+          "reason": "No RN simulator build or signed IPA",
+          "commandStatus": "ILLUSTRATIVE_NON_EXECUTABLE",
+          "prerequisites": ["consumer RN app", "simulator .app build", "separately signed IPA for the physical lane"],
+          "automatedCommand": "xcodebuild -workspace \"$RN_WORKSPACE\" -scheme \"$RN_SCHEME\" -sdk iphonesimulator -configuration Release build && xcrun simctl install booted \"$SIMULATOR_APP\" && ditto -c -k --keepParent \"$SIMULATOR_APP\" \"$SIMULATOR_APP.zip\" && shasum -a 256 \"$SIMULATOR_APP.zip\"",
+          "expectedOutcome": "Simulator smoke runs against the identified .app; its ZIP archive SHA-256 digest is recorded",
+          "cleanup": "rm -f \"$SIMULATOR_APP.zip\" && xcrun simctl uninstall booted \"$IOS_BUNDLE_ID\"",
+          "manualLane": "TestFlight install of the signed distribution artifact and release smoke on a physical iPhone",
+          "manualStatus": "NOT_RUN"
+        }
+      }
+    }
+  }
+}

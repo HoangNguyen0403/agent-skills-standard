@@ -9,6 +9,7 @@ metadata:
     - '**/robots/**.dart'
     - 'lib/core/keys/**.dart'
     keywords:
+    - flutter integration test
     - test
     - patrol
     - robot
@@ -38,7 +39,7 @@ Avoid calculating or inventing arbitrary numeric scores (e.g. $P \times R \times
 - **`[MOB-TEST-03]` Entity Invariant & Serialization Rule**: Test calculations, validations, domain invariants, and non-trivial serialization/parsing or error mapping. BAN testing generated code, trivial getters/setters, `props`, or echo tests (`expect(item.discount, equals(5))`) where the test merely repeats literal assignments.
 - **`[MOB-TEST-04]` Contract Testing Rule**: Repositories and data sources must be tested for contract compliance, golden JSON parsing, and error mapping. BAN 1:1 pass-through mock echoing (`when(() => dataSource.get()).thenAnswer((_) async => x); expect(await repo.get(), x)`).
 - **`[MOB-TEST-05]` Bug-First Regression Lock**: Every PR fixing a bug ticket or with title `fix(...)` must introduce a failing test reproducing the defect before fixing it.
-
+- **`[MOB-TEST-06]` Layer & Device Fidelity**: Unit > Widget > Patrol integration (`patrolTest`). Default 800×600 widget tests do not prove device layout or native behavior; desktop emulation never substitutes native E2E.
 ## Core Rules
 
 1. **Test Pyramid**: Unit > Widget > Integration.
@@ -49,8 +50,7 @@ Avoid calculating or inventing arbitrary numeric scores (e.g. $P \times R \times
 6. **Robot-First**: All UI assertions/interactions via **Robot pattern** (extending `BaseRobot`) — never raw `find.*`/`expect()` in test body. Use `WidgetKeys` constants from `lib/core/keys/`.
 7. **Negative Assertions**: Add `expectXxxNotVisible()` in robot only when absence is part of the business contract (e.g. restricted action hidden), not blanket pairs for unrelated content.
 8. **Widget Testing & Mocking**: Setup with `TestWrapper.init()` and `tester.pumpLocalizedWidget(...)`. Register mock BLoCs with `GetIt` in `setUpAll`; stub `state` and `stream` in `setUp` (use `whenListen` and `settle: false` for loading/transition states). Prohibit `any()`.
-9. **Integration Testing**: Use `patrolTest` with `IntegrationAuthHelper.loginOrSkip($)` for auth flows and `native interactions` (`$.native.*`).
-
+9. **Integration Testing**: Use `patrolTest` with `IntegrationAuthHelper.loginOrSkip($)` for auth flows and `native interactions` (`$.native.*`) for permissions, alerts, and lifecycle. For permission flows, assert the dialog (`isPermissionDialogVisible`) before granting/denying and assert the approved allowed **and** denied outcomes as separate tests.
 ## Anti-Patterns & Banned Smells
 
 - **`[MOB-TEST-01]` Vague names**: Banish non-descriptive names (`testCart`).
@@ -71,7 +71,7 @@ Avoid calculating or inventing arbitrary numeric scores (e.g. $P \times R \times
 - [ ] Views with distinct UI logic tested via Robot pattern at proper layer.
 - [ ] Critical user flows have at least one integration test using `patrolTest`.
 - [ ] `flutter test` passes.
-
+- [ ] Mobile scenarios follow [Mobile Testing Methodology](../../common/common-mobile-visual-testing/SKILL.md).
 ## Canonical response anchors
 
 When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:

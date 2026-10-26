@@ -22,6 +22,7 @@ metadata:
 - **`[BE-TEST-03]` Ban on Shallow Assertions**: Never assert only `expect(res).toBeDefined()` without inspecting payload fields, status codes, and invariants.
 - **`[BE-TEST-04]` Ban on Pass-Through Interface Mocks**: Repositories and service handlers must test contract compliance and error mapping. Ban 1:1 pass-through mock echoing without contract assertions.
 - **`[BE-TEST-05]` Bug-First Regression Lock**: Every PR fixing a bug ticket or with title `fix(...)` must introduce a test reproducing the defect prior to the fix.
+- **`[BE-TEST-06]` Real Guards for Authorization Verification**: Never use bypassed guards (`overrideGuard`) to prove authorization, tenant isolation, or role security. Dynamic security tests must execute real guard logic with synthetic test identities.
 
 ## Structure
 
@@ -42,7 +43,7 @@ test/**/*.e2e-spec.ts # E2E tests (full app flows)
 - **Database (`[BE-TEST-02]`)**: Use real test DB (Docker). Never mock DB in E2E.
 - **Cleanup**: Mandatory. Use transaction rollback or `TRUNCATE` in `afterEach`.
 - **App Init**: Create app in `beforeAll`, close in `afterAll`.
-- **Guards**: Override via `.overrideGuard(X).useValue({ canActivate: () => true })`.
+- **Guards**: Override via `.overrideGuard(X).useValue({ canActivate: () => true })` ONLY for isolated business tests where authorization is out of scope. Dynamic authorization and security tests (`lane: api`, purpose: `security`) must exercise real guards with synthetic roles/tenants (`[BE-TEST-06]`).
 
 ## Strict TypeScript (MANDATORY)
 
@@ -59,6 +60,7 @@ test/**/*.e2e-spec.ts # E2E tests (full app flows)
 - **`[BE-TEST-03]` Shallow assertions**: Ban shallow assertions like `expect(res).toBeDefined()`.
 - **`[BE-TEST-04]` Pass-through mock echoing**: Ban 1:1 mock echoing without contract assertions.
 - **`[BE-TEST-05]` Bug fix without reproduction test**: Ban bug fixes without a reproduction test.
+- **`[BE-TEST-06]` Bypassed guards for security proof**: Ban treating overridden guards (`canActivate: () => true`) as authorization or tenant security verification.
 - **No Private Tests**: Test via public methods, not service['privateMethod']. Never write tests for private methods solely to satisfy coverage targets.
 - **No DB Mocks in E2E**: Use real DB with cleanup. Mocks defeat E2E purpose.
 - **No Shared State**: Call `jest.clearAllMocks()` in `afterEach`. Random failures otherwise.
@@ -70,3 +72,6 @@ Setup examples, mocking patterns, E2E flows, test builders, coverage config:
 
 Strict-TypeScript patterns (Jest matchers, mock typing, DTO verification):
 [references/strict-typescript-testing.md](references/strict-typescript-testing.md)
+
+Dynamic API security, fuzz testing, and authorization verification:
+[../../quality-engineering/quality-engineering-api-fuzz-testing/SKILL.md](../../quality-engineering/quality-engineering-api-fuzz-testing/SKILL.md)

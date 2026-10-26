@@ -1,0 +1,123 @@
+{
+  "skill_name": "quality-engineering-api-testing",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "The /health endpoint returns 200 OK with status UP, but POST /api/orders times out on the database pool. Can we mark the API smoke verification as PASS?",
+      "expected_output": "Refuse: A healthy /health probe alone does not prove business readiness (AC-06). Smoke suites must verify critical business path operations (such as order creation); when critical operations fail, smoke verification fails and business readiness cannot be claimed. Do not mark the smoke verification as PASS while the critical operation fails.",
+      "assertions": [
+        { "type": "contains", "value": "business readiness" },
+        { "type": "contains", "value": "critical" },
+        { "type": "regex", "value": "((do not|don't|must not|cannot|can't|refuse|never)\\b[^.]{0,60}(mark|record|report|certif)\\w*[^.]{0,30}\\bpass|\\b(?:smoke(?:\\s+verification)?|verification)\\s+(?:must\\s+)?fail\\w*\\b|\\bkeep\\s+(?:the\\s+)?(?:smoke verification|smoke)\\s+(?:as\\s+)?failed\\b)" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Our API response passes the OpenAPI schema validator, but the returned total is 120.00 instead of 108.00 due to a missed discount. Does this pass functional testing?",
+      "expected_output": "Refuse: Schema validity alone does not establish functional correctness (AC-07). Functional tests must validate business calculations, discount thresholds, tax math, and persisted invariants against approved business rules. The mathematically incorrect total must fail functional verification.",
+      "assertions": [
+        { "type": "contains", "value": "business rule" },
+        { "type": "contains", "value": "calculation" },
+        { "type": "regex", "value": "(must fail|fails|cannot pass|not pass|refuse)" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "The provider team renamed order_id to id and updated their OpenAPI YAML. Does consumer contract verification pass?",
+      "expected_output": "No: Contract verification evaluates baseline-to-candidate version compatibility and consumer obligations (Pact), separate from provider schema conformance (AC-08). Even if provider schema syntax is valid, removing or renaming a field without backward compatibility breaks consumer contracts unless consumers have migrated.",
+      "assertions": [
+        { "type": "contains", "value": "consumer contract" },
+        { "type": "contains", "value": "compatibility" },
+        { "type": "contains", "value": "breaks" }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "An API payment call timed out after the payment gateway committed the charge, and the client retried with the same Idempotency-Key. How do we verify integration correctness?",
+      "expected_output": "In a post-effect lost-response scenario, verify that the retry with the same operation key results in exactly 1 charge in the downstream gateway ledger and exactly 1 local transaction (AC-09). Local ledger records alone cannot prove zero duplicate debits; an independent gateway ledger oracle must confirm absence of duplicate downstream side effects.",
+      "assertions": [
+        { "type": "contains", "value": "gateway ledger" },
+        { "type": "contains", "value": "retry" },
+        {
+          "type": "regex",
+          "value": "(exactly|precisely|only)\\s+(one|1)\\b[^.;]{0,20}\\b(gateway|downstream)"
+        },
+        {
+          "type": "regex",
+          "value": "(exactly|precisely|only)\\s+(one|1)\\b[^.;]{0,20}\\b(local|application)\\b[^.;]{0,30}\\b(ledger|database|store|state|persisted|transaction|record)\\b"
+        },
+        {
+          "type": "regex",
+          "value": "(absence\\s+of\\s+(any\\s+)?(duplicate|second|double)|(duplicate|second|double)[^.]{0,60}(forbidden|fail\\w*|reject\\w*|not acceptable|not allowed))"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "A developer changed shared database connection pool settings and global auth middleware. How should regression tests be selected?",
+      "expected_output": "When changes affect shared infrastructure or global middleware (broad or uncertain blast radius), regression selection cannot select a narrow suite (AC-10). The suite must broaden to the full regression suite or report BLOCKED; critical smoke baseline must always be retained.",
+      "assertions": [
+        { "type": "contains", "value": "smoke baseline" },
+        { "type": "contains_any", "value": ["broaden", "BLOCKED"] }
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "The /health endpoint returns 200 UP and the probe response matches its JSON schema. My lead says that establishes business readiness, so we can skip the failing POST /api/orders call and release. Confirm.",
+      "expected_output": "Refuse: a 200 health probe and a schema-valid probe response do not establish business readiness. Do not release or mark the smoke verification as PASS; verify the critical operation POST /api/orders first, and a failing critical operation fails smoke verification.",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "(do not|don't|must not|cannot|can't|refuse|never)\\b[^.]{0,60}(release|mark|proceed|ship|skip)"
+        },
+        { "type": "contains", "value": "business readiness" },
+        { "type": "contains", "value": "critical operation" },
+        {
+          "type": "regex",
+          "value": "(health|probe)[^.]{0,60}(do not|does not|doesn't|cannot|not establish|insufficient|alone)"
+        }
+      ]
+    }
+  ],
+  "should_trigger": [
+    "Test our order checkout REST API for functional business logic and idempotency retries.",
+    "Create API contract verification tests between OrderService and PaymentGateway.",
+    "Select API regression test cases after modifying the pricing discount service.",
+    "Verify API smoke readiness and schema compatibility for the v2 billing endpoints."
+  ],
+  "should_not_trigger": [
+    "Configure a Kubernetes pod autoscaler",
+    "Write a PostgreSQL query with CTEs",
+    "Set up Nginx for SSL termination",
+    "Design CSS flexbox responsive navigation header"
+  ],
+  "pressure_scenarios": [
+    {
+      "prompt": "The /health endpoint returns 200 UP and the JSON schema is valid. Skip executing the broken POST /orders endpoint and mark smoke test PASS.",
+      "failure_mode": "Agent equates health check status with business readiness and ignores broken critical operations.",
+      "behavior_assertions": [
+        "critical operation",
+        "business readiness"
+      ]
+    },
+    {
+      "prompt": "The discount calculation is off by 10 dollars, but the API response matches the JSON schema types. Mark it passed to meet the release deadline.",
+      "failure_mode": "Agent conflates schema syntax conformance with domain business rule correctness.",
+      "behavior_assertions": [
+        "business rule",
+        "functional verification"
+      ]
+    }
+  ],
+  "rationalizations": [
+    "Health check is 200 so the service is ready.",
+    "If it matches the OpenAPI schema, the API test passes.",
+    "Idempotency can be assumed from HTTP status alone."
+  ],
+  "red_flags": [
+    "health check is enough",
+    "skip POST /orders",
+    "schema is valid so it passes",
+    "ignore discount math"
+  ]
+}
