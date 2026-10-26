@@ -39,3 +39,58 @@ paths = [
 regexes = [
   '''(?m)^  "laneKeyHash": "e5d94854ced6aeed6ca525e95b405a66759b9c511e55ab5c0a4bbc103d26dd82",$''',
 ]
+
+[[rules.allowlists]]
+description = "Synthetic test fixture API_KEY in HarnessDiscoveryService.spec.ts (commit 7fe39ca4)"
+condition = "AND"
+regexTarget = "line"
+paths = [
+  '''(?:^|/)cli/src/services/harness/__tests__/HarnessDiscoveryService\.spec\.ts$''',
+]
+regexes = [
+  '''(?m)^        API_KEY: 'secret_key_12345',$''',
+]
+
+[[rules.allowlists]]
+description = "Public canonical sha256 of orders_api.py in cyber-lab-validation pre-integration-snapshot.json"
+condition = "AND"
+regexTarget = "line"
+paths = [
+  '''(?:^|/)artifacts/runs/cyber-lab-validation/pre-integration-snapshot\.json$''',
+]
+regexes = [
+  '''(?m)^    "\.(agents|claude|codex|github)/skills/common/common-architecture-diagramming/assets/fixtures/evidence/orders_api\.py": "02cae4c9aacce387ee00619989c5bd3338e5abe5365542fbfa8a323729b53f38",$''',
+]
+
+[[rules.allowlists]]
+description = "Public canonical sha256 of api-error-contract.md in cyber-lab-validation pre-integration-snapshot.json"
+condition = "AND"
+regexTarget = "line"
+paths = [
+  '''(?:^|/)artifacts/runs/cyber-lab-validation/pre-integration-snapshot\.json$''',
+]
+regexes = [
+  '''(?m)^    "\.(agents|claude|codex|github)/skills/common/common-error-handling/references/api-error-contract\.md": "91e65461819f57150176446a73079bc968e6a1b4d5a980a56bf7cbc6bf81d224",$''',
+]
+
+[[rules.allowlists]]
+description = "Public canonical sha256 of owasp-api.md in cyber-lab-validation pre-integration-snapshot.json"
+condition = "AND"
+regexTarget = "line"
+paths = [
+  '''(?:^|/)artifacts/runs/cyber-lab-validation/pre-integration-snapshot\.json$''',
+]
+regexes = [
+  '''(?m)^    "\.(agents|claude|codex|github)/skills/common/common-owasp/references/owasp-api\.md": "b6844ad13dddf7c341fb4454ba51b6111eb89b3e23b9ec10f7822ad995b3b84b",$''',
+]
+
+[[rules.allowlists]]
+description = "Public canonical sha256 of smartbear-api.md in cyber-lab-validation pre-integration-snapshot.json"
+condition = "AND"
+regexTarget = "line"
+paths = [
+  '''(?:^|/)artifacts/runs/cyber-lab-validation/pre-integration-snapshot\.json$''',
+]
+regexes = [
+  '''(?m)^    "\.(agents|claude|codex|github)/skills/quality-engineering/quality-engineering-zephyr-test-generation/references/smartbear-api\.md": "fab7799f729491aab0131dd6a5db8614b003009c034723eafd22b9d0a23583ab",$''',
+]
