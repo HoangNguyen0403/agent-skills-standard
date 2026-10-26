@@ -150,7 +150,9 @@
       "fast-uri": ">=3.1.8",
       "proxy-addr": "2.0.8",
       "fast-copy": "4.1.0",
-      "source-map-js": ">=1.2.2"
+      "source-map-js": ">=1.2.2",
+      "multer@2": "2.5.0",
+      "express@5>body-parser": "2.4.0"
     }
   }
 }

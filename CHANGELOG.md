@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - **Stitch image review**: Verify decoded width and height, then read only a verified aspect-preserving preview bounded to a 1600 px longest edge; bound both physical dimensions with `devicePixelRatio` before browser capture and avoid `fullPage`. Treat an image-size rejection after a write as possible success and recover existing screen ids before retrying. Document OMP `/shake images` as local cleanup of all conversation image blocks after preserving source files. Added eval cases for tall URLs, DPR captures, write recovery, and poisoned-session recovery.
+- **Dependencies**: Patched GHSA-27r3-jxmh-p828 (body-parser DoS via trailing bytes after compressed request body) by pinning `express@5>body-parser` to `2.4.0` in MCP, and patched GHSA-q7qp-rjg7-q26m (multer DoS via asynchronous fileFilter after request teardown) by pinning `multer@2` to `2.5.0` in server.
 
 ### Added
 
