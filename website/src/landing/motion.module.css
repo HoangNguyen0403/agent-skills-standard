@@ -1,25 +1,54 @@
 /* motion.module.css - Bounded decorative motion styles for AGS Landing */
 
 /* ==========================================================================
-   1. HERO DECORATIVE ASSEMBLY
-   360–480ms decorative assembly, max 80ms stagger.
-   H1 and body text remain always visible.
+   1. HERO DECORATIVE & CONTENT ASSEMBLY
+   Single observed parent [data-motion="hero"] manages coordinated entrance <=600ms:
+   - Decorative accent starts immediately (360ms)
+   - Headline + subtitle stagger at 60ms (380ms, finishes at 440ms)
+   - CTA actions stagger at 120ms (400ms, finishes at 520ms)
+   All content remains fully readable and never opacity-zero initially.
    ========================================================================== */
 
+.heroAssembly,
 .hero {
+  position: relative;
+}
+
+.heroAccent {
   will-change: transform, opacity;
 }
 
-.hero[data-motion-state="running"] {
-  animation: heroAssembly 440ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+.heroText {
+  will-change: transform, opacity;
 }
 
+.heroActions {
+  will-change: transform, opacity;
+}
+
+[data-motion="hero"][data-motion-state="running"] .heroAccent,
+.hero[data-motion-state="running"] {
+  animation: heroAccentAssembly 360ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+[data-motion="hero"][data-motion-state="running"] .heroText {
+  animation: heroTextAssembly 380ms cubic-bezier(0.16, 1, 0.3, 1) 60ms forwards;
+}
+
+[data-motion="hero"][data-motion-state="running"] .heroActions {
+  animation: heroActionsAssembly 400ms cubic-bezier(0.16, 1, 0.3, 1) 120ms
+    forwards;
+}
+
+[data-motion="hero"][data-motion-state="complete"] .heroAccent,
+[data-motion="hero"][data-motion-state="complete"] .heroText,
+[data-motion="hero"][data-motion-state="complete"] .heroActions,
 .hero[data-motion-state="complete"] {
   opacity: 1;
   transform: none;
 }
 
-@keyframes heroAssembly {
+@keyframes heroAccentAssembly {
   0% {
     opacity: 0.3;
     transform: translateY(6px);
@@ -30,6 +59,27 @@
   }
 }
 
+@keyframes heroTextAssembly {
+  0% {
+    opacity: 0.85;
+    transform: translateY(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes heroActionsAssembly {
+  0% {
+    opacity: 0.85;
+    transform: translateY(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 /* ==========================================================================
    2. SECTION DIVIDER TRACE
    320ms trace, decor figure translate <= 12px.
@@ -349,11 +399,15 @@
    ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
   .hero,
+  .heroText,
+  .heroActions,
   .divider,
   .skill,
   .workflow,
   .routing,
   .hero *,
+  .heroText *,
+  .heroActions *,
   .divider *,
   .skill *,
   .workflow *,

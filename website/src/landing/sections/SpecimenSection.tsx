@@ -1,11 +1,9 @@
 import React from "react";
-import { content, sourceLinks, sourceRevision } from "../content";
+import { content, sourceLinks } from "../content";
 import motionStyles from "../motion.module.css";
 import styles from "../landing.module.css";
 
 export function SpecimenSection(): React.JSX.Element {
-  const shortSha = sourceRevision.slice(0, 7);
-
   return (
     <section
       id="skills"
@@ -36,10 +34,6 @@ export function SpecimenSection(): React.JSX.Element {
                 <span aria-hidden="true">↗</span>
               </a>
             </div>
-
-            <p className={styles.specimenRevision}>
-              SOURCE REVISION / <a href={sourceLinks.skill}>{shortSha}</a>
-            </p>
           </div>
 
           <div

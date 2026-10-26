@@ -14,24 +14,30 @@ export function HeroSection(): React.JSX.Element {
     >
       <div className={styles.container}>
         <div className={styles.heroGrid}>
-          <div className={styles.heroContent}>
-            {/* Standalone decorative hero accent with motion hook */}
+          <div
+            className={`${styles.heroContent} ${motionStyles.heroAssembly}`}
+            data-motion="hero"
+            data-motion-state="idle"
+          >
+            {/* Standalone decorative hero accent (purely visual) */}
             <div
-              className={`${styles.heroAccent} ${motionStyles.hero}`}
-              data-motion="hero"
-              data-motion-state="idle"
+              className={`${styles.heroAccent} ${motionStyles.heroAccent}`}
               aria-hidden="true"
             />
 
-            <p className={styles.kickerLime}>
-              KEEP YOUR AGENT. SHARE YOUR STANDARDS.
-            </p>
+            <div className={motionStyles.heroText}>
+              <p className={styles.kickerLime}>
+                KEEP YOUR AGENT. SHARE YOUR STANDARDS.
+              </p>
 
-            <h1 className={styles.displayHeading}>{content.hero.title}</h1>
+              <h1 className={styles.displayHeading}>{content.hero.title}</h1>
 
-            <p className={styles.subtitle}>{content.hero.subtitle}</p>
+              <p className={styles.subtitle}>{content.hero.subtitle}</p>
+            </div>
 
-            <div className={styles.heroActions}>
+            <div
+              className={`${styles.heroActions} ${motionStyles.heroActions}`}
+            >
               <a
                 href="#quick-start"
                 className={`${actionStyles.primary} ${actionStyles.trailing}`}
