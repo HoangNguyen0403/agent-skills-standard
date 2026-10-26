@@ -6,17 +6,34 @@ import pc from 'picocolors';
 import { Agent, SUPPORTED_AGENTS } from '../constants';
 import { disclosureLines } from '../capabilities/agentCapabilities';
 import { SkillConfig } from '../models/config';
-import { CollectedSkill, RegistryMetadata } from '../models/types';
+import {
+  CollectedSkill,
+  GitHubTreeResponse,
+  RegistryMetadata,
+} from '../models/types';
 import { AgentBridgeService } from './AgentBridgeService';
 import { ConfigService } from './ConfigService';
 import { DetectionService } from './DetectionService';
-import { GithubService } from './GithubService';
+import { GithubService, ReleaseManifest } from './GithubService';
 import { IndexGeneratorServiceImpl } from './IndexGeneratorServiceImpl';
-import { SkillSyncService } from './SkillSyncService';
+import { SkillAssemblyError, SkillSyncService } from './SkillSyncService';
 import { WorkflowSyncService } from './WorkflowSyncService';
+import type {
+  WorkflowAcquisition,
+  WorkflowWriteResult,
+} from './WorkflowSyncService';
 import { SpecialistSyncService } from './SpecialistSyncService';
 import { GitService } from './GitService';
-import { LockfileService } from './LockfileService';
+import {
+  LockfileService,
+  SHARED_WORKFLOW_AGENT,
+  sha256,
+} from './LockfileService';
+import type {
+  SkillsLockFile,
+  WorkflowCatalog,
+  WorkflowCatalogWorkflow,
+} from './LockfileService';
 import { MarkdownUtils } from './utils/MarkdownUtils';
 import { BackupService } from './install/BackupService';
 import {
@@ -27,7 +44,11 @@ import {
 } from './install/OwnershipWriter';
 import { SourceRef, VerifyResult } from './LockfileService';
 import { ManifestVerifier } from './install/ManifestVerifier';
-import { RefResolver, ResolvedRefs } from './install/RefResolver';
+import {
+  RefResolver,
+  ResolvedRefs,
+  ResolvedSource,
+} from './install/RefResolver';
 
 const defaultExec = (
   cmd: string,
@@ -53,6 +74,124 @@ const defaultExec = (
 };
 
 /**
+ * Rejects an incomplete or malformed repository tree. A truncated or shaped
+ * differently response must never be interpreted as an authoritative source
+ * for a user-initiated apply.
+ */
+function assertCompleteTree(
+  label: string,
+  response: GitHubTreeResponse | null,
+): GitHubTreeResponse {
+  if (!response) {
+    throw new SkillAssemblyError([`${label} (tree unavailable)`]);
+  }
+  if (
+    response.truncated !== false ||
+    typeof response.sha !== 'string' ||
+    !/^[0-9a-f]{40}$/i.test(response.sha) ||
+    typeof response.url !== 'string' ||
+    response.url.length === 0
+  ) {
+    throw new SkillAssemblyError([`${label} (incomplete or malformed tree)`]);
+  }
+  if (!Array.isArray(response.tree)) {
+    throw new SkillAssemblyError([`${label} (malformed tree)`]);
+  }
+  for (const item of response.tree) {
+    if (!item || typeof item !== 'object') {
+      throw new SkillAssemblyError([`${label} (malformed tree entry)`]);
+    }
+    const safePath =
+      typeof item.path === 'string' &&
+      item.path.length > 0 &&
+      !item.path.startsWith('/') &&
+      !item.path.endsWith('/') &&
+      !item.path.includes('\\') &&
+      item.path
+        .split('/')
+        .every(
+          (segment) =>
+            segment.length > 0 && segment !== '.' && segment !== '..',
+        );
+    const shaOk =
+      typeof item.sha === 'string' && /^[0-9a-f]{40}$/i.test(item.sha);
+    const typeOk = item.type === 'blob' || item.type === 'tree';
+    const urlOk = typeof item.url === 'string' && item.url.length > 0;
+    if (!safePath || !shaOk || !typeOk || !urlOk) {
+      throw new SkillAssemblyError([
+        `${label} (malformed tree entry ${String(item.path)})`,
+      ]);
+    }
+  }
+  return response;
+}
+
+/** Reject requests that would otherwise look like successful-empty assembly. */
+function validateRequestedIncludes(
+  category: string,
+  includes: string[] | undefined,
+  tree: GitHubTreeResponse,
+): void {
+  for (const expression of includes ?? []) {
+    validateRequestedInclude(category, expression, tree);
+  }
+}
+
+function validateRequestedInclude(
+  category: string,
+  expression: string,
+  tree: GitHubTreeResponse,
+): void {
+  const separator = expression.indexOf('/');
+  const targetCategory =
+    separator < 0 ? category : expression.slice(0, separator);
+  const targetSkill =
+    separator < 0 ? expression : expression.slice(separator + 1);
+  if (!targetCategory || !targetSkill) {
+    throw new SkillAssemblyError([
+      `${category} include ${expression} (invalid skill identity)`,
+    ]);
+  }
+  const qualifiedWildcard = separator >= 0 && targetSkill === '*';
+  assertIncludeTargetExists(
+    category,
+    expression,
+    targetCategory,
+    targetSkill,
+    qualifiedWildcard,
+    tree,
+  );
+}
+
+function assertIncludeTargetExists(
+  category: string,
+  expression: string,
+  targetCategory: string,
+  targetSkill: string,
+  qualifiedWildcard: boolean,
+  tree: GitHubTreeResponse,
+): void {
+  const categoryPath = `skills/${targetCategory}`;
+  const categoryExists = tree.tree.some(
+    (item) => item.type === 'tree' && item.path === categoryPath,
+  );
+  if (!categoryExists) {
+    throw new SkillAssemblyError([
+      `${category} include ${expression} (referenced category missing)`,
+    ]);
+  }
+  if (qualifiedWildcard) return;
+  const skillPath = `${categoryPath}/${targetSkill}/SKILL.md`;
+  if (
+    !tree.tree.some((item) => item.type === 'blob' && item.path === skillPath)
+  ) {
+    throw new SkillAssemblyError([
+      `${category} include ${expression} (requested skill missing)`,
+    ]);
+  }
+}
+
+/**
  * Service responsible for coordinating the synchronization of agent skills and workflows.
  * It acts as a facade, delegating specialized synchronization tasks to SkillSyncService
  * and WorkflowSyncService.
@@ -60,9 +199,9 @@ const defaultExec = (
 export class SyncService {
   private configService = new ConfigService();
   private detectionService = new DetectionService();
-  private githubService = new GithubService(process.env.GITHUB_TOKEN);
-  private skillSyncService = new SkillSyncService(this.githubService);
-  private workflowSyncService = new WorkflowSyncService(this.githubService);
+  private githubService: GithubService;
+  private skillSyncService: SkillSyncService;
+  private workflowSyncService: WorkflowSyncService;
   private specialistSyncService = new SpecialistSyncService();
   private gitService = new GitService();
   private lockfileService = new LockfileService();
@@ -78,7 +217,21 @@ export class SyncService {
     specialists?: ManifestVerifier;
   } = { skills: {} };
   private previousLockSources: Record<string, SourceRef> | null = null;
+  private previousLock: SkillsLockFile | null = null;
+  private pendingWorkflowWrites: WorkflowWriteResult = {
+    canonical: [],
+    bindings: [],
+  };
   private warnedMovedTags = new Set<string>();
+  private installScope: 'all' | 'skills' = 'all';
+
+  constructor(
+    githubService: GithubService = new GithubService(process.env.GITHUB_TOKEN),
+  ) {
+    this.githubService = githubService;
+    this.skillSyncService = new SkillSyncService(githubService);
+    this.workflowSyncService = new WorkflowSyncService(githubService);
+  }
 
   async reconcileConfig(
     config: SkillConfig,
@@ -107,6 +260,9 @@ export class SyncService {
   async assembleSkills(
     categories: string[],
     config: SkillConfig,
+    trees?: Record<string, GitHubTreeResponse>,
+    origins?: Record<string, { ref: string; commit: string | null }>,
+    requireSkillDefinition = false,
   ): Promise<CollectedSkill[]> {
     await this.warnIfSyncingFromSameRepo(config);
     const skillCategories = categories.filter(
@@ -116,7 +272,152 @@ export class SyncService {
       skillCategories,
       config,
       this.manifestVerifiers.skills,
+      trees,
+      origins,
+      requireSkillDefinition,
     );
+  }
+
+  /**
+   * Prefetches only the skill sources for a scoped apply. Resolves every
+   * selected category ref to an explicit commit, verifies the category exists
+   * at that commit, and assembles every requested package in memory. No
+   * configuration, installation, lock, or index write happens here, and
+   * workflow/specialist pins are never fetched or resolved.
+   */
+  async prepareSkillApplication(config: SkillConfig): Promise<{
+    resolvedRefs: ResolvedRefs;
+    skills: CollectedSkill[];
+    completedCategories: string[];
+  }> {
+    const githubMatch = GithubService.parseGitHubUrl(config.registry);
+    if (!githubMatch) {
+      throw new SkillAssemblyError(['registry is not a GitHub repository']);
+    }
+    const { owner, repo } = githubMatch;
+    const categories = Object.keys(config.skills ?? {}).filter(
+      (category) => category !== 'specialists',
+    );
+
+    const resolvedSkills: Record<string, ResolvedSource> = {};
+    const failures: string[] = [];
+    for (const category of categories) {
+      const entry = config.skills[category];
+      const ref = entry?.ref || 'main';
+      const commit = await this.githubService.resolveCommit(owner, repo, ref);
+      if (!commit) {
+        failures.push(`${category}@${ref} (unresolved ref)`);
+        continue;
+      }
+      resolvedSkills[category] = {
+        ref,
+        commit,
+        pinned: Boolean(entry?.ref),
+      };
+    }
+    if (failures.length > 0) throw new SkillAssemblyError(failures);
+
+    const manifests: Record<string, ManifestVerifier> = {};
+    const trees: Record<string, GitHubTreeResponse> = {};
+    const sourceFailures: string[] = [];
+    for (const category of categories) {
+      const source = resolvedSkills[category];
+      const label = `${category}@${source.ref}`;
+      let tree: GitHubTreeResponse;
+      try {
+        tree = assertCompleteTree(
+          label,
+          await this.githubService.getRepoTree(owner, repo, source.commit!),
+        );
+      } catch (error) {
+        sourceFailures.push(
+          error instanceof SkillAssemblyError
+            ? error.failures.join(', ')
+            : `${label} (${String(error)})`,
+        );
+        continue;
+      }
+      trees[category] = tree;
+      if (
+        !tree.tree.some(
+          (item) => item.type === 'tree' && item.path === `skills/${category}`,
+        )
+      ) {
+        sourceFailures.push(`${label} (category missing at source commit)`);
+        continue;
+      }
+      validateRequestedIncludes(
+        category,
+        config.skills[category].include,
+        tree,
+      );
+      let manifest: ReleaseManifest | null = null;
+      if (source.pinned) {
+        try {
+          manifest = await this.githubService.getReleaseManifest(
+            owner,
+            repo,
+            source.ref,
+          );
+        } catch (error) {
+          const detail = error instanceof Error ? error.message : String(error);
+          sourceFailures.push(`${label} (manifest unavailable: ${detail})`);
+          continue;
+        }
+      }
+      manifests[category] = new ManifestVerifier(manifest);
+    }
+    if (sourceFailures.length > 0) {
+      throw new SkillAssemblyError(sourceFailures);
+    }
+
+    this.manifestVerifiers.skills = manifests;
+    // Cache registry metadata in memory so index generation does not need a
+    // second network round trip after the configuration is saved.
+    const remoteMeta = await this.fetchRegistryMetadata(config);
+    if (remoteMeta) this.warnAboutRevokedRefs(config, remoteMeta);
+
+    const fetchConfig: SkillConfig = {
+      ...config,
+      skills: Object.fromEntries(
+        categories.map((category) => [
+          category,
+          { ...config.skills[category], ref: resolvedSkills[category].commit! },
+        ]),
+      ),
+    };
+    const skills = await this.assembleSkills(
+      categories,
+      fetchConfig,
+      trees,
+      Object.fromEntries(
+        Object.entries(resolvedSkills).map(([category, source]) => [
+          category,
+          { ref: source.ref, commit: source.commit },
+        ]),
+      ),
+      true,
+    );
+
+    return {
+      resolvedRefs: {
+        workflows: {
+          ref: config.workflows_ref ?? '',
+          commit: null,
+          pinned: Boolean(config.workflows_ref),
+        },
+        specialists: {
+          ref: config.specialists_ref ?? '',
+          commit: null,
+          pinned: Boolean(config.specialists_ref),
+        },
+        skills: resolvedSkills,
+        newPins: {},
+        warnings: [],
+      },
+      skills,
+      completedCategories: categories,
+    };
   }
 
   private async warnIfSyncingFromSameRepo(config: SkillConfig) {
@@ -147,7 +448,18 @@ export class SyncService {
 
   async beginInstall(
     config: SkillConfig,
-    opts: { dryRun: boolean; force: string[] },
+    opts: {
+      dryRun: boolean;
+      force: string[];
+      /**
+       * `skills` limits finalization and lock provenance to skill/index files:
+       * existing workflow and specialist entries and source records are kept
+       * verbatim. Defaults to the full sync scope.
+       */
+      scope?: 'all' | 'skills';
+      /** Pre-resolved skill commits held from a prepared selection. */
+      resolvedRefs?: ResolvedRefs;
+    },
   ): Promise<void> {
     const agents = await this.resolveTargetAgents(config);
     const { lock, migratedFromV1 } = await this.lockfileService.load(
@@ -155,6 +467,16 @@ export class SyncService {
       agents,
     );
     this.dryRun = opts.dryRun;
+    this.previousLock = lock;
+    this.pendingWorkflowWrites = { canonical: [], bindings: [] };
+    this.installScope = opts.scope ?? 'all';
+    if (opts.resolvedRefs) {
+      this.resolvedRefs = opts.resolvedRefs;
+    }
+    if (this.installScope === 'skills') {
+      // Scoped lock writes must not invent provenance for unrelated sources.
+      this.previousLockSources = lock?.sources ?? null;
+    }
     this.ownership = new OwnershipWriter({
       rootDir: process.cwd(),
       previous: lock?.entries ?? {},
@@ -177,6 +499,13 @@ export class SyncService {
       specialistsOk: boolean;
       refreshIndices?: boolean;
       localMetadata?: RegistryMetadata;
+      /**
+       * Categories whose assembly provably completed, including categories
+       * that legitimately assembled zero packages. When provided it is the
+       * only pruning evidence; package count is never treated as success.
+       */
+      completedSkillCategories?: string[];
+      workflowAcquisition?: WorkflowAcquisition;
     },
   ): Promise<InstallPlan> {
     if (!this.ownership) {
@@ -185,11 +514,35 @@ export class SyncService {
     const resolvedAgents = await this.resolveTargetAgents(config);
     const agents = new Set<string>(resolvedAgents);
     const configured = new Set(Object.keys(config.skills));
-    const fetched = new Set(run.skills.map((s) => s.category));
+    const withDesiredSkills = new Set(run.skills.map((s) => s.category));
+    const completed = run.completedSkillCategories
+      ? new Set(run.completedSkillCategories)
+      : withDesiredSkills;
+    const desiredSkillIds: Record<string, string[]> = {};
+    for (const skill of run.skills) {
+      (desiredSkillIds[skill.category] ??= []).push(skill.skill);
+    }
     const workflowsOk =
-      run.workflows.length > 0 ||
-      (Array.isArray(config.workflows) && config.workflows.length === 0);
+      run.workflowAcquisition?.status !== 'incomplete' &&
+      (run.workflowAcquisition !== undefined ||
+        run.workflows.length > 0 ||
+        (Array.isArray(config.workflows) && config.workflows.length === 0));
     const pruneEnabled = config.prune !== false;
+    const scope = this.installScope;
+    const refreshIndices =
+      !run.refreshIndices
+        ? undefined
+        : scope === 'skills'
+          ? () =>
+              this.applyIndices(
+                config,
+                resolvedAgents,
+                run.localMetadata,
+                desiredSkillIds,
+                { strict: true },
+              )
+          : () =>
+              this.applyIndices(config, resolvedAgents, run.localMetadata);
     const categoryOf = (source: string) =>
       source
         .replace(/^(skill|index):/, '')
@@ -198,15 +551,34 @@ export class SyncService {
     const { plan, entries } = await this.ownership.finalize(
       (_rel, e) => {
         if (!pruneEnabled) return false;
+        // In a skill-only apply, workflow/specialist installations belong to
+        // another lifecycle entirely — including those of agents that are no
+        // longer in the target set.
+        if (
+          scope === 'skills' &&
+          (e.owner === 'workflow' || e.owner === 'specialist')
+        ) {
+          return false;
+        }
+        // The shared canonical body is not owned by a provider; handle it
+        // before the per-agent gate so it is never treated as an unknown agent.
+        if (e.owner === 'workflow' && e.agent === SHARED_WORKFLOW_AGENT) {
+          return workflowsOk;
+        }
         if (!agents.has(e.agent)) return true;
         switch (e.owner) {
-          case 'skill':
+          case 'skill': {
+            const cat = categoryOf(e.source);
+            return !configured.has(cat) || completed.has(cat);
+          }
           case 'index': {
             const cat = categoryOf(e.source);
-            if (e.owner === 'index' && run.refreshIndices && configured.has(cat)) {
-              return false;
+            if (run.refreshIndices && configured.has(cat)) {
+              // A completed category with no desired skill has no index
+              // content; keeping the old file would advertise pruned skills.
+              return completed.has(cat) && !withDesiredSkills.has(cat);
             }
-            return !configured.has(cat) || fetched.has(cat);
+            return !configured.has(cat) || completed.has(cat);
           }
           case 'workflow':
             return workflowsOk;
@@ -216,21 +588,128 @@ export class SyncService {
             return !run.refreshIndices;
         }
       },
-      run.refreshIndices
-        ? () =>
-            this.applyIndices(config, resolvedAgents, run.localMetadata)
-        : undefined,
+      refreshIndices,
     );
     if (!this.dryRun) {
-      await this.lockfileService.write(process.cwd(), {
+      // Publish the lock last; the workflow catalog is derived from the actual
+      // post-reconciliation bytes, never from the intended download only.
+      const catalog = await this.buildWorkflowCatalog(
+        config,
+        run.workflowAcquisition,
+        entries,
+      );
+      const lock: SkillsLockFile = {
         version: 2,
         registry: config.registry,
         generatedAt: new Date().toISOString(),
         sources: this.buildSources(config),
         entries,
-      });
+      };
+      if (catalog) lock.workflowCatalog = catalog;
+      await this.lockfileService.write(process.cwd(), lock);
     }
     return plan;
+  }
+
+  /**
+   * Builds the catalog from files that survived ownership reconciliation.
+   * Canonical bodies that were kept edited/overridden and native exports whose
+   * on-disk bytes differ from the deterministic output are omitted rather than
+   * falsely certified.
+   */
+  private async buildWorkflowCatalog(
+    config: SkillConfig,
+    acquisition: WorkflowAcquisition | undefined,
+    entries: Record<string, { owner: string; agent: string }>,
+  ): Promise<WorkflowCatalog | undefined> {
+    const previous = this.previousLock?.workflowCatalog;
+    if (acquisition?.status === 'incomplete') {
+      // Retain prior provenance for still-valid prior bytes; never re-stamp.
+      return previous;
+    }
+
+    if (this.pendingWorkflowWrites.canonical.length === 0) {
+      if (previous) return { version: 1, workflows: {} };
+      if (!config.workflows) return undefined;
+      return { version: 1, workflows: {} };
+    }
+
+    const workflowSource = this.buildSources(config)['workflows'] ?? {
+      ref: config.workflows_ref ?? 'default-branch',
+      commit: null,
+    };
+    const workflows: Record<string, WorkflowCatalogWorkflow> = {};
+
+    for (const planned of this.pendingWorkflowWrites.canonical) {
+      const manifest = entries[planned.path];
+      if (
+        !manifest ||
+        manifest.owner !== 'workflow' ||
+        manifest.agent !== SHARED_WORKFLOW_AGENT
+      ) {
+        continue;
+      }
+      const canonicalPath = path.join(process.cwd(), planned.path);
+      let canonicalBytes: Buffer;
+      try {
+        canonicalBytes = await fs.readFile(canonicalPath);
+      } catch {
+        continue;
+      }
+      const digest = sha256(canonicalBytes);
+      if (digest !== planned.digest) {
+        // Preserved user edit/override: conflict, not a new revision.
+        continue;
+      }
+
+      const nativeBindings: WorkflowCatalogWorkflow['nativeBindings'] = [];
+      const nativeConflicts: NonNullable<
+        WorkflowCatalogWorkflow['nativeConflicts']
+      > = [];
+      for (const binding of this.pendingWorkflowWrites.bindings) {
+        if (binding.name !== planned.name) continue;
+        const outputPath = path.join(process.cwd(), binding.path);
+        let outputBytes: Buffer | null = null;
+        try {
+          outputBytes = await fs.readFile(outputPath);
+        } catch {
+          // Missing/unreadable export is recorded as a conflict below.
+        }
+        if (
+          outputBytes === null ||
+          sha256(outputBytes) !== binding.outputDigest
+        ) {
+          // The expected export exists (or should exist) but its actual bytes
+          // differ; record the provider conflict so parity is never certified
+          // from the remaining verified bindings alone.
+          nativeConflicts.push({
+            agent: binding.agent,
+            path: binding.path,
+          });
+          continue;
+        }
+        nativeBindings.push({
+          agent: binding.agent,
+          path: binding.path,
+          outputDigest: binding.outputDigest,
+          canonicalDigest: binding.canonicalDigest,
+        });
+      }
+
+      const priorEntry = previous?.workflows[planned.name];
+      const provenance = priorEntry?.digest === digest ? priorEntry : null;
+      workflows[planned.name] = {
+        path: planned.path,
+        digest,
+        registry: provenance?.registry ?? config.registry,
+        requestedRef: provenance?.requestedRef ?? workflowSource.ref,
+        resolvedCommit: provenance?.resolvedCommit ?? workflowSource.commit,
+        nativeBindings,
+        nativeConflicts,
+      };
+    }
+
+    return { version: 1, workflows };
   }
 
   private buildSources(config: SkillConfig): Record<string, SourceRef> {
@@ -242,14 +721,22 @@ export class SyncService {
           commit: res.commit,
         };
       }
-      sources['workflows'] = {
-        ref: this.resolvedRefs.workflows.ref,
-        commit: this.resolvedRefs.workflows.commit,
-      };
-      sources['specialists'] = {
-        ref: this.resolvedRefs.specialists.ref,
-        commit: this.resolvedRefs.specialists.commit,
-      };
+      if (this.installScope === 'skills') {
+        // A skill-only apply must not rewrite provenance it never resolved.
+        const previous = this.previousLockSources ?? {};
+        for (const key of ['workflows', 'specialists']) {
+          if (previous[key]) sources[key] = previous[key];
+        }
+      } else {
+        sources['workflows'] = {
+          ref: this.resolvedRefs.workflows.ref,
+          commit: this.resolvedRefs.workflows.commit,
+        };
+        sources['specialists'] = {
+          ref: this.resolvedRefs.specialists.ref,
+          commit: this.resolvedRefs.specialists.commit,
+        };
+      }
     } else {
       for (const [cat, entry] of Object.entries(config.skills || {})) {
         sources[`skills/${cat}`] = {
@@ -405,7 +892,7 @@ export class SyncService {
     skills: CollectedSkill[],
     config: SkillConfig,
   ): Promise<void> {
-    if (!this.dryRun) {
+    if (!this.dryRun && this.installScope !== 'skills') {
       await this.cleanupOldFolders();
     }
     const agents = await this.resolveTargetAgents(config);
@@ -427,12 +914,22 @@ export class SyncService {
     );
   }
 
+  async acquireWorkflows(config: SkillConfig): Promise<WorkflowAcquisition> {
+    const ref =
+      this.resolvedRefs?.workflows.ref || config.workflows_ref || 'main';
+    return this.workflowSyncService.acquireWorkflows(
+      config,
+      ref,
+      this.manifestVerifiers.workflows,
+    );
+  }
+
   async writeWorkflows(
     workflows: CollectedSkill[],
     config: SkillConfig,
   ): Promise<void> {
     const agents = await this.resolveTargetAgents(config);
-    return this.workflowSyncService.writeWorkflows(
+    this.pendingWorkflowWrites = await this.workflowSyncService.writeWorkflows(
       workflows,
       config,
       agents,
@@ -475,6 +972,19 @@ export class SyncService {
     config: SkillConfig,
     targetAgents?: Agent[],
     localMetadata?: RegistryMetadata,
+    /**
+     * Desired installed skill ids per category. When provided, indexes are
+     * generated from this selection so retained (edited, overridden, or
+     * prune-disabled) files outside the selection are not advertised.
+     */
+    desiredSkillIds?: Record<string, string[]>,
+    options?: {
+      /**
+       * Scoped applies cannot claim success when a required index/bridge write
+       * failed; ordinary sync keeps its report-and-continue behavior.
+       */
+      strict?: boolean;
+    },
   ): Promise<void> {
     const agents = targetAgents || (await this.resolveTargetAgents(config));
     if (agents.length === 0) return;
@@ -493,7 +1003,22 @@ export class SyncService {
         ? path.join(process.cwd(), agentDef.path)
         : path.join(process.cwd(), '.cursor/skills');
 
-      const allowedCategories = Object.keys(config.skills || {});
+      const allowedCategories = desiredSkillIds
+        ? Array.from(
+            new Set([
+              ...Object.keys(config.skills || {}),
+              ...Object.keys(desiredSkillIds),
+            ]),
+          )
+        : Object.keys(config.skills || {});
+      const selectedSkills = desiredSkillIds
+        ? Object.fromEntries(
+            allowedCategories.map((category) => [
+              category,
+              desiredSkillIds[category] ?? [],
+            ]),
+          )
+        : undefined;
 
       // Use cached/fetched metadata.json from the registry and inject it into the
       // generator in-memory. This gives assembleRouterIndex the file_routing, broad_globs,
@@ -507,6 +1032,7 @@ export class SyncService {
       const categoryIndices = await generator.generateAllCategoryIndices(
         baseDir,
         allowedCategories,
+        selectedSkills,
       );
       for (const agentId of agents) {
         const def = SUPPORTED_AGENTS.find((a) => a.id === agentId);
@@ -517,6 +1043,29 @@ export class SyncService {
         )) {
           const indexMdPath = path.join(agentBase, category, '_INDEX.md');
           await this.writer.write(indexMdPath, indexContent, {
+            owner: 'index',
+            source: `index:${category}`,
+            agent: agentId,
+          });
+        }
+        if (!selectedSkills) continue;
+        // A retained index (prune disabled, or a directory with protected
+        // files) must not keep advertising skills nobody selected. Empty the
+        // managed file instead of deleting protected content.
+        const existingCategories = (await fs.pathExists(agentBase))
+          ? await fs.readdir(agentBase)
+          : [];
+        for (const category of existingCategories) {
+          if (category.startsWith('.') || category === '_INDEX.md') continue;
+          if (
+            Object.prototype.hasOwnProperty.call(categoryIndices, category)
+          ) {
+            continue;
+          }
+          if ((selectedSkills[category]?.length ?? 0) > 0) continue;
+          const indexMdPath = path.join(agentBase, category, '_INDEX.md');
+          if (!(await fs.pathExists(indexMdPath))) continue;
+          await this.writer.write(indexMdPath, '', {
             owner: 'index',
             source: `index:${category}`,
             agent: agentId,
@@ -540,6 +1089,7 @@ export class SyncService {
         baseDir,
         allowedCategories,
         mcpEnabled,
+        selectedSkills,
       );
       if (this.dryRun) {
         console.log(pc.gray('  (dry-run) would update AGENTS.md router index'));
@@ -587,6 +1137,7 @@ export class SyncService {
         dryRun: this.dryRun,
       });
     } catch (error) {
+      if (options?.strict) throw error;
       console.log(pc.yellow(`  ⚠️  Failed to update index: ${error}`));
     }
   }
@@ -732,17 +1283,40 @@ export class SyncService {
   private async cleanupOldFolders(): Promise<void> {
     const oldPath = path.join(process.cwd(), '.agent');
     const newPath = path.join(process.cwd(), '.agents');
+    // Reserved active workspace (packet/report artifacts). It must never be
+    // migrated or removed by the legacy `.agent` cleanup.
+    const reservedSdd = 'sdd';
 
     if (await fs.pathExists(oldPath)) {
       try {
-        // Merge old content into the new folder without overwriting user files.
-        await fs.copy(oldPath, newPath, {
-          overwrite: false,
-          errorOnExist: false,
-        });
+        const entries = await fs.readdir(oldPath);
+        const legacyEntries = entries.filter((entry) => entry !== reservedSdd);
 
-        await fs.remove(oldPath);
-        console.log(pc.gray('  - Migrated and cleaned up old .agent folder.'));
+        // Merge only legacy content into the new folder without overwriting
+        // user files; the active SDD tree keeps its original bytes and paths.
+        for (const entry of legacyEntries) {
+          await fs.copy(path.join(oldPath, entry), path.join(newPath, entry), {
+            overwrite: false,
+            errorOnExist: false,
+          });
+        }
+        for (const entry of legacyEntries) {
+          await fs.remove(path.join(oldPath, entry));
+        }
+
+        const remaining = await fs.readdir(oldPath);
+        if (remaining.length === 0) {
+          await fs.remove(oldPath);
+          console.log(
+            pc.gray('  - Migrated and cleaned up old .agent folder.'),
+          );
+        } else {
+          console.log(
+            pc.gray(
+              '  - Migrated legacy .agent entries; kept active .agent/sdd workspace.',
+            ),
+          );
+        }
       } catch (error) {
         if (process.env.DEBUG) {
           console.debug(
@@ -815,11 +1389,23 @@ export class SyncService {
     }> = [];
 
     for (const [key, source] of pinnedEntries) {
-      const manifest = await this.githubService.getReleaseManifest(
-        owner,
-        repo,
-        source.ref,
-      );
+      let manifest: ReleaseManifest | null;
+      try {
+        manifest = await this.githubService.getReleaseManifest(
+          owner,
+          repo,
+          source.ref,
+        );
+      } catch (error) {
+        const detail = error instanceof Error ? error.message : String(error);
+        results.push({
+          key,
+          ref: source.ref,
+          ok: false,
+          detail: `MANIFEST unavailable: ${detail}`,
+        });
+        continue;
+      }
       if (!manifest) {
         results.push({
           key,

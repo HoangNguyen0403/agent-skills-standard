@@ -2,6 +2,7 @@
 name: logic-hacker
 description: Red Team persona for Business Logic and Auth manipulation. Generates and executes stateful fuzzing scripts (Playwright/Python) to test RBAC bypasses, BOLA/IDOR, race conditions, and complex multi-step transaction flaws.
 ---
+<!-- ags: AGS classification metadata (not a Claude-enforced permission); declared: risk_tier: L2 -->
 
 # Specialist: Logic Hacker
 

@@ -8,6 +8,7 @@ import {
   LockfileService,
   ManifestEntry,
   sha256,
+  type WorkflowCatalog,
 } from '../LockfileService';
 import { McpConfigService } from '../McpConfigService';
 import { MarkdownUtils } from '../utils/MarkdownUtils';
@@ -25,6 +26,8 @@ export interface UninstallPlan {
   keepEdited: string[]; // owned, edited -> leave, drop from manifest
   missing: string[]; // owned, already gone -> drop from manifest
   sharedKept: string[]; // path also owned by an unselected agent -> leave, keep entry
+  /** Agents whose native workflow bindings are being removed by this plan. */
+  removedAgents?: Agent[];
   integrations: {
     mcpAgents: Agent[];
     hookAgents: Agent[];
@@ -104,6 +107,7 @@ export class UninstallService {
         keepEdited: [],
         missing: [],
         sharedKept: [],
+        removedAgents: [],
         integrations: {
           mcpAgents: [],
           hookAgents: [],
@@ -197,11 +201,45 @@ export class UninstallService {
       }
     }
 
+    // Partial agent removal: the shared canonical body survives while any
+    // verified or expected native binding still belongs to a survivor.
+    const removedAgents = hasAgents ? [...selection.agents!] : [];
+    if (hasAgents && !hasCategories && lock.workflowCatalog) {
+      for (const wf of Object.values(lock.workflowCatalog.workflows)) {
+        const hasSurvivingConsumer = [
+          ...wf.nativeBindings,
+          ...(wf.nativeConflicts ?? []),
+        ].some((consumer) => !removedAgents.includes(consumer.agent as Agent));
+        if (hasSurvivingConsumer) continue;
+        const rel = wf.path;
+        if (
+          remove.includes(rel) ||
+          keepEdited.includes(rel) ||
+          missing.includes(rel)
+        ) {
+          continue;
+        }
+        const absPath = path.join(rootDir, rel);
+        if (!(await fs.pathExists(absPath))) {
+          missing.push(rel);
+          continue;
+        }
+        const entry = lock.entries[rel];
+        const content = await fs.readFile(absPath);
+        if (entry && sha256(content) === entry.sha256) {
+          remove.push(rel);
+        } else {
+          keepEdited.push(rel);
+        }
+      }
+    }
+
     return {
       remove: remove.sort(),
       keepEdited: keepEdited.sort(),
       missing: missing.sort(),
       sharedKept: sharedKept.sort(),
+      removedAgents,
       integrations,
       deleteLock,
     };
@@ -262,6 +300,43 @@ export class UninstallService {
           }
         }
         lock.entries = newEntries;
+        if (lock.workflowCatalog) {
+          const removedAgents = new Set(plan.removedAgents ?? []);
+          const workflows: WorkflowCatalog['workflows'] = {};
+          let changed = false;
+          for (const [name, wf] of Object.entries(
+            lock.workflowCatalog.workflows,
+          )) {
+            if (dropSet.has(wf.path)) {
+              changed = true;
+              continue;
+            }
+            const nativeBindings = wf.nativeBindings.filter(
+              (binding) =>
+                !dropSet.has(binding.path) &&
+                !removedAgents.has(binding.agent as Agent),
+            );
+            const nativeConflicts = (wf.nativeConflicts ?? []).filter(
+              (conflict) =>
+                !dropSet.has(conflict.path) &&
+                !removedAgents.has(conflict.agent as Agent),
+            );
+            if (
+              nativeBindings.length !== wf.nativeBindings.length ||
+              nativeConflicts.length !== (wf.nativeConflicts ?? []).length
+            ) {
+              changed = true;
+            }
+            if (nativeBindings.length === 0 && nativeConflicts.length === 0) {
+              changed = true;
+              continue;
+            }
+            workflows[name] = { ...wf, nativeBindings, nativeConflicts };
+          }
+          if (changed) {
+            lock.workflowCatalog = { version: 1, workflows };
+          }
+        }
         await this.lockfile.write(rootDir, lock);
       }
     }

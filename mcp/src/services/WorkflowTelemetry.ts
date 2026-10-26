@@ -1,8 +1,17 @@
+/**
+ * Whether reasoning tokens are already contained in completion/output tokens
+ * (`included-in-output`) or billed on top of them (`separate`). Absent means the
+ * host did not declare the semantics; a cost that would have to guess an extra
+ * reasoning charge is then reported unavailable instead of double-billed.
+ */
+export type ReasoningBilling = "separate" | "included-in-output";
+
 export interface RuntimeUsageSnapshot {
   promptTokens?: number;
   cachedPromptTokens?: number;
   completionTokens?: number;
   reasoningTokens?: number;
+  reasoningBilling?: ReasoningBilling;
 }
 
 export interface RuntimePricingSnapshot {
@@ -29,6 +38,7 @@ export interface SessionCostRequest {
   cachedPromptTokens?: number;
   completionTokens?: number;
   reasoningTokens?: number;
+  reasoningBilling?: ReasoningBilling;
   inputCostPer1M?: number;
   cachedInputCostPer1M?: number;
   outputCostPer1M?: number;
@@ -64,6 +74,14 @@ export function summarizeSessionCostCoverage(
   if (args.outputCostPer1M === undefined) {
     missingHostFields.push("outputCostPer1M");
   }
+  if (
+    args.reasoningTokens !== undefined &&
+    args.reasoningTokens > 0 &&
+    args.reasoningCostPer1M !== undefined &&
+    args.reasoningCostPer1M > 0 &&
+    args.reasoningBilling === undefined
+  )
+    missingHostFields.push("reasoningBilling");
 
   const costSource: CostSource =
     missingHostFields.length > 0
@@ -88,6 +106,7 @@ export function calculateEstimatedSessionCost(
     cachedPromptTokens = 0,
     completionTokens,
     reasoningTokens = 0,
+    reasoningBilling,
     inputCostPer1M,
     cachedInputCostPer1M = 0,
     outputCostPer1M,
@@ -101,12 +120,21 @@ export function calculateEstimatedSessionCost(
     inputCostPer1M !== undefined &&
     outputCostPer1M !== undefined;
   if (!hasInputs) return null;
+  if (
+    reasoningTokens > 0 &&
+    reasoningCostPer1M > 0 &&
+    reasoningBilling === undefined
+  )
+    return null;
 
   const inputCost = (promptTokens / 1_000_000) * inputCostPer1M;
   const cachedInputCost =
     (cachedPromptTokens / 1_000_000) * cachedInputCostPer1M;
   const outputCost = (completionTokens / 1_000_000) * outputCostPer1M;
-  const reasoningCost = (reasoningTokens / 1_000_000) * reasoningCostPer1M;
+  const reasoningCost =
+    reasoningBilling === "included-in-output"
+      ? 0
+      : (reasoningTokens / 1_000_000) * reasoningCostPer1M;
   return `${currency} ${(inputCost + cachedInputCost + outputCost + reasoningCost + otherCost).toFixed(6)}`;
 }
 
@@ -146,6 +174,7 @@ export function buildSessionCostRequest(args: {
     cachedPromptTokens: usage?.cachedPromptTokens,
     completionTokens: usage?.completionTokens,
     reasoningTokens: usage?.reasoningTokens,
+    reasoningBilling: usage?.reasoningBilling,
     inputCostPer1M: pricing?.inputCostPer1M,
     cachedInputCostPer1M: pricing?.cachedInputCostPer1M,
     outputCostPer1M: pricing?.outputCostPer1M,

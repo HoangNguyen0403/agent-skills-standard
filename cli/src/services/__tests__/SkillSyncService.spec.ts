@@ -248,79 +248,69 @@ describe('SkillSyncService', () => {
     });
   });
 
-  describe('identifyFoldersToSync & expandAbsoluteInclude', () => {
-    it('should handle wildcard * and skip duplicates', () => {
-      const tree = [
-        { path: 'skills/other/s1/SKILL.md', type: 'blob' },
-      ] as any[];
-      const folders = ['other/s1'];
-      // @ts-ignore - private
-      skillSyncService.expandAbsoluteInclude('other/*', folders, tree);
-      expect(folders).toHaveLength(1);
+  describe('shared selection resolution', () => {
+    it('applies a qualified exclusion after imported wildcard expansion', async () => {
+      const oldParse = GithubService.parseGitHubUrl;
+      GithubService.parseGitHubUrl = vi
+        .fn()
+        .mockReturnValue({ owner: 'o', repo: 'r' });
+      const config = {
+        registry: 'https://github.com/o/r',
+        skills: {
+          react: {
+            include: ['common/*'],
+            exclude: ['common/common-tdd'],
+          },
+        },
+      } as unknown as SkillConfig;
+      mockGithubService.getRepoTree.mockResolvedValue({
+        tree: [
+          { path: 'skills/react/hooks/SKILL.md', type: 'blob' },
+          { path: 'skills/common/common-tdd/SKILL.md', type: 'blob' },
+          { path: 'skills/common/api-design/SKILL.md', type: 'blob' },
+        ],
+      });
+      mockGithubService.downloadFilesConcurrentBytes.mockImplementation(
+        (tasks: { path: string }[]) => ({
+          ok: tasks.map((t) => ({ path: t.path, content: Buffer.from('c') })),
+          failed: [],
+        }),
+      );
 
-      const emptyFolders: string[] = [];
-      // @ts-ignore - private
-      skillSyncService.expandAbsoluteInclude('other/*', emptyFolders, tree);
-      expect(emptyFolders).toContain('other/s1');
+      const result = await skillSyncService.assembleSkills(['react'], config);
+
+      expect(result.map((s) => `${s.category}/${s.skill}`)).toEqual([
+        'common/api-design',
+      ]);
+      GithubService.parseGitHubUrl = oldParse;
     });
 
-    it('should exclude folder if not in include list', () => {
-      const catConfig = {
-        include: ['some-other-skill'],
-      } as any;
-      const tree = [{ path: 'skills/test/s1/', type: 'tree' }] as any[];
-      // @ts-ignore - private
-      const result = skillSyncService.identifyFoldersToSync(
-        'test',
-        catConfig,
-        tree,
+    it('does not let an imported qualified exclusion remove a local skill with the same name', async () => {
+      const oldParse = GithubService.parseGitHubUrl;
+      GithubService.parseGitHubUrl = vi
+        .fn()
+        .mockReturnValue({ owner: 'o', repo: 'r' });
+      const config = {
+        registry: 'https://github.com/o/r',
+        skills: { react: { exclude: ['common/common-tdd'] } },
+      } as unknown as SkillConfig;
+      mockGithubService.getRepoTree.mockResolvedValue({
+        tree: [
+          { path: 'skills/react/common-tdd/SKILL.md', type: 'blob' },
+          { path: 'skills/react/hooks/SKILL.md', type: 'blob' },
+        ],
+      });
+      mockGithubService.downloadFilesConcurrentBytes.mockImplementation(
+        (tasks: { path: string }[]) => ({
+          ok: tasks.map((t) => ({ path: t.path, content: Buffer.from('c') })),
+          failed: [],
+        }),
       );
-      expect(result).not.toContain('s1');
-    });
 
-    it('should include folder if explicitly in include list', () => {
-      const catConfig = { include: ['s1'] } as any;
-      const tree = [{ path: 'skills/test/s1/', type: 'tree' }] as any[];
-      // @ts-ignore - private
-      const result = skillSyncService.identifyFoldersToSync(
-        'test',
-        catConfig,
-        tree,
-      );
-      expect(result).toContain('s1');
-    });
+      const result = await skillSyncService.assembleSkills(['react'], config);
 
-    it('should exclude folder if in exclude list', () => {
-      const catConfig = { exclude: ['s1'] } as any;
-      const tree = [{ path: 'skills/test/s1/', type: 'tree' }] as any[];
-      // @ts-ignore - private
-      const result = skillSyncService.identifyFoldersToSync(
-        'test',
-        catConfig,
-        tree,
-      );
-      expect(result).not.toContain('s1');
-    });
-
-    it('should handle non-existent absolute includes', () => {
-      const folders: string[] = [];
-      // @ts-ignore - private
-      skillSyncService.expandAbsoluteInclude('missing/skill', folders, []);
-      expect(console.log).toHaveBeenCalledWith(
-        expect.stringContaining('not found in repository'),
-      );
-    });
-
-    it('should cover include check bypass', () => {
-      const catConfig = { include: undefined } as any;
-      const tree = [{ path: 'skills/test/s1/', type: 'tree' }] as any[];
-      // @ts-ignore - private
-      const result = skillSyncService.identifyFoldersToSync(
-        'test',
-        catConfig,
-        tree,
-      );
-      expect(result).toContain('s1');
+      expect(result.map((s) => s.skill)).toEqual(['common-tdd', 'hooks']);
+      GithubService.parseGitHubUrl = oldParse;
     });
   });
 
@@ -706,11 +696,5 @@ describe('SkillSyncService', () => {
       ).toBe(true);
     });
 
-    it('expandAbsoluteInclude should bail on invalid format', () => {
-      const folders: string[] = [];
-      // @ts-ignore - private
-      skillSyncService.expandAbsoluteInclude('invalid', folders, []);
-      expect(folders).toHaveLength(0);
-    });
   });
 });

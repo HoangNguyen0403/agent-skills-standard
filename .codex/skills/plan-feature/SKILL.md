@@ -30,6 +30,7 @@ Goal: Produce a PM-owned decision-complete PRD, delivery plan, and IT Department
    - Explicitly load `product-management/product-requirements` and its on-demand `references/requirements-modeling.md`; report truthfully if unavailable.
    - Load `product-management/product-business-requirements` when BRD-lite context applies; also load ticket text, existing specs, repo patterns, `common-operator-profile`, `common-decision-discipline`, `quality-engineering-business-analysis`, and matched framework skills.
    - Carry forward `operator_profile`, `lane`, `snc_tier`, `approval`, BRD objective IDs, SMART metric, scope fence, assumptions, evidence ledger, glossary, risks, delivery context. Equivalent approved evidence suffices without separate BRD/PRD/SRS filenames; reused approved context skips rediscovery.
+   - When a PRD relies on captured stakeholder meaning, load the applicable BRD confirmation procedure at `product-management/product-business-requirements/references/analysis-planning-and-elicitation.md`; use `requirements-modeling.md` as the sole owner of conflict, quality-versus-need, and transition semantics.
 2. Interview:
    - Draft provisional PRD direction from current context before asking; ask only for business logic, scope, constraints, and acceptance criteria that cannot be inferred.
    - Ask max 3 blocking decisions at a time with recommended default and 2-3 options; treat non-critical unknowns as explicit assumptions.

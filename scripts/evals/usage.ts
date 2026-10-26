@@ -7,7 +7,15 @@
 // going (the `common-sdlc-metrics` "report unavailable" rule).
 import { costUSD } from "../benchmark/utils";
 import { MODELS } from "../benchmark/models";
-import type { ArmName, RunUsage, UsageSample, UsageTotals } from "./types";
+import type {
+  ArmName,
+  RunUsage,
+  TaskActorIdentity,
+  TaskAttemptOutcome,
+  TaskAttemptRecord,
+  UsageSample,
+  UsageTotals,
+} from "./types";
 
 /**
  * Parse the cumulative token usage out of a `codex exec --json` JSONL event
@@ -39,14 +47,11 @@ export function parseUsageFromJsonl(
       continue;
     }
     const msg = (parsed as { msg?: unknown } | null)?.msg as
-      | { type?: unknown; info?: unknown }
-      | undefined;
+      { type?: unknown; info?: unknown } | undefined;
     if (!msg || msg.type !== "token_count") continue;
-    const info = msg.info as
-      | { total_token_usage?: unknown }
-      | null
-      | undefined;
-    const total = info?.total_token_usage as Record<string, unknown> | undefined;
+    const info = msg.info as { total_token_usage?: unknown } | null | undefined;
+    const total = info?.total_token_usage as
+      Record<string, unknown> | undefined;
     if (!total || typeof total !== "object") continue;
     const inputTokens = total.input_tokens;
     const outputTokens = total.output_tokens;
@@ -146,6 +151,161 @@ export function aggregateUsage(
     pricedByArm[arm] = priceTotals(byArm[arm] as UsageTotals, model);
   }
   return { overall: priceTotals(overall, model), byArm: pricedByArm };
+}
+
+export interface TaskCohortUsage {
+  totals: UsageTotals;
+  attemptsByOutcome: Record<TaskAttemptOutcome, number>;
+  /** Distinct declared actors observed in the attempt records. */
+  observedActors: TaskActorIdentity[];
+  /** Attempts whose task/actor/attempt identity is absent. */
+  unknownActorAttempts: number;
+  /** Distinct task ids observed; a savings claim requires exactly one. */
+  taskIds: string[];
+  /** True only when full actor coverage and pricing are certified. */
+  complete: boolean;
+}
+
+export interface TaskCohortOptions {
+  /** Declared actors that must all be observed before coverage is certified. */
+  expectedActors?: readonly TaskActorIdentity[];
+}
+
+export interface TaskComparisonOptions {
+  baselineExpectedActors?: readonly TaskActorIdentity[];
+  currentExpectedActors?: readonly TaskActorIdentity[];
+}
+
+function actorKey(actor: TaskActorIdentity): string {
+  return JSON.stringify([actor.role, actor.taskId, actor.parentTaskId]);
+}
+
+/**
+ * Aggregate every attempt in one task cohort, including failed, retried and
+ * cancelled attempts. A missing sample is unmetered, never zero. Coverage is
+ * certified only from explicit identities plus a declared expected inventory;
+ * it is never inferred from the attempt array alone.
+ */
+export function summarizeTaskUsage(
+  attempts: readonly TaskAttemptRecord[],
+  model: string,
+  options: TaskCohortOptions = {},
+): TaskCohortUsage {
+  const totals = emptyUsageTotals();
+  const attemptsByOutcome: Record<TaskAttemptOutcome, number> = {
+    completed: 0,
+    failed: 0,
+    retried: 0,
+    interrupted: 0,
+    cancelled: 0,
+  };
+  const observed = new Map<string, TaskActorIdentity>();
+  const taskIds = new Set<string>();
+  let unknownActorAttempts = 0;
+  for (const attempt of attempts) {
+    accumulate(totals, attempt.usage);
+    attemptsByOutcome[attempt.outcome] += 1;
+    if (
+      attempt.taskId === undefined ||
+      attempt.parentTaskId === undefined ||
+      attempt.actorRole === undefined ||
+      attempt.attemptId === undefined
+    ) {
+      unknownActorAttempts += 1;
+      continue;
+    }
+    const identity: TaskActorIdentity = {
+      role: attempt.actorRole,
+      taskId: attempt.taskId,
+      parentTaskId: attempt.parentTaskId,
+    };
+    observed.set(actorKey(identity), identity);
+    taskIds.add(attempt.taskId);
+  }
+  const expected = options.expectedActors ?? [];
+  const priced = priceTotals(totals, model);
+  return {
+    totals: priced,
+    attemptsByOutcome,
+    observedActors: [...observed.values()],
+    unknownActorAttempts,
+    taskIds: [...taskIds],
+    complete:
+      attempts.length > 0 &&
+      unknownActorAttempts === 0 &&
+      taskIds.size === 1 &&
+      expected.length > 0 &&
+      expected.every((actor) => observed.has(actorKey(actor))) &&
+      priced.lanesUnmetered === 0 &&
+      priced.estimatedUsd !== null,
+  };
+}
+
+export interface TaskComparison {
+  baseline: TaskCohortUsage;
+  current: TaskCohortUsage;
+  /** `null` whenever coverage or pricing is incomplete. */
+  savingsUsd: number | null;
+  withheldReason: string | null;
+}
+
+/**
+ * Compare a baseline and candidate task cohort. Monetary savings are withheld
+ * unless both cohorts are fully metered, priced, identically scoped to one
+ * task, and carry a certified full-actor inventory.
+ */
+export function compareTaskUsage(
+  baseline: readonly TaskAttemptRecord[],
+  current: readonly TaskAttemptRecord[],
+  model: string,
+  options: TaskComparisonOptions = {},
+): TaskComparison {
+  const baselineCohort = summarizeTaskUsage(baseline, model, {
+    expectedActors: options.baselineExpectedActors,
+  });
+  const currentCohort = summarizeTaskUsage(current, model, {
+    expectedActors: options.currentExpectedActors,
+  });
+  const withhold = (withheldReason: string): TaskComparison => ({
+    baseline: baselineCohort,
+    current: currentCohort,
+    savingsUsd: null,
+    withheldReason,
+  });
+  if (baseline.length === 0 || current.length === 0)
+    return withhold("no recorded attempts in one or both cohorts");
+  if (
+    baselineCohort.totals.lanesUnmetered > 0 ||
+    currentCohort.totals.lanesUnmetered > 0
+  )
+    return withhold(
+      "unmetered attempt lanes present; missing usage is unknown, never zero",
+    );
+  if (
+    baselineCohort.totals.estimatedUsd === null ||
+    currentCohort.totals.estimatedUsd === null
+  )
+    return withhold(`price unresolved for model "${model}"`);
+  if (
+    baselineCohort.unknownActorAttempts > 0 ||
+    currentCohort.unknownActorAttempts > 0
+  )
+    return withhold(
+      "cohort actor membership is unknown for one or more attempts",
+    );
+  if (!baselineCohort.complete || !currentCohort.complete)
+    return withhold(
+      "full actor coverage is not certified for one or both cohorts",
+    );
+  if (baselineCohort.taskIds[0] !== currentCohort.taskIds[0])
+    return withhold("baseline and current cohorts cover different tasks");
+  return {
+    baseline: baselineCohort,
+    current: currentCohort,
+    savingsUsd:
+      baselineCohort.totals.estimatedUsd - currentCohort.totals.estimatedUsd,
+    withheldReason: null,
+  };
 }
 
 function mergeUsageTotals(

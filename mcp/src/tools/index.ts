@@ -1,10 +1,16 @@
+import { createHash } from "node:crypto";
 import fs from "fs-extra";
+import path from "path";
 import { z } from "zod";
 import { SetupHint } from "../config";
 import { SessionTracker, type LoadEvent } from "../services/SessionTracker";
 import { MatchResult, SkillIndex } from "../services/SkillIndex";
 import { summarizeSessionCostCoverage } from "../services/WorkflowTelemetry";
-import { scanWorkflows, readWorkflowBody } from "../services/WorkflowIndex";
+import {
+  scanWorkflows,
+  lookupWorkflow,
+  listInstalledWorkflows,
+} from "../services/WorkflowIndex";
 import {
   listEvalRuns,
   readEvalsReport,
@@ -31,14 +37,15 @@ function formatConsultationEvent(event: LoadEvent): string {
   if (event.discovered?.length) {
     observations.push(`discovered ${event.discovered.join(", ")}`);
   }
-  const dedupedSkills = new Set(event.dedupedSkills ?? []);
-  const returnedBodies = event.loaded.filter((id) => !dedupedSkills.has(id));
-  if (returnedBodies.length) {
-    observations.push(`body returned ${returnedBodies.join(", ")}`);
+  if (event.loaded.length) {
+    observations.push(`body returned ${event.loaded.join(", ")}`);
   }
-  if (dedupedSkills.size) {
+  const unreturned = (event.selected ?? []).filter(
+    (skill) => !event.loaded.includes(skill),
+  );
+  if (unreturned.length) {
     observations.push(
-      `stub returned; body omitted ${Array.from(dedupedSkills).join(", ")}`,
+      `selected but body not returned ${unreturned.join(", ")}`,
     );
   }
   if (event.loadedGuides?.length) {
@@ -110,12 +117,6 @@ export const loadSkillsForFilesSchema = z.object({
     .describe(
       'Project-relative file paths the agent is about to read or modify (e.g. ["src/cart.dart", "internal/auth.go"]).',
     ),
-  force_reload: z
-    .boolean()
-    .optional()
-    .describe(
-      "Return full skill bodies even for skills already loaded this session (bypasses dedup). Default false.",
-    ),
 });
 
 function renderPolicySection(
@@ -168,7 +169,7 @@ function renderPolicySection(
 }
 
 export async function loadSkillsForFiles(
-  args: { files: string[]; force_reload?: boolean },
+  args: { files: string[] },
   ctx: ToolContext,
 ): Promise<ToolResult> {
   const empty = maybeEmptyState(ctx);
@@ -180,7 +181,6 @@ export async function loadSkillsForFiles(
     args.files,
     matches,
     ctx,
-    args.force_reload ?? false,
   );
 
   const policyText = renderPolicySection(args.files, ctx.policy);
@@ -204,16 +204,10 @@ export const loadSkillsForKeywordsSchema = z.object({
     .describe(
       'Concept words from the user request (e.g. ["auth", "performance", "migration"]). Matched against each skill\'s keyword triggers.',
     ),
-  force_reload: z
-    .boolean()
-    .optional()
-    .describe(
-      "Return full skill bodies even for skills already loaded this session (bypasses dedup). Default false.",
-    ),
 });
 
 export async function loadSkillsForKeywords(
-  args: { keywords: string[]; force_reload?: boolean },
+  args: { keywords: string[] },
   ctx: ToolContext,
 ): Promise<ToolResult> {
   const empty = maybeEmptyState(ctx);
@@ -225,7 +219,6 @@ export async function loadSkillsForKeywords(
     args.keywords,
     matches,
     ctx,
-    args.force_reload ?? false,
   );
 }
 
@@ -250,17 +243,26 @@ export async function getSkill(
   if (empty) return empty;
 
   const skill = ctx.index.findSkill(args.category, args.name);
+  const skillKey = `${args.category}/${args.name}`;
   if (!skill) {
     ctx.tracker.record({
       via: "get_skill",
-      input: [`${args.category}/${args.name}`],
+      input: [skillKey],
+      selected: [],
       loaded: [],
     });
     return alternativeSkillSuggestion(args, ctx);
   }
+  const canonicalKey = `${skill.category}/${skill.id}`;
   const body = await fs.readFile(skill.path, "utf8").catch(() => null);
   if (!body) {
     // Don't leak filesystem paths — describe the gap functionally.
+    ctx.tracker.record({
+      via: "get_skill",
+      input: [canonicalKey],
+      selected: [canonicalKey],
+      loaded: [],
+    });
     return {
       content: [
         {
@@ -276,8 +278,13 @@ export async function getSkill(
   }
   ctx.tracker.record({
     via: "get_skill",
-    input: [`${args.category}/${args.name}`],
-    loaded: [`${skill.category}/${skill.id}`],
+    input: [canonicalKey],
+    selected: [canonicalKey],
+    loaded: [canonicalKey],
+    bodyDigests: {
+      [canonicalKey]: createHash("sha256").update(body).digest("hex"),
+    },
+    estimatedTokens: estimateTokens(body),
   });
   return {
     content: [
@@ -425,6 +432,11 @@ export async function auditSessionCompliance(
   ctx: ToolContext,
 ): Promise<ToolResult> {
   const loaded = ctx.tracker.loadedSkills();
+  const selected = ctx.tracker.selectedSkills();
+  const bodyReturns = ctx.tracker.skillContextCost().bodyReturnCount;
+  const digests = Object.entries(ctx.tracker.bodyDigests()).sort(([a], [b]) =>
+    a.localeCompare(b),
+  );
   const workflows = ctx.tracker.loadedWorkflows();
   const guides = ctx.tracker.loadedGuides();
   const events = ctx.tracker.events_();
@@ -435,11 +447,18 @@ export async function auditSessionCompliance(
     `Session started: ${ctx.tracker.startedAt_()}`,
     "AGS consultation/body-return observations are limited to this MCP session. They do not establish fresh-worker delivery or observed edits, checks, or enforcement.",
     `Skills loaded: ${loaded.length}`,
+    `Skill matches selected: ${selected.length} unique`,
+    `Skill bodies returned: ${bodyReturns} total, ${loaded.length} unique`,
     `Workflow bodies returned: ${workflows.length}`,
     `Category-guide bodies returned: ${guides.length}`,
     "",
     "## Loaded skills",
     ...(loaded.length ? loaded.map((s) => `- ${s}`) : ["_(none yet)_"]),
+    "",
+    "## Body content digests (SHA-256)",
+    ...(digests.length
+      ? digests.map(([skill, digest]) => `- ${skill}: ${digest}`)
+      : ["_(none)_"]),
     "",
     "## Returned workflow bodies",
     ...(workflows.length
@@ -567,6 +586,12 @@ export const getSessionCostSchema = z.object({
     .describe(
       "Reasoning tokens from the host runtime, if reported separately.",
     ),
+  reasoningBilling: z
+    .enum(["separate", "included-in-output"])
+    .optional()
+    .describe(
+      "Whether reasoning tokens are billed separately or already included in output tokens. Required when both reasoningTokens and reasoningCostPer1M are supplied; there is no default. If omitted while reasoning billing is ambiguous, provenance falls back to unavailable and reasoningBilling is listed as a missing host field.",
+    ),
   inputCostPer1M: z
     .number()
     .nonnegative()
@@ -619,6 +644,7 @@ export async function getSessionCost(
     cachedPromptTokens?: number;
     completionTokens?: number;
     reasoningTokens?: number;
+    reasoningBilling?: "separate" | "included-in-output";
     inputCostPer1M?: number;
     cachedInputCostPer1M?: number;
     outputCostPer1M?: number;
@@ -644,6 +670,7 @@ export async function getSessionCost(
   });
 
   const loaded = ctx.tracker.loadedSkills();
+  const selectedSkills = ctx.tracker.selectedSkills();
   const workflows = ctx.tracker.loadedWorkflows();
   const guides = ctx.tracker.loadedGuides();
   const events = ctx.tracker.events_();
@@ -690,8 +717,8 @@ export async function getSessionCost(
     "| Metric | Value |",
     "|---|---|",
     `| **Est. Skill Context Tokens (this session)** | ${skillCost.totalEstimatedTokens} |`,
-    `| **Skills Deduped (context reused, not resent)** | ${skillCost.dedupedSkillCount} |`,
-    `| **Est. Tokens Saved by Dedup** | ${skillCost.estimatedTokensSaved} |`,
+    `| **Skill Matches Selected (unique)** | ${selectedSkills.length} |`,
+    `| **Skill Bodies Returned (total)** | ${skillCost.bodyReturnCount} |`,
     `| **Skill Context Share of Prompt Tokens** | ${skillShareOfPrompt} |`,
     `| **No-Match Calls (wasted lookups)** | ${summary.noMatchCalls} |`,
     "",
@@ -731,7 +758,13 @@ export async function listWorkflows(
   _args: Record<string, never>,
   ctx: ToolContext,
 ): Promise<ToolResult> {
-  const workflows = await scanWorkflows(ctx.projectRoot);
+  const installed = await listInstalledWorkflows(ctx.projectRoot);
+  const workflows =
+    installed ??
+    (await scanWorkflows(ctx.projectRoot)).map((workflow) => ({
+      name: workflow.name,
+      description: workflow.description,
+    }));
   ctx.tracker.record({
     via: "list_workflows",
     input: [],
@@ -773,19 +806,40 @@ export async function getWorkflow(
   args: { name: string },
   ctx: ToolContext,
 ): Promise<ToolResult> {
-  const workflows = await scanWorkflows(ctx.projectRoot);
-  const matched = workflows.find(
-    (w) =>
-      w.name.toLowerCase() === args.name.toLowerCase() ||
-      w.name.toLowerCase() === args.name.replace(/\.md$/, "").toLowerCase(),
-  );
+  const result = await lookupWorkflow(ctx.projectRoot, args.name);
 
-  if (!matched) {
+  if (
+    (result.status === "managed" || result.status === "local_source") &&
+    result.body !== undefined
+  ) {
     ctx.tracker.record({
       via: "get_workflow",
       input: [args.name],
-      loaded: [],
+      loaded: [`workflow/${result.name}`],
     });
+
+    const header = `<!-- Provenance: Loaded workflow/${result.name} via get_workflow -->`;
+    return {
+      content: [
+        {
+          type: "text",
+          text: `${header}\n\n# Workflow: ${result.name}\n${result.description ? `> [!IMPORTANT]\n> ${result.description}\n` : ""}\n${result.body}`,
+        },
+      ],
+    };
+  }
+
+  ctx.tracker.record({
+    via: "get_workflow",
+    input: [args.name],
+    loaded: [],
+  });
+
+  const hasLock = await fs.pathExists(
+    path.join(ctx.projectRoot, ".skills-lock.json"),
+  );
+  if (!hasLock) {
+    const workflows = await scanWorkflows(ctx.projectRoot);
     return {
       isError: true,
       content: [
@@ -797,31 +851,12 @@ export async function getWorkflow(
     };
   }
 
-  const body = await readWorkflowBody(matched.path);
-  if (!body) {
-    return {
-      isError: true,
-      content: [
-        {
-          type: "text",
-          text: `Failed to read workflow file at '${matched.path}'.`,
-        },
-      ],
-    };
-  }
-
-  ctx.tracker.record({
-    via: "get_workflow",
-    input: [args.name],
-    loaded: [`workflow/${matched.name}`],
-  });
-
-  const header = `<!-- Provenance: Loaded workflow/${matched.name} via get_workflow -->`;
   return {
+    isError: true,
     content: [
       {
         type: "text",
-        text: `${header}\n\n# Workflow: ${matched.name}\n${matched.description ? `> [!IMPORTANT]\n> ${matched.description}\n` : ""}\n${body}`,
+        text: `Workflow '${args.name}' is unavailable: ${result.reason ?? result.status}.`,
       },
     ],
   };
@@ -907,36 +942,28 @@ async function finalize(
   input: string[],
   matches: MatchResult[],
   ctx: ToolContext,
-  forceReload = false,
 ): Promise<ToolResult> {
   if (matches.length === 0) {
-    ctx.tracker.record({ via, input, loaded: [] });
+    ctx.tracker.record({ via, input, selected: [], loaded: [] });
     return noMatchGuidance(via, input, ctx);
   }
 
-  const alreadyLoaded = new Set(ctx.tracker.loadedSkills());
   const blocks: string[] = [];
+  const selected: string[] = [];
   const loaded: string[] = [];
-  const dedupedSkills: string[] = [];
+  const bodyDigests: Record<string, string> = {};
   let estimatedTokens = 0;
-  let estimatedTokensSaved = 0;
 
   for (const match of matches) {
     const key = `${match.skill.category}/${match.skill.id}`;
     const why = `${match.matchedBy}:${match.reason}`;
+    selected.push(key);
     try {
       const body = await fs.readFile(match.skill.path, "utf8");
-      if (!forceReload && alreadyLoaded.has(key)) {
-        blocks.push(dedupStub(match.skill.category, match.skill.id, why));
-        dedupedSkills.push(key);
-        estimatedTokensSaved += estimateTokens(body);
-      } else {
-        blocks.push(
-          renderSkill(match.skill.category, match.skill.id, body, why),
-        );
-        estimatedTokens += estimateTokens(body);
-      }
+      blocks.push(renderSkill(match.skill.category, match.skill.id, body, why));
       loaded.push(key);
+      bodyDigests[key] = createHash("sha256").update(body).digest("hex");
+      estimatedTokens += estimateTokens(body);
     } catch {
       // Don't leak filesystem paths on error.
       blocks.push(`### ERROR: Could not read skill content for ${key}`);
@@ -945,21 +972,17 @@ async function finalize(
   ctx.tracker.record({
     via,
     input,
+    selected,
     loaded,
+    bodyDigests,
     estimatedTokens,
-    dedupedSkills,
-    estimatedTokensSaved,
   });
   return { content: [{ type: "text", text: blocks.join("\n\n---\n\n") }] };
 }
 
-/** Rough token estimate (chars/4) — good enough for relative cost/savings reporting. */
+/** Rough token estimate (chars/4) — good enough for relative cost reporting. */
 function estimateTokens(text: string): number {
   return Math.ceil(text.length / 4);
-}
-
-function dedupStub(category: string, id: string, why: string): string {
-  return `<!-- skill: ${category}/${id} | matched: ${why} | already loaded this session, body omitted (pass force_reload: true to resend) -->`;
 }
 
 /**

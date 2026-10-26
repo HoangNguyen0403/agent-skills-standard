@@ -115,6 +115,12 @@ export type {
   SpecialistFormat,
   HookKind,
   McpSpec,
+  DelegationOperation,
+  DelegationSurface,
+  DelegationSurfaceKind,
+  RuntimeEvidence,
+  RuntimeQuery,
+  SupportStatus,
 } from '../capabilities/agentCapabilities';
 import { AGENT_CAPABILITIES } from '../capabilities/agentCapabilities';
 import type { AgentDefinition } from '../capabilities/agentCapabilities';

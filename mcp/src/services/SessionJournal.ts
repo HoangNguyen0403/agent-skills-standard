@@ -5,9 +5,17 @@ import path from "node:path";
 
 export type SessionRole = "main" | "implementation" | "review" | "auxiliary";
 export type SessionFormat = "codex" | "omp";
-export type AttemptOutcome = "completed" | "failed" | "retried" | "interrupted";
+export type AttemptOutcome =
+  "completed" | "failed" | "retried" | "interrupted" | "cancelled";
 export type SessionPhase =
   "planning" | "repair" | "acceptance" | "analysis" | "delivery" | "auxiliary";
+
+export interface ExpectedActor {
+  role: SessionRole;
+  taskId: string | null;
+  parentTaskId: string | null;
+  auxiliaryPurpose?: string;
+}
 
 export interface SessionManifest {
   workspace: string;
@@ -19,8 +27,11 @@ export interface SessionManifest {
     role: SessionRole;
     attemptOutcome: AttemptOutcome | null;
     auxiliaryPurpose?: string;
+    taskId?: string;
+    parentTaskId?: string;
   }>;
   expectedSessionIds: string[];
+  expectedActors?: ExpectedActor[];
   phaseWindows: Array<{
     phase: SessionPhase;
     startedAt: string;
@@ -35,6 +46,8 @@ export interface SessionUsageGroup {
   phase: SessionPhase | null;
   attemptOutcome: AttemptOutcome | null;
   auxiliaryPurpose: string | null;
+  taskId: string | null;
+  parentTaskId: string | null;
   nativePurpose: string | null;
   nativeModelRole: string | null;
   messages: number;
@@ -55,10 +68,17 @@ export interface SessionJournalReport {
     selectedSessions: number;
     expectedSessions: number;
     missingSessions: number;
+    missingActors: Array<{
+      role: SessionRole;
+      taskId: string | null;
+      parentTaskId: string | null;
+      auxiliaryPurpose: string | null;
+    }>;
     sessionsWithUsage: number;
     malformedLines: number;
     invalidUsageRecords: number;
     abortedSessions: number;
+    redactedActorLabels: number;
     resourceLimitReached: boolean;
     complete: boolean;
   };
@@ -105,6 +125,7 @@ const OUTCOMES: readonly AttemptOutcome[] = [
   "failed",
   "retried",
   "interrupted",
+  "cancelled",
 ];
 const ROLES: readonly SessionRole[] = [
   "main",
@@ -113,6 +134,16 @@ const ROLES: readonly SessionRole[] = [
   "auxiliary",
 ];
 const MODEL_ID = /^[A-Za-z0-9._:/+@-]{1,128}$/;
+const LABEL = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
+
+function readLabel(value: unknown, field: string): string | null {
+  if (value === undefined || value === null) return null;
+  if (typeof value !== "string" || !LABEL.test(value))
+    throw new Error(
+      `${field} must be a declared label, not a path or native identifier.`,
+    );
+  return value;
+}
 
 function object(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -240,8 +271,52 @@ function readManifest(value: unknown): SessionManifest {
       ...(typeof entry.auxiliaryPurpose === "string"
         ? { auxiliaryPurpose: entry.auxiliaryPurpose }
         : {}),
+      taskId: readLabel(entry.taskId, "taskId") ?? undefined,
+      parentTaskId: readLabel(entry.parentTaskId, "parentTaskId") ?? undefined,
     };
   });
+  let expectedActors: ExpectedActor[] | undefined;
+  if (value.expectedActors !== undefined) {
+    if (!Array.isArray(value.expectedActors))
+      throw new Error("expectedActors must be an explicit declared inventory.");
+    const seen = new Set<string>();
+    expectedActors = value.expectedActors.map((actor) => {
+      if (
+        !object(actor) ||
+        !ROLES.includes(actor.role as SessionRole) ||
+        (actor.role === "auxiliary" &&
+          (typeof actor.auxiliaryPurpose !== "string" ||
+            !/^[A-Za-z0-9_-]{1,64}$/.test(actor.auxiliaryPurpose))) ||
+        (actor.role !== "auxiliary" && actor.auxiliaryPurpose !== undefined)
+      )
+        throw new Error(
+          "Expected actors require a declared role and auxiliary purpose only for auxiliary entries.",
+        );
+      const declared: ExpectedActor = {
+        role: actor.role as SessionRole,
+        taskId: readLabel(actor.taskId, "expected actor taskId"),
+        parentTaskId: readLabel(
+          actor.parentTaskId,
+          "expected actor parentTaskId",
+        ),
+        ...(typeof actor.auxiliaryPurpose === "string"
+          ? { auxiliaryPurpose: actor.auxiliaryPurpose }
+          : {}),
+      };
+      const key = JSON.stringify([
+        declared.role,
+        declared.taskId,
+        declared.parentTaskId,
+        declared.auxiliaryPurpose ?? null,
+      ]);
+      if (seen.has(key))
+        throw new Error(
+          "Expected actor labels must be unique so missing entries stay attributable.",
+        );
+      seen.add(key);
+      return declared;
+    });
+  }
   if (
     value.expectedSessionIds.some((id) => typeof id !== "string" || !id) ||
     new Set(value.expectedSessionIds).size !== value.expectedSessionIds.length
@@ -283,6 +358,7 @@ function readManifest(value: unknown): SessionManifest {
     completedAt,
     sessions,
     expectedSessionIds: value.expectedSessionIds as string[],
+    ...(expectedActors ? { expectedActors } : {}),
     phaseWindows,
   };
 }
@@ -399,6 +475,8 @@ function aggregateKey(
   phase: SessionPhase | null,
   outcome: AttemptOutcome | null,
   purpose: string | null,
+  taskId: string | null,
+  parentTaskId: string | null,
   nativePurpose: string | null,
   nativeModelRole: string | null,
 ): string {
@@ -409,6 +487,8 @@ function aggregateKey(
     phase,
     outcome,
     purpose,
+    taskId,
+    parentTaskId,
     nativePurpose,
     nativeModelRole,
   ]);
@@ -432,6 +512,8 @@ function addUsage(
   const usageKind = options.usageKind ?? "conversation";
   const purpose =
     session.auxiliaryPurpose ?? (role === "auxiliary" ? "unspecified" : null);
+  const taskId = session.taskId ?? null;
+  const parentTaskId = session.parentTaskId ?? null;
   const nativePurpose = options.nativePurpose ?? null;
   const nativeModelRole = options.nativeModelRole ?? null;
   const key = aggregateKey(
@@ -441,6 +523,8 @@ function addUsage(
     phase,
     session.attemptOutcome,
     purpose,
+    taskId,
+    parentTaskId,
     nativePurpose,
     nativeModelRole,
   );
@@ -453,6 +537,8 @@ function addUsage(
       phase,
       attemptOutcome: session.attemptOutcome,
       auxiliaryPurpose: purpose,
+      taskId,
+      parentTaskId,
       nativePurpose,
       nativeModelRole,
       messages: 0,
@@ -614,6 +700,8 @@ function redactNativeIdentities(
       group.phase,
       group.attemptOutcome,
       group.auxiliaryPurpose,
+      group.taskId,
+      group.parentTaskId,
       nativePurpose,
       nativeModelRole,
     );
@@ -623,6 +711,62 @@ function redactNativeIdentities(
     else sanitizedGroups.set(key, sanitized);
   }
   return sanitizedGroups;
+}
+
+/**
+ * Declared task/parent/purpose labels must never echo a native session or row
+ * identity. Colliding labels are withheld at the report boundary, usage stays
+ * accounted, and coverage is marked incomplete.
+ */
+function redactActorLabels(
+  groups: Map<string, Aggregate>,
+  missingActors: SessionJournalReport["coverage"]["missingActors"],
+  sensitive: ReadonlySet<string>,
+): {
+  groups: Map<string, Aggregate>;
+  missingActors: SessionJournalReport["coverage"]["missingActors"];
+  redacted: number;
+} {
+  const collided = new Set<string>();
+  const sanitize = (value: string | null): string | null => {
+    if (value !== null && sensitive.has(value)) {
+      collided.add(value);
+      return null;
+    }
+    return value;
+  };
+  const sanitizedGroups = new Map<string, Aggregate>();
+  for (const group of groups.values()) {
+    const taskId = sanitize(group.taskId);
+    const parentTaskId = sanitize(group.parentTaskId);
+    const auxiliaryPurpose = sanitize(group.auxiliaryPurpose);
+    const key = aggregateKey(
+      group.role,
+      group.usageKind,
+      group.model,
+      group.phase,
+      group.attemptOutcome,
+      auxiliaryPurpose,
+      taskId,
+      parentTaskId,
+      group.nativePurpose,
+      group.nativeModelRole,
+    );
+    const sanitized = { ...group, taskId, parentTaskId, auxiliaryPurpose };
+    const existing = sanitizedGroups.get(key);
+    if (existing) mergeAggregates(existing, sanitized);
+    else sanitizedGroups.set(key, sanitized);
+  }
+  return {
+    groups: sanitizedGroups,
+    missingActors: missingActors.map((actor) => ({
+      role: actor.role,
+      taskId: sanitize(actor.taskId),
+      parentTaskId: sanitize(actor.parentTaskId),
+      auxiliaryPurpose: sanitize(actor.auxiliaryPurpose),
+    })),
+    redacted: collided.size,
+  };
 }
 
 export async function collectSessionJournal(
@@ -655,10 +799,12 @@ export async function collectSessionJournal(
     selectedSessions: manifest.sessions.length,
     expectedSessions: manifest.expectedSessionIds.length,
     missingSessions: 0,
+    missingActors: [] as SessionJournalReport["coverage"]["missingActors"],
     sessionsWithUsage: 0,
     malformedLines: 0,
     invalidUsageRecords: 0,
     abortedSessions: 0,
+    redactedActorLabels: 0,
     resourceLimitReached: false,
     complete: true,
   };
@@ -990,8 +1136,57 @@ export async function collectSessionJournal(
   }
   coverage.missingSessions =
     manifest.expectedSessionIds.length - selectedIds.size;
+  const actorKey = (
+    role: SessionRole,
+    taskId: string | null,
+    parentTaskId: string | null,
+    purpose: string | null,
+  ): string => JSON.stringify([role, taskId, parentTaskId, purpose]);
+  const selectedActors = new Set(
+    manifest.sessions.map((session) =>
+      actorKey(
+        session.role,
+        session.taskId ?? null,
+        session.parentTaskId ?? null,
+        session.auxiliaryPurpose ?? null,
+      ),
+    ),
+  );
+  coverage.missingActors = (manifest.expectedActors ?? [])
+    .filter(
+      (actor) =>
+        !selectedActors.has(
+          actorKey(
+            actor.role,
+            actor.taskId,
+            actor.parentTaskId,
+            actor.auxiliaryPurpose ?? null,
+          ),
+        ),
+    )
+    .map((actor) => ({
+      role: actor.role,
+      taskId: actor.taskId,
+      parentTaskId: actor.parentTaskId,
+      auxiliaryPurpose: actor.auxiliaryPurpose ?? null,
+    }));
+  const sensitiveLabels = new Set<string>([
+    ...manifest.expectedSessionIds,
+    ...selectedIds,
+    ...nativeIdentities,
+  ]);
+  const redacted = redactActorLabels(
+    groups,
+    coverage.missingActors,
+    sensitiveLabels,
+  );
+  groups = redacted.groups;
+  coverage.missingActors = redacted.missingActors;
+  coverage.redactedActorLabels = redacted.redacted;
   coverage.complete =
     coverage.missingSessions === 0 &&
+    coverage.missingActors.length === 0 &&
+    coverage.redactedActorLabels === 0 &&
     coverage.malformedLines === 0 &&
     coverage.invalidUsageRecords === 0 &&
     coverage.abortedSessions === 0 &&
@@ -1005,6 +1200,8 @@ export async function collectSessionJournal(
       phase: group.phase,
       attemptOutcome: group.attemptOutcome,
       auxiliaryPurpose: group.auxiliaryPurpose,
+      taskId: group.taskId,
+      parentTaskId: group.parentTaskId,
       nativePurpose: group.nativePurpose,
       nativeModelRole: group.nativeModelRole,
       messages: group.messages,
@@ -1032,7 +1229,9 @@ export async function collectSessionJournal(
         a.usageKind.localeCompare(b.usageKind) ||
         a.model.localeCompare(b.model) ||
         (a.phase ?? "").localeCompare(b.phase ?? "") ||
-        (a.attemptOutcome ?? "").localeCompare(b.attemptOutcome ?? ""),
+        (a.attemptOutcome ?? "").localeCompare(b.attemptOutcome ?? "") ||
+        (a.taskId ?? "").localeCompare(b.taskId ?? "") ||
+        (a.auxiliaryPurpose ?? "").localeCompare(b.auxiliaryPurpose ?? ""),
     );
   return {
     window: {
@@ -1043,12 +1242,12 @@ export async function collectSessionJournal(
     groups: reportGroups,
     limitations: [
       "Only explicitly listed session files, expected identities, roles, workspace, and time bounds were read; other host activity is not measured.",
-      "Caller-supplied inventory is a scope declaration, not proof of complete host activity. Missing expected actors and malformed, invalid, aborted, or no-usage sessions make coverage incomplete.",
+      "Caller-supplied inventory is a scope declaration, not proof of complete host activity. Missing expected native identities, missing declared actors (listed by task/parent/role/purpose labels only), and malformed, invalid, aborted, or no-usage sessions make coverage incomplete.",
       "Phase gaps and undeclared outcomes remain unattributed or unknown; elapsed session spans are not billed compute.",
       "Provider-unreported submetrics and native cost unavailable in session records remain unknown. OMP orchestration buckets are preserved independently when present; no rates or invoice totals are inferred.",
       `Oversized records longer than ${MAX_LINE_CHARS} characters or selected journals exceeding ${MAX_TRACKED_IDENTITIES} tracked native identities stop accounting for that journal, set the resource-limit flag, and make coverage incomplete.`,
       `Cross-journal OMP privacy membership is separately capped at ${MAX_TRACKED_IDENTITIES} distinct row identities; reaching that cap withholds all native provenance and sets resource-limited incomplete coverage while valid accounting continues.`,
-      "Prompts, responses, credentials, filesystem paths, and native session identities are not included in reports.",
+      "Prompts, responses, credentials, filesystem paths, and native session identities are not included in reports. Declared task/parent/purpose labels that collide with a selected or expected native identity are withheld as unknown and make coverage incomplete while usage stays accounted.",
     ],
   };
 }

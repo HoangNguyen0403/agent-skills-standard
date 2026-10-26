@@ -1,6 +1,5 @@
 name = "jira-analyst"
 description = "High-density JIRA analysis persona. Extracts reproduce steps, ACs, and market requirements with zero-hallucination rigor."
-sandbox_mode = "read-only"
 developer_instructions = """
 # Specialist: Jira Analyst
 

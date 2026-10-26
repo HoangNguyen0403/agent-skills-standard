@@ -28,6 +28,33 @@ export interface ManifestSkill {
   cases: EvalCaseRef[];
 }
 
+/** Outcome of one attempted worker execution, including failed/cancelled work. */
+export type TaskAttemptOutcome =
+  "completed" | "failed" | "retried" | "interrupted" | "cancelled";
+
+export type TaskActorRole =
+  "parent" | "worker" | "review" | "integration" | "auxiliary";
+
+/** Declared membership of one actor in a task cohort. */
+export interface TaskActorIdentity {
+  role: TaskActorRole;
+  taskId: string;
+  parentTaskId: string | null;
+}
+
+/** One attempted execution retained in task-cohort cost accounting. */
+export interface TaskAttemptRecord {
+  arm?: ArmName;
+  outcome: TaskAttemptOutcome;
+  /** `null` when the worker stream carried no usage; never estimated. */
+  usage: UsageSample | null;
+  /** Absent identity means cohort membership is unknown, never assumed. */
+  taskId?: string;
+  parentTaskId?: string | null;
+  actorRole?: TaskActorRole;
+  attemptId?: string;
+}
+
 export interface UsageSample {
   promptTokens: number;
   completionTokens: number;
@@ -66,6 +93,11 @@ export interface RunMetadata {
   freshAnswerCount?: number;
   reusedAnswerCount?: number;
   usage?: RunUsage;
+  /**
+   * Per-attempt usage and outcome. Kept so failed, retried and cancelled work
+   * stays in task-cost accounting; absent on legacy runs.
+   */
+  taskUsage?: TaskAttemptRecord[];
   protocolProvenance?: InstructionVersion | "mixed";
   isHomogeneousProtocol?: boolean;
 }
@@ -76,9 +108,7 @@ export interface RunScope {
 }
 
 export type InstructionVersion =
-  | "governing-skill-v1"
-  | "governing-skill-v3"
-  | "neutral-skill-v4";
+  "governing-skill-v1" | "governing-skill-v3" | "neutral-skill-v4";
 
 export interface GenerationProtocol {
   /** Historical v1/v3 runs remain readable; new runs and composites must use neutral-skill-v4. */
@@ -197,6 +227,11 @@ export interface SkillResult {
 export interface RunResults {
   schemaVersion?: SchemaVersion;
   runId: string;
+  /**
+   * Explicit immutable baseline provenance copied from the v2 manifest. Absent
+   * means the run has no declared baseline; comparisons must not guess one.
+   */
+  baselineRunId?: string;
   category: string;
   version: string;
   scoredAt: string;

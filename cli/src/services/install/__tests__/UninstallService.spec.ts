@@ -9,9 +9,12 @@ import {
   LockfileService,
   SkillsLockFile,
   sha256,
+  type WorkflowCatalog,
 } from '../../LockfileService';
 import { BackupService } from '../BackupService';
 import { UninstallDeps, UninstallService } from '../UninstallService';
+import { SyncService } from '../../SyncService';
+import { CollectedSkill } from '../../../models/types';
 
 describe('UninstallService', () => {
   let tempDir: string;
@@ -573,5 +576,252 @@ describe('UninstallService', () => {
 
     expect(plan.remove).toEqual([rel]);
     expect(plan.sharedKept).toEqual([]);
+  });
+
+  describe('shared canonical workflow bodies', () => {
+    const CANONICAL = '.agents/workflows/dev-fix.md';
+    const CLAUDE_NATIVE = '.claude/commands/dev-fix.md';
+    const CODEX_NATIVE = '.codex/skills/dev-fix/SKILL.md';
+    const DEV_FIX_RAW =
+      '---\ndescription: Unified bug fixing procedure\n---\n# Dev Fix\nStep 1.\n';
+
+    /** Installs the workflow through the real sync writer in tempDir. */
+    async function installWorkflow(agents: Agent[]): Promise<SkillConfig> {
+      const config: SkillConfig = {
+        registry: 'https://github.com/owner/repo',
+        agents,
+        skills: {},
+        workflows: ['dev-fix'],
+        workflows_ref: 'workflows-v1.0.0',
+      };
+      const fixture: CollectedSkill = {
+        category: '.agents',
+        skill: 'workflows',
+        files: [{ name: 'dev-fix.md', content: DEV_FIX_RAW }],
+      };
+      const cwd = process.cwd();
+      process.chdir(tempDir);
+      try {
+        const sync = new SyncService();
+        await sync.beginInstall(config, { dryRun: false, force: [] });
+        await sync.writeWorkflows([fixture], config);
+        await sync.completeInstall(config, {
+          skills: [],
+          workflows: [fixture],
+          specialistsOk: true,
+        });
+      } finally {
+        process.chdir(cwd);
+      }
+      return config;
+    }
+
+    /** Re-runs sync after a provider-native export has been edited. */
+    async function resyncWorkflow(config: SkillConfig): Promise<void> {
+      const fixture: CollectedSkill = {
+        category: '.agents',
+        skill: 'workflows',
+        files: [{ name: 'dev-fix.md', content: DEV_FIX_RAW }],
+      };
+      const cwd = process.cwd();
+      process.chdir(tempDir);
+      try {
+        const sync = new SyncService();
+        await sync.beginInstall(config, { dryRun: false, force: [] });
+        await sync.writeWorkflows([fixture], config);
+        await sync.completeInstall(config, {
+          skills: [],
+          workflows: [fixture],
+          specialistsOk: true,
+        });
+      } finally {
+        process.chdir(cwd);
+      }
+    }
+
+    it('retains canonical body while an edited native conflict survives', async () => {
+      const config = await installWorkflow([Agent.Claude, Agent.Codex]);
+      await fs.writeFile(
+        path.join(tempDir, CLAUDE_NATIVE),
+        'edited Claude workflow export',
+      );
+      await resyncWorkflow(config);
+      const { lock } = await lockfileService.load(tempDir, []);
+      const workflow = lock?.workflowCatalog?.workflows['dev-fix'];
+      expect(workflow?.nativeConflicts).toContainEqual({
+        agent: Agent.Claude,
+        path: CLAUDE_NATIVE,
+      });
+
+      const svc = new UninstallService(
+        mockDeps,
+        lockfileService,
+        backupService,
+      );
+      const plan = await svc.plan(tempDir, config, {
+        agents: [Agent.Codex],
+      });
+
+      expect(plan.remove).not.toContain(CANONICAL);
+      await svc.apply(tempDir, config, plan);
+
+      expect(await fs.pathExists(path.join(tempDir, CANONICAL))).toBe(true);
+      expect(await fs.readFile(path.join(tempDir, CLAUDE_NATIVE), 'utf8')).toBe(
+        'edited Claude workflow export',
+      );
+      const { lock: updatedLock } = await lockfileService.load(tempDir, []);
+      expect(
+        updatedLock?.workflowCatalog?.workflows['dev-fix']?.nativeConflicts,
+      ).toContainEqual({ agent: Agent.Claude, path: CLAUDE_NATIVE });
+    });
+
+    it('removes a native conflict when its provider is uninstalled', async () => {
+      const config = await installWorkflow([Agent.Claude, Agent.Codex]);
+      await fs.writeFile(
+        path.join(tempDir, CLAUDE_NATIVE),
+        'edited Claude workflow export',
+      );
+      await resyncWorkflow(config);
+      const svc = new UninstallService(
+        mockDeps,
+        lockfileService,
+        backupService,
+      );
+
+      const plan = await svc.plan(tempDir, config, {
+        agents: [Agent.Claude],
+      });
+      expect(plan.remove).not.toContain(CANONICAL);
+      await svc.apply(tempDir, config, plan);
+
+      expect(await fs.pathExists(path.join(tempDir, CANONICAL))).toBe(true);
+      expect(await fs.pathExists(path.join(tempDir, CODEX_NATIVE))).toBe(true);
+      expect(await fs.readFile(path.join(tempDir, CLAUDE_NATIVE), 'utf8')).toBe(
+        'edited Claude workflow export',
+      );
+      const { lock } = await lockfileService.load(tempDir, []);
+      const updatedWorkflow = lock?.workflowCatalog?.workflows['dev-fix'];
+      expect(updatedWorkflow?.nativeConflicts).toEqual([]);
+      expect(
+        updatedWorkflow?.nativeBindings.map((binding) => binding.agent),
+      ).toEqual([Agent.Codex]);
+    });
+
+    it('partial uninstall removes one native binding but keeps the shared body for survivors', async () => {
+      const config = await installWorkflow([Agent.Claude, Agent.Codex]);
+      const svc = new UninstallService(
+        mockDeps,
+        lockfileService,
+        backupService,
+      );
+
+      const plan = await svc.plan(tempDir, config, {
+        agents: [Agent.Claude],
+      });
+
+      expect(plan.remove).toContain(CLAUDE_NATIVE);
+      expect(plan.remove).not.toContain(CANONICAL);
+      expect(plan.keepEdited).not.toContain(CANONICAL);
+
+      await svc.apply(tempDir, config, plan);
+
+      expect(await fs.pathExists(path.join(tempDir, CANONICAL))).toBe(true);
+      expect(await fs.pathExists(path.join(tempDir, CODEX_NATIVE))).toBe(true);
+      expect(await fs.pathExists(path.join(tempDir, CLAUDE_NATIVE))).toBe(
+        false,
+      );
+
+      const { lock } = await lockfileService.load(tempDir, []);
+      // The installed lock may carry the D4 catalog extension.
+      const lockWithCatalog = lock as
+        (SkillsLockFile & { workflowCatalog?: WorkflowCatalog }) | null;
+      const catalog = lockWithCatalog?.workflowCatalog;
+      expect(catalog?.workflows['dev-fix']).toBeDefined();
+      const bindingPaths =
+        catalog?.workflows['dev-fix'].nativeBindings.map((b) => b.path) ?? [];
+      expect(bindingPaths).toEqual([CODEX_NATIVE]);
+    });
+
+    it('keeps the shared body when one of several aliased providers is removed', async () => {
+      const config = await installWorkflow([Agent.Antigravity, Agent.Kiro]);
+      const svc = new UninstallService(
+        mockDeps,
+        lockfileService,
+        backupService,
+      );
+
+      const plan = await svc.plan(tempDir, config, {
+        agents: [Agent.Antigravity],
+      });
+
+      expect(plan.remove).not.toContain(CANONICAL);
+
+      await svc.apply(tempDir, config, plan);
+
+      expect(await fs.pathExists(path.join(tempDir, CANONICAL))).toBe(true);
+
+      const { lock } = await lockfileService.load(tempDir, []);
+      // The installed lock may carry the D4 catalog extension.
+      const lockWithCatalog = lock as
+        (SkillsLockFile & { workflowCatalog?: WorkflowCatalog }) | null;
+      const bindings =
+        lockWithCatalog?.workflowCatalog?.workflows['dev-fix'].nativeBindings ??
+        [];
+      expect(bindings.map((binding) => binding.agent)).toEqual([Agent.Kiro]);
+    });
+
+    it('removes the shared body once no surviving native binding needs it', async () => {
+      const config = await installWorkflow([Agent.Codex]);
+      const svc = new UninstallService(
+        mockDeps,
+        lockfileService,
+        backupService,
+      );
+
+      const plan = await svc.plan(tempDir, config, {
+        agents: [Agent.Codex],
+      });
+
+      expect(plan.remove).toContain(CODEX_NATIVE);
+      expect(plan.remove).toContain(CANONICAL);
+
+      await svc.apply(tempDir, config, plan);
+
+      expect(await fs.pathExists(path.join(tempDir, CODEX_NATIVE))).toBe(false);
+      expect(await fs.pathExists(path.join(tempDir, CANONICAL))).toBe(false);
+
+      const { lock } = await lockfileService.load(tempDir, []);
+      // The installed lock may carry the D4 catalog extension.
+      const lockWithCatalog = lock as
+        (SkillsLockFile & { workflowCatalog?: WorkflowCatalog }) | null;
+      expect(
+        lockWithCatalog?.workflowCatalog?.workflows['dev-fix'],
+      ).toBeUndefined();
+    });
+
+    it('full uninstall discloses an edited shared body instead of deleting it', async () => {
+      const config = await installWorkflow([Agent.Claude]);
+      const canonicalPath = path.join(tempDir, CANONICAL);
+      await fs.writeFile(canonicalPath, 'edited canonical body');
+
+      const svc = new UninstallService(
+        mockDeps,
+        lockfileService,
+        backupService,
+      );
+      const plan = await svc.plan(tempDir, config, { all: true });
+
+      expect(plan.keepEdited).toContain(CANONICAL);
+      expect(plan.deleteLock).toBe(true);
+
+      await svc.apply(tempDir, config, plan);
+
+      expect(await fs.readFile(canonicalPath, 'utf8')).toBe(
+        'edited canonical body',
+      );
+      expect(await fs.pathExists(path.join(tempDir, LOCKFILE_NAME))).toBe(
+        false,
+      );
+    });
   });
 });

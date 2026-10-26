@@ -1,7 +1,7 @@
 [extend]
 useDefault = true
 
-[allowlist]
+[[allowlists]]
 description = "Educational example code in skill reference docs — same false-positive source SkillSpector already excludes references/ for. Historical example credentials (e.g. API_KEY=prod_key_67890) look like real secrets to entropy-based rules but were never real."
 paths = [
   '''skills/.+/references/.+\.md$''',
@@ -13,4 +13,44 @@ paths = [
 # so a real secret committed there is still caught.
 regexes = [
   '''prod_key_67890''',
+]
+
+# `generic-api-key` matches the shape `<something>-api/key` + `: "<entropy>"`.
+# Content-addressed evidence artifacts have exactly that shape while holding no
+# credentials: a path and a SHA-256 digest. Every entry below is `condition = "AND"`
+# so the path narrows where the literal shape is expected — it must never be a
+# blanket allow. `regexTarget = "match"` is required: the default target is the
+# captured secret (the digest), which no pattern can tell apart from a real key.
+[[allowlists]]
+description = "Pre-integration SHA-256 digest manifest: `\"<path containing api/key>\": \"<64-hex digest>\"` is a file hash, not a credential."
+condition = "AND"
+paths = [
+  '''artifacts/runs/.+/pre-integration-snapshot\.json$''',
+]
+regexTarget = "match"
+regexes = [
+  '''[^"]+"\s*:\s*"[a-f0-9]{64}"''',
+]
+
+[[allowlists]]
+description = "Eval audit metadata: `laneKeyHash` is a SHA-256 lane identifier, not a key."
+condition = "AND"
+paths = [
+  '''artifacts/.+\.audit\.json$''',
+]
+regexTarget = "match"
+regexes = [
+  '''laneKeyHash[^:]*\s*:\s*"[a-f0-9]{64}"''',
+]
+
+[[allowlists]]
+description = "Unit-test fixture: the fake credentials below are asserted to be stripped by getSanitizedEnv(). Literal-scoped, so the same values anywhere else stay detectable."
+condition = "AND"
+paths = [
+  '''cli/src/services/harness/__tests__/HarnessDiscoveryService\.spec\.ts$''',
+]
+regexes = [
+  '''secret_key_12345''',
+  '''top_secret''',
+  '''password123''',
 ]

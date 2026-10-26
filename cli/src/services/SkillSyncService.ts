@@ -2,9 +2,15 @@ import * as yaml from 'js-yaml';
 import path from 'path';
 import pc from 'picocolors';
 import { Agent, SUPPORTED_AGENTS } from '../constants';
-import { SkillConfig, SkillEntry } from '../models/config';
-import { CollectedSkill, GitHubTreeItem } from '../models/types';
+import { SkillConfig } from '../models/config';
+import {
+  CollectedSkill,
+  GitHubTreeItem,
+  GitHubTreeResponse,
+  SkillOrigin,
+} from '../models/types';
 import { GithubService } from './GithubService';
+import { resolveSkillFolders } from './SkillSelectionService';
 import { isOverriddenRel, toPosixRel } from './install/pathMatch';
 import { InstallWriter, PassthroughWriter } from './install/OwnershipWriter';
 import { ManifestVerifier } from './install/ManifestVerifier';
@@ -37,11 +43,25 @@ export class SkillSyncService {
     categories: string[],
     config: SkillConfig,
     verifiers: Record<string, ManifestVerifier> = {},
+    /**
+     * Pre-validated trees for the exact resolved commits. When supplied, these
+     * are the authoritative source and no second fetch may replace them.
+     */
+    trees: Record<string, GitHubTreeResponse> = {},
+    /**
+     * Declaring category -> resolved source. When supplied, every collected
+     * package records its declaring ref/commit and a physical package selected
+     * from incompatible sources is rejected instead of silently overwritten.
+     */
+    origins: Record<string, { ref: string; commit: string | null }> = {},
+    requireSkillDefinition = false,
   ): Promise<CollectedSkill[]> {
     this.failedPackagesByCategory.clear();
     this.failedCategories.clear();
 
     const collected: CollectedSkill[] = [];
+    const collectedOrigins = new Map<string, SkillOrigin>();
+    const conflicts: string[] = [];
     const githubMatch = GithubService.parseGitHubUrl(config.registry);
 
     if (!githubMatch) {
@@ -55,17 +75,29 @@ export class SkillSyncService {
       const ref = catConfig.ref || 'main';
 
       console.log(pc.gray(`  - Discovering ${category} (${ref})...`));
-      const treeData = await this.githubService.getRepoTree(owner, repo, ref);
+      const treeData =
+        trees[category] ??
+        (await this.githubService.getRepoTree(owner, repo, ref));
       if (!treeData) {
         this.failedCategories.add(category);
         console.log(pc.red(`    ❌ Failed to fetch ${category}@${ref}.`));
         continue;
       }
 
-      const foldersToSync = this.identifyFoldersToSync(
+      const resolvedSource = origins[category];
+      const origin: SkillOrigin | undefined = resolvedSource
+        ? {
+            category,
+            ref: resolvedSource.ref,
+            commit: resolvedSource.commit,
+          }
+        : undefined;
+
+      const foldersToSync = resolveSkillFolders(
         category,
         catConfig,
         treeData.tree,
+        requireSkillDefinition,
       );
       for (const absOrRelSkill of foldersToSync) {
         const skill = await this.fetchSkill(
@@ -78,7 +110,25 @@ export class SkillSyncService {
           verifiers,
         );
         if (skill) {
-          collected.push(skill);
+          const collectedSkill = origin ? { ...skill, origin } : skill;
+          if (origin) {
+            const key = `${skill.category}/${skill.skill}`;
+            const previous = collectedOrigins.get(key);
+            if (previous) {
+              const sameSource =
+                previous.commit !== null
+                  ? previous.commit === origin.commit
+                  : origin.commit === null && previous.ref === origin.ref;
+              if (!sameSource) {
+                conflicts.push(
+                  `${key} (conflicting sources ${previous.category}@${previous.ref} vs ${origin.category}@${origin.ref})`,
+                );
+              }
+              continue;
+            }
+            collectedOrigins.set(key, origin);
+          }
+          collected.push(collectedSkill);
           continue;
         }
 
@@ -92,6 +142,7 @@ export class SkillSyncService {
     }
     const failures = [
       ...this.failedCategories,
+      ...conflicts,
       ...Array.from(this.failedPackagesByCategory).flatMap(
         ([category, skills]) =>
           Array.from(skills, (skill) => `${category}/${skill}`),
@@ -183,7 +234,9 @@ export class SkillSyncService {
     // an unsafe package never partially lands. Writes then go through the
     // ownership writer file by file (ADR-014): user-edited and unknown files
     // are preserved instead of the whole package directory being replaced.
-    const source = `skill:${skill.category}/${skill.skill}@${config.skills?.[skill.category]?.ref ?? 'main'}`;
+    const source = `skill:${skill.category}/${skill.skill}@${
+      skill.origin?.ref ?? config.skills?.[skill.category]?.ref ?? 'main'
+    }`;
     const pending: Array<{ target: string; content: string | Buffer }> | null =
       preflightOnly ? null : [];
     for (const fileItem of skill.files) {
@@ -266,7 +319,9 @@ export class SkillSyncService {
     const { ok: files, failed } =
       await this.githubService.downloadFilesConcurrentBytes(downloadTasks);
 
-    const verifier = verifiers[sourceCat] ?? verifiers[category];
+    // The selected category owns the fetched tree/ref; a physical category's
+    // unrelated release manifest cannot verify an imported package.
+    const verifier = verifiers[category];
     if (verifier) {
       // Repo-root LICENSE/NOTICE sit outside every release scope (the manifest
       // only covers skills/<category>), so they can never be listed. They are
@@ -312,109 +367,6 @@ export class SkillSyncService {
         bytes: file.content,
       })),
     };
-  }
-
-  private identifyFoldersToSync(
-    category: string,
-    catConfig: SkillEntry,
-    tree: GitHubTreeItem[],
-  ): string[] {
-    const hasSkillMd = tree.some(
-      (f) =>
-        f.type === 'blob' &&
-        f.path.startsWith(`skills/${category}/`) &&
-        f.path.endsWith('/SKILL.md'),
-    );
-
-    const skillFolders = new Set(
-      tree
-        .filter((f) => {
-          if (!f.path.startsWith(`skills/${category}/`)) return false;
-          if (hasSkillMd) {
-            return f.type === 'blob' && f.path.endsWith('/SKILL.md');
-          }
-          // Fallback for mocked trees or subtrees without explicit SKILL.md
-          const rel = f.path.slice(`skills/${category}/`.length);
-          return (
-            !rel.startsWith('references/') &&
-            rel !== 'references' &&
-            rel !== '_INDEX.md'
-          );
-        })
-        .map((f) => f.path.split('/')[2])
-        .filter(Boolean),
-    );
-
-    const folders = Array.from(skillFolders).filter((folder) => {
-      if (catConfig.include && !catConfig.include.includes(folder))
-        return false;
-      if (catConfig.exclude && catConfig.exclude.includes(folder)) return false;
-      return true;
-    });
-
-    if (catConfig.include) {
-      catConfig.include
-        .filter((i) => i.includes('/'))
-        .forEach((absSkill) =>
-          this.expandAbsoluteInclude(absSkill, folders, tree),
-        );
-    }
-
-    return folders;
-  }
-
-  private expandAbsoluteInclude(
-    absSkill: string,
-    folders: string[],
-    tree: GitHubTreeItem[],
-  ) {
-    const [targetCat, targetSkill] = absSkill.split('/');
-    if (!targetCat || !targetSkill) return;
-
-    if (targetSkill === '*') {
-      const hasTargetSkillMd = tree.some(
-        (f) =>
-          f.type === 'blob' &&
-          f.path.startsWith(`skills/${targetCat}/`) &&
-          f.path.endsWith('/SKILL.md'),
-      );
-      const catSkills = new Set(
-        tree
-          .filter((f) => {
-            if (!f.path.startsWith(`skills/${targetCat}/`)) return false;
-            if (hasTargetSkillMd) {
-              return f.type === 'blob' && f.path.endsWith('/SKILL.md');
-            }
-            const rel = f.path.slice(`skills/${targetCat}/`.length);
-            return (
-              !rel.startsWith('references/') &&
-              rel !== 'references' &&
-              rel !== '_INDEX.md'
-            );
-          })
-          .map((f) => f.path.split('/')[2])
-          .filter(Boolean),
-      );
-
-      catSkills.forEach((s) => {
-        const fullPath = `${targetCat}/${s}`;
-        if (!folders.includes(fullPath)) folders.push(fullPath);
-      });
-    } else if (!folders.includes(absSkill)) {
-      if (
-        tree.some((f) =>
-          f.path.startsWith(`skills/${targetCat}/${targetSkill}/`),
-        )
-      ) {
-        folders.push(absSkill);
-      } else {
-        console.log(
-          pc.yellow(
-            `    ⚠️  Absolute include ${absSkill} not found in repository.`,
-          ),
-        );
-      }
-    }
   }
 
   /**

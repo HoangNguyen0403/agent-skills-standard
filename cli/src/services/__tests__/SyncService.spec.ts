@@ -93,6 +93,8 @@ type SyncServicePrivates = {
   lockfileService: {
     load: ReturnType<typeof vi.fn>;
     write: ReturnType<typeof vi.fn>;
+    readDisclosed: ReturnType<typeof vi.fn>;
+    writeDisclosed: ReturnType<typeof vi.fn>;
     verifyEntries: ReturnType<typeof vi.fn>;
   };
   configService: {
@@ -211,20 +213,6 @@ describe('SyncService', () => {
   });
 
   describe('assembleSkills', () => {
-    it('should delegate to skillSyncService', async () => {
-      const config = makeConfig();
-      const categories = ['cat1'];
-      mockSkillSyncService.assembleSkills.mockResolvedValue([]);
-
-      await syncService.assembleSkills(categories, config);
-
-      expect(mockSkillSyncService.assembleSkills).toHaveBeenCalledWith(
-        categories,
-        config,
-        {},
-      );
-    });
-
     it('propagates an assembly failure before any write can replace lock coverage', async () => {
       const config = makeConfig({ skills: { cybersecurity: {} } });
       const failure = new Error(
@@ -703,6 +691,35 @@ describe('SyncService', () => {
     });
   });
 
+  describe('discloseCapabilities', () => {
+    it('persists unsupported-surface notices and suppresses repeats', async () => {
+      const lockfileService = privatesOf(syncService).lockfileService;
+      let disclosed: Record<string, string[]> | undefined;
+      lockfileService.readDisclosed = vi.fn(async () => disclosed);
+      lockfileService.writeDisclosed = vi.fn(
+        async (_root: string, next: Record<string, string[]>) => {
+          disclosed = next;
+        },
+      );
+      const log = vi.spyOn(console, 'log');
+      const config = makeConfig({ agents: [Agent.Trae] });
+
+      await syncService.discloseCapabilities(config);
+
+      expect(disclosed).toEqual({
+        [Agent.Trae]: ['specialists', 'hooks'],
+      });
+      expect(log.mock.calls.flat().join('\n')).toContain(
+        'Trae: specialists, hooks not supported',
+      );
+      log.mockClear();
+
+      await syncService.discloseCapabilities(config);
+
+      expect(log).not.toHaveBeenCalled();
+    });
+  });
+
   describe('checkForUpdates', () => {
     it('should check remote registry for updates', async () => {
       const config = makeConfig({
@@ -925,13 +942,15 @@ describe('SyncService', () => {
         if (pStr.endsWith(path.join('.agents', 'existing'))) return true;
         return false;
       });
-      vi.mocked(fs.readdir).mockResolvedValue(['existing'] as any);
+      vi.mocked(fs.readdir as unknown as (path: string) => Promise<string[]>)
+        .mockResolvedValueOnce(['existing'])
+        .mockResolvedValueOnce([]);
 
       await syncService.writeSkills([], makeConfig());
 
       expect(fs.copy).toHaveBeenCalledWith(
-        path.join(process.cwd(), '.agent'),
-        path.join(process.cwd(), '.agents'),
+        path.join(process.cwd(), '.agent', 'existing'),
+        path.join(process.cwd(), '.agents', 'existing'),
         expect.objectContaining({ overwrite: false, errorOnExist: false }),
       );
     });
@@ -950,19 +969,24 @@ describe('SyncService', () => {
         return false;
       });
 
-      vi.mocked(fs.readdir).mockResolvedValue(['custom-skill'] as any);
+      vi.mocked(fs.readdir as unknown as (path: string) => Promise<string[]>)
+        .mockResolvedValueOnce(['custom-skill'])
+        .mockResolvedValueOnce([]);
 
       await syncService.writeSkills([], config);
 
       expect(fs.copy).toHaveBeenCalledWith(
-        path.join(process.cwd(), '.agent'),
-        path.join(process.cwd(), '.agents'),
+        path.join(process.cwd(), '.agent', 'custom-skill'),
+        path.join(process.cwd(), '.agents', 'custom-skill'),
         expect.objectContaining({ overwrite: false, errorOnExist: false }),
+      );
+      expect(fs.remove).toHaveBeenCalledWith(
+        path.join(process.cwd(), '.agent', 'custom-skill'),
       );
       expect(fs.remove).toHaveBeenCalledWith(expect.stringMatching(/\.agent$/));
     });
 
-    it('should perform a full copy if .agents does not exist', async () => {
+    it('should perform a full migration if .agents does not exist', async () => {
       const config = makeConfig();
 
       vi.mocked(fs.pathExists).mockImplementation(async (p) => {
@@ -971,15 +995,44 @@ describe('SyncService', () => {
         if (pStr.endsWith('.agents')) return false;
         return false;
       });
+      vi.mocked(fs.readdir as unknown as (path: string) => Promise<string[]>)
+        .mockResolvedValueOnce(['legacy-skill'])
+        .mockResolvedValueOnce([]);
 
       await syncService.writeSkills([], config);
 
       expect(fs.copy).toHaveBeenCalledWith(
-        path.join(process.cwd(), '.agent'),
-        path.join(process.cwd(), '.agents'),
+        path.join(process.cwd(), '.agent', 'legacy-skill'),
+        path.join(process.cwd(), '.agents', 'legacy-skill'),
         expect.objectContaining({ overwrite: false, errorOnExist: false }),
       );
       expect(fs.remove).toHaveBeenCalledWith(expect.stringMatching(/\.agent$/));
+    });
+
+    it('should keep the .agent root when only the active sdd workspace remains', async () => {
+      const config = makeConfig();
+      vi.mocked(fs.pathExists).mockImplementation(async (p) =>
+        p.toString().endsWith('.agent'),
+      );
+      vi.mocked(fs.readdir as unknown as (path: string) => Promise<string[]>)
+        .mockResolvedValueOnce(['sdd', 'legacy-skill'])
+        .mockResolvedValueOnce(['sdd']);
+
+      await syncService.writeSkills([], config);
+
+      expect(fs.copy).toHaveBeenCalledWith(
+        path.join(process.cwd(), '.agent', 'legacy-skill'),
+        path.join(process.cwd(), '.agents', 'legacy-skill'),
+        expect.objectContaining({ overwrite: false, errorOnExist: false }),
+      );
+      expect(fs.copy).not.toHaveBeenCalledWith(
+        path.join(process.cwd(), '.agent', 'sdd'),
+        expect.anything(),
+        expect.anything(),
+      );
+      expect(fs.remove).not.toHaveBeenCalledWith(
+        expect.stringMatching(/\.agent$/),
+      );
     });
 
     it('should log debug info on migration failure when DEBUG is set', async () => {
@@ -1457,6 +1510,41 @@ describe('SyncService', () => {
       ]);
     });
 
+    it('reports unavailable manifests and continues checking other pinned sources', async () => {
+      privatesOf(syncService).lockfileService.load.mockResolvedValue({
+        lock: {
+          version: 2,
+          sources: {
+            'skills/first': { ref: 'first-v1', commit: '111' },
+            'skills/second': { ref: 'second-v1', commit: '222' },
+          },
+        },
+        migratedFromV1: false,
+      });
+      mockGithubService.getReleaseManifest
+        .mockRejectedValueOnce(new Error('registry offline'))
+        .mockRejectedValueOnce('request timed out');
+
+      const results = await syncService.verifyAttestations(
+        makeConfig({ registry: 'https://github.com/owner/repo' }),
+      );
+
+      expect(results).toEqual([
+        {
+          key: 'skills/first',
+          ref: 'first-v1',
+          ok: false,
+          detail: 'MANIFEST unavailable: registry offline',
+        },
+        {
+          key: 'skills/second',
+          ref: 'second-v1',
+          ok: false,
+          detail: 'MANIFEST unavailable: request timed out',
+        },
+      ]);
+    });
+
     // Test intent: verifies attestations with custom exec returning code 0
     it('verifyAttestations verifies attestations successfully when gh command succeeds', async () => {
       privatesOf(syncService).lockfileService.load.mockResolvedValue({
@@ -1686,9 +1774,9 @@ describe('SyncService', () => {
       vi.mocked(fs.pathExists).mockImplementation(async (p) =>
         p.toString().endsWith('.md'),
       );
-      vi.mocked(fs.readdir).mockResolvedValue([
-        'sibling-file.md',
-      ] as unknown as string[]);
+      vi.mocked(
+        fs.readdir as unknown as (path: string) => Promise<string[]>,
+      ).mockResolvedValue(['sibling-file.md']);
       vi.mocked(fs.readFile).mockImplementation(async (p) => {
         const pStr = p.toString();
         if (pStr.includes('spec.md')) return specContent;

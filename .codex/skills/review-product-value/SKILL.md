@@ -39,6 +39,7 @@ Goal: Evaluate post-release product value by comparing observed outcomes against
    - Emit `REV` record with recommendation: `scale | iterate | stop | inconclusive`. Record explicit limitations. `REV.decision` is historical attribution only; any capital, roadmap, or retirement action requires a separate recorded `value_review` / host decision.
    - Recommendations are advisory; emit host decision needed for any capital, roadmap, or retirement action.
    - Preserved delivery invariant: keep delivery `feature_status` (e.g. `released` or `verified`) unchanged even when product value is inconclusive; never set `blocked` for product-evidence gaps alone.
+   - When a limitation needs diagnosis, consult `skills/product-management/product-metrics/references/value-review-protocol.md#7-limitation-diagnosis`; use its canonical owner rather than duplicating diagnosis rules here.
 
 ## Runtime Contract
 

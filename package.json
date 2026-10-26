@@ -1,6 +1,6 @@
 {
   "name": "agent-skills-standard-root",
-  "version": "2.6.6",
+  "version": "2.7.0",
   "private": true,
   "packageManager": "pnpm@10.0.0",
   "pnpm": {
@@ -149,7 +149,9 @@
       "fast-uri": ">=3.1.8",
       "proxy-addr": "2.0.8",
       "fast-copy": "4.1.0",
-      "source-map-js": ">=1.2.2"
+      "source-map-js": ">=1.2.2",
+      "express@5>body-parser": "2.4.0",
+      "multer": "2.5.0"
     }
   }
 }

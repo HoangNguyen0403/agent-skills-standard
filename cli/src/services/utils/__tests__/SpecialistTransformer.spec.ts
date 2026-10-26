@@ -112,11 +112,6 @@ describe('SpecialistTransformer', () => {
   });
 
   describe('permission projection', () => {
-    const withRiskTier = (riskTier: string, extra = '') =>
-      specialistSource(
-        `description: "reviews code"\nrisk_tier: ${riskTier}${extra}`,
-      );
-
     it('projects allowed-tools onto Claude tools: when metadata.tools is absent', () => {
       const source = specialistSource(
         `description: "reviews code"\nallowed-tools:\n  - Read\n  - Grep`,
@@ -152,45 +147,277 @@ describe('SpecialistTransformer', () => {
       expect(fm.tools).toBe('Bash');
     });
 
-    it('maps risk_tier L0/L1 to Codex sandbox_mode "read-only"', () => {
-      const result = SpecialistTransformer.transform(
-        withRiskTier('L1'),
-        Agent.Codex,
-      );
-      expect(result!.content).toContain('sandbox_mode = "read-only"');
-    });
-
-    it('maps risk_tier L2/L3 to Codex sandbox_mode "workspace-write", never auto-escalating to danger-full-access', () => {
-      const l2 = SpecialistTransformer.transform(
-        withRiskTier('L2'),
-        Agent.Codex,
-      );
-      expect(l2!.content).toContain('sandbox_mode = "workspace-write"');
-      expect(l2!.content).not.toContain('danger-full-access');
-
-      const l3 = SpecialistTransformer.transform(
-        withRiskTier('L3'),
-        Agent.Codex,
-      );
-      expect(l3!.content).toContain('sandbox_mode = "workspace-write"');
-      expect(l3!.content).not.toContain('danger-full-access');
-    });
-
-    it('flags unenforceable allowed-tools/permissions in a Codex TOML comment', () => {
+    it('does not claim Codex sandbox enforcement it cannot project', () => {
+      // Codex custom-agent files inherit sandbox/approval policy from the
+      // parent session; a `sandbox_mode` key in the file is not applied.
       const source = specialistSource(
-        `description: "reviews code"\nrisk_tier: L2\nallowed-tools:\n  - Bash`,
+        `description: "reviews code"\nrisk_tier: L2\nallowed-tools:\n  - Bash\npermissions:\n  filesystem: write`,
       );
       const result = SpecialistTransformer.transform(source, Agent.Codex);
-      expect(result!.content).toContain('# ags:');
+      expect(result).not.toBeNull();
+      expect(result!.content).not.toContain('sandbox_mode');
+      expect(result!.content).not.toContain('danger-full-access');
+      expect(result!.projection.projected).toEqual([]);
+      expect(result!.projection.unprojected.sort()).toEqual([
+        'allowed-tools',
+        'permissions.filesystem',
+        'risk_tier',
+      ]);
+      // Declared-but-unprojected controls stay visible to the reader.
+      expect(result!.content).toContain('risk_tier');
+      expect(result!.content).toContain('permissions.filesystem');
+    });
+
+    it('emits a Copilot custom agent definition with required metadata and projected tools', () => {
+      const source = specialistSource(
+        `description: "reviews code"\nallowed-tools:\n  - Read\n  - Grep`,
+      );
+      const result = SpecialistTransformer.transform(source, Agent.Copilot);
+      expect(result).not.toBeNull();
+      expect(result!.name).toBe('example.agent.md');
+
+      const frontmatterMatch = result!.content.match(
+        /^---\r?\n([\s\S]*?)\r?\n---/,
+      );
+      expect(frontmatterMatch).not.toBeNull();
+      const fm = yaml.load(frontmatterMatch![1]) as Record<string, unknown>;
+      expect(fm.description).toBe('reviews code');
+      // Documented Copilot aliases: Read -> read, Grep -> search. Copying the
+      // Claude vocabulary verbatim is not a valid allowlist claim.
+      expect(fm.tools).toEqual(['read', 'search']);
+      expect(fm).not.toHaveProperty('applyTo');
+      expect(result!.projection).toEqual({
+        projected: ['allowed-tools'],
+        unprojected: [],
+      });
+    });
+
+    it('deduplicates Copilot aliases case-insensitively while preserving first-seen order', () => {
+      const source = specialistSource(
+        `description: "reviews code"\nallowed-tools:\n  - Read\n  - NotebookRead\n  - BASH\n  - Shell`,
+      );
+      const result = SpecialistTransformer.transform(source, Agent.Copilot);
+      if (!result) throw new Error('Expected a Copilot agent export');
+      const frontmatterMatch = result.content.match(
+        /^---\r?\n([\s\S]*?)\r?\n---/,
+      );
+      if (!frontmatterMatch) throw new Error('Expected YAML frontmatter');
+      const fm = yaml.load(frontmatterMatch[1]) as Record<string, unknown>;
+
+      expect(fm.tools).toEqual(['read', 'execute']);
+      expect(result.projection).toEqual({
+        projected: ['allowed-tools'],
+        unprojected: [],
+      });
+    });
+
+    it('discloses Copilot tool names with no documented alias instead of echoing them', () => {
+      const source = specialistSource(
+        `description: "reviews code"\nallowed-tools:\n  - Read\n  - TotallyUnknownTool`,
+      );
+      const result = SpecialistTransformer.transform(source, Agent.Copilot);
+      expect(result).not.toBeNull();
+
+      const frontmatterMatch = result!.content.match(
+        /^---\r?\n([\s\S]*?)\r?\n---/,
+      );
+      expect(frontmatterMatch).not.toBeNull();
+      const fm = yaml.load(frontmatterMatch![1]) as Record<string, unknown>;
+      expect(fm.tools).toEqual(['read']);
+      expect(result!.projection).toEqual({
+        projected: ['allowed-tools'],
+        unprojected: ['tool:TotallyUnknownTool'],
+      });
+      expect(result!.content).toContain('TotallyUnknownTool');
+    });
+
+    it('emits an empty Copilot allowlist instead of omitting tools for an all-unknown declaration', () => {
+      const source = specialistSource(
+        `description: "reviews code"\nallowed-tools:\n  - Nope\n  - AlsoNope`,
+      );
+      const result = SpecialistTransformer.transform(source, Agent.Copilot);
+      expect(result).not.toBeNull();
+
+      const frontmatterMatch = result!.content.match(
+        /^---\r?\n([\s\S]*?)\r?\n---/,
+      );
+      expect(frontmatterMatch).not.toBeNull();
+      const fm = yaml.load(frontmatterMatch![1]) as Record<string, unknown>;
+      // Omitting `tools` would grant every tool; `[]` disables them.
+      expect(fm).toHaveProperty('tools');
+      expect(fm.tools).toEqual([]);
+      expect(result!.projection).toEqual({
+        projected: [],
+        unprojected: ['tool:Nope', 'tool:AlsoNope'],
+      });
+    });
+
+    it('preserves an explicitly empty Copilot allowlist instead of omitting tools', () => {
+      const source = specialistSource(`description: "reviews code"\ntools: []`);
+      const result = SpecialistTransformer.transform(source, Agent.Copilot);
+      expect(result).not.toBeNull();
+
+      const frontmatterMatch = result!.content.match(
+        /^---\r?\n([\s\S]*?)\r?\n---/,
+      );
+      expect(frontmatterMatch).not.toBeNull();
+      const fm = yaml.load(frontmatterMatch![1]) as Record<string, unknown>;
+      expect(fm).toHaveProperty('tools');
+      expect(fm.tools).toEqual([]);
+      expect(result!.projection).toEqual({
+        projected: ['tools'],
+        unprojected: [],
+      });
+    });
+
+    it('lets native tools win over allowed-tools and discloses the ignored declaration', () => {
+      const source = specialistSource(
+        `description: "reviews code"\ntools:\n  - Read\nallowed-tools:\n  - Grep`,
+      );
+      const result = SpecialistTransformer.transform(source, Agent.Copilot);
+      expect(result).not.toBeNull();
+
+      const frontmatterMatch = result!.content.match(
+        /^---\r?\n([\s\S]*?)\r?\n---/,
+      );
+      expect(frontmatterMatch).not.toBeNull();
+      const fm = yaml.load(frontmatterMatch![1]) as Record<string, unknown>;
+      // Only one field is projected; the other is never claimed as projected.
+      expect(fm.tools).toEqual(['read']);
+      expect(result!.projection).toEqual({
+        projected: ['tools'],
+        unprojected: ['allowed-tools'],
+      });
+      expect(result!.content).toContain('allowed-tools');
+      expect(result!.content).toContain('Grep');
+    });
+
+    it('discloses Gemini tool restrictions it does not map instead of inventing a tool vocabulary', () => {
+      const source = specialistSource(
+        `description: "reviews code"\nallowed-tools:\n  - Read`,
+      );
+      const result = SpecialistTransformer.transform(source, Agent.Gemini);
+      expect(result).not.toBeNull();
+      expect(result!.projection).toEqual({
+        projected: [],
+        unprojected: ['allowed-tools', 'tool:Read'],
+      });
       expect(result!.content).toContain('allowed-tools');
     });
 
-    it('does not add a warning comment for Codex when only risk_tier is declared', () => {
-      const result = SpecialistTransformer.transform(
-        withRiskTier('L2'),
-        Agent.Codex,
+    it('projects a native Gemini tools list verbatim, including an explicit empty list', () => {
+      const withTools = SpecialistTransformer.transform(
+        specialistSource(
+          `description: "reviews code"\ntools:\n  - read_file\n  - grep_search`,
+        ),
+        Agent.Gemini,
       );
-      expect(result!.content).not.toContain('# ags:');
+      const frontmatter = (content: string) =>
+        yaml.load(content.match(/^---\r?\n([\s\S]*?)\r?\n---/)![1]) as Record<
+          string,
+          unknown
+        >;
+
+      expect(frontmatter(withTools!.content).tools).toEqual([
+        'read_file',
+        'grep_search',
+      ]);
+      expect(withTools!.projection).toEqual({
+        projected: ['tools'],
+        unprojected: [],
+      });
+
+      const empty = SpecialistTransformer.transform(
+        specialistSource('description: "reviews code"\ntools: []'),
+        Agent.Gemini,
+      );
+      const emptyFm = frontmatter(empty!.content);
+      expect(emptyFm).toHaveProperty('tools');
+      expect(emptyFm.tools).toEqual([]);
+      expect(empty!.projection).toEqual({
+        projected: ['tools'],
+        unprojected: [],
+      });
+    });
+
+    it('does not warn that Gemini native tools are unenforceable while preserving other disclosures', () => {
+      const result = SpecialistTransformer.transform(
+        specialistSource(
+          `description: "reviews code"\ntools:\n  - read_file\npermissions:\n  filesystem: write`,
+        ),
+        Agent.Gemini,
+      );
+      expect(result).not.toBeNull();
+      expect(result!.content).toContain('permissions.filesystem');
+      expect(result!.content).not.toContain('tools: ["read_file"]');
+      expect(result!.projection).toEqual({
+        projected: ['tools'],
+        unprojected: ['permissions.filesystem'],
+      });
+    });
+
+    it('discloses network permissions when Gemini has no native tools declaration', () => {
+      const result = SpecialistTransformer.transform(
+        specialistSource(
+          `description: "reviews code"\npermissions:\n  network: true`,
+        ),
+        Agent.Gemini,
+      );
+      if (!result) throw new Error('Expected a Gemini agent export');
+
+      expect(result.projection).toEqual({
+        projected: [],
+        unprojected: ['permissions.network'],
+      });
+      expect(result.content).toContain('permissions.network: true');
+      expect(result.content).not.toContain('tools:');
+    });
+
+    it('reports which Claude controls it projected and which remain disclosures', () => {
+      const source = specialistSource(
+        `description: "reviews code"\nallowed-tools:\n  - Read\npermissions:\n  filesystem: write`,
+      );
+      const result = SpecialistTransformer.transform(source, Agent.Claude);
+      expect(result).not.toBeNull();
+      expect(result!.projection.projected).toEqual(['allowed-tools']);
+      expect(result!.projection.unprojected).toEqual([
+        'permissions.filesystem',
+      ]);
+    });
+
+    // Test intent: Claude's disclosure must not present AGS `risk_tier`
+    // classification as an unenforceable permission, and must never call the
+    // native tool list it projected unenforceable.
+    it('separates Claude risk_tier classification metadata from unenforceable permission controls', () => {
+      const source = specialistSource(
+        `description: "reviews code"\nrisk_tier: L2\nallowed-tools:\n  - Read\npermissions:\n  filesystem: write`,
+      );
+      const result = SpecialistTransformer.transform(source, Agent.Claude);
+      if (!result) throw new Error('Expected a Claude agent export');
+      expect(result.projection).toEqual({
+        projected: ['allowed-tools'],
+        unprojected: ['risk_tier', 'permissions.filesystem'],
+      });
+
+      const frontmatterMatch = result.content.match(
+        /^---\r?\n[\s\S]*?\r?\n---\r?\n/,
+      );
+      expect(frontmatterMatch).not.toBeNull();
+      const disclosure = result.content.slice(frontmatterMatch![0].length);
+      const comments = disclosure.match(/<!--[^>]*-->/g) ?? [];
+      const classification = comments.find((comment) =>
+        comment.includes('classification metadata'),
+      );
+      const permissions = comments.find((comment) =>
+        comment.includes('permissions not enforceable'),
+      );
+
+      expect(classification).toContain('risk_tier: L2');
+      expect(classification).toContain('not a Claude-enforced permission');
+      expect(permissions).toContain('permissions.filesystem');
+      expect(permissions).not.toContain('risk_tier');
+      expect(disclosure).not.toContain('allowed-tools');
+      expect(disclosure).not.toContain('tools:');
     });
 
     it('adds no warning comment on those platforms when nothing risk-relevant is declared', () => {
@@ -281,39 +508,17 @@ describe('SpecialistTransformer', () => {
       }
     });
 
-    it('exports all canonical writing specialists to Codex with workspace-write and never danger-full-access', () => {
-      for (const writerName of EXPECTED_WRITERS) {
-        const source = loadCanonicalSpecialist(writerName);
-        const codexResult = SpecialistTransformer.transform(
-          source,
+    it('never claims Codex sandbox enforcement for canonical specialists', () => {
+      for (const name of [...EXPECTED_WRITERS, ...EXPECTED_READ_ONLY]) {
+        const result = SpecialistTransformer.transform(
+          loadCanonicalSpecialist(name),
           Agent.Codex,
         );
 
-        expect(codexResult).not.toBeNull();
-        expect(codexResult!.content).toContain(
-          'sandbox_mode = "workspace-write"',
-        );
-        expect(codexResult!.content).not.toContain(
-          'sandbox_mode = "read-only"',
-        );
-        expect(codexResult!.content).not.toContain('danger-full-access');
-      }
-    });
-
-    it('exports all canonical reviewer, analysis, and discovery specialists to Codex with read-only sandbox mode', () => {
-      for (const reviewerName of EXPECTED_READ_ONLY) {
-        const source = loadCanonicalSpecialist(reviewerName);
-        const codexResult = SpecialistTransformer.transform(
-          source,
-          Agent.Codex,
-        );
-
-        expect(codexResult).not.toBeNull();
-        expect(codexResult!.content).toContain('sandbox_mode = "read-only"');
-        expect(codexResult!.content).not.toContain(
-          'sandbox_mode = "workspace-write"',
-        );
-        expect(codexResult!.content).not.toContain('danger-full-access');
+        expect(result).not.toBeNull();
+        expect(result!.content).not.toContain('sandbox_mode');
+        expect(result!.content).not.toContain('danger-full-access');
+        expect(result!.projection.projected).toEqual([]);
       }
     });
 
@@ -321,7 +526,6 @@ describe('SpecialistTransformer', () => {
       const source = loadCanonicalSpecialist('specialist-tdd-implementer');
       const cases = [
         { agent: Agent.Cursor, key: 'globs', value: ['**/*'] },
-        { agent: Agent.Copilot, key: 'applyTo', value: '**/*' },
         { agent: Agent.OpenCode, key: 'mode', value: 'subagent' },
         { agent: Agent.Gemini, key: 'kind', value: 'local' },
         { agent: Agent.Kiro, key: 'name', value: 'tdd-implementer' },

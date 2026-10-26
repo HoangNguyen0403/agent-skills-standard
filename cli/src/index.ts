@@ -9,6 +9,7 @@ import { FeedbackCommand } from './commands/feedback';
 import { HooksCommand } from './commands/hooks';
 import { InitCommand } from './commands/init';
 import { ListSkillsCommand } from './commands/list-skills';
+import { SkillsCommand } from './commands/skills';
 import { McpCommand } from './commands/mcp';
 import { SyncCommand } from './commands/sync';
 import { AuditCommand } from './commands/audit';
@@ -146,6 +147,15 @@ program
   .action(async (options) => {
     const cmd = new ListSkillsCommand();
     await cmd.run(options);
+  });
+
+program
+  .command('skills')
+  .description(
+    'Interactively select categories and nested skills, then save and sync them to every configured agent',
+  )
+  .action(async () => {
+    await new SkillsCommand().run();
   });
 
 program

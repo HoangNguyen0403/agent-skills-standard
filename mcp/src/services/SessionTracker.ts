@@ -13,18 +13,18 @@ export interface LoadEvent {
     | "get_session_cost";
   /** Input passed to the tool (files, keywords, or single id). */
   input: string[];
-  /** IDs returned as full bodies or dedup stubs; see `dedupedSkills` for stubs. */
+  /** IDs whose full bodies were returned by this call. */
   loaded: string[];
+  /** IDs selected by routing/keyword matching, even when the body could not be read. */
+  selected?: string[];
+  /** SHA-256 of each raw skill body returned, keyed by `category/id`. */
+  bodyDigests?: Record<string, string>;
   /** Catalog IDs enumerated by this call, not returned body content. */
   discovered?: string[];
   /** Category-guide bodies actually returned by this call. */
   loadedGuides?: string[];
   /** Estimated tokens (chars/4) of skill bodies returned IN FULL this call. */
   estimatedTokens?: number;
-  /** Skills already loaded this session that were returned as a stub instead of a full body. */
-  dedupedSkills?: string[];
-  /** Estimated tokens (chars/4) saved by stubbing already-loaded skills this call. */
-  estimatedTokensSaved?: number;
 }
 
 export interface SessionSummary {
@@ -41,10 +41,8 @@ export interface SessionSummary {
 export interface SkillContextCost {
   /** Sum of estimated tokens for every full skill body returned this session. */
   totalEstimatedTokens: number;
-  /** Number of distinct skills that were deduped (stubbed) at least once. */
-  dedupedSkillCount: number;
-  /** Sum of estimated tokens saved by returning a stub instead of a full body. */
-  estimatedTokensSaved: number;
+  /** Total skill body returns, counting repeats (not unique skills). */
+  bodyReturnCount: number;
 }
 
 /**
@@ -66,17 +64,25 @@ export class SessionTracker {
     this.events.push({ at: new Date().toISOString(), ...event });
   }
 
-  /** Unique skill bodies loaded so far, formatted as `category/id`. */
+  /** Unique skill bodies returned so far, formatted as `category/id`. */
   loadedSkills(): string[] {
-    const set = new Set<string>();
+    return this.uniqueSkillKeys(this.events.flatMap((event) => event.loaded));
+  }
+
+  /** Unique skills selected by matching so far, whether or not their body was returned. */
+  selectedSkills(): string[] {
+    return this.uniqueSkillKeys(
+      this.events.flatMap((event) => event.selected ?? []),
+    );
+  }
+
+  /** Latest SHA-256 digest observed for each skill body returned this session. */
+  bodyDigests(): Record<string, string> {
+    const digests: Record<string, string> = {};
     for (const event of this.events) {
-      for (const skill of event.loaded) {
-        if (!skill.startsWith("workflow/") && !skill.startsWith("category/")) {
-          set.add(skill);
-        }
-      }
+      Object.assign(digests, event.bodyDigests ?? {});
     }
-    return Array.from(set).sort();
+    return digests;
   }
 
   /** Unique workflows loaded so far, formatted as `workflow/name`. */
@@ -142,21 +148,15 @@ export class SessionTracker {
     return [...this.events];
   }
 
-  /** Aggregate skill-context token cost and dedup savings across the session. */
+  /** Aggregate returned skill-body cost across the session. */
   skillContextCost(): SkillContextCost {
     let totalEstimatedTokens = 0;
-    let estimatedTokensSaved = 0;
-    const dedupedSkills = new Set<string>();
+    let bodyReturnCount = 0;
     for (const e of this.events) {
       totalEstimatedTokens += e.estimatedTokens ?? 0;
-      estimatedTokensSaved += e.estimatedTokensSaved ?? 0;
-      for (const s of e.dedupedSkills ?? []) dedupedSkills.add(s);
+      bodyReturnCount += e.loaded.filter((key) => this.isSkillKey(key)).length;
     }
-    return {
-      totalEstimatedTokens,
-      dedupedSkillCount: dedupedSkills.size,
-      estimatedTokensSaved,
-    };
+    return { totalEstimatedTokens, bodyReturnCount };
   }
 
   startedAt_(): string {
@@ -172,6 +172,16 @@ export class SessionTracker {
 
   costContext_(): CostContext {
     return { ...this.costContext };
+  }
+
+  private isSkillKey(key: string): boolean {
+    return !key.startsWith("workflow/") && !key.startsWith("category/");
+  }
+
+  private uniqueSkillKeys(keys: string[]): string[] {
+    return Array.from(
+      new Set(keys.filter((key) => this.isSkillKey(key))),
+    ).sort();
   }
 
   private emptyCallCounts(): Record<LoadEvent["via"], number> {

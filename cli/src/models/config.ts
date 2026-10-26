@@ -55,6 +55,14 @@ export interface SkillConfig {
   skills: {
     [key: string]: SkillEntry;
   };
+  /**
+   * Skill reconciliation policy for ordinary sync.
+   * - `auto` (default when omitted) — detection may re-add removed categories
+   *   and re-enable excluded skills.
+   * - `explicit` — configured include/exclude choices are authoritative;
+   *   ordinary sync must not re-add removed detected categories.
+   */
+  skills_mode?: 'auto' | 'explicit';
   /** Whether to sync workflows, or a specific list of workflow names */
   workflows?: boolean | string[];
   /** List of file paths to PROTECT from being overwritten by sync */

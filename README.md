@@ -118,13 +118,23 @@ npx agent-skills-standard@latest sync
 - **Restore**: Undo destructive changes with `ags restore <id>` or view backups with `ags restore --list`.
 - **Safe Uninstall**: `ags uninstall [--all] [--agent <agents...>] [--category <categories...>]` removes only owned-unchanged files, preserving user edits and backing up first.
 
-### 3. Code
+### 3. (Optional) Manage skill selections
+
+Add or remove guidance without editing YAML or looking up release tags:
+
+```bash
+npx agent-skills-standard@latest skills
+```
+
+Categories are checked from your current `.skillsrc`; newly enabled categories resolve their published release automatically, while existing pins stay untouched. Optionally customize nested skills (with search) or switch a category to its published release, review the full effect, then confirm once — the command saves the selection and installs it for every configured agent. Cancel or an unchanged selection writes nothing. On a real change the command records `skills_mode: explicit`, so a later ordinary `sync` will not silently re-add the categories or skills you removed.
+
+### 4. Code
 
 Your AI agent now reads `AGENTS.md` automatically. Skills activate based on what file you're editing and what you ask for.
 
 > **Works instantly** with Cursor, Claude Code, GitHub Copilot, Gemini CLI, Windsurf, Trae, Kiro, and Roo. No plugin or extension needed — the CLI generates each agent's native format.
 
-### 4. (Optional) Enable runtime enforcement via the MCP server
+### 5. (Optional) Enable runtime enforcement via the MCP server
 
 The CLI **distributes** skills to disk. The companion MCP server **serves** them to your AI agent at runtime as explicit tool calls — closing the gap where agents read `AGENTS.md` but forget to load matched `SKILL.md` files (especially in sub-agents).
 
@@ -296,6 +306,9 @@ The `.skillsrc` file controls what gets synced:
 ```yaml
 registry: https://github.com/HoangNguyen0403/agent-skills-standard
 agents: [cursor, copilot, claude, gemini]
+# `ags skills` records explicit mode after a real selection change so ordinary
+# sync no longer re-adds categories you deliberately removed.
+# skills_mode: explicit
 # Standard registry skills
 skills:
   flutter:
@@ -335,6 +348,8 @@ workflows:
 ```
 
 Workflows sync to the native surface for each selected agent. Keep `.agents/workflows` as the canonical source in this registry; Codex receives generated workflow skills under `.codex/skills/<workflow>/SKILL.md`.
+
+Every configured provider, including a provider-only install, gets the canonical workflow body installed once at `.agents/workflows/<name>.md`, and native exports are derived from that same content. `.skills-lock.json` records the verified catalog (path, digest, registry ref, resolved commit and native bindings), so MCP `list_workflows` / `get_workflow` return what native invocation actually installed. A native export whose bytes differ from the deterministic output (user edit, unowned file, or another alias at the same path) is stored as a conflict instead of a verified binding, so parity is not claimed. Lookup reports `managed`, `local_source` (no lock; no parity claim), `unverified` (lock without catalog metadata; run `ags sync`) or `unavailable` — an absent workflow is never replaced by unrelated content. An interrupted or partial sync keeps the previous catalog instead of claiming alignment.
 
 ---
 
@@ -456,9 +471,9 @@ The agent reads `AGENTS.md` (maybe), walks the router (maybe), reads the matched
 | `common-api-design` (status codes, pagination)                         | ✅ Loaded via composite       | ❌ Almost never                       |
 | `common-security-standards` (input validation, auth)                   | ✅ Loaded via composite       | ❌ Almost never                       |
 | Provable audit log of what informed the code                           | ✅ `audit_session_compliance` | ❌ None                               |
-| Behavior in sub-agents (`tdd-implementer`, `architecture-guard`, etc.) | ✅ Same as orchestrator       | ❌ Worse — sub-agents inherit nothing |
+| Behavior in sub-agents (`tdd-implementer`, `architecture-guard`, etc.) | ✅ Complete body per request    | ❌ Worse — sub-agents inherit nothing |
 
-That's the reason the MCP exists: the rules **automatically reach the working context** every time, in every runtime, including sub-agents.
+That's the reason the MCP exists: every request returns the complete matched bodies, read at request time, so one actor's earlier lookup can never suppress another context's instructions. Host propagation, scheduled invocation and enforcement remain host-owned; the MCP records selection and returned bodies, not comprehension.
 
 ### 🤖 Sub-Agents & Specialists
 
@@ -466,7 +481,8 @@ Agent Skills Standard supports **Specialist Sub-Agents**. These are focused pers
 
 - **Strict Budget**: Specialists have one role, bounded tool/file usage, structured output, and no nested sub-agent spawning.
 - **Context Hygiene**: By delegating to a sub-agent, the "noise" of granular implementation stays out of your main chat context.
-- **Unified Sync**: Specialists sync to native agent folders such as `.claude/agents`, `.codex/agents`, `.cursor/agents`, `.gemini/agents`, and `.github/copilot-agents`.
+- **Unified Sync**: Specialists sync to native agent folders such as `.claude/agents`, `.codex/agents`, `.cursor/agents`, `.gemini/agents`, `.opencode/agents`, and `.github/agents` (`<name>.agent.md` for Copilot). Serialized definitions are not proof of runtime support: native delegation status is version-, revision- and control-scoped, and reported as `not_verified` until live execution evidence exists.
+- **Projected controls**: Copilot maps only documented tool aliases (and writes `tools: []` for a declared all-unknown allowlist); Claude projects native and universal tool names; Gemini projects a declared native `tools` list verbatim, including an explicit empty one; Codex and OpenCode disclose declared restrictions instead of emitting unenforced keys.
 
 ---
 

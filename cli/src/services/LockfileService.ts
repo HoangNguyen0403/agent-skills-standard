@@ -1,10 +1,19 @@
 import { createHash } from 'node:crypto';
 import fs from 'fs-extra';
+import * as yaml from 'js-yaml';
 import path from 'path';
+import { z } from 'zod';
 import { Agent, getAgentDefinition } from '../constants';
 
 export const LOCKFILE_NAME = '.skills-lock.json';
 export type Owner = 'skill' | 'workflow' | 'specialist' | 'bridge' | 'index';
+
+/**
+ * Reserved ownership agent for the shared canonical workflow body installed at
+ * `.agents/workflows/*.md`. It is not a provider and must never be added to the
+ * `Agent` enumeration.
+ */
+export const SHARED_WORKFLOW_AGENT = 'shared';
 
 export interface ManifestEntry {
   owner: Owner;
@@ -18,6 +27,45 @@ export interface SourceRef {
   commit: string | null;
 }
 
+export interface WorkflowCatalogBinding {
+  /** Provider whose native export was generated from the canonical body. */
+  agent: string;
+  /** Bounded project-relative native output path. */
+  path: string;
+  /** Digest of the deterministic generated export. */
+  outputDigest: string;
+  /** Digest of the canonical body that generated this export. */
+  canonicalDigest: string;
+}
+
+export interface WorkflowCatalogBindingConflict {
+  /** Provider whose expected native export could not be verified. */
+  agent: string;
+  /** Bounded project-relative native output path. */
+  path: string;
+}
+
+export interface WorkflowCatalogWorkflow {
+  /** Bounded project-relative canonical body path. */
+  path: string;
+  digest: string;
+  registry: string;
+  requestedRef: string;
+  resolvedCommit: string | null;
+  /**
+   * Verified native exports. Several providers may alias the same physical
+   * output path (e.g. Antigravity and Kiro), provided their digests agree.
+   */
+  nativeBindings: WorkflowCatalogBinding[];
+  /** Expected exports whose on-disk bytes could not be verified. */
+  nativeConflicts?: WorkflowCatalogBindingConflict[];
+}
+
+export interface WorkflowCatalog {
+  version: 1;
+  workflows: Record<string, WorkflowCatalogWorkflow>;
+}
+
 export interface SkillsLockFile {
   version: 2;
   registry: string;
@@ -25,6 +73,7 @@ export interface SkillsLockFile {
   sources: Record<string, SourceRef>;
   entries: Record<string, ManifestEntry>;
   disclosed?: Record<string, string[]>;
+  workflowCatalog?: WorkflowCatalog;
 }
 
 export interface LoadedLock {
@@ -42,6 +91,275 @@ export function sha256(content: Buffer | string): string {
   return createHash('sha256')
     .update(content, Buffer.isBuffer(content) ? undefined : 'utf8')
     .digest('hex');
+}
+
+/**
+ * Reads JSON through the existing YAML core parser first so duplicate object
+ * keys are rejected before `JSON.parse` silently keeps the last value. The
+ * returned value still comes from strict JSON parsing.
+ */
+export async function readJsonStrict(file: string): Promise<unknown> {
+  const text = await fs.readFile(file, 'utf8');
+  try {
+    yaml.load(text);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (/duplicated mapping key/i.test(message)) {
+      throw new Error('Invalid .skills-lock.json: duplicate JSON keys', {
+        cause: error,
+      });
+    }
+    throw new Error(`Invalid .skills-lock.json: ${message}`, { cause: error });
+  }
+  return JSON.parse(text);
+}
+
+const lockV2Schema = z
+  .object({
+    version: z.literal(2),
+    registry: z.string(),
+    generatedAt: z.string(),
+    sources: z.record(
+      z.string(),
+      z.object({ ref: z.string(), commit: z.string().nullable() }),
+    ),
+    entries: z.record(
+      z.string(),
+      z.object({
+        owner: z.enum(['skill', 'workflow', 'specialist', 'bridge', 'index']),
+        source: z.string(),
+        agent: z.string(),
+        sha256: z.string(),
+      }),
+    ),
+    disclosed: z.record(z.string(), z.array(z.string())).optional(),
+    workflowCatalog: z.unknown().optional(),
+  })
+  .passthrough();
+
+const lockVersionProbe = z.object({ version: z.unknown() });
+
+/**
+ * Validates the complete outer v2 shape with a schema, then applies the
+ * catalog-specific checks. No partially checked object is asserted as a lock.
+ */
+function parseLockV2(raw: unknown): SkillsLockFile {
+  const parsed = lockV2Schema.safeParse(raw);
+  if (!parsed.success) {
+    const issue = parsed.error.issues[0];
+    const where = issue?.path.length ? issue.path.join('.') : 'root';
+    throw new Error(
+      `Invalid .skills-lock.json: ${where} ${issue?.message ?? 'is invalid'}`,
+    );
+  }
+  const { workflowCatalog: rawCatalog, ...rest } = parsed.data;
+  return {
+    ...rest,
+    ...(rawCatalog === undefined
+      ? {}
+      : { workflowCatalog: validateWorkflowCatalog(rawCatalog) }),
+  };
+}
+
+const DIGEST_RE = /^[a-f0-9]{64}$/;
+const WORKFLOW_NAME_RE = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
+
+function isBoundedRelativePath(value: unknown): value is string {
+  if (typeof value !== 'string' || value.length === 0) return false;
+  if (value.includes('\0') || value.includes('\\')) return false;
+  if (path.posix.isAbsolute(value) || path.isAbsolute(value)) return false;
+  // Reject any non-canonical form (`a/../b`, `a//b`, `./a`, trailing slash).
+  if (path.posix.normalize(value) !== value) return false;
+  return !value.split('/').includes('..');
+}
+
+function assertWorkflowCatalog(version: unknown, workflows: unknown) {
+  if (version !== 1) {
+    throw new Error(
+      `Invalid .skills-lock.json workflowCatalog: unsupported version ${String(version)}`,
+    );
+  }
+  if (!workflows || typeof workflows !== 'object' || Array.isArray(workflows)) {
+    throw new Error(
+      'Invalid .skills-lock.json workflowCatalog: workflows must be an object',
+    );
+  }
+  for (const [name, raw] of Object.entries(
+    workflows as Record<string, unknown>,
+  )) {
+    if (!WORKFLOW_NAME_RE.test(name)) {
+      throw new Error(
+        `Invalid .skills-lock.json workflowCatalog: invalid workflow name '${name}'`,
+      );
+    }
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+      throw new Error(
+        `Invalid .skills-lock.json workflowCatalog: workflow '${name}' must be an object`,
+      );
+    }
+    const entry = raw as Record<string, unknown>;
+    if (!isBoundedRelativePath(entry.path)) {
+      throw new Error(
+        `Invalid .skills-lock.json workflowCatalog: workflow '${name}' has an unsafe path`,
+      );
+    }
+    if (
+      path.posix.dirname(entry.path) !== '.agents/workflows' ||
+      path.posix.basename(entry.path) !== `${name}.md`
+    ) {
+      throw new Error(
+        `Invalid .skills-lock.json workflowCatalog: workflow '${name}' path is not a canonical .agents/workflows path`,
+      );
+    }
+    if (typeof entry.digest !== 'string' || !DIGEST_RE.test(entry.digest)) {
+      throw new Error(
+        `Invalid .skills-lock.json workflowCatalog: workflow '${name}' has an invalid digest`,
+      );
+    }
+    if (typeof entry.registry !== 'string') {
+      throw new Error(
+        `Invalid .skills-lock.json workflowCatalog: workflow '${name}' has an invalid registry`,
+      );
+    }
+    if (typeof entry.requestedRef !== 'string') {
+      throw new Error(
+        `Invalid .skills-lock.json workflowCatalog: workflow '${name}' has an invalid requestedRef`,
+      );
+    }
+    if (
+      entry.resolvedCommit !== null &&
+      typeof entry.resolvedCommit !== 'string'
+    ) {
+      throw new Error(
+        `Invalid .skills-lock.json workflowCatalog: workflow '${name}' has an invalid resolvedCommit`,
+      );
+    }
+    if (!Array.isArray(entry.nativeBindings)) {
+      throw new Error(
+        `Invalid .skills-lock.json workflowCatalog: workflow '${name}' has no nativeBindings array`,
+      );
+    }
+    const bindingsByPath = new Map<
+      string,
+      { outputDigest: string; canonicalDigest: string }
+    >();
+    const bindingKeys = new Set<string>();
+    for (const rawBinding of entry.nativeBindings) {
+      if (
+        !rawBinding ||
+        typeof rawBinding !== 'object' ||
+        Array.isArray(rawBinding)
+      ) {
+        throw new Error(
+          `Invalid .skills-lock.json workflowCatalog: workflow '${name}' has an invalid native binding`,
+        );
+      }
+      const binding = rawBinding as Record<string, unknown>;
+      if (typeof binding.agent !== 'string' || binding.agent.length === 0) {
+        throw new Error(
+          `Invalid .skills-lock.json workflowCatalog: workflow '${name}' has an invalid binding agent`,
+        );
+      }
+      if (!isBoundedRelativePath(binding.path)) {
+        throw new Error(
+          `Invalid .skills-lock.json workflowCatalog: workflow '${name}' has an unsafe binding path`,
+        );
+      }
+      const bindingKey = `${binding.agent}\0${binding.path}`;
+      if (bindingKeys.has(bindingKey)) {
+        throw new Error(
+          `Invalid .skills-lock.json workflowCatalog: workflow '${name}' has a duplicate native binding for '${binding.path}'`,
+        );
+      }
+      bindingKeys.add(bindingKey);
+      if (
+        typeof binding.outputDigest !== 'string' ||
+        !DIGEST_RE.test(binding.outputDigest)
+      ) {
+        throw new Error(
+          `Invalid .skills-lock.json workflowCatalog: workflow '${name}' has an invalid binding output digest`,
+        );
+      }
+      if (
+        typeof binding.canonicalDigest !== 'string' ||
+        !DIGEST_RE.test(binding.canonicalDigest) ||
+        binding.canonicalDigest !== entry.digest
+      ) {
+        throw new Error(
+          `Invalid .skills-lock.json workflowCatalog: workflow '${name}' has a binding that does not reference its canonical digest`,
+        );
+      }
+      // Several providers may alias one physical output path. They are only
+      // unambiguous while every alias describes the same bytes.
+      const alias = bindingsByPath.get(binding.path);
+      if (
+        alias &&
+        (alias.outputDigest !== binding.outputDigest ||
+          alias.canonicalDigest !== binding.canonicalDigest)
+      ) {
+        throw new Error(
+          `Invalid .skills-lock.json workflowCatalog: workflow '${name}' has conflicting native bindings for '${binding.path}'`,
+        );
+      }
+      bindingsByPath.set(binding.path, {
+        outputDigest: binding.outputDigest,
+        canonicalDigest: binding.canonicalDigest,
+      });
+    }
+
+    if (entry.nativeConflicts !== undefined) {
+      if (!Array.isArray(entry.nativeConflicts)) {
+        throw new Error(
+          `Invalid .skills-lock.json workflowCatalog: workflow '${name}' has an invalid nativeConflicts value`,
+        );
+      }
+      const conflictKeys = new Set<string>();
+      for (const rawConflict of entry.nativeConflicts) {
+        if (
+          !rawConflict ||
+          typeof rawConflict !== 'object' ||
+          Array.isArray(rawConflict)
+        ) {
+          throw new Error(
+            `Invalid .skills-lock.json workflowCatalog: workflow '${name}' has an invalid native conflict`,
+          );
+        }
+        const conflict = rawConflict as Record<string, unknown>;
+        if (typeof conflict.agent !== 'string' || conflict.agent.length === 0) {
+          throw new Error(
+            `Invalid .skills-lock.json workflowCatalog: workflow '${name}' has an invalid conflict agent`,
+          );
+        }
+        if (!isBoundedRelativePath(conflict.path)) {
+          throw new Error(
+            `Invalid .skills-lock.json workflowCatalog: workflow '${name}' has an unsafe conflict path`,
+          );
+        }
+        const key = `${conflict.agent}\0${conflict.path}`;
+        if (conflictKeys.has(key)) {
+          throw new Error(
+            `Invalid .skills-lock.json workflowCatalog: workflow '${name}' has a duplicate native conflict for '${conflict.path}'`,
+          );
+        }
+        conflictKeys.add(key);
+      }
+    }
+  }
+}
+
+/**
+ * Validates and narrows the optional versioned workflow catalog. Throws on any
+ * malformed/unsupported metadata so callers never silently degrade it.
+ */
+export function validateWorkflowCatalog(catalog: unknown): WorkflowCatalog {
+  if (!catalog || typeof catalog !== 'object' || Array.isArray(catalog)) {
+    throw new Error(
+      'Invalid .skills-lock.json workflowCatalog: expected an object',
+    );
+  }
+  const raw = catalog as Record<string, unknown>;
+  assertWorkflowCatalog(raw.version, raw.workflows);
+  return catalog as WorkflowCatalog;
 }
 
 export function migrateV1(v1: unknown, agents: Agent[]): SkillsLockFile {
@@ -89,11 +407,15 @@ export class LockfileService {
     if (!(await fs.pathExists(file))) {
       return { lock: null, migratedFromV1: false };
     }
-    const raw = await fs.readJson(file);
-    if (raw.version === 2) {
-      return { lock: raw as SkillsLockFile, migratedFromV1: false };
+    const raw: unknown = await readJsonStrict(file);
+    const probe = lockVersionProbe.safeParse(raw);
+    if (!probe.success) {
+      throw new Error('Invalid .skills-lock.json: missing version');
     }
-    if (raw.version === 1) {
+    if (probe.data.version === 2) {
+      return { lock: parseLockV2(raw), migratedFromV1: false };
+    }
+    if (probe.data.version === 1) {
       return { lock: migrateV1(raw, agents), migratedFromV1: true };
     }
     throw new Error('Unsupported .skills-lock.json version');
@@ -101,10 +423,16 @@ export class LockfileService {
 
   async write(rootDir: string, lock: SkillsLockFile): Promise<void> {
     const file = this.lockfilePath(rootDir);
+    if (lock.workflowCatalog !== undefined) {
+      // Validate before touching the previous publication.
+      validateWorkflowCatalog(lock.workflowCatalog);
+    }
     let existingDisclosed: Record<string, string[]> | undefined;
     if (await fs.pathExists(file)) {
       try {
-        const raw = await fs.readJson(file);
+        const raw = (await readJsonStrict(file)) as {
+          disclosed?: Record<string, string[]>;
+        };
         existingDisclosed = raw?.disclosed;
       } catch {
         // ignore malformed existing file
@@ -123,7 +451,26 @@ export class LockfileService {
     if (!disclosed) {
       delete out.disclosed;
     }
-    await fs.writeJson(file, out, { spaces: 2 });
+    await this.publishAtomic(file, out);
+  }
+
+  /**
+   * Same-directory atomic replacement so an interrupted write leaves the
+   * previous lock (or no lock) rather than a partial/truncated file. Every
+   * whole-lock publication, including disclosure-only updates, goes through
+   * this path.
+   */
+  private async publishAtomic(file: string, out: unknown): Promise<void> {
+    const tmp = path.join(
+      path.dirname(file),
+      `.${path.basename(file)}.${process.pid}.${Date.now()}.tmp`,
+    );
+    try {
+      await fs.outputFile(tmp, `${JSON.stringify(out, null, 2)}\n`, 'utf8');
+      await fs.rename(tmp, file);
+    } finally {
+      await fs.remove(tmp).catch(() => {});
+    }
   }
 
   async readDisclosed(
@@ -131,7 +478,9 @@ export class LockfileService {
   ): Promise<Record<string, string[]> | undefined> {
     const file = this.lockfilePath(rootDir);
     if (!(await fs.pathExists(file))) return undefined;
-    const raw = await fs.readJson(file);
+    const raw = (await readJsonStrict(file)) as {
+      disclosed?: Record<string, string[]>;
+    };
     return raw?.disclosed;
   }
 
@@ -141,8 +490,12 @@ export class LockfileService {
   ): Promise<void> {
     const file = this.lockfilePath(rootDir);
     if (!(await fs.pathExists(file))) return;
-    const raw = await fs.readJson(file);
-    await fs.writeJson(file, { ...raw, disclosed }, { spaces: 2 });
+    const raw = (await readJsonStrict(file)) as Record<string, unknown>;
+    if (raw.workflowCatalog !== undefined) {
+      // Validate the object being republished before replacing the lock.
+      validateWorkflowCatalog(raw.workflowCatalog);
+    }
+    await this.publishAtomic(file, { ...raw, disclosed });
   }
 
   async verifyEntries(
