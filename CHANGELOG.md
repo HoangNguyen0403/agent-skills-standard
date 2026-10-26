@@ -44,6 +44,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Untrusted-workspace admission guidance**: Added a portable admission checklist plus runtime-adapter caveats separating declared policy from observed host behavior, provider/account/model eligibility from context-transfer authorization, sealed starting identity, private-workflow mutation and output promotion, and truthful scan/hook reporting. Replaced the two lexical `evals.json` word-matching files in `common-agent-guardrails` and `common-llm-security` with a human-graded, explicitly unrun behavior rubric. No admission service, sandbox, or runtime control is added, and no eval PASS is claimed.
 
+### Added
+
+- **Agent effectiveness observability design**: Documented a two-machine, metadata-only measurement proposal with task-level usage/outcome accounting, replay-safe ingestion, privacy and retention contracts, governed improvement evaluation, and 27 planned verification scenarios. Independent document review and structural checks do not authorize implementation, enrollment, or pilot activation.
+
 ### Fixed
 - **Dependency security**: Override Express 5 to patched `body-parser` 2.4.0 and NestJS Express platform to patched `multer` 2.5.0, addressing the production dependency-audit DoS advisories without changing direct dependency ranges.
 
