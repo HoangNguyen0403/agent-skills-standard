@@ -1,0 +1,413 @@
+{
+  "timestamp": "2026-10-26T04:25:07.395Z",
+  "run_status": "PASS",
+  "initiative": "evidence-led-marketing",
+  "candidate_commit_sha": "703f750bc65bf87a764041a26dc12e32eaf0c60a",
+  "registry_url": "https://github.com/HoangNguyen0403/agent-skills-standard",
+  "host_node": "v22.14.0",
+  "candidate_builds": {
+    "cli": {
+      "path": "<DELIVERY_ROOT>/cli/dist/index.js",
+      "sha256": "d49ccf561a5ce49031cf8208d080a53e5f8df498dada871b97eb0ece5c722bdc"
+    },
+    "mcp": {
+      "path": "<DELIVERY_ROOT>/mcp/dist/index.js",
+      "built_exists": true,
+      "sha256": "55041b26a77e75aced414b4d86a76b8be7b926198fb05a2fe228b5dc51b1ba27"
+    }
+  },
+  "historical_parent_verified_checkpoint": {
+    "status": "PASS",
+    "provenance": "parent-observed on the published candidate SHA before the failed 2026-10-26T03:55:56.016Z attempt; not produced by this run",
+    "timestamp": null,
+    "timestamp_note": "Actual parent observation clock was not recorded; omitted rather than invented.",
+    "facts": {
+      "cli_sha256": "d49ccf561a5ce49031cf8208d080a53e5f8df498dada871b97eb0ece5c722bdc",
+      "sync_exit": 0,
+      "sync_duration_ms": 20442,
+      "marketing_skills": 12,
+      "product_management_skills": 7,
+      "workflow_and_router_installed": true,
+      "installed_files_hashed": 40,
+      "storyboard_json_and_vtt": true,
+      "synthetic_metrics": {
+        "activated": 4,
+        "mature_activated": 3,
+        "repeat_rate": "0.333333",
+        "cash_per_repeat": "12.000000",
+        "cash_per_activation": "3.000000",
+        "hours_per_repeat": "6.000000",
+        "recommendation": "inconclusive"
+      },
+      "fail_closed_exit": 2,
+      "all_four_core_scenarios": "PASS",
+      "temporary_directories_cleaned": true
+    }
+  },
+  "provenance": {
+    "network": "live_public_github_remote",
+    "transport": "GitHub REST tree API + raw.githubusercontent.com blob validation",
+    "fixture_proxy_used": false,
+    "local_fallback_used": false,
+    "remote_ac16_gate": "TECHNICALLY_VERIFIED_CANDIDATE_SHA_RELEASE_OPEN"
+  },
+  "latest_attempt": {
+    "status": "PASS",
+    "timestamp": "2026-10-26T04:25:07.395Z",
+    "all_passed": true,
+    "scenarios_passed": 6,
+    "scenarios_failed": 0,
+    "skipped_scenarios": [],
+    "note": "Latest attempt only; the historical parent checkpoint above is a separate observation."
+  },
+  "skipped_scenarios": [],
+  "scenarios": [
+    {
+      "scenario": "1_live_remote_github_sync",
+      "passed": true,
+      "evidence": {
+        "rate_limited": false,
+        "sync_exit": 0,
+        "sync_duration_ms": 22486,
+        "lock_exists": true,
+        "marketing_skills_count": 12,
+        "pm_skills_count": 7,
+        "checks": {
+          "sync_exit_zero": true,
+          "not_rate_limited": true,
+          "lockfile_created": true,
+          "marketing_skills_exact_12": true,
+          "product_management_selected": true,
+          "evals_excluded": true,
+          "skill_md_present": true,
+          "demo_assets_present": true,
+          "measurement_assets_present": true,
+          "pm_assets_present": true,
+          "workflow_installed": true,
+          "workflow_contract": true,
+          "conditional_router_row": true
+        },
+        "actual_skills_inventory": [
+          {
+            "name": "brainstorm-feature",
+            "child_dirs": 0
+          },
+          {
+            "name": "code-review",
+            "child_dirs": 0
+          },
+          {
+            "name": "codebase-review",
+            "child_dirs": 0
+          },
+          {
+            "name": "deploy-release",
+            "child_dirs": 0
+          },
+          {
+            "name": "design-solution",
+            "child_dirs": 0
+          },
+          {
+            "name": "dev-fix",
+            "child_dirs": 0
+          },
+          {
+            "name": "implement-feature",
+            "child_dirs": 0
+          },
+          {
+            "name": "implementation-readiness",
+            "child_dirs": 0
+          },
+          {
+            "name": "incident-hotfix",
+            "child_dirs": 0
+          },
+          {
+            "name": "marketing",
+            "child_dirs": 12
+          },
+          {
+            "name": "marketing-campaign",
+            "child_dirs": 0
+          },
+          {
+            "name": "monitor-respond",
+            "child_dirs": 0
+          },
+          {
+            "name": "pentest",
+            "child_dirs": 0
+          },
+          {
+            "name": "plan-feature",
+            "child_dirs": 0
+          },
+          {
+            "name": "product-management",
+            "child_dirs": 7
+          },
+          {
+            "name": "publish-notes",
+            "child_dirs": 0
+          },
+          {
+            "name": "retro-learn",
+            "child_dirs": 0
+          },
+          {
+            "name": "review-system-design",
+            "child_dirs": 0
+          },
+          {
+            "name": "review-ticket",
+            "child_dirs": 0
+          },
+          {
+            "name": "sdlc",
+            "child_dirs": 0
+          },
+          {
+            "name": "security-test",
+            "child_dirs": 0
+          },
+          {
+            "name": "session-report",
+            "child_dirs": 0
+          },
+          {
+            "name": "skill-benchmark",
+            "child_dirs": 0
+          },
+          {
+            "name": "system-design-session",
+            "child_dirs": 0
+          },
+          {
+            "name": "test-loop",
+            "child_dirs": 0
+          },
+          {
+            "name": "traceability-audit",
+            "child_dirs": 0
+          },
+          {
+            "name": "uat-signoff",
+            "child_dirs": 0
+          },
+          {
+            "name": "verify-bug",
+            "child_dirs": 0
+          },
+          {
+            "name": "verify-work",
+            "child_dirs": 0
+          }
+        ],
+        "stdout_excerpt": [
+          "    + Fetched product-management/product-strategy (9 files)",
+          "  - Discovering workflows (703f750bc65bf87a764041a26dc12e32eaf0c60a)...",
+          "    + Fetched 27 workflows",
+          "  - Updated .codex/skills/ (Codex)",
+          "  ✅ 27 workflows synced to .codex/skills/ (Codex)",
+          "  ✅ 21 specialists synced to .codex/agents/ (Codex)",
+          "  ✅ Generated _INDEX.md for 2 categories.",
+          "  ✅ AGENTS.md router index updated.",
+          "📦 Install: 168 added, 0 updated, 0 unchanged, 0 kept (your edits), 0 pruned",
+          "✅ All skills synced successfully!"
+        ],
+        "stderr_excerpt": [
+          "◇ injected env (0) from .env",
+          "fatal: not a git repository (or any of the parent directories): .git"
+        ]
+      }
+    },
+    {
+      "scenario": "2_canonical_source_byte_parity",
+      "passed": true,
+      "evidence": {
+        "total_files_compared": 40,
+        "byte_parity_matched": true,
+        "scope_boundary": "40 canonical marketing package-origin files across 12 skills were compared with their installed counterparts (SKILL.md, references/*, scripts/*, assets/*). Separately installed root LICENSE/NOTICE attribution copies are outside this parity comparison, not excluded from installation. CLI verify independently checked all 168 tracked installed files.",
+        "file_samples": [
+          {
+            "skill": "marketing-audience-research",
+            "file": "SKILL.md",
+            "source_sha256": "27048380c849bf93855368c36d675a7d83f108881d50d9b6148180d01e12546f",
+            "installed_sha256": "27048380c849bf93855368c36d675a7d83f108881d50d9b6148180d01e12546f",
+            "identical": true
+          },
+          {
+            "skill": "marketing-audience-research",
+            "file": "references/audience-research-protocol.md",
+            "source_sha256": "d19f36afe4d1dca0f56ac2b8aa6247b1948ee8c86bd8c759f32d4f7b0af53904",
+            "installed_sha256": "d19f36afe4d1dca0f56ac2b8aa6247b1948ee8c86bd8c759f32d4f7b0af53904",
+            "identical": true
+          },
+          {
+            "skill": "marketing-audience-research",
+            "file": "references/audience-segment-template.md",
+            "source_sha256": "fdbd65b45ed679fd92de0b368b3021294bf3b5065bc2fdb283668e81ff7031e0",
+            "installed_sha256": "fdbd65b45ed679fd92de0b368b3021294bf3b5065bc2fdb283668e81ff7031e0",
+            "identical": true
+          },
+          {
+            "skill": "marketing-community",
+            "file": "SKILL.md",
+            "source_sha256": "e17a3c5b2df8fa9be74c764f8f7ee3e79682ce3412da41fafa483d8cbdbe1605",
+            "installed_sha256": "e17a3c5b2df8fa9be74c764f8f7ee3e79682ce3412da41fafa483d8cbdbe1605",
+            "identical": true
+          },
+          {
+            "skill": "marketing-community",
+            "file": "references/community-engagement-protocol.md",
+            "source_sha256": "ae065de30a6c7ab322e160134bd63cdaebbcf8db613c96a1086b9672d8a21654",
+            "installed_sha256": "ae065de30a6c7ab322e160134bd63cdaebbcf8db613c96a1086b9672d8a21654",
+            "identical": true
+          },
+          {
+            "skill": "marketing-content-strategy",
+            "file": "SKILL.md",
+            "source_sha256": "e925b839bd7775847bc0cd506843304aaf6275568b3e924d108c1a921b996c7d",
+            "installed_sha256": "e925b839bd7775847bc0cd506843304aaf6275568b3e924d108c1a921b996c7d",
+            "identical": true
+          },
+          {
+            "skill": "marketing-content-strategy",
+            "file": "references/content-mapping.md",
+            "source_sha256": "f0f08f2dc98c039e9046049d1a45f81d81abd834797eca258d118c697937f76e",
+            "installed_sha256": "f0f08f2dc98c039e9046049d1a45f81d81abd834797eca258d118c697937f76e",
+            "identical": true
+          },
+          {
+            "skill": "marketing-content-strategy",
+            "file": "references/editorial-governance.md",
+            "source_sha256": "5aab633bc247ba97c66f6699f567d7f1a0b6c9011e8f6f0f3edd8b9ee87827df",
+            "installed_sha256": "5aab633bc247ba97c66f6699f567d7f1a0b6c9011e8f6f0f3edd8b9ee87827df",
+            "identical": true
+          },
+          {
+            "skill": "marketing-copywriting",
+            "file": "SKILL.md",
+            "source_sha256": "4a88bc842d65f5c1fb5a0625b382cc1bd43c3480dee2c3c4d952ad2fe7d92d9e",
+            "installed_sha256": "4a88bc842d65f5c1fb5a0625b382cc1bd43c3480dee2c3c4d952ad2fe7d92d9e",
+            "identical": true
+          },
+          {
+            "skill": "marketing-copywriting",
+            "file": "references/copy-templates.md",
+            "source_sha256": "8105a9e998dd16ebbec074eb77d832325228f981df8a8b8ad6e0435a5fc501d3",
+            "installed_sha256": "8105a9e998dd16ebbec074eb77d832325228f981df8a8b8ad6e0435a5fc501d3",
+            "identical": true
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "3_runtime_companion_execution_public_fixtures",
+      "passed": true,
+      "evidence": {
+        "storyboard_json_valid": true,
+        "storyboard_vtt_valid": true,
+        "scorecard_valid": true,
+        "scorecard_sha256": "4d1269c8389a6105c0490ff40afe7efcaddddb3283476806cdaf9c6f3aa6412b",
+        "scorecard_metrics": {
+          "activated": 4,
+          "mature_activated": 3,
+          "repeat_rate": "0.333333",
+          "cash_per_repeat": "12.000000",
+          "cash_per_activation": "3.000000",
+          "hours_per_repeat": "6.000000",
+          "recommendation": "inconclusive"
+        }
+      }
+    },
+    {
+      "scenario": "4_fail_closed_missing_dependency",
+      "passed": true,
+      "evidence": {
+        "exit_code": 2,
+        "valid": false,
+        "gap_detected": true
+      }
+    },
+    {
+      "scenario": "5_post_assembly_cli_contracts",
+      "passed": true,
+      "evidence": {
+        "config_pins_preserved": {
+          "marketing_ref": "703f750bc65bf87a764041a26dc12e32eaf0c60a",
+          "pm_ref": "703f750bc65bf87a764041a26dc12e32eaf0c60a",
+          "workflows_ref": "703f750bc65bf87a764041a26dc12e32eaf0c60a",
+          "passed": true
+        },
+        "lockfile_refs": {
+          "marketing_ref": "703f750bc65bf87a764041a26dc12e32eaf0c60a",
+          "pm_ref": "703f750bc65bf87a764041a26dc12e32eaf0c60a",
+          "workflows_ref": "703f750bc65bf87a764041a26dc12e32eaf0c60a",
+          "passed": true
+        },
+        "verify_command": {
+          "exit_code": 0,
+          "checked_count": 168,
+          "passed": true,
+          "stdout_excerpt": [
+            "Checked 168 tracked file(s)",
+            "✅ All tracked files match the manifest."
+          ]
+        },
+        "list_skills_diagnostic_boundary": {
+          "exit_code": 1,
+          "boundary_detected": true,
+          "diagnostic_nature": "CLI command list-skills is a framework-only command, not a category/marketing lookup tool. It validates against SUPPORTED_FRAMEWORKS (code frameworks only) and hardcodes git tree lookups to \"main\" (RegistryService.ts:107), ignoring pinned commit SHAs.",
+          "stderr_excerpt": [
+            "◇ injected env (0) from .env",
+            "Invalid framework \"marketing\". Supported frameworks are: flutter, nestjs, golang, nextjs, react, react-native, angular, spring-boot, android, ios, laravel, python."
+          ]
+        }
+      }
+    },
+    {
+      "scenario": "6_normal_mcp_stdio_lookup",
+      "passed": true,
+      "evidence": {
+        "passed": true,
+        "server_entrypoint": "<DELIVERY_ROOT>/mcp/dist/index.js",
+        "server_sha256": "55041b26a77e75aced414b4d86a76b8be7b926198fb05a2fe228b5dc51b1ba27",
+        "tools_registered": [
+          "load_skills_for_files",
+          "load_skills_for_keywords",
+          "get_skill",
+          "get_category_guide",
+          "list_categories",
+          "audit_session_compliance",
+          "list_workflows",
+          "get_workflow",
+          "get_session_cost",
+          "verify_eval_run",
+          "get_eval_report"
+        ],
+        "list_categories_match": true,
+        "get_skill_direct": {
+          "passed": true,
+          "valid_content": true,
+          "installed_bytes_matched": true,
+          "response_body_sha256": "8260eb648d7c00518d341e80f79ef0dc3979c1a1c0cfa7d03c036bbabab9545b",
+          "installed_skill_sha256": "8260eb648d7c00518d341e80f79ef0dc3979c1a1c0cfa7d03c036bbabab9545b",
+          "excerpt": "<!-- skill: marketing/marketing-proof | matched: direct -->\n---\nname: marketing-proof\ndescription: 'Audits and verifies marketing claims against dated sources, benchmark evidence, and caveats. Rejects universal claims and preserves NOT READY limitations and contradictions. (triggers: `marketing proo"
+        },
+        "load_skills_keyword": {
+          "passed": true,
+          "excerpt": "<!-- skill: marketing/marketing-proof | matched: keyword:marketing proof review -->\n---\nname: marketing-proof\ndescription: 'Audits and verifies marketing claims against dated sources, benchmark evidence, and caveats. Rejects universal claims and preserves NOT READY limitations and contradictions. (t"
+        },
+        "server_stderr": [
+          "[ags-mcp] transport: stdio",
+          "[ags-mcp] serving skills from <TMPDIR>/remote-consumer-std-2QkZhZ/.codex/skills",
+          "[ags-mcp] stdio transport connected"
+        ]
+      }
+    }
+  ],
+  "all_passed": true
+}

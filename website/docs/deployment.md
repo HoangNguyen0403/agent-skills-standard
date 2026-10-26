@@ -132,4 +132,4 @@ Rollback only to a previously successful **production** artifact whose origin an
 
 ## Analytics boundary
 
-`REQ-008` is not satisfied by disabling tracking or adding a placeholder. No fake/no-op analytics is permitted. Keep production activation gated on selection and privacy approval of a real provider, verification of actual events and data handling, and human owner approval.
+`REQ-008` is not satisfied by disabling tracking or adding a placeholder. No fake/no-op analytics is permitted. Keep production activation gated on selection and privacy approval of a real provider, verification of actual events and data handling, and human owner approval. See `website/docs/analytics.md` for the complete Plausible direct Events API contract, environment configuration, operator approval gate, and default-off specification.

@@ -2,7 +2,7 @@
 
 ## Scope and verdict
 
-`verify-work` walkthrough of the delivered **local** evidence-led marketing slice, written 2026-10-25 from the accepted evidence paths below. It records requirements status, accepted and rejected outputs, and open gates. It is **not** an overall initiative PASS, release readiness, pilot authorization, or evidence of causal lift, ROI or human acceptance.
+`verify-work` walkthrough of the delivered **local** evidence-led marketing slice and candidate PR readiness, updated 2026-10-26 from the accepted evidence paths below. It records requirements status, accepted and rejected outputs, and open gates. It is **not** an overall initiative PASS, release readiness, pilot authorization, or evidence of causal lift, ROI or human acceptance.
 
 Authority used (paths, read as-is; no new test, build, browser, provider or host action was run for this walkthrough):
 
@@ -17,6 +17,10 @@ Authority used (paths, read as-is; no new test, build, browser, provider or host
 - [`artifacts/evidence-led-marketing/evidence/covering-checkpoint.md`](../../artifacts/evidence-led-marketing/evidence/covering-checkpoint.md) — covering lanes and retained failures
 - [`artifacts/evidence-led-marketing/evidence/task-10-cost-audit.md`](../../artifacts/evidence-led-marketing/evidence/task-10-cost-audit.md) — cost unavailability
 - [`artifacts/evidence-led-marketing/stopped-evaluation/archive-manifest.json`](../../artifacts/evidence-led-marketing/stopped-evaluation/archive-manifest.json) — 176-artifact integrity ledger for stopped fresh public evaluation archive (with original run manifest at `stopped-evaluation/manifest.json`)
+- [`docs/product/evidence-led-marketing/plausible-collection-contract.md`](../../docs/product/evidence-led-marketing/plausible-collection-contract.md) — owner Plausible custom event contract and implementation approval
+- [`docs/product/evidence-led-marketing/pilot-handoff.md`](../../docs/product/evidence-led-marketing/pilot-handoff.md) — pilot handoff runbook approved for preparation by independent review
+- [`artifacts/evidence-led-marketing/remote-consumer-acceptance.md`](../../artifacts/evidence-led-marketing/remote-consumer-acceptance.md) — remote candidate SHA sync verification against published commit `703f750b`
+- [`artifacts/evidence-led-marketing/collection-browser-acceptance.md`](../../artifacts/evidence-led-marketing/collection-browser-acceptance.md) — configured collection browser acceptance (10 cases, 37 assertions)
 - Note on host boundary investigation: detailed internal host inspection records (`host-access-source-map.md`) are retained privately in `.agent/sdd/` and summarized in `evaluation-stop-decision.md` / `evaluation-current-state.md`; they are not exported as public evidence.
 Status legend: **PASS (local)** = exercised in the accepted local scope; **PARTIAL** = definition/rubric or narrowed slice accepted without the end-to-end behavior; **DEFERRED** = user chose not to do it; **NOT VERIFIED** = attempted or required evidence is missing.
 
@@ -40,7 +44,7 @@ Status legend: **PASS (local)** = exercised in the accepted local scope; **PARTI
 | [`REQ-014`](../prd/prd-evidence-led-marketing.md) | `marketing-launch` | PARTIAL | Definition accepted; launch remains not authorized. |
 | [`REQ-015`](../prd/prd-evidence-led-marketing.md) | `marketing-demo-video` | PASS (local) | T06 resource tests 39 PASS, script `a271287b…a75f`; T09 actual 56s export accepted. |
 | [`REQ-016`](../prd/prd-evidence-led-marketing.md) | `marketing-measurement` | PASS (local, synthetic) | Offline scorecard returns qualified/inconclusive recommendations on fixtures. |
-| [`REQ-017`](../prd/prd-evidence-led-marketing.md) | Bounded website signals | PARTIAL | Disabled path verified; enabled collection DEFERRED by user choice. |
+| [`REQ-017`](../prd/prd-evidence-led-marketing.md) | Bounded website signals | PARTIAL | Plausible collection contract approved for implementation (`plausible-collection-contract.md`); opt-in, default-off, direct events; default website gates passed (unit 38/38 on Node 26, website typecheck PASS, lint PASS, static build PASS with SITE_URL, and production Chromium 72/72 E2E PASS in 51.8s); configured collection browser acceptance passed 10 cases / 37 assertions on isolated static build (`collection-browser-acceptance.md`; PASS — LOCAL_INTERCEPTED_ONLY); enabled AC-029/030/032 locally technically verified; disabled path AC-031 verified locally; live collection deliberately kept blocked by owner decision ('Keep live collection blocked'); real provider receipt open. |
 | [`REQ-018`](../prd/prd-evidence-led-marketing.md) | Cohort consent and source handling | PARTIAL | Contract/offline privacy cases accepted; no real participant dataset, retention or withdrawal procedure exercised. |
 
 ## Acceptance criteria trace
@@ -62,7 +66,7 @@ Status legend: **PASS (local)** = exercised in the accepted local scope; **PARTI
 | [`AC-013`](../prd/prd-evidence-led-marketing.md) | NOT VERIFIED | Exactly 2/246 attempts bundled; system-prompt digests differ (`eeac7618…` vs `94bfb0be…`) | Historical prompts not recovered; no efficacy delta |
 | [`AC-014`](../prd/prd-evidence-led-marketing.md) | NOT VERIFIED | Static routing smoke: 6 negative file paths with 0 marketing matches; 3 qualified marketing keywords matched | No live trigger evaluation |
 | [`AC-015`](../prd/prd-evidence-led-marketing.md) | PARTIAL | Guardrail pressure definitions accepted | Live model refusal unverified |
-| [`AC-016`](../prd/prd-evidence-led-marketing.md) | PASS (local); remote OPEN | Five consumer scenarios pass at snapshot `ee18d7f5…` (1,412 files); no fetchable remote ref | Remote AC-016 open |
+| [`AC-016`](../prd/prd-evidence-led-marketing.md) | PASS (candidate SHA; release tags open separately) | Parent verified genuine remote candidate SHA `703f750b` sync and MCP stdio lookup across 6 scenarios after API reset (`artifacts/evidence-led-marketing/remote-consumer-acceptance.json`); real GitHub REST/raw sync 22,486ms exit 0; 12 marketing + 7 PM skills; 40 installed files byte parity; companions and fail-closed preflight verified; CLI verify 168 passed; delivery MCP dist `55041b26…` stdio verified `list_categories`, `get_skill` on `marketing-proof` matching installed bytes, and keyword matching. Past fake-fallback/synthetic-lock attempt dated 2026-10-26T03:55:56.016Z rejected and excluded. | Candidate SHA consumer verified; formal version tags (`marketing-v1.0.0`), signed manifest attestation, and native host execution open separately. |
 | [`AC-017`](../prd/prd-evidence-led-marketing.md) | PARTIAL | Independent definition/rubric acceptance for audience research capability | No verified model efficacy, real audience or deployed-origin checks |
 | [`AC-018`](../prd/prd-evidence-led-marketing.md) | PARTIAL | Independent definition/rubric acceptance for positioning capability | No verified model efficacy, real audience or deployed-origin checks |
 | [`AC-019`](../prd/prd-evidence-led-marketing.md) | PARTIAL | Independent definition/rubric acceptance for proof capability | No verified model efficacy, real audience or deployed-origin checks |
@@ -75,20 +79,19 @@ Status legend: **PASS (local)** = exercised in the accepted local scope; **PARTI
 | [`AC-026`](../prd/prd-evidence-led-marketing.md) | PARTIAL | Independent definition/rubric acceptance for launch capability | No verified model efficacy, real audience or deployed-origin checks |
 | [`AC-027`](../prd/prd-evidence-led-marketing.md) | PASS (local) | T09 accepted MP4; T10 parent actual Chromium playback, captions, clipboard, keyboard and trusted native fullscreen at 1280×800 and 390×844, with worker cases and independent source review covering transcript activation, no-JS links and disclosures | Portrait fullscreen only; terminal text small on mobile |
 | [`AC-028`](../prd/prd-evidence-led-marketing.md) | PASS (local) | Offline scorecard returns inconclusive, no fabricated ROI | Synthetic data |
-| [`AC-029`](../prd/prd-evidence-led-marketing.md) | DEFERRED | T08 not implemented; no event exists | Enabled collection unproven |
-| [`AC-030`](../prd/prd-evidence-led-marketing.md) | DEFERRED | No failure event path exists | Unproven |
-| [`AC-031`](../prd/prd-evidence-led-marketing.md) | PASS (local) | Disabled path: navigation, clipboard, playback and disclosure usable; worker in-page `fetch`/XHR/beacon instrumentation empty, parent observed no external requests | Bounded to exercised actions/page; not proof about arbitrary future code |
-| [`AC-032`](../prd/prd-evidence-led-marketing.md) | DEFERRED | No event payload implemented | Unproven |
+| [`AC-029`](../prd/prd-evidence-led-marketing.md) | PASS (local intercepted); provider receipt OPEN | Plausible custom events approved; owner UX decision 'Explicit start, then native controls' verified in parent browser acceptance (`collection-browser-acceptance.md`): trusted pointer, Enter, Space, and mobile 375 viewport emitted exact single demo_play event after decoded playback (.51s); native controls and resume did not recount. Live collection kept blocked by owner decision ('Keep live collection blocked'). | Local intercepted verification only; actual provider receipt unverified. |
+| [`AC-030`](../prd/prd-evidence-led-marketing.md) | PASS (local); provider receipt OPEN | Clipboard failure handling verified under unit, E2E, and browser acceptance suites; no false install_command_copy counted. Live collection kept blocked by owner decision. | Unproven on real provider. |
+| [`AC-031`](../prd/prd-evidence-led-marketing.md) | PASS (local) | Disabled path: navigation, clipboard, playback and disclosure usable; worker in-page `fetch`/XHR/beacon instrumentation empty, parent observed no external requests; default static build retains self-only CSP. | Bounded to exercised actions/page; not proof about arbitrary future code |
+| [`AC-032`](../prd/prd-evidence-led-marketing.md) | PASS (local intercepted); provider receipt OPEN | Exact application payload (event_name, campaign_id, asset_id, placement, schema_version 1) verified without raw URL, query, or participant identity in browser acceptance suite. Live collection kept blocked by owner decision. | Unproven on real provider. |
 | [`AC-033`](../prd/prd-evidence-led-marketing.md) | PARTIAL | Contract requires excluding absent/withdrawn consent before calculation; offline privacy/validation cases accepted | No real participant import, storage or withdrawal exercise |
 | [`AC-034`](../prd/prd-evidence-led-marketing.md) | PARTIAL | Offline public projection tested for leakage | No real export or privacy review |
-
-No AC is claimed as a whole-initiative pass. AC-029, AC-030, AC-032 are explicitly not done; AC-013, AC-014 are not verified; every "PASS (local)" is bounded by the evidence above.
+No AC is claimed as a whole-initiative pass. AC-029, AC-030, AC-032 are locally technically verified under intercepted browser acceptance (provider receipt open; live collection blocked by owner decision); AC-013, AC-014 are not verified; AC-016 is PASS (candidate SHA; release tags open separately); every "PASS (local)" is bounded by the evidence above.
 
 ## Before vs after: rejected originals and accepted corrections
 
 - **T09 media.** The original encoded video was rejected for fabricated captured output, unsupported host-enforcement display, wrong repeat window, unsourced research/policy/source identity and AC/G4 overclaims; it was never integrated. The corrected export was accepted after independent review and parent `ffprobe`/frame inspection: H.264 1920×1080 30 fps, video 56.000000s, AAC 56.021333s, mov_text 55.000000s, container 56.021354s, 884,035 bytes, digest `b129cb713dd681e6ad776d7ec35461454f165299e20a4227580712a12ea1c32f`.
-- **T10 landing surface.** The first surface claimed fabricated runtimes (`0.085s–0.700s`), rendered an incomplete `report-marketing.mjs` invocation, and labelled sanitized excerpts as raw/unedited transcripts; its tests pinned incidental cue counts and copy strings. Correction removed those claims and replaced the tests with behavioral playback/caption-boundary, keyboard activation and instrumented no-collector checks. Final player `a39ab7ff5f68d49dbf9fe26402ad91355321cb7b96918d6e91905e5a824cd68b`, tests `e4de111460908d810c0f6e55167589c6356f6abf6c697472ebcb4cd81132efbf`.
-- **T11 pair.** The premise that two clean-audit answers establish a comparable baseline/with-skill pair was rejected by the digest mismatch. Both arms were accepted as **bundled evidence only**: source profile/prelude/source title matched, recall empty, zero tool calls, public audits redacted to digests, private raw root 0700 with files 0600. Historical prompt arrays were not recovered, so no causal or isolated delta is claimed. The user then chose to **stop at the current host boundary** after the source map located the original-client read-only getter with no supported no-restart activation; no debugger, plugin, restart, configuration/approval-control change or provider call was made, and 244 attempts remain unlaunched.
+- **T10 landing surface.** The first surface claimed fabricated runtimes (`0.085s–0.700s`), rendered an incomplete `report-marketing.mjs` invocation, and labelled sanitized excerpts as raw/unedited transcripts; its tests pinned incidental cue counts and copy strings. Correction removed those claims and replaced the tests with behavioral playback/caption-boundary, keyboard activation and instrumented no-collector checks. Historical accepted T10 player `a39ab7ff5f68d49dbf9fe26402ad91355321cb7b96918d6e91905e5a824cd68b`, tests `e4de111460908d810c0f6e55167589c6356f6abf6c697472ebcb4cd81132efbf`; prior native-bug player SHA `7083c3b2…` rejected; current frozen explicit-entry candidate player source SHA-256 is `cbc94bb5d1dc6f4fc72bf7d5a5e22bb01f14b3de6e869b4d58361bfc1c189412` (verified locally across 10 intercepted browser cases / 37 assertions in `collection-browser-acceptance.md`; real provider receipt BLOCKED_OWNER).
+- **T11 pair.** The premise that two clean-audit answers establish a comparable baseline/with-skill pair was rejected by the digest mismatch. Both arms were accepted as **bundled evidence only**: source profile/prelude/source title matched, recall empty, zero tool calls, public audits redacted to digests, private raw root 0700 with files 0600. Historical prompt arrays were not recovered, so no causal or isolated delta is claimed. Recover-first supported read-only original runtime under host operator entry point with no-start semantics applies to baseline `8c6b58be-060d-4996-82bf-3c9e95f9d0c5` and treatment `ead480eb-b009-4868-b000-4ee0ce214769`; original runtime residency remains unproven (not 'gone/impossible'); no debugger, plugin, restart, configuration/approval-control change or provider call was made, and 244 attempts remain unlaunched.
 
 ## Execution evidence (checkpoint-qualified)
 
@@ -103,18 +106,16 @@ No AC is claimed as a whole-initiative pass. AC-029, AC-030, AC-032 are explicit
 - PR-preparation consumer & gate checkpoint (post-settlement 2026-10-25): parent re-exercised installed consumer smoke with workflow release `1.1.8`; all 5 scenarios PASS against updated frozen registry fixture snapshot `0cf6ec80db33b9e685aa84f18c9a18d3c96ab83cc5dbde625ed260c9490d2cbf` (1,412 files; historical accepted capture `ee18d7f5…` remains byte-unchanged; detailed record retained privately at `.agent/sdd/prd-plan-evidence-led-marketing/consumer-pr-preparation-record.json`). Parent gate validation confirmed: `pnpm validate:all` 345 passed / 0 failed / 71 warnings; `pnpm audit:sdlc` PASS; `pnpm audit:outcome` 21 templates and 6 run records PASS; `pnpm check-alignment` default 70% PASS (4 strict-90 warnings retained); `pnpm docs:capabilities:check` PASS.
 ## Retained failures and gaps (not rerun, not masked)
 
-- Global eval audit retains two database-hana errors.
+- The known preflight Vitest/undici Node 22 failure remains recorded: parent first focused Vitest command on default Node 22.14 failed before tests (`undici` 8.12.3 `undefined.bind`, 0 tests executed); parent rerun under Node 26 executed and passed all 38 unit tests (38/38 PASS).
 - `check-alignment:strict` retains four below-threshold skills: `common-stitch-design` 87, `flutter-getx-navigation` 86, `marketing-search-discovery` 78 (7/9, lexical false negative under independent semantic review), `swift-best-practices` 83. No assertion was weakened.
-- The known preflight Vitest/undici Node 22 failure remains unrelated and unmodified.
 - Canonical document IDs and graph connectivity are corrected: parent `pnpm audit:trace` passed after the recorded first-migration failure, with 3 objectives, 18 requirements, 34 acceptance criteria and 10 SRS cards. Graph coverage is not behavioral satisfaction. Formal product-evidence authority/bridge records and G3/G4 acceptance remain open.
 - At the earlier covering checkpoint, root lanes ran separately after a missing-wrapper failure that was corrected. The later PR-preparation checkpoint above completed one uninterrupted root test command; the historical checkpoint is not rewritten.
 
 ## Identity and output-path limits
 
 - `ee18d7f5e57ac88d2621ba46316ce0e71262ef7ba686f04e0548e04fb60e5620` with 1,412 files is a **narrow registry fixture snapshot** used by the installed-consumer smoke, not the whole website candidate.
-- The final UI is identified separately by player hash `a39ab7ff…cd68b` and tests `e4de1114…32efbf`.
-- The T07 candidate record used an earlier snapshot (`b788c3d7…`, 1,411 files); the final consumer record uses `ee18d7f5…` (1,412 files). Both are narrow registry fixture snapshots for the same installed-consumer purpose, not the website candidate.
-- Candidate commit `a2228857` is an explicitly dirty local candidate; no remote bytes or fetchable release ref exist (AC-016 open).
+- Historical accepted T10 UI identity is identified separately by player hash `a39ab7ff…cd68b` and tests `e4de1114…32efbf`; current frozen explicit-entry candidate player source SHA-256 is `cbc94bb5d1dc6f4fc72bf7d5a5e22bb01f14b3de6e869b4d58361bfc1c189412` (verified locally across 10 intercepted browser cases / 37 assertions in `collection-browser-acceptance.md`; real provider receipt BLOCKED_OWNER).
+- Candidate commit `a2228857` was an earlier local candidate; published candidate commit `703f750bc65bf87a764041a26dc12e32eaf0c60a` is available on GitHub and passed remote candidate SHA sync and MCP stdio lookup across all six scenarios (`remote-consumer-acceptance.json`); formal release tags (`marketing-v1.0.0`) remain open separately.
 
 ## Cost
 
@@ -124,11 +125,11 @@ Exact host cost is **unavailable**: `task-10-cost-audit.md` records missing toke
 
 - Full skill evaluation: 244 of 246 attempts unlaunched; pair comparability unverified; no skill-efficacy delta.
 - Human UAT, independent human quality acceptance and any business-value review.
-- Remote AC-016/release, deployment, published-origin proof, social preview and DNS/HTTPS gates.
-- G3, G4, G5, G6 and T12/T13 completion.
+- Remote release tags (`marketing-v1.0.0`), deployment, published-origin proof, social preview and DNS/HTTPS gates.
+- G3, G4, G5, G6, and whole-initiative T12/T13 completion (T13 runbook approved at `docs/product/evidence-led-marketing/pilot-handoff.md`; pilot execution open).
 - Real consent storage/retention/withdrawal, real cohort observations, baseline, ROI, spend and causal lift.
-- Arbitrary collector absence beyond inspected code and exercised actions; collection remains intentionally disabled (T08 deferred).
+- Arbitrary collector absence beyond inspected code and exercised actions; Plausible collection implementation verified locally default-off with live collection deliberately kept blocked by owner decision (T08 open pending test site ID/URL/caps).
 
 ## Next authorized workflow
 
-The user separately authorized preparing and publishing the implementation PR. Its scoped source, test and document review does not authorize campaign posting, release, deployment, pilot activation, spend, provider collection, evaluator continuation or retries. Any future evaluation requires a new explicit bounded contract; otherwise the initiative remains stopped at the current host boundary. Whole-initiative T12 acceptance and human review remain open.
+The user separately authorized preparing and publishing the implementation PR. Next authorized workflow: owner review of the updated walkthrough and host operator entry point for T11 prompt recovery; then `verify-work` for the remaining T12 covering evidence and T13 pilot handoff review. Publication, deployment, pilot activation, spend, and evaluator continuation remain separately gated. All six remaining tasks target completion in PR #263.

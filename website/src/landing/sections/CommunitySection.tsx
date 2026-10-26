@@ -2,6 +2,7 @@ import React from "react";
 import { content, sourceLinks } from "../content";
 import { ActionIcon } from "../ActionIcon";
 import actionStyles from "../action.module.css";
+import { PlausibleLink } from "../analytics/PlausibleLink.client";
 import styles from "../landing.module.css";
 
 export function CommunitySection(): React.JSX.Element {
@@ -34,10 +35,19 @@ export function CommunitySection(): React.JSX.Element {
               <span aria-hidden="true">↗</span>
             </a>
 
-            <a href={sourceLinks.github} className={styles.textLinkPaper}>
+            <PlausibleLink
+              href={sourceLinks.github}
+              className={styles.textLinkPaper}
+              event={{
+                event_name: "github_click",
+                campaign_id: "standards-demo-01",
+                asset_id: "showcase-community-01",
+                placement: "community_github",
+              }}
+            >
               <span>View on GitHub</span>
               <span aria-hidden="true">↗</span>
-            </a>
+            </PlausibleLink>
           </div>
         </div>
       </div>

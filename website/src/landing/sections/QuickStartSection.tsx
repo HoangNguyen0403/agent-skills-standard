@@ -2,6 +2,7 @@ import React from "react";
 import { content, commands, sourceLinks } from "../content";
 import { CopyCommand } from "../CopyCommand.client";
 import { DemoPlayer } from "../DemoPlayer";
+import { PlausibleLink } from "../analytics/PlausibleLink.client";
 import styles from "../landing.module.css";
 export function QuickStartSection(): React.JSX.Element {
   const initCmd = commands.find((c) => c.id === "init") ?? commands[0];
@@ -36,15 +37,33 @@ export function QuickStartSection(): React.JSX.Element {
           </span>
 
           <div style={{ display: "flex", flexWrap: "wrap", gap: "16px" }}>
-            <a href={sourceLinks.docs} className={styles.textLinkLime}>
+            <PlausibleLink
+              href={sourceLinks.docs}
+              className={styles.textLinkLime}
+              event={{
+                event_name: "setup_guide_open",
+                campaign_id: "standards-demo-01",
+                asset_id: "tutorial-standards-adoption-01",
+                placement: "quickstart_docs",
+              }}
+            >
               <span>Read setup docs before you sync</span>
               <span aria-hidden="true">↗</span>
-            </a>
+            </PlausibleLink>
 
-            <a href={sourceLinks.tutorial} className={styles.textLinkLime}>
+            <PlausibleLink
+              href={sourceLinks.tutorial}
+              className={styles.textLinkLime}
+              event={{
+                event_name: "setup_guide_open",
+                campaign_id: "standards-demo-01",
+                asset_id: "tutorial-standards-adoption-01",
+                placement: "quickstart_tutorial",
+              }}
+            >
               <span>Follow step-by-step tutorial</span>
               <span aria-hidden="true">↗</span>
-            </a>
+            </PlausibleLink>
           </div>
         </div>
 

@@ -1,9 +1,9 @@
 # PRD: Evidence-led marketing
 
-Status: Approved for gated implementation | Owner: Hoang Nguyen | Date: 2026-10-25
+Status: Approved for gated implementation | Owner: Hoang Nguyen | Date: 2026-10-26
 Slug: evidence-led-marketing | operator_profile: hybrid | lane: both
 SNC: S=2 N=2 C=1 total=5 tier=high. Cross-module scope; human plan approval and architecture/privacy review before code.
-User approved the plan and requested implementation, then selected Subagent-Driven. Scope and delivery sequence are approved; consequential T01 design contracts, budgets, production collection and external activation retain their separate approval gates.
+User approved the plan and requested implementation, then selected Subagent-Driven. Scope and delivery sequence are approved; offline synthetic contracts delivered; T08 Plausible implementation and local default-off/intercepted browser proof included in PR #263 with live collection deliberately kept blocked by owner decision (default gates passed, browser intercepted 10 cases / 37 assertions passed in collection-browser-acceptance.md, T08 open pending test site ID/URL/caps); T11 recover-first pending supported host operator entry point (no exposed accessor); AC-016 remote candidate SHA sync & MCP lookup passed (release tags open separately); T13 pilot handoff preparation artifact approved; all six remaining tasks target completion in PR #263; production collection, external exposure, spending, and deployment retain their separate approval gates.
 Sources: [reconciled BRD](../brd/brd-evidence-led-marketing.md), [task list](../srs/srs-task-list-evidence-led-marketing.md).
 
 ## 1. Problem, outcomes and boundaries
@@ -87,7 +87,7 @@ Platform [BOTH] means the skill's output/contract is independent of desktop vers
 | AC-026 | BOTH | Runnable product but unresolved response owner or publication approval | Launch planning runs | The affected launch remains not authorized with the missing prerequisite named |
 | AC-027 | BOTH | Verified recording and cleared local assets | Demo production completes | A playable captioned export with transcript shows only evidenced behavior |
 | AC-028 | BOTH | Incomplete window, missing costs or missing source data | Measurement skill reviews value | It returns a qualified/inconclusive recommendation rather than invented ROI |
-| AC-029 | BOTH | Real demo player and enabled approved local test collection | Visitor explicitly starts playback | A demo_play event reflects playback, not page rendering |
+| AC-029 | BOTH | Real demo player and enabled approved local test collection | Visitor explicitly starts playback (under configured collection with JS, an accessible Play demo button initiates trusted start with native controls available afterward; without JS and in default unconfigured builds, existing native player is retained) | A single demo_play event reflects successful actual playback, not page rendering or failed media |
 | AC-030 | BOTH | Clipboard action fails | Visitor attempts command copy | No successful install_command_copy is counted |
 | AC-031 | BOTH | Collection disabled or transport unavailable | Visitor uses the landing page | Navigation, copying and playback remain usable without telemetry |
 | AC-032 | BOTH | URL contains unknown campaign values or identifying query data | An event is prepared | Payload contains only approved bounded fields and no raw URL/query or participant identity |
@@ -123,7 +123,7 @@ Metric specifications:
 
 ## 7. Website, privacy and operating requirements
 
-Proposed events: demo_play (actual media only), setup_guide_open, install_command_copy (successful copy only), github_click. An illustrative animation replay is not demo playback. Define one classification per link/action to prevent overlapping listeners double-counting it.
+Proposed events: demo_play (actual media only; user-initiated start once per lifecycle via approved entry: under configured collection with JS, an accessible Play demo button initiates trusted playback and displays native controls; without JS and in default unconfigured builds, native controls remain; failed play or pause/resume emits no event), setup_guide_open, install_command_copy (successful copy only), github_click. An illustrative animation replay is not demo playback. Define one classification per link/action to prevent overlapping listeners double-counting it.
 
 Allowed conceptual properties: event name, registered campaign/asset identifier, bounded placement identifier and schema version. Transport-owned time/session fields require design review. Unknown campaign input maps to unknown; no full URLs, arbitrary query values, fingerprints, emails, GitHub usernames, clipboard contents, code or personal filesystem paths.
 
@@ -149,7 +149,7 @@ Rollout: review this plan -> scoped design/privacy decisions -> measurement fixt
 | Verification/release readiness | Hoang Nguyen | Independent QA/release owner | Architect, security reviewer |
 | Publication, data collection, spending | Hoang Nguyen | Human-authorized operator | QA/privacy reviewer |
 
-Open decisions owned by Hoang Nguyen: analytics provider/account and production data boundary; consent/retention/private cohort storage; pilot start/channels/capacity and spend caps; actual implementation approach. These block affected activation/provider slices, not review of this plan or offline skill/metric contracts. Architecture/privacy contract approval blocks related code, not further design.
+Open decisions owned by Hoang Nguyen: live collection boundary (owner explicitly decided 'Keep live collection blocked': implementation + local proof included default-off; live transmission blocked until authorized site ID, fixed test URL, and bounded test approval are provided); consent/retention/private cohort storage; pilot start/channels/capacity and spend caps. These block affected activation/provider slices, not review of this plan or offline skill/metric contracts. Architecture/privacy contract approval blocks related code, not further design.
 
 Assumptions: English-first developer/small-team audience, organic channels, no new paid media services. Financial return mechanism remains undefined; report adoption efficiency instead. Existing public evidence may not support every desired demo claim; choose a reproducible supported task, never hide the limitation.
 
@@ -159,4 +159,4 @@ Assumptions: English-first developer/small-team audience, organic channels, no n
 
 Review requested: scope, metric definitions, delivery order, acceptance criteria and explicit gates. Next: design-solution for event/consent/evidence interfaces, then implementation-readiness. No automatic transition to coding.
 
-Outcome: approved for gated implementation; Subagent-Driven execution selected. Completed evidence is the BRD research and repository mapping cited by the plan. Missing evidence: contracts/design approval, executable implementation, fresh skill evals, baseline, live pilot outcomes and financial attribution. Exact token/cost telemetry is unavailable.
+Outcome: approved for gated implementation; Subagent-Driven execution selected. Offline synthetic contracts delivered; local T01–T07, T09–T10 delivered; T08 Plausible implementation and local default-off proof included in PR #263 with live collection deliberately kept blocked by owner decision (default website gates passed: unit 38/38 on Node 26, typecheck, lint, static build, 72/72 E2E in 51.8s; code conditionally approved; configured collection browser acceptance passed 10 cases / 37 assertions on isolated static build in `artifacts/evidence-led-marketing/collection-browser-acceptance.{json,md}`; enabled AC-029/030/032 locally technically verified, real provider receipt unverified; T08 open pending authorized test site ID/URL/caps; no live transmission); T11 recover-first pending supported host operator entry point (no exposed accessor); AC-016 remote candidate SHA sync & MCP stdio lookup passed across 6 scenarios (remote-consumer-acceptance.json; release tags open separately); T13 pilot handoff preparation artifact approved by independent review; all six remaining tasks target completion in PR #263. Completed evidence is the BRD research, repository mapping, and local/candidate verification cited by the plan and walkthrough. Missing evidence: verified provider receipt, live skill evals under host entry point, baseline, live pilot outcomes and financial attribution. Exact token/cost telemetry is unavailable.

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { ActionIcon } from "./ActionIcon";
 import styles from "./interaction.module.css";
+import { usePlausible } from "./analytics/PlausibleContext";
 
 export interface CopyCommandProps {
   id: "init" | "sync";
@@ -17,6 +18,7 @@ export function CopyCommand({
 }: CopyCommandProps): React.JSX.Element {
   const [mounted, setMounted] = useState<boolean>(false);
   const [status, setStatus] = useState<CopyStatus>("idle");
+  const { trackEvent, getConsentSnapshot } = usePlausible();
 
   const codeRef = useRef<HTMLElement>(null);
   const resetTimerRef = useRef<number | NodeJS.Timeout | null>(null);
@@ -52,6 +54,12 @@ export function CopyCommand({
     resetTimerRef.current = null;
 
     const currentOpId = ++operationIdRef.current;
+
+    // Capture granted consent epoch at START of action
+    const consentAtStart = getConsentSnapshot();
+    const actionConsentEpoch =
+      consentAtStart.status === "granted" ? consentAtStart.epoch : null;
+
     setStatus("pending");
     try {
       if (
@@ -70,6 +78,19 @@ export function CopyCommand({
       }
 
       setStatus("copied");
+
+      // Only transmit if consent was granted at start and remains valid under the same epoch
+      if (actionConsentEpoch !== null) {
+        trackEvent(
+          {
+            event_name: "install_command_copy",
+            campaign_id: "standards-demo-01",
+            asset_id: "unknown",
+            placement: id === "init" ? "quickstart_init" : "quickstart_sync",
+          },
+          actionConsentEpoch,
+        ).catch(() => {});
+      }
       resetTimerRef.current = setTimeout(() => {
         if (operationIdRef.current === currentOpId) {
           setStatus("idle");
@@ -83,7 +104,7 @@ export function CopyCommand({
 
       setStatus("failed");
     }
-  }, [command, status]);
+  }, [command, id, status, getConsentSnapshot, trackEvent]);
 
   const handleSelectCode = useCallback(() => {
     if (!codeRef.current || typeof window === "undefined") {

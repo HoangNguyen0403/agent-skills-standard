@@ -1,4 +1,6 @@
 import React from "react";
+import { PlausibleProvider } from "./analytics/PlausibleContext";
+import { ConsentBanner } from "./ConsentBanner.client";
 import { MotionObserver } from "./MotionObserver.client";
 import { Header } from "./sections/Header";
 import { HeroSection } from "./sections/HeroSection";
@@ -17,7 +19,7 @@ import styles from "./landing.module.css";
 
 export function LandingPage(): React.JSX.Element {
   return (
-    <>
+    <PlausibleProvider>
       {/* MotionObserver mounts once, managing bounded one-shot decorative motion */}
       <MotionObserver />
 
@@ -41,6 +43,7 @@ export function LandingPage(): React.JSX.Element {
 
       {/* Semantic footer outside main */}
       <Footer />
-    </>
+      <ConsentBanner />
+    </PlausibleProvider>
   );
 }
