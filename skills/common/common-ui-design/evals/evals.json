@@ -3,57 +3,86 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Build a landing page for our new SaaS product.",
-      "expected_output": "Phase 0 Design Thinking first: (1) Purpose — what problem does the SaaS solve? (2) Tone — commit to one: brutally minimal / maximalist / editorial / luxury. (3) Differentiation — one thing users will remember. Then: pair display font + body font (not system defaults), choose dominant color + sharp accent, plan one orchestrated entrance animation, use gradient mesh or texture background.",
+      "prompt": "Our billing dashboard already has working tables and KPI cards, but spacing and text contrast feel inconsistent. Polish the design to clean it up.",
+      "expected_output": "Treat as Polish tier: preserve existing information architecture, table layout, card structure, and navigation behavior. Fix alignment, padding cadence, typography hierarchy, and WCAG contrast. Do not rewrite layout geometry, rearrange data cards, or alter functional behavior without an explicit rethink request.",
       "assertions": [
+        {
+          "type": "contains",
+          "value": "polish",
+          "description": "Categorizes scope under Polish default for existing designs"
+        },
         {
           "type": "contains_any",
           "value": [
-            "tone",
-            "aesthetic",
-            "industrial/utilitarian"
-          ]
+            "information architecture",
+            "table layout",
+            "card structure",
+            "preserve existing"
+          ],
+          "description": "Preserves existing structural composition and navigation"
         },
         {
-          "type": "contains",
-          "value": "font"
+          "type": "regex",
+          "value": "(preserve|keep)\\s+(existing|table|card|structure|layout)",
+          "description": "Affirms decision to preserve existing structural components"
         }
       ]
     },
     {
       "id": 2,
-      "prompt": "Create a dashboard UI with charts and data tables.",
-      "expected_output": "Commit to aesthetic: industrial/utilitarian or editorial/magazine for data-heavy dashboards. Typography: pair a distinctive monospace or condensed display font with clean body type. Spatial composition: generous negative space OR controlled density — never accidental middleground. Background: layer transparencies or subtle noise texture. Avoid: white background with generic Inter font.",
+      "prompt": "Restyle our checkout review page to match our updated brand palette and typography, but keep the current checkout flow and form structure intact.",
+      "expected_output": "Execute Restyle tier: update visual styling, brand colors, typography pairings, surface elevation, and corner radius while strictly preserving the checkout task flow, form field order, and layout structure. Do not initiate a structural rethink or dismantle form hierarchy without explicit human approval.",
       "assertions": [
+        {
+          "type": "contains",
+          "value": "restyle",
+          "description": "Categorizes scope under Restyle tier"
+        },
         {
           "type": "contains_any",
           "value": [
-            "aesthetic",
-            "design direction"
-          ]
+            "preserving the checkout task flow",
+            "layout structure",
+            "form field order",
+            "checkout flow"
+          ],
+          "description": "Preserves task flow and functional form layout"
         },
         {
-          "type": "contains",
-          "value": "typography"
+          "type": "contains_any",
+          "value": [
+            "explicit human approval",
+            "human approval",
+            "explicit approval"
+          ],
+          "description": "Requires explicit human approval before structural changes or rethink"
         }
       ]
     },
     {
       "id": 3,
-      "prompt": "The design looks generic — it's just white background with purple gradient buttons like every other AI startup.",
-      "expected_output": "No purple-gradient-on-white — most overused AI aesthetic. Commit to something context-specific: (1) Choose a contrasting tone (dark editorial / retro-futuristic / brutalist). (2) Use a characterful display font (not Inter/Roboto). (3) One orchestrated entrance beat ten hover effects. (4) Break the grid intentionally with asymmetry or diagonal flow.",
+      "prompt": "The current user settings page layout is okay, but I'm wondering if we should completely rethink and restructure the whole information architecture into tabs.",
+      "expected_output": "Flag that structural restructure requires explicit rethink scope and human approval because it dismantles existing layout and information architecture. Propose smallest effective change first, classify layout restructuring as Rethink requiring confirmation, and preserve current workflow constraints unless the user explicitly confirms the restructure.",
       "assertions": [
+        {
+          "type": "contains",
+          "value": "rethink",
+          "description": "Identifies structural reorganization as Rethink tier"
+        },
         {
           "type": "contains_any",
           "value": [
-            "generic",
-            "another AI startup",
-            "generic Inter"
-          ]
+            "smallest effective change",
+            "explicit human direction",
+            "preserve current workflow",
+            "rethink requiring confirmation"
+          ],
+          "description": "Prioritizes smallest effective change and requires explicit direction before layout overhaul"
         },
         {
-          "type": "contains",
-          "value": "font"
+          "type": "regex",
+          "value": "(rethink|restructur).*(require|need|confirm|direction|approval)",
+          "description": "Affirms decision that structural rethink requires human direction or approval"
         }
       ]
     }
