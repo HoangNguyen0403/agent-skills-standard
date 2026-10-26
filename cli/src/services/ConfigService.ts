@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import fs from 'fs-extra';
 import * as yaml from 'js-yaml';
 import path from 'path';
@@ -16,6 +17,7 @@ import {
 } from '../constants';
 import { CategoryConfig, SkillConfig } from '../models/config';
 import { RegistryMetadata } from '../models/types';
+import { defaultCategorySelection } from './CategoryDefaults';
 
 const McpScopeSchema = z.enum(['project', 'user', 'snippets-only', 'disabled']);
 
@@ -48,6 +50,7 @@ const SkillConfigSchema = z.object({
       exclude: z.array(z.string()).optional(),
     }),
   ),
+  skills_mode: z.enum(['auto', 'explicit']).optional(),
   custom_overrides: z.array(z.string()).optional(),
   workflows: z.union([z.boolean(), z.array(z.string())]).optional(),
   prune: z.boolean().optional(),
@@ -58,10 +61,6 @@ const SkillConfigSchema = z.object({
 });
 
 const DEFAULT_SDLC_SUPPORT_CATEGORIES = ['quality-engineering'] as const;
-const DEFAULT_PRODUCT_MANAGEMENT_FOUNDATION_SKILLS = [
-  'product-business-requirements',
-  'product-requirements',
-] as const;
 const PRIMARY_CONFIG_FILE = '.skillsrc';
 const LEGACY_YAML_CONFIG_FILE = '.skillsrc.yaml';
 
@@ -69,6 +68,31 @@ type ConfigMigrationResult = {
   config: Record<string, unknown>;
   migrated: boolean;
 };
+
+type ConfigSource = {
+  config: SkillConfig;
+  raw: Record<string, unknown>;
+  sourcePath: string;
+  fingerprint: string;
+  migrated: boolean;
+  migratedFromText: boolean;
+  shouldRenameLegacyYamlFile: boolean;
+};
+
+const CONFIG_CONFLICT_MESSAGE =
+  'Configuration changed on disk since it was opened; reload before applying.';
+
+/**
+ * Read-only view of the configuration used by the interactive manager. It
+ * carries the validated model plus the raw document so a later save can merge
+ * changes without discarding unrelated or extension fields.
+ */
+export interface ConfigSnapshot {
+  config: SkillConfig;
+  raw: Record<string, unknown>;
+  sourcePath: string;
+  fingerprint: string;
+}
 
 /**
  * Service for managing the `.skillsrc` configuration file.
@@ -302,7 +326,7 @@ export class ConfigService {
     }
 
     if (this.isRecord(normalized.skills)) {
-      const normalizedSkills: Record<string, CategoryConfig> = {};
+      const normalizedSkills: Record<string, Record<string, unknown>> = {};
       for (const [category, value] of Object.entries(normalized.skills)) {
         if (!this.isRecord(value)) {
           normalizedSkills[category] = {};
@@ -310,12 +334,23 @@ export class ConfigService {
           continue;
         }
 
-        const entry: CategoryConfig = {};
-        if (typeof value.ref === 'string') entry.ref = value.ref;
-        if (Array.isArray(value.include))
+        // Keep unknown/extension keys so saving a selection never discards
+        // configuration this service does not interpret.
+        const entry: Record<string, unknown> = { ...value };
+        if (typeof value.ref === 'string') {
+          entry.ref = value.ref;
+        } else {
+          delete entry.ref;
+        }
+
+        if (Array.isArray(value.include)) {
           entry.include = value.include.filter(
             (item): item is string => typeof item === 'string',
           );
+        } else {
+          delete entry.include;
+        }
+
         if (Array.isArray(value.exclude)) {
           entry.exclude = value.exclude.filter(
             (item): item is string => typeof item === 'string',
@@ -323,6 +358,8 @@ export class ConfigService {
         } else if (typeof value.exclude === 'string') {
           entry.exclude = this.parseLegacyList(value.exclude);
           migrated = true;
+        } else {
+          delete entry.exclude;
         }
         normalizedSkills[category] = entry;
       }
@@ -342,62 +379,197 @@ export class ConfigService {
   }
 
   /**
+   * Reads, migrates in memory, and validates the configuration without
+   * touching the filesystem. Legacy filenames and text-format migrations are
+   * only written when a caller explicitly saves.
+   */
+  private async readConfigSource(cwd: string): Promise<ConfigSource | null> {
+    const configPath = await this.resolveConfigPath(cwd);
+    if (!configPath) return null;
+
+    const content = await fs.readFile(configPath, 'utf8');
+    let rawConfig: unknown;
+    let migratedFromText = false;
+
+    try {
+      rawConfig = yaml.load(content);
+    } catch (parseError) {
+      rawConfig = this.migrateLegacyTextConfig(content);
+      migratedFromText = rawConfig !== null;
+
+      if (!migratedFromText) {
+        throw parseError;
+      }
+    }
+
+    const { config: normalizedConfig, migrated } =
+      this.normalizeRawConfig(rawConfig);
+
+    const parsed = SkillConfigSchema.safeParse(normalizedConfig);
+
+    if (!parsed.success) {
+      throw new Error(`Invalid .skillsrc format: ${parsed.error.message}`);
+    }
+
+    return {
+      config: parsed.data as SkillConfig,
+      // Original document, not normalized values: a save must preserve
+      // unrelated legacy values (e.g. an `openai` agent alias) verbatim.
+      raw: this.isRecord(rawConfig) ? { ...rawConfig } : {},
+      sourcePath: configPath,
+      fingerprint: createHash('sha256').update(content, 'utf8').digest('hex'),
+      migrated,
+      migratedFromText,
+      shouldRenameLegacyYamlFile: configPath !== this.getPrimaryConfigPath(cwd),
+    };
+  }
+
+  /**
    * Loads and validates the skill configuration from the workspace.
    * @param cwd Current working directory
    * @returns The parsed SkillConfig or null if not found
    * @throws Error if the configuration format is invalid
    */
   async loadConfig(cwd: string = process.cwd()): Promise<SkillConfig | null> {
-    const configPath = await this.resolveConfigPath(cwd);
-
-    if (!configPath) {
-      return null;
-    }
-
-    const primaryConfigPath = this.getPrimaryConfigPath(cwd);
-    const shouldRenameLegacyYamlFile = configPath !== primaryConfigPath;
-
     try {
-      const content = await fs.readFile(configPath, 'utf8');
-      let rawConfig: unknown;
-      let migratedFromText = false;
-
-      try {
-        rawConfig = yaml.load(content);
-      } catch (parseError) {
-        rawConfig = this.migrateLegacyTextConfig(content);
-        migratedFromText = rawConfig !== null;
-
-        if (!migratedFromText) {
-          throw parseError;
-        }
+      const source = await this.readConfigSource(cwd);
+      if (!source) {
+        return null;
       }
 
-      const { config: normalizedConfig, migrated } =
-        this.normalizeRawConfig(rawConfig);
-
-      // Validate with Zod
-      const parsed = SkillConfigSchema.safeParse(normalizedConfig);
-
-      if (!parsed.success) {
-        throw new Error(`Invalid .skillsrc format: ${parsed.error.message}`);
-      }
-
-      if (migratedFromText || migrated || shouldRenameLegacyYamlFile) {
+      if (
+        source.migratedFromText ||
+        source.migrated ||
+        source.shouldRenameLegacyYamlFile
+      ) {
         await fs.outputFile(
-          primaryConfigPath,
-          this.dumpConfig(parsed.data as Record<string, unknown>),
+          this.getPrimaryConfigPath(cwd),
+          this.dumpConfig(source.config as unknown as Record<string, unknown>),
         );
       }
 
-      if (shouldRenameLegacyYamlFile) {
-        await fs.remove(configPath);
+      if (source.shouldRenameLegacyYamlFile) {
+        await fs.remove(source.sourcePath);
       }
 
-      return parsed.data as SkillConfig;
+      return source.config;
     } catch (error) {
       throw new Error(`Failed to load config: ${error}`, { cause: error });
     }
+  }
+
+  /**
+   * Loads the configuration for the interactive manager without writing
+   * migrations. Returns null when no configuration exists.
+   */
+  async readSnapshot(
+    cwd: string = process.cwd(),
+  ): Promise<ConfigSnapshot | null> {
+    const source = await this.readConfigSource(cwd);
+    if (!source) return null;
+
+    return {
+      config: source.config,
+      raw: source.raw,
+      sourcePath: source.sourcePath,
+      fingerprint: source.fingerprint,
+    };
+  }
+
+  /**
+   * Persists a reviewed selection after verifying the source has not changed
+   * since the snapshot was read. Only `skills` and `skills_mode` are rewritten;
+   * unrelated root values and category extension fields survive.
+   */
+  async saveSelection(
+    snapshot: ConfigSnapshot,
+    next: SkillConfig,
+    cwd: string = process.cwd(),
+  ): Promise<ConfigSnapshot> {
+    const parsed = SkillConfigSchema.safeParse(next);
+    if (!parsed.success) {
+      throw new Error(`Invalid .skillsrc format: ${parsed.error.message}`);
+    }
+    const validated = parsed.data as SkillConfig;
+
+    const currentPath = await this.resolveConfigPath(cwd);
+    if (currentPath !== snapshot.sourcePath) {
+      throw new Error(CONFIG_CONFLICT_MESSAGE);
+    }
+
+    const currentContent = await fs.readFile(snapshot.sourcePath, 'utf8');
+    const currentFingerprint = createHash('sha256')
+      .update(currentContent, 'utf8')
+      .digest('hex');
+    if (currentFingerprint !== snapshot.fingerprint) {
+      throw new Error(CONFIG_CONFLICT_MESSAGE);
+    }
+
+    const merged: Record<string, unknown> = { ...snapshot.raw };
+    merged.skills = this.mergeSkillEntries(
+      snapshot.raw.skills,
+      validated.skills,
+    );
+    if (validated.skills_mode) {
+      merged.skills_mode = validated.skills_mode;
+    } else {
+      delete merged.skills_mode;
+    }
+
+    const primaryConfigPath = this.getPrimaryConfigPath(cwd);
+    const content = this.dumpConfig(merged);
+    await fs.outputFile(primaryConfigPath, content);
+
+    // Only the verified source may be migrated away. An unrelated legacy file
+    // beside an existing `.skillsrc` is not ours to delete.
+    const legacyYamlPath = this.getLegacyYamlConfigPath(cwd);
+    if (
+      snapshot.sourcePath === legacyYamlPath &&
+      (await fs.pathExists(legacyYamlPath))
+    ) {
+      await fs.remove(legacyYamlPath);
+    }
+
+    return {
+      config: validated,
+      raw: merged,
+      sourcePath: primaryConfigPath,
+      fingerprint: createHash('sha256').update(content, 'utf8').digest('hex'),
+    };
+  }
+
+  private mergeSkillEntries(
+    rawSkills: unknown,
+    nextSkills: Record<string, CategoryConfig>,
+  ): Record<string, unknown> {
+    const existing = this.isRecord(rawSkills) ? rawSkills : {};
+    const merged: Record<string, unknown> = {};
+
+    for (const [category, entry] of Object.entries(nextSkills)) {
+      const base = this.isRecord(existing[category])
+        ? { ...existing[category] }
+        : {};
+
+      if (entry.ref !== undefined) {
+        base.ref = entry.ref;
+      } else {
+        delete base.ref;
+      }
+      if (entry.include !== undefined) {
+        base.include = [...entry.include];
+      } else {
+        delete base.include;
+      }
+      if (entry.exclude !== undefined) {
+        base.exclude = [...entry.exclude];
+      } else {
+        delete base.exclude;
+      }
+
+      merged[category] = base;
+    }
+
+    return merged;
   }
 
   /**
@@ -500,10 +672,10 @@ export class ConfigService {
       metadata.categories?.['product-management'] &&
       !skills['product-management']
     ) {
-      skills['product-management'] = {
-        ref: this.getCategoryRef('product-management', metadata),
-        include: [...DEFAULT_PRODUCT_MANAGEMENT_FOUNDATION_SKILLS],
-      };
+      skills['product-management'] = defaultCategorySelection(
+        'product-management',
+        this.getCategoryRef('product-management', metadata),
+      );
     }
 
     // Add database category for backend frameworks
@@ -570,6 +742,8 @@ export class ConfigService {
     projectDeps: Set<string>,
     cwd: string = process.cwd(),
   ): string[] {
+    if (config.skills_mode === 'explicit') return [];
+
     const totalReenabled: string[] = [];
     const allKnownCategories = Object.keys(SKILL_DETECTION_REGISTRY);
     const depsArray = Array.from(projectDeps);

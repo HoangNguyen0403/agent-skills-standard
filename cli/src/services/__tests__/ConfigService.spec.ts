@@ -83,6 +83,23 @@ describe('ConfigService', () => {
       expect(config?.specialists_ref).toBe('specialists-v2.0.0');
     });
 
+    it('should retain an explicit skills_mode from configuration', async () => {
+      vi.mocked(fs.pathExists).mockImplementation(() => Promise.resolve(true));
+      vi.mocked(fs.readFile).mockImplementation(() =>
+        Promise.resolve('mockYaml' as unknown as Buffer),
+      );
+      vi.mocked(yaml.load).mockReturnValue({
+        registry: 'https://example.com',
+        agents: [Agent.Cursor],
+        skills: { react: { ref: 'react-v1.0.0' } },
+        skills_mode: 'explicit',
+      });
+
+      const config = await configService.loadConfig(mockCwd);
+
+      expect(config?.skills_mode).toBe('explicit');
+    });
+
     it('should fall back to .skillsrc.yaml and migrate it to .skillsrc', async () => {
       const mockYamlText = 'registry: https://example.com\nskills: {}';
       const mockConfig: SkillConfig = {
@@ -334,6 +351,223 @@ agents:
       expect(fs.remove).toHaveBeenCalledWith(
         path.join(mockCwd, '.skillsrc.yaml'),
       );
+    });
+  });
+
+  describe('readSnapshot and saveSelection', () => {
+    const primaryPath = path.join(mockCwd, '.skillsrc');
+    const legacyPath = path.join(mockCwd, '.skillsrc.yaml');
+
+    const rawConfig = {
+      registry: 'https://example.com',
+      agents: [Agent.Cursor],
+      skills: {
+        react: {
+          ref: 'react-v1.0.0',
+          include: ['hooks'],
+          extension_flag: 'keep-me',
+        },
+      },
+      extension_root: { owner: 'team' },
+      custom_overrides: ['safe.md'],
+    };
+
+    it('reads a legacy YAML configuration without renaming or writing', async () => {
+      vi.mocked(fs.pathExists).mockImplementation((target) =>
+        Promise.resolve(target === legacyPath),
+      );
+      vi.mocked(fs.readFile).mockImplementation(() =>
+        Promise.resolve(Buffer.from('registry: https://example.com')),
+      );
+      vi.mocked(yaml.load).mockReturnValue(rawConfig);
+
+      const snapshot = await configService.readSnapshot(mockCwd);
+
+      expect(snapshot?.sourcePath).toBe(legacyPath);
+      expect(snapshot?.config.skills.react?.include).toEqual(['hooks']);
+      expect(snapshot?.raw).toEqual(rawConfig);
+      expect(snapshot?.fingerprint).toMatch(/^[a-f0-9]{64}$/);
+      expect(fs.outputFile).not.toHaveBeenCalled();
+      expect(fs.remove).not.toHaveBeenCalled();
+    });
+
+    it('persists only selection changes while retaining extension fields', async () => {
+      vi.mocked(fs.pathExists).mockImplementation((target) =>
+        Promise.resolve(target === primaryPath),
+      );
+      vi.mocked(fs.readFile).mockImplementation(() =>
+        Promise.resolve(Buffer.from('original: yaml')),
+      );
+      vi.mocked(yaml.load).mockReturnValue(rawConfig);
+      vi.mocked(yaml.dump).mockImplementation((value) =>
+        JSON.stringify(value),
+      );
+
+      const snapshot = await configService.readSnapshot(mockCwd);
+      if (!snapshot) throw new Error('expected configuration snapshot');
+
+      const next: SkillConfig = {
+        ...snapshot.config,
+        skills: {
+          react: {
+            ref: 'react-v1.0.0',
+            include: ['hooks', 'testing'],
+            exclude: ['forms'],
+          },
+        },
+        skills_mode: 'explicit',
+      };
+
+      const saved = await configService.saveSelection(
+        snapshot,
+        next,
+        mockCwd,
+      );
+
+      expect(fs.outputFile).toHaveBeenCalledWith(
+        primaryPath,
+        expect.any(String),
+      );
+      const persisted = JSON.parse(
+        vi.mocked(fs.outputFile).mock.calls[0][1] as string,
+      );
+      expect(persisted.skills_mode).toBe('explicit');
+      expect(persisted.skills.react).toEqual({
+        ref: 'react-v1.0.0',
+        include: ['hooks', 'testing'],
+        exclude: ['forms'],
+        extension_flag: 'keep-me',
+      });
+      expect(persisted.extension_root).toEqual({ owner: 'team' });
+      expect(persisted.custom_overrides).toEqual(['safe.md']);
+      expect(saved.sourcePath).toBe(primaryPath);
+      expect(saved.fingerprint).toMatch(/^[a-f0-9]{64}$/);
+    });
+
+    it('rejects saving when the configuration changed after it was read', async () => {
+      vi.mocked(fs.pathExists).mockImplementation((target) =>
+        Promise.resolve(target === primaryPath),
+      );
+      vi.mocked(fs.readFile)
+        .mockImplementationOnce(() => Promise.resolve(Buffer.from('original: yaml')))
+        .mockImplementationOnce(() => Promise.resolve(Buffer.from('changed: yaml')));
+      vi.mocked(yaml.load).mockReturnValue(rawConfig);
+
+      const snapshot = await configService.readSnapshot(mockCwd);
+      if (!snapshot) throw new Error('expected configuration snapshot');
+
+      await expect(
+        configService.saveSelection(
+          snapshot,
+          { ...snapshot.config, skills: {}, skills_mode: 'explicit' },
+          mockCwd,
+        ),
+      ).rejects.toThrow('changed on disk');
+      expect(fs.outputFile).not.toHaveBeenCalled();
+    });
+
+    it('does not remove an unrelated legacy file beside the current config', async () => {
+      vi.mocked(fs.pathExists).mockImplementation(() => Promise.resolve(true));
+      vi.mocked(fs.readFile).mockImplementation(() =>
+        Promise.resolve(Buffer.from('original: yaml')),
+      );
+      vi.mocked(yaml.load).mockReturnValue(rawConfig);
+      vi.mocked(yaml.dump).mockImplementation((value) =>
+        JSON.stringify(value),
+      );
+
+      const snapshot = await configService.readSnapshot(mockCwd);
+      if (!snapshot) throw new Error('expected configuration snapshot');
+      expect(snapshot.sourcePath).toBe(primaryPath);
+
+      await configService.saveSelection(
+        snapshot,
+        { ...snapshot.config, skills: {}, skills_mode: 'explicit' },
+        mockCwd,
+      );
+
+      expect(fs.remove).not.toHaveBeenCalled();
+    });
+
+    it('removes only the legacy file it actually migrated', async () => {
+      vi.mocked(fs.pathExists).mockImplementation((target) =>
+        Promise.resolve(target === legacyPath),
+      );
+      vi.mocked(fs.readFile).mockImplementation(() =>
+        Promise.resolve(Buffer.from('legacy: yaml')),
+      );
+      vi.mocked(yaml.load).mockReturnValue(rawConfig);
+      vi.mocked(yaml.dump).mockImplementation((value) =>
+        JSON.stringify(value),
+      );
+
+      const snapshot = await configService.readSnapshot(mockCwd);
+      if (!snapshot) throw new Error('expected configuration snapshot');
+
+      await configService.saveSelection(
+        snapshot,
+        { ...snapshot.config, skills_mode: 'explicit' },
+        mockCwd,
+      );
+
+      expect(fs.outputFile).toHaveBeenCalledWith(
+        primaryPath,
+        expect.any(String),
+      );
+      expect(fs.remove).toHaveBeenCalledWith(legacyPath);
+    });
+
+    it('preserves unrelated original values instead of normalized ones', async () => {
+      const legacyRaw = {
+        registry: '<https://example.com>',
+        agents: ['openai'],
+        skills: {
+          react: {
+            ref: 'react-v1.0.0',
+            exclude: '- forms - hooks',
+            extension_flag: 'keep-me',
+          },
+        },
+        extension_root: { owner: 'team' },
+      };
+      vi.mocked(fs.pathExists).mockImplementation((target) =>
+        Promise.resolve(target === primaryPath),
+      );
+      vi.mocked(fs.readFile).mockImplementation(() =>
+        Promise.resolve(Buffer.from('legacy values: yaml')),
+      );
+      vi.mocked(yaml.load).mockReturnValue(legacyRaw);
+      vi.mocked(yaml.dump).mockImplementation((value) =>
+        JSON.stringify(value),
+      );
+
+      const snapshot = await configService.readSnapshot(mockCwd);
+      if (!snapshot) throw new Error('expected configuration snapshot');
+      expect(snapshot.config.agents).toEqual([Agent.Codex]);
+
+      await configService.saveSelection(
+        snapshot,
+        {
+          ...snapshot.config,
+          skills: {
+            react: { ref: 'react-v1.0.0', include: ['hooks'] },
+          },
+          skills_mode: 'explicit',
+        },
+        mockCwd,
+      );
+
+      const persisted = JSON.parse(
+        vi.mocked(fs.outputFile).mock.calls[0][1] as string,
+      );
+      expect(persisted.registry).toBe('<https://example.com>');
+      expect(persisted.agents).toEqual(['openai']);
+      expect(persisted.extension_root).toEqual({ owner: 'team' });
+      expect(persisted.skills.react).toEqual({
+        ref: 'react-v1.0.0',
+        include: ['hooks'],
+        extension_flag: 'keep-me',
+      });
     });
   });
 
@@ -931,6 +1165,55 @@ agents:
   });
 
   describe('reconcileDependencies', () => {
+    it('should leave explicit selections untouched while retaining auto behavior by default', () => {
+      const explicitConfig: SkillConfig = {
+        registry: 'https://example.com',
+        agents: [Agent.Cursor],
+        skills: {
+          android: {
+            ref: 'v1.0.0',
+            exclude: ['android-networking'],
+          },
+        },
+        custom_overrides: [],
+        skills_mode: 'explicit',
+      };
+
+      vi.mocked(fs.existsSync).mockReturnValue(true);
+
+      // 'retrofit' detects android-networking and 'redis' detects the
+      // database category; explicit mode must not restore either.
+      const explicitReenabled = configService.reconcileDependencies(
+        explicitConfig,
+        new Set(['retrofit', 'redis']),
+      );
+
+      expect(explicitReenabled).toEqual([]);
+      expect(explicitConfig.skills.android?.exclude).toEqual([
+        'android-networking',
+      ]);
+      expect(explicitConfig.skills.database).toBeUndefined();
+
+      const autoConfig: SkillConfig = {
+        ...explicitConfig,
+        skills: {
+          android: { ref: 'v1.0.0', exclude: ['android-networking'] },
+        },
+      };
+      delete autoConfig.skills_mode;
+
+      const autoReenabled = configService.reconcileDependencies(
+        autoConfig,
+        new Set(['retrofit', 'redis']),
+      );
+
+      expect(autoReenabled).toContain('android/android-networking');
+      expect(autoConfig.skills.android?.exclude).toBeUndefined();
+      expect(autoConfig.skills.database).toBeDefined();
+
+      vi.mocked(fs.existsSync).mockReset();
+    });
+
     it('should re-enable skills if dependencies are found', () => {
       const config: SkillConfig = {
         registry: 'https://example.com',

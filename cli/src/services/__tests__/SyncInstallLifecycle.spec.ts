@@ -506,4 +506,286 @@ describe('SyncInstallLifecycle', () => {
     const lock = await fs.readJson(path.join(tempDir, LOCKFILE_NAME));
     expect(lock.version).toBe(2);
   });
+
+  const indexableSkill = (): CollectedSkill => ({
+    category: 'typescript',
+    skill: 'ts-core',
+    files: [
+      {
+        name: 'SKILL.md',
+        content: [
+          '---',
+          'name: ts-core',
+          'description: typescript core skill',
+          'metadata:',
+          '  triggers:',
+          '    files: []',
+          '    keywords: []',
+          '---',
+          '## **Priority: P1**',
+          '',
+        ].join('\n'),
+      },
+    ],
+  });
+
+  const loadLocalMetadata = async (): Promise<RegistryMetadata> =>
+    fs.readJson(path.resolve(originalCwd, '..', 'skills', 'metadata.json'));
+
+  it('9. completed empty category evidence prunes package and stale index', async () => {
+    const localMetadata = await loadLocalMetadata();
+    const config = makeConfig();
+    const seeded = indexableSkill();
+    await syncService.beginInstall(config, { dryRun: false, force: [] });
+    await syncService.writeSkills([seeded], config);
+    await syncService.completeInstall(config, {
+      skills: [seeded],
+      workflows: [],
+      specialistsOk: true,
+      refreshIndices: true,
+      localMetadata,
+    });
+    const indexPath = path.join(
+      tempDir,
+      '.claude/skills/typescript/_INDEX.md',
+    );
+    expect(await fs.pathExists(indexPath)).toBe(true);
+
+    const emptyConfig = makeConfig({
+      skills: { typescript: { include: [] } },
+    });
+    await syncService.beginInstall(emptyConfig, { dryRun: false, force: [] });
+    await syncService.writeSkills([], emptyConfig);
+    const plan = await syncService.completeInstall(emptyConfig, {
+      skills: [],
+      workflows: [],
+      specialistsOk: true,
+      refreshIndices: true,
+      localMetadata,
+      completedSkillCategories: ['typescript'],
+    });
+
+    expect(plan.pruned).toContain('.claude/skills/typescript/ts-core/SKILL.md');
+    expect(
+      await fs.pathExists(
+        path.join(tempDir, '.claude/skills/typescript/ts-core/SKILL.md'),
+      ),
+    ).toBe(false);
+    expect(await fs.pathExists(indexPath)).toBe(false);
+    const lock = await fs.readJson(path.join(tempDir, LOCKFILE_NAME));
+    expect(lock.entries['.claude/skills/typescript/_INDEX.md']).toBeUndefined();
+  });
+
+  it('10. explicit completion evidence replaces package-count inference', async () => {
+    const config = makeConfig();
+    await runSync(config, [skillFixture]);
+    const lockBefore = await fs.readJson(path.join(tempDir, LOCKFILE_NAME));
+
+    await syncService.beginInstall(config, { dryRun: false, force: [] });
+    await syncService.writeSkills([skillFixture], config);
+    const plan = await syncService.completeInstall(config, {
+      skills: [skillFixture],
+      workflows: [],
+      specialistsOk: true,
+      completedSkillCategories: [],
+    });
+
+    expect(plan.pruned).toEqual([]);
+    const lockAfter = await fs.readJson(path.join(tempDir, LOCKFILE_NAME));
+    expect(lockAfter.entries['.claude/skills/typescript/ts-core/SKILL.md'])
+      .toEqual(lockBefore.entries['.claude/skills/typescript/ts-core/SKILL.md']);
+  });
+
+  it('11. skills scope preserves workflow and specialist entries and lock provenance', async () => {
+    const config = makeConfig();
+    await runSync(config, [skillFixture]);
+    const lockPath = path.join(tempDir, LOCKFILE_NAME);
+    const lock = await fs.readJson(lockPath);
+    const workflowRel = '.claude/commands/sdlc.md';
+    const workflowBytes = '# SDLC';
+    await fs.outputFile(path.join(tempDir, workflowRel), workflowBytes);
+    lock.entries[workflowRel] = {
+      owner: 'workflow',
+      source: 'workflow:sdlc',
+      agent: 'claude',
+      sha256: sha256(workflowBytes),
+    };
+    const specialistRel = '.claude/agents/reviewer.md';
+    const specialistBytes = '# Reviewer';
+    await fs.outputFile(path.join(tempDir, specialistRel), specialistBytes);
+    lock.entries[specialistRel] = {
+      owner: 'specialist',
+      source: 'specialist:reviewer',
+      agent: 'claude',
+      sha256: sha256(specialistBytes),
+    };
+    lock.sources['workflows'] = { ref: 'workflows-v1', commit: 'e'.repeat(40) };
+    lock.sources['specialists'] = {
+      ref: 'specialists-v1',
+      commit: 'f'.repeat(40),
+    };
+    await fs.writeJson(lockPath, lock, { spaces: 2 });
+
+    const scopedConfig = makeConfig({
+      skills: { typescript: { ref: 'v2' } },
+    });
+    await syncService.beginInstall(scopedConfig, {
+      dryRun: false,
+      force: [],
+      scope: 'skills',
+      resolvedRefs: {
+        workflows: { ref: '', commit: null, pinned: false },
+        specialists: { ref: '', commit: null, pinned: false },
+        skills: {
+          typescript: { ref: 'v2', commit: 'a'.repeat(40), pinned: true },
+        },
+        newPins: {},
+        warnings: [],
+      },
+    });
+    await syncService.writeSkills([skillFixture], scopedConfig);
+    const plan = await syncService.completeInstall(scopedConfig, {
+      skills: [skillFixture],
+      workflows: [],
+      specialistsOk: false,
+      completedSkillCategories: ['typescript'],
+    });
+
+    expect(plan.pruned).toEqual([]);
+    expect(await fs.readFile(path.join(tempDir, workflowRel), 'utf8')).toBe(
+      workflowBytes,
+    );
+    expect(await fs.readFile(path.join(tempDir, specialistRel), 'utf8')).toBe(
+      specialistBytes,
+    );
+    const updated = await fs.readJson(lockPath);
+    expect(updated.entries[workflowRel]).toEqual(lock.entries[workflowRel]);
+    expect(updated.entries[specialistRel]).toEqual(lock.entries[specialistRel]);
+    expect(updated.sources['workflows']).toEqual({
+      ref: 'workflows-v1',
+      commit: 'e'.repeat(40),
+    });
+    expect(updated.sources['specialists']).toEqual({
+      ref: 'specialists-v1',
+      commit: 'f'.repeat(40),
+    });
+    expect(updated.sources['skills/typescript']).toEqual({
+      ref: 'v2',
+      commit: 'a'.repeat(40),
+    });
+  });
+
+  it('12. skills scope does not migrate the legacy .agent folder', async () => {
+    await fs.outputFile(
+      path.join(tempDir, '.agent/legacy/marker.md'),
+      'legacy marker',
+    );
+    const config = makeConfig();
+    await syncService.beginInstall(config, {
+      dryRun: false,
+      force: [],
+      scope: 'skills',
+      resolvedRefs: {
+        workflows: { ref: '', commit: null, pinned: false },
+        specialists: { ref: '', commit: null, pinned: false },
+        skills: {
+          typescript: { ref: 'v1', commit: 'a'.repeat(40), pinned: true },
+        },
+        newPins: {},
+        warnings: [],
+      },
+    });
+    await syncService.writeSkills([skillFixture], config);
+    await syncService.completeInstall(config, {
+      skills: [skillFixture],
+      workflows: [],
+      specialistsOk: true,
+      completedSkillCategories: ['typescript'],
+    });
+
+    expect(
+      await fs.readFile(
+        path.join(tempDir, '.agent/legacy/marker.md'),
+        'utf8',
+      ),
+    ).toBe('legacy marker');
+  });
+
+  it('13. skills scope preserves workflow and specialist files of former agents', async () => {
+    const config = makeConfig({ agents: [Agent.Claude, Agent.Codex] });
+    await runSync(config, [skillFixture]);
+    const lockPath = path.join(tempDir, LOCKFILE_NAME);
+    const lock = await fs.readJson(lockPath);
+    const codexWorkflowRel = '.codex/commands/sdlc.md';
+    const codexWorkflowBytes = '# SDLC for codex';
+    await fs.outputFile(
+      path.join(tempDir, codexWorkflowRel),
+      codexWorkflowBytes,
+    );
+    lock.entries[codexWorkflowRel] = {
+      owner: 'workflow',
+      source: 'workflow:sdlc',
+      agent: 'codex',
+      sha256: sha256(codexWorkflowBytes),
+    };
+    const codexSpecialistRel = '.codex/agents/reviewer.md';
+    const codexSpecialistBytes = '# Reviewer for codex';
+    await fs.outputFile(
+      path.join(tempDir, codexSpecialistRel),
+      codexSpecialistBytes,
+    );
+    lock.entries[codexSpecialistRel] = {
+      owner: 'specialist',
+      source: 'specialist:reviewer',
+      agent: 'codex',
+      sha256: sha256(codexSpecialistBytes),
+    };
+    await fs.writeJson(lockPath, lock, { spaces: 2 });
+
+    const scopedConfig = makeConfig({
+      agents: [Agent.Claude],
+      skills: { typescript: { ref: 'v2' } },
+    });
+    await syncService.beginInstall(scopedConfig, {
+      dryRun: false,
+      force: [],
+      scope: 'skills',
+      resolvedRefs: {
+        workflows: { ref: '', commit: null, pinned: false },
+        specialists: { ref: '', commit: null, pinned: false },
+        skills: {
+          typescript: { ref: 'v2', commit: 'a'.repeat(40), pinned: true },
+        },
+        newPins: {},
+        warnings: [],
+      },
+    });
+    await syncService.writeSkills([skillFixture], scopedConfig);
+    await syncService.completeInstall(scopedConfig, {
+      skills: [skillFixture],
+      workflows: [],
+      specialistsOk: false,
+      completedSkillCategories: ['typescript'],
+    });
+
+    expect(
+      await fs.readFile(
+        path.join(tempDir, codexWorkflowRel),
+        'utf8',
+      ),
+    ).toBe(codexWorkflowBytes);
+    expect(
+      await fs.readFile(
+        path.join(tempDir, codexSpecialistRel),
+        'utf8',
+      ),
+    ).toBe(codexSpecialistBytes);
+    const updated = await fs.readJson(lockPath);
+    expect(updated.entries[codexWorkflowRel]).toEqual(
+      lock.entries[codexWorkflowRel],
+    );
+    expect(updated.entries[codexSpecialistRel]).toEqual(
+      lock.entries[codexSpecialistRel],
+    );
+  });
 });

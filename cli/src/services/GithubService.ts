@@ -323,7 +323,11 @@ export class GithubService {
   /**
    * Fetches and validates a release MANIFEST.json for a release tag.
    * Release assets are public and downloaded without authentication headers.
-   * Returns null on 404, malformed JSON, invalid schema, or network failure.
+   *
+   * Returns null ONLY when the release genuinely has no MANIFEST.json (404),
+   * which keeps registries that publish no manifests usable. Transport, HTTP,
+   * malformed-payload, schema, and digest-shape problems throw instead: a
+   * failed verification must never look like "nothing to verify".
    */
   async getReleaseManifest(
     owner: string,
@@ -331,32 +335,78 @@ export class GithubService {
     tag: string,
   ): Promise<ReleaseManifest | null> {
     const url = `https://github.com/${owner}/${repo}/releases/download/${tag}/MANIFEST.json`;
+    let res: Response;
     try {
-      const res = await fetch(url);
-      if (!res.ok) return null;
-      const data = (await res.json()) as unknown;
-      if (typeof data !== 'object' || data === null || Array.isArray(data)) {
-        return null;
-      }
-      const record = data as Record<string, unknown>;
-      if (record.schema_version !== 1) return null;
-      if (typeof record.tag !== 'string' || !record.tag) return null;
-      if (typeof record.commit !== 'string' || !record.commit) return null;
-      if (
-        typeof record.files !== 'object' ||
-        record.files === null ||
-        Array.isArray(record.files)
-      ) {
-        return null;
-      }
-      const files = record.files as Record<string, unknown>;
-      for (const [key, value] of Object.entries(files)) {
-        if (typeof key !== 'string' || typeof value !== 'string') return null;
-        if (!/^[0-9a-f]{64}$/i.test(value)) return null;
-      }
-      return record as unknown as ReleaseManifest;
-    } catch {
-      return null;
+      res = await fetch(url);
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : String(error);
+      throw new Error(
+        `Failed to fetch MANIFEST.json for ${tag}: ${detail}`,
+        { cause: error },
+      );
     }
+    if (res.status === 404) return null;
+    if (!res.ok) {
+      throw new Error(
+        `Failed to fetch MANIFEST.json for ${tag}: HTTP ${res.status}`,
+      );
+    }
+
+    let data: unknown;
+    try {
+      data = await res.json();
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : String(error);
+      throw new IntegrityError(
+        `Invalid MANIFEST.json for ${tag}: ${detail}`,
+      );
+    }
+    if (typeof data !== 'object' || data === null || Array.isArray(data)) {
+      throw new IntegrityError(
+        `Invalid MANIFEST.json for ${tag}: expected an object`,
+      );
+    }
+    const record = data as Record<string, unknown>;
+    if (record.schema_version !== 1) {
+      throw new IntegrityError(
+        `Invalid MANIFEST.json for ${tag}: unsupported schema_version`,
+      );
+    }
+    if (record.tag !== tag) {
+      throw new IntegrityError(
+        `Invalid MANIFEST.json for ${tag}: tag does not match`,
+      );
+    }
+    if (
+      typeof record.commit !== 'string' ||
+      !/^[0-9a-f]{40}$/i.test(record.commit)
+    ) {
+      throw new IntegrityError(
+        `Invalid MANIFEST.json for ${tag}: invalid commit`,
+      );
+    }
+    if (
+      typeof record.files !== 'object' ||
+      record.files === null ||
+      Array.isArray(record.files)
+    ) {
+      throw new IntegrityError(
+        `Invalid MANIFEST.json for ${tag}: missing files map`,
+      );
+    }
+    const files = record.files as Record<string, unknown>;
+    for (const [key, value] of Object.entries(files)) {
+      if (typeof key !== 'string' || typeof value !== 'string') {
+        throw new IntegrityError(
+          `Invalid MANIFEST.json for ${tag}: non-string entry ${key}`,
+        );
+      }
+      if (!/^[0-9a-f]{64}$/i.test(value)) {
+        throw new IntegrityError(
+          `Invalid MANIFEST.json for ${tag}: invalid digest for ${key}`,
+        );
+      }
+    }
+    return record as unknown as ReleaseManifest;
   }
 }

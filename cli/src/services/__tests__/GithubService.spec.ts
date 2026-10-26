@@ -1,6 +1,6 @@
 import fetch from 'cross-fetch';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { GithubService } from '../GithubService';
+import { GithubService, IntegrityError } from '../GithubService';
 
 vi.mock('cross-fetch', () => ({
   default: vi.fn(),
@@ -468,8 +468,7 @@ describe('GithubService', () => {
       );
     });
 
-    it('returns null on 404, malformed JSON, schema_version !== 1, and when any files value is not 64-hex', async () => {
-      // 404
+    it('returns null only for a genuine 404', async () => {
       vi.mocked(fetch).mockResolvedValueOnce({
         ok: false,
         status: 404,
@@ -477,19 +476,38 @@ describe('GithubService', () => {
       expect(
         await githubService.getReleaseManifest('owner', 'repo', 'v1.0.0'),
       ).toBeNull();
+    });
 
-      // malformed JSON (res.json throws)
+    it('throws on malformed JSON instead of silently skipping verification', async () => {
       vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
+        status: 200,
         json: () => Promise.reject(new Error('Invalid JSON')),
       } as Response);
-      expect(
-        await githubService.getReleaseManifest('owner', 'repo', 'v1.0.0'),
-      ).toBeNull();
+      await expect(
+        githubService.getReleaseManifest('owner', 'repo', 'v1.0.0'),
+      ).rejects.toBeInstanceOf(IntegrityError);
+    });
 
-      // schema_version !== 1
+    it('throws on non-404 HTTP failures and transport errors', async () => {
+      vi.mocked(fetch).mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+      } as Response);
+      await expect(
+        githubService.getReleaseManifest('owner', 'repo', 'v1.0.0'),
+      ).rejects.toThrow('HTTP 500');
+
+      vi.mocked(fetch).mockRejectedValueOnce(new Error('Network error'));
+      await expect(
+        githubService.getReleaseManifest('owner', 'repo', 'v1.0.0'),
+      ).rejects.toThrow('Failed to fetch MANIFEST.json');
+    });
+
+    it('throws on schema and digest-shape violations', async () => {
       vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
+        status: 200,
         json: () =>
           Promise.resolve({
             schema_version: 2,
@@ -498,13 +516,13 @@ describe('GithubService', () => {
             files: { 'foo.md': 'b'.repeat(64) },
           }),
       } as Response);
-      expect(
-        await githubService.getReleaseManifest('owner', 'repo', 'v1.0.0'),
-      ).toBeNull();
+      await expect(
+        githubService.getReleaseManifest('owner', 'repo', 'v1.0.0'),
+      ).rejects.toThrow('unsupported schema_version');
 
-      // files value not 64-hex
       vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
+        status: 200,
         json: () =>
           Promise.resolve({
             schema_version: 1,
@@ -513,15 +531,38 @@ describe('GithubService', () => {
             files: { 'foo.md': 'short' },
           }),
       } as Response);
-      expect(
-        await githubService.getReleaseManifest('owner', 'repo', 'v1.0.0'),
-      ).toBeNull();
+      await expect(
+        githubService.getReleaseManifest('owner', 'repo', 'v1.0.0'),
+      ).rejects.toThrow('invalid digest');
+      vi.mocked(fetch).mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: () =>
+          Promise.resolve({
+            schema_version: 1,
+            tag: 'different-tag',
+            commit: 'a'.repeat(40),
+            files: {},
+          }),
+      } as Response);
+      await expect(
+        githubService.getReleaseManifest('owner', 'repo', 'v1.0.0'),
+      ).rejects.toBeInstanceOf(IntegrityError);
 
-      // fetch throws
-      vi.mocked(fetch).mockRejectedValueOnce(new Error('Network error'));
-      expect(
-        await githubService.getReleaseManifest('owner', 'repo', 'v1.0.0'),
-      ).toBeNull();
+      vi.mocked(fetch).mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: () =>
+          Promise.resolve({
+            schema_version: 1,
+            tag: 'v1.0.0',
+            commit: 'not-a-commit',
+            files: {},
+          }),
+      } as Response);
+      await expect(
+        githubService.getReleaseManifest('owner', 'repo', 'v1.0.0'),
+      ).rejects.toBeInstanceOf(IntegrityError);
     });
   });
 });
