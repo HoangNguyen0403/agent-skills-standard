@@ -1,8 +1,13 @@
 {
   "schemaVersion": 1,
   "kind": "testing-quality-improvement-public-manifest",
-  "generatedAt": "2026-10-26T23:14:51.296Z",
+  "generatedAt": "2026-10-26T23:20:47.808Z",
   "attribution": "SANITIZED_DERIVATIVE",
+  "derivativePolicy": {
+    "binds": "files[] lists every public derivative by sha256 and byte length; this manifest hashes those 3 files and is not itself hashed by the inventory",
+    "sourceInventory": "artifacts/testing-quality-improvement/final-inventory-and-gates.json sourceInventory records 238 immutable input files and explicitly excludes this manifest and itself",
+    "hashCycle": "NONE"
+  },
   "retainedPrivateBundle": {
     "path": "artifacts/testing-quality-improvement/evidence/",
     "compositeSha256": "ab34929166e123b6907a19d1ba565580374ffdd51fd6237dd9f5e9906fa7f12c",
@@ -24,8 +29,8 @@
     },
     {
       "path": "artifacts/testing-quality-improvement/final-inventory-and-gates.json",
-      "sha256": "b5d4eeffd603aa80f592cc41b1eb536ab1bd6742ee65dff8487cf547c194eea1",
-      "bytes": 59418
+      "sha256": "7d1da362c92b05467bcb50a842357b8af33762911ac597319418ac3132eea3d3",
+      "bytes": 64505
     }
   ]
 }

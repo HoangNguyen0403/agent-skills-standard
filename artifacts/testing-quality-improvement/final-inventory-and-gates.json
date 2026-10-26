@@ -3,6 +3,13 @@
   "kind": "sanitized-publication-inventory-and-gates",
   "baseCommit": "92d06c420f6a41f08e11579423e4e3eacdb7880d",
   "checkpointCommit": "6e4d482dedd3676b7cdfcdcd2f641f31908ad4b7",
+  "commitBinding": {
+    "baseCommit": "92d06c420f6a41f08e11579423e4e3eacdb7880d",
+    "sourceCheckpointCommit": "6e4d482dedd3676b7cdfcdcd2f641f31908ad4b7",
+    "testedTree": "source checkpoint commit plus the working-tree provenance edit to playwright-fixture-runner.mjs that was committed together with these publication artifacts",
+    "testedBytesBinding": "permanentHarness, engineSources, and the runner sha256 in the raw origin records identify the exact bytes exercised; every entry is hash-verified against the files listed",
+    "artifactCommitClaim": "Not asserted by this file. These artifacts are committed in the publication commit that contains them, not at checkpointCommit."
+  },
   "targetBranch": "develop",
   "taskScope": "testing-quality-improvement",
   "attribution": {
@@ -114,7 +121,32 @@
     "browserScenarioStatus": "PASS",
     "resolvedBrowserExecutable": "Chromium (Google Chrome for Testing 156.0.8078.4)",
     "resolutionSource": "host-cache-fallback",
-    "playwrightPackageVersion": "1.64.0-alpha-1790635538000"
+    "playwrightPackageVersion": "1.64.0-alpha-1790635538000",
+    "rawOrigin": {
+      "attribution": "SANITIZED_DERIVATIVE",
+      "privateArchive": "artifacts/testing-quality-improvement/private-final-capture-r5/",
+      "privateArchiveFiles": {
+        "stdout": "browser-18.stdout.txt",
+        "origin": "CAPTURE-ORIGIN.json"
+      },
+      "portableCommand": "rtk node scripts/skill-tests/testing-quality-improvement/test-fixtures.test.mjs",
+      "sourceRunnerPath": "scripts/skill-tests/testing-quality-improvement/playwright-fixture-runner.mjs",
+      "sourceRunnerSha256": "0397114bdb043b0f0c59ffa67bf75a24efeb183a57a68c9ed948777e24de9996",
+      "testAssetPath": "scripts/skill-tests/testing-quality-improvement/test-fixtures.test.mjs",
+      "testAssetSha256": "ba0f57d003cbb5f0c482bd4068a319829b7ec5819e472d00c5f38f1174b03e11",
+      "exitCode": 0,
+      "toolResultError": false,
+      "stdoutSha256": "c718ce31afc7c040afc268424d978bbcd2f417e7cd9c2633ee41433f939766f0",
+      "stdoutBytes": 1879,
+      "mutationOrder": {
+        "sourceLastEditedAt": "2026-10-26T23:13:53.211Z",
+        "invokedAt": "2026-10-26T23:14:10.219Z",
+        "completedAt": "2026-10-26T23:14:18.146Z",
+        "sourceRehashedAt": "2026-10-26T23:14:22.284Z",
+        "sourceSha256AtRehash": "0397114bdb043b0f0c59ffa67bf75a24efeb183a57a68c9ed948777e24de9996",
+        "statement": "The runner was last edited before the smoke invocation, and re-hashed after it to the same sha256 that is committed."
+      }
+    }
   },
   "gates": [
     {
@@ -125,7 +157,32 @@
       "exitCode": 0,
       "passed": 18,
       "total": 18,
-      "durationMs": 7748.784375
+      "durationMs": 7748.784375,
+      "rawOrigin": {
+        "attribution": "SANITIZED_DERIVATIVE",
+        "privateArchive": "artifacts/testing-quality-improvement/private-final-capture-r5/",
+        "privateArchiveFiles": {
+          "stdout": "browser-18.stdout.txt",
+          "origin": "CAPTURE-ORIGIN.json"
+        },
+        "portableCommand": "rtk node scripts/skill-tests/testing-quality-improvement/test-fixtures.test.mjs",
+        "sourceRunnerPath": "scripts/skill-tests/testing-quality-improvement/playwright-fixture-runner.mjs",
+        "sourceRunnerSha256": "0397114bdb043b0f0c59ffa67bf75a24efeb183a57a68c9ed948777e24de9996",
+        "testAssetPath": "scripts/skill-tests/testing-quality-improvement/test-fixtures.test.mjs",
+        "testAssetSha256": "ba0f57d003cbb5f0c482bd4068a319829b7ec5819e472d00c5f38f1174b03e11",
+        "exitCode": 0,
+        "toolResultError": false,
+        "stdoutSha256": "c718ce31afc7c040afc268424d978bbcd2f417e7cd9c2633ee41433f939766f0",
+        "stdoutBytes": 1879,
+        "mutationOrder": {
+          "sourceLastEditedAt": "2026-10-26T23:13:53.211Z",
+          "invokedAt": "2026-10-26T23:14:10.219Z",
+          "completedAt": "2026-10-26T23:14:18.146Z",
+          "sourceRehashedAt": "2026-10-26T23:14:22.284Z",
+          "sourceSha256AtRehash": "0397114bdb043b0f0c59ffa67bf75a24efeb183a57a68c9ed948777e24de9996",
+          "statement": "The runner was last edited before the smoke invocation, and re-hashed after it to the same sha256 that is committed."
+        }
+      }
     },
     {
       "id": "router-matrix",
@@ -175,7 +232,26 @@
         "scripts/evals/system-design-behavior.test.ts",
         "scripts/evals/usage-cost.test.ts"
       ],
-      "relationshipToHistoricalRun": "Covering full suite; supersedes partial 2/2 run."
+      "relationshipToHistoricalRun": "Covering full suite; supersedes partial 2/2 run.",
+      "rawOrigin": {
+        "attribution": "SANITIZED_DERIVATIVE",
+        "privateArchive": "artifacts/testing-quality-improvement/private-final-capture-r5/",
+        "privateArchiveFiles": {
+          "stdout": "full-suite-89.stdout.txt",
+          "origin": "CAPTURE-ORIGIN.json"
+        },
+        "portableCommand": "node --import tsx --test scripts/evals/assertion-parity.test.ts scripts/evals/changed-skills.test.ts scripts/evals/evals-v2.test.ts scripts/evals/quality.test.ts scripts/evals/system-design-behavior.test.ts scripts/evals/usage-cost.test.ts",
+        "entrypointCount": 6,
+        "exitCode": 0,
+        "toolResultError": false,
+        "stdoutSha256": "cec99eaa4e21403beb4acb1d8566dfe6c3c6d62fe6894353366579737a84a24a",
+        "stdoutBytes": 8299,
+        "mutationOrder": {
+          "invokedAt": "2026-10-26T23:11:03.617Z",
+          "completedAt": "2026-10-26T23:11:04.428Z"
+        },
+        "sanitizedEnvironment": "NODE_PATH and absolute loader paths replaced by the portable command above."
+      }
     },
     {
       "id": "eval-regression-historical-partial",
@@ -268,6 +344,17 @@
     "ownershipLockAbsent": true,
     "driftRefusalRuleTestCases": 5,
     "driftRefusalRulePassed": 5
+  },
+  "sourceInventoryPolicy": {
+    "scope": "238 immutable input files",
+    "rowCount": 238,
+    "excludedSelfReferentialPaths": [
+      "artifacts/testing-quality-improvement/PUBLIC-MANIFEST.json",
+      "artifacts/testing-quality-improvement/final-inventory-and-gates.json"
+    ],
+    "exclusionRationale": "These two artifacts are mutually referencing publication outputs. Hashing them here would create a hash cycle (PUBLIC-MANIFEST -> final-inventory-and-gates -> PUBLIC-MANIFEST), so this inventory covers immutable inputs only.",
+    "outerManifestBinding": "artifacts/testing-quality-improvement/PUBLIC-MANIFEST.json freshly binds the 3 public derivatives (pr-readiness-acceptance-decision.json, verification-summary.md, final-inventory-and-gates.json) by sha256 and byte length.",
+    "hashCycle": "NONE"
   },
   "sourceInventory": [
     {
@@ -1109,16 +1196,6 @@
       "path": "CHANGELOG.md",
       "sha256": "f3c30f8b7294664a4a634d8daf3aeac46d79d81979acb12515568f8c647b7e71",
       "bytes": 235029
-    },
-    {
-      "path": "artifacts/testing-quality-improvement/PUBLIC-MANIFEST.json",
-      "sha256": "e3f034a23627dd497c6cf0fcdb2a94a87e41625fd758b5c2814343584840b3e5",
-      "bytes": 1076
-    },
-    {
-      "path": "artifacts/testing-quality-improvement/final-inventory-and-gates.json",
-      "sha256": "0d1b41bec3522dd0fb763cc870e2f50db2345031233c2d7e265a2c9159f17253",
-      "bytes": 57050
     },
     {
       "path": "artifacts/testing-quality-improvement/pr-readiness-acceptance-decision.json",
