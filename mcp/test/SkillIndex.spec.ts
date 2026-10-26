@@ -447,6 +447,114 @@ describe("SkillIndex — repository trigger routing", () => {
     expect(ids).toContain("swift-language");
     expect(ids).not.toContain("ios-swiftui");
   });
+
+  // Held-out worker bootstrap cases from the operator profile/task complexity
+  // and code review reports. Selection must keep the applicable standard and
+  // drop unrelated standards that only matched through keyword or composite
+  // substring collisions.
+
+  it("does not surface performance or accessibility for an operator profile query", () => {
+    const ids = registryIndex
+      .matchKeywords(["operator profile"])
+      .map((match) => match.skill.id);
+
+    expect(ids).toContain("common-operator-profile");
+    expect(ids).not.toContain("common-performance-engineering");
+    expect(ids).not.toContain("common-accessibility");
+  });
+
+  it("keeps a combined operator/task complexity bootstrap on routing policy skills", () => {
+    const ids = registryIndex
+      .matchKeywords(["operator profile", "task complexity"])
+      .map((match) => match.skill.id);
+
+    expect(ids).toContain("common-operator-profile");
+    expect(ids).toContain("common-task-complexity-routing");
+    expect(ids).not.toContain("common-performance-engineering");
+    expect(ids).not.toContain("common-accessibility");
+  });
+
+  it("does not pull accessibility or mobile UX into a code review query", () => {
+    const ids = registryIndex
+      .matchKeywords(["code review"])
+      .map((match) => match.skill.id);
+
+    expect(ids).toContain("common-code-review");
+    expect(ids).toContain("common-architecture-audit");
+    expect(ids).not.toContain("common-accessibility");
+    expect(ids).not.toContain("common-mobile-ux-core");
+    expect(ids).not.toContain("common-stitch-design");
+    expect(ids).not.toContain("quality-engineering-appium-mcp");
+    expect(ids).not.toContain("quality-engineering-playwright-cli");
+  });
+
+  it("keeps a subagent query on the worker delegation policy skill", () => {
+    const ids = registryIndex
+      .matchKeywords(["subagent"])
+      .map((match) => match.skill.id);
+
+    expect(ids).toContain("common-subagent-driven-development");
+    expect(ids).not.toContain("common-stitch-design");
+    expect(ids).not.toContain("quality-engineering-appium-mcp");
+    expect(ids).not.toContain("quality-engineering-playwright-cli");
+    expect(ids).not.toContain("common-mobile-ux-core");
+  });
+
+  it("keeps a bounded worker-routing query off unrelated mobile and design tooling", () => {
+    const ids = registryIndex
+      .matchKeywords(["subagent driven worker dispatch"])
+      .map((match) => match.skill.id);
+
+    expect(ids).toContain("common-subagent-driven-development");
+    expect(ids).not.toContain("common-stitch-design");
+    expect(ids).not.toContain("quality-engineering-appium-mcp");
+    expect(ids).not.toContain("quality-engineering-playwright-cli");
+    expect(ids).not.toContain("common-mobile-ux-core");
+  });
+
+  it("does not route Next.js Pages Router to mobile UX", () => {
+    const ids = registryIndex
+      .matchKeywords(["Pages Router"])
+      .map((match) => match.skill.id);
+
+    expect(ids).toContain("nextjs-pages-router");
+    expect(ids).not.toContain("common-mobile-ux-core");
+  });
+
+  it("keeps literal tool and UI requests on their own standards", () => {
+    const cases: Array<[string, string]> = [
+      ["stitch mcp", "common-stitch-design"],
+      ["playwright mcp", "quality-engineering-playwright-cli"],
+      ["appium doctor", "quality-engineering-appium-mcp"],
+      ["mobile touch targets", "common-mobile-ux-core"],
+      ["accessibility audit", "common-accessibility"],
+      ["performance bottleneck", "common-performance-engineering"],
+      ["component props", "react-component-patterns"],
+    ];
+
+    for (const [query, expectedId] of cases) {
+      const ids = registryIndex
+        .matchKeywords([query])
+        .map((match) => match.skill.id);
+
+      expect(ids, query).toContain(expectedId);
+    }
+  });
+
+  it("still expands accessibility for real form and view standards", () => {
+    const formIds = registryIndex
+      .matchKeywords(["reactive forms"])
+      .map((match) => match.skill.id);
+    expect(formIds).toContain("angular-forms");
+    expect(formIds).toContain("common-accessibility");
+
+    const viewIds = registryIndex
+      .matchKeywords(["ViewBinding"])
+      .map((match) => match.skill.id);
+    expect(viewIds).toContain("android-xml-views");
+    expect(viewIds).toContain("common-accessibility");
+    expect(viewIds).toContain("common-mobile-ux-core");
+  });
 });
 
 // ---------- composite-trigger expansion ----------
@@ -608,6 +716,95 @@ describe("SkillIndex — composite triggers", () => {
     // matches already contains the composite; expanding it again should yield
     // nothing new (no recursion).
     expect(second).toEqual([]);
+  });
+});
+
+// ---------- delimiter-qualified composite patterns ----------
+
+async function makeDelimitedCompositeFixture(): Promise<{
+  root: string;
+  cleanup: () => Promise<void>;
+}> {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "ags-mcp-delimited-"));
+  const skills = path.join(root, "skills");
+  await fs.ensureDir(skills);
+
+  await fs.writeJson(path.join(skills, "metadata.json"), {
+    file_routing: {},
+    broad_globs: [],
+    base_language_skills: {},
+    foundational_composite_rules: {
+      // Delimiter-qualified so singular and plural skill ids match, while
+      // ids that merely embed the letters (performance, review) do not.
+      "common/accessibility": ["-form", "-view"],
+      "common/mobile-ux-core": ["-view"],
+    },
+  });
+
+  await writeSkill(skills, "common", "common-accessibility", {
+    triggers: { files: [], keywords: ["a11y"] },
+  });
+  await writeSkill(skills, "common", "common-mobile-ux-core", {
+    triggers: { files: [], keywords: ["mobile"] },
+  });
+  await writeSkill(skills, "web", "web-form", {
+    triggers: { files: [], keywords: ["web form"] },
+  });
+  await writeSkill(skills, "web", "detail-view", {
+    triggers: { files: [], keywords: ["detail view"] },
+  });
+  await writeSkill(skills, "common", "common-performance-engineering", {
+    triggers: { files: [], keywords: ["profile"] },
+  });
+  await writeSkill(skills, "common", "common-code-review", {
+    triggers: { files: [], keywords: ["code review"] },
+  });
+
+  return { root, cleanup: () => fs.remove(root) };
+}
+
+describe("SkillIndex — delimiter-qualified composite patterns", () => {
+  let fixture: { root: string; cleanup: () => Promise<void> };
+  let index: SkillIndex;
+
+  beforeEach(async () => {
+    fixture = await makeDelimitedCompositeFixture();
+    index = new SkillIndex(
+      path.join(fixture.root, "skills"),
+      path.join(fixture.root, "skills", "metadata.json"),
+    );
+    await index.load();
+  });
+
+  afterEach(async () => {
+    await fixture.cleanup();
+  });
+
+  it("keeps singular and plural -form/-view ids triggering foundations", () => {
+    const formIds = index.matchKeywords(["web form"]).map((m) => m.skill.id);
+    expect(formIds).toContain("web-form");
+    expect(formIds).toContain("common-accessibility");
+
+    const viewIds = index.matchKeywords(["detail view"]).map((m) => m.skill.id);
+    expect(viewIds).toContain("detail-view");
+    expect(viewIds).toContain("common-accessibility");
+    expect(viewIds).toContain("common-mobile-ux-core");
+  });
+
+  it("does not treat embedded form/view letters in performance or review ids as a trigger", () => {
+    const performanceIds = index
+      .matchKeywords(["profile"])
+      .map((m) => m.skill.id);
+    expect(performanceIds).toContain("common-performance-engineering");
+    expect(performanceIds).not.toContain("common-accessibility");
+    expect(performanceIds).not.toContain("common-mobile-ux-core");
+
+    const reviewIds = index
+      .matchKeywords(["code review"])
+      .map((m) => m.skill.id);
+    expect(reviewIds).toContain("common-code-review");
+    expect(reviewIds).not.toContain("common-accessibility");
+    expect(reviewIds).not.toContain("common-mobile-ux-core");
   });
 });
 

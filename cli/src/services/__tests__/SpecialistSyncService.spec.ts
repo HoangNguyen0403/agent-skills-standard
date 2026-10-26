@@ -228,7 +228,7 @@ Check OWASP.` as any,
     );
   });
 
-  it('should sync specialists to Copilot agents folder', async () => {
+  it('should sync specialists to Copilot native custom agents', async () => {
     const specialistsDir = path.join(rootDir, 'skills/specialists');
     vi.mocked(fs.pathExists).mockImplementation(
       async (p: any) => p === specialistsDir || p.endsWith('SKILL.md'),
@@ -250,7 +250,7 @@ Check OWASP.` as any,
 
     const targetFile = path.join(
       rootDir,
-      '.github/copilot-agents/specialist-security-reviewer.instructions.md',
+      '.github/agents/security-reviewer.agent.md',
     );
     expect(fs.outputFile).toHaveBeenCalledWith(
       targetFile,
@@ -258,9 +258,16 @@ Check OWASP.` as any,
       // no quoting — semantically identical to the old hand-quoted output.
       expect.stringContaining('description: Review security'),
     );
-    expect(fs.outputFile).toHaveBeenCalledWith(
-      targetFile,
-      expect.stringContaining("applyTo: '**/*'"),
+
+    const written = vi
+      .mocked(fs.outputFile)
+      .mock.calls.map(([p, c]) => [String(p), String(c)] as const);
+    const entry = written.find(([p]) => p === targetFile);
+    expect(entry).toBeDefined();
+    expect(entry?.[1] ?? '').not.toContain('applyTo');
+    expect(fs.outputFile).not.toHaveBeenCalledWith(
+      expect.stringContaining('.github/copilot-agents/'),
+      expect.any(String),
     );
   });
 
@@ -298,15 +305,17 @@ Check OWASP.` as any,
     );
   });
 
-  it('should sync writing specialists with workspace-write and reviewers with read-only to Codex', async () => {
+  it('does not write a Codex sandbox claim that the agent file cannot enforce', async () => {
     const specialistsDir = path.join(rootDir, 'skills/specialists');
     vi.mocked(fs.pathExists).mockImplementation(
       async (p: string) => p === specialistsDir || p.endsWith('SKILL.md'),
     );
-    vi.mocked(fs.readdir).mockResolvedValue([
+    vi.mocked(
+      fs.readdir as unknown as (path: string) => Promise<string[]>,
+    ).mockResolvedValue([
       'specialist-tdd-implementer',
       'specialist-security-reviewer',
-    ] as unknown as string[]);
+    ]);
     vi.mocked(fs.readFile).mockImplementation(async (p: unknown) => {
       const pathStr = typeof p === 'string' ? p : String(p);
       if (pathStr.includes('specialist-tdd-implementer')) {
@@ -331,29 +340,26 @@ Review security.`;
 
     await service.syncSpecialists(rootDir, [Agent.Codex]);
 
-    const writerFile = path.join(rootDir, '.codex/agents/tdd-implementer.toml');
-    const reviewerFile = path.join(
-      rootDir,
-      '.codex/agents/security-reviewer.toml',
-    );
+    const codexAgentsDir = `${path.join(rootDir, '.codex/agents')}${path.sep}`;
+    const written = vi
+      .mocked(fs.outputFile)
+      .mock.calls.map(([p, c]) => [String(p), String(c)] as const)
+      .filter(([p]) => p.startsWith(codexAgentsDir));
 
-    expect(fs.outputFile).toHaveBeenCalledWith(
-      writerFile,
-      expect.stringContaining('sandbox_mode = "workspace-write"'),
-    );
-    expect(fs.outputFile).toHaveBeenCalledWith(
-      writerFile,
-      expect.not.stringContaining('danger-full-access'),
-    );
+    expect(written.map(([p]) => path.basename(p)).sort()).toEqual([
+      'security-reviewer.toml',
+      'tdd-implementer.toml',
+    ]);
+    for (const [, content] of written) {
+      expect(content).not.toContain('sandbox_mode');
+      expect(content).not.toContain('danger-full-access');
+    }
 
-    expect(fs.outputFile).toHaveBeenCalledWith(
-      reviewerFile,
-      expect.stringContaining('sandbox_mode = "read-only"'),
+    // The declared risk tier is disclosed instead of silently dropped.
+    const writerEntry = written.find(([p]) =>
+      p.endsWith('tdd-implementer.toml'),
     );
-    expect(fs.outputFile).toHaveBeenCalledWith(
-      reviewerFile,
-      expect.not.stringContaining('sandbox_mode = "workspace-write"'),
-    );
+    expect(writerEntry?.[1] ?? '').toContain('risk_tier');
   });
 
   it('should sync specialists to OpenCode agents folder', async () => {

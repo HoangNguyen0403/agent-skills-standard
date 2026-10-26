@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import * as yaml from 'js-yaml';
 import path from 'path';
-import { Agent } from '../cli/src/constants';
+import { Agent, getAgentDefinition } from '../cli/src/constants';
 import { AgentBridgeService } from '../cli/src/services/AgentBridgeService';
 import { IndexGeneratorServiceImpl } from '../cli/src/services/IndexGeneratorServiceImpl';
 import { MarkdownUtils } from '../cli/src/services/utils/MarkdownUtils';
@@ -113,6 +113,19 @@ async function generate() {
   // Look for skills directory in the repository root
   const repoRoot = path.join(__dirname, "..");
   const skillsDir = path.join(repoRoot, "skills");
+
+  // Boundary: this generator mutates the authoring checkout and derives force
+  // paths from its own configuration. Running it from a consumer project would
+  // read that project's `.skillsrc` and force writes into its tree, so refuse
+  // before any index/write happens. Compare realpaths to reject symlinked or
+  // relative foreign working directories.
+  const authoringRoot = await fs.realpath(repoRoot);
+  const invocationCwd = await fs.realpath(process.cwd());
+  if (invocationCwd !== authoringRoot) {
+    throw new Error(
+      `generate-indices must run from the authoring repository root (${authoringRoot}); refusing to run from ${invocationCwd}`,
+    );
+  }
 
   if (!(await fs.pathExists(skillsDir))) {
     throw new Error(`Skills directory not found at ${skillsDir}`);
@@ -319,13 +332,10 @@ async function generate() {
   // of still-selected categories are pruned only when previously owned.
   if (agents.length > 0 && config) {
     try {
-      await syncService.beginInstall(config, { dryRun: false, force: [] });
-      const collectedWorkflows: CollectedSkill[] = [];
-      const collectedSkills: CollectedSkill[] = [];
-
       const localWorkflowsDir = path.join(repoRoot, ".agents/workflows");
+      let workflowFiles: string[] = [];
       if ((await fs.pathExists(localWorkflowsDir)) && config.workflows) {
-        let workflowFiles = (await fs.readdir(localWorkflowsDir)).filter((f) =>
+        workflowFiles = (await fs.readdir(localWorkflowsDir)).filter((f) =>
           f.endsWith(".md"),
         );
         if (Array.isArray(config.workflows)) {
@@ -334,6 +344,62 @@ async function generate() {
             allowed.includes(path.basename(f, ".md")),
           );
         }
+      }
+
+      // Checked-in repositories commit the generated workflow mirrors without
+      // lockfile provenance, so ownership treats them as unowned/edited and
+      // silently skips them. Force exactly the deterministic export paths of
+      // the selected canonical workflows (no user-authored source is listed);
+      // the ownership writer still backs up before replacing.
+      //
+      // The canonical catalog itself is never forced: `.agents/workflows` is
+      // authored source for this checkout, including the Antigravity/Kiro
+      // `native` destination that resolves to the same path. A native export
+      // whose bytes already equal the canonical body needs no write.
+      const canonicalWorkflowExports = new Set(
+        workflowFiles.map((wfFile) =>
+          path.posix.join(".agents/workflows", wfFile),
+        ),
+      );
+      const forcedWorkflowExports = workflowFiles.flatMap((wfFile) => {
+        const baseName = path.basename(wfFile, ".md");
+        return agents.flatMap((agent) => {
+          const definition = getAgentDefinition(agent);
+          if (!definition?.workflowPath) return [];
+          const exportPath = (relative: string) =>
+            path.posix.join(definition.workflowPath, relative);
+          const candidates = (() => {
+            switch (definition.workflowFormat) {
+              case "command":
+                return [exportPath(`${baseName}.md`)];
+              case "toml":
+                return [exportPath(`${baseName}.toml`)];
+              case "prompt":
+                return [exportPath(`${baseName}.prompt.md`)];
+              case "skill":
+                return [exportPath(`${baseName}/SKILL.md`)];
+              case "native":
+                return [exportPath(`${baseName}.md`)];
+              default:
+                return [];
+            }
+          })();
+          return candidates.filter(
+            (candidate) =>
+              !canonicalWorkflowExports.has(candidate) &&
+              !candidate.startsWith(".agents/workflows/"),
+          );
+        });
+      });
+
+      await syncService.beginInstall(config, {
+        dryRun: false,
+        force: forcedWorkflowExports,
+      });
+      const collectedWorkflows: CollectedSkill[] = [];
+      const collectedSkills: CollectedSkill[] = [];
+
+      if (workflowFiles.length > 0) {
         collectedWorkflows.push({
           category: ".agents",
           skill: "workflows",
@@ -396,6 +462,12 @@ async function generate() {
         specialistsOk: false,
         refreshIndices: true,
         localMetadata,
+        // Local authoring source is a complete desired set for this checkout.
+        workflowAcquisition: {
+          status: 'complete',
+          workflows: collectedWorkflows,
+          failures: [],
+        },
       });
       await MarkdownUtils.injectIndex(
         repoRoot,
@@ -419,4 +491,7 @@ async function generate() {
   }
 }
 
-generate().catch(console.error);
+generate().catch((error: unknown) => {
+  console.error(error);
+  process.exitCode = 1;
+});

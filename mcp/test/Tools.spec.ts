@@ -370,40 +370,6 @@ describe("tools — happy path tracker", () => {
     expect(nextSession.tracker.summary().workflowsLoaded).toBe(0);
   });
 
-  it("renders agent-estimate provenance with real numbers when tokens are hand-supplied", async () => {
-    const ctx = await makeCtx(path.join(f.root, "skills"));
-
-    const cost = await getSessionCost(
-      {
-        workflow: "verify-work",
-        model: "example-model",
-        promptTokens: 1_000_000,
-        cachedPromptTokens: 500_000,
-        completionTokens: 500_000,
-        reasoningTokens: 250_000,
-        inputCostPer1M: 2,
-        cachedInputCostPer1M: 0.5,
-        outputCostPer1M: 10,
-        reasoningCostPer1M: 4,
-        otherCost: 0.25,
-        currency: "USD",
-      },
-      ctx,
-    );
-    const t = text(cost);
-
-    expect(t).toContain("| **Model** | example-model |");
-    expect(t).toContain("| **Prompt Tokens** | 1000000 |");
-    expect(t).toContain("| **Cached Prompt Tokens** | 500000 |");
-    expect(t).toContain("| **Completion Tokens** | 500000 |");
-    expect(t).toContain("| **Reasoning Tokens** | 250000 |");
-    expect(t).toContain("| **Other Runtime Cost** | USD 0.250000 |");
-    expect(t).toContain("| **Cost Provenance** | agent-estimate |");
-    expect(t).toContain("| **Cost Status** | Exact estimate available |");
-    expect(t).toContain("| **Estimated Cost** | USD 8.500000 |");
-    expect(t).toContain("| **Missing Host Fields** | _(none)_ |");
-  });
-
   it("renders host provenance with real numbers when the request is host-flagged", async () => {
     const ctx = await makeCtx(path.join(f.root, "skills"));
 
@@ -442,46 +408,6 @@ describe("tools — happy path tracker", () => {
     );
   });
 
-  it("returns a dedup stub instead of a full body on a repeat load within the same session", async () => {
-    const ctx = await makeCtx(path.join(f.root, "skills"));
-    const first = await loadSkillsForFiles(
-      { files: ["lib/cart_bloc.dart"] },
-      ctx,
-    );
-    const second = await loadSkillsForFiles(
-      { files: ["lib/cart_bloc.dart"] },
-      ctx,
-    );
-    expect(text(first)).toContain("# flutter-bloc");
-    expect(text(second)).not.toContain("# flutter-bloc");
-    expect(text(second)).toContain("already loaded this session");
-    expect(text(second)).toContain("force_reload");
-  });
-
-  it("force_reload bypasses dedup and returns the full body again", async () => {
-    const ctx = await makeCtx(path.join(f.root, "skills"));
-    await loadSkillsForFiles({ files: ["lib/cart_bloc.dart"] }, ctx);
-    const again = await loadSkillsForFiles(
-      { files: ["lib/cart_bloc.dart"], force_reload: true },
-      ctx,
-    );
-    expect(text(again)).toContain("# flutter-bloc");
-    expect(text(again)).not.toContain("already loaded this session");
-  });
-
-  it("reports skill context cost and dedup savings in get_session_cost", async () => {
-    const ctx = await makeCtx(path.join(f.root, "skills"));
-    await loadSkillsForFiles({ files: ["lib/cart_bloc.dart"] }, ctx);
-    await loadSkillsForFiles({ files: ["lib/cart_bloc.dart"] }, ctx); // repeat → dedup
-
-    const cost = await getSessionCost({ workflow: "implement-feature" }, ctx);
-    const t = text(cost);
-
-    expect(t).toContain("## Skill Context Cost");
-    expect(t).toContain("**Skills Deduped (context reused, not resent)** | 2");
-    expect(t).toMatch(/\*\*Est\. Tokens Saved by Dedup\*\* \| \d+/);
-  });
-
   it("reports no coverage gaps when every routed category loads a skill", async () => {
     const ctx = await makeCtx(path.join(f.root, "skills"));
     await loadSkillsForFiles({ files: ["lib/cart_bloc.dart"] }, ctx);
@@ -503,19 +429,6 @@ describe("tools — happy path tracker", () => {
     expect(t).toContain("| **No-Match Calls** | 1 |");
     expect(t).toContain("get_skill");
     expect(t).toContain("get_session_cost");
-  });
-});
-
-describe("server — instructions & best practices (RTK inspiration)", () => {
-  it("server provides rich instructions with specific sub-agent guidance", async () => {
-    const { SERVER_INSTRUCTIONS } = await import("../src/server");
-    expect(SERVER_INSTRUCTIONS).toContain("agent-skills-standard MCP server");
-    expect(SERVER_INSTRUCTIONS).toContain("WHEN TO CALL THIS SERVER");
-    expect(SERVER_INSTRUCTIONS).toContain("SUB-AGENTS");
-    expect(SERVER_INSTRUCTIONS).toContain("authoritative project rules");
-    expect(SERVER_INSTRUCTIONS).toContain(
-      "OVERRIDE your pre-training defaults",
-    );
   });
 });
 

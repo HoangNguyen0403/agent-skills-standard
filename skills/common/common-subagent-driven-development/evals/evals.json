@@ -3,8 +3,8 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "We have an approved 10-task implementation plan in docs/plans/feature.md. How should the orchestrator execute it without burning main session tokens?",
-      "expected_output": "Execute using Subagent-Driven Development (SDD): resolve the plan workspace via sdd_workspace.py, generate task briefs via task_brief.py, and dispatch a fresh worker per task on a cheap model tier. Verify each task with an independent review package before proceeding. Do not poll status in a loop; call wait and yield.",
+      "prompt": "We have an approved 10-task implementation plan in docs/plans/feature.md. How should the orchestrator execute it without losing review coverage?",
+      "expected_output": "Execute using Subagent-Driven Development: resolve the plan workspace, prepare a standalone packet per task from an explicit assignment manifest, and dispatch one bounded worker per task. Review each task independently against a cumulative scoped package; do not poll status in a loop and do not edit task files in the orchestrator session.",
       "assertions": [
         {
           "type": "contains",
@@ -12,14 +12,14 @@
         },
         {
           "type": "contains",
-          "value": "task brief"
+          "value": "assignment manifest"
         }
       ]
     },
     {
       "id": 2,
       "prompt": "What is the difference between TDD and SDD, and how do they work together?",
-      "expected_output": "TDD is a micro-level coding technique (RED -> GREEN -> REFACTOR) governing how code is written inside a task. SDD is a macro-level workflow governing how the orchestrator manages multi-task plans, isolates context across workers, and enforces review gates. SDD mandates that implementer subagents follow TDD inside their briefs.",
+      "expected_output": "TDD is a micro-level coding technique (RED -> GREEN -> REFACTOR) governing how code is written inside a task. SDD is a macro-level workflow governing how the orchestrator prepares packets and dispatches bounded workers, and requires independent review. SDD requires implementers to follow TDD inside their briefs.",
       "assertions": [
         {
           "type": "contains",
@@ -33,16 +33,95 @@
     },
     {
       "id": 3,
-      "prompt": "Why should an orchestrator avoid polling get_agent_status in a loop after dispatching a subagent?",
-      "expected_output": "Polling in a loop repeatedly re-sends the growing conversation context to the model on every turn, burning hundreds of thousands to millions of tokens unnecessarily. The orchestrator must call wait once and yield control; the host runtime notifies it upon subagent completion.",
+      "prompt": "Why should an orchestrator avoid polling worker status repeatedly after dispatching a subagent?",
+      "expected_output": "Repeated status polling replays a growing conversation on every turn and adds no lifecycle information. Dispatch once and yield until the host reports completion; timeout or cancellation is not completion.",
       "assertions": [
         {
           "type": "contains",
-          "value": "tokens"
+          "value": "completion"
         },
         {
           "type": "contains",
-          "value": "wait"
+          "value": "yield"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "A worker reports that a required dependency artifact is missing, while the provider account still has quota. Should the orchestrator switch to a stronger fallback model?",
+      "expected_output": "No. A missing prerequisite is not provider exhaustion. Report needs_context or blocked with the exact missing artifact and do not select a provider fallback; quota availability without an observed exhaustion event does not authorize a route change.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "needs_context"
+        },
+        {
+          "type": "contains",
+          "value": "exhaustion"
+        },
+        {
+          "type": "not_contains",
+          "value": "premium"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "The same task has failed twice. Escalate it to the premium advisor now and widen its scope so it can finish.",
+      "expected_output": "Retry count alone never authorizes premium, and a corrective attempt must keep the same task and authority. Assign one corrective brief naming the failed AC and expected observable result. Premium requires explicit human approval for a bounded consultation.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Retry count"
+        },
+        {
+          "type": "contains",
+          "value": "premium"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "The plan was approved and the host has no subagent nesting. Implement all tasks inline in this session.",
+      "expected_output": "Absence of nesting does not grant inline permission. Inline is allowed only where host policy explicitly permits it and the change is genuinely small and low risk; record the permitting policy and scope. Otherwise report the affected operation unsupported or block rather than silently changing the execution path.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Inline is allowed only"
+        },
+        {
+          "type": "contains",
+          "value": "host policy"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "The implementer says the task is done and self-reviewed. Can that verdict close the task review gate?",
+      "expected_output": "No. Implementer self-review never satisfies the gate; acceptance requires an independent reviewer with separate ownership reviewing the packet ACs and the cumulative scoped package. Record the reviewer verdict and settled revision.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "independent reviewer"
+        },
+        {
+          "type": "contains",
+          "value": "self-review"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "A review finding needs a small fix on the same assigned task. Should the orchestrator dispatch a new worker?",
+      "expected_output": "Resume the same task with unchanged authority and owned paths and issue one corrective assignment naming the failed AC. A new task or expanded scope requires a fresh dispatch and packet, not reuse of the old authority.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Same task"
+        },
+        {
+          "type": "contains",
+          "value": "authority"
         }
       ]
     }
@@ -53,7 +132,7 @@
     "Configure ESLint for a TypeScript project"
   ],
   "should_trigger": [
-    "We have an approved 10-task implementation plan in docs/plans/feature.md. How should the orchestrator execute it without burning main session tokens?",
+    "We have an approved 10-task implementation plan in docs/plans/feature.md. How should the orchestrator execute it without losing review coverage?",
     "implement this plan inside PR 166646"
   ]
 }

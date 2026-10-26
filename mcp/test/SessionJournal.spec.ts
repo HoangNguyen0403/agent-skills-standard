@@ -1698,6 +1698,179 @@ describe("collectSessionJournal", () => {
     });
   });
 
+  it("lists missing expected actors by declared labels without exposing native identities", async () => {
+    const f = await fixture();
+    f.manifest.sessions[0] = {
+      ...f.manifest.sessions[0],
+      taskId: "task-a",
+      parentTaskId: "task-root",
+    };
+    f.manifest.expectedActors = [
+      { role: "implementation", taskId: "task-a", parentTaskId: "task-root" },
+      { role: "review", taskId: "task-a", parentTaskId: "task-root" },
+    ];
+    f.manifest.expectedSessionIds = ["session-1", "review-1"];
+    await fs.writeFile(f.manifestPath, JSON.stringify(f.manifest));
+
+    const report = await collectSessionJournal(f.manifestPath);
+    expect(report.coverage.missingActors).toEqual([
+      {
+        role: "review",
+        taskId: "task-a",
+        parentTaskId: "task-root",
+        auxiliaryPurpose: null,
+      },
+    ]);
+    expect(report.coverage.complete).toBe(false);
+    expect(JSON.stringify(report)).not.toContain("review-1");
+  });
+
+  it("redacts declared task labels that collide with native identities", async () => {
+    const f = await fixture();
+    f.manifest.sessions[0] = {
+      ...f.manifest.sessions[0],
+      taskId: "session-1",
+      parentTaskId: "session-1",
+    };
+    f.manifest.expectedActors = [
+      {
+        role: "implementation",
+        taskId: "session-1",
+        parentTaskId: "session-1",
+      },
+      { role: "review", taskId: "session-1", parentTaskId: "task-root" },
+    ];
+    await fs.writeFile(
+      f.session,
+      [
+        {
+          timestamp: "2026-10-01T09:58:00.000Z",
+          type: "session_meta",
+          payload: { id: "session-1", cwd: f.workspace },
+        },
+        codexEvent("2026-10-01T10:01:00.000Z", 3),
+      ]
+        .map(JSON.stringify)
+        .join("\n") + "\n",
+    );
+    await fs.writeFile(f.manifestPath, JSON.stringify(f.manifest));
+
+    const report = await collectSessionJournal(f.manifestPath);
+    expect(report.groups).toHaveLength(1);
+    expect(report.groups[0]).toMatchObject({
+      taskId: null,
+      parentTaskId: null,
+      outputTokens: 3,
+    });
+    expect(report.coverage.missingActors).toEqual([
+      {
+        role: "review",
+        taskId: null,
+        parentTaskId: "task-root",
+        auxiliaryPurpose: null,
+      },
+    ]);
+    expect(report.coverage.redactedActorLabels).toBe(1);
+    expect(report.coverage.complete).toBe(false);
+    expect(JSON.stringify(report)).not.toContain("session-1");
+  });
+
+  it("keeps cancelled attempts and auxiliary work attributed to their declared task cohort", async () => {
+    const f = await fixture();
+    const cancelledPath = path.join(f.root, "cancelled.jsonl");
+    const auxiliaryPath = path.join(f.root, "auxiliary.jsonl");
+    f.manifest.sessions[0] = {
+      ...f.manifest.sessions[0],
+      attemptOutcome: "completed",
+      taskId: "task-a",
+      parentTaskId: "task-root",
+    };
+    f.manifest.sessions.push(
+      {
+        path: cancelledPath,
+        format: "codex",
+        role: "review",
+        attemptOutcome: "cancelled",
+        taskId: "task-a",
+        parentTaskId: "task-root",
+      },
+      {
+        path: auxiliaryPath,
+        format: "codex",
+        role: "auxiliary",
+        attemptOutcome: "completed",
+        auxiliaryPurpose: "judge",
+        taskId: "task-a",
+        parentTaskId: "task-root",
+      },
+    );
+    f.manifest.expectedSessionIds.push("cancelled-1", "auxiliary-1");
+    const rows = (id: string, out: number, t: string) => [
+      {
+        timestamp: "2026-10-01T09:59:00.000Z",
+        type: "session_meta",
+        payload: { id, cwd: f.workspace },
+      },
+      codexEvent(t, out),
+    ];
+    await fs.writeFile(
+      f.session,
+      rows("session-1", 3, "2026-10-01T10:01:00.000Z")
+        .map(JSON.stringify)
+        .join("\n") + "\n",
+    );
+    await fs.writeFile(
+      cancelledPath,
+      rows("cancelled-1", 5, "2026-10-01T10:03:00.000Z")
+        .map(JSON.stringify)
+        .join("\n") + "\n",
+    );
+    await fs.writeFile(
+      auxiliaryPath,
+      rows("auxiliary-1", 2, "2026-10-01T10:04:00.000Z")
+        .map(JSON.stringify)
+        .join("\n") + "\n",
+    );
+    await fs.writeFile(f.manifestPath, JSON.stringify(f.manifest));
+
+    const report = await collectSessionJournal(f.manifestPath);
+    expect(report.coverage.complete).toBe(true);
+    expect(
+      report.groups.map((group) => ({
+        role: group.role,
+        attemptOutcome: group.attemptOutcome,
+        taskId: group.taskId,
+        parentTaskId: group.parentTaskId,
+        outputTokens: group.outputTokens,
+      })),
+    ).toEqual([
+      {
+        role: "auxiliary",
+        attemptOutcome: "completed",
+        taskId: "task-a",
+        parentTaskId: "task-root",
+        outputTokens: 2,
+      },
+      {
+        role: "implementation",
+        attemptOutcome: "completed",
+        taskId: "task-a",
+        parentTaskId: "task-root",
+        outputTokens: 3,
+      },
+      {
+        role: "review",
+        attemptOutcome: "cancelled",
+        taskId: "task-a",
+        parentTaskId: "task-root",
+        outputTokens: 5,
+      },
+    ]);
+    expect(
+      report.groups.reduce((sum, group) => sum + group.outputTokens, 0),
+    ).toBe(10);
+  });
+
   it("stops the selected journal after an oversized middle record", async () => {
     const f = await fixture();
     const ompPath = path.join(f.root, "oversized-middle.jsonl");
