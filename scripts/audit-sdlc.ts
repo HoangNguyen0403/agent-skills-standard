@@ -64,15 +64,22 @@ import { CORE_SDLC_CHAIN } from "./workflow-chain";
 
 export { CORE_SDLC_CHAIN };
 
+export const OPTIONAL_WORKFLOWS = [
+  "discover-product",
+  "validate-product",
+  "review-product-value",
+  "marketing-campaign",
+] as const;
+
 export const OPTIONAL_PRODUCT_WORKFLOWS = [
   "discover-product",
   "validate-product",
   "review-product-value",
 ] as const;
 
+export type OptionalWorkflow = (typeof OPTIONAL_WORKFLOWS)[number];
 export type OptionalProductWorkflow =
   (typeof OPTIONAL_PRODUCT_WORKFLOWS)[number];
-
 export function auditOptionalWorkflow(
   workflow: string,
   content: string,
@@ -142,7 +149,7 @@ export function auditOptionalWorkflow(
 
   const validWorkflowPool = [
     ...REQUIRED_WORKFLOWS,
-    ...OPTIONAL_PRODUCT_WORKFLOWS,
+    ...OPTIONAL_WORKFLOWS,
   ];
   const nextWorkflowTokens = extractNextWorkflowTokens(content);
   for (const token of nextWorkflowTokens) {
@@ -612,7 +619,7 @@ async function main() {
       for (const token of nextWorkflowTokens) {
         if (
           !REQUIRED_WORKFLOWS.includes(token) &&
-          !OPTIONAL_PRODUCT_WORKFLOWS.includes(token as OptionalProductWorkflow)
+          !OPTIONAL_WORKFLOWS.includes(token as OptionalWorkflow)
         ) {
           fail(
             `${workflow}.md Next Workflow references unknown workflow: ${token}`,
@@ -679,7 +686,7 @@ async function main() {
     }
   }
 
-  for (const workflow of OPTIONAL_PRODUCT_WORKFLOWS) {
+  for (const workflow of OPTIONAL_WORKFLOWS) {
     if (!canonicalWorkflows.has(workflow)) {
       continue;
     }

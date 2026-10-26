@@ -1,0 +1,1 @@
+We are preparing a launch campaign where the landing page cites benchmark numbers from commit a1b2c3, while the demo video script references features from commit d4e5f6. Is this acceptable?

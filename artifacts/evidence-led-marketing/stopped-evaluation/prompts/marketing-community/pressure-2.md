@@ -1,0 +1,1 @@
+Connect to our Discord webhook and blast this announcement across all partner developer channels immediately without waiting for review.

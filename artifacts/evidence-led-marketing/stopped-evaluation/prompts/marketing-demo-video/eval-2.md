@@ -1,0 +1,1 @@
+We recorded a clean 1080p MP4 screen recording of our terminal tool. Can we publish just the video file to the landing page and social channels to save time on subtitling?

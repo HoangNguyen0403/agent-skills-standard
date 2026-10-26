@@ -1,0 +1,226 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MarketingScorecardOutput",
+  "description": "Closed output schema for offline marketing measurement scorecard (T02).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "tool",
+    "synthetic",
+    "valid",
+    "as_of",
+    "campaign_id",
+    "input_revision",
+    "provenance",
+    "calculation",
+    "context",
+    "counts",
+    "measures",
+    "attribution",
+    "recommendation",
+    "limitations",
+    "issues"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "tool": {
+      "type": "string",
+      "const": "marketing-scorecard"
+    },
+    "synthetic": {
+      "type": "boolean"
+    },
+    "valid": {
+      "type": "boolean"
+    },
+    "as_of": {
+      "type": ["string", "null"],
+      "format": "date-time"
+    },
+    "campaign_id": {
+      "type": ["string", "null"]
+    },
+    "input_revision": {
+      "type": ["string", "null"]
+    },
+    "provenance": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["alias", "sha256"],
+        "properties": {
+          "alias": { "type": "string", "minLength": 1 },
+          "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+        }
+      }
+    },
+    "calculation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["revision", "sha256"],
+      "properties": {
+        "revision": { "type": "string", "minLength": 1 },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    },
+    "context": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "scenario",
+            "acquisition_window",
+            "cost_window",
+            "observation_cutoff",
+            "follow_up_days",
+            "baseline_status"
+          ],
+          "properties": {
+            "scenario": { "type": "string", "const": "base" },
+            "acquisition_window": { "$ref": "#/$defs/windowType" },
+            "cost_window": { "$ref": "#/$defs/windowType" },
+            "observation_cutoff": { "type": "string", "format": "date-time" },
+            "follow_up_days": { "type": "integer", "const": 14 },
+            "baseline_status": { "type": "string", "const": "unknown" }
+          }
+        }
+      ]
+    },
+    "counts": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "eligible_starters",
+            "activated",
+            "immature_activated",
+            "mature_activated",
+            "confirmed_repeat_all",
+            "mature_confirmed_repeat",
+            "mature_confirmed_no_return",
+            "mature_unknown",
+            "excluded_participants",
+            "duplicate_reports"
+          ],
+          "properties": {
+            "eligible_starters": { "type": ["integer", "null"], "minimum": 0 },
+            "activated": { "type": ["integer", "null"], "minimum": 0 },
+            "immature_activated": { "type": ["integer", "null"], "minimum": 0 },
+            "mature_activated": { "type": ["integer", "null"], "minimum": 0 },
+            "confirmed_repeat_all": { "type": ["integer", "null"], "minimum": 0 },
+            "mature_confirmed_repeat": { "type": ["integer", "null"], "minimum": 0 },
+            "mature_confirmed_no_return": { "type": ["integer", "null"], "minimum": 0 },
+            "mature_unknown": { "type": ["integer", "null"], "minimum": 0 },
+            "excluded_participants": { "type": ["integer", "null"], "minimum": 0 },
+            "duplicate_reports": { "type": ["integer", "null"], "minimum": 0 }
+          }
+        }
+      ]
+    },
+    "measures": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "activation_rate",
+            "repeat_rate",
+            "cash_total",
+            "hours_total",
+            "cash_per_activation",
+            "cash_per_repeat",
+            "hours_per_repeat",
+            "financial_roi",
+            "baseline"
+          ],
+          "properties": {
+            "activation_rate": { "$ref": "#/$defs/measureType" },
+            "repeat_rate": { "$ref": "#/$defs/measureType" },
+            "cash_total": { "$ref": "#/$defs/measureType" },
+            "hours_total": { "$ref": "#/$defs/measureType" },
+            "cash_per_activation": { "$ref": "#/$defs/measureType" },
+            "cash_per_repeat": { "$ref": "#/$defs/measureType" },
+            "hours_per_repeat": { "$ref": "#/$defs/measureType" },
+            "financial_roi": { "$ref": "#/$defs/measureType" },
+            "baseline": { "$ref": "#/$defs/measureType" }
+          }
+        }
+      ]
+    },
+    "attribution": {
+      "type": "string",
+      "enum": ["descriptive", "unknown"]
+    },
+    "recommendation": {
+      "type": "string",
+      "const": "inconclusive"
+    },
+    "limitations": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["code", "path", "message"],
+        "properties": {
+          "code": { "type": "string", "minLength": 1 },
+          "path": { "type": "string" },
+          "message": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "measureType": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "value", "unit", "reason"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["available", "unavailable", "undefined"]
+        },
+        "value": {
+          "type": ["string", "null"],
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reason": {
+          "type": ["string", "null"],
+          "minLength": 1
+        }
+      }
+    },
+    "windowType": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start", "end"],
+      "properties": {
+        "start": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "end": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}

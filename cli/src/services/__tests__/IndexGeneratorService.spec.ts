@@ -752,6 +752,45 @@ describe('IndexGeneratorService', () => {
       expect(result).not.toContain('product-management/_INDEX.md');
     });
 
+    it.each([true, false])(
+      'routes marketing only when installed (%s)',
+      async (installed) => {
+        vi.mocked(fs.pathExists).mockResolvedValue(true as never);
+        vi.mocked(fs.readdir).mockResolvedValue(
+          (installed ? ['common', 'marketing'] : ['common']) as never,
+        );
+        vi.mocked(fs.readFile).mockImplementation(async (file) =>
+          String(file).includes('metadata.json')
+            ? JSON.stringify({ file_routing: {} })
+            : '',
+        );
+
+        const result = await service.assembleRouterIndex('/skills');
+        expect(result.includes('marketing/_INDEX.md')).toBe(installed);
+        if (installed) {
+          expect(result).toContain(
+            '| Marketing campaign, audience research, positioning, copy, proof, demo video, or measurement request | `<SKILLS>/marketing/_INDEX.md` |',
+          );
+        }
+      },
+    );
+
+    it('omits marketing when allowedCategories excludes it', async () => {
+      vi.mocked(fs.pathExists).mockResolvedValue(true as never);
+      vi.mocked(fs.readdir).mockResolvedValue([
+        'common',
+        'marketing',
+      ] as never);
+      vi.mocked(fs.readFile).mockImplementation(async (file) =>
+        String(file).includes('metadata.json')
+          ? JSON.stringify({ file_routing: {} })
+          : '',
+      );
+
+      const result = await service.assembleRouterIndex('/skills', ['common']);
+      expect(result).not.toContain('marketing/_INDEX.md');
+    });
+
     it('routes json extension to common/_INDEX.md via file_routing', async () => {
       vi.mocked(fs.pathExists).mockResolvedValue(true as never);
       vi.mocked(fs.readdir).mockResolvedValue(['common'] as never);

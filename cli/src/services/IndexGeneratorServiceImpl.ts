@@ -328,6 +328,13 @@ export class IndexGeneratorServiceImpl extends IndexGeneratorService {
       );
     }
 
+    if (availableCategories.includes('marketing')) {
+      coveredCategories.add('marketing');
+      routerRows.push(
+        '| Marketing campaign, audience research, positioning, copy, proof, demo video, or measurement request | `<SKILLS>/marketing/_INDEX.md` |',
+      );
+    }
+
     // The MCP block is always present (not conditional on .skillsrc.mcp.enabled)
     // because:
     //   1. .skillsrc.mcp.enabled records CLI consent to manage configs — it's

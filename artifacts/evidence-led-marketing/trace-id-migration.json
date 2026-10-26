@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-10-25T12:00:00Z",
+  "initiative": "evidence-led-marketing",
+  "description": "Trace ID and document naming migration mapping for canonical marketing documents to satisfy CI audit:trace while preserving historical provenance and immutable capture records.",
+  "canonical_slug": "evidence-led-marketing",
+  "renamed_documents": [
+    {
+      "original_path": "docs/prd/prd-plan-evidence-led-marketing.md",
+      "canonical_path": "docs/srs/srs-task-list-evidence-led-marketing.md",
+      "rationale": "File docs/prd/prd-plan-evidence-led-marketing.md minted a phantom slug 'plan-evidence-led-marketing' under parse.ts. Renamed via git-aware MV to recognized SRS artifact prefix 'task-list-' under docs/srs/ so its content joins the canonical 'evidence-led-marketing' slug trace graph."
+    }
+  ],
+  "identifier_mappings": {
+    "brd_objectives": [
+      {
+        "original_id": "OBJ-001",
+        "canonical_id": "BRD-OBJ-001",
+        "description": "Activation and repeat use by day 30"
+      },
+      {
+        "original_id": "OBJ-002",
+        "canonical_id": "BRD-OBJ-002",
+        "description": "Substantive feedback reports by day 30"
+      },
+      {
+        "original_id": "OBJ-003",
+        "canonical_id": "BRD-OBJ-003",
+        "description": "Evidence, trust, and spend safeguards"
+      }
+    ],
+    "requirements": [
+      {
+        "original_id": "REQ-MKT-001",
+        "canonical_id": "REQ-001",
+        "description": "Establish sourced positioning/proof"
+      },
+      {
+        "original_id": "REQ-MKT-002",
+        "canonical_id": "REQ-002",
+        "description": "Produce truthful landing/demo/community campaign"
+      },
+      {
+        "original_id": "REQ-MKT-003",
+        "canonical_id": "REQ-003",
+        "description": "Measure outcomes, cost and decisions"
+      },
+      {
+        "original_id": "REQ-MKT-004",
+        "canonical_id": "REQ-004",
+        "description": "Evaluate, integrate and govern skills"
+      },
+      {
+        "original_id": "REQ-MKT-005",
+        "canonical_id": "REQ-005",
+        "description": "Research audiences: marketing-audience-research"
+      },
+      {
+        "original_id": "REQ-MKT-006",
+        "canonical_id": "REQ-006",
+        "description": "Position product: marketing-positioning"
+      },
+      {
+        "original_id": "REQ-MKT-007",
+        "canonical_id": "REQ-007",
+        "description": "Verify claims: marketing-proof"
+      },
+      {
+        "original_id": "REQ-MKT-008",
+        "canonical_id": "REQ-008",
+        "description": "Select strategy: marketing-strategy"
+      },
+      {
+        "original_id": "REQ-MKT-009",
+        "canonical_id": "REQ-009",
+        "description": "Plan content: marketing-content-strategy"
+      },
+      {
+        "original_id": "REQ-MKT-010",
+        "canonical_id": "REQ-010",
+        "description": "Write copy: marketing-copywriting"
+      },
+      {
+        "original_id": "REQ-MKT-011",
+        "canonical_id": "REQ-011",
+        "description": "Diagnose landing: marketing-landing"
+      },
+      {
+        "original_id": "REQ-MKT-012",
+        "canonical_id": "REQ-012",
+        "description": "Improve discovery: marketing-search-discovery"
+      },
+      {
+        "original_id": "REQ-MKT-013",
+        "canonical_id": "REQ-013",
+        "description": "Participate in communities: marketing-community"
+      },
+      {
+        "original_id": "REQ-MKT-014",
+        "canonical_id": "REQ-014",
+        "description": "Coordinate launch: marketing-launch"
+      },
+      {
+        "original_id": "REQ-MKT-015",
+        "canonical_id": "REQ-015",
+        "description": "Demonstrate usage: marketing-demo-video"
+      },
+      {
+        "original_id": "REQ-MKT-016",
+        "canonical_id": "REQ-016",
+        "description": "Interpret metrics: marketing-measurement"
+      },
+      {
+        "original_id": "REQ-MKT-017",
+        "canonical_id": "REQ-017",
+        "description": "Collect bounded website signals"
+      },
+      {
+        "original_id": "REQ-MKT-018",
+        "canonical_id": "REQ-018",
+        "description": "Govern cohort consent and source handling"
+      }
+    ],
+    "acceptance_criteria": [
+      { "original_id": "AC-01", "canonical_id": "AC-001" },
+      { "original_id": "AC-02", "canonical_id": "AC-002" },
+      { "original_id": "AC-03", "canonical_id": "AC-003" },
+      { "original_id": "AC-04", "canonical_id": "AC-004" },
+      { "original_id": "AC-05", "canonical_id": "AC-005" },
+      { "original_id": "AC-06", "canonical_id": "AC-006" },
+      { "original_id": "AC-07", "canonical_id": "AC-007" },
+      { "original_id": "AC-08", "canonical_id": "AC-008" },
+      { "original_id": "AC-09", "canonical_id": "AC-009" },
+      { "original_id": "AC-10", "canonical_id": "AC-010" },
+      { "original_id": "AC-11", "canonical_id": "AC-011" },
+      { "original_id": "AC-12", "canonical_id": "AC-012" },
+      { "original_id": "AC-13", "canonical_id": "AC-013" },
+      { "original_id": "AC-14", "canonical_id": "AC-014" },
+      { "original_id": "AC-15", "canonical_id": "AC-015" },
+      { "original_id": "AC-16", "canonical_id": "AC-016" },
+      { "original_id": "AC-17", "canonical_id": "AC-017" },
+      { "original_id": "AC-18", "canonical_id": "AC-018" },
+      { "original_id": "AC-19", "canonical_id": "AC-019" },
+      { "original_id": "AC-20", "canonical_id": "AC-020" },
+      { "original_id": "AC-21", "canonical_id": "AC-021" },
+      { "original_id": "AC-22", "canonical_id": "AC-022" },
+      { "original_id": "AC-23", "canonical_id": "AC-023" },
+      { "original_id": "AC-24", "canonical_id": "AC-024" },
+      { "original_id": "AC-25", "canonical_id": "AC-025" },
+      { "original_id": "AC-26", "canonical_id": "AC-026" },
+      { "original_id": "AC-27", "canonical_id": "AC-027" },
+      { "original_id": "AC-28", "canonical_id": "AC-028" },
+      { "original_id": "AC-29", "canonical_id": "AC-029" },
+      { "original_id": "AC-30", "canonical_id": "AC-030" },
+      { "original_id": "AC-31", "canonical_id": "AC-031" },
+      { "original_id": "AC-32", "canonical_id": "AC-032" },
+      { "original_id": "AC-33", "canonical_id": "AC-033" },
+      { "original_id": "AC-34", "canonical_id": "AC-034" }
+    ],
+    "srs_requirements": [
+      { "original_id": "SRS-001", "canonical_id": "SRS-001" },
+      { "original_id": "SRS-002", "canonical_id": "SRS-002" },
+      { "original_id": "SRS-003", "canonical_id": "SRS-003" },
+      { "original_id": "SRS-004", "canonical_id": "SRS-004" },
+      { "original_id": "SRS-005", "canonical_id": "SRS-005" },
+      { "original_id": "SRS-006", "canonical_id": "SRS-006" },
+      { "original_id": "SRS-007", "canonical_id": "SRS-007" },
+      { "original_id": "SRS-008", "canonical_id": "SRS-008" },
+      { "original_id": "SRS-009", "canonical_id": "SRS-009" },
+      { "original_id": "SRS-010", "canonical_id": "SRS-010" }
+    ]
+  },
+  "historical_preservation_boundary": {
+    "policy": "Immutable historic captures, video recordings, transcripts, test fixtures, storyboard logs, and accepted campaign assets retain their original raw labels and byte hashes. They must not be modified to simulate retrofitted labels.",
+    "preserved_trees": [
+      "docs/product/evidence-led-marketing/campaigns/standards-demo-01/**",
+      "website/public/**",
+      "artifacts/evidence-led-marketing/evidence/**",
+      "artifacts/evidence-led-marketing/stopped-evaluation/**"
+    ]
+  }
+}

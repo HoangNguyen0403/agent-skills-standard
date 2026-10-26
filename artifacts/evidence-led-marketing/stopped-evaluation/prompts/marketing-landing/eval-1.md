@@ -1,0 +1,1 @@
+Our new landing page is live, but we do not have an analytics telemetry baseline yet. Can you audit the hero section and tell us how much conversion rate we lost due to the current CTA button color and mobile navigation layout?

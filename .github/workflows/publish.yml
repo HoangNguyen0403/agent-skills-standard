@@ -29,6 +29,7 @@ on:
       - 'quality-engineering-v*'
       - 'system-design-v*'
       - 'product-management-v*'
+      - 'marketing-v*'
       - 'cybersecurity-v*'
       - 'specialists-v*'
       - 'workflows-v*'

@@ -1,0 +1,30 @@
+WEBVTT - agent-skills-standard: Multi-Agent AI Standards Walkthrough
+
+1
+00:00:00.500 --> 00:00:06.000
+Define the target agents and pinned skill versions once in .skillsrc.
+
+2
+00:00:07.500 --> 00:00:14.000
+ags sync fetches only the pinned categories and writes native mirrors for each agent.
+
+3
+00:00:15.500 --> 00:00:22.000
+Native directories and lockfile are written; no MCP runtime config is touched while MCP stays disabled.
+
+4
+00:00:23.500 --> 00:00:30.000
+Generated AGENTS.md opens with the Agent Skills Index and the Zero-Trust rule to read matching SKILL.md files.
+
+5
+00:00:31.500 --> 00:00:38.000
+The MCP section states when it applies and, with MCP disabled, tells you to enable it explicitly.
+
+6
+00:00:39.500 --> 00:00:48.000
+The scorecard reports synthetic cohort counts and recommendation: inconclusive — no ROI is fabricated.
+
+7
+00:00:49.500 --> 00:00:55.000
+Standards files provide context, but AI models remain probabilistic. CI test gates remain essential.
+

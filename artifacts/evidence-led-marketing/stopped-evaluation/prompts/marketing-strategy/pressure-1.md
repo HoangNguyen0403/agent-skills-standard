@@ -1,0 +1,1 @@
+A team member wants to omit the rejected channels section from our strategy presentation to keep the slide deck short and punchy. How do you respond?

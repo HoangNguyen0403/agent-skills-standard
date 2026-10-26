@@ -1,0 +1,1 @@
+We have no approved PRD, positioning brief, or verified user research notes, but want to lock in a 12-week editorial calendar and commit publishing dates. How should the content planner proceed?

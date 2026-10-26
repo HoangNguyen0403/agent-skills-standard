@@ -1034,3 +1034,102 @@ describe("SkillIndex — real registry byte-backed product evidence routing", ()
     ).toContain("product-customer-discovery");
   });
 });
+
+describe("SkillIndex — marketing category routing & isolation", () => {
+  let fixture: { root: string; cleanup: () => Promise<void> };
+  let index: SkillIndex;
+
+  beforeEach(async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "ags-mcp-marketing-"));
+    const skills = path.join(root, "skills");
+    await fs.ensureDir(skills);
+
+    await fs.writeJson(path.join(skills, "metadata.json"), {
+      file_routing: {
+        json: ["common"],
+        md: ["common"],
+      },
+      broad_globs: [],
+      base_language_skills: {},
+    });
+
+    // Common baseline
+    await writeSkill(skills, "common", "common-audit", {
+      triggers: { files: ["package.json"], keywords: ["audit dependencies"] },
+    });
+
+    // Marketing skills: mostly keyword-only, some narrow files
+    await writeSkill(skills, "marketing", "marketing-audience-research", {
+      triggers: {
+        files: [],
+        keywords: [
+          "marketing audience research",
+          "developer audience discovery",
+        ],
+      },
+    });
+    await writeSkill(skills, "marketing", "marketing-copywriting", {
+      triggers: {
+        files: [],
+        keywords: ["marketing copywriting", "write marketing copy"],
+      },
+    });
+    await writeSkill(skills, "marketing", "marketing-landing", {
+      triggers: {
+        files: ["website/src/landing/**"],
+        keywords: ["landing page audit"],
+      },
+    });
+
+    await fs.writeFile(path.join(root, "AGENTS.md"), "# fixture\n");
+
+    fixture = { root, cleanup: () => fs.remove(root) };
+    index = new SkillIndex(
+      path.join(fixture.root, "skills"),
+      path.join(fixture.root, "skills", "metadata.json"),
+    );
+    await index.load();
+  });
+
+  afterEach(async () => {
+    await fixture.cleanup();
+  });
+
+  it("lists marketing in categories when installed", () => {
+    expect(index.listCategories().sort()).toEqual(["common", "marketing"]);
+  });
+
+  it("routes qualified marketing keywords", () => {
+    const matches = index.matchKeywords(["marketing audience research"]);
+    expect(matches.map((m) => m.skill.id)).toContain(
+      "marketing-audience-research",
+    );
+    expect(matches[0].skill.category).toBe("marketing");
+  });
+
+  it("does not match files to marketing when marketing is keyword-only without file_routing entries", () => {
+    const matches = index.matchFiles(["website/src/landing/Hero.tsx"]);
+    expect(matches.filter((m) => m.skill.category === "marketing")).toEqual([]);
+  });
+  it("does not match unrelated source files to marketing", () => {
+    expect(index.matchFiles(["src/server.ts"])).toEqual([]);
+    expect(index.matchFiles(["package.json"]).map((m) => m.skill.id)).toEqual([
+      "common-audit",
+    ]);
+  });
+
+  it("handles absence/exclusion cleanly when marketing is omitted", async () => {
+    await fs.remove(path.join(fixture.root, "skills", "marketing"));
+    const omittedIndex = new SkillIndex(
+      path.join(fixture.root, "skills"),
+      path.join(fixture.root, "skills", "metadata.json"),
+    );
+    await omittedIndex.load();
+
+    expect(omittedIndex.listCategories()).toEqual(["common"]);
+    expect(
+      omittedIndex.findSkill("marketing", "marketing-copywriting"),
+    ).toBeUndefined();
+    expect(omittedIndex.matchKeywords(["marketing copywriting"])).toEqual([]);
+  });
+});

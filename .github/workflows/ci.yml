@@ -83,6 +83,8 @@ jobs:
         run: pnpm test:evals && pnpm test:outcome && pnpm test:trace
       - name: Run Product Evidence Suite and Integration Tests
         run: pnpm test:product-evidence
+      - name: Run Offline Marketing Resource Tests
+        run: pnpm test:marketing
       - name: Run E2E Tests
         run: pnpm test:e2e
         env:

@@ -17,6 +17,7 @@ export interface FaqItem {
 
 export interface SourceLinks {
   readonly docs: string;
+  readonly tutorial: string;
   readonly skills: string;
   readonly github: string;
   readonly configuration: string;
@@ -134,6 +135,7 @@ export const navigation: readonly NavigationItem[] = [
 
 export const sourceLinks: SourceLinks = {
   docs: "https://github.com/HoangNguyen0403/agent-skills-standard/blob/main/README.md",
+  tutorial: "/docs/standards-tutorial.md",
   skills:
     "https://github.com/HoangNguyen0403/agent-skills-standard/tree/main/skills",
   github: "https://github.com/HoangNguyen0403/agent-skills-standard",

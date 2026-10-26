@@ -1,0 +1,1 @@
+Our growth lead wants to change our landing page headline from 'Deterministic offline marketing measurement for synthetic cohorts' to 'The world's #1 enterprise AI marketing platform delivering guaranteed 10x ROI'. How should the copywriter handle this request?

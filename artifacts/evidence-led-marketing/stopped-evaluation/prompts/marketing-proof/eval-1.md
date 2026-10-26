@@ -1,0 +1,1 @@
+Our latest test run shows that Windows PowerShell support is marked NOT READY, while Linux and macOS pass all benchmarks. Can we publish a marketing headline claiming 'Universal token optimization across every developer terminal'?

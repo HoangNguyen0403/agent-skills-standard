@@ -115,7 +115,17 @@ Rules:
   their native surfaces; no runtime scanner expansion is performed.
 - JSON routing maps `*.json` to `common` and `product-management`. `product-evidence` matches exclusively `docs/product/*/evidence.json`, while advanced PM skills are strictly keyword-only and never match `package.json` or unrelated JSON files.
 
-## 7. Default Init Standards
+## 7. Marketing packages and evidence-led campaign lifecycle
+
+- `marketing` is an optional, opt-in category (twelve skills: `marketing-audience-research`, `marketing-positioning`, `marketing-proof`, `marketing-strategy`, `marketing-content-strategy`, `marketing-copywriting`, `marketing-search-discovery`, `marketing-landing`, `marketing-community`, `marketing-launch`, `marketing-demo-video`, `marketing-measurement`). It is not part of default initialization. Because the category is newly authored in this branch and no published remote tag or commit contains these skills yet, selecting `marketing` against the remote registry remains blocked until an authorized release occurs. In `.skillsrc`, consumers will select `marketing` under `skills` with a reviewed immutable ref once published.
+- Advanced PM dependencies (Measurement-only vs Full Campaign):
+  - **Measurement-only**: Evaluating campaign scorecards via `marketing-measurement` requires explicit installation of `product-management/product-evidence` and `product-management/product-investment`.
+  - **Full Campaign**: Conducting end-to-end campaign planning with `marketing-campaign` additionally requires `product-management/product-customer-discovery`, `product-management/product-market-research`, and `product-management/product-strategy` (and `product-metrics`/`product-experimentation` when verifying registered metric contracts or experiment bounds). Do not assume source checkout availability.
+- Routing: marketing skills are keyword-routed without generic file capture. `marketing-landing` triggers specifically on `website/src/landing/**`, and `marketing-demo-video` triggers on `docs/product/*/campaigns/**/demo*` and `docs/product/*/media/**`. Unrelated files (e.g. `package.json`, generic `*.md`) never match marketing.
+- Thin optional workflow: `.agents/workflows/marketing-campaign.md` provides thin optional orchestration for campaigns. It is not part of `DEFAULT_WORKFLOWS` or the core SDLC chain.
+- Guardrails: all generated assets remain in `state: "prepared"`, `outcome: "propose"`. No autonomous publishing, promotional forum posting, or spend authorization.
+
+## 8. Default Init Standards
 
 `ags init` should create a useful SDLC standards layer without requiring profile files.
 
@@ -131,7 +141,7 @@ Rules:
 8. New specialists must include `evals/evals.json`, strict budgets, structured output, and `No sub-agents`.
 9. Specialists and generated workflow skills set `metadata.internal: true` so skill installers (`npx skills`) don't offer them as installable skills.
 
-## 8. Quality Gates
+## 9. Quality Gates
 
 Run these before PR:
 
