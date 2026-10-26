@@ -1,0 +1,6 @@
+
+> agent-skills-standard-root@2.7.0 audit:skills /Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/hopeful-robin
+> tsx scripts/audit-skills.ts
+
+🔍 Auditing skills for redundant checkpoints...
+✅ No obvious redundancy found.

@@ -7,7 +7,7 @@
 | ----- | ------------ | -------- |
 | **database-hana** | `**/*hana*.go`, `**/*sap*.go`, `**/hana/**`, `**/*hana*.sql` | HANA, SAP HANA, hdb, go-hdb, CalculationView |
 | **database-migrations** | `**/migrations/*.sql`, `prisma/schema.prisma`, `**/*.entity.ts` | migration, backfill, rollout, rename column, zero downtime |
-| **database-mongodb** | `**/*.json` | mongo, mongoose, objectid, schema, model |
+| **database-mongodb** | `**/*.json` | mongo, mongoose, mongoose model, mongodb model, objectid, schema |
 | **database-postgresql** | `**/*.entity.ts`, `prisma/schema.prisma`, `**/migrations/*.sql` | TypeOrmModule, PrismaService, PostgresModule |
 | **database-query-performance** | `**/*.sql`, `**/*.entity.ts`, `prisma/schema.prisma` | slow query, explain, index, scan, n+1 |
 | **database-redis** | `**/redis.config.ts` | redis, cache, ttl, eviction |

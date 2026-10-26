@@ -1,0 +1,5 @@
+
+> agent-skills-standard-root@2.7.0 evals:audit /Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/hopeful-robin
+> tsx scripts/evals/quality.ts audit
+
+Eval audit: 2 issues (/Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/hopeful-robin/benchmarks/evals/eval-audit.json)

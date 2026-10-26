@@ -2,7 +2,7 @@
 
 ## 1. Implementer Subagent Prompt Template
 
-Use this template when dispatching an implementer subagent.
+Use this template when the placement decision selects a bounded worker. When it selects one main-loop implementation context, apply the same contract (owned paths, no recursive delegation, focused checks) to the orchestrator and still dispatch the independent reviewer in Section 2.
 
 ```markdown
 Worker dispatch (host binding):
@@ -17,6 +17,12 @@ Worker dispatch (host binding):
     required standards and revision identities. Do not repeat parent workflow
     discovery or global intake. If anything you add would contradict the packet,
     the packet wins.
+
+    ## Placement
+    Placement is one bounded worker for this slice because: [named benefit or
+    host requirement recorded by the orchestrator]. You are the only
+    implementation owner. Implementation placement does not reduce the review
+    gate; an independent reviewer still assesses your output.
 
     ## Context
     [Only missing scene-setting not already in the packet: external dependency,
@@ -66,7 +72,7 @@ Worker dispatch (host binding):
 
 ## 2. Task Reviewer Prompt Template
 
-Use this template when dispatching a task reviewer subagent. The reviewer reads the task's diff once and returns two verdicts: spec compliance and code quality.
+Use this template when dispatching a task reviewer. Dispatch it whenever the task has a required acceptance gate, whatever implementation placement was recorded. The reviewer reads the task's diff once and returns two verdicts: spec compliance and code quality.
 
 ```markdown
 Independent reviewer dispatch (host binding):
@@ -76,7 +82,10 @@ Independent reviewer dispatch (host binding):
     You are reviewing one task's implementation: first whether it matches its
     requirements, then whether it is well-built. This is a task-scoped gate,
     not a merge review. You are a separate owner/context from the implementer;
-    your verdict is required for acceptance.
+    your verdict is required for acceptance. Placement does not change this:
+    an implementation prepared in the main loop needs the same separate
+    reviewer as one prepared by a bounded worker, and implementer self-review
+    never satisfies the gate.
 
     ## What Was Requested
     Read the task packet: [BRIEF_FILE]

@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "task_id": "context-aware-delegation-1",
+  "task_number": 1,
+  "goal": "Implement REQ-01/02, AC-01 through AC-06, preserving C1-C4.",
+  "owner": "Task 1 bounded implementer",
+  "project_domain": "agent-skills-standard / Personal",
+  "workspace_root": "/Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/hopeful-robin",
+  "plan_sha256": "cd8752fa2c3e3c1c86740138fca5def367be679b23d57e5711fd01e8ca3855dc",
+  "non_goals": [
+    "No host configuration, paid experiments, commits, deployments, recursive delegation or unrelated edits."
+  ],
+  "authority": {
+    "allowed_operations": [
+      "Read scoped sources and standards; edit only owned paths; write assigned receipt. User approved implementation in latest message."
+    ],
+    "forbidden_actions": [
+      "No provider/account changes, premium calls, commits, push, paid evals or recursive delegation."
+    ],
+    "required_approvals": []
+  },
+  "global_invariants": [
+    "### Shared contract C1: delegation placement\n\nUse the PRD decision table as the single product contract. Canonical policy lives in `skills/common/common-subagent-driven-development/SKILL.md`; detailed examples live in its references. Other workflows reference it rather than independently restating divergent routing rules. Main-loop execution is conditional on host permission. If delegation is required, keep tightly coupled implementation in one bounded worker rather than a chain of planners/fixers. Required independent verification survives either placement.\n\n### Shared contract C2: model and effort guidance\n\nCanonical selection guidance belongs to `skills/common/common-task-complexity-routing/`, with SDD referencing it. Keep SNC sensitivity/review floors unchanged. Capability hints are not account authorization. The host resolves approved profiles, supported effort and authorized fallback; explicit settings are never silently overridden. Do not add a model-resolver service, pricing API or mandatory assignment schema field in this release.\n\nExtend receipt guidance, using existing records rather than another telemetry store, to cover: requested capability, actual provider/model/effort when observable, effort support, selection reason, eligibility/authority reference, budget availability and substitution/fallback reason. Unknown stays unknown. User preference examples are guidance, not a new persisted configuration interface.\n\n### Shared contract C3: evidence and economics\n\nCount the accepted task, including parent, workers, independent reviews, repairs and failed/cancelled attempts. Distinguish tokens, billed money, subscription/quota consumption and elapsed time. Reuse `ARCHITECTURE.md` task-economics contracts. No numerical savings without complete comparable actor coverage and prices; offline fixtures do not establish model efficacy.\n\n### Shared contract C4: write ownership and verification\n\nTasks 1, 2 and 3 have disjoint owned paths and may run concurrently after approval and valid packets. Do not edit another owner's files. Cross-task needs are reported to the orchestrator, not fixed opportunistically. Workers skip mid-flight build/lint/test/formatter runs; after the batch settles, the orchestrator runs covering checks once against a stable revision and requests corrections. If later edits occur, affected evidence must be refreshed. Independent review remains required for each slice and the final integrated branch under current policy.\n\n",
+    "Skip mid-flight tests/build/lint/formatters. Write tests first; covering checks run by parent after all owners settle.",
+    "Preserve existing independent review and approval gates."
+  ],
+  "owned_paths": [
+    "skills/common/common-subagent-driven-development/SKILL.md",
+    "skills/common/common-subagent-driven-development/references/methodology.md",
+    "skills/common/common-subagent-driven-development/references/templates.md",
+    "skills/common/common-subagent-driven-development/references/progress-receipts.md",
+    "skills/common/common-subagent-driven-development/evals/evals.json",
+    ".agents/workflows/implement-feature.md"
+  ],
+  "acceptance_criteria": [
+    {
+      "id": "AC-01",
+      "expectation": "Given tightly coupled sequential work and a host permitting main-loop execution, the guidance selects one implementation context."
+    },
+    {
+      "id": "AC-02",
+      "expectation": "Given independent, verifiable work with disjoint ownership, it permits concurrent bounded workers."
+    },
+    {
+      "id": "AC-03",
+      "expectation": "Given only a specialist label or another workflow stage, it does not require a new agent."
+    },
+    {
+      "id": "AC-04",
+      "expectation": "Given a host requiring delegation, the guidance follows that requirement even when one context would otherwise be preferable."
+    },
+    {
+      "id": "AC-05",
+      "expectation": "Given missing required approval or unavailable isolation, it stops the affected operation rather than inferring permission."
+    },
+    {
+      "id": "AC-06",
+      "expectation": "Given a required independent acceptance gate, implementer self-review cannot satisfy it."
+    }
+  ],
+  "verification": [
+    {
+      "command": "rtk proxy pnpm evals:audit",
+      "cwd": ".",
+      "expected": "Parent runs at settled revision; worker reports not_run, never claims pass."
+    }
+  ],
+  "required_standards": [
+    {
+      "id": "common-subagent-driven-development",
+      "path": "skills/common/common-subagent-driven-development/SKILL.md",
+      "revision": "8e9d66c8ad1f97b514217ce50a5daf128626450967f35d919ffd31660275d1b7"
+    },
+    {
+      "id": "common-task-complexity-routing",
+      "path": "skills/common/common-task-complexity-routing/SKILL.md",
+      "revision": "e7e3231f3d9a34633992d2cc40fdae6861fa77e67cc735bdecf4bb0e6f422a2a"
+    },
+    {
+      "id": "common-decision-discipline",
+      "path": "skills/common/common-decision-discipline/SKILL.md",
+      "revision": "0df5a2ce474431c18b1e011b4b3672d737fb833ff863daba1b0c6f6f61dd806f"
+    }
+  ],
+  "source_revision": {
+    "commit": "92d06c420f6a41f08e11579423e4e3eacdb7880d"
+  },
+  "dirty_identity": {
+    "status": "?? .agent/\n?? docs/prd/prd-context-aware-delegation.md\n?? docs/prd/prd-plan-context-aware-delegation.md\n",
+    "sha256": "3be6353d82626546f1f945544d394d4ff40e1be36d15ce668230e224d255a4b3"
+  },
+  "source_files": [
+    {
+      "path": "docs/prd/prd-plan-context-aware-delegation.md",
+      "sha256": "cd8752fa2c3e3c1c86740138fca5def367be679b23d57e5711fd01e8ca3855dc"
+    },
+    {
+      "path": "docs/prd/prd-context-aware-delegation.md",
+      "sha256": "424c008fb0fc1e7f33301be48fbc70b9994b20047c598e0898b20fce41039a42"
+    },
+    {
+      "path": "skills/common/common-subagent-driven-development/SKILL.md",
+      "sha256": "8e9d66c8ad1f97b514217ce50a5daf128626450967f35d919ffd31660275d1b7"
+    },
+    {
+      "path": "skills/common/common-subagent-driven-development/references/methodology.md",
+      "sha256": "3008fc0ba4280e13c462f5e35eabe99ecf13875285b8beefe5c79c96dea7c477"
+    },
+    {
+      "path": "skills/common/common-subagent-driven-development/references/templates.md",
+      "sha256": "90cf92993d7d0c18fbb307284529ef7215b5c301d539eaab1fa26d5e33845273"
+    },
+    {
+      "path": "skills/common/common-subagent-driven-development/references/progress-receipts.md",
+      "sha256": "8aa77a9386ff357278ec1eb0ffdc525b45edf8e1fab28c9ce7b12987bbfb12e7"
+    },
+    {
+      "path": "skills/common/common-subagent-driven-development/evals/evals.json",
+      "sha256": "372d37eabf11af18d8c38b4c1be97f3e14f5c06dcaf44ca55a6f449d8cfad2f1"
+    },
+    {
+      "path": ".agents/workflows/implement-feature.md",
+      "sha256": "96b71bb86d234d36fffb662f3ac1b8ce3e8c7f1d9294e0731cd131bd668911cc"
+    }
+  ],
+  "dependencies": [],
+  "output_contract": {
+    "receipt_destination": ".agent/sdd/context-aware-delegation/task-1-report.md",
+    "status_vocabulary": [
+      "completed",
+      "needs_context",
+      "blocked",
+      "failed",
+      "cancelled"
+    ],
+    "stop_conditions": [
+      "Material design change, scope expansion, missing authority or inaccessible standards: report to parent."
+    ]
+  },
+  "limits": {
+    "status": "advisory",
+    "note": "No paid experiments authorized. No host-enforced token budget exposed."
+  }
+}

@@ -1,0 +1,11 @@
+
+> agent-skills-standard-root@2.7.0 check-alignment /Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/hopeful-robin
+> tsx scripts/check-alignment.ts
+
+🔍 Checking eval alignment (threshold: 70%)…
+
+⚠️  Skills below 90% (warnings):
+  • flutter/flutter-getx-navigation: 86% alignment (6/7)
+  • swift/swift-best-practices: 83% alignment (10/12)
+
+✅ All skills meet the 70% alignment threshold.

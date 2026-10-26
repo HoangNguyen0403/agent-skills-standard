@@ -1,0 +1,56 @@
+Only in .agents/skills: caveman
+Only in .agents/skills: caveman-commit
+Only in .agents/skills: caveman-compress
+Only in .agents/skills: caveman-review
+Files .agents/skills/common/_INDEX.md and .agents/skills/common/_INDEX.md differ
+Files .agents/skills/common/common-subagent-driven-development/SKILL.md and .agents/skills/common/common-subagent-driven-development/SKILL.md differ
+Files .agents/skills/common/common-subagent-driven-development/references/methodology.md and .agents/skills/common/common-subagent-driven-development/references/methodology.md differ
+Files .agents/skills/common/common-subagent-driven-development/references/progress-receipts.md and .agents/skills/common/common-subagent-driven-development/references/progress-receipts.md differ
+Files .agents/skills/common/common-subagent-driven-development/references/templates.md and .agents/skills/common/common-subagent-driven-development/references/templates.md differ
+Only in .agents/skills/common/common-subagent-driven-development/scripts: __pycache__
+Files .agents/skills/common/common-task-complexity-routing/SKILL.md and .agents/skills/common/common-task-complexity-routing/SKILL.md differ
+Files .agents/skills/common/common-task-complexity-routing/references/routing-table.md and .agents/skills/common/common-task-complexity-routing/references/routing-table.md differ
+Files .agents/skills/common/common-task-complexity-routing/references/snc-rubric.md and .agents/skills/common/common-task-complexity-routing/references/snc-rubric.md differ
+Only in .agents/skills: javascript
+Only in /private/tmp/cad-stage2.pmsgEc: .ags
+Files .claude/commands/implement-feature.md and .claude/commands/implement-feature.md differ
+Files .claude/skills/common/_INDEX.md and .claude/skills/common/_INDEX.md differ
+Files .claude/skills/common/common-subagent-driven-development/SKILL.md and .claude/skills/common/common-subagent-driven-development/SKILL.md differ
+Files .claude/skills/common/common-subagent-driven-development/references/methodology.md and .claude/skills/common/common-subagent-driven-development/references/methodology.md differ
+Files .claude/skills/common/common-subagent-driven-development/references/progress-receipts.md and .claude/skills/common/common-subagent-driven-development/references/progress-receipts.md differ
+Files .claude/skills/common/common-subagent-driven-development/references/templates.md and .claude/skills/common/common-subagent-driven-development/references/templates.md differ
+Only in .claude/skills/common/common-subagent-driven-development/scripts: __pycache__
+Files .claude/skills/common/common-task-complexity-routing/SKILL.md and .claude/skills/common/common-task-complexity-routing/SKILL.md differ
+Files .claude/skills/common/common-task-complexity-routing/references/routing-table.md and .claude/skills/common/common-task-complexity-routing/references/routing-table.md differ
+Files .claude/skills/common/common-task-complexity-routing/references/snc-rubric.md and .claude/skills/common/common-task-complexity-routing/references/snc-rubric.md differ
+Files .codex/skills/common/_INDEX.md and .codex/skills/common/_INDEX.md differ
+Files .codex/skills/common/common-subagent-driven-development/SKILL.md and .codex/skills/common/common-subagent-driven-development/SKILL.md differ
+Files .codex/skills/common/common-subagent-driven-development/references/methodology.md and .codex/skills/common/common-subagent-driven-development/references/methodology.md differ
+Files .codex/skills/common/common-subagent-driven-development/references/progress-receipts.md and .codex/skills/common/common-subagent-driven-development/references/progress-receipts.md differ
+Files .codex/skills/common/common-subagent-driven-development/references/templates.md and .codex/skills/common/common-subagent-driven-development/references/templates.md differ
+Only in .codex/skills/common/common-subagent-driven-development/scripts: __pycache__
+Files .codex/skills/common/common-task-complexity-routing/SKILL.md and .codex/skills/common/common-task-complexity-routing/SKILL.md differ
+Files .codex/skills/common/common-task-complexity-routing/references/routing-table.md and .codex/skills/common/common-task-complexity-routing/references/routing-table.md differ
+Files .codex/skills/common/common-task-complexity-routing/references/snc-rubric.md and .codex/skills/common/common-task-complexity-routing/references/snc-rubric.md differ
+Only in .codex/skills: discover-product
+Files .codex/skills/implement-feature/SKILL.md and .codex/skills/implement-feature/SKILL.md differ
+Only in .codex/skills: review-product-value
+Only in .codex/skills: validate-product
+Files .github/prompts/implement-feature.prompt.md and .github/prompts/implement-feature.prompt.md differ
+Files .github/skills/common/_INDEX.md and .github/skills/common/_INDEX.md differ
+Files .github/skills/common/common-subagent-driven-development/SKILL.md and .github/skills/common/common-subagent-driven-development/SKILL.md differ
+Files .github/skills/common/common-subagent-driven-development/references/methodology.md and .github/skills/common/common-subagent-driven-development/references/methodology.md differ
+Files .github/skills/common/common-subagent-driven-development/references/progress-receipts.md and .github/skills/common/common-subagent-driven-development/references/progress-receipts.md differ
+Files .github/skills/common/common-subagent-driven-development/references/templates.md and .github/skills/common/common-subagent-driven-development/references/templates.md differ
+Only in .github/skills/common/common-subagent-driven-development/scripts: __pycache__
+Files .github/skills/common/common-task-complexity-routing/SKILL.md and .github/skills/common/common-task-complexity-routing/SKILL.md differ
+Files .github/skills/common/common-task-complexity-routing/references/routing-table.md and .github/skills/common/common-task-complexity-routing/references/routing-table.md differ
+Files .github/skills/common/common-task-complexity-routing/references/snc-rubric.md and .github/skills/common/common-task-complexity-routing/references/snc-rubric.md differ
+Only in .github/skills: javascript
+Only in .github/skills: skill-creator
+Only in cli/temp_e2e_test/.agents: skills
+Files skills/README.md and skills/README.md differ
+Files skills/common/_INDEX.md and skills/common/_INDEX.md differ
+Files skills/database/_INDEX.md and skills/database/_INDEX.md differ
+Files skills/index.json and skills/index.json differ
+Files skills/laravel/_INDEX.md and skills/laravel/_INDEX.md differ

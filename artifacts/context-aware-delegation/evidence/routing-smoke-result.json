@@ -1,0 +1,96 @@
+{
+  "source": "actual SkillIndex; original four skill files from baseline commit, canonical candidate skills",
+  "rows": [
+    {
+      "query": "model routing",
+      "before": [
+        "database-mongodb",
+        "laravel-eloquent"
+      ],
+      "after": [
+        "common-task-complexity-routing"
+      ]
+    },
+    {
+      "query": "thinking level",
+      "before": [],
+      "after": [
+        "common-task-complexity-routing"
+      ]
+    },
+    {
+      "query": "LLM model selection",
+      "before": [
+        "database-mongodb",
+        "laravel-eloquent"
+      ],
+      "after": [
+        "common-task-complexity-routing"
+      ]
+    },
+    {
+      "query": "model tier",
+      "before": [
+        "common-task-complexity-routing",
+        "database-mongodb",
+        "laravel-eloquent"
+      ],
+      "after": [
+        "common-task-complexity-routing"
+      ]
+    },
+    {
+      "query": "MongoDB model design",
+      "before": [
+        "database-mongodb",
+        "laravel-eloquent"
+      ],
+      "after": [
+        "database-mongodb"
+      ]
+    },
+    {
+      "query": "Mongoose model",
+      "before": [
+        "database-mongodb",
+        "laravel-eloquent"
+      ],
+      "after": [
+        "database-mongodb"
+      ]
+    },
+    {
+      "query": "Laravel model relationships",
+      "before": [
+        "database-mongodb",
+        "laravel-eloquent"
+      ],
+      "after": [
+        "laravel-eloquent"
+      ]
+    },
+    {
+      "query": "Eloquent model scopes",
+      "before": [
+        "database-mongodb",
+        "laravel-eloquent"
+      ],
+      "after": [
+        "laravel-eloquent"
+      ]
+    },
+    {
+      "query": "LLM model selection for MongoDB model design",
+      "before": [
+        "database-mongodb",
+        "laravel-eloquent"
+      ],
+      "after": [
+        "common-task-complexity-routing",
+        "database-mongodb"
+      ]
+    }
+  ],
+  "result": "passed",
+  "scope": "routing smoke, not live skill/model efficacy"
+}

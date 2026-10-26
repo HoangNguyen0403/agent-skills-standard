@@ -1,0 +1,16 @@
+
+> agent-skills-standard-mcp@0.8.0 test /Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/hopeful-robin/mcp
+> vitest run "--" "test/SkillIndex.spec.ts"
+
+
+ RUN  v5.0.5 /Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/hopeful-robin/mcp
+
+
+ Test Files  13 passed (13)
+      Tests  241 passed (241)
+   Start at  00:06:03
+   Duration  739ms (tests 55%, import 40%, transform 4%, worker 1%)
+
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.

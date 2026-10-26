@@ -1,0 +1,44 @@
+{
+  "stage_realpath": "/private/tmp/cad-pr-stage.24dr1rhh",
+  "active_files": 10425,
+  "stage_files": 10429,
+  "drift": [
+    {
+      "path": ".agents/skills/common/common-subagent-driven-development/scripts/__pycache__/sdd_workspace.cpython-313.pyc",
+      "active": null,
+      "stage": "1fe015ecc1dde54ba9b7a7ea6c539d7cbf9010b07d480aafe701bb8240b6adcb",
+      "change": "added"
+    },
+    {
+      "path": ".claude/skills/common/common-subagent-driven-development/scripts/__pycache__/sdd_workspace.cpython-313.pyc",
+      "active": null,
+      "stage": "1fe015ecc1dde54ba9b7a7ea6c539d7cbf9010b07d480aafe701bb8240b6adcb",
+      "change": "added"
+    },
+    {
+      "path": ".codex/skills/common/common-subagent-driven-development/scripts/__pycache__/sdd_workspace.cpython-313.pyc",
+      "active": null,
+      "stage": "1fe015ecc1dde54ba9b7a7ea6c539d7cbf9010b07d480aafe701bb8240b6adcb",
+      "change": "added"
+    },
+    {
+      "path": ".git",
+      "active": "b781451fd2676849919003bc280f88cff27fe61884d11d45899891292a71a358",
+      "stage": null,
+      "change": "removed"
+    },
+    {
+      "path": ".github/skills/common/common-subagent-driven-development/scripts/__pycache__/sdd_workspace.cpython-313.pyc",
+      "active": null,
+      "stage": "1fe015ecc1dde54ba9b7a7ea6c539d7cbf9010b07d480aafe701bb8240b6adcb",
+      "change": "added"
+    },
+    {
+      "path": ".skills-lock.json",
+      "active": null,
+      "stage": "97c0409e2dedb1896199cec5be891f3351b8e3f2a24918df48b6d5aa727d3f60",
+      "change": "added"
+    }
+  ],
+  "drift_count": 6
+}

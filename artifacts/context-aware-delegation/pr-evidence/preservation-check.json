@@ -1,0 +1,27 @@
+{
+  "root_manifest": {
+    "entries": 22,
+    "mismatches": [],
+    "sha256": "b6d9c88b836109655c72c3ca75bfa70187749dc0aed611f5e2d21dd798346df3"
+  },
+  "correction_manifest": {
+    "entries": 63,
+    "mismatches": [],
+    "sha256": "94345bdd0017139bdd47e584373e23c205b11c0c416fcbdb0a6d1c765cb43228"
+  },
+  "accepted_source_map_85": {
+    "entries": 85,
+    "mismatches": [],
+    "note": "metadata/version bump is the intended delta; the accepted feature snapshot is not relabeled as this PR revision"
+  },
+  "restored_helpers": {
+    "copy-back.py": "a52e92ee986fbc6cd130c8459b8fde495c3f26afa8ce3e16aa5957db82b229bd",
+    "stage-diff.py": "41a1f02857fe54391bf3d9e5c03b5815499c771a8c638b0305d2a81fc0c7b3b9"
+  },
+  "accepted_review": {
+    "path": "artifacts/context-aware-delegation/final-evidence/correction-run2/acceptance/task-5-review.md",
+    "sha256": "d48ff851eed9c1f5799ca55ee63c3ad53e9724454498f68c87fdb8f873fac170"
+  },
+  "skillsrc_sha256": "929d141803d4158e0f09ad1897944aa32dbf919fb353a17a9f7cc7246a2d889f",
+  "lockfile_present": false
+}

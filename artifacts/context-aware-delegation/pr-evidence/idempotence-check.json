@@ -1,0 +1,77 @@
+{
+  "stage_realpath": "/private/tmp/cad-pr-idem.v38ewuvy",
+  "purpose": "calculate-tokens determinism/idempotence in the settled stage",
+  "files": [
+    "skills/metadata.json",
+    "README.md",
+    "cli/README.md",
+    "skills/README.md",
+    "skills/index.json"
+  ],
+  "hashes": {
+    "initial": {
+      "skills/metadata.json": "e4d6617e6d19e11680ab43005096aef638d05f3aaf2f728140e5726e50a061ec",
+      "README.md": "a31d0236fb62c341374ba044e62f3619e8c7bd44fd82cf40d17a63006854288e",
+      "cli/README.md": "4fe8489221d9918e87fe9ba634599396e22429e9167271f20b1c4417309123d7",
+      "skills/README.md": "6d4c96ac3fec5bac6913f529eabbd111f35f68b9dbc6c9975972f454b548080f",
+      "skills/index.json": "469d0847c29705f09e4ea0ed254d38276da96597cb0859905d8108a971dc852c"
+    },
+    "after_run1": {
+      "skills/metadata.json": "e4d6617e6d19e11680ab43005096aef638d05f3aaf2f728140e5726e50a061ec",
+      "README.md": "a31d0236fb62c341374ba044e62f3619e8c7bd44fd82cf40d17a63006854288e",
+      "cli/README.md": "4fe8489221d9918e87fe9ba634599396e22429e9167271f20b1c4417309123d7",
+      "skills/README.md": "6d4c96ac3fec5bac6913f529eabbd111f35f68b9dbc6c9975972f454b548080f",
+      "skills/index.json": "469d0847c29705f09e4ea0ed254d38276da96597cb0859905d8108a971dc852c"
+    },
+    "after_run2": {
+      "skills/metadata.json": "e4d6617e6d19e11680ab43005096aef638d05f3aaf2f728140e5726e50a061ec",
+      "README.md": "a31d0236fb62c341374ba044e62f3619e8c7bd44fd82cf40d17a63006854288e",
+      "cli/README.md": "4fe8489221d9918e87fe9ba634599396e22429e9167271f20b1c4417309123d7",
+      "skills/README.md": "6d4c96ac3fec5bac6913f529eabbd111f35f68b9dbc6c9975972f454b548080f",
+      "skills/index.json": "469d0847c29705f09e4ea0ed254d38276da96597cb0859905d8108a971dc852c"
+    }
+  },
+  "runs": [
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "node",
+        "--import",
+        "tsx",
+        "scripts/calculate-tokens.ts"
+      ],
+      "cwd": "/private/tmp/cad-pr-idem.v38ewuvy",
+      "exit": 0,
+      "log": "artifacts/context-aware-delegation/pr-evidence/idempotence-run1.log"
+    },
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "node",
+        "--import",
+        "tsx",
+        "scripts/calculate-tokens.ts"
+      ],
+      "cwd": "/private/tmp/cad-pr-idem.v38ewuvy",
+      "exit": 0,
+      "log": "artifacts/context-aware-delegation/pr-evidence/idempotence-run2.log"
+    }
+  ],
+  "metadata_matches_active": true,
+  "metadata_stable": true,
+  "readmes_stable": true,
+  "index_stable": true,
+  "result": "idempotent",
+  "readme_stale_rows_note": "root README category-version rows (common 2.5.0, database 1.3.5, laravel 1.3.4) are pre-existing four-column display staleness; README.md digest is unchanged by calculate-tokens and README.md is not modified in this PR",
+  "readme_untouched_proof": {
+    "git_diff_name_only": "",
+    "unmodified": true
+  },
+  "preservation_after_check": {
+    "root_manifest_bad": [],
+    "correction_manifest_bad": [],
+    "metadata_sha256": "e4d6617e6d19e11680ab43005096aef638d05f3aaf2f728140e5726e50a061ec"
+  }
+}

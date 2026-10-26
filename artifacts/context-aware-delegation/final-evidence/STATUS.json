@@ -1,0 +1,89 @@
+{
+  "initiative": "context-aware-delegation",
+  "plan": "docs/prd/prd-plan-context-aware-delegation.md",
+  "plan_sha256": "cd8752fa2c3e3c1c86740138fca5def367be679b23d57e5711fd01e8ca3855dc",
+  "requirements": "docs/prd/prd-context-aware-delegation.md",
+  "requirements_sha256": "424c008fb0fc1e7f33301be48fbc70b9994b20047c598e0898b20fce41039a42",
+  "source_revision": "92d06c420f6a41f08e11579423e4e3eacdb7880d",
+  "status_record_authored_at": "2026-10-27",
+  "scope": "repository guidance, metadata and generated exports; no host activation or paid evaluation",
+  "source_acceptance": {
+    "status": "accepted",
+    "note": "Task-scoped source acceptance only; not whole-branch or final acceptance.",
+    "receipts": [
+      {
+        "task": 1,
+        "verdict": "APPROVE (cumulative v3; one MAJOR finding corrected and closed)",
+        "path": ".agent/sdd/context-aware-delegation/task-1-acceptance-receipt.json",
+        "sha256": "b78a52a370078403956e71ca3a32043cca2d77d5d0fe8429ca14d4f58a99ea43",
+        "producer": "independent-review-1",
+        "producer_revision": "5d58df35b8d9056c0353aa1bdf8fef217f84d1f27539bc4ecfde898590c13835"
+      },
+      {
+        "task": 2,
+        "verdict": "APPROVE (no open BLOCKER/MAJOR)",
+        "path": ".agent/sdd/context-aware-delegation/task-2-acceptance-receipt.json",
+        "sha256": "bc85db9194b67a057ec0843fbb1ec0b325dd6fe573837692af691140f2dd4995",
+        "producer": "independent-review-2",
+        "producer_revision": "34e0cf212ecbf925e15566bb698ce6db4024ef663f89eea871748c2e2ecef0df"
+      },
+      {
+        "task": 3,
+        "verdict": "APPROVE (no open BLOCKER/MAJOR)",
+        "path": ".agent/sdd/context-aware-delegation/task-3-acceptance-receipt.json",
+        "sha256": "aa81ce955fb7a770878645022030456632304b814094789665abba78e8b1ec89",
+        "producer": "independent-review-3",
+        "producer_revision": "b22a130d8b6d632709cff8df18d87eb4fda44f7bfb240c8b261d0661bf747333"
+      }
+    ]
+  },
+  "integration_evidence": {
+    "status": "recorded",
+    "task": 4,
+    "report": ".agent/sdd/context-aware-delegation/task-4-report.md",
+    "generation": {
+      "mode": "isolated scratch stage outside the active checkout, allowlisted per-file copy-back",
+      "stage_run_record": "artifacts/context-aware-delegation/final-evidence/stage-run.json",
+      "generate_indices_exit": 0,
+      "generate_capabilities_exit": 0,
+      "log": "artifacts/context-aware-delegation/final-evidence/stage-yij7fr-generate-indices.log"
+    },
+    "copy_back": {
+      "receipt": "artifacts/context-aware-delegation/final-evidence/copy-back-receipt-run1.json",
+      "copied": 40,
+      "identical_untouched": 32,
+      "skipped": 0,
+      "packet_digest_precondition_all_matched": true,
+      "post_copy_digest_equal_to_stage": true
+    },
+    "verification": {
+      "receipt": "artifacts/context-aware-delegation/final-evidence/copy-back-verify.json",
+      "owned_paths": 72,
+      "identical_to_stage": 72,
+      "canonical_mirror_parity_all_identical": true,
+      "host_category_indices_identical": true
+    },
+    "evidence_preservation": {
+      "pre_generate_hashes": "artifacts/context-aware-delegation/final-evidence/pre-generate-hashes.txt",
+      "pre_generate_file_count": 50,
+      "post_generate_file_count": 51,
+      "delta_explanation": "one known additive parent record: .agent/sdd/context-aware-delegation/final-smoke.ts; no pre-existing file changed or removed"
+    },
+    "offline_only": true,
+    "live_efficacy_or_savings_claimed": false,
+    "generated_outputs_outside_allowlist": "reported in stage-vs-active.json and not copied (install state, backups, lockfile, __pycache__)"
+  },
+  "final_acceptance": {
+    "status": "not_recorded",
+    "owner": "independent final acceptance distinct from the implementation owners",
+    "note": "This record intentionally does not predict the outcome. The authoritative final acceptance verdict and any later activation decision are recorded here (or in a successor status record) when they occur."
+  },
+  "activation": {
+    "status": "not_requested",
+    "note": "Repository guidance only; no host default, permission enforcement or sandbox activation."
+  },
+  "history": {
+    "blocked_checkpoint": "artifacts/context-aware-delegation/evidence/",
+    "note": "The earlier blocked checkpoint directory is immutable history; its failures are not rewritten by this record."
+  }
+}

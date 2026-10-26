@@ -1,0 +1,184 @@
+{
+  "initiative": "context-aware-delegation",
+  "generated_at": "2026-10-27",
+  "status_record": "artifacts/context-aware-delegation/final-evidence/STATUS.json",
+  "note": "Final-acceptance outcome is recorded in STATUS.json; this manifest lists artifact digests, not approvals.",
+  "artifacts": [
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/STATUS.json",
+      "sha256": "b721e14c50e4bbd7c9c67ebb04ac70b571f5a0233d67546f7121447aefa8c2b1",
+      "source": null,
+      "sourceSha256": null,
+      "identical": null,
+      "provenance": "produced or captured by Task 4 integration"
+    },
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/copy-back-receipt-run1.json",
+      "sha256": "dfd46865d1857807cb955b32df935ea0db642c04993a620ab01ed6ed2f046d65",
+      "source": null,
+      "sourceSha256": null,
+      "identical": null,
+      "provenance": "produced or captured by Task 4 integration"
+    },
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/copy-back-receipt.json",
+      "sha256": "dfd46865d1857807cb955b32df935ea0db642c04993a620ab01ed6ed2f046d65",
+      "source": null,
+      "sourceSha256": null,
+      "identical": null,
+      "provenance": "produced or captured by Task 4 integration"
+    },
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/copy-back-verify.json",
+      "sha256": "1dfa6bac53ff7790cd9dde3e3c647c64ec52325a874123509f5f606830cb6cb0",
+      "source": null,
+      "sourceSha256": null,
+      "identical": null,
+      "provenance": "produced or captured by Task 4 integration"
+    },
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/copy-back.py",
+      "sha256": "a52e92ee986fbc6cd130c8459b8fde495c3f26afa8ce3e16aa5957db82b229bd",
+      "source": null,
+      "sourceSha256": null,
+      "identical": null,
+      "provenance": "produced or captured by Task 4 integration"
+    },
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/pre-generate-file-count.txt",
+      "sha256": "7ea9844ae84eccbf55e8330640865e36c43521e45a1baec24233327aab7e6595",
+      "source": null,
+      "sourceSha256": null,
+      "identical": null,
+      "provenance": "produced or captured by Task 4 integration"
+    },
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/pre-generate-hashes.txt",
+      "sha256": "94b6bdad4919fc012c4c00ece2e382da30cabbfe4f37f7bc4d35a315902836e1",
+      "source": null,
+      "sourceSha256": null,
+      "identical": null,
+      "provenance": "produced or captured by Task 4 integration"
+    },
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/run-stage-generator.py",
+      "sha256": "645402360a4db8e6d705d7fddd9be271c7c18a22ee7e4dcde51f0bc5b8201aff",
+      "source": null,
+      "sourceSha256": null,
+      "identical": null,
+      "provenance": "produced or captured by Task 4 integration"
+    },
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/stage-diff.py",
+      "sha256": "41a1f02857fe54391bf3d9e5c03b5815499c771a8c638b0305d2a81fc0c7b3b9",
+      "source": null,
+      "sourceSha256": null,
+      "identical": null,
+      "provenance": "produced or captured by Task 4 integration"
+    },
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/stage-generate-capabilities.log",
+      "sha256": "8d52f789fc405adb34ac1442987195e168e0095adca9e5bd3daee08cc4ccb147",
+      "source": null,
+      "sourceSha256": null,
+      "identical": null,
+      "provenance": "produced or captured by Task 4 integration"
+    },
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/stage-generate-indices.log",
+      "sha256": "66878dcf53a3a5feb3d887f28124936de30aa03a1605760512363bdc4c6c2b36",
+      "source": null,
+      "sourceSha256": null,
+      "identical": null,
+      "provenance": "produced or captured by Task 4 integration"
+    },
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/stage-path.txt",
+      "sha256": "4bf46767115e2e6395fad0abbfc5afc1dace227d40716452a853d8e4de8eb836",
+      "source": null,
+      "sourceSha256": null,
+      "identical": null,
+      "provenance": "produced or captured by Task 4 integration"
+    },
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/stage-run.json",
+      "sha256": "9867fb2a5172dda5039f35d1caed5a1b684b3138611e2546839c07693035da22",
+      "source": null,
+      "sourceSha256": null,
+      "identical": null,
+      "provenance": "produced or captured by Task 4 integration"
+    },
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/stage-vs-active.diff.txt",
+      "sha256": "2c2b903ce00ad405a5392b352dd8f21e111fc5871e53d1e16859668c38165392",
+      "source": null,
+      "sourceSha256": null,
+      "identical": null,
+      "provenance": "produced or captured by Task 4 integration"
+    },
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/stage-vs-active.json",
+      "sha256": "b0c2703353756a45b3e64c592fd5511ec7199be6ea438d3a006b125a4287e4e5",
+      "source": null,
+      "sourceSha256": null,
+      "identical": null,
+      "provenance": "produced or captured by Task 4 integration"
+    },
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/stage-yij7fr-generate-capabilities.log",
+      "sha256": "71e3ff1bc3af67da0327b32f40b08d1828d5c9523332c97cb1215c53a5181c16",
+      "source": null,
+      "sourceSha256": null,
+      "identical": null,
+      "provenance": "produced or captured by Task 4 integration"
+    },
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/stage-yij7fr-generate-indices.log",
+      "sha256": "72cbb148b6b4ecb33e5fc38d93f1a66e3e1836f24f98330f9408df738fd20931",
+      "source": null,
+      "sourceSha256": null,
+      "identical": null,
+      "provenance": "produced or captured by Task 4 integration"
+    },
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/stage2-path.txt",
+      "sha256": "1e286921590f7ed0a22d3e005649651f11602291ad064d7e986bfc8c07efef8d",
+      "source": null,
+      "sourceSha256": null,
+      "identical": null,
+      "provenance": "produced or captured by Task 4 integration"
+    },
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/task-1-acceptance-receipt.json",
+      "sha256": "b78a52a370078403956e71ca3a32043cca2d77d5d0fe8429ca14d4f58a99ea43",
+      "source": ".agent/sdd/context-aware-delegation/task-1-acceptance-receipt.json",
+      "sourceSha256": "b78a52a370078403956e71ca3a32043cca2d77d5d0fe8429ca14d4f58a99ea43",
+      "identical": true,
+      "provenance": "archived copy of tracked source"
+    },
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/task-2-acceptance-receipt.json",
+      "sha256": "bc85db9194b67a057ec0843fbb1ec0b325dd6fe573837692af691140f2dd4995",
+      "source": ".agent/sdd/context-aware-delegation/task-2-acceptance-receipt.json",
+      "sourceSha256": "bc85db9194b67a057ec0843fbb1ec0b325dd6fe573837692af691140f2dd4995",
+      "identical": true,
+      "provenance": "archived copy of tracked source"
+    },
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/task-3-acceptance-receipt.json",
+      "sha256": "aa81ce955fb7a770878645022030456632304b814094789665abba78e8b1ec89",
+      "source": ".agent/sdd/context-aware-delegation/task-3-acceptance-receipt.json",
+      "sourceSha256": "aa81ce955fb7a770878645022030456632304b814094789665abba78e8b1ec89",
+      "identical": true,
+      "provenance": "archived copy of tracked source"
+    },
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/task-4-report.md",
+      "sha256": "7a25408c86fe80f7d686dc6b35eb0927c5f533d1db1cb49bd21d25de5ef9f570",
+      "source": ".agent/sdd/context-aware-delegation/task-4-report.md",
+      "sourceSha256": "7a25408c86fe80f7d686dc6b35eb0927c5f533d1db1cb49bd21d25de5ef9f570",
+      "identical": true,
+      "provenance": "archived copy of tracked source"
+    }
+  ]
+}

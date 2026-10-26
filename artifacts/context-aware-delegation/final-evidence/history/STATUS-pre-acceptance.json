@@ -1,0 +1,119 @@
+{
+  "initiative": "context-aware-delegation",
+  "record": "correction-run2",
+  "authored_at": "2026-10-27",
+  "supersedes": "host category index semantics from run1 integration; run1 artifacts remain byte-intact historical evidence",
+  "finding": {
+    "severity": "MAJOR",
+    "criteria": [
+      "AC-19 generated exports reflect accepted canonical source",
+      "exported AC-18 model-tier/effort discovery"
+    ],
+    "observed": "All four installed host common/_INDEX.md files contained 43 rows and omitted common-subagent-driven-development and common-task-complexity-routing, while canonical skills/common/_INDEX.md kept both. Resource bytes matched; discovery semantics did not.",
+    "reviewer_artifact": "artifacts/context-aware-delegation/final-evidence/history/task-5-review-run1.md",
+    "reviewer_sha256": "500398c0b0dd787085746ac503febd3e58f5ebc0439a5831f3f41171cfc1eb41"
+  },
+  "cause": {
+    "summary": "The run1 scratch stage deleted the two mirror package directories before the generator's bootstrap index pass, so that pass generated host indices from an incomplete inventory; the later refresh pass computed complete content but the ownership writer classifies against the dispatch-time lockfile only and left the differing existing index untouched.",
+    "source_references": [
+      "scripts/generate-indices.ts:323 applyIndices pre-pass before beginInstall",
+      "cli/src/services/SyncService.ts:395 beginInstall, :451 writeSkills, :459 completeInstall(refreshIndices)",
+      "cli/src/services/SyncService.ts:971-1064 applyIndices writes category indices through the ownership writer",
+      "cli/src/services/install/OwnershipWriter.ts:79-117 classifies against opts.previous; an existing file absent from the previous lock is 'unknown' and not overwritten (next is not consulted)"
+    ],
+    "why_run1_parity_check_missed_it": "The run1 verification compared canonical skill resource bytes and cross-host index equality, not index row inventory against canonical skill IDs."
+  },
+  "correction": {
+    "sequence": [
+      "Fresh scratch stage copied from the complete current checkout (both mirror packages already correct).",
+      "Inventory precondition asserted: every canonical common skill ID present in each host mirror before generation.",
+      "Only the four host common/_INDEX.md files removed in the stage (packages kept).",
+      "generate-indices and generate-capabilities run with cwd=stage via rtk proxy.",
+      "Semantic assertion over all 45 installed common IDs and the four model/effort discovery terms per host.",
+      "Guarded allowlisted copy-back of exactly the four indices with packet supersession recorded, then verification pass."
+    ],
+    "cleanup_scope": "host common/_INDEX.md only; no mirror package deleted",
+    "stage_run_record": "artifacts/context-aware-delegation/final-evidence/correction-run2/run2-stage-run.json",
+    "logs": [
+      "artifacts/context-aware-delegation/final-evidence/correction-run2/run2-generate-indices.log",
+      "artifacts/context-aware-delegation/final-evidence/correction-run2/run2-generate-capabilities.log"
+    ],
+    "copy_back": {
+      "receipt": "artifacts/context-aware-delegation/final-evidence/correction-run2/copy-back-receipt-run2.json",
+      "copied": 4,
+      "identical_untouched": 68,
+      "skipped": 0,
+      "packet_superseded_expected": true
+    },
+    "verification": {
+      "receipt": "artifacts/context-aware-delegation/final-evidence/correction-run2/copy-back-verify-run2.json",
+      "owned_paths": 72,
+      "identical_to_stage": 72,
+      "canonical_mirror_parity_all_identical": true
+    },
+    "semantic_proof": {
+      "hosts": [
+        ".agents",
+        ".github",
+        ".codex",
+        ".claude"
+      ],
+      "rows_per_host": 45,
+      "expected_common_ids": 45,
+      "missing_ids": [],
+      "unexpected_ids": [],
+      "target_ids_present": true,
+      "discovery_terms_present": [
+        "model routing",
+        "llm model selection",
+        "thinking level",
+        "reasoning effort"
+      ],
+      "host_index_sha256": "636a5ef6fd77b59b5e371537665ca8037f93424ef01463a80609cda42e6ed684",
+      "canonical_common_index_sha256": "636a5ef6fd77b59b5e371537665ca8037f93424ef01463a80609cda42e6ed684",
+      "note": "All four host indices are byte-identical to the canonical common index after correction."
+    }
+  },
+  "evidence_preservation": {
+    "run1_manifest": "artifacts/context-aware-delegation/final-evidence/MANIFEST.json (22 entries, byte-intact)",
+    "run1_status": "artifacts/context-aware-delegation/final-evidence/STATUS.json (byte-intact)",
+    "run1_receipts_and_logs": "byte-intact; run2 writes only under final-evidence/correction-run2/ and final-evidence/history/",
+    "sdd_evidence": "pre-generate hash list unchanged; no .agent file modified by this correction",
+    "helpers": {
+      "restored_root_originals": [
+        {
+          "path": "artifacts/context-aware-delegation/final-evidence/copy-back.py",
+          "sha256": "a52e92ee986fbc6cd130c8459b8fde495c3f26afa8ce3e16aa5957db82b229bd",
+          "old_manifest_entry_match": true
+        },
+        {
+          "path": "artifacts/context-aware-delegation/final-evidence/stage-diff.py",
+          "sha256": "41a1f02857fe54391bf3d9e5c03b5815499c771a8c638b0305d2a81fc0c7b3b9",
+          "old_manifest_entry_match": true
+        }
+      ],
+      "run2_extended_copies": [
+        {
+          "path": "artifacts/context-aware-delegation/final-evidence/correction-run2/copy-back-run2.py",
+          "sha256": "6de453a5b9323731ce9a6f247c3cbf95d6e2aae1a430924c3bfcd24983f12b89"
+        },
+        {
+          "path": "artifacts/context-aware-delegation/final-evidence/correction-run2/stage-diff-run2.py",
+          "sha256": "a288b849cb8bf5267c03451175620a8ec12f0d6f96008cc9d6e3900abe03c48d"
+        }
+      ],
+      "note": "Run2 helpers were preserved under distinct correction-run2 filenames before restoring the exact run1 bytes at the original root paths; all 22 original manifest entries verify again."
+    }
+  },
+  "live_evaluation": {
+    "status": "not_run",
+    "authorization": "none recorded"
+  },
+  "final_acceptance": {
+    "status": "not_recorded",
+    "note": "Independent reviewer rechecks this correction; this record does not self-approve."
+  },
+  "activation": {
+    "status": "not_requested"
+  }
+}

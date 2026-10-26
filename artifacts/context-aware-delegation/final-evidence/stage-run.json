@@ -1,0 +1,62 @@
+{
+  "helper": "artifacts/context-aware-delegation/final-evidence/run-stage-generator.py",
+  "stage_realpath": "/private/tmp/cad-task4-stage.YiJ7FR",
+  "active_realpath": "/Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/hopeful-robin",
+  "node_version": "v26.12.1",
+  "rtk_available": true,
+  "cleanup_removed": [
+    ".agents/skills/common/common-subagent-driven-development",
+    ".github/skills/common/common-subagent-driven-development",
+    ".codex/skills/common/common-subagent-driven-development",
+    ".claude/skills/common/common-subagent-driven-development",
+    ".agents/skills/common/common-task-complexity-routing",
+    ".github/skills/common/common-task-complexity-routing",
+    ".codex/skills/common/common-task-complexity-routing",
+    ".claude/skills/common/common-task-complexity-routing",
+    ".agents/skills/common/_INDEX.md",
+    ".github/skills/common/_INDEX.md",
+    ".codex/skills/common/_INDEX.md",
+    ".claude/skills/common/_INDEX.md"
+  ],
+  "cleanup_already_absent": [],
+  "runs": [
+    {
+      "name": "generate-indices",
+      "command": [
+        "rtk",
+        "proxy",
+        "node",
+        "--import",
+        "tsx",
+        "scripts/generate-indices.ts"
+      ],
+      "rtk_available": true,
+      "cwd": "/private/tmp/cad-task4-stage.YiJ7FR",
+      "started": "2026-10-27T00:01:34+0700",
+      "finished": "2026-10-27T00:01:35+0700",
+      "exit": 0,
+      "stdout_lines": 24,
+      "stderr_lines": 0,
+      "log": "artifacts/context-aware-delegation/final-evidence/stage-yij7fr-generate-indices.log"
+    },
+    {
+      "name": "generate-capabilities",
+      "command": [
+        "rtk",
+        "proxy",
+        "node",
+        "--import",
+        "tsx",
+        "scripts/generate-capabilities-doc.ts"
+      ],
+      "rtk_available": true,
+      "cwd": "/private/tmp/cad-task4-stage.YiJ7FR",
+      "started": "2026-10-27T00:01:35+0700",
+      "finished": "2026-10-27T00:01:35+0700",
+      "exit": 0,
+      "stdout_lines": 1,
+      "stderr_lines": 0,
+      "log": "artifacts/context-aware-delegation/final-evidence/stage-yij7fr-generate-capabilities.log"
+    }
+  ]
+}

@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "task_id": "context-aware-delegation-4-preparation",
+  "task_number": 4,
+  "goal": "Prepare approved Task4 documentation and ten-scenario protocol; independent slice acceptance is pending, so NO generated copy-back, final acceptance, commits or activation.",
+  "owner": "Single integration preparation owner",
+  "project_domain": "agent-skills-standard / Personal",
+  "workspace_root": "/Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/hopeful-robin",
+  "plan_sha256": "cd8752fa2c3e3c1c86740138fca5def367be679b23d57e5711fd01e8ca3855dc",
+  "non_goals": [
+    "No host configuration, paid experiments, commits, deployments, recursive delegation or unrelated edits."
+  ],
+  "authority": {
+    "allowed_operations": [
+      "Edit only four owned documentation paths for preparation; read settled source and existing evidence."
+    ],
+    "forbidden_actions": [
+      "No provider/account changes, premium calls, commits, push, paid evals or recursive delegation.",
+      "No generator invocation, generated output edits, source1/2/3 changes or implied acceptance while review is unavailable."
+    ],
+    "required_approvals": []
+  },
+  "global_invariants": [
+    "### Shared contract C1: delegation placement\n\nUse the PRD decision table as the single product contract. Canonical policy lives in `skills/common/common-subagent-driven-development/SKILL.md`; detailed examples live in its references. Other workflows reference it rather than independently restating divergent routing rules. Main-loop execution is conditional on host permission. If delegation is required, keep tightly coupled implementation in one bounded worker rather than a chain of planners/fixers. Required independent verification survives either placement.\n\n### Shared contract C2: model and effort guidance\n\nCanonical selection guidance belongs to `skills/common/common-task-complexity-routing/`, with SDD referencing it. Keep SNC sensitivity/review floors unchanged. Capability hints are not account authorization. The host resolves approved profiles, supported effort and authorized fallback; explicit settings are never silently overridden. Do not add a model-resolver service, pricing API or mandatory assignment schema field in this release.\n\nExtend receipt guidance, using existing records rather than another telemetry store, to cover: requested capability, actual provider/model/effort when observable, effort support, selection reason, eligibility/authority reference, budget availability and substitution/fallback reason. Unknown stays unknown. User preference examples are guidance, not a new persisted configuration interface.\n\n### Shared contract C3: evidence and economics\n\nCount the accepted task, including parent, workers, independent reviews, repairs and failed/cancelled attempts. Distinguish tokens, billed money, subscription/quota consumption and elapsed time. Reuse `ARCHITECTURE.md` task-economics contracts. No numerical savings without complete comparable actor coverage and prices; offline fixtures do not establish model efficacy.\n\n### Shared contract C4: write ownership and verification\n\nTasks 1, 2 and 3 have disjoint owned paths and may run concurrently after approval and valid packets. Do not edit another owner's files. Cross-task needs are reported to the orchestrator, not fixed opportunistically. Workers skip mid-flight build/lint/test/formatter runs; after the batch settles, the orchestrator runs covering checks once against a stable revision and requests corrections. If later edits occur, affected evidence must be refreshed. Independent review remains required for each slice and the final integrated branch under current policy.\n\n",
+    "Skip mid-flight tests/build/lint/formatters. Write tests first; covering checks run by parent after all owners settle.",
+    "Preserve existing independent review and approval gates.",
+    "This is preparation only: Task4 completion/copy-back remains gated on independent acceptance of Tasks1-3. Do not call it complete."
+  ],
+  "owned_paths": [
+    "ARCHITECTURE.md",
+    "CONTRIBUTING.md",
+    "CHANGELOG.md",
+    "docs/validation/context-aware-delegation-protocol.md"
+  ],
+  "acceptance_criteria": [
+    {
+      "id": "AC-20",
+      "expectation": "Offline scorer evidence is not described as live efficacy or savings."
+    },
+    {
+      "id": "AC-21",
+      "expectation": "Protocol includes all ten scenarios, three matched repetitions per arm, per-case regressions and unchanged-variable controls."
+    },
+    {
+      "id": "AC-22",
+      "expectation": "No paid execution without explicit budget/eligibility approval."
+    },
+    {
+      "id": "PREP-01",
+      "expectation": "Canonical docs describe C1-C3 accurately; source review and generated copy-back explicitly pending."
+    }
+  ],
+  "verification": [
+    {
+      "command": "rtk proxy pnpm validate",
+      "cwd": ".",
+      "expected": "Parent verification only after settled changes; worker checks not_run."
+    }
+  ],
+  "required_standards": [
+    {
+      "id": "common-subagent-driven-development",
+      "path": "skills/common/common-subagent-driven-development/SKILL.md",
+      "revision": "dd6f5d0adbbc51ae5290d3f0cba60ea1b20d36ade18f2130c18ce1a271c71d05"
+    }
+  ],
+  "source_revision": {
+    "commit": "92d06c420f6a41f08e11579423e4e3eacdb7880d"
+  },
+  "dirty_identity": {
+    "status": "?? .agent/\n?? docs/prd/prd-context-aware-delegation.md\n?? docs/prd/prd-plan-context-aware-delegation.md\n",
+    "sha256": "3be6353d82626546f1f945544d394d4ff40e1be36d15ce668230e224d255a4b3"
+  },
+  "source_files": [
+    {
+      "path": "docs/prd/prd-plan-context-aware-delegation.md",
+      "sha256": "cd8752fa2c3e3c1c86740138fca5def367be679b23d57e5711fd01e8ca3855dc"
+    },
+    {
+      "path": "docs/prd/prd-context-aware-delegation.md",
+      "sha256": "424c008fb0fc1e7f33301be48fbc70b9994b20047c598e0898b20fce41039a42"
+    },
+    {
+      "path": "ARCHITECTURE.md",
+      "sha256": "5805e4bf3fb7c1e14cc767a6cbd04c65f9901ab786b9c1232fc468d5e715ba6e"
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "sha256": "af82eaa6f3617b8e4d4c821aa6e69189686f0710f3aae17d5012106e1be4ea87"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "sha256": "fc621da2b97f86448db934f7108e4c4b51e06586393940c2760247c305be76c0"
+    }
+  ],
+  "dependencies": [],
+  "output_contract": {
+    "receipt_destination": ".agent/sdd/context-aware-delegation/task-4-preparation-report.md",
+    "status_vocabulary": [
+      "completed",
+      "needs_context",
+      "blocked",
+      "failed",
+      "cancelled"
+    ],
+    "stop_conditions": [
+      "Generated copy-back remains blocked by independent review. No source1/2/3 edits."
+    ]
+  },
+  "limits": {
+    "status": "advisory",
+    "note": "No paid experiments authorized. No host-enforced token budget exposed."
+  }
+}

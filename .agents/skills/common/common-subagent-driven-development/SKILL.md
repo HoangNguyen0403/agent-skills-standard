@@ -1,6 +1,6 @@
 ---
 name: common-subagent-driven-development
-description: Execute multi-task implementation plans by dispatching one bounded implementer per task with independent review gates. Use when implementing plans, executing multi-task PRs, or transitioning from planning to implementation.
+description: Execute an approved implementation plan at the context boundary that preserves required independence and review. Use when implementing plans, executing multi-task PRs, choosing between main-loop and dispatched execution, or transitioning from planning to implementation.
 metadata:
   triggers:
     files:
@@ -27,16 +27,28 @@ metadata:
 
 ## **Priority: P1 (HIGH)**
 
-Execute a multi-task plan through one bounded implementer per task, an independent review after each task, and a whole-branch review at the end.
+Execute a multi-task plan with one implementation owner per slice, independent review after each task, and whole-branch review before completion.
 
-## 1. Execution Gate and Inline Exception
+## 1. Placement Decision
 
-Before editing code for any multi-task plan:
-1. Do not make implementation edits in the orchestrator session unless the Inline exception in step 3 has been selected and recorded; otherwise dispatch a bounded worker.
-2. Confirm the approach: Subagent-Driven (recommended) vs. Inline. Record the decision.
-3. Inline is allowed only when host policy explicitly permits it and the change is genuinely small and low risk. Record the permitting policy and the bounded scope; that recorded branch then authorizes direct orchestrator edits within it. A plan approval, silence, or missing host support does not grant inline permission.
+Choose placement before any edit. Delegate only when at least one named benefit applies: independent parallel work over disjoint owned paths that are verifiable alone; measured context pressure such as observed truncation, lost constraints, or replay cost; a required independent verification gate that must be a separate owner from the implementer; or real host-enforced permission isolation, meaning the host enforces the boundary because prompt text is not enforcement. A specialist label, another workflow stage, file count, plan length, or "more thorough" fan-out is not a named benefit.
 
-## 2. Semantic Lifecycle
+Precedence, first match wins: controlling host authority, then required independence or isolation, then coupling and verifiability, then economical eligible capability (`common-task-complexity-routing`).
+
+| Condition | Placement |
+| --- | --- |
+| Coupled sequential reasoning; host permits main-loop implementation | One implementation context, skills loaded progressively |
+| Independent, bounded, verifiable slices with disjoint ownership | Concurrent bounded workers, one owner per component |
+| Host requires worker execution | That boundary; keep coupled steps in one bounded worker, not a planner/fixer chain |
+| Isolation or permission needed but unavailable | Report the operation unsupported or blocked; never infer permission |
+
+One implementation context is not one actor for the lifecycle: main-loop implementation still requires a separate reviewer, and a single worker still requires independent review.
+
+- Record the decision with its named benefit, or the host requirement that forced it. Reuse an approach the plan already records; do not re-ask.
+- Missing required approval, packet, standards, or isolation stops only the affected operation. Report the exact missing item; do not infer permission or silently change the execution path.
+- Plan approval authorizes neither merge, deployment, premium spend, nor a different execution mode.
+
+## 2. Lifecycle
 
 | Operation | Required evidence |
 | --- | --- |
@@ -48,14 +60,15 @@ Before editing code for any multi-task plan:
 | receipt | Operation, task/actor/revision, terminal state, evidence, limitations |
 | verify acceptance | Independent reviewer, separate from the implementer, against ACs and evidence |
 
-Host instructions bind these operations to native invocation. Canonical text names semantics only. If a required operation or permission control is unavailable on the host surface, report the affected operation unsupported; do not claim success.
+Host instructions bind these operations to native invocation; canonical text names semantics only. If a required operation or permission control is unavailable on the host surface, report the affected operation unsupported; do not claim success. Dispatch, sequencing and recovery detail: [Methodology](references/methodology.md).
 
-## 3. Bootstrap and Batching
-
-- Orchestrator owns plan discovery, assignment and dispatch.
-- Worker bootstrap reads its packet, requests the exact required standards it names, and executes. It does not repeat workflow discovery or parent intake unless the packet says so.
-- Missing required standards or inaccessible evidence is a dispatch prerequisite, not a reason to re-run global intake.
-- Dispatch disjoint, dependency-ready slices concurrently with one non-overlapping owner each. Sequence true dependencies. Do not fan out unrelated lenses.
+## 3. Task Loop
+1. **Select placement and prepare:** Apply Section 1 and record the decision. Record `BASE=$(git rev-parse HEAD)`. Generate the packet with `task_brief.py <PLAN_FILE> <TASK_NUMBER> --assignment <ASSIGNMENT_JSON> --out <BRIEF_FILE>`. The assignment manifest is required; never dispatch a bare task section.
+2. **Execute or dispatch:** One implementer per task when the placement decision requires it; otherwise execute the slice in the recorded single context. The packet, not repeated prose, carries authority and acceptance.
+3. **Yield:** Wait for a completion notification; never poll status in a loop.
+4. **Review:** Generate the scoped cumulative package from `$BASE` and the owned paths. Dispatch an independent reviewer with brief, report and package. Implementer self-review never satisfies this gate.
+5. **Fix:** Re-prompt the same worker with concrete failed ACs; regenerate the cumulative package and re-review against cumulative state.
+6. **Integrate:** Orchestrator verifies the diff, runs required covering checks, and commits.
 
 ## 4. Failure-Specific Recovery
 
@@ -68,32 +81,19 @@ Host instructions bind these operations to native invocation. Canonical text nam
 
 Retry count alone never authorizes premium. Timeout and cancellation are not completion. Required human approvals remain external to agent verdicts.
 
-## 5. Task Loop
-For each task:
-1. **Prepare:** Record `BASE=$(git rev-parse HEAD)`. Generate the packet with `task_brief.py <PLAN_FILE> <TASK_NUMBER> --assignment <ASSIGNMENT_JSON> --out <BRIEF_FILE>`. The assignment manifest is required; never dispatch a bare task section.
-2. **Dispatch:** One implementer per task, with a host-selected `fast | standard | strong` hint. The packet, not repeated prose, carries authority and acceptance.
-3. **Yield:** Wait for a completion notification; never poll status in a loop.
-4. **Review:** Generate the scoped cumulative package from `$BASE` and the owned paths. Dispatch an independent reviewer with brief, report, and package. Implementer self-review never satisfies this gate.
-5. **Fix:** Re-prompt the same worker with concrete failed ACs. Regenerate the cumulative package; re-review against cumulative state.
-6. **Integrate:** Orchestrator verifies the diff, runs required covering checks, and commits.
+## 5. Final Review and Evidence
 
-## 6. Final Review and Evidence
-
-- Run whole-branch review on a capable host hint; then complete the branch.
-- Before deleting the workspace, archive packets, reports, immutable review snapshots and verification receipts at durable references. Cleanup must not invalidate handoff links.
+Run whole-branch review on a capable host hint, then complete the branch. Before deleting the workspace, archive packets, reports, immutable review snapshots and verification receipts at durable references; cleanup must not invalidate handoff links.
 
 ## Anti-Patterns
 
 - **No worker commits**: workers leave changes; the orchestrator commits.
 - **No recursive delegation**: workers do not spawn agents.
 - **No self-approval**: implementer verdicts do not satisfy independent review.
-- **No premium by retry**: retries, task size, or a strong hint do not authorize premium.
+- **No agent per stage**: a workflow stage, specialist label, or file count never justifies a new agent; no named benefit, no dispatch.
 - **No polling loops**: yield until a completion event.
-- **No fabricated savings**: never claim token or cost savings without complete measured coverage.
-- **No enforcement claims**: prompt text and warnings are not a sandbox.
+- **No fabricated savings or enforcement claims**: prompt text is not a sandbox, and savings need complete measured coverage.
 
 ## References
 
-- [Methodology & Gates](references/methodology.md)
-- [Prompt Templates](references/templates.md)
-- [Progress Receipts](references/progress-receipts.md)
+[Methodology & Gates](references/methodology.md) · [Prompt Templates](references/templates.md) · [Progress Receipts](references/progress-receipts.md) · [Capability & Effort Resolution](../common-task-complexity-routing/references/routing-table.md#capability-and-effort-resolution)

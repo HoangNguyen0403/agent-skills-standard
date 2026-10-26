@@ -1,0 +1,96 @@
+{
+  "scope": "PR release metadata + token metrics for context-aware-delegation feature; repository maintenance only",
+  "approved_source_change": {
+    "path": "skills/metadata.json",
+    "before_sha256": "593125c7cceb08ed358ab1b36a0bc0ca47d109663a17dd5eaa7b5986bf6d1fda",
+    "after_sha256": "e4d6617e6d19e11680ab43005096aef638d05f3aaf2f728140e5726e50a061ec",
+    "versions": {
+      "common": {
+        "before": "2.9.2",
+        "after": "2.9.3",
+        "last_updated": "2026-10-27"
+      },
+      "database": {
+        "before": "1.4.1",
+        "after": "1.4.2",
+        "last_updated": "2026-10-27"
+      },
+      "laravel": {
+        "before": "1.4.1",
+        "after": "1.4.2",
+        "last_updated": "2026-10-27"
+      }
+    },
+    "workflows": {
+      "before": "1.1.7",
+      "after": "1.1.8"
+    }
+  },
+  "computed_token_metrics": {
+    "common": {
+      "total_skills": 45,
+      "total_tokens": 41663,
+      "avg_tokens_per_skill": 926,
+      "largest_skill": "common-subagent-driven-development (1726 tokens)"
+    },
+    "database": {
+      "total_skills": 8,
+      "total_tokens": 3914,
+      "avg_tokens_per_skill": 489,
+      "largest_skill": "database-hana (920 tokens)"
+    },
+    "laravel": {
+      "total_skills": 10,
+      "total_tokens": 7818,
+      "avg_tokens_per_skill": 782,
+      "largest_skill": "laravel-testing (989 tokens)"
+    }
+  },
+  "generators": {
+    "generate_indices": {
+      "exit": 0,
+      "log": "artifacts/context-aware-delegation/pr-evidence/generate-indices.log"
+    },
+    "calculate_tokens": {
+      "exit": 0,
+      "log": "artifacts/context-aware-delegation/pr-evidence/calculate-tokens.log"
+    },
+    "provenance": "artifacts/context-aware-delegation/pr-evidence/prep-run.json"
+  },
+  "generated_delta": {
+    "copied": [
+      "skills/metadata.json"
+    ],
+    "already_identical": [
+      "README.md",
+      "cli/README.md",
+      "skills/index.json",
+      "skills/README.md",
+      "skills/*/_INDEX.md",
+      "AGENTS.md",
+      "all configured host mirrors/indices/wrappers",
+      "docs/agent-capabilities.md"
+    ],
+    "receipt": "artifacts/context-aware-delegation/pr-evidence/copy-back-receipt.json",
+    "settled_drift": "only unowned generator-copied __pycache__ plus scratch lockfile/.git in the stage; nothing else copied"
+  },
+  "discovery": "artifacts/context-aware-delegation/pr-evidence/discovery-check.json",
+  "preservation": "artifacts/context-aware-delegation/pr-evidence/preservation-check.json",
+  "not_run": [
+    "tests",
+    "build",
+    "lint",
+    "formatters",
+    "validation",
+    "commits",
+    "push"
+  ],
+  "stale_displays_observed_not_fixed": {
+    "README.md": [
+      "Common Patterns row shows v2.5.0",
+      "Laravel row shows v1.3.4",
+      "Database row shows v1.3.5"
+    ],
+    "note": "pre-existing stale category-version displays in the four-data-column stack table; calculator legacy updater does not match that table. Not broadened per scope."
+  }
+}

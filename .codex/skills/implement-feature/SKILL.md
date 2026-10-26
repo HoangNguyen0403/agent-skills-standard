@@ -1,6 +1,6 @@
 ---
 name: implement-feature
-description: "Implement an approved feature plan with fresh-context slices, TDD, revision-bound evidence, and PR-ready output."
+description: "Implement an approved feature plan with benefit-based placement, TDD, revision-bound evidence, and PR-ready output."
 metadata:
   internal: true
   triggers:
@@ -11,7 +11,7 @@ metadata:
 # Implement Feature Skill
 
 > [!IMPORTANT]
-> Implement an approved feature plan with fresh-context slices, TDD, revision-bound evidence, and PR-ready output.
+> Implement an approved feature plan with benefit-based placement, TDD, revision-bound evidence, and PR-ready output.
 
 Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false, profile=business|hybrid|technical.
 
@@ -28,26 +28,28 @@ Goal: Build an approved feature through bounded TDD slices and route settled wor
 
 1. **Load plan**: Find matching PRD/ticket, SRS/FRS, implementation plan, REQ/AC trace, and skills. Ask if target is ambiguous; route missing trace/test lanes to `plan-feature`, `design-solution`, or `implementation-readiness`. Carry `snc_tier`/`model_tier`; high tier adds `specialist-architecture-guard` and `specialist-security-reviewer` before `verify-work`.
 2. **Prepare workspace**: Confirm clean or intentional dirty state; create a branch/worktree only when expected. Provision lockfile dependencies before tests. Report install failures exactly; never claim skipped checks passed.
-3. **Bound ownership**: Assign each slice one owner, exact files, goal/deliverable, in/out scope, authority, REQ/AC IDs, required standards, and verification receipt. Prepare a standalone assignment packet; a slice must not depend on inferred plan-level authority.
+3. **Bound ownership**: Assign each slice one owner; the recorded implementation context may own several coupled slices. Record exact files, goal/deliverable, in/out scope, authority, REQ/AC IDs, required standards, and verification receipt. Prepare a standalone assignment packet; a slice must not depend on inferred plan-level authority.
 4. **Implement slices**:
-   - Dispatch one owner per disjoint, dependency-ready slice; sequence only real dependencies. Worker bootstrap reads its packet and requests only the exact standards it names; do not repeat parent workflow discovery or global intake.
+   - Apply the canonical placement decision in `common-subagent-driven-development` §1 before editing: delegate only for a named benefit or a host requirement. Coupled sequential work under a host that permits main-loop implementation stays in one implementation context.
+   - Dispatch one owner per disjoint, dependency-ready slice with a recorded benefit; sequence only real dependencies. Worker bootstrap reads its packet and requests only the exact standards it names; do not repeat parent workflow discovery or global intake.
    - Record observable contract, distinct fault, smallest honest layer, minimal cases, and exact focused command before testing.
    - Write/update the failing test first; observe expected RED before implementation. Characterize legacy behavior only when needed.
    - Implement the smallest passing change; refactor without scope expansion.
    - Run focused checks foreground, single-run, sequentially, with no peer mutation; classify invalid RED, unexpected GREEN, timeout, or infrastructure failure.
    - Keep concise revision-bound receipts: changed contract, RED/GREEN evidence, behavior smoke, command/result, and limitations.
-5. **Independent review**: Review each slice in a separate owner/context against its ACs and evidence. Implementer self-review does not satisfy this gate. Record review mode, open findings, and the settled revision.
+5. **Independent review**: Review each slice in a separate owner/context against its ACs and evidence. Implementer self-review does not satisfy this gate, whether the implementer ran in the main loop or in a worker. Record review mode, open findings, and the settled revision.
 6. **Recover by cause**: Missing prerequisite → report `needs_context`/`blocked` with the exact item. Defective output → one corrective assignment naming the failed AC. Observed provider exhaustion → only an eligible, already-authorized fallback, with the evidence recorded. Consequential safety/design issue → human decision. Retry count alone never authorizes premium.
 7. **Preserve context**: Carry decisions, owner, active slice, and evidence links in the task/plan artifact. Summarize logs; keep source artifacts retrievable. Archive required packets, reports, and receipts at durable references before workspace cleanup.
-8. **Settle before shared checks**: Every owner pauses edits and reports a settled revision. Run one final covering gate, including behavior smoke, foreground/sequentially with no peer mutation. Later edits invalidate affected evidence; rerun those gates and never weaken checks. A cancelled or timed-out run is not a pass.
+8. **Settle before shared checks**: Every owner pauses edits and reports a settled revision. Run one final covering gate, including behavior smoke, foreground/sequentially with no peer mutation. Then run the whole-branch independent review; it is required regardless of placement. Later edits invalidate affected evidence; rerun those gates and never weaken checks. A cancelled or timed-out run is not a pass.
 9. **Handoff**: Report final gate/smoke receipts and update REQ/AC trace and walkthrough evidence. Continue only within recorded authority; route to `verify-work`.
 
 ## Runtime Contract
 
 - Use for approved plans ready to build; TDD, bounded ownership, revision-bound evidence, independent review.
 - Required inputs: PRD/ticket with stable REQ/AC trace, owner, and required SRS/test lanes.
-- Subagent-Driven is the default for multi-task plans. Inline execution is a recorded exception only where host policy explicitly permits it and the change is genuinely small and low risk; a plan approval or missing nesting support does not grant it.
-- Return BLOCKED only when required trace, owner, or test lanes are missing.
+- Choose placement per `common-subagent-driven-development` §1: delegate only for a named benefit or a host requirement. Plan approval does not authorize merge, deployment, premium spend, or a different execution mode.
+- Required independent review and the final whole-branch review survive either placement; missing nesting support or missing isolation stops only the affected operation.
+- Return `needs_context` or `blocked` when required trace, owner, test lanes, authority, required standards, or enforceable isolation are missing.
 
 ## Handoff Payload
 

@@ -23,6 +23,62 @@
 
 Runtime-neutral hint. Adapters map `fast` / `standard` / `strong` to whatever model ladder the runtime exposes; never hardcode a vendor model name in a workflow.
 
+## Capability and effort resolution
+
+Canonical guidance for provider-neutral capability/effort selection, dispatch receipts and cost honesty. Other workflows reference this heading instead of restating routing rules.
+
+### Separation
+
+Capability states how much model strength the work needs. Thinking effort states how much reasoning budget the host spends per call. They are independent: a `strong` model at low effort is not `standard` at high effort. Recommend the least expensive **eligible** configuration adequate for the task and its verification burden, never the cheapest model categorically — repair makes cheap attempts expensive.
+
+| Situation | Capability and effort choice |
+| --- | --- |
+| Deterministic transformation: rename, reformat, codemod | Existing tool/script first; no LLM call unless the tool cannot express the rule |
+| Bounded implementation with clear acceptance | Tier-permitted capability; effort enough to read the surrounding contract |
+| Ambiguous investigation or unfamiliar codebase | `standard` or higher with wider effort; scouting costs less than premature convergence |
+| Consequential review or sensitive change | `strong` capability plus an independent reviewer; effort sized to the review lens, not the diff |
+
+SNC sensitivity floors are unchanged. A small edit or a lower capability hint never lowers a floor, never authorizes premium spend and never removes a required reviewer.
+
+### Host-owned resolution
+
+- Eligibility, approved profiles, supported effort and authorized fallback come from current host/project configuration. A capability hint is not account authorization, so an unauthorized cheaper account stays unavailable; substitute only inside already-authorized routes.
+- Explicit configured model, effort, mode and features are preserved; never silently replaced by a hint-derived default.
+- Effort vocabularies are vendor-specific. Never assume `low`/`medium`/`high` mean the same across providers.
+- Unsupported effort records `unsupported` plus what was actually applied, without claiming the request was applied. Unknown support records `unknown`.
+- Operator preference (economy, balanced, quality-first) shapes this request only; this release adds no persisted preference interface.
+- Budget or quota the host does not expose stays unknown. Premium capability requires separate human approval, a bounded analysis-only consultation and no state mutation.
+
+### Dispatch receipt (capability and effort)
+
+Reuse the existing handoff/receipt record; add no telemetry store and no mandatory assignment field.
+
+| Receipt field | Content |
+| --- | --- |
+| Requested capability | `fast` / `standard` / `strong` hint |
+| Actual configuration | Provider, model and effort when observable; otherwise `unknown` |
+| Effort support | `applied`, `unsupported` or `unknown` |
+| Selection reason | Adequacy for the task and its verification burden |
+| Eligibility or authority reference | Approved profile/route evidence, or `unknown` |
+| Budget availability | Known value or `unknown` |
+| Substitution or fallback | Reason and observed evidence, else `none` |
+
+### Recovery routes
+
+| Observed condition | Route |
+| --- | --- |
+| Missing prerequisite, context, standard or authority | `needs_context` or `blocked` naming the exact item; no provider fallback |
+| Defective or incomplete output | One corrective assignment naming the failed AC and expected result; not provider failure |
+| Observed provider exhaustion (quota, rate limit, unavailable) | Only an already-authorized eligible fallback; record exhaustion evidence and the selected route |
+| A preference for stronger capability | Capability hint only; premium remains a separately approved, bounded, analysis-only step |
+
+### Cost vocabulary
+
+- API usage is billed per token; subscription or quota plans consume allowance rather than itemized money; elapsed time is neither.
+- Complete task cost includes parent, workers, independent reviews, repairs and failed/cancelled attempts.
+- Report input/cached/output/reasoning tokens, billed money, quota consumption and elapsed time separately, reusing `ARCHITECTURE.md` task-economics contracts.
+- No numerical monetary savings without complete comparable actor coverage and resolved prices. Offline fixtures never establish model efficacy.
+
 ## Sensitive-Change Risk Floor & Reassessment
 
 - **Sensitive-Change Floor**: Any task touching authentication, authorization, payments/financial data, data integrity, secrets, or system trust boundaries enforces a minimum of `tier=medium` (guided execution, deep review, human plan acknowledgment) even if arithmetic SNC score is 0-2.

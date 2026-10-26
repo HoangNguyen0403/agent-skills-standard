@@ -1,0 +1,58 @@
+
+> agent-skills-standard-root@2.7.0 test:harness /Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/hopeful-robin
+> node --import tsx --test scripts/harness-smoke/*.test.ts
+
+✔ parseSkillsList extracts skill names from fixture and handles ANSI wrapping (1.042625ms)
+✔ parseCodexMcpList extracts server names from table output (0.186042ms)
+✔ parseOpencodeAgentList handles subagent annotations and bare names (0.137042ms)
+✔ parseGhVersion extracts major, minor, patch or returns null (0.149375ms)
+✔ stripAnsi removes ANSI escape codes (0.057417ms)
+✔ registrySkillNames finds skills and excludes specialists (2.206584ms)
+✔ every specialist has metadata.internal === true and no non-specialist has it (24.770208ms)
+✔ loadConformanceRecords validates path containment and record shape (3.341083ms)
+✔ loadConformanceRecords rejects missing artifacts and digest mismatches (1.440083ms)
+✔ promotes a surface only from retained live traces with per-control denial (3.458209ms)
+✔ never certifies support from a declared live executor without a retained artifact (0.594458ms)
+✔ keeps synthetic unit fixtures out of native evidence (1.786625ms)
+✔ rejects tampered digests and stale revisions at the report boundary (1.452209ms)
+✔ marks an unenforced required control unsupported (1.399209ms)
+✔ keeps an operation without its own trace not_verified (0.552459ms)
+✔ derives cancelled and timed-out receipts from recorded traces (1.810083ms)
+✔ rejects resume traces whose authority changes (0.991ms)
+✔ ignores completion, receipt and acceptance recorded for another task (0.993083ms)
+✔ does not replace the active attempt after a failed resume (0.999083ms)
+✔ requires successful resumes to bind an execution attempt (1.150709ms)
+✔ does not make non-execution resumes active attempts (1.817458ms)
+✔ requires a known dispatching actor for independent acceptance (1.1115ms)
+✔ rejects lifecycle truth without a complete successful execution dispatch (3.201708ms)
+✔ rejects trace artifacts that resolve outside the evidence root through a symlink (1.3105ms)
+✔ rejects claim record indexes that resolve outside the root through a symlink (1.241875ms)
+✔ fails the harness check when recorded lifecycle evidence is invalid (1.469ms)
+✔ requires an independent reviewer record before acceptance is verified (1.627792ms)
+✔ keeps a cancelled trace cancelled even when completion was recorded later (1.047833ms)
+✔ harness qualification check reports support status without live proof (2.847167ms)
+✔ checkSkillsInstaller: pass when discovered matches registry skills (1.888458ms)
+✔ checkSkillsInstaller: fail when discovered has extra/missing skills (0.895958ms)
+✔ checkSkillsInstaller: skip when binary is missing (0.085375ms)
+✔ checkGhSkill: skip when gh is missing (0.099667ms)
+✔ checkGhSkill: skip when gh version is < 2.90.0 (0.154542ms)
+✔ checkGhSkill: pass when version >= 2.90.0 and publish --dry-run succeeds (0.100542ms)
+✔ checkGhSkill: fail when publish --dry-run fails (0.071167ms)
+✔ checkCodexMcp: skip when codex is missing (1.005667ms)
+✔ checkCodexMcp: fail with the ags error when no snippet is generated (0.433209ms)
+✔ checkCodexMcp: pass when agent-skills-standard is listed (0.983792ms)
+✔ checkCodexMcp: fail when agent-skills-standard is not in list (0.941916ms)
+✔ checkOpencodeAgents: skip when opencode is missing (0.286959ms)
+✔ checkOpencodeAgents: pass when all emitted specialists appear in agent list (1.030459ms)
+✔ checkOpencodeAgents: fail when emitted specialist is missing from agent list (0.923167ms)
+✔ renderResults outputs markdown table with date, commit and check rows (0.242417ms)
+✔ renderResults escapes backslashes and pipes in evidence (0.05ms)
+✔ computeExitCode returns 0 if all pass or skip, 1 if any fail (0.046666ms)
+ℹ tests 46
+ℹ suites 0
+ℹ pass 46
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 188.405791

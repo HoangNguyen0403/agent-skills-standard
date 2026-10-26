@@ -2,6 +2,15 @@
 
 `sdd_progress.py` records durable local checkpoints from explicit observation files. It is not an approval service, notification receiver, host lock, or wakeup guarantee. `owner_paused` and owner identity are declarations in a receipt; the helper does not authenticate the owner or enforce a pause.
 
+## Placement and dispatch receipts
+
+Record these in the existing task artifact, worker report and review receipt; add no telemetry store and no new `sdd_progress.py` observation field.
+
+- **Placement:** one implementation context or bounded workers, plus the named benefit or host requirement that decided it.
+- **Capability and effort:** requested capability, actual provider/model/effort when observable, effort support, selection reason, eligibility or authority reference, budget availability, and substitution or fallback reason. Field definitions, resolution rules and cost vocabulary live in [`common-task-complexity-routing` — Capability and effort resolution](../../common-task-complexity-routing/references/routing-table.md#capability-and-effort-resolution); reference that heading instead of restating routing policy.
+- **Economics:** count the accepted task including parent, workers, independent reviews, repairs and failed or cancelled attempts; keep tokens, billed money, subscription or quota consumption, and elapsed time distinct.
+- **Honesty:** a placement or capability claim is advisory unless the host enforces it. Unknown stays unknown, and no savings are claimed without complete comparable actor coverage and prices.
+
 ## Initialize
 
 ```sh

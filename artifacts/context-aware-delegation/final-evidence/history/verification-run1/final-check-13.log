@@ -1,0 +1,5 @@
+
+> agent-skills-standard-root@2.7.0 docs:capabilities:check /Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/hopeful-robin
+> tsx scripts/generate-capabilities-doc.ts --check
+
+✅ docs/agent-capabilities.md is up to date.

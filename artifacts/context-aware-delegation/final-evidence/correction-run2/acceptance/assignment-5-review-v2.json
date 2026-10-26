@@ -1,0 +1,542 @@
+{
+  "schema_version": 1,
+  "task_id": "context-aware-delegation-5-final-review",
+  "task_number": 5,
+  "goal": "Independently verify integrated AC01..22, source/export evidence, architecture/security authority boundaries, complete final acceptance report without source changes.",
+  "owner": "Independent reviewer 054439f6-1a6b-445f-af68-ebbbf3c17825",
+  "project_domain": "agent-skills-standard / Personal",
+  "workspace_root": "/Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/hopeful-robin",
+  "plan_sha256": "ac4ed6ff7818017a8f02e05e47613b6469ad1f39c2070606c7903f3fa48de045",
+  "non_goals": [
+    "No host configuration, paid experiments, commits, deployments, recursive delegation or unrelated edits."
+  ],
+  "authority": {
+    "allowed_operations": [
+      "Read exact scoped sources, cumulative review package and verification evidence; write only assigned final-review report."
+    ],
+    "forbidden_actions": [
+      "No source/generated edits, commits, deploy, paid evals, recursive delegation, host configuration changes, human approval or accepting missing critical evidence."
+    ],
+    "required_approvals": []
+  },
+  "global_invariants": [
+    "Independent owner from all implementers; inspect actual source and digest-bound evidence, do not trust worker verdicts.",
+    "Preserve host authority, data eligibility, model/effort explicit settings and independent review; no premium by hint.",
+    "Offline scorer fixtures are not live efficacy; no savings without full cohort accounting.",
+    "Archived blocked evidence is historical; assess final current source identities and gate receipts.",
+    "Run1 Task5 changes_required is historical; explicitly close or retain generated discovery MAJOR using current complete-inventory semantic proof and final-run2 checks."
+  ],
+  "owned_paths": [
+    ".agent/sdd/context-aware-delegation/task-5-review.md"
+  ],
+  "acceptance_criteria": [
+    {
+      "id": "AC-01",
+      "expectation": "Given tightly coupled sequential work and a host permitting main-loop execution, the guidance selects one implementation context."
+    },
+    {
+      "id": "AC-02",
+      "expectation": "Given independent, verifiable work with disjoint ownership, it permits concurrent bounded workers."
+    },
+    {
+      "id": "AC-03",
+      "expectation": "Given only a specialist label or another workflow stage, it does not require a new agent."
+    },
+    {
+      "id": "AC-04",
+      "expectation": "Given a host requiring delegation, the guidance follows that requirement even when one context would otherwise be preferable."
+    },
+    {
+      "id": "AC-05",
+      "expectation": "Given missing required approval or unavailable isolation, it stops the affected operation rather than inferring permission."
+    },
+    {
+      "id": "AC-06",
+      "expectation": "Given a required independent acceptance gate, implementer self-review cannot satisfy it."
+    },
+    {
+      "id": "AC-07",
+      "expectation": "Given a deterministic operation, guidance considers a tool/script before another LLM."
+    },
+    {
+      "id": "AC-08",
+      "expectation": "Given a configured eligible profile, the host preserves its explicit model/effort settings rather than silently replacing them."
+    },
+    {
+      "id": "AC-09",
+      "expectation": "Given unsupported effort selection, the result records unsupported status rather than claiming the effort was applied."
+    },
+    {
+      "id": "AC-10",
+      "expectation": "Given a strong capability hint, no premium call is authorized by that hint alone."
+    },
+    {
+      "id": "AC-11",
+      "expectation": "Given a dispatch, its documented receipt records requested tier, actual configuration, selection reason and capability limitations."
+    },
+    {
+      "id": "AC-12",
+      "expectation": "Given unknown price/quota or incomplete actor accounting, no numerical monetary savings are claimed."
+    },
+    {
+      "id": "AC-13",
+      "expectation": "Given exhaustion, fallback stays within already-authorized eligible routes."
+    },
+    {
+      "id": "AC-14",
+      "expectation": "Given defective output rather than exhaustion, guidance uses the existing corrective-assignment policy instead of treating it as provider failure."
+    },
+    {
+      "id": "AC-15",
+      "expectation": "Given `model routing`, `thinking level` or `LLM model selection`, keyword routing does not load MongoDB or Eloquent merely because of `model`."
+    },
+    {
+      "id": "AC-16",
+      "expectation": "Given explicit MongoDB/Mongoose model intent, MongoDB guidance remains discoverable."
+    },
+    {
+      "id": "AC-17",
+      "expectation": "Given explicit Laravel/Eloquent model intent, Eloquent guidance remains discoverable."
+    },
+    {
+      "id": "AC-18",
+      "expectation": "Given a relevant model-tier request, the capability-routing standard remains discoverable."
+    },
+    {
+      "id": "AC-19",
+      "expectation": "Given the final source revision, generated exports reflect the same decision boundaries."
+    },
+    {
+      "id": "AC-20",
+      "expectation": "Given offline fixture/scorer evidence, the report does not describe it as live model efficacy or measured savings."
+    },
+    {
+      "id": "AC-21",
+      "expectation": "Given a proposed comparison, it includes all ten scenarios, repeated matched runs and per-case regressions."
+    },
+    {
+      "id": "AC-22",
+      "expectation": "Given missing experiment authorization, no paid execution occurs."
+    }
+  ],
+  "verification": [
+    {
+      "command": "Read final-run2-checks-result.json and index-discovery-smoke-result.json plus run2 generation receipts",
+      "cwd": ".",
+      "expected": "Four host indices retain both changed skills, all expected common skills and new capability terms; all22 ACs assessed on current sealed source."
+    }
+  ],
+  "required_standards": [
+    {
+      "id": "canonical-SDD",
+      "path": "skills/common/common-subagent-driven-development/SKILL.md",
+      "revision": "dd6f5d0adbbc51ae5290d3f0cba60ea1b20d36ade18f2130c18ce1a271c71d05"
+    },
+    {
+      "id": "requirements",
+      "path": "docs/prd/prd-context-aware-delegation.md",
+      "revision": "a9a5694f26af667050622f5d4f1ca0c13cc338d8d43cc45c5032fc6ab32dc865"
+    }
+  ],
+  "source_revision": {
+    "commit": "92d06c420f6a41f08e11579423e4e3eacdb7880d"
+  },
+  "dirty_identity": {
+    "status": "intentional integrated candidate after discovery correction",
+    "source_snapshot_sha256": "59dd462dbcab31355dc35308e5309246a57acd6e2417c9f02ca5c12846ccde22"
+  },
+  "source_files": [
+    {
+      "path": ".agents/skills/common/_INDEX.md",
+      "sha256": "636a5ef6fd77b59b5e371537665ca8037f93424ef01463a80609cda42e6ed684"
+    },
+    {
+      "path": ".agents/skills/common/common-subagent-driven-development/LICENSE",
+      "sha256": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1"
+    },
+    {
+      "path": ".agents/skills/common/common-subagent-driven-development/SKILL.md",
+      "sha256": "dd6f5d0adbbc51ae5290d3f0cba60ea1b20d36ade18f2130c18ce1a271c71d05"
+    },
+    {
+      "path": ".agents/skills/common/common-subagent-driven-development/references/methodology.md",
+      "sha256": "a3d9f53bb8dfb0b535b3d55dd027f22da8c3cd8889f794baf09fe908c937006d"
+    },
+    {
+      "path": ".agents/skills/common/common-subagent-driven-development/references/progress-receipts.md",
+      "sha256": "835eb90a0affa055798b9431d0fdf87177ad26de6bf267e6aecd2defa54efa17"
+    },
+    {
+      "path": ".agents/skills/common/common-subagent-driven-development/references/templates.md",
+      "sha256": "925579194a87cc0cbd7982d202dd72fe23f4eea70900634b9ab787050ef34297"
+    },
+    {
+      "path": ".agents/skills/common/common-subagent-driven-development/scripts/review_package.py",
+      "sha256": "87ac27d423d7937a6de77117153003a8e90f9383ef8d795abd74772bbb9996b4"
+    },
+    {
+      "path": ".agents/skills/common/common-subagent-driven-development/scripts/sdd_progress.py",
+      "sha256": "cb236e9d2542caced3e49e78274149bcb5790d71706133e475619eb30cd9959c"
+    },
+    {
+      "path": ".agents/skills/common/common-subagent-driven-development/scripts/sdd_workspace.py",
+      "sha256": "8366048e7b4e61f387b79677ece307f4df4770036e0bfb9eb0022c5536516728"
+    },
+    {
+      "path": ".agents/skills/common/common-subagent-driven-development/scripts/task_brief.py",
+      "sha256": "09307894b1bdb70e52fb0235dce312f29eca0de90baf3aa64c30d9e13f2912f6"
+    },
+    {
+      "path": ".agents/skills/common/common-task-complexity-routing/LICENSE",
+      "sha256": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1"
+    },
+    {
+      "path": ".agents/skills/common/common-task-complexity-routing/SKILL.md",
+      "sha256": "f1baa612d39e951db4d72a3ce06be4c1f826914cb3cbb3d976b4d2a0559f5c9f"
+    },
+    {
+      "path": ".agents/skills/common/common-task-complexity-routing/references/routing-table.md",
+      "sha256": "f789679f8db50618c095947c3765850102c0a8501a91cb9386b12bf21e8caf7b"
+    },
+    {
+      "path": ".agents/skills/common/common-task-complexity-routing/references/snc-rubric.md",
+      "sha256": "c9e78b00229da70402b298db871f7c5a4676578e4706330e0677e06c769946b7"
+    },
+    {
+      "path": ".agents/workflows/implement-feature.md",
+      "sha256": "808745c43c5289e9bf43dd91434f6ab1bc664fee2279c99e7301e9b2d7bc5b2c"
+    },
+    {
+      "path": ".claude/commands/implement-feature.md",
+      "sha256": "d59213a9aabe597105053759bca146ed5a42129fd020a382e21064868af4b520"
+    },
+    {
+      "path": ".claude/skills/common/_INDEX.md",
+      "sha256": "636a5ef6fd77b59b5e371537665ca8037f93424ef01463a80609cda42e6ed684"
+    },
+    {
+      "path": ".claude/skills/common/common-subagent-driven-development/LICENSE",
+      "sha256": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1"
+    },
+    {
+      "path": ".claude/skills/common/common-subagent-driven-development/SKILL.md",
+      "sha256": "dd6f5d0adbbc51ae5290d3f0cba60ea1b20d36ade18f2130c18ce1a271c71d05"
+    },
+    {
+      "path": ".claude/skills/common/common-subagent-driven-development/references/methodology.md",
+      "sha256": "a3d9f53bb8dfb0b535b3d55dd027f22da8c3cd8889f794baf09fe908c937006d"
+    },
+    {
+      "path": ".claude/skills/common/common-subagent-driven-development/references/progress-receipts.md",
+      "sha256": "835eb90a0affa055798b9431d0fdf87177ad26de6bf267e6aecd2defa54efa17"
+    },
+    {
+      "path": ".claude/skills/common/common-subagent-driven-development/references/templates.md",
+      "sha256": "925579194a87cc0cbd7982d202dd72fe23f4eea70900634b9ab787050ef34297"
+    },
+    {
+      "path": ".claude/skills/common/common-subagent-driven-development/scripts/review_package.py",
+      "sha256": "87ac27d423d7937a6de77117153003a8e90f9383ef8d795abd74772bbb9996b4"
+    },
+    {
+      "path": ".claude/skills/common/common-subagent-driven-development/scripts/sdd_progress.py",
+      "sha256": "cb236e9d2542caced3e49e78274149bcb5790d71706133e475619eb30cd9959c"
+    },
+    {
+      "path": ".claude/skills/common/common-subagent-driven-development/scripts/sdd_workspace.py",
+      "sha256": "8366048e7b4e61f387b79677ece307f4df4770036e0bfb9eb0022c5536516728"
+    },
+    {
+      "path": ".claude/skills/common/common-subagent-driven-development/scripts/task_brief.py",
+      "sha256": "09307894b1bdb70e52fb0235dce312f29eca0de90baf3aa64c30d9e13f2912f6"
+    },
+    {
+      "path": ".claude/skills/common/common-task-complexity-routing/LICENSE",
+      "sha256": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1"
+    },
+    {
+      "path": ".claude/skills/common/common-task-complexity-routing/SKILL.md",
+      "sha256": "f1baa612d39e951db4d72a3ce06be4c1f826914cb3cbb3d976b4d2a0559f5c9f"
+    },
+    {
+      "path": ".claude/skills/common/common-task-complexity-routing/references/routing-table.md",
+      "sha256": "f789679f8db50618c095947c3765850102c0a8501a91cb9386b12bf21e8caf7b"
+    },
+    {
+      "path": ".claude/skills/common/common-task-complexity-routing/references/snc-rubric.md",
+      "sha256": "c9e78b00229da70402b298db871f7c5a4676578e4706330e0677e06c769946b7"
+    },
+    {
+      "path": ".codex/skills/common/_INDEX.md",
+      "sha256": "636a5ef6fd77b59b5e371537665ca8037f93424ef01463a80609cda42e6ed684"
+    },
+    {
+      "path": ".codex/skills/common/common-subagent-driven-development/LICENSE",
+      "sha256": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1"
+    },
+    {
+      "path": ".codex/skills/common/common-subagent-driven-development/SKILL.md",
+      "sha256": "dd6f5d0adbbc51ae5290d3f0cba60ea1b20d36ade18f2130c18ce1a271c71d05"
+    },
+    {
+      "path": ".codex/skills/common/common-subagent-driven-development/references/methodology.md",
+      "sha256": "a3d9f53bb8dfb0b535b3d55dd027f22da8c3cd8889f794baf09fe908c937006d"
+    },
+    {
+      "path": ".codex/skills/common/common-subagent-driven-development/references/progress-receipts.md",
+      "sha256": "835eb90a0affa055798b9431d0fdf87177ad26de6bf267e6aecd2defa54efa17"
+    },
+    {
+      "path": ".codex/skills/common/common-subagent-driven-development/references/templates.md",
+      "sha256": "925579194a87cc0cbd7982d202dd72fe23f4eea70900634b9ab787050ef34297"
+    },
+    {
+      "path": ".codex/skills/common/common-subagent-driven-development/scripts/review_package.py",
+      "sha256": "87ac27d423d7937a6de77117153003a8e90f9383ef8d795abd74772bbb9996b4"
+    },
+    {
+      "path": ".codex/skills/common/common-subagent-driven-development/scripts/sdd_progress.py",
+      "sha256": "cb236e9d2542caced3e49e78274149bcb5790d71706133e475619eb30cd9959c"
+    },
+    {
+      "path": ".codex/skills/common/common-subagent-driven-development/scripts/sdd_workspace.py",
+      "sha256": "8366048e7b4e61f387b79677ece307f4df4770036e0bfb9eb0022c5536516728"
+    },
+    {
+      "path": ".codex/skills/common/common-subagent-driven-development/scripts/task_brief.py",
+      "sha256": "09307894b1bdb70e52fb0235dce312f29eca0de90baf3aa64c30d9e13f2912f6"
+    },
+    {
+      "path": ".codex/skills/common/common-task-complexity-routing/LICENSE",
+      "sha256": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1"
+    },
+    {
+      "path": ".codex/skills/common/common-task-complexity-routing/SKILL.md",
+      "sha256": "f1baa612d39e951db4d72a3ce06be4c1f826914cb3cbb3d976b4d2a0559f5c9f"
+    },
+    {
+      "path": ".codex/skills/common/common-task-complexity-routing/references/routing-table.md",
+      "sha256": "f789679f8db50618c095947c3765850102c0a8501a91cb9386b12bf21e8caf7b"
+    },
+    {
+      "path": ".codex/skills/common/common-task-complexity-routing/references/snc-rubric.md",
+      "sha256": "c9e78b00229da70402b298db871f7c5a4676578e4706330e0677e06c769946b7"
+    },
+    {
+      "path": ".codex/skills/implement-feature/SKILL.md",
+      "sha256": "8557d687e0e1753d281aaea0cc0ba75e9c08dde239281dd4dd9750844daecb66"
+    },
+    {
+      "path": ".github/prompts/implement-feature.prompt.md",
+      "sha256": "e302c7ccb8656d003d7dc42297f362fb38fbb4a45ed15fd91653063fe382b983"
+    },
+    {
+      "path": ".github/skills/common/_INDEX.md",
+      "sha256": "636a5ef6fd77b59b5e371537665ca8037f93424ef01463a80609cda42e6ed684"
+    },
+    {
+      "path": ".github/skills/common/common-subagent-driven-development/LICENSE",
+      "sha256": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1"
+    },
+    {
+      "path": ".github/skills/common/common-subagent-driven-development/SKILL.md",
+      "sha256": "dd6f5d0adbbc51ae5290d3f0cba60ea1b20d36ade18f2130c18ce1a271c71d05"
+    },
+    {
+      "path": ".github/skills/common/common-subagent-driven-development/references/methodology.md",
+      "sha256": "a3d9f53bb8dfb0b535b3d55dd027f22da8c3cd8889f794baf09fe908c937006d"
+    },
+    {
+      "path": ".github/skills/common/common-subagent-driven-development/references/progress-receipts.md",
+      "sha256": "835eb90a0affa055798b9431d0fdf87177ad26de6bf267e6aecd2defa54efa17"
+    },
+    {
+      "path": ".github/skills/common/common-subagent-driven-development/references/templates.md",
+      "sha256": "925579194a87cc0cbd7982d202dd72fe23f4eea70900634b9ab787050ef34297"
+    },
+    {
+      "path": ".github/skills/common/common-subagent-driven-development/scripts/review_package.py",
+      "sha256": "87ac27d423d7937a6de77117153003a8e90f9383ef8d795abd74772bbb9996b4"
+    },
+    {
+      "path": ".github/skills/common/common-subagent-driven-development/scripts/sdd_progress.py",
+      "sha256": "cb236e9d2542caced3e49e78274149bcb5790d71706133e475619eb30cd9959c"
+    },
+    {
+      "path": ".github/skills/common/common-subagent-driven-development/scripts/sdd_workspace.py",
+      "sha256": "8366048e7b4e61f387b79677ece307f4df4770036e0bfb9eb0022c5536516728"
+    },
+    {
+      "path": ".github/skills/common/common-subagent-driven-development/scripts/task_brief.py",
+      "sha256": "09307894b1bdb70e52fb0235dce312f29eca0de90baf3aa64c30d9e13f2912f6"
+    },
+    {
+      "path": ".github/skills/common/common-task-complexity-routing/LICENSE",
+      "sha256": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1"
+    },
+    {
+      "path": ".github/skills/common/common-task-complexity-routing/SKILL.md",
+      "sha256": "f1baa612d39e951db4d72a3ce06be4c1f826914cb3cbb3d976b4d2a0559f5c9f"
+    },
+    {
+      "path": ".github/skills/common/common-task-complexity-routing/references/routing-table.md",
+      "sha256": "f789679f8db50618c095947c3765850102c0a8501a91cb9386b12bf21e8caf7b"
+    },
+    {
+      "path": ".github/skills/common/common-task-complexity-routing/references/snc-rubric.md",
+      "sha256": "c9e78b00229da70402b298db871f7c5a4676578e4706330e0677e06c769946b7"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "a9bd06351788b2bd5b806a3e6b051ff895219637f376419497b4d578de8d8c5b"
+    },
+    {
+      "path": "ARCHITECTURE.md",
+      "sha256": "be24ecd028774d02e95c09d7c74de2c29accf53b137ba5cf1fd475cffc62973d"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "sha256": "c58f006160afe6b9f23754a69d4de9e980e47c82a63fab9606d716513d06a865"
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "sha256": "9e11dd6e5f98b190d190742c055c9fe15d4417895fe53d12fe1a8ddbdd1e1506"
+    },
+    {
+      "path": "docs/agent-capabilities.md",
+      "sha256": "3de7774ca704b17ef4d67b4ebbc8ac5250b61d58423d8cb47dd1c77bf3f8470c"
+    },
+    {
+      "path": "docs/prd/prd-context-aware-delegation.md",
+      "sha256": "a9a5694f26af667050622f5d4f1ca0c13cc338d8d43cc45c5032fc6ab32dc865"
+    },
+    {
+      "path": "docs/prd/prd-plan-context-aware-delegation.md",
+      "sha256": "ac4ed6ff7818017a8f02e05e47613b6469ad1f39c2070606c7903f3fa48de045"
+    },
+    {
+      "path": "docs/validation/context-aware-delegation-protocol.md",
+      "sha256": "716f928c96d97e27e8da974f8c757810ea84d649ce3661c08dc154ec5daf21f8"
+    },
+    {
+      "path": "mcp/test/SkillIndex.spec.ts",
+      "sha256": "33934e2a801d6b5c60c4103ca790f327c80930292b8218694c12372dbf2f8be9"
+    },
+    {
+      "path": "skills/README.md",
+      "sha256": "6d4c96ac3fec5bac6913f529eabbd111f35f68b9dbc6c9975972f454b548080f"
+    },
+    {
+      "path": "skills/common/_INDEX.md",
+      "sha256": "636a5ef6fd77b59b5e371537665ca8037f93424ef01463a80609cda42e6ed684"
+    },
+    {
+      "path": "skills/common/common-subagent-driven-development/SKILL.md",
+      "sha256": "dd6f5d0adbbc51ae5290d3f0cba60ea1b20d36ade18f2130c18ce1a271c71d05"
+    },
+    {
+      "path": "skills/common/common-subagent-driven-development/evals/evals.json",
+      "sha256": "e9a7a4b3576fbcccc21da8400adf13f7470277faa58456330b30a58df042548d"
+    },
+    {
+      "path": "skills/common/common-subagent-driven-development/references/methodology.md",
+      "sha256": "a3d9f53bb8dfb0b535b3d55dd027f22da8c3cd8889f794baf09fe908c937006d"
+    },
+    {
+      "path": "skills/common/common-subagent-driven-development/references/progress-receipts.md",
+      "sha256": "835eb90a0affa055798b9431d0fdf87177ad26de6bf267e6aecd2defa54efa17"
+    },
+    {
+      "path": "skills/common/common-subagent-driven-development/references/templates.md",
+      "sha256": "925579194a87cc0cbd7982d202dd72fe23f4eea70900634b9ab787050ef34297"
+    },
+    {
+      "path": "skills/common/common-task-complexity-routing/SKILL.md",
+      "sha256": "f1baa612d39e951db4d72a3ce06be4c1f826914cb3cbb3d976b4d2a0559f5c9f"
+    },
+    {
+      "path": "skills/common/common-task-complexity-routing/evals/evals.json",
+      "sha256": "512a0cc9d1322f3a57a3df5561f6b930ea19e92c2082882afee8def2b82c9030"
+    },
+    {
+      "path": "skills/common/common-task-complexity-routing/references/routing-table.md",
+      "sha256": "f789679f8db50618c095947c3765850102c0a8501a91cb9386b12bf21e8caf7b"
+    },
+    {
+      "path": "skills/common/common-task-complexity-routing/references/snc-rubric.md",
+      "sha256": "c9e78b00229da70402b298db871f7c5a4676578e4706330e0677e06c769946b7"
+    },
+    {
+      "path": "skills/database/_INDEX.md",
+      "sha256": "b6d51f76f12b3e3b1ea1b0357c840de3209da96e6a429f5c49345e3a8ded6615"
+    },
+    {
+      "path": "skills/database/database-mongodb/SKILL.md",
+      "sha256": "ded5abadd265f2384bcdc05450c9c7175766f831fdfc7ff17f44912df74d8bc7"
+    },
+    {
+      "path": "skills/index.json",
+      "sha256": "469d0847c29705f09e4ea0ed254d38276da96597cb0859905d8108a971dc852c"
+    },
+    {
+      "path": "skills/laravel/_INDEX.md",
+      "sha256": "6b444064e7e847409835b472c0378670c64d6eaab4b5ad161cba918be06db77a"
+    },
+    {
+      "path": "skills/laravel/laravel-eloquent/SKILL.md",
+      "sha256": "352ba8ed93386750ae7495646b59b28814d200336855dbc63627a4f0cd7f916f"
+    }
+  ],
+  "dependencies": [
+    {
+      "artifact_id": "task-1-independent-acceptance",
+      "producer_task": "independent-review-1",
+      "required_revision": "5d58df35b8d9056c0353aa1bdf8fef217f84d1f27539bc4ecfde898590c13835",
+      "evidence_path": ".agent/sdd/context-aware-delegation/task-1-acceptance-receipt.json",
+      "sha256": "b78a52a370078403956e71ca3a32043cca2d77d5d0fe8429ca14d4f58a99ea43"
+    },
+    {
+      "artifact_id": "task-2-independent-acceptance",
+      "producer_task": "independent-review-2",
+      "required_revision": "34e0cf212ecbf925e15566bb698ce6db4024ef663f89eea871748c2e2ecef0df",
+      "evidence_path": ".agent/sdd/context-aware-delegation/task-2-acceptance-receipt.json",
+      "sha256": "bc85db9194b67a057ec0843fbb1ec0b325dd6fe573837692af691140f2dd4995"
+    },
+    {
+      "artifact_id": "task-3-independent-acceptance",
+      "producer_task": "independent-review-3",
+      "required_revision": "b22a130d8b6d632709cff8df18d87eb4fda44f7bfb240c8b261d0661bf747333",
+      "evidence_path": ".agent/sdd/context-aware-delegation/task-3-acceptance-receipt.json",
+      "sha256": "aa81ce955fb7a770878645022030456632304b814094789665abba78e8b1ec89"
+    },
+    {
+      "artifact_id": "task-4-integration-evidence",
+      "producer_task": "task-4-integration",
+      "required_revision": "7a25408c86fe80f7d686dc6b35eb0927c5f533d1db1cb49bd21d25de5ef9f570",
+      "evidence_path": ".agent/sdd/context-aware-delegation/task-4-completion-receipt.json",
+      "sha256": "17d5b1686ea0a9204a6d876b6f7198d0ce314b8438e5b9889d64d9744178b05e"
+    },
+    {
+      "artifact_id": "task-4-discovery-correction",
+      "producer_task": "task-4-integration",
+      "required_revision": "61edef749850841703b54b474edc07ab354e8e622fb67fdbdefc79e57339074b",
+      "evidence_path": ".agent/sdd/context-aware-delegation/task-4-correction-receipt.json",
+      "sha256": "2ee883bd1775717529bced6dd2934138c7bd542fdf2e322e1506a81096cb4d39"
+    }
+  ],
+  "output_contract": {
+    "receipt_destination": ".agent/sdd/context-aware-delegation/task-5-review.md",
+    "status_vocabulary": [
+      "approved",
+      "changes_required",
+      "blocked"
+    ],
+    "stop_conditions": [
+      "Report missing critical evidence or real AC defects; do not implement fixes or self-authorize."
+    ]
+  },
+  "limits": {
+    "status": "advisory",
+    "note": "No paid experiments authorized. No host-enforced token budget exposed."
+  }
+}

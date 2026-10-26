@@ -1,6 +1,6 @@
 ---
 name: common-task-complexity-routing
-description: Scores a coding task on Spread, Novelty, and Centrality (SNC 0-6) and maps the tier to autonomy, verification depth, review mode, reviewers, model tier. Use when sizing a fix or feature before planning, choosing fast vs deep review, or deciding whether HARD STOP approval is required.
+description: Scores a task on Spread, Novelty, Centrality (0-6), routes the tier to autonomy, verification, review and model tier, and gives provider-neutral capability/effort guidance that preserves configured profiles. Use for sizing, model routing, LLM model selection, thinking level or model tier.
 guardrail: true
 metadata:
   triggers:
@@ -12,6 +12,14 @@ metadata:
       - autonomy level
       - review depth
       - model tier
+      - model routing
+      - llm model selection
+      - model selection
+      - model capability
+      - thinking level
+      - reasoning effort
+      - effort selection
+      - premium model
       - how big is this change
 ---
 # Task Complexity Routing (SNC)
@@ -46,6 +54,16 @@ Sum the three, never average. Output line: `SNC: S=[0-2] N=[0-2] C=[0-2] total=[
 
 `fast | standard | strong` is a capability hint only. Each host maps it to its model ladder and binds the named review roles to its own invocation mechanism; the hint is not authorization: premium spend, account selection and execution mode remain host/human decisions.
 
+## Capability and Effort
+
+Capability and thinking effort are independent dimensions. Recommend the least expensive **eligible** configuration adequate for the task and its verification burden; never simply the cheapest model. The host resolves eligibility, approved profiles, supported effort and authorized fallback.
+
+- Deterministic operation uses an existing tool, script or CLI before any LLM call; bounded implementation uses tier-appropriate capability with focused tests.
+- Ambiguous investigation: wider effort, because premature narrowing costs more than the extra reasoning.
+- Consequential review: capable model plus an independent reviewer; a small diff never lowers a sensitivity floor.
+
+Explicit configured model and effort settings are preserved, not silently replaced. Unsupported or unknown effort is recorded `unsupported`/`unknown`, never mapped across vendors. Resolved settings, receipt fields, cost semantics and recovery routes: [Capability and effort resolution](references/routing-table.md#capability-and-effort-resolution).
+
 ## Sensitive-Change Risk Floor
 
 Sensitive changes touching authentication, authorization, payments/financial data, data integrity, secrets, or system trust boundaries have an explicit risk floor independent of arithmetic SNC totals:
@@ -56,6 +74,7 @@ Sensitive changes touching authentication, authorization, payments/financial dat
 ## Rules
 
 - Score before planning; emit `snc_tier` and `model_tier` in every Handoff Payload.
+- Record requested capability, observable actual configuration, selection reason, effort support and limitations in the existing receipt; unknown stays unknown.
 - Label the score as inference when derived from ticket text alone; re-score after `specialist-codebase-scout` reports impact radius.
 - Round up on doubt. Any auth, money, trust-boundary, or hot-path touch is C=2 and subject to the sensitive-change risk floor.
 - Downward complexity reassessment is permitted ONLY with documented new evidence (e.g., scouted blast radius proves isolated scope with verified non-interference), NEVER to bypass unresolved risk, required approvals, or the sensitive-change risk floor.
@@ -72,6 +91,7 @@ Stop and re-score when hearing or thinking: "it's just a bug fix", "one-line cha
 - **No silent tier**: a plan or handoff without `snc_tier` is incomplete.
 - **No high tier without named reviewers**: `tier=high` must list which specialists review before merge.
 - **No premium by tier**: a `strong` hint never authorizes premium spend or a host account change.
+- **No cheapest-model reflex or silent effort mapping**: adequacy includes verification burden and repair cost; vendor effort levels are not equivalent.
 
 ## References
 

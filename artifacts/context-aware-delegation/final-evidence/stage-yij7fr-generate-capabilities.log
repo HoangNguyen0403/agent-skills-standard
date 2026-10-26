@@ -1,0 +1,10 @@
+$ (cd /private/tmp/cad-task4-stage.YiJ7FR && rtk proxy node --import tsx scripts/generate-capabilities-doc.ts)
+started: 2026-10-27T00:01:35+0700
+finished: 2026-10-27T00:01:35+0700
+exit: 0
+
+--- stdout ---
+✅ Wrote docs/agent-capabilities.md
+
+--- stderr ---
+

@@ -10,7 +10,8 @@ metadata:
     - with
     - eager
     - chunk
-    - model
+    - eloquent model
+    - laravel model
 ---
 # Laravel Eloquent
 

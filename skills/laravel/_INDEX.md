@@ -10,7 +10,7 @@
 | laravel-background-processing | `app/Jobs/**/*.php`, `app/Events/**/*.php`, `app/Listeners/**/*.php` | ShouldQueue, dispatch, batch, chain, listener |
 | laravel-clean-architecture | `app/Domains/**/*.php`, `app/Providers/*.php` | domain, dto, repository, contract, adapter |
 | laravel-database-expert | `config/database.php`, `database/migrations/*.php` | join, aggregate, subquery, selectRaw, Cache |
-| **laravel-eloquent** | `app/Models/**/*.php` | scope, with, eager, chunk, model |
+| **laravel-eloquent** | `app/Models/**/*.php` | scope, with, eager, chunk, eloquent model, laravel model |
 | **laravel-security** | `app/Policies/**/*.php`, `config/*.php` | policy, gate, authorize, env, config |
 | laravel-sessions-middleware | `app/Http/Middleware/**/*.php`, `config/session.php` | session, driver, handle, headers, csrf |
 | laravel-testing | `tests/**/*.php`, `phpunit.xml` | feature, unit, mock, factory, sqlite |

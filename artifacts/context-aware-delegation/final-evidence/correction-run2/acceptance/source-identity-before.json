@@ -1,0 +1,8 @@
+{
+  "snapshot": "59dd462dbcab31355dc35308e5309246a57acd6e2417c9f02ca5c12846ccde22",
+  "identity_map_source": ".agent/sdd/context-aware-delegation/final-run2-checks-result.json",
+  "stage": "before finalization",
+  "total": 85,
+  "mismatches": [],
+  "all_match": true
+}

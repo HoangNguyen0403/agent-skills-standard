@@ -555,6 +555,79 @@ describe("SkillIndex — repository trigger routing", () => {
     expect(viewIds).toContain("common-accessibility");
     expect(viewIds).toContain("common-mobile-ux-core");
   });
+
+  // LLM routing language and database data-model skills must not share a bare
+  // `model` trigger. Domain discovery survives through qualified phrases.
+
+  it("does not route LLM model intent to MongoDB or Eloquent", () => {
+    const cases = [
+      "model routing",
+      "Model Routing",
+      "LLM model selection",
+      "llm Model Selection",
+      "thinking level",
+      "Thinking Level",
+      "model routing and thinking level",
+    ];
+
+    for (const query of cases) {
+      const ids = registryIndex
+        .matchKeywords([query])
+        .map((match) => match.skill.id);
+
+      expect(ids, query).not.toContain("database-mongodb");
+      expect(ids, query).not.toContain("laravel-eloquent");
+    }
+  });
+
+  it("keeps explicit MongoDB and Mongoose model requests on the MongoDB skill", () => {
+    const cases = [
+      "MongoDB model design",
+      "mongodb MODEL indexing",
+      "Mongoose model",
+    ];
+
+    for (const query of cases) {
+      const ids = registryIndex
+        .matchKeywords([query])
+        .map((match) => match.skill.id);
+
+      expect(ids, query).toContain("database-mongodb");
+    }
+  });
+
+  it("keeps explicit Laravel and Eloquent model requests on the Eloquent skill", () => {
+    const cases = [
+      "Laravel model relationships",
+      "laravel MODEL casting",
+      "Eloquent model scopes",
+    ];
+
+    for (const query of cases) {
+      const ids = registryIndex
+        .matchKeywords([query])
+        .map((match) => match.skill.id);
+
+      expect(ids, query).toContain("laravel-eloquent");
+    }
+  });
+
+  it("keeps a model-tier request on the task complexity standard", () => {
+    const ids = registryIndex
+      .matchKeywords(["model tier"])
+      .map((match) => match.skill.id);
+
+    expect(ids).toContain("common-task-complexity-routing");
+  });
+
+  it("preserves explicit MongoDB model discovery inside a mixed LLM routing request", () => {
+    const ids = registryIndex
+      .matchKeywords(["LLM model selection for MongoDB model design"])
+      .map((match) => match.skill.id);
+
+    expect(ids).toContain("database-mongodb");
+    expect(ids).not.toContain("laravel-eloquent");
+  });
 });
 
 // ---------- composite-trigger expansion ----------

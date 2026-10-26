@@ -1,0 +1,105 @@
+{
+  "record": "correction-run2",
+  "supersedes": "host category index semantics from run1; run1 receipts remain historical",
+  "old_manifest": {
+    "path": "artifacts/context-aware-delegation/final-evidence/MANIFEST.json",
+    "state": "byte-intact, 22 entries; all 22 verify again after restoring original helper bytes",
+    "note": "extended run2 helper copies live under correction-run2/"
+  },
+  "source_acceptance_receipts": [
+    "task-1-acceptance-receipt.json",
+    "task-2-acceptance-receipt.json",
+    "task-3-acceptance-receipt.json"
+  ],
+  "artifacts": [
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/correction-run2/STATUS.json",
+      "sha256": "19930cfed32834cff7afe4a3a8991cbc54b5fe58653ddd24ee8c06476e785841",
+      "kind": "correction-run"
+    },
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/correction-run2/copy-back-receipt-run2.json",
+      "sha256": "af91ea52f0f2398585b0511b222dd81775d6515e95a885a49b4275c5408c3ce0",
+      "kind": "correction-run"
+    },
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/correction-run2/copy-back-run2.py",
+      "sha256": "6de453a5b9323731ce9a6f247c3cbf95d6e2aae1a430924c3bfcd24983f12b89",
+      "kind": "correction-run"
+    },
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/correction-run2/copy-back-verify-run2.json",
+      "sha256": "aaaf10bc257d9717e7732a7604584b112020555bb5612d7e2dc0c25421bb9fe3",
+      "kind": "correction-run"
+    },
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/correction-run2/run2-generate-capabilities.log",
+      "sha256": "66cfe7d7090f75820c3a34feebf7bfebedf52da3747003837236d815b8d1355c",
+      "kind": "correction-run"
+    },
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/correction-run2/run2-generate-indices.log",
+      "sha256": "0ffb51e27981e395e2b28aa2422f86daa148916df8231a43d8b83e5876d3f8d6",
+      "kind": "correction-run"
+    },
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/correction-run2/run2-stage-run.json",
+      "sha256": "7ca4c95b030511dfd910cf973cbc29ecaf0fe81e706e851d261c53782f6ac769",
+      "kind": "correction-run"
+    },
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/correction-run2/stage-diff-run2.py",
+      "sha256": "a288b849cb8bf5267c03451175620a8ec12f0d6f96008cc9d6e3900abe03c48d",
+      "kind": "correction-run"
+    },
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/correction-run2/stage-path.txt",
+      "sha256": "6a2cebf804dcc85ffc19e7469c19b4f42c383e65c60c50510a21842e33a47146",
+      "kind": "correction-run"
+    },
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/correction-run2/stage-vs-active-run2.json",
+      "sha256": "52edda44ba2f6555589e764a5474813270b01c43c580ebd9cd08d1ed041cdc20",
+      "kind": "correction-run"
+    },
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/correction-run2/task-4-correction-report.md",
+      "sha256": "61edef749850841703b54b474edc07ab354e8e622fb67fdbdefc79e57339074b",
+      "kind": "correction-run"
+    },
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/history/task-5-review-run1.md",
+      "sha256": "500398c0b0dd787085746ac503febd3e58f5ebc0439a5831f3f41171cfc1eb41",
+      "kind": "preserved-run1-review"
+    },
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/history/task-5-review-run1.sha256.txt",
+      "sha256": "fee5f0b650af1b375dfe3e411fdf1b62bac1bdcb40b96258d6fa17a3dc14ab8a",
+      "kind": "preserved-run1-review"
+    },
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/copy-back.py",
+      "sha256": "a52e92ee986fbc6cd130c8459b8fde495c3f26afa8ce3e16aa5957db82b229bd",
+      "kind": "restored-root-helper",
+      "old_manifest_entry_match": true
+    },
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/stage-diff.py",
+      "sha256": "41a1f02857fe54391bf3d9e5c03b5815499c771a8c638b0305d2a81fc0c7b3b9",
+      "kind": "restored-root-helper",
+      "old_manifest_entry_match": true
+    },
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/run-stage-generator.py",
+      "sha256": "645402360a4db8e6d705d7fddd9be271c7c18a22ee7e4dcde51f0bc5b8201aff",
+      "kind": "helper",
+      "old_manifest_entry_match": null
+    },
+    {
+      "artifact": "artifacts/context-aware-delegation/final-evidence/run-correction-generator.py",
+      "sha256": "c5fd2ee573a5f8ab3ec0d2ead81fac7e4a88f6fd4bb618349230c6aa0cb8b9bb",
+      "kind": "helper",
+      "old_manifest_entry_match": null
+    }
+  ]
+}
