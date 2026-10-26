@@ -439,6 +439,7 @@ Standards for cybersecurity.
 - [**Cyber Scoped Validation**](cybersecurity/cyber-scoped-validation/SKILL.md) (P0) - Validates bounded cybersecurity exercise observations against approved scope, expected behavior, runtime controls, and redacted evidence. Use when performing safe offline validation or authorized runtime checks with explicit stop and status gates.
 - [**Cyber Threat Hunting**](cybersecurity/cyber-threat-hunting/SKILL.md) (P0) - Conducts hypothesis-driven, evidence-preserving threat hunts with bounded negative conclusions and telemetry-gap handling. Use for hunt hypotheses, scoped offline analysis, or analytic follow-up; not unscoped scanning, malware execution, or generic intelligence summaries.
 - [**Cyber Framework Mapping**](cybersecurity/cyber-framework-mapping/SKILL.md) (P1) - Maintains sparse, reviewable cybersecurity framework edges with versioned IDs, relation, rationale, source, and review status. Use when mapping exercise observations or procedures to NIST, ATT&CK, or another named framework.
+- [**Cyber Rea Reverse Engineering**](cybersecurity/cyber-rea-reverse-engineering/SKILL.md) (P1) - Routes authorized reverse-engineering of operator-supplied local artifacts through an optional, consumer-pinned REA MCP/CLI driver. Use when shipped binaries, Electron/JavaScript bundles, archives, or runtime evidence must carry provenance and limits; skip complete source repositories.
 
 ### Product-management
 

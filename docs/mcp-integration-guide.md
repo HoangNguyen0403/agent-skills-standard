@@ -16,6 +16,7 @@ Agent Skills Standard workflows must work with or without external MCPs.
 | code-review-graph | callers, impact radius, patterns | `rg`, local file reads, git diff |
 | Appium MCP / device cloud | mobile verification evidence | Appium MCP local device -> `remoteServerUrl` cloud -> exported screenshots/video -> `BLOCKED (driver: appium)` |
 | Playwright CLI / Playwright MCP | web verification evidence | `playwright-cli` -> Playwright MCP -> exported screenshots/console -> `BLOCKED (driver: playwright)` |
+| REA (optional, pinned) | reverse-engineering evidence from operator-supplied binaries, applications, archives, and runtime sessions | retained local `rea` MCP/CLI -> offline read-only file inspection -> `BLOCKED (driver: rea)` |
 
 ## Workflow Rule
 
@@ -26,7 +27,7 @@ Every workflow that mentions external systems must follow this order:
 3. If neither exists, mark that lane `BLOCKED` and continue other lanes.
 4. Never invent ticket, PR, TC, design, or environment facts.
 
-Browser and device drivers follow the same order through a per-lane ladder with a read-only preflight script; install, config snippets and the evaluated-not-adopted record ship inside each driver skill as `references/setup.md` (`quality-engineering-playwright-cli`, `quality-engineering-appium-mcp`); `docs/ui-automation-drivers.md` is the maintainer summary.
+Browser and device drivers follow the same order through a per-lane ladder with a read-only preflight script; install, config snippets and the evaluated-not-adopted record ship inside each driver skill as `references/setup.md` (`quality-engineering-playwright-cli`, `quality-engineering-appium-mcp`); `docs/ui-automation-drivers.md` is the maintainer summary. The optional REA reverse-engineering driver follows the same order and ships its identity-verification contract, consumer-owned registration, and rollback in `cybersecurity/cyber-rea-reverse-engineering/references/setup.md`.
 
 ## High-Risk Security Review Rule
 
