@@ -181,8 +181,11 @@ export class SyncCommand {
 
       // 4. Assemble skills from remote registry
       const enabledCategories = Object.keys(config.skills);
+      const skillCategories = enabledCategories.filter(
+        (category) => category !== 'specialists',
+      );
       const skills = await this.syncService.assembleSkills(
-        enabledCategories,
+        skillCategories,
         config,
       );
 
@@ -203,6 +206,7 @@ export class SyncCommand {
         workflows,
         specialistsOk,
         refreshIndices: true,
+        completedSkillCategories: skillCategories,
       });
 
       if (options.dryRun) {

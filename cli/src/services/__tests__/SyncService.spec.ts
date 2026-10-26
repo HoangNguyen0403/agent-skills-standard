@@ -93,6 +93,8 @@ type SyncServicePrivates = {
   lockfileService: {
     load: ReturnType<typeof vi.fn>;
     write: ReturnType<typeof vi.fn>;
+    readDisclosed: ReturnType<typeof vi.fn>;
+    writeDisclosed: ReturnType<typeof vi.fn>;
     verifyEntries: ReturnType<typeof vi.fn>;
   };
   configService: {
@@ -211,20 +213,6 @@ describe('SyncService', () => {
   });
 
   describe('assembleSkills', () => {
-    it('should delegate to skillSyncService', async () => {
-      const config = makeConfig();
-      const categories = ['cat1'];
-      mockSkillSyncService.assembleSkills.mockResolvedValue([]);
-
-      await syncService.assembleSkills(categories, config);
-
-      expect(mockSkillSyncService.assembleSkills).toHaveBeenCalledWith(
-        categories,
-        config,
-        {},
-      );
-    });
-
     it('propagates an assembly failure before any write can replace lock coverage', async () => {
       const config = makeConfig({ skills: { cybersecurity: {} } });
       const failure = new Error(
@@ -700,6 +688,35 @@ describe('SyncService', () => {
       // Malformed JSON → withMetadata skipped, but sync continues
       expect(withMetadataCalled).toBe(false);
       expect(MarkdownUtils.injectIndex).toHaveBeenCalled();
+    });
+  });
+
+  describe('discloseCapabilities', () => {
+    it('persists unsupported-surface notices and suppresses repeats', async () => {
+      const lockfileService = privatesOf(syncService).lockfileService;
+      let disclosed: Record<string, string[]> | undefined;
+      lockfileService.readDisclosed = vi.fn(async () => disclosed);
+      lockfileService.writeDisclosed = vi.fn(
+        async (_root: string, next: Record<string, string[]>) => {
+          disclosed = next;
+        },
+      );
+      const log = vi.spyOn(console, 'log');
+      const config = makeConfig({ agents: [Agent.Trae] });
+
+      await syncService.discloseCapabilities(config);
+
+      expect(disclosed).toEqual({
+        [Agent.Trae]: ['specialists', 'hooks'],
+      });
+      expect(log.mock.calls.flat().join('\n')).toContain(
+        'Trae: specialists, hooks not supported',
+      );
+      log.mockClear();
+
+      await syncService.discloseCapabilities(config);
+
+      expect(log).not.toHaveBeenCalled();
     });
   });
 
@@ -1453,6 +1470,41 @@ describe('SyncService', () => {
           ref: 'v1.0.0',
           ok: false,
           detail: 'no MANIFEST.json for this release',
+        },
+      ]);
+    });
+
+    it('reports unavailable manifests and continues checking other pinned sources', async () => {
+      privatesOf(syncService).lockfileService.load.mockResolvedValue({
+        lock: {
+          version: 2,
+          sources: {
+            'skills/first': { ref: 'first-v1', commit: '111' },
+            'skills/second': { ref: 'second-v1', commit: '222' },
+          },
+        },
+        migratedFromV1: false,
+      });
+      mockGithubService.getReleaseManifest
+        .mockRejectedValueOnce(new Error('registry offline'))
+        .mockRejectedValueOnce('request timed out');
+
+      const results = await syncService.verifyAttestations(
+        makeConfig({ registry: 'https://github.com/owner/repo' }),
+      );
+
+      expect(results).toEqual([
+        {
+          key: 'skills/first',
+          ref: 'first-v1',
+          ok: false,
+          detail: 'MANIFEST unavailable: registry offline',
+        },
+        {
+          key: 'skills/second',
+          ref: 'second-v1',
+          ok: false,
+          detail: 'MANIFEST unavailable: request timed out',
         },
       ]);
     });

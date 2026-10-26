@@ -40,6 +40,7 @@ The result: your AI agent reads `AGENTS.md`, follows the router to the right cat
 | :--------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `init`     | Detects your tech stack (Flutter, React, Go, etc.) and creates a `.skillsrc` config                                                                                                                |
 | `sync`     | Fetches skills from the registry, writes to agent folders, generates `_INDEX.md` + `AGENTS.md`                                                                                                     |
+| `skills`   | Category-first manager: pick categories (and optionally nested skills or a published category release), review once, then save and sync every configured agent                                        |
 | `mcp`      | Manage the optional MCP server integration (status / enable / disable / scope / install / uninstall / snippets) — see [Optional: MCP Runtime Enforcement](#optional-mcp-runtime-enforcement) below |
 | `validate` | Checks your custom skills against format and token standards                                                                                                                                       |
 | `feedback` | Submits improvement suggestions to the registry                                                                                                                                                    |
@@ -61,6 +62,33 @@ The result: your AI agent reads `AGENTS.md`, follows the router to the right cat
 - `--dry-run --json`: Emit the full install plan as machine-readable JSON (`schema_version: 1, kind: 'sync.plan'`).
 - `--force <paths...>`: Overwrite specified user-edited files with upstream versions (a backup is created first).
 - **Automatic Backups**: Destructive changes (pruning or forced overwrites) automatically snapshot previous files into `.ags/backups/<timestamp>/` (retaining the 3 most recent backups).
+
+### Category Manager: `ags skills`
+
+`ags skills` adds or removes guidance without editing YAML or remembering release tags, and without a second `sync` run.
+
+**Normal flow:**
+
+1. Existing categories are checked; categories the current metadata cannot describe remain checked by default, are marked unavailable, and can be explicitly removed.
+2. Pick categories. A new category uses its published release automatically; an existing pin is never changed.
+3. Before the final Apply confirmation, the manager prepares the selection and reviews the exact source commits and effective selected packages. Existing revoked pins keep their ref and show the registry's advisory.
+4. Confirm Apply once. The command uses that same prepared package set, saves `.skillsrc`, installs skills and managed indexes for every configured agent, and finalizes the lockfile.
+
+**Advanced flow (optional):**
+
+- `Customize skills in a category` opens that category at its effective ref with its nested skills checked according to the current selection.
+- Search matches skill names and descriptions. Selections outside the current view are never dropped.
+- Category-wide entries gain exact exclusions; allowlists only change their own members. Imported members are listed individually at the declaring category's ref: excluding one adds a qualified exclusion while the declared `category/*` expression stays, and an import already excluded with an exact id can be re-enabled. Qualified identities are never mixed with same-named local skills.
+- `Use the published category release` changes that category's ref explicitly; the full ref change appears in the review before saving.
+- New categories that use the Product Management category start with only the two foundation skills.
+
+**Write and failure behavior:**
+
+- Cancel, an unchanged selection, and non-TTY invocation write nothing. Non-TTY exits nonzero.
+- A real selection change sets `skills_mode: explicit`, so later ordinary `sync` will not re-add removed categories or excluded detected skills.
+- A preflight failure saves and installs nothing.
+- A failure after saving keeps the saved desired selection, reports the stage, and offers an in-command Retry. If `.skillsrc` changed on disk, the command reloads and asks you to review again instead of overwriting it. If saving failed, the attempted selection was not saved; reopen `ags skills`, review, and Apply again after fixing the reported failure. If installation failed after saving and you decline Retry, run `agent-skills-standard sync` after fixing the reported failure; when sync asks “Do you want to update .skillsrc with these versions?”, answer No to keep the saved refs.
+- Retained files (`custom_overrides`, `prune: false`, edited or unowned files) are reported as "applied with retained files", not as deleted.
 
 ### Restore & Uninstall
 
@@ -104,6 +132,8 @@ registry: https://github.com/HoangNguyen0403/agent-skills-standard
 agents: [cursor, copilot, claude]
 workflows_ref: workflows-v1.0.0      # pinned workflows release tag
 specialists_ref: specialists-v2.0.0  # pinned specialists release tag
+# skills_mode: explicit              # set by `ags skills` on a real change:
+#                                    # ordinary sync stops re-adding removed categories
 skills:
   react:
     ref: react-v1.3.1

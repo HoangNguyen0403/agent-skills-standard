@@ -118,6 +118,20 @@ export interface CollectedSkillFile {
 }
 
 /**
+ * Declaring source of a collected package. A category may install a skill from
+ * another category via a qualified include; provenance keeps the declaring
+ * category's ref/commit attached to the physical package.
+ */
+export interface SkillOrigin {
+  /** Declaring category whose configuration selected the package */
+  category: string;
+  /** Human-readable pinned ref of the declaring category */
+  ref: string;
+  /** Commit actually fetched for the declaring category */
+  commit: string | null;
+}
+
+/**
  * Represents a skill that has been fetched from the registry and is ready to be written.
  */
 export interface CollectedSkill {
@@ -127,4 +141,6 @@ export interface CollectedSkill {
   skill: string;
   /** List of package files belonging to the skill */
   files: CollectedSkillFile[];
+  /** Declaring source when assembled by a prepared, source-bound apply. */
+  origin?: SkillOrigin;
 }

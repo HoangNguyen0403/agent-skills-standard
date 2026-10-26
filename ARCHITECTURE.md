@@ -143,6 +143,14 @@ The brain of the operation. It orchestrates the synchronization process.
 - **Key Dependencies**: `SkillSyncService`, `WorkflowSyncService`, `IndexGeneratorService`, `AgentBridgeService`.
 - **Design Principle**: "Ownership Manifest". It classifies every write against `.skills-lock.json` v2, preserves files the user edited, and respects `custom_overrides` in `.skillsrc`.
 
+### Skill Manager (`cli/src/commands/skills.ts`)
+
+Category-first, interactive manager for skill selection. It is additive: `list-skills` remains the discovery view.
+
+- **Responsibility**: Read the configuration and strict catalog, edit a command-local draft (categories, nested skills, optional category release), review the exact effect, then perform one Apply that saves and installs.
+- **Key Dependencies**: `ConfigService` (`readSnapshot` / `saveSelection`), `SkillCatalogService` (strict ref-aware catalog and published releases), `SkillSelectionService` (shared include/exclude resolver), `SkillSelectionApplyService` (prepared, skills-only install).
+- **Design Principle**: No writes before Apply. Preparation fully assembles every selected package at its resolved commit; failures leave the configuration and installation untouched. A real selection change persists `skills_mode: explicit`, so later ordinary sync keeps deliberate removals. Conflicts with external `.skillsrc` edits return to reload/review instead of overwriting, and a post-save failure offers an in-command Retry.
+
 ### IndexGeneratorService (`cli/src/services/IndexGeneratorService.ts`)
 
 Responsible for creating the "Context Bridge" for AI agents. Produces two output formats:

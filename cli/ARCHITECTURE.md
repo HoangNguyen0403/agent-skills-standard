@@ -8,6 +8,7 @@ This document outlines the architectural design and service-layer organization o
 | :------------ | :--------------------------------------------------------------------------------------------------------------------------------------------- | :------------ |
 | `InitService` | Environmental discovery, prompt interaction, and initial config generation.                                                                    | `ags init`    |
 | `SyncService` | Fetches, maps, and distributes skills from registry into local agent folders. Generates `_INDEX.md` per category and router-style `AGENTS.md`. | `ags sync`    |
+| `SkillsCommand` | Category-first selection manager: drafts a category/nested-skill/release change, reviews it, then saves and applies a skills-only sync.      | `ags skills`  |
 
 ## Sync Pipeline
 
@@ -21,7 +22,10 @@ This document outlines the architectural design and service-layer organization o
 | Service            | Responsibility                                                                      |
 | :----------------- | :---------------------------------------------------------------------------------- |
 | `ConfigService`    | Manages `.skillsrc` lifecycle (Loading, Saving, Validation via Zod).                |
-| `DetectionService` | Analyzes workspace for Frameworks, Agents, Languages, and Dependencies.             |
+| `SkillCatalogService` | Strict, ref-aware registry catalog and published-release resolution; failures are errors, never an empty catalog. |
+| `SkillSelectionService` | Single interpretation of category `include`/`exclude`, shared by sync and the manager. |
+| `SkillSelectionApplyService` | Preflighted save + skills-only installation (indexes, lock finalization) used by `ags skills`. |
+| `DetectionService` | Analyzes workspace for Frameworks, Agents, Languages, and Dependencies.            |
 | `SkillService`     | Determines detection status of skills based on project dependencies.                |
 | `RegistryService`  | Higher-level abstraction for discovering categories and metadata from the registry. |
 
