@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { ActionIcon } from "./ActionIcon";
 import styles from "./interaction.module.css";
-import { usePlausible } from "./analytics/PlausibleContext";
+import { useGA4 } from "./analytics/GA4Context";
 
 export interface CopyCommandProps {
   id: "init" | "sync";
@@ -18,7 +18,7 @@ export function CopyCommand({
 }: CopyCommandProps): React.JSX.Element {
   const [mounted, setMounted] = useState<boolean>(false);
   const [status, setStatus] = useState<CopyStatus>("idle");
-  const { trackEvent, getConsentSnapshot } = usePlausible();
+  const { trackEvent, getConsentSnapshot } = useGA4();
 
   const codeRef = useRef<HTMLElement>(null);
   const resetTimerRef = useRef<number | NodeJS.Timeout | null>(null);

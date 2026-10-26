@@ -2,7 +2,7 @@ import React from "react";
 import { content, commands, sourceLinks } from "../content";
 import { CopyCommand } from "../CopyCommand.client";
 import { DemoPlayer } from "../DemoPlayer";
-import { PlausibleLink } from "../analytics/PlausibleLink.client";
+import { GA4Link } from "../analytics/GA4Link.client";
 import styles from "../landing.module.css";
 export function QuickStartSection(): React.JSX.Element {
   const initCmd = commands.find((c) => c.id === "init") ?? commands[0];
@@ -37,7 +37,7 @@ export function QuickStartSection(): React.JSX.Element {
           </span>
 
           <div style={{ display: "flex", flexWrap: "wrap", gap: "16px" }}>
-            <PlausibleLink
+            <GA4Link
               href={sourceLinks.docs}
               className={styles.textLinkLime}
               event={{
@@ -49,9 +49,9 @@ export function QuickStartSection(): React.JSX.Element {
             >
               <span>Read setup docs before you sync</span>
               <span aria-hidden="true">↗</span>
-            </PlausibleLink>
+            </GA4Link>
 
-            <PlausibleLink
+            <GA4Link
               href={sourceLinks.tutorial}
               className={styles.textLinkLime}
               event={{
@@ -63,7 +63,7 @@ export function QuickStartSection(): React.JSX.Element {
             >
               <span>Follow step-by-step tutorial</span>
               <span aria-hidden="true">↗</span>
-            </PlausibleLink>
+            </GA4Link>
           </div>
         </div>
 

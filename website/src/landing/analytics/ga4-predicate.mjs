@@ -1,21 +1,29 @@
 /**
- * Canonical Plausible Analytics configuration predicate.
+ * Canonical GA4 configuration predicate.
  *
  * Single shared source of truth for both the client application and the static
  * export security header generator (`scripts/generate-headers.mjs`).
  *
- * Accepts explicit field values rather than dynamic process.env to ensure Next.js
- * build-time static inlining of `process.env.NEXT_PUBLIC_*` strings in the client.
+ * Validates ONLY canonical public build inputs:
+ * - NEXT_PUBLIC_GA4_ENABLED === 'true'
+ * - NEXT_PUBLIC_GA4_OPERATOR_APPROVAL === 'approved'
+ * - NEXT_PUBLIC_GA4_MEASUREMENT_ID: valid G-* format (e.g. G-XXXXXXXXXX)
+ * - NEXT_PUBLIC_GA4_PAGE_URL: valid absolute HTTPS constant URL without query or hash
  */
 
-export const EXACT_PLAUSIBLE_ENDPOINT = 'https://plausible.io/api/event';
+export const EXACT_GA4_TAG_SRC = 'https://www.googletagmanager.com/gtag/js';
+export const EXACT_GA4_COLLECT_ENDPOINTS = [
+  'https://www.google-analytics.com/g/collect',
+  'https://region1.google-analytics.com/g/collect',
+];
+export const FIXED_PAGE_TITLE = 'Agent Skills Standard';
 
-export function validatePlausibleConfig(fields) {
+export function validateGA4Config(fields) {
   if (!fields) return null;
 
   const isEnabled = fields.enabled === 'true';
   const operatorApproval = fields.operatorApproval?.trim();
-  const siteId = fields.siteId?.trim();
+  const measurementId = fields.measurementId?.trim();
   const pageUrl = fields.pageUrl?.trim();
 
   // Explicit build flag alone is not authorization: require operator approval gate
@@ -23,8 +31,8 @@ export function validatePlausibleConfig(fields) {
     return null;
   }
 
-  // Non-secret site ID must be non-empty domain/alphanumeric without protocols or paths
-  if (!siteId || !/^[a-zA-Z0-9][a-zA-Z0-9.-]*\.[a-zA-Z]{2,}$|^[a-zA-Z0-9.-]+$/.test(siteId)) {
+  // Measurement ID must match valid G-* pattern (G- followed by alphanumeric characters)
+  if (!measurementId || !/^G-[A-Za-z0-9]+$/.test(measurementId)) {
     return null;
   }
 
@@ -52,9 +60,10 @@ export function validatePlausibleConfig(fields) {
 
   return {
     enabled: true,
-    siteId,
+    measurementId,
     pageUrl: parsedPageUrl.origin + parsedPageUrl.pathname,
-    endpoint: EXACT_PLAUSIBLE_ENDPOINT,
+    pageTitle: FIXED_PAGE_TITLE,
+    tagUrl: `${EXACT_GA4_TAG_SRC}?id=${encodeURIComponent(measurementId)}`,
     operatorApproved: true,
   };
 }

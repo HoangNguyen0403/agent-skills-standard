@@ -1,12 +1,17 @@
 "use client";
 
 import React from "react";
-import { usePlausible } from "./analytics/PlausibleContext";
+import { useGA4 } from "./analytics/GA4Context";
 import styles from "./consent-banner.module.css";
 
 export function ConsentBanner(): React.JSX.Element | null {
-  const { isConfigured, consentStatus, acceptConsent, withdrawConsent } =
-    usePlausible();
+  const {
+    isConfigured,
+    consentStatus,
+    tagFailed,
+    acceptConsent,
+    withdrawConsent,
+  } = useGA4();
 
   // In default unconfigured or disabled builds: zero UI intrusion, no prompts
   if (!isConfigured) {
@@ -25,46 +30,60 @@ export function ConsentBanner(): React.JSX.Element | null {
         <div className={styles.container}>
           <div className={styles.content}>
             <h2 id="consent-banner-heading" className={styles.title}>
-              Privacy &amp; Analytics Notice (Plausible Analytics)
+              Privacy &amp; Analytics Notice (Google Analytics 4)
             </h2>
             <p className={styles.body}>
               Analytics collection is <strong>disabled by default</strong>. If
-              you choose to opt in, direct browser events (demo playback,
-              command copy, setup guide links, and GitHub links) are sent to{" "}
-              <code>https://plausible.io/api/event</code>.
+              you choose to opt in, Google Analytics 4 (via Google tag) is loaded
+              to measure four explicit user actions: demo playback, command
+              copy, setup documentation links, and GitHub repository links.
             </p>
             <p className={styles.body}>
-              Plausible processes your browser IP address and User-Agent to
-              calculate a daily unique visitor hash using a daily rotating salt
-              (deleted every 24 hours). Individual event and session records are
-              stored (not aggregate-only storage) with up to 5-year retention
-              under Plausible Business terms; 24-hour salt lifetime is not data
-              retention. We do <strong>not</strong> claim completely anonymous
-              or identifier-free operation, as browser IP, User-Agent, and
-              Origin are disclosed in network transmission. No persistent
-              cookies or visitor IDs are stored. See the{" "}
+              Google sets session-only analytics cookies (<code>cookie_expires: 0</code>,{" "}
+              <code>cookie_domain: &apos;none&apos;</code>) and processes your browser IP
+              address, User-Agent, and session identifiers. Advertising features,
+              Google Signals, and ad personalization are disabled. We do{" "}
+              <strong>not</strong> claim completely anonymous or identifier-free
+              operation, as browser and network metadata are processed by Google.
+              See{" "}
               <a
-                href="https://plausible.io/data-policy"
+                href="https://policies.google.com/privacy"
                 target="_blank"
                 rel="noreferrer noopener"
                 style={{ color: "var(--lime, #c7f36b)", textDecoration: "underline" }}
               >
-                Plausible Data Policy
+                Google Privacy Policy
               </a>{" "}
-              for limitations. You may withdraw consent at any time to
-              immediately stop future event collection.
+              and{" "}
+              <a
+                href="https://support.google.com/analytics/answer/6004245"
+                target="_blank"
+                rel="noreferrer noopener"
+                style={{ color: "var(--lime, #c7f36b)", textDecoration: "underline" }}
+              >
+                Google Analytics Data Privacy
+              </a>{" "}
+              for vendor processing details. You may withdraw consent at any time
+              to immediately disable collection and remove session cookies.
             </p>
           </div>
 
           <div className={styles.actions}>
-            <button
-              type="button"
-              className={styles.acceptButton}
-              onClick={acceptConsent}
-              aria-label="Accept analytics and opt in"
-            >
-              Accept analytics
-            </button>
+            {tagFailed ? (
+              <span className={styles.dockedStatus} role="status">
+                Analytics could not load; collection stays off until this page
+                is reloaded.
+              </span>
+            ) : (
+              <button
+                type="button"
+                className={styles.acceptButton}
+                onClick={acceptConsent}
+                aria-label="Accept analytics and opt in"
+              >
+                Accept analytics
+              </button>
+            )}
             <button
               type="button"
               className={styles.declineButton}
@@ -90,6 +109,12 @@ export function ConsentBanner(): React.JSX.Element | null {
         <span className={styles.dockedStatus}>
           Analytics: {consentStatus === "granted" ? "Opted in" : "Opted out"}
         </span>
+        {tagFailed ? (
+          <span className={styles.dockedStatus} role="status">
+            Analytics could not load; collection stays off until this page is
+            reloaded.
+          </span>
+        ) : null}
         {consentStatus === "granted" ? (
           <button
             type="button"
@@ -99,7 +124,7 @@ export function ConsentBanner(): React.JSX.Element | null {
           >
             Withdraw consent
           </button>
-        ) : (
+        ) : tagFailed ? null : (
           <button
             type="button"
             className={styles.linkButton}

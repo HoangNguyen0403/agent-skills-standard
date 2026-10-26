@@ -1,5 +1,5 @@
 import React from "react";
-import { PlausibleProvider } from "./analytics/PlausibleContext";
+import { GA4Provider } from "./analytics/GA4Context";
 import { ConsentBanner } from "./ConsentBanner.client";
 import { MotionObserver } from "./MotionObserver.client";
 import { Header } from "./sections/Header";
@@ -19,7 +19,7 @@ import styles from "./landing.module.css";
 
 export function LandingPage(): React.JSX.Element {
   return (
-    <PlausibleProvider>
+    <GA4Provider>
       {/* MotionObserver mounts once, managing bounded one-shot decorative motion */}
       <MotionObserver />
 
@@ -44,6 +44,6 @@ export function LandingPage(): React.JSX.Element {
       {/* Semantic footer outside main */}
       <Footer />
       <ConsentBanner />
-    </PlausibleProvider>
+    </GA4Provider>
   );
 }

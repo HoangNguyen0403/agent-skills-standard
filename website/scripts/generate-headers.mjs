@@ -4,9 +4,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parse } from 'parse5';
 import {
-  validatePlausibleConfig,
-  EXACT_PLAUSIBLE_ENDPOINT,
-} from '../src/landing/analytics/plausible-predicate.mjs';
+  validateGA4Config,
+  EXACT_GA4_TAG_SRC,
+  EXACT_GA4_COLLECT_ENDPOINTS,
+} from '../src/landing/analytics/ga4-predicate.mjs';
 
 const websiteDirectory = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const outDirectory = path.resolve(websiteDirectory, 'out');
@@ -53,20 +54,26 @@ const sourcePolicy = (directive, hashes) => `${directive} 'self'${hashes.size ? 
 const styleAttributePolicy = styleAttributeHashes.size
   ? `style-src-attr 'unsafe-hashes' ${[...styleAttributeHashes].sort().join(' ')}`
   : "style-src-attr 'none'";
-const plausibleConfig = validatePlausibleConfig({
-  enabled: process.env.NEXT_PUBLIC_PLAUSIBLE_ENABLED,
-  operatorApproval: process.env.NEXT_PUBLIC_PLAUSIBLE_OPERATOR_APPROVAL,
-  siteId: process.env.NEXT_PUBLIC_PLAUSIBLE_SITE_ID,
-  pageUrl: process.env.NEXT_PUBLIC_PLAUSIBLE_PAGE_URL,
+
+const ga4Config = validateGA4Config({
+  enabled: process.env.NEXT_PUBLIC_GA4_ENABLED,
+  operatorApproval: process.env.NEXT_PUBLIC_GA4_OPERATOR_APPROVAL,
+  measurementId: process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID,
+  pageUrl: process.env.NEXT_PUBLIC_GA4_PAGE_URL,
 });
 
-const connectSrcPolicy = plausibleConfig
-  ? `connect-src 'self' ${EXACT_PLAUSIBLE_ENDPOINT}`
-  : "connect-src 'self'";
+const scriptSourcePolicy = (hashes) => {
+  const extra = ga4Config ? ` ${EXACT_GA4_TAG_SRC}` : '';
+  const hashList = hashes.size ? ` ${[...hashes].sort().join(' ')}` : '';
+  return `script-src 'self'${extra}${hashList}`;
+};
 
+const connectSrcPolicy = ga4Config
+  ? `connect-src 'self' ${EXACT_GA4_COLLECT_ENDPOINTS.join(' ')}`
+  : "connect-src 'self'";
 const contentSecurityPolicy = [
   "default-src 'self'",
-  sourcePolicy('script-src', scriptHashes),
+  scriptSourcePolicy(scriptHashes),
   sourcePolicy('style-src', styleElementHashes),
   styleAttributePolicy,
   "font-src 'self'",

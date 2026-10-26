@@ -1,31 +1,32 @@
-import {
-  type PlausibleConfig,
-  EXACT_PLAUSIBLE_ENDPOINT,
-} from './plausible-config';
+import type { GA4Config } from './ga4-config';
 
 /**
- * Plausible Direct Events Client & Field Normalization
+ * GA4 Direct Tag Client & Field Normalization
  *
- * Implements SRS-009 / plausible-collection-contract.md:
- * - Direct browser POST to `https://plausible.io/api/event` without tracker SDK
- * - Closed application fields: schema_version: 1, event_name, campaign_id, asset_id, placement
+ * Implements approved GA4 clean cutover contract:
+ * - Direct Google tag dispatch without GTM container or external backend proxy
  * - Exactly 4 allowed events: demo_play, setup_guide_open, install_command_copy, github_click
- * - Map: name (event_name), domain (siteId), url (constant approved HTTPS URL), props (other 4 fields)
- * - URL is NEVER location.href, query, fragment, or destination
- * - Request options: JSON body, Content-Type: text/plain, credentials: omit, referrerPolicy: no-referrer
- * - Hardcoded Plausible endpoint: no generic self-host or apiHost override
+ * - Closed application fields: schema_version: 1, campaign_id, asset_id, placement
  * - Reject unregistered campaign/asset association and unapproved placement -> 'unknown'
- * - Authoritative sources: actual campaign frontmatter only (no synthetic demo-01 registration)
+ * - Authoritative sources: actual campaign frontmatter only (unregistered demo/copy fall back to 'unknown')
  * - Failure never delays or prevents primary actions
  */
 
-export type PlausibleEventName =
+declare global {
+  interface Window {
+    dataLayer?: unknown[];
+    gtag?: (...args: unknown[]) => void;
+    [key: `ga-disable-${string}`]: boolean;
+  }
+}
+
+export type GA4EventName =
   | 'demo_play'
   | 'setup_guide_open'
   | 'install_command_copy'
   | 'github_click';
 
-export const ALLOWED_EVENTS: readonly PlausibleEventName[] = [
+export const ALLOWED_EVENTS: readonly GA4EventName[] = [
   'demo_play',
   'setup_guide_open',
   'install_command_copy',
@@ -57,26 +58,21 @@ export const ALLOWED_PLACEMENTS = [
   'footer_github',
 ] as const;
 
-export type PlausiblePlacement = (typeof ALLOWED_PLACEMENTS)[number] | 'unknown';
+export type GA4Placement = (typeof ALLOWED_PLACEMENTS)[number] | 'unknown';
 
 export interface RawEventInput {
   schema_version?: number;
-  event_name: PlausibleEventName;
+  event_name: GA4EventName;
   campaign_id?: string;
   asset_id?: string;
   placement?: string;
 }
 
-export interface PlausibleEventPayload {
-  readonly name: PlausibleEventName;
-  readonly domain: string;
-  readonly url: string;
-  readonly props: {
-    readonly schema_version: 1;
-    readonly campaign_id: string;
-    readonly asset_id: string;
-    readonly placement: string;
-  };
+export interface GA4AppEventParams {
+  readonly schema_version: 1;
+  readonly campaign_id: string;
+  readonly asset_id: string;
+  readonly placement: string;
 }
 
 export function normalizeEventInput(input: RawEventInput): {
@@ -112,50 +108,44 @@ export function normalizeEventInput(input: RawEventInput): {
   };
 }
 
-export function buildPlausiblePayload(
-  input: RawEventInput,
-  config: PlausibleConfig,
-): PlausibleEventPayload {
+export function buildGA4EventParams(input: RawEventInput): GA4AppEventParams {
   const normalized = normalizeEventInput(input);
 
   return {
-    name: input.event_name,
-    domain: config.siteId,
-    // Approved constant HTTPS origin/path, never location.href, query string, or clicked destination
-    url: config.pageUrl,
-    props: {
-      schema_version: 1,
-      campaign_id: normalized.campaign_id,
-      asset_id: normalized.asset_id,
-      placement: normalized.placement,
-    },
+    schema_version: 1,
+    campaign_id: normalized.campaign_id,
+    asset_id: normalized.asset_id,
+    placement: normalized.placement,
   };
 }
 
-export async function sendPlausibleEvent(
+export function sendGA4Event(
   input: RawEventInput,
-  config: PlausibleConfig,
-): Promise<boolean> {
+  config: GA4Config,
+): boolean {
   if (!ALLOWED_EVENTS.includes(input.event_name)) {
     return false;
   }
 
-  const payload = buildPlausiblePayload(input, config);
-
-  try {
-    const response = await fetch(EXACT_PLAUSIBLE_ENDPOINT, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'text/plain',
-      },
-      credentials: 'omit',
-      referrerPolicy: 'no-referrer',
-      body: JSON.stringify(payload),
-      keepalive: true,
-    });
-    return response.ok;
-  } catch {
-    // Transport failure never delays or prevents primary actions
+  if (typeof window === 'undefined') {
     return false;
   }
+
+  // If collection is disabled via disable flag, fail closed
+  if (window[`ga-disable-${config.measurementId}`] === true) {
+    return false;
+  }
+
+  const params = buildGA4EventParams(input);
+
+  try {
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', input.event_name, params);
+      return true;
+    }
+  } catch {
+    // Transport failure never delays or prevents primary actions
+  }
+
+  return false;
 }

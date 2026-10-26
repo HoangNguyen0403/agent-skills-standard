@@ -1,22 +1,22 @@
 "use client";
 
 import React, { useCallback } from "react";
-import { usePlausible } from "./PlausibleContext";
-import type { RawEventInput } from "./plausible-client";
+import { useGA4 } from "./GA4Context";
+import type { RawEventInput } from "./ga4-client";
 
-export interface PlausibleLinkProps
+export interface GA4LinkProps
   extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
   readonly event: RawEventInput;
   readonly children: React.ReactNode;
 }
 
-export function PlausibleLink({
+export function GA4Link({
   event,
   onClick,
   children,
   ...rest
-}: PlausibleLinkProps): React.JSX.Element {
-  const { trackEvent } = usePlausible();
+}: GA4LinkProps): React.JSX.Element {
+  const { trackEvent } = useGA4();
 
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>) => {
