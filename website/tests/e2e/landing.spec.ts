@@ -689,7 +689,7 @@ test.describe('Agent Skills Standard landing page', () => {
   test('Motion entrance and Replay each run a real finite animation to completion', async ({ page }) => {
     await prepareMotionPage(page);
     const routing = page.locator('[data-motion="routing"]');
-    const replay = routing.getByRole('button', { name: /^replay illustrative routing walkthrough$/i });
+    const replay = routing.getByRole('button', { name: /^replay walkthrough of illustrative routing$/i });
     await routing.scrollIntoViewIfNeeded();
     await expect(routing).toHaveAttribute('data-motion-state', 'running');
     await expect.poll(() => animationCount(routing)).toBeGreaterThan(0);
@@ -706,7 +706,7 @@ test.describe('Agent Skills Standard landing page', () => {
   test('Motion restarts active Replay without exceeding three active decorations', async ({ page }) => {
     await prepareMotionPage(page);
     const routing = page.locator('[data-motion="routing"]');
-    const replay = routing.getByRole('button', { name: /^replay illustrative routing walkthrough$/i });
+    const replay = routing.getByRole('button', { name: /^replay walkthrough of illustrative routing$/i });
     await routing.scrollIntoViewIfNeeded();
     await expect(routing).toHaveAttribute('data-motion-state', 'running');
     await expect.poll(() => animationCount(routing)).toBeGreaterThan(0);
@@ -746,7 +746,7 @@ test.describe('Agent Skills Standard landing page', () => {
     await expect(routing).toHaveAttribute('data-motion-state', 'complete');
     await page.emulateMedia({ reducedMotion: 'no-preference' });
 
-    const replay = page.getByRole('button', { name: /^replay illustrative routing walkthrough$/i });
+    const replay = page.getByRole('button', { name: /^replay walkthrough of illustrative routing$/i });
     await replay.click();
     await expect(routing).toHaveAttribute('data-motion-state', 'running');
     await expect.poll(() => animationCount(routing)).toBeGreaterThan(0);
@@ -801,7 +801,7 @@ test.describe('Agent Skills Standard landing page', () => {
       await prepareCapacityMotionPage(page);
       const routing = page.locator('[data-motion="routing"]');
       const hero = page.locator('[data-motion="hero"]');
-      const replay = routing.getByRole('button', { name: /^replay illustrative routing walkthrough$/i });
+      const replay = routing.getByRole('button', { name: /^replay walkthrough of illustrative routing$/i });
       await expect.poll(() => page.evaluate(() => {
         const evidence = (window as Window & { __motionEvidence?: MotionBrowserEvidence }).__motionEvidence;
         if (!evidence) return false;
@@ -859,7 +859,7 @@ test.describe('Agent Skills Standard landing page', () => {
         window.addEventListener('click', (event) => {
           const eventTarget = event.target;
           if (!(eventTarget instanceof Element) ||
-              !eventTarget.closest('button[aria-label="Replay illustrative routing walkthrough"]')) return;
+              !eventTarget.closest('button[aria-label="Replay walkthrough of illustrative routing"]')) return;
           const click = sequence.clicks.length + 1;
           if (click > 2) return;
           const before = evidence.capturePhase();

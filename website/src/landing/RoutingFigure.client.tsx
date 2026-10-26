@@ -249,7 +249,7 @@ export function RoutingFigure(): React.JSX.Element {
                   rel="noopener noreferrer"
                   tabIndex={isActive ? undefined : -1}
                   className={routingStyles.ruleSourceLink}
-                  aria-label={`View ${example.skillName} SKILL.md source on GitHub`}
+                  aria-label={`View SKILL.md for ${example.skillName} on GitHub`}
                 >
                   View SKILL.md &rarr;
                 </a>
@@ -272,7 +272,7 @@ export function RoutingFigure(): React.JSX.Element {
             type="button"
             onClick={handleReplay}
             className={styles.replayButton}
-            aria-label="Replay illustrative routing walkthrough"
+            aria-label="Replay walkthrough of illustrative routing"
           >
             Replay walkthrough
           </button>

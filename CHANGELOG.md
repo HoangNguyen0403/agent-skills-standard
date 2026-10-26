@@ -52,6 +52,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Contract remains dormant in repository: no operational attack scripts, no live tool autoactivation, no G3/G4/G5 promotion, and no measured model compatibility improvement claimed.
 
 ### Fixed
+- **Landing label-in-name accessibility**: `@axe-core/playwright` 4.14 enforces WCAG 2.5.3 (`label-content-name-mismatch`) under `wcag21a`, and the replayed routing figure carried two `aria-label` values that omitted their visible text — `Replay illustrative routing walkthrough` on the Replay button and `View <skill> SKILL.md source on GitHub` on each source link — so the website axe gate failed on PR #257. Accessible names now contain the visible text (`Replay walkthrough …`, `View SKILL.md for <skill> …`), and the test-side labels follow; the serious/critical severity gate is unchanged rather than relaxed.
+
 - **Dependency security**: Override Express 5 to patched `body-parser` 2.4.0 and NestJS Express platform to patched `multer` 2.5.0, addressing the production dependency-audit DoS advisories without changing direct dependency ranges.
 
 - **Cyber-lab validation safety wording**: State the operational-attack prohibition and host-enforced safety boundaries declaratively so negation-blind static checks recognize the prohibition. Gitleaks exceptions are limited to 16 verified hash-only snapshot fingerprints; scanner rules, thresholds, and full-history scanning remain unchanged.
