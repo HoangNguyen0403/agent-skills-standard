@@ -8,10 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Quick Navigation
 
 ## [Unreleased]
-
 ### Added
 
 - **Reusable book-to-skill reference skill**: Added a portable, rights-aware technique for converting authorized book material into discoverable skills, including a bounded large-source delegation reference for coordinator-led multi-packet synthesis.
+- **UI human-direction refinement protocol**: Added canonical reference `skills/common/common-ui-design/references/human-direction.md` establishing human direction as foundational. For existing designs, polish is default (preserving layout and behavior) while restyle preserves structure without frozen pixel coordinates, and rethink requires explicit human request. Added four-step critique loop (`Observation -> Impact -> Smallest Change -> Preserve Constraint`), explicit keep/change/avoid brief structure, borrow vs avoid separation for references, and finding classification into defects, context concerns, and taste. Replaced blanket anti-system-font and forced aesthetic-novelty rules in `common-ui-design` with domain-grounded platform typography, deliberate color systems, and WCAG AA accessibility.
+- **Stitch design human direction alignment**: Aligned `common-stitch-design` and `references/prompting.md` with human direction refinement modes (`polish`, `restyle`, `rethink`, `tablet`, `justified no-change`), explicit `keep / change / avoid` prompt blocks, avoidance of rigid geometry locks, and branching to justified no-change before writes when existing screens satisfy direction.
+- **Stitch workflows (`workflows` `1.1.9` candidate)**: Updated `.agents/workflows/create-stitch-design.md` and `.agents/workflows/review-stitch-design.md` with human-directed brief inputs, observed proof vs subjective preference verification, justified no-change gate branching before asset generation, defect/context/taste findings taxonomy, and preservation checks against baseline regressions.
 
 - **Cybersecurity `1.0.1` candidate**: Added optional `cyber-rea-reverse-engineering` driver skill and `references/setup.md` for a version-pinned, consumer-owned REA MCP/CLI lane. Covers authorized targets, untrusted target data, evidence provenance and limits, no inherited credentials, no automatic execution/injection/install, separate authority for target mutation, matching vendor-skill provenance, and rollback. Optional; absent REA blocks only the REA evidence lane and selection remains opt-in.
 - **`ags skills` category manager (CLI `2.7.0`)**: Interactive category-first skill selection that adds and removes guidance without hand-editing `.skillsrc` or looking up release tags. Existing category pins and include/exclude policy are preserved; newly enabled categories use their published release (no `main` fallback), and Product Management starts with only its two foundation skills. Unavailable configured categories stay checked by default but can be explicitly removed. Optional customization toggles nested skills, searches names and descriptions, keeps hidden selections, preserves qualified cross-category imports, and can explicitly switch a category to its published release.
@@ -68,7 +70,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Versions
 
 - **CLI**: `2.6.6` → `2.7.0`
-- **Common**: `2.9.0` → `2.9.1`; **Product Management**: `1.0.1` → `1.0.2`; **Quality Engineering**: `1.6.1` → `1.6.2`; **Workflows**: `1.1.7` → `1.1.8`
+- **Common**: `2.9.1` → `2.9.2`; **Product Management**: `1.0.1` → `1.0.2`; **Quality Engineering**: `1.6.1` → `1.6.2`; **Workflows**: `1.1.8` → `1.1.9`
 
 ## [common-v2.9.0] [workflow-v1.1.6] [system-design-v1.2.4] [quality-engineering-v1.6.1] [product-management-v1.0.1] - 2026-10-21
 

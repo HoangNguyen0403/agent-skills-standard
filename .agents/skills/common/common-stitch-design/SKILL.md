@@ -33,9 +33,18 @@ metadata:
 - If a retained conversation image blocks work, query advertised commands and follow [OMP image recovery](references/stitch-mcp.md#omp-image-recovery); preserve source screenshots before `/shake images`.
 - Run `node scripts/audit_html.js <dir>`. Audit output is evidence; screenshots confirm visual judgement.
 
+## Human Direction
+
+- Anchor generation, review, and edits in human direction: audience, task, concrete character, and `keep / change / avoid` boundaries. See [Human Direction](../common-ui-design/references/human-direction.md).
+- Existing designs default to `polish` (preserves IA, major composition, navigation, content, behavior; permits local spacing, wrapping, sizing). `restyle` is visual-only (tokens, styling) preserving structure/behavior without freezing pixel positions. `rethink` alters layout/flows only on explicit human choice.
+- New designs require human direction (not an absent baseline); references guide borrow vs avoid (optional when unneeded).
+- Human approval is mandatory before material creative changes. Branch to justified no-change BEFORE creating design systems or variants when the original satisfies direction. Human taste may prefer original or variant without objective proof; record as preference, not measured quality.
+- Critique follows `observation -> impact -> smallest change -> preservation`. Classify findings as defects, context concerns, or taste. Review checks regressions and preservation via observed proof, never automatic score winning.
+- Stitch is the sole generator; respect documented tool capabilities without invented settings (`mode != creativeRange`).
+
 ## Write Safely
 
-- Never overwrite originals. Fix through `generate_variants` (`creativeRange: REFINE`, `variantCount: 1`) or a new design system.
+- Never overwrite originals. Fix through `generate_variants` (default `creativeRange: REFINE`, `variantCount: 1`; use `EXPLORE` only for approved rethink or device adaptation per [Prompting](references/prompting.md)) or a new design system.
 - Explicit approval before `delete_project`, `update_design_system` on an existing asset, or `apply_design_system` to original screens.
 - New design system: `create_design_system` with `theme.designMd`, then `update_design_system` on that new asset.
 - `apply_design_system` takes screen instance ids from `get_project`, not screen ids.
@@ -49,11 +58,13 @@ metadata:
 
 ## Prompting
 
-- Generation prompts: layout and content only. Edit and variant prompts may carry hex values.
-- One shared fix block plus per-screen specifics; re-audit after each pass; max 2 `edit_screens` passes on variants only. See [Prompting](references/prompting.md).
+- Generation prompts: layout and content only; appearance lives in DESIGN.md. Edit and variant prompts may carry hex values.
+- Structure prompts with explicit `keep / change / avoid`. One shared fix block plus per-screen specifics; re-audit after each pass; max 2 `edit_screens` passes on variants only. See [Prompting](references/prompting.md).
 
 ## Anti-Patterns
 
 - **No in-place fixes**: editing originals destroys the baseline.
 - **No trusting labels**: titles and device labels drift; check screenshots.
 - **No unlinted DESIGN.md**: one bad colour pair ships to every screen.
+- **No unapproved creative leaps**: rethink or restyle without human mandate violates preservation.
+- **No invented tool settings**: refinement modes are orchestration contracts, not MCP arguments.
