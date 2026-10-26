@@ -786,6 +786,9 @@ describe('SyncInstallLifecycle', () => {
     expect(updated.entries[codexSpecialistRel]).toEqual(
       lock.entries[codexSpecialistRel],
     );
+
+  });
+
   it('preserves active .agent/sdd packet artifacts while migrating legacy .agent content', async () => {
     const packetPath = path.join(
       tempDir,
