@@ -1,0 +1,9 @@
+{
+  "command": "rtk node_modules/.bin/tsx scripts/generate-indices.ts",
+  "cwd": "/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-roi-t6-RkWXR3/candidate",
+  "exit_code": 0,
+  "signal": null,
+  "error": null,
+  "stdout": "✅ Generated indices for 26 frameworks in skills/index.json\n✅ Generated _INDEX.md for 26 categories\n✅ Updated AGENTS.md in repo root (Router-style)\n✅ Updated agent rule files for: copilot, antigravity, codex, claude\n✅ Updated skills/README.md with auto-generated index\n  ✅ Generated _INDEX.md for 6 categories.\n  ✅ AGENTS.md router index updated.\n  ✅ server/AGENTS.md router index updated.\n  ✅ 33 workflows synced to .github/prompts/ (GitHub Copilot)\n  ✅ 33 workflows synced to .codex/skills/ (Codex)\n  ✅ 33 workflows synced to .claude/commands/ (Claude Code)\n✅ Synced 33 local workflows to target agent folders\n  - Updated .github/skills/ (GitHub Copilot)\n  - Updated .agents/skills/ (Antigravity)\n  - Updated .codex/skills/ (Codex)\n  - Updated .claude/skills/ (Claude Code)\n✅ Synced 91 local skills to target agent folders\n  ✅ Generated _INDEX.md for 6 categories.\n  ✅ AGENTS.md router index updated.\n  ✅ server/AGENTS.md router index updated.\n  ✅ 21 specialists synced to .github/agents/ (GitHub Copilot)\n  ✅ 21 specialists synced to .codex/agents/ (Codex)\n  ✅ 21 specialists synced to .claude/agents/ (Claude Code)\n✅ Synced specialists for: copilot, antigravity, codex, claude\n",
+  "stderr": ""
+}

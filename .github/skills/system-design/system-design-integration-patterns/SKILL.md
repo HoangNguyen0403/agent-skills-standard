@@ -7,6 +7,9 @@ metadata:
       - cqrs
       - event sourcing
       - saga
+      - durable execution
+      - workflow replay
+      - reconciliation
       - outbox
       - leader election
       - sidecar
@@ -29,7 +32,7 @@ Each pattern buys one guarantee and charges operational complexity. Adopt on evi
 | A write must update the database and publish an event atomically | Transactional outbox | A relay (poller or CDC) to run and monitor |
 | Read shape and write shape have diverged and one model serves neither | CQRS | Two models, sync lag, doubled tests |
 | The sequence of changes is itself the product (audit, replay, temporal queries) | Event sourcing | Projections, event versioning, no easy delete |
-| A business transaction spans services and cannot hold a lock | Saga with compensations | Compensating action per step; no isolation |
+| A business process crosses services and needs recoverable coordination | Saga or durable workflow | Persisted progress, retries, reconciliation, and only feasible compensations |
 | Exactly one instance may run a job or own a resource | Leader election (lease-based) | Fencing tokens; split-brain handling |
 | Cross-cutting concerns repeated in every service | Sidecar or ambassador | Another process per pod to operate |
 | A legacy or third-party model would infect the domain | Anti-corruption layer | A translation layer to maintain |
@@ -38,11 +41,12 @@ Each pattern buys one guarantee and charges operational complexity. Adopt on evi
 
 ## Consistency Across a Boundary
 
-- Never dual-write. Write to your own store, then publish from the outbox or CDC stream; anything else drifts silently.
-- Saga orchestration puts the sequence in one coordinator: use it beyond ~4 steps, or when compensations must be reasoned about together.
-- Saga choreography lets each service react to events: use it for short flows between 2-3 services that already publish.
-- Every saga step needs its compensation defined before implementation. A step with no compensation is a step that must move to the end or become idempotent-retryable.
-- Correlate everything: one id threads the whole flow through logs, events, and compensations.
+- Avoid dual-write: atomically persist local state plus publication intent where both must commit; use an outbox/CDC only when that boundary requires it.
+- Deduplicate delivery on the normalized event identity—source plus event ID, or an equivalent globally unique ID—and arbitrate effects on stable business-operation identity. A bare event ID from two sources is two events. Broker delivery guarantees stop at the broker.
+- A timeout after a possible commit is an unknown outcome: query or reconcile before retrying, never retry blindly.
+- Select saga orchestration or choreography from visibility, ownership, coupling and recovery needs—not a fixed step count.
+- Compensate only when the domain permits reversal. Irreversible or ambiguous effects need idempotent retry, reconciliation, or forward recovery; compensation is another fallible effect.
+- Keep correlation identifiers for tracing; they never arbitrate effects. Long-running progress must be replay-safe and version-compatible.
 
 ## Evolution
 
@@ -54,11 +58,13 @@ Each pattern buys one guarantee and charges operational complexity. Adopt on evi
 
 - **No CQRS by default**: separate models only after one model demonstrably fails both sides.
 - **No event sourcing for ordinary CRUD**: audit needs an audit log, not a rebuilt world.
-- **No dual write**: outbox or CDC, never a database write followed by a hopeful publish.
-- **No choreography past 4 steps**: nobody can answer "where is order 123" without a coordinator.
+- **No dual write**: where local state and a publication must commit together, use outbox or CDC; never a database write followed by a hopeful publish.
+- **No exactly-once claim from broker delivery**: topic-level guarantees do not cover external effects; use inbox dedupe plus operation identity.
+- **No universal choreography cutoff**: choose coordination from observability, ownership, coupling and recovery constraints.
 - **No two-phase commit on the hot path**: the coordinator is a SPOF and the locks are the outage.
 - **No distributed lock as a correctness mechanism**: leases expire under GC pauses; use fencing tokens or single ownership.
 
 ## References
 
-- [Integration Patterns Detail](references/integration-patterns.md) - outbox mechanics, saga compensation table, event versioning, BFF ownership, strangler phases
+- [Integration Patterns Detail](references/integration-patterns.md) - outbox and inbox mechanics, saga coordination and recovery, event versioning, BFF ownership, strangler phases
+- [Durable Execution](references/durable-execution.md) - workflow replay, durable timers, activity cancellation, unknown outcomes, effect identity, and version compatibility

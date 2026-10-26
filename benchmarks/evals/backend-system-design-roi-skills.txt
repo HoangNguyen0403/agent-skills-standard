@@ -1,0 +1,32 @@
+# T5 evaluation selection — backend-system-design-roi-improvement
+#
+# Scope rule (docs/prd/prd-backend-system-design-roi-improvement.md §5 T5 step 1):
+# exactly the packages changed by T1-T3 plus justified governing dependencies.
+# This deliberately does not reuse
+# benchmarks/evals/system-design-professionalization-skills.txt (11 packages,
+# omits building-blocks and integration-patterns).
+#
+# Changed packages (the only sources whose guidance may differ between the
+# current-AGS and improved-AGS arms):
+system-design/system-design-building-blocks
+system-design/system-design-resilience-ops
+system-design/system-design-data-architecture
+system-design/system-design-integration-patterns
+#
+# Governing dependencies: selected because the three core cases derive decisions
+# from them and the improved arms reference them without owning the rules.
+# system-design-principles: operation identity / idempotency contract and the
+# constraint -> decision -> invariant form used by all three cases.
+# system-design-estimation: residual-capacity and admission arithmetic used by
+# the overload case and by payment throughput numbers.
+system-design/system-design-principles
+system-design/system-design-estimation
+#
+# Not selected:
+# - T4 AI-gateway content is not activated (no new skill package, no new eval).
+# - common-llm-security, common-observability, common-architecture-diagramming
+#   stay dependencies referenced from bodies, not separate evaluated arms; adding
+#   them would make arm attribution unmeasurable.
+# - system-design-case-catalog is a historical visible fixture source; it stays
+#   regression material (benchmarks/evals/system-design-professionalization-heldout.json),
+#   not a blind held-out arm.

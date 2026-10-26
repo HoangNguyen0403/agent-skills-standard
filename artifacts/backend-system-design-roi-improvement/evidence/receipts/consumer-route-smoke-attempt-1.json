@@ -1,0 +1,7 @@
+{
+  "status": "HARNESS_TIMEOUT",
+  "command": "rtk node --import tsx .agent/sdd/backend-system-design-roi-improvement/T6/index-route-smoke.mjs",
+  "exit_code": 1,
+  "cause": "The temporary harness used spawnSync while the same Node process hosted the loopback registry fixture; the synchronous child launch blocked the fixture event loop and timed out after 120 seconds. The assertion saw spawnSync status null. This does not establish a CLI sync failure.",
+  "corrective_action": "Changed only the throwaway harness to use asynchronous child_process.spawn so the loopback fixture can service requests. No production source or accepted source/eval bytes changed."
+}

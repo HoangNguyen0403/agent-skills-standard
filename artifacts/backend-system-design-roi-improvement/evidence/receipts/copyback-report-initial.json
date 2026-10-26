@@ -1,0 +1,256 @@
+{
+  "copied": [
+    {
+      "path": ".agents/skills/system-design/system-design-building-blocks/SKILL.md",
+      "before_sha256": "71236855db7b29b5753c059c030c092a5295839d4ee9434187779b6b4c291785",
+      "after_sha256": "48d3b5576fd8862c5afafce441deb9872ec059dae3fe413dac43bf5e7180ff6a"
+    },
+    {
+      "path": ".agents/skills/system-design/system-design-building-blocks/references/building-blocks.md",
+      "before_sha256": "b5b7eb34a3daee42223a0cd9cd72cc5b386f1585c77edb013baece5c7e4d0fe8",
+      "after_sha256": "35c8f78b27316e283127b5c76ef2a9b653738c27214fc4ee38ba54470df85c22"
+    },
+    {
+      "path": ".agents/skills/system-design/system-design-resilience-ops/SKILL.md",
+      "before_sha256": "952db0997ed9c58804b22769b7f0252d07c1bfc3afa7990ac42f563b99203d33",
+      "after_sha256": "c17b0748a32f9c2f46d74133ff2e17e3e74a5faad3b1576ef449f47f95677153"
+    },
+    {
+      "path": ".agents/skills/system-design/system-design-resilience-ops/references/reliability-operations.md",
+      "before_sha256": "9abb27ff728ac2afd8bff7855eb82c7d61c68c049dd791b82a044d22efb03849",
+      "after_sha256": "b9628d52dcfe04dbe81b349131d5e4cc873f73b9513251132b280ba7fc5d0e32"
+    },
+    {
+      "path": ".agents/skills/system-design/system-design-data-architecture/SKILL.md",
+      "before_sha256": "a7ad042f5dc908d095d5f85fd8cdb5fdf09b6c961a632b961da2303e09d35211",
+      "after_sha256": "e673583ba86f4fb92be74924a85eb139df4476b93b5ce7ddf1730ccd591a796d"
+    },
+    {
+      "path": ".agents/skills/system-design/system-design-data-architecture/references/flow-contracts.md",
+      "before_sha256": "6c107c03df3da843844ab8577272bc07fcee9a0da307d3364e4e19e24c1ac90e",
+      "after_sha256": "6215b36242151b6238253d52dfcdbf4eaf8fe6acae137d1618aae8d2aa77281c"
+    },
+    {
+      "path": ".agents/skills/system-design/system-design-data-architecture/references/tenant-safe-retrieval.md",
+      "before_sha256": null,
+      "after_sha256": "fa37e6f2569c328b0dd9cd87d103e523968d47a2c7f0ea47932b44198683d571"
+    },
+    {
+      "path": ".agents/skills/system-design/system-design-integration-patterns/SKILL.md",
+      "before_sha256": "471d75bdf0c94942132559d999be6b6c7a131d3a50527790929b80b2d9aed358",
+      "after_sha256": "090c5da313f93e27a7b30bf63dff2b355e87ee35474e302f8632016958851a42"
+    },
+    {
+      "path": ".agents/skills/system-design/system-design-integration-patterns/references/integration-patterns.md",
+      "before_sha256": "1be06e602c65413f7d4aedb6736e18271804980268a5f5d4332154064930cae9",
+      "after_sha256": "d9a7c2b62030cdef45338fd9125803a06853367870d05569fa5cbbe34ad9167a"
+    },
+    {
+      "path": ".agents/skills/system-design/system-design-integration-patterns/references/durable-execution.md",
+      "before_sha256": null,
+      "after_sha256": "eb41305df4fbe02931de0df55fc151388c289d260c50a4b5a7194fc5d7bf16f4"
+    },
+    {
+      "path": ".claude/skills/system-design/system-design-building-blocks/SKILL.md",
+      "before_sha256": "71236855db7b29b5753c059c030c092a5295839d4ee9434187779b6b4c291785",
+      "after_sha256": "48d3b5576fd8862c5afafce441deb9872ec059dae3fe413dac43bf5e7180ff6a"
+    },
+    {
+      "path": ".claude/skills/system-design/system-design-building-blocks/references/building-blocks.md",
+      "before_sha256": "b5b7eb34a3daee42223a0cd9cd72cc5b386f1585c77edb013baece5c7e4d0fe8",
+      "after_sha256": "35c8f78b27316e283127b5c76ef2a9b653738c27214fc4ee38ba54470df85c22"
+    },
+    {
+      "path": ".claude/skills/system-design/system-design-resilience-ops/SKILL.md",
+      "before_sha256": "952db0997ed9c58804b22769b7f0252d07c1bfc3afa7990ac42f563b99203d33",
+      "after_sha256": "c17b0748a32f9c2f46d74133ff2e17e3e74a5faad3b1576ef449f47f95677153"
+    },
+    {
+      "path": ".claude/skills/system-design/system-design-resilience-ops/references/reliability-operations.md",
+      "before_sha256": "9abb27ff728ac2afd8bff7855eb82c7d61c68c049dd791b82a044d22efb03849",
+      "after_sha256": "b9628d52dcfe04dbe81b349131d5e4cc873f73b9513251132b280ba7fc5d0e32"
+    },
+    {
+      "path": ".claude/skills/system-design/system-design-data-architecture/SKILL.md",
+      "before_sha256": "a7ad042f5dc908d095d5f85fd8cdb5fdf09b6c961a632b961da2303e09d35211",
+      "after_sha256": "e673583ba86f4fb92be74924a85eb139df4476b93b5ce7ddf1730ccd591a796d"
+    },
+    {
+      "path": ".claude/skills/system-design/system-design-data-architecture/references/flow-contracts.md",
+      "before_sha256": "6c107c03df3da843844ab8577272bc07fcee9a0da307d3364e4e19e24c1ac90e",
+      "after_sha256": "6215b36242151b6238253d52dfcdbf4eaf8fe6acae137d1618aae8d2aa77281c"
+    },
+    {
+      "path": ".claude/skills/system-design/system-design-data-architecture/references/tenant-safe-retrieval.md",
+      "before_sha256": null,
+      "after_sha256": "fa37e6f2569c328b0dd9cd87d103e523968d47a2c7f0ea47932b44198683d571"
+    },
+    {
+      "path": ".claude/skills/system-design/system-design-integration-patterns/SKILL.md",
+      "before_sha256": "471d75bdf0c94942132559d999be6b6c7a131d3a50527790929b80b2d9aed358",
+      "after_sha256": "090c5da313f93e27a7b30bf63dff2b355e87ee35474e302f8632016958851a42"
+    },
+    {
+      "path": ".claude/skills/system-design/system-design-integration-patterns/references/integration-patterns.md",
+      "before_sha256": "1be06e602c65413f7d4aedb6736e18271804980268a5f5d4332154064930cae9",
+      "after_sha256": "d9a7c2b62030cdef45338fd9125803a06853367870d05569fa5cbbe34ad9167a"
+    },
+    {
+      "path": ".claude/skills/system-design/system-design-integration-patterns/references/durable-execution.md",
+      "before_sha256": null,
+      "after_sha256": "eb41305df4fbe02931de0df55fc151388c289d260c50a4b5a7194fc5d7bf16f4"
+    },
+    {
+      "path": ".codex/skills/system-design/system-design-building-blocks/SKILL.md",
+      "before_sha256": "71236855db7b29b5753c059c030c092a5295839d4ee9434187779b6b4c291785",
+      "after_sha256": "48d3b5576fd8862c5afafce441deb9872ec059dae3fe413dac43bf5e7180ff6a"
+    },
+    {
+      "path": ".codex/skills/system-design/system-design-building-blocks/references/building-blocks.md",
+      "before_sha256": "b5b7eb34a3daee42223a0cd9cd72cc5b386f1585c77edb013baece5c7e4d0fe8",
+      "after_sha256": "35c8f78b27316e283127b5c76ef2a9b653738c27214fc4ee38ba54470df85c22"
+    },
+    {
+      "path": ".codex/skills/system-design/system-design-resilience-ops/SKILL.md",
+      "before_sha256": "952db0997ed9c58804b22769b7f0252d07c1bfc3afa7990ac42f563b99203d33",
+      "after_sha256": "c17b0748a32f9c2f46d74133ff2e17e3e74a5faad3b1576ef449f47f95677153"
+    },
+    {
+      "path": ".codex/skills/system-design/system-design-resilience-ops/references/reliability-operations.md",
+      "before_sha256": "9abb27ff728ac2afd8bff7855eb82c7d61c68c049dd791b82a044d22efb03849",
+      "after_sha256": "b9628d52dcfe04dbe81b349131d5e4cc873f73b9513251132b280ba7fc5d0e32"
+    },
+    {
+      "path": ".codex/skills/system-design/system-design-data-architecture/SKILL.md",
+      "before_sha256": "a7ad042f5dc908d095d5f85fd8cdb5fdf09b6c961a632b961da2303e09d35211",
+      "after_sha256": "e673583ba86f4fb92be74924a85eb139df4476b93b5ce7ddf1730ccd591a796d"
+    },
+    {
+      "path": ".codex/skills/system-design/system-design-data-architecture/references/flow-contracts.md",
+      "before_sha256": "6c107c03df3da843844ab8577272bc07fcee9a0da307d3364e4e19e24c1ac90e",
+      "after_sha256": "6215b36242151b6238253d52dfcdbf4eaf8fe6acae137d1618aae8d2aa77281c"
+    },
+    {
+      "path": ".codex/skills/system-design/system-design-data-architecture/references/tenant-safe-retrieval.md",
+      "before_sha256": null,
+      "after_sha256": "fa37e6f2569c328b0dd9cd87d103e523968d47a2c7f0ea47932b44198683d571"
+    },
+    {
+      "path": ".codex/skills/system-design/system-design-integration-patterns/SKILL.md",
+      "before_sha256": "471d75bdf0c94942132559d999be6b6c7a131d3a50527790929b80b2d9aed358",
+      "after_sha256": "090c5da313f93e27a7b30bf63dff2b355e87ee35474e302f8632016958851a42"
+    },
+    {
+      "path": ".codex/skills/system-design/system-design-integration-patterns/references/integration-patterns.md",
+      "before_sha256": "1be06e602c65413f7d4aedb6736e18271804980268a5f5d4332154064930cae9",
+      "after_sha256": "d9a7c2b62030cdef45338fd9125803a06853367870d05569fa5cbbe34ad9167a"
+    },
+    {
+      "path": ".codex/skills/system-design/system-design-integration-patterns/references/durable-execution.md",
+      "before_sha256": null,
+      "after_sha256": "eb41305df4fbe02931de0df55fc151388c289d260c50a4b5a7194fc5d7bf16f4"
+    },
+    {
+      "path": ".github/skills/system-design/system-design-building-blocks/SKILL.md",
+      "before_sha256": "71236855db7b29b5753c059c030c092a5295839d4ee9434187779b6b4c291785",
+      "after_sha256": "48d3b5576fd8862c5afafce441deb9872ec059dae3fe413dac43bf5e7180ff6a"
+    },
+    {
+      "path": ".github/skills/system-design/system-design-building-blocks/references/building-blocks.md",
+      "before_sha256": "b5b7eb34a3daee42223a0cd9cd72cc5b386f1585c77edb013baece5c7e4d0fe8",
+      "after_sha256": "35c8f78b27316e283127b5c76ef2a9b653738c27214fc4ee38ba54470df85c22"
+    },
+    {
+      "path": ".github/skills/system-design/system-design-resilience-ops/SKILL.md",
+      "before_sha256": "952db0997ed9c58804b22769b7f0252d07c1bfc3afa7990ac42f563b99203d33",
+      "after_sha256": "c17b0748a32f9c2f46d74133ff2e17e3e74a5faad3b1576ef449f47f95677153"
+    },
+    {
+      "path": ".github/skills/system-design/system-design-resilience-ops/references/reliability-operations.md",
+      "before_sha256": "9abb27ff728ac2afd8bff7855eb82c7d61c68c049dd791b82a044d22efb03849",
+      "after_sha256": "b9628d52dcfe04dbe81b349131d5e4cc873f73b9513251132b280ba7fc5d0e32"
+    },
+    {
+      "path": ".github/skills/system-design/system-design-data-architecture/SKILL.md",
+      "before_sha256": "a7ad042f5dc908d095d5f85fd8cdb5fdf09b6c961a632b961da2303e09d35211",
+      "after_sha256": "e673583ba86f4fb92be74924a85eb139df4476b93b5ce7ddf1730ccd591a796d"
+    },
+    {
+      "path": ".github/skills/system-design/system-design-data-architecture/references/flow-contracts.md",
+      "before_sha256": "6c107c03df3da843844ab8577272bc07fcee9a0da307d3364e4e19e24c1ac90e",
+      "after_sha256": "6215b36242151b6238253d52dfcdbf4eaf8fe6acae137d1618aae8d2aa77281c"
+    },
+    {
+      "path": ".github/skills/system-design/system-design-data-architecture/references/tenant-safe-retrieval.md",
+      "before_sha256": null,
+      "after_sha256": "fa37e6f2569c328b0dd9cd87d103e523968d47a2c7f0ea47932b44198683d571"
+    },
+    {
+      "path": ".github/skills/system-design/system-design-integration-patterns/SKILL.md",
+      "before_sha256": "471d75bdf0c94942132559d999be6b6c7a131d3a50527790929b80b2d9aed358",
+      "after_sha256": "090c5da313f93e27a7b30bf63dff2b355e87ee35474e302f8632016958851a42"
+    },
+    {
+      "path": ".github/skills/system-design/system-design-integration-patterns/references/integration-patterns.md",
+      "before_sha256": "1be06e602c65413f7d4aedb6736e18271804980268a5f5d4332154064930cae9",
+      "after_sha256": "d9a7c2b62030cdef45338fd9125803a06853367870d05569fa5cbbe34ad9167a"
+    },
+    {
+      "path": ".github/skills/system-design/system-design-integration-patterns/references/durable-execution.md",
+      "before_sha256": null,
+      "after_sha256": "eb41305df4fbe02931de0df55fc151388c289d260c50a4b5a7194fc5d7bf16f4"
+    },
+    {
+      "path": ".agents/skills/system-design/_INDEX.md",
+      "before_sha256": "509edc46a538fe000f498e8fb0a3fb7fa0fcbc038200938374c0a8ec3cb6567d",
+      "after_sha256": "7bcb704ff65a6ee506dba3ee86f7a44431786016b8869db1eeef9b8779a436db"
+    },
+    {
+      "path": ".claude/skills/system-design/_INDEX.md",
+      "before_sha256": "509edc46a538fe000f498e8fb0a3fb7fa0fcbc038200938374c0a8ec3cb6567d",
+      "after_sha256": "7bcb704ff65a6ee506dba3ee86f7a44431786016b8869db1eeef9b8779a436db"
+    },
+    {
+      "path": ".codex/skills/system-design/_INDEX.md",
+      "before_sha256": "509edc46a538fe000f498e8fb0a3fb7fa0fcbc038200938374c0a8ec3cb6567d",
+      "after_sha256": "7bcb704ff65a6ee506dba3ee86f7a44431786016b8869db1eeef9b8779a436db"
+    },
+    {
+      "path": ".github/skills/system-design/_INDEX.md",
+      "before_sha256": "509edc46a538fe000f498e8fb0a3fb7fa0fcbc038200938374c0a8ec3cb6567d",
+      "after_sha256": "7bcb704ff65a6ee506dba3ee86f7a44431786016b8869db1eeef9b8779a436db"
+    },
+    {
+      "path": "skills/system-design/_INDEX.md",
+      "before_sha256": "509edc46a538fe000f498e8fb0a3fb7fa0fcbc038200938374c0a8ec3cb6567d",
+      "after_sha256": "2486b5e4aca9c16df2f540b4524761deb2f45b206e5dcbe9650915d7bd7a9559"
+    }
+  ],
+  "unchanged": [],
+  "metadata": {
+    "path": "skills/metadata.json",
+    "before_sha256": "bac0aa0b1451c5f3a3d332c5e38b5d68bd6d544754dbd70e0712f28b5133f0a5",
+    "staged_calculator_sha256": "22848d81081c4038fc46af19ef5f66ee127cd8d86c103ab08e2ca60a52ec8c0a",
+    "after_scoped_sha256": "0aa949a6cfc9bf6f46b69781c7aa55e88d91643d240f898afa0804f85b433377",
+    "category": "system-design",
+    "previous_version": "1.2.4",
+    "last_updated": "2026-10-26",
+    "token_metrics": {
+      "total_skills": 13,
+      "total_tokens": 16813,
+      "avg_tokens_per_skill": 1293,
+      "largest_skill": "system-design-review (1935 tokens)"
+    },
+    "other_categories_token_metrics_unchanged": true
+  },
+  "copyback_policy": "single-file copy only after captured destination digest equality; no recursive copy; no active delete; metadata merged to approved system-design fields only",
+  "excluded": [
+    ".skills-lock.json",
+    ".ags/**",
+    ".agents/workflows/**",
+    ".agents/rules/**",
+    ".github/instructions/**",
+    ".github/workflows/**",
+    "all unlisted stage output"
+  ]
+}

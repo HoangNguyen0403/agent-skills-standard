@@ -1,0 +1,31 @@
+{
+  "date": "2026-10-26",
+  "scope": "T6 no-model integration gates only; no semantic efficacy or ROI claim",
+  "commands": [
+    {"command":"rtk pnpm --filter ./cli build","exit_code":0,"output":"Vite built cli/dist/index.js (441.00 kB; 111.43 kB gzip). Vite config-loader warning appeared."},
+    {"command":"rtk pnpm --filter ./cli validate:all","exit_code":0,"output":"Found 336 skills; Passed: 336; Failed: 0; 56 warnings."},
+    {"command":"rtk pnpm audit:skills","cwd":"isolated stage","exit_code":0,"output":"No obvious redundancy found. Generated audit JSON stayed in stage."},
+    {"command":"rtk pnpm audit:keywords","exit_code":0,"output":"134 collision(s) found across categories; warnings. No system-design section appeared."},
+    {"command":"rtk pnpm check-alignment","exit_code":0,"output":"All skills met 70% threshold. Warnings: flutter-getx-navigation 86%, swift-best-practices 83%."},
+    {"command":"rtk pnpm evals:preflight -- --skills-file benchmarks/evals/backend-system-design-roi-skills.txt","cwd":"isolated stage","exit_code":0,"output":"Eval preflight: 0 issues. eval-preflight.json stayed in stage."},
+    {"command":"rtk pnpm test:evals","exit_code":0,"output":"89 tests; 89 passed, 0 failed, 0 skipped."},
+    {"command":"rtk pnpm docs:capabilities:check","exit_code":0,"output":"docs/agent-capabilities.md is up to date."},
+    {"command":"rtk node --import tsx .agent/sdd/backend-system-design-roi-improvement/T5/lexical-candidate-matrix.ts","exit_code":0,"output":"Four lexical probes matched; 0 mismatches; lane A fully accepted 1/54 pairs (26/126 assertions), lexical-only."}
+  ],
+  "consumer_smoke": {
+    "commands": [
+      {"argv":["sync"],"exit_code":0,"stderr":"◇ injected env (0) from .env\nfatal: not a git repository (or any of the parent directories): .git"},
+      {"argv":["verify","--agent","antigravity"],"exit_code":0,"stdout":"Checked 15 tracked file(s)\n✅ All tracked files match the manifest."}
+    ],
+    "scope":"loopback registry fixture, isolated HOME/XDG, one Antigravity agent, four explicit changed packages, MCP disabled, telemetry false",
+    "installed_package_resources":13,
+    "registry_fixture_requests":43,
+    "new_reference_requests":2,
+    "eval_requests":0,
+    "mcp_runtime_config_written":false,
+    "candidate_base_commit":"92d06c420f6a41f08e11579423e4e3eacdb7880d",
+    "candidate_snapshot_sha256":"bdfaa34569866c0fcc9a58098272b883f49b50bc4570007c1738715fcd7c657a"
+  },
+  "unrun": ["L1/L2 semantic grading","L3 executable candidate application harness","models","paid pilot","remote CI","T7","T4 activation"],
+  "independent_final_t6_review": "PENDING"
+}

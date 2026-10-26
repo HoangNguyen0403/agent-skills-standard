@@ -1,0 +1,9 @@
+{
+  "status": "HARNESS_ASSERTION_FAILED",
+  "command": "rtk node .agent/sdd/backend-system-design-roi-improvement/T6/consumer-route-smoke.mjs",
+  "exit_code": 1,
+  "observed_error": "Error: Consumer route ids differ: (empty parsed row list); thrown at consumer-route-smoke.mjs:80:11; Node.js v26.12.1",
+  "diagnosis": "The harness matched a non-existent bold-list row format; the actual canonical category index is a Markdown table. The route assertion failed before a receipt was written. The script's preceding gate requires sync and verify exit 0, but their stdout/stderr were not retained by this attempt.",
+  "cleanup": "The throwaway consumer, HOME, and XDG directories were removed by the script finally block.",
+  "not_evidence_of": ["CLI sync failure", "CLI verify failure", "missing consumer routes"]
+}

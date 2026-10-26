@@ -22,14 +22,56 @@ timeouts and shedding for the slow case first.
 - **Liveness**: is this process itself broken? Must not call dependencies. Failure means restart.
 - **Readiness**: can this instance serve traffic right now? May check required dependencies. Failure means remove from rotation.
 - **Startup**: is the process still initializing? Prevents premature restarts on slow boot.
+- Classify each readiness dependency **per request class** as required or optional. Required means fail readiness; optional means keep serving that class degraded. Shared or local describes blast radius, not whether serving is safe: a shared cache is usually optional, but a shared auth or quota dependency is mandatory for protected routes.
+- Mandatory enforcement is not a health state. When a protected request cannot be authenticated or authorized, reject it locally and fail closed on that route; readiness, ejection caps, and panic modes change which endpoint receives traffic, never whether a check may be skipped. Marking every replica unready still empties discovery, which is why enforcement failure needs a local rejection path rather than a fleet-wide unready signal.
+- Readiness and discovery are separate from passive outlier ejection. A readiness probe fails an instance for new traffic through discovery; passive ejection removes it from a balancer's healthy set for a bounded time. Neither mechanism grants permission to serve work an instance cannot safely serve, and a panic threshold is a routing decision, not an authorization decision.
+- Detection has two halves: passive observation of live traffic (error rate, timeouts, latency outliers) and active probes on an interval. Passive catches what a shallow probe misses; active recovers what passive ejected. Bound consecutive failures, ejection backoff, and the ejected fraction, and state the recovery path: probe pass, timed re-admission, or gradual traffic ramp.
+- Verify a recovered host by traffic, not by probe answer. A readiness probe that passes while the data path still fails re-admits a broken instance.
+- Keep probe cost below the traffic it protects: a readiness endpoint that queries the database on every scrape is a self-inflicted load generator. Probe the shallowest path that still proves the instance can serve.
 - Anti-pattern: readiness that fails on an optional dependency removes healthy capacity during a partial outage.
+
+## Failure Capacity
+
+Availability claims need arithmetic, not replica counts. For each tier record four terms:
+
+| Term | Source |
+| --- | --- |
+| Per-instance safe load | Measured load at the latency target with headroom, not the saturation point; state the unit (requests per second, or concurrent requests) |
+| Largest in-scope failure | One instance (N+1) or one zone, stated once for the scope |
+| Surviving capacity | Surviving instances × per-instance safe load, in that same unit |
+| Admitted demand | Peak arrivals passing admission, including retry amplification, in that same unit |
+
+If admitted demand exceeds surviving capacity, the design must name what degrades and in what order: reject new work by cost class, queue with a deadline and shed on overflow, serve stale or partial results for declared classes, or drop optional work. Without that decision one instance failure turns a latency blip into a full outage.
+
+Recompute after every autoscaling or pool-size change, and keep units coherent. `callers × per-instance pool size` yields **connections** (or concurrent requests, for an explicitly request-concurrency pool), so compare it only to a connection or concurrency ceiling. Rate is derived, not counted: `rate ≈ concurrency / service time`, so 100 pooled connections at 10 ms per call can drive roughly 10,000 requests/s — matching that 100 to a 100 QPS ceiling proves nothing. Bound admitted rate against the rate ceiling separately, with fan-out and retries included, using the measured service time at the bottleneck ([building blocks](../../system-design-building-blocks/references/building-blocks.md#failure-capacity)).
+
+## Draining and Termination
+
+A deploy, scale-in, or eviction is a planned instance failure; make it look like one.
+
+1. Fail readiness and remove from discovery. Expect stale routing briefly: caches, connection reuse, and in-flight streams keep sending traffic.
+2. Keep serving in-flight work until a deadline shorter than the platform's termination grace. Kubernetes defaults grace to 30 s and runs a `preStop` hook before `SIGTERM`, so the drain budget must fit inside it.
+3. At the deadline, cancel remaining work and return a retryable error instead of being killed mid-response.
+4. Confirm the rest of the system already assumed this instance gone: clients retry with the remaining deadline and the balancer's failure capacity excludes it.
+
+Long-lived connections need their own path: send a close signal with a resume cursor, keep the cursor readable for the retention window, then detach. A drain that waits for a client that never disconnects is the leak that turns a routine deploy into a partial outage. Cap concurrent streams per instance and give each a maximum lifetime so drain can always finish.
 
 ## Timeouts, Retries, Shedding
 
 - Every remote call has an explicit timeout shorter than the caller's own deadline; propagate the remaining deadline downstream.
 - Retry only idempotent operations. Use exponential backoff with jitter and a total attempt budget.
 - Add a retry budget per client (for example, retries capped at 10% of requests) so retries cannot double load during an incident.
-- Shed load at the edge when saturated: reject cheaply and early with a retry hint rather than queueing to death.
+- One retrying layer per call chain where practical. A mesh retry, a gateway retry, and an application retry each with their own budget multiply work by up to `attempts^layers` and can exceed the caller deadline; pick the owner and record which layer is allowed to retry ([communication](../../system-design-communication/references/communication-selection.md)).
+- Budget the whole path: `connect + queue wait + upstream work + retries ≤ caller deadline`. Queue wait counts; a request that waits 80% of its deadline in a pool then times out is a capacity problem, not a timeout problem.
+- Shed load at the edge when saturated: reject cheaply and early with a retry hint rather than queueing to death. Shed in a stated order — cheap rejects first, then optional enrichment, then by cost class — so the degraded class is a decision rather than whichever request lost the race.
+- Autoscaling is not admission control: it reacts in seconds to minutes, and the fleet's aggregate pool demand must still fit the downstream ceiling before you scale out.
+
+## Streaming Backpressure
+
+- Enforce the bound as a hard limit: reject or close when buffered bytes, items, or age exceed budget. Alert on stream age and per-instance buffered bytes, not just connection count.
+- A stream that outlives its expected duration without producing is a leak — cancel it, release its subscription, and count it. Open streams per instance belong in the saturation signal set.
+- Verify recovery by resumed delivery, not by a successful handshake: a reconnect that receives nothing looks healthy in metrics and is not.
+- Producer-side bounds, flow control, and cursor design: [Building Blocks — Streaming Connections and Buffers](../../system-design-building-blocks/references/building-blocks.md#streaming-connections-and-buffers).
 
 ## Disaster Recovery
 

@@ -1,0 +1,50 @@
+{
+  "status": "PASS",
+  "scope": "four agent-specific system-design category indexes only",
+  "cause": "The canonical skill parser and selected-ID filter were not the cause: all 13 staged system-design SKILL.md files parse, and the independent review confirmed desiredSkillIds plus ownership contain all 13. The lifecycle cause is scripts/generate-indices.ts applying indices before beginInstall/writeSkills, while SyncService begins with PassthroughWriter and then switches to OwnershipWriter. A 9-row bootstrap index can therefore pre-exist the ownership session; completeInstall(refreshIndices:true) recomputes from the full inventory, but OwnershipWriter compares against the pre-run previous lock only (not its in-run next entries) and classifies a differing unowned bootstrap file as unknown. The exact initial filesystem inventory was not retained, so the reason the bootstrap saw nine rows is not claimed. Repair: preserve all package directories, delete only the four target indices in the disposable stage, run the existing generator, then hash-guard each copyback.",
+  "stage_root": "/private/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-roi-t6-RkWXR3/candidate",
+  "canonical_source": "skills/system-design/_INDEX.md",
+  "canonical_sha256": "2486b5e4aca9c16df2f540b4524761deb2f45b206e5dcbe9650915d7bd7a9559",
+  "selected_skill_count": 13,
+  "selected_skill_ids": [
+    "system-design-artifact-intake",
+    "system-design-building-blocks",
+    "system-design-case-catalog",
+    "system-design-communication",
+    "system-design-data-architecture",
+    "system-design-estimation",
+    "system-design-integration-patterns",
+    "system-design-interview-coaching",
+    "system-design-methodology",
+    "system-design-mobile-client",
+    "system-design-principles",
+    "system-design-resilience-ops",
+    "system-design-review"
+  ],
+  "copied": [
+    {
+      "path": ".github/skills/system-design/_INDEX.md",
+      "before_sha256": "7bcb704ff65a6ee506dba3ee86f7a44431786016b8869db1eeef9b8779a436db",
+      "source_sha256": "2486b5e4aca9c16df2f540b4524761deb2f45b206e5dcbe9650915d7bd7a9559",
+      "after_sha256": "2486b5e4aca9c16df2f540b4524761deb2f45b206e5dcbe9650915d7bd7a9559"
+    },
+    {
+      "path": ".claude/skills/system-design/_INDEX.md",
+      "before_sha256": "7bcb704ff65a6ee506dba3ee86f7a44431786016b8869db1eeef9b8779a436db",
+      "source_sha256": "2486b5e4aca9c16df2f540b4524761deb2f45b206e5dcbe9650915d7bd7a9559",
+      "after_sha256": "2486b5e4aca9c16df2f540b4524761deb2f45b206e5dcbe9650915d7bd7a9559"
+    },
+    {
+      "path": ".codex/skills/system-design/_INDEX.md",
+      "before_sha256": "7bcb704ff65a6ee506dba3ee86f7a44431786016b8869db1eeef9b8779a436db",
+      "source_sha256": "2486b5e4aca9c16df2f540b4524761deb2f45b206e5dcbe9650915d7bd7a9559",
+      "after_sha256": "2486b5e4aca9c16df2f540b4524761deb2f45b206e5dcbe9650915d7bd7a9559"
+    },
+    {
+      "path": ".agents/skills/system-design/_INDEX.md",
+      "before_sha256": "7bcb704ff65a6ee506dba3ee86f7a44431786016b8869db1eeef9b8779a436db",
+      "source_sha256": "2486b5e4aca9c16df2f540b4524761deb2f45b206e5dcbe9650915d7bd7a9559",
+      "after_sha256": "2486b5e4aca9c16df2f540b4524761deb2f45b206e5dcbe9650915d7bd7a9559"
+    }
+  ]
+}

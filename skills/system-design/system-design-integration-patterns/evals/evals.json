@@ -34,32 +34,32 @@
     },
     {
       "id": 2,
-      "prompt": "Placing an order touches inventory, payments, shipping, and loyalty across four services. How do we keep it consistent without a distributed transaction?",
-      "expected_output": "Chooses a saga and recommends orchestration because orchestration puts the sequence in one coordinator at this step count; every saga step needs its compensation defined before implementation, and it applies no two-phase commit on the hot path.",
+      "prompt": "Placing an order touches inventory, payments, shipping, and loyalty across four services. Two of the four external effects cannot be reversed, one team already owns the order state machine and can see every step, and another team owns three of the services. How do we coordinate it without a distributed transaction?",
+      "expected_output": "Chooses saga coordination from visibility, ownership, coupling and recovery needs rather than a fixed step count, and explains why the owning state machine makes orchestration the fit here while a future split would change that answer. States which effects are reversible, requires compensation to be defined before it is implemented for the reversible ones, and handles irreversible or ambiguous effects with idempotent retry, reconciliation or forward recovery. Notes that compensation is another fallible effect and applies no two-phase commit on the hot path.",
       "assertions": [
         {
           "type": "contains_any",
           "value": [
-            "Saga with compensations",
-            "saga"
+            "visibility, ownership, coupling and recovery needs",
+            "rather than a fixed step count"
           ],
-          "description": "Selects the pattern for a cross-service transaction"
+          "description": "Selects coordination from constraints, not a step-count rule"
         },
         {
           "type": "contains_any",
           "value": [
-            "No choreography past 4 steps",
-            "orchestration puts the sequence in one coordinator"
+            "which effects are reversible",
+            "compensation to be defined before it is implemented"
           ],
-          "description": "Picks the coordination style by step count"
+          "description": "Bounds compensation to reversible effects and requires it up front"
         },
         {
           "type": "contains_any",
           "value": [
-            "Every saga step needs its compensation defined before implementation",
-            "No two-phase commit on the hot path"
+            "idempotent retry, reconciliation or forward recovery",
+            "irreversible or ambiguous effects"
           ],
-          "description": "Requires compensations and refuses 2PC"
+          "description": "Handles irreversible and ambiguous effects without pretending to compensate"
         }
       ]
     },
@@ -120,6 +120,37 @@
           "type": "not_contains",
           "value": "saga",
           "description": "Does not introduce cross-service coordination for a single-service CRUD flow"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "A processor may commit a charge before its reply reaches us. Our worker times out, the provider does not deduplicate our reference, and a settlement file arrives nightly. The local ledger update is atomic. What must the charge path guarantee, what may happen before the next attempt, and what must we say to finance?",
+      "expected_output": "Treats the timeout as an unknown outcome and queries or reconciles before retrying, never retrying blindly. Keeps one stable business-operation identity across retries and replays, deduplicates delivery on a source-qualified event identity, and states that broker delivery guarantees stop at the broker. Requires settlement evidence and a named repair path before any second external effect, and tells finance the outcome is unresolved instead of claiming exactly-once across systems.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": [
+            "unknown outcome",
+            "never retrying blindly"
+          ],
+          "description": "Names the timeout as an unknown outcome, not a failure"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "stable business-operation identity",
+            "source-qualified event identity"
+          ],
+          "description": "Separates operation identity from delivery identity"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "settlement evidence",
+            "named repair path"
+          ],
+          "description": "Requires evidence and an owner before a second external effect"
         }
       ]
     }

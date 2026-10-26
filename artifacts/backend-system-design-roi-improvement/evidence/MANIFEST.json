@@ -1,0 +1,409 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-10-26T17:59:01.476Z",
+  "initiative": "backend-system-design-roi-improvement",
+  "purpose": "T6 durable integration evidence; canonical source/eval files remain at their repository paths and are referenced by accepted hashes rather than duplicated.",
+  "evidence": [
+    {
+      "artifact": "reviews/T0-report.md",
+      "sha256": "a5145a15df83db5d10b1e6f09f30dc9c92e5f5b350ed6a9bb44dde3dff4f410a",
+      "source": ".agent/sdd/backend-system-design-roi-improvement/T0-report.md",
+      "source_sha256": "a5145a15df83db5d10b1e6f09f30dc9c92e5f5b350ed6a9bb44dde3dff4f410a",
+      "identical": true
+    },
+    {
+      "artifact": "reviews/T1-report.md",
+      "sha256": "8f1428a5d874453ca49b21f6f151ef2b2e1caec2e70bcf9296c6438085e8a379",
+      "source": ".agent/sdd/backend-system-design-roi-improvement/T1-report.md",
+      "source_sha256": "8f1428a5d874453ca49b21f6f151ef2b2e1caec2e70bcf9296c6438085e8a379",
+      "identical": true
+    },
+    {
+      "artifact": "reviews/T1-architecture-review.md",
+      "sha256": "e77083860f45a61fe93c9c445fd513ab70c195dd416e380d00bdf33a7c576d2e",
+      "source": ".agent/sdd/backend-system-design-roi-improvement/T1-architecture-review.md",
+      "source_sha256": "e77083860f45a61fe93c9c445fd513ab70c195dd416e380d00bdf33a7c576d2e",
+      "identical": true
+    },
+    {
+      "artifact": "reviews/T1-architecture-rereview.md",
+      "sha256": "9170b79a605ed8940fab317db5456f59aedb455aa922e9c58dd2de1f33c7a915",
+      "source": ".agent/sdd/backend-system-design-roi-improvement/T1-architecture-rereview.md",
+      "source_sha256": "9170b79a605ed8940fab317db5456f59aedb455aa922e9c58dd2de1f33c7a915",
+      "identical": true
+    },
+    {
+      "artifact": "reviews/T2-report.md",
+      "sha256": "f1b0986bb44dd9d3f296f8d6173eb3c8e68c948d1e5ccb8d6fafa99e1879ff23",
+      "source": ".agent/sdd/backend-system-design-roi-improvement/T2-report.md",
+      "source_sha256": "f1b0986bb44dd9d3f296f8d6173eb3c8e68c948d1e5ccb8d6fafa99e1879ff23",
+      "identical": true
+    },
+    {
+      "artifact": "reviews/T2-security-review.md",
+      "sha256": "97faa51fbb93cc3a1fa8c08e662ec148acc2cc0744c3b645608a21ef4430d33e",
+      "source": ".agent/sdd/backend-system-design-roi-improvement/T2-security-review.md",
+      "source_sha256": "97faa51fbb93cc3a1fa8c08e662ec148acc2cc0744c3b645608a21ef4430d33e",
+      "identical": true
+    },
+    {
+      "artifact": "reviews/T2-security-rereview.md",
+      "sha256": "6b7a5ea6b88cfb1852ee3f09302955551fee8542476adece88257fecc34a9533",
+      "source": ".agent/sdd/backend-system-design-roi-improvement/T2-security-rereview.md",
+      "source_sha256": "6b7a5ea6b88cfb1852ee3f09302955551fee8542476adece88257fecc34a9533",
+      "identical": true
+    },
+    {
+      "artifact": "reviews/T2-deepseek-rereview.md",
+      "sha256": "03743749c0c339ac03433aae20b5f7eebe6b4da56f4626eac779b96a965d68a9",
+      "source": ".agent/sdd/backend-system-design-roi-improvement/T2-deepseek-rereview.md",
+      "source_sha256": "03743749c0c339ac03433aae20b5f7eebe6b4da56f4626eac779b96a965d68a9",
+      "identical": true
+    },
+    {
+      "artifact": "reviews/T3-report.md",
+      "sha256": "b8d319dd165f42f27df3882052c3398d646ebdbbdf542b0d205d887ba75156ad",
+      "source": ".agent/sdd/backend-system-design-roi-improvement/T3-report.md",
+      "source_sha256": "b8d319dd165f42f27df3882052c3398d646ebdbbdf542b0d205d887ba75156ad",
+      "identical": true
+    },
+    {
+      "artifact": "reviews/T3-architecture-review.md",
+      "sha256": "1f05fd3c5d34b686c3348177c0cf8ca65e2e55cf880c9eceaead30f84f6d1de7",
+      "source": ".agent/sdd/backend-system-design-roi-improvement/T3-architecture-review.md",
+      "source_sha256": "1f05fd3c5d34b686c3348177c0cf8ca65e2e55cf880c9eceaead30f84f6d1de7",
+      "identical": true
+    },
+    {
+      "artifact": "reviews/T3-architecture-rereview.md",
+      "sha256": "71b04f94c2379796e7bd7a8ce0c73df81aaa3dbd54a95a8e7c4c5e333e82f97c",
+      "source": ".agent/sdd/backend-system-design-roi-improvement/T3-architecture-rereview.md",
+      "source_sha256": "71b04f94c2379796e7bd7a8ce0c73df81aaa3dbd54a95a8e7c4c5e333e82f97c",
+      "identical": true
+    },
+    {
+      "artifact": "reviews/T3-security-review.md",
+      "sha256": "eac12b0cc889d2203ba4914b64307bd810ebdcb9132225e11276cb985c88027c",
+      "source": ".agent/sdd/backend-system-design-roi-improvement/T3-security-review.md",
+      "source_sha256": "eac12b0cc889d2203ba4914b64307bd810ebdcb9132225e11276cb985c88027c",
+      "identical": true
+    },
+    {
+      "artifact": "reviews/T5-report.md",
+      "sha256": "5520b9b1bff5cd7b38f6aeb02bf0cc53c170bb44009713557b699511eb16c513",
+      "source": ".agent/sdd/backend-system-design-roi-improvement/T5-report.md",
+      "source_sha256": "5520b9b1bff5cd7b38f6aeb02bf0cc53c170bb44009713557b699511eb16c513",
+      "identical": true
+    },
+    {
+      "artifact": "reviews/T5-acceptance-review.md",
+      "sha256": "ca36ec82a937404804d289d6152c27f791d5d469adec9b4c38135029c018125d",
+      "source": ".agent/sdd/backend-system-design-roi-improvement/T5-acceptance-review.md",
+      "source_sha256": "ca36ec82a937404804d289d6152c27f791d5d469adec9b4c38135029c018125d",
+      "identical": true
+    },
+    {
+      "artifact": "reviews/T5-final-review.md",
+      "sha256": "dabd1db15bcfcb3843a956e9158136f59589e8c23345ac9e1cf2c57355447cba",
+      "source": ".agent/sdd/backend-system-design-roi-improvement/T5-final-review.md",
+      "source_sha256": "dabd1db15bcfcb3843a956e9158136f59589e8c23345ac9e1cf2c57355447cba",
+      "identical": true
+    },
+    {
+      "artifact": "reviews/T5-rubric-review.md",
+      "sha256": "6fecc9ef96387b36290178987843faa0ed11edad0e40109573f6c6ca84704575",
+      "source": ".agent/sdd/backend-system-design-roi-improvement/T5-rubric-review.md",
+      "source_sha256": "6fecc9ef96387b36290178987843faa0ed11edad0e40109573f6c6ca84704575",
+      "identical": true
+    },
+    {
+      "artifact": "reviews/T5-rubric-rereview.md",
+      "sha256": "aea62db04feb44392d4381b03d73b7bbdcfed10e6a5770f2a64c0eda6c45c3d2",
+      "source": ".agent/sdd/backend-system-design-roi-improvement/T5-rubric-rereview.md",
+      "source_sha256": "aea62db04feb44392d4381b03d73b7bbdcfed10e6a5770f2a64c0eda6c45c3d2",
+      "identical": true
+    },
+    {
+      "artifact": "reviews/T5-eval-review.md",
+      "sha256": "3bedf8906adc4983e92232af64b7ce28c32b3f3dcf3a0bd251a36610d2e29c27",
+      "source": ".agent/sdd/backend-system-design-roi-improvement/T5-eval-review.md",
+      "source_sha256": "3bedf8906adc4983e92232af64b7ce28c32b3f3dcf3a0bd251a36610d2e29c27",
+      "identical": true
+    },
+    {
+      "artifact": "reviews/first-review-evidence.md",
+      "sha256": "7f863d757949619be20b686c4c0580e77afa58e717850777592ade28a6a1a4dc",
+      "source": ".agent/sdd/backend-system-design-roi-improvement/T5/first-review-evidence.md",
+      "source_sha256": "7f863d757949619be20b686c4c0580e77afa58e717850777592ade28a6a1a4dc",
+      "identical": true
+    },
+    {
+      "artifact": "reviews/rubric-preparation.md",
+      "sha256": "22867903bed5d71c0424c223362da30d03763b3ec56e2412671b49771b161beb",
+      "source": ".agent/sdd/backend-system-design-roi-improvement/T5/rubric-preparation.md",
+      "source_sha256": "22867903bed5d71c0424c223362da30d03763b3ec56e2412671b49771b161beb",
+      "identical": true
+    },
+    {
+      "artifact": "reviews/lexical-candidate-matrix.ts",
+      "sha256": "a97fe9397f22b49ff4e38e31a8ded326d8dbfa2045279b55360e0abf77db3549",
+      "source": ".agent/sdd/backend-system-design-roi-improvement/T5/lexical-candidate-matrix.ts",
+      "source_sha256": "a97fe9397f22b49ff4e38e31a8ded326d8dbfa2045279b55360e0abf77db3549",
+      "identical": true
+    },
+    {
+      "artifact": "reviews/lexical-candidate-matrix.json",
+      "sha256": "bb512b3a7cd941aff3f848408eae2242e8a4eafb9d4769a6ca2216e11f16a63d",
+      "source": ".agent/sdd/backend-system-design-roi-improvement/T5/lexical-candidate-matrix.json",
+      "source_sha256": "bb512b3a7cd941aff3f848408eae2242e8a4eafb9d4769a6ca2216e11f16a63d",
+      "identical": true
+    },
+    {
+      "artifact": "reviews/accepted-source-freeze.json",
+      "sha256": "3b1ab8f9446783770bb10c091ed7682735679090c168bcc81442fc3ea13f55a8",
+      "source": ".agent/sdd/backend-system-design-roi-improvement/accepted-source-freeze.json",
+      "source_sha256": "3b1ab8f9446783770bb10c091ed7682735679090c168bcc81442fc3ea13f55a8",
+      "identical": true
+    },
+    {
+      "artifact": "reviews/source-receipt-reconciliation.md",
+      "sha256": "2e971998856ec9ee212dd1c8b63bfb1df1189749a07d6dd77fec1f8a3cd5510b",
+      "source": ".agent/sdd/backend-system-design-roi-improvement/source-receipt-reconciliation.md",
+      "source_sha256": "2e971998856ec9ee212dd1c8b63bfb1df1189749a07d6dd77fec1f8a3cd5510b",
+      "identical": true
+    },
+    {
+      "artifact": "reviews/T6-preparation.json",
+      "sha256": "645252627d6ad206fe91bdb11c4eae0bc7a7cdbc2547709f69cf112f5f6e1dc8",
+      "source": ".agent/sdd/backend-system-design-roi-improvement/T6-preparation.json",
+      "source_sha256": "645252627d6ad206fe91bdb11c4eae0bc7a7cdbc2547709f69cf112f5f6e1dc8",
+      "identical": true
+    },
+    {
+      "artifact": "reviews/baseline-verification.json",
+      "sha256": "d23f20f64241d61ef66516fb0a5b9c1e21e72d3879ac70cfbe3ab547db15cf85",
+      "source": ".agent/sdd/backend-system-design-roi-improvement/baseline-verification.json",
+      "source_sha256": "d23f20f64241d61ef66516fb0a5b9c1e21e72d3879ac70cfbe3ab547db15cf85",
+      "identical": true
+    },
+    {
+      "artifact": "receipts/AGENTS_LEARNING.md",
+      "sha256": "58a3257214780abdca84a4540d17536a5c729a18dfee5f2ebd1bc80a80d8eb08",
+      "source": "AGENTS_LEARNING.md",
+      "source_sha256": "58a3257214780abdca84a4540d17536a5c729a18dfee5f2ebd1bc80a80d8eb08",
+      "identical": true
+    },
+    {
+      "artifact": "receipts/generator-indices.json",
+      "sha256": "70c5d0273e40dd5aa716b4bacef7b6b40ea203a69f8ee43cec7b9978929eb5bb",
+      "source": "/Users/nguyenhuyhoang/.ags-evidence/backend-system-design-roi-improvement/t6-generation-20261026T174353Z/generate-indices.json",
+      "source_sha256": "70c5d0273e40dd5aa716b4bacef7b6b40ea203a69f8ee43cec7b9978929eb5bb",
+      "identical": true
+    },
+    {
+      "artifact": "receipts/token-calculator.json",
+      "sha256": "78bccab1559b834ed41cb5756dc78d991aec13b0982db70a0aa38e8fc30416e7",
+      "source": "/Users/nguyenhuyhoang/.ags-evidence/backend-system-design-roi-improvement/t6-generation-20261026T174353Z/calculate-tokens.json",
+      "source_sha256": "78bccab1559b834ed41cb5756dc78d991aec13b0982db70a0aa38e8fc30416e7",
+      "identical": true
+    },
+    {
+      "artifact": "receipts/capabilities-generator.json",
+      "sha256": "38a06490bab01f72685bab1f9f70c1fbbed3f9592c358c584f4ef317243af877",
+      "source": "/Users/nguyenhuyhoang/.ags-evidence/backend-system-design-roi-improvement/t6-generation-20261026T174353Z/generate-capabilities-doc.json",
+      "source_sha256": "38a06490bab01f72685bab1f9f70c1fbbed3f9592c358c584f4ef317243af877",
+      "identical": true
+    },
+    {
+      "artifact": "receipts/token-delta.json",
+      "sha256": "8d2a085c6963bd407adea9204dee12220743f4ee9ce9e5650d58205af4cd9b7e",
+      "source": "/Users/nguyenhuyhoang/.ags-evidence/backend-system-design-roi-improvement/t6-generation-20261026T174353Z/token-delta.json",
+      "source_sha256": "8d2a085c6963bd407adea9204dee12220743f4ee9ce9e5650d58205af4cd9b7e",
+      "identical": true
+    },
+    {
+      "artifact": "receipts/preservation.json",
+      "sha256": "2cf2654168b1ba3cb0f1e3865d932d8aeab3fda38dc800ae102ebce32ebe2416",
+      "source": "/Users/nguyenhuyhoang/.ags-evidence/backend-system-design-roi-improvement/t6-generation-20261026T174353Z/preservation.json",
+      "source_sha256": "2cf2654168b1ba3cb0f1e3865d932d8aeab3fda38dc800ae102ebce32ebe2416",
+      "identical": true
+    },
+    {
+      "artifact": "receipts/mirror-parity.json",
+      "sha256": "10b8ea27b3c46c27cf6f8408752dac038fce649b33c0ef4ef2f15ba79ee13195",
+      "source": "/Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/creepy-gorilla/artifacts/backend-system-design-roi-improvement/evidence/receipts/mirror-parity.json",
+      "source_sha256": "10b8ea27b3c46c27cf6f8408752dac038fce649b33c0ef4ef2f15ba79ee13195",
+      "identical": true
+    },
+    {
+      "artifact": "receipts/consumer-smoke.json",
+      "sha256": "1fcaf83a900808c8224aed6d03c47d65be854e74100c6f4472dbbb14b337d05d",
+      "source": "/Users/nguyenhuyhoang/.ags-evidence/backend-system-design-roi-improvement/t6-generation-20261026T174353Z/consumer-smoke.json",
+      "source_sha256": "1fcaf83a900808c8224aed6d03c47d65be854e74100c6f4472dbbb14b337d05d",
+      "identical": true
+    },
+    {
+      "artifact": "receipts/preexisting-eval-audit-snapshot.json",
+      "sha256": "004fcca496af44472a64aa4def5595c20c46bb691c332ed95f5ad9ecab9746f5",
+      "source": "benchmarks/evals/eval-audit.json",
+      "source_sha256": "004fcca496af44472a64aa4def5595c20c46bb691c332ed95f5ad9ecab9746f5",
+      "identical": true
+    },
+    {
+      "artifact": "receipts/preflight-report.json",
+      "sha256": "1e87b8321ab56e1262a33500ea9a9f09bafbdfaf749474e3d8f77fb0951a06b6",
+      "source": "/private/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-roi-t6-RkWXR3/candidate/benchmarks/evals/eval-preflight.json",
+      "source_sha256": "1e87b8321ab56e1262a33500ea9a9f09bafbdfaf749474e3d8f77fb0951a06b6",
+      "identical": true
+    },
+    {
+      "artifact": "receipts/checks.json",
+      "sha256": "5f5b106f682164341b88e1969afc17c5ae5294f499add364250e6a2c7e15c49d",
+      "source": "checks-initial.json",
+      "source_sha256": "5f5b106f682164341b88e1969afc17c5ae5294f499add364250e6a2c7e15c49d",
+      "identical": true
+    },
+    {
+      "artifact": "T6-report.md",
+      "sha256": "e23c81e4c6f2a2df73291f8dd8c3a30cb37ac87258409a3e82b065e35914419f",
+      "source": "T6-report.md",
+      "source_sha256": "e23c81e4c6f2a2df73291f8dd8c3a30cb37ac87258409a3e82b065e35914419f",
+      "identical": true
+    },
+    {
+      "artifact": "checks.json",
+      "sha256": "4049ac8cd08ed87e984d46eedf654f3df48f08137f6f1dcc0dce41d5cbc9fd7c",
+      "source": "checks.json",
+      "source_sha256": "4049ac8cd08ed87e984d46eedf654f3df48f08137f6f1dcc0dce41d5cbc9fd7c",
+      "identical": true
+    },
+    {
+      "artifact": "receipts/copyback-report.json",
+      "sha256": "b5d1dd348a7ef71cb24edd9bd1789c848b84ad19835075a26fc714877277f589",
+      "source": "receipts/copyback-report.json",
+      "source_sha256": "b5d1dd348a7ef71cb24edd9bd1789c848b84ad19835075a26fc714877277f589",
+      "identical": true
+    },
+    {
+      "artifact": "receipts/index-repair-generator.json",
+      "sha256": "cd1aa7970e1873dfc3b52481dc54143022e147e09e385b1316edb52aae5bca83",
+      "source": "receipts/index-repair-generator.json",
+      "source_sha256": "cd1aa7970e1873dfc3b52481dc54143022e147e09e385b1316edb52aae5bca83",
+      "identical": true
+    },
+    {
+      "artifact": "receipts/index-repair-copyback.json",
+      "sha256": "b237c7c6d1a6aa94040b2295184f09dcb09531c691012c14672880291bd4ab93",
+      "source": "receipts/index-repair-copyback.json",
+      "source_sha256": "b237c7c6d1a6aa94040b2295184f09dcb09531c691012c14672880291bd4ab93",
+      "identical": true
+    },
+    {
+      "artifact": "receipts/consumer-route-smoke.json",
+      "sha256": "34b483eb4d967405d816a0604f78c8b7a4a0c39656fc77ebbd21b041a7b7290c",
+      "source": "receipts/consumer-route-smoke.json",
+      "source_sha256": "34b483eb4d967405d816a0604f78c8b7a4a0c39656fc77ebbd21b041a7b7290c",
+      "identical": true
+    },
+    {
+      "artifact": "receipts/consumer-route-smoke-attempt-1.json",
+      "sha256": "8cb99bd16d44e3fff38cf6df32b7d528bf5e4336e04e7a00105b754aad263a7e",
+      "source": "receipts/consumer-route-smoke-attempt-1.json",
+      "source_sha256": "8cb99bd16d44e3fff38cf6df32b7d528bf5e4336e04e7a00105b754aad263a7e",
+      "identical": true
+    },
+    {
+      "artifact": "receipts/audit-skills-output.json",
+      "sha256": "3c04eff18993f4f9f74cfc33e38b23f14b6f5d01e1080d9cf3ef6d96a4486ded",
+      "source": "receipts/audit-skills-output.json",
+      "source_sha256": "3c04eff18993f4f9f74cfc33e38b23f14b6f5d01e1080d9cf3ef6d96a4486ded",
+      "identical": true
+    },
+    {
+      "artifact": "receipts/preexisting-eval-audit-snapshot.provenance.json",
+      "sha256": "7d80423eb773661bb0bfdc5532c8d6b8ba1feb0549c1a90afa0757255f8bb58d",
+      "source": "receipts/preexisting-eval-audit-snapshot.provenance.json",
+      "source_sha256": "7d80423eb773661bb0bfdc5532c8d6b8ba1feb0549c1a90afa0757255f8bb58d",
+      "identical": true
+    },
+    {
+      "artifact": "receipts/final-review-reconciliation.md",
+      "sha256": "9191a4b5e87843d8ef249886e474aa35e5209fb1744596216aba1c379f3a8cca",
+      "source": "receipts/final-review-reconciliation.md",
+      "source_sha256": "9191a4b5e87843d8ef249886e474aa35e5209fb1744596216aba1c379f3a8cca",
+      "identical": true
+    },
+    {
+      "artifact": "receipts/mirror-parity-initial.json",
+      "sha256": "9dd61b6941a840761040e0d261a7e426e33be961478d54c74818427714343564",
+      "source": "receipts/mirror-parity-initial.json",
+      "source_sha256": "9dd61b6941a840761040e0d261a7e426e33be961478d54c74818427714343564",
+      "identical": true
+    },
+    {
+      "artifact": "receipts/copyback-report-initial.json",
+      "sha256": "622dc795e02e0e21634ac9c7e12ff1fe2043d0b781d05e78d354581b21eb4112",
+      "source": "receipts/copyback-report-initial.json",
+      "source_sha256": "622dc795e02e0e21634ac9c7e12ff1fe2043d0b781d05e78d354581b21eb4112",
+      "identical": true
+    },
+    {
+      "artifact": "T6-report-initial.md",
+      "sha256": "6162b921ded8fb61bbd2352e7f54f4ecd9dfbe2761bd29e9b82d1a28e680b7ae",
+      "source": "T6-report-initial.md",
+      "source_sha256": "6162b921ded8fb61bbd2352e7f54f4ecd9dfbe2761bd29e9b82d1a28e680b7ae",
+      "identical": true
+    },
+    {
+      "artifact": "checks-initial.json",
+      "sha256": "5f5b106f682164341b88e1969afc17c5ae5294f499add364250e6a2c7e15c49d",
+      "source": "checks-initial.json",
+      "source_sha256": "5f5b106f682164341b88e1969afc17c5ae5294f499add364250e6a2c7e15c49d",
+      "identical": true
+    },
+    {
+      "artifact": "receipts/consumer-route-smoke-rerun.json",
+      "sha256": "4e53b7628c0e50bcffb3eae7d51f4bc6ed2cf8ed23bd7e4659cfa4e2987d80c1",
+      "source": "receipts/consumer-route-smoke-rerun.json",
+      "source_sha256": "4e53b7628c0e50bcffb3eae7d51f4bc6ed2cf8ed23bd7e4659cfa4e2987d80c1",
+      "identical": true
+    },
+    {
+      "artifact": "reviews/final-integration-review-rereview.md",
+      "sha256": "965554fd6b1d167a24a444bf1cb156bea57c340d2b5b2a989950c6c59e619b87",
+      "source": "reviews/final-integration-review-rereview.md",
+      "source_sha256": "965554fd6b1d167a24a444bf1cb156bea57c340d2b5b2a989950c6c59e619b87",
+      "identical": true
+    },
+    {
+      "artifact": "receipts/consumer-route-smoke-rerun-attempt-1.json",
+      "sha256": "c41db9ecd6357b9e57a5ab2d2f1443d8e3a48a5cf1b325eec50362f2c4c40750",
+      "source": "receipts/consumer-route-smoke-rerun-attempt-1.json",
+      "source_sha256": "c41db9ecd6357b9e57a5ab2d2f1443d8e3a48a5cf1b325eec50362f2c4c40750",
+      "identical": true
+    }
+  ],
+  "external_archives": [
+    {
+      "path": "/Users/nguyenhuyhoang/.ags-evidence/backend-system-design-roi-improvement/t6-frozen-inputs-20261026T174353Z.tar.gz",
+      "sha256": "26f2bd5d9cbe20b41064d5d71a828421797e98b573ff824777d862ebe0df5168",
+      "bytes": 636416,
+      "manifest": "/Users/nguyenhuyhoang/.ags-evidence/backend-system-design-roi-improvement/t6-frozen-inputs-20261026T174353Z.manifest.json",
+      "note": "Fresh pre-generator review/source/eval receipt archive; excludes the full baseline benchmark corpus."
+    },
+    {
+      "path": "/Users/nguyenhuyhoang/.ags-evidence/backend-system-design-roi-improvement/sdd-20261026T163623Z.tar.gz",
+      "sha256": "100d946a753f9b8f973d8a3ecefa501c53c793872f7e1bf868a03fcc4f86be86",
+      "entries": 7150,
+      "note": "Full original T0 baseline snapshot; retained externally and not duplicated in this evidence bundle."
+    }
+  ],
+  "canonical_input_references": {
+    "accepted_source_freeze": ".agent/sdd/backend-system-design-roi-improvement/accepted-source-freeze.json",
+    "t5_report": ".agent/sdd/backend-system-design-roi-improvement/T5-report.md",
+    "t5_acceptance_review": ".agent/sdd/backend-system-design-roi-improvement/T5-acceptance-review.md",
+    "historical_baseline": ".agent/sdd/backend-system-design-roi-improvement/baseline-manifest.json",
+    "original_full_benchmark_snapshot": "/Users/nguyenhuyhoang/.ags-evidence/backend-system-design-roi-improvement/sdd-20261026T163623Z.tar.gz (sha256 100d946a753f9b8f973d8a3ecefa501c53c793872f7e1bf868a03fcc4f86be86; 7,150 entries)",
+    "t6_final_review_reconciliation": "receipts/final-review-reconciliation.md"
+  }
+}

@@ -1,0 +1,259 @@
+{
+  "scope": "real CLI registry-to-consumer distribution and lock verification only",
+  "candidate": {
+    "base_commit": "92d06c420f6a41f08e11579423e4e3eacdb7880d",
+    "snapshot_sha256": "bdfaa34569866c0fcc9a58098272b883f49b50bc4570007c1738715fcd7c657a",
+    "snapshot_scope": "skills/** and .agents/workflows/*.md frozen by registry-fixture.mjs",
+    "dirty_candidate_snapshot": true,
+    "snapshot_not_head_commit": true
+  },
+  "selected_skills": [
+    "system-design-building-blocks",
+    "system-design-resilience-ops",
+    "system-design-data-architecture",
+    "system-design-integration-patterns"
+  ],
+  "commands": [
+    {
+      "args": [
+        "sync"
+      ],
+      "code": 0,
+      "signal": null,
+      "timedOut": false,
+      "stdout": "📌 Pinned workflows-v1.1.7, specialists-v1.5.0 in .skillsrc\n\n🚀 New skill versions detected:\n  - system-design: undefined -> system-design-v1.2.4\nℹ️  Non-interactive environment detected. Skipping version updates. Use --yes to auto-confirm.\nℹ️  Skipping version updates, staying on pinned refs.\n🚀 Syncing skills from https://github.com/HoangNguyen0403/agent-skills-standard...\n  - Discovering system-design (main)...\n    + Fetched system-design/system-design-building-blocks (2 files)\n    + Fetched system-design/system-design-data-architecture (6 files)\n    + Fetched system-design/system-design-integration-patterns (3 files)\n    + Fetched system-design/system-design-resilience-ops (2 files)\n  - Updated .agents/skills/ (Antigravity)\n  ✅ Generated _INDEX.md for 1 categories.\n  ✅ AGENTS.md router index updated.\n📦 Install: 15 added, 0 updated, 0 unchanged, 0 kept (your edits), 0 pruned\n  ℹ️  Antigravity: specialists, hooks not supported\n✅ All skills synced successfully!\n",
+      "stderr": "◇ injected env (0) from .env\nfatal: not a git repository (or any of the parent directories): .git\n"
+    },
+    {
+      "args": [
+        "verify",
+        "--agent",
+        "antigravity"
+      ],
+      "code": 0,
+      "signal": null,
+      "timedOut": false,
+      "stdout": "Checked 15 tracked file(s)\n✅ All tracked files match the manifest.\n",
+      "stderr": "◇ injected env (0) from .env\n"
+    }
+  ],
+  "installed_file_count": 13,
+  "fixture_request_count": 43,
+  "fixture_requests": [
+    {
+      "method": "GET",
+      "pathname": "/repos/HoangNguyen0403/agent-skills-standard",
+      "originalHost": "api.github.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/HoangNguyen0403/agent-skills-standard/main/skills/metadata.json",
+      "originalHost": "raw.githubusercontent.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/repos/HoangNguyen0403/agent-skills-standard/commits/workflows-v1.1.7",
+      "originalHost": "api.github.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/repos/HoangNguyen0403/agent-skills-standard/commits/specialists-v1.5.0",
+      "originalHost": "api.github.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/repos/HoangNguyen0403/agent-skills-standard/commits/main",
+      "originalHost": "api.github.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/HoangNguyen0403/agent-skills-standard/releases/download/workflows-v1.1.7/MANIFEST.json",
+      "originalHost": "github.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/HoangNguyen0403/agent-skills-standard/releases/download/specialists-v1.5.0/MANIFEST.json",
+      "originalHost": "github.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/repos/HoangNguyen0403/agent-skills-standard/git/trees/main",
+      "originalHost": "api.github.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/HoangNguyen0403/agent-skills-standard/main/skills/system-design/system-design-building-blocks/references/building-blocks.md",
+      "originalHost": "raw.githubusercontent.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/HoangNguyen0403/agent-skills-standard/main/skills/system-design/system-design-building-blocks/SKILL.md",
+      "originalHost": "raw.githubusercontent.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/HoangNguyen0403/agent-skills-standard/main/skills/system-design/system-design-data-architecture/references/database-scaling.md",
+      "originalHost": "raw.githubusercontent.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/HoangNguyen0403/agent-skills-standard/main/skills/system-design/system-design-data-architecture/references/dfd-review.md",
+      "originalHost": "raw.githubusercontent.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/HoangNguyen0403/agent-skills-standard/main/skills/system-design/system-design-data-architecture/references/flow-contracts.md",
+      "originalHost": "raw.githubusercontent.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/HoangNguyen0403/agent-skills-standard/main/skills/system-design/system-design-data-architecture/references/tenant-safe-retrieval.md",
+      "originalHost": "raw.githubusercontent.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/HoangNguyen0403/agent-skills-standard/main/skills/system-design/system-design-data-architecture/references/worked-flows.md",
+      "originalHost": "raw.githubusercontent.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/HoangNguyen0403/agent-skills-standard/main/skills/system-design/system-design-data-architecture/SKILL.md",
+      "originalHost": "raw.githubusercontent.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/HoangNguyen0403/agent-skills-standard/main/skills/system-design/system-design-integration-patterns/references/durable-execution.md",
+      "originalHost": "raw.githubusercontent.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/HoangNguyen0403/agent-skills-standard/main/skills/system-design/system-design-integration-patterns/references/integration-patterns.md",
+      "originalHost": "raw.githubusercontent.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/HoangNguyen0403/agent-skills-standard/main/skills/system-design/system-design-integration-patterns/SKILL.md",
+      "originalHost": "raw.githubusercontent.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/HoangNguyen0403/agent-skills-standard/main/skills/system-design/system-design-resilience-ops/references/reliability-operations.md",
+      "originalHost": "raw.githubusercontent.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/HoangNguyen0403/agent-skills-standard/main/skills/system-design/system-design-resilience-ops/SKILL.md",
+      "originalHost": "raw.githubusercontent.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/repos/HoangNguyen0403/agent-skills-standard/git/trees/specialists-v1.5.0",
+      "originalHost": "api.github.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/HoangNguyen0403/agent-skills-standard/specialists-v1.5.0/skills/specialists/specialist-ac-verifier/SKILL.md",
+      "originalHost": "raw.githubusercontent.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/HoangNguyen0403/agent-skills-standard/specialists-v1.5.0/skills/specialists/specialist-architecture-guard/SKILL.md",
+      "originalHost": "raw.githubusercontent.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/HoangNguyen0403/agent-skills-standard/specialists-v1.5.0/skills/specialists/specialist-aspm-correlator/SKILL.md",
+      "originalHost": "raw.githubusercontent.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/HoangNguyen0403/agent-skills-standard/specialists-v1.5.0/skills/specialists/specialist-codebase-scout/SKILL.md",
+      "originalHost": "raw.githubusercontent.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/HoangNguyen0403/agent-skills-standard/specialists-v1.5.0/skills/specialists/specialist-confluence-searcher/SKILL.md",
+      "originalHost": "raw.githubusercontent.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/HoangNguyen0403/agent-skills-standard/specialists-v1.5.0/skills/specialists/specialist-integration-test-generator/SKILL.md",
+      "originalHost": "raw.githubusercontent.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/HoangNguyen0403/agent-skills-standard/specialists-v1.5.0/skills/specialists/specialist-jira-analyst/SKILL.md",
+      "originalHost": "raw.githubusercontent.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/HoangNguyen0403/agent-skills-standard/specialists-v1.5.0/skills/specialists/specialist-logic-hacker/SKILL.md",
+      "originalHost": "raw.githubusercontent.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/HoangNguyen0403/agent-skills-standard/specialists-v1.5.0/skills/specialists/specialist-mobile-reverser/SKILL.md",
+      "originalHost": "raw.githubusercontent.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/HoangNguyen0403/agent-skills-standard/specialists-v1.5.0/skills/specialists/specialist-pr-commenter-batch/SKILL.md",
+      "originalHost": "raw.githubusercontent.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/HoangNguyen0403/agent-skills-standard/specialists-v1.5.0/skills/specialists/specialist-pr-reviewer/SKILL.md",
+      "originalHost": "raw.githubusercontent.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/HoangNguyen0403/agent-skills-standard/specialists-v1.5.0/skills/specialists/specialist-security-reviewer/SKILL.md",
+      "originalHost": "raw.githubusercontent.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/HoangNguyen0403/agent-skills-standard/specialists-v1.5.0/skills/specialists/specialist-solution-diagrammer/SKILL.md",
+      "originalHost": "raw.githubusercontent.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/HoangNguyen0403/agent-skills-standard/specialists-v1.5.0/skills/specialists/specialist-system-architect/SKILL.md",
+      "originalHost": "raw.githubusercontent.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/HoangNguyen0403/agent-skills-standard/specialists-v1.5.0/skills/specialists/specialist-tc-creator/SKILL.md",
+      "originalHost": "raw.githubusercontent.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/HoangNguyen0403/agent-skills-standard/specialists-v1.5.0/skills/specialists/specialist-tdd-implementer/SKILL.md",
+      "originalHost": "raw.githubusercontent.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/HoangNguyen0403/agent-skills-standard/specialists-v1.5.0/skills/specialists/specialist-test-gap-finder/SKILL.md",
+      "originalHost": "raw.githubusercontent.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/HoangNguyen0403/agent-skills-standard/specialists-v1.5.0/skills/specialists/specialist-test-healer/SKILL.md",
+      "originalHost": "raw.githubusercontent.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/HoangNguyen0403/agent-skills-standard/specialists-v1.5.0/skills/specialists/specialist-test-planner/SKILL.md",
+      "originalHost": "raw.githubusercontent.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/HoangNguyen0403/agent-skills-standard/specialists-v1.5.0/skills/specialists/specialist-testid-inserter/SKILL.md",
+      "originalHost": "raw.githubusercontent.com"
+    },
+    {
+      "method": "GET",
+      "pathname": "/HoangNguyen0403/agent-skills-standard/specialists-v1.5.0/skills/specialists/specialist-zephyr-scanner/SKILL.md",
+      "originalHost": "raw.githubusercontent.com"
+    }
+  ]
+}
