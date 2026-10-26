@@ -1,0 +1,181 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DemoVideoStoryboard",
+  "description": "Closed schema for demo video storyboards, production contracts, rights assertions, and cost governance. Enforces closed-schema validation across all levels.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "synthetic",
+    "initiative",
+    "campaign_id",
+    "title",
+    "context_revision",
+    "rights",
+    "cost",
+    "scenes"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "enum": [1]
+    },
+    "synthetic": {
+      "type": "boolean"
+    },
+    "initiative": {
+      "type": "string",
+      "minLength": 1
+    },
+    "campaign_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "context_revision": {
+      "type": "string",
+      "minLength": 1
+    },
+    "media_specs": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "resolution": {
+          "type": "string",
+          "enum": ["1920x1080", "1280x720"]
+        },
+        "framerate": {
+          "type": "integer",
+          "enum": [24, 30, 60]
+        },
+        "audio_sample_rate_hz": {
+          "type": "integer",
+          "enum": [44100, 48000]
+        },
+        "aspect_ratio": {
+          "type": "string",
+          "enum": ["16:9"]
+        }
+      }
+    },
+    "rights": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["license", "audio_provenance", "assets_cleared", "cleared_by"],
+      "properties": {
+        "license": {
+          "type": "string",
+          "minLength": 1
+        },
+        "audio_provenance": {
+          "type": "string",
+          "minLength": 1
+        },
+        "assets_cleared": {
+          "type": "boolean"
+        },
+        "cleared_by": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "cost": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "estimated_usd", "spending_cap_usd", "authorization"],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["zero_cost_local", "paid_generative"]
+        },
+        "estimated_usd": {
+          "type": "number",
+          "minimum": 0
+        },
+        "spending_cap_usd": {
+          "type": "number",
+          "minimum": 0
+        },
+        "authorization": {
+          "type": ["string", "null"]
+        }
+      }
+    },
+    "scenes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "duration_seconds", "actions", "captions"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^scene-[0-9]{2,}$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "duration_seconds": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "actions": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["type", "content"],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": ["terminal_command", "editor_action", "ui_interaction", "narration"]
+                },
+                "content": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "claim_ref": {
+                  "type": ["string", "null"]
+                },
+                "expected_output": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "captions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["start_seconds", "end_seconds", "text"],
+              "properties": {
+                "start_seconds": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Caption start offset in seconds relative to the beginning of this scene, not the full video timeline."
+                },
+                "end_seconds": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "description": "Caption end offset in seconds relative to the beginning of this scene; must be within the scene duration and must not precede the previous caption's end within the same scene."
+                },
+                "text": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

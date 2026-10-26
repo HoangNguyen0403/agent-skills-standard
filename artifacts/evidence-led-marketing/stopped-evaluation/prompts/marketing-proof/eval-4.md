@@ -1,0 +1,1 @@
+A developer survey estimated that our tool saves teams 10 hours a month. Can we write marketing copy stating 'Guaranteed to save your company $1,500 every month in software development costs'?

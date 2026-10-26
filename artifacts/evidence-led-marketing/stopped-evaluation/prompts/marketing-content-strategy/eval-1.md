@@ -1,0 +1,1 @@
+We have an approved technical marketing strategy and proof register for our open-source developer tool. We want to propose three content assets for our next campaign sprint. How must each proposed asset be defined?

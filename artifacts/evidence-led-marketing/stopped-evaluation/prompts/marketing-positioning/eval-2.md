@@ -1,0 +1,1 @@
+A developer asks how we differentiate from other CLI proxies. Can we claim our tool is 'the fastest, most universal token optimizer for all coding agents'?

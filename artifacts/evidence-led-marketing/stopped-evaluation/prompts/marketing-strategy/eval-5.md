@@ -1,0 +1,1 @@
+We are preparing a campaign strategy, but our evidence ledger currently has strategy_authority: null with a recorded strategy_gap. Can we proceed?

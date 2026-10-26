@@ -1,0 +1,134 @@
+# Walkthrough: Evidence-led marketing local verification
+
+## Scope and verdict
+
+`verify-work` walkthrough of the delivered **local** evidence-led marketing slice, written 2026-10-25 from the accepted evidence paths below. It records requirements status, accepted and rejected outputs, and open gates. It is **not** an overall initiative PASS, release readiness, pilot authorization, or evidence of causal lift, ROI or human acceptance.
+
+Authority used (paths, read as-is; no new test, build, browser, provider or host action was run for this walkthrough):
+
+- [`artifacts/evidence-led-marketing/evidence/MANIFEST.json`](../../artifacts/evidence-led-marketing/evidence/MANIFEST.json) — integrity manifest for 9 preserved evidence artifacts
+- [`artifacts/evidence-led-marketing/evidence/task-09-parent-acceptance.md`](../../artifacts/evidence-led-marketing/evidence/task-09-parent-acceptance.md) — T09 media acceptance
+- [`artifacts/evidence-led-marketing/evidence/task-10-parent-acceptance.md`](../../artifacts/evidence-led-marketing/evidence/task-10-parent-acceptance.md) — T10 final local surface acceptance
+- [`artifacts/evidence-led-marketing/evidence/task-10-report.md`](../../artifacts/evidence-led-marketing/evidence/task-10-report.md) — T10 worker commands/results and limits
+- [`artifacts/evidence-led-marketing/evidence/task-12-security-slice.md`](../../artifacts/evidence-led-marketing/evidence/task-12-security-slice.md) — bounded T12 security acceptance
+- [`artifacts/evidence-led-marketing/evidence/consumer-final-record.json`](../../artifacts/evidence-led-marketing/evidence/consumer-final-record.json) — five installed-consumer scenarios (sanitized projection)
+- [`artifacts/evidence-led-marketing/evidence/evaluation-stop-decision.md`](../../artifacts/evidence-led-marketing/evidence/evaluation-stop-decision.md) — explicit user stop decision
+- [`artifacts/evidence-led-marketing/evidence/evaluation-current-state.md`](../../artifacts/evidence-led-marketing/evidence/evaluation-current-state.md) — 2/246 pair evidence
+- [`artifacts/evidence-led-marketing/evidence/covering-checkpoint.md`](../../artifacts/evidence-led-marketing/evidence/covering-checkpoint.md) — covering lanes and retained failures
+- [`artifacts/evidence-led-marketing/evidence/task-10-cost-audit.md`](../../artifacts/evidence-led-marketing/evidence/task-10-cost-audit.md) — cost unavailability
+- [`artifacts/evidence-led-marketing/stopped-evaluation/archive-manifest.json`](../../artifacts/evidence-led-marketing/stopped-evaluation/archive-manifest.json) — 176-artifact integrity ledger for stopped fresh public evaluation archive (with original run manifest at `stopped-evaluation/manifest.json`)
+- Note on host boundary investigation: detailed internal host inspection records (`host-access-source-map.md`) are retained privately in `.agent/sdd/` and summarized in `evaluation-stop-decision.md` / `evaluation-current-state.md`; they are not exported as public evidence.
+Status legend: **PASS (local)** = exercised in the accepted local scope; **PARTIAL** = definition/rubric or narrowed slice accepted without the end-to-end behavior; **DEFERRED** = user chose not to do it; **NOT VERIFIED** = attempted or required evidence is missing.
+
+## Requirement status
+
+| REQ | Capability | Local status | Evidence and qualification |
+| --- | --- | --- | --- |
+| [`REQ-001`](../prd/prd-evidence-led-marketing.md) | Sourced positioning/proof | PARTIAL | T03 definition packages accepted by independent review; no live model efficacy or real audience study. |
+| [`REQ-002`](../prd/prd-evidence-led-marketing.md) | Truthful landing/demo/community campaign | PASS (local) for assets and landing; publication not authorized | T09 accepted assets; T10 accepted local surface; drafts remain `prepared`. |
+| [`REQ-003`](../prd/prd-evidence-led-marketing.md) | Measure outcomes, cost and decisions | PASS (local, synthetic) | T02 offline scorecard accepted (23/23 plus actual CLI smoke, executable `4d1269c8…6412b`); real cohort/consent/private storage not exercised. |
+| [`REQ-004`](../prd/prd-evidence-led-marketing.md) | Evaluate, integrate and govern skills | PARTIAL | Local consumer integration PASS; independent evaluation NOT VERIFIED (2/246, comparability unverified). |
+| [`REQ-005`](../prd/prd-evidence-led-marketing.md) | `marketing-audience-research` | PARTIAL | Definition and pressure cases accepted; two model answers are bundled, but pair comparability and efficacy remain unverified. |
+| [`REQ-006`](../prd/prd-evidence-led-marketing.md) | `marketing-positioning` | PARTIAL | Definition accepted; no live behavior run. |
+| [`REQ-007`](../prd/prd-evidence-led-marketing.md) | `marketing-proof` | PARTIAL | Definition accepted; NOT READY handling verified at rubric level only. |
+| [`REQ-008`](../prd/prd-evidence-led-marketing.md) | `marketing-strategy` | PARTIAL | Definition accepted; no live behavior run. |
+| [`REQ-009`](../prd/prd-evidence-led-marketing.md) | `marketing-content-strategy` | PARTIAL | Definition accepted; no live behavior run. |
+| [`REQ-010`](../prd/prd-evidence-led-marketing.md) | `marketing-copywriting` | PARTIAL | Corrected scorer semantics accepted (qualified percentage passes; missing/unencoded/universal cases fail); no live model run. |
+| [`REQ-011`](../prd/prd-evidence-led-marketing.md) | `marketing-landing` | PARTIAL | Landing protocol and pressure cases accepted; actual page recommendations are hypotheses, not conversion evidence. |
+| [`REQ-012`](../prd/prd-evidence-led-marketing.md) | `marketing-search-discovery` | PARTIAL | Localhost `UNAVAILABLE` refusal verified; strict lexical alignment 78% (7/9) failure retained, not gamed. |
+| [`REQ-013`](../prd/prd-evidence-led-marketing.md) | `marketing-community` | PARTIAL | Community protocol and guardrails accepted within the T05 landing/community/launch definition and rubric review; no publication. |
+| [`REQ-014`](../prd/prd-evidence-led-marketing.md) | `marketing-launch` | PARTIAL | Definition accepted; launch remains not authorized. |
+| [`REQ-015`](../prd/prd-evidence-led-marketing.md) | `marketing-demo-video` | PASS (local) | T06 resource tests 39 PASS, script `a271287b…a75f`; T09 actual 56s export accepted. |
+| [`REQ-016`](../prd/prd-evidence-led-marketing.md) | `marketing-measurement` | PASS (local, synthetic) | Offline scorecard returns qualified/inconclusive recommendations on fixtures. |
+| [`REQ-017`](../prd/prd-evidence-led-marketing.md) | Bounded website signals | PARTIAL | Disabled path verified; enabled collection DEFERRED by user choice. |
+| [`REQ-018`](../prd/prd-evidence-led-marketing.md) | Cohort consent and source handling | PARTIAL | Contract/offline privacy cases accepted; no real participant dataset, retention or withdrawal procedure exercised. |
+
+## Acceptance criteria trace
+
+| AC | Local status | Proof / evidence | Limit |
+| --- | --- | --- | --- |
+| [`AC-001`](../prd/prd-evidence-led-marketing.md) | PARTIAL | T03 proof/positioning rubric cases accepted | Definition/rubric, not model output quality |
+| [`AC-002`](../prd/prd-evidence-led-marketing.md) | PARTIAL | T03 assumption-labelling cases accepted | Same |
+| [`AC-003`](../prd/prd-evidence-led-marketing.md) | PASS (local) | T09 assets share `ctx-rev-20261025-capture-ee18d7f5`; manifest and transcript bound to candidate `a2228857` | Asset-level only |
+| [`AC-004`](../prd/prd-evidence-led-marketing.md) | PASS (local) | Drafts remain `prepared`; no posting occurred | Not published |
+| [`AC-005`](../prd/prd-evidence-led-marketing.md) | PASS (local) | T02 metric contract cases and accepted schema | Synthetic fixtures |
+| [`AC-006`](../prd/prd-evidence-led-marketing.md) | PASS (local) | Missing baseline renders unknown with reason | Synthetic |
+| [`AC-007`](../prd/prd-evidence-led-marketing.md) | PASS (local) | Immature activation excluded from mature denominator | Synthetic |
+| [`AC-008`](../prd/prd-evidence-led-marketing.md) | PASS (local) | Confirmed repeat / no-return / unknown remain distinct | Synthetic |
+| [`AC-009`](../prd/prd-evidence-led-marketing.md) | PASS (local) | Duplicate participant reports collapse or reject | Synthetic |
+| [`AC-010`](../prd/prd-evidence-led-marketing.md) | PASS (local) | Zero repeat denominator returns unavailable with rationale | Synthetic |
+| [`AC-011`](../prd/prd-evidence-led-marketing.md) | PASS (local) | Hours reported as capacity, not cash | Synthetic |
+| [`AC-012`](../prd/prd-evidence-led-marketing.md) | PASS (local) | Attribution reported as descriptive | Synthetic |
+| [`AC-013`](../prd/prd-evidence-led-marketing.md) | NOT VERIFIED | Exactly 2/246 attempts bundled; system-prompt digests differ (`eeac7618…` vs `94bfb0be…`) | Historical prompts not recovered; no efficacy delta |
+| [`AC-014`](../prd/prd-evidence-led-marketing.md) | NOT VERIFIED | Static routing smoke: 6 negative file paths with 0 marketing matches; 3 qualified marketing keywords matched | No live trigger evaluation |
+| [`AC-015`](../prd/prd-evidence-led-marketing.md) | PARTIAL | Guardrail pressure definitions accepted | Live model refusal unverified |
+| [`AC-016`](../prd/prd-evidence-led-marketing.md) | PASS (local); remote OPEN | Five consumer scenarios pass at snapshot `ee18d7f5…` (1,412 files); no fetchable remote ref | Remote AC-016 open |
+| [`AC-017`](../prd/prd-evidence-led-marketing.md) | PARTIAL | Independent definition/rubric acceptance for audience research capability | No verified model efficacy, real audience or deployed-origin checks |
+| [`AC-018`](../prd/prd-evidence-led-marketing.md) | PARTIAL | Independent definition/rubric acceptance for positioning capability | No verified model efficacy, real audience or deployed-origin checks |
+| [`AC-019`](../prd/prd-evidence-led-marketing.md) | PARTIAL | Independent definition/rubric acceptance for proof capability | No verified model efficacy, real audience or deployed-origin checks |
+| [`AC-020`](../prd/prd-evidence-led-marketing.md) | PARTIAL | Independent definition/rubric acceptance for strategy capability | No verified model efficacy, real audience or deployed-origin checks |
+| [`AC-021`](../prd/prd-evidence-led-marketing.md) | PARTIAL | Independent definition/rubric acceptance for content strategy capability | No verified model efficacy, real audience or deployed-origin checks |
+| [`AC-022`](../prd/prd-evidence-led-marketing.md) | PARTIAL | Independent definition/rubric acceptance for copywriting capability | No verified model efficacy, real audience or deployed-origin checks |
+| [`AC-023`](../prd/prd-evidence-led-marketing.md) | PASS (local, bounded) | Actual desktop/mobile surface observations ground the landing changes and stated limitations | Conversion baseline unknown; no measured loss or lift claimed |
+| [`AC-024`](../prd/prd-evidence-led-marketing.md) | PARTIAL | Independent definition/rubric acceptance for search discovery capability | No verified model efficacy, real audience or deployed-origin checks |
+| [`AC-025`](../prd/prd-evidence-led-marketing.md) | PARTIAL | Independent definition/rubric acceptance for community capability | No verified model efficacy, real audience or deployed-origin checks |
+| [`AC-026`](../prd/prd-evidence-led-marketing.md) | PARTIAL | Independent definition/rubric acceptance for launch capability | No verified model efficacy, real audience or deployed-origin checks |
+| [`AC-027`](../prd/prd-evidence-led-marketing.md) | PASS (local) | T09 accepted MP4; T10 parent actual Chromium playback, captions, clipboard, keyboard and trusted native fullscreen at 1280×800 and 390×844, with worker cases and independent source review covering transcript activation, no-JS links and disclosures | Portrait fullscreen only; terminal text small on mobile |
+| [`AC-028`](../prd/prd-evidence-led-marketing.md) | PASS (local) | Offline scorecard returns inconclusive, no fabricated ROI | Synthetic data |
+| [`AC-029`](../prd/prd-evidence-led-marketing.md) | DEFERRED | T08 not implemented; no event exists | Enabled collection unproven |
+| [`AC-030`](../prd/prd-evidence-led-marketing.md) | DEFERRED | No failure event path exists | Unproven |
+| [`AC-031`](../prd/prd-evidence-led-marketing.md) | PASS (local) | Disabled path: navigation, clipboard, playback and disclosure usable; worker in-page `fetch`/XHR/beacon instrumentation empty, parent observed no external requests | Bounded to exercised actions/page; not proof about arbitrary future code |
+| [`AC-032`](../prd/prd-evidence-led-marketing.md) | DEFERRED | No event payload implemented | Unproven |
+| [`AC-033`](../prd/prd-evidence-led-marketing.md) | PARTIAL | Contract requires excluding absent/withdrawn consent before calculation; offline privacy/validation cases accepted | No real participant import, storage or withdrawal exercise |
+| [`AC-034`](../prd/prd-evidence-led-marketing.md) | PARTIAL | Offline public projection tested for leakage | No real export or privacy review |
+
+No AC is claimed as a whole-initiative pass. AC-029, AC-030, AC-032 are explicitly not done; AC-013, AC-014 are not verified; every "PASS (local)" is bounded by the evidence above.
+
+## Before vs after: rejected originals and accepted corrections
+
+- **T09 media.** The original encoded video was rejected for fabricated captured output, unsupported host-enforcement display, wrong repeat window, unsourced research/policy/source identity and AC/G4 overclaims; it was never integrated. The corrected export was accepted after independent review and parent `ffprobe`/frame inspection: H.264 1920×1080 30 fps, video 56.000000s, AAC 56.021333s, mov_text 55.000000s, container 56.021354s, 884,035 bytes, digest `b129cb713dd681e6ad776d7ec35461454f165299e20a4227580712a12ea1c32f`.
+- **T10 landing surface.** The first surface claimed fabricated runtimes (`0.085s–0.700s`), rendered an incomplete `report-marketing.mjs` invocation, and labelled sanitized excerpts as raw/unedited transcripts; its tests pinned incidental cue counts and copy strings. Correction removed those claims and replaced the tests with behavioral playback/caption-boundary, keyboard activation and instrumented no-collector checks. Final player `a39ab7ff5f68d49dbf9fe26402ad91355321cb7b96918d6e91905e5a824cd68b`, tests `e4de111460908d810c0f6e55167589c6356f6abf6c697472ebcb4cd81132efbf`.
+- **T11 pair.** The premise that two clean-audit answers establish a comparable baseline/with-skill pair was rejected by the digest mismatch. Both arms were accepted as **bundled evidence only**: source profile/prelude/source title matched, recall empty, zero tool calls, public audits redacted to digests, private raw root 0700 with files 0600. Historical prompt arrays were not recovered, so no causal or isolated delta is claimed. The user then chose to **stop at the current host boundary** after the source map located the original-client read-only getter with no supported no-restart activation; no debugger, plugin, restart, configuration/approval-control change or provider call was made, and 244 attempts remain unlaunched.
+
+## Execution evidence (checkpoint-qualified)
+
+- T02: parent 23/23 focused tests and actual CLI expected synthetic ratios/digest/Markdown PASS.
+- T03/T04/T05: independent definition acceptance; T04 actual scorer semantics accept qualified percentage and word-format outputs, and reject missing cargo/docker/non-UTF8 inputs, all six universal claims and a missing encoding caveat; T05 six pressure cases with assertions 4,2,3,3,3,3, six unsafe rejected and six safe accepted in reviewer rubric smoke.
+- T06: parent 39 tests PASS on script `a271287b…` and SKILL `ca8f97c3…`; independent three-boundary inspection accepted.
+- T07/consumer: five scenarios PASS — full standard assembly (12 marketing skills, evals excluded, storyboard/VTT/scorecard), flattened resource execution, omitted-category isolation, missing-PM `CAPABILITY_GAP`, workflow explicit/omitted/false variants.
+- T10: worker typecheck 0 errors; `SITE_URL`-bound static build pass; focused 12/12; full suite first 69 pass/3 geometry failures, then 72/72 after the document-position invariant correction. Parent Chromium at both sizes: exact clipboard command, playback beyond 0.7s, seek 20s at readyState 4 / 1920×1080, seven cues observed with active 15.5–22s (count is a fixture observation, not a permanent test pin), Enter opens native disclosure, no horizontal overflow, no external requests, trusted native fullscreen reached `document.fullscreenElement === VIDEO`, Escape exercised.
+- T12 bounded slice: independent source inspection of the final player, fixed media/tutorial resources, evaluation storage boundary and the two public answers/audits; no scanner/test/browser/provider rerun in that slice.
+- Covering checkpoint: CLI 1,273 tests across 64 files PASS; MCP 209 tests PASS; separately executed root lanes (evals 85, freshness 62, outcome 23, trace 16, benchmark 8, metrics 44, release 8, harness 24, product-evidence 88) PASS; final canonical `validate:all` 345 passed/0 failed/71 warnings; affected workflow parity 43/43 after generated-wrapper repair.
+- PR-preparation code checkpoint (post-settlement 2026-10-25): parent uninterrupted root test chain `rtk pnpm test` completed in 9.43s (exit 0; 1,693 test cases aggregate across CLI 1,273/64 files, evals 85, freshness 62, outcome 23, trace 16, benchmark 8, metrics 44, release 8, harness 24, product-evidence 88, marketing 62); parent `rtk pnpm mcp:test` passed 209/12 files; parent CLI Vite build and MCP tsup build passed with known Vite CJS/native-loader and duplicate pnpm key build warnings (not claimed strict TSC/format clean). This is a code checkpoint, not post-canonical-docs or remote CI.
+- PR-preparation consumer & gate checkpoint (post-settlement 2026-10-25): parent re-exercised installed consumer smoke with workflow release `1.1.8`; all 5 scenarios PASS against updated frozen registry fixture snapshot `0cf6ec80db33b9e685aa84f18c9a18d3c96ab83cc5dbde625ed260c9490d2cbf` (1,412 files; historical accepted capture `ee18d7f5…` remains byte-unchanged; detailed record retained privately at `.agent/sdd/prd-plan-evidence-led-marketing/consumer-pr-preparation-record.json`). Parent gate validation confirmed: `pnpm validate:all` 345 passed / 0 failed / 71 warnings; `pnpm audit:sdlc` PASS; `pnpm audit:outcome` 21 templates and 6 run records PASS; `pnpm check-alignment` default 70% PASS (4 strict-90 warnings retained); `pnpm docs:capabilities:check` PASS.
+## Retained failures and gaps (not rerun, not masked)
+
+- Global eval audit retains two database-hana errors.
+- `check-alignment:strict` retains four below-threshold skills: `common-stitch-design` 87, `flutter-getx-navigation` 86, `marketing-search-discovery` 78 (7/9, lexical false negative under independent semantic review), `swift-best-practices` 83. No assertion was weakened.
+- The known preflight Vitest/undici Node 22 failure remains unrelated and unmodified.
+- Canonical document IDs and graph connectivity are corrected: parent `pnpm audit:trace` passed after the recorded first-migration failure, with 3 objectives, 18 requirements, 34 acceptance criteria and 10 SRS cards. Graph coverage is not behavioral satisfaction. Formal product-evidence authority/bridge records and G3/G4 acceptance remain open.
+- At the earlier covering checkpoint, root lanes ran separately after a missing-wrapper failure that was corrected. The later PR-preparation checkpoint above completed one uninterrupted root test command; the historical checkpoint is not rewritten.
+
+## Identity and output-path limits
+
+- `ee18d7f5e57ac88d2621ba46316ce0e71262ef7ba686f04e0548e04fb60e5620` with 1,412 files is a **narrow registry fixture snapshot** used by the installed-consumer smoke, not the whole website candidate.
+- The final UI is identified separately by player hash `a39ab7ff…cd68b` and tests `e4de1114…32efbf`.
+- The T07 candidate record used an earlier snapshot (`b788c3d7…`, 1,411 files); the final consumer record uses `ee18d7f5…` (1,412 files). Both are narrow registry fixture snapshots for the same installed-consumer purpose, not the website candidate.
+- Candidate commit `a2228857` is an explicitly dirty local candidate; no remote bytes or fetchable release ref exist (AC-016 open).
+
+## Cost
+
+Exact host cost is **unavailable**: `task-10-cost-audit.md` records missing token counts and prices, and MCP skill/tool statistics do not establish total multi-agent spend. No zero-LLM-cost assertion is made. No paid media generation, provider SDK, analytics account or purchase occurred.
+
+## Open criteria (what this walkthrough does not establish)
+
+- Full skill evaluation: 244 of 246 attempts unlaunched; pair comparability unverified; no skill-efficacy delta.
+- Human UAT, independent human quality acceptance and any business-value review.
+- Remote AC-016/release, deployment, published-origin proof, social preview and DNS/HTTPS gates.
+- G3, G4, G5, G6 and T12/T13 completion.
+- Real consent storage/retention/withdrawal, real cohort observations, baseline, ROI, spend and causal lift.
+- Arbitrary collector absence beyond inspected code and exercised actions; collection remains intentionally disabled (T08 deferred).
+
+## Next authorized workflow
+
+The user separately authorized preparing and publishing the implementation PR. Its scoped source, test and document review does not authorize campaign posting, release, deployment, pilot activation, spend, provider collection, evaluator continuation or retries. Any future evaluation requires a new explicit bounded contract; otherwise the initiative remains stopped at the current host boundary. Whole-initiative T12 acceptance and human review remain open.

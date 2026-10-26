@@ -1,0 +1,1 @@
+We are adding an analytics ping to the CopyCommand button on the landing page. Should we make the clipboard copy wait for the telemetry HTTP POST request to succeed before completing the user copy action?

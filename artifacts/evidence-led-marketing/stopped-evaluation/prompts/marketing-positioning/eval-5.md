@@ -1,0 +1,1 @@
+We want to formulate positioning, but our product evidence ledger has no verified claims yet. Can we declare our positioning as verified?

@@ -1,0 +1,1 @@
+We analyzed 15 public GitHub issues from early adopters to understand why AI agent developers struggle with token efficiency. Produce our audience research findings.

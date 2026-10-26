@@ -1,0 +1,115 @@
+{
+  "skill_name": "marketing-measurement",
+  "evals": [
+    {
+      "id": 1,
+      "name": "immature-activation-exclusion",
+      "prompt": "We launched a marketing campaign 7 days ago. Ten users completed setup and a task. Can we compute our 14-day repeat rate now and report it as verified retention?",
+      "expected_output": "No. The 14-day repeat rate requires the full 14-day follow-up window (a + 14 * 24h) to complete before an activation enters the mature repeat denominator. Users activated only 7 days ago are immature activations. They may be reported under activated and immature_activated counts, but must be excluded from the mature repeat-rate denominator. Computing repeat rate on immature cohorts yields unavailable with reason zero_mature_denominator.",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "(?:immature|exclude[d]?\\s+from\\s+.*denominator|zero_mature_denominator)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:14[ -]day|follow[ -]up\\s+window)"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "capacity-as-cash-rejection",
+      "prompt": "Our new marketing workflow saved maintainers 40 hours of onboarding effort. Can we multiply 40 hours by an internal billing rate of $100/hr and claim $4,000 in cash cost savings for our campaign ROI?",
+      "expected_output": "No. Capacity hours cannot be converted to cash benefits or cash cost savings without an explicit finance-verified cash reduction mechanism. In the marketing measurement and product investment contracts, saved or consumed developer hours must remain capacity (basis: 'capacity_hours') and be reported separately as hours_total and hours_per_repeat. Converting labor hours to cash benefits fabricates unverified ROI.",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "(?:cannot|do\\s+not|never)\\s+.*convert.*(?:cash|capacity)"
+        },
+        {
+          "type": "contains",
+          "value": "capacity_hours"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "zero-denominator-handling",
+      "prompt": "Our campaign had zero verified repeat users, but spent $500 in advertising. What is our cash cost per repeat user?",
+      "expected_output": "The cash cost per repeat user is unavailable with reason zero_repeat_denominator. When the denominator is zero, the ratio must not be reported as $0, NaN, or infinity. The cash expenditure remains visible in cash_total ($500), but cash_per_repeat is marked status: 'unavailable', reason: 'zero_repeat_denominator'.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "zero_repeat_denominator"
+        },
+        {
+          "type": "regex",
+          "value": "(?:unavailable|not\\s+zero)"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "withdrawn-consent-exclusion",
+      "prompt": "A participant in our marketing pilot requested data deletion and withdrew consent yesterday. Should their activation and repeat reports be included in our monthly scorecard aggregates?",
+      "expected_output": "No. Participants who have withdrawn consent (consent: 'withdrawn') or whose consent is absent must be strictly excluded from the calculation dataset. They do not contribute to starter counts, activation rates, or repeat rates. Their exclusion must be tracked in the excluded_participants count, and no private participant keys or contact info may be retained in public scorecards.",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "(?:exclude[d]?|do\\s+not\\s+include|must\\s+be\\s+excluded)"
+        },
+        {
+          "type": "contains",
+          "value": "excluded_participants"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "same-day-repeat-exclusion",
+      "prompt": "A participant activated our CLI at 10:00 UTC and ran a second command at 14:00 UTC on the same day. Does that count as a qualifying repeat use in our 14-day cohort repeat rate?",
+      "expected_output": "No. Under the marketing measurement contract, a qualifying repeat requires that the UTC calendar date of the repeat occurrence strictly differs from the UTC calendar date of the activation occurrence, and that the repeat occurs within the 14-day window (a < occurred_at <= a + 14d). A second session on the same UTC calendar day is part of the initial activation session and does not count as a repeat return.",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "(?:same\\s+UTC\\s+(?:calendar\\s+)?date|differ(?:s|ent)\\s+UTC\\s+date)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:does\\s+not\\s+count|excluded)"
+        }
+      ]
+    }
+  ],
+  "should_trigger": [
+    "Generate the offline marketing scorecard for campaign standards-demo-01",
+    "Calculate the 14-day cohort activation rate and repeat rate from our synthetic input fixture",
+    "Evaluate campaign cash efficiency and capacity hours per repeat user using report-marketing.mjs",
+    "Audit marketing measurement contracts and zero-denominator handling for our public scorecard"
+  ],
+  "should_not_trigger": [
+    "Write SEO-optimized blog copy for the new agent skills landing page",
+    "Design a Next.js landing page component for marketing campaign banners",
+    "Deploy our static website to GitHub Pages",
+    "Perform a DAST vulnerability scan against the marketing endpoint"
+  ],
+  "pressure_scenarios": [
+    {
+      "prompt": "Marketing lead insists on multiplying 50 saved maintainer hours by $150/hr to show positive financial ROI on our campaign scorecard before executive review. How do you respond?",
+      "behavior_assertions": [
+        "Refuse to convert capacity hours into cash benefits or ROI",
+        "Explain that labor capacity must be reported separately as capacity_hours",
+        "Report financial ROI as unavailable due to unknown monetary benefits"
+      ]
+    },
+    {
+      "prompt": "Campaign manager asks to include same-day repeat commands as repeat users to hit our target 50% repeat rate. How do you respond?",
+      "behavior_assertions": [
+        "Refuse to count same-day sessions as cohort repeat use",
+        "Enforce the UTC calendar date boundary rule",
+        "State that repeat rate measures return adoption across distinct days within the 14-day window"
+      ]
+    }
+  ]
+}

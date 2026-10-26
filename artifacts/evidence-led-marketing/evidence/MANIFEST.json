@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "initiative": "evidence-led-marketing",
+  "description": "Preserved minimal durable public evidence from ignored .agent/sdd workspace for tracked PR review",
+  "artifacts": [
+    {
+      "file": "task-09-parent-acceptance.md",
+      "source_relative_path": ".agent/sdd/prd-plan-evidence-led-marketing/task-09-parent-acceptance.md",
+      "original_sha256": "8501c49a38169eba210580237c93418e98ebb3278569272737d124bbedaa67ca",
+      "exported_sha256": "8501c49a38169eba210580237c93418e98ebb3278569272737d124bbedaa67ca",
+      "identical": true,
+      "projection_notes": "Exact byte-identical preservation from .agent/sdd working copy."
+    },
+    {
+      "file": "task-10-parent-acceptance.md",
+      "source_relative_path": ".agent/sdd/prd-plan-evidence-led-marketing/task-10-parent-acceptance.md",
+      "original_sha256": "61b31197db5383ca0122d3909cee3f32f2421afd72cd5b7aa2f3bb65fc9f1b7d",
+      "exported_sha256": "61b31197db5383ca0122d3909cee3f32f2421afd72cd5b7aa2f3bb65fc9f1b7d",
+      "identical": true,
+      "projection_notes": "Exact byte-identical preservation from .agent/sdd working copy."
+    },
+    {
+      "file": "task-10-report.md",
+      "source_relative_path": ".agent/sdd/prd-plan-evidence-led-marketing/task-10-report.md",
+      "original_sha256": "3dffd39abbc67c5b9295be2885a51f6eece1637cd75bd92aa2e54cf07c3ba979",
+      "exported_sha256": "3dffd39abbc67c5b9295be2885a51f6eece1637cd75bd92aa2e54cf07c3ba979",
+      "identical": true,
+      "projection_notes": "Exact byte-identical preservation from .agent/sdd working copy (parent-corrected AC labels retained)."
+    },
+    {
+      "file": "task-12-security-slice.md",
+      "source_relative_path": ".agent/sdd/prd-plan-evidence-led-marketing/task-12-security-slice.md",
+      "original_sha256": "5369d5c5f71d9194e21103f3ed2dc3c4b0b6611d742c78a005a1d0880f416ca3",
+      "exported_sha256": "5369d5c5f71d9194e21103f3ed2dc3c4b0b6611d742c78a005a1d0880f416ca3",
+      "identical": true,
+      "projection_notes": "Exact byte-identical preservation from .agent/sdd working copy."
+    },
+    {
+      "file": "consumer-final-record.json",
+      "source_relative_path": ".agent/sdd/prd-plan-evidence-led-marketing/consumer-final-record.json",
+      "original_sha256": "d81d1cbda2ca4a028a957b65a4d8ae3824a57deb7f78045f4e6a864e99823574",
+      "exported_sha256": "9490b04cfd83a9ed0ee8e443772997a048abe49c32c0e1cdf7422b18e29b28c0",
+      "identical": false,
+      "projection_notes": "Sanitized projection: candidate_root redacted from <local workstation path> to '<workspace_root>' for public repository tracking; original preserved unchanged privately in .agent/sdd."
+    },
+    {
+      "file": "evaluation-stop-decision.md",
+      "source_relative_path": ".agent/sdd/prd-plan-evidence-led-marketing/evaluation-stop-decision.md",
+      "original_sha256": "6f709d941e6c9f6d6d640dd38e9a3fc55c2d429d8c88d5077f312e7780efaa07",
+      "exported_sha256": "6f709d941e6c9f6d6d640dd38e9a3fc55c2d429d8c88d5077f312e7780efaa07",
+      "identical": true,
+      "projection_notes": "Exact byte-identical preservation from .agent/sdd working copy."
+    },
+    {
+      "file": "evaluation-current-state.md",
+      "source_relative_path": ".agent/sdd/prd-plan-evidence-led-marketing/evaluation-current-state.md",
+      "original_sha256": "0eb7405c6a8ed92395a1cfa638a52afc0eb304c1a3b821c1257b86da7bb62ffd",
+      "exported_sha256": "0eb7405c6a8ed92395a1cfa638a52afc0eb304c1a3b821c1257b86da7bb62ffd",
+      "identical": true,
+      "projection_notes": "Exact byte-identical preservation from .agent/sdd working copy."
+    },
+    {
+      "file": "covering-checkpoint.md",
+      "source_relative_path": ".agent/sdd/prd-plan-evidence-led-marketing/covering-checkpoint.md",
+      "original_sha256": "a91f2d48b6e475655b591e93c71209805cb1d836e52d7247989be894caf8b9c4",
+      "exported_sha256": "a91f2d48b6e475655b591e93c71209805cb1d836e52d7247989be894caf8b9c4",
+      "identical": true,
+      "projection_notes": "Exact byte-identical preservation from .agent/sdd working copy."
+    },
+    {
+      "file": "task-10-cost-audit.md",
+      "source_relative_path": ".agent/sdd/prd-plan-evidence-led-marketing/task-10-cost-audit.md",
+      "original_sha256": "7e6c8bad347d551ab36102c337bebeef50c448ac57330682a870f97a6c62a31f",
+      "exported_sha256": "7e6c8bad347d551ab36102c337bebeef50c448ac57330682a870f97a6c62a31f",
+      "identical": true,
+      "projection_notes": "Exact byte-identical preservation from .agent/sdd working copy."
+    }
+  ]
+}

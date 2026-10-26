@@ -1,0 +1,214 @@
+.demoContainer {
+  margin-top: 48px;
+  padding: clamp(20px, 4vw, 32px);
+  background: var(--slate-900, #131715);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+}
+
+.demoHeader {
+  margin-bottom: 20px;
+}
+
+.demoKicker {
+  font-family: var(--font-mono), "IBM Plex Mono", monospace;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--lime, #c7f36b);
+  margin: 0 0 8px 0;
+}
+
+.demoTitle {
+  font-family: var(--font-heading), "Space Grotesk", sans-serif;
+  font-size: clamp(20px, 2.5vw, 26px);
+  font-weight: 600;
+  color: var(--paper, #f5f2e9);
+  margin: 0 0 8px 0;
+  letter-spacing: -0.01em;
+}
+
+.demoDescription {
+  font-family: var(--font-body), "Source Sans 3", sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--muted, #bbc3ba);
+  margin: 0;
+}
+
+.videoWrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000000;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.videoElement {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  background: #000000;
+}
+
+.videoElement::cue {
+  font-family: var(--font-body), "Source Sans 3", sans-serif;
+  font-size: 15px;
+  line-height: 1.4;
+  color: #ffffff;
+  background-color: rgba(0, 0, 0, 0.88);
+  border-radius: 4px;
+  padding: 2px 6px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.95);
+}
+
+@media (max-width: 640px) {
+  .videoElement::cue {
+    font-size: 16px;
+    line-height: 1.35;
+  }
+}
+
+.videoFallback {
+  padding: 24px;
+  font-family: var(--font-body), "Source Sans 3", sans-serif;
+  font-size: 14px;
+  color: var(--paper, #f5f2e9);
+  line-height: 1.6;
+}
+
+.demoMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.demoScopeTag {
+  font-family: var(--font-mono), "IBM Plex Mono", monospace;
+  font-size: 12px;
+  color: var(--muted, #bbc3ba);
+}
+
+.demoActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+.demoLink {
+  font-family: var(--font-mono), "IBM Plex Mono", monospace;
+  font-size: 13px;
+  color: var(--lime, #c7f36b);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  padding: 4px 0;
+  transition: color 150ms ease;
+}
+
+.demoLink:hover {
+  text-decoration: underline;
+  color: #d8ff85;
+}
+
+.demoLink:focus-visible {
+  outline: 2px solid var(--lime, #c7f36b);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.transcriptDetails {
+  margin-top: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.transcriptSummary {
+  font-family: var(--font-mono), "IBM Plex Mono", monospace;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--paper, #f5f2e9);
+  padding: 12px 16px;
+  min-height: 44px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+}
+
+.transcriptSummary:hover {
+  color: var(--lime, #c7f36b);
+}
+
+.transcriptSummary:focus-visible {
+  outline: 2px solid var(--lime, #c7f36b);
+  outline-offset: -2px;
+  border-radius: 6px;
+}
+
+.transcriptContent {
+  padding: 16px 20px 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-family: var(--font-body), "Source Sans 3", sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--muted, #bbc3ba);
+}
+
+.sceneItem {
+  margin-bottom: 20px;
+}
+
+.sceneItem:last-child {
+  margin-bottom: 0;
+}
+
+.sceneHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.sceneTime {
+  font-family: var(--font-mono), "IBM Plex Mono", monospace;
+  font-size: 12px;
+  color: var(--lime, #c7f36b);
+}
+
+.sceneTitle {
+  font-family: var(--font-heading), "Space Grotesk", sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--paper, #f5f2e9);
+}
+
+.sceneText {
+  margin: 0;
+  color: var(--muted, #bbc3ba);
+}
+
+.caveatNote {
+  margin-top: 20px;
+  padding: 12px 16px;
+  background: rgba(199, 243, 107, 0.06);
+  border-left: 3px solid var(--lime, #c7f36b);
+  border-radius: 0 4px 4px 0;
+  font-size: 13px;
+  color: var(--paper, #f5f2e9);
+}

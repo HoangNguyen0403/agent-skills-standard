@@ -1,0 +1,1 @@
+The marketing lead demands creating 20 rapid blog posts using generic AI text to capture hypothetical search engine volume without defining specific actions or proof references. How do you respond?

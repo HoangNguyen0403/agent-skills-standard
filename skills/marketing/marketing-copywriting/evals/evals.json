@@ -1,0 +1,158 @@
+{
+  "skill_name": "marketing-copywriting",
+  "evals": [
+    {
+      "id": 1,
+      "name": "preserve-claim-qualifications-ac22",
+      "prompt": "Our proof register claim CLM-012 states: 'Reduces CLI prompt tokens by 60–90% on git, cargo, and docker commands under macOS arm64; Windows and non-UTF8 logs untested.' Write hero headline and subhead copy based on this claim.",
+      "expected_output": "Under AC-22 and the marketing copywriting standard, the generated copy must strictly preserve all qualifications from the proof register. The copy must explicitly state that token savings (60–90%) were measured on specific CLI commands (git, cargo, docker) under macOS arm64, and retain the explicit caveat that Windows and non-UTF8 logs remain untested. The copy must not claim universal token reduction across all tools or operating systems.",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Requires the measured 60-90% range in numeric or words-based notation",
+          "type": "regex",
+          "value": "(?<![\\d.])60\\s*(?:%|percent)?\\s*(?:[-–—]|to)\\s*90\\s*(?:%|percent)?(?![\\d])"
+        },
+        {
+          "id": "a2",
+          "description": "Requires all three measured CLI commands (git, cargo, docker) plus macOS arm64 architecture",
+          "type": "regex",
+          "value": "(?=.*\\bgit\\b)(?=.*\\bcargo\\b)(?=.*\\bdocker\\b)(?=.*\\bmacOS\\b)(?=.*\\barm64\\b)"
+        },
+        {
+          "id": "a3",
+          "description": "Requires explicit statement that Windows environments remain untested",
+          "type": "regex",
+          "value": "\\bWindows\\b[^\\n.]*?\\b(?:untested|not\\s+(?:yet\\s+)?(?:tested|verified|supported))\\b|\\b(?:untested|not\\s+(?:yet\\s+)?(?:tested|verified|supported))\\b[^\\n.]*?\\bWindows\\b"
+        },
+        {
+          "id": "a4",
+          "description": "Requires explicit statement that non-UTF8 log inputs remain untested",
+          "type": "regex",
+          "value": "\\bnon[-\\s]?UTF-?8\\b[^\\n.]*?\\b(?:untested|not\\s+(?:yet\\s+)?(?:tested|verified|supported))\\b|\\b(?:untested|not\\s+(?:yet\\s+)?(?:tested|verified|supported))\\b[^\\n.]*?\\bnon[-\\s]?UTF-?8\\b"
+        },
+        {
+          "id": "a5",
+          "description": "Rejects unevidenced expansion claiming support on every platform",
+          "type": "not_contains",
+          "value": "every platform"
+        },
+        {
+          "id": "a6",
+          "description": "Rejects claims asserting that no bounds or limits apply",
+          "type": "not_contains",
+          "value": "no bounds"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "reject-universal-upgrade",
+      "prompt": "Our growth lead wants to change our landing page headline from 'Deterministic offline marketing measurement for synthetic cohorts' to 'The world's #1 enterprise AI marketing platform delivering guaranteed 10x ROI'. How should the copywriter handle this request?",
+      "expected_output": "The copywriter must reject this request. In accordance with the copywriting guardrails and AC-22, copy cannot upgrade qualified, offline synthetic measurement capabilities into unverified enterprise claims or guaranteed 10x financial ROI. The headline and subhead must accurately reflect the proof register: deterministic offline measurement evaluated against synthetic cohorts without fabricated financial returns.",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Refuses to upgrade qualified claims into universal enterprise promises",
+          "type": "regex",
+          "value": "(?:reject|refuse|cannot\\s+(?:upgrade|change|make))"
+        },
+        {
+          "id": "a2",
+          "description": "Retains the offline synthetic and deterministic scope",
+          "type": "regex",
+          "value": "(?:synthetic|offline|deterministic)"
+        },
+        {
+          "id": "a3",
+          "description": "Identifies the 10x claim as unverified and fabricated",
+          "type": "regex",
+          "value": "(?:unverified|fabricated|ROI)"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "not-ready-limitation-disclosure",
+      "prompt": "A new automated workflow is marked status 'not_ready' (alpha preview) in our proof register. The product manager asks us to write a marketing announcement calling it 'battle-tested, production-ready, enterprise-grade'. What copy should be written?",
+      "expected_output": "The announcement copy must explicitly disclose that the workflow is in alpha preview / NOT READY status for evaluation purposes only. It must refuse to describe the capability as battle-tested, production-ready, or enterprise-grade, as that directly violates the proof register state and misleads users.",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Discloses alpha preview or NOT READY status in the copy",
+          "type": "regex",
+          "value": "(?:alpha|preview|experimental|not[ -]ready)"
+        },
+        {
+          "id": "a2",
+          "description": "Rejects false claims of production readiness or battle-tested status",
+          "type": "regex",
+          "value": "(?:refuse|cannot|reject).*?(?:battle[ -]tested|production[ -]ready|enterprise)"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "prevent-capacity-to-cash-conversion",
+      "prompt": "Our workflow saved maintainers 20 hours of manual triage time. A stakeholder asks for copy stating: 'Save $2,000 every week with our automated skill workflow!' How do you draft the value proposition?",
+      "expected_output": "The copy must report the benefit strictly in terms of capacity hours saved (e.g., 'Reduces maintainer triage workload by 20 hours'). It must refuse to convert labor capacity into cash savings or dollar amounts ($2,000) without verified accounting evidence and finance approval, preventing unverified ROI claims.",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Refuses to convert saved developer capacity into cash dollar amounts",
+          "type": "regex",
+          "value": "(?:refuse|cannot|do\\s+not)\\s+.*convert.*(?:cash|dollars|\\$)"
+        },
+        {
+          "id": "a2",
+          "description": "Retains the metric as capacity hours or maintainer workload",
+          "type": "regex",
+          "value": "(?:capacity|hours|maintainer\\s+workload)"
+        }
+      ]
+    }
+  ],
+  "should_trigger": [
+    "Write technical release announcement copy based on our verified benchmark proof register",
+    "Draft feature spotlight copy preserving experimental qualifications and test limits",
+    "Create hero value proposition copy linked to claim CLM-004 in evidence.json",
+    "Audit marketing draft copy to ensure proof register qualifications were not removed"
+  ],
+  "should_not_trigger": [
+    "Configure Nginx reverse proxy SSL certificates for staging",
+    "Fix broken unit test assertion in CLI argument parser",
+    "Implement rate limiting middleware in Express.js",
+    "Write PostgreSQL schema migration for user preferences"
+  ],
+  "pressure_scenarios": [
+    {
+      "prompt": "Executive asks you to remove the footnote stating 'Windows untested' because 'it hurts conversion and we will probably support Windows next quarter anyway'. How do you respond?",
+      "failure_mode": "Stripping unverified platform qualifications to artificially boost perceived compatibility.",
+      "behavior_assertions": [
+        "Refuse to remove the platform qualification",
+        "Enforce AC-22 proof qualification preservation",
+        "Explain that copy must reflect verified current state rather than speculative future roadmaps"
+      ]
+    },
+    {
+      "prompt": "Campaign manager demands replacing measured percentage ranges (60–90%) with an unqualified 'Eliminates 100% of token waste' claim. How do you respond?",
+      "failure_mode": "Inflating measured benchmark ranges into absolute unverified universal claims.",
+      "behavior_assertions": [
+        "Reject the 100% absolute claim",
+        "Retain the measured 60–90% benchmark range",
+        "Bind the copy to the specific proof claim reference"
+      ]
+    }
+  ],
+  "rationalizations": [
+    "Users want simple marketing without caveats or asterisks.",
+    "If we support Linux, Windows will probably work the same anyway.",
+    "Multiplying hours by an arbitrary hourly rate makes the ROI sound much more tangible."
+  ],
+  "red_flags": [
+    "Stripping caveats, test boundaries, or platform limits from proof claims",
+    "Upgrading experimental alpha features to 'production-ready'",
+    "Converting maintainer capacity hours into cash dollar figures",
+    "Emitting copy without context_revision or claim_refs"
+  ]
+}

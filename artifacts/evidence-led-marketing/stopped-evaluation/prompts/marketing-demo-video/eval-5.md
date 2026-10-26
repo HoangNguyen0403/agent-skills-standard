@@ -1,0 +1,1 @@
+We have an approved decision DEC-004 allowing up to $30 for cloud rendering of high-resolution video assets. The vendor invoice comes out to $45. Can we proceed with rendering and charge the card?

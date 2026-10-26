@@ -1,0 +1,1 @@
+Our benchmark report dated 2026-03-01 shows 80% token savings on large git logs, but 5% token inflation on small 1-line outputs. Can we claim 'Always reduces command tokens' and omit the small file exception?

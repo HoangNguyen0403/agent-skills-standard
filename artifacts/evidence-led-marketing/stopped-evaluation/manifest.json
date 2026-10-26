@@ -1,0 +1,1660 @@
+{
+  "schemaVersion": 2,
+  "runId": "marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d",
+  "category": "marketing",
+  "version": "2.6.6",
+  "createdAt": "2026-10-25T08:37:41.103Z",
+  "metadata": {
+    "startedAt": "2026-10-25T08:37:41.103Z",
+    "evidenceMode": "fresh",
+    "freshAnswerCount": 0,
+    "reusedAnswerCount": 0
+  },
+  "scope": {
+    "kind": "category",
+    "categories": [
+      "marketing"
+    ]
+  },
+  "protocol": {
+    "instructionVersion": "neutral-skill-v4",
+    "isolation": "worker-per-arm",
+    "baseline": "prompt-only",
+    "withSkill": "prompt-plus-skill",
+    "trigger": "name-description-only"
+  },
+  "sourceHashes": {
+    "marketing/marketing-audience-research": {
+      "skill": "27048380c849bf93855368c36d675a7d83f108881d50d9b6148180d01e12546f",
+      "evals": "272e7cb3406d303dc2e36851ece5e58dada7b36406d7b357cfc0e5f8f88320c0"
+    },
+    "marketing/marketing-community": {
+      "skill": "e17a3c5b2df8fa9be74c764f8f7ee3e79682ce3412da41fafa483d8cbdbe1605",
+      "evals": "5f14b6a17c11a46c61b7cd8eaf6636b29e52e07ffde32beb15e3e10b3b813432"
+    },
+    "marketing/marketing-content-strategy": {
+      "skill": "e925b839bd7775847bc0cd506843304aaf6275568b3e924d108c1a921b996c7d",
+      "evals": "8387189bfe213019e5a74f567d206ef863e3bc5d47f2fa5cf02cafdf326b4383"
+    },
+    "marketing/marketing-copywriting": {
+      "skill": "4a88bc842d65f5c1fb5a0625b382cc1bd43c3480dee2c3c4d952ad2fe7d92d9e",
+      "evals": "35d06008b21dd9613a1ceb9da03f6f9bb684862e629f91c78e69becdf2f7aec3"
+    },
+    "marketing/marketing-demo-video": {
+      "skill": "ca8f97c3ff85110fd5c45636b0d86b86dab8f09b0dc6231e1702a9993d6e55f5",
+      "evals": "30ef478333bc3aaa466b90cf1c39fcdebe500c8944f36000e9928143962444ba"
+    },
+    "marketing/marketing-landing": {
+      "skill": "2321446b0d4e92177a64b15f171ae290b0e6069fd2e7ed2faf513501642f43a3",
+      "evals": "e46e52cbcd8e0b9ee1371daa59925e0fc78174255aa08ed011b5292169c310e8"
+    },
+    "marketing/marketing-launch": {
+      "skill": "981c9c74c4ae69b3c22cbb522001a5fbb836f40edc7f01156c79ac280f6ed7f8",
+      "evals": "1412714a5843a914abbde6774754202e40ab3aa18fc1dc8729a3e5fcf76c54c8"
+    },
+    "marketing/marketing-measurement": {
+      "skill": "58ce419eafddbe2b101158708636baa7c5d9d4bc98b511f18cc377c3cab1db06",
+      "evals": "11682eb4f7fd3d9d5e072cca1ad1b30da5273f8e9d8d5f0914df7fd0a6e77961"
+    },
+    "marketing/marketing-positioning": {
+      "skill": "ce8d4458a9851b287dc61c35fe3850f62bd3a0a5ef31fbdcc72279c9f503402a",
+      "evals": "64fca60ba4c94364e2f5961afcf8aadee0147b007a18de48ffefbb6ab403cdfc"
+    },
+    "marketing/marketing-proof": {
+      "skill": "8260eb648d7c00518d341e80f79ef0dc3979c1a1c0cfa7d03c036bbabab9545b",
+      "evals": "341d66a4a6954695768e03231dd072049fc47b0e6c0809cc8c659aae1d9063e2"
+    },
+    "marketing/marketing-search-discovery": {
+      "skill": "ca433991513728af5ea004e256375b934ef3f7388befa6a46125cfd05b17ea60",
+      "evals": "7a049f56487a30b2cf985832a195007e960c75b313527ad01df6f73fd047a7b9"
+    },
+    "marketing/marketing-strategy": {
+      "skill": "cb59806c03085903439c75888cfdbc3cc31ba8c4366e3c52111024ced63c1b77",
+      "evals": "c581777d4426d68f4ad22404cdc5b25ad836f5c8f06b41473523e74960541b5b"
+    }
+  },
+  "resourceFingerprints": {
+    "marketing/marketing-audience-research": {
+      "version": 1,
+      "resources": {
+        "LICENSE": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+        "references/audience-research-protocol.md": "d19f36afe4d1dca0f56ac2b8aa6247b1948ee8c86bd8c759f32d4f7b0af53904",
+        "references/audience-segment-template.md": "fdbd65b45ed679fd92de0b368b3021294bf3b5065bc2fdb283668e81ff7031e0",
+        "SKILL.md": "27048380c849bf93855368c36d675a7d83f108881d50d9b6148180d01e12546f"
+      }
+    },
+    "marketing/marketing-community": {
+      "version": 1,
+      "resources": {
+        "LICENSE": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+        "references/community-engagement-protocol.md": "ae065de30a6c7ab322e160134bd63cdaebbcf8db613c96a1086b9672d8a21654",
+        "SKILL.md": "e17a3c5b2df8fa9be74c764f8f7ee3e79682ce3412da41fafa483d8cbdbe1605"
+      }
+    },
+    "marketing/marketing-content-strategy": {
+      "version": 1,
+      "resources": {
+        "LICENSE": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+        "references/content-mapping.md": "f0f08f2dc98c039e9046049d1a45f81d81abd834797eca258d118c697937f76e",
+        "references/editorial-governance.md": "5aab633bc247ba97c66f6699f567d7f1a0b6c9011e8f6f0f3edd8b9ee87827df",
+        "SKILL.md": "e925b839bd7775847bc0cd506843304aaf6275568b3e924d108c1a921b996c7d"
+      }
+    },
+    "marketing/marketing-copywriting": {
+      "version": 1,
+      "resources": {
+        "LICENSE": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+        "references/copy-templates.md": "8105a9e998dd16ebbec074eb77d832325228f981df8a8b8ad6e0435a5fc501d3",
+        "references/proof-binding.md": "a7063443fa360f71c800064f303a5d060b1c5851bf75dd475dbc549eb723bfa7",
+        "SKILL.md": "4a88bc842d65f5c1fb5a0625b382cc1bd43c3480dee2c3c4d952ad2fe7d92d9e"
+      }
+    },
+    "marketing/marketing-demo-video": {
+      "version": 1,
+      "resources": {
+        "assets/demo-storyboard.schema.json": "88f852b30cd2330aa7f3f27e894bccc0b47a416035cb07e3e77d67b12baec7b1",
+        "assets/fixture-storyboard.json": "68e1306b18e4c97070d4ab45858d18abe8bae2da92a1442adeb23781c5e981fc",
+        "LICENSE": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+        "references/capture-edit-recipe.md": "dd60e9ebd7696513b7c43f77614fd50eaa2c2f271321566798750612e88d3f8b",
+        "references/rights-cost-checklist.md": "b2d237c77d826762bc8c2d12f4b9d238d06b3826841fbc27199300c64c5aa5c3",
+        "scripts/validate-demo-storyboard.mjs": "a271287b82e2e7434ff3f8990312bc988c659e110be4318252a3da4e6260a75f",
+        "scripts/validate-demo-storyboard.test.mjs": "8f12d9c3b129440fda1f0dc542e466ea18b57eb03dfbb2767763b4a02d336a32",
+        "SKILL.md": "ca8f97c3ff85110fd5c45636b0d86b86dab8f09b0dc6231e1702a9993d6e55f5"
+      }
+    },
+    "marketing/marketing-landing": {
+      "version": 1,
+      "resources": {
+        "LICENSE": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+        "references/landing-audit-protocol.md": "c8ea084b187292d35e654cc271457fe7d815e02c1ad4e999d09f8370f7f56297",
+        "SKILL.md": "2321446b0d4e92177a64b15f171ae290b0e6069fd2e7ed2faf513501642f43a3"
+      }
+    },
+    "marketing/marketing-launch": {
+      "version": 1,
+      "resources": {
+        "LICENSE": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+        "references/launch-governance.md": "1ce7f119c5717d40eaae92eebb18f21de177dd1cf049003b676402f8a304aa6b",
+        "SKILL.md": "981c9c74c4ae69b3c22cbb522001a5fbb836f40edc7f01156c79ac280f6ed7f8"
+      }
+    },
+    "marketing/marketing-measurement": {
+      "version": 1,
+      "resources": {
+        "assets/measurement-input.schema.json": "7197875c887a4f2a18bbf5387a9a54547af59b702a8e01ac0b0974bb80418109",
+        "assets/scorecard.schema.json": "48e3d330ba37173861216bacda7d192feeeb066148603ac9659a1b3e2f07f7c8",
+        "LICENSE": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+        "references/fixture-resources.md": "bfb477553adf28536ff0c6242248f5c3fde89415108d4754cfd10e8786b3cd1a",
+        "references/measurement-contract.md": "baa855d9632894337249940319ab9f77ad8e391ab96cf0447515db8c333f4ede",
+        "scripts/report-marketing.mjs": "4d1269c8389a6105c0490ff40afe7efcaddddb3283476806cdaf9c6f3aa6412b",
+        "SKILL.md": "58ce419eafddbe2b101158708636baa7c5d9d4bc98b511f18cc377c3cab1db06"
+      }
+    },
+    "marketing/marketing-positioning": {
+      "version": 1,
+      "resources": {
+        "LICENSE": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+        "references/positioning-canvas-template.md": "399286ca1a5dff395e2b4b59e81d1f925f2a2be2c1c2e4984ffbbcf2b72120ce",
+        "references/positioning-protocol.md": "f0eb3f7c65f63c1b2acb658f7dba550ad1d5d83e13e02cb004bd829182812c9b",
+        "SKILL.md": "ce8d4458a9851b287dc61c35fe3850f62bd3a0a5ef31fbdcc72279c9f503402a"
+      }
+    },
+    "marketing/marketing-proof": {
+      "version": 1,
+      "resources": {
+        "LICENSE": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+        "references/proof-register-protocol.md": "ab3f94add40392b69548e5d91d80eed21ecdf08ac77e93f7a1b9e9aaf82e6357",
+        "references/proof-register-template.md": "6057440223b7df709f80733f23170d8b84265fc7796e56dfed81f3778c0c73e3",
+        "SKILL.md": "8260eb648d7c00518d341e80f79ef0dc3979c1a1c0cfa7d03c036bbabab9545b"
+      }
+    },
+    "marketing/marketing-search-discovery": {
+      "version": 1,
+      "resources": {
+        "LICENSE": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+        "references/discovery-checks.md": "bf452480acef013df3972865b485b121191c6621724cf2c766f8873d8aee7e17",
+        "references/localhost-boundary.md": "426669b063de573c2db8741464de51ef2d0fe07a20d1793fdc27e640b3d60dc0",
+        "SKILL.md": "ca433991513728af5ea004e256375b934ef3f7388befa6a46125cfd05b17ea60"
+      }
+    },
+    "marketing/marketing-strategy": {
+      "version": 1,
+      "resources": {
+        "LICENSE": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+        "references/channel-matrix-template.md": "a4f744cfeaee231ccca3b1842c08f6e837b8c635d725bf4c2177c8b335725c7a",
+        "references/strategy-selection-protocol.md": "287ef89bba5bb206bf7c2d0c45c81856f095912ba6734fcab50bacabdf614d19",
+        "SKILL.md": "cb59806c03085903439c75888cfdbc3cc31ba8c4366e3c52111024ced63c1b77"
+      }
+    }
+  },
+  "inputProvenanceVersion": 1,
+  "compromisedSkills": [],
+  "activationEvidenceVersion": 3,
+  "assertionSemanticsVersion": 2,
+  "skills": [
+    {
+      "category": "marketing",
+      "skillName": "marketing-audience-research",
+      "skillPath": "skills/marketing/marketing-audience-research/SKILL.md",
+      "guardrailApplicable": true,
+      "cases": [
+        {
+          "id": "eval-1",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-2",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-3",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-4",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-5",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "trigger-1",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-2",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-3",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-4",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-5",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-6",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-7",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-8",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "pressure-1",
+          "kind": "pressure",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "pressure-2",
+          "kind": "pressure",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        }
+      ]
+    },
+    {
+      "category": "marketing",
+      "skillName": "marketing-community",
+      "skillPath": "skills/marketing/marketing-community/SKILL.md",
+      "guardrailApplicable": true,
+      "cases": [
+        {
+          "id": "eval-1",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-2",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-3",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "trigger-1",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-2",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-3",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-4",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-5",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-6",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-7",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-8",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "pressure-1",
+          "kind": "pressure",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "pressure-2",
+          "kind": "pressure",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        }
+      ]
+    },
+    {
+      "category": "marketing",
+      "skillName": "marketing-content-strategy",
+      "skillPath": "skills/marketing/marketing-content-strategy/SKILL.md",
+      "guardrailApplicable": true,
+      "cases": [
+        {
+          "id": "eval-1",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-2",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-3",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-4",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "trigger-1",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-2",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-3",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-4",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-5",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-6",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-7",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-8",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "pressure-1",
+          "kind": "pressure",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "pressure-2",
+          "kind": "pressure",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        }
+      ]
+    },
+    {
+      "category": "marketing",
+      "skillName": "marketing-copywriting",
+      "skillPath": "skills/marketing/marketing-copywriting/SKILL.md",
+      "guardrailApplicable": true,
+      "cases": [
+        {
+          "id": "eval-1",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-2",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-3",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-4",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "trigger-1",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-2",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-3",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-4",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-5",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-6",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-7",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-8",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "pressure-1",
+          "kind": "pressure",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "pressure-2",
+          "kind": "pressure",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        }
+      ]
+    },
+    {
+      "category": "marketing",
+      "skillName": "marketing-demo-video",
+      "skillPath": "skills/marketing/marketing-demo-video/SKILL.md",
+      "guardrailApplicable": true,
+      "cases": [
+        {
+          "id": "eval-1",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-2",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-3",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-4",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-5",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "trigger-1",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-2",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-3",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-4",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-5",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-6",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-7",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-8",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "pressure-1",
+          "kind": "pressure",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "pressure-2",
+          "kind": "pressure",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        }
+      ]
+    },
+    {
+      "category": "marketing",
+      "skillName": "marketing-landing",
+      "skillPath": "skills/marketing/marketing-landing/SKILL.md",
+      "guardrailApplicable": true,
+      "cases": [
+        {
+          "id": "eval-1",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-2",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-3",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "trigger-1",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-2",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-3",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-4",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-5",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-6",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-7",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-8",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "pressure-1",
+          "kind": "pressure",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "pressure-2",
+          "kind": "pressure",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        }
+      ]
+    },
+    {
+      "category": "marketing",
+      "skillName": "marketing-launch",
+      "skillPath": "skills/marketing/marketing-launch/SKILL.md",
+      "guardrailApplicable": true,
+      "cases": [
+        {
+          "id": "eval-1",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-2",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-3",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "trigger-1",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-2",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-3",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-4",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-5",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-6",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-7",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-8",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "pressure-1",
+          "kind": "pressure",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "pressure-2",
+          "kind": "pressure",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        }
+      ]
+    },
+    {
+      "category": "marketing",
+      "skillName": "marketing-measurement",
+      "skillPath": "skills/marketing/marketing-measurement/SKILL.md",
+      "guardrailApplicable": true,
+      "cases": [
+        {
+          "id": "eval-1",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-2",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-3",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-4",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-5",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "trigger-1",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-2",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-3",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-4",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-5",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-6",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-7",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-8",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "pressure-1",
+          "kind": "pressure",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "pressure-2",
+          "kind": "pressure",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        }
+      ]
+    },
+    {
+      "category": "marketing",
+      "skillName": "marketing-positioning",
+      "skillPath": "skills/marketing/marketing-positioning/SKILL.md",
+      "guardrailApplicable": true,
+      "cases": [
+        {
+          "id": "eval-1",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-2",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-3",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-4",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-5",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "trigger-1",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-2",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-3",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-4",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-5",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-6",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-7",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-8",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "pressure-1",
+          "kind": "pressure",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "pressure-2",
+          "kind": "pressure",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        }
+      ]
+    },
+    {
+      "category": "marketing",
+      "skillName": "marketing-proof",
+      "skillPath": "skills/marketing/marketing-proof/SKILL.md",
+      "guardrailApplicable": true,
+      "cases": [
+        {
+          "id": "eval-1",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-2",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-3",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-4",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-5",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "trigger-1",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-2",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-3",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-4",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-5",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-6",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-7",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-8",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "pressure-1",
+          "kind": "pressure",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "pressure-2",
+          "kind": "pressure",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        }
+      ]
+    },
+    {
+      "category": "marketing",
+      "skillName": "marketing-search-discovery",
+      "skillPath": "skills/marketing/marketing-search-discovery/SKILL.md",
+      "guardrailApplicable": true,
+      "cases": [
+        {
+          "id": "eval-1",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-2",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-3",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-4",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "trigger-1",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-2",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-3",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-4",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-5",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-6",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-7",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-8",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "pressure-1",
+          "kind": "pressure",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "pressure-2",
+          "kind": "pressure",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        }
+      ]
+    },
+    {
+      "category": "marketing",
+      "skillName": "marketing-strategy",
+      "skillPath": "skills/marketing/marketing-strategy/SKILL.md",
+      "guardrailApplicable": true,
+      "cases": [
+        {
+          "id": "eval-1",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-2",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-3",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-4",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-5",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "trigger-1",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-2",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-3",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-4",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-5",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-6",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-7",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-8",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "pressure-1",
+          "kind": "pressure",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "pressure-2",
+          "kind": "pressure",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "initiative": "evidence-led-marketing",
+  "description": "Visual presentation evidence of accepted local Chromium landing page and demo player playback at 20s with captions",
+  "artifacts": [
+    {
+      "file": "landing-desktop.png",
+      "source_relative_path": "website/.playwright-cli/parent-playing-1280.png",
+      "original_sha256": "654db0b2d65d1a5fc3d96c04cac4d146d7661a0d5af6d59d0fd9d7f759668295",
+      "exported_sha256": "654db0b2d65d1a5fc3d96c04cac4d146d7661a0d5af6d59d0fd9d7f759668295",
+      "bytes": 438131,
+      "dimensions": {
+        "width": 1216,
+        "height": 1886
+      },
+      "viewport_width": 1280,
+      "crop_note": "Observed Chromium render crop is 1216x1886 at desktop viewport width 1280 (not screenshot dimensions mislabeled as viewport width)",
+      "identical": true,
+      "notes": "Accepted parent playback screenshot at currentTime ~20s showing native player, active caption, and quick-start section."
+    },
+    {
+      "file": "landing-mobile.png",
+      "source_relative_path": "website/.playwright-cli/parent-playing-390.png",
+      "original_sha256": "ab469bf9902771b8f41cece5f46acf11fcb37e7f805da8f6ca1726ed6bcbeb45",
+      "exported_sha256": "ab469bf9902771b8f41cece5f46acf11fcb37e7f805da8f6ca1726ed6bcbeb45",
+      "bytes": 311922,
+      "dimensions": {
+        "width": 350,
+        "height": 3106
+      },
+      "viewport_width": 390,
+      "crop_note": "Observed Chromium render crop is 350x3106 at mobile viewport width 390 (not screenshot dimensions mislabeled as viewport width)",
+      "identical": true,
+      "notes": "Accepted parent playback screenshot at currentTime ~20s showing responsive mobile player, readable wrapped caption, and quick-start section."
+    }
+  ]
+}

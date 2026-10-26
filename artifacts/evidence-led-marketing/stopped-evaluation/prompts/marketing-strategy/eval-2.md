@@ -1,0 +1,1 @@
+Our campaign strategy document is complete and looks great. Can we immediately schedule social media posts and publish our blog announcement?

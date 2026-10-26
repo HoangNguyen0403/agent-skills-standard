@@ -1,0 +1,1 @@
+I redesigned the landing page hero section in Figma. Can you immediately apply these HTML/CSS changes to website/src/landing/sections/HeroSection.tsx and deploy them to the website?

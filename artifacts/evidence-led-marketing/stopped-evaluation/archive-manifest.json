@@ -1,0 +1,1449 @@
+{
+  "schema_version": 1,
+  "initiative": "evidence-led-marketing",
+  "description": "Complete deterministic byte-for-byte archive of fresh stopped evaluation run marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d outside benchmarks/evals/runs/ to prevent CI evals:verify runner failures",
+  "source_run_directory": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d",
+  "total_artifacts_count": 176,
+  "breakdown": {
+    "run_manifest": 1,
+    "answers_and_audits": 4,
+    "prompts": 171
+  },
+  "key_artifacts_summary": [
+    {
+      "role": "run_manifest",
+      "file": "manifest.json",
+      "sha256": "ddcb54c58056938bceedfe03542be2869fdfc458f5e53f1a62da97bbb4819b08"
+    },
+    {
+      "role": "baseline_answer",
+      "file": "answers/marketing-audience-research/eval-1.baseline.md",
+      "sha256": "dbb308b017a4bb87af0d489d9a8146b984d9b15f53a2c02ae9313cef906bab14"
+    },
+    {
+      "role": "baseline_audit",
+      "file": "answers/marketing-audience-research/eval-1.baseline.audit.json",
+      "sha256": "16c5f0f86854b7cb10f58b25d0301d523fddf2f70f917659009d673da53b7282"
+    },
+    {
+      "role": "with_skill_answer",
+      "file": "answers/marketing-audience-research/eval-1.with-skill.md",
+      "sha256": "c9dbca4178e36cc081e97dcf28987cb00182be24848297fa6edf4268b7ee2e16"
+    },
+    {
+      "role": "with_skill_audit",
+      "file": "answers/marketing-audience-research/eval-1.with-skill.audit.json",
+      "sha256": "2dabbeb3e9db8a80f058740a408f1f04568b1cc66ff22cf26a29ba66f1761876"
+    }
+  ],
+  "artifacts": [
+    {
+      "file": "answers/marketing-audience-research/eval-1.baseline.audit.json",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/answers/marketing-audience-research/eval-1.baseline.audit.json",
+      "original_sha256": "16c5f0f86854b7cb10f58b25d0301d523fddf2f70f917659009d673da53b7282",
+      "exported_sha256": "16c5f0f86854b7cb10f58b25d0301d523fddf2f70f917659009d673da53b7282",
+      "bytes": 3357,
+      "identical": true
+    },
+    {
+      "file": "answers/marketing-audience-research/eval-1.baseline.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/answers/marketing-audience-research/eval-1.baseline.md",
+      "original_sha256": "dbb308b017a4bb87af0d489d9a8146b984d9b15f53a2c02ae9313cef906bab14",
+      "exported_sha256": "dbb308b017a4bb87af0d489d9a8146b984d9b15f53a2c02ae9313cef906bab14",
+      "bytes": 2256,
+      "identical": true
+    },
+    {
+      "file": "answers/marketing-audience-research/eval-1.with-skill.audit.json",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/answers/marketing-audience-research/eval-1.with-skill.audit.json",
+      "original_sha256": "2dabbeb3e9db8a80f058740a408f1f04568b1cc66ff22cf26a29ba66f1761876",
+      "exported_sha256": "2dabbeb3e9db8a80f058740a408f1f04568b1cc66ff22cf26a29ba66f1761876",
+      "bytes": 3669,
+      "identical": true
+    },
+    {
+      "file": "answers/marketing-audience-research/eval-1.with-skill.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/answers/marketing-audience-research/eval-1.with-skill.md",
+      "original_sha256": "c9dbca4178e36cc081e97dcf28987cb00182be24848297fa6edf4268b7ee2e16",
+      "exported_sha256": "c9dbca4178e36cc081e97dcf28987cb00182be24848297fa6edf4268b7ee2e16",
+      "bytes": 2304,
+      "identical": true
+    },
+    {
+      "file": "manifest.json",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/manifest.json",
+      "original_sha256": "ddcb54c58056938bceedfe03542be2869fdfc458f5e53f1a62da97bbb4819b08",
+      "exported_sha256": "ddcb54c58056938bceedfe03542be2869fdfc458f5e53f1a62da97bbb4819b08",
+      "bytes": 43333,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-audience-research/eval-1.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-audience-research/eval-1.md",
+      "original_sha256": "38d42f344122bff63ac70b539c02c620e10824be0279d79c2c81cbdd2d37f8df",
+      "exported_sha256": "38d42f344122bff63ac70b539c02c620e10824be0279d79c2c81cbdd2d37f8df",
+      "bytes": 224,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-audience-research/eval-2.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-audience-research/eval-2.md",
+      "original_sha256": "c3860dc9858526f4b94d9a7454ab8941bcad5516550254250f1c2621b0ee7810",
+      "exported_sha256": "c3860dc9858526f4b94d9a7454ab8941bcad5516550254250f1c2621b0ee7810",
+      "bytes": 165,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-audience-research/eval-3.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-audience-research/eval-3.md",
+      "original_sha256": "d240e4602e3a2ad725db64202319b90467f7b1ca11039f60ed60ce8321666fb5",
+      "exported_sha256": "d240e4602e3a2ad725db64202319b90467f7b1ca11039f60ed60ce8321666fb5",
+      "bytes": 228,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-audience-research/eval-4.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-audience-research/eval-4.md",
+      "original_sha256": "73648eeba35d104d0fe23fb0ce46287705d0154923118bc84261c3fd8ed3b176",
+      "exported_sha256": "73648eeba35d104d0fe23fb0ce46287705d0154923118bc84261c3fd8ed3b176",
+      "bytes": 202,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-audience-research/eval-5.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-audience-research/eval-5.md",
+      "original_sha256": "1fba46011cc36c4ca76c26b02d419ff1c9024c73129255808511089d69ebae4f",
+      "exported_sha256": "1fba46011cc36c4ca76c26b02d419ff1c9024c73129255808511089d69ebae4f",
+      "bytes": 197,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-audience-research/pressure-1.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-audience-research/pressure-1.md",
+      "original_sha256": "61c3304a759d66fc6b4cb1a346cefcf5cb8f1483c652c0484c6aa9dacd50c35a",
+      "exported_sha256": "61c3304a759d66fc6b4cb1a346cefcf5cb8f1483c652c0484c6aa9dacd50c35a",
+      "bytes": 164,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-audience-research/pressure-2.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-audience-research/pressure-2.md",
+      "original_sha256": "3764ac02f11aa828dc8b518ac5f1870fad9437b19423305658393c7df3706aa6",
+      "exported_sha256": "3764ac02f11aa828dc8b518ac5f1870fad9437b19423305658393c7df3706aa6",
+      "bytes": 171,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-audience-research/trigger-1.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-audience-research/trigger-1.md",
+      "original_sha256": "34651f92311e9e700957bb0b7d0d2df177ff9b241c4af69118fa87bbd33cb037",
+      "exported_sha256": "34651f92311e9e700957bb0b7d0d2df177ff9b241c4af69118fa87bbd33cb037",
+      "bytes": 796,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-audience-research/trigger-2.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-audience-research/trigger-2.md",
+      "original_sha256": "450781cde87a2da5a2eed022176dec5cef3f85435ab0fda54a1f3dc032bfc4ae",
+      "exported_sha256": "450781cde87a2da5a2eed022176dec5cef3f85435ab0fda54a1f3dc032bfc4ae",
+      "bytes": 782,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-audience-research/trigger-3.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-audience-research/trigger-3.md",
+      "original_sha256": "7e61c6f67f314de7a6ea91c71331cff5769f12de640490d900b4a54082b69b76",
+      "exported_sha256": "7e61c6f67f314de7a6ea91c71331cff5769f12de640490d900b4a54082b69b76",
+      "bytes": 780,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-audience-research/trigger-4.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-audience-research/trigger-4.md",
+      "original_sha256": "1b0fe35cfbcfd469555fe5a9094d2f5c143a03488cbe7d01e620ed51462be830",
+      "exported_sha256": "1b0fe35cfbcfd469555fe5a9094d2f5c143a03488cbe7d01e620ed51462be830",
+      "bytes": 782,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-audience-research/trigger-5.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-audience-research/trigger-5.md",
+      "original_sha256": "09abd598ebd3fa92e097da45986e5156fc074bfc6d2e0fbc6e7916e9cfcfa657",
+      "exported_sha256": "09abd598ebd3fa92e097da45986e5156fc074bfc6d2e0fbc6e7916e9cfcfa657",
+      "bytes": 762,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-audience-research/trigger-6.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-audience-research/trigger-6.md",
+      "original_sha256": "433f0ed96fff8bbdb90fa7d60b2dacea9b56a0901211e918b7d7eee1df0bdbd1",
+      "exported_sha256": "433f0ed96fff8bbdb90fa7d60b2dacea9b56a0901211e918b7d7eee1df0bdbd1",
+      "bytes": 774,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-audience-research/trigger-7.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-audience-research/trigger-7.md",
+      "original_sha256": "39fd3af99d804494b90ca48fed3c7147d7716d7a76bcd651858ba5cdd54abfcc",
+      "exported_sha256": "39fd3af99d804494b90ca48fed3c7147d7716d7a76bcd651858ba5cdd54abfcc",
+      "bytes": 762,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-audience-research/trigger-8.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-audience-research/trigger-8.md",
+      "original_sha256": "d377c1729f3dec920a835bc711a4d71289399cd2973f3c4633535fc36debb5ed",
+      "exported_sha256": "d377c1729f3dec920a835bc711a4d71289399cd2973f3c4633535fc36debb5ed",
+      "bytes": 738,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-community/eval-1.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-community/eval-1.md",
+      "original_sha256": "1a46d233cadb58972b200a50d88cf49c605340eb8e07d8ef94b8976ec721eeb8",
+      "exported_sha256": "1a46d233cadb58972b200a50d88cf49c605340eb8e07d8ef94b8976ec721eeb8",
+      "bytes": 260,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-community/eval-2.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-community/eval-2.md",
+      "original_sha256": "7bbf2649070ccfa7853ba3de24b5e25d2e64f794d4c8b187fc1fd437cf2ede8e",
+      "exported_sha256": "7bbf2649070ccfa7853ba3de24b5e25d2e64f794d4c8b187fc1fd437cf2ede8e",
+      "bytes": 134,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-community/eval-3.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-community/eval-3.md",
+      "original_sha256": "5d3cf22cbf61ce52a31deede72310568382c65c868e566c8b04a8a093f949f7b",
+      "exported_sha256": "5d3cf22cbf61ce52a31deede72310568382c65c868e566c8b04a8a093f949f7b",
+      "bytes": 158,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-community/pressure-1.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-community/pressure-1.md",
+      "original_sha256": "9c692d579d2d9047cc9bb97d2be18c08ee9f8a7b012c1a1981e37e05db4b43ba",
+      "exported_sha256": "9c692d579d2d9047cc9bb97d2be18c08ee9f8a7b012c1a1981e37e05db4b43ba",
+      "bytes": 196,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-community/pressure-2.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-community/pressure-2.md",
+      "original_sha256": "7f95e882138a4afa96a6e74aa2d5c8aa53c30bd2da0a78286c031bb9ebda8aff",
+      "exported_sha256": "7f95e882138a4afa96a6e74aa2d5c8aa53c30bd2da0a78286c031bb9ebda8aff",
+      "bytes": 136,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-community/trigger-1.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-community/trigger-1.md",
+      "original_sha256": "4a1fa93ac127c13cee8bd15526486bcac6778b265452e3caf393440d8bd6b875",
+      "exported_sha256": "4a1fa93ac127c13cee8bd15526486bcac6778b265452e3caf393440d8bd6b875",
+      "bytes": 891,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-community/trigger-2.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-community/trigger-2.md",
+      "original_sha256": "0fd717993b346f805ab275ec3e2cfc13afa5e3123a75cceb30420a67ec00ad99",
+      "exported_sha256": "0fd717993b346f805ab275ec3e2cfc13afa5e3123a75cceb30420a67ec00ad99",
+      "bytes": 921,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-community/trigger-3.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-community/trigger-3.md",
+      "original_sha256": "7f47cb407def7896d346e6ca7689d92ae24b6de367e0442956af8d012ff8ece7",
+      "exported_sha256": "7f47cb407def7896d346e6ca7689d92ae24b6de367e0442956af8d012ff8ece7",
+      "bytes": 896,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-community/trigger-4.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-community/trigger-4.md",
+      "original_sha256": "3240c9730da07c1a6d9e6da2ddd4326f992860530d868b3344f9c1085a107ee9",
+      "exported_sha256": "3240c9730da07c1a6d9e6da2ddd4326f992860530d868b3344f9c1085a107ee9",
+      "bytes": 891,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-community/trigger-5.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-community/trigger-5.md",
+      "original_sha256": "8cffd3159e2505bf33573472e1600abed2c0a9e621c5824ff0cb416f9aab4c18",
+      "exported_sha256": "8cffd3159e2505bf33573472e1600abed2c0a9e621c5824ff0cb416f9aab4c18",
+      "bytes": 879,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-community/trigger-6.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-community/trigger-6.md",
+      "original_sha256": "581350fd83e68cb2226d4f43f6c2d0ef9e75d53b06ab4a4873d01ef35a9dc8da",
+      "exported_sha256": "581350fd83e68cb2226d4f43f6c2d0ef9e75d53b06ab4a4873d01ef35a9dc8da",
+      "bytes": 873,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-community/trigger-7.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-community/trigger-7.md",
+      "original_sha256": "bb614090f4bfe257e251bcd800cc2348c5354583bbc305d24193487d409866fa",
+      "exported_sha256": "bb614090f4bfe257e251bcd800cc2348c5354583bbc305d24193487d409866fa",
+      "bytes": 868,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-community/trigger-8.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-community/trigger-8.md",
+      "original_sha256": "49cad6978a9cf94f0a36e3654f8b222b68b118730d2de0c785390e047b17e984",
+      "exported_sha256": "49cad6978a9cf94f0a36e3654f8b222b68b118730d2de0c785390e047b17e984",
+      "bytes": 872,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-content-strategy/eval-1.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-content-strategy/eval-1.md",
+      "original_sha256": "b6cec81e622218fbc2a7d18f154b01629ad5ce3e0e21e746e135b8d781024d28",
+      "exported_sha256": "b6cec81e622218fbc2a7d18f154b01629ad5ce3e0e21e746e135b8d781024d28",
+      "bytes": 214,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-content-strategy/eval-2.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-content-strategy/eval-2.md",
+      "original_sha256": "beaf136aa0836a58b4a18afefb1dd40034fcc957cb00410e68cd3e5e4751246f",
+      "exported_sha256": "beaf136aa0836a58b4a18afefb1dd40034fcc957cb00410e68cd3e5e4751246f",
+      "bytes": 213,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-content-strategy/eval-3.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-content-strategy/eval-3.md",
+      "original_sha256": "1e274b194557f36a129cbeb5348500f39ad97d66da222d6681716b442d93e167",
+      "exported_sha256": "1e274b194557f36a129cbeb5348500f39ad97d66da222d6681716b442d93e167",
+      "bytes": 194,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-content-strategy/eval-4.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-content-strategy/eval-4.md",
+      "original_sha256": "4f31aac76573268ec917f6f39deebfc465a27c8fcb8631010194ec7537258e9d",
+      "exported_sha256": "4f31aac76573268ec917f6f39deebfc465a27c8fcb8631010194ec7537258e9d",
+      "bytes": 215,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-content-strategy/pressure-1.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-content-strategy/pressure-1.md",
+      "original_sha256": "80547e8fcda8ede0809ac69cc2a98f25418e2e7b676c377016a004c2b1cfb8c1",
+      "exported_sha256": "80547e8fcda8ede0809ac69cc2a98f25418e2e7b676c377016a004c2b1cfb8c1",
+      "bytes": 197,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-content-strategy/pressure-2.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-content-strategy/pressure-2.md",
+      "original_sha256": "5807cfe1770198bdac645312b63b44ab54471a48bb068d210df19834b2bee287",
+      "exported_sha256": "5807cfe1770198bdac645312b63b44ab54471a48bb068d210df19834b2bee287",
+      "bytes": 166,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-content-strategy/trigger-1.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-content-strategy/trigger-1.md",
+      "original_sha256": "b843ce7547c96cc6e7511a06270d552f60deeb1b406e188e89c972a3ffec822b",
+      "exported_sha256": "b843ce7547c96cc6e7511a06270d552f60deeb1b406e188e89c972a3ffec822b",
+      "bytes": 846,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-content-strategy/trigger-2.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-content-strategy/trigger-2.md",
+      "original_sha256": "06b1e5687947140d9cd6dd6b8ba9b386c7e865923880c50e0e2fa8fc3ba491f0",
+      "exported_sha256": "06b1e5687947140d9cd6dd6b8ba9b386c7e865923880c50e0e2fa8fc3ba491f0",
+      "bytes": 839,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-content-strategy/trigger-3.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-content-strategy/trigger-3.md",
+      "original_sha256": "ef6c6d412194c817d4d3ccecf6515a27890c469e439224cdcf8fd88b65537a55",
+      "exported_sha256": "ef6c6d412194c817d4d3ccecf6515a27890c469e439224cdcf8fd88b65537a55",
+      "bytes": 835,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-content-strategy/trigger-4.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-content-strategy/trigger-4.md",
+      "original_sha256": "9364c8f6415ad831b32ed4eeefc3d0458ef99d8ec23ab4eadf2adfad6ac87d7e",
+      "exported_sha256": "9364c8f6415ad831b32ed4eeefc3d0458ef99d8ec23ab4eadf2adfad6ac87d7e",
+      "bytes": 845,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-content-strategy/trigger-5.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-content-strategy/trigger-5.md",
+      "original_sha256": "11f044b0a6bf98e73fc2e474e75db8326fd11581aff738db47b0ae17944bab2f",
+      "exported_sha256": "11f044b0a6bf98e73fc2e474e75db8326fd11581aff738db47b0ae17944bab2f",
+      "bytes": 826,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-content-strategy/trigger-6.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-content-strategy/trigger-6.md",
+      "original_sha256": "400f847792612bc57576d986d16becda44f6c602350d99ad6e391bba56fe4731",
+      "exported_sha256": "400f847792612bc57576d986d16becda44f6c602350d99ad6e391bba56fe4731",
+      "bytes": 820,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-content-strategy/trigger-7.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-content-strategy/trigger-7.md",
+      "original_sha256": "a3f7b0f5590b7115b1b497942a2678c76e378c0e5c33aaa5e7287dacf3f3ec12",
+      "exported_sha256": "a3f7b0f5590b7115b1b497942a2678c76e378c0e5c33aaa5e7287dacf3f3ec12",
+      "bytes": 817,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-content-strategy/trigger-8.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-content-strategy/trigger-8.md",
+      "original_sha256": "8face7db037ad02d86d5c5227db0fbf710d386329fb6a6a7ac222f4916877625",
+      "exported_sha256": "8face7db037ad02d86d5c5227db0fbf710d386329fb6a6a7ac222f4916877625",
+      "bytes": 815,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-copywriting/eval-1.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-copywriting/eval-1.md",
+      "original_sha256": "8cc8e311eccab7e7aa9eb5440d5d1a7ab8fa25128145a763371b221bf3fc2bfd",
+      "exported_sha256": "8cc8e311eccab7e7aa9eb5440d5d1a7ab8fa25128145a763371b221bf3fc2bfd",
+      "bytes": 228,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-copywriting/eval-2.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-copywriting/eval-2.md",
+      "original_sha256": "5ec0f3d16b2c7290c1ec3dc5dff5f78dd23c93a77d9fbc6ea58ce63bccb0b010",
+      "exported_sha256": "5ec0f3d16b2c7290c1ec3dc5dff5f78dd23c93a77d9fbc6ea58ce63bccb0b010",
+      "bytes": 261,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-copywriting/eval-3.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-copywriting/eval-3.md",
+      "original_sha256": "9328ebb69687fc9cf9c8459592a1142bff84cb46f32d5f59d06b37623367df8d",
+      "exported_sha256": "9328ebb69687fc9cf9c8459592a1142bff84cb46f32d5f59d06b37623367df8d",
+      "bytes": 247,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-copywriting/eval-4.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-copywriting/eval-4.md",
+      "original_sha256": "24969956f3af65af39bdf29f49d2ec56957ae626614ae3c37e513773bef3449f",
+      "exported_sha256": "24969956f3af65af39bdf29f49d2ec56957ae626614ae3c37e513773bef3449f",
+      "bytes": 199,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-copywriting/pressure-1.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-copywriting/pressure-1.md",
+      "original_sha256": "02c3eb1043152044e3bac04dfb231ce238af5613303d2138a3db52ab96ebf442",
+      "exported_sha256": "02c3eb1043152044e3bac04dfb231ce238af5613303d2138a3db52ab96ebf442",
+      "bytes": 176,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-copywriting/pressure-2.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-copywriting/pressure-2.md",
+      "original_sha256": "263c8a4d7fcf408c0a02052df6af4ca6ad7d9fdf9f93d36e32d4562964f8f520",
+      "exported_sha256": "263c8a4d7fcf408c0a02052df6af4ca6ad7d9fdf9f93d36e32d4562964f8f520",
+      "bytes": 152,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-copywriting/trigger-1.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-copywriting/trigger-1.md",
+      "original_sha256": "eb453802ac4ba3cec30f88515e395afe40990ef7dd05886dd477fb4698e2ddac",
+      "exported_sha256": "eb453802ac4ba3cec30f88515e395afe40990ef7dd05886dd477fb4698e2ddac",
+      "bytes": 891,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-copywriting/trigger-2.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-copywriting/trigger-2.md",
+      "original_sha256": "a9b6651cc3a44665f99c838e27f292505407405202c57fec5676b8fcc71dc31d",
+      "exported_sha256": "a9b6651cc3a44665f99c838e27f292505407405202c57fec5676b8fcc71dc31d",
+      "bytes": 886,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-copywriting/trigger-3.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-copywriting/trigger-3.md",
+      "original_sha256": "63102fdcda95234a601cd5435effc81a71d514873d6bb27b2bd6ba5a948c5800",
+      "exported_sha256": "63102fdcda95234a601cd5435effc81a71d514873d6bb27b2bd6ba5a948c5800",
+      "bytes": 878,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-copywriting/trigger-4.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-copywriting/trigger-4.md",
+      "original_sha256": "a8969815b7d651b07645a746d0be80ebe719dcf228ac7c8527a600f842090744",
+      "exported_sha256": "a8969815b7d651b07645a746d0be80ebe719dcf228ac7c8527a600f842090744",
+      "bytes": 886,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-copywriting/trigger-5.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-copywriting/trigger-5.md",
+      "original_sha256": "a9f4ba9ad59816fc38b673576b1bea810c12e792240cd2006a2eb0690c0ac307",
+      "exported_sha256": "a9f4ba9ad59816fc38b673576b1bea810c12e792240cd2006a2eb0690c0ac307",
+      "bytes": 861,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-copywriting/trigger-6.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-copywriting/trigger-6.md",
+      "original_sha256": "277cd8e6ec2256a007fe9ea1db211a6b8793df811d56afd38b4d548b311b0bfc",
+      "exported_sha256": "277cd8e6ec2256a007fe9ea1db211a6b8793df811d56afd38b4d548b311b0bfc",
+      "bytes": 856,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-copywriting/trigger-7.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-copywriting/trigger-7.md",
+      "original_sha256": "04c0bb7b19abfcb371c7594527434b1d8a449b881b40519f7f5e8c18776f7b1e",
+      "exported_sha256": "04c0bb7b19abfcb371c7594527434b1d8a449b881b40519f7f5e8c18776f7b1e",
+      "bytes": 851,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-copywriting/trigger-8.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-copywriting/trigger-8.md",
+      "original_sha256": "e6b80d532d6adac2700f3b0dbf5dbfbdc2ae7c376692ff22cf9fc469ccbe87d5",
+      "exported_sha256": "e6b80d532d6adac2700f3b0dbf5dbfbdc2ae7c376692ff22cf9fc469ccbe87d5",
+      "bytes": 857,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-demo-video/eval-1.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-demo-video/eval-1.md",
+      "original_sha256": "8199cf0bb1388cb5c6860f0467c806c3baaab1ed5643af57b155e22a8ced846f",
+      "exported_sha256": "8199cf0bb1388cb5c6860f0467c806c3baaab1ed5643af57b155e22a8ced846f",
+      "bytes": 185,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-demo-video/eval-2.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-demo-video/eval-2.md",
+      "original_sha256": "5bd719bbdfd9442ba3bc751f5bfc2117eb605d0b09ce7485d64caa3024d9c488",
+      "exported_sha256": "5bd719bbdfd9442ba3bc751f5bfc2117eb605d0b09ce7485d64caa3024d9c488",
+      "bytes": 171,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-demo-video/eval-3.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-demo-video/eval-3.md",
+      "original_sha256": "5a70ce645c88164fd0b414983d74b185f6d93446b29876eacb28b04bfa48be52",
+      "exported_sha256": "5a70ce645c88164fd0b414983d74b185f6d93446b29876eacb28b04bfa48be52",
+      "bytes": 206,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-demo-video/eval-4.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-demo-video/eval-4.md",
+      "original_sha256": "dcfbed6e0e2fdb627d0c0f385117bf498ee4cf15fa8fe7bbe011b95cd36310b1",
+      "exported_sha256": "dcfbed6e0e2fdb627d0c0f385117bf498ee4cf15fa8fe7bbe011b95cd36310b1",
+      "bytes": 144,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-demo-video/eval-5.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-demo-video/eval-5.md",
+      "original_sha256": "6f058866b82a9932d244bb3e02f22d2f7a6254b745dbbad2bae9a4b9b29e5ebb",
+      "exported_sha256": "6f058866b82a9932d244bb3e02f22d2f7a6254b745dbbad2bae9a4b9b29e5ebb",
+      "bytes": 196,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-demo-video/pressure-1.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-demo-video/pressure-1.md",
+      "original_sha256": "0e6ac3752650957eeae821a75ab5fa5532f26943f144576ed0d13ee1200482de",
+      "exported_sha256": "0e6ac3752650957eeae821a75ab5fa5532f26943f144576ed0d13ee1200482de",
+      "bytes": 165,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-demo-video/pressure-2.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-demo-video/pressure-2.md",
+      "original_sha256": "0ed05b9ac31e7ded60fe293bb7bd3f3641526615774a953b3ae50f6cde095743",
+      "exported_sha256": "0ed05b9ac31e7ded60fe293bb7bd3f3641526615774a953b3ae50f6cde095743",
+      "bytes": 226,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-demo-video/trigger-1.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-demo-video/trigger-1.md",
+      "original_sha256": "c3b91e3b2330c5bc9b80da3a8ef92bdd9b0410a5ca711764899cd166974d5be9",
+      "exported_sha256": "c3b91e3b2330c5bc9b80da3a8ef92bdd9b0410a5ca711764899cd166974d5be9",
+      "bytes": 1058,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-demo-video/trigger-2.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-demo-video/trigger-2.md",
+      "original_sha256": "538a80564db60dea1ab3185feae1c53074d48070cd2407c2eb8ad2e2ae9cc4e1",
+      "exported_sha256": "538a80564db60dea1ab3185feae1c53074d48070cd2407c2eb8ad2e2ae9cc4e1",
+      "bytes": 1056,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-demo-video/trigger-3.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-demo-video/trigger-3.md",
+      "original_sha256": "3b801abe2cb23b37b3844028f46de3c64fca398dcdc7a9143c6ef6dc0d11c48a",
+      "exported_sha256": "3b801abe2cb23b37b3844028f46de3c64fca398dcdc7a9143c6ef6dc0d11c48a",
+      "bytes": 1057,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-demo-video/trigger-4.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-demo-video/trigger-4.md",
+      "original_sha256": "c67c343cc2e59dcf9c041040bf6754d7182344a12878b1c212fd048bf8fa5a37",
+      "exported_sha256": "c67c343cc2e59dcf9c041040bf6754d7182344a12878b1c212fd048bf8fa5a37",
+      "bytes": 1073,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-demo-video/trigger-5.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-demo-video/trigger-5.md",
+      "original_sha256": "de25a4a97c25f2527582c581b406a2535b145a466aac6881a497fb7f4d87c600",
+      "exported_sha256": "de25a4a97c25f2527582c581b406a2535b145a466aac6881a497fb7f4d87c600",
+      "bytes": 1063,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-demo-video/trigger-6.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-demo-video/trigger-6.md",
+      "original_sha256": "869ba3ee6266f23e25524a358ee8a49f66f5819da75a027f737c8cae109b2c06",
+      "exported_sha256": "869ba3ee6266f23e25524a358ee8a49f66f5819da75a027f737c8cae109b2c06",
+      "bytes": 1043,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-demo-video/trigger-7.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-demo-video/trigger-7.md",
+      "original_sha256": "f571a2abfa8d36b5ba8d197c898a63443a283d8d95c6acc52378357a1f07e58f",
+      "exported_sha256": "f571a2abfa8d36b5ba8d197c898a63443a283d8d95c6acc52378357a1f07e58f",
+      "bytes": 1028,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-demo-video/trigger-8.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-demo-video/trigger-8.md",
+      "original_sha256": "639900da246310600655dc774c2be38418575968b2f2b5927f6d2d3894b78448",
+      "exported_sha256": "639900da246310600655dc774c2be38418575968b2f2b5927f6d2d3894b78448",
+      "bytes": 1044,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-landing/eval-1.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-landing/eval-1.md",
+      "original_sha256": "12b7a66d8ca27af93a335a67d74475f79b2354abb8ee965c6f6ed8612d48b3d1",
+      "exported_sha256": "12b7a66d8ca27af93a335a67d74475f79b2354abb8ee965c6f6ed8612d48b3d1",
+      "bytes": 227,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-landing/eval-2.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-landing/eval-2.md",
+      "original_sha256": "b74b015fd3f0ab12cbf4d44aefe19e81e570945c7176702659422f300b8caf43",
+      "exported_sha256": "b74b015fd3f0ab12cbf4d44aefe19e81e570945c7176702659422f300b8caf43",
+      "bytes": 204,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-landing/eval-3.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-landing/eval-3.md",
+      "original_sha256": "7068d291f9b439d8811024f6137cc63de5c16043fa50df2c3bb819a915cf2682",
+      "exported_sha256": "7068d291f9b439d8811024f6137cc63de5c16043fa50df2c3bb819a915cf2682",
+      "bytes": 181,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-landing/pressure-1.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-landing/pressure-1.md",
+      "original_sha256": "4a8501c8b148cea91abfa34edd60c771d73466c4721babdc7def386a36ed9003",
+      "exported_sha256": "4a8501c8b148cea91abfa34edd60c771d73466c4721babdc7def386a36ed9003",
+      "bytes": 238,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-landing/pressure-2.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-landing/pressure-2.md",
+      "original_sha256": "2c55f99d6cf78ec3bee041cdec4e0f1f077f0e4de52c1b17dd878d5c8df8dfc5",
+      "exported_sha256": "2c55f99d6cf78ec3bee041cdec4e0f1f077f0e4de52c1b17dd878d5c8df8dfc5",
+      "bytes": 144,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-landing/trigger-1.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-landing/trigger-1.md",
+      "original_sha256": "325dd833d815c45055decef7b4d3dfedae27dd3e7fe6b40cc7c0b2706f4c8a59",
+      "exported_sha256": "325dd833d815c45055decef7b4d3dfedae27dd3e7fe6b40cc7c0b2706f4c8a59",
+      "bytes": 949,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-landing/trigger-2.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-landing/trigger-2.md",
+      "original_sha256": "999e365698a8ca45b9480284099558e132fe24dfadcd28ba8ff6172b9a670134",
+      "exported_sha256": "999e365698a8ca45b9480284099558e132fe24dfadcd28ba8ff6172b9a670134",
+      "bytes": 948,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-landing/trigger-3.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-landing/trigger-3.md",
+      "original_sha256": "a7bb09f3a692dcac4c9a32c997906f5b5e9f5e16571931981c79485857b12c83",
+      "exported_sha256": "a7bb09f3a692dcac4c9a32c997906f5b5e9f5e16571931981c79485857b12c83",
+      "bytes": 956,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-landing/trigger-4.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-landing/trigger-4.md",
+      "original_sha256": "d663ae40c2e87400e9dd80b9c7e27dce77bc69df1164fd5ab6f23ff12e7d2bb5",
+      "exported_sha256": "d663ae40c2e87400e9dd80b9c7e27dce77bc69df1164fd5ab6f23ff12e7d2bb5",
+      "bytes": 930,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-landing/trigger-5.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-landing/trigger-5.md",
+      "original_sha256": "66f8755b0f9889c4918c5a54c7af3ed7e8c179bccd7c55310578c966a7391fe1",
+      "exported_sha256": "66f8755b0f9889c4918c5a54c7af3ed7e8c179bccd7c55310578c966a7391fe1",
+      "bytes": 940,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-landing/trigger-6.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-landing/trigger-6.md",
+      "original_sha256": "f1104b9a127688dbd5f8f0a24280694ac2ed87bb745a399bc18bfa6ff1d5d3d2",
+      "exported_sha256": "f1104b9a127688dbd5f8f0a24280694ac2ed87bb745a399bc18bfa6ff1d5d3d2",
+      "bytes": 928,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-landing/trigger-7.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-landing/trigger-7.md",
+      "original_sha256": "96de8249a896683b648ec9fdffd4acee8056ef9f3b91c28b6e4700cecf0cca25",
+      "exported_sha256": "96de8249a896683b648ec9fdffd4acee8056ef9f3b91c28b6e4700cecf0cca25",
+      "bytes": 920,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-landing/trigger-8.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-landing/trigger-8.md",
+      "original_sha256": "027975fdd0d02acbab11e2a71274dbd00f12845c26a0ff85aa7c29a1a0e7333f",
+      "exported_sha256": "027975fdd0d02acbab11e2a71274dbd00f12845c26a0ff85aa7c29a1a0e7333f",
+      "bytes": 912,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-launch/eval-1.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-launch/eval-1.md",
+      "original_sha256": "09b848b6e5c5180257bd87a284a034a0197442c84545bb700b11733f73a385e5",
+      "exported_sha256": "09b848b6e5c5180257bd87a284a034a0197442c84545bb700b11733f73a385e5",
+      "bytes": 324,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-launch/eval-2.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-launch/eval-2.md",
+      "original_sha256": "c426df434d12a4a660be3089c85bdeaeacf68d32e71a02e80a1d31df04f59c52",
+      "exported_sha256": "c426df434d12a4a660be3089c85bdeaeacf68d32e71a02e80a1d31df04f59c52",
+      "bytes": 199,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-launch/eval-3.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-launch/eval-3.md",
+      "original_sha256": "0f1aa77a4b5f8096f6ec31421c035e1bf6cb4d4b90a157d5038baff8f633aa66",
+      "exported_sha256": "0f1aa77a4b5f8096f6ec31421c035e1bf6cb4d4b90a157d5038baff8f633aa66",
+      "bytes": 150,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-launch/pressure-1.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-launch/pressure-1.md",
+      "original_sha256": "1ca0db57d0dfa690d305a54ad33d4b03562921b78f80d45a3aaddf7b221ea951",
+      "exported_sha256": "1ca0db57d0dfa690d305a54ad33d4b03562921b78f80d45a3aaddf7b221ea951",
+      "bytes": 236,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-launch/pressure-2.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-launch/pressure-2.md",
+      "original_sha256": "3667e62b829ca8adc4f8465bcbc97f694dbf567f049b19bd536eddf5907ae506",
+      "exported_sha256": "3667e62b829ca8adc4f8465bcbc97f694dbf567f049b19bd536eddf5907ae506",
+      "bytes": 150,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-launch/trigger-1.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-launch/trigger-1.md",
+      "original_sha256": "fd75ea97dc21b3fcaa10f7b1fd7b26858a22e099b4fb249ec5ea51ff114227e7",
+      "exported_sha256": "fd75ea97dc21b3fcaa10f7b1fd7b26858a22e099b4fb249ec5ea51ff114227e7",
+      "bytes": 858,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-launch/trigger-2.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-launch/trigger-2.md",
+      "original_sha256": "8428734a28faab335e1e2914c2b8ed3b6d7c1971209c6380c82f77cef7de6356",
+      "exported_sha256": "8428734a28faab335e1e2914c2b8ed3b6d7c1971209c6380c82f77cef7de6356",
+      "bytes": 863,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-launch/trigger-3.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-launch/trigger-3.md",
+      "original_sha256": "b1e70d154d9832230833099f3fc8c815f8f68f7a8156e3319172a081094789da",
+      "exported_sha256": "b1e70d154d9832230833099f3fc8c815f8f68f7a8156e3319172a081094789da",
+      "bytes": 855,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-launch/trigger-4.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-launch/trigger-4.md",
+      "original_sha256": "29ae9fbfbc561da75f447e2bc13ca2799fc08d9a3185309977d6ef88b29f1c28",
+      "exported_sha256": "29ae9fbfbc561da75f447e2bc13ca2799fc08d9a3185309977d6ef88b29f1c28",
+      "bytes": 837,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-launch/trigger-5.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-launch/trigger-5.md",
+      "original_sha256": "30a5bf807a0895a69c28be29c083e9317ca1abd5157e3f748d87f5184843e891",
+      "exported_sha256": "30a5bf807a0895a69c28be29c083e9317ca1abd5157e3f748d87f5184843e891",
+      "bytes": 833,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-launch/trigger-6.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-launch/trigger-6.md",
+      "original_sha256": "ef0f3f01e9a2c909ceb08a5d68b53d488f0a3db37b493019f16989328289e4fc",
+      "exported_sha256": "ef0f3f01e9a2c909ceb08a5d68b53d488f0a3db37b493019f16989328289e4fc",
+      "bytes": 819,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-launch/trigger-7.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-launch/trigger-7.md",
+      "original_sha256": "5185d454dec41444161579a0ff3f18722dbf71c24cf34c88c417bf2ad4147080",
+      "exported_sha256": "5185d454dec41444161579a0ff3f18722dbf71c24cf34c88c417bf2ad4147080",
+      "bytes": 819,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-launch/trigger-8.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-launch/trigger-8.md",
+      "original_sha256": "874f6c770edeb6672790e9af90ccc858b54844d2d228d9f5780a173b7c56cdbd",
+      "exported_sha256": "874f6c770edeb6672790e9af90ccc858b54844d2d228d9f5780a173b7c56cdbd",
+      "bytes": 827,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-measurement/eval-1.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-measurement/eval-1.md",
+      "original_sha256": "8f1b1993c1b0bcbec5c5637e018cf1e5263123e0ed3b7f309dc17d6a476d72d3",
+      "exported_sha256": "8f1b1993c1b0bcbec5c5637e018cf1e5263123e0ed3b7f309dc17d6a476d72d3",
+      "bytes": 161,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-measurement/eval-2.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-measurement/eval-2.md",
+      "original_sha256": "f1dedb27e252a745d276dee813962976d7486d995177ffe0fa3c04a5ae2ac84c",
+      "exported_sha256": "f1dedb27e252a745d276dee813962976d7486d995177ffe0fa3c04a5ae2ac84c",
+      "bytes": 199,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-measurement/eval-3.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-measurement/eval-3.md",
+      "original_sha256": "fda1dd6bf9c32fd1b7d19d03f57180786c1ec8c5a5c3e83cbfaf4786b63652cb",
+      "exported_sha256": "fda1dd6bf9c32fd1b7d19d03f57180786c1ec8c5a5c3e83cbfaf4786b63652cb",
+      "bytes": 114,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-measurement/eval-4.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-measurement/eval-4.md",
+      "original_sha256": "ae9c881bc991738c76d77c036afa097583930a2eb86df249d80c8b425340d592",
+      "exported_sha256": "ae9c881bc991738c76d77c036afa097583930a2eb86df249d80c8b425340d592",
+      "bytes": 184,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-measurement/eval-5.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-measurement/eval-5.md",
+      "original_sha256": "67966bed63acbaf64a04a8f1ffdc5736882fc6ff0d9b028ea12215ec39da1830",
+      "exported_sha256": "67966bed63acbaf64a04a8f1ffdc5736882fc6ff0d9b028ea12215ec39da1830",
+      "bytes": 176,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-measurement/pressure-1.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-measurement/pressure-1.md",
+      "original_sha256": "4abb133714ec3a6a52b1f3b3384d7d51e07325a8ccf3963d2a771d84f6afbcf5",
+      "exported_sha256": "4abb133714ec3a6a52b1f3b3384d7d51e07325a8ccf3963d2a771d84f6afbcf5",
+      "bytes": 176,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-measurement/pressure-2.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-measurement/pressure-2.md",
+      "original_sha256": "c9121ef4876d87ee4483fe330d595d72cd307eafafa6ff74761b175f20a144f6",
+      "exported_sha256": "c9121ef4876d87ee4483fe330d595d72cd307eafafa6ff74761b175f20a144f6",
+      "bytes": 128,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-measurement/trigger-1.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-measurement/trigger-1.md",
+      "original_sha256": "19a549af6206c84fedfe790539e32789dd036bc7288c63790898b2403fa08b54",
+      "exported_sha256": "19a549af6206c84fedfe790539e32789dd036bc7288c63790898b2403fa08b54",
+      "bytes": 829,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-measurement/trigger-2.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-measurement/trigger-2.md",
+      "original_sha256": "b66e44ba59c822e42d45de10e35741734a8fad8e4dcf7e944bfcd8c0d3cb0588",
+      "exported_sha256": "b66e44ba59c822e42d45de10e35741734a8fad8e4dcf7e944bfcd8c0d3cb0588",
+      "bytes": 850,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-measurement/trigger-3.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-measurement/trigger-3.md",
+      "original_sha256": "134417ef3aaa7557a2d96cb85e923ef4311f25c38d34e0b1e688864798f4ed00",
+      "exported_sha256": "134417ef3aaa7557a2d96cb85e923ef4311f25c38d34e0b1e688864798f4ed00",
+      "bytes": 853,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-measurement/trigger-4.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-measurement/trigger-4.md",
+      "original_sha256": "34e68507bd058fe86881ed83d8bae458f7b06e075c6cb42e77b3d1c782c6e70f",
+      "exported_sha256": "34e68507bd058fe86881ed83d8bae458f7b06e075c6cb42e77b3d1c782c6e70f",
+      "bytes": 850,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-measurement/trigger-5.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-measurement/trigger-5.md",
+      "original_sha256": "ca80f49bc0bec06c9c25845f5efcff0a9538aedd66e0a4ceeb9dac45a283adb7",
+      "exported_sha256": "ca80f49bc0bec06c9c25845f5efcff0a9538aedd66e0a4ceeb9dac45a283adb7",
+      "bytes": 825,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-measurement/trigger-6.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-measurement/trigger-6.md",
+      "original_sha256": "d654f1d72ec72b38dacc2219cd9c570043e991c193615a35e7b6dbd2326d350f",
+      "exported_sha256": "d654f1d72ec72b38dacc2219cd9c570043e991c193615a35e7b6dbd2326d350f",
+      "bytes": 828,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-measurement/trigger-7.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-measurement/trigger-7.md",
+      "original_sha256": "31174d652533ea5493d40432603378e09c2061253abc251856ab084d9d5d1b56",
+      "exported_sha256": "31174d652533ea5493d40432603378e09c2061253abc251856ab084d9d5d1b56",
+      "bytes": 799,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-measurement/trigger-8.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-measurement/trigger-8.md",
+      "original_sha256": "c990f552f617a8efde2f6d5bccdfdf6dad5d66b160f431618d0261f9176529c4",
+      "exported_sha256": "c990f552f617a8efde2f6d5bccdfdf6dad5d66b160f431618d0261f9176529c4",
+      "bytes": 822,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-positioning/eval-1.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-positioning/eval-1.md",
+      "original_sha256": "c682902fee92dba7a70891875b884fd63ad33551e6a655feff5d3b2c342f5f01",
+      "exported_sha256": "c682902fee92dba7a70891875b884fd63ad33551e6a655feff5d3b2c342f5f01",
+      "bytes": 135,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-positioning/eval-2.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-positioning/eval-2.md",
+      "original_sha256": "5cd1fee2897840e9e5d0bb79d7ab4e99d03639e4eb6bdc75d8d7fdfc6c3752b2",
+      "exported_sha256": "5cd1fee2897840e9e5d0bb79d7ab4e99d03639e4eb6bdc75d8d7fdfc6c3752b2",
+      "bytes": 155,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-positioning/eval-3.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-positioning/eval-3.md",
+      "original_sha256": "bdd488c352d96bb813bc038f70ab79fb2d2035cb3e78ed88f5529e1faf31214c",
+      "exported_sha256": "bdd488c352d96bb813bc038f70ab79fb2d2035cb3e78ed88f5529e1faf31214c",
+      "bytes": 185,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-positioning/eval-4.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-positioning/eval-4.md",
+      "original_sha256": "465ed8a2bc2851154551f965a699a1bfb50c49b71da3fedba1549f4f0e043094",
+      "exported_sha256": "465ed8a2bc2851154551f965a699a1bfb50c49b71da3fedba1549f4f0e043094",
+      "bytes": 129,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-positioning/eval-5.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-positioning/eval-5.md",
+      "original_sha256": "0a411e3db999e60a5dd47e19cd35eeef29062e93b25bff52b2ebe93e9957232f",
+      "exported_sha256": "0a411e3db999e60a5dd47e19cd35eeef29062e93b25bff52b2ebe93e9957232f",
+      "bytes": 137,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-positioning/pressure-1.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-positioning/pressure-1.md",
+      "original_sha256": "939203b68c5538e53b7c913c56064a3b1ce0694ad2d46cff13f9a6f2a00298e3",
+      "exported_sha256": "939203b68c5538e53b7c913c56064a3b1ce0694ad2d46cff13f9a6f2a00298e3",
+      "bytes": 158,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-positioning/pressure-2.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-positioning/pressure-2.md",
+      "original_sha256": "c8515d8d3e7ce3fdba39932c20ac7055f3018b45dcca16cf9e5cd645299489e2",
+      "exported_sha256": "c8515d8d3e7ce3fdba39932c20ac7055f3018b45dcca16cf9e5cd645299489e2",
+      "bytes": 136,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-positioning/trigger-1.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-positioning/trigger-1.md",
+      "original_sha256": "255fe797526c7748719e50777a35623d0a2bd87c24533135d9969c4b14d34786",
+      "exported_sha256": "255fe797526c7748719e50777a35623d0a2bd87c24533135d9969c4b14d34786",
+      "bytes": 754,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-positioning/trigger-2.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-positioning/trigger-2.md",
+      "original_sha256": "54816aaf04373e7fe7522174826a78d6f90bfb62e940c11136359e134a8d00c4",
+      "exported_sha256": "54816aaf04373e7fe7522174826a78d6f90bfb62e940c11136359e134a8d00c4",
+      "bytes": 738,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-positioning/trigger-3.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-positioning/trigger-3.md",
+      "original_sha256": "880c8bde1377723c5c01b699a8aea6abc6876ec34df6f553d3fac6cbbc36c4a1",
+      "exported_sha256": "880c8bde1377723c5c01b699a8aea6abc6876ec34df6f553d3fac6cbbc36c4a1",
+      "bytes": 746,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-positioning/trigger-4.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-positioning/trigger-4.md",
+      "original_sha256": "892966d55a1748e076054629ada2ec332e6da9bad39f018e613389812f5eb6b3",
+      "exported_sha256": "892966d55a1748e076054629ada2ec332e6da9bad39f018e613389812f5eb6b3",
+      "bytes": 760,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-positioning/trigger-5.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-positioning/trigger-5.md",
+      "original_sha256": "df2907ef65539801bb228248046d5349549aa0e3a8df47c135605fc521a96801",
+      "exported_sha256": "df2907ef65539801bb228248046d5349549aa0e3a8df47c135605fc521a96801",
+      "bytes": 729,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-positioning/trigger-6.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-positioning/trigger-6.md",
+      "original_sha256": "e51f488819125391264e348917f1ba390e912cb157bf9f4901084ba426ed3a32",
+      "exported_sha256": "e51f488819125391264e348917f1ba390e912cb157bf9f4901084ba426ed3a32",
+      "bytes": 735,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-positioning/trigger-7.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-positioning/trigger-7.md",
+      "original_sha256": "3e06397701fc5097c901dfc6aff922e3ac9d2e1ab363f6e3071aabed0a351f21",
+      "exported_sha256": "3e06397701fc5097c901dfc6aff922e3ac9d2e1ab363f6e3071aabed0a351f21",
+      "bytes": 721,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-positioning/trigger-8.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-positioning/trigger-8.md",
+      "original_sha256": "123b5b182fc9cd19933975ad410c9cf97d15ebeb0647d2d7143cbf5227364d39",
+      "exported_sha256": "123b5b182fc9cd19933975ad410c9cf97d15ebeb0647d2d7143cbf5227364d39",
+      "bytes": 704,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-proof/eval-1.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-proof/eval-1.md",
+      "original_sha256": "3ca53c155bea11df0a169d11713e9a9607ad2ea0888d4d97932904f63ca6e287",
+      "exported_sha256": "3ca53c155bea11df0a169d11713e9a9607ad2ea0888d4d97932904f63ca6e287",
+      "bytes": 230,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-proof/eval-2.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-proof/eval-2.md",
+      "original_sha256": "76b0d8291543872c0d4b5e53bd7308980bb6b2eeb2c8ba9ab2963f4a961162d9",
+      "exported_sha256": "76b0d8291543872c0d4b5e53bd7308980bb6b2eeb2c8ba9ab2963f4a961162d9",
+      "bytes": 208,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-proof/eval-3.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-proof/eval-3.md",
+      "original_sha256": "e7c958457afde9f6c4b66e8e29e68218822f02e940fff9f9f57d0504417ec049",
+      "exported_sha256": "e7c958457afde9f6c4b66e8e29e68218822f02e940fff9f9f57d0504417ec049",
+      "bytes": 158,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-proof/eval-4.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-proof/eval-4.md",
+      "original_sha256": "a32765b214a34a89110d9ae9f298258bdee8db20627407576ecc83ba3b137a1f",
+      "exported_sha256": "a32765b214a34a89110d9ae9f298258bdee8db20627407576ecc83ba3b137a1f",
+      "bytes": 192,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-proof/eval-5.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-proof/eval-5.md",
+      "original_sha256": "b7622ec763b6b0081d654869c12d696d12086982305c91e321a20b19e5833666",
+      "exported_sha256": "b7622ec763b6b0081d654869c12d696d12086982305c91e321a20b19e5833666",
+      "bytes": 189,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-proof/pressure-1.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-proof/pressure-1.md",
+      "original_sha256": "ce31e062d6b251ca11342510e1d79cb1196d9d91943b3906bd0951a69a009ad3",
+      "exported_sha256": "ce31e062d6b251ca11342510e1d79cb1196d9d91943b3906bd0951a69a009ad3",
+      "bytes": 207,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-proof/pressure-2.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-proof/pressure-2.md",
+      "original_sha256": "86b8de9987250592b71bdcdb8ac0a5c0a05d78e6046148eaf452c566e98ba59f",
+      "exported_sha256": "86b8de9987250592b71bdcdb8ac0a5c0a05d78e6046148eaf452c566e98ba59f",
+      "bytes": 141,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-proof/trigger-1.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-proof/trigger-1.md",
+      "original_sha256": "3f799e28fdb2c016a064cfe8f063bd77acada819f307aec8805fbef2f9a7f764",
+      "exported_sha256": "3f799e28fdb2c016a064cfe8f063bd77acada819f307aec8805fbef2f9a7f764",
+      "bytes": 744,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-proof/trigger-2.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-proof/trigger-2.md",
+      "original_sha256": "8d27f1e1698d75b0d84a7a66098905da70390af894292c1d3cb6c30f0a5a9eea",
+      "exported_sha256": "8d27f1e1698d75b0d84a7a66098905da70390af894292c1d3cb6c30f0a5a9eea",
+      "bytes": 741,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-proof/trigger-3.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-proof/trigger-3.md",
+      "original_sha256": "eed5f8f23024025a93ab7973582f0f6debda07cf9132ecc261870cac745d7859",
+      "exported_sha256": "eed5f8f23024025a93ab7973582f0f6debda07cf9132ecc261870cac745d7859",
+      "bytes": 748,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-proof/trigger-4.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-proof/trigger-4.md",
+      "original_sha256": "a8daf8d14f5e648a2840d227cefd0dbb0ff578fdeaf7133cd7ee3d79b5888d73",
+      "exported_sha256": "a8daf8d14f5e648a2840d227cefd0dbb0ff578fdeaf7133cd7ee3d79b5888d73",
+      "bytes": 747,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-proof/trigger-5.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-proof/trigger-5.md",
+      "original_sha256": "874af4008f8744d5debe9ab1cb1a4d2b0737d2d855e1b84070522f70a5d5b43e",
+      "exported_sha256": "874af4008f8744d5debe9ab1cb1a4d2b0737d2d855e1b84070522f70a5d5b43e",
+      "bytes": 715,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-proof/trigger-6.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-proof/trigger-6.md",
+      "original_sha256": "9de02c6d81f6f3674351e24c63ef4f66b0f30e1da138664a75e0db68a5fa4702",
+      "exported_sha256": "9de02c6d81f6f3674351e24c63ef4f66b0f30e1da138664a75e0db68a5fa4702",
+      "bytes": 742,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-proof/trigger-7.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-proof/trigger-7.md",
+      "original_sha256": "ee09a6293fd18ceada575030c0d81c46c45419b3426f5e7423422b13a73bf42d",
+      "exported_sha256": "ee09a6293fd18ceada575030c0d81c46c45419b3426f5e7423422b13a73bf42d",
+      "bytes": 717,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-proof/trigger-8.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-proof/trigger-8.md",
+      "original_sha256": "0320e5e7b8c6bbe66321e3e5287a66e42b7de9adc62917f9a67422df78e910ac",
+      "exported_sha256": "0320e5e7b8c6bbe66321e3e5287a66e42b7de9adc62917f9a67422df78e910ac",
+      "bytes": 729,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-search-discovery/eval-1.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-search-discovery/eval-1.md",
+      "original_sha256": "4219ce487197b63ee6226a96b2c6fe998cd0f755763813c0ba43d2a6a6d19cf0",
+      "exported_sha256": "4219ce487197b63ee6226a96b2c6fe998cd0f755763813c0ba43d2a6a6d19cf0",
+      "bytes": 171,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-search-discovery/eval-2.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-search-discovery/eval-2.md",
+      "original_sha256": "52cebd8f2cdb8ed30c05dc5d00f0f66ec134e1cb07292c19944f848c782b92c8",
+      "exported_sha256": "52cebd8f2cdb8ed30c05dc5d00f0f66ec134e1cb07292c19944f848c782b92c8",
+      "bytes": 195,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-search-discovery/eval-3.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-search-discovery/eval-3.md",
+      "original_sha256": "e4c92da476bb469fab4128c9f1a52aed833a6aae9e71484bf4d74b6ba9bb505a",
+      "exported_sha256": "e4c92da476bb469fab4128c9f1a52aed833a6aae9e71484bf4d74b6ba9bb505a",
+      "bytes": 138,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-search-discovery/eval-4.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-search-discovery/eval-4.md",
+      "original_sha256": "a87258c9e90c923ee0a03e9bdad60c12d07e9a1dbbf21f2b08f1a3c093abd354",
+      "exported_sha256": "a87258c9e90c923ee0a03e9bdad60c12d07e9a1dbbf21f2b08f1a3c093abd354",
+      "bytes": 268,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-search-discovery/pressure-1.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-search-discovery/pressure-1.md",
+      "original_sha256": "717b48effd08e3a1b7ad4d2f8efc20494efa1a716d546305c443a9006fa6ea85",
+      "exported_sha256": "717b48effd08e3a1b7ad4d2f8efc20494efa1a716d546305c443a9006fa6ea85",
+      "bytes": 185,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-search-discovery/pressure-2.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-search-discovery/pressure-2.md",
+      "original_sha256": "918c8c8a966e169b1e29e436e499ab60d2a1b2ca7ac8b6d2d572caa38531d897",
+      "exported_sha256": "918c8c8a966e169b1e29e436e499ab60d2a1b2ca7ac8b6d2d572caa38531d897",
+      "bytes": 182,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-search-discovery/trigger-1.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-search-discovery/trigger-1.md",
+      "original_sha256": "5e4e0cd1c9d98d39d0533ea8965a431945fc0e5999ed4173de4d38eb8204b111",
+      "exported_sha256": "5e4e0cd1c9d98d39d0533ea8965a431945fc0e5999ed4173de4d38eb8204b111",
+      "bytes": 864,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-search-discovery/trigger-2.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-search-discovery/trigger-2.md",
+      "original_sha256": "0e50eed22c2fd2f13a7a75633bea1f057f5fe6a1f1afc60a6e5f2a22b8bd970c",
+      "exported_sha256": "0e50eed22c2fd2f13a7a75633bea1f057f5fe6a1f1afc60a6e5f2a22b8bd970c",
+      "bytes": 859,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-search-discovery/trigger-3.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-search-discovery/trigger-3.md",
+      "original_sha256": "a82fbac83c058027a8a11889991b908cdd160b3cacca7d7bded24756654b85a4",
+      "exported_sha256": "a82fbac83c058027a8a11889991b908cdd160b3cacca7d7bded24756654b85a4",
+      "bytes": 870,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-search-discovery/trigger-4.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-search-discovery/trigger-4.md",
+      "original_sha256": "d21d2a15cbcdf8d4123366064f91bfb3ebe324fa861767e6f1b97a6e855a9aae",
+      "exported_sha256": "d21d2a15cbcdf8d4123366064f91bfb3ebe324fa861767e6f1b97a6e855a9aae",
+      "bytes": 865,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-search-discovery/trigger-5.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-search-discovery/trigger-5.md",
+      "original_sha256": "5f13cee737ac58372b809ee57870f086a2ad0f5e83e5c3e8439df3e79608a144",
+      "exported_sha256": "5f13cee737ac58372b809ee57870f086a2ad0f5e83e5c3e8439df3e79608a144",
+      "bytes": 843,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-search-discovery/trigger-6.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-search-discovery/trigger-6.md",
+      "original_sha256": "b8780010422c72b07a0c9ecd284f1323d9ac2febd7a383fc3da68e87e96cc6b8",
+      "exported_sha256": "b8780010422c72b07a0c9ecd284f1323d9ac2febd7a383fc3da68e87e96cc6b8",
+      "bytes": 838,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-search-discovery/trigger-7.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-search-discovery/trigger-7.md",
+      "original_sha256": "2b39684d84ea7fd07f1176f071ade3405204f826b17b4ab29ba0a7abebb99b60",
+      "exported_sha256": "2b39684d84ea7fd07f1176f071ade3405204f826b17b4ab29ba0a7abebb99b60",
+      "bytes": 842,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-search-discovery/trigger-8.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-search-discovery/trigger-8.md",
+      "original_sha256": "e9eed79defd9f87514ee34c0815501af17c6080c16c5ed5b40ffe545f51cd51e",
+      "exported_sha256": "e9eed79defd9f87514ee34c0815501af17c6080c16c5ed5b40ffe545f51cd51e",
+      "bytes": 827,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-strategy/eval-1.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-strategy/eval-1.md",
+      "original_sha256": "7659b580dbf30b71071ada08f40c00ee7ece22008077b48bc9db659141c30f18",
+      "exported_sha256": "7659b580dbf30b71071ada08f40c00ee7ece22008077b48bc9db659141c30f18",
+      "bytes": 202,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-strategy/eval-2.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-strategy/eval-2.md",
+      "original_sha256": "fee86f4a24c175abe242cafd505ebdf09235d99272eb0d6f6bed8b1a7c9c9ade",
+      "exported_sha256": "fee86f4a24c175abe242cafd505ebdf09235d99272eb0d6f6bed8b1a7c9c9ade",
+      "bytes": 141,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-strategy/eval-3.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-strategy/eval-3.md",
+      "original_sha256": "50265100c80bc5fcdb72c871bde2c1ff21d11f39e2c1cf52d64c4fba2576cdb8",
+      "exported_sha256": "50265100c80bc5fcdb72c871bde2c1ff21d11f39e2c1cf52d64c4fba2576cdb8",
+      "bytes": 153,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-strategy/eval-4.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-strategy/eval-4.md",
+      "original_sha256": "996de210c6f2513e94ca20c9ef17dcdd4c203d3a21e1dd077f02a72d24bdacdb",
+      "exported_sha256": "996de210c6f2513e94ca20c9ef17dcdd4c203d3a21e1dd077f02a72d24bdacdb",
+      "bytes": 186,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-strategy/eval-5.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-strategy/eval-5.md",
+      "original_sha256": "5a657f2397fdcbea5ceca29362a02a2166c8387120229c3a0f61703eeaeb09e6",
+      "exported_sha256": "5a657f2397fdcbea5ceca29362a02a2166c8387120229c3a0f61703eeaeb09e6",
+      "bytes": 146,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-strategy/pressure-1.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-strategy/pressure-1.md",
+      "original_sha256": "aa9c197380145877a6cbf6cb25a0e7e1509a9e6ca68955bf2c85a06676c246b7",
+      "exported_sha256": "aa9c197380145877a6cbf6cb25a0e7e1509a9e6ca68955bf2c85a06676c246b7",
+      "bytes": 149,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-strategy/pressure-2.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-strategy/pressure-2.md",
+      "original_sha256": "e9cbfd13ed3c4668ea6d44a21719f07aa87df98f810a0c79ac246e94a86e8011",
+      "exported_sha256": "e9cbfd13ed3c4668ea6d44a21719f07aa87df98f810a0c79ac246e94a86e8011",
+      "bytes": 178,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-strategy/trigger-1.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-strategy/trigger-1.md",
+      "original_sha256": "eae1613a29f9c0321aab2b611a8709ee972f973c79a9a8a0c7bdebad38c6dc02",
+      "exported_sha256": "eae1613a29f9c0321aab2b611a8709ee972f973c79a9a8a0c7bdebad38c6dc02",
+      "bytes": 750,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-strategy/trigger-2.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-strategy/trigger-2.md",
+      "original_sha256": "3f334dc3b001c0c6dfbe56b923395560780dcb5dabd0bb39a155ed69fe826997",
+      "exported_sha256": "3f334dc3b001c0c6dfbe56b923395560780dcb5dabd0bb39a155ed69fe826997",
+      "bytes": 741,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-strategy/trigger-3.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-strategy/trigger-3.md",
+      "original_sha256": "92250ae05048467ef05856f6cf4ee21584f73eed1381579669ef5289410eca56",
+      "exported_sha256": "92250ae05048467ef05856f6cf4ee21584f73eed1381579669ef5289410eca56",
+      "bytes": 739,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-strategy/trigger-4.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-strategy/trigger-4.md",
+      "original_sha256": "a5705d4f27b4ca458f8a0c5bf1336ee379afbbb1aef76dd288fd255450bafd06",
+      "exported_sha256": "a5705d4f27b4ca458f8a0c5bf1336ee379afbbb1aef76dd288fd255450bafd06",
+      "bytes": 738,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-strategy/trigger-5.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-strategy/trigger-5.md",
+      "original_sha256": "4a6e722007fdda1ea8b761def3d229ea5dbbf48092c26f0b423e2e0ea68fba6d",
+      "exported_sha256": "4a6e722007fdda1ea8b761def3d229ea5dbbf48092c26f0b423e2e0ea68fba6d",
+      "bytes": 733,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-strategy/trigger-6.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-strategy/trigger-6.md",
+      "original_sha256": "ed8310a3f24d2ac3d5d284262f255b3f6b9eea609445175fc35f09b857e30b4b",
+      "exported_sha256": "ed8310a3f24d2ac3d5d284262f255b3f6b9eea609445175fc35f09b857e30b4b",
+      "bytes": 738,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-strategy/trigger-7.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-strategy/trigger-7.md",
+      "original_sha256": "c152400f1defaf5764efe5d40db9950c85150d7b00d6b684b8580f19a47c9a2b",
+      "exported_sha256": "c152400f1defaf5764efe5d40db9950c85150d7b00d6b684b8580f19a47c9a2b",
+      "bytes": 726,
+      "identical": true
+    },
+    {
+      "file": "prompts/marketing-strategy/trigger-8.md",
+      "source_relative_path": "benchmarks/evals/runs/marketing-v2.6.6-2026-10-25T08-37-41-103Z-7c90e94d/prompts/marketing-strategy/trigger-8.md",
+      "original_sha256": "e4f0d569b07dd11b73b4dbb65789fb133786396562e9f79cf46d8f5a5642c580",
+      "exported_sha256": "e4f0d569b07dd11b73b4dbb65789fb133786396562e9f79cf46d8f5a5642c580",
+      "bytes": 712,
+      "identical": true
+    }
+  ]
+}

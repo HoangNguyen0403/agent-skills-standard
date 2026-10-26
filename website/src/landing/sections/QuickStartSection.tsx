@@ -8,7 +8,7 @@ import {
 import { CopyCommand } from "../CopyCommand.client";
 import landingStyles from "../landing.module.css";
 import styles from "./QuickStart.module.css";
-
+import { DemoPlayer } from "../DemoPlayer";
 export function QuickStartSection(): React.JSX.Element {
   const installCmd =
     primaryCommands.find((c) => c.id === "install")?.command ??
@@ -50,10 +50,17 @@ export function QuickStartSection(): React.JSX.Element {
         <div className={styles.prereqNotice}>
           <p className={styles.prereqText}>{content.quickStart.prerequisite}</p>
 
-          <a href={sourceLinks.docs} className={landingStyles.textLinkLime}>
-            <span>Read setup docs before you sync</span>
-            <span aria-hidden="true">↗</span>
-          </a>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "16px" }}>
+            <a href={sourceLinks.docs} className={landingStyles.textLinkLime}>
+              <span>Read setup docs before you sync</span>
+              <span aria-hidden="true">↗</span>
+            </a>
+
+            <a href={sourceLinks.tutorial} className={landingStyles.textLinkLime}>
+              <span>Follow step-by-step tutorial</span>
+              <span aria-hidden="true">↗</span>
+            </a>
+          </div>
         </div>
 
         <ol className={styles.stepsList} role="list">
@@ -149,6 +156,8 @@ export function QuickStartSection(): React.JSX.Element {
             </li>
           </ol>
         </div>
+
+        <DemoPlayer />
       </div>
     </section>
   );

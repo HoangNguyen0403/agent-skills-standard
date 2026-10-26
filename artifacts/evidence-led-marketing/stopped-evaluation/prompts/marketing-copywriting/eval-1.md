@@ -1,0 +1,1 @@
+Our proof register claim CLM-012 states: 'Reduces CLI prompt tokens by 60–90% on git, cargo, and docker commands under macOS arm64; Windows and non-UTF8 logs untested.' Write hero headline and subhead copy based on this claim.

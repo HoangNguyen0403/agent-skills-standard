@@ -1,0 +1,1 @@
+A founder wants to omit DIY bash scripts from our competitive positioning matrix because 'our tool is obviously 10x better than a script'. How do you respond?

@@ -1,0 +1,1 @@
+We have 8 maintainer hours per week and $0 cash budget to launch our new developer CLI tool. Recommend a channel mix and explain how to handle alternative channels like paid ads and cold email outreach.

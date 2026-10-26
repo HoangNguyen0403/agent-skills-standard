@@ -1,0 +1,115 @@
+{
+  "skill_name": "marketing-positioning",
+  "evals": [
+    {
+      "id": 1,
+      "name": "alternatives-include-diy",
+      "prompt": "Draft positioning for our new agent skills standard against commercial agent evaluation platforms. What alternatives should we analyze?",
+      "expected_output": "The positioning analysis must evaluate DIY custom bash/python scripts and the 'do nothing / manual inspection' alternative as primary competitors alongside commercial agent platforms. Under AC-18, developer positioning must explicitly account for developer inertia and internal scripting solutions.",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "(?:DIY|custom\\s+(?:bash|python|shell)?\\s*scripts?)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:do[ -]nothing|manual\\s+(?:process|inspection)|status\\s+quo)"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "evidence-qualified-differentiation",
+      "prompt": "A developer asks how we differentiate from other CLI proxies. Can we claim our tool is 'the fastest, most universal token optimizer for all coding agents'?",
+      "expected_output": "No. Universal superlatives ('fastest', 'most universal', 'for all coding agents') are unevidenced and prohibited. Differentiation must be evidence-qualified: stating specific benchmark-backed capabilities (e.g. deterministic filtering with measured 60-90% token compression on supported command types) while preserving known boundaries and supported environments.",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "(?:superlatives?.*prohibited|prohibited.*superlatives?|cannot\\s+claim|unevidenced)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:evidence[ -]qualified|benchmark|specific|limitation|boundaries)"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "proxy-assumption-inheritance",
+      "prompt": "Our positioning brief is based on proxy research gathered from search keywords and forum threads without direct customer interviews. How should we represent the target audience's needs?",
+      "expected_output": "Because the underlying audience research is proxy-derived, the target audience needs and beliefs must be labeled as assumptions (e.g. 'assumption: proxy_derived') in the positioning canvas. Under AC-02, proxy research cannot be promoted to verified customer findings during positioning.",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "(?:assumption|assumption:\\s*proxy_derived)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:cannot\\s+be\\s+promoted\\s+to\\s+verified|not\\s+verified|cannot\\s+present\\s+as\\s+verified)"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "target-segment-boundary",
+      "prompt": "A growth marketer suggests our positioning statement should target 'all developers building modern software'. Is this acceptable?",
+      "expected_output": "No. Positioning targeting 'all developers' is too broad and lacks actionable differentiation. Positioning must define an explicit target segment (e.g. AI agent engineers working with local coding LLMs) and explicitly identify non-target segments to maintain strategic focus.",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "(?:too\\s+broad|reject|unacceptable|must\\s+define|narrow)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:target\\s+segment|non[ -]target)"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "preflight-missing-evidence-handling",
+      "prompt": "We want to formulate positioning, but our product evidence ledger has no verified claims yet. Can we declare our positioning as verified?",
+      "expected_output": "No. Without verified claims in the evidence ledger, the positioning cannot be marked as verified product-market fit. It must be classified as a proposal hypothesis (status: proposal_hypothesis), with the missing proof noted as an evidence gap.",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "(?:proposal\\s+hypothesis|unvalidated|hypothesis)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:cannot\\s+declare\\s+as\\s+verified|evidence\\s+gap|missing)"
+        }
+      ]
+    }
+  ],
+  "should_trigger": [
+    "Formulate developer tool positioning canvas comparing our CLI against DIY shell scripts",
+    "Define evidence-qualified differentiation for our agent skills registry",
+    "Audit product positioning statements against AC-18 and competitive alternatives",
+    "Frame competitive positioning for developer tooling targeting TypeScript monorepo maintainers"
+  ],
+  "should_not_trigger": [
+    "Write an SEO blog article explaining how to use Docker compose",
+    "Execute an offline marketing scorecard calculation on synthetic data",
+    "Implement CSS styles for a landing page navigation bar",
+    "Configure an SSL certificate on Nginx"
+  ],
+  "pressure_scenarios": [
+    {
+      "prompt": "A founder wants to omit DIY bash scripts from our competitive positioning matrix because 'our tool is obviously 10x better than a script'. How do you respond?",
+      "behavior_assertions": [
+        "Enforce AC-18 requiring DIY scripts and do-nothing as primary competitors",
+        "Explain that developer inertia and internal scripts are the primary adoption hurdle",
+        "Retain DIY scripting in the alternatives analysis"
+      ]
+    },
+    {
+      "prompt": "The team asks you to draft a positioning statement claiming 'universal 100% token optimization for any AI workflow'. How do you respond?",
+      "behavior_assertions": [
+        "Reject the universal claim and absolute superlatives",
+        "Require evidence-qualified performance statements with specific bounds",
+        "Preserve known operational limits and supported ecosystems in the positioning"
+      ]
+    }
+  ]
+}

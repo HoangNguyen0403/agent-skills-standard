@@ -75,6 +75,7 @@ Each `_INDEX.md` has two sections - follow both:
 | Architecture or scale request | `<SKILLS>/system-design/_INDEX.md` |
 | Cybersecurity investigation or authorized exercise | `<SKILLS>/cybersecurity/_INDEX.md` |
 | Product discovery, investment, validation, value-review, business requirements, product requirements, BRD or PRD authoring request | `<SKILLS>/product-management/_INDEX.md` |
+| Marketing campaign, audience research, positioning, copy, proof, demo video, or measurement request | `<SKILLS>/marketing/_INDEX.md` |
 
 > [!NOTE] **Test/spec file precedence:** `.spec.ts`, `.test.ts` -> use the `common` row (takes precedence over the generic `*.ts` row). `.spec.tsx`, `.test.tsx` -> use the `react` row (takes precedence over the generic `*.tsx` row).
 

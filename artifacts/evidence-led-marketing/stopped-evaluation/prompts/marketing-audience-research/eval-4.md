@@ -1,0 +1,1 @@
+A developer who participated in our preliminary research pilot recently withdrew their consent. Can we keep their anonymized quotes and workflow friction notes in our active audience research synthesis?

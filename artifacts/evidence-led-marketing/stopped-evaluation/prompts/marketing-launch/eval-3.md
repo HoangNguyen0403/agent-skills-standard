@@ -1,0 +1,1 @@
+The launch checklist is complete and approved. Please immediately call the social media APIs or post this announcement directly to Twitter and Reddit.

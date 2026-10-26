@@ -1,0 +1,342 @@
+{
+  "schema_version": 1,
+  "campaign_id": "standards-demo-01",
+  "context_revision": "ctx-rev-20261025-capture-ee18d7f5",
+  "capture": {
+    "started_at": "2026-10-25T09:33:47.085Z",
+    "finished_at": "2026-10-25T09:33:47.700Z",
+    "candidate_commit": "a2228857e4cf5b8ee2d71d96630c586618ec2edd",
+    "working_tree_dirty": true,
+    "snapshot_tree_sha256": "ee18d7f5e57ac88d2621ba46316ce0e71262ef7ba686f04e0548e04fb60e5620",
+    "snapshot_file_count": 1412,
+    "cli_path": "cli/dist/index.js",
+    "cli_sha256": "d49ccf561a5ce49031cf8208d080a53e5f8df498dada871b97eb0ece5c722bdc",
+    "node_version": "v22.14.0",
+    "host_platform": "darwin-arm64"
+  },
+  "network_isolation": {
+    "preload": "scripts/skill-tests/product-evidence-integration/network-preload.cjs",
+    "fixture_host": "127.0.0.1",
+    "fixture_requests_served": 148,
+    "credentials_forwarded": false
+  },
+  "sanitization": {
+    "transform": [
+      "disposable consumer directory -> ~/my-project",
+      "disposable HOME directory -> ~",
+      "macOS temp directories -> ~/my-project/tmp",
+      "ANSI colour escape sequences -> stripped",
+      "argv absolute paths -> node / ~/my-project / <candidate checkout>"
+    ],
+    "replacements_applied": {
+      "consumerPath": 0,
+      "homePath": 0,
+      "worktreePattern": 0,
+      "tempPattern": 0
+    },
+    "raw_bytes_retained_in_public_checkout": false
+  },
+  "commands": [
+    {
+      "label": "scene-01",
+      "display": "cat .skillsrc",
+      "argv_shape": [
+        "cat",
+        ".skillsrc"
+      ],
+      "exit_status": 0,
+      "duration_ms": 2.7,
+      "stdout_sha256_sanitized": "7a743798a6559f7f5556a79046246010d5bb6f13c551ff4e5316af50c3aa01b4",
+      "stdout_sha256_raw": "7a743798a6559f7f5556a79046246010d5bb6f13c551ff4e5316af50c3aa01b4",
+      "stderr_sha256_sanitized": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256_raw": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_non_fatal_note": null
+    },
+    {
+      "label": "scene-02/03",
+      "display": "ags sync",
+      "argv_shape": [
+        "/usr/local/bin/node",
+        "<path>",
+        "sync"
+      ],
+      "exit_status": 0,
+      "duration_ms": 349,
+      "stdout_sha256_sanitized": "b9e8fa936f9f64a9421d20b33666b956763edfe72a9fab19550ccb901874ffe0",
+      "stdout_sha256_raw": "b9e8fa936f9f64a9421d20b33666b956763edfe72a9fab19550ccb901874ffe0",
+      "stderr_sha256_sanitized": "0a2a511ab89b76727d7c3dc97dce1f535ed4d3ca35aed8e2a39a90d83e2196d7",
+      "stderr_sha256_raw": "0a2a511ab89b76727d7c3dc97dce1f535ed4d3ca35aed8e2a39a90d83e2196d7",
+      "stderr_non_fatal_note": "stderr contains \"fatal: not a git repository\" from the disposable non-git consumer dir; exit status 0"
+    },
+    {
+      "label": "scene-04/05",
+      "display": "head -n 28 AGENTS.md",
+      "argv_shape": [
+        "head",
+        "-n",
+        "28",
+        "AGENTS.md"
+      ],
+      "exit_status": 0,
+      "duration_ms": 2.1,
+      "stdout_sha256_sanitized": "fce285a8a34baa178f43768d461d06008aba77f11bbae47cee7a12491afb0f20",
+      "stdout_sha256_raw": "fce285a8a34baa178f43768d461d06008aba77f11bbae47cee7a12491afb0f20",
+      "stderr_sha256_sanitized": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256_raw": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_non_fatal_note": null
+    },
+    {
+      "label": "scene-06",
+      "display": "node skills/marketing/marketing-measurement/scripts/report-marketing.mjs … --format markdown",
+      "argv_shape": [
+        "/usr/local/bin/node",
+        "<path>",
+        "<path>",
+        "--authority-root",
+        "<path>",
+        "--as-of",
+        "2026-10-25T00:00:00Z",
+        "--format",
+        "markdown"
+      ],
+      "exit_status": 0,
+      "duration_ms": 46.3,
+      "stdout_sha256_sanitized": "20e31756937cae9196cb7ec820e566d63e707b7ce8e8bd6fe96cb15b01e0bdac",
+      "stdout_sha256_raw": "20e31756937cae9196cb7ec820e566d63e707b7ce8e8bd6fe96cb15b01e0bdac",
+      "stderr_sha256_sanitized": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256_raw": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_non_fatal_note": null
+    }
+  ],
+  "artifacts": {
+    "consumer_root": [
+      "AGENTS.md",
+      "CLAUDE.md",
+      ".skills-lock.json",
+      ".skillsrc",
+      ".claude/skills",
+      ".cursor/skills",
+      ".codex/skills"
+    ],
+    "agents_md_sha256": "946659253440537be9bc562249cf2a06213da9fe1e9206cc7f9afa0ddb49bcfe",
+    "agents_md_lines": 56,
+    "lockfile_entries": 407,
+    "lockfile_agents": [
+      "claude",
+      "codex",
+      "cursor"
+    ],
+    "mcp_config_absent": [
+      ".mcp.json",
+      ".cursor/mcp.json",
+      ".codex/config.toml",
+      ".claude/hooks",
+      ".claude/settings.json"
+    ],
+    "mcp_disabled_note_present": true
+  },
+  "scenes": [
+    {
+      "id": "scene-01",
+      "duration_seconds": 7,
+      "command": "cat .skillsrc",
+      "claim_ref": "CLM-001",
+      "rendered_lines": 15,
+      "excerpts": [
+        {
+          "start_line": 1,
+          "end_line": 15,
+          "total_lines": 15
+        }
+      ]
+    },
+    {
+      "id": "scene-02",
+      "duration_seconds": 8,
+      "command": "ags sync",
+      "claim_ref": "CLM-001",
+      "rendered_lines": 12,
+      "excerpts": [
+        {
+          "start_line": 3,
+          "end_line": 14,
+          "total_lines": 34
+        }
+      ]
+    },
+    {
+      "id": "scene-03",
+      "duration_seconds": 8,
+      "command": "ags sync",
+      "claim_ref": "CLM-001",
+      "rendered_lines": 13,
+      "excerpts": [
+        {
+          "start_line": 22,
+          "end_line": 34,
+          "total_lines": 34
+        }
+      ]
+    },
+    {
+      "id": "scene-04",
+      "duration_seconds": 8,
+      "command": "head -n 28 AGENTS.md",
+      "claim_ref": "CLM-004",
+      "rendered_lines": 17,
+      "excerpts": [
+        {
+          "start_line": 6,
+          "end_line": 17,
+          "total_lines": 28
+        }
+      ]
+    },
+    {
+      "id": "scene-05",
+      "duration_seconds": 8,
+      "command": "head -n 28 AGENTS.md",
+      "claim_ref": "CLM-004",
+      "rendered_lines": 14,
+      "excerpts": [
+        {
+          "start_line": 19,
+          "end_line": 28,
+          "total_lines": 28
+        }
+      ]
+    },
+    {
+      "id": "scene-06",
+      "duration_seconds": 10,
+      "command": "node skills/marketing/marketing-measurement/scripts/report-marketing.mjs … --format markdown",
+      "claim_ref": "CLM-003",
+      "rendered_lines": 16,
+      "excerpts": [
+        {
+          "start_line": 1,
+          "end_line": 8,
+          "total_lines": 48
+        },
+        {
+          "start_line": 17,
+          "end_line": 24,
+          "total_lines": 48
+        }
+      ]
+    }
+  ],
+  "mobile_verification": {
+    "viewport": "390x844",
+    "claim": "key action lines legible at 390px viewport from actual captured text; full output remains in command-capture.log",
+    "frames": [
+      {
+        "id": "mobile-01",
+        "png": "demo-frame-mobile-01.png",
+        "viewport": "390x844",
+        "terminal_px": 14,
+        "output_px": 13,
+        "rendered_lines": 13,
+        "source_range": "lines 3–8 of 34"
+      },
+      {
+        "id": "mobile-02",
+        "png": "demo-frame-mobile-02.png",
+        "viewport": "390x844",
+        "terminal_px": 14,
+        "output_px": 13,
+        "rendered_lines": 17,
+        "source_range": "lines 6–12 of 28"
+      }
+    ]
+  },
+  "assets": {
+    "command-capture.log": {
+      "bytes": 9905,
+      "sha256": "27b4192f02a91a7a2809e51f946371e103873c6b360325218a4f2ad74df37fbf"
+    },
+    "demo.mp4": {
+      "bytes": 884035,
+      "sha256": "b129cb713dd681e6ad776d7ec35461454f165299e20a4227580712a12ea1c32f"
+    },
+    "demo-captions.vtt": {
+      "bytes": 976,
+      "sha256": "fa9b316a21bf613146b0af935210a788ae009f38616316ede34fdbfd85bbaf05"
+    },
+    "demo-transcript.md": {
+      "bytes": 8222,
+      "sha256": "e1b3a4647cf8e07efc3645abecec426463a6e681f40c663510c4d8e3fcb60388"
+    },
+    "demo-frame-01.png": {
+      "bytes": 360560,
+      "sha256": "b102ee67ec48b203b7c0fee5a550a811737189ecff649fd0b227a049b2ec70e0"
+    },
+    "demo-frame-02.png": {
+      "bytes": 338514,
+      "sha256": "bc30beb7bee7c9ef026d9a635ec5fca1332bf5df464e630509fc48293c17b424"
+    },
+    "demo-frame-03.png": {
+      "bytes": 373223,
+      "sha256": "5423724c09ad8b238b44d2785d29e03ebd090ae6b789067c04afec951282b224"
+    },
+    "demo-frame-04.png": {
+      "bytes": 309275,
+      "sha256": "1c9370e5ac0b6c6d3ff8ba895996cb1f56f69f50d37ce7dd649fab840e580b34"
+    },
+    "demo-frame-mobile-01.png": {
+      "bytes": 56341,
+      "sha256": "6601dd893c5736074f9c057fb0825467751b94ddd835d2256ccf4c28a8640e05"
+    },
+    "demo-frame-mobile-02.png": {
+      "bytes": 66572,
+      "sha256": "d55300efa37e911375cfcd5b24b3561b8416a48172c386b42e0a06105fa5b4bb"
+    },
+    "render-demo.mjs": {
+      "bytes": 44475,
+      "sha256": "24314c3e1fb5d06d24a2843423a83fd0e2b9c980dd0ec2b1f0bfaf8653dab791"
+    }
+  },
+  "video": {
+    "file": "demo.mp4",
+    "duration_seconds": 56.021354,
+    "size_bytes": 884035,
+    "video": {
+      "codec": "h264",
+      "width": 1920,
+      "height": 1080,
+      "frame_rate": "30/1"
+    },
+    "audio": {
+      "codec": "aac",
+      "sample_rate": 48000,
+      "channels": 2,
+      "description": "anullsrc silence, no spoken narration"
+    },
+    "subtitles": {
+      "codec": "mov_text",
+      "embedded_caption_cues_verified": 7
+    }
+  },
+  "proof_frames": [
+    {
+      "file": "demo-frame-01.png",
+      "scene": "scene-02",
+      "seconds": 11
+    },
+    {
+      "file": "demo-frame-02.png",
+      "scene": "scene-03",
+      "seconds": 19
+    },
+    {
+      "file": "demo-frame-03.png",
+      "scene": "scene-05",
+      "seconds": 35
+    },
+    {
+      "file": "demo-frame-04.png",
+      "scene": "scene-06",
+      "seconds": 44
+    }
+  ]
+}

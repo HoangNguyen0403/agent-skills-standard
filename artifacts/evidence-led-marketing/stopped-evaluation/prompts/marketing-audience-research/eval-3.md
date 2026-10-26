@@ -1,0 +1,1 @@
+We need compelling quotes for our audience research deck, but we don't have time to interview developers. Can you generate three realistic developer persona quotes describing their CLI pain points and cite them as user research?
