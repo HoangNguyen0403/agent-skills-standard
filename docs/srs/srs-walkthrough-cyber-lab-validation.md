@@ -52,7 +52,7 @@ Next workflow: human G2 review, then implementation-readiness and the already se
 
 ## Implementation delivery evidence — repository scope (2026-10-25)
 
-The requesting operator approved G2 and named the engineering owner as “Me.” The candidate contains the new `cyber-lab-validation` skill and six shared cybersecurity skills at `cybersecurity` 1.0.1 candidate, plus four canonical security workflows at `workflows` 1.1.9 candidate. These are candidate versions, not a release or activation.
+The requesting operator approved G2 and named the engineering owner as “Me.” The candidate contains the new `cyber-lab-validation` skill and six shared cybersecurity skills at `cybersecurity` 1.0.1 candidate, plus four canonical security workflows at `workflows` 1.1.7 candidate. These are candidate versions, not a release or activation.
 
 The independent reviewer’s final verdict is **APPROVE within the exercised repository implementation/export/local consumer-fixture scope**. C findings IR01–IR05, E findings ER01–ER07 and integration finding IE01 are closed. The approval does not cover live security execution, model compatibility, operational MCP behavior, consumer root-license presence, host enforcement, or publication.
 
