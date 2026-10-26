@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Secret scan blast radius**: `secret-scan` ran `gitleaks detect` without `--log-opts`, which defaults to `git log --full-history --all`; with the job's `fetch-depth: 0` checkout that scanned every branch in the repository, so unrelated work-in-progress branches failed the job on every pull request (PR #257 was blocked by three such commits, none of them in the PR). Pull requests now scan `origin/<base_ref>..HEAD`; push runs on `main`/`develop` keep the full-history scan. Added `condition = "AND"` allowlists for three verified false-positive shapes — SHA-256 digest manifests whose keys contain `api`, `laneKeyHash` audit metadata, and the `HarnessDiscoveryService` sanitized-env fixture — scoped by path so the same values elsewhere stay detectable.
 - **Stitch image review**: Verify decoded width and height, then read only a verified aspect-preserving preview bounded to a 1600 px longest edge; bound both physical dimensions with `devicePixelRatio` before browser capture and avoid `fullPage`. Treat an image-size rejection after a write as possible success and recover existing screen ids before retrying. Document OMP `/shake images` as local cleanup of all conversation image blocks after preserving source files. Added eval cases for tall URLs, DPR captures, write recovery, and poisoned-session recovery.
 
 ## [common-v2.9.0] [workflow-v1.1.6] [system-design-v1.2.4] [quality-engineering-v1.6.1] [product-management-v1.0.1] - 2026-10-21

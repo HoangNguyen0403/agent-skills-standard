@@ -35,8 +35,21 @@ jobs:
           tar -xzf gitleaks.tar.gz gitleaks
           chmod +x gitleaks
 
+      # `gitleaks detect` without --log-opts runs `git log --full-history --all`.
+      # Because the checkout above fetches every branch ref, that made each PR scan
+      # every other open branch, so unrelated work-in-progress branches failed this
+      # job on every PR (dependabot included). Scope pull requests to their own
+      # commits; base history stays covered by the push run on the base branch.
       - name: Scan for secrets
-        run: ./gitleaks detect --source . --redact --verbose --config .gitleaks.toml
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          if [ -n "$BASE_REF" ]; then
+            ./gitleaks detect --source . --redact --verbose --config .gitleaks.toml \
+              --log-opts="origin/${BASE_REF}..HEAD"
+          else
+            ./gitleaks detect --source . --redact --verbose --config .gitleaks.toml
+          fi
 
   lint-and-format:
     runs-on: ubuntu-latest
