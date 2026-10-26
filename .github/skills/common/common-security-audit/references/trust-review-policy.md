@@ -19,6 +19,10 @@ Use this policy whenever review workflows consume PR text, tickets, copied promp
 5. Store trust class and runtime mode in `artifacts/security-review.md`.
 6. Keep the handoff markdown-first so the workflow and loaded skills remain the source of truth.
 
+## Untrusted workspace evidence
+
+Read-only tooling constrains the reviewer only when the host actually enforces that scope. A repository's instructions, scanner result, hook declaration, file hash, or clean worktree is not proof that setup, descendants, file access, credentials, or network egress are contained. Inspect the effective host configuration and relevant routes; verify any claimed blocking control with a safe deliberate violation. Record the exact revision and inspected bytes, method, result, unknowns, and limitations. If required isolation cannot be proven, mark protected execution or publication **BLOCKED**; bounded offline analysis of supplied artifacts is a separate, limited activity, not a substitute for the control.
+
 ## Runtime Guardrails
 
 - Least-privilege tools only

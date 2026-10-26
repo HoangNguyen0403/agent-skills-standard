@@ -25,7 +25,25 @@ def get_git_root():
         return os.getcwd()
 
 
-def resolve_workspace(plan_file):
+def resolve_workspace(plan_file, authorized_root=None):
+    """Resolve an SDD workspace, optionally refusing writes outside authorized_root."""
+    if authorized_root is not None:
+        authorized_root = os.path.realpath(authorized_root)
+
+    def require_contained(path):
+        if authorized_root is None:
+            return
+        resolved = os.path.realpath(path)
+        try:
+            contained = os.path.commonpath([authorized_root, resolved]) == authorized_root
+        except ValueError:
+            contained = False
+        if not contained:
+            sys.stderr.write(
+                f"Error: SDD workspace path resolves outside authorized root: {path}\n"
+            )
+            sys.exit(2)
+
     if not os.path.isfile(plan_file):
         sys.stderr.write(f"Error: plan file not found: {plan_file}\n")
         sys.exit(2)
@@ -38,11 +56,14 @@ def resolve_workspace(plan_file):
 
     root = get_git_root()
     base_dir = os.path.join(root, ".agent", "sdd")
+    require_contained(base_dir)
     os.makedirs(base_dir, exist_ok=True)
 
     # Maintain self-ignoring .gitignore
     gitignore_path = os.path.join(base_dir, ".gitignore")
+    require_contained(gitignore_path)
     if not os.path.exists(gitignore_path):
+        require_contained(gitignore_path)
         with open(gitignore_path, "w") as f:
             f.write("*\n")
 
@@ -56,7 +77,9 @@ def resolve_workspace(plan_file):
     workspace_dir = os.path.join(base_dir, slug)
 
     def owns(target_dir):
+        require_contained(target_dir)
         marker = os.path.join(target_dir, "plan-path")
+        require_contained(marker)
         if os.path.exists(marker):
             try:
                 with open(marker, "r") as f:
@@ -64,7 +87,9 @@ def resolve_workspace(plan_file):
             except Exception:
                 return False
         else:
+            require_contained(target_dir)
             os.makedirs(target_dir, exist_ok=True)
+            require_contained(marker)
             with open(marker, "w") as f:
                 f.write(plan_id + "\n")
             return True

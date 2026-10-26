@@ -44,6 +44,8 @@ Sum the three, never average. Output line: `SNC: S=[0-2] N=[0-2] C=[0-2] total=[
 | `tier=medium` | guided | TDD + self-review | `deep` code-review | plan reviewed, no HARD STOP | `standard` |
 | `tier=high` | plan-first | TDD + independent reviewers (`specialist-architecture-guard`, `specialist-security-reviewer` when relevant) | `deep` code-review | **HARD STOP** before code, human approval before merge | `strong` |
 
+`fast | standard | strong` is a capability hint only. Each host maps it to its model ladder and binds the named review roles to its own invocation mechanism; the hint is not authorization: premium spend, account selection and execution mode remain host/human decisions.
+
 ## Sensitive-Change Risk Floor
 
 Sensitive changes touching authentication, authorization, payments/financial data, data integrity, secrets, or system trust boundaries have an explicit risk floor independent of arithmetic SNC totals:
@@ -69,6 +71,7 @@ Stop and re-score when hearing or thinking: "it's just a bug fix", "one-line cha
 - **No averaging**: three 1s and one 2/0/1 both route differently only when summed.
 - **No silent tier**: a plan or handoff without `snc_tier` is incomplete.
 - **No high tier without named reviewers**: `tier=high` must list which specialists review before merge.
+- **No premium by tier**: a `strong` hint never authorizes premium spend or a host account change.
 
 ## References
 
