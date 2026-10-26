@@ -1,6 +1,7 @@
 import React from "react";
 import { navigation } from "../content";
 import { MobileMenu } from "../MobileMenu.client";
+import { PlausibleLink } from "../analytics/PlausibleLink.client";
 import actionStyles from "../action.module.css";
 import styles from "../landing.module.css";
 
@@ -25,9 +26,24 @@ export function Header(): React.JSX.Element {
             <ul className={styles.desktopNav}>
               {navigation.map((item) => (
                 <li key={item.id}>
-                  <a href={item.href} className={styles.desktopNavLink}>
-                    {item.label}
-                  </a>
+                  {item.id === "github" ? (
+                    <PlausibleLink
+                      href={item.href}
+                      className={styles.desktopNavLink}
+                      event={{
+                        event_name: "github_click",
+                        campaign_id: "standards-demo-01",
+                        asset_id: "announcement-github-01",
+                        placement: "header_github",
+                      }}
+                    >
+                      {item.label}
+                    </PlausibleLink>
+                  ) : (
+                    <a href={item.href} className={styles.desktopNavLink}>
+                      {item.label}
+                    </a>
+                  )}
                 </li>
               ))}
             </ul>

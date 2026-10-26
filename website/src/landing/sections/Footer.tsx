@@ -1,5 +1,6 @@
 import React from "react";
 import { content, sourceLinks } from "../content";
+import { PlausibleLink } from "../analytics/PlausibleLink.client";
 import styles from "../landing.module.css";
 
 export function Footer(): React.JSX.Element {
@@ -20,10 +21,19 @@ export function Footer(): React.JSX.Element {
 
           <ul className={styles.footerLinks} aria-label="Footer links">
             <li>
-              <a href={sourceLinks.github} className={styles.footerLink}>
+              <PlausibleLink
+                href={sourceLinks.github}
+                className={styles.footerLink}
+                event={{
+                  event_name: "github_click",
+                  campaign_id: "standards-demo-01",
+                  asset_id: "announcement-github-01",
+                  placement: "footer_github",
+                }}
+              >
                 <span>GitHub</span>
                 <span aria-hidden="true">&nbsp;↗</span>
-              </a>
+              </PlausibleLink>
             </li>
             <li>
               <a href={sourceLinks.docs} className={styles.footerLink}>

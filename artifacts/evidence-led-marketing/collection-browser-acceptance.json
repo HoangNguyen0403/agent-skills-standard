@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "scope": "LOCAL_INTERCEPTED_ONLY",
+  "result": "PASS",
+  "started_at": "2026-10-26T06:42:14.455Z",
+  "completed_at": "2026-10-26T06:42:34.248Z",
+  "review_status": "PARENT_INSPECTED_PROBE_AND_INDEPENDENTLY_EXECUTED_10_CASES_37_ASSERTIONS_PASS; INDEPENDENT_BOUNDED_SOURCE_AND_PUBLIC_PROJECTION_REVIEW_APPROVED",
+  "execution_owner": "Independent parent runtime rerun; earlier worker run separately passed the same frozen source",
+  "real_provider_receipt": "BLOCKED_OWNER",
+  "live_collection": "BLOCKED_OWNER",
+  "source_sha256": {
+    "website/src/landing/DemoPlayer.tsx": "cbc94bb5d1dc6f4fc72bf7d5a5e22bb01f14b3de6e869b4d58361bfc1c189412",
+    "website/src/landing/demo-player.module.css": "7b7a317c5187d34d26d784b32a01a99c1db2fcb2a7e0949edbb712ddfbf318d8",
+    "website/src/landing/analytics/PlausibleContext.tsx": "a6aa75cf1100d2c221cbd4797d6c6e5fd33851d59608631a1d01a9dca6823888",
+    "website/src/landing/analytics/plausible-client.ts": "74c951ef449d50f08aaf4ab029f8c476bdbda4f84d268ece3ccb480fa050039a",
+    "website/src/landing/analytics/plausible-config.ts": "7426cb96cc2876d6f243609a3214959694a0a4027d848d1a430efb481ec90a70",
+    "website/src/landing/analytics/plausible-predicate.mjs": "bc334ffca29886c39e0082fafd3fdb72db93344fcade14ba719b8e22cd1b6ce8",
+    "website/scripts/generate-headers.mjs": "8d9aededf9fa8498f1ad340020cc89a028bdc30fefdc44148cebd1a6df3c8e33",
+    "website/tests/unit/plausible-analytics.test.tsx": "6fb7f02043c05aa2918aedb55a451fef0c1004789d524a83cba2232ce9205929",
+    "website/docs/analytics.md": "d6bc9145dce536ba6860651dc27aff7ef1569899f2404f01a7f03f9e1935c941"
+  },
+  "build": {
+    "mode": "Next.js 16.4.1 --webpack static export",
+    "runtime": "Node.js v22.14.0",
+    "browser": "Chromium 156.0.8078.4",
+    "driver": "Installed @playwright/test API; playwright-cli absent in driver preflight",
+    "configuration": {
+      "NEXT_PUBLIC_PLAUSIBLE_ENABLED": "true",
+      "NEXT_PUBLIC_PLAUSIBLE_OPERATOR_APPROVAL": "approved",
+      "NEXT_PUBLIC_PLAUSIBLE_SITE_ID": "synthetic-test.example",
+      "NEXT_PUBLIC_PLAUSIBLE_PAGE_URL": "https://synthetic-test.example/approved-test",
+      "NEXT_TELEMETRY_DISABLED": "1",
+      "SITE_URL": "Ephemeral HTTP loopback origin; private port omitted"
+    },
+    "commands": [
+      {"command": "rtk proxy node <PRIVATE_PROBE>/t08-explicit-start-probe.mjs", "exit_code": 0},
+      {"command": "rtk proxy <NODE_EXECUTABLE> <RESOLVED_NEXT_BIN> build --webpack", "exit_code": 0},
+      {"command": "rtk proxy <NODE_EXECUTABLE> scripts/generate-headers.mjs", "exit_code": 0}
+    ],
+    "command_redaction": "Commands describe actual observed invocations. Personal executable/probe/dependency paths replaced with named placeholders; full exact commands retained privately. Build commands ran in an owned disposable website copy with existing dependency symlink, without installs.",
+    "generated_header_sha256": "986f807342ee5f210a7f4f5705293ba256e01fa57a0fa194bbe8f2155bafdbdb",
+    "generated_index_sha256": "5dc8d5c0b921e92814679ecef7426fb998dafdd5002c018b777bb53b9d8bbe7f",
+    "artifact_identity_limit": "These hashes identify this synthetic webpack build, not a default Turbopack build or deployed artifact."
+  },
+  "owner_approved_contract": {
+    "decision": "Explicit start, then native controls",
+    "configured_javascript": "Hydrated accessible Play demo button is the first entry. Trusted activation calls video.play(); only successful actual playback may count. Native controls appear after successful playback.",
+    "configured_no_javascript": "Server-rendered native controls remain usable; no inert explicit button and no analytics transmission.",
+    "default_unconfigured": "Existing native player remains the contract; this revised configured-only run did not rerun the default artifact."
+  },
+  "verification": {
+    "expected_cases": 10,
+    "actual_cases": 10,
+    "expected_assertions": 37,
+    "actual_assertions": 37,
+    "passed_assertions": 37,
+    "failed_assertions": 0,
+    "case_counts_valid": true,
+    "assertion_count_valid": true,
+    "page_errors": 0,
+    "cases": [
+      {"name": "pointer", "assertions": 5, "result": "PASS", "demo_events": 1, "decoded_time_seconds": 0.514118, "proof": "Real button click; controls initially hidden, actual playback, exact payload, controls/focus transfer, native pause/resume dedupe."},
+      {"name": "Enter", "assertions": 5, "result": "PASS", "demo_events": 1, "decoded_time_seconds": 0.518246, "proof": "Focused button with actual Enter key; same playback/control/payload/dedupe assertions."},
+      {"name": "Space", "assertions": 5, "result": "PASS", "demo_events": 1, "decoded_time_seconds": 0.515595, "proof": "Focused button with actual Space key; same playback/control/payload/dedupe assertions."},
+      {"name": "mobile-pointer", "assertions": 5, "result": "PASS", "demo_events": 1, "decoded_time_seconds": 0.511677, "proof": "Real button pointer click at 375x667 viewport; same playback/control/payload/dedupe assertions. Desktop Chromium viewport coverage, not mobile-touch browser or physical-device certification."},
+      {"name": "preconsent", "assertions": 3, "result": "PASS", "demo_events": 0, "proof": "Actual explicit playback without consent; late opt-in and subsequent native resume do not replay the action."},
+      {"name": "withdraw-pending", "assertions": 4, "result": "PASS", "demo_events": 0, "boundary": "Explicit deferred video.play boundary mock, released into the original real play implementation; no synthetic playing event.", "proof": "Pending state stays paused; withdrawal/regrant invalidates captured consent epoch; subsequent actual decoded playback exposes controls without transmission."},
+      {"name": "reject-retry", "assertions": 3, "result": "PASS", "demo_events": 1, "boundary": "Explicit one-time play rejection mock; retry invokes original real play implementation.", "proof": "Rejected attempt preserves accessible retry without event; real retry decodes playback, reveals controls and emits exactly once."},
+      {"name": "programmatic", "assertions": 2, "result": "PASS", "demo_events": 0, "proof": "Programmatic real playback without button activation is adopted without attribution or leftover overlay."},
+      {"name": "nojs", "assertions": 3, "result": "PASS", "demo_events": 0, "decoded_time_seconds": 0.843306, "proof": "JavaScript disabled; SSR native controls and no inert entry; native Space starts actual playback; no collector events."},
+      {"name": "declined", "assertions": 2, "result": "PASS", "demo_events": 0, "proof": "Declining consent preserves explicit playback and revealed controls without transmission."}
+    ],
+    "additional_checks_not_counted_in_37": {
+      "exact_generated_connect_src": "connect-src 'self' https://plausible.io/api/event",
+      "local_server_applied_generated_csp": true,
+      "scoped_figure_axe_scans": [{"viewport": "1440x1000", "violations": 0}, {"viewport": "375x667", "violations": 0}],
+      "screenshots": "Private post-start screenshots at 1440x1000 and 375x667; separate initial-overlay addendum below. No screenshots copied into public artifacts.",
+      "initial_overlay_addendum": {
+        "execution_owner": "Worker bounded new visual coverage on the earlier staged build with identical frozen source hashes; no main-case rerun",
+        "started_at": "2026-10-26T06:43:30.240Z",
+        "completed_at": "2026-10-26T06:43:31.855Z",
+        "result": "PASS",
+        "observations": [
+          {"viewport": "1440x1000", "focused": true, "outline": "3px solid", "button_dimensions": "111.3125x52", "paused": true, "native_controls": false, "axe_violations": 0},
+          {"viewport": "375x667", "focused": true, "outline": "3px solid", "button_dimensions": "111.3125x48", "paused": true, "native_controls": false, "axe_violations": 0}
+        ],
+        "provider_requests": 0,
+        "page_errors": 0,
+        "screenshots": "Two additional private initial-overlay screenshots visually inspected. Mobile-sized viewport only; no touch emulation.",
+        "counting": "Separate visual/focus/a11y observations; not added to the 37 main assertions."
+      }
+    },
+    "failure_exit_contract": "Probe sets process.exitCode=1 for BUG/BLOCKED and verifies expected per-case and total assertion counts; observed run exited 0."
+  },
+  "network": {
+    "collector": "https://plausible.io/api/event",
+    "collector_requests_locally_fulfilled": 5,
+    "actual_provider_transmissions": 0,
+    "other_outbound_attempts": 0,
+    "policy": "Context interception installed before navigation; same-origin loopback allowed; collector fulfilled locally with 202; every other outbound request blocked.",
+    "observed_payload": {
+      "name": "demo_play",
+      "domain": "synthetic-test.example",
+      "url": "https://synthetic-test.example/approved-test",
+      "props": {"schema_version": 1, "campaign_id": "standards-demo-01", "asset_id": "unknown", "placement": "quickstart_demo"}
+    },
+    "observed_request_contract": "POST; Content-Type text/plain; exact top-level and props fields; no Referer or Cookie headers. No current query, fragment, clipboard contents or destination URL in payload."
+  },
+  "preserved_history": {
+    "initial_result": "BUG",
+    "initial_player_sha256": "7083c3b2d675a0b1650b65b61fc096a6804fc66af58ec7ada30f7076832c6ea8",
+    "initial_observations": "Native Space and native UA play-button pointer started actual decoded playback but emitted zero demo_play. Keyboard capture microtasks preceded the native paused-to-playing transition. A separate bounded pointer trace saw no pointerdown/mousedown/click at window/document capture, nor pointer/click at video capture, despite real playback.",
+    "causal_limit": "Observed Chromium native-shadow-control behavior, not proof about every browser; media play.isTrusted alone does not prove user intent.",
+    "resolution": "Owner explicitly changed the configured JavaScript initial entry contract to accessible explicit start followed by native controls; this is an approved contract change, not proof the original native-entry implementation passed.",
+    "private_failed_receipts_preserved": true
+  },
+  "prior_nonplayback_evidence": {
+    "started_at": "2026-10-26T04:29:38.400Z",
+    "completed_at": "2026-10-26T04:30:01.341Z",
+    "overall_original_run": "BUG because native playback attribution failed; following distinct checks passed",
+    "passed_checks": [
+      "Preconsent zero events; withdrawal suppresses future events; reload requires new opt-in",
+      "Real clipboard write/read success emits exactly one install_command_copy with asset unknown",
+      "Denied clipboard mock retains manual selection; deferred clipboard mocks suppress preconsent and withdrawn/regranted completions",
+      "Setup and GitHub actions each classified once",
+      "Unavailable transport preserves copy, link activation and actual playback",
+      "Actual copy/link payloads have exact closed fields, approved constant URL, no Referer/Cookie headers",
+      "Generated enabled CSP exact endpoint; private server applied it; desktop/mobile notice scoped axe scans zero violations"
+    ],
+    "binding": "Original receipts have identical context/client/config/predicate/header-generator source hashes to the final run. CopyCommand source SHA-256 below was also rechecked unchanged. Original player was different and failed; those playback positives are not reused. Link checks are historical observations, not a fresh final link component verification.",
+    "unchanged_copy_source_sha256": "9fc07c69aed659e504b3481286f8656b06e9e66c5401a53076cf9f7938bbd3b8",
+    "reexecuted_in_final_run": false
+  },
+  "limits": [
+    "Local intercepted application acceptance only. Parent inspected the probe and independently executed the 10 cases/37 assertions successfully; independent review approved the bounded source and public projection, not provider or whole-initiative acceptance.",
+    "Real provider receipt and all live collection remain blocked by owner decision. Synthetic local 202 is not provider receipt.",
+    "No actual provider CORS, provider drop behavior, account, billing, deletion, retention, edge-host or production acceptance demonstrated.",
+    "No claim all T08 or all delivery gates are complete.",
+    "Earlier clipboard/link/privacy checks are separate historical evidence bound to their original source identities; this run exercises the changed playback contract only.",
+    "Scoped axe and screenshots are not complete WCAG, screen-reader or physical-device certification."
+  ],
+  "cleanup": "Owned browser and loopback server closed; private staged build and receipts retained."
+}

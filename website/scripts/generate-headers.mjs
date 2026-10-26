@@ -3,6 +3,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parse } from 'parse5';
+import {
+  validatePlausibleConfig,
+  EXACT_PLAUSIBLE_ENDPOINT,
+} from '../src/landing/analytics/plausible-predicate.mjs';
 
 const websiteDirectory = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const outDirectory = path.resolve(websiteDirectory, 'out');
@@ -49,6 +53,17 @@ const sourcePolicy = (directive, hashes) => `${directive} 'self'${hashes.size ? 
 const styleAttributePolicy = styleAttributeHashes.size
   ? `style-src-attr 'unsafe-hashes' ${[...styleAttributeHashes].sort().join(' ')}`
   : "style-src-attr 'none'";
+const plausibleConfig = validatePlausibleConfig({
+  enabled: process.env.NEXT_PUBLIC_PLAUSIBLE_ENABLED,
+  operatorApproval: process.env.NEXT_PUBLIC_PLAUSIBLE_OPERATOR_APPROVAL,
+  siteId: process.env.NEXT_PUBLIC_PLAUSIBLE_SITE_ID,
+  pageUrl: process.env.NEXT_PUBLIC_PLAUSIBLE_PAGE_URL,
+});
+
+const connectSrcPolicy = plausibleConfig
+  ? `connect-src 'self' ${EXACT_PLAUSIBLE_ENDPOINT}`
+  : "connect-src 'self'";
+
 const contentSecurityPolicy = [
   "default-src 'self'",
   sourcePolicy('script-src', scriptHashes),
@@ -56,7 +71,7 @@ const contentSecurityPolicy = [
   styleAttributePolicy,
   "font-src 'self'",
   "img-src 'self' data:",
-  "connect-src 'self'",
+  connectSrcPolicy,
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",

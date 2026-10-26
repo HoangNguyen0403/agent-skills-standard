@@ -22,3 +22,11 @@ Because active development evidence under `.agent/sdd/` is git-ignored, and inco
    - Desktop snapshot: [`screenshots/landing-desktop.png`](screenshots/landing-desktop.png) — captured at desktop viewport width 1280 (observed image crop: 1216×1886, 438,131 bytes, SHA-256 `654db0b2d65d1a5fc3d96c04cac4d146d7661a0d5af6d59d0fd9d7f759668295`).
    - Mobile snapshot: [`screenshots/landing-mobile.png`](screenshots/landing-mobile.png) — captured at mobile viewport width 390 (observed image crop: 350×3106, 311,922 bytes, SHA-256 `ab469bf9902771b8f41cece5f46acf11fcb37e7f805da8f6ca1726ed6bcbeb45`).
    - Note: Screenshot crop dimensions (1216×1886 and 350×3106) reflect full rendered element/viewport captures and are explicitly distinguished from viewport widths (1280 and 390).
+4. **Remote candidate consumer acceptance**:
+   - [Report](remote-consumer-acceptance.md) and [structured receipt](remote-consumer-acceptance.json) record genuine GitHub synchronization, installed companion execution, manifest integrity and MCP lookup against published candidate SHA `703f750bc65bf87a764041a26dc12e32eaf0c60a`.
+   - This proves candidate consumer behavior, not version-tag publication, evaluator comparability or whole-initiative acceptance.
+5. **Current PR readiness**:
+   - [Readiness and six remaining gate dispositions](pr-readiness.md) distinguish historical accepted captures from the expanded implementation and owner-blocked activation/evaluation work.
+6. **Configured collection browser acceptance**:
+   - [Report](collection-browser-acceptance.md) and [structured receipt](collection-browser-acceptance.json) bind local intercepted proof to the explicit-start player source.
+   - The parent exercised 10 cases / 37 assertions; initial native-attribution failures and the owner's UX decision remain explicit. No provider event transmission or real-provider receipt is claimed; live collection remains owner-blocked.

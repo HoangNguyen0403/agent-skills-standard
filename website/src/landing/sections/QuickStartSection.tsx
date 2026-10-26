@@ -9,6 +9,7 @@ import { CopyCommand } from "../CopyCommand.client";
 import landingStyles from "../landing.module.css";
 import styles from "./QuickStart.module.css";
 import { DemoPlayer } from "../DemoPlayer";
+import { PlausibleLink } from "../analytics/PlausibleLink.client";
 export function QuickStartSection(): React.JSX.Element {
   const installCmd =
     primaryCommands.find((c) => c.id === "install")?.command ??
@@ -51,15 +52,33 @@ export function QuickStartSection(): React.JSX.Element {
           <p className={styles.prereqText}>{content.quickStart.prerequisite}</p>
 
           <div style={{ display: "flex", flexWrap: "wrap", gap: "16px" }}>
-            <a href={sourceLinks.docs} className={landingStyles.textLinkLime}>
+            <PlausibleLink
+              href={sourceLinks.docs}
+              className={landingStyles.textLinkLime}
+              event={{
+                event_name: "setup_guide_open",
+                campaign_id: "standards-demo-01",
+                asset_id: "tutorial-standards-adoption-01",
+                placement: "quickstart_docs",
+              }}
+            >
               <span>Read setup docs before you sync</span>
               <span aria-hidden="true">↗</span>
-            </a>
+            </PlausibleLink>
 
-            <a href={sourceLinks.tutorial} className={landingStyles.textLinkLime}>
+            <PlausibleLink
+              href={sourceLinks.tutorial}
+              className={landingStyles.textLinkLime}
+              event={{
+                event_name: "setup_guide_open",
+                campaign_id: "standards-demo-01",
+                asset_id: "tutorial-standards-adoption-01",
+                placement: "quickstart_tutorial",
+              }}
+            >
               <span>Follow step-by-step tutorial</span>
               <span aria-hidden="true">↗</span>
-            </a>
+            </PlausibleLink>
           </div>
         </div>
 
