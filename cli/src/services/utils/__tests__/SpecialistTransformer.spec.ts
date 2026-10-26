@@ -385,6 +385,41 @@ describe('SpecialistTransformer', () => {
       ]);
     });
 
+    // Test intent: Claude's disclosure must not present AGS `risk_tier`
+    // classification as an unenforceable permission, and must never call the
+    // native tool list it projected unenforceable.
+    it('separates Claude risk_tier classification metadata from unenforceable permission controls', () => {
+      const source = specialistSource(
+        `description: "reviews code"\nrisk_tier: L2\nallowed-tools:\n  - Read\npermissions:\n  filesystem: write`,
+      );
+      const result = SpecialistTransformer.transform(source, Agent.Claude);
+      if (!result) throw new Error('Expected a Claude agent export');
+      expect(result.projection).toEqual({
+        projected: ['allowed-tools'],
+        unprojected: ['risk_tier', 'permissions.filesystem'],
+      });
+
+      const frontmatterMatch = result.content.match(
+        /^---\r?\n[\s\S]*?\r?\n---\r?\n/,
+      );
+      expect(frontmatterMatch).not.toBeNull();
+      const disclosure = result.content.slice(frontmatterMatch![0].length);
+      const comments = disclosure.match(/<!--[^>]*-->/g) ?? [];
+      const classification = comments.find((comment) =>
+        comment.includes('classification metadata'),
+      );
+      const permissions = comments.find((comment) =>
+        comment.includes('permissions not enforceable'),
+      );
+
+      expect(classification).toContain('risk_tier: L2');
+      expect(classification).toContain('not a Claude-enforced permission');
+      expect(permissions).toContain('permissions.filesystem');
+      expect(permissions).not.toContain('risk_tier');
+      expect(disclosure).not.toContain('allowed-tools');
+      expect(disclosure).not.toContain('tools:');
+    });
+
     it('adds no warning comment on those platforms when nothing risk-relevant is declared', () => {
       const source = specialistSource('description: "reviews code"');
       for (const agent of [Agent.Cursor, Agent.Copilot, Agent.Gemini]) {

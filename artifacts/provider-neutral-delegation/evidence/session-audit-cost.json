@@ -1,9 +1,0 @@
-{
- "workflow":"implement-feature",
- "orchestratorModel":"openai-codex/gpt-6.1-sol",
- "complianceAuditPerformed":true,
- "auditLimit":"Connected MCP process records 27 loaded skills and reports generic Next.js/React coverage warnings; this task's MCP/CLI files do not use either framework. Direct skill file reads and per-worker compliance are separately reported, not certified by this shared ledger.",
- "cost":{"source":"unavailable","totalTaskUsd":null,"monetarySavings":null,"missing":["complete parent/worker/reviewer/failed-attempt usage inventory","applicable input/cache/output/reasoning billing rates"]},
- "runtimeBoundary":"The connected session MCP process still serves pre-change telemetry text, including deprecated omission/dedup estimates. Those estimates are explicitly excluded from evidence and savings claims. Newly built code was exercised through fresh SDK/CLI smoke; no running host activation or MCP restart was performed.",
- "authorization":"No premium consultation, native model trials, merge, release or host activation authorized or performed."
-}

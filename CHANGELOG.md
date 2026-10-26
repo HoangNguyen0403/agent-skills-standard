@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Full-actor task economics**: session journals accept `cancelled` attempts plus declared `taskId` / `parentTaskId` labels and optional `expectedActors`; missing declared actors are listed by label. Eval runs persist per-attempt `taskUsage`, and the generated report adds a Task Economics section that withholds monetary savings unless actor coverage, metering, pricing and task identity are all complete. Reasoning usage requires explicit `separate` or `included-in-output` billing semantics; ambiguity leaves cost `unavailable`.
 - **Qualification harness**: `pnpm harness:smoke -- --qualification-only --claim <path>` validates recorded conformance traces offline (no probes, network or model calls) and reports `not_verified` for synthetic evidence.
 
-- **Release candidates**: Common `2.9.2`; workflows `1.1.8`, both based on `origin/develop`.
+- **Release candidates**: MCP `0.8.0`; CLI `2.7.0`; Common `2.9.2`; workflows `1.1.8` (the latter two based on `origin/develop`).
 
 ### Changed
 

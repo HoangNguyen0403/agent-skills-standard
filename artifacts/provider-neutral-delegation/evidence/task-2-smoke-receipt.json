@@ -1,8 +1,0 @@
-{
-  "scenario": "actual packet helper, approved repository task",
-  "result": "passed",
-  "packet": ".agent/sdd/provider-neutral-delegation/task-2-3b277f2a0616.md",
-  "packet_sha256": "3b277f2a0616d097297c506fbf54baff411bed1abaa64908628ed2b8fbbd66bc",
-  "source_sha256": "09307894b1bdb70e52fb0235dce312f29eca0de90baf3aa64c30d9e13f2912f6",
-  "limits": "No native runtime or model execution; packet creation is not remote delivery proof."
-}

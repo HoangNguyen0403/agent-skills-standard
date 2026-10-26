@@ -8,13 +8,13 @@ interface SpecialistSource {
 }
 
 export interface PermissionProjection {
-  /** Declared controls with a native equivalent in this export. */
+  /** Declared permission controls with a native equivalent in this export. */
   projected: string[];
   /**
-   * Declared controls with no native equivalent, as stable tokens:
-   * `risk_tier`, `allowed-tools`, `tools`, `permissions.<scope>`, and
-   * `tool:<name>` for individual names nothing can map. Disclosure only —
-   * never an enforcement claim.
+   * Declared metadata and controls not projected into native fields, as
+   * stable tokens. `risk_tier` is AGS classification metadata, not a host
+   * permission; other tokens identify unprojected permission declarations or
+   * tool names. Disclosure only — never an enforcement claim.
    */
   unprojected: string[];
 }
@@ -149,6 +149,20 @@ function permissionWarning(
 }
 
 /**
+ * Emits a visible disclosure for AGS classification metadata (e.g.
+ * `risk_tier`). Classification steers AGS review routing; it is not a host
+ * permission, so folding it into the "not enforceable" warning would misstate
+ * what the host actually enforces.
+ */
+function classificationWarning(
+  platform: string,
+  declared: readonly string[],
+): string {
+  if (declared.length === 0) return '';
+  return `<!-- ags: AGS classification metadata (not a ${platform}-enforced permission); declared: ${declared.join('; ')} -->\n`;
+}
+
+/**
  * Transforms specialist skill markdown into platform-specific agent personas.
  */
 export class SpecialistTransformer {
@@ -203,9 +217,18 @@ export class SpecialistTransformer {
           }
           return true;
         });
+        // `risk_tier` is AGS classification metadata, not a permission; the
+        // outward disclosure must not present it as host-enforced or as
+        // something the host failed to enforce.
+        const classification = disclosed.filter((part) =>
+          part.startsWith('risk_tier:'),
+        );
+        const permissionControls = disclosed.filter(
+          (part) => !part.startsWith('risk_tier:'),
+        );
         return {
           name: `${baseName}.md`,
-          content: `---\n${dumpFrontmatter(fm)}\n---\n${permissionWarning('Claude', disclosed)}\n${body}`,
+          content: `---\n${dumpFrontmatter(fm)}\n---\n${classificationWarning('Claude', classification)}${permissionWarning('Claude', permissionControls)}\n${body}`,
           projection: { projected, unprojected },
         };
       }
