@@ -10,6 +10,7 @@ import {
   SkillsLockFile,
   sha256,
   type WorkflowCatalog,
+  type WorkflowCatalogBindingConflict,
 } from '../LockfileService';
 
 describe('LockfileService v2', () => {
@@ -28,6 +29,19 @@ describe('LockfileService v2', () => {
   it('load with no file returns lock: null, migratedFromV1: false', async () => {
     const loaded = await service.load(root, [Agent.Claude]);
     expect(loaded).toEqual({ lock: null, migratedFromV1: false });
+  });
+
+  it('load rejects a lock file missing a version field', async () => {
+    await fs.writeJson(path.join(root, LOCKFILE_NAME), {
+      registry: 'https://github.com/test/repo',
+      generatedAt: '2026-10-23T00:00:00.000Z',
+      sources: {},
+      entries: {},
+    });
+
+    await expect(service.load(root, [Agent.Claude])).rejects.toThrow(
+      'Invalid .skills-lock.json: missing version',
+    );
   });
 
   it('load of a v1 file migrates to v2 format with entries and sources', async () => {
@@ -284,6 +298,21 @@ describe('LockfileService v2', () => {
       await expect(service.load(root, [])).rejects.toThrow(/workflowCatalog/i);
     });
 
+    it.each([
+      ['null', null],
+      ['an array', []],
+      ['a primitive string', 'not-an-object'],
+    ])('rejects a catalog root that is %s', async (_label, invalidCatalog) => {
+      await fs.writeJson(path.join(root, LOCKFILE_NAME), {
+        ...baseLock(),
+        workflowCatalog: invalidCatalog,
+      });
+
+      await expect(service.load(root, [])).rejects.toThrow(
+        'Invalid .skills-lock.json workflowCatalog: expected an object',
+      );
+    });
+
     it('rejects a catalog whose workflows collection is not an object', async () => {
       await fs.writeJson(path.join(root, LOCKFILE_NAME), {
         ...baseLock(),
@@ -315,6 +344,14 @@ describe('LockfileService v2', () => {
       [
         'an unsupported version',
         { version: 2, workflows: {} } as unknown as WorkflowCatalog,
+      ],
+      [
+        'a non-object catalog root (array)',
+        [] as unknown as WorkflowCatalog,
+      ],
+      [
+        'a null catalog root',
+        null as unknown as WorkflowCatalog,
       ],
       [
         'a traversal canonical path',
@@ -449,5 +486,81 @@ describe('LockfileService v2', () => {
 
       expect(await fs.readFile(lockPath)).toEqual(previous);
     });
+
+    it('round-trips a workflow catalog with recorded native conflicts', async () => {
+      const lock = baseLock();
+      const withConflicts = catalog();
+      withConflicts.workflows['dev-fix'].nativeConflicts = [
+        {
+          agent: 'claude',
+          path: '.claude/commands/dev-fix.md',
+        },
+      ];
+      lock.workflowCatalog = withConflicts;
+
+      await service.write(root, lock);
+      const loaded = await service.load(root, []);
+
+      expect(loaded.lock?.workflowCatalog).toEqual(withConflicts);
+    });
+
+    it.each([
+      [
+        'a non-array nativeConflicts value',
+        'not-an-array' as unknown as WorkflowCatalogBindingConflict[],
+        /has an invalid nativeConflicts value/i,
+      ],
+      [
+        'a null conflict entry',
+        [null] as unknown as WorkflowCatalogBindingConflict[],
+        /has an invalid native conflict/i,
+      ],
+      [
+        'an empty conflict agent',
+        [{ agent: '', path: '.claude/commands/dev-fix.md' }],
+        /has an invalid conflict agent/i,
+      ],
+      [
+        'a traversal conflict path',
+        [{ agent: 'claude', path: '../outside.md' }],
+        /has an unsafe conflict path/i,
+      ],
+      [
+        'an absolute conflict path',
+        [{ agent: 'claude', path: '/tmp/dev-fix.md' }],
+        /has an unsafe conflict path/i,
+      ],
+      [
+        'duplicate conflict entries for the same agent and path',
+        [
+          { agent: 'claude', path: '.claude/commands/dev-fix.md' },
+          { agent: 'claude', path: '.claude/commands/dev-fix.md' },
+        ],
+        /has a duplicate native conflict for/i,
+      ],
+    ])(
+      'rejects %s before publishing and preserves the previous lock',
+      async (_label, conflicts, expectedError) => {
+        const lock = baseLock();
+        await service.write(root, lock);
+        const lockPath = path.join(root, LOCKFILE_NAME);
+        const previous = await fs.readFile(lockPath);
+
+        const badCatalog = catalog({
+          workflows: {
+            'dev-fix': {
+              ...catalog().workflows['dev-fix'],
+              nativeConflicts: conflicts,
+            },
+          },
+        });
+
+        await expect(
+          service.write(root, { ...baseLock(), workflowCatalog: badCatalog }),
+        ).rejects.toThrow(expectedError);
+
+        expect(await fs.readFile(lockPath)).toEqual(previous);
+      },
+    );
   });
 });
