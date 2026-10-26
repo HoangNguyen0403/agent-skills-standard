@@ -722,22 +722,6 @@
   border-left: 2px solid rgba(199, 243, 107, 0.4);
 }
 
-.specimenRevision {
-  margin-top: 16px;
-  font-family: var(--font-mono), "IBM Plex Mono", monospace;
-  font-size: 14px;
-  color: var(--muted, #bbc3ba);
-}
-
-.specimenRevision a {
-  color: var(--muted, #bbc3ba);
-  text-decoration: underline;
-}
-
-.specimenRevision a:hover {
-  color: var(--paper, #f5f2e9);
-}
-
 /* ==========================================================================
    8. SDLC WORKFLOW SECTION (DARK)
    ========================================================================== */
