@@ -52,13 +52,13 @@ Next workflow: human G2 review, then implementation-readiness and the already se
 
 ## Implementation delivery evidence — repository scope (2026-10-25)
 
-The requesting operator approved G2 and named the engineering owner as “Me.” The candidate contains the new `cyber-lab-validation` skill and six shared cybersecurity skills at `cybersecurity` 1.0.1 candidate, plus four canonical security workflows at `workflows` 1.1.8 candidate. These are candidate versions, not a release or activation.
+The requesting operator approved G2 and named the engineering owner as “Me.” The candidate contains the new `cyber-lab-validation` skill and six shared cybersecurity skills at `cybersecurity` 1.0.2 candidate, plus four canonical security workflows at `workflows` 1.1.10 candidate. These are candidate versions, not a release or activation.
 
 The independent reviewer’s final verdict is **APPROVE within the exercised repository implementation/export/local consumer-fixture scope**. C findings IR01–IR05, E findings ER01–ER07 and integration finding IE01 are closed. The approval does not cover live security execution, model compatibility, operational MCP behavior, consumer root-license presence, host enforcement, or publication.
 
 Repository checks recorded by the parent:
 
-- `pnpm test:evals`: 85/85 passed. `pnpm audit:sdlc` and `pnpm docs:capabilities:check` passed.
+- `pnpm test:evals`: 89/89 passed. `pnpm audit:sdlc` and `pnpm docs:capabilities:check` passed.
 - `pnpm validate:all`: completed with warnings, not a warning-free pass: a warn-only injection finding in a product-requirements reference and 17 freshness issues (0 high, 10 medium, 7 low), including missing upstream pins for cybersecurity. `pnpm check-alignment` passed with warnings at 70% threshold (common/stitch-design 87%, Flutter/GetX navigation 86%, Swift best practices 83%).
 - The first focused eval preflight had 7 issues and is retained as a historical failure. Assertion-only corrections were followed by a focused preflight with 0 issues at eval digest `e0c2e59d52907ff49d7aee24384ae9559f2cc36ca9876d3d0045c7b70e58e683`.
 - The X05 omission smoke first failed its missing-authorization case (21 keys rather than the expected 20); after correction all 21 omission cases passed, with a 32-byte marker. This is a focused top-level-key check, not full YAML/schema or proof-reference validation.
@@ -67,6 +67,6 @@ Repository checks recorded by the parent:
 
 The initial eval-preflight failure, X05 failure, and both consumer-smoke helper failures remain in the evidence; they were not overwritten by the later passes. Exact session cost is unavailable because host token and pricing fields were not supplied.
 
-Durable evidence: [archive manifest](../../artifacts/runs/cyber-lab-validation/evidence/MANIFEST.json), [final independent review](../../artifacts/runs/cyber-lab-validation/evidence/implementation-review-report.md), [integration report](../../artifacts/runs/cyber-lab-validation/evidence/integration-implementation-report.md), [parent validation receipt](../../artifacts/runs/cyber-lab-validation/parent-validation.json), [X05 smoke receipt](../../artifacts/runs/cyber-lab-validation/20261025-omission-smoke.json), [consumer smoke result](../../artifacts/runs/cyber-lab-validation/consumer-smoke-result.json), and [integration execution receipt](../../artifacts/runs/cyber-lab-validation/integration-execution-receipt.json).
+Durable evidence: [archive manifest](../../artifacts/cyber-lab-validation/evidence/MANIFEST.json), [final independent review](../../artifacts/cyber-lab-validation/evidence/implementation-review-report.md), and [integration report](../../artifacts/cyber-lab-validation/evidence/integration-implementation-report.md).
 
 G3 host authority/isolation/cancellation proof, G4 separately approved model/behavior evaluation, and G5 publication remain pending. No live lab action, model run, paid evaluation, commit, push, release, or publication is evidenced here.
