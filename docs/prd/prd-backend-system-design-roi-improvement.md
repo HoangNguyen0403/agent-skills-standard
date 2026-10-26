@@ -32,9 +32,33 @@ No production service, Terraform deployment, new evaluation platform, scorer API
 | Specialized retrieval, AI-budget and durable-runtime guidance is incomplete | assessment from bounded canonical-source lookup; validate the exact missing mechanisms before editing |
 | These improvements will reduce review effort | assumed; test OBJ-ROI-02, do not promote to realized ROI |
 
-This plan is an incremental backlog, not a replacement for `prd-system-design-professionalization.md`. Preserve its REQ/AC IDs, G0/G1 approvals, and separate G2 evaluation/G3 acceptance/G4 release gates. New IDs below are namespaced to avoid collision. Do not revive completed work or overwrite another worker's changes.
+This plan is an incremental backlog, not a replacement for `prd-system-design-professionalization.md`. Preserve its REQ/AC IDs, G0/G1 approvals, and separate G2 evaluation/G3 acceptance/G4 release gates. New IDs below use the canonical `REQ-<3+ digits>` / `AC-<3+ digits>` grammar and are scoped by this PRD's slug, not by a name prefix (see §2.1). Do not revive completed work or overwrite another worker's changes.
 
 The existing PRD both records Personal standard-profile authorization and retains an unresolved domain-classification entry. The lead must reconcile that contradiction from authoritative approval evidence before dispatch, not infer authorization from a public repository. The old 11-skill selection omits building-blocks and integration-patterns; it is not an adequate selection for this change.
+
+### 2.1 Identifier migration (2026-10-27)
+
+Active identifiers in this PRD use the canonical trace grammar: `REQ-001`…`REQ-008` and `AC-000`…`AC-019`. Earlier revisions used an ROI-namespaced spelling, now retired because the repository trace audit treats a non-canonical token as a malformed id. The migration is suffix-preserving: no criterion index moved, no criterion wording or status changed.
+
+Immutable evidence under `artifacts/backend-system-design-roi-improvement/evidence/` keeps the old spelling verbatim and is not renumbered, so archived receipts and this PRD differ in spelling only. Active-ID scope comes from this file's slug (`backend-system-design-roi-improvement`), not from an alias registry. No active requirement or criterion in this document has a second spelling, a backticked escape or an alias declaration. The block below is a historical mapping for readers of the archive, not authority:
+
+```text
+legacy spelling -> canonical id (suffix preserved)
+
+REQ-ROI-01..08 -> REQ-001..008
+AC-ROI-00..19  -> AC-000..019
+
+REQ-ROI-01 = REQ-001    AC-ROI-00 = AC-000    AC-ROI-10 = AC-010
+REQ-ROI-02 = REQ-002    AC-ROI-01 = AC-001    AC-ROI-11 = AC-011
+REQ-ROI-03 = REQ-003    AC-ROI-02 = AC-002    AC-ROI-12 = AC-012
+REQ-ROI-04 = REQ-004    AC-ROI-03 = AC-003    AC-ROI-13 = AC-013
+REQ-ROI-05 = REQ-005    AC-ROI-04 = AC-004    AC-ROI-14 = AC-014
+REQ-ROI-06 = REQ-006    AC-ROI-05 = AC-005    AC-ROI-15 = AC-015
+REQ-ROI-07 = REQ-007    AC-ROI-06 = AC-006    AC-ROI-16 = AC-016
+REQ-ROI-08 = REQ-008    AC-ROI-07 = AC-007    AC-ROI-17 = AC-017
+                        AC-ROI-08 = AC-008    AC-ROI-18 = AC-018
+                        AC-ROI-09 = AC-009    AC-ROI-19 = AC-019
+```
 
 ## 3. Capability scope and requirements
 
@@ -42,14 +66,14 @@ All requirements below are proposed, owned by the indicated worker, accountable 
 
 | Requirement | Objective | Capability / intended outcome | Priority / owner | Delivery disposition |
 | --- | --- | --- | --- | --- |
-| REQ-ROI-01 | 01–03 | Freeze a trustworthy baseline and map existing approved work | P0 / T0 | First prerequisite |
-| REQ-ROI-02 | 01 | Reason about load balancing, overload, shutdown and failure capacity | P0 / T1 | Core pilot scope |
-| REQ-ROI-03 | 01 | Preserve tenant authority through retrieval and derived copies | P0 / T2 | Core pilot scope |
-| REQ-ROI-04 | 01 | Preserve external-effect invariants through retries, events and durable workflows | P0 / T3 | Core pilot scope |
-| REQ-ROI-05 | 02–03 | Bound AI-gateway spending and semantic-cache reuse | P1 / T4 | Conditional expansion after core pilot |
-| REQ-ROI-06 | 01–03 | Evaluate mechanisms independently of vocabulary matching | P0 / T5 | Core and expansion variants |
-| REQ-ROI-07 | 03 | Publish canonical changes without evidence loss or duplicate rule ownership | P0 / T6 | After independent review |
-| REQ-ROI-08 | 01–03 | Measure outcome uplift, review effort and full task cost | P0 / T7 | Separately authorized pilot |
+| REQ-001 | 01–03 | Freeze a trustworthy baseline and map existing approved work | P0 / T0 | First prerequisite |
+| REQ-002 | 01 | Reason about load balancing, overload, shutdown and failure capacity | P0 / T1 | Core pilot scope |
+| REQ-003 | 01 | Preserve tenant authority through retrieval and derived copies | P0 / T2 | Core pilot scope |
+| REQ-004 | 01 | Preserve external-effect invariants through retries, events and durable workflows | P0 / T3 | Core pilot scope |
+| REQ-005 | 02–03 | Bound AI-gateway spending and semantic-cache reuse | P1 / T4 | Conditional expansion after core pilot |
+| REQ-006 | 01–03 | Evaluate mechanisms independently of vocabulary matching | P0 / T5 | Core and expansion variants |
+| REQ-007 | 03 | Publish canonical changes without evidence loss or duplicate rule ownership | P0 / T6 | After independent review |
+| REQ-008 | 01–03 | Measure outcome uplift, review effort and full task cost | P0 / T7 | Separately authorized pilot |
 
 ### Disposition of all supplied reference topics
 
@@ -108,8 +132,8 @@ Steps:
 3. Produce `overlap-map.md`: each T1–T4 mechanism is existing/correct, missing, contradictory or already owned. Existing/correct work is verified and reused, not rewritten.
 4. Produce `dispatch-locks.json` with exact per-task paths and shared-file locks. Resolve overlap with active work before dispatch.
 
-AC-ROI-00: Given the current checkout, when the baseline is frozen, then every selected current-AGS input can be retrieved with its recorded hash.
-AC-ROI-01: Given existing professionalization work, when tasks are dispatched, then no source path has concurrent implementation owners.
+AC-000: Given the current checkout, when the baseline is frozen, then every selected current-AGS input can be retrieved with its recorded hash.
+AC-001: Given existing professionalization work, when tasks are dispatched, then no source path has concurrent implementation owners.
 
 Return baseline manifest, overlap decisions, exact source inventory and approval contradiction resolution evidence. Do not run models.
 
@@ -125,9 +149,9 @@ Exclusive source ownership:
 
 Steps: qualify least-connections versus request cost/multiplexing; distinguish readiness/liveness and shared-dependency outages; cover passive/active detection, recovery and draining; derive residual capacity after failure; connect admission limits, deadlines, retry ownership, stream buffers and downstream pool ceilings. Include TLS trust boundaries and DNS cache limits without prescribing global infrastructure. Replace blanket gateway fail-through advice with explicit availability versus auth/quota correctness boundaries. Limiter guidance must name atomic authority and partition behavior rather than promising globally exact quotas unconditionally.
 
-AC-ROI-02: Given a failed instance or zone, when remaining capacity cannot carry admitted demand, then guidance requires bounded degradation/admission rather than claiming HA from instance count.
-AC-ROI-03: Given an optional shared-dependency outage, when readiness is evaluated, then guidance distinguishes serviceable degraded requests from fleet-wide ejection.
-AC-ROI-04: Given a slow/disconnected streaming client, when buffering or draining reaches its bound, then guidance specifies a finite termination/recovery contract.
+AC-002: Given a failed instance or zone, when remaining capacity cannot carry admitted demand, then guidance requires bounded degradation/admission rather than claiming HA from instance count.
+AC-003: Given an optional shared-dependency outage, when readiness is evaluated, then guidance distinguishes serviceable degraded requests from fleet-wide ejection.
+AC-004: Given a slow/disconnected streaming client, when buffering or draining reaches its bound, then guidance specifies a finite termination/recovery contract.
 
 Return exact rule changes, worked synthetic adverse timelines, primary-source citations and candidate public evaluation prompts. Do not edit eval JSON or shared metadata.
 
@@ -142,8 +166,8 @@ Exclusive source ownership:
 
 Steps: extend the existing authority contract rather than fork it. Carry authenticated tenant scope through source queries, vector/lexical retrieval, reranking, caches, async jobs and deletion. Explain privileged DB-role/RLS bypass risk, pooled-context reset and authorization of derived results. Distinguish retrieval relevance from authorization. Reference generic security guidance; no application-specific RLS migration or new search engine.
 
-AC-ROI-05: Given tenant-scoped source records, when a derived retrieval/cache/job path is designed, then its output remains constrained by authenticated tenant authority.
-AC-ROI-06: Given revoked/deleted source data, when derived copies remain, then guidance specifies their authorization/invalidation lifecycle instead of asserting deletion is complete at the source alone.
+AC-005: Given tenant-scoped source records, when a derived retrieval/cache/job path is designed, then its output remains constrained by authenticated tenant authority.
+AC-006: Given revoked/deleted source data, when derived copies remain, then guidance specifies their authorization/invalidation lifecycle instead of asserting deletion is complete at the source alone.
 
 Return a source-to-derived-copy boundary table, one cross-tenant counterexample and one deletion/revocation counterexample, citations and candidate public prompts. No changes to framework-specific auth code.
 
@@ -160,9 +184,9 @@ Read-only contract: `skills/system-design/system-design-principles/references/id
 
 Steps: reuse operation-identity/outbox/inbox rules; distinguish event ID from business-operation ID; model unknown external outcomes, reconciliation, replay and compensation. Extend durable guidance with timers, activity cancellation/heartbeat, replay determinism, and running-workflow version compatibility. Replace fixed step-count or universal compensation rules only where they contradict constraint-driven selection. Distinguish broker delivery from external business effects.
 
-AC-ROI-07: Given a provider timeout after possible commit, when recovery is designed, then the outcome remains unknown/queryable until reconciled rather than blindly repeating the effect.
-AC-ROI-08: Given replay or crash recovery, when a business operation resumes, then the effect identity remains stable.
-AC-ROI-09: Given an in-flight workflow version change, when code is upgraded, then guidance requires a compatible replay/migration strategy rather than assuming old executions restart safely.
+AC-007: Given a provider timeout after possible commit, when recovery is designed, then the outcome remains unknown/queryable until reconciled rather than blindly repeating the effect.
+AC-008: Given replay or crash recovery, when a business operation resumes, then the effect identity remains stable.
+AC-009: Given an in-flight workflow version change, when code is upgraded, then guidance requires a compatible replay/migration strategy rather than assuming old executions restart safely.
 
 Return adverse timelines for lost reply, duplicate event, crash/replay and version change; citations and public prompt candidates. Do not alter the canonical idempotency contract without an explicit lead-assigned follow-on lock.
 
@@ -176,8 +200,8 @@ Exclusive source ownership during this later wave:
 
 Read generic LLM security and estimation guidance. Define tenant/auth/model/prompt/tool-policy cache identity, freshness and unsuitable semantic-cache cases; define reserve/execute/settle/release budget transitions including concurrency, retries, cancellation and ambiguous provider billing. Fallback must preserve data/account eligibility, required capabilities and total budget. Do not build a provider SDK or change host billing policy.
 
-AC-ROI-10: Given semantically similar prompts under different authority, when a cache is consulted, then similarity alone cannot authorize result reuse.
-AC-ROI-11: Given concurrent requests and uncertain provider billing, when spend is admitted, then reservations and uncertainty prevent silently exceeding the declared budget policy.
+AC-010: Given semantically similar prompts under different authority, when a cache is consulted, then similarity alone cannot authorize result reuse.
+AC-011: Given concurrent requests and uncertain provider billing, when spend is admitted, then reservations and uncertainty prevent silently exceeding the declared budget policy.
 
 Return state/decision tables and counterexamples. Activate only when core evidence or a named project demonstrates need; otherwise retain conditional status without claiming completion.
 
@@ -201,9 +225,9 @@ Steps:
 5. Define three independent repetitions per core case/arm (27 task attempts), randomized arm order and blinded grading. Record this as a diagnostic pilot, not a statistically conclusive deployment claim. Price reviewers/retries/integration separately before approval.
 6. Specify executable verification against generated candidate behavior: duplicate-effect count after replay, cross-tenant result denial, and finite admission/buffer/drain behavior. A toy harness written by the grader is not proof the generated candidate works.
 
-AC-ROI-12: Given an answer containing all expected vocabulary but an unsafe mechanism, when independently graded, then it fails the appropriate hard invariant.
-AC-ROI-13: Given semantically correct alternate wording, when graded, then it is not rejected solely for absent phrases.
-AC-ROI-14: Given historical fixtures and results, when new cases are prepared, then their original bytes and provenance remain unchanged.
+AC-012: Given an answer containing all expected vocabulary but an unsafe mechanism, when independently graded, then it fails the appropriate hard invariant.
+AC-013: Given semantically correct alternate wording, when graded, then it is not rejected solely for absent phrases.
+AC-014: Given historical fixtures and results, when new cases are prepared, then their original bytes and provenance remain unchanged.
 
 Do not invent a scorer/schema extension. If current tooling cannot execute candidate artifacts with the required isolation, return a bounded technical-design gap to the lead before T7. Complete semantic/lexical lanes independently; runtime efficacy remains unverified until an approved executable lane exists.
 
@@ -215,8 +239,8 @@ Exclusive ownership: changed-package metadata, generated mirrors/indexes, necess
 
 Steps: resolve cross-skill contradictions; verify reference routing and no duplicate ownership; record token deltas; run the no-model suite below once after worker edits settle; snapshot SDD evidence before generators and verify preservation afterward. Follow generator/evidence-preservation skills. Prefer isolated generation and allowlisted copy-back. Never hand-edit mirrors or overwrite root historical score reports with unrun claims.
 
-AC-ROI-15: Given the integrated source set, when validation and publication complete, then every changed package is selected and every generated change is attributable to that source set.
-AC-ROI-16: Given preserved evidence, when generators finish, then baseline and historical evidence hashes are unchanged.
+AC-015: Given the integrated source set, when validation and publication complete, then every changed package is selected and every generated change is attributable to that source set.
+AC-016: Given preserved evidence, when generators finish, then baseline and historical evidence hashes are unchanged.
 
 Return exact command/exit/output receipts, changed files, preservation manifest, token deltas, independent review disposition and remaining failures. Pre-existing unrelated failures are reported separately, never silently repaired or relabeled PASS.
 
@@ -228,11 +252,40 @@ Outputs: new immutable run/evidence artifacts through existing tools and `pilot-
 
 Measure each arm's accepted-task count, invariant failures, human review/rework minutes, wall time, all actor/attempt usage and priced cost. Missing usage is unknown, not zero. If human reviewers are unavailable, label agent-review time separately and leave the human-effort hypothesis unvalidated.
 
-AC-ROI-17: Given a failed, retried, cancelled or rejected attempt, when task cost is calculated, then its incurred cost remains included.
-AC-ROI-18: Given missing execution/usage evidence, when reporting readiness or savings, then the unsupported result is explicitly withheld.
-AC-ROI-19: Given comparable pilot arms, when recommending adoption, then critical failures, accepted-task rate, review effort and total cost are reported separately rather than collapsed into a structural score.
+AC-017: Given a failed, retried, cancelled or rejected attempt, when task cost is calculated, then its incurred cost remains included.
+AC-018: Given missing execution/usage evidence, when reporting readiness or savings, then the unsupported result is explicitly withheld.
+AC-019: Given comparable pilot arms, when recommending adoption, then critical failures, accepted-task rate, review effort and total cost are reported separately rather than collapsed into a structural score.
 
 Adoption target: no observed critical invariant violations, no accepted-task-rate regression, and at least 20% lower median human review/rework minutes versus current AGS. Show sample counts/dispersion; do not imply a small pilot proves safety. Monetary acceptance also requires a maintainer-approved cost ceiling; no numerical spend ceiling is invented here. Failed targets trigger a bounded corrective brief, not automatic rollout or T4 activation.
+
+### Acceptance-criterion trace
+
+Each row declares one criterion and names its requirement, its defining task section and its current honest status. A row is a documentary edge — the criterion is defined and has been reviewed somewhere — not evidence that a gate, a runtime behavior or human acceptance passed. This slug has no BRD and no SRS, so no upstream objective edge and no downstream SRS edge is asserted; the missing BRD remains a warning rather than a satisfied link.
+
+| Criterion | Requirement | Defined in | Status |
+| --- | --- | --- | --- |
+| AC-000 | REQ-001 | §5 T0 — baseline retrievability | Met at T0 for selected current-AGS inputs; hash-bound retrieval evidence, no model run |
+| AC-001 | REQ-001 | §5 T0 — exclusive ownership | Met at the T0 boundary: 17 exclusive paths, 0 duplicate owners; coordination record, not host enforcement |
+| AC-002 | REQ-002 | §5 T1 — failure capacity, not instance count | Accepted as canonical guidance; no runtime proof |
+| AC-003 | REQ-002 | §5 T1 — optional dependency degradation | Accepted as canonical guidance after architecture repair |
+| AC-004 | REQ-002 | §5 T1 — finite buffering, drain and recovery | Accepted as canonical guidance; previously correct rule preserved |
+| AC-005 | REQ-003 | §5 T2 — tenant authority through derived copies | Accepted as canonical guidance after security repair |
+| AC-006 | REQ-003 | §5 T2 — revocation versus erasure lifecycle | Accepted as canonical guidance after security repair |
+| AC-007 | REQ-004 | §5 T3 — unknown outcome reconciliation | Accepted as canonical guidance |
+| AC-008 | REQ-004 | §5 T3 — stable effect identity across replay | Accepted as canonical guidance after architecture repair |
+| AC-009 | REQ-004 | §5 T3 — in-flight workflow version compatibility | Accepted as canonical guidance; no engine execution |
+| AC-010 | REQ-005 | §5 T4 — cache authorization identity | Deferred: T4 not authorized |
+| AC-011 | REQ-005 | §5 T4 — budget reservation under billing uncertainty | Deferred: T4 not authorized |
+| AC-012 | REQ-006 | §5 T5 — unsafe mechanism despite complete vocabulary | Not satisfied as executed; no semantic grading run |
+| AC-013 | REQ-006 | §5 T5 — correct alternate wording accepted | Not satisfied as executed; no semantic grading run |
+| AC-014 | REQ-006 | §5 T5 — historical fixture and provenance preservation | Satisfied for checked scope; exhaustive archive verification stays with T6 |
+| AC-015 | REQ-007 | §5 T6 — attributable publication of every changed package | Satisfied for repository distribution integration only |
+| AC-016 | REQ-007 | §5 T6 — preserved evidence across generators | Satisfied for checked preservation scope |
+| AC-017 | REQ-008 | §5 T7 — incurred cost of failed or cancelled attempts | Not run: T7 not authorized |
+| AC-018 | REQ-008 | §5 T7 — withhold unsupported readiness or savings | Not run: T7 not authorized |
+| AC-019 | REQ-008 | §5 T7 — separated pilot reporting | Not run: T7 not authorized |
+
+Status words above are documentary only. They do not convert a guidance acceptance, a documentary review or a local gate into semantic efficacy, realized ROI, human acceptance or release readiness.
 
 ## 6. Execution graph, reviews and estimates
 
@@ -278,7 +331,7 @@ Decisions: extend existing owners; prioritize three failure classes; preserve ol
 
 Send the following with one selected task section and the shared contracts; never just send the original chat:
 
-> Project: agent-skills-standard. Authorized workspace: the current approved worktree identified by the lead; do not switch repositories. Role: execute Tn only, with no delegation. Read AGENTS.md and load applicable project skills. Read this plan §§1–4, your complete Tn brief, and the T0 baseline/ownership records. Modify only your locked files; do not revert unrelated changes. Preserve existing approvals, IDs, fixtures and historical evidence. No models/cloud/production access, generators, commit/push or release unless your brief explicitly authorizes that operation. Do not run build/lint/tests/formatters mid-flight. Report material design/permission gaps to the lead while completing independent safe work. Return changed paths, AC-by-AC status, evidence or planned verification clearly labeled, primary sources, risks, and a correction-ready summary. An implementation claim without evidence is not DONE.
+> Project: agent-skills-standard. Authorized workspace: the current approved worktree identified by the lead; do not switch repositories. Role: execute Tn only, with no delegation. Read AGENTS.md and load applicable project skills. Read this plan §§1–4, your complete Tn brief, and the T0 baseline/ownership records. Modify only your locked files; do not revert unrelated changes. Preserve existing approvals, IDs, fixtures and historical evidence. No models/cloud/production access, generators, commit/push or release unless your brief explicitly authorizes that operation. Do not run build/lint/tests/formatters mid-flight. Report material design/permission gaps to the lead while completing independent safe work. Return changed paths, criterion-by-criterion status, evidence or planned verification clearly labeled, primary sources, risks, and a correction-ready summary. An implementation claim without evidence is not DONE.
 
 Review dispatch adds: read-only, independent of the implementer, inspect the exact changed revision, challenge the hard-failure cases and return blocking findings with file/line evidence. Do not award acceptance based on wording matches or supply human approval.
 
@@ -298,4 +351,5 @@ Review dispatch adds: read-only, independent of the implementer, inspect the exa
 Next workflow: separately secure human acceptance, exact T7 authorization and executable-lane readiness before any paid pilot decision. T4 activation and release remain unauthorized.
 
 Changelog: 2026-10-27 — recorded T6 F1/F2 corrections and independent scoped APPROVE for repository distribution integration only; the final 54-entry manifest digest was confirmed. Initial failures remain preserved; semantic efficacy, ROI, paid pilot, human acceptance and release remain unverified.
+Changelog: 2026-10-27 — corrected the trace-audit failure: active identifiers migrated to the canonical grammar (`REQ-001`…`REQ-008`, `AC-000`…`AC-019`, suffix-preserving) with a non-authoritative legacy mapping (§2.1), and an acceptance-criterion trace table added under §5. Criterion wording, statuses and gate decisions are unchanged; archived evidence keeps the legacy spelling verbatim. No implementation, generator, metadata or evidence change.
 
