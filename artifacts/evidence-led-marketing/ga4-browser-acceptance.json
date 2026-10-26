@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "scope": "LOCAL_FAKE_SDK_RAW_COMMAND_BOUNDARY_ONLY",
+  "result": "PASS",
+  "review_status": "Independent bounded source/evidence review approved; not human/provider/wholeinitiative acceptance",
+  "execution": "Parent inspected and executed the actual standalone installed Playwright API probe; not a worker success claim alone",
+  "started_at": "2026-10-26T08:33:50.519Z",
+  "completed_at": "2026-10-26T08:34:17.617Z",
+  "exit_code": 0,
+  "contract": "../../docs/product/evidence-led-marketing/ga4-collection-contract.md",
+  "historical_plausible_evidence": "collection-browser-acceptance.json",
+  "live_collection": "BLOCKED_OWNER",
+  "real_provider_receipt": "NOT_EXERCISED_BLOCKED_OWNER",
+  "build": {
+    "mode": "Next.js --webpack static export; not default Turbopack artifact identity",
+    "node_version": "v22.14.0",
+    "chromium_version": "156.0.8078.4",
+    "driver": "Authorized installed @playwright/test API; playwright-cli absent in earlier preflight",
+    "configuration": {
+      "NEXT_PUBLIC_GA4_ENABLED": "true",
+      "NEXT_PUBLIC_GA4_OPERATOR_APPROVAL": "approved",
+      "NEXT_PUBLIC_GA4_MEASUREMENT_ID": "G-TEST123456",
+      "NEXT_PUBLIC_GA4_PAGE_URL": "https://analytics-test.invalid/approved-demo",
+      "NEXT_TELEMETRY_DISABLED": "1",
+      "SITE_URL": "Ephemeral loopback origin omitted; synthetic configuration only, not an authorized live property"
+    },
+    "command_shapes": [
+      "rtk proxy node <PRIVATE_PROBE>/ga4-browser-probe.mjs --source-frozen --player-sha256=88c289d08cdd68e9454a417e98478ada38195c076f8751233a4dd41f71820b9e '--page-title=Agent Skills Standard' --page-referrer= \"--connect-src=connect-src 'self' https://www.google-analytics.com/g/collect https://region1.google-analytics.com/g/collect\" --script-tag-source=https://www.googletagmanager.com/gtag/js",
+      "rtk proxy <NODE_EXECUTABLE> <RESOLVED_NEXT_BIN> build --webpack",
+      "rtk proxy <NODE_EXECUTABLE> scripts/generate-headers.mjs"
+    ],
+    "redaction": "Personal executable, dependency, staging, probe paths and loopback ports omitted. No private helper content or raw command history exported.",
+    "generated_header_sha256": "43d0c609777e4ba251af4f0edee9477cb0ef5f31c94a2d6a9f3e5de256802fbe",
+    "generated_index_sha256": "6e1085468f5c1fb93af5c4b115fd6e58c9319a5cbf6e16e335214d7dd6267843"
+  },
+  "source_sha256": {
+    "website/src/landing/DemoPlayer.tsx": "88c289d08cdd68e9454a417e98478ada38195c076f8751233a4dd41f71820b9e",
+    "website/src/landing/demo-player.module.css": "7b7a317c5187d34d26d784b32a01a99c1db2fcb2a7e0949edbb712ddfbf318d8",
+    "website/src/landing/CopyCommand.client.tsx": "a4934caf17c7c011021d21d284a08ddb1532e67e60fbd1a8e8e8591ae43b244f",
+    "website/src/landing/ConsentBanner.client.tsx": "26dfd1bfbfb20a9efaaff4f616f52d98ae04b0ceb9dd75f134b2d488d1466815",
+    "website/src/landing/analytics/GA4Context.tsx": "16b86e4028cc09d72cae7443720ff97f0c290a8b13da05e0500b386c3a6da4c8",
+    "website/src/landing/analytics/ga4-client.ts": "489c8828dc49ec3b6fdfc6dad18f014e9536cc3f37d6ead85cb016098717f469",
+    "website/src/landing/analytics/ga4-config.ts": "babeff5f4d576fa40975dcaeed3ce1be096057a2c99b5123014ad557f173c813",
+    "website/src/landing/analytics/ga4-predicate.mjs": "2a45b50aacfc85e2259592c2ca366e0402f2ad3b4488a14695c609d984d6ba83",
+    "website/scripts/generate-headers.mjs": "f0303bcf5d11a6b2316bf2b4a5a660afe3212c621cf911aff63eb237836b0cb4"
+  },
+  "verification": {
+    "expected_cases": 19,
+    "actual_cases": 19,
+    "expected_assertions": 69,
+    "actual_assertions": 69,
+    "passed_assertions": 69,
+    "failed_assertions": 0,
+    "case_counts_valid": true,
+    "assertion_count_valid": true,
+    "page_errors": 0,
+    "failure_exit_policy": "BUG/BLOCKED and incomplete per-case/total accounting produce nonzero exit; observed parent run exited 0",
+    "cases": [
+      {"name":"no-consent","assertions":3,"result":"PASS","proof":"Configured undecided consent: no external tag/collection request, no config/grant/event, no legacy Plausible script."},
+      {"name":"pointer","assertions":5,"result":"PASS","decoded_time_seconds":0.526179,"proof":"Actual trusted button click decodes media; exact one demo event with four normalized fields; controls/focus revealed; native pause/resume not recounted."},
+      {"name":"Enter","assertions":5,"result":"PASS","decoded_time_seconds":0.508492,"proof":"Actual keyboard activation; same decoded playback, exact-event, controls/focus and dedupe requirements."},
+      {"name":"Space","assertions":5,"result":"PASS","decoded_time_seconds":0.50822,"proof":"Actual keyboard activation; same decoded playback, exact-event, controls/focus and dedupe requirements."},
+      {"name":"preconsent","assertions":3,"result":"PASS","proof":"Actual playback before consent works; late opt-in and subsequent native resume do not replay it."},
+      {"name":"programmatic","assertions":2,"result":"PASS","proof":"Actual programmatic playback is adopted without an attributed event or stale overlay."},
+      {"name":"nojs","assertions":3,"result":"PASS","decoded_time_seconds":0.582077,"proof":"Configured no-JS SSR native controls, no inert button; actual native playback and no external tag/collection."},
+      {"name":"copy","assertions":2,"result":"PASS","proof":"Real clipboard write/read matches the command; exactly one normalized copy event with unknown asset, no command content."},
+      {"name":"copy-preconsent","assertions":2,"result":"PASS","boundary":"Deferred clipboard mock","proof":"Pending copy begun before consent does not emit after consent and completion."},
+      {"name":"copy-withdraw","assertions":2,"result":"PASS","boundary":"Deferred clipboard mock","proof":"Pending copy completion after withdrawal emits nothing."},
+      {"name":"copy-regrant","assertions":2,"result":"PASS","boundary":"Deferred clipboard mock","proof":"Withdrawal/regrant does not revive an earlier pending copy."},
+      {"name":"links","assertions":3,"result":"PASS","proof":"Setup and GitHub actions each emit exactly one correctly classified four-field event; two actions total two events. External destinations were blocked."},
+      {"name":"pending-tag-withdraw","assertions":8,"result":"PASS","boundary":"Held local fake-SDK script response","proof":"Current unexecuted queue purged of config/event/grant before release; late response cannot restore stale commands; disable flag set; regrant no replay; all three ad fields denied before drain and every grant update; explicit grant update follows denial; fresh real sync copy emits exactly once."},
+      {"name":"tag-abort","assertions":6,"result":"PASS","boundary":"Aborted tag request","proof":"Real clipboard/video and attempted setup navigation survive; terminal failure appends no config/grant/event; disable true, visible reload-only status, no opt-in control, exactly one tag request and no retry; fresh real copy still works. Regrant was unavailable in the actual terminal UI, not forced through a hook."},
+      {"name":"reload","assertions":2,"result":"PASS","proof":"New consent required after reload; no new tag request, grant/config/event until opt-in."},
+      {"name":"config","assertions":5,"result":"PASS","proof":"One effective config folding preceding global set commands and stream overrides; session expiry zero, signals/ad personalization false, fixed page fields, pageview false; analytics-only grant with advertising denied; exact CSP and no legacy provider."},
+      {"name":"overlay-desktop","assertions":4,"result":"PASS","viewport":"1440x1000","proof":"Notice actionable before SDK; initial button visibly focused with 3px outline; paused controls-hidden overlay; scoped figure/preferences axe zero violations."},
+      {"name":"overlay-mobile-viewport","assertions":4,"result":"PASS","viewport":"375x667","proof":"Same initial surface requirements; viewport-only desktop Chromium, not mobile-touch emulation or physical-device proof."},
+      {"name":"synthetic-cookie-deletion","assertions":3,"result":"PASS","boundary":"Explicit synthetic browser-cookie fixtures, not SDK-created cookies","proof":"Owned _ga and _ga_TEST123456 deleted on withdrawal and disable set; _ga_UNRELATED preserved."}
+    ]
+  },
+  "bounded_observations": {
+    "event_parameter_keys": ["schema_version","campaign_id","asset_id","placement"],
+    "send_to_event_parameter": "omitted; single configured destination",
+    "effective_config": {"cookie_expires":0,"cookie_domain":"none","cookie_path":"/","cookie_flags":"SameSite=Lax;Secure","allow_google_signals":false,"allow_ad_personalization_signals":false,"send_page_view":false,"page_location":"https://analytics-test.invalid/approved-demo","page_title":"Agent Skills Standard","page_referrer":""},
+    "advertising_consent": {"ad_storage":"denied","ad_user_data":"denied","ad_personalization":"denied"},
+    "script_source_token": "https://www.googletagmanager.com/gtag/js",
+    "connect_src": "connect-src 'self' https://www.google-analytics.com/g/collect https://region1.google-analytics.com/g/collect",
+    "screenshots": "Initial desktop and mobile-sized overlay screenshots retained privately; not copied into public projections. No claim of independent screenshot review in this projection.",
+    "network_containment": "Context routes installed before navigation: same-origin loopback allowed; exact tag URL fulfilled with local recorder or deliberately held/aborted; every other external request blocked. No actual Google fetch or collection.",
+    "recorder": "Unconditionally records queued and subsequent app commands, regardless of consent/disable flags; retains prior commands across actual reinjection; does not implement consent, cookies, Google networking or SDK semantics."
+  },
+  "history": {
+    "provider_migration": "Owner approved consent-first GA4 with session-only cookie configuration and basic Google processing; no live transmission authorization. Prior Plausible contract and local proofs are historical, not GA4 provider evidence.",
+    "original_native_entry_failure": "Historical Plausible implementation started actual native playback but failed attribution; owner explicitly chose configured explicit first start followed by native controls. Original failures remain preserved in historical projections.",
+    "ga4_corrections": "Pre-final source inspection and review found queue identity/discard, explicit advertising denial, failure-regrant and orphan-script/remount lifecycle gaps. Earlier parent unit checkpoint had 38 of 39 pass and one incidental region-name wording assertion fail; that incidental test was removed rather than repinned. These are historical checkpoints, not current successful browser cases or a claimed failing-browser reproduction.",
+    "remount_limit": "No browser remount scenario exercised in these 19 cases; separate unit/review evidence belongs to the parent gate."
+  },
+  "limits": [
+    "PASS is strictly LOCAL_FAKE_SDK_RAW_COMMAND_BOUNDARY_ONLY. Independent bounded source/evidence review approved; not human/provider/wholeinitiative acceptance.",
+    "No actual Google SDK execution, real Google cookie creation or expiry, automatic SDK/browser/session metadata processing, provider transport, provider receipt, account/property setup, CORS, edge or deployment proof.",
+    "Synthetic cookie deletion proves app-owned cleanup only, not Google cookie behavior or guaranteed browser-session expiry.",
+    "Scoped axe and desktop-sized/mobile-sized screenshots are not touch-browser, physical-device, screen-reader or comprehensive accessibility certification.",
+    "Configured no-consent is not a separate default-unconfigured build; parent default-build/E2E/unit/type/lint gates are separate and not counted here.",
+    "No claim all T08, T12 or delivery gates complete. Live collection remains blocked by owner."
+  ],
+  "cleanup": "Owned browser and loopback server closed; private source-bound staged build and receipts retained."
+}

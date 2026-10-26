@@ -2,7 +2,7 @@ import React from "react";
 import { content, sourceLinks } from "../content";
 import { ActionIcon } from "../ActionIcon";
 import actionStyles from "../action.module.css";
-import { PlausibleLink } from "../analytics/PlausibleLink.client";
+import { GA4Link } from "../analytics/GA4Link.client";
 import styles from "../landing.module.css";
 
 export function CommunitySection(): React.JSX.Element {
@@ -35,7 +35,7 @@ export function CommunitySection(): React.JSX.Element {
               <span aria-hidden="true">↗</span>
             </a>
 
-            <PlausibleLink
+            <GA4Link
               href={sourceLinks.github}
               className={styles.textLinkPaper}
               event={{
@@ -47,7 +47,7 @@ export function CommunitySection(): React.JSX.Element {
             >
               <span>View on GitHub</span>
               <span aria-hidden="true">↗</span>
-            </PlausibleLink>
+            </GA4Link>
           </div>
         </div>
       </div>

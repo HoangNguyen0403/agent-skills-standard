@@ -1,4 +1,7 @@
-# Plausible collection contract — implementation approved, collection not activated
+# Plausible collection contract — HISTORICAL / SUPERSEDED (collection not activated)
+
+> [!IMPORTANT]
+> **SUPERSEDED FOR NEW IMPLEMENTATION**: The owner subsequently selected Google Analytics 4 (GA4) and approved consent-first GA4 implementation (`docs/product/evidence-led-marketing/ga4-collection-contract.md`). This Plausible contract and its associated local intercepted browser receipts (`artifacts/evidence-led-marketing/collection-browser-acceptance.{json,md}`) remain preserved as immutable historical delivery records for PR #263.
 
 ## Status and authority
 

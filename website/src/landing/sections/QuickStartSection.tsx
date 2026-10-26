@@ -9,7 +9,7 @@ import { CopyCommand } from "../CopyCommand.client";
 import landingStyles from "../landing.module.css";
 import styles from "./QuickStart.module.css";
 import { DemoPlayer } from "../DemoPlayer";
-import { PlausibleLink } from "../analytics/PlausibleLink.client";
+import { GA4Link } from "../analytics/GA4Link.client";
 export function QuickStartSection(): React.JSX.Element {
   const installCmd =
     primaryCommands.find((c) => c.id === "install")?.command ??
@@ -52,7 +52,7 @@ export function QuickStartSection(): React.JSX.Element {
           <p className={styles.prereqText}>{content.quickStart.prerequisite}</p>
 
           <div style={{ display: "flex", flexWrap: "wrap", gap: "16px" }}>
-            <PlausibleLink
+            <GA4Link
               href={sourceLinks.docs}
               className={landingStyles.textLinkLime}
               event={{
@@ -64,9 +64,9 @@ export function QuickStartSection(): React.JSX.Element {
             >
               <span>Read setup docs before you sync</span>
               <span aria-hidden="true">↗</span>
-            </PlausibleLink>
+            </GA4Link>
 
-            <PlausibleLink
+            <GA4Link
               href={sourceLinks.tutorial}
               className={landingStyles.textLinkLime}
               event={{
@@ -78,7 +78,7 @@ export function QuickStartSection(): React.JSX.Element {
             >
               <span>Follow step-by-step tutorial</span>
               <span aria-hidden="true">↗</span>
-            </PlausibleLink>
+            </GA4Link>
           </div>
         </div>
 

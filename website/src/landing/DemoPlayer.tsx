@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { usePlausible } from "./analytics/PlausibleContext";
+import { useGA4 } from "./analytics/GA4Context";
 import actionStyles from "./action.module.css";
 import styles from "./demo-player.module.css";
 
@@ -84,7 +84,7 @@ interface PendingStart {
 }
 
 export function DemoPlayer(): React.JSX.Element {
-  const { trackEvent, getConsentSnapshot, isConfigured } = usePlausible();
+  const { trackEvent, getConsentSnapshot, isConfigured } = useGA4();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isClient, setIsClient] = useState<boolean>(false);
   const [startStatus, setStartStatus] = useState<StartStatus>("idle");

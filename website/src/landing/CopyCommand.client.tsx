@@ -5,7 +5,7 @@ import { ActionIcon } from "./ActionIcon";
 import type { CommandId } from "./content";
 import styles from "./interaction.module.css";
 import motionStyles from "./command-motion.module.css";
-import { usePlausible } from "./analytics/PlausibleContext";
+import { useGA4 } from "./analytics/GA4Context";
 
 export type { CommandId };
 
@@ -26,7 +26,7 @@ export function CopyCommand({
   const [mounted, setMounted] = useState<boolean>(false);
   const [status, setStatus] = useState<CopyStatus>("idle");
   const [revealState, setRevealState] = useState<RevealState>("pending");
-  const { trackEvent, getConsentSnapshot } = usePlausible();
+  const { trackEvent, getConsentSnapshot } = useGA4();
 
   const rowRef = useRef<HTMLDivElement>(null);
   const codeRef = useRef<HTMLElement>(null);

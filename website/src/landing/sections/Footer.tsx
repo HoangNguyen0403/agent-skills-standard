@@ -1,6 +1,6 @@
 import React from "react";
 import { content, sourceLinks } from "../content";
-import { PlausibleLink } from "../analytics/PlausibleLink.client";
+import { GA4Link } from "../analytics/GA4Link.client";
 import styles from "../landing.module.css";
 
 export function Footer(): React.JSX.Element {
@@ -21,7 +21,7 @@ export function Footer(): React.JSX.Element {
 
           <ul className={styles.footerLinks} aria-label="Footer links">
             <li>
-              <PlausibleLink
+              <GA4Link
                 href={sourceLinks.github}
                 className={styles.footerLink}
                 event={{
@@ -33,7 +33,7 @@ export function Footer(): React.JSX.Element {
               >
                 <span>GitHub</span>
                 <span aria-hidden="true">&nbsp;↗</span>
-              </PlausibleLink>
+              </GA4Link>
             </li>
             <li>
               <a href={sourceLinks.docs} className={styles.footerLink}>

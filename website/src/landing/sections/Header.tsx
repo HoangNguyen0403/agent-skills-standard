@@ -1,7 +1,7 @@
 import React from "react";
 import { navigation } from "../content";
 import { MobileMenu } from "../MobileMenu.client";
-import { PlausibleLink } from "../analytics/PlausibleLink.client";
+import { GA4Link } from "../analytics/GA4Link.client";
 import actionStyles from "../action.module.css";
 import styles from "../landing.module.css";
 
@@ -27,7 +27,7 @@ export function Header(): React.JSX.Element {
               {navigation.map((item) => (
                 <li key={item.id}>
                   {item.id === "github" ? (
-                    <PlausibleLink
+                    <GA4Link
                       href={item.href}
                       className={styles.desktopNavLink}
                       event={{
@@ -38,7 +38,7 @@ export function Header(): React.JSX.Element {
                       }}
                     >
                       {item.label}
-                    </PlausibleLink>
+                    </GA4Link>
                   ) : (
                     <a href={item.href} className={styles.desktopNavLink}>
                       {item.label}
