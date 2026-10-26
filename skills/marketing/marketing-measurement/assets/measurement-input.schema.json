@@ -1,0 +1,328 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MarketingMeasurementInput",
+  "description": "Closed input contract for offline marketing measurement CLI (T02). Every 'date-time' value must be a calendar-valid UTC instant with second precision and a trailing 'Z'.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "synthetic",
+    "revision",
+    "ledger",
+    "campaign",
+    "cohort",
+    "investment",
+    "sources",
+    "metric_bindings",
+    "limitations",
+    "cost_mapping",
+    "public_projection"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "synthetic": {
+      "type": "boolean"
+    },
+    "revision": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ledger": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "campaign": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "context_revision",
+        "assets",
+        "acquisition_window",
+        "cost_window",
+        "owner",
+        "state",
+        "authorization"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "context_revision": {
+          "type": "string",
+          "minLength": 1
+        },
+        "assets": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "revision", "channel"],
+            "properties": {
+              "id": { "type": "string", "minLength": 1 },
+              "revision": { "type": "string", "minLength": 1 },
+              "channel": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+        "acquisition_window": {
+          "$ref": "#/$defs/windowType"
+        },
+        "cost_window": {
+          "$ref": "#/$defs/windowType"
+        },
+        "owner": {
+          "type": "string",
+          "minLength": 1
+        },
+        "state": {
+          "type": "string",
+          "enum": ["prepared", "authorized", "closed"]
+        },
+        "authorization": {
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["id", "revision"],
+              "properties": {
+                "id": { "type": "string", "pattern": "^DEC-[0-9]{3,}$" },
+                "revision": { "type": "string", "minLength": 1 }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "cohort": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["source", "coverage_end", "participants", "reports"],
+          "properties": {
+            "source": {
+              "$ref": "#/$defs/refType"
+            },
+            "coverage_end": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "participants": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["participant_key", "role", "consent"],
+                "properties": {
+                  "participant_key": { "type": "string", "minLength": 1 },
+                  "role": {
+                    "type": "string",
+                    "enum": ["external", "maintainer", "evaluator", "bot", "synthetic"]
+                  },
+                  "consent": {
+                    "type": "string",
+                    "enum": ["granted", "absent", "withdrawn"]
+                  }
+                }
+              }
+            },
+            "reports": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "report_id",
+                  "participant_key",
+                  "kind",
+                  "occurred_at",
+                  "reported_at",
+                  "task_ref"
+                ],
+                "properties": {
+                  "report_id": { "type": "string", "minLength": 1 },
+                  "participant_key": { "type": "string", "minLength": 1 },
+                  "kind": {
+                    "type": "string",
+                    "enum": ["starter", "activation", "repeat", "no_return"]
+                  },
+                  "occurred_at": { "type": "string", "format": "date-time" },
+                  "reported_at": { "type": "string", "format": "date-time" },
+                  "task_ref": {
+                    "oneOf": [
+                      { "type": "null" },
+                      { "$ref": "#/$defs/refType" }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "investment": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["path", "sha256"],
+          "properties": {
+            "path": { "type": "string", "minLength": 1 },
+            "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+          }
+        }
+      ]
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["ref", "path", "sha256"],
+        "properties": {
+          "ref": { "$ref": "#/$defs/refType" },
+          "path": { "type": "string", "minLength": 1 },
+          "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+        }
+      }
+    },
+    "metric_bindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "activation",
+        "repeat_rate",
+        "cash_per_activation",
+        "cash_per_repeat",
+        "hours_per_repeat"
+      ],
+      "properties": {
+        "activation": { "$ref": "#/$defs/refType" },
+        "repeat_rate": { "$ref": "#/$defs/refType" },
+        "cash_per_activation": { "$ref": "#/$defs/refType" },
+        "cash_per_repeat": { "$ref": "#/$defs/refType" },
+        "hours_per_repeat": { "$ref": "#/$defs/refType" }
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "cost_mapping": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "source",
+            "window",
+            "cash_complete",
+            "hours_complete",
+            "cash_item_ids",
+            "consumed_hour_item_ids"
+          ],
+          "properties": {
+            "source": { "$ref": "#/$defs/refType" },
+            "window": { "$ref": "#/$defs/windowType" },
+            "cash_complete": { "type": "boolean" },
+            "hours_complete": { "type": "boolean" },
+            "cash_item_ids": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": { "type": "string", "minLength": 1 }
+            },
+            "consumed_hour_item_ids": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      ]
+    },
+    "public_projection": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["campaign_id", "input_revision", "source_aliases"],
+          "properties": {
+            "campaign_id": { "type": "string", "minLength": 1 },
+            "input_revision": { "type": "string", "minLength": 1 },
+            "source_aliases": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["ref", "alias"],
+                "properties": {
+                  "ref": { "$ref": "#/$defs/refType" },
+                  "alias": { "type": "string", "minLength": 1 }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "refType": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "revision"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^(SRC|MET|DEC)-[0-9]{3,}$"
+        },
+        "revision": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "windowType": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start", "end"],
+      "properties": {
+        "start": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "end": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}

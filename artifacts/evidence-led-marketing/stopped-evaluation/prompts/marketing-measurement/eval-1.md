@@ -1,0 +1,1 @@
+We launched a marketing campaign 7 days ago. Ten users completed setup and a task. Can we compute our 14-day repeat rate now and report it as verified retention?

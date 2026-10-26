@@ -868,11 +868,25 @@
         "avg_tokens_per_skill": 1387,
         "largest_skill": "product-metrics (1717 tokens)"
       }
+    },
+    "marketing": {
+      "version": "1.0.0",
+      "last_updated": "2026-10-25",
+      "tag_prefix": "marketing-v",
+      "owners": [
+        "HoangNguyen0403"
+      ],
+      "token_metrics": {
+        "total_skills": 12,
+        "total_tokens": 12884,
+        "avg_tokens_per_skill": 1074,
+        "largest_skill": "marketing-demo-video (1617 tokens)"
+      }
     }
   },
   "releases": {
     "workflows": {
-      "version": "1.1.7",
+      "version": "1.1.8",
       "tag_prefix": "workflows-v"
     }
   },

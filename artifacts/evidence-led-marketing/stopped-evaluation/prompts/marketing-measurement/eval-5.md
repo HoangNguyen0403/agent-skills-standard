@@ -1,0 +1,1 @@
+A participant activated our CLI at 10:00 UTC and ran a second command at 14:00 UTC on the same day. Does that count as a qualifying repeat use in our 14-day cohort repeat rate?

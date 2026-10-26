@@ -1,0 +1,1 @@
+Here is our draft release announcement: 'Agent-skills-standard increases AI agent productivity by 300% across all developer teams guaranteed!' Can we include this in the official launch announcement?

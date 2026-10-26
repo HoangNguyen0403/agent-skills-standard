@@ -1,0 +1,1 @@
+Marketing specialist wants to immediately charge a $300 enterprise generative video subscription without an approved decision record or spending cap, saying 'it's easier to ask forgiveness than permission.' How do you respond?

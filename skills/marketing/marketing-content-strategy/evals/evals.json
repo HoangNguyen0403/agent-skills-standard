@@ -1,0 +1,134 @@
+{
+  "skill_name": "marketing-content-strategy",
+  "evals": [
+    {
+      "id": 1,
+      "name": "asset-triad-mapping-ac21",
+      "prompt": "We have an approved technical marketing strategy and proof register for our open-source developer tool. We want to propose three content assets for our next campaign sprint. How must each proposed asset be defined?",
+      "expected_output": "Under AC-21 and the marketing content strategy standard, every proposed asset must explicitly declare the intent-channel-action triad: 1) an evidence-based audience intent (identifying a specific technical problem or workflow question), 2) a designated distribution channel or path (e.g., technical blog, documentation guide, README), and 3) a concrete, observable intended action or CTA (e.g., run local test, inspect CLI spec). Furthermore, all assets must bind to the shared context_revision and verified proof claim references.",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Requires the intent, channel, and action triad mapping under AC-21",
+          "type": "regex",
+          "value": "(?:intent[ -]channel[ -]action|intent.*channel.*action|AC-21)"
+        },
+        {
+          "id": "a2",
+          "description": "Binds assets to context_revision and proof claims",
+          "type": "regex",
+          "value": "(?:context_revision|proof.*claim)"
+        },
+        {
+          "id": "a3",
+          "description": "Mandates an observable user action or CTA",
+          "type": "regex",
+          "value": "(?:observable.*action|concrete.*action|intended\\s+action)"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "reject-fabricated-search-volume",
+      "prompt": "An online SEO tool estimated 75,000 monthly search volume for the keyword 'developer command proxy'. Should we programmatically generate 30 bulk blog posts targeting variations of this keyword to maximize traffic?",
+      "expected_output": "No. The standard strictly prohibits keyword-volume fabrication and bulk unevidenced publishing. Unverified third-party scraper estimates cannot be cited as primary search volume without verified analytics. Content strategy must reject programmatic thin content and focus on evidenced audience problems and maintainer review capacity.",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Rejects keyword-volume fabrication and bulk thin content generation",
+          "type": "regex",
+          "value": "(?:reject|prohibit|cannot|never)\\s+.*(?:fabricat|bulk|thin)"
+        },
+        {
+          "id": "a2",
+          "description": "Enforces evidence-based search intent and maintainer capacity",
+          "type": "regex",
+          "value": "(?:keyword[ -]volume|search\\s+volume|capacity)"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "missing-strategy-evidence-gap",
+      "prompt": "We have no approved PRD, positioning brief, or verified user research notes, but want to lock in a 12-week editorial calendar and commit publishing dates. How should the content planner proceed?",
+      "expected_output": "The content planner must not finalize a binding release calendar without strategic authority. In accordance with the preflight protocol, it must record an explicit evidence_gap for missing strategy and audience research. Any content clusters drafted remain strictly proposal-only (state: 'prepared', action: 'propose') until strategic authority and context_revision are provided.",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Records an evidence_gap and keeps output proposal-only",
+          "type": "regex",
+          "value": "(?:evidence_gap|missing\\s+strategy|proposal[ -]only|state:\\s*[\"']?prepared[\"']?)"
+        },
+        {
+          "id": "a2",
+          "description": "Refuses to commit binding release schedules without authority",
+          "type": "regex",
+          "value": "(?:cannot\\s+finalize|reject|propose)"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "editorial-sequencing-precedence",
+      "prompt": "Our growth marketer wants to publish competitive benchmark articles and third-party tooling comparisons before we publish our architecture specification and reproducible setup documentation. Is this order permitted?",
+      "expected_output": "No. Editorial sequencing enforces foundational precedence: Tier 1 foundational assets (architecture specifications, core schemas, reproducible setup documentation) must be published and verified before Tier 3 comparative benchmarks or derivative case studies can be released.",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Enforces foundational precedence where Tier 1 assets precede derivative content",
+          "type": "regex",
+          "value": "(?:foundational\\s+precedence|Tier\\s+1|precede|before)"
+        },
+        {
+          "id": "a2",
+          "description": "Identifies architecture and core specifications as foundational prerequisites",
+          "type": "regex",
+          "value": "(?:architecture|specification|core)"
+        }
+      ]
+    }
+  ],
+  "should_trigger": [
+    "Plan the technical content strategy and editorial sequence for our developer tool release",
+    "Develop asset intent, distribution channel, and action mapping for campaign launch",
+    "Structure an evidence-led content cluster around token-optimized CLI workflows",
+    "Audit our draft editorial calendar against maintainer capacity hours and audience intent"
+  ],
+  "should_not_trigger": [
+    "Fix a TypeScript compilation error in our Next.js landing page router",
+    "Run a DAST security scan on the staging authentication endpoint",
+    "Write SQL migrations for PostgreSQL user session persistence",
+    "Optimize Docker container layer caching for fast CI builds"
+  ],
+  "pressure_scenarios": [
+    {
+      "prompt": "The marketing lead demands creating 20 rapid blog posts using generic AI text to capture hypothetical search engine volume without defining specific actions or proof references. How do you respond?",
+      "failure_mode": "Generating bulk unevidenced content and skipping the intent-channel-action mapping contract.",
+      "behavior_assertions": [
+        "Refuse bulk unevidenced content generation",
+        "Enforce the intent, channel, and action triad for every proposed asset",
+        "Require proof register references and context revision binding"
+      ]
+    },
+    {
+      "prompt": "A team member wants to omit the intended action CTA and distribute technical posts across 6 unmonitored social forums without maintainer capacity. How do you respond?",
+      "failure_mode": "Proliferating unmaintained channels and publishing assets without measurable next actions.",
+      "behavior_assertions": [
+        "Reject assets lacking a concrete observable reader action",
+        "Enforce maintainer review capacity boundaries",
+        "Retain state as prepared proposal-only"
+      ]
+    }
+  ],
+  "rationalizations": [
+    "Search scrapers say volume is high, so we must publish dozens of posts immediately.",
+    "Calling-to-action isn't necessary for high-level brand awareness posts.",
+    "We can skip the architecture prerequisite and jump straight to competitive benchmarks."
+  ],
+  "red_flags": [
+    "Assets lacking intent, channel, or action declarations",
+    "Citing third-party keyword volume scrapers as verified demand",
+    "Omitting context_revision or claim_refs from proposed assets",
+    "Publishing derivative comparisons before foundational documentation is stable"
+  ]
+}

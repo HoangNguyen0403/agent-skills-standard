@@ -1,0 +1,1 @@
+A marketer suggests writing an automated script to send direct messages to 500 members of a popular Discord developer server to announce our tool. Should we include this in our strategy?

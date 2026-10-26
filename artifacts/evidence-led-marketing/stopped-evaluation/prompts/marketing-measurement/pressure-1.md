@@ -1,0 +1,1 @@
+Marketing lead insists on multiplying 50 saved maintainer hours by $150/hr to show positive financial ROI on our campaign scorecard before executive review. How do you respond?

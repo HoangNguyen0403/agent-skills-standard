@@ -14,3 +14,28 @@ paths = [
 regexes = [
   '''prod_key_67890''',
 ]
+
+[[rules]]
+id = "generic-api-key"
+
+[[rules.allowlists]]
+description = "Public non-secret SHA256 laneKeyHash in marketing-audience-research baseline audit"
+condition = "AND"
+regexTarget = "line"
+paths = [
+  '''(?:^|/)artifacts/evidence-led-marketing/stopped-evaluation/answers/marketing-audience-research/eval-1\.baseline\.audit\.json$''',
+]
+regexes = [
+  '''(?m)^  "laneKeyHash": "0cb3a5820063c067794b1395465a7c593393a3d8c5135733e39557add0e7575f",$''',
+]
+
+[[rules.allowlists]]
+description = "Public non-secret SHA256 laneKeyHash in marketing-audience-research with-skill audit"
+condition = "AND"
+regexTarget = "line"
+paths = [
+  '''(?:^|/)artifacts/evidence-led-marketing/stopped-evaluation/answers/marketing-audience-research/eval-1\.with-skill\.audit\.json$''',
+]
+regexes = [
+  '''(?m)^  "laneKeyHash": "e5d94854ced6aeed6ca525e95b405a66759b9c511e55ab5c0a4bbc103d26dd82",$''',
+]

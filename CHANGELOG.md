@@ -13,6 +13,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Stitch image review**: Verify decoded width and height, then read only a verified aspect-preserving preview bounded to a 1600 px longest edge; bound both physical dimensions with `devicePixelRatio` before browser capture and avoid `fullPage`. Treat an image-size rejection after a write as possible success and recover existing screen ids before retrying. Document OMP `/shake images` as local cleanup of all conversation image blocks after preserving source files. Added eval cases for tall URLs, DPR captures, write recovery, and poisoned-session recovery.
 
+### Added
+
+- **Marketing Category (1.0.0 candidate)**: Added optional, opt-in `marketing` category containing exactly twelve skills (`marketing-audience-research`, `marketing-positioning`, `marketing-proof`, `marketing-strategy`, `marketing-content-strategy`, `marketing-copywriting`, `marketing-search-discovery`, `marketing-landing`, `marketing-community`, `marketing-launch`, `marketing-demo-video`, `marketing-measurement`). Includes conditional keyword routing in `AGENTS.md` and isolation from unrelated file matching. Advanced PM capabilities (`product-evidence`, `product-investment`) require explicit consumer installation.
+- **Marketing Campaign Workflow**: Added thin optional workflow `.agents/workflows/marketing-campaign.md` (budget <=80 lines) coordinating proof registers, bounded channel mix within maintainer capacity and cash limits, proposal-only collateral (`state: "prepared"`), and offline measurement without fabricated ROI.
+- **SDLC & MCP Workflow Audit**: Expanded `scripts/audit-sdlc.ts` to audit optional workflows including `marketing-campaign`, verifying line budgets, portable runtime contracts, operator handoff contracts, and explicit outcome templates without modifying the default SDLC router.
+- **Website demo player**: Added an accessible, self-hosted 56s edited demo to the Get started section with native controls, WebVTT captions, a scene summary, and direct transcript and tutorial links. Visible copy states the edited pacing, captured local candidate command output, candidate identity, and the open remote release gate; no telemetry or analytics is wired and collection remains disabled.
+
 ## [common-v2.9.0] [workflow-v1.1.6] [system-design-v1.2.4] [quality-engineering-v1.6.1] [product-management-v1.0.1] - 2026-10-21
 
 ### Added

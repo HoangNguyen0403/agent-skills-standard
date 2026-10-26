@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "analysis_id": "synthetic-campaign-inv-01",
+  "currency": "USD",
+  "money_scale": 2,
+  "price_basis": "nominal",
+  "price_date": "2026-09-01",
+  "horizon": {
+    "start_date": "2026-09-01",
+    "period": "month",
+    "periods": 1
+  },
+  "cohort": "standards-demo-01-cohort",
+  "counterfactual": "do_nothing",
+  "accounting_boundary": "incremental campaign spend",
+  "discount": null,
+  "scenarios": [
+    {
+      "id": "base",
+      "label": "Base Scenario",
+      "assumptions": ["Synthetic ad spend and preparation labor"],
+      "items": [
+        {
+          "id": "cost-cash-ad-01",
+          "side": "cost",
+          "category": "acquisition",
+          "mechanism_id": "campaign-ad",
+          "period": 0,
+          "amount": "12.00",
+          "currency": "USD",
+          "basis": "cash_cost",
+          "netted_cost_categories": [],
+          "rationale": "Synthetic advertising cash cost",
+          "evidence_ids": ["SRC-002"]
+        },
+        {
+          "id": "cost-hours-prep-01",
+          "side": "capacity",
+          "category": "capacity",
+          "mechanism_id": "campaign-prep",
+          "period": 0,
+          "amount": "6.00",
+          "currency": null,
+          "basis": "capacity_hours",
+          "netted_cost_categories": [],
+          "rationale": "Synthetic preparation capacity hours",
+          "evidence_ids": ["SRC-002"]
+        }
+      ],
+      "nonmonetary": []
+    }
+  ]
+}

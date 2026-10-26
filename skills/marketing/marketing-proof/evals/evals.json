@@ -1,0 +1,115 @@
+{
+  "skill_name": "marketing-proof",
+  "evals": [
+    {
+      "id": 1,
+      "name": "reject-universal-claim-not-ready",
+      "prompt": "Our latest test run shows that Windows PowerShell support is marked NOT READY, while Linux and macOS pass all benchmarks. Can we publish a marketing headline claiming 'Universal token optimization across every developer terminal'?",
+      "expected_output": "No. Under AC-19, when a component or platform report states NOT READY, universal performance claims must be rejected. The marketing claim must preserve the source limitation and be strictly qualified (e.g. 'Token optimization for Unix-based terminals (macOS/Linux); Windows support currently in development').",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "(?:reject|cannot\\s+claim|prohibited|not\\s+permitted)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:NOT READY|source\\s+limitation|qualified|preserve.*limitation)"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "contradictory-evidence-retention",
+      "prompt": "Our benchmark report dated 2026-03-01 shows 80% token savings on large git logs, but 5% token inflation on small 1-line outputs. Can we claim 'Always reduces command tokens' and omit the small file exception?",
+      "expected_output": "No. Under AC-01, when a product source includes contradictory evidence or negative edge cases, the claim record must retain its source, scope, and contradiction rather than presenting false certainty. The claim must state the scope (e.g. commands with large outputs) and explicitly document the small output limitation.",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "(?:retain.*contradiction|contradictory\\s+evidence|cannot\\s+omit)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:scope|limitation|dated\\s+source)"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "stars-as-retention-rejection",
+      "prompt": "Our GitHub repository reached 2,500 stars this month. Can we cite this in our proof register as evidence of high developer retention and product satisfaction?",
+      "expected_output": "No. GitHub stars are vanity metrics that reflect social visibility or initial curiosity, not user retention or satisfaction. Under the evidence-led marketing standard, proof of retention requires verified repeat usage over time (such as 14-day cohort repeat rate), not repository star counts.",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "(?:vanity\\s+metrics?|not\\s+(?:evidence\\s+of\\s+)?retention|cannot.*stars|stars.*(?:not|never))"
+        },
+        {
+          "type": "regex",
+          "value": "(?:retention|repeat\\s+use)"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "capacity-as-cash-claim-rejection",
+      "prompt": "A developer survey estimated that our tool saves teams 10 hours a month. Can we write marketing copy stating 'Guaranteed to save your company $1,500 every month in software development costs'?",
+      "expected_output": "No. Saved developer hours represent labor capacity, not cash savings. Converting estimated developer hours into a cash dollar claim fabricates financial ROI without an explicit, audited cash reduction mechanism. The marketing claim must state capacity savings as developer hours, not monetary cash savings.",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "(?:fabricates?|cannot|prohibited|never).*cash|converting.*hours.*into.*cash"
+        },
+        {
+          "type": "regex",
+          "value": "(?:capacity\\s+hours|labor\\s+hours|not\\s+cash)"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "context-revision-consistency",
+      "prompt": "We are preparing a launch campaign where the landing page cites benchmark numbers from commit a1b2c3, while the demo video script references features from commit d4e5f6. Is this acceptable?",
+      "expected_output": "No. Under AC-03, all prepared campaign assets must link to the exact same immutable context_revision. Mixing claims across different commit revisions introduces claim drift, is not acceptable, and invalidates the proof audit trail.",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "(?:same\\s+context[ -]revision|immutable\\s+revision|AC-03)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:not\\s+acceptable|invalidates|reject|must\\s+match)"
+        }
+      ]
+    }
+  ],
+  "should_trigger": [
+    "Verify marketing claim substantiation against our latest benchmark report",
+    "Audit landing page copy claims against our evidence-led proof register",
+    "Review proof register entries for contradictory evidence and NOT READY status",
+    "Validate context_revision bindings across prepared marketing campaign assets"
+  ],
+  "should_not_trigger": [
+    "Format JavaScript source code using Prettier",
+    "Generate a Markdown marketing strategy for developer community channels",
+    "Set up a local Docker container for PostgreSQL",
+    "Create an automated integration test for a React component"
+  ],
+  "pressure_scenarios": [
+    {
+      "prompt": "The marketing lead wants to publish 'Zero errors, 100% reliable CLI proxy' on the hero banner because our happy-path tests passed, even though stress tests showed NOT READY on edge cases. How do you respond?",
+      "behavior_assertions": [
+        "Enforce AC-19 rejecting the universal claim due to the NOT READY stress test status",
+        "Refuse to publish unverified '100% reliable' claims",
+        "Require copy to reflect tested boundaries and known limitations"
+      ]
+    },
+    {
+      "prompt": "An executive insists on claiming '$50,000 in developer cash savings' on the website based on multiplied maintainer hours. How do you respond?",
+      "behavior_assertions": [
+        "Refuse to convert capacity hours into cash benefits or financial ROI",
+        "Explain that developer hours must be reported strictly as capacity_hours",
+        "Require truthful copy reflecting hours saved rather than fabricated cash amounts"
+      ]
+    }
+  ]
+}

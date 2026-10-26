@@ -1,0 +1,71 @@
+{
+  "timestamp": "2026-10-25T10:58:17.724Z",
+  "initiative": "evidence-led-marketing",
+  "task": "verify-consumer",
+  "host_node": "v22.14.0",
+  "candidate_root": "<workspace_root>",
+  "candidate_commit_sha": "a2228857e4cf5b8ee2d71d96630c586618ec2edd",
+  "git_dirty": true,
+  "snapshot_tree_sha256": "ee18d7f5e57ac88d2621ba46316ce0e71262ef7ba686f04e0548e04fb60e5620",
+  "snapshot_file_count": 1412,
+  "provenance": {
+    "type": "local_in_memory_fixture",
+    "attribution": "Snapshot frozen from working tree. No claims of remote publication or uncommitted bytes in git HEAD.",
+    "remote_ac16_gate": "OPEN"
+  },
+  "scenarios": [
+    {
+      "scenario": "1_standard_consumer_full_assembly",
+      "passed": true,
+      "evidence": {
+        "sync_exit": 0,
+        "lock_exists": true,
+        "codex_marketing_count": 12,
+        "claude_marketing_count": 12,
+        "evals_excluded": true,
+        "storyboard_smoke": true,
+        "storyboard_vtt": true,
+        "scorecard_smoke": true,
+        "scorecard_sha256": "4d1269c8389a6105c0490ff40afe7efcaddddb3283476806cdaf9c6f3aa6412b"
+      }
+    },
+    {
+      "scenario": "2_flattened_layout_execution",
+      "passed": true,
+      "evidence": {
+        "flat_storyboard_smoke": true,
+        "flat_scorecard_smoke": true
+      }
+    },
+    {
+      "scenario": "3_omitted_category_isolation",
+      "passed": true,
+      "evidence": {
+        "sync_exit": 0,
+        "marketing_absent": true,
+        "optional_workflow_absent": true,
+        "router_entries_absent": true
+      }
+    },
+    {
+      "scenario": "4_missing_dependency_capability_gap",
+      "passed": true,
+      "evidence": {
+        "sync_exit": 0,
+        "gap_exit_code": 2,
+        "gap_detected": true,
+        "gap_output": "{\n  \"schema_version\": 1,\n  \"tool\": \"marketing-scorecard\",\n  \"synthetic\": true,\n  \"valid\": false,\n  \"as_of\": \"2026-10-25T00:00:00Z\",\n  \"campaign_id\": null,\n  \"input_revision\": null,\n  \"provenance\": [],"
+      }
+    },
+    {
+      "scenario": "5_workflow_delivery_variants",
+      "passed": true,
+      "evidence": {
+        "explicit_has_campaign": true,
+        "omitted_omits_campaign": true,
+        "false_disables_workflows": true
+      }
+    }
+  ],
+  "all_passed": true
+}

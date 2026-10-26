@@ -7,6 +7,27 @@ const commands = {
   sync: 'npx agent-skills-standard@latest sync',
 };
 
+async function seekVideoTo(video: Locator, time: number): Promise<void> {
+  await video.evaluate(async (element, target) => {
+    const media = element as HTMLVideoElement;
+    media.pause();
+    if (Math.abs(media.currentTime - target) < 0.01 && !media.seeking) return;
+    const { promise, resolve, reject } = Promise.withResolvers<void>();
+    const onSeeked = (): void => {
+      clearTimeout(timer);
+      media.removeEventListener('seeked', onSeeked);
+      resolve();
+    };
+    const timer = setTimeout(() => {
+      media.removeEventListener('seeked', onSeeked);
+      reject(new Error(`Seek to ${target}s did not complete.`));
+    }, 10000);
+    media.addEventListener('seeked', onSeeked, { once: true });
+    media.currentTime = target;
+    return promise;
+  }, time);
+}
+
 async function animationCount(locator: Locator): Promise<number> {
   return locator.evaluate((element) => {
     const running = element.getAnimations({ subtree: true }).filter((animation) =>
@@ -467,6 +488,7 @@ test.describe('Agent Skills Standard landing page', () => {
     const idleControl = await initCopy.boundingBox();
     const followingRow = await syncCopy.boundingBox();
     if (!idleControl || !followingRow) throw new Error('Quick Start rows must have layout boxes.');
+    const followingRowTop = await syncRow.evaluate((element) => element.getBoundingClientRect().top + window.scrollY);
     expect(idleControl.width).toBe(120);
     expect(idleControl.height).toBe(48);
 
@@ -487,7 +509,7 @@ test.describe('Agent Skills Standard landing page', () => {
     if (!errorControl || !recoveryRow) throw new Error('Recovery rows must have layout boxes.');
     expect(errorControl.width).toBe(idleControl.width);
     expect(errorControl.height).toBe(idleControl.height);
-    expect(recoveryRow.y).toBe(followingRow.y);
+    expect(await syncRow.evaluate((element) => element.getBoundingClientRect().top + window.scrollY)).toBe(followingRowTop);
 
     await retry.click();
     await expect(initRow.getByRole('button', { name: /^copy init command$/i })).toHaveText(/copied/i);
@@ -497,7 +519,7 @@ test.describe('Agent Skills Standard landing page', () => {
     if (!successControl || !successRow) throw new Error('Success rows must have layout boxes.');
     expect(successControl.width).toBe(idleControl.width);
     expect(successControl.height).toBe(idleControl.height);
-    expect(successRow.y).toBe(followingRow.y);
+    expect(await syncRow.evaluate((element) => element.getBoundingClientRect().top + window.scrollY)).toBe(followingRowTop);
   });
 
 
@@ -602,7 +624,15 @@ test.describe('Agent Skills Standard landing page', () => {
       const quickStart = page.locator('#quick-start');
       await expect(quickStart.getByText(commands.init)).toBeVisible();
       await expect(quickStart.getByText(commands.sync)).toBeVisible();
-      await expect(quickStart.getByRole('link').first()).toBeVisible();
+      await expect(quickStart.getByRole('link', { name: /follow step-by-step tutorial/i })).toBeVisible();
+
+      // Demo player in No-JS mode provides fallback download link, full transcript link, and toggleable scene summary
+      const demo = page.locator('figure[aria-labelledby="demo-player-heading"]');
+      await expect(demo.getByRole('link', { name: /download video/i })).toBeVisible();
+      await expect(demo.getByRole('link', { name: /full video transcript/i })).toBeVisible();
+      const demoSummary = demo.locator('summary');
+      await demoSummary.click();
+      await expect(demo.locator('details')).toHaveAttribute('open', '');
       const visibleInertActions = await page.locator('button').filter({ hasText: /copy|replay/i }).evaluateAll((buttons) =>
         buttons.filter((button) => {
           const style = getComputedStyle(button);
@@ -1341,6 +1371,198 @@ test.describe('Agent Skills Standard landing page', () => {
         .analyze();
       expect(results.violations.filter((violation) => violation.impact === 'serious' || violation.impact === 'critical')).toEqual([]);
     }
+  });
+  test('Demo video decodes, advances playback, and keeps active captions synchronized across a scene boundary', async ({ page }) => {
+    await page.goto('/');
+    const demo = page.locator('figure[aria-labelledby="demo-player-heading"]');
+    const video = demo.locator('video');
+    await expect(video).toBeVisible();
+
+    const cues = await video.evaluate(async (element) => {
+      const media = element as HTMLVideoElement;
+      media.muted = true;
+      if (media.readyState < 2) {
+        const { promise, resolve } = Promise.withResolvers<void>();
+        media.addEventListener('loadeddata', () => resolve(), { once: true });
+        await promise;
+      }
+      const track = media.textTracks[0];
+      if (!track) throw new Error('Demo video has no caption track.');
+      track.mode = 'showing';
+      const deadline = Date.now() + 10000;
+      while ((track.cues?.length ?? 0) < 2 && Date.now() < deadline) {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+      return Array.from(track.cues ?? []).map((cue) => {
+        const vttCue = cue as VTTCue;
+        return {
+          startTime: vttCue.startTime,
+          endTime: vttCue.endTime,
+          text: vttCue.text,
+        };
+      });
+    });
+
+    expect(cues.length, 'At least two caption cues must load for a boundary check.').toBeGreaterThan(1);
+    for (const cue of cues) {
+      expect(cue.text.trim().length, `Cue ${cue.startTime}-${cue.endTime} must have text.`).toBeGreaterThan(0);
+      expect(cue.endTime).toBeGreaterThan(cue.startTime);
+    }
+
+    await video.evaluate(async (element) => {
+      const media = element as HTMLVideoElement;
+      media.muted = true;
+      await media.play();
+      if (media.paused) throw new Error('Demo video did not start playing.');
+    });
+    await expect.poll(
+      () => video.evaluate((element) => (element as HTMLVideoElement).currentTime),
+      { timeout: 10000 },
+    ).toBeGreaterThan(0.7);
+
+    const readActiveCaption = () => video.evaluate((element) => {
+      const media = element as HTMLVideoElement;
+      const track = media.textTracks[0];
+      if (!track) throw new Error('Demo video has no caption track.');
+      track.mode = 'showing';
+      return {
+        currentTime: media.currentTime,
+        readyState: media.readyState,
+        errorCode: media.error?.code ?? null,
+        active: Array.from(track.activeCues ?? []).map((cue) => (cue as VTTCue).text),
+      };
+    });
+
+    const [firstCue, secondCue] = cues;
+    await seekVideoTo(video, (firstCue.startTime + firstCue.endTime) / 2);
+    await expect.poll(async () => (await readActiveCaption()).active, { timeout: 10000 }).toContain(firstCue.text);
+    const insideFirstCue = await readActiveCaption();
+    expect(insideFirstCue.errorCode).toBeNull();
+    expect(insideFirstCue.readyState).toBeGreaterThanOrEqual(2);
+    expect(insideFirstCue.currentTime).toBeGreaterThanOrEqual(firstCue.startTime);
+    expect(insideFirstCue.currentTime).toBeLessThanOrEqual(firstCue.endTime);
+
+    await seekVideoTo(video, Math.max(firstCue.startTime, firstCue.endTime - 0.25));
+    await expect.poll(async () => (await readActiveCaption()).active, { timeout: 10000 }).toContain(firstCue.text);
+
+    await seekVideoTo(video, Math.min(secondCue.endTime, secondCue.startTime + 0.25));
+    await expect.poll(async () => (await readActiveCaption()).active, { timeout: 10000 }).toContain(secondCue.text);
+    expect((await readActiveCaption()).active).not.toContain(firstCue.text);
+    await video.evaluate((element) => (element as HTMLVideoElement).pause());
+  });
+
+  test('Keyboard users open the scene summary and activate the full video transcript link', async ({ page }) => {
+    await page.goto('/');
+    const demo = page.locator('figure[aria-labelledby="demo-player-heading"]');
+    await demo.scrollIntoViewIfNeeded();
+
+    const summary = demo.locator('summary');
+    await summary.focus();
+    await expect(summary).toBeFocused();
+    await page.keyboard.press('Enter');
+    await expect(demo.locator('details')).toHaveAttribute('open', '');
+
+    const transcriptLink = demo.getByRole('link', { name: /full video transcript \(markdown\)/i }).first();
+    await expect(transcriptLink).toBeVisible();
+    await expect(transcriptLink).toHaveAttribute('href', '/media/standards-demo-01-transcript.md');
+    await transcriptLink.focus();
+    await expect(transcriptLink).toBeFocused();
+
+    const [download] = await Promise.all([
+      page.waitForEvent('download', { timeout: 2000 }).catch(() => null),
+      page.keyboard.press('Enter'),
+    ]);
+    if (download) {
+      expect(download.suggestedFilename()).toBe('standards-demo-01-transcript.md');
+    } else {
+      await page.waitForURL('**/media/standards-demo-01-transcript.md', { timeout: 5000 });
+    }
+
+    const response = await page.request.get('/media/standards-demo-01-transcript.md');
+    expect(response.status()).toBe(200);
+    const body = await response.text();
+    expect(body).toContain('# Video Transcript');
+    expect(body).toContain('Campaign: `standards-demo-01`');
+    expect(body).toContain('```');
+  });
+
+  test('Playback, clipboard copy, and disclosure toggle issue no fetch, XHR, or beacon calls and no outbound requests', async ({ page, context }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    await page.addInitScript(() => {
+      const calls: { kind: string; url: string }[] = [];
+      Object.defineProperty(window, '__instrumentedCalls', { value: calls, configurable: true });
+      const originalFetch = window.fetch;
+      window.fetch = function (input: RequestInfo | URL, init?: RequestInit) {
+        const url = input instanceof Request ? input.url : String(input);
+        calls.push({ kind: 'fetch', url });
+        return originalFetch.call(this, input, init);
+      };
+      const originalOpen = XMLHttpRequest.prototype.open;
+      XMLHttpRequest.prototype.open = function (this: XMLHttpRequest, ...args: unknown[]) {
+        calls.push({ kind: 'xhr', url: String(args[1]) });
+        return (originalOpen as (...openArgs: unknown[]) => void).apply(this, args);
+      };
+      const originalBeacon = navigator.sendBeacon.bind(navigator);
+      navigator.sendBeacon = (url: string | URL, data?: BodyInit | null): boolean => {
+        calls.push({ kind: 'beacon', url: String(url) });
+        return originalBeacon(url, data);
+      };
+    });
+
+    const requests: { url: string; method: string; resourceType: string }[] = [];
+    page.on('request', (request) => {
+      requests.push({ url: request.url(), method: request.method(), resourceType: request.resourceType() });
+    });
+
+    await page.goto('/');
+    await page.getByRole('link', { name: /get started/i }).first().click();
+    await expect(page).toHaveURL(/#quick-start/);
+
+    const quickStart = page.locator('#quick-start');
+    const initCopy = quickStart.getByRole('button', { name: /^copy init command$/i });
+    await initCopy.click();
+    await expect(initCopy).toHaveText(/copied/i);
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(commands.init);
+
+    const video = page.locator('figure[aria-labelledby="demo-player-heading"] video');
+    await video.evaluate(async (element) => {
+      const media = element as HTMLVideoElement;
+      media.muted = true;
+      await media.play();
+      if (media.paused) throw new Error('Demo video did not start playing.');
+    });
+    await expect.poll(
+      () => video.evaluate((element) => (element as HTMLVideoElement).currentTime),
+      { timeout: 10000 },
+    ).toBeGreaterThan(0.7);
+
+    await seekVideoTo(video, 20);
+    const activeCues = await video.evaluate((element) => {
+      const media = element as HTMLVideoElement;
+      const track = media.textTracks[0];
+      if (!track) throw new Error('Demo video has no caption track.');
+      track.mode = 'showing';
+      return {
+        readyState: media.readyState,
+        active: Array.from(track.activeCues ?? []).map((cue) => (cue as VTTCue).text),
+      };
+    });
+    expect(activeCues.readyState).toBeGreaterThanOrEqual(2);
+    expect(activeCues.active.length).toBeGreaterThan(0);
+    await video.evaluate((element) => (element as HTMLVideoElement).pause());
+
+    const summary = page.locator('figure[aria-labelledby="demo-player-heading"] summary');
+    await summary.click();
+    await expect(page.locator('figure[aria-labelledby="demo-player-heading"] details')).toHaveAttribute('open', '');
+
+    expect(await page.evaluate(() => (window as Window & { __instrumentedCalls?: unknown[] }).__instrumentedCalls)).toEqual([]);
+    expect(requests.filter((request) => request.method !== 'GET')).toEqual([]);
+    expect(
+      requests.filter((request) => !request.url.startsWith('http://127.0.0.1:4321') && !request.url.startsWith('data:') && !request.url.startsWith('blob:')),
+    ).toEqual([]);
+    expect(
+      requests.filter((request) => ['fetch', 'xhr', 'ping', 'eventsource', 'websocket'].includes(request.resourceType)),
+    ).toEqual([]);
   });
 
   test('Static origin returns a real 404 for unknown paths', async ({ request }) => {

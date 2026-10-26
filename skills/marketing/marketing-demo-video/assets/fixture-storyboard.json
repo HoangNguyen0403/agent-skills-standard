@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "initiative": "evidence-led-marketing",
+  "campaign_id": "standards-demo-01",
+  "title": "Fictional Demo Storyboard - Synthetic Contract Teaching Example",
+  "context_revision": "rev-2026-10-25-t06-initial",
+  "media_specs": {
+    "resolution": "1920x1080",
+    "framerate": 30,
+    "audio_sample_rate_hz": 48000,
+    "aspect_ratio": "16:9"
+  },
+  "rights": {
+    "license": "Apache-2.0 (synthetic declaration)",
+    "audio_provenance": "Fictional synthetic voiceover declaration; no recorded audio asset exists",
+    "assets_cleared": true,
+    "cleared_by": "fictional-teaching-example"
+  },
+  "cost": {
+    "mode": "zero_cost_local",
+    "estimated_usd": 0.0,
+    "spending_cap_usd": 0.0,
+    "authorization": null
+  },
+  "scenes": [
+    {
+      "id": "scene-01",
+      "title": "Introduction to Storyboard Structure",
+      "duration_seconds": 15.0,
+      "actions": [
+        {
+          "type": "narration",
+          "content": "This synthetic fixture illustrates how demo storyboards declare scene timing and command steps.",
+          "claim_ref": "SRC-001"
+        },
+        {
+          "type": "terminal_command",
+          "content": "rtk git status",
+          "claim_ref": "SRC-001",
+          "expected_output": "Fictional illustrative output for storyboard structure; not recorded execution proof."
+        }
+      ],
+      "captions": [
+        {
+          "start_seconds": 0.5,
+          "end_seconds": 7.0,
+          "text": "This synthetic fixture illustrates how demo storyboards declare scene timing."
+        },
+        {
+          "start_seconds": 7.5,
+          "end_seconds": 14.5,
+          "text": "Storyboard actions declare command steps without asserting live execution."
+        }
+      ]
+    },
+    {
+      "id": "scene-02",
+      "title": "Structuring Walkthroughs and Caption Bounds",
+      "duration_seconds": 25.0,
+      "actions": [
+        {
+          "type": "terminal_command",
+          "content": "rtk node skills/marketing/marketing-measurement/scripts/report-marketing.mjs --help",
+          "claim_ref": "SRC-001",
+          "expected_output": "Fictional illustrative output: report-marketing.mjs <input.json> --authority-root <dir> --as-of <UTC>"
+        },
+        {
+          "type": "narration",
+          "content": "Storyboards structure CLI walkthroughs and bind captions to scene time intervals.",
+          "claim_ref": "SRC-001"
+        }
+      ],
+      "captions": [
+        {
+          "start_seconds": 15.5,
+          "end_seconds": 23.0,
+          "text": "Storyboards structure CLI walkthroughs and bind captions to scene time intervals."
+        },
+        {
+          "start_seconds": 23.5,
+          "end_seconds": 24.5,
+          "text": "Caption start and end boundaries are checked against total scene durations."
+        }
+      ]
+    },
+    {
+      "id": "scene-03",
+      "title": "Media Recipes and Zero Mandatory Provider Fees",
+      "duration_seconds": 20.0,
+      "actions": [
+        {
+          "type": "narration",
+          "content": "Exports combine local media capture recipes with synchronized WebVTT subtitles and transcripts.",
+          "claim_ref": "SRC-001"
+        },
+        {
+          "type": "terminal_command",
+          "content": "rtk ffmpeg -version",
+          "claim_ref": "SRC-001",
+          "expected_output": "Fictional illustrative output: ffmpeg version 7.x"
+        }
+      ],
+      "captions": [
+        {
+          "start_seconds": 2.0,
+          "end_seconds": 9.5,
+          "text": "Exports combine local media capture recipes with synchronized WebVTT subtitles."
+        },
+        {
+          "start_seconds": 10.0,
+          "end_seconds": 19.5,
+          "text": "Zero mandatory media-provider fees; labor and compute resources remain separate."
+        }
+      ]
+    }
+  ]
+}

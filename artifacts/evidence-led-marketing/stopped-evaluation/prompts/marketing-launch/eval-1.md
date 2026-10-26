@@ -1,0 +1,1 @@
+Our new v1.2 release is completely tested, tagged in git, and the announcement copy is ready. However, the repository lead is away and hasn't signed off on publication, and no response owner has been assigned to monitor incoming issues. Can we proceed to publish the release announcement across social media and communities?

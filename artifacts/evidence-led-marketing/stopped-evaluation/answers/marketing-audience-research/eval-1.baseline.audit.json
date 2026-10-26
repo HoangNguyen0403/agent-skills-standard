@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "helperVersion": "3.2.0",
+  "evidenceId": "0cb3a5820063c067794b1395465a7c593393a3d8c5135733e39557add0e7575f",
+  "laneKeyHash": "0cb3a5820063c067794b1395465a7c593393a3d8c5135733e39557add0e7575f",
+  "arm": "baseline",
+  "executionProfile": {
+    "provider": "omp",
+    "model": "google-antigravity/gemini-3.8-flash",
+    "modeId": "write",
+    "thinkingOptionId": "medium"
+  },
+  "verdict": "clean",
+  "reasonCount": 0,
+  "toolCallCount": 0,
+  "toolResultCount": 0,
+  "eventTypeCounts": {
+    "custom": 2,
+    "custom_message": 1,
+    "message": 2,
+    "credential_pin": 1
+  },
+  "hostContext": [
+    {
+      "kind": "memory-recall",
+      "disposition": "invoked-no-content-observed",
+      "digest": "c580f43d0d1dd9299869669ed5ab6cac48b63cb8f00c048e8589358a7b3ab828",
+      "scopeDigest": "c34eacca3f0ee267072e87ef97c7640aa9f1571eab7c9029b1d03574a7a95493",
+      "promptOnly": null,
+      "isolationClaim": null,
+      "sourceAgentId": "5f98438a-0fdb-4a4b-a45f-bac9bb33b27d",
+      "sourceMessageId": "1d9d3f1d-cb47-4cd9-a0be-c9794d8664fe",
+      "sourceAgentTitle": "/skill:brainstorming",
+      "sourceAuthentication": "unverified"
+    },
+    {
+      "kind": "generic-host-process-instructions",
+      "disposition": null,
+      "digest": "6888a7a18a78b250be077916f457b92f1995f0eab8b6743e8602c501829a96bd",
+      "scopeDigest": null,
+      "promptOnly": false,
+      "isolationClaim": false,
+      "sourceAgentId": "5f98438a-0fdb-4a4b-a45f-bac9bb33b27d",
+      "sourceMessageId": "1d9d3f1d-cb47-4cd9-a0be-c9794d8664fe",
+      "sourceAgentTitle": "/skill:brainstorming",
+      "sourceAuthentication": "unverified"
+    },
+    {
+      "kind": "system-prompt-digest",
+      "disposition": "host-context-present-not-isolation-proof",
+      "digest": "eeac76188b70c604",
+      "scopeDigest": null,
+      "promptOnly": null,
+      "isolationClaim": null,
+      "sourceAgentId": "5f98438a-0fdb-4a4b-a45f-bac9bb33b27d",
+      "sourceMessageId": "1d9d3f1d-cb47-4cd9-a0be-c9794d8664fe",
+      "sourceAgentTitle": "/skill:brainstorming",
+      "sourceAuthentication": "unverified"
+    },
+    {
+      "kind": "credential-pin",
+      "disposition": null,
+      "digest": null,
+      "scopeDigest": null,
+      "promptOnly": null,
+      "isolationClaim": null,
+      "sourceAgentId": "5f98438a-0fdb-4a4b-a45f-bac9bb33b27d",
+      "sourceMessageId": "1d9d3f1d-cb47-4cd9-a0be-c9794d8664fe",
+      "sourceAgentTitle": "/skill:brainstorming",
+      "sourceAuthentication": "unverified"
+    }
+  ],
+  "promptBinding": {
+    "rawUserPayloadSha256": "34d9d63076726199df96a6447247a404cdab00b1f494539fa88d43a1ffc27a6c",
+    "extractedPromptSha256": "38233fe423359c24648e9abd323dccfacbecc3424cb9b7f5856261e7be257f7d",
+    "adapterVersion": "paseo-agent-message-v1",
+    "sourceAgentId": "5f98438a-0fdb-4a4b-a45f-bac9bb33b27d",
+    "sourceMessageId": "1d9d3f1d-cb47-4cd9-a0be-c9794d8664fe",
+    "sourceAgentTitle": "/skill:brainstorming",
+    "sourceAuthentication": "unverified"
+  },
+  "answerSha256": "dbb308b017a4bb87af0d489d9a8146b984d9b15f53a2c02ae9313cef906bab14",
+  "privateEvidenceDigests": {
+    "session": "a5ceeff86d9b03e2bde6aa8e16ff976010e3a86a3b966ca823ffdbae17ecfbdf",
+    "stdout": "7f6a68574569005518b5df342806bd438799a1faecffcd87052cf6dde0a4fb2d",
+    "fullAudit": "b4bfadd673cb62f6812b89ec04a276786aebc8d4b6f45c78831ac922cf5cb28b"
+  }
+}

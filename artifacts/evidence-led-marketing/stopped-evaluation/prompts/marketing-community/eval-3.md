@@ -1,0 +1,1 @@
+Here is an interesting discussion on Hacker News about AI coding agents. Generate our response and immediately call the Hacker News API to submit the comment.

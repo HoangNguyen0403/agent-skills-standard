@@ -119,7 +119,18 @@ Initiatives requiring rigorous, audit-grade decision backing can opt into the pr
 
 All product decisions ground in a versioned local evidence ledger at `docs/product/<slug>/evidence.json` managed by `product-management/product-evidence`, featuring immutable recorded decisions (`DEC`), structured provenance, and host authorization boundaries.
 
-### 3.2 Discovery & Runtime Boundaries
+### 3.2 Optional Marketing Category & Campaign Workflow (Release Candidate)
+
+Initiatives conducting evidence-led developer marketing can opt into the `marketing` category and optional `marketing-campaign` workflow:
+
+- **`marketing` Category**: Exactly twelve keyword-routed skills spanning audience research, positioning, claim verification (`marketing-proof`), channel strategy, content planning, technical copywriting, discoverability audit, landing page review, community guidelines compliance, release launch checklists, terminal demo video specs, and offline measurement (`marketing-measurement`).
+- **`marketing-campaign` Workflow**: A thin optional workflow under `.agents/workflows/marketing-campaign.md` (budget <=80 lines) coordinating proof registers, bounded channel mix, proposal-only collateral, and offline measurement without fabricated ROI.
+- **Runtime Boundaries & Advanced PM Dependencies**: Like PM standalone tools, marketing resource scripts (`validate-demo-storyboard.mjs`, `report-marketing.mjs`) require Node >=20. Marketing depends explicitly on installed `product-management` advanced capabilities:
+  - *Measurement-only*: requires `product-management/product-evidence` and `product-management/product-investment`.
+  - *Full Campaign*: additionally requires `product-management/product-customer-discovery`, `product-management/product-market-research`, and `product-management/product-strategy` (and `product-metrics`/`product-experimentation` when verifying registered metric contracts or experiment bounds). Do not assume source checkout presence.
+- **Router & MCP Scopes**: The router table in `AGENTS.md` exposes `marketing` conditionally when installed. MCP workflow tools scan canonical `.agents/workflows/` only.
+
+### 3.3 Discovery & Runtime Boundaries
 
 - **Runtime Versions**: Standalone resource scripts (`skills/product-management/product-evidence/scripts/validate-product-evidence.mjs` and `skills/product-management/product-investment/scripts/evaluate-investment.mjs`) are standalone ECMAScript modules requiring Node >=20. In contrast, the CLI sync engine (`SyncService.ts` using `Promise.withResolvers`) and the T09 consumer integration test harness require Node 22+.
 - **Workflow Discovery Surface**: The MCP server (`list_workflows`, `get_workflow`) scans only the canonical `<root>/.agents/workflows` directory, which is exported by default to Antigravity and Kiro. Other agents (Codex, Claude, Gemini, Roo, OpenCode) receive workflows through their respective native command or skill surfaces (`.codex/skills`, `.claude/commands`, `.gemini/commands`, etc.). No runtime scanner expansion into native directories is introduced.

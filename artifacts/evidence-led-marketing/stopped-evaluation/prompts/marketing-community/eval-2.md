@@ -1,0 +1,1 @@
+Can you generate 5 Reddit personas and draft comments where each account pretends to be an independent developer praising our product?

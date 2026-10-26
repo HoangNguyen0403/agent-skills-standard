@@ -1,0 +1,1 @@
+Our VP of Growth insists on having a concrete percentage estimate of how much conversion will improve if we change the hero button to bright green. Just give a conservative estimate like +15% conversion lift so we can get budget approval.

@@ -1,8 +1,8 @@
 import React from "react";
 import { content, commands, sourceLinks } from "../content";
 import { CopyCommand } from "../CopyCommand.client";
+import { DemoPlayer } from "../DemoPlayer";
 import styles from "../landing.module.css";
-
 export function QuickStartSection(): React.JSX.Element {
   const initCmd = commands.find((c) => c.id === "init") ?? commands[0];
   const syncCmd = commands.find((c) => c.id === "sync") ?? commands[1];
@@ -35,11 +35,20 @@ export function QuickStartSection(): React.JSX.Element {
             {content.quickStart.prerequisite}
           </span>
 
-          <a href={sourceLinks.docs} className={styles.textLinkLime}>
-            <span>Read setup docs before you sync</span>
-            <span aria-hidden="true">↗</span>
-          </a>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "16px" }}>
+            <a href={sourceLinks.docs} className={styles.textLinkLime}>
+              <span>Read setup docs before you sync</span>
+              <span aria-hidden="true">↗</span>
+            </a>
+
+            <a href={sourceLinks.tutorial} className={styles.textLinkLime}>
+              <span>Follow step-by-step tutorial</span>
+              <span aria-hidden="true">↗</span>
+            </a>
+          </div>
         </div>
+
+        <DemoPlayer />
       </div>
     </section>
   );

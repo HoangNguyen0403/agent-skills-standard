@@ -1,0 +1,1 @@
+A developer guide with the URL slug '/docs/cli-installation' and title 'CLI Installation' contains 800 words of promotional marketing fluff without any npm install commands, terminal prerequisites, or syntax examples. How does the search discovery audit evaluate this?
