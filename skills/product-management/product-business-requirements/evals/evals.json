@@ -59,6 +59,8 @@
     "Review this pull request for vulnerabilities."
   ],
   "should_trigger": [
-    "Create a BRD for reducing ticket resolution cost in customer support."
+    "Create a BRD for reducing ticket resolution cost in customer support.",
+    "Confirm the elicitation results from the handoff interviews without drafting a BRD.",
+    "Plan stakeholder elicitation for the access-control change."
   ]
 }

@@ -35,6 +35,8 @@ Define the technical "How" with verifiable requirements.
 - Define NFRs: numeric thresholds where appropriate (latency, availability, scalability) and categorical verifiable invariants where appropriate (security, access control, integrity); never fabricate numbers.
 - Define constraints: migration, compatibility, compliance, rollout.
 
+
+- Consume the canonical conflict, requirement-quality-versus-need-validation, and temporary-transition distinctions in [shared requirements modeling](../../product-management/product-requirements/references/requirements-modeling.md#7-conflict-validation-and-transition-needs). Keep technical migration/rollback realization in SRS; do not duplicate the shared business-analysis rules.
 ## 2. Drafting Workflow
 
 - Load `references/srs-template.md`.
