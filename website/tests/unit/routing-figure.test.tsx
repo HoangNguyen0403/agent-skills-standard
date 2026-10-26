@@ -32,7 +32,7 @@ describe("RoutingFigure interactive selector behavior", () => {
     expect(activeExcerpt.closest('[aria-hidden="false"]')).toBeInTheDocument();
 
     const reactLink = screen.getByRole("link", {
-      name: /View react-component-patterns SKILL\.md source on GitHub/i,
+      name: /View SKILL\.md for react-component-patterns on GitHub/i,
     });
     expect(reactLink).toHaveAttribute(
       "href",
@@ -84,7 +84,7 @@ describe("RoutingFigure interactive selector behavior", () => {
     expect(reactSkill.closest('[aria-hidden="true"]')).toBeInTheDocument();
 
     const goLink = screen.getByRole("link", {
-      name: /View golang-testing SKILL\.md source on GitHub/i,
+      name: /View SKILL\.md for golang-testing on GitHub/i,
     });
     expect(goLink).toHaveAttribute(
       "href",
