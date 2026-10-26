@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Reusable book-to-skill reference skill**: Added a portable, rights-aware technique for converting authorized book material into discoverable skills.
+- **Reusable book-to-skill reference skill**: Added a portable, rights-aware technique for converting authorized book material into discoverable skills, including a bounded large-source delegation reference for coordinator-led multi-packet synthesis.
 
 - **Cybersecurity `1.0.1` candidate**: Added optional `cyber-rea-reverse-engineering` driver skill and `references/setup.md` for a version-pinned, consumer-owned REA MCP/CLI lane. Covers authorized targets, untrusted target data, evidence provenance and limits, no inherited credentials, no automatic execution/injection/install, separate authority for target mutation, matching vendor-skill provenance, and rollback. Optional; absent REA blocks only the REA evidence lane and selection remains opt-in.
 - **`ags skills` category manager (CLI `2.7.0`)**: Interactive category-first skill selection that adds and removes guidance without hand-editing `.skillsrc` or looking up release tags. Existing category pins and include/exclude policy are preserved; newly enabled categories use their published release (no `main` fallback), and Product Management starts with only its two foundation skills. Unavailable configured categories stay checked by default but can be explicitly removed. Optional customization toggles nested skills, searches names and descriptions, keeps hidden selections, preserves qualified cross-category imports, and can explicitly switch a category to its published release.
