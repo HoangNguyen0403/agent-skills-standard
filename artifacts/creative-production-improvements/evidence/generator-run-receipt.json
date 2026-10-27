@@ -1,0 +1,254 @@
+{
+  "generator": "generate-indices (tsx scripts/generate-indices.ts)",
+  "command": "rtk pnpm generate-indices",
+  "cwd": "/Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/creative-production-improvements",
+  "purpose": "Task 6 correction B3 - refresh description-derived catalogs through the existing source-derived generator",
+  "dependency_provenance": {
+    "method": "temporary symlinks to sibling ../marketing-pr-delivery worktree",
+    "manifest_parity_sha256": {
+      "package.json": "bd9d26a710da1121adf4231a4c05df523a200cca9c513729da939ef5616d4f2c",
+      "cli/package.json": "18fbedc7192870ab832f745d21143260c998949dca788dc6786c4bf8141214f2",
+      "mcp/package.json": "d9d6036dbed751aae7f6b648987bb01b3b22beb73253d80c150e1334cb876c55",
+      "pnpm-lock.yaml": "f7feb61981a085197c4693cc44f570268e8c1398f25976ae12e8ca844f4e253f"
+    },
+    "parity": "local and sibling copies SHA-256 identical for all four manifests",
+    "symlinks": [
+      "node_modules -> ../marketing-pr-delivery/node_modules",
+      "cli/node_modules -> ../../marketing-pr-delivery/cli/node_modules",
+      "mcp/node_modules -> ../../marketing-pr-delivery/mcp/node_modules"
+    ],
+    "creation_receipt": "this correction-wave session; same commands as integration-session call_2914385"
+  },
+  "preimage": {
+    "location": "/tmp/creative-prod-preimage.9fBqL4 (captured before execution; not part of repository)",
+    "method": "rsync -a of worktree excluding .git and node_modules"
+  },
+  "generator_stdout": "\n> agent-skills-standard-root@2.6.6 generate-indices /Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/creative-production-improvements\n> tsx scripts/generate-indices.ts\n\n✅ Generated indices for 27 frameworks in skills/index.json\n✅ Generated _INDEX.md for 27 categories\n✅ Updated AGENTS.md in repo root (Router-style)\n✅ Updated agent rule files for: copilot, antigravity, codex, claude\n✅ Updated skills/README.md with auto-generated index\n  ✅ Generated _INDEX.md for 6 categories.\n  ✅ AGENTS.md router index updated.\n  ✅ server/AGENTS.md router index updated.\n  ✅ 33 workflows synced to .github/prompts/ (GitHub Copilot)\n  ✅ 33 workflows synced to .agents/workflows/ (Antigravity)\n  ✅ 33 workflows synced to .codex/skills/ (Codex)\n  ✅ 33 workflows synced to .claude/commands/ (Claude Code)\n✅ Synced 33 local workflows to target agent folders\n  - Updated .github/skills/ (GitHub Copilot)\n  - Updated .agents/skills/ (Antigravity)\n  - Updated .codex/skills/ (Codex)\n  - Updated .claude/skills/ (Claude Code)\n✅ Synced 88 local skills to target agent folders\n  ✅ Generated _INDEX.md for 6 categories.\n  ✅ AGENTS.md router index updated.\n  ✅ server/AGENTS.md router index updated.\n  ✅ 21 specialists synced to .github/copilot-agents/ (GitHub Copilot)\n  ✅ 21 specialists synced to .codex/agents/ (Codex)\n  ✅ 21 specialists synced to .claude/agents/ (Claude Code)\n✅ Synced specialists for: copilot, antigravity, codex, claude\n",
+  "observed_side_effects": {
+    "commanded_by_source_derivation": true,
+    "content_changed": [
+      {
+        "path": "/tmp/creative-prod-preimage.9fBqL4/skills/index.json",
+        "sha256": "496941ab71b85e63e546256dd6a9a1816c40b6c4ddeffa84b6e19f0c925a472d",
+        "bytes": 92209,
+        "after": {
+          "path": "skills/index.json",
+          "sha256": "50e2d06251c46ef6d24f1fd7e0d3d31d56af33ae025c8b3c940df1941f683fb9",
+          "bytes": 92028
+        }
+      },
+      {
+        "path": "/tmp/creative-prod-preimage.9fBqL4/skills/README.md",
+        "sha256": "4a7bd990b13b0a0636edf68b8064e988cfdb4e6ab2c7ed083dbfafe4917ff331",
+        "bytes": 105251,
+        "after": {
+          "path": "skills/README.md",
+          "sha256": "0f29ce41479a77e52a64bfb66e7a49db1ce5823bc70227b5f9e961f896c0d109",
+          "bytes": 105070
+        }
+      }
+    ],
+    "created_by_generator": [
+      {
+        "path": ".skills-lock.json",
+        "sha256": "67720a38b8001a8aaaaefa3355815ddbbf3354c1067fb80f3f317be86d77eae3",
+        "bytes": 578736,
+        "generator_created": true,
+        "retained": false,
+        "removal": "deleted after capture; verified absent in preimage"
+      }
+    ],
+    "deletions": [],
+    "mtime_only_rewrites": "119 tracked files (agent skill _INDEX.md mirrors, specialist agent files, rule files) were rewritten with byte-identical content; checksum diff shows no content change and no restore was required.",
+    "explicitly_untouched": [
+      {
+        "path": "/tmp/creative-prod-preimage.9fBqL4/AGENTS.md",
+        "sha256": "c0b42fdc97920f61e43704ea545832fc076da73e28eedf98e2056d77e6a64bf2",
+        "bytes": 5613,
+        "after": {
+          "path": "AGENTS.md",
+          "sha256": "c0b42fdc97920f61e43704ea545832fc076da73e28eedf98e2056d77e6a64bf2",
+          "bytes": 5613
+        }
+      },
+      {
+        "path": "/tmp/creative-prod-preimage.9fBqL4/skills/marketing/_INDEX.md",
+        "sha256": "69919c22e09bb7e260eeee972627cb1b22c98e149d59578fe9bb01a4c5aee7d7",
+        "bytes": 1963,
+        "after": {
+          "path": "skills/marketing/_INDEX.md",
+          "sha256": "69919c22e09bb7e260eeee972627cb1b22c98e149d59578fe9bb01a4c5aee7d7",
+          "bytes": 1963
+        }
+      },
+      {
+        "path": "/tmp/creative-prod-preimage.9fBqL4/skills/metadata.json",
+        "sha256": "b6b79c017a3a68a4dc67feb9f0526db37866bfe571cdc53c3431f56947c2eb71",
+        "bytes": 21399,
+        "after": {
+          "path": "skills/metadata.json",
+          "sha256": "b6b79c017a3a68a4dc67feb9f0526db37866bfe571cdc53c3431f56947c2eb71",
+          "bytes": 21399
+        }
+      }
+    ]
+  },
+  "entry_level_verification": {
+    "index_json": "27 categories parsed from both preimage and post image; exactly 1 entry line differs (marketing/marketing-demo-video description). No other category or skill entry changed.",
+    "readme": "exactly 1 line differs (line 450, Demo Video description).",
+    "conclusion": "Catalog drift was limited to the demo-video frontmatter description, matching the review finding."
+  },
+  "restore": {
+    "method": "Per-path deletion only. No worktree-wide rsync restore, no git checkout, no touching .superpowers or evidence content.",
+    "deleted": [
+      ".skills-lock.json (proven generator-created, absent in preimage)"
+    ],
+    "required_content_restore": "none - the remaining 119 rewritten files were byte-identical to their preimages",
+    "symlink_removal": "three temporary node_modules symlinks removed after execution"
+  },
+  "rsync_itemize_output_workspace_to_preimage": {
+    "command": "rsync -ainc --delete --exclude .git --exclude node_modules ./ <preimage>/",
+    "note": "Runs after generation, before restore. Lines are optionalize codes: >f transfer, .f present-with-no-transfer, t mtime differs, c checksum differs, + new.",
+    "lines": [
+      ".d..t.... ./",
+      ">f+++++++ .skills-lock.json",
+      ".f..t.... AGENTS.md",
+      ".f..t.... .agents/rules/agent-skill-standard-rule.md",
+      ".f..t.... .agents/skills/common/_INDEX.md",
+      ".f..t.... .agents/skills/cybersecurity/_INDEX.md",
+      ".f..t.... .agents/skills/product-management/_INDEX.md",
+      ".f..t.... .agents/skills/quality-engineering/_INDEX.md",
+      ".f..t.... .agents/skills/system-design/_INDEX.md",
+      ".f..t.... .agents/skills/typescript/_INDEX.md",
+      ".f..t.... .claude/agents/ac-verifier.md",
+      ".f..t.... .claude/agents/architecture-guard.md",
+      ".f..t.... .claude/agents/aspm-correlator.md",
+      ".f..t.... .claude/agents/codebase-scout.md",
+      ".f..t.... .claude/agents/confluence-searcher.md",
+      ".f..t.... .claude/agents/integration-test-generator.md",
+      ".f..t.... .claude/agents/jira-analyst.md",
+      ".f..t.... .claude/agents/logic-hacker.md",
+      ".f..t.... .claude/agents/mobile-reverser.md",
+      ".f..t.... .claude/agents/pr-commenter-batch.md",
+      ".f..t.... .claude/agents/pr-reviewer.md",
+      ".f..t.... .claude/agents/security-reviewer.md",
+      ".f..t.... .claude/agents/solution-diagrammer.md",
+      ".f..t.... .claude/agents/system-architect.md",
+      ".f..t.... .claude/agents/tc-creator.md",
+      ".f..t.... .claude/agents/tdd-implementer.md",
+      ".f..t.... .claude/agents/test-gap-finder.md",
+      ".f..t.... .claude/agents/test-healer.md",
+      ".f..t.... .claude/agents/test-planner.md",
+      ".f..t.... .claude/agents/testid-inserter.md",
+      ".f..t.... .claude/agents/zephyr-scanner.md",
+      ".f..t.... .claude/skills/common/_INDEX.md",
+      ".f..t.... .claude/skills/cybersecurity/_INDEX.md",
+      ".f..t.... .claude/skills/product-management/_INDEX.md",
+      ".f..t.... .claude/skills/quality-engineering/_INDEX.md",
+      ".f..t.... .claude/skills/system-design/_INDEX.md",
+      ".f..t.... .claude/skills/typescript/_INDEX.md",
+      ".f..t.... .codex/agents/ac-verifier.toml",
+      ".f..t.... .codex/agents/architecture-guard.toml",
+      ".f..t.... .codex/agents/aspm-correlator.toml",
+      ".f..t.... .codex/agents/codebase-scout.toml",
+      ".f..t.... .codex/agents/confluence-searcher.toml",
+      ".f..t.... .codex/agents/integration-test-generator.toml",
+      ".f..t.... .codex/agents/jira-analyst.toml",
+      ".f..t.... .codex/agents/logic-hacker.toml",
+      ".f..t.... .codex/agents/mobile-reverser.toml",
+      ".f..t.... .codex/agents/pr-commenter-batch.toml",
+      ".f..t.... .codex/agents/pr-reviewer.toml",
+      ".f..t.... .codex/agents/security-reviewer.toml",
+      ".f..t.... .codex/agents/solution-diagrammer.toml",
+      ".f..t.... .codex/agents/system-architect.toml",
+      ".f..t.... .codex/agents/tc-creator.toml",
+      ".f..t.... .codex/agents/tdd-implementer.toml",
+      ".f..t.... .codex/agents/test-gap-finder.toml",
+      ".f..t.... .codex/agents/test-healer.toml",
+      ".f..t.... .codex/agents/test-planner.toml",
+      ".f..t.... .codex/agents/testid-inserter.toml",
+      ".f..t.... .codex/agents/zephyr-scanner.toml",
+      ".f..t.... .codex/rules/agent-skill-standard-rule.md",
+      ".f..t.... .codex/skills/common/_INDEX.md",
+      ".f..t.... .codex/skills/cybersecurity/_INDEX.md",
+      ".f..t.... .codex/skills/product-management/_INDEX.md",
+      ".f..t.... .codex/skills/quality-engineering/_INDEX.md",
+      ".f..t.... .codex/skills/system-design/_INDEX.md",
+      ".f..t.... .codex/skills/typescript/_INDEX.md",
+      ".f..t.... .github/copilot-agents/specialist-ac-verifier.instructions.md",
+      ".f..t.... .github/copilot-agents/specialist-architecture-guard.instructions.md",
+      ".f..t.... .github/copilot-agents/specialist-aspm-correlator.instructions.md",
+      ".f..t.... .github/copilot-agents/specialist-codebase-scout.instructions.md",
+      ".f..t.... .github/copilot-agents/specialist-confluence-searcher.instructions.md",
+      ".f..t.... .github/copilot-agents/specialist-integration-test-generator.instructions.md",
+      ".f..t.... .github/copilot-agents/specialist-jira-analyst.instructions.md",
+      ".f..t.... .github/copilot-agents/specialist-logic-hacker.instructions.md",
+      ".f..t.... .github/copilot-agents/specialist-mobile-reverser.instructions.md",
+      ".f..t.... .github/copilot-agents/specialist-pr-commenter-batch.instructions.md",
+      ".f..t.... .github/copilot-agents/specialist-pr-reviewer.instructions.md",
+      ".f..t.... .github/copilot-agents/specialist-security-reviewer.instructions.md",
+      ".f..t.... .github/copilot-agents/specialist-solution-diagrammer.instructions.md",
+      ".f..t.... .github/copilot-agents/specialist-system-architect.instructions.md",
+      ".f..t.... .github/copilot-agents/specialist-tc-creator.instructions.md",
+      ".f..t.... .github/copilot-agents/specialist-tdd-implementer.instructions.md",
+      ".f..t.... .github/copilot-agents/specialist-test-gap-finder.instructions.md",
+      ".f..t.... .github/copilot-agents/specialist-test-healer.instructions.md",
+      ".f..t.... .github/copilot-agents/specialist-test-planner.instructions.md",
+      ".f..t.... .github/copilot-agents/specialist-testid-inserter.instructions.md",
+      ".f..t.... .github/copilot-agents/specialist-zephyr-scanner.instructions.md",
+      ".f..t.... .github/instructions/agent-skill-standard-rule.instructions.md",
+      ".f..t.... .github/skills/common/_INDEX.md",
+      ".f..t.... .github/skills/cybersecurity/_INDEX.md",
+      ".f..t.... .github/skills/product-management/_INDEX.md",
+      ".f..t.... .github/skills/quality-engineering/_INDEX.md",
+      ".f..t.... .github/skills/system-design/_INDEX.md",
+      ".f..t.... .github/skills/typescript/_INDEX.md",
+      ".d..t.... cli/",
+      ".d..t.... mcp/",
+      ".f..t.... server/AGENTS.md",
+      ">fcst.... skills/README.md",
+      ">fcst.... skills/index.json",
+      ".f..t.... skills/android/_INDEX.md",
+      ".f..t.... skills/angular/_INDEX.md",
+      ".f..t.... skills/common/_INDEX.md",
+      ".f..t.... skills/cybersecurity/_INDEX.md",
+      ".f..t.... skills/dart/_INDEX.md",
+      ".f..t.... skills/database/_INDEX.md",
+      ".f..t.... skills/flutter/_INDEX.md",
+      ".f..t.... skills/golang/_INDEX.md",
+      ".f..t.... skills/ios/_INDEX.md",
+      ".f..t.... skills/java/_INDEX.md",
+      ".f..t.... skills/javascript/_INDEX.md",
+      ".f..t.... skills/kotlin/_INDEX.md",
+      ".f..t.... skills/laravel/_INDEX.md",
+      ".f..t.... skills/marketing/_INDEX.md",
+      ".f..t.... skills/nestjs/_INDEX.md",
+      ".f..t.... skills/nextjs/_INDEX.md",
+      ".f..t.... skills/php/_INDEX.md",
+      ".f..t.... skills/product-management/_INDEX.md",
+      ".f..t.... skills/python/_INDEX.md",
+      ".f..t.... skills/quality-engineering/_INDEX.md",
+      ".f..t.... skills/react-native/_INDEX.md",
+      ".f..t.... skills/react/_INDEX.md",
+      ".f..t.... skills/specialists/_INDEX.md",
+      ".f..t.... skills/spring-boot/_INDEX.md",
+      ".f..t.... skills/swift/_INDEX.md",
+      ".f..t.... skills/system-design/_INDEX.md",
+      ".f..t.... skills/typescript/_INDEX.md"
+    ]
+  },
+  "post_generation_checks": {
+    "catalog_consistency": {
+      "command": "node /tmp/verify-catalogs.mjs (throwaway checker, not committed)",
+      "method": "Parses skills/index.json and skills/README.md; re-derives every entry from each skill SKILL.md frontmatter description + priority; checks category and per-category entry counts.",
+      "result": {
+        "skills_checked": 345,
+        "categories": 27,
+        "problems": []
+      },
+      "conclusion": "Every generated entry matches its source frontmatter, including the corrected marketing-demo-video description; no stale pre-change description text remains in either catalog; README index markers intact."
+    },
+    "generator_idempotence": "Not re-executed. The catalogs were written by the generator itself in this run, and the 345-entry source-derivation check above independently confirms the emitted bytes match current frontmatter.",
+    "catalogs_consumed_at_runtime": "Repository inspection: skills/index.json and skills/README.md are generator outputs; no CLI/MCP runtime module in this revision reads them, so no consumer smoke needed re-execution."
+  }
+}
