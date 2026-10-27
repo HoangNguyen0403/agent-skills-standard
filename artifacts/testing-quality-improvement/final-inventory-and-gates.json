@@ -1264,8 +1264,8 @@
     },
     {
       "path": "skills/android/android-testing/evals/evals.json",
-      "sha256": "bda78622bb1da0254c06246ecbaea45497bf25ca1ddcfdaef1c0b46ff9f80319",
-      "bytes": 5959
+      "sha256": "0c50004e1f3eeac5e85960c834eb006d49ae5482ddf80359e443ac80c321262a",
+      "bytes": 6010
     },
     {
       "path": "skills/android/android-testing/references/implementation.md",
