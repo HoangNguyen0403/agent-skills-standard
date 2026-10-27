@@ -65,7 +65,7 @@ These are comparative sizes, not promised time or cost. Use current host profile
 
 ## Task 1: Replace blanket delegation with a context-benefit decision
 
-**Goal:** Implement REQ-01/02, AC-01 through AC-06, preserving C1-C4.
+**Goal:** Implement requirements 1 and 2, criteria 1 through 6, preserving C1-C4.
 **Owner:** one delegation-policy implementer.
 **Depends on:** maintainer approval and dispatch prerequisites only.
 
@@ -88,11 +88,11 @@ These are comparative sizes, not promised time or cost. Use current host profile
 
 **Non-goals:** changing task_brief.py schema, reducing required review coverage, editing model-tier policy, changing current host instructions.
 **Verification lane:** settled-revision eval infrastructure checks plus manual/scorer contrast cases, listed below. Offline scoring is not a live efficacy claim.
-**Return:** changed paths; AC-01..06 evidence map; decision examples; any consumer outside owned paths requiring integration; unresolved contradictions. No commits.
+**Return:** changed paths; criteria 1-6 evidence map; decision examples; any consumer outside owned paths requiring integration; unresolved contradictions. No commits.
 
 ## Task 2: Add provider-neutral model and effort selection guidance
 
-**Goal:** Implement REQ-03/04 and AC-07 through AC-14; support AC-18.
+**Goal:** Implement requirements 3 and 4, criteria 7 through 14; support criterion 18.
 **Owner:** one capability-guidance implementer.
 **Depends on:** approved C1-C4 only; no dependency on Task 1 output.
 
@@ -114,11 +114,11 @@ These are comparative sizes, not promised time or cost. Use current host profile
 
 **Non-goals:** runtime auto-routing, new provider APIs, actual profile mutation, new spending permission, hardcoded commercial profiles.
 **Verification lane:** capability eval scenarios plus Task 3 repository-backed discovery checks, scored after sources settle.
-**Return:** AC-07..14/18 evidence map; canonical reference anchors for Task 1/4; advisory-versus-enforced limitations; no commits.
+**Return:** criteria 7-14/18 evidence map; canonical reference anchors for Task 1/4; advisory-versus-enforced limitations; no commits.
 
 ## Task 3: Fix unrelated model-trigger loading without changing the matcher
 
-**Goal:** Implement REQ-05, AC-15 through AC-18.
+**Goal:** Implement requirement 5, criteria 15 through 18.
 **Owner:** one metadata/regression implementer.
 **Depends on:** approved C1-C4 only. Task 2's new trigger expectations are checked at integration, not assumed while it is editing.
 
@@ -142,7 +142,7 @@ These are comparative sizes, not promised time or cost. Use current host profile
 
 ## Task 4: Integrate canonical changes, exports and evaluation protocol
 
-**Goal:** Implement REQ-06, AC-19 through AC-22 and verify integrated AC-01..18.
+**Goal:** Implement requirement 6, criteria 19 through 22 and verify integrated criteria 1-18.
 **Owner:** one integration/generator worker; no concurrent writers.
 **Depends on:** accepted Tasks 1-3 and their independent review evidence.
 
@@ -170,7 +170,7 @@ Tasks 1-3 source files are read-only to this owner. Corrections go back to the o
 
 ## Task 5: Independently verify the integrated result
 
-**Goal:** Independent final acceptance for AC-01 through AC-22; no implementation ownership.
+**Goal:** Independent final acceptance for all 22 criteria; no implementation ownership.
 **Owner:** eligible analysis/review agent distinct from Tasks 1-4.
 **Depends on:** Task 4 stable integrated revision, original baseline, PRD, cumulative review package and verification receipts.
 **Owned paths:** only its explicitly assigned review report under the orchestrator's evidence directory. All source and generated artifacts are read-only.

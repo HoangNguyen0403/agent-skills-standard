@@ -8,7 +8,7 @@ Related contracts:
 - Placement: `skills/common/common-subagent-driven-development/SKILL.md` §1
 - Capability and effort: `skills/common/common-task-complexity-routing/references/routing-table.md#capability-and-effort-resolution`
 - Task economics: `ARCHITECTURE.md` §3.3
-- Requirements: `docs/prd/prd-context-aware-delegation.md` (AC-19 to AC-22)
+- Requirements: `docs/prd/prd-context-aware-delegation.md` (AC-019 to AC-022)
 - Plan: `docs/prd/prd-plan-context-aware-delegation.md`
 
 This protocol reuses the existing eval infrastructure (`pnpm evals:*`, `SessionJournal`/`taskUsage` cohorts, immutable run manifests). It is not a benchmarking platform and introduces no new service.
@@ -17,10 +17,10 @@ This protocol reuses the existing eval infrastructure (`pnpm evals:*`, `SessionJ
 
 - Established offline: routing selection, lexical assertion discrimination, structural metadata validity and protocol completeness.
 - Not established: live model adherence, host enforcement, sandbox behavior, activation of a new default, or monetary savings.
-- Offline scorer fixtures are lexical discrimination evidence. They MUST NOT be reported as live efficacy, measured behavioral improvement or measured savings (AC-20).
+- Offline scorer fixtures are lexical discrimination evidence. They MUST NOT be reported as live efficacy, measured behavioral improvement or measured savings (AC-020).
 - A small pilot is a directional observation, not statistical proof. Report per-case flips and the sample size; never generalize from an average that hides a regression.
 
-## 2. Authorization prerequisites (AC-22)
+## 2. Authorization prerequisites (AC-022)
 
 No paid or live-model execution occurs without a separate, recorded authorization covering:
 
@@ -36,7 +36,7 @@ No paid or live-model execution occurs without a separate, recorded authorizatio
 
 Missing any row means the live lane is `not_run`. Offline protocol preparation, static checks and existing eval-audit commands continue. Dangerous or provider-failure scenarios use clearly labeled synthetic authorization fixtures; never exercise a real unauthorized account, production target or external side effect.
 
-## 3. Scenarios (all ten required, AC-21)
+## 3. Scenarios (all ten required, AC-021)
 
 | # | Scenario | Primary variable exercised | Expected safe behavior |
 | --- | --- | --- | --- |
@@ -51,7 +51,7 @@ Missing any row means the live lane is `not_run`. Offline protocol preparation, 
 | 9 | Unavailable or ineligible preferred provider | Authorized fallback | Only an already-authorized eligible route; otherwise `blocked`/`needs_context` |
 | 10 | Unknown pricing or incomplete usage | Economic honesty | Keep unknowns unknown; claim no numerical savings |
 
-A proposed comparison that omits any scenario, any arm repetition, or per-case regression reporting does not satisfy AC-21 and is not a valid release input.
+A proposed comparison that omits any scenario, any arm repetition, or per-case regression reporting does not satisfy AC-021 and is not a valid release input.
 
 ## 4. Phases and unchanged variables
 

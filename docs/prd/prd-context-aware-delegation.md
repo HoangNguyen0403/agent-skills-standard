@@ -25,12 +25,12 @@ SMART metric: before any default activation, complete the ten-scenario compariso
 
 | Capability | Classification | Requirement |
 | --- | --- | --- |
-| Select useful context boundaries | in_scope | REQ-01 |
-| Preserve authority and independent review | in_scope | REQ-02 |
-| Request model capability and reasoning effort | in_scope, guidance only | REQ-03 |
-| Record actual resolution and economics limitations | in_scope, guidance using existing contracts | REQ-04 |
-| Avoid unrelated database skill loading for LLM routing | in_scope, canonical metadata correction | REQ-05 |
-| Compare end-to-end outcomes and publish consistent exports | in_scope | REQ-06 |
+| Select useful context boundaries | in_scope | REQ-001 |
+| Preserve authority and independent review | in_scope | REQ-002 |
+| Request model capability and reasoning effort | in_scope, guidance only | REQ-003 |
+| Record actual resolution and economics limitations | in_scope, guidance using existing contracts | REQ-004 |
+| Avoid unrelated database skill loading for LLM routing | in_scope, canonical metadata correction | REQ-005 |
+| Compare end-to-end outcomes and publish consistent exports | in_scope | REQ-006 |
 | Implement a general model resolver or provider price service | excluded | Not needed for this guidance release |
 | Change personal profiles, host approval controls or billing | excluded | Requires separate host-owner authority |
 | Remove required review, premium approval or data isolation | excluded | Safety invariant |
@@ -39,25 +39,52 @@ SMART metric: before any default activation, complete the ten-scenario compariso
 
 ## 3. Personas and stories
 
-- US-01: As a coding orchestrator, I want to keep tightly coupled work together so that handoffs do not discard necessary reasoning. REQ-01/02.
-- US-02: As a host integrator, I want capability and effort guidance separate from account authority so that economical routing respects the operator's configuration. REQ-03/04.
-- US-03: As a skill consumer, I want LLM-routing requests to load relevant standards rather than database models. REQ-05.
-- US-04: As a repository maintainer, I want repeatable, complete comparisons so that simpler orchestration is adopted on evidence rather than marketing. REQ-06.
+- US-01: As a coding orchestrator, I want to keep tightly coupled work together so that handoffs do not discard necessary reasoning. REQ-001/REQ-002.
+- US-02: As a host integrator, I want capability and effort guidance separate from account authority so that economical routing respects the operator's configuration. REQ-003/04.
+- US-03: As a skill consumer, I want LLM-routing requests to load relevant standards rather than database models. REQ-005.
+- US-04: As a repository maintainer, I want repeatable, complete comparisons so that simpler orchestration is adopted on evidence rather than marketing. REQ-006.
 
 These stories are independently verifiable but share the authority invariant below. All acceptance criteria target repository guidance/MCP consumers, not web/mobile interfaces or market toggles.
 
 ## 4. Requirement registry and atomic acceptance criteria
 
-All requirements are proposed, priority P1 except REQ-02 (P0). Product accountability remains with the maintainer; implementation ownership is assigned in the plan.
+All requirements are proposed, priority P1 except REQ-002 (P0). Product accountability remains with the maintainer; implementation ownership is assigned in the plan.
 
-| Requirement | Objective | Observable acceptance |
+| ID | Requirement | Priority | Objective | Trace |
+| --- | --- | --- | --- | --- |
+| REQ-001 | Choose delegation by benefit and context independence, not checklist/file count | P1 | OBJ-01 | AC-001, AC-002, AC-003 |
+| REQ-002 | Preserve controlling authority and review obligations | P0 | OBJ-01 | AC-004, AC-005, AC-006 |
+| REQ-003 | Give provider-neutral capability/effort guidance | P1 | OBJ-02 | AC-007, AC-008, AC-009, AC-010 |
+| REQ-004 | Describe resolution and economic uncertainty honestly | P1 | OBJ-02 | AC-011, AC-012, AC-013, AC-014 |
+| REQ-005 | Narrow ambiguous model triggers | P1 | OBJ-03 | AC-015, AC-016, AC-017, AC-018 |
+| REQ-006 | Evaluate and publish consistent guidance | P1 | OBJ-01, OBJ-02, OBJ-03 | AC-019, AC-020, AC-021, AC-022 |
+
+### Acceptance criteria trace
+
+| ID | Requirement | Criterion |
 | --- | --- | --- |
-| REQ-01: Choose delegation by benefit and context independence, not checklist/file count | OBJ-01 | AC-01: Given tightly coupled sequential work and a host permitting main-loop execution, the guidance selects one implementation context. AC-02: Given independent, verifiable work with disjoint ownership, it permits concurrent bounded workers. AC-03: Given only a specialist label or another workflow stage, it does not require a new agent. |
-| REQ-02: Preserve controlling authority and review obligations | OBJ-01 | AC-04: Given a host requiring delegation, the guidance follows that requirement even when one context would otherwise be preferable. AC-05: Given missing required approval or unavailable isolation, it stops the affected operation rather than inferring permission. AC-06: Given a required independent acceptance gate, implementer self-review cannot satisfy it. |
-| REQ-03: Give provider-neutral capability/effort guidance | OBJ-02 | AC-07: Given a deterministic operation, guidance considers a tool/script before another LLM. AC-08: Given a configured eligible profile, the host preserves its explicit model/effort settings rather than silently replacing them. AC-09: Given unsupported effort selection, the result records unsupported status rather than claiming the effort was applied. AC-10: Given a strong capability hint, no premium call is authorized by that hint alone. |
-| REQ-04: Describe resolution and economic uncertainty honestly | OBJ-02 | AC-11: Given a dispatch, its documented receipt records requested tier, actual configuration, selection reason and capability limitations. AC-12: Given unknown price/quota or incomplete actor accounting, no numerical monetary savings are claimed. AC-13: Given exhaustion, fallback stays within already-authorized eligible routes. AC-14: Given defective output rather than exhaustion, guidance uses the existing corrective-assignment policy instead of treating it as provider failure. |
-| REQ-05: Narrow ambiguous model triggers | OBJ-03 | AC-15: Given `model routing`, `thinking level` or `LLM model selection`, keyword routing does not load MongoDB or Eloquent merely because of `model`. AC-16: Given explicit MongoDB/Mongoose model intent, MongoDB guidance remains discoverable. AC-17: Given explicit Laravel/Eloquent model intent, Eloquent guidance remains discoverable. AC-18: Given a relevant model-tier request, the capability-routing standard remains discoverable. |
-| REQ-06: Evaluate and publish consistent guidance | OBJ-01/02/03 | AC-19: Given the final source revision, generated exports reflect the same decision boundaries. AC-20: Given offline fixture/scorer evidence, the report does not describe it as live model efficacy or measured savings. AC-21: Given a proposed comparison, it includes all ten scenarios, repeated matched runs and per-case regressions. AC-22: Given missing experiment authorization, no paid execution occurs. |
+| AC-001 | REQ-001 | Given tightly coupled sequential work and a host permitting main-loop execution, the guidance selects one implementation context. |
+| AC-002 | REQ-001 | Given independent, verifiable work with disjoint ownership, it permits concurrent bounded workers. |
+| AC-003 | REQ-001 | Given only a specialist label or another workflow stage, it does not require a new agent. |
+| AC-004 | REQ-002 | Given a host requiring delegation, the guidance follows that requirement even when one context would otherwise be preferable. |
+| AC-005 | REQ-002 | Given missing required approval or unavailable isolation, it stops the affected operation rather than inferring permission. |
+| AC-006 | REQ-002 | Given a required independent acceptance gate, implementer self-review cannot satisfy it. |
+| AC-007 | REQ-003 | Given a deterministic operation, guidance considers a tool/script before another LLM. |
+| AC-008 | REQ-003 | Given a configured eligible profile, the host preserves its explicit model/effort settings rather than silently replacing them. |
+| AC-009 | REQ-003 | Given unsupported effort selection, the result records unsupported status rather than claiming the effort was applied. |
+| AC-010 | REQ-003 | Given a strong capability hint, no premium call is authorized by that hint alone. |
+| AC-011 | REQ-004 | Given a dispatch, its documented receipt records requested tier, actual configuration, selection reason and capability limitations. |
+| AC-012 | REQ-004 | Given unknown price/quota or incomplete actor accounting, no numerical monetary savings are claimed. |
+| AC-013 | REQ-004 | Given exhaustion, fallback stays within already-authorized eligible routes. |
+| AC-014 | REQ-004 | Given defective output rather than exhaustion, guidance uses the existing corrective-assignment policy instead of treating it as provider failure. |
+| AC-015 | REQ-005 | Given `model routing`, `thinking level` or `LLM model selection`, keyword routing does not load MongoDB or Eloquent merely because of `model`. |
+| AC-016 | REQ-005 | Given explicit MongoDB/Mongoose model intent, MongoDB guidance remains discoverable. |
+| AC-017 | REQ-005 | Given explicit Laravel/Eloquent model intent, Eloquent guidance remains discoverable. |
+| AC-018 | REQ-005 | Given a relevant model-tier request, the capability-routing standard remains discoverable. |
+| AC-019 | REQ-006 | Given the final source revision, generated exports reflect the same decision boundaries. |
+| AC-020 | REQ-006 | Given offline fixture/scorer evidence, the report does not describe it as live model efficacy or measured savings. |
+| AC-021 | REQ-006 | Given a proposed comparison, it includes all ten scenarios, repeated matched runs and per-case regressions. |
+| AC-022 | REQ-006 | Given missing experiment authorization, no paid execution occurs. |
 
 ## 5. Canonical decision boundaries
 
