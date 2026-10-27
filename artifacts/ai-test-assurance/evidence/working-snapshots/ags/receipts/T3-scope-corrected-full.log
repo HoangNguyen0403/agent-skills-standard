@@ -1,0 +1,22 @@
+ok  	github.com/HoangNguyen0403/testguard/cmd/testguard	0.709s
+ok  	github.com/HoangNguyen0403/testguard/pkg/detectors/clone	0.510s
+ok  	github.com/HoangNguyen0403/testguard/pkg/detectors/naming	(cached)
+ok  	github.com/HoangNguyen0403/testguard/pkg/detectors/zeroassert	(cached)
+ok  	github.com/HoangNguyen0403/testguard/pkg/docs	(cached)
+Detected violation: {RuleID:GUARD-DART-SEED-ECHO Severity:Warning FilePath:../../../../../../../../var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/TestEngineAuditDartBlocFile1009629230/001/test/customer_code_bloc_test.dart LineNumber:3 Column:1 Message:Seed echo assertion: expected state in 'Fetch_MissingLoadingState' merely echoes seed property 'userInfo: fakeUser' without mutation. Suggestion:Use a seeded base state fixture (baseState.copyWith(...)) and assert only mutated fields in state transitions.}
+Detected violation: {RuleID:GUARD-DART-UNCOVERED-MUTATION Severity:Blocker FilePath:../../../../../../../../var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/TestEngineAuditDartBlocFile1009629230/001/test/customer_code_bloc_test.dart LineNumber:3 Column:1 Message:Uncovered state mutation in 'Fetch_MissingLoadingState': async action dispatched but expect sequence omits asserting 'isFetching' state. Suggestion:Assert the intermediate loading transition (baseState.copyWith(isFetching: true)) before asserting success or failure.}
+--- FAIL: TestEngineGoUnaliasedPackageCallBeforeLocalShadow (0.00s)
+    engine_test.go:1152: expected genuine package call at line 8, got 9
+FAIL
+FAIL	github.com/HoangNguyen0403/testguard/pkg/engine	0.536s
+ok  	github.com/HoangNguyen0403/testguard/pkg/models	(cached)
+?   	github.com/HoangNguyen0403/testguard/pkg/parser	[no test files]
+ok  	github.com/HoangNguyen0403/testguard/pkg/parser/dart	(cached)
+ok  	github.com/HoangNguyen0403/testguard/pkg/parser/golang	0.467s
+ok  	github.com/HoangNguyen0403/testguard/pkg/reporter	(cached)
+ok  	github.com/HoangNguyen0403/testguard/pkg/rules/dart	(cached)
+ok  	github.com/HoangNguyen0403/testguard/pkg/rules/golang	0.944s
+ok  	github.com/HoangNguyen0403/testguard/pkg/rules/mobile	(cached)
+ok  	github.com/HoangNguyen0403/testguard/pkg/rules/typescript	(cached)
+ok  	github.com/HoangNguyen0403/testguard/pkg/updater	(cached)
+FAIL

@@ -1,0 +1,13 @@
+{
+  "id": "T8-rebuilt-version",
+  "cwd": "/Users/nguyenhuyhoang/.paseo/worktrees/36t7hh3x/ai-test-assurance",
+  "command": "/tmp/testguard-ai-assurance-t3-corrected",
+  "args": [
+    "--version"
+  ],
+  "started": "2026-10-26T23:25:01.557Z",
+  "finished": "2026-10-26T23:25:01.564Z",
+  "status": 0,
+  "signal": null,
+  "output_sha256": "c8e0479c28a27cd6557c10dee07afefb7fa4f671466475907084301330013d6d"
+}

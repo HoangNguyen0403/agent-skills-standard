@@ -1,0 +1,12 @@
+const fs=require('node:fs'),path=require('node:path'),os=require('node:os'),cp=require('node:child_process'),assert=require('node:assert/strict');
+const [root,binary]=process.argv.slice(2);const top=fs.mkdtempSync(path.join(os.tmpdir(),'tg-go-boundary-'));
+function scan(name,source,args=[]){const dir=path.join(top,name);fs.mkdirSync(dir);const file=path.join(dir,'service_test.go');fs.writeFileSync(file,source);const p=cp.spawnSync(binary,['--json',...args,file],{cwd:root,encoding:'utf8',timeout:10000});const report=JSON.parse(p.stdout);assert.equal(report.exit_code,p.status);console.log(JSON.stringify({name,exit:p.status,status:report.analysis.status,tests:report.analysis.analyzed_tests,rules:report.findings.map(f=>f.rule_id)}));return report;}
+try{
+ const normal=scan('canonical-import','package service\nimport("testing";"github.com/DATA-DOG/go-sqlmock")\nfunc TestCanonicalPort(t *testing.T){ _,_,_=sqlmock.New(); t.Error("oracle") }\n');assert(normal.findings.some(f=>f.rule_id==='GUARD-GO-02'));
+ const noOracle=scan('method-not-oracle','package service\nimport("testing";"errors")\nfunc TestErrorString(t *testing.T){ err:=errors.New("boom"); _=err.Error() }\n');assert.equal(noOracle.exit_code,1);assert(noOracle.findings.some(f=>f.rule_id==='GUARD-UNIV-ZERO'));
+ for(const [name,body] of [['main-only','import "testing"\nfunc TestMain(m *testing.M){}'],['example-no-output','func ExampleOnly(){}'],['grouped-parameters','import "testing"\nfunc TestBad(a,b *testing.T){}']]){const r=scan(name,`package service\n${body}\n`,['--allow-empty']);assert.equal(r.analysis.analyzed_tests,0);assert.equal(r.exit_code,3);}
+ const clone=scan('named-clones','package service\nimport "testing"\nfunc TestAdditionLeft(t *testing.T){if 2+2!=4{t.Error("sum")}}\nfunc TestAdditionRight(t *testing.T){if 2+2!=4{t.Error("sum")}}\n');assert(clone.findings.some(f=>f.rule_id==='GUARD-UNIV-01'));
+ const nested=scan('nested-scalar-fixture','package service\nimport "testing"\nfunc TestNestedFixture(t *testing.T){ rows:=[][]int{{1},{1}}; if len(rows)!=2{t.Error("rows")} }\n');assert(!nested.findings.some(f=>f.rule_id==='GUARD-GO-03'));
+ const table=scan('short-struct-rows','package service\nimport "testing"\nfunc TestShortRows(t *testing.T){ rows:=[]struct{n int}{{0},{0}}; if len(rows)!=2{t.Error("rows")} }\n');assert(table.findings.some(f=>f.rule_id==='GUARD-GO-03'));
+ console.log('Actual CLI controls only; no compiler/dataflow or production reliability claim.');
+}finally{fs.rmSync(top,{recursive:true,force:true});}

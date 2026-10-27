@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "task_id": "T1",
+  "task_number": 1,
+  "goal": "Freeze bounded AGS/TestGuard contracts for reviewed AI test assurance plan; design only",
+  "owner": "Personal · Analysis & Review technical designer",
+  "project_domain": "Authorized personal repositories agent-skills-standard and testguard; no employer data",
+  "workspace_root": "/Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/mindless-impala",
+  "plan_sha256": "5e5216a6126257490315db0cf5bf9c1ced091a16babfb73872691c1c6c888c06",
+  "non_goals": [
+    "Unrelated edits",
+    "Release/deploy/merge",
+    "Recursive delegation",
+    "Premium calls"
+  ],
+  "authority": {
+    "allowed_operations": [
+      "Read assigned repository sources",
+      "Edit owned paths",
+      "Prepare regression cases and verification commands"
+    ],
+    "forbidden_actions": [
+      "Commit",
+      "Push",
+      "Deploy",
+      "Delegate",
+      "Run builds/lint/tests/formatters mid-flight",
+      "Read employer repositories or credentials"
+    ],
+    "required_approvals": []
+  },
+  "global_invariants": [
+    "One owner per component; preserve existing user changes",
+    "No fabricated verification",
+    "Independent review required",
+    "No weakening assertions to obtain green"
+  ],
+  "owned_paths": [
+    "docs/srs/srs-ai-test-assurance.md"
+  ],
+  "acceptance_criteria": [
+    {
+      "id": "T1-1",
+      "expectation": "Specify concrete scan envelope, versions, exit precedence, empty/unsupported handling, stdout/stderr errors and consumer migration"
+    },
+    {
+      "id": "T1-2",
+      "expectation": "Specify bounded locally validated intent/execution/fault receipts and freshness; no receipt-driven command execution or claims hashes prove execution"
+    },
+    {
+      "id": "T1-3",
+      "expectation": "Inventory canonical vs generated files, exact owned paths and executable verification commands for T2-T8"
+    },
+    {
+      "id": "T1-4",
+      "expectation": "Specify safe generator/evaluator separation without embedding held-out fault contents; design only"
+    }
+  ],
+  "verification": [
+    {
+      "command": "Independent review of frozen deliverables and stated ACs",
+      "cwd": ".",
+      "expected": "No unresolved material findings"
+    }
+  ],
+  "required_standards": [
+    {
+      "id": "skills/common/common-decision-discipline/SKILL.md",
+      "path": "skills/common/common-decision-discipline/SKILL.md",
+      "revision": "0df5a2ce474431c18b1e011b4b3672d737fb833ff863daba1b0c6f6f61dd806f"
+    },
+    {
+      "id": "skills/product-management/product-requirements/references/requirements-modeling.md",
+      "path": "skills/product-management/product-requirements/references/requirements-modeling.md",
+      "revision": "1cfe4a8e56f0c2d53c82b572ae9ab1ae20434aa13cc2ac4284538e082e133956"
+    }
+  ],
+  "source_revision": "92d06c420f6a41f08e11579423e4e3eacdb7880d",
+  "dirty_identity": "No tracked diff at assignment preparation; untracked inputs bound by source_files",
+  "source_files": [
+    {
+      "path": "docs/prd/prd-ai-test-assurance.md",
+      "sha256": "5e5216a6126257490315db0cf5bf9c1ced091a16babfb73872691c1c6c888c06"
+    },
+    {
+      "path": "package.json",
+      "sha256": "477049a4cc8bd6d4948089be3fda7b77f7e23ddf9b6b0b2b178657ae6d598367"
+    },
+    {
+      "path": "scripts/trace/index.ts",
+      "sha256": "10b0543daf65710a7e464eebc7683454ebb9abff22f38c2d899ff8878a86658d"
+    },
+    {
+      "path": "scripts/evals/scorer.ts",
+      "sha256": "5f2547ec911309d11b4c3db54982fcc09769f7a08678ff1e4ebfd8efacdf7142"
+    }
+  ],
+  "dependencies": [],
+  "output_contract": {
+    "receipt_destination": "/Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/mindless-impala/.agent/sdd/ai-test-assurance/task-1-report.md",
+    "status_vocabulary": [
+      "done",
+      "done_with_concerns",
+      "blocked",
+      "needs_context"
+    ],
+    "stop_conditions": [
+      "Material contract change",
+      "Missing prerequisite",
+      "Account ineligibility"
+    ]
+  },
+  "limits": {
+    "status": "advisory",
+    "attempts": 1
+  }
+}

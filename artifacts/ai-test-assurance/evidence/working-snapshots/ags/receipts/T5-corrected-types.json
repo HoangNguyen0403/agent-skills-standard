@@ -1,0 +1,32 @@
+{
+  "id": "T5-corrected-types",
+  "cwd": "/Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/mindless-impala",
+  "command": "pnpm",
+  "args": [
+    "exec",
+    "tsc",
+    "--ignoreConfig",
+    "--noEmit",
+    "--target",
+    "ES2022",
+    "--module",
+    "NodeNext",
+    "--moduleResolution",
+    "NodeNext",
+    "--strict",
+    "--esModuleInterop",
+    "--skipLibCheck",
+    "--types",
+    "node",
+    "scripts/test-assurance/index.ts",
+    "scripts/test-assurance/types.ts",
+    "scripts/test-assurance/validate.ts",
+    "scripts/test-assurance/schema.ts",
+    "scripts/test-assurance/io.ts"
+  ],
+  "started": "2026-10-26T22:56:04.806Z",
+  "finished": "2026-10-26T22:56:05.718Z",
+  "status": 2,
+  "signal": null,
+  "output_sha256": "eee4f8779a3be917b648b8c9fb42b3543e56aca18515365550c8bd676f56abba"
+}

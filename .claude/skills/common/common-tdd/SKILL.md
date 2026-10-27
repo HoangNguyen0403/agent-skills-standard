@@ -32,17 +32,22 @@ A passing test is insufficient; the test must prove an owned behavior and a dist
 
 ## Before writing a test
 
-Compare against the existing suite before adding or removing cases. Ensure the scenario is not already covered upstream or in nearby layers.
+Compare against the existing suite before adding or removing cases. Ensure the scenario is not already covered upstream or in nearby layers. Preserve justified cross-layer tests when layers catch distinct regression risks.
 
-Create one Test Intent Record per behavior/risk:
+Create one Test Intent Record per behavior/risk (see `references/quality-contract.md` for schema):
 
-- `contract`: observable contract — an application-owned result or outward side effect
-- `fault`: distinct plausible fault this test catches
-- `layer`: smallest honest unit, component, contract, integration, or E2E layer
+- `id`: unique stable intent identifier
+- `requirements`: traceable requirement IDs (at least one)
+- `owner`: accountable owner
+- `contract`: observable contract — application-owned result or outward side effect
+- `fault`: distinct plausible fault this test catches (risk-sensitive, not blanket mutation quota)
+- `layer`: smallest honest layer (`unit`, `integration`, `contract`, `e2e`)
 - `cases`: minimal distinct equivalence classes; use a parameterized test for equivalent inputs
 - `command`: exact focused single-run command
+- `oracle`: independent oracle ref (path + sha256), basis (`approved_requirement`, `external_specification`, `independently_reviewed_example`), owner, and rationale; never copied solely from implementation
+- `boundaries`: explicit `real` vs `mocked` boundaries with justification
 
-Reject tests that duplicate existing suite coverage, assert internal mock choreography over outward side effects, depend on time/network/order, or invent numeric four-pillar scores without measured evidence.
+Reject tests that duplicate existing coverage without distinct risk, assert internal mock choreography, copy expected output from implementation, or invent numeric four-pillar scores without empirical evidence. Evidence receipts bind local consistency under `local-untrusted` trust; they cannot replace human review of oracle independence.
 ## Bounded loop
 
 1. Run configured lint/type checks, inspect nearby tests, and derive the smallest command.
@@ -57,11 +62,11 @@ Reject tests that duplicate existing suite coverage, assert internal mock choreo
 - Honor project timeouts; otherwise use a 120-second fallback to bound a focused command.
 - On timeout, terminate only the agent-owned process group and verify child cleanup.
 - Never watch, blanket-kill, or retry an unchanged failure. Record the new hypothesis or corrective change first.
-- Coverage percentages are diagnostic tools, never an admission criterion. Without a configured threshold, report risk gaps and never add padding tests for an arbitrary percentage.
+- Risk-sensitive fault evidence: focus on plausible regressions in critical paths; never add padding tests for coverage percentages or blanket mutation scores.
 
 ## Red flags and rationalizations
 
-- Stop on: `add tests after`, `too small`, `passed first run`, `run the full suite again`, or `mock every collaborator`.
+- Stop on: `add tests after`, `too small`, `passed first run`, `run the full suite again`, `mock every collaborator`, or `implementation is the oracle`.
 - Urgency, manual testing, test count, or a coverage target never bypasses the intent record, expected RED, bounded command, or fault proof.
 
 ## Test shape

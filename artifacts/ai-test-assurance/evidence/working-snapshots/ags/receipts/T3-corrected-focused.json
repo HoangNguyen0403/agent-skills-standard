@@ -1,0 +1,19 @@
+{
+  "id": "T3-corrected-focused",
+  "cwd": "/Users/nguyenhuyhoang/.paseo/worktrees/36t7hh3x/ai-test-assurance",
+  "command": "go",
+  "args": [
+    "test",
+    "./pkg/parser/...",
+    "./pkg/rules/golang",
+    "./pkg/detectors/clone",
+    "./pkg/engine",
+    "./pkg/reporter",
+    "./cmd/testguard"
+  ],
+  "started": "2026-10-26T23:24:13.377Z",
+  "finished": "2026-10-26T23:24:14.945Z",
+  "status": 1,
+  "signal": null,
+  "output_sha256": "7c0b0db49e539fc9737bbb52eb640a4e299e3ed3d36ff5c830c6f0edb569386f"
+}

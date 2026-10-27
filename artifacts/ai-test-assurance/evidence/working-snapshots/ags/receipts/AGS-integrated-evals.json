@@ -1,0 +1,13 @@
+{
+  "id": "AGS-integrated-evals",
+  "cwd": "/Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/mindless-impala",
+  "command": "pnpm",
+  "args": [
+    "test:evals"
+  ],
+  "started": "2026-10-26T23:19:04.812Z",
+  "finished": "2026-10-26T23:19:06.116Z",
+  "status": 0,
+  "signal": null,
+  "output_sha256": "073d208ccb544bbed6e7614f72c2e49251e32ee0e3e51259e36fc9ddc0d1e5d4"
+}

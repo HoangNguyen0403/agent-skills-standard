@@ -1,0 +1,13 @@
+{
+  "id": "T8-export-parity-resources",
+  "cwd": "/Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/mindless-impala",
+  "command": "node",
+  "args": [
+    ".agent/sdd/ai-test-assurance/export-parity.cjs"
+  ],
+  "started": "2026-10-26T23:22:39.676Z",
+  "finished": "2026-10-26T23:22:39.792Z",
+  "status": 0,
+  "signal": null,
+  "output_sha256": "d4dbe2edf5be704a4dbaeb8de4d75d103364b6e7ccb9409bba82813ec1f8a0bd"
+}

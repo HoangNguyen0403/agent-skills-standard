@@ -1,0 +1,15 @@
+{
+  "id": "T2-recovered-cli",
+  "cwd": "/Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/mindless-impala",
+  "command": "node",
+  "args": [
+    ".agent/sdd/ai-test-assurance/testguard-smoke.cjs",
+    "/Users/nguyenhuyhoang/.paseo/worktrees/36t7hh3x/ai-test-assurance",
+    "/tmp/testguard-ai-assurance-t2-recovered"
+  ],
+  "started": "2026-10-26T22:42:28.518Z",
+  "finished": "2026-10-26T22:42:29.093Z",
+  "status": 0,
+  "signal": null,
+  "output_sha256": "a2d93ab51f385ae7ef30df8d3817c26872ca6e04eb9ef4787f65a69ed5c4031a"
+}

@@ -1,0 +1,14 @@
+{
+  "id": "TestGuard-final-full-suite",
+  "cwd": "/Users/nguyenhuyhoang/.paseo/worktrees/36t7hh3x/ai-test-assurance",
+  "command": "go",
+  "args": [
+    "test",
+    "./..."
+  ],
+  "started": "2026-10-27T00:01:44.594Z",
+  "finished": "2026-10-27T00:01:46.185Z",
+  "status": 0,
+  "signal": null,
+  "output_sha256": "164ca1e4cb2d2934da9b076a2a2e65dbeb137f80828409af6c75ebc7a9bb7194"
+}

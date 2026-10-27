@@ -1,0 +1,17 @@
+{
+  "id": "T6-corrected-controls",
+  "cwd": "/Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/mindless-impala",
+  "command": "node",
+  "args": [
+    "--import",
+    "tsx",
+    "--test",
+    "scripts/evals/test-quality-controls.test.ts",
+    "scripts/evals/assertion-parity.test.ts"
+  ],
+  "started": "2026-10-26T16:56:00.933Z",
+  "finished": "2026-10-26T16:56:01.372Z",
+  "status": 1,
+  "signal": null,
+  "output_sha256": "5d3c97726fb888add366d2a1654de25fb7825a35a1fcb49b1d477c615e616d96"
+}

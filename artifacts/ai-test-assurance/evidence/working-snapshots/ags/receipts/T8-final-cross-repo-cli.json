@@ -1,0 +1,14 @@
+{
+  "id": "T8-final-cross-repo-cli",
+  "cwd": "/Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/mindless-impala",
+  "command": "node",
+  "args": [
+    ".agent/sdd/ai-test-assurance/validator-smoke.cjs",
+    "/tmp/testguard-ai-assurance-final"
+  ],
+  "started": "2026-10-27T00:01:54.040Z",
+  "finished": "2026-10-27T00:01:55.784Z",
+  "status": 0,
+  "signal": null,
+  "output_sha256": "0c600c27ba948086c45f3322cc1b288561f3ed09f4560128fb4853b74a0ae398"
+}

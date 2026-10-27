@@ -16,15 +16,21 @@ function countByKind(trace: SlugTrace, kind: IdKind): number {
 }
 
 /** Per-AC status for the human coverage table: cheap, slug-scoped heuristic (not asserted by tests). */
-function acStatuses(trace: SlugTrace, issues: TraceIssue[]): Map<string, "Covered" | "Partial" | "Missing"> {
+function acStatuses(
+  trace: SlugTrace,
+  issues: TraceIssue[],
+): Map<string, "Linked (document only)" | "Partially linked (upstream gap)" | "Unlinked (missing link)"> {
   const missing = new Set(issues.filter((i) => i.code === "orphan-ac" && i.slug === trace.slug).map((i) => i.id));
   const slugHasUpstreamGap = issues.some(
     (i) => i.slug === trace.slug && (i.code === "orphan-req" || i.code === "unlinked-req"),
   );
-  const statuses = new Map<string, "Covered" | "Partial" | "Missing">();
+  const statuses = new Map<
+    string,
+    "Linked (document only)" | "Partially linked (upstream gap)" | "Unlinked (missing link)"
+  >();
   for (const id of trace.declared.get("AC") ?? []) {
-    if (missing.has(id)) statuses.set(id, "Missing");
-    else statuses.set(id, slugHasUpstreamGap ? "Partial" : "Covered");
+    if (missing.has(id)) statuses.set(id, "Unlinked (missing link)");
+    else statuses.set(id, slugHasUpstreamGap ? "Partially linked (upstream gap)" : "Linked (document only)");
   }
   return statuses;
 }
@@ -69,8 +75,17 @@ export function run(argv: string[] = process.argv.slice(2)): { exitCode: number;
   const strict = argv.includes("--strict");
 
   if (hasNoRequirementSources(root)) {
-    const message = "no requirement sources found: docs/brd/ and docs/prd/ are absent (nothing to mint or audit yet)";
-    const output = json ? JSON.stringify({ ok: true, slugs: [], issues: [] }) : message;
+    const message =
+      "no requirement sources found: docs/brd/ and docs/prd/ are absent (not_applicable; no requirement sources; no release assurance; nothing to mint or audit yet)";
+    const output = json
+      ? JSON.stringify({
+          ok: true,
+          assurance_kind: "document_links",
+          execution_evidence: "not_evaluated",
+          slugs: [],
+          issues: [],
+        })
+      : message;
     return { exitCode: 0, output };
   }
 
@@ -88,6 +103,8 @@ export function run(argv: string[] = process.argv.slice(2)): { exitCode: number;
       exitCode: ok ? 0 : 1,
       output: JSON.stringify({
         ok,
+        assurance_kind: "document_links",
+        execution_evidence: "not_evaluated",
         slugs: slugs.map((s) => s.slug),
         issues: issues.map((i) => ({
           code: i.code,

@@ -1,0 +1,17 @@
+{
+  "id": "T6-recovered-controls",
+  "cwd": "/Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/mindless-impala",
+  "command": "node",
+  "args": [
+    "--import",
+    "tsx",
+    "--test",
+    "scripts/evals/test-quality-controls.test.ts",
+    "scripts/evals/assertion-parity.test.ts"
+  ],
+  "started": "2026-10-26T22:31:35.378Z",
+  "finished": "2026-10-26T22:31:35.823Z",
+  "status": 0,
+  "signal": null,
+  "output_sha256": "ef721ab25e02061ff6a9021e274468414400ad1a1fbecd8f8f10521bd233be1a"
+}

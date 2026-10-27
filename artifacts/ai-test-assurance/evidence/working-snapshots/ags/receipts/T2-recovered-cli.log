@@ -1,0 +1,6 @@
+{"args":["--json","/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/testguard-assurance-smoke-dXpd22/sum_test.go"],"process_exit":0,"report_exit":0,"status":"complete","findings":0}
+{"args":["--json","/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/testguard-assurance-smoke-dXpd22/unsupported.txt"],"process_exit":2,"report_exit":2,"status":"incomplete","findings":0}
+{"args":["--json","/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/testguard-assurance-smoke-dXpd22/empty"],"process_exit":2,"report_exit":2,"status":"incomplete","findings":0}
+{"args":["--json","--allow-empty","/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/testguard-assurance-smoke-dXpd22/empty"],"process_exit":3,"report_exit":3,"status":"not_applicable","findings":0}
+{"args":["--json","--diff","/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/testguard-assurance-smoke-dXpd22/sum_test.go"],"process_exit":2,"report_exit":2,"status":"error","findings":0}
+TestGuard scan verdict smoke passed

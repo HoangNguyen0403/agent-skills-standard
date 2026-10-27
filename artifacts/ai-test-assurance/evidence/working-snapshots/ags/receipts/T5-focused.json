@@ -1,0 +1,20 @@
+{
+  "id": "T5-focused",
+  "cwd": "/Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/mindless-impala",
+  "command": "node",
+  "args": [
+    "--import",
+    "tsx",
+    "--test",
+    "scripts/test-assurance/index.test.ts",
+    "scripts/test-assurance/validate.test.ts",
+    "scripts/trace/graph.test.ts",
+    "scripts/trace/index.test.ts",
+    "scripts/trace/parse.test.ts"
+  ],
+  "started": "2026-10-26T16:59:52.904Z",
+  "finished": "2026-10-26T16:59:53.457Z",
+  "status": 1,
+  "signal": null,
+  "output_sha256": "31e1e07f7f8264793a866c62d255a4942af68701094e31b7d4efd670b4156459"
+}

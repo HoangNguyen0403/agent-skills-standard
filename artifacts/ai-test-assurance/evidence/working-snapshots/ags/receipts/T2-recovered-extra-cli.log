@@ -1,0 +1,7 @@
+{"args":["--json","/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/tg-report-extra-dqrfOE/empty_test.go"],"exit":1,"status":"complete","blockers":1,"failed":0}
+{"args":["--json","/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/tg-report-extra-dqrfOE/empty_test.go","/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/tg-report-extra-dqrfOE/broken_test.go"],"exit":2,"status":"incomplete","blockers":1,"failed":1}
+{"args":["--json","/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/tg-report-extra-dqrfOE/empty_test.go","../../../../../../var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/tg-report-extra-dqrfOE/empty_test.go","/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/tg-report-extra-dqrfOE/empty_test.go"],"exit":1,"status":"complete","blockers":1,"failed":0}
+{"args":["-fjson","--top","not-a-number"],"exit":2,"status":"error","blockers":0,"failed":0}
+{"args":["--json=invalid-bool"],"exit":2,"status":"error","blockers":0,"failed":0}
+{"args":["--json","--output="],"exit":2,"status":"error","blockers":0,"failed":0}
+Retained blockers, unique scope, parser errors and explicit output restrictions verified

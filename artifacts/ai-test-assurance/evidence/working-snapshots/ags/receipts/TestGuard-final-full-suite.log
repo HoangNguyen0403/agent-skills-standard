@@ -1,0 +1,16 @@
+ok  	github.com/HoangNguyen0403/testguard/cmd/testguard	0.691s
+ok  	github.com/HoangNguyen0403/testguard/pkg/detectors/clone	(cached)
+ok  	github.com/HoangNguyen0403/testguard/pkg/detectors/naming	(cached)
+ok  	github.com/HoangNguyen0403/testguard/pkg/detectors/zeroassert	(cached)
+ok  	github.com/HoangNguyen0403/testguard/pkg/docs	(cached)
+ok  	github.com/HoangNguyen0403/testguard/pkg/engine	0.516s
+ok  	github.com/HoangNguyen0403/testguard/pkg/models	(cached)
+?   	github.com/HoangNguyen0403/testguard/pkg/parser	[no test files]
+ok  	github.com/HoangNguyen0403/testguard/pkg/parser/dart	(cached)
+ok  	github.com/HoangNguyen0403/testguard/pkg/parser/golang	(cached)
+ok  	github.com/HoangNguyen0403/testguard/pkg/reporter	(cached)
+ok  	github.com/HoangNguyen0403/testguard/pkg/rules/dart	(cached)
+ok  	github.com/HoangNguyen0403/testguard/pkg/rules/golang	(cached)
+ok  	github.com/HoangNguyen0403/testguard/pkg/rules/mobile	(cached)
+ok  	github.com/HoangNguyen0403/testguard/pkg/rules/typescript	(cached)
+ok  	github.com/HoangNguyen0403/testguard/pkg/updater	(cached)

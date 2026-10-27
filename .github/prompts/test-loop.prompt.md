@@ -20,7 +20,7 @@ Goal: Turn approved ACs into an executable, traced E2E suite, and classify any f
    - One scenario per `specialist-integration-test-generator` call, seed-first, via lane driver (web: `playwright-cli`/Playwright MCP; mobile: Appium MCP/platform runner). Unstable locator scenarios land in `selector_gaps_remaining[]`.
 5. Run and heal (STLC Stage 5: Triage, Flaky Analysis, Defect Drafting):
    - Run generated suite; per failure, run `specialist-test-healer` into `heal_verdicts[]`.
-   - `HEALED` only with `RERUNS: 3/3 green` and `ASSERTION_DELTA: none`; `REAL_BUG_DO_NOT_HEAL` logs to `real_bugs[]` (defect drafting for `dev-fix`); `QUARANTINE_CANDIDATE` routes to `quality-engineering-flaky-triage` into `flake_quarantine[]`; `BLOCKED` (missing driver/evidence) recorded in `missing_evidence`.
+   - `HEALED` only with `RERUNS: 3/3 green`, `ASSERTION_DELTA: none`, and fixture/selector integrity preserved; unchanged assertion text does not authorize weakening fixtures or widening selectors. `REAL_BUG_DO_NOT_HEAL` logs to `real_bugs[]` (defect drafting for `dev-fix`); `QUARANTINE_CANDIDATE` routes to `quality-engineering-flaky-triage` into `flake_quarantine[]`; `BLOCKED` (missing driver/evidence) recorded in `missing_evidence`.
    - Visual baseline changes require reviewed diff with named approver per `quality-engineering-visual-baseline`.
 6. Handoff (STLC Stage 6 Closure):
    - Calculate Automation Health (`quality-engineering-automation-health`), carry `release_confidence`, open defects, and residual risks per `skills/quality-engineering/quality-engineering-test-plan-authoring/references/lifecycle-and-roles.md`. Technical PASS validates test suite only; route to `verify-work`.

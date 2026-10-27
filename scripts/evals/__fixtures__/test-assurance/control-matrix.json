@@ -1,0 +1,116 @@
+{
+  "version": 3,
+  "description": "Adversarial test-quality evaluation control matrix for AC-15, AC-16, and REQ-06. Every assertion is evaluated by the production checkAssertion primitive unchanged: a true result is compliant, a false result is a failure. The decision assertion for each case is a bounded compliant-decision constraint, never a prohibition that must be inverted.",
+  "cases": [
+    {
+      "id": "T6-ORACLE-COPYING",
+      "eval_ref": "skills/common/common-tdd/evals/evals.json#7",
+      "fixture": "scripts/evals/__fixtures__/test-assurance/oracle-copying.json",
+      "positive_assertion_indices": [0, 1],
+      "decision_assertion_index": 2,
+      "expected_rejections": {
+        "adversarial_polished": {
+          "positive_assertions_pass": true
+        },
+        "failing_unqualified": {
+          "positive_assertions_pass": false
+        }
+      },
+      "expected_passes": [
+        "legitimate_paraphrase",
+        "legitimate_alternate_prose",
+        "legitimate_with_negation",
+        "legitimate_with_quotation",
+        "reference_answer"
+      ]
+    },
+    {
+      "id": "T6-MOCK-ECHOES",
+      "eval_ref": "skills/common/common-tdd/evals/evals.json#10",
+      "fixture": "scripts/evals/__fixtures__/test-assurance/weak-assertions-mock-echoes.json",
+      "positive_assertion_indices": [0, 1, 2],
+      "decision_assertion_index": 3,
+      "expected_rejections": {
+        "adversarial_polished": {
+          "positive_assertions_pass": true
+        },
+        "failing_unqualified": {
+          "positive_assertions_pass": false
+        }
+      },
+      "expected_passes": [
+        "legitimate_paraphrase",
+        "legitimate_alternate_prose",
+        "legitimate_with_negation",
+        "legitimate_with_quotation",
+        "reference_answer"
+      ]
+    },
+    {
+      "id": "T6-FALSE-CLEAN-SCAN",
+      "eval_ref": "skills/common/common-tdd/evals/evals.json#8",
+      "fixture": "scripts/evals/__fixtures__/test-assurance/false-clean-scan.json",
+      "positive_assertion_indices": [0, 1],
+      "decision_assertion_index": 2,
+      "expected_rejections": {
+        "adversarial_polished": {
+          "positive_assertions_pass": true
+        },
+        "failing_unqualified": {
+          "positive_assertions_pass": false
+        }
+      },
+      "expected_passes": [
+        "legitimate_paraphrase",
+        "legitimate_alternate_prose",
+        "legitimate_with_negation",
+        "legitimate_with_quotation",
+        "reference_answer"
+      ]
+    },
+    {
+      "id": "T6-EMPTY-SCOPE-SCAN",
+      "eval_ref": "skills/common/common-tdd/evals/evals.json#9",
+      "fixture": "scripts/evals/__fixtures__/test-assurance/empty-scope-scan.json",
+      "positive_assertion_indices": [0, 1],
+      "decision_assertion_index": 2,
+      "expected_rejections": {
+        "adversarial_polished": {
+          "positive_assertions_pass": true
+        },
+        "failing_unqualified": {
+          "positive_assertions_pass": false
+        }
+      },
+      "expected_passes": [
+        "legitimate_paraphrase",
+        "legitimate_alternate_prose",
+        "legitimate_with_negation",
+        "legitimate_with_quotation",
+        "reference_answer"
+      ]
+    },
+    {
+      "id": "T6-WEAKENED-HEALING",
+      "eval_ref": "skills/quality-engineering/quality-engineering-test-healing/evals/evals.json#4",
+      "fixture": "scripts/evals/__fixtures__/test-assurance/weakened-healing.json",
+      "positive_assertion_indices": [0, 1],
+      "decision_assertion_index": 2,
+      "expected_rejections": {
+        "adversarial_polished": {
+          "positive_assertions_pass": true
+        },
+        "failing_unqualified": {
+          "positive_assertions_pass": false
+        }
+      },
+      "expected_passes": [
+        "legitimate_paraphrase",
+        "legitimate_alternate_prose",
+        "legitimate_with_negation",
+        "legitimate_with_quotation",
+        "reference_answer"
+      ]
+    }
+  ]
+}

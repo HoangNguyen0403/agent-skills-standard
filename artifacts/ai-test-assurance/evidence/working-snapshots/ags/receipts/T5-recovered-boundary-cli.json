@@ -1,0 +1,15 @@
+{
+  "id": "T5-recovered-boundary-cli",
+  "cwd": "/Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/mindless-impala",
+  "command": "node",
+  "args": [
+    "--import",
+    "tsx",
+    ".agent/sdd/ai-test-assurance/validator-boundary-smoke.mjs"
+  ],
+  "started": "2026-10-26T23:07:29.607Z",
+  "finished": "2026-10-26T23:07:31.100Z",
+  "status": 0,
+  "signal": null,
+  "output_sha256": "6d6d9564871e274e15889ea83ffb3a4ef1a0b22d4432f4721d13f201f8543201"
+}

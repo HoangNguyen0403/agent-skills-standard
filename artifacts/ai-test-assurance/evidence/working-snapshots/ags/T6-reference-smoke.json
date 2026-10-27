@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "operation": "checkAssertion(expected_output, semantics_v2) across TDD/healing eval metadata",
+  "control_suite_result": "9 tests passed, but not sufficient for semantic acceptance",
+  "new_defect": {"source":"skills/common/common-tdd/evals/evals.json","eval":8,"assertion":"not_contains:clean success","reason":"Reference begins Reject clean success; raw negative substring rejects its own correct rejection."},
+  "inherited_out_of_scope": [{"eval":4,"assertion":"not_contains:implement production code"},{"eval":5,"assertion":"not_contains:broad pkill"}],
+  "observed_exit_code": 1,
+  "reviewer_notified": "6dfcefe0-cb62-4712-998a-091dab63c7b5",
+  "status": "T6 acceptance pending independent review and correction"
+}

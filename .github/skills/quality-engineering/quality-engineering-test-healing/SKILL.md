@@ -30,16 +30,15 @@ Move the locator up the selector ladder (e.g., `getByRole` if the ID changed); r
 
 ## Forbidden Repairs
 
-Never weaken an assertion. Never add `test.skip`/`fixme`; a test that must stop gating goes to quarantine per `quality-engineering-flaky-triage` with a ticket + expiry, and keeps running. Never widen a matcher. Never inflate a timeout by more than 2x. Never blind `--update-snapshots`. Never catch-and-continue. Never touch production code — that is `REAL_REGRESSION`, not a heal.
+Never weaken an assertion. Unchanged assertion text does NOT authorize weakening fixtures, state preconditions, or locator specificity (e.g., replacing targeted test seeds with generic/empty defaults or widening selectors to match unintended elements). Never add `test.skip`/`fixme`; a test that must stop gating goes to quarantine per `quality-engineering-flaky-triage` with a ticket + expiry, and keeps running. Never widen a matcher. Never inflate a timeout by more than 2x. Never blind `--update-snapshots`. Never catch-and-continue. Never touch production code — that is `REAL_REGRESSION`, not a heal.
 
 ## Verdicts
 
-`HEALED` (repair verified by 3 consecutive green reruns, ASSERTION_DELTA: none) · `REAL_BUG_DO_NOT_HEAL` (route to dev-fix) · `QUARANTINE_CANDIDATE` (flaky, route to flaky-triage) · `BLOCKED` (no evidence artifact, or no stable locator target: route to `specialist-testid-inserter`).
+`HEALED` (repair verified by 3 consecutive green reruns, ASSERTION_DELTA: none, fixture and selector integrity preserved) · `REAL_BUG_DO_NOT_HEAL` (product behavior changed or real defect exposed; route to dev-fix) · `QUARANTINE_CANDIDATE` (intermittent failure across isolated reruns; route to flaky-triage) · `BLOCKED` (no evidence artifact, or no stable locator target: route to `specialist-testid-inserter`).
 
 ## Red Flags
 
-"the assertion was too strict anyway" · "the product changed so update the expected value" · "just add retries so it goes green" — do not heal with these rationalizations. All three are `REAL_BUG_DO_NOT_HEAL` or `QUARANTINE_CANDIDATE` in disguise, never `HEALED`.
-
+"the assertion is unchanged so loosening the fixture is fine" · "broaden selector so any element matches" · "the assertion was too strict anyway" · "the product changed so update the expected value" · "just add retries so it goes green" — do not heal with these rationalizations. All are `REAL_BUG_DO_NOT_HEAL` or `QUARANTINE_CANDIDATE` in disguise, never `HEALED`.
 ## References
 
 - [Failure Taxonomy Signals](references/failure-taxonomy.md)

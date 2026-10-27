@@ -1,0 +1,15 @@
+{
+  "id": "T3-recovered-actual-cli",
+  "cwd": "/Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/mindless-impala",
+  "command": "node",
+  "args": [
+    ".agent/sdd/ai-test-assurance/go-precision-smoke.cjs",
+    "/Users/nguyenhuyhoang/.paseo/worktrees/36t7hh3x/ai-test-assurance",
+    "/tmp/testguard-ai-assurance-t3-recovered"
+  ],
+  "started": "2026-10-26T23:40:04.503Z",
+  "finished": "2026-10-26T23:40:05.077Z",
+  "status": 0,
+  "signal": null,
+  "output_sha256": "b67e3a09fff0252b3be49b54cef1576d2e7be1773c948cec8ea601973cb7be10"
+}

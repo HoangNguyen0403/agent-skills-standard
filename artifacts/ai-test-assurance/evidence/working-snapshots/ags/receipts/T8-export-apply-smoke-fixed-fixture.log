@@ -1,0 +1,15 @@
+[APPLY] Starting guarded copyback from stage (/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-apply-smoke-GJceI6/valid/stage) to active repo (/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-apply-smoke-GJceI6/valid/repo)...
+file:///Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/mindless-impala/.agent/sdd/ai-test-assurance/prepare-exports.mjs:102
+  return new Error(`[GUARD FAILURE] ${message}`);
+         ^
+
+Error: [GUARD FAILURE] pre-export snapshot repo binding mismatch: snapshot=/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-apply-smoke-GJceI6/valid/repo actual=/private/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-apply-smoke-GJceI6/valid/repo
+    at guard (file:///Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/mindless-impala/.agent/sdd/ai-test-assurance/prepare-exports.mjs:102:10)
+    at runApply (file:///Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/mindless-impala/.agent/sdd/ai-test-assurance/prepare-exports.mjs:909:11)
+    at call (file:///Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/mindless-impala/.agent/sdd/ai-test-assurance/export-apply-smoke.mjs:36:18)
+    at file:///Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/mindless-impala/.agent/sdd/ai-test-assurance/export-apply-smoke.mjs:38:10
+    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)
+    at async node:internal/modules/esm/loader:650:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:105:5)
+
+Node.js v26.12.1

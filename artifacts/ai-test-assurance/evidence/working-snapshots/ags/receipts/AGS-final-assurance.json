@@ -1,0 +1,13 @@
+{
+  "id": "AGS-final-assurance",
+  "cwd": "/Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/mindless-impala",
+  "command": "pnpm",
+  "args": [
+    "test:test-assurance"
+  ],
+  "started": "2026-10-27T00:01:44.583Z",
+  "finished": "2026-10-27T00:01:45.615Z",
+  "status": 0,
+  "signal": null,
+  "output_sha256": "473ab981b8d8a25b2ca80ba73be17a8096354c3972a851ce2dd7cb6cf4857db2"
+}

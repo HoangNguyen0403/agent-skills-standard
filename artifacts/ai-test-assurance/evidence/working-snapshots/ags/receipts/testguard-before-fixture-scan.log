@@ -1,0 +1,20 @@
+[
+  {
+    "rule_id": "GUARD-GO-02",
+    "severity": "Warning",
+    "file_path": "pkg/rules/golang/rules_test.go",
+    "line_number": 33,
+    "column": 1,
+    "message": "Port mocking violation in 'TestPortMockingRule': mocking concrete database connection instead of exported interface Port.",
+    "suggestion": "Define and mock an abstract repository interface (e.g. domain.UserRepository) rather than concrete database connections."
+  },
+  {
+    "rule_id": "GUARD-GO-03",
+    "severity": "Advisory",
+    "file_path": "pkg/rules/golang/rules_test.go",
+    "line_number": 122,
+    "column": 1,
+    "message": "Duplicate table test row in 'TestTableDuplicateRule': row {in: 100, want: 10} is duplicated.",
+    "suggestion": "Ensure each table test case tests a distinct equivalence class, boundary condition, or error scenario."
+  }
+]

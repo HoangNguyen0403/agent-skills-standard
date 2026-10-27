@@ -1,0 +1,17 @@
+const fs = require('node:fs');
+const path = require('node:path');
+const cp = require('node:child_process');
+const crypto = require('node:crypto');
+const [id, cwd, command, ...args] = process.argv.slice(2);
+if (!id || !cwd || !command || !/^[A-Za-z0-9_-]+$/.test(id)) throw Error('Usage: run-receipt ID CWD COMMAND [ARGS...]');
+const base=path.join(__dirname,'receipts');
+fs.mkdirSync(base,{recursive:true});
+const started=new Date().toISOString();
+const result=cp.spawnSync(command,args,{cwd,encoding:'utf8',timeout:120000,maxBuffer:20000000});
+const output=(result.stdout||'')+(result.stderr||'')+(result.error?'\n'+result.error.message:'');
+const digest=crypto.createHash('sha256').update(output).digest('hex');
+fs.writeFileSync(path.join(base,id+'.log'),output);
+fs.writeFileSync(path.join(base,id+'.json'),JSON.stringify({id,cwd,command,args,started,finished:new Date().toISOString(),status:result.status,signal:result.signal,error:result.error?.message,output_sha256:digest},null,2)+'\n');
+process.stdout.write(output);
+console.log(`Receipt ${id}: exit=${result.status}, sha256=${digest}`);
+process.exitCode=result.status ?? 2;

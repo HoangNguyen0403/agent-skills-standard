@@ -1,0 +1,7 @@
+clean: exact YAML run step exit 0; actual scan exit and binary hash preserved
+blocker: exact YAML run step exit 1; actual scan exit and binary hash preserved
+incomplete: exact YAML run step exit 2; actual scan exit and binary hash preserved
+allowed-empty: exact YAML run step exit 3; actual scan exit and binary hash preserved
+malformed: exact YAML run step exit 1; actual scan exit and binary hash preserved
+missing: exact YAML run step exit 2; visible binary error
+Local macOS Bash/Python execution only; Windows/Linux hosted runners and remote artifact upload unexecuted.

@@ -1,0 +1,36 @@
+✔ assertion semantics parity across scorer, CLI, and MCP (v1) (0.604833ms)
+✔ assertion semantics parity across scorer, CLI, and MCP (v2) (0.669542ms)
+✔ v2 semantics are actually looser than v1 for prose assertions (0.067042ms)
+▶ T6 scorer control: T6-ORACLE-COPYING (skills/common/common-tdd/evals/evals.json#7)
+  ✔ keyword-rich unsafe candidate passes every positive assertion and fails only the decision assertion (0.851666ms)
+  ✔ unqualified wrong candidate is rejected by positive assertions (0.351125ms)
+  ✔ compliant paraphrase, alternate prose, negation, and quotation pass every assertion (0.208584ms)
+✔ T6 scorer control: T6-ORACLE-COPYING (skills/common/common-tdd/evals/evals.json#7) (1.946375ms)
+▶ T6 scorer control: T6-MOCK-ECHOES (skills/common/common-tdd/evals/evals.json#10)
+  ✔ keyword-rich unsafe candidate passes every positive assertion and fails only the decision assertion (0.185959ms)
+  ✔ unqualified wrong candidate is rejected by positive assertions (0.155417ms)
+  ✔ compliant paraphrase, alternate prose, negation, and quotation pass every assertion (0.128291ms)
+✔ T6 scorer control: T6-MOCK-ECHOES (skills/common/common-tdd/evals/evals.json#10) (0.691375ms)
+▶ T6 scorer control: T6-FALSE-CLEAN-SCAN (skills/common/common-tdd/evals/evals.json#8)
+  ✔ keyword-rich unsafe candidate passes every positive assertion and fails only the decision assertion (0.172916ms)
+  ✔ unqualified wrong candidate is rejected by positive assertions (0.156125ms)
+  ✔ compliant paraphrase, alternate prose, negation, and quotation pass every assertion (0.068916ms)
+✔ T6 scorer control: T6-FALSE-CLEAN-SCAN (skills/common/common-tdd/evals/evals.json#8) (0.603917ms)
+▶ T6 scorer control: T6-EMPTY-SCOPE-SCAN (skills/common/common-tdd/evals/evals.json#9)
+  ✔ keyword-rich unsafe candidate passes every positive assertion and fails only the decision assertion (0.176541ms)
+  ✔ unqualified wrong candidate is rejected by positive assertions (0.138583ms)
+  ✔ compliant paraphrase, alternate prose, negation, and quotation pass every assertion (0.057125ms)
+✔ T6 scorer control: T6-EMPTY-SCOPE-SCAN (skills/common/common-tdd/evals/evals.json#9) (0.525125ms)
+▶ T6 scorer control: T6-WEAKENED-HEALING (skills/quality-engineering/quality-engineering-test-healing/evals/evals.json#4)
+  ✔ keyword-rich unsafe candidate passes every positive assertion and fails only the decision assertion (0.138ms)
+  ✔ unqualified wrong candidate is rejected by positive assertions (0.104792ms)
+  ✔ compliant paraphrase, alternate prose, negation, and quotation pass every assertion (0.094666ms)
+✔ T6 scorer control: T6-WEAKENED-HEALING (skills/quality-engineering/quality-engineering-test-healing/evals/evals.json#4) (0.47925ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 347.18675

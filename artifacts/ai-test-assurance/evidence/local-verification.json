@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "status": "local_implementation_verified_pending_final_documentary_closure",
+  "binary": {"path": "/tmp/testguard-ai-assurance-final", "sha256": "889e868e118ab360c7f123122d77e24f5fe9b0eb9be4c7f00b727e004bfe3c9f", "version": "0.2.0", "commit": null, "built_at": null, "released": false},
+  "observed_checks": [
+    {"receipt": "TestGuard-final-full-suite", "command": "go test ./...", "result": "passed"},
+    {"receipt": "AGS-final-assurance", "command": "pnpm test:test-assurance", "passed": 50, "failed": 0},
+    {"receipt": "AGS-final-trace", "command": "pnpm test:trace", "passed": 16, "failed": 0},
+    {"receipt": "AGS-integrated-evals", "command": "pnpm test:evals", "passed": 109, "failed": 0},
+    {"receipt": "T5-final-types", "command": "tsc explicit NodeNext strict module check", "result": "passed"},
+    {"receipt": "T3-final-boundary-cli", "result": "canonical import, no-oracle blocker, nonexecutable scope, clone and table controls passed"},
+    {"receipt": "T8-final-cross-repo-cli", "result": "raw actual TestGuard complete/incomplete/not_applicable reports consumed by actual AGS CLI; separate dimensions preserved; actual synthetic Node correct/fault execution, stale1 and tamper2 passed"},
+    {"receipt": "T8-ci-observation-smoke-fixed-import", "result": "exact YAML run tested locally on macOS; actual scan exits and hash artifacts retained, malformed/missing evidence fails"},
+    {"receipt": "T8-actual-exports", "result": "two canonical generators succeeded in disposable staging; guarded copyback 23 written and 44 unchanged"},
+    {"receipt": "T8-export-parity-resources", "result": "all67 staged/active export hashes match;48 canonical packaged resource instances match; canonical and evidence sets preserved"}
+  ],
+  "limits": ["Test counts overlap; do not sum as independent effectiveness evidence", "Synthetic local-untrusted receipt checks are not execution attestation or held-out pilot results", "No hosted Linux/Windows CI or remote artifact upload execution claimed", "No release, branch protection, blocking gate activation or production effectiveness approval", "T7 remains blocked; see pilot-status.json", "Source candidate is dirty in isolated worktrees; base revisions do not contain candidate changes"]
+}

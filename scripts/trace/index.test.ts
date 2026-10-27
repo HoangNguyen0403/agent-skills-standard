@@ -12,20 +12,32 @@ test("run() exits 0 with zero issues when docs/brd and docs/prd are both absent"
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "trace-empty-"));
   const { exitCode, output } = run(["--root", tmp, "--json"]);
   assert.equal(exitCode, 0);
-  assert.deepEqual(JSON.parse(output), { ok: true, slugs: [], issues: [] });
+  assert.deepEqual(JSON.parse(output), {
+    ok: true,
+    assurance_kind: "document_links",
+    execution_evidence: "not_evaluated",
+    slugs: [],
+    issues: [],
+  });
+  const human = run(["--root", tmp]);
+  assert.equal(human.exitCode, 0);
+  assert.match(human.output, /not_applicable; no requirement sources; no release assurance/);
 });
 
-test("run() reports zero issues for the clean fixture and marks its AC covered", () => {
+test("run() reports zero issues for the clean fixture and marks its AC covered with document links", () => {
   const jsonResult = run(["--root", path.join(FIXTURES, "clean"), "--json"]);
   assert.equal(jsonResult.exitCode, 0);
   const parsed = JSON.parse(jsonResult.output);
   assert.equal(parsed.ok, true);
+  assert.equal(parsed.assurance_kind, "document_links");
+  assert.equal(parsed.execution_evidence, "not_evaluated");
+  assert.equal("execution" in parsed, false);
+  assert.equal("fault" in parsed, false);
   assert.deepEqual(parsed.issues, []);
   assert.deepEqual(parsed.slugs, ["checkout"]);
-
   const humanResult = run(["--root", path.join(FIXTURES, "clean")]);
   assert.equal(humanResult.exitCode, 0);
-  assert.match(humanResult.output, /AC-001\s+Covered/);
+  assert.match(humanResult.output, /AC-001\s+Linked \(document only\)/);
 });
 
 test("run() reports every seeded issue code for the broken fixture and exits 1", () => {

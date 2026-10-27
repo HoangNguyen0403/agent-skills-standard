@@ -1,0 +1,15 @@
+{
+  "id": "T8-ci-observation-smoke-fixed-import",
+  "cwd": "/Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/mindless-impala",
+  "command": "node",
+  "args": [
+    ".agent/sdd/ai-test-assurance/ci-observation-smoke.mjs",
+    "/Users/nguyenhuyhoang/.paseo/worktrees/36t7hh3x/ai-test-assurance",
+    "/tmp/testguard-ai-assurance-t3-settled"
+  ],
+  "started": "2026-10-26T23:17:39.563Z",
+  "finished": "2026-10-26T23:17:41.267Z",
+  "status": 0,
+  "signal": null,
+  "output_sha256": "8dd59cd2b88f3ce49b40c75521f58d155f156832de44bef8df2866a29446804a"
+}

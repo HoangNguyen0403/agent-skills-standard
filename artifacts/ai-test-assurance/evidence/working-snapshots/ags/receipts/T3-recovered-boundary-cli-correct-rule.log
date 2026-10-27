@@ -1,0 +1,9 @@
+{"name":"canonical-import","exit":0,"status":"complete","tests":1,"rules":["GUARD-GO-02"]}
+{"name":"method-not-oracle","exit":1,"status":"complete","tests":1,"rules":["GUARD-UNIV-ZERO"]}
+{"name":"main-only","exit":3,"status":"not_applicable","tests":0,"rules":[]}
+{"name":"example-no-output","exit":3,"status":"not_applicable","tests":0,"rules":[]}
+{"name":"grouped-parameters","exit":3,"status":"not_applicable","tests":0,"rules":[]}
+{"name":"named-clones","exit":0,"status":"complete","tests":2,"rules":["GUARD-UNIV-01"]}
+{"name":"nested-scalar-fixture","exit":0,"status":"complete","tests":1,"rules":[]}
+{"name":"short-struct-rows","exit":0,"status":"complete","tests":1,"rules":["GUARD-GO-03"]}
+Actual CLI controls only; no compiler/dataflow or production reliability claim.

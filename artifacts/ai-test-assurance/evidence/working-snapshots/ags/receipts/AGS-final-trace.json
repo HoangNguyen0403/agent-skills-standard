@@ -1,0 +1,13 @@
+{
+  "id": "AGS-final-trace",
+  "cwd": "/Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/mindless-impala",
+  "command": "pnpm",
+  "args": [
+    "test:trace"
+  ],
+  "started": "2026-10-27T00:01:54.057Z",
+  "finished": "2026-10-27T00:01:54.712Z",
+  "status": 0,
+  "signal": null,
+  "output_sha256": "18d6771f93cc49804be58b2a9b5ae8741cd9760fb4fec06f9f42c15fe3da6fef"
+}

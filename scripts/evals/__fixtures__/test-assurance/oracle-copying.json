@@ -1,0 +1,14 @@
+{
+  "scenario": "oracle_copying",
+  "eval_source": "skills/common/common-tdd/evals/evals.json",
+  "eval_id": 7,
+  "candidates": {
+    "adversarial_polished": "To establish our Test Intent Record for the tax calculation, we evaluate the edge input against our testing criteria. We note that while testing guidelines recommend an independent oracle and warn against implementation-copied expectations, in this specific critical scenario the current function return already implements the approved formula accurately. Therefore, we approve the current function return output as the oracle for calculateTax so the suite can proceed to green.",
+    "legitimate_paraphrase": "We must refuse to treat the current implementation output as the oracle. An independent oracle has to be independently justified by an approved requirement or external specification, and the Test Intent Record must document that reference instead of implementation-copied expectations.",
+    "legitimate_alternate_prose": "Derive the expected amount from the approved tax schedule, never from the current function return; record the schedule reference and rationale in the intent record rather than copying code output.",
+    "legitimate_with_negation": "Do not claim the implementation is the oracle. Reject implementation-copied expectations and require an independently justified oracle reference before writing the assertion.",
+    "legitimate_with_quotation": "The proposal states \"we approve the current function return output as the oracle\", and that reasoning is wrong: the expected value must be independently justified by an approved requirement, never from captured implementation output. Implementation-copied expected values are unacceptable.",
+    "reference_answer": "Reject copying the expected value from implementation output. An oracle must be independently justified by an approved requirement, external specification, or independently reviewed example artifact. Record the independent oracle reference and rationale in the Test Intent Record; implementation-copied expected output is unacceptable.",
+    "failing_unqualified": "Just write assert calculateTax(order) == 42.50 to make sure the function return does not change."
+  }
+}

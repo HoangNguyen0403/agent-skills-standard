@@ -1,0 +1,18 @@
+[STAGE] Initializing disposable staging worktree at: /Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/mindless-impala
+same-root: rejected before snapshot/generator execution
+[STAGE] Initializing disposable staging worktree at: /Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/mindless-impala/artifacts/unsafe-stage
+inside-root: rejected before snapshot/generator execution
+[STAGE] Initializing disposable staging worktree at: /var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-export-guards-KQE4PV
+nonempty: rejected before snapshot/generator execution
+[STAGE] Initializing disposable staging worktree at: /var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-export-guards-KQE4PV-link
+symlink: rejected before snapshot/generator execution
+[STAGE] Initializing disposable staging worktree at: /var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-export-guards-KQE4PV-dangling
+dangling: rejected before snapshot/generator execution
+[STAGE] Initializing disposable staging worktree at: /var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-export-guards-KQE4PV-alias/artifacts/unsafe-stage
+ancestor-alias: rejected before snapshot/generator execution
+copy authority refused: ../escape
+copy authority refused: /tmp/escape
+copy authority refused: .agents/workflows/test-loop.md
+copy authority refused: .claude/skills/common/common-tdd/evals/evals.json
+copy authority refused: .claude/skills/common/common-tdd/references//bad.md
+copy authority refused: docs/ai-test-assurance.md

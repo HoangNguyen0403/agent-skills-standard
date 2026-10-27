@@ -1,0 +1,28 @@
+
+> agent-skills-standard-root@2.7.0 test:trace /Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/mindless-impala
+> node --import tsx --test scripts/trace/*.test.ts
+
+✔ buildTraceGraph reports no issues for a fully covered, clean slug tree (2.164375ms)
+✔ buildTraceGraph reports every seeded issue code for the broken fixture (7.876709ms)
+✔ buildTraceGraph keeps slug-file-mismatch scoped to the file's own slug, pointing at the other slug (0.518417ms)
+✔ buildTraceGraph runs slug-file-mismatch across the full slug set even when the caller only wants one slug's issues (0.394ms)
+✔ run() exits 0 with zero issues when docs/brd and docs/prd are both absent (1.259209ms)
+✔ run() reports zero issues for the clean fixture and marks its AC covered with document links (1.347375ms)
+✔ run() reports every seeded issue code for the broken fixture and exits 1 (7.134875ms)
+✔ --slug filters both the slug list and the issue list, but graph checks still see the whole repo (0.448625ms)
+✔ --strict turns a warn-only result into a failure; plain mode leaves it passing (0.630625ms)
+✔ --root overrides the docs base path on the human-readable path too (0.237833ms)
+✔ run() throws a descriptive error when a flag is given without its value (0.176666ms)
+✔ parseRepo ignores id-shaped tokens inside fenced code blocks (1.787ms)
+✔ parseRepo scopes declared ids per slug, keeping identical ids in different slugs distinct (7.80625ms)
+✔ hasNoRequirementSources is fail-open only when both docs/brd and docs/prd are absent (0.681125ms)
+✔ a trace matrix restating a heading-declared id is a reference, not a second declaration (1.431458ms)
+✔ srs-task-list-<slug> and srs-walkthrough-<slug> join their feature slug (1.223166ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 156.578917

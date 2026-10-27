@@ -1,0 +1,18 @@
+{
+  "id": "T5-residual-corrected-tests",
+  "cwd": "/Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/mindless-impala",
+  "command": "node",
+  "args": [
+    "--import",
+    "tsx",
+    "--test",
+    "scripts/test-assurance/validate.test.ts",
+    "scripts/test-assurance/index.test.ts",
+    "scripts/trace/index.test.ts"
+  ],
+  "started": "2026-10-26T23:14:32.775Z",
+  "finished": "2026-10-26T23:14:33.395Z",
+  "status": 0,
+  "signal": null,
+  "output_sha256": "884f06247ae35b9748bdb56ab03fef92b443beb4240738944b8536bca1cd53f0"
+}

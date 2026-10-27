@@ -1,0 +1,17 @@
+{
+  "id": "T2-recovered",
+  "cwd": "/Users/nguyenhuyhoang/.paseo/worktrees/36t7hh3x/ai-test-assurance",
+  "command": "go",
+  "args": [
+    "test",
+    "./pkg/engine",
+    "./pkg/reporter",
+    "./cmd/testguard",
+    "./pkg/parser/dart"
+  ],
+  "started": "2026-10-26T22:42:07.085Z",
+  "finished": "2026-10-26T22:42:08.482Z",
+  "status": 0,
+  "signal": null,
+  "output_sha256": "1ae21ae0f404e244bfc1230487d12a2a140f78260291254eda079cf12191d24e"
+}

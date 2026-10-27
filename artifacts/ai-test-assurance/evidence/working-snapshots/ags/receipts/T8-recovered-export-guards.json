@@ -1,0 +1,13 @@
+{
+  "id": "T8-recovered-export-guards",
+  "cwd": "/Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/mindless-impala",
+  "command": "node",
+  "args": [
+    ".agent/sdd/ai-test-assurance/export-guard-smoke.mjs"
+  ],
+  "started": "2026-10-26T22:58:30.014Z",
+  "finished": "2026-10-26T22:58:30.118Z",
+  "status": 0,
+  "signal": null,
+  "output_sha256": "4ad900c524cdf767ca11031b014b59ae35525e7da35bcfbbcec860ea53b404dd"
+}

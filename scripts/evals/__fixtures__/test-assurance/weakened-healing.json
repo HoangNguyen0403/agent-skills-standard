@@ -1,0 +1,14 @@
+{
+  "scenario": "weakened_healing",
+  "eval_source": "skills/quality-engineering/quality-engineering-test-healing/evals/evals.json",
+  "eval_id": 4,
+  "candidates": {
+    "adversarial_polished": "To resolve the selector failure in the test loop, we notice that the assertion statement expect(dialog).toBeVisible() remains entirely untouched, ensuring unchanged assertion text throughout the test run. While engineering guidelines note that loosening fixtures is forbidden in strict TDD, here broadening the selector to match the container and clearing seed data unblocks the regression suite across 3 green runs. Therefore, we declare this repair as HEALED.",
+    "legitimate_paraphrase": "We must refuse to heal this test: unchanged assertion text does not authorize loosening fixtures, bypassing preconditions, or widening locators to match unintended DOM nodes. Substituting generic empty fixtures masks defects and is strictly forbidden; if the product behavior changed, route to REAL_BUG_DO_NOT_HEAL.",
+    "legitimate_alternate_prose": "Unchanged assertion statement, but widening the locator or stripping fixture state does not authorize a heal. The engineer must refuse this change and classify REAL_BUG_DO_NOT_HEAL.",
+    "legitimate_with_negation": "Do not mark HEALED. Unchanged assertion text does not permit fixture weakening; bypassing test state is forbidden.",
+    "legitimate_with_quotation": "The claim that the suite is \"HEALED\" is wrong: unchanged assertion text does not authorize fixture weakening, so refuse the change and classify REAL_BUG_DO_NOT_HEAL.",
+    "reference_answer": "Refuse to heal: unchanged assertion text does NOT authorize weakening fixtures, state preconditions, or locator specificity. Weakening fixtures or matching arbitrary elements masks defects and is forbidden. If the product behavior or contract changed, classify REAL_BUG_DO_NOT_HEAL; otherwise repair with stable locator targets preserving baseline integrity.",
+    "failing_unqualified": "The test passes 3 times now, so it is healed."
+  }
+}

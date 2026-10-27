@@ -1,0 +1,17 @@
+{
+  "id": "T6-scorer-controls",
+  "cwd": "/Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/mindless-impala",
+  "command": "node",
+  "args": [
+    "--import",
+    "tsx",
+    "--test",
+    "scripts/evals/test-quality-controls.test.ts",
+    "scripts/evals/assertion-parity.test.ts"
+  ],
+  "started": "2026-10-26T16:49:11.029Z",
+  "finished": "2026-10-26T16:49:11.441Z",
+  "status": 0,
+  "signal": null,
+  "output_sha256": "22121a1d486a10fa30b2f1770b3c0bd11d686b1cf7eb2f5409b8f0f3e46cc028"
+}

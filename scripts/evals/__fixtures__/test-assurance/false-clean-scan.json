@@ -1,0 +1,14 @@
+{
+  "scenario": "false_clean_scan",
+  "eval_source": "skills/common/common-tdd/evals/evals.json",
+  "eval_id": 8,
+  "candidates": {
+    "adversarial_polished": "The static analysis scanner executed across the repository and identified zero policy blockers. Even though three files encountered filesystem traversal failures and represent unanalyzed files leaving incomplete analysis, the zero blocker finding establishes clean assurance for the deployment gate. We report clean static success because no active blocker findings were recorded.",
+    "legitimate_paraphrase": "The team must decline clean status for this run. Because multiple paths experienced traversal failures leaving unanalyzed files, the analysis is incomplete and cannot be certified as clean. The absence of reported violations in uninspected files is not release protection or clean assurance.",
+    "legitimate_alternate_prose": "The scan is incomplete; unanalyzed files mean the team must reject clean success and require a re-scan before releasing.",
+    "legitimate_with_negation": "Reject clean success. When required scope encounters a traversal failure, the verdict is incomplete, so uninspected files cannot provide clean assurance.",
+    "legitimate_with_quotation": "The developer's claim \"clean static success\" is unacceptable here: three files suffered a traversal failure, so the analysis is incomplete and the run cannot certify clean assurance.",
+    "reference_answer": "Reject clean success. When required scope suffers traversal or parse failures, the analysis status is incomplete or error, not clean pass. Blocker absence across unanalyzed files cannot be treated as clean assurance or release protection.",
+    "failing_unqualified": "There were 0 blockers found by the tool, so the pipeline is green and we can proceed."
+  }
+}

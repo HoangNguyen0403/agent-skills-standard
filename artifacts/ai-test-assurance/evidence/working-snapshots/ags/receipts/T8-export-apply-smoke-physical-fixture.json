@@ -1,0 +1,13 @@
+{
+  "id": "T8-export-apply-smoke-physical-fixture",
+  "cwd": "/Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/mindless-impala",
+  "command": "node",
+  "args": [
+    ".agent/sdd/ai-test-assurance/export-apply-smoke.mjs"
+  ],
+  "started": "2026-10-26T23:00:18.203Z",
+  "finished": "2026-10-26T23:00:18.400Z",
+  "status": 0,
+  "signal": null,
+  "output_sha256": "909dc7aa3c9fe787dd9b53b0bd3ff2fc21c693ca070e116cb4780d768d9fe7f4"
+}

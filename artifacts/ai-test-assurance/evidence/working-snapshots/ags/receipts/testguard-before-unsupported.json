@@ -1,0 +1,16 @@
+{
+  "id": "testguard-before-unsupported",
+  "cwd": "/Users/nguyenhuyhoang/.paseo/worktrees/36t7hh3x/ai-test-assurance",
+  "command": "go",
+  "args": [
+    "run",
+    "./cmd/testguard",
+    "--json",
+    "AGENTS.md"
+  ],
+  "started": "2026-10-26T16:27:22.693Z",
+  "finished": "2026-10-26T16:27:22.971Z",
+  "status": 0,
+  "signal": null,
+  "output_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+}
