@@ -494,7 +494,7 @@
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 45,
-        "total_tokens": 41854,
+        "total_tokens": 41863,
         "avg_tokens_per_skill": 930,
         "largest_skill": "common-skill-creator (1693 tokens)"
       },
@@ -508,9 +508,9 @@
       "tag_prefix": "quality-engineering-v",
       "token_metrics": {
         "total_skills": 17,
-        "total_tokens": 17173,
+        "total_tokens": 17176,
         "avg_tokens_per_skill": 1010,
-        "largest_skill": "quality-engineering-api-testing (1630 tokens)"
+        "largest_skill": "quality-engineering-api-testing (1633 tokens)"
       },
       "owners": [
         "HoangNguyen0403"

@@ -101,7 +101,8 @@
     {
       "path": "skills/metadata.json",
       "sha256": "de99d8445dac23ea472a022da2798cb9035b3c33ac017afb595024f1c5dcb947",
-      "bytes": 21019
+      "bytes": 21019,
+      "candidateSha256": "202ade04219d8494128d0455aea0899b5254caa9af4e0fdc644e8e1bc66832d4"
     },
     {
       "path": "skills/index.json",
@@ -1344,7 +1345,7 @@
     },
     {
       "path": "skills/metadata.json",
-      "sha256": "de99d8445dac23ea472a022da2798cb9035b3c33ac017afb595024f1c5dcb947",
+      "sha256": "202ade04219d8494128d0455aea0899b5254caa9af4e0fdc644e8e1bc66832d4",
       "bytes": 21019
     },
     {
