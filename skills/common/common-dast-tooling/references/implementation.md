@@ -63,6 +63,8 @@ ffuf -u http://localhost:3000/api/FUZZ -w api-wordlist.txt -mc 200,401,403
 ffuf -u "http://localhost:3000/api/users?FUZZ=test" -w params.txt -mc 200
 ```
 
+> **NOTE**: Content and parameter discovery (ffuf) identifies unknown endpoints and parameter names using wordlists. It does not verify contract robustness, schema boundary invariants, or hang limits on known operations. For structured property-based and malformed payload fuzzing, see [API Fuzz Testing Standard](../../../quality-engineering/quality-engineering-api-fuzz-testing/SKILL.md).
+
 ## 6. GraphQL Probing
 
 ```bash

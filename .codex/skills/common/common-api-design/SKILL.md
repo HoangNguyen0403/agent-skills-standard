@@ -82,6 +82,7 @@ metadata:
 ## References
 
 - [URL Examples, Status Codes & Pagination Envelope](references/REFERENCE.md)
+- [API Correctness & Contract Testing](../../quality-engineering/quality-engineering-api-testing/SKILL.md) — executable smoke, functional, contract, integration, and regression selection standards.
 
 ## Canonical response anchors
 

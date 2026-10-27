@@ -8,6 +8,7 @@ metadata:
     - '**/*.spec.tsx'
     - '__tests__/**'
     keywords:
+    - react native e2e test
     - test
     - testing
     - jest
@@ -26,7 +27,7 @@ metadata:
 - **`[MOB-TEST-03]` Entity Invariant Rule**: Test calculations, validations, and domain invariants; ban trivial echo assertions.
 - **`[MOB-TEST-04]` Contract Testing Rule**: Intercept network requests at HTTP boundary (MSW) or native module boundary; ban 1:1 pass-through mock echoing without contract assertions.
 - **`[MOB-TEST-05]` Bug-First Regression Lock**: Every PR resolving a bug ticket or with title `fix(...)` must introduce a test reproducing the defect prior to the fix.
-
+- **`[MOB-TEST-06]` Layer & Device Fidelity**: Unit/Component (Jest + RNTL) vs Native E2E (Detox / Appium / Maestro). RNTL verifies in-memory components; it never substitutes for native device verification.
 ## Setup & Component Testing
 
 - **Jest & RNTL**: Use `@testing-library/react-native` for user-centric tests. Mock native modules with `jest.mock()`.
@@ -41,7 +42,7 @@ test('increments counter on button press', () => {
 
 ## Best Practices
 
-- **User-Centric**: Use `getByRole`, `getByText` over `testID`. Use `findBy*` for async elements.
+- **User-Centric**: Use `getByRole`, `getByText` for accessibility-first queries; keep `testID` for automation and `accessibilityLabel` for screen readers. Use `findBy*` for async elements.
 - **Integration > Unit**: Test features, not implementation. Avoid brittle snapshots.
 - **Coverage**: Coverage is diagnostic and project-configured; verify risk-weighted critical paths rather than padding code for an arbitrary percentage.
 
@@ -52,8 +53,8 @@ test('increments counter on button press', () => {
 
 ## References
 
-See [references/testing-library.md](references/testing-library.md) for RNTL setup, mocking providers, and integration flow examples.
-
+- [RNTL Setup & Integration Reference](references/testing-library.md)
+- [Mobile Testing Methodology](../../common/common-mobile-visual-testing/SKILL.md) — 10 mobile scope areas & C6 contract
 ## Canonical response anchors
 
 When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:

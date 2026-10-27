@@ -1,1 +1,0 @@
-Authorized plan artifact

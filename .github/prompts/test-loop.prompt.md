@@ -8,28 +8,22 @@ Goal: Turn approved ACs into an executable, traced E2E suite, and classify any f
 
 ## Steps
 1. Load scope:
-   - `slug`, `operator_profile` (carried, not re-inferred), `AC-*`, SRS lanes, build/app target, matched testing skills for the target stack.
-   - Run the driver preflight for each lane in scope (`quality-engineering-playwright-cli` / `quality-engineering-appium-mcp` `scripts/preflight.sh`); record lanes with no usable driver in `driver_blocked[]`.
-2. Plan:
-   - Run `specialist-test-planner` to produce `test_plan_path` and `selector_gaps`
-     (the specialist's `PLAN:` becomes this workflow's `test_plan_path`;
-     `SELECTOR_GAPS:` becomes `selector_gaps`).
-   - BLOCKED (no stable `AC-*` trace) if no stable `AC-*` trace exists; route to `plan-feature`/`design-solution`.
-   - BLOCKED (HALT: <trigger>) when the planner returns a `HALT:` trigger; ask before generating, never invent expected results.
+   - `slug`, `operator_profile` (carried), `AC-*`, SRS lanes, build target (web/API/mobile build artifact digest/version), platform/OS matrix, permissions/reset readiness per C6, stack testing skills.
+   - Driver preflight for each lane (`quality-engineering-playwright-cli` / `quality-engineering-appium-mcp` `scripts/preflight.sh`); record unavailable drivers in `driver_blocked[]` (STLC Stage 4).
+2. Plan (STLC Stage 2-3, V-Model System Level):
+   - Run `specialist-test-planner` per `quality-engineering-test-plan-authoring` to produce `test_plan_path` and `selector_gaps` using C1/C2/C6 templates and `skills/quality-engineering/quality-engineering-test-plan-authoring/references/lifecycle-and-roles.md`.
+   - BLOCKED (no stable `AC-*` trace) if trace missing; BLOCKED (HALT: <trigger>) when planner triggers HALT.
 3. Prepare selectors:
-   - Run `specialist-testid-inserter` on `selector_gaps`; in interactive mode stop for approval on its `APPROVAL: required` file list; in autonomous mode pass `approved_production_edits` only when the operator granted it, else carry gaps forward as `selector_gaps_remaining[]`; every gap not in `INSERTED:` (unresolved `SKIPPED`, `BLOCKED`, or declined approval) also lands in `selector_gaps_remaining[]`.
-   - For `lane: web`, build or extend one page object per screen per `quality-engineering-playwright-pom-generation`; record paths in `page_objects[]`; gaps a page object emits re-run the first bullet before step 4.
+   - Run `specialist-testid-inserter` on `selector_gaps`; in interactive mode stop for approval on its `APPROVAL: required` list; in autonomous mode pass `approved_production_edits` only when granted, else carry gaps forward in `selector_gaps_remaining[]`.
+   - For `lane: web`, build/extend page objects per `quality-engineering-playwright-pom-generation` into `page_objects[]`. Mobile uses stable accessibility IDs per `quality-engineering-selector-stability`.
 4. Generate:
-   - One scenario per `specialist-integration-test-generator` call, seed-first, using the lane's driver (web: `playwright-cli`, fallback Playwright MCP; mobile: Appium MCP) per the driver skills' ladder; a `Test: BLOCKED` naming a missing page object routes back to step 3; a `Test: BLOCKED (driver)` lands in `driver_blocked[]`.
-   - Skip scenarios whose only elements are in `selector_gaps_remaining[]`; list them under Selector Gaps Remaining, never generate against an unstable locator.
-5. Run and heal:
-   - Run the generated suite once; per failure, run `specialist-test-healer` with the run artifact; append its block to `heal_verdicts[]` as `{test, class, verdict, route, evidence}`.
-   - `HEALED` only with `RERUNS: 3/3 green` and `ASSERTION_DELTA: none`; `REAL_BUG_DO_NOT_HEAL` appends to `real_bugs[]` and routes to `dev-fix`; `QUARANTINE_CANDIDATE` opens a ticket per `quality-engineering-flaky-triage` and appends `{test, ticket, expiry, bucket}` to `flake_quarantine[]`; `BLOCKED` with `ROUTE: testid-inserter` (no stable locator target) returns to step 3; `BLOCKED` (no evidence artifact) reruns the test once with tracing on and re-runs the healer; if still no artifact, it stays in `heal_verdicts[]` unresolved and is listed under `missing_evidence`.
-   - Screenshot failures follow `quality-engineering-visual-baseline`: a baseline changes only through a reviewed diff with a named approver, never by `--update-snapshots` inside this loop.
-6. Handoff:
-   - Compute Automation Health per `quality-engineering-automation-health` and carry `release_confidence`.
-   - Route to `verify-work` with the generated suite and any unresolved `real_bugs[]`.
-
+   - One scenario per `specialist-integration-test-generator` call, seed-first, via lane driver (web: `playwright-cli`/Playwright MCP; mobile: Appium MCP/platform runner). Unstable locator scenarios land in `selector_gaps_remaining[]`.
+5. Run and heal (STLC Stage 5: Triage, Flaky Analysis, Defect Drafting):
+   - Run generated suite; per failure, run `specialist-test-healer` into `heal_verdicts[]`.
+   - `HEALED` only with `RERUNS: 3/3 green` and `ASSERTION_DELTA: none`; `REAL_BUG_DO_NOT_HEAL` logs to `real_bugs[]` (defect drafting for `dev-fix`); `QUARANTINE_CANDIDATE` routes to `quality-engineering-flaky-triage` into `flake_quarantine[]`; `BLOCKED` (missing driver/evidence) recorded in `missing_evidence`.
+   - Visual baseline changes require reviewed diff with named approver per `quality-engineering-visual-baseline`.
+6. Handoff (STLC Stage 6 Closure):
+   - Calculate Automation Health (`quality-engineering-automation-health`), carry `release_confidence`, open defects, and residual risks per `skills/quality-engineering/quality-engineering-test-plan-authoring/references/lifecycle-and-roles.md`. Technical PASS validates test suite only; route to `verify-work`.
 ## Runtime Contract
 - Use after `implement-feature` reaches GREEN, or whenever ACs have E2E/mobile lanes without executable coverage.
 - Required inputs: slug, stable `AC-*` trace, a runnable build/app target.

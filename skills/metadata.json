@@ -297,14 +297,14 @@
   },
   "categories": {
     "flutter": {
-      "version": "1.8.2",
-      "last_updated": "2026-10-01",
+      "version": "1.8.3",
+      "last_updated": "2026-10-27",
       "tag_prefix": "flutter-v",
       "token_metrics": {
         "total_skills": 22,
-        "total_tokens": 13494,
-        "avg_tokens_per_skill": 613,
-        "largest_skill": "flutter-testing (1363 tokens)"
+        "total_tokens": 13637,
+        "avg_tokens_per_skill": 620,
+        "largest_skill": "flutter-testing (1506 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -417,14 +417,14 @@
       ]
     },
     "react-native": {
-      "version": "1.5.1",
-      "last_updated": "2026-10-01",
+      "version": "1.5.2",
+      "last_updated": "2026-10-27",
       "tag_prefix": "react-native-v",
       "token_metrics": {
         "total_skills": 13,
-        "total_tokens": 6527,
-        "avg_tokens_per_skill": 502,
-        "largest_skill": "react-native-testing (647 tokens)"
+        "total_tokens": 6622,
+        "avg_tokens_per_skill": 509,
+        "largest_skill": "react-native-testing (742 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -441,14 +441,14 @@
       ]
     },
     "nestjs": {
-      "version": "1.4.7",
-      "last_updated": "2026-10-01",
+      "version": "1.4.8",
+      "last_updated": "2026-10-27",
       "tag_prefix": "nestjs-v",
       "token_metrics": {
         "total_skills": 21,
-        "total_tokens": 13926,
-        "avg_tokens_per_skill": 663,
-        "largest_skill": "nestjs-testing (1026 tokens)"
+        "total_tokens": 14139,
+        "avg_tokens_per_skill": 673,
+        "largest_skill": "nestjs-testing (1239 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -490,12 +490,12 @@
     },
     "common": {
       "version": "2.9.2",
-      "last_updated": "2026-10-26",
+      "last_updated": "2026-10-27",
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 45,
-        "total_tokens": 40994,
-        "avg_tokens_per_skill": 911,
+        "total_tokens": 41863,
+        "avg_tokens_per_skill": 930,
         "largest_skill": "common-skill-creator (1693 tokens)"
       },
       "owners": [
@@ -504,13 +504,13 @@
     },
     "quality-engineering": {
       "version": "1.6.2",
-      "last_updated": "2026-10-23",
+      "last_updated": "2026-10-27",
       "tag_prefix": "quality-engineering-v",
       "token_metrics": {
-        "total_skills": 14,
-        "total_tokens": 12184,
-        "avg_tokens_per_skill": 870,
-        "largest_skill": "quality-engineering-business-analysis (1450 tokens)"
+        "total_skills": 17,
+        "total_tokens": 17177,
+        "avg_tokens_per_skill": 1010,
+        "largest_skill": "quality-engineering-api-testing (1633 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -527,13 +527,13 @@
       ]
     },
     "specialists": {
-      "version": "1.5.0",
-      "last_updated": "2026-09-28",
+      "version": "1.5.1",
+      "last_updated": "2026-10-27",
       "tag_prefix": "specialists-v",
       "token_metrics": {
         "total_skills": 21,
-        "total_tokens": 12316,
-        "avg_tokens_per_skill": 586,
+        "total_tokens": 12390,
+        "avg_tokens_per_skill": 590,
         "largest_skill": "specialist-solution-diagrammer (1033 tokens)"
       },
       "owners": [
@@ -661,14 +661,14 @@
       ]
     },
     "android": {
-      "version": "1.5.1",
-      "last_updated": "2026-10-01",
+      "version": "1.5.2",
+      "last_updated": "2026-10-27",
       "tag_prefix": "android-v",
       "token_metrics": {
         "total_skills": 26,
-        "total_tokens": 12260,
-        "avg_tokens_per_skill": 472,
-        "largest_skill": "android-testing (901 tokens)"
+        "total_tokens": 12418,
+        "avg_tokens_per_skill": 478,
+        "largest_skill": "android-testing (1059 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -689,14 +689,14 @@
       ]
     },
     "swift": {
-      "version": "1.3.7",
-      "last_updated": "2026-10-01",
+      "version": "1.3.8",
+      "last_updated": "2026-10-27",
       "tag_prefix": "swift-v",
       "token_metrics": {
         "total_skills": 8,
-        "total_tokens": 4663,
-        "avg_tokens_per_skill": 583,
-        "largest_skill": "swift-testing (801 tokens)"
+        "total_tokens": 4851,
+        "avg_tokens_per_skill": 606,
+        "largest_skill": "swift-testing (989 tokens)"
       },
       "owners": [
         "HoangNguyen0403"

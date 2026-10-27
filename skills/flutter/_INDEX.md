@@ -25,7 +25,7 @@
 | **flutter-retrofit-networking** | `**/data_sources/**`, `**/api/**` | Retrofit, Dio, RestClient, GET, POST, Interceptor, refreshing |
 | **flutter-riverpod-state-management** | `**_provider.dart`, `**_notifier.dart` | riverpod, ProviderScope, ConsumerWidget, Notifier, AsyncValue, ref.watch, @riverpod |
 | **flutter-security** | `lib/infrastructure/**`, `pubspec.yaml` | secure_storage, obfuscate, jailbreak, pinning, PII, OWASP |
-| **flutter-testing** | `**/test/**.dart`, `**/integration_test/**.dart`, `**/robots/**.dart`, `lib/core/keys/**.dart` | test, patrol, robot, WidgetKeys, patrolTest, blocTest, mocktail |
+| **flutter-testing** | `**/test/**.dart`, `**/integration_test/**.dart`, `**/robots/**.dart`, `lib/core/keys/**.dart` | flutter integration test, test, patrol, robot, WidgetKeys, patrolTest, blocTest, mocktail |
 | flutter-widgets | `**_page.dart`, `**_screen.dart`, `**/widgets/**` | StatelessWidget, const, Theme, ListView |
 
 > Load matched skills: `<SKILLS>/flutter/<skill>/SKILL.md`. Load ALL that match — the tier model already filters irrelevant ones.

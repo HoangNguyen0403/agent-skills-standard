@@ -9,6 +9,7 @@ metadata:
     - XCTestCase
     - XCTestExpectation
     - XCTAssert
+    - ios ui test
 ---
 # Swift Testing Standards
 
@@ -21,7 +22,7 @@ metadata:
 - **`[MOB-TEST-03]` Entity Invariant & Codable Rule**: Test calculations, validations, domain invariants, and non-trivial `Codable` serialization/parsing or error mapping; ban testing trivial getters or echo tests.
 - **`[MOB-TEST-04]` Contract Testing Rule**: Repositories and data sources must be tested for contract compliance and error mapping; ban 1:1 pass-through mock echoing.
 - **`[MOB-TEST-05]` Bug-First Regression Lock**: Every PR fixing a bug ticket or with title `fix(...)` must introduce a test reproducing the defect prior to the fix.
-
+- **`[MOB-TEST-06]` Layer & Device Fidelity**: Select appropriate layer (Unit > Snapshot > XCUITest). Mocks/snapshots never substitute native device execution. Warm resume is not cold relaunch.
 ## Write XCTest Cases
 
 - **Standard Naming**: Test functions must prefixed by 'test' (`[MOB-TEST-01]`, e.g., `func test_userLogin_whenValid_isSuccessful()`).
@@ -39,7 +40,7 @@ See [implementation examples](references/implementation.md) for XCTest setup/tea
 ## Organize Test Suites
 
 - **Unit Tests**: Use protocols for dependencies and inject them via constructor (e.g., `init(service: ServiceProtocol)`). Focus on logic isolation using mocks/stubs.
-- **UI Tests**: Test user flows using `XCUIApplication` and accessibility identifiers.
+- **UI Tests**: Test user flows using `XCUIApplication` and `.accessibilityIdentifier`. For permissions, assert the OS prompt (bounded wait) before answering it and assert the approved granted/denied outcome; `addUIInterruptionMonitor` handles interruptions but proves nothing on its own, so remove it in teardown. View tree labels do not prove VoiceOver audio announcements or device focus order. Distinguish simulator tests from physical device performance (simulator cannot prove battery/thermal metrics).
 - **Coverage**: Coverage is diagnostic and project-configured; verify risk-weighted critical paths rather than padding code for an arbitrary percentage.
 
 ## Anti-Patterns
@@ -52,7 +53,7 @@ See [implementation examples](references/implementation.md) for XCTest setup/tea
 ## References
 
 - [XCTest Patterns & Async Tests](references/implementation.md)
-
+- [Mobile Testing Methodology](../../common/common-mobile-visual-testing/SKILL.md) — 10 mobile scope areas & C6 contract
 ## Canonical response anchors
 
 When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:

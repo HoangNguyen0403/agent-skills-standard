@@ -26,6 +26,7 @@ metadata:
 - **No Uncapped Scans**: Always set `max-depth` or `max-duration` to avoid infinite loops on dynamic routes.
 - **No Anonymous Probing**: Use authenticated headers (`Authorization`) to test protected surfaces, not public ones.
 - **No Mobile on Real Devices in Prod**: Use emulators/simulators for mobile interception testing.
+- **Authorization & Finite Bounds (`[DAST-AUTH-01]`)**: Dynamic scanning requires explicit target authorization, finite runtime/payload caps, and cancellation. Missing authorization or bounds BLOCKS dependent active execution (`status: BLOCKED`); offline planning continues; agents cannot self-authorize.
 
 ## 1. Backend / API Tools
 
@@ -36,7 +37,7 @@ See [implementation guide](references/implementation.md) for setup commands.
 - **ZAP-CLI**: Deep spidering for SQLi, XSS, CSRF, session issues.
 - **Nikto**: Server configuration audit (version disclosure, headers).
 - **sqlmap**: Automated SQL injection detection and exploitation (suggest only — human confirms).
-- **ffuf / feroxbuster**: Content discovery and endpoint fuzzing.
+- **ffuf / feroxbuster**: Content discovery and parameter enumeration; does not replace structured robustness/fuzz testing (see `quality-engineering-api-fuzz-testing`).
 
 ### API-Specific Probing
 - **GraphQL**: Introspection query, nested query depth attack, field suggestion enumeration.
@@ -82,6 +83,8 @@ See [implementation guide](references/implementation.md) for all commands.
 ## Anti-Patterns
 
 - **No relying solely on static analysis**: Pentesting MUST include dynamic execution feedback.
+- **No equating content discovery with fuzz testing**: Wordlist path bruteforce discovers surface names; structured fuzzing validates schema invariants, state transitions, and hang resistance under malformed inputs.
+- **No self-authorization**: If authorization or runtime bounds are absent, stop active execution and mark BLOCKED.
 - **No ignoring non-web protocols**: Check Docker ports, SSH banners, gRPC/RMQ listeners.
 - **No skipping mobile**: If mobile app exists, proxy its traffic and inspect API calls.
 
@@ -89,3 +92,4 @@ See [implementation guide](references/implementation.md) for all commands.
 
 - [DAST Tooling Implementation](references/implementation.md)
 - [OWASP Dynamic Scanning Guide](https://owasp.org/www-community/Vulnerability_Scanning)
+- [API Fuzz Testing Standard](../../quality-engineering/quality-engineering-api-fuzz-testing/SKILL.md)

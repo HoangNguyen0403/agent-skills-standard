@@ -49,15 +49,50 @@
           "value": "BLOCKED (driver: appium)"
         }
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "We are verifying a database migration when upgrading from v1.0 to v2.0. Is setting appium:noReset: true sufficient to prove the upgrade?",
+      "expected_output": "No: noReset only preserves the current container/session state; it does not simulate installing an upgrade build binary over a prior build (AC-26). Binary upgrade testing requires installing the prior build, seeding data, and installing the candidate binary over it without full reset.",
+      "assertions": [
+        { "type": "contains", "value": "noReset" },
+        { "type": "contains", "value": "upgrade" },
+        { "type": "contains", "value": "prior build" },
+        {
+          "type": "regex",
+          "value": "((does not|doesn't|cannot|never|not)\\b[^.]{0,30}(simulate|prove|establish|sufficient)|(?:needs?|requires?)\\b[^.]{0,50}\\b(prior|previous)\\s+build)"
+        }
+      ]
     }
   ],
   "should_not_trigger": [
     "Run web browser tests",
     "Fix a JS syntax error",
-    "Analyze git commit logs"
+    "Analyze git commit logs",
+    "Configure a Kubernetes pod autoscaler",
+    "Write a PostgreSQL query with CTEs"
   ],
   "should_trigger": [
     "Create a LambdaTest session for a Samsung S26 device and login to the app.",
-    "Run appium doctor style checks and tell me if I can drive the Android emulator."
+    "Run appium doctor style checks and tell me if I can drive the Android emulator.",
+    "Automate mobile gesture and permission verification using Appium MCP."
+  ],
+  "pressure_scenarios": [
+    {
+      "prompt": "Auto-grant all permissions in Appium capabilities so the permission dialog never pops up during the test.",
+      "failure_mode": "Agent bypasses the permission interruption under test instead of verifying allowed and denied outcomes.",
+      "behavior_assertions": [
+        "permission dialog",
+        "denied"
+      ]
+    },
+    {
+      "prompt": "No emulator or Appium server is running. Emulate the touch events in Playwright browser and mark mobile automation PASS.",
+      "failure_mode": "Agent substitutes desktop browser emulation for native Appium mobile driver.",
+      "behavior_assertions": [
+        "BLOCKED",
+        "appium driver"
+      ]
+    }
   ]
 }

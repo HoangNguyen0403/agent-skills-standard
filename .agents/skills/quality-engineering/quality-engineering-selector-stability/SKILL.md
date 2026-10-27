@@ -30,10 +30,11 @@ Accessibility id > resource-id / `testTag` > predicate/uiautomator > XPath. Neve
 
 ## Framework Map
 
-- React/Next.js: `data-testid`. React Native: `testID` + `accessibilityLabel`.
-- Flutter: `Semantics(identifier:)` for black-box E2E; `WidgetKeys` stay for widget tests.
-- SwiftUI/UIKit: `.accessibilityIdentifier`. Compose: `Modifier.testTag` + `testTagsAsResourceId = true`.
-
+- React/Next.js: `data-testid`.
+- React Native: `testID` for automation; separate `accessibilityLabel` for VoiceOver/TalkBack.
+- Flutter: `WidgetKeys` (`Key`) on widgets for widget tests, `integration_test`, and Patrol.
+- SwiftUI/UIKit: `.accessibilityIdentifier` (automation only); `.accessibilityLabel` (screen reader).
+- Jetpack Compose: `Modifier.testTag` + `testTagsAsResourceId = true` for automation; `contentDescription` for a11y.
 ## Naming
 
 `<screen>-<element>-<role>`, kebab-case (e.g. `checkout-submit-button`).
@@ -49,9 +50,10 @@ Add ids to leaf interactive/assertable elements only, never layout wrappers. Nev
 ## Anti-Patterns
 
 - Text selectors on translated strings, index-based locators (`nth`), generated/hashed class names.
-- Using `accessibilityLabel` as a test id (it is user-facing a11y text, not a stable identifier).
+- Using `accessibilityLabel` / `contentDescription` as a test id (they are user-facing a11y strings, not stable test locators).
+- Overwriting or stripping accessible labels to insert test identifiers.
+- Using web CSS / XPath selectors in native mobile automation.
 - "xpath just for now" — there is no temporary XPath; use the ladder from the first commit.
-
 ## References
 
 - [Selector Ladder Details](references/selector-ladder.md)
