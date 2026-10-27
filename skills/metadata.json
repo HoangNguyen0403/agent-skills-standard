@@ -489,7 +489,7 @@
       ]
     },
     "common": {
-      "version": "2.9.3",
+      "version": "2.9.2",
       "last_updated": "2026-10-27",
       "tag_prefix": "common-v",
       "token_metrics": {
@@ -789,7 +789,7 @@
       ]
     },
     "laravel": {
-      "version": "1.4.2",
+      "version": "1.4.1",
       "last_updated": "2026-10-27",
       "tag_prefix": "laravel-v",
       "token_metrics": {
@@ -841,7 +841,7 @@
       }
     },
     "database": {
-      "version": "1.4.2",
+      "version": "1.4.1",
       "last_updated": "2026-10-27",
       "tag_prefix": "database-v",
       "token_metrics": {
@@ -871,7 +871,7 @@
   },
   "releases": {
     "workflows": {
-      "version": "1.1.8",
+      "version": "1.1.7",
       "tag_prefix": "workflows-v"
     }
   },
