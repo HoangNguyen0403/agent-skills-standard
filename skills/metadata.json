@@ -834,10 +834,10 @@
         "HoangNguyen0403"
       ],
       "token_metrics": {
-        "total_skills": 13,
-        "total_tokens": 11113,
-        "avg_tokens_per_skill": 855,
-        "largest_skill": "cyber-rea-reverse-engineering (1390 tokens)"
+        "total_skills": 12,
+        "total_tokens": 9723,
+        "avg_tokens_per_skill": 810,
+        "largest_skill": "cyber-lab-validation (1264 tokens)"
       }
     },
     "database": {
