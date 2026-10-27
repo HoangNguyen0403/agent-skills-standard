@@ -1,0 +1,158 @@
+{
+  "method": "ceil(UTF-16 character count / 4), matching scripts/calculate-tokens.ts; references counted separately as lazy-load context, not in category body token_metrics",
+  "system_design_category_body": {
+    "baseline_tokens": 15657,
+    "current_tokens": 16813,
+    "delta_tokens": 1156,
+    "skills": 13
+  },
+  "packages": [
+    {
+      "package": "system-design-building-blocks",
+      "body": {
+        "baseline_characters": 3879,
+        "baseline_tokens": 970,
+        "current_characters": 5120,
+        "current_tokens": 1280,
+        "delta_tokens": 310
+      },
+      "lazy_references": {
+        "baseline_file_count": 1,
+        "current_file_count": 1,
+        "baseline_tokens": 1463,
+        "current_tokens": 3711,
+        "delta_tokens": 2248,
+        "files": [
+          {
+            "path": "references/building-blocks.md",
+            "baseline_tokens": 1463,
+            "current_tokens": 3711,
+            "delta_tokens": 2248,
+            "current_exists": true
+          }
+        ]
+      }
+    },
+    {
+      "package": "system-design-resilience-ops",
+      "body": {
+        "baseline_characters": 4433,
+        "baseline_tokens": 1109,
+        "current_characters": 5812,
+        "current_tokens": 1453,
+        "delta_tokens": 344
+      },
+      "lazy_references": {
+        "baseline_file_count": 1,
+        "current_file_count": 1,
+        "baseline_tokens": 2154,
+        "current_tokens": 3743,
+        "delta_tokens": 1589,
+        "files": [
+          {
+            "path": "references/reliability-operations.md",
+            "baseline_tokens": 2154,
+            "current_tokens": 3743,
+            "delta_tokens": 1589,
+            "current_exists": true
+          }
+        ]
+      }
+    },
+    {
+      "package": "system-design-data-architecture",
+      "body": {
+        "baseline_characters": 5555,
+        "baseline_tokens": 1389,
+        "current_characters": 6666,
+        "current_tokens": 1667,
+        "delta_tokens": 278
+      },
+      "lazy_references": {
+        "baseline_file_count": 4,
+        "current_file_count": 5,
+        "baseline_tokens": 4751,
+        "current_tokens": 7933,
+        "delta_tokens": 3182,
+        "files": [
+          {
+            "path": "references/database-scaling.md",
+            "baseline_tokens": 1370,
+            "current_tokens": 1370,
+            "delta_tokens": 0,
+            "current_exists": true
+          },
+          {
+            "path": "references/dfd-review.md",
+            "baseline_tokens": 984,
+            "current_tokens": 984,
+            "delta_tokens": 0,
+            "current_exists": true
+          },
+          {
+            "path": "references/flow-contracts.md",
+            "baseline_tokens": 947,
+            "current_tokens": 1135,
+            "delta_tokens": 188,
+            "current_exists": true
+          },
+          {
+            "path": "references/tenant-safe-retrieval.md",
+            "baseline_tokens": 0,
+            "current_tokens": 2994,
+            "delta_tokens": 2994,
+            "current_exists": true
+          },
+          {
+            "path": "references/worked-flows.md",
+            "baseline_tokens": 1450,
+            "current_tokens": 1450,
+            "delta_tokens": 0,
+            "current_exists": true
+          }
+        ]
+      }
+    },
+    {
+      "package": "system-design-integration-patterns",
+      "body": {
+        "baseline_characters": 3856,
+        "baseline_tokens": 964,
+        "current_characters": 4750,
+        "current_tokens": 1188,
+        "delta_tokens": 224
+      },
+      "lazy_references": {
+        "baseline_file_count": 1,
+        "current_file_count": 2,
+        "baseline_tokens": 1207,
+        "current_tokens": 3651,
+        "delta_tokens": 2444,
+        "files": [
+          {
+            "path": "references/durable-execution.md",
+            "baseline_tokens": 0,
+            "current_tokens": 1846,
+            "delta_tokens": 1846,
+            "current_exists": true
+          },
+          {
+            "path": "references/integration-patterns.md",
+            "baseline_tokens": 1207,
+            "current_tokens": 1805,
+            "delta_tokens": 598,
+            "current_exists": true
+          }
+        ]
+      }
+    }
+  ],
+  "totals": {
+    "changed_package_body_baseline_tokens": 4432,
+    "changed_package_body_current_tokens": 5588,
+    "changed_package_body_delta_tokens": 1156,
+    "lazy_reference_baseline_tokens": 9575,
+    "lazy_reference_current_tokens": 19038,
+    "lazy_reference_delta_tokens": 9463
+  }
+}

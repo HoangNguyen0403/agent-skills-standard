@@ -1,0 +1,73 @@
+{
+  "status": "PASS",
+  "commands": [
+    {
+      "argv": [
+        "sync"
+      ],
+      "exit_code": 0,
+      "stdout": "✨ Workflows Discovered: Adding [brainstorm-feature, code-review, codebase-review, deploy-release, design-solution, dev-fix, implement-feature, implementation-readiness, incident-hotfix, monitor-respond, pentest, plan-feature, publish-notes, retro-learn, review-system-design, review-ticket, sdlc, security-test, session-report, skill-benchmark, system-design-session, test-loop, traceability-audit, uat-signoff, verify-bug, verify-work] to .skillsrc.\n📌 Pinned workflows-v1.1.7, specialists-v1.5.0 in .skillsrc\n\n🚀 New skill versions detected:\n  - system-design: undefined -> system-design-v1.2.4\nℹ️  Non-interactive environment detected. Skipping version updates. Use --yes to auto-confirm.\nℹ️  Skipping version updates, staying on pinned refs.\n🚀 Syncing skills from https://github.com/HoangNguyen0403/agent-skills-standard...\n  - Discovering system-design (main)...\n    + Fetched system-design/system-design-building-blocks (2 files)\n    + Fetched system-design/system-design-data-architecture (6 files)\n    + Fetched system-design/system-design-integration-patterns (3 files)\n    + Fetched system-design/system-design-resilience-ops (2 files)\n  - Discovering workflows (workflows-v1.1.7)...\n    + Fetched 26 workflows\n  - Updated .agents/skills/ (Antigravity)\n  ✅ Generated _INDEX.md for 1 categories.\n  ✅ AGENTS.md router index updated.\n📦 Install: 41 added, 0 updated, 0 unchanged, 0 kept (your edits), 0 pruned\n  ℹ️  Antigravity: specialists, hooks not supported\n✅ All skills synced successfully!\n",
+      "stderr": "◇ injected env (0) from .env\nfatal: not a git repository (or any of the parent directories): .git\n"
+    },
+    {
+      "argv": [
+        "verify",
+        "--agent",
+        "antigravity"
+      ],
+      "exit_code": 0,
+      "stdout": "Checked 15 tracked file(s)\n✅ All tracked files match the manifest.\n",
+      "stderr": "◇ injected env (0) from .env\n"
+    }
+  ],
+  "candidate": {
+    "base_commit": "92d06c420f6a41f08e11579423e4e3eacdb7880d",
+    "registry_tree_sha256": "bdfaa34569866c0fcc9a58098272b883f49b50bc4570007c1738715fcd7c657a",
+    "dirty_workspace": true
+  },
+  "consumer_index": {
+    "path": ".agents/skills/system-design/_INDEX.md",
+    "sha256": "3ed604524ee9039b7e765cc81dd156125cdfeb485ee58cefbb0546f315c3a8c2",
+    "byte_length": 1274,
+    "route_ids": [
+      "system-design-building-blocks",
+      "system-design-data-architecture",
+      "system-design-integration-patterns",
+      "system-design-resilience-ops"
+    ],
+    "route_rows": [
+      {
+        "id": "system-design-building-blocks",
+        "triggers": "load balancer, cache strategy, message queue, cdn, api gateway, consistent hashing, pub/sub, rate limiter, backpressure",
+        "row": "| system-design-building-blocks | load balancer, cache strategy, message queue, cdn, api gateway, consistent hashing, pub/sub, rate limiter, backpressure |"
+      },
+      {
+        "id": "system-design-data-architecture",
+        "triggers": "sql vs nosql, sharding, replication, partition key, denormalization, hot partition, data store choice, read replica, polyglot persistence, system data flow, critical data flow, DFD review, data lineage, data authority, tenant isolation, multitenant retrieval, retrieval authorization, deletion propagation",
+        "row": "| system-design-data-architecture | sql vs nosql, sharding, replication, partition key, denormalization, hot partition, data store choice, read replica, polyglot persistence, system data flow, critical data flow, DFD review, data lineage, data authority, tenant isolation, multitenant retrieval, retrieval authorization, deletion propagation |"
+      },
+      {
+        "id": "system-design-integration-patterns",
+        "triggers": "cqrs, event sourcing, saga, durable execution, workflow replay, reconciliation, outbox, leader election, sidecar, strangler fig, backends for frontends, anti-corruption layer, choreography",
+        "row": "| system-design-integration-patterns | cqrs, event sourcing, saga, durable execution, workflow replay, reconciliation, outbox, leader election, sidecar, strangler fig, backends for frontends, anti-corruption layer, choreography |"
+      },
+      {
+        "id": "system-design-resilience-ops",
+        "triggers": "single point of failure, failover, disaster recovery, rpo, rto, multi-region, autoscaling, deployment strategy, blue-green, canary",
+        "row": "| system-design-resilience-ops | single point of failure, failover, disaster recovery, rpo, rto, multi-region, autoscaling, deployment strategy, blue-green, canary |"
+      }
+    ],
+    "canonical_selected_row_match": true
+  },
+  "selected_skills": [
+    "system-design-building-blocks",
+    "system-design-data-architecture",
+    "system-design-integration-patterns",
+    "system-design-resilience-ops"
+  ],
+  "fixture_request_count": 71,
+  "eval_requests": 0,
+  "mcp_runtime_config_written": false,
+  "telemetry_disabled": true,
+  "network_scope": "fixture loopback only"
+}

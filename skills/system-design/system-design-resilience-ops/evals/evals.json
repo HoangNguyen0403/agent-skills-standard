@@ -148,6 +148,16 @@
         { "type": "contains_any", "value": ["tenant", "block", "hard gate", "regardless"], "description": "Does not average away tenant isolation failure" },
         { "type": "contains_any", "value": ["stateless", "N/A", "out of scope"], "description": "Makes recovery evidence conditional on scope" }
       ]
+    },
+    {
+      "id": 8,
+      "prompt": "Our gateway's auth dependency is unreachable for 20 minutes. In the same window one zone of a three-zone service is lost; we run three replicas per zone and admission is unchanged. Leadership asks whether we are highly available. What should health and admission do, and what is the honest answer?",
+      "expected_output": "Readiness may depend on required dependencies only: an optional dependency degrades its response, while a mandatory auth or quota check fails closed for the request and no health, ejection or panic state authorizes skipping it. Capacity is measured after failure, so admitted demand must fit surviving instances times safe per-instance load and the design sheds or degrades at admission instead. Rejects high availability by instance count because instances that cannot carry the load after the loss are cost, not availability.",
+      "assertions": [
+        { "type": "contains_any", "value": ["required dependencies only", "optional dependency degrades"], "description": "Separates optional from mandatory dependencies" },
+        { "type": "contains_any", "value": ["fails closed for the request", "skipping it"], "description": "Fails closed for mandatory checks during dependency loss" },
+        { "type": "contains_any", "value": ["admitted demand must fit surviving instances", "sheds or degrades at admission"], "description": "Measures capacity after the failure" }
+      ]
     }
   ],
   "should_trigger": [

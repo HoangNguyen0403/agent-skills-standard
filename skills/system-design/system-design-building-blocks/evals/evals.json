@@ -125,6 +125,68 @@
           "description": "Does not reach for cluster-scale machinery at 200 RPS"
         }
       ]
+    },
+    {
+      "id": 5,
+      "prompt": "A live-transcript API holds 6,000 streaming connections at 12 KB/s. One cohort stops reading for 45 seconds without closing. Where must the limit live, what bounds each buffer, and what happens when the bound is reached?",
+      "expected_output": "Bounds each stream by bytes, items or time plus a per-instance stream cap, applies backpressure at the producer when depth exceeds the drain budget, and closes a stalled stream with a resume cursor plus a retention window instead of buffering without limit. Shedding beats silent growth, and the buffer, stream lifetime and drain deadline are finite so a slow client cannot become an outage.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": [
+            "bytes, items or time",
+            "per-instance stream cap"
+          ],
+          "description": "Bounds the stream in concrete units and population"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "backpressure at the producer",
+            "resume cursor"
+          ],
+          "description": "Applies producer backpressure with a resumable close"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "stream lifetime and drain deadline are finite",
+            "buffer, stream lifetime and drain deadline are finite"
+          ],
+          "description": "Requires explicit finite streaming bounds"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Eight replicas share a 100 requests/s provider quota. One engineer proposes giving each replica its own 12.5 requests/s allowance; another proposes 100 each so bursts never fail. The network can partition. What bound does each approach give, and what must be declared before it is a bound?",
+      "expected_output": "Distinguishes a conserved disjoint allocation, eight replicas x 12.5 of a 100 requests/s limit, from a copied budget that is not conserved: the aggregate can reach replicas x allowance and the excess grows roughly with partition duration. Requires an atomic ledger with an exclusive lease, a declared bound type (instantaneous aggregate rate, admissions per window, or cumulative overshoot), and a recorded partition mode where a correctness-bound quota fails closed while an advisory limit may fail open. Neither shape is a quota guarantee on its own.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": [
+            "conserved disjoint allocation",
+            "replicas x allowance"
+          ],
+          "description": "Separates conserved shares from copied budget"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "atomic ledger",
+            "exclusive lease"
+          ],
+          "description": "Names the atomic authority for the allowance"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "declared bound type",
+            "partition mode"
+          ],
+          "description": "Requires a bound type and a partition behavior"
+        }
+      ]
     }
   ],
   "should_trigger": [

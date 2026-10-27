@@ -1,0 +1,10 @@
+{
+  "task": "T0",
+  "revision": "92d06c420f6a41f08e11579423e4e3eacdb7880d",
+  "files": 6417,
+  "bytes": 11044066,
+  "snapshot_hash_mismatches": 0,
+  "live_hash_mismatches": 0,
+  "verified_at": "2026-10-26T16:26:28.236Z",
+  "method": "Read every original and retained snapshot; compare SHA256 against manifest. No model, generator, test, build, lint or formatter."
+}

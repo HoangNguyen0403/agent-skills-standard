@@ -813,13 +813,13 @@
       ]
     },
     "system-design": {
-      "version": "1.2.4",
-      "last_updated": "2026-10-12",
+      "version": "1.2.5",
+      "last_updated": "2026-10-26",
       "tag_prefix": "system-design-v",
       "token_metrics": {
         "total_skills": 13,
-        "total_tokens": 15657,
-        "avg_tokens_per_skill": 1204,
+        "total_tokens": 16813,
+        "avg_tokens_per_skill": 1293,
         "largest_skill": "system-design-review (1935 tokens)"
       },
       "owners": [

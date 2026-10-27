@@ -2,42 +2,35 @@
 
 ## Transactional Outbox
 
-The only safe way to change state and tell the world about it.
-
-1. In one local transaction, write the business row and an `outbox` row holding the event payload.
-2. A relay reads unpublished outbox rows and publishes them, marking each sent.
-3. Consumers deduplicate on the event id, because the relay guarantees at-least-once.
+Use an outbox when one local transaction must commit business state and publication intent together; it does not make downstream effects exactly-once. The transaction writes the business row plus an outbox row holding the event payload; a relay publishes committed rows and marks them sent. Duplicate delivery remains possible, so consumers need inbox arbitration. Where publication is not tied to a local commit, publish from durable intent or read the change stream directly instead of adding a table.
 
 | Relay | How | Trade-off |
 | --- | --- | --- |
-| Poller | Query unsent rows on an interval | Simple, no extra infrastructure; adds publish latency |
+| Poller | Query unsent rows on an interval | Simple, no extra infrastructure; adds publish latency and query load |
 | CDC | Stream the database log (Debezium and similar) | Low latency, no query load; a connector to operate |
 
-Monitor outbox depth and oldest-unsent age. Depth alone hides a stalled relay; age catches it.
+Monitor outbox depth and oldest-unsent age. Depth alone hides a stalled relay; age catches it. See [Debezium's outbox event router](https://debezium.io/documentation/reference/stable/transformations/outbox-event-router.html) for the CDC form.
+
+## Inbox and Duplicate Delivery
+
+Distinguish the two identities before designing either guard:
+
+- **Event ID** identifies one message for delivery deduplication. CloudEvents requires `source` + `id` to be unique per distinct event and allows a re-send to reuse it ([spec](https://github.com/cloudevents/spec/blob/main/cloudevents/spec.md#id)). The delivery identity is therefore the pair `(source, id)`, or an equivalent globally unique normalized ID—never the bare `id`.
+- **Business-operation ID** identifies the intent and its effect across different events, retries, or workflow replays. Two distinct events may describe the same business operation; one event may be replayed after a crash.
+- **Correlation ID** traces a flow and never arbitrates effects.
+
+The inbox record and the local effect must commit in one consistency boundary, keyed on the consumer plus the normalized delivery identity `(source, id)` plus tenant/producer scope where the canonical identity contract requires it; committing the dedupe row before the effect loses the message when the process dies. Retention must cover the source's replay horizon, and expired records need a durable business-state or reconciliation lookup. Broker delivery guarantees do not extend to external effects; an at-least-once consumer plus operation-scoped idempotency is the honest contract. Reuse the canonical [idempotency contract](../../system-design-principles/references/idempotency-contract.md) for identity scope, atomic arbitration, payload conflicts, retention horizons, and unknown outcomes.
+
+Check both edges of the identity: the same `(source, id)` redelivered is one delivery to acknowledge once, while the same bare `id` from different sources names different events and must not be suppressed—dropping it loses a legitimate operation before business arbitration runs. A source-qualified event key is sufficient; no additional store is required.
 
 ## Saga Design
 
-Choose the coordination style, then write the compensation table before any code.
+Choose orchestration or choreography by visibility, coupling, ownership, failure isolation, and recovery requirements. A fixed number of steps does not determine the coordination style.
+For each step, record the forward effect, owner, whether it is reversible, and its recovery path. Compensate only where the domain defines a valid reversal; an irreversible effect may instead require idempotent retry, authoritative reconciliation, or forward recovery. A compensation can fail or be ambiguous and needs its own identity and recovery policy.
 
-| Style | Where the sequence lives | Fits |
-| --- | --- | --- |
-| Orchestration | One coordinator service or workflow engine | 4+ steps, complex compensation, auditable state |
-| Choreography | Each service reacts to events | 2-3 steps between services that already publish |
+Persist enough state to resume after process loss. Carry correlation for tracing, but use business-operation identity—not correlation or delivery identity—to prevent duplicate effects.
 
-Example compensation table for a booking flow:
-
-| Step | Forward action | Compensation |
-| --- | --- | --- |
-| 1 | Reserve inventory | Release reservation |
-| 2 | Authorize payment | Void authorization |
-| 3 | Confirm booking | Cancel booking and notify |
-| 4 | Send confirmation | None - move last, or make it idempotent |
-
-Rules that hold for every saga:
-- A step with no possible compensation belongs at the end of the sequence.
-- Compensations are themselves retryable and idempotent; they run when things are already broken.
-- Persist saga state; an in-memory saga does not survive the deploy that happens mid-flow.
-- Carry one correlation id through every step, event, and compensation.
+When a step's outcome is unknown (timeout after the call, lost reply), record the unknown state and reconcile against the step owner's authoritative record before retrying or compensating. Compensating an effect that may still land creates a second problem; a compensation is another effect that needs its own recovery path. Replay, timers, cancellation, and version compatibility for long-running processes live in [Durable Execution](durable-execution.md).
 
 ## CQRS and Event Sourcing
 

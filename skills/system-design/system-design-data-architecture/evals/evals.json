@@ -211,6 +211,17 @@
         { "type": "contains_any", "value": ["write-only", "filtered view", "omit reads"], "description": "Accepts filtered store omission when explicit" },
         { "type": "contains_any", "value": ["stateless", "no store", "without a database"], "description": "Keeps infrastructure conditional" }
       ]
+    },
+    {
+      "id": 15,
+      "prompt": "Support search embeds ticket text, reranks results, caches answers and runs an enrichment job; 1,800 workspaces share one index and one cache. A stale re-index mapped a workspace B document into workspace A's derived field, and a customer then asks for deletion while embeddings, the cache and a six-hour warehouse snapshot still hold the content. What must each stage guarantee, and what may analytics read after the deletion?",
+      "expected_output": "Carries authenticated tenant scope from source reads through lexical and vector retrieval, reranking, caches, async jobs and outputs, and denies when scope is missing. Names the deny path rather than a degraded answer: ranking relevance never grants access and a derived label is not authority, so a stale or corrupt attribution quarantines the entry. Separates revocation from erasure: revoked content is denied at every serving path immediately, including exports and snapshots, while physical erasure completes within a stated propagation bound and a tombstone or epoch blocks replay and restore.",
+      "assertions": [
+        { "type": "contains_any", "value": ["authenticated tenant scope", "denies when scope is missing"], "description": "Binds authority through every derived stage" },
+        { "type": "contains_any", "value": ["ranking relevance never grants access", "derived label is not authority"], "description": "Rejects relevance and copied labels as authorization" },
+        { "type": "contains_any", "value": ["separates revocation from erasure", "denied at every serving path immediately"], "description": "Denies serving before physical erasure completes" },
+        { "type": "contains_any", "value": ["propagation bound", "tombstone or epoch"], "description": "Bounds erasure and fences replay or restore" }
+      ]
     }
   ],
   "should_trigger": [

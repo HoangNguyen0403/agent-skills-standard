@@ -1,0 +1,161 @@
+{
+  "packet": {
+    "packet_id": "backend-system-design-roi",
+    "task": "T5",
+    "status": "prepared_sealed_not_executed",
+    "revision": "4 — syntax/provenance correction of revision 3 after independent review. Revision 3 hash 5543614b626c55e7c691e3e89eaac5da66cfab9f2e794384ca68c6b3482f76d8 is superseded; revision 2 hash 2855d6af8f08d066c0d0a51f041e9ad1a658904927d1f46f1653a715c8d35537 is also superseded. Revision 3 repaired readiness to follow ingest process/request-path health while optional summarizer degradation sheds summary work separately; bounded ingest continues serving. Revision 4 changes metadata only; prompts, calibration answers, evidence and hard-failure conditions are unchanged.",
+    "authority": "docs/prd/prd-backend-system-design-roi-improvement.md §5 T5 and AC-ROI-12..14",
+    "consumer": "No script consumes this file. scripts/evals/* reads skills/<category>/<skill>/evals/evals.json only; this packet is the human/semantic grading contract and is hashed by benchmarks/evals/backend-system-design-roi-pilot.md.",
+    "schema_note": "Case keys follow benchmarks/evals/system-design-professionalization-heldout.json exactly, with one additive documentation field: adverse_prompt. No scorer, assertion type, eval schema or runtime API is extended here. base_prompt = steady state; adverse_prompt = realistic failure timeline; variant_prompt + changed_constraint = changed-constraint condition. Each variant removes or degrades a capability that the base condition actually declares, so the contrast is real.",
+    "sealing": "Content authors T1-T3 must not read this file before the candidate freeze. It was authored from the frozen baseline (revision 92d06c420f6a41f08e11579423e4e3eacdb7880d) and this plan, not from in-progress source drafts.",
+    "blindness_limitation": "The mechanisms being tested are documented in canonical guidance and appear in previously visible fixtures (#PROD-01, #PROD-03, #PROD-05, #PROD-06, #FLOW-03). Those visible fixtures are regression cases, not blind evidence. These prompts are new scenario text and were never shown to the content authors, which makes them semi-blind at best; do not report them as fully blind held-out evidence.",
+    "excluded": "T4 AI-gateway cases are not present (conditional, not activated). No mobile or full-stack surface cases.",
+    "calibration_status": "Revision 3 repairs the three designated safe positives (PAY/TEN/OVL) so each is genuinely safe under its prompts, keeps the six unsafe candidates unsafe, and repairs OVL readiness to separate required ingest health from optional summarizer degradation. Independent review accepted all nine calibration labels. Revision 4 is metadata-only; no verdict here is executed evidence."
+  },
+  "cases": [
+    {
+      "case_id": "ROI-PAY-01",
+      "family": "production-payment-unknown-outcome",
+      "surface": "backend",
+      "base_prompt": "You own a subscription billing service. At month-end peak it renews 4,200 subscriptions per minute through one bank-debit processor. The processor deduplicates on the client reference you supply and exposes a status lookup by that reference, but its commit decision can take longer than your 8-second request deadline. Design the charge path so one billing instruction produces at most one debit, and state what finance observes while a debit is in flight.",
+      "adverse_prompt": "The processor commits the debit, the reply is lost in a TCP reset, and the status lookup returns 'processing' for the next 40 seconds. Your worker hits its 8-second deadline; a deploy replays the same billing instruction two hours later. State the invariants, what the customer and finance see during the gap, the order of recovery calls, and the condition under which a second debit attempt becomes permissible.",
+      "variant_prompt": "Contract change: the processor drops reference deduplication and the status lookup. Settlement evidence arrives only as a nightly file, and finance runs a manual repair queue once per business day. Peak volume stays at 4,200 per minute and the 8-second deadline is unchanged. Revise the guarantee you are willing to state, the mechanism that keeps it, and what an unconfirmed customer is told.",
+      "changed_constraint": "The base provider's reference deduplication and status lookup are removed; recovery evidence degrades to a nightly settlement file plus a once-per-business-day manual queue; volume and deadline unchanged.",
+      "expected_invariant": "One business instruction yields at most one external debit; an unresolved debit remains unknown and queryable until evidence reconciles it; every retry, replay and batch re-run reuses the same operation identity; a second debit is permitted only when evidence establishes that the first attempt reached a final negative state.",
+      "mandatory_evidence": [
+        "Business-operation identity minted before the first external call and reused by retries, replays and batch re-runs",
+        "Persisted operation state machine with an explicit pending/unknown state instead of a fabricated success or failure",
+        "Base recovery order: poll status by the same reference to a final state, and reissue with that reference only after a final negative result",
+        "Variant recovery: no external reissue until the settlement file has been matched for that reference and the manual queue confirms no debit posted, treating an absent settlement row as not-yet-final",
+        "Variant narrows the stated guarantee and tells the customer the debit is unconfirmed rather than failed or successful"
+      ],
+      "hard_failures": [
+        "Any path where a timeout, retry, replay or batch re-run can issue a second debit for one billing instruction",
+        "An unresolved outcome is reported to finance or the customer as a definite failure or a definite success with no reconciliation",
+        "Variant sends or schedules another debit before settlement and manual evidence establish finality, or tells the customer a charge failed or succeeded while its outcome is unknown"
+      ],
+      "source_fixture": "skills/system-design/system-design-principles/references/idempotency-contract.md (baseline sha256 72c8785c970aa03238832380a8dcd2059594bcfd76c8132d529fc424e68b2b7a); visible regression sibling benchmarks/evals/system-design-professionalization-heldout.json#PROD-01"
+    },
+    {
+      "case_id": "ROI-TEN-01",
+      "family": "production-tenant-retrieval-and-revocation",
+      "surface": "backend",
+      "base_prompt": "You are designing search for a support-analytics product: 1,800 customer workspaces share one Postgres cluster, one vector index, one semantic answer cache, and a warehouse snapshot that analytics and export jobs read directly. Ticket text is embedded and a background job enriches new tickets with an LLM summary. Each document has exactly one authoritative owning workspace in the ticket store, and derived attribution is produced by a re-index mapping. Requests carry an authenticated workspace id from the gateway. Describe how source retrieval, hybrid ranking, reranking, cache lookup, the enrichment job and direct snapshot readers each stay inside the authenticated workspace, and what the database role or connection-pool configuration must not do.",
+      "adverse_prompt": "A re-index copies the workspace field from a stale mapping, so a workspace B document becomes retrievable under workspace A's query. The reranker scores it highly, and the shared cache stores the merged answer under a key derived only from the query embedding. Trace the failure end to end and state where each boundary must fail closed rather than degrade.",
+      "variant_prompt": "Workspace A exercises a deletion request under its data-processing agreement. Source rows are removed, but embeddings, the semantic cache, reranker feature vectors and the warehouse snapshot still contain the content, and snapshot rebuild takes six hours. Describe the revocation lifecycle, what gates the direct snapshot, export and restore readers before the rebuild completes, and the verification that later reads cannot return the content.",
+      "changed_constraint": "Source rows are deleted while derived copies (vector index, semantic cache, reranker features, warehouse snapshot, exports) remain, and physical rebuild lags by six hours.",
+      "expected_invariant": "Every read, rank, cache write, job output and derived copy is constrained by authenticated workspace authority, so one workspace never observes another's content; candidate documents are re-authorized against authoritative ownership before they enter ranking, reranking, caches or derived copies; revoked or deleted content is unservable on every path immediately, with physical deletion following.",
+      "mandatory_evidence": [
+        "Authenticated workspace scope carried into the source query, the vector/lexical query itself, the rerank set and the cache key",
+        "Cache identity includes tenant authority, not only prompt text or query embedding",
+        "Derived attribution is validated against authoritative document ownership before use, and a stale or corrupt label quarantines the entry instead of widening access; similarity or relevance is never authorization",
+        "Revocation is enforced by a generation or watermark check on every read path, including direct snapshot, export and restore readers, before physical rebuild or purge",
+        "A post-revocation query set demonstrates empty results on retrieval, rerank, cache, job output, snapshot export and restore paths",
+        "Named bypass risks: privileged database role or row-level-security bypass, and a pooled connection or async job that keeps a previous tenant's context"
+      ],
+      "hard_failures": [
+        "Any path where another workspace's content can reach an answer, rerank set, cache entry, enrichment job output, export, restore or derived copy",
+        "Authorization decided by similarity score, by source-row presence, by an upstream UI filter, by trusting a derived attribution label, or by filtering a retrieval or rerank set after it was formed",
+        "Revoked content remains servable on any path, including direct snapshot, export or restore reads, because deletion was applied only to source rows or only after a rebuild"
+      ],
+      "source_fixture": "skills/system-design/system-design-data-architecture/references/flow-contracts.md (baseline sha256 6c107c03df3da843844ab8577272bc07fcee9a0da307d3364e4e19e24c1ac90e) and the T2 tenant-safe-retrieval reference (absent at baseline); visible regression siblings #PROD-03 and #FLOW-03"
+    },
+    {
+      "case_id": "ROI-OVL-01",
+      "family": "production-overload-and-streaming-bounds",
+      "surface": "backend",
+      "base_prompt": "Design a single-region live-transcript ingest API: 6,000 concurrent streaming connections at peak, each producing 12 KB/s. The summarizer is called once per stream per 30-second window, sustains 400 requests/s at 900 ms p99, and the p99 is not a mean — state any mean-service-time assumption separately and keep it distinct from the measured percentile. Clients must be able to reconnect and resume within 30 seconds. State the admission limit, per-connection buffer bound in bytes and seconds, aggregate memory bound, deadline ownership, retry authority and the drain behaviour during a rolling deploy.",
+      "adverse_prompt": "One summarizer pool loses a third of its capacity while a client cohort stops reading for 45 seconds without closing its connections. Summarizer retries and client reconnects both amplify load. Describe what happens to admitted work, unsent buffers, retries, health signals and draining, and exactly what users observe.",
+      "variant_prompt": "A zone failure then removes 40% of the remaining summarizer capacity, sequentially after the one-third loss, while summary demand stays at the base rate. The product owner asks whether three replicas per zone already provide high availability. Answer with the residual-capacity arithmetic in requests per second and the degradation contract.",
+      "changed_constraint": "Sequential summarizer capacity loss: one third, then 40% of the remainder (400 x 2/3 x 0.6 = 160 requests/s residual); summary demand unchanged.",
+      "expected_invariant": "Admitted summary work never exceeds residual summarizer capacity: buffers, queues, retries, connections and drain time all have finite ceilings, and exceeding a ceiling produces bounded degradation or rejection rather than unbounded growth.",
+      "mandatory_evidence": [
+        "Admission or concurrency limit derived in matching units (summary requests/s and in-flight calls) from the stated per-stream-to-request mapping, with mean service time stated separately from the p99 and any Little's-law concurrency labelled an estimate",
+        "Finite per-connection buffer bound expressed in bytes and seconds, with a termination or resume rule for a slow or non-reading client, plus the aggregate memory bound for the admitted population",
+        "Retry ownership and budget (who retries, how many times, under which deadline) so reconnects cannot amplify saturation",
+        "Drain/shutdown contract with a finite termination time inside the 30-second reconnect promise",
+        "Variant computes 400 x 2/3 x 0.6 = 160 requests/s, sheds demand above that figure, and rejects replica count as proof of high availability"
+      ],
+      "hard_failures": [
+        "Unbounded queue, buffer, connection or retry budget under overload or a stalled client",
+        "After a capacity loss the answer keeps admitting pre-failure demand, or reports dropped or truncated streams as successfully delivered, instead of rejecting or degrading with a stated deadline",
+        "The answer admits summary work above residual downstream capacity because its residual figure is not reproducible from the stated numbers"
+      ],
+      "source_fixture": "skills/system-design/system-design-resilience-ops/references/reliability-operations.md (baseline sha256 9abb27ff728ac2afd8bff7855eb82c7d61c68c049dd791b82a044d22efb03849) and building-blocks capacity guidance (baseline sha256 b5b7eb34a3daee42223a0cd9cd72cc5b386f1585c77edb013baece5c7e4d0fe8); visible regression siblings #PROD-05 and #PROD-06"
+    }
+  ],
+  "calibration": [
+    {
+      "case_id": "ROI-PAY-01-C1",
+      "example_type": "keyword-complete unsafe (must fail AC-ROI-12)",
+      "prompt": "ROI-PAY-01 whole-case brief: base + adverse + changed constraint.",
+      "answer": "Use a stable operation identity, a pending state, and reconciliation. The ledger row is the dedupe key, so a duplicate insert fails and we get exactly-once end to end. To avoid stale references the worker mints a fresh idempotency reference for every attempt, because the provider cannot be trusted to remember an old one; if three attempts time out we mark the charge failed and the customer can retry from the UI. The nightly settlement file is imported for reporting, and reconciliation runs before the next billing cycle.",
+      "expected_verdict": "unsound",
+      "rationale": "Uses every expected phrase and keeps the unsafe mechanisms: a fresh reference per attempt defeats the base provider's deduplication, so a second debit is possible; a timed-out debit is reported to the customer as failed; reconciliation runs after the retry storm and cannot repair the external effect. Satisfies AC-ROI-12: vocabulary completeness does not rescue it."
+    },
+    {
+      "case_id": "ROI-PAY-01-C2",
+      "example_type": "semantically correct alternate phrasing (must pass AC-ROI-13)",
+      "prompt": "ROI-PAY-01 whole-case brief: base + adverse + changed constraint.",
+      "answer": "Before the first call I write one billing-instruction row and use its id as the reference for every attempt, so retries and replays carry the same reference. If the reply is lost I still call nothing new: I look the reference up and treat 'processing' as unfinished, showing finance and the customer 'not yet known'. A further send is allowed only after the lookup returns a final negative, because the provider deduplicates on that reference. Under the changed contract there is no dedupe and no lookup, so after the first send nothing is reissued until the nightly file has been matched for this reference and the manual queue confirms the bank shows no debit; if the file has no row for it, that is not evidence of anything and the instruction waits for the next file. The customer is told the debit is unconfirmed and will be resolved within one business day. The guarantee I state under the changed contract is at most one debit per instruction given settlement matching and that manual finality check; I do not claim exactly-once.",
+      "expected_verdict": "sound",
+      "rationale": "Revision 2 repair. Every external reissue after an ambiguous first send is prohibited; base reissue happens only after a final negative from the same reference, and the variant requires settlement plus manual finality with an absent row explicitly rejected as proof. Identity, unknown state, recovery order, customer messaging and the narrowed guarantee are all present without the preferred phrases."
+    },
+    {
+      "case_id": "ROI-PAY-01-C3",
+      "example_type": "mechanism contradiction",
+      "prompt": "ROI-PAY-01 changed-constraint emphasis (whole-case brief).",
+      "answer": "With no dedupe and no lookup, I switch to at-least-once delivery and rely on the customer's bank to reject the duplicate debit; the nightly settlement file gives us eventual exactly-once accounting, so the risk is acceptable at 4,200 per minute.",
+      "expected_verdict": "unsound",
+      "rationale": "Invents a duplicate-rejection behaviour the changed contract does not provide and delegates the invariant to the customer's bank; eventual accounting cannot undo a second real debit. Under the changed constraint the answer must prohibit reissue until evidence establishes finality."
+    },
+    {
+      "case_id": "ROI-TEN-01-C1",
+      "example_type": "keyword-complete unsafe (must fail AC-ROI-12)",
+      "prompt": "ROI-TEN-01 whole-case brief: base + adverse + changed constraint.",
+      "answer": "We enforce tenant isolation with row-level security and always apply a workspace filter, so cross-tenant leakage is impossible. The vector search filters by workspace after retrieval so recall stays high, and the semantic cache key is the query embedding with a similarity threshold of 0.92. The enrichment job uses the service role so it can read all tickets efficiently, and it stamps each summary with the workspace from the ticket row. Reranking is a relevance concern, not an authorization concern.",
+      "expected_verdict": "unsound",
+      "rationale": "Correct vocabulary, unsafe mechanism: post-retrieval filtering lets foreign documents into the rerank set, a tenant-free cache key mixes workspaces, the privileged role plus a stale attribution stamp reproduces the adverse failure, and relevance-vs-authorization is inverted. AC-ROI-12 case."
+    },
+    {
+      "case_id": "ROI-TEN-01-C2",
+      "example_type": "semantically correct alternate phrasing (must pass AC-ROI-13)",
+      "prompt": "ROI-TEN-01 whole-case brief: base + adverse + changed constraint.",
+      "answer": "Each ticket has one authoritative owner in the ticket store, so an index entry is admitted only if its derived attribution still equals that owner; a mismatch quarantines the entry instead of re-labelling it, and the same check runs before a document can enter the rerank set or be written into a cached answer. The caller's customer id goes into the SQL predicate and into the vector query itself, so nothing is narrowed after the fact; the cache key includes the customer id and a cached answer is served only when its stored customer id matches. The enrichment worker runs under a role that cannot read other customers' rows and opens a fresh session per task, so a pooled connection cannot inherit the previous customer's claims. Ranking scores decide order, never access. Revocation bumps a per-customer generation: live caches and reranker features read the current generation, and the snapshot, export and restore readers check the same revocation watermark before returning any row, so they deny immediately while the six-hour rebuild and purge follow. Verification is a post-deletion query set returning empty for that customer on retrieval, rerank, cache, job output, snapshot export and restore.",
+      "expected_verdict": "sound",
+      "rationale": "Revision 2 repair. Adds the missing authoritative-ownership re-authorization for corrupt derived scope and an immediate revocation gate on snapshot/export/restore reads instead of relying on the rebuild interval, while keeping alternate wording rather than rubric phrases."
+    },
+    {
+      "case_id": "ROI-TEN-01-C3",
+      "example_type": "deletion-as-source-only",
+      "prompt": "ROI-TEN-01 changed-constraint emphasis (whole-case brief).",
+      "answer": "Deletion is complete once the ticket rows are gone, because the vector index and the cache are derived from those rows and will stop being returned once the rows are missing. I confirm deletion by checking that the source tables no longer contain the workspace's rows.",
+      "expected_verdict": "unsound",
+      "rationale": "Asserts a causal relationship that does not exist: embeddings, cache entries, reranker features, snapshots and exports outlive the row and stay servable without a source lookup. The verification checks only the source, so the invariant is unproven."
+    },
+    {
+      "case_id": "ROI-OVL-01-C1",
+      "example_type": "keyword-complete unsafe (must fail AC-ROI-12)",
+      "prompt": "ROI-OVL-01 whole-case brief: base + adverse + changed constraint.",
+      "answer": "We apply backpressure, load shedding, circuit breakers and graceful degradation. Connections are accepted and queued in the streaming tier; the queue absorbs the 45-second stall and summaries are retried with exponential backoff, jitter and no fixed cap because capping loses data. Readiness probes stay green for the summarizer because the instance is alive, so no restart cascade occurs. Three replicas per zone mean the service stays highly available through a zone loss, and the deploy drains connections with a 30-second grace period.",
+      "expected_verdict": "unsound",
+      "rationale": "Names every mechanism and still violates the invariant: an absorb-everything queue is unbounded, uncapped retries amplify the stall, liveness-based readiness hides a dependency outage, no residual-capacity arithmetic is offered, and HA is claimed from replica count. AC-ROI-12 case."
+    },
+    {
+      "case_id": "ROI-OVL-01-C2",
+      "example_type": "semantically correct alternate phrasing (must pass AC-ROI-13)",
+      "prompt": "ROI-OVL-01 whole-case brief: base + adverse + changed constraint.",
+      "answer": "One summary request per stream per 30-second window is 6,000/30 = 200 requests/s, which is half of the 400 requests/s ceiling. For concurrency I assume a 300 ms mean service time, measured separately from the 900 ms p99, so Little's law gives roughly 400 x 0.3 = 120 concurrent summary calls; that is the admission limit, and I queue at most 2 seconds of summary work so queue wait plus work stays inside the deadline. Each connection may hold at most 96 KB unsent, which is 8 seconds at 12 KB/s; past 10 seconds of stalled writes I close the stream with a resume cursor, so the aggregate ceiling for the full 6,000-stream population is about 576 MB. Only the edge retries, three attempts inside a 12-second budget, and reconnects count against the same admission limit. Drain stops accepting streams, finishes within the deadline and closes the rest with a resume token inside 25 seconds, under the 30-second promise. Readiness follows ingest process and request-path health; summarizer degradation sheds summary work separately while bounded ingest keeps serving. After the sequential loss the ceiling is 400 x 2/3 x 0.6 = 160 requests/s, below the 200 requests/s demand, so I cap admitted summaries near 128 requests/s, shed about 72 requests/s of summary demand, refuse new streams with a retry-after, and degrade to partial transcripts; three replicas per zone change blast radius, not capacity, so I do not call that high availability.",
+      "expected_verdict": "sound",
+      "rationale": "Revision 3 repair. Existing arithmetic, bounded admission and streaming limits remain; readiness follows the ingest request path, while the optional summarizer sheds its work independently. Manual re-adjudication is required; this author label is not evidence."
+    },
+    {
+      "case_id": "ROI-OVL-01-C3",
+      "example_type": "unbounded-numeric-answer",
+      "prompt": "ROI-OVL-01 base + adverse emphasis (whole-case brief).",
+      "answer": "Admission is unlimited at the load balancer so users are never rejected. Buffers grow as needed and reconnect retries are unlimited until success because transcripts must not be lost. Draining has no deadline since dropping connections mid-deploy is unacceptable.",
+      "expected_verdict": "unsound",
+      "rationale": "Explicitly unbounded on buffers, retries and drain, which is the hard failure regardless of availability intent. 'Never reject' is a product preference, not a capacity mechanism."
+    }
+  ]
+}
