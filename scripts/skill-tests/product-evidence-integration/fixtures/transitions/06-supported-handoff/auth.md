@@ -1,1 +1,0 @@
-Authorized experiment and investment

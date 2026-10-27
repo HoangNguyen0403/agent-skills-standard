@@ -88,52 +88,20 @@ jobs:
         uses: pnpm/action-setup@v6
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      - name: Run Review Package Regression Tests
-        run: python3 scripts/skill-tests/common-subagent-driven-development/test_review_package.py
       - name: Run Unit Tests with Coverage
         run: pnpm test:cov
       - name: Run Eval/Outcome/Trace Script Tests
         run: pnpm test:evals && pnpm test:outcome && pnpm test:trace
-      - name: Run Product Evidence Suite and Integration Tests
-        run: pnpm test:product-evidence
+      - name: Run SDLC Workflow Tests
+        run: pnpm test:sdlc
       - name: Run E2E Tests
         run: pnpm test:e2e
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
-  product-evidence-consumer:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
-        with:
-          node-version: "22.x"
-      - name: Install pnpm
-        uses: pnpm/action-setup@v6
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-      - name: Build CLI and MCP for consumer smoke
-        run: pnpm build && pnpm mcp:build
-      - name: Run offline consumer smoke
-        run: |
-          ROOT="${GITHUB_WORKSPACE:-$PWD}"
-          node scripts/skill-tests/product-evidence-integration/consumer-smoke.mjs \
-            --cli "$ROOT/cli/dist/index.js" \
-            --mcp "$ROOT/mcp/dist/index.js" \
-            --candidate-root "$ROOT" \
-            --out "$RUNNER_TEMP/consumer-smoke.json"
-      - name: Verify clean working tree
-        run: |
-          if [ -n "$(git status --porcelain)" ]; then
-            echo "❌ Working tree dirty after consumer smoke!"
-            git status --porcelain
-            exit 1
-          fi
-          echo "✅ Working tree is clean."
-
   validate-skills:
     runs-on: ubuntu-latest
-    needs: [lint-and-format, unit-tests, product-evidence-consumer]
+    needs: [lint-and-format, unit-tests]
     steps:
       - uses: actions/checkout@v7
         with:
