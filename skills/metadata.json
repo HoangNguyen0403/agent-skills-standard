@@ -494,8 +494,8 @@
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 45,
-        "total_tokens": 42532,
-        "avg_tokens_per_skill": 945,
+        "total_tokens": 42712,
+        "avg_tokens_per_skill": 949,
         "largest_skill": "common-subagent-driven-development (1726 tokens)"
       },
       "owners": [
@@ -508,8 +508,8 @@
       "tag_prefix": "quality-engineering-v",
       "token_metrics": {
         "total_skills": 17,
-        "total_tokens": 17177,
-        "avg_tokens_per_skill": 1010,
+        "total_tokens": 17291,
+        "avg_tokens_per_skill": 1017,
         "largest_skill": "quality-engineering-api-testing (1633 tokens)"
       },
       "owners": [
@@ -790,7 +790,7 @@
     },
     "laravel": {
       "version": "1.4.1",
-      "last_updated": "2026-10-27",
+      "last_updated": "2026-10-01",
       "tag_prefix": "laravel-v",
       "token_metrics": {
         "total_skills": 10,
@@ -842,7 +842,7 @@
     },
     "database": {
       "version": "1.4.1",
-      "last_updated": "2026-10-27",
+      "last_updated": "2026-08-24",
       "tag_prefix": "database-v",
       "token_metrics": {
         "total_skills": 8,
