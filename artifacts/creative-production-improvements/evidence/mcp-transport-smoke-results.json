@@ -1,0 +1,31 @@
+{
+  "timestamp": "2026-10-26T18:24:28.233Z",
+  "tempConsumerDir": "/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/mcp-transport-consumer-wkYdLo",
+  "results": {
+    "transportType": "stdio",
+    "toolsAvailable": [
+      "load_skills_for_files",
+      "load_skills_for_keywords",
+      "get_skill",
+      "get_category_guide",
+      "list_categories",
+      "audit_session_compliance",
+      "list_workflows",
+      "get_workflow",
+      "get_session_cost",
+      "verify_eval_run",
+      "get_eval_report"
+    ],
+    "keywordRouting": {
+      "strategyMatch": true,
+      "copyMatch": true,
+      "videoMatch": true,
+      "negativeClean": true
+    },
+    "directGetSkill": {
+      "strategyOk": true,
+      "copyOk": true,
+      "videoOk": true
+    }
+  }
+}

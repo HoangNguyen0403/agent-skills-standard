@@ -1,0 +1,134 @@
+{
+  "timestamp": "2026-10-26T18:08:47.868Z",
+  "tempConsumerDir": "/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/marketing-consumer-smoke-kkxtR7",
+  "registryFixture": {
+    "port": 57404,
+    "requestsServed": 44
+  },
+  "syncExitCode": 0,
+  "fileVerification": [
+    {
+      "file": "marketing-content-strategy/SKILL.md",
+      "sha256": "e8d74982c87f5ec74c317536e75c3e31d1f2526acb6da3d7504cf1c1cb0c6608",
+      "matchesSource": true
+    },
+    {
+      "file": "marketing-content-strategy/references/creative-production-contract.md",
+      "sha256": "f99c809820fac4fbfde964d1239b0b072a675f0d98140f774b571cd16d4627e8",
+      "matchesSource": true
+    },
+    {
+      "file": "marketing-copywriting/SKILL.md",
+      "sha256": "09e266f1ec500f0a173f92cea06bbe4d4ce5022c66ad049b03e4e4b97bbe83fa",
+      "matchesSource": true
+    },
+    {
+      "file": "marketing-demo-video/SKILL.md",
+      "sha256": "122c340c241031ba0cd7c80cec9439c9cb3b8d921331e39541ab070908be52f0",
+      "matchesSource": true
+    },
+    {
+      "file": "marketing-demo-video/scripts/validate-demo-storyboard.mjs",
+      "sha256": "a271287b82e2e7434ff3f8990312bc988c659e110be4318252a3da4e6260a75f",
+      "matchesSource": true
+    },
+    {
+      "file": "marketing-demo-video/assets/fixture-storyboard.json",
+      "sha256": "68e1306b18e4c97070d4ab45858d18abe8bae2da92a1442adeb23781c5e981fc",
+      "matchesSource": true
+    }
+  ],
+  "companionResolution": {
+    "ordinaryExists": true,
+    "flattenedExists": true,
+    "copyHasGapRecord": true,
+    "videoHasGapRecord": true,
+    "classification": "guidance_contract_instruction_only",
+    "note": "The presence of 'capability_gap: missing_creative_production_contract' in SKILL.md verifies guidance documentation instructions for downstream agents, NOT an active executable runtime loader enforcement gate in CLI/MCP."
+  },
+  "routerResults": {
+    "executionMode": "direct_skill_index_engine",
+    "note": "Exercised SkillIndex class in-memory directly on the consumer installed skills directory; validates underlying keyword resolution engine, not the MCP JSON-RPC protocol/stdio transport.",
+    "cases": [
+      {
+        "keywords": [
+          "marketing content strategy"
+        ],
+        "expected": "marketing-content-strategy",
+        "matched": [
+          "marketing-content-strategy"
+        ],
+        "pass": true
+      },
+      {
+        "keywords": [
+          "marketing copywriting"
+        ],
+        "expected": "marketing-copywriting",
+        "matched": [
+          "marketing-copywriting"
+        ],
+        "pass": true
+      },
+      {
+        "keywords": [
+          "demo video"
+        ],
+        "expected": "marketing-demo-video",
+        "matched": [
+          "marketing-demo-video"
+        ],
+        "pass": true
+      },
+      {
+        "keywords": [
+          "deploy Docker containers"
+        ],
+        "expected": "NO_MARKETING_MATCH",
+        "matched": [],
+        "pass": true
+      }
+    ]
+  },
+  "getSkillResults": {
+    "executionMode": "direct_find_skill_engine",
+    "cases": [
+      {
+        "category": "marketing",
+        "name": "marketing-content-strategy",
+        "found": true,
+        "hasDescription": true
+      },
+      {
+        "category": "marketing",
+        "name": "marketing-copywriting",
+        "found": true,
+        "hasDescription": true
+      },
+      {
+        "category": "marketing",
+        "name": "marketing-demo-video",
+        "found": true,
+        "hasDescription": true
+      }
+    ]
+  },
+  "storyboardSmoke": {
+    "jsonExitCode": 0,
+    "valid": true,
+    "summary": {
+      "initiative": "evidence-led-marketing",
+      "campaign_id": "standards-demo-01",
+      "title": "Fictional Demo Storyboard - Synthetic Contract Teaching Example",
+      "synthetic": true,
+      "scene_count": 3,
+      "total_duration_seconds": 60,
+      "cost_mode": "zero_cost_local",
+      "rights_cleared_assertion": true
+    },
+    "vttExitCode": 0,
+    "vttCueCount": 6,
+    "transcriptExitCode": 0,
+    "hasNarration": true
+  }
+}

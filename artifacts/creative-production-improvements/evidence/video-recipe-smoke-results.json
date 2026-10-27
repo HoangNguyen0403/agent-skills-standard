@@ -1,0 +1,138 @@
+{
+  "timestamp": "2026-10-26T18:11:25.905Z",
+  "tempDir": "/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/video-recipe-smoke-mJpC11",
+  "environment": {
+    "ffmpeg": "ffmpeg version 9.0.1 Copyright (c) 2000-2026 the FFmpeg developers",
+    "ffprobe": "ffprobe version 9.0.1 Copyright (c) 2007-2026 the FFmpeg developers"
+  },
+  "sceneFacts": [
+    {
+      "scene": "scene-01_muxed.mp4",
+      "sha256": "27072e955ad7d57e55f909ce364812979f8f91becdb7465a74613360235b4ec9",
+      "duration": 5,
+      "video": {
+        "codec": "h264",
+        "width": 1920,
+        "height": 1080,
+        "fps": "30/1",
+        "duration": 5
+      },
+      "audio": {
+        "codec": "aac",
+        "sampleRate": 48000,
+        "channels": 2,
+        "duration": 5
+      }
+    },
+    {
+      "scene": "scene-02_muxed.mp4",
+      "sha256": "b0169ba006a98f85d14a7bd11490373334fb405a6ef580b52a09d868aa444bea",
+      "duration": 8,
+      "video": {
+        "codec": "h264",
+        "width": 1920,
+        "height": 1080,
+        "fps": "30/1",
+        "duration": 8
+      },
+      "audio": {
+        "codec": "aac",
+        "sampleRate": 48000,
+        "channels": 2,
+        "duration": 8
+      }
+    },
+    {
+      "scene": "scene-03_muxed.mp4",
+      "sha256": "806297ce1cfa0670868f766e4a2c51b22e170da62f74154941d30c0068a867b9",
+      "duration": 6,
+      "video": {
+        "codec": "h264",
+        "width": 1920,
+        "height": 1080,
+        "fps": "30/1",
+        "duration": 6
+      },
+      "audio": {
+        "codec": "aac",
+        "sampleRate": 48000,
+        "channels": 2,
+        "duration": 6
+      }
+    }
+  ],
+  "silenceOnsetMeasurement": {
+    "scene": "scene-02_audio_timeline.wav",
+    "measuredSilenceEndSeconds": 0.500083,
+    "expectedOffsetSeconds": 0.5,
+    "classification": "measured_synthetic_only",
+    "note": "Verified via ffmpeg silencedetect; stream start_time is 0.0s (scene origin) while synthetic sine test tone onset is measured at 0.500083s. This validates the recipe timeline adelay construction for synthetic test media only; it does NOT constitute general human speech onset proof."
+  },
+  "initialAssembly": {
+    "durationSeconds": 19.021333,
+    "expectedDuration": 19,
+    "packetBoundaries": [
+      {
+        "scene": "scene-01",
+        "interval": "0.0%+5.0",
+        "video": {
+          "firstPts": 0.021333,
+          "lastPts": 4.954667,
+          "count": 150
+        },
+        "audio": {
+          "firstPts": 0,
+          "lastPts": 4.992,
+          "count": 235
+        }
+      },
+      {
+        "scene": "scene-02",
+        "interval": "5.0%+8.0",
+        "video": {
+          "firstPts": 0.021333,
+          "lastPts": 7.921333,
+          "count": 239
+        },
+        "audio": {
+          "firstPts": 4.992,
+          "lastPts": 12.978667,
+          "count": 377
+        }
+      },
+      {
+        "scene": "scene-03",
+        "interval": "13.0%+6.0",
+        "video": {
+          "firstPts": 5.021333,
+          "lastPts": 10.954667,
+          "count": 180
+        },
+        "audio": {
+          "firstPts": 13,
+          "lastPts": 18.994667,
+          "count": 283
+        }
+      }
+    ],
+    "boundaryLimitation": "Sampled packet intervals from ffprobe -read_intervals probe keyframe-seek intervals only; video packet pts_time reflects stream-copy concat demuxer timestamp handling (e.g. scene 3 packet PTS 5.021s..10.954s). These samples do NOT prove continuous packet-by-packet coverage across the entire 19s timeline or absence of unmeasured interior gaps.",
+    "finalVideoSha256": "426a6d0b6524a68063f7137415f2de6a5d25a4fc2a68621bf85289532ba2a8a6"
+  },
+  "selectiveRepair": {
+    "repairedScene": "scene-02",
+    "durationChangedFrom": 8,
+    "durationChangedTo": 7,
+    "unaffectedScenesPreserved": {
+      "scene-01": true,
+      "scene-03": true
+    },
+    "vttCueRetimed": {
+      "beforeCue": "00:00:13.500 --> 00:00:18.500",
+      "afterCue": "00:00:12.500 --> 00:00:17.500",
+      "verified": true
+    },
+    "repairedVideoDurationSeconds": 18.021333,
+    "expectedRepairedDuration": 18,
+    "repairedVideoSha256": "a6eddfdad7d06c638ffce14b414d9db0a5d4977c80145ba4bd2050a6be6e88aa"
+  }
+}
