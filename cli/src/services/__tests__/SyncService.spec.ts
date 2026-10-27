@@ -739,6 +739,25 @@ describe('SyncService', () => {
       const updates = await syncService.checkForUpdates(config);
       expect(updates).toEqual({ ts: 'v2' });
     });
+    it('should not offer updates if candidate tag does not exist on remote repository', async () => {
+      const config = makeConfig({
+        registry: 'https://github.com/o/r',
+        skills: { ts: { ref: 'v1' } },
+      });
+
+      mockGithubService.getRepoInfo.mockResolvedValue({
+        default_branch: 'main',
+      });
+      mockGithubService.getRawFile.mockResolvedValue(
+        JSON.stringify({
+          categories: { ts: { version: 'v2' } },
+        }),
+      );
+      mockGithubService.resolveCommit.mockResolvedValue(null);
+
+      const updates = await syncService.checkForUpdates(config);
+      expect(updates).toEqual({});
+    });
 
     it('should return empty updates if registry URL is invalid', async () => {
       const config = makeConfig({ registry: 'not-github' });

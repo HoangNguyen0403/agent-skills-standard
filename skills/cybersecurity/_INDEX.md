@@ -15,7 +15,6 @@
 | cyber-framework-mapping | framework mapping, control mapping, ATT&CK mapping, NIST mapping, framework edge, mapping review |
 | **cyber-incident-triage** | incident triage, security incident, incident intake, preserve evidence, containment readiness, NIST 800-61 |
 | **cyber-lab-validation** | lab validation, isolated lab, disposable lab, synthetic validation, purple lab, attack simulation lab, controlled exploit validation |
-| cyber-rea-reverse-engineering | rea, rea mcp, reverse-engineer-anything, shipped artifact, decompile binary, static javascript analysis, electron app analysis |
 | **cyber-scoped-validation** | scoped validation, validate exercise result, authorized validation, scope check, runtime support check, validation evidence |
 | **cyber-threat-hunting** | threat hunting, hunt hypothesis, hunting query, negative conclusion, suspicious activity hunt, telemetry gap |
 
