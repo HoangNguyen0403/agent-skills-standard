@@ -24,12 +24,12 @@
     },
     {
       "path": "artifacts/testing-quality-improvement/verification-summary.md",
-      "sha256": "de9fb40b29e88ceb05de7eee537830c7662af65684acce52a86f805182a5ade0",
+      "sha256": "64fe3165ba859d3eeb1cf3739a89fa21c90cb34b985359030a2109c7952a782b",
       "bytes": 5913
     },
     {
       "path": "artifacts/testing-quality-improvement/final-inventory-and-gates.json",
-      "sha256": "3867c29667873bb24fd0407dfb8deaf8080a2184ecc303dc543f1f3d583a0e6e",
+      "sha256": "c5bc9f3812fa19d3f700c15da8f018a708b5e7f19163e236d123c972238383a4",
       "bytes": 64599
     }
   ]

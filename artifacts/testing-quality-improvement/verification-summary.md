@@ -1,7 +1,7 @@
 # Testing Quality Improvement — Verification and Publication Summary
 
 ## Overview & Scope
-- **Package**: Testing Quality Improvement (`quality-engineering` 1.6.3, `workflows` 1.1.8, `common` 2.9.3, `specialists` 1.5.1, `nestjs` 1.4.8, `swift` 1.3.8, `android` 1.5.2, `flutter` 1.8.3, `react-native` 1.5.2)
+- **Package**: Testing Quality Improvement (`quality-engineering` 1.6.2, `workflows` 1.1.7, `common` 2.9.2, `specialists` 1.5.1, `nestjs` 1.4.8, `swift` 1.3.8, `android` 1.5.2, `flutter` 1.8.3, `react-native` 1.5.2)
 - **Base Commit**: `92d06c420f6a41f08e11579423e4e3eacdb7880d` (`origin/develop`)
 - **Independent Review Disposition**: W8 R4 independent review APPROVE / CLOSED for source spec compliance, covering generation proof, and final inventory without reopening accepted semantics.
 
