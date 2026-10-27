@@ -9,7 +9,7 @@
 
 **Current release:** `cli-v2.6.5` — `ags sync` no longer rejects repo-root `LICENSE`/`NOTICE` against release manifests; the skill validator accepts package directories under `scripts/` (needed by the draw.io diagram pipeline's `schema_parsers/`); builds on v2.6.1's OWASP Agentic Skills Top 10 hardening (skill-content lockfile, `ags verify`, enforcing hooks, secret/dependency scanning). See [CHANGELOG.md](CHANGELOG.md).
 
-280 ready-to-use coding standards for **Cursor, Claude Code, GitHub Copilot, Gemini, Windsurf, Trae, Kiro, Roo** and more — synced, versioned, and optimized to use **85% fewer tokens** than traditional prompt engineering.
+335 ready-to-use coding standards for **Cursor, Claude Code, GitHub Copilot, Gemini, Windsurf, Trae, Kiro, Roo** and more — synced, versioned, and optimized to use **85% fewer tokens** than traditional prompt engineering.
 
 ```bash
 npx agent-skills-standard@latest init

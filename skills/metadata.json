@@ -827,8 +827,8 @@
       ]
     },
     "cybersecurity": {
-      "version": "1.0.1",
-      "last_updated": "2026-10-26",
+      "version": "1.0.2",
+      "last_updated": "2026-10-27",
       "tag_prefix": "cybersecurity-v",
       "owners": [
         "HoangNguyen0403"
