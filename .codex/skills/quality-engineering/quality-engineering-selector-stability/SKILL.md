@@ -32,7 +32,7 @@ Accessibility id > resource-id / `testTag` > predicate/uiautomator > XPath. Neve
 
 - React/Next.js: `data-testid`.
 - React Native: `testID` for automation; separate `accessibilityLabel` for VoiceOver/TalkBack.
-- Flutter: `WidgetKeys` for unit/widget tests; `Semantics(identifier:)` for black-box E2E.
+- Flutter: `WidgetKeys` (`Key`) on widgets for widget tests, `integration_test`, and Patrol.
 - SwiftUI/UIKit: `.accessibilityIdentifier` (automation only); `.accessibilityLabel` (screen reader).
 - Jetpack Compose: `Modifier.testTag` + `testTagsAsResourceId = true` for automation; `contentDescription` for a11y.
 ## Naming

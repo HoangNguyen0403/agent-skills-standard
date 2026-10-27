@@ -102,7 +102,7 @@
       "path": "skills/metadata.json",
       "sha256": "de99d8445dac23ea472a022da2798cb9035b3c33ac017afb595024f1c5dcb947",
       "bytes": 21019,
-      "candidateSha256": "ab974cf8db2bfd2c8b75cbe24cdd503b96f4ff2ddce0449803b5eaaa21c3c8a9"
+      "candidateSha256": "741382b649fb484091e36814ed8e3bc9709aeefbd187b9e5082338ce5468813d"
     },
     {
       "path": "skills/index.json",
@@ -495,13 +495,13 @@
     },
     {
       "path": ".agents/skills/quality-engineering/quality-engineering-selector-stability/SKILL.md",
-      "sha256": "1a2a8236ca998219af0e7c802406d0f814358ca72fb746184fb5cc2d1aea5ffe",
-      "bytes": 2396
+      "sha256": "03147520e25e007fc344d02c1057946f1fe050b08cab52b9fe45c61c1b0d0652",
+      "bytes": 2398
     },
     {
       "path": ".agents/skills/quality-engineering/quality-engineering-selector-stability/references/selector-ladder.md",
-      "sha256": "79d13c6383c7b477303d3c4fd85e25edc1b6adc75203858f85bb84fd31332efd",
-      "bytes": 4017
+      "sha256": "2bd4b52f3b00f1db7e760d7880af1cbbfe44495b032a92d5ff2725809c618e3e",
+      "bytes": 3884
     },
     {
       "path": ".agents/skills/quality-engineering/quality-engineering-test-plan-authoring/SKILL.md",
@@ -745,13 +745,13 @@
     },
     {
       "path": ".claude/skills/quality-engineering/quality-engineering-selector-stability/SKILL.md",
-      "sha256": "1a2a8236ca998219af0e7c802406d0f814358ca72fb746184fb5cc2d1aea5ffe",
-      "bytes": 2396
+      "sha256": "03147520e25e007fc344d02c1057946f1fe050b08cab52b9fe45c61c1b0d0652",
+      "bytes": 2398
     },
     {
       "path": ".claude/skills/quality-engineering/quality-engineering-selector-stability/references/selector-ladder.md",
-      "sha256": "79d13c6383c7b477303d3c4fd85e25edc1b6adc75203858f85bb84fd31332efd",
-      "bytes": 4017
+      "sha256": "2bd4b52f3b00f1db7e760d7880af1cbbfe44495b032a92d5ff2725809c618e3e",
+      "bytes": 3884
     },
     {
       "path": ".claude/skills/quality-engineering/quality-engineering-test-plan-authoring/SKILL.md",
@@ -930,13 +930,13 @@
     },
     {
       "path": ".codex/skills/quality-engineering/quality-engineering-selector-stability/SKILL.md",
-      "sha256": "1a2a8236ca998219af0e7c802406d0f814358ca72fb746184fb5cc2d1aea5ffe",
-      "bytes": 2396
+      "sha256": "03147520e25e007fc344d02c1057946f1fe050b08cab52b9fe45c61c1b0d0652",
+      "bytes": 2398
     },
     {
       "path": ".codex/skills/quality-engineering/quality-engineering-selector-stability/references/selector-ladder.md",
-      "sha256": "79d13c6383c7b477303d3c4fd85e25edc1b6adc75203858f85bb84fd31332efd",
-      "bytes": 4017
+      "sha256": "2bd4b52f3b00f1db7e760d7880af1cbbfe44495b032a92d5ff2725809c618e3e",
+      "bytes": 3884
     },
     {
       "path": ".codex/skills/quality-engineering/quality-engineering-test-plan-authoring/SKILL.md",
@@ -1165,13 +1165,13 @@
     },
     {
       "path": ".github/skills/quality-engineering/quality-engineering-selector-stability/SKILL.md",
-      "sha256": "1a2a8236ca998219af0e7c802406d0f814358ca72fb746184fb5cc2d1aea5ffe",
-      "bytes": 2396
+      "sha256": "03147520e25e007fc344d02c1057946f1fe050b08cab52b9fe45c61c1b0d0652",
+      "bytes": 2398
     },
     {
       "path": ".github/skills/quality-engineering/quality-engineering-selector-stability/references/selector-ladder.md",
-      "sha256": "79d13c6383c7b477303d3c4fd85e25edc1b6adc75203858f85bb84fd31332efd",
-      "bytes": 4017
+      "sha256": "2bd4b52f3b00f1db7e760d7880af1cbbfe44495b032a92d5ff2725809c618e3e",
+      "bytes": 3884
     },
     {
       "path": ".github/skills/quality-engineering/quality-engineering-test-plan-authoring/SKILL.md",
@@ -1345,7 +1345,7 @@
     },
     {
       "path": "skills/metadata.json",
-      "sha256": "ab974cf8db2bfd2c8b75cbe24cdd503b96f4ff2ddce0449803b5eaaa21c3c8a9",
+      "sha256": "741382b649fb484091e36814ed8e3bc9709aeefbd187b9e5082338ce5468813d",
       "bytes": 21019
     },
     {
@@ -1460,8 +1460,8 @@
     },
     {
       "path": "skills/quality-engineering/quality-engineering-selector-stability/SKILL.md",
-      "sha256": "1a2a8236ca998219af0e7c802406d0f814358ca72fb746184fb5cc2d1aea5ffe",
-      "bytes": 2396
+      "sha256": "03147520e25e007fc344d02c1057946f1fe050b08cab52b9fe45c61c1b0d0652",
+      "bytes": 2398
     },
     {
       "path": "skills/quality-engineering/quality-engineering-selector-stability/evals/evals.json",
@@ -1470,8 +1470,8 @@
     },
     {
       "path": "skills/quality-engineering/quality-engineering-selector-stability/references/selector-ladder.md",
-      "sha256": "79d13c6383c7b477303d3c4fd85e25edc1b6adc75203858f85bb84fd31332efd",
-      "bytes": 4017
+      "sha256": "2bd4b52f3b00f1db7e760d7880af1cbbfe44495b032a92d5ff2725809c618e3e",
+      "bytes": 3884
     },
     {
       "path": "skills/quality-engineering/quality-engineering-test-plan-authoring/SKILL.md",

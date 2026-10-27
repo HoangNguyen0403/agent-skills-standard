@@ -71,16 +71,11 @@ ComposeView(context).apply {
 
 ### 3. Flutter
 ```dart
-// Widget tests use Key; E2E Appium/Patrol uses Semantics identifier
-Semantics(
-    identifier: 'checkout-submit-button',
-    label: 'Submit Order',
-    button: true,
-    child: ElevatedButton(
-        key: WidgetKeys.checkoutSubmitButton, // For flutter_test
-        onPressed: () => viewModel.submit(),
-        child: const Text('Submit Order'),
-    ),
+// Use Key with WidgetKeys constants for widget tests, integration_test, and Patrol
+ElevatedButton(
+    key: WidgetKeys.checkoutSubmitButton,
+    onPressed: () => viewModel.submit(),
+    child: const Text('Submit Order'),
 )
 ```
 

@@ -36,7 +36,7 @@ Close every `SELECTOR_GAPS` entry for one slug by adding the missing id to the l
 1. Parse gaps into `<screen>-<element>-<role>` ids (e.g. `checkout-submit-button`); reject any that break the naming rule.
 2. Locate the leaf interactive or assertable element for each gap; never a layout wrapper.
 3. Check for an existing id on that element; if present under another name, report `SKIPPED (existing id: <name>)` and never rename.
-4. Apply the framework snippet from `insertion-policy.md` (`data-testid`, `testID`, `Semantics(identifier:)`, `.accessibilityIdentifier`, `Modifier.testTag`).
+4. Apply the framework snippet from `insertion-policy.md` (`data-testid`, `testID`, `key: WidgetKeys.*`, `.accessibilityIdentifier`, `Modifier.testTag`).
 5. Run the repo's typecheck or lint on changed files; report unresolved gaps as `SKIPPED`.
 
 ## Output

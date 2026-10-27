@@ -508,7 +508,7 @@
       "tag_prefix": "quality-engineering-v",
       "token_metrics": {
         "total_skills": 17,
-        "total_tokens": 17176,
+        "total_tokens": 17177,
         "avg_tokens_per_skill": 1010,
         "largest_skill": "quality-engineering-api-testing (1633 tokens)"
       },
@@ -532,7 +532,7 @@
       "tag_prefix": "specialists-v",
       "token_metrics": {
         "total_skills": 21,
-        "total_tokens": 12392,
+        "total_tokens": 12390,
         "avg_tokens_per_skill": 590,
         "largest_skill": "specialist-solution-diagrammer (1033 tokens)"
       },
