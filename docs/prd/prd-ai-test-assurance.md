@@ -24,15 +24,15 @@ As a maintainer accepting AI-assisted changes, I want evidence that tests protec
 
 | Capability | Disposition | Requirement / task |
 | --- | --- | --- |
-| Report scan completeness honestly | In scope | REQ-01 / T2 |
-| Recognize executable test context without confusing quoted fixtures | In scope; Go first | REQ-02 / T3 |
-| Record test intent, oracle, owner, and boundary realism | In scope | REQ-03 / T4 |
-| Validate revision-bound execution and fault evidence | In scope | REQ-04 / T5 |
-| Distinguish declared trace from verified behavior | In scope | REQ-04 / T5 |
-| Review healing without weakening protected behavior | In scope | REQ-05 / T4, T7 |
-| Challenge policy/eval claims with adversarial controls | In scope | REQ-06 / T6 |
-| Compare baseline and candidate on held-out faults | In scope; bounded offline pilot | REQ-07 / T7 |
-| Publish adoption and incident-feedback procedure | In scope | REQ-08 / T8 |
+| Report scan completeness honestly | In scope | REQ-001 / T2 |
+| Recognize executable test context without confusing quoted fixtures | In scope; Go first | REQ-002 / T3 |
+| Record test intent, oracle, owner, and boundary realism | In scope | REQ-003 / T4 |
+| Validate revision-bound execution and fault evidence | In scope | REQ-004 / T5 |
+| Distinguish declared trace from verified behavior | In scope | REQ-004 / T5 |
+| Review healing without weakening protected behavior | In scope | REQ-005 / T4, T7 |
+| Challenge policy/eval claims with adversarial controls | In scope | REQ-006 / T6 |
+| Compare baseline and candidate on held-out faults | In scope; bounded offline pilot | REQ-007 / T7 |
+| Publish adoption and incident-feedback procedure | In scope | REQ-008 / T8 |
 | Build a new mutation engine or universal semantic test-quality score | Excluded | Reuse an existing runner or controlled known-bug variants |
 | Replace parsers for every supported language | Deferred | Candidate follow-on only after T3 calibration; no implied commitment |
 | Change all existing suites or impose mutation thresholds everywhere | Excluded | Risk-targeted admission only |
@@ -76,37 +76,61 @@ All requirements are proposed. All map to the product owner above; engineering o
 
 | Requirement | Priority | Objective | Responsible task | Observable outcome |
 | --- | --- | --- | --- | --- |
-| REQ-01 | P0 | OBJ-01 | T2 | Consumers distinguish complete, incomplete, invalid, and explicitly inapplicable scans |
-| REQ-02 | P1 | OBJ-03 | T3 | Rule signals distinguish executable Go code from quoted fixtures and explain support limits |
-| REQ-03 | P1 | OBJ-02 | T4 | Existing intent records carry oracle provenance, owner, and boundary limits |
-| REQ-04 | P0 | OBJ-01, OBJ-02 | T5 | Requested assurance level requires matching, current evidence rather than document links |
-| REQ-05 | P1 | OBJ-02 | T4, T7 | Healing cannot be accepted solely because tests became green |
-| REQ-06 | P1 | OBJ-02 | T6 | Critical testing guidance is challenged with wrong-but-plausible responses and behavior probes |
-| REQ-07 | P1 | OBJ-03 | T7 | A bounded baseline/candidate comparison measures fault detection and false alarms |
-| REQ-08 | P2 | OBJ-03 | T8 | Adoption has owners, rollback criteria, maintenance and incident-feedback procedures |
+| REQ-001 | P0 | OBJ-01 | T2 | Consumers distinguish complete, incomplete, invalid, and explicitly inapplicable scans |
+| REQ-002 | P1 | OBJ-03 | T3 | Rule signals distinguish executable Go code from quoted fixtures and explain support limits |
+| REQ-003 | P1 | OBJ-02 | T4 | Existing intent records carry oracle provenance, owner, and boundary limits |
+| REQ-004 | P0 | OBJ-01, OBJ-02 | T5 | Requested assurance level requires matching, current evidence rather than document links |
+| REQ-005 | P1 | OBJ-02 | T4, T7 | Healing cannot be accepted solely because tests became green |
+| REQ-006 | P1 | OBJ-02 | T6 | Critical testing guidance is challenged with wrong-but-plausible responses and behavior probes |
+| REQ-007 | P1 | OBJ-03 | T7 | A bounded baseline/candidate comparison measures fault detection and false alarms |
+| REQ-008 | P2 | OBJ-03 | T8 | Adoption has owners, rollback criteria, maintenance and incident-feedback procedures |
 
-### Behavioral ACs
+### Acceptance criteria trace
 
-- AC-01 (REQ-01): Given an explicit supported nonempty scope, when every selected input is analyzed, the machine report identifies that effective scope and reports completion independently of finding severity.
-- AC-02 (REQ-01): Given an unreadable input, traversal failure, or parse failure in required scope, when the scan finishes, its verdict is incomplete/error and cannot be consumed as clean success.
-- AC-03 (REQ-01): Given zero analyzable tests or unsupported-only inputs, when scanning, report explicit non-success unless the caller explicitly authorized an empty scope; authorized emptiness is not-applicable, never passed.
-- AC-04 (REQ-01): Given incomplete analysis and blocker findings together, when exiting, incompleteness takes precedence while findings remain available.
-- AC-05 (REQ-02): Given a Go test containing suspicious source only as a string/comment fixture, when analyzed, it is not flagged as executing that source.
-- AC-06 (REQ-02): Given the corresponding executable bad pattern, when analyzed, the calibrated detector still reports it at the relevant location.
-- AC-07 (REQ-02): Given distinct boundary values in structurally similar cases, when duplicate analysis is uncertain, it does not claim semantic redundancy or automatically delete the cases.
-- AC-08 (REQ-03): Given a proposed critical test with expected output copied solely from implementation, when reviewed under updated guidance, it lacks an acceptable independent oracle and requires owner resolution.
-- AC-09 (REQ-03): Given one behavior/risk, when its intent is authored, it extends the existing contract/fault/layer/cases/command record with oracle, owner, and real/mock boundary information without creating a parallel record system.
-- AC-10 (REQ-04): Given document links without execution receipts, when producing assurance output, it cannot claim execution or demonstrated fault detection.
-- AC-11 (REQ-04): Given a receipt whose source, test, dependency, or relevant configuration identity no longer matches, when validated, it is stale rather than current success.
-- AC-12 (REQ-04): Given a correct baseline and a relevant faulty variant, when the correct run passes and the faulty run fails at the intended oracle, evidence may demonstrate that named fault only.
-- AC-13 (REQ-04): Given a faulty variant that does not build, times out, or fails infrastructure/setup, when evaluated, it is not counted as a detected behavioral fault.
-- AC-14 (REQ-05): Given changed expectations, skipped checks, broadened matchers, updated baselines, or fixture/selector changes that weaken the exercised behavior, when healing is proposed, green reruns alone cannot authorize acceptance.
-- AC-15 (REQ-06): Given polished responses containing required terminology but endorsing oracle copying, weak assertions, or false-clean reporting, when evaluated, the critical test-quality assertions reject them.
-- AC-16 (REQ-06): Given valid behavioral reasoning phrased differently, when evaluated, canonical keyword absence alone does not invalidate the response where the selected assertion is semantic/behavioral.
-- AC-17 (REQ-07): Given held-out fault cases, when candidate tests are generated, their generator context excludes the held-out faulty implementation and its expected failure details; evaluator records any leakage and invalidates the affected comparison.
-- AC-18 (REQ-07): Given identical approved cases and execution budgets, when comparing baseline/candidate, report separate static-finding, evidence-validity and executed-behavior strata, each with detected faults, misses, false alarms, invalid cases, runtime, review effort, eligible denominators and artifact links; evidence rejection is not behavioral fault detection.
-- AC-19 (REQ-07): Given incomplete evidence or no improvement, when the pilot concludes, report inconclusive/no-go rather than claiming production protection.
-- AC-20 (REQ-08): Given a proposed blocking rollout, when requesting activation, provide precision evidence, named owner, rollback procedure and human approval; documentation publication alone does not activate blocking.
+| ID | Requirement | Summary |
+| --- | --- | --- |
+| AC-001 | REQ-001 | Report effective scope and completion independently of finding severity |
+| AC-002 | REQ-001 | Unreadable, traversal, or parse failures produce incomplete/error |
+| AC-003 | REQ-001 | Zero tests or unsupported inputs report non-success unless authorized empty |
+| AC-004 | REQ-001 | Incomplete analysis takes precedence over blocker findings while retaining findings |
+| AC-005 | REQ-002 | Quoted/comment fixtures inside Go tests do not trigger false positive execution signals |
+| AC-006 | REQ-002 | Executable bad patterns still report correct source positions |
+| AC-007 | REQ-002 | Distinct boundary values in structurally similar cases do not claim semantic redundancy |
+| AC-008 | REQ-003 | Expected output copied solely from implementation output lacks independent oracle |
+| AC-009 | REQ-003 | Intent records capture oracle provenance, owner, and boundary limits |
+| AC-010 | REQ-004 | Document links without execution receipts cannot claim execution or fault assurance |
+| AC-011 | REQ-004 | Input, test, dependency, or configuration drift marks evidence stale |
+| AC-012 | REQ-004 | Passing baseline and failing intended oracle demonstrate named fault only |
+| AC-013 | REQ-004 | Faulty variant that fails build, times out, or fails setup is not a detected behavioral fault |
+| AC-014 | REQ-005 | Healing cannot be accepted solely because tests became green after weakening |
+| AC-015 | REQ-006 | Wrong-but-plausible responses endorsing oracle copying or mock echoes are rejected |
+| AC-016 | REQ-006 | Valid behavioral reasoning with alternate phrasing passes semantic assertions |
+| AC-017 | REQ-007 | Held-out evaluation excludes faulty implementations and failure details from generators |
+| AC-018 | REQ-007 | Bounded pilot reports separate static, evidence, and executed behavioral strata |
+| AC-019 | REQ-007 | Incomplete evidence or no improvement reports inconclusive/no-go |
+| AC-020 | REQ-008 | Blocking rollout requires precision evidence, owner, rollback procedure, and human approval |
+
+### Behavioral AC statements
+- AC-001 (REQ-001): Given an explicit supported nonempty scope, when every selected input is analyzed, the machine report identifies that effective scope and reports completion independently of finding severity.
+- AC-002 (REQ-001): Given an unreadable input, traversal failure, or parse failure in required scope, when the scan finishes, its verdict is incomplete/error and cannot be consumed as clean success.
+- AC-003 (REQ-001): Given zero analyzable tests or unsupported-only inputs, when scanning, report explicit non-success unless the caller explicitly authorized an empty scope; authorized emptiness is not-applicable, never passed.
+- AC-004 (REQ-001): Given incomplete analysis and blocker findings together, when exiting, incompleteness takes precedence while findings remain available.
+- AC-005 (REQ-002): Given a Go test containing suspicious source only as a string/comment fixture, when analyzed, it is not flagged as executing that source.
+- AC-006 (REQ-002): Given the corresponding executable bad pattern, when analyzed, the calibrated detector still reports it at the relevant location.
+- AC-007 (REQ-002): Given distinct boundary values in structurally similar cases, when duplicate analysis is uncertain, it does not claim semantic redundancy or automatically delete the cases.
+- AC-008 (REQ-003): Given a proposed critical test with expected output copied solely from implementation, when reviewed under updated guidance, it lacks an acceptable independent oracle and requires owner resolution.
+- AC-009 (REQ-003): Given one behavior/risk, when its intent is authored, it extends the existing contract/fault/layer/cases/command record with oracle, owner, and real/mock boundary information without creating a parallel record system.
+- AC-010 (REQ-004): Given document links without execution receipts, when producing assurance output, it cannot claim execution or demonstrated fault detection.
+- AC-011 (REQ-004): Given a receipt whose source, test, dependency, or relevant configuration identity no longer matches, when validated, it is stale rather than current success.
+- AC-012 (REQ-004): Given a correct baseline and a relevant faulty variant, when the correct run passes and the faulty run fails at the intended oracle, evidence may demonstrate that named fault only.
+- AC-013 (REQ-004): Given a faulty variant that does not build, times out, or fails infrastructure/setup, when evaluated, it is not counted as a detected behavioral fault.
+- AC-014 (REQ-005): Given changed expectations, skipped checks, broadened matchers, updated baselines, or fixture/selector changes that weaken the exercised behavior, when healing is proposed, green reruns alone cannot authorize acceptance.
+- AC-015 (REQ-006): Given polished responses containing required terminology but endorsing oracle copying, weak assertions, or false-clean reporting, when evaluated, the critical test-quality assertions reject them.
+- AC-016 (REQ-006): Given valid behavioral reasoning phrased differently, when evaluated, canonical keyword absence alone does not invalidate the response where the selected assertion is semantic/behavioral.
+- AC-017 (REQ-007): Given held-out fault cases, when candidate tests are generated, their generator context excludes the held-out faulty implementation and its expected failure details; evaluator records any leakage and invalidates the affected comparison.
+- AC-018 (REQ-007): Given identical approved cases and execution budgets, when comparing baseline/candidate, report separate static-finding, evidence-validity and executed-behavior strata, each with detected faults, misses, false alarms, invalid cases, runtime, review effort, eligible denominators and artifact links; evidence rejection is not behavioral fault detection.
+- AC-019 (REQ-007): Given incomplete evidence or no improvement, when the pilot concludes, report inconclusive/no-go rather than claiming production protection.
+- AC-020 (REQ-008): Given a proposed blocking rollout, when requesting activation, provide precision evidence, named owner, rollback procedure and human approval; documentation publication alone does not activate blocking.
 
 ## 4. Shared contract decisions and technical-design gate
 
@@ -183,7 +207,7 @@ Effort is relative planning points, not calendar or spending commitments. Total:
 - Owner: technical-design worker; estimate 5 points, medium confidence.
 - Depends on: implementation-planning authorization only; this task creates design, not runtime code.
 - Scope: both repositories read-only; write AGS `docs/srs/srs-ai-test-assurance.md` only (new file).
-- Requirements: REQ-01 through REQ-08; acceptance focus AC-01 through AC-04, AC-10 through AC-13.
+- Requirements: REQ-001 through REQ-008; acceptance focus AC-001 through AC-004, AC-010 through AC-013.
 - Steps: inspect existing result/receipt/schema conventions and actual report consumers; map generated versus canonical skills; specify scan envelope and exit semantics; specify intent/evidence schema, trust labels and validation invocation; define TestGuard-to-AGS adapter boundary; record exact owned paths and commands for T2-T8; identify applicable release compatibility policy.
 - Deliverable: one technical contract with schema examples, invalid examples, migration table, expected CLI invocations and digest-bound fixture interface for downstream tasks.
 - Verification: walkthrough each scan-table row and stale/invalid-fault scenario against the contract; independent technical review before schema freeze. No production/test execution claim.
@@ -195,7 +219,7 @@ Effort is relative planning points, not calendar or spending commitments. Total:
 - Owner: TestGuard engine/report worker; 5 points, medium confidence.
 - Depends on: reviewed T1.
 - Owned existing paths: `pkg/engine/engine.go`, `pkg/engine/discovery.go`, engine tests, `pkg/models/violation.go`, `pkg/reporter/`, `cmd/testguard/main.go`; new report-model files only as approved by T1. This owner alone edits the engine during this wave.
-- Requirements: REQ-01; AC-01 through AC-04.
+- Requirements: REQ-001; AC-001 through AC-004.
 - Steps: propagate discovery/read/parse failures; account for effective selection and unsupported scope; emit reviewed envelope in JSON and consistent console/Azure verdicts; implement empty-scope policy and precedence; report tool/source identity without fabricating unavailable build metadata; migrate discovered consumers and relevant CLI documentation.
 - Verification: focused Go regression cases for complete, unreadable, parse-failed, unsupported, empty-allowed, empty-disallowed and incomplete-plus-blocker inputs. After freeze: `rtk proxy go test ./pkg/engine ./pkg/reporter ./cmd/testguard` plus actual freshly built CLI invocations on temporary fixtures using T1 exact flags. OS permission cases use deterministic fault injection where chmod cannot reproduce denial.
 - Non-goals: AST rewrite, rule catalog expansion, implementing advertised diff/config features unless necessary to the frozen contract; unsupported diff mode must fail explicitly or honestly identify full scope, never claim changed-files-only.
@@ -204,8 +228,8 @@ Effort is relative planning points, not calendar or spending commitments. Total:
 
 - Owner: TestGuard Go-parser/rule worker; 5 points, medium confidence.
 - Depends on: T2 integration (shared engine ownership), reviewed T1.
-- Owned paths: `pkg/parser/`, `pkg/rules/golang/`, `pkg/engine/engine.go` only for parser dispatch, relevant engine tests and `pkg/detectors/clone/` only for AC-07. Leave Dart parsing behavior unchanged except shared-contract compatibility fixes reviewed separately.
-- Requirements: REQ-02; AC-05 through AC-07.
+- Owned paths: `pkg/parser/`, `pkg/rules/golang/`, `pkg/engine/engine.go` only for parser dispatch, relevant engine tests and `pkg/detectors/clone/` only for AC-007. Leave Dart parsing behavior unchanged except shared-contract compatibility fixes reviewed separately.
+- Requirements: REQ-002; AC-005 through AC-007.
 - Steps: use Go standard-library syntax facilities to distinguish executable nodes from comments/string fixtures; preserve source positions and helper limitations; add paired bad/good controls; prevent literal normalization from being presented as proven semantic duplication; report unsupported/ambiguous constructs accurately.
 - Verification after freeze: `rtk proxy go test ./pkg/parser/... ./pkg/rules/golang ./pkg/detectors/clone ./pkg/engine`; run freshly built CLI on paired executable/quoted examples and the original `pkg/rules/golang/rules_test.go`. Both original fixture false positives disappear while true executable controls remain detected. Report per-rule counts, not a claimed population-wide precision rate.
 - Non-goals: full compiler/dataflow semantics, all-language AST replacement, auto-deleting tests.
@@ -215,7 +239,7 @@ Effort is relative planning points, not calendar or spending commitments. Total:
 - Owner: AGS skill/workflow worker; 3 points, high confidence.
 - Depends on: reviewed T1. May run beside T2.
 - Owned paths: canonical `skills/common/common-tdd/SKILL.md` and `references/quality-contract.md`; relevant canonical QE healing/triage guidance and `.agents/workflows/test-loop.md` identified in T1. Generated mirrors are owned by T8, not this worker.
-- Requirements: REQ-03, REQ-05; AC-08, AC-09, AC-14.
+- Requirements: REQ-003, REQ-005; AC-008, AC-009, AC-014.
 - Steps: extend the existing intent record by reference to the shared schema; require independent oracle provenance and risk-sensitive fault evidence; make real/fake/mock boundaries explicit; preserve justified cross-layer checks; clarify that unchanged assertion text and repeated green are insufficient if fixtures/selectors weakened the behavior; preserve real-bug and quarantine routing.
 - Verification: independent review against concrete good/bad scenarios; T6 adversarial cases exercise the changed guidance. No numeric score, universal mutation threshold, or fabricated model-run result.
 - Non-goals: separate checklist platform, schema changes owned by T5, blanket end-to-end testing.
@@ -225,7 +249,7 @@ Effort is relative planning points, not calendar or spending commitments. Total:
 - Owner: AGS evidence/trace worker; 8 points, medium-low confidence.
 - Depends on: reviewed T1 and T2 report contract; may run beside T3, T4 and T6 if T1 paths remain disjoint.
 - Owned paths: `scripts/trace/`; T1-approved evidence-validator module/schema and its tests; no edits to skill bodies or general eval scorer. Any package script edit is reserved for T8; provide required invocation as report output.
-- Requirements: REQ-04; AC-10 through AC-13.
+- Requirements: REQ-004; AC-010 through AC-013.
 - Steps: implement reviewed schema and validator using existing conventions; ingest local pinned TestGuard reports; separate document trace from execution/fault assurance; validate required evidence presence, identity, artifact hashes and outcome classification; refuse stale evidence; label local evidence trust honestly; report missing evidence rather than upgrading absent-source success into release assurance.
 - Verification: valid and invalid fixtures for absent/stale/tampered artifacts, dirty inputs, dependency/config drift, correct baseline, intended faulty failure, compile failure and timeout. After freeze use existing `rtk pnpm test:trace` and the exact focused validator command from T1; invoke actual validator CLI on one valid and several invalid bundles. No network or receipt-directed command execution: receipt commands are data, not executable instructions.
 - Non-goals: executing arbitrary uploaded commands, secret-bearing receipts, remote attestation, generic mutation engine, changing unrelated trace ID semantics.
@@ -235,7 +259,7 @@ Effort is relative planning points, not calendar or spending commitments. Total:
 - Owner: AGS eval-fixture worker; 3 points, medium confidence.
 - Depends on: reviewed T1; fixture design may run beside T2/T4. Final acceptance depends on T4 guidance.
 - Owned paths: test-quality skill eval metadata/candidates and dedicated scorer regression fixtures selected by T1; do not edit `scripts/evals/scorer.ts` or shared behavior without orchestrator-approved scope expansion.
-- Requirements: REQ-06; AC-15, AC-16.
+- Requirements: REQ-006; AC-015, AC-016.
 - Steps: add wrong-but-keyword-rich controls, oracle-copying controls, tautological/mock-echo cases, empty-scan claims, weakened healing and valid paraphrase controls; prefer existing assertion primitives that actually distinguish behavior; record unsupported assertion semantics as explicit gaps rather than faking scores.
 - Verification after freeze: run real existing scorer against controlled candidate transcripts using the exact local command frozen by T1. Demonstrate incorrect candidates fail and legitimate equivalents pass for the selected assertion. No paid live evals or claims of model effectiveness.
 - Stop: existing primitives cannot express an AC safely; return a bounded scorer-change proposal for separate ownership before implementation.
@@ -245,12 +269,12 @@ Effort is relative planning points, not calendar or spending commitments. Total:
 - Owner: independent QE pilot worker owns T7-E protocol/adjudication; separately assigned test-generation workers own T7-G-B (baseline) and T7-G-C (candidate). No individual/session may own both generation and evaluation. Estimate 8 points across these packets, low-medium confidence.
 - Depends on: T2-T6 integrated and independently reviewed; T8 integration checkpoint; explicit pilot authorization and approved corpus. Execution order: T7-E protocol freeze, T7-G-B/T7-G-C in parallel, artifact freeze, T7-E execution/adjudication.
 - Owned paths: T7-E owns evaluator-only corpus, faults, expected-failure details and results in its isolated evidence workspace. Each T7-G packet owns only its own test-output directory in a separate generator workspace. No production-source edits or external services.
-- Requirements: REQ-05, REQ-07; AC-14, AC-17 through AC-19.
+- Requirements: REQ-005, REQ-007; AC-014, AC-017 through AC-019.
 - Steps: freeze cases, oracle adjudication, baseline/candidate revisions, budgets and stratified measurement protocol before generation; independently hold out faulty variants; compare arms on identical cases; exercise real CLI and validator; adjudicate false alarms and missed faults; include an assertion-preserving but behavior-weakening fixture change.
 - Proposed bounded corpus: 12 reviewed cases, 6 development and 6 held-out, plus 6 legitimate negative controls. Each six-case split contains 2 static-rule cases, 2 scan/evidence-validity cases and 2 executable behavioral-fault cases. The six negative controls contain two per stratum. Counts are proposed scope, not statistical confidence. Use actual repository defects where available; label synthetic cases separately and do not present them as historical production evidence.
 - Stratum A, static analysis: freeze input tests and compare baseline/candidate TestGuard findings against adjudicated labels; denominator is supported valid cases in this stratum.
 - Stratum B, evidence validity: freeze input bundles and compare baseline/candidate validation decisions; denominator is valid challenge bundles in this stratum. Rejecting stale/incomplete evidence improves evidence hygiene, not behavioral defect detection.
-- Stratum C, behavioral protection: hold the correct implementation, held-out faulty variants, independent oracle and runner/environment constant; change only the frozen arm-specific generated test suite under its respective guidance. Count detection only when the correct implementation passes and the faulty implementation fails at the intended oracle under AC-12/AC-13. Denominator is valid executable non-equivalent held-out faults, excluding invalid/build/setup cases with explicit reasons.
+- Stratum C, behavioral protection: hold the correct implementation, held-out faulty variants, independent oracle and runner/environment constant; change only the frozen arm-specific generated test suite under its respective guidance. Count detection only when the correct implementation passes and the faulty implementation fails at the intended oracle under AC-012/AC-013. Denominator is valid executable non-equivalent held-out faults, excluding invalid/build/setup cases with explicit reasons.
 - Proposed budget: 120 seconds per focused run and 30 minutes machine runtime per arm; record human review minutes. Generation packets require a separately approved profile/model, invocation cap and spending authority before dispatch; otherwise use already authorized frozen generation artifacts and limit claims accordingly. No nested provider API calls, live eval services or network-dependent test execution. Budget exhaustion is inconclusive, not pass.
 - Go/no-go: zero false-clean decisions in Stratum B; no lost baseline detections within any valid held-out stratum; at least one additional held-out behavioral fault detected in Stratum C; zero false blocking decisions across the six legitimate controls; remain within machine budgets. Improvements only in A/B support an evidence-hygiene conclusion, not the behavioral-improvement go decision. If valid C cases are unavailable or too few for this criterion, return inconclusive. Small sample supports another bounded trial, not production reliability claims.
 - Verification: the orchestrator runs the frozen per-case CLI/validator/test commands provided in T1 and the T7-E protocol, preserving correct/faulty output pairs and artifact identities. Independent QE checks stratum classification, oracle failure location, denominators, generator-input manifests and contamination exclusions before issuing a verdict.
@@ -271,7 +295,7 @@ Effort is relative planning points, not calendar or spending commitments. Total:
 - Owner: integration worker; 3 points, medium confidence. Orchestrator retains verification and commit authority.
 - Depends on: T2-T6 for integration; T7 result for rollout recommendation.
 - Owned paths: AGS and TestGuard manifests/CI/docs/changelog only as listed by T1; generated AGS skill exports/mirrors only through canonical tooling. No other owner edits these paths concurrently.
-- Requirements: REQ-08; AC-20; integrated verification of all ACs.
+- Requirements: REQ-008; AC-020; integrated verification of all ACs.
 - Steps: wire approved local check commands and non-blocking observation integration; update documented JSON/exit-code consumers, examples, rule naming explanations and release compatibility notes; preserve canonical SDD evidence before generators; regenerate required mirrors once and copy back only allowlisted outputs; document human ownership, quarantine expiry, removal review and sanitized incident-to-regression feedback.
 - Verification: run relevant focused checks once after the integrated revision settles, then actual CLI-to-report-to-validator smoke on complete/incomplete/stale/fault-failure scenarios; independent whole-change review. State which CI configurations were edited versus actually executed. No live CI claim from YAML alone.
 - Rollout: observation first. Blocking enablement requires owner approval and calibration evidence; rollback disables new blocking policy while preserving reports and existing unrelated gates. Never convert missing evidence into success as rollback.

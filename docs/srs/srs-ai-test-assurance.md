@@ -3,7 +3,7 @@
 - Slug: `ai-test-assurance`; date: 2026-10-26; owner: T1 technical designer.
 - Contract revision: 1; status: ready for independent technical review, not self-approved.
 - Authority update: the requester’s “okay start implement the plan” authorizes Subagent-Driven implementation. It does not authorize release, deployment, blocking-policy activation, pilot execution/provider spending, or additional model calls. This supersedes the PRD’s older implementation-pending status without editing its requirement registry.
-- Sources: `docs/prd/prd-ai-test-assurance.md`, `.agent/sdd/ai-test-assurance/T1-brief.md`. No separate approved BRD is asserted; preserve PRD `OBJ-01..03`, `REQ-01..08`, and `AC-01..20` IDs.
+- Sources: `docs/prd/prd-ai-test-assurance.md`, `.agent/sdd/ai-test-assurance/T1-brief.md`. No separate approved BRD is asserted; preserve PRD `OBJ-01..03`, `REQ-001..08`, and `AC-001..20` IDs.
 - Repository status: design publication only. Activation status: not authorized. Independent review must freeze this document’s digest before T2–T6 dispatch.
 
 ## 1. Evidence ledger and decision
@@ -28,14 +28,14 @@ All cards are status `review`, priority inherited below, owner the numbered work
 
 | SRS | Source | Priority / component | Required behavior | Verification / evidence target |
 | --- | --- | --- | --- | --- |
-| SRS-001 | OBJ-01, REQ-01, AC-01..04 | P0 / T2 scan | Separate completeness from findings; deterministic exit precedence (§3). | VER-001 Go cases + actual CLI; T2 report and scan JSON fixtures. |
-| SRS-002 | OBJ-03, REQ-02, AC-05..07 | P1 / T3 syntax | Go syntax distinguishes executable nodes from quoted/comment fixtures; retain true controls and source positions, no semantic-duplicate claim. | VER-002 paired executable/quoted CLI output and focused packages. |
-| SRS-003 | OBJ-02, REQ-03, AC-08..09 | P1 / T4 intent | Extend existing intent with independent oracle, accountable owner and honest boundaries (§4). | VER-003 independent review of good/bad intent cases. |
-| SRS-004 | OBJ-01..02, REQ-04, AC-10..13 | P0 / T5 evidence | Validate input identities, artifacts and named-fault classification; never upgrade trace/static evidence (§4–5). | VER-004 validator and trace regression cases + real CLI bundles. |
-| SRS-005 | OBJ-02, REQ-05, AC-14 | P1 / T4,T7 healing | Green and unchanged assertion text cannot authorize weakened fixtures/selectors/baselines. | VER-005 adversarial guidance review + evaluator-owned healing challenge. |
-| SRS-006 | OBJ-02, REQ-06, AC-15..16 | P1 / T6 scorer fixtures | Wrong keyword-rich candidates fail selected assertions; legitimate paraphrases pass; disclose matcher limits. | VER-006 existing scorer invoked directly from node:test (§7). |
-| SRS-007 | OBJ-03, REQ-07, AC-17..19 | P1 / T7 pilot | Isolated generation, held-out evaluation, three strata and explicit denominators (§8). | VER-007 evaluator protocol, manifests and output pairs; separate authorization. |
-| SRS-008 | OBJ-03, REQ-08, AC-20 | P2 / T8 integration | Migrate consumers, regenerate only approved exports and publish observation-only adoption/rollback. | VER-008 integrated smoke + owner approval record before any blocking activation. |
+| SRS-001 | OBJ-01, REQ-001, AC-001..04 | P0 / T2 scan | Separate completeness from findings; deterministic exit precedence (§3). | VER-001 Go cases + actual CLI; T2 report and scan JSON fixtures. |
+| SRS-002 | OBJ-03, REQ-002, AC-005..07 | P1 / T3 syntax | Go syntax distinguishes executable nodes from quoted/comment fixtures; retain true controls and source positions, no semantic-duplicate claim. | VER-002 paired executable/quoted CLI output and focused packages. |
+| SRS-003 | OBJ-02, REQ-003, AC-008..09 | P1 / T4 intent | Extend existing intent with independent oracle, accountable owner and honest boundaries (§4). | VER-003 independent review of good/bad intent cases. |
+| SRS-004 | OBJ-01..02, REQ-004, AC-010..13 | P0 / T5 evidence | Validate input identities, artifacts and named-fault classification; never upgrade trace/static evidence (§4–5). | VER-004 validator and trace regression cases + real CLI bundles. |
+| SRS-005 | OBJ-02, REQ-005, AC-014 | P1 / T4,T7 healing | Green and unchanged assertion text cannot authorize weakened fixtures/selectors/baselines. | VER-005 adversarial guidance review + evaluator-owned healing challenge. |
+| SRS-006 | OBJ-02, REQ-006, AC-015..16 | P1 / T6 scorer fixtures | Wrong keyword-rich candidates fail selected assertions; legitimate paraphrases pass; disclose matcher limits. | VER-006 existing scorer invoked directly from node:test (§7). |
+| SRS-007 | OBJ-03, REQ-007, AC-017..19 | P1 / T7 pilot | Isolated generation, held-out evaluation, three strata and explicit denominators (§8). | VER-007 evaluator protocol, manifests and output pairs; separate authorization. |
+| SRS-008 | OBJ-03, REQ-008, AC-020 | P2 / T8 integration | Migrate consumers, regenerate only approved exports and publish observation-only adoption/rollback. | VER-008 integrated smoke + owner approval record before any blocking activation. |
 
 Functional flow: maintainer selects scan scope → TestGuard analyzes available inputs and retains diagnostics/findings → writes envelope and chooses exit independently of reporter. Maintainer supplies intent, expected current snapshot and receipt → AGS validates bytes and classification → reports separate declaration/static/execution/fault/freshness/review dimensions. Missing/error paths never become assurance success. No event bus, persistence service, retry loop or asynchronous job is introduced.
 
