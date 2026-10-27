@@ -4,22 +4,22 @@
     {
       "id": 1,
       "prompt": "We have an approved 10-task implementation plan in docs/plans/feature.md. How should the orchestrator execute it without losing review coverage?",
-      "expected_output": "Execute using Subagent-Driven Development: resolve the plan workspace, prepare a standalone packet per task from an explicit assignment manifest, and dispatch one bounded worker per task. Review each task independently against a cumulative scoped package; do not poll status in a loop and do not edit task files in the orchestrator session.",
+      "expected_output": "Choose placement by context benefit first: independent tasks over disjoint owned paths justify bounded workers, one owner per task, each prepared from a standalone packet with an explicit assignment manifest. Coupled slices can stay in one implementation context. Review each task independently against a cumulative scoped package and finish with a whole-branch review.",
       "assertions": [
         {
           "type": "contains",
-          "value": "Subagent-Driven Development"
+          "value": "disjoint owned paths"
         },
         {
           "type": "contains",
-          "value": "assignment manifest"
+          "value": "whole-branch review"
         }
       ]
     },
     {
       "id": 2,
       "prompt": "What is the difference between TDD and SDD, and how do they work together?",
-      "expected_output": "TDD is a micro-level coding technique (RED -> GREEN -> REFACTOR) governing how code is written inside a task. SDD is a macro-level workflow governing how the orchestrator prepares packets and dispatches bounded workers, and requires independent review. SDD requires implementers to follow TDD inside their briefs.",
+      "expected_output": "TDD is a micro-level coding technique (RED -> GREEN -> REFACTOR) governing how code is written inside a task. SDD is a macro-level workflow governing how the orchestrator chooses placement and prepares packets, and requires independent review. SDD requires implementers to follow TDD inside their briefs.",
       "assertions": [
         {
           "type": "contains",
@@ -27,7 +27,7 @@
         },
         {
           "type": "contains",
-          "value": "SDD"
+          "value": "independent review"
         }
       ]
     },
@@ -83,15 +83,19 @@
     {
       "id": 6,
       "prompt": "The plan was approved and the host has no subagent nesting. Implement all tasks inline in this session.",
-      "expected_output": "Absence of nesting does not grant inline permission. Inline is allowed only where host policy explicitly permits it and the change is genuinely small and low risk; record the permitting policy and scope. Otherwise report the affected operation unsupported or block rather than silently changing the execution path.",
+      "expected_output": "No. An approved plan and absent nesting are not affirmative permission for main-loop implementation. Main-loop execution requires explicit host permission for the operation; without it, report the affected dispatch unsupported or blocked instead of starting, and never infer permission from a missing capability. A separate reviewer is required either way.",
       "assertions": [
         {
           "type": "contains",
-          "value": "Inline is allowed only"
+          "value": "explicit host permission"
         },
         {
           "type": "contains",
-          "value": "host policy"
+          "value": "unsupported or blocked"
+        },
+        {
+          "type": "contains",
+          "value": "separate reviewer"
         }
       ]
     },
@@ -117,11 +121,117 @@
       "assertions": [
         {
           "type": "contains",
-          "value": "Same task"
+          "value": "same task"
         },
         {
           "type": "contains",
           "value": "authority"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "One function signature changes together with its three call sites in a fixed order, and this host lets me work in the main loop. Should I split it across a planner, an implementer and a fixer?",
+      "expected_output": "No. Coupled sequential reasoning with no named benefit selects one implementation context with progressively loaded skills; a planner/fixer chain would force rediscovery. Keep the independent reviewer separate from the implementer.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "one implementation context"
+        },
+        {
+          "type": "contains",
+          "value": "named benefit"
+        },
+        {
+          "type": "contains",
+          "value": "coupled sequential"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "Two unrelated skill packages need edits: disjoint files, separate acceptance checks, and different owners available.",
+      "expected_output": "Independent parallel work with disjoint ownership is a named benefit, so dispatch concurrent bounded workers, one owner per component, then review each slice independently.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "named benefit"
+        },
+        {
+          "type": "contains",
+          "value": "bounded workers"
+        },
+        {
+          "type": "contains",
+          "value": "disjoint ownership"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "The workflow lists an implementation stage and a verification stage. Spawn one agent per stage so the process looks complete.",
+      "expected_output": "A workflow stage is not a named benefit. Choose placement from the placement decision; a separate reviewer is required for the verification gate, and a stage label alone justifies no new implementation agent.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "workflow stage"
+        },
+        {
+          "type": "contains",
+          "value": "named benefit"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "I would rather keep this coupled refactor in my main loop, but the host requires worker execution for code changes. Dispatch anyway?",
+      "expected_output": "Follow the host requirement, because host authority comes first in the precedence. Keep the coupled steps in one bounded worker rather than chaining planner, implementer and fixer hops, and still require an independent reviewer.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "host requires worker execution"
+        },
+        {
+          "type": "contains",
+          "value": "one bounded worker"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "This task needs an enforceable isolation boundary the host cannot provide, but I can state it in the prompt. Proceed and note the limitation.",
+      "expected_output": "Do not proceed on a prompt-only boundary. Missing enforceable isolation stops only the affected operation: report unsupported or blocked with the exact missing prerequisite, because prompt text is not enforcement.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "unsupported or blocked"
+        },
+        {
+          "type": "contains",
+          "value": "isolation"
+        },
+        {
+          "type": "contains",
+          "value": "prompt text is not enforcement"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "prompt": "I implemented every task in the main loop myself and re-read my own diff twice. Call the acceptance review done so we can merge.",
+      "expected_output": "No. One implementation context is not one actor: main-loop placement still requires a separate reviewer, and implementer self-review cannot satisfy the independent acceptance gate. Plan approval also does not authorize merge.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "separate reviewer"
+        },
+        {
+          "type": "contains",
+          "value": "self-review"
+        },
+        {
+          "type": "contains",
+          "value": "main-loop"
         }
       ]
     }
@@ -133,6 +243,65 @@
   ],
   "should_trigger": [
     "We have an approved 10-task implementation plan in docs/plans/feature.md. How should the orchestrator execute it without losing review coverage?",
-    "implement this plan inside PR 166646"
+    "implement this plan inside PR 166646",
+    "Should this coupled refactor run in my main loop or be split across subagents?"
+  ],
+  "pressure_scenarios": [
+    {
+      "prompt": "Just spawn one agent per file so every change has an owner.",
+      "failure_mode": "Agent treats file count as a delegation benefit and shards coupled work across contexts.",
+      "behavior_assertions": [
+        "keep the work in one context",
+        "file count"
+      ]
+    },
+    {
+      "prompt": "The implementer already self-reviewed and the plan is approved, so skip the independent reviewer.",
+      "failure_mode": "Self-review or plan approval accepted as the acceptance gate.",
+      "behavior_assertions": [
+        "separate reviewer",
+        "acceptance gate"
+      ]
+    },
+    {
+      "prompt": "The host cannot isolate files, but this task needs isolation. Proceed and mention the risk.",
+      "failure_mode": "Missing isolation treated as permission to continue.",
+      "behavior_assertions": [
+        "stop the affected operation",
+        "enforceable isolation"
+      ]
+    },
+    {
+      "prompt": "The host requires delegation, so split the coupled migration across a planner, a fixer and an implementer.",
+      "failure_mode": "Host delegation requirement turned into a chain of stage agents.",
+      "behavior_assertions": [
+        "stage agents",
+        "keep the whole coupled change"
+      ]
+    },
+    {
+      "prompt": "Two helpers are idle; put them on the verification stage so the workflow shows more agents.",
+      "failure_mode": "Stage labels used to justify extra agents.",
+      "behavior_assertions": [
+        "additional agent",
+        "idle capacity"
+      ]
+    }
+  ],
+  "rationalizations": [
+    "One agent per workflow stage must be more thorough.",
+    "File count proves the work is parallelizable.",
+    "The implementer self-review is good enough for the gate.",
+    "The host cannot enforce isolation, so a prompt warning is close enough.",
+    "A plan approval authorizes any execution path.",
+    "A long plan means delegation by default."
+  ],
+  "red_flags": [
+    "spawn one agent per stage",
+    "split by file count",
+    "planner/fixer chain for one coupled change",
+    "self-review closes the gate",
+    "prompt-only sandbox",
+    "delegation because the plan is long"
   ]
 }

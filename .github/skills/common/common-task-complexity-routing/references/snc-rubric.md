@@ -47,6 +47,12 @@ Any touch to auth, money, permissions, data integrity, or a trust boundary is C=
 - After `specialist-codebase-scout` impact radius: `SNC (evidence: scout)`.
 - When the two disagree, the higher score wins until proven otherwise.
 
+## Capability and Floor Interaction
+
+- A low total permits a cheaper eligible configuration; it never lowers a sensitivity floor or drops a required reviewer.
+- Deterministic work scores low yet still prefers an existing tool or script over another LLM call.
+- More thinking effort never substitutes for missing verification or for an approval gate.
+
 ## Downward Reassessment
 
 - Permitted ONLY when documented new evidence (e.g. `specialist-codebase-scout` proves the blast radius is strictly isolated with no external consumers) disproves initial inferred spread or centrality.

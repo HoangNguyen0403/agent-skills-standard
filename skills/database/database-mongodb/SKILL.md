@@ -10,9 +10,10 @@ metadata:
     keywords:
     - mongo
     - mongoose
+    - mongoose model
+    - mongodb model
     - objectid
     - schema
-    - model
   upstream:
     - name: mongodb
       source: github
