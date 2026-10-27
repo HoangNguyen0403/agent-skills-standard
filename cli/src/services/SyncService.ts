@@ -1157,7 +1157,7 @@ export class SyncService {
     const remoteMeta = await this.fetchRegistryMetadata(config);
     if (!remoteMeta) return {};
 
-    const updates: Record<string, string> = {};
+    const candidates: Array<{ key: string; ref: string }> = [];
 
     for (const [cat, catConfig] of Object.entries(config.skills)) {
       const remoteMetaCat = remoteMeta.categories?.[cat];
@@ -1165,14 +1165,14 @@ export class SyncService {
 
       const latestRef = `${remoteMetaCat.tag_prefix || ''}${remoteMetaCat.version}`;
       if (catConfig.ref !== latestRef) {
-        updates[cat] = latestRef;
+        candidates.push({ key: cat, ref: latestRef });
       }
     }
 
     if (remoteMeta.releases?.workflows?.version) {
       const latestWorkflowsRef = `${remoteMeta.releases.workflows.tag_prefix || ''}${remoteMeta.releases.workflows.version}`;
       if (config.workflows_ref && config.workflows_ref !== latestWorkflowsRef) {
-        updates['workflows'] = latestWorkflowsRef;
+        candidates.push({ key: 'workflows', ref: latestWorkflowsRef });
       }
     }
 
@@ -1182,10 +1182,23 @@ export class SyncService {
         config.specialists_ref &&
         config.specialists_ref !== latestSpecialistsRef
       ) {
-        updates['specialists'] = latestSpecialistsRef;
+        candidates.push({ key: 'specialists', ref: latestSpecialistsRef });
       }
     }
 
+    const updates: Record<string, string> = {};
+    if (candidates.length > 0) {
+      const resolvedCommits = await Promise.all(
+        candidates.map((c) =>
+          this.githubService.resolveCommit(owner, repo, c.ref),
+        ),
+      );
+      candidates.forEach((c, idx) => {
+        if (resolvedCommits[idx]) {
+          updates[c.key] = c.ref;
+        }
+      });
+    }
     this.warnAboutRevokedRefs(config, remoteMeta);
 
     return updates;
