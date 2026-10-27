@@ -39,7 +39,7 @@ Analyze diff and select the correct test layer:
 6. **Install/Upgrade**: Clean install (`fullReset`) vs upgrade migration (`noReset` + DB migration).
 7. **Accessibility/Presentation**: VoiceOver/TalkBack, Dynamic Type, Safe Area, soft keyboard.
 8. **Performance/QoS**: Cold/warm startup, scroll jank/FPS, ANR/crashes, memory leaks; battery only with an approved objective on a physical device.
-9. **Security/Privacy**: Keychain/Keystore/EncryptedSharedPreferences, logout cleanup, no log PII.
+9. **Security/Privacy**: Hardware-backed secure storage (Secure Enclave / Keystore / encrypted preferences), logout cleanup, no log PII.
 10. **Release Smoke**: SHA-256 build artifact digest, signing context, device ledger, honest BLOCKED reporting.
 
 ## 🛠️ Core Tool Mapping

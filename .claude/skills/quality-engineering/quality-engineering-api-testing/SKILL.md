@@ -50,7 +50,7 @@ Standardizes API correctness verification across five distinct purposes (lane: `
 - **Schema validation as functional proof**: Skipping business calculation or persistence assertions because the schema parsed.
 - **Conflating schema with compatibility or consumer contract**: Breaking backward compatibility or consumer expectations while passing standalone OpenAPI syntax checks.
 - **Default-as-compatibility**: Treating a schema `default` on a newly required request property, or an unhandled new response enum value, as non-breaking without evidence of the approved provider/consumer behavior.
-- **Blind call-firing**: Firing requests without checking database state, compensations, or duplicate effects on retry.
+- **Blind call-firing**: Firing requests while omitting verification of database state, compensations, or duplicate effects on retry.
 - **Cleanup only on success**: Skipping teardown after failure or cancellation, or resetting only part of the scenario's state so the next run starts from stale rows or gateway entries.
 - **Evidence-destroying teardown**: Destroying the failing state before capturing sanitized request/response/log/ledger evidence. The observed `FAIL` still stands with an explicit missing-evidence limitation; record the retention failure separately and block acceptance until evidence is recaptured. Never reclassify an executed failure as `NOT RUN`.
 - **False regression completeness**: Silently excluding tests or claiming complete regression coverage without impact analysis.

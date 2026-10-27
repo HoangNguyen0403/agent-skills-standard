@@ -374,8 +374,8 @@
     },
     {
       "path": ".agents/skills/common/common-mobile-visual-testing/SKILL.md",
-      "sha256": "c9654b47ba400cf41b1448cab265fd534ba14ebdc5e50278ab1ea1ddd9250f33",
-      "bytes": 4204
+      "sha256": "f3c7befa8de8d1d07dd2fb310495e009aa184c389fb7cbd1f8196f2ac6ef8d85",
+      "bytes": 4242
     },
     {
       "path": ".agents/skills/common/common-mobile-visual-testing/references/mobile-testing-matrix.md",
@@ -454,8 +454,8 @@
     },
     {
       "path": ".agents/skills/quality-engineering/quality-engineering-api-testing/SKILL.md",
-      "sha256": "7e8152e311c5663537d55bd1e049d9f074f0b7c8d052f99b03d83f82ce9dd216",
-      "bytes": 6523
+      "sha256": "48e1469d79eb04e8fb97961973cbbdfbda4dfd8ea41c40e869cba42732a8b379",
+      "bytes": 6537
     },
     {
       "path": ".agents/skills/quality-engineering/quality-engineering-api-testing/references/api-testing-methodology.md",
@@ -624,8 +624,8 @@
     },
     {
       "path": ".claude/skills/common/common-mobile-visual-testing/SKILL.md",
-      "sha256": "c9654b47ba400cf41b1448cab265fd534ba14ebdc5e50278ab1ea1ddd9250f33",
-      "bytes": 4204
+      "sha256": "f3c7befa8de8d1d07dd2fb310495e009aa184c389fb7cbd1f8196f2ac6ef8d85",
+      "bytes": 4242
     },
     {
       "path": ".claude/skills/common/common-mobile-visual-testing/references/mobile-testing-matrix.md",
@@ -704,8 +704,8 @@
     },
     {
       "path": ".claude/skills/quality-engineering/quality-engineering-api-testing/SKILL.md",
-      "sha256": "7e8152e311c5663537d55bd1e049d9f074f0b7c8d052f99b03d83f82ce9dd216",
-      "bytes": 6523
+      "sha256": "48e1469d79eb04e8fb97961973cbbdfbda4dfd8ea41c40e869cba42732a8b379",
+      "bytes": 6537
     },
     {
       "path": ".claude/skills/quality-engineering/quality-engineering-api-testing/references/api-testing-methodology.md",
@@ -794,8 +794,8 @@
     },
     {
       "path": ".codex/skills/common/common-mobile-visual-testing/SKILL.md",
-      "sha256": "c9654b47ba400cf41b1448cab265fd534ba14ebdc5e50278ab1ea1ddd9250f33",
-      "bytes": 4204
+      "sha256": "f3c7befa8de8d1d07dd2fb310495e009aa184c389fb7cbd1f8196f2ac6ef8d85",
+      "bytes": 4242
     },
     {
       "path": ".codex/skills/common/common-mobile-visual-testing/references/mobile-testing-matrix.md",
@@ -889,8 +889,8 @@
     },
     {
       "path": ".codex/skills/quality-engineering/quality-engineering-api-testing/SKILL.md",
-      "sha256": "7e8152e311c5663537d55bd1e049d9f074f0b7c8d052f99b03d83f82ce9dd216",
-      "bytes": 6523
+      "sha256": "48e1469d79eb04e8fb97961973cbbdfbda4dfd8ea41c40e869cba42732a8b379",
+      "bytes": 6537
     },
     {
       "path": ".codex/skills/quality-engineering/quality-engineering-api-testing/references/api-testing-methodology.md",
@@ -1044,8 +1044,8 @@
     },
     {
       "path": ".github/skills/common/common-mobile-visual-testing/SKILL.md",
-      "sha256": "c9654b47ba400cf41b1448cab265fd534ba14ebdc5e50278ab1ea1ddd9250f33",
-      "bytes": 4204
+      "sha256": "f3c7befa8de8d1d07dd2fb310495e009aa184c389fb7cbd1f8196f2ac6ef8d85",
+      "bytes": 4242
     },
     {
       "path": ".github/skills/common/common-mobile-visual-testing/references/mobile-testing-matrix.md",
@@ -1124,8 +1124,8 @@
     },
     {
       "path": ".github/skills/quality-engineering/quality-engineering-api-testing/SKILL.md",
-      "sha256": "7e8152e311c5663537d55bd1e049d9f074f0b7c8d052f99b03d83f82ce9dd216",
-      "bytes": 6523
+      "sha256": "48e1469d79eb04e8fb97961973cbbdfbda4dfd8ea41c40e869cba42732a8b379",
+      "bytes": 6537
     },
     {
       "path": ".github/skills/quality-engineering/quality-engineering-api-testing/references/api-testing-methodology.md",
@@ -1209,8 +1209,8 @@
     },
     {
       "path": "docs/prd/prd-testing-quality-improvement.md",
-      "sha256": "766b57bdcd770fe2056a8259ad5a5350b55c064316b5e19941ebba265cfa4de2",
-      "bytes": 42782
+      "sha256": "3b40b5a3c341dc47e5e5329f390ec3dfe340d6c8d058f9c5e31addfcd3f0bcdd",
+      "bytes": 43634
     },
     {
       "path": "scripts/skill-tests/testing-quality-improvement/eval-calibration.mjs",
@@ -1289,8 +1289,8 @@
     },
     {
       "path": "skills/common/common-mobile-visual-testing/SKILL.md",
-      "sha256": "c9654b47ba400cf41b1448cab265fd534ba14ebdc5e50278ab1ea1ddd9250f33",
-      "bytes": 4204
+      "sha256": "f3c7befa8de8d1d07dd2fb310495e009aa184c389fb7cbd1f8196f2ac6ef8d85",
+      "bytes": 4242
     },
     {
       "path": "skills/common/common-mobile-visual-testing/evals/evals.json",
@@ -1404,8 +1404,8 @@
     },
     {
       "path": "skills/quality-engineering/quality-engineering-api-testing/SKILL.md",
-      "sha256": "7e8152e311c5663537d55bd1e049d9f074f0b7c8d052f99b03d83f82ce9dd216",
-      "bytes": 6523
+      "sha256": "48e1469d79eb04e8fb97961973cbbdfbda4dfd8ea41c40e869cba42732a8b379",
+      "bytes": 6537
     },
     {
       "path": "skills/quality-engineering/quality-engineering-api-testing/evals/evals.json",
