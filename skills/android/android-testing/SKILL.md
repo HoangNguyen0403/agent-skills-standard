@@ -15,6 +15,7 @@ metadata:
     - createAndroidComposeRule
     - MainDispatcherRule
     - "@TestInstallIn"
+    - android instrumentation test
 ---
 # Android Testing Standards
 
@@ -36,7 +37,7 @@ Avoid inventing arbitrary numeric scores (e.g. P * R * F * M) statically without
 - **`[MOB-TEST-03]` Entity Invariant & Serialization Rule**: Test calculations, validations, domain invariants, and non-trivial serialization/parsing or error mapping. Ban testing auto-generated code, trivial getters, or echo tests repeating literal assignments.
 - **`[MOB-TEST-04]` Contract Testing Rule**: Repositories and data sources must be tested for contract compliance and error mapping. Ban 1:1 pass-through mock echoing (`coEvery { dataSource.get() } returns x; repo.get() == x`).
 - **`[MOB-TEST-05]` Bug-First Regression Lock**: Every PR fixing a bug ticket or with title `fix(...)` must introduce a failing test reproducing the defect before fixing it.
-
+- **`[MOB-TEST-06]` Layer & Device Fidelity**: Select layer (Unit > Compose UI > UiAutomator). In-memory tests cannot prove device behavior. Activity recreation (`recreate()`) is same-process only; true OS process death requires external device termination and relaunch.
 ## Implementation Guidelines
 
 ### Unit Tests
@@ -45,8 +46,8 @@ Avoid inventing arbitrary numeric scores (e.g. P * R * F * M) statically without
 
 ### UI Integration Tests (Instrumentation)
 - **Scope & DI**: Composable Screens, Navigation flows. Use `createAndroidComposeRule` + Hilt (`HiltAndroidRule`). Fake repositories via `@TestInstallIn`.
+- **TalkBack Semantics**: Assert `onNodeWithContentDescription` on interactive nodes (semantic tree only; does not prove device TalkBack focus traversal or audio announcements); verify touch bounds ≥ 48dp.
 - **Negative Assertions**: Add negative assertions only when absence is part of the business contract.
-
 ## Anti-Patterns & Banned Smells
 
 - **`[MOB-TEST-01]` Vague names**: Banish non-descriptive test names.
@@ -59,3 +60,4 @@ Avoid inventing arbitrary numeric scores (e.g. P * R * F * M) statically without
 ## References
 
 - [Test Rules](references/implementation.md)
+- [Mobile Testing Methodology](../../common/common-mobile-visual-testing/SKILL.md) — 10 mobile scope areas & C6 contract

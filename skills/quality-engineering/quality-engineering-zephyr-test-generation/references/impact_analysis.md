@@ -58,3 +58,19 @@ Deduplicate against Pass 0 results.
 
 - Add a comment to the TC: `Updated per [JIRA-ID]: {Summary of change}`.
 - Ensure the Jira-Zephyr link is updated if necessary.
+
+## 5. Linking Executable Regression Selection (AC-10)
+
+While Sections 1–4 govern Zephyr Test Case documentation and lifecycle updates, code and contract changes also require selecting automated/executable test suites without replacing human approval gates:
+For canonical API test selection standards, scenario templates, and uncertainty handling rules, see [API Regression Suite Selection & Impact Analysis](../../quality-engineering-api-testing/references/api-testing-methodology.md#25-regression-suite-selection--impact-analysis-ac-10).
+
+
+1. **Map Deltas to Obligations**: Trace code, contract, or schema deltas to specific API and functional obligations.
+2. **Suite Selection Matrix**:
+   - **Critical Smoke Baseline**: Retain and execute the critical smoke suite on EVERY run, regardless of delta size.
+   - **Targeted Regression Suites**: Select functional, contract, and integration suites that directly cover the modified obligations.
+   - **Exclusion Rationale**: Explicitly record the justification for every excluded suite.
+3. **Handling Uncertainty**:
+   - If the delta touches cross-cutting middleware, shared libraries, base entities, or authentication filters, the blast radius is indeterminate.
+   - In indeterminate cases, **broaden** selection to the full suite or log an explicit **blocker**; never guess zero impact or claim false completeness.
+4. **Preserve Approval Gates**: Automated test selection and execution provide technical regression evidence; they do not bypass or replace the mandatory human review and approval gates required for updating Zephyr Test Cases.

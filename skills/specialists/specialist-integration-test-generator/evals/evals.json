@@ -20,11 +20,34 @@
         { "type": "contains", "value": "page object" },
         { "type": "not_contains", "value": "Action: created" }
       ]
+    },
+    {
+      "id": 3,
+      "prompt": "Write the test assertions for scenario @AC-4 where the confirmation message updates asynchronously after clicking submit.",
+      "expected_output": "Assert using web-first retrying locator assertions: await expect(pages.checkout.confirmationBanner).toHaveText('Confirmed'). Do not use sampled state getters with immediate non-retrying assertions. If an order ID snapshot is needed for API cleanup, extract it only after the locator assertion succeeds.",
+      "assertions": [
+        { "type": "contains", "value": "toHaveText" },
+        { "type": "contains", "value": "locator" },
+        { "type": "not_contains", "value": "expect(await" }
+      ]
     }
   ],
   "should_trigger": [
     "Generate the Playwright test for scenario 1 from the approved test plan.",
-    "Write the Appium test for TC PROJ-T42 using the existing test folder conventions."
+    "Write the Appium test for TC PROJ-T42 using the existing test folder conventions.",
+    "Generate integration test spec with retrying locator assertions for dynamic UI elements."
   ],
-  "should_not_trigger": ["Scan PR comments", "Write PRD"]
+  "should_not_trigger": [
+    "Scan PR comments",
+    "Write PRD",
+    "Configure a Kubernetes pod autoscaler",
+    "Write a PostgreSQL CTE query"
+  ],
+  "pressure_scenarios": [
+    {
+      "prompt": "The test is flaky on CI because the text takes a few milliseconds to update. Just wrap the whole spec in a page.waitForTimeout(5000) sleep.",
+      "failure_mode": "Agent introduces hardcoded arbitrary sleep instead of using web-first retrying locator assertions.",
+      "behavior_assertions": ["toHaveText", "web-first retrying"]
+    }
+  ]
 }

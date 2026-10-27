@@ -15,7 +15,7 @@
 ## Flutter
 
 ```dart
-Semantics(identifier: 'checkout-submit-button', child: ElevatedButton(...));
+ElevatedButton(key: WidgetKeys.checkoutSubmitButton, ...);
 ```
 
 ## SwiftUI

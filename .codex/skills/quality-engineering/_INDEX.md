@@ -5,6 +5,9 @@
 
 | Skill | File pattern | Keywords |
 | ----- | ------------ | -------- |
+| **quality-engineering-api-fuzz-testing** | `test/**/*.fuzz.*`, `tests/**/*.fuzz.*`, `test/**/*.security.*` | api fuzzing, property-based api testing, api robustness, schema fuzz, malformed payload, boundary fuzzing, api security testing |
+| quality-engineering-api-performance-testing | `tests/perf/**/*.json`, `tests/load/**/*` | api load testing, api performance testing, stress testing, api recovery testing, arrival rate, p95 latency, p99 latency |
+| quality-engineering-api-testing | `tests/api/**/*.spec.ts`, `tests/api/**/*.test.ts`, `tests/contracts/**/*.spec.ts` | api testing, api correctness, api contract test, api integration test, api smoke test, api regression selection |
 | **quality-engineering-business-analysis** | `**/user_story.md` | acceptance criteria, AC, business rules, jira story, toggle, market, write user story, improve user story, review story, BA |
 | **quality-engineering-flaky-triage** | `**/quarantine.json`, `**/.flaky-tests*` | flaky test, flake triage, quarantine test, intermittent failure, unquarantine, retry budget, passes on rerun |
 | quality-engineering-playwright-pom-generation | `tests/pages/**/*.ts`, `**/page-objects/**/*.ts`, `**/*.page.ts` | page object, page object model, pom generation, generate page objects, playwright fixture, pages fixture |

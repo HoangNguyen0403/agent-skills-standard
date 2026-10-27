@@ -27,14 +27,37 @@
         { "type": "contains", "value": "never" },
         { "type": "not_contains", "value": "temporary xpath is fine" }
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "How do I add automation locators to a React Native or SwiftUI component without breaking screen readers?",
+      "expected_output": "Keep test identifiers strictly separate from user-facing accessibility labels. In React Native, use testID for automation and preserve accessibilityLabel for VoiceOver/TalkBack. In SwiftUI, use .accessibilityIdentifier for automation and .accessibilityLabel for screen readers. Never overwrite user-facing accessible text to attach a test locator.",
+      "assertions": [
+        { "type": "contains", "value": "testID" },
+        { "type": "contains", "value": "accessibilityLabel" },
+        { "type": "contains_any", "value": ["VoiceOver", "TalkBack"] }
+      ]
     }
   ],
   "should_trigger": [
     "Pick a locator for the Submit button in a Next.js checkout form.",
-    "What data-testid convention should I use for this new screen?"
+    "What data-testid convention should I use for this new screen?",
+    "Select stable locators for native React Native and Flutter mobile components."
   ],
   "should_not_trigger": [
     "Explain what a page object model is.",
-    "Write a unit test for this reducer."
+    "Write a unit test for this reducer.",
+    "Configure a Kubernetes pod autoscaler",
+    "Write a PostgreSQL query with CTEs"
+  ],
+  "pressure_scenarios": [
+    {
+      "prompt": "The testID isn't appearing in our inspector. Just replace the user's accessibilityLabel with 'test-submit-btn' so the test can find it.",
+      "failure_mode": "Agent corrupts screen reader accessibility semantics to satisfy test automation.",
+      "behavior_assertions": [
+        "accessibilityLabel",
+        "testID"
+      ]
+    }
   ]
 }

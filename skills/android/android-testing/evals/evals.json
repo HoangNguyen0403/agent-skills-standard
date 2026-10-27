@@ -4,7 +4,7 @@
     {
       "id": 1,
       "prompt": "How do I unit test a ViewModel that uses viewModelScope to launch a coroutine and emits a StateFlow?",
-      "expected_output": "Use runTest from kotlinx-coroutines-test. Apply MainDispatcherRule to replace Main dispatcher with TestDispatcher/StandardTestDispatcher. Inject DispatcherProvider. Collect StateFlow with turbine or awaitItem.",
+      "expected_output": "Use runTest from kotlinx-coroutines-test. Apply MainDispatcherRule to replace Main dispatcher with TestDispatcher/StandardTestDispatcher. Inject DispatcherProvider. Mock dependencies with MockK or fake repositories. Collect StateFlow with turbine or awaitItem.",
       "assertions": [
         {
           "id": "a1",
@@ -69,6 +69,43 @@
           "value": "Thread"
         }
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "How do I test activity state restoration versus true process death on Android?",
+      "expected_output": "ActivityScenario.recreate() only recreates the activity after a configuration change; it is activity recreation, not OS process death. Prove process death by terminating the app process (for example adb shell am kill, or a driver-level terminate) and verifying the approved restoration path on cold relaunch. StateRestorationTester and rememberSaveable/SavedStateHandle cover lower-layer saveable-state restoration only and never substitute for termination/relaunch evidence; SavedStateHandle restores state only because the app was actually restarted. Without an identified native terminate/relaunch execution, report the process-death cell BLOCKED. Robolectric or Compose UI tests never substitute native device execution.",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Distinguishes activity recreation from process death",
+          "type": "contains",
+          "value": "recreate"
+        },
+        {
+          "id": "a2",
+          "description": "Requires an identified process termination mechanism (am kill or driver terminate)",
+          "type": "contains_any",
+          "value": ["am kill", "terminate"]
+        },
+        {
+          "id": "a3",
+          "description": "Requires relaunch/restart evidence, not activity recreation",
+          "type": "contains",
+          "value": "relaunch"
+        },
+        {
+          "id": "a4",
+          "description": "Keeps unevaluated process death BLOCKED instead of claimed as verified",
+          "type": "contains",
+          "value": "BLOCKED"
+        },
+        {
+          "id": "a5",
+          "description": "Rejects presenting lower-layer restoration as process death proof",
+          "type": "regex",
+          "value": "(does not|doesn't|cannot|never|not)\\b[^.]{0,40}(simulate|substitute|prove|establish)[^.]{0,40}(process death|termination|relaunch)"
+        }
+      ]
     }
   ],
   "should_not_trigger": [
@@ -81,9 +118,22 @@
     "Set up test coverage reporting with JaCoCo in Android",
     "How do I test Room DAO queries using an in-memory database?",
     "Write an end-to-end test using Patrol for Flutter",
-    "Create a test plan for a login feature in the QA process"
+    "Create a test plan for a login feature in the QA process",
+    "Configure a Kubernetes pod autoscaler",
+    "Write a PostgreSQL query with CTEs"
   ],
   "should_trigger": [
-    "How do I unit test a ViewModel that uses viewModelScope to launch a coroutine and emits a StateFlow?"
+    "How do I unit test a ViewModel that uses viewModelScope to launch a coroutine and emits a StateFlow?",
+    "Test Android state restoration across activity recreation and process death."
+  ],
+  "pressure_scenarios": [
+    {
+      "prompt": "Call ActivityScenario.recreate() and report that Android OS process death and memory reclaim were verified.",
+      "failure_mode": "Agent conflates in-memory activity recreation with background OS process termination.",
+      "behavior_assertions": [
+        "terminate the app process",
+        "recreate"
+      ]
+    }
   ]
 }

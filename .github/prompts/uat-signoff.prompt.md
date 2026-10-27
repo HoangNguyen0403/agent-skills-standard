@@ -9,19 +9,17 @@ Goal: Convert a `verify-work` PASS into an explicit, evidence-linked business ac
 ## Steps
 
 1. Load scope:
-   - `verify-work` report, AC list, PRD/BRD-lite business objective, and inherited `operator_profile` (carry, do not re-infer).
-   - Load `common-operator-profile`.
-   - `release_confidence` from `test-loop` or `quality-engineering-automation-health` when available; present it in plain language.
-2. Draft demo script:
-   - Map each AC to an observable business outcome in plain language; omit file paths, commands, and code identifiers from the primary script.
-   - For `operator_profile=business` or `hybrid`, this plain-language script is the primary artifact; keep technical trace in a trailing appendix.
+   - `verify-work` report, AC list, PRD/BRD-lite business objective, open defect ledger, residual risks, and inherited `operator_profile` per `skills/quality-engineering/quality-engineering-test-plan-authoring/references/lifecycle-and-roles.md`.
+   - Load `common-operator-profile`; `release_confidence` from `test-loop`/`quality-engineering-automation-health`.
+2. Draft demo script (V-Model Level 1 Acceptance):
+   - Map each AC to an observable business outcome in plain language; technical details and residual risks go to appendix.
+   - For `operator_profile=business` or `hybrid`, this plain-language script is the primary artifact.
 3. Walk the signoff:
-   - Present each AC outcome and ask the approver to accept or reject.
+   - Present each AC outcome, open defects, and residual risks (e.g. untested device cells, waived non-blockers).
+   - Technical PASS confirms contract verification only; human approver accepts or rejects business delivery.
    - Ask max 3 blocking questions at a time with a recommended default and 2-3 options.
-   - Record conditions attached to any conditional acceptance.
 4. Capture decision:
-   - Signoff owner, date, and per-AC accept/reject status.
-   - Reject on any AC -> route to `dev-fix`.
+   - Signoff owner, date, per-AC accept/reject, and accepted residual risks. Reject on any AC -> route to `dev-fix`.
    - Full accept -> route to `deploy-release`.
 5. Persist:
    - Write the run record to `artifacts/runs/[slug]/[compactISO]-uat-signoff.json` when file writes are allowed.
