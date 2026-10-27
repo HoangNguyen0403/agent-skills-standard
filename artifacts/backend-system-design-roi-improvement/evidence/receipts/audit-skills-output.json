@@ -1,0 +1,10 @@
+{
+  "command": "rtk pnpm audit:skills",
+  "cwd": "/private/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-roi-t6-RkWXR3/candidate",
+  "exit_code": 0,
+  "stdout": "> agent-skills-standard-root@2.7.0 audit:skills /private/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-roi-t6-RkWXR3/candidate\n> tsx scripts/audit-skills.ts\n\n🔍 Auditing skills for redundant checkpoints...\n✅ No obvious redundancy found.\n",
+  "stderr": "",
+  "scope": "Single isolated-stage audit command run for F2 correction; no whole suite rerun.",
+  "output_file_written_by_command": false,
+  "distinction": "This stdout/exit receipt is the T6 audit:skills result. The separate pre-existing eval audit snapshot is not this command output."
+}

@@ -1,0 +1,9 @@
+{
+  "command": "rtk node_modules/.bin/tsx scripts/generate-capabilities-doc.ts",
+  "cwd": "/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-roi-t6-RkWXR3/candidate",
+  "exit_code": 0,
+  "signal": null,
+  "error": null,
+  "stdout": "✅ Wrote docs/agent-capabilities.md\n",
+  "stderr": ""
+}

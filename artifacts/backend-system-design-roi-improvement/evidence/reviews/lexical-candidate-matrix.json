@@ -1,0 +1,373 @@
+{
+  "generatedBy": "T5 lexical candidate matrix (prepared for T6; not executed)",
+  "packetDigest": "record recomputed by the runner; compare with the T5 report manifest",
+  "calibrationCandidates": 9,
+  "laneA": {
+    "evalPairsScored": 54,
+    "evalPairsFullyAccepted": 1,
+    "assertionsScored": 126,
+    "assertionsPassed": 26,
+    "interpretation": "Full-eval acceptance needs every assertion of an eval written for a different prompt to pass. A low count is expected by construction and is NOT evidence that existing assertions are unusable; read the per-assertion tally in rows instead."
+  },
+  "adversarialLexicalProbes": {
+    "results": [
+      {
+        "name": "finite-bound phrase passes",
+        "expected": true,
+        "actual": true
+      },
+      {
+        "name": "infinite is not mistaken for finite",
+        "expected": false,
+        "actual": false
+      },
+      {
+        "name": "safe denial may miss lexical anchor",
+        "expected": false,
+        "actual": false
+      },
+      {
+        "name": "safe denial of exactly-once wording stays lexical-only",
+        "expected": false,
+        "actual": false
+      }
+    ],
+    "mismatches": 0,
+    "interpretation": "These targeted examples check scorer substring behavior only. They do not establish semantic soundness, general denial safety, or paraphrase acceptance."
+  },
+  "rows": [
+    {
+      "candidate": "ROI-PAY-01-C1",
+      "type": "keyword-complete unsafe (must fail AC-ROI-12)",
+      "authorExpectedVerdict": "unsound",
+      "laneAExistingEvals": {
+        "v1:system-design-data-architecture#5": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 1,
+          "assertionsTotal": 2
+        },
+        "v2:system-design-data-architecture#5": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 1,
+          "assertionsTotal": 2
+        },
+        "v1:system-design-data-architecture#6": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 1,
+          "assertionsTotal": 2
+        },
+        "v2:system-design-data-architecture#6": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 1,
+          "assertionsTotal": 2
+        },
+        "v1:system-design-integration-patterns#5": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 0,
+          "assertionsTotal": 3
+        },
+        "v2:system-design-integration-patterns#5": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 0,
+          "assertionsTotal": 3
+        },
+        "v1:system-design-resilience-ops#5": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 1,
+          "assertionsTotal": 2
+        },
+        "v2:system-design-resilience-ops#5": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 1,
+          "assertionsTotal": 2
+        }
+      }
+    },
+    {
+      "candidate": "ROI-PAY-01-C2",
+      "type": "semantically correct alternate phrasing (must pass AC-ROI-13)",
+      "authorExpectedVerdict": "sound",
+      "laneAExistingEvals": {
+        "v1:system-design-data-architecture#5": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 0,
+          "assertionsTotal": 2
+        },
+        "v2:system-design-data-architecture#5": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 0,
+          "assertionsTotal": 2
+        },
+        "v1:system-design-data-architecture#6": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 0,
+          "assertionsTotal": 2
+        },
+        "v2:system-design-data-architecture#6": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 0,
+          "assertionsTotal": 2
+        },
+        "v1:system-design-integration-patterns#5": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 0,
+          "assertionsTotal": 3
+        },
+        "v2:system-design-integration-patterns#5": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 1,
+          "assertionsTotal": 3
+        },
+        "v1:system-design-resilience-ops#5": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 0,
+          "assertionsTotal": 2
+        },
+        "v2:system-design-resilience-ops#5": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 0,
+          "assertionsTotal": 2
+        }
+      }
+    },
+    {
+      "candidate": "ROI-PAY-01-C3",
+      "type": "mechanism contradiction",
+      "authorExpectedVerdict": "unsound",
+      "laneAExistingEvals": {
+        "v1:system-design-data-architecture#5": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 0,
+          "assertionsTotal": 2
+        },
+        "v2:system-design-data-architecture#5": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 0,
+          "assertionsTotal": 2
+        },
+        "v1:system-design-data-architecture#6": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 0,
+          "assertionsTotal": 2
+        },
+        "v2:system-design-data-architecture#6": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 0,
+          "assertionsTotal": 2
+        },
+        "v1:system-design-integration-patterns#5": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 0,
+          "assertionsTotal": 3
+        },
+        "v2:system-design-integration-patterns#5": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 0,
+          "assertionsTotal": 3
+        },
+        "v1:system-design-resilience-ops#5": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 0,
+          "assertionsTotal": 2
+        },
+        "v2:system-design-resilience-ops#5": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 0,
+          "assertionsTotal": 2
+        }
+      }
+    },
+    {
+      "candidate": "ROI-TEN-01-C1",
+      "type": "keyword-complete unsafe (must fail AC-ROI-12)",
+      "authorExpectedVerdict": "unsound",
+      "laneAExistingEvals": {
+        "v1:system-design-data-architecture#9": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 1,
+          "assertionsTotal": 2
+        },
+        "v2:system-design-data-architecture#9": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 1,
+          "assertionsTotal": 2
+        },
+        "v1:system-design-data-architecture#10": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 0,
+          "assertionsTotal": 2
+        },
+        "v2:system-design-data-architecture#10": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 0,
+          "assertionsTotal": 2
+        },
+        "v1:system-design-resilience-ops#7": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 1,
+          "assertionsTotal": 2
+        },
+        "v2:system-design-resilience-ops#7": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 1,
+          "assertionsTotal": 2
+        }
+      }
+    },
+    {
+      "candidate": "ROI-TEN-01-C2",
+      "type": "semantically correct alternate phrasing (must pass AC-ROI-13)",
+      "authorExpectedVerdict": "sound",
+      "laneAExistingEvals": {
+        "v1:system-design-data-architecture#9": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 1,
+          "assertionsTotal": 2
+        },
+        "v2:system-design-data-architecture#9": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 1,
+          "assertionsTotal": 2
+        },
+        "v1:system-design-data-architecture#10": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 0,
+          "assertionsTotal": 2
+        },
+        "v2:system-design-data-architecture#10": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 0,
+          "assertionsTotal": 2
+        },
+        "v1:system-design-resilience-ops#7": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 0,
+          "assertionsTotal": 2
+        },
+        "v2:system-design-resilience-ops#7": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 0,
+          "assertionsTotal": 2
+        }
+      }
+    },
+    {
+      "candidate": "ROI-TEN-01-C3",
+      "type": "deletion-as-source-only",
+      "authorExpectedVerdict": "unsound",
+      "laneAExistingEvals": {
+        "v1:system-design-data-architecture#9": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 1,
+          "assertionsTotal": 2
+        },
+        "v2:system-design-data-architecture#9": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 1,
+          "assertionsTotal": 2
+        },
+        "v1:system-design-data-architecture#10": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 0,
+          "assertionsTotal": 2
+        },
+        "v2:system-design-data-architecture#10": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 0,
+          "assertionsTotal": 2
+        },
+        "v1:system-design-resilience-ops#7": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 0,
+          "assertionsTotal": 2
+        },
+        "v2:system-design-resilience-ops#7": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 0,
+          "assertionsTotal": 2
+        }
+      }
+    },
+    {
+      "candidate": "ROI-OVL-01-C1",
+      "type": "keyword-complete unsafe (must fail AC-ROI-12)",
+      "authorExpectedVerdict": "unsound",
+      "laneAExistingEvals": {
+        "v1:system-design-building-blocks#2": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 1,
+          "assertionsTotal": 3
+        },
+        "v2:system-design-building-blocks#2": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 1,
+          "assertionsTotal": 3
+        },
+        "v1:system-design-resilience-ops#2": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 2,
+          "assertionsTotal": 3
+        },
+        "v2:system-design-resilience-ops#2": {
+          "allAssertionsPassed": true,
+          "assertionsPassed": 3,
+          "assertionsTotal": 3
+        }
+      }
+    },
+    {
+      "candidate": "ROI-OVL-01-C2",
+      "type": "semantically correct alternate phrasing (must pass AC-ROI-13)",
+      "authorExpectedVerdict": "sound",
+      "laneAExistingEvals": {
+        "v1:system-design-building-blocks#2": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 0,
+          "assertionsTotal": 3
+        },
+        "v2:system-design-building-blocks#2": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 0,
+          "assertionsTotal": 3
+        },
+        "v1:system-design-resilience-ops#2": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 2,
+          "assertionsTotal": 3
+        },
+        "v2:system-design-resilience-ops#2": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 2,
+          "assertionsTotal": 3
+        }
+      }
+    },
+    {
+      "candidate": "ROI-OVL-01-C3",
+      "type": "unbounded-numeric-answer",
+      "authorExpectedVerdict": "unsound",
+      "laneAExistingEvals": {
+        "v1:system-design-building-blocks#2": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 0,
+          "assertionsTotal": 3
+        },
+        "v2:system-design-building-blocks#2": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 0,
+          "assertionsTotal": 3
+        },
+        "v1:system-design-resilience-ops#2": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 0,
+          "assertionsTotal": 3
+        },
+        "v2:system-design-resilience-ops#2": {
+          "allAssertionsPassed": false,
+          "assertionsPassed": 0,
+          "assertionsTotal": 3
+        }
+      }
+    }
+  ]
+}

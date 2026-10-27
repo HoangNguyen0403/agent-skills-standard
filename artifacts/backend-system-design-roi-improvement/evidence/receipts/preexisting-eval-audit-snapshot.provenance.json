@@ -1,0 +1,12 @@
+{
+  "classification": "historical pre-existing eval-audit snapshot; not a T6 audit:skills output",
+  "original_evidence_path": "receipts/audit-report.json",
+  "renamed_evidence_path": "receipts/preexisting-eval-audit-snapshot.json",
+  "source_path": "benchmarks/evals/eval-audit.json",
+  "source_commit": "83ed6887",
+  "generated_at": "2026-09-22T08:08:39.422Z",
+  "sha256": "004fcca496af44472a64aa4def5595c20c46bb691c332ed95f5ad9ecab9746f5",
+  "issue_count": 2,
+  "issues_are_unrelated_to_system_design": true,
+  "note": "The JSON bytes are retained unchanged. The two database-hana eval findings are historical and must not be interpreted as the T6 audit:skills result."
+}

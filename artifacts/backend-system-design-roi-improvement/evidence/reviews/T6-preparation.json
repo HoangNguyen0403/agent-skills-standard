@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "initiative": "backend-system-design-roi-improvement",
+  "prepared_at": "2026-10-26",
+  "status": "PREPARATION_ONLY_BLOCKED_ON_SOURCE_HASH_RECONCILIATION_AND_T5_FINAL_REVIEW",
+  "base_commit": "92d06c420f6a41f08e11579423e4e3eacdb7880d",
+  "scope": "Exact accepted-source inventory, conditional generated-output allowlist, metadata update plan, and preservation inventory. No source edits, checks, generation, or copy-back authorized by this preparation.",
+  "source_manifest": {
+    "review_status": "T1-T3 independent re-reviews approve; lead reports accepted canonical guidance only. Current source bytes were SHA-256 hashed for this manifest.",
+    "files": [
+      {"path":"skills/system-design/system-design-building-blocks/SKILL.md","sha256":"48d3b5576fd8862c5afafce441deb9872ec059dae3fe413dac43bf5e7180ff6a"},
+      {"path":"skills/system-design/system-design-building-blocks/references/building-blocks.md","sha256":"35c8f78b27316e283127b5c76ef2a9b653738c27214fc4ee38ba54470df85c22"},
+      {"path":"skills/system-design/system-design-resilience-ops/SKILL.md","sha256":"c17b0748a32f9c2f46d74133ff2e17e3e74a5faad3b1576ef449f47f95677153"},
+      {"path":"skills/system-design/system-design-resilience-ops/references/reliability-operations.md","sha256":"b9628d52dcfe04dbe81b349131d5e4cc873f73b9513251132b280ba7fc5d0e32"},
+      {"path":"skills/system-design/system-design-data-architecture/SKILL.md","sha256":"e673583ba86f4fb92be74924a85eb139df4476b93b5ce7ddf1730ccd591a796d"},
+      {"path":"skills/system-design/system-design-data-architecture/references/flow-contracts.md","sha256":"6215b36242151b6238253d52dfcdbf4eaf8fe6acae137d1618aae8d2aa77281c"},
+      {"path":"skills/system-design/system-design-data-architecture/references/tenant-safe-retrieval.md","sha256":"fa37e6f2569c328b0dd9cd87d103e523968d47a2c7f0ea47932b44198683d571"},
+      {"path":"skills/system-design/system-design-integration-patterns/SKILL.md","sha256":"090c5da313f93e27a7b30bf63dff2b355e87ee35474e302f8632016958851a42"},
+      {"path":"skills/system-design/system-design-integration-patterns/references/integration-patterns.md","sha256":"d9a7c2b62030cdef45338fd9125803a06853367870d05569fa5cbbe34ad9167a"},
+      {"path":"skills/system-design/system-design-integration-patterns/references/durable-execution.md","sha256":"eb41305df4fbe02931de0df55fc151388c289d260c50a4b5a7194fc5d7bf16f4"}
+    ],
+    "accepted_source_freeze_receipt": ".agent/sdd/backend-system-design-roi-improvement/accepted-source-freeze.json",
+    "receipt_integrity": {
+      "status": "MISMATCH_REQUIRES_LEAD_CORRECTION",
+      "path": "skills/system-design/system-design-resilience-ops/references/reliability-operations.md",
+      "receipt_sha256": "b9628d52dcfe04dbe81b349131d5e4cc873f73b9513251132b280bfc5d0e32",
+      "observed_sha256": "b9628d52dcfe04dbe81b349131d5e4cc873f73b9513251132b280ba7fc5d0e32",
+      "note": "The accepted-source-freeze.json digest and T1-architecture-rereview.md table digest omit `a7`; the observed file digest is 64 hex characters and differs. Do not alter the frozen source or receipt locally. Require lead-owned receipt correction/reconciliation before T6 treats the full source set as integrity-bound."
+    }
+  },
+  "review_preservation": {
+    "policy": "Retain the original failed reviews byte-for-byte and include them with corrected rereviews in final tracked evidence; do not replace failures with later approvals.",
+    "initial_failed_reviews": [
+      {"path":".agent/sdd/backend-system-design-roi-improvement/T1-architecture-review.md","sha256":"e77083860f45a61fe93c9c445fd513ab70c195dd416e380d00bdf33a7c576d2e","verdict":"CHANGES REQUESTED"},
+      {"path":".agent/sdd/backend-system-design-roi-improvement/T2-security-review.md","sha256":"97faa51fbb93cc3a1fa8c08e662ec148acc2cc0744c3b645608a21ef4430d33e","verdict":"CHANGES REQUESTED"},
+      {"path":".agent/sdd/backend-system-design-roi-improvement/T3-architecture-review.md","sha256":"1f05fd3c5d34b686c3348177c0cf8ca65e2e55cf880c9eceaead30f84f6d1de7","verdict":"CHANGES REQUESTED"},
+      {"path":".agent/sdd/backend-system-design-roi-improvement/T5-rubric-review.md","sha256":"6fecc9ef96387b36290178987843faa0ed11edad0e40109573f6c6ca84704575","verdict":"CHANGES REQUESTED; sealed evaluator findings stay with lead/T5"}
+    ],
+    "approved_rereviews": [
+      ".agent/sdd/backend-system-design-roi-improvement/T1-architecture-rereview.md",
+      ".agent/sdd/backend-system-design-roi-improvement/T2-deepseek-rereview.md",
+      ".agent/sdd/backend-system-design-roi-improvement/T3-architecture-rereview.md"
+    ],
+    "sealed_t5_variants_read": false
+  },
+  "t5_gate": {
+    "status": "CLOSED_PENDING_CORRECTIONS_AND_FINAL_INDEPENDENT_REVIEW",
+    "authorized_work": "T5 may bind/correct the four canonical package eval files and rubric artifacts.",
+    "canonical_eval_files_t5_owned": [
+      "skills/system-design/system-design-building-blocks/evals/evals.json",
+      "skills/system-design/system-design-resilience-ops/evals/evals.json",
+      "skills/system-design/system-design-data-architecture/evals/evals.json",
+      "skills/system-design/system-design-integration-patterns/evals/evals.json",
+      "benchmarks/evals/backend-system-design-roi-skills.txt",
+      "benchmarks/evals/backend-system-design-roi-heldout.json",
+      "benchmarks/evals/backend-system-design-roi-pilot.md"
+    ],
+    "mirror_exclusion_scope": "Evals are excluded only from generated skill mirrors; the canonical evals remain T5-owned and must be included in final freeze/evidence after T5 approval.",
+    "current_evidence": [
+      ".agent/sdd/backend-system-design-roi-improvement/T5-report.md",
+      ".agent/sdd/backend-system-design-roi-improvement/T5-rubric-review.md"
+    ],
+    "sealed_content_forwarded_to_t1_t3": false
+  },
+  "generated_output_allowlist": {
+    "approved_condition": "The lead-approved 44 generated paths and scoped shared outputs are candidates only; every copy-back requires a staged attributable diff and unchanged destination hash. No generator run until T5 final independent review and source hash reconciliation.",
+    "generated_skill_files": {
+      ".agents/skills/system-design": {
+        "system-design-building-blocks": ["SKILL.md", "references/building-blocks.md"],
+        "system-design-resilience-ops": ["SKILL.md", "references/reliability-operations.md"],
+        "system-design-data-architecture": ["SKILL.md", "references/flow-contracts.md", "references/tenant-safe-retrieval.md"],
+        "system-design-integration-patterns": ["SKILL.md", "references/integration-patterns.md", "references/durable-execution.md"]
+      },
+      ".claude/skills/system-design": {
+        "system-design-building-blocks": ["SKILL.md", "references/building-blocks.md"],
+        "system-design-resilience-ops": ["SKILL.md", "references/reliability-operations.md"],
+        "system-design-data-architecture": ["SKILL.md", "references/flow-contracts.md", "references/tenant-safe-retrieval.md"],
+        "system-design-integration-patterns": ["SKILL.md", "references/integration-patterns.md", "references/durable-execution.md"]
+      },
+      ".codex/skills/system-design": {
+        "system-design-building-blocks": ["SKILL.md", "references/building-blocks.md"],
+        "system-design-resilience-ops": ["SKILL.md", "references/reliability-operations.md"],
+        "system-design-data-architecture": ["SKILL.md", "references/flow-contracts.md", "references/tenant-safe-retrieval.md"],
+        "system-design-integration-patterns": ["SKILL.md", "references/integration-patterns.md", "references/durable-execution.md"]
+      },
+      ".github/skills/system-design": {
+        "system-design-building-blocks": ["SKILL.md", "references/building-blocks.md"],
+        "system-design-resilience-ops": ["SKILL.md", "references/reliability-operations.md"],
+        "system-design-data-architecture": ["SKILL.md", "references/flow-contracts.md", "references/tenant-safe-retrieval.md"],
+        "system-design-integration-patterns": ["SKILL.md", "references/integration-patterns.md", "references/durable-execution.md"]
+      }
+    },
+    "generated_indices": [
+      ".agents/skills/system-design/_INDEX.md",
+      ".claude/skills/system-design/_INDEX.md",
+      ".codex/skills/system-design/_INDEX.md",
+      ".github/skills/system-design/_INDEX.md"
+    ],
+    "generated_path_count": 44,
+    "scoped_shared_outputs": [
+      "skills/metadata.json",
+      "skills/index.json",
+      "skills/system-design/_INDEX.md",
+      "skills/README.md",
+      "README.md",
+      "cli/README.md",
+      "docs/agent-capabilities.md",
+      "CHANGELOG.md",
+      "AGENTS.md",
+      "docs/prd/prd-backend-system-design-roi-improvement.md"
+    ],
+    "excluded_from_copyback": [
+      ".agents/workflows/**",
+      ".agents/rules/**",
+      ".github/instructions/**",
+      ".github/workflows/**",
+      ".skills-lock.json",
+      "all unlisted outputs",
+      "all baseline and historical evidence"
+    ]
+  },
+  "metadata_update_plan": {
+    "file": "skills/metadata.json",
+    "scope": "categories.system-design.last_updated and categories.system-design.token_metrics only",
+    "token_metrics": "Recompute after all accepted source/eval binding is frozen; report each changed package's SKILL body/reference token delta separately from aggregate category totals.",
+    "version": "Keep current system-design version 1.2.4; no version bump.",
+    "other_categories": "Do not copy back generator changes to other category metadata entries."
+  },
+  "preservation_and_gate": {
+    "fresh_evidence_archive": "Required after T5 final independent review and before generators; archive accepted source/eval receipts plus all failed initial reviews and approved rereviews; include SHA-256 MANIFEST.",
+    "no_checks_generators_or_copyback": true,
+    "next_required_inputs": [
+      "Lead-owned correction or explicit reconciliation of the reliability-operations.md source digest mismatch.",
+      "T5 completed canonical binding/corrections and final independent APPROVE with revision-bound hashes.",
+      "Lead notice that the final source/eval set is accepted and frozen, followed by fresh evidence archive."
+    ]
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "date": "2026-10-27",
+  "scope": "T6 no-model integration gates only; no semantic efficacy or ROI claim",
+  "commands": [
+    {"command":"rtk pnpm --filter ./cli build","exit_code":0,"output":"Vite built cli/dist/index.js (441.00 kB; 111.43 kB gzip). Vite config-loader warning appeared."},
+    {"command":"rtk pnpm --filter ./cli validate:all","exit_code":0,"output":"Found 336 skills; Passed: 336; Failed: 0; 56 warnings."},
+    {"command":"rtk pnpm audit:skills","cwd":"isolated stage","exit_code":0,"output":"No obvious redundancy found. Full stdout/stderr/exit retained in receipts/audit-skills-output.json; no audit output file was copied from the stage."},
+    {"command":"rtk pnpm audit:keywords","exit_code":0,"output":"134 collision(s) found across categories; warnings. No system-design section appeared."},
+    {"command":"rtk pnpm check-alignment","exit_code":0,"output":"All skills met 70% threshold. Warnings: flutter-getx-navigation 86%, swift-best-practices 83%."},
+    {"command":"rtk pnpm evals:preflight -- --skills-file benchmarks/evals/backend-system-design-roi-skills.txt","cwd":"isolated stage","exit_code":0,"output":"Eval preflight: 0 issues. eval-preflight.json stayed in stage."},
+    {"command":"rtk pnpm test:evals","exit_code":0,"output":"89 tests; 89 passed, 0 failed, 0 skipped."},
+    {"command":"rtk pnpm docs:capabilities:check","exit_code":0,"output":"docs/agent-capabilities.md is up to date."},
+    {"command":"rtk node --import tsx .agent/sdd/backend-system-design-roi-improvement/T5/lexical-candidate-matrix.ts","exit_code":0,"output":"Four lexical probes matched; 0 mismatches; lane A fully accepted 1/54 pairs (26/126 assertions), lexical-only."}
+  ],
+  "index_route_correction": {
+    "status": "PASS",
+    "generator_receipt": "receipts/index-repair-generator.json",
+    "copyback_receipt": "receipts/index-repair-copyback.json",
+    "parity_receipt": "receipts/mirror-parity.json",
+    "historical_failed_parity_receipt": "receipts/mirror-parity-initial.json",
+    "canonical_and_four_host_index_sha256": "2486b5e4aca9c16df2f540b4524761deb2f45b206e5dcbe9650915d7bd7a9559",
+    "category_skill_ids_verified": 13,
+    "frontmatter_keyword_triggers_verified": 138,
+    "consumer_route_smoke": "receipts/consumer-route-smoke-rerun.json",
+    "consumer_selected_route_rows": 4,
+    "consumer_selected_trigger_rows_verified": 4
+  },
+  "audit_receipt_distinction": {
+    "current_audit_skills_output": "receipts/audit-skills-output.json",
+    "historical_eval_audit_snapshot": "receipts/preexisting-eval-audit-snapshot.json",
+    "historical_eval_audit_provenance": "receipts/preexisting-eval-audit-snapshot.provenance.json"
+  },
+  "consumer_smoke": {
+    "commands": [
+      {"argv":["sync"],"exit_code":0,"stderr":"◇ injected env (0) from .env\nfatal: not a git repository (or any of the parent directories): .git"},
+      {"argv":["verify","--agent","antigravity"],"exit_code":0,"stdout":"Checked 15 tracked file(s)\n✅ All tracked files match the manifest."}
+    ],
+    "scope":"loopback registry fixture, disposable HOME/XDG, one Antigravity agent, four explicit changed packages, MCP disabled, telemetry false",
+    "consumer_index_path":".agents/skills/system-design/_INDEX.md",
+    "consumer_index_sha256":"3ed604524ee9039b7e765cc81dd156125cdfeb485ee58cefbb0546f315c3a8c2",
+    "consumer_route_ids":["system-design-building-blocks","system-design-data-architecture","system-design-integration-patterns","system-design-resilience-ops"],
+    "selected_trigger_rows_verified":4,
+    "consumer_index_rows_match_canonical":true,
+    "registry_fixture_requests":71,
+    "eval_requests":0,
+    "candidate_base_commit":"92d06c420f6a41f08e11579423e4e3eacdb7880d",
+    "registry_tree_sha256":"bdfaa34569866c0fcc9a58098272b883f49b50bc4570007c1738715fcd7c657a",
+    "prior_resource_validation_receipt":"receipts/consumer-route-smoke.json",
+    "prior_installed_resource_files_matching_canonical":13
+  },
+  "unrun": ["L1/L2 semantic grading","L3 executable candidate application harness","models","paid pilot","remote CI","T7","T4 activation"],
+  "independent_final_t6_review": "APPROVED_REPOSITORY_DISTRIBUTION_ONLY",
+  "independent_final_t6_review_report": {
+    "artifact": "reviews/final-integration-review-rereview.md",
+    "sha256": "965554fd6b1d167a24a444bf1cb156bea57c340d2b5b2a989950c6c59e619b87"
+  }
+}
