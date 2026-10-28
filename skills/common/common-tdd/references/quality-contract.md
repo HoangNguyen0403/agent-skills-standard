@@ -2,27 +2,71 @@
 
 ## Test Intent Record
 
-Record one row before each behavior/risk group:
+Record one record before each behavior/risk group. Serialized representations in evidence bundles and documentation describe the same record:
 
 | Field | Required evidence |
 | --- | --- |
+| `id` | Unique stable intent identifier |
+| `requirements` | Nonempty array of traceable requirement IDs |
+| `owner` | Accountable human maintainer or agent identity |
 | `contract` | Observable result or side effect owned by the application |
-| `fault` | Plausible regression that would make the test fail |
-| `layer` | Smallest honest layer and why broader behavior is not needed |
+| `fault` | Plausible regression this test catches; risk-sensitive, not blanket quota |
+| `layer` | Smallest honest layer (`unit`, `integration`, `contract`, `e2e`); preserve justified cross-layer tests |
 | `cases` | Minimal distinct equivalence classes; merge equivalent inputs |
 | `command` | Exact focused, single-run command |
+| `oracle` | Object `{ ref: { path, sha256 }, basis, owner, rationale }` where basis is `approved_requirement`, `external_specification`, or `independently_reviewed_example`. Implementation-copied expected output is unacceptable |
+| `boundaries` | Object `{ real: string[], mocked: string[], justification: string }` documenting boundary realism |
 
-The record is an agent handoff artifact, not a comment requirement inside test code.
+The record is an agent handoff and evidence artifact, not a comment requirement inside test code.
+
+### Serialized Contract (JSON)
+
+Illustrative shape only matching SRS §4.1 `Intent` schema. The `sha256` digest below is illustrative placeholder documentation, not actual oracle evidence, and must be replaced with the exact raw-byte SHA-256 digest of the actual approved artifact before validation:
+```json
+{
+  "id": "INTENT-CLI-FLAG-01",
+  "requirements": ["REQ-03", "AC-08"],
+  "owner": "maintainer-core",
+  "contract": "Unrecognized CLI flag returns exit 2 with invalid_usage diagnostic",
+  "fault": "Flag parser silently ignores unknown flags and proceeds with defaults",
+  "layer": "unit",
+  "cases": ["unknown flag --unknown", "unknown short flag -z"],
+  "command": "rtk proxy go test -run TestFlags ./pkg/engine",
+  "oracle": {
+    "ref": { "path": "docs/specs/cli.md", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" },
+    "basis": "external_specification",
+    "owner": "spec-maintainer",
+    "rationale": "SRS §3.2 table specifies invalid_usage diagnostic and exit 2"
+  },
+  "boundaries": {
+    "real": ["pkg/engine/flags.go"],
+    "mocked": [],
+    "justification": "Pure in-process flag parsing requires no mocked dependencies"
+  }
+}
+```
+
+## Evidence Consistency & Trust Limits
+
+- **Local-untrusted evidence:** Evidence receipts and SHA-256 digests bind supplied byte content against referenced artifacts. They verify local structural consistency, not execution authenticity or agent trustworthiness.
+- **Human review obligation:** Hashes cannot prove semantic independence of an oracle or validity of boundary justifications. A human reviewer remains necessary to confirm that the oracle is not copied from implementation output.
+- **No fabricated oracles:** `oracle.ref` must point to an existing requirement, specification, or independently reviewed example artifact. Expected output copied solely from implementation output is unacceptable.
+
+## Risk-Sensitive Fault Evidence
+
+- **Plausible faults over blanket metrics:** Focus tests on distinct, plausible failure modes (boundary transitions, domain constraints, error paths). Do not use blanket mutation score quotas (e.g. arbitrary 80% thresholds) or test count targets as quality proxies; they incentivize brittle tests asserting incidental internal details.
+- **Preserve justified cross-layer tests:** When integration, contract, or E2E layers catch failure modes that unit tests cannot observe (such as real serialization, protocol negotiation, race conditions, or environment boundaries), retain them. Do not force artificial layer collapse or mock away the very boundary being tested.
 
 ## Admission checks
 
 - Before proposing a new test, compare against the existing suite; discard if the behavior and fault are already covered by nearby or upstream tests.
 - For existing tests: never auto-delete on apparent static duplication alone. Recommending deletion requires proof of no unique behavioral contribution plus measured full-suite dynamic coverage/mutation impact; otherwise suggest review or refactoring.
 - Keep a case only when it detects a distinct fault, boundary, or contract rule.
+- Preserve justified cross-layer coverage: if a unit test tests logic and an integration test tests wire protocol with real serialization, both are justified because they guard against different plausible faults.
 - Prefer public behavior and state transitions over private methods, call counts, or mock existence.
 - Verify one logical contract per test; multiple assertions are allowed when verifying related aspects or outward side effects of that single contract.
 - Distinguish outward side effects from internal mock choreography: verify what the system produces or changes externally, not how collaborators are invoked internally.
-- Coverage percentages are diagnostic rather than admission gates; never write padding tests to hit an arbitrary target.
+- Coverage percentages and mutation quotas are diagnostic rather than admission gates; never write padding tests to hit an arbitrary target.
 - The Four Pillars (Protection against Regressions, Resistance to Refactoring, Fast Feedback, Maintainability) provide a qualitative reasoning framework, not a static numeric score (avoid inventing formulas like $P \times R \times F \times M$ per test without rigorous empirical measurement across all four dimensions).
 - Route cross-component behavior to integration/contract tests. Do not label a mock-heavy orchestration test as a unit test.
 - Use deterministic fixtures, explicit cleanup, and stable clocks/data. A test that passes only in one order is not evidence.

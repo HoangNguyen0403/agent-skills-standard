@@ -68,6 +68,86 @@
         { "type": "contains", "value": "padding tests" },
         { "type": "not_contains", "value": "80%" }
       ]
+    },
+    {
+      "id": 7,
+      "prompt": "We need to add a test for a critical tax calculation. The implementation is already written and produces 42.50 for the edge input. The developer proposes writing assert calculateTax(order) == 42.50 by capturing the current function return. What is the compliant TDD response?",
+      "expected_output": "Reject copying the expected value from implementation output. An oracle must be independently justified by an approved requirement, external specification, or independently reviewed example artifact. Record the independent oracle reference and rationale in the Test Intent Record; implementation-copied expected output is unacceptable.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": ["independent oracle", "independently justified", "approved requirement", "external specification", "approved tax schedule"]
+        },
+        {
+          "type": "contains_any",
+          "value": ["implementation-copied", "copying the expected value from implementation", "copied solely from implementation", "current function return"]
+        },
+        {
+          "type": "regex",
+          "value": "(?:refuse|reject|decline|do not|don't|never|must not|cannot|can't)\\b[\\s\\S]{0,60}?(?:current function return|implementation output|implementation-copied|oracle)"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "An external static scanner returns a report showing 0 blockers, but 3 files failed traversal and could not be analyzed. The developer claims the test suite has clean static assurance and 100% pass rate. How should the team classify this result?",
+      "expected_output": "Reject clean success. When required scope suffers traversal or parse failures, the analysis status is incomplete or error, not clean pass. Blocker absence across unanalyzed files cannot be treated as clean assurance or release protection.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": ["incomplete", "traversal failure", "unanalyzed files"]
+        },
+        {
+          "type": "contains_any",
+          "value": ["clean assurance", "clean pass", "clean success", "release protection"]
+        },
+        {
+          "type": "regex",
+          "value": "(?:refuse|reject|decline|deny|do not|don't|never|must not|cannot|can't)\\b[\\s\\S]{0,60}?clean\\s+(?:static\\s+)?(?:success|assurance|pass|status)"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "A security scan ran with an empty file filter or zero eligible test files discovered in the target repository. The tool exited 0 with 0 findings. The developer claims this establishes clean production assurance. How should the team classify this empty-scope run?",
+      "expected_output": "Reject clean production assurance. An empty scope with zero analyzed files or zero eligible inputs represents missing required analysis or at best an explicitly allowed empty run (not applicable), never clean success or proof of production safety. Blocker absence across zero inspected files cannot certify release assurance.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": ["empty scope", "zero analyzed files", "zero eligible", "not applicable", "missing required analysis"]
+        },
+        {
+          "type": "contains_any",
+          "value": ["production assurance", "production safety", "release assurance", "clean success"]
+        },
+        {
+          "type": "regex",
+          "value": "(?:refuse|reject|decline|deny|do not|don't|never|must not|cannot|can't)\\b[\\s\\S]{0,60}?(?:clean\\s+(?:production\\s+|release\\s+)?(?:assurance|success|safety|status)|production\\s+(?:assurance|safety)|release\\s+assurance)"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "A developer writing unit tests for an order service wants to assert every mock call across repository save and payment gateway charge, calling that sufficient protection instead of routing the persistence and payment contract to an integration test. What should the test strategy say?",
+      "expected_output": "Prove the service's observable outcomes with simple boundary fakes instead of asserting every mock call. Mock call choreography is not sufficient protection for the persistence and payment contract; route that collaboration to an integration or contract test. Each test covers one logical behavior and a distinct fault.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": ["observable outcomes", "observable behavior", "outward results"]
+        },
+        {
+          "type": "contains_any",
+          "value": ["integration", "contract test"]
+        },
+        {
+          "type": "contains_any",
+          "value": ["distinct fault"]
+        },
+        {
+          "type": "regex",
+          "value": "(?:do not|don't|never|avoid|refuse|reject|must not|cannot|can't|rather than|instead of|without|not)\\b[\\s\\S]{0,50}?(?:every mock|all mock|each mock|mock call|call choreography|mock assertions?|mock invocation)"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

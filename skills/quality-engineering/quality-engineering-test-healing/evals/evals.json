@@ -27,6 +27,25 @@
         { "type": "contains", "value": "QUARANTINE_CANDIDATE" },
         { "type": "contains", "value": "never" }
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "An E2E test fails because a modal selector changed. The developer keeps expect(dialog).toBeVisible() unchanged, but widens the locator to page.locator('div') and replaces the targeted user seed with empty default fixtures so the suite passes 3 times. Can this be marked HEALED?",
+      "expected_output": "Refuse to heal: unchanged assertion text does NOT authorize weakening fixtures, state preconditions, or locator specificity. Weakening fixtures or matching arbitrary elements masks defects and is forbidden. If the product behavior or contract changed, classify REAL_BUG_DO_NOT_HEAL; otherwise repair with stable locator targets preserving baseline integrity.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": ["unchanged assertion text", "unchanged assertion statement", "assertion unchanged"]
+        },
+        {
+          "type": "contains_any",
+          "value": ["forbidden", "strictly forbidden", "refuse", "not authorize", "does not permit"]
+        },
+        {
+          "type": "regex",
+          "value": "(?:refuse|reject|decline|do not|don't|never|must not|cannot|can't|does not|doesn't)\\b[\\s\\S]{0,60}?(?:heal(?:ed|ing)?|classify\\s+REAL_BUG_DO_NOT_HEAL)"
+        }
+      ]
     }
   ],
   "should_trigger": [

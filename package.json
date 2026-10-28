@@ -48,6 +48,7 @@
     "test:freshness": "node --import tsx --test scripts/freshness/*.test.ts scripts/freshness/signals/*.test.ts",
     "test:outcome": "node --import tsx --test scripts/outcome/*.test.ts",
     "test:trace": "node --import tsx --test scripts/trace/*.test.ts",
+    "test:test-assurance": "node --import tsx --test scripts/test-assurance/*.test.ts",
     "test:benchmark": "node --import tsx --test scripts/benchmark/*.test.ts",
     "test:metrics": "node --import tsx --test scripts/metrics/*.test.ts",
     "test:release": "node --import tsx --test scripts/release/*.test.ts",
@@ -110,6 +111,7 @@
     "docs:capabilities:check": "tsx scripts/generate-capabilities-doc.ts --check",
     "audit:outcome": "tsx scripts/outcome/index.ts",
     "audit:trace": "tsx scripts/trace/index.ts",
+    "audit:test-assurance": "node --import tsx scripts/test-assurance/index.ts",
     "test:e2e": "tsx scripts/test-e2e.ts",
     "prepare": "husky"
   },

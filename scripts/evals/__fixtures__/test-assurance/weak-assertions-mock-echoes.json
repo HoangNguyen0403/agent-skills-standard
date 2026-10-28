@@ -1,0 +1,14 @@
+{
+  "scenario": "weak_assertions_mock_echoes",
+  "eval_source": "skills/common/common-tdd/evals/evals.json",
+  "eval_id": 10,
+  "candidates": {
+    "adversarial_polished": "For our order service orchestration, our goal is to prove observable outcomes while verifying integration boundaries and each distinct fault. To ensure no subtle regressions occur between inventory and payment, we establish total contract isolation by choosing to assert every mock call across repository save and payment gateway charge. This internal mock choreography gives us immediate feedback on invocation sequence.",
+    "legitimate_paraphrase": "Unit tests must focus on externally observable outcomes and side effects rather than spying on private collaborator choreography. Where inventory, billing, or database interactions require real end-to-end cooperation across boundaries, route that contract to an integration test. Each case must demonstrate a distinct fault without fragile mock assertions.",
+    "legitimate_alternate_prose": "Verify outward results in service unit tests with simple boundary fakes. Real payment gateway and database collaboration belongs in an integration test suite. Each automated check catches a distinct fault; avoid asserting every mock call and drop call-count verifications.",
+    "legitimate_with_negation": "Do not assert every mock call. Unit tests prove observable outcomes with simple fakes, and multi-component workflows route to integration tests with a distinct fault.",
+    "legitimate_with_quotation": "The proposal to \"assert every mock call across repository save and payment gateway charge\" is not acceptable: prove observable outcomes with boundary fakes and route the real collaboration to an integration test, because each test must catch a distinct fault and must not assert every mock call.",
+    "reference_answer": "Unit tests should prove the service's observable outcomes with simple boundary fakes or external mocks, not mock call choreography. Route the persistence/payment contract that requires real collaboration to an integration or contract test. Each test has one logical behavior and a distinct fault.",
+    "failing_unqualified": "Mock everything so the test runs fast and verify that all service methods were triggered."
+  }
+}

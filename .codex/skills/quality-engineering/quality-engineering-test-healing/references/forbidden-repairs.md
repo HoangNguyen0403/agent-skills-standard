@@ -3,6 +3,8 @@
 | Forbidden | Why |
 |---|---|
 | Weaken/remove an assertion | Turns a real regression into a silent pass. |
+| Weaken fixture, seed data, or precondition with unchanged assertion text | Masks real defects by bypassing preconditions or feeding vacuous data; unchanged assertion text does not authorize fixture weakening. |
+| Widen selector to match unintended elements | Silently passes against an incorrect DOM node while leaving the broken element interaction unverified. |
 | `test.skip`/`fixme` as a heal | Removes coverage; quarantine with ticket + expiry keeps the test running and reporting. |
 | Widen a matcher (`toContain` instead of `toEqual`) | Hides a value regression. |
 | Timeout inflation >2x | Masks a real performance regression as a healed test. |
