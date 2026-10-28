@@ -1,8 +1,0 @@
-[STAGE] Initializing disposable staging worktree at: /Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/mindless-impala
-same-root: rejected before snapshot/generator execution
-[STAGE] Initializing disposable staging worktree at: /Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/mindless-impala/artifacts/unsafe-stage
-inside-root: rejected before snapshot/generator execution
-[STAGE] Initializing disposable staging worktree at: /var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-export-guards-bZpxLI
-nonempty: rejected before snapshot/generator execution
-[STAGE] Initializing disposable staging worktree at: /var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-export-guards-bZpxLI-link
-symlink: rejected before snapshot/generator execution

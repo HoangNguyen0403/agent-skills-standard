@@ -1,6 +1,0 @@
-clean: exact documented script returned 0 (real fresh CLI)
-blocker: exact documented script returned 1 (real fresh CLI)
-incomplete: exact documented script returned 2 (real fresh CLI)
-allowed-empty: exact documented script returned 3 (real fresh CLI)
-malformed-output: exact documented script returned 2 (explicit malformed-report shim)
-exit-mismatch: exact documented script returned 2 (explicit malformed-report shim)

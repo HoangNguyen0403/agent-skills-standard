@@ -1,3 +1,0 @@
-scripts/test-assurance/schema.ts(737,32): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'number'.
-scripts/test-assurance/schema.ts(807,11): error TS18046: 'report.findings' is of type 'unknown'.
-scripts/test-assurance/validate.ts(228,24): error TS2304: Cannot find name 'fs'.

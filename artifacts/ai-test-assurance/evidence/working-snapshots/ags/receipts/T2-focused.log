@@ -1,7 +1,0 @@
-FAIL	github.com/HoangNguyen0403/testguard/pkg/engine [build failed]
-ok  	github.com/HoangNguyen0403/testguard/pkg/reporter	0.488s
-FAIL	github.com/HoangNguyen0403/testguard/cmd/testguard [build failed]
-FAIL
-# github.com/HoangNguyen0403/testguard/pkg/engine
-pkg/engine/engine.go:4:2: "fmt" imported and not used
-pkg/engine/engine.go:8:2: "path/filepath" imported and not used

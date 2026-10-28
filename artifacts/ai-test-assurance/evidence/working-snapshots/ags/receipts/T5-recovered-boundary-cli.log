@@ -1,6 +1,0 @@
-fifo: valid precondition passed, mutation rejected2 with satisfied:false and structured output
-deep-tree: valid precondition passed, mutation rejected2 with satisfied:false and structured output
-oversized-roots: valid precondition passed, mutation rejected2 with satisfied:false and structured output
-malformed-intent: valid precondition passed, mutation rejected2 with satisfied:false and structured output
-terminal-key: valid precondition passed, mutation rejected2 with satisfied:false and structured output
-Synthetic receipt consistency fixtures only; no recorded command was executed.
