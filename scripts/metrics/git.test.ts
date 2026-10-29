@@ -5,7 +5,8 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { attributionFromGit, readFlowMetrics } from "./git";
+import { buildDeliveryIndicators, readDeliveryObservations } from "./delivery";
+import { readFlowMetrics } from "./git";
 
 function tmpRoot(): string {
   return fs.mkdtempSync(path.join(os.tmpdir(), "metrics-git-"));
@@ -51,7 +52,7 @@ test("readFlowMetrics reports zero deploys (not unavailable) for a git repo with
   assert.equal(flow.changeFailureRate.available, false);
 });
 
-test("readFlowMetrics computes lead time and change failure rate from a tagged release history", () => {
+test("git release history yields labeled proxies, never measured deployment or failure values", () => {
   const root = tmpRoot();
   initRepo(root);
   commit(root, "a.txt", "1", "feat: add a");
@@ -60,25 +61,34 @@ test("readFlowMetrics computes lead time and change failure rate from a tagged r
   const flow = readFlowMetrics(root, undefined, new Date());
 
   assert.equal(flow.deploymentFrequency.available, true);
-  if (flow.deploymentFrequency.available) assert.match(flow.deploymentFrequency.value, /^1 deploy tag/);
+  if (flow.deploymentFrequency.available) {
+    assert.match(flow.deploymentFrequency.value, /^1 deploy tag/);
+    assert.equal(flow.deploymentFrequency.basis, "proxy");
+    assert.equal(flow.deploymentFrequency.coverage, "unknown");
+    assert.ok(flow.deploymentFrequency.limitations.length > 0);
+  }
 
   assert.equal(flow.leadTimeForChanges.available, true);
   assert.equal(flow.changeFailureRate.available, true);
   if (flow.changeFailureRate.available) {
-    assert.match(flow.changeFailureRate.value, /^100% \(1\/1 deploys/);
+    assert.equal(flow.changeFailureRate.basis, "proxy");
+    assert.match(flow.changeFailureRate.value, /^100% \(1\/1 deploy tags/);
+    assert.match(flow.changeFailureRate.source, /^git proxy:/);
   }
 });
 
-test("attributionFromGit classifies commit authors into agent vs human classes, never by name", () => {
+test("Git-only input cannot populate a measured change failure rate", () => {
   const root = tmpRoot();
   initRepo(root);
-  commit(root, "a.txt", "1", "feat: from agent", "claude-agent");
-  commit(root, "b.txt", "1", "feat: from a person", "Jane Doe");
-  const now = new Date();
-  const period = readFlowMetrics(root, undefined, now).period;
-  const counts = attributionFromGit(root, period);
-  const agent = counts.find((c) => c.identityClass === "agent");
-  const human = counts.find((c) => c.identityClass === "human");
-  assert.equal(agent?.changes, 1);
-  assert.equal(human?.changes, 1);
+  commit(root, "a.txt", "1", "feat: add a");
+  commit(root, "b.txt", "1", "fix: a regression");
+  git(root, ["tag", "app-v1.0.0"]);
+  const flow = readFlowMetrics(root, undefined, new Date());
+  const measured = buildDeliveryIndicators(readDeliveryObservations(root), flow.period);
+  const row = measured.deliveryHealth.find((candidate) => candidate.metric === "Change failure rate (observed)");
+  assert.ok(row);
+  assert.equal(row.metric_result.available, false);
+  if (!row.metric_result.available) {
+    assert.match(row.metric_result.reason, /no artifacts\/metrics\/delivery-observations\.json supplied/);
+  }
 });

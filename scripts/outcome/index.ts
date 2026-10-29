@@ -9,14 +9,80 @@ import { CORE_SDLC_CHAIN } from "../workflow-chain";
 
 const ROOT = path.join(__dirname, "..", "..");
 const DEFAULT_RUNS_DIR = path.join(ROOT, "artifacts", "runs");
+const USAGE_EXIT_CODE = 2;
 
-function flagValue(name: string): string | undefined {
-  const index = process.argv.indexOf(name);
+/**
+ * Assurance reported by a successful record audit. Schema and scope validity
+ * only: it never claims approval, current revision, or human authorization.
+ */
+export const RUN_RECORD_ASSURANCE = "record-schema-and-scope-valid" as const;
+export type RunRecordAssurance = typeof RUN_RECORD_ASSURANCE;
+
+/** The exact run identity a caller requires to exist, matched by record content. */
+export interface RequiredRunScope {
+  slug: string;
+  workflow: string;
+  run_id: string;
+}
+
+export interface RunRecordAudit {
+  issues: ValidationIssue[];
+  /** Every `.json` file inspected, valid or not. */
+  checked: number;
+  /** Schema-valid records whose content matches `requiredScope`; always 0 without a scope. */
+  matched: number;
+}
+
+class UsageError extends Error {}
+
+/** Reads a flag value, rejecting absent, empty, and flag-shaped values. */
+function readFlag(argv: string[], name: string): string | undefined {
+  const index = argv.indexOf(name);
   if (index === -1) return undefined;
-  if (index + 1 >= process.argv.length) {
-    throw new Error(`${name} requires a value`);
+  const value = argv[index + 1];
+  if (value === undefined || value.trim() === "" || value.startsWith("-")) {
+    throw new UsageError(`${name} requires a non-empty, non-flag value`);
   }
-  return process.argv[index + 1];
+  return value;
+}
+
+interface OutcomeArgs {
+  templates: boolean;
+  records: boolean;
+  json: boolean;
+  dir?: string;
+  scope?: RequiredRunScope;
+}
+
+/**
+ * Parses CLI arguments. Required scope (contract B) is exactly
+ * `--records --required --slug S --workflow W --run-id R`; selectors outside
+ * that mode, a partial scope, and `--templates` combined with it are usage errors.
+ */
+function parseArgs(argv: string[]): OutcomeArgs {
+  const templates = argv.includes("--templates");
+  const records = argv.includes("--records");
+  const json = argv.includes("--json");
+  const required = argv.includes("--required");
+  const dir = readFlag(argv, "--dir");
+  const slug = readFlag(argv, "--slug");
+  const workflow = readFlag(argv, "--workflow");
+  const runId = readFlag(argv, "--run-id");
+  const selectorCount = [slug, workflow, runId].filter((value) => value !== undefined).length;
+
+  if (required) {
+    if (templates) throw new UsageError("--templates cannot be combined with required record scope");
+    if (!records) throw new UsageError("required record scope needs --records");
+    if (slug === undefined || workflow === undefined || runId === undefined) {
+      throw new UsageError("required record scope needs --slug, --workflow and --run-id");
+    }
+    return { templates, records, json, dir, scope: { slug, workflow, run_id: runId } };
+  }
+
+  if (selectorCount > 0) {
+    throw new UsageError("--slug, --workflow and --run-id require --required");
+  }
+  return { templates, records, json, dir };
 }
 
 /** Recursively lists every `.json` file under `dir`; returns `[]` when `dir` does not exist. */
@@ -25,7 +91,8 @@ async function listRunRecordFiles(dir: string): Promise<string[]> {
   const files: string[] = [];
   const stack = [dir];
   while (stack.length > 0) {
-    const current = stack.pop()!;
+    const current = stack.pop();
+    if (current === undefined) break;
     const entries = await fs.readdir(current, { withFileTypes: true });
     for (const entry of entries) {
       const entryPath = path.join(current, entry.name);
@@ -36,12 +103,34 @@ async function listRunRecordFiles(dir: string): Promise<string[]> {
       }
     }
   }
-  return files;
+  return files.sort();
 }
 
-export async function validateRunRecords(runsDir: string): Promise<{ issues: ValidationIssue[]; checked: number }> {
+/** Identity match by record content; directory names and file names are never consulted. */
+function matchesScope(parsed: unknown, scope: RequiredRunScope): boolean {
+  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) return false;
+  const record = parsed as Record<string, unknown>;
+  return record.slug === scope.slug && record.workflow === scope.workflow && record.run_id === scope.run_id;
+}
+
+function scopeLabel(scope: RequiredRunScope): string {
+  return `slug=${scope.slug} workflow=${scope.workflow} run_id=${scope.run_id}`;
+}
+
+/**
+ * Validates every run record under `runsDir`. Malformed JSON is always a
+ * validation failure, even when the record's scope cannot be determined.
+ *
+ * With `requiredScope`, exactly one schema-valid record must match that
+ * identity by content: no match, multiple matches, or a single matching
+ * record that fails the schema all produce error issues.
+ */
+export async function validateRunRecords(runsDir: string, requiredScope?: RequiredRunScope): Promise<RunRecordAudit> {
   const files = await listRunRecordFiles(runsDir);
   const issues: ValidationIssue[] = [];
+  const identityMatches: string[] = [];
+  let matched = 0;
+
   for (const file of files) {
     const relPath = path.relative(ROOT, file);
     let parsed: unknown;
@@ -51,89 +140,145 @@ export async function validateRunRecords(runsDir: string): Promise<{ issues: Val
       issues.push({ severity: "error", file: relPath, message: `failed to parse JSON: ${(error as Error).message}` });
       continue;
     }
-    issues.push(...validateRunRecord(parsed, relPath));
+    const recordIssues = validateRunRecord(parsed, relPath);
+    issues.push(...recordIssues);
+    if (!requiredScope || !matchesScope(parsed, requiredScope)) continue;
+    identityMatches.push(relPath);
+    if (recordIssues.length === 0) matched += 1;
   }
-  return { issues, checked: files.length };
-}
 
-function printIssues(issues: ValidationIssue[]): void {
-  for (const issue of issues) {
-    if (issue.severity === "error") {
-      console.log(pc.red(`  ✗ [${issue.file}] ${issue.message}`));
-    } else {
-      console.log(pc.yellow(`  ! [${issue.file}] ${issue.message}`));
+  if (requiredScope) {
+    const scopeDir = path.relative(ROOT, runsDir);
+    if (identityMatches.length === 0) {
+      issues.push({
+        severity: "error",
+        file: scopeDir,
+        message: `no run record matches required scope ${scopeLabel(requiredScope)}`,
+      });
+    } else if (identityMatches.length > 1) {
+      issues.push({
+        severity: "error",
+        file: scopeDir,
+        message: `duplicate run record identity for ${scopeLabel(requiredScope)}: ${identityMatches.join(", ")}`,
+      });
+    } else if (matched === 0) {
+      issues.push({
+        severity: "error",
+        file: identityMatches[0],
+        message: `run record matches required scope ${scopeLabel(requiredScope)} but is not schema-valid`,
+      });
     }
   }
+
+  return { issues, checked: files.length, matched };
 }
 
-export async function main(): Promise<void> {
-  const wantTemplates = process.argv.includes("--templates");
-  const wantRecords = process.argv.includes("--records");
-  const wantJson = process.argv.includes("--json");
-  const dirFlag = flagValue("--dir");
-  const runsDir = dirFlag ? (path.isAbsolute(dirFlag) ? dirFlag : path.join(ROOT, dirFlag)) : DEFAULT_RUNS_DIR;
-  const runBoth = !wantTemplates && !wantRecords;
+function formatIssues(issues: ValidationIssue[]): string[] {
+  return issues.map((issue) =>
+    issue.severity === "error"
+      ? pc.red(`  ✗ [${issue.file}] ${issue.message}`)
+      : pc.yellow(`  ! [${issue.file}] ${issue.message}`),
+  );
+}
 
+/**
+ * Runs the outcome audit. Returns the rendered report and exit code:
+ * 0 valid, 1 validation failure, 2 usage error.
+ */
+export async function run(argv: string[] = process.argv.slice(2)): Promise<{ exitCode: number; output: string }> {
+  let args: OutcomeArgs;
+  try {
+    args = parseArgs(argv);
+  } catch (error) {
+    if (!(error instanceof UsageError)) throw error;
+    if (argv.includes("--json")) {
+      const payload = {
+        ok: false,
+        usageError: true,
+        issues: [{ severity: "error", file: "<cli>", message: error.message }],
+        recordsChecked: 0,
+        recordsMatched: 0,
+      };
+      return { exitCode: USAGE_EXIT_CODE, output: `${JSON.stringify(payload, null, 2)}\n` };
+    }
+    return { exitCode: USAGE_EXIT_CODE, output: pc.red(`❌ Outcome audit usage error: ${error.message}`) };
+  }
+
+  const runsDir = args.dir ? (path.isAbsolute(args.dir) ? args.dir : path.join(ROOT, args.dir)) : DEFAULT_RUNS_DIR;
+  const runBoth = !args.templates && !args.records;
+  const lines: string[] = [];
   const allIssues: ValidationIssue[] = [];
   let recordsChecked = 0;
+  let recordsMatched = 0;
+  let recordsValidated = false;
 
-  if (runBoth || wantTemplates) {
-    if (!wantJson) console.log(pc.blue("🔍 Validating Outcome Report templates...\n"));
+  if (runBoth || args.templates) {
+    if (!args.json) lines.push(pc.blue("🔍 Validating Outcome Report templates...\n"));
     const templateIssues = await validateOutcomeReportTemplates(CORE_SDLC_CHAIN);
     allIssues.push(...templateIssues);
-    if (!wantJson) {
+    if (!args.json) {
       if (templateIssues.length === 0) {
-        console.log(pc.green(`  ✓ all ${CORE_SDLC_CHAIN.length} Outcome Report templates declare the schema`));
+        lines.push(pc.green(`  ✓ all ${CORE_SDLC_CHAIN.length} Outcome Report templates declare the schema`));
       } else {
-        printIssues(templateIssues);
+        lines.push(...formatIssues(templateIssues));
       }
-      console.log();
+      lines.push("");
     }
   }
 
-  if (runBoth || wantRecords) {
-    if (!wantJson) console.log(pc.blue("🔍 Validating run records...\n"));
-    const { issues: recordIssues, checked } = await validateRunRecords(runsDir);
+  if (runBoth || args.records) {
+    recordsValidated = true;
+    if (!args.json) lines.push(pc.blue("🔍 Validating run records...\n"));
+    const { issues: recordIssues, checked, matched } = await validateRunRecords(runsDir, args.scope);
     recordsChecked = checked;
+    recordsMatched = matched;
     allIssues.push(...recordIssues);
-    if (!wantJson) {
-      if (checked === 0) {
-        console.log(pc.green(`  ✓ no run records found under ${path.relative(ROOT, runsDir)}`));
+    if (!args.json) {
+      if (args.scope) {
+        if (recordIssues.length === 0) {
+          lines.push(pc.green(`  ✓ exactly one run record matches ${scopeLabel(args.scope)}`));
+        } else {
+          lines.push(...formatIssues(recordIssues));
+        }
+      } else if (checked === 0) {
+        lines.push(pc.green(`  ✓ no run records found under ${path.relative(ROOT, runsDir)}`));
       } else if (recordIssues.length === 0) {
-        console.log(pc.green(`  ✓ all ${checked} run records valid`));
+        lines.push(pc.green(`  ✓ all ${checked} run records valid`));
       } else {
-        printIssues(recordIssues);
+        lines.push(...formatIssues(recordIssues));
       }
-      console.log();
+      lines.push("");
     }
   }
 
   const hasErrors = allIssues.some((issue) => issue.severity === "error");
+  const ok = !hasErrors;
 
-  if (wantJson) {
-    console.log(
-      JSON.stringify(
-        {
-          ok: !hasErrors,
-          issues: allIssues,
-          recordsChecked,
-        },
-        null,
-        2,
-      ),
-    );
-  } else if (hasErrors) {
-    console.log(pc.red("❌ Outcome audit failed."));
-  } else {
-    console.log(pc.green("✅ Outcome audit passed."));
+  if (args.json) {
+    const payload: Record<string, unknown> = {
+      ok,
+      issues: allIssues,
+      recordsChecked,
+      recordsMatched,
+    };
+    if (recordsValidated) payload.assurance = RUN_RECORD_ASSURANCE;
+    return { exitCode: ok ? 0 : 1, output: `${JSON.stringify(payload, null, 2)}\n` };
   }
 
-  if (hasErrors) process.exit(1);
+  lines.push(hasErrors ? pc.red("❌ Outcome audit failed.") : pc.green("✅ Outcome audit passed."));
+  return { exitCode: ok ? 0 : 1, output: lines.join("\n") };
+}
+
+/** CLI wrapper: prints the rendered report and sets the process exit code. */
+export async function main(): Promise<void> {
+  const { exitCode, output } = await run();
+  console.log(output);
+  process.exitCode = exitCode;
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__filename)) {
   main().catch((error) => {
     console.error(error);
-    process.exit(1);
+    process.exitCode = 1;
   });
 }

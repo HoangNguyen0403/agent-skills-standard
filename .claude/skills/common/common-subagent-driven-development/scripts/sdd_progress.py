@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Reconcile explicit, revision-bound SDD completion observations."""
+"""Reconcile revision-bound SDD completion observations and project them read-only."""
 
 from __future__ import annotations
 
@@ -47,6 +47,15 @@ def _validate_state(state: Any) -> dict[str, Any]:
     if state.get("blocked") is not None and not isinstance(state["blocked"], dict):
         raise ReconciliationError("state blocked observation is invalid")
     return state
+
+
+def _require_current_plan(state: dict[str, Any]) -> None:
+    try:
+        current_plan_digest = _sha256(Path(state["plan"]).read_bytes())
+    except OSError as error:
+        raise ReconciliationError(f"cannot read plan for progress state: {error}") from error
+    if current_plan_digest != state["plan_sha256"]:
+        raise ReconciliationError("plan content changed since progress state initialization")
 
 
 def _atomic_write(path: Path, state: dict[str, Any]) -> None:
@@ -144,12 +153,7 @@ def reconcile(state_path: str | Path, observation_path: str | Path) -> dict[str,
     if state_file.is_symlink():
         raise ReconciliationError("state path must not be a symlink")
     state = _validate_state(_read_json(state_file, "state"))
-    try:
-        current_plan_digest = _sha256(Path(state["plan"]).read_bytes())
-    except OSError as error:
-        raise ReconciliationError(f"cannot read plan for progress state: {error}") from error
-    if current_plan_digest != state["plan_sha256"]:
-        raise ReconciliationError("plan content changed since progress state initialization")
+    _require_current_plan(state)
     observation = _read_json(Path(observation_path), "completion observation")
     completion_id, action_id, outcome, evidence, identity = _validate_observation(state, observation)
     evidence_ids = _evidence_identities(state["workspace"], evidence)
@@ -187,6 +191,174 @@ def _result(state: dict[str, Any], duplicate: bool) -> dict[str, Any]:
             "source_revision": state["source_revision"], "dirty_identity": state["dirty_identity"]}
 
 
+def _receipt_records(state: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
+    records = []
+    for completion_id, receipt in state["completions"].items():
+        action_id = receipt.get("action_id")
+        owner = receipt.get("owner")
+        evidence = receipt.get("evidence")
+        blocked_reason = receipt.get("blocked_reason")
+        if (not isinstance(action_id, str) or action_id not in state["actions"]
+                or not isinstance(owner, str) or not owner.strip()
+                or not isinstance(evidence, list)
+                or any(not isinstance(item, dict) or not isinstance(item.get("path"), str)
+                       or not isinstance(item.get("sha256"), str) for item in evidence)
+                or (blocked_reason is not None and not isinstance(blocked_reason, str))):
+            raise ReconciliationError(f"state completion receipt {completion_id!r} is invalid")
+        if blocked_reason is None and not evidence:
+            raise ReconciliationError(f"state completion receipt {completion_id!r} records completion without evidence")
+        records.append((completion_id, receipt))
+    return records
+
+
+def _current_evidence(workspace: str, refs: list[dict[str, str]], action_id: str) -> list[dict[str, Any]]:
+    try:
+        current = _evidence_identities(workspace, [ref["path"] for ref in refs])
+    except ReconciliationError as error:
+        raise ReconciliationError(f"action {action_id!r} evidence is not current: {error}") from error
+    result = []
+    for ref, identity in zip(refs, current):
+        if identity["sha256"] != ref["sha256"]:
+            raise ReconciliationError(
+                f"action {action_id!r} evidence {ref['path']!r} changed since its recorded checkpoint")
+        result.append({"path": ref["path"], "sha256": ref["sha256"], "current": True})
+    return result
+
+
+def _history(records: list[tuple[str, dict[str, Any]]], excluded: str | None) -> list[dict[str, Any]]:
+    return [{"completion_id": completion_id, "action_id": receipt["action_id"],
+             "checkpoint_status": "blocked", "owner": receipt["owner"],
+             "reason": receipt["blocked_reason"]}
+            for completion_id, receipt in records
+            if "blocked_reason" in receipt and completion_id != excluded]
+
+
+def _current_block(state: dict[str, Any]) -> dict[str, str] | None:
+    block = state.get("blocked")
+    if block is None:
+        return None
+    completion_id = block.get("completion_id")
+    action_id = block.get("action_id")
+    reason = block.get("reason")
+    actions = state["actions"]
+    cursor = state["cursor"]
+    receipt = state["completions"].get(completion_id) if isinstance(completion_id, str) else None
+    if (cursor >= len(actions) or not isinstance(completion_id, str) or action_id != actions[cursor]
+            or not isinstance(reason, str) or not reason.strip()
+            or receipt is None or receipt.get("action_id") != actions[cursor]
+            or not isinstance(receipt.get("blocked_reason"), str) or not receipt["blocked_reason"].strip()
+            or receipt["blocked_reason"] != reason):
+        raise ReconciliationError("state current block disagrees with its completion receipt")
+    return {"completion_id": completion_id, "action_id": action_id, "reason": reason}
+
+
+def _project_actions(state: dict[str, Any], block: dict[str, str] | None) -> list[dict[str, Any]]:
+    actions = state["actions"]
+    cursor = state["cursor"]
+    records = _receipt_records(state)
+    projection = []
+    for index, action_id in enumerate(actions):
+        own = [(completion_id, receipt) for completion_id, receipt in records if receipt["action_id"] == action_id]
+        completed = [(completion_id, receipt) for completion_id, receipt in own if "blocked_reason" not in receipt]
+        if index < cursor:
+            if len(completed) != 1:
+                raise ReconciliationError(
+                    f"action {action_id!r} before the cursor lacks exactly one completed receipt")
+            receipt = completed[0][1]
+            status = "completed"
+        elif index == cursor and block is not None:
+            if completed:
+                raise ReconciliationError(f"action {action_id!r} has a completion receipt without cursor advance")
+            completion_id = block["completion_id"]
+            receipt = state["completions"][completion_id]
+            status = "blocked"
+        else:
+            if completed:
+                raise ReconciliationError(f"action {action_id!r} has a completion receipt beyond the cursor")
+            if any("blocked_reason" in item for _, item in own):
+                raise ReconciliationError(f"action {action_id!r} has a blocked receipt without an active block")
+            projection.append({"id": action_id, "checkpoint_status": "pending", "owner": None,
+                               "evidence": [], "history": [], "blocked_reason": None})
+            continue
+        evidence = _current_evidence(state["workspace"], receipt["evidence"], action_id)
+        excluded = block["completion_id"] if status == "blocked" else None
+        projection.append({
+            "id": action_id, "checkpoint_status": status, "owner": receipt["owner"], "evidence": evidence,
+            "history": _history(own, excluded),
+            "blocked_reason": receipt.get("blocked_reason"),
+        })
+    return projection
+
+
+_LIMITATIONS = (
+    "checkpoint completion is not technical verification, business acceptance, or release",
+    "caller-supplied revision and dirty identity are declarations, not authenticated provenance",
+    "recorded owner and owner_paused values are declarations and are not independently authenticated",
+    "no approval is inferred from a checkpoint receipt, filename, status string, or reviewer attribution",
+    "historical blocked receipts are retained as history and their evidence is not revalidated",
+    "evidence freshness is a local byte comparison and does not prove an external system observed the event",
+)
+
+
+def inspect_state(state_path: str | Path, revision: str, dirty_identity: str) -> dict[str, Any]:
+    state_file = Path(state_path)
+    if state_file.is_symlink():
+        raise ReconciliationError("state path must not be a symlink")
+    if not isinstance(revision, str) or not revision.strip() or not isinstance(dirty_identity, str) or not dirty_identity.strip():
+        raise ReconciliationError("caller-observed source revision and dirty identity are required")
+    state = _validate_state(_read_json(state_file, "state"))
+    if revision != state["source_revision"]:
+        raise ReconciliationError(f"caller revision {revision!r} does not match the recorded source revision")
+    if dirty_identity != state["dirty_identity"]:
+        raise ReconciliationError("caller dirty identity does not match the recorded dirty identity")
+    _require_current_plan(state)
+    block = _current_block(state)
+    actions = _project_actions(state, block)
+    return {"state_version": state["version"],
+            "plan": {"path": state["plan"], "sha256": state["plan_sha256"], "current": True},
+            "source_revision": state["source_revision"], "dirty_identity": state["dirty_identity"],
+            "actions": actions, "next_action": state["actions"][state["cursor"]] if state["cursor"] < len(state["actions"]) else None,
+            "blocked": block,
+            "checkpoint_completion": "complete" if state["cursor"] == len(state["actions"]) else "incomplete",
+            "evidence_current": True, "limitations": list(_LIMITATIONS)}
+
+
+def _quote(value: Any) -> str:
+    text = str(value).replace("`", "'").replace("|", "\\|").replace("\r", " ").replace("\n", " ")
+    return f"`{text}`"
+
+
+def render_markdown(projection: dict[str, Any]) -> str:
+    plan = projection["plan"]
+    lines = ["# SDD checkpoint status", "",
+             f"- State version: {projection['state_version']}",
+             f"- Plan: {_quote(plan['path'])} sha256 {_quote(plan['sha256'])}",
+             f"- Source revision: {_quote(projection['source_revision'])}",
+             f"- Dirty identity: {_quote(projection['dirty_identity'])}",
+             f"- Checkpoint completion: {_quote(projection['checkpoint_completion'])}",
+             f"- Evidence current: {_quote('yes' if projection['evidence_current'] else 'no')}",
+             "", "| # | Action | Checkpoint | Owner | Evidence |", "| --- | --- | --- | --- | --- |"]
+    for index, action in enumerate(projection["actions"], start=1):
+        owner = _quote(action["owner"]) if action["owner"] else "not recorded"
+        evidence = "<br>".join(_quote(item["path"]) for item in action["evidence"]) or "none"
+        lines.append(f"| {index} | {_quote(action['id'])} | {_quote(action['checkpoint_status'])} | {owner} | {evidence} |")
+    lines.append("")
+    if projection["blocked"] is not None:
+        blocked = projection["blocked"]
+        lines.append(f"Blocked action: {_quote(blocked['action_id'])} reason {_quote(blocked['reason'])}")
+    else:
+        next_action = projection["next_action"]
+        lines.append(f"Next action: {_quote(next_action) if next_action else 'none'}")
+    history = [entry for action in projection["actions"] for entry in action["history"]]
+    if history:
+        lines.extend(["", "## Earlier blocked receipts (history, not current success)", ""])
+        lines.extend(f"- {_quote(entry['completion_id'])} on {_quote(entry['action_id'])}: {_quote(entry['reason'])}"
+                     for entry in history)
+    lines.extend(["", "## Limitations", ""])
+    lines.extend(f"- {limitation}" for limitation in projection["limitations"])
+    return "\n".join(lines) + "\n"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
@@ -200,12 +372,24 @@ def main() -> int:
     apply = commands.add_parser("reconcile", help="apply one explicit completion observation")
     apply.add_argument("--state", required=True)
     apply.add_argument("--observation", required=True)
+    status = commands.add_parser("status", help="print a read-only current-state projection")
+    status.add_argument("--state", required=True)
+    status.add_argument("--revision", required=True)
+    status.add_argument("--dirty-identity", required=True)
+    status.add_argument("--format", choices=("json", "markdown"), default="json")
     args = parser.parse_args()
     try:
-        result = _result(initialize_state(args.state, args.plan, args.workspace, args.actions, args.revision, args.dirty_identity), False) if args.command == "init" else reconcile(args.state, args.observation)
+        if args.command == "status":
+            projection = inspect_state(args.state, args.revision, args.dirty_identity)
+        else:
+            result = _result(initialize_state(args.state, args.plan, args.workspace, args.actions, args.revision, args.dirty_identity), False) if args.command == "init" else reconcile(args.state, args.observation)
     except (ReconciliationError, OSError) as error:
         sys.stderr.write(f"Error: {error}\n")
         return 2
+    if args.command == "status":
+        sys.stdout.write(render_markdown(projection) if args.format == "markdown"
+                         else json.dumps(projection, indent=2, sort_keys=True) + "\n")
+        return 0
     print(json.dumps(result, sort_keys=True))
     return 0
 

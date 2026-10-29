@@ -50,6 +50,8 @@ One implementation context is not one actor for the lifecycle: main-loop impleme
 
 ## 2. Lifecycle
 
+Report current state with read-only `status --state <PATH> --revision <REV> --dirty-identity <ID> --format json|markdown`; it rechecks plan/evidence bytes and never mutates state. Checkpoint completion is not verification, acceptance, or release.
+
 | Operation | Required evidence |
 | --- | --- |
 | prepare | Standalone packet: assignment manifest, task text, authority, invariants, owner, owned paths, required standards with revision, ACs, verification, source/dependency identities |
@@ -86,7 +88,6 @@ Retry count alone never authorizes premium. Timeout and cancellation are not com
 Run whole-branch review on a capable host hint, then complete the branch. Before deleting the workspace, archive packets, reports, immutable review snapshots and verification receipts at durable references; cleanup must not invalidate handoff links.
 
 ## Anti-Patterns
-
 - **No worker commits**: workers leave changes; the orchestrator commits.
 - **No recursive delegation**: workers do not spawn agents.
 - **No self-approval**: implementer verdicts do not satisfy independent review.
@@ -95,5 +96,4 @@ Run whole-branch review on a capable host hint, then complete the branch. Before
 - **No fabricated savings or enforcement claims**: prompt text is not a sandbox, and savings need complete measured coverage.
 
 ## References
-
 [Methodology & Gates](references/methodology.md) · [Prompt Templates](references/templates.md) · [Progress Receipts](references/progress-receipts.md) · [Capability & Effort Resolution](../common-task-complexity-routing/references/routing-table.md#capability-and-effort-resolution)

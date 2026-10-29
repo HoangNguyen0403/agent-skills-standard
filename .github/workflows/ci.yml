@@ -88,10 +88,15 @@ jobs:
         uses: pnpm/action-setup@v6
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      - name: Run SDD Progress Status Regression Tests
+        # Read-only status projection (v2 receipts): no bytecode written, subprocess-driven.
+        run: python3 -B -m unittest discover -s scripts/skill-tests -p test_sdd_progress.py -v
       - name: Run Unit Tests with Coverage
         run: pnpm test:cov
       - name: Run Eval/Outcome/Trace Script Tests
         run: pnpm test:evals && pnpm test:outcome && pnpm test:trace
+      - name: Run Metrics Script Tests
+        run: pnpm test:metrics
       - name: Run SDLC Workflow Tests
         run: pnpm test:sdlc
       - name: Run E2E Tests

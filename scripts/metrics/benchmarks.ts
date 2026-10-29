@@ -32,6 +32,10 @@ export function evalPassRateIndicator(root: string): StageIndicatorRow {
       value: `${(latest * 100).toFixed(1)}%`,
       trend: trendAgainstPrevious(points, " pts", (v) => (v * 100).toFixed(1)),
       source,
+      basis: "measured",
+      sampleSize: points.length,
+      coverage: "unknown",
+      limitations: ["Committed history record; the eval run's provider, model, and coverage are not declared here."],
     };
   }
   return { stage: "Test", indicator: "eval pass rate with skill guidance", metric_result: metric };
@@ -51,6 +55,10 @@ export function benchmarkQualityIndicator(root: string): StageIndicatorRow {
       value: `${latest.toFixed(1)}/10`,
       trend: trendAgainstPrevious(points, "", (v) => v.toFixed(1)),
       source,
+      basis: "measured",
+      sampleSize: points.length,
+      coverage: "unknown",
+      limitations: ["Structural benchmark score; it does not measure live task success."],
     };
   }
   return { stage: "Test", indicator: "skill-benchmark structural quality score", metric_result: metric };

@@ -26,9 +26,9 @@ Goal: Build an approved feature through bounded TDD slices and route settled wor
 
 ## Steps
 
-1. **Load plan**: Find matching PRD/ticket, SRS/FRS, implementation plan, REQ/AC trace, and skills. Ask if target is ambiguous; route missing trace/test lanes to `plan-feature`, `design-solution`, or `implementation-readiness`. Carry `snc_tier`/`model_tier`; high tier adds `specialist-architecture-guard` and `specialist-security-reviewer` before `verify-work`.
+1. **Load plan**: Find the matching PRD/ticket, SRS/FRS, implementation plan, REQ/AC trace, and skills. Carry `delivery_mode`, authoritative work-item reference with source revision, owner, approval reference, and inherited `snc_tier`/`model_tier`. In `brief` mode the approved record's observable criteria replace formal PRD/SRS/REQ/AC IDs; never restart intake or invent IDs for a missing filename. A sensitive or scope-grown change reopens only the affected slices and restores the applicable design/approval floor. High tier adds `specialist-architecture-guard` and `specialist-security-reviewer` before `verify-work`. Ask only when the target remains ambiguous after reading the approved record.
 2. **Prepare workspace**: Confirm clean or intentional dirty state; create a branch/worktree only when expected. Provision lockfile dependencies before tests. Report install failures exactly; never claim skipped checks passed.
-3. **Bound ownership**: Assign each slice one owner; the recorded implementation context may own several coupled slices. Record exact files, goal/deliverable, in/out scope, authority, REQ/AC IDs, required standards, and verification receipt. Prepare a standalone assignment packet; a slice must not depend on inferred plan-level authority.
+3. **Bound ownership**: Assign each slice an owner, exact files, goal/deliverable, in/out scope, authority, criteria references (REQ/AC IDs when governed; the approved record's observable criteria otherwise), verification lane, approval reference, and verification receipt. Record the one authoritative work item and source revision once; slice rows link criteria and lanes instead of restating their definitions. Blocked slices name the blocker, its owner, and the required input while independent ready slices proceed. Prepare a standalone assignment packet; a slice must not depend on inferred plan-level authority.
 4. **Implement slices**:
    - Apply the canonical placement decision in `common-subagent-driven-development` §1 before editing: delegate only for a named benefit or a host requirement. Coupled sequential work under a host that permits main-loop implementation stays in one implementation context.
    - Dispatch one owner per disjoint, dependency-ready slice with a recorded benefit; sequence only real dependencies. Worker bootstrap reads its packet and requests only the exact standards it names; do not repeat parent workflow discovery or global intake.
@@ -41,19 +41,19 @@ Goal: Build an approved feature through bounded TDD slices and route settled wor
 6. **Recover by cause**: Missing prerequisite → report `needs_context`/`blocked` with the exact item. Defective output → one corrective assignment naming the failed AC. Observed provider exhaustion → only an eligible, already-authorized fallback, with the evidence recorded. Consequential safety/design issue → human decision. Retry count alone never authorizes premium.
 7. **Preserve context**: Carry decisions, owner, active slice, and evidence links in the task/plan artifact. Summarize logs; keep source artifacts retrievable. Archive required packets, reports, and receipts at durable references before workspace cleanup.
 8. **Settle before shared checks**: Every owner pauses edits and reports a settled revision. Run one final covering gate, including behavior smoke, foreground/sequentially with no peer mutation. Then run the whole-branch independent review; it is required regardless of placement. Later edits invalidate affected evidence; rerun those gates and never weaken checks. A cancelled or timed-out run is not a pass.
-9. **Handoff**: Report final gate/smoke receipts and update REQ/AC trace and walkthrough evidence. Continue only within recorded authority; route to `verify-work`.
+9. **Handoff**: Report final gate/smoke receipts and update the requirement trace and walkthrough evidence where that lane applies. Run the required audit only for its evidence lane: governed documents `rtk pnpm audit:trace --slug <slug> --required`; required run records `rtk pnpm audit:outcome --records --required --slug <slug> --workflow <workflow> --run-id <run-id>`. Brief tickets acquire no document-trace gate; registry-wide discovery with no selector stays optional. Technical verification, business acceptance, and release stay separate referenced decisions; a passing check reports only technical verification. Continue only within recorded authority; route to `verify-work`.
 
 ## Runtime Contract
 
 - Use for approved plans ready to build; TDD, bounded ownership, revision-bound evidence, independent review.
-- Required inputs: PRD/ticket with stable REQ/AC trace, owner, and required SRS/test lanes.
+- Required inputs: PRD/ticket with stable REQ/AC trace or an approved `brief` record with observable criteria; owner; required SRS/test lanes for triggered risk.
 - Choose placement per `common-subagent-driven-development` §1: delegate only for a named benefit or a host requirement. Plan approval does not authorize merge, deployment, premium spend, or a different execution mode.
 - Required independent review and the final whole-branch review survive either placement; missing nesting support or missing isolation stops only the affected operation.
-- Return `needs_context` or `blocked` when required trace, owner, test lanes, authority, required standards, or enforceable isolation are missing.
+- Return `needs_context` or `blocked` when required trace or brief criteria, owner, test lanes, authority, required standards, or enforceable isolation are missing.
 
 ## Handoff Payload
 
-- `slug`, carried `operator_profile`, `snc_tier`, `model_tier`, completed slices, tests run, changed contracts, requirement trace, delegation packets, risks, outcome report, next workflow.
+- `slug`, carried `operator_profile`, `delivery_mode`, work-item reference plus source revision, approval reference, `snc_tier`, `model_tier`, completed slices, tests run, changed contracts, requirement trace, delegation packets, evidence-lane refs (technical/acceptance/release), risks, outcome report, next workflow.
 - Carry `repository_status` and `activation_status` separately; include authorized next action, settled revision, and evidence links. Publication approval does not grant deployment authority.
 
 ## Blocking Questions
@@ -63,6 +63,9 @@ Goal: Build an approved feature through bounded TDD slices and route settled wor
 ## Output Template
 ```md
 # Implementation Handoff: [Name]
+## Delivery Mode And Work Item
+- Mode: brief | standard | extended; work item + revision: [ref @ rev]; owner: [owner]; approval: [ref]
+- Evidence lanes: technical [verify receipt ref], acceptance [not assessed], release [not assessed]
 ## Completed Slices
 
 ## Tests Run

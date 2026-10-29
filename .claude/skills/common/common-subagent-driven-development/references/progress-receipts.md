@@ -32,3 +32,17 @@ python3 skills/common/common-subagent-driven-development/scripts/sdd_progress.py
 An observation declares `completion_id`, `plan`, `workspace`, current `action_id`, `outcome` (`completed` or `blocked`), workspace-relative `evidence`, `verified_revision`, `current_revision`, `dirty_identity`, `owner`, and boolean `owner_paused`. Completed observations require evidence files. Blocked observations additionally require `blocked_reason` and retain the cursor. A new valid explicit observation can clear a block by completing the current action.
 
 Evidence paths must resolve to files inside the workspace; accepted receipts store SHA-256 content identities. Replaying the same completion ID and unchanged evidence is idempotent. Changed reuse, missing/escaping evidence, changed plan, wrong action/workspace, mismatched revisions, dirty identity changes, or an owner not declared paused cannot advance state. Human wait, worker span, and notification timing may be included as observation fields for audit context; unknown values remain unknown and do not contribute billed compute.
+
+## Status (read-only)
+
+```sh
+python3 skills/common/common-subagent-driven-development/scripts/sdd_progress.py status \
+  --state .sdd/progress.json --revision <current-revision> --dirty-identity <current-identity> \
+  --format json
+```
+
+`status` reads version 2 state and projects it; `--format markdown` renders the same projection. It never calls `init`/`reconcile`, never advances the cursor, never rewrites the task document, and never creates files. It refuses with a nonzero exit and no projection when the plan hash changed, the caller-supplied revision or dirty identity differs from state, a receipt disagrees with the cursor, the current block's action/completion/reason disagrees with its receipt, or stored evidence for a completed action or the current block is missing, escaping, or byte-changed. Earlier blocked receipts stay listed as history rather than current success. The returned `blocked` object is the validated `completion_id`/`action_id`/`reason` from state that must equal the referenced receipt's `blocked_reason`.
+
+JSON fields: `state_version`, `plan` (path, SHA-256), `source_revision`, `dirty_identity`, `actions`, `next_action`, `blocked`, `checkpoint_completion`, `evidence_current`, `limitations`. Each action carries `id`, `checkpoint_status` (`completed`/`blocked`/`pending`), recorded `owner`, evidence references with SHA-256/currentness, and `history`.
+
+Completion of every action is checkpoint completion only. Technical verification, business acceptance, and release remain separate records that a handoff must link. Caller identities, `owner`, and `owner_paused` are declarations the helper does not authenticate, and no approval is inferred from a receipt, filename, status string, or reviewer attribution.

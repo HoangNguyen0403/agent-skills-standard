@@ -6,7 +6,7 @@ Agent Skills Standard syncs workflows into each agent's native surface. Run `ags
 | ---------------------- | ------------------------------------------------ | -------------------------- | ---------------------------------------------------------------------- | ------------------------------------- |
 | Route                  | Which workflow now?                              | `sdlc`                     | Unsure what to run next                                                | next workflow                         |
 | BRD-lite / Direction   | Why are we doing this, and which way?            | `brainstorm-feature`       | Idea, business case, or technical direction unclear                    | `docs/brd/brd-[slug].md`              |
-| PRD                    | What are we building?                            | `plan-feature`             | Feature needs scope, requirements, and AC IDs                          | `docs/prd/prd-[slug].md`              |
+| PRD                    | What are we building, and what decision is needed? | `plan-feature`           | Feature needs outcome, scope, and acceptance criteria                  | `docs/prd/prd-[slug].md` or approved brief |
 | Architecture           | How big and what shape?                          | `system-design-session`    | Scale, topology, or store choice is unsettled                          | `docs/design/system-design-[slug].md` |
 | SRS/FRS                | How will it work technically?                    | `design-solution`          | Contracts, behavior, or architecture are unclear                       | `docs/srs/srs-[slug].md`              |
 | Readiness              | Are we ready to build?                           | `implementation-readiness` | BRD/PRD/SRS or test plan needs go/no-go                                | readiness verdict                     |
@@ -14,7 +14,7 @@ Agent Skills Standard syncs workflows into each agent's native surface. Run `ags
 | Test Loop              | Do we have executable, traced test coverage?     | `test-loop`                | ACs have E2E/mobile lanes without executable coverage                  | test suite + verdicts                 |
 | Verify                 | Did we prove it with fresh evidence?             | `verify-work`              | Work is code-complete but unproven                                     | `docs/srs/srs-walkthrough-[slug].md`  |
 | UAT Signoff            | Does the business accept it?                     | `uat-signoff`              | `verify-work` PASS needs business acceptance before release            | signoff decision                      |
-| Trace                  | Is every requirement covered?                    | `traceability-audit`       | Pre-release or handoff needs evidence mapping                          | traceability report                   |
+| Trace                  | Is every requirement document-linked?            | `traceability-audit`       | Pre-release or handoff needs a document-link map                      | document-link report (not execution proof) |
 | Release                | Is deployment safe?                              | `deploy-release`           | Verification passed and deployment is planned                          | deployment report                     |
 | Incident               | How do we stop harm right now?                   | `incident-hotfix`          | Production incident or urgent regression needs mitigate-first response | mitigation + handoff                  |
 | Maintain               | Is production still inside its control bands?    | `monitor-respond`          | Control band breached or a scheduled scan completed                    | tiered response + routed intake       |
@@ -48,6 +48,42 @@ For substantial scope, multi-actor workflows, interacting rules, or multiple del
 ### Low-Risk Evidence And Sensitive Floors
 
 Sufficiently specified routine fixes or maintenance tickets with approved behavioral AC, accountable owner, scope fence, approval, and verification lane satisfy readiness without mandatory separate document files or full modeling detours. However, changes touching sensitive domains enforce the sensitive-change floor per `requirements-modeling.md` requiring technical design and human approval before coding.
+
+### Delivery Mode (`brief` | `standard` | `extended`)
+
+Carry `delivery_mode` in task and handoff metadata, separately from `snc_tier`. It is a routing decision about how much specification the work needs — never an authorization.
+
+| Mode       | Use when                                                                                                 | Required artifacts                                                                                   |
+| ---------- | -------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `brief`    | Approved low-risk, nonsensitive task with outcome, scope fence, owner, observable criteria, approval reference, and verification lane | The approved ticket or session report; no PRD/SRS, no new formal IDs, no walkthrough                 |
+| `standard` | Normal feature or change                                                                                 | Focused PRD; SRS only when technical decisions or contracts need an explicit design                  |
+| `extended` | Risk-triggered: sensitive surface, migration, capacity, failure analysis, or cross-team contract        | Standard core plus the triggered contracts, and the applicable human gate                            |
+
+Rules that hold in every mode: a sensitive change always receives its technical design and human approval; a missing mode is a routing decision based on approved evidence and risk, not automatic permission for the brief path; material scope growth reopens only the affected slices. Diff size never selects the mode — a one-line authorization change is `extended`.
+
+Core PRD sections: decision brief, outcome/guardrails, scope/non-goals, canonical `REQ`/`AC` rows (with owner, priority, and the single verification lane), open consequential decisions, references. Core SRS sections: decision brief, trace source, architecture/contract delta, one card per technical requirement carrying its only verification mapping, blockers/references. Personas, flows, analytics, NFR tables, migration plans, and risk sections are extensions: include one only when its trigger applies, and treat an omitted applicable extension as an owned blocker rather than silent scope loss.
+
+### Gate Commands And Assurance Boundaries
+
+Each check below proves one narrow thing. None of them authenticates a human, proves implementation, or supplies approval. Run them from a settled tree with `rtk`:
+
+| Command                                                                     | Proves                                                                                     | Does **not** prove                                                    |
+| --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------------------------------- |
+| `rtk pnpm audit:trace` | BRD-OBJ → REQ → AC → SRS document-link consistency; JSON retains `assurance_kind: "document_links"`, `execution_evidence: "not_evaluated"`, and `assurance: "document-links-only"` | implementation, execution, or approval |
+| `rtk pnpm audit:trace --slug S --required` | the same, plus scope `S` exists and declares at least one `REQ` and one `AC`; JSON also reports `requested_scope` and `required` | that criteria are approved, relevant, or implemented |
+| `rtk pnpm audit:outcome --templates --json`                                 | the workflow Outcome Report contract still parses and validates                             | that any run record exists                                        |
+| `rtk pnpm audit:outcome --records --required --slug S --workflow W --run-id R` | exactly one schema-valid run record matches that identity by content                      | approval, revision currency, or human sign-off (`assurance: record-schema-and-scope-valid`) |
+| `python3 -B -m unittest discover -s scripts/skill-tests -p test_sdd_progress.py` | the read-only SDD status projection accepts current receipts and rejects stale evidence  | that a checkpoint equals verification, acceptance, or release         |
+| `rtk pnpm test:metrics` · `rtk pnpm metrics:report --json`                  | measured-versus-proxy labeling, deduplication, and unavailable handling                     | delivery performance, productivity gains, or cost completeness        |
+
+Trace's two additive assurance field families remain present: `assurance_kind` / `execution_evidence` describe document-link-only assessment and explicitly unevaluated execution; `assurance` / `requested_scope` / `required` report the required-scope contract. Neither field family authenticates approval or implementation.
+
+Exit codes: trace and outcome use `0` success, `1` validation failure, `2` CLI misuse; the SDD status helper exits nonzero and prints nothing to stdout when the state, plan bytes, or evidence bytes are not current. Treat any nonzero as failure and never read `2` as a scope verdict. Required mode is for callers that genuinely depend on that evidence lane — registry-wide discovery stays optional, and a `brief` ticket acquires no document trace gate. Local checks do not install downstream branch protection; a source revision does not prove consumer activation.
+
+### Measured Delivery Observations
+
+`scripts/metrics/index.ts` reads `artifacts/metrics/delivery-observations.json` when present: an authorized local export (`schema_version: 1`, `source_kind: host-export` or `operator-recorded`) of review, decision-wait, submission, correction, acceptance, deployment, defect, and cost events with per-change coverage. Keep it out of `artifacts/runs/`, whose reader treats every JSON file as a RunRecord. An invalid export yields no observations plus diagnostics — a partially trustworthy total is never printed. Every reported value carries `basis` (`measured` or `proxy`), `sampleSize`, `coverage`, and limitations; missing coverage is reported as unavailable rather than zero, an unresolved decision wait is pending rather than complete, and total cost per accepted change requires agent, human, and tooling coverage for every cohort member. Source labels are attribution, not authenticated origin, and no new row feeds control bands without a separately reviewed baseline.
+
 
 ### Scoped Change Impact And Canonical Guidance
 
@@ -169,7 +205,7 @@ Start with any practice that has no prerequisite, then follow the arrows.
 - **No component-specific logic in a shared skill**: Keep it in the project instruction file or the prompt.
 - **No agent-config change without an eval**: Gate skill, workflow, and hook edits on the eval suite.
 - **No human approval inside the build loop**: Gate at deploy, not at every edit.
-- **No stale instruction file**: Keep it to a page and update it the second time a mistake repeats.
+- **No repeat-count promotion to instruction-file prose**: Link repeated evidence to one owned preventive mechanism and promote through that mechanism. Change instruction-file guidance only as a last resort, with explicit maintenance authorization and independent review.
 - **No two sources of truth without linkage**: Declare one authoritative and link the other.
 
 ## Rule
@@ -233,9 +269,11 @@ Use `skills/common/common-software-requirements/references/requirements-standard
 ## Requirement Quality Rule
 
 - BRD: SMART objective, stakeholders, AS-IS/TO-BE, cost-benefit, glossary, validation owner.
-- PRD: specific personas, use cases, `REQ-*`, `AC-*`, Gherkin where needed, analytics, risks, rollout, changelog.
-- SRS/FRS: `BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> evidence`, requirement cards, NFR measurement, failure modes.
-- `implement-feature`: consume `REQ-*` and `AC-*`; route back when requirements, owners, or proof lanes are missing.
+- PRD: decision brief first, then outcome/guardrails, scope/non-goals, canonical `REQ-*`/`AC-*` rows carrying owner, priority, and the single verification lane, open consequential decisions, references. Personas, use cases, Gherkin, analytics, risks, and rollout are conditional extensions: add the ones the change actually triggers.
+- SRS/FRS: `BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> evidence`, one card per technical requirement with its only verification mapping, NFR measurement where a threshold is committed, failure modes where the behavior has a fallback.
+- Every level: define each requirement and criterion once; a second verification matrix or restated AC row is a defect, not extra rigor.
+- `implement-feature`: consume `REQ-*` and `AC-*`, or the approved ticket criteria in `brief` mode; route back when requirements, owners, or proof lanes are missing. Brief mode does not mint formal IDs.
+
 
 ## Guardrail Rule
 

@@ -151,3 +151,104 @@ test("run() writes artifacts/sdlc-metrics.md by default and exits 0", () => {
 test("run() throws a descriptive error when a flag is given without its value", () => {
   assert.throws(() => run(["--since"]), /--since requires a value/);
 });
+
+test("every available metric declares its measurement basis and at least one limitation", () => {
+  const root = tmpRoot();
+  initRepo(root);
+  git(root, ["commit", "--allow-empty", "-q", "-m", "feat: seed"]);
+  git(root, ["tag", "app-v1.0.0"]);
+  const report = buildReport(root, undefined, new Date());
+  for (const row of [...report.deliveryHealth, ...report.stageIndicators]) {
+    if (!row.metric_result.available) continue;
+    const label = "metric" in row ? row.metric : `${row.stage}: ${row.indicator}`;
+    assert.ok(["measured", "proxy"].includes(row.metric_result.basis), `${label} missing basis`);
+    assert.ok(row.metric_result.limitations.length > 0, `${label} missing limitations`);
+  }
+});
+
+test("Git-only input produces labeled proxies and cannot populate a measured change failure rate", () => {
+  const root = tmpRoot();
+  initRepo(root);
+  git(root, ["commit", "--allow-empty", "-q", "-m", "feat: seed"]);
+  git(root, ["commit", "--allow-empty", "-q", "-m", "fix: a regression"]);
+  git(root, ["tag", "app-v1.0.0"]);
+
+  const report = buildReport(root, undefined, new Date());
+  const proxy = report.deliveryHealth.find((row) => row.metric === "Revert/fix-commit tag share (git proxy)");
+  assert.ok(proxy);
+  assert.equal(proxy.metric_result.available, true);
+  if (proxy.metric_result.available) assert.equal(proxy.metric_result.basis, "proxy");
+
+  assert.equal(report.deliveryHealth.some((row) => row.metric === "Change failure rate"), false);
+  const measured = report.deliveryHealth.find((row) => row.metric === "Change failure rate (observed)");
+  assert.ok(measured);
+  assert.equal(measured.metric_result.available, false);
+});
+
+test("a complete observation fixture reaches the report with expected values and sample sizes", () => {
+  const root = tmpRoot();
+  initRepo(root);
+  const now = new Date("2026-01-20T00:00:00Z");
+  const dir = path.join(root, "artifacts", "metrics");
+  fs.mkdirSync(dir, { recursive: true });
+  const coverage = (changeId: string) => ({
+    change_id: changeId,
+    revisions: ["r1"],
+    from: "2025-12-21T00:00:00Z",
+    through: "2026-01-20T00:00:00Z",
+    kinds: ["review", "submission", "acceptance", "cost", "correction", "deployment", "defect", "decision-wait"],
+    complete: true,
+  });
+  const event = (id: string, changeId: string, kind: string, observedAt: string, extra: Record<string, unknown>) => ({
+    id,
+    change_id: changeId,
+    revision: "r1",
+    observed_at: observedAt,
+    source_ref: "operator-export",
+    kind,
+    ...extra,
+  });
+  fs.writeFileSync(
+    path.join(dir, "delivery-observations.json"),
+    JSON.stringify({
+      schema_version: 1,
+      source_kind: "operator-recorded",
+      coverage: [coverage("change-a"), coverage("change-b")],
+      events: [
+        event("s1", "change-a", "submission", "2026-01-02T00:00:00Z", { attempt: 1 }),
+        event("s2", "change-b", "submission", "2026-01-02T00:00:00Z", { attempt: 1 }),
+        event("s3", "change-b", "submission", "2026-01-03T00:00:00Z", { attempt: 2 }),
+        event("a1", "change-a", "acceptance", "2026-01-10T00:00:00Z", { attempt: 1, decision: "accepted", authority_ref: "ok-1" }),
+        event("a2", "change-b", "acceptance", "2026-01-11T00:00:00Z", { attempt: 2, decision: "accepted", authority_ref: "ok-2" }),
+        event("r1", "change-a", "review", "2026-01-05T00:00:00Z", { session_id: "sess-a", active_seconds: 600 }),
+        event("r2", "change-b", "review", "2026-01-06T00:00:00Z", { session_id: "sess-b", active_seconds: 1200 }),
+        event("c1", "change-a", "cost", "2026-01-08T00:00:00Z", { charge_id: "ca-1", currency: "USD", amount: 1, component: "agent" }),
+        event("c2", "change-a", "cost", "2026-01-08T00:00:00Z", { charge_id: "ca-2", currency: "USD", amount: 0.5, component: "human" }),
+        event("c3", "change-a", "cost", "2026-01-08T00:00:00Z", { charge_id: "ca-3", currency: "USD", amount: 0.5, component: "tooling" }),
+        event("c4", "change-b", "cost", "2026-01-09T00:00:00Z", { charge_id: "cb-1", currency: "USD", amount: 2, component: "agent" }),
+        event("c5", "change-b", "cost", "2026-01-09T00:00:00Z", { charge_id: "cb-2", currency: "USD", amount: 1, component: "human" }),
+        event("c6", "change-b", "cost", "2026-01-09T00:00:00Z", { charge_id: "cb-3", currency: "USD", amount: 1, component: "tooling" }),
+      ],
+    }),
+    "utf8",
+  );
+
+  const report = buildReport(root, undefined, now);
+  const review = report.stageIndicators.find((row) => row.indicator.includes("human review effort"));
+  assert.ok(review);
+  assert.equal(review.metric_result.available, true);
+  if (review.metric_result.available) {
+    assert.equal(review.metric_result.value, "median 15.0 min/accepted change");
+    assert.equal(review.metric_result.sampleSize, 2);
+    assert.equal(review.metric_result.basis, "measured");
+  }
+  const firstPass = report.stageIndicators.find((row) => row.indicator.includes("first-pass acceptance"));
+  assert.ok(firstPass);
+  if (firstPass.metric_result.available) assert.equal(firstPass.metric_result.value, "1/2 accepted on attempt 1");
+  const cost = report.stageIndicators.find((row) => row.indicator.includes("cost per accepted change (USD)"));
+  assert.ok(cost);
+  if (cost.metric_result.available) {
+    assert.equal(cost.metric_result.value, "USD 3.00/accepted change");
+    assert.equal(cost.metric_result.sampleSize, 2);
+  }
+});

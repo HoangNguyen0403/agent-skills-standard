@@ -28,6 +28,16 @@ Worker dispatch (host binding):
     [Only missing scene-setting not already in the packet: external dependency,
      prior-task output reference, or environment note]
 
+    ## Carried Delivery Contract
+    - `delivery_mode`: brief | standard | extended
+    - Work item: [ID/reference @ source revision]; owner: [owner]; approval: [approval reference]
+    - Criteria: [REQ/AC ids when governed; in brief mode the approved record's observable criteria — never mint IDs]
+    - Verification lane: [lane]; evidence lanes: technical [this task], acceptance/release [not assessed]
+
+    Authority comes from this carried record. Do not repeat intake, re-infer approval,
+    or restart planning because a formal ID or document filename is absent. A sensitive
+    or scope-grown change reopens the affected slice and restores its design/approval floor.
+
     ## Implementation Methodology: Strict TDD
     Follow Test-Driven Development (TDD) for any new logic or bug fixes:
     1. **RED:** Write a minimal failing test covering the requirement. Confirm it fails as expected.
@@ -49,12 +59,15 @@ Worker dispatch (host binding):
     - **No Git Commits:** Leave changes uncommitted in the working tree; orchestrator integrates and commits.
     - **No Recursive Delegation:** Do all of this task's work yourself. Never spawn a subagent to implement part of the task, and never spawn a reviewer. Review is handled by the orchestrator after you report.
     - **Focused Verification:** Run only tests and checks covering touched paths; full test suites run during integration.
-    - **Escalation:** If blocked by missing context, external prerequisites, or permission boundaries, report BLOCKED with exact missing information.
+    - **Evidence Boundary:** A green check is technical verification of this revision only. Never claim business acceptance, release authority, or that a stale receipt still covers later edits.
+    - **Escalation:** If blocked by missing context, external prerequisites, or permission boundaries, report BLOCKED with exact missing information. Do not silently shrink the assigned scope.
 
     ## Report Format
     Write your full report to [REPORT_FILE]:
     - What was implemented and files changed
+    - Work-item and criteria mapping: [item @ revision] -> [met criteria refs]; unresolved blockers with owner/input
     - Verification commands run and test evidence (RED/GREEN outputs)
+    - Evidence lanes: technical [receipts], acceptance/release [not assessed]
     - Diff summary and uncommitted changes
     - Self-review notes or doubts
     - Proposed verification commands for orchestrator integration
@@ -90,8 +103,16 @@ Independent reviewer dispatch (host binding):
     ## What Was Requested
     Read the task packet: [BRIEF_FILE]
 
+    Review target: work item [ID/reference @ source revision]; `delivery_mode` brief | standard | extended.
+    The spec is that carried record. In brief mode its observable criteria replace formal
+    PRD/SRS/REQ/AC IDs; absent document IDs are not a compliance defect, and approval is
+    not re-inferred from filenames, status strings, or reviewer attribution.
+
     Global constraints from the packet binding this task:
     [PACKET_INVARIANTS — do not add duplicate constraints that contradict the packet]
+
+    Global constraints from the spec/design binding this task:
+    [GLOBAL_CONSTRAINTS]
 
     ## What the Implementer Claims They Built
     Read the implementer's report: [REPORT_FILE]
@@ -137,6 +158,7 @@ Independent reviewer dispatch (host binding):
 
     ### Assessment
     **Task quality:** [Approved | Needs fixes]
+    **Evidence limit:** technical verification of this revision only — never business acceptance or release
     **Reasoning:** [1-2 sentence technical summary]
 ```
 

@@ -1,14 +1,15 @@
 // scripts/metrics/git.ts
 //
-// REQ-001 / SRS-002: derive the DORA four from git history alone — deploy tags and
-// commit timestamps. Every reader fails open: a missing `.git`, an empty tag list,
-// or a git failure is reported `unavailable` with the reason, never a zero guessed
-// as a real answer (REQ-002).
+// REQ-001 / SRS-002: derive git-history indicators — deploy tags and commit
+// timestamps. These are explicitly labeled proxies (`basis: "proxy"`), never
+// measured deployments or incidents. Every reader fails open: a missing `.git`,
+// an empty tag list, or a git failure is reported `unavailable` with the reason,
+// never a zero guessed as a real answer (REQ-002).
 
 import { execFileSync } from "child_process";
 import fs from "fs";
 import path from "path";
-import type { Metric } from "./types";
+import type { AvailableMetric, Metric } from "./types";
 
 /** Matches release tags this repo actually cuts: `cli-v2.6.2`, `android-v1.3.1`, bare `v1.2.3`. */
 const DEPLOY_TAG_RE = /(^v\d+\.\d+\.\d+(-[0-9A-Za-z.]+)?$|-v\d+\.\d+\.\d+(-[0-9A-Za-z.]+)?$)/;
@@ -114,6 +115,11 @@ function formatDuration(hours: number): string {
   return `${(hours / 24).toFixed(1)}d`;
 }
 
+/** Git history is a labeled proxy: it is never reported with `measured` basis. */
+export function proxy(value: string, trend: string, source: string, sampleSize: number | null, limitations: string[]): AvailableMetric {
+  return { available: true, value, trend, source, basis: "proxy", sampleSize, coverage: "unknown", limitations };
+}
+
 function trendLabel(current: number, previous: number | undefined, unit: string): string {
   if (previous === undefined) return "n/a (no prior period data)";
   if (current === previous) return `flat at ${current}${unit}`;
@@ -150,12 +156,13 @@ export function readFlowMetrics(root: string, sinceArg: string | undefined, now:
   const currentTags = allTags.filter((t) => inWindow(t.date, period.currentSince, period.currentUntil));
   const previousTags = allTags.filter((t) => inWindow(t.date, period.previousSince, period.previousUntil));
 
-  const deploymentFrequency: Metric = {
-    available: true,
-    value: `${currentTags.length} deploy tag(s) in ${period.label}`,
-    trend: trendLabel(currentTags.length, allTags.length > 0 ? previousTags.length : undefined, " tags"),
-    source,
-  };
+  const deploymentFrequency: Metric = proxy(
+    `${currentTags.length} deploy tag(s) in ${period.label}`,
+    trendLabel(currentTags.length, allTags.length > 0 ? previousTags.length : undefined, " tags"),
+    `git proxy: ${source}`,
+    currentTags.length,
+    ["Release tags are a git-history proxy for deployments, not observed production deploys."],
+  );
 
   // Pair each tag with the one immediately before it (by date, across the whole tag list)
   // so "lead time" always means "since the previous deploy", not just the previous tag in-window.
@@ -182,12 +189,13 @@ export function readFlowMetrics(root: string, sinceArg: string | undefined, now:
       source,
     };
   } else {
-    leadTimeForChanges = {
-      available: true,
-      value: `median ${formatDuration(medianLead)} (n=${leadTimesHours.length} commits across ${currentTags.length} deploy(s))`,
-      trend: "n/a (single-period derivation; no comparable prior-period commit set persisted)",
-      source: `${source}; commit range per deploy tag`,
-    };
+    leadTimeForChanges = proxy(
+      `median ${formatDuration(medianLead)} (n=${leadTimesHours.length} commits across ${currentTags.length} deploy(s))`,
+      "n/a (single-period derivation; no comparable prior-period commit set persisted)",
+      `git proxy: ${source}; commit range per deploy tag`,
+      leadTimesHours.length,
+      ["Commit date to tag date; review queueing and release approval are excluded."],
+    );
   }
 
   let changeFailureRate: Metric;
@@ -196,12 +204,15 @@ export function readFlowMetrics(root: string, sinceArg: string | undefined, now:
   } else {
     const failed = failedDeploys.filter(Boolean).length;
     const rate = failed / currentTags.length;
-    changeFailureRate = {
-      available: true,
-      value: `${(rate * 100).toFixed(0)}% (${failed}/${currentTags.length} deploys with a revert/fix commit since the prior deploy)`,
-      trend: "n/a (single-period derivation; no comparable prior-period classification persisted)",
-      source: `${source}; commit subjects matching /^(revert|fix)/i`,
-    };
+    changeFailureRate = proxy(
+      `${(rate * 100).toFixed(0)}% (${failed}/${currentTags.length} deploy tags with a revert/fix commit since the prior tag)`,
+      "n/a (single-period derivation; no comparable prior-period classification persisted)",
+      `git proxy: ${source}; commit subjects matching /^(revert|fix)/i`,
+      currentTags.length,
+      [
+        "Commit-subject heuristic, not an incident or rollback record; this is not a measured change failure rate.",
+      ],
+    );
   }
 
   const timeToRestore: Metric = {
@@ -210,43 +221,4 @@ export function readFlowMetrics(root: string, sinceArg: string | undefined, now:
   };
 
   return { deploymentFrequency, leadTimeForChanges, changeFailureRate, timeToRestore, period };
-}
-
-/** Author-name heuristic for a commit produced by an AI agent rather than a human. */
-const AGENT_AUTHOR_RE = /bot|agent|gpt|claude|codex|gemini|copilot|luna/i;
-
-export interface AttributionCount {
-  identityClass: "agent" | "human";
-  changes: number;
-}
-
-/**
- * REQ-001/SRS-002 Attribution: classifies every commit author in `period` as
- * "agent" or "human" by name pattern — never by individual identity (Red Flag:
- * never rank individuals). `[]`-shaped (both counts 0) when there is no git
- * history or no commits in the period; the caller decides how to report that.
- */
-export function attributionFromGit(root: string, period: GitPeriod): AttributionCount[] {
-  const out = runGit(root, [
-    "log",
-    `--since=${period.currentSince.toISOString()}`,
-    `--until=${period.currentUntil.toISOString()}`,
-    "--format=%an",
-  ]);
-  const authors = out
-    ? out
-        .split("\n")
-        .map((l) => l.trim())
-        .filter(Boolean)
-    : [];
-  let agent = 0;
-  let human = 0;
-  for (const author of authors) {
-    if (AGENT_AUTHOR_RE.test(author)) agent += 1;
-    else human += 1;
-  }
-  return [
-    { identityClass: "agent", changes: agent },
-    { identityClass: "human", changes: human },
-  ];
 }
