@@ -11,12 +11,13 @@
 
 import fs from "fs";
 import path from "path";
-import { attributionFromGit, readFlowMetrics } from "./git";
+import { readFlowMetrics } from "./git";
 import { readRunRecords, buildStageIndicator } from "./runs";
 import { brdSurvivalRate, requirementCommitDeltas, requirementRework } from "./docs";
 import { benchmarkQualityIndicator, evalPassRateIndicator } from "./benchmarks";
 import { evaluateBands } from "./bands";
-import { collectUnavailable, renderMarkdown, toAttributionRows } from "./report";
+import { buildDeliveryIndicators, readDeliveryObservations } from "./delivery";
+import { collectUnavailable, renderMarkdown } from "./report";
 import type { DeliveryHealthRow, MetricsReport } from "./types";
 
 function flagValue(argv: string[], name: string): string | undefined {
@@ -29,11 +30,15 @@ function flagValue(argv: string[], name: string): string | undefined {
 /** Builds the full `MetricsReport` for `root` (REQ-001: git history + committed artifacts). */
 export function buildReport(root: string, sinceArg: string | undefined, now: Date = new Date()): MetricsReport {
   const flow = readFlowMetrics(root, sinceArg, now);
+  const observations = readDeliveryObservations(root);
+  const delivered = buildDeliveryIndicators(observations, flow.period);
   const deliveryHealth: DeliveryHealthRow[] = [
-    { metric: "Deployment frequency", metric_result: flow.deploymentFrequency },
-    { metric: "Lead time for changes", metric_result: flow.leadTimeForChanges },
-    { metric: "Change failure rate", metric_result: flow.changeFailureRate },
+    // Git-history rows are labeled proxies; measured delivery rows follow and never inherit their basis.
+    { metric: "Deployment tag frequency (git proxy)", metric_result: flow.deploymentFrequency },
+    { metric: "Commit-to-tag lag (git proxy)", metric_result: flow.leadTimeForChanges },
+    { metric: "Revert/fix-commit tag share (git proxy)", metric_result: flow.changeFailureRate },
     { metric: "Time to restore", metric_result: flow.timeToRestore },
+    ...delivered.deliveryHealth,
   ];
 
   const runRecords = readRunRecords(root);
@@ -44,10 +49,11 @@ export function buildReport(root: string, sinceArg: string | undefined, now: Dat
     buildStageIndicator(runRecords),
     evalPassRateIndicator(root),
     benchmarkQualityIndicator(root),
-    // Release stage reuses the same DORA-sourced flow metrics the SKILL table lists for it (not a
+    // Release stage reuses the same git-proxy flow metrics the SKILL table lists for it (not a
     // second measurement — same value, same source, presented under its Release-stage row too).
-    { stage: "Release", indicator: "change lead time", metric_result: flow.leadTimeForChanges },
-    { stage: "Release", indicator: "change failure rate", metric_result: flow.changeFailureRate },
+    { stage: "Release", indicator: "commit-to-tag lag (git proxy)", metric_result: flow.leadTimeForChanges },
+    { stage: "Release", indicator: "revert/fix-commit tag share (git proxy)", metric_result: flow.changeFailureRate },
+    ...delivered.stageIndicators,
   ];
 
   const bandEval = evaluateBands(root);
@@ -55,8 +61,6 @@ export function buildReport(root: string, sinceArg: string | undefined, now: Dat
     metric: `run record: ${m.file}`,
     reason: `malformed, skipped: ${m.problems.join("; ")}`,
   }));
-
-  const attribution = toAttributionRows(attributionFromGit(root, flow.period));
 
   return {
     scope: path.basename(root) || "repository",
@@ -66,10 +70,19 @@ export function buildReport(root: string, sinceArg: string | undefined, now: Dat
     stageIndicators,
     bandBreaches: bandEval.breaches,
     bandConfigErrors: bandEval.configErrors,
-    attribution,
+    // Author-name inference is removed: an identity class cannot be derived from a commit author.
+    attribution: [],
     unavailable: [
       ...collectUnavailable(deliveryHealth, stageIndicators, bandEval.unavailable),
+      ...observations.issues.map((issue) => ({
+        metric: "delivery observations",
+        reason: `${issue.file}: ${issue.message}`,
+      })),
       ...malformedUnavailable,
+      {
+        metric: "Attribution: changes by identity class",
+        reason: "not measured; author-name inference was removed and no explicit identity-class observation exists",
+      },
     ],
     followUps: bandEval.configErrors.map(
       (e) => `Fix \`docs/ops/bands.yaml\` band "${e.band}": ${e.problem}`,

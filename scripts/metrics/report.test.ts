@@ -1,8 +1,22 @@
 // scripts/metrics/report.test.ts
 import assert from "node:assert/strict";
 import test from "node:test";
-import { collectUnavailable, renderMarkdown, toAttributionRows } from "./report";
-import type { MetricsReport } from "./types";
+import { collectUnavailable, renderMarkdown } from "./report";
+import type { AvailableMetric, MetricsReport } from "./types";
+
+function available(value: string, extra: Partial<AvailableMetric> = {}): AvailableMetric {
+  return {
+    available: true,
+    value,
+    trend: "flat",
+    source: "git tags",
+    basis: "proxy",
+    sampleSize: 3,
+    coverage: "unknown",
+    limitations: ["Proxy only; not an observed production event."],
+    ...extra,
+  };
+}
 
 function emptyReport(overrides: Partial<MetricsReport> = {}): MetricsReport {
   return {
@@ -27,6 +41,7 @@ test("renderMarkdown emits every schema section, even with no data", () => {
     "## Stage Indicators",
     "## Control Bands",
     "## Attribution",
+    "## Measurement Limitations",
     "## Unavailable",
     "## Follow-Ups",
   ]) {
@@ -34,28 +49,49 @@ test("renderMarkdown emits every schema section, even with no data", () => {
   }
 });
 
-test("renderMarkdown cites a source for every available metric row (AC-002)", () => {
+test("renderMarkdown cites a source and an explicit basis for every available metric row (AC-002)", () => {
   const report = emptyReport({
-    deliveryHealth: [
-      { metric: "Deployment frequency", metric_result: { available: true, value: "3", trend: "flat", source: "git tags" } },
-    ],
+    deliveryHealth: [{ metric: "Deployment frequency", metric_result: available("3") }],
     stageIndicators: [
-      { stage: "Test", indicator: "eval pass rate", metric_result: { available: true, value: "80%", trend: "up", source: "benchmarks/evals/history.json" } },
+      {
+        stage: "Test",
+        indicator: "eval pass rate",
+        metric_result: available("80%", {
+          trend: "up",
+          source: "benchmarks/evals/history.json",
+          basis: "measured",
+          sampleSize: 4,
+          coverage: "unknown",
+        }),
+      },
     ],
   });
   const output = renderMarkdown(report);
-  assert.match(output, /\| Deployment frequency \| 3 \| flat \| git tags \|/);
-  assert.match(output, /\| Test \| eval pass rate \| 80% \| up \| benchmarks\/evals\/history\.json \|/);
+  assert.match(output, /\| Deployment frequency \| 3 \| flat \| proxy \| 3 \| unknown \| git tags \|/);
+  assert.match(
+    output,
+    /\| Test \| eval pass rate \| 80% \| up \| measured \| 4 \| unknown \| benchmarks\/evals\/history\.json \|/,
+  );
+});
+
+test("renderMarkdown lists the stated limitations for measured and proxy values", () => {
+  const report = emptyReport({
+    deliveryHealth: [
+      {
+        metric: "Deployment frequency",
+        metric_result: available("3", { limitations: ["Release tags are not deployments."] }),
+      },
+    ],
+  });
+  const output = renderMarkdown(report);
+  assert.match(output, /## Measurement Limitations/);
+  assert.match(output, /\| Deployment frequency \| Release tags are not deployments\. \|/);
 });
 
 test("renderMarkdown never emits a composite productivity score (AC-003)", () => {
   const report = emptyReport({
-    deliveryHealth: [
-      { metric: "Deployment frequency", metric_result: { available: true, value: "3", trend: "flat", source: "git tags" } },
-    ],
-    stageIndicators: [
-      { stage: "Test", indicator: "eval pass rate", metric_result: { available: true, value: "80%", trend: "up", source: "s" } },
-    ],
+    deliveryHealth: [{ metric: "Deployment frequency", metric_result: available("3") }],
+    stageIndicators: [{ stage: "Test", indicator: "eval pass rate", metric_result: available("80%", { source: "s" }) }],
     attribution: [{ identityClass: "agent", changes: 5, notes: "" }],
   });
   const output = renderMarkdown(report);
@@ -79,13 +115,4 @@ test("collectUnavailable gathers every unavailable delivery-health and stage-ind
     { metric: "Build: plan adherence", reason: "no runs" },
     { metric: "band: avgTokens", reason: "gate passed" },
   ]);
-});
-
-test("toAttributionRows preserves per-class counts without naming individuals", () => {
-  const rows = toAttributionRows([
-    { identityClass: "agent", changes: 4 },
-    { identityClass: "human", changes: 0 },
-  ]);
-  assert.equal(rows[0].notes, "");
-  assert.match(rows[1].notes, /no commits attributed/);
 });

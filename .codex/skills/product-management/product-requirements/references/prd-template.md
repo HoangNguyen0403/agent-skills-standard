@@ -1,106 +1,66 @@
 # Product Requirements Document (PRD): [Feature Name]
 
-**Status**: Draft | **Owner**: [User] | **Last Updated**: [YYYY-MM-DD]
+**Status**: Draft | **Owner**: [Name] | **Delivery mode**: brief \| standard \| extended | **Last Updated**: [YYYY-MM-DD]
 
-## 1. Purpose And Scope
+> Delivery mode is a routing decision, not an approval. `brief` requires an approved low-risk, nonsensitive task carrying outcome, scope fence, owner, observable criteria, approval reference, and verification lane. A sensitive change is always `extended` with its applicable technical design and human gate, regardless of the label.
 
-- **Business Objective Ref**: [BRD-OBJ-001]
-- **Problem Statement**: [What user/business pain is solved]
-- **Assumptions**: [testable assumptions]
-- **In Scope**: [Main outcomes]
-- **Out of Scope**: [Explicit exclusions]
+## 1. Decision Brief
 
-### Scope Tree / Capability Inventory (for substantial scope)
+- **Changes since approved revision**: [what changed, or "initial draft"]
+- **Recommendation**: [recommended decision]
+- **Impact if wrong**: [consequence]
+- **Evidence and limitations**: [confirmed(<source>); unverified or absent evidence]
+- **Unresolved decision**: [decision] — owner: [owner] — affected slice: [slice]
+- **Approval sought**: [exact approval and authority]
+- **Independently ready slices**: [slices that can proceed without the unresolved decision]
 
-<!-- Decompose into verb-object capabilities with one containment parent. Classify leaves as in_scope, deferred, or excluded. -->
+## 2. Outcome And Guardrails
 
-- [Capability Group]
-  - [Sub-capability]: in_scope | deferred | excluded [Linked REQ-ID or gap(ID, Owner, Input)]
-
-## 2. Goals And Guardrails
-
-- **Primary Metric**: [metric + target + date]
-- **Secondary Metrics**: [metrics]
+- **Business objective ref**: [BRD-OBJ-001]
+- **Problem and outcome**: [pain solved; observable outcome]
+- **Primary metric**: [metric + target + date]
 - **Guardrails**: [what must not regress]
 
-## 3. Personas, JTBD, And Use Cases
+## 3. Scope And Non-Goals
 
-| Use Case ID | Persona         | Job / Goal | Scope Note |
-| ----------- | --------------- | ---------- | ---------- |
-| UC-001      | [specific role] | [goal]     | [boundary] |
+- **Scope fence**: [what the approval covers]
+- **In scope**: [committed capabilities]
+- **Non-goals**: [explicit exclusions]
+- **Owned gaps** (extension: unclassified capability or missing input): gap(<id>, <owner>, <required input>)
 
-## 4. Requirement Registry
+## 4. Requirements And Acceptance Criteria
 
-| Req ID  | Requirement       | Persona | Priority | Owner   | Status              | BRD Objective Ref |
-| ------- | ----------------- | ------- | -------- | ------- | ------------------- | ----------------- |
-| REQ-001 | [What must exist] | [role]  | P0/P1/P2 | [owner] | Draft/Approved/Done | BRD-OBJ-001       |
+<!-- Canonical definitions: one row per requirement and one row per acceptance criterion. Do not restate either elsewhere; the verification lane lives only in the AC row. -->
 
-## 5. User Stories And ACs
+| Req ID  | Requirement       | Owner   | Priority | Status              | BRD objective |
+| ------- | ----------------- | ------- | -------- | ------------------- | ------------- |
+| REQ-001 | [What must exist] | [owner] | P0/P1/P2 | Draft/Approved/Done | BRD-OBJ-001   |
 
-_Strict format: As a [persona/role], I want to [Action], so that [Benefit]._
+| AC ID  | Req ID  | Given     | When     | Then                | Owner   | Verification lane             |
+| ------ | ------- | --------- | -------- | ------------------- | ------- | ----------------------------- |
+| AC-001 | REQ-001 | [context] | [action] | [observable result] | [owner] | [unit/integration/E2E/manual] |
 
-| Story ID | Linked Req ID | User Story                 | INVEST Check  | Status |
-| -------- | ------------- | -------------------------- | ------------- | ------ |
-| US-001   | REQ-001       | [As a specific persona...] | [I/N/V/E/S/T] | Draft  |
+## 5. Open Consequential Decisions
 
-| AC ID  | Linked Story ID | Scenario              | Given     | When     | Then                | Status |
-| ------ | --------------- | --------------------- | --------- | -------- | ------------------- | ------ |
-| AC-001 | US-001          | [happy/edge/negative] | [context] | [action] | [observable result] | Draft  |
+| Decision   | Owner   | Affected slice | Consequence if wrong | Required input / approval |
+| ---------- | ------- | -------------- | -------------------- | ------------------------- |
+| [decision] | [owner] | [slice]        | [consequence]        | [input or approval ref]   |
 
-## 6. Functional Behavior (FRS-lite)
+## 6. Extensions
 
-- **Primary Flows**: [Step-by-step happy path]
-- **Alternate/Error Flows**: [Validation error, permission denied, timeout, empty state]
-- **Input/Output Boundaries**: [Key data in/out]
-- **Canonical Shared Rules**: [Single canonical definition for rules/functions referenced across multiple flows; flows reference by ID/name]
-- **Selected Views**: [Select view by question: process flow for order/responsibilities, decision table for interacting rules, state lifecycle for states, sequence for interactions. Diagrams optional when prose/tables suffice.]
+Include an extension only when its trigger applies. Omitting an applicable extension is an owned blocker, never silent scope loss.
 
-## 7. Non-Functional Product Constraints
+| Trigger                                                                     | Required extension                                  |
+| --------------------------------------------------------------------------- | --------------------------------------------------- |
+| Substantial or multi-slice scope                                            | Capability inventory (verb-object, containment tree) |
+| Interacting conditions or multi-actor handoffs the AC rows cannot resolve     | Flows and decision tables                           |
+| Persona or journey insight beyond the requirement text                       | Personas, JTBD, use cases                           |
+| Telemetry, rollout, migration, or support commitments in approved scope      | Analytics and rollout                               |
+| Sensitive change, or a requirement revision                                  | Risks, change impact, refreshed approvals           |
+| New scope after approval                                                    | Change log naming affected REQ/AC/evidence          |
 
-- **Performance**: [e.g., P95 API < 300ms]
-- **Security/Privacy**: [e.g., AuthZ required, PII handling]
-- **Accessibility/Usability**: [e.g., WCAG target, keyboard support]
-- **Platform Support**: [e.g., Web + Mobile]
+## 7. References
 
-## 8. Analytics And Telemetry
-
-- **Events**: [event + properties]
-- **Dashboards / Alerts**: [dashboard or alert threshold]
-
-## 9. Risks And Decisions
-
-| Risk/Decision | Type                                           | Owner   | Status   | Rationale |
-| ------------- | ---------------------------------------------- | ------- | -------- | --------- |
-| [item]        | Value/Usability/Feasibility/Viability/Decision | [owner] | [status] | [why]     |
-
-## 10. Dependencies And Rollout
-
-- **Dependencies**: [Teams/systems/vendors]
-- **Release Strategy**: [Feature flag, phased rollout, market scope]
-- **Ops / Support Readiness**: [SOPs, support, migration/backfill]
-- **Success Metrics**: [Business + product KPIs]
-
-## 11. Traceability Links
-
-- **SRS/FRS Doc**: `docs/srs/srs-[slug].md` (when needed)
-- **Implementation Plan**: `docs/prd/prd-plan-[slug].md`
-- **Verification Evidence**: `docs/srs/srs-walkthrough-[slug].md`
-
-## 12. Change Log
-
-| Date         | Author | Change         |
-| ------------ | ------ | -------------- |
-| [YYYY-MM-DD] | [name] | [what changed] |
-
-### Change Impact Analysis
-
-<!-- When requirements change, identify affected artifacts carrying existing IDs; do not reopen settled decisions. -->
-
-| Changed REQ | Affected ACs | Affected Contracts/Specs | Approvals / Evidence Needed |
-| ----------- | ------------ | ------------------------ | --------------------------- |
-| [REQ-xxx]   | [AC-xxx]     | [contract/spec]          | [approvals/test evidence]   |
-
-## 13. Open Questions And Blocking Decisions
-
-- **Assumptions**: [testable non-critical assumptions; does not block progress]
-- **Blocking Decisions**: [Slice] | [Consequence] | [Owner] | [Required Input]
+- **Run record**: `artifacts/runs/[slug]/[run-id].json` (Outcome RunRecord v1; schema-valid is not an approval)
+- **SRS**: `docs/srs/srs-[slug].md` (only when technical decisions or contracts need an explicit design)
+- **Evidence**: [approved ticket, decision record, measurement source]

@@ -490,13 +490,13 @@
     },
     "common": {
       "version": "2.9.2",
-      "last_updated": "2026-10-27",
+      "last_updated": "2026-10-29",
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 45,
-        "total_tokens": 42712,
-        "avg_tokens_per_skill": 949,
-        "largest_skill": "common-subagent-driven-development (1726 tokens)"
+        "total_tokens": 44018,
+        "avg_tokens_per_skill": 978,
+        "largest_skill": "common-subagent-driven-development (1787 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -856,16 +856,16 @@
     },
     "product-management": {
       "version": "1.0.2",
-      "last_updated": "2026-10-23",
+      "last_updated": "2026-10-29",
       "tag_prefix": "product-management-v",
       "owners": [
         "HoangNguyen0403"
       ],
       "token_metrics": {
         "total_skills": 10,
-        "total_tokens": 14029,
-        "avg_tokens_per_skill": 1403,
-        "largest_skill": "product-metrics (1771 tokens)"
+        "total_tokens": 14561,
+        "avg_tokens_per_skill": 1456,
+        "largest_skill": "product-requirements (2166 tokens)"
       }
     }
   },

@@ -14,6 +14,8 @@ Append this block to the **bottom** of `AGENTS_LEARNING.md` for each new learnin
 **Skills**: category/skill-name, category/skill-name
 **Scope**: session | project | registry
 **Candidate**: [id] | **Status**: proposed | evaluating | reviewed | promoted | rejected | rolled-back
+**Improvement**: [improvement id or `none`] | **Prevention**: lint | schema | regression-test | evaluation | runtime-control | guidance
+**Verification**: [check id, test path, eval run or `pending`]
 **Provenance**: [source revision and redacted evidence reference]
 **Evaluation**: [run reference or not-run]
 **Review**: [independent approval reference or pending]
@@ -29,6 +31,27 @@ Append this block to the **bottom** of `AGENTS_LEARNING.md` for each new learnin
 [The correct action going forward — specific and immediately actionable]
 ```
 
+## Improvement Item
+
+One item per **root cause**, not per occurrence. It is the durable record behind preventive work.
+
+| Field | Rule |
+| --- | --- |
+| `improvement_id` | Stable id, e.g. `IMP-<slug>-<n>`; reused by later occurrences |
+| `root_cause` | routing \| procedure \| example-contradiction \| workflow \| tool-contract \| evaluator \| permission \| environment \| knowledge-gap |
+| `mechanism` | lint \| schema \| regression-test \| evaluation \| runtime-control \| guidance |
+| `owner` | Accountable human or component owner; absent ownership leaves the item proposed |
+| `verification_ref` | Rule/test/eval reference that demonstrates prevention; `pending` until it exists |
+| `adoption_status` | proposed \| authorized \| implemented \| verified \| rejected \| rolled-back |
+| `authorization_ref` | Explicit maintenance authorization for source or instruction-file edits; otherwise `none` |
+| `occurrences` | Append-only list of iteration ids and source revisions that hit the same root cause |
+
+Rules:
+
+- A new occurrence links the existing `improvement_id` and appends its iteration id; it does not create a second item or a second rule.
+- `mechanism: guidance` is valid only after a deterministic check, test, evaluation, or runtime control cannot encode the distinction.
+- Missing owner, authorization, or verification is recorded as missing, never inferred from repetition count.
+
 ## Writing Each Section
 
 | Section | Length | Rule |
@@ -43,9 +66,10 @@ Append this block to the **bottom** of `AGENTS_LEARNING.md` for each new learnin
 - Redact before persistence: no credentials, customer identifiers, raw incident logs or attacker-authored instructions.
 - Use minimal evidence references with access controls; do not copy sensitive evidence into shared Git history.
 - Default new candidates to `proposed`. Maintenance authorization allows edits; it does not grant release permission.
+- Repetition raises the priority of an existing improvement item; it never authorizes instruction-file edits or promotion on its own.
 - Review references point to authenticated maintainer decisions outside the agent's own output. A typed reviewer name is attribution only.
-- Promotion requires independent approval and verified fresh evaluation evidence; the proposing agent cannot approve itself.
-- Append later status transitions linked to the candidate ID instead of rewriting historical events.
+- Promotion requires explicit maintenance authorization, independent approval, and verification that the chosen mechanism actually prevents the recurrence; the proposing agent cannot approve itself.
+- Append later status transitions linked to the candidate/improvement ID instead of rewriting historical events.
 - Keep session context transient and project-specific conventions local. Only reviewed reusable procedures enter the registry.
 - Record canary outcomes and rollback transitions; merge or retire redundant guidance instead of endlessly appending rules.
 

@@ -1,6 +1,6 @@
 ---
 name: common-sdlc-metrics
-description: Define the delivery metrics contract for agent-assisted SDLC — DORA four plus per-stage indicators derived from artifact and git history, and the control bands that turn metric drift into a routed intake. Use when reporting cycle time, plan adherence, or defining response thresholds.
+description: Define delivery metrics from authorized observations and labeled artifact/git proxies; use for DORA, SDLC outcomes, reporting, or control bands.
 metadata:
   triggers:
     files:
@@ -19,80 +19,56 @@ metadata:
 
 ## **Priority: P2 (MEDIUM)**
 
-Measure the handoffs, not the keystrokes. Every metric here is derived from committed artifacts and
-git history, so it survives a change of runtime and cannot be inflated by activity.
+Measure handoffs, not keystrokes. A missing input is unavailable, never zero; a proxy is never a measurement.
 
-## 1. Contract, Not Collector
+## Use and verify
 
-- This skill defines what to report and how. It does not gather provider or CI telemetry itself.
-- The host runtime or orchestrator supplies the raw counts; unavailable inputs are reported as
-  unavailable, never estimated.
 - Emit `artifacts/sdlc-metrics.md` at a workflow terminal state, alongside `artifacts/session-cost.md`.
-- Load `references/metrics-schema.md` for the report skeleton.
+- Direct delivery measures come only from the authorized local export `artifacts/metrics/delivery-observations.json`; never read it from the network or place it under `artifacts/runs/`.
+- Load [the metrics schema](references/metrics-schema.md) for the report skeleton, input contract, and derivation details.
+- Generate the report with `rtk pnpm metrics:report --json`; run `rtk pnpm test:metrics` for the metrics suite. Do not overwrite existing metrics/history artifacts.
 
-## 2. Aggregate Health (DORA)
+## DORA
 
-- **Deployment frequency**: successful deploys per period, from deployment reports.
-- **Lead time for changes**: first commit to production, per change.
-- **Change failure rate**: deploys needing hotfix or rollback, divided by deploys.
-- **Time to restore**: mitigation timestamp minus incident detection, from the incident record.
+Measured rows require linked deployment/defect observations and complete relevant coverage.
 
-## 3. Per-Stage Indicators
+- **Deployment frequency:** production deployments by `deployed_at`.
+- **Lead time:** `first_change_at` to `deployed_at`.
+- **Change failure rate:** deployments with a hotfix/rollback defect divided by eligible deployments. Without incident coverage, a deployment is not failure-free.
+- **Time to restore:** `restored_at` minus `detected_at`; restoration beyond coverage or the report horizon is censored.
+- Select deployment and incident populations by domain timestamps, never export `observed_at`. Use the half-open report period `[currentSince, currentUntil)`.
+- Incomplete population coverage yields a partial count or unavailable rate, never a complete result.
+- Without observations, keep measured DORA unavailable. Label deploy-tag frequency, commit-to-tag lag, and revert/fix-commit tag share as git proxies.
 
-| Stage | Leading | Lagging |
-| --- | --- | --- |
-| BRD | first conversation to committed BRD | BRD survival rate into PRD |
-| PRD / SRS | BRD to PRD to SRS commit deltas | requirement rework after first `docs/srs/srs-task-list-[slug].md` |
-| Build | share merging on first implementation pass | plan adherence, merged diff versus `docs/srs/srs-task-list-[slug].md` |
-| Test | first-pass CI success, eval pass rate | defect escape rate |
-| Review | time to first finding | findings per review by severity |
-| Release | change lead time | change failure rate |
-| Maintain | band breach to intake in queue | repeat incidents by class |
+## Accepted-change measures
 
-## 4. Control Bands
+- Cohort accepted changes by acceptance time in `[currentSince, currentUntil)`. Bound review, wait, correction, and cost to linked submissions/attempts/revisions through acceptance; later revisions and post-acceptance work are separate activity.
+- Complete totals require continuous declared kind+revision coverage across the linked lifecycle. Gaps, uncovered relevant events, and unresolved waits never imply zero or completion.
+- Report human review effort per accepted change, completed and pending decision waits, correction rounds, first-pass acceptance, escaped defects/rollbacks, and cost per accepted change.
+- Count escaped defect observations, including `remediation: none`, separately from affected, hotfix/rollback, and rollback deployment counts.
+- Cost is per currency. Total cost requires complete lifecycle coverage and explicitly observed agent, human, and tooling components for every cohort member. Otherwise report observed component-level partials; never infer human cost from elapsed time.
 
-- Define bands in `docs/ops/bands.yaml`, version controlled and reviewed like code. Schema:
-  `references/bands-template.yaml`.
-- Baseline is a rolling window, not a fixed target. Detection is deterministic and computed before
-  any agent reads the signal.
-- Tiers escalate by evidence: log, then read-only diagnose, then propose a change. Never let a tier
-  act beyond its declared tools and routes.
-- Dismissals tune the band. A band that fires constantly is miscalibrated, not urgent.
+## Evidence and control bands
 
-## 5. Reporting Rules
+- Every available value names its source and declares `measured` or `proxy`, sample size, coverage (`complete`, `partial`, `unknown`), and limitations. Git, document, and run-record derivations are proxies with unknown coverage.
+- Report trends only against comparable previous-period coverage. Do not combine metrics into a productivity score or infer identity/effort from author names.
+- Keep private reviewer identity and raw customer data out of exports. Source labels are attribution, not authenticated origin.
+- Define bands in `docs/ops/bands.yaml` against a rolling baseline. Detect deterministically; route `log` → read-only `diagnose` → `propose`, within declared tools/routes and to a named owner.
+- Use dismissals to tune bands; frequent breaches signal miscalibration, not urgency.
+- New measured rows do not enter control bands until their source and baseline are separately reviewed.
 
-- **Trend over snapshot**: report direction against the previous period, not a bare number.
-- **Name the source**: every value cites the artifact, commit range, or pipeline run it came from.
-- **No composite scores**: do not blend indicators into a single productivity number.
-- **Separate agent and human runs**: attribute a change to the identity that produced it.
+## Anti-patterns
 
-## Anti-Patterns
-
-- **No unavailable value guessed**: Mark it unavailable and say why.
-- **No lines-of-code or commit-count metrics**: Measure outcomes and handoffs.
-- **No fixed baseline**: Use a rolling window per band.
-- **No metric without a source**: Cite the artifact or commit range.
-- **No band with no owner**: Name who triages a breach.
-
-## Red Flags
-
-- **Stop if a metric ranks individuals**: Report the flow, not the person.
-- **Stop if a band fires every run**: Recalibrate before responding.
-- **Stop if adherence is measured against an unwritten plan**: Require the committed `docs/srs/srs-task-list-[slug].md`.
+- Guessing unavailable values, promoting proxies, or treating missing coverage as zero.
+- Using commit counts/lines of code as delivery outcomes or ranking individuals.
+- Acting beyond a band's declared tools/routes or treating a frequent breach as urgent without recalibration.
+- Measuring plan adherence without the committed `docs/srs/srs-task-list-[slug].md`.
 
 ## References
 
-- [Metrics Report Schema](references/metrics-schema.md)
+- [Metrics Report Schema and derivations](references/metrics-schema.md)
 - [Control Bands Template](references/bands-template.yaml)
 
-## Canonical response anchors
+## Canonical terms
 
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-
-- artifacts/sdlc-metrics.md
-- DORA
-- plan adherence
-- rolling baseline
-- docs/ops/bands.yaml
-- report unavailable
-- artifacts/runs/<slug>/
+`artifacts/sdlc-metrics.md` · DORA · plan adherence · rolling baseline · `docs/ops/bands.yaml` · `report unavailable` · `artifacts/runs/<slug>/` · `artifacts/metrics/delivery-observations.json`

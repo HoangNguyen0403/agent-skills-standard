@@ -235,6 +235,46 @@
         { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)(?:IMPACTED|PRESERVED)\\|APPROVAL-001\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?(?:IMPACTED|PRESERVED)\\|APPROVAL-001\\|)[\\s\\S]*$" },
         { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)(?:IMPACTED|PRESERVED)\\|EVIDENCE-002\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?(?:IMPACTED|PRESERVED)\\|EVIDENCE-002\\|)[\\s\\S]*$" }
       ]
+    },
+    {
+      "id": 10,
+      "prompt": "A controlled low-risk, nonsensitive change is already approved: add a CSV export control to the saved-search report page. Supplied evidence: approved ticket TICK-7781, accountable owner Frontend Engineer, approver Product Owner, scope fence 'export control on the saved-search report page only', behavioral criterion TICK-7781-AC-1 (Given a saved search with results When the operator activates export Then the current result set downloads as a CSV file), verification lane saved-search report component test. Return distinct unpadded rows using: DELIVERY_MODE|<slug>|<mode>|<risk>|<approval>|<scope fence>; CRITERION|<id>|<observable behavior>|<owner>|<verification>; OMITTED|<section>|<reason>. Use slug saved-search-csv-export. Do not mint formal PRD requirement or acceptance IDs, and do not add persona stories or a second verification mapping that the approved ticket does not require.",
+      "expected_output": "Use brief mode with the approved low-risk scope, keep the ticket criterion and its single verification lane, and omit sections that add no information. Do not invent REQ-/AC-/SRS- identifiers.\nExpected controlled outcome records:\nDELIVERY_MODE|saved-search-csv-export|brief|low-risk|Product Owner|export control on the saved-search report page only\nCRITERION|TICK-7781-AC-1|current result set downloads as a CSV file|Frontend Engineer|saved-search report component test\nOMITTED|persona stories|approved ticket already supplies the outcome and criterion",
+      "assertions": [
+        { "type": "regex", "value": "(?:^|\\r?\\n)DELIVERY_MODE\\|saved-search-csv-export\\|brief\\|low-risk\\|Product Owner\\|export control on the saved-search report page only(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)CRITERION\\|TICK-7781-AC-1\\|(?=[^|\\r\\n]*CSV)[^|\\r\\n]*\\|Frontend Engineer\\|(?=[^|\\r\\n]*component test)[^|\\r\\n]*(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)(?:REQ|AC|SRS)-\\d{3,}\\b)[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)DELIVERY_MODE\\|saved-search-csv-export\\|(?!brief\\|)[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)CRITERION\\|TICK-7781-AC-1\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?CRITERION\\|TICK-7781-AC-1\\|)[\\s\\S]*$" }
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "Draft a standard feature PRD for saved-search sharing. Supplied approved scope: create a share link for a saved search; revoke a share link. Supplied unresolved business rule: who may view a shared saved-search link is undecided; Product Owner owns it and must supply an approved visibility policy. The revocation slice is independently ready and uses verification lane saved-search sharing API test; the visibility slice is blocked by the unresolved rule. Return distinct unpadded rows using: DELIVERY_MODE|<slug>|<mode>|<reason>; REQUIREMENT|<requirement>|<disposition>|<owner>; DECISION|<decision>|<status>|<owner>|<affected slice>|required-input=<input>; SLICE|<slice>|<state>|<basis>. Use slug saved-search-sharing. Do not resolve the visibility policy, and do not block the ready slice.",
+      "expected_output": "Keep standard mode for one unresolved business rule, preserve both approved scope items, record the visibility rule as an owned unresolved decision, and let the ready revocation slice proceed while visibility stays blocked.\nExpected controlled outcome records:\nDELIVERY_MODE|saved-search-sharing|standard|focused PRD; one unresolved business rule\nREQUIREMENT|share link creation|IN_SCOPE|Product Owner\nREQUIREMENT|share link revocation|IN_SCOPE|Product Owner\nDECISION|shared saved search visibility|UNRESOLVED|Product Owner|shared-link visibility|required-input=approved visibility policy\nSLICE|share link revocation|READY|approved scope and saved-search sharing API test\nSLICE|shared-link visibility|BLOCKED|approved visibility policy missing",
+      "assertions": [
+        { "type": "regex", "value": "(?:^|\\r?\\n)DELIVERY_MODE\\|saved-search-sharing\\|standard\\|[^|\\r\\n]+(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)DECISION\\|(?=[^|\\r\\n]*visibilit)[^|\\r\\n]*\\|UNRESOLVED\\|Product Owner\\|(?=[^|\\r\\n]*visibilit)[^|\\r\\n]*\\|required-input=[^|\\r\\n]*policy[^|\\r\\n]*(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)SLICE\\|share link revocation\\|READY\\|(?=[^|\\r\\n]*(?:API test|test))[^|\\r\\n]*(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)SLICE\\|(?=[^|\\r\\n]*(?:shared-link|shared link|shared saved search))(?=[^|\\r\\n]*visibilit)[^|\\r\\n]*\\|BLOCKED\\|[^|\\r\\n]*(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)DECISION\\|(?=[^|\\r\\n]*visibilit)[^|\\r\\n]*\\|(?!UNRESOLVED\\|)[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)DECISION\\|(?=[^|\\r\\n]*visibilit)[^|\\r\\n]*\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?DECISION\\|(?=[^|\\r\\n]*visibilit)[^|\\r\\n]*\\|)[\\s\\S]*$" }
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "A controlled change request is approved in principle: allow any authenticated user to open any shared saved-search link. It changes access control on a system trust boundary. The Product Owner asks whether brief mode can skip technical design and human approval. Return distinct unpadded rows using: DELIVERY_MODE|<slug>|<mode>|<sensitivity>; SAFEGUARD|<safeguard>|<status>|<owner>; GATE|<decision>|<verdict>|<condition>|<status>|<authority>. Emit separate implementation GATE rows for technical design and human approval. Use slug saved-search-sharing-access. Do not treat the delivery label, a filename, or a status string as an approval.",
+      "expected_output": "Classify the change as extended and sensitive, require technical design and human approval, and block implementation until both are supplied by the authorized owners. The brief label cannot remove the sensitive-change floor.\nExpected controlled outcome records:\nDELIVERY_MODE|saved-search-sharing-access|extended|sensitive\nSAFEGUARD|technical design|REQUIRED|Engineering Owner\nSAFEGUARD|human approval|REQUIRED|Security Owner\nGATE|implementation|BLOCKED UNTIL|technical design|REQUIRED|Engineering Owner\nGATE|implementation|BLOCKED UNTIL|human approval|REQUIRED|Security Owner and governance authority",
+      "assertions": [
+        { "type": "regex", "value": "(?:^|\\r?\\n)DELIVERY_MODE\\|saved-search-sharing-access\\|extended\\|sensitive(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)SAFEGUARD\\|technical design\\|REQUIRED\\|[^|\\r\\n]+(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)SAFEGUARD\\|human approval\\|REQUIRED\\|[^|\\r\\n]+(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)GATE\\|implementation\\|BLOCKED UNTIL\\|technical design\\|REQUIRED\\|(?=[^|\\r\\n]*Engineering Owner)[^|\\r\\n]+(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)GATE\\|implementation\\|BLOCKED UNTIL\\|human approval\\|REQUIRED\\|(?=[^|\\r\\n]*(?:Security Owner|governance authority))[^|\\r\\n]+(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)DELIVERY_MODE\\|saved-search-sharing-access\\|(?!extended\\|sensitive(?:\\r?\\n|$))[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)GATE\\|implementation\\|(?!BLOCKED UNTIL\\|)[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)GATE\\|implementation\\|(?!BLOCKED UNTIL\\|(?:technical design\\|REQUIRED\\|Engineering Owner|human approval\\|REQUIRED\\|(?:Security Owner(?: and governance authority)?|governance authority))(?:\\r?\\n|$))[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$" }
+      ]
     }
   ],
   "should_not_trigger": [

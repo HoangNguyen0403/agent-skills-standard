@@ -8,7 +8,7 @@
 
 import fs from "fs";
 import path from "path";
-import { runGit } from "./git";
+import { proxy, runGit } from "./git";
 import type { Metric, StageIndicatorRow } from "./types";
 
 /** Slug -> file path (relative to `root`) for `<prefix>-<slug>.md` files directly under `docs/<dir>`. */
@@ -55,14 +55,15 @@ export function brdSurvivalRate(root: string): StageIndicatorRow {
     metric = { available: false, reason: "no docs/brd/*.md files committed", source };
   } else {
     const survived = [...brds.keys()].filter((slug) => prds.has(slug)).length;
-    metric = {
-      available: true,
-      value: `${survived}/${brds.size} BRDs reached a committed PRD`,
-      trend: "n/a (single-period derivation; no comparable prior-period snapshot persisted)",
-      source,
-    };
+    metric = proxy(
+      `${survived}/${brds.size} BRDs reached a committed PRD`,
+      "n/a (single-period derivation; no comparable prior-period snapshot persisted)",
+      `document proxy: ${source}`,
+      brds.size,
+      ["Filename presence only; a PRD existing does not mean the BRD was accepted or delivered."],
+    );
   }
-  return { stage: "BRD", indicator: "BRD survival rate into PRD", metric_result: metric };
+  return { stage: "BRD", indicator: "BRD survival rate into PRD (document proxy)", metric_result: metric };
 }
 
 /** Leading PRD/SRS indicator: median days from a slug's first BRD commit to its first PRD, then first SRS, commit. */
@@ -71,7 +72,7 @@ export function requirementCommitDeltas(root: string): StageIndicatorRow {
   if (!fs.existsSync(path.join(root, ".git"))) {
     return {
       stage: "PRD / SRS",
-      indicator: "BRD to PRD to SRS commit deltas",
+      indicator: "BRD to PRD to SRS commit deltas (git proxy)",
       metric_result: { available: false, reason: "no `.git` directory found; git history is unavailable", source },
     };
   }
@@ -102,14 +103,15 @@ export function requirementCommitDeltas(root: string): StageIndicatorRow {
     };
   } else {
     const avg = (values: number[]) => (values.length > 0 ? (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1) : "n/a");
-    metric = {
-      available: true,
-      value: `avg BRD→PRD ${avg(brdToPrdDays)}d (n=${brdToPrdDays.length}), avg PRD→SRS ${avg(prdToSrsDays)}d (n=${prdToSrsDays.length})`,
-      trend: "n/a (single-period derivation; no comparable prior-period snapshot persisted)",
-      source,
-    };
+    metric = proxy(
+      `avg BRD→PRD ${avg(brdToPrdDays)}d (n=${brdToPrdDays.length}), avg PRD→SRS ${avg(prdToSrsDays)}d (n=${prdToSrsDays.length})`,
+      "n/a (single-period derivation; no comparable prior-period snapshot persisted)",
+      `git proxy: ${source}`,
+      brdToPrdDays.length + prdToSrsDays.length,
+      ["First-commit dates only; document revisions and review time are not observed."],
+    );
   }
-  return { stage: "PRD / SRS", indicator: "BRD to PRD to SRS commit deltas", metric_result: metric };
+  return { stage: "PRD / SRS", indicator: "BRD to PRD to SRS commit deltas (git proxy)", metric_result: metric };
 }
 
 /** Lagging PRD/SRS indicator: commits to a slug's PRD/SRS docs after its first `srs-task-list-<slug>.md` commit. */
@@ -118,7 +120,7 @@ export function requirementRework(root: string): StageIndicatorRow {
   if (!fs.existsSync(path.join(root, ".git"))) {
     return {
       stage: "PRD / SRS",
-      indicator: "requirement rework after first task-list commit",
+      indicator: "PRD/SRS commits after first task-list commit (git proxy)",
       metric_result: { available: false, reason: "no `.git` directory found; git history is unavailable", source },
     };
   }
@@ -126,7 +128,7 @@ export function requirementRework(root: string): StageIndicatorRow {
   if (taskLists.size === 0) {
     return {
       stage: "PRD / SRS",
-      indicator: "requirement rework after first task-list commit",
+      indicator: "PRD/SRS commits after first task-list commit (git proxy)",
       metric_result: { available: false, reason: "no docs/srs/srs-task-list-*.md files committed", source },
     };
   }
@@ -145,11 +147,12 @@ export function requirementRework(root: string): StageIndicatorRow {
     }
   }
 
-  const metric: Metric = {
-    available: true,
-    value: `${reworkCommits} rework commit(s) across ${slugsWithTaskList} task-listed slug(s)`,
-    trend: "n/a (single-period derivation; no comparable prior-period snapshot persisted)",
-    source,
-  };
-  return { stage: "PRD / SRS", indicator: "requirement rework after first task-list commit", metric_result: metric };
+  const metric: Metric = proxy(
+    `${reworkCommits} rework commit(s) across ${slugsWithTaskList} task-listed slug(s)`,
+    "n/a (single-period derivation; no comparable prior-period snapshot persisted)",
+    `git proxy: ${source}`,
+    slugsWithTaskList,
+    ["Commit counts are not requirement rework; edits to a document are not a changed requirement."],
+  );
+  return { stage: "PRD / SRS", indicator: "PRD/SRS commits after first task-list commit (git proxy)", metric_result: metric };
 }

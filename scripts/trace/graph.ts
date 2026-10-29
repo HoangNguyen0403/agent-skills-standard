@@ -8,7 +8,9 @@ export type IssueCode =
   | "orphan-ac"
   | "unlinked-req"
   | "malformed-id"
-  | "slug-file-mismatch";
+  | "slug-file-mismatch"
+  | "missing-scope"
+  | "empty-scope";
 
 export type IssueSeverity = "error" | "warn";
 
@@ -30,6 +32,8 @@ const SEVERITY_BY_CODE: Record<IssueCode, IssueSeverity> = {
   "unlinked-req": "warn",
   "malformed-id": "error",
   "slug-file-mismatch": "warn",
+  "missing-scope": "error",
+  "empty-scope": "error",
 };
 
 function issue(code: IssueCode, slug: string, extra: Omit<TraceIssue, "code" | "severity" | "slug">): TraceIssue {

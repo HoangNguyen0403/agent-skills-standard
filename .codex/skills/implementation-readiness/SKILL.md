@@ -28,9 +28,11 @@ Goal: Decide whether a planned change is ready for implementation or must return
 1. Load artifacts:
    - Load task-linked approved brief/ticket, PRD/story or equivalent approved evidence, canonical ledger (`docs/product/<slug>/evidence.json`) when present, SRS/FRS when needed, UX/design evidence, implementation plan, and test plan.
    - Do not require a separate filename when an approved task record supplies the necessary information; missing documents do not force repeat intake. A matching record and stable slug are required; unrelated documents/working-tree changes are not authority or approval.
+   - Carry the delivered `delivery_mode`, authoritative work-item reference plus source revision, owner, and approval reference from the handoff; do not re-infer them from filenames or surprising tree state.
+   - Readiness consumes evidence-lane references, never their claims: technical verification, business acceptance, and release remain separate decisions, and an absent reference is `not assessed`.
 
 2. Check readiness:
-   - Approved task record supplies outcome, constraints/non-goals, testable ACs, owner and approval; equivalent approved low-risk evidence suffices without separate BRD/PRD/SRS files. `approval: approved` passes; `pending` blocks; `assumed-autonomous` warns and blocks only when `snc_tier=high`. Sensitive trust-boundary changes still require applicable design/human floor.
+   - Approved task record supplies outcome, constraints/non-goals, testable ACs, owner and approval; equivalent approved low-risk evidence suffices without separate BRD/PRD/SRS files. `delivery_mode: brief` requires only that record with outcome, scope fence, owner, observable criteria, approval reference, and verification lane; missing formal IDs are expected, while a sensitive change is never ready as `brief`. `approval: approved` passes; `pending` blocks; `assumed-autonomous` warns and blocks only when `snc_tier=high`. Sensitive trust-boundary changes still require applicable design/human floor.
    - ACs have one observable behavior per AC across happy, edge, and error paths, with necessary preconditions and platform/market/role scope; truth tables for interacting conditions. Examine scope coverage and conflicts before issuing READY or PARTIAL; consequential conflicts block affected slices with consequence, owner, and required input without inventing business/error policy.
    - Affected-scope evidence freshness and current authority: stale or disputed decisions block only the consuming action, never a global block on independent approved scope.
    - Human risk acceptance: where lawful, an explicit recorded release `risk_accept` decision documents uncertainty and rationale; it waives specific baseline sources for release only, but never converts unvalidated/inconclusive evidence into validated proof, and cannot authenticate host approval. An investment `risk_accept` documents uncertainty and rationale without waiving evidence or altering product state. Missing monetary data is not a qualitative-investment blocker.
@@ -56,7 +58,7 @@ Goal: Decide whether a planned change is ready for implementation or must return
 - Required inputs: matching approved task record/ticket or equivalent evidence, owner, testable ACs and design/test prerequisites applicable to each proposed slice. Missing filenames do not force repeat intake.
 - Return BLOCKED only when required authority/approval, owner, unclear AC, consequential design, environment, or risk remains unresolved.
 ## Handoff Payload
-- `slug`, verdict (READY/BLOCKED/PARTIAL), ready slices, blocking gaps, capability gaps, outcome report, next workflow.
+- `slug`, `operator_profile`, `delivery_mode`, work-item reference plus source revision, approval reference, verdict (READY/BLOCKED/PARTIAL), ready slices with criteria refs and verification lanes, blocking gaps, capability gaps, evidence-lane refs, outcome report, next workflow.
 ## Blocking Questions
 - Ask max 3 at a time with a recommended default and 2-3 options.
 ## Output Template
@@ -64,9 +66,16 @@ Goal: Decide whether a planned change is ready for implementation or must return
 ```md
 # Implementation Readiness
 
+## Delivery Mode And Work Item
+- Mode: brief | standard | extended; work item + revision: [ref @ rev]; owner: [owner]; approval: [ref or pending]
+- Evidence lanes: technical [not assessed], acceptance [not assessed], release [not assessed]
+
 ## Verdict
 
 ## Ready Slices
+| Slice | Owner | Criteria refs | Verification lane |
+| --- | --- | --- | --- |
+| [slice] | [owner] | [REQ/AC or observable criteria] | [lane] |
 
 ## Blocking Gaps
 

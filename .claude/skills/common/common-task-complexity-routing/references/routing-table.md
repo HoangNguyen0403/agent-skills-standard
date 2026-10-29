@@ -1,5 +1,20 @@
 # Routing Table — What Each Tier Changes
 
+## Delivery Mode Is Not a Tier
+
+`delivery_mode: brief | standard | extended` travels with the task record; it never alters `snc_tier` or the risk floor.
+
+| Concern | `brief` | `standard` | `extended` |
+| --- | --- | --- | --- |
+| Approved evidence | outcome, scope fence, owner, observable criteria, approval reference, verification lane | focused PRD (decision brief plus canonical REQ/AC) | standard core plus risk-triggered contracts, migration, capacity, failure analysis, governance |
+| Documents | no PRD/SRS, no new formal IDs, no walkthrough | PRD always; SRS only where technical decisions or contracts need explicit design | the same core with the triggered extensions |
+| Still mandatory | behavioral criteria, owner, approval, verification lane, sensitive floor | one canonical AC definition and one verification mapping | explicit design and human gate for every triggered risk |
+| Never | infer low risk from file count, ticket type, or the label itself | restate ACs in prose | omit an applicable extension without an owned blocker |
+
+- A sensitive change is always `extended`: auth, payments, data integrity, secrets, or trust boundaries keep design and human approval even when the arithmetic tier is `low`.
+- A missing mode is a routing decision from approved evidence and risk, never automatic permission for `brief`.
+- Each handoff carries `delivery_mode`, the authoritative work-item reference with its source revision, and the approval reference; downstream stages never re-infer authority.
+
 | Concern | `tier=low` (0-2) | `tier=medium` (3-4) | `tier=high` (5-6) |
 | --- | --- | --- | --- |
 | Autonomy | Autonomous; proceed without plan approval in autonomous mode | Guided; plan shared, self-review before handoff | Plan-first; **HARD STOP** for plan approval before any code |
@@ -10,7 +25,7 @@
 | `model_tier` | `fast` | `standard` | `strong` |
 | Monitoring | none | watch first CI run | watch CI and first production window |
 
-## Workflow Gates by Tier
+## Workflow Gates by Tier And Mode
 
 | Workflow | Effect |
 | --- | --- |
@@ -18,6 +33,11 @@
 | `dev-fix` | HARD STOP mandatory at `tier=high`; `tier=low` may skip plan approval in autonomous mode. |
 | `implement-feature` | `tier=high` adds architecture-guard and security-reviewer before `verify-work`. |
 | `code-review` | Default `fast` at `tier=low`, `deep` otherwise, when the user has not chosen a mode. |
+| `implementation-readiness` | Go/no-go per slice; a missing mode or approval reference blocks the affected slice, not independent ones. |
+| `verify-work` | Proves technical criteria only; business acceptance and release stay separate referenced decisions. |
+| `uat-signoff` | Human acceptance gate; reused acceptance policy requires an authorized owner's scoped grant. |
+| `deploy-release` | Release authority is never inferred from verification or acceptance records. |
+| `session-report` | Non-SDD work links the same work-item, approval, and evidence references without requiring SDD state. |
 
 ## `model_tier` Semantics
 

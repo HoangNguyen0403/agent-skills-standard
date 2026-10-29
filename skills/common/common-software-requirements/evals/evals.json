@@ -69,6 +69,33 @@
           "value": "^(?![\\s\\S]*(?:^|\\r?\\n)NEXT\\|implementation\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?NEXT\\|implementation\\|)[\\s\\S]*$"
         }
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "A controlled approved low-risk, nonsensitive maintenance change TICK-4521 updates saved-search CSV export formatting, with accountable owner Backend Engineer, approver Product Owner, scope fence 'CSV formatting for saved-search export only', behavioral criterion TICK-4521-AC-1 (Given an exported saved-search CSV When a value contains a comma Then the value is quoted), verification lane saved-search export unit test. The requester asks for an SRS document. Return distinct unpadded rows using: DELIVERY_MODE|<slug>|<mode>; SRS|<document>|<status>|<reason>; CRITERION|<id>|<observable behavior>|<verification lane>. Use slug saved-search-csv-format.",
+      "expected_output": "Route the approved low-risk ticket as brief mode with no separate SRS, preserving the ticket criterion, owner, approval, scope fence, and verification lane. Do not mint SRS requirement IDs.\nExpected controlled outcome records:\nDELIVERY_MODE|saved-search-csv-format|brief\nSRS|docs/srs/srs-saved-search-csv-format.md|NOT_REQUIRED|approved low-risk ticket supplies criterion, owner, approval, scope fence, and verification\nCRITERION|TICK-4521-AC-1|value containing a comma is quoted|saved-search export unit test",
+      "assertions": [
+        { "type": "regex", "value": "(?:^|\\r?\\n)DELIVERY_MODE\\|saved-search-csv-format\\|brief(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)SRS\\|[^|\\r\\n]*\\|NOT_REQUIRED\\|(?=[^|\\r\\n]*(?:low-risk|approved))[^|\\r\\n]*(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)CRITERION\\|TICK-4521-AC-1\\|(?=[^|\\r\\n]*comma)[^|\\r\\n]*\\|(?=[^|\\r\\n]*unit test)[^|\\r\\n]*(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)SRS-\\d{3,}\\b)[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)SRS\\|[^|\\r\\n]*\\|(?!NOT_REQUIRED\\|)[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$" }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Controlled sensitive change: shared saved-search links will become open to any authenticated user. Supplied facts: access decisions must be recorded; existing contract saved-search-sharing must gain an access-check endpoint; required verification lane security integration test. The Product Owner asks for an SRS that can skip technical design or the human security gate because the delivery mode label is brief. Return distinct unpadded rows using: DELIVERY_MODE|<slug>|<mode>|<sensitivity>; DESIGN|<subject>|<status>|<reason>; GATE|<decision>|<verdict>|<condition>|<status>|<authority>; VERIFICATION|<requirement id>|<lane>|<evidence>; SECTION|<section>|<status>|<reason>. Emit separate implementation GATE rows for technical design and human security approval. Use slug saved-search-sharing-access and requirement id SRS-410.",
+      "expected_output": "Classify the change as extended and sensitive, require the access-check design on the existing contract, keep one verification mapping for SRS-410, and block implementation until both the technical design and human security approval are supplied.\nExpected controlled outcome records:\nDELIVERY_MODE|saved-search-sharing-access|extended|sensitive\nDESIGN|access-check endpoint|REQUIRED|new access-control contract on a trust boundary\nGATE|implementation|BLOCKED UNTIL|technical design|REQUIRED|Engineering Owner\nGATE|implementation|BLOCKED UNTIL|human security approval|REQUIRED|Security Owner\nVERIFICATION|SRS-410|security integration test|access-check endpoint test evidence\nSECTION|persona stories|NOT_REQUIRED|adds no technical information",
+      "assertions": [
+        { "type": "regex", "value": "(?:^|\\r?\\n)DELIVERY_MODE\\|saved-search-sharing-access\\|extended\\|sensitive(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)DESIGN\\|(?=[^|\\r\\n]*access)[^|\\r\\n]*\\|REQUIRED\\|[^|\\r\\n]+(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)GATE\\|implementation\\|BLOCKED UNTIL\\|technical design\\|REQUIRED\\|(?=[^|\\r\\n]*Engineering Owner)[^|\\r\\n]+(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)GATE\\|implementation\\|BLOCKED UNTIL\\|human security approval\\|REQUIRED\\|(?=[^|\\r\\n]*Security Owner)[^|\\r\\n]+(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)VERIFICATION\\|SRS-410\\|(?=[^|\\r\\n]*security integration test)[^|\\r\\n]*\\|[^|\\r\\n]*(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)VERIFICATION\\|SRS-410\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?VERIFICATION\\|SRS-410\\|)[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)GATE\\|implementation\\|(?!BLOCKED UNTIL\\|)[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\r?\\n)GATE\\|implementation\\|(?!BLOCKED UNTIL\\|(?:technical design\\|REQUIRED\\|Engineering Owner|human security approval\\|REQUIRED\\|(?:Security Owner|governance authority))(?:\\r?\\n|$))[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$" }
+      ]
     }
   ],
   "should_not_trigger": [

@@ -24,7 +24,7 @@ Goal: Select the next native workflow without loading every workflow body, while
 ## Steps
 1. Inspect state:
    - User request; infer `operator_profile` (business | hybrid | technical) per `common-operator-profile` and carry it in every Handoff Payload.
-   - Search for the requested task's linked brief/ticket using its stable slug; do not select an unrelated newest document or infer task authority/approval from `git status`. If no matching approved task record exists, identify the missing authority/input and route to the appropriate intake. Slug = lowercase kebab-case, minted once at `brainstorm-feature`, reused verbatim downstream; never re-derived.
+   - Search for the requested task's linked brief/ticket using its stable slug; do not select an unrelated newest document or infer task authority/approval from `git status`. If no matching approved task record exists, identify the missing authority/input and route to the appropriate intake. Record the authoritative work-item reference and its approved revision once; carry `delivery_mode` (`brief | standard | extended`), owner, approval reference, and evidence-lane refs instead of letting later stages re-infer authority. Slug = lowercase kebab-case, minted once at `brainstorm-feature`, reused verbatim downstream; never re-derived.
    - If multiple candidates exist, list them and ask whether to focus, consolidate, or sequence.
    - Baseline reference: `common-software-requirements/references/requirements-standards-baseline.md` (ships with the skill)
    - Existing ticket, BRD-lite brief, PRD, SRS/FRS design, implementation plan, task list, walkthrough, UAT signoff, deployment report, release notes, and retro
@@ -63,7 +63,9 @@ Goal: Select the next native workflow without loading every workflow body, while
    - Repo-wide health/debt question with no single feature in scope -> `codebase-review`
 3. Enforce handoff quality:
    - Governed/high-risk delivery requires full traceability: BA output links business objectives; PM links requirements/ACs in `docs/prd/`; IT handoff defines architecture in `docs/srs/`.
-   - Low-risk maintenance exception: Sufficiently specified routine fixes/maintenance with approved in-chat/brief contract route directly to `dev-fix` or `implement-feature` without creating separate BRD/PRD/SRS files or restarting intake; never waives behavioral ACs, owner, approval, scope fence, or verification lane. Negative or inconclusive product evidence requires no-build, pivot, or bounded learning—never unconditional full build.
+   - Low-risk maintenance exception: Sufficiently specified routine fixes/maintenance with approved in-chat/brief contract route directly to `dev-fix` or `implement-feature` without creating separate BRD/PRD/SRS files or restarting intake; set `delivery_mode: brief` and carry outcome, scope fence, owner, observable criteria, approval reference, and verification lane. Never waives behavioral ACs, owner, approval, scope fence, or verification lane, and never lowers the sensitive-change floor. Negative or inconclusive product evidence requires no-build, pivot, or bounded learning—never unconditional full build.
+   - Evidence lanes stay separate: technical verification (`verify-work`), business acceptance (`uat-signoff`), and release (`deploy-release`) are distinct referenced decisions. A technical PASS never grants acceptance or deployment authority; absent evidence is `not assessed`, not success.
+   - Required-scope audits only where the lane applies: governed documents use `rtk pnpm audit:trace --slug <slug> --required`; required run records use `rtk pnpm audit:outcome --records --required --slug <slug> --workflow <workflow> --run-id <run-id>`; brief tickets acquire no document-trace gate. Registry-wide discovery stays optional. Live host actions keep their independent authorization checks.
    - Reopen affected scope only: A stale or disputed decision blocks only its consuming action; unaffected approved decisions and independent scopes remain reusable without global reset.
    - Downstream specialist workers execute against assigned briefs and must not reload or repeat parent intake.
    - Sensitive-change risk floor: Changes touching auth, payments, data integrity, secrets, or trust boundaries enforce minimum `tier=medium` (or `tier=high`), requiring `design-solution` and human approval before coding.
@@ -79,7 +81,7 @@ Goal: Select the next native workflow without loading every workflow body, while
 - Required inputs: user request plus repo/artifact state.
 - Return BLOCKED only in autonomous/channel mode when required artifacts or owners are unknown.
 ## Handoff Payload
-- `slug`, `operator_profile`, `snc_tier`, `model_tier`, recommended workflow, requirement layer, handoff owner, required input, blocking gaps, offshore delivery notes.
+- `slug`, `operator_profile`, `snc_tier`, `model_tier`, `delivery_mode`, work-item reference plus source revision, approval reference, recommended workflow, requirement layer, handoff owner, required input, blocking gaps, evidence-lane refs (technical/acceptance/release, `not assessed` when absent), offshore delivery notes.
 ## Blocking Questions
 - Ask max 3 at a time with a recommended default and 2-3 options.
 ## Output Template
@@ -87,6 +89,11 @@ Goal: Select the next native workflow without loading every workflow body, while
 # SDLC Route
 ## Recommended Workflow
 ## Requirement Layer
+## Delivery Mode And Work Item
+- Delivery mode: brief | standard | extended (routing decision from approved evidence and risk, never automatic brief permission)
+- Authoritative work item + revision: [ticket/plan/task-list reference @ revision]
+- Owner / approval reference: [owner] / [approval ref]
+- Evidence lanes: technical [not assessed], acceptance [not assessed], release [not assessed]
 ## Handoff Owner
 ## Required Input
 ## Blocking Gaps

@@ -8,6 +8,31 @@ Shared reference for substantial scope decomposition, scenario completeness, vie
 - **Low-Risk Equivalence**: Sufficiently specified routine fixes, maintenance, or single-component changes (with approved behavioral ACs, scope fence, accountable owner, and verification lane) do **not** require scope trees, formal modeling, or full documents. Preserve direct readiness for low-risk work.
 - **Sensitive-Change Floor**: Any change touching authentication, secrets, payments/financial transactions, data integrity, or system trust boundaries enforces technical design and explicit human/governance approval before coding, regardless of perceived size or task brevity.
 
+### Delivery Mode
+
+Carry `delivery_mode` separately from `snc_tier`; it selects document depth, never authority.
+
+- `brief`: approved low-risk, nonsensitive work carrying outcome, scope fence, owner, observable criteria, approval reference, and verification lane. No separate PRD/SRS, new formal IDs, or walkthrough.
+- `standard`: focused PRD; SRS only when technical decisions or contracts need an explicit design.
+- `extended`: the standard core plus risk-triggered contracts, migration, capacity, failure analysis, or governance detail.
+
+A missing mode is a routing decision based on approved evidence and risk, not automatic permission for the brief path. Material scope growth reopens only the affected slices. A sensitive change always receives its applicable technical design and human gate regardless of the label.
+
+### Conditional Sections And Extension Triggers
+
+Core document sections are fixed; extensions are triggered, not padded. Omission of an applicable extension is an owned blocker (`blocked(<slice>, <owner>, <input>)`), never silent scope loss.
+
+| Trigger | Extension |
+| --- | --- |
+| Substantial or multi-slice scope | Capability inventory with containment tree |
+| Interacting rules or ambiguity the canonical AC rows cannot resolve | Decision table or behavioral flow |
+| Telemetry, rollout, migration, or support commitments | Analytics and rollout detail |
+| Sensitive change or requirement revision | Risk, failure, security, and refreshed approval detail |
+| New or changed API/event/storage contract | Interface and data contract delta |
+| Numeric performance/reliability/scale commitment | NFR table with thresholds and measurement |
+
+Define each `REQ-*` and `AC-*` once in the canonical table; reference it elsewhere. Each AC carries its owner and single verification lane. Do not add a second verification matrix or mandatory story paraphrase of the same requirement.
+
 ## 2. Scope Inventory & Decomposition Tree
 
 Structure complex scope into an unambiguous capability hierarchy before drafting detailed requirements.

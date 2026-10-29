@@ -9,6 +9,7 @@
 import fs from "fs";
 import path from "path";
 import { validateRunRecord, type RunRecord } from "../outcome/schema";
+import { proxy } from "./git";
 import type { Metric, StageIndicatorRow } from "./types";
 
 export interface MalformedRunRecord {
@@ -75,12 +76,13 @@ export function buildStageIndicator(result: RunRecordsResult): StageIndicatorRow
     metric = { available: false, reason: "run records exist, but none for workflow \"implement-feature\"", source };
   } else {
     const terminal = implementRuns.filter((r) => TERMINAL_STATUSES[r.record.feature_status]).length;
-    metric = {
-      available: true,
-      value: `${terminal}/${implementRuns.length} implement-feature runs reached a terminal status`,
-      trend: "n/a (single-period derivation; no comparable prior-period run set persisted)",
-      source,
-    };
+    metric = proxy(
+      `${terminal}/${implementRuns.length} implement-feature runs reached a terminal status`,
+      "n/a (single-period derivation; no comparable prior-period run set persisted)",
+      `run-record proxy: ${source}`,
+      implementRuns.length,
+      ["Run-record status is self-declared by the workflow; it is not technical verification, acceptance, or release."],
+    );
   }
-  return { stage: "Build", indicator: "plan adherence (run-record completion)", metric_result: metric };
+  return { stage: "Build", indicator: "implement-feature terminal-status share (run-record proxy)", metric_result: metric };
 }

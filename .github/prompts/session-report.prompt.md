@@ -10,15 +10,17 @@ Goal: Preserve a concise artifact of what changed, how it was verified, and what
 
 1. Collect session facts:
    - User goal, ticket/PR/spec links, changed files, commands run, test results, screenshots/logs, environments.
+   - Task-record core (same contract for SDD and non-SDD delivery): stable item/action ID, canonical source reference plus revision, owner, priority, dependencies, criterion references (formal IDs when governed, the approved record's observable criteria otherwise), verification lane, approval reference, and any unresolved blocker with owner and required input. Keep requirement text in its existing authority — the ticket, `docs/prd/prd-<slug>.md`, `docs/srs/srs-<slug>.md`, or `docs/srs/srs-task-list-<slug>.md` — and link it instead of copying or re-minting it.
    - MCP/tool calls used when available; otherwise local command summaries and artifact paths.
-   - Load `common-operator-profile`; carry the inherited `operator_profile` from the Handoff Payload without re-inferring it.
+   - Load `common-operator-profile`; carry the inherited `operator_profile`, `delivery_mode`, and work-item identity from the Handoff Payload without re-inferring them.
 2. Capture evidence:
    - Implementation summary tied to ACs or tasks.
    - Verification commands and PASS/FAIL/BLOCKED status.
    - Remaining risks, assumptions, and follow-up owners.
-3. Record requirements drift:
-   - BRD-lite, PRD, and SRS/FRS updates completed or missing.
-   - Traceability gaps found during implementation or verification.
+3. Record requirements drift and authority state:
+   - BRD-lite, PRD, and SRS/FRS updates completed or missing; traceability gaps found during implementation or verification.
+   - Keep technical verification, business acceptance, and release as separate referenced decisions; an absent reference is `not assessed`, never success, and no lifecycle state is inferred from timestamps or filenames.
+   - SDD delivery links `sdd_progress.py status --state <PATH> --revision <REV> --dirty-identity <ID> --format json|markdown` as the generated current-state view; checkpoint completion is not verification, acceptance, or release. Non-SDD delivery records the same work-item and decision references here instead of requiring SDD state.
 4. Persist and route:
    - Write the run record to `artifacts/runs/[slug]/[compactISO]-session-report.json` when file writes are allowed.
    - Remaining code work -> `implement-feature` or `dev-fix`.
@@ -31,7 +33,7 @@ Goal: Preserve a concise artifact of what changed, how it was verified, and what
 - Required inputs: session goal plus changed files or commands run during the session.
 - Return BLOCKED only when no session evidence (changes, commands, or verification) exists to report.
 ## Handoff Payload
-- `slug`, `operator_profile`, goal, changes, verification results, requirement-drift status, risks, follow-ups, next workflow.
+- `slug`, `operator_profile`, `delivery_mode`, work-item reference plus revision, approval reference, goal, changes, verification results, evidence-lane refs, requirement-drift status, risks, follow-ups, next workflow.
 ## Blocking Questions
 - Ask max 3 at a time with a recommended default and 2-3 options.
 
@@ -49,6 +51,11 @@ Goal: Preserve a concise artifact of what changed, how it was verified, and what
 | Command/Check | Result | Evidence |
 | --- | --- | --- |
 | [check] | [result] | [evidence] |
+
+## Work Item And Evidence
+- Mode: brief | standard | extended; work item + revision: [ref @ rev]; owner/approval: [owner / ref]
+- Criteria: [refs]; verification lane: [lane]; unresolved blocker: [blocker — owner — input]
+- Lanes: technical [ref], acceptance [not assessed], release [not assessed]; SDD status view: [projection ref or n/a]
 
 ## BRD/PRD/SRS Update Status
 

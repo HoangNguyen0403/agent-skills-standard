@@ -1,69 +1,60 @@
 # Software Requirements Specification (SRS): [Feature/System]
 
-**Status**: Draft | **Owner**: [Name] | **Last Updated**: [YYYY-MM-DD]
+**Status**: Draft | **Owner**: [Name] | **Delivery mode**: standard \| extended | **Last Updated**: [YYYY-MM-DD]
 
-## 1. Context And Trace Source
+> Write an SRS only when technical decisions or contracts need an explicit design. Approved low-risk, nonsensitive `brief` work uses its ticket criteria instead. Sensitive changes always receive the applicable technical design and human gate; a label never removes that floor.
 
-- BRD objective links: [BRD-OBJ-001]
-- PRD links: [REQ-001], [REQ-002]
-- AC links: [AC-001], [AC-002]
-- Scope statement: [what this SRS covers]
+## 1. Decision Brief
 
-## 2. Requirement Trace
+- **Changes since approved revision**: [what changed, or "initial draft"]
+- **Recommendation**: [technical decision]
+- **Impact if wrong**: [consequence]
+- **Evidence and limitations**: [confirmed(<source>); unverified or absent evidence]
+- **Unresolved decision**: [decision] — owner: [owner] — affected slice: [slice]
+- **Approval sought**: [exact approval and authority]
+- **Independently ready slices**: [slices that can proceed without the unresolved decision]
 
-| BRD Objective | PRD Req | AC | SRS | Verification |
-| --- | --- | --- | --- | --- |
-| BRD-OBJ-001 | REQ-001 | AC-001 | SRS-001 | [test/evidence] |
+## 2. Trace Source
 
-## 3. Requirement Cards
+- **PRD / ticket and revision**: [docs/prd/prd-[slug].md or approved ticket reference]
+- **Source requirement IDs**: [REQ-001], [AC-001]
+- **Scope statement**: [what this design covers]
+
+## 3. Architecture And Contract Delta
+
+- **Delta against existing baseline**: [changed components, contracts, or data; link ADR/API/schema instead of restating them]
+- **Ownership and boundaries**: [module/data owners, migration needs]
+- **Selected views** (extension: interaction/lifecycle/order ambiguity): [view and why it answers the question]
+
+## 4. Technical Requirements
+
+One card per technical requirement. Each card carries the only verification mapping for its requirement; do not add a second matrix.
 
 ### SRS-001: [Title]
 
 - **Statement**: The [system] shall [behavior] when [condition].
-- **Priority**: Must/Should/Could/Won't
+- **Priority**: Must/Should/Could
 - **Status**: Draft/Review/Approved/Implemented/Tested
 - **Source**: REQ-001, AC-001
-- **Input / Trigger**: [input]
-- **Processing Rule**: [rule]
-- **Output**: [observable output]
-- **Error / Fallback**: [failure behavior]
-- **NFR Impact**: [NFR IDs or none]
-- **Measurement Method**: [test/monitor/review]
-- **Verification Lane**: [unit/integration/E2E/manual/security]
+- **Behavior**: [trigger, input, validation, output]
+- **Failure / fallback**: [error behavior or degradation]
+- **NFR / security impact**: [numeric threshold, verifiable categorical invariant, or "none"]
+- **Verification**: [unit/integration/E2E/security/migration] — [test or evidence artifact]
 
-## 4. Functional Flows (FRS)
+## 5. Extensions
 
-| Flow ID | Actor | Goal | Normal Course | Alternatives | Exceptions |
-| --- | --- | --- | --- | --- | --- |
-| FLOW-001 | [specific actor] | [one goal] | [steps] | [alternate success] | [failure path] |
+Include an extension only when its trigger applies. Omitting an applicable extension is an owned blocker, never silent design loss.
 
-## 5. Interface Requirements
+| Trigger                                                                     | Required extension                                   |
+| --------------------------------------------------------------------------- | ---------------------------------------------------- |
+| New or changed API, event, or storage contract                              | Interface and data contracts                         |
+| Numeric performance, reliability, or scale commitments                      | NFR table with thresholds and measurement method     |
+| Sensitive change (auth, secrets, payments, integrity, trust boundary)        | Security controls, human gate, failure analysis      |
+| Migration or backward-compatibility impact                                  | Migration and rollback plan                          |
+| Cross-team contract or irreversible architecture decision                   | ADR                                                  |
 
-- API contracts (request/response/error)
-- Event contracts (producer/consumer/schema)
-- Data contracts (entities, constraints, retention)
-- External integration assumptions
+## 6. Blockers And References
 
-## 6. Non-Functional Requirements
-
-| NFR ID | Category | Requirement | Threshold | Measurement Method | Verification |
-| --- | --- | --- | --- | --- | --- |
-| NFR-001 | Performance | [requirement] | [e.g., P95 < 300ms] | [load test/monitor] | [test/report] |
-
-## 7. Security And Privacy Requirements
-
-- AuthN/AuthZ requirements
-- Data classification and protection requirements
-- Audit logging and operational controls
-
-## 8. Constraints And Compatibility
-
-- Migration constraints
-- Backward compatibility rules
-- Compliance constraints
-
-## 9. Verification Matrix
-
-| Requirement ID | Verification Lane | Evidence Artifact |
-| --- | --- | --- |
-| SRS-001 | [unit/integration/E2E/manual] | [test/report] |
+- **Blockers**: blocked(<slice>, <owner>, <required input>) — blocks only the affected slice; no unowned TBD at handoff
+- **Run record**: `artifacts/runs/[slug]/[run-id].json` (Outcome RunRecord v1; schema-valid is not an approval)
+- **References**: [ADR, PRD, approved ticket, verification evidence]

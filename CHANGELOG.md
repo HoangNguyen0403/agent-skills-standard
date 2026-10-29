@@ -83,6 +83,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Usage accounting**: included reasoning could be billed twice, and failed or cancelled attempts dropped out of cost cohorts; both are corrected, and incomplete coverage withholds savings instead of reporting zero or inflating savings.
 - **Live requirement trace IDs**: after `audit:trace` identified short-form IDs in the provider-neutral delegation docs, normalized the BRD/PRD/SRS, delivery plan and walkthrough to the repository's zero-padded `BRD-OBJ-001`, `REQ-001`, `AC-001` / atomic `AC-101`…`AC-136`, and `SRS-001` grammar. The PRD records the live mapping; archived reviewed artifacts keep their original IDs unchanged. Parent-observed `audit:trace` then passed with BRD 1, REQ 10, AC 46 and SRS 10 declarations, zero errors; existing professionalization warnings remain.
 - **Stitch image review**: Verify decoded width and height, then read only a verified aspect-preserving preview bounded to a 1600 px longest edge; bound both physical dimensions with `devicePixelRatio` before browser capture and avoid `fullPage`. Treat an image-size rejection after a write as possible success and recover existing screen ids before retrying. Document OMP `/shake images` as local cleanup of all conversation image blocks after preserving source files. Added eval cases for tall URLs, DPR captures, write recovery, and poisoned-session recovery.
+- **CI workflow alignment**: Removed the upstream-retired review-package and product-evidence harness invocations; the unit workflow now runs `pnpm test:sdlc` while retaining SDD-status, metrics, coverage, eval/outcome/trace, and E2E checks. The unit job uses Node `22.x` to meet the locked workspace dependency engine requirements; coverage remains enabled and unchanged. Gitleaks exempts only the verified source-file SHA-256 recorded in `.gitleaks.toml` for `scripts/calculate-tokens.ts` in the three anchored historical stage-receipt paths; this exception does not cover other hashes or paths.
 
 - **Consumer-smoke and coverage follow-up (2026-10-23)**: Corrected the installed-workflow consumer smoke to assert actual catalog discovery, successful complete canonical-body delivery, and the disabled-workflows error/no-file boundary. The earlier expectation treated explicitly installed `discover-product` as unavailable and pinned the `workflows: false` error sentence. Parent-observed CLI/MCP rebuild and full installed-consumer smoke passed; independent consumer review approved. Coverage history: the initial run had 1332 passing CLI tests at 89.84%; five boundary additions raised coverage to 89.98%; a sixth array-shaped `workflowCatalog.workflows` boundary then brought local `test:cov` to 1338/1338 and 90.01% branch coverage. Independent coverage-test review approved with no blocker or major finding. Local correction gates passed. At this local pre-push verification checkpoint, corrective remote CI had not yet run. No production behavior changed.
 
@@ -100,6 +101,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **CLI**: `2.6.6` → `2.7.0`
 - **Common**: `2.9.1` → `2.9.2`; **Product Management**: `1.0.1` → `1.0.2`; **Quality Engineering**: `1.6.1` → `1.6.2`; **Workflows**: `1.1.8` → `1.1.9`
+
+### Added
+
+- **Focused SDLC and evidence contracts (source candidate)**: Added `delivery_mode`-based PRD/SRS authoring, required trace/outcome scope, read-only SDD status, direct delivery observations with explicit coverage, and authority-preserving workflow handoffs. Added workflow and skill evaluation cases, synthetic pilots, and a T8 evidence report. These additions do not create an approval service, backlog store, network connector, or runtime permission control.
+- **CI coverage**: The candidate adds the SDD status subprocess suite and metrics tests while retaining upstream review-package, coverage, eval/outcome/trace, product-evidence, and end-to-end checks. The Python test path was retained after upstream PR268 deleted the ephemeral suite without a replacement; the owner-reported settled suite hash is `1ae04ac13193223d05b9cd054577c09650367554735874fb8b3d6979ff16d0a9`.
+
+### Changed
+
+- **Authoring and retrospective guidance**: Decision-first templates and brief/standard/extended modes retain approval and sensitive-design floors. Retrospective guidance routes failures to the preventive mechanism first; instruction changes remain a last resort subject to explicit maintenance authorization and independent review.
+
+### Verification status
+
+- Fresh local verification passed: 1,909 root tests, 15 separate Python SDD-status tests, strict TypeScript, and all 12 parent-owned post-copy gates (each exit 0). The selected preflight had 0 issues; the no-execute manifest covered 7 skills/146 cases. The qualified generator/copyback applied 15 updates with no deletes; it covered 338 global canonical IDs, 93 configured selected IDs, and 24 host category-index rows, with no missing IDs. This does not claim full-registry host coverage.
+- The whole-catalog audit reported two out-of-scope `database/database-hana` single-assertion findings (evals 2 and 3); no global eval-quality pass is claimed. The post-rebase source approval and document approvals remain separate from local test results. No live evaluation, human timing, productivity/effectiveness measurement, acceptance, adoption, merge, release, or deployment is claimed; H2 merge review and H3 adoption remain human decisions. Implementation and generated inputs are unchanged.
+
+### Target versions
+
+- Unreleased development improvements on current develop versions: Common `2.9.2`, Product Management `1.0.2`, Workflows `1.1.7`. Formal tag bumps deferred to release tagging. Source-change date: `2026-10-29`.
 
 ## [common-v2.9.0] [workflow-v1.1.6] [system-design-v1.2.4] [quality-engineering-v1.6.1] [product-management-v1.0.1] - 2026-10-21
 
