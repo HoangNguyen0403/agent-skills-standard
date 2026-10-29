@@ -80,7 +80,7 @@ description: Implement BLoC pattern for Flutter state management. Use when creat
 - [ ] Deterministic tasks in scripts/
 - [ ] Templates in assets/
 - [ ] Eval cases written in `evals/evals.json`
-- [ ] Trigger rate ≥ 80% on should-trigger query set
+- [ ] Trigger rate ≥ 90% on should-trigger query set (matching release readiness)
 
 ### Testing Across Agents
 
@@ -102,7 +102,7 @@ See [testing.md](testing.md) for the full process including:
 
 - **Loading Speed**: Time to activate skill
 - **Token Usage**: Measure context consumption
-- **Trigger Rate**: % of should-trigger queries that activate the skill (target ≥ 80%)
+- **Trigger Rate**: % of should-trigger queries that activate the skill (target ≥ 90% per release readiness)
 - **User Satisfaction**: Does it solve the problem?
 
 ## Phase 5: Iteration (Continuous Optimization)

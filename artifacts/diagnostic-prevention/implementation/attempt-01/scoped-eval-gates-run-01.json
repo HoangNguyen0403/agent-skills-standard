@@ -1,0 +1,53 @@
+{
+  "scope": {
+    "common/common-tdd": [
+      4,
+      5,
+      7,
+      8,
+      9
+    ],
+    "common/common-subagent-driven-development": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "common/common-learning-log": [
+      5
+    ],
+    "common/common-session-retrospective": [
+      5
+    ],
+    "common/common-security-standards": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11
+    ],
+    "common/common-web-visual-testing": [
+      3,
+      4,
+      5,
+      6
+    ],
+    "common/common-telemetry": [
+      3,
+      4,
+      5
+    ],
+    "common/common-skill-creator": [
+      3
+    ]
+  },
+  "definitionIssues": [],
+  "alignmentIssues": [],
+  "passed": true,
+  "qualification": "Actual quality/audit and preflight APIs on changed cases only; not full-registry quality, scorer discrimination, model efficacy, or routing proof."
+}

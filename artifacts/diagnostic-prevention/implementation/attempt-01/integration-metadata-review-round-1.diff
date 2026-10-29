@@ -1,0 +1,341 @@
+# Review package: 52ac482a5b948d9d26df4c3a2617afec74d1cf54..WORKSPACE (cumulative uncommitted snapshot)
+
+## Scope
+- ARCHITECTURE.md
+- CHANGELOG.md
+- CONTRIBUTING.md
+- cli/package.json
+- mcp/package.json
+- package.json
+- skills/metadata.json
+
+## Files changed
+ARCHITECTURE.md      | 18 ++++++++++++++++--
+ CHANGELOG.md         | 25 +++++++++++++++++++++++++
+ CONTRIBUTING.md      | 41 +++++++++++++++++++++++++++++++++++++++++
+ cli/package.json     |  2 +-
+ mcp/package.json     |  2 +-
+ package.json         |  4 ++--
+ skills/metadata.json |  6 +++---
+ 7 files changed, 89 insertions(+), 9 deletions(-)
+
+## Diff
+diff --git a/ARCHITECTURE.md b/ARCHITECTURE.md
+index 822fd083..f64278a8 100644
+--- a/ARCHITECTURE.md
++++ b/ARCHITECTURE.md
+@@ -40,24 +40,27 @@ MCP routing keeps high-collision framework topics in qualified trigger phrases
+ inputs must equal or contain the complete declared trigger at word boundaries;
+ bare words do not satisfy a qualified phrase through reverse containment.
+ Routing does not assemble arbitrary separated words into a phrase match.
+ Next.js DAL file triggers identify `lib/data.ts` or a `dal/**` directory, not
+ generic `services` directories. Matcher/body-return evidence establishes
+ selection in that MCP session, not delivery of complete standards to another
+ worker.
+ 
+ The MCP consultation ledger is process-local. Catalog discovery is separate
+ from returned skill, workflow, and category-guide bodies; unique session totals
+-and per-call count-only telemetry are different measurements. Audit/cost output
++and per-call count-only telemetry are different measurements. Direct skill body
++fetches are tracked separately from deduped stub references. For token pricing,
++missing rates for cached or reasoning tokens remain explicitly partial or unknown
++(Missing ≠ Zero); known zero usage does not demand missing rates, but positive
++usage without rates must never be coerced to free. Audit/cost output
+ does not certify edits, executed checks, enforcement, or outgoing worker-body
+ delivery. Those require evidence at the actual host/runtime boundary.
+-
+ ## 2. Multi-Agent Compatibility (The "Integration Taxonomy")
+ 
+ This project maintains a standardized bridge for multiple AI agents, each with varying levels of native support for hooks and context injection. The canonical per-agent capability matrix is maintained in `cli/src/capabilities/agentCapabilities.ts` and generated to [docs/agent-capabilities.md](docs/agent-capabilities.md).
+ 
+ | Agent / Tool        | Integration Strategy       | Primary Hook/Config                      | Scope        |
+ | :------------------ | :------------------------- | :--------------------------------------- | :----------- |
+ | **VS Code Copilot** | **Prompt Instructions**    | `.github/instructions/*.instructions.md` | Session      |
+ | **Cursor**          | **MCP + Rules**            | `hooks.json` / `.cursor/rules/`          | Project      |
+ | **Windsurf**        | **MCP + Rule Persistence** | `.codeium/windsurf/mcp_config.json`      | Project      |
+ | **Trae**            | **MCP + Rule Persistence** | `.trae/mcp.json`                         | Project      |
+@@ -352,10 +355,21 @@ _Date: 2026-09-27_
+ 
+ _Date: 2026-09-27_
+ **Decision**: Workflows and specialists are fetched from release tags (`workflows_ref`, `specialists_ref` in `.skillsrc`, written once from the registry's latest release when absent) instead of the default branch. Every source ref is resolved to a commit and recorded in `.skills-lock.json` `sources`; a tag that later resolves to a different commit is reported. Releases publish `MANIFEST.json` (sha256 per file) with a build-provenance attestation; `ags sync` rejects downloaded files that do not match a release's manifest, and `ags verify --attestation` checks the attestation with the GitHub CLI. `ags verify --strict` fails when any locked ref has moved.
+ **Reason**: Pinning categories did not pin workflows or specialists, so two installs from the same `.skillsrc` could differ, and the only integrity check (git blob SHA from the same API) protected transport, not the release.
+ 
+ ### ADR-017: Warning-First Policy Layer
+ 
+ _Date: 2026-09-28_
+ **Decision**: Machine-checkable project policy rules live in `.ags/policy.json` (`schema_version: 1`), covering three rule kinds: `protected_path` (`paths`, action `block | warn`), `command` (`executables`, action `block | warn | rewrite`, `rewrite_to`), and `required_check` (`when_changed`, `checks`, action `block | warn`). `ags policy compile` scans project agent docs (`AGENTS.md`, `CLAUDE.md`) line-by-line to propose rules into `.ags/policy-candidates.json`; compiled rules can only `warn` or `rewrite` (never `block`). `ags policy adopt <id...>` activates candidate rules into `.ags/policy.json` after conflict validation. The PreToolUse hook (`HookService`) reads `.ags/policy.json` dependency-free; `block` rules only block when `AGS_HOOK_ENFORCE=1` is set (e.g. `ags hooks install --enforce`), otherwise issuing warnings (warning-first). The MCP server surfaces policy rules advisory-only next to loaded skills. `AGS_POLICY_BYPASS=1` turns decisions into `allow` and reports waived rules. Policy prevents mistakes by cooperating agents; it is not a security boundary.
+ **Reason**: Agent instructions in markdown files (`AGENTS.md`, `CLAUDE.md`) are advisory and frequently ignored or forgotten during multi-step tasks. Turning deterministic rules into machine-checkable policy enables early warning and hook/MCP enforcement without introducing disruptive hard blocks by default or treating cooperating AI agents as malicious adversaries.
++
++### ADR-018: Diagnostic Prevention Boundaries, Staged Generation, and Layered Verification
++
++_Date: 2026-10-28_
++**Decision**:
++1. **Migration and Data Preservation**: CLI install and sync lifecycle (`SyncService`) must preserve active, non-canonical, or unknown local state under `.agent/` (including `.agent/sdd` evidence). If active versus legacy status is not authoritatively provable, automatic deletion is stopped fail-closed to protect user evidence.
++2. **Isolated Staged Generation**: Generation commands run in a fresh, isolated stage (`scripts/generation/isolated-stage.ts`, CLI `scripts/generation/index.ts`) excluding `.git`, `.agent`, artifacts, and node_modules. Intended destinations are base-digested before generation; copy-back verifies matching before-digests and aborts on concurrent modification or foreign paths. Pre-commit hooks are check-only (`node --import tsx scripts/generation/index.ts --check`) and never actively generate or git-add files during commit.
++3. **Layered Truthful Acceptance**: Evidence and verification contracts (`common-tdd`, `implement-feature`) strictly distinguish five states: source-ready, focused checks, consumer-smoke, independent review, and human acceptance. Pre-implementation RED tests cannot be manufactured or inferred; unobserved RED is explicitly marked `NOT RUN`. Zero-exit or no-listener runs are rejected as incomplete.
++4. **Host Boundary Separation**: The repository provides host-neutral, tool-agnostic standards and cooperative advisory hooks. It does NOT implement live host-level security or runtime orchestration: actor-scoped tool authorization, process handling, browser sandboxing, and runtime event collection (H01–H05) are external host responsibilities (e.g. OMP/Paseo). In this checkout, host-only slices remain explicitly blocked by user decision; repository rules must never be misrepresented as live host enforcement, auto-approval, or denial bypass.
++5. **Truthful Telemetry and Quotas**: Telemetry tracking (`agent-skills-standard-mcp`) counts direct body fetches separately from deduped stubs, preserves unknown/partial pricing when token rates are absent (Missing ≠ Zero), and eval harnesses (`scripts/evals/execute.ts`) fence quota by halting new job claims immediately while awaiting in-flight work.
++**Reason**: Diagnostic prevention post-mortems identified that conflating prompt guidance with host security enforcement, silently overwriting evidence during sync/generation, falsifying unobserved TDD RED phases, and coercing missing cost rates to $0.00 created false confidence and untruthful audit logs. Formalizing strict boundary contracts ensures transparency without overclaiming capability.
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index ecceee33..30a76535 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,19 +1,44 @@
+ # Changelog
+ 
+ All notable changes to the Programming Languages and Frameworks Agent Skills will be documented in this file.
+ 
+ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+ 
+ ### Quick Navigation
+ 
++## [common-v2.9.1] [workflows-v1.1.7] [cli-v2.6.7] [mcp-v0.7.1] - 2026-10-28 (Candidate)
++
++### Added
++
++- **Diagnostic-prevention migration preservation**: Added non-destructive legacy `.agent` data preservation during CLI skill sync migration, stopping automatic deletion where active/legacy classification is unauthoritative and protecting active `.agent/sdd` artifacts.
++- **Isolated stage generation tooling**: Added repository-owned isolated generation engine (`scripts/generation/isolated-stage.ts` and CLI `scripts/generation/index.ts`) running index, token, and capability generation in an isolated stage excluding `.git`, `.agent`, artifacts, and dependencies, verifying baseline destination hashes and refusing on foreign working directory or destination drift.
++- **Check-only pre-commit hook**: Switched pre-commit hook (`.husky/pre-commit`) to execute check-only verification (`node --import tsx scripts/generation/index.ts --check`) without active code generation or implicit git staging during commits.
++- **Subagent-driven development brief contract**: Extended `common-subagent-driven-development` and `task_brief.py` with required contract validation (owned write sets, explicit I/O contracts, positive/negative invariants, verification owner, handoff/freeze lifecycle, and failure escalation routes), treating Inline execution as an explicit recorded exception.
++- **Learning log proposal-only discipline**: Reconciled `common-learning-log` and `common-session-retrospective` so repeated mistakes and retrospective findings yield proposed candidate lessons requiring review and manual adoption, strictly rejecting autonomous self-promotion into prompt instructions or repository policy.
++- **Truthful layered acceptance contract**: Extended `common-tdd` and `.agents/workflows/implement-feature.md` to formally separate source-ready, focused checks, consumer-smoke, independent review, and human acceptance states with source/build identity, keeping unobserved pre-implementation RED explicitly labeled NOT RUN and rejecting zero-exit or no-listener false passes.
++- **Trust boundary, browser, and telemetry guidance**: Extended `common-security-standards` with operation-private capability minting, transaction-time revalidation, and independent authority verification; extended `common-web-visual-testing` with strict CSRF and native browser Origin requirements; extended `common-telemetry` and `common-context-optimization` to enforce Missing ≠ Zero, partial lineage visibility, and distinction across catalog discovery, body fetch, delivery to context, and active tool usage.
++- **Truthful MCP telemetry and conditional pricing**: Added body-fetch counting separate from dedup/stub selection in `agent-skills-standard-mcp` session tracking; enforced conditional pricing where missing token rates for cached/reasoning tokens remain partial/null rather than coerced to $0.00.
++- **Eval runner quota fences & test fixture readiness**: Updated eval execution harness (`scripts/evals/execute.ts`) to immediately halt new job dispatches upon observing quota limits while preserving in-flight completed answers, and hardened loopback test fixtures with pre-listen binding and bounded readiness deadlines.
++
++### Changed
++
++- **Version bumps (Candidate contracts)**:
++  - Root: `2.6.6` → `2.6.7`
++  - CLI: `2.6.6` → `2.6.7`
++  - MCP: `0.7.0` → `0.7.1`
++  - Common: `2.9.0` → `2.9.1` (date: `2026-10-28`)
++  - Workflows: `1.1.6` → `1.1.7`
++- **External host boundary separation**: Documented clear boundary between repository-owned canonical standards and external host-level controls. User explicitly kept host-only OMP/Paseo resolver/dispatcher/process/collector slices BLOCKED; canonical guidance remains host-neutral and tool-agnostic with no auto-allow or denial bypass.
++- **Verification status**: All candidate contracts, isolated stage generators, and eval calibrators are pending final integrated verification; verification is recorded as pending (NOT RUN mid-flight), never claiming model efficacy, benchmark uplift, or deployed host enforcement. Rollout and pilot gates remain preserved.
++
+ ## [common-v2.9.0] [workflow-v1.1.6] [system-design-v1.2.4] [quality-engineering-v1.6.1] [product-management-v1.0.1] - 2026-10-21
+ 
+ ### Added
+ 
+ - **Requirements modeling**: Added canonical requirements modeling reference (`skills/product-management/product-requirements/references/requirements-modeling.md`) covering scope trees, process flows, decision tables, state models, and delivery dependency graphs.
+ - **MCP `0.7.0` candidate**: Added explicit-manifest Codex JSONL and OMP v3 session accounting, including separately grouped OMP `model_usage`, preserved orchestration/cache-write buckets, Codex derived-delta containment with baseline recovery, order-independent cross-journal provenance redaction with a bounded global privacy-membership set, invalid-to-valid same-ID recovery with accepted-signature conflict detection, incomplete unknown metrics, and stop-on-limit behavior. Human output labels the transcript-message count accurately; packaged command is `ags-mcp-session-report`. Real-journal authorization remains a separate acceptance gate.
+ - **Common `2.8.7` candidate**: Added version-2 revision-, workspace-, dirty-identity-, and evidence-content-bound progress receipts. Declared owner pause remains metadata, not host enforcement.
+ - **Requirements alignment**: Aligned requirements skills (`product-business-requirements`, `product-requirements`, `common-software-requirements`) with INVEST criteria, truth tables, and canonical requirements modeling reference.
+ - **Quality Engineering `1.6.1` candidate**: Aligned `quality-engineering-business-analysis` with slice readiness checks and user story decision table truth matrices.
+ - **Product Management `1.0.0` candidate**: Added optional, opt-in `product-management` category (`product-management-v1.0.0` candidate; select in `.skillsrc` with reviewed immutable ref). Includes seven keyword-only skills (`product-market-research`, `product-customer-discovery`, `product-strategy`, `product-investment`, `product-experimentation`, `product-metrics`, `product-roadmap`), category framework map, and conditional router row in `AGENTS.md`. No broad file globs or universal triggers.
+diff --git a/CONTRIBUTING.md b/CONTRIBUTING.md
+index 70a8343d..dded316a 100644
+--- a/CONTRIBUTING.md
++++ b/CONTRIBUTING.md
+@@ -49,20 +49,23 @@ Skills are the core value of this project.
+ 6. **Guardrail skills**: Add `pressure_scenarios`, `rationalizations`, `red_flags`, and behavior assertions to `evals/evals.json`.
+ 7. **Evidence first**: Retain applicable earlier cases, remove obsolete expectations, and add preventing cases for corrected behavior. Candidate fixtures are not live efficacy evidence.
+ 8. **Public package boundary**: Do not ship project-specific environment, VPN, account-selection, or credential-handling recipes in reusable skills or references.
+ 9. **Trigger precision**: Qualify collision-prone framework topics; retain unrelated workflow negatives and intended qualified positives. Test consumer routing, not metadata copies.
+ 10. **Requirements modeling & scope trees**: For complex feature discovery, load `references/requirements-modeling.md` on demand for verb-object scope trees, stop rules, and canonical shared definitions.
+ 11. **Question-driven representations & diagram reuse**: Select views by question per `references/requirements-modeling.md`. Diagrams remain optional when markdown tables or prose answer precisely; reuse existing diagram capabilities.
+ 12. **Low-risk equivalence & sensitive floors**: Low-risk maintenance tickets with approved behavioral AC, owner, scope fence, approval, and verification lane satisfy readiness without document creation. Enforce sensitive floors per `references/requirements-modeling.md`.
+ 13. **Scoped change impact**: When requirements change, trace affected ACs, contracts, approvals, and evidence carrying existing IDs without reopening settled decisions.
+ 14. **Host-neutral guidance**: Keep provider, account, profile, model, and machine specifics in host planning records only, not canonical guidance.
+ 15. **System-design package**: Keep design-process ownership in `system-design-methodology` and critical-flow semantics in `system-design-data-architecture`; link to the canonical flow contract instead of copying it. Route mobile/client or SDK guidance only when those surface constraints affect correctness. Select views from decisions; do not impose infrastructure or diagram quotas.
++16. **Diagnostic-prevention & trust boundaries**: Strictly scope operation-private capability minting to privileged mint, seal, restore, or high-risk mutation capabilities (ordinary user sessions follow their legitimate intended lifetime); require revalidation against authoritative sources (rejecting stale shared ledgers), and authentic caller provenance in persisted evidence without universal cryptographic signature mandates. Do not claim synthetic auth bypass (such as renderer-only fixtures, manual header injection, or standalone fetch) as proof of backend governance or CSRF enforcement.
++17. **Truthful telemetry & resource accounting**: Follow the Missing ≠ Zero principle. In telemetry guidance and reporting, never coerce missing token counts or pricing rates to 0 or $0.00; distinguish catalog discovery from body fetch, context delivery, and active tool usage.
++18. **Learning logs & no auto-promotion**: Document repeated mistakes and retrospective findings as proposed candidate lessons requiring human review. Do not auto-promote agent learnings directly into repository rules, instructions, or policy.
+ 
+ ## 4. Creating Workflows
+ 
+ Workflows are portable SDLC procedures, not CLI commands. Keep canonical files in `.agents/workflows/*.md`; sync exports to each agent's native surface.
+ 
+ Rules:
+ 
+ 1. Keep workflow files under 80 lines.
+ 2. Use the order: goal, steps, output template.
+ 3. Do not pre-fill example data.
+@@ -187,20 +190,58 @@ For system-design evaluations, lexical assertions check presence or routing only
+ 
+ For release candidates, also run:
+ 
+ ```bash
+ pnpm check-alignment --threshold 90
+ pnpm benchmark:report
+ ```
+ 
+ Guardrail-oriented skill changes should also verify that the benchmark report shows behavior coverage for the edited skills.
+ 
++### Isolated Stage Generation & Check-Only Pre-Commit
++
++To prevent clobbering active worktree evidence (such as `.agent/sdd`) or drifting destination files during generation, index and capability generation is executed in an isolated stage:
++
++```bash
++# Verify prepared generation outputs (check-only pre-commit hook)
++node --import tsx scripts/generation/index.ts --check
++
++# Run generation in an isolated stage and copy back verified changes
++node --import tsx scripts/generation/index.ts
++```
++
++Pre-commit hooks are strictly check-only; they must never actively generate files or run git staging. The isolated stage records pre-generation digests and halts if concurrent edits or foreign paths are detected.
++
++The public `pnpm generate-indices` command uses the safe coordinator. The
++coordinator invokes the internal `scripts/generate-indices.ts` child directly
++in its isolated stage to avoid recursion.
++By default, unchanged existing outputs may be checked without creating an
++ownership manifest; differing outputs without trusted ownership are refused.
++Do not use adoption as a routine override. An authorized bounded adoption uses
++`pnpm generate-indices -- --adopt-base <full-commit-sha>` and requires the
++current files to match both that tracked base and the prior producer's output.
++Adoption evidence is archived under the run receipt before publication.
++`--check` never adopts or changes ownership.
++
++### Truthful Layered Verification & Host Boundaries
++
++Verification tracks layered acceptance states independently based on approved task and release scope applicability (not requiring universal human sign-off on every unit iteration):
++1. **Source-ready**: complete source delivery at recorded Git SHA + dirty identity, with build, lint, and typecheck recorded independently (`PASS`, `FAIL`, `NOT RUN`, or `NOT APPLICABLE`).
++2. **Focused checks**: unit and boundary contract suites; test count and membership derived directly from raw output, rejecting zero-exit or no-listener runs.
++3. **Consumer-smoke**: real producer→consumer integration proof scoped to actual changed entrypoints and outward side effects, not universal regression coverage.
++4. **Independent review**: unbiased inspection by separate reviewers per approved scope.
++5. **Human acceptance**: explicit authorized sign-off when mandated by release scope.
++
++Pre-implementation RED must be recorded as `NOT RUN` if not actually observed prior to code edits; never fabricate historical RED by modifying guards or asserting simulated failures. Finite eval oracles verify bounded assertion contracts; they do not prove whole-answer semantic safety, model uplift, or production efficacy.
++
++Host-level actor-scoped tool authorization, task/turn ownership, process management, and telemetry collectors (H01–H05) are external host responsibilities (e.g., OMP/Paseo). In this checkout, host-only slices remain explicitly blocked by user decision; repository rules must never be misrepresented as live host enforcement, auto-approval, or denial bypass. Do not claim model efficacy, benchmark uplift, or deployed host security enforcement without qualified evidence from an authorized live environment.
++
+ ## 9. Release Process
+ 
+ We use specialized scripts for releasing components independently:
+ 
+ - `pnpm release-cli`: Bumps `cli/package.json` and updates `CHANGELOG.md`.
+ - `pnpm release-all-skills`: Syncs and pushes git tags for newly bumped versions in `skills/metadata.json` (`categories` and `releases`).
+ - `pnpm release-server`: Releases the backend component.
+ - `pnpm release:manifest --tag <tag> [--out <file>]`: Rebuilds the deterministic `MANIFEST.json` locally for any release tag.
+ 
+ When `.agents/workflows/**` changes, bump `releases.workflows.version` in `skills/metadata.json`. Every registry release publishes a `MANIFEST.json` containing sha256 checksums of all released files along with a GitHub build-provenance attestation.
+diff --git a/cli/package.json b/cli/package.json
+index c7957279..3bcce8cf 100644
+--- a/cli/package.json
++++ b/cli/package.json
+@@ -1,13 +1,13 @@
+ {
+   "name": "agent-skills-standard",
+-  "version": "2.6.6",
++  "version": "2.6.7",
+   "description": "A CLI to manage and sync AI agent skills standard for Cursor, Claude, Copilot, Windsurf, and more.",
+   "main": "dist/index.js",
+   "bin": {
+     "agent-skills-standard": "dist/index.js",
+     "ags": "dist/index.js"
+   },
+   "files": [
+     "dist"
+   ],
+   "scripts": {
+diff --git a/mcp/package.json b/mcp/package.json
+index e6fc92d9..a737ab51 100644
+--- a/mcp/package.json
++++ b/mcp/package.json
+@@ -1,13 +1,13 @@
+ {
+   "name": "agent-skills-standard-mcp",
+-  "version": "0.7.0",
++  "version": "0.7.1",
+   "description": "MCP server that lets any AI agent (Claude, Cursor, Antigravity, Kiro, Continue, Gemini) load and audit skills from agent-skills-standard.",
+   "main": "dist/index.js",
+   "bin": {
+     "agent-skills-standard-mcp": "dist/index.js",
+     "ags-mcp": "dist/index.js",
+     "ags-mcp-session-report": "dist/session-journal-cli.js"
+   },
+   "files": [
+     "dist",
+     "README.md",
+diff --git a/package.json b/package.json
+index e8c665d6..119c7118 100644
+--- a/package.json
++++ b/package.json
+@@ -1,13 +1,13 @@
+ {
+   "name": "agent-skills-standard-root",
+-  "version": "2.6.6",
++  "version": "2.6.7",
+   "private": true,
+   "packageManager": "pnpm@10.0.0",
+   "pnpm": {
+     "overrides": {
+       "lodash": "npm:lodash-es@^4.17.21",
+       "path-to-regexp": ">=8.4.2",
+       "ip-address": ">=10.5.1",
+       "hono": "4.13.7",
+       "fast-uri": ">=3.1.8",
+       "picomatch": ">=4.0.4",
+@@ -90,21 +90,21 @@
+     "evals:prune": "tsx scripts/evals/index.ts prune",
+     "evals:audit": "tsx scripts/evals/quality.ts audit",
+     "evals:preflight": "tsx scripts/evals/quality.ts preflight",
+     "evals:queue": "tsx scripts/evals/quality.ts queue",
+     "evals:estimate": "tsx scripts/evals/index.ts estimate",
+     "evals:gate": "tsx scripts/evals/index.ts gate",
+     "freshness:audit": "tsx scripts/freshness/index.ts audit",
+     "freshness:check": "tsx scripts/freshness/index.ts check",
+     "freshness:report": "tsx scripts/freshness/index.ts report",
+     "evals:standardize": "tsx scripts/evals/quality.ts audit --write",
+-    "generate-indices": "tsx scripts/generate-indices.ts",
++    "generate-indices": "tsx scripts/generation/index.ts",
+     "audit:skills": "tsx scripts/audit-skills.ts",
+     "audit:keywords": "tsx scripts/check-keyword-collisions.ts",
+     "migrate:priority-labels": "tsx scripts/migrate-priority-labels.ts",
+     "audit:sdlc": "node --import tsx ./scripts/audit-sdlc.ts",
+     "check-alignment": "tsx scripts/check-alignment.ts",
+     "check-alignment:strict": "tsx scripts/check-alignment.ts --threshold 90",
+     "audit:injection": "tsx scripts/scan-injection.ts",
+     "docs:scan": "tsx scripts/scan-docs.ts scripts server/src",
+     "docs:capabilities": "tsx scripts/generate-capabilities-doc.ts",
+     "docs:capabilities:check": "tsx scripts/generate-capabilities-doc.ts --check",
+diff --git a/skills/metadata.json b/skills/metadata.json
+index b3c2119c..fee39919 100644
+--- a/skills/metadata.json
++++ b/skills/metadata.json
+@@ -483,22 +483,22 @@
+           "name": "next",
+           "source": "github",
+           "repo": "vercel/next.js",
+           "pinned": "16.0.0",
+           "tag_pattern": "^v(\\d+\\.\\d+\\.\\d+)$",
+           "reviewed": "2026-06-17"
+         }
+       ]
+     },
+     "common": {
+-      "version": "2.9.0",
+-      "last_updated": "2026-10-21",
++      "version": "2.9.1",
++      "last_updated": "2026-10-28",
+       "tag_prefix": "common-v",
+       "token_metrics": {
+         "total_skills": 44,
+         "total_tokens": 38388,
+         "avg_tokens_per_skill": 872,
+         "largest_skill": "common-skill-creator (1693 tokens)"
+       },
+       "owners": [
+         "HoangNguyen0403"
+       ]
+@@ -865,16 +865,16 @@
+       "token_metrics": {
+         "total_skills": 10,
+         "total_tokens": 13868,
+         "avg_tokens_per_skill": 1387,
+         "largest_skill": "product-metrics (1717 tokens)"
+       }
+     }
+   },
+   "releases": {
+     "workflows": {
+-      "version": "1.1.6",
++      "version": "1.1.7",
+       "tag_prefix": "workflows-v"
+     }
+   },
+   "revocations": []
+ }

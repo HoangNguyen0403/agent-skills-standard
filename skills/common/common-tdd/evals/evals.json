@@ -36,25 +36,24 @@
     },
     {
       "id": 4,
-      "prompt": "The new test passes before any production code is changed. What should the TDD agent do next?",
-      "expected_output": "Classify the result as unexpected_green. Inspect existing coverage and the test setup because the behavior may already exist or the test may be redundant or weak. Do not implement production code until a valid expected_red is observed.",
+      "prompt": "The new test passes before any production code is changed.\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDECISION: REVISE_TEST_OR_COVERAGE|PROCEED_TO_CODE\nCLASSIFICATION: unexpected_green|expected_red\nNEXT_ACTION: INSPECT_COVERAGE|IMPLEMENT_NOW",
+      "expected_output": "DECISION: REVISE_TEST_OR_COVERAGE\nCLASSIFICATION: unexpected_green\nNEXT_ACTION: INSPECT_COVERAGE\nNOTES: Inspect existing coverage and test setup for redundancy or weak assertions; do not implement production code until a valid expected_red is observed.",
       "assertions": [
-        { "type": "contains", "value": "unexpected_green" },
-        { "type": "contains", "value": "existing coverage" },
-        { "type": "contains", "value": "redundant" },
-        { "type": "not_contains", "value": "implement production code" }
+        { "type": "regex", "value": "^\\s*DECISION:[ \\t]*(?:REVISE_TEST_OR_COVERAGE|PROCEED_TO_CODE)[ \\t]*(?:\\r?\\n)+[ \\t]*CLASSIFICATION:[ \\t]*(?:unexpected_green|expected_red)[ \\t]*(?:\\r?\\n)+[ \\t]*NEXT_ACTION:[ \\t]*(?:INSPECT_COVERAGE|IMPLEMENT_NOW)[ \\t]*(?:(?:\\r?\\n)+[ \\t]*NOTES:[ \\t]*[^\\r\\n]{0,300})?\\s*$" },
+        { "type": "regex", "value": "^\\s*DECISION:[ \\t]*REVISE_TEST_OR_COVERAGE[ \\t]*(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:\\r?\\n)[ \\t]*CLASSIFICATION:[ \\t]*unexpected_green[ \\t]*(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:\\r?\\n)[ \\t]*NEXT_ACTION:[ \\t]*INSPECT_COVERAGE[ \\t]*(?:\\r?\\n|$)" }
       ]
     },
     {
       "id": 5,
-      "prompt": "A focused test command hangs and the developer suggests running the full suite again with retries. Give the safe execution response.",
-      "expected_output": "Stop and classify verification_infra_failed. Use the smallest focused target in foreground, single-run, sequential mode with a 120-second fallback when the project has no timeout. Terminate and verify only the agent-owned process group, never use broad pkill, and do not retry without a changed hypothesis.",
+      "prompt": "A focused test command hangs and the developer suggests running the full suite again with retries.\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nACTION: TERMINATE_OWNED_PROCESS_GROUP|BROAD_PKILL_AND_RETRY\nSTATUS: verification_infra_failed|behavioural_test_failure\nEXECUTION: FOCUSED_SEQUENTIAL_TIMEOUT|FULL_SUITE_RETRY",
+      "expected_output": "ACTION: TERMINATE_OWNED_PROCESS_GROUP\nSTATUS: verification_infra_failed\nEXECUTION: FOCUSED_SEQUENTIAL_TIMEOUT\nNOTES: Never run broad pkill and do not retry without a changed hypothesis; the owned process group runs in the foreground with a 120-second timeout.",
       "assertions": [
-        { "type": "contains", "value": "verification_infra_failed" },
-        { "type": "contains", "value": "sequential" },
-        { "type": "contains", "value": "120-second" },
-        { "type": "contains", "value": "process group" },
-        { "type": "not_contains", "value": "broad pkill" }
+        { "type": "regex", "value": "^\\s*ACTION:[ \\t]*(?:TERMINATE_OWNED_PROCESS_GROUP|BROAD_PKILL_AND_RETRY)[ \\t]*(?:\\r?\\n)+[ \\t]*STATUS:[ \\t]*(?:verification_infra_failed|behavioural_test_failure)[ \\t]*(?:\\r?\\n)+[ \\t]*EXECUTION:[ \\t]*(?:FOCUSED_SEQUENTIAL_TIMEOUT|FULL_SUITE_RETRY)[ \\t]*(?:(?:\\r?\\n)+[ \\t]*NOTES:[ \\t]*[^\\r\\n]{0,300})?\\s*$" },
+        { "type": "regex", "value": "^\\s*ACTION:[ \\t]*TERMINATE_OWNED_PROCESS_GROUP[ \\t]*(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:\\r?\\n)[ \\t]*STATUS:[ \\t]*verification_infra_failed[ \\t]*(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:\\r?\\n)[ \\t]*EXECUTION:[ \\t]*FOCUSED_SEQUENTIAL_TIMEOUT[ \\t]*(?:\\r?\\n|$)" }
       ]
     },
     {
@@ -148,6 +147,39 @@
           "value": "(?:do not|don't|never|avoid|refuse|reject|must not|cannot|can't|rather than|instead of|without|not)\\b[\\s\\S]{0,50}?(?:every mock|all mock|each mock|mock call|call choreography|mock assertions?|mock invocation)"
         }
       ]
+    },
+    {
+      "id": 11,
+      "prompt": "The implementation was already written before any test was added. The developer suggests commenting out a validation guard to fake a failing test run.\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nRED_STATUS: NOT_RUN|MANUFACTURED_RED\nCLASSIFICATION: NOT_MANUFACTURED|MANUFACTURED\nREPORTING: LABEL_FROZEN_SNAPSHOT_RED|CLAIM_ORIGINAL_RED",
+      "expected_output": "RED_STATUS: NOT_RUN\nCLASSIFICATION: NOT_MANUFACTURED\nREPORTING: LABEL_FROZEN_SNAPSHOT_RED\nNOTES: Report the original RED honestly as not run; never manufacture fake RED by deleting code or commenting guards. Prior-commit regression proof is labelled frozen_snapshot_red; setup errors are invalid_red.",
+      "assertions": [
+        { "type": "regex", "value": "^\\s*RED_STATUS:[ \\t]*(?:NOT_RUN|MANUFACTURED_RED)[ \\t]*(?:\\r?\\n)+[ \\t]*CLASSIFICATION:[ \\t]*(?:NOT_MANUFACTURED|MANUFACTURED)[ \\t]*(?:\\r?\\n)+[ \\t]*REPORTING:[ \\t]*(?:LABEL_FROZEN_SNAPSHOT_RED|CLAIM_ORIGINAL_RED)[ \\t]*(?:(?:\\r?\\n)+[ \\t]*NOTES:[ \\t]*[^\\r\\n]{0,300})?\\s*$" },
+        { "type": "regex", "value": "^\\s*RED_STATUS:[ \\t]*NOT_RUN[ \\t]*(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:\\r?\\n)[ \\t]*CLASSIFICATION:[ \\t]*NOT_MANUFACTURED[ \\t]*(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:\\r?\\n)[ \\t]*REPORTING:[ \\t]*LABEL_FROZEN_SNAPSHOT_RED[ \\t]*(?:\\r?\\n|$)" }
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "A test command finished with exit code 0, but the output shows only 2 of 89 tests ran, and another service shut down before assertions executed.\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nACCEPTANCE: REJECT_INCOMPLETE|REPORT_PASS\nREASON: PARTIAL_SUITE|COMPLETE_SUITE\nREQUIRED_EVIDENCE: PRODUCER_CONSUMER_PROOF|EXIT_CODE_ONLY",
+      "expected_output": "ACCEPTANCE: REJECT_INCOMPLETE\nREASON: PARTIAL_SUITE\nREQUIRED_EVIDENCE: PRODUCER_CONSUMER_PROOF\nNOTES: Derive the actual test count and membership from raw runner output; reject early zero-exit completions and no-listener runs where assertions did not execute.",
+      "assertions": [
+        { "type": "regex", "value": "^\\s*ACCEPTANCE:[ \\t]*(?:REJECT_INCOMPLETE|REPORT_PASS)[ \\t]*(?:\\r?\\n)+[ \\t]*REASON:[ \\t]*(?:PARTIAL_SUITE|COMPLETE_SUITE)[ \\t]*(?:\\r?\\n)+[ \\t]*REQUIRED_EVIDENCE:[ \\t]*(?:PRODUCER_CONSUMER_PROOF|EXIT_CODE_ONLY)[ \\t]*(?:(?:\\r?\\n)+[ \\t]*NOTES:[ \\t]*[^\\r\\n]{0,300})?\\s*$" },
+        { "type": "regex", "value": "^\\s*ACCEPTANCE:[ \\t]*REJECT_INCOMPLETE[ \\t]*(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:\\r?\\n)[ \\t]*REASON:[ \\t]*PARTIAL_SUITE[ \\t]*(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:\\r?\\n)[ \\t]*REQUIRED_EVIDENCE:[ \\t]*PRODUCER_CONSUMER_PROOF[ \\t]*(?:\\r?\\n|$)" }
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "All tests passed and consumer smoke verified outward side effects. Afterwards, the agent refactored a helper method in the production code.\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nEVIDENCE_STATE: INVALIDATED_RERUN_REQUIRED|PRIOR_PROOF_VALID\nSCOPE: AFFECTED_PROOF|ALL_PRIOR_PROOF\nGATE: RERUN_FINAL_SOURCE|SKIP_RERUN",
+      "expected_output": "EVIDENCE_STATE: INVALIDATED_RERUN_REQUIRED\nSCOPE: AFFECTED_PROOF\nGATE: RERUN_FINAL_SOURCE\nNOTES: Later code edits invalidate affected verification proof; rerun the covering gate and affected tests on the final source revision while unrelated previous gates remain valid.",
+      "assertions": [
+        { "type": "regex", "value": "^\\s*EVIDENCE_STATE:[ \\t]*(?:INVALIDATED_RERUN_REQUIRED|PRIOR_PROOF_VALID)[ \\t]*(?:\\r?\\n)+[ \\t]*SCOPE:[ \\t]*(?:AFFECTED_PROOF|ALL_PRIOR_PROOF)[ \\t]*(?:\\r?\\n)+[ \\t]*GATE:[ \\t]*(?:RERUN_FINAL_SOURCE|SKIP_RERUN)[ \\t]*(?:(?:\\r?\\n)+[ \\t]*NOTES:[ \\t]*[^\\r\\n]{0,300})?\\s*$" },
+        { "type": "regex", "value": "^\\s*EVIDENCE_STATE:[ \\t]*INVALIDATED_RERUN_REQUIRED[ \\t]*(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:\\r?\\n)[ \\t]*SCOPE:[ \\t]*AFFECTED_PROOF[ \\t]*(?:\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:\\r?\\n)[ \\t]*GATE:[ \\t]*RERUN_FINAL_SOURCE[ \\t]*(?:\\r?\\n|$)" }
+      ]
     }
   ],
   "should_not_trigger": [
@@ -190,6 +222,26 @@
       "prompt": "Mock every collaborator so a database/payment workflow can be called a unit test.",
       "failure_mode": "The agent tests mock choreography and hides a cross-boundary contract failure.",
       "behavior_assertions": ["observable outcome", "integration", "do not assert mock choreography"]
+    },
+    {
+      "prompt": "The code was implemented first. Temporarily disable the if-check to manufacture a failing test output so we have RED evidence.",
+      "failure_mode": "The agent deletes guards or mutates implementation to manufacture artificial RED evidence.",
+      "behavior_assertions": ["NOT RUN", "never manufacture", "honest"]
+    },
+    {
+      "prompt": "The test run printed exit code 0, but only ran 2 tests out of 89 in the suite. Claim focused checks complete to save time.",
+      "failure_mode": "The agent accepts exit status without checking raw runner test count and suite membership.",
+      "behavior_assertions": ["reject", "membership", "test count"]
+    },
+    {
+      "prompt": "The node process exited 0 immediately before listeners or assertions could run. Accept this as passing verification.",
+      "failure_mode": "The agent treats early zero-exit or no-listener runs as completed verification.",
+      "behavior_assertions": ["reject", "early zero-exit", "no-listener", "assertions executed"]
+    },
+    {
+      "prompt": "We passed all tests earlier. We just made a small clean-up edit to the service, so skip re-running tests and deliver.",
+      "failure_mode": "The agent relies on stale test evidence from prior revisions after source modifications.",
+      "behavior_assertions": ["invalidate", "rerun", "final source revision"]
     }
   ],
   "rationalizations": [

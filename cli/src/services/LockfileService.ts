@@ -66,12 +66,28 @@ export interface WorkflowCatalog {
   workflows: Record<string, WorkflowCatalogWorkflow>;
 }
 
+/** Repository-generation authority is deliberately separate from CLI-owned entries. */
+export interface GenerationEntry {
+  source: string;
+  sha256: string;
+  scope?: {
+    kind: 'category-token-metrics';
+    sha256: string;
+  };
+}
+
+export interface GenerationLedger {
+  version: 1;
+  entries: Record<string, GenerationEntry>;
+}
+
 export interface SkillsLockFile {
   version: 2;
   registry: string;
   generatedAt: string;
   sources: Record<string, SourceRef>;
   entries: Record<string, ManifestEntry>;
+  generation?: GenerationLedger;
   disclosed?: Record<string, string[]>;
   workflowCatalog?: WorkflowCatalog;
 }
@@ -85,6 +101,91 @@ export interface VerifyResult {
   ok: boolean;
   mismatches: string[];
   missing: string[];
+}
+export function parseGenerationLedger(
+  value: unknown,
+): GenerationLedger | undefined {
+  if (value === undefined) return undefined;
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    throw new Error('Unsupported repository-generation lock namespace');
+  }
+  const ledger = value as Record<string, unknown>;
+  if (
+    ledger.version !== 1 ||
+    typeof ledger.entries !== 'object' ||
+    ledger.entries === null ||
+    Array.isArray(ledger.entries) ||
+    Object.keys(ledger).some((key) => key !== 'version' && key !== 'entries')
+  ) {
+    throw new Error('Unsupported repository-generation lock namespace');
+  }
+  const rawEntries = ledger.entries as Record<string, unknown>;
+  const entries: Record<string, GenerationEntry> = {};
+  for (const [rel, rawEntry] of Object.entries(rawEntries)) {
+    if (
+      !rel ||
+      rel.startsWith('/') ||
+      rel.includes('\\') ||
+      rel
+        .split('/')
+        .some((part) => part === '' || part === '.' || part === '..') ||
+      typeof rawEntry !== 'object' ||
+      rawEntry === null ||
+      Array.isArray(rawEntry)
+    ) {
+      throw new Error(`Invalid repository-generation ownership entry: ${rel}`);
+    }
+    const entry = rawEntry as Record<string, unknown>;
+    let scope: GenerationEntry['scope'];
+    if (Object.prototype.hasOwnProperty.call(entry, 'scope')) {
+      const rawScope = entry.scope;
+      if (
+        rel !== 'skills/metadata.json' ||
+        typeof rawScope !== 'object' ||
+        rawScope === null ||
+        Array.isArray(rawScope)
+      ) {
+        throw new Error(
+          `Invalid repository-generation ownership entry: ${rel}`,
+        );
+      }
+      const descriptor = rawScope as Record<string, unknown>;
+      if (
+        Object.keys(descriptor).length !== 2 ||
+        Object.keys(descriptor).some(
+          (key) => key !== 'kind' && key !== 'sha256',
+        ) ||
+        descriptor.kind !== 'category-token-metrics' ||
+        typeof descriptor.sha256 !== 'string' ||
+        !/^[0-9a-f]{64}$/i.test(descriptor.sha256)
+      ) {
+        throw new Error(
+          `Invalid repository-generation ownership entry: ${rel}`,
+        );
+      }
+      scope = {
+        kind: 'category-token-metrics',
+        sha256: descriptor.sha256,
+      };
+    }
+    if (
+      Object.keys(entry).some(
+        (key) => key !== 'source' && key !== 'sha256' && key !== 'scope',
+      ) ||
+      typeof entry.source !== 'string' ||
+      entry.source.length === 0 ||
+      typeof entry.sha256 !== 'string' ||
+      !/^[0-9a-f]{64}$/i.test(entry.sha256)
+    ) {
+      throw new Error(`Invalid repository-generation ownership entry: ${rel}`);
+    }
+    entries[rel] = {
+      source: entry.source,
+      sha256: entry.sha256,
+      ...(scope ? { scope } : {}),
+    };
+  }
+  return { version: 1, entries };
 }
 
 export function sha256(content: Buffer | string): string {
@@ -153,13 +254,16 @@ function parseLockV2(raw: unknown): SkillsLockFile {
     );
   }
   const { workflowCatalog: rawCatalog, ...rest } = parsed.data;
+  const generation = parseGenerationLedger(
+    (raw as Record<string, unknown>).generation,
+  );
   return {
     ...rest,
+    ...(generation ? { generation } : {}),
     ...(rawCatalog === undefined
       ? {}
       : { workflowCatalog: validateWorkflowCatalog(rawCatalog) }),
   };
-}
 
 const DIGEST_RE = /^[a-f0-9]{64}$/;
 const WORKFLOW_NAME_RE = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
@@ -416,6 +520,9 @@ export class LockfileService {
       return { lock: parseLockV2(raw), migratedFromV1: false };
     }
     if (probe.data.version === 1) {
+      if ((raw as Record<string, unknown>).generation !== undefined) {
+        throw new Error('Unsupported repository-generation lock namespace');
+      }
       return { lock: migrateV1(raw, agents), migratedFromV1: true };
     }
     throw new Error('Unsupported .skills-lock.json version');
@@ -428,26 +535,52 @@ export class LockfileService {
       validateWorkflowCatalog(lock.workflowCatalog);
     }
     let existingDisclosed: Record<string, string[]> | undefined;
+    let existingGeneration: GenerationLedger | undefined;
     if (await fs.pathExists(file)) {
       try {
         const raw = (await readJsonStrict(file)) as {
+          version?: unknown;
           disclosed?: Record<string, string[]>;
+          generation?: unknown;
         };
         existingDisclosed = raw?.disclosed;
-      } catch {
+        if (raw?.version === 2) {
+          existingGeneration = parseGenerationLedger(raw.generation);
+        } else if (raw?.generation !== undefined) {
+          throw new Error('Unsupported repository-generation lock namespace');
+        }
+      } catch (err) {
+        if (
+          err instanceof Error &&
+          err.message === 'Unsupported repository-generation lock namespace'
+        ) {
+          throw err;
+        }
         // ignore malformed existing file
       }
     }
+    const generation =
+      lock.generation === undefined
+        ? existingGeneration
+        : parseGenerationLedger(lock.generation);
     const disclosed = lock.disclosed ?? existingDisclosed;
     const sortedEntries: Record<string, ManifestEntry> = {};
     for (const k of Object.keys(lock.entries).sort()) {
       sortedEntries[k] = lock.entries[k];
     }
+    const sortedGenerationEntries: Record<string, GenerationEntry> = {};
+    for (const k of Object.keys(generation?.entries ?? {}).sort()) {
+      sortedGenerationEntries[k] = generation!.entries[k];
+    }
     const out: SkillsLockFile = {
       ...lock,
       entries: sortedEntries,
+      ...(generation
+        ? { generation: { version: 1, entries: sortedGenerationEntries } }
+        : {}),
       ...(disclosed ? { disclosed } : {}),
     };
+    if (!generation) delete out.generation;
     if (!disclosed) {
       delete out.disclosed;
     }
@@ -491,6 +624,11 @@ export class LockfileService {
     const file = this.lockfilePath(rootDir);
     if (!(await fs.pathExists(file))) return;
     const raw = (await readJsonStrict(file)) as Record<string, unknown>;
+    if (raw?.version === 2) {
+      parseGenerationLedger(raw.generation);
+    } else if (raw?.generation !== undefined) {
+      throw new Error('Unsupported repository-generation lock namespace');
+    }
     if (raw.workflowCatalog !== undefined) {
       // Validate the object being republished before replacing the lock.
       validateWorkflowCatalog(raw.workflowCatalog);

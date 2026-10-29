@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "kind": "PRE_REPLACEMENT_SOURCE_SNAPSHOT_NOT_RED_EVIDENCE",
+  "baseCommit": "52ac482a5b948d9d26df4c3a2617afec74d1cf54",
+  "snapshotIncludesDirtyFoundationRepairs": true,
+  "inputs": [
+    "package.json",
+    "tsconfig.json",
+    "cli/package.json",
+    "cli/src",
+    "scripts/generation",
+    "scripts/generate-indices.ts",
+    "scripts/calculate-tokens.ts",
+    "scripts/generate-capabilities-doc.ts"
+  ],
+  "archive": "artifacts/diagnostic-prevention/implementation/attempt-01/task-1-pre-replacement-source.tar",
+  "sha256": "7e1aa065d887c1be4ea1477f78321263d7c53b4ac2fccb64faed6b07d0bdbbc0",
+  "bytes": 1926656,
+  "dependencyTreesExcluded": true,
+  "limits": [
+    "Read-only mode is cooperative protection, not hostile-writer containment.",
+    "No historical failing-before claim; behavioral replay against these frozen bytes is a separate operation.",
+    "No root producer/generation/adoption/publication or ownership-ledger mutation."
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "kind": "READONLY_NATIVE_RESTORATION_INVARIANTS",
+  "input": "native-restoration-post-01.json",
+  "inputSha256": "e10be1d673e2da161d803b4c93d40bc3b27adacd30351209fb3cd60c4e03cc9d",
+  "baselineSha256": "005f949cc3c028088768b7ae9b1bd4e78b9f506bbf73919188fd368edcfae18f",
+  "restoredCount": 1,
+  "passed": true,
+  "failures": [],
+  "limits": [
+    "Compares observed receipts; does not mutate root or eliminate time-of-check/time-of-use races.",
+    "No restore/quarantine/generation authority is granted by a passing receipt."
+  ]
+}

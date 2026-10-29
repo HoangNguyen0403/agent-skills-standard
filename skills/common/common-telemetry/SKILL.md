@@ -27,7 +27,16 @@ As your final step in any SDLC workflow (or when a user explicitly requests sess
 
 When asked which artifact to use, always name both `artifacts/session-cost.md` and `get_session_cost`; if the host does not expose the helper, say so explicitly while retaining the artifact requirement.
 
-## 2. Host Runtime Contract
+## 2. Accounting Boundaries & Lineage Semantics
+
+- **Missing ≠ Zero**: When metric fields or token counts are missing from runtime events, treat them as `unknown` or `unavailable`. Never coerce missing values to `0` or calculate `$0.00` totals from partial data.
+- **Partial Lineage & Incomplete Rates**: If pricing rates, cache rates, reasoning rates, or token lineage across subagents are incomplete, mark total cost as `unknown` or `partial`. Do not report exact cost figures without complete rate coverage.
+- **Subagent & Worker Cost Scope**: Shared parent orchestration costs and worker-only slices represent partial task scope. Never claim subagent-only costs as full-task totals or assert net savings without measured baselines.
+- **Discovery Lifecycle Distinctness**: Do not conflate resource state transitions. Catalog discovery (skills listed/indexed) ≠ body fetched (skill markdown loaded) ≠ delivered to agent context ≠ actively used/applied in generation. Persisted telemetry must not assert usage when only discovery or delivery occurred.
+- **Efficacy & Savings Claims**: Never claim model efficacy uplift or token savings without qualified, independently reproducible measurement evidence against an authoritative baseline.
+
+
+## 3. Host Runtime Contract
 
 - This skill defines the telemetry contract; it does not collect provider billing data by itself.
 - The host runtime or orchestrator must trigger the final telemetry call when the workflow reaches a terminal state such as `completed`, `failed`, or `blocked`.
@@ -36,7 +45,7 @@ When asked which artifact to use, always name both `artifacts/session-cost.md` a
   - build the `get_session_cost` payload
   - pass prompt, cache, reasoning, pricing, and other runtime cost fields when available
 
-## 3. Telemetry Format
+## 4. Telemetry Format
 
 Ensure the `artifacts/session-cost.md` or the output template `## Cost Report` follows this structure, copying the `get_session_cost` output verbatim rather than re-deriving values:
 
@@ -58,6 +67,8 @@ Ensure the `artifacts/session-cost.md` or the output template `## Cost Report` f
 - **No skipping the telemetry step**: Always include the Cost Report at the end of the execution if mandated by the workflow.
 - **No fabricated numbers**: Never invent a `$0.00` or any other placeholder cost when `get_session_cost` reports `unavailable`; render the provenance value as-is.
 
+- **No zero-coercion of missing metrics**: Missing token or rate fields must stay `unknown` or `unavailable`; never coerce to 0.
+- **No conflating catalog discovery with usage**: Listing a skill or fetching its markdown does not imply it was used in model generation.
 ## Canonical response anchors
 
 When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:

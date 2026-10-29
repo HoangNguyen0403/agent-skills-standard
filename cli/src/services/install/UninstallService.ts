@@ -128,9 +128,9 @@ export class UninstallService {
         : hasAgents && !hasCategories
           ? selection.agents || []
           : [],
-      clearAgentsIndex: hasAll,
+      clearAgentsIndex: hasAll && !lock.generation?.entries['AGENTS.md'],
     };
-    const deleteLock = hasAll;
+    const deleteLock = hasAll && !lock.generation;
 
     const remove: string[] = [];
     const keepEdited: string[] = [];
@@ -250,6 +250,20 @@ export class UninstallService {
     config: SkillConfig,
     plan: UninstallPlan,
   ): Promise<{ removed: string[]; backupId: string | null }> {
+    const { lock: currentLock } = await this.lockfile.load(
+      rootDir,
+      config.agents || [],
+    );
+    if (
+      plan.deleteLock &&
+      currentLock?.generation &&
+      Object.keys(currentLock.generation.entries).length > 0
+    ) {
+      throw new Error(
+        'Uninstall plan is stale: repository-generation authority now exists',
+      );
+    }
+
     let backupId: string | null = null;
     const needsBackup = plan.remove.length > 0 || plan.deleteLock;
     let session: BackupSession | null = null;

@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "observed_by": "parent",
+  "source_stage": "Task1 Route2 FINAL frozen before round2 independent review",
+  "runtime": "Node v26.12.1",
+  "preimplementation_red": "NOT RUN",
+  "checks": [
+    {
+      "command": "rtk pnpm --filter ./cli exec vitest run src/services/__tests__/SyncService.spec.ts src/services/__tests__/SyncInstallLifecycle.spec.ts",
+      "exit_code": 0,
+      "files": 2,
+      "tests": 80,
+      "passed": 80,
+      "failed": 0,
+      "duration_ms": 403,
+      "warning": "Vite future native configLoader compatibility warning retained",
+      "scope": "Preservation regression tests; actual installed consumer smoke not yet run"
+    },
+    {
+      "command": "rtk proxy node --import tsx --test scripts/generation/isolated-stage.test.ts",
+      "exit_code": 1,
+      "tests": 12,
+      "passed": 5,
+      "failed": 7,
+      "duration_ms": 3596.973208,
+      "observations": [
+        "apply/check/stale/drift/repeated-attempt scenarios encounter earlier parity failure: missing specialists index/category rows and GitHub rule wrapper",
+        "absent-to-present scenario fails earlier generator ENOENT writing external fixture docs/agent-capabilities.md",
+        "symlinked source ancestor test expects thrown rejection but receives resolved result",
+        "failing phase, missing host ID, preexisting attempt, foreign-cwd entrypoint and stage exclusions tests pass"
+      ],
+      "qualification": "Several intended negative-path scenarios did not reach their named transition. Reviewer assessing production-specialists category assumptions versus incomplete fixtures. No full root generation/apply invoked."
+    }
+  ],
+  "disposition": "Independent reviewer informed; source remains frozen until review FINAL, then Route2 owner receives one concrete correction request."
+}

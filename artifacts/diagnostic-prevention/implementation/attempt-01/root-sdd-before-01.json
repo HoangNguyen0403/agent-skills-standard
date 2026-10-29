@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "archive": "artifacts/diagnostic-prevention/implementation/attempt-01/root-sdd-before-01.tar",
+  "archiveSha256": "0dc6df70a109759e2b9d719d04262682a2465b411559cf02a35695b157230d1b",
+  "entries": [
+    {
+      "path": ".agent",
+      "mode": 493,
+      "kind": "directory"
+    },
+    {
+      "path": ".agent/sdd",
+      "mode": 493,
+      "kind": "directory"
+    },
+    {
+      "path": ".agent/sdd/.gitignore",
+      "mode": 420,
+      "kind": "file",
+      "sha256": "cdbcae15105d6b781e620813c79c7e868740d4e9cc53ce6f5fcbbc12387adf4b"
+    },
+    {
+      "path": ".agent/sdd/2026-10-28-diagnostic-prevention",
+      "mode": 493,
+      "kind": "directory"
+    },
+    {
+      "path": ".agent/sdd/2026-10-28-diagnostic-prevention/plan-path",
+      "mode": 420,
+      "kind": "file",
+      "sha256": "94032b9289d4c6b79583b40ea7dc537d3804433a98106c4fad91b7e1855ecccc"
+    },
+    {
+      "path": ".agents/sdd",
+      "kind": "absent"
+    }
+  ]
+}

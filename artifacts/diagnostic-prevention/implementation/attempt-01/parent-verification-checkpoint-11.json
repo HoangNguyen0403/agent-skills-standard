@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "status": "ROOT_PARTIAL_PUBLICATION_TIMEOUT_RECOVERY_APPROVAL_REQUIRED",
+  "rootCheck": {
+    "command": "pnpm generate-indices --check",
+    "exitCode": 1,
+    "wallSeconds": 139.49,
+    "receipt": "artifacts/generation-logs/attempt-2026-10-29T07-37-32-635Z-2e0e8e/receipt.json",
+    "staleOutputs": 95,
+    "appliedFiles": 0,
+    "verifiedFiles": 0
+  },
+  "interruptedAdoption": {
+    "command": "pnpm generate-indices --adopt-base 52ac482a5b948d9d26df4c3a2617afec74d1cf54",
+    "externalDeadlineSeconds": 1200,
+    "wallSeconds": 1200.03,
+    "attempt": "artifacts/generation-logs/attempt-2026-10-29T07-41-49-505Z-fd751a",
+    "normalCompletionReceipt": false,
+    "producerPhases": "All three exited zero; canonical/host parity and pinned-BASE reconstruction of 95 paths recorded before publication",
+    "effectAudit": "root-interrupted-effect-audit-01.json",
+    "actualRecordedDestinations": {"publishedCandidate": 15, "originalBefore": 80, "ledgerUnchangedAndAbsent": 1, "unexpectedActiveBytes": 0, "archiveMismatch": 0},
+    "stage": "/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-stage-wR2SO5",
+    "processDiagnostic": "One targeted pgrep for generator Node script arguments returned no matches; not a universal process-lifetime proof"
+  },
+  "retainedPrivateTemporary": {
+    "path": ".agents/skills/common/common-subagent-driven-development/references/.ags-tmp-Ati9K9",
+    "contents": ["payload"],
+    "device": 16777231,
+    "directoryInode": 345126518,
+    "payloadInode": 345126519,
+    "payloadSha256": "0e1bad24d9b189a6007aa9905aea9f3ed327d4d98d180594ffd0be219c430a22",
+    "matchesStagedTemplates": true,
+    "action": "Preserved, not deleted/quarantined; current observed identity is not a retroactive in-memory lease"
+  },
+  "preservedEvidence": {
+    "candidateArchive": "root-interrupted-candidates-01.tar",
+    "candidateArchiveSha256": "2525bd68f1f15b02f197be2840b469b2091ab68035656566986bbecd4b0a543b",
+    "candidateArchiveFiles": 96,
+    "stagedLockIsActiveAuthority": false,
+    "sourceArchive": "root-interrupted-source-01.tar",
+    "sourceArchiveSha256": "762696e04b3d2f571b215fe3f242cb5db8c2643acbd25d030eab298dcf7aa167",
+    "snapshotReceiptScope": "No-root-mutation language describes the snapshot capture itself only; this checkpoint explicitly records the separately interrupted root publication",
+    "sddAfterTimeout": "root-sdd-after-timeout-01.json",
+    "sddUnchanged": true,
+    "sddBackupIntact": true
+  },
+  "diagnosis": {
+    "standardAdvisorReport": "task-1-interrupted-publication-advisor.md",
+    "sourceFinding": "Two sequential Git identity subprocesses per retained path at every publication guard; approximately 379000 subprocesses across 95 effects at roughly1996 paths",
+    "runtimeAttributionMeasured": false,
+    "additionalCost": "Full input/destination filesystem revalidation also repeats",
+    "notProviderExhaustion": true,
+    "recommendation": "Explicit audited restoration of attempt-produced paths, exact temporary disposition, then bounded fresh Git batching at unchanged guard boundaries; root-scale qualification before normal re-execution"
+  },
+  "gates": {"rootComplete": false, "sourceRetryLaunched": false, "restoreOrResumeAuthorized": false, "automaticRollback": false, "blindRerun": false, "premiumAuthorized": false},
+  "limits": ["The 55 generator tests and static safety approval did not prove root-scale completion under the external deadline", "No cross-file atomicity or missing effects claim", "Original historical RED remains NOT RUN; this is separately observed operational failure evidence", "No Node20 runtime, model efficacy, release, host policy or complete task-cost claim"]
+}

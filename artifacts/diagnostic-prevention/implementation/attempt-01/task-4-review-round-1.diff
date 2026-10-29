@@ -1,0 +1,578 @@
+# Review package: 52ac482a5b948d9d26df4c3a2617afec74d1cf54..WORKSPACE (cumulative uncommitted snapshot)
+
+## Scope
+- skills/common/common-context-optimization/references/implementation.md
+- skills/common/common-security-standards
+- skills/common/common-telemetry
+- skills/common/common-web-visual-testing
+
+## Files changed
+.../references/implementation.md                   | 15 +++++-
+ skills/common/common-security-standards/SKILL.md   | 11 +++-
+ .../common-security-standards/evals/evals.json     | 53 ++++++++++++++++++
+ .../references/VULNERABILITY_REMEDIATION.md        |  9 ++++
+ .../references/implementation.md                   | 55 +++++++++++++++++++
+ skills/common/common-telemetry/SKILL.md            | 15 +++++-
+ skills/common/common-telemetry/evals/evals.json    | 63 ++++++++++++++++++++++
+ skills/common/common-web-visual-testing/SKILL.md   |  8 +++
+ .../common-web-visual-testing/evals/evals.json     | 62 +++++++++++++++++++++
+ .../references/login-and-test-data.md              | 12 +++++
+ 10 files changed, 298 insertions(+), 5 deletions(-)
+
+## Diff
+diff --git a/skills/common/common-context-optimization/references/implementation.md b/skills/common/common-context-optimization/references/implementation.md
+index fb7642cf..19b0c82f 100644
+--- a/skills/common/common-context-optimization/references/implementation.md
++++ b/skills/common/common-context-optimization/references/implementation.md
+@@ -1,16 +1,27 @@
+ # Implementation and Cost Measurement
+ 
+ ## Handoff Packet
+ 
+ Carry goal, deliverable, active slice, scope, authority, decisions, blockers, evidence links, and next action. Keep revision IDs and ownership explicit.
+ 
+-## Cost
++## Cost & Accounting Boundaries
+ 
+ Measure separately, where the host exposes them:
+ 
+ - Cache-read tokens/cost.
+ - Replayed or uncached input.
+ - Output and retry/replay cost.
+ - Total actor/task cost across workers and handoffs.
+ 
+-Report source, revision, measurement window, and limits. Mark missing telemetry as unknown; estimates are not invoice data or demonstrated savings.
++### Accounting Invariants & Semantics
++
++- **Missing ≠ Zero**: When metric fields or token counts are absent from runtime logs or tool receipts, mark them as `unknown` or `unavailable`. Never coerce missing values to 0 or derive false $0.00 estimates.
++- **Partial Lineage**: If pricing rates (prompt, completion, cache, reasoning) or subagent token traces are incomplete, total cost remains `partial` or `unknown`. Do not assert exact dollar amounts.
++- **Shared vs Worker-Only Slices**: A worker subagent's token usage represents only its local slice, excluding shared parent orchestration and sibling runs. Do not claim subagent metrics as whole-task totals or assert net token savings without a measured full-system baseline.
++- **Lifecycle Distinctness**: Distinct lifecycle stages must not be conflated in reporting:
++  1. *Catalog discovery*: Skill metadata or list returned.
++  2. *Body fetch*: Skill markdown retrieved.
++  3. *Delivery*: Injected into caller prompt/context.
++  4. *Active usage*: Skill instructions applied in model generation.
++  Listing or loading a skill does not establish model adherence or usage.
++- **No Efficacy or Savings Claims**: Never assert model quality uplift or token savings without qualified, independently reproducible measurement evidence against an authoritative baseline.
+diff --git a/skills/common/common-security-standards/SKILL.md b/skills/common/common-security-standards/SKILL.md
+index a16a63ea..c5c38216 100644
+--- a/skills/common/common-security-standards/SKILL.md
++++ b/skills/common/common-security-standards/SKILL.md
+@@ -43,21 +43,30 @@ Activate when: implementing auth, encryption, authorization, input handling, or
+ 
+ ### Data Safeguarding
+ 
+ - **Zero Trust**: Never trust external input. Sanitize and validate every data boundary.
+ - **Least Privilege**: Grant minimum necessary permissions to users, services, and containers.
+ - **Encryption**: AES-256 for data-at-rest; TLS 1.3 for data-in-transit.
+ - **PII Logging**: Never log PII (email, phone, names). Mask sensitive fields before logging.
+ 
+ See [implementation examples](references/implementation.md) for parameterized queries and secret management.
+ 
+-### Secure Coding
++### Trust Boundaries & Authority Lifecycle
++
++- **Operation-Private Minting**: Mint session tokens, nonce claims, and authorization credentials strictly within the scope of the specific operation requesting them. Never share or reuse credentials across sibling operations or unrelated processes.
++- **Independently Protected Authority**: Keep authority verifiers independent from untrusted client ledgers. Reject cached or stale local authority states; re-verify against the authoritative source.
++- **Authenticated Persisted Evidence**: Persist audit records and security artifacts with cryptographic authentication and caller provenance. Reject unsigned, unauthenticated, or unverified evidence.
++- **Transaction-Time Revalidation**: Re-check authorization, tenancy, and permissions at transaction time immediately before executing state mutations, never relying solely on initial connect or login tokens.
++- **Alternate Public APIs & Parity**: Ensure security controls and rate limits apply identically to alternate public entrypoints, internal aliases, batch routes, and legacy API versions.
++- **Multi-Connection & Concurrency Races**: Guard against race conditions across parallel connections or multi-process requests via transactional isolation and atomic conditional updates.
++- **Lifecycle Rejection**: Explicitly reject stale ledgers, sibling credential mints, direct bypass APIs, and cross-enrollment credential retention. Preserved legitimate exceptions: bootstrap handshakes, monotonic gap recovery, authenticated session resume, and explicit backup restore.
++
+ 
+ - **Injection Prevention**: Use parameterized queries or ORMs to stop SQL, Command, and XSS injections.
+ - **Dependency Management**: Regularly scan (`npm audit`, `pip audit`) and update third-party libraries to patch CVEs.
+ - **Secure Auth**: Implement Multi-Factor Authentication (MFA) and secure session management.
+ - **Error Privacy**: Never leak stack traces or internal implementation details to end-user.
+ 
+ ### Continuous Security
+ 
+ - **Shift Left**: Integrate security scanners (SAST/DAST) early in CI/CD pipeline.
+ - **Data Minimization**: Collect and store only minimum data required for business logic.
+diff --git a/skills/common/common-security-standards/evals/evals.json b/skills/common/common-security-standards/evals/evals.json
+index 9cd7f237..16f64167 100644
+--- a/skills/common/common-security-standards/evals/evals.json
++++ b/skills/common/common-security-standards/evals/evals.json
+@@ -43,20 +43,73 @@
+       "assertions": [
+         {
+           "type": "contains",
+           "value": "parameterized"
+         },
+         {
+           "type": "contains",
+           "value": "injection"
+         }
+       ]
++    },
++    {
++      "id": 4,
++      "prompt": "We are designing a microservices fund-transfer flow. A subagent suggested caching the user's initial auth token in a shared Redis ledger and reusing credentials minted for operation A in subsequent sibling operations B and C to minimize roundtrips.",
++      "expected_output": "Reject this design: (1) Enforce operation-private minting — credentials minted for operation A must never be reused for sibling operations B and C. (2) Independently protected authority — reject stale ledgers or cached authority state from untrusted shared ledgers; revalidate against the authoritative source. (3) Transaction-time revalidation — re-verify authority immediately before committing state mutations. (4) Concurrency protection — guard against multi-connection races using atomic conditional updates or row locks. (5) Authenticated persisted evidence — ensure audit logs are signed and cryptographically tied to caller provenance.",
++      "assertions": [
++        {
++          "type": "contains_any",
++          "value": [
++            "operation-private",
++            "sibling"
++          ]
++        },
++        {
++          "type": "contains_any",
++          "value": [
++            "stale ledger",
++            "revalidate",
++            "re-verify"
++          ]
++        },
++        {
++          "type": "contains_any",
++          "value": [
++            "race",
++            "concurrency",
++            "transaction"
++          ]
++        }
++      ]
++    },
++    {
++      "id": 5,
++      "prompt": "Can we bypass authentication and audit logging on our internal batch transfer API endpoint since it is only called by backend jobs?",
++      "expected_output": "Reject bypass on alternate public/internal APIs: (1) Alternate public APIs and internal routes must maintain security parity with primary endpoints. (2) Enforce Zero Trust — validate authentication and authorization at every boundary. (3) Persist authenticated evidence with caller provenance. (4) Reject direct API bypass and stale authorization ledgers, while preserving legitimate bootstrap or authenticated session resume flows.",
++      "assertions": [
++        {
++          "type": "contains_any",
++          "value": [
++            "parity",
++            "alternate",
++            "bypass"
++          ]
++        },
++        {
++          "type": "contains_any",
++          "value": [
++            "provenance",
++            "authenticated evidence",
++            "audit"
++          ]
++        }
++      ]
+     }
+   ],
+   "should_not_trigger": [
+     "Write a React hook for fetching data",
+     "Set up Storybook for component documentation",
+     "Explain the event loop in Node.js"
+   ],
+   "should_trigger": [
+     "Implement user authentication with email and password for our new web app."
+   ]
+diff --git a/skills/common/common-security-standards/references/VULNERABILITY_REMEDIATION.md b/skills/common/common-security-standards/references/VULNERABILITY_REMEDIATION.md
+index 3dc0a89d..4e95b657 100644
+--- a/skills/common/common-security-standards/references/VULNERABILITY_REMEDIATION.md
++++ b/skills/common/common-security-standards/references/VULNERABILITY_REMEDIATION.md
+@@ -14,10 +14,19 @@ const results = await db.execute(query, [userInput]);
+ ```
+ 
+ ## 🔐 Least Privilege
+ 
+ - **API Keys**: Don't use a global admin token for a read-only script. Create a scoped token with `read:users` only.
+ - **File System**: Ensure the application user only has write access to a specific `/uploads` directory, not the entire root.
+ 
+ ## 🛡 Zero Trust
+ 
+ - **Authentication**: Never assume a request is safe because it comes from an internal microservice. **Always validate JWTs/Tokens at every entry point.**
++
++## 🛡 Authority Lifecycle & Concurrency
++
++- **Reject Stale Ledgers**: Never trust cached authority state from previous connections or client-reported balances. Always re-fetch and re-verify against the authoritative authority provider.
++- **Reject Sibling Minting**: Tokens or capabilities minted for Operation A cannot be reused for Operation B even within the same user session or subagent tree.
++- **Reject Direct API Bypass**: All alternate endpoints, internal APIs, and batch processing routes must enforce the same authentication and rate-limiting rules as primary public endpoints.
++- **Reject Cross-Enrollment Retention**: When an account or device re-enrolls or changes ownership, previous credentials and tokens must be fully revoked.
++- **Preserved Legitimate Lifecycles**: Allow bootstrap initialization, monotonic gap recovery, authenticated session resume, and explicit backup restore paths when accompanied by valid root authentication.
++- **Multi-Connection Races**: When handling parallel requests, use database row locking (`SELECT FOR UPDATE`) or atomic CAS (Compare-And-Swap) operations to prevent double-spend or state corruption.
+diff --git a/skills/common/common-security-standards/references/implementation.md b/skills/common/common-security-standards/references/implementation.md
+index 06fdefaa..4891d469 100644
+--- a/skills/common/common-security-standards/references/implementation.md
++++ b/skills/common/common-security-standards/references/implementation.md
+@@ -11,10 +11,65 @@ const user = await db.query(
+ ```
+ 
+ ## Secret Management (Python)
+ 
+ ```python
+ # Secret management — never hardcode credentials
+ import os
+ API_KEY = os.environ["API_KEY"]  # Good: from environment
+ # API_KEY = "sk-abc123"          # Bad: hardcoded secret
+ ```
++
++## Operation-Private Minting & Transaction-Time Revalidation
++
++```typescript
++// Mint credentials scoped strictly to single operation
++async function executePrivilegedTransfer(
++  operationId: string,
++  actorId: string,
++  transferPayload: TransferDto
++): Promise<Receipt> {
++  // Re-validate authority at transaction time against primary store
++  const authority = await authService.revalidateAuthority(actorId, {
++    action: 'transfer',
++    resource: transferPayload.sourceAccount,
++  });
++  if (!authority.isValid) {
++    throw new UnauthorizedException('Authority stale or invalid');
++  }
++
++  // Operation-private credential: tied to operationId, single use, short TTL
++  const opProof = await cryptoService.mintOperationToken({
++    operationId,
++    actorId,
++    scope: 'transfer:execute',
++    expiresInSeconds: 30,
++  });
++
++  // Atomic execution guarding against second-process / multi-connection race
++  return db.transaction(async (tx) => {
++    return tx.executeTransfer(transferPayload, opProof);
++  });
++}
++```
++
++## Authenticated Persisted Evidence
++
++```typescript
++// Persist audit records with cryptographic signature and caller provenance
++interface PersistedAuditEvent {
++  eventId: string;
++  operationId: string;
++  callerPrincipal: string;
++  action: string;
++  timestamp: string;
++  signature: string; // HMAC or Ed25519 signature over serialized event
++}
++
++async function recordAuditEvent(event: Omit<PersistedAuditEvent, 'signature'>): Promise<void> {
++  const signature = cryptoService.sign(JSON.stringify(event), getSigningKey());
++  await db.query(
++    'INSERT INTO audit_events (event_id, operation_id, caller_principal, action, timestamp, signature) VALUES ($1, $2, $3, $4, $5, $6)',
++    [event.eventId, event.operationId, event.callerPrincipal, event.action, event.timestamp, signature]
++  );
++}
++```
+diff --git a/skills/common/common-telemetry/SKILL.md b/skills/common/common-telemetry/SKILL.md
+index 3b3f5a96..7476b1a9 100644
+--- a/skills/common/common-telemetry/SKILL.md
++++ b/skills/common/common-telemetry/SKILL.md
+@@ -20,30 +20,39 @@ metadata:
+ As your final step in any SDLC workflow (or when a user explicitly requests session cost):
+ 
+ 1. Call the `get_session_cost` tool provided by the agent-skills-standard MCP server.
+ 2. Pass `workflow`, `model`, token counts, cache/reasoning usage, and per-1M token rates when the host runtime exposes them. Set `slug` (feature/workspace name) and `outcome` (terminal `feature_status`) when this call finalizes a workflow, so the telemetry log can attribute cost per feature.
+ 3. Never set `costSource: "host"` yourself — that value is reserved for the runtime's own telemetry adapter (`buildSessionCostRequest`). If you type numbers by hand, omit `costSource` so the tool reports them as `agent-estimate`, never `host`.
+ 4. If token counts are unavailable, report MCP-observed telemetry and let `get_session_cost` mark cost provenance as `unavailable` — never fabricate a number or a `$0.00` total.
+ 5. Append a Markdown table containing the usage metrics to `artifacts/session-cost.md`.
+ 
+ When asked which artifact to use, always name both `artifacts/session-cost.md` and `get_session_cost`; if the host does not expose the helper, say so explicitly while retaining the artifact requirement.
+ 
+-## 2. Host Runtime Contract
++## 2. Accounting Boundaries & Lineage Semantics
++
++- **Missing ≠ Zero**: When metric fields or token counts are missing from runtime events, treat them as `unknown` or `unavailable`. Never coerce missing values to `0` or calculate `$0.00` totals from partial data.
++- **Partial Lineage & Incomplete Rates**: If pricing rates, cache rates, reasoning rates, or token lineage across subagents are incomplete, mark total cost as `unknown` or `partial`. Do not report exact cost figures without complete rate coverage.
++- **Subagent & Worker Cost Scope**: Shared parent orchestration costs and worker-only slices represent partial task scope. Never claim subagent-only costs as full-task totals or assert net savings without measured baselines.
++- **Discovery Lifecycle Distinctness**: Do not conflate resource state transitions. Catalog discovery (skills listed/indexed) ≠ body fetched (skill markdown loaded) ≠ delivered to agent context ≠ actively used/applied in generation. Persisted telemetry must not assert usage when only discovery or delivery occurred.
++- **Efficacy & Savings Claims**: Never claim model efficacy uplift or token savings without qualified, independently reproducible measurement evidence against an authoritative baseline.
++
++
++## 3. Host Runtime Contract
+ 
+ - This skill defines the telemetry contract; it does not collect provider billing data by itself.
+ - The host runtime or orchestrator must trigger the final telemetry call when the workflow reaches a terminal state such as `completed`, `failed`, or `blocked`.
+ - The host may use a reusable helper such as `mcp/src/services/WorkflowTelemetry.ts` to:
+   - decide when telemetry should fire
+   - build the `get_session_cost` payload
+   - pass prompt, cache, reasoning, pricing, and other runtime cost fields when available
+ 
+-## 3. Telemetry Format
++## 4. Telemetry Format
+ 
+ Ensure the `artifacts/session-cost.md` or the output template `## Cost Report` follows this structure, copying the `get_session_cost` output verbatim rather than re-deriving values:
+ 
+ | Metric                   | Value                                                  |
+ | ------------------------ | ------------------------------------------------------- |
+ | **Tool Calls**           | [from get_session_cost]                                |
+ | **Skills Loaded**        | [from get_session_cost]                                |
+ | **Workflows Loaded**     | [from get_session_cost]                                |
+ | **Prompt Tokens**        | [from get_session_cost, or "unavailable" if not exposed] |
+ | **Cached Prompt Tokens** | [from get_session_cost, or "unavailable" if not exposed] |
+@@ -51,17 +60,19 @@ Ensure the `artifacts/session-cost.md` or the output template `## Cost Report` f
+ | **Reasoning Tokens**     | [from get_session_cost, or "unavailable" if not exposed] |
+ | **Other Runtime Cost**   | [from get_session_cost, or "unavailable" if not exposed] |
+ | **Cost Provenance**      | `host` \| `agent-estimate` \| `unavailable`              |
+ | **Estimated Cost**       | [from get_session_cost, or "unavailable" — never `$0.00`] |
+ 
+ ## Anti-Patterns
+ 
+ - **No skipping the telemetry step**: Always include the Cost Report at the end of the execution if mandated by the workflow.
+ - **No fabricated numbers**: Never invent a `$0.00` or any other placeholder cost when `get_session_cost` reports `unavailable`; render the provenance value as-is.
+ 
++- **No zero-coercion of missing metrics**: Missing token or rate fields must stay `unknown` or `unavailable`; never coerce to 0.
++- **No conflating catalog discovery with usage**: Listing a skill or fetching its markdown does not imply it was used in model generation.
+ ## Canonical response anchors
+ 
+ When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+ - Call `get_session_cost` when the host exposes it, then append the Markdown table to `artifacts/session-cost.md`.
+ - Cost Provenance: `host`, `agent-estimate`, `unavailable`
+ 
+ - Telemetry & Cost Reporting
+diff --git a/skills/common/common-telemetry/evals/evals.json b/skills/common/common-telemetry/evals/evals.json
+index 58c1416e..67f1d5e5 100644
+--- a/skills/common/common-telemetry/evals/evals.json
++++ b/skills/common/common-telemetry/evals/evals.json
+@@ -25,17 +25,80 @@
+       "assertions": [
+         {
+           "type": "contains",
+           "value": "artifacts/session-cost.md"
+         },
+         {
+           "type": "contains",
+           "value": "get_session_cost"
+         }
+       ]
++    },
++    {
++      "id": 3,
++      "prompt": "During a multi-agent run, the worker's execution metrics only reported completion tokens, with missing prompt and cache token counts. Can we set the missing prompt tokens to 0 to calculate a total estimated cost of $0.02?",
++      "name": "Ensure missing does not equal zero and partial lineage stays unknown",
++      "expected_output": "Reject zero-coercion of missing metrics: (1) Missing ≠ zero: missing prompt or cache counts must remain unknown or unavailable, never coerced to 0. (2) Partial lineage: when token metrics or rate fields are incomplete, total cost cannot be calculated as an exact dollar figure and must be marked partial or unavailable. (3) Subagent scope: worker-only costs represent partial task scope, not full-task totals. (4) Never claim cost or token savings without complete, qualified measurement evidence.",
++      "assertions": [
++        {
++          "type": "contains_any",
++          "value": [
++            "missing",
++            "unknown",
++            "unavailable"
++          ]
++        },
++        {
++          "type": "contains_any",
++          "value": [
++            "zero",
++            "0"
++          ]
++        },
++        {
++          "type": "contains_any",
++          "value": [
++            "partial",
++            "lineage",
++            "scope"
++          ]
++        }
++      ]
++    },
++    {
++      "id": 4,
++      "prompt": "Our telemetry logger recorded 15 skills returned in a catalog discovery list. Can we report that all 15 skills were fetched and used by the agent during the generation turn?",
++      "name": "Ensure catalog discovery is distinguished from body fetch and usage",
++      "expected_output": "Reject conflating discovery with usage: (1) Resource lifecycles are distinct: catalog discovery (skills listed) ≠ body fetched (skill markdown loaded) ≠ delivered to agent context ≠ actively used in generation. (2) Telemetry must accurately distinguish catalog discovery counts from body-fetch loads and never claim unverified agent usage.",
++      "assertions": [
++        {
++          "type": "contains_any",
++          "value": [
++            "discovery",
++            "catalog",
++            "listed"
++          ]
++        },
++        {
++          "type": "contains_any",
++          "value": [
++            "body",
++            "fetch",
++            "loaded"
++          ]
++        },
++        {
++          "type": "contains_any",
++          "value": [
++            "used",
++            "usage",
++            "delivered"
++          ]
++        }
++      ]
+     }
+   ],
+   "should_trigger": [
+     "Apply common-telemetry guidance to the task before handing it off."
+   ],
+   "should_not_trigger": ["Design a logo for a marketing landing page."]
+ }
+diff --git a/skills/common/common-web-visual-testing/SKILL.md b/skills/common/common-web-visual-testing/SKILL.md
+index ff6e42c9..f6a014c9 100644
+--- a/skills/common/common-web-visual-testing/SKILL.md
++++ b/skills/common/common-web-visual-testing/SKILL.md
+@@ -33,26 +33,34 @@ Responses must label the two captures as **Before** and **After** (or Baseline a
+ ## 📋 Scenario Matrix
+ 
+ | Change Type       | Scenarios to Run                                   |
+ | :---------------- | :------------------------------------------------- |
+ | **CSS/Layout**    | Responsive Audit + Hover + CLS Check               |
+ | **Forms/Input**   | Validation Msg + Focus State + Error Boundary      |
+ | **Navigation**    | URL Sync + Sticky Header + Back-Button Persistence |
+ | **Assets/Fonts**  | Lazy Load + Icon Check + LCP Audit                 |
+ | **Accessibility** | Tab Order + Aria-Snapshot + Color Contrast         |
+ 
++
++## 🛡 Browser Origin & Native Form Governance
++
++- **Native Form & Navigation Origin**: Verify real browser form submissions and navigations carry authentic browser `Origin` and `Referer` headers. Maintain strict rejection of null/spoofed origins and CSRF mismatches.
++- **Actual Populated State**: Behavioral proof requires real rendered DOM populated states. Standalone `fetch()` simulations, manual header overrides, saved auth state injection, or renderer-only fixtures are not full login/backend governance proof.
++- **Strict CSRF & Governance**: Automated test harnesses must not disable CSRF validation, CORS origin verification, or same-site cookie checks to achieve green test passes.
++
+ ## 🚫 Anti-Patterns
+ 
+ - **Single-Viewport**: Never verify Desktop only. Check Mobile (375px) + Tablet (768px).
+ - **Ignore Layout Shift**: Check loading state (skeleton) → no page jump.
+ - **Unmasked Dynamic**: **MUST** mask timestamp/balance via `--mask` or JS (`opacity: 0`). Avoid "False Regression".
+ - **Blind Assertion**: Use `playwright-cli snapshot --aria` (CLI) or `browser_snapshot` (Playwright MCP) verify state before done.
++- **Synthetic Auth Illusion**: Never accept manual header manipulation, `fetch()` bypasses, or renderer-only DOM mocks as proof of authenticated backend integration or secure login governance.
+ 
+ ## 📁 Evidence
+ 
+ Before/After pairs live in `.playwright-cli/<session>/` as `<AC|step>-before.png` / `<AC|step>-after.png` plus matching `.aria.txt`. Driver rung and dir go in the walkthrough `driver:` / `evidence_dir:` lines.
+ - **External Dependency**: Mock/bypass 3rd-party (Chat, Analytics) → prevent flakiness.
+ 
+ ## 🔗 References
+ 
+ - **playwright-cli**: [playwright-cli](../../quality-engineering/quality-engineering-playwright-cli/SKILL.md)
+ - **Driver Ladder**: [driver-ladder](../../quality-engineering/quality-engineering-playwright-cli/references/driver-ladder.md) — CLI first, Playwright MCP fallback, BLOCKED rule.
+diff --git a/skills/common/common-web-visual-testing/evals/evals.json b/skills/common/common-web-visual-testing/evals/evals.json
+index 965f90c8..7c8747b7 100644
+--- a/skills/common/common-web-visual-testing/evals/evals.json
++++ b/skills/common/common-web-visual-testing/evals/evals.json
+@@ -40,20 +40,82 @@
+           "value": "mask"
+         },
+         {
+           "type": "contains_any",
+           "value": [
+             "opacity: 0",
+             "--mask"
+           ]
+         }
+       ]
++    },
++    {
++      "id": 3,
++      "prompt": "To test the login page in our CI pipeline faster, can we just use fetch() to post credentials directly with custom headers or inject a mock auth cookie, rather than automating the real browser form submission?",
++      "expected_output": "Reject synthetic auth bypass: (1) Native form and navigation origin governance requires testing real browser form submissions and user navigations carrying authentic Origin and Referer headers. (2) Strict CSRF and null-origin rejection must be verified against the backend. (3) Standalone fetch(), manual header injection, or saved auth bypass do not provide proof of actual populated DOM states or backend session governance. (4) Verification requires driving the real browser inputs and asserting the actual populated landing state.",
++      "assertions": [
++        {
++          "type": "contains_any",
++          "value": [
++            "Origin",
++            "CSRF"
++          ]
++        },
++        {
++          "type": "contains_any",
++          "value": [
++            "populated",
++            "native form",
++            "real browser"
++          ]
++        },
++        {
++          "type": "contains_any",
++          "value": [
++            "governance",
++            "synthetic",
++            "bypass",
++            "reject"
++          ]
++        }
++      ]
++    },
++    {
++      "id": 4,
++      "prompt": "Our integration test renders the login component in jsdom and checks that a mock cookie is set. Does this satisfy login and backend security governance verification?",
++      "expected_output": "No. Renderer-only fixtures and jsdom snapshots cannot prove backend session cookie issuance, SameSite/HttpOnly flags, or native browser Origin/CSRF governance. Verification requires real browser execution proving actual populated DOM states and strict origin handling.",
++      "assertions": [
++        {
++          "type": "contains_any",
++          "value": [
++            "renderer-only",
++            "jsdom",
++            "fixture"
++          ]
++        },
++        {
++          "type": "contains_any",
++          "value": [
++            "governance",
++            "backend",
++            "cookie"
++          ]
++        },
++        {
++          "type": "contains_any",
++          "value": [
++            "Origin",
++            "CSRF",
++            "populated"
++          ]
++        }
++      ]
+     }
+   ],
+   "should_not_trigger": [
+     "Refactor the backend API",
+     "Install playwright-cli",
+     "Setup Appium"
+   ],
+   "should_trigger": [
+     "Verify the fix for a broken dropdown border in the header."
+   ]
+diff --git a/skills/common/common-web-visual-testing/references/login-and-test-data.md b/skills/common/common-web-visual-testing/references/login-and-test-data.md
+index 28a2a868..3e290e7e 100644
+--- a/skills/common/common-web-visual-testing/references/login-and-test-data.md
++++ b/skills/common/common-web-visual-testing/references/login-and-test-data.md
+@@ -44,20 +44,32 @@ fi
+ ### Account-rotation hygiene rules
+ 
+ 1. **STOP at 3 failed attempts.** Do not iterate the entire account list — every failed login on the real backend counts toward that account's lockout.
+ 2. **Save state on first success** to skip the loop on subsequent runs.
+ 3. **Classify the failure** before retrying:
+    - `BLOCKED` → administrator action; never retry the same account
+    - `INVALID` → stale creds; rotate to next, flag for QA refresh
+    - `MAINTENANCE` → backend issue; abort run with PARTIAL verdict
+    - Still on `/login` after timeout → network or unknown; rotate
+ 
++
++## Browser Origin & Native Backend Governance
++
++1. **Native Form & Navigation Origin Validation**: Real browser form submissions and user-driven navigations generate browser-level `Origin` and `Referer` headers. Test assertions and harnesses must:
++   - Verify that form submissions transmit the authentic origin matching the application host.
++   - Strictly reject requests with `null`, missing, or untrusted third-party origins unless explicitly whitelisted for cross-origin CORS.
++   - Maintain strict CSRF token validation; never disable CSRF middleware in test fixtures.
++2. **Actual Populated State Requirement**:
++   - Standalone `fetch()` executions in the browser console, synthetic request mocking, or manually setting `Authorization` headers do not prove that form components, input sanitization, or authentication flows operate correctly.
++   - Saved authentication states (`local-auth.json`) are valid for session speedup, but when verifying login functionality, session expiration, or CSRF governance, end-to-end native form submission and actual populated DOM verification are mandatory.
++   - Renderer-only DOM snapshots (e.g. jsdom or component test double) cannot prove server-side session cookie issuance, SameSite flags, or backend governance.
++
+ ## Force-state recipes (test data prep)
+ 
+ When the bug only appears in a specific data state (empty list, "no results", over N items), force that state without polluting the database.
+ 
+ ### Force empty state
+ 
+ | Approach | When | How |
+ |---|---|---|
+ | Filter to no results | List supports filters | Apply filter that returns 0 rows (`status=Overdue` on a customer with no overdue invoices) |
+ | Fresh user | Recent-searches dropdown | Log in as a test user with no activity history |

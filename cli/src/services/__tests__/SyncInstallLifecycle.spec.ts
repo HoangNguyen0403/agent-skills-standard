@@ -786,53 +786,64 @@ describe('SyncInstallLifecycle', () => {
     expect(updated.entries[codexSpecialistRel]).toEqual(
       lock.entries[codexSpecialistRel],
     );
-
   });
 
-  it('preserves active .agent/sdd packet artifacts while migrating legacy .agent content', async () => {
-    const packetPath = path.join(
+  it('14. real filesystem preservation: retains .agent unknown/active state (e.g. .agent/sdd, receipts) across install cycles', async () => {
+    // Arrange: Create active/unknown state in .agent/
+    const sddReportPath = path.join(tempDir, '.agent/sdd/evidence-report.md');
+    const sddReceiptPath = path.join(
       tempDir,
-      '.agent/sdd/provider-neutral-delegation/plan/task-4-report.md',
+      '.agent/receipts/task-1-receipt.json',
     );
-    const planPath = path.join(
-      tempDir,
-      '.agent/sdd/provider-neutral-delegation/plan-path',
+    const sddSentinelBytes =
+      '# Authoritative SDD Evidence Report\nRetain exact bytes: 0xDEADBEEF\n';
+    const receiptBytes = '{"status":"PASS","bytes":1234}\n';
+
+    await fs.outputFile(sddReportPath, sddSentinelBytes);
+    await fs.outputFile(sddReceiptPath, receiptBytes);
+
+    // Same relative path exists in both trees with different bytes: the
+    // migration must not copy the legacy file over the active destination.
+    const legacyConflictPath = path.join(tempDir, '.agent/custom-note.md');
+    const legacyConflictBytes = 'Legacy note that must not overwrite .agents\n';
+    await fs.outputFile(legacyConflictPath, legacyConflictBytes);
+
+    const customAgentsPath = path.join(tempDir, '.agents/custom-note.md');
+    const activeConflictBytes = 'Pre-existing custom notes';
+    await fs.outputFile(customAgentsPath, activeConflictBytes);
+
+    const config = makeConfig();
+
+    // Act 1: Initial install
+    await runSync(config, [skillFixture]);
+
+    // Assert 1: .agent files must remain completely intact and untouched
+    expect(await fs.pathExists(sddReportPath)).toBe(true);
+    expect(await fs.readFile(sddReportPath, 'utf8')).toBe(sddSentinelBytes);
+    expect(await fs.pathExists(sddReceiptPath)).toBe(true);
+    expect(await fs.readFile(sddReceiptPath, 'utf8')).toBe(receiptBytes);
+
+    // Destination .agents custom file must also not be overwritten or corrupted
+    expect(await fs.readFile(customAgentsPath, 'utf8')).toBe(
+      activeConflictBytes,
     );
-    await fs.outputFile(packetPath, 'immutable packet bytes');
-    await fs.outputFile(planPath, 'plan.md');
-    await fs.outputFile(
-      path.join(tempDir, '.agent/legacy-native/SKILL.md'),
-      'legacy content',
+    expect(await fs.readFile(legacyConflictPath, 'utf8')).toBe(
+      legacyConflictBytes,
     );
 
-    await syncService.writeSkills([], makeConfig());
+    // Act 2: Repeat invocation (idempotency and repeat safety)
+    await runSync(config, [skillFixture]);
 
-    expect(await fs.readFile(packetPath, 'utf8')).toBe(
-      'immutable packet bytes',
+    // Assert 2: All sentinel files still intact
+    expect(await fs.pathExists(sddReportPath)).toBe(true);
+    expect(await fs.readFile(sddReportPath, 'utf8')).toBe(sddSentinelBytes);
+    expect(await fs.pathExists(sddReceiptPath)).toBe(true);
+    expect(await fs.readFile(sddReceiptPath, 'utf8')).toBe(receiptBytes);
+    expect(await fs.readFile(customAgentsPath, 'utf8')).toBe(
+      activeConflictBytes,
     );
-    expect(await fs.readFile(planPath, 'utf8')).toBe('plan.md');
-    expect(await fs.pathExists(packetPath)).toBe(true);
-    expect(await fs.pathExists(planPath)).toBe(true);
-    expect(
-      await fs.pathExists(path.join(tempDir, '.agents/legacy-native/SKILL.md')),
-    ).toBe(true);
-    expect(
-      await fs.pathExists(path.join(tempDir, '.agent/legacy-native')),
-    ).toBe(false);
-    expect(await fs.pathExists(path.join(tempDir, '.agent'))).toBe(true);
-  });
-
-  it('removes the legacy .agent root when no active sdd workspace exists', async () => {
-    await fs.outputFile(
-      path.join(tempDir, '.agent/legacy-native/SKILL.md'),
-      'legacy content',
+    expect(await fs.readFile(legacyConflictPath, 'utf8')).toBe(
+      legacyConflictBytes,
     );
-
-    await syncService.writeSkills([], makeConfig());
-
-    expect(await fs.pathExists(path.join(tempDir, '.agent'))).toBe(false);
-    expect(
-      await fs.pathExists(path.join(tempDir, '.agents/legacy-native/SKILL.md')),
-    ).toBe(true);
   });
 });

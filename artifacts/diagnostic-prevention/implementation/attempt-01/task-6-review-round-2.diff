@@ -1,0 +1,527 @@
+# Review package: 52ac482a5b948d9d26df4c3a2617afec74d1cf54..WORKSPACE (cumulative uncommitted snapshot)
+
+## Scope
+- mcp/src/services/TelemetryWriter.ts
+- mcp/src/services/WorkflowTelemetry.ts
+- mcp/src/tools/index.ts
+- mcp/test/TelemetryWriter.spec.ts
+- mcp/test/Tools.spec.ts
+- mcp/test/WorkflowTelemetry.spec.ts
+
+## Files changed
+mcp/src/services/TelemetryWriter.ts   | 21 +++++++++--
+ mcp/src/services/WorkflowTelemetry.ts | 48 ++++++++++++++++++--------
+ mcp/src/tools/index.ts                | 12 +++++--
+ mcp/test/TelemetryWriter.spec.ts      | 17 +++++++++
+ mcp/test/Tools.spec.ts                | 21 +++++++++++
+ mcp/test/WorkflowTelemetry.spec.ts    | 65 +++++++++++++++++++++++++++++++++++
+ 6 files changed, 165 insertions(+), 19 deletions(-)
+
+## Diff
+diff --git a/mcp/src/services/TelemetryWriter.ts b/mcp/src/services/TelemetryWriter.ts
+index b03c7b5a..61823ed0 100644
+--- a/mcp/src/services/TelemetryWriter.ts
++++ b/mcp/src/services/TelemetryWriter.ts
+@@ -7,20 +7,24 @@ export interface TelemetryRecord {
+   /** ISO timestamp when the record was built (flush time). */
+   at: string;
+   /** MCP server version that produced this record. */
+   mcpVersion: string;
+   /** ISO timestamp when the session started. */
+   sessionStartedAt: string;
+   /** Session length in seconds, measured from `sessionStartedAt` to `at`. */
+   durationSeconds: number;
+   /** Loads per `category/id`, deduped stub returns included. */
+   skills: Record<string, number>;
++  /** Skill bodies actually returned per `category/id` (excludes dedup stubs). */
++  skillBodies?: Record<string, number>;
++  /** Dedup stubs returned per `category/id` (body omitted). */
++  skillStubs?: Record<string, number>;
+   /** Loads per `workflow/name`. */
+   workflows: Record<string, number>;
+   /** Actual returned category-guide bodies per `category/<name>`. */
+   categories: Record<string, number>;
+   /** Tool call counts, keyed by tool name. */
+   callsByTool: Record<string, number>;
+   /** Count of tool calls that matched no skill, workflow, or category. */
+   noMatchCalls: number;
+   /** Workflow name from the most recent `get_session_cost` call, when supplied. Never a file path or prompt. */
+   workflow?: string;
+@@ -35,39 +39,52 @@ interface RecordMeta {
+   now?: Date;
+ }
+ 
+ /** Folds a session's load events into counts. Never includes inputs or paths. */
+ export function buildTelemetryRecord(
+   tracker: SessionTracker,
+   meta: RecordMeta,
+ ): TelemetryRecord {
+   const now = meta.now ?? new Date();
+   const skills: Record<string, number> = {};
++  const skillBodies: Record<string, number> = {};
++  const skillStubs: Record<string, number> = {};
+   const workflows: Record<string, number> = {};
+   const categories: Record<string, number> = {};
+   for (const event of tracker.events_()) {
++    const deduped = new Set(event.dedupedSkills ?? []);
+     for (const key of event.loaded) {
+-      const bucket = key.startsWith("workflow/") ? workflows : skills;
+-      bucket[key] = (bucket[key] ?? 0) + 1;
++      if (key.startsWith("workflow/")) {
++        workflows[key] = (workflows[key] ?? 0) + 1;
++      } else {
++        skills[key] = (skills[key] ?? 0) + 1;
++        if (deduped.has(key)) {
++          skillStubs[key] = (skillStubs[key] ?? 0) + 1;
++        } else {
++          skillBodies[key] = (skillBodies[key] ?? 0) + 1;
++        }
++      }
+     }
+     for (const guide of event.loadedGuides ?? []) {
+       categories[guide] = (categories[guide] ?? 0) + 1;
+     }
+   }
+   const summary = tracker.summary(now);
+   const costContext = tracker.costContext_();
+   return {
+     at: now.toISOString(),
+     mcpVersion: meta.mcpVersion,
+     sessionStartedAt: summary.startedAt,
+     durationSeconds: summary.elapsedSeconds,
+     skills,
++    skillBodies,
++    skillStubs,
+     workflows,
+     categories,
+     callsByTool: { ...summary.callsByTool },
+     noMatchCalls: summary.noMatchCalls,
+     ...(costContext.workflow !== undefined
+       ? { workflow: costContext.workflow }
+       : {}),
+     ...(costContext.slug !== undefined ? { slug: costContext.slug } : {}),
+     ...(costContext.outcome !== undefined
+       ? { outcome: costContext.outcome }
+diff --git a/mcp/src/services/WorkflowTelemetry.ts b/mcp/src/services/WorkflowTelemetry.ts
+index 9fca5755..da6f0396 100644
+--- a/mcp/src/services/WorkflowTelemetry.ts
++++ b/mcp/src/services/WorkflowTelemetry.ts
+@@ -8,44 +8,43 @@ export interface RuntimeUsageSnapshot {
+ export interface RuntimePricingSnapshot {
+   inputCostPer1M?: number;
+   cachedInputCostPer1M?: number;
+   outputCostPer1M?: number;
+   reasoningCostPer1M?: number;
+   otherCost?: number;
+   currency?: string;
+ }
+ 
+ /**
+- * Where a cost value came from. `host` means the request was assembled by
+- * the runtime's own telemetry adapter (`buildSessionCostRequest`) from real
+- * measured usage/pricing. `agent-estimate` means a caller typed values
+- * directly into `get_session_cost` without going through that adapter.
+- * `unavailable` means required token/pricing fields are missing entirely.
++ * Caller-declared source for token and cost numbers.
++ * - `host`: caller declared the numbers were supplied by a host-level adapter (`buildSessionCostRequest`); host authenticity is unverified by cryptographic proof.
++ * - `agent-estimate`: caller-typed values without host adapter assertion.
++ * - `unavailable`: required token/pricing fields are missing.
+  */
+ export type CostSource = "host" | "agent-estimate" | "unavailable";
+ export interface SessionCostRequest {
+   workflow: string;
+   model?: string;
+   promptTokens?: number;
+   cachedPromptTokens?: number;
+   completionTokens?: number;
+   reasoningTokens?: number;
+   inputCostPer1M?: number;
+   cachedInputCostPer1M?: number;
+   outputCostPer1M?: number;
+   reasoningCostPer1M?: number;
+   otherCost?: number;
+   currency?: string;
+   /**
+-   * Caller-declared provenance for the token/pricing fields above. Only
+-   * `buildSessionCostRequest` (the host adapter path) should ever set this
+-   * to `"host"`; omit it when hand-supplying numbers.
++   * Caller-declared source label for the token/pricing fields above. Only
++   * `buildSessionCostRequest` should set this to `"host"`; host authenticity
++   * remains unverified by this MCP server without an authenticated host boundary.
+    */
+   costSource?: "host" | "agent-estimate";
+ }
+ 
+ export interface SessionCostCoverage {
+   estimatedCost: string | null;
+   exactCostAvailable: boolean;
+   missingHostFields: string[];
+   /** Provenance of the token/USD values above; see `CostSource`. */
+   costSource: CostSource;
+@@ -57,21 +56,32 @@ export function summarizeSessionCostCoverage(
+   const missingHostFields: string[] = [];
+   if (args.promptTokens === undefined) missingHostFields.push("promptTokens");
+   if (args.completionTokens === undefined) {
+     missingHostFields.push("completionTokens");
+   }
+   if (args.inputCostPer1M === undefined)
+     missingHostFields.push("inputCostPer1M");
+   if (args.outputCostPer1M === undefined) {
+     missingHostFields.push("outputCostPer1M");
+   }
+-
++  if (
++    (args.cachedPromptTokens ?? 0) > 0 &&
++    args.cachedInputCostPer1M === undefined
++  ) {
++    missingHostFields.push("cachedInputCostPer1M");
++  }
++  if (
++    (args.reasoningTokens ?? 0) > 0 &&
++    args.reasoningCostPer1M === undefined
++  ) {
++    missingHostFields.push("reasoningCostPer1M");
++  }
+   const costSource: CostSource =
+     missingHostFields.length > 0
+       ? "unavailable"
+       : args.costSource === "host"
+         ? "host"
+         : "agent-estimate";
+ 
+   return {
+     estimatedCost: calculateEstimatedSessionCost(args),
+     exactCostAvailable: missingHostFields.length === 0,
+@@ -82,41 +92,51 @@ export function summarizeSessionCostCoverage(
+ 
+ export function calculateEstimatedSessionCost(
+   args: Omit<SessionCostRequest, "workflow">,
+ ): string | null {
+   const {
+     promptTokens,
+     cachedPromptTokens = 0,
+     completionTokens,
+     reasoningTokens = 0,
+     inputCostPer1M,
+-    cachedInputCostPer1M = 0,
++    cachedInputCostPer1M,
+     outputCostPer1M,
+-    reasoningCostPer1M = 0,
++    reasoningCostPer1M,
+     otherCost = 0,
+     currency = "USD",
+   } = args;
+   const hasInputs =
+     promptTokens !== undefined &&
+     completionTokens !== undefined &&
+     inputCostPer1M !== undefined &&
+     outputCostPer1M !== undefined;
+   if (!hasInputs) return null;
++  if (cachedPromptTokens > 0 && cachedInputCostPer1M === undefined) {
++    return null;
++  }
++  if (reasoningTokens > 0 && reasoningCostPer1M === undefined) {
++    return null;
++  }
+ 
+   const inputCost = (promptTokens / 1_000_000) * inputCostPer1M;
+   const cachedInputCost =
+-    (cachedPromptTokens / 1_000_000) * cachedInputCostPer1M;
++    cachedPromptTokens > 0 && cachedInputCostPer1M !== undefined
++      ? (cachedPromptTokens / 1_000_000) * cachedInputCostPer1M
++      : 0;
+   const outputCost = (completionTokens / 1_000_000) * outputCostPer1M;
+-  const reasoningCost = (reasoningTokens / 1_000_000) * reasoningCostPer1M;
++  const reasoningCost =
++    reasoningTokens > 0 && reasoningCostPer1M !== undefined
++      ? (reasoningTokens / 1_000_000) * reasoningCostPer1M
++      : 0;
+   return `${currency} ${(inputCost + cachedInputCost + outputCost + reasoningCost + otherCost).toFixed(6)}`;
+ }
+-
+ export interface WorkflowTelemetryTrigger {
+   activeWorkflow?: string | null;
+   status: "running" | "completed" | "failed" | "blocked";
+ }
+ 
+ export interface FinalizeWorkflowTelemetryOptions<T> {
+   trigger: WorkflowTelemetryTrigger;
+   model?: string;
+   usage?: RuntimeUsageSnapshot;
+   pricing?: RuntimePricingSnapshot;
+diff --git a/mcp/src/tools/index.ts b/mcp/src/tools/index.ts
+index 4025af9c..46a882f9 100644
+--- a/mcp/src/tools/index.ts
++++ b/mcp/src/tools/index.ts
+@@ -253,38 +253,44 @@ export async function getSkill(
+   if (!skill) {
+     ctx.tracker.record({
+       via: "get_skill",
+       input: [`${args.category}/${args.name}`],
+       loaded: [],
+     });
+     return alternativeSkillSuggestion(args, ctx);
+   }
+   const body = await fs.readFile(skill.path, "utf8").catch(() => null);
+   if (!body) {
++    ctx.tracker.record({
++      via: "get_skill",
++      input: [`${args.category}/${args.name}`],
++      loaded: [],
++    });
+     // Don't leak filesystem paths — describe the gap functionally.
+     return {
+       content: [
+         {
+           type: "text",
+           text: [
+             `The skill index references "${args.category}/${args.name}" but its SKILL.md is missing.`,
+             "This usually means the skill was deleted or moved after the server started.",
+             "Restart the MCP server, or run `npx agent-skills-standard@latest sync` to reinstall skills.",
+           ].join("\n"),
+         },
+       ],
+     };
+   }
+   ctx.tracker.record({
+     via: "get_skill",
+     input: [`${args.category}/${args.name}`],
+     loaded: [`${skill.category}/${skill.id}`],
++    estimatedTokens: estimateTokens(body),
+   });
+   return {
+     content: [
+       {
+         type: "text",
+         text: renderSkill(skill.category, skill.id, body, "direct"),
+       },
+     ],
+   };
+ }
+@@ -598,21 +604,21 @@ export const getSessionCostSchema = z.object({
+     ),
+   currency: z
+     .string()
+     .min(1)
+     .default("USD")
+     .describe("Currency label for estimated cost."),
+   costSource: z
+     .enum(["host", "agent-estimate"])
+     .optional()
+     .describe(
+-      "Provenance of the token/pricing fields above. Only set this to 'host' when the caller is the runtime's own telemetry adapter (buildSessionCostRequest) passing real measured usage/pricing — never set it when typing numbers by hand.",
++      "Caller-declared source for the token/pricing fields above ('host' or 'agent-estimate'). Host authenticity is unverified by this MCP server.",
+     ),
+ });
+ 
+ export async function getSessionCost(
+   args: {
+     workflow?: string;
+     slug?: string;
+     outcome?: string;
+     model?: string;
+     promptTokens?: number;
+@@ -652,23 +658,23 @@ export async function getSessionCost(
+   const skillCost = ctx.tracker.skillContextCost();
+   const skillShareOfPrompt =
+     args.promptTokens && args.promptTokens > 0
+       ? `${Math.round((skillCost.totalEstimatedTokens / args.promptTokens) * 100)}%`
+       : "[Agent: provide promptTokens to compute share]";
+   const unavailableMsg = "unavailable (host did not expose token usage)";
+ 
+   const lines: string[] = [
+     "# Session Telemetry",
+     "",
+-    "Exact LLM token usage depends on the host runtime. MCP-observed fields below are measured directly; token and cost fields carry explicit provenance instead of guessed placeholders.",
++    "Exact LLM token usage depends on the host runtime. MCP-observed fields below are measured directly; token and cost fields carry caller-declared source labels; host authenticity is unverified.",
+     "AGS consultation/body-return observations are limited to this MCP session. They do not establish fresh-worker delivery or observed edits, checks, or enforcement.",
+-    "",
++    "Mounted MCP deployment identity is unknown to this stdio process; callers cannot restart or reconfigure the live service.",
+     "| Metric | Value |",
+     "|---|---|",
+     `| **Workflow** | ${args.workflow ?? "[Agent: fill workflow name]"} |`,
+     `| **Session Started** | ${summary.startedAt} |`,
+     `| **Elapsed Seconds** | ${summary.elapsedSeconds} |`,
+     `| **MCP Tool Calls** | ${summary.toolCalls} |`,
+     `| **Skills Loaded** | ${loaded.length} |`,
+     `| **Category Guide Bodies Returned** | ${guides.length} |`,
+     `| **Workflow Bodies Returned** | ${workflows.length} |`,
+     `| **No-Match Calls** | ${summary.noMatchCalls} |`,
+diff --git a/mcp/test/TelemetryWriter.spec.ts b/mcp/test/TelemetryWriter.spec.ts
+index 49daecc2..52e11375 100644
+--- a/mcp/test/TelemetryWriter.spec.ts
++++ b/mcp/test/TelemetryWriter.spec.ts
+@@ -56,20 +56,37 @@ describe("buildTelemetryRecord", () => {
+     expect(record.workflows).toEqual({ "workflow/dev-fix": 1 });
+     expect(record.callsByTool.load_skills_for_keywords).toBe(2);
+     expect(record.noMatchCalls).toBe(1);
+     expect(record.mcpVersion).toBe("0.6.0");
+     const serialized = JSON.stringify(record);
+     expect(serialized).not.toContain("src/app.ts");
+     expect(serialized).not.toContain("jwt");
+     expect(serialized).not.toContain("nothing");
+   });
+ 
++  it("separates returned bodies from dedup stubs and catalog discovery", () => {
++    const record = buildTelemetryRecord(tracker(), {
++      mcpVersion: "0.6.0",
++      now: new Date(),
++    });
++    expect(record.skillBodies).toEqual({
++      "typescript/typescript-language": 1,
++      "nestjs/nestjs-architecture": 1,
++    });
++    expect(record.skillStubs).toEqual({
++      "typescript/typescript-language": 1,
++    });
++    // Catalog discovery produces no bodies or skill loads
++    expect(record.skillBodies?.["category/flutter"]).toBeUndefined();
++    expect(record.skillBodies?.["category/quality-engineering"]).toBeUndefined();
++  });
++
+   it("counts returned category guide bodies and excludes category discovery", () => {
+     const record = buildTelemetryRecord(tracker(), {
+       mcpVersion: "0.6.0",
+       now: new Date(),
+     });
+     expect(record.categories).toEqual({ "category/flutter": 1 });
+     expect(
+       Object.keys(record.skills).some((key) => key.startsWith("category/")),
+     ).toBe(false);
+   });
+diff --git a/mcp/test/Tools.spec.ts b/mcp/test/Tools.spec.ts
+index 69780896..6e8b1977 100644
+--- a/mcp/test/Tools.spec.ts
++++ b/mcp/test/Tools.spec.ts
+@@ -157,20 +157,41 @@ describe("tools — get_skill suggestions", () => {
+   });
+ 
+   it("resolves close category-local matches before falling back to suggestions", async () => {
+     const ctx = await makeCtx(path.join(f.root, "skills"));
+     const out = await getSkill({ category: "flutter", name: "bloc" }, ctx);
+     const t = text(out);
+     expect(t).not.toContain("Closest matches");
+     expect(t).toContain("flutter/flutter-bloc");
+   });
+ 
++  it("getSkill records estimatedTokens on full body return", async () => {
++    const ctx = await makeCtx(path.join(f.root, "skills"));
++    await getSkill({ category: "flutter", name: "flutter-bloc" }, ctx);
++    const event = ctx.tracker.events_().find((e) => e.via === "get_skill");
++    expect(event?.loaded).toEqual(["flutter/flutter-bloc"]);
++    expect(event?.estimatedTokens).toBeGreaterThan(0);
++    expect(ctx.tracker.skillContextCost().totalEstimatedTokens).toBeGreaterThan(0);
++  });
++
++  it("getSkill records loaded: [] when skill file body is absent", async () => {
++    const ctx = await makeCtx(path.join(f.root, "skills"));
++    const skillPath = path.join(f.root, "skills", "flutter", "flutter-bloc", "SKILL.md");
++    await fs.remove(skillPath);
++    const out = await getSkill({ category: "flutter", name: "flutter-bloc" }, ctx);
++    expect(text(out)).toContain("SKILL.md is missing");
++    const event = ctx.tracker.events_().find((e) => e.via === "get_skill");
++    expect(event?.loaded).toEqual([]);
++    expect(event?.estimatedTokens).toBeUndefined();
++    expect(ctx.tracker.summary().skillsLoaded).toBe(0);
++  });
++
+   it("resolves prefixless ids to canonical prefixed ids", async () => {
+     const ctx = await makeCtx(path.join(f.root, "skills"));
+     const out = await getSkill(
+       { category: "quality-engineering", name: "playwright-cli" },
+       ctx,
+     );
+     const t = text(out);
+     expect(t).toContain(
+       "quality-engineering/quality-engineering-playwright-cli",
+     );
+diff --git a/mcp/test/WorkflowTelemetry.spec.ts b/mcp/test/WorkflowTelemetry.spec.ts
+index 7009daf1..c0020981 100644
+--- a/mcp/test/WorkflowTelemetry.spec.ts
++++ b/mcp/test/WorkflowTelemetry.spec.ts
+@@ -81,20 +81,85 @@ describe("WorkflowTelemetry", () => {
+         currency: "USD",
+       }),
+     ).toEqual({
+       estimatedCost: null,
+       exactCostAvailable: false,
+       missingHostFields: ["completionTokens", "outputCostPer1M"],
+       costSource: "unavailable",
+     });
+   });
+ 
++  it("requires cachedInputCostPer1M when cachedPromptTokens is positive", () => {
++    const summary = summarizeSessionCostCoverage({
++      promptTokens: 1_000_000,
++      cachedPromptTokens: 500_000,
++      completionTokens: 500_000,
++      inputCostPer1M: 2,
++      outputCostPer1M: 10,
++      currency: "USD",
++    });
++    expect(summary.exactCostAvailable).toBe(false);
++    expect(summary.missingHostFields).toContain("cachedInputCostPer1M");
++    expect(summary.estimatedCost).toBeNull();
++    expect(summary.costSource).toBe("unavailable");
++  });
++
++  it("requires reasoningCostPer1M when reasoningTokens is positive", () => {
++    const summary = summarizeSessionCostCoverage({
++      promptTokens: 1_000_000,
++      completionTokens: 500_000,
++      reasoningTokens: 250_000,
++      inputCostPer1M: 2,
++      outputCostPer1M: 10,
++      currency: "USD",
++    });
++    expect(summary.exactCostAvailable).toBe(false);
++    expect(summary.missingHostFields).toContain("reasoningCostPer1M");
++    expect(summary.estimatedCost).toBeNull();
++  });
++
++  it("does not demand rates for known zero cache or reasoning buckets", () => {
++    const summary = summarizeSessionCostCoverage({
++      promptTokens: 1_000_000,
++      cachedPromptTokens: 0,
++      completionTokens: 500_000,
++      reasoningTokens: 0,
++      inputCostPer1M: 2,
++      outputCostPer1M: 10,
++      currency: "USD",
++      costSource: "host",
++    });
++    expect(summary.exactCostAvailable).toBe(true);
++    expect(summary.missingHostFields).toEqual([]);
++    expect(summary.estimatedCost).toBe("USD 7.000000");
++    expect(summary.costSource).toBe("host");
++  });
++
++  it("computes exact cost when all required rates are present", () => {
++    const summary = summarizeSessionCostCoverage({
++      promptTokens: 1_000_000,
++      cachedPromptTokens: 500_000,
++      completionTokens: 500_000,
++      reasoningTokens: 250_000,
++      inputCostPer1M: 2,
++      cachedInputCostPer1M: 0.5,
++      outputCostPer1M: 10,
++      reasoningCostPer1M: 4,
++      currency: "USD",
++      costSource: "host",
++    });
++    expect(summary.exactCostAvailable).toBe(true);
++    expect(summary.missingHostFields).toEqual([]);
++    expect(summary.estimatedCost).toBe("USD 8.250000");
++    expect(summary.costSource).toBe("host");
++  });
++
+   it("triggers only for terminal workflow states", () => {
+     expect(
+       shouldFinalizeWorkflowTelemetry({
+         activeWorkflow: "plan-feature",
+         status: "running",
+       }),
+     ).toBe(false);
+     expect(
+       shouldFinalizeWorkflowTelemetry({
+         activeWorkflow: "plan-feature",

@@ -116,9 +116,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fresh local verification passed: 1,909 root tests, 15 separate Python SDD-status tests, strict TypeScript, and all 12 parent-owned post-copy gates (each exit 0). The selected preflight had 0 issues; the no-execute manifest covered 7 skills/146 cases. The qualified generator/copyback applied 15 updates with no deletes; it covered 338 global canonical IDs, 93 configured selected IDs, and 24 host category-index rows, with no missing IDs. This does not claim full-registry host coverage.
 - The whole-catalog audit reported two out-of-scope `database/database-hana` single-assertion findings (evals 2 and 3); no global eval-quality pass is claimed. The post-rebase source approval and document approvals remain separate from local test results. No live evaluation, human timing, productivity/effectiveness measurement, acceptance, adoption, merge, release, or deployment is claimed; H2 merge review and H3 adoption remain human decisions. Implementation and generated inputs are unchanged.
 
+### Added (Diagnostic Prevention Contracts)
+
+- **Diagnostic-prevention migration preservation**: Added non-destructive legacy `.agent` data preservation during CLI skill sync migration, stopping automatic deletion where active/legacy classification is unauthoritative and protecting active `.agent/sdd` artifacts.
+- **Isolated stage generation tooling**: Added repository-owned isolated generation engine (`scripts/generation/isolated-stage.ts` and CLI `scripts/generation/index.ts`) running index, token, and capability generation in an isolated stage excluding `.git`, `.agent`, artifacts, and dependencies, verifying baseline destination hashes and refusing on foreign working directory or destination drift.
+- **Check-only pre-commit hook**: Switched pre-commit hook (`.husky/pre-commit`) to execute check-only verification (`node --import tsx scripts/generation/index.ts --check`) without active code generation or implicit git staging during commits.
+- **Subagent-driven development brief contract**: Extended `common-subagent-driven-development` and `task_brief.py` with required contract validation (owned write sets, explicit I/O contracts, positive/negative invariants, verification owner, handoff/freeze lifecycle, and failure escalation routes), treating Inline execution as an explicit recorded exception.
+- **Learning log proposal-only discipline**: Reconciled `common-learning-log` and `common-session-retrospective` so repeated mistakes and retrospective findings yield proposed candidate lessons requiring review and manual adoption, strictly rejecting autonomous self-promotion into prompt instructions or repository policy.
+- **Truthful layered acceptance contract**: Extended `common-tdd` and `.agents/workflows/implement-feature.md` to formally separate source-ready, focused checks, consumer-smoke, independent review, and human acceptance states with source/build identity, keeping unobserved pre-implementation RED explicitly labeled NOT RUN and rejecting zero-exit or no-listener false passes.
+- **Trust boundary, browser, and telemetry guidance**: Extended `common-security-standards` with operation-private capability minting, transaction-time revalidation, and independent authority verification; extended `common-web-visual-testing` with strict CSRF and native browser Origin requirements; extended `common-telemetry` and `common-context-optimization` to enforce Missing ≠ Zero, partial lineage visibility, and distinction across catalog discovery, body fetch, delivery to context, and active tool usage.
+- **Truthful MCP telemetry and conditional pricing**: Added body-fetch counting separate from dedup/stub selection in `agent-skills-standard-mcp` session tracking; enforced conditional pricing where missing token rates for cached/reasoning tokens remain partial/null rather than coerced to $0.00.
+- **Eval runner quota fences & test fixture readiness**: Updated eval execution harness (`scripts/evals/execute.ts`) to immediately halt new job dispatches upon observing quota limits while preserving in-flight completed answers, and hardened loopback test fixtures with pre-listen binding and bounded readiness deadlines.
+
+### Changed (Diagnostic Prevention Contracts)
+
+- **Version bumps (Candidate contracts)**:
+  - Root: `2.7.0` → `2.7.1`
+  - CLI: `2.7.0` → `2.7.1`
+  - MCP: `0.8.0` → `0.8.1`
+  - Common: `2.9.2` → `2.9.3` (date: `2026-10-29`)
+  - Workflows: `1.1.7` → `1.1.8`
+- **External host boundary separation**: Documented clear boundary between repository-owned canonical standards and external host-level controls. User explicitly kept host-only OMP/Paseo resolver/dispatcher/process/collector slices BLOCKED; canonical guidance remains host-neutral and tool-agnostic with no auto-allow or denial bypass.
+- **Verification status**: Isolated stage generation applied and verified for prior candidate revision abf4e908 (95 outputs applied, check verified PASS, SDD archive intact); built consumer smoke verified (13 entries, persisted telemetry verified). Pre-rebase repository unit, contract, and formatting gates passed; rebased verification checks remain PENDING until parent run. External host-only slices (H01 authenticated resolver, H02 turn ownership, H04 host process/browser adapters, H05 runtime exporter) remain explicitly blocked by user decision. The candidate remains unreleased; no production release, live host security enforcement, Node 20 runtime compatibility, or overall typecheck claim is claimed. Rollout and pilot gates remain preserved.
+
 ### Target versions
 
-- Unreleased development improvements on current develop versions: Common `2.9.2`, Product Management `1.0.2`, Workflows `1.1.7`. Formal tag bumps deferred to release tagging. Source-change date: `2026-10-29`.
+- Unreleased development improvements on current develop versions: Common `2.9.3`, Workflows `1.1.8`, CLI/Root `2.7.1`, MCP `0.8.1`, Product Management `1.0.2`. Formal tag bumps deferred to release tagging. Source-change date: `2026-10-29`.
 
 ## [common-v2.9.0] [workflow-v1.1.6] [system-design-v1.2.4] [quality-engineering-v1.6.1] [product-management-v1.0.1] - 2026-10-21
 

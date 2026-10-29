@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "kind": "ROOT_SCALE_GIT_IDENTITY_SMOKE",
+  "status": "PREREQUISITES_VERIFIED",
+  "startedAt": "2026-10-29T11:05:10.473Z",
+  "evidenceDir": "artifacts/diagnostic-prevention/implementation/attempt-01/root-scale-r1-prerequisites-03",
+  "workspace": "/Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/diagnostic-prevention",
+  "base": "52ac482a5b948d9d26df4c3a2617afec74d1cf54",
+  "outputBand": {
+    "declared": {
+      "minimum": 1800,
+      "maximum": 2200
+    },
+    "changed": {
+      "minimum": 80,
+      "maximum": 110
+    }
+  },
+  "deadlines": {
+    "applyMs": 1800000,
+    "checkMs": 600000,
+    "producerMs": 900000,
+    "postExitGraceMs": 5000,
+    "reapMs": 10000
+  },
+  "stages": [
+    {
+      "stage": "temp-root",
+      "durationMs": 0
+    },
+    {
+      "stage": "archive-base",
+      "durationMs": 1221,
+      "bytes": 36925440
+    },
+    {
+      "stage": "overlay-runtime",
+      "durationMs": 44
+    },
+    {
+      "stage": "link-dependencies",
+      "durationMs": 0,
+      "linked": [
+        "node_modules",
+        "cli/node_modules"
+      ]
+    },
+    {
+      "stage": "isolate-fixture-git",
+      "durationMs": 69,
+      "gitIsolation": {
+        "toplevel": "/private/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-root-scale-syFeFs/fixture",
+        "gitDir": "/private/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-root-scale-syFeFs/fixture/.git",
+        "hooksPath": "/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-root-scale-syFeFs/empty-hooks",
+        "physicalFixtureRoot": "/private/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-root-scale-syFeFs/fixture",
+        "physicalGitDir": "/private/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-root-scale-syFeFs/fixture/.git",
+        "physicalDotGit": "/private/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-root-scale-syFeFs/fixture/.git",
+        "effectiveHooksPath": "/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-root-scale-syFeFs/empty-hooks"
+      }
+    },
+    {
+      "stage": "baseline:calculate-tokens",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "durationMs": 299,
+      "groupReaped": true
+    },
+    {
+      "stage": "baseline:generate-indices",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "durationMs": 916,
+      "groupReaped": true
+    },
+    {
+      "stage": "baseline:generate-capabilities-doc",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "durationMs": 182,
+      "groupReaped": true
+    },
+    {
+      "stage": "baseline-producers",
+      "durationMs": 1398
+    },
+    {
+      "stage": "commit-fixture-base",
+      "durationMs": 4737,
+      "fixtureBase": "add135269579881562833e466f5cd9826ddacaea",
+      "trackedCount": 10144
+    },
+    {
+      "stage": "baseline-check",
+      "durationMs": 7024,
+      "exitCode": 0,
+      "timedOut": false
+    }
+  ],
+  "fixture": null,
+  "counts": null,
+  "verification": null,
+  "error": null,
+  "limits": [
+    "Passing-after evidence only: the pre-change batched implementation was replaced, so no historical failing-before run is claimed.",
+    "No live-root mutation, adoption or reapply; the fixture is an owned temporary copy.",
+    "Trace2 counts come from native GIT_TRACE2_EVENT; they are diagnostic instrumentation, not a production hook.",
+    "Independent byte expectation is the real check-mode producer re-derivation plus baseline byte comparison, not the active lock."
+  ],
+  "gitIsolation": {
+    "strippedVariables": [],
+    "selfChecks": {
+      "physicalFixtureRoot": "/private/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-root-scale-syFeFs/routing-self-check/internal-repository",
+      "physicalInternalGit": "/private/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-root-scale-syFeFs/routing-self-check/internal-repository/.git",
+      "physicalAliasRoot": "/private/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-root-scale-syFeFs/routing-self-check/internal-repository",
+      "physicalExternalGit": "/private/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-root-scale-syFeFs/routing-self-check/external-repository/.git",
+      "externalGitDirectory": "refused",
+      "commandConfigOverride": "stripped without executing a hook"
+    }
+  },
+  "prerequisites": {
+    "status": "PREREQUISITES_VERIFIED",
+    "physicalGitIdentity": {
+      "toplevel": "/private/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-root-scale-syFeFs/fixture",
+      "gitDir": "/private/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-root-scale-syFeFs/fixture/.git",
+      "hooksPath": "/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-root-scale-syFeFs/empty-hooks",
+      "physicalFixtureRoot": "/private/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-root-scale-syFeFs/fixture",
+      "physicalGitDir": "/private/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-root-scale-syFeFs/fixture/.git",
+      "physicalDotGit": "/private/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-root-scale-syFeFs/fixture/.git",
+      "effectiveHooksPath": "/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-root-scale-syFeFs/empty-hooks"
+    },
+    "effectiveHooksPath": "/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-root-scale-syFeFs/empty-hooks",
+    "unrelatedAuthority": {
+      "path": ".agents/fixture-unrelated-authority.txt",
+      "owner": "bridge",
+      "source": "bridge:antigravity",
+      "agent": "antigravity",
+      "sha256": "2fb4e1a4c7070ec21b0077ab9122f4b6169b75944f6f13f16923e3105ad3d097",
+      "fileSha256": "2fb4e1a4c7070ec21b0077ab9122f4b6169b75944f6f13f16923e3105ad3d097"
+    },
+    "baselineCheck": {
+      "status": "PASS",
+      "declaredFiles": 1996
+    }
+  },
+  "processGroups": [],
+  "finishedAt": "2026-10-29T11:05:25.456Z"
+}

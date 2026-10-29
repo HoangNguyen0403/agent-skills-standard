@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Attribute imported CLI semantic diagnostics against pinned source, not qualify generator behavior",
+  "baseCommit": "52ac482a5b948d9d26df4c3a2617afec74d1cf54",
+  "nodeVersion": "v26.12.1",
+  "compilerVersion": "6.0.3",
+  "flags": [
+    "--ignoreConfig",
+    "--noEmit",
+    "--target",
+    "ES2022",
+    "--module",
+    "NodeNext",
+    "--moduleResolution",
+    "NodeNext",
+    "--strict",
+    "--esModuleInterop",
+    "--skipLibCheck",
+    "--resolveJsonModule",
+    "--types",
+    "node",
+    "--allowImportingTsExtensions"
+  ],
+  "files": [
+    "cli/src/services/ConfigService.ts",
+    "cli/src/services/SyncService.ts"
+  ],
+  "sourceHashes": {
+    "cli/src/services/ConfigService.ts": "59ce3ff416c74d5f886edeffc9c0d7fdb4d19ccdcce1a211019a4d30cc9f4eb8",
+    "cli/src/services/SyncService.ts": "6dae56ac16d9fff9ccaf8298a2dbc0ac959799914db86dce7eefa1030e5049b0"
+  },
+  "exitCode": 2,
+  "stdout": "cli/src/services/ConfigService.ts(417,23): error TS2352: Conversion of type 'SkillConfig' to type 'Record<string, unknown>' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.\n  Index signature for type 'string' is missing in type 'SkillConfig'.\ncli/src/services/SyncService.ts(36,48): error TS2550: Property 'withResolvers' does not exist on type 'PromiseConstructor'. Do you need to change your target library? Try changing the 'lib' compiler option to 'es2024' or later.\ncli/src/services/SyncService.ts(503,32): error TS2559: Type 'RegistryMetadata' has no properties in common with type 'RemoteMetadata'.\n",
+  "stderr": "",
+  "limits": [
+    "Uses existing candidate dependency trees; not a lock-qualified dependency installation.",
+    "Baseline diagnostics do not authorize suppressing new generator diagnostics.",
+    "No producer, root generation, adoption, publication or baseline runtime execution."
+  ],
+  "temporarySnapshotRemoved": true
+}

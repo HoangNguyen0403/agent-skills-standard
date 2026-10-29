@@ -1,0 +1,302 @@
+[Isolated Generation Run] attempt=attempt-2026-10-29T13-12-12-450Z-7b1806 checkOnly=false
+Snapshot captured for 1996 declared targets across 4 configured host(s).
+Staged workspace prepared at: /var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-stage-9WMTr7
+Seeded 0 absent mirror resources in stage from canonical input.
+[calculate-tokens] exitCode=0
+STDOUT:
+📊 Calculating token metrics for skills...
+
+📦 flutter:
+   Skills: 22
+   Total Tokens: 13494
+   Avg/Skill: 613
+   Largest: flutter-testing (1363 tokens)
+
+📦 dart:
+   Skills: 3
+   Total Tokens: 1812
+   Avg/Skill: 604
+   Largest: dart-language (820 tokens)
+
+📦 typescript:
+   Skills: 4
+   Total Tokens: 2884
+   Avg/Skill: 721
+   Largest: typescript-security (817 tokens)
+
+📦 javascript:
+   Skills: 3
+   Total Tokens: 1364
+   Avg/Skill: 455
+   Largest: javascript-language (547 tokens)
+
+📦 react:
+   Skills: 8
+   Total Tokens: 5574
+   Avg/Skill: 697
+   Largest: react-testing (1311 tokens)
+
+📦 react-native:
+   Skills: 13
+   Total Tokens: 6527
+   Avg/Skill: 502
+   Largest: react-native-testing (647 tokens)
+
+📦 nestjs:
+   Skills: 21
+   Total Tokens: 13926
+   Avg/Skill: 663
+   Largest: nestjs-testing (1026 tokens)
+
+📦 nextjs:
+   Skills: 18
+   Total Tokens: 12138
+   Avg/Skill: 674
+   Largest: nextjs-architecture (1040 tokens)
+
+📦 common:
+   Skills: 44
+   Total Tokens: 41683
+   Avg/Skill: 947
+   Largest: common-subagent-driven-development (2119 tokens)
+
+📦 quality-engineering:
+   Skills: 14
+   Total Tokens: 12010
+   Avg/Skill: 858
+   Largest: quality-engineering-zephyr-test-generation (1278 tokens)
+
+📦 specialists:
+   Skills: 21
+   Total Tokens: 12316
+   Avg/Skill: 586
+   Largest: specialist-solution-diagrammer (1033 tokens)
+
+📦 golang:
+   Skills: 11
+   Total Tokens: 6720
+   Avg/Skill: 611
+   Largest: golang-testing (989 tokens)
+
+📦 angular:
+   Skills: 15
+   Total Tokens: 9284
+   Avg/Skill: 619
+   Largest: angular-testing (922 tokens)
+
+📦 kotlin:
+   Skills: 4
+   Total Tokens: 1796
+   Avg/Skill: 449
+   Largest: kotlin-language (555 tokens)
+
+📦 java:
+   Skills: 5
+   Total Tokens: 3069
+   Avg/Skill: 614
+   Largest: java-testing (1041 tokens)
+
+📦 spring-boot:
+   Skills: 10
+   Total Tokens: 5330
+   Avg/Skill: 533
+   Largest: spring-boot-testing (819 tokens)
+
+📦 android:
+   Skills: 26
+   Total Tokens: 12260
+   Avg/Skill: 472
+   Largest: android-testing (901 tokens)
+
+📦 swift:
+   Skills: 8
+   Total Tokens: 4663
+   Avg/Skill: 583
+   Largest: swift-testing (801 tokens)
+
+📦 ios:
+   Skills: 15
+   Total Tokens: 6601
+   Avg/Skill: 440
+   Largest: ios-architecture (743 tokens)
+
+📦 php:
+   Skills: 7
+   Total Tokens: 4429
+   Avg/Skill: 633
+   Largest: php-testing (929 tokens)
+
+📦 python:
+   Skills: 9
+   Total Tokens: 4062
+   Avg/Skill: 451
+   Largest: python-testing (851 tokens)
+
+📦 laravel:
+   Skills: 10
+   Total Tokens: 7811
+   Avg/Skill: 781
+   Largest: laravel-testing (989 tokens)
+
+📦 system-design:
+   Skills: 13
+   Total Tokens: 15657
+   Avg/Skill: 1204
+   Largest: system-design-review (1935 tokens)
+
+📦 cybersecurity:
+   Skills: 11
+   Total Tokens: 6760
+   Avg/Skill: 615
+   Largest: cyber-scoped-validation (732 tokens)
+
+📦 database:
+   Skills: 8
+   Total Tokens: 3906
+   Avg/Skill: 488
+   Largest: database-hana (920 tokens)
+
+📦 product-management:
+   Skills: 10
+   Total Tokens: 13868
+   Avg/Skill: 1387
+   Largest: product-metrics (1717 tokens)
+
+═══════════════════════════════════════
+📈 GRAND TOTAL: 229944 tokens across 333 skills
+═══════════════════════════════════════
+
+✅ Updated metadata.json with token_metrics
+
+STDERR:
+
+[generate-indices] exitCode=0
+STDOUT:
+✅ Generated indices for 26 frameworks in skills/index.json
+✅ Generated _INDEX.md for 26 categories
+✅ Updated AGENTS.md in repo root (Router-style)
+✅ Updated agent rule files for: copilot, antigravity, codex, claude
+✅ Updated skills/README.md with auto-generated index
+  ✅ 33 workflows synced to .github/prompts/ (GitHub Copilot)
+  ✅ 33 workflows synced to .agents/workflows/ (Antigravity)
+  ✅ 33 workflows synced to .codex/skills/ (Codex)
+  ✅ 33 workflows synced to .claude/commands/ (Claude Code)
+✅ Synced 33 local workflows to target agent folders
+  - Updated .github/skills/ (GitHub Copilot)
+  - Updated .agents/skills/ (Antigravity)
+  - Updated .codex/skills/ (Codex)
+  - Updated .claude/skills/ (Claude Code)
+✅ Synced 88 local skills to target agent folders
+  ✅ Generated _INDEX.md for 6 categories.
+  ✅ AGENTS.md router index updated.
+  ✅ server/AGENTS.md router index updated.
+  ✅ 21 specialists synced to .github/copilot-agents/ (GitHub Copilot)
+  ✅ 21 specialists synced to .codex/agents/ (Codex)
+  ✅ 21 specialists synced to .claude/agents/ (Claude Code)
+✅ Synced specialists for: copilot, antigravity, codex, claude
+
+STDERR:
+
+[generate-capabilities-doc] exitCode=0
+STDOUT:
+✅ Wrote docs/agent-capabilities.md
+
+STDERR:
+
+Canonical and host parity checks passed.
+Pinned-base producer outputs reconstructed and verified for 95 paths at 52ac482a5b948d9d26df4c3a2617afec74d1cf54.
+Published & verified: .agents/skills/common/common-context-optimization/references/implementation.md
+Published & verified: .agents/skills/common/common-decision-discipline/SKILL.md
+Published & verified: .agents/skills/common/common-learning-log/SKILL.md
+Published & verified: .agents/skills/common/common-learning-log/references/log-format.md
+Published & verified: .agents/skills/common/common-security-standards/SKILL.md
+Published & verified: .agents/skills/common/common-security-standards/references/VULNERABILITY_REMEDIATION.md
+Published & verified: .agents/skills/common/common-security-standards/references/implementation.md
+Published & verified: .agents/skills/common/common-session-retrospective/SKILL.md
+Published & verified: .agents/skills/common/common-session-retrospective/references/methodology.md
+Published & verified: .agents/skills/common/common-skill-creator/SKILL.md
+Published & verified: .agents/skills/common/common-skill-creator/references/eval-workflow.md
+Published & verified: .agents/skills/common/common-skill-creator/references/lifecycle.md
+Published & verified: .agents/skills/common/common-skill-creator/references/testing.md
+Published & verified: .agents/skills/common/common-subagent-driven-development/SKILL.md
+Published & verified: .agents/skills/common/common-subagent-driven-development/references/methodology.md
+Published & verified: .agents/skills/common/common-subagent-driven-development/references/templates.md
+Published & verified: .agents/skills/common/common-subagent-driven-development/scripts/task_brief.py
+Published & verified: .agents/skills/common/common-tdd/SKILL.md
+Published & verified: .agents/skills/common/common-tdd/references/quality-contract.md
+Published & verified: .agents/skills/common/common-telemetry/SKILL.md
+Published & verified: .agents/skills/common/common-web-visual-testing/SKILL.md
+Published & verified: .agents/skills/common/common-web-visual-testing/references/login-and-test-data.md
+Published & verified: .claude/commands/implement-feature.md
+Published & verified: .claude/commands/session-report.md
+Published & verified: .claude/skills/common/common-context-optimization/references/implementation.md
+Published & verified: .claude/skills/common/common-decision-discipline/SKILL.md
+Published & verified: .claude/skills/common/common-learning-log/SKILL.md
+Published & verified: .claude/skills/common/common-learning-log/references/log-format.md
+Published & verified: .claude/skills/common/common-security-standards/SKILL.md
+Published & verified: .claude/skills/common/common-security-standards/references/VULNERABILITY_REMEDIATION.md
+Published & verified: .claude/skills/common/common-security-standards/references/implementation.md
+Published & verified: .claude/skills/common/common-session-retrospective/SKILL.md
+Published & verified: .claude/skills/common/common-session-retrospective/references/methodology.md
+Published & verified: .claude/skills/common/common-skill-creator/SKILL.md
+Published & verified: .claude/skills/common/common-skill-creator/references/eval-workflow.md
+Published & verified: .claude/skills/common/common-skill-creator/references/lifecycle.md
+Published & verified: .claude/skills/common/common-skill-creator/references/testing.md
+Published & verified: .claude/skills/common/common-subagent-driven-development/SKILL.md
+Published & verified: .claude/skills/common/common-subagent-driven-development/references/methodology.md
+Published & verified: .claude/skills/common/common-subagent-driven-development/references/templates.md
+Published & verified: .claude/skills/common/common-subagent-driven-development/scripts/task_brief.py
+Published & verified: .claude/skills/common/common-tdd/SKILL.md
+Published & verified: .claude/skills/common/common-tdd/references/quality-contract.md
+Published & verified: .claude/skills/common/common-telemetry/SKILL.md
+Published & verified: .claude/skills/common/common-web-visual-testing/SKILL.md
+Published & verified: .claude/skills/common/common-web-visual-testing/references/login-and-test-data.md
+Published & verified: .codex/skills/common/common-context-optimization/references/implementation.md
+Published & verified: .codex/skills/common/common-decision-discipline/SKILL.md
+Published & verified: .codex/skills/common/common-learning-log/SKILL.md
+Published & verified: .codex/skills/common/common-learning-log/references/log-format.md
+Published & verified: .codex/skills/common/common-security-standards/SKILL.md
+Published & verified: .codex/skills/common/common-security-standards/references/VULNERABILITY_REMEDIATION.md
+Published & verified: .codex/skills/common/common-security-standards/references/implementation.md
+Published & verified: .codex/skills/common/common-session-retrospective/SKILL.md
+Published & verified: .codex/skills/common/common-session-retrospective/references/methodology.md
+Published & verified: .codex/skills/common/common-skill-creator/SKILL.md
+Published & verified: .codex/skills/common/common-skill-creator/references/eval-workflow.md
+Published & verified: .codex/skills/common/common-skill-creator/references/lifecycle.md
+Published & verified: .codex/skills/common/common-skill-creator/references/testing.md
+Published & verified: .codex/skills/common/common-subagent-driven-development/SKILL.md
+Published & verified: .codex/skills/common/common-subagent-driven-development/references/methodology.md
+Published & verified: .codex/skills/common/common-subagent-driven-development/references/templates.md
+Published & verified: .codex/skills/common/common-subagent-driven-development/scripts/task_brief.py
+Published & verified: .codex/skills/common/common-tdd/SKILL.md
+Published & verified: .codex/skills/common/common-tdd/references/quality-contract.md
+Published & verified: .codex/skills/common/common-telemetry/SKILL.md
+Published & verified: .codex/skills/common/common-web-visual-testing/SKILL.md
+Published & verified: .codex/skills/common/common-web-visual-testing/references/login-and-test-data.md
+Published & verified: .codex/skills/implement-feature/SKILL.md
+Published & verified: .codex/skills/session-report/SKILL.md
+Published & verified: .github/prompts/implement-feature.prompt.md
+Published & verified: .github/prompts/session-report.prompt.md
+Published & verified: .github/skills/common/common-context-optimization/references/implementation.md
+Published & verified: .github/skills/common/common-decision-discipline/SKILL.md
+Published & verified: .github/skills/common/common-learning-log/SKILL.md
+Published & verified: .github/skills/common/common-learning-log/references/log-format.md
+Published & verified: .github/skills/common/common-security-standards/SKILL.md
+Published & verified: .github/skills/common/common-security-standards/references/VULNERABILITY_REMEDIATION.md
+Published & verified: .github/skills/common/common-security-standards/references/implementation.md
+Published & verified: .github/skills/common/common-session-retrospective/SKILL.md
+Published & verified: .github/skills/common/common-session-retrospective/references/methodology.md
+Published & verified: .github/skills/common/common-skill-creator/SKILL.md
+Published & verified: .github/skills/common/common-skill-creator/references/eval-workflow.md
+Published & verified: .github/skills/common/common-skill-creator/references/lifecycle.md
+Published & verified: .github/skills/common/common-skill-creator/references/testing.md
+Published & verified: .github/skills/common/common-subagent-driven-development/SKILL.md
+Published & verified: .github/skills/common/common-subagent-driven-development/references/methodology.md
+Published & verified: .github/skills/common/common-subagent-driven-development/references/templates.md
+Published & verified: .github/skills/common/common-subagent-driven-development/scripts/task_brief.py
+Published & verified: .github/skills/common/common-tdd/SKILL.md
+Published & verified: .github/skills/common/common-tdd/references/quality-contract.md
+Published & verified: .github/skills/common/common-telemetry/SKILL.md
+Published & verified: .github/skills/common/common-web-visual-testing/SKILL.md
+Published & verified: .github/skills/common/common-web-visual-testing/references/login-and-test-data.md
+Published & verified: skills/metadata.json

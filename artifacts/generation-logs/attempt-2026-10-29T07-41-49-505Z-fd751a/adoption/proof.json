@@ -1,0 +1,482 @@
+{
+  "base": "52ac482a5b948d9d26df4c3a2617afec74d1cf54",
+  "producer": "git archive + real generator phases",
+  "adopted": [
+    {
+      "path": ".agents/skills/common/common-context-optimization/references/implementation.md",
+      "sha256": "66b85d2a7aba5e016df8d64eab0bc8c1242ed024819c4324d010a3234a3dcd5e",
+      "baseSha256": "66b85d2a7aba5e016df8d64eab0bc8c1242ed024819c4324d010a3234a3dcd5e"
+    },
+    {
+      "path": ".agents/skills/common/common-decision-discipline/SKILL.md",
+      "sha256": "0df5a2ce474431c18b1e011b4b3672d737fb833ff863daba1b0c6f6f61dd806f",
+      "baseSha256": "0df5a2ce474431c18b1e011b4b3672d737fb833ff863daba1b0c6f6f61dd806f"
+    },
+    {
+      "path": ".agents/skills/common/common-learning-log/SKILL.md",
+      "sha256": "d8082fe46b7087e25818c6f6e61875d93e620d6b638447e6443748acb6494304",
+      "baseSha256": "d8082fe46b7087e25818c6f6e61875d93e620d6b638447e6443748acb6494304"
+    },
+    {
+      "path": ".agents/skills/common/common-learning-log/references/log-format.md",
+      "sha256": "fc72b2b56ab110f192f6dbddd0e29687e857c9b09feb24fecce86d6e66d0b49a",
+      "baseSha256": "fc72b2b56ab110f192f6dbddd0e29687e857c9b09feb24fecce86d6e66d0b49a"
+    },
+    {
+      "path": ".agents/skills/common/common-security-standards/SKILL.md",
+      "sha256": "d304e7df80f83120bee217703faaf3974b32f9c81d3e42a816624efcfecfc49f",
+      "baseSha256": "d304e7df80f83120bee217703faaf3974b32f9c81d3e42a816624efcfecfc49f"
+    },
+    {
+      "path": ".agents/skills/common/common-security-standards/references/VULNERABILITY_REMEDIATION.md",
+      "sha256": "bff42e6561110e2fc067fd9b32048cd4dddd7013ae8bb51732b4ab28ee2eef73",
+      "baseSha256": "bff42e6561110e2fc067fd9b32048cd4dddd7013ae8bb51732b4ab28ee2eef73"
+    },
+    {
+      "path": ".agents/skills/common/common-security-standards/references/implementation.md",
+      "sha256": "9302fc48dcf32057d5b1fc7a50cba110d14bdc56a0ab9323e2bbc9d59947bb29",
+      "baseSha256": "9302fc48dcf32057d5b1fc7a50cba110d14bdc56a0ab9323e2bbc9d59947bb29"
+    },
+    {
+      "path": ".agents/skills/common/common-session-retrospective/SKILL.md",
+      "sha256": "902ec683d4bf1e1bd6b5782407ad003a580170b865c8506e1af93ac1db00b874",
+      "baseSha256": "902ec683d4bf1e1bd6b5782407ad003a580170b865c8506e1af93ac1db00b874"
+    },
+    {
+      "path": ".agents/skills/common/common-session-retrospective/references/methodology.md",
+      "sha256": "ad238c73478f83da27347dd8f93c9d36ca72a8f1cd0e3b660a56db694719fc0d",
+      "baseSha256": "ad238c73478f83da27347dd8f93c9d36ca72a8f1cd0e3b660a56db694719fc0d"
+    },
+    {
+      "path": ".agents/skills/common/common-skill-creator/SKILL.md",
+      "sha256": "d11258c8537360a88c0f1893d3cfd3ef8c3788f5ce11d3aa6433aad6bd233d86",
+      "baseSha256": "d11258c8537360a88c0f1893d3cfd3ef8c3788f5ce11d3aa6433aad6bd233d86"
+    },
+    {
+      "path": ".agents/skills/common/common-skill-creator/references/eval-workflow.md",
+      "sha256": "fac6a335e37b7b66a038dc0aa2431abddfb87954377857cf1a15cdc766c2abc1",
+      "baseSha256": "fac6a335e37b7b66a038dc0aa2431abddfb87954377857cf1a15cdc766c2abc1"
+    },
+    {
+      "path": ".agents/skills/common/common-skill-creator/references/lifecycle.md",
+      "sha256": "3f3d8ba0794647ce288b60a38f0c67defe0ee1ab2d53b420f60410993bc333c2",
+      "baseSha256": "3f3d8ba0794647ce288b60a38f0c67defe0ee1ab2d53b420f60410993bc333c2"
+    },
+    {
+      "path": ".agents/skills/common/common-skill-creator/references/testing.md",
+      "sha256": "6a3b0fc2c57ac9491575cb025e992a3bbfbf19845b921390032a71c80b017f9c",
+      "baseSha256": "6a3b0fc2c57ac9491575cb025e992a3bbfbf19845b921390032a71c80b017f9c"
+    },
+    {
+      "path": ".agents/skills/common/common-subagent-driven-development/SKILL.md",
+      "sha256": "7503b77823cda442d542f54b089b72043fbeead2f6cf1c44f0fbb23f42f43aef",
+      "baseSha256": "7503b77823cda442d542f54b089b72043fbeead2f6cf1c44f0fbb23f42f43aef"
+    },
+    {
+      "path": ".agents/skills/common/common-subagent-driven-development/references/methodology.md",
+      "sha256": "e2e8548bb8247e31ffa0f44e78664a608a5774f80066fcb6ddf6cf9d0c78f2c9",
+      "baseSha256": "e2e8548bb8247e31ffa0f44e78664a608a5774f80066fcb6ddf6cf9d0c78f2c9"
+    },
+    {
+      "path": ".agents/skills/common/common-subagent-driven-development/references/templates.md",
+      "sha256": "f487daf8a3ecfe8b8abee76f9a2bfb8b931b5f118ea99aee3646583a3929aacb",
+      "baseSha256": "f487daf8a3ecfe8b8abee76f9a2bfb8b931b5f118ea99aee3646583a3929aacb"
+    },
+    {
+      "path": ".agents/skills/common/common-subagent-driven-development/scripts/task_brief.py",
+      "sha256": "d66207beca33b9b905b341a37be83b4c9338f776c359853e6068e98fb1ede896",
+      "baseSha256": "d66207beca33b9b905b341a37be83b4c9338f776c359853e6068e98fb1ede896"
+    },
+    {
+      "path": ".agents/skills/common/common-tdd/SKILL.md",
+      "sha256": "2902d3a26ef28015c2109f70526c7c6606a90fb510de6766566f1a0ee0a4ee31",
+      "baseSha256": "2902d3a26ef28015c2109f70526c7c6606a90fb510de6766566f1a0ee0a4ee31"
+    },
+    {
+      "path": ".agents/skills/common/common-tdd/references/quality-contract.md",
+      "sha256": "b8411152f012da4812f6f57fc07266ff26fc14b280be077babe774b792a6aad1",
+      "baseSha256": "b8411152f012da4812f6f57fc07266ff26fc14b280be077babe774b792a6aad1"
+    },
+    {
+      "path": ".agents/skills/common/common-telemetry/SKILL.md",
+      "sha256": "973f44393e081d5aefb70a0c219284fe128ba6b7f880c467328c3993638b884a",
+      "baseSha256": "973f44393e081d5aefb70a0c219284fe128ba6b7f880c467328c3993638b884a"
+    },
+    {
+      "path": ".agents/skills/common/common-web-visual-testing/SKILL.md",
+      "sha256": "87400640d721091640c27ba37e632bfc83a8db998de08774297f1fcded46e9b0",
+      "baseSha256": "87400640d721091640c27ba37e632bfc83a8db998de08774297f1fcded46e9b0"
+    },
+    {
+      "path": ".agents/skills/common/common-web-visual-testing/references/login-and-test-data.md",
+      "sha256": "295664eb50591cf16acb8d8cad4e1ae1e692be65a7fb28e45f206a2c316f0747",
+      "baseSha256": "295664eb50591cf16acb8d8cad4e1ae1e692be65a7fb28e45f206a2c316f0747"
+    },
+    {
+      "path": ".claude/commands/implement-feature.md",
+      "sha256": "e289a2ff5ff8990cb89e6dd3a4694a7bdd94130e3edc005ae6c92e5254f1572b",
+      "baseSha256": "e289a2ff5ff8990cb89e6dd3a4694a7bdd94130e3edc005ae6c92e5254f1572b"
+    },
+    {
+      "path": ".claude/commands/session-report.md",
+      "sha256": "c1683858f82f12d535fab517994f07a56ba0684350d56617a9855fd4e6d04676",
+      "baseSha256": "c1683858f82f12d535fab517994f07a56ba0684350d56617a9855fd4e6d04676"
+    },
+    {
+      "path": ".claude/skills/common/common-context-optimization/references/implementation.md",
+      "sha256": "66b85d2a7aba5e016df8d64eab0bc8c1242ed024819c4324d010a3234a3dcd5e",
+      "baseSha256": "66b85d2a7aba5e016df8d64eab0bc8c1242ed024819c4324d010a3234a3dcd5e"
+    },
+    {
+      "path": ".claude/skills/common/common-decision-discipline/SKILL.md",
+      "sha256": "0df5a2ce474431c18b1e011b4b3672d737fb833ff863daba1b0c6f6f61dd806f",
+      "baseSha256": "0df5a2ce474431c18b1e011b4b3672d737fb833ff863daba1b0c6f6f61dd806f"
+    },
+    {
+      "path": ".claude/skills/common/common-learning-log/SKILL.md",
+      "sha256": "d8082fe46b7087e25818c6f6e61875d93e620d6b638447e6443748acb6494304",
+      "baseSha256": "d8082fe46b7087e25818c6f6e61875d93e620d6b638447e6443748acb6494304"
+    },
+    {
+      "path": ".claude/skills/common/common-learning-log/references/log-format.md",
+      "sha256": "fc72b2b56ab110f192f6dbddd0e29687e857c9b09feb24fecce86d6e66d0b49a",
+      "baseSha256": "fc72b2b56ab110f192f6dbddd0e29687e857c9b09feb24fecce86d6e66d0b49a"
+    },
+    {
+      "path": ".claude/skills/common/common-security-standards/SKILL.md",
+      "sha256": "d304e7df80f83120bee217703faaf3974b32f9c81d3e42a816624efcfecfc49f",
+      "baseSha256": "d304e7df80f83120bee217703faaf3974b32f9c81d3e42a816624efcfecfc49f"
+    },
+    {
+      "path": ".claude/skills/common/common-security-standards/references/VULNERABILITY_REMEDIATION.md",
+      "sha256": "bff42e6561110e2fc067fd9b32048cd4dddd7013ae8bb51732b4ab28ee2eef73",
+      "baseSha256": "bff42e6561110e2fc067fd9b32048cd4dddd7013ae8bb51732b4ab28ee2eef73"
+    },
+    {
+      "path": ".claude/skills/common/common-security-standards/references/implementation.md",
+      "sha256": "9302fc48dcf32057d5b1fc7a50cba110d14bdc56a0ab9323e2bbc9d59947bb29",
+      "baseSha256": "9302fc48dcf32057d5b1fc7a50cba110d14bdc56a0ab9323e2bbc9d59947bb29"
+    },
+    {
+      "path": ".claude/skills/common/common-session-retrospective/SKILL.md",
+      "sha256": "902ec683d4bf1e1bd6b5782407ad003a580170b865c8506e1af93ac1db00b874",
+      "baseSha256": "902ec683d4bf1e1bd6b5782407ad003a580170b865c8506e1af93ac1db00b874"
+    },
+    {
+      "path": ".claude/skills/common/common-session-retrospective/references/methodology.md",
+      "sha256": "ad238c73478f83da27347dd8f93c9d36ca72a8f1cd0e3b660a56db694719fc0d",
+      "baseSha256": "ad238c73478f83da27347dd8f93c9d36ca72a8f1cd0e3b660a56db694719fc0d"
+    },
+    {
+      "path": ".claude/skills/common/common-skill-creator/SKILL.md",
+      "sha256": "d11258c8537360a88c0f1893d3cfd3ef8c3788f5ce11d3aa6433aad6bd233d86",
+      "baseSha256": "d11258c8537360a88c0f1893d3cfd3ef8c3788f5ce11d3aa6433aad6bd233d86"
+    },
+    {
+      "path": ".claude/skills/common/common-skill-creator/references/eval-workflow.md",
+      "sha256": "fac6a335e37b7b66a038dc0aa2431abddfb87954377857cf1a15cdc766c2abc1",
+      "baseSha256": "fac6a335e37b7b66a038dc0aa2431abddfb87954377857cf1a15cdc766c2abc1"
+    },
+    {
+      "path": ".claude/skills/common/common-skill-creator/references/lifecycle.md",
+      "sha256": "3f3d8ba0794647ce288b60a38f0c67defe0ee1ab2d53b420f60410993bc333c2",
+      "baseSha256": "3f3d8ba0794647ce288b60a38f0c67defe0ee1ab2d53b420f60410993bc333c2"
+    },
+    {
+      "path": ".claude/skills/common/common-skill-creator/references/testing.md",
+      "sha256": "6a3b0fc2c57ac9491575cb025e992a3bbfbf19845b921390032a71c80b017f9c",
+      "baseSha256": "6a3b0fc2c57ac9491575cb025e992a3bbfbf19845b921390032a71c80b017f9c"
+    },
+    {
+      "path": ".claude/skills/common/common-subagent-driven-development/SKILL.md",
+      "sha256": "7503b77823cda442d542f54b089b72043fbeead2f6cf1c44f0fbb23f42f43aef",
+      "baseSha256": "7503b77823cda442d542f54b089b72043fbeead2f6cf1c44f0fbb23f42f43aef"
+    },
+    {
+      "path": ".claude/skills/common/common-subagent-driven-development/references/methodology.md",
+      "sha256": "e2e8548bb8247e31ffa0f44e78664a608a5774f80066fcb6ddf6cf9d0c78f2c9",
+      "baseSha256": "e2e8548bb8247e31ffa0f44e78664a608a5774f80066fcb6ddf6cf9d0c78f2c9"
+    },
+    {
+      "path": ".claude/skills/common/common-subagent-driven-development/references/templates.md",
+      "sha256": "f487daf8a3ecfe8b8abee76f9a2bfb8b931b5f118ea99aee3646583a3929aacb",
+      "baseSha256": "f487daf8a3ecfe8b8abee76f9a2bfb8b931b5f118ea99aee3646583a3929aacb"
+    },
+    {
+      "path": ".claude/skills/common/common-subagent-driven-development/scripts/task_brief.py",
+      "sha256": "d66207beca33b9b905b341a37be83b4c9338f776c359853e6068e98fb1ede896",
+      "baseSha256": "d66207beca33b9b905b341a37be83b4c9338f776c359853e6068e98fb1ede896"
+    },
+    {
+      "path": ".claude/skills/common/common-tdd/SKILL.md",
+      "sha256": "2902d3a26ef28015c2109f70526c7c6606a90fb510de6766566f1a0ee0a4ee31",
+      "baseSha256": "2902d3a26ef28015c2109f70526c7c6606a90fb510de6766566f1a0ee0a4ee31"
+    },
+    {
+      "path": ".claude/skills/common/common-tdd/references/quality-contract.md",
+      "sha256": "b8411152f012da4812f6f57fc07266ff26fc14b280be077babe774b792a6aad1",
+      "baseSha256": "b8411152f012da4812f6f57fc07266ff26fc14b280be077babe774b792a6aad1"
+    },
+    {
+      "path": ".claude/skills/common/common-telemetry/SKILL.md",
+      "sha256": "973f44393e081d5aefb70a0c219284fe128ba6b7f880c467328c3993638b884a",
+      "baseSha256": "973f44393e081d5aefb70a0c219284fe128ba6b7f880c467328c3993638b884a"
+    },
+    {
+      "path": ".claude/skills/common/common-web-visual-testing/SKILL.md",
+      "sha256": "87400640d721091640c27ba37e632bfc83a8db998de08774297f1fcded46e9b0",
+      "baseSha256": "87400640d721091640c27ba37e632bfc83a8db998de08774297f1fcded46e9b0"
+    },
+    {
+      "path": ".claude/skills/common/common-web-visual-testing/references/login-and-test-data.md",
+      "sha256": "295664eb50591cf16acb8d8cad4e1ae1e692be65a7fb28e45f206a2c316f0747",
+      "baseSha256": "295664eb50591cf16acb8d8cad4e1ae1e692be65a7fb28e45f206a2c316f0747"
+    },
+    {
+      "path": ".codex/skills/common/common-context-optimization/references/implementation.md",
+      "sha256": "66b85d2a7aba5e016df8d64eab0bc8c1242ed024819c4324d010a3234a3dcd5e",
+      "baseSha256": "66b85d2a7aba5e016df8d64eab0bc8c1242ed024819c4324d010a3234a3dcd5e"
+    },
+    {
+      "path": ".codex/skills/common/common-decision-discipline/SKILL.md",
+      "sha256": "0df5a2ce474431c18b1e011b4b3672d737fb833ff863daba1b0c6f6f61dd806f",
+      "baseSha256": "0df5a2ce474431c18b1e011b4b3672d737fb833ff863daba1b0c6f6f61dd806f"
+    },
+    {
+      "path": ".codex/skills/common/common-learning-log/SKILL.md",
+      "sha256": "d8082fe46b7087e25818c6f6e61875d93e620d6b638447e6443748acb6494304",
+      "baseSha256": "d8082fe46b7087e25818c6f6e61875d93e620d6b638447e6443748acb6494304"
+    },
+    {
+      "path": ".codex/skills/common/common-learning-log/references/log-format.md",
+      "sha256": "fc72b2b56ab110f192f6dbddd0e29687e857c9b09feb24fecce86d6e66d0b49a",
+      "baseSha256": "fc72b2b56ab110f192f6dbddd0e29687e857c9b09feb24fecce86d6e66d0b49a"
+    },
+    {
+      "path": ".codex/skills/common/common-security-standards/SKILL.md",
+      "sha256": "d304e7df80f83120bee217703faaf3974b32f9c81d3e42a816624efcfecfc49f",
+      "baseSha256": "d304e7df80f83120bee217703faaf3974b32f9c81d3e42a816624efcfecfc49f"
+    },
+    {
+      "path": ".codex/skills/common/common-security-standards/references/VULNERABILITY_REMEDIATION.md",
+      "sha256": "bff42e6561110e2fc067fd9b32048cd4dddd7013ae8bb51732b4ab28ee2eef73",
+      "baseSha256": "bff42e6561110e2fc067fd9b32048cd4dddd7013ae8bb51732b4ab28ee2eef73"
+    },
+    {
+      "path": ".codex/skills/common/common-security-standards/references/implementation.md",
+      "sha256": "9302fc48dcf32057d5b1fc7a50cba110d14bdc56a0ab9323e2bbc9d59947bb29",
+      "baseSha256": "9302fc48dcf32057d5b1fc7a50cba110d14bdc56a0ab9323e2bbc9d59947bb29"
+    },
+    {
+      "path": ".codex/skills/common/common-session-retrospective/SKILL.md",
+      "sha256": "902ec683d4bf1e1bd6b5782407ad003a580170b865c8506e1af93ac1db00b874",
+      "baseSha256": "902ec683d4bf1e1bd6b5782407ad003a580170b865c8506e1af93ac1db00b874"
+    },
+    {
+      "path": ".codex/skills/common/common-session-retrospective/references/methodology.md",
+      "sha256": "ad238c73478f83da27347dd8f93c9d36ca72a8f1cd0e3b660a56db694719fc0d",
+      "baseSha256": "ad238c73478f83da27347dd8f93c9d36ca72a8f1cd0e3b660a56db694719fc0d"
+    },
+    {
+      "path": ".codex/skills/common/common-skill-creator/SKILL.md",
+      "sha256": "d11258c8537360a88c0f1893d3cfd3ef8c3788f5ce11d3aa6433aad6bd233d86",
+      "baseSha256": "d11258c8537360a88c0f1893d3cfd3ef8c3788f5ce11d3aa6433aad6bd233d86"
+    },
+    {
+      "path": ".codex/skills/common/common-skill-creator/references/eval-workflow.md",
+      "sha256": "fac6a335e37b7b66a038dc0aa2431abddfb87954377857cf1a15cdc766c2abc1",
+      "baseSha256": "fac6a335e37b7b66a038dc0aa2431abddfb87954377857cf1a15cdc766c2abc1"
+    },
+    {
+      "path": ".codex/skills/common/common-skill-creator/references/lifecycle.md",
+      "sha256": "3f3d8ba0794647ce288b60a38f0c67defe0ee1ab2d53b420f60410993bc333c2",
+      "baseSha256": "3f3d8ba0794647ce288b60a38f0c67defe0ee1ab2d53b420f60410993bc333c2"
+    },
+    {
+      "path": ".codex/skills/common/common-skill-creator/references/testing.md",
+      "sha256": "6a3b0fc2c57ac9491575cb025e992a3bbfbf19845b921390032a71c80b017f9c",
+      "baseSha256": "6a3b0fc2c57ac9491575cb025e992a3bbfbf19845b921390032a71c80b017f9c"
+    },
+    {
+      "path": ".codex/skills/common/common-subagent-driven-development/SKILL.md",
+      "sha256": "7503b77823cda442d542f54b089b72043fbeead2f6cf1c44f0fbb23f42f43aef",
+      "baseSha256": "7503b77823cda442d542f54b089b72043fbeead2f6cf1c44f0fbb23f42f43aef"
+    },
+    {
+      "path": ".codex/skills/common/common-subagent-driven-development/references/methodology.md",
+      "sha256": "e2e8548bb8247e31ffa0f44e78664a608a5774f80066fcb6ddf6cf9d0c78f2c9",
+      "baseSha256": "e2e8548bb8247e31ffa0f44e78664a608a5774f80066fcb6ddf6cf9d0c78f2c9"
+    },
+    {
+      "path": ".codex/skills/common/common-subagent-driven-development/references/templates.md",
+      "sha256": "f487daf8a3ecfe8b8abee76f9a2bfb8b931b5f118ea99aee3646583a3929aacb",
+      "baseSha256": "f487daf8a3ecfe8b8abee76f9a2bfb8b931b5f118ea99aee3646583a3929aacb"
+    },
+    {
+      "path": ".codex/skills/common/common-subagent-driven-development/scripts/task_brief.py",
+      "sha256": "d66207beca33b9b905b341a37be83b4c9338f776c359853e6068e98fb1ede896",
+      "baseSha256": "d66207beca33b9b905b341a37be83b4c9338f776c359853e6068e98fb1ede896"
+    },
+    {
+      "path": ".codex/skills/common/common-tdd/SKILL.md",
+      "sha256": "2902d3a26ef28015c2109f70526c7c6606a90fb510de6766566f1a0ee0a4ee31",
+      "baseSha256": "2902d3a26ef28015c2109f70526c7c6606a90fb510de6766566f1a0ee0a4ee31"
+    },
+    {
+      "path": ".codex/skills/common/common-tdd/references/quality-contract.md",
+      "sha256": "b8411152f012da4812f6f57fc07266ff26fc14b280be077babe774b792a6aad1",
+      "baseSha256": "b8411152f012da4812f6f57fc07266ff26fc14b280be077babe774b792a6aad1"
+    },
+    {
+      "path": ".codex/skills/common/common-telemetry/SKILL.md",
+      "sha256": "973f44393e081d5aefb70a0c219284fe128ba6b7f880c467328c3993638b884a",
+      "baseSha256": "973f44393e081d5aefb70a0c219284fe128ba6b7f880c467328c3993638b884a"
+    },
+    {
+      "path": ".codex/skills/common/common-web-visual-testing/SKILL.md",
+      "sha256": "87400640d721091640c27ba37e632bfc83a8db998de08774297f1fcded46e9b0",
+      "baseSha256": "87400640d721091640c27ba37e632bfc83a8db998de08774297f1fcded46e9b0"
+    },
+    {
+      "path": ".codex/skills/common/common-web-visual-testing/references/login-and-test-data.md",
+      "sha256": "295664eb50591cf16acb8d8cad4e1ae1e692be65a7fb28e45f206a2c316f0747",
+      "baseSha256": "295664eb50591cf16acb8d8cad4e1ae1e692be65a7fb28e45f206a2c316f0747"
+    },
+    {
+      "path": ".codex/skills/implement-feature/SKILL.md",
+      "sha256": "697760f18c45521db01389765fa709aa8bdb4f1e294431571ae464f8dc870271",
+      "baseSha256": "697760f18c45521db01389765fa709aa8bdb4f1e294431571ae464f8dc870271"
+    },
+    {
+      "path": ".codex/skills/session-report/SKILL.md",
+      "sha256": "81008ed0ebc98574489a2ee929c2c2a3e44aae2241f80e4f91e565d173c190be",
+      "baseSha256": "81008ed0ebc98574489a2ee929c2c2a3e44aae2241f80e4f91e565d173c190be"
+    },
+    {
+      "path": ".github/prompts/implement-feature.prompt.md",
+      "sha256": "bb54a10b0fb092124d562e1028719d5e508b18e8b205ce25e6c615aa39e8e5a9",
+      "baseSha256": "bb54a10b0fb092124d562e1028719d5e508b18e8b205ce25e6c615aa39e8e5a9"
+    },
+    {
+      "path": ".github/prompts/session-report.prompt.md",
+      "sha256": "885dd340b1b8ac0298dc21d42a7e5985eb905f5f11478adef351cb788a40a8c7",
+      "baseSha256": "885dd340b1b8ac0298dc21d42a7e5985eb905f5f11478adef351cb788a40a8c7"
+    },
+    {
+      "path": ".github/skills/common/common-context-optimization/references/implementation.md",
+      "sha256": "66b85d2a7aba5e016df8d64eab0bc8c1242ed024819c4324d010a3234a3dcd5e",
+      "baseSha256": "66b85d2a7aba5e016df8d64eab0bc8c1242ed024819c4324d010a3234a3dcd5e"
+    },
+    {
+      "path": ".github/skills/common/common-decision-discipline/SKILL.md",
+      "sha256": "0df5a2ce474431c18b1e011b4b3672d737fb833ff863daba1b0c6f6f61dd806f",
+      "baseSha256": "0df5a2ce474431c18b1e011b4b3672d737fb833ff863daba1b0c6f6f61dd806f"
+    },
+    {
+      "path": ".github/skills/common/common-learning-log/SKILL.md",
+      "sha256": "d8082fe46b7087e25818c6f6e61875d93e620d6b638447e6443748acb6494304",
+      "baseSha256": "d8082fe46b7087e25818c6f6e61875d93e620d6b638447e6443748acb6494304"
+    },
+    {
+      "path": ".github/skills/common/common-learning-log/references/log-format.md",
+      "sha256": "fc72b2b56ab110f192f6dbddd0e29687e857c9b09feb24fecce86d6e66d0b49a",
+      "baseSha256": "fc72b2b56ab110f192f6dbddd0e29687e857c9b09feb24fecce86d6e66d0b49a"
+    },
+    {
+      "path": ".github/skills/common/common-security-standards/SKILL.md",
+      "sha256": "d304e7df80f83120bee217703faaf3974b32f9c81d3e42a816624efcfecfc49f",
+      "baseSha256": "d304e7df80f83120bee217703faaf3974b32f9c81d3e42a816624efcfecfc49f"
+    },
+    {
+      "path": ".github/skills/common/common-security-standards/references/VULNERABILITY_REMEDIATION.md",
+      "sha256": "bff42e6561110e2fc067fd9b32048cd4dddd7013ae8bb51732b4ab28ee2eef73",
+      "baseSha256": "bff42e6561110e2fc067fd9b32048cd4dddd7013ae8bb51732b4ab28ee2eef73"
+    },
+    {
+      "path": ".github/skills/common/common-security-standards/references/implementation.md",
+      "sha256": "9302fc48dcf32057d5b1fc7a50cba110d14bdc56a0ab9323e2bbc9d59947bb29",
+      "baseSha256": "9302fc48dcf32057d5b1fc7a50cba110d14bdc56a0ab9323e2bbc9d59947bb29"
+    },
+    {
+      "path": ".github/skills/common/common-session-retrospective/SKILL.md",
+      "sha256": "902ec683d4bf1e1bd6b5782407ad003a580170b865c8506e1af93ac1db00b874",
+      "baseSha256": "902ec683d4bf1e1bd6b5782407ad003a580170b865c8506e1af93ac1db00b874"
+    },
+    {
+      "path": ".github/skills/common/common-session-retrospective/references/methodology.md",
+      "sha256": "ad238c73478f83da27347dd8f93c9d36ca72a8f1cd0e3b660a56db694719fc0d",
+      "baseSha256": "ad238c73478f83da27347dd8f93c9d36ca72a8f1cd0e3b660a56db694719fc0d"
+    },
+    {
+      "path": ".github/skills/common/common-skill-creator/SKILL.md",
+      "sha256": "d11258c8537360a88c0f1893d3cfd3ef8c3788f5ce11d3aa6433aad6bd233d86",
+      "baseSha256": "d11258c8537360a88c0f1893d3cfd3ef8c3788f5ce11d3aa6433aad6bd233d86"
+    },
+    {
+      "path": ".github/skills/common/common-skill-creator/references/eval-workflow.md",
+      "sha256": "fac6a335e37b7b66a038dc0aa2431abddfb87954377857cf1a15cdc766c2abc1",
+      "baseSha256": "fac6a335e37b7b66a038dc0aa2431abddfb87954377857cf1a15cdc766c2abc1"
+    },
+    {
+      "path": ".github/skills/common/common-skill-creator/references/lifecycle.md",
+      "sha256": "3f3d8ba0794647ce288b60a38f0c67defe0ee1ab2d53b420f60410993bc333c2",
+      "baseSha256": "3f3d8ba0794647ce288b60a38f0c67defe0ee1ab2d53b420f60410993bc333c2"
+    },
+    {
+      "path": ".github/skills/common/common-skill-creator/references/testing.md",
+      "sha256": "6a3b0fc2c57ac9491575cb025e992a3bbfbf19845b921390032a71c80b017f9c",
+      "baseSha256": "6a3b0fc2c57ac9491575cb025e992a3bbfbf19845b921390032a71c80b017f9c"
+    },
+    {
+      "path": ".github/skills/common/common-subagent-driven-development/SKILL.md",
+      "sha256": "7503b77823cda442d542f54b089b72043fbeead2f6cf1c44f0fbb23f42f43aef",
+      "baseSha256": "7503b77823cda442d542f54b089b72043fbeead2f6cf1c44f0fbb23f42f43aef"
+    },
+    {
+      "path": ".github/skills/common/common-subagent-driven-development/references/methodology.md",
+      "sha256": "e2e8548bb8247e31ffa0f44e78664a608a5774f80066fcb6ddf6cf9d0c78f2c9",
+      "baseSha256": "e2e8548bb8247e31ffa0f44e78664a608a5774f80066fcb6ddf6cf9d0c78f2c9"
+    },
+    {
+      "path": ".github/skills/common/common-subagent-driven-development/references/templates.md",
+      "sha256": "f487daf8a3ecfe8b8abee76f9a2bfb8b931b5f118ea99aee3646583a3929aacb",
+      "baseSha256": "f487daf8a3ecfe8b8abee76f9a2bfb8b931b5f118ea99aee3646583a3929aacb"
+    },
+    {
+      "path": ".github/skills/common/common-subagent-driven-development/scripts/task_brief.py",
+      "sha256": "d66207beca33b9b905b341a37be83b4c9338f776c359853e6068e98fb1ede896",
+      "baseSha256": "d66207beca33b9b905b341a37be83b4c9338f776c359853e6068e98fb1ede896"
+    },
+    {
+      "path": ".github/skills/common/common-tdd/SKILL.md",
+      "sha256": "2902d3a26ef28015c2109f70526c7c6606a90fb510de6766566f1a0ee0a4ee31",
+      "baseSha256": "2902d3a26ef28015c2109f70526c7c6606a90fb510de6766566f1a0ee0a4ee31"
+    },
+    {
+      "path": ".github/skills/common/common-tdd/references/quality-contract.md",
+      "sha256": "b8411152f012da4812f6f57fc07266ff26fc14b280be077babe774b792a6aad1",
+      "baseSha256": "b8411152f012da4812f6f57fc07266ff26fc14b280be077babe774b792a6aad1"
+    },
+    {
+      "path": ".github/skills/common/common-telemetry/SKILL.md",
+      "sha256": "973f44393e081d5aefb70a0c219284fe128ba6b7f880c467328c3993638b884a",
+      "baseSha256": "973f44393e081d5aefb70a0c219284fe128ba6b7f880c467328c3993638b884a"
+    },
+    {
+      "path": ".github/skills/common/common-web-visual-testing/SKILL.md",
+      "sha256": "87400640d721091640c27ba37e632bfc83a8db998de08774297f1fcded46e9b0",
+      "baseSha256": "87400640d721091640c27ba37e632bfc83a8db998de08774297f1fcded46e9b0"
+    },
+    {
+      "path": ".github/skills/common/common-web-visual-testing/references/login-and-test-data.md",
+      "sha256": "295664eb50591cf16acb8d8cad4e1ae1e692be65a7fb28e45f206a2c316f0747",
+      "baseSha256": "295664eb50591cf16acb8d8cad4e1ae1e692be65a7fb28e45f206a2c316f0747"
+    },
+    {
+      "path": "skills/metadata.json",
+      "sha256": "ae52f45b038e67d475b62aa956d6f2603f60983a554e974d6d4bb7315546724d",
+      "baseSha256": "7cee08f5a8618be364e564217b219ab12030943414f00d0078e94610982dfa9d",
+      "scopeSha256": "b3fbaa905f613a8fc18f8a3df9cdb5f2ffedfc64ba220fd3431e0f1802925d9e"
+    }
+  ]
+}

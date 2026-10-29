@@ -1295,47 +1295,19 @@ export class SyncService {
 
   private async cleanupOldFolders(): Promise<void> {
     const oldPath = path.join(process.cwd(), '.agent');
-    const newPath = path.join(process.cwd(), '.agents');
-    // Reserved active workspace (packet/report artifacts). It must never be
-    // migrated or removed by the legacy `.agent` cleanup.
-    const reservedSdd = 'sdd';
 
+
+    // Conservative preservation (H03): Ordinary install/writeSkills migration must NEVER
+    // delete or mutate unknown active data in .agent (e.g. .agent/sdd, transcripts, receipts).
+    // Preserving user data wins over naming cleanup. Automatic cleanup and deletion of .agent
+    // is completely stopped.
     if (await fs.pathExists(oldPath)) {
-      try {
-        const entries = await fs.readdir(oldPath);
-        const legacyEntries = entries.filter((entry) => entry !== reservedSdd);
-
-        // Merge only legacy content into the new folder without overwriting
-        // user files; the active SDD tree keeps its original bytes and paths.
-        for (const entry of legacyEntries) {
-          await fs.copy(path.join(oldPath, entry), path.join(newPath, entry), {
-            overwrite: false,
-            errorOnExist: false,
-          });
-        }
-        for (const entry of legacyEntries) {
-          await fs.remove(path.join(oldPath, entry));
-        }
-
-        const remaining = await fs.readdir(oldPath);
-        if (remaining.length === 0) {
-          await fs.remove(oldPath);
-          console.log(
-            pc.gray('  - Migrated and cleaned up old .agent folder.'),
-          );
-        } else {
-          console.log(
-            pc.gray(
-              '  - Migrated legacy .agent entries; kept active .agent/sdd workspace.',
-            ),
-          );
-        }
-      } catch (error) {
-        if (process.env.DEBUG) {
-          console.debug(
-            `Failed to migrate/cleanup old .agent folder: ${error}`,
-          );
-        }
+      if (process.env.DEBUG) {
+        console.debug(
+          pc.gray(
+            'Preserved existing .agent folder untouched; automatic removal disabled to protect active evidence.',
+          ),
+        );
       }
     }
   }

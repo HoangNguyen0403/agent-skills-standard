@@ -75,11 +75,12 @@ Illustrative shape only matching SRS §4.1 `Intent` schema. The `sha256` digest 
 
 | Status | Meaning | Next action |
 | --- | --- | --- |
-| `expected_red` | Owned behavior is missing or wrong | Implement the smallest fix |
-| `invalid_red` | Import, syntax, fixture, mock, or environment defect | Repair test setup; do not change production |
+| `expected_red` | Owned behavioral assertion executed and failed before implementation | Implement the smallest fix |
+| `frozen_snapshot_red` | Regression verified against frozen pre-repair source snapshot; not original pre-implementation RED | Implement or integrate fix |
+| `not_run` | Tests written after implementation; original RED was not observed | Report honestly as NOT RUN; do not manufacture fake RED |
+| `invalid_red` | Import, syntax, fixture, mock, or environment defect (setup failure is not behavioral RED) | Repair test setup; do not change production |
 | `unexpected_green` | Behavior already exists or test is redundant | Inspect existing coverage and revise/remove case |
 | `verification_infra_failed` | Runner missing, timeout, or orphaned process | Stop, clean owned processes, report exact command/error |
-
 ## Escalation ladder
 
 1. Lint/type preflight when configured.
@@ -87,5 +88,22 @@ Illustrative shape only matching SRS §4.1 `Intent` schema. The `sha256` digest 
 3. Related unit file/package after the slice is green.
 4. Integration/contract target only when the changed boundary requires it.
 5. Full suite only for an explicit repository or release gate.
-
 Use the repository timeout when present; otherwise use 120 seconds for a focused command. Never retry without a changed hypothesis. Never use a broad `pkill`; terminate only the process group created for the command and verify it is gone.
+
+## Layered Acceptance Protocol
+
+Acceptance separates five independently tracked delivery layers whose applicability is governed by the approved task/release scope:
+1. **Source-Ready:** Complete owned source delivered at a known source/build identity (`git rev-parse HEAD` + dirty identity). Build, lint, and typecheck check statuses are explicitly and independently recorded (`PASS`, `FAIL`, `NOT RUN`, or `NOT APPLICABLE` with scope reasons). Source-ready means source handoff is complete; it does NOT imply unexecuted checks have passed.
+2. **Focused Checks:** Unit, component, or contract test targets covering the owned slice. Test count and membership derived directly from raw runner output. Reject early zero-exit completions and no-listener runs. Unit test iterations satisfy focused checks; they do not require universal human sign-off per test.
+3. **Consumer-Smoke:** Actual producer-to-consumer integration verifying outward side effects through real entry points (not mock echoes or synthetic renderer stubs). Required where task scope touches service boundaries, consumer contracts, or cross-component flows.
+4. **Independent Review:** Independent task review checking specification compliance, code quality, boundaries, and security. Required per task or slice gate in structured plans.
+5. **Human Acceptance:** Explicit sign-off by human partner or authorized business operator. Required for product milestones, external releases, or gated deployments. Where required, remains pending until an authorized human acts; agents cannot provide it.
+
+Each applicable layer requires: source/build identity, actual entrypoint/assertion, and result artifact. Inapplicable layers are recorded as `NOT APPLICABLE` with scope reasons, never marked `PASS` or silently dropped.
+## Runner Output Parsing & Rejection Rules
+
+- **Derive Count and Membership from Output:** Test suite membership and test count must be derived directly from raw runner output. Never accept summary exit status or generic success banners alone.
+- **Reject Early Zero-Exit Completions:** If a command exits with code 0 before assertions execute (e.g. background process terminates immediately, or test runner exits before running tests), reject as incomplete verification.
+- **Reject No-Listener Runs:** If a test runner or probe executes 0 tests or listeners fail to bind, reject completion.
+- **Actual Producer→Consumer Proof:** Verification must exercise the actual producer-to-consumer path and verify outward side effects, not mock choreography.
+- **Invalidation on Later Edits:** If source files are modified after focused checks or consumer smoke, only affected gates are invalidated and must be rerun on the final source revision; unrelated previous gates remain valid.

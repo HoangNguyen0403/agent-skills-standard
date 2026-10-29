@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "kind": "QUALIFIED_PRE_FORMAT_SOURCE_SNAPSHOT",
+  "baseCommit": "52ac482a5b948d9d26df4c3a2617afec74d1cf54",
+  "snapshotIncludesDirtyFoundationRepairs": true,
+  "inputs": [
+    "package.json",
+    "tsconfig.json",
+    "cli/package.json",
+    "cli/src",
+    "scripts/generation",
+    "scripts/generate-indices.ts",
+    "scripts/calculate-tokens.ts",
+    "scripts/generate-capabilities-doc.ts"
+  ],
+  "archive": "artifacts/diagnostic-prevention/implementation/attempt-01/task-1-qualified-preformat-source-01.tar",
+  "sha256": "117e1c20ae1bcb17378a12cb772a25f1d6faf0c22b9307c94d65f792fa6b4953",
+  "bytes": 2021376,
+  "dependencyTreesExcluded": true,
+  "limits": [
+    "Read-only mode is cooperative protection, not hostile-writer containment.",
+    "No historical failing-before claim; behavioral replay against these frozen bytes is a separate operation.",
+    "No root producer/generation/adoption/publication or ownership-ledger mutation."
+  ]
+}

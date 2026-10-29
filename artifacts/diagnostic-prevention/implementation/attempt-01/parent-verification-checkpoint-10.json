@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "status": "FINAL_FORMATTED_SOURCE_QUALIFIED_ROOT_REVIEW_PENDING",
+  "source": {
+    "helperSha256": "7f2d8e75f4d41330961a1d4c6314b27042a6af6bd2500bc27261f47be568a612",
+    "testSha256": "9c028737ea2ca665da1b97ee9d31fec637afd2d4126ed9d6e9676459f2549b0e",
+    "generatorTests": {"tests": 55, "pass": 55, "fail": 0, "skip": 0, "durationMs": 162207.782417},
+    "previousPreformatRun": {"pass": 55, "fail": 0, "skip": 0, "durationMs": 188517.221666},
+    "preformatArchive": "task-1-qualified-preformat-source-01.tar",
+    "preformatArchiveSha256": "117e1c20ae1bcb17378a12cb772a25f1d6faf0c22b9307c94d65f792fa6b4953",
+    "formatProof": "final-format-equivalence-01.json",
+    "formatProofResult": "All nine final files equal the exact Prettier 3.9.9 transformation of archived qualified bytes",
+    "formatCheck": "PASS"
+  },
+  "semanticSurface": {"ownedDiagnostics": 0, "baselineImportedDiagnostics": 3, "exitCode": 2, "overallPass": false, "diagnostics": ["ConfigService.ts:417 TS2352", "SyncService.ts:36 TS2550", "SyncService.ts:506 TS2559"]},
+  "cliQualification": {
+    "testFiles": 64, "tests": 1282, "pass": 1282, "durationMs": 2780,
+    "lint": "PASS", "build": "PASS", "buildDurationMs": 46,
+    "warning": "Vite native-config ESM/CommonJS compatibility warning retained",
+    "fullConsumerReceipt": "full-consumer-smoke-run-04.json", "fullConsumerExit": 0, "fullConsumerWallSeconds": 7.90, "persistedCollectorValidation": true,
+    "installedBriefReceipt": "installed-brief-smoke-run-04.json", "installedBriefResult": "COMPLETED ALL ASSERTIONS PASSED"
+  },
+  "review": {"preformat": "task-1-deepseek-closure-review-round-1.md", "preformatDecision": "APPROVE scoped static spec and quality", "finalByteQualification": "REQUESTED_PENDING"},
+  "routing": {"functionalClosure": "Personal - DeepSeek, one user-selected batch, completed", "formatter": "Personal - Cheap, separate exact mechanical command, completed", "automaticFunctionalRetry": false},
+  "limits": ["Root check, adoption and publication NOT RUN at this checkpoint", "Historical preimplementation RED NOT RUN", "Actual Node26; no Node20 runtime proof", "Finite fixtures do not establish host enforcement, model efficacy, release or pilot activation", "No complete task-cost claim"]
+}

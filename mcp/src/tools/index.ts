@@ -256,6 +256,11 @@ export async function getSkill(
   const canonicalKey = `${skill.category}/${skill.id}`;
   const body = await fs.readFile(skill.path, "utf8").catch(() => null);
   if (!body) {
+    ctx.tracker.record({
+      via: "get_skill",
+      input: [`${args.category}/${args.name}`],
+      loaded: [],
+    });
     // Don't leak filesystem paths — describe the gap functionally.
     ctx.tracker.record({
       via: "get_skill",
@@ -630,7 +635,7 @@ export const getSessionCostSchema = z.object({
     .enum(["host", "agent-estimate"])
     .optional()
     .describe(
-      "Provenance of the token/pricing fields above. Only set this to 'host' when the caller is the runtime's own telemetry adapter (buildSessionCostRequest) passing real measured usage/pricing — never set it when typing numbers by hand.",
+      "Caller-declared source for the token/pricing fields above ('host' or 'agent-estimate'). Host authenticity is unverified by this MCP server.",
     ),
 });
 
@@ -686,9 +691,9 @@ export async function getSessionCost(
   const lines: string[] = [
     "# Session Telemetry",
     "",
-    "Exact LLM token usage depends on the host runtime. MCP-observed fields below are measured directly; token and cost fields carry explicit provenance instead of guessed placeholders.",
+    "Exact LLM token usage depends on the host runtime. MCP-observed fields below are measured directly; token and cost fields carry caller-declared source labels; host authenticity is unverified.",
     "AGS consultation/body-return observations are limited to this MCP session. They do not establish fresh-worker delivery or observed edits, checks, or enforcement.",
-    "",
+    "Mounted MCP deployment identity is unknown to this stdio process; callers cannot restart or reconfigure the live service.",
     "| Metric | Value |",
     "|---|---|",
     `| **Workflow** | ${args.workflow ?? "[Agent: fill workflow name]"} |`,

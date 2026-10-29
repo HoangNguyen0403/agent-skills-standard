@@ -1,0 +1,60 @@
+# Native Git restoration — bounded standard advisor
+
+## Conclusion and authority
+
+**Conditionally yes: retire the custom operator as the execution path, retain it unexecuted as evidence, and use native worktree-only restoration for exactly the 15 audited paths.** The command alone is not the recovery procedure. Equivalence requires the parent’s pinned preflight, immediate per-path checks, truthful post-command effect inventory, exact quarantine, and final 95-path/index/config/SDD verification. Prefer 15 sequential one-path invocations over one aggregate invocation.
+
+This changes the mechanism, not the approved recovery scope. Parent reports explicit user approval of exact restoration15 + exact1temp quarantine, then Git batching and reapply. No new coding/model attempt is necessary to propose this procedure; do not repair or execute the rejected custom operator. Independent procedure review and measured prerequisites remain mandatory before live commands. This consultation grants no execution, retry, permissions, R1 release or root completion.
+
+**Current decision remains HOLD pending actual Git configuration/attributes/modes and independent procedure review.** No conclusion about this repository’s checkout conversion or Git settings is inferred from defaults.
+
+## Evidence reviewed
+
+- `root-interrupted-effect-audit-01.json` records 15 PUBLISHED_CANDIDATE / 80 ORIGINAL_BEFORE / unchanged absent ledger, with per-path before/archive/candidate/active digests. These are retained audit observations, not freshly measured here.
+- `root-recovery-proposal-01.md:7–12,20–22` identifies the exact retained temporary and the bounded restoration/quarantine scope.
+- `root-restoration-review-round-2.md` binds the frozen custom operator to b251a45abc4d32c237c1f3e9a428bbf6db43a6b0fed42efc93e913f53d1bfb73. Its remaining issues are effect-reporting/cleanup escape paths, not authority to overwrite more files. No custom source was inspected in this consultation.
+- Prior `task-1-interrupted-publication-advisor.md` explains why blindly rerunning adoption loses ownership for already-published equal-byte paths. Native restoration still must restore the original qualifying preimage so all 95 can follow the existing authority path again.
+
+No commands, tests, probes, root/source mutations, delegation, or permission actions were executed. Only this requested report is written. Git behavior below is a proposed native-command contract to qualify against the installed Git; current repo state/configuration is unmeasured here.
+
+## Native command boundary
+
+Proposed shape, one approved literal relative path per invocation:
+
+`git --literal-pathspecs restore --source=<full-pinned-BASE> --worktree -- <one-exact-approved-path>`
+
+Use the authorized physical worktree root; no `--staged`, `reset`, branch switch, checkout of the entire tree, wildcard, directory target, `--ignore-skip-worktree-bits`, conflict-stage selection, or submodule recursion. No `git restore --dry-run` exists. The preflight is read-only inspection, not a disguised live trial.
+
+The explicit source avoids dependence on current staged blob contents. `--worktree` selects worktree restoration, not staged-content restoration. Nevertheless distinguish **unchanged staged entries** from **byte-identical index file/stat cache**: do not promise the latter solely from the option spelling. Require raw index preservation if that is the accepted AC, and qualify the exact native invocation against the installed Git before live use. Do not silently relax raw-index equality to semantic equality. An environment setting intended to suppress optional index refresh is not a substitute for that proof.
+
+## Read-only prerequisites — all must pass
+
+1. **Exact authority set and pinned evidence.** Consume the verified audit/proof/archive bytes, not mutable filename-based expectations. Derive exactly the 15 PUBLISHED_CANDIDATE paths; assert cardinality, uniqueness and literal regular Markdown leaf identities. No metadata, lock, other 80 paths, or temporary appears in that list. Verify each archived preimage matches its recorded before digest AND the raw regular BASE Git blob byte-for-byte. A matching Git object name alone is not a raw-byte SHA256 comparison.
+2. **Live preconditions.** Re-audit all 95 and absent ledger; each of the 15 must still equal its recorded candidate, the other 80 their before bytes. Verify every ancestor/leaf with non-following inspection: no symlink, foreign mount/topology change or unexpected type; retain device/inode, owner/mode and link-count facts. Refuse hard-linked target leaves unless separately proven compatible; do not allow an indirect write to an unapproved alias. Establish cooperating writers/processes are quiescent and preserve the original evidence/SDD/source/config baseline.
+3. **Index/HEAD/config identity.** Preserve full raw index evidence plus NUL-delimited stage/mode/object identities for all entries, including unrelated staged work; bind HEAD and physical Git/worktree locations. The exact 15 must have regular stage-zero index entries satisfying the recorded pristine BASE conditions. Refuse unmerged stages, skip-worktree, assume-unchanged or sparse-checkout conditions that could skip/change operation semantics; do not override these flags. Verify the approved tracked/absent `.skillsrc` conditions and all source/config identities. Detect foreign `GIT_INDEX_FILE`, `GIT_DIR`, `GIT_WORK_TREE`, attribute/config overrides or environment injection; use only the reviewed environment.
+4. **Checkout bytes must equal archived preimages.** Inspect effective attributes/config, with origin/scope, for the exact paths: worktree/index/BASE attributes as relevant to this installed Git, `.git/info/attributes`, global/system attribute files, `core.attributesFile`, autocrlf/eol/safecrlf, encoding, ident and all clean/smudge/process filter assignments. Include inherited `.gitattributes` in ancestor directories. Refuse any effective external filter, working-tree-encoding or ident expansion. Permit text/EOL handling only if its identity conversion is established from the actual attributes/config and raw blob bytes; e.g. explicit binary/no-text with no other conversion, or an established LF-preserving configuration and LF blobs. Markdown suffixes and a BASE/preimage raw equality do NOT prove checkout-byte equality. If effective attribute resolution or conversion cannot be proven read-only, remain frozen; no live experiment on the 15.
+5. **Modes and command side effects.** Git tracks executable versus non-executable mode, not arbitrary POSIX permission bits, ACLs or xattrs. Inspect actual BASE/index executable modes, current full permission modes, core.filemode, umask and applicable ACLs/config. Require qualified checkout behavior to preserve the accepted current modes; if a file requires special permissions/ownership/metadata Git cannot preserve, this command is not equivalent. No implicit chmod/ACL repair is authorized. Bind Git version/binary and relevant extensions, fsmonitor/attribute helpers and optional-lock behavior; reject unreviewed executable side effects or index refresh incompatible with the AC. Do not change configuration to manufacture eligibility.
+
+These are native-mechanism prerequisites, not new approvals for changing Git state. If any fail, identify the exact path/setting and stay frozen; do not route around them with force or another coding retry.
+
+## Procedure and partial-effect reporting
+
+**Recommend one path at a time.** Before each command, recheck that path’s candidate digest, leaf/ancestor identities and mode; recheck the pinned Git/config/attributes identity and the evolving expected 95-path state. Persist the command intent in fresh parent-owned evidence before execution. Execute only the one literal path. Immediately classify actual bytes/type/mode and record command exit/output and whether it reached exact archived-before bytes; do not use exit zero as proof. Verify protected index/HEAD/config facts after each command; stop on the first discrepancy/error. No further root mutation follows a journal/evidence failure.
+
+A nonzero exit, timeout, lost tool response or missing journal line is **effects unknown**, not REFUSED/no effects. Parent must then independently inspect the attempted path and all 95, index/config and exact temporaries; report known effects before any diagnostic failure. Retain before/candidate/OTHER/ABSENT classifications and every primary/inspection error. No automatic rollback or cleanup. Native Git is not a compare-and-swap primitive: last-look checks rely on the accepted cooperating-writer/quiescent model. Hostile races would require a stronger mechanism and are not solved by either command count.
+
+An aggregate command with exactly 15 literal paths can be acceptable only if all preconditions stay stable for the whole command and the procedure accepts cross-file partial effects determined by a subsequent full audit. Git offers neither all-or-nothing restore nor per-path before-digest enforcement. Per-path invocations are preferable because they localize interruption and satisfy immediate per-path verification without trying to infer which paths were written internally. Fifteen invocations plus complete actual auditing is sufficient under the stated cooperative model; no 1800-line replacement is inherently required.
+
+## Exact quarantine remains a separate operation
+
+Git restoration does not quarantine the retained temporary. Preserve the approved directory `.agents/skills/common/common-subagent-driven-development/references/.ags-tmp-Ati9K9` intact, with its sole `payload` and recorded SHA256 `0e1bad24d9b189a6007aa9905aea9f3ed327d4d98d180594ffd0be219c430a22`. Parent must immediately recheck both ancestor chains, directory/payload types, current recorded identities/modes, sole-child inventory and payload bytes before the independently reviewed exact move.
+
+Use an absent, exclusive quarantine destination with the approved restrictive mode and no overwrite/merge behavior. Require same-filesystem rename semantics; refuse a command that may silently copy/delete across filesystems, merge into an existing directory, or replace foreign content. Verify source absence and destination identity/content/mode after the move. If the native installed move tool cannot enforce the required no-clobber/exact-destination behavior under the cooperative model, this remains a specific missing prerequisite; do not improvise a cleanup script. Preserve it rather than delete it. No wildcard cleanup or retrospective claim that its old in-memory lease survived.
+
+## Final gate and recommendation
+
+After restoration and exact quarantine, require all 95 raw destinations equal their archived before bytes, modes/topology meet the accepted contract, metadata retains its authored integration edits, ledger remains absent, full staged/index state and HEAD/config remain preserved, and SDD/source/evidence baselines remain intact. Record the exact 15 known restorations and quarantine effect separately from verification success. If receipt writing fails after effects, retain the tool transcripts and independent audit and report partial/verified effects with reporting failure—not a state-free refusal.
+
+Then R0 can be accepted by the parent only against the reviewed procedure and actual evidence. R1 Git batching remains separately frozen/gated; no performance source change or new adoption invocation follows automatically from restoring bytes.
+
+**Recommendation:** independent review of this small parent-operated native procedure, followed by read-only eligibility measurements, is the appropriate next step. Existing exact-restore/quarantine approval need not be expanded merely to choose native Git, but it does not waive any condition above or supply independent procedure clearance. Preserve the rejected custom operator and reviews; no repair or extra writer is proposed. Standard analysis suffices. Missing conversion/mode/index/quarantine evidence means HOLD, not root authorization.

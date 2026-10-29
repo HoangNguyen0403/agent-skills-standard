@@ -1,0 +1,12 @@
+### Task 2: Complete dispatch and reconcile promotion (S02, S04, H01/H02 guidance)
+
+**Files:** `skills/common/common-subagent-driven-development/**`, `skills/common/common-learning-log/**`, `skills/common/common-session-retrospective/**`, tests under `scripts/skill-tests/common-subagent-driven-development/` only. No other canonical workflow writes.
+**Scope:** existing package scripts/templates/references/evals; no installed copies or AGENTS changes.
+**Inputs:** task plan text and existing review package immutable writer. **Outputs:** a complete brief contract, unambiguous execution choice, proposed-only repeat learning, verified archive before cleanup.
+- [ ] Reconcile Inline as explicit recorded exception, vague assent binds only presented choice, host/user retry/account rules override defaults. Preserve independent review and no recursive workers.
+- [ ] Put scope/owned write set, I/O contract, real ingress, positive/negative invariants, verification owner, explicit handoff/freeze and correction route into brief template. Extend `task_brief.py` to reject missing required contract fields before output; keep public API or migrate every actual caller found. Refuse overwrite of explicit existing output. Existing historical plans lacking fields must receive a clear error rather than invented authority.
+- [ ] Make repeat mistakes append/extend a proposed candidate, never automatic instruction/policy promotion. Reconcile linked learning format and evals. Cleanup requires verified durable archive and ownership authority; do not erase the only evidence copy.
+- [ ] Include exact cross-worktree input paths and source/user/project-authored provenance + inclusive ranges for conversion handoffs; preserve unaffected fields. Explain denial alternative versus total block, sibling forward-only requests and error-not-terminal-state without pretending to enforce host behavior.
+- [ ] Add behavioral helper tests (missing fields no output, complete brief extracted, fenced fake headings ignored, existing output preserved) and real-scorer eval cases for repeat mistake/Inline/vague proceed/archive failure/quality-vs-quota/no nesting. No prose snapshots.
+**Verification owner:** parent; `rtk proxy python3 -B -m unittest discover -s scripts/skill-tests/common-subagent-driven-development` and real scorer calibration after Task5. **Report:** task-2-report.md FINAL. **Correction route:** host ladder.
+

@@ -1,0 +1,9 @@
+### Task 5: Evaluator and discovery/publication standards (S03, S06)
+
+**Files:** `skills/common/common-skill-creator/**`, `skills/common/common-decision-discipline/**`, `.agents/workflows/session-report.md`, `.github/skills/skill-creator/SKILL.md`, new `scripts/evals/diagnostic-prevention.test.ts` only.
+**Inputs:** actual `checkAssertion` engine semantics, existing eval schema, final JSON from Tasks2–4. **Outputs:** independent control matrix test and reconciled guidance.
+- [ ] Freeze oracle before execution; use valid paraphrases, quoted unsafe text, unsafe keyword stuffing, partial compliance and unrelated routing negatives. Bind scorer/eval/final generated metadata; no engine-mismatch acceptance waiver. Reconcile existing 80/90% authoring inconsistency using existing release authority; don't change real acceptance thresholds merely for green results.
+- [ ] Intake distinguishes failed search/current checkout absence from absent capability and searches authorized refs/worktrees. Publication requires final canonical→host ID-set/resource parity and real consumer discovery; separate warnings/skips/NOT RUN; review private paths/links and one-way manifests. Keep publication separate from activation.
+- [ ] Add real-scorer tests over finite actual canonical cases from Tasks2–4. Author independent adjudicated controls; coordinate expected ID/interface through messages. Do not edit other owners' JSON. Test negative controls behavior, not source phrases or copied file equality. If oracle inconsistency occurs, report exact input/verdict to owner.
+**Verification owner:** parent, `rtk proxy node --import tsx --test scripts/evals/diagnostic-prevention.test.ts scripts/evals/assertion-parity.test.ts scripts/evals/quality.test.ts`. **Report:** task-5-report.md FINAL; shared inputs read after other owners FINAL. **Correction route:** host ladder.
+

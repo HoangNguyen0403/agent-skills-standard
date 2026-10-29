@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "status": "USER_SELECTED_DEEPSEEK_CLOSURE_IN_PROGRESS",
+  "correctedSourceFreeze": {
+    "helperSha256": "c20d0ced4c1b6e4f9ae9ddb3b207603fb5f82c41d6b37049ddac68ed88b1c7e8",
+    "testSha256": "add90514aa82177220e4eb4352cfcbbaf8ba60200df1e90c5c9fa8a4038ea75c",
+    "tests": 53,
+    "pass": 47,
+    "fail": 6,
+    "skip": 0,
+    "durationMs": 142940.311833,
+    "classification": {"productionGaps": 1, "invalidTestAssumptions": 5},
+    "remainingProductionGap": "Absent planned specialist has validated transformed bytes but no stage manifest entry from PassthroughWriter; guard and persistence incorrectly require it",
+    "notClaimed": "Absent-host publication/directory transition remains unqualified; no root clearance"
+  },
+  "semanticSurface": {"ownedDiagnostics": 0, "baselineImportedDiagnostics": 3, "exitCode": 2, "overallPass": false},
+  "independentAnalysis": {
+    "review": "task-1-phase1b-coordinator-review-round-2.md",
+    "verdict": "CHANGES REQUESTED",
+    "standardAdvisorDecision": "advisor-decision-02.md",
+    "conclusion": "One bounded production correction plus five fixture repairs; no architecture replacement or premium needed"
+  },
+  "freshCLIQualification": {
+    "testFiles": 64,
+    "tests": 1282,
+    "pass": 1282,
+    "durationMs": 2180,
+    "build": "PASS",
+    "buildDurationMs": 45,
+    "entrypointSha256": "4404ac9e3c322283adf95660fb1e46b6ed1593c8ba0a18cd199275ced69a405a",
+    "warning": "Vite native config ESM/CommonJS compatibility warning retained",
+    "fullConsumerReceipt": "full-consumer-smoke-run-03.json",
+    "fullConsumer": {"status": "verified", "evidenceEntries": 13, "missingEvidence": [], "decisionsNeeded": [], "collectorValidation": true, "wallSeconds": 7.51},
+    "installedBriefReceipt": "installed-brief-smoke-run-03.json",
+    "installedBrief": {"completed": true, "assertionsPassed": 11, "wallSeconds": 1.21},
+    "mcpEntrypointSha256Unchanged": "408bb4cfd2937238bf8c8caac1e7387f43a4163415bca668c8b8ec081b831641",
+    "scope": "CLI/MCP fixture consumers, not generator/root or host enforcement acceptance"
+  },
+  "routing": {
+    "previousWriter": "1d06b90e-36ee-4a86-9bb8-8124b876a926",
+    "previousWriterTerminalVerified": {"status": "idle", "activeTurn": null},
+    "automaticCorrectiveAllowanceConsumed": true,
+    "userSelectionId": "task1_lower_cost_exception",
+    "userSelection": "Personal - DeepSeek",
+    "authorization": "One fresh bounded closure batch; no automatic retries/substitution",
+    "soleNewWriter": "28bcbf98-6525-408e-a88c-68e2e9a8bc8d",
+    "provider": "omp/river/deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "modeId": "write",
+    "thinkingOptionId": "low",
+    "brief": "task-1-deepseek-closure-brief.md"
+  },
+  "limits": ["Historical preimplementation RED NOT RUN", "Node26 actual; no Node20 proof", "No root generation/adoption/publication, release, pilot or host-policy activation", "No premium consultation or complete task-cost claim"]
+}

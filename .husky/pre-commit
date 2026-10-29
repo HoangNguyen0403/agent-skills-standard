@@ -5,13 +5,10 @@
 # don't inherit the shell's environment variables.
 export PATH="$HOME/.local/share/pnpm:$HOME/.nvm/versions/node/$(node -v 2>/dev/null)/bin:/usr/local/bin:/opt/homebrew/bin:$PATH"
 
-# Run token calculation and index generation to ensure registry metadata is up to date
-echo "📊 Syncing metrics and indices..."
-pnpm calculate-tokens
-pnpm generate-indices
-
-# Stage the updated files
-git add skills/metadata.json skills/index.json README.md
+# Check that token calculation, index generation, and capabilities documentation are prepared and up to date.
+# Invariant (H03/Task 1): Precommit is check-only; no active generation or git add in pre-commit hook.
+echo "📊 Checking prepared generator outputs..."
+node --import tsx scripts/generation/index.ts --check
 
 # Run core validation to ensure skill integrity
 echo "🔍 Validating skills..."

@@ -1,0 +1,784 @@
+{
+  "schemaVersion": 1,
+  "kind": "INTERRUPTED_PUBLICATION_ACTUAL_EFFECT_AUDIT_NOT_COMPLETION",
+  "attempt": "artifacts/generation-logs/attempt-2026-10-29T07-41-49-505Z-fd751a",
+  "stage": "/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-stage-wR2SO5",
+  "publicationBeforeProofSha256": "7918b85b217d839827d0609f5a8f869b5ea3388185d9af159f76d1e70d82679b",
+  "counts": {
+    "PUBLISHED_CANDIDATE": 15,
+    "ORIGINAL_BEFORE": 80,
+    "LEDGER_UNCHANGED": 1
+  },
+  "files": [
+    {
+      "path": ".agents/skills/common/common-context-optimization/references/implementation.md",
+      "beforeSha256": "66b85d2a7aba5e016df8d64eab0bc8c1242ed024819c4324d010a3234a3dcd5e",
+      "archivedSha256": "66b85d2a7aba5e016df8d64eab0bc8c1242ed024819c4324d010a3234a3dcd5e",
+      "candidateSha256": "c5f0fc921efcf529b8c308b9942bd7b7f29ea4d2e2526df2953cfe232aea2b88",
+      "activeSha256": "c5f0fc921efcf529b8c308b9942bd7b7f29ea4d2e2526df2953cfe232aea2b88",
+      "state": "PUBLISHED_CANDIDATE"
+    },
+    {
+      "path": ".agents/skills/common/common-decision-discipline/SKILL.md",
+      "beforeSha256": "0df5a2ce474431c18b1e011b4b3672d737fb833ff863daba1b0c6f6f61dd806f",
+      "archivedSha256": "0df5a2ce474431c18b1e011b4b3672d737fb833ff863daba1b0c6f6f61dd806f",
+      "candidateSha256": "eb19debdac1f1f35ad5bdb444ff010699475e1e35210f1f126c1dc1172f2ed0d",
+      "activeSha256": "eb19debdac1f1f35ad5bdb444ff010699475e1e35210f1f126c1dc1172f2ed0d",
+      "state": "PUBLISHED_CANDIDATE"
+    },
+    {
+      "path": ".agents/skills/common/common-learning-log/SKILL.md",
+      "beforeSha256": "d8082fe46b7087e25818c6f6e61875d93e620d6b638447e6443748acb6494304",
+      "archivedSha256": "d8082fe46b7087e25818c6f6e61875d93e620d6b638447e6443748acb6494304",
+      "candidateSha256": "bf0ea0ee2ec432e0edf5eec404aa3db9b95260ce1fc742fe691f39b444d1fc39",
+      "activeSha256": "bf0ea0ee2ec432e0edf5eec404aa3db9b95260ce1fc742fe691f39b444d1fc39",
+      "state": "PUBLISHED_CANDIDATE"
+    },
+    {
+      "path": ".agents/skills/common/common-learning-log/references/log-format.md",
+      "beforeSha256": "fc72b2b56ab110f192f6dbddd0e29687e857c9b09feb24fecce86d6e66d0b49a",
+      "archivedSha256": "fc72b2b56ab110f192f6dbddd0e29687e857c9b09feb24fecce86d6e66d0b49a",
+      "candidateSha256": "0cd64d43d7c463c21201b46acd6d9e61c6cab87bc251c9d8755f2bdb82ac2ffe",
+      "activeSha256": "0cd64d43d7c463c21201b46acd6d9e61c6cab87bc251c9d8755f2bdb82ac2ffe",
+      "state": "PUBLISHED_CANDIDATE"
+    },
+    {
+      "path": ".agents/skills/common/common-security-standards/SKILL.md",
+      "beforeSha256": "d304e7df80f83120bee217703faaf3974b32f9c81d3e42a816624efcfecfc49f",
+      "archivedSha256": "d304e7df80f83120bee217703faaf3974b32f9c81d3e42a816624efcfecfc49f",
+      "candidateSha256": "26ac1d160a2b2ffe48e3a1afe609cef6f559be2fe9c89c81840ae8d8a217ca9e",
+      "activeSha256": "26ac1d160a2b2ffe48e3a1afe609cef6f559be2fe9c89c81840ae8d8a217ca9e",
+      "state": "PUBLISHED_CANDIDATE"
+    },
+    {
+      "path": ".agents/skills/common/common-security-standards/references/VULNERABILITY_REMEDIATION.md",
+      "beforeSha256": "bff42e6561110e2fc067fd9b32048cd4dddd7013ae8bb51732b4ab28ee2eef73",
+      "archivedSha256": "bff42e6561110e2fc067fd9b32048cd4dddd7013ae8bb51732b4ab28ee2eef73",
+      "candidateSha256": "3621ba88e37f0ac26bb98068475b13dab038ade5610169a3d4f05107af82d126",
+      "activeSha256": "3621ba88e37f0ac26bb98068475b13dab038ade5610169a3d4f05107af82d126",
+      "state": "PUBLISHED_CANDIDATE"
+    },
+    {
+      "path": ".agents/skills/common/common-security-standards/references/implementation.md",
+      "beforeSha256": "9302fc48dcf32057d5b1fc7a50cba110d14bdc56a0ab9323e2bbc9d59947bb29",
+      "archivedSha256": "9302fc48dcf32057d5b1fc7a50cba110d14bdc56a0ab9323e2bbc9d59947bb29",
+      "candidateSha256": "8894d6cc33dd7265a4a77435e7bf655006de0409eb04cece0997357e90452434",
+      "activeSha256": "8894d6cc33dd7265a4a77435e7bf655006de0409eb04cece0997357e90452434",
+      "state": "PUBLISHED_CANDIDATE"
+    },
+    {
+      "path": ".agents/skills/common/common-session-retrospective/SKILL.md",
+      "beforeSha256": "902ec683d4bf1e1bd6b5782407ad003a580170b865c8506e1af93ac1db00b874",
+      "archivedSha256": "902ec683d4bf1e1bd6b5782407ad003a580170b865c8506e1af93ac1db00b874",
+      "candidateSha256": "06eb8f0822ebf81581b850f5b5167fb8fc58e3e5953f4d66936ef4c30d2eaa90",
+      "activeSha256": "06eb8f0822ebf81581b850f5b5167fb8fc58e3e5953f4d66936ef4c30d2eaa90",
+      "state": "PUBLISHED_CANDIDATE"
+    },
+    {
+      "path": ".agents/skills/common/common-session-retrospective/references/methodology.md",
+      "beforeSha256": "ad238c73478f83da27347dd8f93c9d36ca72a8f1cd0e3b660a56db694719fc0d",
+      "archivedSha256": "ad238c73478f83da27347dd8f93c9d36ca72a8f1cd0e3b660a56db694719fc0d",
+      "candidateSha256": "8fa67200e8418b00d95a09f093323675a566c118cdf319c3ed5d5ac52c4e2640",
+      "activeSha256": "8fa67200e8418b00d95a09f093323675a566c118cdf319c3ed5d5ac52c4e2640",
+      "state": "PUBLISHED_CANDIDATE"
+    },
+    {
+      "path": ".agents/skills/common/common-skill-creator/SKILL.md",
+      "beforeSha256": "d11258c8537360a88c0f1893d3cfd3ef8c3788f5ce11d3aa6433aad6bd233d86",
+      "archivedSha256": "d11258c8537360a88c0f1893d3cfd3ef8c3788f5ce11d3aa6433aad6bd233d86",
+      "candidateSha256": "a15c8d84dd8e4044475a373e32211983575758e8d3026193ff09f018fd14627b",
+      "activeSha256": "a15c8d84dd8e4044475a373e32211983575758e8d3026193ff09f018fd14627b",
+      "state": "PUBLISHED_CANDIDATE"
+    },
+    {
+      "path": ".agents/skills/common/common-skill-creator/references/eval-workflow.md",
+      "beforeSha256": "fac6a335e37b7b66a038dc0aa2431abddfb87954377857cf1a15cdc766c2abc1",
+      "archivedSha256": "fac6a335e37b7b66a038dc0aa2431abddfb87954377857cf1a15cdc766c2abc1",
+      "candidateSha256": "8a23f81789571222334aff15d79218fa2b1103403354806a78502e3ee33fedb7",
+      "activeSha256": "8a23f81789571222334aff15d79218fa2b1103403354806a78502e3ee33fedb7",
+      "state": "PUBLISHED_CANDIDATE"
+    },
+    {
+      "path": ".agents/skills/common/common-skill-creator/references/lifecycle.md",
+      "beforeSha256": "3f3d8ba0794647ce288b60a38f0c67defe0ee1ab2d53b420f60410993bc333c2",
+      "archivedSha256": "3f3d8ba0794647ce288b60a38f0c67defe0ee1ab2d53b420f60410993bc333c2",
+      "candidateSha256": "31224025fe5928850991afcf939f847f8ae29ea1179d25de57d317bb3e12276c",
+      "activeSha256": "31224025fe5928850991afcf939f847f8ae29ea1179d25de57d317bb3e12276c",
+      "state": "PUBLISHED_CANDIDATE"
+    },
+    {
+      "path": ".agents/skills/common/common-skill-creator/references/testing.md",
+      "beforeSha256": "6a3b0fc2c57ac9491575cb025e992a3bbfbf19845b921390032a71c80b017f9c",
+      "archivedSha256": "6a3b0fc2c57ac9491575cb025e992a3bbfbf19845b921390032a71c80b017f9c",
+      "candidateSha256": "51ce1795131f2c8eaeb200d88c465c72ad8a3cf96ac6686934e57369e60cf2a4",
+      "activeSha256": "51ce1795131f2c8eaeb200d88c465c72ad8a3cf96ac6686934e57369e60cf2a4",
+      "state": "PUBLISHED_CANDIDATE"
+    },
+    {
+      "path": ".agents/skills/common/common-subagent-driven-development/SKILL.md",
+      "beforeSha256": "7503b77823cda442d542f54b089b72043fbeead2f6cf1c44f0fbb23f42f43aef",
+      "archivedSha256": "7503b77823cda442d542f54b089b72043fbeead2f6cf1c44f0fbb23f42f43aef",
+      "candidateSha256": "1c6fd9ef4d2b750b7bef7a4434b10d92c931df2bcf1e3e1aab493a5fffa97ca3",
+      "activeSha256": "1c6fd9ef4d2b750b7bef7a4434b10d92c931df2bcf1e3e1aab493a5fffa97ca3",
+      "state": "PUBLISHED_CANDIDATE"
+    },
+    {
+      "path": ".agents/skills/common/common-subagent-driven-development/references/methodology.md",
+      "beforeSha256": "e2e8548bb8247e31ffa0f44e78664a608a5774f80066fcb6ddf6cf9d0c78f2c9",
+      "archivedSha256": "e2e8548bb8247e31ffa0f44e78664a608a5774f80066fcb6ddf6cf9d0c78f2c9",
+      "candidateSha256": "08efda31aef4c552ab83ada68e24fe6637ae3060a631c3d92cf0ce9c68705535",
+      "activeSha256": "08efda31aef4c552ab83ada68e24fe6637ae3060a631c3d92cf0ce9c68705535",
+      "state": "PUBLISHED_CANDIDATE"
+    },
+    {
+      "path": ".agents/skills/common/common-subagent-driven-development/references/templates.md",
+      "beforeSha256": "f487daf8a3ecfe8b8abee76f9a2bfb8b931b5f118ea99aee3646583a3929aacb",
+      "archivedSha256": "f487daf8a3ecfe8b8abee76f9a2bfb8b931b5f118ea99aee3646583a3929aacb",
+      "candidateSha256": "0e1bad24d9b189a6007aa9905aea9f3ed327d4d98d180594ffd0be219c430a22",
+      "activeSha256": "f487daf8a3ecfe8b8abee76f9a2bfb8b931b5f118ea99aee3646583a3929aacb",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".agents/skills/common/common-subagent-driven-development/scripts/task_brief.py",
+      "beforeSha256": "d66207beca33b9b905b341a37be83b4c9338f776c359853e6068e98fb1ede896",
+      "archivedSha256": "d66207beca33b9b905b341a37be83b4c9338f776c359853e6068e98fb1ede896",
+      "candidateSha256": "9f920ba09cf38cc21d43a9ec6dac42e9afc0a3d946f734fb4059c092c00e13ce",
+      "activeSha256": "d66207beca33b9b905b341a37be83b4c9338f776c359853e6068e98fb1ede896",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".agents/skills/common/common-tdd/SKILL.md",
+      "beforeSha256": "2902d3a26ef28015c2109f70526c7c6606a90fb510de6766566f1a0ee0a4ee31",
+      "archivedSha256": "2902d3a26ef28015c2109f70526c7c6606a90fb510de6766566f1a0ee0a4ee31",
+      "candidateSha256": "630a114fcedfdf4fc644c4fa32d174a38d7d0a85bd78764d905c8f360d952d4e",
+      "activeSha256": "2902d3a26ef28015c2109f70526c7c6606a90fb510de6766566f1a0ee0a4ee31",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".agents/skills/common/common-tdd/references/quality-contract.md",
+      "beforeSha256": "b8411152f012da4812f6f57fc07266ff26fc14b280be077babe774b792a6aad1",
+      "archivedSha256": "b8411152f012da4812f6f57fc07266ff26fc14b280be077babe774b792a6aad1",
+      "candidateSha256": "9c0a6a67dbb1c91362d3236ffb51cdc0c88647ae5c4c17b87131a4e13c36ff0b",
+      "activeSha256": "b8411152f012da4812f6f57fc07266ff26fc14b280be077babe774b792a6aad1",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".agents/skills/common/common-telemetry/SKILL.md",
+      "beforeSha256": "973f44393e081d5aefb70a0c219284fe128ba6b7f880c467328c3993638b884a",
+      "archivedSha256": "973f44393e081d5aefb70a0c219284fe128ba6b7f880c467328c3993638b884a",
+      "candidateSha256": "ccd2c4a890e8e0350442b1128d51c982af31222abc484ab6aa82abf92f386ab6",
+      "activeSha256": "973f44393e081d5aefb70a0c219284fe128ba6b7f880c467328c3993638b884a",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".agents/skills/common/common-web-visual-testing/SKILL.md",
+      "beforeSha256": "87400640d721091640c27ba37e632bfc83a8db998de08774297f1fcded46e9b0",
+      "archivedSha256": "87400640d721091640c27ba37e632bfc83a8db998de08774297f1fcded46e9b0",
+      "candidateSha256": "b1fcb6946f90838b346e4774ad52b923439e101eda3b76ed2396033ddf7f0de1",
+      "activeSha256": "87400640d721091640c27ba37e632bfc83a8db998de08774297f1fcded46e9b0",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".agents/skills/common/common-web-visual-testing/references/login-and-test-data.md",
+      "beforeSha256": "295664eb50591cf16acb8d8cad4e1ae1e692be65a7fb28e45f206a2c316f0747",
+      "archivedSha256": "295664eb50591cf16acb8d8cad4e1ae1e692be65a7fb28e45f206a2c316f0747",
+      "candidateSha256": "6aaee9ab08480d8a62447ae66bd2c8bd3f7810b933dfd590816554f1cbea7be5",
+      "activeSha256": "295664eb50591cf16acb8d8cad4e1ae1e692be65a7fb28e45f206a2c316f0747",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".claude/commands/implement-feature.md",
+      "beforeSha256": "e289a2ff5ff8990cb89e6dd3a4694a7bdd94130e3edc005ae6c92e5254f1572b",
+      "archivedSha256": "e289a2ff5ff8990cb89e6dd3a4694a7bdd94130e3edc005ae6c92e5254f1572b",
+      "candidateSha256": "dcfb56cb32b261e5b41c1a373ebf3b06beddfae7ea22f234530cdc523a16dda6",
+      "activeSha256": "e289a2ff5ff8990cb89e6dd3a4694a7bdd94130e3edc005ae6c92e5254f1572b",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".claude/commands/session-report.md",
+      "beforeSha256": "c1683858f82f12d535fab517994f07a56ba0684350d56617a9855fd4e6d04676",
+      "archivedSha256": "c1683858f82f12d535fab517994f07a56ba0684350d56617a9855fd4e6d04676",
+      "candidateSha256": "0c49e98f2f22160e0dc0f896a2ec4620504bfa6b7c8de45abd9fdb9ca19cfdf0",
+      "activeSha256": "c1683858f82f12d535fab517994f07a56ba0684350d56617a9855fd4e6d04676",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".claude/skills/common/common-context-optimization/references/implementation.md",
+      "beforeSha256": "66b85d2a7aba5e016df8d64eab0bc8c1242ed024819c4324d010a3234a3dcd5e",
+      "archivedSha256": "66b85d2a7aba5e016df8d64eab0bc8c1242ed024819c4324d010a3234a3dcd5e",
+      "candidateSha256": "c5f0fc921efcf529b8c308b9942bd7b7f29ea4d2e2526df2953cfe232aea2b88",
+      "activeSha256": "66b85d2a7aba5e016df8d64eab0bc8c1242ed024819c4324d010a3234a3dcd5e",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".claude/skills/common/common-decision-discipline/SKILL.md",
+      "beforeSha256": "0df5a2ce474431c18b1e011b4b3672d737fb833ff863daba1b0c6f6f61dd806f",
+      "archivedSha256": "0df5a2ce474431c18b1e011b4b3672d737fb833ff863daba1b0c6f6f61dd806f",
+      "candidateSha256": "eb19debdac1f1f35ad5bdb444ff010699475e1e35210f1f126c1dc1172f2ed0d",
+      "activeSha256": "0df5a2ce474431c18b1e011b4b3672d737fb833ff863daba1b0c6f6f61dd806f",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".claude/skills/common/common-learning-log/SKILL.md",
+      "beforeSha256": "d8082fe46b7087e25818c6f6e61875d93e620d6b638447e6443748acb6494304",
+      "archivedSha256": "d8082fe46b7087e25818c6f6e61875d93e620d6b638447e6443748acb6494304",
+      "candidateSha256": "bf0ea0ee2ec432e0edf5eec404aa3db9b95260ce1fc742fe691f39b444d1fc39",
+      "activeSha256": "d8082fe46b7087e25818c6f6e61875d93e620d6b638447e6443748acb6494304",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".claude/skills/common/common-learning-log/references/log-format.md",
+      "beforeSha256": "fc72b2b56ab110f192f6dbddd0e29687e857c9b09feb24fecce86d6e66d0b49a",
+      "archivedSha256": "fc72b2b56ab110f192f6dbddd0e29687e857c9b09feb24fecce86d6e66d0b49a",
+      "candidateSha256": "0cd64d43d7c463c21201b46acd6d9e61c6cab87bc251c9d8755f2bdb82ac2ffe",
+      "activeSha256": "fc72b2b56ab110f192f6dbddd0e29687e857c9b09feb24fecce86d6e66d0b49a",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".claude/skills/common/common-security-standards/SKILL.md",
+      "beforeSha256": "d304e7df80f83120bee217703faaf3974b32f9c81d3e42a816624efcfecfc49f",
+      "archivedSha256": "d304e7df80f83120bee217703faaf3974b32f9c81d3e42a816624efcfecfc49f",
+      "candidateSha256": "26ac1d160a2b2ffe48e3a1afe609cef6f559be2fe9c89c81840ae8d8a217ca9e",
+      "activeSha256": "d304e7df80f83120bee217703faaf3974b32f9c81d3e42a816624efcfecfc49f",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".claude/skills/common/common-security-standards/references/VULNERABILITY_REMEDIATION.md",
+      "beforeSha256": "bff42e6561110e2fc067fd9b32048cd4dddd7013ae8bb51732b4ab28ee2eef73",
+      "archivedSha256": "bff42e6561110e2fc067fd9b32048cd4dddd7013ae8bb51732b4ab28ee2eef73",
+      "candidateSha256": "3621ba88e37f0ac26bb98068475b13dab038ade5610169a3d4f05107af82d126",
+      "activeSha256": "bff42e6561110e2fc067fd9b32048cd4dddd7013ae8bb51732b4ab28ee2eef73",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".claude/skills/common/common-security-standards/references/implementation.md",
+      "beforeSha256": "9302fc48dcf32057d5b1fc7a50cba110d14bdc56a0ab9323e2bbc9d59947bb29",
+      "archivedSha256": "9302fc48dcf32057d5b1fc7a50cba110d14bdc56a0ab9323e2bbc9d59947bb29",
+      "candidateSha256": "8894d6cc33dd7265a4a77435e7bf655006de0409eb04cece0997357e90452434",
+      "activeSha256": "9302fc48dcf32057d5b1fc7a50cba110d14bdc56a0ab9323e2bbc9d59947bb29",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".claude/skills/common/common-session-retrospective/SKILL.md",
+      "beforeSha256": "902ec683d4bf1e1bd6b5782407ad003a580170b865c8506e1af93ac1db00b874",
+      "archivedSha256": "902ec683d4bf1e1bd6b5782407ad003a580170b865c8506e1af93ac1db00b874",
+      "candidateSha256": "06eb8f0822ebf81581b850f5b5167fb8fc58e3e5953f4d66936ef4c30d2eaa90",
+      "activeSha256": "902ec683d4bf1e1bd6b5782407ad003a580170b865c8506e1af93ac1db00b874",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".claude/skills/common/common-session-retrospective/references/methodology.md",
+      "beforeSha256": "ad238c73478f83da27347dd8f93c9d36ca72a8f1cd0e3b660a56db694719fc0d",
+      "archivedSha256": "ad238c73478f83da27347dd8f93c9d36ca72a8f1cd0e3b660a56db694719fc0d",
+      "candidateSha256": "8fa67200e8418b00d95a09f093323675a566c118cdf319c3ed5d5ac52c4e2640",
+      "activeSha256": "ad238c73478f83da27347dd8f93c9d36ca72a8f1cd0e3b660a56db694719fc0d",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".claude/skills/common/common-skill-creator/SKILL.md",
+      "beforeSha256": "d11258c8537360a88c0f1893d3cfd3ef8c3788f5ce11d3aa6433aad6bd233d86",
+      "archivedSha256": "d11258c8537360a88c0f1893d3cfd3ef8c3788f5ce11d3aa6433aad6bd233d86",
+      "candidateSha256": "a15c8d84dd8e4044475a373e32211983575758e8d3026193ff09f018fd14627b",
+      "activeSha256": "d11258c8537360a88c0f1893d3cfd3ef8c3788f5ce11d3aa6433aad6bd233d86",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".claude/skills/common/common-skill-creator/references/eval-workflow.md",
+      "beforeSha256": "fac6a335e37b7b66a038dc0aa2431abddfb87954377857cf1a15cdc766c2abc1",
+      "archivedSha256": "fac6a335e37b7b66a038dc0aa2431abddfb87954377857cf1a15cdc766c2abc1",
+      "candidateSha256": "8a23f81789571222334aff15d79218fa2b1103403354806a78502e3ee33fedb7",
+      "activeSha256": "fac6a335e37b7b66a038dc0aa2431abddfb87954377857cf1a15cdc766c2abc1",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".claude/skills/common/common-skill-creator/references/lifecycle.md",
+      "beforeSha256": "3f3d8ba0794647ce288b60a38f0c67defe0ee1ab2d53b420f60410993bc333c2",
+      "archivedSha256": "3f3d8ba0794647ce288b60a38f0c67defe0ee1ab2d53b420f60410993bc333c2",
+      "candidateSha256": "31224025fe5928850991afcf939f847f8ae29ea1179d25de57d317bb3e12276c",
+      "activeSha256": "3f3d8ba0794647ce288b60a38f0c67defe0ee1ab2d53b420f60410993bc333c2",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".claude/skills/common/common-skill-creator/references/testing.md",
+      "beforeSha256": "6a3b0fc2c57ac9491575cb025e992a3bbfbf19845b921390032a71c80b017f9c",
+      "archivedSha256": "6a3b0fc2c57ac9491575cb025e992a3bbfbf19845b921390032a71c80b017f9c",
+      "candidateSha256": "51ce1795131f2c8eaeb200d88c465c72ad8a3cf96ac6686934e57369e60cf2a4",
+      "activeSha256": "6a3b0fc2c57ac9491575cb025e992a3bbfbf19845b921390032a71c80b017f9c",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".claude/skills/common/common-subagent-driven-development/SKILL.md",
+      "beforeSha256": "7503b77823cda442d542f54b089b72043fbeead2f6cf1c44f0fbb23f42f43aef",
+      "archivedSha256": "7503b77823cda442d542f54b089b72043fbeead2f6cf1c44f0fbb23f42f43aef",
+      "candidateSha256": "1c6fd9ef4d2b750b7bef7a4434b10d92c931df2bcf1e3e1aab493a5fffa97ca3",
+      "activeSha256": "7503b77823cda442d542f54b089b72043fbeead2f6cf1c44f0fbb23f42f43aef",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".claude/skills/common/common-subagent-driven-development/references/methodology.md",
+      "beforeSha256": "e2e8548bb8247e31ffa0f44e78664a608a5774f80066fcb6ddf6cf9d0c78f2c9",
+      "archivedSha256": "e2e8548bb8247e31ffa0f44e78664a608a5774f80066fcb6ddf6cf9d0c78f2c9",
+      "candidateSha256": "08efda31aef4c552ab83ada68e24fe6637ae3060a631c3d92cf0ce9c68705535",
+      "activeSha256": "e2e8548bb8247e31ffa0f44e78664a608a5774f80066fcb6ddf6cf9d0c78f2c9",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".claude/skills/common/common-subagent-driven-development/references/templates.md",
+      "beforeSha256": "f487daf8a3ecfe8b8abee76f9a2bfb8b931b5f118ea99aee3646583a3929aacb",
+      "archivedSha256": "f487daf8a3ecfe8b8abee76f9a2bfb8b931b5f118ea99aee3646583a3929aacb",
+      "candidateSha256": "0e1bad24d9b189a6007aa9905aea9f3ed327d4d98d180594ffd0be219c430a22",
+      "activeSha256": "f487daf8a3ecfe8b8abee76f9a2bfb8b931b5f118ea99aee3646583a3929aacb",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".claude/skills/common/common-subagent-driven-development/scripts/task_brief.py",
+      "beforeSha256": "d66207beca33b9b905b341a37be83b4c9338f776c359853e6068e98fb1ede896",
+      "archivedSha256": "d66207beca33b9b905b341a37be83b4c9338f776c359853e6068e98fb1ede896",
+      "candidateSha256": "9f920ba09cf38cc21d43a9ec6dac42e9afc0a3d946f734fb4059c092c00e13ce",
+      "activeSha256": "d66207beca33b9b905b341a37be83b4c9338f776c359853e6068e98fb1ede896",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".claude/skills/common/common-tdd/SKILL.md",
+      "beforeSha256": "2902d3a26ef28015c2109f70526c7c6606a90fb510de6766566f1a0ee0a4ee31",
+      "archivedSha256": "2902d3a26ef28015c2109f70526c7c6606a90fb510de6766566f1a0ee0a4ee31",
+      "candidateSha256": "630a114fcedfdf4fc644c4fa32d174a38d7d0a85bd78764d905c8f360d952d4e",
+      "activeSha256": "2902d3a26ef28015c2109f70526c7c6606a90fb510de6766566f1a0ee0a4ee31",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".claude/skills/common/common-tdd/references/quality-contract.md",
+      "beforeSha256": "b8411152f012da4812f6f57fc07266ff26fc14b280be077babe774b792a6aad1",
+      "archivedSha256": "b8411152f012da4812f6f57fc07266ff26fc14b280be077babe774b792a6aad1",
+      "candidateSha256": "9c0a6a67dbb1c91362d3236ffb51cdc0c88647ae5c4c17b87131a4e13c36ff0b",
+      "activeSha256": "b8411152f012da4812f6f57fc07266ff26fc14b280be077babe774b792a6aad1",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".claude/skills/common/common-telemetry/SKILL.md",
+      "beforeSha256": "973f44393e081d5aefb70a0c219284fe128ba6b7f880c467328c3993638b884a",
+      "archivedSha256": "973f44393e081d5aefb70a0c219284fe128ba6b7f880c467328c3993638b884a",
+      "candidateSha256": "ccd2c4a890e8e0350442b1128d51c982af31222abc484ab6aa82abf92f386ab6",
+      "activeSha256": "973f44393e081d5aefb70a0c219284fe128ba6b7f880c467328c3993638b884a",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".claude/skills/common/common-web-visual-testing/SKILL.md",
+      "beforeSha256": "87400640d721091640c27ba37e632bfc83a8db998de08774297f1fcded46e9b0",
+      "archivedSha256": "87400640d721091640c27ba37e632bfc83a8db998de08774297f1fcded46e9b0",
+      "candidateSha256": "b1fcb6946f90838b346e4774ad52b923439e101eda3b76ed2396033ddf7f0de1",
+      "activeSha256": "87400640d721091640c27ba37e632bfc83a8db998de08774297f1fcded46e9b0",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".claude/skills/common/common-web-visual-testing/references/login-and-test-data.md",
+      "beforeSha256": "295664eb50591cf16acb8d8cad4e1ae1e692be65a7fb28e45f206a2c316f0747",
+      "archivedSha256": "295664eb50591cf16acb8d8cad4e1ae1e692be65a7fb28e45f206a2c316f0747",
+      "candidateSha256": "6aaee9ab08480d8a62447ae66bd2c8bd3f7810b933dfd590816554f1cbea7be5",
+      "activeSha256": "295664eb50591cf16acb8d8cad4e1ae1e692be65a7fb28e45f206a2c316f0747",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".codex/skills/common/common-context-optimization/references/implementation.md",
+      "beforeSha256": "66b85d2a7aba5e016df8d64eab0bc8c1242ed024819c4324d010a3234a3dcd5e",
+      "archivedSha256": "66b85d2a7aba5e016df8d64eab0bc8c1242ed024819c4324d010a3234a3dcd5e",
+      "candidateSha256": "c5f0fc921efcf529b8c308b9942bd7b7f29ea4d2e2526df2953cfe232aea2b88",
+      "activeSha256": "66b85d2a7aba5e016df8d64eab0bc8c1242ed024819c4324d010a3234a3dcd5e",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".codex/skills/common/common-decision-discipline/SKILL.md",
+      "beforeSha256": "0df5a2ce474431c18b1e011b4b3672d737fb833ff863daba1b0c6f6f61dd806f",
+      "archivedSha256": "0df5a2ce474431c18b1e011b4b3672d737fb833ff863daba1b0c6f6f61dd806f",
+      "candidateSha256": "eb19debdac1f1f35ad5bdb444ff010699475e1e35210f1f126c1dc1172f2ed0d",
+      "activeSha256": "0df5a2ce474431c18b1e011b4b3672d737fb833ff863daba1b0c6f6f61dd806f",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".codex/skills/common/common-learning-log/SKILL.md",
+      "beforeSha256": "d8082fe46b7087e25818c6f6e61875d93e620d6b638447e6443748acb6494304",
+      "archivedSha256": "d8082fe46b7087e25818c6f6e61875d93e620d6b638447e6443748acb6494304",
+      "candidateSha256": "bf0ea0ee2ec432e0edf5eec404aa3db9b95260ce1fc742fe691f39b444d1fc39",
+      "activeSha256": "d8082fe46b7087e25818c6f6e61875d93e620d6b638447e6443748acb6494304",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".codex/skills/common/common-learning-log/references/log-format.md",
+      "beforeSha256": "fc72b2b56ab110f192f6dbddd0e29687e857c9b09feb24fecce86d6e66d0b49a",
+      "archivedSha256": "fc72b2b56ab110f192f6dbddd0e29687e857c9b09feb24fecce86d6e66d0b49a",
+      "candidateSha256": "0cd64d43d7c463c21201b46acd6d9e61c6cab87bc251c9d8755f2bdb82ac2ffe",
+      "activeSha256": "fc72b2b56ab110f192f6dbddd0e29687e857c9b09feb24fecce86d6e66d0b49a",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".codex/skills/common/common-security-standards/SKILL.md",
+      "beforeSha256": "d304e7df80f83120bee217703faaf3974b32f9c81d3e42a816624efcfecfc49f",
+      "archivedSha256": "d304e7df80f83120bee217703faaf3974b32f9c81d3e42a816624efcfecfc49f",
+      "candidateSha256": "26ac1d160a2b2ffe48e3a1afe609cef6f559be2fe9c89c81840ae8d8a217ca9e",
+      "activeSha256": "d304e7df80f83120bee217703faaf3974b32f9c81d3e42a816624efcfecfc49f",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".codex/skills/common/common-security-standards/references/VULNERABILITY_REMEDIATION.md",
+      "beforeSha256": "bff42e6561110e2fc067fd9b32048cd4dddd7013ae8bb51732b4ab28ee2eef73",
+      "archivedSha256": "bff42e6561110e2fc067fd9b32048cd4dddd7013ae8bb51732b4ab28ee2eef73",
+      "candidateSha256": "3621ba88e37f0ac26bb98068475b13dab038ade5610169a3d4f05107af82d126",
+      "activeSha256": "bff42e6561110e2fc067fd9b32048cd4dddd7013ae8bb51732b4ab28ee2eef73",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".codex/skills/common/common-security-standards/references/implementation.md",
+      "beforeSha256": "9302fc48dcf32057d5b1fc7a50cba110d14bdc56a0ab9323e2bbc9d59947bb29",
+      "archivedSha256": "9302fc48dcf32057d5b1fc7a50cba110d14bdc56a0ab9323e2bbc9d59947bb29",
+      "candidateSha256": "8894d6cc33dd7265a4a77435e7bf655006de0409eb04cece0997357e90452434",
+      "activeSha256": "9302fc48dcf32057d5b1fc7a50cba110d14bdc56a0ab9323e2bbc9d59947bb29",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".codex/skills/common/common-session-retrospective/SKILL.md",
+      "beforeSha256": "902ec683d4bf1e1bd6b5782407ad003a580170b865c8506e1af93ac1db00b874",
+      "archivedSha256": "902ec683d4bf1e1bd6b5782407ad003a580170b865c8506e1af93ac1db00b874",
+      "candidateSha256": "06eb8f0822ebf81581b850f5b5167fb8fc58e3e5953f4d66936ef4c30d2eaa90",
+      "activeSha256": "902ec683d4bf1e1bd6b5782407ad003a580170b865c8506e1af93ac1db00b874",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".codex/skills/common/common-session-retrospective/references/methodology.md",
+      "beforeSha256": "ad238c73478f83da27347dd8f93c9d36ca72a8f1cd0e3b660a56db694719fc0d",
+      "archivedSha256": "ad238c73478f83da27347dd8f93c9d36ca72a8f1cd0e3b660a56db694719fc0d",
+      "candidateSha256": "8fa67200e8418b00d95a09f093323675a566c118cdf319c3ed5d5ac52c4e2640",
+      "activeSha256": "ad238c73478f83da27347dd8f93c9d36ca72a8f1cd0e3b660a56db694719fc0d",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".codex/skills/common/common-skill-creator/SKILL.md",
+      "beforeSha256": "d11258c8537360a88c0f1893d3cfd3ef8c3788f5ce11d3aa6433aad6bd233d86",
+      "archivedSha256": "d11258c8537360a88c0f1893d3cfd3ef8c3788f5ce11d3aa6433aad6bd233d86",
+      "candidateSha256": "a15c8d84dd8e4044475a373e32211983575758e8d3026193ff09f018fd14627b",
+      "activeSha256": "d11258c8537360a88c0f1893d3cfd3ef8c3788f5ce11d3aa6433aad6bd233d86",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".codex/skills/common/common-skill-creator/references/eval-workflow.md",
+      "beforeSha256": "fac6a335e37b7b66a038dc0aa2431abddfb87954377857cf1a15cdc766c2abc1",
+      "archivedSha256": "fac6a335e37b7b66a038dc0aa2431abddfb87954377857cf1a15cdc766c2abc1",
+      "candidateSha256": "8a23f81789571222334aff15d79218fa2b1103403354806a78502e3ee33fedb7",
+      "activeSha256": "fac6a335e37b7b66a038dc0aa2431abddfb87954377857cf1a15cdc766c2abc1",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".codex/skills/common/common-skill-creator/references/lifecycle.md",
+      "beforeSha256": "3f3d8ba0794647ce288b60a38f0c67defe0ee1ab2d53b420f60410993bc333c2",
+      "archivedSha256": "3f3d8ba0794647ce288b60a38f0c67defe0ee1ab2d53b420f60410993bc333c2",
+      "candidateSha256": "31224025fe5928850991afcf939f847f8ae29ea1179d25de57d317bb3e12276c",
+      "activeSha256": "3f3d8ba0794647ce288b60a38f0c67defe0ee1ab2d53b420f60410993bc333c2",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".codex/skills/common/common-skill-creator/references/testing.md",
+      "beforeSha256": "6a3b0fc2c57ac9491575cb025e992a3bbfbf19845b921390032a71c80b017f9c",
+      "archivedSha256": "6a3b0fc2c57ac9491575cb025e992a3bbfbf19845b921390032a71c80b017f9c",
+      "candidateSha256": "51ce1795131f2c8eaeb200d88c465c72ad8a3cf96ac6686934e57369e60cf2a4",
+      "activeSha256": "6a3b0fc2c57ac9491575cb025e992a3bbfbf19845b921390032a71c80b017f9c",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".codex/skills/common/common-subagent-driven-development/SKILL.md",
+      "beforeSha256": "7503b77823cda442d542f54b089b72043fbeead2f6cf1c44f0fbb23f42f43aef",
+      "archivedSha256": "7503b77823cda442d542f54b089b72043fbeead2f6cf1c44f0fbb23f42f43aef",
+      "candidateSha256": "1c6fd9ef4d2b750b7bef7a4434b10d92c931df2bcf1e3e1aab493a5fffa97ca3",
+      "activeSha256": "7503b77823cda442d542f54b089b72043fbeead2f6cf1c44f0fbb23f42f43aef",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".codex/skills/common/common-subagent-driven-development/references/methodology.md",
+      "beforeSha256": "e2e8548bb8247e31ffa0f44e78664a608a5774f80066fcb6ddf6cf9d0c78f2c9",
+      "archivedSha256": "e2e8548bb8247e31ffa0f44e78664a608a5774f80066fcb6ddf6cf9d0c78f2c9",
+      "candidateSha256": "08efda31aef4c552ab83ada68e24fe6637ae3060a631c3d92cf0ce9c68705535",
+      "activeSha256": "e2e8548bb8247e31ffa0f44e78664a608a5774f80066fcb6ddf6cf9d0c78f2c9",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".codex/skills/common/common-subagent-driven-development/references/templates.md",
+      "beforeSha256": "f487daf8a3ecfe8b8abee76f9a2bfb8b931b5f118ea99aee3646583a3929aacb",
+      "archivedSha256": "f487daf8a3ecfe8b8abee76f9a2bfb8b931b5f118ea99aee3646583a3929aacb",
+      "candidateSha256": "0e1bad24d9b189a6007aa9905aea9f3ed327d4d98d180594ffd0be219c430a22",
+      "activeSha256": "f487daf8a3ecfe8b8abee76f9a2bfb8b931b5f118ea99aee3646583a3929aacb",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".codex/skills/common/common-subagent-driven-development/scripts/task_brief.py",
+      "beforeSha256": "d66207beca33b9b905b341a37be83b4c9338f776c359853e6068e98fb1ede896",
+      "archivedSha256": "d66207beca33b9b905b341a37be83b4c9338f776c359853e6068e98fb1ede896",
+      "candidateSha256": "9f920ba09cf38cc21d43a9ec6dac42e9afc0a3d946f734fb4059c092c00e13ce",
+      "activeSha256": "d66207beca33b9b905b341a37be83b4c9338f776c359853e6068e98fb1ede896",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".codex/skills/common/common-tdd/SKILL.md",
+      "beforeSha256": "2902d3a26ef28015c2109f70526c7c6606a90fb510de6766566f1a0ee0a4ee31",
+      "archivedSha256": "2902d3a26ef28015c2109f70526c7c6606a90fb510de6766566f1a0ee0a4ee31",
+      "candidateSha256": "630a114fcedfdf4fc644c4fa32d174a38d7d0a85bd78764d905c8f360d952d4e",
+      "activeSha256": "2902d3a26ef28015c2109f70526c7c6606a90fb510de6766566f1a0ee0a4ee31",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".codex/skills/common/common-tdd/references/quality-contract.md",
+      "beforeSha256": "b8411152f012da4812f6f57fc07266ff26fc14b280be077babe774b792a6aad1",
+      "archivedSha256": "b8411152f012da4812f6f57fc07266ff26fc14b280be077babe774b792a6aad1",
+      "candidateSha256": "9c0a6a67dbb1c91362d3236ffb51cdc0c88647ae5c4c17b87131a4e13c36ff0b",
+      "activeSha256": "b8411152f012da4812f6f57fc07266ff26fc14b280be077babe774b792a6aad1",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".codex/skills/common/common-telemetry/SKILL.md",
+      "beforeSha256": "973f44393e081d5aefb70a0c219284fe128ba6b7f880c467328c3993638b884a",
+      "archivedSha256": "973f44393e081d5aefb70a0c219284fe128ba6b7f880c467328c3993638b884a",
+      "candidateSha256": "ccd2c4a890e8e0350442b1128d51c982af31222abc484ab6aa82abf92f386ab6",
+      "activeSha256": "973f44393e081d5aefb70a0c219284fe128ba6b7f880c467328c3993638b884a",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".codex/skills/common/common-web-visual-testing/SKILL.md",
+      "beforeSha256": "87400640d721091640c27ba37e632bfc83a8db998de08774297f1fcded46e9b0",
+      "archivedSha256": "87400640d721091640c27ba37e632bfc83a8db998de08774297f1fcded46e9b0",
+      "candidateSha256": "b1fcb6946f90838b346e4774ad52b923439e101eda3b76ed2396033ddf7f0de1",
+      "activeSha256": "87400640d721091640c27ba37e632bfc83a8db998de08774297f1fcded46e9b0",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".codex/skills/common/common-web-visual-testing/references/login-and-test-data.md",
+      "beforeSha256": "295664eb50591cf16acb8d8cad4e1ae1e692be65a7fb28e45f206a2c316f0747",
+      "archivedSha256": "295664eb50591cf16acb8d8cad4e1ae1e692be65a7fb28e45f206a2c316f0747",
+      "candidateSha256": "6aaee9ab08480d8a62447ae66bd2c8bd3f7810b933dfd590816554f1cbea7be5",
+      "activeSha256": "295664eb50591cf16acb8d8cad4e1ae1e692be65a7fb28e45f206a2c316f0747",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".codex/skills/implement-feature/SKILL.md",
+      "beforeSha256": "697760f18c45521db01389765fa709aa8bdb4f1e294431571ae464f8dc870271",
+      "archivedSha256": "697760f18c45521db01389765fa709aa8bdb4f1e294431571ae464f8dc870271",
+      "candidateSha256": "5b100480c83765bf65aa3afb4ce30f8943d88ffcc52bc3ae4e8e4adaa18267c4",
+      "activeSha256": "697760f18c45521db01389765fa709aa8bdb4f1e294431571ae464f8dc870271",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".codex/skills/session-report/SKILL.md",
+      "beforeSha256": "81008ed0ebc98574489a2ee929c2c2a3e44aae2241f80e4f91e565d173c190be",
+      "archivedSha256": "81008ed0ebc98574489a2ee929c2c2a3e44aae2241f80e4f91e565d173c190be",
+      "candidateSha256": "c36a1f6d9422c4e669d71db2383be717d65a97a7b6ff8135a8a5cdda835445cd",
+      "activeSha256": "81008ed0ebc98574489a2ee929c2c2a3e44aae2241f80e4f91e565d173c190be",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".github/prompts/implement-feature.prompt.md",
+      "beforeSha256": "bb54a10b0fb092124d562e1028719d5e508b18e8b205ce25e6c615aa39e8e5a9",
+      "archivedSha256": "bb54a10b0fb092124d562e1028719d5e508b18e8b205ce25e6c615aa39e8e5a9",
+      "candidateSha256": "23a04337206f64e88e1d5367b87300b2349f088b8932a1bfe4c27fb63e4dbe88",
+      "activeSha256": "bb54a10b0fb092124d562e1028719d5e508b18e8b205ce25e6c615aa39e8e5a9",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".github/prompts/session-report.prompt.md",
+      "beforeSha256": "885dd340b1b8ac0298dc21d42a7e5985eb905f5f11478adef351cb788a40a8c7",
+      "archivedSha256": "885dd340b1b8ac0298dc21d42a7e5985eb905f5f11478adef351cb788a40a8c7",
+      "candidateSha256": "d31e5018420237e2842e241d383d30b38beb6776ba3f0a889356ec8d1b368a38",
+      "activeSha256": "885dd340b1b8ac0298dc21d42a7e5985eb905f5f11478adef351cb788a40a8c7",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".github/skills/common/common-context-optimization/references/implementation.md",
+      "beforeSha256": "66b85d2a7aba5e016df8d64eab0bc8c1242ed024819c4324d010a3234a3dcd5e",
+      "archivedSha256": "66b85d2a7aba5e016df8d64eab0bc8c1242ed024819c4324d010a3234a3dcd5e",
+      "candidateSha256": "c5f0fc921efcf529b8c308b9942bd7b7f29ea4d2e2526df2953cfe232aea2b88",
+      "activeSha256": "66b85d2a7aba5e016df8d64eab0bc8c1242ed024819c4324d010a3234a3dcd5e",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".github/skills/common/common-decision-discipline/SKILL.md",
+      "beforeSha256": "0df5a2ce474431c18b1e011b4b3672d737fb833ff863daba1b0c6f6f61dd806f",
+      "archivedSha256": "0df5a2ce474431c18b1e011b4b3672d737fb833ff863daba1b0c6f6f61dd806f",
+      "candidateSha256": "eb19debdac1f1f35ad5bdb444ff010699475e1e35210f1f126c1dc1172f2ed0d",
+      "activeSha256": "0df5a2ce474431c18b1e011b4b3672d737fb833ff863daba1b0c6f6f61dd806f",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".github/skills/common/common-learning-log/SKILL.md",
+      "beforeSha256": "d8082fe46b7087e25818c6f6e61875d93e620d6b638447e6443748acb6494304",
+      "archivedSha256": "d8082fe46b7087e25818c6f6e61875d93e620d6b638447e6443748acb6494304",
+      "candidateSha256": "bf0ea0ee2ec432e0edf5eec404aa3db9b95260ce1fc742fe691f39b444d1fc39",
+      "activeSha256": "d8082fe46b7087e25818c6f6e61875d93e620d6b638447e6443748acb6494304",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".github/skills/common/common-learning-log/references/log-format.md",
+      "beforeSha256": "fc72b2b56ab110f192f6dbddd0e29687e857c9b09feb24fecce86d6e66d0b49a",
+      "archivedSha256": "fc72b2b56ab110f192f6dbddd0e29687e857c9b09feb24fecce86d6e66d0b49a",
+      "candidateSha256": "0cd64d43d7c463c21201b46acd6d9e61c6cab87bc251c9d8755f2bdb82ac2ffe",
+      "activeSha256": "fc72b2b56ab110f192f6dbddd0e29687e857c9b09feb24fecce86d6e66d0b49a",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".github/skills/common/common-security-standards/SKILL.md",
+      "beforeSha256": "d304e7df80f83120bee217703faaf3974b32f9c81d3e42a816624efcfecfc49f",
+      "archivedSha256": "d304e7df80f83120bee217703faaf3974b32f9c81d3e42a816624efcfecfc49f",
+      "candidateSha256": "26ac1d160a2b2ffe48e3a1afe609cef6f559be2fe9c89c81840ae8d8a217ca9e",
+      "activeSha256": "d304e7df80f83120bee217703faaf3974b32f9c81d3e42a816624efcfecfc49f",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".github/skills/common/common-security-standards/references/VULNERABILITY_REMEDIATION.md",
+      "beforeSha256": "bff42e6561110e2fc067fd9b32048cd4dddd7013ae8bb51732b4ab28ee2eef73",
+      "archivedSha256": "bff42e6561110e2fc067fd9b32048cd4dddd7013ae8bb51732b4ab28ee2eef73",
+      "candidateSha256": "3621ba88e37f0ac26bb98068475b13dab038ade5610169a3d4f05107af82d126",
+      "activeSha256": "bff42e6561110e2fc067fd9b32048cd4dddd7013ae8bb51732b4ab28ee2eef73",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".github/skills/common/common-security-standards/references/implementation.md",
+      "beforeSha256": "9302fc48dcf32057d5b1fc7a50cba110d14bdc56a0ab9323e2bbc9d59947bb29",
+      "archivedSha256": "9302fc48dcf32057d5b1fc7a50cba110d14bdc56a0ab9323e2bbc9d59947bb29",
+      "candidateSha256": "8894d6cc33dd7265a4a77435e7bf655006de0409eb04cece0997357e90452434",
+      "activeSha256": "9302fc48dcf32057d5b1fc7a50cba110d14bdc56a0ab9323e2bbc9d59947bb29",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".github/skills/common/common-session-retrospective/SKILL.md",
+      "beforeSha256": "902ec683d4bf1e1bd6b5782407ad003a580170b865c8506e1af93ac1db00b874",
+      "archivedSha256": "902ec683d4bf1e1bd6b5782407ad003a580170b865c8506e1af93ac1db00b874",
+      "candidateSha256": "06eb8f0822ebf81581b850f5b5167fb8fc58e3e5953f4d66936ef4c30d2eaa90",
+      "activeSha256": "902ec683d4bf1e1bd6b5782407ad003a580170b865c8506e1af93ac1db00b874",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".github/skills/common/common-session-retrospective/references/methodology.md",
+      "beforeSha256": "ad238c73478f83da27347dd8f93c9d36ca72a8f1cd0e3b660a56db694719fc0d",
+      "archivedSha256": "ad238c73478f83da27347dd8f93c9d36ca72a8f1cd0e3b660a56db694719fc0d",
+      "candidateSha256": "8fa67200e8418b00d95a09f093323675a566c118cdf319c3ed5d5ac52c4e2640",
+      "activeSha256": "ad238c73478f83da27347dd8f93c9d36ca72a8f1cd0e3b660a56db694719fc0d",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".github/skills/common/common-skill-creator/SKILL.md",
+      "beforeSha256": "d11258c8537360a88c0f1893d3cfd3ef8c3788f5ce11d3aa6433aad6bd233d86",
+      "archivedSha256": "d11258c8537360a88c0f1893d3cfd3ef8c3788f5ce11d3aa6433aad6bd233d86",
+      "candidateSha256": "a15c8d84dd8e4044475a373e32211983575758e8d3026193ff09f018fd14627b",
+      "activeSha256": "d11258c8537360a88c0f1893d3cfd3ef8c3788f5ce11d3aa6433aad6bd233d86",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".github/skills/common/common-skill-creator/references/eval-workflow.md",
+      "beforeSha256": "fac6a335e37b7b66a038dc0aa2431abddfb87954377857cf1a15cdc766c2abc1",
+      "archivedSha256": "fac6a335e37b7b66a038dc0aa2431abddfb87954377857cf1a15cdc766c2abc1",
+      "candidateSha256": "8a23f81789571222334aff15d79218fa2b1103403354806a78502e3ee33fedb7",
+      "activeSha256": "fac6a335e37b7b66a038dc0aa2431abddfb87954377857cf1a15cdc766c2abc1",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".github/skills/common/common-skill-creator/references/lifecycle.md",
+      "beforeSha256": "3f3d8ba0794647ce288b60a38f0c67defe0ee1ab2d53b420f60410993bc333c2",
+      "archivedSha256": "3f3d8ba0794647ce288b60a38f0c67defe0ee1ab2d53b420f60410993bc333c2",
+      "candidateSha256": "31224025fe5928850991afcf939f847f8ae29ea1179d25de57d317bb3e12276c",
+      "activeSha256": "3f3d8ba0794647ce288b60a38f0c67defe0ee1ab2d53b420f60410993bc333c2",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".github/skills/common/common-skill-creator/references/testing.md",
+      "beforeSha256": "6a3b0fc2c57ac9491575cb025e992a3bbfbf19845b921390032a71c80b017f9c",
+      "archivedSha256": "6a3b0fc2c57ac9491575cb025e992a3bbfbf19845b921390032a71c80b017f9c",
+      "candidateSha256": "51ce1795131f2c8eaeb200d88c465c72ad8a3cf96ac6686934e57369e60cf2a4",
+      "activeSha256": "6a3b0fc2c57ac9491575cb025e992a3bbfbf19845b921390032a71c80b017f9c",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".github/skills/common/common-subagent-driven-development/SKILL.md",
+      "beforeSha256": "7503b77823cda442d542f54b089b72043fbeead2f6cf1c44f0fbb23f42f43aef",
+      "archivedSha256": "7503b77823cda442d542f54b089b72043fbeead2f6cf1c44f0fbb23f42f43aef",
+      "candidateSha256": "1c6fd9ef4d2b750b7bef7a4434b10d92c931df2bcf1e3e1aab493a5fffa97ca3",
+      "activeSha256": "7503b77823cda442d542f54b089b72043fbeead2f6cf1c44f0fbb23f42f43aef",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".github/skills/common/common-subagent-driven-development/references/methodology.md",
+      "beforeSha256": "e2e8548bb8247e31ffa0f44e78664a608a5774f80066fcb6ddf6cf9d0c78f2c9",
+      "archivedSha256": "e2e8548bb8247e31ffa0f44e78664a608a5774f80066fcb6ddf6cf9d0c78f2c9",
+      "candidateSha256": "08efda31aef4c552ab83ada68e24fe6637ae3060a631c3d92cf0ce9c68705535",
+      "activeSha256": "e2e8548bb8247e31ffa0f44e78664a608a5774f80066fcb6ddf6cf9d0c78f2c9",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".github/skills/common/common-subagent-driven-development/references/templates.md",
+      "beforeSha256": "f487daf8a3ecfe8b8abee76f9a2bfb8b931b5f118ea99aee3646583a3929aacb",
+      "archivedSha256": "f487daf8a3ecfe8b8abee76f9a2bfb8b931b5f118ea99aee3646583a3929aacb",
+      "candidateSha256": "0e1bad24d9b189a6007aa9905aea9f3ed327d4d98d180594ffd0be219c430a22",
+      "activeSha256": "f487daf8a3ecfe8b8abee76f9a2bfb8b931b5f118ea99aee3646583a3929aacb",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".github/skills/common/common-subagent-driven-development/scripts/task_brief.py",
+      "beforeSha256": "d66207beca33b9b905b341a37be83b4c9338f776c359853e6068e98fb1ede896",
+      "archivedSha256": "d66207beca33b9b905b341a37be83b4c9338f776c359853e6068e98fb1ede896",
+      "candidateSha256": "9f920ba09cf38cc21d43a9ec6dac42e9afc0a3d946f734fb4059c092c00e13ce",
+      "activeSha256": "d66207beca33b9b905b341a37be83b4c9338f776c359853e6068e98fb1ede896",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".github/skills/common/common-tdd/SKILL.md",
+      "beforeSha256": "2902d3a26ef28015c2109f70526c7c6606a90fb510de6766566f1a0ee0a4ee31",
+      "archivedSha256": "2902d3a26ef28015c2109f70526c7c6606a90fb510de6766566f1a0ee0a4ee31",
+      "candidateSha256": "630a114fcedfdf4fc644c4fa32d174a38d7d0a85bd78764d905c8f360d952d4e",
+      "activeSha256": "2902d3a26ef28015c2109f70526c7c6606a90fb510de6766566f1a0ee0a4ee31",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".github/skills/common/common-tdd/references/quality-contract.md",
+      "beforeSha256": "b8411152f012da4812f6f57fc07266ff26fc14b280be077babe774b792a6aad1",
+      "archivedSha256": "b8411152f012da4812f6f57fc07266ff26fc14b280be077babe774b792a6aad1",
+      "candidateSha256": "9c0a6a67dbb1c91362d3236ffb51cdc0c88647ae5c4c17b87131a4e13c36ff0b",
+      "activeSha256": "b8411152f012da4812f6f57fc07266ff26fc14b280be077babe774b792a6aad1",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".github/skills/common/common-telemetry/SKILL.md",
+      "beforeSha256": "973f44393e081d5aefb70a0c219284fe128ba6b7f880c467328c3993638b884a",
+      "archivedSha256": "973f44393e081d5aefb70a0c219284fe128ba6b7f880c467328c3993638b884a",
+      "candidateSha256": "ccd2c4a890e8e0350442b1128d51c982af31222abc484ab6aa82abf92f386ab6",
+      "activeSha256": "973f44393e081d5aefb70a0c219284fe128ba6b7f880c467328c3993638b884a",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".github/skills/common/common-web-visual-testing/SKILL.md",
+      "beforeSha256": "87400640d721091640c27ba37e632bfc83a8db998de08774297f1fcded46e9b0",
+      "archivedSha256": "87400640d721091640c27ba37e632bfc83a8db998de08774297f1fcded46e9b0",
+      "candidateSha256": "b1fcb6946f90838b346e4774ad52b923439e101eda3b76ed2396033ddf7f0de1",
+      "activeSha256": "87400640d721091640c27ba37e632bfc83a8db998de08774297f1fcded46e9b0",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".github/skills/common/common-web-visual-testing/references/login-and-test-data.md",
+      "beforeSha256": "295664eb50591cf16acb8d8cad4e1ae1e692be65a7fb28e45f206a2c316f0747",
+      "archivedSha256": "295664eb50591cf16acb8d8cad4e1ae1e692be65a7fb28e45f206a2c316f0747",
+      "candidateSha256": "6aaee9ab08480d8a62447ae66bd2c8bd3f7810b933dfd590816554f1cbea7be5",
+      "activeSha256": "295664eb50591cf16acb8d8cad4e1ae1e692be65a7fb28e45f206a2c316f0747",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": "skills/metadata.json",
+      "beforeSha256": "ae52f45b038e67d475b62aa956d6f2603f60983a554e974d6d4bb7315546724d",
+      "archivedSha256": "ae52f45b038e67d475b62aa956d6f2603f60983a554e974d6d4bb7315546724d",
+      "candidateSha256": "2096ebcd2593755ebfe5ae39d645b03eebb5b84944f67c97bb72121a11bbacfb",
+      "activeSha256": "ae52f45b038e67d475b62aa956d6f2603f60983a554e974d6d4bb7315546724d",
+      "state": "ORIGINAL_BEFORE"
+    },
+    {
+      "path": ".skills-lock.json",
+      "beforeSha256": null,
+      "activeSha256": null,
+      "state": "LEDGER_UNCHANGED"
+    }
+  ],
+  "limits": [
+    "Read-only current-byte classification after the external 1200-second deadline; no resume, rollback, ownership adoption or completion receipt supplied.",
+    "Stage manifest is not active authority. Existing adoption proof and before-images must be independently qualified for any recovery."
+  ]
+}

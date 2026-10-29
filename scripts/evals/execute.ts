@@ -283,11 +283,14 @@ export async function executeMissingAnswers(
   const concurrency = Math.max(1, Math.min(4, configuredConcurrency || 1));
   const initialMissing = new Set(jobs.map((job) => job.output));
   const attempts: TaskAttemptRecord[] = [];
+  let quotaObserved = false;
   let next = 0;
   const executions = await Promise.allSettled(
     Array.from({ length: Math.min(concurrency, jobs.length) }, async () => {
-      while (next < jobs.length) {
-        const job = jobs[next++];
+      while (!quotaObserved && next < jobs.length) {
+        const jobIndex = next++;
+        if (jobIndex >= jobs.length) return;
+        const job = jobs[jobIndex];
         if (!job) return;
         try {
           const result = await runner(job.prompt);
@@ -301,6 +304,9 @@ export async function executeMissingAnswers(
           fs.writeFileSync(job.output, `${answer}\n`);
           attempts.push({ arm: job.arm, outcome: "completed", usage });
         } catch (error) {
+          if (error instanceof EvalQuotaPausedError) {
+            quotaObserved = true;
+          }
           attempts.push({
             arm: job.arm,
             outcome:
@@ -361,7 +367,9 @@ export async function executeMissingAnswers(
     }
     throw failed.reason;
   }
-  manifest.metadata.completedAt = (options.now ?? new Date()).toISOString();
-  saveManifest(runDir, manifest);
+  if (missingAnswerCount(runDir) === 0) {
+    manifest.metadata.completedAt = (options.now ?? new Date()).toISOString();
+    saveManifest(runDir, manifest);
+  }
   return newlyWritten;
 }

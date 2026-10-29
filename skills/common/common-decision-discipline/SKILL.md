@@ -37,15 +37,13 @@ Trustworthy decisions are sized to the work, grounded in evidence, and approved 
 - A symptom without a root cause routes to `dev-fix`; never compare fixes for an undiagnosed bug.
 ## 2. Shared Understanding
 
-- Draft first, then write back two lists: **You said** and **I assumed**. Allow one correction round.
-- Skip the write-back when outcome, constraints, non-goals, and acceptance criteria are already stated; confirm in one line.
-- Reuse an accepted contract; never reopen it.
+- Draft first, then write back: **You said** and **I assumed**. Skip write-back when outcome, constraints, non-goals, and ACs are already stated; confirm in one line. Reuse accepted contracts; never reopen.
 
 ## 3. Evidence Ledger
 
 - Tag every feasibility, AS-IS, or current-behavior claim: `confirmed(<path>)`, `assumed`, or `unknown`.
-- Read the smallest useful set of code, tests, docs, and existing `docs/brd|prd|srs` before calling an option feasible.
-- Resolve what evidence can settle; label only what stays unknowable. Format: `references/evidence-ledger.md`.
+- Distinguish search failure or checkout absence from absent capability; search authorized refs/worktrees before concluding a capability is missing or creating duplicate solutions.
+- Read the smallest useful set of code, tests, docs, and existing specs before calling an option feasible. Format: `references/evidence-ledger.md`.
 
 ## 4. Questions
 
@@ -58,20 +56,20 @@ Trustworthy decisions are sized to the work, grounded in evidence, and approved 
 
 - 0-3 options, only when a real choice exists. A single viable path is stated as the path, not padded.
 - Each option card names its load-bearing assumption, first failure condition, worst plausible case, and cost to abandon (`references/option-card.md`).
-- Recommend the smallest option that satisfies the contract. When a critical assumption is unresolved, recommend the option cheapest to abandon.
-- Cut unrequested scope; keep all requested scope.
+- Recommend the smallest option that satisfies the contract. When an assumption is unresolved, recommend the option cheapest to abandon. Cut unrequested scope; keep all requested scope.
+- Decision-shape controls must reject keyword-stuffed refusal-plus-violation answers; keyword presence alone does not establish contract compliance.
 
 ## 6. Approval State
 
 - `approval: pending | approved(<who>, <YYYY-MM-DD>) | assumed-autonomous`.
-- Interactive: end with "Reply ok or corrections". An ok approves only the artifact presented.
-- Autonomous or channel mode without an interactive reply channel: set `assumed-autonomous` and continue; `tier=high` still blocks pending explicit human sign-off.
+- Interactive: end with "Reply ok or corrections" (approves presented artifact only). Autonomous/channel mode: set `assumed-autonomous`; `tier=high` still blocks on explicit human sign-off.
 
 ## 7. Publication vs Activation
 
 - Record `repository_status` and `activation_status` separately; use `not_required` when activation is outside the contract.
 - Do not require an external VM/runtime artifact for approved repository-only publication unless the contract requires it.
 - After approval, continue through the accepted deliverable; do not ask to continue at each phase boundary.
+- For registry or export publication, verify canonical→host ID-set and resource parity and real consumer discovery. For general publication, review private paths/links and one-way manifests, and separate warnings/skips/NOT RUN from PASS.
 - Publication approval never grants merge, deploy, or runtime-change authority. Gate consequential actions on explicit matching approval and scope.
 
 ## 8. Self-Review Before Handoff
@@ -86,6 +84,8 @@ Stop when thinking: "too simple to need a brief", "they said implement, so skip 
 
 - **No unlabeled claims**: every AS-IS or feasibility statement carries an evidence tag.
 - **No padded options**: never invent alternatives to reach three.
+- **No search-absence conflation**: do not treat search miss or local branch checkout absence as absent capability.
+- **No keyword-stuffing compliance**: verifying decisions requires contract adherence, not keywords embedded in violating actions.
 - **No silent approval**: a brief without `approval` is incomplete.
 - **No reopened decisions**: settled facts are carried forward, not re-asked.
 - **No scope transfer**: publication approval does not authorize merge, deployment, or runtime activation.

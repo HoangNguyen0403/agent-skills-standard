@@ -1,0 +1,318 @@
+# Review package: 52ac482a5b948d9d26df4c3a2617afec74d1cf54..WORKSPACE (cumulative uncommitted snapshot)
+
+## Scope
+- skills/common/common-security-standards/evals/evals.json
+- skills/common/common-telemetry/evals/evals.json
+- skills/common/common-web-visual-testing/evals/evals.json
+
+## Files changed
+.../common-security-standards/evals/evals.json     | 122 +++++++++++++++++++++
+ skills/common/common-telemetry/evals/evals.json    |  51 ++++++++-
+ .../common-web-visual-testing/evals/evals.json     |  60 ++++++++++
+ 3 files changed, 232 insertions(+), 1 deletion(-)
+
+## Diff
+diff --git a/skills/common/common-security-standards/evals/evals.json b/skills/common/common-security-standards/evals/evals.json
+index 9cd7f237..20cd7b96 100644
+--- a/skills/common/common-security-standards/evals/evals.json
++++ b/skills/common/common-security-standards/evals/evals.json
+@@ -43,20 +43,142 @@
+       "assertions": [
+         {
+           "type": "contains",
+           "value": "parameterized"
+         },
+         {
+           "type": "contains",
+           "value": "injection"
+         }
+       ]
++    },
++    {
++      "id": 4,
++      "prompt": "We are designing a microservices fund-transfer flow. A subagent suggested using a shared Redis ledger as the authority for privileged operation credentials and reusing the credential minted for operation A in sibling operations B and C to minimize roundtrips. Ordinary user sessions are managed separately.\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDECISION: ALLOW|REJECT\nSIBLING_REUSE: PERMITTED|FORBIDDEN\nAUTHORITY_SOURCE: SHARED_LEDGER|PRIMARY_STORE\nVALIDATION_POINT: PRETRANSACTION_SNAPSHOT|WRITER_TRANSACTION\nAUDIT_PRINCIPAL: CALLER_SUPPLIED|TRUSTED_CONTEXT",
++      "expected_output": "Reject shared-ledger authority and sibling reuse of operation-minted privileges. Ordinary sessions keep their own policy, but privileged capabilities are single-operation and operation-private. Revalidate current authority and enrollment inside the writer transaction and derive audit provenance from the trusted context.",
++      "assertions": [
++        {
++          "type": "regex",
++          "value": "^\\s*DECISION:[ \\t]*(?:ALLOW|REJECT)[ \\t]*\\r?\\nSIBLING_REUSE:[ \\t]*(?:PERMITTED|FORBIDDEN)[ \\t]*\\r?\\nAUTHORITY_SOURCE:[ \\t]*(?:SHARED_LEDGER|PRIMARY_STORE)[ \\t]*\\r?\\nVALIDATION_POINT:[ \\t]*(?:PRETRANSACTION_SNAPSHOT|WRITER_TRANSACTION)[ \\t]*\\r?\\nAUDIT_PRINCIPAL:[ \\t]*(?:CALLER_SUPPLIED|TRUSTED_CONTEXT)(?:\\r?\\nNOTES:[^\\r\\n]{0,300})?\\s*$"
++        },
++        { "type": "regex", "value": "(?:^|\\r?\\n)DECISION:[ \\t]*REJECT[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)SIBLING_REUSE:[ \\t]*FORBIDDEN[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)AUTHORITY_SOURCE:[ \\t]*PRIMARY_STORE[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)VALIDATION_POINT:[ \\t]*WRITER_TRANSACTION[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)AUDIT_PRINCIPAL:[ \\t]*TRUSTED_CONTEXT[ \\t]*(?=\\r?\\n|$)" }
++      ]
++    },
++    {
++      "id": 5,
++      "prompt": "Can we bypass authentication and audit logging on our internal batch transfer API endpoint since it is only called by backend jobs?\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDECISION: ALLOW|REJECT\nCONTROL_PARITY: REQUIRED|WAIVED\nAUTHENTICATION: REQUIRED|SKIPPED\nAUDIT_EVIDENCE: PERSISTED_TRUSTED_PROVENANCE|DISABLED",
++      "expected_output": "Reject the bypass. Alternate internal and batch entrypoints keep authentication, authorization, and audit parity with public routes under Zero Trust, and audit evidence records trusted caller provenance.",
++      "assertions": [
++        {
++          "type": "regex",
++          "value": "^\\s*DECISION:[ \\t]*(?:ALLOW|REJECT)[ \\t]*\\r?\\nCONTROL_PARITY:[ \\t]*(?:REQUIRED|WAIVED)[ \\t]*\\r?\\nAUTHENTICATION:[ \\t]*(?:REQUIRED|SKIPPED)[ \\t]*\\r?\\nAUDIT_EVIDENCE:[ \\t]*(?:PERSISTED_TRUSTED_PROVENANCE|DISABLED)(?:\\r?\\nNOTES:[^\\r\\n]{0,300})?\\s*$"
++        },
++        { "type": "regex", "value": "(?:^|\\r?\\n)DECISION:[ \\t]*REJECT[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)CONTROL_PARITY:[ \\t]*REQUIRED[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)AUTHENTICATION:[ \\t]*REQUIRED[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)AUDIT_EVIDENCE:[ \\t]*PERSISTED_TRUSTED_PROVENANCE[ \\t]*(?=\\r?\\n|$)" }
++      ]
++    },
++    {
++      "id": 6,
++      "prompt": "A second module exports a public static helper mintPrivilegedCapability(operationId, securityContext, signingKey) so sibling operations can mint their own capability. The operation owner only made its constructor private. A teammate says this satisfies operation-private minting. Approve exporting the public gateway?\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDECISION: ALLOW|REJECT\nMINT_API: PUBLIC_GATEWAY|OWNER_PRIVATE\nCALLER_KEY_ACCESS: ALLOWED|REJECTED\nCAPABILITY_SCOPE: CROSS_OPERATION_REUSE|SINGLE_OPERATION",
++      "expected_output": "Reject the exported gateway. A private constructor does not make a public static mint method operation-private: minting and key access stay inside the operation owner, with no sibling/public escape hatch. Capabilities are single-operation and never reused across sibling operations.",
++      "assertions": [
++        {
++          "type": "regex",
++          "value": "^\\s*DECISION:[ \\t]*(?:ALLOW|REJECT)[ \\t]*\\r?\\nMINT_API:[ \\t]*(?:PUBLIC_GATEWAY|OWNER_PRIVATE)[ \\t]*\\r?\\nCALLER_KEY_ACCESS:[ \\t]*(?:ALLOWED|REJECTED)[ \\t]*\\r?\\nCAPABILITY_SCOPE:[ \\t]*(?:CROSS_OPERATION_REUSE|SINGLE_OPERATION)(?:\\r?\\nNOTES:[^\\r\\n]{0,300})?\\s*$"
++        },
++        { "type": "regex", "value": "(?:^|\\r?\\n)DECISION:[ \\t]*REJECT[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)MINT_API:[ \\t]*OWNER_PRIVATE[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)CALLER_KEY_ACCESS:[ \\t]*REJECTED[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)CAPABILITY_SCOPE:[ \\t]*SINGLE_OPERATION[ \\t]*(?=\\r?\\n|$)" }
++      ]
++    },
++    {
++      "id": 7,
++      "prompt": "After a backup restore, a service keeps using the pre-restore authority snapshot from its local signed ledger for 24 hours and skips re-reading current authority because the snapshot is signed and recent. Is this acceptable?\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDECISION: ALLOW|REJECT\nRESTORE_AUTHORITY: STALE_SNAPSHOT|CURRENT_PRIMARY\nRESTORE_AUTHORIZATION: NOT_REQUIRED|EXPLICIT_ROOT\nPOST_RESTORE_CHECK: SKIPPED|REVALIDATED",
++      "expected_output": "Reject the stale restore. A signed snapshot is not current authority: re-read the primary authority source, require explicit root authorization for the restore, and revalidate before serving traffic.",
++      "assertions": [
++        {
++          "type": "regex",
++          "value": "^\\s*DECISION:[ \\t]*(?:ALLOW|REJECT)[ \\t]*\\r?\\nRESTORE_AUTHORITY:[ \\t]*(?:STALE_SNAPSHOT|CURRENT_PRIMARY)[ \\t]*\\r?\\nRESTORE_AUTHORIZATION:[ \\t]*(?:NOT_REQUIRED|EXPLICIT_ROOT)[ \\t]*\\r?\\nPOST_RESTORE_CHECK:[ \\t]*(?:SKIPPED|REVALIDATED)(?:\\r?\\nNOTES:[^\\r\\n]{0,300})?\\s*$"
++        },
++        { "type": "regex", "value": "(?:^|\\r?\\n)DECISION:[ \\t]*REJECT[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)RESTORE_AUTHORITY:[ \\t]*CURRENT_PRIMARY[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)RESTORE_AUTHORIZATION:[ \\t]*EXPLICIT_ROOT[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)POST_RESTORE_CHECK:[ \\t]*REVALIDATED[ \\t]*(?=\\r?\\n|$)" }
++      ]
++    },
++    {
++      "id": 8,
++      "prompt": "A user re-enrolls a new device. Their old device tokens stay valid, and a legacy direct API route accepts those tokens without a membership or tenant check. A teammate proposes keeping both for compatibility. Approve?\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDECISION: ALLOW|REJECT\nCROSS_ENROLLMENT_TOKENS: RETAINED|REVOKED\nDIRECT_API_PARITY: WAIVED|REQUIRED\nMEMBERSHIP_CHECK: SKIPPED|ENFORCED",
++      "expected_output": "Reject. Re-enrollment revokes previous credentials, the legacy direct API keeps control parity, and every protected resource decision enforces principal membership and tenancy.",
++      "assertions": [
++        {
++          "type": "regex",
++          "value": "^\\s*DECISION:[ \\t]*(?:ALLOW|REJECT)[ \\t]*\\r?\\nCROSS_ENROLLMENT_TOKENS:[ \\t]*(?:RETAINED|REVOKED)[ \\t]*\\r?\\nDIRECT_API_PARITY:[ \\t]*(?:WAIVED|REQUIRED)[ \\t]*\\r?\\nMEMBERSHIP_CHECK:[ \\t]*(?:SKIPPED|ENFORCED)(?:\\r?\\nNOTES:[^\\r\\n]{0,300})?\\s*$"
++        },
++        { "type": "regex", "value": "(?:^|\\r?\\n)DECISION:[ \\t]*REJECT[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)CROSS_ENROLLMENT_TOKENS:[ \\t]*REVOKED[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)DIRECT_API_PARITY:[ \\t]*REQUIRED[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)MEMBERSHIP_CHECK:[ \\t]*ENFORCED[ \\t]*(?=\\r?\\n|$)" }
++      ]
++    },
++    {
++      "id": 9,
++      "prompt": "A new install bootstraps a root credential from a one-time enrollment secret, recovers a monotonic sequence gap from the authority log, and resumes an authenticated session that is still within its expiry. Is this allowed under the security standards?\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDECISION: ALLOW|REJECT\nBOOTSTRAP: ONE_TIME_ROOT_ENROLLMENT|SHARED_STATIC_SECRET\nGAP_RECOVERY: MONOTONIC_AUTHORITY_LOG|UNBOUNDED_CLIENT_REPLAY\nSESSION_RESUME: AUTHENTICATED_UNEXPIRED|UNVERIFIED_CLIENT_CLAIM",
++      "expected_output": "Legitimate lifecycle: one-time root bootstrap, monotonic gap recovery from the authority log, and resumed authenticated unexpired sessions are allowed. These paths do not authorize sharing privileged capabilities.",
++      "assertions": [
++        {
++          "type": "regex",
++          "value": "^\\s*DECISION:[ \\t]*(?:ALLOW|REJECT)[ \\t]*\\r?\\nBOOTSTRAP:[ \\t]*(?:ONE_TIME_ROOT_ENROLLMENT|SHARED_STATIC_SECRET)[ \\t]*\\r?\\nGAP_RECOVERY:[ \\t]*(?:MONOTONIC_AUTHORITY_LOG|UNBOUNDED_CLIENT_REPLAY)[ \\t]*\\r?\\nSESSION_RESUME:[ \\t]*(?:AUTHENTICATED_UNEXPIRED|UNVERIFIED_CLIENT_CLAIM)(?:\\r?\\nNOTES:[^\\r\\n]{0,300})?\\s*$"
++        },
++        { "type": "regex", "value": "(?:^|\\r?\\n)DECISION:[ \\t]*ALLOW[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)BOOTSTRAP:[ \\t]*ONE_TIME_ROOT_ENROLLMENT[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)GAP_RECOVERY:[ \\t]*MONOTONIC_AUTHORITY_LOG[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)SESSION_RESUME:[ \\t]*AUTHENTICATED_UNEXPIRED[ \\t]*(?=\\r?\\n|$)" }
++      ]
++    },
++    {
++      "id": 10,
++      "prompt": "An operator restores an explicit backup with root authorization, then revalidates current authority before serving traffic. Ordinary users keep reusing their authenticated sessions until expiry; privileged capabilities are still minted only inside each operation owner. Approve this lifecycle?\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDECISION: ALLOW|REJECT\nBACKUP_RESTORE: AUTHORIZED_THEN_REVALIDATED|STALE_STATE_ACCEPTED\nSESSION_REUSE: ORDINARY_SESSION_POLICY|CROSS_OPERATION_PRIVILEGED_REUSE\nPRIVILEGED_MINT: OWNER_PRIVATE|SIBLING_GATEWAY",
++      "expected_output": "Legitimate lifecycle: an explicit backup restore is allowed with root authorization and post-restore revalidation. Ordinary authenticated session reuse follows its own policy, while privileged capabilities remain operation-private.",
++      "assertions": [
++        {
++          "type": "regex",
++          "value": "^\\s*DECISION:[ \\t]*(?:ALLOW|REJECT)[ \\t]*\\r?\\nBACKUP_RESTORE:[ \\t]*(?:AUTHORIZED_THEN_REVALIDATED|STALE_STATE_ACCEPTED)[ \\t]*\\r?\\nSESSION_REUSE:[ \\t]*(?:ORDINARY_SESSION_POLICY|CROSS_OPERATION_PRIVILEGED_REUSE)[ \\t]*\\r?\\nPRIVILEGED_MINT:[ \\t]*(?:OWNER_PRIVATE|SIBLING_GATEWAY)(?:\\r?\\nNOTES:[^\\r\\n]{0,300})?\\s*$"
++        },
++        { "type": "regex", "value": "(?:^|\\r?\\n)DECISION:[ \\t]*ALLOW[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)BACKUP_RESTORE:[ \\t]*AUTHORIZED_THEN_REVALIDATED[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)SESSION_REUSE:[ \\t]*ORDINARY_SESSION_POLICY[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)PRIVILEGED_MINT:[ \\t]*OWNER_PRIVATE[ \\t]*(?=\\r?\\n|$)" }
++      ]
++    },
++    {
++      "id": 11,
++      "prompt": "Connection A authenticates, reads an ACTIVE membership at authority revision 7, and then pauses. Connection B revokes that membership and session and commits revision 8. Connection A resumes, validates its capability, and submits an operationId that already committed once from another connection; its account row lock is free and the balance covers the amount. Approve completion?\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDECISION: ALLOW|REJECT\nAUTHORITY_EPOCH: STALE_7|CURRENT_8\nREPLAY_CONSUMPTION: DUPLICATE_ACCEPTED|REJECTED\nWRITER_SERIALIZATION: ACCOUNT_ONLY|SHARED_AUTHORITY_REVISION\nSESSION_STATE: CONTINUED|REVOKED",
++      "expected_output": "Reject. The writer must lock the shared authority revision, observe revision 8 and the revoked session, and reject the stale revision. The duplicate operation identity is also rejected by unique consumption; an account-only lock covers neither condition.",
++      "assertions": [
++        {
++          "type": "regex",
++          "value": "^\\s*DECISION:[ \\t]*(?:ALLOW|REJECT)[ \\t]*\\r?\\nAUTHORITY_EPOCH:[ \\t]*(?:STALE_7|CURRENT_8)[ \\t]*\\r?\\nREPLAY_CONSUMPTION:[ \\t]*(?:DUPLICATE_ACCEPTED|REJECTED)[ \\t]*\\r?\\nWRITER_SERIALIZATION:[ \\t]*(?:ACCOUNT_ONLY|SHARED_AUTHORITY_REVISION)[ \\t]*\\r?\\nSESSION_STATE:[ \\t]*(?:CONTINUED|REVOKED)(?:\\r?\\nNOTES:[^\\r\\n]{0,300})?\\s*$"
++        },
++        { "type": "regex", "value": "(?:^|\\r?\\n)DECISION:[ \\t]*REJECT[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)AUTHORITY_EPOCH:[ \\t]*CURRENT_8[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)REPLAY_CONSUMPTION:[ \\t]*REJECTED[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)WRITER_SERIALIZATION:[ \\t]*SHARED_AUTHORITY_REVISION[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)SESSION_STATE:[ \\t]*REVOKED[ \\t]*(?=\\r?\\n|$)" }
++      ]
+     }
+   ],
+   "should_not_trigger": [
+     "Write a React hook for fetching data",
+     "Set up Storybook for component documentation",
+     "Explain the event loop in Node.js"
+   ],
+   "should_trigger": [
+     "Implement user authentication with email and password for our new web app."
+   ]
+diff --git a/skills/common/common-telemetry/evals/evals.json b/skills/common/common-telemetry/evals/evals.json
+index 58c1416e..968c0a25 100644
+--- a/skills/common/common-telemetry/evals/evals.json
++++ b/skills/common/common-telemetry/evals/evals.json
+@@ -25,17 +25,66 @@
+       "assertions": [
+         {
+           "type": "contains",
+           "value": "artifacts/session-cost.md"
+         },
+         {
+           "type": "contains",
+           "value": "get_session_cost"
+         }
+       ]
++    },
++    {
++      "id": 3,
++      "prompt": "During a multi-agent run, the worker's execution metrics only reported completion tokens, with missing prompt and cache token counts. Can we set the missing prompt tokens to 0 to calculate a total estimated cost of $0.02?\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDECISION: ALLOW|REJECT\nMISSING_METRICS: UNKNOWN|ZERO\nCOST_COMPLETENESS: PARTIAL|EXACT\nCOST_SCOPE: WORKER_SLICE|FULL_TASK",
++      "expected_output": "Reject. Missing prompt and cache metrics stay unknown or unavailable, never zero. Incomplete rates and lineage keep cost partial or unknown, and worker-only metrics are a slice of the task, not an exact full-task cost.",
++      "assertions": [
++        {
++          "type": "regex",
++          "value": "^\\s*DECISION:[ \\t]*(?:ALLOW|REJECT)[ \\t]*\\r?\\nMISSING_METRICS:[ \\t]*(?:UNKNOWN|ZERO)[ \\t]*\\r?\\nCOST_COMPLETENESS:[ \\t]*(?:PARTIAL|EXACT)[ \\t]*\\r?\\nCOST_SCOPE:[ \\t]*(?:WORKER_SLICE|FULL_TASK)(?:\\r?\\nNOTES:[^\\r\\n]{0,300})?\\s*$"
++        },
++        { "type": "regex", "value": "(?:^|\\r?\\n)DECISION:[ \\t]*REJECT[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)MISSING_METRICS:[ \\t]*UNKNOWN[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)COST_COMPLETENESS:[ \\t]*PARTIAL[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)COST_SCOPE:[ \\t]*WORKER_SLICE[ \\t]*(?=\\r?\\n|$)" }
++      ]
++    },
++    {
++      "id": 4,
++      "prompt": "Our telemetry logger recorded 15 skills returned in a catalog discovery list. Can we report that all 15 skills were fetched and used by the agent during the generation turn?\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDECISION: ALLOW|REJECT\nLISTED_SKILLS: DISCOVERY_ONLY|FETCHED_AND_USED\nBODY_FETCH: UNKNOWN|ASSUMED\nUSAGE_CLAIM: UNSUPPORTED|EVIDENCED",
++      "expected_output": "Reject. A listing proves catalog discovery only: body fetch, delivery, and active model usage are separate stages and remain unknown unless separately evidenced.",
++      "assertions": [
++        {
++          "type": "regex",
++          "value": "^\\s*DECISION:[ \\t]*(?:ALLOW|REJECT)[ \\t]*\\r?\\nLISTED_SKILLS:[ \\t]*(?:DISCOVERY_ONLY|FETCHED_AND_USED)[ \\t]*\\r?\\nBODY_FETCH:[ \\t]*(?:UNKNOWN|ASSUMED)[ \\t]*\\r?\\nUSAGE_CLAIM:[ \\t]*(?:UNSUPPORTED|EVIDENCED)(?:\\r?\\nNOTES:[^\\r\\n]{0,300})?\\s*$"
++        },
++        { "type": "regex", "value": "(?:^|\\r?\\n)DECISION:[ \\t]*REJECT[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)LISTED_SKILLS:[ \\t]*DISCOVERY_ONLY[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)BODY_FETCH:[ \\t]*UNKNOWN[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)USAGE_CLAIM:[ \\t]*UNSUPPORTED[ \\t]*(?=\\r?\\n|$)" }
++      ]
++    },
++    {
++      "id": 5,
++      "prompt": "A full-task run reports measured complete prompt, completion, cache and reasoning token counts across all parent, worker and retry events, complete pricing rates for those buckets, and separate observed counters for listed skills, body-fetched skills, delivered skills and skills used in generation. Can we report an exact estimated full-task cost and the four stage counts separately?\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDECISION: ALLOW|REJECT\nCOST_COMPLETENESS: COMPLETE|PARTIAL\nTOKEN_INPUTS: COMPLETE|MISSING\nLINEAGE_SCOPE: FULL_TASK|WORKER_SLICE\nSTAGE_ACCOUNTING: SEPARATE|CONFLATED\nUSAGE_CLAIM: EVIDENCED|UNSUPPORTED",
++      "expected_output": "Allow. Complete token inputs and lineage across the full task, plus complete rates for those buckets, support an exact estimate; the four lifecycle stages are reported from separate observed counters. Stage counts are usage evidence, not cost inputs.",
++      "assertions": [
++        {
++          "type": "regex",
++          "value": "^\\s*DECISION:[ \\t]*(?:ALLOW|REJECT)[ \\t]*\\r?\\nCOST_COMPLETENESS:[ \\t]*(?:COMPLETE|PARTIAL)[ \\t]*\\r?\\nTOKEN_INPUTS:[ \\t]*(?:COMPLETE|MISSING)[ \\t]*\\r?\\nLINEAGE_SCOPE:[ \\t]*(?:FULL_TASK|WORKER_SLICE)[ \\t]*\\r?\\nSTAGE_ACCOUNTING:[ \\t]*(?:SEPARATE|CONFLATED)[ \\t]*\\r?\\nUSAGE_CLAIM:[ \\t]*(?:EVIDENCED|UNSUPPORTED)(?:\\r?\\nNOTES:[^\\r\\n]{0,300})?\\s*$"
++        },
++        { "type": "regex", "value": "(?:^|\\r?\\n)DECISION:[ \\t]*ALLOW[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)COST_COMPLETENESS:[ \\t]*COMPLETE[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)TOKEN_INPUTS:[ \\t]*COMPLETE[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)LINEAGE_SCOPE:[ \\t]*FULL_TASK[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)STAGE_ACCOUNTING:[ \\t]*SEPARATE[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)USAGE_CLAIM:[ \\t]*EVIDENCED[ \\t]*(?=\\r?\\n|$)" }
++      ]
+     }
+   ],
+   "should_trigger": [
+     "Apply common-telemetry guidance to the task before handing it off."
+   ],
+-  "should_not_trigger": ["Design a logo for a marketing landing page."]
++  "should_not_trigger": [
++    "Design a logo for a marketing landing page."
++  ]
+ }
+diff --git a/skills/common/common-web-visual-testing/evals/evals.json b/skills/common/common-web-visual-testing/evals/evals.json
+index 965f90c8..1a2a6ef1 100644
+--- a/skills/common/common-web-visual-testing/evals/evals.json
++++ b/skills/common/common-web-visual-testing/evals/evals.json
+@@ -40,20 +40,80 @@
+           "value": "mask"
+         },
+         {
+           "type": "contains_any",
+           "value": [
+             "opacity: 0",
+             "--mask"
+           ]
+         }
+       ]
++    },
++    {
++      "id": 3,
++      "prompt": "To test the login page in our CI pipeline faster, can we just use fetch() to post credentials directly with custom headers or inject a mock auth cookie, rather than automating the real browser form submission?\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDECISION: ALLOW|REJECT\nLOGIN_PROOF: NATIVE_FORM_REAL_BROWSER|FETCH_WITH_HEADERS\nORIGIN_CSRF: VERIFIED|DISABLED\nLANDING_STATE: POPULATED_DOM|MOCK_COOKIE",
++      "expected_output": "Reject standalone fetch() or manual-header login as full governance proof. State-changing login requires a real browser native form submission with the app's Origin and CSRF policy enforced, plus the actual populated landing state. Saved-auth fixtures remain valid only for later screens.",
++      "assertions": [
++        {
++          "type": "regex",
++          "value": "^\\s*DECISION:[ \\t]*(?:ALLOW|REJECT)[ \\t]*\\r?\\nLOGIN_PROOF:[ \\t]*(?:NATIVE_FORM_REAL_BROWSER|FETCH_WITH_HEADERS)[ \\t]*\\r?\\nORIGIN_CSRF:[ \\t]*(?:VERIFIED|DISABLED)[ \\t]*\\r?\\nLANDING_STATE:[ \\t]*(?:POPULATED_DOM|MOCK_COOKIE)(?:\\r?\\nNOTES:[^\\r\\n]{0,300})?\\s*$"
++        },
++        { "type": "regex", "value": "(?:^|\\r?\\n)DECISION:[ \\t]*REJECT[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)LOGIN_PROOF:[ \\t]*NATIVE_FORM_REAL_BROWSER[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)ORIGIN_CSRF:[ \\t]*VERIFIED[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)LANDING_STATE:[ \\t]*POPULATED_DOM[ \\t]*(?=\\r?\\n|$)" }
++      ]
++    },
++    {
++      "id": 4,
++      "prompt": "Our integration test renders the login component in jsdom and checks that a mock cookie is set. Does this satisfy login and backend security governance verification?\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDECISION: ALLOW|REJECT\nFULL_LOGIN_GOVERNANCE: YES|NO\nJSDOM_SCOPE: ISOLATED_COMPONENT_ONLY|FULL_BACKEND_PROOF\nSESSION_COOKIE_EVIDENCE: REAL_HTTP_RESPONSE|MOCK_COOKIE",
++      "expected_output": "No. jsdom is valid for isolated component or layout tests but cannot prove backend session cookie issuance, SameSite/HttpOnly policy, Origin/CSRF enforcement, or the populated landing state. Full login governance needs a real browser and real HTTP evidence.",
++      "assertions": [
++        {
++          "type": "regex",
++          "value": "^\\s*DECISION:[ \\t]*(?:ALLOW|REJECT)[ \\t]*\\r?\\nFULL_LOGIN_GOVERNANCE:[ \\t]*(?:YES|NO)[ \\t]*\\r?\\nJSDOM_SCOPE:[ \\t]*(?:ISOLATED_COMPONENT_ONLY|FULL_BACKEND_PROOF)[ \\t]*\\r?\\nSESSION_COOKIE_EVIDENCE:[ \\t]*(?:REAL_HTTP_RESPONSE|MOCK_COOKIE)(?:\\r?\\nNOTES:[^\\r\\n]{0,300})?\\s*$"
++        },
++        { "type": "regex", "value": "(?:^|\\r?\\n)DECISION:[ \\t]*REJECT[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)FULL_LOGIN_GOVERNANCE:[ \\t]*NO[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)JSDOM_SCOPE:[ \\t]*ISOLATED_COMPONENT_ONLY[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)SESSION_COOKIE_EVIDENCE:[ \\t]*REAL_HTTP_RESPONSE[ \\t]*(?=\\r?\\n|$)" }
++      ]
++    },
++    {
++      "id": 5,
++      "prompt": "Our CI test drives the real browser login form, submits it to the backend with the app's CSRF token, verifies the state-changing POST is accepted only with a trusted Origin, and asserts the populated dashboard. A saved-auth file is used only for later feature screens. Approve this login verification approach?\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDECISION: ALLOW|REJECT\nLOGIN_PROOF: NATIVE_FORM_REAL_BROWSER|FETCH_WITH_HEADERS\nORIGIN_CSRF: VERIFIED|DISABLED\nSAVED_AUTH_USE: POST_LOGIN_SCREENS_ONLY|LOGIN_GOVERNANCE_PROOF",
++      "expected_output": "Allow. This exercises the native state-changing form in a real browser with Origin/CSRF enforcement and asserts the populated landing state. Saved auth is correctly limited to later post-login screens, not login governance.",
++      "assertions": [
++        {
++          "type": "regex",
++          "value": "^\\s*DECISION:[ \\t]*(?:ALLOW|REJECT)[ \\t]*\\r?\\nLOGIN_PROOF:[ \\t]*(?:NATIVE_FORM_REAL_BROWSER|FETCH_WITH_HEADERS)[ \\t]*\\r?\\nORIGIN_CSRF:[ \\t]*(?:VERIFIED|DISABLED)[ \\t]*\\r?\\nSAVED_AUTH_USE:[ \\t]*(?:POST_LOGIN_SCREENS_ONLY|LOGIN_GOVERNANCE_PROOF)(?:\\r?\\nNOTES:[^\\r\\n]{0,300})?\\s*$"
++        },
++        { "type": "regex", "value": "(?:^|\\r?\\n)DECISION:[ \\t]*ALLOW[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)LOGIN_PROOF:[ \\t]*NATIVE_FORM_REAL_BROWSER[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)ORIGIN_CSRF:[ \\t]*VERIFIED[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)SAVED_AUTH_USE:[ \\t]*POST_LOGIN_SCREENS_ONLY[ \\t]*(?=\\r?\\n|$)" }
++      ]
++    },
++    {
++      "id": 6,
++      "prompt": "A real-browser test opens /dashboard with a top-level GET navigation. The request carries no Origin header, and the test asserts the populated dashboard DOM. Should the missing Origin fail this navigation test?\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDECISION: ALLOW|REJECT\nGET_NAVIGATION: VALID_WITHOUT_ORIGIN|INVALID_MISSING_ORIGIN\nPOPULATED_STATE: ASSERTED|SKIPPED\nNULL_ORIGIN_POLICY: STRICT_FOR_STATE_CHANGING|CORS_WAIVED",
++      "expected_output": "Allow. Ordinary top-level GET navigation is not required to send Origin, so its absence is not a failure; assert the populated DOM. Strict null/untrusted-Origin and CSRF rejection still applies to state-changing submissions, with no CORS waiver.",
++      "assertions": [
++        {
++          "type": "regex",
++          "value": "^\\s*DECISION:[ \\t]*(?:ALLOW|REJECT)[ \\t]*\\r?\\nGET_NAVIGATION:[ \\t]*(?:VALID_WITHOUT_ORIGIN|INVALID_MISSING_ORIGIN)[ \\t]*\\r?\\nPOPULATED_STATE:[ \\t]*(?:ASSERTED|SKIPPED)[ \\t]*\\r?\\nNULL_ORIGIN_POLICY:[ \\t]*(?:STRICT_FOR_STATE_CHANGING|CORS_WAIVED)(?:\\r?\\nNOTES:[^\\r\\n]{0,300})?\\s*$"
++        },
++        { "type": "regex", "value": "(?:^|\\r?\\n)DECISION:[ \\t]*ALLOW[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)GET_NAVIGATION:[ \\t]*VALID_WITHOUT_ORIGIN[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)POPULATED_STATE:[ \\t]*ASSERTED[ \\t]*(?=\\r?\\n|$)" },
++        { "type": "regex", "value": "(?:^|\\r?\\n)NULL_ORIGIN_POLICY:[ \\t]*STRICT_FOR_STATE_CHANGING[ \\t]*(?=\\r?\\n|$)" }
++      ]
+     }
+   ],
+   "should_not_trigger": [
+     "Refactor the backend API",
+     "Install playwright-cli",
+     "Setup Appium"
+   ],
+   "should_trigger": [
+     "Verify the fix for a broken dropdown border in the header."
+   ]

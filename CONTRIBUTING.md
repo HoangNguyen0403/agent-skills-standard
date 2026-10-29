@@ -59,6 +59,9 @@ Skills are the core value of this project.
 15. **System-design package**: Keep design-process ownership in `system-design-methodology` and critical-flow semantics in `system-design-data-architecture`; link to the canonical flow contract instead of copying it. Route mobile/client or SDK guidance only when those surface constraints affect correctness. Select views from decisions; do not impose infrastructure or diagram quotas.
 16. **Delivery evidence**: Skill bodies are delivered per request in full. Never propose suppressing required content as a token optimization, and never claim savings from omitted bodies. Selection, returned-body and body-digest counts are different measurements.
 17. **Routing metadata**: Keyword and composite patterns are consumer routing contracts. Qualify collision-prone substrings (for example delimiter-qualified `-view` / `-form`) and keep a positive control proving the intended match still fires.
+18. **Diagnostic-prevention & trust boundaries**: Strictly scope operation-private capability minting to privileged mint, seal, restore, or high-risk mutation capabilities (ordinary user sessions follow their legitimate intended lifetime); require revalidation against authoritative sources (rejecting stale shared ledgers), and authentic caller provenance in persisted evidence without universal cryptographic signature mandates. Do not claim synthetic auth bypass (such as renderer-only fixtures, manual header injection, or standalone fetch) as proof of backend governance or CSRF enforcement.
+19. **Truthful telemetry & resource accounting**: Follow the Missing ≠ Zero principle. In telemetry guidance and reporting, never coerce missing token counts or pricing rates to 0 or $0.00; distinguish catalog discovery from body fetch, context delivery, and active tool usage.
+20. **Learning logs & no auto-promotion**: Document repeated mistakes and retrospective findings as proposed candidate lessons requiring human review. Do not auto-promote agent learnings directly into repository rules, instructions, or policy.
 
 ## 4. Creating Workflows
 
@@ -206,6 +209,69 @@ pnpm benchmark:report
 ```
 
 Guardrail-oriented skill changes should also verify that the benchmark report shows behavior coverage for the edited skills.
+
+### Isolated Stage Generation & Check-Only Pre-Commit
+
+> [!NOTE]
+> **Candidate Tooling (Verified This Candidate / Revision):** Isolated stage generation and pre-commit check tooling are verified for this candidate revision (95 outputs applied + verified check PASS; SDD evidence intact). Scoped adoption remains strictly bounded and requires explicit authority with matching tracked base and prior producer output. The candidate remains unreleased; example commands and plan approval do not themselves authorize future execution, publication, or release. No host enforcement, Node 20 runtime, model efficacy, or benchmark uplift is claimed.
+
+To prevent clobbering active worktree evidence (such as `.agent/sdd`) or drifting destination files during generation, index and capability generation is executed in an isolated stage:
+
+```bash
+# Verify prepared generation outputs (check-only pre-commit hook)
+node --import tsx scripts/generation/index.ts --check
+
+# Run generation in an isolated stage and copy back verified changes
+node --import tsx scripts/generation/index.ts
+```
+
+Pre-commit hooks are strictly check-only; they must never actively generate files or run git staging. The isolated stage records pre-generation digests and halts if concurrent edits or foreign paths are detected.
+
+The public `pnpm generate-indices` command uses the candidate coordinator. Run
+`pnpm generate-indices --check` to verify prepared outputs and
+`pnpm generate-indices` to apply them. The coordinator invokes the internal
+`scripts/generate-indices.ts` child directly in its isolated stage to avoid
+recursion.
+By default, unchanged existing outputs may be checked without creating an
+ownership manifest; differing outputs without trusted ownership are refused.
+Do not use adoption as a routine override. An authorized bounded adoption uses
+`pnpm generate-indices --adopt-base <full-commit-sha>` and requires the current
+files to match both that tracked base and the prior producer's output. Adoption
+evidence is archived under the run receipt before publication.
+`--check` never adopts or changes ownership.
+
+The ownership manifest keeps CLI-managed entries separate from the
+repository-generation ledger. Publication updates only changed, verified
+outputs; unchanged unowned files are not claimed. The `skills/metadata.json`
+generation entry records both its full-byte digest and a scoped digest over
+each category's `token_metrics` value (including whether that field is absent).
+The token producer may change that scope only; authored fields outside
+`token_metrics` remain active. A metric-changing refresh requires the active
+metadata file to use two-space JSON serialization with a final newline, then
+updates only `token_metrics` while preserving the other fields. Unsupported
+serialization or nonmetric producer changes fail closed rather than
+reformatting authored data.
+
+Before publication, the coordinator validates configured category/index
+coverage, host mirrors and transformed outputs, workflow and specialist
+surfaces, and the capabilities document against its producer's exact render.
+It snapshots source, destination, manifest, and Git invocation state; archives
+before-bytes outside those inputs; revalidates before each publish effect; and
+publishes the ownership ledger last. Keep the Task 1 review gate above: this
+contract does not authorize root generation or release by itself.
+
+### Truthful Layered Verification & Host Boundaries
+
+Verification tracks layered acceptance states independently based on approved task and release scope applicability (not requiring universal human sign-off on every unit iteration):
+1. **Source-ready**: complete source delivery at recorded Git SHA + dirty identity, with build, lint, and typecheck recorded independently (`PASS`, `FAIL`, `NOT RUN`, or `NOT APPLICABLE`).
+2. **Focused checks**: unit and boundary contract suites; test count and membership derived directly from raw output, rejecting zero-exit or no-listener runs.
+3. **Consumer-smoke**: real producer→consumer integration proof scoped to actual changed entrypoints and outward side effects, not universal regression coverage.
+4. **Independent review**: unbiased inspection by separate reviewers per approved scope.
+5. **Human acceptance**: explicit authorized sign-off when mandated by release scope.
+
+Pre-implementation RED must be recorded as `NOT RUN` if not actually observed prior to code edits; never fabricate historical RED by modifying guards or asserting simulated failures. Finite eval oracles verify bounded assertion contracts; they do not prove whole-answer semantic safety, model uplift, or production efficacy.
+
+Host-level actor-scoped tool authorization, task/turn ownership, process management, and telemetry collectors (H01–H05) are external host responsibilities (e.g., OMP/Paseo). In this checkout, host-only slices remain explicitly blocked by user decision; repository rules must never be misrepresented as live host enforcement, auto-approval, or denial bypass. Do not claim model efficacy, benchmark uplift, or deployed host security enforcement without qualified evidence from an authorized live environment.
 
 ## 9. Release Process
 

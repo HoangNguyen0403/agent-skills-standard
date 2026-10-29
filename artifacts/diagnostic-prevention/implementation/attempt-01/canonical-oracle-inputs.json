@@ -1,0 +1,16 @@
+{
+  "algorithm": "sha256",
+  "observed_by": "parent shasum -a 256",
+  "scope": "Canonical JSON frozen after Task2/3 Route2 initial and Task4 oracle Route3; Task2 corrective restricted to helper/tests, not these JSON files",
+  "inputs": {
+    "skills/common/common-tdd/evals/evals.json": "812b77f73d050d11114d878bc3d84c158aeef9575c97d4c2fa26418f9f9a8a29",
+    "skills/common/common-subagent-driven-development/evals/evals.json": "63bf0d7ea566150212518772c2e49167a91a5da1f0df81a03fd56538bc9375c6",
+    "skills/common/common-learning-log/evals/evals.json": "de9b3f11d4f68e31766ece8a127fd74a8424ae2e4c87b7181ec62671eb722751",
+    "skills/common/common-session-retrospective/evals/evals.json": "d394bcfa13905ee8469e73dbf8223e23442254b4984ad946e32b5246059af48d",
+    "skills/common/common-security-standards/evals/evals.json": "bb158ad595b20beb67373fa4e05094627c6c8838fe5927d641a5e414ecfd2592",
+    "skills/common/common-web-visual-testing/evals/evals.json": "09e39b39470c86ffa41c3f981b5bae9f9a65cccb60c106a5f26b52fedb642917",
+    "skills/common/common-telemetry/evals/evals.json": "26681711a9ccfae771e2ee264a503c7953b05b303b65174970175135a89989da",
+    "skills/common/common-skill-creator/evals/evals.json": "dde9e917648c4caebc528c1c326e9d9005eab4ee7dd51e7e5ea377229c3ad94e"
+  },
+  "qualification": "Content identity only; actual snapshot verifier/evaluation manifest binding remains existing verifier authority. This file is not a replacement manifest, model-efficacy evidence, host authorization or promotion."
+}

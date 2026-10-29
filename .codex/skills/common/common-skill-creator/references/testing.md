@@ -131,7 +131,7 @@ description: >
 2. Run each query and record results.
 3. Identify which query types fail and why.
 4. Rewrite the description to address the failures.
-5. Re-run; repeat until ≥ 80% accuracy on held-out queries.
+5. Re-run; repeat until ≥ 90% accuracy on held-out queries (matching release readiness: ≥90% recall and specificity).
 
 ## 4. Catching Regressions
 

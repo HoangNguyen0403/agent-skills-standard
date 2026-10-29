@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "status": "USER_APPROVED_EXACT_RECOVERY_R0_OPERATOR_AUTHORING",
+  "userDecision": {"questionIds": ["root_publication_recovery", "root_performance_worker"], "recovery": "Restore, fix, then reapply", "profile": "Personal - DeepSeek", "freshBoundedAllowance": true},
+  "worker": {"agentId": "664e90f0-9039-41dc-8efc-54124896fff7", "provider": "omp/river/deepseek-ai/DeepSeek-V4.1-Flash-1017", "modeId": "write", "thinkingOptionId": "low", "brief": "root-recovery-deepseek-brief.md"},
+  "releasedPhase": "R0: operator/report authoring only, no commands or live root mutations",
+  "r0OwnedFiles": ["restore-interrupted-root.mjs", "root-recovery-deepseek-report.md"],
+  "parentGates": ["Independent operator review", "Readonly dry-run and fresh SDD check", "Execute explicitly approved exact15 restoration and single exact quarantine", "Verify95before/ledgerabsent/indexpreserved/SDD", "Explicit R1 release to same selected worker", "Batched Git identity semantics, full regression and representative root-scale apply/check", "Independent affected review before fresh scoped root adoption and final passing check"],
+  "currentRootStateUnchangedSinceAudit": {"publishedCandidate": 15, "originalBefore": 80, "ledger": "absent", "temporary": "preserved, not quarantined yet"},
+  "learning": {"file": "AGENTS_LEARNING.md", "appendedIterations": [28, 29], "status": "proposed only", "promotion": false, "note": "Parent maintenance log append is not restoration/publication and does not change the96 audited destinations"},
+  "limits": ["Approval is bounded, not blanket force/resume or automatic retry", "Worker cannot perform root writes or delegate", "R1 production edits not released until R0 recovery qualified", "No premium, dependency/network/commit/publish/host-policy change", "Source metrics/usage/rates do not establish complete task cost"]
+}

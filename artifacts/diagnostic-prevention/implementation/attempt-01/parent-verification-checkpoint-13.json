@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "status": "R0_SINGLE_CORRECTIVE_SOURCE_IN_PROGRESS_ROOT_FROZEN",
+  "initialOperator": {"sha256": "7022e9d3546dd32654d3c14e69480a907673cd91e2fec716abe7d0f6f9fb0c28", "bytes": 47160, "syntaxCheckExitCode": 0, "executed": false, "preservedSource": "restore-interrupted-root-before-correction-01.source", "evidenceKind": "Static review rejection, not executed behavioral RED"},
+  "independentReview": {"report": "root-restoration-review-round-1.md", "spec": "CHANGES REQUESTED", "qualitySecurity": "CHANGES REQUESTED", "majorFindings": ["R0-A actual rename/move effects lost before successful return", "R0-B consumed authority reads not bound to verified bytes", "R0-C missing fresh input/quarantine/final ancestor checks", "R0-D partial claim acquisition and hidden cleanup errors", "R0-E absent BASE config aliases invalid topology or introduced config"]},
+  "parentEvaluation": "Named claim, authority-read, rename/caller-effect, cleanup, config and quarantine/final paths inspected; findings match the released bounded contract",
+  "correctiveAssignment": {"agentId": "664e90f0-9039-41dc-8efc-54124896fff7", "profile": "Personal - DeepSeek", "scope": ["restore-interrupted-root.mjs", "root-recovery-deepseek-report.md append"], "singleConcreteFollowup": true, "commandsAllowed": false, "r1Released": false},
+  "rootOperations": {"operatorDryRun": "NOT RUN", "operatorApply": "NOT RUN", "restoration": "NOT RUN", "quarantine": "NOT RUN", "rootRerun": "NOT RUN"},
+  "lastAuditedRootState": {"candidateDestinations": 15, "beforeDestinations": 80, "ledger": "absent", "temporary": "preserved", "sdd": "unchanged with intact backup"},
+  "limits": ["Explicit user recovery approval remains valid but does not waive safety review", "No source/profile substitution or automatic further corrective is authorized", "No new production change, RootPASS or completion claim"]
+}

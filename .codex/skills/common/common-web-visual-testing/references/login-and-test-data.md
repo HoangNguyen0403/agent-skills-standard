@@ -51,6 +51,18 @@ fi
    - `MAINTENANCE` → backend issue; abort run with PARTIAL verdict
    - Still on `/login` after timeout → network or unknown; rotate
 
+
+## Browser Origin & Native Backend Governance
+
+1. **Native Form & State-Changing Submission Governance**:
+   - For tested state-changing forms (login, sensitive account actions), verify that browser form submissions adhere to the application's origin policy.
+   - Standard browser top-level GET navigations and cross-page links typically do NOT send an `Origin` header; do not fail GET requests for missing `Origin`.
+   - For state-changing POST/PUT requests, strictly reject untrusted or spoofed origins. Do NOT grant general CORS waivers for `null` origins (e.g. data URLs or sandboxed iframes) or bypass CSRF token validation in backend handlers.
+2. **Actual Populated State & Narrow Fixture Scope**:
+   - Standalone `fetch()` executions in the browser console, synthetic request mocking, or manually setting `Authorization` headers do not prove that login form components, native input validation, or backend session issuance operate correctly.
+   - **Preserving valid fixture uses**: Saved authentication states (`local-auth.json`) remain fully valid for their intended purpose: skipping repetitive login steps when testing subsequent feature screens.
+   - Similarly, renderer-only DOM snapshots (e.g. jsdom or shallow component tests) remain valid for isolated unit and layout audits, but must not be cited as full proof of backend session cookie governance, SameSite flags, or end-to-end authentication security.
+   - When the acceptance criteria explicitly test login flows or security governance, end-to-end native form submission and actual populated DOM verification in a real browser are mandatory.
 ## Force-state recipes (test data prep)
 
 When the bug only appears in a specific data state (empty list, "no results", over N items), force that state without polluting the database.

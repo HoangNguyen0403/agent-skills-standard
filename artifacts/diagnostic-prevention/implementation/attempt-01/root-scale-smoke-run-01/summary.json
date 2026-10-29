@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "kind": "ROOT_SCALE_GIT_IDENTITY_SMOKE",
+  "status": "FAILED",
+  "startedAt": "2026-10-29T10:08:39.301Z",
+  "evidenceDir": "artifacts/diagnostic-prevention/implementation/attempt-01/root-scale-smoke-run-01",
+  "workspace": "/Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/diagnostic-prevention",
+  "base": "52ac482a5b948d9d26df4c3a2617afec74d1cf54",
+  "outputBand": {
+    "declared": {
+      "minimum": 1800,
+      "maximum": 2200
+    },
+    "changed": {
+      "minimum": 80,
+      "maximum": 110
+    }
+  },
+  "deadlines": {
+    "applyMs": 1800000,
+    "checkMs": 600000
+  },
+  "stages": [
+    {
+      "stage": "temp-root",
+      "durationMs": 0
+    },
+    {
+      "stage": "archive-base",
+      "durationMs": 1427,
+      "bytes": 36925440
+    },
+    {
+      "stage": "overlay-runtime",
+      "durationMs": 59
+    },
+    {
+      "stage": "link-dependencies",
+      "durationMs": 1,
+      "linked": [
+        "node_modules",
+        "cli/node_modules"
+      ]
+    },
+    {
+      "stage": "baseline:calculate-tokens",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "durationMs": 223
+    },
+    {
+      "stage": "baseline:generate-indices",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "durationMs": 936
+    },
+    {
+      "stage": "baseline:generate-capabilities-doc",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "durationMs": 191
+    },
+    {
+      "stage": "baseline-producers",
+      "durationMs": 1351
+    }
+  ],
+  "fixture": {
+    "baseArchive": "base.tar"
+  },
+  "counts": null,
+  "verification": null,
+  "error": {
+    "code": "GIT_COMMAND_FAILED",
+    "detail": "git -C /var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-root-scale-64O4cI/fixture add --all -- . :(exclude)node_modules :(exclude,glob)**/node_modules :(exclude,glob)**/node_modules/** failed (exit 1, signal null): The following paths are ignored by one of your .gitignore files:\nnode_modules\nhint: Use -f if you really want to add them.\nhint: Disable this message with \"git config set advice.addIgnoredFile false\""
+  },
+  "limits": [
+    "Passing-after evidence only: the pre-change batched implementation was replaced, so no historical failing-before run is claimed.",
+    "No live-root mutation, no adoption, no reapply and no production-code performance claim outside this fixture.",
+    "Query counts come from native GIT_TRACE2_EVENT; they are diagnostic instrumentation, not a production hook.",
+    "No claim of exact wall-clock attribution for the earlier 1200s root interruption."
+  ],
+  "fixtureRetained": "/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-root-scale-64O4cI",
+  "finishedAt": "2026-10-29T10:08:46.300Z"
+}

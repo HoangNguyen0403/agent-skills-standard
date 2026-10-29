@@ -1,0 +1,31 @@
+{
+  "kind": "ISOLATED_GIT_RESTORE_QUALIFICATION_NOT_ROOT_AUTHORITY",
+  "gitVersion": "git version 2.54.0 (Apple Git-157)",
+  "umask": "22",
+  "fixtureConfig": {
+    "autocrlf": "input",
+    "hooksDisabledOnlyInFixture": true,
+    "optionalLocks": "0"
+  },
+  "rawIndexUnchanged": true,
+  "stageEntriesUnchanged": true,
+  "rawIndexBeforeSha256": "fd81caa38ae77a2e490401ebed74e92717c290df3129577aa6e701373bb5cfbe",
+  "rawIndexAfterSha256": "fd81caa38ae77a2e490401ebed74e92717c290df3129577aa6e701373bb5cfbe",
+  "beforeBytesRestored": true,
+  "mode": "644",
+  "sourceAttributes": {
+    "com.apple.provenance": "d9f36405a669988a6cb4ec2dc0597ef77020d9fd142724dd0e714281509313e6"
+  },
+  "beforeAttributes": {
+    "com.apple.provenance": "d9f36405a669988a6cb4ec2dc0597ef77020d9fd142724dd0e714281509313e6"
+  },
+  "afterAttributes": {
+    "com.apple.provenance": "d9f36405a669988a6cb4ec2dc0597ef77020d9fd142724dd0e714281509313e6"
+  },
+  "fixtureMatchesActualAttributeSource": true,
+  "attributesPreserved": true,
+  "limits": [
+    "Synthetic fixture only; actual repository attributes/config/modes/hooks separately inspected.",
+    "No actual recovery destination or actual Git index was written."
+  ]
+}

@@ -1,0 +1,2613 @@
+# Review package: 52ac482a5b948d9d26df4c3a2617afec74d1cf54..WORKSPACE (cumulative uncommitted snapshot)
+
+## Scope
+- .husky/pre-commit
+- cli/src/services/SyncService.ts
+- cli/src/services/__tests__/SyncInstallLifecycle.spec.ts
+- cli/src/services/__tests__/SyncService.spec.ts
+- scripts/calculate-tokens.ts
+- scripts/generate-indices.ts
+- scripts/generation
+
+## Files changed
+.husky/pre-commit                                  |   11 +-
+ cli/src/services/SyncService.ts                    |   26 +-
+ .../__tests__/SyncInstallLifecycle.spec.ts         |   47 +
+ cli/src/services/__tests__/SyncService.spec.ts     |   87 +-
+ scripts/calculate-tokens.ts                        |    5 +-
+ scripts/generate-indices.ts                        |   19 +-
+ scripts/generation/index.ts                        |   38 +
+ scripts/generation/isolated-stage.test.ts          |  696 ++++++++++
+ scripts/generation/isolated-stage.ts               | 1458 ++++++++++++++++++++
+ 9 files changed, 2287 insertions(+), 100 deletions(-)
+
+## Diff
+diff --git a/.husky/pre-commit b/.husky/pre-commit
+index e5e44de2..3f6aed6b 100755
+--- a/.husky/pre-commit
++++ b/.husky/pre-commit
+@@ -1,18 +1,15 @@
+ #!/usr/bin/env sh
+ . "$(dirname -- "$0")/_/husky.sh"
+ 
+ # Add local node/npm/pnpm to PATH in case GUI git clients (like GitHub Desktop, Tower, etc.)
+ # don't inherit the shell's environment variables.
+ export PATH="$HOME/.local/share/pnpm:$HOME/.nvm/versions/node/$(node -v 2>/dev/null)/bin:/usr/local/bin:/opt/homebrew/bin:$PATH"
+ 
+-# Run token calculation and index generation to ensure registry metadata is up to date
+-echo "📊 Syncing metrics and indices..."
+-pnpm calculate-tokens
+-pnpm generate-indices
+-
+-# Stage the updated files
+-git add skills/metadata.json skills/index.json README.md
++# Check that token calculation, index generation, and capabilities documentation are prepared and up to date.
++# Invariant (H03/Task 1): Precommit is check-only; no active generation or git add in pre-commit hook.
++echo "📊 Checking prepared generator outputs..."
++node --import tsx scripts/generation/index.ts --check
+ 
+ # Run core validation to ensure skill integrity
+ echo "🔍 Validating skills..."
+ pnpm validate
+diff --git a/cli/src/services/SyncService.ts b/cli/src/services/SyncService.ts
+index 83fbaa70..37f28d41 100644
+--- a/cli/src/services/SyncService.ts
++++ b/cli/src/services/SyncService.ts
+@@ -724,38 +724,32 @@ export class SyncService {
+     );
+     return {
+       found: true,
+       checked: entries.length,
+       result,
+     };
+   }
+ 
+   private async cleanupOldFolders(): Promise<void> {
+     const oldPath = path.join(process.cwd(), '.agent');
+-    const newPath = path.join(process.cwd(), '.agents');
+ 
++    // Conservative preservation (H03): Ordinary install/writeSkills migration must NEVER
++    // delete or mutate unknown active data in .agent (e.g. .agent/sdd, transcripts, receipts).
++    // Preserving user data wins over naming cleanup. Automatic cleanup and deletion of .agent
++    // is completely stopped.
+     if (await fs.pathExists(oldPath)) {
+-      try {
+-        // Merge old content into the new folder without overwriting user files.
+-        await fs.copy(oldPath, newPath, {
+-          overwrite: false,
+-          errorOnExist: false,
+-        });
+-
+-        await fs.remove(oldPath);
+-        console.log(pc.gray('  - Migrated and cleaned up old .agent folder.'));
+-      } catch (error) {
+-        if (process.env.DEBUG) {
+-          console.debug(
+-            `Failed to migrate/cleanup old .agent folder: ${error}`,
+-          );
+-        }
++      if (process.env.DEBUG) {
++        console.debug(
++          pc.gray(
++            'Preserved existing .agent folder untouched; automatic removal disabled to protect active evidence.',
++          ),
++        );
+       }
+     }
+   }
+ 
+   async checkSourceCommits(
+     config: SkillConfig,
+   ): Promise<
+     Array<{ key: string; ref: string; locked: string; current: string | null }>
+   > {
+     const githubMatch = GithubService.parseGitHubUrl(config.registry);
+diff --git a/cli/src/services/__tests__/SyncInstallLifecycle.spec.ts b/cli/src/services/__tests__/SyncInstallLifecycle.spec.ts
+index 7511d7ca..f1b63ea1 100644
+--- a/cli/src/services/__tests__/SyncInstallLifecycle.spec.ts
++++ b/cli/src/services/__tests__/SyncInstallLifecycle.spec.ts
+@@ -499,11 +499,58 @@ describe('SyncInstallLifecycle', () => {
+     expect(await fs.readFile(skillPath, 'utf8')).toBe('user-edited-content');
+ 
+     // Workflow file was adopted and updated
+     expect(plan.updated).toContain(wfRel);
+     expect(await fs.readFile(wfPath, 'utf8')).toContain('new-review-content');
+ 
+     // Lock file upgraded to v2
+     const lock = await fs.readJson(path.join(tempDir, LOCKFILE_NAME));
+     expect(lock.version).toBe(2);
+   });
++
++  it('9. real filesystem preservation: retains .agent unknown/active state (e.g. .agent/sdd, receipts) across install cycles', async () => {
++    // Arrange: Create active/unknown state in .agent/
++    const sddReportPath = path.join(tempDir, '.agent/sdd/evidence-report.md');
++    const sddReceiptPath = path.join(tempDir, '.agent/receipts/task-1-receipt.json');
++    const sddSentinelBytes = '# Authoritative SDD Evidence Report\nRetain exact bytes: 0xDEADBEEF\n';
++    const receiptBytes = '{"status":"PASS","bytes":1234}\n';
++
++    await fs.outputFile(sddReportPath, sddSentinelBytes);
++    await fs.outputFile(sddReceiptPath, receiptBytes);
++
++    // Same relative path exists in both trees with different bytes: the
++    // migration must not copy the legacy file over the active destination.
++    const legacyConflictPath = path.join(tempDir, '.agent/custom-note.md');
++    const legacyConflictBytes = 'Legacy note that must not overwrite .agents\n';
++    await fs.outputFile(legacyConflictPath, legacyConflictBytes);
++
++    const customAgentsPath = path.join(tempDir, '.agents/custom-note.md');
++    const activeConflictBytes = 'Pre-existing custom notes';
++    await fs.outputFile(customAgentsPath, activeConflictBytes);
++
++    const config = makeConfig();
++
++    // Act 1: Initial install
++    await runSync(config, [skillFixture]);
++
++    // Assert 1: .agent files must remain completely intact and untouched
++    expect(await fs.pathExists(sddReportPath)).toBe(true);
++    expect(await fs.readFile(sddReportPath, 'utf8')).toBe(sddSentinelBytes);
++    expect(await fs.pathExists(sddReceiptPath)).toBe(true);
++    expect(await fs.readFile(sddReceiptPath, 'utf8')).toBe(receiptBytes);
++
++    // Destination .agents custom file must also not be overwritten or corrupted
++    expect(await fs.readFile(customAgentsPath, 'utf8')).toBe(activeConflictBytes);
++    expect(await fs.readFile(legacyConflictPath, 'utf8')).toBe(legacyConflictBytes);
++
++    // Act 2: Repeat invocation (idempotency and repeat safety)
++    await runSync(config, [skillFixture]);
++
++    // Assert 2: All sentinel files still intact
++    expect(await fs.pathExists(sddReportPath)).toBe(true);
++    expect(await fs.readFile(sddReportPath, 'utf8')).toBe(sddSentinelBytes);
++    expect(await fs.pathExists(sddReceiptPath)).toBe(true);
++    expect(await fs.readFile(sddReceiptPath, 'utf8')).toBe(receiptBytes);
++    expect(await fs.readFile(customAgentsPath, 'utf8')).toBe(activeConflictBytes);
++    expect(await fs.readFile(legacyConflictPath, 'utf8')).toBe(legacyConflictBytes);
++  });
+ });
+diff --git a/cli/src/services/__tests__/SyncService.spec.ts b/cli/src/services/__tests__/SyncService.spec.ts
+index 1467b014..d28d69c7 100644
+--- a/cli/src/services/__tests__/SyncService.spec.ts
++++ b/cli/src/services/__tests__/SyncService.spec.ts
+@@ -909,122 +909,63 @@ describe('SyncService', () => {
+       await syncService.checkForUpdates(config);
+       expect(mockGithubService.getRawFile).toHaveBeenCalledWith(
+         'o',
+         'r',
+         'main',
+         'skills/metadata.json',
+       );
+     });
+   });
+ 
+-  describe('cleanupOldFolders (migration) edge cases', () => {
+-    it('merges old folders into existing .agents content', async () => {
++  describe('cleanupOldFolders (migration preservation - H03)', () => {
++    it('preserves existing .agent folder untouched without copying or removing', async () => {
+       vi.mocked(fs.pathExists).mockImplementation(async (p) => {
+         const pStr = p.toString();
+         if (pStr.endsWith('.agent')) return true;
+         if (pStr.endsWith('.agents')) return true;
+-        if (pStr.endsWith(path.join('.agents', 'existing'))) return true;
+         return false;
+       });
+-      vi.mocked(fs.readdir).mockResolvedValue(['existing'] as any);
+ 
+       await syncService.writeSkills([], makeConfig());
+ 
+-      expect(fs.copy).toHaveBeenCalledWith(
+-        path.join(process.cwd(), '.agent'),
+-        path.join(process.cwd(), '.agents'),
+-        expect.objectContaining({ overwrite: false, errorOnExist: false }),
+-      );
+-    });
+-  });
+-
+-  describe('cleanupOldFolders (migration)', () => {
+-    it('should migrate content from .agent to .agents if .agents already exists', async () => {
+-      const config = makeConfig();
+-
+-      // Mock .agent exists and .agents exists
+-      vi.mocked(fs.pathExists).mockImplementation(async (p) => {
+-        const pStr = p.toString();
+-        if (pStr.endsWith('.agent')) return true;
+-        if (pStr.endsWith('.agents')) return true;
+-        if (pStr.endsWith(path.join('.agents', 'custom-skill'))) return false;
+-        return false;
+-      });
+-
+-      vi.mocked(fs.readdir).mockResolvedValue(['custom-skill'] as any);
+-
+-      await syncService.writeSkills([], config);
+-
+-      expect(fs.copy).toHaveBeenCalledWith(
+-        path.join(process.cwd(), '.agent'),
+-        path.join(process.cwd(), '.agents'),
+-        expect.objectContaining({ overwrite: false, errorOnExist: false }),
+-      );
+-      expect(fs.remove).toHaveBeenCalledWith(expect.stringMatching(/\.agent$/));
+-    });
+-
+-    it('should perform a full copy if .agents does not exist', async () => {
+-      const config = makeConfig();
+-
+-      vi.mocked(fs.pathExists).mockImplementation(async (p) => {
+-        const pStr = p.toString();
+-        if (pStr.endsWith('.agent')) return true;
+-        if (pStr.endsWith('.agents')) return false;
+-        return false;
+-      });
+-
+-      await syncService.writeSkills([], config);
+-
+-      expect(fs.copy).toHaveBeenCalledWith(
+-        path.join(process.cwd(), '.agent'),
+-        path.join(process.cwd(), '.agents'),
+-        expect.objectContaining({ overwrite: false, errorOnExist: false }),
+-      );
+-      expect(fs.remove).toHaveBeenCalledWith(expect.stringMatching(/\.agent$/));
++      expect(fs.copy).not.toHaveBeenCalled();
++      expect(fs.remove).not.toHaveBeenCalled();
+     });
+ 
+-    it('should log debug info on migration failure when DEBUG is set', async () => {
++    it('logs debug info when DEBUG is set and .agent exists', async () => {
+       const originalDebug = process.env.DEBUG;
+       process.env.DEBUG = 'true';
+-      vi.spyOn(console, 'debug').mockImplementation(() => {});
++      const debugSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
+ 
+       vi.mocked(fs.pathExists).mockImplementation(async (p) => {
+         if (p.toString().endsWith('.agent')) return true;
+         return false;
+       });
+-      vi.mocked(fs.copy).mockRejectedValue(new Error('Copy failed'));
+ 
+       await syncService.writeSkills([], makeConfig());
+ 
+-      expect(console.debug).toHaveBeenCalledWith(
+-        expect.stringContaining('Failed to migrate/cleanup'),
++      expect(debugSpy).toHaveBeenCalledWith(
++        expect.stringContaining('Preserved existing .agent folder untouched'),
+       );
+ 
+       process.env.DEBUG = originalDebug;
+     });
+ 
+-    it('should ignore migration failure and not log debug info when DEBUG is not set', async () => {
+-      const originalDebug = process.env.DEBUG;
+-      delete process.env.DEBUG;
+-      vi.spyOn(console, 'debug').mockImplementation(() => {});
+-
+-      vi.mocked(fs.pathExists).mockImplementation(async (p) => {
+-        if (p.toString().endsWith('.agent')) return true;
+-        return false;
+-      });
+-      vi.mocked(fs.copy).mockRejectedValue(new Error('Copy failed'));
++    it('does nothing when .agent does not exist', async () => {
++      vi.mocked(fs.pathExists).mockResolvedValue(false);
++      const debugSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
+ 
+       await syncService.writeSkills([], makeConfig());
+ 
+-      expect(console.debug).not.toHaveBeenCalled();
+-
+-      process.env.DEBUG = originalDebug;
++      expect(debugSpy).not.toHaveBeenCalled();
++      expect(fs.copy).not.toHaveBeenCalled();
++      expect(fs.remove).not.toHaveBeenCalled();
+     });
+   });
+ 
+   describe('warnIfSyncingFromSameRepo (Lines 78-83)', () => {
+     it('should warn when local git remote matches the registry URL', async () => {
+       const { GitService } = await import('../GitService');
+       const gitRemoteSpy = vi
+         .spyOn(GitService.prototype, 'getRemoteUrl')
+         .mockReturnValue('https://github.com/owner/repo');
+ 
+diff --git a/scripts/calculate-tokens.ts b/scripts/calculate-tokens.ts
+index d31860cb..8f4f77fd 100644
+--- a/scripts/calculate-tokens.ts
++++ b/scripts/calculate-tokens.ts
+@@ -261,11 +261,14 @@ async function main() {
+       }
+ 
+       if (updated) {
+         fs.outputFileSync(readmePath, lines.join('\n'));
+         console.log(`✅ Updated ${path.basename(readmePath)} metrics`);
+       }
+     }
+   }
+ }
+ 
+-main().catch(console.error);
++main().catch((err) => {
++  console.error("❌ calculate-tokens failed:", err);
++  process.exit(1);
++});
+diff --git a/scripts/generate-indices.ts b/scripts/generate-indices.ts
+index 1b1b4a55..d37ebb89 100644
+--- a/scripts/generate-indices.ts
++++ b/scripts/generate-indices.ts
+@@ -104,27 +104,35 @@ async function parseSkill(skillPath: string): Promise<SkillMetadata | null> {
+       description: fm.description || "",
+       priority,
+     };
+   } catch {
+     return null;
+   }
+ }
+ 
+ async function generate() {
+   // Look for skills directory in the repository root
+-  const repoRoot = path.join(__dirname, "..");
++  const repoRoot = await fs.realpath(path.resolve(__dirname, ".."));
++  const physicalCwd = await fs.realpath(process.cwd());
++
++  // Invariant (Task 1): Fail generator before mutation when physical cwd differs from script-derived authoring root
++  if (physicalCwd !== repoRoot) {
++    throw new Error(
++      `Refusing to generate indices from foreign working directory: cwd is "${physicalCwd}", but script root is "${repoRoot}". Run from the repository root.`,
++    );
++  }
++
+   const skillsDir = path.join(repoRoot, "skills");
+ 
+   if (!(await fs.pathExists(skillsDir))) {
+     throw new Error(`Skills directory not found at ${skillsDir}`);
+   }
+-
+   const categories = (await fs.readdir(skillsDir)).filter((f) => {
+     const p = path.join(skillsDir, f);
+     return fs.statSync(p).isDirectory() && !f.startsWith(".");
+   });
+ 
+   const frameworkIndices: Record<string, string> = {};
+ 
+   for (const category of categories) {
+     const categoryPath = path.join(skillsDir, category);
+     const skills = await fs.readdir(categoryPath);
+@@ -397,26 +405,31 @@ async function generate() {
+         refreshIndices: true,
+         localMetadata,
+       });
+       await MarkdownUtils.injectIndex(
+         repoRoot,
+         ["AGENTS.md"],
+         routerIndexContent,
+       );
+     } catch (error) {
+       console.error("❌ Failed to sync local skills/workflows:", error);
++      throw error;
+     }
+   }
+ 
+   // Final Phase: Sync specialists to native agent folders
+   if (agents.length > 0) {
+     try {
+       const specialistSyncService = new SpecialistSyncService();
+       await specialistSyncService.syncSpecialists(repoRoot, agents);
+       console.log(`✅ Synced specialists for: ${agents.join(", ")}`);
+     } catch (error) {
+       console.error("❌ Failed to sync specialists:", error);
++      throw error;
+     }
+   }
+ }
+ 
+-generate().catch(console.error);
++generate().catch((err) => {
++  console.error("❌ Index generation failed:", err);
++  process.exit(1);
++});
+diff --git a/scripts/generation/index.ts b/scripts/generation/index.ts
+new file mode 100755
+index 00000000..ab7a9d5f
+--- /dev/null
++++ b/scripts/generation/index.ts
+@@ -0,0 +1,38 @@
++#!/usr/bin/env node
++import path from 'path';
++import { runIsolatedGeneration } from './isolated-stage';
++
++async function main() {
++  const args = process.argv.slice(2);
++  const checkOnly = args.includes('--check');
++  // scripts/generation/index.ts -> two levels up is the authoring root.
++  const repoRoot = path.resolve(__dirname, '..', '..');
++
++  const result = await runIsolatedGeneration({
++    repoRoot,
++    checkOnly,
++  });
++
++  if (!result.success) {
++    console.error(
++      `❌ Isolated generation ${checkOnly ? 'check' : 'apply'} failed: ${result.error}`,
++    );
++    console.error(`See log at: ${result.logPath}`);
++    process.exit(1);
++  }
++
++  if (checkOnly) {
++    console.log(
++      `✅ Isolated generation check passed: prepared outputs match declared targets. Receipt: ${result.receiptPath}`,
++    );
++  } else {
++    console.log(
++      `✅ Isolated generation completed successfully. Copied back: ${result.copiedBackFiles.join(', ') || 'none (up to date)'}. Receipt: ${result.receiptPath}`,
++    );
++  }
++}
++
++main().catch((err: unknown) => {
++  console.error('❌ Unexpected error in isolated generation CLI:', err);
++  process.exit(1);
++});
+diff --git a/scripts/generation/isolated-stage.test.ts b/scripts/generation/isolated-stage.test.ts
+new file mode 100644
+index 00000000..4ca413d7
+--- /dev/null
++++ b/scripts/generation/isolated-stage.test.ts
+@@ -0,0 +1,696 @@
++import test from 'node:test';
++import assert from 'node:assert/strict';
++import fs from 'fs-extra';
++import path from 'path';
++import os from 'os';
++import { spawn } from 'child_process';
++import {
++  copySourceToStage,
++  parseCategoryIndexRows,
++  runIsolatedGeneration,
++} from './isolated-stage';
++import { IndexGeneratorServiceImpl } from '../../cli/src/services/IndexGeneratorServiceImpl';
++
++const REPOSITORY_ROOT = path.resolve(__dirname, '..', '..');
++
++interface FixtureOptions {
++  /** Install a generate-indices wrapper that mutates after the real producer. */
++  mutateDuringIndices?: boolean;
++  /** Remove the baseline capabilities doc (docs/ directory stays). */
++  omitBaselineCapabilitiesDoc?: boolean;
++  /** Skip all baseline mirror files for this skill. */
++  omitMirrorSkill?: string;
++}
++
++const SKILL_ALPHA =
++  '---\nname: common-alpha\ndescription: Alpha skill (triggers: `*.alpha`)\ntriggers:\n  files:\n    - "*.alpha"\n---\n# Alpha\n';
++const SKILL_BETA =
++  '---\nname: common-beta\ndescription: Beta skill (triggers: `*.beta`)\ntriggers:\n  keywords:\n    - beta\n---\n# Beta\n';
++const SPECIALIST_ARCH =
++  '---\nname: specialist-arch\ndescription: Architecture specialist\nallowed-tools: [read]\n---\nSpecialist body\n';
++const LICENSE_TEXT = 'Fixture License\n\nAll rights reserved.\n';
++
++const GENERATE_INDICES_WRAPPER = [
++  "const { spawnSync } = require('child_process');",
++  "const path = require('path');",
++  "const fs = require('fs');",
++  "const impl = path.join(__dirname, 'generate-indices.impl.ts');",
++  'const result = spawnSync(process.execPath, [',
++  "  '--import',",
++  "  'tsx',",
++  '  impl,',
++  '], { cwd: process.cwd(), stdio: \'inherit\', env: process.env });',
++  'if (process.env.FIXTURE_DRIFT_PATH) {',
++  "  fs.appendFileSync(process.env.FIXTURE_DRIFT_PATH, '\\nDRIFT\\n');",
++  '}',
++  'if (process.env.FIXTURE_CREATE_PATH) {',
++  "  fs.writeFileSync(process.env.FIXTURE_CREATE_PATH, 'created\\n');",
++  '}',
++  'if (process.env.FIXTURE_STRIP_REL && process.env.FIXTURE_STRIP_TOKEN) {',
++  '  const stripPath = path.join(process.cwd(), process.env.FIXTURE_STRIP_REL);',
++  "  const token = process.env.FIXTURE_STRIP_TOKEN;",
++  "  const lines = fs.readFileSync(stripPath, 'utf8').split('\\n').filter((line) => {",
++  "    if (!line.trim().startsWith('|')) return true;",
++  "    const first = line.split('|')[1].trim().replace(/^\\*\\*|\\*\\*$/g, '');",
++  '    return first !== token;',
++  '  });',
++  "  fs.writeFileSync(stripPath, lines.join('\\n'));",
++  '}',
++  'process.exit(typeof result.status === "number" ? result.status : 1);',
++  '',
++].join('\n');
++
++async function writeMinimalProducerTree(root: string): Promise<void> {
++  await fs.copy(
++    path.join(REPOSITORY_ROOT, 'cli', 'src'),
++    path.join(root, 'cli', 'src'),
++    {
++      filter: (src: string) => !src.includes(`${path.sep}__tests__`),
++    },
++  );
++  for (const script of [
++    'calculate-tokens.ts',
++    'generate-indices.ts',
++    'generate-capabilities-doc.ts',
++  ]) {
++    await fs.copy(
++      path.join(REPOSITORY_ROOT, 'scripts', script),
++      path.join(root, 'scripts', script),
++    );
++  }
++}
++
++function realCategoryIndexContent(
++  baseDir: string,
++  category: string,
++): Promise<string> {
++  return new IndexGeneratorServiceImpl().generateCategoryIndex(baseDir, category);
++}
++
++function stripIndexRow(content: string, skillName: string): string {
++  return content
++    .split('\n')
++    .filter((line) => {
++      if (!line.trim().startsWith('|')) return true;
++      const first = line
++        .split('|')[1]
++        .trim()
++        .replace(/^\*\*|\*\*$/g, '');
++      return first !== skillName;
++    })
++    .join('\n');
++}
++
++async function createFixtureRepo(options: FixtureOptions = {}): Promise<string> {
++  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'ags-stage-fixture-'));
++  await writeMinimalProducerTree(root);
++
++  await fs.outputFile(
++    path.join(root, '.skillsrc'),
++    [
++      'registry: https://example.invalid/registry',
++      'agents:',
++      '  - copilot',
++      'skills:',
++      '  common:',
++      '    ref: common-v1',
++      'workflows:',
++      '  - demo',
++      '',
++    ].join('\n'),
++  );
++
++  await fs.outputFile(path.join(root, 'LICENSE'), LICENSE_TEXT);
++  await fs.outputJson(path.join(root, 'skills', 'metadata.json'), {
++    categories: { common: {} },
++  });
++  await fs.outputFile(
++    path.join(root, 'skills', 'common', 'common-alpha', 'SKILL.md'),
++    SKILL_ALPHA,
++  );
++  await fs.outputFile(
++    path.join(root, 'skills', 'common', 'common-alpha', 'references', 'details.md'),
++    'alpha details\n',
++  );
++  await fs.outputFile(
++    path.join(root, 'skills', 'common', 'common-beta', 'SKILL.md'),
++    SKILL_BETA,
++  );
++  await fs.outputFile(
++    path.join(root, 'skills', 'specialists', 'specialist-arch', 'SKILL.md'),
++    SPECIALIST_ARCH,
++  );
++  await fs.outputFile(
++    path.join(root, '.agents', 'workflows', 'demo.md'),
++    '---\ndescription: Demo workflow\n---\n# Demo\n',
++  );
++
++  await fs.outputFile(
++    path.join(root, 'AGENTS.md'),
++    '# Agents\n\n<!-- SKILLS_INDEX_START -->\nold router\n<!-- SKILLS_INDEX_END -->\n',
++  );
++  await fs.outputFile(
++    path.join(root, 'skills', 'README.md'),
++    '# Skills\n\n<!-- SKILLS_INDEX_START -->\nold index\n<!-- SKILLS_INDEX_END -->\n',
++  );
++  if (!options.omitBaselineCapabilitiesDoc) {
++    await fs.outputFile(
++      path.join(root, 'docs', 'agent-capabilities.md'),
++      '# Agent Capabilities\n\nold\n',
++    );
++  } else {
++    await fs.ensureDir(path.join(root, 'docs'));
++  }
++  await fs.outputFile(
++    path.join(root, '.github', 'instructions', 'agent-skill-standard-rule.instructions.md'),
++    '---\ndescription: rule\n---\nRead AGENTS.md\n',
++  );
++
++  // Baseline mirrors are produced by the real index/package contracts; the
++  // common category index is made stale by dropping the beta row.
++  const skillsDir = path.join(root, 'skills');
++  const realCommonIndex = await realCategoryIndexContent(skillsDir, 'common');
++  assert.match(realCommonIndex, /common-beta/, 'real producer must index beta');
++  const staleCommonIndex = stripIndexRow(realCommonIndex, 'common-beta');
++
++  await fs.outputFile(
++    path.join(root, 'skills', 'common', '_INDEX.md'),
++    staleCommonIndex,
++  );
++  const realSpecialistsIndex = await realCategoryIndexContent(
++    skillsDir,
++    'specialists',
++  );
++  await fs.outputFile(
++    path.join(root, 'skills', 'specialists', '_INDEX.md'),
++    realSpecialistsIndex,
++  );
++  await fs.outputJson(path.join(root, 'skills', 'index.json'), {
++    common: '- **[common/common-alpha]**: Alpha skill (triggers: `*.alpha`)',
++    specialists:
++      '- **[specialists/specialist-arch]**: Architecture specialist',
++  });
++
++  const mirrorSkill = async (
++    category: string,
++    skill: string,
++    files: string[],
++  ): Promise<void> => {
++    if (options.omitMirrorSkill === skill) return;
++    for (const file of files) {
++      const rel = path.posix.join('.github', 'skills', category, skill, file);
++      await fs.outputFile(
++        path.join(root, rel),
++        await fs.readFile(
++          path.join(root, 'skills', category, skill, file),
++        ),
++      );
++    }
++  };
++  await mirrorSkill('common', 'common-alpha', ['SKILL.md', 'references/details.md']);
++  await mirrorSkill('common', 'common-beta', ['SKILL.md']);
++  await fs.outputFile(
++    path.join(root, '.github', 'skills', 'common', '_INDEX.md'),
++    staleCommonIndex,
++  );
++
++  if (options.mutateDuringIndices) {
++    await fs.move(
++      path.join(root, 'scripts', 'generate-indices.ts'),
++      path.join(root, 'scripts', 'generate-indices.impl.ts'),
++    );
++    await fs.outputFile(
++      path.join(root, 'scripts', 'generate-indices.ts'),
++      GENERATE_INDICES_WRAPPER,
++    );
++  }
++
++  await fs.symlink(
++    path.join(REPOSITORY_ROOT, 'node_modules'),
++    path.join(root, 'node_modules'),
++    'junction',
++  );
++
++  return root;
++}
++
++async function withFixture(
++  options: FixtureOptions,
++  body: (root: string) => Promise<void>,
++): Promise<void> {
++  const root = await createFixtureRepo(options);
++  const previousCwd = process.cwd();
++  process.chdir(root);
++  try {
++    await body(root);
++  } finally {
++    process.chdir(previousCwd);
++    await fs.remove(root);
++  }
++}
++
++async function withEnv<T>(
++  values: Record<string, string>,
++  body: () => Promise<T>,
++): Promise<T> {
++  for (const [key, value] of Object.entries(values)) {
++    process.env[key] = value;
++  }
++  try {
++    return await body();
++  } finally {
++    for (const key of Object.keys(values)) delete process.env[key];
++  }
++}
++
++test('apply publishes staged outputs with real producer formats and inherited license resources', async () => {
++  await withFixture({}, async (root) => {
++    const result = await runIsolatedGeneration({ repoRoot: root });
++
++    assert.equal(result.success, true, result.error);
++    assert.ok(result.copiedBackFiles.includes('skills/metadata.json'));
++    assert.ok(
++      result.copiedBackFiles.includes('.github/skills/common/_INDEX.md'),
++    );
++    assert.ok(
++      result.copiedBackFiles.includes(
++        '.github/skills/common/common-alpha/LICENSE',
++      ),
++    );
++    assert.ok(
++      result.copiedBackFiles.includes('.github/prompts/demo.prompt.md'),
++    );
++    assert.ok(
++      result.copiedBackFiles.includes(
++        '.github/copilot-agents/specialist-arch.instructions.md',
++      ),
++    );
++    assert.deepEqual(result.verifiedFiles, result.copiedBackFiles);
++
++    const hostIndex = await fs.readFile(
++      path.join(root, '.github', 'skills', 'common', '_INDEX.md'),
++      'utf8',
++    );
++    const rows = parseCategoryIndexRows(hostIndex);
++    assert.deepEqual(rows.malformed, []);
++    assert.deepEqual(rows.duplicates, []);
++    assert.deepEqual(rows.ids.sort(), ['common-alpha', 'common-beta']);
++
++    const canonicalIndex = parseCategoryIndexRows(
++      await fs.readFile(path.join(root, 'skills', 'common', '_INDEX.md'), 'utf8'),
++    );
++    assert.deepEqual(canonicalIndex.ids.sort(), ['common-alpha', 'common-beta']);
++
++    assert.equal(
++      await fs.readFile(
++        path.join(root, '.github', 'skills', 'common', 'common-alpha', 'LICENSE'),
++        'utf8',
++      ),
++      LICENSE_TEXT,
++    );
++
++    const receipt = await fs.readJson(result.receiptPath);
++    assert.equal(receipt.status, 'APPLIED');
++    assert.deepEqual(receipt.copiedBackFiles, result.copiedBackFiles);
++  });
++});
++
++test('a missing selected mirror inventory is seeded before index bootstrap and published', async () => {
++  await withFixture({ omitMirrorSkill: 'common-beta' }, async (root) => {
++    assert.equal(
++      await fs.pathExists(
++        path.join(root, '.github', 'skills', 'common', 'common-beta'),
++      ),
++      false,
++    );
++
++    const result = await runIsolatedGeneration({ repoRoot: root });
++
++    assert.equal(result.success, true, result.error);
++    assert.equal(
++      await fs.readFile(
++        path.join(
++          root,
++          '.github',
++          'skills',
++          'common',
++          'common-beta',
++          'SKILL.md',
++        ),
++        'utf8',
++      ),
++      SKILL_BETA,
++    );
++    assert.equal(
++      await fs.readFile(
++        path.join(root, '.github', 'skills', 'common', 'common-beta', 'LICENSE'),
++        'utf8',
++      ),
++      LICENSE_TEXT,
++    );
++    const hostRows = parseCategoryIndexRows(
++      await fs.readFile(
++        path.join(root, '.github', 'skills', 'common', '_INDEX.md'),
++        'utf8',
++      ),
++    );
++    assert.deepEqual(hostRows.ids.sort(), ['common-alpha', 'common-beta']);
++  });
++});
++
++test('check mode passes after apply and copies nothing', async () => {
++  await withFixture({}, async (root) => {
++    const applied = await runIsolatedGeneration({ repoRoot: root });
++    assert.equal(applied.success, true, applied.error);
++
++    const checked = await runIsolatedGeneration({
++      repoRoot: root,
++      checkOnly: true,
++    });
++    assert.equal(checked.success, true, checked.error);
++    assert.deepEqual(checked.copiedBackFiles, []);
++    assert.equal((await fs.readJson(checked.receiptPath)).status, 'PASS');
++  });
++});
++
++test('check mode fails closed on stale prepared outputs and leaves destinations untouched', async () => {
++  await withFixture({}, async (root) => {
++    const metadataPath = path.join(root, 'skills', 'metadata.json');
++    const before = await fs.readFile(metadataPath, 'utf8');
++
++    const result = await runIsolatedGeneration({
++      repoRoot: root,
++      checkOnly: true,
++    });
++
++    assert.equal(result.success, false);
++    assert.match(result.error ?? '', /stale/i);
++    assert.deepEqual(result.copiedBackFiles, []);
++    assert.equal(await fs.readFile(metadataPath, 'utf8'), before);
++    assert.equal((await fs.readJson(result.receiptPath)).status, 'FAILED');
++  });
++});
++
++test('an edited owned mirror is preserved and reported as a conflict, not overwritten', async () => {
++  await withFixture({}, async (root) => {
++    const mirrorPath = path.join(
++      root,
++      '.github',
++      'skills',
++      'common',
++      'common-beta',
++      'SKILL.md',
++    );
++    const editedBytes = '---\nname: common-beta\ndescription: locally edited\n---\n# Beta\n';
++    await fs.outputFile(mirrorPath, editedBytes);
++    const metadataPath = path.join(root, 'skills', 'metadata.json');
++    const metadataBefore = await fs.readFile(metadataPath, 'utf8');
++
++    const result = await runIsolatedGeneration({ repoRoot: root });
++
++    assert.equal(result.success, false);
++    assert.match(result.error ?? '', /\[conflict\]/);
++    assert.match(result.error ?? '', /common-beta\/SKILL\.md/);
++    assert.deepEqual(result.copiedBackFiles, []);
++    assert.equal(await fs.readFile(mirrorPath, 'utf8'), editedBytes);
++    assert.equal(await fs.readFile(metadataPath, 'utf8'), metadataBefore);
++  });
++});
++
++test('a configured exclusion that still appears in a host index is rejected as unexpected discovery', async () => {
++  await withFixture({}, async (root) => {
++    await fs.outputFile(
++      path.join(root, '.skillsrc'),
++      [
++        'registry: https://example.invalid/registry',
++        'agents:',
++        '  - copilot',
++        'skills:',
++        '  common:',
++        '    ref: common-v1',
++        '    exclude:',
++        '      - common-beta',
++        'workflows:',
++        '  - demo',
++        '',
++      ].join('\n'),
++    );
++
++    const result = await runIsolatedGeneration({ repoRoot: root });
++
++    assert.equal(result.success, false);
++    assert.match(result.error ?? '', /advertises unexpected ids/);
++    assert.match(result.error ?? '', /common-beta/);
++    assert.deepEqual(result.copiedBackFiles, []);
++  });
++});
++
++test('a configured workflow whose source is absent is rejected before staging', async () => {
++  await withFixture({}, async (root) => {
++    await fs.outputFile(
++      path.join(root, '.skillsrc'),
++      [
++        'registry: https://example.invalid/registry',
++        'agents:',
++        '  - copilot',
++        'skills:',
++        '  common:',
++        '    ref: common-v1',
++        'workflows:',
++        '  - demo',
++        '  - ghost',
++        '',
++      ].join('\n'),
++    );
++
++    const result = await runIsolatedGeneration({ repoRoot: root });
++
++    assert.equal(result.success, false);
++    assert.match(result.error ?? '', /workflow source \.agents\/workflows\/ghost\.md/);
++    assert.ok(!(await fs.readFile(result.logPath, 'utf8')).includes('[calculate-tokens]'));
++  });
++});
++
++test('a canonical index row removed after generation is reported as an omission', async () => {
++  await withFixture({ mutateDuringIndices: true }, async (root) => {
++    const result = await withEnv(
++      {
++        FIXTURE_STRIP_REL: path.join('skills', 'common', '_INDEX.md'),
++        FIXTURE_STRIP_TOKEN: 'common-beta',
++      },
++      () => runIsolatedGeneration({ repoRoot: root }),
++    );
++
++    assert.equal(result.success, false);
++    assert.match(result.error ?? '', /canonical skills\/common\/_INDEX\.md omits ids: common-beta/);
++    assert.deepEqual(result.copiedBackFiles, []);
++  });
++});
++
++test('destination drift during generation aborts the whole copy-back', async () => {
++  await withFixture({ mutateDuringIndices: true }, async (root) => {
++    const agentsPath = path.join(root, 'AGENTS.md');
++    const metadataPath = path.join(root, 'skills', 'metadata.json');
++    const metadataBefore = await fs.readFile(metadataPath, 'utf8');
++
++    const result = await withEnv(
++      { FIXTURE_DRIFT_PATH: agentsPath },
++      () => runIsolatedGeneration({ repoRoot: root }),
++    );
++
++    assert.equal(result.success, false);
++    assert.match(result.error ?? '', /Concurrent drift detected/);
++    assert.deepEqual(result.copiedBackFiles, []);
++    assert.equal(await fs.readFile(metadataPath, 'utf8'), metadataBefore);
++  });
++});
++
++test('an absent declared destination that appears during generation aborts', async () => {
++  await withFixture(
++    { mutateDuringIndices: true, omitBaselineCapabilitiesDoc: true },
++    async (root) => {
++      const capabilitiesPath = path.join(root, 'docs', 'agent-capabilities.md');
++      assert.equal(await fs.pathExists(capabilitiesPath), false);
++
++      const result = await withEnv(
++        { FIXTURE_CREATE_PATH: capabilitiesPath },
++        () => runIsolatedGeneration({ repoRoot: root }),
++      );
++
++      assert.equal(result.success, false);
++      assert.match(result.error ?? '', /Concurrent drift detected/);
++      assert.deepEqual(result.copiedBackFiles, []);
++      assert.equal(await fs.readFile(capabilitiesPath, 'utf8'), 'created\n');
++    },
++  );
++});
++
++test('a post-rename verification failure still reports the renamed destination', async () => {
++  await withFixture({}, async (root) => {
++    const realRename = fs.rename;
++    fs.rename = async (from: string, to: string) => {
++      await realRename(from, to);
++      await fs.appendFile(to, 'CORRUPT\n');
++    };
++    try {
++      const result = await runIsolatedGeneration({ repoRoot: root });
++
++      assert.equal(result.success, false);
++      assert.match(result.error ?? '', /Post-copy verification failed/);
++      assert.equal(result.copiedBackFiles.length, 1);
++      const renamed = result.copiedBackFiles[0];
++      assert.deepEqual(result.verifiedFiles, []);
++      assert.match(
++        await fs.readFile(path.join(root, renamed), 'utf8'),
++        /CORRUPT\n$/,
++      );
++
++      const receipt = await fs.readJson(result.receiptPath);
++      assert.equal(receipt.status, 'FAILED');
++      assert.deepEqual(receipt.appliedFiles, result.copiedBackFiles);
++      assert.deepEqual(receipt.verifiedFiles, []);
++    } finally {
++      fs.rename = realRename;
++    }
++  });
++});
++
++test('a repeated attempt id never overwrites or reuses prior evidence', async () => {
++  await withFixture({}, async (root) => {
++    const first = await runIsolatedGeneration({
++      repoRoot: root,
++      attemptId: 'fixed-attempt',
++    });
++    assert.equal(first.success, true, first.error);
++
++    const logBefore = await fs.readFile(first.logPath, 'utf8');
++    const receiptBefore = await fs.readFile(first.receiptPath, 'utf8');
++
++    await assert.rejects(
++      () =>
++        runIsolatedGeneration({ repoRoot: root, attemptId: 'fixed-attempt' }),
++      /Refusing to reuse or overwrite prior attempt evidence/,
++    );
++
++    assert.equal(await fs.readFile(first.logPath, 'utf8'), logBefore);
++    assert.equal(await fs.readFile(first.receiptPath, 'utf8'), receiptBefore);
++  });
++});
++
++test('a pre-existing attempt directory without a log is still refused', async () => {
++  await withFixture({}, async (root) => {
++    const logDir = path.join(root, 'artifacts', 'generation-logs', 'taken');
++    await fs.outputJson(path.join(logDir, 'receipt.json'), { status: 'OLD' });
++
++    await assert.rejects(
++      () => runIsolatedGeneration({ repoRoot: root, attemptId: 'taken' }),
++      /Refusing to reuse or overwrite prior attempt evidence/,
++    );
++    assert.deepEqual(await fs.readJson(path.join(logDir, 'receipt.json')), {
++      status: 'OLD',
++    });
++  });
++});
++
++test('the generator entrypoint refuses a foreign working directory before writing', async () => {
++  await withFixture({}, async (root) => {
++    const child = spawn(
++      process.execPath,
++      [
++        '--import',
++        'tsx',
++        path.join(REPOSITORY_ROOT, 'scripts', 'generation', 'index.ts'),
++        '--check',
++      ],
++      { cwd: root, env: { ...process.env, CI: 'true' } },
++    );
++    let stderr = '';
++    child.stderr.on('data', (chunk: Buffer) => {
++      stderr += chunk.toString();
++    });
++    const exitCode = await new Promise<number>((resolve) => {
++      child.on('close', (code) => resolve(code ?? 1));
++    });
++
++    assert.equal(exitCode, 1);
++    assert.match(stderr, /foreign working directory/);
++    assert.equal(
++      await fs.pathExists(path.join(root, 'artifacts', 'generation-logs')),
++      false,
++    );
++  });
++});
++
++test('an unconfigured symlinked category is rejected before any generator runs', async () => {
++  await withFixture({}, async (root) => {
++    const external = await fs.mkdtemp(path.join(os.tmpdir(), 'ags-external-'));
++    try {
++      await fs.outputFile(
++        path.join(external, 'rogue-skill', 'SKILL.md'),
++        '---\nname: rogue-skill\ndescription: external\n---\n# Rogue\n',
++      );
++      await fs.symlink(external, path.join(root, 'skills', 'extra-category'), 'junction');
++
++      const result = await runIsolatedGeneration({ repoRoot: root });
++
++      assert.equal(result.success, false);
++      assert.match(result.error ?? '', /Source symlink not permitted/);
++      assert.ok(
++        !(await fs.readFile(result.logPath, 'utf8')).includes('[calculate-tokens]'),
++      );
++      assert.equal(
++        await fs.readFile(
++          path.join(external, 'rogue-skill', 'SKILL.md'),
++          'utf8',
++        ),
++        '---\nname: rogue-skill\ndescription: external\n---\n# Rogue\n',
++      );
++      assert.deepEqual(
++        (await fs.readdir(external)).sort(),
++        ['rogue-skill'],
++      );
++    } finally {
++      await fs.remove(external);
++    }
++  });
++});
++
++test('copySourceToStage keeps mirrors while excluding .git, .agent, artifacts and dependencies', async () => {
++  const source = await fs.mkdtemp(path.join(os.tmpdir(), 'stage-copy-src-'));
++  const destination = await fs.mkdtemp(
++    path.join(os.tmpdir(), 'stage-copy-dest-'),
++  );
++  const stage = path.join(destination, 'isolated-stage');
++
++  try {
++    await fs.outputFile(path.join(source, 'AGENTS.md'), '# root\n');
++    await fs.outputFile(
++      path.join(source, '.agents', 'skills', 'common', '_INDEX.md'),
++      'mirror\n',
++    );
++    await fs.outputFile(path.join(source, '.git', 'HEAD'), 'ref\n');
++    await fs.outputFile(path.join(source, '.agent', 'sdd', 'report.md'), 'sdd\n');
++    await fs.outputFile(path.join(source, 'artifacts', 'log.txt'), 'log\n');
++    await fs.outputFile(
++      path.join(source, 'node_modules', 'left-pad', 'index.js'),
++      'module\n',
++    );
++
++    await copySourceToStage(source, stage);
++
++    assert.equal(await fs.pathExists(path.join(stage, 'AGENTS.md')), true);
++    assert.equal(
++      await fs.pathExists(
++        path.join(stage, '.agents', 'skills', 'common', '_INDEX.md'),
++      ),
++      true,
++    );
++    assert.equal(await fs.pathExists(path.join(stage, '.git')), false);
++    assert.equal(await fs.pathExists(path.join(stage, '.agent')), false);
++    assert.equal(await fs.pathExists(path.join(stage, 'artifacts')), false);
++    assert.equal(await fs.pathExists(path.join(stage, 'node_modules')), false);
++  } finally {
++    await fs.remove(source);
++    await fs.remove(destination);
++  }
++});
+diff --git a/scripts/generation/isolated-stage.ts b/scripts/generation/isolated-stage.ts
+new file mode 100644
+index 00000000..ae0e5dbf
+--- /dev/null
++++ b/scripts/generation/isolated-stage.ts
+@@ -0,0 +1,1458 @@
++import fs from 'fs-extra';
++import path from 'path';
++import os from 'os';
++import crypto from 'crypto';
++import { spawn } from 'child_process';
++import * as yaml from 'js-yaml';
++import { assertNoSymlinksUnderRoot } from '../../cli/src/services/install/safePath';
++import { isOverriddenRel } from '../../cli/src/services/install/pathMatch';
++import {
++  Agent,
++  SUPPORTED_AGENTS,
++  type AgentDefinition,
++} from '../../cli/src/constants';
++import { WorkflowTransformer } from '../../cli/src/services/utils/WorkflowTransformer';
++import { SpecialistTransformer } from '../../cli/src/services/utils/SpecialistTransformer';
++
++export interface IsolatedStageOptions {
++  repoRoot: string;
++  checkOnly?: boolean;
++  attemptId?: string;
++  logDir?: string;
++}
++
++export interface IsolatedStageResult {
++  success: boolean;
++  attemptId: string;
++  checkOnly: boolean;
++  /** Files renamed into place by this invocation (partial on failure). */
++  copiedBackFiles: string[];
++  /** Renamed files whose published bytes verified against the staged digest. */
++  verifiedFiles: string[];
++  logPath: string;
++  receiptPath: string;
++  error?: string;
++}
++
++export interface CategoryIndexTarget {
++  relPath: string;
++  category: string;
++  /** Category-local skill ids the producer must advertise. */
++  skillNames: string[];
++}
++
++export interface MirrorFileTarget {
++  relPath: string;
++  /** Repository path of the authoritative bytes (package file or inherited root license). */
++  canonicalRelPath: string;
++  /** Kiro rewrites SKILL.md, so only its presence can be asserted. */
++  transformed: boolean;
++}
++
++export interface WorkflowTarget {
++  relPath: string;
++  sourceRelPath: string;
++  agentId: Agent;
++}
++
++export interface SpecialistTarget {
++  relPath: string;
++  canonicalRelPath: string;
++  agentId: Agent;
++}
++
++export interface GenerationPlan {
++  targetAgents: Agent[];
++  configuredCategories: string[];
++  selectedSkillIds: string[];
++  declaredFiles: string[];
++  canonicalCategoryIndexes: CategoryIndexTarget[];
++  hostCategoryIndexes: CategoryIndexTarget[];
++  indexJsonCategories: Array<{ category: string; skillIds: string[] }>;
++  mirrorFiles: MirrorFileTarget[];
++  ruleFiles: string[];
++  workflowOutputs: WorkflowTarget[];
++  specialistOutputs: SpecialistTarget[];
++  missingWorkflowSources: string[];
++}
++
++interface LoadedRepoConfig {
++  agents: string[];
++  skills: Record<string, { include?: string[]; exclude?: string[] }>;
++  workflows: string[] | true;
++  overrides: string[];
++}
++
++interface SkillFile {
++  /** File name inside the mirrored package directory. */
++  name: string;
++  /** Authoritative repository path for the bytes. */
++  sourceRelPath: string;
++}
++
++const CONFIG_FILE_CANDIDATES = ['.skillsrc', '.skillsrc.yaml'];
++const INHERITED_ROOT_FILES = ['LICENSE', 'NOTICE'];
++const MIRRORED_RESOURCE_PREFIXES = ['references/', 'scripts/', 'assets/'];
++const MIRRORED_ROOT_FILES = /^(LICENSE|NOTICE)(?:\.(?:md|txt))?$/i;
++const QUALIFIED_ROW_PATTERN = /^\s*-\s+\*\*\[([^\]]+)\]\*\*\s*:/;
++const ATTEMPT_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
++const FRONTMATTER_PATTERN = /^---\r?\n([\s\S]*?)\r?\n---\r?\n/;
++const TABLE_SEPARATOR_PATTERN = /^:?-{3,}:?$/;
++const LOCAL_SKILL_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
++
++export function computeSha256(content: Buffer | string): string {
++  return crypto.createHash('sha256').update(content).digest('hex');
++}
++
++export async function fileSha256(filePath: string): Promise<string | null> {
++  if (!(await fs.pathExists(filePath))) return null;
++  const buf = await fs.readFile(filePath);
++  return computeSha256(buf);
++}
++
++async function physicalPath(target: string): Promise<string> {
++  const resolved = path.resolve(target);
++  try {
++    return await fs.realpath(resolved);
++  } catch {
++    return resolved;
++  }
++}
++
++function toPosix(relativePath: string): string {
++  return relativePath.split(path.sep).join('/');
++}
++
++function errorCode(err: unknown): string {
++  if (
++    err &&
++    typeof err === 'object' &&
++    'code' in err &&
++    typeof err.code === 'string'
++  ) {
++    return err.code;
++  }
++  return '';
++}
++
++/**
++ * Mirrors the file selection used by `collectLocalSkill` in generate-indices,
++ * excluding volatile Python bytecode caches: they are build artefacts of the
++ * skill's own scripts, not declaration-worthy package resources.
++ */
++export function isMirroredPackageFile(relativePath: string): boolean {
++  if (relativePath.endsWith('.pyc')) return false;
++  if (relativePath.split('/').includes('__pycache__')) return false;
++  if (relativePath === 'SKILL.md') return true;
++  if (MIRRORED_ROOT_FILES.test(relativePath)) return true;
++  return MIRRORED_RESOURCE_PREFIXES.some((prefix) =>
++    relativePath.startsWith(prefix),
++  );
++}
++
++async function listPackageFiles(skillDir: string): Promise<string[]> {
++  const files: string[] = [];
++
++  const walk = async (current: string): Promise<void> => {
++    const entries = await fs.readdir(current, { withFileTypes: true });
++    for (const entry of entries) {
++      const fullPath = path.join(current, entry.name);
++      if (entry.isDirectory()) {
++        await walk(fullPath);
++        continue;
++      }
++      if (!entry.isFile()) continue;
++      const rel = toPosix(path.relative(skillDir, fullPath));
++      if (isMirroredPackageFile(rel)) files.push(rel);
++    }
++  };
++
++  await walk(skillDir);
++  files.sort();
++  return files;
++}
++
++async function isRegistrySkill(skillDir: string): Promise<boolean> {
++  const skillPath = path.join(skillDir, 'SKILL.md');
++  if (!(await fs.pathExists(skillPath))) return false;
++  if (!(await fs.stat(skillPath)).isFile()) return false;
++  const content = await fs.readFile(skillPath, 'utf8');
++  return FRONTMATTER_PATTERN.test(content);
++}
++
++/**
++ * Enumerates categories with `fs.stat` (follows links), matching the producer in
++ * generate-indices/IndexGeneratorService; a symlinked category is therefore
++ * discovered and its generated output is declared and preflighted.
++ */
++async function listCategories(skillsDir: string): Promise<string[]> {
++  if (!(await fs.pathExists(skillsDir))) return [];
++  const entries = await fs.readdir(skillsDir, { withFileTypes: true });
++  const categories: string[] = [];
++  for (const entry of entries) {
++    if (entry.name.startsWith('.')) continue;
++    const stats = await fs.stat(path.join(skillsDir, entry.name));
++    if (!stats.isDirectory()) continue;
++    categories.push(entry.name);
++  }
++  categories.sort();
++  return categories;
++}
++
++async function listSkillDirectories(categoryDir: string): Promise<string[]> {
++  if (!(await fs.pathExists(categoryDir))) return [];
++  const entries = await fs.readdir(categoryDir);
++  const skills: string[] = [];
++  for (const entry of entries) {
++    if (entry.startsWith('.')) continue;
++    if (await isRegistrySkill(path.join(categoryDir, entry))) {
++      skills.push(entry);
++    }
++  }
++  skills.sort();
++  return skills;
++}
++
++async function loadRepoConfig(
++  repoRoot: string,
++): Promise<LoadedRepoConfig | null> {
++  for (const candidate of CONFIG_FILE_CANDIDATES) {
++    const configPath = path.join(repoRoot, candidate);
++    if (!(await fs.pathExists(configPath))) continue;
++
++    const raw = yaml.load(await fs.readFile(configPath, 'utf8')) as unknown;
++    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
++    const record = raw as Record<string, unknown>;
++
++    const agents = Array.isArray(record.agents)
++      ? record.agents.filter((item): item is string => typeof item === 'string')
++      : [];
++
++    const skills: LoadedRepoConfig['skills'] = {};
++    const rawSkills = record.skills;
++    if (rawSkills && typeof rawSkills === 'object' && !Array.isArray(rawSkills)) {
++      for (const [category, value] of Object.entries(
++        rawSkills as Record<string, unknown>,
++      )) {
++        if (category === 'include' || category === 'exclude') continue;
++        if (!value || typeof value !== 'object' || Array.isArray(value)) {
++          skills[category] = {};
++          continue;
++        }
++        const entry = value as Record<string, unknown>;
++        const include = Array.isArray(entry.include)
++          ? entry.include.filter((i): i is string => typeof i === 'string')
++          : undefined;
++        const exclude = Array.isArray(entry.exclude)
++          ? entry.exclude.filter((i): i is string => typeof i === 'string')
++          : undefined;
++        skills[category] = {
++          ...(include ? { include } : {}),
++          ...(exclude ? { exclude } : {}),
++        };
++      }
++    }
++
++    const rawWorkflows = record.workflows;
++    const workflows: string[] | true =
++      rawWorkflows === true
++        ? true
++        : Array.isArray(rawWorkflows)
++          ? rawWorkflows.filter(
++              (item): item is string => typeof item === 'string',
++            )
++          : [];
++
++    const overrides = Array.isArray(record.custom_overrides)
++      ? record.custom_overrides.filter(
++          (item): item is string => typeof item === 'string',
++        )
++      : [];
++
++    return { agents, skills, workflows, overrides };
++  }
++
++  return null;
++}
++
++function findAgentDefinition(agentId: string): AgentDefinition | undefined {
++  return SUPPORTED_AGENTS.find((definition) => definition.id === agentId);
++}
++
++function skillMirrorDirectory(
++  definition: AgentDefinition,
++  category: string,
++  skill: string,
++): string {
++  return definition.id === Agent.Kiro
++    ? path.join(definition.path, `${category}-${skill}`)
++    : path.join(definition.path, category, skill);
++}
++
++/**
++ * Package files mirrored for one skill: the package's own resources plus the
++ * repository-root LICENSE/NOTICE fallback used by `collectLocalSkill` when the
++ * package has no case-insensitive same-name resource.
++ */
++async function collectMirrorFiles(
++  repoRoot: string,
++  category: string,
++  skill: string,
++): Promise<SkillFile[]> {
++  const skillRel = path.posix.join('skills', category, skill);
++  const packageFiles = await listPackageFiles(path.join(repoRoot, skillRel));
++  const files: SkillFile[] = packageFiles.map((name) => ({
++    name,
++    sourceRelPath: path.posix.join(skillRel, name),
++  }));
++
++  for (const rootName of INHERITED_ROOT_FILES) {
++    const rootPath = path.join(repoRoot, rootName);
++    if (!(await fs.pathExists(rootPath))) continue;
++    if (
++      files.some(
++        (file) => file.name.toLowerCase() === rootName.toLowerCase(),
++      )
++    ) {
++      continue;
++    }
++    files.push({ name: rootName, sourceRelPath: rootName });
++  }
++
++  files.sort((left, right) => left.name.localeCompare(right.name));
++  return files;
++}
++
++/**
++ * Builds the bounded, configuration-derived inventory of generated surfaces,
++ * reusing the producer's actual resource collection, selection and naming rules.
++ */
++export async function buildGenerationPlan(
++  repoRoot: string,
++): Promise<GenerationPlan> {
++  const skillsDir = path.join(repoRoot, 'skills');
++  const config = await loadRepoConfig(repoRoot);
++  const overrides = config?.overrides ?? [];
++
++  const targetAgents: Agent[] = [];
++  for (const agentId of config?.agents ?? []) {
++    if (findAgentDefinition(agentId)) targetAgents.push(agentId as Agent);
++  }
++
++  const categories = await listCategories(skillsDir);
++  const canonicalFilesBySkill = new Map<string, SkillFile[]>();
++  const canonicalCategoryIndexes: CategoryIndexTarget[] = [];
++  const indexJsonCategories: GenerationPlan['indexJsonCategories'] = [];
++
++  for (const category of categories) {
++    const skillNames = await listSkillDirectories(
++      path.join(skillsDir, category),
++    );
++    if (skillNames.length === 0) continue;
++
++    canonicalCategoryIndexes.push({
++      relPath: path.posix.join('skills', category, '_INDEX.md'),
++      category,
++      skillNames,
++    });
++    indexJsonCategories.push({
++      category,
++      skillIds: skillNames.map((skill) => `${category}/${skill}`),
++    });
++
++    for (const skill of skillNames) {
++      canonicalFilesBySkill.set(
++        `${category}/${skill}`,
++        await collectMirrorFiles(repoRoot, category, skill),
++      );
++    }
++  }
++
++  const configuredCategories: string[] = [];
++  const selectedSkillIds: string[] = [];
++  if (config) {
++    for (const [category, selection] of Object.entries(config.skills)) {
++      if (!categories.includes(category)) continue;
++      configuredCategories.push(category);
++
++      const skillNames = await listSkillDirectories(
++        path.join(skillsDir, category),
++      );
++      const selected = skillNames.filter((skill) => {
++        if (selection.include && !selection.include.includes(skill)) {
++          return false;
++        }
++        if (selection.exclude && selection.exclude.includes(skill)) {
++          return false;
++        }
++        return true;
++      });
++      for (const skill of selected) {
++        const id = `${category}/${skill}`;
++        selectedSkillIds.push(id);
++        if (!canonicalFilesBySkill.has(id)) {
++          canonicalFilesBySkill.set(
++            id,
++            await collectMirrorFiles(repoRoot, category, skill),
++          );
++        }
++      }
++    }
++  }
++  selectedSkillIds.sort();
++  configuredCategories.sort();
++
++  const declared = new Set<string>();
++  declared.add('skills/metadata.json');
++  declared.add('skills/index.json');
++  for (const rel of ['README.md', 'skills/README.md', 'cli/README.md']) {
++    if (await fs.pathExists(path.join(repoRoot, rel))) declared.add(rel);
++  }
++  declared.add('AGENTS.md');
++  if (await fs.pathExists(path.join(repoRoot, 'server'))) {
++    declared.add('server/AGENTS.md');
++  }
++  declared.add('docs/agent-capabilities.md');
++  for (const target of canonicalCategoryIndexes) declared.add(target.relPath);
++
++  const hostCategoryIndexes: CategoryIndexTarget[] = [];
++  const mirrorFiles: MirrorFileTarget[] = [];
++  const ruleFiles: string[] = [];
++  const workflowOutputs: WorkflowTarget[] = [];
++  const specialistOutputs: SpecialistTarget[] = [];
++
++  const workflowSourceDir = path.join(repoRoot, '.agents', 'workflows');
++  const allWorkflowNames = (await fs.pathExists(workflowSourceDir))
++    ? (await fs.readdir(workflowSourceDir))
++        .filter((file) => file.endsWith('.md'))
++        .map((file) => file.replace(/\.md$/, ''))
++        .sort()
++    : [];
++  let workflowNames = allWorkflowNames;
++  const missingWorkflowSources: string[] = [];
++  if (config && config.workflows !== true) {
++    workflowNames = config.workflows;
++    for (const name of workflowNames) {
++      if (!allWorkflowNames.includes(name)) missingWorkflowSources.push(name);
++    }
++  }
++
++  const specialistDir = path.join(skillsDir, 'specialists');
++  const specialistNames = (await fs.pathExists(specialistDir))
++    ? (await fs.readdir(specialistDir, { withFileTypes: true }))
++        .filter((entry) => entry.isDirectory())
++        .map((entry) => entry.name)
++        .sort()
++    : [];
++
++  for (const agentId of targetAgents) {
++    const definition = findAgentDefinition(agentId);
++    if (!definition) continue;
++
++    let detected = false;
++    for (const detectionFile of definition.detectionFiles) {
++      if (await fs.pathExists(path.join(repoRoot, detectionFile))) {
++        detected = true;
++        break;
++      }
++    }
++
++    const ruleFile = toPosix(
++      path.normalize(
++        path.join(
++          definition.ruleFile,
++          definition.ruleFileName ||
++            `agent-skill-standard-rule${definition.ruleExtension}`,
++        ),
++      ),
++    );
++    if (
++      detected &&
++      !ruleFile.startsWith('..') &&
++      ruleFile !== '.' &&
++      !isOverriddenRel(ruleFile, overrides)
++    ) {
++      ruleFiles.push(ruleFile);
++      declared.add(ruleFile);
++    }
++
++    for (const category of configuredCategories) {
++      const skillNames = selectedSkillIds
++        .filter((id) => id.startsWith(`${category}/`))
++        .map((id) => id.split('/')[1]);
++      if (skillNames.length === 0) continue;
++      const relPath = path.posix.join(
++        definition.path,
++        category,
++        '_INDEX.md',
++      );
++      if (isOverriddenRel(relPath, overrides)) continue;
++      hostCategoryIndexes.push({ relPath, category, skillNames });
++      declared.add(relPath);
++    }
++
++    for (const skillId of selectedSkillIds) {
++      const [category, skill] = skillId.split('/');
++      const files = canonicalFilesBySkill.get(skillId) ?? [];
++      const mirrorDir = toPosix(skillMirrorDirectory(definition, category, skill));
++      for (const file of files) {
++        const relPath = path.posix.join(mirrorDir, file.name);
++        if (isOverriddenRel(relPath, overrides)) continue;
++        declared.add(relPath);
++        mirrorFiles.push({
++          relPath,
++          canonicalRelPath: file.sourceRelPath,
++          transformed: definition.id === Agent.Kiro && file.name === 'SKILL.md',
++        });
++      }
++    }
++
++    if (definition.workflowFormat !== 'none') {
++      for (const name of workflowNames) {
++        const sourceRelPath = path.posix.join(
++          '.agents',
++          'workflows',
++          `${name}.md`,
++        );
++        if (!(await fs.pathExists(path.join(repoRoot, sourceRelPath)))) continue;
++        const content = await fs.readFile(
++          path.join(repoRoot, sourceRelPath),
++          'utf8',
++        );
++        const parsed = WorkflowTransformer.parse({
++          name: `${name}.md`,
++          content,
++        });
++        const transformed = WorkflowTransformer.transformParsed(
++          parsed,
++          definition.workflowFormat,
++        );
++        if (!transformed) continue;
++        const outputDir = definition.workflowPath;
++        const relPath =
++          definition.workflowFormat === 'skill'
++            ? path.posix.join(outputDir, name, transformed.name)
++            : path.posix.join(outputDir, transformed.name);
++        // `native` agents read the canonical source in place; it is an input.
++        if (relPath === sourceRelPath) continue;
++        if (isOverriddenRel(relPath, overrides)) continue;
++        declared.add(relPath);
++        workflowOutputs.push({ relPath, sourceRelPath, agentId: definition.id });
++      }
++    }
++
++    if (definition.agentPath && definition.specialistFormat) {
++      for (const specialistName of specialistNames) {
++        const canonicalRelPath = path.posix.join(
++          'skills',
++          'specialists',
++          specialistName,
++          'SKILL.md',
++        );
++        const skillPath = path.join(repoRoot, canonicalRelPath);
++        if (!(await fs.pathExists(skillPath))) continue;
++        const transformed = SpecialistTransformer.transform(
++          { name: specialistName, content: await fs.readFile(skillPath, 'utf8') },
++          definition.id,
++        );
++        if (!transformed) continue;
++        const relPath = path.posix.join(definition.agentPath, transformed.name);
++        if (isOverriddenRel(relPath, overrides)) continue;
++        declared.add(relPath);
++        specialistOutputs.push({
++          relPath,
++          canonicalRelPath,
++          agentId: definition.id,
++        });
++      }
++    }
++  }
++
++  return {
++    targetAgents,
++    configuredCategories,
++    selectedSkillIds,
++    declaredFiles: Array.from(declared).sort(),
++    canonicalCategoryIndexes,
++    hostCategoryIndexes,
++    indexJsonCategories,
++    mirrorFiles,
++    ruleFiles: ruleFiles.sort(),
++    workflowOutputs: workflowOutputs.sort((left, right) =>
++      left.relPath.localeCompare(right.relPath),
++    ),
++    specialistOutputs: specialistOutputs.sort((left, right) =>
++      left.relPath.localeCompare(right.relPath),
++    ),
++    missingWorkflowSources,
++  };
++}
++
++/**
++ * Fail-closed preflight: configured categories, include targets and workflow
++ * sources must exist and contain registry skills.
++ */
++export async function validateCategorySelections(
++  repoRoot: string,
++): Promise<{ valid: boolean; missing: string[]; error?: string }> {
++  const skillsDir = path.join(repoRoot, 'skills');
++  const metadataPath = path.join(skillsDir, 'metadata.json');
++
++  if (!(await fs.pathExists(metadataPath))) {
++    return { valid: false, missing: ['skills/metadata.json'] };
++  }
++
++  const metadata = (await fs.readJson(metadataPath)) as {
++    categories?: Record<string, unknown>;
++  };
++  const metadataCategories = Object.keys(metadata.categories ?? {});
++  const diskCategories = await listCategories(skillsDir);
++
++  const missingCategories = metadataCategories.filter(
++    (id) => !diskCategories.includes(id),
++  );
++  if (missingCategories.length > 0) {
++    return {
++      valid: false,
++      missing: missingCategories,
++      error: 'metadata categories missing on disk',
++    };
++  }
++
++  const config = await loadRepoConfig(repoRoot);
++  if (!config) return { valid: true, missing: [] };
++
++  const missing: string[] = [];
++  for (const [category, selection] of Object.entries(config.skills)) {
++    if (!diskCategories.includes(category)) {
++      missing.push(`configured category ${category}`);
++      continue;
++    }
++    const skillNames = await listSkillDirectories(
++      path.join(skillsDir, category),
++    );
++    const selected = skillNames.filter((skill) => {
++      if (selection.include && !selection.include.includes(skill)) return false;
++      if (selection.exclude && selection.exclude.includes(skill)) return false;
++      return true;
++    });
++    if (selected.length === 0) {
++      missing.push(`no selected registry skills in ${category}`);
++      continue;
++    }
++    for (const skill of selection.include ?? []) {
++      if (!skillNames.includes(skill)) {
++        missing.push(`${category}/${skill} (include target absent on disk)`);
++      }
++    }
++  }
++
++  const plan = await buildGenerationPlan(repoRoot);
++  for (const name of plan.missingWorkflowSources) {
++    missing.push(`workflow source .agents/workflows/${name}.md`);
++  }
++
++  return { valid: missing.length === 0, missing };
++}
++
++/**
++ * Rejects source symlinks at every location the generators traverse or write
++ * through, before any child process runs. Package-internal resource links are
++ * read-only for the producers and are not write ancestors.
++ */
++export async function assertNoSourceSymlinks(repoRoot: string): Promise<void> {
++  const checkEntries = async (relativeDir: string): Promise<void> => {
++    const fullPath = path.join(repoRoot, relativeDir);
++    const stats = await fs.lstat(fullPath).catch((err: unknown) => {
++      if (errorCode(err) === 'ENOENT') return null;
++      throw err;
++    });
++    if (!stats) return;
++    if (stats.isSymbolicLink()) {
++      throw new Error(
++        `Source symlink not permitted for generated writes: "${fullPath}"`,
++      );
++    }
++    const entries = await fs.readdir(fullPath, { withFileTypes: true });
++    for (const entry of entries) {
++      if (entry.isSymbolicLink()) {
++        throw new Error(
++          `Source symlink not permitted for generated writes: "${path.join(fullPath, entry.name)}"`,
++        );
++      }
++    }
++  };
++
++  await checkEntries('skills');
++  await checkEntries('.agents/workflows');
++  await checkEntries('skills/specialists');
++
++  const skillsDir = path.join(repoRoot, 'skills');
++  if (!(await fs.pathExists(skillsDir))) return;
++  for (const category of await listCategories(skillsDir)) {
++    await checkEntries(path.join('skills', category));
++  }
++}
++
++interface IndexRows {
++  ids: string[];
++  duplicates: string[];
++  malformed: string[];
++}
++
++function pushUnique(
++  ids: string[],
++  duplicates: string[],
++  id: string,
++): void {
++  if (ids.includes(id)) {
++    duplicates.push(id);
++    return;
++  }
++  ids.push(id);
++}
++
++/**
++ * Parses the producer's real `_INDEX.md` table: `| skillId | files | keywords |`
++ * in File Match, `| skillId | keywords |` in Keyword Match, with optional `**`
++ * priority markers. Skill ids are category-local.
++ */
++export function parseCategoryIndexRows(content: string): IndexRows {
++  const ids: string[] = [];
++  const duplicates: string[] = [];
++  const malformed: string[] = [];
++
++  for (const rawLine of content.split(/\r?\n/)) {
++    const line = rawLine.trim();
++    if (!line.startsWith('|')) continue;
++    const cells = line.split('|').slice(1, -1).map((cell) => cell.trim());
++    if (cells.length < 2) continue;
++    const first = cells[0];
++    if (!first || TABLE_SEPARATOR_PATTERN.test(first) || first === 'Skill') {
++      continue;
++    }
++    const id = first.replace(/^\*\*/, '').replace(/\*\*$/, '').trim();
++    if (!LOCAL_SKILL_ID_PATTERN.test(id)) {
++      malformed.push(first);
++      continue;
++    }
++    pushUnique(ids, duplicates, id);
++  }
++
++  return { ids, duplicates, malformed };
++}
++
++/**
++ * Parses `skills/index.json` values: qualified `- **[category/skill]**: …` rows.
++ */
++export function parseQualifiedRows(
++  content: string,
++  category: string,
++): IndexRows {
++  const ids: string[] = [];
++  const duplicates: string[] = [];
++  const malformed: string[] = [];
++
++  for (const rawLine of content.split(/\r?\n/)) {
++    const match = QUALIFIED_ROW_PATTERN.exec(rawLine);
++    if (!match) continue;
++    const id = match[1].trim();
++    const [rowCategory, skillName, ...rest] = id.split('/');
++    if (
++      rest.length > 0 ||
++      rowCategory !== category ||
++      !LOCAL_SKILL_ID_PATTERN.test(skillName ?? '')
++    ) {
++      malformed.push(id);
++      continue;
++    }
++    pushUnique(ids, duplicates, id);
++  }
++
++  return { ids, duplicates, malformed };
++}
++
++function describeIndexErrors(
++  label: string,
++  actual: IndexRows,
++  expectedIds: string[],
++): string[] {
++  const errors: string[] = [];
++  if (actual.malformed.length > 0) {
++    errors.push(`${label} has malformed ids: ${actual.malformed.join(', ')}`);
++  }
++  if (actual.duplicates.length > 0) {
++    errors.push(
++      `${label} has duplicate ids: ${[...new Set(actual.duplicates)].join(', ')}`,
++    );
++  }
++  const actualSet = new Set(actual.ids);
++  const expectedSet = new Set(expectedIds);
++  const missing = expectedIds.filter((id) => !actualSet.has(id));
++  const unexpected = actual.ids.filter((id) => !expectedSet.has(id));
++  if (missing.length > 0) {
++    errors.push(`${label} omits ids: ${missing.join(', ')}`);
++  }
++  if (unexpected.length > 0) {
++    errors.push(`${label} advertises unexpected ids: ${unexpected.join(', ')}`);
++  }
++  return errors;
++}
++
++async function expectedWorkflowContent(
++  stageRoot: string,
++  target: WorkflowTarget,
++): Promise<Buffer | null> {
++  const definitionAgent = findAgentDefinition(target.agentId);
++  if (!definitionAgent || definitionAgent.workflowFormat === 'none') return null;
++  const sourcePath = path.join(stageRoot, target.sourceRelPath);
++  if (!(await fs.pathExists(sourcePath))) return null;
++  const parsed = WorkflowTransformer.parse({
++    name: path.basename(target.sourceRelPath),
++    content: await fs.readFile(sourcePath, 'utf8'),
++  });
++  const transformed = WorkflowTransformer.transformParsed(
++    parsed,
++    definitionAgent.workflowFormat,
++  );
++  return transformed ? Buffer.from(transformed.content, 'utf8') : null;
++}
++
++/**
++ * Verifies the regenerated surface before any copy-back, using each producer's
++ * actual output contract and exact owned/configured ID sets. When the ownership
++ * writer preserved a differing destination, the divergence is reported as an
++ * explicit conflict instead of being silently overwritten.
++ */
++export async function validateGeneratedSurface(
++  stageRoot: string,
++  plan: GenerationPlan,
++  baselineDigests: Map<string, string | null>,
++): Promise<string[]> {
++  const errors: string[] = [];
++  const conflictDigest = async (
++    relPath: string,
++    stageBuffer: Buffer,
++  ): Promise<boolean> => {
++    const stageDigest = computeSha256(stageBuffer);
++    return baselineDigests.get(relPath) === stageDigest;
++  };
++
++  const checkCategoryIndex = async (
++    target: CategoryIndexTarget,
++    label: string,
++  ): Promise<void> => {
++    const fullPath = path.join(stageRoot, target.relPath);
++    if (!(await fs.pathExists(fullPath))) {
++      errors.push(`missing generated index ${target.relPath}`);
++      return;
++    }
++    const content = await fs.readFile(fullPath, 'utf8');
++    const rows = parseCategoryIndexRows(content);
++    const rowErrors = describeIndexErrors(
++      `${label} ${target.relPath}`,
++      rows,
++      target.skillNames,
++    );
++    if (rowErrors.length === 0) return;
++    if (await conflictDigest(target.relPath, Buffer.from(content, 'utf8'))) {
++      errors.push(
++        `[conflict] ${rowErrors.join('; ')} (destination preserved by ownership writer; edited-owned or unknown content differs from the required generated index)`,
++      );
++      return;
++    }
++    errors.push(...rowErrors);
++  };
++
++  for (const target of plan.canonicalCategoryIndexes) {
++    await checkCategoryIndex(target, 'canonical');
++  }
++  for (const target of plan.hostCategoryIndexes) {
++    await checkCategoryIndex(target, 'host');
++  }
++
++  const indexJsonPath = path.join(stageRoot, 'skills', 'index.json');
++  if (!(await fs.pathExists(indexJsonPath))) {
++    errors.push('missing generated index skills/index.json');
++  } else {
++    const indexJson = (await fs.readJson(indexJsonPath)) as Record<
++      string,
++      string
++    >;
++    const expectedCategories = plan.indexJsonCategories.map(
++      (target) => target.category,
++    );
++    const actualCategories = Object.keys(indexJson);
++    const missingCategories = expectedCategories.filter(
++      (category) => !actualCategories.includes(category),
++    );
++    const unexpectedCategories = actualCategories.filter(
++      (category) => !expectedCategories.includes(category),
++    );
++    if (missingCategories.length > 0) {
++      errors.push(
++        `skills/index.json omits categories: ${missingCategories.join(', ')}`,
++      );
++    }
++    if (unexpectedCategories.length > 0) {
++      errors.push(
++        `skills/index.json advertises unexpected categories: ${unexpectedCategories.join(', ')}`,
++      );
++    }
++    for (const target of plan.indexJsonCategories) {
++      const rows = parseQualifiedRows(
++        indexJson[target.category] ?? '',
++        target.category,
++      );
++      errors.push(
++        ...describeIndexErrors(
++          `skills/index.json[${target.category}]`,
++          rows,
++          target.skillIds,
++        ),
++      );
++    }
++  }
++
++  const compareOwnedOutput = async (
++    relPath: string,
++    expected: Buffer,
++    label: string,
++  ): Promise<void> => {
++    const fullPath = path.join(stageRoot, relPath);
++    if (!(await fs.pathExists(fullPath))) {
++      errors.push(`missing ${label} ${relPath}`);
++      return;
++    }
++    const actual = await fs.readFile(fullPath);
++    if (computeSha256(expected) === computeSha256(actual)) return;
++    if (await conflictDigest(relPath, actual)) {
++      errors.push(
++        `[conflict] ${label} ${relPath} differs from required generated content and was preserved by the ownership writer (edited-owned or unknown destination)`,
++      );
++      return;
++    }
++    errors.push(`${label} ${relPath} does not match required generated content`);
++  };
++
++  for (const mirror of plan.mirrorFiles) {
++    if (mirror.transformed) {
++      if (!(await fs.pathExists(path.join(stageRoot, mirror.relPath)))) {
++        errors.push(`missing mirrored package file ${mirror.relPath}`);
++      }
++      continue;
++    }
++    const canonicalPath = path.join(stageRoot, mirror.canonicalRelPath);
++    if (!(await fs.pathExists(canonicalPath))) {
++      errors.push(`missing canonical source ${mirror.canonicalRelPath}`);
++      continue;
++    }
++    await compareOwnedOutput(
++      mirror.relPath,
++      await fs.readFile(canonicalPath),
++      'mirrored package file',
++    );
++  }
++
++  for (const target of plan.workflowOutputs) {
++    const expected = await expectedWorkflowContent(stageRoot, target);
++    if (!expected) {
++      errors.push(`cannot derive expected workflow content ${target.relPath}`);
++      continue;
++    }
++    await compareOwnedOutput(target.relPath, expected, 'workflow wrapper');
++  }
++
++  for (const target of plan.specialistOutputs) {
++    const canonicalPath = path.join(stageRoot, target.canonicalRelPath);
++    if (!(await fs.pathExists(canonicalPath))) {
++      errors.push(`missing specialist source ${target.canonicalRelPath}`);
++      continue;
++    }
++    const transformed = SpecialistTransformer.transform(
++      {
++        name: path.basename(path.dirname(target.canonicalRelPath)),
++        content: await fs.readFile(canonicalPath, 'utf8'),
++      },
++      target.agentId,
++    );
++    if (!transformed) {
++      errors.push(`cannot derive expected specialist export ${target.relPath}`);
++      continue;
++    }
++    await compareOwnedOutput(
++      target.relPath,
++      Buffer.from(transformed.content, 'utf8'),
++      'specialist export',
++    );
++  }
++
++  for (const ruleFile of plan.ruleFiles) {
++    if (!(await fs.pathExists(path.join(stageRoot, ruleFile)))) {
++      errors.push(`missing agent rule wrapper ${ruleFile}`);
++    }
++  }
++
++  return errors;
++}
++
++/**
++ * Copies source directory to stage excluding .git, .agent, artifacts, node_modules,
++ * and preserves complete mirror inventory.
++ */
++export async function copySourceToStage(
++  srcDir: string,
++  destDir: string,
++): Promise<void> {
++  const excludePatterns = ['.git', '.agent', 'artifacts', 'node_modules'];
++
++  await fs.ensureDir(destDir);
++  await fs.copy(srcDir, destDir, {
++    filter: (src: string) => {
++      const rel = path.relative(srcDir, src);
++      if (!rel) return true;
++      const parts = rel.split(path.sep);
++      for (const excluded of excludePatterns) {
++        if (parts.includes(excluded)) return false;
++      }
++      return true;
++    },
++    dereference: false,
++    preserveTimestamps: true,
++  });
++}
++
++/**
++ * Explicitly links existing node_modules from repoRoot into staged directory
++ * so dependencies are reused without npm/pnpm install in the temporary stage.
++ */
++export async function linkDependencies(
++  repoRoot: string,
++  stageDir: string,
++): Promise<void> {
++  const rootNodeModules = path.join(repoRoot, 'node_modules');
++  const stageNodeModules = path.join(stageDir, 'node_modules');
++
++  if (await fs.pathExists(rootNodeModules)) {
++    if (!(await fs.pathExists(stageNodeModules))) {
++      await fs.symlink(rootNodeModules, stageNodeModules, 'junction');
++    }
++  }
++
++  const cliNodeModules = path.join(repoRoot, 'cli', 'node_modules');
++  const stageCliNodeModules = path.join(stageDir, 'cli', 'node_modules');
++  if (await fs.pathExists(cliNodeModules)) {
++    await fs.ensureDir(path.join(stageDir, 'cli'));
++    if (!(await fs.pathExists(stageCliNodeModules))) {
++      await fs.symlink(cliNodeModules, stageCliNodeModules, 'junction');
++    }
++  }
++}
++
++/**
++ * Runs an isolated command inside a stage working directory.
++ * Compatible with Node 20 (no Promise.withResolvers).
++ */
++export function runInStage(
++  command: string,
++  args: string[],
++  cwd: string,
++): Promise<{ exitCode: number; stdout: string; stderr: string }> {
++  return new Promise((resolve) => {
++    let stdout = '';
++    let stderr = '';
++    const child = spawn(command, args, {
++      cwd,
++      env: { ...process.env, CI: 'true' },
++      shell: false,
++    });
++
++    child.stdout?.on('data', (d: Buffer) => {
++      stdout += d.toString();
++    });
++    child.stderr?.on('data', (d: Buffer) => {
++      stderr += d.toString();
++    });
++
++    child.on('close', (code: number | null) => {
++      resolve({ exitCode: code ?? 1, stdout, stderr });
++    });
++    child.on('error', (err: Error) => {
++      stderr += `\nProcess error: ${err.message}`;
++      resolve({ exitCode: 1, stdout, stderr });
++    });
++  });
++}
++
++async function currentDestinationDigest(
++  rootDir: string,
++  relPath: string,
++): Promise<string | null> {
++  const fullPath = path.join(rootDir, relPath);
++  if (!(await fs.pathExists(fullPath))) return null;
++  const stats = await fs.lstat(fullPath);
++  if (!stats.isFile()) {
++    throw new Error(
++      `Declared destination is not a regular file: "${fullPath}" is ${stats.isSymbolicLink() ? 'a symlink' : 'not a file'}`,
++    );
++  }
++  return fileSha256(fullPath);
++}
++
++/**
++ * Publishes one staged file via a sibling temp file and rename. The rename
++ * effect is reported to the caller immediately after it succeeds, so a later
++ * verification failure still records the destination mutation.
++ */
++async function publishStagedFile(
++  stageRoot: string,
++  repoRoot: string,
++  relPath: string,
++  expectedDigest: string,
++  onRenamed: () => void,
++): Promise<void> {
++  const sourcePath = path.join(stageRoot, relPath);
++  const destinationPath = path.join(repoRoot, relPath);
++
++  await assertNoSymlinksUnderRoot(stageRoot, sourcePath);
++  await assertNoSymlinksUnderRoot(repoRoot, destinationPath);
++
++  const currentStageDigest = await fileSha256(sourcePath);
++  if (currentStageDigest !== expectedDigest) {
++    throw new Error(
++      `Staged bytes for "${relPath}" changed after hashing (expected ${expectedDigest}, found ${currentStageDigest}). Aborting.`,
++    );
++  }
++
++  const tempPath = `${destinationPath}.ags-tmp-${crypto.randomBytes(6).toString('hex')}`;
++  await fs.ensureDir(path.dirname(destinationPath));
++  try {
++    await fs.copyFile(sourcePath, tempPath, fs.constants.COPYFILE_EXCL);
++    const tempDigest = await fileSha256(tempPath);
++    if (tempDigest !== expectedDigest) {
++      throw new Error(
++        `Atomic temp copy for "${relPath}" does not match the staged digest. Aborting.`,
++      );
++    }
++    await fs.rename(tempPath, destinationPath);
++  } finally {
++    await fs.remove(tempPath).catch(() => undefined);
++  }
++  onRenamed();
++
++  const publishedDigest = await fileSha256(destinationPath);
++  if (publishedDigest !== expectedDigest) {
++    throw new Error(
++      `Post-copy verification failed for "${relPath}": expected ${expectedDigest}, found ${publishedDigest}.`,
++    );
++  }
++}
++
++/**
++ * Seeds declared but absent mirror files into the throwaway stage from canonical
++ * input, so index bootstrapping sees the complete selected package inventory.
++ * Existing stage content is never overwritten.
++ */
++async function seedMissingStageMirrors(
++  stageRoot: string,
++  plan: GenerationPlan,
++): Promise<number> {
++  let seeded = 0;
++  for (const mirror of plan.mirrorFiles) {
++    if (mirror.transformed) continue;
++    const destination = path.join(stageRoot, mirror.relPath);
++    if (await fs.pathExists(destination)) continue;
++    const source = path.join(stageRoot, mirror.canonicalRelPath);
++    if (!(await fs.pathExists(source))) continue;
++    await fs.ensureDir(path.dirname(destination));
++    await fs.copyFile(
++      source,
++      destination,
++      fs.constants.COPYFILE_EXCL,
++    );
++    seeded += 1;
++  }
++  return seeded;
++}
++
++/**
++ * Main coordinator for safe staged generation.
++ */
++export async function runIsolatedGeneration(
++  options: IsolatedStageOptions,
++): Promise<IsolatedStageResult> {
++  const repoRoot = await physicalPath(options.repoRoot);
++  const physicalCwd = await physicalPath(process.cwd());
++
++  if (physicalCwd !== repoRoot) {
++    throw new Error(
++      `Refusing isolated generation from foreign working directory: cwd is "${physicalCwd}", repoRoot is "${repoRoot}".`,
++    );
++  }
++
++  const checkOnly = Boolean(options.checkOnly);
++  const attemptId =
++    options.attemptId ||
++    `attempt-${new Date()
++      .toISOString()
++      .replace(/[:.]/g, '-')}-${crypto.randomBytes(3).toString('hex')}`;
++  if (!ATTEMPT_ID_PATTERN.test(attemptId)) {
++    throw new Error(
++      `Invalid attempt id "${attemptId}". Use letters, digits, dot, underscore or hyphen.`,
++    );
++  }
++
++  const logDir =
++    options.logDir ||
++    path.join(repoRoot, 'artifacts', 'generation-logs', attemptId);
++  await fs.ensureDir(path.dirname(logDir));
++  try {
++    await fs.mkdir(logDir);
++  } catch (err: unknown) {
++    if (errorCode(err) === 'EEXIST') {
++      throw new Error(
++        `Attempt directory already exists at "${logDir}". Refusing to reuse or overwrite prior attempt evidence.`,
++      );
++    }
++    throw err;
++  }
++
++  const logPath = path.join(logDir, 'generation.log');
++  const receiptPath = path.join(logDir, 'receipt.json');
++
++  await fs.writeFile(
++    logPath,
++    `[Isolated Generation Run] attempt=${attemptId} checkOnly=${checkOnly}\n`,
++    { flag: 'wx' },
++  );
++  const appendLog = async (text: string): Promise<void> => {
++    try {
++      await fs.appendFile(logPath, text);
++    } catch {
++      // Logging failures must not replace the authoritative operation result.
++    }
++  };
++
++  const staleFiles: string[] = [];
++  const stagedDigests = new Map<string, string | null>();
++  const appliedFiles: string[] = [];
++  const verifiedFiles: string[] = [];
++  let stageRoot: string | null = null;
++
++  try {
++    // Bound the generator-traversed topology before discovery reads or any
++    // child execution, then resolve the declared surface.
++    await assertNoSourceSymlinks(repoRoot);
++
++    const plan = await buildGenerationPlan(repoRoot);
++
++    const categoryCheck = await validateCategorySelections(repoRoot);
++    if (!categoryCheck.valid) {
++      throw new Error(
++        `Configured selections are invalid: ${categoryCheck.missing.join(', ')}`,
++      );
++    }
++
++    for (const relPath of plan.declaredFiles) {
++      await assertNoSymlinksUnderRoot(repoRoot, path.join(repoRoot, relPath));
++    }
++
++    const baselineDigests = new Map<string, string | null>();
++    for (const relPath of plan.declaredFiles) {
++      baselineDigests.set(
++        relPath,
++        await currentDestinationDigest(repoRoot, relPath),
++      );
++    }
++    await appendLog(
++      `Baselines captured for ${plan.declaredFiles.length} declared targets across ${plan.targetAgents.length} configured host(s).\n`,
++    );
++
++    stageRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'ags-stage-'));
++    await copySourceToStage(repoRoot, stageRoot);
++    await linkDependencies(repoRoot, stageRoot);
++    await appendLog(`Staged workspace prepared at: ${stageRoot}\n`);
++
++    for (const relPath of plan.declaredFiles) {
++      await assertNoSymlinksUnderRoot(stageRoot, path.join(stageRoot, relPath));
++    }
++
++    const seeded = await seedMissingStageMirrors(stageRoot, plan);
++    await appendLog(
++      `Seeded ${seeded} absent mirror resources in stage from canonical input.\n`,
++    );
++
++    const phases: Array<{ name: string; script: string }> = [
++      { name: 'calculate-tokens', script: 'scripts/calculate-tokens.ts' },
++      { name: 'generate-indices', script: 'scripts/generate-indices.ts' },
++      {
++        name: 'generate-capabilities-doc',
++        script: 'scripts/generate-capabilities-doc.ts',
++      },
++    ];
++
++    for (const phase of phases) {
++      const run = await runInStage(
++        'node',
++        ['--import', 'tsx', path.join(stageRoot, phase.script)],
++        stageRoot,
++      );
++      await appendLog(
++        `[${phase.name}] exitCode=${run.exitCode}\nSTDOUT:\n${run.stdout}\nSTDERR:\n${run.stderr}\n`,
++      );
++      if (run.exitCode !== 0) {
++        throw new Error(
++          `${phase.name} failed in stage with exit code ${run.exitCode}:\n${run.stderr || run.stdout}`,
++        );
++      }
++    }
++
++    const parityErrors = await validateGeneratedSurface(
++      stageRoot,
++      plan,
++      baselineDigests,
++    );
++    if (parityErrors.length > 0) {
++      throw new Error(
++        `Generated surface failed canonical/host parity checks:\n- ${parityErrors.join('\n- ')}`,
++      );
++    }
++    await appendLog('Canonical and host parity checks passed.\n');
++
++    const outOfDateFiles: string[] = [];
++    for (const relPath of plan.declaredFiles) {
++      const stagedPath = path.join(stageRoot, relPath);
++      if (await fs.pathExists(stagedPath)) {
++        await assertNoSymlinksUnderRoot(stageRoot, stagedPath);
++      }
++      const stagedDigest = await fileSha256(stagedPath);
++      stagedDigests.set(relPath, stagedDigest);
++      if (stagedDigest !== baselineDigests.get(relPath)) {
++        outOfDateFiles.push(relPath);
++      }
++    }
++    staleFiles.push(...outOfDateFiles);
++
++    for (const relPath of plan.declaredFiles) {
++      const current = await currentDestinationDigest(repoRoot, relPath);
++      if (current !== baselineDigests.get(relPath)) {
++        throw new Error(
++          `Concurrent drift detected on destination "${relPath}": baseline ${baselineDigests.get(relPath)}, current ${current}. Aborting before copy-back.`,
++        );
++      }
++    }
++
++    for (const relPath of outOfDateFiles) {
++      if (stagedDigests.get(relPath) === null) {
++        throw new Error(
++          `Declared output "${relPath}" exists in the destination but not in the stage; refusing automatic deletion.`,
++        );
++      }
++    }
++
++    if (checkOnly) {
++      if (outOfDateFiles.length > 0) {
++        throw new Error(
++          `Prepared generator outputs are stale: ${outOfDateFiles.join(', ')}. Run isolated generation in apply mode.`,
++        );
++      }
++      await appendLog('Check passed: prepared outputs match declared targets.\n');
++      await fs.writeJson(
++        receiptPath,
++        {
++          attemptId,
++          timestamp: new Date().toISOString(),
++          checkOnly: true,
++          status: 'PASS',
++          declaredFiles: plan.declaredFiles,
++        },
++        { spaces: 2, flag: 'wx' },
++      );
++      return {
++        success: true,
++        attemptId,
++        checkOnly: true,
++        copiedBackFiles: [],
++        verifiedFiles: [],
++        logPath,
++        receiptPath,
++      };
++    }
++
++    for (const relPath of outOfDateFiles) {
++      const stageDigest = stagedDigests.get(relPath);
++      if (!stageDigest) continue;
++      const current = await currentDestinationDigest(repoRoot, relPath);
++      if (current !== baselineDigests.get(relPath)) {
++        throw new Error(
++          `Concurrent drift detected on destination "${relPath}" before publication. Aborting.`,
++        );
++      }
++      await publishStagedFile(stageRoot, repoRoot, relPath, stageDigest, () => {
++        appliedFiles.push(relPath);
++      });
++      verifiedFiles.push(relPath);
++      await appendLog(`Published & verified: ${relPath}\n`);
++    }
++
++    await appendLog('Completed staged generation and copy-back.\n');
++    await fs.writeJson(
++      receiptPath,
++      {
++        attemptId,
++        timestamp: new Date().toISOString(),
++        checkOnly: false,
++        status: 'APPLIED',
++        copiedBackFiles: appliedFiles,
++        verifiedFiles,
++        declaredFiles: plan.declaredFiles,
++      },
++      { spaces: 2, flag: 'wx' },
++    );
++
++    return {
++      success: true,
++      attemptId,
++      checkOnly: false,
++      copiedBackFiles: appliedFiles,
++      verifiedFiles,
++      logPath,
++      receiptPath,
++    };
++  } catch (error: unknown) {
++    const errorMsg = error instanceof Error ? error.message : String(error);
++    await appendLog(`\nFAILURE: ${errorMsg}\n`);
++    try {
++      await fs.writeJson(
++        receiptPath,
++        {
++          attemptId,
++          timestamp: new Date().toISOString(),
++          checkOnly,
++          status: 'FAILED',
++          error: errorMsg,
++          appliedFiles,
++          verifiedFiles,
++          stagedOutOfDateFiles: staleFiles,
++        },
++        { spaces: 2, flag: 'wx' },
++      );
++    } catch {
++      // A pre-existing receipt means this attempt never owned the directory.
++    }
++    return {
++      success: false,
++      attemptId,
++      checkOnly,
++      copiedBackFiles: appliedFiles,
++      verifiedFiles,
++      logPath,
++      receiptPath,
++      error: errorMsg,
++    };
++  } finally {
++    if (stageRoot) {
++      await fs.remove(stageRoot).catch(() => undefined);
++    }
++  }
++}

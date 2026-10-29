@@ -62,6 +62,25 @@ describe("buildTelemetryRecord", () => {
     expect(serialized).not.toContain("nothing");
   });
 
+  it("separates returned bodies from dedup stubs and catalog discovery", () => {
+    const record = buildTelemetryRecord(tracker(), {
+      mcpVersion: "0.6.0",
+      now: new Date(),
+    });
+    expect(record.skillBodies).toEqual({
+      "typescript/typescript-language": 1,
+      "nestjs/nestjs-architecture": 1,
+    });
+    expect(record.skillStubs).toEqual({
+      "typescript/typescript-language": 1,
+    });
+    // Catalog discovery produces no bodies or skill loads
+    expect(record.skillBodies?.["category/flutter"]).toBeUndefined();
+    expect(
+      record.skillBodies?.["category/quality-engineering"],
+    ).toBeUndefined();
+  });
+
   it("counts returned category guide bodies and excludes category discovery", () => {
     const record = buildTelemetryRecord(tracker(), {
       mcpVersion: "0.6.0",

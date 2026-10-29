@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "status": "PHASE1A_RECOVERY_IN_PROGRESS",
+  "scope": "Personal diagnostic-prevention Task1; root publication not authorized by this checkpoint",
+  "baseCommit": "52ac482a5b948d9d26df4c3a2617afec74d1cf54",
+  "retainedReplay": {
+    "receipt": "frozen-r5-replay-run-01.json",
+    "runtimeSha256": "c75d1cde57f788d55d72745b6ccd3145dcc4b05832ab389ecadf82e3be5eb8f5",
+    "testSha256": "f9b3a73174722d3816b2575cadb9420719c3b7d25334150b7c74626fd025be8a",
+    "nodeVersion": "v26.12.1",
+    "tests": 4,
+    "pass": 0,
+    "fail": 4,
+    "skip": 0,
+    "durationMs": 8313.68375,
+    "classification": {
+      "R5-B1": "Observed unrelated Cursor ownership dropped",
+      "R5-B2": "Observed equal-byte unknown Beta silently adopted",
+      "R5-C": "Observed success instead of refusal; strengthen injection evidence before final adjudication",
+      "R5-D": "Observed success instead of refusal; retarget unchanged Beta to changed Alpha before final adjudication"
+    },
+    "temporarySnapshotRemoved": true,
+    "historicalPreimplementationRED": "NOT RUN"
+  },
+  "pairedControlsPreviousRevision": {
+    "tests": 8,
+    "pass": 7,
+    "fail": 1,
+    "durationMs": 14450.950209,
+    "remainingFailure": "Inherited explicit-adoption positive demands manifest publication for a no-change candidate; must use an actual changed output without expecting unrelated adoption"
+  },
+  "providerRecovery": {
+    "previousAgentId": "f7006a5d-f80f-4ca2-8995-b8cd6df900d4",
+    "observedFailure": "api.river.ai getaddrinfo ENOTFOUND",
+    "cancellationConfirmed": true,
+    "terminalSnapshot": { "status": "idle", "activeTurn": null },
+    "testSha256BeforeTransfer": "8b82be91a3b03d2a7164d1aa040f78bdbb22ee2112353cc4468931818c801c4f",
+    "newSoleWriter": "1d06b90e-36ee-4a86-9bb8-8124b876a926",
+    "exactProfile": "Personal · Delivery",
+    "provider": "omp/openai-codex/gpt-6-luna",
+    "modeId": "write",
+    "thinkingOptionId": "high",
+    "releasedScope": "Tests-only interrupted refinements; runtime production remains frozen"
+  },
+  "nextGate": "Fresh frozen semantic check, immutable replay02 and substantive paired controls before Phase1B release",
+  "limits": [
+    "Three imported semantic diagnostics were independently reproduced at BASE; no overall tsc PASS",
+    "No Node20 runtime, model efficacy, authenticated host enforcement or deployment claim",
+    "No actual primary-worktree generator check/apply/adoption/publication",
+    "Previous accepted slices remain scoped; this checkpoint does not grant release or pilot activation"
+  ]
+}

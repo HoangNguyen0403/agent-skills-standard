@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "kind": "EXACT_PRETTIER_TRANSFORM_VERIFICATION",
+  "archiveSha256": "117e1c20ae1bcb17378a12cb772a25f1d6faf0c22b9307c94d65f792fa6b4953",
+  "prettierVersion": "3.9.9",
+  "passed": true,
+  "files": [
+    {
+      "path": "scripts/generation/index.ts",
+      "beforeSha256": "bb71fb527da60a62e1d977dd77bf7b187ea6fa49fc3a42d98cfec8ceba7a5bb0",
+      "afterSha256": "f20ea780e3ed737db4d430282593a46a548892bc5ea631f9975fccb500d5cb2a",
+      "exactFormatterOutput": true
+    },
+    {
+      "path": "scripts/generation/isolated-stage.ts",
+      "beforeSha256": "9e9f94625382d68b0a609b156ae6ba101f2a33f1520e6929302f6caf4df8ed38",
+      "afterSha256": "7f2d8e75f4d41330961a1d4c6314b27042a6af6bd2500bc27261f47be568a612",
+      "exactFormatterOutput": true
+    },
+    {
+      "path": "scripts/generation/isolated-stage.test.ts",
+      "beforeSha256": "1b32c72b54abf16b0ab49cdae4ff4842596c25c9464722f96019db5d37b7c0b9",
+      "afterSha256": "9c028737ea2ca665da1b97ee9d31fec637afd2d4126ed9d6e9676459f2549b0e",
+      "exactFormatterOutput": true
+    },
+    {
+      "path": "cli/src/services/SyncService.ts",
+      "beforeSha256": "bc6f7c6524cfb7800b26cf8e49f8f72086cda8fbe033a49cb04ae46e35eb7961",
+      "afterSha256": "02a91ceb7cfa1f09678c6d8ebdf13bbefa6d3abc57a85d4d16dc243a2cdd9e0a",
+      "exactFormatterOutput": true
+    },
+    {
+      "path": "cli/src/services/__tests__/SyncInstallLifecycle.spec.ts",
+      "beforeSha256": "372e23710cda909d1f4ed67096e0ed922f7584e3aa672de10100870b520634eb",
+      "afterSha256": "67cf179a4dc405c261fe3dd9dcc1584826ac375dee0464fb72015d30242e7e85",
+      "exactFormatterOutput": true
+    },
+    {
+      "path": "cli/src/services/utils/__tests__/WorkflowTransformer.spec.ts",
+      "beforeSha256": "274753f1344e3eda5ca54ab2475990048fc8f21ceb7f5ca0cef6a946240930af",
+      "afterSha256": "3bb5e9f919d75db253a18b40bb02c7b0515988efff79e59f44066e70215c8780",
+      "exactFormatterOutput": true
+    },
+    {
+      "path": "cli/src/services/LockfileService.ts",
+      "beforeSha256": "ba1304b52f442ac4cf8484cd3f9f833c8521fa317492640576f1c98edc8c07c4",
+      "afterSha256": "9dfc9b16779be3af767185e3eb494df39820b3630a82e0ce483d86ca35ccaace",
+      "exactFormatterOutput": true
+    },
+    {
+      "path": "cli/src/services/__tests__/LockfileService.spec.ts",
+      "beforeSha256": "f75fd53416cfc84b6ba6d9a9bd45f563f9f2fbec20a2617615f856ce9794e4a1",
+      "afterSha256": "b6ca916a70517f8eeda91359ad126960c9db242f9dc4e26c134a2c639341634c",
+      "exactFormatterOutput": true
+    },
+    {
+      "path": "cli/src/services/install/__tests__/UninstallService.spec.ts",
+      "beforeSha256": "454284c5a6ac74a2b52d04cd7e17b54ffe701ddae91ad95e88413a5880682fb9",
+      "afterSha256": "b9a10af1eff4596c55fcd81c11f4ac467bcab0992b7d630ebc8533b3faf1b96d",
+      "exactFormatterOutput": true
+    }
+  ],
+  "limits": [
+    "Exact formatter transformation, not a general semantic-equivalence theorem.",
+    "Behavioral and semantic checks are recorded separately."
+  ]
+}

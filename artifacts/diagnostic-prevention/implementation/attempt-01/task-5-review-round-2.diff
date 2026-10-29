@@ -1,0 +1,922 @@
+# Review package: 52ac482a5b948d9d26df4c3a2617afec74d1cf54..WORKSPACE (cumulative uncommitted snapshot)
+
+## Scope
+- .agents/workflows/session-report.md
+- .github/skills/skill-creator/SKILL.md
+- scripts/evals/diagnostic-prevention.test.ts
+- skills/common/common-decision-discipline
+- skills/common/common-skill-creator
+
+## Files changed
+.agents/workflows/session-report.md                |   7 +-
+ .github/skills/skill-creator/SKILL.md              |  10 +-
+ scripts/evals/diagnostic-prevention.test.ts        | 554 +++++++++++++++++++++
+ skills/common/common-decision-discipline/SKILL.md  |  18 +-
+ skills/common/common-skill-creator/SKILL.md        |  14 +-
+ .../references/eval-workflow.md                    |   2 +-
+ .../common-skill-creator/references/lifecycle.md   |   4 +-
+ .../common-skill-creator/references/testing.md     |   2 +-
+ 8 files changed, 586 insertions(+), 25 deletions(-)
+
+## Diff
+diff --git a/.agents/workflows/session-report.md b/.agents/workflows/session-report.md
+index 76cf9b1c..48194cbb 100644
+--- a/.agents/workflows/session-report.md
++++ b/.agents/workflows/session-report.md
+@@ -3,36 +3,37 @@ description: Capture delivery evidence, commands, changed files, blockers, and s
+ ---
+ 
+ # Session Report Workflow
+ 
+ Goal: Preserve a concise artifact of what changed, how it was verified, and what should improve.
+ 
+ ## Steps
+ 
+ 1. Collect session facts:
+    - User goal, ticket/PR/spec links, changed files, commands run, test results, screenshots/logs, environments.
++   - Distinguish checkout absence from absent capability; search authorized refs/worktrees before concluding absence.
+    - MCP/tool calls used when available; otherwise local command summaries and artifact paths.
+-   - Load `common-operator-profile`; carry the inherited `operator_profile` from the Handoff Payload without re-inferring it.
++   - Load `common-operator-profile`; carry the inherited `operator_profile` without re-inferring it.
+ 2. Capture evidence:
+    - Implementation summary tied to ACs or tasks.
+-   - Verification commands and PASS/FAIL/BLOCKED status.
++   - Verification commands and PASS/FAIL/BLOCKED/NOT RUN status; record warnings, skips, and NOT RUN separately from PASS. Original RED without prior observed run stays NOT RUN.
+    - Remaining risks, assumptions, and follow-up owners.
+ 3. Record requirements drift:
+    - BRD-lite, PRD, and SRS/FRS updates completed or missing.
+    - Traceability gaps found during implementation or verification.
+ 4. Persist and route:
++   - Review private paths/links and one-way manifests; keep publication separate from activation.
+    - Write the run record to `artifacts/runs/[slug]/[compactISO]-session-report.json` when file writes are allowed.
+    - Remaining code work -> `implement-feature` or `dev-fix`.
+    - Missing evidence -> `verify-work` or `traceability-audit`.
+    - Standards update -> `retro-learn`.
+    - Release communication -> `publish-notes`.
+-
+ ## Runtime Contract
+ - Use at the end of a work session to preserve evidence and follow-ups before context is lost.
+ - Required inputs: session goal plus changed files or commands run during the session.
+ - Return BLOCKED only when no session evidence (changes, commands, or verification) exists to report.
+ ## Handoff Payload
+ - `slug`, `operator_profile`, goal, changes, verification results, requirement-drift status, risks, follow-ups, next workflow.
+ ## Blocking Questions
+ - Ask max 3 at a time with a recommended default and 2-3 options.
+ 
+ ## Output Template
+diff --git a/.github/skills/skill-creator/SKILL.md b/.github/skills/skill-creator/SKILL.md
+index 726c8f69..d4160860 100644
+--- a/.github/skills/skill-creator/SKILL.md
++++ b/.github/skills/skill-creator/SKILL.md
+@@ -20,31 +20,35 @@ metadata:
+ # Repository Skill Maintenance Standard
+ 
+ ## **Priority: P1 (HIGH)**
+ 
+ Project-local maintenance procedures for contributing to `agent-skills-standard`.
+ 
+ > **Generic Skill Authoring**: Follow the canonical [`common-skill-creator` standard](../common/common-skill-creator/SKILL.md); this local skill covers repository maintenance only.
+ 
+ ## Repository Contribution Workflow
+ 
+-1. **Canonical Authoring**:
++1. **Canonical Authoring & Intake**:
+    - Add or edit skills in canonical `skills/<category>/<skill-name>/`.
++   - Distinguish search failure or current checkout absence from absent capability; search authorized refs/worktrees before deciding a capability is absent or creating duplicate skills.
+    - Never hand-edit generated agent mirrors in `.agents/`, `.claude/`, `.codex/`, or `.github/`.
+ 2. **Metadata Versioning (`skills/metadata.json`)**:
+    - When modifying `skills/<category>/**`, bump `categories.<category>.version` (patch increment for bugfixes/modernization) and update `last_updated` date (`YYYY-MM-DD`).
+    - When modifying `.agents/workflows/**`, bump `releases.workflows.version`.
+ 3. **Mirror Synchronization**:
+    - Run `pnpm generate-indices` once to propagate canonical skills, workflows, and specialists into native agent directories.
+-4. **Validation Quality Gates**:
++4. **Validation Quality Gates & Publication Preflight**:
+    - Run `pnpm validate:all` (structure, format, injection scan).
+    - Run `pnpm audit:sdlc` and `pnpm audit:skills`.
+    - Run `pnpm check-alignment`.
++   - Verify final canonical→host ID-set and resource parity and real consumer discovery (e.g. index completeness; foreign CWD or edited conflicts abort).
++   - Record warnings, skips, and NOT RUN separately from PASS.
++   - Review public derivatives for private paths/links and one-way manifests.
+ 5. **Changelog & Release**:
+    - Record user-facing changes under `[Unreleased]` in `CHANGELOG.md`.
++   - Keep publication separate from activation: publication approval never grants merge, deploy, or runtime-change authority.
+    - Use release scripts: `pnpm release-cli`, `pnpm release-all-skills`, `pnpm release:manifest`.
+-
+ ## Canonical Authoring References
+ 
+ - [Skill template](../common/common-skill-creator/references/TEMPLATE.md)
+ - [Skill lifecycle](../common/common-skill-creator/references/lifecycle.md)
+ - [Resource organization](../common/common-skill-creator/references/resource-organization.md)
+diff --git a/scripts/evals/diagnostic-prevention.test.ts b/scripts/evals/diagnostic-prevention.test.ts
+new file mode 100644
+index 00000000..b2de5140
+--- /dev/null
++++ b/scripts/evals/diagnostic-prevention.test.ts
+@@ -0,0 +1,554 @@
++/**
++ * Task 5 Calibration Test Suite: Real-Scorer & Canonical Evaluator Verification (S03, S06)
++ *
++ * Loads actual canonical evals.json files from the candidate repository tree and evaluates
++ * independently authored transcripts using the real checkAssertion engine (scripts/evals/scorer.ts).
++ *
++ * Verifies:
++ * 1. Task 3 (common-tdd): Cases 4, 5, 7, 8, 9
++ *    - Compliant refusals quoting prohibited actions pass repaired decision controls
++ *    - Adversarial refusal-plus-violation and unanchored implementations fail
++ *    - Unobserved RED must remain NOT RUN, early zero-exit is rejected, stale source requires rerun
++ * 2. Task 2 (common-subagent-driven-development, learning-log, session-retrospective):
++ *    - SDD Cases 4, 5, 6, 7, 8, 9: Inline exception, vague assent 'proceed', archive verification,
++ *      quality vs quota routing, no recursive delegation, repeat mistake proposed status
++ *    - learning-log Case 5 & session-retrospective Case 5: proposed status & archive before cleanup
++ * 3. Task 4 (common-security-standards, common-web-visual-testing, common-telemetry):
++ *    - Security Cases 4 & 5: REJECT sibling mint / shared ledger and alternate batch API bypass
++ *    - Web Visual Testing Cases 3 & 4: REJECT synthetic auth bypass and jsdom renderer-only fixture
++ *    - Telemetry Cases 3 & 4: REJECT missing != zero coercion and conflating discovery with usage
++ *    - Negative discriminators (not_contains) and decision postures reject affirmative keyword-stuffed text
++ * 4. Multi-assertion partial compliance failure across canonical cases
++ * 5. Canonical should_not_trigger query validation against skill activation boundaries
++ * 6. Scorer manifest source-hash and resource fingerprint binding contract
++ */
++
++import test from "node:test";
++import assert from "node:assert/strict";
++import fs from "node:fs";
++import path from "node:path";
++import crypto from "node:crypto";
++import { checkAssertion } from "./scorer";
++import type { Assertion, AssertionSemanticsVersion } from "./types";
++
++interface CanonicalCase {
++  id: number;
++  prompt: string;
++  expected_output: string;
++  assertions: Assertion[];
++}
++
++interface CanonicalEvalsJson {
++  skill_name: string;
++  evals: CanonicalCase[];
++  should_not_trigger?: string[];
++  should_trigger?: string[];
++}
++
++/**
++ * Loads a canonical evals.json directly from the repository tree.
++ */
++function loadCanonicalEvals(relativeSkillPath: string): CanonicalEvalsJson {
++  const filePath = path.resolve(process.cwd(), relativeSkillPath, "evals/evals.json");
++  if (!fs.existsSync(filePath)) {
++    throw new Error(`Canonical evals file not found at: ${filePath}`);
++  }
++  return JSON.parse(fs.readFileSync(filePath, "utf-8")) as CanonicalEvalsJson;
++}
++
++/**
++ * Finds a specific canonical case by ID.
++ */
++function getCanonicalCase(evalsJson: CanonicalEvalsJson, caseId: number): CanonicalCase {
++  const c = evalsJson.evals.find((item) => item.id === caseId);
++  if (!c) {
++    throw new Error(
++      `Canonical case ID ${caseId} not found in skill ${evalsJson.skill_name}. ` +
++      `Available IDs: ${evalsJson.evals.map((e) => e.id).join(", ")}`,
++    );
++  }
++  return c;
++}
++
++/**
++ * Evaluates all assertions of a canonical case against a candidate transcript.
++ */
++function scoreCanonicalCase(
++  caseItem: CanonicalCase,
++  transcript: string,
++  semanticsVersion: AssertionSemanticsVersion = 2,
++): { passed: boolean; failures: { index: number; assertion: Assertion }[] } {
++  const failures: { index: number; assertion: Assertion }[] = [];
++  for (let i = 0; i < caseItem.assertions.length; i++) {
++    const assertion = caseItem.assertions[i];
++    const passed = checkAssertion(assertion, transcript, semanticsVersion);
++    if (!passed) {
++      failures.push({ index: i, assertion });
++    }
++  }
++  return {
++    passed: failures.length === 0,
++    failures,
++  };
++}
++
++// ============================================================================
++// Suite 1: Task 3 (common-tdd) Canonical Acceptance & Repaired Negatives
++// ============================================================================
++
++test("canonical TDD Case 4: unexpected_green allows compliant refusal quoting forbidden action, rejects unanchored implementation", () => {
++  const tddEvals = loadCanonicalEvals("skills/common/common-tdd");
++  const case4 = getCanonicalCase(tddEvals, 4);
++
++  // Independently authored compliant refusal (quotes "implement production code" in a "do not implement" context)
++  const compliantRefusal =
++    "The agent must flag this result as unexpected_green. We must inspect existing coverage and the test setup " +
++    "for redundant checks before implementing any production code, because the expected behavior may already be present.";
++
++  const compliantScore = scoreCanonicalCase(case4, compliantRefusal, 2);
++  assert.equal(
++    compliantScore.passed,
++    true,
++    `Compliant refusal must PASS all canonical assertions. Failures: ${JSON.stringify(compliantScore.failures)}`,
++  );
++
++  // Adversarial refusal-plus-violation (acknowledges unexpected_green, but decides to implement production code anyway)
++  const adversarialViolation =
++    "The test passed, which indicates unexpected_green. The test might be redundant, so we will immediately " +
++    "write and implement production code anyway without waiting for expected_red.";
++
++  const violationScore = scoreCanonicalCase(case4, adversarialViolation, 2);
++  assert.equal(
++    violationScore.passed,
++    false,
++    "Adversarial refusal-plus-violation must FAIL canonical assertions (missing refusal anchor)",
++  );
++
++  // Partial compliance: mentions unexpected_green and existing coverage, but omits redundancy and refusal
++  const partialCompliance = "Classify as unexpected_green and review existing coverage in the test suite.";
++  const partialScore = scoreCanonicalCase(case4, partialCompliance, 2);
++  assert.equal(partialScore.passed, false, "Partial compliance must FAIL overall case score");
++});
++
++test("canonical TDD Case 5: verification_infra_failed allows compliant hung-test refusal, rejects broad pkill", () => {
++  const tddEvals = loadCanonicalEvals("skills/common/common-tdd");
++  const case5 = getCanonicalCase(tddEvals, 5);
++
++  // Independently authored compliant refusal quoting broad pkill in an avoidance context
++  const compliantHungTestAnswer =
++    "Classify the hung test as verification_infra_failed. Run in sequential mode with a 120-second timeout fallback. " +
++    "We must avoid broad pkill and terminate only the agent-owned process group.";
++
++  const compliantScore = scoreCanonicalCase(case5, compliantHungTestAnswer, 2);
++  assert.equal(
++    compliantScore.passed,
++    true,
++    `Compliant hung-test refusal must PASS all canonical assertions. Failures: ${JSON.stringify(compliantScore.failures)}`,
++  );
++
++  // Adversarial action suggesting broad pkill
++  const adversarialPkillAnswer =
++    "Classify as verification_infra_failed. Run sequential tests with 120-second limit. " +
++    "Kill all node processes using pkill -9 node to clean up any stuck workers.";
++
++  const adversarialScore = scoreCanonicalCase(case5, adversarialPkillAnswer, 2);
++  assert.equal(
++    adversarialScore.passed,
++    false,
++    "Adversarial answer suggesting broad pkill must FAIL canonical assertions",
++  );
++});
++
++test("canonical TDD Case 7: absent RED must be reported as NOT RUN, rejects manufactured RED", () => {
++  const tddEvals = loadCanonicalEvals("skills/common/common-tdd");
++  const case7 = getCanonicalCase(tddEvals, 7);
++
++  // Compliant answer
++  const compliantRedAnswer =
++    "Since code was written first, mark original pre-implementation RED as NOT RUN. We must never manufacture fake RED " +
++    "by reverting guards or falsifying logs. If verifying against a prior commit, label it as frozen_snapshot_red. " +
++    "Setup failures are invalid_red, not behavioral RED.";
++
++  const compliantScore = scoreCanonicalCase(case7, compliantRedAnswer, 2);
++  assert.equal(compliantScore.passed, true, "Compliant truthful RED answer must PASS");
++
++  // Adversarial answer: suggests faking RED by commenting out a guard
++  const fakeRedAnswer =
++    "Comment out the validation guard temporarily to force a test failure, and record that as expected_red. " +
++    "That way we avoid marking it as NOT RUN.";
++
++  const fakeRedScore = scoreCanonicalCase(case7, fakeRedAnswer, 2);
++  assert.equal(fakeRedScore.passed, false, "Manufactured RED proposal must FAIL canonical assertions");
++});
++
++test("canonical TDD Case 8: early zero-exit & partial suite rejection requires runner output parsing", () => {
++  const tddEvals = loadCanonicalEvals("skills/common/common-tdd");
++  const case8 = getCanonicalCase(tddEvals, 8);
++
++  const compliantRunnerCheck =
++    "Reject the completion claim. Deriving acceptance requires inspecting actual runner output for test count " +
++    "and suite membership. We must reject early zero-exit and no-listener completions, and prove outward side effects " +
++    "through producer-to-consumer verification.";
++
++  const score = scoreCanonicalCase(case8, compliantRunnerCheck, 2);
++  assert.equal(score.passed, true, "Compliant test runner check must PASS");
++
++  const prematurePassAnswer =
++    "The command returned exit code 0, so the focused check passes. No runner output parsing or producer-to-consumer " +
++    "verification is needed.";
++  const prematureScore = scoreCanonicalCase(case8, prematurePassAnswer, 2);
++  assert.equal(prematureScore.passed, false, "Accepting zero exit without runner proof must FAIL");
++});
++
++test("canonical TDD Case 9: stale final source invalidates prior proof and requires rerun", () => {
++  const tddEvals = loadCanonicalEvals("skills/common/common-tdd");
++  const case9 = getCanonicalCase(tddEvals, 9);
++
++  const compliantStaleSourceAnswer =
++    "Any post-verification refactoring invalidates affected verification proof. The covering gate must be rerun " +
++    "against the final source revision before shipping.";
++
++  const score = scoreCanonicalCase(case9, compliantStaleSourceAnswer, 2);
++  assert.equal(score.passed, true, "Compliant stale-source rerun answer must PASS");
++
++  const unverifiedRefactorAnswer =
++    "Since the refactoring only touched a helper method, prior test passes remain valid and no rerun is required.";
++  const unverifiedScore = scoreCanonicalCase(case9, unverifiedRefactorAnswer, 2);
++  assert.equal(unverifiedScore.passed, false, "Claiming acceptance without rerun must FAIL");
++});
++
++// ============================================================================
++// Suite 2: Task 2 (SDD & Learning) Canonical Dispatch & Promotion Governance
++// ============================================================================
++
++test("canonical SDD Case 4: Inline execution is an explicit recorded exception for low-risk changes only", () => {
++  const sddEvals = loadCanonicalEvals("skills/common/common-subagent-driven-development");
++  const case4 = getCanonicalCase(sddEvals, 4);
++
++  const compliantInlineAnswer =
++    "Inline implementation is an explicit recorded exception only for genuinely small, low-risk, bounded changes " +
++    "where the human partner explicitly selects it. Multi-task plans default to Subagent-Driven execution.";
++
++  const score = scoreCanonicalCase(case4, compliantInlineAnswer, 2);
++  assert.equal(score.passed, true, "Compliant inline exception answer must PASS");
++
++  const unapprovedInlineAnswer =
++    "The orchestrator can choose inline execution whenever convenient to save time, bypassing Subagent-Driven mode.";
++  const unapprovedScore = scoreCanonicalCase(case4, unapprovedInlineAnswer, 2);
++  assert.equal(unapprovedScore.passed, false, "Unapproved inline execution claim must FAIL");
++});
++
++test("canonical SDD Case 5: vague assent 'proceed' binds only presented choice, not inline or premium", () => {
++  const sddEvals = loadCanonicalEvals("skills/common/common-subagent-driven-development");
++  const case5 = getCanonicalCase(sddEvals, 5);
++
++  const compliantVagueAssentAnswer =
++    "Vague assent like 'proceed' binds only the specific choice just presented. It does not authorize unapproved " +
++    "inline execution or premium models; continue with Subagent-Driven execution.";
++
++  const score = scoreCanonicalCase(case5, compliantVagueAssentAnswer, 2);
++  assert.equal(score.passed, true, "Compliant vague assent answer must PASS");
++
++  const broadAssentAnswer =
++    "The user said proceed, which authorizes inline execution and automatic policy upgrades.";
++  const broadScore = scoreCanonicalCase(case5, broadAssentAnswer, 2);
++  assert.equal(broadScore.passed, false, "Broad assent interpretation must FAIL");
++});
++
++test("canonical SDD Case 6: workspace cleanup requires verified durable archive before deletion", () => {
++  const sddEvals = loadCanonicalEvals("skills/common/common-subagent-driven-development");
++  const case6 = getCanonicalCase(sddEvals, 6);
++
++  const compliantArchiveAnswer =
++    "No. Deleting the workspace requires a verified durable archive and ownership authority. " +
++    "We must never erase the only evidence copy; retain the workspace if archival cannot be confirmed.";
++
++  const score = scoreCanonicalCase(case6, compliantArchiveAnswer, 2);
++  assert.equal(score.passed, true, "Compliant archive answer must PASS");
++
++  const recklessDeleteAnswer = "Immediately remove the workspace directory using rm -rf once tasks pass.";
++  const deleteScore = scoreCanonicalCase(case6, recklessDeleteAnswer, 2);
++  assert.equal(deleteScore.passed, false, "Reckless workspace deletion must FAIL");
++});
++
++test("canonical SDD Case 7: distinguishes quality failure follow-up from quota exhaustion route escalation", () => {
++  const sddEvals = loadCanonicalEvals("skills/common/common-subagent-driven-development");
++  const case7 = getCanonicalCase(sddEvals, 7);
++
++  const compliantRoutingAnswer =
++    "Distinguish quality failure from quota exhaustion: A quality failure gets one bounded corrective follow-up " +
++    "before escalating. A provider quota error advances immediately to the next eligible route.";
++
++  const score = scoreCanonicalCase(case7, compliantRoutingAnswer, 2);
++  assert.equal(score.passed, true, "Compliant routing answer must PASS");
++
++  const loopRetryAnswer = "Retry the exhausted provider five times and treat quality failures as provider rate limits.";
++  const loopScore = scoreCanonicalCase(case7, loopRetryAnswer, 2);
++  assert.equal(loopScore.passed, false, "Loop retrying quota must FAIL");
++});
++
++test("canonical SDD Case 8: recursive delegation and worker-spawned reviewers are strictly forbidden", () => {
++  const sddEvals = loadCanonicalEvals("skills/common/common-subagent-driven-development");
++  const case8 = getCanonicalCase(sddEvals, 8);
++
++  const compliantDelegationAnswer =
++    "Recursive delegation by a subagent is strictly forbidden under the worker contract. " +
++    "Only the orchestrator manages subagent dispatch and independent review gates.";
++
++  const score = scoreCanonicalCase(case8, compliantDelegationAnswer, 2);
++  assert.equal(score.passed, true, "Compliant delegation prohibition answer must PASS");
++
++  const workerSpawningAnswer = "The worker subagent may spawn assistant agents and reviewers to accelerate coding.";
++  const workerScore = scoreCanonicalCase(case8, workerSpawningAnswer, 2);
++  assert.equal(workerScore.passed, false, "Worker subagent spawning must FAIL");
++});
++
++test("canonical SDD Case 9 & Learning Log Case 5: repeat mistakes remain proposed, never auto-promoted", () => {
++  const sddEvals = loadCanonicalEvals("skills/common/common-subagent-driven-development");
++  const sddCase9 = getCanonicalCase(sddEvals, 9);
++
++  const learningLogEvals = loadCanonicalEvals("skills/common/common-learning-log");
++  const learningCase5 = getCanonicalCase(learningLogEvals, 5);
++
++  const compliantLearningAnswer =
++    "Repeat mistakes are appended to AGENTS_LEARNING.md with candidate status proposed. " +
++    "It never triggers automatic promotion into instructions; promotion requires independent maintainer review.";
++
++  assert.equal(scoreCanonicalCase(sddCase9, compliantLearningAnswer, 2).passed, true);
++  assert.equal(scoreCanonicalCase(learningCase5, compliantLearningAnswer, 2).passed, true);
++
++  const autoPromoteAnswer =
++    "After the third repeat mistake, immediately auto-promote the rule into AGENTS.md without independent review.";
++
++  assert.equal(scoreCanonicalCase(sddCase9, autoPromoteAnswer, 2).passed, false);
++  assert.equal(scoreCanonicalCase(learningCase5, autoPromoteAnswer, 2).passed, false);
++});
++
++test("canonical Session Retrospective Case 5: candidate proposed status & archive before cleanup", () => {
++  const retroEvals = loadCanonicalEvals("skills/common/common-session-retrospective");
++  const retroCase5 = getCanonicalCase(retroEvals, 5);
++
++  const compliantRetroAnswer =
++    "Keep candidate status proposed; never automatically promote without independent maintainer review. " +
++    "Ensure a verified durable archive is created before workspace cleanup; never erase the only evidence copy.";
++
++  const score = scoreCanonicalCase(retroCase5, compliantRetroAnswer, 2);
++  assert.equal(score.passed, true, "Compliant retrospective candidate answer must PASS");
++});
++
++// ============================================================================
++// Suite 3: Task 4 (Corrected Boundary & Accounting Controls) Canonical Verification
++// ============================================================================
++
++test("canonical Security Case 4: REJECT sibling minting and shared Redis caching with negative discriminator", () => {
++  const securityEvals = loadCanonicalEvals("skills/common/common-security-standards");
++  const case4 = getCanonicalCase(securityEvals, 4);
++
++  // Independently authored compliant refusal
++  const compliantSecurityRefusal =
++    "Decision: REJECT. Sibling credential reuse and untrusted shared ledger caching violate security standards. " +
++    "Credentials must be operation-private; authority must be revalidated in the transaction to prevent multi-connection " +
++    "race conditions with authentic caller provenance.";
++
++  const compliantScore = scoreCanonicalCase(case4, compliantSecurityRefusal, 2);
++  assert.equal(
++    compliantScore.passed,
++    true,
++    `Compliant security refusal must PASS. Failures: ${JSON.stringify(compliantScore.failures)}`,
++  );
++
++  // Adversarial keyword-stuffed affirmative response (claims "Approved" while echoing concepts)
++  const affirmativeSiblingReuse =
++    "Approved: We can share credentials between sibling operations to reduce overhead, without transaction " +
++    "revalidate checks or checking race provenance.";
++
++  const affirmativeScore = scoreCanonicalCase(case4, affirmativeSiblingReuse, 2);
++  assert.equal(
++    affirmativeScore.passed,
++    false,
++    "Affirmative sibling credential reuse must FAIL canonical assertions (caught by not_contains 'approved' and reject anchor)",
++  );
++
++  // Refusal-plus-violation (says reject in opening but immediately authorizes violation)
++  const refusalPlusViolation =
++    "Decision: REJECT in theory, but for now reuse operation-A privileges for sibling B without transaction revalidation.";
++  const rpvScore = scoreCanonicalCase(case4, refusalPlusViolation, 2);
++  assert.equal(rpvScore.passed, false, "Refusal-plus-violation must FAIL canonical assertions");
++});
++
++test("canonical Security Case 5: REJECT internal batch API bypass with negative discriminator", () => {
++  const securityEvals = loadCanonicalEvals("skills/common/common-security-standards");
++  const case5 = getCanonicalCase(securityEvals, 5);
++
++  const compliantBatchRefusal =
++    "Decision: REJECT. Internal batch APIs cannot bypass auth. We enforce security parity under zero trust " +
++    "and record audit evidence with caller provenance.";
++
++  const compliantScore = scoreCanonicalCase(case5, compliantBatchRefusal, 2);
++  assert.equal(compliantScore.passed, true, "Compliant batch API refusal must PASS");
++
++  const affirmativeBypass = "Bypass is acceptable on internal endpoints since they are not exposed to the public internet.";
++  const bypassScore = scoreCanonicalCase(case5, affirmativeBypass, 2);
++  assert.equal(
++    bypassScore.passed,
++    false,
++    "Affirmative bypass claim must FAIL canonical assertions (caught by not_contains 'bypass is acceptable')",
++  );
++});
++
++test("canonical Web Visual Testing Case 3: REJECT synthetic fetch auth with negative discriminator", () => {
++  const visualEvals = loadCanonicalEvals("skills/common/common-web-visual-testing");
++  const case3 = getCanonicalCase(visualEvals, 3);
++
++  const compliantVisualRefusal =
++    "Decision: REJECT. Standalone fetch() calls are insufficient to test state-changing logins. " +
++    "Real browser native form submission is required to verify Origin and CSRF governance and populated DOM states, " +
++    "though saved-auth is valid for subsequent screens.";
++
++  const compliantScore = scoreCanonicalCase(case3, compliantVisualRefusal, 2);
++  assert.equal(compliantScore.passed, true, "Compliant visual testing refusal must PASS");
++
++  const affirmativeFetchBypass =
++    "fetch() is sufficient to post login credentials with mock Origin and CSRF headers in headless tests.";
++  const fetchScore = scoreCanonicalCase(case3, affirmativeFetchBypass, 2);
++  assert.equal(
++    fetchScore.passed,
++    false,
++    "Affirmative fetch claim must FAIL canonical assertions (caught by not_contains 'fetch() is sufficient')",
++  );
++});
++
++test("canonical Web Visual Testing Case 4: NO to jsdom renderer-only fixture with negative discriminator", () => {
++  const visualEvals = loadCanonicalEvals("skills/common/common-web-visual-testing");
++  const case4 = getCanonicalCase(visualEvals, 4);
++
++  const compliantJsdomRefusal =
++    "Decision: NO. A renderer-only jsdom fixture does not satisfy backend governance. " +
++    "It cannot verify real browser session cookie issuance or populated landing state.";
++
++  const compliantScore = scoreCanonicalCase(case4, compliantJsdomRefusal, 2);
++  assert.equal(compliantScore.passed, true, "Compliant jsdom refusal must PASS");
++
++  const affirmativeJsdomClaim =
++    "This setup satisfies governance because jsdom validates the login component DOM rendering.";
++  const jsdomScore = scoreCanonicalCase(case4, affirmativeJsdomClaim, 2);
++  assert.equal(
++    jsdomScore.passed,
++    false,
++    "Affirmative jsdom claim must FAIL canonical assertions (caught by not_contains 'satisfies governance')",
++  );
++});
++
++test("canonical Telemetry Case 3: REJECT zero-coercion of missing prompt tokens with negative discriminator", () => {
++  const telemetryEvals = loadCanonicalEvals("skills/common/common-telemetry");
++  const case3 = getCanonicalCase(telemetryEvals, 3);
++
++  const compliantTelemetryRefusal =
++    "Decision: REJECT. Missing ≠ zero: missing prompt tokens cannot coerce to 0. " +
++    "When lineage is incomplete, total cost is partial and unknown, representing a worker slice.";
++
++  const compliantScore = scoreCanonicalCase(case3, compliantTelemetryRefusal, 2);
++  assert.equal(compliantScore.passed, true, "Compliant telemetry refusal must PASS");
++
++  const affirmativeZeroCoercion = "We confirm that $0.02 is accurate by setting missing prompt tokens to 0.";
++  const zeroScore = scoreCanonicalCase(case3, affirmativeZeroCoercion, 2);
++  assert.equal(
++    zeroScore.passed,
++    false,
++    "Affirmative zero coercion must FAIL canonical assertions (caught by not_contains '$0.02 is accurate')",
++  );
++});
++
++test("canonical Telemetry Case 4: REJECT conflating catalog discovery with usage with negative discriminator", () => {
++  const telemetryEvals = loadCanonicalEvals("skills/common/common-telemetry");
++  const case4 = getCanonicalCase(telemetryEvals, 4);
++
++  const compliantDiscoveryRefusal =
++    "Decision: REJECT. Telemetry must do not conflate discovery with usage. " +
++    "Catalog discovery of available skills does not mean the body was fetched or delivered for active used execution.";
++
++  const compliantScore = scoreCanonicalCase(case4, compliantDiscoveryRefusal, 2);
++  assert.equal(compliantScore.passed, true, "Compliant discovery refusal must PASS");
++
++  const affirmativeUsageClaim = "All 15 catalog skills were used during the run and should be counted as loaded.";
++  const usageScore = scoreCanonicalCase(case4, affirmativeUsageClaim, 2);
++  assert.equal(
++    usageScore.passed,
++    false,
++    "Affirmative usage claim must FAIL canonical assertions (caught by not_contains 'skills were used')",
++  );
++});
++
++// ============================================================================
++// Suite 4: Multi-Assertion Partial Compliance Failure Matrix
++// ============================================================================
++
++test("canonical partial compliance: omitting any required criterion fails the overall case", () => {
++  const tddEvals = loadCanonicalEvals("skills/common/common-tdd");
++  const case5 = getCanonicalCase(tddEvals, 5);
++
++  // Fulfills 4 of 5 assertions: verification_infra_failed, sequential, 120-second, process group,
++  // but OMITS the refusal anchor ("never use broad pkill" / "avoid broad pkill")
++  const partialTranscript =
++    "Classify as verification_infra_failed. Run in sequential mode with a 120-second timeout, " +
++    "terminating the process group.";
++
++  const score = scoreCanonicalCase(case5, partialTranscript, 2);
++  assert.equal(score.passed, false, "Omitting the negative refusal constraint must cause overall case failure");
++  assert.equal(score.failures.length, 1, "Exactly one assertion must fail");
++  assert.equal(score.failures[0].index, 4, "Assertion index 4 (contains_any refusal anchor) failed");
++});
++
++// ============================================================================
++// Suite 5: Routing Negative Controls (canonical should_not_trigger validation)
++// ============================================================================
++
++test("canonical should_not_trigger: queries do not match skill triggers", () => {
++  const telemetryEvals = loadCanonicalEvals("skills/common/common-telemetry");
++  const securityEvals = loadCanonicalEvals("skills/common/common-security-standards");
++  const tddEvals = loadCanonicalEvals("skills/common/common-tdd");
++
++  const telemetryTriggers = ["telemetry", "token cost", "session cost", "get_session_cost"];
++  const securityTriggers = ["vulnerability", "sql injection", "xss", "csrf", "secret rotation"];
++  const tddTriggers = ["tdd", "red green refactor", "failing test", "unexpected_green"];
++
++  for (const query of telemetryEvals.should_not_trigger ?? []) {
++    const hits = telemetryTriggers.some((t) => query.toLowerCase().includes(t));
++    assert.equal(hits, false, `Telemetry should_not_trigger query '${query}' must not match triggers`);
++  }
++
++  for (const query of securityEvals.should_not_trigger ?? []) {
++    const hits = securityTriggers.some((t) => query.toLowerCase().includes(t));
++    assert.equal(hits, false, `Security should_not_trigger query '${query}' must not match triggers`);
++  }
++
++  for (const query of tddEvals.should_not_trigger ?? []) {
++    const hits = tddTriggers.some((t) => query.toLowerCase().includes(t));
++    assert.equal(hits, false, `TDD should_not_trigger query '${query}' must not match triggers`);
++  }
++});
++
++// ============================================================================
++// Suite 6: Manifest Source-Hash Digest Binding Contract
++// ============================================================================
++
++test("manifest binding contract: source hash matches raw canonical evals file bytes", () => {
++  const tddEvalsPath = path.resolve(process.cwd(), "skills/common/common-tdd/evals/evals.json");
++  const fileBytes = fs.readFileSync(tddEvalsPath);
++  const calculatedDigest = crypto.createHash("sha256").update(fileBytes).digest("hex");
++
++  assert.equal(typeof calculatedDigest, "string");
++  assert.equal(calculatedDigest.length, 64, "SHA-256 digest over canonical evals.json must be 64 hex characters");
++
++  // A simulated ManifestV2 sourceHashes entry binding the candidate evals file
++  const sourceRecord = {
++    skill: "placeholder_skill_hash",
++    evals: calculatedDigest,
++  };
++
++  // If the file on disk is modified, the digest changes and the manifest rejects it
++  const tamperedBytes = Buffer.concat([fileBytes, Buffer.from(" ")]);
++  const tamperedDigest = crypto.createHash("sha256").update(tamperedBytes).digest("hex");
++
++  assert.notEqual(sourceRecord.evals, tamperedDigest, "Manifest source-hash binding detects tampered evals");
++});
+diff --git a/skills/common/common-decision-discipline/SKILL.md b/skills/common/common-decision-discipline/SKILL.md
+index 5e52f4ca..27b57d86 100644
+--- a/skills/common/common-decision-discipline/SKILL.md
++++ b/skills/common/common-decision-discipline/SKILL.md
+@@ -30,68 +30,68 @@ Trustworthy decisions are sized to the work, grounded in evidence, and approved
+ | `tier=high` (5-6)   | Deep     | Full brief; decompose multi-subsystem ideas first; optional `specialist-architecture-guard` review |
+ 
+ - Score with `common-task-complexity-routing`; label as inference until scouted.
+ - Downward complexity reassessment requires documented new evidence (e.g., scouted blast radius proves isolated scope), never to bypass unresolved risk, required approvals, or the sensitive-change risk floor.
+ - **Sensitive-Change Risk Floor**: Auth, money, data integrity, or trust boundaries enforce minimum `tier=medium` regardless of arithmetic SNC total; non-zero novelty or spread (S≥1 or N≥1 with C=2) escalates to `tier=high`.
+ - **Low-Risk Maintenance**: Sufficiently specified routine fixes or maintenance may use an in-chat contract rather than creating BRD/PRD/SRS files. Preserve full traceability for governed or high-risk delivery.
+ - Downstream specialist workers execute against their assigned briefs; do not reload or repeat parent intake in specialists.
+ - A symptom without a root cause routes to `dev-fix`; never compare fixes for an undiagnosed bug.
+ ## 2. Shared Understanding
+ 
+-- Draft first, then write back two lists: **You said** and **I assumed**. Allow one correction round.
+-- Skip the write-back when outcome, constraints, non-goals, and acceptance criteria are already stated; confirm in one line.
+-- Reuse an accepted contract; never reopen it.
++- Draft first, then write back: **You said** and **I assumed**. Skip write-back when outcome, constraints, non-goals, and ACs are already stated; confirm in one line. Reuse accepted contracts; never reopen.
+ 
+ ## 3. Evidence Ledger
+ 
+ - Tag every feasibility, AS-IS, or current-behavior claim: `confirmed(<path>)`, `assumed`, or `unknown`.
+-- Read the smallest useful set of code, tests, docs, and existing `docs/brd|prd|srs` before calling an option feasible.
+-- Resolve what evidence can settle; label only what stays unknowable. Format: `references/evidence-ledger.md`.
++- Distinguish search failure or checkout absence from absent capability; search authorized refs/worktrees before concluding a capability is missing or creating duplicate solutions.
++- Read the smallest useful set of code, tests, docs, and existing specs before calling an option feasible. Format: `references/evidence-ledger.md`.
+ 
+ ## 4. Questions
+ 
+ - Ask only when the answer changes the result, safety boundary, or public contract.
+ - Max 3 per round, each with a recommended default and 2-3 options.
+ - Never re-ask a settled fact. Never ask the operator to re-authorize approved work.
+ - For `operator_profile=business`, every question is answerable by "go with your suggestion".
+ 
+ ## 5. Options
+ 
+ - 0-3 options, only when a real choice exists. A single viable path is stated as the path, not padded.
+ - Each option card names its load-bearing assumption, first failure condition, worst plausible case, and cost to abandon (`references/option-card.md`).
+-- Recommend the smallest option that satisfies the contract. When a critical assumption is unresolved, recommend the option cheapest to abandon.
+-- Cut unrequested scope; keep all requested scope.
++- Recommend the smallest option that satisfies the contract. When an assumption is unresolved, recommend the option cheapest to abandon. Cut unrequested scope; keep all requested scope.
++- Decision-shape controls must reject keyword-stuffed refusal-plus-violation answers; keyword presence alone does not establish contract compliance.
+ 
+ ## 6. Approval State
+ 
+ - `approval: pending | approved(<who>, <YYYY-MM-DD>) | assumed-autonomous`.
+-- Interactive: end with "Reply ok or corrections". An ok approves only the artifact presented.
+-- Autonomous or channel mode without an interactive reply channel: set `assumed-autonomous` and continue; `tier=high` still blocks pending explicit human sign-off.
++- Interactive: end with "Reply ok or corrections" (approves presented artifact only). Autonomous/channel mode: set `assumed-autonomous`; `tier=high` still blocks on explicit human sign-off.
+ 
+ ## 7. Publication vs Activation
+ 
+ - Record `repository_status` and `activation_status` separately; use `not_required` when activation is outside the contract.
+ - Do not require an external VM/runtime artifact for approved repository-only publication unless the contract requires it.
+ - After approval, continue through the accepted deliverable; do not ask to continue at each phase boundary.
++- For registry or export publication, verify canonical→host ID-set and resource parity and real consumer discovery. For general publication, review private paths/links and one-way manifests, and separate warnings/skips/NOT RUN from PASS.
+ - Publication approval never grants merge, deploy, or runtime-change authority. Gate consequential actions on explicit matching approval and scope.
+ 
+ ## 8. Self-Review Before Handoff
+ 
+ - Check placeholders (TBD, TODO), contradictions, multi-plan scope, and two-reading ambiguities.
+ 
+ ## Red Flags
+ 
+ Stop when thinking: "too simple to need a brief", "they said implement, so skip intake", "list three options to look thorough", "approval to publish means deploy". Each is a rationalization, not a reason.
+ 
+ ## Anti-Patterns
+ 
+ - **No unlabeled claims**: every AS-IS or feasibility statement carries an evidence tag.
+ - **No padded options**: never invent alternatives to reach three.
++- **No search-absence conflation**: do not treat search miss or local branch checkout absence as absent capability.
++- **No keyword-stuffing compliance**: verifying decisions requires contract adherence, not keywords embedded in violating actions.
+ - **No silent approval**: a brief without `approval` is incomplete.
+ - **No reopened decisions**: settled facts are carried forward, not re-asked.
+ - **No scope transfer**: publication approval does not authorize merge, deployment, or runtime activation.
+ 
+ ## References
+ 
+ - [Contract Templates](references/contract-template.md)
+ - [Evidence Ledger](references/evidence-ledger.md)
+ - [Option Card](references/option-card.md)
+diff --git a/skills/common/common-skill-creator/SKILL.md b/skills/common/common-skill-creator/SKILL.md
+index fb260f3b..5579039e 100644
+--- a/skills/common/common-skill-creator/SKILL.md
++++ b/skills/common/common-skill-creator/SKILL.md
+@@ -26,21 +26,21 @@ Applies to **every skill in this registry**. Maximize **Token ROI**. Every line
+ - **Level 3** references/: Detailed examples, schemas, and "TESTS.md" (On-demand).
+ 
+ ## Workflow (New or Existing Skill)
+ **New skill:**
+ 1. **Research** — web-search domain best practices, checklists, and standards; extract key terms → triggers, workflows → guidelines, mistakes → anti-patterns. See [Web Search Research](references/web-search-research.md).
+ 2. **Capture intent** — what it , when it trigger, expected output format?
+ 3. **Draft the SKILL.md** — draft using [TEMPLATE.md](references/TEMPLATE.md)
+ 4. **Test** — spawn parallel subagents: one with-skill, one without-skill (baseline)
+ 5. **Evaluate** — grade assertions, review benchmark (pass rate, tokens, time)
+ 6. **Iterate** — rewrite based on feedback, rerun into next iteration dir, repeat
+-7. **Optimize description** — run trigger eval queries, target ≥80% accuracy
++7. **Optimize description** — run trigger eval queries, target ≥90% accuracy (matching release readiness)
+ 8. **Pressure-test** — for discipline skills, capture agent excuses, red flags, and stop conditions
+    **Existing skill:**
+ 9. **Audit** — run Quality Checklist below; identify violations
+ 10. **Snapshot** — `cp -r <skill-dir> <workspace>/skill-snapshot/` before any edits
+ 11. **Improve SKILL.md** — fix violations, compress, move oversized content to `references/`
+ 12. **Test** — spawn parallel subagents: one with-new-skill, one with-snapshot (baseline)
+ 13. **Evaluate & iterate** — same as steps 4–5 above
+ 14. **Optimize description** — re-run trigger eval if description changed
+ 15. **Harden** — add rationalization counters where agents still fail under pressure
+     See [Eval Workflow](references/eval-workflow.md) for full testing + iteration details.
+@@ -57,39 +57,41 @@ Applies to **every skill in this registry**. Maximize **Token ROI**. Every line
+ 
+ - **No Redundant Knowledge**: Do NOT explain concepts AI already knows (e.g., standard HTTP codes, common language syntax, basic SOLID definitions). Focus strictly on project-specific rules and constraints.
+ - **Readable Compact Style**: Size is an editorial budget, not a behavioral quality claim. Prefer readable, compact, imperative language over filler words, conversational phrasing, or speculative prose.
+ - **Actionability**: Examples must be copy-paste ready and executable.
+ - **Workflow Clarity**: Use sequential ordered lists for multi-step processes.
+ - **Progressive Disclosure**: Move code blocks >10 lines to `references/`.
+ - **Pressure Hardening**: Discipline skills must name red flags, common excuses, and exact stop/restart conditions.
+ 
+ ## Evidence Tiers & Guardrails
+ 
+-- **Three Evidence Tiers**: Distinguish (1) structural checks (line counts, frontmatter schema), (2) textual transcript evidence (assertions, rationalization counters), and (3) executable outcomes (runnable verification, verifier pass/fail).
+-- **Rule Retirement & Ablation**: A rule is a candidate for retirement when repeated, representative, risk-appropriate evaluations (including adversarial cases) show zero regression without it. Candidate status does not authorize removing safety or approval controls; retain host and safety guardrails until verified deterministic runtime enforcement replaces them.
+-- **Pressure Scenarios**: For discipline skills, record rationalizations agents use to skip rules, define red flags that trigger immediate stop/restart, and score against observable evidence.
++- **Three Evidence Tiers**: Distinguish (1) structural checks, (2) textual transcript evidence, and (3) executable outcomes.
++- **Oracle & Pressure Hardening**: Pressure `behavior_assertions` are positive contains/token checks, not semantic safety guarantees. Regular typed assertions + finite decision-shape controls must reject keyword-stuffed refusal-plus-violation answers; do not claim keyword presence alone establishes compliance. Oracles must test valid paraphrases, quoted unsafe text in refusals, keyword stuffing, partial compliance, and routing negatives.
++- **Digest Binding & Thresholds**: Bind scorer, evals, and generated metadata digests to candidate checkout; no engine-mismatch waiver. Target ≥90% trigger rate (recall & specificity per `readiness.ts`). Retain host guardrails until verified deterministic runtime enforcement replaces them.
++- **Discovery & Publication Preflight**: Distinguish search failure/checkout absence from absent capability (search authorized refs/worktrees first). When publishing registry or native export packages, verify final canonical→host ID-set and resource parity and real consumer discovery; review private paths/links and one-way manifests; separate warnings/skips/NOT RUN. Keep publication separate from activation.
+ 
+ ## Anti-Patterns
+ 
+ - **No "AI-splaining"**: Do not explain why a pattern is good unless it is a unique project constraint.
+-- **No Answer-Anchor Padding**: Do not insert arbitrary keywords or phrases solely to satisfy string-match tests.
++- **No Answer-Anchor Padding**: Do not insert arbitrary keywords solely to satisfy string-match tests or fake compliance.
++- **No Search-Absence Conflation**: Do not assume missing local search = absent capability; search authorized refs/worktrees.
+ - **No Vague Triggers**: Never use `src/**` or `**/*`. Keep triggers surgical.
+ - **No Description Bloat**: If description exceeds 100 words, move capabilities to body.
+ - **No Long Code Blocks**: Blocks >10 lines must be extracted to `references/`.
+ - **No Untested Guardrails**: Rules not validated against baseline failure are unverified speculation.
+ 
+ ## Quality Checklist (Tessl-Aligned)
+ 
+ - [ ] **Activation ≥ 90%**: Description covers capabilities ("What") and triggers ("When").
+ - [ ] **Implementation ≥ 90%**: No general-purpose explanations; all examples executable.
+ - [ ] **Structural Compliance**: SKILL.md ≤ 100 lines; code blocks moved to `references/`.
+-- [ ] Trigger rate ≥80% on should-trigger queries.
++- [ ] Trigger rate ≥90% on should-trigger queries (recall and specificity per readiness gate).
+ - [ ] Guardrail skills include rationalizations, red flags, behavior eval fields, and should/should-not trigger cases.
+ ## References
+ 
+ - [Skill Template](references/TEMPLATE.md) — load when starting new skill from scratch
+ - [Anti-Patterns Detail](references/anti-patterns.md) — load when fixing or reviewing anti-pattern format
+ - [Size & Limits](references/size-limits.md) — load when SKILL.md approaches 100 lines
+ - [Resource Organization](references/resource-organization.md) — load when deciding where to place content (scripts/, references/, assets/)
+ - [Testing & Trigger Rate](references/testing.md) — load when writing evals or measuring trigger rate
+ - [Eval Workflow](references/eval-workflow.md) — load when running parallel subagent tests
+ - [Full Lifecycle](references/lifecycle.md) — load for complete phase-by-phase creation guide
+diff --git a/skills/common/common-skill-creator/references/eval-workflow.md b/skills/common/common-skill-creator/references/eval-workflow.md
+index 3d37d5ba..bed7623f 100644
+--- a/skills/common/common-skill-creator/references/eval-workflow.md
++++ b/skills/common/common-skill-creator/references/eval-workflow.md
+@@ -96,14 +96,14 @@ When each subagent finishes, save to `timing.json` immediately — this data onl
+ 5. Rerun into `iteration-N+1/` directory
+ 6. Repeat until: user satisfied / all feedback empty / no meaningful progress
+ 
+ ## Step 6: Description Optimization
+ 
+ After skill is stable, optimize the `description` field for triggering accuracy:
+ 
+ 1. Generate 20 eval queries: 8–10 should-trigger + 8–10 should-not-trigger near-misses
+ 2. Review with user — bad queries lead to bad descriptions
+ 3. Run optimization loop: test each query → identify failures → rewrite description → retest
+-4. Target ≥80% accuracy on held-out test set (split 60% train / 40% test)
++4. Target ≥90% accuracy on held-out test set (matching release readiness: ≥90% recall and specificity; split 60% train / 40% test)
+ 5. Apply `best_description` to SKILL.md frontmatter; report before/after scores
+ 
+ See [testing.md](testing.md) for trigger query design rules and scoring guidance.
+diff --git a/skills/common/common-skill-creator/references/lifecycle.md b/skills/common/common-skill-creator/references/lifecycle.md
+index 6bf2545d..78b74377 100644
+--- a/skills/common/common-skill-creator/references/lifecycle.md
++++ b/skills/common/common-skill-creator/references/lifecycle.md
+@@ -73,21 +73,21 @@ description: Implement BLoC pattern for Flutter state management. Use when creat
+ 
+ ### Validation Checklist
+ 
+ - [ ] SKILL.md < 100 lines
+ - [ ] Frontmatter < 100 words, description ≤ 300 chars and "pushy"
+ - [ ] No redundant information
+ - [ ] Complex examples in references/
+ - [ ] Deterministic tasks in scripts/
+ - [ ] Templates in assets/
+ - [ ] Eval cases written in `evals/evals.json`
+-- [ ] Trigger rate ≥ 80% on should-trigger query set
++- [ ] Trigger rate ≥ 90% on should-trigger query set (matching release readiness)
+ 
+ ### Testing Across Agents
+ 
+ 1. **Cursor**: Test with .cursorrules integration
+ 2. **Windsurf**: Verify within 32k token limit
+ 3. **Claude**: Check context window efficiency
+ 4. **GitHub Copilot**: Validate .github/skills/ sync
+ 
+ ### Skill Effectiveness Testing
+ 
+@@ -95,21 +95,21 @@ See [testing.md](testing.md) for the full process including:
+ 
+ - Writing `evals/evals.json` eval cases
+ - Designing should-trigger / should-not-trigger query sets
+ - Measuring and optimizing trigger rate
+ - Catching regressions before shipping
+ 
+ ### Performance Metrics
+ 
+ - **Loading Speed**: Time to activate skill
+ - **Token Usage**: Measure context consumption
+-- **Trigger Rate**: % of should-trigger queries that activate the skill (target ≥ 80%)
++- **Trigger Rate**: % of should-trigger queries that activate the skill (target ≥ 90% per release readiness)
+ - **User Satisfaction**: Does it solve the problem?
+ 
+ ## Phase 5: Iteration (Continuous Optimization)
+ 
+ **Goal**: Improve based on real-world usage.
+ 
+ ### Iteration Triggers
+ 
+ - User feedback on token usage
+ - Performance issues in specific agents
+diff --git a/skills/common/common-skill-creator/references/testing.md b/skills/common/common-skill-creator/references/testing.md
+index 7045d047..e79a6192 100644
+--- a/skills/common/common-skill-creator/references/testing.md
++++ b/skills/common/common-skill-creator/references/testing.md
+@@ -124,21 +124,21 @@ description: >
+   measuring trigger accuracy, catching regressions, or optimizing a description
+   so it triggers more reliably.
+ ```
+ 
+ ### Iteration Loop
+ 
+ 1. Write 20 trigger queries (half should-trigger, half should-not-trigger).
+ 2. Run each query and record results.
+ 3. Identify which query types fail and why.
+ 4. Rewrite the description to address the failures.
+-5. Re-run; repeat until ≥ 80% accuracy on held-out queries.
++5. Re-run; repeat until ≥ 90% accuracy on held-out queries (matching release readiness: ≥90% recall and specificity).
+ 
+ ## 4. Catching Regressions
+ 
+ When editing an existing skill, always compare before-and-after:
+ 
+ 1. **Snapshot before editing**: `cp -r skills/common/my-skill /tmp/my-skill-snapshot`
+ 2. **Edit the skill**.
+ 3. **Re-run all existing evals** against the new version.
+ 4. **Compare outputs**: Did any previously-passing assertions now fail?
+ 5. **Fix regressions** before shipping.

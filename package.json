@@ -1,6 +1,6 @@
 {
   "name": "agent-skills-standard-root",
-  "version": "2.7.0",
+  "version": "2.7.1",
   "private": true,
   "packageManager": "pnpm@10.0.0",
   "pnpm": {
@@ -98,7 +98,7 @@
     "freshness:check": "tsx scripts/freshness/index.ts check",
     "freshness:report": "tsx scripts/freshness/index.ts report",
     "evals:standardize": "tsx scripts/evals/quality.ts audit --write",
-    "generate-indices": "tsx scripts/generate-indices.ts",
+    "generate-indices": "tsx scripts/generation/index.ts",
     "audit:skills": "tsx scripts/audit-skills.ts",
     "audit:keywords": "tsx scripts/check-keyword-collisions.ts",
     "migrate:priority-labels": "tsx scripts/migrate-priority-labels.ts",

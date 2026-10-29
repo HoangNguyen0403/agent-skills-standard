@@ -1,0 +1,1 @@
+✅ Isolated generation check passed: prepared outputs match declared targets. Receipt: /private/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-root-scale-syFeFs/fixture/artifacts/generation-logs/attempt-2026-10-29T11-05-18-121Z-ea4240/receipt.json

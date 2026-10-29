@@ -1,0 +1,16 @@
+{
+  "kind": "READONLY_NATIVE_RESTORATION_INVARIANTS",
+  "input": "native-restoration-facts-02.json",
+  "inputSha256": "005f949cc3c028088768b7ae9b1bd4e78b9f506bbf73919188fd368edcfae18f",
+  "baselineSha256": "005f949cc3c028088768b7ae9b1bd4e78b9f506bbf73919188fd368edcfae18f",
+  "restoredCount": 1,
+  "passed": false,
+  "failures": [
+    "destination digest:.agents/skills/common/common-context-optimization/references/implementation.md",
+    "destination state:.agents/skills/common/common-context-optimization/references/implementation.md"
+  ],
+  "limits": [
+    "Compares observed receipts; does not mutate root or eliminate time-of-check/time-of-use races.",
+    "No restore/quarantine/generation authority is granted by a passing receipt."
+  ]
+}

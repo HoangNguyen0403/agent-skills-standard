@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "kind": "ROOT_SCALE_GIT_IDENTITY_SMOKE",
+  "status": "FAILED",
+  "startedAt": "2026-10-29T10:21:08.916Z",
+  "evidenceDir": "artifacts/diagnostic-prevention/implementation/attempt-01/root-scale-smoke-run-02",
+  "workspace": "/Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/diagnostic-prevention",
+  "base": "52ac482a5b948d9d26df4c3a2617afec74d1cf54",
+  "outputBand": {
+    "declared": {
+      "minimum": 1800,
+      "maximum": 2200
+    },
+    "changed": {
+      "minimum": 80,
+      "maximum": 110
+    }
+  },
+  "deadlines": {
+    "applyMs": 1800000,
+    "checkMs": 600000,
+    "producerMs": 900000,
+    "postExitGraceMs": 5000,
+    "reapMs": 10000
+  },
+  "stages": [
+    {
+      "stage": "temp-root",
+      "durationMs": 0
+    },
+    {
+      "stage": "archive-base",
+      "durationMs": 1355,
+      "bytes": 36925440
+    },
+    {
+      "stage": "overlay-runtime",
+      "durationMs": 69
+    },
+    {
+      "stage": "link-dependencies",
+      "durationMs": 1,
+      "linked": [
+        "node_modules",
+        "cli/node_modules"
+      ]
+    }
+  ],
+  "fixture": null,
+  "counts": null,
+  "verification": null,
+  "error": {
+    "code": "FIXTURE_GIT_DIR_MISMATCH",
+    "detail": "/private/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-root-scale-88vnUP/fixture/.git"
+  },
+  "limits": [
+    "Passing-after evidence only: the pre-change batched implementation was replaced, so no historical failing-before run is claimed.",
+    "No live-root mutation, adoption or reapply; the fixture is an owned temporary copy.",
+    "Trace2 counts come from native GIT_TRACE2_EVENT; they are diagnostic instrumentation, not a production hook.",
+    "Independent byte expectation is the real check-mode producer re-derivation plus baseline byte comparison, not the active lock."
+  ],
+  "gitIsolation": {
+    "strippedVariables": []
+  },
+  "processGroups": [],
+  "fixtureRetained": "/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-root-scale-88vnUP",
+  "finishedAt": "2026-10-29T10:21:10.421Z"
+}
