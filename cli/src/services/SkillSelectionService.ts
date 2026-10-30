@@ -25,12 +25,7 @@ export function resolveSkillFolders(
   );
   for (const expression of entry.include ?? []) {
     if (!expression.includes('/')) continue;
-    expandAbsoluteInclude(
-      expression,
-      candidates,
-      tree,
-      requireSkillDefinition,
-    );
+    expandAbsoluteInclude(expression, candidates, tree, requireSkillDefinition);
   }
 
   const seen = new Set<string>();
@@ -74,7 +69,9 @@ export function isSkillSelected(
   if (!isMember) return false;
 
   const target = `${idCategory}/${idSkill}`;
-  return !(entry.exclude ?? []).some((id) => qualifyId(category, id) === target);
+  return !(entry.exclude ?? []).some(
+    (id) => qualifyId(category, id) === target,
+  );
 }
 /**
  * Stable identity for a selection policy. Filters are sets, while an absent
@@ -106,8 +103,7 @@ function normalizeExpressions(
   if (expressions === undefined) return isInclude ? null : [];
   const normalized = new Set(
     expressions.map((expression) =>
-      expression.startsWith(`${category}/`) &&
-      !expression.endsWith('/*')
+      expression.startsWith(`${category}/`) && !expression.endsWith('/*')
         ? expression.slice(category.length + 1)
         : expression,
     ),
@@ -128,7 +124,6 @@ function normalizeExpressions(
   }
   return [...normalized].sort();
 }
-
 
 function includeCovers(
   expression: string,
@@ -271,8 +266,6 @@ function listCategorySkillFolders(
 
   return Array.from(folders).filter(Boolean);
 }
-
-
 
 function expandAbsoluteInclude(
   absSkill: string,

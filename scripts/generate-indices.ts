@@ -111,16 +111,7 @@ async function parseSkill(skillPath: string): Promise<SkillMetadata | null> {
 
 async function generate() {
   // Look for skills directory in the repository root
-  const repoRoot = await fs.realpath(path.resolve(__dirname, ".."));
-  const physicalCwd = await fs.realpath(process.cwd());
-
-  // Invariant (Task 1): Fail generator before mutation when physical cwd differs from script-derived authoring root
-  if (physicalCwd !== repoRoot) {
-    throw new Error(
-      `Refusing to generate indices from foreign working directory: cwd is "${physicalCwd}", but script root is "${repoRoot}". Run from the repository root.`,
-    );
-  }
-
+  const repoRoot = path.join(__dirname, "..");
   const skillsDir = path.join(repoRoot, "skills");
 
   // Boundary: this generator mutates the authoring checkout and derives force

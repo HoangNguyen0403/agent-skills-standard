@@ -31,21 +31,23 @@ Choose the implementation context from context benefit, not from a checklist. Th
 - Host permits one placement only: follow it, record it, and report any required operation the host cannot realize.
 - Plan approval does not authorize merge, deployment, premium spend, or a different execution mode.
 
-### Scenario A: Post-Planning Handoff (`writing-plans`)
+### Mandatory confirmation under restrictive host policy
+Under an active host or orchestration policy requiring an execution confirmation gate before multi-task implementation (such as this environment's policy):
+
+#### Scenario A: Post-Planning Handoff (`writing-plans`)
 When an implementation plan has just been created or approved, confirm with the human partner before touching code:
 > *"Plan complete and saved to `docs/...`. Which execution approach would you prefer?*
 > *1. **Subagent-Driven (Recommended)** — Fresh worker per task for context isolation and task review gates.*
 > *2. **Inline** — Direct implementation in this session (an explicit recorded exception suitable only for small, genuinely low-risk bounded changes; file count alone does not establish low risk).*
 > *For this plan I recommend Subagent-Driven. Shall I proceed with subagents?"*
 
-### Scenario B: Existing Plan or PR Ingestion (e.g. "implement this plan inside PR ...")
-When a user opens a session or supplies an existing multi-task plan/PR:
+#### Scenario B: Existing Plan or PR Ingestion (e.g. "implement this plan inside PR ...")
+When a user opens a session or supplies an existing multi-task plan/PR under such a confirmation policy:
 1. **DO NOT start editing files directly in this session.**
 2. Detect the multi-task scope and confirm:
 > *"I found a multi-task implementation plan in <source>. To maintain task isolation and review gates across tasks, I recommend **Subagent-Driven** execution. Shall I dispatch via subagents or implement inline?"*
 3. **Vague assent boundary:** Vague assent ("yes", "proceed", "start", "approve") binds ONLY the specific choice just presented. Approval of a brief or plan does not implicitly authorize inline execution, auto-promotion, premium escalation, or scope expansions.
-4. Host/user retry, account, and profile rules override defaults. If Subagent-Driven is approved, immediately proceed with the SDD Task Loop.
-
+4. Host/user retry, account, and profile rules override defaults. If Subagent-Driven is approved, immediately proceed with the SDD Task Loop. Where the host or plan permits either placement without a confirmation gate, proceed by stating the deciding context benefit.
 ## 2. SDD vs. TDD
 
 - **SDD (macro):** chooses placement, decomposes the plan, prepares packets, dispatches when justified, requests independent review, verifies acceptance and records progress.
@@ -140,3 +142,18 @@ Dispatch an independent senior reviewer on a capable model; this whole-branch ga
 
 **Workspace cleanup requires verified durable archive and ownership authority:**
 Before deleting `<workspace>`, verify that all reports, diffs, receipts, and execution evidence are archived in a durable location outside the scratch directory. Never erase the only evidence copy. If archive verification fails or ownership authority is missing, retain `<workspace>` and report the unarchived evidence. Once verified and authorized, delete `<workspace>` and complete the branch.
+
+---
+
+## 7. Anti-Pattern Rationale
+
+The guards in `SKILL.md` §Anti-Patterns exist because each shortcut has a concrete failure mode:
+
+- **Worker commits:** history and branch policy belong to the orchestrator. A worker that commits moves the review baseline and can publish unreviewed work; a worker that pushes can make retraction impossible.
+- **Recursive delegation:** a nested worker splits ownership of one brief, so no single actor can account for the diff or for the checks that were actually run. The implementer owns both the implementation and its focused checks.
+- **Self-approval:** the implementer's own reading of its diff reuses the same missed assumptions. The gate only has value when the reviewer is a separate owner, including main-loop implementation.
+- **Agent per stage:** a stage boundary re-derives the same context in a second process, pays rediscovery twice, and adds a handoff that can drop constraints; a stage name is not a context benefit.
+- **Polling loops:** each poll replays a growing transcript and adds no lifecycle information that the completion event will not carry; yield instead.
+- **Inlined context bloat:** briefs and diff bodies belong in files. Pasting them into a prompt buys nothing and consumes the context the parent needs for integration and review.
+- **Fabricated enforcement or savings claims:** prompt text is not a sandbox, so isolation must come from the host. Token savings, coverage, and pass claims require complete measured evidence, never an estimate presented as a measurement.
+- **Unverified cleanup:** the scratch workspace can hold the only copy of execution evidence; deleting it unarchived destroys the audit trail for good.

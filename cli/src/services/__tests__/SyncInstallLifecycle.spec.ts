@@ -544,10 +544,7 @@ describe('SyncInstallLifecycle', () => {
       refreshIndices: true,
       localMetadata,
     });
-    const indexPath = path.join(
-      tempDir,
-      '.claude/skills/typescript/_INDEX.md',
-    );
+    const indexPath = path.join(tempDir, '.claude/skills/typescript/_INDEX.md');
     expect(await fs.pathExists(indexPath)).toBe(true);
 
     const emptyConfig = makeConfig({
@@ -591,8 +588,9 @@ describe('SyncInstallLifecycle', () => {
 
     expect(plan.pruned).toEqual([]);
     const lockAfter = await fs.readJson(path.join(tempDir, LOCKFILE_NAME));
-    expect(lockAfter.entries['.claude/skills/typescript/ts-core/SKILL.md'])
-      .toEqual(lockBefore.entries['.claude/skills/typescript/ts-core/SKILL.md']);
+    expect(
+      lockAfter.entries['.claude/skills/typescript/ts-core/SKILL.md'],
+    ).toEqual(lockBefore.entries['.claude/skills/typescript/ts-core/SKILL.md']);
   });
 
   it('11. skills scope preserves workflow and specialist entries and lock provenance', async () => {
@@ -703,10 +701,7 @@ describe('SyncInstallLifecycle', () => {
     });
 
     expect(
-      await fs.readFile(
-        path.join(tempDir, '.agent/legacy/marker.md'),
-        'utf8',
-      ),
+      await fs.readFile(path.join(tempDir, '.agent/legacy/marker.md'), 'utf8'),
     ).toBe('legacy marker');
   });
 
@@ -768,16 +763,10 @@ describe('SyncInstallLifecycle', () => {
     });
 
     expect(
-      await fs.readFile(
-        path.join(tempDir, codexWorkflowRel),
-        'utf8',
-      ),
+      await fs.readFile(path.join(tempDir, codexWorkflowRel), 'utf8'),
     ).toBe(codexWorkflowBytes);
     expect(
-      await fs.readFile(
-        path.join(tempDir, codexSpecialistRel),
-        'utf8',
-      ),
+      await fs.readFile(path.join(tempDir, codexSpecialistRel), 'utf8'),
     ).toBe(codexSpecialistBytes);
     const updated = await fs.readJson(lockPath);
     expect(updated.entries[codexWorkflowRel]).toEqual(

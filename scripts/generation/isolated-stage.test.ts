@@ -1268,8 +1268,8 @@ test("edited owned specialist output is preserved and blocks publication", async
     const specialistPath = path.join(
       root,
       ".github",
-      "copilot-agents",
-      "specialist-arch.instructions.md",
+      "agents",
+      "arch.agent.md",
     );
     await fs.appendFile(specialistPath, "\nlocal edit\n");
     const edited = await fs.readFile(specialistPath, "utf8");
@@ -1283,8 +1283,7 @@ test("edited owned specialist output is preserved and blocks publication", async
 
 test("a changed specialist with present but inconsistent staged ownership is refused", async () => {
   await withFixture({ mutateDuringIndices: true }, async (root) => {
-    const specialistRel =
-      ".github/copilot-agents/specialist-arch.instructions.md";
+    const specialistRel = ".github/agents/arch.agent.md";
     const specialistPath = path.join(root, specialistRel);
     const before = await fs.readFile(specialistPath);
     const hookLog = await prepareHookJournal(root);
@@ -1317,8 +1316,7 @@ test("a changed specialist with present but inconsistent staged ownership is ref
 
 test("a specialist export differing from the exact transformer output is refused", async () => {
   await withFixture({ mutateDuringIndices: true }, async (root) => {
-    const specialistRel =
-      ".github/copilot-agents/specialist-arch.instructions.md";
+    const specialistRel = ".github/agents/arch.agent.md";
     const specialistPath = path.join(root, specialistRel);
     const before = await fs.readFile(specialistPath);
     const hookLog = await prepareHookJournal(root);
@@ -1432,7 +1430,7 @@ test("apply publishes the changed consumer outputs with real producer formats an
   await withFixture({}, async (root) => {
     const unchangedOutputs = [
       ".github/prompts/demo.prompt.md",
-      ".github/copilot-agents/specialist-arch.instructions.md",
+      ".github/agents/arch.agent.md",
       ".github/skills/common/common-alpha/LICENSE.TXT",
       ".github/skills/common/common-beta/SKILL.md",
     ];
@@ -1522,7 +1520,7 @@ test("a wholly absent configured Copilot host is planned before apply and passes
     const expectedHostOutputs = [
       ".github/instructions/agent-skill-standard-rule.instructions.md",
       ".github/prompts/demo.prompt.md",
-      ".github/copilot-agents/specialist-arch.instructions.md",
+      ".github/agents/arch.agent.md",
       ".github/skills/common/_INDEX.md",
       ".github/skills/common/common-alpha/SKILL.md",
       ".github/skills/common/common-alpha/LICENSE.TXT",
@@ -1548,8 +1546,7 @@ test("a wholly absent configured Copilot host is planned before apply and passes
         `${relPath} was published`,
       );
     }
-    const specialistRel =
-      ".github/copilot-agents/specialist-arch.instructions.md";
+    const specialistRel = ".github/agents/arch.agent.md";
     const lock = await fs.readJson(path.join(root, ".skills-lock.json"));
     assert.equal(lock.generation.entries[specialistRel], undefined);
     assert.deepEqual(lock.entries[specialistRel], {

@@ -1,0 +1,309 @@
+{
+  "version": 2,
+  "registry": "https://github.com/HoangNguyen0403/agent-skills-standard",
+  "generatedAt": "2026-10-29T13:13:28.762Z",
+  "sources": {
+    "skills/common": {
+      "ref": "common-v2.9.0",
+      "commit": null
+    },
+    "workflows": {
+      "ref": "workflows-v1.0.0",
+      "commit": null
+    }
+  },
+  "entries": {
+    ".agents/skills/common/common-context-optimization/references/implementation.md": {
+      "owner": "skill",
+      "source": "skill:common/common-context-optimization@common-v2.9.0",
+      "agent": "antigravity",
+      "sha256": "c5f0fc921efcf529b8c308b9942bd7b7f29ea4d2e2526df2953cfe232aea2b88"
+    },
+    ".agents/skills/common/common-decision-discipline/SKILL.md": {
+      "owner": "skill",
+      "source": "skill:common/common-decision-discipline@common-v2.9.0",
+      "agent": "antigravity",
+      "sha256": "eb19debdac1f1f35ad5bdb444ff010699475e1e35210f1f126c1dc1172f2ed0d"
+    },
+    ".agents/skills/common/common-security-standards/SKILL.md": {
+      "owner": "skill",
+      "source": "skill:common/common-security-standards@common-v2.9.0",
+      "agent": "antigravity",
+      "sha256": "26ac1d160a2b2ffe48e3a1afe609cef6f559be2fe9c89c81840ae8d8a217ca9e"
+    },
+    ".agents/skills/common/common-security-standards/references/VULNERABILITY_REMEDIATION.md": {
+      "owner": "skill",
+      "source": "skill:common/common-security-standards@common-v2.9.0",
+      "agent": "antigravity",
+      "sha256": "3621ba88e37f0ac26bb98068475b13dab038ade5610169a3d4f05107af82d126"
+    },
+    ".agents/skills/common/common-security-standards/references/implementation.md": {
+      "owner": "skill",
+      "source": "skill:common/common-security-standards@common-v2.9.0",
+      "agent": "antigravity",
+      "sha256": "8894d6cc33dd7265a4a77435e7bf655006de0409eb04cece0997357e90452434"
+    },
+    ".agents/skills/common/common-skill-creator/SKILL.md": {
+      "owner": "skill",
+      "source": "skill:common/common-skill-creator@common-v2.9.0",
+      "agent": "antigravity",
+      "sha256": "a15c8d84dd8e4044475a373e32211983575758e8d3026193ff09f018fd14627b"
+    },
+    ".agents/skills/common/common-skill-creator/references/eval-workflow.md": {
+      "owner": "skill",
+      "source": "skill:common/common-skill-creator@common-v2.9.0",
+      "agent": "antigravity",
+      "sha256": "8a23f81789571222334aff15d79218fa2b1103403354806a78502e3ee33fedb7"
+    },
+    ".agents/skills/common/common-skill-creator/references/lifecycle.md": {
+      "owner": "skill",
+      "source": "skill:common/common-skill-creator@common-v2.9.0",
+      "agent": "antigravity",
+      "sha256": "31224025fe5928850991afcf939f847f8ae29ea1179d25de57d317bb3e12276c"
+    },
+    ".agents/skills/common/common-skill-creator/references/testing.md": {
+      "owner": "skill",
+      "source": "skill:common/common-skill-creator@common-v2.9.0",
+      "agent": "antigravity",
+      "sha256": "51ce1795131f2c8eaeb200d88c465c72ad8a3cf96ac6686934e57369e60cf2a4"
+    },
+    ".agents/skills/common/common-telemetry/SKILL.md": {
+      "owner": "skill",
+      "source": "skill:common/common-telemetry@common-v2.9.0",
+      "agent": "antigravity",
+      "sha256": "ccd2c4a890e8e0350442b1128d51c982af31222abc484ab6aa82abf92f386ab6"
+    },
+    ".agents/skills/common/common-web-visual-testing/SKILL.md": {
+      "owner": "skill",
+      "source": "skill:common/common-web-visual-testing@common-v2.9.0",
+      "agent": "antigravity",
+      "sha256": "b1fcb6946f90838b346e4774ad52b923439e101eda3b76ed2396033ddf7f0de1"
+    },
+    ".agents/skills/common/common-web-visual-testing/references/login-and-test-data.md": {
+      "owner": "skill",
+      "source": "skill:common/common-web-visual-testing@common-v2.9.0",
+      "agent": "antigravity",
+      "sha256": "6aaee9ab08480d8a62447ae66bd2c8bd3f7810b933dfd590816554f1cbea7be5"
+    },
+    ".claude/skills/common/common-context-optimization/references/implementation.md": {
+      "owner": "skill",
+      "source": "skill:common/common-context-optimization@common-v2.9.0",
+      "agent": "claude",
+      "sha256": "c5f0fc921efcf529b8c308b9942bd7b7f29ea4d2e2526df2953cfe232aea2b88"
+    },
+    ".claude/skills/common/common-decision-discipline/SKILL.md": {
+      "owner": "skill",
+      "source": "skill:common/common-decision-discipline@common-v2.9.0",
+      "agent": "claude",
+      "sha256": "eb19debdac1f1f35ad5bdb444ff010699475e1e35210f1f126c1dc1172f2ed0d"
+    },
+    ".claude/skills/common/common-security-standards/SKILL.md": {
+      "owner": "skill",
+      "source": "skill:common/common-security-standards@common-v2.9.0",
+      "agent": "claude",
+      "sha256": "26ac1d160a2b2ffe48e3a1afe609cef6f559be2fe9c89c81840ae8d8a217ca9e"
+    },
+    ".claude/skills/common/common-security-standards/references/VULNERABILITY_REMEDIATION.md": {
+      "owner": "skill",
+      "source": "skill:common/common-security-standards@common-v2.9.0",
+      "agent": "claude",
+      "sha256": "3621ba88e37f0ac26bb98068475b13dab038ade5610169a3d4f05107af82d126"
+    },
+    ".claude/skills/common/common-security-standards/references/implementation.md": {
+      "owner": "skill",
+      "source": "skill:common/common-security-standards@common-v2.9.0",
+      "agent": "claude",
+      "sha256": "8894d6cc33dd7265a4a77435e7bf655006de0409eb04cece0997357e90452434"
+    },
+    ".claude/skills/common/common-skill-creator/SKILL.md": {
+      "owner": "skill",
+      "source": "skill:common/common-skill-creator@common-v2.9.0",
+      "agent": "claude",
+      "sha256": "a15c8d84dd8e4044475a373e32211983575758e8d3026193ff09f018fd14627b"
+    },
+    ".claude/skills/common/common-skill-creator/references/eval-workflow.md": {
+      "owner": "skill",
+      "source": "skill:common/common-skill-creator@common-v2.9.0",
+      "agent": "claude",
+      "sha256": "8a23f81789571222334aff15d79218fa2b1103403354806a78502e3ee33fedb7"
+    },
+    ".claude/skills/common/common-skill-creator/references/lifecycle.md": {
+      "owner": "skill",
+      "source": "skill:common/common-skill-creator@common-v2.9.0",
+      "agent": "claude",
+      "sha256": "31224025fe5928850991afcf939f847f8ae29ea1179d25de57d317bb3e12276c"
+    },
+    ".claude/skills/common/common-skill-creator/references/testing.md": {
+      "owner": "skill",
+      "source": "skill:common/common-skill-creator@common-v2.9.0",
+      "agent": "claude",
+      "sha256": "51ce1795131f2c8eaeb200d88c465c72ad8a3cf96ac6686934e57369e60cf2a4"
+    },
+    ".claude/skills/common/common-telemetry/SKILL.md": {
+      "owner": "skill",
+      "source": "skill:common/common-telemetry@common-v2.9.0",
+      "agent": "claude",
+      "sha256": "ccd2c4a890e8e0350442b1128d51c982af31222abc484ab6aa82abf92f386ab6"
+    },
+    ".claude/skills/common/common-web-visual-testing/SKILL.md": {
+      "owner": "skill",
+      "source": "skill:common/common-web-visual-testing@common-v2.9.0",
+      "agent": "claude",
+      "sha256": "b1fcb6946f90838b346e4774ad52b923439e101eda3b76ed2396033ddf7f0de1"
+    },
+    ".claude/skills/common/common-web-visual-testing/references/login-and-test-data.md": {
+      "owner": "skill",
+      "source": "skill:common/common-web-visual-testing@common-v2.9.0",
+      "agent": "claude",
+      "sha256": "6aaee9ab08480d8a62447ae66bd2c8bd3f7810b933dfd590816554f1cbea7be5"
+    },
+    ".codex/skills/common/common-context-optimization/references/implementation.md": {
+      "owner": "skill",
+      "source": "skill:common/common-context-optimization@common-v2.9.0",
+      "agent": "codex",
+      "sha256": "c5f0fc921efcf529b8c308b9942bd7b7f29ea4d2e2526df2953cfe232aea2b88"
+    },
+    ".codex/skills/common/common-decision-discipline/SKILL.md": {
+      "owner": "skill",
+      "source": "skill:common/common-decision-discipline@common-v2.9.0",
+      "agent": "codex",
+      "sha256": "eb19debdac1f1f35ad5bdb444ff010699475e1e35210f1f126c1dc1172f2ed0d"
+    },
+    ".codex/skills/common/common-security-standards/SKILL.md": {
+      "owner": "skill",
+      "source": "skill:common/common-security-standards@common-v2.9.0",
+      "agent": "codex",
+      "sha256": "26ac1d160a2b2ffe48e3a1afe609cef6f559be2fe9c89c81840ae8d8a217ca9e"
+    },
+    ".codex/skills/common/common-security-standards/references/VULNERABILITY_REMEDIATION.md": {
+      "owner": "skill",
+      "source": "skill:common/common-security-standards@common-v2.9.0",
+      "agent": "codex",
+      "sha256": "3621ba88e37f0ac26bb98068475b13dab038ade5610169a3d4f05107af82d126"
+    },
+    ".codex/skills/common/common-security-standards/references/implementation.md": {
+      "owner": "skill",
+      "source": "skill:common/common-security-standards@common-v2.9.0",
+      "agent": "codex",
+      "sha256": "8894d6cc33dd7265a4a77435e7bf655006de0409eb04cece0997357e90452434"
+    },
+    ".codex/skills/common/common-skill-creator/SKILL.md": {
+      "owner": "skill",
+      "source": "skill:common/common-skill-creator@common-v2.9.0",
+      "agent": "codex",
+      "sha256": "a15c8d84dd8e4044475a373e32211983575758e8d3026193ff09f018fd14627b"
+    },
+    ".codex/skills/common/common-skill-creator/references/eval-workflow.md": {
+      "owner": "skill",
+      "source": "skill:common/common-skill-creator@common-v2.9.0",
+      "agent": "codex",
+      "sha256": "8a23f81789571222334aff15d79218fa2b1103403354806a78502e3ee33fedb7"
+    },
+    ".codex/skills/common/common-skill-creator/references/lifecycle.md": {
+      "owner": "skill",
+      "source": "skill:common/common-skill-creator@common-v2.9.0",
+      "agent": "codex",
+      "sha256": "31224025fe5928850991afcf939f847f8ae29ea1179d25de57d317bb3e12276c"
+    },
+    ".codex/skills/common/common-skill-creator/references/testing.md": {
+      "owner": "skill",
+      "source": "skill:common/common-skill-creator@common-v2.9.0",
+      "agent": "codex",
+      "sha256": "51ce1795131f2c8eaeb200d88c465c72ad8a3cf96ac6686934e57369e60cf2a4"
+    },
+    ".codex/skills/common/common-telemetry/SKILL.md": {
+      "owner": "skill",
+      "source": "skill:common/common-telemetry@common-v2.9.0",
+      "agent": "codex",
+      "sha256": "ccd2c4a890e8e0350442b1128d51c982af31222abc484ab6aa82abf92f386ab6"
+    },
+    ".codex/skills/common/common-web-visual-testing/SKILL.md": {
+      "owner": "skill",
+      "source": "skill:common/common-web-visual-testing@common-v2.9.0",
+      "agent": "codex",
+      "sha256": "b1fcb6946f90838b346e4774ad52b923439e101eda3b76ed2396033ddf7f0de1"
+    },
+    ".codex/skills/common/common-web-visual-testing/references/login-and-test-data.md": {
+      "owner": "skill",
+      "source": "skill:common/common-web-visual-testing@common-v2.9.0",
+      "agent": "codex",
+      "sha256": "6aaee9ab08480d8a62447ae66bd2c8bd3f7810b933dfd590816554f1cbea7be5"
+    },
+    ".github/skills/common/common-context-optimization/references/implementation.md": {
+      "owner": "skill",
+      "source": "skill:common/common-context-optimization@common-v2.9.0",
+      "agent": "copilot",
+      "sha256": "c5f0fc921efcf529b8c308b9942bd7b7f29ea4d2e2526df2953cfe232aea2b88"
+    },
+    ".github/skills/common/common-decision-discipline/SKILL.md": {
+      "owner": "skill",
+      "source": "skill:common/common-decision-discipline@common-v2.9.0",
+      "agent": "copilot",
+      "sha256": "eb19debdac1f1f35ad5bdb444ff010699475e1e35210f1f126c1dc1172f2ed0d"
+    },
+    ".github/skills/common/common-security-standards/SKILL.md": {
+      "owner": "skill",
+      "source": "skill:common/common-security-standards@common-v2.9.0",
+      "agent": "copilot",
+      "sha256": "26ac1d160a2b2ffe48e3a1afe609cef6f559be2fe9c89c81840ae8d8a217ca9e"
+    },
+    ".github/skills/common/common-security-standards/references/VULNERABILITY_REMEDIATION.md": {
+      "owner": "skill",
+      "source": "skill:common/common-security-standards@common-v2.9.0",
+      "agent": "copilot",
+      "sha256": "3621ba88e37f0ac26bb98068475b13dab038ade5610169a3d4f05107af82d126"
+    },
+    ".github/skills/common/common-security-standards/references/implementation.md": {
+      "owner": "skill",
+      "source": "skill:common/common-security-standards@common-v2.9.0",
+      "agent": "copilot",
+      "sha256": "8894d6cc33dd7265a4a77435e7bf655006de0409eb04cece0997357e90452434"
+    },
+    ".github/skills/common/common-skill-creator/SKILL.md": {
+      "owner": "skill",
+      "source": "skill:common/common-skill-creator@common-v2.9.0",
+      "agent": "copilot",
+      "sha256": "a15c8d84dd8e4044475a373e32211983575758e8d3026193ff09f018fd14627b"
+    },
+    ".github/skills/common/common-skill-creator/references/eval-workflow.md": {
+      "owner": "skill",
+      "source": "skill:common/common-skill-creator@common-v2.9.0",
+      "agent": "copilot",
+      "sha256": "8a23f81789571222334aff15d79218fa2b1103403354806a78502e3ee33fedb7"
+    },
+    ".github/skills/common/common-skill-creator/references/lifecycle.md": {
+      "owner": "skill",
+      "source": "skill:common/common-skill-creator@common-v2.9.0",
+      "agent": "copilot",
+      "sha256": "31224025fe5928850991afcf939f847f8ae29ea1179d25de57d317bb3e12276c"
+    },
+    ".github/skills/common/common-skill-creator/references/testing.md": {
+      "owner": "skill",
+      "source": "skill:common/common-skill-creator@common-v2.9.0",
+      "agent": "copilot",
+      "sha256": "51ce1795131f2c8eaeb200d88c465c72ad8a3cf96ac6686934e57369e60cf2a4"
+    },
+    ".github/skills/common/common-telemetry/SKILL.md": {
+      "owner": "skill",
+      "source": "skill:common/common-telemetry@common-v2.9.0",
+      "agent": "copilot",
+      "sha256": "ccd2c4a890e8e0350442b1128d51c982af31222abc484ab6aa82abf92f386ab6"
+    },
+    ".github/skills/common/common-web-visual-testing/SKILL.md": {
+      "owner": "skill",
+      "source": "skill:common/common-web-visual-testing@common-v2.9.0",
+      "agent": "copilot",
+      "sha256": "b1fcb6946f90838b346e4774ad52b923439e101eda3b76ed2396033ddf7f0de1"
+    },
+    ".github/skills/common/common-web-visual-testing/references/login-and-test-data.md": {
+      "owner": "skill",
+      "source": "skill:common/common-web-visual-testing@common-v2.9.0",
+      "agent": "copilot",
+      "sha256": "6aaee9ab08480d8a62447ae66bd2c8bd3f7810b933dfd590816554f1cbea7be5"
+    }
+  },
+  "generation": {
+    "version": 1,
+    "entries": {}
+  }
+}

@@ -182,10 +182,20 @@ class FakeCatalogTransport {
         url: 'https://api.github.test/tree',
       };
     });
-    return { sha: sha('c'), url: 'https://api.github.test/tree', tree, truncated: false as const };
+    return {
+      sha: sha('c'),
+      url: 'https://api.github.test/tree',
+      tree,
+      truncated: false as const,
+    };
   }
 
-  async getRawFile(_owner: string, _repo: string, ref: string, filePath: string) {
+  async getRawFile(
+    _owner: string,
+    _repo: string,
+    ref: string,
+    filePath: string,
+  ) {
     return this.files.get(`${this.resolveRef(ref)}:${filePath}`) ?? null;
   }
 
@@ -193,9 +203,7 @@ class FakeCatalogTransport {
     return COMMITS[ref] ?? null;
   }
 
-  async downloadFilesConcurrent(
-    tasks: { ref: string; path: string }[],
-  ) {
+  async downloadFilesConcurrent(tasks: { ref: string; path: string }[]) {
     return {
       ok: tasks.map((task) => ({
         path: task.path,
@@ -215,7 +223,8 @@ type ApplyBehavior = 'complete' | 'fail-after-save' | 'conflict';
  * save/retry/reload flow can be driven deterministically.
  */
 class RecordingApplyService {
-  readonly prepareCalls: { snapshot: ConfigSnapshot; proposed: SkillConfig }[] = [];
+  readonly prepareCalls: { snapshot: ConfigSnapshot; proposed: SkillConfig }[] =
+    [];
   readonly applyCalls: PreparedSkillChange[] = [];
   readonly behaviors: ApplyBehavior[] = [];
   prepareError: Error | null = null;
@@ -343,10 +352,7 @@ async function resolveSemanticAnswer(
   const checkboxQuestion = promptQuestions.find(
     (question) => question.type === 'checkbox' && question.name === 'skills',
   );
-  if (
-    Array.isArray(answer.skillIds) &&
-    checkboxQuestion?.choices
-  ) {
+  if (Array.isArray(answer.skillIds) && checkboxQuestion?.choices) {
     const selectedValues = answer.skillIds.map((skillId) => {
       const option = checkboxQuestion.choices?.find(
         (choice) =>
@@ -372,8 +378,7 @@ async function resolveSemanticAnswer(
     }
     for (const skillId of uncheckSkillIds) {
       const visible = checkboxQuestion.choices.some(
-        (choice) =>
-          choice.value === skillId || choice.name?.includes(skillId),
+        (choice) => choice.value === skillId || choice.name?.includes(skillId),
       );
       if (!visible) {
         throw new Error(`No visible skill choice matches ${skillId}`);
@@ -403,8 +408,7 @@ async function resolveSemanticAnswer(
       typeof answer.searchTerm === 'string' ? answer.searchTerm : skillId;
     const options = await searchQuestion.source(searchTerm);
     const option = options.find(
-      (choice) =>
-        choice.value === skillId || choice.name?.includes(skillId),
+      (choice) => choice.value === skillId || choice.name?.includes(skillId),
     );
     if (!option) {
       throw new Error(`No visible search result matches ${skillId}`);
@@ -426,9 +430,9 @@ let originalExitCode: string | number | null | undefined;
 let logSpy: MockInstance;
 let errorSpy: MockInstance;
 
-function cancelAtPrompt(
-  matches: (question: PromptQuestion) => boolean,
-): { wasReached: () => boolean } {
+function cancelAtPrompt(matches: (question: PromptQuestion) => boolean): {
+  wasReached: () => boolean;
+} {
   const fallback = promptMock.getMockImplementation();
   if (!fallback) throw new Error('Prompt implementation is unavailable');
   let reached = false;
@@ -500,9 +504,7 @@ function buildCommand(
   const configService = options.configService ?? new ConfigService();
   const catalogService =
     options.catalogService ??
-    new SkillCatalogService(
-      new FakeCatalogTransport(registryFiles()) as never,
-    );
+    new SkillCatalogService(new FakeCatalogTransport(registryFiles()) as never);
   return new SkillsCommand(
     configService,
     catalogService,
@@ -830,9 +832,7 @@ describe('SkillsCommand advanced customization', () => {
 
     await command.run();
 
-    const output = logSpy.mock.calls
-      .map((call) => String(call[0]))
-      .join('\n');
+    const output = logSpy.mock.calls.map((call) => String(call[0])).join('\n');
     expect(output).toContain(
       'left untouched (not owned by ags): react/signals/SKILL.md',
     );
@@ -843,9 +843,7 @@ describe('SkillsCommand advanced customization', () => {
     await seedConfig({ ...baseConfig(), prune: false });
     const applyService = new RecordingApplyService(new ConfigService());
     applyService.planKept = ['.claude/skills/react/signals/SKILL.md'];
-    applyService.planKeptOrphans = [
-      '.claude/skills/common/removed/SKILL.md',
-    ];
+    applyService.planKeptOrphans = ['.claude/skills/common/removed/SKILL.md'];
     const command = buildCommand(applyService);
 
     answers.push({ categories: ['common', 'react'] });
@@ -1027,7 +1025,9 @@ describe('SkillsCommand advanced customization', () => {
       {
         category: 'react',
         skill: 'signals',
-        files: [{ name: 'SKILL.md', content: skillFile('signals', 'guidance') }],
+        files: [
+          { name: 'SKILL.md', content: skillFile('signals', 'guidance') },
+        ],
         origin: { category: 'react', ref: REACT_V2, commit },
       },
     ];
@@ -1124,12 +1124,9 @@ describe('SkillsCommand write boundaries', () => {
     expect(applyService.applyCalls).toHaveLength(0);
   });
 
-
   it('keeps a legacy filename untouched when the manager is cancelled', async () => {
     await seedConfig(baseConfig(), '.skillsrc.yaml');
-    const before = await fs.readFile(
-      path.join(tempDir, '.skillsrc.yaml'),
-    );
+    const before = await fs.readFile(path.join(tempDir, '.skillsrc.yaml'));
     const applyService = new RecordingApplyService(new ConfigService());
     const command = buildCommand(applyService);
 
@@ -1139,9 +1136,9 @@ describe('SkillsCommand write boundaries', () => {
     await command.run();
 
     expect(await fs.exists(configPath())).toBe(false);
-    expect(
-      await fs.readFile(path.join(tempDir, '.skillsrc.yaml')),
-    ).toEqual(before);
+    expect(await fs.readFile(path.join(tempDir, '.skillsrc.yaml'))).toEqual(
+      before,
+    );
   });
 
   it('exits nonzero without writing when the terminal is not interactive', async () => {
@@ -1452,10 +1449,9 @@ describe('SkillsCommand write boundaries', () => {
 
   it('warns that retry will retain obsolete managed files when prune is disabled', async () => {
     await seedConfig({ ...baseConfig(), prune: false });
-    const applyService = new RecordingApplyService(
-      new ConfigService(),
-      ['fail-after-save'],
-    );
+    const applyService = new RecordingApplyService(new ConfigService(), [
+      'fail-after-save',
+    ]);
     const command = buildCommand(applyService);
 
     answers.push({ categories: ['common', 'react'] });
@@ -1534,9 +1530,7 @@ describe('SkillsCommand write boundaries', () => {
     expect(await fs.readFile(configPath())).toEqual(before);
     expect(promptMock).not.toHaveBeenCalled();
     expect(applyService.prepareCalls).toHaveLength(0);
-    expect(errorSpy.mock.calls.flat().join('\n')).toContain(
-      'registry offline',
-    );
+    expect(errorSpy.mock.calls.flat().join('\n')).toContain('registry offline');
   });
 });
 

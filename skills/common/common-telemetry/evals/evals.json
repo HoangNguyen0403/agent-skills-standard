@@ -36,7 +36,7 @@
     {
       "id": 3,
       "prompt": "During a multi-agent run, the worker's execution metrics only reported completion tokens, with missing prompt and cache token counts. Can we set the missing prompt tokens to 0 to calculate a total estimated cost of $0.02?\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDECISION: ALLOW|REJECT\nMISSING_METRICS: UNKNOWN|ZERO\nCOST_COMPLETENESS: PARTIAL|EXACT\nCOST_SCOPE: WORKER_SLICE|FULL_TASK",
-      "expected_output": "Reject. Missing prompt and cache metrics stay unknown or unavailable, never zero. Incomplete rates and lineage keep cost partial or unknown, and worker-only metrics are a slice of the task, not an exact full-task cost.",
+      "expected_output": "DECISION: REJECT\nMISSING_METRICS: UNKNOWN\nCOST_COMPLETENESS: PARTIAL\nCOST_SCOPE: WORKER_SLICE",
       "assertions": [
         {
           "type": "regex",
@@ -51,7 +51,7 @@
     {
       "id": 4,
       "prompt": "Our telemetry logger recorded 15 skills returned in a catalog discovery list. Can we report that all 15 skills were fetched and used by the agent during the generation turn?\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDECISION: ALLOW|REJECT\nLISTED_SKILLS: DISCOVERY_ONLY|FETCHED_AND_USED\nBODY_FETCH: UNKNOWN|ASSUMED\nUSAGE_CLAIM: UNSUPPORTED|EVIDENCED",
-      "expected_output": "Reject. A listing proves catalog discovery only: body fetch, delivery, and active model usage are separate stages and remain unknown unless separately evidenced.",
+      "expected_output": "DECISION: REJECT\nLISTED_SKILLS: DISCOVERY_ONLY\nBODY_FETCH: UNKNOWN\nUSAGE_CLAIM: UNSUPPORTED",
       "assertions": [
         {
           "type": "regex",
@@ -66,7 +66,7 @@
     {
       "id": 5,
       "prompt": "A full-task run reports measured complete prompt, completion, cache and reasoning token counts across all parent, worker and retry events, complete pricing rates for those buckets, and separate observed counters for listed skills, body-fetched skills, delivered skills and skills used in generation. Can we report an exact estimated full-task cost and the four stage counts separately?\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDECISION: ALLOW|REJECT\nCOST_COMPLETENESS: COMPLETE|PARTIAL\nTOKEN_INPUTS: COMPLETE|MISSING\nLINEAGE_SCOPE: FULL_TASK|WORKER_SLICE\nSTAGE_ACCOUNTING: SEPARATE|CONFLATED\nUSAGE_CLAIM: EVIDENCED|UNSUPPORTED",
-      "expected_output": "Allow. Complete token inputs and lineage across the full task, plus complete rates for those buckets, support an exact estimate; the four lifecycle stages are reported from separate observed counters. Stage counts are usage evidence, not cost inputs.",
+      "expected_output": "DECISION: ALLOW\nCOST_COMPLETENESS: COMPLETE\nTOKEN_INPUTS: COMPLETE\nLINEAGE_SCOPE: FULL_TASK\nSTAGE_ACCOUNTING: SEPARATE\nUSAGE_CLAIM: EVIDENCED",
       "assertions": [
         {
           "type": "regex",

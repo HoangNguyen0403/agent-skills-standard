@@ -51,7 +51,7 @@
     {
       "id": 3,
       "prompt": "To test the login page in our CI pipeline faster, can we just use fetch() to post credentials directly with custom headers or inject a mock auth cookie, rather than automating the real browser form submission?\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDECISION: ALLOW|REJECT\nLOGIN_PROOF: NATIVE_FORM_REAL_BROWSER|FETCH_WITH_HEADERS\nORIGIN_CSRF: VERIFIED|DISABLED\nLANDING_STATE: POPULATED_DOM|MOCK_COOKIE",
-      "expected_output": "Reject standalone fetch() or manual-header login as full governance proof. State-changing login requires a real browser native form submission with the app's Origin and CSRF policy enforced, plus the actual populated landing state. Saved-auth fixtures remain valid only for later screens.",
+      "expected_output": "DECISION: REJECT\nLOGIN_PROOF: NATIVE_FORM_REAL_BROWSER\nORIGIN_CSRF: VERIFIED\nLANDING_STATE: POPULATED_DOM",
       "assertions": [
         {
           "type": "regex",
@@ -66,7 +66,7 @@
     {
       "id": 4,
       "prompt": "Our integration test renders the login component in jsdom and checks that a mock cookie is set. Does this satisfy login and backend security governance verification?\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDECISION: ALLOW|REJECT\nFULL_LOGIN_GOVERNANCE: YES|NO\nJSDOM_SCOPE: ISOLATED_COMPONENT_ONLY|FULL_BACKEND_PROOF\nSESSION_COOKIE_EVIDENCE: REAL_HTTP_RESPONSE|MOCK_COOKIE",
-      "expected_output": "No. jsdom is valid for isolated component or layout tests but cannot prove backend session cookie issuance, SameSite/HttpOnly policy, Origin/CSRF enforcement, or the populated landing state. Full login governance needs a real browser and real HTTP evidence.",
+      "expected_output": "DECISION: REJECT\nFULL_LOGIN_GOVERNANCE: NO\nJSDOM_SCOPE: ISOLATED_COMPONENT_ONLY\nSESSION_COOKIE_EVIDENCE: REAL_HTTP_RESPONSE",
       "assertions": [
         {
           "type": "regex",
@@ -81,7 +81,7 @@
     {
       "id": 5,
       "prompt": "Our CI test drives the real browser login form, submits it to the backend with the app's CSRF token, verifies the state-changing POST is accepted only with a trusted Origin, and asserts the populated dashboard. A saved-auth file is used only for later feature screens. Approve this login verification approach?\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDECISION: ALLOW|REJECT\nLOGIN_PROOF: NATIVE_FORM_REAL_BROWSER|FETCH_WITH_HEADERS\nORIGIN_CSRF: VERIFIED|DISABLED\nSAVED_AUTH_USE: POST_LOGIN_SCREENS_ONLY|LOGIN_GOVERNANCE_PROOF",
-      "expected_output": "Allow. This exercises the native state-changing form in a real browser with Origin/CSRF enforcement and asserts the populated landing state. Saved auth is correctly limited to later post-login screens, not login governance.",
+      "expected_output": "DECISION: ALLOW\nLOGIN_PROOF: NATIVE_FORM_REAL_BROWSER\nORIGIN_CSRF: VERIFIED\nSAVED_AUTH_USE: POST_LOGIN_SCREENS_ONLY",
       "assertions": [
         {
           "type": "regex",
@@ -96,7 +96,7 @@
     {
       "id": 6,
       "prompt": "A real-browser test opens /dashboard with a top-level GET navigation. The request carries no Origin header, and the test asserts the populated dashboard DOM. Should the missing Origin fail this navigation test?\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDECISION: ALLOW|REJECT\nGET_NAVIGATION: VALID_WITHOUT_ORIGIN|INVALID_MISSING_ORIGIN\nPOPULATED_STATE: ASSERTED|SKIPPED\nNULL_ORIGIN_POLICY: STRICT_FOR_STATE_CHANGING|CORS_WAIVED",
-      "expected_output": "Allow. Ordinary top-level GET navigation is not required to send Origin, so its absence is not a failure; assert the populated DOM. Strict null/untrusted-Origin and CSRF rejection still applies to state-changing submissions, with no CORS waiver.",
+      "expected_output": "DECISION: ALLOW\nGET_NAVIGATION: VALID_WITHOUT_ORIGIN\nPOPULATED_STATE: ASSERTED\nNULL_ORIGIN_POLICY: STRICT_FOR_STATE_CHANGING",
       "assertions": [
         {
           "type": "regex",

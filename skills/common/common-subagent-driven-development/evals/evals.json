@@ -314,8 +314,8 @@
     },
     {
       "id": 18,
-      "prompt": "When is Inline implementation allowed for a plan, and can the orchestrator choose Inline on its own for a multi-task feature?\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDISPATCH: SUBAGENT_DRIVEN|INLINE_DEFAULT\nINLINE_ALLOWED: RECORDED_HUMAN_EXCEPTION|ORCHESTRATOR_DISCRETION\nFILE_COUNT: NOT_LOW_RISK_PROOF|LOW_RISK_PROOF",
-      "expected_output": "DISPATCH: SUBAGENT_DRIVEN\nINLINE_ALLOWED: RECORDED_HUMAN_EXCEPTION\nFILE_COUNT: NOT_LOW_RISK_PROOF\nNOTES: Multi-task plans default to Subagent-Driven execution; Inline is only an explicitly recorded exception for genuinely small, low-risk, bounded changes that the human partner selects, and the orchestrator must not silently implement inline.",
+      "prompt": "Under an active host policy requiring an execution confirmation gate for multi-task plans, when is Inline implementation allowed, and can the orchestrator choose Inline on its own for a multi-task feature?\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDISPATCH: SUBAGENT_DRIVEN|INLINE_DEFAULT\nINLINE_ALLOWED: RECORDED_HUMAN_EXCEPTION|ORCHESTRATOR_DISCRETION\nFILE_COUNT: NOT_LOW_RISK_PROOF|LOW_RISK_PROOF",
+      "expected_output": "DISPATCH: SUBAGENT_DRIVEN\nINLINE_ALLOWED: RECORDED_HUMAN_EXCEPTION\nFILE_COUNT: NOT_LOW_RISK_PROOF\nNOTES: Under an active confirmation policy, multi-task plans default to Subagent-Driven execution; Inline is only an explicitly recorded exception for small low-risk changes the human selects, not an orchestrator choice.",
       "assertions": [
         {
           "type": "regex",

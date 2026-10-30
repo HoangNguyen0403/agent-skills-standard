@@ -264,6 +264,7 @@ function parseLockV2(raw: unknown): SkillsLockFile {
       ? {}
       : { workflowCatalog: validateWorkflowCatalog(rawCatalog) }),
   };
+}
 
 const DIGEST_RE = /^[a-f0-9]{64}$/;
 const WORKFLOW_NAME_RE = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
@@ -537,26 +538,27 @@ export class LockfileService {
     let existingDisclosed: Record<string, string[]> | undefined;
     let existingGeneration: GenerationLedger | undefined;
     if (await fs.pathExists(file)) {
+      let raw:
+        | {
+            version?: unknown;
+            disclosed?: Record<string, string[]>;
+            generation?: unknown;
+          }
+        | undefined;
       try {
-        const raw = (await readJsonStrict(file)) as {
-          version?: unknown;
-          disclosed?: Record<string, string[]>;
-          generation?: unknown;
-        };
-        existingDisclosed = raw?.disclosed;
-        if (raw?.version === 2) {
+        raw = (await readJsonStrict(file)) as typeof raw;
+      } catch {
+        // Unreadable/unparseable previous lock: nothing to preserve.
+      }
+      if (raw) {
+        existingDisclosed = raw.disclosed;
+        if (raw.version === 2) {
+          // Semantic validation is never swallowed: an invalid ledger in the
+          // previous lock must fail the write before publication.
           existingGeneration = parseGenerationLedger(raw.generation);
-        } else if (raw?.generation !== undefined) {
+        } else if (raw.generation !== undefined) {
           throw new Error('Unsupported repository-generation lock namespace');
         }
-      } catch (err) {
-        if (
-          err instanceof Error &&
-          err.message === 'Unsupported repository-generation lock namespace'
-        ) {
-          throw err;
-        }
-        // ignore malformed existing file
       }
     }
     const generation =

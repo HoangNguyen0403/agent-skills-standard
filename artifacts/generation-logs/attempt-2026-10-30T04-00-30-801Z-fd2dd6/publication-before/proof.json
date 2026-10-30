@@ -1,0 +1,196 @@
+{
+  "records": [
+    {
+      "path": ".agents/skills/common/common-learning-log/SKILL.md",
+      "sha256": "c7b6d5c77f2bda9902a8bdc2af29f1da61ec97a08469d26ef9a6ef88b4ad7c12"
+    },
+    {
+      "path": ".agents/skills/common/common-learning-log/references/log-format.md",
+      "sha256": "56e889493a39bc12cf02b2275521d189a0ea36cb0b61d357038175dfd35f4d91"
+    },
+    {
+      "path": ".agents/skills/common/common-session-retrospective/SKILL.md",
+      "sha256": "4fa0a98a5d83feb8a0ea2e4cae95e0ba80962409a27543b974adc29216df2da5"
+    },
+    {
+      "path": ".agents/skills/common/common-session-retrospective/references/methodology.md",
+      "sha256": "0875de3d01cc3f81791c0a920bf9814436d606e5b35ecea6f2fc3f1df7a63fcd"
+    },
+    {
+      "path": ".agents/skills/common/common-subagent-driven-development/SKILL.md",
+      "sha256": "741f8a4cb23353c4d4d40bb07cd88dfc7b221bf6d58c5bbcc60d6f3aa39f535d"
+    },
+    {
+      "path": ".agents/skills/common/common-subagent-driven-development/references/methodology.md",
+      "sha256": "a3d9f53bb8dfb0b535b3d55dd027f22da8c3cd8889f794baf09fe908c937006d"
+    },
+    {
+      "path": ".agents/skills/common/common-subagent-driven-development/references/templates.md",
+      "sha256": "e1768f02ba60ebb29e20a92cb63c925c1a85b403d7bdb496c743249026d37528"
+    },
+    {
+      "path": ".agents/skills/common/common-subagent-driven-development/scripts/task_brief.py",
+      "sha256": "09307894b1bdb70e52fb0235dce312f29eca0de90baf3aa64c30d9e13f2912f6"
+    },
+    {
+      "path": ".agents/skills/common/common-tdd/SKILL.md",
+      "sha256": "c4adcaddda9ad7f5bc48ea0a69f595bc8009f2d43b2b952af5eaadd14f0973df"
+    },
+    {
+      "path": ".agents/skills/common/common-tdd/references/quality-contract.md",
+      "sha256": "5b1b43da495732d019d81c41538759c38a90efcecf7f27293ec8c072013d8937"
+    },
+    {
+      "path": ".claude/commands/implement-feature.md",
+      "sha256": "1c4769c51adafc5158094c6de2c69cf7d5aff4bc7413a53ab55e0fe45a2185d8"
+    },
+    {
+      "path": ".claude/commands/session-report.md",
+      "sha256": "beb07e15e44970c857e3726fcaa369d72f43c19f3ba169c09d7bb67b34fb0895"
+    },
+    {
+      "path": ".claude/skills/common/common-learning-log/SKILL.md",
+      "sha256": "c7b6d5c77f2bda9902a8bdc2af29f1da61ec97a08469d26ef9a6ef88b4ad7c12"
+    },
+    {
+      "path": ".claude/skills/common/common-learning-log/references/log-format.md",
+      "sha256": "56e889493a39bc12cf02b2275521d189a0ea36cb0b61d357038175dfd35f4d91"
+    },
+    {
+      "path": ".claude/skills/common/common-session-retrospective/SKILL.md",
+      "sha256": "4fa0a98a5d83feb8a0ea2e4cae95e0ba80962409a27543b974adc29216df2da5"
+    },
+    {
+      "path": ".claude/skills/common/common-session-retrospective/references/methodology.md",
+      "sha256": "0875de3d01cc3f81791c0a920bf9814436d606e5b35ecea6f2fc3f1df7a63fcd"
+    },
+    {
+      "path": ".claude/skills/common/common-subagent-driven-development/SKILL.md",
+      "sha256": "741f8a4cb23353c4d4d40bb07cd88dfc7b221bf6d58c5bbcc60d6f3aa39f535d"
+    },
+    {
+      "path": ".claude/skills/common/common-subagent-driven-development/references/methodology.md",
+      "sha256": "a3d9f53bb8dfb0b535b3d55dd027f22da8c3cd8889f794baf09fe908c937006d"
+    },
+    {
+      "path": ".claude/skills/common/common-subagent-driven-development/references/templates.md",
+      "sha256": "e1768f02ba60ebb29e20a92cb63c925c1a85b403d7bdb496c743249026d37528"
+    },
+    {
+      "path": ".claude/skills/common/common-subagent-driven-development/scripts/task_brief.py",
+      "sha256": "09307894b1bdb70e52fb0235dce312f29eca0de90baf3aa64c30d9e13f2912f6"
+    },
+    {
+      "path": ".claude/skills/common/common-tdd/SKILL.md",
+      "sha256": "c4adcaddda9ad7f5bc48ea0a69f595bc8009f2d43b2b952af5eaadd14f0973df"
+    },
+    {
+      "path": ".claude/skills/common/common-tdd/references/quality-contract.md",
+      "sha256": "5b1b43da495732d019d81c41538759c38a90efcecf7f27293ec8c072013d8937"
+    },
+    {
+      "path": ".codex/skills/common/common-learning-log/SKILL.md",
+      "sha256": "c7b6d5c77f2bda9902a8bdc2af29f1da61ec97a08469d26ef9a6ef88b4ad7c12"
+    },
+    {
+      "path": ".codex/skills/common/common-learning-log/references/log-format.md",
+      "sha256": "56e889493a39bc12cf02b2275521d189a0ea36cb0b61d357038175dfd35f4d91"
+    },
+    {
+      "path": ".codex/skills/common/common-session-retrospective/SKILL.md",
+      "sha256": "4fa0a98a5d83feb8a0ea2e4cae95e0ba80962409a27543b974adc29216df2da5"
+    },
+    {
+      "path": ".codex/skills/common/common-session-retrospective/references/methodology.md",
+      "sha256": "0875de3d01cc3f81791c0a920bf9814436d606e5b35ecea6f2fc3f1df7a63fcd"
+    },
+    {
+      "path": ".codex/skills/common/common-subagent-driven-development/SKILL.md",
+      "sha256": "741f8a4cb23353c4d4d40bb07cd88dfc7b221bf6d58c5bbcc60d6f3aa39f535d"
+    },
+    {
+      "path": ".codex/skills/common/common-subagent-driven-development/references/methodology.md",
+      "sha256": "a3d9f53bb8dfb0b535b3d55dd027f22da8c3cd8889f794baf09fe908c937006d"
+    },
+    {
+      "path": ".codex/skills/common/common-subagent-driven-development/references/templates.md",
+      "sha256": "e1768f02ba60ebb29e20a92cb63c925c1a85b403d7bdb496c743249026d37528"
+    },
+    {
+      "path": ".codex/skills/common/common-subagent-driven-development/scripts/task_brief.py",
+      "sha256": "09307894b1bdb70e52fb0235dce312f29eca0de90baf3aa64c30d9e13f2912f6"
+    },
+    {
+      "path": ".codex/skills/common/common-tdd/SKILL.md",
+      "sha256": "c4adcaddda9ad7f5bc48ea0a69f595bc8009f2d43b2b952af5eaadd14f0973df"
+    },
+    {
+      "path": ".codex/skills/common/common-tdd/references/quality-contract.md",
+      "sha256": "5b1b43da495732d019d81c41538759c38a90efcecf7f27293ec8c072013d8937"
+    },
+    {
+      "path": ".codex/skills/implement-feature/SKILL.md",
+      "sha256": "610b702df95b1935a3de5223f97e4b8848aad526ea2e3512f74a6d18c21ed7eb"
+    },
+    {
+      "path": ".codex/skills/session-report/SKILL.md",
+      "sha256": "642171bff64282898d9166d3437e2cd9d8b83536c0bbfb24b8133eac01251f45"
+    },
+    {
+      "path": ".github/prompts/implement-feature.prompt.md",
+      "sha256": "33606f9ab57d45ab6bcdc156a5959b03d784748f62566b0cbe7ce86dccdf43bd"
+    },
+    {
+      "path": ".github/prompts/session-report.prompt.md",
+      "sha256": "65758fc92d3046d75cf764b141edc9d7541acb526e5f540be98e694226121d92"
+    },
+    {
+      "path": ".github/skills/common/common-learning-log/SKILL.md",
+      "sha256": "c7b6d5c77f2bda9902a8bdc2af29f1da61ec97a08469d26ef9a6ef88b4ad7c12"
+    },
+    {
+      "path": ".github/skills/common/common-learning-log/references/log-format.md",
+      "sha256": "56e889493a39bc12cf02b2275521d189a0ea36cb0b61d357038175dfd35f4d91"
+    },
+    {
+      "path": ".github/skills/common/common-session-retrospective/SKILL.md",
+      "sha256": "4fa0a98a5d83feb8a0ea2e4cae95e0ba80962409a27543b974adc29216df2da5"
+    },
+    {
+      "path": ".github/skills/common/common-session-retrospective/references/methodology.md",
+      "sha256": "0875de3d01cc3f81791c0a920bf9814436d606e5b35ecea6f2fc3f1df7a63fcd"
+    },
+    {
+      "path": ".github/skills/common/common-subagent-driven-development/SKILL.md",
+      "sha256": "741f8a4cb23353c4d4d40bb07cd88dfc7b221bf6d58c5bbcc60d6f3aa39f535d"
+    },
+    {
+      "path": ".github/skills/common/common-subagent-driven-development/references/methodology.md",
+      "sha256": "a3d9f53bb8dfb0b535b3d55dd027f22da8c3cd8889f794baf09fe908c937006d"
+    },
+    {
+      "path": ".github/skills/common/common-subagent-driven-development/references/templates.md",
+      "sha256": "e1768f02ba60ebb29e20a92cb63c925c1a85b403d7bdb496c743249026d37528"
+    },
+    {
+      "path": ".github/skills/common/common-subagent-driven-development/scripts/task_brief.py",
+      "sha256": "09307894b1bdb70e52fb0235dce312f29eca0de90baf3aa64c30d9e13f2912f6"
+    },
+    {
+      "path": ".github/skills/common/common-tdd/SKILL.md",
+      "sha256": "c4adcaddda9ad7f5bc48ea0a69f595bc8009f2d43b2b952af5eaadd14f0973df"
+    },
+    {
+      "path": ".github/skills/common/common-tdd/references/quality-contract.md",
+      "sha256": "5b1b43da495732d019d81c41538759c38a90efcecf7f27293ec8c072013d8937"
+    },
+    {
+      "path": "skills/metadata.json",
+      "sha256": "87fa722fd78c24ce9d7bb6ba06b94b5dbc68da4c39e7382b2ff88a6b04b85d58"
+    },
+    {
+      "path": ".skills-lock.json",
+      "sha256": "ee62fe9b481dec7b401da83ba34376067dfcc87f97cd1f06149caebab7e4778e"
+    }
+  ]
+}

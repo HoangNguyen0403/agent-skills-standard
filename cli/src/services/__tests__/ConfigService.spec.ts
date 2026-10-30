@@ -399,9 +399,7 @@ agents:
         Promise.resolve(Buffer.from('original: yaml')),
       );
       vi.mocked(yaml.load).mockReturnValue(rawConfig);
-      vi.mocked(yaml.dump).mockImplementation((value) =>
-        JSON.stringify(value),
-      );
+      vi.mocked(yaml.dump).mockImplementation((value) => JSON.stringify(value));
 
       const snapshot = await configService.readSnapshot(mockCwd);
       if (!snapshot) throw new Error('expected configuration snapshot');
@@ -418,11 +416,7 @@ agents:
         skills_mode: 'explicit',
       };
 
-      const saved = await configService.saveSelection(
-        snapshot,
-        next,
-        mockCwd,
-      );
+      const saved = await configService.saveSelection(snapshot, next, mockCwd);
 
       expect(fs.outputFile).toHaveBeenCalledWith(
         primaryPath,
@@ -449,8 +443,12 @@ agents:
         Promise.resolve(target === primaryPath),
       );
       vi.mocked(fs.readFile)
-        .mockImplementationOnce(() => Promise.resolve(Buffer.from('original: yaml')))
-        .mockImplementationOnce(() => Promise.resolve(Buffer.from('changed: yaml')));
+        .mockImplementationOnce(() =>
+          Promise.resolve(Buffer.from('original: yaml')),
+        )
+        .mockImplementationOnce(() =>
+          Promise.resolve(Buffer.from('changed: yaml')),
+        );
       vi.mocked(yaml.load).mockReturnValue(rawConfig);
 
       const snapshot = await configService.readSnapshot(mockCwd);
@@ -472,9 +470,7 @@ agents:
         Promise.resolve(Buffer.from('original: yaml')),
       );
       vi.mocked(yaml.load).mockReturnValue(rawConfig);
-      vi.mocked(yaml.dump).mockImplementation((value) =>
-        JSON.stringify(value),
-      );
+      vi.mocked(yaml.dump).mockImplementation((value) => JSON.stringify(value));
 
       const snapshot = await configService.readSnapshot(mockCwd);
       if (!snapshot) throw new Error('expected configuration snapshot');
@@ -497,9 +493,7 @@ agents:
         Promise.resolve(Buffer.from('legacy: yaml')),
       );
       vi.mocked(yaml.load).mockReturnValue(rawConfig);
-      vi.mocked(yaml.dump).mockImplementation((value) =>
-        JSON.stringify(value),
-      );
+      vi.mocked(yaml.dump).mockImplementation((value) => JSON.stringify(value));
 
       const snapshot = await configService.readSnapshot(mockCwd);
       if (!snapshot) throw new Error('expected configuration snapshot');
@@ -537,9 +531,7 @@ agents:
         Promise.resolve(Buffer.from('legacy values: yaml')),
       );
       vi.mocked(yaml.load).mockReturnValue(legacyRaw);
-      vi.mocked(yaml.dump).mockImplementation((value) =>
-        JSON.stringify(value),
-      );
+      vi.mocked(yaml.dump).mockImplementation((value) => JSON.stringify(value));
 
       const snapshot = await configService.readSnapshot(mockCwd);
       if (!snapshot) throw new Error('expected configuration snapshot');

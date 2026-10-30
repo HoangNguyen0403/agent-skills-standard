@@ -809,8 +809,6 @@ describe('IndexGeneratorService', () => {
       );
     });
 
-
-
     it('should handle missing metadata.json gracefully', async () => {
       (fs.pathExists as any).mockResolvedValue(true);
       (fs.readdir as any).mockResolvedValue(['common']);

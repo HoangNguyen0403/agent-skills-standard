@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Behavioral tests for task_brief.py contract validation, workspace isolation, and extraction integrity."""
 
+import hashlib
+import json
 import os
 import shutil
 import subprocess
@@ -503,6 +505,136 @@ class TestTaskBrief(unittest.TestCase):
         self.assertIn("- [ ] Complete tilde parser implementation", content)
         self.assertNotIn("## Task 2: Real Task After Tilde Fence", content)
 
+    def make_valid_assignment(self, plan_file, task_number=1):
+        with open(plan_file, "rb") as f:
+            plan_sha256 = hashlib.sha256(f.read()).hexdigest()
+        return {
+            "schema_version": 1,
+            "task_id": f"task-{task_number}",
+            "task_number": task_number,
+            "goal": "Implement core engine functionality",
+            "owner": "Worker Personal Cheap",
+            "project_domain": "agent-skills-standard",
+            "workspace_root": self.test_dir,
+            "plan_sha256": plan_sha256,
+            "non_goals": ["Do not rewrite outer build systems"],
+            "authority": {
+                "allowed_operations": ["implement", "test"],
+                "forbidden_actions": ["git commit", "spawn subagent"],
+                "required_approvals": [],
+            },
+            "global_invariants": ["Keep existing error boundaries intact"],
+            "owned_paths": ["src/engine.ts"],
+            "acceptance_criteria": [
+                {"id": "AC-1", "expectation": "Returns processed state on valid input"}
+            ],
+            "verification": [
+                {"command": "pnpm test", "cwd": ".", "expected": "PASS"}
+            ],
+            "required_standards": [],
+            "source_revision": "c32fa3d7",
+            "dirty_identity": "clean-worktree",
+            "source_files": [],
+            "dependencies": [],
+            "output_contract": {
+                "receipt_destination": "artifacts/receipt.json",
+                "status_vocabulary": ["PASS", "FAIL"],
+                "stop_conditions": ["blocked"],
+            },
+            "limits": {"status": "advisory"},
+        }
 
+    def run_assignment(self, plan_file, task_number, assignment_file, outfile=None, cwd=None):
+        cmd = [
+            sys.executable,
+            str(SCRIPT),
+            plan_file,
+            str(task_number),
+            "--assignment",
+            assignment_file,
+        ]
+        if outfile:
+            cmd.extend(["--out", outfile])
+        return subprocess.run(cmd, capture_output=True, text=True, cwd=cwd or self.test_dir)
+
+    def test_assignment_mode_valid_packet_published(self):
+        """A valid assignment manifest publishes a standalone packet with exit 0."""
+        assignment_data = self.make_valid_assignment(self.plan_complete, 1)
+        assignment_path = os.path.join(self.test_dir, "assignment_valid.json")
+        with open(assignment_path, "w", encoding="utf-8") as f:
+            json.dump(assignment_data, f)
+        packet_out = os.path.join(self.test_dir, "task-1-packet.md")
+
+        res = self.run_assignment(self.plan_complete, 1, assignment_path, outfile=packet_out)
+        self.assertEqual(res.returncode, 0, f"Expected 0 exit, got {res.returncode}; stderr: {res.stderr}")
+        self.assertTrue(os.path.exists(packet_out), "Packet output file must be written")
+        with open(packet_out, "r", encoding="utf-8") as f:
+            content = f.read()
+        self.assertIn("# Assignment packet: task-1", content)
+        self.assertIn("Implement core engine functionality", content)
+        self.assertIn("Worker Personal Cheap", content)
+        self.assertIn("AC-1", content)
+
+    def test_assignment_mode_missing_field_exit_2(self):
+        """Missing required key in assignment exits with code 2 and no unhandled AttributeError."""
+        assignment_data = self.make_valid_assignment(self.plan_complete, 1)
+        del assignment_data["goal"]  # remove required key
+        assignment_path = os.path.join(self.test_dir, "assignment_missing_goal.json")
+        with open(assignment_path, "w", encoding="utf-8") as f:
+            json.dump(assignment_data, f)
+        packet_out = os.path.join(self.test_dir, "task-1-missing-goal.md")
+
+        res = self.run_assignment(self.plan_complete, 1, assignment_path, outfile=packet_out)
+        self.assertEqual(res.returncode, 2, f"Expected code 2 exit, got {res.returncode}; stderr: {res.stderr}")
+        self.assertNotIn("AttributeError", res.stderr, "PacketError must carry .code attribute cleanly")
+        self.assertIn("field 'goal' is required", res.stderr)
+        self.assertFalse(os.path.exists(packet_out))
+
+    def test_assignment_mode_invalid_json_exit_2(self):
+        """Malformed JSON in assignment file exits with code 2."""
+        assignment_path = os.path.join(self.test_dir, "assignment_malformed.json")
+        with open(assignment_path, "w", encoding="utf-8") as f:
+            f.write("{invalid json")
+
+        res = self.run_assignment(self.plan_complete, 1, assignment_path)
+        self.assertEqual(res.returncode, 2, f"Expected code 2 exit, got {res.returncode}; stderr: {res.stderr}")
+        self.assertIn("not valid JSON", res.stderr)
+
+    def test_assignment_mode_plan_digest_mismatch_exit_2(self):
+        """Plan SHA-256 mismatch in assignment exits with code 2."""
+        assignment_data = self.make_valid_assignment(self.plan_complete, 1)
+        assignment_data["plan_sha256"] = "0" * 64
+        assignment_path = os.path.join(self.test_dir, "assignment_digest_mismatch.json")
+        with open(assignment_path, "w", encoding="utf-8") as f:
+            json.dump(assignment_data, f)
+
+        res = self.run_assignment(self.plan_complete, 1, assignment_path)
+        self.assertEqual(res.returncode, 2, f"Expected code 2 exit, got {res.returncode}; stderr: {res.stderr}")
+        self.assertIn("plan_sha256 digest mismatch", res.stderr)
+
+    def test_assignment_mode_task_not_found_exit_3(self):
+        """Requesting an absent task in assignment mode exits with code 3."""
+        assignment_data = self.make_valid_assignment(self.plan_complete, 99)
+        assignment_path = os.path.join(self.test_dir, "assignment_task_99.json")
+        with open(assignment_path, "w", encoding="utf-8") as f:
+            json.dump(assignment_data, f)
+
+        res = self.run_assignment(self.plan_complete, 99, assignment_path)
+        self.assertEqual(res.returncode, 3, f"Expected code 3 exit, got {res.returncode}; stderr: {res.stderr}")
+        self.assertIn("task 99 not found in plan", res.stderr)
+
+    def test_assignment_mode_output_collision_exit_3(self):
+        """Existing output with different content triggers output collision exit code 3."""
+        assignment_data = self.make_valid_assignment(self.plan_complete, 1)
+        assignment_path = os.path.join(self.test_dir, "assignment_collision.json")
+        with open(assignment_path, "w", encoding="utf-8") as f:
+            json.dump(assignment_data, f)
+        packet_out = os.path.join(self.test_dir, "task-1-collision-packet.md")
+        with open(packet_out, "w", encoding="utf-8") as f:
+            f.write("DIFFERENT PACKET CONTENT THAT COLLIDES")
+
+        res = self.run_assignment(self.plan_complete, 1, assignment_path, outfile=packet_out)
+        self.assertEqual(res.returncode, 3, f"Expected code 3 exit, got {res.returncode}; stderr: {res.stderr}")
+        self.assertIn("output collision", res.stderr)
 if __name__ == "__main__":
     unittest.main()

@@ -66,6 +66,124 @@ class PacketError(Exception):
         super().__init__(message)
         self.code = code
 
+_FENCE_PATTERN = re.compile(r"^(`{3,}|~{3,})(.*)$")
+
+_CONTRACT_LABELS = {
+    "scope": r"Scope\s*/\s*owned write set|Owned write set|Scope|Files",
+    "inputs": r"Inputs?",
+    "outputs": r"Outputs?",
+    "real ingress": r"Real Ingress|Ingress(?:/invariants?)?",
+    "invariants": r"Invariants?|Ingress/invariants?|Positive Invariants?",
+    "verification owner": r"Verification Owner",
+    "handoff / freeze": r"Handoff\s*/\s*freeze|Handoff|Freeze",
+    "correction route": r"Correction Route",
+}
+
+
+def _fence_transition(stripped, fence):
+    """Return (state, is_fence_line) for one stripped markdown line.
+
+    A fence opens on three or more backticks or tildes and closes only on the
+    same marker character with at least the opening length and no info string.
+    """
+    match = _FENCE_PATTERN.match(stripped)
+    if not match:
+        return fence, False
+    marker, info = match.group(1), match.group(2)
+    if fence is None:
+        # A backtick fence cannot carry backticks in its info string.
+        if marker[0] == "`" and "`" in info:
+            return fence, False
+        return (marker[0], len(marker)), True
+    if marker[0] == fence[0] and len(marker) >= fence[1] and not info.strip():
+        return None, True
+    return fence, False
+
+
+def _unfenced_lines(extracted_lines):
+    """Return lines outside markdown fences, honouring backtick and tilde markers."""
+    fence = None
+    outside = []
+    for line in extracted_lines:
+        fence, is_fence_line = _fence_transition(line.strip(), fence)
+        if not is_fence_line and fence is None:
+            outside.append(line)
+    return outside
+
+
+def _label_value(line, labels):
+    """Return the same-line value of a bold contract label, or None if absent.
+
+    Labels match case-insensitively. Only horizontal whitespace is allowed
+    around the label and its colon, so an empty value can never consume the
+    following label or line.
+    """
+    match = re.match(
+        r"^\s*(?:[-*+][ \t]+)?\*\*[ \t]*(?:" + labels + r")[ \t]*(?::[ \t]*\*\*|\*\*[ \t]*:)(.*)$",
+        line,
+        re.IGNORECASE,
+    )
+    return match.group(1).strip() if match else None
+
+
+def _field_value(lines, labels):
+    """Return the first populated same-line value for a label."""
+    for line in lines:
+        value = _label_value(line, labels)
+        if value:
+            return value
+    return None
+
+
+def _invariant_value(line, kind):
+    """Return a positive/negative invariant value from its own entry line."""
+    bold = re.match(
+        r"^\s*(?:[-*+][ \t]+)?\*\*[ \t]*" + kind + r"(?:[ \t]+[Ii]nvariants?)?[ \t]*(?::[ \t]*\*\*|\*\*[ \t]*:)(.*)$",
+        line,
+        re.IGNORECASE,
+    )
+    plain = re.match(
+        r"^\s*(?:[-*+][ \t]+)?" + kind + r"(?:[ \t]+invariants?)?[ \t]*:[ \t]*(.*)$",
+        line,
+        re.IGNORECASE,
+    )
+    match = bold or plain
+    return match.group(1).strip() if match else None
+
+
+def validate_task_contract(extracted_lines):
+    """Validate populated contract fields outside markdown fences.
+
+    Labels must appear as bold fields with their own same-line value; fenced
+    examples and unstructured prose never satisfy the contract.
+    """
+    lines_outside = _unfenced_lines(extracted_lines)
+    missing = []
+
+    for field in ("scope", "inputs", "outputs", "real ingress", "verification owner", "correction route"):
+        if not _field_value(lines_outside, _CONTRACT_LABELS[field]):
+            missing.append(field)
+
+    invariants_label = False
+    positive = None
+    negative = None
+    for line in lines_outside:
+        if _label_value(line, _CONTRACT_LABELS["invariants"]) is not None:
+            invariants_label = True
+        if positive is None and _invariant_value(line, "Positive"):
+            positive = True
+        if negative is None and _invariant_value(line, "Negative"):
+            negative = True
+    if not invariants_label or not positive:
+        missing.append("positive invariant")
+    if not invariants_label or not negative:
+        missing.append("negative invariant")
+
+    handoff = _field_value(lines_outside, _CONTRACT_LABELS["handoff / freeze"])
+    if not handoff or not re.search(r"\b(final|freeze|report|handoff)\b", handoff, re.IGNORECASE):
+        missing.append("explicit handoff / freeze")
+
+    return missing
 
 def fail(code: int, message: str):
     raise PacketError(code, message)
@@ -145,6 +263,97 @@ def is_within(root_real: str, candidate_real: str) -> bool:
         return os.path.commonpath([root_real, candidate_real]) == root_real
     except ValueError:
         return False
+
+
+def extract_task(plan_file, task_number, outfile=None):
+    if not os.path.isfile(plan_file):
+        sys.stderr.write(f"Error: plan file not found: {plan_file}\n")
+        sys.exit(2)
+
+    try:
+        t_num = int(task_number)
+    except ValueError:
+        sys.stderr.write(f"Error: task number must be an integer, got: {task_number}\n")
+        sys.exit(2)
+
+    # Pattern for opening task header
+    # Matches: # Task 1, ## Task 1:, ### Task 1 - Title, etc.
+    header_regex = re.compile(r"^(#{1,6})\s+Task\s+(\d+)\b", re.IGNORECASE)
+
+    extracted_lines = []
+    in_target_task = False
+    fence = None
+    target_depth = None
+
+    with open(plan_file, "r", encoding="utf-8", errors="ignore") as f:
+        for line in f:
+            stripped = line.strip()
+            was_fenced = fence is not None
+            fence, is_fence_line = _fence_transition(stripped, fence)
+
+            if not was_fenced and not is_fence_line:
+                m = header_regex.match(stripped)
+                if m:
+                    depth = len(m.group(1))
+                    curr_num = int(m.group(2))
+                    if curr_num == t_num:
+                        in_target_task = True
+                        target_depth = depth
+                        extracted_lines.append(line)
+                        continue
+                    elif in_target_task:
+                        # Reached another task header
+                        break
+                elif in_target_task:
+                    # Check if reached same or higher-level header (e.g. ## Next Section)
+                    hdr_match = re.match(r"^(#{1,6})\s+", stripped)
+                    if hdr_match:
+                        depth = len(hdr_match.group(1))
+                        if target_depth is not None and depth <= target_depth:
+                            break
+
+            if in_target_task:
+                extracted_lines.append(line)
+
+    if not extracted_lines:
+        sys.stderr.write(
+            f"Error: task {t_num} not found in {plan_file} (no heading matching 'Task {t_num}')\n"
+        )
+        sys.exit(3)
+
+    # Validate mandatory contract fields BEFORE resolving workspace or creating output directories
+    missing_fields = validate_task_contract(extracted_lines)
+    if missing_fields:
+        sys.stderr.write(
+            f"Error: task {t_num} in {plan_file} is missing required contract fields: {', '.join(missing_fields)}\n"
+        )
+        sys.stderr.write(
+            "Historical plans lacking contract fields must be updated before dispatch; refusal prevents invented authority.\n"
+        )
+        sys.exit(5)
+
+    # Only resolve workspace and destination path AFTER extraction and contract validation succeed
+    if not outfile:
+        workspace = resolve_workspace(plan_file)
+        outfile = os.path.join(workspace, f"task-{t_num}-brief.md")
+
+    # Reject symlinks to prevent traversal attacks
+    if os.path.islink(outfile):
+        sys.stderr.write(f"Error: output path is a symlink, refusing to overwrite: {outfile}\n")
+        sys.exit(4)
+
+    os.makedirs(os.path.dirname(os.path.abspath(outfile)), exist_ok=True)
+    # Exclusive creation prevents TOCTOU race and overwriting existing files
+    try:
+        with open(outfile, "x", encoding="utf-8") as out:
+            out.writelines(extracted_lines)
+    except FileExistsError:
+        sys.stderr.write(f"Error: output file already exists, refusing to overwrite: {outfile}\n")
+        sys.exit(4)
+
+    line_count = len(extracted_lines)
+    print(f"wrote {outfile}: {line_count} lines")
+    return outfile
 
 
 def ensure_output_within(root_real: str, path: str) -> None:
@@ -629,13 +838,17 @@ def parse_args(argv=None):
     )
     parser.add_argument("plan_file", help="implementation plan Markdown file")
     parser.add_argument("task_number", help="nonnegative task number selected from the plan")
-    parser.add_argument("--assignment", required=True, help="explicit assignment manifest (v1 JSON)")
+    parser.add_argument("outfile", nargs="?", default=None, help="optional positional output brief path")
+    parser.add_argument("--assignment", required=False, default=None, help="explicit assignment manifest (v1 JSON)")
     parser.add_argument("--out", help="explicit packet path within the assigned workspace boundary")
     return parser.parse_args(argv)
 
 
 def main(argv=None) -> int:
     args = parse_args(argv)
+    if not args.assignment:
+        extract_task(args.plan_file, args.task_number, args.out or args.outfile)
+        return 0
     try:
         task_number = int(args.task_number)
     except ValueError:

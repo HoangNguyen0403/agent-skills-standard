@@ -62,6 +62,9 @@ HEX64 = re.compile(r"^[0-9a-f]{64}$")
 class PacketError(Exception):
     """A rejected assignment or selection with a contract exit code."""
 
+    def __init__(self, code: int, message: str) -> None:
+        super().__init__(message)
+        self.code = code
 
 _FENCE_PATTERN = re.compile(r"^(`{3,}|~{3,})(.*)$")
 
@@ -181,11 +184,6 @@ def validate_task_contract(extracted_lines):
         missing.append("explicit handoff / freeze")
 
     return missing
-
-    def __init__(self, code: int, message: str) -> None:
-        super().__init__(message)
-        self.code = code
-
 
 def fail(code: int, message: str):
     raise PacketError(code, message)

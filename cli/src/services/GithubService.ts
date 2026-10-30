@@ -340,10 +340,9 @@ export class GithubService {
       res = await fetch(url);
     } catch (error) {
       const detail = error instanceof Error ? error.message : String(error);
-      throw new Error(
-        `Failed to fetch MANIFEST.json for ${tag}: ${detail}`,
-        { cause: error },
-      );
+      throw new Error(`Failed to fetch MANIFEST.json for ${tag}: ${detail}`, {
+        cause: error,
+      });
     }
     if (res.status === 404) return null;
     if (!res.ok) {
@@ -357,9 +356,7 @@ export class GithubService {
       data = await res.json();
     } catch (error) {
       const detail = error instanceof Error ? error.message : String(error);
-      throw new IntegrityError(
-        `Invalid MANIFEST.json for ${tag}: ${detail}`,
-      );
+      throw new IntegrityError(`Invalid MANIFEST.json for ${tag}: ${detail}`);
     }
     if (typeof data !== 'object' || data === null || Array.isArray(data)) {
       throw new IntegrityError(

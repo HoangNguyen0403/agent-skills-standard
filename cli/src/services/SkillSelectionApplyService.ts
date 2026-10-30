@@ -37,7 +37,6 @@ export interface SkillSelectionApplyDeps {
   syncService?: SyncService;
 }
 
-
 /**
  * Applies a reviewed skill-selection change: saves the desired configuration
  * and runs a scoped, source-commit-bound skill installation with index and
@@ -91,9 +90,7 @@ export class SkillSelectionApplyService {
         category,
       );
       if (isNew && !entry?.ref) {
-        throw new SkillAssemblyError([
-          `${category} (no resolved release ref)`,
-        ]);
+        throw new SkillAssemblyError([`${category} (no resolved release ref)`]);
       }
     }
 

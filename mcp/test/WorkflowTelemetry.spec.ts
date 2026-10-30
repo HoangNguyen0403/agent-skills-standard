@@ -150,6 +150,7 @@ describe("WorkflowTelemetry", () => {
       cachedPromptTokens: 500_000,
       completionTokens: 500_000,
       reasoningTokens: 250_000,
+      reasoningBilling: "separate",
       inputCostPer1M: 2,
       cachedInputCostPer1M: 0.5,
       outputCostPer1M: 10,

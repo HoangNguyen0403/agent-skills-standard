@@ -15,6 +15,11 @@ export interface LoadEvent {
   input: string[];
   /** IDs whose full bodies were returned by this call. */
   loaded: string[];
+  /**
+   * IDs returned as dedup stubs by this call: present in `loaded`, body
+   * omitted. Empty/absent when every listed body was returned in full.
+   */
+  dedupedSkills?: string[];
   /** IDs selected by routing/keyword matching, even when the body could not be read. */
   selected?: string[];
   /** SHA-256 of each raw skill body returned, keyed by `category/id`. */

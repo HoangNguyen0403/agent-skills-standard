@@ -620,14 +620,8 @@ describe('LockfileService v2', () => {
         'an unsupported version',
         { version: 2, workflows: {} } as unknown as WorkflowCatalog,
       ],
-      [
-        'a non-object catalog root (array)',
-        [] as unknown as WorkflowCatalog,
-      ],
-      [
-        'a null catalog root',
-        null as unknown as WorkflowCatalog,
-      ],
+      ['a non-object catalog root (array)', [] as unknown as WorkflowCatalog],
+      ['a null catalog root', null as unknown as WorkflowCatalog],
       [
         'a traversal canonical path',
         catalog({

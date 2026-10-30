@@ -52,9 +52,9 @@ describe('resolveSkillFolders', () => {
     expect(resolveSkillFolders('react', { ref: 'v1' }, files)).toEqual([
       'legacy-folder',
     ]);
-    expect(
-      resolveSkillFolders('react', { ref: 'v1' }, files, true),
-    ).toEqual([]);
+    expect(resolveSkillFolders('react', { ref: 'v1' }, files, true)).toEqual(
+      [],
+    );
   });
 
   it('applies an unqualified exclusion to the declaring category only', () => {
@@ -91,11 +91,7 @@ describe('resolveSkillFolders', () => {
     );
 
     expect(
-      resolveSkillFolders(
-        'react',
-        { exclude: ['common/common-tdd'] },
-        files,
-      ),
+      resolveSkillFolders('react', { exclude: ['common/common-tdd'] }, files),
     ).toEqual(['common-tdd', 'hooks']);
   });
 
@@ -146,9 +142,10 @@ describe('resolveSkillFolders', () => {
     );
 
     expect(entry.ref).toBe('product-management-v1.0.0');
-    expect(
-      resolveSkillFolders('product-management', entry, files),
-    ).toEqual(['product-business-requirements', 'product-requirements']);
+    expect(resolveSkillFolders('product-management', entry, files)).toEqual([
+      'product-business-requirements',
+      'product-requirements',
+    ]);
   });
 
   it('keeps other categories category-wide by default', () => {
@@ -190,11 +187,7 @@ describe('isSkillSelected', () => {
 
   it('applies an unqualified exclusion only within the declaring category', () => {
     expect(
-      isSkillSelected(
-        'react',
-        { exclude: ['common-tdd'] },
-        'react/common-tdd',
-      ),
+      isSkillSelected('react', { exclude: ['common-tdd'] }, 'react/common-tdd'),
     ).toBe(false);
     expect(
       isSkillSelected(
@@ -236,7 +229,12 @@ describe('isSkillSelected', () => {
 
 describe('setSkillSelection', () => {
   it('adds an exact exclusion without introducing an include allowlist', () => {
-    const next = setSkillSelection('react', { ref: 'v1' }, 'react/hooks', false);
+    const next = setSkillSelection(
+      'react',
+      { ref: 'v1' },
+      'react/hooks',
+      false,
+    );
     expect(next).toEqual({ ref: 'v1', exclude: ['hooks'] });
     expect(next.include).toBeUndefined();
   });
@@ -254,9 +252,9 @@ describe('setSkillSelection', () => {
   });
 
   it('preserves empty allowlists and category-wide policy distinctions', () => {
-    expect(
-      skillSelectionFingerprint({ react: { include: [] } }),
-    ).not.toBe(skillSelectionFingerprint({ react: {} }));
+    expect(skillSelectionFingerprint({ react: { include: [] } })).not.toBe(
+      skillSelectionFingerprint({ react: {} }),
+    );
     expect(
       skillSelectionFingerprint({ react: { include: ['hooks'] } }),
     ).not.toBe(skillSelectionFingerprint({ react: {} }));
@@ -356,9 +354,9 @@ describe('setSkillSelection', () => {
   it('does not narrow a category-wide policy to include an imported skill', () => {
     const entry = { ref: 'v1' };
 
-    expect(setSkillSelection('react', entry, 'common/api-design', true)).toEqual(
-      entry,
-    );
+    expect(
+      setSkillSelection('react', entry, 'common/api-design', true),
+    ).toEqual(entry);
   });
 
   it('does not mutate the original entry', () => {

@@ -490,13 +490,13 @@
     },
     "common": {
       "version": "2.9.3",
-      "last_updated": "2026-10-29",
+      "last_updated": "2026-10-30",
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 45,
-        "total_tokens": 44018,
-        "avg_tokens_per_skill": 978,
-        "largest_skill": "common-subagent-driven-development (1787 tokens)"
+        "total_tokens": 47387,
+        "avg_tokens_per_skill": 1053,
+        "largest_skill": "common-subagent-driven-development (2525 tokens)"
       },
       "owners": [
         "HoangNguyen0403"

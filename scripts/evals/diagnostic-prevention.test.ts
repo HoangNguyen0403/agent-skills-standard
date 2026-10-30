@@ -303,7 +303,7 @@ const FIELD_CASES: FieldCase[] = [
   {
     skill: "common-subagent-driven-development",
     caseId: 18,
-    decision: "Multi-task plans run Subagent-Driven; Inline is only a recorded human exception, never a file-count inference.",
+    decision: "Under an active host policy requiring execution confirmation, multi-task plans run Subagent-Driven; Inline is only a recorded human exception, never a file-count inference.",
     fields: [
       "DISPATCH: SUBAGENT_DRIVEN",
       "INLINE_ALLOWED: RECORDED_HUMAN_EXCEPTION",

@@ -256,11 +256,6 @@ export async function getSkill(
   const canonicalKey = `${skill.category}/${skill.id}`;
   const body = await fs.readFile(skill.path, "utf8").catch(() => null);
   if (!body) {
-    ctx.tracker.record({
-      via: "get_skill",
-      input: [`${args.category}/${args.name}`],
-      loaded: [],
-    });
     // Don't leak filesystem paths — describe the gap functionally.
     ctx.tracker.record({
       via: "get_skill",

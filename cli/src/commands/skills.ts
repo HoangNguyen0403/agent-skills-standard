@@ -143,11 +143,7 @@ export class SkillsCommand {
         const category = await this.promptCategoryToCustomize(state);
         if (category === null) return;
         if (!category) continue;
-        const exited = await this.customizeCategory(
-          state,
-          catalog,
-          category,
-        );
+        const exited = await this.customizeCategory(state, catalog, category);
         if (exited === null) return;
       }
 
@@ -222,9 +218,7 @@ export class SkillsCommand {
         return 'stop';
       }
 
-      const fresh = await this.configService
-        .readSnapshot()
-        .catch(() => null);
+      const fresh = await this.configService.readSnapshot().catch(() => null);
       if (!fresh) {
         this.reportError(
           'Could not reload .skillsrc for the retry',
@@ -249,7 +243,6 @@ export class SkillsCommand {
       if (!result) return 'stop';
     }
   }
-
 
   private async tryPrepare(
     snapshot: ConfigSnapshot,
@@ -402,12 +395,7 @@ export class SkillsCommand {
 
       if (!skills) return;
       const liveEntry = state.draft.skills[category];
-      const rows = buildSkillRows(
-        category,
-        liveEntry,
-        skills,
-        importedSkills,
-      );
+      const rows = buildSkillRows(category, liveEntry, skills, importedSkills);
       const action = await this.promptCategoryAction(category, ref);
       if (action === null) return null;
       if (action === 'back') return;
@@ -444,7 +432,8 @@ export class SkillsCommand {
     for (const expression of entry.include ?? []) {
       if (!expression.includes('/')) continue;
       const [importedCategory] = expression.split('/');
-      if (importedCategory !== category) importedCategories.add(importedCategory);
+      if (importedCategory !== category)
+        importedCategories.add(importedCategory);
     }
 
     const members: CatalogSkill[] = [];
@@ -635,7 +624,6 @@ export class SkillsCommand {
     const selectable = selectableCategories(catalog);
     const wanted = new Set(enabled);
 
-
     for (const category of Object.keys(state.draft.skills)) {
       if (!wanted.has(category)) delete state.draft.skills[category];
     }
@@ -760,7 +748,9 @@ export class SkillsCommand {
       ),
     );
     for (const path of plan.kept) {
-      console.log(pc.yellow(`  kept (edited by you, not overwritten): ${path}`));
+      console.log(
+        pc.yellow(`  kept (edited by you, not overwritten): ${path}`),
+      );
     }
     for (const path of plan.keptOrphans) {
       console.log(pc.yellow(`  kept (edited, no longer selected): ${path}`));
@@ -918,10 +908,9 @@ function buildSkillRows(
   for (const expression of foreignIncludeExpressions(category, entry)) {
     if (seen.has(expression)) continue;
     const importedCategory = expression.split('/')[0];
-    const covered =
-      expression.endsWith('/*')
-        ? importedSkills.some((member) => member.category === importedCategory)
-        : importedSkills.some((member) => member.id === expression);
+    const covered = expression.endsWith('/*')
+      ? importedSkills.some((member) => member.category === importedCategory)
+      : importedSkills.some((member) => member.id === expression);
     if (covered) continue;
     rows.push({
       name: `imported: ${expression}`,
@@ -954,7 +943,11 @@ function buildSearchCandidates(
 function describeSavedSelection(config: SkillConfig): string {
   const categories = Object.keys(config.skills).sort();
   return categories.length > 0
-    ? categories.map((category) => `${category}@${effectiveRef(config.skills[category])}`).join(', ')
+    ? categories
+        .map(
+          (category) => `${category}@${effectiveRef(config.skills[category])}`,
+        )
+        .join(', ')
     : 'no categories';
 }
 
