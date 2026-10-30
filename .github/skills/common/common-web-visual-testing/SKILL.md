@@ -40,12 +40,19 @@ Responses must label the two captures as **Before** and **After** (or Baseline a
 | **Assets/Fonts**  | Lazy Load + Icon Check + LCP Audit                 |
 | **Accessibility** | Tab Order + Aria-Snapshot + Color Contrast         |
 
+
+## 🛡 Browser Origin & Native Form Governance
+
+- **Native Form & State-Changing Submission Governance**: For tested state-changing forms (such as login, credential changes, or financial actions), verify real browser form submissions adhere to the application's origin policy. Note that standard browser GET navigations and top-level links typically omit the `Origin` header. Never grant general CORS waivers for `null` origins or bypass CSRF protection.
+- **Actual Populated State & Narrow Fixture Scope**: End-to-end verification of login flows and session governance requires asserting the actual populated DOM state in a real browser. Saved-auth state (`local-auth.json`) and renderer-only fixtures (e.g. jsdom or component snapshots) remain fully valid for their narrower intended purposes—such as test speedup on post-login screens or visual layout unit tests—but must never be claimed as full proof of backend login governance or session issuance.
+- **Strict CSRF Enforcement**: Automated test harnesses must not disable CSRF middleware, origin checks, or cookie governance to manufacture passing test runs.
 ## 🚫 Anti-Patterns
 
 - **Single-Viewport**: Never verify Desktop only. Check Mobile (375px) + Tablet (768px).
 - **Ignore Layout Shift**: Check loading state (skeleton) → no page jump.
 - **Unmasked Dynamic**: **MUST** mask timestamp/balance via `--mask` or JS (`opacity: 0`). Avoid "False Regression".
 - **Blind Assertion**: Use `playwright-cli snapshot --aria` (CLI) or `browser_snapshot` (Playwright MCP) verify state before done.
+- **Synthetic Auth Illusion**: Never accept manual header manipulation, `fetch()` bypasses, or renderer-only DOM mocks as proof of authenticated backend integration or secure login governance.
 
 ## 📁 Evidence
 

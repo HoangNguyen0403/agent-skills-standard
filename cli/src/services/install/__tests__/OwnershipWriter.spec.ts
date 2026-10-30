@@ -229,7 +229,6 @@ describe('OwnershipWriter', () => {
     expect(finalized.entries[testRel]).toBeUndefined();
   });
 
-
   it('9. finalize: previous entry not written this run, user-edited -> file kept, keptOrphans, not in entries', async () => {
     const absPath = path.join(root, testRel);
     await fs.outputFile(absPath, 'user changed content');

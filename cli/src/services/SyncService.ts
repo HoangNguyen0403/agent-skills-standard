@@ -529,67 +529,62 @@ export class SyncService {
         (Array.isArray(config.workflows) && config.workflows.length === 0));
     const pruneEnabled = config.prune !== false;
     const scope = this.installScope;
-    const refreshIndices =
-      !run.refreshIndices
-        ? undefined
-        : scope === 'skills'
-          ? () =>
-              this.applyIndices(
-                config,
-                resolvedAgents,
-                run.localMetadata,
-                desiredSkillIds,
-                { strict: true },
-              )
-          : () =>
-              this.applyIndices(config, resolvedAgents, run.localMetadata);
+    const refreshIndices = !run.refreshIndices
+      ? undefined
+      : scope === 'skills'
+        ? () =>
+            this.applyIndices(
+              config,
+              resolvedAgents,
+              run.localMetadata,
+              desiredSkillIds,
+              { strict: true },
+            )
+        : () => this.applyIndices(config, resolvedAgents, run.localMetadata);
     const categoryOf = (source: string) =>
       source
         .replace(/^(skill|index):/, '')
         .split('/')[0]
         .split('@')[0];
-    const { plan, entries } = await this.ownership.finalize(
-      (_rel, e) => {
-        if (!pruneEnabled) return false;
-        // In a skill-only apply, workflow/specialist installations belong to
-        // another lifecycle entirely — including those of agents that are no
-        // longer in the target set.
-        if (
-          scope === 'skills' &&
-          (e.owner === 'workflow' || e.owner === 'specialist')
-        ) {
-          return false;
+    const { plan, entries } = await this.ownership.finalize((_rel, e) => {
+      if (!pruneEnabled) return false;
+      // In a skill-only apply, workflow/specialist installations belong to
+      // another lifecycle entirely — including those of agents that are no
+      // longer in the target set.
+      if (
+        scope === 'skills' &&
+        (e.owner === 'workflow' || e.owner === 'specialist')
+      ) {
+        return false;
+      }
+      // The shared canonical body is not owned by a provider; handle it
+      // before the per-agent gate so it is never treated as an unknown agent.
+      if (e.owner === 'workflow' && e.agent === SHARED_WORKFLOW_AGENT) {
+        return workflowsOk;
+      }
+      if (!agents.has(e.agent)) return true;
+      switch (e.owner) {
+        case 'skill': {
+          const cat = categoryOf(e.source);
+          return !configured.has(cat) || completed.has(cat);
         }
-        // The shared canonical body is not owned by a provider; handle it
-        // before the per-agent gate so it is never treated as an unknown agent.
-        if (e.owner === 'workflow' && e.agent === SHARED_WORKFLOW_AGENT) {
+        case 'index': {
+          const cat = categoryOf(e.source);
+          if (run.refreshIndices && configured.has(cat)) {
+            // A completed category with no desired skill has no index
+            // content; keeping the old file would advertise pruned skills.
+            return completed.has(cat) && !withDesiredSkills.has(cat);
+          }
+          return !configured.has(cat) || completed.has(cat);
+        }
+        case 'workflow':
           return workflowsOk;
-        }
-        if (!agents.has(e.agent)) return true;
-        switch (e.owner) {
-          case 'skill': {
-            const cat = categoryOf(e.source);
-            return !configured.has(cat) || completed.has(cat);
-          }
-          case 'index': {
-            const cat = categoryOf(e.source);
-            if (run.refreshIndices && configured.has(cat)) {
-              // A completed category with no desired skill has no index
-              // content; keeping the old file would advertise pruned skills.
-              return completed.has(cat) && !withDesiredSkills.has(cat);
-            }
-            return !configured.has(cat) || completed.has(cat);
-          }
-          case 'workflow':
-            return workflowsOk;
-          case 'specialist':
-            return run.specialistsOk;
-          case 'bridge':
-            return !run.refreshIndices;
-        }
-      },
-      refreshIndices,
-    );
+        case 'specialist':
+          return run.specialistsOk;
+        case 'bridge':
+          return !run.refreshIndices;
+      }
+    }, refreshIndices);
     if (!this.dryRun) {
       // Publish the lock last; the workflow catalog is derived from the actual
       // post-reconciliation bytes, never from the intended download only.
@@ -893,7 +888,7 @@ export class SyncService {
     config: SkillConfig,
   ): Promise<void> {
     if (!this.dryRun && this.installScope !== 'skills') {
-      await this.cleanupOldFolders();
+      await this.notifyLegacyAgentFolder();
     }
     const agents = await this.resolveTargetAgents(config);
     await this.skillSyncService.writeSkills(
@@ -1057,9 +1052,7 @@ export class SyncService {
           : [];
         for (const category of existingCategories) {
           if (category.startsWith('.') || category === '_INDEX.md') continue;
-          if (
-            Object.prototype.hasOwnProperty.call(categoryIndices, category)
-          ) {
+          if (Object.prototype.hasOwnProperty.call(categoryIndices, category)) {
             continue;
           }
           if ((selectedSkills[category]?.length ?? 0) > 0) continue;
@@ -1293,50 +1286,21 @@ export class SyncService {
     };
   }
 
-  private async cleanupOldFolders(): Promise<void> {
+  /**
+   * Legacy singular `.agent/` is never migrated, copied or deleted: active
+   * evidence there (`.agent/sdd`, transcripts, receipts) must survive an
+   * install untouched. The only action is one visible notice telling the user
+   * to move legacy files by hand.
+   */
+  private async notifyLegacyAgentFolder(): Promise<void> {
     const oldPath = path.join(process.cwd(), '.agent');
-    const newPath = path.join(process.cwd(), '.agents');
-    // Reserved active workspace (packet/report artifacts). It must never be
-    // migrated or removed by the legacy `.agent` cleanup.
-    const reservedSdd = 'sdd';
 
     if (await fs.pathExists(oldPath)) {
-      try {
-        const entries = await fs.readdir(oldPath);
-        const legacyEntries = entries.filter((entry) => entry !== reservedSdd);
-
-        // Merge only legacy content into the new folder without overwriting
-        // user files; the active SDD tree keeps its original bytes and paths.
-        for (const entry of legacyEntries) {
-          await fs.copy(path.join(oldPath, entry), path.join(newPath, entry), {
-            overwrite: false,
-            errorOnExist: false,
-          });
-        }
-        for (const entry of legacyEntries) {
-          await fs.remove(path.join(oldPath, entry));
-        }
-
-        const remaining = await fs.readdir(oldPath);
-        if (remaining.length === 0) {
-          await fs.remove(oldPath);
-          console.log(
-            pc.gray('  - Migrated and cleaned up old .agent folder.'),
-          );
-        } else {
-          console.log(
-            pc.gray(
-              '  - Migrated legacy .agent entries; kept active .agent/sdd workspace.',
-            ),
-          );
-        }
-      } catch (error) {
-        if (process.env.DEBUG) {
-          console.debug(
-            `Failed to migrate/cleanup old .agent folder: ${error}`,
-          );
-        }
-      }
+      console.log(
+        pc.yellow(
+          '  ⚠️  Legacy .agent/ folder found and left untouched. Move any files you still need into .agents/ manually; this CLI never migrates or deletes .agent/.',
+        ),
+      );
     }
   }
 

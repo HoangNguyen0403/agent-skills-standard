@@ -89,9 +89,7 @@ const treePathShape = z
   )
   .refine(
     (value) =>
-      value
-        .split('/')
-        .every((segment) => !INVALID_TREE_SEGMENTS.has(segment)),
+      value.split('/').every((segment) => !INVALID_TREE_SEGMENTS.has(segment)),
     { message: 'must not contain empty, "." or ".." segments' },
   );
 
@@ -101,9 +99,7 @@ const treeItemShape = z
     type: z.enum(['blob', 'tree']),
     // Every GitHub tree entry carries a 40-character git object sha; without
     // it a blob download could not be integrity-checked against the tree.
-    sha: z
-      .string()
-      .regex(GIT_SHA_RE, 'must be a 40-character git object sha'),
+    sha: z.string().regex(GIT_SHA_RE, 'must be a 40-character git object sha'),
     size: z.number().int().nonnegative().optional(),
     url: z.string().min(1),
   })
@@ -141,9 +137,8 @@ export class SkillCatalogService {
    * repository's reported default branch.
    */
   async load(registry: string): Promise<CategoryCatalog> {
-    const { owner, repo, branch, tree } = await this.readDefaultBranchTree(
-      registry,
-    );
+    const { owner, repo, branch, tree } =
+      await this.readDefaultBranchTree(registry);
     const metadata = await this.readMetadata(owner, repo, branch, registry);
 
     const categories = Array.from(
@@ -268,9 +263,7 @@ export class SkillCatalogService {
       );
     }
 
-    const contentByPath = new Map(
-      ok.map((file) => [file.path, file.content]),
-    );
+    const contentByPath = new Map(ok.map((file) => [file.path, file.content]));
     const skills = entries.map((entry) =>
       this.toCatalogSkill(category, entry.folder, entry.path, contentByPath),
     );

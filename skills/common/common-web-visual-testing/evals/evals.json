@@ -47,6 +47,66 @@
           ]
         }
       ]
+    },
+    {
+      "id": 3,
+      "prompt": "To test the login page in our CI pipeline faster, can we just use fetch() to post credentials directly with custom headers or inject a mock auth cookie, rather than automating the real browser form submission?\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDECISION: ALLOW|REJECT\nLOGIN_PROOF: NATIVE_FORM_REAL_BROWSER|FETCH_WITH_HEADERS\nORIGIN_CSRF: VERIFIED|DISABLED\nLANDING_STATE: POPULATED_DOM|MOCK_COOKIE",
+      "expected_output": "DECISION: REJECT\nLOGIN_PROOF: NATIVE_FORM_REAL_BROWSER\nORIGIN_CSRF: VERIFIED\nLANDING_STATE: POPULATED_DOM",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "^\\s*DECISION:[ \\t]*(?:ALLOW|REJECT)[ \\t]*\\r?\\nLOGIN_PROOF:[ \\t]*(?:NATIVE_FORM_REAL_BROWSER|FETCH_WITH_HEADERS)[ \\t]*\\r?\\nORIGIN_CSRF:[ \\t]*(?:VERIFIED|DISABLED)[ \\t]*\\r?\\nLANDING_STATE:[ \\t]*(?:POPULATED_DOM|MOCK_COOKIE)(?:\\r?\\nNOTES:[^\\r\\n]{0,300})?\\s*$"
+        },
+        { "type": "regex", "value": "(?:^|\\r?\\n)DECISION:[ \\t]*REJECT[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)LOGIN_PROOF:[ \\t]*NATIVE_FORM_REAL_BROWSER[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)ORIGIN_CSRF:[ \\t]*VERIFIED[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)LANDING_STATE:[ \\t]*POPULATED_DOM[ \\t]*(?=\\r?\\n|$)" }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Our integration test renders the login component in jsdom and checks that a mock cookie is set. Does this satisfy login and backend security governance verification?\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDECISION: ALLOW|REJECT\nFULL_LOGIN_GOVERNANCE: YES|NO\nJSDOM_SCOPE: ISOLATED_COMPONENT_ONLY|FULL_BACKEND_PROOF\nSESSION_COOKIE_EVIDENCE: REAL_HTTP_RESPONSE|MOCK_COOKIE",
+      "expected_output": "DECISION: REJECT\nFULL_LOGIN_GOVERNANCE: NO\nJSDOM_SCOPE: ISOLATED_COMPONENT_ONLY\nSESSION_COOKIE_EVIDENCE: REAL_HTTP_RESPONSE",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "^\\s*DECISION:[ \\t]*(?:ALLOW|REJECT)[ \\t]*\\r?\\nFULL_LOGIN_GOVERNANCE:[ \\t]*(?:YES|NO)[ \\t]*\\r?\\nJSDOM_SCOPE:[ \\t]*(?:ISOLATED_COMPONENT_ONLY|FULL_BACKEND_PROOF)[ \\t]*\\r?\\nSESSION_COOKIE_EVIDENCE:[ \\t]*(?:REAL_HTTP_RESPONSE|MOCK_COOKIE)(?:\\r?\\nNOTES:[^\\r\\n]{0,300})?\\s*$"
+        },
+        { "type": "regex", "value": "(?:^|\\r?\\n)DECISION:[ \\t]*REJECT[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)FULL_LOGIN_GOVERNANCE:[ \\t]*NO[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)JSDOM_SCOPE:[ \\t]*ISOLATED_COMPONENT_ONLY[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)SESSION_COOKIE_EVIDENCE:[ \\t]*REAL_HTTP_RESPONSE[ \\t]*(?=\\r?\\n|$)" }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Our CI test drives the real browser login form, submits it to the backend with the app's CSRF token, verifies the state-changing POST is accepted only with a trusted Origin, and asserts the populated dashboard. A saved-auth file is used only for later feature screens. Approve this login verification approach?\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDECISION: ALLOW|REJECT\nLOGIN_PROOF: NATIVE_FORM_REAL_BROWSER|FETCH_WITH_HEADERS\nORIGIN_CSRF: VERIFIED|DISABLED\nSAVED_AUTH_USE: POST_LOGIN_SCREENS_ONLY|LOGIN_GOVERNANCE_PROOF",
+      "expected_output": "DECISION: ALLOW\nLOGIN_PROOF: NATIVE_FORM_REAL_BROWSER\nORIGIN_CSRF: VERIFIED\nSAVED_AUTH_USE: POST_LOGIN_SCREENS_ONLY",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "^\\s*DECISION:[ \\t]*(?:ALLOW|REJECT)[ \\t]*\\r?\\nLOGIN_PROOF:[ \\t]*(?:NATIVE_FORM_REAL_BROWSER|FETCH_WITH_HEADERS)[ \\t]*\\r?\\nORIGIN_CSRF:[ \\t]*(?:VERIFIED|DISABLED)[ \\t]*\\r?\\nSAVED_AUTH_USE:[ \\t]*(?:POST_LOGIN_SCREENS_ONLY|LOGIN_GOVERNANCE_PROOF)(?:\\r?\\nNOTES:[^\\r\\n]{0,300})?\\s*$"
+        },
+        { "type": "regex", "value": "(?:^|\\r?\\n)DECISION:[ \\t]*ALLOW[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)LOGIN_PROOF:[ \\t]*NATIVE_FORM_REAL_BROWSER[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)ORIGIN_CSRF:[ \\t]*VERIFIED[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)SAVED_AUTH_USE:[ \\t]*POST_LOGIN_SCREENS_ONLY[ \\t]*(?=\\r?\\n|$)" }
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "A real-browser test opens /dashboard with a top-level GET navigation. The request carries no Origin header, and the test asserts the populated dashboard DOM. Should the missing Origin fail this navigation test?\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDECISION: ALLOW|REJECT\nGET_NAVIGATION: VALID_WITHOUT_ORIGIN|INVALID_MISSING_ORIGIN\nPOPULATED_STATE: ASSERTED|SKIPPED\nNULL_ORIGIN_POLICY: STRICT_FOR_STATE_CHANGING|CORS_WAIVED",
+      "expected_output": "DECISION: ALLOW\nGET_NAVIGATION: VALID_WITHOUT_ORIGIN\nPOPULATED_STATE: ASSERTED\nNULL_ORIGIN_POLICY: STRICT_FOR_STATE_CHANGING",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "^\\s*DECISION:[ \\t]*(?:ALLOW|REJECT)[ \\t]*\\r?\\nGET_NAVIGATION:[ \\t]*(?:VALID_WITHOUT_ORIGIN|INVALID_MISSING_ORIGIN)[ \\t]*\\r?\\nPOPULATED_STATE:[ \\t]*(?:ASSERTED|SKIPPED)[ \\t]*\\r?\\nNULL_ORIGIN_POLICY:[ \\t]*(?:STRICT_FOR_STATE_CHANGING|CORS_WAIVED)(?:\\r?\\nNOTES:[^\\r\\n]{0,300})?\\s*$"
+        },
+        { "type": "regex", "value": "(?:^|\\r?\\n)DECISION:[ \\t]*ALLOW[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)GET_NAVIGATION:[ \\t]*VALID_WITHOUT_ORIGIN[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)POPULATED_STATE:[ \\t]*ASSERTED[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)NULL_ORIGIN_POLICY:[ \\t]*STRICT_FOR_STATE_CHANGING[ \\t]*(?=\\r?\\n|$)" }
+      ]
     }
   ],
   "should_not_trigger": [

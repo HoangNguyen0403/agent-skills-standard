@@ -47,7 +47,11 @@ worker.
 
 The MCP consultation ledger is process-local. Catalog discovery is separate
 from returned skill, workflow, and category-guide bodies; unique session totals
-and per-call count-only telemetry are different measurements. Audit/cost output
+and per-call count-only telemetry are different measurements. Direct skill body
+fetches are tracked separately from deduped stub references. For token pricing,
+missing rates for cached or reasoning tokens remain explicitly partial or unknown
+(Missing ≠ Zero); known zero usage does not demand missing rates, but positive
+usage without rates must never be coerced to free. Audit/cost output
 does not certify edits, executed checks, enforcement, or outgoing worker-body
 delivery. Those require evidence at the actual host/runtime boundary.
 
@@ -60,7 +64,6 @@ digests; it no longer reports deduplicated bodies or estimated token savings.
 The `force_reload` request option was removed with the process-global
 suppression it existed to bypass. A stored digest identifies content; it is not
 an acknowledgment, comprehension or enforcement signal.
-
 ## 2. Multi-Agent Compatibility (The "Integration Taxonomy")
 
 This project maintains a standardized bridge for multiple AI agents, each with varying levels of native support for hooks and context injection. The canonical per-agent capability matrix is maintained in `cli/src/capabilities/agentCapabilities.ts` and generated to [docs/agent-capabilities.md](docs/agent-capabilities.md).
@@ -444,3 +447,14 @@ Candidate status & dormancy: G2 approves the technical boundary and baseline ame
 _Date: 2026-10-28_
 **Decision**: Keep four surfaces separate and name each one's limit (see §3.5). (1) Authoring depth is declared as `delivery_mode: brief | standard | extended`, separate from `snc_tier`, and a sensitive change keeps its technical design and human gate in every mode. (2) Audits answer only the requested scope: `audit:trace` labels document links (`assurance: document-links-only`) and fails an explicitly requested scope with no evidence; `audit:outcome` required mode selects exactly one schema-valid record by content (`assurance: record-schema-and-scope-valid`) and fails missing, duplicate, or invalid identities. (3) `sdd_progress.py status` is a read-only projection over existing v2 receipts that revalidates plan and evidence bytes and never mutates state. (4) Direct delivery measures come from `artifacts/metrics/delivery-observations.json`, deduplicated with declared coverage; git- and artifact-derived values stay labeled proxies.
 **Reason**: Empty requested scopes, filename-derived status, and unlabeled heuristic metrics can produce green-looking reports that prove nothing. Naming each check's assurance boundary and refusing to upgrade status, filenames, or schema-valid records into approval makes missing evidence visible without adding a backlog database, approval service, or orchestration platform. Historical PRD/SRS files, Outcome RunRecord v1, and SDD state v2 remain unchanged; generated host mirrors are outputs, never hand-edited sources.
+
+### ADR-021: Diagnostic Prevention Boundaries, Staged Generation, and Layered Verification
+
+_Date: 2026-10-28_
+**Decision**:
+1. **Legacy `.agent` Handling**: CLI install and sync lifecycle (`SyncService`) never migrates, moves, or deletes anything under the legacy singular `.agent/` directory, including `.agent/sdd` evidence. Legacy content is left in place unchanged, and sync prints one visible (non-debug) notice per run telling the user to move legacy files manually. No automatic delete, copy, or classification of legacy entries runs.
+2. **Isolated Staged Generation (Candidate Tooling — Verified This Revision)**: Generation commands run in a fresh, isolated stage (`scripts/generation/isolated-stage.ts`, CLI `scripts/generation/index.ts`) excluding `.git`, `.agent`, artifacts, and node_modules. Intended destinations are base-digested before generation; copy-back verifies matching before-digests and aborts on concurrent modification or foreign paths. Pre-commit hooks are check-only (`node --import tsx scripts/generation/index.ts --check`) and never actively generate or git-add files during commit. *Status:* Candidate tooling verified for this candidate revision (95 outputs applied, check verified PASS, SDD evidence preserved intact). Scoped adoption remains strictly bounded to pristine tracked base and prior-producer proof under explicit authority. The candidate remains unreleased; example commands and plan approval do not authorize future commands, publication, or release. External host controls (H01–H05), Node 20 runtime compatibility, and model uplift remain disclaimed.
+3. **Layered Truthful Acceptance**: Evidence and verification contracts (`common-tdd`, `implement-feature`) strictly distinguish five states: source-ready, focused checks, consumer-smoke, independent review, and human acceptance. Pre-implementation RED tests cannot be manufactured or inferred; unobserved RED is explicitly marked `NOT RUN`. Zero-exit or no-listener runs are rejected as incomplete.
+4. **Host Boundary Separation**: The repository provides host-neutral, tool-agnostic standards and cooperative advisory hooks. It does NOT implement live host-level security or runtime orchestration: actor-scoped tool authorization, process handling, browser sandboxing, and runtime event collection (H01–H05) are external host responsibilities (e.g. OMP/Paseo). In this checkout, host-only slices remain explicitly blocked by user decision; repository rules must never be misrepresented as live host enforcement, auto-approval, or denial bypass.
+5. **Truthful Telemetry and Quotas**: Telemetry tracking (`agent-skills-standard-mcp`) follows request-scoped body delivery (every load returns a full body; no dedup stubs), preserves unknown/partial pricing when token rates are absent (Missing ≠ Zero) while treating `included-in-output` reasoning as priced by the output rate, and eval harnesses (`scripts/evals/execute.ts`) fence quota by halting new job claims immediately while awaiting in-flight work.
+**Reason**: Diagnostic prevention post-mortems identified that conflating prompt guidance with host security enforcement, silently overwriting evidence during sync/generation, falsifying unobserved TDD RED phases, and coercing missing cost rates to $0.00 created false confidence and untruthful audit logs. Formalizing strict boundary contracts ensures transparency without overclaiming capability.

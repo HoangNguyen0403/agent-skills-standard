@@ -1,7 +1,8 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   buildSessionCostRequest,
   calculateEstimatedSessionCost,
+  finalizeWorkflowTelemetry,
   summarizeSessionCostCoverage,
   shouldFinalizeWorkflowTelemetry,
 } from "../src/services/WorkflowTelemetry";
@@ -97,6 +98,91 @@ describe("WorkflowTelemetry", () => {
     });
   });
 
+  it("requires cachedInputCostPer1M when cachedPromptTokens is positive", () => {
+    const summary = summarizeSessionCostCoverage({
+      promptTokens: 1_000_000,
+      cachedPromptTokens: 500_000,
+      completionTokens: 500_000,
+      inputCostPer1M: 2,
+      outputCostPer1M: 10,
+      currency: "USD",
+    });
+    expect(summary.exactCostAvailable).toBe(false);
+    expect(summary.missingHostFields).toContain("cachedInputCostPer1M");
+    expect(summary.estimatedCost).toBeNull();
+    expect(summary.costSource).toBe("unavailable");
+  });
+
+  it("requires reasoningCostPer1M when reasoningTokens is positive", () => {
+    const summary = summarizeSessionCostCoverage({
+      promptTokens: 1_000_000,
+      completionTokens: 500_000,
+      reasoningTokens: 250_000,
+      inputCostPer1M: 2,
+      outputCostPer1M: 10,
+      currency: "USD",
+    });
+    expect(summary.exactCostAvailable).toBe(false);
+    expect(summary.missingHostFields).toContain("reasoningCostPer1M");
+    expect(summary.estimatedCost).toBeNull();
+  });
+
+  it("keeps cost coverage exact for included-in-output reasoning without a separate rate", () => {
+    const args = {
+      promptTokens: 1_000_000,
+      completionTokens: 500_000,
+      reasoningTokens: 250_000,
+      reasoningBilling: "included-in-output" as const,
+      inputCostPer1M: 2,
+      outputCostPer1M: 10,
+      currency: "USD",
+    };
+
+    const summary = summarizeSessionCostCoverage(args);
+    expect(summary.missingHostFields).toEqual([]);
+    expect(summary.exactCostAvailable).toBe(true);
+    expect(summary.costSource).toBe("agent-estimate");
+    expect(summary.estimatedCost).toBe(calculateEstimatedSessionCost(args));
+    expect(summary.estimatedCost).toBe("USD 7.000000");
+  });
+
+  it("does not demand rates for known zero cache or reasoning buckets", () => {
+    const summary = summarizeSessionCostCoverage({
+      promptTokens: 1_000_000,
+      cachedPromptTokens: 0,
+      completionTokens: 500_000,
+      reasoningTokens: 0,
+      inputCostPer1M: 2,
+      outputCostPer1M: 10,
+      currency: "USD",
+      costSource: "host",
+    });
+    expect(summary.exactCostAvailable).toBe(true);
+    expect(summary.missingHostFields).toEqual([]);
+    expect(summary.estimatedCost).toBe("USD 7.000000");
+    expect(summary.costSource).toBe("host");
+  });
+
+  it("computes exact cost when all required rates are present", () => {
+    const summary = summarizeSessionCostCoverage({
+      promptTokens: 1_000_000,
+      cachedPromptTokens: 500_000,
+      completionTokens: 500_000,
+      reasoningTokens: 250_000,
+      reasoningBilling: "separate",
+      inputCostPer1M: 2,
+      cachedInputCostPer1M: 0.5,
+      outputCostPer1M: 10,
+      reasoningCostPer1M: 4,
+      currency: "USD",
+      costSource: "host",
+    });
+    expect(summary.exactCostAvailable).toBe(true);
+    expect(summary.missingHostFields).toEqual([]);
+    expect(summary.estimatedCost).toBe("USD 8.250000");
+    expect(summary.costSource).toBe("host");
+  });
+
   it("triggers only for terminal workflow states", () => {
     expect(
       shouldFinalizeWorkflowTelemetry({
@@ -116,6 +202,47 @@ describe("WorkflowTelemetry", () => {
         status: "completed",
       }),
     ).toBe(false);
+  });
+  it("finalizes workflow telemetry by calling the host invoker once", async () => {
+    const invokeGetSessionCost = vi
+      .fn()
+      .mockResolvedValue({ ok: true, report: "telemetry" });
+
+    const result = await finalizeWorkflowTelemetry({
+      trigger: {
+        activeWorkflow: "verify-work",
+        status: "completed",
+      },
+      model: "gpt-5",
+      usage: {
+        promptTokens: 100,
+        completionTokens: 50,
+      },
+      pricing: {
+        inputCostPer1M: 1,
+        outputCostPer1M: 2,
+        currency: "USD",
+      },
+      invokeGetSessionCost,
+    });
+
+    expect(invokeGetSessionCost).toHaveBeenCalledTimes(1);
+    expect(invokeGetSessionCost).toHaveBeenCalledWith({
+      workflow: "verify-work",
+      model: "gpt-5",
+      promptTokens: 100,
+      cachedPromptTokens: undefined,
+      completionTokens: 50,
+      reasoningTokens: undefined,
+      inputCostPer1M: 1,
+      cachedInputCostPer1M: undefined,
+      outputCostPer1M: 2,
+      reasoningCostPer1M: undefined,
+      otherCost: undefined,
+      currency: "USD",
+      costSource: "host",
+    });
+    expect(result).toEqual({ ok: true, report: "telemetry" });
   });
 
   it("reports host provenance only when the host adapter supplied the request", () => {

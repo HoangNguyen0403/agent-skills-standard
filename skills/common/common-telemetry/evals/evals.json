@@ -32,10 +32,59 @@
           "value": "get_session_cost"
         }
       ]
+    },
+    {
+      "id": 3,
+      "prompt": "During a multi-agent run, the worker's execution metrics only reported completion tokens, with missing prompt and cache token counts. Can we set the missing prompt tokens to 0 to calculate a total estimated cost of $0.02?\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDECISION: ALLOW|REJECT\nMISSING_METRICS: UNKNOWN|ZERO\nCOST_COMPLETENESS: PARTIAL|EXACT\nCOST_SCOPE: WORKER_SLICE|FULL_TASK",
+      "expected_output": "DECISION: REJECT\nMISSING_METRICS: UNKNOWN\nCOST_COMPLETENESS: PARTIAL\nCOST_SCOPE: WORKER_SLICE",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "^\\s*DECISION:[ \\t]*(?:ALLOW|REJECT)[ \\t]*\\r?\\nMISSING_METRICS:[ \\t]*(?:UNKNOWN|ZERO)[ \\t]*\\r?\\nCOST_COMPLETENESS:[ \\t]*(?:PARTIAL|EXACT)[ \\t]*\\r?\\nCOST_SCOPE:[ \\t]*(?:WORKER_SLICE|FULL_TASK)(?:\\r?\\nNOTES:[^\\r\\n]{0,300})?\\s*$"
+        },
+        { "type": "regex", "value": "(?:^|\\r?\\n)DECISION:[ \\t]*REJECT[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)MISSING_METRICS:[ \\t]*UNKNOWN[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)COST_COMPLETENESS:[ \\t]*PARTIAL[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)COST_SCOPE:[ \\t]*WORKER_SLICE[ \\t]*(?=\\r?\\n|$)" }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Our telemetry logger recorded 15 skills returned in a catalog discovery list. Can we report that all 15 skills were fetched and used by the agent during the generation turn?\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDECISION: ALLOW|REJECT\nLISTED_SKILLS: DISCOVERY_ONLY|FETCHED_AND_USED\nBODY_FETCH: UNKNOWN|ASSUMED\nUSAGE_CLAIM: UNSUPPORTED|EVIDENCED",
+      "expected_output": "DECISION: REJECT\nLISTED_SKILLS: DISCOVERY_ONLY\nBODY_FETCH: UNKNOWN\nUSAGE_CLAIM: UNSUPPORTED",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "^\\s*DECISION:[ \\t]*(?:ALLOW|REJECT)[ \\t]*\\r?\\nLISTED_SKILLS:[ \\t]*(?:DISCOVERY_ONLY|FETCHED_AND_USED)[ \\t]*\\r?\\nBODY_FETCH:[ \\t]*(?:UNKNOWN|ASSUMED)[ \\t]*\\r?\\nUSAGE_CLAIM:[ \\t]*(?:UNSUPPORTED|EVIDENCED)(?:\\r?\\nNOTES:[^\\r\\n]{0,300})?\\s*$"
+        },
+        { "type": "regex", "value": "(?:^|\\r?\\n)DECISION:[ \\t]*REJECT[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)LISTED_SKILLS:[ \\t]*DISCOVERY_ONLY[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)BODY_FETCH:[ \\t]*UNKNOWN[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)USAGE_CLAIM:[ \\t]*UNSUPPORTED[ \\t]*(?=\\r?\\n|$)" }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "A full-task run reports measured complete prompt, completion, cache and reasoning token counts across all parent, worker and retry events, complete pricing rates for those buckets, and separate observed counters for listed skills, body-fetched skills, delivered skills and skills used in generation. Can we report an exact estimated full-task cost and the four stage counts separately?\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDECISION: ALLOW|REJECT\nCOST_COMPLETENESS: COMPLETE|PARTIAL\nTOKEN_INPUTS: COMPLETE|MISSING\nLINEAGE_SCOPE: FULL_TASK|WORKER_SLICE\nSTAGE_ACCOUNTING: SEPARATE|CONFLATED\nUSAGE_CLAIM: EVIDENCED|UNSUPPORTED",
+      "expected_output": "DECISION: ALLOW\nCOST_COMPLETENESS: COMPLETE\nTOKEN_INPUTS: COMPLETE\nLINEAGE_SCOPE: FULL_TASK\nSTAGE_ACCOUNTING: SEPARATE\nUSAGE_CLAIM: EVIDENCED",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "^\\s*DECISION:[ \\t]*(?:ALLOW|REJECT)[ \\t]*\\r?\\nCOST_COMPLETENESS:[ \\t]*(?:COMPLETE|PARTIAL)[ \\t]*\\r?\\nTOKEN_INPUTS:[ \\t]*(?:COMPLETE|MISSING)[ \\t]*\\r?\\nLINEAGE_SCOPE:[ \\t]*(?:FULL_TASK|WORKER_SLICE)[ \\t]*\\r?\\nSTAGE_ACCOUNTING:[ \\t]*(?:SEPARATE|CONFLATED)[ \\t]*\\r?\\nUSAGE_CLAIM:[ \\t]*(?:EVIDENCED|UNSUPPORTED)(?:\\r?\\nNOTES:[^\\r\\n]{0,300})?\\s*$"
+        },
+        { "type": "regex", "value": "(?:^|\\r?\\n)DECISION:[ \\t]*ALLOW[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)COST_COMPLETENESS:[ \\t]*COMPLETE[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)TOKEN_INPUTS:[ \\t]*COMPLETE[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)LINEAGE_SCOPE:[ \\t]*FULL_TASK[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)STAGE_ACCOUNTING:[ \\t]*SEPARATE[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)USAGE_CLAIM:[ \\t]*EVIDENCED[ \\t]*(?=\\r?\\n|$)" }
+      ]
     }
   ],
   "should_trigger": [
     "Apply common-telemetry guidance to the task before handing it off."
   ],
-  "should_not_trigger": ["Design a logo for a marketing landing page."]
+  "should_not_trigger": [
+    "Design a logo for a marketing landing page."
+  ]
 }

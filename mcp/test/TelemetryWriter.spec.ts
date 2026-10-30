@@ -62,6 +62,32 @@ describe("buildTelemetryRecord", () => {
     expect(serialized).not.toContain("nothing");
   });
 
+  it("records only declared counters and never emits the removed body/stub split", () => {
+    const record = buildTelemetryRecord(tracker(), {
+      mcpVersion: "0.6.0",
+      now: new Date(),
+    });
+    expect(Object.keys(record).sort()).toEqual([
+      "at",
+      "callsByTool",
+      "categories",
+      "durationSeconds",
+      "mcpVersion",
+      "noMatchCalls",
+      "sessionStartedAt",
+      "skills",
+      "workflows",
+    ]);
+    expect(record.skills).toEqual({
+      "typescript/typescript-language": 2,
+      "nestjs/nestjs-architecture": 1,
+    });
+    // Catalog discovery produces no skill loads
+    expect(
+      Object.keys(record.skills).some((key) => key.startsWith("category/")),
+    ).toBe(false);
+  });
+
   it("counts returned category guide bodies and excludes category discovery", () => {
     const record = buildTelemetryRecord(tracker(), {
       mcpVersion: "0.6.0",

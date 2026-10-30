@@ -34,12 +34,12 @@ Missing owner, authorization or mechanism verification is recorded as missing, n
 
 - No maintenance authorization: propose only; do not edit registry, installed copies or instruction files.
 - Authorized maintenance: edit canonical source and regenerate exports through existing tools; guidance edits still pass independent review.
-- Evaluation: verify the mechanism by the failure it now rejects (rejecting fixture, failing-then-passing test, or held-out comparison with fixed model/tools and isolated tasks). Preserve actual failures.
+- Repeat mistakes: append or extend an existing candidate ID with status `proposed`; repeating an error never triggers automatic promotion to `AGENTS.md` or instruction files.
+- Evaluation: compare candidate, current version and no-skill behavior with fixed model/tools and isolated held-out tasks, or verify the mechanism by the failure it now rejects (rejecting fixture, failing-then-passing test). Preserve actual failures.
 - Review: require a different maintainer's approval reference and verified fresh evidence. A reviewer name typed by the author is not authentication.
 - Promotion: follow repository release controls per mechanism; source edits and eval baseline promotion do not automatically publish a release.
 - Canary: pin the release, monitor observed regressions, record rollback to the last verified version when needed.
 - Retirement: merge duplicate procedures and remove obsolete guidance through the same review path.
-
 ## Trigger miss record
 
 ```json
@@ -57,6 +57,6 @@ Missing owner, authorization or mechanism verification is recorded as missing, n
 
 ## Reporting
 
-Report correction count, root causes, improvement IDs/status, chosen mechanisms, owners, verification references, actual edits, evidence gaps, independent approval references and next action. Distinguish measured outcomes from proposals; do not claim estimated rounds saved as measured improvement. Append the minimal event using `common-learning-log`; never overwrite prior entries.
+Report correction count, root causes, improvement IDs/status, chosen mechanisms, owners, verification references, actual edits, evidence gaps, independent approval references and next action. Distinguish measured outcomes from proposals; do not claim estimated rounds saved as measured improvement. Append the minimal event using `common-learning-log`; never overwrite prior entries. Cleanup requires verified durable archival of all session evidence and receipts before scratch removal; never erase the only copy of evidence.
 
 Session facts remain transient; project-specific conventions remain local. Promote only reviewed reusable procedures without secrets, customer identifiers or attacker-authored instructions. See [Anthropic evaluation guidance](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents) for outcome-based grading and isolated trials.

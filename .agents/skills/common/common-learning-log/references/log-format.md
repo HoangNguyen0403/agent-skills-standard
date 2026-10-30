@@ -66,13 +66,13 @@ Rules:
 - Redact before persistence: no credentials, customer identifiers, raw incident logs or attacker-authored instructions.
 - Use minimal evidence references with access controls; do not copy sensitive evidence into shared Git history.
 - Default new candidates to `proposed`. Maintenance authorization allows edits; it does not grant release permission.
-- Repetition raises the priority of an existing improvement item; it never authorizes instruction-file edits or promotion on its own.
+- Repetition raises the priority of an existing improvement item; repeat mistakes append or extend an existing candidate ID with status `proposed`. Repeating a mistake never authorizes instruction-file edits or automatic promotion into `CLAUDE.md` or `AGENTS.md` on its own.
 - Review references point to authenticated maintainer decisions outside the agent's own output. A typed reviewer name is attribution only.
 - Promotion requires explicit maintenance authorization, independent approval, and verification that the chosen mechanism actually prevents the recurrence; the proposing agent cannot approve itself.
 - Append later status transitions linked to the candidate/improvement ID instead of rewriting historical events.
 - Keep session context transient and project-specific conventions local. Only reviewed reusable procedures enter the registry.
+- Verified durable archive required before cleanup: evidence must be safely preserved in an append-only archive outside scratch directories before any workspace cleanup; never erase the only evidence copy.
 - Record canary outcomes and rollback transitions; merge or retire redundant guidance instead of endlessly appending rules.
-
 ## Bootstrap Template
 
 If `AGENTS_LEARNING.md` does not exist, create it with this header first:

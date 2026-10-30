@@ -347,6 +347,270 @@ describe('UninstallService', () => {
     expect(plan2.keepEdited).toEqual([]);
     expect(plan2.missing).toEqual([]);
   });
+  it('keeps repository-generation authority and scoped metadata through --all uninstall', async () => {
+    const config: SkillConfig = {
+      registry: 'https://github.com/owner/repo',
+      agents: [Agent.Copilot],
+      skills: {},
+    };
+    const hostPath = '.github/skills/common/core/SKILL.md';
+    const hostBytes = 'host skill';
+    const routerBytes = '# Agents\n<!-- generated -->\n';
+    const metadataBytes = JSON.stringify({
+      categories: { common: { token_metrics: { tokens: 17 } } },
+    });
+    const metadataPath = 'skills/metadata.json';
+    const metadataScope = {
+      kind: 'category-token-metrics' as const,
+      sha256: sha256('owned token metrics'),
+    };
+    await fs.outputFile(path.join(tempDir, hostPath), hostBytes);
+    await fs.outputFile(path.join(tempDir, 'AGENTS.md'), routerBytes);
+    await fs.outputFile(path.join(tempDir, metadataPath), metadataBytes);
+    const sources = {
+      'skills/common': { ref: 'common-v1', commit: 'a'.repeat(40) },
+    };
+    const lock: SkillsLockFile = {
+      version: 2,
+      registry: config.registry,
+      generatedAt: 'before',
+      sources,
+      entries: {
+        [hostPath]: {
+          owner: 'skill',
+          source: 'skill:common/core@v1',
+          agent: Agent.Copilot,
+          sha256: sha256(hostBytes),
+        },
+      },
+      generation: {
+        version: 1,
+        entries: {
+          'AGENTS.md': {
+            source: 'index:AGENTS.md',
+            sha256: sha256(routerBytes),
+          },
+          [metadataPath]: {
+            source: 'index:skills/metadata.json',
+            sha256: sha256(metadataBytes),
+            scope: metadataScope,
+          },
+        },
+      },
+      disclosed: { copilot: ['capabilities'] },
+    };
+    await lockfileService.write(tempDir, lock);
+
+    const svc = new UninstallService(mockDeps, lockfileService, backupService);
+    const plan = await svc.plan(tempDir, config, { all: true });
+    expect(plan.remove).toEqual([hostPath]);
+    expect(plan.deleteLock).toBe(false);
+    expect(plan.integrations.clearAgentsIndex).toBe(false);
+    await svc.apply(tempDir, config, plan);
+
+    expect(await fs.pathExists(path.join(tempDir, hostPath))).toBe(false);
+    expect(await fs.readFile(path.join(tempDir, 'AGENTS.md'), 'utf8')).toBe(
+      routerBytes,
+    );
+    expect(await fs.readFile(path.join(tempDir, metadataPath), 'utf8')).toBe(
+      metadataBytes,
+    );
+    const loaded = await lockfileService.load(tempDir, config.agents);
+    expect(loaded.lock?.entries).toEqual({});
+    expect(loaded.lock?.generation).toEqual(lock.generation);
+    expect(loaded.lock?.sources).toEqual(sources);
+    expect(loaded.lock?.disclosed).toEqual({ copilot: ['capabilities'] });
+  });
+  it.each([
+    {
+      scenario: 'malformed metadata scope',
+      scope: { kind: 'future-kind', sha256: sha256('metrics') },
+      error:
+        'Invalid repository-generation ownership entry: skills/metadata.json',
+    },
+    {
+      scenario: 'new supported metadata authority',
+      scope: {
+        kind: 'category-token-metrics',
+        sha256: sha256('owned metrics'),
+      },
+      error:
+        'Uninstall plan is stale: repository-generation authority now exists',
+    },
+  ])(
+    'refuses a stale --all plan before effects when $scenario appears',
+    async ({ scope, error }) => {
+      const config: SkillConfig = {
+        registry: 'https://github.com/owner/repo',
+        agents: [Agent.Copilot],
+        skills: {},
+      };
+      const ownedPath = '.github/skills/common/core/SKILL.md';
+      const ownedBytes = 'owned host output';
+      await fs.outputFile(path.join(tempDir, ownedPath), ownedBytes);
+      await lockfileService.write(tempDir, {
+        version: 2,
+        registry: config.registry,
+        generatedAt: 'before',
+        sources: {},
+        entries: {
+          [ownedPath]: {
+            owner: 'skill',
+            source: 'skill:common/core@v1',
+            agent: Agent.Copilot,
+            sha256: sha256(ownedBytes),
+          },
+        },
+      });
+
+      const svc = new UninstallService(
+        mockDeps,
+        lockfileService,
+        backupService,
+      );
+      const plan = await svc.plan(tempDir, config, { all: true });
+      expect(plan.remove).toEqual([ownedPath]);
+      expect(plan.deleteLock).toBe(true);
+
+      const metadataBytes = '{"categories":{"common":{"token_metrics":1}}}';
+      const lockPath = path.join(tempDir, LOCKFILE_NAME);
+      const rawLock = await fs.readJson(lockPath);
+      rawLock.generation = {
+        version: 1,
+        entries: {
+          'skills/metadata.json': {
+            source: 'index:skills/metadata.json',
+            sha256: sha256(metadataBytes),
+            scope,
+          },
+        },
+      };
+      await fs.writeJson(lockPath, rawLock, { spaces: 2 });
+      const lockBeforeApply = await fs.readFile(lockPath);
+      const metadataPath = path.join(tempDir, 'skills/metadata.json');
+      await fs.outputFile(metadataPath, metadataBytes);
+
+      await expect(svc.apply(tempDir, config, plan)).rejects.toThrow(error);
+
+      expect(await fs.readFile(path.join(tempDir, ownedPath), 'utf8')).toBe(
+        ownedBytes,
+      );
+      expect(await fs.readFile(metadataPath, 'utf8')).toBe(metadataBytes);
+      expect(await fs.readFile(lockPath)).toEqual(lockBeforeApply);
+      expect(await backupService.list(tempDir)).toHaveLength(0);
+      expect(mockDeps.mcpUninstall).not.toHaveBeenCalled();
+      expect(mockDeps.hooksUninstall).not.toHaveBeenCalled();
+      expect(mockDeps.clearAgentsIndex).not.toHaveBeenCalled();
+    },
+  );
+
+  it('treats an empty generation ledger as no authority in both plan and apply', async () => {
+    const config: SkillConfig = {
+      registry: 'https://github.com/owner/repo',
+      agents: [Agent.Copilot],
+      skills: {},
+    };
+    const ownedPath = '.github/skills/common/core/SKILL.md';
+    const ownedBytes = 'owned host output';
+    await fs.outputFile(path.join(tempDir, ownedPath), ownedBytes);
+    await lockfileService.write(tempDir, {
+      version: 2,
+      registry: config.registry,
+      generatedAt: 'before',
+      sources: {},
+      entries: {
+        [ownedPath]: {
+          owner: 'skill',
+          source: 'skill:common/core@v1',
+          agent: Agent.Copilot,
+          sha256: sha256(ownedBytes),
+        },
+      },
+      generation: { version: 1, entries: {} },
+    });
+
+    const svc = new UninstallService(mockDeps, lockfileService, backupService);
+    const plan = await svc.plan(tempDir, config, { all: true });
+
+    expect(plan.deleteLock).toBe(true);
+    expect(plan.integrations.clearAgentsIndex).toBe(true);
+
+    await svc.apply(tempDir, config, plan);
+
+    expect(await fs.pathExists(path.join(tempDir, ownedPath))).toBe(false);
+    expect(await fs.pathExists(path.join(tempDir, LOCKFILE_NAME))).toBe(false);
+    expect(mockDeps.clearAgentsIndex).toHaveBeenCalledWith(tempDir);
+  });
+
+  it('refuses to clear AGENTS.md when generation ownership appears after planning', async () => {
+    const config: SkillConfig = {
+      registry: 'https://github.com/owner/repo',
+      agents: [Agent.Copilot],
+      skills: {},
+    };
+    const ownedPath = '.github/skills/common/core/SKILL.md';
+    const ownedBytes = 'owned host output';
+    const routerBytes = '# Agents\n<!-- generated -->\n';
+    await fs.outputFile(path.join(tempDir, ownedPath), ownedBytes);
+    await fs.outputFile(path.join(tempDir, 'AGENTS.md'), routerBytes);
+    const metadataPath = 'skills/metadata.json';
+    const metadataBytes = '{"categories":{"common":{"token_metrics":1}}}';
+    await lockfileService.write(tempDir, {
+      version: 2,
+      registry: config.registry,
+      generatedAt: 'before',
+      sources: {},
+      entries: {
+        [ownedPath]: {
+          owner: 'skill',
+          source: 'skill:common/core@v1',
+          agent: Agent.Copilot,
+          sha256: sha256(ownedBytes),
+        },
+      },
+      generation: {
+        version: 1,
+        entries: {
+          [metadataPath]: {
+            source: `index:${metadataPath}`,
+            sha256: sha256(metadataBytes),
+            scope: {
+              kind: 'category-token-metrics',
+              sha256: sha256('owned metrics'),
+            },
+          },
+        },
+      },
+    });
+
+    const svc = new UninstallService(mockDeps, lockfileService, backupService);
+    const plan = await svc.plan(tempDir, config, { all: true });
+    expect(plan.deleteLock).toBe(false);
+    expect(plan.integrations.clearAgentsIndex).toBe(true);
+
+    const lockPath = path.join(tempDir, LOCKFILE_NAME);
+    const rawLock = await fs.readJson(lockPath);
+    rawLock.generation.entries['AGENTS.md'] = {
+      source: 'index:AGENTS.md',
+      sha256: sha256(routerBytes),
+    };
+    await fs.writeJson(lockPath, rawLock, { spaces: 2 });
+    const lockBeforeApply = await fs.readFile(lockPath);
+
+    await expect(svc.apply(tempDir, config, plan)).rejects.toThrow(
+      'Uninstall plan is stale: AGENTS.md generation authority now exists',
+    );
+
+    expect(await fs.readFile(path.join(tempDir, 'AGENTS.md'), 'utf8')).toBe(
+      routerBytes,
+    );
+    expect(await fs.readFile(path.join(tempDir, ownedPath), 'utf8')).toBe(
+      ownedBytes,
+    );
+    expect(await fs.readFile(lockPath)).toEqual(lockBeforeApply);
+    expect(await backupService.list(tempDir)).toHaveLength(0);
+    expect(mockDeps.clearAgentsIndex).not.toHaveBeenCalled();
+  });
 
   it('6. --agent antigravity with configured [antigravity, kiro] and workflow entry at .agents/workflows/sdlc.md -> sharedKept, file kept', async () => {
     const config: SkillConfig = {

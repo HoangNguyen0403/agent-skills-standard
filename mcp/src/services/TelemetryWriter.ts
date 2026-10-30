@@ -12,7 +12,7 @@ export interface TelemetryRecord {
   sessionStartedAt: string;
   /** Session length in seconds, measured from `sessionStartedAt` to `at`. */
   durationSeconds: number;
-  /** Loads per `category/id`, deduped stub returns included. */
+  /** Loads per `category/id`. */
   skills: Record<string, number>;
   /** Loads per `workflow/name`. */
   workflows: Record<string, number>;

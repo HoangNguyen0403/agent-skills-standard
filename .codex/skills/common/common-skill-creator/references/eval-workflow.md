@@ -103,7 +103,7 @@ After skill is stable, optimize the `description` field for triggering accuracy:
 1. Generate 20 eval queries: 8–10 should-trigger + 8–10 should-not-trigger near-misses
 2. Review with user — bad queries lead to bad descriptions
 3. Run optimization loop: test each query → identify failures → rewrite description → retest
-4. Target ≥80% accuracy on held-out test set (split 60% train / 40% test)
+4. Target ≥90% accuracy on held-out test set (matching release readiness: ≥90% recall and specificity; split 60% train / 40% test)
 5. Apply `best_description` to SKILL.md frontmatter; report before/after scores
 
 See [testing.md](testing.md) for trigger query design rules and scoring guidance.

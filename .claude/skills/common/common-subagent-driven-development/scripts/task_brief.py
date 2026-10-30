@@ -5,11 +5,13 @@ Usage:
     task_brief.py <PLAN_FILE> <TASK_NUMBER> --assignment <ASSIGNMENT_JSON> [--out <BRIEF_FILE>]
 
 The explicit assignment manifest is mandatory: the helper validates structure and
-content identity (plan, source and dependency digests) before publishing. It does
-not authenticate human approval, sandbox the worker or verify host file access.
+content identity (plan, source and dependency digests) and the selected task
+section's contract fields before publishing. It does not authenticate human
+approval, sandbox the worker or verify host file access.
 
-Exit codes: 0 packet published/reused, 2 invalid/stale/missing prerequisite,
-3 absent/ambiguous task selection or output collision.
+Exit codes: 0 packet published/reused, 2 invalid assignment, missing task contract
+fields, stale digest or missing prerequisite, 3 absent/ambiguous task selection or
+output collision.
 """
 
 from __future__ import annotations
@@ -66,6 +68,124 @@ class PacketError(Exception):
         super().__init__(message)
         self.code = code
 
+_FENCE_PATTERN = re.compile(r"^(`{3,}|~{3,})(.*)$")
+
+_CONTRACT_LABELS = {
+    "scope": r"Scope\s*/\s*owned write set|Owned write set|Scope|Files",
+    "inputs": r"Inputs?",
+    "outputs": r"Outputs?",
+    "real ingress": r"Real Ingress|Ingress(?:/invariants?)?",
+    "invariants": r"Invariants?|Ingress/invariants?|Positive Invariants?",
+    "verification owner": r"Verification Owner",
+    "handoff / freeze": r"Handoff\s*/\s*freeze|Handoff|Freeze",
+    "correction route": r"Correction Route",
+}
+
+
+def _fence_transition(stripped, fence):
+    """Return (state, is_fence_line) for one stripped markdown line.
+
+    A fence opens on three or more backticks or tildes and closes only on the
+    same marker character with at least the opening length and no info string.
+    """
+    match = _FENCE_PATTERN.match(stripped)
+    if not match:
+        return fence, False
+    marker, info = match.group(1), match.group(2)
+    if fence is None:
+        # A backtick fence cannot carry backticks in its info string.
+        if marker[0] == "`" and "`" in info:
+            return fence, False
+        return (marker[0], len(marker)), True
+    if marker[0] == fence[0] and len(marker) >= fence[1] and not info.strip():
+        return None, True
+    return fence, False
+
+
+def _unfenced_lines(extracted_lines):
+    """Return lines outside markdown fences, honouring backtick and tilde markers."""
+    fence = None
+    outside = []
+    for line in extracted_lines:
+        fence, is_fence_line = _fence_transition(line.strip(), fence)
+        if not is_fence_line and fence is None:
+            outside.append(line)
+    return outside
+
+
+def _label_value(line, labels):
+    """Return the same-line value of a bold contract label, or None if absent.
+
+    Labels match case-insensitively. Only horizontal whitespace is allowed
+    around the label and its colon, so an empty value can never consume the
+    following label or line.
+    """
+    match = re.match(
+        r"^\s*(?:[-*+][ \t]+)?\*\*[ \t]*(?:" + labels + r")[ \t]*(?::[ \t]*\*\*|\*\*[ \t]*:)(.*)$",
+        line,
+        re.IGNORECASE,
+    )
+    return match.group(1).strip() if match else None
+
+
+def _field_value(lines, labels):
+    """Return the first populated same-line value for a label."""
+    for line in lines:
+        value = _label_value(line, labels)
+        if value:
+            return value
+    return None
+
+
+def _invariant_value(line, kind):
+    """Return a positive/negative invariant value from its own entry line."""
+    bold = re.match(
+        r"^\s*(?:[-*+][ \t]+)?\*\*[ \t]*" + kind + r"(?:[ \t]+[Ii]nvariants?)?[ \t]*(?::[ \t]*\*\*|\*\*[ \t]*:)(.*)$",
+        line,
+        re.IGNORECASE,
+    )
+    plain = re.match(
+        r"^\s*(?:[-*+][ \t]+)?" + kind + r"(?:[ \t]+invariants?)?[ \t]*:[ \t]*(.*)$",
+        line,
+        re.IGNORECASE,
+    )
+    match = bold or plain
+    return match.group(1).strip() if match else None
+
+
+def validate_task_contract(extracted_lines):
+    """Validate populated contract fields outside markdown fences.
+
+    Labels must appear as bold fields with their own same-line value; fenced
+    examples and unstructured prose never satisfy the contract.
+    """
+    lines_outside = _unfenced_lines(extracted_lines)
+    missing = []
+
+    for field in ("scope", "inputs", "outputs", "real ingress", "verification owner", "correction route"):
+        if not _field_value(lines_outside, _CONTRACT_LABELS[field]):
+            missing.append(field)
+
+    invariants_label = False
+    positive = None
+    negative = None
+    for line in lines_outside:
+        if _label_value(line, _CONTRACT_LABELS["invariants"]) is not None:
+            invariants_label = True
+        if positive is None and _invariant_value(line, "Positive"):
+            positive = True
+        if negative is None and _invariant_value(line, "Negative"):
+            negative = True
+    if not invariants_label or not positive:
+        missing.append("positive invariant")
+    if not invariants_label or not negative:
+        missing.append("negative invariant")
+
+    handoff = _field_value(lines_outside, _CONTRACT_LABELS["handoff / freeze"])
+    if not handoff or not re.search(r"\b(final|freeze|report|handoff)\b", handoff, re.IGNORECASE):
+        missing.append("explicit handoff / freeze")
+
+    return missing
 
 def fail(code: int, message: str):
     raise PacketError(code, message)
@@ -653,6 +773,10 @@ def main(argv=None) -> int:
 
     assignment = validate_assignment(load_assignment(args.assignment), task_number, plan_digest)
     task_text = extract_task_section(plan_text, task_number)
+    missing = validate_task_contract(task_text.splitlines(keepends=True))
+    if missing:
+        fail(EXIT_INVALID, f"task {task_number} in '{args.plan_file}' is missing required contract fields: "
+                           f"{', '.join(missing)}; update historical plans before dispatch")
     content = build_packet(assignment, args.plan_file, task_text)
     packet_digest = hashlib.sha256(content.encode("utf-8")).hexdigest()
 

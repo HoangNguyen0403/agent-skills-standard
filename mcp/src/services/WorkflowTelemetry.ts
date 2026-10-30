@@ -24,11 +24,10 @@ export interface RuntimePricingSnapshot {
 }
 
 /**
- * Where a cost value came from. `host` means the request was assembled by
- * the runtime's own telemetry adapter (`buildSessionCostRequest`) from real
- * measured usage/pricing. `agent-estimate` means a caller typed values
- * directly into `get_session_cost` without going through that adapter.
- * `unavailable` means required token/pricing fields are missing entirely.
+ * Caller-declared source for token and cost numbers.
+ * - `host`: caller declared the numbers were supplied by a host-level adapter (`buildSessionCostRequest`); host authenticity is unverified by cryptographic proof.
+ * - `agent-estimate`: caller-typed values without host adapter assertion.
+ * - `unavailable`: required token/pricing fields are missing.
  */
 export type CostSource = "host" | "agent-estimate" | "unavailable";
 export interface SessionCostRequest {
@@ -46,9 +45,9 @@ export interface SessionCostRequest {
   otherCost?: number;
   currency?: string;
   /**
-   * Caller-declared provenance for the token/pricing fields above. Only
-   * `buildSessionCostRequest` (the host adapter path) should ever set this
-   * to `"host"`; omit it when hand-supplying numbers.
+   * Caller-declared source label for the token/pricing fields above. Only
+   * `buildSessionCostRequest` should set this to `"host"`; host authenticity
+   * remains unverified by this MCP server without an authenticated host boundary.
    */
   costSource?: "host" | "agent-estimate";
 }
@@ -75,14 +74,27 @@ export function summarizeSessionCostCoverage(
     missingHostFields.push("outputCostPer1M");
   }
   if (
+    (args.cachedPromptTokens ?? 0) > 0 &&
+    args.cachedInputCostPer1M === undefined
+  ) {
+    missingHostFields.push("cachedInputCostPer1M");
+  }
+  if (
+    (args.reasoningTokens ?? 0) > 0 &&
+    args.reasoningBilling !== "included-in-output" &&
+    args.reasoningCostPer1M === undefined
+  ) {
+    missingHostFields.push("reasoningCostPer1M");
+  }
+  if (
     args.reasoningTokens !== undefined &&
     args.reasoningTokens > 0 &&
     args.reasoningCostPer1M !== undefined &&
     args.reasoningCostPer1M > 0 &&
     args.reasoningBilling === undefined
-  )
+  ) {
     missingHostFields.push("reasoningBilling");
-
+  }
   const costSource: CostSource =
     missingHostFields.length > 0
       ? "unavailable"
@@ -91,7 +103,8 @@ export function summarizeSessionCostCoverage(
         : "agent-estimate";
 
   return {
-    estimatedCost: calculateEstimatedSessionCost(args),
+    estimatedCost:
+      missingHostFields.length > 0 ? null : calculateEstimatedSessionCost(args),
     exactCostAvailable: missingHostFields.length === 0,
     missingHostFields,
     costSource,
@@ -108,9 +121,9 @@ export function calculateEstimatedSessionCost(
     reasoningTokens = 0,
     reasoningBilling,
     inputCostPer1M,
-    cachedInputCostPer1M = 0,
+    cachedInputCostPer1M,
     outputCostPer1M,
-    reasoningCostPer1M = 0,
+    reasoningCostPer1M,
     otherCost = 0,
     currency = "USD",
   } = args;
@@ -120,24 +133,32 @@ export function calculateEstimatedSessionCost(
     inputCostPer1M !== undefined &&
     outputCostPer1M !== undefined;
   if (!hasInputs) return null;
+  if (cachedPromptTokens > 0 && cachedInputCostPer1M === undefined) {
+    return null;
+  }
   if (
     reasoningTokens > 0 &&
+    reasoningCostPer1M !== undefined &&
     reasoningCostPer1M > 0 &&
     reasoningBilling === undefined
-  )
+  ) {
     return null;
+  }
 
   const inputCost = (promptTokens / 1_000_000) * inputCostPer1M;
   const cachedInputCost =
-    (cachedPromptTokens / 1_000_000) * cachedInputCostPer1M;
+    cachedPromptTokens > 0 && cachedInputCostPer1M !== undefined
+      ? (cachedPromptTokens / 1_000_000) * cachedInputCostPer1M
+      : 0;
   const outputCost = (completionTokens / 1_000_000) * outputCostPer1M;
   const reasoningCost =
-    reasoningBilling === "included-in-output"
-      ? 0
-      : (reasoningTokens / 1_000_000) * reasoningCostPer1M;
+    reasoningTokens > 0 && reasoningCostPer1M !== undefined
+      ? reasoningBilling === "included-in-output"
+        ? 0
+        : (reasoningTokens / 1_000_000) * reasoningCostPer1M
+      : 0;
   return `${currency} ${(inputCost + cachedInputCost + outputCost + reasoningCost + otherCost).toFixed(6)}`;
 }
-
 export interface WorkflowTelemetryTrigger {
   activeWorkflow?: string | null;
   status: "running" | "completed" | "failed" | "blocked";

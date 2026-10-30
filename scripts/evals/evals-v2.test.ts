@@ -2136,6 +2136,64 @@ test("a quota pause preserves completed answers and reports a resumable error", 
   }
 });
 
+test("on quota observation, all lanes stop claiming new jobs while in-flight successes are preserved", async () => {
+  const { root, cleanup } = await fixture();
+  try {
+    const { runDir } = buildManifest("dart", "9.9.9", {
+      repoRoot: root,
+      runId: "dart-v9.9.9-2099-01-01-quota-multilane",
+    });
+    function createDeferred<T = void>() {
+      let resolve!: (value: T | PromiseLike<T>) => void;
+      let reject!: (reason?: unknown) => void;
+      const promise = new Promise<T>((res, rej) => {
+        resolve = res;
+        reject = rej;
+      });
+      return { promise, resolve, reject };
+    }
+    let callsStarted = 0;
+    const lane2Started = createDeferred();
+    const lane2CanFinish = createDeferred();
+    await assert.rejects(
+      executeMissingAnswers(runDir, {
+        repoRoot: root,
+        concurrency: 2,
+        runner: async () => {
+          const callId = ++callsStarted;
+          if (callId === 1) {
+            await lane2Started.promise;
+            try {
+              throw new EvalQuotaPausedError("Codex rate limit reached.");
+            } finally {
+              lane2CanFinish.resolve();
+            }
+          }
+          if (callId === 2) {
+            lane2Started.resolve();
+            await lane2CanFinish.promise;
+            return "lane 2 in-flight success";
+          }
+          return "unexpected claimed job";
+        },
+      }),
+      (error: unknown) => error instanceof EvalQuotaPausedError,
+    );
+    assert.equal(callsStarted, 2);
+    const manifest = loadManifest(runDir);
+    assert.equal(manifest.metadata.freshAnswerCount, 1);
+    assert.equal(manifest.metadata.completedAt, undefined);
+    const skill = manifest.skills[0];
+    assert.ok(skill);
+    const savedPath = answerPath(runDir, manifest, skill, "eval-1", "with-skill");
+    assert.ok(await fs.pathExists(savedPath));
+    const savedContent = await fs.readFile(savedPath, "utf8");
+    assert.equal(savedContent.trim(), "lane 2 in-flight success");
+  } finally {
+    await cleanup();
+  }
+});
+
 test("v2 snapshots deterministically fingerprint package resources and detect byte tampering", async () => {
   const { root, cleanup } = await fixture();
   try {

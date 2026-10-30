@@ -164,6 +164,38 @@ describe("tools — get_skill suggestions", () => {
     expect(t).toContain("flutter/flutter-bloc");
   });
 
+  it("getSkill records estimatedTokens on full body return", async () => {
+    const ctx = await makeCtx(path.join(f.root, "skills"));
+    await getSkill({ category: "flutter", name: "flutter-bloc" }, ctx);
+    const event = ctx.tracker.events_().find((e) => e.via === "get_skill");
+    expect(event?.loaded).toEqual(["flutter/flutter-bloc"]);
+    expect(event?.estimatedTokens).toBeGreaterThan(0);
+    expect(ctx.tracker.skillContextCost().totalEstimatedTokens).toBeGreaterThan(
+      0,
+    );
+  });
+
+  it("getSkill records loaded: [] when skill file body is absent", async () => {
+    const ctx = await makeCtx(path.join(f.root, "skills"));
+    const skillPath = path.join(
+      f.root,
+      "skills",
+      "flutter",
+      "flutter-bloc",
+      "SKILL.md",
+    );
+    await fs.remove(skillPath);
+    const out = await getSkill(
+      { category: "flutter", name: "flutter-bloc" },
+      ctx,
+    );
+    expect(text(out)).toContain("SKILL.md is missing");
+    const event = ctx.tracker.events_().find((e) => e.via === "get_skill");
+    expect(event?.loaded).toEqual([]);
+    expect(event?.estimatedTokens).toBeUndefined();
+    expect(ctx.tracker.summary().skillsLoaded).toBe(0);
+  });
+
   it("resolves prefixless ids to canonical prefixed ids", async () => {
     const ctx = await makeCtx(path.join(f.root, "skills"));
     const out = await getSkill(

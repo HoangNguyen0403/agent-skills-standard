@@ -27,9 +27,8 @@ A passing test is insufficient; the test must prove an owned behavior and a dist
 
 ## Choose the mode
 
-- **New behavior:** strict RED -> GREEN -> REFACTOR. Do not write production code before the expected RED.
-- **Legacy or bug fix:** characterize only when needed, then reproduce the intended change as a failing regression (RED). Preserve unrelated existing code; do not delete it merely because it predates the test.
-
+- **New behavior:** strict RED -> GREEN -> REFACTOR. Do not write production code before the expected RED. If implementation preceded tests, report original RED as `NOT RUN`; never manufacture fake RED by deleting guards or falsifying logs.
+- **Legacy or bug fix:** characterize only when needed, then reproduce the intended change as a failing regression (RED). Frozen old-revision proof against a pre-repair snapshot is valid regression evidence when explicitly labeled as `frozen_snapshot_red`. Preserve unrelated existing code; do not delete it merely because it predates the test.
 ## Before writing a test
 
 Compare against the existing suite before adding or removing cases. Ensure the scenario is not already covered upstream or in nearby layers. Preserve justified cross-layer tests when layers catch distinct regression risks.
@@ -52,11 +51,21 @@ Reject tests that duplicate existing coverage without distinct risk, assert inte
 
 1. Run configured lint/type checks, inspect nearby tests, and derive the smallest command.
 2. **RED:** add one intent group and run it in the foreground, sequentially, single-run mode.
-3. Classify RED as `expected_red`, `invalid_red`, `unexpected_green`, or `verification_infra_failed`. If it is `unexpected_green`, inspect existing coverage and remove a redundant or weak case before implementing production code.
+3. Classify RED as `expected_red`, `frozen_snapshot_red`, `not_run`, `invalid_red`, `unexpected_green`, or `verification_infra_failed`. Setup errors (syntax, import, missing modules, broken fixture) are `invalid_red`, NOT behavioral RED. If it is `unexpected_green`, inspect existing coverage and remove a redundant or weak case before implementing production code.
 4. **GREEN:** implement only enough to satisfy `expected_red`; rerun the same command.
 5. **REFACTOR:** improve structure without changing behavior; rerun the same command.
 6. Escalate only when evidence requires it: related unit target, integration/contract target, then explicit release/full-suite gate.
 
+## Layered Acceptance Protocol
+
+Acceptance is tracked across distinct delivery layers whose required applicability is determined by the approved task, slice, or release scope:
+1. **Source-Ready:** Complete owned source delivered at a known source/build identity (`git rev-parse HEAD` + dirty identity). Build, lint, and typecheck statuses are explicitly and independently recorded (`PASS`, `FAIL`, `NOT RUN`, or `NOT APPLICABLE` with scope reasons). Source-ready means source handoff is complete; it does NOT imply unexecuted checks have passed.
+2. **Focused Checks:** Unit, component, or contract test targets covering owned slices. Test membership and count must be derived directly from raw runner output. Reject early zero-exit completions and no-listener runs (zero assertions executed). Micro-level TDD iterations satisfy focused checks; they do not require universal human sign-off per test.
+3. **Consumer-Smoke:** Actual producer-to-consumer integration verifying outward side effects through real entrypoints (not mock echoes or synthetic stubs). Required where task scope touches service boundaries, consumer contracts, or cross-component flows.
+4. **Independent Review:** Separate task review checking specification compliance, code quality, boundaries, and security. Required per task or slice gate in structured plans.
+5. **Human Acceptance:** Explicit sign-off by human partner or authorized business operator. Required for product milestones, external releases, or gated deployments. Where human acceptance is required, it remains pending until an authorized human acts; agents cannot provide it.
+
+Each applicable layer requires: source/build identity, actual entrypoint/assertion, and result artifact. Later edits invalidate affected proof only; rerun affected gates without weakening checks or invalidating unrelated previous gates. Inapplicable layers are recorded as `NOT APPLICABLE` with scope reasons, never marked `PASS` or silently dropped.
 ## Execution safety
 
 - Honor project timeouts; otherwise use a 120-second fallback to bound a focused command.

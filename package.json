@@ -1,37 +1,22 @@
 {
   "name": "agent-skills-standard-root",
-  "version": "2.7.0",
+  "version": "2.7.1",
   "private": true,
   "packageManager": "pnpm@10.0.0",
   "pnpm": {
     "overrides": {
-      "lodash": "npm:lodash-es@^4.17.21",
-      "path-to-regexp": ">=8.4.2",
-      "ip-address": ">=10.5.1",
-      "hono": "4.13.7",
-      "fast-uri": ">=3.1.8",
-      "picomatch": ">=4.0.4",
-      "serialize-javascript": ">=7.0.5",
-      "qs": ">=6.15.2",
-      "js-yaml": "5.4.2",
-      "multer": ">=2.4.0",
-      "vite": "8.3.0",
-      "postcss": "8.5.23",
-      "@modelcontextprotocol/sdk>ajv": "8.18.0",
-      "@angular-devkit/core>ajv": "8.18.0",
-      "minimatch@3>brace-expansion": "1.1.21",
-      "minimatch@9>brace-expansion": "2.1.7",
-      "minimatch@10>brace-expansion": "5.0.12",
-      "@hono/node-server": "1.19.15",
-      "express@4>body-parser": "1.20.6",
-      "express@5>body-parser": "2.3.0",
-      "form-data": "4.0.6",
-      "@babel/core": "7.29.6",
-      "source-map-js": "1.2.2",
       "@humanfs/node": ">=0.16.8",
       "brace-expansion": ">=5.0.12",
+      "minimatch@9>brace-expansion": "2.1.7",
+      "get-uri@6>basic-ftp": "6.2.1",
+      "serve@14>compression": "1.8.2",
+      "serve-handler@6>minimatch": "3.1.4",
+      "fast-uri": ">=3.1.8",
       "proxy-addr": "2.0.8",
-      "fast-copy": "4.1.0"
+      "fast-copy": "4.1.0",
+      "source-map-js": ">=1.2.2",
+      "express@5>body-parser": "2.4.0",
+      "multer": "2.5.0"
     }
   },
   "scripts": {
@@ -43,8 +28,8 @@
     "lint:check": "pnpm -r lint:check",
     "validate": "pnpm --filter ./cli validate",
     "validate:all": "pnpm --filter ./cli validate:all && pnpm audit:skills && pnpm audit:injection && pnpm freshness:audit",
-    "test": "pnpm --filter ./cli test && pnpm test:evals && pnpm test:freshness && pnpm test:outcome && pnpm test:trace && pnpm test:benchmark && pnpm test:metrics && pnpm test:release && pnpm test:harness && pnpm test:sdlc",
-    "test:evals": "node --import tsx --test scripts/evals/*.test.ts",
+    "test": "pnpm --filter ./cli test && pnpm test:evals && pnpm test:freshness && pnpm test:outcome && pnpm test:trace && pnpm test:benchmark && pnpm test:metrics && pnpm test:release && pnpm test:harness && pnpm test:sdlc && pnpm test:generation",
+    "test:evals": "node --import tsx --test scripts/evals/*.test.ts scripts/check-alignment.test.ts",
     "test:freshness": "node --import tsx --test scripts/freshness/*.test.ts scripts/freshness/signals/*.test.ts",
     "test:outcome": "node --import tsx --test scripts/outcome/*.test.ts",
     "test:trace": "node --import tsx --test scripts/trace/*.test.ts",
@@ -54,6 +39,7 @@
     "test:release": "node --import tsx --test scripts/release/*.test.ts",
     "test:harness": "node --import tsx --test scripts/harness-smoke/*.test.ts",
     "test:sdlc": "node --import tsx --test scripts/audit-sdlc.product-evidence.test.ts",
+    "test:generation": "node --import tsx --test scripts/generation/*.test.ts",
     "harness:smoke": "tsx scripts/harness-smoke/run.ts",
     "metrics:report": "tsx scripts/metrics/index.ts",
     "metrics:check": "tsx scripts/metrics/index.ts --check",
@@ -98,7 +84,7 @@
     "freshness:check": "tsx scripts/freshness/index.ts check",
     "freshness:report": "tsx scripts/freshness/index.ts report",
     "evals:standardize": "tsx scripts/evals/quality.ts audit --write",
-    "generate-indices": "tsx scripts/generate-indices.ts",
+    "generate-indices": "tsx scripts/generation/index.ts",
     "audit:skills": "tsx scripts/audit-skills.ts",
     "audit:keywords": "tsx scripts/check-keyword-collisions.ts",
     "migrate:priority-labels": "tsx scripts/migrate-priority-labels.ts",
@@ -139,21 +125,5 @@
     "tsx": "^4.23.15",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.71.2"
-  },
-  "pnpm": {
-    "overrides": {
-      "@humanfs/node": ">=0.16.8",
-      "brace-expansion": ">=5.0.12",
-      "minimatch@9>brace-expansion": "2.1.7",
-      "get-uri@6>basic-ftp": "6.2.1",
-      "serve@14>compression": "1.8.2",
-      "serve-handler@6>minimatch": "3.1.4",
-      "fast-uri": ">=3.1.8",
-      "proxy-addr": "2.0.8",
-      "fast-copy": "4.1.0",
-      "source-map-js": ">=1.2.2",
-      "express@5>body-parser": "2.4.0",
-      "multer": "2.5.0"
-    }
   }
 }

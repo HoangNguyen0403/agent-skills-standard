@@ -398,23 +398,14 @@ describe('SkillSelectionApplyService', () => {
     expect(commonIndex).not.toContain('beta');
     expect(
       await fs.pathExists(
-        projectPath(
-          '.codex/skills/product-management/_INDEX.md',
-        ),
+        projectPath('.codex/skills/product-management/_INDEX.md'),
       ),
     ).toBe(true);
 
-    expect(result.plan.pruned).toContain(
-      '.claude/skills/common/beta/SKILL.md',
-    );
-    expect(result.plan.pruned).toContain(
-      '.codex/skills/common/beta/SKILL.md',
-    );
+    expect(result.plan.pruned).toContain('.claude/skills/common/beta/SKILL.md');
+    expect(result.plan.pruned).toContain('.codex/skills/common/beta/SKILL.md');
 
-    const saved = yaml.load(await readConfigBytes()) as Record<
-      string,
-      unknown
-    >;
+    const saved = yaml.load(await readConfigBytes()) as Record<string, unknown>;
     expect(saved.skills).toEqual({
       common: { ref: COMMON_V1, include: ['alpha'] },
       'product-management': { ref: PM_V1 },
@@ -442,9 +433,9 @@ describe('SkillSelectionApplyService', () => {
     });
     expect(lock.entries['.claude/commands/sdlc.md']).toBeDefined();
     expect(lock.entries['.claude/agents/reviewer.md']).toBeDefined();
-    expect(await fs.readFile(projectPath('.claude/commands/sdlc.md'), 'utf8')).toBe(
-      '# SDLC workflow',
-    );
+    expect(
+      await fs.readFile(projectPath('.claude/commands/sdlc.md'), 'utf8'),
+    ).toBe('# SDLC workflow');
   });
   it('writes imported packages under their physical category with declaring provenance', async () => {
     await writeProjectConfig({
@@ -477,10 +468,7 @@ describe('SkillSelectionApplyService', () => {
         ),
       ).toBe(skillMarkdown('react-core'));
       expect(
-        await fs.readFile(
-          projectPath(agentPath, 'react/_INDEX.md'),
-          'utf8',
-        ),
+        await fs.readFile(projectPath(agentPath, 'react/_INDEX.md'), 'utf8'),
       ).toContain('react-core');
     }
     expect(await fs.readFile(projectPath('AGENTS.md'), 'utf8')).toContain(
@@ -556,7 +544,6 @@ describe('SkillSelectionApplyService', () => {
     expect(await fs.pathExists(projectPath('.claude/skills'))).toBe(false);
   });
 
-
   it('rejects one physical package selected from different commits before writing', async () => {
     await writeProjectConfig(rawConfig());
     const initial = await snapshot();
@@ -629,9 +616,7 @@ describe('SkillSelectionApplyService', () => {
     const initial = await snapshot();
     await seedInstall(initial.config, [collected('common', 'alpha')]);
     expect(
-      await fs.pathExists(
-        projectPath('.claude/skills/common/_INDEX.md'),
-      ),
+      await fs.pathExists(projectPath('.claude/skills/common/_INDEX.md')),
     ).toBe(true);
 
     const prepared = await applyService.prepare(initial, {
@@ -705,9 +690,7 @@ describe('SkillSelectionApplyService', () => {
     const initial = await snapshot();
     await seedInstall(initial.config, [collected('common', 'alpha')]);
     const configBytes = await readConfigBytes();
-    transport.unavailableDownloads.add(
-      'skills/react/react-core/SKILL.md',
-    );
+    transport.unavailableDownloads.add('skills/react/react-core/SKILL.md');
 
     await expect(
       applyService.prepare(initial, {
@@ -749,9 +732,7 @@ describe('SkillSelectionApplyService', () => {
 
     expect(await fs.readFile(editedPath, 'utf8')).toBe('user edited beta');
     expect(
-      await fs.pathExists(
-        projectPath('.codex/skills/common/beta/SKILL.md'),
-      ),
+      await fs.pathExists(projectPath('.codex/skills/common/beta/SKILL.md')),
     ).toBe(false);
     expect(result.plan.keptOrphans).toContain(
       '.claude/skills/common/beta/SKILL.md',
@@ -765,12 +746,8 @@ describe('SkillSelectionApplyService', () => {
     expect(index).not.toContain('beta');
 
     const lock = await readLock();
-    expect(
-      lock.entries['.claude/skills/common/beta/SKILL.md'],
-    ).toBeUndefined();
-    expect(
-      lock.entries['.claude/skills/common/alpha/SKILL.md'],
-    ).toBeDefined();
+    expect(lock.entries['.claude/skills/common/beta/SKILL.md']).toBeUndefined();
+    expect(lock.entries['.claude/skills/common/alpha/SKILL.md']).toBeDefined();
   });
 
   it('retains content and prunes nothing when prune is disabled', async () => {
@@ -789,9 +766,7 @@ describe('SkillSelectionApplyService', () => {
     if (result.status !== 'complete') return;
 
     expect(result.plan.pruned).toEqual([]);
-    expect(await fs.readFile(alphaPath, 'utf8')).toBe(
-      skillMarkdown('alpha'),
-    );
+    expect(await fs.readFile(alphaPath, 'utf8')).toBe(skillMarkdown('alpha'));
     const lock = await readLock();
     expect(lock.entries['.claude/skills/common/alpha/SKILL.md']).toBeDefined();
 
@@ -804,9 +779,9 @@ describe('SkillSelectionApplyService', () => {
       );
       expect(index.trim()).toBe('');
     }
-    expect(
-      lock.entries['.claude/skills/common/_INDEX.md'].sha256,
-    ).toBe(sha256(''));
+    expect(lock.entries['.claude/skills/common/_INDEX.md'].sha256).toBe(
+      sha256(''),
+    );
   });
 
   it('blanks retained indexes when the category itself is removed under prune:false', async () => {
@@ -880,9 +855,7 @@ describe('SkillSelectionApplyService', () => {
       await seedInstall(initial.config, [collected('common', 'alpha')]);
       const configBytes = await readConfigBytes();
       const lockBytes = await fs.readFile(projectPath(LOCKFILE_NAME));
-      const managedPath = projectPath(
-        '.claude/skills/common/alpha/SKILL.md',
-      );
+      const managedPath = projectPath('.claude/skills/common/alpha/SKILL.md');
       const indexPath = projectPath('.claude/skills/common/_INDEX.md');
       const contentBefore = await fs.readFile(managedPath, 'utf8');
       const indexBefore = await fs.readFile(indexPath);
@@ -1020,10 +993,7 @@ describe('SkillSelectionApplyService', () => {
     );
     expect(retried.status).toBe('complete');
     expect(
-      await fs.readFile(
-        projectPath('.codex/skills/common/_INDEX.md'),
-        'utf8',
-      ),
+      await fs.readFile(projectPath('.codex/skills/common/_INDEX.md'), 'utf8'),
     ).toContain('beta');
   });
 
@@ -1082,9 +1052,7 @@ describe('SkillSelectionApplyService', () => {
     expect(result.message).toContain('Configuration changed on disk');
     expect(await readConfigBytes()).toBe(external);
     expect(
-      await fs.pathExists(
-        projectPath('.claude/skills/common/beta/SKILL.md'),
-      ),
+      await fs.pathExists(projectPath('.claude/skills/common/beta/SKILL.md')),
     ).toBe(false);
   });
 
@@ -1100,10 +1068,7 @@ describe('SkillSelectionApplyService', () => {
     expect(result.status).toBe('complete');
     if (result.status !== 'complete') return;
 
-    const saved = yaml.load(await readConfigBytes()) as Record<
-      string,
-      unknown
-    >;
+    const saved = yaml.load(await readConfigBytes()) as Record<string, unknown>;
     expect(saved.skills).toEqual({});
     expect(saved.skills_mode).toBe('explicit');
     expect(saved.workflows).toEqual(['sdlc']);
@@ -1146,9 +1111,7 @@ describe('SkillSelectionApplyService', () => {
         },
       }),
     ).rejects.toBeInstanceOf(SkillAssemblyError);
-    expect(await readConfigBytes()).toBe(
-      yaml.dump(rawConfig()),
-    );
+    expect(await readConfigBytes()).toBe(yaml.dump(rawConfig()));
   });
 
   it.each([
@@ -1188,10 +1151,10 @@ describe('SkillSelectionApplyService', () => {
   it('returns a prepared change whose config is the desired selection', async () => {
     await writeProjectConfig(rawConfig());
     const initial = await snapshot();
-    const prepared: PreparedSkillChange = await applyService.prepare(
-      initial,
-      { ...initial.config, skills: { common: { ref: COMMON_V1 } } },
-    );
+    const prepared: PreparedSkillChange = await applyService.prepare(initial, {
+      ...initial.config,
+      skills: { common: { ref: COMMON_V1 } },
+    });
     expect(prepared.config.skills).toEqual({ common: { ref: COMMON_V1 } });
     expect(prepared.skills.map((skill) => skill.skill).sort()).toEqual([
       'alpha',
@@ -1221,9 +1184,7 @@ describe('SkillSelectionApplyService', () => {
     expect(result.message).toBe('read-only filesystem');
     expect(await readConfigBytes()).toBe(configBytes);
     expect(
-      await fs.pathExists(
-        projectPath('.claude/skills/common/beta/SKILL.md'),
-      ),
+      await fs.pathExists(projectPath('.claude/skills/common/beta/SKILL.md')),
     ).toBe(false);
   });
 
@@ -1250,9 +1211,7 @@ describe('SkillSelectionApplyService', () => {
     };
     expect(saved.skills.common.include).toEqual(['alpha', 'beta']);
     expect(
-      await fs.pathExists(
-        projectPath('.claude/skills/common/beta/SKILL.md'),
-      ),
+      await fs.pathExists(projectPath('.claude/skills/common/beta/SKILL.md')),
     ).toBe(false);
   });
 });

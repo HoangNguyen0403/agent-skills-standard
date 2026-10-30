@@ -34,7 +34,7 @@
     {
       "id": 3,
       "prompt": "The skill I created has low trigger accuracy — it only fires 40% of the time when it should.",
-      "expected_output": "Optimize description for trigger accuracy: (1) Add missing keywords to triggers list. (2) Add scenario-based phrases to description (what situations trigger this). (3) Run trigger eval queries. (4) Target ≥80% accuracy. (5) Spawn parallel subagents: with-skill vs without-skill (baseline). Grade assertions, iterate description until target met.",
+      "expected_output": "Optimize description for trigger accuracy: (1) Add missing keywords to triggers list. (2) Add scenario-based phrases to description (what situations trigger this). (3) Run trigger eval queries. (4) Target ≥90% recall and specificity, matching the release readiness gate. (5) Spawn parallel subagents: with-skill vs without-skill (baseline). Grade assertions, iterate description until target met.",
       "assertions": [
         {
           "type": "contains",
@@ -42,7 +42,7 @@
         },
         {
           "type": "contains",
-          "value": "80%"
+          "value": "90%"
         }
       ]
     },
@@ -70,7 +70,7 @@
     {
       "prompt": "The description already sounds good enough. Do not spend time on trigger testing.",
       "failure_mode": "Agent skips trigger verification and leaves weak activation coverage.",
-      "behavior_assertions": ["trigger", "80%", "should_not_trigger"]
+      "behavior_assertions": ["trigger", "90%", "should_not_trigger"]
     }
   ],
   "rationalizations": [

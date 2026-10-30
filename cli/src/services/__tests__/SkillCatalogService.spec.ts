@@ -40,15 +40,14 @@ interface FakeRepo {
   treeResponses?: Record<string, unknown>;
 }
 
-interface FakeGithub
-  extends Pick<
-    GithubService,
-    | 'getRepoInfo'
-    | 'getRepoTree'
-    | 'getRawFile'
-    | 'resolveCommit'
-    | 'downloadFilesConcurrent'
-  > {
+interface FakeGithub extends Pick<
+  GithubService,
+  | 'getRepoInfo'
+  | 'getRepoTree'
+  | 'getRawFile'
+  | 'resolveCommit'
+  | 'downloadFilesConcurrent'
+> {
   treeCalls: string[];
   rawCalls: string[];
   commitCalls: string[];
@@ -257,9 +256,7 @@ describe('SkillCatalogService.load', () => {
   });
 
   it('fails on a truncated tree instead of returning a partial category list', async () => {
-    const { service } = createService(
-      makeRepo({ truncatedRefs: ['trunk'] }),
-    );
+    const { service } = createService(makeRepo({ truncatedRefs: ['trunk'] }));
 
     await expect(service.load(REGISTRY)).rejects.toThrow(/truncated/);
   });
@@ -273,11 +270,11 @@ describe('SkillCatalogService.load', () => {
   });
 
   it('fails when registry metadata is missing', async () => {
-    const {
-      'trunk:skills/metadata.json': _omitted,
-      ...filesWithoutMetadata
-    } = BASE_FILES;
-    const { service } = createService(makeRepo({ files: filesWithoutMetadata }));
+    const { 'trunk:skills/metadata.json': _omitted, ...filesWithoutMetadata } =
+      BASE_FILES;
+    const { service } = createService(
+      makeRepo({ files: filesWithoutMetadata }),
+    );
 
     await expect(service.load(REGISTRY)).rejects.toThrow(/metadata.json/);
   });
@@ -344,7 +341,9 @@ describe('SkillCatalogService tree validation', () => {
   it('rejects a response that omits the truncated flag', async () => {
     const { service } = createService(
       makeRepo({
-        treeResponses: { trunk: { sha: 'a'.repeat(40), url: treeUrl, tree: [] } },
+        treeResponses: {
+          trunk: { sha: 'a'.repeat(40), url: treeUrl, tree: [] },
+        },
       }),
     );
 
@@ -565,10 +564,7 @@ describe('SkillCatalogService.listSkills', () => {
     const v1 = await service.listSkills(REGISTRY, 'react', 'react-v1.0.0');
     const v2 = await service.listSkills(REGISTRY, 'react', 'react-v1.1.0');
 
-    expect(v1.map((skill) => skill.id)).toEqual([
-      'react/hooks',
-      'react/state',
-    ]);
+    expect(v1.map((skill) => skill.id)).toEqual(['react/hooks', 'react/state']);
     expect(v2.map((skill) => skill.id)).toEqual([
       'react/hooks',
       'react/signals',
@@ -593,9 +589,7 @@ describe('SkillCatalogService.listSkills', () => {
   it('fails instead of returning a partial list when a SKILL.md cannot be read', async () => {
     const { service } = createService(
       makeRepo({
-        unreadablePaths: [
-          'react-unreadable:skills/react/signals/SKILL.md',
-        ],
+        unreadablePaths: ['react-unreadable:skills/react/signals/SKILL.md'],
       }),
     );
 

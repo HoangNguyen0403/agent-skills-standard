@@ -1,5 +1,30 @@
 # Subagent-Driven Development Prompt Templates
 
+## 0. Task Brief Contract Template (for Implementation Plans)
+
+Use this template when authoring tasks in implementation plans. `task_brief.py` validates that these fields are present outside code fences in the selected task section before publishing the assignment packet; a missing field refuses publication (exit 2).
+
+```markdown
+### Task N: [Task Title]
+
+**Files:** `path/to/file1.ext`, `path/to/file2.ext`
+**Scope / owned write set:** `path/to/file1.ext`, `path/to/file2.ext` only. No changes to unrelated packages or configurations.
+**Inputs:** [Required specifications, design contracts, or preceding task artifacts]
+**Outputs:** [Resulting code, interfaces, exported symbols, test files]
+**Real Ingress:** [Actual runtime, API, CLI, or test harness entry point exercising the changes]
+**Invariants:**
+- Positive: [Observable behavior that must occur under valid inputs]
+- Negative: [Boundary rejections, fail-closed errors, or forbidden state transitions]
+**Verification owner:** [parent orchestrator | implementer focused tests] via `[exact test/smoke command]`
+**Handoff / freeze:** report `task-N-report.md` marked FINAL; source freeze precedes review.
+**Correction route:** [e.g. host ladder: 1 corrective follow-up then escalate route; no automatic premium]
+
+- [ ] Actionable implementation step 1
+- [ ] Actionable implementation step 2
+```
+
+---
+
 ## 1. Implementer Subagent Prompt Template
 
 Use this template when the placement decision selects a bounded worker. When it selects one main-loop implementation context, apply the same contract (owned paths, no recursive delegation, focused checks) to the orchestrator and still dispatch the independent reviewer in Section 2.
@@ -60,8 +85,11 @@ Worker dispatch (host binding):
     - **No Recursive Delegation:** Do all of this task's work yourself. Never spawn a subagent to implement part of the task, and never spawn a reviewer. Review is handled by the orchestrator after you report.
     - **Focused Verification:** Run only tests and checks covering touched paths; full test suites run during integration.
     - **Evidence Boundary:** A green check is technical verification of this revision only. Never claim business acceptance, release authority, or that a stale receipt still covers later edits.
+    - **Denial Alternative vs. Total Block:** If a tool call or command is denied, check for an allowed alternative or read-only diagnostic before declaring BLOCKED. Do not report "all tests blocked" when only a single command was denied.
+    - **Sibling Requests Forward-Only:** Sibling agents cannot approve or deny permissions on your behalf. Requests can only be forwarded to the orchestrator or human.
+    - **Error Is Not Terminal State:** A provider 429, timeout, or network glitch does not mean write ownership is transferred. Terminal state must be confirmed before stopping.
+    - **Conversion & Provenance:** If this task converts or repairs artifacts across worktrees, specify exact cross-worktree input paths, source/user/project provenance, and inclusive ranges; preserve unaffected fields.
     - **Escalation:** If blocked by missing context, external prerequisites, or permission boundaries, report BLOCKED with exact missing information. Do not silently shrink the assigned scope.
-
     ## Report Format
     Write your full report to [REPORT_FILE]:
     - What was implemented and files changed

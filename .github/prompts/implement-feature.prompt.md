@@ -15,16 +15,15 @@ Goal: Build an approved feature through bounded TDD slices and route settled wor
    - Apply the canonical placement decision in `common-subagent-driven-development` §1 before editing: delegate only for a named benefit or a host requirement. Coupled sequential work under a host that permits main-loop implementation stays in one implementation context.
    - Dispatch one owner per disjoint, dependency-ready slice with a recorded benefit; sequence only real dependencies. Worker bootstrap reads its packet and requests only the exact standards it names; do not repeat parent workflow discovery or global intake.
    - Record observable contract, distinct fault, smallest honest layer, minimal cases, and exact focused command before testing.
-   - Write/update the failing test first; observe expected RED before implementation. Characterize legacy behavior only when needed.
+   - Write/update the failing test first; observe expected RED before implementation. Characterize legacy behavior only when needed. If implementation preceded tests, report original RED as `NOT RUN`; never manufacture fake RED. Frozen pre-repair snapshot proof must be explicitly labeled as `frozen_snapshot_red`. Setup errors (compilation, syntax, missing imports, fixture defects) are `invalid_red`, NOT behavioral RED.
    - Implement the smallest passing change; refactor without scope expansion.
-   - Run focused checks foreground, single-run, sequentially, with no peer mutation; classify invalid RED, unexpected GREEN, timeout, or infrastructure failure.
-   - Keep concise revision-bound receipts: changed contract, RED/GREEN evidence, behavior smoke, command/result, and limitations.
+   - Run focused checks foreground, single-run, sequentially, with no peer mutation; classify invalid RED, unexpected GREEN, timeout, or infrastructure failure. Derive test count and suite membership directly from raw runner output; reject early zero-exit completions and no-listener runs (zero assertions executed). Micro-level slice checks do not require universal human sign-off per test.
+   - Keep concise revision-bound receipts across layered acceptance gates (source-ready, focused checks, consumer-smoke, independent review, human acceptance) based on approved scope applicability: changed contract, RED/GREEN evidence, behavior smoke, command/result, and limitations. Source-ready indicates complete source delivery at recorded Git SHA + dirty identity, with check statuses explicitly and independently recorded (`PASS`, `FAIL`, `NOT RUN`, `NOT APPLICABLE`); unexecuted checks remain `NOT RUN`.
 5. **Independent review**: Review each slice in a separate owner/context against its ACs and evidence. Implementer self-review does not satisfy this gate, whether the implementer ran in the main loop or in a worker. Record review mode, open findings, and the settled revision.
 6. **Recover by cause**: Missing prerequisite → report `needs_context`/`blocked` with the exact item. Defective output → one corrective assignment naming the failed AC. Observed provider exhaustion → only an eligible, already-authorized fallback, with the evidence recorded. Consequential safety/design issue → human decision. Retry count alone never authorizes premium.
 7. **Preserve context**: Carry decisions, owner, active slice, and evidence links in the task/plan artifact. Summarize logs; keep source artifacts retrievable. Archive required packets, reports, and receipts at durable references before workspace cleanup.
-8. **Settle before shared checks**: Every owner pauses edits and reports a settled revision. Run one final covering gate, including behavior smoke, foreground/sequentially with no peer mutation. Then run the whole-branch independent review; it is required regardless of placement. Later edits invalidate affected evidence; rerun those gates and never weaken checks. A cancelled or timed-out run is not a pass.
-9. **Handoff**: Report final gate/smoke receipts and update the requirement trace and walkthrough evidence where that lane applies. Run the required audit only for its evidence lane: governed documents `rtk pnpm audit:trace --slug <slug> --required`; required run records `rtk pnpm audit:outcome --records --required --slug <slug> --workflow <workflow> --run-id <run-id>`. Brief tickets acquire no document-trace gate; registry-wide discovery with no selector stays optional. Technical verification, business acceptance, and release stay separate referenced decisions; a passing check reports only technical verification. Continue only within recorded authority; route to `verify-work`.
-
+8. **Settle before shared checks**: Every owner pauses edits and reports a settled revision. Run one final covering gate, including real producer→consumer smoke verifying outward side effects through real entrypoints for boundary/integration slices, foreground/sequentially with no peer mutation. Then run the whole-branch independent review; it is required regardless of placement. Later edits invalidate affected evidence only; rerun those gates on the final source revision without weakening checks or invalidating unrelated previous gates. A cancelled or timed-out run is not a pass.
+9. **Handoff**: Report final gate/smoke receipts across applicable layered acceptance gates and update the requirement trace and walkthrough evidence where that lane applies. Run the required audit only for its evidence lane: governed documents `rtk pnpm audit:trace --slug <slug> --required`; required run records `rtk pnpm audit:outcome --records --required --slug <slug> --workflow <workflow> --run-id <run-id>`. Brief tickets acquire no document-trace gate; registry-wide discovery with no selector stays optional. Where human acceptance is required by release scope, keep it pending until an authorized human acts. Technical verification, business acceptance, and release stay separate referenced decisions; a passing check reports only technical verification. Continue only within recorded authority; route to `verify-work`.
 ## Runtime Contract
 
 - Use for approved plans ready to build; TDD, bounded ownership, revision-bound evidence, independent review.
@@ -56,6 +55,13 @@ Goal: Build an approved feature through bounded TDD slices and route settled wor
 
 ## Requirement Trace Updates
 ## Evidence
+
+### Layered Acceptance
+- **Source-Ready:** [Git SHA + dirty-identity; check statuses explicitly recorded: build/lint/typecheck as PASS | FAIL | NOT RUN | NOT APPLICABLE]
+- **Focused Checks:** [Test runner command, raw test count/membership from runner output, RED status (expected_red | frozen_snapshot_red | not_run), GREEN result]
+- **Consumer-Smoke:** [Real producer→consumer entrypoint, outward side effects verified | NOT APPLICABLE with scope reason]
+- **Independent Review:** [Reviewer identity, spec compliance and code quality verdicts | NOT APPLICABLE with scope reason]
+- **Human Acceptance:** [Human partner / operator sign-off status (Approved | Pending | NOT APPLICABLE with scope reason)]
 
 ## Known Risks
 

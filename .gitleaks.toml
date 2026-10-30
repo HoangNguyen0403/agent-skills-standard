@@ -54,3 +54,18 @@ regexes = [
   '''top_secret''',
   '''password123''',
 ]
+
+[[allowlists]]
+description = "Diagnostic prevention baseline declared SHA-256 digest manifests: file hashes matching generic-api-key shape in sealed evidence artifacts."
+condition = "AND"
+paths = [
+  '''^artifacts/diagnostic-prevention/implementation/attempt-01/root-scale-r1-full-03/baseline-declared-digests\.json$''',
+  '''^artifacts/diagnostic-prevention/implementation/attempt-01/root-scale-r1-prerequisites-03/baseline-declared-digests\.json$''',
+]
+regexTarget = "match"
+regexes = [
+  '''orders_api\.py"?\s*:\s*"02cae4c9aacce387ee00619989c5bd3338e5abe5365542fbfa8a323729b53f38''',
+  '''api-error-contract\.md"?\s*:\s*"91e65461819f57150176446a73079bc968e6a1b4d5a980a56bf7cbc6bf81d224''',
+  '''owasp-api\.md"?\s*:\s*"b6844ad13dddf7c341fb4454ba51b6111eb89b3e23b9ec10f7822ad995b3b84b''',
+  '''smartbear-api\.md"?\s*:\s*"fab7799f729491aab0131dd6a5db8614b003009c034723eafd22b9d0a23583ab''',
+]

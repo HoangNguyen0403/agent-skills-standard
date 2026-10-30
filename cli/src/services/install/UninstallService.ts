@@ -8,6 +8,7 @@ import {
   LockfileService,
   ManifestEntry,
   sha256,
+  type SkillsLockFile,
   type WorkflowCatalog,
 } from '../LockfileService';
 import { McpConfigService } from '../McpConfigService';
@@ -47,6 +48,25 @@ function categoryOf(source: string): string {
     .replace(/^(skill|index):/, '')
     .split('/')[0]
     .split('@')[0];
+}
+
+/**
+ * A generation ledger grants authority only when it owns at least one path.
+ * Plan and apply must agree on this: an empty ledger is no authority.
+ */
+function hasGenerationAuthority(
+  lock: Pick<SkillsLockFile, 'generation'> | null | undefined,
+): boolean {
+  return Boolean(
+    lock?.generation && Object.keys(lock.generation.entries).length > 0,
+  );
+}
+
+/** Whether the generation ledger owns the root AGENTS.md router index. */
+function ownsAgentsIndex(
+  lock: Pick<SkillsLockFile, 'generation'> | null | undefined,
+): boolean {
+  return lock?.generation?.entries['AGENTS.md'] !== undefined;
 }
 
 export class UninstallService {
@@ -128,9 +148,9 @@ export class UninstallService {
         : hasAgents && !hasCategories
           ? selection.agents || []
           : [],
-      clearAgentsIndex: hasAll,
+      clearAgentsIndex: hasAll && !ownsAgentsIndex(lock),
     };
-    const deleteLock = hasAll;
+    const deleteLock = hasAll && !hasGenerationAuthority(lock);
 
     const remove: string[] = [];
     const keepEdited: string[] = [];
@@ -250,6 +270,21 @@ export class UninstallService {
     config: SkillConfig,
     plan: UninstallPlan,
   ): Promise<{ removed: string[]; backupId: string | null }> {
+    const { lock: currentLock } = await this.lockfile.load(
+      rootDir,
+      config.agents || [],
+    );
+    if (plan.deleteLock && hasGenerationAuthority(currentLock)) {
+      throw new Error(
+        'Uninstall plan is stale: repository-generation authority now exists',
+      );
+    }
+    if (plan.integrations.clearAgentsIndex && ownsAgentsIndex(currentLock)) {
+      throw new Error(
+        'Uninstall plan is stale: AGENTS.md generation authority now exists',
+      );
+    }
+
     let backupId: string | null = null;
     const needsBackup = plan.remove.length > 0 || plan.deleteLock;
     let session: BackupSession | null = null;

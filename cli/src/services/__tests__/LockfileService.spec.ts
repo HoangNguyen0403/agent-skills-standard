@@ -95,7 +95,10 @@ describe('LockfileService v2', () => {
     });
   });
 
-  it('write then load round-trips a v2 lock with sorted entry keys', async () => {
+  it('write then load round-trips v2 entries and isolated generation ownership', async () => {
+    const wholeMetadataDigest = sha256('complete metadata document');
+    const tokenMetricsDigest = sha256('owned token metrics projection');
+    expect(tokenMetricsDigest).not.toBe(wholeMetadataDigest);
     const lock: SkillsLockFile = {
       version: 2,
       registry: 'https://github.com/test/repo',
@@ -117,6 +120,23 @@ describe('LockfileService v2', () => {
           sha256: 'ha',
         },
       },
+      generation: {
+        version: 1,
+        entries: {
+          'skills/metadata.json': {
+            source: 'index:skills/metadata.json',
+            sha256: wholeMetadataDigest,
+            scope: {
+              kind: 'category-token-metrics',
+              sha256: tokenMetricsDigest,
+            },
+          },
+          'README.md': {
+            source: 'index:README.md',
+            sha256: sha256('readme'),
+          },
+        },
+      },
     };
 
     await service.write(root, lock);
@@ -124,9 +144,218 @@ describe('LockfileService v2', () => {
     expect(loaded.migratedFromV1).toBe(false);
     expect(loaded.lock).toEqual(lock);
 
-    // Verify raw JSON keys are written in sorted order
     const raw = await fs.readJson(path.join(root, LOCKFILE_NAME));
     expect(Object.keys(raw.entries)).toEqual(['a/file.md', 'z/file.md']);
+    expect(Object.keys(raw.generation.entries)).toEqual([
+      'README.md',
+      'skills/metadata.json',
+    ]);
+    expect(raw.generation.entries['skills/metadata.json'].scope).toEqual(
+      lock.generation?.entries['skills/metadata.json'].scope,
+    );
+  });
+
+  it('preserves the scoped generation ledger when a normal CLI writer omits it', async () => {
+    const generation = {
+      version: 1 as const,
+      entries: {
+        'AGENTS.md': {
+          source: 'index:AGENTS.md',
+          sha256: sha256('agents'),
+        },
+        'skills/metadata.json': {
+          source: 'index:skills/metadata.json',
+          sha256: sha256('whole metadata'),
+          scope: {
+            kind: 'category-token-metrics' as const,
+            sha256: sha256('owned metrics'),
+          },
+        },
+      },
+    };
+    const sources = {
+      'skills/common': { ref: 'common-v1', commit: null },
+    };
+    const lock: SkillsLockFile = {
+      version: 2,
+      registry: 'r',
+      generatedAt: 'before',
+      sources,
+      entries: {
+        '.github/skills/typescript/core/SKILL.md': {
+          owner: 'skill',
+          source: 'skill:typescript/core@v1',
+          agent: 'copilot',
+          sha256: sha256('old'),
+        },
+      },
+      generation,
+      disclosed: { copilot: ['hooks'] },
+    };
+    await service.write(root, lock);
+    await service.write(root, {
+      ...lock,
+      generatedAt: 'after',
+      entries: {},
+      generation: undefined,
+    });
+
+    const loaded = await service.load(root, [Agent.Copilot]);
+    expect(loaded.lock?.generation).toEqual(generation);
+    expect(loaded.lock?.entries).toEqual({});
+    expect(loaded.lock?.sources).toEqual(sources);
+    expect(loaded.lock?.disclosed).toEqual({ copilot: ['hooks'] });
+  });
+
+  it('rejects unsupported generation ledger versions instead of granting authority', async () => {
+    await fs.writeJson(path.join(root, LOCKFILE_NAME), {
+      version: 2,
+      registry: 'r',
+      generatedAt: 't',
+      sources: {},
+      entries: {},
+      generation: { version: 2, entries: {} },
+    });
+
+    await expect(service.load(root, [Agent.Copilot])).rejects.toThrow(
+      'Unsupported repository-generation lock namespace',
+    );
+  });
+  it.each([
+    {
+      caseName: 'null descriptor',
+      relPath: 'skills/metadata.json',
+      scope: null,
+    },
+    {
+      caseName: 'array descriptor',
+      relPath: 'skills/metadata.json',
+      scope: [],
+    },
+    {
+      caseName: 'unsupported kind',
+      relPath: 'skills/metadata.json',
+      scope: { kind: 'future-kind', sha256: sha256('metrics') },
+    },
+    {
+      caseName: 'malformed digest',
+      relPath: 'skills/metadata.json',
+      scope: { kind: 'category-token-metrics', sha256: 'not-a-digest' },
+    },
+    {
+      caseName: 'unknown descriptor key',
+      relPath: 'skills/metadata.json',
+      scope: {
+        kind: 'category-token-metrics',
+        sha256: sha256('metrics'),
+        extra: true,
+      },
+    },
+    {
+      caseName: 'missing descriptor digest',
+      relPath: 'skills/metadata.json',
+      scope: { kind: 'category-token-metrics' },
+    },
+    {
+      caseName: 'scope on another output',
+      relPath: 'README.md',
+      scope: { kind: 'category-token-metrics', sha256: sha256('metrics') },
+    },
+  ])(
+    'rejects $caseName without changing the invalid ledger',
+    async ({ relPath, scope }) => {
+      const file = path.join(root, LOCKFILE_NAME);
+      const invalidLock = {
+        version: 2,
+        registry: 'r',
+        generatedAt: 't',
+        sources: {},
+        entries: {},
+        generation: {
+          version: 1,
+          entries: {
+            [relPath]: {
+              source: `index:${relPath}`,
+              sha256: sha256('whole file'),
+              scope,
+            },
+          },
+        },
+      };
+      await fs.writeJson(file, invalidLock);
+      const before = await fs.readFile(file);
+      const error = `Invalid repository-generation ownership entry: ${relPath}`;
+      await expect(service.load(root, [Agent.Copilot])).rejects.toThrow(error);
+      const incoming: SkillsLockFile = {
+        version: 2,
+        registry: 'r',
+        generatedAt: 'replacement',
+        sources: {},
+        entries: {},
+        generation: {
+          version: 1,
+          entries: {
+            'skills/metadata.json': {
+              source: 'index:skills/metadata.json',
+              sha256: sha256('replacement bytes'),
+              scope: {
+                kind: 'category-token-metrics',
+                sha256: sha256('replacement metrics'),
+              },
+            },
+          },
+        },
+      };
+      await expect(service.write(root, incoming)).rejects.toThrow(error);
+      await expect(
+        service.writeDisclosed(root, { copilot: ['capabilities'] }),
+      ).rejects.toThrow(error);
+      expect(await fs.readFile(file)).toEqual(before);
+      await fs.remove(file);
+      await service.write(root, incoming);
+      const validBefore = await fs.readFile(file);
+      await expect(
+        service.write(root, {
+          ...incoming,
+          generation: invalidLock.generation,
+        } as unknown as SkillsLockFile),
+      ).rejects.toThrow(error);
+      expect(await fs.readFile(file)).toEqual(validBefore);
+    },
+  );
+
+  it('rejects explicit null generation input instead of preserving or downgrading scope', async () => {
+    const lock: SkillsLockFile = {
+      version: 2,
+      registry: 'r',
+      generatedAt: 'before',
+      sources: {},
+      entries: {},
+      generation: {
+        version: 1,
+        entries: {
+          'skills/metadata.json': {
+            source: 'index:skills/metadata.json',
+            sha256: sha256('whole metadata'),
+            scope: {
+              kind: 'category-token-metrics',
+              sha256: sha256('owned metrics'),
+            },
+          },
+        },
+      },
+    };
+    await service.write(root, lock);
+    const file = path.join(root, LOCKFILE_NAME);
+    const before = await fs.readFile(file);
+
+    await expect(
+      service.write(root, {
+        ...lock,
+        generation: null,
+      } as unknown as SkillsLockFile),
+    ).rejects.toThrow('Unsupported repository-generation lock namespace');
+    expect(await fs.readFile(file)).toEqual(before);
   });
 
   it('disclosed handling: write preserves existing disclosed, writeDisclosed behavior', async () => {
@@ -160,6 +389,52 @@ describe('LockfileService v2', () => {
     await service.write(root, lock);
     const rawV2 = await fs.readJson(path.join(root, LOCKFILE_NAME));
     expect(rawV2.disclosed).toEqual({ claude: ['hooks'] });
+  });
+  it('writeDisclosed preserves scoped generation and unrelated lock data', async () => {
+    const scope = {
+      kind: 'category-token-metrics' as const,
+      sha256: sha256('metric projection'),
+    };
+    const lock: SkillsLockFile = {
+      version: 2,
+      registry: 'https://github.com/test/repo',
+      generatedAt: 'created',
+      sources: {
+        'skills/common': { ref: 'common-v1', commit: 'a'.repeat(40) },
+      },
+      entries: {
+        '.github/skills/common/core/SKILL.md': {
+          owner: 'skill',
+          source: 'skill:common/core@common-v1',
+          agent: Agent.Copilot,
+          sha256: sha256('ordinary host file'),
+        },
+      },
+      generation: {
+        version: 1,
+        entries: {
+          'skills/metadata.json': {
+            source: 'index:skills/metadata.json',
+            sha256: sha256('whole metadata'),
+            scope,
+          },
+        },
+      },
+      disclosed: { copilot: ['old-capability'] },
+    };
+    await service.write(root, lock);
+
+    await service.writeDisclosed(root, {
+      copilot: ['capabilities', 'hooks'],
+    });
+
+    const loaded = await service.load(root, [Agent.Copilot]);
+    expect(loaded.lock?.generation).toEqual(lock.generation);
+    expect(loaded.lock?.entries).toEqual(lock.entries);
+    expect(loaded.lock?.sources).toEqual(lock.sources);
+    expect(loaded.lock?.disclosed).toEqual({
+      copilot: ['capabilities', 'hooks'],
+    });
   });
 
   it('verifyEntries checks matching, edited, and missing files, filtering by agent', async () => {
@@ -345,14 +620,8 @@ describe('LockfileService v2', () => {
         'an unsupported version',
         { version: 2, workflows: {} } as unknown as WorkflowCatalog,
       ],
-      [
-        'a non-object catalog root (array)',
-        [] as unknown as WorkflowCatalog,
-      ],
-      [
-        'a null catalog root',
-        null as unknown as WorkflowCatalog,
-      ],
+      ['a non-object catalog root (array)', [] as unknown as WorkflowCatalog],
+      ['a null catalog root', null as unknown as WorkflowCatalog],
       [
         'a traversal canonical path',
         catalog({

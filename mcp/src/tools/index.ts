@@ -590,7 +590,7 @@ export const getSessionCostSchema = z.object({
     .enum(["separate", "included-in-output"])
     .optional()
     .describe(
-      "Whether reasoning tokens are billed separately or already included in output tokens. Required when both reasoningTokens and reasoningCostPer1M are supplied; there is no default. If omitted while reasoning billing is ambiguous, provenance falls back to unavailable and reasoningBilling is listed as a missing host field.",
+      "Whether reasoning tokens are billed separately or already included in output tokens. Required when reasoningTokens, reasoningCostPer1M, and a positive reasoning rate are all supplied; there is no default. reasoningCostPer1M is only required for `separate` billing: with `included-in-output` the reasoning cost is already inside outputCostPer1M, so cost coverage stays exact without a separate rate. If omitted while reasoning billing is ambiguous, provenance falls back to unavailable and reasoningBilling is listed as a missing host field.",
     ),
   inputCostPer1M: z
     .number()
@@ -630,7 +630,7 @@ export const getSessionCostSchema = z.object({
     .enum(["host", "agent-estimate"])
     .optional()
     .describe(
-      "Provenance of the token/pricing fields above. Only set this to 'host' when the caller is the runtime's own telemetry adapter (buildSessionCostRequest) passing real measured usage/pricing — never set it when typing numbers by hand.",
+      "Caller-declared source for the token/pricing fields above ('host' or 'agent-estimate'). Host authenticity is unverified by this MCP server.",
     ),
 });
 
@@ -686,9 +686,9 @@ export async function getSessionCost(
   const lines: string[] = [
     "# Session Telemetry",
     "",
-    "Exact LLM token usage depends on the host runtime. MCP-observed fields below are measured directly; token and cost fields carry explicit provenance instead of guessed placeholders.",
+    "Exact LLM token usage depends on the host runtime. MCP-observed fields below are measured directly; token and cost fields carry caller-declared source labels; host authenticity is unverified.",
     "AGS consultation/body-return observations are limited to this MCP session. They do not establish fresh-worker delivery or observed edits, checks, or enforcement.",
-    "",
+    "Mounted MCP deployment identity is unknown to this stdio process; callers cannot restart or reconfigure the live service.",
     "| Metric | Value |",
     "|---|---|",
     `| **Workflow** | ${args.workflow ?? "[Agent: fill workflow name]"} |`,

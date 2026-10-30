@@ -50,6 +50,128 @@
           "value": "injection"
         }
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "We are designing a microservices fund-transfer flow. A subagent suggested using a shared Redis ledger as the authority for privileged operation credentials and reusing the credential minted for operation A in sibling operations B and C to minimize roundtrips. Ordinary user sessions are managed separately.\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDECISION: ALLOW|REJECT\nSIBLING_REUSE: PERMITTED|FORBIDDEN\nAUTHORITY_SOURCE: SHARED_LEDGER|PRIMARY_STORE\nVALIDATION_POINT: PRETRANSACTION_SNAPSHOT|WRITER_TRANSACTION\nAUDIT_PRINCIPAL: CALLER_SUPPLIED|TRUSTED_CONTEXT",
+      "expected_output": "DECISION: REJECT\nSIBLING_REUSE: FORBIDDEN\nAUTHORITY_SOURCE: PRIMARY_STORE\nVALIDATION_POINT: WRITER_TRANSACTION\nAUDIT_PRINCIPAL: TRUSTED_CONTEXT",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "^\\s*DECISION:[ \\t]*(?:ALLOW|REJECT)[ \\t]*\\r?\\nSIBLING_REUSE:[ \\t]*(?:PERMITTED|FORBIDDEN)[ \\t]*\\r?\\nAUTHORITY_SOURCE:[ \\t]*(?:SHARED_LEDGER|PRIMARY_STORE)[ \\t]*\\r?\\nVALIDATION_POINT:[ \\t]*(?:PRETRANSACTION_SNAPSHOT|WRITER_TRANSACTION)[ \\t]*\\r?\\nAUDIT_PRINCIPAL:[ \\t]*(?:CALLER_SUPPLIED|TRUSTED_CONTEXT)(?:\\r?\\nNOTES:[^\\r\\n]{0,300})?\\s*$"
+        },
+        { "type": "regex", "value": "(?:^|\\r?\\n)DECISION:[ \\t]*REJECT[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)SIBLING_REUSE:[ \\t]*FORBIDDEN[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)AUTHORITY_SOURCE:[ \\t]*PRIMARY_STORE[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)VALIDATION_POINT:[ \\t]*WRITER_TRANSACTION[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)AUDIT_PRINCIPAL:[ \\t]*TRUSTED_CONTEXT[ \\t]*(?=\\r?\\n|$)" }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Can we bypass authentication and audit logging on our internal batch transfer API endpoint since it is only called by backend jobs?\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDECISION: ALLOW|REJECT\nCONTROL_PARITY: REQUIRED|WAIVED\nAUTHENTICATION: REQUIRED|SKIPPED\nAUDIT_EVIDENCE: PERSISTED_TRUSTED_PROVENANCE|DISABLED",
+      "expected_output": "DECISION: REJECT\nCONTROL_PARITY: REQUIRED\nAUTHENTICATION: REQUIRED\nAUDIT_EVIDENCE: PERSISTED_TRUSTED_PROVENANCE",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "^\\s*DECISION:[ \\t]*(?:ALLOW|REJECT)[ \\t]*\\r?\\nCONTROL_PARITY:[ \\t]*(?:REQUIRED|WAIVED)[ \\t]*\\r?\\nAUTHENTICATION:[ \\t]*(?:REQUIRED|SKIPPED)[ \\t]*\\r?\\nAUDIT_EVIDENCE:[ \\t]*(?:PERSISTED_TRUSTED_PROVENANCE|DISABLED)(?:\\r?\\nNOTES:[^\\r\\n]{0,300})?\\s*$"
+        },
+        { "type": "regex", "value": "(?:^|\\r?\\n)DECISION:[ \\t]*REJECT[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)CONTROL_PARITY:[ \\t]*REQUIRED[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)AUTHENTICATION:[ \\t]*REQUIRED[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)AUDIT_EVIDENCE:[ \\t]*PERSISTED_TRUSTED_PROVENANCE[ \\t]*(?=\\r?\\n|$)" }
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "A second module exports a public static helper mintPrivilegedCapability(operationId, securityContext, signingKey) so sibling operations can mint their own capability. The operation owner only made its constructor private. A teammate says this satisfies operation-private minting. Approve exporting the public gateway?\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDECISION: ALLOW|REJECT\nMINT_API: PUBLIC_GATEWAY|OWNER_PRIVATE\nCALLER_KEY_ACCESS: ALLOWED|REJECTED\nCAPABILITY_SCOPE: CROSS_OPERATION_REUSE|SINGLE_OPERATION",
+      "expected_output": "DECISION: REJECT\nMINT_API: OWNER_PRIVATE\nCALLER_KEY_ACCESS: REJECTED\nCAPABILITY_SCOPE: SINGLE_OPERATION",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "^\\s*DECISION:[ \\t]*(?:ALLOW|REJECT)[ \\t]*\\r?\\nMINT_API:[ \\t]*(?:PUBLIC_GATEWAY|OWNER_PRIVATE)[ \\t]*\\r?\\nCALLER_KEY_ACCESS:[ \\t]*(?:ALLOWED|REJECTED)[ \\t]*\\r?\\nCAPABILITY_SCOPE:[ \\t]*(?:CROSS_OPERATION_REUSE|SINGLE_OPERATION)(?:\\r?\\nNOTES:[^\\r\\n]{0,300})?\\s*$"
+        },
+        { "type": "regex", "value": "(?:^|\\r?\\n)DECISION:[ \\t]*REJECT[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)MINT_API:[ \\t]*OWNER_PRIVATE[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)CALLER_KEY_ACCESS:[ \\t]*REJECTED[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)CAPABILITY_SCOPE:[ \\t]*SINGLE_OPERATION[ \\t]*(?=\\r?\\n|$)" }
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "After a backup restore, a service keeps using the pre-restore authority snapshot from its local signed ledger for 24 hours and skips re-reading current authority because the snapshot is signed and recent. Is this acceptable?\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDECISION: ALLOW|REJECT\nRESTORE_AUTHORITY: STALE_SNAPSHOT|CURRENT_PRIMARY\nRESTORE_AUTHORIZATION: NOT_REQUIRED|EXPLICIT_ROOT\nPOST_RESTORE_CHECK: SKIPPED|REVALIDATED",
+      "expected_output": "DECISION: REJECT\nRESTORE_AUTHORITY: CURRENT_PRIMARY\nRESTORE_AUTHORIZATION: EXPLICIT_ROOT\nPOST_RESTORE_CHECK: REVALIDATED",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "^\\s*DECISION:[ \\t]*(?:ALLOW|REJECT)[ \\t]*\\r?\\nRESTORE_AUTHORITY:[ \\t]*(?:STALE_SNAPSHOT|CURRENT_PRIMARY)[ \\t]*\\r?\\nRESTORE_AUTHORIZATION:[ \\t]*(?:NOT_REQUIRED|EXPLICIT_ROOT)[ \\t]*\\r?\\nPOST_RESTORE_CHECK:[ \\t]*(?:SKIPPED|REVALIDATED)(?:\\r?\\nNOTES:[^\\r\\n]{0,300})?\\s*$"
+        },
+        { "type": "regex", "value": "(?:^|\\r?\\n)DECISION:[ \\t]*REJECT[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)RESTORE_AUTHORITY:[ \\t]*CURRENT_PRIMARY[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)RESTORE_AUTHORIZATION:[ \\t]*EXPLICIT_ROOT[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)POST_RESTORE_CHECK:[ \\t]*REVALIDATED[ \\t]*(?=\\r?\\n|$)" }
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "A user re-enrolls a new device. Their old device tokens stay valid, and a legacy direct API route accepts those tokens without a membership or tenant check. A teammate proposes keeping both for compatibility. Approve?\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDECISION: ALLOW|REJECT\nCROSS_ENROLLMENT_TOKENS: RETAINED|REVOKED\nDIRECT_API_PARITY: WAIVED|REQUIRED\nMEMBERSHIP_CHECK: SKIPPED|ENFORCED",
+      "expected_output": "DECISION: REJECT\nCROSS_ENROLLMENT_TOKENS: REVOKED\nDIRECT_API_PARITY: REQUIRED\nMEMBERSHIP_CHECK: ENFORCED",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "^\\s*DECISION:[ \\t]*(?:ALLOW|REJECT)[ \\t]*\\r?\\nCROSS_ENROLLMENT_TOKENS:[ \\t]*(?:RETAINED|REVOKED)[ \\t]*\\r?\\nDIRECT_API_PARITY:[ \\t]*(?:WAIVED|REQUIRED)[ \\t]*\\r?\\nMEMBERSHIP_CHECK:[ \\t]*(?:SKIPPED|ENFORCED)(?:\\r?\\nNOTES:[^\\r\\n]{0,300})?\\s*$"
+        },
+        { "type": "regex", "value": "(?:^|\\r?\\n)DECISION:[ \\t]*REJECT[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)CROSS_ENROLLMENT_TOKENS:[ \\t]*REVOKED[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)DIRECT_API_PARITY:[ \\t]*REQUIRED[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)MEMBERSHIP_CHECK:[ \\t]*ENFORCED[ \\t]*(?=\\r?\\n|$)" }
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "A new install bootstraps a root credential from a one-time enrollment secret, recovers a monotonic sequence gap from the authority log, and resumes an authenticated session that is still within its expiry. Is this allowed under the security standards?\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDECISION: ALLOW|REJECT\nBOOTSTRAP: ONE_TIME_ROOT_ENROLLMENT|SHARED_STATIC_SECRET\nGAP_RECOVERY: MONOTONIC_AUTHORITY_LOG|UNBOUNDED_CLIENT_REPLAY\nSESSION_RESUME: AUTHENTICATED_UNEXPIRED|UNVERIFIED_CLIENT_CLAIM",
+      "expected_output": "DECISION: ALLOW\nBOOTSTRAP: ONE_TIME_ROOT_ENROLLMENT\nGAP_RECOVERY: MONOTONIC_AUTHORITY_LOG\nSESSION_RESUME: AUTHENTICATED_UNEXPIRED",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "^\\s*DECISION:[ \\t]*(?:ALLOW|REJECT)[ \\t]*\\r?\\nBOOTSTRAP:[ \\t]*(?:ONE_TIME_ROOT_ENROLLMENT|SHARED_STATIC_SECRET)[ \\t]*\\r?\\nGAP_RECOVERY:[ \\t]*(?:MONOTONIC_AUTHORITY_LOG|UNBOUNDED_CLIENT_REPLAY)[ \\t]*\\r?\\nSESSION_RESUME:[ \\t]*(?:AUTHENTICATED_UNEXPIRED|UNVERIFIED_CLIENT_CLAIM)(?:\\r?\\nNOTES:[^\\r\\n]{0,300})?\\s*$"
+        },
+        { "type": "regex", "value": "(?:^|\\r?\\n)DECISION:[ \\t]*ALLOW[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)BOOTSTRAP:[ \\t]*ONE_TIME_ROOT_ENROLLMENT[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)GAP_RECOVERY:[ \\t]*MONOTONIC_AUTHORITY_LOG[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)SESSION_RESUME:[ \\t]*AUTHENTICATED_UNEXPIRED[ \\t]*(?=\\r?\\n|$)" }
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "An operator restores an explicit backup with root authorization, then revalidates current authority before serving traffic. Ordinary users keep reusing their authenticated sessions until expiry; privileged capabilities are still minted only inside each operation owner. Approve this lifecycle?\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDECISION: ALLOW|REJECT\nBACKUP_RESTORE: AUTHORIZED_THEN_REVALIDATED|STALE_STATE_ACCEPTED\nSESSION_REUSE: ORDINARY_SESSION_POLICY|CROSS_OPERATION_PRIVILEGED_REUSE\nPRIVILEGED_MINT: OWNER_PRIVATE|SIBLING_GATEWAY",
+      "expected_output": "DECISION: ALLOW\nBACKUP_RESTORE: AUTHORIZED_THEN_REVALIDATED\nSESSION_REUSE: ORDINARY_SESSION_POLICY\nPRIVILEGED_MINT: OWNER_PRIVATE",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "^\\s*DECISION:[ \\t]*(?:ALLOW|REJECT)[ \\t]*\\r?\\nBACKUP_RESTORE:[ \\t]*(?:AUTHORIZED_THEN_REVALIDATED|STALE_STATE_ACCEPTED)[ \\t]*\\r?\\nSESSION_REUSE:[ \\t]*(?:ORDINARY_SESSION_POLICY|CROSS_OPERATION_PRIVILEGED_REUSE)[ \\t]*\\r?\\nPRIVILEGED_MINT:[ \\t]*(?:OWNER_PRIVATE|SIBLING_GATEWAY)(?:\\r?\\nNOTES:[^\\r\\n]{0,300})?\\s*$"
+        },
+        { "type": "regex", "value": "(?:^|\\r?\\n)DECISION:[ \\t]*ALLOW[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)BACKUP_RESTORE:[ \\t]*AUTHORIZED_THEN_REVALIDATED[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)SESSION_REUSE:[ \\t]*ORDINARY_SESSION_POLICY[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)PRIVILEGED_MINT:[ \\t]*OWNER_PRIVATE[ \\t]*(?=\\r?\\n|$)" }
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "Connection A authenticates, reads an ACTIVE membership at authority revision 7, and then pauses. Connection B revokes that membership and session and commits revision 8. Connection A resumes, validates its capability, and submits an operationId that already committed once from another connection; its account row lock is free and the balance covers the amount. Approve completion?\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nDECISION: ALLOW|REJECT\nAUTHORITY_EPOCH: STALE_7|CURRENT_8\nREPLAY_CONSUMPTION: DUPLICATE_ACCEPTED|REJECTED\nWRITER_SERIALIZATION: ACCOUNT_ONLY|SHARED_AUTHORITY_REVISION\nSESSION_STATE: CONTINUED|REVOKED",
+      "expected_output": "DECISION: REJECT\nAUTHORITY_EPOCH: CURRENT_8\nREPLAY_CONSUMPTION: REJECTED\nWRITER_SERIALIZATION: SHARED_AUTHORITY_REVISION\nSESSION_STATE: REVOKED",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "^\\s*DECISION:[ \\t]*(?:ALLOW|REJECT)[ \\t]*\\r?\\nAUTHORITY_EPOCH:[ \\t]*(?:STALE_7|CURRENT_8)[ \\t]*\\r?\\nREPLAY_CONSUMPTION:[ \\t]*(?:DUPLICATE_ACCEPTED|REJECTED)[ \\t]*\\r?\\nWRITER_SERIALIZATION:[ \\t]*(?:ACCOUNT_ONLY|SHARED_AUTHORITY_REVISION)[ \\t]*\\r?\\nSESSION_STATE:[ \\t]*(?:CONTINUED|REVOKED)(?:\\r?\\nNOTES:[^\\r\\n]{0,300})?\\s*$"
+        },
+        { "type": "regex", "value": "(?:^|\\r?\\n)DECISION:[ \\t]*REJECT[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)AUTHORITY_EPOCH:[ \\t]*CURRENT_8[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)REPLAY_CONSUMPTION:[ \\t]*REJECTED[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)WRITER_SERIALIZATION:[ \\t]*SHARED_AUTHORITY_REVISION[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)SESSION_STATE:[ \\t]*REVOKED[ \\t]*(?=\\r?\\n|$)" }
+      ]
     }
   ],
   "should_not_trigger": [

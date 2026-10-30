@@ -91,6 +91,11 @@ jobs:
       - name: Run SDD Progress Status Regression Tests
         # Read-only status projection (v2 receipts): no bytecode written, subprocess-driven.
         run: python3 -B -m unittest discover -s scripts/skill-tests -p test_sdd_progress.py -v
+      - name: Run Subagent Brief Contract Tests
+        # Assignment-mode contract validation, fence handling, and output-collision refusal.
+        run: python3 -B -m unittest discover -s scripts/skill-tests/common-subagent-driven-development -p test_task_brief.py -v
+      - name: Run Generation Tests
+        run: pnpm test:generation
       - name: Run Unit Tests with Coverage
         run: pnpm test:cov
       - name: Run Eval/Outcome/Trace Script Tests
@@ -121,6 +126,10 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Generation Drift Check
+        # Check-only: fails when checked-in generated outputs differ from the canonical sources.
+        run: node --import tsx scripts/generation/index.ts --check
 
       - name: Build CLI for validation
         run: pnpm build

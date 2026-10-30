@@ -130,7 +130,6 @@ async function generate() {
   if (!(await fs.pathExists(skillsDir))) {
     throw new Error(`Skills directory not found at ${skillsDir}`);
   }
-
   const categories = (await fs.readdir(skillsDir)).filter((f) => {
     const p = path.join(skillsDir, f);
     return fs.statSync(p).isDirectory() && !f.startsWith(".");
@@ -476,6 +475,7 @@ async function generate() {
       );
     } catch (error) {
       console.error("❌ Failed to sync local skills/workflows:", error);
+      throw error;
     }
   }
 
@@ -487,11 +487,12 @@ async function generate() {
       console.log(`✅ Synced specialists for: ${agents.join(", ")}`);
     } catch (error) {
       console.error("❌ Failed to sync specialists:", error);
+      throw error;
     }
   }
 }
 
 generate().catch((error: unknown) => {
-  console.error(error);
+  console.error("❌ Index generation failed:", error);
   process.exitCode = 1;
 });

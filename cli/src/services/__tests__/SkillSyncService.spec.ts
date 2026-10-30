@@ -695,6 +695,5 @@ describe('SkillSyncService', () => {
         ),
       ).toBe(true);
     });
-
   });
 });

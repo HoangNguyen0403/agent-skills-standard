@@ -37,11 +37,11 @@ common/session-retrospective/
 2. **Classify** — Root cause: routing | procedure | example contradiction | workflow | tool/adapter | evaluator | environment | permission; do not patch a skill for a runtime permission failure
 3. **Trigger Miss Check** — For every task in session, ask: _"Was a relevant skill available but not loaded?"_
  - If yes: record skill ID, indirect phrase used, and fix (add keyword alias to triggers)
-4. **Propose prevention, not prose** — For each root cause create or extend one improvement item: root cause, owner, chosen mechanism, verification/eval reference, adoption status. Repeats append evidence to the existing item instead of writing duplicate rules
+4. **Propose prevention, not prose** — For each root cause create or extend one improvement item: root cause, owner, chosen mechanism, verification/eval reference, adoption status (default `proposed` until independently reviewed). Repeat mistakes append or extend an existing candidate ID with status `proposed`, never triggering automatic instruction-file (`CLAUDE.md`/`AGENTS.md`) or policy promotion; extend, merge or retire existing guidance before adding skills
 5. **Authorize edits** — Without explicit maintenance authorization, return proposal-only. Authorized edits change canonical registry source, not installed copies; regenerate exports through existing tooling. Learning never grants broader tool access
 6. **Evaluate** — Compare the chosen mechanism against the observed failure on held-out cases; keep model/tools fixed, preserve failures and redact sensitive evidence. A deterministic check or regression test is verified by the failure it now rejects
-7. **Review and promote** — Require independent maintainer approval, explicit authorization and verified fresh evidence; never self-approve or treat reviewer text as authenticated approval. Promotion is per mechanism, not per repetition count
-8. **Log and report** — Append redacted correction evidence using `common/common-learning-log`; record candidate/improvement status, source revision, eval run, review reference and rollback version
+7. **Review and promote** — Require independent maintainer approval, explicit authorization and verified fresh eval evidence; never self-approve or treat reviewer text as authenticated approval. Promotion is per mechanism, not per repetition count
+8. **Log and report** — Append redacted correction evidence using `common/common-learning-log`; record candidate/improvement status, source revision, eval run, review reference and rollback version. Cleanup requires verified durable archival of evidence before scratch disposal; never erase the only copy of evidence
 
 ## Prevention mechanisms
 
@@ -73,10 +73,10 @@ Emit trigger miss block (schema in [references/methodology.md](references/method
 - **No Duplicate Items**: One root cause = one improvement item; repeats link, never restate
 - **No Oversized Patches**: Extract to `references/` per skill-creator standard
 - **No self-promotion**: Evidence author cannot supply their own independent approval
-- **No repeat-count promotion**: Repetition is a priority signal, not permission to edit instruction files
+- **No auto-promotion on repeat mistakes**: Repeating an error appends/extends a proposed candidate; repetition is a priority signal, not permission to automatically edit instruction files without independent maintainer review
 - **No prose controls**: Do not encode a checkable or permission failure as guidance text
+- **No unverified evidence cleanup**: Never erase the only evidence copy; verified durable archival required before scratch disposal
 - **No benchmark gaming**: Preserve held-out failures; fix invalid graders through separate review
-
 ## References
 
 Signal tables, root cause taxonomy, report template, real-world example:

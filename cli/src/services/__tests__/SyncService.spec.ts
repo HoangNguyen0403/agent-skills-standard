@@ -952,144 +952,55 @@ describe('SyncService', () => {
     });
   });
 
-  describe('cleanupOldFolders (migration) edge cases', () => {
-    it('merges old folders into existing .agents content', async () => {
+  describe('notifyLegacyAgentFolder (legacy .agent preservation)', () => {
+    it('leaves an existing .agent folder untouched without copying or removing, and prints a visible notice', async () => {
       vi.mocked(fs.pathExists).mockImplementation(async (p) => {
         const pStr = p.toString();
         if (pStr.endsWith('.agent')) return true;
         if (pStr.endsWith('.agents')) return true;
-        if (pStr.endsWith(path.join('.agents', 'existing'))) return true;
         return false;
       });
-      vi.mocked(fs.readdir as unknown as (path: string) => Promise<string[]>)
-        .mockResolvedValueOnce(['existing'])
-        .mockResolvedValueOnce([]);
+      const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
       await syncService.writeSkills([], makeConfig());
 
-      expect(fs.copy).toHaveBeenCalledWith(
-        path.join(process.cwd(), '.agent', 'existing'),
-        path.join(process.cwd(), '.agents', 'existing'),
-        expect.objectContaining({ overwrite: false, errorOnExist: false }),
+      expect(fs.copy).not.toHaveBeenCalled();
+      expect(fs.remove).not.toHaveBeenCalled();
+      expect(logSpy).toHaveBeenCalledTimes(1);
+      expect(logSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Legacy .agent/ folder found'),
       );
-    });
-  });
-
-  describe('cleanupOldFolders (migration)', () => {
-    it('should migrate content from .agent to .agents if .agents already exists', async () => {
-      const config = makeConfig();
-
-      // Mock .agent exists and .agents exists
-      vi.mocked(fs.pathExists).mockImplementation(async (p) => {
-        const pStr = p.toString();
-        if (pStr.endsWith('.agent')) return true;
-        if (pStr.endsWith('.agents')) return true;
-        if (pStr.endsWith(path.join('.agents', 'custom-skill'))) return false;
-        return false;
-      });
-
-      vi.mocked(fs.readdir as unknown as (path: string) => Promise<string[]>)
-        .mockResolvedValueOnce(['custom-skill'])
-        .mockResolvedValueOnce([]);
-
-      await syncService.writeSkills([], config);
-
-      expect(fs.copy).toHaveBeenCalledWith(
-        path.join(process.cwd(), '.agent', 'custom-skill'),
-        path.join(process.cwd(), '.agents', 'custom-skill'),
-        expect.objectContaining({ overwrite: false, errorOnExist: false }),
-      );
-      expect(fs.remove).toHaveBeenCalledWith(
-        path.join(process.cwd(), '.agent', 'custom-skill'),
-      );
-      expect(fs.remove).toHaveBeenCalledWith(expect.stringMatching(/\.agent$/));
+      expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('manually'));
     });
 
-    it('should perform a full migration if .agents does not exist', async () => {
-      const config = makeConfig();
-
-      vi.mocked(fs.pathExists).mockImplementation(async (p) => {
-        const pStr = p.toString();
-        if (pStr.endsWith('.agent')) return true;
-        if (pStr.endsWith('.agents')) return false;
-        return false;
-      });
-      vi.mocked(fs.readdir as unknown as (path: string) => Promise<string[]>)
-        .mockResolvedValueOnce(['legacy-skill'])
-        .mockResolvedValueOnce([]);
-
-      await syncService.writeSkills([], config);
-
-      expect(fs.copy).toHaveBeenCalledWith(
-        path.join(process.cwd(), '.agent', 'legacy-skill'),
-        path.join(process.cwd(), '.agents', 'legacy-skill'),
-        expect.objectContaining({ overwrite: false, errorOnExist: false }),
-      );
-      expect(fs.remove).toHaveBeenCalledWith(expect.stringMatching(/\.agent$/));
-    });
-
-    it('should keep the .agent root when only the active sdd workspace remains', async () => {
-      const config = makeConfig();
-      vi.mocked(fs.pathExists).mockImplementation(async (p) =>
-        p.toString().endsWith('.agent'),
-      );
-      vi.mocked(fs.readdir as unknown as (path: string) => Promise<string[]>)
-        .mockResolvedValueOnce(['sdd', 'legacy-skill'])
-        .mockResolvedValueOnce(['sdd']);
-
-      await syncService.writeSkills([], config);
-
-      expect(fs.copy).toHaveBeenCalledWith(
-        path.join(process.cwd(), '.agent', 'legacy-skill'),
-        path.join(process.cwd(), '.agents', 'legacy-skill'),
-        expect.objectContaining({ overwrite: false, errorOnExist: false }),
-      );
-      expect(fs.copy).not.toHaveBeenCalledWith(
-        path.join(process.cwd(), '.agent', 'sdd'),
-        expect.anything(),
-        expect.anything(),
-      );
-      expect(fs.remove).not.toHaveBeenCalledWith(
-        expect.stringMatching(/\.agent$/),
-      );
-    });
-
-    it('should log debug info on migration failure when DEBUG is set', async () => {
-      const originalDebug = process.env.DEBUG;
-      process.env.DEBUG = 'true';
-      vi.spyOn(console, 'debug').mockImplementation(() => {});
-
-      vi.mocked(fs.pathExists).mockImplementation(async (p) => {
-        if (p.toString().endsWith('.agent')) return true;
-        return false;
-      });
-      vi.mocked(fs.copy).mockRejectedValue(new Error('Copy failed'));
-
-      await syncService.writeSkills([], makeConfig());
-
-      expect(console.debug).toHaveBeenCalledWith(
-        expect.stringContaining('Failed to migrate/cleanup'),
-      );
-
-      process.env.DEBUG = originalDebug;
-    });
-
-    it('should ignore migration failure and not log debug info when DEBUG is not set', async () => {
+    it('prints the notice without DEBUG enabled', async () => {
       const originalDebug = process.env.DEBUG;
       delete process.env.DEBUG;
-      vi.spyOn(console, 'debug').mockImplementation(() => {});
+      const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
       vi.mocked(fs.pathExists).mockImplementation(async (p) => {
         if (p.toString().endsWith('.agent')) return true;
         return false;
       });
-      vi.mocked(fs.copy).mockRejectedValue(new Error('Copy failed'));
 
       await syncService.writeSkills([], makeConfig());
 
-      expect(console.debug).not.toHaveBeenCalled();
+      expect(logSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Legacy .agent/ folder found'),
+      );
 
       process.env.DEBUG = originalDebug;
+    });
+
+    it('does nothing when .agent does not exist', async () => {
+      vi.mocked(fs.pathExists).mockResolvedValue(false);
+      const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+      await syncService.writeSkills([], makeConfig());
+
+      expect(logSpy).not.toHaveBeenCalled();
+      expect(fs.copy).not.toHaveBeenCalled();
+      expect(fs.remove).not.toHaveBeenCalled();
     });
   });
 

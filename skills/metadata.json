@@ -489,14 +489,14 @@
       ]
     },
     "common": {
-      "version": "2.9.2",
-      "last_updated": "2026-10-29",
+      "version": "2.9.3",
+      "last_updated": "2026-10-30",
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 45,
-        "total_tokens": 44018,
-        "avg_tokens_per_skill": 978,
-        "largest_skill": "common-subagent-driven-development (1787 tokens)"
+        "total_tokens": 47425,
+        "avg_tokens_per_skill": 1054,
+        "largest_skill": "common-subagent-driven-development (2563 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -871,7 +871,7 @@
   },
   "releases": {
     "workflows": {
-      "version": "1.1.7",
+      "version": "1.1.8",
       "tag_prefix": "workflows-v"
     }
   },
