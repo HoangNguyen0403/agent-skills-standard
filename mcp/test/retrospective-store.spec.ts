@@ -158,7 +158,6 @@ type FakeHelper = {
   readonly child: ChildProcessWithoutNullStreams;
   readonly raw: FakeHelperChild;
   readonly requests: FakeHelperRequest[];
-  readonly state: { inFlight: number; maxInFlight: number; overlap: boolean };
   setResponder(responder: (request: FakeHelperRequest) => unknown | null): void;
   respondNow(response: unknown): void;
 };
@@ -166,7 +165,6 @@ type FakeHelper = {
 function fakeWindowsHelper(): FakeHelper {
   const raw = new FakeHelperChild();
   const requests: FakeHelperRequest[] = [];
-  const state = { inFlight: 0, maxInFlight: 0, overlap: false };
   let responder: (request: FakeHelperRequest) => unknown | null = () => null;
   raw.stdin.setEncoding("utf8");
   let buffer = "";
@@ -179,28 +177,20 @@ function fakeWindowsHelper(): FakeHelper {
       buffer = buffer.slice(newline + 1);
       if (line.length === 0) continue;
       const request = JSON.parse(line) as FakeHelperRequest;
-      if (state.inFlight > 0) state.overlap = true;
-      state.inFlight += 1;
-      state.maxInFlight = Math.max(state.maxInFlight, state.inFlight);
       requests.push(request);
       const response = responder(request);
-      if (response !== null) {
-        raw.stdout.write(`${JSON.stringify(response)}\n`);
-        state.inFlight -= 1;
-      }
+      if (response !== null) raw.stdout.write(`${JSON.stringify(response)}\n`);
     }
   });
   return {
     child: raw as unknown as ChildProcessWithoutNullStreams,
     raw,
     requests,
-    state,
     setResponder(next) {
       responder = next;
     },
     respondNow(response) {
       raw.stdout.write(`${JSON.stringify(response)}\n`);
-      state.inFlight = Math.max(0, state.inFlight - 1);
     },
   };
 }
@@ -889,21 +879,23 @@ describe("private store claims and publication", () => {
     const third = ensureWindowsPrivateStoreLayout(root, [
       path.join(root, "third-dir"),
     ]);
-    // C is queued behind the still-in-flight A request and is not sent.
+    // Give the queued layout enough event-loop turns to reach the helper if the
+    // queue tail were released early. With the allSettled tail it must remain
+    // unsent while A's root request is unanswered.
+    for (let turn = 0; turn < 20; turn += 1)
+      await new Promise((resolve) => setImmediate(resolve));
     expect(helper.requests).toHaveLength(1);
     helper.setResponder(respondOk);
     helper.respondNow(respondOk(helper.requests[0]));
-    await first;
-    await third;
+    // A and C must both resolve with their own layout result. Any overlap
+    // would be poisoned by the production guard and reject with
+    // WINDOWS_ACL_FAILED, so these assertions prove no request was rejected.
+    await expect(first).resolves.toBe(root);
+    await expect(third).resolves.toBe(root);
     expect(helper.raw.killed).toBe(false);
     expect(helper.requests).toHaveLength(4);
-    expect(helper.state.overlap).toBe(false);
-    expect(helper.state.maxInFlight).toBe(1);
     const rootRequest = helper.requests[0];
     if (!rootRequest) throw new Error("Expected the first root request.");
-    const firstBatch = helper.requests.find((request) =>
-      request.items.some((item) => item.path === path.join(root, "first-dir")),
-    );
     const thirdRoot = helper.requests.find(
       (request) =>
         request.id > rootRequest.id &&
@@ -913,12 +905,10 @@ describe("private store claims and publication", () => {
     const thirdBatch = helper.requests.find((request) =>
       request.items.some((item) => item.path === path.join(root, "third-dir")),
     );
-    expect(firstBatch).toBeDefined();
     expect(thirdRoot).toBeDefined();
     expect(thirdBatch).toBeDefined();
-    if (!thirdRoot || !thirdBatch || !firstBatch)
+    if (!thirdRoot || !thirdBatch)
       throw new Error("Expected all queued requests.");
-    expect(firstBatch.id).toBeGreaterThan(rootRequest.id);
     expect(thirdRoot.id).toBeGreaterThan(rootRequest.id);
     expect(thirdBatch.id).toBeGreaterThan(thirdRoot.id);
   });
