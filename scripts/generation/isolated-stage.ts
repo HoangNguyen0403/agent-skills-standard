@@ -1456,8 +1456,9 @@ export async function validateGeneratedSurface(
 }
 
 /**
- * Copies source directory to stage excluding .git, .agent, artifacts, node_modules,
- * and preserves complete mirror inventory.
+ * Copies source directory to stage excluding top-level .git, .agent, artifacts,
+ * node_modules, and preserves complete mirror inventory. Nested directories with
+ * those names (e.g. skills/x/artifacts/) are ordinary content and stay staged.
  */
 export async function copySourceToStage(
   srcDir: string,
@@ -1470,11 +1471,8 @@ export async function copySourceToStage(
     filter: (src: string) => {
       const rel = path.relative(srcDir, src);
       if (!rel) return true;
-      const parts = rel.split(path.sep);
-      for (const excluded of excludePatterns) {
-        if (parts.includes(excluded)) return false;
-      }
-      return true;
+      const topLevel = rel.split(path.sep)[0];
+      return !excludePatterns.includes(topLevel);
     },
     dereference: false,
     preserveTimestamps: true,
@@ -3315,9 +3313,22 @@ export async function runIsolatedGeneration(
     );
   }
 
-  const logDir =
-    options.logDir ||
-    path.join(repoRoot, "artifacts", "generation-logs", attemptId);
+  let logDir = options.logDir;
+  if (!logDir) {
+    if (checkOnly) {
+      // Check mode is read-only for the repository: evidence goes to a fresh
+      // temp directory instead of an untracked path under artifacts/. The temp
+      // root is resolved because the evidence guard rejects symlinked ancestors
+      // (macOS /var -> private/var).
+      logDir = path.join(
+        await fs.realpath(os.tmpdir()),
+        `ags-generation-check-${attemptId}`,
+      );
+      console.log(`[Isolated Generation Check] evidence directory: ${logDir}`);
+    } else {
+      logDir = path.join(repoRoot, "artifacts", "generation-logs", attemptId);
+    }
+  }
   let preflightPlan: GenerationPlan | null = null;
   let preflightPlanFailed = false;
   let preflightPlanError: unknown;

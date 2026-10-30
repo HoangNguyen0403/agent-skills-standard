@@ -12,12 +12,8 @@ export interface TelemetryRecord {
   sessionStartedAt: string;
   /** Session length in seconds, measured from `sessionStartedAt` to `at`. */
   durationSeconds: number;
-  /** Loads per `category/id`, deduped stub returns included. */
+  /** Loads per `category/id`. */
   skills: Record<string, number>;
-  /** Skill bodies actually returned per `category/id` (excludes dedup stubs). */
-  skillBodies?: Record<string, number>;
-  /** Dedup stubs returned per `category/id` (body omitted). */
-  skillStubs?: Record<string, number>;
   /** Loads per `workflow/name`. */
   workflows: Record<string, number>;
   /** Actual returned category-guide bodies per `category/<name>`. */
@@ -46,23 +42,12 @@ export function buildTelemetryRecord(
 ): TelemetryRecord {
   const now = meta.now ?? new Date();
   const skills: Record<string, number> = {};
-  const skillBodies: Record<string, number> = {};
-  const skillStubs: Record<string, number> = {};
   const workflows: Record<string, number> = {};
   const categories: Record<string, number> = {};
   for (const event of tracker.events_()) {
-    const deduped = new Set(event.dedupedSkills ?? []);
     for (const key of event.loaded) {
-      if (key.startsWith("workflow/")) {
-        workflows[key] = (workflows[key] ?? 0) + 1;
-      } else {
-        skills[key] = (skills[key] ?? 0) + 1;
-        if (deduped.has(key)) {
-          skillStubs[key] = (skillStubs[key] ?? 0) + 1;
-        } else {
-          skillBodies[key] = (skillBodies[key] ?? 0) + 1;
-        }
-      }
+      const bucket = key.startsWith("workflow/") ? workflows : skills;
+      bucket[key] = (bucket[key] ?? 0) + 1;
     }
     for (const guide of event.loadedGuides ?? []) {
       categories[guide] = (categories[guide] ?? 0) + 1;
@@ -76,8 +61,6 @@ export function buildTelemetryRecord(
     sessionStartedAt: summary.startedAt,
     durationSeconds: summary.elapsedSeconds,
     skills,
-    skillBodies,
-    skillStubs,
     workflows,
     categories,
     callsByTool: { ...summary.callsByTool },

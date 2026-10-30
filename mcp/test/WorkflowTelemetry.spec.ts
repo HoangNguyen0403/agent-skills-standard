@@ -127,6 +127,25 @@ describe("WorkflowTelemetry", () => {
     expect(summary.estimatedCost).toBeNull();
   });
 
+  it("keeps cost coverage exact for included-in-output reasoning without a separate rate", () => {
+    const args = {
+      promptTokens: 1_000_000,
+      completionTokens: 500_000,
+      reasoningTokens: 250_000,
+      reasoningBilling: "included-in-output" as const,
+      inputCostPer1M: 2,
+      outputCostPer1M: 10,
+      currency: "USD",
+    };
+
+    const summary = summarizeSessionCostCoverage(args);
+    expect(summary.missingHostFields).toEqual([]);
+    expect(summary.exactCostAvailable).toBe(true);
+    expect(summary.costSource).toBe("agent-estimate");
+    expect(summary.estimatedCost).toBe(calculateEstimatedSessionCost(args));
+    expect(summary.estimatedCost).toBe("USD 7.000000");
+  });
+
   it("does not demand rates for known zero cache or reasoning buckets", () => {
     const summary = summarizeSessionCostCoverage({
       promptTokens: 1_000_000,

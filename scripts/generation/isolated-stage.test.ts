@@ -1661,6 +1661,39 @@ test("check mode passes after apply and copies nothing", async () => {
   });
 });
 
+test("check mode writes evidence outside the repository and leaves no repo artifacts path", async () => {
+  await withFixture({}, async (root) => {
+    const applied = await runIsolatedGeneration({ repoRoot: root });
+    assert.equal(applied.success, true, applied.error ?? "");
+    const generationLogs = path.join(root, "artifacts", "generation-logs");
+    const loggedAttemptsBefore = (await fs.readdir(generationLogs)).sort();
+
+    const checked = await runIsolatedGeneration({
+      repoRoot: root,
+      checkOnly: true,
+    });
+
+    assert.equal(checked.success, true, checked.error ?? "");
+    const evidenceDir = path.dirname(path.resolve(checked.logPath));
+    assert.equal(
+      path.dirname(evidenceDir),
+      path.resolve(await fs.realpath(os.tmpdir())),
+    );
+    assert.equal(
+      path.basename(evidenceDir).startsWith("ags-generation-check-"),
+      true,
+    );
+    assert.equal(await fs.pathExists(checked.logPath), true);
+    assert.equal((await fs.readJson(checked.receiptPath)).status, "PASS");
+    assert.deepEqual(
+      (await fs.readdir(generationLogs)).sort(),
+      loggedAttemptsBefore,
+      "check mode must not create a new evidence directory inside the repository",
+    );
+    await fs.remove(path.dirname(checked.logPath));
+  });
+});
+
 test("check mode fails closed on stale prepared outputs and leaves destinations untouched", async () => {
   await withFixture({}, async (root) => {
     const metadataPath = path.join(root, "skills", "metadata.json");
@@ -2410,6 +2443,14 @@ test("copySourceToStage keeps mirrors while excluding .git, .agent, artifacts an
       path.join(source, "node_modules", "left-pad", "index.js"),
       "module\n",
     );
+    await fs.outputFile(
+      path.join(source, "skills", "alpha", "artifacts", "packet.json"),
+      '{"nested":true}\n',
+    );
+    await fs.outputFile(
+      path.join(source, "skills", "alpha", ".agent", "notes.md"),
+      "nested agent\n",
+    );
 
     await copySourceToStage(source, stage);
 
@@ -2424,6 +2465,19 @@ test("copySourceToStage keeps mirrors while excluding .git, .agent, artifacts an
     assert.equal(await fs.pathExists(path.join(stage, ".agent")), false);
     assert.equal(await fs.pathExists(path.join(stage, "artifacts")), false);
     assert.equal(await fs.pathExists(path.join(stage, "node_modules")), false);
+    assert.equal(
+      await fs.readFile(
+        path.join(stage, "skills", "alpha", "artifacts", "packet.json"),
+        "utf8",
+      ),
+      '{"nested":true}\n',
+    );
+    assert.equal(
+      await fs.pathExists(
+        path.join(stage, "skills", "alpha", ".agent", "notes.md"),
+      ),
+      true,
+    );
   } finally {
     await fs.remove(source);
     await fs.remove(destination);

@@ -33,7 +33,7 @@ Goal: Build an approved feature through bounded TDD slices and route settled wor
    - Apply the canonical placement decision in `common-subagent-driven-development` §1 before editing: delegate only for a named benefit or a host requirement. Coupled sequential work under a host that permits main-loop implementation stays in one implementation context.
    - Dispatch one owner per disjoint, dependency-ready slice with a recorded benefit; sequence only real dependencies. Worker bootstrap reads its packet and requests only the exact standards it names; do not repeat parent workflow discovery or global intake.
    - Record observable contract, distinct fault, smallest honest layer, minimal cases, and exact focused command before testing.
-   - Observe expected RED before implementation. If implementation preceded tests, report original RED as `NOT RUN`; never manufacture fake RED. Frozen pre-repair snapshot proof must be explicitly labeled as `frozen_snapshot_red`. Setup errors (compilation, syntax, missing imports, fixture defects) are `invalid_red`, NOT behavioral RED.
+   - Write/update the failing test first; observe expected RED before implementation. Characterize legacy behavior only when needed. If implementation preceded tests, report original RED as `NOT RUN`; never manufacture fake RED. Frozen pre-repair snapshot proof must be explicitly labeled as `frozen_snapshot_red`. Setup errors (compilation, syntax, missing imports, fixture defects) are `invalid_red`, NOT behavioral RED.
    - Implement the smallest passing change; refactor without scope expansion.
    - Run focused checks foreground, single-run, sequentially, with no peer mutation; classify invalid RED, unexpected GREEN, timeout, or infrastructure failure. Derive test count and suite membership directly from raw runner output; reject early zero-exit completions and no-listener runs (zero assertions executed). Micro-level slice checks do not require universal human sign-off per test.
    - Keep concise revision-bound receipts across layered acceptance gates (source-ready, focused checks, consumer-smoke, independent review, human acceptance) based on approved scope applicability: changed contract, RED/GREEN evidence, behavior smoke, command/result, and limitations. Source-ready indicates complete source delivery at recorded Git SHA + dirty identity, with check statuses explicitly and independently recorded (`PASS`, `FAIL`, `NOT RUN`, `NOT APPLICABLE`); unexecuted checks remain `NOT RUN`.
@@ -81,6 +81,7 @@ Goal: Build an approved feature through bounded TDD slices and route settled wor
 - **Independent Review:** [Reviewer identity, spec compliance and code quality verdicts | NOT APPLICABLE with scope reason]
 - **Human Acceptance:** [Human partner / operator sign-off status (Approved | Pending | NOT APPLICABLE with scope reason)]
 
+## Known Risks
 
 ## Delegation Packets
 

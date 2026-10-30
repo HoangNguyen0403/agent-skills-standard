@@ -494,9 +494,9 @@
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 45,
-        "total_tokens": 47387,
-        "avg_tokens_per_skill": 1053,
-        "largest_skill": "common-subagent-driven-development (2525 tokens)"
+        "total_tokens": 47425,
+        "avg_tokens_per_skill": 1054,
+        "largest_skill": "common-subagent-driven-development (2563 tokens)"
       },
       "owners": [
         "HoangNguyen0403"

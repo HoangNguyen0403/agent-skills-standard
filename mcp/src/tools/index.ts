@@ -590,7 +590,7 @@ export const getSessionCostSchema = z.object({
     .enum(["separate", "included-in-output"])
     .optional()
     .describe(
-      "Whether reasoning tokens are billed separately or already included in output tokens. Required when both reasoningTokens and reasoningCostPer1M are supplied; there is no default. If omitted while reasoning billing is ambiguous, provenance falls back to unavailable and reasoningBilling is listed as a missing host field.",
+      "Whether reasoning tokens are billed separately or already included in output tokens. Required when reasoningTokens, reasoningCostPer1M, and a positive reasoning rate are all supplied; there is no default. reasoningCostPer1M is only required for `separate` billing: with `included-in-output` the reasoning cost is already inside outputCostPer1M, so cost coverage stays exact without a separate rate. If omitted while reasoning billing is ambiguous, provenance falls back to unavailable and reasoningBilling is listed as a missing host field.",
     ),
   inputCostPer1M: z
     .number()

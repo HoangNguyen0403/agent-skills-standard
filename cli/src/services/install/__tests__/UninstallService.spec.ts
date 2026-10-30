@@ -504,6 +504,114 @@ describe('UninstallService', () => {
     },
   );
 
+  it('treats an empty generation ledger as no authority in both plan and apply', async () => {
+    const config: SkillConfig = {
+      registry: 'https://github.com/owner/repo',
+      agents: [Agent.Copilot],
+      skills: {},
+    };
+    const ownedPath = '.github/skills/common/core/SKILL.md';
+    const ownedBytes = 'owned host output';
+    await fs.outputFile(path.join(tempDir, ownedPath), ownedBytes);
+    await lockfileService.write(tempDir, {
+      version: 2,
+      registry: config.registry,
+      generatedAt: 'before',
+      sources: {},
+      entries: {
+        [ownedPath]: {
+          owner: 'skill',
+          source: 'skill:common/core@v1',
+          agent: Agent.Copilot,
+          sha256: sha256(ownedBytes),
+        },
+      },
+      generation: { version: 1, entries: {} },
+    });
+
+    const svc = new UninstallService(mockDeps, lockfileService, backupService);
+    const plan = await svc.plan(tempDir, config, { all: true });
+
+    expect(plan.deleteLock).toBe(true);
+    expect(plan.integrations.clearAgentsIndex).toBe(true);
+
+    await svc.apply(tempDir, config, plan);
+
+    expect(await fs.pathExists(path.join(tempDir, ownedPath))).toBe(false);
+    expect(await fs.pathExists(path.join(tempDir, LOCKFILE_NAME))).toBe(false);
+    expect(mockDeps.clearAgentsIndex).toHaveBeenCalledWith(tempDir);
+  });
+
+  it('refuses to clear AGENTS.md when generation ownership appears after planning', async () => {
+    const config: SkillConfig = {
+      registry: 'https://github.com/owner/repo',
+      agents: [Agent.Copilot],
+      skills: {},
+    };
+    const ownedPath = '.github/skills/common/core/SKILL.md';
+    const ownedBytes = 'owned host output';
+    const routerBytes = '# Agents\n<!-- generated -->\n';
+    await fs.outputFile(path.join(tempDir, ownedPath), ownedBytes);
+    await fs.outputFile(path.join(tempDir, 'AGENTS.md'), routerBytes);
+    const metadataPath = 'skills/metadata.json';
+    const metadataBytes = '{"categories":{"common":{"token_metrics":1}}}';
+    await lockfileService.write(tempDir, {
+      version: 2,
+      registry: config.registry,
+      generatedAt: 'before',
+      sources: {},
+      entries: {
+        [ownedPath]: {
+          owner: 'skill',
+          source: 'skill:common/core@v1',
+          agent: Agent.Copilot,
+          sha256: sha256(ownedBytes),
+        },
+      },
+      generation: {
+        version: 1,
+        entries: {
+          [metadataPath]: {
+            source: `index:${metadataPath}`,
+            sha256: sha256(metadataBytes),
+            scope: {
+              kind: 'category-token-metrics',
+              sha256: sha256('owned metrics'),
+            },
+          },
+        },
+      },
+    });
+
+    const svc = new UninstallService(mockDeps, lockfileService, backupService);
+    const plan = await svc.plan(tempDir, config, { all: true });
+    expect(plan.deleteLock).toBe(false);
+    expect(plan.integrations.clearAgentsIndex).toBe(true);
+
+    const lockPath = path.join(tempDir, LOCKFILE_NAME);
+    const rawLock = await fs.readJson(lockPath);
+    rawLock.generation.entries['AGENTS.md'] = {
+      source: 'index:AGENTS.md',
+      sha256: sha256(routerBytes),
+    };
+    await fs.writeJson(lockPath, rawLock, { spaces: 2 });
+    const lockBeforeApply = await fs.readFile(lockPath);
+
+    await expect(svc.apply(tempDir, config, plan)).rejects.toThrow(
+      'Uninstall plan is stale: AGENTS.md generation authority now exists',
+    );
+
+    expect(await fs.readFile(path.join(tempDir, 'AGENTS.md'), 'utf8')).toBe(
+      routerBytes,
+    );
+    expect(await fs.readFile(path.join(tempDir, ownedPath), 'utf8')).toBe(
+      ownedBytes,
+    );
+    expect(await fs.readFile(lockPath)).toEqual(lockBeforeApply);
+    expect(await backupService.list(tempDir)).toHaveLength(0);
+    expect(mockDeps.clearAgentsIndex).not.toHaveBeenCalled();
+  });
+
   it('6. --agent antigravity with configured [antigravity, kiro] and workflow entry at .agents/workflows/sdlc.md -> sharedKept, file kept', async () => {
     const config: SkillConfig = {
       registry: 'https://github.com/owner/repo',

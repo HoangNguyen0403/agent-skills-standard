@@ -20,7 +20,6 @@ function tracker(): SessionTracker {
     via: "load_skills_for_keywords",
     input: ["jwt"],
     loaded: ["typescript/typescript-language"],
-    dedupedSkills: ["typescript/typescript-language"],
   });
   t.record({
     via: "get_workflow",
@@ -63,23 +62,30 @@ describe("buildTelemetryRecord", () => {
     expect(serialized).not.toContain("nothing");
   });
 
-  it("separates returned bodies from dedup stubs and catalog discovery", () => {
+  it("records only declared counters and never emits the removed body/stub split", () => {
     const record = buildTelemetryRecord(tracker(), {
       mcpVersion: "0.6.0",
       now: new Date(),
     });
-    expect(record.skillBodies).toEqual({
-      "typescript/typescript-language": 1,
+    expect(Object.keys(record).sort()).toEqual([
+      "at",
+      "callsByTool",
+      "categories",
+      "durationSeconds",
+      "mcpVersion",
+      "noMatchCalls",
+      "sessionStartedAt",
+      "skills",
+      "workflows",
+    ]);
+    expect(record.skills).toEqual({
+      "typescript/typescript-language": 2,
       "nestjs/nestjs-architecture": 1,
     });
-    expect(record.skillStubs).toEqual({
-      "typescript/typescript-language": 1,
-    });
-    // Catalog discovery produces no bodies or skill loads
-    expect(record.skillBodies?.["category/flutter"]).toBeUndefined();
+    // Catalog discovery produces no skill loads
     expect(
-      record.skillBodies?.["category/quality-engineering"],
-    ).toBeUndefined();
+      Object.keys(record.skills).some((key) => key.startsWith("category/")),
+    ).toBe(false);
   });
 
   it("counts returned category guide bodies and excludes category discovery", () => {

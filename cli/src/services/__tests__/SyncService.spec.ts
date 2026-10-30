@@ -952,25 +952,31 @@ describe('SyncService', () => {
     });
   });
 
-  describe('cleanupOldFolders (migration preservation - H03)', () => {
-    it('preserves existing .agent folder untouched without copying or removing', async () => {
+  describe('notifyLegacyAgentFolder (legacy .agent preservation)', () => {
+    it('leaves an existing .agent folder untouched without copying or removing, and prints a visible notice', async () => {
       vi.mocked(fs.pathExists).mockImplementation(async (p) => {
         const pStr = p.toString();
         if (pStr.endsWith('.agent')) return true;
         if (pStr.endsWith('.agents')) return true;
         return false;
       });
+      const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
       await syncService.writeSkills([], makeConfig());
 
       expect(fs.copy).not.toHaveBeenCalled();
       expect(fs.remove).not.toHaveBeenCalled();
+      expect(logSpy).toHaveBeenCalledTimes(1);
+      expect(logSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Legacy .agent/ folder found'),
+      );
+      expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('manually'));
     });
 
-    it('logs debug info when DEBUG is set and .agent exists', async () => {
+    it('prints the notice without DEBUG enabled', async () => {
       const originalDebug = process.env.DEBUG;
-      process.env.DEBUG = 'true';
-      const debugSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
+      delete process.env.DEBUG;
+      const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
       vi.mocked(fs.pathExists).mockImplementation(async (p) => {
         if (p.toString().endsWith('.agent')) return true;
@@ -979,8 +985,8 @@ describe('SyncService', () => {
 
       await syncService.writeSkills([], makeConfig());
 
-      expect(debugSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Preserved existing .agent folder untouched'),
+      expect(logSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Legacy .agent/ folder found'),
       );
 
       process.env.DEBUG = originalDebug;
@@ -988,11 +994,11 @@ describe('SyncService', () => {
 
     it('does nothing when .agent does not exist', async () => {
       vi.mocked(fs.pathExists).mockResolvedValue(false);
-      const debugSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
+      const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
       await syncService.writeSkills([], makeConfig());
 
-      expect(debugSpy).not.toHaveBeenCalled();
+      expect(logSpy).not.toHaveBeenCalled();
       expect(fs.copy).not.toHaveBeenCalled();
       expect(fs.remove).not.toHaveBeenCalled();
     });

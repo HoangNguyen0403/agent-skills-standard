@@ -81,6 +81,7 @@ export function summarizeSessionCostCoverage(
   }
   if (
     (args.reasoningTokens ?? 0) > 0 &&
+    args.reasoningBilling !== "included-in-output" &&
     args.reasoningCostPer1M === undefined
   ) {
     missingHostFields.push("reasoningCostPer1M");

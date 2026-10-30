@@ -5,11 +5,13 @@ Usage:
     task_brief.py <PLAN_FILE> <TASK_NUMBER> --assignment <ASSIGNMENT_JSON> [--out <BRIEF_FILE>]
 
 The explicit assignment manifest is mandatory: the helper validates structure and
-content identity (plan, source and dependency digests) before publishing. It does
-not authenticate human approval, sandbox the worker or verify host file access.
+content identity (plan, source and dependency digests) and the selected task
+section's contract fields before publishing. It does not authenticate human
+approval, sandbox the worker or verify host file access.
 
-Exit codes: 0 packet published/reused, 2 invalid/stale/missing prerequisite,
-3 absent/ambiguous task selection or output collision.
+Exit codes: 0 packet published/reused, 2 invalid assignment, missing task contract
+fields, stale digest or missing prerequisite, 3 absent/ambiguous task selection or
+output collision.
 """
 
 from __future__ import annotations
@@ -263,97 +265,6 @@ def is_within(root_real: str, candidate_real: str) -> bool:
         return os.path.commonpath([root_real, candidate_real]) == root_real
     except ValueError:
         return False
-
-
-def extract_task(plan_file, task_number, outfile=None):
-    if not os.path.isfile(plan_file):
-        sys.stderr.write(f"Error: plan file not found: {plan_file}\n")
-        sys.exit(2)
-
-    try:
-        t_num = int(task_number)
-    except ValueError:
-        sys.stderr.write(f"Error: task number must be an integer, got: {task_number}\n")
-        sys.exit(2)
-
-    # Pattern for opening task header
-    # Matches: # Task 1, ## Task 1:, ### Task 1 - Title, etc.
-    header_regex = re.compile(r"^(#{1,6})\s+Task\s+(\d+)\b", re.IGNORECASE)
-
-    extracted_lines = []
-    in_target_task = False
-    fence = None
-    target_depth = None
-
-    with open(plan_file, "r", encoding="utf-8", errors="ignore") as f:
-        for line in f:
-            stripped = line.strip()
-            was_fenced = fence is not None
-            fence, is_fence_line = _fence_transition(stripped, fence)
-
-            if not was_fenced and not is_fence_line:
-                m = header_regex.match(stripped)
-                if m:
-                    depth = len(m.group(1))
-                    curr_num = int(m.group(2))
-                    if curr_num == t_num:
-                        in_target_task = True
-                        target_depth = depth
-                        extracted_lines.append(line)
-                        continue
-                    elif in_target_task:
-                        # Reached another task header
-                        break
-                elif in_target_task:
-                    # Check if reached same or higher-level header (e.g. ## Next Section)
-                    hdr_match = re.match(r"^(#{1,6})\s+", stripped)
-                    if hdr_match:
-                        depth = len(hdr_match.group(1))
-                        if target_depth is not None and depth <= target_depth:
-                            break
-
-            if in_target_task:
-                extracted_lines.append(line)
-
-    if not extracted_lines:
-        sys.stderr.write(
-            f"Error: task {t_num} not found in {plan_file} (no heading matching 'Task {t_num}')\n"
-        )
-        sys.exit(3)
-
-    # Validate mandatory contract fields BEFORE resolving workspace or creating output directories
-    missing_fields = validate_task_contract(extracted_lines)
-    if missing_fields:
-        sys.stderr.write(
-            f"Error: task {t_num} in {plan_file} is missing required contract fields: {', '.join(missing_fields)}\n"
-        )
-        sys.stderr.write(
-            "Historical plans lacking contract fields must be updated before dispatch; refusal prevents invented authority.\n"
-        )
-        sys.exit(5)
-
-    # Only resolve workspace and destination path AFTER extraction and contract validation succeed
-    if not outfile:
-        workspace = resolve_workspace(plan_file)
-        outfile = os.path.join(workspace, f"task-{t_num}-brief.md")
-
-    # Reject symlinks to prevent traversal attacks
-    if os.path.islink(outfile):
-        sys.stderr.write(f"Error: output path is a symlink, refusing to overwrite: {outfile}\n")
-        sys.exit(4)
-
-    os.makedirs(os.path.dirname(os.path.abspath(outfile)), exist_ok=True)
-    # Exclusive creation prevents TOCTOU race and overwriting existing files
-    try:
-        with open(outfile, "x", encoding="utf-8") as out:
-            out.writelines(extracted_lines)
-    except FileExistsError:
-        sys.stderr.write(f"Error: output file already exists, refusing to overwrite: {outfile}\n")
-        sys.exit(4)
-
-    line_count = len(extracted_lines)
-    print(f"wrote {outfile}: {line_count} lines")
-    return outfile
 
 
 def ensure_output_within(root_real: str, path: str) -> None:
@@ -838,17 +749,13 @@ def parse_args(argv=None):
     )
     parser.add_argument("plan_file", help="implementation plan Markdown file")
     parser.add_argument("task_number", help="nonnegative task number selected from the plan")
-    parser.add_argument("outfile", nargs="?", default=None, help="optional positional output brief path")
-    parser.add_argument("--assignment", required=False, default=None, help="explicit assignment manifest (v1 JSON)")
+    parser.add_argument("--assignment", required=True, help="explicit assignment manifest (v1 JSON)")
     parser.add_argument("--out", help="explicit packet path within the assigned workspace boundary")
     return parser.parse_args(argv)
 
 
 def main(argv=None) -> int:
     args = parse_args(argv)
-    if not args.assignment:
-        extract_task(args.plan_file, args.task_number, args.out or args.outfile)
-        return 0
     try:
         task_number = int(args.task_number)
     except ValueError:
@@ -866,6 +773,10 @@ def main(argv=None) -> int:
 
     assignment = validate_assignment(load_assignment(args.assignment), task_number, plan_digest)
     task_text = extract_task_section(plan_text, task_number)
+    missing = validate_task_contract(task_text.splitlines(keepends=True))
+    if missing:
+        fail(EXIT_INVALID, f"task {task_number} in '{args.plan_file}' is missing required contract fields: "
+                           f"{', '.join(missing)}; update historical plans before dispatch")
     content = build_packet(assignment, args.plan_file, task_text)
     packet_digest = hashlib.sha256(content.encode("utf-8")).hexdigest()
 

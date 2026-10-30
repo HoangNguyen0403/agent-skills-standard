@@ -888,7 +888,7 @@ export class SyncService {
     config: SkillConfig,
   ): Promise<void> {
     if (!this.dryRun && this.installScope !== 'skills') {
-      await this.cleanupOldFolders();
+      await this.notifyLegacyAgentFolder();
     }
     const agents = await this.resolveTargetAgents(config);
     await this.skillSyncService.writeSkills(
@@ -1286,21 +1286,21 @@ export class SyncService {
     };
   }
 
-  private async cleanupOldFolders(): Promise<void> {
+  /**
+   * Legacy singular `.agent/` is never migrated, copied or deleted: active
+   * evidence there (`.agent/sdd`, transcripts, receipts) must survive an
+   * install untouched. The only action is one visible notice telling the user
+   * to move legacy files by hand.
+   */
+  private async notifyLegacyAgentFolder(): Promise<void> {
     const oldPath = path.join(process.cwd(), '.agent');
 
-    // Conservative preservation (H03): Ordinary install/writeSkills migration must NEVER
-    // delete or mutate unknown active data in .agent (e.g. .agent/sdd, transcripts, receipts).
-    // Preserving user data wins over naming cleanup. Automatic cleanup and deletion of .agent
-    // is completely stopped.
     if (await fs.pathExists(oldPath)) {
-      if (process.env.DEBUG) {
-        console.debug(
-          pc.gray(
-            'Preserved existing .agent folder untouched; automatic removal disabled to protect active evidence.',
-          ),
-        );
-      }
+      console.log(
+        pc.yellow(
+          '  ⚠️  Legacy .agent/ folder found and left untouched. Move any files you still need into .agents/ manually; this CLI never migrates or deletes .agent/.',
+        ),
+      );
     }
   }
 

@@ -791,8 +791,8 @@ describe('SyncInstallLifecycle', () => {
     await fs.outputFile(sddReportPath, sddSentinelBytes);
     await fs.outputFile(sddReceiptPath, receiptBytes);
 
-    // Same relative path exists in both trees with different bytes: the
-    // migration must not copy the legacy file over the active destination.
+    // The legacy singular `.agent/` is never migrated. A pre-existing path in
+    // `.agents/` must therefore keep its own bytes.
     const legacyConflictPath = path.join(tempDir, '.agent/custom-note.md');
     const legacyConflictBytes = 'Legacy note that must not overwrite .agents\n';
     await fs.outputFile(legacyConflictPath, legacyConflictBytes);
@@ -802,11 +802,18 @@ describe('SyncInstallLifecycle', () => {
     await fs.outputFile(customAgentsPath, activeConflictBytes);
 
     const config = makeConfig();
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
     // Act 1: Initial install
     await runSync(config, [skillFixture]);
 
-    // Assert 1: .agent files must remain completely intact and untouched
+    // Assert 1: .agent files must remain completely intact and untouched,
+    // and the user gets exactly one visible legacy notice.
+    expect(
+      logSpy.mock.calls.filter(([message]) =>
+        String(message).includes('Legacy .agent/ folder found'),
+      ),
+    ).toHaveLength(1);
     expect(await fs.pathExists(sddReportPath)).toBe(true);
     expect(await fs.readFile(sddReportPath, 'utf8')).toBe(sddSentinelBytes);
     expect(await fs.pathExists(sddReceiptPath)).toBe(true);
@@ -823,7 +830,12 @@ describe('SyncInstallLifecycle', () => {
     // Act 2: Repeat invocation (idempotency and repeat safety)
     await runSync(config, [skillFixture]);
 
-    // Assert 2: All sentinel files still intact
+    // Assert 2: All sentinel files still intact, one notice per install run
+    expect(
+      logSpy.mock.calls.filter(([message]) =>
+        String(message).includes('Legacy .agent/ folder found'),
+      ),
+    ).toHaveLength(2);
     expect(await fs.pathExists(sddReportPath)).toBe(true);
     expect(await fs.readFile(sddReportPath, 'utf8')).toBe(sddSentinelBytes);
     expect(await fs.pathExists(sddReceiptPath)).toBe(true);

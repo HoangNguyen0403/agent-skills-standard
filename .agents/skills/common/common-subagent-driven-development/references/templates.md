@@ -2,7 +2,7 @@
 
 ## 0. Task Brief Contract Template (for Implementation Plans)
 
-Use this template when authoring tasks in implementation plans. `task_brief.py` validates that these fields are present before extracting the standalone brief:
+Use this template when authoring tasks in implementation plans. `task_brief.py` validates that these fields are present outside code fences in the selected task section before publishing the assignment packet; a missing field refuses publication (exit 2).
 
 ```markdown
 ### Task N: [Task Title]
