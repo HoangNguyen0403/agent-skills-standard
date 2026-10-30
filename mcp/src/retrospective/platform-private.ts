@@ -308,7 +308,7 @@ export async function syncDirectory(directory: string): Promise<void> {
 export async function writePrivateFileExclusive(
   target: string,
   data: string | Uint8Array,
-  options: { durable?: boolean } = {},
+  options: { durable?: boolean; bound?: AcquisitionBound } = {},
 ): Promise<number> {
   const flags =
     fs.constants.O_WRONLY |
@@ -345,7 +345,7 @@ export async function writePrivateFileExclusive(
     // A fresh Windows file takes the token's default owner, which may be a
     // group SID under elevation. Establish the exact owner/private ACL only
     // for this exclusively created file, then detect substitution.
-    await establishWindowsPrivateAcl(target, "File");
+    await establishWindowsPrivateAcl(target, "File", options.bound);
     const verifiedStats = await lstatOrNull(target);
     if (
       !verifiedStats ||

@@ -1,7 +1,6 @@
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { performance } from "node:perf_hooks";
 import { setTimeout as delay } from "node:timers/promises";
-import fs from "node:fs";
 import fsp from "node:fs/promises";
 import path from "node:path";
 import { z } from "zod";
@@ -16,8 +15,6 @@ import {
   type NodeKey,
 } from "./contracts";
 import {
-  NOFOLLOW_FLAG,
-  PRIVATE_FILE_MODE,
   StoreError,
   assertDirectoryIdentity,
   assertPrivateDirectory,
@@ -405,17 +402,27 @@ export async function prepareStore(
 }
 
 async function releaseLock(lockPath: string, token: string): Promise<void> {
-  const buffer = await readPrivateFileOptional(
-    lockPath,
-    MAX_RECORD_BYTES,
-  ).catch(() => null);
+  const buffer = await readPrivateFileOptional(lockPath, MAX_RECORD_BYTES);
   if (!buffer) return;
+  let parsed: unknown;
   try {
-    const record = JSON.parse(buffer.toString("utf8")) as { token?: unknown };
-    if (record.token !== token) return;
+    parsed = JSON.parse(buffer.toString("utf8"));
   } catch {
-    return;
+    throw new StoreError(
+      "STORE_BUSY",
+      "Lock record is unreadable during release.",
+    );
   }
+  if (parsed === null || typeof parsed !== "object")
+    throw new StoreError(
+      "STORE_BUSY",
+      "Lock record is unreadable during release.",
+    );
+  if (Reflect.get(parsed, "token") !== token)
+    throw new StoreError(
+      "STORE_BUSY",
+      "Lock ownership changed during release.",
+    );
   await fsp.rm(lockPath, { force: true });
 }
 
@@ -428,39 +435,29 @@ async function withFileLock<T>(
   const lockPath = path.join(locksDir, `${name}.lock`);
   const token = randomHex(16);
   const wallDeadline = Date.now() + STORE_LOCK_TIMEOUT_MS;
-  const flags =
-    fs.constants.O_WRONLY |
-    fs.constants.O_CREAT |
-    fs.constants.O_EXCL |
-    NOFOLLOW_FLAG;
   for (;;) {
     assertObservationBound(bound);
     try {
-      const handle = await fsp.open(lockPath, flags, PRIVATE_FILE_MODE);
-      try {
-        assertObservationBound(bound);
-      } catch (error) {
-        await handle.close();
-        await fsp.rm(lockPath, { force: true }).catch(() => undefined);
-        throw error;
-      }
-      try {
-        await handle.writeFile(
-          JSON.stringify({
-            schemaVersion: 1,
-            token,
-            pid: process.pid,
-            at: new Date().toISOString(),
-          }),
-        );
-        await handle.sync();
-      } finally {
-        await handle.close();
-      }
+      // A fresh lock is a private file like any other; creating it through the
+      // private primitive establishes the owner/ACL on Windows so the release
+      // read can verify it. Directly opening it left the default token owner.
+      await writePrivateFileExclusive(
+        lockPath,
+        JSON.stringify({
+          schemaVersion: 1,
+          token,
+          pid: process.pid,
+          at: new Date().toISOString(),
+        }),
+        bound ? { bound } : {},
+      );
       assertObservationBound(bound);
       break;
     } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== "EEXIST") {
+      const busy =
+        (error as NodeJS.ErrnoException).code === "EEXIST" ||
+        (error instanceof StoreError && error.code === "FILE_EXISTS");
+      if (!busy) {
         await releaseLock(lockPath, token).catch(() => undefined);
         throw error;
       }

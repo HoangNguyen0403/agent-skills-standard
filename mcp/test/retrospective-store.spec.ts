@@ -35,7 +35,9 @@ import {
   resolvePublishedPreparation,
   sessionToken,
   waitForPublishedPreparation,
+  withSessionLock,
   type PublishArtifact,
+  type StoreLayout,
 } from "../src/retrospective/store";
 
 const MAIN: NodeKey = { hostId: "host-main", sessionId: "main-session" };
@@ -1148,6 +1150,20 @@ describe("private store claims and publication", () => {
     });
     expect(await fs.readFile(lock, "utf8")).toContain("old-owner");
   }, 7_000);
+
+  it.skipIf(process.platform === "win32" || process.getuid?.() === 0)(
+    "surfaces a lock release failure instead of swallowing it",
+    async () => {
+      const root = await privateFixtureRoot();
+      await prepareStore(root);
+      const task = async (layout: StoreLayout): Promise<void> => {
+        await fs.chmod(path.join(layout.locksDir, "root-mutation.lock"), 0o000);
+      };
+      await expect(withSessionLock(root, MAIN, task)).rejects.toMatchObject({
+        code: "EACCES",
+      });
+    },
+  );
 
   it("grants one preparation owner and lets joiners observe the indexed receipt", async () => {
     const root = await privateFixtureRoot();
