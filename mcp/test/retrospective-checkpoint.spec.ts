@@ -46,34 +46,39 @@ function statePath(root: string): string {
 }
 
 describe("passive checkpoint disposition", () => {
-  it("collapses 1,000 identical checkpoints into one pending disposition and one write", async () => {
-    const root = await privateFixtureRoot();
-    const first = await recordCheckpoint(root, checkpoint(), OWNER);
-    expect(first.announcement).toBe("announced");
-    expect(first.written).toBe(true);
-    expect(first.invitation).toEqual({
-      state: "pending",
-      checkpointId: "checkpoint-1",
-      sequence: 1,
-    });
-    const bytes = await fs.readFile(statePath(root));
-    const mtime = (await fs.lstat(statePath(root))).mtimeMs;
-    for (let index = 0; index < 999; index += 1) {
-      const replay = await recordCheckpoint(root, checkpoint(), OWNER);
-      expect(replay.written).toBe(false);
-      expect(replay.announcement).toBe("suppressed");
-      expect(replay.invitation).toEqual(first.invitation);
-    }
-    expect((await fs.readFile(statePath(root))).equals(bytes)).toBe(true);
-    expect((await fs.lstat(statePath(root))).mtimeMs).toBe(mtime);
-    expect(
-      (await fs.readdir(path.join(root, "state"))).filter((name) =>
-        name.endsWith(".json"),
-      ),
-    ).toHaveLength(1);
-    if (process.platform !== "win32")
-      expect((await fs.lstat(statePath(root))).mode & 0o777).toBe(0o600);
-  }, 30_000);
+  it(
+    "collapses 1,000 identical checkpoints into one pending disposition and one write",
+    async () => {
+      const root = await privateFixtureRoot();
+      const first = await recordCheckpoint(root, checkpoint(), OWNER);
+      expect(first.announcement).toBe("announced");
+      expect(first.written).toBe(true);
+      expect(first.invitation).toEqual({
+        state: "pending",
+        checkpointId: "checkpoint-1",
+        sequence: 1,
+      });
+      const bytes = await fs.readFile(statePath(root));
+      const mtime = (await fs.lstat(statePath(root))).mtimeMs;
+      for (let index = 0; index < 999; index += 1) {
+        const replay = await recordCheckpoint(root, checkpoint(), OWNER);
+        expect(replay.written).toBe(false);
+        expect(replay.announcement).toBe("suppressed");
+        expect(replay.invitation).toEqual(first.invitation);
+      }
+      expect((await fs.readFile(statePath(root))).equals(bytes)).toBe(true);
+      expect((await fs.lstat(statePath(root))).mtimeMs).toBe(mtime);
+      expect(
+        (await fs.readdir(path.join(root, "state"))).filter((name) =>
+          name.endsWith(".json"),
+        ),
+      ).toHaveLength(1);
+      if (process.platform !== "win32")
+        expect((await fs.lstat(statePath(root))).mode & 0o777).toBe(0o600);
+      // Windows: 8 helper requests x ~9.5 ms x 1000 replays.
+    },
+    process.platform === "win32" ? 120_000 : 30_000,
+  );
 
   it("ignores child, diagnostic, non-substantive, and idle-only events", async () => {
     const root = await privateFixtureRoot();

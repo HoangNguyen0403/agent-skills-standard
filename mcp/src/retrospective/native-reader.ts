@@ -1,4 +1,4 @@
-import { constants, createReadStream, type Stats } from "node:fs";
+import { constants, createReadStream, type BigIntStats } from "node:fs";
 import { lstat, open, type FileHandle } from "node:fs/promises";
 import type { Readable } from "node:stream";
 import {
@@ -393,10 +393,24 @@ class NativeEventProjector {
   }
 }
 
-async function classifySource(absolutePath: string): Promise<Stats | null> {
+let sourceStatForTests:
+  ((target: string) => Promise<BigIntStats | null>) | undefined;
+
+/** Narrow test seam mirrored on the existing Windows helper spawn seam. */
+export function setNativeReaderSourceStatForTests(
+  stat: ((target: string) => Promise<BigIntStats | null>) | undefined,
+): void {
+  sourceStatForTests = stat;
+}
+
+async function classifySource(
+  absolutePath: string,
+): Promise<BigIntStats | null> {
   try {
-    const stats = await lstat(absolutePath);
-    return stats.isFile() && !stats.isSymbolicLink() ? stats : null;
+    const stats = sourceStatForTests
+      ? await sourceStatForTests(absolutePath)
+      : await lstat(absolutePath, { bigint: true });
+    return stats && stats.isFile() && !stats.isSymbolicLink() ? stats : null;
   } catch {
     return null;
   }
@@ -536,7 +550,7 @@ export function createManifestEvidenceSource(
     else children.set(parentId, [node]);
   }
 
-  const expectedFiles = new Map<string, { dev: number; ino: number }>();
+  const expectedFiles = new Map<string, { dev: bigint; ino: bigint }>();
   const entryFor = async (
     node: ManifestNode,
     signal: AbortSignal,
@@ -610,8 +624,11 @@ export function createManifestEvidenceSource(
       try {
         handle = await open(record.source.absolutePath, READ_FLAGS);
         signal.throwIfAborted();
-        const stats = await handle.stat();
+        const stats = sourceStatForTests
+          ? await sourceStatForTests(record.source.absolutePath)
+          : await handle.stat({ bigint: true });
         if (
+          !stats ||
           !stats.isFile() ||
           stats.dev !== identity.dev ||
           stats.ino !== identity.ino

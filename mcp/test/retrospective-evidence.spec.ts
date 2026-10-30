@@ -16,6 +16,7 @@ import { collectEvidence } from "../src/retrospective/inventory";
 import {
   createManifestEvidenceSource,
   loadLocalManifest,
+  setNativeReaderSourceStatForTests,
 } from "../src/retrospective/native-reader";
 
 const CUTOFF = "2026-10-01T10:10:00.000Z";
@@ -588,6 +589,45 @@ describe("manifest-backed evidence source", () => {
       expect(packet.gaps.map((gap) => gap.code)).toContain("unavailable");
     },
   );
+
+  it("refuses source identities that differ only above 2^53", async () => {
+    const root = await temporaryRoot();
+    const file = await writeJsonl(root, "main.jsonl", [ompHeader(MAIN)]);
+    const manifest = manifestFor([
+      {
+        key: MAIN,
+        parent: null,
+        disposition: "local-allowed",
+        source: { format: "omp", absolutePath: file },
+      },
+    ]);
+    const real = await fs.lstat(file, { bigint: true });
+    const forge = (ino: bigint): typeof real =>
+      Object.assign(
+        Object.create(Object.getPrototypeOf(real)) as typeof real,
+        real,
+        { dev: 9007199254740992n, ino },
+      );
+    let calls = 0;
+    setNativeReaderSourceStatForTests(async () => {
+      calls += 1;
+      return calls === 1 ? forge(9007199254740992n) : forge(9007199254740993n);
+    });
+    try {
+      const packet = await collectEvidence(
+        localRequest(),
+        createManifestEvidenceSource(manifest),
+        new AbortController().signal,
+      );
+      expect(packet.nodes[0]?.coverage).toBe("partial");
+      expect(packet.gaps.map((gap) => gap.code)).toContain(
+        "source-unavailable",
+      );
+      expect(packet.events).toEqual([]);
+    } finally {
+      setNativeReaderSourceStatForTests(undefined);
+    }
+  });
 
   it("rejects manifests with unknown keys or excessive bytes", async () => {
     const root = await temporaryRoot();
