@@ -198,10 +198,7 @@ type FakePi = {
   handlers: Map<string, unknown>;
   command: {
     description: string;
-    handler: (
-      args: string,
-      ctx: ExtensionCommandContext,
-    ) => Promise<void>;
+    handler: (args: string, ctx: ExtensionCommandContext) => Promise<void>;
   };
   tools: string[];
   modelMessages: string[];
@@ -333,6 +330,49 @@ describe("scope-honest command", () => {
     expect(fakeCore.calls.prepares).toEqual([]);
   });
 
+  it("parses a tab-heavy manifest argument without changing its meaning", async () => {
+    const fakeCore = makeCore();
+    const fake = makePi();
+    const adapter = register(fake, makeRuntime(fakeCore.core));
+    const { ctx, record } = makeCtx();
+
+    await adapter.handleCommand(
+      `manifest${"\t".repeat(4_096)}${MANIFEST_PATH}`,
+      ctx,
+    );
+
+    expect(fakeCore.calls.loads).toEqual([MANIFEST_PATH]);
+    expect(record.notices[0]?.text).toContain("1 session(s)");
+  });
+
+  it("rejects a whitespace-separated but empty manifest argument", async () => {
+    const fakeCore = makeCore();
+    const fake = makePi();
+    const adapter = register(fake, makeRuntime(fakeCore.core));
+    const { ctx, record } = makeCtx();
+
+    await adapter.handleCommand(`manifest${"\t".repeat(4_096)}`, ctx);
+
+    expect(record.notices).toHaveLength(1);
+    expect(record.notices[0]?.text).toContain("/retrospective manifest");
+    expect(fakeCore.calls.loads).toEqual([]);
+    expect(fakeCore.calls.prepares).toEqual([]);
+  });
+
+  it("rejects a manifest path containing a line terminator", async () => {
+    const fakeCore = makeCore();
+    const fake = makePi();
+    const adapter = register(fake, makeRuntime(fakeCore.core));
+    const { ctx, record } = makeCtx();
+
+    await adapter.handleCommand(`manifest /manifests/a\nb.json`, ctx);
+
+    expect(record.notices).toHaveLength(1);
+    expect(record.notices[0]?.text).toContain("/retrospective manifest");
+    expect(fakeCore.calls.loads).toEqual([]);
+    expect(fakeCore.calls.prepares).toEqual([]);
+  });
+
   it("refuses to prepare from a subagent session", async () => {
     const fakeCore = makeCore();
     const fake = makePi();
@@ -409,9 +449,7 @@ describe("manifest-scoped preparation", () => {
       code: STORAGE_RISK_NOT_ACKNOWLEDGED,
     });
     expect(declined.record.confirms).toHaveLength(1);
-    expect(declined.record.confirms[0]?.title).toBe(
-      STORAGE_RISK_CONFIRM_TITLE,
-    );
+    expect(declined.record.confirms[0]?.title).toBe(STORAGE_RISK_CONFIRM_TITLE);
     expect(fakeCore.calls.prepares).toEqual([]);
     expect(declined.record.statuses).toEqual([]);
     const notices = declined.record.notices
@@ -759,7 +797,6 @@ describe("bounded config reading", () => {
     } finally {
       openSpy.mockRestore();
     }
-
   });
 
   it("refuses a directory instead of reading it", async () => {

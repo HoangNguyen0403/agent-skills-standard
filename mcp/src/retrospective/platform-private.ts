@@ -479,6 +479,31 @@ function windowsHelperArgs(
   ];
 }
 
+/**
+ * Windows PowerShell 5.1 constructs its own `PSModulePath` at startup only
+ * when the variable is absent. Node is an intermediate process: launched from
+ * PowerShell 7, it inherits the PS7 module paths, which precede the 5.1 system
+ * path and can bind shared modules (for example
+ * `Microsoft.PowerShell.Security`) to PS7 builds that 5.1 cannot load. Per
+ * Microsoft `about_PSModulePath`, the documented compatibility fix is to
+ * remove every case-insensitive `PSModulePath` entry from the child
+ * environment (never from `process.env`) so 5.1 rebuilds its defaults.
+ *
+ * Trust limit: the rebuilt defaults include user-writable module directories,
+ * so ambient module shadowing by the same user remains outside this store's
+ * protection guarantee.
+ */
+export function windowsPowerShellEnvironment(
+  environment: NodeJS.ProcessEnv,
+): NodeJS.ProcessEnv {
+  const childEnvironment: NodeJS.ProcessEnv = {};
+  for (const [key, value] of Object.entries(environment)) {
+    if (key.toLowerCase() === "psmodulepath") continue;
+    childEnvironment[key] = value;
+  }
+  return childEnvironment;
+}
+
 function runFixedProcess(
   file: string,
   args: string[],
@@ -504,6 +529,7 @@ function runFixedProcess(
       shell: false,
       windowsHide: true,
       stdio: ["ignore", "pipe", "pipe"],
+      env: windowsPowerShellEnvironment(process.env),
     });
     let stdout = "";
     let stderr = "";

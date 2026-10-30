@@ -11,6 +11,7 @@ import {
   ensurePrivateRoot,
   ensureWindowsPrivateRoot,
   resolveWindowsHelperPath,
+  windowsPowerShellEnvironment,
   windowsPowerShellPath,
 } from "../src/retrospective/platform-private";
 import {
@@ -522,6 +523,29 @@ describe("private store claims and publication", () => {
       }
       expect(missingShell).toMatchObject({ code: "WINDOWS_HELPER_MISSING" });
     }
+  });
+
+  it("strips inherited PowerShell module paths from the helper child environment", () => {
+    const original: NodeJS.ProcessEnv = {
+      Path: "C:\\bin",
+      SystemRoot: "C:\\Windows",
+      PSModulePath: "C:\\Program Files\\PowerShell\\7\\Modules",
+      psmodulepath: "C:\\Users\\test\\Documents\\PowerShell\\Modules",
+      PSMODULEPATH: "C:\\extra",
+    };
+    const environment = windowsPowerShellEnvironment(original);
+    expect(environment).not.toBe(original);
+    expect(environment).toEqual({
+      Path: "C:\\bin",
+      SystemRoot: "C:\\Windows",
+    });
+    expect(original).toEqual({
+      Path: "C:\\bin",
+      SystemRoot: "C:\\Windows",
+      PSModulePath: "C:\\Program Files\\PowerShell\\7\\Modules",
+      psmodulepath: "C:\\Users\\test\\Documents\\PowerShell\\Modules",
+      PSMODULEPATH: "C:\\extra",
+    });
   });
 
   it.skipIf(process.platform !== "win32")(

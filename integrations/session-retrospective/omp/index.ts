@@ -41,8 +41,7 @@ import {
 export const COMMAND_NAME = "retrospective";
 export const STATUS_KEY = "session-retrospective";
 
-export const USAGE =
-  "Usage: /retrospective manifest <absolute-manifest.json>";
+export const USAGE = "Usage: /retrospective manifest <absolute-manifest.json>";
 
 /** Static capability gap shown when the user asks for automatic preparation. */
 export const SCOPE_UNSUPPORTED_CODE = "OMP-AUTO-SCOPE-UNSUPPORTED";
@@ -124,14 +123,32 @@ type CommandIntent =
 function parseCommandArgs(rawArgs: string): CommandIntent {
   const args = rawArgs.trim();
   if (args.length === 0) return { kind: "explain" };
-  const manifest = /^manifest\s+(.+)$/.exec(args);
-  if (manifest !== null) {
-    const manifestPath = manifest[1]?.trim() ?? "";
-    return manifestPath.length > 0
-      ? { kind: "manifest", manifestPath }
-      : { kind: "invalid" };
+  const keyword = "manifest";
+  if (!args.startsWith(keyword)) return { kind: "invalid" };
+  // Contract preserved from the former /^manifest\s+(.+)$/ match: the keyword,
+  // then at least one whitespace character, then a non-empty path that contains
+  // no line terminators. Single-pass string operations keep this linear: a
+  // whitespace-heavy command cannot trigger regex backtracking.
+  let index = keyword.length;
+  let sawSeparator = false;
+  while (index < args.length) {
+    const char = args.charAt(index);
+    if (char.trim() !== "") break;
+    sawSeparator = true;
+    index += 1;
   }
-  return { kind: "invalid" };
+  if (!sawSeparator) return { kind: "invalid" };
+  const manifestPath = args.slice(index).trim();
+  if (manifestPath.length === 0) return { kind: "invalid" };
+  if (
+    manifestPath.includes("\n") ||
+    manifestPath.includes("\r") ||
+    manifestPath.includes("\u2028") ||
+    manifestPath.includes("\u2029")
+  ) {
+    return { kind: "invalid" };
+  }
+  return { kind: "manifest", manifestPath };
 }
 
 /** Extract only a bounded diagnostic code; never surface raw messages/paths. */
@@ -146,7 +163,8 @@ function errorCode(error: unknown): string {
 }
 
 const DEFAULT_CORE: CoreApi = {
-  loadLocalManifest: (manifestPath) => coreModule.loadLocalManifest(manifestPath),
+  loadLocalManifest: (manifestPath) =>
+    coreModule.loadLocalManifest(manifestPath),
   createManifestEvidenceSource: (manifest) =>
     coreModule.createManifestEvidenceSource(manifest),
   prepareLocal: (request, source, signal) =>
@@ -228,7 +246,10 @@ export function createRetrospectiveAdapter(
     }
     const storeRoot = config.root;
     const containment = await assessStoreRootContainment(storeRoot, ctx.cwd);
-    if (containment.kind === "inside-cwd" || containment.kind === "inside-repository") {
+    if (
+      containment.kind === "inside-cwd" ||
+      containment.kind === "inside-repository"
+    ) {
       ctx.ui.notify(
         `${STORE_ROOT_INSIDE_PROJECT}: the configured store root resolves ` +
           `(${containment.kind === "inside-cwd" ? "inside the session working directory" : "inside the session repository"})` +
