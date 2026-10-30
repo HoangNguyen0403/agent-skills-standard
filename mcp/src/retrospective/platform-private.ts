@@ -9,7 +9,7 @@ import type { FileHandle } from "node:fs/promises";
 import path from "node:path";
 import { performance } from "node:perf_hooks";
 
-export type DirectoryIdentity = { dev: number; ino: number };
+export type DirectoryIdentity = { dev: bigint; ino: bigint };
 
 /**
  * Absolute monotonic budget shared by bounded observation paths. The deadline
@@ -76,13 +76,13 @@ function currentUid(): number | null {
   return typeof process.getuid === "function" ? process.getuid() : null;
 }
 
-function identityOf(stats: fs.Stats): DirectoryIdentity {
-  return { dev: Number(stats.dev), ino: Number(stats.ino) };
+function identityOf(stats: fs.BigIntStats): DirectoryIdentity {
+  return { dev: stats.dev, ino: stats.ino };
 }
 
-async function lstatOrNull(target: string): Promise<fs.Stats | null> {
+async function lstatOrNull(target: string): Promise<fs.BigIntStats | null> {
   try {
-    return await fsp.lstat(target);
+    return await fsp.lstat(target, { bigint: true });
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
     throw error;
@@ -106,22 +106,22 @@ function resolveRoot(candidate: string): string {
 
 export function assertPrivateDirectory(
   target: string,
-  stats: fs.Stats,
+  stats: fs.BigIntStats,
   code = "UNSAFE_PATH",
 ): void {
   if (stats.isSymbolicLink() || !stats.isDirectory())
     throw new StoreError(code, `Not a real directory: ${target}`);
   const uid = currentUid();
-  if (uid !== null && process.platform !== "win32" && stats.uid !== uid)
+  if (uid !== null && process.platform !== "win32" && stats.uid !== BigInt(uid))
     throw new StoreError("PRIVATE_OWNER_MISMATCH", "Owner mismatch.");
-  if (process.platform !== "win32" && (stats.mode & 0o077) !== 0)
+  if (process.platform !== "win32" && (stats.mode & 0o077n) !== 0n)
     throw new StoreError("PRIVATE_MODE", "Directory is not owner-private.");
 }
 
-export function assertPrivateFile(target: string, stats: fs.Stats): void {
+export function assertPrivateFile(target: string, stats: fs.BigIntStats): void {
   if (stats.isSymbolicLink() || !stats.isFile())
     throw new StoreError("UNSAFE_PATH", `Not a regular file: ${target}`);
-  if (process.platform !== "win32" && (stats.mode & 0o077) !== 0)
+  if (process.platform !== "win32" && (stats.mode & 0o077n) !== 0n)
     throw new StoreError("PRIVATE_MODE", "File is not owner-private.");
 }
 
@@ -148,7 +148,7 @@ export async function ensurePrivateRoot(
     .split(path.sep)
     .filter((segment) => segment.length > 0);
   let current = root;
-  const validateComponent = (stats: fs.Stats, isRoot: boolean): void => {
+  const validateComponent = (stats: fs.BigIntStats, isRoot: boolean): void => {
     if (stats.isSymbolicLink())
       throw new StoreError("ROOT_SYMLINK", "Root path contains a symlink.");
     if (!stats.isDirectory())
@@ -158,12 +158,12 @@ export async function ensurePrivateRoot(
       );
     if (!isRoot) return;
     const uid = currentUid();
-    if (uid !== null && stats.uid !== uid)
+    if (uid !== null && stats.uid !== BigInt(uid))
       throw new StoreError(
         "ROOT_OWNER_MISMATCH",
         "Root is owned by another user.",
       );
-    if ((stats.mode & 0o077) !== 0)
+    if ((stats.mode & 0o077n) !== 0n)
       throw new StoreError(
         "ROOT_PERMISSIVE",
         "Root has group/other permissions.",
@@ -180,7 +180,7 @@ export async function ensurePrivateRoot(
         continue;
       } catch (error) {
         if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
-        validateComponent(await fsp.lstat(current), isRoot);
+        validateComponent(await fsp.lstat(current, { bigint: true }), isRoot);
         continue;
       }
     }
@@ -207,12 +207,12 @@ export async function verifyPrivateRoot(
   if (!stats.isDirectory())
     throw new StoreError("ROOT_NOT_DIRECTORY", "Root is not a directory.");
   const uid = currentUid();
-  if (uid !== null && stats.uid !== uid)
+  if (uid !== null && stats.uid !== BigInt(uid))
     throw new StoreError(
       "ROOT_OWNER_MISMATCH",
       "Root is owned by another user.",
     );
-  if ((stats.mode & 0o077) !== 0)
+  if ((stats.mode & 0o077n) !== 0n)
     throw new StoreError(
       "ROOT_PERMISSIVE",
       "Root has group/other permissions.",
@@ -227,19 +227,19 @@ export async function createPrivateDirectory(
   assertBound(bound);
   if (process.platform === "win32") {
     await fsp.mkdir(target, { mode: PRIVATE_DIR_MODE });
-    const createdStats = await fsp.lstat(target);
+    const createdStats = await fsp.lstat(target, { bigint: true });
     assertPrivateDirectory(target, createdStats);
     const created = identityOf(createdStats);
     // The newly created directory's default owner may be the token's group
-    // SID under elevation; establish the exact owner/private ACL, then detect
+    // SID under elevation. Establish the exact owner/private ACL, then detect
     // path substitution across the path-based helper call.
     await establishWindowsPrivateAcl(target, "Directory", bound);
-    const verifiedStats = await fsp.lstat(target);
+    const verifiedStats = await fsp.lstat(target, { bigint: true });
     if (
       verifiedStats.isSymbolicLink() ||
       !verifiedStats.isDirectory() ||
-      Number(verifiedStats.dev) !== created.dev ||
-      Number(verifiedStats.ino) !== created.ino
+      verifiedStats.dev !== created.dev ||
+      verifiedStats.ino !== created.ino
     )
       throw new StoreError(
         "PATH_CHANGED",
@@ -248,7 +248,7 @@ export async function createPrivateDirectory(
     return identityOf(verifiedStats);
   }
   await fsp.mkdir(target, { mode: PRIVATE_DIR_MODE });
-  const stats = await fsp.lstat(target);
+  const stats = await fsp.lstat(target, { bigint: true });
   assertPrivateDirectory(target, stats);
   return identityOf(stats);
 }
@@ -269,7 +269,7 @@ export async function ensurePrivateDirectory(
     return await createPrivateDirectory(target, bound);
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
-    const raced = await fsp.lstat(target);
+    const raced = await fsp.lstat(target, { bigint: true });
     assertPrivateDirectory(target, raced);
     if (process.platform === "win32")
       await verifyWindowsPrivatePath(target, bound);
@@ -288,7 +288,7 @@ export async function assertDirectoryIdentity(
   assertPrivateDirectory(target, stats);
   if (process.platform === "win32")
     await verifyWindowsPrivatePath(target, bound);
-  if (Number(stats.dev) !== expected.dev || Number(stats.ino) !== expected.ino)
+  if (stats.dev !== expected.dev || stats.ino !== expected.ino)
     throw new StoreError("PATH_CHANGED", "Directory identity changed.");
 }
 
@@ -330,7 +330,7 @@ export async function writePrivateFileExclusive(
   try {
     await handle.writeFile(data);
     if (options.durable !== false) await handle.sync();
-    const stats = await handle.stat();
+    const stats = await handle.stat({ bigint: true });
     assertPrivateFile(target, stats);
     created = identityOf(stats);
   } finally {
@@ -351,8 +351,8 @@ export async function writePrivateFileExclusive(
       !verifiedStats ||
       verifiedStats.isSymbolicLink() ||
       !verifiedStats.isFile() ||
-      Number(verifiedStats.dev) !== created.dev ||
-      Number(verifiedStats.ino) !== created.ino
+      verifiedStats.dev !== created.dev ||
+      verifiedStats.ino !== created.ino
     )
       throw new StoreError(
         "PATH_CHANGED",
@@ -373,12 +373,12 @@ async function readPrivateFile(
   const handle = await fsp.open(target, fs.constants.O_RDONLY | NOFOLLOW_FLAG);
   try {
     assertBound(bound);
-    const stats = await handle.stat();
+    const stats = await handle.stat({ bigint: true });
     assertPrivateFile(target, stats);
     if (process.platform === "win32")
       await verifyWindowsPrivatePath(target, bound);
-    if (stats.size > maxBytes) throw new StoreError("FILE_TOO_LARGE");
-    const buffer = Buffer.alloc(stats.size);
+    if (stats.size > BigInt(maxBytes)) throw new StoreError("FILE_TOO_LARGE");
+    const buffer = Buffer.alloc(Number(stats.size));
     let offset = 0;
     while (offset < buffer.length) {
       assertBound(bound);
@@ -457,10 +457,7 @@ export async function removePrivateTree(
   if (!stats) return;
   if (stats.isSymbolicLink() || !stats.isDirectory())
     throw new StoreError("UNSAFE_PATH", "Refusing to remove a non-directory.");
-  if (
-    expected &&
-    (Number(stats.dev) !== expected.dev || Number(stats.ino) !== expected.ino)
-  )
+  if (expected && (stats.dev !== expected.dev || stats.ino !== expected.ino))
     throw new StoreError("PATH_CHANGED", "Directory identity changed.");
   await fsp.rm(target, { recursive: true, force: true });
 }
@@ -473,7 +470,7 @@ export async function removePrivateFile(
   if (!stats) return;
   if (stats.isDirectory() && !stats.isSymbolicLink())
     throw new StoreError("UNSAFE_PATH", "Refusing to unlink a directory.");
-  if (!stats.isSymbolicLink() && stats.size > maxBytes)
+  if (!stats.isSymbolicLink() && stats.size > BigInt(maxBytes))
     throw new StoreError("FILE_TOO_LARGE");
   await fsp.rm(target, { force: true });
 }
@@ -1158,12 +1155,12 @@ export async function ensureWindowsPrivateStoreLayout(
         await fsp.mkdir(directory, { mode: PRIVATE_DIR_MODE });
       } catch (error) {
         if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
-        const raced = await fsp.lstat(directory);
+        const raced = await fsp.lstat(directory, { bigint: true });
         assertPrivateDirectory(directory, raced);
         verifyItems.push({ path: directory, mode: "verify" });
         continue;
       }
-      const createdStats = await fsp.lstat(directory);
+      const createdStats = await fsp.lstat(directory, { bigint: true });
       assertPrivateDirectory(directory, createdStats);
       created.push({ path: directory, identity: identityOf(createdStats) });
       establishItems.push({
@@ -1189,8 +1186,8 @@ export async function ensureWindowsPrivateStoreLayout(
         if (
           stats.isSymbolicLink() ||
           !stats.isDirectory() ||
-          Number(stats.dev) !== entry.identity.dev ||
-          Number(stats.ino) !== entry.identity.ino
+          stats.dev !== entry.identity.dev ||
+          stats.ino !== entry.identity.ino
         )
           continue;
         await fsp.rmdir(entry.path);
@@ -1216,8 +1213,8 @@ export async function ensureWindowsPrivateStoreLayout(
       !after ||
       after.isSymbolicLink() ||
       !after.isDirectory() ||
-      Number(after.dev) !== entry.identity.dev ||
-      Number(after.ino) !== entry.identity.ino
+      after.dev !== entry.identity.dev ||
+      after.ino !== entry.identity.ino
     )
       throw new StoreError(
         "PATH_CHANGED",

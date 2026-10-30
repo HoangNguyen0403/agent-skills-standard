@@ -113,11 +113,15 @@ const labelSchema = z
   });
 
 const fileIdentityValueSchema = z
-  .union([z.string().regex(/^-?\d+$/), z.number().int()])
-  .transform((value) => {
-    const identity = Number(value);
-    if (!Number.isFinite(identity)) throw new Error("invalid identity");
-    return identity;
+  .string()
+  .regex(/^-?\d+$/)
+  .transform((value, ctx) => {
+    try {
+      return BigInt(value);
+    } catch {
+      ctx.addIssue({ code: "custom", message: "Invalid file identity." });
+      return z.NEVER;
+    }
   });
 
 const sessionMetaSchema = z.strictObject({
@@ -323,11 +327,11 @@ function serializeSessionMeta(meta: SessionMeta): string {
   // exact integer digits so Zod's safe-integer check cannot reject them.
   return JSON.stringify({
     ...meta,
-    dev: BigInt(meta.dev).toString(),
-    ino: BigInt(meta.ino).toString(),
+    dev: meta.dev.toString(),
+    ino: meta.ino.toString(),
     generations: {
-      dev: BigInt(meta.generations.dev).toString(),
-      ino: BigInt(meta.generations.ino).toString(),
+      dev: meta.generations.dev.toString(),
+      ino: meta.generations.ino.toString(),
     },
   });
 }
@@ -614,7 +618,7 @@ async function ensureSession(
   if (!dirStats) {
     if (!options.create) return null;
     await createPrivateDirectory(dir);
-    dirStats = await fsp.lstat(dir);
+    dirStats = await fsp.lstat(dir, { bigint: true });
   } else {
     assertPrivateDirectory(dir, dirStats);
   }
@@ -674,7 +678,7 @@ async function sweepStaging(stagingDir: string): Promise<void> {
     const full = path.join(stagingDir, entry.name);
     const stats = await lstatOrNull(full);
     if (!stats || stats.isSymbolicLink() || !stats.isDirectory()) continue;
-    if (Date.now() - stats.mtimeMs > STAGING_STALE_MS)
+    if (Date.now() - Number(stats.mtimeMs) > STAGING_STALE_MS)
       await removePrivateTree(full);
   }
 }
@@ -736,7 +740,7 @@ async function writeIndexGeneration(
       const stats = await lstatOrNull(
         path.join(layout.indexGenerationsDir, file),
       );
-      if (stats?.isFile()) ranked.push({ file, mtime: stats.mtimeMs });
+      if (stats?.isFile()) ranked.push({ file, mtime: Number(stats.mtimeMs) });
     }
     ranked.sort((left, right) => right.mtime - left.mtime);
     for (const stale of ranked.slice(INDEX_GENERATIONS_KEPT - 1))

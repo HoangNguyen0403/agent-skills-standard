@@ -126,10 +126,10 @@ function Invoke-AclItem {
 
     if ($Mode -eq 'establish') {
         $isDirectory = $ItemKind -eq 'Directory'
-        $acl = if ($isDirectory) {
-            [System.IO.Directory]::GetAccessControl($full)
+        if ($isDirectory) {
+            $acl = [System.IO.Directory]::GetAccessControl($full)
         } else {
-            [System.IO.File]::GetAccessControl($full)
+            $acl = [System.IO.File]::GetAccessControl($full)
         }
         $acl.SetAccessRuleProtection($true, $false)
         foreach ($rule in @($acl.Access)) {

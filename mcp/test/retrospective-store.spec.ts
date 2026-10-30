@@ -10,16 +10,19 @@ import type { ChildProcessWithoutNullStreams } from "node:child_process";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { NodeKey } from "../src/retrospective/contracts";
 import {
+  assertDirectoryIdentity,
   decodeWindowsHelperResponse,
   encodeWindowsHelperRequest,
   ensurePrivateDirectory,
   ensurePrivateRoot,
   ensureWindowsPrivateRoot,
   ensureWindowsPrivateStoreLayout,
+  removePrivateTree,
   resolveWindowsHelperPath,
   setWindowsHelperSpawnForTests,
   windowsPowerShellEnvironment,
   windowsPowerShellPath,
+  writePrivateFileAtomic,
   type WindowsHelperSpawn,
 } from "../src/retrospective/platform-private";
 import {
@@ -1117,23 +1120,131 @@ describe("private store claims and publication", () => {
     },
   );
 
-  it("persists file identities as exact integer digits", async () => {
+  it("rejects identities that differ only above 2^53", async () => {
+    const root = await privateFixtureRoot();
+    const directory = path.join(root, "identity-probe");
+    await ensurePrivateDirectory(directory);
+    const real = await fs.lstat(directory, { bigint: true });
+    const forged = Object.assign(
+      Object.create(Object.getPrototypeOf(real)) as typeof real,
+      real,
+      { dev: 9007199254740992n, ino: 9007199254740992n },
+    );
+    const original = fs.lstat.bind(fs);
+    const spy = vi.spyOn(fs, "lstat").mockImplementation((async (
+      target: string,
+      options?: { bigint?: boolean },
+    ) => {
+      if (target === directory) return forged;
+      return await original(target, options as never);
+    }) as never);
+    try {
+      await expect(
+        assertDirectoryIdentity(directory, {
+          dev: 9007199254740992n,
+          ino: 9007199254740993n,
+        }),
+      ).rejects.toMatchObject({ code: "PATH_CHANGED" });
+      await expect(
+        removePrivateTree(directory, {
+          dev: 9007199254740992n,
+          ino: 9007199254740993n,
+        }),
+      ).rejects.toMatchObject({ code: "PATH_CHANGED" });
+    } finally {
+      spy.mockRestore();
+    }
+    const remaining = await fs.lstat(directory, { bigint: true });
+    expect(remaining.isDirectory()).toBe(true);
+  });
+
+  it("normalizes a malformed persisted identity to INVALID_SESSION_META", async () => {
     const root = await privateFixtureRoot();
     await prepareStore(root);
-    await claimRun(root, MAIN, "cp-meta-identities");
+    await claimRun(root, MAIN, "cp-malformed-setup");
     const metaPath = path.join(
       root,
       "sessions",
       sessionToken(MAIN),
       "meta.json",
     );
+    const raw = JSON.parse(await fs.readFile(metaPath, "utf8")) as Record<
+      string,
+      unknown
+    >;
+    raw.dev = "12a";
+    await fs.writeFile(metaPath, JSON.stringify(raw), { mode: 0o600 });
+    await expect(
+      claimRun(root, MAIN, "cp-malformed-read"),
+    ).rejects.toMatchObject({ code: "INVALID_SESSION_META" });
+  });
+
+  it("round-trips identities above 2^53 through session metadata", async () => {
+    const root = await privateFixtureRoot();
+    const claim = await claimRun(root, MAIN, "cp-big-identity");
+    const sessionDir = path.join(root, "sessions", sessionToken(MAIN));
+    const generationsDir = path.join(sessionDir, "generations");
+    const metaPath = path.join(sessionDir, "meta.json");
+    const raw = JSON.parse(await fs.readFile(metaPath, "utf8")) as Record<
+      string,
+      unknown
+    >;
+    raw.dev = "9007199254740992";
+    raw.ino = "9007199254740993";
+    raw.generations = {
+      dev: "9007199254740994",
+      ino: "9007199254740995",
+    };
+    await fs.writeFile(metaPath, JSON.stringify(raw), { mode: 0o600 });
+    const realSession = await fs.lstat(sessionDir, { bigint: true });
+    const realGenerations = await fs.lstat(generationsDir, { bigint: true });
+    const forge = (
+      real: typeof realSession,
+      dev: bigint,
+      ino: bigint,
+    ): typeof realSession =>
+      Object.assign(
+        Object.create(Object.getPrototypeOf(real)) as typeof real,
+        real,
+        { dev, ino },
+      );
+    const forgedSession = forge(
+      realSession,
+      9007199254740992n,
+      9007199254740993n,
+    );
+    const forgedGenerations = forge(
+      realGenerations,
+      9007199254740994n,
+      9007199254740995n,
+    );
+    const original = fs.lstat.bind(fs);
+    const spy = vi.spyOn(fs, "lstat").mockImplementation((async (
+      target: string,
+      options?: { bigint?: boolean },
+    ) => {
+      if (target === sessionDir) return forgedSession;
+      if (target === generationsDir) return forgedGenerations;
+      return await original(target, options as never);
+    }) as never);
+    try {
+      await publishRun(claim, [
+        {
+          artifactId: "meta-round-trip",
+          kind: "report",
+          content: "exact identity",
+        },
+      ]);
+    } finally {
+      spy.mockRestore();
+    }
     const record: unknown = JSON.parse(await fs.readFile(metaPath, "utf8"));
     expect(record).toMatchObject({
-      dev: expect.stringMatching(/^-?\d+$/),
-      ino: expect.stringMatching(/^-?\d+$/),
+      dev: "9007199254740992",
+      ino: "9007199254740993",
       generations: {
-        dev: expect.stringMatching(/^-?\d+$/),
-        ino: expect.stringMatching(/^-?\d+$/),
+        dev: "9007199254740994",
+        ino: "9007199254740995",
       },
     });
   });
@@ -1498,7 +1609,7 @@ describe("private store claims and publication", () => {
       entries.map((entry) => String(entry.sessionToken)),
     );
     const nextName = "synthetic-index.json";
-    await fs.writeFile(
+    await writePrivateFileAtomic(
       path.join(root, "index", "generations", nextName),
       JSON.stringify({
         schemaVersion: 1,
@@ -1507,17 +1618,15 @@ describe("private store claims and publication", () => {
         counts: { artifacts: entries.length, sessions: sessions.size },
         entries,
       }),
-      { mode: 0o600 },
     );
-    await fs.writeFile(pointerPath, nextName, { mode: 0o600 });
-    await fs.writeFile(
+    await writePrivateFileAtomic(pointerPath, nextName);
+    await writePrivateFileAtomic(
       path.join(root, "fences", `${syntheticToken}.json`),
       JSON.stringify({
         schemaVersion: 1,
         tombstone: "b".repeat(32),
         deletedAt: new Date().toISOString(),
       }),
-      { mode: 0o600 },
     );
 
     const used = await treeBytes(root);
