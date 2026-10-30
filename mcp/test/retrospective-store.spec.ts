@@ -4,15 +4,23 @@ import path from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import { spawnSync } from "node:child_process";
 import { performance } from "node:perf_hooks";
+import { EventEmitter } from "node:events";
+import { PassThrough } from "node:stream";
+import type { ChildProcessWithoutNullStreams } from "node:child_process";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { NodeKey } from "../src/retrospective/contracts";
 import {
+  decodeWindowsHelperResponse,
+  encodeWindowsHelperRequest,
   ensurePrivateDirectory,
   ensurePrivateRoot,
   ensureWindowsPrivateRoot,
+  ensureWindowsPrivateStoreLayout,
   resolveWindowsHelperPath,
+  setWindowsHelperSpawnForTests,
   windowsPowerShellEnvironment,
   windowsPowerShellPath,
+  type WindowsHelperSpawn,
 } from "../src/retrospective/platform-private";
 import {
   STORE_LIMITS,
@@ -36,6 +44,12 @@ const OTHER_MAIN: NodeKey = {
   sessionId: "other-session",
 };
 const roots: string[] = [];
+const ORIGINAL_SYSTEM_ROOT = process.env.SystemRoot;
+
+function installFakeWindowsHelper(spawner: WindowsHelperSpawn): void {
+  process.env.SystemRoot = path.parse(process.cwd()).root;
+  setWindowsHelperSpawnForTests(spawner, "/fake/windows-private.ps1");
+}
 
 async function privateFixtureRoot(): Promise<string> {
   const realTmp = await fs.realpath(os.tmpdir());
@@ -52,6 +66,10 @@ async function outsideDirectory(prefix: string): Promise<string> {
 }
 
 afterEach(async () => {
+  setWindowsHelperSpawnForTests(null);
+  if (ORIGINAL_SYSTEM_ROOT === undefined) delete process.env.SystemRoot;
+  else process.env.SystemRoot = ORIGINAL_SYSTEM_ROOT;
+  vi.useRealTimers();
   for (const dir of roots.splice(0))
     await fs.rm(dir, { recursive: true, force: true });
 });
@@ -104,6 +122,97 @@ async function waitForEmptyDirectory(directory: string): Promise<void> {
     if ((await fs.readdir(directory)).length === 0) return;
     await delay(25);
   }
+}
+
+function storeErrorFrom(run: () => unknown): unknown {
+  try {
+    run();
+  } catch (error) {
+    return error;
+  }
+  return null;
+}
+
+type FakeHelperItem = {
+  path: string;
+  mode: string;
+  itemKind?: string;
+};
+
+type FakeHelperRequest = { id: number; items: FakeHelperItem[] };
+
+class FakeHelperChild extends EventEmitter {
+  readonly stdin = new PassThrough();
+  readonly stdout = new PassThrough();
+  readonly stderr = new PassThrough();
+  killed = false;
+
+  kill(): boolean {
+    this.killed = true;
+    this.emit("close", 0);
+    return true;
+  }
+}
+
+type FakeHelper = {
+  readonly child: ChildProcessWithoutNullStreams;
+  readonly raw: FakeHelperChild;
+  readonly requests: FakeHelperRequest[];
+  readonly state: { inFlight: number; maxInFlight: number; overlap: boolean };
+  setResponder(responder: (request: FakeHelperRequest) => unknown | null): void;
+  respondNow(response: unknown): void;
+};
+
+function fakeWindowsHelper(): FakeHelper {
+  const raw = new FakeHelperChild();
+  const requests: FakeHelperRequest[] = [];
+  const state = { inFlight: 0, maxInFlight: 0, overlap: false };
+  let responder: (request: FakeHelperRequest) => unknown | null = () => null;
+  raw.stdin.setEncoding("utf8");
+  let buffer = "";
+  raw.stdin.on("data", (chunk: string) => {
+    buffer += chunk;
+    for (;;) {
+      const newline = buffer.indexOf("\n");
+      if (newline < 0) break;
+      const line = buffer.slice(0, newline);
+      buffer = buffer.slice(newline + 1);
+      if (line.length === 0) continue;
+      const request = JSON.parse(line) as FakeHelperRequest;
+      if (state.inFlight > 0) state.overlap = true;
+      state.inFlight += 1;
+      state.maxInFlight = Math.max(state.maxInFlight, state.inFlight);
+      requests.push(request);
+      const response = responder(request);
+      if (response !== null) {
+        raw.stdout.write(`${JSON.stringify(response)}\n`);
+        state.inFlight -= 1;
+      }
+    }
+  });
+  return {
+    child: raw as unknown as ChildProcessWithoutNullStreams,
+    raw,
+    requests,
+    state,
+    setResponder(next) {
+      responder = next;
+    },
+    respondNow(response) {
+      raw.stdout.write(`${JSON.stringify(response)}\n`);
+      state.inFlight = Math.max(0, state.inFlight - 1);
+    },
+  };
+}
+
+function respondOk(request: FakeHelperRequest): {
+  id: number;
+  results: Array<{ ok: true }>;
+} {
+  return {
+    id: request.id,
+    results: request.items.map(() => ({ ok: true as const })),
+  };
 }
 
 describe("private store claims and publication", () => {
@@ -523,6 +632,341 @@ describe("private store claims and publication", () => {
       }
       expect(missingShell).toMatchObject({ code: "WINDOWS_HELPER_MISSING" });
     }
+  });
+
+  it("encodes batched Windows ACL helper requests and rejects invalid shapes", () => {
+    const items = [
+      { path: "C:\\root", mode: "establish", itemKind: "Directory" },
+      { path: "C:\\root\\locks", mode: "verify" },
+    ] as const;
+    const line = encodeWindowsHelperRequest(7, items);
+    expect(line.endsWith("\n")).toBe(true);
+    expect(JSON.parse(line)).toEqual({ id: 7, items });
+    for (const id of [0, -1, 1.5]) {
+      expect(
+        storeErrorFrom(() => encodeWindowsHelperRequest(id, items)),
+      ).toMatchObject({ code: "WINDOWS_HELPER_FAILED" });
+    }
+    expect(
+      storeErrorFrom(() => encodeWindowsHelperRequest(1, [])),
+    ).toMatchObject({ code: "WINDOWS_HELPER_FAILED" });
+    const tooMany = Array.from({ length: 65 }, (_, index) => ({
+      path: `C:\\p${index}`,
+      mode: "verify" as const,
+    }));
+    expect(
+      storeErrorFrom(() => encodeWindowsHelperRequest(1, tooMany)),
+    ).toMatchObject({ code: "WINDOWS_HELPER_FAILED" });
+    const tooLarge = [
+      { path: `C:\\${"x".repeat(1_048_576)}`, mode: "verify" as const },
+    ];
+    expect(
+      storeErrorFrom(() => encodeWindowsHelperRequest(1, tooLarge)),
+    ).toMatchObject({ code: "WINDOWS_HELPER_FAILED" });
+  });
+
+  it("strictly validates Windows ACL helper responses and refuses malformed ones", () => {
+    expect(
+      decodeWindowsHelperResponse(
+        JSON.stringify({
+          id: 3,
+          results: [{ ok: true }, { ok: true }],
+        }),
+        3,
+        2,
+      ),
+    ).toEqual([{ ok: true }, { ok: true }]);
+    expect(
+      decodeWindowsHelperResponse(
+        JSON.stringify({
+          id: 3,
+          results: [
+            { ok: true },
+            { ok: false, code: "AGS-REPARSE-POINT", detail: "denied" },
+          ],
+        }),
+        3,
+        3,
+      ),
+    ).toEqual([
+      { ok: true },
+      { ok: false, code: "AGS-REPARSE-POINT", detail: "denied" },
+    ]);
+    const malformed = [
+      JSON.stringify({ id: 4, results: [{ ok: true }] }),
+      "not-json",
+      JSON.stringify({ id: 3, results: [] }),
+      JSON.stringify({ id: 3, results: [{ ok: true }] }),
+      JSON.stringify({
+        id: 3,
+        results: [{ ok: true }, { ok: true }, { ok: true }],
+      }),
+      JSON.stringify({
+        id: 3,
+        results: [
+          { ok: false, code: "AGS-ACL-FAILED", detail: "x" },
+          { ok: true },
+        ],
+      }),
+      JSON.stringify({
+        id: 3,
+        results: [{ ok: false, code: "AGS-OTHER", detail: "x" }],
+      }),
+      JSON.stringify({
+        id: 3,
+        results: [
+          { ok: false, code: "AGS-ACL-FAILED", detail: "x".repeat(5_000) },
+        ],
+      }),
+      "x".repeat(1_048_577),
+    ];
+    for (const line of malformed) {
+      expect(
+        storeErrorFrom(() => decodeWindowsHelperResponse(line, 3, 2)),
+      ).toMatchObject({ code: "WINDOWS_ACL_FAILED" });
+    }
+  });
+
+  it("reuses one helper, establishes the root first, and orders fresh before existing", async () => {
+    const root = await privateFixtureRoot();
+    const helper = fakeWindowsHelper();
+    helper.setResponder(respondOk);
+    let spawns = 0;
+    let captured: { file: string; args: string[]; options: unknown } | null =
+      null;
+    installFakeWindowsHelper((file, args, options) => {
+      spawns += 1;
+      captured = { file, args, options };
+      return helper.child;
+    });
+    const fresh = path.join(root, "fresh");
+    const existing = path.join(root, "existing");
+    await fs.mkdir(existing, { mode: 0o700 });
+    await ensureWindowsPrivateStoreLayout(root, [fresh, existing]);
+    expect(spawns).toBe(1);
+    expect(helper.requests[0]?.items).toEqual([
+      { path: root, mode: "establish", itemKind: "Directory" },
+    ]);
+    expect(
+      (helper.requests[1]?.items ?? []).map((item) => ({
+        path: path.relative(root, item.path),
+        mode: item.mode,
+        itemKind: item.itemKind,
+      })),
+    ).toEqual([
+      { path: "fresh", mode: "establish", itemKind: "Directory" },
+      { path: "existing", mode: "verify", itemKind: undefined },
+    ]);
+    if (!captured) throw new Error("Expected a helper spawn.");
+    const spawnOptions = captured.options as {
+      shell?: boolean;
+      windowsHide?: boolean;
+      env?: NodeJS.ProcessEnv;
+    };
+    expect(captured.args.at(-1)).toBe("-Serve");
+    expect(spawnOptions.shell).toBe(false);
+    expect(spawnOptions.windowsHide).toBe(true);
+    expect(
+      Object.keys(spawnOptions.env ?? {}).some(
+        (key) => key.toLowerCase() === "psmodulepath",
+      ),
+    ).toBe(false);
+    helper.requests.length = 0;
+    await ensureWindowsPrivateStoreLayout(root, [fresh, existing]);
+    expect(spawns).toBe(1);
+    expect(
+      (helper.requests[1]?.items ?? []).every((item) => item.mode === "verify"),
+    ).toBe(true);
+  });
+
+  it("removes a directory created by a failed layout batch", async () => {
+    const root = await privateFixtureRoot();
+    const helper = fakeWindowsHelper();
+    helper.setResponder((request) =>
+      request.items.length === 1
+        ? respondOk(request)
+        : {
+            id: request.id,
+            results: [
+              { ok: true },
+              { ok: false, code: "AGS-ACL-FAILED", detail: "stop" },
+            ],
+          },
+    );
+    installFakeWindowsHelper(() => helper.child);
+    const fresh = path.join(root, "fresh");
+    const existing = path.join(root, "existing");
+    await fs.mkdir(existing, { mode: 0o700 });
+    await expect(
+      ensureWindowsPrivateStoreLayout(root, [fresh, existing]),
+    ).rejects.toMatchObject({ code: "WINDOWS_ACL_FAILED" });
+    await expect(fs.lstat(fresh)).rejects.toMatchObject({ code: "ENOENT" });
+    expect(await fs.lstat(existing)).toBeTruthy();
+  });
+
+  it("poisons malformed responses and restarts on the next request", async () => {
+    const root = await privateFixtureRoot();
+    const first = fakeWindowsHelper();
+    first.setResponder((request) => ({
+      id: request.id,
+      results: [{ ok: true }, { ok: true }],
+    }));
+    const second = fakeWindowsHelper();
+    second.setResponder(respondOk);
+    let spawns = 0;
+    installFakeWindowsHelper(() =>
+      spawns++ === 0 ? first.child : second.child,
+    );
+    await expect(
+      ensureWindowsPrivateStoreLayout(root, []),
+    ).rejects.toMatchObject({ code: "WINDOWS_ACL_FAILED" });
+    expect(first.raw.killed).toBe(true);
+    await ensureWindowsPrivateStoreLayout(root, []);
+    expect(spawns).toBe(2);
+  });
+
+  it("poisons stdin stream errors and rejects the pending request", async () => {
+    const root = await privateFixtureRoot();
+    const helper = fakeWindowsHelper();
+    installFakeWindowsHelper(() => helper.child);
+    const pending = ensureWindowsPrivateStoreLayout(root, []);
+    while (helper.requests.length === 0)
+      await new Promise((resolve) => setImmediate(resolve));
+    helper.raw.stdin.emit("error", new Error("EPIPE"));
+    await expect(pending).rejects.toMatchObject({
+      code: "WINDOWS_ACL_FAILED",
+    });
+    expect(helper.raw.killed).toBe(true);
+  });
+
+  it("rejects an aborted queued request without sending it", async () => {
+    const root = await privateFixtureRoot();
+    const helper = fakeWindowsHelper();
+    installFakeWindowsHelper(() => helper.child);
+    const first = ensureWindowsPrivateStoreLayout(root, [
+      path.join(root, "first"),
+    ]);
+    while (helper.requests.length === 0)
+      await new Promise((resolve) => setImmediate(resolve));
+    const controller = new AbortController();
+    const queued = ensureWindowsPrivateStoreLayout(
+      root,
+      [path.join(root, "queued")],
+      {
+        deadline: performance.now() + 5_000,
+        signal: controller.signal,
+      },
+    );
+    controller.abort(new Error("stop"));
+    await expect(queued).rejects.toMatchObject({ code: "ABORTED" });
+    expect(helper.requests).toHaveLength(1);
+    helper.setResponder(respondOk);
+    helper.respondNow(respondOk(helper.requests[0]));
+    await first;
+  });
+
+  it("keeps a queued request behind an in-flight request after an abort", async () => {
+    const root = await privateFixtureRoot();
+    const helper = fakeWindowsHelper();
+    installFakeWindowsHelper(() => helper.child);
+    const first = ensureWindowsPrivateStoreLayout(root, [
+      path.join(root, "first-dir"),
+    ]);
+    while (helper.requests.length === 0)
+      await new Promise((resolve) => setImmediate(resolve));
+    const controller = new AbortController();
+    const queued = ensureWindowsPrivateStoreLayout(
+      root,
+      [path.join(root, "queued-dir")],
+      {
+        deadline: performance.now() + 5_000,
+        signal: controller.signal,
+      },
+    );
+    controller.abort(new Error("stop"));
+    await expect(queued).rejects.toMatchObject({ code: "ABORTED" });
+    expect(helper.requests).toHaveLength(1);
+    const third = ensureWindowsPrivateStoreLayout(root, [
+      path.join(root, "third-dir"),
+    ]);
+    // C is queued behind the still-in-flight A request and is not sent.
+    expect(helper.requests).toHaveLength(1);
+    helper.setResponder(respondOk);
+    helper.respondNow(respondOk(helper.requests[0]));
+    await first;
+    await third;
+    expect(helper.raw.killed).toBe(false);
+    expect(helper.requests).toHaveLength(4);
+    expect(helper.state.overlap).toBe(false);
+    expect(helper.state.maxInFlight).toBe(1);
+    const rootRequest = helper.requests[0];
+    if (!rootRequest) throw new Error("Expected the first root request.");
+    const firstBatch = helper.requests.find((request) =>
+      request.items.some((item) => item.path === path.join(root, "first-dir")),
+    );
+    const thirdRoot = helper.requests.find(
+      (request) =>
+        request.id > rootRequest.id &&
+        request.items.length === 1 &&
+        request.items[0]?.path === root,
+    );
+    const thirdBatch = helper.requests.find((request) =>
+      request.items.some((item) => item.path === path.join(root, "third-dir")),
+    );
+    expect(firstBatch).toBeDefined();
+    expect(thirdRoot).toBeDefined();
+    expect(thirdBatch).toBeDefined();
+    if (!thirdRoot || !thirdBatch || !firstBatch)
+      throw new Error("Expected all queued requests.");
+    expect(firstBatch.id).toBeGreaterThan(rootRequest.id);
+    expect(thirdRoot.id).toBeGreaterThan(rootRequest.id);
+    expect(thirdBatch.id).toBeGreaterThan(thirdRoot.id);
+  });
+
+  it("times out a pending request and restarts the helper", async () => {
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+    const root = await privateFixtureRoot();
+    const first = fakeWindowsHelper();
+    const second = fakeWindowsHelper();
+    second.setResponder(respondOk);
+    let spawns = 0;
+    installFakeWindowsHelper(() =>
+      spawns++ === 0 ? first.child : second.child,
+    );
+    const pending = ensureWindowsPrivateStoreLayout(root, [], {
+      deadline: performance.now() + 500,
+      signal: new AbortController().signal,
+    });
+    // Attach the rejection handler before advancing fake timers, otherwise the
+    // rejection is briefly unhandled and Vitest reports a handled-late warning.
+    const rejection = expect(pending).rejects.toMatchObject({
+      code: "DEADLINE_EXCEEDED",
+    });
+    while (first.requests.length === 0)
+      await new Promise((resolve) => setImmediate(resolve));
+    await vi.advanceTimersByTimeAsync(500);
+    await rejection;
+    expect(first.raw.killed).toBe(true);
+    await ensureWindowsPrivateStoreLayout(root, []);
+    expect(spawns).toBe(2);
+  });
+
+  it("unrefs while idle and shuts the helper down after the idle interval", async () => {
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+    const root = await privateFixtureRoot();
+    const helper = fakeWindowsHelper();
+    helper.setResponder(respondOk);
+    let spawns = 0;
+    installFakeWindowsHelper(() => {
+      spawns += 1;
+      return helper.child;
+    });
+    await ensureWindowsPrivateStoreLayout(root, []);
+    expect(spawns).toBe(1);
+    await vi.advanceTimersByTimeAsync(5_000);
+    expect(helper.raw.killed).toBe(true);
+    await ensureWindowsPrivateStoreLayout(root, []);
+    expect(spawns).toBe(2);
   });
 
   it("strips inherited PowerShell module paths from the helper child environment", () => {

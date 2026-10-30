@@ -1,4 +1,8 @@
-import { spawn } from "node:child_process";
+import {
+  spawn,
+  type ChildProcessWithoutNullStreams,
+  type SpawnOptions,
+} from "node:child_process";
 import fs from "node:fs";
 import fsp from "node:fs/promises";
 import type { FileHandle } from "node:fs/promises";
@@ -24,6 +28,7 @@ export type AcquisitionBound = {
  */
 export class StoreError extends Error {
   generationId?: string;
+  cause?: unknown;
 
   constructor(
     readonly code: string,
@@ -48,7 +53,6 @@ export const NOFOLLOW_FLAG: number = fs.constants.O_NOFOLLOW ?? 0;
 const MAX_ROOT_PATH = 4_096;
 const MAX_LOCK_BYTES = 4_096;
 const WINDOWS_HELPER_TIMEOUT_MS = 30_000;
-const WINDOWS_OUTPUT_BYTES = 8_192;
 const O_DIRECTORY = fs.constants.O_DIRECTORY ?? 0;
 const WINDOWS_HELPER_NAME = "windows-private.ps1";
 
@@ -500,35 +504,6 @@ export function windowsPowerShellPath(systemRoot: string | undefined): string {
 
 type WindowsItemKind = "Directory" | "File";
 
-type WindowsHelperMode =
-  | { readonly verifyOnly: true }
-  | { readonly verifyOnly: false; readonly itemKind: WindowsItemKind };
-
-/**
- * Fixed argv for the checked-in helper. `-ExecutionPolicy Bypass` applies only
- * to that single module-local `-File` path; no caller-supplied script runs.
- * Establish mode always names the item kind so the helper can refuse a
- * directory/file mismatch before mutating any ACL.
- */
-function windowsHelperArgs(
-  helper: string,
-  target: string,
-  mode: WindowsHelperMode,
-): string[] {
-  return [
-    "-NoLogo",
-    "-NoProfile",
-    "-NonInteractive",
-    "-ExecutionPolicy",
-    "Bypass",
-    "-File",
-    helper,
-    "-Path",
-    target,
-    ...(mode.verifyOnly ? ["-VerifyOnly"] : ["-ItemKind", mode.itemKind]),
-  ];
-}
-
 /**
  * Windows PowerShell 5.1 constructs its own `PSModulePath` at startup only
  * when the variable is absent. Node is an intermediate process: launched from
@@ -554,75 +529,524 @@ export function windowsPowerShellEnvironment(
   return childEnvironment;
 }
 
-function runFixedProcess(
+const WINDOWS_HELPER_IDLE_MS = 5_000;
+const MAX_HELPER_ITEMS = 64;
+const MAX_HELPER_REQUEST_BYTES = 1_048_576;
+const MAX_HELPER_RESPONSE_BYTES = 1_048_576;
+const MAX_HELPER_DETAIL_BYTES = 4_096;
+
+export type WindowsHelperRequestItem =
+  | { readonly path: string; readonly mode: "verify" }
+  | {
+      readonly path: string;
+      readonly mode: "establish";
+      readonly itemKind: WindowsItemKind;
+    };
+
+export type WindowsHelperResult =
+  | { readonly ok: true }
+  | {
+      readonly ok: false;
+      readonly code: "AGS-REPARSE-POINT" | "AGS-ACL-FAILED";
+      readonly detail: string;
+    };
+
+function malformedHelperResponse(message: string): StoreError {
+  return new StoreError("WINDOWS_ACL_FAILED", message);
+}
+
+/** Pure request encoder used by the serving helper and its protocol tests. */
+export function encodeWindowsHelperRequest(
+  id: number,
+  items: readonly WindowsHelperRequestItem[],
+): string {
+  if (
+    !Number.isSafeInteger(id) ||
+    id < 1 ||
+    items.length === 0 ||
+    items.length > MAX_HELPER_ITEMS
+  )
+    throw new StoreError(
+      "WINDOWS_HELPER_FAILED",
+      "Invalid Windows ACL helper request.",
+    );
+  const line = JSON.stringify({ id, items });
+  if (Buffer.byteLength(line, "utf8") > MAX_HELPER_REQUEST_BYTES)
+    throw new StoreError(
+      "WINDOWS_HELPER_FAILED",
+      "Windows ACL helper request is too large.",
+    );
+  return `${line}\n`;
+}
+
+/**
+ * Strict response decoder. One request is in flight at a time, so the id must
+ * match, results must stop exactly at the first failure, and a success must
+ * account for every item. Anything else poisons the helper at the transport
+ * layer rather than being partially trusted.
+ */
+export function decodeWindowsHelperResponse(
+  line: string,
+  expectedId: number,
+  itemCount: number,
+): readonly WindowsHelperResult[] {
+  if (Buffer.byteLength(line, "utf8") > MAX_HELPER_RESPONSE_BYTES)
+    throw malformedHelperResponse("Windows ACL helper response is too large.");
+  let value: unknown;
+  try {
+    value = JSON.parse(line);
+  } catch {
+    throw malformedHelperResponse("Windows ACL helper response is not JSON.");
+  }
+  if (typeof value !== "object" || value === null)
+    throw malformedHelperResponse("Windows ACL helper response has no object.");
+  const record = value as { id?: unknown; results?: unknown };
+  if (record.id !== expectedId)
+    throw malformedHelperResponse("Windows ACL helper response id mismatch.");
+  if (!Array.isArray(record.results))
+    throw malformedHelperResponse(
+      "Windows ACL helper response has no results.",
+    );
+  const rows = record.results;
+  if (rows.length === 0 || rows.length > itemCount)
+    throw malformedHelperResponse(
+      "Windows ACL helper response result count is invalid.",
+    );
+  let failed = false;
+  const results: WindowsHelperResult[] = [];
+  for (let index = 0; index < rows.length; index += 1) {
+    const row = rows[index];
+    if (typeof row !== "object" || row === null)
+      throw malformedHelperResponse(
+        "Windows ACL helper response result is not an object.",
+      );
+    const entry = row as { ok?: unknown; code?: unknown; detail?: unknown };
+    if (entry.ok === true) {
+      if (failed)
+        throw malformedHelperResponse(
+          "Windows ACL helper response continued after a failure.",
+        );
+      results.push({ ok: true });
+      continue;
+    }
+    if (entry.ok !== false || failed)
+      throw malformedHelperResponse(
+        "Windows ACL helper response failure is malformed.",
+      );
+    if (index !== rows.length - 1)
+      throw malformedHelperResponse(
+        "Windows ACL helper response continued after a failure.",
+      );
+    if (entry.code !== "AGS-REPARSE-POINT" && entry.code !== "AGS-ACL-FAILED")
+      throw malformedHelperResponse(
+        "Windows ACL helper response has an unknown refusal code.",
+      );
+    const detail = typeof entry.detail === "string" ? entry.detail : "";
+    if (Buffer.byteLength(detail, "utf8") > MAX_HELPER_DETAIL_BYTES)
+      throw malformedHelperResponse(
+        "Windows ACL helper response detail is too large.",
+      );
+    results.push({ ok: false, code: entry.code, detail });
+    failed = true;
+  }
+  if (!failed && results.length !== itemCount)
+    throw malformedHelperResponse("Windows ACL helper response omitted items.");
+  return results;
+}
+
+type WindowsHelperPending = {
+  readonly id: number;
+  readonly itemCount: number;
+  readonly resolve: () => void;
+  readonly reject: (error: StoreError) => void;
+  readonly timer: NodeJS.Timeout;
+  readonly signal?: AbortSignal;
+  readonly onAbort?: () => void;
+};
+
+type WindowsHelperProcess = {
+  readonly child: ChildProcessWithoutNullStreams;
+  buffer: string;
+  pending: WindowsHelperPending | null;
+  idleTimer: NodeJS.Timeout | null;
+  disposed: boolean;
+};
+
+let activeWindowsHelper: WindowsHelperProcess | null = null;
+let windowsHelperRequestId = 0;
+let windowsHelperQueue: Promise<unknown> = Promise.resolve();
+let windowsHelperExitHookInstalled = false;
+
+function setHelperRefs(helper: WindowsHelperProcess, active: boolean): void {
+  for (const handle of [
+    helper.child as unknown as {
+      ref?: () => void;
+      unref?: () => void;
+    },
+    helper.child.stdin as unknown as {
+      ref?: () => void;
+      unref?: () => void;
+    },
+    helper.child.stdout as unknown as {
+      ref?: () => void;
+      unref?: () => void;
+    },
+    helper.child.stderr as unknown as {
+      ref?: () => void;
+      unref?: () => void;
+    },
+  ]) {
+    if (active) handle.ref?.();
+    else handle.unref?.();
+  }
+}
+
+function clearHelperPending(
+  helper: WindowsHelperProcess,
+): WindowsHelperPending | null {
+  const pending = helper.pending;
+  if (!pending) return null;
+  helper.pending = null;
+  clearTimeout(pending.timer);
+  if (pending.signal && pending.onAbort)
+    pending.signal.removeEventListener("abort", pending.onAbort);
+  return pending;
+}
+
+function poisonWindowsHelper(
+  helper: WindowsHelperProcess,
+  error: StoreError,
+): void {
+  if (helper.disposed) return;
+  helper.disposed = true;
+  if (helper.idleTimer) clearTimeout(helper.idleTimer);
+  helper.idleTimer = null;
+  if (activeWindowsHelper === helper) activeWindowsHelper = null;
+  const pending = clearHelperPending(helper);
+  pending?.reject(error);
+  helper.child.kill();
+}
+
+function scheduleHelperIdle(helper: WindowsHelperProcess): void {
+  if (helper.disposed || helper.pending) return;
+  if (helper.idleTimer) clearTimeout(helper.idleTimer);
+  helper.idleTimer = setTimeout(() => {
+    helper.idleTimer = null;
+    if (!helper.pending)
+      poisonWindowsHelper(
+        helper,
+        new StoreError(
+          "WINDOWS_ACL_FAILED",
+          "Windows ACL helper idle timeout.",
+        ),
+      );
+  }, WINDOWS_HELPER_IDLE_MS);
+  helper.idleTimer.unref?.();
+}
+
+function settleWindowsHelper(
+  helper: WindowsHelperProcess,
+  results: readonly WindowsHelperResult[],
+): void {
+  const pending = clearHelperPending(helper);
+  if (!pending) return;
+  setHelperRefs(helper, false);
+  scheduleHelperIdle(helper);
+  const failure = results.find((result) => !result.ok);
+  if (failure && !failure.ok) {
+    pending.reject(
+      new StoreError(
+        failure.code === "AGS-REPARSE-POINT"
+          ? "WINDOWS_REPARSE_POINT"
+          : "WINDOWS_ACL_FAILED",
+        failure.detail || failure.code,
+      ),
+    );
+    return;
+  }
+  pending.resolve();
+}
+
+function onHelperStdout(helper: WindowsHelperProcess, chunk: string): void {
+  if (helper.disposed) return;
+  helper.buffer += chunk;
+  for (;;) {
+    const newline = helper.buffer.indexOf("\n");
+    if (newline < 0) {
+      if (Buffer.byteLength(helper.buffer, "utf8") > MAX_HELPER_RESPONSE_BYTES)
+        poisonWindowsHelper(
+          helper,
+          malformedHelperResponse(
+            "Windows ACL helper response line is too large.",
+          ),
+        );
+      return;
+    }
+    const line = helper.buffer.slice(0, newline).replace(/\r$/, "");
+    helper.buffer = helper.buffer.slice(newline + 1);
+    const pending = helper.pending;
+    if (!pending) {
+      poisonWindowsHelper(
+        helper,
+        malformedHelperResponse(
+          "Windows ACL helper sent an unsolicited response.",
+        ),
+      );
+      return;
+    }
+    let results: readonly WindowsHelperResult[];
+    try {
+      results = decodeWindowsHelperResponse(
+        line,
+        pending.id,
+        pending.itemCount,
+      );
+    } catch (error) {
+      poisonWindowsHelper(
+        helper,
+        error instanceof StoreError
+          ? error
+          : malformedHelperResponse(
+              "Windows ACL helper response could not be parsed.",
+            ),
+      );
+      return;
+    }
+    settleWindowsHelper(helper, results);
+  }
+}
+
+export type WindowsHelperSpawn = (
   file: string,
   args: string[],
-  timeoutMs: number,
-  bound?: AcquisitionBound,
-): Promise<{ code: number; stdout: string; stderr: string }> {
-  // `Promise.withResolvers` is ES2024; this project compiles against ES2022.
-  return new Promise((resolve, reject) => {
-    try {
-      assertBound(bound);
-    } catch (error) {
-      reject(error);
-      return;
-    }
-    const remaining = bound
-      ? bound.deadline - performance.now()
-      : Number.POSITIVE_INFINITY;
-    if (remaining <= 0) {
-      reject(new StoreError("DEADLINE_EXCEEDED"));
-      return;
-    }
-    const child = spawn(file, args, {
+  options: SpawnOptions,
+) => ChildProcessWithoutNullStreams;
+
+const defaultWindowsHelperSpawn: WindowsHelperSpawn = (file, args, options) =>
+  spawn(file, args, options) as ChildProcessWithoutNullStreams;
+
+let windowsHelperSpawn: WindowsHelperSpawn = defaultWindowsHelperSpawn;
+let windowsHelperPathForTests: string | null = null;
+
+/**
+ * Internal test seam: replace the child-process factory and, optionally, the
+ * literal helper path passed in fixed argv. Pass `null` to restore the real
+ * spawn and poison any live helper. Production never calls this; POSIX
+ * behavior is unchanged.
+ */
+export function setWindowsHelperSpawnForTests(
+  spawner: WindowsHelperSpawn | null,
+  helperPath: string | null = null,
+): void {
+  windowsHelperSpawn = spawner ?? defaultWindowsHelperSpawn;
+  windowsHelperPathForTests = spawner ? helperPath : null;
+  const helper = activeWindowsHelper;
+  if (helper)
+    poisonWindowsHelper(
+      helper,
+      new StoreError(
+        "WINDOWS_ACL_FAILED",
+        "Windows ACL helper reset for tests.",
+      ),
+    );
+}
+
+function startWindowsHelper(): WindowsHelperProcess {
+  const helperPath = windowsHelperPathForTests ?? resolveWindowsHelperPath();
+  const child = windowsHelperSpawn(
+    windowsPowerShellPath(process.env.SystemRoot),
+    [
+      "-NoLogo",
+      "-NoProfile",
+      "-NonInteractive",
+      // Bypass applies only to the fixed module-local helper file below.
+      "-ExecutionPolicy",
+      "Bypass",
+      "-File",
+      helperPath,
+      "-Serve",
+    ],
+    {
       shell: false,
       windowsHide: true,
-      stdio: ["ignore", "pipe", "pipe"],
+      stdio: ["pipe", "pipe", "pipe"],
       env: windowsPowerShellEnvironment(process.env),
+    },
+  );
+  const helper: WindowsHelperProcess = {
+    child,
+    buffer: "",
+    pending: null,
+    idleTimer: null,
+    disposed: false,
+  };
+  child.stdout.setEncoding("utf8");
+  child.stderr.setEncoding("utf8");
+  child.stdout.on("data", (chunk: string) => onHelperStdout(helper, chunk));
+  child.stderr.on("data", (chunk: string) => {
+    const detail = chunk.trim().slice(0, MAX_HELPER_DETAIL_BYTES);
+    poisonWindowsHelper(
+      helper,
+      new StoreError(
+        "WINDOWS_ACL_FAILED",
+        detail || "Windows ACL helper wrote to stderr.",
+      ),
+    );
+  });
+  child.on("error", (error) => {
+    poisonWindowsHelper(
+      helper,
+      new StoreError("WINDOWS_HELPER_FAILED", error.message),
+    );
+  });
+  const streamError = (error: Error): void => {
+    poisonWindowsHelper(
+      helper,
+      new StoreError("WINDOWS_ACL_FAILED", error.message),
+    );
+  };
+  child.stdin.on("error", streamError);
+  child.stdout.on("error", streamError);
+  child.stderr.on("error", streamError);
+  child.on("close", () => {
+    if (!helper.disposed)
+      poisonWindowsHelper(
+        helper,
+        new StoreError("WINDOWS_ACL_FAILED", "Windows ACL helper exited."),
+      );
+  });
+  setHelperRefs(helper, false);
+  if (!windowsHelperExitHookInstalled) {
+    windowsHelperExitHookInstalled = true;
+    process.once("exit", () => {
+      activeWindowsHelper?.child.kill();
     });
-    let stdout = "";
-    let stderr = "";
-    child.stdout?.on("data", (chunk: Buffer) => {
-      if (stdout.length < WINDOWS_OUTPUT_BYTES)
-        stdout += chunk
-          .toString("utf8")
-          .slice(0, WINDOWS_OUTPUT_BYTES - stdout.length);
-    });
-    child.stderr?.on("data", (chunk: Buffer) => {
-      if (stderr.length < WINDOWS_OUTPUT_BYTES)
-        stderr += chunk
-          .toString("utf8")
-          .slice(0, WINDOWS_OUTPUT_BYTES - stderr.length);
-    });
-    const effectiveTimeout = Math.min(timeoutMs, remaining);
-    const timeoutCode =
-      remaining < timeoutMs ? "DEADLINE_EXCEEDED" : "WINDOWS_HELPER_TIMEOUT";
-    const finish = (): void => {
-      clearTimeout(timer);
-      bound?.signal.removeEventListener("abort", onAbort);
-    };
+  }
+  return helper;
+}
+
+async function executeWindowsHelperRequest(
+  items: readonly WindowsHelperRequestItem[],
+  bound?: AcquisitionBound,
+): Promise<void> {
+  assertBound(bound);
+  const id = (windowsHelperRequestId += 1);
+  const line = encodeWindowsHelperRequest(id, items);
+  let helper = activeWindowsHelper;
+  if (!helper || helper.disposed) {
+    helper = startWindowsHelper();
+    activeWindowsHelper = helper;
+  }
+  const helperProcess = helper;
+  if (helperProcess.pending) {
+    // Defence in depth: never overwrite an in-flight request. The queue and
+    // per-request settlement should make this unreachable.
+    const overlap = new StoreError(
+      "WINDOWS_ACL_FAILED",
+      "Windows ACL helper request overlap.",
+    );
+    poisonWindowsHelper(helperProcess, overlap);
+    throw overlap;
+  }
+  if (helperProcess.idleTimer) {
+    clearTimeout(helperProcess.idleTimer);
+    helperProcess.idleTimer = null;
+  }
+  const remaining = bound
+    ? bound.deadline - performance.now()
+    : Number.POSITIVE_INFINITY;
+  const timeoutMs = Math.min(WINDOWS_HELPER_TIMEOUT_MS, remaining);
+  if (timeoutMs <= 0) throw new StoreError("DEADLINE_EXCEEDED");
+  const timeoutCode =
+    remaining <= WINDOWS_HELPER_TIMEOUT_MS
+      ? "DEADLINE_EXCEEDED"
+      : "WINDOWS_HELPER_TIMEOUT";
+  setHelperRefs(helperProcess, true);
+  // ES2022 target: `Promise.withResolvers` is not available.
+  await new Promise<void>((resolve, reject) => {
     const onAbort = (): void => {
-      finish();
-      child.kill();
-      reject(new StoreError("ABORTED"));
+      poisonWindowsHelper(helperProcess, new StoreError("ABORTED"));
     };
-    bound?.signal.addEventListener("abort", onAbort, { once: true });
     const timer = setTimeout(() => {
-      finish();
-      child.kill();
-      reject(new StoreError(timeoutCode));
-    }, effectiveTimeout);
+      poisonWindowsHelper(helperProcess, new StoreError(timeoutCode));
+    }, timeoutMs);
     timer.unref?.();
-    child.on("error", (error) => {
-      finish();
-      reject(new StoreError("WINDOWS_HELPER_FAILED", error.message));
-    });
-    child.on("close", (code) => {
-      finish();
-      resolve({ code: code ?? -1, stdout, stderr });
+    helperProcess.pending = {
+      id,
+      itemCount: items.length,
+      resolve,
+      reject,
+      timer,
+      ...(bound ? { signal: bound.signal, onAbort } : {}),
+    };
+    if (bound) {
+      if (bound.signal.aborted) {
+        onAbort();
+        return;
+      }
+      bound.signal.addEventListener("abort", onAbort, { once: true });
+    }
+    helperProcess.child.stdin.write(line, (error?: Error | null) => {
+      if (error)
+        poisonWindowsHelper(
+          helperProcess,
+          new StoreError("WINDOWS_ACL_FAILED", error.message),
+        );
     });
   });
+}
+
+async function waitForWindowsHelperTurn(
+  predecessor: Promise<unknown>,
+  bound?: AcquisitionBound,
+): Promise<void> {
+  if (!bound) {
+    await predecessor;
+    return;
+  }
+  assertBound(bound);
+  const remaining = bound.deadline - performance.now();
+  if (remaining <= 0) throw new StoreError("DEADLINE_EXCEEDED");
+  // ES2022 target: `Promise.withResolvers` is not available.
+  await new Promise<void>((resolve, reject) => {
+    let settled = false;
+    const finish = (error?: StoreError): void => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      bound.signal.removeEventListener("abort", onAbort);
+      if (error) reject(error);
+      else resolve();
+    };
+    const onAbort = (): void => finish(new StoreError("ABORTED"));
+    const timer = setTimeout(
+      () => finish(new StoreError("DEADLINE_EXCEEDED")),
+      remaining,
+    );
+    timer.unref?.();
+    bound.signal.addEventListener("abort", onAbort, { once: true });
+    predecessor.then(
+      () => finish(),
+      () => finish(),
+    );
+  });
+}
+
+function runWindowsHelperItems(
+  items: readonly WindowsHelperRequestItem[],
+  bound?: AcquisitionBound,
+): Promise<void> {
+  const predecessor = windowsHelperQueue;
+  const run = waitForWindowsHelperTurn(predecessor, bound).then(() =>
+    executeWindowsHelperRequest(items, bound),
+  );
+  // The tail waits for the predecessor as well as this request. A queued
+  // caller that gives up must not release the next caller while an earlier
+  // request is still in flight on the single helper.
+  windowsHelperQueue = Promise.allSettled([predecessor, run]).then(
+    () => undefined,
+  );
+  return run;
 }
 
 /**
@@ -646,30 +1070,17 @@ async function establishWindowsPrivateAcl(
       "The Windows ACL helper only runs on Windows.",
     );
   const resolved = resolveRoot(target);
-  const helper = resolveWindowsHelperPath();
-  const result = await runFixedProcess(
-    windowsPowerShellPath(process.env.SystemRoot),
-    windowsHelperArgs(helper, resolved, {
-      verifyOnly: false,
-      itemKind,
-    }),
-    WINDOWS_HELPER_TIMEOUT_MS,
+  await runWindowsHelperItems(
+    [{ path: resolved, mode: "establish", itemKind }],
     bound,
   );
-  if (result.code !== 0) {
-    const detail = result.stderr.trim();
-    const code = detail.includes("AGS-REPARSE-POINT")
-      ? "WINDOWS_REPARSE_POINT"
-      : "WINDOWS_ACL_FAILED";
-    throw new StoreError(code, detail || `PowerShell exited ${result.code}`);
-  }
 }
 
 /**
  * Windows owner-restricted ACL. The helper is a fixed checked-in script:
- * PowerShell receives the path as one literal argv value, never as
- * interpolated shell source. Missing helper, reparse points, or any failure to
- * establish and verify the DACL is a refusal, not a chmod substitute.
+ * PowerShell receives fixed argv and one JSON request line at a time over the
+ * stdio pipes, never interpolated shell source. Missing helper, reparse
+ * points, or any failure to establish and verify the DACL is a refusal.
  */
 export async function ensureWindowsPrivateRoot(
   root: string,
@@ -677,6 +1088,7 @@ export async function ensureWindowsPrivateRoot(
 ): Promise<void> {
   await establishWindowsPrivateAcl(root, "Directory", bound);
 }
+
 export async function verifyWindowsPrivatePath(
   target: string,
   bound?: AcquisitionBound,
@@ -687,19 +1099,130 @@ export async function verifyWindowsPrivatePath(
       "WINDOWS_HELPER_UNSUPPORTED_PLATFORM",
       "The Windows ACL helper only runs on Windows.",
     );
-  const helper = resolveWindowsHelperPath();
   const resolved = resolveRoot(target);
-  const result = await runFixedProcess(
-    windowsPowerShellPath(process.env.SystemRoot),
-    windowsHelperArgs(helper, resolved, { verifyOnly: true }),
-    WINDOWS_HELPER_TIMEOUT_MS,
+  await runWindowsHelperItems([{ path: resolved, mode: "verify" }], bound);
+}
+
+/**
+ * Prepare the store root and its layout directories with one helper process.
+ * The root is established in its own request first, so a reparse root is
+ * refused before any child exists. Missing children are created with exclusive
+ * `mkdir`; their establish items are batched ahead of pre-existing verify
+ * items. If the batch or planning fails, directories created by this call are
+ * removed so a retry cannot inherit an unestablished directory. Existing and
+ * raced directories use verify-only, so no pre-existing child is taken over.
+ * Called only from the Windows `prepareStore` branch; its filesystem work is
+ * platform-neutral so the spawn seam can exercise it on POSIX.
+ */
+export async function ensureWindowsPrivateStoreLayout(
+  root: string,
+  directories: readonly string[],
+  bound?: AcquisitionBound,
+): Promise<string> {
+  assertBound(bound);
+  const resolved = resolveRoot(root);
+  const normalizedDirectories = directories.map((directory) => {
+    const candidate = path.normalize(directory);
+    const relative = path.relative(resolved, candidate);
+    if (
+      relative.length === 0 ||
+      relative === ".." ||
+      relative.startsWith(`..${path.sep}`) ||
+      path.isAbsolute(relative)
+    )
+      throw new StoreError(
+        "UNSAFE_PATH",
+        "A store layout directory is outside the store root.",
+      );
+    return candidate;
+  });
+  // Root first, on its own request: a junction/reparse root (or ancestor) is
+  // refused before any child directory is created under it.
+  await runWindowsHelperItems(
+    [{ path: resolved, mode: "establish", itemKind: "Directory" }],
     bound,
   );
-  if (result.code !== 0) {
-    const detail = result.stderr.trim();
-    const code = detail.includes("AGS-REPARSE-POINT")
-      ? "WINDOWS_REPARSE_POINT"
-      : "WINDOWS_ACL_FAILED";
-    throw new StoreError(code, detail || `PowerShell exited ${result.code}`);
+  const establishItems: WindowsHelperRequestItem[] = [];
+  const verifyItems: WindowsHelperRequestItem[] = [];
+  const created: Array<{ path: string; identity: DirectoryIdentity }> = [];
+  try {
+    for (const directory of normalizedDirectories) {
+      assertBound(bound);
+      const stats = await lstatOrNull(directory);
+      if (stats) {
+        assertPrivateDirectory(directory, stats);
+        verifyItems.push({ path: directory, mode: "verify" });
+        continue;
+      }
+      try {
+        await fsp.mkdir(directory, { mode: PRIVATE_DIR_MODE });
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
+        const raced = await fsp.lstat(directory);
+        assertPrivateDirectory(directory, raced);
+        verifyItems.push({ path: directory, mode: "verify" });
+        continue;
+      }
+      const createdStats = await fsp.lstat(directory);
+      assertPrivateDirectory(directory, createdStats);
+      created.push({ path: directory, identity: identityOf(createdStats) });
+      establishItems.push({
+        path: directory,
+        mode: "establish",
+        itemKind: "Directory",
+      });
+    }
+    // Freshly created directories are established before any pre-existing
+    // verification can stop the batch.
+    if (establishItems.length + verifyItems.length > 0)
+      await runWindowsHelperItems([...establishItems, ...verifyItems], bound);
+  } catch (error) {
+    // Never leave a directory created by this call unestablished: a later
+    // prepare would see it as pre-existing and verify-only could lock it out.
+    // Remove non-recursively so another process already using the directory is
+    // never deleted; a non-empty directory is left in place.
+    const cleanupErrors: unknown[] = [];
+    for (const entry of created) {
+      try {
+        const stats = await lstatOrNull(entry.path);
+        if (!stats) continue;
+        if (
+          stats.isSymbolicLink() ||
+          !stats.isDirectory() ||
+          Number(stats.dev) !== entry.identity.dev ||
+          Number(stats.ino) !== entry.identity.ino
+        )
+          continue;
+        await fsp.rmdir(entry.path);
+      } catch (cleanupError) {
+        const code = (cleanupError as NodeJS.ErrnoException).code;
+        if (code === "ENOTEMPTY" || code === "EEXIST" || code === "ENOENT")
+          continue;
+        cleanupErrors.push(cleanupError);
+      }
+    }
+    if (cleanupErrors.length > 0) {
+      const cause =
+        cleanupErrors.length === 1 ? cleanupErrors[0] : cleanupErrors;
+      if (error instanceof StoreError) error.cause = cause;
+      else if (error !== null && typeof error === "object")
+        Object.assign(error, { cause });
+    }
+    throw error;
   }
+  for (const entry of created) {
+    const after = await lstatOrNull(entry.path);
+    if (
+      !after ||
+      after.isSymbolicLink() ||
+      !after.isDirectory() ||
+      Number(after.dev) !== entry.identity.dev ||
+      Number(after.ino) !== entry.identity.ino
+    )
+      throw new StoreError(
+        "PATH_CHANGED",
+        "Directory identity changed during ACL establishment.",
+      );
+  }
+  return resolved;
 }

@@ -25,6 +25,7 @@ import {
   createPrivateDirectory,
   ensurePrivateDirectory,
   ensurePrivateRoot,
+  ensureWindowsPrivateStoreLayout,
   lstatOrNull,
   readPrivateFileOptional,
   removePrivateFile,
@@ -368,14 +369,8 @@ export function sessionToken(main: NodeKey): string {
     .slice(0, 32);
 }
 
-export async function prepareStore(
-  root: string,
-  bound?: ObservationBound,
-): Promise<StoreLayout> {
-  assertObservationBound(bound);
-  const resolved = await ensurePrivateRoot(root, bound);
-  const layout = storeLayout(resolved);
-  for (const directory of [
+function layoutDirectories(layout: StoreLayout): string[] {
+  return [
     layout.locksDir,
     layout.claimsDir,
     layout.sessionsDir,
@@ -383,7 +378,26 @@ export async function prepareStore(
     layout.fencesDir,
     layout.indexDir,
     layout.indexGenerationsDir,
-  ]) {
+  ];
+}
+
+export async function prepareStore(
+  root: string,
+  bound?: ObservationBound,
+): Promise<StoreLayout> {
+  assertObservationBound(bound);
+  if (process.platform === "win32") {
+    const requested = storeLayout(root);
+    const resolved = await ensureWindowsPrivateStoreLayout(
+      root,
+      layoutDirectories(requested),
+      bound,
+    );
+    return storeLayout(resolved);
+  }
+  const resolved = await ensurePrivateRoot(root, bound);
+  const layout = storeLayout(resolved);
+  for (const directory of layoutDirectories(layout)) {
     assertObservationBound(bound);
     await ensurePrivateDirectory(directory, bound);
   }
