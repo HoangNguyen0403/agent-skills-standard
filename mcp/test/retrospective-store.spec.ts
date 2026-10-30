@@ -1117,6 +1117,27 @@ describe("private store claims and publication", () => {
     },
   );
 
+  it("persists file identities as exact integer digits", async () => {
+    const root = await privateFixtureRoot();
+    await prepareStore(root);
+    await claimRun(root, MAIN, "cp-meta-identities");
+    const metaPath = path.join(
+      root,
+      "sessions",
+      sessionToken(MAIN),
+      "meta.json",
+    );
+    const record: unknown = JSON.parse(await fs.readFile(metaPath, "utf8"));
+    expect(record).toMatchObject({
+      dev: expect.stringMatching(/^-?\d+$/),
+      ino: expect.stringMatching(/^-?\d+$/),
+      generations: {
+        dev: expect.stringMatching(/^-?\d+$/),
+        ino: expect.stringMatching(/^-?\d+$/),
+      },
+    });
+  });
+
   it("reserves serialized metadata and index growth against the byte cap", async () => {
     const root = await privateFixtureRoot();
     await prepareStore(root);

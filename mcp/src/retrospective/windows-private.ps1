@@ -125,12 +125,17 @@ function Invoke-AclItem {
     $systemSid = New-Object System.Security.Principal.SecurityIdentifier('S-1-5-18')
 
     if ($Mode -eq 'establish') {
-        $acl = Get-Acl -LiteralPath $full
+        $isDirectory = $ItemKind -eq 'Directory'
+        $acl = if ($isDirectory) {
+            [System.IO.Directory]::GetAccessControl($full)
+        } else {
+            [System.IO.File]::GetAccessControl($full)
+        }
         $acl.SetAccessRuleProtection($true, $false)
         foreach ($rule in @($acl.Access)) {
             [void]$acl.RemoveAccessRuleAll($rule)
         }
-        $inheritance = if ($ItemKind -eq 'Directory') {
+        $inheritance = if ($isDirectory) {
             [System.Security.AccessControl.InheritanceFlags]'ContainerInherit, ObjectInherit'
         } else {
             [System.Security.AccessControl.InheritanceFlags]::None
@@ -140,10 +145,20 @@ function Invoke-AclItem {
         $acl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($ownerSid, 'FullControl', $inheritance, $propagation, $allow)))
         $acl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($systemSid, 'FullControl', $inheritance, $propagation, $allow)))
         $acl.SetOwner($ownerSid)
-        Set-Acl -LiteralPath $full -AclObject $acl
+        if ($isDirectory) {
+            [System.IO.Directory]::SetAccessControl($full, $acl)
+        } else {
+            [System.IO.File]::SetAccessControl($full, $acl)
+        }
     }
 
-    $verify = Get-Acl -LiteralPath $full
+    # .NET Framework ACL APIs avoid autoloading Microsoft.PowerShell.Security,
+    # whose module import dominates the helper's cold start.
+    $verify = if ($target.PSIsContainer) {
+        [System.IO.Directory]::GetAccessControl($full)
+    } else {
+        [System.IO.File]::GetAccessControl($full)
+    }
     if ($Mode -eq 'establish' -and -not $verify.AreAccessRulesProtected) {
         Stop-AclItem 'AGS-ACL-FAILED' 'ACL inheritance is still enabled.'
     }

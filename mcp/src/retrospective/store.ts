@@ -112,6 +112,14 @@ const labelSchema = z
     message: "Control characters are not allowed",
   });
 
+const fileIdentityValueSchema = z
+  .union([z.string().regex(/^-?\d+$/), z.number().int()])
+  .transform((value) => {
+    const identity = Number(value);
+    if (!Number.isFinite(identity)) throw new Error("invalid identity");
+    return identity;
+  });
+
 const sessionMetaSchema = z.strictObject({
   schemaVersion: z.literal(1),
   main: nodeKeySchema,
@@ -119,11 +127,11 @@ const sessionMetaSchema = z.strictObject({
   updatedAt: timestampSchema,
   generationCount: z.number().int().nonnegative(),
   lastGenerationId: identifierSchema.nullable(),
-  dev: z.number().int(),
-  ino: z.number().int(),
+  dev: fileIdentityValueSchema,
+  ino: fileIdentityValueSchema,
   generations: z.strictObject({
-    dev: z.number().int(),
-    ino: z.number().int(),
+    dev: fileIdentityValueSchema,
+    ino: fileIdentityValueSchema,
   }),
   labels: z
     .strictObject({
@@ -308,6 +316,20 @@ function parseNodeKey(value: unknown, code: string): NodeKey {
   const parsed = nodeKeySchema.safeParse(value);
   if (!parsed.success) throw new StoreError(code);
   return parsed.data;
+}
+
+function serializeSessionMeta(meta: SessionMeta): string {
+  // File IDs on Windows can exceed Number.MAX_SAFE_INTEGER; persist their
+  // exact integer digits so Zod's safe-integer check cannot reject them.
+  return JSON.stringify({
+    ...meta,
+    dev: BigInt(meta.dev).toString(),
+    ino: BigInt(meta.ino).toString(),
+    generations: {
+      dev: BigInt(meta.generations.dev).toString(),
+      ino: BigInt(meta.generations.ino).toString(),
+    },
+  });
 }
 
 function parseRecord<T>(schema: z.ZodType<T>, buffer: Buffer, code: string): T {
@@ -617,11 +639,13 @@ async function ensureSession(
       updatedAt: now,
       generationCount: 0,
       lastGenerationId: null,
-      dev: Number(dirStats.dev),
-      ino: Number(dirStats.ino),
+      dev: dirStats.dev,
+      ino: dirStats.ino,
       generations,
     };
-    await writePrivateFileAtomic(metaPath, JSON.stringify(meta));
+    // File IDs on Windows can exceed Number.MAX_SAFE_INTEGER; persist their
+    // exact integer digits so Zod's safe-integer check cannot reject them.
+    await writePrivateFileAtomic(metaPath, serializeSessionMeta(meta));
     return { meta, dir, metaPath, generationsDir, stagingDir };
   }
   const meta = parseRecord(
@@ -1483,7 +1507,10 @@ export async function publishRun(
           ? { labels: { ...(session.meta.labels ?? {}), ...options.labels } }
           : {}),
       };
-      await writePrivateFileAtomic(session.metaPath, JSON.stringify(nextMeta));
+      await writePrivateFileAtomic(
+        session.metaPath,
+        serializeSessionMeta(nextMeta),
+      );
       await writePrivateFileAtomic(
         path.join(session.dir, "current"),
         generationId,
