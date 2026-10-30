@@ -5,9 +5,12 @@
 #                  -File windows-private.ps1 -Path <absolute-path> [-VerifyOnly]
 #
 # The path arrives as one literal argv value; no user content is interpolated
-# into this script. In establish mode it creates a directory with a protected
-# owner+SYSTEM DACL. VerifyOnly checks an existing directory or file without
-# changing ACLs. Both modes reject reparse points anywhere in the path.
+# into this script. In establish mode it applies a protected owner+SYSTEM DACL
+# to a directory or file. VerifyOnly checks an existing directory or file
+# without changing ACLs. Establish mode sets the current user as owner for a
+# newly created directory or file (new Windows objects otherwise take the
+# token's default owner, which may be a group SID under elevation). Both modes
+# reject reparse points anywhere in the path.
 #
 # Documented limitation: local administrators can still take ownership. This
 # is owner-restricted storage, not an OS sandbox.
@@ -15,7 +18,9 @@
 param(
     [Parameter(Mandatory = $true)]
     [string]$Path,
-    [switch]$VerifyOnly
+    [switch]$VerifyOnly,
+    [ValidateSet('Directory', 'File')]
+    [string]$ItemKind
 )
 
 $ErrorActionPreference = 'Stop'
@@ -63,10 +68,17 @@ try {
     if (($target.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
         Stop-WithCode 'REPARSE-POINT' 'Target is a reparse point.'
     }
-    if (-not $VerifyOnly -and -not $target.PSIsContainer) {
-        Stop-WithCode 'ACL-FAILED' 'Only directories can establish a protected ACL.'
+    if (-not $VerifyOnly) {
+        if ([string]::IsNullOrEmpty($ItemKind)) {
+            Stop-WithCode 'ACL-FAILED' 'ItemKind is required for ACL establishment.'
+        }
+        if ($ItemKind -eq 'Directory' -and -not $target.PSIsContainer) {
+            Stop-WithCode 'ACL-FAILED' 'Only directories can establish a protected directory ACL.'
+        }
+        if ($ItemKind -eq 'File' -and $target.PSIsContainer) {
+            Stop-WithCode 'ACL-FAILED' 'A file ACL cannot be established on a directory.'
+        }
     }
-
     $identity = [System.Security.Principal.WindowsIdentity]::GetCurrent()
     $ownerSid = $identity.User
     $systemSid = New-Object System.Security.Principal.SecurityIdentifier('S-1-5-18')
@@ -77,7 +89,11 @@ try {
         foreach ($rule in @($acl.Access)) {
             [void]$acl.RemoveAccessRuleAll($rule)
         }
-        $inheritance = [System.Security.AccessControl.InheritanceFlags]'ContainerInherit, ObjectInherit'
+        $inheritance = if ($ItemKind -eq 'Directory') {
+            [System.Security.AccessControl.InheritanceFlags]'ContainerInherit, ObjectInherit'
+        } else {
+            [System.Security.AccessControl.InheritanceFlags]::None
+        }
         $propagation = [System.Security.AccessControl.PropagationFlags]::None
         $allow = [System.Security.AccessControl.AccessControlType]::Allow
         $acl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($ownerSid, 'FullControl', $inheritance, $propagation, $allow)))

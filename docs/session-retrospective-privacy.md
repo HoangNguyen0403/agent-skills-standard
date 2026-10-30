@@ -118,7 +118,11 @@ viewing client's filesystem.
   cloned checkout cannot redirect report storage into its own tree.
 - Unsafe traversal is refused: symlinks, junctions and reparse-point races are rejected with a
   refusal or a safe-root remediation request. Where the platform cannot enforce the protection,
-  the tool refuses rather than claiming a guarantee it cannot keep.
+  the tool refuses rather than claiming a guarantee it cannot keep. On Windows, a freshly created
+  directory or file has its owner/ACL established and is device/inode re-checked afterwards; the
+  store root uses the same path-based helper with the helper's own checks. This is substitution
+  **detection**, not atomic prevention, against a process running as the same user. The
+  owner-private parent directory is what excludes other users.
 - **Neutral names by default.** Folder labels carry no readable project or session title unless
   you explicitly enable readable labels; titles are sensitive metadata, not authority. Names are
   filesystem-safe, bounded, Windows-reserved-name aware and Unicode-sanitized. Full session and
@@ -201,3 +205,9 @@ the mandatory acknowledgement remain.
 - No proof of runtime network isolation from source code alone. Egress is zero by construction at
   the call graph level (`modelCalls: 0`, `outboundRequests: 0`); an independent process-level
   observation is the evidence, and that evidence is not yet recorded for this work.
+- No atomic same-user path-swap prevention on Windows. ACL establishment is path-based; freshly
+  created children are device/inode re-checked after the helper call, while the store root relies
+  on the helper's own checks. These detect but do not atomically prevent a process running as the
+  same user from replacing an entry inside an owner-private parent. Hostile same-user code is
+  outside this protection boundary; other users remain excluded by the private root and parent
+  ACLs.

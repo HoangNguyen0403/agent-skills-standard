@@ -223,8 +223,25 @@ export async function createPrivateDirectory(
   assertBound(bound);
   if (process.platform === "win32") {
     await fsp.mkdir(target, { mode: PRIVATE_DIR_MODE });
-    await verifyWindowsPrivatePath(target, bound);
-    return identityOf(await fsp.lstat(target));
+    const createdStats = await fsp.lstat(target);
+    assertPrivateDirectory(target, createdStats);
+    const created = identityOf(createdStats);
+    // The newly created directory's default owner may be the token's group
+    // SID under elevation; establish the exact owner/private ACL, then detect
+    // path substitution across the path-based helper call.
+    await establishWindowsPrivateAcl(target, "Directory", bound);
+    const verifiedStats = await fsp.lstat(target);
+    if (
+      verifiedStats.isSymbolicLink() ||
+      !verifiedStats.isDirectory() ||
+      Number(verifiedStats.dev) !== created.dev ||
+      Number(verifiedStats.ino) !== created.ino
+    )
+      throw new StoreError(
+        "PATH_CHANGED",
+        "Directory identity changed during ACL establishment.",
+      );
+    return identityOf(verifiedStats);
   }
   await fsp.mkdir(target, { mode: PRIVATE_DIR_MODE });
   const stats = await fsp.lstat(target);
@@ -305,13 +322,38 @@ export async function writePrivateFileExclusive(
       );
     throw error;
   }
+  let created: DirectoryIdentity | undefined;
   try {
     await handle.writeFile(data);
     if (options.durable !== false) await handle.sync();
-    assertPrivateFile(target, await handle.stat());
-    if (process.platform === "win32") await verifyWindowsPrivatePath(target);
+    const stats = await handle.stat();
+    assertPrivateFile(target, stats);
+    created = identityOf(stats);
   } finally {
     await handle.close();
+  }
+  if (process.platform === "win32") {
+    if (!created)
+      throw new StoreError(
+        "PATH_CHANGED",
+        "File identity was not captured before ACL establishment.",
+      );
+    // A fresh Windows file takes the token's default owner, which may be a
+    // group SID under elevation. Establish the exact owner/private ACL only
+    // for this exclusively created file, then detect substitution.
+    await establishWindowsPrivateAcl(target, "File");
+    const verifiedStats = await lstatOrNull(target);
+    if (
+      !verifiedStats ||
+      verifiedStats.isSymbolicLink() ||
+      !verifiedStats.isFile() ||
+      Number(verifiedStats.dev) !== created.dev ||
+      Number(verifiedStats.ino) !== created.ino
+    )
+      throw new StoreError(
+        "PATH_CHANGED",
+        "File identity changed during ACL establishment.",
+      );
   }
   return typeof data === "string"
     ? Buffer.byteLength(data, "utf8")
@@ -456,14 +498,22 @@ export function windowsPowerShellPath(systemRoot: string | undefined): string {
   );
 }
 
+type WindowsItemKind = "Directory" | "File";
+
+type WindowsHelperMode =
+  | { readonly verifyOnly: true }
+  | { readonly verifyOnly: false; readonly itemKind: WindowsItemKind };
+
 /**
  * Fixed argv for the checked-in helper. `-ExecutionPolicy Bypass` applies only
  * to that single module-local `-File` path; no caller-supplied script runs.
+ * Establish mode always names the item kind so the helper can refuse a
+ * directory/file mismatch before mutating any ACL.
  */
 function windowsHelperArgs(
   helper: string,
   target: string,
-  verifyOnly: boolean,
+  mode: WindowsHelperMode,
 ): string[] {
   return [
     "-NoLogo",
@@ -475,7 +525,7 @@ function windowsHelperArgs(
     helper,
     "-Path",
     target,
-    ...(verifyOnly ? ["-VerifyOnly"] : []),
+    ...(mode.verifyOnly ? ["-VerifyOnly"] : ["-ItemKind", mode.itemKind]),
   ];
 }
 
@@ -576,13 +626,17 @@ function runFixedProcess(
 }
 
 /**
- * Windows owner-restricted ACL. The helper is a fixed checked-in script:
- * PowerShell receives the path as one literal argv value, never as
- * interpolated shell source. Missing helper, reparse points, or any failure to
- * establish and verify the DACL is a refusal, not a chmod substitute.
+ * Establish the protected owner+SYSTEM ACL on a path the store owns. Fresh
+ * directories and fresh files are the only normal callers; the intentional
+ * exception is store-root initialization through `ensureWindowsPrivateRoot`,
+ * which establishes or repairs the root directory itself. Existing children,
+ * raced paths and `EEXIST` branches never call this and stay verify-only.
+ * The item kind is explicit so the helper refuses a directory/file mismatch
+ * before mutating any ACL.
  */
-export async function ensureWindowsPrivateRoot(
-  root: string,
+async function establishWindowsPrivateAcl(
+  target: string,
+  itemKind: WindowsItemKind,
   bound?: AcquisitionBound,
 ): Promise<void> {
   assertBound(bound);
@@ -591,11 +645,14 @@ export async function ensureWindowsPrivateRoot(
       "WINDOWS_HELPER_UNSUPPORTED_PLATFORM",
       "The Windows ACL helper only runs on Windows.",
     );
-  const resolved = resolveRoot(root);
+  const resolved = resolveRoot(target);
   const helper = resolveWindowsHelperPath();
   const result = await runFixedProcess(
     windowsPowerShellPath(process.env.SystemRoot),
-    windowsHelperArgs(helper, resolved, false),
+    windowsHelperArgs(helper, resolved, {
+      verifyOnly: false,
+      itemKind,
+    }),
     WINDOWS_HELPER_TIMEOUT_MS,
     bound,
   );
@@ -606,6 +663,19 @@ export async function ensureWindowsPrivateRoot(
       : "WINDOWS_ACL_FAILED";
     throw new StoreError(code, detail || `PowerShell exited ${result.code}`);
   }
+}
+
+/**
+ * Windows owner-restricted ACL. The helper is a fixed checked-in script:
+ * PowerShell receives the path as one literal argv value, never as
+ * interpolated shell source. Missing helper, reparse points, or any failure to
+ * establish and verify the DACL is a refusal, not a chmod substitute.
+ */
+export async function ensureWindowsPrivateRoot(
+  root: string,
+  bound?: AcquisitionBound,
+): Promise<void> {
+  await establishWindowsPrivateAcl(root, "Directory", bound);
 }
 export async function verifyWindowsPrivatePath(
   target: string,
@@ -621,7 +691,7 @@ export async function verifyWindowsPrivatePath(
   const resolved = resolveRoot(target);
   const result = await runFixedProcess(
     windowsPowerShellPath(process.env.SystemRoot),
-    windowsHelperArgs(helper, resolved, true),
+    windowsHelperArgs(helper, resolved, { verifyOnly: true }),
     WINDOWS_HELPER_TIMEOUT_MS,
     bound,
   );
