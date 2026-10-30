@@ -240,5 +240,9 @@ jobs:
       - name: Build MCP
         run: pnpm --filter agent-skills-standard-mcp build
 
+      - name: Diagnose retrospective Windows timings (temporary)
+        continue-on-error: true
+        run: node --import tsx scripts/diagnose-windows-retrospective.mjs
+
       - name: Run retrospective tests on Windows
         run: pnpm --filter agent-skills-standard-mcp exec vitest run test/retrospective-store.spec.ts test/retrospective-checkpoint.spec.ts test/retrospective-cli.spec.ts test/retrospective-publication.spec.ts test/retrospective-analysis.spec.ts test/retrospective-evidence.spec.ts
