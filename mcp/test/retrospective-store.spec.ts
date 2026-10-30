@@ -24,6 +24,7 @@ import {
 } from "../src/retrospective/platform-private";
 import {
   STORE_LIMITS,
+  StoreError,
   acquirePreparation,
   cancelRun,
   claimRun,
@@ -1162,6 +1163,59 @@ describe("private store claims and publication", () => {
       await expect(withSessionLock(root, MAIN, task)).rejects.toMatchObject({
         code: "EACCES",
       });
+    },
+  );
+
+  it.skipIf(process.platform === "win32" || process.getuid?.() === 0)(
+    "preserves the task error when lock release also fails",
+    async () => {
+      const root = await privateFixtureRoot();
+      await prepareStore(root);
+      const taskError = new StoreError(
+        "CLAIM_REVOKED",
+        "synthetic task failure",
+      );
+      const task = async (layout: StoreLayout): Promise<void> => {
+        await fs.chmod(path.join(layout.locksDir, "root-mutation.lock"), 0o000);
+        throw taskError;
+      };
+      let failure: unknown;
+      try {
+        await withSessionLock(root, MAIN, task);
+      } catch (error) {
+        failure = error;
+      }
+      if (!(failure instanceof Error))
+        throw new Error("Expected the task error to propagate.");
+      expect(failure).toBe(taskError);
+      expect(failure).toMatchObject({ code: "CLAIM_REVOKED" });
+      expect(Reflect.get(failure, "cause")).toMatchObject({ code: "EACCES" });
+    },
+  );
+
+  it.skipIf(process.platform === "win32" || process.getuid?.() === 0)(
+    "rethrows a frozen task error unchanged when release also fails",
+    async () => {
+      const root = await privateFixtureRoot();
+      await prepareStore(root);
+      const taskError = Object.freeze(
+        new StoreError("CLAIM_REVOKED", "frozen task failure"),
+      );
+      const task = async (layout: StoreLayout): Promise<void> => {
+        await fs.chmod(path.join(layout.locksDir, "root-mutation.lock"), 0o000);
+        throw taskError;
+      };
+      let failure: unknown;
+      try {
+        await withSessionLock(root, MAIN, task);
+      } catch (error) {
+        failure = error;
+      }
+      expect(failure).toBe(taskError);
+      if (!(failure instanceof Error))
+        throw new Error("Expected the frozen task error to propagate.");
+      expect(failure).toMatchObject({ code: "CLAIM_REVOKED" });
+      expect(Reflect.get(failure, "cause")).toBeUndefined();
     },
   );
 

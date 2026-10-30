@@ -482,12 +482,36 @@ async function withFileLock<T>(
       }
     }
   }
+  let outcome:
+    | { readonly ok: true; readonly value: T }
+    | { readonly ok: false; readonly error: unknown };
   try {
     assertObservationBound(bound);
-    return await task();
-  } finally {
-    await releaseLock(lockPath, token);
+    outcome = { ok: true, value: await task() };
+  } catch (error) {
+    outcome = { ok: false, error };
   }
+  try {
+    await releaseLock(lockPath, token);
+  } catch (releaseError) {
+    if (!outcome.ok) {
+      // Never replace the task's original failure with the release failure.
+      // Cause attachment is best-effort: a frozen error or throwing setter
+      // must not prevent the original value from being rethrown unchanged.
+      try {
+        if (outcome.error instanceof StoreError)
+          outcome.error.cause = releaseError;
+        else if (outcome.error !== null && typeof outcome.error === "object")
+          Object.assign(outcome.error, { cause: releaseError });
+      } catch {
+        // Best effort only; identity of the original error is what matters.
+      }
+      throw outcome.error;
+    }
+    throw releaseError;
+  }
+  if (!outcome.ok) throw outcome.error;
+  return outcome.value;
 }
 
 /**
