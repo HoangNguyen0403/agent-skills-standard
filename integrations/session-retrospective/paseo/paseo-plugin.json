@@ -1,0 +1,8 @@
+{
+  "id": "session-retrospective",
+  "name": "Session retrospective",
+  "description": "Passive retrospective panel, command and slash command. Local collection and report reading are unavailable in this build; the panel explains the supported manual CLI route. No model calls, no outbound requests, no automatic edits.",
+  "requirements": {
+    "paseo": ">=0.13.0"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "name": "agent-skills-standard-omp-retrospective",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Optional OMP 18.13.1 adapter for human-authored manifest-scoped session retrospectives; automatic scope and invitations are unsupported.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HoangNguyen0403/agent-skills-standard",
+    "directory": "integrations/session-retrospective/omp"
+  },
+  "omp": {
+    "extensions": ["./index.ts"]
+  },
+  "main": "./index.ts",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "agent-skills-standard-mcp": "0.8.0"
+  },
+  "peerDependencies": {
+    "@oh-my-pi/pi-coding-agent": "18.13.1"
+  },
+  "peerDependenciesMeta": {
+    "@oh-my-pi/pi-coding-agent": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "26.6.5",
+    "typescript": "7.0.2",
+    "vitest": "5.0.5"
+  }
+}

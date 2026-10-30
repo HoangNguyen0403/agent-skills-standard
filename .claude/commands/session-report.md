@@ -37,7 +37,12 @@ Goal: Preserve a concise artifact of what changed, how it was verified, and what
    - BRD-lite, PRD, and SRS/FRS updates completed or missing; traceability gaps found during implementation or verification.
    - Keep technical verification, business acceptance, and release as separate referenced decisions; an absent reference is `not assessed`, never success, and no lifecycle state is inferred from timestamps or filenames.
    - SDD delivery links `sdd_progress.py status --state <PATH> --revision <REV> --dirty-identity <ID> --format json|markdown` as the generated current-state view; checkpoint completion is not verification, acceptance, or release. Non-SDD delivery records the same work-item and decision references here instead of requiring SDD state.
-4. Persist and route:
+4. Offer local preparation:
+   - Substantive main-session checkpoint with verified readiness (no associated work still active): offer local retrospective preparation once when the host supports it; otherwise state the manual instructions from `common/common-session-retrospective` `references/local-preparation.md`. Trivial session: no prompt.
+   - `Later` keeps passive access; `Skip` suppresses that checkpoint; only meaningful new work plus a new checkpoint permits another offer. Unreliable readiness stays manual-only.
+   - Treat this report, a completion signal and any prepared proposal as claims and candidates, never acceptance or approval.
+   - No skill, memory, registry or `AGENTS_LEARNING.md` edit follows; do not read full reports back into model context.
+5. Persist and route:
    - Review private paths/links and one-way manifests; keep publication separate from activation.
    - Write the run record to `artifacts/runs/[slug]/[compactISO]-session-report.json` when file writes are allowed.
    - Remaining code work -> `implement-feature` or `dev-fix`.
