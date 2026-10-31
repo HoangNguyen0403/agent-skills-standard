@@ -612,57 +612,62 @@ describe("ags-retrospective delete", () => {
     expect(failureCode(run)).toBe("CONFIRMATION_REQUIRED");
   });
 
-  it("deletes only the managed generation and leaves nothing resolvable", async () => {
-    const directory = await temporaryDirectory();
-    const manifestPath = await writeManifest(directory, manifestDocument());
-    const root = await temporaryDirectory();
-    const artifactId = jsonString(
-      receipt(
-        runCli([
-          "prepare",
-          "--manifest",
-          manifestPath,
-          "--consent",
-          "local-only",
-          "--ack-storage-risk",
-          "--root",
-          root,
-        ]),
-      ),
-      "artifactId",
-    );
+  it(
+    "deletes only the managed generation and leaves nothing resolvable",
+    async () => {
+      const directory = await temporaryDirectory();
+      const manifestPath = await writeManifest(directory, manifestDocument());
+      const root = await temporaryDirectory();
+      const artifactId = jsonString(
+        receipt(
+          runCli([
+            "prepare",
+            "--manifest",
+            manifestPath,
+            "--consent",
+            "local-only",
+            "--ack-storage-risk",
+            "--root",
+            root,
+          ]),
+        ),
+        "artifactId",
+      );
 
-    const deleted = runCli([
-      "delete",
-      "--root",
-      root,
-      "--session",
-      SESSION_ID,
-      "--host",
-      HOST_ID,
-      "--confirm",
-    ]);
-    expect(deleted.status).toBe(0);
-    expect(deleted.stderr).toBe("");
-    expect(JSON.parse(deleted.stdout)).toEqual({
-      schemaVersion: 1,
-      deleted: true,
-      removedArtifacts: 4,
-    });
+      const deleted = runCli([
+        "delete",
+        "--root",
+        root,
+        "--session",
+        SESSION_ID,
+        "--host",
+        HOST_ID,
+        "--confirm",
+      ]);
+      expect(deleted.status).toBe(0);
+      expect(deleted.stderr).toBe("");
+      expect(JSON.parse(deleted.stdout)).toEqual({
+        schemaVersion: 1,
+        deleted: true,
+        removedArtifacts: 4,
+      });
 
-    const afterDelete = runCli([
-      "status",
-      "--root",
-      root,
-      "--artifact",
-      artifactId,
-    ]);
-    expect(afterDelete.status).toBe(1);
-    expect(failureCode(afterDelete)).toBe("ARTIFACT_NOT_FOUND");
+      const afterDelete = runCli([
+        "status",
+        "--root",
+        root,
+        "--artifact",
+        artifactId,
+      ]);
+      expect(afterDelete.status).toBe(1);
+      expect(failureCode(afterDelete)).toBe("ARTIFACT_NOT_FOUND");
 
-    // The source transcript is never part of the managed store.
-    expect(existsSync(FIXTURE_PATH)).toBe(true);
-  });
+      // The source transcript is never part of the managed store.
+      expect(existsSync(FIXTURE_PATH)).toBe(true);
+      // Windows: 3 CLI processes x 3.8 s PowerShell cold start.
+    },
+    process.platform === "win32" ? 15_000 : 5_000,
+  );
 
   it("rejects a malformed session identifier", async () => {
     const root = await temporaryDirectory();
