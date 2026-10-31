@@ -11,6 +11,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { NodeKey } from "../src/retrospective/contracts";
 import {
   assertDirectoryIdentity,
+  assertDirectoryIdentities,
   decodeWindowsHelperResponse,
   encodeWindowsHelperRequest,
   ensurePrivateDirectory,
@@ -51,6 +52,7 @@ const OTHER_MAIN: NodeKey = {
 };
 const roots: string[] = [];
 const ORIGINAL_SYSTEM_ROOT = process.env.SystemRoot;
+const ORIGINAL_PLATFORM = process.platform;
 
 function installFakeWindowsHelper(spawner: WindowsHelperSpawn): void {
   process.env.SystemRoot = path.parse(process.cwd()).root;
@@ -72,6 +74,10 @@ async function outsideDirectory(prefix: string): Promise<string> {
 }
 
 afterEach(async () => {
+  Object.defineProperty(process, "platform", {
+    value: ORIGINAL_PLATFORM,
+    configurable: true,
+  });
   setWindowsHelperSpawnForTests(null);
   if (ORIGINAL_SYSTEM_ROOT === undefined) delete process.env.SystemRoot;
   else process.env.SystemRoot = ORIGINAL_SYSTEM_ROOT;
@@ -986,6 +992,72 @@ describe("private store claims and publication", () => {
       psmodulepath: "C:\\Users\\test\\Documents\\PowerShell\\Modules",
       PSMODULEPATH: "C:\\extra",
     });
+  });
+
+  it("batches independent ACL verification for one claim and one publish", async () => {
+    const helper = fakeWindowsHelper();
+    helper.setResponder(respondOk);
+    installFakeWindowsHelper(() => helper.child);
+    Object.defineProperty(process, "platform", {
+      value: "win32",
+      configurable: true,
+    });
+    const root = await privateFixtureRoot();
+    const claim = await claimRun(root, MAIN, "cp-request-count");
+    expect(helper.requests).toHaveLength(13);
+    helper.requests.length = 0;
+    await publishRun(claim, safeArtifacts("request-count"));
+    expect(helper.requests).toHaveLength(23);
+    const batchedVerify = helper.requests.find(
+      (request) =>
+        request.items.length === 2 &&
+        request.items.every((item) => item.mode === "verify"),
+    );
+    expect(batchedVerify?.items).toHaveLength(2);
+  });
+
+  it("fails the batched verification with the helper refusal code", async () => {
+    const helper = fakeWindowsHelper();
+    helper.setResponder(respondOk);
+    installFakeWindowsHelper(() => helper.child);
+    Object.defineProperty(process, "platform", {
+      value: "win32",
+      configurable: true,
+    });
+    const root = await privateFixtureRoot();
+    const first = path.join(root, "first");
+    const second = path.join(root, "second");
+    await ensurePrivateDirectory(first);
+    await ensurePrivateDirectory(second);
+    const firstStats = await fs.lstat(first, { bigint: true });
+    const secondStats = await fs.lstat(second, { bigint: true });
+    helper.requests.length = 0;
+    helper.setResponder((request) => ({
+      id: request.id,
+      results: request.items.map((_, index) =>
+        index === request.items.length - 1
+          ? {
+              ok: false as const,
+              code: "AGS-ACL-FAILED" as const,
+              detail: "batch item failed",
+            }
+          : { ok: true as const },
+      ),
+    }));
+    await expect(
+      assertDirectoryIdentities([
+        {
+          target: first,
+          expected: { dev: firstStats.dev, ino: firstStats.ino },
+        },
+        {
+          target: second,
+          expected: { dev: secondStats.dev, ino: secondStats.ino },
+        },
+      ]),
+    ).rejects.toMatchObject({ code: "WINDOWS_ACL_FAILED" });
+    expect(helper.requests).toHaveLength(1);
+    expect(helper.requests[0]?.items).toHaveLength(2);
   });
 
   it.skipIf(process.platform !== "win32")(

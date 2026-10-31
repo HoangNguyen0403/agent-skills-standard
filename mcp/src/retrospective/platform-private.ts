@@ -277,19 +277,46 @@ export async function ensurePrivateDirectory(
   }
 }
 
+export async function assertDirectoryIdentities(
+  entries: readonly { target: string; expected: DirectoryIdentity }[],
+  bound?: AcquisitionBound,
+): Promise<void> {
+  assertBound(bound);
+  if (entries.length === 0) return;
+  const observed: Array<{
+    target: string;
+    expected: DirectoryIdentity;
+    stats: fs.BigIntStats;
+  }> = [];
+  for (const entry of entries) {
+    const stats = await lstatOrNull(entry.target);
+    if (!stats) throw new StoreError("UNSAFE_PATH", "Directory disappeared.");
+    assertPrivateDirectory(entry.target, stats);
+    observed.push({ ...entry, stats });
+  }
+  if (process.platform === "win32")
+    await runWindowsHelperItems(
+      observed.map((entry) => ({
+        path: resolveRoot(entry.target),
+        mode: "verify",
+      })),
+      bound,
+    );
+  for (const entry of observed) {
+    if (
+      entry.stats.dev !== entry.expected.dev ||
+      entry.stats.ino !== entry.expected.ino
+    )
+      throw new StoreError("PATH_CHANGED", "Directory identity changed.");
+  }
+}
+
 export async function assertDirectoryIdentity(
   target: string,
   expected: DirectoryIdentity,
   bound?: AcquisitionBound,
 ): Promise<void> {
-  assertBound(bound);
-  const stats = await lstatOrNull(target);
-  if (!stats) throw new StoreError("UNSAFE_PATH", "Directory disappeared.");
-  assertPrivateDirectory(target, stats);
-  if (process.platform === "win32")
-    await verifyWindowsPrivatePath(target, bound);
-  if (stats.dev !== expected.dev || stats.ino !== expected.ino)
-    throw new StoreError("PATH_CHANGED", "Directory identity changed.");
+  await assertDirectoryIdentities([{ target, expected }], bound);
 }
 
 export async function syncDirectory(directory: string): Promise<void> {

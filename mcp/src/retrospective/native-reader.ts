@@ -1,4 +1,4 @@
-import { constants, createReadStream, type BigIntStats } from "node:fs";
+import { constants, type BigIntStats } from "node:fs";
 import { lstat, open, type FileHandle } from "node:fs/promises";
 import type { Readable } from "node:stream";
 import {
@@ -635,10 +635,13 @@ export function createManifestEvidenceSource(
         )
           throw new EvidenceLimitError("source-unavailable");
         signal.throwIfAborted();
-        const stream = createReadStream(record.source.absolutePath, {
-          fd: handle.fd,
+        const stream = handle.createReadStream({
           autoClose: false,
+          start: 0,
         });
+        // FileHandle owns the single close. Surface stream errors through the
+        // async iterator, but never let a late stream error become uncaught.
+        stream.on("error", () => undefined);
         const projector = new NativeEventProjector(
           record.key,
           record.source.format,

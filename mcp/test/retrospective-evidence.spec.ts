@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   DEFAULT_LIMITS,
   type Disposition,
@@ -627,6 +627,57 @@ describe("manifest-backed evidence source", () => {
     } finally {
       setNativeReaderSourceStatForTests(undefined);
     }
+  });
+
+  it("keeps concurrent reads intact when each read closes its own descriptor once", async () => {
+    const root = await temporaryRoot();
+    const file = await writeJsonl(root, "main.jsonl", [
+      ompHeader(MAIN),
+      ompAssistant("close-usage-1", "2026-10-01T10:01:00.000Z", 3, 1),
+      ompAssistant("close-usage-2", "2026-10-01T10:02:00.000Z", 4, 2),
+    ]);
+    const manifest = manifestFor([
+      {
+        key: MAIN,
+        parent: null,
+        disposition: "local-allowed",
+        source: { format: "omp", absolutePath: file },
+      },
+    ]);
+    const source = createManifestEvidenceSource(manifest);
+    const signal = new AbortController().signal;
+    for await (const _entry of source.inventory(MAIN, CUTOFF, signal)) {
+      // Drain inventory so classifySource records the expected identity.
+    }
+    const drain = async (): Promise<number> => {
+      let count = 0;
+      for await (const _event of source.read(MAIN, signal)) count += 1;
+      return count;
+    };
+    const expected = await drain();
+    expect(expected).toBeGreaterThan(0);
+    const failures: unknown[] = [];
+    const record = (error: unknown): void => {
+      failures.push(error);
+    };
+    process.on("uncaughtException", record);
+    process.on("unhandledRejection", record);
+    try {
+      for (let round = 0; round < 40; round += 1) {
+        const counts = await Promise.all(
+          Array.from({ length: 16 }, () => drain()),
+        );
+        // A second close of an already-closed descriptor number can shut a
+        // concurrent read's file, which then loses events or fails.
+        expect(counts).toEqual(Array.from({ length: 16 }, () => expected));
+      }
+      for (let tick = 0; tick < 5; tick += 1)
+        await new Promise((resolve) => setImmediate(resolve));
+    } finally {
+      process.off("uncaughtException", record);
+      process.off("unhandledRejection", record);
+    }
+    expect(failures).toEqual([]);
   });
 
   it("rejects manifests with unknown keys or excessive bytes", async () => {

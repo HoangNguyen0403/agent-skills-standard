@@ -16,7 +16,7 @@ import {
 } from "./contracts";
 import {
   StoreError,
-  assertDirectoryIdentity,
+  assertDirectoryIdentities,
   assertPrivateDirectory,
   assertPrivateFile,
   createPrivateDirectory,
@@ -663,8 +663,10 @@ async function ensureSession(
       "Session metadata belongs to another key.",
     );
   const expected: DirectoryIdentity = { dev: meta.dev, ino: meta.ino };
-  await assertDirectoryIdentity(dir, expected);
-  await assertDirectoryIdentity(generationsDir, meta.generations);
+  await assertDirectoryIdentities([
+    { target: dir, expected },
+    { target: generationsDir, expected: meta.generations },
+  ]);
   await ensurePrivateDirectory(stagingDir);
   return { meta, dir, metaPath, generationsDir, stagingDir };
 }
@@ -1781,14 +1783,16 @@ export async function resolveArtifact(
   const sessionDir = path.join(layout.sessionsDir, entry.sessionToken);
   const meta = await readMeta(layout, entry.sessionToken);
   if (!meta) throw new StoreError("ARTIFACT_MISSING");
-  await assertDirectoryIdentity(sessionDir, {
-    dev: meta.dev,
-    ino: meta.ino,
-  });
-  await assertDirectoryIdentity(
-    path.join(sessionDir, "generations"),
-    meta.generations,
-  );
+  await assertDirectoryIdentities([
+    {
+      target: sessionDir,
+      expected: { dev: meta.dev, ino: meta.ino },
+    },
+    {
+      target: path.join(sessionDir, "generations"),
+      expected: meta.generations,
+    },
+  ]);
   const generationDir = path.join(
     sessionDir,
     "generations",
