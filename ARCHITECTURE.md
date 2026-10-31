@@ -258,6 +258,18 @@ Lifecycle, evidence source kind/confidence, and metric provenance are independen
 
 Lexical assertions are routing/content smoke checks, not semantic design evaluation. Candidate or body-only comparisons do not prove whole-package behavior or live efficacy; package evidence must identify the evaluated sources, applicable fresh answers, and execution route. Paid model execution requires separate approval.
 
+### Session Retrospective Core (`mcp/src/retrospective/`)
+
+The opt-in retrospective is **local-first by construction** and lives in the existing `agent-skills-standard-mcp` package, not in a new service or repository.
+
+- **Core in the MCP package**: strict versioned contracts, bounded inventory/collection from a user-supplied local manifest, deterministic local rules plus static-template rendering, a private owner-only generation store, and checkpoint/disposition state. Public surfaces are the `ags-retrospective` console binary (`prepare`/`status`/`paths`/`delete`, JSON-only stdout, code-only JSON errors) and the side-effect-free `agent-skills-standard-mcp/retrospective` CommonJS subpath.
+- **Not on the MCP tool surface**: no prepare, read or upload tool is registered, and no report text, path, title or excerpt is returned through a tool response. The agent-facing receipt carries IDs, status and the `modelCalls`/`outboundRequests` counters only. Reports are reachable only by a human invoking `paths` locally.
+- **Analysis boundary**: local deterministic rules only — no hosted analyzer, no local-model call, no scheduler, and no background learner. Evidence is untrusted data: transcript-supplied paths, links and commands are never executed, fetched or followed.
+- **Optional host adapters** (Paseo status panel and a standalone OMP adapter) **exist as source** under `integrations/session-retrospective/` as separately installable packages. They are not part of this package, not registry content, and none is installed. The Paseo session-data-collecting and report-reading RPCs are **disabled** pending verified host human admission; its panel is inert and directs the user to the local CLI, so no host-side collection, automatic RPC data read or report transmission occurs. OMP is manual-only on 18.13.1, requires a per-run storage-risk acknowledgement that is now a **required core request field** (`storageRiskAcknowledged: true`), and takes its store root only from an explicit absolute env override; a root inside the current folder or anywhere in the same Git repository (resolved through symlinks) is refused, as is an unresolvable root. **Automatic invitations are unsupported on every host** — the previous Paseo hook variant was removed because the released SDK cannot enumerate child sessions, so its checkpoint tool could never succeed. Adapters are verified in CI by `scripts/verify-retrospective-adapters.mjs` against exact pinned SDK tarballs. The public `agent-skills-standard-mcp/retrospective` subpath is deliberately bounded: mutators, claims, locks and store layout are internal and not exported.
+- **Adoption boundary**: proposals stay `proposed`. Nothing writes skills, workflows, memory, routing or adoption state; approval, implementation and verification remain separate authorized steps.
+
+The store is the only persistent artifact: private generations under a user-configured root with manual deletion. Source transcripts are read-only and coverage gaps stay explicit rather than implied complete.
+
 ## 6. Token Economy (Design Constraint)
 
 This is a **High-Density** project. Every feature must be evaluated against its impact on the AI's context window.

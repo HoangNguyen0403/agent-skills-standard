@@ -85,6 +85,40 @@ node mcp/dist/index.js
 
 The candidate adds `ags-mcp-session-report --manifest <manifest.json> [--json]` for explicitly selected Codex JSONL and OMP v3 journals. It retains OMP model-usage calls and orchestration/cache-write buckets separately from transcript and conversation counters; absent submetrics stay unknown, and oversized journals stop at the first resource limit. It reports aggregate counters and inventory coverage only; it does not discover host activity or infer prices. See [`SESSION_REPORT.md`](SESSION_REPORT.md) for the manifest, counter semantics, unknown values, and privacy limits. Real-journal use remains subject to separate Personal-journal authorization.
 
+### Session retrospectives (`ags-retrospective`, unreleased source candidate)
+
+The source declares a **console binary, not an MCP tool**: `ags-retrospective` →
+`dist/retrospective-cli.js`, plus a side-effect-free CommonJS subpath
+`agent-skills-standard-mcp/retrospective` for host adapters. The source also declares an `exports`
+map (`"."`, `"./retrospective"` with types, `"./session-journal-cli"`, `"./package.json"`,
+`"./README.md"`, `"./SESSION_REPORT.md"`, and `"./dist/*"` retained so existing deep imports keep
+working). **None of it is in a published release**: no registry version ships this binary or
+subpath. Locally, the fresh build (including the declaration-only
+`tsc -p tsconfig.retrospective-types.json` emit) and a packed-tarball consumer smoke both pass on
+macOS; an earlier `tsup --dts` attempt had failed against the installed TypeScript compiler API and
+that failure is kept as history, with the temporary compatibility dev dependency removed.
+**Host integration is still not claimed.**
+
+```text
+ags-retrospective prepare --manifest <local-manifest.json> --consent local-only [--root <absolute>] --ack-storage-risk
+ags-retrospective status --root <absolute> --artifact <opaque-id>
+ags-retrospective paths --root <absolute> --artifact <opaque-id>
+ags-retrospective delete --root <absolute> --session <id> --host <id> --confirm
+```
+
+Contract constraints to preserve when the binary ships:
+
+- `prepare` requires explicit `--consent local-only` **and** `--ack-storage-risk` on every run. The acknowledgement records an unknown sync/backup risk; it never overrides owner-only permissions or root validation, and a missing privacy enforcement refuses the run. A CLI flag is an attestation, not authentication — adapter flows collect the same acknowledgement per run in their own local UI (the OMP command asks in a confirmation dialog and refuses with `STORAGE_RISK_NOT_ACKNOWLEDGED` on decline; the Paseo panel is disabled), and must not let agents supply the flag silently. `--mode` accepts only `local-only`; anything else returns `MODE_UNAVAILABLE` before collection and is never mapped onto a local run.
+- stdout is exactly one JSON line. `prepare` prints the six-key receipt `{schemaVersion, artifactId, runId, status, modelCalls, outboundRequests}` where `status` is `complete` or `partial` (`failed` is reserved — a failed prepare publishes nothing and exits `1`). `status` prints `{schemaVersion, artifactId, kind, status}`. `paths` prints strict JSON `{report, proposals, session}` with `null` for artifacts the generation did not publish. `delete` prints `{schemaVersion, deleted, removedArtifacts}`.
+- Refusals print `{"schemaVersion":1,"error":{"code":"<STABLE_CODE>"}}` to stderr — code only, never a manifest path, fs/runtime message, stack trace or file content. Codes include `CONSENT_REQUIRED`, `CONSENT_MODE_REFUSED`, `MODE_UNAVAILABLE`, `STORAGE_RISK_NOT_ACKNOWLEDGED`, `MANIFEST_INVALID`, `ARTIFACT_NOT_FOUND`, `ROOT_PERMISSIVE`, `ROOT_SYMLINK`, `ROOT_OWNER_MISMATCH`, `PRIVATE_MODE`, `DELETE_INDEX_HISTORY_INCOMPLETE`, `FAILED`. An existing root with group/other permissions is `ROOT_PERMISSIVE`; remediate with `mkdir -m 700` or `chmod 700` on a dedicated directory, never a shared/synced folder. `DELETE_INDEX_HISTORY_INCOMPLETE` means session data is already removed and the index history prune did not finish — re-run `delete`; `CLAIM_REVOKED` means the run was revoked by a deletion or cancellation — re-run deletion or cancel explicitly to recover.
+- The library contract is equally strict: `PrepareRequest` requires `storageRiskAcknowledged: true`, and `prepareLocal` refuses `STORAGE_RISK_NOT_ACKNOWLEDGED` before any read, schema parse, store access or claim. The public subpath is deliberately bounded — `collectEvidence`, `claimRun`, `cancelRun`, `publishRun`, `prepareStore`, `withSessionLock`, `sessionToken` and `storeLayout` (and their types) are **not exported**; mutators, claims, locks and store layout are internal, tests import modules directly.
+- `paths` is human-facing. It is not to be called automatically through a hosted agent's tool return; doing so would send report content to a model provider.
+- Exit codes: usage `2`, refusal or failure `1`, complete or explicitly labelled partial publication `0`.
+- No prepare, read or upload tool is added to the MCP server. The MCP surface cannot return report text, and report rendering is owner-local only.
+- `delete` requires `--confirm` and operates only inside the validated managed store.
+
+Full behaviour, privacy model and host versions: [`../docs/session-retrospective.md`](../docs/session-retrospective.md). Status: unreleased source; fresh build, test suite and packed-tarball consumer smoke pass locally on macOS. Not published, no version bump, and no host-integration, Windows/Linux or process-level egress claim is made.
+
 ## Configure your AI agent
 
 The server uses **stdio transport** — every MCP-capable runtime supports it.
@@ -336,7 +370,7 @@ Within that root, it auto-detects the skills directory by checking:
 ```bash
 pnpm mcp:dev    # tsx watch mode
 pnpm mcp:test   # vitest
-pnpm mcp:build  # tsup → mcp/dist/
+pnpm mcp:build  # tsup + tsc declarations → mcp/dist/
 ```
 
 ## Workflow Telemetry Integration

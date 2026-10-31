@@ -3,10 +3,36 @@
   "version": "0.8.1",
   "description": "MCP server that lets any AI agent (Claude, Cursor, Antigravity, Kiro, Continue, Gemini) load and audit skills from agent-skills-standard.",
   "main": "dist/index.js",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./retrospective": {
+      "types": "./dist/retrospective.d.ts",
+      "require": "./dist/retrospective.js",
+      "default": "./dist/retrospective.js"
+    },
+    "./session-journal-cli": "./dist/session-journal-cli.js",
+    "./dist/index": "./dist/index.js",
+    "./dist/index.js": "./dist/index.js",
+    "./dist/session-journal-cli": "./dist/session-journal-cli.js",
+    "./dist/session-journal-cli.js": "./dist/session-journal-cli.js",
+    "./dist/retrospective": "./dist/retrospective.js",
+    "./dist/retrospective.js": "./dist/retrospective.js",
+    "./dist/retrospective-cli": "./dist/retrospective-cli.js",
+    "./dist/retrospective-cli.js": "./dist/retrospective-cli.js",
+    "./dist/windows-private.ps1": "./dist/windows-private.ps1",
+    "./package.json": "./package.json",
+    "./README.md": "./README.md",
+    "./SESSION_REPORT.md": "./SESSION_REPORT.md",
+    "./dist/*": "./dist/*"
+  },
   "bin": {
     "agent-skills-standard-mcp": "dist/index.js",
     "ags-mcp": "dist/index.js",
-    "ags-mcp-session-report": "dist/session-journal-cli.js"
+    "ags-mcp-session-report": "dist/session-journal-cli.js",
+    "ags-retrospective": "dist/retrospective-cli.js"
   },
   "files": [
     "dist",
@@ -14,9 +40,10 @@
     "SESSION_REPORT.md"
   ],
   "scripts": {
-    "build": "tsup src/index.ts src/session-journal-cli.ts --format cjs --target node20 --shims --clean",
+    "build": "tsup src/index.ts src/session-journal-cli.ts src/retrospective.ts src/retrospective-cli.ts --format cjs --target node20 --shims --clean && tsc -p tsconfig.retrospective-types.json && node -e \"require('node:fs').copyFileSync('src/retrospective/windows-private.ps1','dist/windows-private.ps1')\"",
     "dev": "tsx src/index.ts",
     "start": "node dist/index.js",
+    "retrospective": "tsx src/retrospective-cli.ts",
     "sessions:report": "tsx src/session-journal-cli.ts",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -58,7 +85,7 @@
     "express": "^5.3.0",
     "fs-extra": "^11.4.1",
     "js-yaml": "^5.4.3",
-    "minimatch": "^10.2.6",
+    "minimatch": "^11.0.3",
     "zod": "^4.6.7"
   },
   "devDependencies": {
