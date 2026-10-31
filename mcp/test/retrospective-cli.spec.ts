@@ -465,86 +465,75 @@ describe("ags-retrospective prepare refusals", () => {
 });
 
 describe("ags-retrospective prepare and read commands", () => {
-  it(
-    "prints a minimal receipt only, and status never returns evidence",
-    async () => {
-      const directory = await temporaryDirectory();
-      const manifestPath = await writeManifest(directory, manifestDocument());
-      const root = await temporaryDirectory();
+  it("prints a minimal receipt only, and status never returns evidence", async () => {
+    const directory = await temporaryDirectory();
+    const manifestPath = await writeManifest(directory, manifestDocument());
+    const root = await temporaryDirectory();
 
-      const prepared = runCli([
-        "prepare",
-        "--manifest",
-        manifestPath,
-        "--consent",
-        "local-only",
-        "--ack-storage-risk",
-        "--root",
-        root,
-      ]);
-      const receiptBody = receipt(prepared);
-      expect(prepared.stderr).toBe("");
-      expect(jsonKeys(receiptBody).sort()).toEqual([
-        "artifactId",
-        "modelCalls",
-        "outboundRequests",
-        "runId",
-        "schemaVersion",
-        "status",
-      ]);
-      expect(receiptBody).toMatchObject({
-        schemaVersion: 1,
-        status: "complete",
-        modelCalls: 0,
-        outboundRequests: 0,
-      });
-      const artifactId = jsonString(receiptBody, "artifactId");
-      expect(artifactId).toMatch(/\.report$/);
-      expect(prepared.stdout).not.toContain(root);
-      expect(prepared.stdout).not.toContain("report.md");
-      expectNoSentinels(prepared);
+    const prepared = runCli([
+      "prepare",
+      "--manifest",
+      manifestPath,
+      "--consent",
+      "local-only",
+      "--ack-storage-risk",
+      "--root",
+      root,
+    ]);
+    const receiptBody = receipt(prepared);
+    expect(prepared.stderr).toBe("");
+    expect(jsonKeys(receiptBody).sort()).toEqual([
+      "artifactId",
+      "modelCalls",
+      "outboundRequests",
+      "runId",
+      "schemaVersion",
+      "status",
+    ]);
+    expect(receiptBody).toMatchObject({
+      schemaVersion: 1,
+      status: "complete",
+      modelCalls: 0,
+      outboundRequests: 0,
+    });
+    const artifactId = jsonString(receiptBody, "artifactId");
+    expect(artifactId).toMatch(/\.report$/);
+    expect(prepared.stdout).not.toContain(root);
+    expect(prepared.stdout).not.toContain("report.md");
+    expectNoSentinels(prepared);
 
-      const status = runCli([
-        "status",
-        "--root",
-        root,
-        "--artifact",
-        artifactId,
-      ]);
-      expect(status.status).toBe(0);
-      expect(status.stderr).toBe("");
-      expect(JSON.parse(status.stdout)).toEqual({
-        schemaVersion: 1,
-        artifactId,
-        kind: "report",
-        status: "complete",
-      });
-      expectNoSentinels(status);
+    const status = runCli(["status", "--root", root, "--artifact", artifactId]);
+    expect(status.status).toBe(0);
+    expect(status.stderr).toBe("");
+    expect(JSON.parse(status.stdout)).toEqual({
+      schemaVersion: 1,
+      artifactId,
+      kind: "report",
+      status: "complete",
+    });
+    expectNoSentinels(status);
 
-      const paths = runCli(["paths", "--root", root, "--artifact", artifactId]);
-      expect(paths.status).toBe(0);
-      expect(paths.stderr).toBe("");
-      const pathsBody: unknown = JSON.parse(paths.stdout);
-      expect(jsonKeys(pathsBody).sort()).toEqual([
-        "proposals",
-        "report",
-        "session",
-      ]);
-      const reportPath = jsonString(pathsBody, "report");
-      expect(path.isAbsolute(reportPath)).toBe(true);
-      expect(path.basename(reportPath)).toBe("report.md");
-      expect(reportPath.startsWith(root)).toBe(true);
-      expect(jsonString(pathsBody, "proposals")).not.toBe("");
-      expect(jsonString(pathsBody, "session")).not.toBe("");
-      const reportBytes = await fs.readFile(reportPath, "utf8");
-      expect(reportBytes.length).toBeGreaterThan(0);
-      // The human-only channel is the only place report text exists.
-      expect(paths.stdout).not.toContain(reportBytes.trim().slice(0, 40));
-      expectNoSentinels(paths);
-      // Windows: 3 CLI processes x 3.8 s PowerShell cold start.
-    },
-    process.platform === "win32" ? 15_000 : 5_000,
-  );
+    const paths = runCli(["paths", "--root", root, "--artifact", artifactId]);
+    expect(paths.status).toBe(0);
+    expect(paths.stderr).toBe("");
+    const pathsBody: unknown = JSON.parse(paths.stdout);
+    expect(jsonKeys(pathsBody).sort()).toEqual([
+      "proposals",
+      "report",
+      "session",
+    ]);
+    const reportPath = jsonString(pathsBody, "report");
+    expect(path.isAbsolute(reportPath)).toBe(true);
+    expect(path.basename(reportPath)).toBe("report.md");
+    expect(reportPath.startsWith(root)).toBe(true);
+    expect(jsonString(pathsBody, "proposals")).not.toBe("");
+    expect(jsonString(pathsBody, "session")).not.toBe("");
+    const reportBytes = await fs.readFile(reportPath, "utf8");
+    expect(reportBytes.length).toBeGreaterThan(0);
+    // The human-only channel is the only place report text exists.
+    expect(paths.stdout).not.toContain(reportBytes.trim().slice(0, 40));
+    expectNoSentinels(paths);
+  });
 
   it("labels a restricted child as partial and still exits 0", async () => {
     const directory = await temporaryDirectory();
@@ -612,62 +601,57 @@ describe("ags-retrospective delete", () => {
     expect(failureCode(run)).toBe("CONFIRMATION_REQUIRED");
   });
 
-  it(
-    "deletes only the managed generation and leaves nothing resolvable",
-    async () => {
-      const directory = await temporaryDirectory();
-      const manifestPath = await writeManifest(directory, manifestDocument());
-      const root = await temporaryDirectory();
-      const artifactId = jsonString(
-        receipt(
-          runCli([
-            "prepare",
-            "--manifest",
-            manifestPath,
-            "--consent",
-            "local-only",
-            "--ack-storage-risk",
-            "--root",
-            root,
-          ]),
-        ),
-        "artifactId",
-      );
+  it("deletes only the managed generation and leaves nothing resolvable", async () => {
+    const directory = await temporaryDirectory();
+    const manifestPath = await writeManifest(directory, manifestDocument());
+    const root = await temporaryDirectory();
+    const artifactId = jsonString(
+      receipt(
+        runCli([
+          "prepare",
+          "--manifest",
+          manifestPath,
+          "--consent",
+          "local-only",
+          "--ack-storage-risk",
+          "--root",
+          root,
+        ]),
+      ),
+      "artifactId",
+    );
 
-      const deleted = runCli([
-        "delete",
-        "--root",
-        root,
-        "--session",
-        SESSION_ID,
-        "--host",
-        HOST_ID,
-        "--confirm",
-      ]);
-      expect(deleted.status).toBe(0);
-      expect(deleted.stderr).toBe("");
-      expect(JSON.parse(deleted.stdout)).toEqual({
-        schemaVersion: 1,
-        deleted: true,
-        removedArtifacts: 4,
-      });
+    const deleted = runCli([
+      "delete",
+      "--root",
+      root,
+      "--session",
+      SESSION_ID,
+      "--host",
+      HOST_ID,
+      "--confirm",
+    ]);
+    expect(deleted.status).toBe(0);
+    expect(deleted.stderr).toBe("");
+    expect(JSON.parse(deleted.stdout)).toEqual({
+      schemaVersion: 1,
+      deleted: true,
+      removedArtifacts: 4,
+    });
 
-      const afterDelete = runCli([
-        "status",
-        "--root",
-        root,
-        "--artifact",
-        artifactId,
-      ]);
-      expect(afterDelete.status).toBe(1);
-      expect(failureCode(afterDelete)).toBe("ARTIFACT_NOT_FOUND");
+    const afterDelete = runCli([
+      "status",
+      "--root",
+      root,
+      "--artifact",
+      artifactId,
+    ]);
+    expect(afterDelete.status).toBe(1);
+    expect(failureCode(afterDelete)).toBe("ARTIFACT_NOT_FOUND");
 
-      // The source transcript is never part of the managed store.
-      expect(existsSync(FIXTURE_PATH)).toBe(true);
-      // Windows: 3 CLI processes x 3.8 s PowerShell cold start.
-    },
-    process.platform === "win32" ? 15_000 : 5_000,
-  );
+    // The source transcript is never part of the managed store.
+    expect(existsSync(FIXTURE_PATH)).toBe(true);
+  });
 
   it("rejects a malformed session identifier", async () => {
     const root = await temporaryDirectory();

@@ -75,9 +75,9 @@ describe("passive checkpoint disposition", () => {
       ).toHaveLength(1);
       if (process.platform !== "win32")
         expect((await fs.lstat(statePath(root))).mode & 0o777).toBe(0o600);
-      // Windows: 8 helper requests x ~9.5 ms x 1000 replays.
+      // Windows: measured >120 s on a slower runner.
     },
-    process.platform === "win32" ? 120_000 : 30_000,
+    process.platform === "win32" ? 240_000 : 30_000,
   );
 
   it("ignores child, diagnostic, non-substantive, and idle-only events", async () => {
