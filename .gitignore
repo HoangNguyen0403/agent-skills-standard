@@ -12,6 +12,9 @@
 # which would otherwise make every commit look dirty. Real value is in a
 # downstream consumer project that syncs from this registry over the network.
 /.skills-lock.json
+# session-local run evidence (generation logs, receipts, review packages);
+# regenerated on demand and not a product surface, so it must not be committed
+/artifacts/
 # Python bytecode from skill scripts
 __pycache__/
 *.pyc
