@@ -48,9 +48,9 @@
   "dependencies": {
     "commander": "^15.0.0",
     "cross-fetch": "^4.1.0",
-    "dotenv": "^18.0.8",
+    "dotenv": "^18.0.9",
     "fs-extra": "^11.4.1",
-    "inquirer": "^14.2.3",
+    "inquirer": "^14.2.5",
     "js-yaml": "^5.4.3",
     "picocolors": "^1.0.0",
     "zod": "^4.6.7"
