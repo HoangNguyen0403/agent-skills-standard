@@ -11,6 +11,7 @@ import {
   copySourceToStage,
   fileSha256,
   linkDependencies,
+  parseCatFileBatch,
   parseCategoryIndexRows,
   runInStage,
   runIsolatedGeneration,
@@ -3223,4 +3224,35 @@ test("stale CLI digest under explicit adopt-base refuses instead of silently hea
       /differs from its CLI ownership digest; refusing publication/,
     );
   });
+});
+
+test("parseCatFileBatch fails closed on a truncated git batch stream", () => {
+  const complete = parseCatFileBatch(Buffer.from("abc123 blob 3\nabc\n"), [
+    "file.md",
+  ]);
+  assert.equal(complete.get("file.md"), computeSha256("abc"));
+
+  const missingTerminator = parseCatFileBatch(
+    Buffer.from("abc123 blob 3\nabc"),
+    ["file.md"],
+  );
+  assert.equal(missingTerminator.get("file.md"), null);
+
+  const shorterPayload = parseCatFileBatch(Buffer.from("abc123 blob 4\nabc"), [
+    "file.md",
+  ]);
+  assert.equal(shorterPayload.get("file.md"), null);
+
+  const missingRecord = parseCatFileBatch(
+    Buffer.from("HEAD:file.md missing\n"),
+    ["file.md"],
+  );
+  assert.equal(missingRecord.get("file.md"), null);
+
+  const partialStream = parseCatFileBatch(Buffer.from("abc123 blob 3\nabc\n"), [
+    "file1.md",
+    "file2.md",
+  ]);
+  assert.equal(partialStream.get("file1.md"), computeSha256("abc"));
+  assert.equal(partialStream.get("file2.md"), null);
 });

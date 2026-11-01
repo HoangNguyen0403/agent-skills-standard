@@ -1561,7 +1561,7 @@ async function runProcess(
   });
 }
 
-function parseCatFileBatch(
+export function parseCatFileBatch(
   stdout: Buffer,
   relPaths: string[],
 ): Map<string, string | null> {
@@ -1581,12 +1581,14 @@ function parseCatFileBatch(
     const isBlob = parts[1] === "blob";
     const size = parseInt(parts[2], 10);
     if (isNaN(size) || size < 0 || offset + size > stdout.length) break;
-    if (isBlob) {
-      result.set(relPath, sha256(stdout.subarray(offset, offset + size)));
-    }
+    const payload = stdout.subarray(offset, offset + size);
     offset += size;
-    if (offset < stdout.length && stdout[offset] === 0x0a) {
-      offset += 1;
+    if (offset >= stdout.length || stdout[offset] !== 0x0a) {
+      break;
+    }
+    offset += 1;
+    if (isBlob) {
+      result.set(relPath, sha256(payload));
     }
   }
   return result;
