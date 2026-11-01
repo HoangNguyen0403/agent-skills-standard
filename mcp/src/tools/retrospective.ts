@@ -12,6 +12,17 @@ export const DISABLED_RETROSPECTIVE_TEXT =
 export const RETROSPECTIVE_NUDGE_TEXT =
   "Retrospective pending. If you hold an assignment packet (you are a worker), ignore this section. Otherwise call `prepare_retrospective` now, then tell the user the coverage, the counts and the file paths (summary and ledger) it returns, and that they can open either.";
 
+/**
+ * Progress that can justify asking for a retrospective: every recorded tool
+ * call except `get_session_cost` itself. Cost reporting is the deliverable the
+ * nudge asks for, so repeated reporting must not manufacture new work.
+ */
+function substantiveProgress(ctx: ToolContext): number {
+  const summary = ctx.tracker.summary();
+  const costCalls = summary.callsByTool.get_session_cost ?? 0;
+  return Math.max(0, summary.toolCalls - costCalls);
+}
+
 function renderPrepared(
   result: Extract<RunResult, { state: "prepared" | "already-prepared" }>,
 ): string {
@@ -71,8 +82,7 @@ export async function prepareRetrospective(
 
     if (result.state === "prepared" || result.state === "already-prepared") {
       ctx.retrospectiveMark ??= { preparedAtProgress: 0 };
-      ctx.retrospectiveMark.preparedAtProgress =
-        ctx.tracker.summary().toolCalls;
+      ctx.retrospectiveMark.preparedAtProgress = substantiveProgress(ctx);
     }
 
     const text = renderRunResultText(result);
@@ -131,12 +141,12 @@ export async function retrospectiveNudge(ctx: ToolContext): Promise<string> {
     if (ctx.transport !== "stdio") {
       return "";
     }
-    const toolCalls = ctx.tracker?.summary().toolCalls ?? 0;
-    if (toolCalls <= 0) {
+    const progress = substantiveProgress(ctx);
+    if (progress <= 0) {
       return "";
     }
     const preparedAtProgress = ctx.retrospectiveMark?.preparedAtProgress ?? 0;
-    if (toolCalls - preparedAtProgress < 20) {
+    if (progress - preparedAtProgress < 20) {
       return "";
     }
     const consent = await readConsent(ctx.consentPath);

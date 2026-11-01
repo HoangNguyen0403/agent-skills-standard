@@ -41,6 +41,11 @@ function createTreeFixture(
       write: 0,
     },
     skippedLines: 0,
+    metricCompleteness: {
+      assistantTurns: "complete",
+      byDayModel: "complete",
+      toolErrors: "complete",
+    },
     series: {
       byDayModel: {
         "2026-10-01|model-a": {
@@ -100,6 +105,11 @@ function create200CellTree(): TreeAggregate {
     toolCalls: {},
     toolErrors: {},
     skippedLines: 0,
+    metricCompleteness: {
+      assistantTurns: "complete",
+      byDayModel: "complete",
+      toolErrors: "complete",
+    },
     series: { byDayModel },
   };
 }
@@ -296,6 +306,77 @@ describe("retrospective summary view", () => {
     const render2 = renderSummary(ledger);
 
     expect(render1).toBe(render2);
+  });
+
+  it("appends the undercount phrase to the claim line and the lead while line 1 stays complete", () => {
+    const input: LedgerInput = {
+      tree: createTreeFixture({
+        coverage: "complete",
+        skippedLines: 1,
+        metricCompleteness: {
+          assistantTurns: "may-undercount-by-skipped-lines",
+          byDayModel: "complete",
+          toolErrors: "complete",
+        },
+      }),
+      cutoff: "2026-10-01T12:00:00.000Z",
+      evidenceMode: "native-files",
+      rootVerification: "unverified-root",
+      unlinkedAgents: 0,
+      agentsCreated: 3,
+      sessionsLinked: 3,
+    };
+
+    const ledger = buildLedger(input);
+    const claim = ledger.claims.find(
+      (c) => c.template === "error-stop-exposure",
+    );
+    expect(claim).toBeDefined();
+    if (!claim) return;
+    expect(claim.values.completeness).toBe("may-undercount-by-skipped-lines");
+    expect(ledger.coverage).toBe("complete");
+    expect(ledger.claims[0].coverage).toBe("complete");
+
+    const summary = renderSummary(ledger);
+    const lines = summary.split("\n");
+    const phrase = " (may undercount: 1 lines were skipped)";
+
+    expect(lines[0]).toContain("Coverage: complete");
+    expect(lines[0]).not.toContain("partial");
+
+    const claimLine = lines.find((line) =>
+      line.startsWith(`[${claim.id}] Error-stop exposure:`),
+    );
+    expect(claimLine).toBeDefined();
+    expect(claimLine?.endsWith(phrase)).toBe(true);
+
+    const leadLine = lines.find((line) =>
+      line.startsWith(`- [${claim.id}] Error-stop concentration:`),
+    );
+    expect(leadLine).toBeDefined();
+    expect(leadLine?.endsWith(phrase)).toBe(true);
+  });
+
+  it("omits the undercount phrase and reports completeness complete when nothing was skipped", () => {
+    const input: LedgerInput = {
+      tree: createTreeFixture({ skippedLines: 0 }),
+      cutoff: "2026-10-01T12:00:00.000Z",
+      evidenceMode: "native-files",
+      rootVerification: "unverified-root",
+      unlinkedAgents: 0,
+      agentsCreated: 3,
+      sessionsLinked: 3,
+    };
+
+    const ledger = buildLedger(input);
+    const claim = ledger.claims.find(
+      (c) => c.template === "error-stop-exposure",
+    );
+    expect(claim?.values.completeness).toBe("complete");
+
+    const summary = renderSummary(ledger);
+    expect(summary).not.toContain("may undercount");
+    expect(summary).not.toContain("lines were skipped");
   });
 
   it("never includes forbidden words in rendered summary", () => {

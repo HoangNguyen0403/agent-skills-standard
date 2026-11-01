@@ -9,8 +9,7 @@ import {
   captureSnapshot,
   rollUp,
   type AggregateLimits,
-  type SessionAggregate,
-  type JointSeries,
+  type AggregatedSession,
 } from "../src/retrospective/aggregate";
 
 const MAIN: NodeKey = { hostId: "host-1", sessionId: "session-main" };
@@ -1416,7 +1415,7 @@ describe("retrospective aggregate pass", () => {
   });
 
   it("rolls up two aggregates, summing numeric fields and propagating partial coverage", () => {
-    const agg1: SessionAggregate & { series: JointSeries } = {
+    const agg1: AggregatedSession = {
       node: { hostId: "h1", sessionId: "s1" },
       format: "omp",
       first: "2026-10-01T10:00:00.000Z",
@@ -1440,6 +1439,11 @@ describe("retrospective aggregate pass", () => {
       toolErrors: { bash: 1 },
       coverage: "complete",
       skippedLines: 0,
+      metricCompleteness: {
+        assistantTurns: "complete",
+        byDayModel: "complete",
+        toolErrors: "complete",
+      },
       series: {
         byDayModel: {
           "2026-10-01|model-a": {
@@ -1452,7 +1456,7 @@ describe("retrospective aggregate pass", () => {
       },
     };
 
-    const agg2: SessionAggregate & { series: JointSeries } = {
+    const agg2: AggregatedSession = {
       node: { hostId: "h2", sessionId: "s2" },
       format: "codex",
       first: "2026-10-01T10:02:00.000Z",
@@ -1477,6 +1481,11 @@ describe("retrospective aggregate pass", () => {
       coverage: "partial",
       partialReason: "size-ceiling",
       skippedLines: 1,
+      metricCompleteness: {
+        assistantTurns: "may-undercount-by-skipped-lines",
+        byDayModel: "may-undercount-by-skipped-lines",
+        toolErrors: "complete",
+      },
       series: {
         byDayModel: {
           "2026-10-01|model-b": {
@@ -1510,6 +1519,11 @@ describe("retrospective aggregate pass", () => {
     expect(tree.costKnownTurns).toBe(3);
     expect(tree.costUnknownTurns).toBe(2);
     expect(tree.skippedLines).toBe(1);
+    expect(tree.metricCompleteness).toEqual({
+      assistantTurns: "may-undercount-by-skipped-lines",
+      byDayModel: "may-undercount-by-skipped-lines",
+      toolErrors: "complete",
+    });
     expect(tree.models).toEqual({ "model-a": 2, "model-b": 3 });
     expect(tree.stopReasons).toEqual({ stop: 4, error: 1 });
     expect(tree.sideCalls?.calls).toBe(5);
@@ -1529,6 +1543,53 @@ describe("retrospective aggregate pass", () => {
       errorStops: 1,
       costUnits: 0.003,
       costKnownTurns: 1,
+    });
+  });
+
+  it("merges metric completeness worst-wins per key across aggregates", () => {
+    const base: AggregatedSession = {
+      node: { hostId: "h1", sessionId: "s1" },
+      format: "omp",
+      first: "2026-10-01T10:00:00.000Z",
+      last: "2026-10-01T10:05:00.000Z",
+      assistantTurns: 2,
+      userMessages: 1,
+      compactions: 0,
+      tokens: { input: 20, output: 10, cacheRead: 5, cacheWrite: 2 },
+      cost: 0.002,
+      costKnownTurns: 2,
+      costUnknownTurns: 0,
+      models: { "model-a": 2 },
+      stopReasons: { stop: 2 },
+      sideCalls: { calls: 0, stopReasons: {}, cost: 0, costKnownCalls: 0 },
+      toolCalls: { bash: 3 },
+      toolErrors: { bash: 0 },
+      coverage: "complete",
+      skippedLines: 1,
+      metricCompleteness: {
+        assistantTurns: "may-undercount-by-skipped-lines",
+        tokens: "complete",
+      },
+      series: { byDayModel: {} },
+    };
+    const other: AggregatedSession = {
+      ...base,
+      node: { hostId: "h2", sessionId: "s2" },
+      skippedLines: 0,
+      metricCompleteness: {
+        assistantTurns: "complete",
+        tokens: "complete",
+        toolErrors: "complete",
+      },
+    };
+
+    const tree = rollUp([base, other]);
+
+    expect(tree.skippedLines).toBe(1);
+    expect(tree.metricCompleteness).toEqual({
+      assistantTurns: "may-undercount-by-skipped-lines",
+      tokens: "complete",
+      toolErrors: "complete",
     });
   });
 

@@ -715,6 +715,135 @@ describe("retrospective MCP tools and nudge", () => {
     }
   });
 
+  it("repeated get_session_cost calls after a prepared retrospective do not manufacture substantive progress", async () => {
+    const root = await temporaryDirectory();
+    const workspace = path.join(root, "workspace");
+    const store = path.join(root, "store");
+    const allowed = path.join(root, "allowed-sessions");
+    const consentPath = path.join(root, "retrospective-consent.json");
+    await fs.mkdir(workspace, { recursive: true });
+    await fs.mkdir(allowed, { recursive: true });
+    await writeConsent(createConsentRecord([allowed], store), consentPath);
+
+    const skillsDir = await createSkillsFixture(root);
+    const index = new SkillIndex(
+      skillsDir,
+      path.join(skillsDir, "metadata.json"),
+    );
+    await index.load();
+
+    const now = Date.now();
+    await writeSessionFile(path.join(allowed, "valid-session.jsonl"), [
+      sessionHeader({ id: "valid-1", cwd: workspace }),
+      ompMcpToolCall({
+        callId: "c_valid",
+        tool: "load_skills_for_files",
+        timestamp: new Date(now - 30_000).toISOString(),
+      }),
+      toolResult({
+        callId: "c_valid",
+        timestamp: new Date(now + 10_000).toISOString(),
+      }),
+    ]);
+
+    const tracker = new SessionTracker();
+    for (let i = 0; i < 20; i++) {
+      tracker.record({
+        via: "load_skills_for_files",
+        input: [`src/file_${i}.ts`],
+        loaded: [],
+      });
+    }
+
+    const ctx: ToolContext = {
+      projectRoot: workspace,
+      index,
+      tracker,
+      setup: { kind: "ready" },
+      policy: loadPolicyView(workspace),
+      transport: "stdio",
+      retrospectiveMark: { preparedAtProgress: 0 },
+      consentPath,
+    };
+
+    const prepared = await prepareRetrospective(ctx);
+    expect(prepared.content[0].text).toContain("Retrospective prepared");
+    expect(ctx.retrospectiveMark?.preparedAtProgress).toBe(20);
+
+    // Reporting cost is what the nudge asks for; 25 reports are not new work.
+    for (let i = 0; i < 25; i++) {
+      const cost = await getSessionCost({}, ctx);
+      expect(cost.content[0].text).not.toContain(RETROSPECTIVE_NUDGE_TEXT);
+    }
+    const auditAfterCost = await auditSessionCompliance({}, ctx);
+    expect(auditAfterCost.content[0].text).not.toContain(
+      RETROSPECTIVE_NUDGE_TEXT,
+    );
+
+    // Genuine work at the same threshold still re-arms the nudge.
+    for (let i = 0; i < 20; i++) {
+      tracker.record({
+        via: "get_skill",
+        input: ["typescript/typescript-language"],
+        loaded: [],
+      });
+    }
+    expect(await retrospectiveNudge(ctx)).toBe(RETROSPECTIVE_NUDGE_TEXT);
+  });
+
+  it("cost-only calls never accumulate toward the nudge before any prepare", async () => {
+    const root = await temporaryDirectory();
+    const projectRoot = path.join(root, "workspace");
+    const store = path.join(root, "store");
+    const allowed = path.join(root, "allowed");
+    const consentPath = path.join(root, "retrospective-consent.json");
+
+    await writeConsent(createConsentRecord([allowed], store), consentPath);
+
+    const skillsDir = await createSkillsFixture(root);
+    const index = new SkillIndex(
+      skillsDir,
+      path.join(skillsDir, "metadata.json"),
+    );
+    await index.load();
+    const tracker = new SessionTracker();
+
+    const ctx: ToolContext = {
+      projectRoot,
+      index,
+      tracker,
+      setup: { kind: "ready" },
+      policy: loadPolicyView(projectRoot),
+      transport: "stdio",
+      retrospectiveMark: { preparedAtProgress: 0 },
+      consentPath,
+    };
+
+    // 19 substantive calls plus any number of cost reports stay below the threshold.
+    for (let i = 0; i < 19; i++) {
+      tracker.record({
+        via: "load_skills_for_files",
+        input: [`src/a_${i}.ts`],
+        loaded: [],
+      });
+    }
+    for (let i = 0; i < 30; i++) {
+      const cost = await getSessionCost({}, ctx);
+      expect(cost.content[0].text).not.toContain(RETROSPECTIVE_NUDGE_TEXT);
+    }
+    expect(await retrospectiveNudge(ctx)).toBe("");
+    const audit = await auditSessionCompliance({}, ctx);
+    expect(audit.content[0].text).not.toContain(RETROSPECTIVE_NUDGE_TEXT);
+
+    // The 20th substantive call reaches the threshold.
+    tracker.record({
+      via: "load_skills_for_files",
+      input: ["src/trigger.ts"],
+      loaded: [],
+    });
+    expect(await retrospectiveNudge(ctx)).toBe(RETROSPECTIVE_NUDGE_TEXT);
+  });
+
   it("prepare_retrospective tool description contains the worker-exclusion sentence", async () => {
     const server = await buildServer(
       {

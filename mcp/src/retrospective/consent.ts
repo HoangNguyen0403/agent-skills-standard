@@ -1,8 +1,11 @@
+import fs from "node:fs";
 import fsp from "node:fs/promises";
+import type { FileHandle } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { z } from "zod";
 import {
+  NOFOLLOW_FLAG,
   StoreError,
   ensurePrivateRoot,
   lstatOrNull,
@@ -37,6 +40,21 @@ export type ConsentRead =
 
 const ISO_8601_WITH_TIMEZONE =
   /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})$/;
+
+/**
+ * A consent record is a handful of JSON keys. Anything larger is not a record
+ * this server wrote, and the cap bounds the bytes pulled from a descriptor
+ * that a third party may be rewriting.
+ */
+const MAX_CONSENT_BYTES = 65_536;
+
+/**
+ * `O_NOFOLLOW` refuses a symlink swapped in after the path checks (ELOOP);
+ * `O_NONBLOCK` keeps a FIFO swap from blocking the open/read. All trust
+ * decisions are made against the OPEN descriptor, never the path.
+ */
+const CONSENT_READ_FLAGS =
+  fs.constants.O_RDONLY | NOFOLLOW_FLAG | (fs.constants.O_NONBLOCK ?? 0);
 
 function isAbsolutePath(candidate: string): boolean {
   if (typeof candidate !== "string" || candidate.length === 0) return false;
@@ -86,14 +104,100 @@ export function consentFilePath(
   );
 }
 
+function parseConsentText(raw: string): ConsentRead {
+  if (raw.trim().length === 0) {
+    return { state: "disabled", reason: "invalid" };
+  }
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return { state: "disabled", reason: "invalid" };
+  }
+  const parsedResult = consentRecordSchema.safeParse(parsed);
+  if (!parsedResult.success) {
+    return { state: "disabled", reason: "invalid" };
+  }
+  const record = parsedResult.data;
+  if (record.consentTextVersion !== CONSENT_TEXT_VERSION) {
+    return { state: "disabled", reason: "version" };
+  }
+  return { state: "enabled", record };
+}
+
+function openFailure(error: unknown): ConsentRead {
+  const code = (error as NodeJS.ErrnoException | null | undefined)?.code;
+  if (code === "ELOOP") return { state: "disabled", reason: "symlink" };
+  if (code === "ENOENT") return { state: "disabled", reason: "missing" };
+  return { state: "disabled", reason: "invalid" };
+}
+
+/**
+ * Read and validate a consent record through a single open descriptor, so the
+ * regular-file, ownership, mode, size, and content checks all describe the
+ * exact bytes returned. A path swapped between the checks and the read fails
+ * closed instead of substituting content.
+ */
+async function readConsentDescriptor(target: string): Promise<ConsentRead> {
+  let handle: FileHandle | undefined;
+  try {
+    try {
+      handle = await fsp.open(target, CONSENT_READ_FLAGS);
+    } catch (error) {
+      return openFailure(error);
+    }
+    const stats = await handle.stat({ bigint: true });
+    if (stats.isSymbolicLink() || !stats.isFile()) {
+      return { state: "disabled", reason: "invalid" };
+    }
+    if (process.platform === "win32") {
+      try {
+        await verifyWindowsPrivatePath(target);
+      } catch {
+        return { state: "disabled", reason: "permissive" };
+      }
+    } else {
+      if ((stats.mode & 0o077n) !== 0n) {
+        return { state: "disabled", reason: "permissive" };
+      }
+      const uid =
+        typeof process.getuid === "function" ? process.getuid() : null;
+      if (uid !== null && stats.uid !== BigInt(uid)) {
+        return { state: "disabled", reason: "permissive" };
+      }
+    }
+    if (stats.size === 0n || stats.size > BigInt(MAX_CONSENT_BYTES)) {
+      return { state: "disabled", reason: "invalid" };
+    }
+    const buffer = Buffer.alloc(Number(stats.size));
+    let offset = 0;
+    while (offset < buffer.length) {
+      const { bytesRead } = await handle.read(
+        buffer,
+        offset,
+        buffer.length - offset,
+        offset,
+      );
+      if (bytesRead === 0) break;
+      offset += bytesRead;
+    }
+    return parseConsentText(buffer.subarray(0, offset).toString("utf8"));
+  } catch {
+    return { state: "disabled", reason: "invalid" };
+  } finally {
+    await handle?.close().catch(() => undefined);
+  }
+}
+
 export async function readConsent(filePath?: string): Promise<ConsentRead> {
   const target = filePath ?? consentFilePath();
   try {
-    const parentDir = path.dirname(target);
-    const parentStats = await lstatOrNull(parentDir);
+    const parentStats = await lstatOrNull(path.dirname(target));
     if (parentStats?.isSymbolicLink()) {
       return { state: "disabled", reason: "symlink" };
     }
+    // Path-level absence/symlink checks first so the reason codes stay stable on
+    // every platform (Windows cannot refuse a symlink at open time).
     const fileStats = await lstatOrNull(target);
     if (fileStats === null) {
       return { state: "disabled", reason: "missing" };
@@ -101,49 +205,7 @@ export async function readConsent(filePath?: string): Promise<ConsentRead> {
     if (fileStats.isSymbolicLink()) {
       return { state: "disabled", reason: "symlink" };
     }
-    if (process.platform !== "win32") {
-      if ((fileStats.mode & 0o077n) !== 0n) {
-        return { state: "disabled", reason: "permissive" };
-      }
-      const uid =
-        typeof process.getuid === "function" ? process.getuid() : null;
-      if (uid !== null && fileStats.uid !== BigInt(uid)) {
-        return { state: "disabled", reason: "permissive" };
-      }
-    } else {
-      try {
-        await verifyWindowsPrivatePath(target);
-      } catch {
-        return { state: "disabled", reason: "permissive" };
-      }
-    }
-    if (fileStats.size === 0n || fileStats.size > 65_536n) {
-      return { state: "disabled", reason: "invalid" };
-    }
-    let raw: string;
-    try {
-      raw = await fsp.readFile(target, "utf8");
-    } catch {
-      return { state: "disabled", reason: "invalid" };
-    }
-    if (raw.trim().length === 0) {
-      return { state: "disabled", reason: "invalid" };
-    }
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(raw);
-    } catch {
-      return { state: "disabled", reason: "invalid" };
-    }
-    const parsedResult = consentRecordSchema.safeParse(parsed);
-    if (!parsedResult.success) {
-      return { state: "disabled", reason: "invalid" };
-    }
-    const record = parsedResult.data;
-    if (record.consentTextVersion !== CONSENT_TEXT_VERSION) {
-      return { state: "disabled", reason: "version" };
-    }
-    return { state: "enabled", record };
+    return await readConsentDescriptor(target);
   } catch {
     return { state: "disabled", reason: "invalid" };
   }

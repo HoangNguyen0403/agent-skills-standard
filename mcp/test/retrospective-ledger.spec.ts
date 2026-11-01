@@ -46,6 +46,11 @@ function createTreeFixture(
       write: 0,
     },
     skippedLines: 0,
+    metricCompleteness: {
+      assistantTurns: "complete",
+      byDayModel: "complete",
+      toolErrors: "complete",
+    },
     series: {
       byDayModel: {
         "2026-10-01|model-a": {
@@ -113,6 +118,7 @@ describe("retrospective ledger", () => {
       errorStops: 3,
       turns: 20,
       cellCount: 2,
+      completeness: "complete",
       topCell: "2026-10-01|model-a",
       topCellErrorStops: 2,
       topCellTurns: 10,
@@ -532,6 +538,79 @@ describe("retrospective ledger", () => {
 
     const verifyResult = verifyLedger(ledger, trackerInput);
     expect(verifyResult).toEqual({ ok: true });
+  });
+
+  it("records deterministic top-level counts derived from the same input", () => {
+    const ledger = buildLedger(DEFAULT_INPUT);
+    expect(ledger.counts).toEqual({
+      agentsCreated: 4,
+      sessionsLinked: 3,
+      failedToolCalls: 0,
+      errorStops: 3,
+      claims: 2,
+      hypotheses: 0,
+    });
+
+    const trackerInput: LedgerInput = {
+      tree: null,
+      cutoff: "2026-10-01T12:00:00.000Z",
+      evidenceMode: "tracker-only",
+      rootVerification: "not-applicable",
+      unlinkedAgents: 2,
+      agentsCreated: 5,
+      sessionsLinked: 3,
+    };
+    expect(buildLedger(trackerInput).counts).toEqual({
+      agentsCreated: 5,
+      sessionsLinked: 3,
+      failedToolCalls: 0,
+      errorStops: 0,
+      claims: 1,
+      hypotheses: 0,
+    });
+  });
+
+  it("flags the error-stop claim as may-undercount while physical coverage stays complete", () => {
+    const input: LedgerInput = {
+      ...DEFAULT_INPUT,
+      tree: createTreeFixture({
+        skippedLines: 1,
+        metricCompleteness: {
+          assistantTurns: "may-undercount-by-skipped-lines",
+          byDayModel: "complete",
+          toolErrors: "complete",
+        },
+      }),
+    };
+
+    const ledger = buildLedger(input);
+    const claim = ledger.claims.find(
+      (c) => c.template === "error-stop-exposure",
+    );
+    expect(claim?.values.completeness).toBe("may-undercount-by-skipped-lines");
+    expect(ledger.coverage).toBe("complete");
+    expect(ledger.claims[0].values.skippedLines).toBe(1);
+    expect(verifyLedger(ledger, input)).toEqual({ ok: true });
+  });
+
+  it("reports NUMBER_MISMATCH when the stored counts are tampered", () => {
+    const ledger = buildLedger(DEFAULT_INPUT);
+    ledger.counts.errorStops = 999;
+
+    expect(verifyLedger(ledger, DEFAULT_INPUT)).toEqual({
+      ok: false,
+      problems: ["NUMBER_MISMATCH"],
+    });
+  });
+
+  it("reports NUMBER_MISMATCH when the stored completeness value is tampered", () => {
+    const ledger = buildLedger(DEFAULT_INPUT);
+    ledger.claims[1].values.completeness = "may-undercount-by-skipped-lines";
+
+    expect(verifyLedger(ledger, DEFAULT_INPUT)).toEqual({
+      ok: false,
+      problems: ["NUMBER_MISMATCH"],
+    });
   });
 
   it("produces byte-identical JSON when run twice on identical input", () => {

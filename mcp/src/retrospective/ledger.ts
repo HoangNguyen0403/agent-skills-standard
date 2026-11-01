@@ -34,12 +34,22 @@ export type LedgerInput = {
   sessionsLinked: number;
 };
 
+export type LedgerCounts = {
+  agentsCreated: number;
+  sessionsLinked: number;
+  failedToolCalls: number;
+  errorStops: number;
+  claims: number;
+  hypotheses: number;
+};
+
 export type Ledger = {
   schemaVersion: 1;
   cutoff: string;
   evidenceMode: LedgerInput["evidenceMode"];
   rootVerification: LedgerInput["rootVerification"];
   coverage: "complete" | "partial";
+  counts: LedgerCounts;
   claims: Claim[];
   evidence: Record<EvidenceId, { kind: "aggregate"; value: number | string }>;
 };
@@ -56,6 +66,15 @@ export type LedgerProblemCode =
 
 const SAFE_MODEL_REGEX = /^[A-Za-z0-9._:/@+-]{1,64}$/;
 const SAFE_DAY_REGEX = /^(\d{4}-\d{2}-\d{2}|unknown-day)$/;
+
+const COUNT_KEYS: ReadonlyArray<keyof LedgerCounts> = [
+  "agentsCreated",
+  "sessionsLinked",
+  "failedToolCalls",
+  "errorStops",
+  "claims",
+  "hypotheses",
+];
 
 const DEFAULT_MAIN_NODE: NodeKey = {
   hostId: "local",
@@ -182,6 +201,32 @@ export function buildLedger(input: LedgerInput): Ledger {
     unlinkedAgents,
   };
 
+  const treeErrorStops =
+    tree === null
+      ? 0
+      : (tree.stopReasons["error"] ??
+        Object.values(tree.series.byDayModel).reduce(
+          (sum, cell) => sum + cell.errorStops,
+          0,
+        ));
+
+  let failedToolCalls = 0;
+  if (tree !== null) {
+    for (const count of Object.values(tree.toolErrors)) {
+      failedToolCalls += count;
+    }
+  }
+
+  // Metrics the error-stop claim is projected from; any undercounting one flags the claim.
+  const errorStopCompleteness =
+    tree !== null &&
+    (["assistantTurns", "byDayModel", "toolErrors"] as const).some(
+      (key) =>
+        tree.metricCompleteness[key] === "may-undercount-by-skipped-lines",
+    )
+      ? "may-undercount-by-skipped-lines"
+      : "complete";
+
   claims.push({
     id: computeClaimId("coverage", scope, []),
     type: "observation",
@@ -196,12 +241,6 @@ export function buildLedger(input: LedgerInput): Ledger {
 
   if (tree !== null && tree.assistantTurns > 0) {
     const turns = tree.assistantTurns;
-    const treeErrorStops =
-      tree.stopReasons["error"] ??
-      Object.values(tree.series.byDayModel).reduce(
-        (sum, cell) => sum + cell.errorStops,
-        0,
-      );
     const cellCount = Object.keys(tree.series.byDayModel).length;
 
     const supporting: EvidenceId[] = [
@@ -222,6 +261,7 @@ export function buildLedger(input: LedgerInput): Ledger {
       errorStops: treeErrorStops,
       turns,
       cellCount,
+      completeness: errorStopCompleteness,
     };
 
     const eligibleCells: Array<{
@@ -292,12 +332,22 @@ export function buildLedger(input: LedgerInput): Ledger {
     sortedEvidence[k] = evidence[k];
   }
 
+  const counts: LedgerCounts = {
+    agentsCreated,
+    sessionsLinked,
+    failedToolCalls,
+    errorStops: treeErrorStops,
+    claims: claims.length,
+    hypotheses: claims.filter((claim) => claim.type === "hypothesis").length,
+  };
+
   return {
     schemaVersion: 1,
     cutoff: input.cutoff,
     evidenceMode: input.evidenceMode,
     rootVerification: input.rootVerification,
     coverage: overallCoverage,
+    counts,
     claims,
     evidence: sortedEvidence,
   };
@@ -361,7 +411,11 @@ export function checkClaimRules(ledger: Ledger): LedgerProblemCode[] {
   for (const claim of ledger.claims) {
     for (const [key, val] of Object.entries(claim.values)) {
       if (typeof val === "string") {
-        if (key === "topCell") {
+        if (key === "completeness") {
+          if (val !== "complete" && val !== "may-undercount-by-skipped-lines") {
+            problems.add("UNSAFE_VALUE");
+          }
+        } else if (key === "topCell") {
           const pipeIdx = val.indexOf("|");
           if (pipeIdx === -1) {
             problems.add("UNSAFE_VALUE");
@@ -420,6 +474,19 @@ export function verifyLedger(
           problems.add("NUMBER_MISMATCH");
         }
       }
+      if (expClaim.values.completeness !== claim.values.completeness) {
+        problems.add("NUMBER_MISMATCH");
+      }
+    }
+  }
+
+  const actualCounts: Partial<LedgerCounts> | undefined =
+    typeof ledger.counts === "object" && ledger.counts !== null
+      ? ledger.counts
+      : undefined;
+  for (const key of COUNT_KEYS) {
+    if (actualCounts?.[key] !== expected.counts[key]) {
+      problems.add("NUMBER_MISMATCH");
     }
   }
 

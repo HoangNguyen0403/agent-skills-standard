@@ -1,25 +1,29 @@
+import { constants } from "node:fs";
+import fsp from "node:fs/promises";
 import crypto from "node:crypto";
 import path from "node:path";
+import { z } from "zod";
 import {
   aggregateSession,
   captureSnapshot,
   rollUp,
   type AggregateLimits,
-  type SessionAggregate,
-  type JointSeries,
+  type AggregatedSession,
+  type SourceSnapshot,
 } from "./aggregate";
-import { readConsent } from "./consent";
-import type { NodeKey } from "./contracts";
+import { readConsent, type ConsentRecord } from "./consent";
+import type { ArtifactReceipt, NodeKey } from "./contracts";
 import { discoverSession, type DiscoveryLimits } from "./discovery";
 import {
   buildLedger,
   verifyLedger,
   type Ledger,
+  type LedgerCounts,
   type LedgerInput,
 } from "./ledger";
 import { prepareV2 } from "./prepare";
 import { RetrospectiveError } from "./rules";
-import { resolveArtifact } from "./store";
+import { resolveArtifact, StoreError } from "./store";
 import { renderSummary } from "./views/summary";
 import type { SessionTracker } from "../services/SessionTracker";
 
@@ -31,6 +35,11 @@ export type RunDeps = {
   limits?: Partial<AggregateLimits>;
   discoveryLimits?: Partial<DiscoveryLimits>;
   afterSnapshot?: () => Promise<void>;
+  /**
+   * TEST SEAM ONLY: awaited immediately before the final consent re-check and
+   * publication, on both the native and the tracker-only paths.
+   */
+  beforePublish?: () => Promise<void>;
   platform?: NodeJS.Platform;
   /** TEST SEAM ONLY: applied immediately after buildLedger and before verifyLedger */
   tamperLedger?: (ledger: Ledger) => Ledger;
@@ -66,10 +75,90 @@ export type RunResult =
       code?: string;
     };
 
+type PublishedRunResult = Extract<
+  RunResult,
+  { state: "prepared" | "already-prepared" }
+>;
+
 const DEFAULT_AGGREGATE_LIMITS: Readonly<AggregateLimits> = Object.freeze({
   maxBytes: 512 * 1024 * 1024,
   maxMillis: 60_000,
 });
+
+/** Never aggregate more than this many child session files; the rest stay unlinked. */
+const MAX_AGGREGATED_CHILD_FILES = 256;
+/** Snapshot captures in flight at once. */
+const SNAPSHOT_CONCURRENCY = 4;
+/** Upper bound for a stored ledger we are willing to parse back. */
+const MAX_STORED_LEDGER_BYTES = 1024 * 1024;
+
+const STORED_LEDGER_READ_FLAGS =
+  constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK;
+
+/** Upper-case snake case codes that are safe to surface as a failure reason. */
+const SAFE_ERROR_CODE_REGEX = /^[A-Z][A-Z0-9_]{2,63}$/;
+
+const storedClaimSchema = z.strictObject({
+  id: z.string().min(1),
+  type: z.enum(["observation", "hypothesis", "recommendation"]),
+  template: z.enum([
+    "correction-concentration",
+    "approval-friction",
+    "error-stop-exposure",
+    "delegation-accounting",
+    "coordination-wait",
+    "coverage",
+  ]),
+  values: z.record(z.string(), z.union([z.number(), z.string()])),
+  scope: z.strictObject({
+    nodes: z.array(
+      z.strictObject({
+        hostId: z.string().min(1),
+        sessionId: z.string().min(1),
+      }),
+    ),
+    from: z.string().min(1),
+    to: z.string().min(1),
+  }),
+  denominator: z
+    .strictObject({ count: z.number(), unit: z.string().min(1) })
+    .optional(),
+  coverage: z.enum(["complete", "partial"]),
+  supporting: z.array(z.string()),
+  contradicting: z.array(z.string()),
+  basedOn: z.array(z.string()),
+});
+
+const storedLedgerSchema = z.strictObject({
+  schemaVersion: z.literal(1),
+  cutoff: z.string().min(1),
+  evidenceMode: z.enum(["native-files", "tracker-only"]),
+  rootVerification: z.enum(["unverified-root", "not-applicable"]),
+  coverage: z.enum(["complete", "partial"]),
+  counts: z.strictObject({
+    agentsCreated: z.number().int().nonnegative(),
+    sessionsLinked: z.number().int().nonnegative(),
+    failedToolCalls: z.number().int().nonnegative(),
+    errorStops: z.number().int().nonnegative(),
+    claims: z.number().int().nonnegative(),
+    hypotheses: z.number().int().nonnegative(),
+  }),
+  claims: z.array(storedClaimSchema).min(1),
+  evidence: z.record(
+    z.string(),
+    z.strictObject({
+      kind: z.literal("aggregate"),
+      value: z.union([z.number(), z.string()]),
+    }),
+  ),
+});
+
+type CommittedLedgerSummary = {
+  coverage: "complete" | "partial";
+  fullyRead: number;
+  sessions: number;
+  counts: LedgerCounts;
+};
 
 function runIdFromArtifact(artifactId: string, kind: string): string {
   const suffix = `.${kind}`;
@@ -117,20 +206,173 @@ async function resolveSiblingPath(
   return resolved.absolutePath;
 }
 
+/** Reads a stored ledger with an O_NOFOLLOW handle and a hard byte ceiling. */
+async function readStoredLedgerText(ledgerPath: string): Promise<string> {
+  const handle = await fsp.open(ledgerPath, STORED_LEDGER_READ_FLAGS);
+  try {
+    const stats = await handle.stat();
+    if (stats.size > MAX_STORED_LEDGER_BYTES) {
+      throw new RetrospectiveError(
+        "STORED_LEDGER_INVALID",
+        "Stored ledger exceeds the size limit",
+      );
+    }
+    return await handle.readFile("utf8");
+  } finally {
+    await handle.close().catch(() => undefined);
+  }
+}
+
+/**
+ * Reads the committed ledger of an already-published generation and returns the
+ * numbers that generation published. Any read, parse or shape problem fails
+ * closed: never fall back to freshly recomputed numbers.
+ */
+async function loadCommittedLedger(
+  ledgerPath: string,
+): Promise<CommittedLedgerSummary> {
+  let raw: string;
+  try {
+    raw = await readStoredLedgerText(ledgerPath);
+  } catch (error) {
+    if (error instanceof RetrospectiveError) throw error;
+    throw new RetrospectiveError(
+      "STORED_LEDGER_INVALID",
+      "Stored ledger is unreadable",
+    );
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    throw new RetrospectiveError(
+      "STORED_LEDGER_INVALID",
+      "Stored ledger is not valid JSON",
+    );
+  }
+
+  const result = storedLedgerSchema.safeParse(parsed);
+  if (!result.success) {
+    throw new RetrospectiveError(
+      "STORED_LEDGER_INVALID",
+      "Stored ledger does not match the ledger shape",
+    );
+  }
+  const stored = result.data;
+
+  const coverageClaim = stored.claims.find(
+    (claim) => claim.template === "coverage",
+  );
+  const sessions = coverageClaim?.values.sessions;
+  const fullyRead = coverageClaim?.values.fullyRead;
+  if (typeof sessions !== "number" || typeof fullyRead !== "number") {
+    throw new RetrospectiveError(
+      "STORED_LEDGER_INVALID",
+      "Stored ledger coverage claim is invalid",
+    );
+  }
+
+  return {
+    coverage: stored.coverage,
+    fullyRead,
+    sessions,
+    counts: stored.counts,
+  };
+}
+
+/**
+ * Re-reads consent and requires it to still be enabled with an identical record,
+ * so a revoked or re-scoped consent stops reads and publication mid-run.
+ */
+async function consentStillValid(
+  consentPath: string | undefined,
+  original: ConsentRecord,
+): Promise<boolean> {
+  const again = await readConsent(consentPath);
+  if (again.state !== "enabled") return false;
+  const next = again.record;
+  if (
+    next.grantedAt !== original.grantedAt ||
+    next.storeRoot !== original.storeRoot ||
+    next.allowedSourceRoots.length !== original.allowedSourceRoots.length
+  ) {
+    return false;
+  }
+  return next.allowedSourceRoots.every(
+    (root, index) => root === original.allowedSourceRoots[index],
+  );
+}
+
+async function captureSnapshots(
+  nodeFiles: Array<{ node: NodeKey; absolutePath: string }>,
+  maxBytes: number,
+  signal: AbortSignal,
+): Promise<SourceSnapshot[]> {
+  const snapshots: SourceSnapshot[] = [];
+  for (let index = 0; index < nodeFiles.length; index += SNAPSHOT_CONCURRENCY) {
+    signal.throwIfAborted();
+    const batch = nodeFiles.slice(index, index + SNAPSHOT_CONCURRENCY);
+    const captured = await Promise.all(
+      batch.map((nodeFile) => captureSnapshot(nodeFile, maxBytes)),
+    );
+    snapshots.push(...captured);
+  }
+  return snapshots;
+}
+
+async function publishResult(args: {
+  storeRoot: string;
+  prep: { receipt: ArtifactReceipt; joined: boolean };
+  evidenceMode: "native-files" | "tracker-only";
+  computed: CommittedLedgerSummary;
+}): Promise<PublishedRunResult> {
+  const resolvedSummary = await resolveArtifact(
+    args.storeRoot,
+    args.prep.receipt.artifactId,
+  );
+  const ledgerPath = await resolveSiblingPath(
+    args.storeRoot,
+    args.prep.receipt.artifactId,
+    resolvedSummary.sessionToken,
+    resolvedSummary.generationId,
+    "ledger",
+  );
+
+  // A joined run observed someone else's committed generation: report its numbers,
+  // never the ones recomputed from a source that moved on since.
+  const reported = args.prep.joined
+    ? await loadCommittedLedger(ledgerPath)
+    : args.computed;
+
+  return {
+    resultVersion: 1,
+    state: args.prep.joined ? "already-prepared" : "prepared",
+    evidenceMode: args.evidenceMode,
+    artifactId: args.prep.receipt.artifactId,
+    coverage: reported.coverage,
+    fullyRead: reported.fullyRead,
+    sessions: reported.sessions,
+    counts: reported.counts,
+    viewPaths: {
+      summary: resolvedSummary.absolutePath,
+      ledger: ledgerPath,
+    },
+  };
+}
+
 export async function runRetrospective(
   deps: RunDeps,
   signal: AbortSignal,
 ): Promise<RunResult> {
   try {
-    if (signal.aborted) {
-      return { resultVersion: 1, state: "failed", code: "ABORTED" };
-    }
-
     // 1. Consent
+    signal.throwIfAborted();
     const consent = await readConsent(deps.consentPath);
     if (consent.state !== "enabled") {
       return { resultVersion: 1, state: "disabled" };
     }
+    const originalConsent = consent.record;
 
     // 2. Substantive check
     const summary = deps.tracker.summary();
@@ -143,7 +385,7 @@ export async function runRetrospective(
 
     // 3. Discovery
     const discovery = await discoverSession(
-      consent.record,
+      originalConsent,
       {
         workspace: deps.workspace,
         toolCalls: deps.tracker.observedToolCalls(),
@@ -151,11 +393,10 @@ export async function runRetrospective(
       clockFn,
       effectivePlatform,
       deps.discoveryLimits,
+      signal,
     );
 
-    if (signal.aborted) {
-      return { resultVersion: 1, state: "failed", code: "ABORTED" };
-    }
+    signal.throwIfAborted();
 
     if (discovery.state === "ambiguous-session") {
       return { resultVersion: 1, state: "ambiguous-session" };
@@ -168,6 +409,8 @@ export async function runRetrospective(
       maxBytes: deps.limits?.maxBytes ?? DEFAULT_AGGREGATE_LIMITS.maxBytes,
       maxMillis: deps.limits?.maxMillis ?? DEFAULT_AGGREGATE_LIMITS.maxMillis,
     };
+    // One run-wide deadline; every aggregate gets only what is left of it.
+    const deadline = Date.now() + effectiveLimits.maxMillis;
 
     if (discovery.state === "no-evidence") {
       // Tracker-only path
@@ -212,50 +455,31 @@ export async function runRetrospective(
       const summaryText = renderSummary(ledger);
       const ledgerText = `${JSON.stringify(ledger)}\n`;
 
-      if (signal.aborted) {
-        return { resultVersion: 1, state: "failed", code: "ABORTED" };
+      if (deps.beforePublish) {
+        await deps.beforePublish();
+      }
+      signal.throwIfAborted();
+      if (!(await consentStillValid(deps.consentPath, originalConsent))) {
+        return { resultVersion: 1, state: "disabled" };
       }
 
       const prep = await prepareV2(
-        { root: consent.record.storeRoot, main, checkpointId },
+        { root: originalConsent.storeRoot, main, checkpointId },
         { summary: summaryText, ledger: ledgerText, status: "partial" },
         signal,
       );
 
-      const resolvedSummary = await resolveArtifact(
-        consent.record.storeRoot,
-        prep.receipt.artifactId,
-      );
-      const ledgerPath = await resolveSiblingPath(
-        consent.record.storeRoot,
-        prep.receipt.artifactId,
-        resolvedSummary.sessionToken,
-        resolvedSummary.generationId,
-        "ledger",
-      );
-
-      return {
-        resultVersion: 1,
-        state: prep.joined ? "already-prepared" : "prepared",
+      return await publishResult({
+        storeRoot: originalConsent.storeRoot,
+        prep,
         evidenceMode: "tracker-only",
-        artifactId: prep.receipt.artifactId,
-        coverage: "partial",
-        fullyRead: 0,
-        sessions: 0,
-        counts: {
-          agentsCreated: 0,
-          sessionsLinked: 0,
-          failedToolCalls: 0,
-          errorStops: 0,
-          claims: ledger.claims.length,
-          hypotheses: ledger.claims.filter((c) => c.type === "hypothesis")
-            .length,
+        computed: {
+          coverage: ledger.coverage,
+          fullyRead: 0,
+          sessions: 0,
+          counts: ledger.counts,
         },
-        viewPaths: {
-          summary: resolvedSummary.absolutePath,
-          ledger: ledgerPath,
-        },
-      };
+      });
     }
 
     // Bound path
@@ -264,11 +488,18 @@ export async function runRetrospective(
       return { resultVersion: 1, state: "failed", code: "MAIN_NODE_MISSING" };
     }
 
+    const childFiles = discovery.childFiles.slice(
+      0,
+      MAX_AGGREGATED_CHILD_FILES,
+    );
+    const omittedChildFiles = discovery.childFiles.length - childFiles.length;
+    const unlinkedAgents = discovery.unlinkedAgents + omittedChildFiles;
+
     // 1) Capture snapshot for all nodes
     const nodeFiles: Array<{ node: NodeKey; absolutePath: string }> = [
       { node: mainNode.key, absolutePath: discovery.mainFile },
     ];
-    for (const childPath of discovery.childFiles) {
+    for (const childPath of childFiles) {
       const childSessionId = path.basename(childPath, ".jsonl");
       const childNode = discovery.manifest.nodes.find(
         (n) => n.key.sessionId === childSessionId,
@@ -279,8 +510,17 @@ export async function runRetrospective(
       nodeFiles.push({ node: nodeKey, absolutePath: childPath });
     }
 
-    const snapshots = await Promise.all(
-      nodeFiles.map((nf) => captureSnapshot(nf, effectiveLimits.maxBytes)),
+    // Consent can be revoked or re-scoped while discovery runs: re-check before
+    // the first byte of session content is read.
+    if (!(await consentStillValid(deps.consentPath, originalConsent))) {
+      return { resultVersion: 1, state: "disabled" };
+    }
+    signal.throwIfAborted();
+
+    const snapshots = await captureSnapshots(
+      nodeFiles,
+      effectiveLimits.maxBytes,
+      signal,
     );
 
     // Test seam awaited once after all snapshots are captured
@@ -288,19 +528,22 @@ export async function runRetrospective(
       await deps.afterSnapshot();
     }
 
-    if (signal.aborted) {
-      return { resultVersion: 1, state: "failed", code: "ABORTED" };
-    }
+    signal.throwIfAborted();
 
-    // 2) Aggregate each node
-    const aggregates: Array<SessionAggregate & { series: JointSeries }> = [];
+    // 2) Aggregate each node within the shared deadline
+    const aggregates: AggregatedSession[] = [];
     for (let i = 0; i < nodeFiles.length; i += 1) {
+      signal.throwIfAborted();
+      const remainingMillis = Math.max(0, deadline - Date.now());
       const nf = nodeFiles[i];
       const snap = snapshots[i];
       const agg = await aggregateSession(
         { node: nf.node, format: "omp", absolutePath: nf.absolutePath },
         snap,
-        effectiveLimits,
+        {
+          maxBytes: effectiveLimits.maxBytes,
+          maxMillis: Math.min(remainingMillis, effectiveLimits.maxMillis),
+        },
         signal,
       );
       aggregates.push(agg);
@@ -315,9 +558,9 @@ export async function runRetrospective(
       cutoff: discovery.manifest.cutoff,
       evidenceMode: "native-files",
       rootVerification: "unverified-root",
-      unlinkedAgents: discovery.unlinkedAgents,
+      unlinkedAgents,
       agentsCreated: discovery.childFiles.length + discovery.unlinkedAgents,
-      sessionsLinked: discovery.childFiles.length + 1,
+      sessionsLinked: childFiles.length + 1,
     };
 
     let ledger = buildLedger(ledgerInput);
@@ -332,60 +575,51 @@ export async function runRetrospective(
     const summaryText = renderSummary(ledger);
     const ledgerText = `${JSON.stringify(ledger)}\n`;
 
-    if (signal.aborted) {
-      return { resultVersion: 1, state: "failed", code: "ABORTED" };
+    if (deps.beforePublish) {
+      await deps.beforePublish();
+    }
+    signal.throwIfAborted();
+    if (!(await consentStillValid(deps.consentPath, originalConsent))) {
+      return { resultVersion: 1, state: "disabled" };
     }
 
     const prep = await prepareV2(
-      { root: consent.record.storeRoot, main: mainKey, checkpointId },
+      { root: originalConsent.storeRoot, main: mainKey, checkpointId },
       { summary: summaryText, ledger: ledgerText, status: ledger.coverage },
       signal,
     );
 
-    const resolvedSummary = await resolveArtifact(
-      consent.record.storeRoot,
-      prep.receipt.artifactId,
-    );
-    const ledgerPath = await resolveSiblingPath(
-      consent.record.storeRoot,
-      prep.receipt.artifactId,
-      resolvedSummary.sessionToken,
-      resolvedSummary.generationId,
-      "ledger",
-    );
-
-    let totalFailedToolCalls = 0;
-    for (const count of Object.values(tree.toolErrors)) {
-      totalFailedToolCalls += count;
-    }
-
-    return {
-      resultVersion: 1,
-      state: prep.joined ? "already-prepared" : "prepared",
+    return await publishResult({
+      storeRoot: originalConsent.storeRoot,
+      prep,
       evidenceMode: "native-files",
-      artifactId: prep.receipt.artifactId,
-      coverage: ledger.coverage,
-      fullyRead: tree.fullyRead,
-      sessions: tree.sessions,
-      counts: {
-        agentsCreated: ledgerInput.agentsCreated,
-        sessionsLinked: ledgerInput.sessionsLinked,
-        failedToolCalls: totalFailedToolCalls,
-        errorStops: tree.stopReasons["error"] ?? 0,
-        claims: ledger.claims.length,
-        hypotheses: ledger.claims.filter((c) => c.type === "hypothesis").length,
+      computed: {
+        coverage: ledger.coverage,
+        fullyRead: tree.fullyRead,
+        sessions: tree.sessions,
+        counts: ledger.counts,
       },
-      viewPaths: {
-        summary: resolvedSummary.absolutePath,
-        ledger: ledgerPath,
-      },
-    };
+    });
   } catch (error) {
-    if (signal.aborted) {
+    if (
+      signal.aborted ||
+      (error instanceof Error && error.name === "AbortError")
+    ) {
       return { resultVersion: 1, state: "failed", code: "ABORTED" };
     }
     if (error instanceof RetrospectiveError) {
       return { resultVersion: 1, state: "failed", code: error.code };
+    }
+    if (error instanceof StoreError) {
+      // Surface the store's own integrity code when it is a safe identifier,
+      // so a tampered or unreadable generation stays diagnosable.
+      return {
+        resultVersion: 1,
+        state: "failed",
+        code: SAFE_ERROR_CODE_REGEX.test(error.code)
+          ? error.code
+          : "INTERNAL_ERROR",
+      };
     }
     return { resultVersion: 1, state: "failed", code: "INTERNAL_ERROR" };
   }

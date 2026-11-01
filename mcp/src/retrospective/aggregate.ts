@@ -96,7 +96,14 @@ export type TreeAggregate = {
   toolCalls: Record<string, number>;
   toolErrors: Record<string, number>;
   skippedLines: number;
+  metricCompleteness: MetricCompleteness;
   series: JointSeries;
+};
+
+/** One session aggregate plus the joint series and per-metric completeness rollUp consumes. */
+export type AggregatedSession = SessionAggregate & {
+  series: JointSeries;
+  metricCompleteness: MetricCompleteness;
 };
 
 export const AGGREGATE_PARSER_VERSION = "1.0.0";
@@ -998,9 +1005,7 @@ export async function aggregateSession(
   }
 }
 
-export function rollUp(
-  aggregates: Array<SessionAggregate & { series: JointSeries }>,
-): TreeAggregate {
+export function rollUp(aggregates: AggregatedSession[]): TreeAggregate {
   let fullyRead = 0;
   let hasPartial = false;
   let first: string | null = null;
@@ -1024,6 +1029,7 @@ export function rollUp(
   const toolErrors: Record<string, number> = {};
   let skippedLines = 0;
   const series: JointSeries = { byDayModel: {} };
+  const metricCompleteness: MetricCompleteness = {};
 
   for (const agg of aggregates) {
     if (agg.coverage === "complete") {
@@ -1070,6 +1076,14 @@ export function rollUp(
     }
     for (const [k, v] of Object.entries(agg.toolErrors)) {
       toolErrors[k] = (toolErrors[k] ?? 0) + v;
+    }
+    for (const [k, v] of Object.entries(agg.metricCompleteness)) {
+      // Worst wins: one undercounting source makes the rolled-up metric undercounting.
+      metricCompleteness[k] =
+        v === "may-undercount-by-skipped-lines" ||
+        metricCompleteness[k] === "may-undercount-by-skipped-lines"
+          ? "may-undercount-by-skipped-lines"
+          : "complete";
     }
     for (const [k, v] of Object.entries(agg.series.byDayModel)) {
       const entry = (series.byDayModel[k] ??= {
@@ -1122,6 +1136,7 @@ export function rollUp(
     toolCalls,
     toolErrors,
     skippedLines,
+    metricCompleteness,
     series,
   };
 }

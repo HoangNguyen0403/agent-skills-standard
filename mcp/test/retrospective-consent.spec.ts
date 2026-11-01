@@ -221,6 +221,32 @@ describe("retrospective readConsent fail-closed behavior", () => {
       });
     },
   );
+
+  it("returns invalid for a consent file larger than the read cap", async () => {
+    const dir = await temporaryDirectory();
+    const filePath = path.join(dir, "oversized.json");
+    const record = createSampleRecord(dir);
+    const oversized = JSON.stringify(record) + " ".repeat(70_000);
+    expect(oversized.length).toBeGreaterThan(65_536);
+    await writePrivateFile(filePath, oversized);
+    expect(await readConsent(filePath)).toEqual({
+      state: "disabled",
+      reason: "invalid",
+    });
+  });
+
+  it.skipIf(process.platform === "win32")(
+    "returns invalid for a directory at the consent path without hanging",
+    async () => {
+      const dir = await temporaryDirectory();
+      const filePath = path.join(dir, "consent-as-directory");
+      await fs.mkdir(filePath, { mode: 0o700 });
+      expect(await readConsent(filePath)).toEqual({
+        state: "disabled",
+        reason: "invalid",
+      });
+    },
+  );
 });
 
 describe("retrospective writeConsent and removeConsent", () => {

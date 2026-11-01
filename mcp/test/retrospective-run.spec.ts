@@ -5,9 +5,12 @@ import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import {
   CONSENT_TEXT_VERSION,
+  removeConsent,
   writeConsent,
   type ConsentRecord,
 } from "../src/retrospective/consent";
+import { discoverSession } from "../src/retrospective/discovery";
+import { prepareV2 } from "../src/retrospective/prepare";
 import { runRetrospective, type RunDeps } from "../src/retrospective/run";
 import { SessionTracker } from "../src/services/SessionTracker";
 
@@ -171,6 +174,98 @@ async function recordAndWrite(
     }),
   ];
   await fsp.writeFile(sessionFilePath, lines.join(""), { mode: 0o600 });
+}
+
+type BoundSessionFixture = {
+  root: string;
+  storeRoot: string;
+  consentPath: string;
+  sessionsDir: string;
+  workspaceDir: string;
+  mainFile: string;
+  tracker: SessionTracker;
+  consentRecord: ConsentRecord;
+};
+
+async function setupBoundSession(
+  prefix: string,
+  sessionId: string,
+): Promise<BoundSessionFixture> {
+  const root = await makeTempDir(prefix);
+  const storeRoot = path.join(root, "store");
+  const consentPath = path.join(root, "consent.json");
+  const sessionsDir = path.join(root, "sessions");
+  const workspaceDir = path.join(root, "workspace");
+  await fsp.mkdir(sessionsDir, { recursive: true, mode: 0o700 });
+  await fsp.mkdir(workspaceDir, { recursive: true });
+
+  const consentRecord = createConsentRecord(storeRoot, [sessionsDir]);
+  await writeConsent(consentRecord, consentPath);
+
+  const mainFile = path.join(sessionsDir, `${sessionId}.jsonl`);
+  const tracker = new SessionTracker();
+  await recordAndWrite(tracker, "load_skills_for_files", mainFile, {
+    sessionId,
+    cwd: workspaceDir,
+  });
+
+  return {
+    root,
+    storeRoot,
+    consentPath,
+    sessionsDir,
+    workspaceDir,
+    mainFile,
+    tracker,
+    consentRecord,
+  };
+}
+
+function assistantErrorRow(id: string): string {
+  return lineJson({
+    type: "message",
+    id,
+    timestamp: new Date().toISOString(),
+    message: {
+      role: "assistant",
+      model: "model-error-stop",
+      stopReason: "error",
+      usage: {
+        input: 10,
+        output: 5,
+        cacheRead: 0,
+        cacheWrite: 0,
+        cost: { total: 0.001 },
+      },
+      content: "turn ended in error",
+    },
+  });
+}
+
+/**
+ * Publishes a generation with byte-exact content for the checkpoint the fixture's
+ * tracker produces, so a later run joins a store entry it did not write.
+ */
+async function publishManualGeneration(
+  fixture: BoundSessionFixture,
+  ledgerText: string,
+): Promise<void> {
+  const discovery = await discoverSession(fixture.consentRecord, {
+    workspace: fixture.workspaceDir,
+    toolCalls: fixture.tracker.observedToolCalls(),
+  });
+  if (discovery.state !== "bound") {
+    throw new Error(`Fixture did not bind a session: ${discovery.state}`);
+  }
+  await prepareV2(
+    {
+      root: fixture.storeRoot,
+      main: discovery.manifest.main,
+      checkpointId: discovery.manifest.checkpointId,
+    },
+    { summary: "# manual summary\n", ledger: ledgerText, status: "complete" },
+    new AbortController().signal,
+  );
 }
 
 describe("runRetrospective orchestration (Task S4b)", () => {
@@ -819,5 +914,274 @@ describe("runRetrospective orchestration (Task S4b)", () => {
       .then(() => true)
       .catch(() => false);
     expect(sessionsExist).toBe(false);
+  });
+
+  it("already-prepared reports committed counts and paths when the session file grows without new substantive work", async () => {
+    const fx = await setupBoundSession(
+      "ags-run-committed-counts-",
+      "sess-committed-counts",
+    );
+    const deps: RunDeps = {
+      tracker: fx.tracker,
+      workspace: fx.workspaceDir,
+      consentPath: fx.consentPath,
+    };
+
+    const res1 = await runRetrospective(deps, new AbortController().signal);
+    expect(res1.state).toBe("prepared");
+    if (res1.state !== "prepared") return;
+
+    const ledger1 = JSON.parse(
+      await fsp.readFile(res1.viewPaths.ledger, "utf8"),
+    ) as { counts: Record<string, number> };
+    expect(ledger1.counts).toEqual(res1.counts);
+
+    // An assistant error stop with no tool call: the checkpoint does not change,
+    // so the published generation is joined while the source has moved on.
+    await fsp.appendFile(fx.mainFile, assistantErrorRow("msg-error-stop"));
+
+    const res2 = await runRetrospective(deps, new AbortController().signal);
+    expect(res2.state).toBe("already-prepared");
+    if (res2.state !== "already-prepared") return;
+
+    expect(res2.artifactId).toBe(res1.artifactId);
+    expect(res2.viewPaths).toEqual(res1.viewPaths);
+    expect(res2.counts).toEqual(res1.counts);
+    expect(res2.sessions).toBe(res1.sessions);
+    expect(res2.fullyRead).toBe(res1.fullyRead);
+    expect(res2.coverage).toBe(res1.coverage);
+  });
+
+  it("already-prepared fails with the store integrity code when the committed ledger file was replaced", async () => {
+    const fx = await setupBoundSession(
+      "ags-run-stored-ledger-",
+      "sess-stored-ledger",
+    );
+    const deps: RunDeps = {
+      tracker: fx.tracker,
+      workspace: fx.workspaceDir,
+      consentPath: fx.consentPath,
+    };
+
+    const res1 = await runRetrospective(deps, new AbortController().signal);
+    expect(res1.state).toBe("prepared");
+    if (res1.state !== "prepared") return;
+
+    await fsp.writeFile(res1.viewPaths.ledger, "{}", { mode: 0o600 });
+
+    const res2 = await runRetrospective(deps, new AbortController().signal);
+    // resolveArtifact compares the on-disk byte count with the published receipt.
+    expect(res2).toEqual({
+      resultVersion: 1,
+      state: "failed",
+      code: "ARTIFACT_CHANGED",
+    });
+  });
+
+  it("already-prepared rejects a stored ledger that is not a ledger", async () => {
+    const fx = await setupBoundSession(
+      "ags-run-stored-invalid-",
+      "sess-stored-invalid",
+    );
+    await publishManualGeneration(fx, "{}\n");
+
+    const deps: RunDeps = {
+      tracker: fx.tracker,
+      workspace: fx.workspaceDir,
+      consentPath: fx.consentPath,
+    };
+
+    const res = await runRetrospective(deps, new AbortController().signal);
+    expect(res).toEqual({
+      resultVersion: 1,
+      state: "failed",
+      code: "STORED_LEDGER_INVALID",
+    });
+  });
+
+  it("already-prepared rejects a stored ledger whose coverage claim has no sessions count", async () => {
+    const fx = await setupBoundSession(
+      "ags-run-stored-no-sessions-",
+      "sess-stored-no-sessions",
+    );
+    const ledgerWithoutSessions = `${JSON.stringify({
+      schemaVersion: 1,
+      cutoff: "2026-10-01T00:00:00.000Z",
+      evidenceMode: "native-files",
+      rootVerification: "unverified-root",
+      coverage: "complete",
+      counts: {
+        agentsCreated: 0,
+        sessionsLinked: 0,
+        failedToolCalls: 0,
+        errorStops: 0,
+        claims: 1,
+        hypotheses: 0,
+      },
+      claims: [
+        {
+          id: "0123456789abcdef",
+          type: "observation",
+          template: "coverage",
+          values: { fullyRead: 0 },
+          scope: {
+            nodes: [{ hostId: "local", sessionId: "main" }],
+            from: "2026-10-01T00:00:00.000Z",
+            to: "2026-10-01T00:00:00.000Z",
+          },
+          coverage: "complete",
+          supporting: [],
+          contradicting: [],
+          basedOn: [],
+        },
+      ],
+      evidence: {},
+    })}\n`;
+    await publishManualGeneration(fx, ledgerWithoutSessions);
+
+    const deps: RunDeps = {
+      tracker: fx.tracker,
+      workspace: fx.workspaceDir,
+      consentPath: fx.consentPath,
+    };
+
+    const res = await runRetrospective(deps, new AbortController().signal);
+    expect(res).toEqual({
+      resultVersion: 1,
+      state: "failed",
+      code: "STORED_LEDGER_INVALID",
+    });
+  });
+
+  it("consent revoked after snapshots stops publication and writes nothing", async () => {
+    const fx = await setupBoundSession("ags-run-revoked-", "sess-revoked");
+    const deps: RunDeps = {
+      tracker: fx.tracker,
+      workspace: fx.workspaceDir,
+      consentPath: fx.consentPath,
+      afterSnapshot: async () => {
+        await removeConsent(fx.consentPath);
+      },
+    };
+
+    const res = await runRetrospective(deps, new AbortController().signal);
+    expect(res).toEqual({ resultVersion: 1, state: "disabled" });
+
+    const storeExists = await fsp
+      .lstat(fx.storeRoot)
+      .then(() => true)
+      .catch(() => false);
+    expect(storeExists).toBe(false);
+  });
+
+  it("consent re-scoped to another store root mid-run stops publication", async () => {
+    const fx = await setupBoundSession("ags-run-rescoped-", "sess-rescoped");
+    const movedRoot = path.resolve(path.join(fx.root, "store-moved"));
+    const deps: RunDeps = {
+      tracker: fx.tracker,
+      workspace: fx.workspaceDir,
+      consentPath: fx.consentPath,
+      afterSnapshot: async () => {
+        await writeConsent(
+          { ...fx.consentRecord, storeRoot: movedRoot },
+          fx.consentPath,
+        );
+      },
+    };
+
+    const res = await runRetrospective(deps, new AbortController().signal);
+    expect(res).toEqual({ resultVersion: 1, state: "disabled" });
+
+    for (const candidate of [fx.storeRoot, movedRoot]) {
+      const exists = await fsp
+        .lstat(candidate)
+        .then(() => true)
+        .catch(() => false);
+      expect(exists).toBe(false);
+    }
+  });
+
+  it("consent revoked before publication stops the tracker-only path", async () => {
+    const root = await makeTempDir("ags-run-tracker-revoked-");
+    const storeRoot = path.join(root, "store");
+    const consentPath = path.join(root, "consent.json");
+
+    await writeConsent(createConsentRecord(storeRoot, [root]), consentPath);
+
+    const tracker = new SessionTracker();
+    tracker.record({
+      via: "load_skills_for_files",
+      input: ["src/index.ts"],
+      loaded: ["skill-1"],
+    });
+
+    const deps: RunDeps = {
+      tracker,
+      workspace: path.join(root, "workspace-empty"),
+      consentPath,
+      beforePublish: async () => {
+        await removeConsent(consentPath);
+      },
+    };
+
+    const res = await runRetrospective(deps, new AbortController().signal);
+    expect(res).toEqual({ resultVersion: 1, state: "disabled" });
+
+    const storeExists = await fsp
+      .lstat(storeRoot)
+      .then(() => true)
+      .catch(() => false);
+    expect(storeExists).toBe(false);
+  });
+
+  it("aborting during the snapshot seam returns failed ABORTED and publishes nothing", async () => {
+    const fx = await setupBoundSession(
+      "ags-run-abort-seam-",
+      "sess-abort-seam",
+    );
+    const controller = new AbortController();
+    const deps: RunDeps = {
+      tracker: fx.tracker,
+      workspace: fx.workspaceDir,
+      consentPath: fx.consentPath,
+      afterSnapshot: async () => {
+        controller.abort(new Error("caller aborted mid-run"));
+      },
+    };
+
+    const res = await runRetrospective(deps, controller.signal);
+    expect(res).toEqual({
+      resultVersion: 1,
+      state: "failed",
+      code: "ABORTED",
+    });
+
+    const storeExists = await fsp
+      .lstat(fx.storeRoot)
+      .then(() => true)
+      .catch(() => false);
+    expect(storeExists).toBe(false);
+  });
+
+  it("a zero millisecond budget yields partial coverage, never complete", async () => {
+    const fx = await setupBoundSession(
+      "ags-run-zero-budget-",
+      "sess-zero-budget",
+    );
+    const deps: RunDeps = {
+      tracker: fx.tracker,
+      workspace: fx.workspaceDir,
+      consentPath: fx.consentPath,
+      limits: { maxMillis: 0 },
+    };
+
+    const res = await runRetrospective(deps, new AbortController().signal);
+    expect(res.state).toBe("prepared");
+    if (res.state !== "prepared") return;
+
+    expect(res.coverage).toBe("partial");
+    const summaryText = await fsp.readFile(res.viewPaths.summary, "utf8");
+    expect(summaryText.split("\n")[0]).toContain("Coverage: partial");
+    expect(summaryText.split("\n")[0]).not.toContain("Coverage: complete");
   });
 });

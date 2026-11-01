@@ -50,6 +50,15 @@ export function renderSummary(ledger: Ledger): string {
   const errorStopClaim = ledger.claims.find(
     (c) => c.template === "error-stop-exposure",
   );
+  const completenessFlag =
+    errorStopClaim?.values.completeness === "may-undercount-by-skipped-lines";
+  const skippedLinesTotal =
+    coverageClaim && typeof coverageClaim.values.skippedLines === "number"
+      ? coverageClaim.values.skippedLines
+      : 0;
+  const undercountPhrase = completenessFlag
+    ? ` (may undercount: ${skippedLinesTotal} lines were skipped)`
+    : "";
   if (errorStopClaim) {
     const val = errorStopClaim.values;
     const errorStops = typeof val.errorStops === "number" ? val.errorStops : 0;
@@ -60,7 +69,7 @@ export function renderSummary(ledger: Ledger): string {
     if (typeof val.topCell === "string") {
       text += ` Highest rate in cell ${val.topCell} with ${val.topCellErrorStops} error stops in ${val.topCellTurns} turns.`;
     }
-    lines.push(text);
+    lines.push(text + undercountPhrase);
   }
 
   lines.push("");
@@ -76,7 +85,7 @@ export function renderSummary(ledger: Ledger): string {
         : "agg:tree:errorStops";
 
     lines.push(
-      `- [${errorStopClaim.id}] Error-stop concentration: ${errorStops} stops in ${turns} turns. Check: open the ledger entry ${evId} and compare per-model counts; this does not say why the stops happened.`,
+      `- [${errorStopClaim.id}] Error-stop concentration: ${errorStops} stops in ${turns} turns. Check: open the ledger entry ${evId} and compare per-model counts; this does not say why the stops happened.${undercountPhrase}`,
     );
   } else {
     lines.push("- No leads identified from available evidence.");

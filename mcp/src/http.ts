@@ -36,7 +36,9 @@ export function createMcpHttpApp(
 
     try {
       // The SDK requires fresh stateless transport and protocol instances per request.
-      server = await buildServer(config, { tracker });
+      // The transport is pinned here: the retrospective tools exist on stdio only, so
+      // an ambient MCP_TRANSPORT (or its absence) must never widen this HTTP surface.
+      server = await buildServer(config, { tracker, transport: "sse" });
       if (responseClosed) {
         await cleanup();
         return;

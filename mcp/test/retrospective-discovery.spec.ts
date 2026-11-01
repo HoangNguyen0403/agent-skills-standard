@@ -41,15 +41,35 @@ function createConsent(
   };
 }
 
+// A real transcript's mtime trails its last row, so fixtures derive theirs from
+// content instead of the wall clock (which keeps discovery deterministic).
+function deriveMtime(lines: string[]): Date {
+  let latest = Number.NEGATIVE_INFINITY;
+  for (const line of lines) {
+    try {
+      const row = JSON.parse(line) as { timestamp?: unknown };
+      if (typeof row.timestamp !== "string") continue;
+      const parsed = Date.parse(row.timestamp);
+      if (!Number.isNaN(parsed) && parsed > latest) latest = parsed;
+    } catch {
+      // Non-JSON lines never occur in a real transcript.
+    }
+  }
+  return Number.isFinite(latest) ? new Date(latest + 1_000) : new Date();
+}
+
 async function writeSessionFile(
   filePath: string,
   lines: string[],
+  options: { mtime?: Date } = {},
 ): Promise<void> {
   await fs.mkdir(path.dirname(filePath), { recursive: true });
   await fs.writeFile(filePath, lines.join("\n") + "\n", { mode: 0o600 });
   if (process.platform !== "win32") {
     await fs.chmod(filePath, 0o600);
   }
+  const mtime = options.mtime ?? deriveMtime(lines);
+  await fs.utimes(filePath, mtime, mtime);
 }
 
 function sessionHeader(options: {
@@ -714,7 +734,11 @@ describe("retrospective session discovery and binding", () => {
 
     const oversizedFile = path.join(allowed, "oversized-peer.jsonl");
     await writeSessionFile(oversizedFile, [
-      sessionHeader({ id: "sess-oversized", cwd: workspace }),
+      sessionHeader({
+        id: "sess-oversized",
+        cwd: workspace,
+        timestamp: "2026-11-01T12:01:00.000Z",
+      }),
       JSON.stringify({ type: "custom", data: "z".repeat(100_000) }),
     ]);
 
@@ -781,18 +805,23 @@ describe("retrospective session discovery and binding", () => {
     await fs.mkdir(allowed, { recursive: true });
 
     const sessionFile = path.join(allowed, "sess-past.jsonl");
-    await writeSessionFile(sessionFile, [
-      sessionHeader({ id: "sess-past", cwd: workspace }),
-      ompMcpToolCall({
-        callId: "p1",
-        tool: "load_skills_for_files",
-        timestamp: "2026-11-01T12:00:00.000Z",
-      }),
-      toolResult({
-        callId: "p1",
-        timestamp: "2026-11-01T12:00:01.000Z",
-      }),
-    ]);
+    await writeSessionFile(
+      sessionFile,
+      [
+        sessionHeader({ id: "sess-past", cwd: workspace }),
+        ompMcpToolCall({
+          callId: "p1",
+          tool: "load_skills_for_files",
+          timestamp: "2026-11-01T12:00:00.000Z",
+        }),
+        toolResult({
+          callId: "p1",
+          timestamp: "2026-11-01T12:00:01.000Z",
+        }),
+      ],
+      // A recent write, so only the call-to-result window can reject it.
+      { mtime: new Date("2026-11-01T12:00:11.500Z") },
+    );
 
     const consent = createConsent([allowed], store);
     // Server record at 10 seconds after resultTs (12:00:11.000Z)
@@ -1236,6 +1265,538 @@ describe("retrospective session discovery and binding", () => {
       expect(ghostResult.manifest.checkpointId).toBe(
         baseResult.manifest.checkpointId,
       );
+    }
+  });
+
+  it("binds a nested OMP worker as child-session when only the worker called the server", async () => {
+    const root = await temporaryDirectory();
+    const store = path.join(root, "store");
+    const allowed = path.join(root, "allowed-sessions");
+    const workspace = path.join(root, "my-workspace");
+    await fs.mkdir(allowed, { recursive: true });
+
+    const sessionStamp = "2026-11-01T12-00-00Z_sess-parent";
+    const parentFile = path.join(allowed, `${sessionStamp}.jsonl`);
+    const workerFile = path.join(allowed, sessionStamp, "WorkerAlpha.jsonl");
+
+    await writeSessionFile(parentFile, [
+      sessionHeader({ id: "sess-parent", cwd: workspace }),
+      ompMcpToolCall({
+        callId: "p1",
+        tool: "get_skill",
+        timestamp: "2026-11-01T12:01:00.000Z",
+      }),
+      toolResult({ callId: "p1", timestamp: "2026-11-01T12:01:00.400Z" }),
+    ]);
+
+    await writeSessionFile(workerFile, [
+      sessionHeader({
+        id: "worker-alpha",
+        cwd: workspace,
+        parentSession: parentFile,
+      }),
+      ompMcpToolCall({
+        callId: "w1",
+        tool: "load_skills_for_files",
+        timestamp: "2026-11-01T12:01:00.000Z",
+      }),
+      toolResult({ callId: "w1", timestamp: "2026-11-01T12:01:00.400Z" }),
+    ]);
+
+    const consent = createConsent([allowed], store);
+    const observation: ServerObservation = {
+      workspace,
+      toolCalls: [
+        { tool: "load_skills_for_files", at: "2026-11-01T12:01:00.200Z" },
+      ],
+    };
+
+    const result = await discoverSession(consent, observation);
+    expect(result.state).toBe("child-session");
+  });
+
+  it("binds a nested worker file as child-session even without a parentSession header", async () => {
+    const root = await temporaryDirectory();
+    const store = path.join(root, "store");
+    const allowed = path.join(root, "allowed-sessions");
+    const workspace = path.join(root, "my-workspace");
+    await fs.mkdir(allowed, { recursive: true });
+
+    const sessionStamp = "2026-11-01T12-00-00Z_sess-parent";
+    const parentFile = path.join(allowed, `${sessionStamp}.jsonl`);
+    const workerFile = path.join(allowed, sessionStamp, "WorkerBeta.jsonl");
+
+    await writeSessionFile(parentFile, [
+      sessionHeader({ id: "sess-parent", cwd: workspace }),
+    ]);
+
+    await writeSessionFile(workerFile, [
+      sessionHeader({ id: "worker-beta", cwd: workspace }),
+      ompMcpToolCall({
+        callId: "w2",
+        tool: "load_skills_for_files",
+        timestamp: "2026-11-01T12:01:00.000Z",
+      }),
+      toolResult({ callId: "w2", timestamp: "2026-11-01T12:01:00.400Z" }),
+    ]);
+
+    const consent = createConsent([allowed], store);
+    const observation: ServerObservation = {
+      workspace,
+      toolCalls: [
+        { tool: "load_skills_for_files", at: "2026-11-01T12:01:00.200Z" },
+      ],
+    };
+
+    const result = await discoverSession(consent, observation);
+    expect(result.state).toBe("child-session");
+  });
+
+  it("returns ambiguous-session when a nested worker and its parent both match", async () => {
+    const root = await temporaryDirectory();
+    const store = path.join(root, "store");
+    const allowed = path.join(root, "allowed-sessions");
+    const workspace = path.join(root, "my-workspace");
+    await fs.mkdir(allowed, { recursive: true });
+
+    const sessionStamp = "2026-11-01T12-00-00Z_sess-parent";
+    const parentFile = path.join(allowed, `${sessionStamp}.jsonl`);
+    const workerFile = path.join(allowed, sessionStamp, "WorkerGamma.jsonl");
+
+    await writeSessionFile(parentFile, [
+      sessionHeader({ id: "sess-parent", cwd: workspace }),
+      ompMcpToolCall({
+        callId: "p2",
+        tool: "load_skills_for_files",
+        timestamp: "2026-11-01T12:01:00.000Z",
+      }),
+      toolResult({ callId: "p2", timestamp: "2026-11-01T12:01:00.400Z" }),
+    ]);
+
+    await writeSessionFile(workerFile, [
+      sessionHeader({
+        id: "worker-gamma",
+        cwd: workspace,
+        parentSession: parentFile,
+      }),
+      ompMcpToolCall({
+        callId: "w3",
+        tool: "load_skills_for_files",
+        timestamp: "2026-11-01T12:01:00.000Z",
+      }),
+      toolResult({ callId: "w3", timestamp: "2026-11-01T12:01:00.400Z" }),
+    ]);
+
+    const consent = createConsent([allowed], store);
+    const observation: ServerObservation = {
+      workspace,
+      toolCalls: [
+        { tool: "load_skills_for_files", at: "2026-11-01T12:01:00.200Z" },
+      ],
+    };
+
+    const result = await discoverSession(consent, observation);
+    expect(result.state).toBe("ambiguous-session");
+    expect(result.state).not.toBe("bound");
+  });
+
+  it("binds the parent and lists its nested child when only the parent matches", async () => {
+    const root = await temporaryDirectory();
+    const store = path.join(root, "store");
+    const allowed = path.join(root, "allowed-sessions");
+    const workspace = path.join(root, "my-workspace");
+    await fs.mkdir(allowed, { recursive: true });
+
+    const sessionStamp = "2026-11-01T12-00-00Z_sess-parent";
+    const parentFile = path.join(allowed, `${sessionStamp}.jsonl`);
+    const workerFile = path.join(allowed, sessionStamp, "WorkerDelta.jsonl");
+
+    await writeSessionFile(workerFile, [
+      sessionHeader({
+        id: "worker-delta",
+        cwd: workspace,
+        parentSession: parentFile,
+      }),
+    ]);
+
+    await writeSessionFile(parentFile, [
+      sessionHeader({ id: "sess-parent", cwd: workspace }),
+      ompMcpToolCall({
+        callId: "p3",
+        tool: "load_skills_for_files",
+        timestamp: "2026-11-01T12:01:00.000Z",
+      }),
+      toolResult({ callId: "p3", timestamp: "2026-11-01T12:01:00.400Z" }),
+      JSON.stringify({
+        type: "message",
+        id: "spawn-nested-task",
+        timestamp: "2026-11-01T12:02:00.000Z",
+        message: {
+          role: "assistant",
+          content: [
+            {
+              type: "toolCall",
+              id: "call-nested-task",
+              name: "task",
+              arguments: { tasks: [{ name: "WorkerDelta" }] },
+            },
+          ],
+        },
+      }),
+    ]);
+
+    const consent = createConsent([allowed], store);
+    const observation: ServerObservation = {
+      workspace,
+      toolCalls: [
+        { tool: "load_skills_for_files", at: "2026-11-01T12:01:00.200Z" },
+      ],
+    };
+
+    const result = await discoverSession(consent, observation);
+    expect(result.state).toBe("bound");
+    if (result.state === "bound") {
+      expect(result.mainFile).toBe(path.resolve(parentFile));
+      expect(result.childFiles).toEqual([path.resolve(workerFile)]);
+      expect(result.unlinkedAgents).toBe(0);
+      expect(result.manifest.nodes).toHaveLength(2);
+      expect(result.manifest.nodes[1].key.sessionId).toBe("WorkerDelta");
+      expect(result.manifest.nodes[1].parent).toEqual({
+        hostId: "local",
+        sessionId: "sess-parent",
+      });
+    }
+  });
+
+  it("never scores a candidate modified before the earliest observed record", async () => {
+    const root = await temporaryDirectory();
+    const store = path.join(root, "store");
+    const allowed = path.join(root, "allowed-sessions");
+    const workspace = path.join(root, "my-workspace");
+    await fs.mkdir(allowed, { recursive: true });
+
+    const sessionFile = path.join(allowed, "stale-mtime.jsonl");
+    await writeSessionFile(sessionFile, [
+      sessionHeader({ id: "sess-stale", cwd: workspace }),
+      ompMcpToolCall({
+        callId: "s1",
+        tool: "load_skills_for_files",
+        timestamp: "2026-11-01T12:01:00.000Z",
+      }),
+      toolResult({ callId: "s1", timestamp: "2026-11-01T12:01:00.400Z" }),
+    ]);
+
+    const consent = createConsent([allowed], store);
+    const observation: ServerObservation = {
+      workspace,
+      toolCalls: [
+        { tool: "load_skills_for_files", at: "2026-11-01T12:01:00.200Z" },
+      ],
+    };
+
+    const staleMtime = new Date("2026-11-01T11:00:00.000Z");
+    await fs.utimes(sessionFile, staleMtime, staleMtime);
+    const stale = await discoverSession(consent, observation);
+    expect(stale.state).toBe("no-evidence");
+
+    const freshMtime = new Date("2026-11-01T12:01:01.000Z");
+    await fs.utimes(sessionFile, freshMtime, freshMtime);
+    const fresh = await discoverSession(consent, observation);
+    expect(fresh.state).toBe("bound");
+  });
+
+  it.skipIf(process.platform === "win32" || process.getuid?.() === 0)(
+    "returns ambiguous-session when an eligible candidate cannot be opened",
+    async () => {
+      const root = await temporaryDirectory();
+      const store = path.join(root, "store");
+      const allowed = path.join(root, "allowed-sessions");
+      const workspace = path.join(root, "my-workspace");
+      await fs.mkdir(allowed, { recursive: true });
+
+      const cleanFile = path.join(allowed, "clean-match.jsonl");
+      await writeSessionFile(cleanFile, [
+        sessionHeader({ id: "sess-clean", cwd: workspace }),
+        ompMcpToolCall({
+          callId: "c1",
+          tool: "load_skills_for_files",
+          timestamp: "2026-11-01T12:01:00.000Z",
+        }),
+        toolResult({ callId: "c1", timestamp: "2026-11-01T12:01:00.400Z" }),
+      ]);
+
+      const unreadableFile = path.join(allowed, "unreadable-peer.jsonl");
+      await writeSessionFile(unreadableFile, [
+        sessionHeader({ id: "sess-unreadable", cwd: workspace }),
+        ompMcpToolCall({
+          callId: "u1",
+          tool: "get_skill",
+          timestamp: "2026-11-01T12:01:00.000Z",
+        }),
+        toolResult({ callId: "u1", timestamp: "2026-11-01T12:01:00.400Z" }),
+      ]);
+      await fs.chmod(unreadableFile, 0o000);
+
+      const consent = createConsent([allowed], store);
+      const observation: ServerObservation = {
+        workspace,
+        toolCalls: [
+          { tool: "load_skills_for_files", at: "2026-11-01T12:01:00.200Z" },
+        ],
+      };
+
+      const blocked = await discoverSession(consent, observation);
+      expect(blocked.state).toBe("ambiguous-session");
+      expect(blocked.state).not.toBe("bound");
+
+      await fs.rm(unreadableFile, { force: true });
+      const clean = await discoverSession(consent, observation);
+      expect(clean.state).toBe("bound");
+      if (clean.state === "bound") {
+        expect(clean.mainFile).toBe(path.resolve(cleanFile));
+      }
+    },
+  );
+
+  it("rejects without binding when the abort signal is already aborted", async () => {
+    const root = await temporaryDirectory();
+    const store = path.join(root, "store");
+    const allowed = path.join(root, "allowed-sessions");
+    const workspace = path.join(root, "my-workspace");
+    await fs.mkdir(allowed, { recursive: true });
+
+    const sessionFile = path.join(allowed, "abortable.jsonl");
+    await writeSessionFile(sessionFile, [
+      sessionHeader({ id: "sess-abortable", cwd: workspace }),
+      ompMcpToolCall({
+        callId: "a1",
+        tool: "load_skills_for_files",
+        timestamp: "2026-11-01T12:01:00.000Z",
+      }),
+      toolResult({ callId: "a1", timestamp: "2026-11-01T12:01:00.400Z" }),
+    ]);
+
+    const consent = createConsent([allowed], store);
+    const observation: ServerObservation = {
+      workspace,
+      toolCalls: [
+        { tool: "load_skills_for_files", at: "2026-11-01T12:01:00.200Z" },
+      ],
+    };
+
+    const baseline = await discoverSession(consent, observation);
+    expect(baseline.state).toBe("bound");
+
+    const controller = new AbortController();
+    controller.abort();
+    await expect(
+      discoverSession(
+        consent,
+        observation,
+        () => new Date(),
+        process.platform,
+        undefined,
+        controller.signal,
+      ),
+    ).rejects.toMatchObject({ code: "ABORTED" });
+  });
+
+  it("skips an over-long line and still binds a matching call after it", async () => {
+    const root = await temporaryDirectory();
+    const store = path.join(root, "store");
+    const allowed = path.join(root, "allowed-sessions");
+    const workspace = path.join(root, "my-workspace");
+    await fs.mkdir(allowed, { recursive: true });
+
+    const sessionFile = path.join(allowed, "long-line.jsonl");
+    await writeSessionFile(sessionFile, [
+      sessionHeader({ id: "sess-long-line", cwd: workspace }),
+      JSON.stringify({ type: "custom", data: "x".repeat(2 * 1024 * 1024) }),
+      ompMcpToolCall({
+        callId: "l1",
+        tool: "load_skills_for_files",
+        timestamp: "2026-11-01T12:01:00.000Z",
+      }),
+      toolResult({ callId: "l1", timestamp: "2026-11-01T12:01:00.400Z" }),
+    ]);
+
+    const consent = createConsent([allowed], store);
+    const observation: ServerObservation = {
+      workspace,
+      toolCalls: [
+        { tool: "load_skills_for_files", at: "2026-11-01T12:01:00.200Z" },
+      ],
+    };
+
+    const result = await discoverSession(consent, observation);
+    expect(result.state).toBe("bound");
+    if (result.state === "bound") {
+      expect(result.manifest.main.sessionId).toBe("sess-long-line");
+    }
+  });
+
+  it("caps listed child sessions and counts the rest as unlinked agents", async () => {
+    const root = await temporaryDirectory();
+    const store = path.join(root, "store");
+    const allowed = path.join(root, "allowed-sessions");
+    const workspace = path.join(root, "my-workspace");
+    await fs.mkdir(allowed, { recursive: true });
+
+    const sessionStamp = "2026-11-01T12-00-00Z_sess-nested";
+    const parentFile = path.join(allowed, `${sessionStamp}.jsonl`);
+
+    for (const childName of ["ChildAgentA", "ChildAgentB", "ChildAgentC"]) {
+      await writeSessionFile(
+        path.join(allowed, sessionStamp, `${childName}.jsonl`),
+        [
+          sessionHeader({
+            id: childName,
+            cwd: workspace,
+            parentSession: parentFile,
+          }),
+        ],
+      );
+    }
+
+    await writeSessionFile(parentFile, [
+      sessionHeader({ id: "sess-nested", cwd: workspace }),
+      ompMcpToolCall({
+        callId: "n1",
+        tool: "load_skills_for_files",
+        timestamp: "2026-11-01T12:01:00.000Z",
+      }),
+      toolResult({ callId: "n1", timestamp: "2026-11-01T12:01:00.400Z" }),
+      JSON.stringify({
+        type: "message",
+        id: "spawn-three-tasks",
+        timestamp: "2026-11-01T12:02:00.000Z",
+        message: {
+          role: "assistant",
+          content: [
+            {
+              type: "toolCall",
+              id: "call-three-tasks",
+              name: "task",
+              arguments: {
+                tasks: [
+                  { name: "ChildAgentA" },
+                  { name: "ChildAgentB" },
+                  { name: "ChildAgentC" },
+                ],
+              },
+            },
+          ],
+        },
+      }),
+    ]);
+
+    const consent = createConsent([allowed], store);
+    const observation: ServerObservation = {
+      workspace,
+      toolCalls: [
+        { tool: "load_skills_for_files", at: "2026-11-01T12:01:00.200Z" },
+      ],
+    };
+
+    const result = await discoverSession(
+      consent,
+      observation,
+      () => new Date(),
+      process.platform,
+      { maxChildFiles: 1 },
+    );
+
+    expect(result.state).toBe("bound");
+    if (result.state === "bound") {
+      expect(result.childFiles).toEqual([
+        path.resolve(path.join(allowed, sessionStamp, "ChildAgentA.jsonl")),
+      ]);
+      expect(result.unlinkedAgents).toBe(2);
+    }
+  });
+
+  it("leaves manifest.checkpointId identical when get_session_cost rows are appended", async () => {
+    const root = await temporaryDirectory();
+    const store = path.join(root, "store");
+    const allowed = path.join(root, "allowed-sessions");
+    const workspace = path.join(root, "my-workspace");
+    await fs.mkdir(allowed, { recursive: true });
+
+    const baseLines = [
+      sessionHeader({ id: "sess-cost-1", cwd: workspace }),
+      ompMcpToolCall({
+        callId: "c-sub-cost",
+        tool: "load_skills_for_files",
+        timestamp: "2026-11-01T12:00:00.000Z",
+      }),
+      toolResult({
+        callId: "c-sub-cost",
+        timestamp: "2026-11-01T12:00:00.400Z",
+      }),
+    ];
+
+    const targetFile = path.join(allowed, "cost-sess.jsonl");
+    await writeSessionFile(targetFile, baseLines);
+
+    const consent = createConsent([allowed], store);
+    const observation: ServerObservation = {
+      workspace,
+      toolCalls: [
+        { tool: "load_skills_for_files", at: "2026-11-01T12:00:00.200Z" },
+      ],
+    };
+
+    const baseResult = await discoverSession(consent, observation);
+    expect(baseResult.state).toBe("bound");
+    if (baseResult.state !== "bound") return;
+
+    await writeSessionFile(targetFile, [
+      ...baseLines,
+      ompMcpToolCall({
+        callId: "c-cost-1",
+        tool: "get_session_cost",
+        timestamp: "2026-11-01T12:01:00.000Z",
+      }),
+      toolResult({ callId: "c-cost-1", timestamp: "2026-11-01T12:01:00.500Z" }),
+    ]);
+
+    const appended = await discoverSession(consent, observation);
+    expect(appended.state).toBe("bound");
+    if (appended.state === "bound") {
+      expect(appended.manifest.checkpointId).toBe(
+        baseResult.manifest.checkpointId,
+      );
+    }
+  });
+
+  it("binds a session whose only recorded server call is get_session_cost", async () => {
+    const root = await temporaryDirectory();
+    const store = path.join(root, "store");
+    const allowed = path.join(root, "allowed-sessions");
+    const workspace = path.join(root, "my-workspace");
+    await fs.mkdir(allowed, { recursive: true });
+
+    const sessionFile = path.join(allowed, "cost-only.jsonl");
+    await writeSessionFile(sessionFile, [
+      sessionHeader({ id: "sess-cost-only", cwd: workspace }),
+      ompMcpToolCall({
+        callId: "c-only",
+        tool: "get_session_cost",
+        timestamp: "2026-11-01T12:01:00.000Z",
+      }),
+      toolResult({ callId: "c-only", timestamp: "2026-11-01T12:01:00.400Z" }),
+    ]);
+
+    const consent = createConsent([allowed], store);
+    const observation: ServerObservation = {
+      workspace,
+      toolCalls: [{ tool: "get_session_cost", at: "2026-11-01T12:01:00.200Z" }],
+    };
+
+    const result = await discoverSession(consent, observation);
+    expect(result.state).toBe("bound");
+    if (result.state === "bound") {
+      expect(result.manifest.main.sessionId).toBe("sess-cost-only");
     }
   });
 });
