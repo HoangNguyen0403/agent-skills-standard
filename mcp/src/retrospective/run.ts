@@ -107,6 +107,8 @@ const storedClaimSchema = z.strictObject({
     "error-stop-exposure",
     "delegation-accounting",
     "coordination-wait",
+    "skill-usage",
+    "skill-trigger-timing",
     "coverage",
   ]),
   values: z.record(z.string(), z.union([z.number(), z.string()])),
@@ -129,6 +131,28 @@ const storedClaimSchema = z.strictObject({
   basedOn: z.array(z.string()),
 });
 
+const storedSkillUsageSchema = z.strictObject({
+  since: z.string().min(1),
+  events: z.number().int().nonnegative(),
+  loadCalls: z.number().int().nonnegative(),
+  noMatchCalls: z.number().int().nonnegative(),
+  bodyReturns: z.number().int().nonnegative(),
+  dedupedReturns: z.number().int().nonnegative(),
+  estimatedTokens: z.number().int().nonnegative(),
+  selectedNotLoaded: z.number().int().nonnegative(),
+  workflows: z.number().int().nonnegative(),
+  guides: z.number().int().nonnegative(),
+  skillsTotal: z.number().int().nonnegative(),
+  skills: z.array(
+    z.strictObject({
+      id: z.string().min(1),
+      returns: z.number().int().nonnegative(),
+      firstAt: z.string().min(1),
+      via: z.array(z.string().min(1)),
+    }),
+  ),
+});
+
 const storedLedgerSchema = z.strictObject({
   schemaVersion: z.literal(1),
   cutoff: z.string().min(1),
@@ -143,6 +167,7 @@ const storedLedgerSchema = z.strictObject({
     claims: z.number().int().nonnegative(),
     hypotheses: z.number().int().nonnegative(),
   }),
+  skillUsage: storedSkillUsageSchema.nullable(),
   claims: z.array(storedClaimSchema).min(1),
   evidence: z.record(
     z.string(),
@@ -379,6 +404,9 @@ export async function runRetrospective(
     if (summary.toolCalls === 0) {
       return { resultVersion: 1, state: "not-substantive" };
     }
+    const skillUsageSnapshot = deps.tracker.skillUsage();
+    const skillUsage =
+      skillUsageSnapshot.events === 0 ? null : skillUsageSnapshot;
 
     const clockFn = deps.clock ?? (() => new Date());
     const effectivePlatform = deps.platform ?? process.platform;
@@ -441,6 +469,7 @@ export async function runRetrospective(
         unlinkedAgents: 0,
         agentsCreated: 0,
         sessionsLinked: 0,
+        skillUsage,
       };
 
       let ledger = buildLedger(ledgerInput);
@@ -561,6 +590,7 @@ export async function runRetrospective(
       unlinkedAgents,
       agentsCreated: discovery.childFiles.length + discovery.unlinkedAgents,
       sessionsLinked: childFiles.length + 1,
+      skillUsage,
     };
 
     let ledger = buildLedger(ledgerInput);

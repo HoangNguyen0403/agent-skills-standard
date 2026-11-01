@@ -4,6 +4,11 @@ import crypto from "node:crypto";
 import type { Readable } from "node:stream";
 import { DEFAULT_LIMITS, type NodeKey } from "./contracts";
 import { RetrospectiveError } from "./rules";
+import {
+  SERVER_HOUSEKEEPING_TOOLS,
+  SKILL_LOAD_TOOLS,
+  extractServerToolName,
+} from "./server-tools";
 
 export { RetrospectiveError };
 
@@ -12,6 +17,28 @@ export type SideCalls = {
   stopReasons: Record<string, number>;
   cost: number;
   costKnownCalls: number;
+};
+
+/**
+ * Skill-load accounting for one session: did the agent load project rules from
+ * this MCP server, and how much work preceded the first load?
+ */
+export type SessionSkillLoad = {
+  /** False for formats whose server tool names cannot be read (codex). */
+  measured: boolean;
+  /** Calls whose server tool is in `SKILL_LOAD_TOOLS`. */
+  skillLoadCalls: number;
+  /** Tool calls seen before the first skill-load call; null when there was none. */
+  callsBeforeFirstSkillLoad: number | null;
+};
+
+/** Per-node skill-load shape carried by `TreeAggregate.skillLoad`. */
+export type NodeSkillLoad = {
+  ordinal: number;
+  isMain: boolean;
+  measured: boolean;
+  skillLoadCalls: number;
+  callsBeforeFirstSkillLoad: number | null;
 };
 
 export type SessionAggregate = {
@@ -36,6 +63,9 @@ export type SessionAggregate = {
   sideCalls: SideCalls;
   toolCalls: Record<string, number>;
   toolErrors: Record<string, number>;
+  /** Bounded map: server tool name -> calls. */
+  serverToolCalls: Record<string, number>;
+  skillLoad: SessionSkillLoad;
   coverage: "complete" | "partial";
   partialReason?: "size-ceiling" | "time-ceiling" | "unreadable-lines";
   skippedLines: number;
@@ -95,6 +125,10 @@ export type TreeAggregate = {
   sideCalls?: SideCalls;
   toolCalls: Record<string, number>;
   toolErrors: Record<string, number>;
+  /** Summed across nodes. */
+  serverToolCalls: Record<string, number>;
+  /** Nodes in input order (index 0 is the main session), capped. */
+  skillLoad: { nodes: NodeSkillLoad[]; omittedNodes: number };
   skippedLines: number;
   metricCompleteness: MetricCompleteness;
   series: JointSeries;
@@ -106,12 +140,19 @@ export type AggregatedSession = SessionAggregate & {
   metricCompleteness: MetricCompleteness;
 };
 
+/** A completed aggregate pass: the session aggregate, its joint series and its snapshot. */
+export type AggregatedSessionResult = AggregatedSession & {
+  snapshot: SourceSnapshot;
+};
+
 export const AGGREGATE_PARSER_VERSION = "1.0.0";
 
 const READ_FLAGS =
   constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK;
 const MAX_IDENTIFIER_LENGTH = 128;
 const MAX_MAP_KEYS = 256;
+// Bounded per-node skill-load rows in a tree aggregate; extras are only counted.
+const MAX_SKILL_LOAD_NODES = 256;
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -260,13 +301,7 @@ export async function aggregateSession(
   snapshot: SourceSnapshot,
   limits: AggregateLimits,
   signal: AbortSignal,
-): Promise<
-  SessionAggregate & {
-    series: JointSeries;
-    snapshot: SourceSnapshot;
-    metricCompleteness: MetricCompleteness;
-  }
-> {
+): Promise<AggregatedSessionResult> {
   if (signal.aborted) {
     throw new RetrospectiveError("ABORTED", "Aggregate pass was aborted");
   }
@@ -320,6 +355,15 @@ export async function aggregateSession(
     };
     const toolCalls: Record<string, number> = {};
     const toolErrors: Record<string, number> = {};
+    const serverToolCalls: Record<string, number> = {};
+    const skillLoad: SessionSkillLoad = {
+      // Codex tool naming is unverified, so its counts are a declared non-measurement.
+      measured: source.format === "omp",
+      skillLoadCalls: 0,
+      callsBeforeFirstSkillLoad: null,
+    };
+    // Non-housekeeping tool calls seen so far, in file order.
+    let callsSeen = 0;
     let skippedLines = 0;
     const series: JointSeries = { byDayModel: {} };
 
@@ -541,6 +585,29 @@ export async function aggregateSession(
                 isObject(part) &&
                 (part.type === "toolCall" || part.type === "tool_use")
               ) {
+                const serverTool = extractServerToolName(
+                  part.name,
+                  part.arguments,
+                );
+                if (serverTool !== null) {
+                  recordBoundedMap(serverToolCalls, serverTool);
+                }
+                const isHousekeeping =
+                  serverTool !== null &&
+                  SERVER_HOUSEKEEPING_TOOLS.includes(serverTool);
+                if (
+                  serverTool !== null &&
+                  SKILL_LOAD_TOOLS.includes(serverTool)
+                ) {
+                  skillLoad.skillLoadCalls += 1;
+                  if (skillLoad.callsBeforeFirstSkillLoad === null) {
+                    skillLoad.callsBeforeFirstSkillLoad = callsSeen;
+                  }
+                }
+                if (!isHousekeeping) {
+                  callsSeen += 1;
+                }
+
                 const toolName =
                   typeof part.name === "string"
                     ? boundIdentifier(part.name)
@@ -964,6 +1031,9 @@ export async function aggregateSession(
       sideCalls: completenessStatus,
       costKnownTurns: completenessStatus,
       costUnknownTurns: completenessStatus,
+      // Codex tool naming is unverified, so its skill-load numbers are a
+      // documented non-measurement rather than a skipped-line undercount.
+      skillLoad: source.format === "omp" ? completenessStatus : "complete",
     };
 
     return {
@@ -983,6 +1053,8 @@ export async function aggregateSession(
       sideCalls,
       toolCalls,
       toolErrors,
+      serverToolCalls,
+      skillLoad,
       coverage,
       ...(partialReason !== undefined ? { partialReason } : {}),
       skippedLines,
@@ -1005,6 +1077,13 @@ export async function aggregateSession(
   }
 }
 
+/**
+ * Rolls per-session aggregates into one tree aggregate.
+ *
+ * Callers MUST pass the main session first: `skillLoad.nodes[0]` is reported as
+ * the main session (`isMain`), and every later index is a child in the same
+ * order.
+ */
 export function rollUp(aggregates: AggregatedSession[]): TreeAggregate {
   let fullyRead = 0;
   let hasPartial = false;
@@ -1027,11 +1106,14 @@ export function rollUp(aggregates: AggregatedSession[]): TreeAggregate {
   };
   const toolCalls: Record<string, number> = {};
   const toolErrors: Record<string, number> = {};
+  const serverToolCalls: Record<string, number> = {};
+  const skillLoadNodes: NodeSkillLoad[] = [];
+  let omittedSkillLoadNodes = 0;
   let skippedLines = 0;
   const series: JointSeries = { byDayModel: {} };
   const metricCompleteness: MetricCompleteness = {};
 
-  for (const agg of aggregates) {
+  for (const [index, agg] of aggregates.entries()) {
     if (agg.coverage === "complete") {
       fullyRead += 1;
     } else {
@@ -1076,6 +1158,20 @@ export function rollUp(aggregates: AggregatedSession[]): TreeAggregate {
     }
     for (const [k, v] of Object.entries(agg.toolErrors)) {
       toolErrors[k] = (toolErrors[k] ?? 0) + v;
+    }
+    for (const [k, v] of Object.entries(agg.serverToolCalls)) {
+      serverToolCalls[k] = (serverToolCalls[k] ?? 0) + v;
+    }
+    if (skillLoadNodes.length < MAX_SKILL_LOAD_NODES) {
+      skillLoadNodes.push({
+        ordinal: index,
+        isMain: index === 0,
+        measured: agg.skillLoad.measured,
+        skillLoadCalls: agg.skillLoad.skillLoadCalls,
+        callsBeforeFirstSkillLoad: agg.skillLoad.callsBeforeFirstSkillLoad,
+      });
+    } else {
+      omittedSkillLoadNodes += 1;
     }
     for (const [k, v] of Object.entries(agg.metricCompleteness)) {
       // Worst wins: one undercounting source makes the rolled-up metric undercounting.
@@ -1135,6 +1231,8 @@ export function rollUp(aggregates: AggregatedSession[]): TreeAggregate {
     sideCalls,
     toolCalls,
     toolErrors,
+    serverToolCalls,
+    skillLoad: { nodes: skillLoadNodes, omittedNodes: omittedSkillLoadNodes },
     skippedLines,
     metricCompleteness,
     series,

@@ -1,6 +1,80 @@
-import type { Ledger } from "../ledger";
+import type { Claim, Ledger } from "../ledger";
 
-export function renderSummary(ledger: Ledger): string {
+const MAX_SUMMARY_LINES = 40;
+const MAX_SUMMARY_BYTES = 4096;
+const MAX_TOP_SKILLS = 5;
+const MAX_LEADS = 5;
+/** Registry ids are printed verbatim, so anything else is dropped rather than echoed. */
+const SAFE_SKILL_ID_REGEX = /^[A-Za-z0-9._:/@+-]{1,96}$/;
+
+type SkillSectionOptions = {
+  /** How many top-skill entries to print. */
+  topSkills: number;
+  /** Whether the skill-timing line is printed. */
+  timing: boolean;
+};
+
+function countOf(values: Claim["values"], key: string): number {
+  const value = values[key];
+  return typeof value === "number" ? value : 0;
+}
+
+function renderTimingLine(claim: Claim): string {
+  const values = claim.values;
+  const text = `[${claim.id}] Skill timing: ${countOf(values, "sessionsWithSkillLoad")} of ${countOf(values, "measuredSessions")} sessions called a skill-loading tool`;
+  if (typeof values.mainCallsBeforeFirstSkillLoad === "number") {
+    return `${text}; the main session made ${values.mainCallsBeforeFirstSkillLoad} other tool calls before its first one.`;
+  }
+  if (countOf(values, "mainSkillLoadCalls") === 0) {
+    return `${text}; the main session called none.`;
+  }
+  return `${text}.`;
+}
+
+function renderSkillSection(
+  ledger: Ledger,
+  options: SkillSectionOptions,
+): string[] {
+  const skillClaim = ledger.claims.find(
+    (claim) => claim.template === "skill-usage",
+  );
+  const timingClaim = ledger.claims.find(
+    (claim) => claim.template === "skill-trigger-timing",
+  );
+  if (!skillClaim && !timingClaim) return [];
+
+  const lines: string[] = ["## Skills"];
+  if (skillClaim) {
+    const values = skillClaim.values;
+    const window =
+      values.trackerWindow === "matches-session"
+        ? "the whole session"
+        : `this server process since ${skillClaim.scope.from}`;
+    lines.push(
+      `[${skillClaim.id}] Skill lookups: ${countOf(values, "loadCalls")} calls returned ${countOf(values, "bodyReturns")} skill bodies (${countOf(values, "skillsTotal")} unique, ${countOf(values, "dedupedReturns")} reused from context); ${countOf(values, "noMatchCalls")} lookups matched nothing; ${countOf(values, "selectedNotLoaded")} selected skills were not returned; ${countOf(values, "workflows")} workflows, ${countOf(values, "guides")} guides. Window: ${window}.`,
+    );
+
+    const top =
+      ledger.skillUsage === null
+        ? []
+        : ledger.skillUsage.skills
+            .filter((skill) => SAFE_SKILL_ID_REGEX.test(skill.id))
+            .slice(0, options.topSkills);
+    if (top.length > 0) {
+      lines.push(
+        `Top skills: ${top
+          .map((skill) => `${skill.id} x${skill.returns}`)
+          .join(", ")}`,
+      );
+    }
+  }
+  if (timingClaim && options.timing) {
+    lines.push(renderTimingLine(timingClaim));
+  }
+  return lines;
+}
+
+function renderLines(ledger: Ledger, options: SkillSectionOptions): string[] {
   const lines: string[] = [];
 
   const evidenceStr =
@@ -74,7 +148,14 @@ export function renderSummary(ledger: Ledger): string {
 
   lines.push("");
 
+  const skillSection = renderSkillSection(ledger, options);
+  if (skillSection.length > 0) {
+    lines.push(...skillSection);
+    lines.push("");
+  }
+
   lines.push("## Leads");
+  const leads: string[] = [];
   if (errorStopClaim) {
     const val = errorStopClaim.values;
     const errorStops = typeof val.errorStops === "number" ? val.errorStops : 0;
@@ -84,12 +165,25 @@ export function renderSummary(ledger: Ledger): string {
         ? `agg:cell:${val.topCell}:errorStops`
         : "agg:tree:errorStops";
 
-    lines.push(
+    leads.push(
       `- [${errorStopClaim.id}] Error-stop concentration: ${errorStops} stops in ${turns} turns. Check: open the ledger entry ${evId} and compare per-model counts; this does not say why the stops happened.${undercountPhrase}`,
     );
-  } else {
-    lines.push("- No leads identified from available evidence.");
   }
+  const timingClaim = ledger.claims.find(
+    (c) => c.template === "skill-trigger-timing",
+  );
+  const sessionsWithoutSkillLoad = timingClaim
+    ? countOf(timingClaim.values, "sessionsWithoutSkillLoad")
+    : 0;
+  if (timingClaim && sessionsWithoutSkillLoad > 0) {
+    leads.push(
+      `- [${timingClaim.id}] ${sessionsWithoutSkillLoad} of ${countOf(timingClaim.values, "measuredSessions")} sessions never called a skill-loading tool. Check: open ledger entries agg:skills:measuredSessions and agg:skills:sessionsWithSkillLoad; a session without a skill call is not proof a skill was needed.`,
+    );
+  }
+  if (leads.length === 0) {
+    leads.push("- No leads identified from available evidence.");
+  }
+  lines.push(...leads.slice(0, MAX_LEADS));
 
   lines.push("");
 
@@ -98,6 +192,50 @@ export function renderSummary(ledger: Ledger): string {
   lines.push("- Token cost is shown only as recorded units elsewhere.");
   lines.push("- Partial reads can undercount.");
   lines.push("- The root session is not verified against the host.");
+  if (skillSection.length > 0) {
+    lines.push(
+      "- Loaded is not the same as followed: the report counts skill lookups, not whether the agent applied them.",
+    );
+    lines.push(
+      "- Skills read through the host's own skill mechanism (not this server) are not counted.",
+    );
+  }
 
-  return lines.join("\n");
+  return lines;
+}
+
+function fitsBudget(text: string): boolean {
+  return (
+    text.split("\n").length <= MAX_SUMMARY_LINES &&
+    Buffer.byteLength(text, "utf8") <= MAX_SUMMARY_BYTES
+  );
+}
+
+export function renderSummary(ledger: Ledger): string {
+  const hasSkillSection = ledger.claims.some(
+    (claim) =>
+      claim.template === "skill-usage" ||
+      claim.template === "skill-trigger-timing",
+  );
+  if (!hasSkillSection) {
+    return renderLines(ledger, { topSkills: 0, timing: false }).join("\n");
+  }
+
+  // Deterministic degradation: drop top-skill entries first, then the timing
+  // line. Line 1, the coverage/error lines and the limits block always stay.
+  const candidates: SkillSectionOptions[] = [];
+  for (let topSkills = MAX_TOP_SKILLS; topSkills >= 0; topSkills -= 1) {
+    candidates.push({ topSkills, timing: true });
+  }
+  for (let topSkills = MAX_TOP_SKILLS; topSkills >= 0; topSkills -= 1) {
+    candidates.push({ topSkills, timing: false });
+  }
+
+  let last = "";
+  for (const candidate of candidates) {
+    const text = renderLines(ledger, candidate).join("\n");
+    last = text;
+    if (fitsBudget(text)) return text;
+  }
+  return last;
 }

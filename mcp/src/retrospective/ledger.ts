@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
-import type { TreeAggregate } from "./aggregate";
+import type { SkillUsageSnapshot } from "../services/SessionTracker";
+import type { NodeSkillLoad, TreeAggregate } from "./aggregate";
 import type { NodeKey } from "./contracts";
 
 export type EvidenceId = string;
@@ -9,6 +10,8 @@ export type ClaimTemplateId =
   | "error-stop-exposure"
   | "delegation-accounting"
   | "coordination-wait"
+  | "skill-usage"
+  | "skill-trigger-timing"
   | "coverage";
 
 export type Claim = {
@@ -32,6 +35,8 @@ export type LedgerInput = {
   unlinkedAgents: number;
   agentsCreated: number;
   sessionsLinked: number;
+  /** Counts-only skill lookup snapshot from this server process. */
+  skillUsage: SkillUsageSnapshot | null;
 };
 
 export type LedgerCounts = {
@@ -50,6 +55,8 @@ export type Ledger = {
   rootVerification: LedgerInput["rootVerification"];
   coverage: "complete" | "partial";
   counts: LedgerCounts;
+  /** Copy of the tracker snapshot the skill claims were built from. */
+  skillUsage: SkillUsageSnapshot | null;
   claims: Claim[];
   evidence: Record<EvidenceId, { kind: "aggregate"; value: number | string }>;
 };
@@ -66,6 +73,8 @@ export type LedgerProblemCode =
 
 const SAFE_MODEL_REGEX = /^[A-Za-z0-9._:/@+-]{1,64}$/;
 const SAFE_DAY_REGEX = /^(\d{4}-\d{2}-\d{2}|unknown-day)$/;
+/** Registry skill ids are `category/skill`; the tracker emits the same shape. */
+const SAFE_SKILL_ID_REGEX = /^[A-Za-z0-9._:/@+-]{1,96}$/;
 
 const COUNT_KEYS: ReadonlyArray<keyof LedgerCounts> = [
   "agentsCreated",
@@ -164,6 +173,32 @@ function computeClaimId(
     .slice(0, 16);
 }
 
+/** Deterministic copy: fixed key order, no shared references with the tracker. */
+function copySkillUsage(
+  snapshot: SkillUsageSnapshot | null,
+): SkillUsageSnapshot | null {
+  if (snapshot === null) return null;
+  return {
+    since: snapshot.since,
+    events: snapshot.events,
+    loadCalls: snapshot.loadCalls,
+    noMatchCalls: snapshot.noMatchCalls,
+    bodyReturns: snapshot.bodyReturns,
+    dedupedReturns: snapshot.dedupedReturns,
+    estimatedTokens: snapshot.estimatedTokens,
+    selectedNotLoaded: snapshot.selectedNotLoaded,
+    workflows: snapshot.workflows,
+    guides: snapshot.guides,
+    skillsTotal: snapshot.skillsTotal,
+    skills: snapshot.skills.map((skill) => ({
+      id: skill.id,
+      returns: skill.returns,
+      firstAt: skill.firstAt,
+      via: [...skill.via],
+    })),
+  };
+}
+
 export function buildLedger(input: LedgerInput): Ledger {
   const tree = input.tree;
   const isPartial =
@@ -191,6 +226,11 @@ export function buildLedger(input: LedgerInput): Ledger {
   const agentsCreated = input.agentsCreated;
   const sessionsLinked = input.sessionsLinked;
   const unlinkedAgents = input.unlinkedAgents;
+  const skillUsage = copySkillUsage(input.skillUsage);
+  const mainSkillNode: NodeSkillLoad | null =
+    tree === null || tree.skillLoad.nodes.length === 0
+      ? null
+      : tree.skillLoad.nodes[0];
 
   const coverageValues: Record<string, number | string> = {
     sessions,
@@ -324,6 +364,117 @@ export function buildLedger(input: LedgerInput): Ledger {
     });
   }
 
+  if (skillUsage !== null && skillUsage.loadCalls > 0) {
+    const skillScope = {
+      nodes,
+      from: skillUsage.since,
+      to: input.cutoff,
+    };
+    const skillSupporting: EvidenceId[] = [
+      "agg:skills:loadCalls",
+      "agg:skills:bodyReturns",
+    ];
+    evidence["agg:skills:loadCalls"] = {
+      kind: "aggregate",
+      value: skillUsage.loadCalls,
+    };
+    evidence["agg:skills:bodyReturns"] = {
+      kind: "aggregate",
+      value: skillUsage.bodyReturns,
+    };
+
+    // The tracker only sees this process, so its count equals the session total
+    // only when the main session's bound calls match it exactly.
+    const trackerWindow =
+      mainSkillNode !== null &&
+      mainSkillNode.skillLoadCalls === skillUsage.loadCalls
+        ? "matches-session"
+        : "process-only";
+
+    claims.push({
+      id: computeClaimId("skill-usage", skillScope, skillSupporting),
+      type: "observation",
+      template: "skill-usage",
+      values: {
+        loadCalls: skillUsage.loadCalls,
+        skillsTotal: skillUsage.skillsTotal,
+        bodyReturns: skillUsage.bodyReturns,
+        dedupedReturns: skillUsage.dedupedReturns,
+        estimatedTokens: skillUsage.estimatedTokens,
+        noMatchCalls: skillUsage.noMatchCalls,
+        selectedNotLoaded: skillUsage.selectedNotLoaded,
+        workflows: skillUsage.workflows,
+        guides: skillUsage.guides,
+        trackerWindow,
+      },
+      scope: skillScope,
+      denominator: { count: skillUsage.loadCalls, unit: "skill lookup calls" },
+      coverage: overallCoverage,
+      supporting: skillSupporting,
+      contradicting: [],
+      basedOn: [],
+    });
+  }
+
+  if (tree !== null) {
+    const measuredNodes = tree.skillLoad.nodes.filter((node) => node.measured);
+    if (measuredNodes.length > 0) {
+      const sessionsWithSkillLoad = measuredNodes.filter(
+        (node) => node.skillLoadCalls > 0,
+      ).length;
+      const timingSupporting: EvidenceId[] = [
+        "agg:skills:measuredSessions",
+        "agg:skills:sessionsWithSkillLoad",
+      ];
+      evidence["agg:skills:measuredSessions"] = {
+        kind: "aggregate",
+        value: measuredNodes.length,
+      };
+      evidence["agg:skills:sessionsWithSkillLoad"] = {
+        kind: "aggregate",
+        value: sessionsWithSkillLoad,
+      };
+
+      const timingValues: Record<string, number | string> = {
+        sessions: tree.skillLoad.nodes.length + tree.skillLoad.omittedNodes,
+        measuredSessions: measuredNodes.length,
+        sessionsWithSkillLoad,
+        sessionsWithoutSkillLoad: measuredNodes.length - sessionsWithSkillLoad,
+        mainSkillLoadCalls:
+          mainSkillNode === null ? 0 : mainSkillNode.skillLoadCalls,
+        completeness:
+          tree.metricCompleteness.skillLoad ===
+          "may-undercount-by-skipped-lines"
+            ? "may-undercount-by-skipped-lines"
+            : "complete",
+      };
+      if (
+        mainSkillNode !== null &&
+        mainSkillNode.measured &&
+        mainSkillNode.callsBeforeFirstSkillLoad !== null
+      ) {
+        timingValues.mainCallsBeforeFirstSkillLoad =
+          mainSkillNode.callsBeforeFirstSkillLoad;
+      }
+
+      claims.push({
+        id: computeClaimId("skill-trigger-timing", scope, timingSupporting),
+        type: "observation",
+        template: "skill-trigger-timing",
+        values: timingValues,
+        scope,
+        denominator: {
+          count: measuredNodes.length,
+          unit: "measured sessions",
+        },
+        coverage: overallCoverage,
+        supporting: timingSupporting,
+        contradicting: [],
+        basedOn: [],
+      });
+    }
+  }
+
   const sortedEvidence: Record<
     EvidenceId,
     { kind: "aggregate"; value: number | string }
@@ -348,6 +499,7 @@ export function buildLedger(input: LedgerInput): Ledger {
     rootVerification: input.rootVerification,
     coverage: overallCoverage,
     counts,
+    skillUsage,
     claims,
     evidence: sortedEvidence,
   };
@@ -374,7 +526,11 @@ export function checkClaimRules(ledger: Ledger): LedgerProblemCode[] {
       problems.add("MISSING_SCOPE");
     }
 
-    if (claim.template === "error-stop-exposure") {
+    if (
+      claim.template === "error-stop-exposure" ||
+      claim.template === "skill-usage" ||
+      claim.template === "skill-trigger-timing"
+    ) {
       if (
         !claim.denominator ||
         typeof claim.denominator.count !== "number" ||
@@ -477,6 +633,12 @@ export function verifyLedger(
       if (expClaim.values.completeness !== claim.values.completeness) {
         problems.add("NUMBER_MISMATCH");
       }
+      if (
+        claim.template === "skill-usage" &&
+        expClaim.values.trackerWindow !== claim.values.trackerWindow
+      ) {
+        problems.add("NUMBER_MISMATCH");
+      }
     }
   }
 
@@ -500,6 +662,23 @@ export function verifyLedger(
     const actEv = ledger.evidence[k];
     if (actEv !== undefined && actEv.value !== expEv.value) {
       problems.add("NUMBER_MISMATCH");
+    }
+  }
+
+  if (
+    JSON.stringify(ledger.skillUsage) !== JSON.stringify(expected.skillUsage)
+  ) {
+    problems.add("NUMBER_MISMATCH");
+  }
+
+  if (ledger.skillUsage !== null && Array.isArray(ledger.skillUsage.skills)) {
+    for (const skill of ledger.skillUsage.skills) {
+      if (
+        typeof skill?.id !== "string" ||
+        !SAFE_SKILL_ID_REGEX.test(skill.id)
+      ) {
+        problems.add("UNSAFE_VALUE");
+      }
     }
   }
 

@@ -952,6 +952,61 @@ describe("runRetrospective orchestration (Task S4b)", () => {
     expect(res2.coverage).toBe(res1.coverage);
   });
 
+  it("publishes tracker skill usage and keeps the committed numbers on a later call", async () => {
+    const fx = await setupBoundSession(
+      "ags-run-skill-usage-",
+      "sess-skill-usage",
+    );
+    // setupBoundSession recorded one load; a second one makes loadCalls 2.
+    fx.tracker.record({
+      via: "load_skills_for_files",
+      input: ["src/index.ts"],
+      loaded: ["skill-2"],
+    });
+
+    const deps: RunDeps = {
+      tracker: fx.tracker,
+      workspace: fx.workspaceDir,
+      consentPath: fx.consentPath,
+    };
+
+    const res1 = await runRetrospective(deps, new AbortController().signal);
+    expect(res1.state).toBe("prepared");
+    if (res1.state !== "prepared") return;
+
+    const ledger1 = JSON.parse(
+      await fsp.readFile(res1.viewPaths.ledger, "utf8"),
+    ) as { skillUsage: { loadCalls: number } | null };
+    expect(ledger1.skillUsage?.loadCalls).toBe(2);
+
+    const summary1 = await fsp.readFile(res1.viewPaths.summary, "utf8");
+    expect(summary1).toContain("## Skills");
+    expect(summary1).toContain("2 calls returned 2 skill bodies");
+
+    // The tracker records two more loads; the committed generation keeps its numbers.
+    fx.tracker.record({
+      via: "load_skills_for_files",
+      input: ["src/index.ts"],
+      loaded: ["skill-3"],
+    });
+    fx.tracker.record({
+      via: "get_skill",
+      input: ["skill-4"],
+      loaded: ["skill-4"],
+    });
+    expect(fx.tracker.skillUsage().loadCalls).toBe(4);
+
+    const res2 = await runRetrospective(deps, new AbortController().signal);
+    expect(res2.state).toBe("already-prepared");
+    if (res2.state !== "already-prepared") return;
+    expect(res2.counts).toEqual(res1.counts);
+
+    const ledger2 = JSON.parse(
+      await fsp.readFile(res2.viewPaths.ledger, "utf8"),
+    ) as { skillUsage: { loadCalls: number } | null };
+    expect(ledger2.skillUsage?.loadCalls).toBe(2);
+  });
+
   it("already-prepared fails with the store integrity code when the committed ledger file was replaced", async () => {
     const fx = await setupBoundSession(
       "ags-run-stored-ledger-",
@@ -1018,6 +1073,7 @@ describe("runRetrospective orchestration (Task S4b)", () => {
         claims: 1,
         hypotheses: 0,
       },
+      skillUsage: null,
       claims: [
         {
           id: "0123456789abcdef",

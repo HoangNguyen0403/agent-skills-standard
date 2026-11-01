@@ -7,6 +7,7 @@ import {
   type Claim,
   type LedgerInput,
 } from "../src/retrospective/ledger";
+import type { SkillUsageSnapshot } from "../src/services/SessionTracker";
 
 function createTreeFixture(
   overrides: Partial<TreeAggregate> = {},
@@ -40,6 +41,21 @@ function createTreeFixture(
     toolCalls: {
       read: 10,
       write: 5,
+    },
+    serverToolCalls: {},
+    // Not measured by default: keeps skill-trigger-timing claims out of fixtures
+    // that predate skill accounting.
+    skillLoad: {
+      nodes: [
+        {
+          ordinal: 0,
+          isMain: true,
+          measured: false,
+          skillLoadCalls: 0,
+          callsBeforeFirstSkillLoad: null,
+        },
+      ],
+      omittedNodes: 0,
     },
     toolErrors: {
       read: 0,
@@ -79,7 +95,67 @@ const DEFAULT_INPUT: LedgerInput = {
   unlinkedAgents: 1,
   agentsCreated: 4,
   sessionsLinked: 3,
+  skillUsage: null,
 };
+
+/** Tree with two measured sessions; the main session made three skill lookups. */
+function skillTree(overrides: Partial<TreeAggregate> = {}): TreeAggregate {
+  return createTreeFixture({
+    skillLoad: {
+      nodes: [
+        {
+          ordinal: 0,
+          isMain: true,
+          measured: true,
+          skillLoadCalls: 3,
+          callsBeforeFirstSkillLoad: 2,
+        },
+        {
+          ordinal: 1,
+          isMain: false,
+          measured: true,
+          skillLoadCalls: 0,
+          callsBeforeFirstSkillLoad: null,
+        },
+      ],
+      omittedNodes: 0,
+    },
+    ...overrides,
+  });
+}
+
+function skillUsageFixture(
+  overrides: Partial<SkillUsageSnapshot> = {},
+): SkillUsageSnapshot {
+  return {
+    since: "2026-10-01T09:00:00.000Z",
+    events: 6,
+    loadCalls: 3,
+    noMatchCalls: 1,
+    bodyReturns: 3,
+    dedupedReturns: 1,
+    estimatedTokens: 30,
+    selectedNotLoaded: 1,
+    workflows: 1,
+    guides: 0,
+    skillsTotal: 2,
+    skills: [
+      {
+        id: "nextjs/app-router",
+        returns: 2,
+        firstAt: "2026-10-01T09:01:00.000Z",
+        via: ["load_skills_for_files"],
+      },
+      {
+        id: "typescript/strict",
+        returns: 1,
+        firstAt: "2026-10-01T09:02:00.000Z",
+        via: ["get_skill"],
+      },
+    ],
+    ...overrides,
+  };
+}
 
 describe("retrospective ledger", () => {
   it("builds expected claims, counts, and evidence ids from a two-model fixture", () => {
@@ -514,6 +590,7 @@ describe("retrospective ledger", () => {
       cutoff: "2026-10-01T12:00:00.000Z",
       evidenceMode: "tracker-only",
       rootVerification: "not-applicable",
+      skillUsage: null,
       unlinkedAgents: 2,
       agentsCreated: 5,
       sessionsLinked: 3,
@@ -556,6 +633,7 @@ describe("retrospective ledger", () => {
       cutoff: "2026-10-01T12:00:00.000Z",
       evidenceMode: "tracker-only",
       rootVerification: "not-applicable",
+      skillUsage: null,
       unlinkedAgents: 2,
       agentsCreated: 5,
       sessionsLinked: 3,
@@ -627,5 +705,301 @@ describe("retrospective ledger", () => {
 
     const json = JSON.stringify(ledger);
     expect(json).not.toMatch(forbiddenPattern);
+  });
+
+  it("builds skill-usage and skill-trigger-timing claims with exact values", () => {
+    const usage = skillUsageFixture();
+    const input: LedgerInput = {
+      ...DEFAULT_INPUT,
+      tree: skillTree(),
+      skillUsage: usage,
+    };
+
+    const ledger = buildLedger(input);
+    expect(ledger.skillUsage).toEqual(usage);
+    expect(verifyLedger(ledger, input)).toEqual({ ok: true });
+
+    const skillClaim = ledger.claims.find((c) => c.template === "skill-usage");
+    expect(skillClaim).toBeDefined();
+    if (!skillClaim) return;
+    expect(skillClaim.type).toBe("observation");
+    expect(skillClaim.coverage).toBe("complete");
+    expect(skillClaim.values).toEqual({
+      loadCalls: 3,
+      skillsTotal: 2,
+      bodyReturns: 3,
+      dedupedReturns: 1,
+      estimatedTokens: 30,
+      noMatchCalls: 1,
+      selectedNotLoaded: 1,
+      workflows: 1,
+      guides: 0,
+      trackerWindow: "matches-session",
+    });
+    expect(skillClaim.denominator).toEqual({
+      count: 3,
+      unit: "skill lookup calls",
+    });
+    expect(skillClaim.scope.from).toBe("2026-10-01T09:00:00.000Z");
+    expect(skillClaim.scope.to).toBe("2026-10-01T12:00:00.000Z");
+    expect(skillClaim.supporting).toEqual([
+      "agg:skills:loadCalls",
+      "agg:skills:bodyReturns",
+    ]);
+    expect(ledger.evidence["agg:skills:loadCalls"]).toEqual({
+      kind: "aggregate",
+      value: 3,
+    });
+    expect(ledger.evidence["agg:skills:bodyReturns"]).toEqual({
+      kind: "aggregate",
+      value: 3,
+    });
+
+    const timingClaim = ledger.claims.find(
+      (c) => c.template === "skill-trigger-timing",
+    );
+    expect(timingClaim).toBeDefined();
+    if (!timingClaim) return;
+    expect(timingClaim.type).toBe("observation");
+    expect(timingClaim.values).toEqual({
+      sessions: 2,
+      measuredSessions: 2,
+      sessionsWithSkillLoad: 1,
+      sessionsWithoutSkillLoad: 1,
+      mainSkillLoadCalls: 3,
+      mainCallsBeforeFirstSkillLoad: 2,
+      completeness: "complete",
+    });
+    expect(timingClaim.denominator).toEqual({
+      count: 2,
+      unit: "measured sessions",
+    });
+    expect(timingClaim.supporting).toEqual([
+      "agg:skills:measuredSessions",
+      "agg:skills:sessionsWithSkillLoad",
+    ]);
+    expect(ledger.evidence["agg:skills:measuredSessions"]).toEqual({
+      kind: "aggregate",
+      value: 2,
+    });
+    expect(ledger.evidence["agg:skills:sessionsWithSkillLoad"]).toEqual({
+      kind: "aggregate",
+      value: 1,
+    });
+
+    expect(ledger.counts.claims).toBe(4);
+  });
+
+  it("marks the tracker window process-only when the main session count differs or there is no tree", () => {
+    const diverging: LedgerInput = {
+      ...DEFAULT_INPUT,
+      tree: skillTree({
+        skillLoad: {
+          nodes: [
+            {
+              ordinal: 0,
+              isMain: true,
+              measured: true,
+              skillLoadCalls: 2,
+              callsBeforeFirstSkillLoad: null,
+            },
+          ],
+          omittedNodes: 0,
+        },
+      }),
+      skillUsage: skillUsageFixture({ loadCalls: 3 }),
+    };
+    const divergingClaim = buildLedger(diverging).claims.find(
+      (c) => c.template === "skill-usage",
+    );
+    expect(divergingClaim?.values.trackerWindow).toBe("process-only");
+
+    const trackerOnly: LedgerInput = {
+      tree: null,
+      cutoff: "2026-10-01T12:00:00.000Z",
+      evidenceMode: "tracker-only",
+      rootVerification: "not-applicable",
+      unlinkedAgents: 0,
+      agentsCreated: 0,
+      sessionsLinked: 0,
+      skillUsage: skillUsageFixture(),
+    };
+    const trackerLedger = buildLedger(trackerOnly);
+    const trackerClaim = trackerLedger.claims.find(
+      (c) => c.template === "skill-usage",
+    );
+    expect(trackerClaim?.values.trackerWindow).toBe("process-only");
+    expect(
+      trackerLedger.claims.some((c) => c.template === "skill-trigger-timing"),
+    ).toBe(false);
+    expect(verifyLedger(trackerLedger, trackerOnly)).toEqual({ ok: true });
+  });
+
+  it("omits both skill claims when there are no load calls or no measured session", () => {
+    const noLoads: LedgerInput = {
+      ...DEFAULT_INPUT,
+      tree: skillTree(),
+      skillUsage: skillUsageFixture({ loadCalls: 0 }),
+    };
+    const noLoadsLedger = buildLedger(noLoads);
+    expect(noLoadsLedger.claims.some((c) => c.template === "skill-usage")).toBe(
+      false,
+    );
+    expect(
+      noLoadsLedger.claims.some((c) => c.template === "skill-trigger-timing"),
+    ).toBe(true);
+    expect(verifyLedger(noLoadsLedger, noLoads)).toEqual({ ok: true });
+
+    const nullUsage: LedgerInput = {
+      ...DEFAULT_INPUT,
+      tree: skillTree(),
+      skillUsage: null,
+    };
+    const nullUsageLedger = buildLedger(nullUsage);
+    expect(nullUsageLedger.skillUsage).toBeNull();
+    expect(
+      nullUsageLedger.claims.some((c) => c.template === "skill-usage"),
+    ).toBe(false);
+    expect(verifyLedger(nullUsageLedger, nullUsage)).toEqual({ ok: true });
+
+    const noMeasured: LedgerInput = {
+      ...DEFAULT_INPUT,
+      tree: createTreeFixture(),
+      skillUsage: skillUsageFixture({ loadCalls: 5 }),
+    };
+    const noMeasuredLedger = buildLedger(noMeasured);
+    expect(
+      noMeasuredLedger.claims.some(
+        (c) => c.template === "skill-trigger-timing",
+      ),
+    ).toBe(false);
+    expect(
+      noMeasuredLedger.claims.some((c) => c.template === "skill-usage"),
+    ).toBe(true);
+    expect(verifyLedger(noMeasuredLedger, noMeasured)).toEqual({ ok: true });
+  });
+
+  it("omits mainCallsBeforeFirstSkillLoad when the main node has no value", () => {
+    const input: LedgerInput = {
+      ...DEFAULT_INPUT,
+      tree: createTreeFixture({
+        skillLoad: {
+          nodes: [
+            {
+              ordinal: 0,
+              isMain: true,
+              measured: true,
+              skillLoadCalls: 2,
+              callsBeforeFirstSkillLoad: null,
+            },
+            {
+              ordinal: 1,
+              isMain: false,
+              measured: false,
+              skillLoadCalls: 0,
+              callsBeforeFirstSkillLoad: null,
+            },
+          ],
+          omittedNodes: 3,
+        },
+      }),
+      skillUsage: skillUsageFixture({ loadCalls: 2 }),
+    };
+
+    const ledger = buildLedger(input);
+    const timingClaim = ledger.claims.find(
+      (c) => c.template === "skill-trigger-timing",
+    );
+    expect(timingClaim).toBeDefined();
+    if (!timingClaim) return;
+    expect(timingClaim.values.mainCallsBeforeFirstSkillLoad).toBeUndefined();
+    expect(timingClaim.values.mainSkillLoadCalls).toBe(2);
+    expect(timingClaim.values.sessions).toBe(5);
+    expect(timingClaim.values.measuredSessions).toBe(1);
+    expect(timingClaim.values.sessionsWithSkillLoad).toBe(1);
+    expect(timingClaim.values.sessionsWithoutSkillLoad).toBe(0);
+
+    const skillClaim = ledger.claims.find((c) => c.template === "skill-usage");
+    expect(skillClaim?.values.trackerWindow).toBe("matches-session");
+    expect(verifyLedger(ledger, input)).toEqual({ ok: true });
+  });
+
+  it("reports NUMBER_MISMATCH when a skill-usage value or the stored snapshot is tampered", () => {
+    const input: LedgerInput = {
+      ...DEFAULT_INPUT,
+      tree: skillTree(),
+      skillUsage: skillUsageFixture(),
+    };
+
+    const tamperedValue = buildLedger(input);
+    const skillClaim = tamperedValue.claims.find(
+      (c) => c.template === "skill-usage",
+    );
+    if (!skillClaim) throw new Error("missing skill-usage claim");
+    skillClaim.values.bodyReturns = 99;
+    expect(verifyLedger(tamperedValue, input)).toEqual({
+      ok: false,
+      problems: ["NUMBER_MISMATCH"],
+    });
+
+    const tamperedWindow = buildLedger(input);
+    const windowClaim = tamperedWindow.claims.find(
+      (c) => c.template === "skill-usage",
+    );
+    if (!windowClaim) throw new Error("missing skill-usage claim");
+    windowClaim.values.trackerWindow = "process-only";
+    expect(verifyLedger(tamperedWindow, input)).toEqual({
+      ok: false,
+      problems: ["NUMBER_MISMATCH"],
+    });
+
+    const tamperedSnapshot = buildLedger(input);
+    const storedSnapshot = tamperedSnapshot.skillUsage;
+    if (storedSnapshot === null) {
+      throw new Error("missing skill usage snapshot");
+    }
+    storedSnapshot.loadCalls = 42;
+    expect(verifyLedger(tamperedSnapshot, input)).toEqual({
+      ok: false,
+      problems: ["NUMBER_MISMATCH"],
+    });
+  });
+
+  it("reports UNSAFE_VALUE when a stored skill id is not a safe identifier", () => {
+    const input: LedgerInput = {
+      ...DEFAULT_INPUT,
+      tree: skillTree(),
+      skillUsage: skillUsageFixture({
+        skills: [
+          {
+            id: "bad id with spaces",
+            returns: 1,
+            firstAt: "2026-10-01T09:01:00.000Z",
+            via: ["get_skill"],
+          },
+        ],
+      }),
+    };
+
+    const ledger = buildLedger(input);
+    expect(verifyLedger(ledger, input)).toEqual({
+      ok: false,
+      problems: ["UNSAFE_VALUE"],
+    });
+  });
+
+  it("produces byte-identical JSON without forbidden words when skill claims are present", () => {
+    const input: LedgerInput = {
+      ...DEFAULT_INPUT,
+      tree: skillTree(),
+      skillUsage: skillUsageFixture(),
+    };
+
+    const first = JSON.stringify(buildLedger(input));
+    const second = JSON.stringify(buildLedger(input));
+    expect(first).toBe(second);
+    expect(first).not.toMatch(
+      /\b(rework|wasted|bad|failure-rate-of-a-model|improvement)\b/i,
+    );
   });
 });

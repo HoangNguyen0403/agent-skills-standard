@@ -288,6 +288,69 @@ describe("retrospective session discovery and binding", () => {
     }
   });
 
+  it("binds only through the shared server-device extraction of a write call", async () => {
+    const root = await temporaryDirectory();
+    const store = path.join(root, "store");
+    const allowed = path.join(root, "allowed-sessions");
+    const workspace = path.join(root, "my-workspace");
+    await fs.mkdir(allowed, { recursive: true });
+
+    const serverFile = path.join(allowed, "sess-server-write.jsonl");
+    await writeSessionFile(serverFile, [
+      sessionHeader({ id: "sess-server-write", cwd: workspace }),
+      ompMcpToolCall({
+        callId: "w1",
+        tool: "get_skill",
+        timestamp: "2026-11-01T12:01:00.000Z",
+      }),
+      toolResult({ callId: "w1", timestamp: "2026-11-01T12:01:00.400Z" }),
+    ]);
+
+    const observation: ServerObservation = {
+      workspace,
+      toolCalls: [{ tool: "get_skill", at: "2026-11-01T12:01:00.200Z" }],
+    };
+
+    const bound = await discoverSession(
+      createConsent([allowed], store),
+      observation,
+    );
+    expect(bound.state).toBe("bound");
+    if (bound.state === "bound") {
+      expect(bound.mainFile).toBe(path.resolve(serverFile));
+    }
+
+    // Control: the same write shape against another device path is not this server.
+    await fs.rm(serverFile);
+    const foreignFile = path.join(allowed, "sess-foreign-write.jsonl");
+    await writeSessionFile(foreignFile, [
+      sessionHeader({ id: "sess-foreign-write", cwd: workspace }),
+      JSON.stringify({
+        type: "message",
+        id: "msg-foreign",
+        timestamp: "2026-11-01T12:01:00.000Z",
+        message: {
+          role: "assistant",
+          content: [
+            {
+              type: "toolCall",
+              id: "w2",
+              name: "write",
+              arguments: { path: "xd://other_tool" },
+            },
+          ],
+        },
+      }),
+      toolResult({ callId: "w2", timestamp: "2026-11-01T12:01:00.400Z" }),
+    ]);
+
+    const unbound = await discoverSession(
+      createConsent([allowed], store),
+      observation,
+    );
+    expect(unbound.state).toBe("no-evidence");
+  });
+
   it("never opens a file outside allowed roots even when it contains matching records", async () => {
     const root = await temporaryDirectory();
     const store = path.join(root, "store");

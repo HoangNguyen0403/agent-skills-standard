@@ -10,6 +10,10 @@ import {
   type LocalManifest,
 } from "./contracts";
 import { RetrospectiveError } from "./rules";
+import {
+  SERVER_HOUSEKEEPING_TOOLS,
+  extractServerToolName,
+} from "./server-tools";
 
 export type ServerObservation = {
   workspace: string;
@@ -32,7 +36,6 @@ export type Discovery =
 const READ_FLAGS =
   constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK;
 const TOLERANCE_MS = 250;
-const MCP_DEVICE_PREFIX = "xd://mcp__agent_skills_standard_";
 const MAX_TRACKED_CALL_IDS = 10_000;
 const MTIME_WINDOW_MS = 2_000;
 const ABORT_CHECK_LINES = 1_000;
@@ -54,12 +57,10 @@ export const DEFAULT_DISCOVERY_LIMITS: Readonly<DiscoveryLimits> =
     maxCallsPerFile: DEFAULT_MAX_CALLS_PER_FILE,
     maxChildFiles: DEFAULT_MAX_CHILD_FILES,
   });
-const HOUSEKEEPING_TOOLS: Record<string, true> = {
-  prepare_retrospective: true,
-  get_retrospective_status: true,
-  get_session_cost: true,
-  audit_session_compliance: true,
-};
+const HOUSEKEEPING_TOOLS: Record<string, true> = {};
+for (const tool of SERVER_HOUSEKEEPING_TOOLS) {
+  HOUSEKEEPING_TOOLS[tool] = true;
+}
 
 function throwIfAborted(signal: AbortSignal | undefined): void {
   if (signal?.aborted) {
@@ -125,26 +126,6 @@ async function readDirectory(dirPath: string): Promise<Dirent[] | null> {
     if (code === "ENOENT" || code === "ENOTDIR") return [];
     return null;
   }
-}
-
-function extractServerToolName(name: unknown, args: unknown): string | null {
-  if (typeof name !== "string") return null;
-  if (name === "write" && typeof args === "object" && args !== null) {
-    if ("path" in args && typeof args.path === "string") {
-      const targetPath = args.path;
-      if (targetPath.startsWith(MCP_DEVICE_PREFIX)) {
-        const toolSuffix = targetPath.slice(MCP_DEVICE_PREFIX.length);
-        if (toolSuffix.length > 0 && /^[a-zA-Z0-9_-]+$/.test(toolSuffix)) {
-          return toolSuffix;
-        }
-      }
-    }
-    return null;
-  }
-  if (name !== "write") {
-    return name;
-  }
-  return null;
 }
 
 type CandidateCall = {
