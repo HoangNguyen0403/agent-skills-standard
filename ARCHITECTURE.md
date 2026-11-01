@@ -119,6 +119,7 @@ Requirement layering is explicit in the SDLC workflow names and outputs:
 - `design-solution` = SRS/FRS ("How")
 - `implementation-readiness` and later phases enforce living traceability updates across BRD-lite -> PRD -> SRS/FRS -> verification evidence
 - Core SDLC outputs include an adapter-neutral Outcome Report (`feature_status`, `requirement_trace`, completed evidence, missing evidence, decision needed, recommended next workflow) so runtimes can report whether work is not started, requirements-ready, design-ready, partial, implemented, or blocked without embedding project-specific orchestration concepts.
+- `deploy-release` is the single cloud-operations dispatcher (`setup|deploy|verify|monitor|diagnose|recover`; a genuinely omitted mode defaults to `deploy`). The keyword-only `common-devops-operations` skill owns the shared MCP preflight, authorization, effect classification and reporting procedure, with provider references loaded on demand and no second operations workflow. The registry ships no scheduler, RBAC engine, credential store, provider driver installer or cloud runtime; see `docs/sdlc-workflow-quick-reference.md` for the operation gates.
 
 ### Requirements Modeling & View Selection
 
