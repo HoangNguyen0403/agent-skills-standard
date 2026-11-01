@@ -14,7 +14,7 @@
 
 - Planning branch/worktree is separate from website PR #280; do not modify `website/**` or that PR branch.
 - No new `devops-operate` workflow, alias, provider-specific workflows, category, MCP server, scheduler, cloud service, or permission engine.
-- Preserve existing workflow IDs and callers; no canonical workflow deletion is justified by the audit.
+- DevOps Tasks 1-5 preserve existing operations workflow IDs and callers. Only the separately planned companion review-consolidation slice proposes retiring `review-ticket`, with its own migration/preservation gates.
 - All six operations: `setup|deploy|verify|monitor|diagnose|recover`; omitted operation defaults to `deploy`; unknown/conflicting modes are rejected. Release-bearing effects always enter full deploy gates.
 - Correct installed MCP is required for live provider operations; no automatic install, silent CLI fallback, or ambient credential discovery.
 - Organization/account/project/environment identity, provider permission, human approval, and host enforcement are distinct gates.
@@ -40,7 +40,7 @@ All 38 canonical workflow descriptions were inspected; operations-adjacent bodie
 | `.agents/workflows/uat-signoff.md`, `publish-notes.md` | Business authority and communications | Keep unchanged; existing release callers remain valid |
 | Generated host workflow exports | Native distribution | Regenerate selected outputs; remove only demonstrably orphaned generator-owned outputs using supported ownership-safe generation |
 
-No delete-for-count targets. Do not conflate optional unselected workflows with missing/duplicate mirrors. No blanket prune, manual lock surgery, new forwarding aliases, or unrelated workflow cleanup.
+No delete-for-count targets. Do not conflate optional unselected workflows with missing/duplicate mirrors. No blanket prune, manual lock surgery, or forwarding aliases. The separately approved planning amendment for `review-ticket` is linked below and does not authorize implementation or deletion.
 
 Known inbound callers of `deploy-release`: `.agents/workflows/uat-signoff.md:26,31,63,66`, `traceability-audit.md:60`, `verify-bug.md:92,95`, `incident-hotfix.md:13`, `publish-notes.md:30`, `sdlc.md:39,49`; `scripts/workflow-chain.ts:24`; `scripts/audit-sdlc.ts:269,319`. Preserve them through the default-deploy contract. Re-read line ranges at execution revision; do not trust stale line numbers.
 
@@ -205,6 +205,12 @@ rtk pnpm --filter ./mcp test
 
 Tasks 1 and 2 can run concurrently using the interfaces in this plan. Task 3 depends on Task 1's frozen contract. Task 4 begins once the relevant contracts are frozen; it is not owned by the guidance implementer. Task 5 follows all deliverables. Parallel workers must not run generators or shared full suites. The orchestrator integrates and owns final covering verification.
 
+## Companion slice: review-workflow consolidation
+
+The user approved adding an independently reviewable cleanup plan: [Review Workflow Consolidation Implementation Plan](2026-11-01-review-workflow-consolidation.md), with [its own design](../specs/2026-11-01-review-workflow-consolidation-design.md). Keep `code-review`; preserve scoped ticket/AC, specialist and PR-metadata capabilities; migrate active callers and safely retire `review-ticket`. Three bounded tasks cover behavior preservation, ownership-safe retirement proof, and atomic migration/integration. This is separate from the five DevOps tasks, not a sixth mixed-responsibility task.
+
+Shared files are `.agents/workflows/sdlc.md`, metadata, quick-reference documentation and generated distribution. Serialize consolidation integration against DevOps Tasks 3/5 through one owner; no concurrent writers or generators. Review consolidation can be accepted separately. Prior premium/standard DevOps review verdicts do not cover this new scope or the later linking edits. No extra premium call or implementation was authorized.
+
 ## Approved premium review and correction disposition
 
 The user approved one consultation with `Personal · Premium Advisor`, `openai-codex/gpt-6-astra`, medium, analysis-only, limited to this design/plan and directly relevant source contracts, up to 15 minutes, no follow-up calls or mutations. Advisor ID: `1428b892-94c6-425a-846b-72501e27c4a9`.
@@ -226,4 +232,4 @@ The consequential question reviewed was whether extending the release entrypoint
 
 ## Plan validation and limits
 
-Plan self-review checks: each spec requirement has a task; all changed source paths are named as existing or new; no canonical workflow removal or generated-copy deletion assumed; no code runtime or schema introduced accidentally; no unapproved live-provider qualification claimed. Verification commands are future execution instructions, not receipts. Plan artifacts must receive a separate read-only review; implementation starts only after the review disposition and user approval of execution mode.
+Plan self-review checks: each DevOps spec requirement has a task; all changed source paths are named as existing or new; no operations-workflow removal or manual generated-copy deletion assumed; the companion review retirement has its own proof gates; no code runtime/schema introduced accidentally; no unapproved live-provider qualification claimed. Verification commands are future execution instructions, not receipts. Prior reviewed hashes remain in the receipt; later planning amendments are not retroactively reviewed. Implementation starts only after applicable review disposition and user approval of execution mode.

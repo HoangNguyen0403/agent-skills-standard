@@ -27,7 +27,7 @@ The audit inspected descriptions of all 38 canonical `.agents/workflows/*.md` fi
 
 Generated `.claude/commands`, `.github/prompts`, and `.codex/skills` workflow exports are distribution artifacts, not duplicate canonical workflows. Missing exports are not automatically stale: installation selection governs expected output. Do not expand selection to all workflows merely to equalize counts.
 
-No canonical workflow deletion is justified by this audit. Cleanup means eliminating competing procedure ownership and redundant instructions within the affected operations paths, not deleting distinct lifecycle workflows. Unrelated workflow consolidation is out of scope.
+No operations-workflow deletion is justified by this audit. DevOps cleanup means eliminating competing procedure ownership and redundant instructions within the affected operations paths, not deleting distinct lifecycle workflows. The subsequent user-approved review-workflow consolidation is a separate companion subproject, not evidence that incident/monitor/release workflows are duplicates.
 
 ## Decision: extend rather than add a competing workflow
 
@@ -107,3 +107,7 @@ Extract principles rather than copying upstream recipes. If copying substantial 
 ## Approval and review
 
 The user authorized one bounded read-only consultation with `Personal · Premium Advisor`, `openai-codex/gpt-6-astra`, medium. The advisor reviewed the initial documents and returned NEEDS REVISION: effect-based release gates, incident authority/routing contradictions, non-release lifecycle semantics, and behavioral qualification. This revision incorporates those findings; the advisor has not re-reviewed it and no second premium call is authorized. The existing workflow ID remains the recommended boundary. Implementation and execution mode require separate approval. Review disposition is recorded with the implementation plan.
+
+## Companion cleanup amendment
+
+The user subsequently approved planning consolidation of `review-ticket` into `code-review`. See `2026-11-01-review-workflow-consolidation-design.md` and `../plans/2026-11-01-review-workflow-consolidation.md`. That slice preserves ticket/AC, specialist and PR-metadata capabilities, migrates active callers, and gates retirement on ownership-safe publication. It does not change the six DevOps operations or their authority rules. Shared router/docs/metadata/generation edits require one integration owner. Earlier review verdicts apply only to the recorded document hashes and do not cover this new scope or these linking edits; no additional premium invocation or implementation is authorized.

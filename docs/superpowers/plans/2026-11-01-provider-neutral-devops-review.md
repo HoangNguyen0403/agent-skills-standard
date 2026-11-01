@@ -56,3 +56,11 @@ Independent standard profile `Personal · Analysis & Review`, `omp/openai-codex/
 - No behavioral, live-model, installed-consumer, or live-provider exercise was performed for this planning-only task. Commands in the plan are future verification requirements, not passing receipts.
 
 Implementation requires user approval and an explicit execution-mode decision after plan review. No approval, implementation or release is implied by an advisor recommendation.
+
+## Later user-approved planning amendment
+
+After the reviewed versions above, the user approved adding a separate review-workflow consolidation slice on the same planning branch. New documents: `../specs/2026-11-01-review-workflow-consolidation-design.md` and `2026-11-01-review-workflow-consolidation.md`. The DevOps design/plan gained scope qualifiers and links; their current bytes therefore differ from the reviewed hashes above.
+
+The companion slice proposes preserving ticket/AC, specialist and metadata checks under `code-review`, migrating operative callers and retiring `review-ticket` only with ownership-safe publication and history/user-edit preservation. No source workflow, runtime service, generated artifact or lock was changed during this amendment.
+
+The prior premium verdict and independent READY FOR USER APPROVAL apply only to their recorded scope/bytes, not this new cleanup or subsequent linking edits. No second premium consultation occurred. This amendment is planning-only and requires its own independent implementation-readiness review plus user execution approval.
