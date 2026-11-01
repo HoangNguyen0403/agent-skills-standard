@@ -7,6 +7,13 @@ import { RetrospectiveError } from "./rules";
 
 export { RetrospectiveError };
 
+export type SideCalls = {
+  calls: number;
+  stopReasons: Record<string, number>;
+  cost: number;
+  costKnownCalls: number;
+};
+
 export type SessionAggregate = {
   node: NodeKey;
   format: "omp" | "codex";
@@ -26,6 +33,7 @@ export type SessionAggregate = {
   costUnknownTurns: number;
   models: Record<string, number>;
   stopReasons: Record<string, number>;
+  sideCalls: SideCalls;
   toolCalls: Record<string, number>;
   toolErrors: Record<string, number>;
   coverage: "complete" | "partial";
@@ -83,6 +91,8 @@ export type TreeAggregate = {
   costUnknownTurns: number;
   models: Record<string, number>;
   stopReasons: Record<string, number>;
+  // Optional so out-of-scope TreeAggregate fixtures keep compiling; rollUp always emits it.
+  sideCalls?: SideCalls;
   toolCalls: Record<string, number>;
   toolErrors: Record<string, number>;
   skippedLines: number;
@@ -105,11 +115,42 @@ function boundIdentifier(value: unknown): string {
   return value.slice(0, MAX_IDENTIFIER_LENGTH);
 }
 
+const MAX_EPOCH_MILLIS = 8_640_000_000_000_000;
+// Values below this are treated as epoch seconds, at or above as epoch millis.
+const EPOCH_MILLIS_THRESHOLD = 1e11;
+
+function toEpochMillis(value: unknown): number | null {
+  if (typeof value === "number") {
+    if (!Number.isFinite(value) || value < 0) return null;
+    const millis =
+      value >= EPOCH_MILLIS_THRESHOLD ? value : Math.round(value * 1000);
+    if (!Number.isFinite(millis) || millis > MAX_EPOCH_MILLIS) return null;
+    return millis;
+  }
+  if (typeof value === "string" && value) {
+    const parsed = Date.parse(value);
+    if (!Number.isFinite(parsed)) return null;
+    if (parsed < 0 || parsed > MAX_EPOCH_MILLIS) return null;
+    return parsed;
+  }
+  return null;
+}
+
 function extractDay(timestamp: unknown): string {
-  if (typeof timestamp !== "string" || !timestamp) return "unknown-day";
-  const parsed = Date.parse(timestamp);
-  if (!Number.isFinite(parsed)) return "unknown-day";
-  return new Date(parsed).toISOString().slice(0, 10);
+  const millis = toEpochMillis(timestamp);
+  if (millis === null) return "unknown-day";
+  return new Date(millis).toISOString().slice(0, 10);
+}
+
+// A turn's day comes from the row write time (ISO string) first: message.timestamp
+// is often epoch millis for when the model started streaming, which can be another day.
+function deriveTurnDay(
+  rowTimestamp: unknown,
+  messageTimestamp: unknown,
+): string {
+  const rowDay = extractDay(rowTimestamp);
+  if (rowDay !== "unknown-day") return rowDay;
+  return extractDay(messageTimestamp);
 }
 
 function recordBoundedMap(
@@ -253,6 +294,8 @@ export async function aggregateSession(
     const hash = crypto.createHash("sha256");
     let first: string | null = null;
     let last: string | null = null;
+    let firstMillis: number | null = null;
+    let lastMillis: number | null = null;
     let assistantTurns = 0;
     let userMessages = 0;
     let compactions = 0;
@@ -262,6 +305,12 @@ export async function aggregateSession(
     let costUnknownTurns = 0;
     const models: Record<string, number> = {};
     const stopReasons: Record<string, number> = {};
+    const sideCalls: SideCalls = {
+      calls: 0,
+      stopReasons: {},
+      cost: 0,
+      costKnownCalls: 0,
+    };
     const toolCalls: Record<string, number> = {};
     const toolErrors: Record<string, number> = {};
     let skippedLines = 0;
@@ -275,11 +324,17 @@ export async function aggregateSession(
     const seenToolCallIds = new Set<string>();
 
     const updateTimestamps = (ts: unknown): void => {
-      if (typeof ts !== "string" || !ts) return;
-      const parsed = Date.parse(ts);
-      if (!Number.isFinite(parsed)) return;
-      if (first === null || ts < first) first = ts;
-      if (last === null || ts > last) last = ts;
+      const millis = toEpochMillis(ts);
+      if (millis === null) return;
+      const iso = new Date(millis).toISOString();
+      if (firstMillis === null || millis < firstMillis) {
+        firstMillis = millis;
+        first = iso;
+      }
+      if (lastMillis === null || millis > lastMillis) {
+        lastMillis = millis;
+        last = iso;
+      }
     };
 
     const processOmpRow = (row: Record<string, unknown>): void => {
@@ -330,54 +385,25 @@ export async function aggregateSession(
       }
 
       if (row.type === "model_usage") {
+        // Side calls (memory, job-widget, find, cache-warm) are not assistant turns:
+        // they carry their own usage/stopReason and must stay out of turn metrics.
+        sideCalls.calls += 1;
         const usage = isObject(row.usage) ? row.usage : null;
-        if (usage) {
-          const inp =
-            typeof usage.input === "number" &&
-            Number.isSafeInteger(usage.input) &&
-            usage.input >= 0
-              ? usage.input
-              : 0;
-          const out =
-            typeof usage.output === "number" &&
-            Number.isSafeInteger(usage.output) &&
-            usage.output >= 0
-              ? usage.output
-              : 0;
-          const cr =
-            typeof usage.cacheRead === "number" &&
-            Number.isSafeInteger(usage.cacheRead) &&
-            usage.cacheRead >= 0
-              ? usage.cacheRead
-              : typeof usage.cachedInput === "number" &&
-                  Number.isSafeInteger(usage.cachedInput) &&
-                  usage.cachedInput >= 0
-                ? usage.cachedInput
-                : 0;
-          const cw =
-            typeof usage.cacheWrite === "number" &&
-            Number.isSafeInteger(usage.cacheWrite) &&
-            usage.cacheWrite >= 0
-              ? usage.cacheWrite
-              : 0;
-
-          tokens.input += inp;
-          tokens.output += out;
-          tokens.cacheRead += cr;
-          tokens.cacheWrite += cw;
-
-          if (
-            isObject(usage.cost) &&
-            typeof usage.cost.total === "number" &&
-            Number.isFinite(usage.cost.total) &&
-            usage.cost.total >= 0
-          ) {
-            cost += usage.cost.total;
-            costKnownTurns += 1;
-          }
+        if (
+          usage &&
+          isObject(usage.cost) &&
+          typeof usage.cost.total === "number" &&
+          Number.isFinite(usage.cost.total) &&
+          usage.cost.total >= 0
+        ) {
+          sideCalls.cost += usage.cost.total;
+          sideCalls.costKnownCalls += 1;
         }
         if (typeof row.stopReason === "string") {
-          recordBoundedMap(stopReasons, boundIdentifier(row.stopReason));
+          recordBoundedMap(
+            sideCalls.stopReasons,
+            boundIdentifier(row.stopReason),
+          );
         }
         return;
       }
@@ -490,7 +516,7 @@ export async function aggregateSession(
             costUnknownTurns += 1;
           }
 
-          const day = extractDay(msg.timestamp ?? row.timestamp);
+          const day = deriveTurnDay(row.timestamp, msg.timestamp);
           const errorStops = stopReason === "error" ? 1 : 0;
           recordJointEntry(
             series,
@@ -928,6 +954,7 @@ export async function aggregateSession(
       compactions: completenessStatus,
       models: completenessStatus,
       stopReasons: completenessStatus,
+      sideCalls: completenessStatus,
       costKnownTurns: completenessStatus,
       costUnknownTurns: completenessStatus,
     };
@@ -946,6 +973,7 @@ export async function aggregateSession(
       costUnknownTurns,
       models,
       stopReasons,
+      sideCalls,
       toolCalls,
       toolErrors,
       coverage,
@@ -986,6 +1014,12 @@ export function rollUp(
   let costUnknownTurns = 0;
   const models: Record<string, number> = {};
   const stopReasons: Record<string, number> = {};
+  const sideCalls: SideCalls = {
+    calls: 0,
+    stopReasons: {},
+    cost: 0,
+    costKnownCalls: 0,
+  };
   const toolCalls: Record<string, number> = {};
   const toolErrors: Record<string, number> = {};
   let skippedLines = 0;
@@ -1022,6 +1056,14 @@ export function rollUp(
     }
     for (const [k, v] of Object.entries(agg.stopReasons)) {
       stopReasons[k] = (stopReasons[k] ?? 0) + v;
+    }
+    if (agg.sideCalls !== undefined) {
+      sideCalls.calls += agg.sideCalls.calls;
+      sideCalls.cost += agg.sideCalls.cost;
+      sideCalls.costKnownCalls += agg.sideCalls.costKnownCalls;
+      for (const [k, v] of Object.entries(agg.sideCalls.stopReasons)) {
+        sideCalls.stopReasons[k] = (sideCalls.stopReasons[k] ?? 0) + v;
+      }
     }
     for (const [k, v] of Object.entries(agg.toolCalls)) {
       toolCalls[k] = (toolCalls[k] ?? 0) + v;
@@ -1076,6 +1118,7 @@ export function rollUp(
     costUnknownTurns,
     models,
     stopReasons,
+    sideCalls,
     toolCalls,
     toolErrors,
     skippedLines,

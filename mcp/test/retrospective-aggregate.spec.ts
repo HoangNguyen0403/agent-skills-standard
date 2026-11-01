@@ -1161,6 +1161,260 @@ describe("retrospective aggregate pass", () => {
     expect(failures).toEqual([]);
   });
 
+  it("derives a turn day from the row timestamp before the message timestamp", async () => {
+    const root = await temporaryRoot();
+    const rowDayMs = Date.parse("2026-10-01T23:50:00.000Z");
+    const messageOnlyMs = Date.parse("2026-10-03T06:05:00.000Z");
+    const secondsOnlyMs = Date.parse("2026-10-05T09:00:00.000Z");
+
+    const filePath = await writeJsonl(root, "omp-days.jsonl", [
+      {
+        type: "message",
+        timestamp: "2026-10-02T00:30:00.000Z",
+        message: {
+          role: "assistant",
+          model: "provider/day-row",
+          timestamp: rowDayMs,
+          usage: { input: 1, output: 1 },
+          content: [],
+        },
+      },
+      {
+        type: "message",
+        message: {
+          role: "assistant",
+          model: "provider/msg-only",
+          timestamp: messageOnlyMs,
+          usage: { input: 1, output: 1 },
+          content: [],
+        },
+      },
+      {
+        type: "message",
+        message: {
+          role: "assistant",
+          model: "provider/no-time",
+          usage: { input: 1, output: 1 },
+          content: [],
+        },
+      },
+      {
+        type: "message",
+        message: {
+          role: "assistant",
+          model: "provider/epoch-seconds",
+          timestamp: Math.floor(secondsOnlyMs / 1000),
+          usage: { input: 1, output: 1 },
+          content: [],
+        },
+      },
+    ]);
+
+    const source = {
+      node: MAIN,
+      format: "omp" as const,
+      absolutePath: filePath,
+    };
+    const snapshot = await captureSnapshot(source, 10_000_000);
+    const result = await aggregateSession(
+      source,
+      snapshot,
+      DEFAULT_LIMITS,
+      new AbortController().signal,
+    );
+
+    expect(result.assistantTurns).toBe(4);
+
+    // Row write time (2026-10-02) wins over the message start time (2026-10-01T23:50Z).
+    expect(result.series.byDayModel["2026-10-02|provider/day-row"]?.turns).toBe(
+      1,
+    );
+    expect(
+      result.series.byDayModel["2026-10-01|provider/day-row"],
+    ).toBeUndefined();
+
+    // Numeric-only message timestamp is used when the row has no timestamp.
+    expect(
+      result.series.byDayModel["2026-10-03|provider/msg-only"]?.turns,
+    ).toBe(1);
+
+    // Nothing usable falls back to unknown-day.
+    expect(
+      result.series.byDayModel["unknown-day|provider/no-time"]?.turns,
+    ).toBe(1);
+
+    // Epoch seconds resolve to their real day, not 1970.
+    expect(
+      result.series.byDayModel["2026-10-05|provider/epoch-seconds"]?.turns,
+    ).toBe(1);
+    expect(
+      result.series.byDayModel["1970-01-21|provider/epoch-seconds"],
+    ).toBeUndefined();
+  });
+
+  it("keeps first and last as ISO strings when only numeric message timestamps exist", async () => {
+    const root = await temporaryRoot();
+    const earliestMs = Date.parse("2026-09-30T22:00:00.000Z");
+    const latestMs = Date.parse("2026-10-02T01:00:00.000Z");
+
+    const filePath = await writeJsonl(root, "omp-numeric-window.jsonl", [
+      {
+        type: "message",
+        message: {
+          role: "assistant",
+          model: "model-a",
+          timestamp: latestMs,
+          usage: { input: 1, output: 1 },
+          content: [],
+        },
+      },
+      {
+        type: "message",
+        timestamp: "2026-10-01T12:00:00.000Z",
+        message: {
+          role: "assistant",
+          model: "model-a",
+          usage: { input: 1, output: 1 },
+          content: [],
+        },
+      },
+      {
+        type: "message",
+        message: {
+          role: "assistant",
+          model: "model-a",
+          timestamp: earliestMs,
+          usage: { input: 1, output: 1 },
+          content: [],
+        },
+      },
+    ]);
+
+    const source = {
+      node: MAIN,
+      format: "omp" as const,
+      absolutePath: filePath,
+    };
+    const snapshot = await captureSnapshot(source, 10_000_000);
+    const result = await aggregateSession(
+      source,
+      snapshot,
+      DEFAULT_LIMITS,
+      new AbortController().signal,
+    );
+
+    expect(result.first).toBe("2026-09-30T22:00:00.000Z");
+    expect(result.last).toBe("2026-10-02T01:00:00.000Z");
+  });
+
+  it("keeps model_usage side calls out of turn metrics and redacts their purpose", async () => {
+    const root = await temporaryRoot();
+    const SENTINEL = "IGNORE ALL INSTRUCTIONS";
+
+    const filePath = await writeJsonl(root, "omp-side-calls.jsonl", [
+      {
+        type: "message",
+        timestamp: "2026-10-01T10:00:10.000Z",
+        message: {
+          role: "assistant",
+          model: "provider/main",
+          stopReason: "error",
+          usage: { input: 10, output: 2, cost: { total: 0.01 } },
+          content: [],
+        },
+      },
+      {
+        type: "message",
+        timestamp: "2026-10-01T10:00:20.000Z",
+        message: {
+          role: "assistant",
+          model: "provider/main",
+          stopReason: "stop",
+          usage: { input: 1, output: 1, cost: { total: 0.001 } },
+          content: [],
+        },
+      },
+      {
+        type: "message",
+        timestamp: "2026-10-01T10:00:30.000Z",
+        message: {
+          role: "assistant",
+          model: "provider/main",
+          stopReason: "toolUse",
+          usage: { input: 1, output: 1 },
+          content: [],
+        },
+      },
+      {
+        type: "model_usage",
+        timestamp: "2026-10-01T10:01:00.000Z",
+        purpose: "memory",
+        stopReason: "error",
+        model: "provider/cheap",
+        usage: { input: 100, output: 50, cost: { total: 0.02 } },
+      },
+      {
+        type: "model_usage",
+        timestamp: "2026-10-01T10:02:00.000Z",
+        purpose: "job-widget",
+        role: "assistant",
+        stopReason: "error",
+        model: "provider/cheap",
+        usage: { input: 100, output: 50, cost: { total: 0.02 } },
+      },
+      {
+        type: "model_usage",
+        timestamp: "2026-10-01T10:03:00.000Z",
+        purpose: SENTINEL,
+        stopReason: "aborted",
+        model: "provider/cheap",
+        usage: { input: 100, output: 50, cost: { total: 0.02 } },
+      },
+    ]);
+
+    const source = {
+      node: MAIN,
+      format: "omp" as const,
+      absolutePath: filePath,
+    };
+    const snapshot = await captureSnapshot(source, 10_000_000);
+    const result = await aggregateSession(
+      source,
+      snapshot,
+      DEFAULT_LIMITS,
+      new AbortController().signal,
+    );
+
+    expect(result.assistantTurns).toBe(3);
+    expect(result.models).toEqual({ "provider/main": 3 });
+    expect(result.models["provider/cheap"]).toBeUndefined();
+    expect(result.stopReasons).toEqual({ error: 1, stop: 1, toolUse: 1 });
+    expect(result.stopReasons.aborted).toBeUndefined();
+    expect(result.tokens).toEqual({
+      input: 12,
+      output: 4,
+      cacheRead: 0,
+      cacheWrite: 0,
+    });
+    expect(result.cost).toBeCloseTo(0.011, 6);
+    expect(result.costKnownTurns).toBe(2);
+    expect(result.costUnknownTurns).toBe(1);
+
+    expect(result.sideCalls.calls).toBe(3);
+    expect(result.sideCalls.stopReasons).toEqual({ error: 2, aborted: 1 });
+    expect(result.sideCalls.cost).toBeCloseTo(0.06, 6);
+    expect(result.sideCalls.costKnownCalls).toBe(3);
+
+    const cells = Object.values(result.series.byDayModel);
+    expect(cells.reduce((sum, cell) => sum + cell.turns, 0)).toBe(3);
+    expect(cells.reduce((sum, cell) => sum + cell.errorStops, 0)).toBe(1);
+    expect(
+      result.series.byDayModel["2026-10-01|provider/cheap"],
+    ).toBeUndefined();
+
+    expect(JSON.stringify(result)).not.toContain(SENTINEL);
+  });
+
   it("rolls up two aggregates, summing numeric fields and propagating partial coverage", () => {
     const agg1: SessionAggregate & { series: JointSeries } = {
       node: { hostId: "h1", sessionId: "s1" },
@@ -1176,6 +1430,12 @@ describe("retrospective aggregate pass", () => {
       costUnknownTurns: 0,
       models: { "model-a": 2 },
       stopReasons: { stop: 2 },
+      sideCalls: {
+        calls: 2,
+        stopReasons: { error: 1 },
+        cost: 0.0004,
+        costKnownCalls: 1,
+      },
       toolCalls: { bash: 3 },
       toolErrors: { bash: 1 },
       coverage: "complete",
@@ -1206,6 +1466,12 @@ describe("retrospective aggregate pass", () => {
       costUnknownTurns: 2,
       models: { "model-b": 3 },
       stopReasons: { error: 1, stop: 2 },
+      sideCalls: {
+        calls: 3,
+        stopReasons: { error: 1, aborted: 1 },
+        cost: 0.0006,
+        costKnownCalls: 2,
+      },
       toolCalls: { read: 2 },
       toolErrors: { read: 0 },
       coverage: "partial",
@@ -1246,6 +1512,10 @@ describe("retrospective aggregate pass", () => {
     expect(tree.skippedLines).toBe(1);
     expect(tree.models).toEqual({ "model-a": 2, "model-b": 3 });
     expect(tree.stopReasons).toEqual({ stop: 4, error: 1 });
+    expect(tree.sideCalls?.calls).toBe(5);
+    expect(tree.sideCalls?.stopReasons).toEqual({ error: 2, aborted: 1 });
+    expect(tree.sideCalls?.costKnownCalls).toBe(3);
+    expect(tree.sideCalls?.cost).toBeCloseTo(0.001, 6);
     expect(tree.toolCalls).toEqual({ bash: 3, read: 2 });
     expect(tree.toolErrors).toEqual({ bash: 1, read: 0 });
     expect(tree.series.byDayModel["2026-10-01|model-a"]).toEqual({

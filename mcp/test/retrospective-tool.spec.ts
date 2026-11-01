@@ -153,29 +153,13 @@ function toolResult(options: {
   });
 }
 
-function normalizeAuditTimestamps(text: string): string {
-  // Narrow regex: normalize only the variable wall-clock "Session started" timestamp
-  return text.replace(
-    /^Session started:\s*.+$/m,
-    "Session started: <NORMALIZED_TIMESTAMP>",
-  );
-}
-
-function normalizeCostTimestamps(text: string): string {
-  // Narrow regexes: normalize only the variable wall-clock timestamps and elapsed seconds
+// Narrow normalizer for wall-clock volatility only: full ISO timestamps anywhere in the
+// text, and the "Elapsed Seconds" table value. Counters, table labels, tool names and
+// loaded skills stay compared byte for byte.
+function normalizeVolatileText(text: string): string {
   return text
-    .replace(
-      /\|\s*\*\*Session Started\*\*\s*\|\s*[^|]+\s*\|/,
-      "| **Session Started** | <NORMALIZED_TIMESTAMP> |",
-    )
-    .replace(
-      /\|\s*\*\*Elapsed Seconds\*\*\s*\|\s*[^|]+\s*\|/,
-      "| **Elapsed Seconds** | <NORMALIZED_SECONDS> |",
-    )
-    .replace(
-      /-\s*`\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z`\s*get_session_cost/g,
-      "- `<NORMALIZED_TIMESTAMP>` get_session_cost",
-    );
+    .replace(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z/g, "<ts>")
+    .replace(/(\|\s*\*\*Elapsed Seconds\*\*\s*\|\s*)[^|]*?(\s*\|)/g, "$1<n>$2");
 }
 
 describe("retrospective MCP tools and nudge", () => {
@@ -242,8 +226,8 @@ describe("retrospective MCP tools and nudge", () => {
 
     const baselineAudit = await auditSessionCompliance({}, ctxAuditBaseline);
     const currentAudit = await auditSessionCompliance({}, ctxAuditCurrent);
-    expect(normalizeAuditTimestamps(currentAudit.content[0].text)).toBe(
-      normalizeAuditTimestamps(baselineAudit.content[0].text),
+    expect(normalizeVolatileText(currentAudit.content[0].text)).toBe(
+      normalizeVolatileText(baselineAudit.content[0].text),
     );
 
     // Golden compare for getSessionCost:
@@ -273,8 +257,35 @@ describe("retrospective MCP tools and nudge", () => {
 
     const baselineCost = await getSessionCost({}, ctxCostBaseline);
     const currentCost = await getSessionCost({}, ctxCostCurrent);
-    expect(normalizeCostTimestamps(currentCost.content[0].text)).toBe(
-      normalizeCostTimestamps(baselineCost.content[0].text),
+    expect(normalizeVolatileText(currentCost.content[0].text)).toBe(
+      normalizeVolatileText(baselineCost.content[0].text),
+    );
+  });
+
+  it("the volatile-text normalizer equalizes timestamps but not counters", () => {
+    const base = [
+      "| Metric | Value |",
+      "| **Elapsed Seconds** | 0.42 |",
+      "| **Session Started** | 2026-11-01T06:24:34.001Z |",
+      "| MCP Tool Calls | 2 |",
+      "- `2026-11-01T06:24:34.001Z` — get_session_cost() → ok",
+    ].join("\n");
+
+    // One-millisecond drift in every timestamp and a different elapsed value are absorbed.
+    const drifted = base
+      .replace(/34\.001Z/g, "34.002Z")
+      .replace("| 0.42 |", "| 0.57 |");
+    expect(drifted).not.toBe(base);
+    expect(normalizeVolatileText(drifted)).toBe(normalizeVolatileText(base));
+
+    // A differing counter is still reported as different after normalization.
+    const differentCounter = base.replace(
+      "| MCP Tool Calls | 2 |",
+      "| MCP Tool Calls | 3 |",
+    );
+    expect(differentCounter).not.toBe(base);
+    expect(normalizeVolatileText(differentCounter)).not.toBe(
+      normalizeVolatileText(base),
     );
   });
 
@@ -497,12 +508,14 @@ describe("retrospective MCP tools and nudge", () => {
       ompMcpToolCall({
         callId: "c_child",
         tool: "load_skills_for_files",
-        timestamp: new Date(now - 1000).toISOString(),
+        // Wide margins: the row window must still contain the tracker event even when
+        // file writes are slow, without floating the timestamp into the far future.
+        timestamp: new Date(now - 30_000).toISOString(),
         sentinel,
       }),
       toolResult({
         callId: "c_child",
-        timestamp: new Date(now + 1000).toISOString(),
+        timestamp: new Date(now + 5_000).toISOString(),
         sentinel,
       }),
     ]);
@@ -531,7 +544,7 @@ describe("retrospective MCP tools and nudge", () => {
     // 4. ambiguous-session state (two candidates with identical scores)
     const ambig1 = path.join(allowed, "ambig1.jsonl");
     const ambig2 = path.join(allowed, "ambig2.jsonl");
-    const ambigTs = new Date(now - 1000).toISOString();
+    const ambigTs = new Date(now - 30_000).toISOString();
     const ambigResTs = new Date(now + 10000).toISOString();
     await writeSessionFile(ambig1, [
       sessionHeader({ id: "ambig-1", cwd: workspace, sentinel }),
