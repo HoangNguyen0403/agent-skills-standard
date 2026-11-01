@@ -5,6 +5,8 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { runRetrospectiveCli, type CliIo } from "../src/retrospective-cli";
+import { CONSENT_TEXT, consentFilePath } from "../src/retrospective";
 
 /**
  * Behavioral tests for the packaged `ags-retrospective` binary.
@@ -668,4 +670,322 @@ describe("ags-retrospective delete", () => {
     expect(run.status).toBe(1);
     expect(failureCode(run)).toBe("INVALID_NODE_KEY");
   });
+});
+
+describe("ags-retrospective consent commands", () => {
+  type TestHarness = {
+    tempHome: string;
+    tempConfig: string;
+    storeDir: string;
+    sourceDir: string;
+    targetConsentPath: string;
+    createIo: (overrides?: Partial<CliIo>) => {
+      io: CliIo;
+      getWritten: () => string;
+    };
+  };
+
+  async function setupHarness(): Promise<TestHarness> {
+    const tempHome = await temporaryDirectory();
+    const tempConfig = path.join(tempHome, "custom-config");
+    await fs.mkdir(tempConfig, { recursive: true });
+    const storeDir = path.join(tempHome, "store");
+    await fs.mkdir(storeDir, { recursive: true });
+    const sourceDir = path.join(tempHome, "sessions");
+    await fs.mkdir(sourceDir, { recursive: true });
+    const targetConsentPath = consentFilePath(
+      { XDG_CONFIG_HOME: tempConfig },
+      process.platform,
+      tempHome,
+    );
+
+    const createIo = (overrides?: Partial<CliIo>) => {
+      let written = "";
+      const io: CliIo = {
+        isTTY: true,
+        ask: async () => "yes",
+        write: (text: string) => {
+          written += text;
+        },
+        env: { XDG_CONFIG_HOME: tempConfig },
+        platform: process.platform,
+        home: tempHome,
+        ...overrides,
+      };
+      return { io, getWritten: () => written };
+    };
+
+    return {
+      tempHome,
+      tempConfig,
+      storeDir,
+      sourceDir,
+      targetConsentPath,
+      createIo,
+    };
+  }
+
+  it("enable with isTTY: false -> code 1, TTY_REQUIRED, and no file exists afterwards", async () => {
+    const { storeDir, sourceDir, targetConsentPath, createIo } =
+      await setupHarness();
+    const { io } = createIo({ isTTY: false });
+    const outcome = await runRetrospectiveCli(
+      ["enable", "--store-root", storeDir, "--source-root", sourceDir],
+      io,
+    );
+    expect(outcome.code).toBe(1);
+    expect(JSON.parse(outcome.stderr)).toEqual({
+      schemaVersion: 1,
+      error: { code: "TTY_REQUIRED" },
+    });
+    expect(outcome.stdout).toBe("");
+    const exists = await fs
+      .access(targetConsentPath)
+      .then(() => true)
+      .catch(() => false);
+    expect(exists).toBe(false);
+  });
+
+  it("enable with TTY and ask returning yes -> code 0, file exists, consent-status reports enabled", async () => {
+    const { storeDir, sourceDir, targetConsentPath, createIo } =
+      await setupHarness();
+    const { io } = createIo({ isTTY: true, ask: async () => "yes" });
+    const outcome = await runRetrospectiveCli(
+      ["enable", "--store-root", storeDir, "--source-root", sourceDir],
+      io,
+    );
+    expect(outcome.code).toBe(0);
+    expect(outcome.stdout).toBe('{"schemaVersion":1,"enabled":true}\n');
+    expect(outcome.stderr).toBe("");
+    const exists = await fs
+      .access(targetConsentPath)
+      .then(() => true)
+      .catch(() => false);
+    expect(exists).toBe(true);
+
+    const statusOutcome = await runRetrospectiveCli(["consent-status"], io);
+    expect(statusOutcome.code).toBe(0);
+    expect(JSON.parse(statusOutcome.stdout)).toEqual({
+      schemaVersion: 1,
+      state: "enabled",
+      storeRoot: storeDir,
+      allowedSourceRoots: [sourceDir],
+    });
+  });
+
+  it("ask returning no / empty / YES please -> CONSENT_DECLINED, no file", async () => {
+    for (const answer of ["no", "", "YES please"]) {
+      const { storeDir, sourceDir, targetConsentPath, createIo } =
+        await setupHarness();
+      const { io } = createIo({ isTTY: true, ask: async () => answer });
+      const outcome = await runRetrospectiveCli(
+        ["enable", "--store-root", storeDir, "--source-root", sourceDir],
+        io,
+      );
+      expect(outcome.code).toBe(1);
+      expect(JSON.parse(outcome.stderr)).toEqual({
+        schemaVersion: 1,
+        error: { code: "CONSENT_DECLINED" },
+      });
+      const exists = await fs
+        .access(targetConsentPath)
+        .then(() => true)
+        .catch(() => false);
+      expect(exists).toBe(false);
+    }
+  });
+
+  it("--source-root that does not exist -> code 2, no file", async () => {
+    const { tempHome, storeDir, targetConsentPath, createIo } =
+      await setupHarness();
+    const nonExistent = path.join(tempHome, "does-not-exist");
+    const { io } = createIo({ isTTY: true, ask: async () => "yes" });
+    const outcome = await runRetrospectiveCli(
+      ["enable", "--store-root", storeDir, "--source-root", nonExistent],
+      io,
+    );
+    expect(outcome.code).toBe(2);
+    expect(outcome.stderr).toContain("Usage:");
+    const exists = await fs
+      .access(targetConsentPath)
+      .then(() => true)
+      .catch(() => false);
+    expect(exists).toBe(false);
+  });
+
+  it("repeated --source-root replaces the defaults", async () => {
+    const { tempHome, storeDir, createIo } = await setupHarness();
+    const defaultOmp = path.join(tempHome, ".omp", "agent", "sessions");
+    await fs.mkdir(defaultOmp, { recursive: true });
+    const src1 = path.join(tempHome, "src1");
+    const src2 = path.join(tempHome, "src2");
+    await fs.mkdir(src1, { recursive: true });
+    await fs.mkdir(src2, { recursive: true });
+
+    const { io } = createIo({ isTTY: true, ask: async () => "yes" });
+    const outcome = await runRetrospectiveCli(
+      [
+        "enable",
+        "--store-root",
+        storeDir,
+        "--source-root",
+        src1,
+        "--source-root",
+        src2,
+      ],
+      io,
+    );
+    expect(outcome.code).toBe(0);
+
+    const statusOutcome = await runRetrospectiveCli(["consent-status"], io);
+    expect(JSON.parse(statusOutcome.stdout)).toEqual({
+      schemaVersion: 1,
+      state: "enabled",
+      storeRoot: storeDir,
+      allowedSourceRoots: [src1, src2],
+    });
+  });
+
+  it("default roots that exist are proposed when no --source-root given", async () => {
+    const { tempHome, storeDir, createIo } = await setupHarness();
+    const defaultOmp = path.join(tempHome, ".omp", "agent", "sessions");
+    const defaultCodex = path.join(tempHome, ".codex", "sessions");
+    await fs.mkdir(defaultOmp, { recursive: true });
+    await fs.mkdir(defaultCodex, { recursive: true });
+
+    const { io } = createIo({ isTTY: true, ask: async () => "yes" });
+    const outcome = await runRetrospectiveCli(
+      ["enable", "--store-root", storeDir],
+      io,
+    );
+    expect(outcome.code).toBe(0);
+
+    const statusOutcome = await runRetrospectiveCli(["consent-status"], io);
+    expect(JSON.parse(statusOutcome.stdout)).toEqual({
+      schemaVersion: 1,
+      state: "enabled",
+      storeRoot: storeDir,
+      allowedSourceRoots: [defaultOmp, defaultCodex],
+    });
+  });
+
+  it("disable removes and is idempotent; works with isTTY: false", async () => {
+    const { storeDir, sourceDir, targetConsentPath, createIo } =
+      await setupHarness();
+    const { io: enableIo } = createIo({ isTTY: true, ask: async () => "yes" });
+    await runRetrospectiveCli(
+      ["enable", "--store-root", storeDir, "--source-root", sourceDir],
+      enableIo,
+    );
+    expect(
+      await fs
+        .access(targetConsentPath)
+        .then(() => true)
+        .catch(() => false),
+    ).toBe(true);
+
+    const { io: disableIo } = createIo({ isTTY: false });
+    const disable1 = await runRetrospectiveCli(["disable"], disableIo);
+    expect(disable1.code).toBe(0);
+    expect(JSON.parse(disable1.stdout)).toEqual({
+      schemaVersion: 1,
+      enabled: false,
+      removed: true,
+    });
+    expect(
+      await fs
+        .access(targetConsentPath)
+        .then(() => true)
+        .catch(() => false),
+    ).toBe(false);
+
+    const disable2 = await runRetrospectiveCli(["disable"], disableIo);
+    expect(disable2.code).toBe(0);
+    expect(JSON.parse(disable2.stdout)).toEqual({
+      schemaVersion: 1,
+      enabled: false,
+      removed: false,
+    });
+  });
+
+  it("consent-status with no file -> code 0, state: disabled", async () => {
+    const { createIo } = await setupHarness();
+    const { io } = createIo();
+    const outcome = await runRetrospectiveCli(["consent-status"], io);
+    expect(outcome.code).toBe(0);
+    expect(JSON.parse(outcome.stdout)).toEqual({
+      schemaVersion: 1,
+      state: "disabled",
+      reason: "missing",
+    });
+  });
+
+  it("--store-root on a verb other than enable -> code 2", async () => {
+    const { storeDir, createIo } = await setupHarness();
+    const { io } = createIo();
+    const outcomeStatus = await runRetrospectiveCli(
+      ["status", "--store-root", storeDir, "--artifact", "some.id"],
+      io,
+    );
+    expect(outcomeStatus.code).toBe(2);
+    expect(outcomeStatus.stderr).toContain("Usage:");
+
+    const outcomeDisable = await runRetrospectiveCli(
+      ["disable", "--store-root", storeDir],
+      io,
+    );
+    expect(outcomeDisable.code).toBe(2);
+
+    const outcomeConsentStatus = await runRetrospectiveCli(
+      ["consent-status", "--store-root", storeDir],
+      io,
+    );
+    expect(outcomeConsentStatus.code).toBe(2);
+  });
+
+  it("the prompt text goes to io.write and stdout contains ONLY the JSON line", async () => {
+    const { storeDir, sourceDir, createIo } = await setupHarness();
+    const { io, getWritten } = createIo({
+      isTTY: true,
+      ask: async () => "yes",
+    });
+    const outcome = await runRetrospectiveCli(
+      ["enable", "--store-root", storeDir, "--source-root", sourceDir],
+      io,
+    );
+    expect(outcome.code).toBe(0);
+    expect(outcome.stdout).toBe('{"schemaVersion":1,"enabled":true}\n');
+    expect(outcome.stderr).toBe("");
+    const written = getWritten();
+    expect(written).toContain(CONSENT_TEXT);
+    expect(written).toContain(storeDir);
+    expect(written).toContain(sourceDir);
+    expect(written).toContain('Type "yes" to enable');
+  });
+
+  it.skipIf(process.platform === "win32")(
+    "consent-status for a permissive file reports disabled with reason permissive",
+    async () => {
+      const { storeDir, sourceDir, targetConsentPath, createIo } =
+        await setupHarness();
+      const { io: enableIo } = createIo({
+        isTTY: true,
+        ask: async () => "yes",
+      });
+      await runRetrospectiveCli(
+        ["enable", "--store-root", storeDir, "--source-root", sourceDir],
+        enableIo,
+      );
+      await fs.chmod(targetConsentPath, 0o644);
+
+      const { io } = createIo();
+      const outcome = await runRetrospectiveCli(["consent-status"], io);
+      expect(outcome.code).toBe(0);
+      expect(JSON.parse(outcome.stdout)).toEqual({
+        schemaVersion: 1,
+        state: "disabled",
+        reason: "permissive",
+      });
+    },
+  );
 });

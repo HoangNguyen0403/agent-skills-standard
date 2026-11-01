@@ -14,21 +14,30 @@
  */
 import os from "node:os";
 import path from "node:path";
+import readline from "node:readline";
 import { parseArgs } from "node:util";
 import {
+  CONSENT_TEXT,
+  CONSENT_TEXT_VERSION,
   RetrospectiveError,
   StoreError,
+  consentFilePath,
   createManifestEvidenceSource,
   deleteSession,
   loadLocalManifest,
   nodeKeySchema,
   prepareLocal,
+  readConsent,
+  removeConsent,
   resolveArtifact,
+  writeConsent,
   type ArtifactReceipt,
+  type ConsentRecord,
   type LocalManifest,
   type NodeKey,
   type ResolvedArtifact,
 } from "./retrospective";
+import { lstatOrNull } from "./retrospective/platform-private";
 
 const EXIT_OK = 0;
 const EXIT_REFUSED = 1;
@@ -48,7 +57,9 @@ const USAGE = [
   "  ags-retrospective status  --root <absolute> --artifact <opaque-id>",
   "  ags-retrospective paths   --root <absolute> --artifact <opaque-id>",
   "  ags-retrospective delete  --root <absolute> --session <id> --host <id> --confirm",
-  "",
+  "  ags-retrospective enable [--store-root <absolute>] [--source-root <absolute>]...",
+  "  ags-retrospective disable",
+  "  ags-retrospective consent-status",
   "This tool is for a human at a terminal. Consent flags are attestations, not",
   "authentication: an agent must never supply them on your behalf. `paths` is",
   "human-facing and must not be invoked automatically from a hosted tool result;",
@@ -58,9 +69,24 @@ const USAGE = [
   "2 usage error.",
 ].join("\n");
 
-type Command = "prepare" | "status" | "paths" | "delete";
+type Command =
+  | "prepare"
+  | "status"
+  | "paths"
+  | "delete"
+  | "enable"
+  | "disable"
+  | "consent-status";
 
-const COMMANDS: readonly Command[] = ["prepare", "status", "paths", "delete"];
+const COMMANDS: readonly Command[] = [
+  "prepare",
+  "status",
+  "paths",
+  "delete",
+  "enable",
+  "disable",
+  "consent-status",
+];
 
 const OPTIONS = {
   manifest: { type: "string" },
@@ -73,10 +99,12 @@ const OPTIONS = {
   host: { type: "string" },
   confirm: { type: "boolean" },
   help: { type: "boolean", short: "h" },
+  "store-root": { type: "string" },
+  "source-root": { type: "string", multiple: true },
 } as const;
 
 type ValueKey = keyof typeof OPTIONS;
-type Values = { [K in ValueKey]?: string | boolean };
+type Values = { [K in ValueKey]?: string | boolean | string[] };
 
 /** A flag is accepted only by the command that documents it. */
 const ALLOWED: Record<Command, readonly ValueKey[]> = {
@@ -84,6 +112,9 @@ const ALLOWED: Record<Command, readonly ValueKey[]> = {
   status: ["root", "artifact", "help"],
   paths: ["root", "artifact", "help"],
   delete: ["root", "session", "host", "confirm", "help"],
+  enable: ["store-root", "source-root", "help"],
+  disable: ["help"],
+  "consent-status": ["help"],
 };
 
 class UsageError extends Error {}
@@ -98,6 +129,14 @@ class Refusal extends Error {
 type Invocation = { command: Command | null; values: Values };
 
 export type CliOutcome = { code: number; stdout: string; stderr: string };
+export type CliIo = {
+  isTTY: boolean;
+  ask: (question: string) => Promise<string>;
+  write: (text: string) => void;
+  env?: NodeJS.ProcessEnv;
+  platform?: NodeJS.Platform;
+  home?: string;
+};
 
 function parseInvocation(argv: readonly string[]): Invocation {
   if (argv.length > MAX_ARGV) throw new UsageError("Too many arguments.");
@@ -326,7 +365,133 @@ async function runDelete(
   };
 }
 
-async function dispatch(invocation: Invocation): Promise<unknown> {
+async function runEnable(
+  values: Values,
+  io: CliIo,
+): Promise<{ schemaVersion: 1; enabled: true }> {
+  if (!io.isTTY) throw new Refusal("TTY_REQUIRED");
+
+  const home = io.home ?? os.homedir();
+
+  let storeRoot: string;
+  const rawStoreRoot = values["store-root"];
+  if (rawStoreRoot !== undefined) {
+    if (typeof rawStoreRoot !== "string" || !path.isAbsolute(rawStoreRoot)) {
+      throw new UsageError("--store-root must be an absolute path.");
+    }
+    storeRoot = path.normalize(rawStoreRoot);
+  } else {
+    storeRoot = path.normalize(path.join(home, "ags", "diagnostics"));
+  }
+
+  let allowedSourceRoots: string[];
+  const rawSourceRoots = values["source-root"];
+  if (rawSourceRoots !== undefined) {
+    if (!Array.isArray(rawSourceRoots) || rawSourceRoots.length === 0) {
+      throw new UsageError("--source-root requires at least one path.");
+    }
+    for (const root of rawSourceRoots) {
+      if (typeof root !== "string" || !path.isAbsolute(root)) {
+        throw new UsageError(`--source-root must be an absolute path: ${root}`);
+      }
+      const stats = await lstatOrNull(root);
+      if (!stats) {
+        throw new UsageError(`Source root does not exist: ${root}`);
+      }
+    }
+    allowedSourceRoots = Array.from(
+      new Set(rawSourceRoots.map((r) => path.normalize(r))),
+    );
+    if (allowedSourceRoots.length === 0) {
+      throw new Refusal("NO_SOURCE_ROOTS");
+    }
+  } else {
+    const candidateRoots = [
+      path.join(home, ".omp", "agent", "sessions"),
+      path.join(home, ".codex", "sessions"),
+    ];
+    const existingRoots: string[] = [];
+    for (const cand of candidateRoots) {
+      const stats = await lstatOrNull(cand);
+      if (stats) {
+        existingRoots.push(path.normalize(cand));
+      }
+    }
+    if (existingRoots.length === 0) {
+      throw new Refusal("NO_SOURCE_ROOTS");
+    }
+    allowedSourceRoots = Array.from(new Set(existingRoots));
+  }
+
+  const promptText = [
+    CONSENT_TEXT,
+    "",
+    `Store root: ${storeRoot}`,
+    "Allowed source roots:",
+    ...allowedSourceRoots.map((root) => `  - ${root}`),
+    "",
+    'Type "yes" to enable: ',
+  ].join("\n");
+
+  io.write(promptText);
+  const answer = await io.ask('Type "yes" to enable: ');
+  if (answer.trim() !== "yes") {
+    throw new Refusal("CONSENT_DECLINED");
+  }
+
+  const record: ConsentRecord = {
+    schemaVersion: 1,
+    consentTextVersion: CONSENT_TEXT_VERSION,
+    grantedAt: new Date().toISOString(),
+    storeRoot,
+    allowedSourceRoots,
+    storageRiskAcknowledged: true,
+  };
+
+  const targetPath = consentFilePath(io.env, io.platform, io.home);
+  await writeConsent(record, targetPath);
+  return { schemaVersion: 1, enabled: true };
+}
+
+async function runDisable(
+  io: CliIo,
+): Promise<{ schemaVersion: 1; enabled: false; removed: boolean }> {
+  const targetPath = consentFilePath(io.env, io.platform, io.home);
+  const removed = await removeConsent(targetPath);
+  return { schemaVersion: 1, enabled: false, removed };
+}
+
+async function runConsentStatus(io: CliIo): Promise<
+  | {
+      schemaVersion: 1;
+      state: "enabled";
+      storeRoot: string;
+      allowedSourceRoots: string[];
+    }
+  | {
+      schemaVersion: 1;
+      state: "disabled";
+      reason?: string;
+    }
+> {
+  const targetPath = consentFilePath(io.env, io.platform, io.home);
+  const consent = await readConsent(targetPath);
+  if (consent.state === "enabled") {
+    return {
+      schemaVersion: 1,
+      state: "enabled",
+      storeRoot: consent.record.storeRoot,
+      allowedSourceRoots: consent.record.allowedSourceRoots,
+    };
+  }
+  return {
+    schemaVersion: 1,
+    state: "disabled",
+    reason: consent.reason,
+  };
+}
+
+async function dispatch(invocation: Invocation, io: CliIo): Promise<unknown> {
   switch (invocation.command) {
     case "prepare":
       return runPrepare(invocation.values);
@@ -336,6 +501,12 @@ async function dispatch(invocation: Invocation): Promise<unknown> {
       return runPaths(invocation.values);
     case "delete":
       return runDelete(invocation.values);
+    case "enable":
+      return runEnable(invocation.values, io);
+    case "disable":
+      return runDisable(io);
+    case "consent-status":
+      return runConsentStatus(io);
     default:
       throw new UsageError("A command is required.");
   }
@@ -362,7 +533,16 @@ function usageOutcome(message?: string): CliOutcome {
  */
 export async function runRetrospectiveCli(
   argv: readonly string[] = process.argv.slice(2),
+  io?: CliIo,
 ): Promise<CliOutcome> {
+  const effectiveIo: CliIo = {
+    isTTY: io?.isTTY ?? Boolean(process.stdin.isTTY && process.stdout.isTTY),
+    ask: io?.ask ?? (async () => ""),
+    write: io?.write ?? (() => {}),
+    env: io?.env ?? process.env,
+    platform: io?.platform ?? process.platform,
+    home: io?.home ?? os.homedir(),
+  };
   let invocation: Invocation;
   try {
     invocation = parseInvocation(argv);
@@ -374,7 +554,7 @@ export async function runRetrospectiveCli(
   if (invocation.command === null)
     return { code: EXIT_OK, stdout: `${USAGE}\n`, stderr: "" };
   try {
-    const payload = await dispatch(invocation);
+    const payload = await dispatch(invocation, effectiveIo);
     return {
       code: EXIT_OK,
       stdout: `${JSON.stringify(payload)}\n`,
@@ -394,10 +574,39 @@ export async function runRetrospectiveCli(
 }
 
 async function main(): Promise<void> {
-  const outcome = await runRetrospectiveCli();
-  if (outcome.stdout !== "") process.stdout.write(outcome.stdout);
-  if (outcome.stderr !== "") process.stderr.write(outcome.stderr);
-  process.exitCode = outcome.code;
+  const rl = readline.createInterface({
+    input: process.stdin,
+  });
+  const io: CliIo = {
+    isTTY: Boolean(process.stdin.isTTY && process.stdout.isTTY),
+    ask: (question: string) =>
+      new Promise<string>((resolve, reject) => {
+        let answered = false;
+        rl.question(question, (answer) => {
+          answered = true;
+          resolve(answer);
+        });
+        rl.once("close", () => {
+          if (!answered) {
+            reject(new Refusal("CONSENT_DECLINED"));
+          }
+        });
+      }),
+    write: (text: string) => {
+      process.stderr.write(text);
+    },
+    env: process.env,
+    platform: process.platform,
+    home: os.homedir(),
+  };
+  try {
+    const outcome = await runRetrospectiveCli(process.argv.slice(2), io);
+    if (outcome.stdout !== "") process.stdout.write(outcome.stdout);
+    if (outcome.stderr !== "") process.stderr.write(outcome.stderr);
+    process.exitCode = outcome.code;
+  } finally {
+    rl.close();
+  }
 }
 
 if (require.main === module) void main();

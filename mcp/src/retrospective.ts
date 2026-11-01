@@ -94,3 +94,14 @@ export {
 } from "./retrospective/checkpoint";
 
 export { EvidenceLimitError } from "./retrospective/budget";
+
+export {
+  CONSENT_TEXT,
+  CONSENT_TEXT_VERSION,
+  consentFilePath,
+  readConsent,
+  removeConsent,
+  writeConsent,
+  type ConsentRead,
+  type ConsentRecord,
+} from "./retrospective/consent";
