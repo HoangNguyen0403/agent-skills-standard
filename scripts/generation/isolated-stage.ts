@@ -1561,6 +1561,64 @@ async function runProcess(
   });
 }
 
+function parseCatFileBatch(
+  stdout: Buffer,
+  relPaths: string[],
+): Map<string, string | null> {
+  const result = new Map<string, string | null>(
+    relPaths.map((relPath) => [relPath, null]),
+  );
+  let offset = 0;
+  for (const relPath of relPaths) {
+    if (offset >= stdout.length) break;
+    const newlineIndex = stdout.indexOf(0x0a, offset);
+    if (newlineIndex === -1) break;
+    const header = stdout.subarray(offset, newlineIndex).toString("utf8");
+    offset = newlineIndex + 1;
+    if (header.endsWith(" missing")) continue;
+    const parts = header.split(" ");
+    if (parts.length < 3) continue;
+    const isBlob = parts[1] === "blob";
+    const size = parseInt(parts[2], 10);
+    if (isNaN(size) || size < 0 || offset + size > stdout.length) break;
+    if (isBlob) {
+      result.set(relPath, sha256(stdout.subarray(offset, offset + size)));
+    }
+    offset += size;
+    if (offset < stdout.length && stdout[offset] === 0x0a) {
+      offset += 1;
+    }
+  }
+  return result;
+}
+
+// Compatible with Node 20 (no Promise.withResolvers).
+async function headBlobDigests(
+  repoRoot: string,
+  relPaths: string[],
+): Promise<Map<string, string | null>> {
+  if (relPaths.length === 0) return new Map();
+  try {
+    const stdout = await new Promise<Buffer>((resolve, reject) => {
+      const child = spawn("git", ["cat-file", "--batch"], {
+        cwd: repoRoot,
+        shell: false,
+      });
+      const chunks: Buffer[] = [];
+      child.stdout?.on("data", (chunk: Buffer) => chunks.push(chunk));
+      child.on("error", reject);
+      child.stdin?.on("error", () => {});
+      child.on("close", (code) => {
+        resolve(code === 0 ? Buffer.concat(chunks) : Buffer.alloc(0));
+      });
+      child.stdin?.end(relPaths.map((p) => `HEAD:${p}\n`).join(""));
+    });
+    return parseCatFileBatch(stdout, relPaths);
+  } catch {
+    return new Map(relPaths.map((p) => [p, null]));
+  }
+}
+
 function assertSafeDeclaredPath(relPath: string): void {
   if (
     path.posix.isAbsolute(relPath) ||
@@ -2343,7 +2401,7 @@ function ruleAgentForPath(
   });
 }
 
-function cliOutputOwnership(
+export function cliOutputOwnership(
   relPath: string,
   plan: GenerationPlan,
 ): Omit<ManifestEntry, "sha256"> {
@@ -2757,12 +2815,26 @@ async function persistVerifiedOwnership(
   previous: SkillsLockFile | null,
   stagedLock: SkillsLockFile | null,
   previousDigest: string | null,
+  provenanceRefreshed: Map<string, string>,
   beforeRename: () => Promise<void>,
   onRenamed: () => void,
 ): Promise<boolean> {
-  if (!previous && ownershipPaths.length === 0) return false;
+  if (
+    !previous &&
+    ownershipPaths.length === 0 &&
+    provenanceRefreshed.size === 0
+  ) {
+    return false;
+  }
   const generationEntries = { ...(previous?.generation?.entries ?? {}) };
   const entries = { ...(previous?.entries ?? {}) };
+  for (const [relPath, refreshedDigest] of provenanceRefreshed) {
+    entries[relPath] = {
+      ...cliOutputOwnership(relPath, plan),
+      sha256: refreshedDigest,
+    };
+    delete generationEntries[relPath];
+  }
   for (const relPath of ownershipPaths) {
     const digest = stagedDigests.get(relPath);
     if (!digest)
@@ -2796,7 +2868,10 @@ async function persistVerifiedOwnership(
   }
 
   const sources = { ...(previous?.sources ?? {}) };
-  for (const sourceKey of sourceKeysForChangedOutputs(ownershipPaths, plan)) {
+  for (const sourceKey of sourceKeysForChangedOutputs(
+    [...ownershipPaths, ...provenanceRefreshed.keys()],
+    plan,
+  )) {
     const source = stagedLock?.sources[sourceKey];
     if (source) sources[sourceKey] = source;
   }
@@ -3445,6 +3520,9 @@ export async function runIsolatedGeneration(
         "skills/metadata.json changed while its baseline was captured.",
       );
     }
+    const headDigests = await headBlobDigests(repoRoot, plan.declaredFiles);
+    const provenanceRefreshed = new Map<string, string>();
+
     for (const relPath of plan.declaredFiles) {
       const digest = baselineDigests.get(relPath);
       if (digest === null || digest === undefined) continue;
@@ -3477,9 +3555,14 @@ export async function runIsolatedGeneration(
         isTrustedCliOutput(relPath, cliEntry, plan) &&
         cliEntry?.sha256 !== digest
       ) {
-        throw new Error(
-          `Edited-owned output "${relPath}" differs from its CLI ownership digest; refusing publication.`,
-        );
+        const headDigest = headDigests.get(relPath);
+        if (!options.adoptBase && digest === headDigest) {
+          provenanceRefreshed.set(relPath, digest);
+        } else {
+          throw new Error(
+            `Edited-owned output "${relPath}" differs from its CLI ownership digest; refusing publication.`,
+          );
+        }
       }
     }
 
@@ -3488,10 +3571,25 @@ export async function runIsolatedGeneration(
       if (digest === null || digest === undefined) return false;
       if (currentLock?.generation?.entries[relPath]) return false;
       const cliEntry = currentLock?.entries[relPath];
-      return (
-        !isTrustedCliOutput(relPath, cliEntry, plan) ||
-        cliEntry?.sha256 !== digest
-      );
+      const isTrustedMatch =
+        isTrustedCliOutput(relPath, cliEntry, plan) &&
+        cliEntry?.sha256 === digest;
+      if (isTrustedMatch) {
+        return false;
+      }
+      if (!options.adoptBase) {
+        const headDigest = headDigests.get(relPath);
+        if (
+          isCliManagedOutputPath(relPath, plan) &&
+          headDigest !== null &&
+          headDigest !== undefined &&
+          headDigest === digest
+        ) {
+          provenanceRefreshed.set(relPath, digest);
+          return false;
+        }
+      }
+      return true;
     });
     const gitIdentityPaths = Array.from(
       new Set([
@@ -3816,9 +3914,15 @@ export async function runIsolatedGeneration(
       currentLock,
       stagedLock,
       lockBaselineDigest,
+      provenanceRefreshed,
       assertStableState,
       () => appliedFiles.push(".skills-lock.json"),
     );
+    if (provenanceRefreshed.size > 0) {
+      await appendLog(
+        `Provenance-refreshed CLI ownership: ${provenanceRefreshed.size} path(s)\n`,
+      );
+    }
     const ownershipDigest = await currentDestinationDigest(
       repoRoot,
       ".skills-lock.json",
@@ -3828,7 +3932,10 @@ export async function runIsolatedGeneration(
         "Verified output publication did not produce an ownership manifest.",
       );
     }
-    if (ownershipDigest && outOfDateFiles.length > 0) {
+    if (
+      ownershipDigest &&
+      (outOfDateFiles.length > 0 || provenanceRefreshed.size > 0)
+    ) {
       const verifiedLock = await readGenerationLock(repoRoot);
       for (const relPath of outOfDateFiles) {
         const persistedDigest = isCliManagedOutputPath(relPath, plan)
@@ -3850,6 +3957,14 @@ export async function runIsolatedGeneration(
               "Ownership scope verification failed for skills/metadata.json.",
             );
           }
+        }
+      }
+      for (const [relPath, refreshedDigest] of provenanceRefreshed) {
+        if (outOfDateFiles.includes(relPath)) continue;
+        if (verifiedLock?.entries[relPath]?.sha256 !== refreshedDigest) {
+          throw new Error(
+            `Ownership digest verification failed for "${relPath}".`,
+          );
         }
       }
     }
