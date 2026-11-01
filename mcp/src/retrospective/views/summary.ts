@@ -6,6 +6,8 @@ const MAX_TOP_SKILLS = 5;
 const MAX_LEADS = 5;
 /** Registry ids are printed verbatim, so anything else is dropped rather than echoed. */
 const SAFE_SKILL_ID_REGEX = /^[A-Za-z0-9._:/@+-]{1,96}$/;
+/** Below this many turns a cell's rate is noise, so the ledger only ranks bigger ones. */
+const MIN_RANKED_TURNS = 5;
 
 type SkillSectionOptions = {
   /** How many top-skill entries to print. */
@@ -16,16 +18,87 @@ type SkillSectionOptions = {
   timing: boolean;
 };
 
+/** `1 session` / `2 sessions`; pass a plural form for nouns that do not take `s`. */
+function plural(n: number, singular: string, pluralForm?: string): string {
+  if (n === 1) return `1 ${singular}`;
+  return `${n} ${pluralForm ?? `${singular}s`}`;
+}
+
+/** Verb form that agrees with `n`. */
+function verb(n: number, one: string, many: string): string {
+  return n === 1 ? one : many;
+}
+
 function countOf(values: Claim["values"], key: string): number {
   const value = values[key];
   return typeof value === "number" ? value : 0;
 }
 
+function stringOf(values: Claim["values"], key: string): string | null {
+  const value = values[key];
+  return typeof value === "string" ? value : null;
+}
+
+/**
+ * Fixed wording for the delegation numbers. Counts of read and created agents
+ * are observations; the sentence never says why a session was not read.
+ */
+function renderAgentsClause(
+  agentsRead: number,
+  agentsCreated: number,
+  unlinkedAgents: number,
+): string {
+  if (agentsCreated === 0) {
+    return "no agents were created.";
+  }
+  return `${agentsRead} of ${plural(agentsCreated, "created agent")} ${verb(
+    agentsRead,
+    "has",
+    "have",
+  )} a session file that was read, ${unlinkedAgents} ${verb(
+    unlinkedAgents,
+    "has",
+    "have",
+  )} none.`;
+}
+
+function renderDelegationSegment(
+  ledger: Ledger,
+  coverageClaim: Claim | undefined,
+): string {
+  if (ledger.evidenceMode === "tracker-only") return "n/a";
+  const agentsCreated = coverageClaim
+    ? countOf(coverageClaim.values, "agentsCreated")
+    : ledger.counts.agentsCreated;
+  if (agentsCreated === 0) return "none created";
+  const agentsRead = coverageClaim
+    ? countOf(coverageClaim.values, "agentsRead")
+    : 0;
+  return `${agentsRead} of ${agentsCreated} created agents read`;
+}
+
+/** The skipped-line caveat a claim carries when its metric may undercount. */
+function renderUndercount(completeness: unknown, skippedLines: number): string {
+  if (completeness !== "may-undercount-by-skipped-lines") return "";
+  return ` (may undercount: ${plural(skippedLines, "line")} ${verb(
+    skippedLines,
+    "was",
+    "were",
+  )} skipped)`;
+}
+
 function renderTimingLine(claim: Claim): string {
   const values = claim.values;
-  const text = `[${claim.id}] Skill timing: ${countOf(values, "sessionsWithSkillLoad")} of ${countOf(values, "measuredSessions")} sessions called a skill-loading tool`;
+  const measuredSessions = countOf(values, "measuredSessions");
+  const text = `[${claim.id}] Skill timing: ${countOf(
+    values,
+    "sessionsWithSkillLoad",
+  )} of ${plural(measuredSessions, "session")} called a skill-loading tool`;
   if (typeof values.mainCallsBeforeFirstSkillLoad === "number") {
-    return `${text}; the main session made ${values.mainCallsBeforeFirstSkillLoad} other tool calls before its first one.`;
+    return `${text}; the main session made ${plural(
+      values.mainCallsBeforeFirstSkillLoad,
+      "other tool call",
+    )} before its first one.`;
   }
   if (countOf(values, "mainSkillLoadCalls") === 0) {
     return `${text}; the main session called none.`;
@@ -35,11 +108,46 @@ function renderTimingLine(claim: Claim): string {
 
 function renderHostLine(claim: Claim): string {
   const values = claim.values;
-  const text = `[${claim.id}] Host skill reads: ${countOf(values, "readCalls")} reads of ${countOf(values, "uniqueSkills")} skills (ids derived from the read path, not checked against the registry); ${countOf(values, "sessionsWithAnySkillAccess")} of ${countOf(values, "measuredSessions")} sessions accessed a skill by either route`;
+  const readCalls = countOf(values, "readCalls");
+  if (readCalls === 0) {
+    return `[${claim.id}] Host skill reads: none (0 reads; measured on OMP sessions).`;
+  }
+  const measuredSessions = countOf(values, "measuredSessions");
+  const text = `[${claim.id}] Host skill reads: ${plural(
+    readCalls,
+    "read",
+  )} of ${plural(
+    countOf(values, "uniqueSkills"),
+    "skill",
+  )} (ids derived from the read path, not checked against the registry); ${countOf(
+    values,
+    "sessionsWithAnySkillAccess",
+  )} of ${plural(
+    measuredSessions,
+    "session",
+  )} accessed a skill by either route`;
   if (typeof values.mainCallsBeforeFirstSkillAccess === "number") {
-    return `${text}; the main session made ${values.mainCallsBeforeFirstSkillAccess} other tool calls before its first skill access.`;
+    return `${text}; the main session made ${plural(
+      values.mainCallsBeforeFirstSkillAccess,
+      "other tool call",
+    )} before its first skill access.`;
   }
   return `${text}.`;
+}
+
+/** `read:2,write:1` becomes `read x 2, write x 1`; anything unparseable is dropped. */
+function renderTopErrorTools(raw: string): string {
+  const entries: string[] = [];
+  for (const entry of raw.split(",")) {
+    const trimmed = entry.trim();
+    const separator = trimmed.lastIndexOf(":");
+    if (separator <= 0) continue;
+    const tool = trimmed.slice(0, separator).trim();
+    const count = trimmed.slice(separator + 1).trim();
+    if (tool === "" || !/^\d+$/.test(count)) continue;
+    entries.push(`${tool} x ${count}`);
+  }
+  return entries.join(", ");
 }
 
 function renderSkillSection(
@@ -64,9 +172,30 @@ function renderSkillSection(
       values.trackerWindow === "matches-session"
         ? "the whole session"
         : `this server process since ${skillClaim.scope.from}`;
-    lines.push(
-      `[${skillClaim.id}] Skill lookups: ${countOf(values, "loadCalls")} calls returned ${countOf(values, "bodyReturns")} skill bodies (${countOf(values, "skillsTotal")} unique, ${countOf(values, "dedupedReturns")} reused from context); ${countOf(values, "noMatchCalls")} lookups matched nothing; ${countOf(values, "selectedNotLoaded")} selected skills were not returned; ${countOf(values, "workflows")} workflows, ${countOf(values, "guides")} guides. Window: ${window}.`,
-    );
+    const bodyReturns = countOf(values, "bodyReturns");
+    const workflows = countOf(values, "workflows");
+    const guides = countOf(values, "guides");
+    let text = `[${skillClaim.id}] Skill lookups: ${plural(
+      countOf(values, "loadCalls"),
+      "call",
+    )} to skill-loading tools; ${countOf(
+      values,
+      "noMatchCalls",
+    )} matched nothing; ${plural(
+      bodyReturns,
+      "skill body",
+      "skill bodies",
+    )} ${verb(bodyReturns, "was", "were")} returned (${plural(
+      countOf(values, "skillsTotal"),
+      "unique skill",
+    )}, ${countOf(values, "dedupedReturns")} reused from context).`;
+    if (workflows > 0 || guides > 0) {
+      text += ` ${plural(workflows, "workflow")}, ${plural(
+        guides,
+        "guide",
+      )} loaded.`;
+    }
+    lines.push(`${text} Window: ${window}.`);
 
     const top =
       ledger.skillUsage === null
@@ -87,15 +216,17 @@ function renderSkillSection(
   }
   if (hostClaim) {
     lines.push(renderHostLine(hostClaim));
-    const hostTop = (ledger.hostSkills?.top ?? [])
-      .filter((entry) => SAFE_SKILL_ID_REGEX.test(entry.id))
-      .slice(0, options.topHostSkills);
-    if (hostTop.length > 0) {
-      lines.push(
-        `Top host-read skills: ${hostTop
-          .map((entry) => `${entry.id} x${entry.reads}`)
-          .join(", ")}`,
-      );
+    if (countOf(hostClaim.values, "readCalls") > 0) {
+      const hostTop = (ledger.hostSkills?.top ?? [])
+        .filter((entry) => SAFE_SKILL_ID_REGEX.test(entry.id))
+        .slice(0, options.topHostSkills);
+      if (hostTop.length > 0) {
+        lines.push(
+          `Top host-read skills: ${hostTop
+            .map((entry) => `${entry.id} x${entry.reads}`)
+            .join(", ")}`,
+        );
+      }
     }
   }
   return lines;
@@ -111,39 +242,66 @@ function renderLines(ledger: Ledger, options: SkillSectionOptions): string[] {
   const rootStr =
     ledger.rootVerification === "unverified-root" ? "unverified root" : "n/a";
 
+  const coverageClaim = ledger.claims.find((c) => c.template === "coverage");
+  const agentsCreated = coverageClaim
+    ? countOf(coverageClaim.values, "agentsCreated")
+    : ledger.counts.agentsCreated;
+  const agentsRead = coverageClaim
+    ? countOf(coverageClaim.values, "agentsRead")
+    : 0;
+  const unlinkedAgents = coverageClaim
+    ? countOf(coverageClaim.values, "unlinkedAgents")
+    : ledger.counts.agentsCreated - ledger.counts.sessionsLinked;
+
   lines.push(
-    `Coverage: ${ledger.coverage} | Evidence: ${evidenceStr} | Root: ${rootStr} | Cutoff: ${ledger.cutoff}`,
+    `Coverage: ${ledger.coverage} | Evidence: ${evidenceStr} | Root: ${rootStr} | Delegation: ${renderDelegationSegment(
+      ledger,
+      coverageClaim,
+    )} | Cutoff: ${ledger.cutoff}`,
   );
+  if (coverageClaim) {
+    const sessionPart =
+      ledger.session === null ? "" : `session ${ledger.session} | `;
+    lines.push(
+      `Scope: ${sessionPart}${coverageClaim.scope.from} to ${coverageClaim.scope.to}`,
+    );
+  }
   lines.push("");
 
   lines.push("## What the numbers say");
 
-  const coverageClaim = ledger.claims.find((c) => c.template === "coverage");
   if (coverageClaim) {
     const val = coverageClaim.values;
-    const agentsCreated =
-      typeof val.agentsCreated === "number" ? val.agentsCreated : 0;
-    const sessionsLinked =
-      typeof val.sessionsLinked === "number" ? val.sessionsLinked : 0;
-    const unlinkedAgents =
-      typeof val.unlinkedAgents === "number" ? val.unlinkedAgents : 0;
-    const sessions = typeof val.sessions === "number" ? val.sessions : 0;
-    const fullyRead = typeof val.fullyRead === "number" ? val.fullyRead : 0;
-    const skippedLines =
-      typeof val.skippedLines === "number" ? val.skippedLines : 0;
-
-    const delegationStr =
-      agentsCreated > sessionsLinked
-        ? `${sessionsLinked} sessions linked (${unlinkedAgents} unlinked agents of ${agentsCreated} created)`
-        : `${sessionsLinked} sessions linked (${agentsCreated} created)`;
-
+    const sessions = countOf(val, "sessions");
+    const skippedLines = countOf(val, "skippedLines");
+    const skippedClause = `${plural(skippedLines, "line")} ${verb(
+      skippedLines,
+      "was",
+      "were",
+    )} skipped`;
     if (ledger.evidenceMode === "tracker-only") {
+      // No session file is read on this path, so no read count can be claimed.
+      const trackerAgents =
+        agentsCreated === 0
+          ? "no agents were created."
+          : `none of the ${plural(
+              agentsCreated,
+              "created agent",
+            )} has a session file that was read.`;
       lines.push(
-        `[${coverageClaim.id}] Tracker-only observation: no session files were read; delegation: ${delegationStr}.`,
+        `[${coverageClaim.id}] Tracker-only observation: no session files were read; ${trackerAgents}`,
       );
     } else {
+      const agentsClause = renderAgentsClause(
+        agentsRead,
+        agentsCreated,
+        unlinkedAgents,
+      );
       lines.push(
-        `[${coverageClaim.id}] Coverage: ${sessions} sessions (${fullyRead} fully read, ${skippedLines} skipped lines); delegation: ${delegationStr}.`,
+        `[${coverageClaim.id}] Coverage: ${plural(
+          sessions,
+          "session",
+        )} read in full (${skippedClause}); ${agentsClause}`,
       );
     }
   }
@@ -151,26 +309,66 @@ function renderLines(ledger: Ledger, options: SkillSectionOptions): string[] {
   const errorStopClaim = ledger.claims.find(
     (c) => c.template === "error-stop-exposure",
   );
-  const completenessFlag =
-    errorStopClaim?.values.completeness === "may-undercount-by-skipped-lines";
-  const skippedLinesTotal =
-    coverageClaim && typeof coverageClaim.values.skippedLines === "number"
-      ? coverageClaim.values.skippedLines
-      : 0;
-  const undercountPhrase = completenessFlag
-    ? ` (may undercount: ${skippedLinesTotal} lines were skipped)`
+  const skippedLinesTotal = coverageClaim
+    ? countOf(coverageClaim.values, "skippedLines")
+    : 0;
+  const errorStopUndercount = errorStopClaim
+    ? renderUndercount(errorStopClaim.values.completeness, skippedLinesTotal)
     : "";
   if (errorStopClaim) {
     const val = errorStopClaim.values;
-    const errorStops = typeof val.errorStops === "number" ? val.errorStops : 0;
-    const turns = typeof val.turns === "number" ? val.turns : 0;
-    const cellCount = typeof val.cellCount === "number" ? val.cellCount : 0;
+    const errorStops = countOf(val, "errorStops");
+    const turns = countOf(val, "turns");
+    const cellCount = countOf(val, "cellCount");
+    const topCell = stringOf(val, "topCell");
+    const busiestCell = stringOf(val, "busiestCell");
 
-    let text = `[${errorStopClaim.id}] Error-stop exposure: ${errorStops} error stops across ${turns} assistant turns (${cellCount} day-model cells).`;
-    if (typeof val.topCell === "string") {
-      text += ` Highest rate in cell ${val.topCell} with ${val.topCellErrorStops} error stops in ${val.topCellTurns} turns.`;
+    let text = `[${errorStopClaim.id}] Error-stop exposure: ${plural(
+      errorStops,
+      "error stop",
+    )} across ${plural(turns, "assistant turn")} (${plural(
+      cellCount,
+      "day-model cell",
+    )}).`;
+    if (topCell !== null) {
+      text += ` Highest rate: ${topCell} (${countOf(
+        val,
+        "topCellErrorStops",
+      )} of ${plural(countOf(val, "topCellTurns"), "turn")}).`;
     }
-    lines.push(text + undercountPhrase);
+    if (busiestCell !== null) {
+      text += ` Most stops: ${busiestCell} (${countOf(
+        val,
+        "busiestCellErrorStops",
+      )} of ${plural(countOf(val, "busiestCellTurns"), "turn")}).`;
+    }
+    if (topCell === null && errorStops > 0) {
+      text += ` Cells with fewer than ${MIN_RANKED_TURNS} turns are not ranked by rate.`;
+    }
+    lines.push(text + errorStopUndercount);
+  }
+
+  const toolErrorClaim = ledger.claims.find(
+    (c) => c.template === "tool-errors",
+  );
+  if (toolErrorClaim) {
+    const val = toolErrorClaim.values;
+    const failedToolCalls = countOf(val, "failedToolCalls");
+    const toolCalls = countOf(val, "toolCalls");
+    const topErrorTools = stringOf(val, "topErrorTools");
+    let text = `[${toolErrorClaim.id}] Tool calls: ${failedToolCalls} of ${plural(
+      toolCalls,
+      "tool call",
+    )} returned an error`;
+    if (topErrorTools !== null) {
+      const rendered = renderTopErrorTools(topErrorTools);
+      if (rendered !== "") {
+        text += ` (most: ${rendered})`;
+      }
+    }
+    lines.push(
+      `${text}.${renderUndercount(val.completeness, skippedLinesTotal)}`,
+    );
   }
 
   lines.push("");
@@ -190,14 +388,21 @@ function renderLines(ledger: Ledger, options: SkillSectionOptions): string[] {
     : 0;
   if (errorStopClaim && errorStopLeadStops > 0) {
     const val = errorStopClaim.values;
-    const turns = typeof val.turns === "number" ? val.turns : 0;
+    const turns = countOf(val, "turns");
+    const busiestCell = stringOf(val, "busiestCell");
+    const topCell = stringOf(val, "topCell");
     const evId =
-      typeof val.topCell === "string"
-        ? `agg:cell:${val.topCell}:errorStops`
-        : "agg:tree:errorStops";
+      busiestCell !== null
+        ? `agg:cell:${busiestCell}:errorStops`
+        : topCell !== null
+          ? `agg:cell:${topCell}:errorStops`
+          : "agg:tree:errorStops";
 
     leads.push(
-      `- [${errorStopClaim.id}] Error-stop concentration: ${errorStopLeadStops} stops in ${turns} turns. Check: open the ledger entry ${evId} and compare per-model counts; this does not say why the stops happened.${undercountPhrase}`,
+      `- [${errorStopClaim.id}] Error-stop concentration: ${plural(
+        errorStopLeadStops,
+        "stop",
+      )} in ${plural(turns, "turn")}. Evidence: ${evId}. Check: open the ledger entries named here and the cells list in ledger.json; this does not say why the stops happened.${errorStopUndercount}`,
     );
   }
   const timingClaim = ledger.claims.find(
@@ -216,7 +421,10 @@ function renderLines(ledger: Ledger, options: SkillSectionOptions): string[] {
       measuredSessions - sessionsWithAnySkillAccess;
     if (sessionsWithoutAnySkillAccess > 0) {
       leads.push(
-        `- [${hostClaim.id}] ${sessionsWithoutAnySkillAccess} of ${measuredSessions} sessions never accessed a skill by either route. Check: open ledger entries agg:hostSkills:sessionsWithAnySkillAccess and agg:skills:measuredSessions; a session without a skill access is not proof a skill was needed.`,
+        `- [${hostClaim.id}] ${sessionsWithoutAnySkillAccess} of ${plural(
+          measuredSessions,
+          "session",
+        )} never accessed a skill by either route. Check: open ledger entries agg:hostSkills:sessionsWithAnySkillAccess and agg:skills:measuredSessions; a session without a skill access is not proof a skill was needed.`,
       );
     }
   } else {
@@ -225,7 +433,10 @@ function renderLines(ledger: Ledger, options: SkillSectionOptions): string[] {
       : 0;
     if (timingClaim && sessionsWithoutSkillLoad > 0) {
       leads.push(
-        `- [${timingClaim.id}] ${sessionsWithoutSkillLoad} of ${countOf(timingClaim.values, "measuredSessions")} sessions never called a skill-loading tool. Check: open ledger entries agg:skills:measuredSessions and agg:skills:sessionsWithSkillLoad; a session without a skill call is not proof a skill was needed.`,
+        `- [${timingClaim.id}] ${sessionsWithoutSkillLoad} of ${plural(
+          countOf(timingClaim.values, "measuredSessions"),
+          "session",
+        )} never called a skill-loading tool. Check: open ledger entries agg:skills:measuredSessions and agg:skills:sessionsWithSkillLoad; a session without a skill call is not proof a skill was needed.`,
       );
     }
   }
@@ -238,7 +449,6 @@ function renderLines(ledger: Ledger, options: SkillSectionOptions): string[] {
 
   lines.push("## What this cannot tell you");
   lines.push("- Counts show where to look, not why.");
-  lines.push("- Token cost is shown only as recorded units elsewhere.");
   lines.push("- Partial reads can undercount.");
   lines.push("- The root session is not verified against the host.");
   if (skillSection.length > 0) {
@@ -282,8 +492,8 @@ export function renderSummary(ledger: Ledger): string {
   }
 
   // Deterministic degradation: drop server top-skill entries first, then host
-  // top-skill entries, then the timing line. Line 1, the coverage/error lines
-  // and the limits block always stay.
+  // top-skill entries, then the timing line. Line 1, line 2, the coverage,
+  // error and tool lines, the leads and the limits block always stay.
   const candidates: SkillSectionOptions[] = [];
   for (let topSkills = MAX_TOP_SKILLS; topSkills >= 0; topSkills -= 1) {
     candidates.push({

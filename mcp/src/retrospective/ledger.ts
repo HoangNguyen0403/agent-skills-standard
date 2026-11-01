@@ -13,6 +13,7 @@ export type ClaimTemplateId =
   | "skill-usage"
   | "skill-trigger-timing"
   | "host-skill-reads"
+  | "tool-errors"
   | "coverage";
 
 export type Claim = {
@@ -30,6 +31,8 @@ export type Claim = {
 
 export type LedgerInput = {
   tree: TreeAggregate | null;
+  /** Bound main session id, or null for a tracker-only run. */
+  mainSessionId: string | null;
   cutoff: string;
   evidenceMode: "native-files" | "tracker-only";
   rootVerification: "unverified-root" | "not-applicable";
@@ -59,9 +62,21 @@ export type HostSkillSummary = {
   top: Array<{ id: string; reads: number }>;
 };
 
+/** One listed day-model cell: a sanitized key plus its turn and error-stop counts. */
+export type LedgerCell = {
+  key: string;
+  turns: number;
+  errorStops: number;
+};
+
 export type Ledger = {
   schemaVersion: 1;
   cutoff: string;
+  /**
+   * First eight characters of the bound main session id, a stable hashed label
+   * when it is not a safe identifier, or null for a tracker-only run.
+   */
+  session: string | null;
   evidenceMode: LedgerInput["evidenceMode"];
   rootVerification: LedgerInput["rootVerification"];
   coverage: "complete" | "partial";
@@ -70,6 +85,11 @@ export type Ledger = {
   skillUsage: SkillUsageSnapshot | null;
   /** Copy of the host-mechanism skill reads the host claim was built from. */
   hostSkills: HostSkillSummary | null;
+  /**
+   * At most 50 day-model cells by turns desc then key asc, plus any cell a claim
+   * value names (appended past the cap so the evidence keeps resolving).
+   */
+  cells: LedgerCell[];
   claims: Claim[];
   evidence: Record<EvidenceId, { kind: "aggregate"; value: number | string }>;
 };
@@ -92,6 +112,16 @@ const SAFE_SKILL_ID_REGEX = /^[A-Za-z0-9._:/@+-]{1,96}$/;
 const SAFE_HOST_SKILL_ID_REGEX = /^[A-Za-z0-9][A-Za-z0-9._/-]{0,95}$/;
 /** Host skill ids carried in `hostSkills.top`. */
 const MAX_TOP_HOST_SKILLS = 20;
+/** Day-model cells listed in `Ledger.cells` before claim-referenced extras. */
+const MAX_CELLS = 50;
+/** A bound session id this shape is printed as its first eight characters. */
+const SAFE_SESSION_ID_REGEX = /^[A-Za-z0-9-]{8,128}$/;
+/** Tool names are file-derived; anything outside this shape is hashed. */
+const SAFE_TOOL_NAME_REGEX = /^[A-Za-z0-9._:-]{1,48}$/;
+/** `topErrorTools` is `tool:count` pairs joined by commas. */
+const SAFE_TOP_ERROR_TOOLS_REGEX =
+  /^[A-Za-z0-9._:-]{1,48}:[0-9]+(?:,[A-Za-z0-9._:-]{1,48}:[0-9]+){0,2}$/;
+const MAX_TOP_ERROR_TOOLS = 3;
 
 const COUNT_KEYS: ReadonlyArray<keyof LedgerCounts> = [
   "agentsCreated",
@@ -242,8 +272,9 @@ function compareHostSkillEntries(
 }
 
 /**
- * Deterministic copy of the tree's host-mechanism skill reads. Null when the
- * tree is null, when nothing was read, or when no node was measured.
+ * Deterministic copy of the tree's host-mechanism skill reads. Null only when
+ * the tree is null or no node was measured: a measured tree with zero reads is
+ * a real zero, so it yields a zero summary and a `host-skill-reads` claim.
  */
 function buildHostSkills(tree: TreeAggregate | null): HostSkillSummary | null {
   if (tree === null) return null;
@@ -258,7 +289,6 @@ function buildHostSkills(tree: TreeAggregate | null): HostSkillSummary | null {
     perSkill.set(id, (perSkill.get(id) ?? 0) + count);
     total += count;
   }
-  if (total === 0) return null;
 
   const top = Array.from(perSkill.entries())
     .map(([id, reads]) => ({ id, reads }))
@@ -266,6 +296,89 @@ function buildHostSkills(tree: TreeAggregate | null): HostSkillSummary | null {
     .slice(0, MAX_TOP_HOST_SKILLS);
 
   return { total, unique: perSkill.size, top };
+}
+
+/** First eight characters of a safe session id, else a stable hashed label. */
+function deriveSessionLabel(mainSessionId: string | null): string | null {
+  if (mainSessionId === null) return null;
+  if (SAFE_SESSION_ID_REGEX.test(mainSessionId)) {
+    return mainSessionId.slice(0, 8);
+  }
+  const hash = createHash("sha256")
+    .update(mainSessionId, "utf8")
+    .digest("hex")
+    .slice(0, 8);
+  return `session-${hash}`;
+}
+
+/** Every sanitized day-model cell, unsorted. */
+function collectCells(tree: TreeAggregate | null): LedgerCell[] {
+  if (tree === null) return [];
+  return Object.entries(tree.series.byDayModel).map(([rawKey, cell]) => ({
+    key: sanitizeCellKey(rawKey),
+    turns: cell.turns,
+    errorStops: cell.errorStops,
+  }));
+}
+
+function compareCellTurns(a: LedgerCell, b: LedgerCell): number {
+  if (b.turns !== a.turns) return b.turns - a.turns;
+  return a.key < b.key ? -1 : a.key > b.key ? 1 : 0;
+}
+
+/** A cell named by a claim value stays in the ledger even outside the top 50. */
+function ensureCellListed(
+  cells: LedgerCell[],
+  allCells: LedgerCell[],
+  key: string,
+): void {
+  if (cells.some((cell) => cell.key === key)) return;
+  const source = allCells.find((cell) => cell.key === key);
+  if (source !== undefined) cells.push({ ...source });
+}
+
+function addCellEvidence(
+  cells: LedgerCell[],
+  evidence: Record<EvidenceId, { kind: "aggregate"; value: number | string }>,
+): void {
+  for (const cell of cells) {
+    evidence[`agg:cell:${cell.key}:turns`] = {
+      kind: "aggregate",
+      value: cell.turns,
+    };
+    evidence[`agg:cell:${cell.key}:errorStops`] = {
+      kind: "aggregate",
+      value: cell.errorStops,
+    };
+  }
+}
+
+/** Tool names are file-derived; anything outside the safe shape is hashed. */
+function sanitizeToolName(tool: string): string {
+  if (SAFE_TOOL_NAME_REGEX.test(tool)) return tool;
+  const hash = createHash("sha256")
+    .update(tool, "utf8")
+    .digest("hex")
+    .slice(0, 8);
+  return `tool-${hash}`;
+}
+
+/**
+ * Every numeric claim value carries its own aggregate evidence entry, and the
+ * claim's supporting list names it, so a reader can resolve the number.
+ */
+function addClaimValueEvidence(
+  template: ClaimTemplateId,
+  values: Record<string, number | string>,
+  supporting: EvidenceId[],
+  evidence: Record<EvidenceId, { kind: "aggregate"; value: number | string }>,
+): void {
+  for (const [key, value] of Object.entries(values)) {
+    if (typeof value !== "number") continue;
+    const id = `agg:claim:${template}:${key}`;
+    evidence[id] = { kind: "aggregate", value };
+    supporting.push(id);
+  }
 }
 
 function sameHostSkills(
@@ -306,6 +419,11 @@ export function buildLedger(input: LedgerInput): Ledger {
     { kind: "aggregate"; value: number | string }
   > = {};
 
+  const session = deriveSessionLabel(input.mainSessionId);
+  const allCells = collectCells(tree);
+  // Claim-referenced cells may be appended past the cap before evidence is added.
+  const cells = [...allCells].sort(compareCellTurns).slice(0, MAX_CELLS);
+
   const sessions = tree ? tree.sessions : 0;
   const fullyRead = tree ? tree.fullyRead : 0;
   const skippedLines = tree ? tree.skippedLines : 0;
@@ -326,6 +444,7 @@ export function buildLedger(input: LedgerInput): Ledger {
     agentsCreated,
     sessionsLinked,
     unlinkedAgents,
+    agentsRead: Math.max(0, agentsCreated - unlinkedAgents),
   };
 
   const treeErrorStops =
@@ -354,14 +473,22 @@ export function buildLedger(input: LedgerInput): Ledger {
       ? "may-undercount-by-skipped-lines"
       : "complete";
 
+  const coverageSupporting: EvidenceId[] = [];
+  addClaimValueEvidence(
+    "coverage",
+    coverageValues,
+    coverageSupporting,
+    evidence,
+  );
+
   claims.push({
-    id: computeClaimId("coverage", scope, []),
+    id: computeClaimId("coverage", scope, coverageSupporting),
     type: "observation",
     template: "coverage",
     values: coverageValues,
     scope,
     coverage: overallCoverage,
-    supporting: [],
+    supporting: coverageSupporting,
     contradicting: [],
     basedOn: [],
   });
@@ -419,23 +546,58 @@ export function buildLedger(input: LedgerInput): Ledger {
         }
         return a.rawKey < b.rawKey ? -1 : a.rawKey > b.rawKey ? 1 : 0;
       });
-
-      const top = eligibleCells[0];
-      const sanitizedKey = sanitizeCellKey(top.rawKey);
-
-      errorStopValues.topCell = sanitizedKey;
-      errorStopValues.topCellErrorStops = top.errorStops;
-      errorStopValues.topCellTurns = top.turns;
-
-      const cellErrorEvId = `agg:cell:${sanitizedKey}:errorStops`;
-      const cellTurnsEvId = `agg:cell:${sanitizedKey}:turns`;
-
-      supporting.push(cellErrorEvId);
-      supporting.push(cellTurnsEvId);
-
-      evidence[cellErrorEvId] = { kind: "aggregate", value: top.errorStops };
-      evidence[cellTurnsEvId] = { kind: "aggregate", value: top.turns };
     }
+
+    // The busiest cell carries the most error stops (ties: more turns, then key
+    // asc). Zero stops is a real zero, so it names no cell at all.
+    let busiest: LedgerCell | null = null;
+    for (const cell of allCells) {
+      if (cell.errorStops <= 0) continue;
+      const better =
+        busiest === null ||
+        cell.errorStops > busiest.errorStops ||
+        (cell.errorStops === busiest.errorStops &&
+          (cell.turns > busiest.turns ||
+            (cell.turns === busiest.turns && cell.key < busiest.key)));
+      if (better) busiest = cell;
+    }
+
+    if (treeErrorStops > 0) {
+      const top = eligibleCells.length > 0 ? eligibleCells[0] : null;
+      // A top-rate cell with zero stops would read as a finding it is not.
+      if (top !== null && top.errorStops > 0) {
+        const sanitizedKey = sanitizeCellKey(top.rawKey);
+        errorStopValues.topCell = sanitizedKey;
+        errorStopValues.topCellErrorStops = top.errorStops;
+        errorStopValues.topCellTurns = top.turns;
+        ensureCellListed(cells, allCells, sanitizedKey);
+        supporting.push(
+          `agg:cell:${sanitizedKey}:errorStops`,
+          `agg:cell:${sanitizedKey}:turns`,
+        );
+      }
+      if (busiest !== null) {
+        errorStopValues.busiestCell = busiest.key;
+        errorStopValues.busiestCellErrorStops = busiest.errorStops;
+        errorStopValues.busiestCellTurns = busiest.turns;
+        ensureCellListed(cells, allCells, busiest.key);
+        const busiestErrorEvId = `agg:cell:${busiest.key}:errorStops`;
+        const busiestTurnsEvId = `agg:cell:${busiest.key}:turns`;
+        if (!supporting.includes(busiestErrorEvId)) {
+          supporting.push(busiestErrorEvId);
+        }
+        if (!supporting.includes(busiestTurnsEvId)) {
+          supporting.push(busiestTurnsEvId);
+        }
+      }
+    }
+
+    addClaimValueEvidence(
+      "error-stop-exposure",
+      errorStopValues,
+      supporting,
+      evidence,
+    );
 
     claims.push({
       id: computeClaimId("error-stop-exposure", scope, supporting),
@@ -478,22 +640,30 @@ export function buildLedger(input: LedgerInput): Ledger {
         ? "matches-session"
         : "process-only";
 
+    const skillValues: Record<string, number | string> = {
+      loadCalls: skillUsage.loadCalls,
+      skillsTotal: skillUsage.skillsTotal,
+      bodyReturns: skillUsage.bodyReturns,
+      dedupedReturns: skillUsage.dedupedReturns,
+      estimatedTokens: skillUsage.estimatedTokens,
+      noMatchCalls: skillUsage.noMatchCalls,
+      selectedNotLoaded: skillUsage.selectedNotLoaded,
+      workflows: skillUsage.workflows,
+      guides: skillUsage.guides,
+      trackerWindow,
+    };
+    addClaimValueEvidence(
+      "skill-usage",
+      skillValues,
+      skillSupporting,
+      evidence,
+    );
+
     claims.push({
       id: computeClaimId("skill-usage", skillScope, skillSupporting),
       type: "observation",
       template: "skill-usage",
-      values: {
-        loadCalls: skillUsage.loadCalls,
-        skillsTotal: skillUsage.skillsTotal,
-        bodyReturns: skillUsage.bodyReturns,
-        dedupedReturns: skillUsage.dedupedReturns,
-        estimatedTokens: skillUsage.estimatedTokens,
-        noMatchCalls: skillUsage.noMatchCalls,
-        selectedNotLoaded: skillUsage.selectedNotLoaded,
-        workflows: skillUsage.workflows,
-        guides: skillUsage.guides,
-        trackerWindow,
-      },
+      values: skillValues,
       scope: skillScope,
       denominator: { count: skillUsage.loadCalls, unit: "skill lookup calls" },
       coverage: overallCoverage,
@@ -543,6 +713,13 @@ export function buildLedger(input: LedgerInput): Ledger {
         timingValues.mainCallsBeforeFirstSkillLoad =
           mainSkillNode.callsBeforeFirstSkillLoad;
       }
+
+      addClaimValueEvidence(
+        "skill-trigger-timing",
+        timingValues,
+        timingSupporting,
+        evidence,
+      );
 
       claims.push({
         id: computeClaimId("skill-trigger-timing", scope, timingSupporting),
@@ -604,6 +781,13 @@ export function buildLedger(input: LedgerInput): Ledger {
         mainSkillNode.callsBeforeFirstSkillAccess;
     }
 
+    addClaimValueEvidence(
+      "host-skill-reads",
+      hostValues,
+      hostSupporting,
+      evidence,
+    );
+
     claims.push({
       id: computeClaimId("host-skill-reads", scope, hostSupporting),
       type: "observation",
@@ -620,6 +804,73 @@ export function buildLedger(input: LedgerInput): Ledger {
       basedOn: [],
     });
   }
+
+  if (tree !== null) {
+    let toolCallCount = 0;
+    for (const count of Object.values(tree.toolCalls)) {
+      toolCallCount += count;
+    }
+    if (toolCallCount > 0) {
+      const toolSupporting: EvidenceId[] = [
+        "agg:tree:toolCalls",
+        "agg:tree:toolErrors",
+      ];
+      evidence["agg:tree:toolCalls"] = {
+        kind: "aggregate",
+        value: toolCallCount,
+      };
+      evidence["agg:tree:toolErrors"] = {
+        kind: "aggregate",
+        value: failedToolCalls,
+      };
+
+      const toolValues: Record<string, number | string> = {
+        toolCalls: toolCallCount,
+        failedToolCalls,
+        completeness: (["toolCalls", "toolErrors"] as const).some(
+          (key) =>
+            tree.metricCompleteness[key] === "may-undercount-by-skipped-lines",
+        )
+          ? "may-undercount-by-skipped-lines"
+          : "complete",
+      };
+
+      if (failedToolCalls > 0) {
+        toolValues.topErrorTools = Object.entries(tree.toolErrors)
+          .filter(([, count]) => Number.isFinite(count) && count > 0)
+          .map(([tool, count]) => ({ name: sanitizeToolName(tool), count }))
+          .sort((a, b) => {
+            if (b.count !== a.count) return b.count - a.count;
+            return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
+          })
+          .slice(0, MAX_TOP_ERROR_TOOLS)
+          .map((entry) => `${entry.name}:${entry.count}`)
+          .join(",");
+      }
+
+      addClaimValueEvidence(
+        "tool-errors",
+        toolValues,
+        toolSupporting,
+        evidence,
+      );
+
+      claims.push({
+        id: computeClaimId("tool-errors", scope, toolSupporting),
+        type: "observation",
+        template: "tool-errors",
+        values: toolValues,
+        scope,
+        denominator: { count: toolCallCount, unit: "tool calls" },
+        coverage: overallCoverage,
+        supporting: toolSupporting,
+        contradicting: [],
+        basedOn: [],
+      });
+    }
+  }
+
+  addCellEvidence(cells, evidence);
 
   const sortedEvidence: Record<
     EvidenceId,
@@ -641,12 +892,14 @@ export function buildLedger(input: LedgerInput): Ledger {
   return {
     schemaVersion: 1,
     cutoff: input.cutoff,
+    session,
     evidenceMode: input.evidenceMode,
     rootVerification: input.rootVerification,
     coverage: overallCoverage,
     counts,
     skillUsage,
     hostSkills,
+    cells,
     claims,
     evidence: sortedEvidence,
   };
@@ -677,7 +930,8 @@ export function checkClaimRules(ledger: Ledger): LedgerProblemCode[] {
       claim.template === "error-stop-exposure" ||
       claim.template === "skill-usage" ||
       claim.template === "skill-trigger-timing" ||
-      claim.template === "host-skill-reads"
+      claim.template === "host-skill-reads" ||
+      claim.template === "tool-errors"
     ) {
       if (
         !claim.denominator ||
@@ -719,7 +973,7 @@ export function checkClaimRules(ledger: Ledger): LedgerProblemCode[] {
           if (val !== "complete" && val !== "may-undercount-by-skipped-lines") {
             problems.add("UNSAFE_VALUE");
           }
-        } else if (key === "topCell") {
+        } else if (key === "topCell" || key === "busiestCell") {
           const pipeIdx = val.indexOf("|");
           if (pipeIdx === -1) {
             problems.add("UNSAFE_VALUE");
@@ -730,11 +984,32 @@ export function checkClaimRules(ledger: Ledger): LedgerProblemCode[] {
               problems.add("UNSAFE_VALUE");
             }
           }
+        } else if (key === "topErrorTools") {
+          if (!SAFE_TOP_ERROR_TOOLS_REGEX.test(val)) {
+            problems.add("UNSAFE_VALUE");
+          }
         } else {
           if (!SAFE_MODEL_REGEX.test(val)) {
             problems.add("UNSAFE_VALUE");
           }
         }
+      }
+    }
+  }
+
+  // Every numeric claim value must resolve to its own aggregate evidence entry
+  // with the same number, and the claim's supporting list must name it.
+  for (const claim of ledger.claims) {
+    for (const [key, val] of Object.entries(claim.values)) {
+      if (typeof val !== "number") continue;
+      const evId = `agg:claim:${claim.template}:${key}`;
+      const entry = ledger.evidence[evId];
+      if (entry === undefined || !claim.supporting.includes(evId)) {
+        problems.add("DANGLING_EVIDENCE");
+        continue;
+      }
+      if (entry.value !== val) {
+        problems.add("NUMBER_MISMATCH");
       }
     }
   }
@@ -750,6 +1025,10 @@ export function verifyLedger(
 
   if (ledger.cutoff !== input.cutoff) {
     problems.add("MIXED_CUTOFF");
+  }
+
+  if (ledger.session !== deriveSessionLabel(input.mainSessionId)) {
+    problems.add("NUMBER_MISMATCH");
   }
 
   const expected = buildLedger(input);
@@ -817,6 +1096,25 @@ export function verifyLedger(
     JSON.stringify(ledger.skillUsage) !== JSON.stringify(expected.skillUsage)
   ) {
     problems.add("NUMBER_MISMATCH");
+  }
+
+  const rawCells: unknown = ledger.cells;
+  if (!Array.isArray(rawCells)) {
+    problems.add("NUMBER_MISMATCH");
+  } else {
+    const storedCells = rawCells as LedgerCell[];
+    for (const cell of storedCells) {
+      if (typeof cell?.key !== "string") {
+        problems.add("UNSAFE_VALUE");
+        continue;
+      }
+      if (sanitizeCellKey(cell.key) !== cell.key) {
+        problems.add("UNSAFE_VALUE");
+      }
+    }
+    if (JSON.stringify(storedCells) !== JSON.stringify(expected.cells)) {
+      problems.add("NUMBER_MISMATCH");
+    }
   }
 
   const storedHostSkills: HostSkillSummary | null = ledger.hostSkills ?? null;

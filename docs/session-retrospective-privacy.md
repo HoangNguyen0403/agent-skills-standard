@@ -262,7 +262,9 @@ viewing client's filesystem.
 MCP-native generations use store layout `v2`. A v2 generation directory holds three files:
 
 - `summary.md` — the report a human can open. Numbers, registry skill ids and fixed sentences
-  only; never transcript text. Its first line states coverage, evidence mode and root.
+  only; never transcript text. Its first two lines state coverage, evidence mode, root, delegation
+  (how many created agents have a read session file) and the session scope. The session part is the
+  first 8 characters of the session id, which comes from the session file's own header.
 - `ledger.json` — the claims, their evidence and the committed counts behind the summary. A
   repeat call reads this ledger, so `already-prepared` reports the published numbers.
 - `generation.json` — the layout and serialization record written only for a v2 generation.

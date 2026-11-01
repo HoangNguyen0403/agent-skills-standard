@@ -110,6 +110,7 @@ const storedClaimSchema = z.strictObject({
     "skill-usage",
     "skill-trigger-timing",
     "host-skill-reads",
+    "tool-errors",
     "coverage",
   ]),
   values: z.record(z.string(), z.union([z.number(), z.string()])),
@@ -165,9 +166,16 @@ const storedHostSkillsSchema = z.strictObject({
   ),
 });
 
+const storedCellSchema = z.strictObject({
+  key: z.string().min(1),
+  turns: z.number().int().nonnegative(),
+  errorStops: z.number().int().nonnegative(),
+});
+
 const storedLedgerSchema = z.strictObject({
   schemaVersion: z.literal(1),
   cutoff: z.string().min(1),
+  session: z.string().min(1).nullable(),
   evidenceMode: z.enum(["native-files", "tracker-only"]),
   rootVerification: z.enum(["unverified-root", "not-applicable"]),
   coverage: z.enum(["complete", "partial"]),
@@ -181,6 +189,7 @@ const storedLedgerSchema = z.strictObject({
   }),
   skillUsage: storedSkillUsageSchema.nullable(),
   hostSkills: storedHostSkillsSchema.nullable(),
+  cells: z.array(storedCellSchema),
   claims: z.array(storedClaimSchema).min(1),
   evidence: z.record(
     z.string(),
@@ -476,6 +485,7 @@ export async function runRetrospective(
       const cutoff = clockFn().toISOString();
       const ledgerInput: LedgerInput = {
         tree: null,
+        mainSessionId: null,
         cutoff,
         evidenceMode: "tracker-only",
         rootVerification: "not-applicable",
@@ -597,6 +607,7 @@ export async function runRetrospective(
 
     const ledgerInput: LedgerInput = {
       tree,
+      mainSessionId: mainKey.sessionId,
       cutoff: discovery.manifest.cutoff,
       evidenceMode: "native-files",
       rootVerification: "unverified-root",

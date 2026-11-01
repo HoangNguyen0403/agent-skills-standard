@@ -1022,7 +1022,8 @@ describe("runRetrospective orchestration (Task S4b)", () => {
 
     const summary1 = await fsp.readFile(res1.viewPaths.summary, "utf8");
     expect(summary1).toContain("## Skills");
-    expect(summary1).toContain("2 calls returned 2 skill bodies");
+    expect(summary1).toContain("2 calls to skill-loading tools");
+    expect(summary1).toContain("2 skill bodies were returned");
 
     // The tracker records two more loads; the committed generation keeps its numbers.
     fx.tracker.record({
@@ -1103,6 +1104,7 @@ describe("runRetrospective orchestration (Task S4b)", () => {
     const ledgerWithoutSessions = `${JSON.stringify({
       schemaVersion: 1,
       cutoff: "2026-10-01T00:00:00.000Z",
+      session: null,
       evidenceMode: "native-files",
       rootVerification: "unverified-root",
       coverage: "complete",
@@ -1115,6 +1117,8 @@ describe("runRetrospective orchestration (Task S4b)", () => {
         hypotheses: 0,
       },
       skillUsage: null,
+      hostSkills: null,
+      cells: [],
       claims: [
         {
           id: "0123456789abcdef",
@@ -1350,7 +1354,7 @@ describe("runRetrospective orchestration (Task S4b)", () => {
     ).toBe(true);
 
     const summaryContent = await fsp.readFile(res1.viewPaths.summary, "utf8");
-    expect(summaryContent).toContain("Host skill reads: 2 reads of 1 skills");
+    expect(summaryContent).toContain("Host skill reads: 2 reads of 1 skill");
 
     // A restart replays the same recorded events, so it must join the same
     // generation and read the numbers back from the committed ledger.
@@ -1366,5 +1370,94 @@ describe("runRetrospective orchestration (Task S4b)", () => {
     if (res2.state !== "already-prepared") return;
     expect(res2.artifactId).toBe(res1.artifactId);
     expect(res2.counts).toEqual(res1.counts);
+  });
+
+  it("publishes the bound session label and the listed day-model cells", async () => {
+    const sessionId = "sess-contract-cells";
+    const fx = await setupBoundSession("ags-run-session-label-", sessionId);
+    await fsp.appendFile(fx.mainFile, assistantErrorRow("msg-cell-row"));
+
+    const deps: RunDeps = {
+      tracker: fx.tracker,
+      workspace: fx.workspaceDir,
+      consentPath: fx.consentPath,
+    };
+
+    const res = await runRetrospective(deps, new AbortController().signal);
+    expect(res.state).toBe("prepared");
+    if (res.state !== "prepared") return;
+
+    const ledger = JSON.parse(
+      await fsp.readFile(res.viewPaths.ledger, "utf8"),
+    ) as {
+      session: string | null;
+      cells: Array<{ key: string; turns: number; errorStops: number }>;
+      counts: Record<string, number>;
+    };
+    expect(ledger.session).toBe(sessionId.slice(0, 8));
+    expect(ledger.cells.length).toBeGreaterThan(0);
+    for (const cell of ledger.cells) {
+      expect(typeof cell.key).toBe("string");
+      expect(Number.isInteger(cell.turns)).toBe(true);
+      expect(Number.isInteger(cell.errorStops)).toBe(true);
+    }
+    expect(ledger.counts).toEqual(res.counts);
+  });
+
+  it("rejects a stored ledger that predates the session and cells fields", async () => {
+    const fx = await setupBoundSession(
+      "ags-run-stored-older-",
+      "sess-stored-older",
+    );
+    const cutoff = "2026-10-01T00:00:00.000Z";
+    const olderLedger = {
+      schemaVersion: 1,
+      cutoff,
+      evidenceMode: "native-files",
+      rootVerification: "unverified-root",
+      coverage: "complete",
+      counts: {
+        agentsCreated: 0,
+        sessionsLinked: 1,
+        failedToolCalls: 0,
+        errorStops: 0,
+        claims: 1,
+        hypotheses: 0,
+      },
+      skillUsage: null,
+      hostSkills: null,
+      claims: [
+        {
+          id: "0123456789abcdef",
+          type: "observation",
+          template: "coverage",
+          values: { sessions: 1, fullyRead: 1 },
+          scope: {
+            nodes: [{ hostId: "local", sessionId: "sess-stored-older" }],
+            from: cutoff,
+            to: cutoff,
+          },
+          coverage: "complete",
+          supporting: [],
+          contradicting: [],
+          basedOn: [],
+        },
+      ],
+      evidence: {},
+    };
+    await publishManualGeneration(fx, `${JSON.stringify(olderLedger)}\n`);
+
+    const deps: RunDeps = {
+      tracker: fx.tracker,
+      workspace: fx.workspaceDir,
+      consentPath: fx.consentPath,
+    };
+
+    const res = await runRetrospective(deps, new AbortController().signal);
+    expect(res).toEqual({
+      resultVersion: 1,
+      state: "failed",
+      code: "STORED_LEDGER_INVALID",
+    });
   });
 });

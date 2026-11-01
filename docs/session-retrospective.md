@@ -144,13 +144,19 @@ by this path.
 
 ### Report layout
 
-The first line of `summary.md` is this, with the placeholders replaced:
+The first two lines of `summary.md` are this, with the placeholders replaced:
 
 ```
-Coverage: <complete|partial> | Evidence: <native session files|tracker only (no session files read)> | Root: <unverified root|n/a> | Cutoff: <iso>
+Coverage: <complete|partial> | Evidence: <native session files|tracker only (no session files read)> | Root: <unverified root|n/a> | Delegation: <n/a|none created|K of N created agents read> | Cutoff: <iso>
+Scope: session <first 8 characters of the session id> | <first event time> to <last event time>
 ```
 
-then four fixed second-level headings:
+`Delegation` is the part of the line that keeps `complete` honest: `complete` means every session
+file that was found was read in full; `K of N created agents read` says how many of the agents the
+session created have a session file that was read. The session part of `Scope` is omitted for a
+tracker-only report.
+
+Then fixed second-level headings:
 
 ```
 ## What the numbers say
@@ -159,14 +165,21 @@ then four fixed second-level headings:
 ## What this cannot tell you
 ```
 
-`## What the numbers say` carries the coverage claim (sessions fully read, skipped lines, agents
-created versus sessions linked with unlinked agents listed) and error-stop exposure by day and model
-with per-cell denominators, plus a "may undercount" phrase when lines were skipped. `## Leads` holds
-at most 5 entries, each with a claim id and a confirm/refute note. The whole file is capped at 40
-lines and 4 KB. There is no verdict wording: counts show where to look, not why.
+`## What the numbers say` carries three observations: coverage (sessions read in full, skipped
+lines, created agents with and without a read session file), error-stop exposure (stops over
+assistant turns, with the day-model cell of highest rate and the cell with most stops, each with
+its own numbers; cells with fewer than 5 turns are not ranked by rate) and tool calls (how many
+returned an error and the three tools with most errors). A "may undercount" phrase appears next to
+any number that may be low because lines were skipped. `## Skills` is described below. `## Leads`
+holds at most 5 entries, each with a claim id and a confirm/refute note; a lead appears only when
+its own numbers give a reason to look (no error-stop lead for zero error stops), and otherwise the
+section says no leads were identified. The whole file is capped at 40 lines and 4 KB. There is no
+verdict wording: counts show where to look, not why.
 
-`ledger.json` holds the claims, their evidence and the committed counts. A repeat call reads the
-committed ledger, which is why `already-prepared` can report published numbers.
+`ledger.json` holds the claims, their evidence, the day-model cells (up to 50, plus any cell a
+claim names) and the committed counts. Every number in a claim has its own evidence entry
+(`agg:claim:<claim>:<value>`), which the verifier checks before anything is published. A repeat
+call reads the committed ledger, which is why `already-prepared` reports the published numbers.
 
 ### Disabling and deleting
 

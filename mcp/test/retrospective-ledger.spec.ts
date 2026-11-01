@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import crypto from "node:crypto";
 import type { TreeAggregate } from "../src/retrospective/aggregate";
 import {
   buildLedger,
@@ -92,6 +93,7 @@ function createTreeFixture(
 
 const DEFAULT_INPUT: LedgerInput = {
   tree: createTreeFixture(),
+  mainSessionId: "abcdef1234567890",
   cutoff: "2026-10-01T12:00:00.000Z",
   evidenceMode: "native-files",
   rootVerification: "unverified-root",
@@ -211,7 +213,13 @@ describe("retrospective ledger", () => {
     expect(ledger.rootVerification).toBe("unverified-root");
     expect(ledger.cutoff).toBe("2026-10-01T12:00:00.000Z");
 
-    expect(ledger.claims).toHaveLength(2);
+    expect(ledger.session).toBe("abcdef12");
+    expect(ledger.cells).toEqual([
+      { key: "2026-10-01|model-a", turns: 10, errorStops: 2 },
+      { key: "2026-10-01|model-b", turns: 10, errorStops: 1 },
+    ]);
+
+    expect(ledger.claims).toHaveLength(3);
 
     const coverageClaim = ledger.claims[0];
     expect(coverageClaim.template).toBe("coverage");
@@ -224,8 +232,17 @@ describe("retrospective ledger", () => {
       agentsCreated: 4,
       sessionsLinked: 3,
       unlinkedAgents: 1,
+      agentsRead: 3,
     });
-    expect(coverageClaim.supporting).toEqual([]);
+    expect(coverageClaim.supporting).toEqual([
+      "agg:claim:coverage:sessions",
+      "agg:claim:coverage:fullyRead",
+      "agg:claim:coverage:skippedLines",
+      "agg:claim:coverage:agentsCreated",
+      "agg:claim:coverage:sessionsLinked",
+      "agg:claim:coverage:unlinkedAgents",
+      "agg:claim:coverage:agentsRead",
+    ]);
     expect(coverageClaim.contradicting).toEqual([]);
     expect(coverageClaim.basedOn).toEqual([]);
     expect(coverageClaim.id).toMatch(/^[0-9a-f]{16}$/);
@@ -242,6 +259,9 @@ describe("retrospective ledger", () => {
       topCell: "2026-10-01|model-a",
       topCellErrorStops: 2,
       topCellTurns: 10,
+      busiestCell: "2026-10-01|model-a",
+      busiestCellErrorStops: 2,
+      busiestCellTurns: 10,
     });
     expect(errorClaim.denominator).toEqual({
       count: 20,
@@ -252,25 +272,68 @@ describe("retrospective ledger", () => {
       "agg:tree:assistantTurns",
       "agg:cell:2026-10-01|model-a:errorStops",
       "agg:cell:2026-10-01|model-a:turns",
+      "agg:claim:error-stop-exposure:errorStops",
+      "agg:claim:error-stop-exposure:turns",
+      "agg:claim:error-stop-exposure:cellCount",
+      "agg:claim:error-stop-exposure:topCellErrorStops",
+      "agg:claim:error-stop-exposure:topCellTurns",
+      "agg:claim:error-stop-exposure:busiestCellErrorStops",
+      "agg:claim:error-stop-exposure:busiestCellTurns",
     ]);
 
-    expect(ledger.evidence).toEqual({
-      "agg:cell:2026-10-01|model-a:errorStops": {
-        kind: "aggregate",
-        value: 2,
-      },
-      "agg:cell:2026-10-01|model-a:turns": {
-        kind: "aggregate",
-        value: 10,
-      },
-      "agg:tree:assistantTurns": {
-        kind: "aggregate",
-        value: 20,
-      },
-      "agg:tree:errorStops": {
-        kind: "aggregate",
-        value: 3,
-      },
+    const toolClaim = ledger.claims[2];
+    expect(toolClaim.template).toBe("tool-errors");
+    expect(toolClaim.type).toBe("observation");
+    expect(toolClaim.values).toEqual({
+      toolCalls: 15,
+      failedToolCalls: 0,
+      completeness: "complete",
+    });
+    expect(toolClaim.denominator).toEqual({ count: 15, unit: "tool calls" });
+    expect(toolClaim.supporting).toEqual([
+      "agg:tree:toolCalls",
+      "agg:tree:toolErrors",
+      "agg:claim:tool-errors:toolCalls",
+      "agg:claim:tool-errors:failedToolCalls",
+    ]);
+
+    expect(Object.keys(ledger.evidence)).toEqual([
+      "agg:cell:2026-10-01|model-a:errorStops",
+      "agg:cell:2026-10-01|model-a:turns",
+      "agg:cell:2026-10-01|model-b:errorStops",
+      "agg:cell:2026-10-01|model-b:turns",
+      "agg:claim:coverage:agentsCreated",
+      "agg:claim:coverage:agentsRead",
+      "agg:claim:coverage:fullyRead",
+      "agg:claim:coverage:sessions",
+      "agg:claim:coverage:sessionsLinked",
+      "agg:claim:coverage:skippedLines",
+      "agg:claim:coverage:unlinkedAgents",
+      "agg:claim:error-stop-exposure:busiestCellErrorStops",
+      "agg:claim:error-stop-exposure:busiestCellTurns",
+      "agg:claim:error-stop-exposure:cellCount",
+      "agg:claim:error-stop-exposure:errorStops",
+      "agg:claim:error-stop-exposure:topCellErrorStops",
+      "agg:claim:error-stop-exposure:topCellTurns",
+      "agg:claim:error-stop-exposure:turns",
+      "agg:claim:tool-errors:failedToolCalls",
+      "agg:claim:tool-errors:toolCalls",
+      "agg:tree:assistantTurns",
+      "agg:tree:errorStops",
+      "agg:tree:toolCalls",
+      "agg:tree:toolErrors",
+    ]);
+    expect(ledger.evidence["agg:cell:2026-10-01|model-b:errorStops"]).toEqual({
+      kind: "aggregate",
+      value: 1,
+    });
+    expect(ledger.evidence["agg:claim:coverage:sessions"]).toEqual({
+      kind: "aggregate",
+      value: 2,
+    });
+    expect(ledger.evidence["agg:tree:toolCalls"]).toEqual({
+      kind: "aggregate",
+      value: 15,
     });
 
     const verifyResult = verifyLedger(ledger, DEFAULT_INPUT);
@@ -514,6 +577,16 @@ describe("retrospective ledger", () => {
     expect(errorClaim?.values.topCell).toMatch(
       /^2026-10-01\|model-[0-9a-f]{8}$/,
     );
+    expect(ledger.cells).toHaveLength(2);
+    for (const cell of ledger.cells) {
+      expect(cell.key).toMatch(/^2026-10-01\|model-[0-9a-f]{8}$/);
+    }
+    expect(
+      ledger.evidence[`agg:cell:${String(ledger.cells[0]?.key)}:turns`],
+    ).toEqual({
+      kind: "aggregate",
+      value: 10,
+    });
 
     const verification = verifyLedger(ledger, input);
     expect(verification).toEqual({ ok: true });
@@ -622,15 +695,27 @@ describe("retrospective ledger", () => {
     expect(allLowLedger.claims[1].values.topCell).toBeUndefined();
     expect(allLowLedger.claims[1].values.topCellErrorStops).toBeUndefined();
     expect(allLowLedger.claims[1].values.topCellTurns).toBeUndefined();
+    // No eligible top cell, but the 2 error stops still name a busiest cell.
+    expect(allLowLedger.claims[1].values.busiestCell).toBe(
+      "2026-10-01|model-low",
+    );
     expect(allLowLedger.claims[1].supporting).toEqual([
       "agg:tree:errorStops",
       "agg:tree:assistantTurns",
+      "agg:cell:2026-10-01|model-low:errorStops",
+      "agg:cell:2026-10-01|model-low:turns",
+      "agg:claim:error-stop-exposure:errorStops",
+      "agg:claim:error-stop-exposure:turns",
+      "agg:claim:error-stop-exposure:cellCount",
+      "agg:claim:error-stop-exposure:busiestCellErrorStops",
+      "agg:claim:error-stop-exposure:busiestCellTurns",
     ]);
   });
 
   it("yields only the coverage claim and coverage: partial for tracker-only input", () => {
     const trackerInput: LedgerInput = {
       tree: null,
+      mainSessionId: null,
       cutoff: "2026-10-01T12:00:00.000Z",
       evidenceMode: "tracker-only",
       rootVerification: "not-applicable",
@@ -644,6 +729,8 @@ describe("retrospective ledger", () => {
     expect(ledger.coverage).toBe("partial");
     expect(ledger.evidenceMode).toBe("tracker-only");
     expect(ledger.rootVerification).toBe("not-applicable");
+    expect(ledger.session).toBeNull();
+    expect(ledger.cells).toEqual([]);
     expect(ledger.claims).toHaveLength(1);
     expect(ledger.claims[0].template).toBe("coverage");
     expect(ledger.claims[0].coverage).toBe("partial");
@@ -654,8 +741,17 @@ describe("retrospective ledger", () => {
       agentsCreated: 5,
       sessionsLinked: 3,
       unlinkedAgents: 2,
+      agentsRead: 3,
     });
-    expect(ledger.evidence).toEqual({});
+    expect(Object.keys(ledger.evidence)).toEqual([
+      "agg:claim:coverage:agentsCreated",
+      "agg:claim:coverage:agentsRead",
+      "agg:claim:coverage:fullyRead",
+      "agg:claim:coverage:sessions",
+      "agg:claim:coverage:sessionsLinked",
+      "agg:claim:coverage:skippedLines",
+      "agg:claim:coverage:unlinkedAgents",
+    ]);
 
     const verifyResult = verifyLedger(ledger, trackerInput);
     expect(verifyResult).toEqual({ ok: true });
@@ -668,12 +764,13 @@ describe("retrospective ledger", () => {
       sessionsLinked: 3,
       failedToolCalls: 0,
       errorStops: 3,
-      claims: 2,
+      claims: 3,
       hypotheses: 0,
     });
 
     const trackerInput: LedgerInput = {
       tree: null,
+      mainSessionId: null,
       cutoff: "2026-10-01T12:00:00.000Z",
       evidenceMode: "tracker-only",
       rootVerification: "not-applicable",
@@ -786,10 +883,13 @@ describe("retrospective ledger", () => {
     });
     expect(skillClaim.scope.from).toBe("2026-10-01T09:00:00.000Z");
     expect(skillClaim.scope.to).toBe("2026-10-01T12:00:00.000Z");
-    expect(skillClaim.supporting).toEqual([
+    expect(skillClaim.supporting.slice(0, 2)).toEqual([
       "agg:skills:loadCalls",
       "agg:skills:bodyReturns",
     ]);
+    expect(skillClaim.supporting).toContain(
+      "agg:claim:skill-usage:estimatedTokens",
+    );
     expect(ledger.evidence["agg:skills:loadCalls"]).toEqual({
       kind: "aggregate",
       value: 3,
@@ -818,7 +918,7 @@ describe("retrospective ledger", () => {
       count: 2,
       unit: "measured sessions",
     });
-    expect(timingClaim.supporting).toEqual([
+    expect(timingClaim.supporting.slice(0, 2)).toEqual([
       "agg:skills:measuredSessions",
       "agg:skills:sessionsWithSkillLoad",
     ]);
@@ -831,7 +931,9 @@ describe("retrospective ledger", () => {
       value: 1,
     });
 
-    expect(ledger.counts.claims).toBe(4);
+    // coverage, error-stop-exposure, skill-usage, skill-trigger-timing,
+    // the zero-read host claim and tool-errors.
+    expect(ledger.counts.claims).toBe(6);
   });
 
   it("marks the tracker window process-only when the main session count differs or there is no tree", () => {
@@ -862,6 +964,7 @@ describe("retrospective ledger", () => {
 
     const trackerOnly: LedgerInput = {
       tree: null,
+      mainSessionId: null,
       cutoff: "2026-10-01T12:00:00.000Z",
       evidenceMode: "tracker-only",
       rootVerification: "not-applicable",
@@ -1081,7 +1184,7 @@ describe("retrospective ledger", () => {
       completeness: "complete",
     });
     expect(claim.denominator).toEqual({ count: 2, unit: "measured sessions" });
-    expect(claim.supporting).toEqual([
+    expect(claim.supporting.slice(0, 2)).toEqual([
       "agg:hostSkills:readCalls",
       "agg:hostSkills:sessionsWithAnySkillAccess",
     ]);
@@ -1093,8 +1196,8 @@ describe("retrospective ledger", () => {
       ledger.evidence["agg:hostSkills:sessionsWithAnySkillAccess"],
     ).toEqual({ kind: "aggregate", value: 1 });
 
-    // coverage, error-stop-exposure, skill-trigger-timing and the host claim.
-    expect(ledger.counts.claims).toBe(4);
+    // coverage, error-stop-exposure, skill-trigger-timing, the host claim and tool-errors.
+    expect(ledger.counts.claims).toBe(5);
     expect(verifyLedger(ledger, input)).toEqual({ ok: true });
   });
 
@@ -1180,17 +1283,32 @@ describe("retrospective ledger", () => {
     expect(verifyLedger(ledger, input)).toEqual({ ok: true });
   });
 
-  it("omits the host claim when there are no reads, no tree, or no measured node", () => {
+  it("keeps a zero host summary for a measured tree and omits the claim without a measured node", () => {
     const noReads: LedgerInput = { ...DEFAULT_INPUT, tree: skillTree() };
     const noReadsLedger = buildLedger(noReads);
-    expect(noReadsLedger.hostSkills).toBeNull();
-    expect(
-      noReadsLedger.claims.some((c) => c.template === "host-skill-reads"),
-    ).toBe(false);
-    expect(noReadsLedger.evidence["agg:hostSkills:readCalls"]).toBeUndefined();
+    expect(noReadsLedger.hostSkills).toEqual({
+      total: 0,
+      unique: 0,
+      top: [],
+    });
+    const zeroClaim = noReadsLedger.claims.find(
+      (c) => c.template === "host-skill-reads",
+    );
+    expect(zeroClaim).toBeDefined();
+    expect(zeroClaim?.values.readCalls).toBe(0);
+    expect(zeroClaim?.values.uniqueSkills).toBe(0);
+    expect(zeroClaim?.values.sessionsWithHostRead).toBe(0);
+    expect(noReadsLedger.evidence["agg:hostSkills:readCalls"]).toEqual({
+      kind: "aggregate",
+      value: 0,
+    });
     expect(verifyLedger(noReadsLedger, noReads)).toEqual({ ok: true });
 
-    const noTree: LedgerInput = { ...DEFAULT_INPUT, tree: null };
+    const noTree: LedgerInput = {
+      ...DEFAULT_INPUT,
+      tree: null,
+      mainSessionId: null,
+    };
     const noTreeLedger = buildLedger(noTree);
     expect(noTreeLedger.hostSkills).toBeNull();
     expect(
@@ -1344,9 +1462,10 @@ describe("retrospective ledger", () => {
     const claim = ledger.claims.find((c) => c.template === "host-skill-reads");
     if (!claim) throw new Error("missing host-skill-reads claim");
     claim.values.mainCallsBeforeFirstSkillAccess = 5;
+    // The added number has no aggregate evidence entry and is not in supporting.
     expect(verifyLedger(ledger, input)).toEqual({
       ok: false,
-      problems: ["NUMBER_MISMATCH"],
+      problems: ["DANGLING_EVIDENCE", "NUMBER_MISMATCH"],
     });
   });
 
@@ -1375,5 +1494,318 @@ describe("retrospective ledger", () => {
     expect(first).not.toMatch(
       /\b(rework|wasted|bad|failure-rate-of-a-model|improvement)\b/i,
     );
+  });
+
+  it("derives the session label from the main session id", () => {
+    const longId = "0123456789abcdef-session";
+    expect(
+      buildLedger({ ...DEFAULT_INPUT, mainSessionId: longId }).session,
+    ).toBe("01234567");
+
+    const unsafeId = "bad id with spaces";
+    const hashedLabel = `session-${crypto
+      .createHash("sha256")
+      .update(unsafeId, "utf8")
+      .digest("hex")
+      .slice(0, 8)}`;
+    const hashedInput: LedgerInput = {
+      ...DEFAULT_INPUT,
+      mainSessionId: unsafeId,
+    };
+    const hashed = buildLedger(hashedInput);
+    expect(hashed.session).toBe(hashedLabel);
+    expect(JSON.stringify(hashed)).not.toContain(unsafeId);
+    expect(verifyLedger(hashed, hashedInput)).toEqual({ ok: true });
+
+    expect(
+      buildLedger({ ...DEFAULT_INPUT, mainSessionId: null }).session,
+    ).toBeNull();
+    expect(
+      buildLedger({ ...DEFAULT_INPUT, mainSessionId: "short" }).session,
+    ).toMatch(/^session-[0-9a-f]{8}$/);
+  });
+
+  it("lists at most 50 cells by turns and appends a claim-referenced cell", () => {
+    const byDayModel: TreeAggregate["series"]["byDayModel"] = {};
+    for (let index = 0; index < 60; index += 1) {
+      byDayModel[`2026-10-01|model-${String(index).padStart(2, "0")}`] = {
+        turns: index < 50 ? 60 - index : 1,
+        errorStops: index === 59 ? 9 : 0,
+        costUnits: 1,
+        costKnownTurns: 1,
+      };
+    }
+
+    const cappedInput: LedgerInput = {
+      ...DEFAULT_INPUT,
+      tree: createTreeFixture({
+        stopReasons: { error: 9 },
+        series: { byDayModel },
+      }),
+    };
+    const capped = buildLedger(cappedInput);
+    expect(capped.cells).toHaveLength(51);
+    expect(capped.cells[0]).toEqual({
+      key: "2026-10-01|model-00",
+      turns: 60,
+      errorStops: 0,
+    });
+    expect(capped.cells[49]).toEqual({
+      key: "2026-10-01|model-49",
+      turns: 11,
+      errorStops: 0,
+    });
+    // The busiest cell is outside the top 50 by turns, so it is appended.
+    expect(capped.cells[50]).toEqual({
+      key: "2026-10-01|model-59",
+      turns: 1,
+      errorStops: 9,
+    });
+
+    const cappedClaim = capped.claims.find(
+      (c) => c.template === "error-stop-exposure",
+    );
+    expect(cappedClaim?.values.busiestCell).toBe("2026-10-01|model-59");
+    expect(cappedClaim?.values.topCell).toBeUndefined();
+    expect(capped.evidence["agg:cell:2026-10-01|model-59:errorStops"]).toEqual({
+      kind: "aggregate",
+      value: 9,
+    });
+    expect(capped.evidence["agg:cell:2026-10-01|model-00:turns"]).toEqual({
+      kind: "aggregate",
+      value: 60,
+    });
+    expect(verifyLedger(capped, cappedInput)).toEqual({ ok: true });
+
+    // A top-rate cell with stops outside the top 50 is appended as well.
+    const topOutside: TreeAggregate["series"]["byDayModel"] = {};
+    for (let index = 0; index < 55; index += 1) {
+      topOutside[`2026-10-01|model-${String(index).padStart(2, "0")}`] = {
+        turns: 100 - index,
+        errorStops: 0,
+        costUnits: 1,
+        costKnownTurns: 1,
+      };
+    }
+    topOutside["2026-10-01|model-outside"] = {
+      turns: 5,
+      errorStops: 5,
+      costUnits: 1,
+      costKnownTurns: 5,
+    };
+    const outsideInput: LedgerInput = {
+      ...DEFAULT_INPUT,
+      tree: createTreeFixture({
+        stopReasons: { error: 5 },
+        series: { byDayModel: topOutside },
+      }),
+    };
+    const outside = buildLedger(outsideInput);
+    const outsideClaim = outside.claims.find(
+      (c) => c.template === "error-stop-exposure",
+    );
+    expect(outsideClaim?.values.topCell).toBe("2026-10-01|model-outside");
+    expect(outside.cells).toHaveLength(51);
+    expect(outside.cells[50]?.key).toBe("2026-10-01|model-outside");
+    expect(verifyLedger(outside, outsideInput)).toEqual({ ok: true });
+  });
+
+  it("gives every numeric claim value its own aggregate evidence entry", () => {
+    const ledger = buildLedger(DEFAULT_INPUT);
+    for (const claim of ledger.claims) {
+      for (const [key, value] of Object.entries(claim.values)) {
+        if (typeof value !== "number") continue;
+        const evId = `agg:claim:${claim.template}:${key}`;
+        expect(claim.supporting).toContain(evId);
+        expect(ledger.evidence[evId]).toEqual({ kind: "aggregate", value });
+      }
+    }
+
+    const tampered = buildLedger(DEFAULT_INPUT);
+    tampered.evidence["agg:claim:coverage:sessions"] = {
+      kind: "aggregate",
+      value: 999,
+    };
+    expect(verifyLedger(tampered, DEFAULT_INPUT)).toEqual({
+      ok: false,
+      problems: ["NUMBER_MISMATCH"],
+    });
+
+    const deleted = buildLedger(DEFAULT_INPUT);
+    delete deleted.evidence["agg:claim:coverage:sessions"];
+    expect(verifyLedger(deleted, DEFAULT_INPUT)).toEqual({
+      ok: false,
+      problems: ["DANGLING_EVIDENCE"],
+    });
+
+    const unsupported = buildLedger(DEFAULT_INPUT);
+    const coverageClaim = unsupported.claims[0];
+    coverageClaim.supporting = coverageClaim.supporting.filter(
+      (id) => id !== "agg:claim:coverage:sessions",
+    );
+    expect(verifyLedger(unsupported, DEFAULT_INPUT)).toEqual({
+      ok: false,
+      problems: ["DANGLING_EVIDENCE"],
+    });
+  });
+
+  it("omits top and busiest cells when error stops are zero or no cell has stops", () => {
+    const zeroStops: LedgerInput = {
+      ...DEFAULT_INPUT,
+      tree: createTreeFixture({
+        stopReasons: { stop: 20 },
+        series: {
+          byDayModel: {
+            "2026-10-01|model-a": {
+              turns: 10,
+              errorStops: 0,
+              costUnits: 8,
+              costKnownTurns: 10,
+            },
+            "2026-10-01|model-b": {
+              turns: 10,
+              errorStops: 0,
+              costUnits: 7,
+              costKnownTurns: 10,
+            },
+          },
+        },
+      }),
+    };
+    const zeroLedger = buildLedger(zeroStops);
+    const zeroClaim = zeroLedger.claims.find(
+      (c) => c.template === "error-stop-exposure",
+    );
+    expect(zeroClaim?.values).toEqual({
+      errorStops: 0,
+      turns: 20,
+      cellCount: 2,
+      completeness: "complete",
+    });
+    expect(zeroClaim?.values.topCell).toBeUndefined();
+    expect(zeroClaim?.values.busiestCell).toBeUndefined();
+    expect(zeroClaim?.supporting).toEqual([
+      "agg:tree:errorStops",
+      "agg:tree:assistantTurns",
+      "agg:claim:error-stop-exposure:errorStops",
+      "agg:claim:error-stop-exposure:turns",
+      "agg:claim:error-stop-exposure:cellCount",
+    ]);
+    expect(verifyLedger(zeroLedger, zeroStops)).toEqual({ ok: true });
+
+    // Stops recorded at the tree level but not attributable to any cell.
+    const stopsWithoutCells: LedgerInput = {
+      ...DEFAULT_INPUT,
+      tree: createTreeFixture({
+        stopReasons: { stop: 15, error: 5 },
+        series: {
+          byDayModel: {
+            "2026-10-01|model-a": {
+              turns: 10,
+              errorStops: 0,
+              costUnits: 8,
+              costKnownTurns: 10,
+            },
+            "2026-10-01|model-b": {
+              turns: 10,
+              errorStops: 0,
+              costUnits: 7,
+              costKnownTurns: 10,
+            },
+          },
+        },
+      }),
+    };
+    const unattributed = buildLedger(stopsWithoutCells);
+    const unattributedClaim = unattributed.claims.find(
+      (c) => c.template === "error-stop-exposure",
+    );
+    expect(unattributedClaim?.values.errorStops).toBe(5);
+    expect(unattributedClaim?.values.topCell).toBeUndefined();
+    expect(unattributedClaim?.values.busiestCell).toBeUndefined();
+    expect(verifyLedger(unattributed, stopsWithoutCells)).toEqual({
+      ok: true,
+    });
+
+    const both = buildLedger(DEFAULT_INPUT).claims.find(
+      (c) => c.template === "error-stop-exposure",
+    );
+    expect(both?.values.topCell).toBe("2026-10-01|model-a");
+    expect(both?.values.busiestCell).toBe("2026-10-01|model-a");
+  });
+
+  it("builds the tool-errors claim with ordered, sanitized top error tools", () => {
+    const weirdTool = "bad tool name";
+    const weirdId = `tool-${crypto
+      .createHash("sha256")
+      .update(weirdTool, "utf8")
+      .digest("hex")
+      .slice(0, 8)}`;
+    const input: LedgerInput = {
+      ...DEFAULT_INPUT,
+      tree: createTreeFixture({
+        toolCalls: { read: 10, write: 5, exec: 3 },
+        toolErrors: { read: 2, write: 1, [weirdTool]: 3, other: 0 },
+      }),
+    };
+
+    const ledger = buildLedger(input);
+    const claim = ledger.claims.find((c) => c.template === "tool-errors");
+    expect(claim).toBeDefined();
+    if (!claim) return;
+    expect(claim.type).toBe("observation");
+    expect(claim.coverage).toBe("complete");
+    expect(claim.denominator).toEqual({ count: 18, unit: "tool calls" });
+    expect(claim.values).toEqual({
+      toolCalls: 18,
+      failedToolCalls: 6,
+      completeness: "complete",
+      topErrorTools: `${weirdId}:3,read:2,write:1`,
+    });
+    expect(JSON.stringify(ledger)).not.toContain(weirdTool);
+    expect(verifyLedger(ledger, input)).toEqual({ ok: true });
+
+    const noCalls: LedgerInput = {
+      ...DEFAULT_INPUT,
+      tree: createTreeFixture({ toolCalls: {}, toolErrors: {} }),
+    };
+    expect(
+      buildLedger(noCalls).claims.some((c) => c.template === "tool-errors"),
+    ).toBe(false);
+
+    const noFailures = buildLedger(DEFAULT_INPUT).claims.find(
+      (c) => c.template === "tool-errors",
+    );
+    expect(noFailures?.values.failedToolCalls).toBe(0);
+    expect(noFailures?.values.topErrorTools).toBeUndefined();
+
+    const flagged: LedgerInput = {
+      ...DEFAULT_INPUT,
+      tree: createTreeFixture({
+        metricCompleteness: {
+          assistantTurns: "complete",
+          byDayModel: "complete",
+          toolErrors: "may-undercount-by-skipped-lines",
+        },
+      }),
+    };
+    const flaggedClaim = buildLedger(flagged).claims.find(
+      (c) => c.template === "tool-errors",
+    );
+    expect(flaggedClaim?.values.completeness).toBe(
+      "may-undercount-by-skipped-lines",
+    );
+  });
+
+  it("counts the created agents that were read and clamps at zero", () => {
+    const coverageClaim = buildLedger(DEFAULT_INPUT).claims[0];
+    expect(coverageClaim.values.agentsRead).toBe(3);
+
+    const clamped = buildLedger({
+      ...DEFAULT_INPUT,
+      agentsCreated: 2,
+      unlinkedAgents: 5,
+    }).claims[0];
+    expect(clamped.values.agentsRead).toBe(0);
   });
 });
