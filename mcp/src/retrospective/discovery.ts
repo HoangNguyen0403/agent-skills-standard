@@ -29,7 +29,7 @@ const READ_FLAGS =
   constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK;
 const TOLERANCE_MS = 250;
 const MCP_DEVICE_PREFIX = "xd://mcp__agent_skills_standard_";
-
+const MAX_TRACKED_CALL_IDS = 10_000;
 export type DiscoveryLimits = {
   maxCandidateFiles: number;
   maxCandidateBytes: number;
@@ -140,6 +140,8 @@ async function parseCandidateFile(
 
     const calls: CandidateCall[] = [];
     const pendingCalls = new Map<string, CandidateCall>();
+    const housekeepingCallIds = new Set<string>();
+    const nonHousekeepingCallIds = new Set<string>();
 
     for await (const line of rl) {
       if (!line.trim()) continue;
@@ -183,8 +185,6 @@ async function parseCandidateFile(
 
       const rowId = typeof row.id === "string" ? row.id : null;
 
-      let isHousekeeping = false;
-
       if (
         row.type === "message" &&
         typeof row.message === "object" &&
@@ -192,6 +192,7 @@ async function parseCandidateFile(
       ) {
         const msg = row.message as Record<string, unknown>;
         if (msg.role === "assistant" && Array.isArray(msg.content)) {
+          let hasNonHousekeepingToolCall = false;
           for (const item of msg.content) {
             if (
               typeof item === "object" &&
@@ -199,10 +200,25 @@ async function parseCandidateFile(
               item.type === "toolCall"
             ) {
               const toolName = extractServerToolName(item.name, item.arguments);
-              if (toolName) {
-                if (toolName in HOUSEKEEPING_TOOLS) {
-                  isHousekeeping = true;
+              const isHousekeeping =
+                toolName !== null && toolName in HOUSEKEEPING_TOOLS;
+
+              if (typeof item.id === "string") {
+                if (isHousekeeping) {
+                  if (housekeepingCallIds.size < MAX_TRACKED_CALL_IDS) {
+                    housekeepingCallIds.add(item.id);
+                  }
+                } else {
+                  hasNonHousekeepingToolCall = true;
+                  if (nonHousekeepingCallIds.size < MAX_TRACKED_CALL_IDS) {
+                    nonHousekeepingCallIds.add(item.id);
+                  }
                 }
+              } else if (!isHousekeeping) {
+                hasNonHousekeepingToolCall = true;
+              }
+
+              if (toolName) {
                 const callRecord: CandidateCall = {
                   tool: toolName,
                   callTs: rowTs,
@@ -229,17 +245,26 @@ async function parseCandidateFile(
               }
             }
           }
+
+          if (hasNonHousekeepingToolCall && rowId !== null) {
+            lastSubstantiveEventId = rowId;
+          }
         } else if (msg.role === "toolResult") {
           const toolCallId =
             typeof msg.toolCallId === "string" ? msg.toolCallId : null;
           if (toolCallId && pendingCalls.has(toolCallId)) {
             pendingCalls.get(toolCallId)!.resultTs = rowTs;
           }
-        }
-      }
 
-      if (rowId !== null && !isHousekeeping && row.type !== "title") {
-        lastSubstantiveEventId = rowId;
+          if (
+            toolCallId !== null &&
+            nonHousekeepingCallIds.has(toolCallId) &&
+            !housekeepingCallIds.has(toolCallId) &&
+            rowId !== null
+          ) {
+            lastSubstantiveEventId = rowId;
+          }
+        }
       }
     }
 

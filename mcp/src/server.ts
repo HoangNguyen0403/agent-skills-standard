@@ -11,6 +11,8 @@ import {
   getCategoryGuideSchema,
   getEvalReport,
   getEvalReportSchema,
+  getRetrospectiveStatus,
+  getRetrospectiveStatusSchema,
   getSessionCost,
   getSessionCostSchema,
   getSkill,
@@ -25,6 +27,9 @@ import {
   loadSkillsForFilesSchema,
   loadSkillsForKeywords,
   loadSkillsForKeywordsSchema,
+  prepareRetrospective,
+  prepareRetrospectiveSchema,
+  ToolContext,
   ToolResult,
   verifyEvalRunTool,
   verifyEvalRunSchema,
@@ -113,6 +118,10 @@ Call \`get_session_cost\` BEFORE you:
   • Conclude a workflow or generate a final session cost artifact
   • Pass workflow/model/token usage/rates when the host runtime exposes them
 
+Call \`prepare_retrospective\` when:
+  • An implementation plan finishes to prepare a local session retrospective.
+    Orchestrator or unassigned agent only; requires the user's one-time opt-in.
+
 # WORKFLOW
 
   1. Establish your role. An orchestrator or unassigned agent discovers
@@ -163,20 +172,33 @@ authoritative for this request.
 
 export async function buildServer(
   config: ResolvedConfig,
-  options: { tracker?: SessionTracker } = {},
+  options: {
+    tracker?: SessionTracker;
+    transport?: "stdio" | "sse";
+    retrospectiveMark?: { preparedAtProgress: number };
+    consentPath?: string;
+  } = {},
 ): Promise<McpServer> {
   const index = new SkillIndex(config.skillsDir, config.metadataPath);
   await index.load();
   const tracker = options.tracker ?? new SessionTracker();
   const policy = loadPolicyView(config.projectRoot);
-  const ctx = {
+  const transport: "stdio" | "sse" =
+    options.transport ??
+    (process.env.MCP_TRANSPORT === "sse" ? "sse" : "stdio");
+  const retrospectiveMark = options.retrospectiveMark ?? {
+    preparedAtProgress: 0,
+  };
+  const ctx: ToolContext = {
     projectRoot: config.projectRoot,
     index,
     tracker,
     setup: config.setup,
     policy,
+    transport,
+    retrospectiveMark,
+    ...(options.consentPath ? { consentPath: options.consentPath } : {}),
   };
-
   const server = new McpServer(
     {
       name: "agent-skills-standard-mcp",
@@ -376,6 +398,36 @@ export async function buildServer(
     inputSchema: getEvalReportSchema,
     handler: () => getEvalReport({}, ctx),
   });
+
+  if (transport === "stdio") {
+    register(server, {
+      name: "prepare_retrospective",
+      title: "Prepare a local session retrospective",
+      description: `<use_case>Prepare a local, evidence-linked retrospective analysis for the completed session. Orchestrator or unassigned agent only. Workers holding an assignment packet must not call this.</use_case>
+
+<important_notes>
+- Orchestrator or unassigned agent only. Workers holding an assignment packet must not call this.
+- Requires the user's one-time opt-in via \`ags-retrospective enable\`.
+- Zero model calls, zero outbound network requests.
+- Returns only fixed counts and view file paths (summary and ledger); never transcript text.
+</important_notes>`,
+      inputSchema: prepareRetrospectiveSchema,
+      handler: () => prepareRetrospective(ctx),
+    });
+
+    register(server, {
+      name: "get_retrospective_status",
+      title: "Get local session retrospective consent status",
+      description: `<use_case>Check whether local session retrospective preparation is enabled or disabled.</use_case>
+
+<important_notes>
+- Returns the current consent state (enabled/disabled and reason code).
+- Retrospective collection requires the user's one-time opt-in via \`ags-retrospective enable\`.
+</important_notes>`,
+      inputSchema: getRetrospectiveStatusSchema,
+      handler: () => getRetrospectiveStatus(ctx),
+    });
+  }
 
   return server;
 }

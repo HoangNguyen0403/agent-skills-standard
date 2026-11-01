@@ -901,4 +901,341 @@ describe("retrospective session discovery and binding", () => {
       expect(result.mainFile).toBe(path.resolve(fileNear));
     }
   });
+
+  it("leaves manifest.checkpointId identical when a housekeeping call row and its result row are appended", async () => {
+    const root = await temporaryDirectory();
+    const store = path.join(root, "store");
+    const allowed = path.join(root, "allowed-sessions");
+    const workspace = path.join(root, "my-workspace");
+    await fs.mkdir(allowed, { recursive: true });
+
+    const baseLines = [
+      sessionHeader({ id: "sess-cp-1", cwd: workspace }),
+      ompMcpToolCall({
+        callId: "c-sub-1",
+        tool: "load_skills_for_files",
+        timestamp: "2026-11-01T12:00:00.000Z",
+      }),
+      toolResult({
+        callId: "c-sub-1",
+        timestamp: "2026-11-01T12:00:00.400Z",
+      }),
+    ];
+
+    const baseFile = path.join(allowed, "base.jsonl");
+    await writeSessionFile(baseFile, baseLines);
+
+    const consent = createConsent([allowed], store);
+    const observation: ServerObservation = {
+      workspace,
+      toolCalls: [
+        { tool: "load_skills_for_files", at: "2026-11-01T12:00:00.200Z" },
+      ],
+    };
+
+    const baseResult = await discoverSession(consent, observation);
+    expect(baseResult.state).toBe("bound");
+    if (baseResult.state !== "bound") return;
+
+    // Append housekeeping tool call (prepare_retrospective) and its tool result
+    const housekeepingLines = [
+      ...baseLines,
+      ompMcpToolCall({
+        callId: "c-housekeep-1",
+        tool: "prepare_retrospective",
+        timestamp: "2026-11-01T12:01:00.000Z",
+      }),
+      toolResult({
+        callId: "c-housekeep-1",
+        timestamp: "2026-11-01T12:01:00.500Z",
+      }),
+    ];
+
+    const extendedFile = path.join(allowed, "extended-housekeep.jsonl");
+    await writeSessionFile(extendedFile, housekeepingLines);
+
+    // Swap directory to only have extendedFile
+    await fs.unlink(baseFile);
+    const extendedResult = await discoverSession(consent, observation);
+    expect(extendedResult.state).toBe("bound");
+    if (extendedResult.state === "bound") {
+      expect(extendedResult.manifest.checkpointId).toBe(
+        baseResult.manifest.checkpointId,
+      );
+    }
+  });
+
+  it("leaves manifest.checkpointId identical when plain assistant text and plain user messages are appended", async () => {
+    const root = await temporaryDirectory();
+    const store = path.join(root, "store");
+    const allowed = path.join(root, "allowed-sessions");
+    const workspace = path.join(root, "my-workspace");
+    await fs.mkdir(allowed, { recursive: true });
+
+    const baseLines = [
+      sessionHeader({ id: "sess-cp-2", cwd: workspace }),
+      ompMcpToolCall({
+        callId: "c-sub-2",
+        tool: "load_skills_for_files",
+        timestamp: "2026-11-01T12:00:00.000Z",
+      }),
+      toolResult({
+        callId: "c-sub-2",
+        timestamp: "2026-11-01T12:00:00.400Z",
+      }),
+    ];
+
+    const baseFile = path.join(allowed, "base2.jsonl");
+    await writeSessionFile(baseFile, baseLines);
+
+    const consent = createConsent([allowed], store);
+    const observation: ServerObservation = {
+      workspace,
+      toolCalls: [
+        { tool: "load_skills_for_files", at: "2026-11-01T12:00:00.200Z" },
+      ],
+    };
+
+    const baseResult = await discoverSession(consent, observation);
+    expect(baseResult.state).toBe("bound");
+    if (baseResult.state !== "bound") return;
+
+    // Append plain assistant text and user message
+    const chatLines = [
+      ...baseLines,
+      JSON.stringify({
+        type: "message",
+        id: "msg-plain-assistant",
+        timestamp: "2026-11-01T12:01:00.000Z",
+        message: {
+          role: "assistant",
+          content: [{ type: "text", text: "Session report summary is ready." }],
+        },
+      }),
+      JSON.stringify({
+        type: "message",
+        id: "msg-plain-user",
+        timestamp: "2026-11-01T12:02:00.000Z",
+        message: {
+          role: "user",
+          content: [{ type: "text", text: "Acknowledged, thank you." }],
+        },
+      }),
+    ];
+
+    await fs.unlink(baseFile);
+    await writeSessionFile(baseFile, chatLines);
+
+    const chatResult = await discoverSession(consent, observation);
+    expect(chatResult.state).toBe("bound");
+    if (chatResult.state === "bound") {
+      expect(chatResult.manifest.checkpointId).toBe(
+        baseResult.manifest.checkpointId,
+      );
+    }
+  });
+
+  it("changes manifest.checkpointId when a non-housekeeping call row and its result row are appended", async () => {
+    const root = await temporaryDirectory();
+    const store = path.join(root, "store");
+    const allowed = path.join(root, "allowed-sessions");
+    const workspace = path.join(root, "my-workspace");
+    await fs.mkdir(allowed, { recursive: true });
+
+    const baseLines = [
+      sessionHeader({ id: "sess-cp-3", cwd: workspace }),
+      ompMcpToolCall({
+        callId: "c-sub-3",
+        tool: "load_skills_for_files",
+        timestamp: "2026-11-01T12:00:00.000Z",
+      }),
+      toolResult({
+        callId: "c-sub-3",
+        timestamp: "2026-11-01T12:00:00.400Z",
+      }),
+    ];
+
+    const targetFile = path.join(allowed, "sess.jsonl");
+    await writeSessionFile(targetFile, baseLines);
+
+    const consent = createConsent([allowed], store);
+    const observation: ServerObservation = {
+      workspace,
+      toolCalls: [
+        { tool: "load_skills_for_files", at: "2026-11-01T12:00:00.200Z" },
+      ],
+    };
+
+    const baseResult = await discoverSession(consent, observation);
+    expect(baseResult.state).toBe("bound");
+    if (baseResult.state !== "bound") return;
+
+    // Append non-housekeeping call row
+    const callOnlyLines = [
+      ...baseLines,
+      ompMcpToolCall({
+        callId: "c-new-sub",
+        tool: "get_skill",
+        timestamp: "2026-11-01T12:05:00.000Z",
+      }),
+    ];
+    await writeSessionFile(targetFile, callOnlyLines);
+
+    const callOnlyResult = await discoverSession(consent, observation);
+    expect(callOnlyResult.state).toBe("bound");
+    if (callOnlyResult.state !== "bound") return;
+    expect(callOnlyResult.manifest.checkpointId).not.toBe(
+      baseResult.manifest.checkpointId,
+    );
+
+    // Append non-housekeeping result row
+    const callAndResultLines = [
+      ...callOnlyLines,
+      toolResult({
+        callId: "c-new-sub",
+        timestamp: "2026-11-01T12:05:00.500Z",
+      }),
+    ];
+    await writeSessionFile(targetFile, callAndResultLines);
+
+    const callAndResult = await discoverSession(consent, observation);
+    expect(callAndResult.state).toBe("bound");
+    if (callAndResult.state === "bound") {
+      expect(callAndResult.manifest.checkpointId).not.toBe(
+        callOnlyResult.manifest.checkpointId,
+      );
+    }
+  });
+
+  it("ignores a housekeeping tool result appearing several rows later", async () => {
+    const root = await temporaryDirectory();
+    const store = path.join(root, "store");
+    const allowed = path.join(root, "allowed-sessions");
+    const workspace = path.join(root, "my-workspace");
+    await fs.mkdir(allowed, { recursive: true });
+
+    const baseLines = [
+      sessionHeader({ id: "sess-cp-4", cwd: workspace }),
+      ompMcpToolCall({
+        callId: "c-sub-4",
+        tool: "load_skills_for_files",
+        timestamp: "2026-11-01T12:00:00.000Z",
+      }),
+      toolResult({
+        callId: "c-sub-4",
+        timestamp: "2026-11-01T12:00:00.400Z",
+      }),
+    ];
+
+    const targetFile = path.join(allowed, "sess.jsonl");
+    await writeSessionFile(targetFile, baseLines);
+
+    const consent = createConsent([allowed], store);
+    const observation: ServerObservation = {
+      workspace,
+      toolCalls: [
+        { tool: "load_skills_for_files", at: "2026-11-01T12:00:00.200Z" },
+      ],
+    };
+
+    const baseResult = await discoverSession(consent, observation);
+    expect(baseResult.state).toBe("bound");
+    if (baseResult.state !== "bound") return;
+
+    // Housekeeping call, followed by intervening rows, then late housekeeping result
+    const lateHousekeepingLines = [
+      ...baseLines,
+      ompMcpToolCall({
+        callId: "c-housekeep-late",
+        tool: "get_retrospective_status",
+        timestamp: "2026-11-01T12:01:00.000Z",
+      }),
+      JSON.stringify({
+        type: "custom",
+        id: "custom-intervening-1",
+        data: "intervening",
+      }),
+      JSON.stringify({
+        type: "thinking_level_change",
+        id: "think-intervening-2",
+        thinkingLevel: "medium",
+      }),
+      toolResult({
+        callId: "c-housekeep-late",
+        timestamp: "2026-11-01T12:01:05.000Z",
+      }),
+    ];
+
+    await writeSessionFile(targetFile, lateHousekeepingLines);
+
+    const lateResult = await discoverSession(consent, observation);
+    expect(lateResult.state).toBe("bound");
+    if (lateResult.state === "bound") {
+      expect(lateResult.manifest.checkpointId).toBe(
+        baseResult.manifest.checkpointId,
+      );
+    }
+  });
+
+  it("treats a tool result row with an unknown toolCallId as not substantive", async () => {
+    const root = await temporaryDirectory();
+    const store = path.join(root, "store");
+    const allowed = path.join(root, "allowed-sessions");
+    const workspace = path.join(root, "my-workspace");
+    await fs.mkdir(allowed, { recursive: true });
+
+    const baseLines = [
+      sessionHeader({ id: "sess-cp-5", cwd: workspace }),
+      ompMcpToolCall({
+        callId: "c-sub-5",
+        tool: "load_skills_for_files",
+        timestamp: "2026-11-01T12:00:00.000Z",
+      }),
+      toolResult({
+        callId: "c-sub-5",
+        timestamp: "2026-11-01T12:00:00.400Z",
+      }),
+    ];
+
+    const targetFile = path.join(allowed, "sess.jsonl");
+    await writeSessionFile(targetFile, baseLines);
+
+    const consent = createConsent([allowed], store);
+    const observation: ServerObservation = {
+      workspace,
+      toolCalls: [
+        { tool: "load_skills_for_files", at: "2026-11-01T12:00:00.200Z" },
+      ],
+    };
+
+    const baseResult = await discoverSession(consent, observation);
+    expect(baseResult.state).toBe("bound");
+    if (baseResult.state !== "bound") return;
+
+    // Append toolResult with unknown toolCallId
+    const ghostResultLines = [
+      ...baseLines,
+      JSON.stringify({
+        type: "message",
+        id: "res-unknown-ghost",
+        timestamp: "2026-11-01T12:05:00.000Z",
+        message: {
+          role: "toolResult",
+          toolCallId: "c-never-seen-call",
+          toolName: "bash",
+          content: [{ type: "text", text: "orphaned output" }],
+        },
+      }),
+    ];
+
+    await writeSessionFile(targetFile, ghostResultLines);
+
+    const ghostResult = await discoverSession(consent, observation);
+    expect(ghostResult.state).toBe("bound");
+    if (ghostResult.state === "bound") {
+      expect(ghostResult.manifest.checkpointId).toBe(
+        baseResult.manifest.checkpointId,
+      );
+    }
+  });
 });

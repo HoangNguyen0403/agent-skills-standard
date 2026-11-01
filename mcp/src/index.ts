@@ -71,7 +71,7 @@ async function main() {
       );
     });
   } else {
-    const server = await buildServer(config, { tracker });
+    const server = await buildServer(config, { tracker, transport: "stdio" });
     const transport = new StdioServerTransport();
     transport.onclose = flushOnce;
     await server.connect(transport);

@@ -64,6 +64,14 @@ export class SessionTracker {
     this.events.push({ at: new Date().toISOString(), ...event });
   }
 
+  /**
+   * Observed tool calls in order of recording.
+   * Returns a copy so callers cannot mutate tracker state.
+   */
+  observedToolCalls(): Array<{ tool: string; at: string }> {
+    return this.events.map((event) => ({ tool: event.via, at: event.at }));
+  }
+
   /** Unique skill bodies returned so far, formatted as `category/id`. */
   loadedSkills(): string[] {
     return this.uniqueSkillKeys(this.events.flatMap((event) => event.loaded));

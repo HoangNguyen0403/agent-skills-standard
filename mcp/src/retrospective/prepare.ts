@@ -8,6 +8,7 @@ import {
   type EvidencePacket,
   type EvidenceSource,
   type GenerationLayout,
+  type NodeKey,
   type PrepareRequest,
 } from "./contracts";
 import {
@@ -245,38 +246,6 @@ async function runPrepare(
     // The claim owns the identity used by all published artifacts.
     const packet: EvidencePacket = { ...collected, runId: claim.runId };
     const analysis = await analyzeLocal(packet, signal);
-    if (layout === "v2") {
-      const summaryId = artifactIdFor(packet.runId, "summary");
-      const ledgerId = artifactIdFor(packet.runId, "ledger");
-      const status = generationStatus(packet);
-      const summary = `# Session retrospective summary\n\n- Status: ${status}\n- Checkpoint: ${request.checkpointId}\n`;
-      const ledger = `${JSON.stringify({
-        schemaVersion: 1,
-        runId: packet.runId,
-        checkpointId: request.checkpointId,
-        status,
-      })}\n`;
-      const artifacts: PublishArtifact[] = [
-        { artifactId: summaryId, kind: "summary", content: summary },
-        { artifactId: ledgerId, kind: "ledger", content: ledger },
-      ];
-      const result = await publishRun(claim, artifacts, {
-        status,
-        layout: "v2",
-        schemaVersion: 2,
-        ...(options.labels === undefined ? {} : { labels: options.labels }),
-      });
-      published = true;
-      return artifactReceiptSchema.parse({
-        schemaVersion: 1,
-        artifactId: summaryId,
-        runId: packet.runId,
-        status: result.status,
-        modelCalls: 0,
-        outboundRequests: 0,
-      });
-    }
-
     const rendered = renderGeneration(
       packet,
       analysis,
@@ -365,6 +334,111 @@ export async function prepareLocal(
   inFlightPrepares.set(key, run);
   try {
     return await run;
+  } finally {
+    if (inFlightPrepares.get(key) === run) inFlightPrepares.delete(key);
+  }
+}
+
+export type V2Content = {
+  summary: string;
+  ledger: string;
+  status: ReportStatus;
+};
+
+export async function prepareV2(
+  request: { root: string; main: NodeKey; checkpointId: string },
+  content: V2Content,
+  signal: AbortSignal,
+  options?: { labels?: { title?: string; project?: string } },
+): Promise<{ receipt: ArtifactReceipt; joined: boolean }> {
+  signal.throwIfAborted();
+  const key = [
+    path.resolve(request.root),
+    request.main.hostId,
+    request.main.sessionId,
+    request.checkpointId,
+    "v2",
+  ].join("\u0000");
+  const joined = inFlightPrepares.get(key);
+  if (joined) {
+    if (signal.aborted) throw signal.reason;
+    const receipt = await new Promise<ArtifactReceipt>((resolve, reject) => {
+      const onAbort = (): void => reject(signal.reason);
+      signal.addEventListener("abort", onAbort, { once: true });
+      joined.then(
+        (value) => {
+          signal.removeEventListener("abort", onAbort);
+          resolve(value);
+        },
+        (error) => {
+          signal.removeEventListener("abort", onAbort);
+          reject(error);
+        },
+      );
+    });
+    return { receipt, joined: true };
+  }
+
+  let joinedRole = false;
+  const run = (async (): Promise<ArtifactReceipt> => {
+    const access = await acquirePreparation(
+      request.root,
+      request.main,
+      request.checkpointId,
+      { layout: "v2" },
+    );
+    if (access.role === "join") {
+      joinedRole = true;
+      try {
+        return await waitForPublishedPreparation(
+          request.root,
+          request.main,
+          request.checkpointId,
+          {
+            signal,
+            deadline: performance.now() + DEFAULT_LIMITS.elapsedMs,
+            expectedRunId: access.runId,
+            layout: "v2",
+          },
+        );
+      } catch (error) {
+        if (signal.aborted) throw signal.reason;
+        throw error;
+      }
+    }
+    const claim: RunClaim = access.claim;
+    let published = false;
+    try {
+      const summaryId = artifactIdFor(claim.runId, "summary");
+      const ledgerId = artifactIdFor(claim.runId, "ledger");
+      const artifacts: PublishArtifact[] = [
+        { artifactId: summaryId, kind: "summary", content: content.summary },
+        { artifactId: ledgerId, kind: "ledger", content: content.ledger },
+      ];
+      const result = await publishRun(claim, artifacts, {
+        status: content.status,
+        layout: "v2",
+        schemaVersion: 2,
+        ...(options?.labels === undefined ? {} : { labels: options.labels }),
+      });
+      published = true;
+      return artifactReceiptSchema.parse({
+        schemaVersion: 1,
+        artifactId: summaryId,
+        runId: claim.runId,
+        status: result.status,
+        modelCalls: 0,
+        outboundRequests: 0,
+      });
+    } finally {
+      if (!published) await cancelRun(claim).catch(() => undefined);
+    }
+  })();
+
+  inFlightPrepares.set(key, run);
+  try {
+    const receipt = await run;
+    return { receipt, joined: joinedRole };
   } finally {
     if (inFlightPrepares.get(key) === run) inFlightPrepares.delete(key);
   }

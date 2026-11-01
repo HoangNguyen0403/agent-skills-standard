@@ -9,7 +9,11 @@ import {
   type PrepareRequest,
   type SafeEvent,
 } from "../src/retrospective/contracts";
-import { prepareLocal } from "../src/retrospective/prepare";
+import {
+  prepareLocal,
+  prepareV2,
+  type V2Content,
+} from "../src/retrospective/prepare";
 import {
   ensurePrivateDirectory,
   writePrivateFileAtomic,
@@ -534,10 +538,16 @@ describe("v2 publication and versioned layouts", () => {
     const root = await newRoot();
     const source = new FixtureSource(baseEvents);
     const req = request(root, { checkpointId: "cp-v2-dedupe" });
-
-    const receipt1 = await prepareLocal(req, source, signal(), {
-      layout: "v2",
-    });
+    const v2Content: V2Content = {
+      summary: "# Session retrospective summary\n\n- Status: complete\n",
+      ledger: JSON.stringify({ schemaVersion: 1, status: "complete" }) + "\n",
+      status: "complete",
+    };
+    const { receipt: receipt1 } = await prepareV2(
+      { root, main: req.main, checkpointId: req.checkpointId },
+      v2Content,
+      signal(),
+    );
     expect(artifactReceiptSchema.safeParse(receipt1).success).toBe(true);
     expect(receipt1.status).toBe("complete");
     expect(receipt1.artifactId).toBe(`${receipt1.runId}.summary`);
@@ -564,11 +574,10 @@ describe("v2 publication and versioned layouts", () => {
       [`${receipt1.runId}.ledger`, `${receipt1.runId}.summary`].sort(),
     );
 
-    const receipt2 = await prepareLocal(
-      req,
-      new FixtureSource(baseEvents),
+    const { receipt: receipt2 } = await prepareV2(
+      { root, main: req.main, checkpointId: req.checkpointId },
+      v2Content,
       signal(),
-      { layout: "v2" },
     );
     expect(receipt2).toEqual(receipt1);
 
@@ -752,11 +761,15 @@ describe("v2 publication and versioned layouts", () => {
       legacyContents.report,
     );
 
-    const v2Receipt = await prepareLocal(
-      request(root, { checkpointId: "cp-legacy-v2" }),
-      new FixtureSource(baseEvents),
+    const v2Content: V2Content = {
+      summary: "# Session retrospective summary\n\n- Status: complete\n",
+      ledger: JSON.stringify({ schemaVersion: 1, status: "complete" }) + "\n",
+      status: "complete",
+    };
+    const { receipt: v2Receipt } = await prepareV2(
+      { root, main: MAIN, checkpointId: "cp-legacy-v2" },
+      v2Content,
       signal(),
-      { layout: "v2" },
     );
     expect(v2Receipt.artifactId).toBe(`${v2Receipt.runId}.summary`);
 
@@ -1017,11 +1030,15 @@ describe("v2 publication and versioned layouts", () => {
     );
     expect(v1Receipt.artifactId).toBe(`${v1Receipt.runId}.report`);
 
-    const v2Receipt = await prepareLocal(
-      request(root, { checkpointId }),
-      new FixtureSource(baseEvents),
+    const v2Content: V2Content = {
+      summary: "# Session retrospective summary\n\n- Status: complete\n",
+      ledger: JSON.stringify({ schemaVersion: 1, status: "complete" }) + "\n",
+      status: "complete",
+    };
+    const { receipt: v2Receipt } = await prepareV2(
+      { root, main: MAIN, checkpointId },
+      v2Content,
       signal(),
-      { layout: "v2" },
     );
     expect(v2Receipt.artifactId).toBe(`${v2Receipt.runId}.summary`);
     expect(v2Receipt.runId).not.toBe(v1Receipt.runId);
@@ -1029,11 +1046,10 @@ describe("v2 publication and versioned layouts", () => {
     const page = await listPublished(root);
     expect(page.entries).toHaveLength(6);
 
-    const v2Repeat = await prepareLocal(
-      request(root, { checkpointId }),
-      new FixtureSource(baseEvents),
+    const { receipt: v2Repeat } = await prepareV2(
+      { root, main: MAIN, checkpointId },
+      v2Content,
       signal(),
-      { layout: "v2" },
     );
     expect(v2Repeat).toEqual(v2Receipt);
 
