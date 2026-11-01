@@ -1,6 +1,6 @@
 # Review workflow consolidation design
 
-Status: proposed planning amendment; no implementation or deletion authorized.
+Status: planning amendment approved for implementation by the user with Subagent-Driven execution, and approved source changes are in progress. `review-ticket` retirement remains gated on active-caller migration, ownership-safe publication proof and independent review; no operational authority is granted.
 Date: 2026-11-01
 Branch: `plan/provider-neutral-devops`; separate from website PR #280.
 
@@ -14,7 +14,7 @@ Unlike the distinct DevOps incident/statistical/release policy workflows, this p
 
 Keep `code-review` as the canonical workflow ID. Preserve fast/deep review, security gates and findings semantics. Incorporate ticket/AC and metadata capabilities when the supplied scope requires them. Remove `review-ticket` only after all active callers/configuration/validators are migrated and managed consumer cleanup is proven. No forwarding alias, second review workflow, or blanket deletion of generated copies.
 
-This is an independent companion subproject to the provider-neutral DevOps plan. It can be accepted or rejected separately. Shared files (`sdlc.md`, metadata, quick-reference docs and generated outputs) have one integration owner and cannot be edited concurrently with DevOps Task 3/5. Planning authorization does not authorize execution.
+This is an independent companion subproject to the provider-neutral DevOps plan. It can be accepted or rejected separately. Shared files (`sdlc.md`, metadata, quick-reference docs and generated outputs) have one integration owner and cannot be edited concurrently with DevOps Task 3/5. Planning authorization was followed by user approval of both linked plans with Subagent-Driven execution; that approval covers the approved source changes only and does not authorize cloud/provider operations, MCP installation, premium calls, push/merge, or deletion before the proofs below.
 
 ## Required behavior
 
@@ -58,4 +58,4 @@ Check default workflow selection, explicit `.skillsrc` selections, chain/router 
 
 ## Review scope
 
-The prior premium consultation and independent closure review covered the DevOps documents at recorded hashes only. They did not cover this companion subproject or later linking edits. No additional premium call is authorized. Before implementation, an independent reviewer must assess this consolidation's preservation/migration contracts and the combined shared-file schedule; execution still requires explicit user approval.
+The prior premium consultation and independent closure review covered the DevOps documents at recorded hashes only. They did not cover this companion subproject or later linking edits. No additional premium call is authorized. An independent review of this consolidation's preservation/migration contracts and the combined shared-file schedule is a prerequisite **before implementation**, not merely an integration-time gate; that readiness review was completed before source implementation with verdict READY FOR EXECUTION (reviewer `0e466ab0-299d-499a-8100-4bea0337deb6`), and the user subsequently approved implementation of both linked plans with Subagent-Driven execution. Retirement and integration additionally require the R1/R2 preservation and ownership-safe publication proofs plus independent review of the delivered changes; that earlier readiness verdict is not a substitute for them.

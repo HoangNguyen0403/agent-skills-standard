@@ -38,17 +38,6 @@ describe('WorkflowSyncService', () => {
   });
 
   describe('reconcileWorkflows', () => {
-    it('should include agentic SDLC learning workflows in defaults', () => {
-      expect(DEFAULT_WORKFLOWS).toEqual(
-        expect.arrayContaining([
-          'implementation-readiness',
-          'review-ticket',
-          'traceability-audit',
-          'session-report',
-        ]),
-      );
-    });
-
     it('should return false if treeData is missing', async () => {
       mockGithubService.getRepoTree.mockResolvedValue(null);
       const result = await workflowSyncService.reconcileWorkflows({

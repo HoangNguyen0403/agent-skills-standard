@@ -455,7 +455,7 @@ describe("tools — happy path tracker", () => {
     const ctx = await makeCtx(path.join(f.root, "skills"));
 
     await getSkill({ category: "rust", name: "whatever" }, ctx);
-    const cost = await getSessionCost({ workflow: "review-ticket" }, ctx);
+    const cost = await getSessionCost({ workflow: "code-review" }, ctx);
     const t = text(cost);
 
     expect(t).toContain("| **No-Match Calls** | 1 |");

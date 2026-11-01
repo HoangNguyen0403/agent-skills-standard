@@ -22,9 +22,8 @@ Agent Skills Standard syncs workflows into each agent's native surface. Run `ags
 | Learn                  | How do we prevent repeat issues?                 | `retro-learn`              | Need standards/process feedback loop                                   | retro report                          |
 | Session                | What happened in this delivery?                  | `session-report`           | Need concise run summary and follow-ups                                | session report                        |
 | Fix                    | How do we remediate a bug?                       | `dev-fix`                  | Bug ticket needs remediation                                           | fix plan and evidence                 |
-| Review                 | What risks are in this change?                   | `review-ticket`            | Ticket or complex change needs specialist fanout                       | review verdict                        |
+| Review                 | Which risks should be raised?                  | `code-review`              | PR diff or ticket review; optional AC/PR-metadata coverage          | review verdict                        |
 | Review (Design)        | Is this provided design sound?                   | `review-system-design`     | A diagram, doc, or IaC repo arrives for review                         | scorecard + findings                  |
-| Review (PR)            | Is this PR safe to merge?                        | `code-review`              | PR diff needs focused merge-risk review                                | review findings                       |
 | Review (Repo)          | What structural risks exist in the codebase?     | `codebase-review`          | Need broader architecture/quality scan                                 | prioritized findings                  |
 | Security               | What exploitable risk exists now?                | `security-test`            | Need SAST/SCA/secrets or branch security checks                        | security report                       |
 | Security (Adversarial) | Can this be exploited in practice?               | `pentest`                  | Need PTES-aligned exploit validation                                   | pentest report                        |
@@ -167,7 +166,7 @@ arriving with the other vocabulary. Do not rename our artifacts to match it.
 | Design         | `spec.md`             | `plan-feature`, `design-solution`                | `docs/prd/prd-[slug].md`, `docs/srs/srs-[slug].md`     |
 | Build          | `plan.md`             | `implementation-readiness`, `implement-feature`  | readiness verdict, `docs/srs/srs-task-list-[slug].md`  |
 | Test           | test + eval evidence  | `test-loop`, `verify-work`, `evals-run`          | `docs/srs/srs-walkthrough-[slug].md`, eval run results |
-| Deploy         | review policy + gates | `code-review`, `review-ticket`, `deploy-release` | `docs/review-policy.md`, deployment report             |
+| Deploy         | review policy + gates | `code-review`, `deploy-release` | `docs/review-policy.md`, deployment report             |
 | Maintain       | control bands, scans  | `monitor-respond`, `incident-hotfix`             | `docs/ops/bands.yaml`, `artifacts/security-review.md`  |
 | Cross-cutting  | metrics, guardrails   | `common-sdlc-metrics`, `common-agent-guardrails` | `artifacts/sdlc-metrics.md`, guardrail policy          |
 
@@ -193,7 +192,7 @@ Start with any practice that has no prerequisite, then follow the arrows.
 - No prerequisite: `common-agent-guardrails`, `brainstorm-feature`, `common-tdd` feedback loop, instruction-file hygiene.
 - `plan-feature`, `design-solution` <- task-linked approved intent or product evidence (sufficiently specified low-risk maintenance with approved task tickets may proceed without a separate BRD-lite).
 - `implementation-readiness`, `implement-feature` <- behavioral ACs, accountable owner, approved scope fence, and verification lane plus applicable design/test prerequisites (supplied by PRD and SRS or an equivalent approved low-risk record); sensitive changes still require technical design and human/governance approval per [requirements modeling §1](../skills/product-management/product-requirements/references/requirements-modeling.md#1-applicability--sizing-gate), and PARTIAL authorizes ready slices only.
-- `code-review`, `review-ticket` <- `docs/review-policy.md` and the framework skills.
+- `code-review` <- `docs/review-policy.md` and the framework skills; requested ticket/AC or PR-metadata lanes use its orchestration reference.
 - `evals-run` config gate <- eval definitions plus a stable command to run them.
 - `deploy-release` tiers <- guardrail approval gates and a rehearsed rollback.
 - `monitor-respond` <- `docs/ops/bands.yaml`, deploy tiers, and guardrails.
@@ -265,8 +264,8 @@ Each core SDLC workflow must call `get_session_cost(workflow="...")` before fina
 
 Security review workflows should emit `artifacts/security-review.md` when security findings or evidence are in scope.
 Capture trust class, review context, runtime contract, findings, evidence gaps, and handoff notes so the same markdown report can drive developer, AppSec, and audit-facing follow-up without rewriting the conclusions.
-That report should stay continuous across `design-solution` / `implementation-readiness` -> `code-review` / `review-ticket` -> `pentest` so later stages refine the same trust and evidence record instead of starting over.
-When `code-review` or `review-ticket` findings are approved for publication or channel handoff, also emit `artifacts/review-delivery.md` as the sanitized delivery packet for `specialist-pr-commenter-batch` or channel-driven follow-up.
+That report should stay continuous across `design-solution` / `implementation-readiness` -> `code-review` -> `pentest` so later stages refine the same trust and evidence record instead of starting over.
+When `code-review` findings are approved for publication or channel handoff, also emit `artifacts/review-delivery.md` as the sanitized delivery packet for `specialist-pr-commenter-batch` or channel-driven follow-up.
 For full-repo health checks, `codebase-review` should also emit `artifacts/codebase-review.md`, using `security-review.md` only for the security slice.
 
 Every terminal-verdict workflow (`implementation-readiness`, `traceability-audit`, `uat-signoff`, `deploy-release`, `publish-notes`, `session-report`, `retro-learn`) also persists this payload as a
@@ -303,8 +302,7 @@ Use `skills/common/common-software-requirements/references/requirements-standard
 - `implement-feature`: failing test first, no pre-test implementation kept as reference.
 - `dev-fix`: root cause explicit before code proposal.
 - `verify-work`: no PASS from stale runs; evidence must be fresh.
-- `code-review`: keep it lean and PR-first; use it for focused merge decisions on a concrete diff.
-- `review-ticket`: use it when AC coverage, architecture, PR metadata, or specialist fanout matters beyond the raw diff.
+- `code-review`: keep review diff-first; request ticket/AC, architecture, PR metadata, or specialist lanes only when scope requires them.
 - `codebase-review`: record source provenance, review context including prompt-injection posture, runtime contract, optional runtime attestation, policy-enforcement coverage, and evidence coverage before broad scoring.
 - `skill-benchmark`: include pressure scenarios, rationalizations, red flags, and behavior assertions for guardrail skills.
 
@@ -336,7 +334,7 @@ When running workflows in sequence (e.g., `brainstorm` -> `plan` -> `implement`)
 | -------- | ---------------------------------------------------------------- |
 | EM       | `sdlc`                                                           |
 | PM/BA    | `brainstorm-feature`, `plan-feature`, `implementation-readiness` |
-| Engineer | `dev-fix`, `implement-feature`, `review-ticket`, `verify-work`   |
+| Engineer | `dev-fix`, `implement-feature`, `code-review`, `verify-work`        |
 | QA       | `zephyr-coverage-analysis`, `verify-bug`                         |
 
 ## Specialist Quick Reference
