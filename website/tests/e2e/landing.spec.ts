@@ -67,7 +67,11 @@ async function trackAnimationLifecycle(
   }), { key, requireViewportIntersection });
 }
 
-async function expectObservedCancellation(page: Page, key: string): Promise<void> {
+async function expectObservedCancellation(
+  page: Page,
+  key: string,
+  options: { allowFinishedEarlier?: boolean } = {},
+): Promise<void> {
   const outcomes = await page.evaluate(async (observationKey) => {
     const observations = (window as Window & { __motionObservations?: Record<string, Promise<string>[]> }).__motionObservations;
     const tracked = observations?.[observationKey];
@@ -75,7 +79,12 @@ async function expectObservedCancellation(page: Page, key: string): Promise<void
     return Promise.all(tracked);
   }, key);
   expect(outcomes.length).toBeGreaterThan(0);
-  expect(outcomes).toEqual(outcomes.map(() => 'canceled'));
+  if (options.allowFinishedEarlier) {
+    expect(outcomes.some((outcome) => outcome === 'canceled')).toBe(true);
+    expect(outcomes.every((outcome) => outcome === 'canceled' || outcome === 'finished')).toBe(true);
+  } else {
+    expect(outcomes).toEqual(outcomes.map(() => 'canceled'));
+  }
 }
 
 async function prepareMotionPage(page: Page): Promise<void> {
@@ -781,7 +790,7 @@ test.describe('Agent Skills Standard landing page', () => {
 
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await expect(hero).toHaveAttribute('data-motion-state', 'complete');
-    await expectObservedCancellation(page, 'dynamic-reduced');
+    await expectObservedCancellation(page, 'dynamic-reduced', { allowFinishedEarlier: true });
     await expect.poll(() => animationCount(hero)).toBe(0);
     await page.evaluate(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' }));
     await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));

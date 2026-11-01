@@ -6,8 +6,12 @@ import os from "os";
 import { spawn } from "child_process";
 import {
   buildGenerationPlan,
+  cliOutputOwnership,
+  computeSha256,
   copySourceToStage,
+  fileSha256,
   linkDependencies,
+  parseCatFileBatch,
   parseCategoryIndexRows,
   runInStage,
   runIsolatedGeneration,
@@ -3066,4 +3070,189 @@ test("a HEAD change during generation blocks publication", async () => {
       "the fixture HEAD genuinely moved before the refusal",
     );
   });
+});
+
+test("stale digest with committed bytes heals during isolated generation", async () => {
+  await withFixture({}, async (root) => {
+    const applied = await runIsolatedGeneration({ repoRoot: root });
+    assert.equal(applied.success, true, applied.error ?? "");
+    await commitFixtureBase(root);
+
+    const relPath = ".github/skills/common/common-alpha/SKILL.md";
+    const lockPath = path.join(root, ".skills-lock.json");
+    const lock = await fs.readJson(lockPath);
+    assert.ok(lock.entries[relPath], `expected lock entry for ${relPath}`);
+    lock.entries[relPath].sha256 = "0".repeat(64);
+    await fs.writeJson(lockPath, lock, { spaces: 2 });
+
+    const result = await runIsolatedGeneration({ repoRoot: root });
+    assert.equal(result.success, true, result.error ?? "");
+    assert.ok(
+      result.verifiedFiles.includes(".skills-lock.json"),
+      "verifiedFiles must include .skills-lock.json",
+    );
+
+    const healedLock = await fs.readJson(lockPath);
+    const expectedDigest = await fileSha256(path.join(root, relPath));
+    assert.equal(healedLock.entries[relPath]?.sha256, expectedDigest);
+
+    const logContent = await fs.readFile(result.logPath, "utf8");
+    assert.match(
+      logContent,
+      /Provenance-refreshed CLI ownership: \d+ path\(s\)/,
+      "log must contain provenance-refreshed evidence line",
+    );
+    // Idempotency: second consecutive apply run publishes nothing and does not rewrite lock
+    const result2 = await runIsolatedGeneration({ repoRoot: root });
+    assert.equal(result2.success, true, result2.error ?? "");
+    assert.deepEqual(result2.copiedBackFiles, []);
+    assert.equal(
+      result2.verifiedFiles.includes(".skills-lock.json"),
+      false,
+      "second run must not rewrite .skills-lock.json",
+    );
+  });
+});
+
+test("missing lock with committed bytes heals during isolated generation", async () => {
+  await withFixture({}, async (root) => {
+    const applied = await runIsolatedGeneration({ repoRoot: root });
+    assert.equal(applied.success, true, applied.error ?? "");
+    await commitFixtureBase(root);
+
+    const lockPath = path.join(root, ".skills-lock.json");
+    await fs.remove(lockPath);
+
+    const result = await runIsolatedGeneration({ repoRoot: root });
+    assert.equal(result.success, true, result.error ?? "");
+
+    assert.equal(
+      await fs.pathExists(lockPath),
+      true,
+      "lock must exist after heal",
+    );
+    const healedLock = await fs.readJson(lockPath);
+    const relPath = ".github/skills/common/common-alpha/SKILL.md";
+    const plan = await buildGenerationPlan(root);
+    const expectedOwnership = cliOutputOwnership(relPath, plan);
+    const expectedDigest = await fileSha256(path.join(root, relPath));
+
+    const entry = healedLock.entries[relPath];
+    assert.ok(entry, `expected lock entry for ${relPath}`);
+    assert.equal(entry.sha256, expectedDigest);
+    assert.equal(entry.owner, expectedOwnership.owner);
+    assert.equal(entry.source, expectedOwnership.source);
+    assert.equal(entry.agent, expectedOwnership.agent);
+  });
+});
+
+test("uncommitted edit differing from HEAD and stage refuses publication", async () => {
+  await withFixture({}, async (root) => {
+    const applied = await runIsolatedGeneration({ repoRoot: root });
+    assert.equal(applied.success, true, applied.error ?? "");
+    await commitFixtureBase(root);
+
+    const relPath = ".github/skills/common/common-alpha/SKILL.md";
+    const filePath = path.join(root, relPath);
+    const editedBytes = Buffer.from("# Uncommitted hand edit\n");
+    await fs.writeFile(filePath, editedBytes);
+
+    const result = await runIsolatedGeneration({ repoRoot: root });
+    await assertRefusedWithoutEffects(result);
+    assert.match(
+      result.error ?? "",
+      /differs from its CLI ownership digest|lack trusted ownership/,
+    );
+
+    const lockPath = path.join(root, ".skills-lock.json");
+    if (await fs.pathExists(lockPath)) {
+      const lock = await fs.readJson(lockPath);
+      assert.notEqual(
+        lock.entries[relPath]?.sha256,
+        computeSha256(editedBytes),
+        "lock must not claim uncommitted edited bytes",
+      );
+    }
+  });
+});
+
+test("repository-generation ledger mismatch still refuses publication", async () => {
+  await withFixture({}, async (root) => {
+    const applied = await runIsolatedGeneration({ repoRoot: root });
+    assert.equal(applied.success, true, applied.error ?? "");
+    await commitFixtureBase(root);
+
+    const lockPath = path.join(root, ".skills-lock.json");
+    const lock = await fs.readJson(lockPath);
+    assert.ok(
+      lock.generation?.entries["skills/metadata.json"],
+      "expected generation entry for skills/metadata.json",
+    );
+    lock.generation.entries["skills/metadata.json"].sha256 = "0".repeat(64);
+    delete lock.generation.entries["skills/metadata.json"].scope;
+    await fs.writeJson(lockPath, lock, { spaces: 2 });
+
+    const result = await runIsolatedGeneration({ repoRoot: root });
+    await assertRefusedWithoutEffects(result);
+    assert.match(
+      result.error ?? "",
+      /differs from its repository-generation digest; refusing publication/,
+    );
+  });
+});
+
+test("stale CLI digest under explicit adopt-base refuses instead of silently healing", async () => {
+  await withFixture({}, async (root) => {
+    const applied = await runIsolatedGeneration({ repoRoot: root });
+    assert.equal(applied.success, true, applied.error ?? "");
+    const base = await commitFixtureBase(root);
+
+    const relPath = ".github/skills/common/common-alpha/SKILL.md";
+    const lockPath = path.join(root, ".skills-lock.json");
+    const lock = await fs.readJson(lockPath);
+    assert.ok(lock.entries[relPath], `expected lock entry for ${relPath}`);
+    lock.entries[relPath].sha256 = "0".repeat(64);
+    await fs.writeJson(lockPath, lock, { spaces: 2 });
+
+    const result = await runIsolatedGeneration({
+      repoRoot: root,
+      adoptBase: base,
+    });
+    await assertRefusedWithoutEffects(result);
+    assert.match(
+      result.error ?? "",
+      /differs from its CLI ownership digest; refusing publication/,
+    );
+  });
+});
+
+test("parseCatFileBatch fails closed on a truncated git batch stream", () => {
+  const complete = parseCatFileBatch(Buffer.from("abc123 blob 3\nabc\n"), [
+    "file.md",
+  ]);
+  assert.equal(complete.get("file.md"), computeSha256("abc"));
+
+  const missingTerminator = parseCatFileBatch(
+    Buffer.from("abc123 blob 3\nabc"),
+    ["file.md"],
+  );
+  assert.equal(missingTerminator.get("file.md"), null);
+
+  const shorterPayload = parseCatFileBatch(Buffer.from("abc123 blob 4\nabc"), [
+    "file.md",
+  ]);
+  assert.equal(shorterPayload.get("file.md"), null);
+
+  const missingRecord = parseCatFileBatch(
+    Buffer.from("HEAD:file.md missing\n"),
+    ["file.md"],
+  );
+  assert.equal(missingRecord.get("file.md"), null);
+
+  const partialStream = parseCatFileBatch(Buffer.from("abc123 blob 3\nabc\n"), [
+    "file1.md",
+    "file2.md",
+  ]);
+  assert.equal(partialStream.get("file1.md"), computeSha256("abc"));
+  assert.equal(partialStream.get("file2.md"), null);
 });

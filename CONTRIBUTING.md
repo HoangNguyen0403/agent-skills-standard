@@ -278,6 +278,12 @@ The public `pnpm generate-indices` command uses the candidate coordinator. Run
 recursion.
 By default, unchanged existing outputs may be checked without creating an
 ownership manifest; differing outputs without trusted ownership are refused.
+For declared CLI-managed outputs, `pnpm generate-indices` accepts provenance
+when destination bytes match their recorded ownership digest or equal the
+repository `HEAD` blob, persisting refreshed digests into `.skills-lock.json`
+during publication. A committed edit to a generated mirror no longer blocks
+generation publication, while an uncommitted working-tree edit that differs
+from both `HEAD` and resolved stage bytes still refuses.
 Do not use adoption as a routine override. An authorized bounded adoption uses
 `pnpm generate-indices --adopt-base <full-commit-sha>` and requires the current
 files to match both that tracked base and the prior producer's output. Adoption
