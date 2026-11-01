@@ -38,6 +38,50 @@ npx vitest run --coverage
 - Snapshot testing is encouraged for critical outputs like `AGENTS.md`.
 - Prefer consumer-visible behavior over pinned implementation detail. Do not snapshot the per-agent capability table merely to detect drift: capability and generated-export drift belongs to `pnpm docs:capabilities:check` and real transformer/ownership checks. When a test pins incidental wiring, source wording or a capability descriptor that is changing by design, remove it rather than repinning the old value.
 
+### Session retrospective testing (local, synthetic only)
+
+The retrospective core lives in `mcp/src/retrospective*` and ships the `ags-retrospective` binary plus the `agent-skills-standard-mcp/retrospective` subpath. Test it with the checked-in synthetic journal (`mcp/test/fixtures/retrospective/native-events.jsonl`), a hand-written synthetic manifest pointing at it, and a throwaway root — never a real journal, real manifest or `~/ags/diagnostics`.
+
+```bash
+# build (emits the CLI, the subpath chunk and declarations)
+rtk pnpm --filter agent-skills-standard-mcp build
+
+# retrospective suites: evidence, store, checkpoint, analysis, publication, CLI
+rtk pnpm --filter agent-skills-standard-mcp exec vitest run \
+  test/retrospective-evidence.spec.ts test/retrospective-store.spec.ts \
+  test/retrospective-checkpoint.spec.ts test/retrospective-analysis.spec.ts \
+  test/retrospective-publication.spec.ts test/retrospective-cli.spec.ts
+
+# typecheck the retrospective graph separately (the build's declaration step emits .d.ts via
+# `tsc -p tsconfig.retrospective-types.json`, which also resolves these types)
+rtk pnpm --filter agent-skills-standard-mcp exec tsc --noEmit
+
+# package entry and CLI smoke against a temporary root (human terminal only)
+# subpath self-reference only resolves inside the package, so run it from mcp/
+( cd mcp && node -e "const r=require('agent-skills-standard-mcp/retrospective'); console.log(typeof r.prepareLocal, typeof r.resolveArtifact)" )
+# <synthetic-manifest.json> = the two-node example in docs/session-retrospective.md, whose
+# absolutePath points at mcp/test/fixtures/retrospective/native-events.jsonl
+node mcp/dist/retrospective-cli.js prepare --manifest <synthetic-manifest.json> \
+  --consent local-only --root <tmp-dir> --ack-storage-risk
+
+# tarball membership, then delete the tgz
+( cd mcp && rtk proxy npm pack --dry-run )
+```
+
+- `--ack-storage-risk` is required on every `prepare`; it records an unknown sync/backup risk and never overrides owner-only permissions. An existing `0755` root is refused with `ROOT_PERMISSIVE` — create a new root with `mkdir -m 700` or `chmod 700` a dedicated directory.
+- Assert exit codes and the single JSON stdout line / code-only JSON stderr — never report text, paths or transcripts. `paths` is human-facing and must not be invoked from a hosted tool result.
+- Host adapter packages live under `integrations/session-retrospective/` (`paseo`, `omp`) and are verified in CI by `scripts/verify-retrospective-adapters.mjs` (job `retrospective-adapters`) against exact pinned SDK tarballs; `retrospective-windows` runs the retrospective suites on Windows on push. Locally you can still build and test them in their own package context:
+
+  ```bash
+  # per adapter package (paths as shipped); CI proves SDK compatibility, host smoke does not
+  ( cd integrations/session-retrospective/omp  && pnpm typecheck && pnpm test )
+  ( cd integrations/session-retrospective/paseo && pnpm typecheck && pnpm test )
+  node scripts/verify-retrospective-adapters.mjs
+  ```
+
+  OMP is manual-only on 18.13.1 (`/retrospective manifest <absolute-path>`) and requires a per-run storage-risk confirmation; its automatic invitation path is unsupported by design, so do not add a `session_stop`/`setStatus` expectation there. Its store root must come from an explicit absolute environment override — never project-local `<cwd>/.omp/...` config — and a root inside the current folder **or anywhere in the same Git repository** (resolved through symlinks) is refused, as is an unresolvable root (`STORE_ROOT_UNRESOLVED`). The Paseo panel's session-data-collecting and report-reading RPCs are **disabled** pending verified host human admission, so do not add tests that assert panel prepare/read behaviour, and do not document an enabling environment variable or setting. The former `paseo-hooks` invitation package was **deleted** by user decision: the released Paseo SDK cannot enumerate child sessions, so its checkpoint tool could never succeed, and automatic invitations are unsupported on every host. Adapter host smoke and cross-platform path/ACL behaviour remain **pending verified** — do not report them as passing because CI typecheck and unit suites are green.
+- The public `agent-skills-standard-mcp/retrospective` subpath is deliberately bounded. `collectEvidence`, `claimRun`, `cancelRun`, `publishRun`, `prepareStore`, `withSessionLock`, `sessionToken` and `storeLayout` (and their types) are **not exported**; tests import the modules directly. Drive the CLI or the documented adapter calls instead of reaching for internal mutators.
+
 ## 3. Creating Skills
 
 Skills are the core value of this project.

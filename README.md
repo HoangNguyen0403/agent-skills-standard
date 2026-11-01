@@ -235,6 +235,19 @@ The registry now includes the `common-telemetry` skill and a companion MCP tool 
 
 See [SDLC Workflow Quick Reference](./docs/sdlc-workflow-quick-reference.md).
 
+### Session Retrospectives
+
+**Session retrospectives — prepare local evidence-backed reports and proposals; no model calls or automatic skill changes by default.** After a substantive session, `ags-retrospective prepare --manifest <file> --consent local-only --ack-storage-risk` reads an allowlisted manifest you supply, applies deterministic local rules, and publishes a private `report.md` / `proposals.md` under `~/ags/diagnostics`. The acknowledgement is mandatory on every run and records that you accepted an unknown sync/backup risk; it never overrides owner-only permissions. Read the [privacy guide](./docs/session-retrospective-privacy.md) before you run it. Proposals stay `proposed`; nothing edits skills, workflows, memory or routing.
+
+The binary is a console entry point in the MCP package (`agent-skills-standard-mcp`), with an `agent-skills-standard-mcp/retrospective` library subpath — it is **not** an MCP tool, and hosted agents cannot read report text through the MCP surface. **No published release contains it.** A source build and a locally packed tarball both passed local smoke on macOS; nothing is on the registry. The Paseo panel is **disabled** for session-data collection and report reading — it explains the limitation and points at the local CLI — and OMP is manual-manifest only, with a per-run storage-risk confirmation. **Automatic invitations are unavailable on every host.** Start here:
+
+- [First-run guide](./docs/session-retrospective.md) — manifest, consent, receipt, complete vs partial results.
+- [Privacy and retention](./docs/session-retrospective-privacy.md) — exclusions, coverage gaps, remote transport, deletion limits.
+- [Host integration](./docs/session-retrospective-hosts.md) — Paseo panel disabled, OMP manual-manifest only, disabling.
+- [Future online contracts](./docs/session-retrospective-online-contract.md) — **NOT IMPLEMENTED**, contract only.
+
+Guidance lives in `skills/common/common-session-retrospective`. Status: builds and passes its test suite and CLI/tarball smoke locally on macOS; unpublished — see `CHANGELOG.md` → `[Unreleased]`. Windows/Linux, host-adapter runtime and the Paseo adapters remain unverified.
+
 ## Default SDLC Support
 
 `ags init` includes framework skills plus shared SDLC support categories when the registry provides them:

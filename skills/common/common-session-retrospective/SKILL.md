@@ -28,7 +28,8 @@ metadata:
 common/session-retrospective/
 ├── SKILL.md              # Protocol (this file)
 └── references/
-    └── methodology.md    # Signal tables, taxonomy, report template
+    ├── methodology.md          # Signal tables, taxonomy, report template
+    └── local-preparation.md    # Disposition, coverage, trigger, boundaries
 ```
 
 ## Protocol
@@ -42,6 +43,13 @@ common/session-retrospective/
 6. **Evaluate** — Compare the chosen mechanism against the observed failure on held-out cases; keep model/tools fixed, preserve failures and redact sensitive evidence. A deterministic check or regression test is verified by the failure it now rejects
 7. **Review and promote** — Require independent maintainer approval, explicit authorization and verified fresh eval evidence; never self-approve or treat reviewer text as authenticated approval. Promotion is per mechanism, not per repetition count
 8. **Log and report** — Append redacted correction evidence using `common/common-learning-log`; record candidate/improvement status, source revision, eval run, review reference and rollback version. Cleanup requires verified durable archival of evidence before scratch disposal; never erase the only copy of evidence
+
+## Local preparation
+
+- **Disposition** — Main, non-diagnostic substantive checkpoint plus verified readiness: offer local preparation once when the host supports it, otherwise give manual instructions; trivial task: no prompt. A completion signal is a claim, not acceptance or approval
+- **Trigger** — Explicit CLI or host action only; no magic phrase. `Later` keeps passive access, `Skip` suppresses that checkpoint, and only meaningful new work plus a new checkpoint re-qualifies. Details: [references/local-preparation.md](references/local-preparation.md)
+- **Scope** — Deterministic local rules over allowlisted structured events; findings are `observed` or `candidate`, semantic judgments `not-assessable`, restricted sources explicit gaps
+- **Boundaries** — Local-only by default; no automatic `AGENTS_LEARNING.md`, memory, registry or adoption writes; never load reports back into model context; adoption stays a separate authorized step
 
 ## Prevention mechanisms
 
@@ -77,10 +85,11 @@ Emit trigger miss block (schema in [references/methodology.md](references/method
 - **No prose controls**: Do not encode a checkable or permission failure as guidance text
 - **No unverified evidence cleanup**: Never erase the only evidence copy; verified durable archival required before scratch disposal
 - **No benchmark gaming**: Preserve held-out failures; fix invalid graders through separate review
+
 ## References
 
-Signal tables, root cause taxonomy, report template, real-world example:
-[references/methodology.md](references/methodology.md)
+Signal tables, taxonomy, report template: [references/methodology.md](references/methodology.md)
+Local preparation disposition, coverage, trigger, boundaries: [references/local-preparation.md](references/local-preparation.md)
 
 ## Canonical response anchors
 

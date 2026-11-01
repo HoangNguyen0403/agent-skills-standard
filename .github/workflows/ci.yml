@@ -202,3 +202,43 @@ jobs:
             exit 1
           fi
           echo "✅ Token metrics are synchronized."
+
+  retrospective-adapters:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22.x"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build MCP
+        run: pnpm --filter agent-skills-standard-mcp build
+
+      - name: Verify retrospective adapters against pinned SDK tarballs
+        run: node scripts/verify-retrospective-adapters.mjs
+
+  retrospective-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22.x"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build MCP
+        run: pnpm --filter agent-skills-standard-mcp build
+
+      - name: Run retrospective tests on Windows
+        run: pnpm --filter agent-skills-standard-mcp exec vitest run test/retrospective-store.spec.ts test/retrospective-checkpoint.spec.ts test/retrospective-cli.spec.ts test/retrospective-publication.spec.ts test/retrospective-analysis.spec.ts test/retrospective-evidence.spec.ts
