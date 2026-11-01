@@ -1,21 +1,51 @@
+import type { LedgerImprovement } from "../improvements";
 import type { Claim, Ledger } from "../ledger";
 
-const MAX_SUMMARY_LINES = 40;
-const MAX_SUMMARY_BYTES = 4096;
-const MAX_TOP_SKILLS = 5;
-const MAX_LEADS = 5;
-/** Registry ids are printed verbatim, so anything else is dropped rather than echoed. */
-const SAFE_SKILL_ID_REGEX = /^[A-Za-z0-9._:/@+-]{1,96}$/;
-/** Below this many turns a cell's rate is noise, so the ledger only ranks bigger ones. */
-const MIN_RANKED_TURNS = 5;
+const MAX_SUMMARY_LINES = 60;
+const MAX_SUMMARY_BYTES = 6144;
 
-type SkillSectionOptions = {
-  /** How many top-skill entries to print. */
-  topSkills: number;
-  /** How many top host-read skill entries to print. */
-  topHostSkills: number;
-  /** Whether the skill-timing line is printed. */
-  timing: boolean;
+export type LedgerAgent = {
+  label: string;
+  kind: "read-only" | "editing";
+  turns: number;
+  costCents: number;
+  compactions: number;
+  cacheReadPerTurn: number;
+  errorStops: number;
+  toolCalls: number;
+  toolErrors: number;
+  editCalls: number;
+  bashCalls: number;
+  readCalls: number;
+  agsLookups: number;
+  permissionAnswers: number;
+  model: string;
+};
+
+export type OtherAgentsSummary = {
+  count: number;
+  turns: number;
+  costCents: number;
+};
+
+type ViewLedger = Ledger & {
+  agents?: LedgerAgent[];
+  otherAgents?: OtherAgentsSummary | null;
+  improvements?: LedgerImprovement[];
+};
+
+type RenderOptions = {
+  maxManagerImprovements: number;
+  maxMaintainerImprovements: number;
+};
+
+const DESTINATION_LABELS: Record<string, string> = {
+  "permission-setup": "permission setup",
+  "orchestration-config": "orchestration config",
+  "agent-routing": "AGS routing",
+  "provider-route-monitoring": "provider route monitoring",
+  "session-linkage": "session linkage",
+  "tracker-binding": "tracker binding",
 };
 
 /** `1 session` / `2 sessions`; pass a plural form for nouns that do not take `s`. */
@@ -24,42 +54,31 @@ function plural(n: number, singular: string, pluralForm?: string): string {
   return `${n} ${pluralForm ?? `${singular}s`}`;
 }
 
-/** Verb form that agrees with `n`. */
-function verb(n: number, one: string, many: string): string {
-  return n === 1 ? one : many;
-}
-
-function countOf(values: Claim["values"], key: string): number {
+function countOf(values: Claim["values"] | undefined, key: string): number {
+  if (!values) return 0;
   const value = values[key];
   return typeof value === "number" ? value : 0;
 }
 
-function stringOf(values: Claim["values"], key: string): string | null {
+function stringOf(
+  values: Claim["values"] | undefined,
+  key: string,
+): string | null {
+  if (!values) return null;
   const value = values[key];
   return typeof value === "string" ? value : null;
 }
 
-/**
- * Fixed wording for the delegation numbers. Counts of read and created agents
- * are observations; the sentence never says why a session was not read.
- */
-function renderAgentsClause(
-  agentsRead: number,
-  agentsCreated: number,
-  unlinkedAgents: number,
-): string {
-  if (agentsCreated === 0) {
-    return "no agents were created.";
-  }
-  return `${agentsRead} of ${plural(agentsCreated, "created agent")} ${verb(
-    agentsRead,
-    "has",
-    "have",
-  )} a session file that was read, ${unlinkedAgents} ${verb(
-    unlinkedAgents,
-    "has",
-    "have",
-  )} none.`;
+function formatMoney(cents: number): string {
+  return `$${(cents / 100).toFixed(2)}`;
+}
+
+function formatTokensK(tokens: number): string {
+  return `${Math.round(tokens / 1000)}k`;
+}
+
+function formatRate(tenths: number): string {
+  return (tenths / 10).toFixed(1);
 }
 
 function renderDelegationSegment(
@@ -74,165 +93,90 @@ function renderDelegationSegment(
   const agentsRead = coverageClaim
     ? countOf(coverageClaim.values, "agentsRead")
     : 0;
-  return `${agentsRead} of ${agentsCreated} created agents read`;
+  return `${agentsRead} of ${plural(agentsCreated, "created agent")} read`;
 }
 
-/** The skipped-line caveat a claim carries when its metric may undercount. */
-function renderUndercount(completeness: unknown, skippedLines: number): string {
-  if (completeness !== "may-undercount-by-skipped-lines") return "";
-  return ` (may undercount: ${plural(skippedLines, "line")} ${verb(
-    skippedLines,
-    "was",
-    "were",
-  )} skipped)`;
-}
+function renderManagerImprovement(imp: LedgerImprovement, k: number): string[] {
+  const levelStr = imp.level.toUpperCase();
+  const destLabel = DESTINATION_LABELS[imp.destination] ?? imp.destination;
+  const val = imp.values;
 
-function renderTimingLine(claim: Claim): string {
-  const values = claim.values;
-  const measuredSessions = countOf(values, "measuredSessions");
-  const text = `[${claim.id}] Skill timing: ${countOf(
-    values,
-    "sessionsWithSkillLoad",
-  )} of ${plural(measuredSessions, "session")} called a skill-loading tool`;
-  if (typeof values.mainCallsBeforeFirstSkillLoad === "number") {
-    return `${text}; the main session made ${plural(
-      values.mainCallsBeforeFirstSkillLoad,
-      "other tool call",
-    )} before its first one.`;
-  }
-  if (countOf(values, "mainSkillLoadCalls") === 0) {
-    return `${text}; the main session called none.`;
-  }
-  return `${text}.`;
-}
+  let title: string;
+  let saw: string;
+  let change: string;
+  let metric: string;
+  let valueStr: string;
 
-function renderHostLine(claim: Claim): string {
-  const values = claim.values;
-  const readCalls = countOf(values, "readCalls");
-  if (readCalls === 0) {
-    return `[${claim.id}] Host skill reads: none (0 reads; measured on OMP sessions).`;
-  }
-  const measuredSessions = countOf(values, "measuredSessions");
-  const text = `[${claim.id}] Host skill reads: ${plural(
-    readCalls,
-    "read",
-  )} of ${plural(
-    countOf(values, "uniqueSkills"),
-    "skill",
-  )} (ids derived from the read path, not checked against the registry); ${countOf(
-    values,
-    "sessionsWithAnySkillAccess",
-  )} of ${plural(
-    measuredSessions,
-    "session",
-  )} accessed a skill by either route`;
-  if (typeof values.mainCallsBeforeFirstSkillAccess === "number") {
-    return `${text}; the main session made ${plural(
-      values.mainCallsBeforeFirstSkillAccess,
-      "other tool call",
-    )} before its first skill access.`;
-  }
-  return `${text}.`;
-}
-
-/** `read:2,write:1` becomes `read x 2, write x 1`; anything unparseable is dropped. */
-function renderTopErrorTools(raw: string): string {
-  const entries: string[] = [];
-  for (const entry of raw.split(",")) {
-    const trimmed = entry.trim();
-    const separator = trimmed.lastIndexOf(":");
-    if (separator <= 0) continue;
-    const tool = trimmed.slice(0, separator).trim();
-    const count = trimmed.slice(separator + 1).trim();
-    if (tool === "" || !/^\d+$/.test(count)) continue;
-    entries.push(`${tool} x ${count}`);
-  }
-  return entries.join(", ");
-}
-
-function renderSkillSection(
-  ledger: Ledger,
-  options: SkillSectionOptions,
-): string[] {
-  const skillClaim = ledger.claims.find(
-    (claim) => claim.template === "skill-usage",
-  );
-  const timingClaim = ledger.claims.find(
-    (claim) => claim.template === "skill-trigger-timing",
-  );
-  const hostClaim = ledger.claims.find(
-    (claim) => claim.template === "host-skill-reads",
-  );
-  if (!skillClaim && !timingClaim && !hostClaim) return [];
-
-  const lines: string[] = ["## Skills"];
-  if (skillClaim) {
-    const values = skillClaim.values;
-    const window =
-      values.trackerWindow === "matches-session"
-        ? "the whole session"
-        : `this server process since ${skillClaim.scope.from}`;
-    const bodyReturns = countOf(values, "bodyReturns");
-    const workflows = countOf(values, "workflows");
-    const guides = countOf(values, "guides");
-    let text = `[${skillClaim.id}] Skill lookups: ${plural(
-      countOf(values, "loadCalls"),
-      "call",
-    )} to skill-loading tools; ${countOf(
-      values,
-      "noMatchCalls",
-    )} matched nothing; ${plural(
-      bodyReturns,
-      "skill body",
-      "skill bodies",
-    )} ${verb(bodyReturns, "was", "were")} returned (${plural(
-      countOf(values, "skillsTotal"),
-      "unique skill",
-    )}, ${countOf(values, "dedupedReturns")} reused from context).`;
-    if (workflows > 0 || guides > 0) {
-      text += ` ${plural(workflows, "workflow")}, ${plural(
-        guides,
-        "guide",
-      )} loaded.`;
+  switch (imp.rule) {
+    case "guardrail-answers": {
+      const per100 = formatRate(val.per100Tenths ?? 0);
+      title = `Permission answers: ${val.answers ?? 0} (${val.allow ?? 0} allowed, ${val.deny ?? 0} denied)`;
+      saw = `the orchestrator answered ${val.answers ?? 0} permission requests; ${val.targetsAtLeast3 ?? 0} agents were answered 3 or more times; ${val.deny ?? 0} were denials.`;
+      change = `add repeated safe requests to the allowlist (allowed answers show setup gaps) and check what each denial asked for (denials show rule violations)`;
+      metric = "permission answers per 100 turns";
+      valueStr = per100;
+      break;
     }
-    lines.push(`${text} Window: ${window}.`);
-
-    const top =
-      ledger.skillUsage === null
-        ? []
-        : ledger.skillUsage.skills
-            .filter((skill) => SAFE_SKILL_ID_REGEX.test(skill.id))
-            .slice(0, options.topSkills);
-    if (top.length > 0) {
-      lines.push(
-        `Top skills: ${top
-          .map((skill) => `${skill.id} x${skill.returns}`)
-          .join(", ")}`,
-      );
+    case "cost-concentration": {
+      const ctxMain = formatTokensK(val.cacheReadPerTurnMain ?? 0);
+      const ctxOthers = formatTokensK(val.cacheReadPerTurnOthers ?? 0);
+      title = `Main agent carries ${val.sharePercent ?? 0}% of observed cost`;
+      saw = `main runs at ${ctxMain} cached tokens per turn (workers ${ctxOthers}) with ${val.compactionsMain ?? 0} compactions; it made ${val.mainReadCalls ?? 0} reads, ${val.mainEditCalls ?? 0} edits and ${val.mainCoordinationCalls ?? 0} coordination calls itself.`;
+      change = `check whether those reads and edits could be delegated; consider a turn limit per session and a cost alert`;
+      metric = "cached tokens per main turn";
+      valueStr = ctxMain;
+      break;
+    }
+    case "unguarded-edits": {
+      title = `${val.unguardedEdits ?? 0} of ${val.editEpisodes ?? 0} edits ran without a file lookup`;
+      saw = `edit and file-write calls with no load_skills_for_files by the same agent since its last compaction; ${val.byFilesTotal ?? 0} file lookups vs ${val.getSkillTotal ?? 0} lookups by name.`;
+      change = `check the router trigger and the brief given to agents that edit files`;
+      metric = "unguarded edit share";
+      valueStr = `${val.unguardedPercent ?? 0}%`;
+      break;
+    }
+    case "human-intervention": {
+      const per100 = formatRate(val.per100Tenths ?? 0);
+      title = `Human interventions: ${val.askCalls ?? 0} asks, ${val.abortedStops ?? 0} aborted stops`;
+      saw = `the agents asked a human or were stopped by one ${per100} times per 100 turns.`;
+      change = `check which of those decisions the setup could take without asking`;
+      metric = "asks and aborts per 100 turns";
+      valueStr = per100;
+      break;
+    }
+    case "agent-error-concentration": {
+      const agentsCount = val.agents ?? 0;
+      title = `${plural(agentsCount, "agent")} ended at least half their turns in an error`;
+      saw = `the worst: ${val.worstErrorStops ?? 0} of ${val.worstTurns ?? 0} turns.`;
+      change = `read the error category of those records before changing any routing`;
+      metric = "agents above half error turns";
+      valueStr = `${agentsCount}`;
+      break;
+    }
+    default: {
+      return [];
     }
   }
-  if (timingClaim && options.timing) {
-    lines.push(renderTimingLine(timingClaim));
-  }
-  if (hostClaim) {
-    lines.push(renderHostLine(hostClaim));
-    if (countOf(hostClaim.values, "readCalls") > 0) {
-      const hostTop = (ledger.hostSkills?.top ?? [])
-        .filter((entry) => SAFE_SKILL_ID_REGEX.test(entry.id))
-        .slice(0, options.topHostSkills);
-      if (hostTop.length > 0) {
-        lines.push(
-          `Top host-read skills: ${hostTop
-            .map((entry) => `${entry.id} x${entry.reads}`)
-            .join(", ")}`,
-        );
-      }
-    }
-  }
-  return lines;
+
+  return [
+    `${k}. [${levelStr}] ${title}`,
+    `   Saw: ${saw}`,
+    `   Change (${destLabel}): ${change}. Next time: ${metric} (now ${valueStr}).`,
+  ];
 }
 
-function renderLines(ledger: Ledger, options: SkillSectionOptions): string[] {
+function renderMaintainerImprovement(imp: LedgerImprovement): string | null {
+  switch (imp.rule) {
+    case "coverage-gap":
+      return `- ${imp.values.unlinkedAgents ?? 0} of ${imp.values.agentsCreated ?? 0} created agents have no session file read; Paseo agent sessions cannot be linked from the session file alone (session-linkage).`;
+    case "tracker-not-measured":
+      return `- Server tracker numbers cover this process only, so lookups that matched nothing and bodies returned are not measured for this session (tracker-binding).`;
+    default:
+      return null;
+  }
+}
+
+function renderLines(ledger: ViewLedger, options: RenderOptions): string[] {
   const lines: string[] = [];
 
   const evidenceStr =
@@ -243,22 +187,28 @@ function renderLines(ledger: Ledger, options: SkillSectionOptions): string[] {
     ledger.rootVerification === "unverified-root" ? "unverified root" : "n/a";
 
   const coverageClaim = ledger.claims.find((c) => c.template === "coverage");
-  const agentsCreated = coverageClaim
-    ? countOf(coverageClaim.values, "agentsCreated")
-    : ledger.counts.agentsCreated;
-  const agentsRead = coverageClaim
-    ? countOf(coverageClaim.values, "agentsRead")
-    : 0;
-  const unlinkedAgents = coverageClaim
-    ? countOf(coverageClaim.values, "unlinkedAgents")
-    : ledger.counts.agentsCreated - ledger.counts.sessionsLinked;
+  const costDriversClaim = ledger.claims.find(
+    (c) => c.template === "cost-drivers",
+  );
+  const permClaim = ledger.claims.find(
+    (c) => c.template === "permission-answers",
+  );
+  const routingClaim = ledger.claims.find(
+    (c) => c.template === "routing-order",
+  );
+  const skillUsageClaim = ledger.claims.find(
+    (c) => c.template === "skill-usage",
+  );
 
+  // Line 1: Header
   lines.push(
     `Coverage: ${ledger.coverage} | Evidence: ${evidenceStr} | Root: ${rootStr} | Delegation: ${renderDelegationSegment(
       ledger,
       coverageClaim,
     )} | Cutoff: ${ledger.cutoff}`,
   );
+
+  // Line 2: Scope
   if (coverageClaim) {
     const sessionPart =
       ledger.session === null ? "" : `session ${ledger.session} | `;
@@ -266,205 +216,266 @@ function renderLines(ledger: Ledger, options: SkillSectionOptions): string[] {
       `Scope: ${sessionPart}${coverageClaim.scope.from} to ${coverageClaim.scope.to}`,
     );
   }
+
+  // ## Bottom line
   lines.push("");
+  lines.push("## Bottom line");
 
-  lines.push("## What the numbers say");
+  const bottomLineParts: string[] = [];
 
+  // Clause 1: Agent observation (coverage)
   if (coverageClaim) {
-    const val = coverageClaim.values;
-    const sessions = countOf(val, "sessions");
-    const skippedLines = countOf(val, "skippedLines");
-    const skippedClause = `${plural(skippedLines, "line")} ${verb(
-      skippedLines,
-      "was",
-      "were",
-    )} skipped`;
-    if (ledger.evidenceMode === "tracker-only") {
-      // No session file is read on this path, so no read count can be claimed.
-      const trackerAgents =
-        agentsCreated === 0
-          ? "no agents were created."
-          : `none of the ${plural(
-              agentsCreated,
-              "created agent",
-            )} has a session file that was read.`;
-      lines.push(
-        `[${coverageClaim.id}] Tracker-only observation: no session files were read; ${trackerAgents}`,
-      );
-    } else {
-      const agentsClause = renderAgentsClause(
-        agentsRead,
-        agentsCreated,
-        unlinkedAgents,
-      );
-      lines.push(
-        `[${coverageClaim.id}] Coverage: ${plural(
-          sessions,
-          "session",
-        )} read in full (${skippedClause}); ${agentsClause}`,
-      );
-    }
-  }
-
-  const errorStopClaim = ledger.claims.find(
-    (c) => c.template === "error-stop-exposure",
-  );
-  const skippedLinesTotal = coverageClaim
-    ? countOf(coverageClaim.values, "skippedLines")
-    : 0;
-  const errorStopUndercount = errorStopClaim
-    ? renderUndercount(errorStopClaim.values.completeness, skippedLinesTotal)
-    : "";
-  if (errorStopClaim) {
-    const val = errorStopClaim.values;
-    const errorStops = countOf(val, "errorStops");
-    const turns = countOf(val, "turns");
-    const cellCount = countOf(val, "cellCount");
-    const topCell = stringOf(val, "topCell");
-    const busiestCell = stringOf(val, "busiestCell");
-
-    let text = `[${errorStopClaim.id}] Error-stop exposure: ${plural(
-      errorStops,
-      "error stop",
-    )} across ${plural(turns, "assistant turn")} (${plural(
-      cellCount,
-      "day-model cell",
-    )}).`;
-    if (topCell !== null) {
-      text += ` Highest rate: ${topCell} (${countOf(
-        val,
-        "topCellErrorStops",
-      )} of ${plural(countOf(val, "topCellTurns"), "turn")}).`;
-    }
-    if (busiestCell !== null) {
-      text += ` Most stops: ${busiestCell} (${countOf(
-        val,
-        "busiestCellErrorStops",
-      )} of ${plural(countOf(val, "busiestCellTurns"), "turn")}).`;
-    }
-    if (topCell === null && errorStops > 0) {
-      text += ` Cells with fewer than ${MIN_RANKED_TURNS} turns are not ranked by rate.`;
-    }
-    lines.push(text + errorStopUndercount);
-  }
-
-  const toolErrorClaim = ledger.claims.find(
-    (c) => c.template === "tool-errors",
-  );
-  if (toolErrorClaim) {
-    const val = toolErrorClaim.values;
-    const failedToolCalls = countOf(val, "failedToolCalls");
-    const toolCalls = countOf(val, "toolCalls");
-    const topErrorTools = stringOf(val, "topErrorTools");
-    let text = `[${toolErrorClaim.id}] Tool calls: ${failedToolCalls} of ${plural(
-      toolCalls,
-      "tool call",
-    )} returned an error`;
-    if (topErrorTools !== null) {
-      const rendered = renderTopErrorTools(topErrorTools);
-      if (rendered !== "") {
-        text += ` (most: ${rendered})`;
-      }
-    }
-    lines.push(
-      `${text}.${renderUndercount(val.completeness, skippedLinesTotal)}`,
+    const created = countOf(coverageClaim.values, "agentsCreated");
+    const observed = countOf(coverageClaim.values, "agentsRead");
+    const agentsList = ledger.agents ?? [];
+    const workersCount =
+      (agentsList.length > 0 ? agentsList.length - 1 : 0) +
+      (ledger.otherAgents?.count ?? 0);
+    const agentDetail =
+      created === 0
+        ? "no agents were created"
+        : `${observed} of ${plural(created, "created agent")}`;
+    bottomLineParts.push(
+      `Observed: main + ${plural(workersCount, "worker")} (${agentDetail}).`,
     );
   }
 
+  // Clause 2: Main cost & turns (cost-drivers)
+  if (costDriversClaim) {
+    const turnsMain = countOf(costDriversClaim.values, "turnsMain");
+    const costCentsMain = countOf(costDriversClaim.values, "costCentsMain");
+    const costCentsOthers = countOf(costDriversClaim.values, "costCentsOthers");
+    const totalCost = costCentsMain + costCentsOthers;
+    const share =
+      totalCost > 0 ? Math.round((costCentsMain * 100) / totalCost) : 0;
+    const ctxMain = formatTokensK(
+      countOf(costDriversClaim.values, "cacheReadPerTurnMain"),
+    );
+    const turnsOthersBL = countOf(costDriversClaim.values, "turnsOthers");
+    const ctxOthers =
+      turnsOthersBL > 0
+        ? formatTokensK(
+            countOf(costDriversClaim.values, "cacheReadPerTurnOthers"),
+          )
+        : "none";
+    bottomLineParts.push(
+      `Main: ${plural(turnsMain, "turn")}, ${formatMoney(costCentsMain)} est. (${share}% of observed cost) at ${ctxMain} cached tokens per turn (workers: ${ctxOthers}).`,
+    );
+  }
+
+  // Clause 3: Permission answers (permission-answers)
+  if (permClaim) {
+    const answers = countOf(permClaim.values, "answers");
+    const deny = countOf(permClaim.values, "deny");
+    bottomLineParts.push(
+      `${plural(answers, "permission answer")} (${deny} denied).`,
+    );
+  }
+
+  // Clause 4: AGS lookups (routing-order)
+  if (routingClaim) {
+    const lookupsMain = countOf(routingClaim.values, "lookupsMain");
+    const lookupsOthers = countOf(routingClaim.values, "lookupsOthers");
+    bottomLineParts.push(
+      `AGS lookups: ${lookupsMain} by main, ${lookupsOthers} by workers.`,
+    );
+  }
+
+  if (bottomLineParts.length > 0) {
+    lines.push(bottomLineParts.join(" "));
+  }
+
+  // ## Scorecards
   lines.push("");
+  lines.push("## Scorecards");
 
-  const skillSection = renderSkillSection(ledger, options);
-  if (skillSection.length > 0) {
-    lines.push(...skillSection);
-    lines.push("");
-  }
-
-  lines.push("## Leads");
-  const leads: string[] = [];
-  // Zero stops is a number for the observation line above, not a reason to look
-  // further: a lead only earns its place when the evidence shows something.
-  const errorStopLeadStops = errorStopClaim
-    ? countOf(errorStopClaim.values, "errorStops")
-    : 0;
-  if (errorStopClaim && errorStopLeadStops > 0) {
-    const val = errorStopClaim.values;
-    const turns = countOf(val, "turns");
-    const busiestCell = stringOf(val, "busiestCell");
-    const topCell = stringOf(val, "topCell");
-    const evId =
-      busiestCell !== null
-        ? `agg:cell:${busiestCell}:errorStops`
-        : topCell !== null
-          ? `agg:cell:${topCell}:errorStops`
-          : "agg:tree:errorStops";
-
-    leads.push(
-      `- [${errorStopClaim.id}] Error-stop concentration: ${plural(
-        errorStopLeadStops,
-        "stop",
-      )} in ${plural(turns, "turn")}. Evidence: ${evId}. Check: open the ledger entries named here and the cells list in ledger.json; this does not say why the stops happened.${errorStopUndercount}`,
+  // Guardrails scorecard line
+  if (permClaim) {
+    const answers = countOf(permClaim.values, "answers");
+    const allow = countOf(permClaim.values, "allow");
+    const deny = countOf(permClaim.values, "deny");
+    const askCalls = countOf(permClaim.values, "askCalls");
+    const abortedStops = countOf(permClaim.values, "abortedStops");
+    const targetsAtLeast3 = countOf(permClaim.values, "targetsAtLeast3");
+    const turns = countOf(permClaim.values, "turns");
+    const per100Tenths = turns > 0 ? Math.round((answers * 1000) / turns) : 0;
+    const per100 = formatRate(per100Tenths);
+    lines.push(
+      `Guardrails: ${plural(answers, "permission answer")} (${per100} per 100 turns; ${allow} allowed, ${deny} denied); ${plural(askCalls, "ask")} to a human; ${plural(abortedStops, "aborted stop")}; ${plural(targetsAtLeast3, "agent")} answered 3 or more times.`,
     );
-  }
-  const timingClaim = ledger.claims.find(
-    (c) => c.template === "skill-trigger-timing",
-  );
-  const hostClaim = ledger.claims.find(
-    (c) => c.template === "host-skill-reads",
-  );
-  if (hostClaim) {
-    const measuredSessions = countOf(hostClaim.values, "measuredSessions");
-    const sessionsWithAnySkillAccess = countOf(
-      hostClaim.values,
-      "sessionsWithAnySkillAccess",
-    );
-    const sessionsWithoutAnySkillAccess =
-      measuredSessions - sessionsWithAnySkillAccess;
-    if (sessionsWithoutAnySkillAccess > 0) {
-      leads.push(
-        `- [${hostClaim.id}] ${sessionsWithoutAnySkillAccess} of ${plural(
-          measuredSessions,
-          "session",
-        )} never accessed a skill by either route. Check: open ledger entries agg:hostSkills:sessionsWithAnySkillAccess and agg:skills:measuredSessions; a session without a skill access is not proof a skill was needed.`,
-      );
-    }
   } else {
-    const sessionsWithoutSkillLoad = timingClaim
-      ? countOf(timingClaim.values, "sessionsWithoutSkillLoad")
-      : 0;
-    if (timingClaim && sessionsWithoutSkillLoad > 0) {
-      leads.push(
-        `- [${timingClaim.id}] ${sessionsWithoutSkillLoad} of ${plural(
-          countOf(timingClaim.values, "measuredSessions"),
-          "session",
-        )} never called a skill-loading tool. Check: open ledger entries agg:skills:measuredSessions and agg:skills:sessionsWithSkillLoad; a session without a skill call is not proof a skill was needed.`,
-      );
-    }
+    lines.push("Guardrails: no permission answers, asks or aborts observed.");
   }
-  if (leads.length === 0) {
-    leads.push("- No leads identified from available evidence.");
-  }
-  lines.push(...leads.slice(0, MAX_LEADS));
 
-  lines.push("");
-
-  lines.push("## What this cannot tell you");
-  lines.push("- Counts show where to look, not why.");
-  lines.push("- Partial reads can undercount.");
-  lines.push("- The root session is not verified against the host.");
-  if (skillSection.length > 0) {
-    lines.push(
-      "- Loaded is not the same as followed: the report counts skill lookups, not whether the agent applied them.",
+  // Cost scorecard line
+  if (costDriversClaim) {
+    const turnsMain = countOf(costDriversClaim.values, "turnsMain");
+    const costMain = formatMoney(
+      countOf(costDriversClaim.values, "costCentsMain"),
     );
-    if (hostClaim) {
+    const compactionsMain = countOf(costDriversClaim.values, "compactionsMain");
+    const floor = formatTokensK(
+      countOf(costDriversClaim.values, "postCompactionCacheReadPerTurnMain"),
+    );
+    const max = formatTokensK(
+      countOf(costDriversClaim.values, "maxCacheReadMain"),
+    );
+    const turnsOthers = countOf(costDriversClaim.values, "turnsOthers");
+    const costOthers = formatMoney(
+      countOf(costDriversClaim.values, "costCentsOthers"),
+    );
+    const reads = countOf(costDriversClaim.values, "mainReadCalls");
+    const edits = countOf(costDriversClaim.values, "mainEditCalls");
+    const bash = countOf(costDriversClaim.values, "mainBashCalls");
+    const coord = countOf(costDriversClaim.values, "mainCoordinationCalls");
+    const costReads = formatMoney(
+      countOf(costDriversClaim.values, "costCentsMainReads"),
+    );
+    const costCoord = formatMoney(
+      countOf(costDriversClaim.values, "costCentsMainCoordination"),
+    );
+    lines.push(
+      `Cost: main ${plural(turnsMain, "turn")}, ${costMain} est., ${plural(compactionsMain, "compaction")} (post-compaction floor ${floor}, peak ${max} cached tokens per turn); workers ${plural(turnsOthers, "turn")}, ${costOthers} est. Main made ${plural(reads, "read")}, ${plural(edits, "edit")}, ${bash} bash and ${plural(coord, "coordination call")} itself; call-share estimate: reads ${costReads}, coordination ${costCoord}.`,
+    );
+  }
+
+  // AGS routing scorecard lines
+  if (routingClaim) {
+    const lookupsMain = countOf(routingClaim.values, "lookupsMain");
+    const lookupsOthers = countOf(routingClaim.values, "lookupsOthers");
+    const agentsWithLookup = countOf(routingClaim.values, "agentsWithLookup");
+    const agentsTotal = countOf(routingClaim.values, "agentsTotal");
+    const byFilesTotal = countOf(routingClaim.values, "byFilesTotal");
+    const byKeywordsTotal = countOf(routingClaim.values, "byKeywordsTotal");
+    const getSkillTotal = countOf(routingClaim.values, "getSkillTotal");
+    const overheadCalls = countOf(routingClaim.values, "overheadCalls");
+    const hostReads = countOf(routingClaim.values, "hostSkillReadCalls");
+
+    // Turns for main and workers
+    let turnsMain = 0;
+    let turnsOthers = 0;
+    if (costDriversClaim) {
+      turnsMain = countOf(costDriversClaim.values, "turnsMain");
+      turnsOthers = countOf(costDriversClaim.values, "turnsOthers");
+    } else if (ledger.agents && ledger.agents.length > 0) {
+      turnsMain = ledger.agents.find((a) => a.label === "main")?.turns ?? 0;
+      turnsOthers =
+        ledger.agents
+          .filter((a) => a.label !== "main")
+          .reduce((sum, a) => sum + a.turns, 0) +
+        (ledger.otherAgents?.turns ?? 0);
+    }
+
+    const mainRateTenths =
+      turnsMain > 0 ? Math.round((lookupsMain * 1000) / turnsMain) : 0;
+    const othersRateTenths =
+      turnsOthers > 0 ? Math.round((lookupsOthers * 1000) / turnsOthers) : 0;
+
+    lines.push(
+      `AGS routing: main ${plural(lookupsMain, "lookup")} (${formatRate(
+        mainRateTenths,
+      )} per 100 turns), workers ${lookupsOthers} (${formatRate(
+        othersRateTenths,
+      )} per 100 turns); ${agentsWithLookup} of ${plural(agentsTotal, "agent")} looked something up; ${byFilesTotal} by file, ${byKeywordsTotal} by keyword, ${getSkillTotal} by name; ${plural(overheadCalls, "ceremony call")}; ${plural(hostReads, "host skill read")} (counted, not named).`,
+    );
+
+    const editEpisodes =
+      countOf(routingClaim.values, "editEpisodesMain") +
+      countOf(routingClaim.values, "editEpisodesOthers");
+    const unguarded =
+      countOf(routingClaim.values, "unguardedEditsMain") +
+      countOf(routingClaim.values, "unguardedEditsOthers");
+    lines.push(
+      `Edits: ${plural(editEpisodes, "edit or file-write call")}, ${unguarded} with no file lookup since the agent's last compaction.`,
+    );
+  }
+
+  // Tracker line (from skill-usage claim)
+  if (skillUsageClaim) {
+    const trackerWindow = stringOf(skillUsageClaim.values, "trackerWindow");
+    if (trackerWindow === "matches-session") {
+      const noMatchCalls = countOf(skillUsageClaim.values, "noMatchCalls");
+      const loadCalls = countOf(skillUsageClaim.values, "loadCalls");
+      const bodyReturns = countOf(skillUsageClaim.values, "bodyReturns");
       lines.push(
-        "- Host skill reads are counted for OMP sessions only; other hosts are not measured.",
+        `Tracker (this session): ${noMatchCalls} of ${plural(loadCalls, "lookup")} matched nothing; ${plural(bodyReturns, "skill body", "skill bodies")} returned.`,
       );
-    } else {
+    } else if (trackerWindow === "process-only") {
+      const since =
+        stringOf(skillUsageClaim.values, "since") ??
+        ledger.skillUsage?.since ??
+        null;
+      const scopeStr = since
+        ? `this process since ${since} only`
+        : `this server process only`;
       lines.push(
-        "- Skills read through the host's own skill mechanism (not this server) are not counted.",
+        `Tracker: not measured for this session (the server tracker covers ${scopeStr}).`,
       );
     }
   }
+
+  // Coverage scorecard line
+  if (coverageClaim) {
+    const observed = countOf(coverageClaim.values, "agentsRead");
+    const created = countOf(coverageClaim.values, "agentsCreated");
+    const workers = (ledger.agents ?? []).filter((a) => a.label !== "main");
+    const n = workers.filter((a) => a.kind === "read-only").length;
+    const m = workers.filter((a) => a.kind === "editing").length;
+    const files = countOf(coverageClaim.values, "sessions");
+    const skipped = countOf(coverageClaim.values, "skippedLines");
+    lines.push(
+      `Coverage: ${observed} of ${plural(created, "created agent")} observed; observed workers: ${n} read-only, ${m} editing; ${plural(files, "session")} read in full (${plural(skipped, "line")} skipped).`,
+    );
+  }
+
+  // ## Do next
+  lines.push("");
+  lines.push("## Do next");
+
+  const managerImps = (ledger.improvements ?? []).filter(
+    (imp) => imp.audience === "manager",
+  );
+  const selectedManager = managerImps.slice(0, options.maxManagerImprovements);
+
+  if (selectedManager.length === 0) {
+    lines.push(
+      "No actions suggested from the measured signals. This is not a judgment of session quality.",
+    );
+  } else {
+    selectedManager.forEach((imp, idx) => {
+      const block = renderManagerImprovement(imp, idx + 1);
+      lines.push(...block);
+    });
+  }
+
+  // ## For the maintainer
+  const maintainerImps = (ledger.improvements ?? []).filter(
+    (imp) => imp.audience === "maintainer",
+  );
+  const selectedMaintainer = maintainerImps.slice(
+    0,
+    options.maxMaintainerImprovements,
+  );
+
+  if (selectedMaintainer.length > 0) {
+    lines.push("");
+    lines.push("## For the maintainer");
+    for (const imp of selectedMaintainer) {
+      const bullet = renderMaintainerImprovement(imp);
+      if (bullet) lines.push(bullet);
+    }
+  }
+
+  // ## Limits
+  lines.push("");
+  lines.push("## Limits");
+  lines.push("- Counts show where to look, not why.");
+  lines.push(
+    "- Cost is a price-table estimate; call-share attribution is an estimate.",
+  );
+  lines.push("- Agents without a read session file are not covered.");
+  lines.push("- The root session is not verified against the host.");
+  lines.push("- AGS lookups are counted, not whether the rules were followed.");
 
   return lines;
 }
@@ -476,52 +487,31 @@ function fitsBudget(text: string): boolean {
   );
 }
 
-export function renderSummary(ledger: Ledger): string {
-  const hasSkillSection = ledger.claims.some(
-    (claim) =>
-      claim.template === "skill-usage" ||
-      claim.template === "skill-trigger-timing" ||
-      claim.template === "host-skill-reads",
-  );
-  if (!hasSkillSection) {
-    return renderLines(ledger, {
-      topSkills: 0,
-      topHostSkills: 0,
-      timing: false,
-    }).join("\n");
-  }
+export function renderSummary(rawLedger: Ledger): string {
+  const ledger = rawLedger as ViewLedger;
 
-  // Deterministic degradation: drop server top-skill entries first, then host
-  // top-skill entries, then the timing line. Line 1, line 2, the coverage,
-  // error and tool lines, the leads and the limits block always stay.
-  const candidates: SkillSectionOptions[] = [];
-  for (let topSkills = MAX_TOP_SKILLS; topSkills >= 0; topSkills -= 1) {
-    candidates.push({
-      topSkills,
-      topHostSkills: MAX_TOP_SKILLS,
-      timing: true,
-    });
-  }
-  for (
-    let topHostSkills = MAX_TOP_SKILLS - 1;
-    topHostSkills >= 0;
-    topHostSkills -= 1
-  ) {
-    candidates.push({ topSkills: 0, topHostSkills, timing: true });
-  }
-  for (
-    let topHostSkills = MAX_TOP_SKILLS;
-    topHostSkills >= 0;
-    topHostSkills -= 1
-  ) {
-    candidates.push({ topSkills: 0, topHostSkills, timing: false });
-  }
+  const candidates: RenderOptions[] = [
+    { maxManagerImprovements: 4, maxMaintainerImprovements: 3 },
+    { maxManagerImprovements: 4, maxMaintainerImprovements: 2 },
+    { maxManagerImprovements: 4, maxMaintainerImprovements: 1 },
+    { maxManagerImprovements: 4, maxMaintainerImprovements: 0 },
+    { maxManagerImprovements: 3, maxMaintainerImprovements: 0 },
+    { maxManagerImprovements: 2, maxMaintainerImprovements: 0 },
+    { maxManagerImprovements: 1, maxMaintainerImprovements: 0 },
+    { maxManagerImprovements: 0, maxMaintainerImprovements: 0 },
+  ];
 
   let last = "";
   for (const candidate of candidates) {
     const text = renderLines(ledger, candidate).join("\n");
     last = text;
     if (fitsBudget(text)) return text;
+  }
+
+  if (fitsBudget(last)) return last;
+  const lines = last.split("\n");
+  if (lines.length > MAX_SUMMARY_LINES) {
+    return lines.slice(0, MAX_SUMMARY_LINES).join("\n");
   }
   return last;
 }

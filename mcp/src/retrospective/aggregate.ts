@@ -51,6 +51,31 @@ export type NodeSkillLoad = {
   hostSkillReadCalls: number;
   callsBeforeFirstSkillAccess: number | null;
 };
+export type PermissionAnswers = {
+  allow: number;
+  deny: number;
+  other: number;
+  /** key = agentId first 8 chars when /^[A-Za-z0-9-]{8,128}$/.test(id) else `target-<sha256(id) first 8 hex>`; at most 20 keys. */
+  byTarget: Record<string, number>;
+  /** answers whose target key could not be added because 20 keys exist (still counted in allow/deny/other). */
+  untrackedTargets: number;
+};
+
+export type ContextStats = {
+  /** max over assistant turns of usage.cacheRead (cacheRead ?? cachedInput) */
+  maxCacheRead: number;
+  /** assistant turns that directly follow a compaction row (first assistant turn after each compaction) */
+  postCompactionTurns: number;
+  /** sum of cacheRead over those turns */
+  postCompactionCacheReadSum: number;
+};
+
+export type RoutingOrder = {
+  /** assistant tool calls named `edit`, plus `write` calls whose extractServerToolName(...) is null (a file write, not an xd:// device call) */
+  editEpisodes: number;
+  /** edit episodes with NO `load_skills_for_files` server-tool call by this same node since its start or since its last compaction row */
+  unguardedEditEpisodes: number;
+};
 
 export type SessionAggregate = {
   node: NodeKey;
@@ -79,6 +104,9 @@ export type SessionAggregate = {
   /** Bounded map: host skill id -> `read skill://` calls. */
   hostSkillReads: Record<string, number>;
   skillLoad: SessionSkillLoad;
+  permissionAnswers: PermissionAnswers;
+  context: ContextStats;
+  routing: RoutingOrder;
   coverage: "complete" | "partial";
   partialReason?: "size-ceiling" | "time-ceiling" | "unreadable-lines";
   skippedLines: number;
@@ -113,6 +141,33 @@ export type AggregateLimits = {
   maxMillis: number;
 };
 
+export type NodeUsage = {
+  ordinal: number; // index in the rollUp input array; 0 = main
+  turns: number;
+  cost: number;
+  costKnownTurns: number;
+  compactions: number;
+  tokens: {
+    input: number;
+    output: number;
+    cacheRead: number;
+    cacheWrite: number;
+  };
+  errorStops: number; // stopReasons.error ?? 0
+  abortedStops: number; // stopReasons.aborted ?? 0
+  toolCalls: number; // sum of toolCalls map
+  toolErrors: number; // sum of toolErrors map
+  toolCallsByName: Record<string, number>; // copy of the bounded map
+  serverToolCalls: Record<string, number>;
+  models: Record<string, number>;
+  permissionAnswers: PermissionAnswers;
+  context: ContextStats;
+  routing: RoutingOrder;
+  skillLoadCalls: number; // node.skillLoad.skillLoadCalls (0 when not measured)
+  first: string | null;
+  last: string | null;
+};
+
 export type TreeAggregate = {
   sessions: number;
   fullyRead: number;
@@ -144,6 +199,8 @@ export type TreeAggregate = {
   hostSkillReads: Record<string, number>;
   /** Nodes in input order (index 0 is the main session), capped. */
   skillLoad: { nodes: NodeSkillLoad[]; omittedNodes: number };
+  /** Nodes in input order, capped at 64 entries. */
+  nodes: NodeUsage[];
   skippedLines: number;
   metricCompleteness: MetricCompleteness;
   series: JointSeries;
@@ -168,6 +225,61 @@ const MAX_IDENTIFIER_LENGTH = 128;
 const MAX_MAP_KEYS = 256;
 // Bounded per-node skill-load rows in a tree aggregate; extras are only counted.
 const MAX_SKILL_LOAD_NODES = 256;
+export const MAX_TREE_NODES = 64;
+const VALID_TARGET_ID = /^[A-Za-z0-9-]{8,128}$/;
+const MAX_PERMISSION_TARGET_KEYS = 20;
+
+function derivePermissionTargetKey(rawId: unknown): string {
+  if (typeof rawId === "string" && VALID_TARGET_ID.test(rawId)) {
+    return rawId.slice(0, 8);
+  }
+  const idStr = typeof rawId === "string" ? rawId : "";
+  const digest = crypto
+    .createHash("sha256")
+    .update(idStr)
+    .digest("hex")
+    .slice(0, 8);
+  return `target-${digest}`;
+}
+
+function recordPermissionTarget(
+  permissionAnswers: PermissionAnswers,
+  targetKey: string,
+): void {
+  if (Object.hasOwn(permissionAnswers.byTarget, targetKey)) {
+    permissionAnswers.byTarget[targetKey] += 1;
+  } else if (
+    Object.keys(permissionAnswers.byTarget).length < MAX_PERMISSION_TARGET_KEYS
+  ) {
+    permissionAnswers.byTarget[targetKey] = 1;
+  } else {
+    permissionAnswers.untrackedTargets += 1;
+  }
+}
+
+function isEditEpisodeCall(
+  name: unknown,
+  args: unknown,
+  serverTool: string | null,
+): boolean {
+  if (name === "edit") {
+    return true;
+  }
+  if (name === "write") {
+    if (serverTool !== null) {
+      return false;
+    }
+    if (
+      isObject(args) &&
+      typeof args.path === "string" &&
+      args.path.startsWith("xd://")
+    ) {
+      return false;
+    }
+    return true;
+  }
+  return false;
+}
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -384,6 +496,24 @@ export async function aggregateSession(
     let callsSeen = 0;
     let skippedLines = 0;
     const series: JointSeries = { byDayModel: {} };
+    const permissionAnswers: PermissionAnswers = {
+      allow: 0,
+      deny: 0,
+      other: 0,
+      byTarget: {},
+      untrackedTargets: 0,
+    };
+    const context: ContextStats = {
+      maxCacheRead: 0,
+      postCompactionTurns: 0,
+      postCompactionCacheReadSum: 0,
+    };
+    const routing: RoutingOrder = {
+      editEpisodes: 0,
+      unguardedEditEpisodes: 0,
+    };
+    let filesLookupSeen = false;
+    let afterCompaction = false;
 
     let currentModel: string | undefined;
     // Codex turn accounting is a conservative assumption pending real Codex fixtures.
@@ -422,12 +552,16 @@ export async function aggregateSession(
         row.type === "compact"
       ) {
         compactions += 1;
+        afterCompaction = true;
+        filesLookupSeen = false;
         return;
       }
 
       if (row.type === "custom") {
         if (row.customType === "compaction") {
           compactions += 1;
+          afterCompaction = true;
+          filesLookupSeen = false;
           return;
         }
         if (row.customType === "tool_execution_start" && isObject(row.data)) {
@@ -488,6 +622,8 @@ export async function aggregateSession(
 
         if (msg.role === "compaction") {
           compactions += 1;
+          afterCompaction = true;
+          filesLookupSeen = false;
           return;
         }
 
@@ -568,6 +704,14 @@ export async function aggregateSession(
             tokens.output += out;
             tokens.cacheRead += cr;
             tokens.cacheWrite += cw;
+            if (cr > context.maxCacheRead) {
+              context.maxCacheRead = cr;
+            }
+            if (afterCompaction) {
+              context.postCompactionTurns += 1;
+              context.postCompactionCacheReadSum += cr;
+              afterCompaction = false;
+            }
 
             if (
               isObject(msg.usage.cost) &&
@@ -607,6 +751,9 @@ export async function aggregateSession(
                   part.name,
                   part.arguments,
                 );
+                if (serverTool === "load_skills_for_files") {
+                  filesLookupSeen = true;
+                }
                 if (serverTool !== null) {
                   recordBoundedMap(serverToolCalls, serverTool);
                 }
@@ -652,14 +799,71 @@ export async function aggregateSession(
                     : typeof part.toolCallId === "string"
                       ? part.toolCallId
                       : undefined;
-                if (toolName) {
+
+                const isNewToolCall = toolCallId
+                  ? !seenToolCallIds.has(toolCallId)
+                  : true;
+
+                if (isNewToolCall) {
                   if (toolCallId) {
-                    if (!seenToolCallIds.has(toolCallId)) {
-                      seenToolCallIds.add(toolCallId);
-                      recordBoundedMap(toolCalls, toolName);
-                    }
-                  } else {
+                    seenToolCallIds.add(toolCallId);
+                  }
+                  if (toolName) {
                     recordBoundedMap(toolCalls, toolName);
+                  }
+
+                  const callName =
+                    typeof part.name === "string"
+                      ? part.name
+                      : typeof part.toolName === "string"
+                        ? part.toolName
+                        : undefined;
+
+                  if (isEditEpisodeCall(callName, part.arguments, serverTool)) {
+                    routing.editEpisodes += 1;
+                    if (!filesLookupSeen) {
+                      routing.unguardedEditEpisodes += 1;
+                    }
+                  }
+
+                  if (callName === "respond_to_permission") {
+                    let args: Record<string, unknown> | null = null;
+                    if (isObject(part.arguments)) {
+                      args = part.arguments as Record<string, unknown>;
+                    } else if (typeof part.arguments === "string") {
+                      try {
+                        const parsed = JSON.parse(part.arguments);
+                        if (isObject(parsed)) {
+                          args = parsed as Record<string, unknown>;
+                        }
+                      } catch {
+                        args = null;
+                      }
+                    }
+
+                    let behavior: "allow" | "deny" | "other" = "other";
+                    if (args !== null && isObject(args.response)) {
+                      if (args.response.behavior === "allow") {
+                        behavior = "allow";
+                      } else if (args.response.behavior === "deny") {
+                        behavior = "deny";
+                      }
+                    }
+
+                    if (behavior === "allow") {
+                      permissionAnswers.allow += 1;
+                    } else if (behavior === "deny") {
+                      permissionAnswers.deny += 1;
+                    } else {
+                      permissionAnswers.other += 1;
+                    }
+
+                    const rawAgentId =
+                      args !== null && typeof args.agentId === "string"
+                        ? args.agentId
+                        : "";
+                    const targetKey = derivePermissionTargetKey(rawAgentId);
+                    recordPermissionTarget(permissionAnswers, targetKey);
                   }
                 }
               }
@@ -1088,6 +1292,9 @@ export async function aggregateSession(
       serverToolCalls,
       hostSkillReads,
       skillLoad,
+      permissionAnswers,
+      context,
+      routing,
       coverage,
       ...(partialReason !== undefined ? { partialReason } : {}),
       skippedLines,
@@ -1142,6 +1349,7 @@ export function rollUp(aggregates: AggregatedSession[]): TreeAggregate {
   const serverToolCalls: Record<string, number> = {};
   const hostSkillReads: Record<string, number> = {};
   const skillLoadNodes: NodeSkillLoad[] = [];
+  const nodes: NodeUsage[] = [];
   let omittedSkillLoadNodes = 0;
   let skippedLines = 0;
   const series: JointSeries = { byDayModel: {} };
@@ -1212,6 +1420,43 @@ export function rollUp(aggregates: AggregatedSession[]): TreeAggregate {
     } else {
       omittedSkillLoadNodes += 1;
     }
+    if (nodes.length < MAX_TREE_NODES) {
+      nodes.push({
+        ordinal: index,
+        turns: agg.assistantTurns,
+        cost: agg.cost,
+        costKnownTurns: agg.costKnownTurns,
+        compactions: agg.compactions,
+        tokens: { ...agg.tokens },
+        errorStops: agg.stopReasons.error ?? 0,
+        abortedStops: agg.stopReasons.aborted ?? 0,
+        toolCalls: Object.values(agg.toolCalls).reduce(
+          (sum, count) => sum + count,
+          0,
+        ),
+        toolErrors: Object.values(agg.toolErrors).reduce(
+          (sum, count) => sum + count,
+          0,
+        ),
+        toolCallsByName: { ...agg.toolCalls },
+        serverToolCalls: { ...agg.serverToolCalls },
+        models: { ...agg.models },
+        permissionAnswers: {
+          allow: agg.permissionAnswers.allow,
+          deny: agg.permissionAnswers.deny,
+          other: agg.permissionAnswers.other,
+          byTarget: { ...agg.permissionAnswers.byTarget },
+          untrackedTargets: agg.permissionAnswers.untrackedTargets,
+        },
+        context: { ...agg.context },
+        routing: { ...agg.routing },
+        skillLoadCalls: agg.skillLoad.measured
+          ? agg.skillLoad.skillLoadCalls
+          : 0,
+        first: agg.first,
+        last: agg.last,
+      });
+    }
     for (const [k, v] of Object.entries(agg.metricCompleteness)) {
       // Worst wins: one undercounting source makes the rolled-up metric undercounting.
       metricCompleteness[k] =
@@ -1273,6 +1518,7 @@ export function rollUp(aggregates: AggregatedSession[]): TreeAggregate {
     serverToolCalls,
     hostSkillReads,
     skillLoad: { nodes: skillLoadNodes, omittedNodes: omittedSkillLoadNodes },
+    nodes,
     skippedLines,
     metricCompleteness,
     series,

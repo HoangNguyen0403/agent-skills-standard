@@ -1,7 +1,12 @@
 import { createHash } from "node:crypto";
 import type { SkillUsageSnapshot } from "../services/SessionTracker";
-import type { NodeSkillLoad, TreeAggregate } from "./aggregate";
+import type { NodeSkillLoad, NodeUsage, TreeAggregate } from "./aggregate";
 import type { NodeKey } from "./contracts";
+import {
+  deriveImprovements,
+  type ImprovementInput,
+  type LedgerImprovement,
+} from "./improvements";
 
 export type EvidenceId = string;
 export type ClaimTemplateId =
@@ -14,7 +19,10 @@ export type ClaimTemplateId =
   | "skill-trigger-timing"
   | "host-skill-reads"
   | "tool-errors"
-  | "coverage";
+  | "coverage"
+  | "permission-answers"
+  | "cost-drivers"
+  | "routing-order";
 
 export type Claim = {
   id: string;
@@ -41,6 +49,8 @@ export type LedgerInput = {
   sessionsLinked: number;
   /** Counts-only skill lookup snapshot from this server process. */
   skillUsage: SkillUsageSnapshot | null;
+  /** Server tracker start timestamp (`skillUsageSnapshot.since`), null when no skill usage. */
+  trackerSince: string | null;
 };
 
 export type LedgerCounts = {
@@ -68,6 +78,23 @@ export type LedgerCell = {
   turns: number;
   errorStops: number;
 };
+export type LedgerAgent = {
+  label: string;
+  kind: "read-only" | "editing";
+  turns: number;
+  costCents: number;
+  compactions: number;
+  cacheReadPerTurn: number;
+  errorStops: number;
+  toolCalls: number;
+  toolErrors: number;
+  editCalls: number;
+  bashCalls: number;
+  readCalls: number;
+  agsLookups: number;
+  permissionAnswers: number;
+  model: string;
+};
 
 export type Ledger = {
   schemaVersion: 1;
@@ -90,6 +117,9 @@ export type Ledger = {
    * value names (appended past the cap so the evidence keeps resolving).
    */
   cells: LedgerCell[];
+  agents: LedgerAgent[];
+  otherAgents: { count: number; turns: number; costCents: number } | null;
+  improvements: LedgerImprovement[];
   claims: Claim[];
   evidence: Record<EvidenceId, { kind: "aggregate"; value: number | string }>;
 };
@@ -123,6 +153,37 @@ const SAFE_TOP_ERROR_TOOLS_REGEX =
   /^[A-Za-z0-9._:-]{1,48}:[0-9]+(?:,[A-Za-z0-9._:-]{1,48}:[0-9]+){0,2}$/;
 const MAX_TOP_ERROR_TOOLS = 3;
 
+export const COORDINATION_TOOLS = new Set<string>([
+  "respond_to_permission",
+  "wait",
+  "send_agent_prompt",
+  "create_agent",
+  "get_agent_activity",
+  "get_agent_status",
+  "list_profiles",
+  "update_agent",
+  "list_agents",
+  "cancel_agent",
+  "archive_agent",
+  "set_agent_mode",
+  "list_pending_permissions",
+  "kill_agent",
+  "list_workspaces",
+  "list_providers",
+  "inspect_provider",
+  "task",
+]);
+
+function deriveTopModel(models: Record<string, number> | undefined): string {
+  if (!models) return "unknown";
+  const entries = Object.entries(models).filter(([, count]) => count > 0);
+  if (entries.length === 0) return "unknown";
+  entries.sort((a, b) => {
+    if (b[1] !== a[1]) return b[1] - a[1];
+    return a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0;
+  });
+  return sanitizeModel(entries[0][0]);
+}
 const COUNT_KEYS: ReadonlyArray<keyof LedgerCounts> = [
   "agentsCreated",
   "sessionsLinked",
@@ -167,11 +228,20 @@ export function sanitizeCellKey(rawKey: string): string {
 
 function resolveNodes(input: LedgerInput): NodeKey[] {
   const anyTree = input.tree as unknown as {
-    nodes?: NodeKey[];
+    nodes?: unknown[];
     node?: NodeKey;
   } | null;
-  if (anyTree && Array.isArray(anyTree.nodes) && anyTree.nodes.length > 0) {
-    return anyTree.nodes;
+  if (anyTree && Array.isArray(anyTree.nodes)) {
+    const keys = anyTree.nodes.filter(
+      (entry): entry is NodeKey =>
+        typeof entry === "object" &&
+        entry !== null &&
+        "hostId" in entry &&
+        typeof entry.hostId === "string" &&
+        "sessionId" in entry &&
+        typeof entry.sessionId === "string",
+    );
+    if (keys.length > 0) return keys;
   }
   if (anyTree && anyTree.node) {
     return [anyTree.node];
@@ -632,14 +702,26 @@ export function buildLedger(input: LedgerInput): Ledger {
       value: skillUsage.bodyReturns,
     };
 
+    const mainNodeFirst = tree?.nodes?.[0]?.first ?? null;
+    const parsedSince =
+      input.trackerSince !== null ? Date.parse(input.trackerSince) : NaN;
+    const parsedFirst =
+      mainNodeFirst !== null ? Date.parse(mainNodeFirst) : NaN;
+    const isEarlyEnough =
+      Number.isFinite(parsedSince) &&
+      Number.isFinite(parsedFirst) &&
+      parsedSince <= parsedFirst;
+
     // The tracker only sees this process, so its count equals the session total
-    // only when the main session's bound calls match it exactly.
+    // only when the main session's bound calls match it exactly AND trackerSince
+    // is not null and is earlier than or equal to the main session's first row timestamp.
     const trackerWindow =
       mainSkillNode !== null &&
-      mainSkillNode.skillLoadCalls === skillUsage.loadCalls
+      mainSkillNode.skillLoadCalls === skillUsage.loadCalls &&
+      input.trackerSince !== null &&
+      isEarlyEnough
         ? "matches-session"
         : "process-only";
-
     const skillValues: Record<string, number | string> = {
       loadCalls: skillUsage.loadCalls,
       skillsTotal: skillUsage.skillsTotal,
@@ -870,6 +952,421 @@ export function buildLedger(input: LedgerInput): Ledger {
     }
   }
 
+  const rawNodes = tree?.nodes ?? [];
+  const agents: LedgerAgent[] = [];
+  let otherAgents: { count: number; turns: number; costCents: number } | null =
+    null;
+
+  if (rawNodes.length > 0) {
+    const mainNode = rawNodes.find((n) => n.ordinal === 0) ?? rawNodes[0];
+    const workerNodes = rawNodes.filter((n) => n !== mainNode);
+
+    const sortedWorkers = [...workerNodes].sort((a, b) => {
+      const aCostCents = Math.round(a.cost * 100);
+      const bCostCents = Math.round(b.cost * 100);
+      if (bCostCents !== aCostCents) {
+        return bCostCents - aCostCents;
+      }
+      return a.ordinal - b.ordinal;
+    });
+
+    const createAgent = (node: NodeUsage, label: string): LedgerAgent => {
+      const editEpisodes = node.routing?.editEpisodes ?? 0;
+      const bashCalls = node.toolCallsByName?.bash ?? 0;
+      const isEditing = editEpisodes > 0 || bashCalls > 0;
+      const turns = node.turns;
+      const costCents = Math.round(node.cost * 100);
+      const compactions = node.compactions;
+      const cacheReadPerTurn =
+        turns > 0 ? Math.round(node.tokens.cacheRead / turns) : 0;
+      const errorStops = node.errorStops;
+      const toolCalls = node.toolCalls;
+      const toolErrors = node.toolErrors;
+      const editCalls = node.toolCallsByName?.edit ?? 0;
+      const readCalls = node.toolCallsByName?.read ?? 0;
+      const agsLookups = node.skillLoadCalls;
+      const permissionAnswers = node.permissionAnswers
+        ? node.permissionAnswers.allow +
+          node.permissionAnswers.deny +
+          node.permissionAnswers.other
+        : 0;
+      const model = deriveTopModel(node.models);
+
+      return {
+        label,
+        kind: isEditing ? "editing" : "read-only",
+        turns,
+        costCents,
+        compactions,
+        cacheReadPerTurn,
+        errorStops,
+        toolCalls,
+        toolErrors,
+        editCalls,
+        bashCalls,
+        readCalls,
+        agsLookups,
+        permissionAnswers,
+        model,
+      };
+    };
+
+    const mainAgent = createAgent(mainNode, "main");
+    const listedWorkers: LedgerAgent[] = [];
+    const cappedWorkers = sortedWorkers.slice(0, 50);
+    for (let i = 0; i < cappedWorkers.length; i += 1) {
+      listedWorkers.push(createAgent(cappedWorkers[i], `worker-${i + 1}`));
+    }
+
+    agents.push(mainAgent, ...listedWorkers);
+
+    const remainingWorkers = sortedWorkers.slice(50);
+    if (remainingWorkers.length > 0) {
+      let otherTurns = 0;
+      let otherCostCents = 0;
+      for (const w of remainingWorkers) {
+        otherTurns += w.turns;
+        otherCostCents += Math.round(w.cost * 100);
+      }
+      otherAgents = {
+        count: remainingWorkers.length,
+        turns: otherTurns,
+        costCents: otherCostCents,
+      };
+    }
+  }
+
+  for (const agent of agents) {
+    evidence[`agg:agent:${agent.label}:turns`] = {
+      kind: "aggregate",
+      value: agent.turns,
+    };
+    evidence[`agg:agent:${agent.label}:costCents`] = {
+      kind: "aggregate",
+      value: agent.costCents,
+    };
+    evidence[`agg:agent:${agent.label}:errorStops`] = {
+      kind: "aggregate",
+      value: agent.errorStops,
+    };
+    evidence[`agg:agent:${agent.label}:permissionAnswers`] = {
+      kind: "aggregate",
+      value: agent.permissionAnswers,
+    };
+  }
+
+  if (tree !== null && Array.isArray(tree.nodes) && tree.nodes.length > 0) {
+    let permAllow = 0;
+    let permDeny = 0;
+    let permOther = 0;
+    let askCalls = 0;
+    let abortedStops = 0;
+    const targetMap = new Map<string, number>();
+
+    for (const node of tree.nodes) {
+      if (node.permissionAnswers) {
+        permAllow += node.permissionAnswers.allow;
+        permDeny += node.permissionAnswers.deny;
+        permOther += node.permissionAnswers.other;
+        for (const [target, count] of Object.entries(
+          node.permissionAnswers.byTarget,
+        )) {
+          targetMap.set(target, (targetMap.get(target) ?? 0) + count);
+        }
+      }
+      askCalls += node.toolCallsByName?.ask ?? 0;
+      abortedStops += node.abortedStops ?? 0;
+    }
+
+    const answers = permAllow + permDeny + permOther;
+    if (answers > 0 || askCalls > 0 || abortedStops > 0) {
+      const targets = targetMap.size;
+      const targetCounts = Array.from(targetMap.values());
+      const maxPerTarget =
+        targetCounts.length > 0 ? Math.max(...targetCounts) : 0;
+      const targetsAtLeast3 = targetCounts.filter((c) => c >= 3).length;
+      const turns = tree.assistantTurns;
+
+      const permValues: Record<string, number | string> = {
+        answers,
+        allow: permAllow,
+        deny: permDeny,
+        other: permOther,
+        targets,
+        maxPerTarget,
+        targetsAtLeast3,
+        askCalls,
+        abortedStops,
+        turns,
+        completeness: (["toolCalls", "toolErrors"] as const).some(
+          (key) =>
+            tree.metricCompleteness[key] === "may-undercount-by-skipped-lines",
+        )
+          ? "may-undercount-by-skipped-lines"
+          : "complete",
+      };
+
+      const permSupporting: EvidenceId[] = [];
+      addClaimValueEvidence(
+        "permission-answers",
+        permValues,
+        permSupporting,
+        evidence,
+      );
+
+      claims.push({
+        id: computeClaimId("permission-answers", scope, permSupporting),
+        type: "observation",
+        template: "permission-answers",
+        values: permValues,
+        scope,
+        denominator: { count: turns, unit: "assistant turns" },
+        coverage: overallCoverage,
+        supporting: permSupporting,
+        contradicting: [],
+        basedOn: [],
+      });
+    }
+  }
+
+  if (
+    tree !== null &&
+    Array.isArray(tree.nodes) &&
+    tree.nodes.length > 0 &&
+    tree.assistantTurns > 0
+  ) {
+    const mainNode = tree.nodes.find((n) => n.ordinal === 0) ?? tree.nodes[0];
+    const otherNodes = tree.nodes.filter((n) => n !== mainNode);
+
+    const costCentsMain = Math.round(mainNode.cost * 100);
+    const costCentsOthers = otherNodes.reduce(
+      (sum, n) => sum + Math.round(n.cost * 100),
+      0,
+    );
+    const turnsMain = mainNode.turns;
+    const turnsOthers = otherNodes.reduce((sum, n) => sum + n.turns, 0);
+
+    const cacheReadPerTurnMain =
+      turnsMain > 0 ? Math.round(mainNode.tokens.cacheRead / turnsMain) : 0;
+    const cacheReadOthers = otherNodes.reduce(
+      (sum, n) => sum + n.tokens.cacheRead,
+      0,
+    );
+    const cacheReadPerTurnOthers =
+      turnsOthers > 0 ? Math.round(cacheReadOthers / turnsOthers) : 0;
+
+    const compactionsMain = mainNode.compactions;
+    const postCompactionTurnsMain = mainNode.context?.postCompactionTurns ?? 0;
+    const postCompactionCacheReadSumMain =
+      mainNode.context?.postCompactionCacheReadSum ?? 0;
+    const postCompactionCacheReadPerTurnMain =
+      postCompactionTurnsMain > 0
+        ? Math.round(postCompactionCacheReadSumMain / postCompactionTurnsMain)
+        : 0;
+
+    const maxCacheReadMain = mainNode.context?.maxCacheRead ?? 0;
+    const mainToolCalls = mainNode.toolCalls;
+    const mainReadCalls = mainNode.toolCallsByName?.read ?? 0;
+    const mainEditCalls = mainNode.toolCallsByName?.edit ?? 0;
+    const mainBashCalls = mainNode.toolCallsByName?.bash ?? 0;
+
+    let mainCoordinationCalls = 0;
+    if (mainNode.toolCallsByName) {
+      for (const [tool, count] of Object.entries(mainNode.toolCallsByName)) {
+        if (COORDINATION_TOOLS.has(tool)) {
+          mainCoordinationCalls += count;
+        }
+      }
+    }
+
+    const mainPermissionCalls =
+      mainNode.toolCallsByName?.respond_to_permission ??
+      (mainNode.permissionAnswers
+        ? mainNode.permissionAnswers.allow +
+          mainNode.permissionAnswers.deny +
+          mainNode.permissionAnswers.other
+        : 0);
+
+    const costCentsMainReads =
+      mainToolCalls > 0
+        ? Math.round((costCentsMain * mainReadCalls) / mainToolCalls)
+        : 0;
+    const costCentsMainCoordination =
+      mainToolCalls > 0
+        ? Math.round((costCentsMain * mainCoordinationCalls) / mainToolCalls)
+        : 0;
+
+    const costDriverValues: Record<string, number | string> = {
+      costCentsMain,
+      costCentsOthers,
+      turnsMain,
+      turnsOthers,
+      cacheReadPerTurnMain,
+      cacheReadPerTurnOthers,
+      compactionsMain,
+      postCompactionCacheReadPerTurnMain,
+      maxCacheReadMain,
+      mainToolCalls,
+      mainReadCalls,
+      mainEditCalls,
+      mainBashCalls,
+      mainCoordinationCalls,
+      mainPermissionCalls,
+      costCentsMainReads,
+      costCentsMainCoordination,
+      completeness: (["toolCalls", "toolErrors"] as const).some(
+        (key) =>
+          tree.metricCompleteness[key] === "may-undercount-by-skipped-lines",
+      )
+        ? "may-undercount-by-skipped-lines"
+        : "complete",
+    };
+
+    const costDriverSupporting: EvidenceId[] = [];
+    addClaimValueEvidence(
+      "cost-drivers",
+      costDriverValues,
+      costDriverSupporting,
+      evidence,
+    );
+
+    claims.push({
+      id: computeClaimId("cost-drivers", scope, costDriverSupporting),
+      type: "observation",
+      template: "cost-drivers",
+      values: costDriverValues,
+      scope,
+      denominator: {
+        count: tree.assistantTurns,
+        unit: "assistant turns",
+      },
+      coverage: overallCoverage,
+      supporting: costDriverSupporting,
+      contradicting: [],
+      basedOn: [],
+    });
+  }
+
+  if (tree !== null && Array.isArray(tree.nodes) && tree.nodes.length > 0) {
+    const mainNode = tree.nodes.find((n) => n.ordinal === 0) ?? tree.nodes[0];
+    const otherNodes = tree.nodes.filter((n) => n !== mainNode);
+
+    const lookupsMain = mainNode.skillLoadCalls;
+    const lookupsOthers = otherNodes.reduce(
+      (sum, n) => sum + n.skillLoadCalls,
+      0,
+    );
+
+    let byFilesTotal = 0;
+    let byKeywordsTotal = 0;
+    let getSkillTotal = 0;
+    let overheadCalls = 0;
+
+    for (const node of tree.nodes) {
+      if (node.serverToolCalls) {
+        byFilesTotal += node.serverToolCalls["load_skills_for_files"] ?? 0;
+        byKeywordsTotal +=
+          node.serverToolCalls["load_skills_for_keywords"] ?? 0;
+        getSkillTotal += node.serverToolCalls["get_skill"] ?? 0;
+        overheadCalls +=
+          (node.serverToolCalls["audit_session_compliance"] ?? 0) +
+          (node.serverToolCalls["get_session_cost"] ?? 0) +
+          (node.serverToolCalls["list_workflows"] ?? 0);
+      }
+    }
+
+    const agentsWithLookup = tree.nodes.filter(
+      (n) => n.skillLoadCalls > 0,
+    ).length;
+    const agentsTotal = tree.nodes.length;
+
+    const editEpisodesMain = mainNode.routing?.editEpisodes ?? 0;
+    const unguardedEditsMain = mainNode.routing?.unguardedEditEpisodes ?? 0;
+
+    const editEpisodesOthers = otherNodes.reduce(
+      (sum, n) => sum + (n.routing?.editEpisodes ?? 0),
+      0,
+    );
+    const unguardedEditsOthers = otherNodes.reduce(
+      (sum, n) => sum + (n.routing?.unguardedEditEpisodes ?? 0),
+      0,
+    );
+
+    const hostSkillReadCalls = hostSkills?.total ?? 0;
+
+    const routingValues: Record<string, number | string> = {
+      lookupsMain,
+      lookupsOthers,
+      byFilesTotal,
+      byKeywordsTotal,
+      getSkillTotal,
+      agentsWithLookup,
+      agentsTotal,
+      editEpisodesMain,
+      unguardedEditsMain,
+      editEpisodesOthers,
+      unguardedEditsOthers,
+      overheadCalls,
+      hostSkillReadCalls,
+      completeness: (["toolCalls", "toolErrors"] as const).some(
+        (key) =>
+          tree.metricCompleteness[key] === "may-undercount-by-skipped-lines",
+      )
+        ? "may-undercount-by-skipped-lines"
+        : "complete",
+    };
+
+    const routingSupporting: EvidenceId[] = [];
+    addClaimValueEvidence(
+      "routing-order",
+      routingValues,
+      routingSupporting,
+      evidence,
+    );
+
+    claims.push({
+      id: computeClaimId("routing-order", scope, routingSupporting),
+      type: "observation",
+      template: "routing-order",
+      values: routingValues,
+      scope,
+      denominator: {
+        count: tree.assistantTurns,
+        unit: "assistant turns",
+      },
+      coverage: overallCoverage,
+      supporting: routingSupporting,
+      contradicting: [],
+      basedOn: [],
+    });
+  }
+
+  const skillUsageClaim = claims.find((c) => c.template === "skill-usage");
+  const trackerWindow =
+    skillUsageClaim !== undefined &&
+    (skillUsageClaim.values.trackerWindow === "matches-session" ||
+      skillUsageClaim.values.trackerWindow === "process-only")
+      ? skillUsageClaim.values.trackerWindow
+      : null;
+
+  const improvementInput: ImprovementInput = {
+    claims: claims.map((c) => ({
+      id: c.id,
+      template: c.template,
+      values: c.values,
+    })),
+    agents: agents.map((a) => ({
+      label: a.label,
+      turns: a.turns,
+      errorStops: a.errorStops,
+    })),
+    agentsCreated,
+    unlinkedAgents,
+    trackerWindow,
+  };
+
+  const improvements = deriveImprovements(improvementInput);
+
   addCellEvidence(cells, evidence);
 
   const sortedEvidence: Record<
@@ -900,10 +1397,14 @@ export function buildLedger(input: LedgerInput): Ledger {
     skillUsage,
     hostSkills,
     cells,
+    agents,
+    otherAgents,
+    improvements,
     claims,
     evidence: sortedEvidence,
   };
 }
+
 export function checkClaimRules(ledger: Ledger): LedgerProblemCode[] {
   const problems = new Set<LedgerProblemCode>();
 
@@ -911,6 +1412,16 @@ export function checkClaimRules(ledger: Ledger): LedgerProblemCode[] {
     for (const evId of [...claim.supporting, ...claim.contradicting]) {
       if (ledger.evidence[evId] === undefined) {
         problems.add("DANGLING_EVIDENCE");
+      }
+    }
+  }
+
+  if (Array.isArray(ledger.improvements)) {
+    for (const imp of ledger.improvements) {
+      for (const evId of imp.evidence) {
+        if (ledger.evidence[evId] === undefined) {
+          problems.add("DANGLING_EVIDENCE");
+        }
       }
     }
   }
@@ -931,7 +1442,10 @@ export function checkClaimRules(ledger: Ledger): LedgerProblemCode[] {
       claim.template === "skill-usage" ||
       claim.template === "skill-trigger-timing" ||
       claim.template === "host-skill-reads" ||
-      claim.template === "tool-errors"
+      claim.template === "tool-errors" ||
+      claim.template === "permission-answers" ||
+      claim.template === "cost-drivers" ||
+      claim.template === "routing-order"
     ) {
       if (
         !claim.denominator ||
@@ -1151,6 +1665,22 @@ export function verifyLedger(
     if (expected.coverage === "partial" && claim.coverage !== "partial") {
       problems.add("BAD_COVERAGE");
     }
+  }
+  if (JSON.stringify(ledger.agents) !== JSON.stringify(expected.agents)) {
+    problems.add("NUMBER_MISMATCH");
+  }
+
+  if (
+    JSON.stringify(ledger.otherAgents) !== JSON.stringify(expected.otherAgents)
+  ) {
+    problems.add("NUMBER_MISMATCH");
+  }
+
+  if (
+    JSON.stringify(ledger.improvements) !==
+    JSON.stringify(expected.improvements)
+  ) {
+    problems.add("NUMBER_MISMATCH");
   }
 
   if (problems.size === 0) {

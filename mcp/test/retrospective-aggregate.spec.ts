@@ -1,4 +1,5 @@
 import fs from "node:fs/promises";
+import crypto from "node:crypto";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
@@ -68,6 +69,7 @@ function ompAssistantRow(options: {
   timestamp: string;
   calls: RecordedCall[];
   text?: string;
+  usage?: Record<string, unknown>;
 }): Record<string, unknown> {
   return {
     type: "message",
@@ -76,6 +78,7 @@ function ompAssistantRow(options: {
     message: {
       role: "assistant",
       model: "provider/model-a",
+      ...(options.usage !== undefined ? { usage: options.usage } : {}),
       content: [
         ...(options.text !== undefined
           ? [{ type: "text", text: options.text }]
@@ -155,6 +158,22 @@ function aggregatedSession(
       callsBeforeFirstSkillLoad: null,
       hostSkillReadCalls: 0,
       callsBeforeFirstSkillAccess: null,
+    },
+    permissionAnswers: {
+      allow: 0,
+      deny: 0,
+      other: 0,
+      byTarget: {},
+      untrackedTargets: 0,
+    },
+    context: {
+      maxCacheRead: 0,
+      postCompactionTurns: 0,
+      postCompactionCacheReadSum: 0,
+    },
+    routing: {
+      editEpisodes: 0,
+      unguardedEditEpisodes: 0,
     },
     coverage: "complete",
     skippedLines: 0,
@@ -1558,6 +1577,22 @@ describe("retrospective aggregate pass", () => {
         hostSkillReadCalls: 2,
         callsBeforeFirstSkillAccess: 1,
       },
+      permissionAnswers: {
+        allow: 0,
+        deny: 0,
+        other: 0,
+        byTarget: {},
+        untrackedTargets: 0,
+      },
+      context: {
+        maxCacheRead: 0,
+        postCompactionTurns: 0,
+        postCompactionCacheReadSum: 0,
+      },
+      routing: {
+        editEpisodes: 0,
+        unguardedEditEpisodes: 0,
+      },
       coverage: "complete",
       skippedLines: 0,
       metricCompleteness: {
@@ -1607,6 +1642,22 @@ describe("retrospective aggregate pass", () => {
         callsBeforeFirstSkillLoad: null,
         hostSkillReadCalls: 0,
         callsBeforeFirstSkillAccess: null,
+      },
+      permissionAnswers: {
+        allow: 0,
+        deny: 0,
+        other: 0,
+        byTarget: {},
+        untrackedTargets: 0,
+      },
+      context: {
+        maxCacheRead: 0,
+        postCompactionTurns: 0,
+        postCompactionCacheReadSum: 0,
+      },
+      routing: {
+        editEpisodes: 0,
+        unguardedEditEpisodes: 0,
       },
       coverage: "partial",
       partialReason: "size-ceiling",
@@ -1730,6 +1781,22 @@ describe("retrospective aggregate pass", () => {
         callsBeforeFirstSkillLoad: null,
         hostSkillReadCalls: 0,
         callsBeforeFirstSkillAccess: null,
+      },
+      permissionAnswers: {
+        allow: 0,
+        deny: 0,
+        other: 0,
+        byTarget: {},
+        untrackedTargets: 0,
+      },
+      context: {
+        maxCacheRead: 0,
+        postCompactionTurns: 0,
+        postCompactionCacheReadSum: 0,
+      },
+      routing: {
+        editEpisodes: 0,
+        unguardedEditEpisodes: 0,
       },
       coverage: "complete",
       skippedLines: 1,
@@ -2497,5 +2564,430 @@ describe("retrospective aggregate pass", () => {
     expect(result.assistantTurns).toBeGreaterThan(0);
     expect(elapsedMs).toBeLessThan(5000);
     expect(rssGrowthBytes).toBeLessThan(64 * 1024 * 1024);
+  });
+  it("tracks permission answers with allow/deny/other split and target key cap (>20 targets, short ids hashed, never stores message)", async () => {
+    const root = await temporaryRoot();
+    const calls: RecordedCall[] = [
+      {
+        id: "perm-1",
+        name: "respond_to_permission",
+        arguments: {
+          agentId: "agent-alpha-001",
+          response: { behavior: "allow", message: "SECRET_ALLOW_MESSAGE" },
+          requestId: "req-1",
+          i: "intent-1",
+        },
+      },
+      {
+        id: "perm-2",
+        name: "respond_to_permission",
+        arguments: {
+          agentId: "agent-alpha-001",
+          response: { behavior: "deny", message: "SECRET_DENY_MESSAGE" },
+        },
+      },
+      {
+        id: "perm-3",
+        name: "respond_to_permission",
+        arguments: {
+          agentId: "short",
+          response: { behavior: "allow" },
+        },
+      },
+      {
+        id: "perm-4",
+        name: "respond_to_permission",
+        arguments: {
+          agentId: null,
+          response: { behavior: "custom_behavior" },
+        },
+      },
+    ];
+
+    for (let i = 1; i <= 22; i++) {
+      const idSuffix = String(i).padStart(2, "0");
+      calls.push({
+        id: `perm-target-${idSuffix}`,
+        name: "respond_to_permission",
+        arguments: {
+          agentId: `${idSuffix}aaaaaa-agent`,
+          response: { behavior: i % 2 === 0 ? "allow" : "deny" },
+        },
+      });
+    }
+
+    const result = await aggregateRows(root, "permission-answers.jsonl", [
+      {
+        type: "session",
+        version: 3,
+        id: MAIN.sessionId,
+        timestamp: "2026-10-01T10:00:00.000Z",
+      },
+      ompAssistantRow({
+        messageId: "m1",
+        timestamp: "2026-10-01T10:00:10.000Z",
+        calls,
+      }),
+    ]);
+
+    expect(result.permissionAnswers.allow).toBe(13);
+    expect(result.permissionAnswers.deny).toBe(12);
+    expect(result.permissionAnswers.other).toBe(1);
+
+    const targetKeys = Object.keys(result.permissionAnswers.byTarget);
+    expect(targetKeys.length).toBe(20);
+    expect(result.permissionAnswers.untrackedTargets).toBe(5);
+
+    expect(result.permissionAnswers.byTarget["agent-al"]).toBe(2);
+
+    const shortDigest = crypto
+      .createHash("sha256")
+      .update("short")
+      .digest("hex")
+      .slice(0, 8);
+    expect(result.permissionAnswers.byTarget[`target-${shortDigest}`]).toBe(1);
+
+    const serialized = JSON.stringify(result);
+    expect(serialized).not.toContain("SECRET_ALLOW_MESSAGE");
+    expect(serialized).not.toContain("SECRET_DENY_MESSAGE");
+    expect(serialized).not.toContain("req-1");
+    expect(serialized).not.toContain("intent-1");
+  });
+
+  it("counts duplicate tool calls by tool-call id only once", async () => {
+    const root = await temporaryRoot();
+    const result = await aggregateRows(root, "duplicate-tool-call.jsonl", [
+      {
+        type: "session",
+        version: 3,
+        id: MAIN.sessionId,
+        timestamp: "2026-10-01T10:00:00.000Z",
+      },
+      ompAssistantRow({
+        messageId: "m1",
+        timestamp: "2026-10-01T10:00:10.000Z",
+        calls: [
+          {
+            id: "call-dup-1",
+            name: "respond_to_permission",
+            arguments: {
+              agentId: "agent-unique-1",
+              response: { behavior: "allow" },
+            },
+          },
+          {
+            id: "call-dup-1",
+            name: "respond_to_permission",
+            arguments: {
+              agentId: "agent-unique-1",
+              response: { behavior: "allow" },
+            },
+          },
+        ],
+      }),
+    ]);
+
+    expect(result.permissionAnswers.allow).toBe(1);
+    expect(result.permissionAnswers.deny).toBe(0);
+    expect(result.permissionAnswers.other).toBe(0);
+    expect(result.permissionAnswers.byTarget["agent-un"]).toBe(1);
+    expect(result.toolCalls["respond_to_permission"]).toBe(1);
+  });
+
+  it("tracks context stats including post-compaction turns and maxCacheRead", async () => {
+    const root = await temporaryRoot();
+    const result = await aggregateRows(root, "context-stats.jsonl", [
+      {
+        type: "session",
+        version: 3,
+        id: MAIN.sessionId,
+        timestamp: "2026-10-01T10:00:00.000Z",
+      },
+      ompAssistantRow({
+        messageId: "m1",
+        timestamp: "2026-10-01T10:00:10.000Z",
+        calls: [],
+        usage: { input: 10, output: 5, cacheRead: 100 },
+      }),
+      ompAssistantRow({
+        messageId: "m2",
+        timestamp: "2026-10-01T10:00:20.000Z",
+        calls: [],
+        usage: { input: 10, output: 5, cacheRead: 500 },
+      }),
+      {
+        type: "compaction",
+        timestamp: "2026-10-01T10:00:25.000Z",
+      },
+      ompAssistantRow({
+        messageId: "m3",
+        timestamp: "2026-10-01T10:00:30.000Z",
+        calls: [],
+        usage: { input: 10, output: 5, cacheRead: 200 },
+      }),
+      ompAssistantRow({
+        messageId: "m4",
+        timestamp: "2026-10-01T10:00:40.000Z",
+        calls: [],
+        usage: { input: 10, output: 5, cacheRead: 300 },
+      }),
+      {
+        type: "compaction",
+        timestamp: "2026-10-01T10:00:45.000Z",
+      },
+      ompAssistantRow({
+        messageId: "m5",
+        timestamp: "2026-10-01T10:00:50.000Z",
+        calls: [],
+        usage: { input: 10, output: 5, cachedInput: 250 },
+      }),
+    ]);
+
+    expect(result.context.maxCacheRead).toBe(500);
+    expect(result.context.postCompactionTurns).toBe(2);
+    expect(result.context.postCompactionCacheReadSum).toBe(450);
+  });
+
+  it("tracks edit episodes with and without prior load_skills_for_files, reset by compaction, and distinguishes file write from xd device write", async () => {
+    const root = await temporaryRoot();
+    const result = await aggregateRows(root, "routing-order.jsonl", [
+      {
+        type: "session",
+        version: 3,
+        id: MAIN.sessionId,
+        timestamp: "2026-10-01T10:00:00.000Z",
+      },
+      ompAssistantRow({
+        messageId: "m1",
+        timestamp: "2026-10-01T10:00:10.000Z",
+        calls: [
+          { id: "c1", name: "edit" },
+          { id: "c2", name: "write", arguments: { path: "src/file1.ts" } },
+          { id: "c3", name: "write", arguments: { path: "xd://other_device" } },
+        ],
+      }),
+      ompAssistantRow({
+        messageId: "m2",
+        timestamp: "2026-10-01T10:00:20.000Z",
+        calls: [
+          serverCall({ id: "c4", tool: "load_skills_for_files" }),
+          { id: "c5", name: "edit" },
+          { id: "c6", name: "write", arguments: { path: "src/file2.ts" } },
+        ],
+      }),
+      {
+        type: "compaction",
+        timestamp: "2026-10-01T10:00:25.000Z",
+      },
+      ompAssistantRow({
+        messageId: "m3",
+        timestamp: "2026-10-01T10:00:30.000Z",
+        calls: [{ id: "c7", name: "edit" }],
+      }),
+    ]);
+
+    expect(result.routing.editEpisodes).toBe(5);
+    expect(result.routing.unguardedEditEpisodes).toBe(3);
+  });
+
+  it("rolls up nodes array with ordinals and new fields capped at 64", () => {
+    const main = aggregatedSession({
+      node: { hostId: "h1", sessionId: "main-session" },
+      assistantTurns: 4,
+      cost: 0.01,
+      costKnownTurns: 4,
+      compactions: 1,
+      tokens: { input: 100, output: 50, cacheRead: 20, cacheWrite: 10 },
+      stopReasons: { stop: 3, error: 1 },
+      toolCalls: { edit: 2, bash: 1 },
+      toolErrors: { bash: 1 },
+      serverToolCalls: { load_skills_for_files: 1 },
+      models: { "model-alpha": 4 },
+      permissionAnswers: {
+        allow: 2,
+        deny: 1,
+        other: 0,
+        byTarget: { "target-1": 3 },
+        untrackedTargets: 0,
+      },
+      context: {
+        maxCacheRead: 200,
+        postCompactionTurns: 1,
+        postCompactionCacheReadSum: 150,
+      },
+      routing: {
+        editEpisodes: 3,
+        unguardedEditEpisodes: 1,
+      },
+      skillLoad: {
+        measured: true,
+        skillLoadCalls: 2,
+        callsBeforeFirstSkillLoad: 1,
+        hostSkillReadCalls: 0,
+        callsBeforeFirstSkillAccess: 1,
+      },
+      first: "2026-10-01T10:00:00.000Z",
+      last: "2026-10-01T10:05:00.000Z",
+    });
+
+    const worker = aggregatedSession({
+      node: { hostId: "h1", sessionId: "worker-session" },
+      assistantTurns: 2,
+      cost: 0.005,
+      costKnownTurns: 2,
+      compactions: 0,
+      tokens: { input: 50, output: 25, cacheRead: 10, cacheWrite: 5 },
+      stopReasons: { aborted: 1, stop: 1 },
+      toolCalls: { read: 3 },
+      toolErrors: {},
+      serverToolCalls: {},
+      models: { "model-beta": 2 },
+      permissionAnswers: {
+        allow: 0,
+        deny: 0,
+        other: 0,
+        byTarget: {},
+        untrackedTargets: 0,
+      },
+      context: {
+        maxCacheRead: 50,
+        postCompactionTurns: 0,
+        postCompactionCacheReadSum: 0,
+      },
+      routing: {
+        editEpisodes: 0,
+        unguardedEditEpisodes: 0,
+      },
+      skillLoad: {
+        measured: false,
+        skillLoadCalls: 0,
+        callsBeforeFirstSkillLoad: null,
+        hostSkillReadCalls: 0,
+        callsBeforeFirstSkillAccess: null,
+      },
+      first: "2026-10-01T10:02:00.000Z",
+      last: "2026-10-01T10:04:00.000Z",
+    });
+
+    const tree = rollUp([main, worker]);
+
+    expect(tree.nodes).toHaveLength(2);
+
+    expect(tree.nodes[0]).toEqual({
+      ordinal: 0,
+      turns: 4,
+      cost: 0.01,
+      costKnownTurns: 4,
+      compactions: 1,
+      tokens: { input: 100, output: 50, cacheRead: 20, cacheWrite: 10 },
+      errorStops: 1,
+      abortedStops: 0,
+      toolCalls: 3,
+      toolErrors: 1,
+      toolCallsByName: { edit: 2, bash: 1 },
+      serverToolCalls: { load_skills_for_files: 1 },
+      models: { "model-alpha": 4 },
+      permissionAnswers: {
+        allow: 2,
+        deny: 1,
+        other: 0,
+        byTarget: { "target-1": 3 },
+        untrackedTargets: 0,
+      },
+      context: {
+        maxCacheRead: 200,
+        postCompactionTurns: 1,
+        postCompactionCacheReadSum: 150,
+      },
+      routing: {
+        editEpisodes: 3,
+        unguardedEditEpisodes: 1,
+      },
+      skillLoadCalls: 2,
+      first: "2026-10-01T10:00:00.000Z",
+      last: "2026-10-01T10:05:00.000Z",
+    });
+
+    expect(tree.nodes[1]).toEqual({
+      ordinal: 1,
+      turns: 2,
+      cost: 0.005,
+      costKnownTurns: 2,
+      compactions: 0,
+      tokens: { input: 50, output: 25, cacheRead: 10, cacheWrite: 5 },
+      errorStops: 0,
+      abortedStops: 1,
+      toolCalls: 3,
+      toolErrors: 0,
+      toolCallsByName: { read: 3 },
+      serverToolCalls: {},
+      models: { "model-beta": 2 },
+      permissionAnswers: {
+        allow: 0,
+        deny: 0,
+        other: 0,
+        byTarget: {},
+        untrackedTargets: 0,
+      },
+      context: {
+        maxCacheRead: 50,
+        postCompactionTurns: 0,
+        postCompactionCacheReadSum: 0,
+      },
+      routing: {
+        editEpisodes: 0,
+        unguardedEditEpisodes: 0,
+      },
+      skillLoadCalls: 0,
+      first: "2026-10-01T10:02:00.000Z",
+      last: "2026-10-01T10:04:00.000Z",
+    });
+
+    const many: AggregatedSession[] = [];
+    for (let i = 0; i < 70; i++) {
+      many.push(
+        aggregatedSession({
+          node: { hostId: "h", sessionId: `s-${i}` },
+        }),
+      );
+    }
+    const cappedTree = rollUp(many);
+    expect(cappedTree.nodes).toHaveLength(64);
+    expect(cappedTree.nodes[63].ordinal).toBe(63);
+  });
+
+  it("keeps permissionAnswers, context, and routing at zero values for Codex sessions", async () => {
+    const root = await temporaryRoot();
+    const result = await aggregateRows(
+      root,
+      "codex-zeros.jsonl",
+      [
+        {
+          type: "session_meta",
+          payload: {
+            id: CODEX_NODE.sessionId,
+            timestamp: "2026-10-01T10:00:00.000Z",
+          },
+        },
+      ],
+      "codex",
+    );
+
+    expect(result.permissionAnswers).toEqual({
+      allow: 0,
+      deny: 0,
+      other: 0,
+      byTarget: {},
+      untrackedTargets: 0,
+    });
+    expect(result.context).toEqual({
+      maxCacheRead: 0,
+      postCompactionTurns: 0,
+      postCompactionCacheReadSum: 0,
+    });
+    expect(result.routing).toEqual({
+      editEpisodes: 0,
+      unguardedEditEpisodes: 0,
+    });
   });
 });

@@ -1017,13 +1017,15 @@ describe("runRetrospective orchestration (Task S4b)", () => {
 
     const ledger1 = JSON.parse(
       await fsp.readFile(res1.viewPaths.ledger, "utf8"),
-    ) as { skillUsage: { loadCalls: number } | null };
+    ) as { skillUsage: { loadCalls: number; since: string } | null };
     expect(ledger1.skillUsage?.loadCalls).toBe(2);
 
     const summary1 = await fsp.readFile(res1.viewPaths.summary, "utf8");
-    expect(summary1).toContain("## Skills");
-    expect(summary1).toContain("2 calls to skill-loading tools");
-    expect(summary1).toContain("2 skill bodies were returned");
+    expect(summary1).toContain("## Scorecards");
+    expect(summary1).toContain("AGS routing:");
+    expect(summary1).toContain(
+      `Tracker: not measured for this session (the server tracker covers this process since ${ledger1.skillUsage?.since} only).`,
+    );
 
     // The tracker records two more loads; the committed generation keeps its numbers.
     fx.tracker.record({
@@ -1354,7 +1356,8 @@ describe("runRetrospective orchestration (Task S4b)", () => {
     ).toBe(true);
 
     const summaryContent = await fsp.readFile(res1.viewPaths.summary, "utf8");
-    expect(summaryContent).toContain("Host skill reads: 2 reads of 1 skill");
+    expect(summaryContent).toContain("2 host skill reads (counted, not named)");
+    expect(summaryContent).not.toContain("paseo");
 
     // A restart replays the same recorded events, so it must join the same
     // generation and read the numbers back from the committed ledger.
@@ -1434,6 +1437,65 @@ describe("runRetrospective orchestration (Task S4b)", () => {
           values: { sessions: 1, fullyRead: 1 },
           scope: {
             nodes: [{ hostId: "local", sessionId: "sess-stored-older" }],
+            from: cutoff,
+            to: cutoff,
+          },
+          coverage: "complete",
+          supporting: [],
+          contradicting: [],
+          basedOn: [],
+        },
+      ],
+      evidence: {},
+    };
+    await publishManualGeneration(fx, `${JSON.stringify(olderLedger)}\n`);
+
+    const deps: RunDeps = {
+      tracker: fx.tracker,
+      workspace: fx.workspaceDir,
+      consentPath: fx.consentPath,
+    };
+
+    const res = await runRetrospective(deps, new AbortController().signal);
+    expect(res).toEqual({
+      resultVersion: 1,
+      state: "failed",
+      code: "STORED_LEDGER_INVALID",
+    });
+  });
+
+  it("rejects a stored ledger that predates agents, otherAgents, and improvements fields", async () => {
+    const fx = await setupBoundSession(
+      "ags-run-stored-no-agents-",
+      "sess-stored-no-agents",
+    );
+    const cutoff = "2026-10-01T00:00:00.000Z";
+    const olderLedger = {
+      schemaVersion: 1,
+      cutoff,
+      session: "abcdef12",
+      evidenceMode: "native-files",
+      rootVerification: "unverified-root",
+      coverage: "complete",
+      counts: {
+        agentsCreated: 0,
+        sessionsLinked: 1,
+        failedToolCalls: 0,
+        errorStops: 0,
+        claims: 1,
+        hypotheses: 0,
+      },
+      skillUsage: null,
+      hostSkills: null,
+      cells: [],
+      claims: [
+        {
+          id: "0123456789abcdef",
+          type: "observation",
+          template: "coverage",
+          values: { sessions: 1, fullyRead: 1 },
+          scope: {
+            nodes: [{ hostId: "local", sessionId: "sess-stored-no-agents" }],
             from: cutoff,
             to: cutoff,
           },

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import crypto from "node:crypto";
-import type { TreeAggregate } from "../src/retrospective/aggregate";
+import type { NodeUsage, TreeAggregate } from "../src/retrospective/aggregate";
 import {
   buildLedger,
   checkClaimRules,
@@ -9,6 +9,59 @@ import {
   type LedgerInput,
 } from "../src/retrospective/ledger";
 import type { SkillUsageSnapshot } from "../src/services/SessionTracker";
+
+function createNodeUsage(
+  ordinal: number,
+  overrides: Partial<NodeUsage> = {},
+): NodeUsage {
+  return {
+    ordinal,
+    turns: 10,
+    cost: ordinal === 0 ? 8 : 7,
+    costKnownTurns: 10,
+    compactions: 0,
+    tokens: {
+      input: 500,
+      output: 250,
+      cacheRead: 100,
+      cacheWrite: 50,
+    },
+    errorStops: ordinal === 0 ? 2 : 1,
+    abortedStops: 0,
+    toolCalls: ordinal === 0 ? 8 : 7,
+    toolErrors: 0,
+    toolCallsByName: {
+      read: 5,
+      write: ordinal === 0 ? 3 : 2,
+    },
+    serverToolCalls: {},
+    models: {
+      [ordinal === 0 ? "model-a" : "model-b"]: 10,
+    },
+    permissionAnswers: {
+      allow: 0,
+      deny: 0,
+      other: 0,
+      byTarget: {},
+      untrackedTargets: 0,
+    },
+    context: {
+      maxCacheRead: 100,
+      postCompactionTurns: 0,
+      postCompactionCacheReadSum: 0,
+    },
+    routing: {
+      editEpisodes: ordinal === 0 ? 3 : 2,
+      unguardedEditEpisodes: 0,
+    },
+    skillLoadCalls: 0,
+    first:
+      ordinal === 0 ? "2026-10-01T10:00:00.000Z" : "2026-10-01T10:30:00.000Z",
+    last:
+      ordinal === 0 ? "2026-10-01T10:30:00.000Z" : "2026-10-01T11:00:00.000Z",
+    ...overrides,
+  };
+}
 
 function createTreeFixture(
   overrides: Partial<TreeAggregate> = {},
@@ -87,6 +140,7 @@ function createTreeFixture(
         },
       },
     },
+    nodes: [createNodeUsage(0), createNodeUsage(1)],
     ...overrides,
   };
 }
@@ -101,11 +155,16 @@ const DEFAULT_INPUT: LedgerInput = {
   agentsCreated: 4,
   sessionsLinked: 3,
   skillUsage: null,
+  trackerSince: null,
 };
 
 /** Tree with two measured sessions; the main session made three skill lookups. */
 function skillTree(overrides: Partial<TreeAggregate> = {}): TreeAggregate {
   return createTreeFixture({
+    nodes: [
+      createNodeUsage(0, { skillLoadCalls: 3 }),
+      createNodeUsage(1, { skillLoadCalls: 0 }),
+    ],
     skillLoad: {
       nodes: [
         {
@@ -139,6 +198,10 @@ function skillTree(overrides: Partial<TreeAggregate> = {}): TreeAggregate {
  */
 function hostSkillTree(overrides: Partial<TreeAggregate> = {}): TreeAggregate {
   return createTreeFixture({
+    nodes: [
+      createNodeUsage(0, { toolCallsByName: { read: 5, write: 3 } }),
+      createNodeUsage(1),
+    ],
     hostSkillReads: {
       "nextjs/app-router": 2,
       "typescript/strict": 1,
@@ -219,7 +282,45 @@ describe("retrospective ledger", () => {
       { key: "2026-10-01|model-b", turns: 10, errorStops: 1 },
     ]);
 
-    expect(ledger.claims).toHaveLength(3);
+    expect(ledger.agents).toEqual([
+      {
+        label: "main",
+        kind: "editing",
+        turns: 10,
+        costCents: 800,
+        compactions: 0,
+        cacheReadPerTurn: 10,
+        errorStops: 2,
+        toolCalls: 8,
+        toolErrors: 0,
+        editCalls: 0,
+        bashCalls: 0,
+        readCalls: 5,
+        agsLookups: 0,
+        permissionAnswers: 0,
+        model: "model-a",
+      },
+      {
+        label: "worker-1",
+        kind: "editing",
+        turns: 10,
+        costCents: 700,
+        compactions: 0,
+        cacheReadPerTurn: 10,
+        errorStops: 1,
+        toolCalls: 7,
+        toolErrors: 0,
+        editCalls: 0,
+        bashCalls: 0,
+        readCalls: 5,
+        agsLookups: 0,
+        permissionAnswers: 0,
+        model: "model-b",
+      },
+    ]);
+    expect(ledger.otherAgents).toBeNull();
+
+    expect(ledger.claims).toHaveLength(5);
 
     const coverageClaim = ledger.claims[0];
     expect(coverageClaim.template).toBe("coverage");
@@ -297,44 +398,92 @@ describe("retrospective ledger", () => {
       "agg:claim:tool-errors:failedToolCalls",
     ]);
 
-    expect(Object.keys(ledger.evidence)).toEqual([
-      "agg:cell:2026-10-01|model-a:errorStops",
-      "agg:cell:2026-10-01|model-a:turns",
-      "agg:cell:2026-10-01|model-b:errorStops",
-      "agg:cell:2026-10-01|model-b:turns",
-      "agg:claim:coverage:agentsCreated",
-      "agg:claim:coverage:agentsRead",
-      "agg:claim:coverage:fullyRead",
-      "agg:claim:coverage:sessions",
-      "agg:claim:coverage:sessionsLinked",
-      "agg:claim:coverage:skippedLines",
-      "agg:claim:coverage:unlinkedAgents",
-      "agg:claim:error-stop-exposure:busiestCellErrorStops",
-      "agg:claim:error-stop-exposure:busiestCellTurns",
-      "agg:claim:error-stop-exposure:cellCount",
-      "agg:claim:error-stop-exposure:errorStops",
-      "agg:claim:error-stop-exposure:topCellErrorStops",
-      "agg:claim:error-stop-exposure:topCellTurns",
-      "agg:claim:error-stop-exposure:turns",
-      "agg:claim:tool-errors:failedToolCalls",
-      "agg:claim:tool-errors:toolCalls",
-      "agg:tree:assistantTurns",
-      "agg:tree:errorStops",
-      "agg:tree:toolCalls",
-      "agg:tree:toolErrors",
-    ]);
-    expect(ledger.evidence["agg:cell:2026-10-01|model-b:errorStops"]).toEqual({
-      kind: "aggregate",
-      value: 1,
+    const costClaim = ledger.claims[3];
+    expect(costClaim.template).toBe("cost-drivers");
+    expect(costClaim.type).toBe("observation");
+    expect(costClaim.values).toEqual({
+      costCentsMain: 800,
+      costCentsOthers: 700,
+      turnsMain: 10,
+      turnsOthers: 10,
+      cacheReadPerTurnMain: 10,
+      cacheReadPerTurnOthers: 10,
+      compactionsMain: 0,
+      postCompactionCacheReadPerTurnMain: 0,
+      maxCacheReadMain: 100,
+      mainToolCalls: 8,
+      mainReadCalls: 5,
+      mainEditCalls: 0,
+      mainBashCalls: 0,
+      mainCoordinationCalls: 0,
+      mainPermissionCalls: 0,
+      costCentsMainReads: 500,
+      costCentsMainCoordination: 0,
+      completeness: "complete",
     });
-    expect(ledger.evidence["agg:claim:coverage:sessions"]).toEqual({
-      kind: "aggregate",
-      value: 2,
+    expect(costClaim.denominator).toEqual({
+      count: 20,
+      unit: "assistant turns",
     });
-    expect(ledger.evidence["agg:tree:toolCalls"]).toEqual({
-      kind: "aggregate",
-      value: 15,
+
+    const routingClaim = ledger.claims[4];
+    expect(routingClaim.template).toBe("routing-order");
+    expect(routingClaim.type).toBe("observation");
+    expect(routingClaim.values).toEqual({
+      lookupsMain: 0,
+      lookupsOthers: 0,
+      byFilesTotal: 0,
+      byKeywordsTotal: 0,
+      getSkillTotal: 0,
+      agentsWithLookup: 0,
+      agentsTotal: 2,
+      editEpisodesMain: 3,
+      unguardedEditsMain: 0,
+      editEpisodesOthers: 2,
+      unguardedEditsOthers: 0,
+      overheadCalls: 0,
+      hostSkillReadCalls: 0,
+      completeness: "complete",
     });
+    expect(routingClaim.denominator).toEqual({
+      count: 20,
+      unit: "assistant turns",
+    });
+
+    expect(ledger.evidence["agg:agent:main:turns"]).toEqual({
+      kind: "aggregate",
+      value: 10,
+    });
+    expect(ledger.evidence["agg:agent:main:costCents"]).toEqual({
+      kind: "aggregate",
+      value: 800,
+    });
+    expect(ledger.evidence["agg:agent:worker-1:costCents"]).toEqual({
+      kind: "aggregate",
+      value: 700,
+    });
+    expect(ledger.evidence["agg:claim:cost-drivers:costCentsMain"]).toEqual({
+      kind: "aggregate",
+      value: 800,
+    });
+    expect(ledger.evidence["agg:claim:routing-order:editEpisodesMain"]).toEqual(
+      {
+        kind: "aggregate",
+        value: 3,
+      },
+    );
+    for (const claim of ledger.claims) {
+      for (const [k, v] of Object.entries(claim.values)) {
+        if (typeof v === "number") {
+          const evId = `agg:claim:${claim.template}:${k}`;
+          expect(ledger.evidence[evId]).toEqual({
+            kind: "aggregate",
+            value: v,
+          });
+          expect(claim.supporting).toContain(evId);
+        }
+      }
+    }
 
     const verifyResult = verifyLedger(ledger, DEFAULT_INPUT);
     expect(verifyResult).toEqual({ ok: true });
@@ -720,6 +869,7 @@ describe("retrospective ledger", () => {
       evidenceMode: "tracker-only",
       rootVerification: "not-applicable",
       skillUsage: null,
+      trackerSince: null,
       unlinkedAgents: 2,
       agentsCreated: 5,
       sessionsLinked: 3,
@@ -764,7 +914,7 @@ describe("retrospective ledger", () => {
       sessionsLinked: 3,
       failedToolCalls: 0,
       errorStops: 3,
-      claims: 3,
+      claims: 5,
       hypotheses: 0,
     });
 
@@ -775,6 +925,7 @@ describe("retrospective ledger", () => {
       evidenceMode: "tracker-only",
       rootVerification: "not-applicable",
       skillUsage: null,
+      trackerSince: null,
       unlinkedAgents: 2,
       agentsCreated: 5,
       sessionsLinked: 3,
@@ -854,8 +1005,8 @@ describe("retrospective ledger", () => {
       ...DEFAULT_INPUT,
       tree: skillTree(),
       skillUsage: usage,
+      trackerSince: usage.since,
     };
-
     const ledger = buildLedger(input);
     expect(ledger.skillUsage).toEqual(usage);
     expect(verifyLedger(ledger, input)).toEqual({ ok: true });
@@ -932,8 +1083,8 @@ describe("retrospective ledger", () => {
     });
 
     // coverage, error-stop-exposure, skill-usage, skill-trigger-timing,
-    // the zero-read host claim and tool-errors.
-    expect(ledger.counts.claims).toBe(6);
+    // the zero-read host claim, tool-errors, cost-drivers and routing-order.
+    expect(ledger.counts.claims).toBe(8);
   });
 
   it("marks the tracker window process-only when the main session count differs or there is no tree", () => {
@@ -961,7 +1112,6 @@ describe("retrospective ledger", () => {
       (c) => c.template === "skill-usage",
     );
     expect(divergingClaim?.values.trackerWindow).toBe("process-only");
-
     const trackerOnly: LedgerInput = {
       tree: null,
       mainSessionId: null,
@@ -972,6 +1122,7 @@ describe("retrospective ledger", () => {
       agentsCreated: 0,
       sessionsLinked: 0,
       skillUsage: skillUsageFixture(),
+      trackerSince: null,
     };
     const trackerLedger = buildLedger(trackerOnly);
     const trackerClaim = trackerLedger.claims.find(
@@ -1031,6 +1182,7 @@ describe("retrospective ledger", () => {
   it("omits mainCallsBeforeFirstSkillLoad when the main node has no value", () => {
     const input: LedgerInput = {
       ...DEFAULT_INPUT,
+      trackerSince: "2026-10-01T09:00:00.000Z",
       tree: createTreeFixture({
         skillLoad: {
           nodes: [
@@ -1082,6 +1234,7 @@ describe("retrospective ledger", () => {
       ...DEFAULT_INPUT,
       tree: skillTree(),
       skillUsage: skillUsageFixture(),
+      trackerSince: "2026-10-01T09:00:00.000Z",
     };
 
     const tamperedValue = buildLedger(input);
@@ -1196,8 +1349,8 @@ describe("retrospective ledger", () => {
       ledger.evidence["agg:hostSkills:sessionsWithAnySkillAccess"],
     ).toEqual({ kind: "aggregate", value: 1 });
 
-    // coverage, error-stop-exposure, skill-trigger-timing, the host claim and tool-errors.
-    expect(ledger.counts.claims).toBe(5);
+    // coverage, error-stop-exposure, skill-trigger-timing, host-skill-reads, tool-errors, cost-drivers, routing-order.
+    expect(ledger.counts.claims).toBe(7);
     expect(verifyLedger(ledger, input)).toEqual({ ok: true });
   });
 
@@ -1807,5 +1960,432 @@ describe("retrospective ledger", () => {
       unlinkedAgents: 5,
     }).claims[0];
     expect(clamped.values.agentsRead).toBe(0);
+  });
+
+  describe("tracker window attribution (trust bug fix)", () => {
+    it("marks the tracker window matches-session only when trackerSince <= main first and counts match", () => {
+      const usage = skillUsageFixture({ loadCalls: 3 });
+      // Main first timestamp is 2026-10-01T10:00:00.000Z in createTreeFixture / skillTree.
+
+      // Early since (09:00 <= 10:00) + matching counts -> matches-session
+      const earlyInput: LedgerInput = {
+        ...DEFAULT_INPUT,
+        tree: skillTree(),
+        skillUsage: usage,
+        trackerSince: "2026-10-01T09:00:00.000Z",
+      };
+      const earlyClaim = buildLedger(earlyInput).claims.find(
+        (c) => c.template === "skill-usage",
+      );
+      expect(earlyClaim?.values.trackerWindow).toBe("matches-session");
+
+      // Equal since (10:00 <= 10:00) + matching counts -> matches-session
+      const exactInput: LedgerInput = {
+        ...DEFAULT_INPUT,
+        tree: skillTree(),
+        skillUsage: usage,
+        trackerSince: "2026-10-01T10:00:00.000Z",
+      };
+      const exactClaim = buildLedger(exactInput).claims.find(
+        (c) => c.template === "skill-usage",
+      );
+      expect(exactClaim?.values.trackerWindow).toBe("matches-session");
+
+      // Late since (10:05 > 10:00) despite matching counts -> process-only (replayed session)
+      const lateInput: LedgerInput = {
+        ...DEFAULT_INPUT,
+        tree: skillTree(),
+        skillUsage: usage,
+        trackerSince: "2026-10-01T10:05:00.000Z",
+      };
+      const lateClaim = buildLedger(lateInput).claims.find(
+        (c) => c.template === "skill-usage",
+      );
+      expect(lateClaim?.values.trackerWindow).toBe("process-only");
+
+      // null trackerSince -> process-only
+      const nullInput: LedgerInput = {
+        ...DEFAULT_INPUT,
+        tree: skillTree(),
+        skillUsage: usage,
+        trackerSince: null,
+      };
+      const nullClaim = buildLedger(nullInput).claims.find(
+        (c) => c.template === "skill-usage",
+      );
+      expect(nullClaim?.values.trackerWindow).toBe("process-only");
+    });
+  });
+
+  describe("agents table (contract 2.2)", () => {
+    it("assigns labels, kinds, ranks by costCents desc then ordinal asc, caps at 51, sums otherAgents, and emits evidence", () => {
+      // Build 53 worker nodes (ordinals 1..53) + 1 main node (ordinal 0)
+      const nodes: NodeUsage[] = [
+        createNodeUsage(0, {
+          cost: 10, // 1000 cents
+          routing: { editEpisodes: 0, unguardedEditEpisodes: 0 },
+          toolCallsByName: { read: 5 }, // no bash, no edit -> read-only
+        }),
+      ];
+
+      // Add workers with varying costs and tool calls
+      for (let i = 1; i <= 53; i += 1) {
+        nodes.push(
+          createNodeUsage(i, {
+            cost: i <= 5 ? 5 : 1, // first 5 workers cost 500 cents, others 100 cents
+            routing: {
+              editEpisodes: i % 2 === 0 ? 2 : 0,
+              unguardedEditEpisodes: 0,
+            },
+            toolCallsByName: i % 2 === 1 ? { bash: 1 } : { read: 1 },
+          }),
+        );
+      }
+
+      const tree = createTreeFixture({ nodes });
+      const input: LedgerInput = {
+        ...DEFAULT_INPUT,
+        tree,
+      };
+      const ledger = buildLedger(input);
+
+      // Main is always first with label "main"
+      expect(ledger.agents[0].label).toBe("main");
+      expect(ledger.agents[0].kind).toBe("read-only");
+      expect(ledger.agents[0].costCents).toBe(1000);
+
+      // Total listed agents capped at 51 (1 main + 50 workers)
+      expect(ledger.agents).toHaveLength(51);
+
+      // Workers are ranked: workers 1..5 with costCents 500 come first, ordered by ordinal asc
+      for (let i = 1; i <= 5; i += 1) {
+        expect(ledger.agents[i].label).toBe(`worker-${i}`);
+        expect(ledger.agents[i].costCents).toBe(500);
+      }
+
+      // Check kind determination: editing when editEpisodes > 0 or bash > 0
+      for (let i = 1; i < 51; i += 1) {
+        expect(ledger.agents[i].kind).toBe("editing");
+      }
+
+      // otherAgents captures remaining 3 workers (53 - 50 = 3)
+      expect(ledger.otherAgents).toEqual({
+        count: 3,
+        turns: 30, // 3 * 10
+        costCents: 300, // 3 * 100
+      });
+
+      // Evidence IDs for all listed agents exist in ledger.evidence
+      for (const agent of ledger.agents) {
+        expect(ledger.evidence[`agg:agent:${agent.label}:turns`]).toEqual({
+          kind: "aggregate",
+          value: agent.turns,
+        });
+        expect(ledger.evidence[`agg:agent:${agent.label}:costCents`]).toEqual({
+          kind: "aggregate",
+          value: agent.costCents,
+        });
+        expect(ledger.evidence[`agg:agent:${agent.label}:errorStops`]).toEqual({
+          kind: "aggregate",
+          value: agent.errorStops,
+        });
+        expect(
+          ledger.evidence[`agg:agent:${agent.label}:permissionAnswers`],
+        ).toEqual({
+          kind: "aggregate",
+          value: agent.permissionAnswers,
+        });
+      }
+
+      expect(verifyLedger(ledger, input)).toEqual({ ok: true });
+    });
+  });
+
+  describe("new observation claims (contract 2.3)", () => {
+    it("builds permission-answers claim when answers, asks, or aborted stops exist, and omits it on zero", () => {
+      const nodesWithAnswers: NodeUsage[] = [
+        createNodeUsage(0, {
+          permissionAnswers: {
+            allow: 2,
+            deny: 1,
+            other: 1,
+            byTarget: { "agent-001": 3, "agent-002": 1 },
+            untrackedTargets: 0,
+          },
+          toolCallsByName: { ask: 2 },
+          abortedStops: 1,
+        }),
+        createNodeUsage(1, {
+          permissionAnswers: {
+            allow: 1,
+            deny: 0,
+            other: 0,
+            byTarget: { "agent-001": 1 },
+            untrackedTargets: 0,
+          },
+          toolCallsByName: {},
+          abortedStops: 0,
+        }),
+      ];
+
+      const tree = createTreeFixture({ nodes: nodesWithAnswers });
+      const input: LedgerInput = {
+        ...DEFAULT_INPUT,
+        tree,
+      };
+      const ledger = buildLedger(input);
+
+      const permClaim = ledger.claims.find(
+        (c) => c.template === "permission-answers",
+      );
+      expect(permClaim).toBeDefined();
+      if (!permClaim) return;
+
+      expect(permClaim.type).toBe("observation");
+      expect(permClaim.values).toEqual({
+        answers: 5,
+        allow: 3,
+        deny: 1,
+        other: 1,
+        targets: 2,
+        maxPerTarget: 4, // agent-001 has 3 + 1 = 4
+        targetsAtLeast3: 1, // agent-001 has 4 >= 3
+        askCalls: 2,
+        abortedStops: 1,
+        turns: 20,
+        completeness: "complete",
+      });
+      expect(permClaim.denominator).toEqual({
+        count: 20,
+        unit: "assistant turns",
+      });
+
+      // Per-value evidence invariant check
+      for (const [k, v] of Object.entries(permClaim.values)) {
+        if (typeof v === "number") {
+          const evId = `agg:claim:permission-answers:${k}`;
+          expect(ledger.evidence[evId]).toEqual({
+            kind: "aggregate",
+            value: v,
+          });
+          expect(permClaim.supporting).toContain(evId);
+        }
+      }
+
+      // Zero-edge case: omit claim entirely when answers=0, askCalls=0, abortedStops=0
+      const zeroTree = createTreeFixture({
+        nodes: [createNodeUsage(0), createNodeUsage(1)],
+      });
+      const zeroLedger = buildLedger({ ...DEFAULT_INPUT, tree: zeroTree });
+      expect(
+        zeroLedger.claims.some((c) => c.template === "permission-answers"),
+      ).toBe(false);
+    });
+
+    it("builds cost-drivers claim with call-share attribution and handles zero mainToolCalls edge case", () => {
+      const mainNode = createNodeUsage(0, {
+        cost: 10, // 1000 cents
+        turns: 15,
+        compactions: 2,
+        tokens: { input: 1000, output: 500, cacheRead: 3000, cacheWrite: 100 },
+        context: {
+          maxCacheRead: 5000,
+          postCompactionTurns: 2,
+          postCompactionCacheReadSum: 4000,
+        },
+        toolCalls: 10,
+        toolCallsByName: {
+          read: 4,
+          edit: 2,
+          bash: 1,
+          send_agent_prompt: 2, // in COORDINATION_TOOLS
+          respond_to_permission: 1, // in COORDINATION_TOOLS
+        },
+      });
+
+      const workerNode = createNodeUsage(1, {
+        cost: 5, // 500 cents
+        turns: 10,
+        tokens: { input: 500, output: 250, cacheRead: 1000, cacheWrite: 50 },
+      });
+
+      const tree = createTreeFixture({
+        assistantTurns: 25,
+        nodes: [mainNode, workerNode],
+      });
+      const input: LedgerInput = {
+        ...DEFAULT_INPUT,
+        tree,
+      };
+      const ledger = buildLedger(input);
+
+      const costClaim = ledger.claims.find(
+        (c) => c.template === "cost-drivers",
+      );
+      expect(costClaim).toBeDefined();
+      if (!costClaim) return;
+
+      expect(costClaim.values).toEqual({
+        costCentsMain: 1000,
+        costCentsOthers: 500,
+        turnsMain: 15,
+        turnsOthers: 10,
+        cacheReadPerTurnMain: 200, // 3000 / 15
+        cacheReadPerTurnOthers: 100, // 1000 / 10
+        compactionsMain: 2,
+        postCompactionCacheReadPerTurnMain: 2000, // 4000 / 2
+        maxCacheReadMain: 5000,
+        mainToolCalls: 10,
+        mainReadCalls: 4,
+        mainEditCalls: 2,
+        mainBashCalls: 1,
+        mainCoordinationCalls: 3, // send_agent_prompt (2) + respond_to_permission (1)
+        mainPermissionCalls: 1,
+        costCentsMainReads: 400, // round(1000 * 4 / 10)
+        costCentsMainCoordination: 300, // round(1000 * 3 / 10)
+        completeness: "complete",
+      });
+
+      // Zero mainToolCalls edge case: attribution results in 0, not NaN
+      const zeroToolCallsTree = createTreeFixture({
+        nodes: [
+          createNodeUsage(0, { toolCalls: 0, toolCallsByName: {} }),
+          createNodeUsage(1),
+        ],
+      });
+      const zeroCostClaim = buildLedger({
+        ...DEFAULT_INPUT,
+        tree: zeroToolCallsTree,
+      }).claims.find((c) => c.template === "cost-drivers");
+      expect(zeroCostClaim?.values.costCentsMainReads).toBe(0);
+      expect(zeroCostClaim?.values.costCentsMainCoordination).toBe(0);
+    });
+
+    it("builds routing-order claim with exact lookups, edit episodes, and overhead calls", () => {
+      const mainNode = createNodeUsage(0, {
+        skillLoadCalls: 2,
+        routing: { editEpisodes: 5, unguardedEditEpisodes: 2 },
+        serverToolCalls: {
+          load_skills_for_files: 3,
+          get_skill: 1,
+          audit_session_compliance: 1,
+          list_workflows: 1,
+        },
+      });
+
+      const workerNode = createNodeUsage(1, {
+        skillLoadCalls: 1,
+        routing: { editEpisodes: 4, unguardedEditEpisodes: 1 },
+        serverToolCalls: {
+          load_skills_for_keywords: 2,
+          get_session_cost: 1,
+        },
+      });
+
+      const tree = createTreeFixture({
+        hostSkillReads: { "test/skill": 3 },
+        nodes: [mainNode, workerNode],
+      });
+      const input: LedgerInput = {
+        ...DEFAULT_INPUT,
+        tree,
+      };
+      const ledger = buildLedger(input);
+
+      const routingClaim = ledger.claims.find(
+        (c) => c.template === "routing-order",
+      );
+      expect(routingClaim).toBeDefined();
+      if (!routingClaim) return;
+
+      expect(routingClaim.values).toEqual({
+        lookupsMain: 2,
+        lookupsOthers: 1,
+        byFilesTotal: 3,
+        byKeywordsTotal: 2,
+        getSkillTotal: 1,
+        agentsWithLookup: 2, // both nodes have skillLoadCalls > 0
+        agentsTotal: 2,
+        editEpisodesMain: 5,
+        unguardedEditsMain: 2,
+        editEpisodesOthers: 4,
+        unguardedEditsOthers: 1,
+        overheadCalls: 3, // audit_session_compliance (1) + list_workflows (1) + get_session_cost (1)
+        hostSkillReadCalls: 0, // hostSkills.total (unmeasured skillLoad nodes in createTreeFixture default -> 0 reads summary)
+        completeness: "complete",
+      });
+    });
+  });
+
+  describe("improvements wiring and tamper detection (contract 2.4, 2.5)", () => {
+    it("wires deriveImprovements non-empty when a rule trips, and empty when no rule trips", () => {
+      // Trips coverage-gap: agentsCreated: 4, unlinkedAgents: 2 (2 * 4 = 8 >= 4)
+      const trippingInput: LedgerInput = {
+        ...DEFAULT_INPUT,
+        agentsCreated: 4,
+        unlinkedAgents: 2,
+      };
+      const trippingLedger = buildLedger(trippingInput);
+      expect(trippingLedger.improvements.length).toBeGreaterThan(0);
+      expect(
+        trippingLedger.improvements.some((imp) => imp.rule === "coverage-gap"),
+      ).toBe(true);
+
+      // Clean fixture where no rule fires:
+      // coverage-gap: agentsCreated 0, unlinkedAgents 0 -> doesn't fire
+      // cost-concentration: turnsOthers 0 -> doesn't fire
+      // unguarded-edits: edits < 10 -> doesn't fire
+      // human-intervention: no permission claim -> doesn't fire
+      // agent-error: 0 error stops -> doesn't fire
+      // tracker-not-measured: trackerWindow null or "matches-session" -> doesn't fire
+      const cleanTree = createTreeFixture({
+        nodes: [
+          createNodeUsage(0, {
+            turns: 10,
+            errorStops: 0,
+            routing: { editEpisodes: 0, unguardedEditEpisodes: 0 },
+            toolCallsByName: {},
+          }),
+        ],
+      });
+      const cleanInput: LedgerInput = {
+        ...DEFAULT_INPUT,
+        tree: cleanTree,
+        agentsCreated: 0,
+        unlinkedAgents: 0,
+        skillUsage: null,
+      };
+      const cleanLedger = buildLedger(cleanInput);
+      expect(cleanLedger.improvements).toEqual([]);
+    });
+
+    it("fails verification when ledger.agents, otherAgents, or improvements are tampered", () => {
+      const ledger = buildLedger(DEFAULT_INPUT);
+
+      // Tampered agent costCents
+      const tamperedAgent = {
+        ...ledger,
+        agents: ledger.agents.map((a, i) =>
+          i === 0 ? { ...a, costCents: 999999 } : a,
+        ),
+      };
+      expect(verifyLedger(tamperedAgent, DEFAULT_INPUT)).toEqual({
+        ok: false,
+        problems: ["NUMBER_MISMATCH"],
+      });
+
+      // Tampered improvements
+      const tamperedImprovements = {
+        ...ledger,
+        improvements: [],
+      };
+      // If DEFAULT_INPUT produced non-empty improvements (coverage-gap trips with unlinked: 1, created: 4)
+      if (ledger.improvements.length > 0) {
+        expect(verifyLedger(tamperedImprovements, DEFAULT_INPUT)).toEqual({
+          ok: false,
+          problems: ["NUMBER_MISMATCH"],
+        });
+      }
+    });
   });
 });

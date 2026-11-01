@@ -112,6 +112,9 @@ const storedClaimSchema = z.strictObject({
     "host-skill-reads",
     "tool-errors",
     "coverage",
+    "permission-answers",
+    "cost-drivers",
+    "routing-order",
   ]),
   values: z.record(z.string(), z.union([z.number(), z.string()])),
   scope: z.strictObject({
@@ -171,6 +174,56 @@ const storedCellSchema = z.strictObject({
   turns: z.number().int().nonnegative(),
   errorStops: z.number().int().nonnegative(),
 });
+const storedAgentSchema = z.strictObject({
+  label: z.string().min(1),
+  kind: z.enum(["read-only", "editing"]),
+  turns: z.number().int().nonnegative(),
+  costCents: z.number().int().nonnegative(),
+  compactions: z.number().int().nonnegative(),
+  cacheReadPerTurn: z.number().int().nonnegative(),
+  errorStops: z.number().int().nonnegative(),
+  toolCalls: z.number().int().nonnegative(),
+  toolErrors: z.number().int().nonnegative(),
+  editCalls: z.number().int().nonnegative(),
+  bashCalls: z.number().int().nonnegative(),
+  readCalls: z.number().int().nonnegative(),
+  agsLookups: z.number().int().nonnegative(),
+  permissionAnswers: z.number().int().nonnegative(),
+  model: z.string().min(1),
+});
+
+const storedOtherAgentsSchema = z
+  .strictObject({
+    count: z.number().int().nonnegative(),
+    turns: z.number().int().nonnegative(),
+    costCents: z.number().int().nonnegative(),
+  })
+  .nullable();
+
+const storedImprovementSchema = z.strictObject({
+  rule: z.enum([
+    "guardrail-answers",
+    "cost-concentration",
+    "unguarded-edits",
+    "human-intervention",
+    "agent-error-concentration",
+    "coverage-gap",
+    "tracker-not-measured",
+  ]),
+  level: z.enum(["act", "watch"]),
+  destination: z.enum([
+    "permission-setup",
+    "orchestration-config",
+    "agent-routing",
+    "provider-route-monitoring",
+    "session-linkage",
+    "tracker-binding",
+  ]),
+  audience: z.enum(["manager", "maintainer"]),
+  claimIds: z.array(z.string()),
+  evidence: z.array(z.string()),
+  values: z.record(z.string(), z.number().int()),
+});
 
 const storedLedgerSchema = z.strictObject({
   schemaVersion: z.literal(1),
@@ -190,6 +243,9 @@ const storedLedgerSchema = z.strictObject({
   skillUsage: storedSkillUsageSchema.nullable(),
   hostSkills: storedHostSkillsSchema.nullable(),
   cells: z.array(storedCellSchema),
+  agents: z.array(storedAgentSchema),
+  otherAgents: storedOtherAgentsSchema,
+  improvements: z.array(storedImprovementSchema),
   claims: z.array(storedClaimSchema).min(1),
   evidence: z.record(
     z.string(),
@@ -493,6 +549,7 @@ export async function runRetrospective(
         agentsCreated: 0,
         sessionsLinked: 0,
         skillUsage,
+        trackerSince: skillUsage !== null ? skillUsageSnapshot.since : null,
       };
 
       let ledger = buildLedger(ledgerInput);
@@ -615,8 +672,8 @@ export async function runRetrospective(
       agentsCreated: discovery.childFiles.length + discovery.unlinkedAgents,
       sessionsLinked: childFiles.length + 1,
       skillUsage,
+      trackerSince: skillUsage !== null ? skillUsageSnapshot.since : null,
     };
-
     let ledger = buildLedger(ledgerInput);
     if (deps.tamperLedger) {
       ledger = deps.tamperLedger(ledger);
