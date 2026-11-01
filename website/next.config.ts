@@ -7,6 +7,9 @@ const nextConfig: NextConfig = {
   },
   trailingSlash: false,
   reactStrictMode: true,
+  experimental: {
+    agentUpgrade: 'security',
+  },
 };
 
 export default nextConfig;
