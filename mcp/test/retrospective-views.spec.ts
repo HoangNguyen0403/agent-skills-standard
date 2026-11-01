@@ -180,6 +180,45 @@ function skillsSnapshot(
   };
 }
 
+/** Same trees as the default fixture, but no assistant turn ended in an error. */
+function createQuietTree(
+  overrides: Partial<TreeAggregate> = {},
+): TreeAggregate {
+  return createTreeFixture({
+    stopReasons: { stop: 20 },
+    series: {
+      byDayModel: {
+        "2026-10-01|model-a": {
+          turns: 10,
+          errorStops: 0,
+          costUnits: 8,
+          costKnownTurns: 10,
+        },
+        "2026-10-01|model-b": {
+          turns: 10,
+          errorStops: 0,
+          costUnits: 7,
+          costKnownTurns: 10,
+        },
+      },
+    },
+    ...overrides,
+  });
+}
+
+/** The lead bullets between `## Leads` and the next blank line. */
+function leadsOf(summary: string): string[] {
+  const lines = summary.split("\n");
+  const header = lines.indexOf("## Leads");
+  if (header === -1) return [];
+  const leads: string[] = [];
+  for (let index = header + 1; index < lines.length; index += 1) {
+    if (lines[index] === "") break;
+    leads.push(lines[index]);
+  }
+  return leads;
+}
+
 describe("retrospective summary view", () => {
   it("renders summary within 40 lines and 4096 bytes on a 200-cell fixture", () => {
     const input: LedgerInput = {
@@ -455,6 +494,88 @@ describe("retrospective summary view", () => {
     const summary = renderSummary(ledger);
     expect(summary).not.toContain("may undercount");
     expect(summary).not.toContain("lines were skipped");
+  });
+
+  it("omits the error-stop lead when the claim reports zero stops", () => {
+    const input: LedgerInput = {
+      tree: createQuietTree(),
+      cutoff: "2026-10-01T12:00:00.000Z",
+      evidenceMode: "native-files",
+      rootVerification: "unverified-root",
+      skillUsage: null,
+      unlinkedAgents: 0,
+      agentsCreated: 3,
+      sessionsLinked: 3,
+    };
+
+    const ledger = buildLedger(input);
+    const claim = ledger.claims.find(
+      (c) => c.template === "error-stop-exposure",
+    );
+    expect(claim?.values.errorStops).toBe(0);
+
+    const summary = renderSummary(ledger);
+    expect(summary).not.toContain("Error-stop concentration");
+    expect(summary).toContain("0 error stops across 20 assistant turns");
+    expect(leadsOf(summary)).toEqual([
+      "- No leads identified from available evidence.",
+    ]);
+  });
+
+  it("keeps only the skill lead when zero stops coexist with a session that never called a skill", () => {
+    const input: LedgerInput = {
+      tree: createQuietTree({
+        skillLoad: {
+          nodes: [
+            {
+              ordinal: 0,
+              isMain: true,
+              measured: true,
+              skillLoadCalls: 3,
+              callsBeforeFirstSkillLoad: 2,
+              hostSkillReadCalls: 0,
+              callsBeforeFirstSkillAccess: null,
+            },
+            {
+              ordinal: 1,
+              isMain: false,
+              measured: true,
+              skillLoadCalls: 0,
+              callsBeforeFirstSkillLoad: null,
+              hostSkillReadCalls: 0,
+              callsBeforeFirstSkillAccess: null,
+            },
+          ],
+          omittedNodes: 0,
+        },
+      }),
+      cutoff: "2026-10-01T12:00:00.000Z",
+      evidenceMode: "native-files",
+      rootVerification: "unverified-root",
+      skillUsage: skillsSnapshot(),
+      unlinkedAgents: 0,
+      agentsCreated: 2,
+      sessionsLinked: 2,
+    };
+
+    const ledger = buildLedger(input);
+    const errorClaim = ledger.claims.find(
+      (c) => c.template === "error-stop-exposure",
+    );
+    expect(errorClaim?.values.errorStops).toBe(0);
+    const timingClaim = ledger.claims.find(
+      (c) => c.template === "skill-trigger-timing",
+    );
+    if (!timingClaim) throw new Error("skill-trigger-timing claim missing");
+
+    const summary = renderSummary(ledger);
+    expect(leadsOf(summary)).toEqual([
+      `- [${timingClaim.id}] 1 of 2 sessions never called a skill-loading tool. Check: open ledger entries agg:skills:measuredSessions and agg:skills:sessionsWithSkillLoad; a session without a skill call is not proof a skill was needed.`,
+    ]);
+    expect(summary).not.toContain("Error-stop concentration");
+    expect(summary).not.toContain(
+      "- No leads identified from available evidence.",
+    );
   });
 
   it("never includes forbidden words in rendered summary", () => {

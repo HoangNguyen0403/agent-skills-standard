@@ -138,7 +138,6 @@ type ParsedCandidate = {
   filePath: string;
   sessionId: string;
   parentSession: string | null;
-  cwd: string | null;
   calls: CandidateCall[];
   createdAgentsCount: number;
   lastSubstantiveEventId: string | null;
@@ -186,7 +185,6 @@ async function parseCandidateFile(
 
     let sessionId: string | null = null;
     let parentSession: string | null = null;
-    let cwd: string | null = null;
     let lastSubstantiveEventId: string | null = null;
     let lastEventTimestamp: string | null = null;
     let createdAgentsCount = 0;
@@ -216,7 +214,6 @@ async function parseCandidateFile(
 
       if (row.type === "session") {
         if (typeof row.id === "string") sessionId = row.id;
-        if (typeof row.cwd === "string") cwd = row.cwd;
         if (typeof row.parentSession === "string")
           parentSession = row.parentSession;
       } else if (
@@ -226,7 +223,6 @@ async function parseCandidateFile(
       ) {
         const payload = row.payload as Record<string, unknown>;
         if (typeof payload.id === "string") sessionId = payload.id;
-        if (typeof payload.cwd === "string") cwd = payload.cwd;
       }
 
       let rowTs = NaN;
@@ -409,7 +405,6 @@ async function parseCandidateFile(
         filePath,
         sessionId: effectiveId,
         parentSession,
-        cwd,
         calls,
         createdAgentsCount,
         lastSubstantiveEventId,

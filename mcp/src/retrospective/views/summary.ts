@@ -183,9 +183,13 @@ function renderLines(ledger: Ledger, options: SkillSectionOptions): string[] {
 
   lines.push("## Leads");
   const leads: string[] = [];
-  if (errorStopClaim) {
+  // Zero stops is a number for the observation line above, not a reason to look
+  // further: a lead only earns its place when the evidence shows something.
+  const errorStopLeadStops = errorStopClaim
+    ? countOf(errorStopClaim.values, "errorStops")
+    : 0;
+  if (errorStopClaim && errorStopLeadStops > 0) {
     const val = errorStopClaim.values;
-    const errorStops = typeof val.errorStops === "number" ? val.errorStops : 0;
     const turns = typeof val.turns === "number" ? val.turns : 0;
     const evId =
       typeof val.topCell === "string"
@@ -193,7 +197,7 @@ function renderLines(ledger: Ledger, options: SkillSectionOptions): string[] {
         : "agg:tree:errorStops";
 
     leads.push(
-      `- [${errorStopClaim.id}] Error-stop concentration: ${errorStops} stops in ${turns} turns. Check: open the ledger entry ${evId} and compare per-model counts; this does not say why the stops happened.${undercountPhrase}`,
+      `- [${errorStopClaim.id}] Error-stop concentration: ${errorStopLeadStops} stops in ${turns} turns. Check: open the ledger entry ${evId} and compare per-model counts; this does not say why the stops happened.${undercountPhrase}`,
     );
   }
   const timingClaim = ledger.claims.find(

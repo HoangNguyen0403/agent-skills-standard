@@ -87,17 +87,52 @@ The candidate adds `ags-mcp-session-report --manifest <manifest.json> [--json]` 
 
 ### Session retrospectives (`ags-retrospective`, unreleased source candidate)
 
-The source declares a **console binary, not an MCP tool**: `ags-retrospective` →
-`dist/retrospective-cli.js`, plus a side-effect-free CommonJS subpath
-`agent-skills-standard-mcp/retrospective` for host adapters. The source also declares an `exports`
-map (`"."`, `"./retrospective"` with types, `"./session-journal-cli"`, `"./package.json"`,
-`"./README.md"`, `"./SESSION_REPORT.md"`, and `"./dist/*"` retained so existing deep imports keep
-working). **None of it is in a published release**: no registry version ships this binary or
+The source ships **two stdio-only MCP tools plus a console binary**, and none of it is released.
+
+- `prepare_retrospective` and `get_retrospective_status` are registered only when the transport is
+  stdio (`mcp/src/server.ts` checks `transport === "stdio"`). They are absent on SSE and on the HTTP
+  server, which pins `transport: "sse"` in `createMcpHttpApp` so an ambient `MCP_TRANSPORT` cannot
+  widen the surface. `prepare_retrospective` takes no arguments and is for the orchestrator or an
+  unassigned agent — a worker holding an assignment packet must not call it; `get_retrospective_status`
+  reports consent state only.
+- The console binary `ags-retrospective` → `dist/retrospective-cli.js` is the human-facing entry
+  point, plus a side-effect-free CommonJS subpath `agent-skills-standard-mcp/retrospective` for host
+  adapters. The source also declares an `exports` map (`"."`, `"./retrospective"` with types,
+  `"./session-journal-cli"`, `"./package.json"`, `"./README.md"`, `"./SESSION_REPORT.md"`, and
+  `"./dist/*"` retained so existing deep imports keep working).
+
+**None of it is in a published release**: no registry version ships these tools, this binary or this
 subpath. Locally, the fresh build (including the declaration-only
 `tsc -p tsconfig.retrospective-types.json` emit) and a packed-tarball consumer smoke both pass on
 macOS; an earlier `tsup --dts` attempt had failed against the installed TypeScript compiler API and
 that failure is kept as history, with the temporary compatibility dev dependency removed.
 **Host integration is still not claimed.**
+
+Opt-in is a one-time human action; an agent can never do it (no terminal, no flag, no tool). `enable`
+requires an interactive terminal, prints the fixed consent text with the store root and source roots
+on stderr, accepts only the exact word `yes`, and otherwise writes nothing (`TTY_REQUIRED`,
+`CONSENT_DECLINED`). The default store root is `~/ags/diagnostics`; default source roots are those
+that exist among `~/.omp/agent/sessions` and `~/.codex/sessions`, and `--source-root` (repeatable,
+absolute, must exist) replaces them; none left is `NO_SOURCE_ROOTS`. stdout stays one JSON line.
+
+```text
+ags-retrospective enable [--store-root <absolute>] [--source-root <absolute>]...
+ags-retrospective disable
+ags-retrospective consent-status
+```
+
+`enable` prints `{"schemaVersion":1,"enabled":true}`. `disable` needs no terminal and prints
+`{"schemaVersion":1,"enabled":false,"removed":<boolean>}`. `consent-status` prints
+`{"schemaVersion":1,"state":"enabled","storeRoot":<path>,"allowedSourceRoots":[...]}` or
+`{"schemaVersion":1,"state":"disabled","reason":"<missing|invalid|permissive|symlink|version>"}`; a
+missing record is an ordinary `disabled` result, not an error. The consent file is owner-only and read
+fail-closed — missing, empty, malformed, unknown keys, relative paths, wrong version, group/other
+readable, symlink or non-regular each count as disabled:
+
+- POSIX: `$XDG_CONFIG_HOME/agent-skills-standard/retrospective-consent.json` when `XDG_CONFIG_HOME` is set and absolute, else `~/.config/agent-skills-standard/retrospective-consent.json`.
+- Windows: `%APPDATA%\agent-skills-standard\retrospective-consent.json`.
+
+The manual manifest path is separate and unchanged:
 
 ```text
 ags-retrospective prepare --manifest <local-manifest.json> --consent local-only [--root <absolute>] --ack-storage-risk
@@ -114,10 +149,10 @@ Contract constraints to preserve when the binary ships:
 - The library contract is equally strict: `PrepareRequest` requires `storageRiskAcknowledged: true`, and `prepareLocal` refuses `STORAGE_RISK_NOT_ACKNOWLEDGED` before any read, schema parse, store access or claim. The public subpath is deliberately bounded — `collectEvidence`, `claimRun`, `cancelRun`, `publishRun`, `prepareStore`, `withSessionLock`, `sessionToken` and `storeLayout` (and their types) are **not exported**; mutators, claims, locks and store layout are internal, tests import modules directly.
 - `paths` is human-facing. It is not to be called automatically through a hosted agent's tool return; doing so would send report content to a model provider.
 - Exit codes: usage `2`, refusal or failure `1`, complete or explicitly labelled partial publication `0`.
-- No prepare, read or upload tool is added to the MCP server. The MCP surface cannot return report text, and report rendering is owner-local only.
+- Two tools are exposed on stdio: `prepare_retrospective` and `get_retrospective_status`. They never return transcript text or report bodies — only state, numbers, an artifact id and the two artifact paths (`summary.md`, `ledger.json`); file contents stay on local disk.
 - `delete` requires `--confirm` and operates only inside the validated managed store.
 
-Full behaviour, privacy model and host versions: [`../docs/session-retrospective.md`](../docs/session-retrospective.md). Status: unreleased source; fresh build, test suite and packed-tarball consumer smoke pass locally on macOS. Not published, no version bump, and no host-integration, Windows/Linux or process-level egress claim is made.
+Full behaviour, privacy model and host versions: [`../docs/session-retrospective.md`](../docs/session-retrospective.md), with the privacy boundary in [`../docs/session-retrospective-privacy.md`](../docs/session-retrospective-privacy.md) and provider coverage in [`../docs/session-retrospective-hosts.md`](../docs/session-retrospective-hosts.md). Status: unreleased source; fresh build, test suite and packed-tarball consumer smoke pass locally on macOS. Not published, no version bump, and no host-integration, Windows/Linux or process-level egress claim is made. Skill, workflow and rule text that would trigger `prepare_retrospective` is not part of this change; it arrives later, after a value pilot.
 
 ## Configure your AI agent
 

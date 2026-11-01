@@ -1,0 +1,340 @@
+# Session Retrospectives — Privacy, Storage and Retention
+
+Read this before you enable collection or run `prepare` for the first time. It states what the
+preparer can see, what it must never see, what leaves your machine and what it cannot guarantee.
+
+> **Status: source feature, not a released product.** Behaviour described here is the agreed
+> contract for this repository's in-progress work. Runtime verification, including
+> process-level network observation and cross-platform path checks, remains pending. See
+> `CHANGELOG.md` → `[Unreleased]`.
+
+## Processing model
+
+| Stage | Runs where | What it touches |
+| --- | --- | --- |
+| Inventory | your machine | manifest metadata only (host/session IDs, parentage, disposition) |
+| Collection | your machine | allowlisted structured fields from `local-allowed` sources |
+| Analysis | your machine | deterministic local rules; no model, no network |
+| Render | your machine | static templates and validated enums |
+| Publication | your machine | private local store under the chosen root |
+
+Default counters are fixed: **0 model calls, 0 outbound requests, 0 automatic retries, 1
+concurrent run per session.** There is no scheduler, no background learner and no telemetry
+upload.
+
+## MCP-native path: what is read
+
+The MCP-native path is the primary path. The agent-skills-standard MCP server registers
+`prepare_retrospective` (no arguments) and `get_retrospective_status` (consent state only) on the
+stdio transport alone, so they do not exist on SSE or on the HTTP server. The path works with or
+without OMP or Paseo. The manual manifest CLI keeps its own allowlist, described under
+[What is collected](#what-is-collected).
+
+Reading a session file is the most sensitive step in this feature, so the boundary is fixed.
+
+The agreed boundary approves five structural fields for session files. This path uses two of them
+today: the server tool name derived from a `write` call's device path, and the sanitized skill id
+derived from a `read` call's URI. The other three — the permission verdict enum, the follow-up
+target agent id and the `verification | tool-miss` error class — belong to the manual manifest
+path's reader. Beyond those, the MCP-native reader takes only identifiers and numbers, listed
+below, and nothing else:
+
+| Field | Source shape | Why it is needed | What is kept |
+| --- | --- | --- | --- |
+| Session id and parent session id | the `session` row's `id` and `parentSession`, or the `session_meta` payload's `id` | binds this file to a session and recognises a nested worker file | the identifiers, used for binding and child detection |
+| Model identifier | `message.model`, falling back to `row.model` | groups turns, cost and error stops by model | the bounded identifier |
+| Assistant stop reason | `message.stopReason` | counts error stops (the `error` value) in the per-day, per-model cells | the bounded identifier and its counts |
+| Tool name and tool-call id | the `toolCall` / `tool_use` part's `name` and `id`, and the matching `toolResult` row's `toolName`, `toolCallId` and failure flag | counts tool calls and failed calls without reading arguments, and feeds the `create_agent` / `task` agent counts | the tool name and per-tool counts; ids are tracked only to de-duplicate |
+| Server tool name for `write` calls to `xd://mcp__agent_skills_standard_<tool>` | the device path argument of this server's own tool calls | binds the session file to this server and counts skill lookups | the tool name only |
+| Sanitized skill id for `read` calls to `skill://...` | the URI argument | counts host skill reads on the OMP path | the sanitized skill id only, not checked against the registry |
+
+Two consequences follow from that list. First, the three structural fields this path does not use
+are not lost by accident: permission verdicts, follow-up target agent ids and the
+`verification | tool-miss` error classes are collected only by the manual manifest path, so an
+MCP-native report cannot report permission or verification outcomes. Second, the working directory
+recorded in the session header is not read at all.
+
+Everything else in those files is never read and never retained: message text, reasoning, tool
+arguments other than the two path-derived fields above, tool output, and file paths other than
+those two. Models and tool names are kept only as bounded identifiers that match a known grammar.
+Any session-derived string that reaches a claim, the ledger or the summary must match a safe
+pattern; one that does not is replaced by a short hash.
+
+A sentinel string placed in message text, tool arguments and tool output is tested never to reach
+any tool result, the ledger or `summary.md`.
+
+Which hosts can be bound this way is provider-specific. OMP session files have a reader; Codex,
+Claude Code and Gemini have none yet, so on those hosts the result is tracker-only and no session
+file is read at all. The coverage table and the transport rule are in
+[./session-retrospective-hosts.md](./session-retrospective-hosts.md).
+
+**What the tool returns.** `prepare_retrospective` returns a small fixed-text result: the state,
+a few numbers, the artifact id and the two file paths (`summary.md`, `ledger.json`). It never
+returns transcript text, a claim sentence or a report body. The paths themselves are data about
+where to look, so an agent with file-read access could open `summary.md`; that file contains
+numbers, registry skill ids and fixed sentences only, never transcript text. That residual
+exposure is exactly why the tool returns paths rather than content, and no report body is ever
+returned through a tool response.
+
+## Consent file (MCP-native opt-in)
+
+The MCP-native path is opt-in, once, by the human. `ags-retrospective enable` requires an
+interactive terminal (otherwise it refuses `TTY_REQUIRED` and writes nothing), prints the fixed
+consent text plus the store root and the source roots, and accepts only the exact word `yes`
+(otherwise `CONSENT_DECLINED`, and nothing is written). `disable` needs no terminal.
+`consent-status` prints the state and, when enabled, the store root and the allowed source roots.
+Command detail, including the root flags, is in
+[./session-retrospective.md](./session-retrospective.md).
+
+The record lives at:
+
+- POSIX: `$XDG_CONFIG_HOME/agent-skills-standard/retrospective-consent.json` when
+  `XDG_CONFIG_HOME` is set and absolute; otherwise
+  `~/.config/agent-skills-standard/retrospective-consent.json`.
+- Windows: `%APPDATA%\agent-skills-standard\retrospective-consent.json`.
+
+The roots named in that record are the boundary: the MCP-native path reads session files only
+inside the recorded source roots and writes only under the recorded store root.
+
+The file is owner-only, and the reader fails closed. Each of these is a disabled state, never an
+enabled state built from guessed data:
+
+| Reason | Condition |
+| --- | --- |
+| `missing` | no record at the path |
+| `invalid` | empty, malformed, unknown keys, a relative path, an oversized or non-regular file |
+| `permissive` | group- or other-readable, owned by another user, or failing the Windows private-path check |
+| `symlink` | the open refused the record because it is a symbolic link |
+| `version` | a consent text version this build does not accept |
+
+Ownership, mode, size and content are checked on one open descriptor and on the bytes read from
+it, and where the platform supports it the open itself refuses a symbolic link. The record
+therefore fails closed rather than following a swapped entry. A missing record is a normal
+disabled state, not an error.
+
+An agent cannot enable it: there is no terminal, no flag and no tool that grants consent. Only
+`ags-retrospective enable` with a typed human `yes` writes the record.
+
+## What is collected
+
+The manual manifest path collects allowlisted structured metadata only. The MCP-native session
+reader is bounded by the fields listed above plus event identity, timestamps and recorded usage
+numbers.
+
+- stable event and message identifiers, timestamps, event kinds;
+- launch settings: provider, model, tool identifiers;
+- typed outcomes: `claimed-complete`, `passed`, `failed`, `denied`, `canceled`, `unknown`;
+- permission decisions, error classes, retry and verification result codes;
+- recorded usage counters when the host recorded them (otherwise `null` — missing telemetry is
+  unknown, never inferred from model name or elapsed time);
+- coverage facts: node disposition, coverage level, truncation, gaps.
+
+## What is excluded at source
+
+- Thinking, private reasoning, and system or developer prompt content.
+- All free-form tool arguments, commands, raw stdout/stderr, and full message text.
+- Credentials, environment dumps, and anything the source policy cannot classify.
+
+Non-negotiable consequences:
+
+- **Redaction is imperfect.** Tool output, quoted text and message bodies routinely contain
+  excluded material, and roles alone do not prove safety. The preparer omits unclassifiable
+  fields and discloses the resulting coverage loss — it does not promise a secret-free output.
+- **Metadata values are themselves untrusted.** Only values matching known identifier grammars
+  are kept; uncertain values are omitted rather than propagated.
+- **A "full observable transcript" claim never includes private reasoning** or historical system
+  prompts that the source did not retain.
+
+## Coverage of the delegation tree
+
+The coverage *objective* is the whole main conversation plus every proven descendant, across
+repositories, workspaces and accounts. The *result* is frequently narrower:
+
+| Coverage | Meaning |
+| --- | --- |
+| `structured-events` | allowlisted events available for the requested range |
+| `partial` | available, but truncated, compacted or cut off by a declared bound |
+| `summary-only` | only a handoff summary survives; no events to re-derive |
+| `restricted` | exists but is not authorized for local reading |
+| `unavailable` | not present on this machine |
+
+`restricted` and `remote-not-authorized` nodes produce placeholders and gaps. An inaccessible
+branch is **never** reported as fully enumerated, and a summary inherits its source's
+restrictions — summarization is not declassification.
+
+On the manual path the node inventory reads only the manifest. Paths, URLs and filesystem
+references found inside transcript text are data, never instructions: they are not followed,
+fetched, opened or executed. Source transcripts are read-only and are never rewritten, moved or
+compacted.
+
+## Egress: local processing versus return channels
+
+Two different risks are routinely confused. Keep them separate:
+
+- **Local processing** — collection, analysis, rendering and publication happen on the machine
+  that owns the session. Nothing is uploaded.
+- **Return channel** — the *receipt* returned to a hosted agent is content too. If a report,
+  excerpt, title or path is returned through an agent tool response, that is egress to a model
+  provider even though no upload endpoint was called.
+
+Therefore the manual manifest path returns to a hosted caller only the minimal receipt: schema
+version, opaque artifact and run IDs, status, and the `modelCalls` / `outboundRequests` counters.
+No paths, titles, excerpts or report text.
+
+The MCP-native path has its own, still narrower channel, and it does not widen this boundary. An
+agent that calls `prepare_retrospective` receives a small fixed-text result — the state, a few
+counts, the artifact id and the two file paths — and nothing else: no transcript text, no claim
+sentences, no report body. The two paths are a deliberate, bounded piece of egress; the file
+contents behind them are not. `get_retrospective_status` returns the consent state only, and no
+MCP tool reads a report back.
+
+Report content is never returned by a tool response. Reaching it takes a deliberate local action: a
+terminal `paths` invocation on the owning machine on the manual path, or opening one of the two
+returned paths on the MCP-native path — which a human does, and which an agent with file-read
+access could also do. **Host panels do not read or return report content today:** the Paseo
+session-data and report-reading RPCs are disabled, and the panel only states that the capability
+is unavailable.
+There is no toggle, environment variable or setting to enable them; enabling waits on verified host
+human admission.
+
+No automatic RPC data read, no host-side collection and no report-text transmission to a model
+occur on any path described in this document.
+
+**Remote clients.** If your host client runs on device A while the session lives on host B, then
+any content displayed in the client is transported A←B. That transport is real transmission between
+two devices, not a local-only operation. Default behaviour for a remote client is to show a receipt
+and a path belonging to the owning host; content transfer requires separate authorization. Paths
+resolved on the wrong machine are simply invalid — never reinterpret a remote path against the
+viewing client's filesystem.
+
+## Storage
+
+- Default root `~/ags/diagnostics`, resolved on the machine that owns the session (not by shell
+  expansion, not by the viewing client's home directory). Any absolute root can be configured
+  through the host's supported configuration mechanism; on the MCP-native path that is
+  `ags-retrospective enable --store-root <abs>`.
+- Created owner-only from the outset: POSIX `0700` directories and `0600` files, or equivalent
+  Windows ACLs. Existing roots are validated before use; a pre-existing root with group or other
+  permissions is refused with `ROOT_PERMISSIVE` (also `ROOT_SYMLINK`, `ROOT_OWNER_MISMATCH`).
+  Remediate with `mkdir -m 700` for a new dedicated root or `chmod 700` on an existing dedicated
+  directory — never a shared checkout or a synced/cloud folder.
+- Host-side root selection is user-scoped: the OMP adapter ignores project-local `<cwd>/.omp/...`
+  configuration, accepts only an explicit absolute `OMP_SESSION_RETROSPECTIVE_CONFIG` override, and
+  refuses a root inside the current folder or anywhere in the same Git repository (resolved through
+  symlinks) — `STORE_ROOT_INSIDE_PROJECT`, or `STORE_ROOT_UNRESOLVED` when it cannot resolve. A
+  cloned checkout cannot redirect report storage into its own tree.
+- Unsafe traversal is refused: symlinks, junctions and reparse-point races are rejected with a
+  refusal or a safe-root remediation request. Where the platform cannot enforce the protection,
+  the tool refuses rather than claiming a guarantee it cannot keep. On Windows, a freshly created
+  directory or file has its owner/ACL established and is device/inode re-checked afterwards; the
+  store root uses the same path-based helper with the helper's own checks. This is substitution
+  **detection**, not atomic prevention, against a process running as the same user. The
+  owner-private parent directory is what excludes other users.
+- **Neutral names by default.** Folder labels carry no readable project or session title unless
+  you explicitly enable readable labels; titles are sensitive metadata, not authority. Names are
+  filesystem-safe, bounded, Windows-reserved-name aware and Unicode-sanitized. Full session and
+  host IDs live in private metadata so short-ID collisions can never overwrite another session.
+  No credentials in names, indexes or temporary files.
+- Generation layout, newest generation last:
+
+  ```text
+  <root>/
+    index/              # committed artifact index: current pointer + generations
+    sessions/
+      <session-token>/
+        meta.json       # metadata only; never the transcript
+        generations/
+          <generation-id>/
+            summary.md      # v2
+            ledger.json     # v2
+            generation.json # v2 layout record
+    locks/  claims/  state/  fences/
+  ```
+
+- Complete generations are published atomically; writers are serialized. A cancelled or failed
+  run cannot resurrect output after publication begins.
+- **Diagnostics are minimized too.** CLI refusals emit a stable error code in strict JSON, never a
+  filesystem path, a runtime/fs message, a stack trace or file content. `status` returns
+  identifiers and status only; `paths` returns the three artifact paths and nothing else.
+
+## Store contents (v2)
+
+MCP-native generations use store layout `v2`. A v2 generation directory holds three files:
+
+- `summary.md` — the report a human can open. Numbers, registry skill ids and fixed sentences
+  only; never transcript text. Its first line states coverage, evidence mode and root.
+- `ledger.json` — the claims, their evidence and the committed counts behind the summary. A
+  repeat call reads this ledger, so `already-prepared` reports the published numbers.
+- `generation.json` — the layout and serialization record written only for a v2 generation.
+
+v1 generations (the manual path) keep their own four artifacts — `report.md`, `proposals.md`,
+`session.json` and `receipt.json` — stay readable and deletable, and are never rewritten into v2.
+Retention and deletion are unchanged: nothing is deleted automatically, and deletion is still
+`ags-retrospective delete --root <absolute> --session <id> --host <id> --confirm`. Report layout
+is documented in [./session-retrospective.md](./session-retrospective.md).
+
+## Retention, cancellation and deletion
+
+- **Retention is manual.** Nothing expires automatically. You delete; the store refuses to grow
+  past its bounds instead of pruning your history.
+- **Cancellation** keeps only what was already published — a clearly marked partial generation —
+  and never promotes proposals. A run that is refused or fails before publication publishes
+  nothing at all, so there is no artefact to inspect. Deleting a session removes its published
+  generations — v1 and v2 alike — and **all index-history generations**, so no
+  older snapshot keeps listing it — the whole managed scope for that session. If the history prune
+  is interrupted, deletion reports `DELETE_INDEX_HISTORY_INCOMPLETE`; re-run `delete` to finish,
+  and the deletion stays authoritative in the meantime. A small opaque fence record (session token,
+  timestamps, no paths, labels or excerpts) is retained by design as deletion residue.
+- **Deletion scope is limited to the managed store.** Filesystem-level backups, host snapshots,
+  sync-provider version history and copies you made elsewhere are outside it. The tool cannot
+  perform secure erasure: deletion removes files, it does not guarantee that bytes are
+  unrecoverable from disk, SSD wear-levelling, snapshots or backups.
+- Store caps are 268,435,456 bytes and 256 published generations. Hitting a cap refuses a new
+  generation; it never deletes an older one to make room.
+
+## Sync folders, backups and acknowledgement
+
+A private ACL does not stop a sync client. If the root (or any parent) is synced to a cloud
+provider or included in backups, that provider receives copies of report content. Detection of
+these setups is best-effort at most — there is **no promise of reliable sync-folder detection**.
+
+On the manual path, `prepare` therefore requires `--ack-storage-risk` on **every** run, and
+refuses with `STORAGE_RISK_NOT_ACKNOWLEDGED` without it. On the MCP-native path the one-time
+consent record stores `storageRiskAcknowledged: true`, so enabling is the acknowledgement. Either
+way it records that you accepted an unknown sync/backup risk; it is a decision record, not a
+mitigation, and it never overrides private permissions:
+
+- owner-only permissions and root validation still apply in full;
+- unsafe roots (symlinks, junctions, reparse-point races, owner mismatch) are refused whatever
+  you acknowledged;
+- if private permission enforcement is unavailable on the platform, the run is refused outright
+  rather than continued under the acknowledgement.
+
+The same acknowledgement is required from adapter flows, in the adapter's own local UI on every
+run: the OMP command asks in a confirmation dialog and returns `STORAGE_RISK_NOT_ACKNOWLEDGED` if
+you decline. This is not only a UI convention: the core request type requires
+`storageRiskAcknowledged: true`, and the library refuses the same code before any read, schema
+parse, store access or claim. The Paseo panel is disabled and collects nothing.
+
+Choosing a root you have verified as neither synced nor backed up **reduces known exposure**; it
+does not prove absence. Parent-volume backups, host snapshots, provider-side version history and a
+sync/backup agent running as your user are invisible to this tool, so the residual uncertainty and
+the mandatory acknowledgement remain.
+
+## What is explicitly not guaranteed
+
+- No perfect redaction and no guarantee that arbitrary logs are secret-free.
+- No secure erasure after deletion.
+- No sandbox guarantee from the plugin or host: an inert viewer is a presentation choice, not an
+  enforced isolation boundary. Report rendering uses plain text with raw HTML and external
+  resources disabled, and transcript-supplied links stay inert, but a viewer that does not enforce
+  this is disclosed rather than described as protected.
+- No proof of runtime network isolation from source code alone. Egress is zero by construction at
+  the call graph level (`modelCalls: 0`, `outboundRequests: 0`); an independent process-level
+  observation is the evidence, and that evidence is not yet recorded for this work.
+- No atomic same-user path-swap prevention on Windows. ACL establishment is path-based; freshly
+  created children are device/inode re-checked after the helper call, while the store root relies
+  on the helper's own checks. These detect but do not atomically prevent a process running as the
+  same user from replacing an entry inside an owner-private parent. Hostile same-user code is
+  outside this protection boundary; other users remain excluded by the private root and parent
+  ACLs.

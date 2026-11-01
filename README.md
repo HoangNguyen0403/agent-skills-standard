@@ -237,16 +237,16 @@ See [SDLC Workflow Quick Reference](./docs/sdlc-workflow-quick-reference.md).
 
 ### Session Retrospectives
 
-**Session retrospectives — prepare local evidence-backed reports and proposals; no model calls or automatic skill changes by default.** After a substantive session, `ags-retrospective prepare --manifest <file> --consent local-only --ack-storage-risk` reads an allowlisted manifest you supply, applies deterministic local rules, and publishes a private `report.md` / `proposals.md` under `~/ags/diagnostics`. The acknowledgement is mandatory on every run and records that you accepted an unknown sync/backup risk; it never overrides owner-only permissions. Read the [privacy guide](./docs/session-retrospective-privacy.md) before you run it. Proposals stay `proposed`; nothing edits skills, workflows, memory or routing.
+**Session retrospectives — local, evidence-backed reports prepared through the MCP server; no model calls and no automatic skill changes.** The server exposes `prepare_retrospective` (orchestrator or unassigned agent only) and `get_retrospective_status` (consent state only) on the stdio transport, so this works with or without OMP or Paseo. A human opts in once by running `ags-retrospective enable` in an interactive terminal — agents cannot enable it. After about 20 substantive tool calls, `audit_session_compliance` and `get_session_cost` append a nudge asking the orchestrator to prepare one; the tool then aggregates counts in one bounded local pass and publishes `summary.md` and `ledger.json` under the store root (`~/ags/diagnostics` by default). Report bodies are never returned through the MCP surface: the tool returns only state, counts, an artifact id and the two file paths. Zero model calls, zero network requests, no skill or workflow edits.
 
-The binary is a console entry point in the MCP package (`agent-skills-standard-mcp`), with an `agent-skills-standard-mcp/retrospective` library subpath — it is **not** an MCP tool, and hosted agents cannot read report text through the MCP surface. **No published release contains it.** A source build and a locally packed tarball both passed local smoke on macOS; nothing is on the registry. The Paseo panel is **disabled** for session-data collection and report reading — it explains the limitation and points at the local CLI — and OMP is manual-manifest only, with a per-run storage-risk confirmation. **Automatic invitations are unavailable on every host.** Start here:
+**Unreleased source.** No registry version contains any of this and nothing is published. The manual manifest CLI (`ags-retrospective prepare --manifest <file> --consent local-only --ack-storage-risk`) remains the advanced path, with the same receipt, refusal and deletion rules. Start here:
 
-- [First-run guide](./docs/session-retrospective.md) — manifest, consent, receipt, complete vs partial results.
-- [Privacy and retention](./docs/session-retrospective-privacy.md) — exclusions, coverage gaps, remote transport, deletion limits.
-- [Host integration](./docs/session-retrospective-hosts.md) — Paseo panel disabled, OMP manual-manifest only, disabling.
+- [First-run guide](./docs/session-retrospective.md) — opt-in, nudge, tools, result states, report layout.
+- [Privacy and retention](./docs/session-retrospective-privacy.md) — read boundary, never-read list, consent file, retention.
+- [Host integration](./docs/session-retrospective-hosts.md) — OMP, Codex, Claude Code and Gemini coverage, transport rule, adapters.
 - [Future online contracts](./docs/session-retrospective-online-contract.md) — **NOT IMPLEMENTED**, contract only.
 
-Guidance lives in `skills/common/common-session-retrospective`. Status: builds and passes its test suite and CLI/tarball smoke locally on macOS; unpublished — see `CHANGELOG.md` → `[Unreleased]`. Windows/Linux, host-adapter runtime and the Paseo adapters remain unverified.
+Guidance lives in `skills/common/common-session-retrospective`. Skill, workflow and rule text that would trigger the tool is not part of this change; it comes later, after a value pilot. Status: the source builds and passes its test suite and CLI/tarball smoke locally on macOS; unpublished — see `CHANGELOG.md` → `[Unreleased]`. Windows/Linux and host-adapter runtime remain unverified.
 
 ## Default SDLC Support
 
