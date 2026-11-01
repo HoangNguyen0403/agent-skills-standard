@@ -12,6 +12,7 @@ export type ClaimTemplateId =
   | "coordination-wait"
   | "skill-usage"
   | "skill-trigger-timing"
+  | "host-skill-reads"
   | "coverage";
 
 export type Claim = {
@@ -48,6 +49,16 @@ export type LedgerCounts = {
   hypotheses: number;
 };
 
+/**
+ * Host-mechanism skill reads (`read skill://<name>`) summed over the tree.
+ * Ids are derived from the read path and are NOT checked against the registry.
+ */
+export type HostSkillSummary = {
+  total: number;
+  unique: number;
+  top: Array<{ id: string; reads: number }>;
+};
+
 export type Ledger = {
   schemaVersion: 1;
   cutoff: string;
@@ -57,6 +68,8 @@ export type Ledger = {
   counts: LedgerCounts;
   /** Copy of the tracker snapshot the skill claims were built from. */
   skillUsage: SkillUsageSnapshot | null;
+  /** Copy of the host-mechanism skill reads the host claim was built from. */
+  hostSkills: HostSkillSummary | null;
   claims: Claim[];
   evidence: Record<EvidenceId, { kind: "aggregate"; value: number | string }>;
 };
@@ -75,6 +88,10 @@ const SAFE_MODEL_REGEX = /^[A-Za-z0-9._:/@+-]{1,64}$/;
 const SAFE_DAY_REGEX = /^(\d{4}-\d{2}-\d{2}|unknown-day)$/;
 /** Registry skill ids are `category/skill`; the tracker emits the same shape. */
 const SAFE_SKILL_ID_REGEX = /^[A-Za-z0-9._:/@+-]{1,96}$/;
+/** Host skill ids are path-derived; anything outside this shape is hashed. */
+const SAFE_HOST_SKILL_ID_REGEX = /^[A-Za-z0-9][A-Za-z0-9._/-]{0,95}$/;
+/** Host skill ids carried in `hostSkills.top`. */
+const MAX_TOP_HOST_SKILLS = 20;
 
 const COUNT_KEYS: ReadonlyArray<keyof LedgerCounts> = [
   "agentsCreated",
@@ -199,6 +216,75 @@ function copySkillUsage(
   };
 }
 
+/**
+ * Host ids are path-derived and never checked against the registry, so an id
+ * that is not plainly safe is replaced by a stable hash of itself.
+ */
+function sanitizeHostSkillId(rawId: string): string {
+  if (SAFE_HOST_SKILL_ID_REGEX.test(rawId)) {
+    return rawId;
+  }
+  const hash = createHash("sha256")
+    .update(rawId, "utf8")
+    .digest("hex")
+    .slice(0, 8);
+  return `skill-${hash}`;
+}
+
+function compareHostSkillEntries(
+  a: { id: string; reads: number },
+  b: { id: string; reads: number },
+): number {
+  if (a.reads !== b.reads) {
+    return b.reads - a.reads;
+  }
+  return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+}
+
+/**
+ * Deterministic copy of the tree's host-mechanism skill reads. Null when the
+ * tree is null, when nothing was read, or when no node was measured.
+ */
+function buildHostSkills(tree: TreeAggregate | null): HostSkillSummary | null {
+  if (tree === null) return null;
+  const measuredNodes = tree.skillLoad.nodes.filter((node) => node.measured);
+  if (measuredNodes.length === 0) return null;
+
+  const perSkill = new Map<string, number>();
+  let total = 0;
+  for (const [rawId, count] of Object.entries(tree.hostSkillReads)) {
+    if (!Number.isFinite(count) || count <= 0) continue;
+    const id = sanitizeHostSkillId(rawId);
+    perSkill.set(id, (perSkill.get(id) ?? 0) + count);
+    total += count;
+  }
+  if (total === 0) return null;
+
+  const top = Array.from(perSkill.entries())
+    .map(([id, reads]) => ({ id, reads }))
+    .sort(compareHostSkillEntries)
+    .slice(0, MAX_TOP_HOST_SKILLS);
+
+  return { total, unique: perSkill.size, top };
+}
+
+function sameHostSkills(
+  a: HostSkillSummary | null,
+  b: HostSkillSummary | null,
+): boolean {
+  if (a === null || b === null) return a === b;
+  if (!Array.isArray(a.top) || !Array.isArray(b.top)) return false;
+  if (a.total !== b.total || a.unique !== b.unique) return false;
+  if (a.top.length !== b.top.length) return false;
+  for (let index = 0; index < a.top.length; index += 1) {
+    const left = a.top[index];
+    const right = b.top[index];
+    if (!left || !right) return false;
+    if (left.id !== right.id || left.reads !== right.reads) return false;
+  }
+  return true;
+}
+
 export function buildLedger(input: LedgerInput): Ledger {
   const tree = input.tree;
   const isPartial =
@@ -227,6 +313,7 @@ export function buildLedger(input: LedgerInput): Ledger {
   const sessionsLinked = input.sessionsLinked;
   const unlinkedAgents = input.unlinkedAgents;
   const skillUsage = copySkillUsage(input.skillUsage);
+  const hostSkills = buildHostSkills(tree);
   const mainSkillNode: NodeSkillLoad | null =
     tree === null || tree.skillLoad.nodes.length === 0
       ? null
@@ -475,6 +562,65 @@ export function buildLedger(input: LedgerInput): Ledger {
     }
   }
 
+  if (tree !== null && hostSkills !== null) {
+    const measuredNodes = tree.skillLoad.nodes.filter((node) => node.measured);
+    const sessionsWithHostRead = measuredNodes.filter(
+      (node) => node.hostSkillReadCalls > 0,
+    ).length;
+    const sessionsWithAnySkillAccess = measuredNodes.filter(
+      (node) => node.callsBeforeFirstSkillAccess !== null,
+    ).length;
+
+    const hostSupporting: EvidenceId[] = [
+      "agg:hostSkills:readCalls",
+      "agg:hostSkills:sessionsWithAnySkillAccess",
+    ];
+    evidence["agg:hostSkills:readCalls"] = {
+      kind: "aggregate",
+      value: hostSkills.total,
+    };
+    evidence["agg:hostSkills:sessionsWithAnySkillAccess"] = {
+      kind: "aggregate",
+      value: sessionsWithAnySkillAccess,
+    };
+
+    const hostValues: Record<string, number | string> = {
+      readCalls: hostSkills.total,
+      uniqueSkills: hostSkills.unique,
+      sessionsWithHostRead,
+      sessionsWithAnySkillAccess,
+      measuredSessions: measuredNodes.length,
+      completeness:
+        tree.metricCompleteness.skillLoad === "may-undercount-by-skipped-lines"
+          ? "may-undercount-by-skipped-lines"
+          : "complete",
+    };
+    if (
+      mainSkillNode !== null &&
+      mainSkillNode.measured &&
+      mainSkillNode.callsBeforeFirstSkillAccess !== null
+    ) {
+      hostValues.mainCallsBeforeFirstSkillAccess =
+        mainSkillNode.callsBeforeFirstSkillAccess;
+    }
+
+    claims.push({
+      id: computeClaimId("host-skill-reads", scope, hostSupporting),
+      type: "observation",
+      template: "host-skill-reads",
+      values: hostValues,
+      scope,
+      denominator: {
+        count: measuredNodes.length,
+        unit: "measured sessions",
+      },
+      coverage: overallCoverage,
+      supporting: hostSupporting,
+      contradicting: [],
+      basedOn: [],
+    });
+  }
+
   const sortedEvidence: Record<
     EvidenceId,
     { kind: "aggregate"; value: number | string }
@@ -500,6 +646,7 @@ export function buildLedger(input: LedgerInput): Ledger {
     coverage: overallCoverage,
     counts,
     skillUsage,
+    hostSkills,
     claims,
     evidence: sortedEvidence,
   };
@@ -529,7 +676,8 @@ export function checkClaimRules(ledger: Ledger): LedgerProblemCode[] {
     if (
       claim.template === "error-stop-exposure" ||
       claim.template === "skill-usage" ||
-      claim.template === "skill-trigger-timing"
+      claim.template === "skill-trigger-timing" ||
+      claim.template === "host-skill-reads"
     ) {
       if (
         !claim.denominator ||
@@ -668,6 +816,25 @@ export function verifyLedger(
   if (
     JSON.stringify(ledger.skillUsage) !== JSON.stringify(expected.skillUsage)
   ) {
+    problems.add("NUMBER_MISMATCH");
+  }
+
+  const storedHostSkills: HostSkillSummary | null = ledger.hostSkills ?? null;
+  if (storedHostSkills !== null) {
+    if (!Array.isArray(storedHostSkills.top)) {
+      problems.add("NUMBER_MISMATCH");
+    } else {
+      for (const entry of storedHostSkills.top) {
+        if (
+          typeof entry?.id !== "string" ||
+          !SAFE_HOST_SKILL_ID_REGEX.test(entry.id)
+        ) {
+          problems.add("UNSAFE_VALUE");
+        }
+      }
+    }
+  }
+  if (!sameHostSkills(storedHostSkills, expected.hostSkills)) {
     problems.add("NUMBER_MISMATCH");
   }
 

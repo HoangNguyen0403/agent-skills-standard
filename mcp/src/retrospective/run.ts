@@ -109,6 +109,7 @@ const storedClaimSchema = z.strictObject({
     "coordination-wait",
     "skill-usage",
     "skill-trigger-timing",
+    "host-skill-reads",
     "coverage",
   ]),
   values: z.record(z.string(), z.union([z.number(), z.string()])),
@@ -153,6 +154,17 @@ const storedSkillUsageSchema = z.strictObject({
   ),
 });
 
+const storedHostSkillsSchema = z.strictObject({
+  total: z.number().int().nonnegative(),
+  unique: z.number().int().nonnegative(),
+  top: z.array(
+    z.strictObject({
+      id: z.string().min(1),
+      reads: z.number().int().nonnegative(),
+    }),
+  ),
+});
+
 const storedLedgerSchema = z.strictObject({
   schemaVersion: z.literal(1),
   cutoff: z.string().min(1),
@@ -168,6 +180,7 @@ const storedLedgerSchema = z.strictObject({
     hypotheses: z.number().int().nonnegative(),
   }),
   skillUsage: storedSkillUsageSchema.nullable(),
+  hostSkills: storedHostSkillsSchema.nullable(),
   claims: z.array(storedClaimSchema).min(1),
   evidence: z.record(
     z.string(),

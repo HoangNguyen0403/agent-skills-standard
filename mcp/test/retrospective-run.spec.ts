@@ -103,6 +103,47 @@ function toolResult(options: {
   });
 }
 
+/** A host-mechanism skill read (`read skill://<name>`), the shape OMP writes. */
+function ompHostReadToolCall(options: {
+  callId: string;
+  targetPath: string;
+  timestamp: string;
+}): string {
+  return lineJson({
+    type: "message",
+    id: `msg-${options.callId}`,
+    timestamp: options.timestamp,
+    message: {
+      role: "assistant",
+      content: [
+        {
+          type: "toolCall",
+          id: options.callId,
+          name: "read",
+          arguments: { path: options.targetPath },
+        },
+      ],
+    },
+  });
+}
+
+function hostReadResult(options: {
+  callId: string;
+  timestamp: string;
+}): string {
+  return lineJson({
+    type: "message",
+    id: `res-${options.callId}`,
+    timestamp: options.timestamp,
+    message: {
+      role: "toolResult",
+      toolCallId: options.callId,
+      toolName: "read",
+      content: [{ type: "text", text: "skill body" }],
+    },
+  });
+}
+
 function createConsentRecord(
   storeRoot: string,
   allowedSourceRoots: string[],
@@ -1239,5 +1280,91 @@ describe("runRetrospective orchestration (Task S4b)", () => {
     const summaryText = await fsp.readFile(res.viewPaths.summary, "utf8");
     expect(summaryText.split("\n")[0]).toContain("Coverage: partial");
     expect(summaryText.split("\n")[0]).not.toContain("Coverage: complete");
+  });
+
+  it("commits host skill reads and returns already-prepared with the same numbers", async () => {
+    const root = await makeTempDir("ags-run-host-skills-");
+    const storeRoot = path.join(root, "store");
+    const consentPath = path.join(root, "consent.json");
+    const sessionsDir = path.join(root, "sessions");
+    const workspaceDir = path.join(root, "workspace");
+    await fsp.mkdir(sessionsDir, { recursive: true, mode: 0o700 });
+    await fsp.mkdir(workspaceDir, { recursive: true });
+    await writeConsent(
+      createConsentRecord(storeRoot, [sessionsDir]),
+      consentPath,
+    );
+
+    const mainSessionId = "sess-host-skills";
+    const mainFile = path.join(sessionsDir, `${mainSessionId}.jsonl`);
+    const tracker1 = new SessionTracker();
+    await recordAndWrite(tracker1, "load_skills_for_files", mainFile, {
+      sessionId: mainSessionId,
+      cwd: workspaceDir,
+    });
+
+    const observed = tracker1.observedToolCalls();
+    const lastCall = observed[observed.length - 1];
+    const atMs = Date.parse(lastCall.at);
+    const hostRows: string[] = [];
+    for (const [index, suffix] of ["a", "b"].entries()) {
+      const callId = `host-${suffix}`;
+      hostRows.push(
+        ompHostReadToolCall({
+          callId,
+          targetPath: "skill://paseo",
+          timestamp: new Date(atMs + 1000 + index * 200).toISOString(),
+        }),
+        hostReadResult({
+          callId,
+          timestamp: new Date(atMs + 1100 + index * 200).toISOString(),
+        }),
+      );
+    }
+    await fsp.appendFile(mainFile, hostRows.join(""), { mode: 0o600 });
+
+    const res1 = await runRetrospective(
+      { tracker: tracker1, workspace: workspaceDir, consentPath },
+      new AbortController().signal,
+    );
+    expect(res1.state).toBe("prepared");
+    if (res1.state !== "prepared") return;
+    expect(res1.evidenceMode).toBe("native-files");
+
+    const ledgerContent = await fsp.readFile(res1.viewPaths.ledger, "utf8");
+    const parsedLedger = JSON.parse(ledgerContent) as {
+      hostSkills: {
+        total: number;
+        unique: number;
+        top: Array<{ id: string; reads: number }>;
+      } | null;
+      claims: Array<{ template: string }>;
+    };
+    expect(parsedLedger.hostSkills).toEqual({
+      total: 2,
+      unique: 1,
+      top: [{ id: "paseo", reads: 2 }],
+    });
+    expect(
+      parsedLedger.claims.some((c) => c.template === "host-skill-reads"),
+    ).toBe(true);
+
+    const summaryContent = await fsp.readFile(res1.viewPaths.summary, "utf8");
+    expect(summaryContent).toContain("Host skill reads: 2 reads of 1 skills");
+
+    // A restart replays the same recorded events, so it must join the same
+    // generation and read the numbers back from the committed ledger.
+    const tracker2 = new SessionTracker();
+    for (const event of tracker1.events_()) {
+      tracker2.record(event);
+    }
+    const res2 = await runRetrospective(
+      { tracker: tracker2, workspace: workspaceDir, consentPath },
+      new AbortController().signal,
+    );
+    expect(res2.state).toBe("already-prepared");
+    if (res2.state !== "already-prepared") return;
+    expect(res2.artifactId).toBe(res1.artifactId);
+    expect(res2.counts).toEqual(res1.counts);
   });
 });

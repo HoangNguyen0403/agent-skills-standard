@@ -7,6 +7,7 @@ import { RetrospectiveError } from "./rules";
 import {
   SERVER_HOUSEKEEPING_TOOLS,
   SKILL_LOAD_TOOLS,
+  extractHostSkillId,
   extractServerToolName,
 } from "./server-tools";
 
@@ -30,6 +31,14 @@ export type SessionSkillLoad = {
   skillLoadCalls: number;
   /** Tool calls seen before the first skill-load call; null when there was none. */
   callsBeforeFirstSkillLoad: number | null;
+  /** `read skill://...` calls that yielded a skill id. */
+  hostSkillReadCalls: number;
+  /**
+   * Non-housekeeping tool calls seen before the first skill access by either
+   * route (a server skill-load tool or a host `skill://` read); null when there
+   * was none.
+   */
+  callsBeforeFirstSkillAccess: number | null;
 };
 
 /** Per-node skill-load shape carried by `TreeAggregate.skillLoad`. */
@@ -39,6 +48,8 @@ export type NodeSkillLoad = {
   measured: boolean;
   skillLoadCalls: number;
   callsBeforeFirstSkillLoad: number | null;
+  hostSkillReadCalls: number;
+  callsBeforeFirstSkillAccess: number | null;
 };
 
 export type SessionAggregate = {
@@ -65,6 +76,8 @@ export type SessionAggregate = {
   toolErrors: Record<string, number>;
   /** Bounded map: server tool name -> calls. */
   serverToolCalls: Record<string, number>;
+  /** Bounded map: host skill id -> `read skill://` calls. */
+  hostSkillReads: Record<string, number>;
   skillLoad: SessionSkillLoad;
   coverage: "complete" | "partial";
   partialReason?: "size-ceiling" | "time-ceiling" | "unreadable-lines";
@@ -127,6 +140,8 @@ export type TreeAggregate = {
   toolErrors: Record<string, number>;
   /** Summed across nodes. */
   serverToolCalls: Record<string, number>;
+  /** Summed key-wise across nodes. */
+  hostSkillReads: Record<string, number>;
   /** Nodes in input order (index 0 is the main session), capped. */
   skillLoad: { nodes: NodeSkillLoad[]; omittedNodes: number };
   skippedLines: number;
@@ -356,11 +371,14 @@ export async function aggregateSession(
     const toolCalls: Record<string, number> = {};
     const toolErrors: Record<string, number> = {};
     const serverToolCalls: Record<string, number> = {};
+    const hostSkillReads: Record<string, number> = {};
     const skillLoad: SessionSkillLoad = {
       // Codex tool naming is unverified, so its counts are a declared non-measurement.
       measured: source.format === "omp",
       skillLoadCalls: 0,
       callsBeforeFirstSkillLoad: null,
+      hostSkillReadCalls: 0,
+      callsBeforeFirstSkillAccess: null,
     };
     // Non-housekeeping tool calls seen so far, in file order.
     let callsSeen = 0;
@@ -602,6 +620,20 @@ export async function aggregateSession(
                   skillLoad.skillLoadCalls += 1;
                   if (skillLoad.callsBeforeFirstSkillLoad === null) {
                     skillLoad.callsBeforeFirstSkillLoad = callsSeen;
+                  }
+                  if (skillLoad.callsBeforeFirstSkillAccess === null) {
+                    skillLoad.callsBeforeFirstSkillAccess = callsSeen;
+                  }
+                }
+                const hostSkillId = extractHostSkillId(
+                  part.name,
+                  part.arguments,
+                );
+                if (hostSkillId !== null) {
+                  skillLoad.hostSkillReadCalls += 1;
+                  recordBoundedMap(hostSkillReads, hostSkillId);
+                  if (skillLoad.callsBeforeFirstSkillAccess === null) {
+                    skillLoad.callsBeforeFirstSkillAccess = callsSeen;
                   }
                 }
                 if (!isHousekeeping) {
@@ -1054,6 +1086,7 @@ export async function aggregateSession(
       toolCalls,
       toolErrors,
       serverToolCalls,
+      hostSkillReads,
       skillLoad,
       coverage,
       ...(partialReason !== undefined ? { partialReason } : {}),
@@ -1107,6 +1140,7 @@ export function rollUp(aggregates: AggregatedSession[]): TreeAggregate {
   const toolCalls: Record<string, number> = {};
   const toolErrors: Record<string, number> = {};
   const serverToolCalls: Record<string, number> = {};
+  const hostSkillReads: Record<string, number> = {};
   const skillLoadNodes: NodeSkillLoad[] = [];
   let omittedSkillLoadNodes = 0;
   let skippedLines = 0;
@@ -1162,6 +1196,9 @@ export function rollUp(aggregates: AggregatedSession[]): TreeAggregate {
     for (const [k, v] of Object.entries(agg.serverToolCalls)) {
       serverToolCalls[k] = (serverToolCalls[k] ?? 0) + v;
     }
+    for (const [k, v] of Object.entries(agg.hostSkillReads)) {
+      hostSkillReads[k] = (hostSkillReads[k] ?? 0) + v;
+    }
     if (skillLoadNodes.length < MAX_SKILL_LOAD_NODES) {
       skillLoadNodes.push({
         ordinal: index,
@@ -1169,6 +1206,8 @@ export function rollUp(aggregates: AggregatedSession[]): TreeAggregate {
         measured: agg.skillLoad.measured,
         skillLoadCalls: agg.skillLoad.skillLoadCalls,
         callsBeforeFirstSkillLoad: agg.skillLoad.callsBeforeFirstSkillLoad,
+        hostSkillReadCalls: agg.skillLoad.hostSkillReadCalls,
+        callsBeforeFirstSkillAccess: agg.skillLoad.callsBeforeFirstSkillAccess,
       });
     } else {
       omittedSkillLoadNodes += 1;
@@ -1232,6 +1271,7 @@ export function rollUp(aggregates: AggregatedSession[]): TreeAggregate {
     toolCalls,
     toolErrors,
     serverToolCalls,
+    hostSkillReads,
     skillLoad: { nodes: skillLoadNodes, omittedNodes: omittedSkillLoadNodes },
     skippedLines,
     metricCompleteness,

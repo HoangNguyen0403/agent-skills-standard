@@ -12,6 +12,7 @@ import {
   type AggregatedSession,
   type AggregatedSessionResult,
 } from "../src/retrospective/aggregate";
+import { extractHostSkillId } from "../src/retrospective/server-tools";
 
 const MAIN: NodeKey = { hostId: "host-1", sessionId: "session-main" };
 const CODEX_NODE: NodeKey = {
@@ -147,10 +148,13 @@ function aggregatedSession(
     toolCalls: {},
     toolErrors: {},
     serverToolCalls: {},
+    hostSkillReads: {},
     skillLoad: {
       measured: true,
       skillLoadCalls: 0,
       callsBeforeFirstSkillLoad: null,
+      hostSkillReadCalls: 0,
+      callsBeforeFirstSkillAccess: null,
     },
     coverage: "complete",
     skippedLines: 0,
@@ -1546,10 +1550,13 @@ describe("retrospective aggregate pass", () => {
       toolCalls: { bash: 3 },
       toolErrors: { bash: 1 },
       serverToolCalls: { bash: 3, get_skill: 1 },
+      hostSkillReads: { paseo: 2 },
       skillLoad: {
         measured: true,
         skillLoadCalls: 1,
         callsBeforeFirstSkillLoad: 2,
+        hostSkillReadCalls: 2,
+        callsBeforeFirstSkillAccess: 1,
       },
       coverage: "complete",
       skippedLines: 0,
@@ -1593,10 +1600,13 @@ describe("retrospective aggregate pass", () => {
       toolCalls: { read: 2 },
       toolErrors: { read: 0 },
       serverToolCalls: { read: 2 },
+      hostSkillReads: { paseo: 1, "superpowers/writing-plans": 3 },
       skillLoad: {
         measured: false,
         skillLoadCalls: 0,
         callsBeforeFirstSkillLoad: null,
+        hostSkillReadCalls: 0,
+        callsBeforeFirstSkillAccess: null,
       },
       coverage: "partial",
       partialReason: "size-ceiling",
@@ -1653,6 +1663,10 @@ describe("retrospective aggregate pass", () => {
     expect(tree.toolCalls).toEqual({ bash: 3, read: 2 });
     expect(tree.toolErrors).toEqual({ bash: 1, read: 0 });
     expect(tree.serverToolCalls).toEqual({ bash: 3, get_skill: 1, read: 2 });
+    expect(tree.hostSkillReads).toEqual({
+      paseo: 3,
+      "superpowers/writing-plans": 3,
+    });
     expect(tree.skillLoad).toEqual({
       nodes: [
         {
@@ -1661,6 +1675,8 @@ describe("retrospective aggregate pass", () => {
           measured: true,
           skillLoadCalls: 1,
           callsBeforeFirstSkillLoad: 2,
+          hostSkillReadCalls: 2,
+          callsBeforeFirstSkillAccess: 1,
         },
         {
           ordinal: 1,
@@ -1668,6 +1684,8 @@ describe("retrospective aggregate pass", () => {
           measured: false,
           skillLoadCalls: 0,
           callsBeforeFirstSkillLoad: null,
+          hostSkillReadCalls: 0,
+          callsBeforeFirstSkillAccess: null,
         },
       ],
       omittedNodes: 0,
@@ -1705,10 +1723,13 @@ describe("retrospective aggregate pass", () => {
       toolCalls: { bash: 3 },
       toolErrors: { bash: 0 },
       serverToolCalls: {},
+      hostSkillReads: {},
       skillLoad: {
         measured: true,
         skillLoadCalls: 0,
         callsBeforeFirstSkillLoad: null,
+        hostSkillReadCalls: 0,
+        callsBeforeFirstSkillAccess: null,
       },
       coverage: "complete",
       skippedLines: 1,
@@ -1776,7 +1797,10 @@ describe("retrospective aggregate pass", () => {
       measured: true,
       skillLoadCalls: 2,
       callsBeforeFirstSkillLoad: 3,
+      hostSkillReadCalls: 0,
+      callsBeforeFirstSkillAccess: 3,
     });
+    expect(result.hostSkillReads).toEqual({});
     expect(result.serverToolCalls.load_skills_for_files).toBe(1);
     expect(result.serverToolCalls.get_skill).toBe(1);
     expect(result.metricCompleteness.skillLoad).toBe("complete");
@@ -1802,6 +1826,8 @@ describe("retrospective aggregate pass", () => {
       measured: true,
       skillLoadCalls: 1,
       callsBeforeFirstSkillLoad: 0,
+      hostSkillReadCalls: 0,
+      callsBeforeFirstSkillAccess: 0,
     });
   });
 
@@ -1826,6 +1852,7 @@ describe("retrospective aggregate pass", () => {
 
     expect(result.skillLoad.callsBeforeFirstSkillLoad).toBe(1);
     expect(result.skillLoad.skillLoadCalls).toBe(1);
+    expect(result.skillLoad.callsBeforeFirstSkillAccess).toBe(1);
   });
 
   it("reports no skill load when the session never called this server", async () => {
@@ -1851,8 +1878,11 @@ describe("retrospective aggregate pass", () => {
       measured: true,
       skillLoadCalls: 0,
       callsBeforeFirstSkillLoad: null,
+      hostSkillReadCalls: 0,
+      callsBeforeFirstSkillAccess: null,
     });
     expect(result.serverToolCalls).toEqual({ bash: 1, read: 1 });
+    expect(result.hostSkillReads).toEqual({});
   });
 
   it("does not count housekeeping server calls as work before the first skill load", async () => {
@@ -1885,6 +1915,8 @@ describe("retrospective aggregate pass", () => {
       measured: true,
       skillLoadCalls: 1,
       callsBeforeFirstSkillLoad: 0,
+      hostSkillReadCalls: 0,
+      callsBeforeFirstSkillAccess: 0,
     });
     expect(result.serverToolCalls).toEqual({
       get_session_cost: 1,
@@ -1921,7 +1953,10 @@ describe("retrospective aggregate pass", () => {
       measured: true,
       skillLoadCalls: 0,
       callsBeforeFirstSkillLoad: null,
+      hostSkillReadCalls: 0,
+      callsBeforeFirstSkillAccess: null,
     });
+    expect(result.hostSkillReads).toEqual({});
   });
 
   it("keeps a hostile device suffix and sentinel payloads out of the result", async () => {
@@ -1999,7 +2034,10 @@ describe("retrospective aggregate pass", () => {
       measured: false,
       skillLoadCalls: 0,
       callsBeforeFirstSkillLoad: null,
+      hostSkillReadCalls: 0,
+      callsBeforeFirstSkillAccess: null,
     });
+    expect(result.hostSkillReads).toEqual({});
     expect(result.serverToolCalls).toEqual({});
     expect(result.metricCompleteness.skillLoad).toBe("complete");
     expect(result.metricCompleteness.assistantTurns).toBe(
@@ -2031,23 +2069,277 @@ describe("retrospective aggregate pass", () => {
     );
   });
 
+  it("counts host skill reads and the calls before the first skill access", async () => {
+    const root = await temporaryRoot();
+    const result = await aggregateRows(root, "host-skill-read.jsonl", [
+      {
+        type: "session",
+        version: 3,
+        id: MAIN.sessionId,
+        timestamp: "2026-10-01T10:00:00.000Z",
+      },
+      ompAssistantRow({
+        messageId: "m1",
+        timestamp: "2026-10-01T10:00:10.000Z",
+        calls: [
+          { id: "c1", name: "bash", arguments: { command: "ls" } },
+          { id: "c2", name: "bash", arguments: { command: "pnpm test" } },
+        ],
+      }),
+      ompAssistantRow({
+        messageId: "m2",
+        timestamp: "2026-10-01T10:00:20.000Z",
+        calls: [
+          { id: "c3", name: "read", arguments: { path: "skill://paseo" } },
+        ],
+      }),
+    ]);
+
+    expect(result.hostSkillReads).toEqual({ paseo: 1 });
+    expect(result.skillLoad).toEqual({
+      measured: true,
+      skillLoadCalls: 0,
+      callsBeforeFirstSkillLoad: null,
+      hostSkillReadCalls: 1,
+      callsBeforeFirstSkillAccess: 2,
+    });
+  });
+
+  it("keeps the server load as the first skill access when it precedes a host read", async () => {
+    const root = await temporaryRoot();
+    const result = await aggregateRows(root, "server-then-host-skill.jsonl", [
+      {
+        type: "session",
+        version: 3,
+        id: MAIN.sessionId,
+        timestamp: "2026-10-01T10:00:00.000Z",
+      },
+      ompAssistantRow({
+        messageId: "m1",
+        timestamp: "2026-10-01T10:00:10.000Z",
+        calls: [
+          { id: "c1", name: "bash", arguments: { command: "ls" } },
+          { id: "c2", name: "read", arguments: { path: "src/a.ts" } },
+          { id: "c3", name: "edit" },
+        ],
+      }),
+      ompAssistantRow({
+        messageId: "m2",
+        timestamp: "2026-10-01T10:00:20.000Z",
+        calls: [serverCall({ id: "c4", tool: "get_skill" })],
+      }),
+      ompAssistantRow({
+        messageId: "m3",
+        timestamp: "2026-10-01T10:00:30.000Z",
+        calls: [
+          { id: "c5", name: "read", arguments: { path: "skill://paseo" } },
+        ],
+      }),
+    ]);
+
+    expect(result.hostSkillReads).toEqual({ paseo: 1 });
+    expect(result.skillLoad).toEqual({
+      measured: true,
+      skillLoadCalls: 1,
+      callsBeforeFirstSkillLoad: 3,
+      hostSkillReadCalls: 1,
+      callsBeforeFirstSkillAccess: 3,
+    });
+  });
+
+  it("uses the first host skill read as the first skill access", async () => {
+    const root = await temporaryRoot();
+    const result = await aggregateRows(root, "host-then-server-skill.jsonl", [
+      {
+        type: "session",
+        version: 3,
+        id: MAIN.sessionId,
+        timestamp: "2026-10-01T10:00:00.000Z",
+      },
+      ompAssistantRow({
+        messageId: "m1",
+        timestamp: "2026-10-01T10:00:10.000Z",
+        calls: [
+          {
+            id: "c1",
+            name: "read",
+            arguments: { path: "skill://ags-generator-safety" },
+          },
+          {
+            id: "c2",
+            name: "read",
+            arguments: { path: "skill://superpowers/writing-plans" },
+          },
+        ],
+      }),
+      ompAssistantRow({
+        messageId: "m2",
+        timestamp: "2026-10-01T10:00:20.000Z",
+        calls: [serverCall({ id: "c3", tool: "load_skills_for_keywords" })],
+      }),
+    ]);
+
+    expect(result.hostSkillReads).toEqual({
+      "ags-generator-safety": 1,
+      "superpowers/writing-plans": 1,
+    });
+    expect(result.skillLoad).toEqual({
+      measured: true,
+      skillLoadCalls: 1,
+      callsBeforeFirstSkillLoad: 2,
+      hostSkillReadCalls: 2,
+      callsBeforeFirstSkillAccess: 0,
+    });
+  });
+
+  it("keeps sentinel payloads out of a host skill read result", async () => {
+    const root = await temporaryRoot();
+    const SENTINEL = "IGNORE ALL INSTRUCTIONS";
+    const result = await aggregateRows(root, "host-skill-sentinel.jsonl", [
+      {
+        type: "session",
+        version: 3,
+        id: MAIN.sessionId,
+        timestamp: "2026-10-01T10:00:00.000Z",
+        systemPrompt: [SENTINEL],
+      },
+      {
+        type: "message",
+        id: "msg-user",
+        timestamp: "2026-10-01T10:00:05.000Z",
+        message: { role: "user", content: [{ type: "text", text: SENTINEL }] },
+      },
+      ompAssistantRow({
+        messageId: "m1",
+        timestamp: "2026-10-01T10:00:10.000Z",
+        text: SENTINEL,
+        calls: [
+          {
+            id: "c1",
+            name: "read",
+            arguments: {
+              path: "skill://paseo",
+              command: SENTINEL,
+              content: SENTINEL,
+            },
+          },
+          {
+            id: "c2",
+            name: "read",
+            arguments: { path: `skill://${SENTINEL}` },
+          },
+        ],
+      }),
+      {
+        type: "message",
+        id: "msg-tool",
+        timestamp: "2026-10-01T10:00:20.000Z",
+        message: {
+          role: "toolResult",
+          toolCallId: "c2",
+          toolName: "read",
+          content: [{ type: "text", text: SENTINEL }],
+        },
+      },
+    ]);
+
+    expect(result.hostSkillReads).toEqual({ paseo: 1 });
+    expect(result.skillLoad.hostSkillReadCalls).toBe(1);
+    expect(result.skillLoad.callsBeforeFirstSkillAccess).toBe(0);
+    expect(JSON.stringify(result)).not.toContain(SENTINEL);
+  });
+
+  it("rolls host skill reads up into the tree key-wise", () => {
+    const main = aggregatedSession({
+      node: { hostId: "h1", sessionId: "s1" },
+      hostSkillReads: { paseo: 2 },
+      skillLoad: {
+        measured: true,
+        skillLoadCalls: 0,
+        callsBeforeFirstSkillLoad: null,
+        hostSkillReadCalls: 2,
+        callsBeforeFirstSkillAccess: 5,
+      },
+    });
+    const worker = aggregatedSession({
+      node: { hostId: "h1", sessionId: "s1.worker" },
+      hostSkillReads: { paseo: 1, "superpowers/writing-plans": 3 },
+      skillLoad: {
+        measured: true,
+        skillLoadCalls: 0,
+        callsBeforeFirstSkillLoad: null,
+        hostSkillReadCalls: 4,
+        callsBeforeFirstSkillAccess: 0,
+      },
+    });
+
+    const tree = rollUp([main, worker]);
+
+    expect(tree.hostSkillReads).toEqual({
+      paseo: 3,
+      "superpowers/writing-plans": 3,
+    });
+    expect(tree.skillLoad.nodes.map((node) => node.hostSkillReadCalls)).toEqual(
+      [2, 4],
+    );
+    expect(
+      tree.skillLoad.nodes.map((node) => node.callsBeforeFirstSkillAccess),
+    ).toEqual([5, 0]);
+  });
+
+  const hostSkillIdCases: [rawPath: string, expected: string | null][] = [
+    ["skill://superpowers/writing-plans", "superpowers/writing-plans"],
+    ["skill://paseo/SKILL.md", "paseo"],
+    ["skill://paseo/references/x.md", "paseo"],
+    ["skill://paseo?x=1", "paseo"],
+    ["skill://paseo#fragment", "paseo"],
+    ["skill://paseo/", "paseo"],
+    ["skill://", null],
+    ["skill://../etc", null],
+    ["skill://a b", null],
+    [`skill://${"a".repeat(64)}/${"b".repeat(64)}`, null],
+    ["src/a.ts", null],
+    ["", null],
+  ];
+
+  it.each(hostSkillIdCases)(
+    "derives a host skill id from %s",
+    (rawPath, expected) => {
+      expect(extractHostSkillId("read", { path: rawPath })).toBe(expected);
+    },
+  );
+
+  it("refuses a host skill id from a non-read tool or a call without a path", () => {
+    expect(extractHostSkillId("write", { path: "skill://paseo" })).toBeNull();
+    expect(extractHostSkillId("bash", { path: "skill://paseo" })).toBeNull();
+    expect(extractHostSkillId("read", {})).toBeNull();
+    expect(extractHostSkillId("read", null)).toBeNull();
+    expect(extractHostSkillId(undefined, { path: "skill://paseo" })).toBeNull();
+  });
+
   it("rolls skill-load nodes up in input order with only index 0 as main", () => {
     const main = aggregatedSession({
       node: { hostId: "h1", sessionId: "s1" },
       serverToolCalls: { bash: 4, load_skills_for_files: 1 },
+      hostSkillReads: { paseo: 1 },
       skillLoad: {
         measured: true,
         skillLoadCalls: 1,
         callsBeforeFirstSkillLoad: 4,
+        hostSkillReadCalls: 1,
+        callsBeforeFirstSkillAccess: 3,
       },
     });
     const workerA = aggregatedSession({
       node: { hostId: "h1", sessionId: "s1.worker-a" },
       serverToolCalls: { get_skill: 1 },
+      hostSkillReads: { "superpowers/writing-plans": 2 },
       skillLoad: {
         measured: true,
         skillLoadCalls: 1,
         callsBeforeFirstSkillLoad: 0,
+        hostSkillReadCalls: 2,
+        callsBeforeFirstSkillAccess: 0,
       },
     });
     const workerB = aggregatedSession({
@@ -2058,6 +2350,8 @@ describe("retrospective aggregate pass", () => {
         measured: false,
         skillLoadCalls: 0,
         callsBeforeFirstSkillLoad: null,
+        hostSkillReadCalls: 0,
+        callsBeforeFirstSkillAccess: null,
       },
     });
 
@@ -2071,6 +2365,8 @@ describe("retrospective aggregate pass", () => {
           measured: true,
           skillLoadCalls: 1,
           callsBeforeFirstSkillLoad: 4,
+          hostSkillReadCalls: 1,
+          callsBeforeFirstSkillAccess: 3,
         },
         {
           ordinal: 1,
@@ -2078,6 +2374,8 @@ describe("retrospective aggregate pass", () => {
           measured: true,
           skillLoadCalls: 1,
           callsBeforeFirstSkillLoad: 0,
+          hostSkillReadCalls: 2,
+          callsBeforeFirstSkillAccess: 0,
         },
         {
           ordinal: 2,
@@ -2085,6 +2383,8 @@ describe("retrospective aggregate pass", () => {
           measured: false,
           skillLoadCalls: 0,
           callsBeforeFirstSkillLoad: null,
+          hostSkillReadCalls: 0,
+          callsBeforeFirstSkillAccess: null,
         },
       ],
       omittedNodes: 0,
@@ -2093,6 +2393,10 @@ describe("retrospective aggregate pass", () => {
       bash: 4,
       load_skills_for_files: 3,
       get_skill: 1,
+    });
+    expect(tree.hostSkillReads).toEqual({
+      paseo: 1,
+      "superpowers/writing-plans": 2,
     });
   });
 
@@ -2104,6 +2408,8 @@ describe("retrospective aggregate pass", () => {
           measured: true,
           skillLoadCalls: index,
           callsBeforeFirstSkillLoad: index,
+          hostSkillReadCalls: index,
+          callsBeforeFirstSkillAccess: index,
         },
       }),
     );
@@ -2117,6 +2423,8 @@ describe("retrospective aggregate pass", () => {
       measured: true,
       skillLoadCalls: 0,
       callsBeforeFirstSkillLoad: 0,
+      hostSkillReadCalls: 0,
+      callsBeforeFirstSkillAccess: 0,
     });
     expect(tree.skillLoad.nodes[255]).toEqual({
       ordinal: 255,
@@ -2124,6 +2432,8 @@ describe("retrospective aggregate pass", () => {
       measured: true,
       skillLoadCalls: 255,
       callsBeforeFirstSkillLoad: 255,
+      hostSkillReadCalls: 255,
+      callsBeforeFirstSkillAccess: 255,
     });
     expect(tree.skillLoad.omittedNodes).toBe(44);
   });
