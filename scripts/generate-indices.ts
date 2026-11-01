@@ -5,7 +5,6 @@ import { Agent, getAgentDefinition } from '../cli/src/constants';
 import { AgentBridgeService } from '../cli/src/services/AgentBridgeService';
 import { IndexGeneratorServiceImpl } from '../cli/src/services/IndexGeneratorServiceImpl';
 import { MarkdownUtils } from '../cli/src/services/utils/MarkdownUtils';
-import { SpecialistSyncService } from '../cli/src/services/SpecialistSyncService';
 import { ConfigService } from '../cli/src/services/ConfigService';
 import { SyncService } from '../cli/src/services/SyncService';
 import { CollectedSkill, RegistryMetadata } from '../cli/src/models/types';
@@ -453,12 +452,23 @@ async function generate() {
         );
       }
 
+      // Native specialist exports belong to the same ownership lifecycle as
+      // skills and workflows: write them through the active writer and carry
+      // the real completion result into finalization. A later passthrough
+      // write would change owned bytes after the manifest digest was recorded.
+      let specialistsOk = false;
+      const localSpecialistsDir = path.join(skillsDir, "specialists");
+      if (await fs.pathExists(localSpecialistsDir)) {
+        specialistsOk = await syncService.syncSpecialists(config);
+        console.log(`✅ Synced specialists for: ${agents.join(", ")}`);
+      }
+
       // Refresh indices after ownership pruning so retired members cannot remain
       // in the generated category indexes or their lockfile snapshots.
       await syncService.completeInstall(config, {
         skills: collectedSkills,
         workflows: collectedWorkflows,
-        specialistsOk: false,
+        specialistsOk,
         refreshIndices: true,
         localMetadata,
         // Local authoring source is a complete desired set for this checkout.
@@ -475,18 +485,6 @@ async function generate() {
       );
     } catch (error) {
       console.error("❌ Failed to sync local skills/workflows:", error);
-      throw error;
-    }
-  }
-
-  // Final Phase: Sync specialists to native agent folders
-  if (agents.length > 0) {
-    try {
-      const specialistSyncService = new SpecialistSyncService();
-      await specialistSyncService.syncSpecialists(repoRoot, agents);
-      console.log(`✅ Synced specialists for: ${agents.join(", ")}`);
-    } catch (error) {
-      console.error("❌ Failed to sync specialists:", error);
       throw error;
     }
   }

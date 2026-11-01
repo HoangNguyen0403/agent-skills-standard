@@ -290,6 +290,38 @@ files to match both that tracked base and the prior producer's output. Adoption
 evidence is archived under the run receipt before publication.
 `--check` never adopts or changes ownership.
 
+Historical provenance for the config-independent repository-generation outputs
+is recorded by a separate, authority-gated operator action —
+`pnpm generate-indices --recover-provenance <full-commit-sha>` — and never as a
+routine repair. Its scope is strictly `skills/index.json`,
+`skills/metadata.json`, `skills/README.md` and canonical
+`skills/<category>/_INDEX.md` files, and it is all-or-nothing: any other
+requested path (host mirrors, workflow or specialist exports, rule files, host
+indices, `AGENTS.md`, root `README.md`, `cli/README.md`) refuses the whole run
+with no destination, index or lock effect. The named commit must be a full SHA
+that is an ancestor of `HEAD`; `HEAD` equality alone is never accepted as
+provenance. Before publication the run must show, per requested path, that the
+Git index entry and working-tree bytes both match that base commit, that the
+historical producer archived at that commit reproduces those exact bytes, and
+that `skills/metadata.json` matches on its `token_metrics` scope and index mode.
+A runtime differential closes the config gap: the pinned-base producer is rerun
+under the current configuration, and any byte difference refuses the run. The
+configuration files are captured with worktree, index and base digests, must be
+regular non-symlink files, at least one must exist in both the base tree and
+the worktree, and those digests are reasserted before each publish effect.
+`--recover-provenance` is mutually exclusive with `--adopt-base` and `--check`,
+and it never heals outputs through `HEAD` blob equality. Evidence is retained
+under the run's `artifacts/generation-logs/<attempt>/` receipt: `adoption/before`
+snapshots, `adoption/proof.json` extended with `mode: "recover"`, base and
+`HEAD`, ancestry, the requested set, configuration digests and the per-path
+differential result, plus `recoveredFiles` in `receipt.json`. Any failed
+precondition fails closed without partial recovery: non-full or unresolved SHA,
+non-ancestor base, non-recoverable path, provenance or metadata drift, a failed
+historical producer phase, a configuration-dependent result, concurrent edits,
+or a symlink in the archived snapshot. This capability is unreleased and
+unverified: the paragraph documents the candidate contract only, and no
+recovery run, test result, lock mutation or publication is claimed.
+
 The ownership manifest keeps CLI-managed entries separate from the
 repository-generation ledger. Publication updates only changed, verified
 outputs; unchanged unowned files are not claimed. The `skills/metadata.json`

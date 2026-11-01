@@ -7,12 +7,16 @@ import * as yaml from "js-yaml";
 import {
   parseGenerationLedger,
   sha256,
+  SHARED_WORKFLOW_AGENT,
   type GenerationEntry,
   type ManifestEntry,
   type SkillsLockFile,
+  type WorkflowCatalog,
+  type WorkflowCatalogWorkflow,
 } from "../../cli/src/services/LockfileService";
 import { assertNoSymlinksUnderRoot } from "../../cli/src/services/install/safePath";
 import { isOverriddenRel } from "../../cli/src/services/install/pathMatch";
+import { removeEmptyParents } from "../../cli/src/services/install/fsUtil";
 import {
   Agent,
   SUPPORTED_AGENTS,
@@ -28,6 +32,12 @@ export interface IsolatedStageOptions {
   attemptId?: string;
   logDir?: string;
   adoptBase?: string;
+  /**
+   * Recovery of historical provenance for config-invariant
+   * repository-generation outputs, proved against the pinned base producer
+   * under the current configuration (apply-only).
+   */
+  recoverProvenance?: string;
 }
 
 export interface IsolatedStageResult {
@@ -41,6 +51,8 @@ export interface IsolatedStageResult {
   logPath: string;
   receiptPath: string;
   error?: string;
+  retiredFiles?: string[];
+  preservedOrphans?: string[];
 }
 
 export interface CategoryIndexTarget {
@@ -106,6 +118,17 @@ interface SkillFile {
 }
 
 const CONFIG_FILE_CANDIDATES = [".skillsrc", ".skillsrc.yaml"];
+/**
+ * Repository-generation outputs whose producer reads no project configuration.
+ * Provenance recovery is restricted to this class plus canonical category
+ * indexes present in both the pinned base and the current plan; the runtime
+ * differential in `proveBaseProducerOutputs` proves the claim per run.
+ */
+const RECOVERABLE_OUTPUTS = [
+  "skills/index.json",
+  "skills/metadata.json",
+  "skills/README.md",
+];
 const MIRRORED_RESOURCE_PREFIXES = ["references/", "scripts/", "assets/"];
 const MIRRORED_ROOT_FILES = /^(LICENSE|NOTICE)(?:\.(?:md|txt))?$/i;
 const QUALIFIED_ROW_PATTERN = /^\s*-\s+\*\*\[([^\]]+)\]\*\*\s*:/;
@@ -1132,6 +1155,14 @@ function sourceInventoryDifferences(
       const current = actual.get(relPath);
       if (before === current) return false;
       const ownExpected = exactOwnEffects.get(relPath);
+      if (
+        ownExpected === "absent" &&
+        (current === undefined || current === "absent") &&
+        before !== undefined &&
+        before !== "absent"
+      ) {
+        return false;
+      }
       return !(
         ownExpected !== undefined &&
         (before === undefined || before === "absent") &&
@@ -1148,6 +1179,7 @@ async function assertOwnedSourceEffects(
   declaredPaths: string[],
   ownedDirectories: OwnedOutputDirectories,
   privateTemps: Map<string, PrivatePublicationTemp>,
+  retiredPaths: string[] = [],
 ): Promise<Map<string, string>> {
   const exactEffects = new Map<string, string>();
   const isPlannedChild = (childRelPath: string): boolean => {
@@ -1229,6 +1261,18 @@ async function assertOwnedSourceEffects(
         before.get(temp.fileRelPath) === "absent")
     ) {
       exactEffects.set(temp.fileRelPath, temp.digest);
+    }
+  }
+
+  for (const relPath of retiredPaths) {
+    const currentValue = current.get(relPath);
+    const beforeValue = before.get(relPath);
+    if (
+      (currentValue === undefined || currentValue === "absent") &&
+      beforeValue !== undefined &&
+      beforeValue !== "absent"
+    ) {
+      exactEffects.set(relPath, "absent");
     }
   }
   return exactEffects;
@@ -2153,15 +2197,165 @@ interface BaseOutputProof {
   scopeSha256?: string;
 }
 
+type BaseProofMode = "adopt" | "recover";
+
+/** Config-file identity captured for recovery evidence and drift checks. */
+interface ConfigIdentityRecord {
+  path: string;
+  worktreeSha256: string | null;
+  indexOid: string | null;
+  baseOid: string | null;
+}
+
+interface ConfigDifferentialRecord {
+  path: string;
+  runASha256: string;
+  runBSha256: string;
+}
+
+interface BaseRecoveryEvidence {
+  mode: "recover";
+  base: string;
+  head: string;
+  ancestorOfHead: true;
+  requested: string[];
+  config: ConfigIdentityRecord[];
+  configDiffers: boolean;
+  differential: ConfigDifferentialRecord[];
+}
+
+interface BaseProofResult {
+  proofs: Map<string, BaseOutputProof>;
+  /** Populated only in recover mode; `adopt` mode records nothing new. */
+  recovery: BaseRecoveryEvidence | null;
+}
+
+async function assertConfigIdentityUnchanged(
+  repoRoot: string,
+  records: ConfigIdentityRecord[],
+): Promise<void> {
+  for (const record of records) {
+    const digest = await fileSha256(path.join(repoRoot, record.path));
+    if (digest !== record.worktreeSha256) {
+      throw new Error(
+        `Configuration "${record.path}" changed during provenance recovery; refusing publication.`,
+      );
+    }
+  }
+}
+
+/**
+ * Second producer run over the same pinned-base archive with the live worktree
+ * configuration in place. Any byte difference for a requested output proves the
+ * historical producer reads configuration, so recovery is refused.
+ */
+async function runConfigInvarianceDifferential(
+  repoRoot: string,
+  base: string,
+  archivePath: string,
+  oldPlan: GenerationPlan,
+  outputPaths: string[],
+  worktreeConfigBytes: Map<string, Buffer | null>,
+  runADigests: Map<string, string>,
+): Promise<ConfigDifferentialRecord[]> {
+  const differentialRoot = await fs.mkdtemp(
+    path.join(os.tmpdir(), "ags-recover-"),
+  );
+  let failed = false;
+  try {
+    const snapshotRoot = path.join(differentialRoot, "snapshot");
+    await fs.ensureDir(snapshotRoot);
+    const extract = await runProcess(
+      "tar",
+      ["-xf", archivePath, "-C", snapshotRoot],
+      repoRoot,
+    );
+    if (extract.code !== 0) {
+      throw new Error(`Cannot unpack recovery base ${base}: ${extract.stderr}`);
+    }
+    await assertNoSymlinksRecursively(snapshotRoot);
+    for (const [configPath, bytes] of worktreeConfigBytes) {
+      const target = path.join(snapshotRoot, configPath);
+      if (bytes === null) {
+        await fs.remove(target);
+        continue;
+      }
+      await fs.ensureDir(path.dirname(target));
+      await fs.writeFile(target, bytes);
+    }
+    await linkDependencies(repoRoot, snapshotRoot);
+    await prepareBaseProofInputs(snapshotRoot, oldPlan, outputPaths);
+    for (const phase of [
+      "scripts/calculate-tokens.ts",
+      "scripts/generate-indices.ts",
+      "scripts/generate-capabilities-doc.ts",
+    ]) {
+      const result = await runInStage(
+        "node",
+        ["--import", "tsx", path.join(snapshotRoot, phase)],
+        snapshotRoot,
+      );
+      if (result.exitCode !== 0) {
+        throw new Error(
+          `Provenance recovery refused for "${outputPaths.join(", ")}": pinned-base producer output depends on current configuration. ${result.stderr || result.stdout}`,
+        );
+      }
+    }
+    const differential: ConfigDifferentialRecord[] = [];
+    for (const relPath of outputPaths) {
+      const generatedPath = path.join(snapshotRoot, relPath);
+      const stat = await fs.lstat(generatedPath).catch(() => null);
+      if (!stat?.isFile() || stat.isSymbolicLink()) {
+        throw new Error(
+          `Provenance recovery refused for "${relPath}": pinned-base producer output depends on current configuration.`,
+        );
+      }
+      const runADigest = runADigests.get(relPath);
+      const runBSha256 = sha256(await fs.readFile(generatedPath));
+      if (!runADigest || runADigest !== runBSha256) {
+        throw new Error(
+          `Provenance recovery refused for "${relPath}": pinned-base producer output depends on current configuration.`,
+        );
+      }
+      differential.push({ path: relPath, runASha256: runADigest, runBSha256 });
+    }
+    return differential;
+  } catch (error) {
+    failed = true;
+    throw error;
+  } finally {
+    try {
+      await fs.remove(differentialRoot);
+    } catch (cleanupError) {
+      if (!failed) throw cleanupError;
+    }
+  }
+}
+
 async function proveBaseProducerOutputs(
   repoRoot: string,
   base: string,
   outputPaths: string[],
   appendLog: (text: string) => Promise<void>,
-): Promise<Map<string, BaseOutputProof>> {
+  mode: BaseProofMode = "adopt",
+  currentCanonicalIndexes: string[] = [],
+): Promise<BaseProofResult> {
+  const recovering = mode === "recover";
   const baselineRoot = await fs.mkdtemp(path.join(os.tmpdir(), "ags-base-"));
   let failed = false;
   try {
+    if (recovering) {
+      const ancestry = await runProcess(
+        "git",
+        ["merge-base", "--is-ancestor", base, "HEAD"],
+        repoRoot,
+      );
+      if (ancestry.code !== 0) {
+        throw new Error(
+          `Provenance recovery refused: base ${base} is not an ancestor of HEAD.`,
+        );
+      }
+    }
     const archivePath = path.join(baselineRoot, "source.tar");
     const snapshotRoot = path.join(baselineRoot, "snapshot");
     await fs.ensureDir(snapshotRoot);
@@ -2194,38 +2388,103 @@ async function proveBaseProducerOutputs(
         );
       }
     }
-    for (const configPath of CONFIG_FILE_CANDIDATES) {
-      const currentPath = path.join(repoRoot, configPath);
-      const currentExists = await fs.pathExists(currentPath);
-      const baseEntry = await gitTreeEntry(repoRoot, base, configPath);
-      const indexEntry = await gitIndexEntry(repoRoot, configPath);
-      if (
-        currentExists !== Boolean(baseEntry) ||
-        Boolean(indexEntry) !== Boolean(baseEntry) ||
-        (baseEntry &&
-          indexEntry &&
-          (indexEntry.mode !== baseEntry.mode ||
-            indexEntry.objectId !== baseEntry.objectId))
-      ) {
+    if (recovering) {
+      const oldCanonicalIndexes = new Set(
+        oldPlan.canonicalCategoryIndexes.map((item) => item.relPath),
+      );
+      const recoverable = new Set(RECOVERABLE_OUTPUTS);
+      for (const relPath of currentCanonicalIndexes) {
+        if (oldCanonicalIndexes.has(relPath)) recoverable.add(relPath);
+      }
+      const nonRecoverable = outputPaths.filter(
+        (relPath) => !recoverable.has(relPath),
+      );
+      if (nonRecoverable.length > 0) {
         throw new Error(
-          `Adoption refused: source/custom-overrides mismatch at "${configPath}".`,
+          `Provenance recovery refused: configuration-dependent or non-recoverable outputs were requested: ${nonRecoverable.join(", ")}.`,
         );
       }
-      if (currentExists) {
-        const currentStat = await fs.lstat(currentPath);
-        if (!currentStat.isFile() || currentStat.isSymbolicLink()) {
+    }
+    const worktreeConfigBytes = new Map<string, Buffer | null>();
+    const configIdentity: ConfigIdentityRecord[] = [];
+    let configDiffers = false;
+    if (recovering) {
+      for (const configPath of CONFIG_FILE_CANDIDATES) {
+        const currentPath = path.join(repoRoot, configPath);
+        const currentStat = await fs.lstat(currentPath).catch(() => null);
+        if (
+          currentStat &&
+          (!currentStat.isFile() || currentStat.isSymbolicLink())
+        ) {
           throw new Error(
-            `Adoption config "${configPath}" is not a regular file.`,
+            `Provenance recovery refused: config "${configPath}" is not a regular file.`,
           );
         }
+        const worktreeBytes = currentStat
+          ? await fs.readFile(currentPath)
+          : null;
+        const baseEntry = await gitTreeEntry(repoRoot, base, configPath);
+        const indexEntry = await gitIndexEntry(repoRoot, configPath);
+        const baseBytes = baseEntry
+          ? await gitBlob(repoRoot, base, configPath)
+          : null;
+        worktreeConfigBytes.set(configPath, worktreeBytes);
+        configIdentity.push({
+          path: configPath,
+          worktreeSha256: worktreeBytes ? sha256(worktreeBytes) : null,
+          indexOid: indexEntry?.objectId ?? null,
+          baseOid: baseEntry?.objectId ?? null,
+        });
+        const identicalBaseState =
+          (worktreeBytes === null) === (baseBytes === null) &&
+          (worktreeBytes === null ||
+            (baseBytes !== null && worktreeBytes.equals(baseBytes)));
+        if (!identicalBaseState) configDiffers = true;
+      }
+      if (
+        !configIdentity.some(
+          (record) =>
+            record.worktreeSha256 !== null && record.baseOid !== null,
+        )
+      ) {
+        throw new Error(
+          "Provenance recovery refused: no configuration file exists in both the pinned base and the worktree.",
+        );
+      }
+    } else {
+      for (const configPath of CONFIG_FILE_CANDIDATES) {
+        const currentPath = path.join(repoRoot, configPath);
+        const currentExists = await fs.pathExists(currentPath);
+        const baseEntry = await gitTreeEntry(repoRoot, base, configPath);
+        const indexEntry = await gitIndexEntry(repoRoot, configPath);
         if (
-          !(await fs.readFile(currentPath)).equals(
-            await gitBlob(repoRoot, base, configPath),
-          )
+          currentExists !== Boolean(baseEntry) ||
+          Boolean(indexEntry) !== Boolean(baseEntry) ||
+          (baseEntry &&
+            indexEntry &&
+            (indexEntry.mode !== baseEntry.mode ||
+              indexEntry.objectId !== baseEntry.objectId))
         ) {
           throw new Error(
             `Adoption refused: source/custom-overrides mismatch at "${configPath}".`,
           );
+        }
+        if (currentExists) {
+          const currentStat = await fs.lstat(currentPath);
+          if (!currentStat.isFile() || currentStat.isSymbolicLink()) {
+            throw new Error(
+              `Adoption config "${configPath}" is not a regular file.`,
+            );
+          }
+          if (
+            !(await fs.readFile(currentPath)).equals(
+              await gitBlob(repoRoot, base, configPath),
+            )
+          ) {
+            throw new Error(
+              `Adoption refused: source/custom-overrides mismatch at "${configPath}".`,
+            );
+          }
         }
       }
     }
@@ -2251,6 +2510,7 @@ async function proveBaseProducerOutputs(
     }
 
     const baseOutputProofs = new Map<string, BaseOutputProof>();
+    const producedDigests = new Map<string, string>();
     for (const relPath of outputPaths) {
       const baseEntry = await gitTreeEntry(repoRoot, base, relPath);
       const indexEntry = await gitIndexEntry(repoRoot, relPath);
@@ -2276,6 +2536,7 @@ async function proveBaseProducerOutputs(
         );
       }
       const produced = await fs.readFile(generatedPath);
+      if (recovering) producedDigests.set(relPath, sha256(produced));
       if (relPath === "skills/metadata.json") {
         if (indexEntry.mode !== baseEntry.mode) {
           throw new Error(
@@ -2339,7 +2600,41 @@ async function proveBaseProducerOutputs(
     await appendLog(
       `Pinned-base producer outputs reconstructed and verified for ${outputPaths.length} paths at ${base}.\n`,
     );
-    return baseOutputProofs;
+    if (!recovering) return { proofs: baseOutputProofs, recovery: null };
+    const differential: ConfigDifferentialRecord[] = configDiffers
+      ? await runConfigInvarianceDifferential(
+          repoRoot,
+          base,
+          archivePath,
+          oldPlan,
+          outputPaths,
+          worktreeConfigBytes,
+          producedDigests,
+        )
+      : [];
+    await assertConfigIdentityUnchanged(repoRoot, configIdentity);
+    const recoveryHead = await currentGitHead(repoRoot);
+    if (!recoveryHead) {
+      throw new Error(
+        "Provenance recovery refused: cannot resolve HEAD for ancestry evidence.",
+      );
+    }
+    await appendLog(
+      `Pinned-base provenance recovered for ${outputPaths.length} path(s) at ${base}; config differential: ${configDiffers ? "equal" : "vacuous"}.\n`,
+    );
+    return {
+      proofs: baseOutputProofs,
+      recovery: {
+        mode: "recover",
+        base,
+        head: recoveryHead,
+        ancestorOfHead: true,
+        requested: [...outputPaths],
+        config: configIdentity,
+        configDiffers,
+        differential,
+      },
+    };
   } catch (error) {
     failed = true;
     throw error;
@@ -2586,6 +2881,18 @@ function withSortedEntries(lock: SkillsLockFile): SkillsLockFile {
           },
         }
       : {}),
+    ...(lock.workflowCatalog
+      ? {
+          workflowCatalog: {
+            version: 1,
+            workflows: Object.fromEntries(
+              Object.keys(lock.workflowCatalog.workflows)
+                .sort()
+                .map((key) => [key, lock.workflowCatalog!.workflows[key]]),
+            ),
+          },
+        }
+      : {}),
   };
 }
 
@@ -2597,6 +2904,9 @@ function lockContentIdentity(lock: SkillsLockFile): string {
     entries: normalized.entries,
     ...(normalized.generation ? { generation: normalized.generation } : {}),
     ...(normalized.disclosed ? { disclosed: normalized.disclosed } : {}),
+    ...(normalized.workflowCatalog
+      ? { workflowCatalog: normalized.workflowCatalog }
+      : {}),
   });
 }
 
@@ -2606,6 +2916,7 @@ async function archiveAdoptions(
   repoRoot: string,
   paths: string[],
   baseProofs: Map<string, BaseOutputProof>,
+  recovery: BaseRecoveryEvidence | null = null,
 ): Promise<void> {
   const records: Array<{
     path: string;
@@ -2637,7 +2948,24 @@ async function archiveAdoptions(
   const proofPath = path.join(logDir, "adoption", "proof.json");
   await fs.writeJson(
     proofPath,
-    { base, producer: "git archive + real generator phases", adopted: records },
+    recovery
+      ? {
+          mode: recovery.mode,
+          base,
+          ancestorOfHead: recovery.ancestorOfHead,
+          head: recovery.head,
+          requested: recovery.requested,
+          config: recovery.config,
+          configDiffers: recovery.configDiffers,
+          differential: recovery.differential,
+          producer: "git archive + real generator phases",
+          adopted: records,
+        }
+      : {
+          base,
+          producer: "git archive + real generator phases",
+          adopted: records,
+        },
     { spaces: 2, flag: "wx", mode: 0o444 },
   );
 }
@@ -2650,7 +2978,10 @@ async function archivePublicationBeforeState(
   lockDigest: string | null,
 ): Promise<void> {
   const records: Array<{ path: string; sha256: string | null }> = [];
-  for (const relPath of [...outputPaths, ".skills-lock.json"]) {
+  const pathsToArchive = Array.from(
+    new Set([...outputPaths, ".skills-lock.json"]),
+  );
+  for (const relPath of pathsToArchive) {
     const expected =
       relPath === ".skills-lock.json"
         ? lockDigest
@@ -2682,6 +3013,295 @@ async function archivePublicationBeforeState(
     { records },
     { spaces: 2, flag: "wx", mode: 0o444 },
   );
+}
+
+interface OwnedRetirementCandidate {
+  relPath: string;
+  /** Destination digest captured before staging; null when already absent. */
+  baselineDigest: string | null;
+  /** Digest the ownership manifest recorded for the previous publication. */
+  previousDigest: string;
+  /**
+   * `export` authorizes an actual file deletion for an output produced by a
+   * current generation target. `entry` only drops an already-absent shared
+   * canonical workflow record and never touches a file.
+   */
+  kind: "export" | "entry";
+}
+
+interface ConfirmedRetirement {
+  relPath: string;
+  /** Digest of the file this run deletes; null when the destination was already absent. */
+  deleteDigest: string | null;
+  kind: "export" | "entry";
+}
+
+/**
+ * Host-owned export surfaces only. Authored inputs such as
+ * `.agents/workflows/*.md` (the native providers' own path) and canonical
+ * `skills/**` are never retirement candidates: their removal belongs to the
+ * repository owner, not to generator publication.
+ */
+function isHostOutputSurface(relPath: string, agentId: string): boolean {
+  const definition = SUPPORTED_AGENTS.find((agent) => agent.id === agentId);
+  if (!definition) return false;
+  const trees = [
+    definition.path,
+    definition.workflowPath === ".agents/workflows"
+      ? null
+      : definition.workflowPath,
+    definition.agentPath ?? null,
+  ].filter((tree): tree is string => Boolean(tree));
+  if (trees.some((tree) => relPath.startsWith(`${tree}/`))) return true;
+  const ruleRelPath = toPosix(
+    path.normalize(
+      path.join(
+        definition.ruleFile,
+        definition.ruleFileName ||
+          `agent-skill-standard-rule${definition.ruleExtension}`,
+      ),
+    ),
+  );
+  return relPath === ruleRelPath;
+}
+
+/** Workflow names the current consumer configuration actually selects. */
+async function selectedWorkflowNames(
+  repoRoot: string,
+  config: LoadedRepoConfig | null,
+): Promise<string[]> {
+  if (!config) return [];
+  if (config.workflows === true) {
+    const workflowDir = path.join(repoRoot, ".agents", "workflows");
+    if (!(await fs.pathExists(workflowDir))) return [];
+    return (await fs.readdir(workflowDir))
+      .filter((file) => file.endsWith(".md"))
+      .map((file) => file.replace(/\.md$/, ""))
+      .sort();
+  }
+  return config.workflows;
+}
+
+/**
+ * Bounds the CLI-owned outputs that the current plan no longer declares.
+ * Deletion authority is limited to exports of the *current* generation
+ * targets: an agent outside `plan.targetAgents` may own an unrelated active
+ * file whose lifecycle this generator does not control, so it is preserved
+ * with its ledger record. A shared canonical workflow body is never deleted;
+ * only its already-absent ownership record may be dropped once the consumer
+ * configuration stops selecting it. The final prune decision still belongs to
+ * the real ownership lifecycle inside the isolated stage.
+ */
+async function collectOwnedRetirementCandidates(
+  repoRoot: string,
+  plan: GenerationPlan,
+  currentLock: SkillsLockFile | null,
+): Promise<OwnedRetirementCandidate[]> {
+  if (!currentLock) return [];
+  const config = await loadRepoConfig(repoRoot);
+  const overrides = config?.overrides ?? [];
+  const workflowNames = await selectedWorkflowNames(repoRoot, config);
+  const declared = new Set(plan.declaredFiles);
+  const candidates: OwnedRetirementCandidate[] = [];
+  for (const [relPath, entry] of Object.entries(currentLock.entries).sort(
+    ([left], [right]) => left.localeCompare(right),
+  )) {
+    if (declared.has(relPath)) continue;
+    if (isOverriddenRel(relPath, overrides)) continue;
+    assertSafeDeclaredPath(relPath);
+    const absolutePath = path.join(repoRoot, relPath);
+    const authorizedExport =
+      entry.agent !== SHARED_WORKFLOW_AGENT &&
+      plan.targetAgents.includes(entry.agent as Agent) &&
+      isHostOutputSurface(relPath, entry.agent);
+    if (!authorizedExport) {
+      const workflowName = entry.source.replace(/^workflow:/, "");
+      const absentCanonical =
+        entry.agent === SHARED_WORKFLOW_AGENT &&
+        entry.owner === "workflow" &&
+        /^[A-Za-z0-9._-]+$/.test(workflowName) &&
+        relPath ===
+          path.posix.join(".agents", "workflows", `${workflowName}.md`) &&
+        !workflowNames.includes(workflowName);
+      if (!absentCanonical) continue;
+      await assertNoSymlinksUnderRoot(repoRoot, absolutePath);
+      const stat = await fs.lstat(absolutePath).catch((error: unknown) => {
+        if (errorCode(error) === "ENOENT") return null;
+        throw error;
+      });
+      if (stat) continue;
+      candidates.push({
+        relPath,
+        baselineDigest: null,
+        previousDigest: entry.sha256,
+        kind: "entry",
+      });
+      continue;
+    }
+    await assertNoSymlinksUnderRoot(repoRoot, absolutePath);
+    const stat = await fs.lstat(absolutePath).catch((error: unknown) => {
+      if (errorCode(error) === "ENOENT") return null;
+      throw error;
+    });
+    if (stat && (stat.isSymbolicLink() || !stat.isFile())) {
+      throw new Error(
+        `Owned output "${relPath}" is no longer a regular file; refusing retirement.`,
+      );
+    }
+    candidates.push({
+      relPath,
+      baselineDigest: stat ? await fileSha256(absolutePath) : null,
+      previousDigest: entry.sha256,
+      kind: "export",
+    });
+  }
+  return candidates;
+}
+
+/**
+ * Confirms which undeclared owned outputs the staged ownership lifecycle
+ * actually pruned (file absent from the stage and entry dropped from the staged
+ * manifest). Anything the stage kept — edited, overridden, unpruned, or an
+ * incomplete acquisition — is preserved and reported instead of deleted.
+ */
+async function confirmOwnedRetirements(
+  repoRoot: string,
+  stageRoot: string,
+  candidates: OwnedRetirementCandidate[],
+  stagedLock: SkillsLockFile | null,
+  appendLog: (text: string) => Promise<void>,
+): Promise<{ confirmed: ConfirmedRetirement[]; preserved: string[] }> {
+  const confirmed: ConfirmedRetirement[] = [];
+  const preserved: string[] = [];
+  for (const candidate of candidates) {
+    const { relPath } = candidate;
+    const stagedPresent = await fs.pathExists(path.join(stageRoot, relPath));
+    const stagedStillOwned = Boolean(stagedLock?.entries[relPath]);
+    if (stagedPresent || stagedStillOwned) {
+      preserved.push(relPath);
+      await appendLog(
+        `Preserved owned output "${relPath}": the staged ownership lifecycle did not prune it.\n`,
+      );
+      continue;
+    }
+    const currentDigest = await currentDestinationDigest(repoRoot, relPath);
+    if (currentDigest !== candidate.baselineDigest) {
+      throw new Error(
+        `Owned output "${relPath}" drifted before its retirement could be confirmed.`,
+      );
+    }
+    if (currentDigest !== null && currentDigest !== candidate.previousDigest) {
+      preserved.push(relPath);
+      await appendLog(
+        `Preserved edited owned output "${relPath}": bytes differ from the recorded ownership digest.\n`,
+      );
+      continue;
+    }
+    if (candidate.kind === "entry" && currentDigest !== null) {
+      throw new Error(
+        `Canonical workflow record "${relPath}" reappeared before retirement.`,
+      );
+    }
+    confirmed.push({
+      relPath,
+      deleteDigest: currentDigest,
+      kind: candidate.kind,
+    });
+  }
+  return { confirmed, preserved };
+}
+
+/**
+ * Performs only the verified unlink. Parent-directory cleanup is a separate,
+ * fallible step the caller runs *after* it has recorded the deletion for
+ * rollback, so a cleanup failure can never leave an untracked deleted file.
+ */
+async function unlinkRetiredOutput(
+  repoRoot: string,
+  relPath: string,
+  expectedDigest: string,
+): Promise<void> {
+  const absolutePath = path.join(repoRoot, relPath);
+  assertSafeDeclaredPath(relPath);
+  await assertNoSymlinksUnderRoot(repoRoot, absolutePath);
+  const stat = await fs.lstat(absolutePath).catch((error: unknown) => {
+    if (errorCode(error) === "ENOENT") return null;
+    throw error;
+  });
+  if (!stat || stat.isSymbolicLink() || !stat.isFile()) {
+    throw new Error(`Retired output "${relPath}" is not a regular file.`);
+  }
+  if ((await fileSha256(absolutePath)) !== expectedDigest) {
+    throw new Error(`Retired output "${relPath}" changed before deletion.`);
+  }
+  await fs.unlink(absolutePath);
+}
+
+/**
+ * Restores the exact bytes archived before a retirement. Used only when an
+ * apply fails after deletions but before the reconciled manifest is published,
+ * so a partial failure never leaves a live catalog advertising a missing file.
+ */
+async function restoreRetiredOutputs(
+  logDir: string,
+  repoRoot: string,
+  removed: Array<{ relPath: string; digest: string }>,
+): Promise<{ restored: string[]; failures: string[] }> {
+  const restored: string[] = [];
+  const failures: string[] = [];
+  for (const { relPath, digest } of removed) {
+    try {
+      const archivePath = path.join(logDir, "publication-before", relPath);
+      const bytes = await fs.readFile(archivePath);
+      if (computeSha256(bytes) !== digest) {
+        throw new Error("archived bytes no longer match the retired digest");
+      }
+      const targetPath = path.join(repoRoot, relPath);
+      await assertNoSymlinksUnderRoot(repoRoot, targetPath);
+      if (await fs.pathExists(targetPath)) {
+        throw new Error("destination exists again");
+      }
+      await fs.ensureDir(path.dirname(targetPath));
+      await fs.writeFile(targetPath, bytes, { flag: "wx", mode: 0o644 });
+      restored.push(relPath);
+    } catch (error: unknown) {
+      failures.push(
+        `${relPath}: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  }
+  return { restored, failures };
+}
+
+/**
+ * Mirrors confirmed retirements into the workflow catalog without re-stamping
+ * anything: a workflow entry is dropped only when its canonical body ownership
+ * was retired in this run, and bindings for retired exports are removed.
+ * Returns the previous catalog unchanged when nothing was retired.
+ */
+function reconcileRetiredWorkflowCatalog(
+  previous: WorkflowCatalog | undefined,
+  retiredPaths: Set<string>,
+): WorkflowCatalog | undefined {
+  if (!previous || retiredPaths.size === 0) return previous;
+  const workflows: Record<string, WorkflowCatalogWorkflow> = {};
+  for (const [name, entry] of Object.entries(previous.workflows)) {
+    if (retiredPaths.has(entry.path)) continue;
+    const nativeBindings = entry.nativeBindings.filter(
+      (binding) => !retiredPaths.has(binding.path),
+    );
+    const nativeConflicts = entry.nativeConflicts?.filter(
+      (binding) => !retiredPaths.has(binding.path),
+    );
+    workflows[name] = {
+      ...entry,
+      nativeBindings,
+      // An existing conflict list must be overwritten even when the filter
+      // empties it; otherwise the spread above keeps advertising retired paths.
+      ...(nativeConflicts === undefined ? {} : { nativeConflicts }),
+    };
+  }
+  return { version: 1, workflows };
 }
 
 async function writeStageOwnership(
@@ -2818,18 +3438,25 @@ async function persistVerifiedOwnership(
   stagedLock: SkillsLockFile | null,
   previousDigest: string | null,
   provenanceRefreshed: Map<string, string>,
+  retiredPaths: string[],
   beforeRename: () => Promise<void>,
   onRenamed: () => void,
+  onCommitted: () => void,
 ): Promise<boolean> {
   if (
     !previous &&
     ownershipPaths.length === 0 &&
-    provenanceRefreshed.size === 0
+    provenanceRefreshed.size === 0 &&
+    retiredPaths.length === 0
   ) {
     return false;
   }
   const generationEntries = { ...(previous?.generation?.entries ?? {}) };
   const entries = { ...(previous?.entries ?? {}) };
+  for (const relPath of retiredPaths) {
+    delete entries[relPath];
+    delete generationEntries[relPath];
+  }
   for (const [relPath, refreshedDigest] of provenanceRefreshed) {
     entries[relPath] = {
       ...cliOutputOwnership(relPath, plan),
@@ -2877,6 +3504,10 @@ async function persistVerifiedOwnership(
     const source = stagedLock?.sources[sourceKey];
     if (source) sources[sourceKey] = source;
   }
+  const nextWorkflowCatalog = reconcileRetiredWorkflowCatalog(
+    previous?.workflowCatalog,
+    new Set(retiredPaths),
+  );
   const next = withSortedEntries({
     version: 2,
     registry: previous?.registry ?? stagedLock?.registry ?? "",
@@ -2890,6 +3521,7 @@ async function persistVerifiedOwnership(
     ...((previous?.disclosed ?? stagedLock?.disclosed)
       ? { disclosed: previous?.disclosed ?? stagedLock?.disclosed }
       : {}),
+    ...(nextWorkflowCatalog ? { workflowCatalog: nextWorkflowCatalog } : {}),
   });
   if (previous && lockContentIdentity(previous) === lockContentIdentity(next)) {
     return false;
@@ -2919,6 +3551,9 @@ async function persistVerifiedOwnership(
     }
     await beforeRename();
     await fs.rename(tempPath, lockPath);
+    // The manifest replacement is the commit point: retiree compensation must
+    // be disabled before any further fallible step runs.
+    onCommitted();
     onRenamed();
     const persistedBytes = await fs.readFile(lockPath);
     if (!persistedBytes.equals(expectedBytes)) {
@@ -3377,6 +4012,22 @@ export async function runIsolatedGeneration(
       "--adopt-base is apply-only; --check never adopts ownership.",
     );
   }
+  if (
+    options.recoverProvenance &&
+    !/^[0-9a-f]{40,64}$/i.test(options.recoverProvenance)
+  ) {
+    throw new Error("--recover-provenance requires a full commit SHA.");
+  }
+  if (options.recoverProvenance && options.checkOnly) {
+    throw new Error(
+      "--recover-provenance is apply-only; --check never recovers ownership.",
+    );
+  }
+  if (options.recoverProvenance && options.adoptBase) {
+    throw new Error(
+      "--recover-provenance cannot be combined with --adopt-base.",
+    );
+  }
 
   const checkOnly = Boolean(options.checkOnly);
   const attemptId =
@@ -3459,6 +4110,15 @@ export async function runIsolatedGeneration(
   let baseProofs = new Map<string, BaseOutputProof>();
   let adoptionBase: string | null = null;
   let adoptedPaths: string[] = [];
+  let recoveryEvidence: BaseRecoveryEvidence | null = null;
+  /**
+   * Worktree digests of the configuration files, set once recovery proof
+   * starts; enforced through publication by `assertStableState`.
+   */
+  let configBindingGuard: Map<string, string | null> | null = null;
+  const retiredPaths: string[] = [];
+  const removedRetirements: Array<{ relPath: string; digest: string }> = [];
+  let publicationCommitted = false;
 
   try {
     await assertNoSourceSymlinks(repoRoot);
@@ -3507,6 +4167,17 @@ export async function runIsolatedGeneration(
     ) {
       throw new Error(
         "Ownership manifest changed while its baseline was captured.",
+      );
+    }
+    const retirementCandidates = await collectOwnedRetirementCandidates(
+      repoRoot,
+      plan,
+      currentLock,
+    );
+    for (const candidate of retirementCandidates) {
+      expectedDestinationDigests.set(
+        candidate.relPath,
+        candidate.baselineDigest,
       );
     }
     const metadataDigest = baselineDigests.get("skills/metadata.json") ?? null;
@@ -3558,7 +4229,11 @@ export async function runIsolatedGeneration(
         cliEntry?.sha256 !== digest
       ) {
         const headDigest = headDigests.get(relPath);
-        if (!options.adoptBase && digest === headDigest) {
+        if (
+          !options.adoptBase &&
+          !options.recoverProvenance &&
+          digest === headDigest
+        ) {
           provenanceRefreshed.set(relPath, digest);
         } else {
           throw new Error(
@@ -3579,7 +4254,7 @@ export async function runIsolatedGeneration(
       if (isTrustedMatch) {
         return false;
       }
-      if (!options.adoptBase) {
+      if (!options.adoptBase && !options.recoverProvenance) {
         const headDigest = headDigests.get(relPath);
         if (
           isCliManagedOutputPath(relPath, plan) &&
@@ -3624,6 +4299,7 @@ export async function runIsolatedGeneration(
         plan.declaredFiles,
         ownedOutputDirectories,
         privatePublicationTemps,
+        retiredPaths,
       );
       const sourceDrift = sourceInventoryDifferences(
         candidateInventory,
@@ -3635,11 +4311,11 @@ export async function runIsolatedGeneration(
           `Candidate source inventory drifted during generation: ${sourceDrift.join(", ")}.`,
         );
       }
-      for (const relPath of plan.declaredFiles) {
+      for (const [relPath, expected] of expectedDestinationDigests) {
         const current = await currentDestinationDigest(repoRoot, relPath);
-        if (current !== expectedDestinationDigests.get(relPath)) {
+        if (current !== expected) {
           throw new Error(
-            `Concurrent drift detected on destination "${relPath}": expected ${expectedDestinationDigests.get(relPath)}, current ${current}. Refusing publication.`,
+            `Concurrent drift detected on destination "${relPath}": expected ${expected}, current ${current}. Refusing publication.`,
           );
         }
       }
@@ -3648,6 +4324,16 @@ export async function runIsolatedGeneration(
         gitIdentity,
         gitIdentityPaths,
       );
+      if (configBindingGuard) {
+        for (const [relPath, expected] of configBindingGuard) {
+          const current = await fileSha256(path.join(repoRoot, relPath));
+          if (current !== expected) {
+            throw new Error(
+              `Configuration "${relPath}" changed during provenance recovery; refusing publication.`,
+            );
+          }
+        }
+      }
     };
     await assertStableState();
 
@@ -3737,6 +4423,18 @@ export async function runIsolatedGeneration(
         outOfDateFiles.push(relPath);
       }
     }
+    const retirements = await confirmOwnedRetirements(
+      repoRoot,
+      stageRoot,
+      retirementCandidates,
+      stagedLock,
+      appendLog,
+    );
+    if (retirements.preserved.length > 0) {
+      await appendLog(
+        `Preserved undeclared owned outputs: ${retirements.preserved.join(", ")}\n`,
+      );
+    }
     for (const relPath of outOfDateFiles) {
       if (!isCliManagedOutputPath(relPath, plan)) continue;
       const digest = stagedDigests.get(relPath);
@@ -3798,12 +4496,13 @@ export async function runIsolatedGeneration(
         );
       }
       await assertStableState();
-      baseProofs = await proveBaseProducerOutputs(
+      const proven = await proveBaseProducerOutputs(
         repoRoot,
         base,
         changedUnknownExisting,
         appendLog,
       );
+      baseProofs = proven.proofs;
       for (const relPath of changedUnknownExisting) {
         const proof = baseProofs.get(relPath);
         if (!proof || baselineDigests.get(relPath) !== proof.currentSha256) {
@@ -3815,6 +4514,63 @@ export async function runIsolatedGeneration(
       adoptionBase = base;
       adoptedPaths = changedUnknownExisting;
       await assertStableState();
+    } else if (
+      options.recoverProvenance &&
+      changedUnknownExisting.length > 0
+    ) {
+      const base = options.recoverProvenance.toLowerCase();
+      if (!/^[0-9a-f]{40,64}$/.test(base)) {
+        throw new Error(
+          `Recovery base "${options.recoverProvenance}" is not a full commit SHA.`,
+        );
+      }
+      const resolvedBase = await runProcess(
+        "git",
+        ["rev-parse", "--verify", `${base}^{commit}`],
+        repoRoot,
+      );
+      if (
+        resolvedBase.code !== 0 ||
+        resolvedBase.stdout.toString("utf8").trim().toLowerCase() !== base
+      ) {
+        throw new Error(
+          `Recovery base "${base}" is not an available full commit.`,
+        );
+      }
+      await assertStableState();
+      const bindingGuard = new Map<string, string | null>();
+      for (const configPath of CONFIG_FILE_CANDIDATES) {
+        bindingGuard.set(
+          configPath,
+          await fileSha256(path.join(repoRoot, configPath)),
+        );
+      }
+      configBindingGuard = bindingGuard;
+      const proven = await proveBaseProducerOutputs(
+        repoRoot,
+        base,
+        changedUnknownExisting,
+        appendLog,
+        "recover",
+        plan.canonicalCategoryIndexes.map((item) => item.relPath),
+      );
+      baseProofs = proven.proofs;
+      recoveryEvidence = proven.recovery;
+      for (const relPath of changedUnknownExisting) {
+        const proof = baseProofs.get(relPath);
+        if (!proof || baselineDigests.get(relPath) !== proof.currentSha256) {
+          throw new Error(
+            `Provenance recovery refused for "${relPath}": current destination changed during pinned-base proof.`,
+          );
+        }
+      }
+      adoptionBase = base;
+      adoptedPaths = changedUnknownExisting;
+      await assertStableState();
+    } else if (options.recoverProvenance) {
+      throw new Error(
+        "Provenance recovery refused: no changed unowned recoverable outputs to recover.",
+      );
     }
     const unapprovedExisting = changedUnknownExisting.filter(
       (relPath) => !adoptedPaths.includes(relPath),
@@ -3839,10 +4595,19 @@ export async function runIsolatedGeneration(
     }
     await assertStableState();
 
+    const pendingRetirements = retirements.confirmed.filter(
+      (retirement) => retirement.deleteDigest !== null,
+    );
     if (checkOnly) {
-      if (outOfDateFiles.length > 0) {
+      if (outOfDateFiles.length > 0 || retirements.confirmed.length > 0) {
+        const pending = [
+          ...outOfDateFiles,
+          ...retirements.confirmed.map(
+            (retirement) => `${retirement.relPath} (owned retirement)`,
+          ),
+        ];
         throw new Error(
-          `Prepared generator outputs are stale: ${outOfDateFiles.join(", ")}. Run isolated generation in apply mode.`,
+          `Prepared generator outputs are stale: ${pending.join(", ")}. Run isolated generation in apply mode.`,
         );
       }
       await appendLog(
@@ -3856,6 +4621,8 @@ export async function runIsolatedGeneration(
           checkOnly: true,
           status: "PASS",
           declaredFiles: plan.declaredFiles,
+          retiredFiles: [],
+          preservedOrphans: retirements.preserved,
         },
         { spaces: 2, flag: "wx" },
       );
@@ -3867,6 +4634,8 @@ export async function runIsolatedGeneration(
         verifiedFiles: [],
         logPath,
         receiptPath,
+        retiredFiles: [],
+        preservedOrphans: retirements.preserved,
       };
     }
 
@@ -3877,16 +4646,54 @@ export async function runIsolatedGeneration(
         repoRoot,
         adoptedPaths,
         baseProofs,
+        recoveryEvidence,
       );
     }
-    if (outOfDateFiles.length > 0) {
+    if (outOfDateFiles.length > 0 || pendingRetirements.length > 0) {
+      const beforeStateDigests = new Map(baselineDigests);
+      for (const retirement of pendingRetirements) {
+        beforeStateDigests.set(retirement.relPath, retirement.deleteDigest);
+      }
       await archivePublicationBeforeState(
         logDir,
         repoRoot,
-        outOfDateFiles,
-        baselineDigests,
+        [
+          ...outOfDateFiles,
+          ...pendingRetirements.map((retirement) => retirement.relPath),
+        ],
+        beforeStateDigests,
         lockBaselineDigest,
       );
+    }
+    for (const retirement of retirements.confirmed) {
+      if (retirement.kind === "entry" && retirement.deleteDigest !== null) {
+        throw new Error(
+          `Canonical workflow record "${retirement.relPath}" is never deleted by generation.`,
+        );
+      }
+      if (retirement.deleteDigest !== null) {
+        await unlinkRetiredOutput(
+          repoRoot,
+          retirement.relPath,
+          retirement.deleteDigest,
+        );
+        // Record compensation before any fallible follow-up work.
+        removedRetirements.push({
+          relPath: retirement.relPath,
+          digest: retirement.deleteDigest,
+        });
+        expectedDestinationDigests.set(retirement.relPath, null);
+        retiredPaths.push(retirement.relPath);
+        await removeEmptyParents(
+          repoRoot,
+          path.dirname(path.join(repoRoot, retirement.relPath)),
+        );
+        await appendLog(`Retired owned output: ${retirement.relPath}\n`);
+        continue;
+      }
+      await appendLog(`Dropped absent owned entry: ${retirement.relPath}\n`);
+      expectedDestinationDigests.set(retirement.relPath, null);
+      retiredPaths.push(retirement.relPath);
     }
     for (const relPath of outOfDateFiles) {
       const stageDigest = stagedDigests.get(relPath);
@@ -3917,8 +4724,12 @@ export async function runIsolatedGeneration(
       stagedLock,
       lockBaselineDigest,
       provenanceRefreshed,
+      retiredPaths,
       assertStableState,
       () => appliedFiles.push(".skills-lock.json"),
+      () => {
+        publicationCommitted = true;
+      },
     );
     if (provenanceRefreshed.size > 0) {
       await appendLog(
@@ -3970,6 +4781,33 @@ export async function runIsolatedGeneration(
         }
       }
     }
+    if (ownershipDigest && retiredPaths.length > 0) {
+      const verifiedLock = await readGenerationLock(repoRoot);
+      for (const relPath of retiredPaths) {
+        if (
+          verifiedLock?.entries[relPath] ||
+          verifiedLock?.generation?.entries[relPath]
+        ) {
+          throw new Error(
+            `Ownership entry for retired output "${relPath}" survived publication.`,
+          );
+        }
+      }
+      const retiredSet = new Set(retiredPaths);
+      for (const [name, workflow] of Object.entries(
+        verifiedLock?.workflowCatalog?.workflows ?? {},
+      )) {
+        if (
+          workflow.nativeBindings.some((binding) =>
+            retiredSet.has(binding.path),
+          )
+        ) {
+          throw new Error(
+            `Workflow catalog still advertises a retired binding for "${name}".`,
+          );
+        }
+      }
+    }
     if (ownershipChanged) verifiedFiles.push(".skills-lock.json");
     await fs.writeJson(
       receiptPath,
@@ -3981,6 +4819,12 @@ export async function runIsolatedGeneration(
         copiedBackFiles: appliedFiles,
         verifiedFiles,
         declaredFiles: plan.declaredFiles,
+        retiredFiles: removedRetirements.map((removed) => removed.relPath),
+        retiredEntries: retiredPaths,
+        preservedOrphans: retirements.preserved,
+        ...(recoveryEvidence
+          ? { recoveredFiles: recoveryEvidence.requested }
+          : {}),
       },
       { spaces: 2, flag: "wx" },
     );
@@ -3993,9 +4837,33 @@ export async function runIsolatedGeneration(
       verifiedFiles,
       logPath,
       receiptPath,
+      retiredFiles: removedRetirements.map((removed) => removed.relPath),
+      preservedOrphans: retirements.preserved,
     };
   } catch (error: unknown) {
     let errorMsg = error instanceof Error ? error.message : String(error);
+    let restoredRetirements: string[] = [];
+    if (removedRetirements.length > 0) {
+      if (publicationCommitted) {
+        // The reconciled manifest is already live: restoring the deleted
+        // exports would resurrect files the new catalog no longer owns.
+        errorMsg += `; retired outputs committed with the ownership manifest and not rolled back: ${removedRetirements
+          .map((removed) => removed.relPath)
+          .join(", ")}`;
+      } else {
+        const restore = await restoreRetiredOutputs(
+          logDir,
+          repoRoot,
+          removedRetirements,
+        );
+        restoredRetirements = restore.restored;
+        if (restore.failures.length > 0) {
+          errorMsg += `; retirement rollback failed: ${restore.failures.join(", ")}`;
+        } else {
+          errorMsg += `; retired outputs restored: ${restore.restored.join(", ")}`;
+        }
+      }
+    }
     try {
       const retainedDirectories = await cleanupOwnedOutputDirectories(
         repoRoot,
@@ -4020,6 +4888,13 @@ export async function runIsolatedGeneration(
           appliedFiles,
           verifiedFiles,
           stagedOutOfDateFiles: staleFiles,
+          retiredFiles: removedRetirements
+            .filter(
+              (removed) => !restoredRetirements.includes(removed.relPath),
+            )
+            .map((removed) => removed.relPath),
+          restoredRetirements,
+          publicationCommitted,
         },
         { spaces: 2, flag: "wx" },
       );
@@ -4035,6 +4910,9 @@ export async function runIsolatedGeneration(
       logPath,
       receiptPath,
       error: errorMsg,
+      retiredFiles: removedRetirements
+        .filter((removed) => !restoredRetirements.includes(removed.relPath))
+        .map((removed) => removed.relPath),
     };
   } finally {
     if (stageRoot) {
