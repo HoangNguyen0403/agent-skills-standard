@@ -7,6 +7,7 @@ import {
   type Analysis,
   type EvidencePacket,
   type EvidenceSource,
+  type GenerationLayout,
   type PrepareRequest,
 } from "./contracts";
 import {
@@ -45,6 +46,7 @@ export type PrepareOptions = {
    * non-positive or non-finite values fall back to the production ceiling.
    */
   outputBytes?: number;
+  layout?: GenerationLayout;
 };
 
 /** Production output budget; mirrors the shared fixed limits. */
@@ -209,10 +211,12 @@ async function runPrepare(
   options: PrepareOptions,
 ): Promise<ArtifactReceipt> {
   const budget = outputBudget(options);
+  const layout = options.layout ?? "v1";
   const access = await acquirePreparation(
     request.root,
     request.main,
     request.checkpointId,
+    { layout },
   );
   if (access.role === "join") {
     try {
@@ -224,8 +228,8 @@ async function runPrepare(
           signal,
           deadline: performance.now() + DEFAULT_LIMITS.elapsedMs,
           // Bind observation to the run this caller actually acquired. Without
-          // it, a canceled A replaced by B would silently hand back B's receipt.
           expectedRunId: access.runId,
+          layout,
         },
       );
     } catch (error) {
@@ -241,6 +245,38 @@ async function runPrepare(
     // The claim owns the identity used by all published artifacts.
     const packet: EvidencePacket = { ...collected, runId: claim.runId };
     const analysis = await analyzeLocal(packet, signal);
+    if (layout === "v2") {
+      const summaryId = artifactIdFor(packet.runId, "summary");
+      const ledgerId = artifactIdFor(packet.runId, "ledger");
+      const status = generationStatus(packet);
+      const summary = `# Session retrospective summary\n\n- Status: ${status}\n- Checkpoint: ${request.checkpointId}\n`;
+      const ledger = `${JSON.stringify({
+        schemaVersion: 1,
+        runId: packet.runId,
+        checkpointId: request.checkpointId,
+        status,
+      })}\n`;
+      const artifacts: PublishArtifact[] = [
+        { artifactId: summaryId, kind: "summary", content: summary },
+        { artifactId: ledgerId, kind: "ledger", content: ledger },
+      ];
+      const result = await publishRun(claim, artifacts, {
+        status,
+        layout: "v2",
+        schemaVersion: 2,
+        ...(options.labels === undefined ? {} : { labels: options.labels }),
+      });
+      published = true;
+      return artifactReceiptSchema.parse({
+        schemaVersion: 1,
+        artifactId: summaryId,
+        runId: packet.runId,
+        status: result.status,
+        modelCalls: 0,
+        outboundRequests: 0,
+      });
+    }
+
     const rendered = renderGeneration(
       packet,
       analysis,
@@ -249,6 +285,8 @@ async function runPrepare(
     );
     const result = await publishRun(claim, rendered.artifacts, {
       status: rendered.status,
+      layout: "v1",
+      schemaVersion: 1,
       ...(options.labels === undefined ? {} : { labels: options.labels }),
     });
     published = true;
@@ -293,11 +331,13 @@ export async function prepareLocal(
   const parsed = parsedRequest.data;
   signal.throwIfAborted();
 
+  const layout = options.layout ?? "v1";
   const key = [
     path.resolve(parsed.root),
     parsed.main.hostId,
     parsed.main.sessionId,
     parsed.checkpointId,
+    layout,
   ].join("\u0000");
   const joined = inFlightPrepares.get(key);
   if (joined) {

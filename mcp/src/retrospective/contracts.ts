@@ -18,6 +18,18 @@ export type EventOutcome =
   "claimed-complete" | "passed" | "failed" | "denied" | "canceled" | "unknown";
 
 export type SourceRef = { node: NodeKey; eventId: string; line?: number };
+export type GenerationLayout = "v1" | "v2";
+export type ArtifactKind =
+  "report" | "proposals" | "session" | "receipt" | "summary" | "ledger";
+export const ARTIFACT_KINDS = [
+  "report",
+  "proposals",
+  "session",
+  "receipt",
+  "summary",
+  "ledger",
+] as const;
+export const artifactKindSchema = z.enum(ARTIFACT_KINDS);
 
 export type SafeEvent = {
   id: string;
