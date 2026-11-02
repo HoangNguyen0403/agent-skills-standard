@@ -43,7 +43,7 @@ export const prepareRetrospectiveIndexSchema = z.object({
 });
 
 export const DISABLED_RETROSPECTIVE_TEXT =
-  "Retrospective preparation is disabled. Ask the user to run `ags-retrospective enable` in an interactive terminal to enable local retrospective collection.";
+  "Retrospective preparation is disabled. Ask the user to run `ags retrospective enable` in an interactive terminal to enable local retrospective collection.";
 
 export const RETROSPECTIVE_NUDGE_TEXT =
   "Retrospective pending. If you hold an assignment packet (you are a worker), ignore this section. Otherwise call `prepare_retrospective` now (pass `title` = one line saying what this session was for; it is shown as agent-supplied and unverified), then tell the user the coverage, the counts and the file paths (summary, ledger and HTML report) it returns, and that they can open either.";
@@ -178,7 +178,7 @@ export async function getRetrospectiveStatus(
       content: [
         {
           type: "text",
-          text: `Retrospective consent is disabled (reason: ${consent.reason}). Ask the user to run \`ags-retrospective enable\` in an interactive terminal to enable local retrospective collection.`,
+          text: `Retrospective consent is disabled (reason: ${consent.reason}). Ask the user to run \`ags retrospective enable\` in an interactive terminal to enable local retrospective collection.`,
         },
       ],
     };

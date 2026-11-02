@@ -9,8 +9,18 @@ import {
   buildTelemetryRecord,
 } from "./services/TelemetryWriter";
 import { resolveTelemetry } from "./services/telemetryConfig";
+import {
+  isRetrospectiveInvocation,
+  runRetrospectiveCliFromProcess,
+} from "./retrospective-cli";
 
 async function main() {
+  if (isRetrospectiveInvocation(process.argv)) {
+    process.exitCode = await runRetrospectiveCliFromProcess(
+      process.argv.slice(3),
+    );
+    return;
+  }
   const config = await resolveConfig();
   const transportMode = process.env.MCP_TRANSPORT || "stdio";
   const tracker = new SessionTracker();

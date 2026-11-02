@@ -22,7 +22,7 @@ Transcripts and session events are read only from the explicitly listed source r
 Reports include the commands agents asked permission to run, with secrets removed on a best-effort basis. Check them before sharing a report.
 Reports also read commit and file counts from git in each session's working folder, which is outside the listed source roots. Commit messages, file names and file contents are not stored.
 You can revoke this consent and remove the record at any time by running:
-  ags-retrospective disable`;
+  ags retrospective disable`;
 
 export type ConsentRecord = {
   schemaVersion: 1;

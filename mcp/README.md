@@ -85,9 +85,9 @@ node mcp/dist/index.js
 
 The candidate adds `ags-mcp-session-report --manifest <manifest.json> [--json]` for explicitly selected Codex JSONL and OMP v3 journals. It retains OMP model-usage calls and orchestration/cache-write buckets separately from transcript and conversation counters; absent submetrics stay unknown, and oversized journals stop at the first resource limit. It reports aggregate counters and inventory coverage only; it does not discover host activity or infer prices. See [`SESSION_REPORT.md`](SESSION_REPORT.md) for the manifest, counter semantics, unknown values, and privacy limits. Real-journal use remains subject to separate Personal-journal authorization.
 
-### Session retrospectives (`ags-retrospective`, unreleased source candidate)
+### Session retrospectives (`ags retrospective`, unreleased source candidate)
 
-The source ships **three stdio-only MCP tools plus a console binary**, and none of it is released.
+The source ships **three stdio-only MCP tools plus a retrospective subcommand** in the server package, and none of it is released.
 
 - `prepare_retrospective`, `get_retrospective_status`, and `prepare_retrospective_index` are registered
   only when the transport is stdio (`mcp/src/server.ts` checks `transport === "stdio"`). They are
@@ -98,14 +98,15 @@ The source ships **three stdio-only MCP tools plus a console binary**, and none 
   `get_retrospective_status` reports consent state only; `prepare_retrospective_index` accepts
   optional `since`, `until`, and `folder` (max 120 chars) and writes `<storeRoot>/index.html` across
   stored sessions (it is a housekeeping tool and does not advance the substantive nudge counter).
-- The console binary `ags-retrospective` → `dist/retrospective-cli.js` is the human-facing entry
-  point, plus a side-effect-free CommonJS subpath `agent-skills-standard-mcp/retrospective`. The source also declares an `exports` map (`"."`, `"./retrospective"` with types,
-  `"./session-journal-cli"`, `"./package.json"`, `"./README.md"`, `"./SESSION_REPORT.md"`, and
-  `"./dist/*"` retained so existing deep imports keep working).
-
-**None of it is in a published release**: no registry version ships these tools, this binary or this
-subpath. Locally, the fresh build (including the declaration-only
-`tsc -p tsconfig.retrospective-types.json` emit), the 1037-test suite (5 skipped), and a packed-tarball consumer smoke pass on
+- There is no separate `ags-retrospective` binary. The human-facing command is `ags retrospective <action>`
+  (in the `agent-skills-standard` CLI), which runs the pinned `agent-skills-standard-mcp` package
+  (`agent-skills-standard-mcp retrospective <action>` is the same thing and works directly without `ags`).
+  Until an `ags` release pins an MCP version containing this feature (`0.8.0` or newer), `ags retrospective`
+  refuses with a version message, and a pre-release build can be tested with `AGS_MCP_PACKAGE_SPEC=file:/absolute/path/agent-skills-standard-mcp-<version>.tgz` (a `file:` prefix is required; a bare path is run as a command by `npx`).
+  The package declares an `exports` map (`"."`, `"./session-journal-cli"`, `"./package.json"`, `"./README.md"`,
+  `"./SESSION_REPORT.md"`, and `"./dist/*"` retained so existing deep imports keep working).
+**None of it is in a published release**: no registry version ships these tools or this
+binary. Locally, the fresh build, the MCP suite, and a packed-tarball consumer smoke pass on
 macOS; redaction, git-arg, and environment rules were mutation-checked; an earlier `tsup --dts` attempt had failed against the installed TypeScript compiler API and
 that failure is kept as history, with the temporary compatibility dev dependency removed.
 **Host integration is still not claimed.**
@@ -118,14 +119,14 @@ that exist among `~/.omp/agent/sessions` and `~/.codex/sessions`, and `--source-
 absolute, must exist) replaces them; none left is `NO_SOURCE_ROOTS`. stdout stays one JSON line.
 
 ```text
-ags-retrospective enable [--store-root <absolute>] [--source-root <absolute>]...
-ags-retrospective disable
-ags-retrospective consent-status
-ags-retrospective index [--since YYYY-MM-DD] [--until YYYY-MM-DD] [--folder NAME]
+ags retrospective enable [--store-root <absolute>] [--source-root <absolute>]...
+ags retrospective disable
+ags retrospective status
+ags retrospective index [--since YYYY-MM-DD] [--until YYYY-MM-DD] [--folder NAME]
 ```
 
 `enable` prints `{"schemaVersion":1,"enabled":true}`. `disable` needs no terminal and prints
-`{"schemaVersion":1,"enabled":false,"removed":<boolean>}`. `consent-status` prints
+`{"schemaVersion":1,"enabled":false,"removed":<boolean>}`. `status` (forwarded as `consent-status` in the package) prints
 `{"schemaVersion":1,"state":"enabled","storeRoot":<path>,"allowedSourceRoots":[...]}` or
 `{"schemaVersion":1,"state":"disabled","reason":"<missing|invalid|permissive|symlink|version>"}`; a
 missing record is an ordinary `disabled` result, not an error; pre-existing version 1 consent records fail closed as disabled with reason `version` until `enable` is re-run. The consent file is owner-only and read
@@ -135,27 +136,14 @@ readable, symlink or non-regular each count as disabled:
 - POSIX: `$XDG_CONFIG_HOME/agent-skills-standard/retrospective-consent.json` when `XDG_CONFIG_HOME` is set and absolute, else `~/.config/agent-skills-standard/retrospective-consent.json`.
 - Windows: `%APPDATA%\agent-skills-standard\retrospective-consent.json`.
 
-The manual manifest path is separate and unchanged:
-
-```text
-ags-retrospective prepare --manifest <local-manifest.json> --consent local-only [--root <absolute>] --ack-storage-risk
-ags-retrospective status --root <absolute> --artifact <opaque-id>
-ags-retrospective paths --root <absolute> --artifact <opaque-id>
-ags-retrospective delete --root <absolute> --session <id> --host <id> --confirm
-```
-
 Contract constraints to preserve when the binary ships:
 
-- `prepare` requires explicit `--consent local-only` **and** `--ack-storage-risk` on every run. The acknowledgement records an unknown sync/backup risk; it never overrides owner-only permissions or root validation, and a missing privacy enforcement refuses the run. A CLI flag is an attestation, not authentication — an interactive human must supply the flag, and agents must not be allowed to supply the flag silently. `--mode` accepts only `local-only`; anything else returns `MODE_UNAVAILABLE` before collection and is never mapped onto a local run.
-- stdout is exactly one JSON line. `prepare` prints the six-key receipt `{schemaVersion, artifactId, runId, status, modelCalls, outboundRequests}` where `status` is `complete` or `partial` (`failed` is reserved — a failed prepare publishes nothing and exits `1`). `status` prints `{schemaVersion, artifactId, kind, status}`. `paths` prints strict JSON `{report, proposals, session}` with `null` for artifacts the generation did not publish. `delete` prints `{schemaVersion, deleted, removedArtifacts}`. `index` prints `{schemaVersion, state: "written", path, sessions, omitted, unreadable, since, until}`.
-- Refusals print `{"schemaVersion":1,"error":{"code":"<STABLE_CODE>"}}` to stderr — code only, never a manifest path, fs/runtime message, stack trace or file content. Codes include `CONSENT_REQUIRED`, `CONSENT_MODE_REFUSED`, `MODE_UNAVAILABLE`, `STORAGE_RISK_NOT_ACKNOWLEDGED`, `MANIFEST_INVALID`, `ARTIFACT_NOT_FOUND`, `ROOT_PERMISSIVE`, `ROOT_SYMLINK`, `ROOT_OWNER_MISMATCH`, `PRIVATE_MODE`, `DELETE_INDEX_HISTORY_INCOMPLETE`, `INVALID_DATE`, `INVALID_RANGE`, `INVALID_FOLDER`, `FAILED`. An existing root with group/other permissions is `ROOT_PERMISSIVE`; remediate with `mkdir -m 700` or `chmod 700` on a dedicated directory, never a shared/synced folder. `DELETE_INDEX_HISTORY_INCOMPLETE` means session data is already removed and the index history prune did not finish — re-run `delete`; `CLAIM_REVOKED` means the run was revoked by a deletion or cancellation — re-run deletion or cancel explicitly to recover; `INVALID_DATE`/`INVALID_RANGE`/`INVALID_FOLDER` signal invalid index query arguments.
-- The library contract is equally strict: `PrepareRequest` requires `storageRiskAcknowledged: true`, and `prepareLocal` refuses `STORAGE_RISK_NOT_ACKNOWLEDGED` before any read, schema parse, store access or claim. The public subpath is deliberately bounded — `collectEvidence`, `claimRun`, `cancelRun`, `publishRun`, `prepareStore`, `withSessionLock`, `sessionToken` and `storeLayout` (and their types) are **not exported**; mutators, claims, locks and store layout are internal, tests import modules directly.
-- `paths` is human-facing. It is not to be called automatically through a hosted agent's tool return; doing so would send report content to a model provider.
-- Exit codes: usage `2`, refusal or failure `1`, complete or explicitly labelled partial publication `0`.
+- stdout is exactly one JSON line. `index` prints `{"schemaVersion":1,"state":"written","path":<path>,"sessions":<number>,"omitted":<number>,"unreadable":<number>,"since":<string|null>,"until":<string|null>}`.
+- Refusals print `{"schemaVersion":1,"error":{"code":"<STABLE_CODE>"}}` to stderr — code only, never a manifest path, fs/runtime message, stack trace or file content. Codes include `TTY_REQUIRED`, `CONSENT_DECLINED`, `NO_SOURCE_ROOTS`, `ROOT_PERMISSIVE`, `ROOT_SYMLINK`, `ROOT_OWNER_MISMATCH`, `PRIVATE_MODE`, `STORE_ROOT_INSIDE_PROJECT`, `STORE_ROOT_UNRESOLVED`, `INVALID_DATE`, `INVALID_RANGE`, `INVALID_FOLDER`, `FAILED`. An existing root with group/other permissions is `ROOT_PERMISSIVE`; remediate with `mkdir -m 700` or `chmod 700` on a dedicated directory, never a shared/synced folder.
+- Exit codes: usage `2`, refusal or failure `1`, successful index publication `0`.
 - Three tools are exposed on stdio: `prepare_retrospective`, `get_retrospective_status`, and `prepare_retrospective_index`. They never return transcript text or report bodies — only state, numbers, an artifact id, or paths (`summary.md`, `ledger.json`, `report.html`, or `<storeRoot>/index.html`); file contents stay on local disk.
-- `delete` requires `--confirm` and operates only inside the validated managed store.
 
-Full behaviour, privacy model and host versions: [`../docs/session-retrospective.md`](../docs/session-retrospective.md), with the privacy boundary in [`../docs/session-retrospective-privacy.md`](../docs/session-retrospective-privacy.md) and provider coverage in [`../docs/session-retrospective-hosts.md`](../docs/session-retrospective-hosts.md). Status: unreleased source; fresh build, 1037 passing tests (5 skipped) and packed-tarball consumer smoke pass locally on macOS. Not published, no version bump, and no host-integration, Windows/Linux or process-level egress claim is made; no CI job runs on Windows. Skill, workflow and rule text that would trigger `prepare_retrospective` is not part of this change; it arrives later, after a value pilot.
+Full behaviour, privacy model and host versions: [`../docs/session-retrospective.md`](../docs/session-retrospective.md), with the privacy boundary in [`../docs/session-retrospective-privacy.md`](../docs/session-retrospective-privacy.md) and provider coverage in [`../docs/session-retrospective-hosts.md`](../docs/session-retrospective-hosts.md). Status: unreleased source; fresh build, passing MCP test suite and packed-tarball consumer smoke pass locally on macOS. Not published, no version bump, and no host-integration, Windows/Linux or process-level egress claim is made; no CI job runs on Windows. Skill, workflow and rule text that would trigger `prepare_retrospective` is not part of this change; it arrives later, after a value pilot.
 
 ## Configure your AI agent
 

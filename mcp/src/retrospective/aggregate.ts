@@ -3,7 +3,7 @@ import { open, type FileHandle } from "node:fs/promises";
 import crypto from "node:crypto";
 import type { Readable } from "node:stream";
 import { DEFAULT_LIMITS, type NodeKey } from "./contracts";
-import { RetrospectiveError } from "./rules";
+import { RetrospectiveError } from "./errors";
 import {
   SERVER_HOUSEKEEPING_TOOLS,
   SKILL_LOAD_TOOLS,

@@ -410,7 +410,7 @@ export async function buildServer(
 <important_notes>
 - Orchestrator or unassigned agent only. Workers holding an assignment packet must not call this.
 - Pass \`title\` = one line saying what this session was for; it is shown as agent-supplied and unverified.
-- Requires the user's one-time opt-in via \`ags-retrospective enable\`.
+- Requires the user's one-time opt-in via \`ags retrospective enable\`.
 - Zero model calls, zero outbound network requests.
 - Returns only fixed counts and view file paths (summary, ledger and HTML report); never transcript text.
 </important_notes>`,
@@ -425,7 +425,7 @@ export async function buildServer(
 
 <important_notes>
 - Returns the current consent state (enabled/disabled and reason code).
-- Retrospective collection requires the user's one-time opt-in via \`ags-retrospective enable\`.
+- Retrospective collection requires the user's one-time opt-in via \`ags retrospective enable\`.
 </important_notes>`,
       inputSchema: getRetrospectiveStatusSchema,
       handler: () => getRetrospectiveStatus(ctx),
@@ -438,7 +438,7 @@ export async function buildServer(
 <important_notes>
 - Reads stored reports only, never session files.
 - Stdio transport only (absent on HTTP/SSE).
-- Requires the user's one-time opt-in via \`ags-retrospective enable\`.
+- Requires the user's one-time opt-in via \`ags retrospective enable\`.
 - Zero model calls, zero outbound network requests.
 - Returns fixed summary text and the index file path; never transcript text, titles, or folder filter values.
 </important_notes>`,

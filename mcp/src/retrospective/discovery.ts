@@ -9,7 +9,7 @@ import {
   localManifestSchema,
   type LocalManifest,
 } from "./contracts";
-import { RetrospectiveError } from "./rules";
+import { RetrospectiveError } from "./errors";
 import {
   SERVER_HOUSEKEEPING_TOOLS,
   extractServerToolName,

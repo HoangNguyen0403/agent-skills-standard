@@ -876,7 +876,7 @@ ${tableRows}</tbody>
   if (result.unreadable > 0) {
     notesHtml += `<p class="hint">${plural(result.unreadable, "stored report")} could not be read (older format or damaged).</p>\n`;
   }
-  notesHtml += `<p class="hint">Narrow or widen with: ags-retrospective index --since YYYY-MM-DD --until YYYY-MM-DD --folder NAME</p>`;
+  notesHtml += `<p class="hint">Narrow or widen with: ags retrospective index --since YYYY-MM-DD --until YYYY-MM-DD --folder NAME</p>`;
   parts.push(notesHtml);
 
   return `<!doctype html>

@@ -25,7 +25,7 @@ import {
 import { readGitOutcome } from "./outcome";
 import { loadPreviousReports, type SessionRates } from "./trend";
 import { prepareV2 } from "./prepare";
-import { RetrospectiveError } from "./rules";
+import { RetrospectiveError } from "./errors";
 import { resolveArtifact, StoreError } from "./store";
 import { renderSummary } from "./views/summary";
 import { renderReportHtml } from "./views/report-html";

@@ -1128,7 +1128,7 @@ describe("renderIndexHtml", () => {
       "1 stored report could not be read (older format or damaged).",
     );
     expect(html).toContain(
-      "Narrow or widen with: ags-retrospective index --since YYYY-MM-DD --until YYYY-MM-DD --folder NAME",
+      "Narrow or widen with: ags retrospective index --since YYYY-MM-DD --until YYYY-MM-DD --folder NAME",
     );
     expect(html).not.toContain('<details class="sec"');
   });

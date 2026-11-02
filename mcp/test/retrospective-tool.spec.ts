@@ -198,7 +198,7 @@ describe("retrospective MCP tools and nudge", () => {
     expect(status.content[0].text).toContain(
       "Retrospective consent is disabled",
     );
-    expect(status.content[0].text).toContain("ags-retrospective enable");
+    expect(status.content[0].text).toContain("ags retrospective enable");
 
     const prep = await prepareRetrospective(ctxDisabledCheck);
     expect(prep.content[0].text).toBe(DISABLED_RETROSPECTIVE_TEXT);
