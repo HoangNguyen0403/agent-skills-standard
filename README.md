@@ -243,10 +243,10 @@ See [SDLC Workflow Quick Reference](./docs/sdlc-workflow-quick-reference.md).
 
 - [First-run guide](./docs/session-retrospective.md) — opt-in, nudge, tools, result states, report layout, cross-session index.
 - [Privacy and retention](./docs/session-retrospective-privacy.md) — read boundary, never-read list, consent file, retention.
-- [Host integration](./docs/session-retrospective-hosts.md) — OMP, Codex, Claude Code and Gemini coverage, transport rule, adapters.
+- [Host integration](./docs/session-retrospective-hosts.md) — OMP, Codex, Claude Code and Gemini coverage, transport rule, session sources.
 - [Future online contracts](./docs/session-retrospective-online-contract.md) — **NOT IMPLEMENTED**, contract only.
 
-Guidance lives in `skills/common/common-session-retrospective`. Skill, workflow and rule text that would trigger the tool is not part of this change; it comes later, after a value pilot. Status: the source builds and passes its test suite and CLI/tarball smoke locally on macOS; unpublished — see `CHANGELOG.md` → `[Unreleased]`. Windows/Linux and host-adapter runtime remain unverified.
+Guidance lives in `skills/common/common-session-retrospective`. Skill, workflow and rule text that would trigger the tool is not part of this change; it comes later, after a value pilot. Status: the source builds and passes its test suite and CLI/tarball smoke locally on macOS; unpublished — see `CHANGELOG.md` → `[Unreleased]`. Windows and Linux runtime remain unverified; no CI job runs on Windows.
 
 ## Default SDLC Support
 

@@ -258,11 +258,6 @@ viewing client's filesystem.
   permissions is refused with `ROOT_PERMISSIVE` (also `ROOT_SYMLINK`, `ROOT_OWNER_MISMATCH`).
   Remediate with `mkdir -m 700` for a new dedicated root or `chmod 700` on an existing dedicated
   directory — never a shared checkout or a synced/cloud folder.
-- Host-side root selection is user-scoped: the OMP adapter ignores project-local `<cwd>/.omp/...`
-  configuration, accepts only an explicit absolute `OMP_SESSION_RETROSPECTIVE_CONFIG` override, and
-  refuses a root inside the current folder or anywhere in the same Git repository (resolved through
-  symlinks) — `STORE_ROOT_INSIDE_PROJECT`, or `STORE_ROOT_UNRESOLVED` when it cannot resolve. A
-  cloned checkout cannot redirect report storage into its own tree.
 - Unsafe traversal is refused: symlinks, junctions and reparse-point races are rejected with a
   refusal or a safe-root remediation request. Where the platform cannot enforce the protection,
   the tool refuses rather than claiming a guarantee it cannot keep. On Windows, a freshly created
@@ -374,11 +369,9 @@ mitigation, and it never overrides private permissions:
 - if private permission enforcement is unavailable on the platform, the run is refused outright
   rather than continued under the acknowledgement.
 
-The same acknowledgement is required from adapter flows, in the adapter's own local UI on every
-run: the OMP command asks in a confirmation dialog and returns `STORAGE_RISK_NOT_ACKNOWLEDGED` if
-you decline. This is not only a UI convention: the core request type requires
-`storageRiskAcknowledged: true`, and the library refuses the same code before any read, schema
-parse, store access or claim. The Paseo panel is disabled and collects nothing.
+The core request type requires `storageRiskAcknowledged: true`, and the library refuses with
+`STORAGE_RISK_NOT_ACKNOWLEDGED` before any read, schema parse, store access or claim. When invoking
+`ags-retrospective prepare`, `--ack-storage-risk` must be passed explicitly on every run.
 
 Choosing a root you have verified as neither synced nor backed up **reduces known exposure**; it
 does not prove absence. Parent-volume backups, host snapshots, provider-side version history and a
@@ -389,9 +382,8 @@ the mandatory acknowledgement remain.
 
 - No perfect redaction and no guarantee that arbitrary logs are secret-free.
 - No secure erasure after deletion.
-- No sandbox guarantee from the plugin or host: an inert viewer is a presentation choice, not an
-  enforced isolation boundary. Report rendering uses plain text with raw HTML and external
-  resources disabled, and transcript-supplied links stay inert, but a viewer that does not enforce
+- No sandbox guarantee: report rendering uses plain text with raw HTML and external resources
+  disabled, and transcript-supplied links stay inert, but any external viewer that does not enforce
   this is disclosed rather than described as protected.
 - No proof of runtime network isolation from source code alone. Egress is zero by construction at
   the call graph level (`modelCalls: 0`, `outboundRequests: 0`); an independent process-level

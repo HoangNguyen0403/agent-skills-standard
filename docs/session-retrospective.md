@@ -12,7 +12,7 @@ Two paths produce that artifact:
   `ledger.json` and `report.html`. No manifest is written or read.
 - **Manual manifest (advanced).** You author a manifest naming the session, its checkpoint, its
   cutoff and every node in the delegation tree, then run `ags-retrospective prepare` from a
-  terminal. Use it for custom manifests, adapter-supplied manifests, or hosts without a session
+  terminal. Use it for custom manifests, external manifests, or hosts without a session
   reader.
 
 Both paths read only explicitly authorized local sources, apply deterministic local rules, and
@@ -36,10 +36,9 @@ roots; commit messages, file names, and hashes are never stored); the full table
 > subpath. On macOS the fresh build (including the declaration emit), the 1037-test MCP suite
 > (5 skipped) and the CLI/tarball smoke pass locally; redaction, git-argument, environment, and index
 > rules were mutation-checked; nothing is published to the registry, so no registry version contains
-> any of it. The optional Paseo and OMP adapter packages exist as source
-> (`integrations/session-retrospective/`) and are not installed; the Paseo session-data/report-reading
-> RPCs are **disabled** — that panel only explains the limitation and points to the local CLI.
-> Windows/Linux, live host loading, native host UI and process-level egress proof remain unverified.
+> any of it. There are no host adapter packages; the MCP tools and the `ags-retrospective` CLI are the
+> surfaces. Windows/Linux, live host loading, native host UI and process-level egress proof remain
+> unverified; no CI job runs on Windows.
 > Tracking entry: `CHANGELOG.md` → `[Unreleased]`.
 
 ## MCP-native retrospective (primary path)
@@ -373,7 +372,7 @@ makes a new report rather than editing an earlier one.
 
 ## Manual manifest path (advanced)
 
-Use this path when you need a custom manifest, when a local adapter supplies one, or when the
+Use this path when you need a custom manifest, or when the
 session lives under a host without a session reader. The MCP-native path above comes first; this
 path stays supported and unchanged.
 
@@ -381,8 +380,8 @@ path stays supported and unchanged.
 
 - Node.js 20+ (`agent-skills-standard-mcp` targets `node20`).
 - A private local root (default `~/ags/diagnostics`, created with owner-only permissions).
-- A manifest describing the session you want reviewed. **You author it** — no adapter generates a
-  manifest in this build; the adapters only consume one you pass explicitly.
+- A manifest describing the session you want reviewed. **You author it** — the CLI consumes the
+  manifest you pass explicitly.
 
 **Nothing is published yet.** The published MCP package does not contain the `ags-retrospective`
 binary, and `npx agent-skills-standard-mcp` does **not** put it on `PATH` or expose
@@ -485,7 +484,7 @@ Synthetic example — fabricated identifiers and paths, no real session data:
 
 | Field | Meaning |
 | --- | --- |
-| `provenance` | `user-supplied` (you wrote it) or `host-local` (a local adapter wrote it). The preparer never upgrades provenance. |
+| `provenance` | `user-supplied` (you wrote it) or `host-local` (a host environment wrote it). The preparer never upgrades provenance. |
 | `main` | The main session. Exactly one node must have `parent: null` and it must be this key. |
 | `checkpointId` | Stable identity of the completion checkpoint being reviewed. Not a turn ID; turn IDs can be null or repeat. |
 | `cutoff` | ISO-8601 instant; evidence after it is out of scope. Compare as UTC instants after parsing. |
@@ -512,8 +511,8 @@ ags-retrospective prepare \
   no report text leaving your machine. Any other `--consent` value is refused
   (`CONSENT_MODE_REFUSED`); a `--mode` other than `local-only` returns `MODE_UNAVAILABLE` before
   any collection starts and is never mapped onto a local run.
-- **A CLI flag is an attestation, not authentication.** Adapters must capture a click in their
-  local UI; an agent that silently supplies `--consent` is outside the contract.
+- **A CLI flag is an attestation, not authentication.** An interactive human must supply the
+  flag; an agent that silently supplies `--consent` is outside the contract.
 - `--root` is optional (default above). **`--ack-storage-risk` is required on every prepare** —
   see step 1. Omitting it is refused with `STORAGE_RISK_NOT_ACKNOWLEDGED`.
 
@@ -627,26 +626,7 @@ file content — only a stable error code.
 - **Cross-session index:** run `ags-retrospective index` from a terminal or invoke `prepare_retrospective_index` via MCP over stdio to regenerate `<storeRoot>/index.html`.
 - **Manual CLI (advanced), every host:** author a manifest, then run `prepare` yourself. This is
   the fallback for hosts without a session reader and for custom manifests.
-- **Paseo source package:** the session-data-collecting and report-reading RPCs are **disabled**.
-  Choosing the retrospective action shows an inert panel that explains the unavailability and
-  points you at the local CLI; it does not collect session data, prepare a report, or return report
-  content. No environment variable or setting enables it — that waits on verified human admission
-  from the host.
-- **Automatic invitations are unsupported on every host.** There is no Paseo invitation package:
-  the former hook variant was deleted because the released Paseo SDK cannot enumerate child
-  sessions, so its checkpoint tool could never succeed.
-- **OMP source adapter (manual only; verified by the CI adapter script against the pinned 18.13.1
-  SDK tarball, live host loading unverified):** `/retrospective` with no argument refuses
-  (`OMP-AUTO-SCOPE-UNSUPPORTED`) and `/retrospective manifest <absolute-path>` prepares the declared
-  manifest after a **per-run storage-risk confirmation dialog** (declining returns
-  `STORAGE_RISK_NOT_ACKNOWLEDGED`). Its printed CLI hint includes `--ack-storage-risk`. **Automatic
-  invitations are unsupported** too: no verified diagnostic-role or readiness fact exists, so no
-  checkpoint tool, no `session_stop` status and no invitation is registered.
-- **Store root on OMP:** the root is never read from project-local `<cwd>/.omp/...` configuration.
-  Only an explicit absolute `OMP_SESSION_RETROSPECTIVE_CONFIG` override is accepted, and a root
-  inside the current folder **or anywhere in the same Git repository** (resolved through symlinks)
-  is refused with `STORE_ROOT_INSIDE_PROJECT`; an unresolvable root is refused with
-  `STORE_ROOT_UNRESOLVED`. Do not create project-local config for this.
+- **Automatic invitations are unsupported on every host.** No host invitation package exists.
 - **Not part of this change:** the skill, workflow and rule text that would make an agent call
   `prepare_retrospective` on its own. That arrives after a value pilot, so today only this guide
   and the nudge point an agent at the tool.
@@ -657,6 +637,6 @@ automatic agent turn, and subagent completion must never trigger one.
 ## Next steps
 
 - Privacy, exclusions and retention: [`session-retrospective-privacy.md`](./session-retrospective-privacy.md)
-- Host coverage, transport, adapters, disabling and uninstall: [`session-retrospective-hosts.md`](./session-retrospective-hosts.md)
+- Host coverage, transport, disabling and uninstall: [`session-retrospective-hosts.md`](./session-retrospective-hosts.md)
 - Future online contracts (NOT IMPLEMENTED): [`session-retrospective-online-contract.md`](./session-retrospective-online-contract.md)
 - Operating the retrospective habit: `skills/common/common-session-retrospective/SKILL.md`

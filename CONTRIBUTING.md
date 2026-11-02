@@ -70,17 +70,7 @@ node mcp/dist/retrospective-cli.js prepare --manifest <synthetic-manifest.json> 
 
 - `--ack-storage-risk` is required on every `prepare`; it records an unknown sync/backup risk and never overrides owner-only permissions. An existing `0755` root is refused with `ROOT_PERMISSIVE` — create a new root with `mkdir -m 700` or `chmod 700` a dedicated directory.
 - Assert exit codes and the single JSON stdout line / code-only JSON stderr — never report text, paths or transcripts. `paths` is human-facing and must not be invoked from a hosted tool result.
-- Host adapter packages live under `integrations/session-retrospective/` (`paseo`, `omp`) and are verified in CI by `scripts/verify-retrospective-adapters.mjs` (job `retrospective-adapters`) against exact pinned SDK tarballs; `retrospective-windows` runs the retrospective suites on Windows on push. Locally you can still build and test them in their own package context:
-
-  ```bash
-  # per adapter package (paths as shipped); CI proves SDK compatibility, host smoke does not
-  ( cd integrations/session-retrospective/omp  && pnpm typecheck && pnpm test )
-  ( cd integrations/session-retrospective/paseo && pnpm typecheck && pnpm test )
-  node scripts/verify-retrospective-adapters.mjs
-  ```
-
-  OMP is manual-only on 18.13.1 (`/retrospective manifest <absolute-path>`) and requires a per-run storage-risk confirmation; its automatic invitation path is unsupported by design, so do not add a `session_stop`/`setStatus` expectation there. Its store root must come from an explicit absolute environment override — never project-local `<cwd>/.omp/...` config — and a root inside the current folder **or anywhere in the same Git repository** (resolved through symlinks) is refused, as is an unresolvable root (`STORE_ROOT_UNRESOLVED`). The Paseo panel's session-data-collecting and report-reading RPCs are **disabled** pending verified host human admission, so do not add tests that assert panel prepare/read behaviour, and do not document an enabling environment variable or setting. The former `paseo-hooks` invitation package was **deleted** by user decision: the released Paseo SDK cannot enumerate child sessions, so its checkpoint tool could never succeed, and automatic invitations are unsupported on every host. Adapter host smoke and cross-platform path/ACL behaviour remain **pending verified** — do not report them as passing because CI typecheck and unit suites are green.
-- The public `agent-skills-standard-mcp/retrospective` subpath is deliberately bounded. `collectEvidence`, `claimRun`, `cancelRun`, `publishRun`, `prepareStore`, `withSessionLock`, `sessionToken` and `storeLayout` (and their types) are **not exported**; tests import the modules directly. Drive the CLI or the documented adapter calls instead of reaching for internal mutators.
+- The public `agent-skills-standard-mcp/retrospective` subpath is deliberately bounded. `collectEvidence`, `claimRun`, `cancelRun`, `publishRun`, `prepareStore`, `withSessionLock`, `sessionToken` and `storeLayout` (and their types) are **not exported**; tests import the modules directly. Drive the CLI or the public subpath entry points instead of reaching for internal mutators.
 
 ## 3. Creating Skills
 
