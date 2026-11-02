@@ -700,7 +700,7 @@ describe("collectIndex", () => {
     expect(result.rows[0].session).toBe("sess-valid");
   });
 
-  it("counts a ledger that is valid JSON but fails the ledger shape as unreadable", async () => {
+  it("counts ledgers without a usable end date or without a schema version as unreadable", async () => {
     const root = await newRoot();
     await publishTestLedger(
       root,
@@ -719,6 +719,12 @@ describe("collectIndex", () => {
       "cp-2",
       JSON.stringify({ schemaVersion: 1 }),
     );
+    await publishTestLedger(
+      root,
+      "sess-no-version",
+      "cp-3",
+      JSON.stringify({ hello: "world" }),
+    );
 
     const result = await collectIndex(root, {
       since: "2026-09-01",
@@ -726,9 +732,10 @@ describe("collectIndex", () => {
       folder: null,
     });
 
-    expect(result.unreadable).toBe(1);
+    expect(result.unreadable).toBe(2);
     expect(result.matched).toBe(1);
     expect(result.rows.map((r) => r.session)).toEqual(["sess-valid-shape"]);
+    expect(result.storeSessions).toBe(1);
   });
 
   it("orders rows newest first and breaks equal end times by session id", async () => {
