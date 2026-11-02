@@ -32,7 +32,6 @@ workflows:
   - design-solution
   - implementation-readiness
   - plan-feature
-  - review-ticket
   - skill-benchmark
   - evals-run
   - pentest

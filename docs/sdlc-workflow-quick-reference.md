@@ -15,16 +15,15 @@ Agent Skills Standard syncs workflows into each agent's native surface. Run `ags
 | Verify                 | Did we prove it with fresh evidence?             | `verify-work`              | Work is code-complete but unproven                                     | `docs/srs/srs-walkthrough-[slug].md`  |
 | UAT Signoff            | Does the business accept it?                     | `uat-signoff`              | `verify-work` PASS needs business acceptance before release            | signoff decision                      |
 | Trace                  | Is every requirement document-linked?            | `traceability-audit`       | Pre-release or handoff needs a document-link map                      | document-link report (not execution proof) |
-| Release                | Is deployment safe?                              | `deploy-release`           | Verification passed and deployment is planned                          | deployment report                     |
+| Release                | Is deployment safe, or which cloud operation is requested? | `deploy-release` | Verification passed and deployment planned, or setup/deploy/verify/monitor/diagnose/recover needed | deployment or operations report |
 | Incident               | How do we stop harm right now?                   | `incident-hotfix`          | Production incident or urgent regression needs mitigate-first response | mitigation + handoff                  |
 | Maintain               | Is production still inside its control bands?    | `monitor-respond`          | Control band breached or a scheduled scan completed                    | tiered response + routed intake       |
 | Publish                | What do users need to know?                      | `publish-notes`            | Need release communication                                             | release notes                         |
 | Learn                  | How do we prevent repeat issues?                 | `retro-learn`              | Need standards/process feedback loop                                   | retro report                          |
 | Session                | What happened in this delivery?                  | `session-report`           | Need concise run summary and follow-ups                                | session report                        |
 | Fix                    | How do we remediate a bug?                       | `dev-fix`                  | Bug ticket needs remediation                                           | fix plan and evidence                 |
-| Review                 | What risks are in this change?                   | `review-ticket`            | Ticket or complex change needs specialist fanout                       | review verdict                        |
+| Review                 | Which risks should be raised?                  | `code-review`              | PR diff or ticket review; optional AC/PR-metadata coverage          | review verdict                        |
 | Review (Design)        | Is this provided design sound?                   | `review-system-design`     | A diagram, doc, or IaC repo arrives for review                         | scorecard + findings                  |
-| Review (PR)            | Is this PR safe to merge?                        | `code-review`              | PR diff needs focused merge-risk review                                | review findings                       |
 | Review (Repo)          | What structural risks exist in the codebase?     | `codebase-review`          | Need broader architecture/quality scan                                 | prioritized findings                  |
 | Security               | What exploitable risk exists now?                | `security-test`            | Need SAST/SCA/secrets or branch security checks                        | security report                       |
 | Security (Adversarial) | Can this be exploited in practice?               | `pentest`                  | Need PTES-aligned exploit validation                                   | pentest report                        |
@@ -35,7 +34,7 @@ Agent Skills Standard syncs workflows into each agent's native surface. Run `ags
 
 Use the task-linked approved brief/ticket and its stable slug. An unrelated newest document or working-tree change is not task authority or approval. Equivalent approved evidence can satisfy a requirement without a separate BRD/PRD/SRS filename. Reused approved exact-revision context skips rediscovery; missing document filenames never reset settled work.
 
-A stale or disputed decision blocks only its consuming action; unaffected approved decisions and independent scopes remain reusable without global reset. Production harm or urgent regressions always route to `incident-hotfix` first, even if product learning is stale. Known low-risk routine maintenance routes directly to `dev-fix` or `implement-feature` with proportional evidence, avoiding universal market research.
+A stale or disputed decision blocks only its consuming action; unaffected approved decisions and independent scopes remain reusable without global reset. Production harm or urgent regressions always route to `incident-hotfix` first, even if product learning is stale and even when the request is phrased as an explicit diagnose or recover. Known low-risk routine maintenance routes directly to `dev-fix` or `implement-feature` with proportional evidence, avoiding universal market research.
 
 `plan-feature` owns outcome, scope, acceptance criteria, dependencies and provisional product slices; consequential architecture, API/data contracts, migrations and technical decisions route to `design-solution`.
 
@@ -62,6 +61,25 @@ Carry `delivery_mode` in task and handoff metadata, separately from `snc_tier`. 
 Rules that hold in every mode: a sensitive change always receives its technical design and human approval; a missing mode is a routing decision based on approved evidence and risk, not automatic permission for the brief path; material scope growth reopens only the affected slices. Diff size never selects the mode — a one-line authorization change is `extended`.
 
 Core PRD sections: decision brief, outcome/guardrails, scope/non-goals, canonical `REQ`/`AC` rows (with owner, priority, and the single verification lane), open consequential decisions, references. Core SRS sections: decision brief, trace source, architecture/contract delta, one card per technical requirement carrying its only verification mapping, blockers/references. Personas, flows, analytics, NFR tables, migration plans, and risk sections are extensions: include one only when its trigger applies, and treat an omitted applicable extension as an owned blocker rather than silent scope loss.
+
+### Provider-Neutral Cloud Operations
+
+`deploy-release` is the single cloud operations dispatcher. `common-devops-operations` owns the shared preflight, authorization, effect-classification, and reporting procedure; provider references load on demand. No second operations workflow, alias, or competing checklist exists.
+
+| Operation | Scope | Entry gate |
+| --- | --- | --- |
+| `setup` | Hosting, DNS, TLS, edge configuration | Approved configuration plan; mail records reviewed before nameserver changes |
+| `deploy` (default when omitted) | Release promotion and rollout | Full release readiness gates |
+| `verify` | Live origin health, routing, headers | Read-only |
+| `monitor` | Metrics, alerts, quota signals | Read-only; missing telemetry is not health |
+| `diagnose` | Bounded evidence and hypothesis investigation | Read-only; no mutation disguised as diagnosis |
+| `recover` | Fixed mitigation from an identified prior verified state | Prior artifact identified; no fresh build |
+
+Rules across all modes: unknown, conflicting, or typo modes are rejected without provider calls; actual effect decides release gates, so a `setup` DNS switch or a `recover` introducing a new build enters deploy readiness; read-only modes cannot write; a monitor receipt is never a release, deployment, or rollback record. Terminal or blocked outcomes take a null `recommended_next_workflow` with `next_action` recorded, never a default planning or fix route.
+
+Missing prerequisites report `missing_mcp`, `disconnected_mcp`, `unauthenticated`, `wrong_target`, `missing_capability`, `permission_denied`, `approval_required`, `approval_expired`, `unsupported_enforcement`, `uncertain_write`, or `verification_failed`. Offline document review continues with an explicit evidence limit and is not operational proof.
+
+Identity, provider permission, organizational authority, human approval, and host enforcement are separate facts; no agent self-approves or broadens a role to clear an error. A verified authorized release emits the release run record; non-deploy actions preserve prior evidenced `feature_status` or emit operations evidence only (`feature_lifecycle: not_assessed`, no feature record), and `recommended_next_workflow` is `null` without release evidence. Package, scorer, actual-agent, and provider-sandbox qualification lanes stay separate; only lanes actually run are claimed.
 
 ### Gate Commands And Assurance Boundaries
 
@@ -167,7 +185,7 @@ arriving with the other vocabulary. Do not rename our artifacts to match it.
 | Design         | `spec.md`             | `plan-feature`, `design-solution`                | `docs/prd/prd-[slug].md`, `docs/srs/srs-[slug].md`     |
 | Build          | `plan.md`             | `implementation-readiness`, `implement-feature`  | readiness verdict, `docs/srs/srs-task-list-[slug].md`  |
 | Test           | test + eval evidence  | `test-loop`, `verify-work`, `evals-run`          | `docs/srs/srs-walkthrough-[slug].md`, eval run results |
-| Deploy         | review policy + gates | `code-review`, `review-ticket`, `deploy-release` | `docs/review-policy.md`, deployment report             |
+| Deploy         | review policy + gates | `code-review`, `deploy-release` | `docs/review-policy.md`, deployment report             |
 | Maintain       | control bands, scans  | `monitor-respond`, `incident-hotfix`             | `docs/ops/bands.yaml`, `artifacts/security-review.md`  |
 | Cross-cutting  | metrics, guardrails   | `common-sdlc-metrics`, `common-agent-guardrails` | `artifacts/sdlc-metrics.md`, guardrail policy          |
 
@@ -193,7 +211,7 @@ Start with any practice that has no prerequisite, then follow the arrows.
 - No prerequisite: `common-agent-guardrails`, `brainstorm-feature`, `common-tdd` feedback loop, instruction-file hygiene.
 - `plan-feature`, `design-solution` <- task-linked approved intent or product evidence (sufficiently specified low-risk maintenance with approved task tickets may proceed without a separate BRD-lite).
 - `implementation-readiness`, `implement-feature` <- behavioral ACs, accountable owner, approved scope fence, and verification lane plus applicable design/test prerequisites (supplied by PRD and SRS or an equivalent approved low-risk record); sensitive changes still require technical design and human/governance approval per [requirements modeling §1](../skills/product-management/product-requirements/references/requirements-modeling.md#1-applicability--sizing-gate), and PARTIAL authorizes ready slices only.
-- `code-review`, `review-ticket` <- `docs/review-policy.md` and the framework skills.
+- `code-review` <- `docs/review-policy.md` and the framework skills; requested ticket/AC or PR-metadata lanes use its orchestration reference.
 - `evals-run` config gate <- eval definitions plus a stable command to run them.
 - `deploy-release` tiers <- guardrail approval gates and a rehearsed rollback.
 - `monitor-respond` <- `docs/ops/bands.yaml`, deploy tiers, and guardrails.
@@ -265,8 +283,8 @@ Each core SDLC workflow must call `get_session_cost(workflow="...")` before fina
 
 Security review workflows should emit `artifacts/security-review.md` when security findings or evidence are in scope.
 Capture trust class, review context, runtime contract, findings, evidence gaps, and handoff notes so the same markdown report can drive developer, AppSec, and audit-facing follow-up without rewriting the conclusions.
-That report should stay continuous across `design-solution` / `implementation-readiness` -> `code-review` / `review-ticket` -> `pentest` so later stages refine the same trust and evidence record instead of starting over.
-When `code-review` or `review-ticket` findings are approved for publication or channel handoff, also emit `artifacts/review-delivery.md` as the sanitized delivery packet for `specialist-pr-commenter-batch` or channel-driven follow-up.
+That report should stay continuous across `design-solution` / `implementation-readiness` -> `code-review` -> `pentest` so later stages refine the same trust and evidence record instead of starting over.
+When `code-review` findings are approved for publication or channel handoff, also emit `artifacts/review-delivery.md` as the sanitized delivery packet for `specialist-pr-commenter-batch` or channel-driven follow-up.
 For full-repo health checks, `codebase-review` should also emit `artifacts/codebase-review.md`, using `security-review.md` only for the security slice.
 
 Every terminal-verdict workflow (`implementation-readiness`, `traceability-audit`, `uat-signoff`, `deploy-release`, `publish-notes`, `session-report`, `retro-learn`) also persists this payload as a
@@ -303,8 +321,10 @@ Use `skills/common/common-software-requirements/references/requirements-standard
 - `implement-feature`: failing test first, no pre-test implementation kept as reference.
 - `dev-fix`: root cause explicit before code proposal.
 - `verify-work`: no PASS from stale runs; evidence must be fresh.
-- `code-review`: keep it lean and PR-first; use it for focused merge decisions on a concrete diff.
-- `review-ticket`: use it when AC coverage, architecture, PR metadata, or specialist fanout matters beyond the raw diff.
+- `deploy-release`: no mode label waives release gates; no environment deploys freely; a merge event is not an approval.
+- `incident-hotfix`: missing identity, authority, required MCP, or enforceable scope blocks the mutation, never the safe scoped analysis.
+- `monitor-respond`: owns statistical bands and scan diffs only; a receipt is not a deployment record.
+- `code-review`: keep review diff-first; request ticket/AC, architecture, PR metadata, or specialist lanes only when scope requires them.
 - `codebase-review`: record source provenance, review context including prompt-injection posture, runtime contract, optional runtime attestation, policy-enforcement coverage, and evidence coverage before broad scoring.
 - `skill-benchmark`: include pressure scenarios, rationalizations, red flags, and behavior assertions for guardrail skills.
 
@@ -336,7 +356,7 @@ When running workflows in sequence (e.g., `brainstorm` -> `plan` -> `implement`)
 | -------- | ---------------------------------------------------------------- |
 | EM       | `sdlc`                                                           |
 | PM/BA    | `brainstorm-feature`, `plan-feature`, `implementation-readiness` |
-| Engineer | `dev-fix`, `implement-feature`, `review-ticket`, `verify-work`   |
+| Engineer | `dev-fix`, `implement-feature`, `code-review`, `verify-work`        |
 | QA       | `zephyr-coverage-analysis`, `verify-bug`                         |
 
 ## Specialist Quick Reference

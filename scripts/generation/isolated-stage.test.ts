@@ -22,6 +22,7 @@ import { Agent } from "../../cli/src/constants";
 import type { SkillConfig } from "../../cli/src/models/config";
 import type { CollectedSkill } from "../../cli/src/models/types";
 import { SyncService } from "../../cli/src/services/SyncService";
+import { SpecialistTransformer } from "../../cli/src/services/utils/SpecialistTransformer";
 
 const REPOSITORY_ROOT = path.resolve(__dirname, "..", "..");
 
@@ -67,6 +68,8 @@ interface FixtureOptions {
   inheritedRootResource?: string;
   includeMetricsReadme?: boolean;
   mutateMetadataNonMetric?: boolean;
+  /** Commit a pinned-base producer variant whose index.json reads configuration. */
+  configDependentIndex?: boolean;
 }
 
 const SKILL_ALPHA =
@@ -108,7 +111,17 @@ const GENERATE_INDICES_WRAPPER = [
   "  }",
   "};",
   "if (process.env.FIXTURE_DRIFT_PATH) {",
-  "  fs.appendFileSync(process.env.FIXTURE_DRIFT_PATH, '\\nDRIFT\\n');",
+  "  let driftConfig = '';",
+  "  try {",
+  "    driftConfig = fs.readFileSync(path.join(process.cwd(), '.skillsrc'), 'utf8');",
+  "  } catch (err) {",
+  "    driftConfig = '';",
+  "  }",
+  "  const driftScope = process.env.FIXTURE_DRIFT_SCOPE_TEXT;",
+  "  if (!driftScope || driftConfig.indexOf(driftScope) !== -1) {",
+  "    fs.appendFileSync(process.env.FIXTURE_DRIFT_PATH, process.env.FIXTURE_DRIFT_TEXT || '\\nDRIFT\\n');",
+  '    recordHook("drift-path", { path: process.env.FIXTURE_DRIFT_PATH, scope: driftScope || null });',
+  "  }",
   "}",
   "if (process.env.FIXTURE_CREATE_PATH) {",
   "  fs.writeFileSync(process.env.FIXTURE_CREATE_PATH, 'created\\n');",
@@ -244,6 +257,44 @@ const CALCULATE_TOKENS_WRAPPER = [
   "",
 ].join("\n");
 
+/**
+ * Pinned-base producer variant: the real producer plus a configured-workflow
+ * field in `skills/index.json`, so the output reads `.skillsrc` and only the
+ * runtime config differential can refuse recovery for it.
+ */
+const CONFIG_DEPENDENT_INDICES_WRAPPER = [
+  "const { spawnSync } = require('child_process');",
+  "const path = require('path');",
+  "const fs = require('fs');",
+  "const impl = path.join(__dirname, 'generate-indices.impl.ts');",
+  "const result = spawnSync(process.execPath, [",
+  "  '--import',",
+  "  'tsx',",
+  "  impl,",
+  "], { cwd: process.cwd(), stdio: 'inherit', env: process.env });",
+  "if (result.status !== 0) process.exit(typeof result.status === 'number' ? result.status : 1);",
+  "const configText = fs.readFileSync(path.join(process.cwd(), '.skillsrc'), 'utf8');",
+  "const workflows = [];",
+  "let inWorkflows = false;",
+  "for (const line of configText.split('\\n')) {",
+  "  if (/^workflows:\\s*\\[\\s*\\]\\s*$/.test(line)) { inWorkflows = false; continue; }",
+  "  if (/^workflows:\\s*$/.test(line)) { inWorkflows = true; continue; }",
+  "  if (!inWorkflows) continue;",
+  "  const item = /^\\s*-\\s*(\\S+)\\s*$/.exec(line);",
+  "  if (item) workflows.push(item[1]);",
+  "  else if (line.trim().length > 0) inWorkflows = false;",
+  "}",
+  "const indexPath = path.join(process.cwd(), 'skills', 'index.json');",
+  "const index = JSON.parse(fs.readFileSync(indexPath, 'utf8'));",
+  "const suffix = ' [workflows: ' + workflows.join(',') + ']';",
+  "for (const key of Object.keys(index)) {",
+  "  index[key] = String(index[key]).split('\\n').map((line) => (line.startsWith('- **[') ? line + suffix : line)).join('\\n');",
+  "}",
+  "fs.writeFileSync(indexPath, JSON.stringify(index, null, 2) + '\\n');",
+  "process.exit(0);",
+  "",
+].join("\n");
+
 async function writeMinimalProducerTree(root: string): Promise<void> {
   await fs.copy(
     path.join(REPOSITORY_ROOT, "cli", "src"),
@@ -303,6 +354,17 @@ async function installCalculateTokensWrapper(root: string): Promise<void> {
   await fs.outputFile(
     path.join(root, "scripts", "calculate-tokens.ts"),
     CALCULATE_TOKENS_WRAPPER,
+  );
+}
+
+async function installConfigDependentIndices(root: string): Promise<void> {
+  await fs.move(
+    path.join(root, "scripts", "generate-indices.ts"),
+    path.join(root, "scripts", "generate-indices.impl.ts"),
+  );
+  await fs.outputFile(
+    path.join(root, "scripts", "generate-indices.ts"),
+    CONFIG_DEPENDENT_INDICES_WRAPPER,
   );
 }
 
@@ -418,6 +480,10 @@ async function populateFixtureRepo(
   );
   await linkDependencies(REPOSITORY_ROOT, root);
 
+  if (options.configDependentIndex) {
+    await installConfigDependentIndices(root);
+  }
+
   for (const script of [
     "scripts/calculate-tokens.ts",
     "scripts/generate-indices.ts",
@@ -499,6 +565,28 @@ async function populateFixtureRepo(
   if (options.mutateMetadataNonMetric) {
     await installCalculateTokensWrapper(root);
   }
+}
+
+/** Rewrites only the consumer workflow selection, keeping the same registry/refs. */
+async function selectFixtureWorkflows(
+  root: string,
+  workflows: string[],
+): Promise<void> {
+  const lines = [
+    "registry: https://example.invalid/registry",
+    "agents:",
+    "  - copilot",
+    "skills:",
+    "  common:",
+    "    ref: common-v1",
+  ];
+  if (workflows.length === 0) {
+    lines.push("workflows: []");
+  } else {
+    lines.push("workflows:", ...workflows.map((name) => `  - ${name}`));
+  }
+  lines.push("");
+  await fs.outputFile(path.join(root, ".skillsrc"), lines.join("\n"));
 }
 
 async function withFixture(
@@ -1345,6 +1433,73 @@ test("a specialist export differing from the exact transformer output is refused
 
     await assertRefusedWithoutEffects(result);
     assert.deepEqual(await fs.readFile(specialistPath), before);
+  });
+});
+
+test("an already-owned native specialist updates through the real producer with matching ownership and a clean check", async () => {
+  await withFixture({}, async (root) => {
+    const specialistRel = ".github/agents/arch.agent.md";
+    const specialistPath = path.join(root, specialistRel);
+    const canonicalPath = path.join(
+      root,
+      "skills",
+      "specialists",
+      "specialist-arch",
+      "SKILL.md",
+    );
+    const lockPath = path.join(root, ".skills-lock.json");
+
+    // Establish the owned state through the actual generator entrypoint.
+    const seeded = await runIsolatedGeneration({ repoRoot: root });
+    assert.equal(seeded.success, true, seeded.error ?? "");
+    assert.equal(await fs.pathExists(specialistPath), true);
+
+    const lockBefore = await fs.readJson(lockPath);
+    assert.deepEqual(lockBefore.entries[specialistRel], {
+      owner: "specialist",
+      source: "specialist:specialist-arch",
+      agent: "copilot",
+      sha256: sha256(await fs.readFile(specialistPath)),
+    });
+
+    const updatedCanonical =
+      '---\nname: specialist-arch\ndescription: Architecture specialist (revised)\nallowed-tools: [read]\n---\nRevised specialist body\n';
+    await fs.writeFile(canonicalPath, updatedCanonical);
+    const expected = SpecialistTransformer.transform(
+      { name: "specialist-arch", content: updatedCanonical },
+      Agent.Copilot,
+    );
+    assert.ok(expected, "the canonical specialist must transform for Copilot");
+    const expectedBytes = Buffer.from(expected.content, "utf8");
+
+    const applied = await runIsolatedGeneration({ repoRoot: root });
+    assert.equal(applied.success, true, applied.error ?? "");
+    assert.ok(
+      applied.copiedBackFiles.includes(specialistRel),
+      "the owned native specialist must be published by the producer",
+    );
+    assert.deepEqual(await fs.readFile(specialistPath), expectedBytes);
+
+    const lockAfter = await fs.readJson(lockPath);
+    assert.equal(lockAfter.entries[specialistRel].owner, "specialist");
+    assert.equal(
+      lockAfter.entries[specialistRel].source,
+      "specialist:specialist-arch",
+    );
+    assert.equal(lockAfter.entries[specialistRel].agent, "copilot");
+    assert.equal(
+      lockAfter.entries[specialistRel].sha256,
+      sha256(expectedBytes),
+      "the persisted digest must describe the published bytes",
+    );
+
+    const checked = await runIsolatedGeneration({
+      repoRoot: root,
+      checkOnly: true,
+    });
+    assert.equal(checked.success, true, checked.error ?? "");
+    assert.deepEqual(checked.copiedBackFiles, []);
+    assert.equal((await fs.readJson(checked.receiptPath)).status, "PASS");
   });
 });
 
@@ -3256,3 +3411,928 @@ test("parseCatFileBatch fails closed on a truncated git batch stream", () => {
   assert.equal(partialStream.get("file1.md"), computeSha256("abc"));
   assert.equal(partialStream.get("file2.md"), null);
 });
+
+const DEMO_PROMPT_REL = ".github/prompts/demo.prompt.md";
+const DEMO_CANONICAL_REL = ".agents/workflows/demo.md";
+
+test("a deselected workflow export retires with its catalog binding while the canonical source and its ownership survive", async () => {
+  await withFixture({}, async (root) => {
+    const promptPath = path.join(root, DEMO_PROMPT_REL);
+    const canonicalPath = path.join(root, DEMO_CANONICAL_REL);
+    const promptBefore = await fs.readFile(promptPath);
+    const canonicalBefore = await fs.readFile(canonicalPath);
+
+    const lockBefore = await fs.readJson(
+      path.join(root, ".skills-lock.json"),
+    );
+    assert.ok(lockBefore.entries[DEMO_PROMPT_REL], "prompt export is owned");
+    assert.ok(lockBefore.entries[DEMO_CANONICAL_REL], "canonical body is owned");
+    assert.ok(
+      lockBefore.workflowCatalog?.workflows?.demo,
+      "baseline real producers record the workflow catalog",
+    );
+    // Seed a provider conflict that names the export about to retire; the
+    // published catalog must drop it even though filtering empties the list.
+    lockBefore.workflowCatalog.workflows.demo.nativeConflicts = [
+      { agent: "codex", path: DEMO_PROMPT_REL },
+    ];
+    await fs.writeJson(path.join(root, ".skills-lock.json"), lockBefore, {
+      spaces: 2,
+    });
+
+    await selectFixtureWorkflows(root, []);
+
+    const applied = await runIsolatedGeneration({ repoRoot: root });
+    assert.equal(applied.success, true, applied.error ?? "");
+    assert.deepEqual(applied.retiredFiles, [DEMO_PROMPT_REL]);
+
+    assert.equal(await fs.pathExists(promptPath), false);
+    assert.deepEqual(await fs.readFile(canonicalPath), canonicalBefore);
+
+    const lockAfter = await fs.readJson(path.join(root, ".skills-lock.json"));
+    assert.equal(lockAfter.entries[DEMO_PROMPT_REL], undefined);
+    assert.ok(
+      lockAfter.entries[DEMO_CANONICAL_REL],
+      "the authored canonical body keeps its ownership entry",
+    );
+    const workflow = lockAfter.workflowCatalog?.workflows?.demo;
+    assert.ok(workflow, "the present canonical body stays catalogued");
+    assert.deepEqual(
+      workflow.nativeBindings,
+      [],
+      "the retired export is no longer advertised",
+    );
+    assert.deepEqual(
+      (workflow.nativeConflicts ?? []).filter(
+        (conflict: { path?: string }) => conflict.path === DEMO_PROMPT_REL,
+      ),
+      [],
+      "the retired export is no longer advertised as a provider conflict",
+    );
+
+    const archivedPrompt = path.join(
+      path.dirname(applied.logPath),
+      "publication-before",
+      DEMO_PROMPT_REL,
+    );
+    assert.deepEqual(
+      await fs.readFile(archivedPrompt),
+      promptBefore,
+      "the exact pre-retirement bytes stay archived",
+    );
+
+    const repeated = await runIsolatedGeneration({ repoRoot: root });
+    assert.equal(repeated.success, true, repeated.error ?? "");
+    assert.deepEqual(repeated.retiredFiles, []);
+  });
+});
+
+test("an edited export whose workflow is deselected is preserved and reported instead of deleted", async () => {
+  await withFixture({}, async (root) => {
+    const promptPath = path.join(root, DEMO_PROMPT_REL);
+    const edited = "user-authored prompt edit\n";
+    await fs.writeFile(promptPath, edited);
+    const lockBefore = await fs.readJson(path.join(root, ".skills-lock.json"));
+
+    await selectFixtureWorkflows(root, []);
+
+    const checked = await runIsolatedGeneration({
+      repoRoot: root,
+      checkOnly: true,
+    });
+    assert.equal(checked.success, true, checked.error ?? "");
+    assert.deepEqual(checked.preservedOrphans, [DEMO_PROMPT_REL]);
+    assert.equal(await fs.readFile(promptPath, "utf8"), edited);
+
+    const applied = await runIsolatedGeneration({ repoRoot: root });
+    assert.equal(applied.success, true, applied.error ?? "");
+    assert.deepEqual(applied.retiredFiles, []);
+    assert.deepEqual(applied.preservedOrphans, [DEMO_PROMPT_REL]);
+    assert.equal(await fs.readFile(promptPath, "utf8"), edited);
+
+    const lockAfter = await fs.readJson(path.join(root, ".skills-lock.json"));
+    assert.deepEqual(
+      lockAfter.entries[DEMO_PROMPT_REL],
+      lockBefore.entries[DEMO_PROMPT_REL],
+      "an edited orphan keeps its ownership record so it is never silently adopted",
+    );
+  });
+});
+
+test("an unowned export at a retired path is never deleted", async () => {
+  await withFixture({}, async (root) => {
+    const promptPath = path.join(root, DEMO_PROMPT_REL);
+    const bytesBefore = await fs.readFile(promptPath);
+    const lockPath = path.join(root, ".skills-lock.json");
+    const lock = await fs.readJson(lockPath);
+    delete lock.entries[DEMO_PROMPT_REL];
+    await fs.writeJson(lockPath, lock, { spaces: 2 });
+
+    await selectFixtureWorkflows(root, []);
+
+    const applied = await runIsolatedGeneration({ repoRoot: root });
+    assert.equal(applied.success, true, applied.error ?? "");
+    assert.deepEqual(applied.retiredFiles, []);
+    assert.deepEqual(await fs.readFile(promptPath), bytesBefore);
+  });
+});
+
+test("a symlinked owned export refuses retirement and survives unchanged", async () => {
+  await withFixture({}, async (root) => {
+    const promptPath = path.join(root, DEMO_PROMPT_REL);
+    const canonicalPath = path.join(root, DEMO_CANONICAL_REL);
+    const canonicalBefore = await fs.readFile(canonicalPath);
+    await fs.remove(promptPath);
+    await fs.symlink(canonicalPath, promptPath);
+
+    await selectFixtureWorkflows(root, []);
+
+    const result = await runIsolatedGeneration({ repoRoot: root });
+    assert.equal(result.success, false);
+    assert.deepEqual(result.retiredFiles, []);
+    assert.match(result.error ?? "", /Symlink path component not permitted/);
+    assert.equal((await fs.lstat(promptPath)).isSymbolicLink(), true);
+    assert.deepEqual(await fs.readFile(canonicalPath), canonicalBefore);
+    assert.equal((await fs.readJson(result.receiptPath)).status, "FAILED");
+  });
+});
+
+test("a configured workflow whose source is absent is refused before any retirement", async () => {
+  await withFixture({}, async (root) => {
+    const promptPath = path.join(root, DEMO_PROMPT_REL);
+    const promptBefore = await fs.readFile(promptPath);
+    const lockPath = path.join(root, ".skills-lock.json");
+    const lockBefore = await fs.readJson(lockPath);
+    await fs.remove(path.join(root, DEMO_CANONICAL_REL));
+
+    const result = await runIsolatedGeneration({ repoRoot: root });
+    assert.equal(result.success, false);
+    assert.match(result.error ?? "", /Configured selections are invalid/);
+    assert.match(result.error ?? "", /workflow source/);
+    assert.deepEqual(await fs.readFile(promptPath), promptBefore);
+    assert.deepEqual(
+      await fs.readJson(lockPath),
+      lockBefore,
+      "an incomplete acquisition leaves ownership and the catalog untouched",
+    );
+  });
+});
+
+test("an interrupted manifest publication restores retired outputs and leaves the old manifest valid", async (t) => {
+  await withFixture({}, async (root) => {
+    const promptPath = path.join(root, DEMO_PROMPT_REL);
+    const promptBefore = await fs.readFile(promptPath);
+    const lockPath = path.join(root, ".skills-lock.json");
+    const lockBefore = await fs.readJson(lockPath);
+
+    await selectFixtureWorkflows(root, []);
+
+    const realRename = fs.rename;
+    const renameMock = t.mock.method(
+      fs,
+      "rename",
+      async (from: string, to: string) => {
+        if (path.basename(to) === ".skills-lock.json") {
+          throw new Error("fixture publication interruption");
+        }
+        await realRename(from, to);
+      },
+    );
+    let result: IsolatedStageResult | null = null;
+    try {
+      result = await runIsolatedGeneration({ repoRoot: root });
+    } finally {
+      renameMock.mock.restore();
+    }
+    assert.ok(result);
+
+    assert.equal(result.success, false);
+    assert.match(result.error ?? "", /fixture publication interruption/);
+    assert.match(result.error ?? "", /retired outputs restored/);
+    assert.deepEqual(await fs.readFile(promptPath), promptBefore);
+    assert.deepEqual(result.retiredFiles, []);
+    assert.deepEqual(await fs.readJson(lockPath), lockBefore);
+    const receipt = await fs.readJson(result.receiptPath);
+    assert.equal(receipt.status, "FAILED");
+    assert.deepEqual(receipt.restoredRetirements, [DEMO_PROMPT_REL]);
+  });
+});
+
+test("removing the canonical workflow source also drops its stale ownership entry and catalog record", async () => {
+  await withFixture({}, async (root) => {
+    const promptPath = path.join(root, DEMO_PROMPT_REL);
+    await fs.remove(path.join(root, DEMO_CANONICAL_REL));
+
+    await selectFixtureWorkflows(root, []);
+
+    const applied = await runIsolatedGeneration({ repoRoot: root });
+    assert.equal(applied.success, true, applied.error ?? "");
+    assert.deepEqual(applied.retiredFiles, [DEMO_PROMPT_REL]);
+    assert.equal(await fs.pathExists(promptPath), false);
+
+    const lockAfter = await fs.readJson(path.join(root, ".skills-lock.json"));
+    assert.equal(lockAfter.entries[DEMO_PROMPT_REL], undefined);
+    assert.equal(lockAfter.entries[DEMO_CANONICAL_REL], undefined);
+    assert.equal(lockAfter.workflowCatalog.workflows.demo, undefined);
+  });
+});
+
+test("a failing parent-directory cleanup restores every retirement already unlinked", async (t) => {
+  await withFixture({}, async (root) => {
+    const physicalRoot = await fs.realpath(root);
+    const betaPackage = path.join(
+      physicalRoot,
+      ".github",
+      "skills",
+      "common",
+      "common-beta",
+    );
+    const retiredRels = [
+      ".github/skills/common/common-beta/LICENSE.TXT",
+      ".github/skills/common/common-beta/SKILL.md",
+    ];
+    const bytesBefore = new Map<string, Buffer>();
+    for (const relPath of retiredRels) {
+      bytesBefore.set(relPath, await fs.readFile(path.join(root, relPath)));
+    }
+    const lockPath = path.join(root, ".skills-lock.json");
+    const lockBefore = await fs.readJson(lockPath);
+    await fs.remove(path.join(root, "skills", "common", "common-beta"));
+
+    const realRemove = fs.remove;
+    let cleanupFailures = 0;
+    const removeMock = t.mock.method(
+      fs,
+      "remove",
+      async (target: string) => {
+        if (
+          cleanupFailures === 0 &&
+          path.resolve(String(target)) === betaPackage
+        ) {
+          cleanupFailures += 1;
+          throw new Error("fixture parent cleanup failure");
+        }
+        return realRemove(target);
+      },
+    );
+    let result: IsolatedStageResult | null = null;
+    try {
+      result = await runIsolatedGeneration({ repoRoot: root });
+    } finally {
+      removeMock.mock.restore();
+    }
+    assert.ok(result);
+    assert.equal(cleanupFailures, 1, "the injected cleanup failure fired");
+
+    assert.equal(result.success, false);
+    assert.match(result.error ?? "", /fixture parent cleanup failure/);
+    assert.match(result.error ?? "", /retired outputs restored/);
+    for (const relPath of retiredRels) {
+      assert.deepEqual(
+        await fs.readFile(path.join(root, relPath)),
+        bytesBefore.get(relPath),
+        `${relPath} was restored after the untracked-unlink hazard`,
+      );
+    }
+    assert.deepEqual(await fs.readJson(lockPath), lockBefore);
+    const receipt = await fs.readJson(result.receiptPath);
+    assert.equal(receipt.status, "FAILED");
+    assert.equal(receipt.publicationCommitted, false);
+    assert.deepEqual(
+      [...receipt.restoredRetirements].sort(),
+      [...retiredRels].sort(),
+    );
+  });
+});
+
+test("a manifest verification failure after the commit point keeps retirements committed", async (t) => {
+  await withFixture({}, async (root) => {
+    const promptPath = path.join(root, DEMO_PROMPT_REL);
+    const lockPath = path.join(await fs.realpath(root), ".skills-lock.json");
+    await selectFixtureWorkflows(root, []);
+
+    const realRename = fs.rename;
+    const renameMock = t.mock.method(
+      fs,
+      "rename",
+      async (from: string, to: string) => {
+        await realRename(from, to);
+        if (path.resolve(String(to)) === lockPath) {
+          await fs.appendFile(to, "\nCORRUPT\n");
+        }
+      },
+    );
+    let result: IsolatedStageResult | null = null;
+    try {
+      result = await runIsolatedGeneration({ repoRoot: root });
+    } finally {
+      renameMock.mock.restore();
+    }
+    assert.ok(result);
+
+    assert.equal(result.success, false);
+    assert.match(
+      result.error ?? "",
+      /Ownership manifest bytes differ after atomic replacement/,
+    );
+    assert.match(
+      result.error ?? "",
+      /retired outputs committed with the ownership manifest and not rolled back/,
+    );
+    assert.equal(await fs.pathExists(promptPath), false);
+
+    const corrupted = await fs.readFile(lockPath, "utf8");
+    const committed = JSON.parse(corrupted.replace(/\nCORRUPT\n$/, ""));
+    assert.equal(committed.entries[DEMO_PROMPT_REL], undefined);
+    assert.deepEqual(
+      committed.workflowCatalog.workflows.demo.nativeBindings,
+      [],
+    );
+
+    const receipt = await fs.readJson(result.receiptPath);
+    assert.equal(receipt.status, "FAILED");
+    assert.equal(receipt.publicationCommitted, true);
+    assert.deepEqual(receipt.restoredRetirements, []);
+    assert.deepEqual(receipt.retiredFiles, [DEMO_PROMPT_REL]);
+    assert.ok(receipt.appliedFiles.includes(".skills-lock.json"));
+    assert.ok(!receipt.verifiedFiles.includes(".skills-lock.json"));
+  });
+});
+
+test("an APPLIED receipt failure after the commit point does not resurrect retired exports", async (t) => {
+  await withFixture({}, async (root) => {
+    const promptPath = path.join(root, DEMO_PROMPT_REL);
+    const lockPath = path.join(root, ".skills-lock.json");
+    await selectFixtureWorkflows(root, []);
+
+    const realWriteJson = fs.writeJson;
+    let receiptWrites = 0;
+    const writeJsonMock = t.mock.method(
+      fs,
+      "writeJson",
+      async (file: string, value: unknown, options?: unknown) => {
+        if (path.basename(String(file)) === "receipt.json") {
+          receiptWrites += 1;
+          if (receiptWrites === 1) {
+            throw new Error("fixture applied receipt failure");
+          }
+        }
+        await (
+          realWriteJson as unknown as (
+            target: string,
+            data: unknown,
+            opts?: unknown,
+          ) => Promise<void>
+        )(file, value, options);
+      },
+    );
+    let result: IsolatedStageResult | null = null;
+    try {
+      result = await runIsolatedGeneration({ repoRoot: root });
+    } finally {
+      writeJsonMock.mock.restore();
+    }
+    assert.ok(result);
+    assert.equal(
+      receiptWrites,
+      2,
+      "APPLIED then FAILED receipt were both attempted",
+    );
+
+    assert.equal(result.success, false);
+    assert.match(result.error ?? "", /fixture applied receipt failure/);
+    assert.match(
+      result.error ?? "",
+      /retired outputs committed with the ownership manifest and not rolled back/,
+    );
+    assert.equal(await fs.pathExists(promptPath), false);
+    const lockAfter = await fs.readJson(lockPath);
+    assert.equal(lockAfter.entries[DEMO_PROMPT_REL], undefined);
+
+    const receipt = await fs.readJson(result.receiptPath);
+    assert.equal(receipt.status, "FAILED");
+    assert.equal(receipt.publicationCommitted, true);
+    assert.deepEqual(receipt.restoredRetirements, []);
+    assert.deepEqual(receipt.retiredFiles, [DEMO_PROMPT_REL]);
+  });
+});
+
+/** Outputs a configuration-invariant source edit provably regenerates. */
+const RECOVERED_OUTPUTS = [
+  "skills/README.md",
+  "skills/index.json",
+  "skills/metadata.json",
+];
+
+const ALPHA_MIRROR_REL = ".github/skills/common/common-alpha/SKILL.md";
+
+/**
+ * Applies a source edit whose producers read no configuration: a canonical
+ * skill description (drives index.json, README and the token metrics) plus an
+ * authored non-metric metadata version.
+ */
+async function applyRecoverableSourceEdit(root: string): Promise<string> {
+  const edited = SKILL_ALPHA.replace(
+    "Alpha skill",
+    "Provenance recovered Alpha skill",
+  );
+  await fs.writeFile(
+    path.join(root, "skills", "common", "common-alpha", "SKILL.md"),
+    edited,
+  );
+  const metadataPath = path.join(root, "skills", "metadata.json");
+  const metadata = await fs.readJson(metadataPath);
+  metadata.categories.common.version = "9.8.7";
+  await fs.writeFile(metadataPath, `${JSON.stringify(metadata, null, 2)}\n`);
+  return edited;
+}
+
+/** Republishes the mirror a maintainer refreshes alongside a canonical edit. */
+async function syncFixtureMirror(root: string, bytes: string): Promise<void> {
+  await fs.writeFile(path.join(root, ALPHA_MIRROR_REL), bytes);
+}
+
+/**
+ * Prepares the recovery fixture: a committed base, no ownership manifest, a
+ * configuration that differs from the base, and a changed recoverable output
+ * set whose sibling host outputs already match the freshly generated bytes.
+ */
+async function prepareRecoveryFixture(root: string): Promise<string> {
+  const base = await commitFixtureBase(root);
+  await stageRecoverableEdit(root);
+  return base;
+}
+
+async function stageRecoverableEdit(root: string): Promise<void> {
+  await stageSourceOnlyEdit(root);
+  // A deselected workflow makes the live configuration differ from the base
+  // without changing any declared output.
+  await selectFixtureWorkflows(root, []);
+}
+
+async function stageSourceOnlyEdit(root: string): Promise<void> {
+  await fs.remove(path.join(root, ".skills-lock.json"));
+  const edited = await applyRecoverableSourceEdit(root);
+  await syncFixtureMirror(root, edited);
+}
+
+async function readRecoveryProof(
+  result: IsolatedStageResult,
+): Promise<Record<string, any>> {
+  return fs.readJson(
+    path.join(result.logPath, "..", "adoption", "proof.json"),
+  );
+}
+
+test("provenance recovery records config-invariant outputs changed under a deselected workflow", async () => {
+  await withFixture({}, async (root) => {
+    const base = await prepareRecoveryFixture(root);
+    const lockPath = path.join(root, ".skills-lock.json");
+
+    const result = await runIsolatedGeneration({
+      repoRoot: root,
+      recoverProvenance: base,
+    });
+
+    assert.equal(result.success, true, result.error ?? "");
+    const lock = await fs.readJson(lockPath);
+    assert.deepEqual(
+      Object.keys(lock.generation.entries).sort(),
+      RECOVERED_OUTPUTS,
+      "ownership must be recorded for exactly the recovered outputs",
+    );
+    for (const relPath of RECOVERED_OUTPUTS) {
+      assert.equal(
+        lock.generation.entries[relPath].sha256,
+        sha256(await fs.readFile(path.join(root, relPath))),
+        `${relPath} ownership digest must bind the published bytes`,
+      );
+    }
+    const publishedMetadata = await fs.readJson(
+      path.join(root, "skills", "metadata.json"),
+    );
+    assert.equal(
+      publishedMetadata.categories.common.version,
+      "9.8.7",
+      "authored non-metric metadata must survive recovery",
+    );
+    assert.deepEqual(lock.generation.entries["skills/metadata.json"].scope, {
+      kind: "category-token-metrics",
+      sha256: tokenMetricsDigest(publishedMetadata),
+    });
+    assert.match(
+      await fs.readFile(path.join(root, "skills", "index.json"), "utf8"),
+      /Provenance recovered Alpha skill/,
+    );
+
+    const proof = await readRecoveryProof(result);
+    assert.equal(proof.mode, "recover");
+    assert.equal(proof.base, base);
+    assert.equal(proof.ancestorOfHead, true);
+    assert.equal(proof.head, await git(root, ["rev-parse", "HEAD"]));
+    assert.deepEqual([...proof.requested].sort(), RECOVERED_OUTPUTS);
+    const skillsrc = proof.config.find(
+      (record: { path: string }) => record.path === ".skillsrc",
+    );
+    assert.ok(skillsrc, "recovery evidence must record the config identity");
+    assert.equal(
+      skillsrc.worktreeSha256,
+      sha256(await fs.readFile(path.join(root, ".skillsrc"))),
+    );
+    assert.equal(typeof skillsrc.baseOid, "string");
+    assert.equal(proof.configDiffers, true);
+    assert.deepEqual(
+      proof.differential
+        .map((record: { path: string }) => record.path)
+        .sort(),
+      RECOVERED_OUTPUTS,
+    );
+    for (const record of proof.differential) {
+      assert.equal(
+        record.runASha256,
+        record.runBSha256,
+        `${record.path} must be byte-identical under both configurations`,
+      );
+    }
+
+    const receipt = await fs.readJson(result.receiptPath);
+    assert.equal(receipt.status, "APPLIED");
+    assert.deepEqual([...receipt.recoveredFiles].sort(), RECOVERED_OUTPUTS);
+
+    const recoveredGeneration = lock.generation;
+    // Recovery disables the HEAD-equality heal, so the first plain run may
+    // re-adopt the CLI ledger; the recovered provenance must survive it.
+    const healed = await runIsolatedGeneration({ repoRoot: root });
+    assert.equal(healed.success, true, healed.error ?? "");
+    const healedLock = await fs.readJson(lockPath);
+    assert.deepEqual(healedLock.generation, recoveredGeneration);
+    const healedBytes = await fs.readFile(lockPath);
+    const rerun = await runIsolatedGeneration({ repoRoot: root });
+    assert.equal(rerun.success, true, rerun.error ?? "");
+    assert.ok(
+      !rerun.copiedBackFiles.includes(".skills-lock.json"),
+      "a recovered manifest must stay stable across a second plain run",
+    );
+    assert.deepEqual(await fs.readFile(lockPath), healedBytes);
+  });
+});
+
+test("provenance recovery refuses when the changed set includes a non-recoverable host mirror", async () => {
+  await withFixture({}, async (root) => {
+    const base = await commitFixtureBase(root);
+    const lockPath = path.join(root, ".skills-lock.json");
+    await fs.remove(lockPath);
+    await selectFixtureWorkflows(root, []);
+    // The canonical edit also changes its published mirror; leaving the mirror
+    // at the base bytes puts a configuration-dependent output in the requested
+    // set, so the whole all-or-nothing run must be refused.
+    await applyRecoverableSourceEdit(root);
+    const mirrorPath = path.join(root, ALPHA_MIRROR_REL);
+    const mirrorBefore = await fs.readFile(mirrorPath);
+    const before = new Map<string, Buffer>();
+    for (const relPath of [...RECOVERED_OUTPUTS, ".skillsrc"]) {
+      before.set(relPath, await fs.readFile(path.join(root, relPath)));
+    }
+
+    const result = await runIsolatedGeneration({
+      repoRoot: root,
+      recoverProvenance: base,
+    });
+
+    await assertRefusedWithoutEffects(result);
+    for (const [relPath, bytes] of before) {
+      assert.deepEqual(
+        await fs.readFile(path.join(root, relPath)),
+        bytes,
+        `${relPath} must be untouched by a refused recovery`,
+      );
+    }
+    assert.deepEqual(await fs.readFile(mirrorPath), mirrorBefore);
+    assert.equal(await fs.pathExists(lockPath), false);
+  });
+});
+
+test("provenance recovery refuses a configuration-dependent pinned-base output through the runtime differential", async () => {
+  await withFixture({ configDependentIndex: true }, async (root) => {
+    const base = await commitFixtureBase(root);
+    const lockPath = path.join(root, ".skills-lock.json");
+    await fs.remove(lockPath);
+    await selectFixtureWorkflows(root, []);
+    const indexPath = path.join(root, "skills", "index.json");
+    const indexBefore = await fs.readFile(indexPath);
+
+    const refused = await runIsolatedGeneration({
+      repoRoot: root,
+      recoverProvenance: base,
+    });
+
+    await assertRefusedWithoutEffects(refused);
+    assert.match(
+      refused.error ?? "",
+      /Provenance recovery refused for "skills\/index\.json": pinned-base producer output depends on current configuration\./,
+      "the differential must name the configuration-dependent output",
+    );
+    assert.deepEqual(await fs.readFile(indexPath), indexBefore);
+    assert.equal(await fs.pathExists(lockPath), false);
+  });
+
+  // Same pinned-base producer, unchanged configuration: the output class is
+  // recoverable and only the differential could have refused the run above.
+  await withFixture({ configDependentIndex: true }, async (root) => {
+    const base = await commitFixtureBase(root);
+    await stageSourceOnlyEdit(root);
+
+    const result = await runIsolatedGeneration({
+      repoRoot: root,
+      recoverProvenance: base,
+    });
+
+    assert.equal(result.success, true, result.error ?? "");
+    assert.ok(result.copiedBackFiles.includes("skills/index.json"));
+    const proof = await readRecoveryProof(result);
+    assert.equal(proof.configDiffers, false);
+    assert.deepEqual(
+      proof.differential,
+      [],
+      "a matching configuration needs no differential run",
+    );
+  });
+});
+
+test("provenance recovery refuses drifted worktree bytes or a drifted Git index entry", async () => {
+  await withFixture({}, async (root) => {
+    const base = await commitFixtureBase(root);
+    const lockPath = path.join(root, ".skills-lock.json");
+    await fs.remove(lockPath);
+    const indexPath = path.join(root, "skills", "index.json");
+    const drifted = `${await fs.readFile(indexPath, "utf8")}\n`;
+    await fs.writeFile(indexPath, drifted);
+
+    const result = await runIsolatedGeneration({
+      repoRoot: root,
+      recoverProvenance: base,
+    });
+
+    await assertRefusedWithoutEffects(result);
+    assert.equal(await fs.readFile(indexPath, "utf8"), drifted);
+    assert.equal(await fs.pathExists(lockPath), false);
+  });
+
+  await withFixture({}, async (root) => {
+    const base = await prepareRecoveryFixture(root);
+    const indexPath = path.join(root, "skills", "index.json");
+    const lockPath = path.join(root, ".skills-lock.json");
+    const indexBefore = await fs.readFile(indexPath);
+    const altPath = path.join(root, ".fixture-alternate-index.json");
+    await fs.writeFile(altPath, "{}\n");
+    const altOid = await git(root, ["hash-object", "-w", altPath]);
+    await fs.remove(altPath);
+    await git(root, [
+      "update-index",
+      "--cacheinfo",
+      `100644,${altOid},skills/index.json`,
+    ]);
+
+    const result = await runIsolatedGeneration({
+      repoRoot: root,
+      recoverProvenance: base,
+    });
+
+    await assertRefusedWithoutEffects(result);
+    assert.deepEqual(await fs.readFile(indexPath), indexBefore);
+    const staged = await git(root, ["ls-files", "-s", "--", "skills/index.json"]);
+    assert.equal(
+      staged.trim().split(/\s+/)[1],
+      altOid,
+      "the staged entry must survive the refusal unchanged",
+    );
+    assert.equal(await fs.pathExists(lockPath), false);
+  });
+});
+
+test("provenance recovery refuses token_metrics drift and accepts a version-only edit", async () => {
+  await withFixture({}, async (root) => {
+    const base = await commitFixtureBase(root);
+    const lockPath = path.join(root, ".skills-lock.json");
+    await fs.remove(lockPath);
+    const metadataPath = path.join(root, "skills", "metadata.json");
+    const metadata = await fs.readJson(metadataPath);
+    metadata.categories.common.token_metrics = {
+      poisoned: "token-metrics-drift",
+    };
+    const poisoned = `${JSON.stringify(metadata, null, 2)}\n`;
+    await fs.writeFile(metadataPath, poisoned);
+
+    const result = await runIsolatedGeneration({
+      repoRoot: root,
+      recoverProvenance: base,
+    });
+
+    await assertRefusedWithoutEffects(result);
+    assert.equal(await fs.readFile(metadataPath, "utf8"), poisoned);
+    assert.equal(await fs.pathExists(lockPath), false);
+  });
+
+  await withFixture({}, async (root) => {
+    const base = await commitFixtureBase(root);
+    const lockPath = path.join(root, ".skills-lock.json");
+    await fs.remove(lockPath);
+    const metadataPath = path.join(root, "skills", "metadata.json");
+    const metadata = await fs.readJson(metadataPath);
+    metadata.categories.common.version = "9.8.7";
+    await fs.writeFile(metadataPath, `${JSON.stringify(metadata, null, 2)}\n`);
+
+    // A non-metric edit changes no recoverable output, so an explicit recovery
+    // request has nothing to prove and must be refused without side effects.
+    const refused = await runIsolatedGeneration({
+      repoRoot: root,
+      recoverProvenance: base,
+    });
+
+    await assertRefusedWithoutEffects(refused);
+    assert.equal(
+      (await fs.readJson(metadataPath)).categories.common.version,
+      "9.8.7",
+      "the authored version must survive the refusal",
+    );
+    assert.equal(await fs.pathExists(lockPath), false);
+
+    // The same edit without a recovery request is an ordinary accepted run.
+    const plain = await runIsolatedGeneration({ repoRoot: root });
+    assert.equal(plain.success, true, plain.error ?? "");
+    assert.equal(
+      (await fs.readJson(metadataPath)).categories.common.version,
+      "9.8.7",
+    );
+    const lock = await fs.readJson(lockPath);
+    assert.equal(
+      lock.generation,
+      undefined,
+      "a version-only edit claims no generated-output provenance",
+    );
+  });
+});
+
+test("provenance recovery refuses a base that is not an ancestor of HEAD", async () => {
+  await withFixture({}, async (root) => {
+    const base = await commitFixtureBase(root);
+    const currentBranch = await git(root, [
+      "rev-parse",
+      "--abbrev-ref",
+      "HEAD",
+    ]);
+    await git(root, ["checkout", "--quiet", "-b", "sibling"]);
+    await fs.appendFile(
+      path.join(root, "LICENSE.TXT"),
+      "\nsibling branch line\n",
+    );
+    await git(root, ["add", "--", "LICENSE.TXT"]);
+    await git(root, ["commit", "--quiet", "-m", "sibling branch commit"]);
+    const siblingBase = await git(root, ["rev-parse", "HEAD"]);
+    await git(root, ["checkout", "--quiet", currentBranch]);
+    await assert.rejects(
+      git(root, ["merge-base", "--is-ancestor", siblingBase, "HEAD"]),
+      "the sibling base must not be reachable from HEAD",
+    );
+    await stageRecoverableEdit(root);
+    const lockPath = path.join(root, ".skills-lock.json");
+    const before = new Map<string, Buffer>();
+    for (const relPath of RECOVERED_OUTPUTS) {
+      const created = path.join(root, relPath);
+      if (await fs.pathExists(created)) {
+        before.set(relPath, await fs.readFile(created));
+      }
+    }
+
+    const result = await runIsolatedGeneration({
+      repoRoot: root,
+      recoverProvenance: siblingBase,
+    });
+
+    await assertRefusedWithoutEffects(result);
+    for (const [relPath, bytes] of before) {
+      assert.deepEqual(await fs.readFile(path.join(root, relPath)), bytes);
+    }
+    assert.equal(await fs.pathExists(lockPath), false);
+
+    // The identical request against the ancestor base proves the refusal above
+    // came from ancestry rather than from an unrecoverable request.
+    const accepted = await runIsolatedGeneration({
+      repoRoot: root,
+      recoverProvenance: base,
+    });
+    assert.equal(accepted.success, true, accepted.error ?? "");
+    const lock = await fs.readJson(lockPath);
+    assert.deepEqual(
+      Object.keys(lock.generation.entries).sort(),
+      RECOVERED_OUTPUTS,
+    );
+  });
+});
+
+test("provenance recovery CLI refuses conflicting flags and short SHAs before writing evidence", async () => {
+  await withFixture({}, async (root) => {
+    const base = await commitFixtureBase(root);
+    const entrypoint = path.join(root, "scripts", "generation", "index.ts");
+    const logsRoot = path.join(root, "artifacts", "generation-logs");
+    const invoke = async (args: string[]) => {
+      const child = spawn(
+        process.execPath,
+        ["--import", "tsx", entrypoint, ...args],
+        { cwd: root, env: { ...process.env, CI: "true" } },
+      );
+      let stdout = "";
+      let stderr = "";
+      child.stdout.on("data", (chunk: Buffer) => {
+        stdout += chunk.toString();
+      });
+      child.stderr.on("data", (chunk: Buffer) => {
+        stderr += chunk.toString();
+      });
+      const exitCode = await new Promise<number>((resolve) => {
+        child.on("close", (code) => resolve(code ?? 1));
+      });
+      return { exitCode, stdout, stderr };
+    };
+
+    for (const args of [
+      ["--recover-provenance", base, "--check"],
+      ["--recover-provenance", base, "--adopt-base", base],
+      ["--recover-provenance", base.slice(0, 12)],
+    ]) {
+      const rejected = await invoke(args);
+      assert.notEqual(
+        rejected.exitCode,
+        0,
+        `${args.join(" ")} must be rejected\n${rejected.stderr}`,
+      );
+      assert.equal(
+        await fs.pathExists(logsRoot),
+        false,
+        `${args.join(" ")} must not create attempt evidence`,
+      );
+    }
+
+    await stageRecoverableEdit(root);
+    const accepted = await invoke(["--recover-provenance", base]);
+    assert.equal(accepted.exitCode, 0, `${accepted.stdout}\n${accepted.stderr}`);
+    const receiptMatch = /Receipt: (.+)$/m.exec(accepted.stdout);
+    assert.ok(receiptMatch, `no receipt path in output: ${accepted.stdout}`);
+    const receipt = await fs.readJson(receiptMatch[1].trim());
+    assert.equal(receipt.status, "APPLIED");
+    assert.deepEqual([...receipt.recoveredFiles].sort(), RECOVERED_OUTPUTS);
+  });
+});
+
+test("provenance recovery refuses configuration drift injected by the pinned-base producer", async () => {
+  await withFixture({ mutateDuringIndices: true }, async (root) => {
+    const base = await commitFixtureBase(root);
+    await stageRecoverableEdit(root);
+    const lockPath = path.join(root, ".skills-lock.json");
+    const configPath = path.join(root, ".skillsrc");
+    const hookLog = await prepareHookJournal(root);
+    const before = new Map<string, Buffer>();
+    for (const relPath of RECOVERED_OUTPUTS) {
+      const created = path.join(root, relPath);
+      if (await fs.pathExists(created)) {
+        before.set(relPath, await fs.readFile(created));
+      }
+    }
+
+    const result = await withEnv(
+      {
+        FIXTURE_HOOK_LOG: hookLog,
+        FIXTURE_DRIFT_PATH: configPath,
+        FIXTURE_DRIFT_TEXT: "\n# pinned-base configuration drift\n",
+        // Only the archived base configuration still selects this workflow, so
+        // the injection can only fire inside the pinned-base proof.
+        FIXTURE_DRIFT_SCOPE_TEXT: "demo",
+      },
+      () =>
+        runIsolatedGeneration({ repoRoot: root, recoverProvenance: base }),
+    );
+
+    const drift = (await readHookJournal(root)).find(
+      (entry) => entry.hook === "drift-path",
+    );
+    assert.ok(drift, "the pinned-base producer must inject the drift");
+    assert.equal(drift.detail.path, configPath);
+    await assertRefusedWithoutEffects(result);
+    assert.match(
+      await fs.readFile(configPath, "utf8"),
+      /# pinned-base configuration drift/,
+      "the injected drift must be preserved, not rolled back",
+    );
+    for (const [relPath, bytes] of before) {
+      assert.deepEqual(
+        await fs.readFile(path.join(root, relPath)),
+        bytes,
+        `${relPath} must be untouched by a refused recovery`,
+      );
+    }
+    assert.equal(await fs.pathExists(lockPath), false);
+  });
+});
+
+
+

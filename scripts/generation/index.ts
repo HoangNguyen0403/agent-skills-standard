@@ -7,9 +7,13 @@ async function main() {
   const checkOnly = args.includes("--check");
   const adoptIndex = args.indexOf("--adopt-base");
   const adoptBase = adoptIndex < 0 ? undefined : args[adoptIndex + 1];
+  const recoverIndex = args.indexOf("--recover-provenance");
+  const recoverProvenance =
+    recoverIndex < 0 ? undefined : args[recoverIndex + 1];
   if (
     args.filter((arg) => arg === "--check").length > 1 ||
     args.filter((arg) => arg === "--adopt-base").length > 1 ||
+    args.filter((arg) => arg === "--recover-provenance").length > 1 ||
     (adoptIndex >= 0 &&
       (!adoptBase ||
         !/^[0-9a-f]{40,64}$/i.test(adoptBase) ||
@@ -17,10 +21,29 @@ async function main() {
   ) {
     throw new Error("--adopt-base requires one full commit SHA.");
   }
-  const allowed = new Set(["--check", "--adopt-base", adoptBase]);
+  if (
+    recoverIndex >= 0 &&
+    (!recoverProvenance ||
+      !/^[0-9a-f]{40,64}$/i.test(recoverProvenance) ||
+      recoverProvenance.startsWith("--"))
+  ) {
+    throw new Error("--recover-provenance requires one full commit SHA.");
+  }
+  if (recoverIndex >= 0 && (adoptIndex >= 0 || checkOnly)) {
+    throw new Error(
+      "--recover-provenance cannot be combined with --adopt-base or --check.",
+    );
+  }
+  const allowed = new Set([
+    "--check",
+    "--adopt-base",
+    adoptBase,
+    "--recover-provenance",
+    recoverProvenance,
+  ]);
   if (args.some((arg) => !allowed.has(arg))) {
     throw new Error(
-      "Usage: generate-indices [--check] [--adopt-base <fullsha>]",
+      "Usage: generate-indices [--check] [--adopt-base <fullsha>] [--recover-provenance <fullsha>]",
     );
   }
   // scripts/generation/index.ts -> two levels up is the authoring root.
@@ -30,6 +53,7 @@ async function main() {
     repoRoot,
     checkOnly,
     adoptBase,
+    recoverProvenance,
   });
 
   if (!result.success) {

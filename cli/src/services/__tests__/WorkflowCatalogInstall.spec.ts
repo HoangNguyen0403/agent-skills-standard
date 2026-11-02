@@ -207,6 +207,45 @@ describe('WorkflowCatalogInstall', () => {
     expect(lock.workflowCatalog?.workflows?.['dev-fix']).toBeUndefined();
   });
 
+  it('a still-selected workflow missing from a successful complete acquisition is pruned with its catalog entry', async () => {
+    const config = makeConfig({
+      agents: [Agent.Claude],
+      workflows: ['dev-fix', 'plan-feature'],
+    });
+    await runSync(
+      config,
+      [devFix, planFeature],
+      complete([devFix, planFeature]),
+    );
+    expect(
+      (await readLock()).workflowCatalog.workflows['plan-feature'],
+    ).toBeDefined();
+
+    // Same selection and same ref: the discovery tree succeeded and no longer
+    // advertises plan-feature. A complete empty match is evidence of removal,
+    // not an incomplete download.
+    const plan = await runSync(config, [devFix], complete([devFix]));
+
+    expect(plan.pruned).toContain(CANONICAL_PLAN_FEATURE);
+    expect(plan.pruned).toContain('.claude/commands/plan-feature.md');
+    expect(
+      await fs.pathExists(path.join(tempDir, CANONICAL_PLAN_FEATURE)),
+    ).toBe(false);
+    expect(
+      await fs.pathExists(
+        path.join(tempDir, '.claude/commands/plan-feature.md'),
+      ),
+    ).toBe(false);
+    expect(await fs.pathExists(path.join(tempDir, CANONICAL_DEV_FIX))).toBe(
+      true,
+    );
+
+    const lock = await readLock();
+    expect(lock.entries[CANONICAL_PLAN_FEATURE]).toBeUndefined();
+    expect(lock.workflowCatalog.workflows['plan-feature']).toBeUndefined();
+    expect(lock.workflowCatalog.workflows['dev-fix']).toBeDefined();
+  });
+
   it('partial acquisition never authorizes absence-based pruning and retains prior provenance', async () => {
     const config = makeConfig({ workflows: ['dev-fix', 'plan-feature'] });
     await runSync(

@@ -16,6 +16,10 @@ Agent Skills Standard workflows must work with or without external MCPs.
 | code-review-graph | callers, impact radius, patterns | `rg`, local file reads, git diff |
 | Appium MCP / device cloud | mobile verification evidence | Appium MCP local device -> `remoteServerUrl` cloud -> exported screenshots/video -> `BLOCKED (driver: appium)` |
 | Playwright CLI / Playwright MCP | web verification evidence | `playwright-cli` -> Playwright MCP -> exported screenshots/console -> `BLOCKED (driver: playwright)` |
+| AWS MCP Server (Agent Toolkit for AWS) | cloud setup, deploy, verify, monitor, diagnose, recover through discovered AWS tools | provider reference (`providers/aws.md`) -> offline config/document review with an explicit evidence limit -> `BLOCKED (missing_mcp)` |
+| Google Cloud MCP (Monitoring / Logging) | cloud monitoring, logging evidence, diagnosis through discovered GCP tools | provider reference (`providers/gcp.md`) -> offline config/document review -> `BLOCKED (missing_mcp)` |
+| Cloudflare MCP servers | edge configuration, DNS/TLS inspection, deployment evidence through discovered Cloudflare tools | provider reference (`providers/cloudflare.md`) -> offline config/document review -> `BLOCKED (missing_mcp)` |
+| Vercel MCP | project/deployment inspection, release verification, rollback evidence through discovered Vercel tools | provider reference (`providers/vercel.md`) -> offline config/document review -> `BLOCKED (missing_mcp)` |
 
 ## Workflow Rule
 
@@ -27,6 +31,22 @@ Every workflow that mentions external systems must follow this order:
 4. Never invent ticket, PR, TC, design, or environment facts.
 
 Browser and device drivers follow the same order through a per-lane ladder with a read-only preflight script; install, config snippets and the evaluated-not-adopted record ship inside each driver skill as `references/setup.md` (`quality-engineering-playwright-cli`, `quality-engineering-appium-mcp`); `docs/ui-automation-drivers.md` is the maintainer summary.
+
+## Cloud Operations Integrations
+
+`deploy-release` is the single cloud operations dispatcher; `common-devops-operations` owns the shared preflight, authorization, effect-classification and reporting procedure, and provider details live in `skills/common/common-devops-operations/references/providers/`. The cloud rows above are optional, consumer-owned integrations.
+
+| Gate | Where it is defined | Shipped by AGS |
+| --- | --- | --- |
+| Provider integration setup and authentication | official vendor documentation linked from each provider reference; the consumer host's own MCP configuration | reference only — no installer, driver, credential, token or SDK is bundled or fetched |
+| Authenticated principal and read scope | provider reference identity checks plus the consumer's own cloud identity | guidance only |
+| Organizational authority and least privilege | existing organization policy; each reference names the minimum action/resource scope to request | guidance only — no role is granted, broadened or self-approved |
+| Human write approval and expiry | `skills/common/common-devops-operations/references/authorization.md` proposal/approval contract | instruction-level only — no approval service or RBAC engine |
+| Host/tool enforcement, revocation handling and audit sink | consumer host and provider IAM | not provided — unverifiable enforcement blocks production mutations |
+
+- Never install or launch a provider MCP automatically, and never request credentials in chat. Missing integration reports `missing_mcp` / `disconnected_mcp` / `missing_capability` with the official setup reference and the minimum access to request; a permission error asks for a scoped administrator review, not broader access.
+- The provider references were documentation-reviewed only. `connected`, `authenticated`, `authorized` and `live verified` are separate states and none is claimed here.
+- AGS ships no scheduler or continuous monitor. Continuous monitoring requires a separately provisioned CI/event receiver with explicit grants, deduplication and alert ownership; this guide documents the contract only.
 
 ## High-Risk Security Review Rule
 

@@ -225,7 +225,7 @@ The registry now ships a compact lifecycle that agents can run natively after sy
 | Design     | `design-solution`               | architecture, contracts, ADR  |
 | Readiness  | `implementation-readiness`      | go/no-go before code          |
 | Build      | `implement-feature` / `dev-fix` | implementation handoff        |
-| Review     | `review-ticket`                 | multi-lens PR/ticket verdict  |
+| Review     | `code-review`                    | focused or ticket-enriched review verdict |
 | Verify     | `verify-work` / `verify-bug`    | `walkthrough.md` evidence     |
 | Security   | `pentest` / `security-test`     | hacker report, PoC, SAST logs |
 
@@ -271,7 +271,7 @@ In practice that means:
 
 - security reviews emit concise markdown artifacts and handoff notes instead of a large JSON contract layer
 - untrusted PR or ticket prose is treated as hostile content, not as execution instructions
-- `code-review` and `review-ticket` can emit `review-delivery.md` as the sanitized packet for channel handoff or approved PR comment publication
+- Canonical review is `code-review`; explicitly configured consumer `.skillsrc` selections for retired `review-ticket` must be authorized and updated to `code-review` (no alias). Only `code-review` emits `review-delivery.md` for channel handoff or approved PR comment publication.
 - broad repo health audits emit `codebase-review.md` separately from `security-review.md` so engineering health and exploitability stay distinct
 
 For repository enforcement, keep the workflows and skills lean: the source of truth lives in `skills/` and `.agents/workflows/`, not in MCP-only artifact helpers, fixture packs, or replay chains.
