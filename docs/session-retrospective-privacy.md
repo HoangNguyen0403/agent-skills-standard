@@ -1,6 +1,6 @@
 # Session Retrospectives — Privacy, Storage and Retention
 
-Read this before you enable collection or run `prepare` for the first time. It states what the
+Read this before you enable collection for the first time. It states what the
 preparer can see, what it must never see, what leaves your machine and what it cannot guarantee.
 
 > **Status: source feature, not a released product.** Behaviour described here is the agreed
@@ -12,7 +12,6 @@ preparer can see, what it must never see, what leaves your machine and what it c
 
 | Stage | Runs where | What it touches |
 | --- | --- | --- |
-| Inventory | your machine | manifest metadata only (host/session IDs, parentage, disposition) |
 | Collection | your machine | allowlisted structured fields from `local-allowed` sources |
 | Analysis | your machine | deterministic local rules; no model, no network |
 | Render | your machine | static templates, HTML escaping, inline CSS, CSP `default-src 'none'; style-src 'unsafe-inline'`, no script, no external URLs |
@@ -24,13 +23,12 @@ upload.
 
 ## MCP-native path: what is read
 
-The MCP-native path is the primary path. The agent-skills-standard MCP server registers
-`prepare_retrospective` (optional `title` argument), `get_retrospective_status` (consent state only),
-and `prepare_retrospective_index` (optional `since`, `until`, `folder`) on the stdio transport alone,
-so they do not exist on SSE or on the HTTP server. The path works with or without OMP or Paseo.
-The manual manifest CLI keeps its own allowlist, described under [What is collected](#what-is-collected).
+The agent-skills-standard MCP server registers `prepare_retrospective` (optional `title` argument),
+`get_retrospective_status` (consent state only), and `prepare_retrospective_index` (optional `since`,
+`until`, `folder`) on the stdio transport alone, so they do not exist on SSE or on the HTTP server.
+The path works with or without OMP or Paseo.
 
-Cross-session index generation (`ags-retrospective index` and `prepare_retrospective_index`) reads
+Cross-session index generation (`ags retrospective index` and `prepare_retrospective_index`) reads
 **ONLY already-stored v2 ledgers** in the consented store root. It never opens session files, runs
 no git commands, and contains NO command text. No new consent text is needed (nothing is read outside
 the already-consented store root; consent text remains version 2).
@@ -113,11 +111,11 @@ returns transcript text, a claim sentence or a report body.
 
 ## Consent file (MCP-native opt-in)
 
-The MCP-native path is opt-in, once, by the human. `ags-retrospective enable` requires an
+The MCP-native path is opt-in, once, by the human. `ags retrospective enable` requires an
 interactive terminal (otherwise it refuses `TTY_REQUIRED` and writes nothing), prints the fixed
 consent text plus the store root and the source roots, and accepts only the exact word `yes`
-(otherwise `CONSENT_DECLINED`, and nothing is written). `disable` needs no terminal.
-`consent-status` prints the state and, when enabled, the store root and the allowed source roots.
+(otherwise `CONSENT_DECLINED`, and nothing is written). `ags retrospective disable` needs no terminal.
+`ags retrospective status` prints the state and, when enabled, the store root and the allowed source roots.
 Command detail, including the root flags, is in
 [./session-retrospective.md](./session-retrospective.md).
 
@@ -134,7 +132,7 @@ Repository activity metrics (commit and file counts) are read from git in the se
 which is outside the listed source roots, as explicitly disclosed in consent text version 2.
 
 The consent text is version `2`. An existing record with version `1` is treated as disabled
-(reason `version`), requiring the user to run `ags-retrospective enable` again to re-consent.
+(reason `version`), requiring the user to run `ags retrospective enable` again to re-consent.
 
 The file is owner-only, and the reader fails closed. Each of these is a disabled state, never an
 enabled state built from guessed data:
@@ -153,12 +151,12 @@ therefore fails closed rather than following a swapped entry. A missing record i
 disabled state, not an error.
 
 An agent cannot enable it: there is no terminal, no flag and no tool that grants consent. Only
-`ags-retrospective enable` with a typed human `yes` writes the record.
+`ags retrospective enable` with a typed human `yes` writes the record.
+
 ## What is collected
 
-The manual manifest path collects allowlisted structured metadata only. The MCP-native session
-reader is bounded by the fields listed above plus event identity, timestamps and recorded usage
-numbers.
+The session reader is bounded by the allowlisted structural fields listed above plus event identity,
+timestamps and recorded usage numbers:
 
 - stable event and message identifiers, timestamps, event kinds;
 - launch settings: provider, model, tool identifiers;
@@ -201,10 +199,9 @@ repositories, workspaces and accounts. The *result* is frequently narrower:
 branch is **never** reported as fully enumerated, and a summary inherits its source's
 restrictions — summarization is not declassification.
 
-On the manual path the node inventory reads only the manifest. Paths, URLs and filesystem
-references found inside transcript text are data, never instructions: they are not followed,
-fetched, opened or executed. Source transcripts are read-only and are never rewritten, moved or
-compacted.
+Paths, URLs and filesystem references found inside transcript text are data, never instructions:
+they are not followed, fetched, opened or executed. Source transcripts are read-only and are never
+rewritten, moved or compacted.
 
 ## Egress: local processing versus return channels
 
@@ -216,21 +213,16 @@ Two different risks are routinely confused. Keep them separate:
   excerpt, title or path is returned through an agent tool response, that is egress to a model
   provider even though no upload endpoint was called.
 
-Therefore the manual manifest path returns to a hosted caller only the minimal receipt: schema
-version, opaque artifact and run IDs, status, and the `modelCalls` / `outboundRequests` counters.
-No paths, titles, excerpts or report text.
-
-The MCP-native path has its own, still narrower channel, and it does not widen this boundary. An
-agent that calls `prepare_retrospective` receives a small fixed-text result — the state, a few
-counts, the artifact id and the three file paths (`summary.md`, `ledger.json`, `report.html`) — and
+An agent that calls `prepare_retrospective` receives a small fixed-text result — the state, counts,
+the artifact id and the three file paths (`summary.md`, `ledger.json`, `report.html`) — and
 nothing else: no transcript text, no claim sentences, no report body. The three paths are a
 deliberate, bounded piece of egress; the file contents behind them are not. `get_retrospective_status`
 returns the consent state only, and `prepare_retrospective_index` returns fixed text with the path
 to `<storeRoot>/index.html` (never returning report content or echoing the folder value). No MCP tool
 reads a report back.
-Report content is never returned by a tool response. Reaching it takes a deliberate local action: a
-terminal `paths` invocation on the owning machine on the manual path, or opening one of the three
-returned paths on the MCP-native path — which a human does, and which an agent with file-read
+
+Report content is never returned by a tool response. Reaching it takes a deliberate local action:
+opening one of the three returned paths — which a human does, and which an agent with file-read
 access could also do. **Host panels do not read or return report content today:** the Paseo
 session-data and report-reading RPCs are disabled, and the panel only states that the capability
 is unavailable.
@@ -252,7 +244,7 @@ viewing client's filesystem.
 - Default root `~/ags/diagnostics`, resolved on the machine that owns the session (not by shell
   expansion, not by the viewing client's home directory). Any absolute root can be configured
   through the host's supported configuration mechanism; on the MCP-native path that is
-  `ags-retrospective enable --store-root <abs>`.
+  `ags retrospective enable --store-root <abs>`.
 - Created owner-only from the outset: POSIX `0700` directories and `0600` files, or equivalent
   Windows ACLs. Existing roots are validated before use; a pre-existing root with group or other
   permissions is refused with `ROOT_PERMISSIVE` (also `ROOT_SYMLINK`, `ROOT_OWNER_MISMATCH`).
@@ -289,9 +281,8 @@ viewing client's filesystem.
 
 - Complete generations are published atomically; writers are serialized. A cancelled or failed
   run cannot resurrect output after publication begins.
-- **Diagnostics are minimized too.** CLI refusals emit a stable error code in strict JSON, never a
-  filesystem path, a runtime/fs message, a stack trace or file content. `status` returns
-  identifiers and status only; `paths` returns the three artifact paths and nothing else.
+- **Diagnostics are minimized too.** Refusals emit a stable error code in strict JSON, never a
+  filesystem path, a runtime/fs message, a stack trace or file content.
 
 ## Store contents (v2)
 
@@ -311,7 +302,7 @@ MCP-native generations use store layout `v2`. A v2 generation directory holds fo
 
 #### Cross-session index artifact (`index.html`)
 
-When generated via `ags-retrospective index` or `prepare_retrospective_index`, `<storeRoot>/index.html`
+When generated via `ags retrospective index` or `prepare_retrospective_index`, `<storeRoot>/index.html`
 is written directly into the store root:
 
 - **Owner-only atomic write:** created mode `0600` via atomic write; replaced in full on every run
@@ -327,23 +318,19 @@ is written directly into the store root:
 Older generations written by earlier builds (two-file v2) and ledgers without the new fields are
 unreadable and fail closed with `STORED_LEDGER_INVALID` (intended; a test covers it).
 
-v1 generations (the manual path) keep their own four artifacts — `report.md`, `proposals.md`,
-`session.json` and `receipt.json` — stay readable and deletable, and are never rewritten into v2.
-Retention and deletion are unchanged: nothing is deleted automatically, and deletion is still
-`ags-retrospective delete --root <absolute> --session <id> --host <id> --confirm`. Report layout
-is documented in [./session-retrospective.md](./session-retrospective.md).
-## Retention, cancellation and deletion
+Earlier v1 generations keep their own four artifacts — `report.md`, `proposals.md`,
+`session.json` and `receipt.json` — and stay readable and deletable via the store API; they are
+never rewritten into v2. Earlier reports remain in the store unless you delete them.
 
+## Retention, cancellation and deletion
 - **Retention is manual.** Nothing expires automatically. You delete; the store refuses to grow
   past its bounds instead of pruning your history.
-- **Cancellation** keeps only what was already published — a clearly marked partial generation —
-  and never promotes proposals. A run that is refused or fails before publication publishes
-  nothing at all, so there is no artefact to inspect. Deleting a session removes its published
-  generations — v1 and v2 alike — and **all index-history generations**, so no
-  older snapshot keeps listing it — the whole managed scope for that session. If the history prune
-  is interrupted, deletion reports `DELETE_INDEX_HISTORY_INCOMPLETE`; re-run `delete` to finish,
-  and the deletion stays authoritative in the meantime. A small opaque fence record (session token,
-  timestamps, no paths, labels or excerpts) is retained by design as deletion residue.
+- **Cancellation** keeps only what was already published — a clearly marked partial generation.
+  A run that is refused or fails before publication publishes nothing at all, so there is no
+  artefact to inspect. Deleting a session removes its published generations — v1 and v2 alike —
+  and **all index-history generations**, so no older snapshot keeps listing it. A small opaque fence
+  record (session token, timestamps, no paths, labels or excerpts) is retained by design as
+  deletion residue.
 - **Deletion scope is limited to the managed store.** Filesystem-level backups, host snapshots,
   sync-provider version history and copies you made elsewhere are outside it. The tool cannot
   perform secure erasure: deletion removes files, it does not guarantee that bytes are
@@ -357,21 +344,16 @@ A private ACL does not stop a sync client. If the root (or any parent) is synced
 provider or included in backups, that provider receives copies of report content. Detection of
 these setups is best-effort at most — there is **no promise of reliable sync-folder detection**.
 
-On the manual path, `prepare` therefore requires `--ack-storage-risk` on **every** run, and
-refuses with `STORAGE_RISK_NOT_ACKNOWLEDGED` without it. On the MCP-native path the one-time
-consent record stores `storageRiskAcknowledged: true`, so enabling is the acknowledgement. Either
-way it records that you accepted an unknown sync/backup risk; it is a decision record, not a
-mitigation, and it never overrides private permissions:
+The one-time consent record stores `storageRiskAcknowledged: true`, so running
+`ags retrospective enable` is the acknowledgement. It records that you accepted an unknown
+sync/backup risk; it is a decision record, not a mitigation, and it never overrides private
+permissions:
 
 - owner-only permissions and root validation still apply in full;
 - unsafe roots (symlinks, junctions, reparse-point races, owner mismatch) are refused whatever
   you acknowledged;
 - if private permission enforcement is unavailable on the platform, the run is refused outright
   rather than continued under the acknowledgement.
-
-The core request type requires `storageRiskAcknowledged: true`, and the library refuses with
-`STORAGE_RISK_NOT_ACKNOWLEDGED` before any read, schema parse, store access or claim. When invoking
-`ags-retrospective prepare`, `--ack-storage-risk` must be passed explicitly on every run.
 
 Choosing a root you have verified as neither synced nor backed up **reduces known exposure**; it
 does not prove absence. Parent-volume backups, host snapshots, provider-side version history and a

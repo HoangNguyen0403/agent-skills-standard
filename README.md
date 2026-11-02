@@ -163,6 +163,15 @@ ags mcp uninstall --from=all   # Remove our entry from project + user configs
 ags mcp snippets               # Regenerate ./mcp-config-snippets/ without touching configs
 ```
 
+#### Manage session retrospectives with the `retrospective` subcommand
+
+```bash
+ags retrospective status           # Show consent state, store root, and allowed source roots
+ags retrospective enable           # Opt in (interactive terminal required)
+ags retrospective disable          # Turn off retrospective collection
+ags retrospective index            # Generate cross-session HTML index from stored reports
+```
+
 Or edit `.skillsrc` directly:
 
 ```yaml
@@ -237,14 +246,13 @@ See [SDLC Workflow Quick Reference](./docs/sdlc-workflow-quick-reference.md).
 
 ### Session Retrospectives
 
-**Session retrospectives — local, evidence-backed reports prepared through the MCP server; no model calls and no automatic skill changes.** The server exposes `prepare_retrospective` (orchestrator or unassigned agent only; takes optional `title` up to 200 chars, shown as agent-supplied and unverified), `get_retrospective_status` (consent state only), and `prepare_retrospective_index` (cross-session index generation) on the stdio transport, so this works with or without OMP or Paseo. A human opts in once by running `ags-retrospective enable` in an interactive terminal — agents cannot enable it. After about 20 substantive tool calls, `audit_session_compliance` and `get_session_cost` append a nudge asking the orchestrator to prepare one; the tool then aggregates counts in one bounded local pass and publishes `summary.md`, `ledger.json` and `report.html` under the store root (`~/ags/diagnostics` by default). To inspect patterns across multiple sessions, `ags-retrospective index` and `prepare_retrospective_index` generate `<storeRoot>/index.html` from stored v2 ledgers (zero model calls, no session files opened, no command text). Report bodies are never returned through the MCP surface: the tools return only state, counts, an artifact id and file paths. Zero model calls, zero network requests, no skill or workflow edits.
+**Session retrospectives — local, evidence-backed reports prepared through the MCP server; no model calls and no automatic skill changes.** The server exposes `prepare_retrospective` (orchestrator or unassigned agent only; takes optional `title` up to 200 chars, shown as agent-supplied and unverified), `get_retrospective_status` (consent state only), and `prepare_retrospective_index` (cross-session index generation) on the stdio transport, so this works with or without OMP or Paseo. A human opts in once by running `ags retrospective enable` in an interactive terminal — agents cannot enable it. After about 20 substantive tool calls, `audit_session_compliance` and `get_session_cost` append a nudge asking the orchestrator to prepare one; the tool then aggregates counts in one bounded local pass and publishes `summary.md`, `ledger.json` and `report.html` under the store root (`~/ags/diagnostics` by default). To inspect patterns across multiple sessions, `ags retrospective index` and `prepare_retrospective_index` generate `<storeRoot>/index.html` from stored v2 ledgers (zero model calls, no session files opened, no command text). Report bodies are never returned through the MCP surface: the tools return only state, counts, an artifact id and file paths. Zero model calls, zero network requests, no skill or workflow edits.
 
-**Unreleased source.** No registry version contains any of this and nothing is published. The manual manifest CLI (`ags-retrospective prepare --manifest <file> --consent local-only --ack-storage-risk`) remains the advanced path, with the same receipt, refusal and deletion rules. Start here:
+**Unreleased source.** No registry version contains any of this and nothing is published. Start here:
 
 - [First-run guide](./docs/session-retrospective.md) — opt-in, nudge, tools, result states, report layout, cross-session index.
 - [Privacy and retention](./docs/session-retrospective-privacy.md) — read boundary, never-read list, consent file, retention.
 - [Host integration](./docs/session-retrospective-hosts.md) — OMP, Codex, Claude Code and Gemini coverage, transport rule, session sources.
-- [Future online contracts](./docs/session-retrospective-online-contract.md) — **NOT IMPLEMENTED**, contract only.
 
 Guidance lives in `skills/common/common-session-retrospective`. Skill, workflow and rule text that would trigger the tool is not part of this change; it comes later, after a value pilot. Status: the source builds and passes its test suite and CLI/tarball smoke locally on macOS; unpublished — see `CHANGELOG.md` → `[Unreleased]`. Windows and Linux runtime remain unverified; no CI job runs on Windows.
 

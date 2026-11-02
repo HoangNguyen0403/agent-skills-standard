@@ -6,15 +6,15 @@ that runs that server locally: `prepare_retrospective` (orchestrator or unassign
 an optional `title` up to 200 chars, displayed as "agent-supplied, unverified"),
 `get_retrospective_status` (consent state only), and `prepare_retrospective_index` (cross-session
 index generation; optional `since`, `until`, `folder`). It works with or without OMP or Paseo, and
-without an invitation package or a host version check. All three tools exist in this
+without a host adapter package or a host version check. All three tools exist in this
 repository's source; no published registry version contains them.
-The MCP tools and the `ags-retrospective` CLI are the surfaces; there are no host adapter packages.
+The MCP tools and the `ags retrospective` CLI command are the surfaces; there are no host adapter packages.
 Everything reachable by the feature is reachable through the MCP server or from a terminal.
 
-> **Status: source feature, not a released product.** The `ags-retrospective` CLI and local
-> analysis build and pass their local tests and CLI/tarball smoke on macOS; nothing is published to
-> the registry. There are no host adapter packages; the MCP tools and the `ags-retrospective` CLI
-> are the surfaces. Windows and Linux runtime remain unverified; no CI job runs on Windows. Version
+> **Status: source feature, not a released product.** The `ags retrospective` CLI command and local
+> analysis build and pass their local tests and smoke on macOS; nothing is published to
+> the registry. There are no host adapter packages; the MCP tools and the `ags retrospective` CLI
+> command are the surfaces. Windows and Linux runtime remain unverified; no CI job runs on Windows. Version
 > facts below come from installed binaries, released SDK packages and public host documentation — not
 > from a completed integration run. See `CHANGELOG.md` → `[Unreleased]`.
 
@@ -67,30 +67,21 @@ host can contribute to the analysis; Provider coverage above does that.
 
 | Surface | Invocation | Status |
 | --- | --- | --- |
-| Terminal / CLI | `ags-retrospective prepare`, `ags-retrospective index` after a source build or local tarball install | source build or local tarball; macOS-only verification |
+| Terminal / CLI | `ags retrospective enable`, `disable`, `status`, `index` after a source build or local tarball install | source build or local tarball; macOS-only verification |
 | MCP-capable host (including OMP, Paseo) | `prepare_retrospective`, `get_retrospective_status`, `prepare_retrospective_index` via local stdio server | unreleased source; local stdio only |
 
-There are no host adapter packages. A host uses either the MCP-native route over a local stdio
-server or the manual CLI with an authored manifest.
+There are no host adapter packages. A host uses the MCP-native route over a local stdio
+server.
 
 ## What "unsupported" means
 
 Without host adapter packages:
 
-- there is no host invitation, and no approximation of one by regex-matching words like "done",
-  by polling, or by watching file timestamps;
+- there is no host integration package or plugin;
 - if the host can call a local stdio MCP server, the MCP-native route is available to it;
-- otherwise you still get the full manual path — author a manifest, then run `prepare` yourself;
-- the report is identical. Only discoverability differs.
-
-A host that cannot expose a reliable completion signal is documented as unsupported for
-invitations. It is never quietly narrowed to "works everywhere". **Automatic host invitations are
-unsupported on every host today**: no invitation package exists for any host. The MCP-native nudge
-is not a host invitation — it only rides on tool responses the agent already requested (see
-Ownership).
+- the MCP-native nudge is not a host invitation — it only rides on tool responses the agent already requested (see Ownership).
 
 ## Paseo
-
 Paseo uses the MCP-native route: an agent that calls a local stdio `agent-skills-standard` server
 can prepare a retrospective through it. There is no Paseo adapter package, status panel, or plugin.
 Whether that server inherits Paseo's session environment variables (`PASEO_*`) is untested; see
@@ -98,7 +89,7 @@ Known limits.
 
 ## OMP
 
-OMP uses the MCP-native route through a local stdio server or the manual CLI. There is no OMP
+OMP uses the MCP-native route through a local stdio server. There is no OMP
 adapter package, extension, or slash command.
 
 OMP is also the only provider whose native session files currently yield per-session timing and
@@ -106,21 +97,16 @@ host skill reads (`read skill://<name>` calls). Only a path-derived, sanitized s
 it is not checked against the registry; the read boundary is in
 [`session-retrospective-privacy.md`](./session-retrospective-privacy.md).
 
-## Ownership: one inviter per session
+## Ownership and the retrospective nudge
 
-There are no host adapter packages or host invitations. The shared **invitation-owner** setting
-remains a recorded field only; it is never guessed from session titles, working directories or
-timestamps.
-
-The MCP-native nudge is not a host invitation and is not governed by that setting. It is one fixed
-paragraph appended to the output of `audit_session_compliance` or `get_session_cost`, and only when
-the user has enabled consent, the transport is stdio, and at least 20 substantive tool calls (tool
-calls other than `get_session_cost`) have happened since the last prepare. It never starts a
-conversation, never reaches a host that does not call those tools, and an empty nudge leaves the
-output byte-identical to the output without the feature.
+There are no host adapter packages or host invitations. The MCP-native nudge is not a host
+invitation: it is one fixed paragraph appended to the output of `audit_session_compliance` or
+`get_session_cost`, and only when the user has enabled consent, the transport is stdio, and at
+least 20 substantive tool calls (tool calls other than `get_session_cost`) have happened since the
+last prepare. It never starts a conversation, never reaches a host that does not call those
+tools, and an empty nudge leaves the output byte-identical to the output without the feature.
 
 ## Known limits in host terms
-
 - Binding needs an earlier recorded call in the same server process. The host has not written the
   current call's own row to the session file when the tool runs, so the tool matches the server's
   earlier recorded calls (tool name and receive time, 250 ms tolerance) against calls in the
@@ -139,13 +125,12 @@ output byte-identical to the output without the feature.
 - Tracker-derived numbers (lookups that matched nothing, bodies returned) are "not measured" for
   replayed sessions.
 - Consent text is version 2: an existing version 1 consent record fails closed as disabled (`version`);
-  re-run `ags-retrospective enable` to grant consent.
+  re-run `ags retrospective enable` to grant consent.
 - Older generations written by earlier builds (two-file v2) or ledgers lacking new fields fail closed
   with `STORED_LEDGER_INVALID`.
 - Cost is an estimate based on a price table; "returned" skills does not mean "followed".
 - Nested workers beyond 256 per session are not scored.
-- Nothing is deleted automatically. Remove one prepared session with
-  `ags-retrospective delete --root <abs> --session <id> --host <id> --confirm`.
+- Nothing is deleted automatically. Earlier reports remain in the store unless you delete them.
 
 ## Manual host smoke checklist (user-run, NOT verified here)
 
@@ -158,12 +143,12 @@ MCP server over stdio:
    Expected: `prepare_retrospective` and `get_retrospective_status` appear in the tool list. A
    server started with `MCP_TRANSPORT=sse`, or through the HTTP entry point, lists neither.
 2. With consent disabled, call `prepare_retrospective`. Expected: a `disabled` state that asks the
-   user to run `ags-retrospective enable`; nothing is written.
+   user to run `ags retrospective enable`; nothing is written.
 3. With consent enabled, call `audit_session_compliance` fewer than 20 substantive calls into the
    session. Expected: no nudge paragraph. Once 20 or more substantive calls have happened since
    the last prepare, expected: one fixed paragraph telling workers to ignore it and the
    orchestrator to prepare.
-4. Run `ags-retrospective disable`, then call `get_retrospective_status`. Expected: `disabled`.
+4. Run `ags retrospective disable`, then call `get_retrospective_status`. Expected: `disabled`.
 
 
 ## Disabling and uninstalling
@@ -171,31 +156,24 @@ MCP server over stdio:
 Nothing here edits your global configuration automatically, and disabling never changes saved
 agents, providers or sessions.
 
-1. **MCP-native route** — `ags-retrospective disable` revokes consent without needing a terminal and
+1. **MCP-native route** — `ags retrospective disable` revokes consent without needing a terminal and
    prints `{"schemaVersion":1,"enabled":false,"removed":<boolean>}`. Both tools then report
-   `disabled`, and the nudge stays empty. `ags-retrospective consent-status` reports the state and,
-   when disabled, the reason; `ags-retrospective enable` is the one-time opt-in and requires an
+   `disabled`, and the nudge stays empty. `ags retrospective status` reports the state and,
+   when disabled, the reason; `ags retrospective enable` is the one-time opt-in and requires an
    interactive terminal. No tool can enable the feature, so an agent cannot grant itself access.
-2. **Core CLI** — simply stop running it. Disable the feature by not invoking `prepare`; no daemon
-   is installed.
-
-3. **Storage** — the store is only files under your chosen root. Deleting that directory removes
-   everything; use `ags-retrospective delete` when you want the managed-scope deletion instead of a
-   raw directory removal.
+2. **Storage** — the store is only files under your chosen root. Deleting that directory removes
+   stored reports.
 
 ## What this change does not include
-
 Skill, workflow and rule text that would prompt an agent to call the retrospective tools is not part
 of this change. It comes later, after a value pilot, so no installed host currently asks for a
-retrospective on its own. Automatic host invitations remain unsupported, and the online contracts
-are specified but not implemented.
+retrospective on its own.
 
 ## Where the files live
 
 Reports belong to the host that owns the session. The MCP tools return three file paths (summary,
 ledger, and HTML report), with full native paths. Never open anything
-automatically — the human clicks Open report, Review proposals, Open folder, or copies a path.
+automatically — the human clicks Open report, Open folder, or copies a path.
 
 - Privacy, exclusions and retention: [`session-retrospective-privacy.md`](./session-retrospective-privacy.md)
 - First run and CLI contract: [`session-retrospective.md`](./session-retrospective.md)
-- Future online contracts (NOT IMPLEMENTED): [`session-retrospective-online-contract.md`](./session-retrospective-online-contract.md)

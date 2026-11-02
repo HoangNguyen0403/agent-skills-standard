@@ -233,25 +233,16 @@ Do not run daily SDLC work through `ags`. Use `ags` to initialize, sync, validat
 
 ## Local Session Retrospective
 
-Substantive sessions may offer one passive completion action: **Prepare retrospective**, **Later**, **Skip**. A completion signal is a claim, not acceptance or verification, and trivial sessions get no prompt.
+When consent is enabled, the MCP server may nudge the agent after `audit_session_compliance` or `get_session_cost` to call `prepare_retrospective`. A completion signal is a claim, not acceptance or verification.
 
-- Offered only for a main, non-diagnostic substantive checkpoint with verified readiness (no associated work still active). `Later` keeps passive access, `Skip` suppresses that checkpoint, and only meaningful new work plus a new checkpoint re-qualifies; unreliable readiness stays manual-only.
-- Local-only by default: zero model calls, zero outbound requests, private report and proposal files on the session-owning machine.
-- Reports carry the authorized allowlisted event projection, not the full transcript; excluded prompts, reasoning and free output remain declared limits.
+- Opt-in and local-only: a human enables it once with `ags retrospective enable` (an interactive terminal, consent text shown, owner-only consent record). Disable with `ags retrospective disable`; check with `ags retrospective status`.
+- Zero model calls and zero outbound requests; the engine writes `summary.md`, `report.html` and `ledger.json` on the machine that owns the sessions. `ags retrospective index` writes a cross-session `index.html`.
 - The agent receives a minimal receipt, not the report; a human opens the local paths. Reports are never loaded back into model context.
-- Findings are observed events or candidate leads. Root cause, intent and approval validity are not assessable locally and need separate human review; human conclusions are not preparer output.
+- Findings are observed events or candidate leads. Root cause, intent and approval validity are not assessable locally and need separate human review.
 - Preparation never edits skills, routing, memory or `AGENTS_LEARNING.md`; proposal adoption is a separate authorized step with independent review.
 - Restricted, unavailable or remote evidence becomes an explicit coverage gap; it is never silently fetched or claimed complete.
 
-Manual trigger uses the packaged CLI. **Unpublished: source-available and locally smoke-tested on macOS; no registry release ships it.** The acknowledgement flag is required on every run:
-
-```text
-ags-retrospective prepare --manifest <local-manifest.json> --consent local-only --ack-storage-risk [--root <absolute>]
-```
-
-`--ack-storage-risk` is not optional: it records a per-run decision about an unknown sync/backup risk (`STORAGE_RISK_NOT_ACKNOWLEDGED` otherwise) and never overrides owner-only root permissions. It is core-enforced through the required `storageRiskAcknowledged: true` request field, not just the CLI. A pre-existing root with group/other permissions is refused (`ROOT_PERMISSIVE`); create an owner-only root with `mkdir -m 700` or `chmod 700` a dedicated directory, never a shared or synced folder. Interrupted index-history cleanup reports `DELETE_INDEX_HISTORY_INCOMPLETE` — re-run `delete` to finish.
-
-Automatic host invitations are unsupported on every host; manual invocation is the only supported path — no magic phrase and no wording-based completion detection. Detail: `skills/common/common-session-retrospective/references/local-preparation.md`.
+**Unpublished: source-available; no registry release ships it.** `ags retrospective` needs an `ags` release that pins `agent-skills-standard-mcp` 0.8.0 or newer and refuses until then. Detail: `docs/session-retrospective.md`.
 
 ## Agentic Runtime Contract
 
