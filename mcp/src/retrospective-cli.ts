@@ -1,34 +1,36 @@
 #!/usr/bin/env node
 /**
- * `ags-retrospective` — the local, human-invoked retrospective CLI.
- *
+ * Local, human-invoked retrospective CLI.
  * Boundary rules enforced here:
- * - stdout carries only a minimal machine receipt or a human-facing path list;
+ * - stdout carries only a minimal machine receipt;
  *   it never carries report text, titles, excerpts or diagnostics.
- * - `--consent`/`--ack-storage-risk` are human attestations typed in a terminal.
- *   They are not authentication: an adapter must capture a real user action.
- * - `paths` is for a person opening files locally; it must never be called
- *   automatically from a hosted tool return.
- * - Failures print a stable code only — never the manifest path, a filesystem
- *   message, a stack trace or file content.
+ * - Consent is interactive and typed in a terminal. It is not
+ *   authentication: an agent must never supply it on your behalf.
+ * - Failures print a stable code only — never a filesystem message,
+ *   a stack trace or file content.
  */
 import os from "node:os";
 import path from "node:path";
+import readline from "node:readline";
 import { parseArgs } from "node:util";
 import {
-  RetrospectiveError,
-  StoreError,
-  createManifestEvidenceSource,
-  deleteSession,
-  loadLocalManifest,
-  nodeKeySchema,
-  prepareLocal,
-  resolveArtifact,
-  type ArtifactReceipt,
-  type LocalManifest,
-  type NodeKey,
-  type ResolvedArtifact,
-} from "./retrospective";
+  CONSENT_TEXT,
+  CONSENT_TEXT_VERSION,
+  consentFilePath,
+  readConsent,
+  removeConsent,
+  writeConsent,
+  type ConsentRecord,
+} from "./retrospective/consent";
+import { RetrospectiveError } from "./retrospective/errors";
+import { StoreError } from "./retrospective/store";
+import { lstatOrNull } from "./retrospective/platform-private";
+import {
+  collectIndex,
+  parseIndexQuery,
+  renderIndexHtml,
+  writeIndex,
+} from "./retrospective/index-report";
 
 const EXIT_OK = 0;
 const EXIT_REFUSED = 1;
@@ -38,52 +40,51 @@ const MAX_ARGV = 24;
 const MAX_ARG_CHARS = 4_096;
 const SAFE_CODE = /^[A-Z][A-Z0-9_]{0,63}$/;
 
-const DEFAULT_ROOT = path.join(os.homedir(), "ags", "diagnostics");
-
-const USAGE = [
-  "ags-retrospective — local session retrospective (no model calls, no outbound requests).",
+export const USAGE = [
+  "agent-skills-standard-mcp retrospective — local session retrospective (no model calls, no outbound requests).",
   "",
   "Usage:",
-  "  ags-retrospective prepare --manifest <local-manifest.json> --consent local-only --ack-storage-risk [--root <absolute>]",
-  "  ags-retrospective status  --root <absolute> --artifact <opaque-id>",
-  "  ags-retrospective paths   --root <absolute> --artifact <opaque-id>",
-  "  ags-retrospective delete  --root <absolute> --session <id> --host <id> --confirm",
+  "  agent-skills-standard-mcp retrospective enable [--store-root <absolute>] [--source-root <absolute>]...",
+  "  agent-skills-standard-mcp retrospective disable",
+  "  agent-skills-standard-mcp retrospective index [--since YYYY-MM-DD] [--until YYYY-MM-DD] [--folder NAME]",
+  "  agent-skills-standard-mcp retrospective consent-status",
   "",
+  "Invoking `ags retrospective <cmd>` runs the same commands through the CLI.",
   "This tool is for a human at a terminal. Consent flags are attestations, not",
-  "authentication: an agent must never supply them on your behalf. `paths` is",
-  "human-facing and must not be invoked automatically from a hosted tool result;",
-  "nothing opens automatically.",
+  "authentication: an agent must never supply them on your behalf. This tool is",
+  "human-facing and must not be invoked automatically from a hosted tool result.",
   "",
   "Exit codes: 0 complete or explicitly partial publication, 1 failure or refusal,",
   "2 usage error.",
 ].join("\n");
 
-type Command = "prepare" | "status" | "paths" | "delete";
+type Command = "enable" | "disable" | "consent-status" | "index";
 
-const COMMANDS: readonly Command[] = ["prepare", "status", "paths", "delete"];
+const COMMANDS: readonly Command[] = [
+  "enable",
+  "disable",
+  "consent-status",
+  "index",
+];
 
 const OPTIONS = {
-  manifest: { type: "string" },
-  consent: { type: "string" },
-  mode: { type: "string" },
-  root: { type: "string" },
-  "ack-storage-risk": { type: "boolean" },
-  artifact: { type: "string" },
-  session: { type: "string" },
-  host: { type: "string" },
-  confirm: { type: "boolean" },
   help: { type: "boolean", short: "h" },
+  "store-root": { type: "string" },
+  "source-root": { type: "string", multiple: true },
+  since: { type: "string" },
+  until: { type: "string" },
+  folder: { type: "string" },
 } as const;
 
 type ValueKey = keyof typeof OPTIONS;
-type Values = { [K in ValueKey]?: string | boolean };
+type Values = { [K in ValueKey]?: string | boolean | string[] };
 
 /** A flag is accepted only by the command that documents it. */
 const ALLOWED: Record<Command, readonly ValueKey[]> = {
-  prepare: ["manifest", "consent", "mode", "root", "ack-storage-risk", "help"],
-  status: ["root", "artifact", "help"],
-  paths: ["root", "artifact", "help"],
-  delete: ["root", "session", "host", "confirm", "help"],
+  enable: ["store-root", "source-root", "help"],
+  disable: ["help"],
+  "consent-status": ["help"],
+  index: ["since", "until", "folder", "help"],
 };
 
 class UsageError extends Error {}
@@ -98,6 +99,14 @@ class Refusal extends Error {
 type Invocation = { command: Command | null; values: Values };
 
 export type CliOutcome = { code: number; stdout: string; stderr: string };
+export type CliIo = {
+  isTTY: boolean;
+  ask: (question: string) => Promise<string>;
+  write: (text: string) => void;
+  env?: NodeJS.ProcessEnv;
+  platform?: NodeJS.Platform;
+  home?: string;
+};
 
 function parseInvocation(argv: readonly string[]): Invocation {
   if (argv.length > MAX_ARGV) throw new UsageError("Too many arguments.");
@@ -134,208 +143,181 @@ function parseInvocation(argv: readonly string[]): Invocation {
   return { command: command as Command, values };
 }
 
-function requiredString(
+async function runEnable(
   values: Values,
-  key: ValueKey,
-  message: string,
-): string {
-  const value = values[key];
-  if (typeof value !== "string" || value.length === 0)
-    throw new UsageError(message);
-  return value;
-}
+  io: CliIo,
+): Promise<{ schemaVersion: 1; enabled: true }> {
+  if (!io.isTTY) throw new Refusal("TTY_REQUIRED");
 
-/**
- * `--root` defaults to the documented private location. A relative path is a
- * usage error; an unsafe existing root is a refusal from the store.
- */
-function absoluteRoot(values: Values, required: boolean): string {
-  const raw = values.root;
-  if (raw === undefined) {
-    if (required) throw new UsageError("--root <absolute> is required.");
-    return DEFAULT_ROOT;
+  const home = io.home ?? os.homedir();
+
+  let storeRoot: string;
+  const rawStoreRoot = values["store-root"];
+  if (rawStoreRoot !== undefined) {
+    if (typeof rawStoreRoot !== "string" || !path.isAbsolute(rawStoreRoot)) {
+      throw new UsageError("--store-root must be an absolute path.");
+    }
+    storeRoot = path.normalize(rawStoreRoot);
+  } else {
+    storeRoot = path.normalize(path.join(home, "ags", "diagnostics"));
   }
-  if (typeof raw !== "string" || raw.length === 0)
-    throw new UsageError("--root requires a value.");
-  if (!path.isAbsolute(raw))
-    throw new UsageError("--root must be an absolute path.");
-  return path.normalize(raw);
-}
 
-async function readManifest(manifestPath: string): Promise<LocalManifest> {
-  try {
-    return await loadLocalManifest(manifestPath);
-  } catch {
-    // Never surface the manifest path, the parser message or file content.
-    throw new Refusal("MANIFEST_INVALID");
-  }
-}
-
-async function runPrepare(values: Values): Promise<ArtifactReceipt> {
-  const manifestPath = requiredString(
-    values,
-    "manifest",
-    "--manifest <local-manifest.json> is required.",
-  );
-  const root = absoluteRoot(values, false);
-  if (values.consent === undefined) throw new Refusal("CONSENT_REQUIRED");
-  if (values.consent !== "local-only")
-    throw new Refusal("CONSENT_MODE_REFUSED");
-  const mode = values.mode;
-  if (mode !== undefined && mode !== "local-only")
-    throw new Refusal("MODE_UNAVAILABLE");
-  if (values["ack-storage-risk"] !== true)
-    throw new Refusal("STORAGE_RISK_NOT_ACKNOWLEDGED");
-
-  const controller = new AbortController();
-  const onSignal = (): void => controller.abort(new Error("ABORTED"));
-  const signals: readonly NodeJS.Signals[] = ["SIGINT", "SIGTERM"];
-  for (const signal of signals) process.once(signal, onSignal);
-  try {
-    const manifest = await readManifest(manifestPath);
-    return await prepareLocal(
-      {
-        main: manifest.main,
-        checkpointId: manifest.checkpointId,
-        cutoff: manifest.cutoff,
-        root,
-        consent: "local-only",
-        storageRiskAcknowledged: true,
-      },
-      createManifestEvidenceSource(manifest),
-      controller.signal,
+  let allowedSourceRoots: string[];
+  const rawSourceRoots = values["source-root"];
+  if (rawSourceRoots !== undefined) {
+    if (!Array.isArray(rawSourceRoots) || rawSourceRoots.length === 0) {
+      throw new UsageError("--source-root requires at least one path.");
+    }
+    for (const root of rawSourceRoots) {
+      if (typeof root !== "string" || !path.isAbsolute(root)) {
+        throw new UsageError(`--source-root must be an absolute path: ${root}`);
+      }
+      const stats = await lstatOrNull(root);
+      if (!stats) {
+        throw new UsageError(`Source root does not exist: ${root}`);
+      }
+    }
+    allowedSourceRoots = Array.from(
+      new Set(rawSourceRoots.map((r) => path.normalize(r))),
     );
-  } catch (error) {
-    if (controller.signal.aborted) throw new Refusal("ABORTED");
-    throw error;
-  } finally {
-    for (const signal of signals) process.removeListener(signal, onSignal);
+    if (allowedSourceRoots.length === 0) {
+      throw new Refusal("NO_SOURCE_ROOTS");
+    }
+  } else {
+    const candidateRoots = [
+      path.join(home, ".omp", "agent", "sessions"),
+      path.join(home, ".codex", "sessions"),
+    ];
+    const existingRoots: string[] = [];
+    for (const cand of candidateRoots) {
+      const stats = await lstatOrNull(cand);
+      if (stats) {
+        existingRoots.push(path.normalize(cand));
+      }
+    }
+    if (existingRoots.length === 0) {
+      throw new Refusal("NO_SOURCE_ROOTS");
+    }
+    allowedSourceRoots = Array.from(new Set(existingRoots));
   }
+
+  const promptText = [
+    CONSENT_TEXT,
+    "",
+    `Store root: ${storeRoot}`,
+    "Allowed source roots:",
+    ...allowedSourceRoots.map((root) => `  - ${root}`),
+    "",
+    'Type "yes" to enable: ',
+  ].join("\n");
+
+  io.write(promptText);
+  const answer = await io.ask('Type "yes" to enable: ');
+  if (answer.trim() !== "yes") {
+    throw new Refusal("CONSENT_DECLINED");
+  }
+
+  const record: ConsentRecord = {
+    schemaVersion: 1,
+    consentTextVersion: CONSENT_TEXT_VERSION,
+    grantedAt: new Date().toISOString(),
+    storeRoot,
+    allowedSourceRoots,
+    storageRiskAcknowledged: true,
+  };
+
+  const targetPath = consentFilePath(io.env, io.platform, io.home);
+  await writeConsent(record, targetPath);
+  return { schemaVersion: 1, enabled: true };
 }
 
-async function runStatus(values: Values): Promise<{
-  schemaVersion: 1;
-  artifactId: string;
-  kind: string;
-  status: string;
-}> {
-  const root = absoluteRoot(values, true);
-  const artifactId = requiredString(
-    values,
-    "artifact",
-    "--artifact <opaque-id> is required.",
-  );
-  const resolved = await resolveArtifact(root, artifactId);
+async function runDisable(
+  io: CliIo,
+): Promise<{ schemaVersion: 1; enabled: false; removed: boolean }> {
+  const targetPath = consentFilePath(io.env, io.platform, io.home);
+  const removed = await removeConsent(targetPath);
+  return { schemaVersion: 1, enabled: false, removed };
+}
+
+async function runConsentStatus(io: CliIo): Promise<
+  | {
+      schemaVersion: 1;
+      state: "enabled";
+      storeRoot: string;
+      allowedSourceRoots: string[];
+    }
+  | {
+      schemaVersion: 1;
+      state: "disabled";
+      reason?: string;
+    }
+> {
+  const targetPath = consentFilePath(io.env, io.platform, io.home);
+  const consent = await readConsent(targetPath);
+  if (consent.state === "enabled") {
+    return {
+      schemaVersion: 1,
+      state: "enabled",
+      storeRoot: consent.record.storeRoot,
+      allowedSourceRoots: consent.record.allowedSourceRoots,
+    };
+  }
   return {
     schemaVersion: 1,
-    artifactId: resolved.artifactId,
-    kind: resolved.kind,
-    status: resolved.status,
+    state: "disabled",
+    reason: consent.reason,
   };
 }
 
-/** Artifact IDs are `runId.kind`; the run prefix comes from the resolved kind. */
-function runIdFor(resolved: ResolvedArtifact): string {
-  const suffix = `.${resolved.kind}`;
-  if (!resolved.artifactId.endsWith(suffix))
-    throw new Refusal("INVALID_ARTIFACT_ID");
-  const runId = resolved.artifactId.slice(0, -suffix.length);
-  if (runId.length === 0) throw new Refusal("INVALID_ARTIFACT_ID");
-  return runId;
-}
-
-async function resolveSibling(
-  root: string,
-  artifactId: string,
-): Promise<ResolvedArtifact | null> {
-  try {
-    return await resolveArtifact(root, artifactId);
-  } catch (error) {
-    if (
-      error instanceof StoreError &&
-      (error.code === "ARTIFACT_NOT_FOUND" || error.code === "ARTIFACT_MISSING")
-    )
-      return null;
-    throw error;
-  }
-}
-
-async function runPaths(values: Values): Promise<{
-  report: string;
-  proposals: string | null;
-  session: string | null;
-}> {
-  const root = absoluteRoot(values, true);
-  const artifactId = requiredString(
-    values,
-    "artifact",
-    "--artifact <opaque-id> is required.",
+async function runIndex(values: Values, io: CliIo): Promise<unknown> {
+  const parsed = parseIndexQuery(
+    {
+      since: values.since,
+      until: values.until,
+      folder: values.folder,
+    },
+    new Date(),
   );
-  const base = await resolveArtifact(root, artifactId);
-  const runId = runIdFor(base);
-  const found: {
-    report: string | null;
-    proposals: string | null;
-    session: string | null;
-  } = {
-    report: null,
-    proposals: null,
-    session: null,
-  };
-  for (const kind of ["report", "proposals", "session"] as const) {
-    // Sibling IDs are derived from the resolved run, then each one is resolved
-    // through the store again: a path never comes from a caller-supplied string.
-    const sibling = await resolveSibling(root, `${runId}.${kind}`);
-    if (sibling === null) continue;
-    if (
-      sibling.sessionToken !== base.sessionToken ||
-      sibling.generationId !== base.generationId
-    )
-      continue;
-    if (!path.isAbsolute(sibling.absolutePath))
-      throw new Refusal("UNSAFE_PATH");
-    found[kind] = sibling.absolutePath;
+  if (!parsed.ok) {
+    throw new Refusal(parsed.code);
   }
-  if (found.report === null) throw new Refusal("ARTIFACT_NOT_FOUND");
-  const report = found.report;
-  return { report, proposals: found.proposals, session: found.session };
-}
 
-function parseMain(hostId: string, sessionId: string): NodeKey {
-  const parsed = nodeKeySchema.safeParse({ hostId, sessionId });
-  if (!parsed.success) throw new Refusal("INVALID_NODE_KEY");
-  return parsed.data;
-}
+  const targetPath = consentFilePath(io.env, io.platform, io.home);
+  const consent = await readConsent(targetPath);
+  if (consent.state !== "enabled") {
+    return {
+      schemaVersion: 1,
+      state: "disabled",
+      reason: consent.reason,
+    };
+  }
 
-async function runDelete(
-  values: Values,
-): Promise<{ schemaVersion: 1; deleted: boolean; removedArtifacts: number }> {
-  const root = absoluteRoot(values, true);
-  const sessionId = requiredString(
-    values,
-    "session",
-    "--session <id> is required.",
-  );
-  const hostId = requiredString(values, "host", "--host <id> is required.");
-  if (values.confirm !== true) throw new Refusal("CONFIRMATION_REQUIRED");
-  const result = await deleteSession(root, parseMain(hostId, sessionId));
+  const result = await collectIndex(consent.record.storeRoot, parsed.query);
+  const html = renderIndexHtml(result);
+  const absolutePath = await writeIndex(consent.record.storeRoot, html);
+
   return {
     schemaVersion: 1,
-    deleted: result.deleted,
-    removedArtifacts: result.removedArtifacts,
+    state: "written",
+    path: absolutePath,
+    sessions: result.rows.length,
+    omitted: result.omitted,
+    unreadable: result.unreadable,
+    since: result.query.since,
+    until: result.query.until,
   };
 }
 
-async function dispatch(invocation: Invocation): Promise<unknown> {
+async function dispatch(invocation: Invocation, io: CliIo): Promise<unknown> {
   switch (invocation.command) {
-    case "prepare":
-      return runPrepare(invocation.values);
-    case "status":
-      return runStatus(invocation.values);
-    case "paths":
-      return runPaths(invocation.values);
-    case "delete":
-      return runDelete(invocation.values);
+    case "enable":
+      return runEnable(invocation.values, io);
+    case "disable":
+      return runDisable(io);
+    case "consent-status":
+      return runConsentStatus(io);
+    case "index":
+      return runIndex(invocation.values, io);
     default:
       throw new UsageError("A command is required.");
   }
@@ -362,7 +344,16 @@ function usageOutcome(message?: string): CliOutcome {
  */
 export async function runRetrospectiveCli(
   argv: readonly string[] = process.argv.slice(2),
+  io?: CliIo,
 ): Promise<CliOutcome> {
+  const effectiveIo: CliIo = {
+    isTTY: io?.isTTY ?? Boolean(process.stdin.isTTY && process.stdout.isTTY),
+    ask: io?.ask ?? (async () => ""),
+    write: io?.write ?? (() => {}),
+    env: io?.env ?? process.env,
+    platform: io?.platform ?? process.platform,
+    home: io?.home ?? os.homedir(),
+  };
   let invocation: Invocation;
   try {
     invocation = parseInvocation(argv);
@@ -374,7 +365,7 @@ export async function runRetrospectiveCli(
   if (invocation.command === null)
     return { code: EXIT_OK, stdout: `${USAGE}\n`, stderr: "" };
   try {
-    const payload = await dispatch(invocation);
+    const payload = await dispatch(invocation, effectiveIo);
     return {
       code: EXIT_OK,
       stdout: `${JSON.stringify(payload)}\n`,
@@ -393,11 +384,45 @@ export async function runRetrospectiveCli(
   }
 }
 
-async function main(): Promise<void> {
-  const outcome = await runRetrospectiveCli();
-  if (outcome.stdout !== "") process.stdout.write(outcome.stdout);
-  if (outcome.stderr !== "") process.stderr.write(outcome.stderr);
-  process.exitCode = outcome.code;
+export function isRetrospectiveInvocation(argv: readonly string[]): boolean {
+  return argv[2] === "retrospective";
 }
 
-if (require.main === module) void main();
+export async function runRetrospectiveCliFromProcess(
+  argv: readonly string[] = process.argv.slice(3),
+): Promise<number> {
+  const rl = readline.createInterface({
+    input: process.stdin,
+  });
+  const io: CliIo = {
+    isTTY: Boolean(process.stdin.isTTY && process.stdout.isTTY),
+    ask: (question: string) =>
+      new Promise<string>((resolve, reject) => {
+        let answered = false;
+        rl.question(question, (answer) => {
+          answered = true;
+          resolve(answer);
+        });
+        rl.once("close", () => {
+          if (!answered) {
+            reject(new Refusal("CONSENT_DECLINED"));
+          }
+        });
+      }),
+    write: (text: string) => {
+      process.stderr.write(text);
+    },
+    env: process.env,
+    platform: process.platform,
+    home: os.homedir(),
+  };
+  try {
+    const outcome = await runRetrospectiveCli(argv, io);
+    if (outcome.stdout !== "") process.stdout.write(outcome.stdout);
+    if (outcome.stderr !== "") process.stderr.write(outcome.stderr);
+    process.exitCode = outcome.code;
+    return outcome.code;
+  } finally {
+    rl.close();
+  }
+}

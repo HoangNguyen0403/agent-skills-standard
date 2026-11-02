@@ -11,6 +11,7 @@ import { InitCommand } from './commands/init';
 import { ListSkillsCommand } from './commands/list-skills';
 import { SkillsCommand } from './commands/skills';
 import { McpCommand } from './commands/mcp';
+import { RetrospectiveCommand } from './commands/retrospective';
 import { SyncCommand } from './commands/sync';
 import { AuditCommand } from './commands/audit';
 import { UpgradeCommand } from './commands/upgrade';
@@ -241,6 +242,32 @@ program
       if (positional) merged.scope = opts.scope ?? positional;
       const cmd = new McpCommand();
       await cmd.run(action, merged);
+    },
+  );
+
+program
+  .command('retrospective <action> [args...]')
+  .description(
+    'Enable, disable or inspect local session retrospectives (consent and the cross-session index). Runs the pinned agent-skills-standard-mcp package. Actions: enable | disable | status | index',
+  )
+  .allowUnknownOption(true)
+  .option('--store-root <path>', 'Store root directory')
+  .option(
+    '--source-root <path>',
+    'Additional source root for transcripts (repeatable)',
+    (val: string, prev?: string[]) => (prev ? [...prev, val] : [val]),
+  )
+  .option('--since <YYYY-MM-DD>', 'Index sessions since date')
+  .option('--until <YYYY-MM-DD>', 'Index sessions until date')
+  .option('--folder <name>', 'Index sessions from folder')
+  .action(
+    async (
+      action: string,
+      args: string[] = [],
+      options: Record<string, unknown> = {},
+    ) => {
+      const cmd = new RetrospectiveCommand();
+      await cmd.run(action, options, args);
     },
   );
 

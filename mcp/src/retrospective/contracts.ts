@@ -4,89 +4,25 @@ import { z } from "zod";
 export type NodeKey = { hostId: string; sessionId: string };
 export type Disposition =
   "local-allowed" | "restricted" | "unavailable" | "remote-not-authorized";
-export type Coverage =
-  | "structured-events"
-  | "partial"
-  | "summary-only"
-  | "restricted"
-  | "unavailable";
-export type CriterionState =
-  "met" | "finding" | "not-applicable" | "not-assessable";
-export type EventKind =
-  "launch" | "permission" | "check" | "completion" | "usage" | "gap";
-export type EventOutcome =
-  "claimed-complete" | "passed" | "failed" | "denied" | "canceled" | "unknown";
-
-export type SourceRef = { node: NodeKey; eventId: string; line?: number };
-
-export type SafeEvent = {
-  id: string;
-  node: NodeKey;
-  at: string;
-  kind: EventKind;
-  outcome?: EventOutcome;
-  provider?: string;
-  model?: string;
-  tool?: string;
-  counts?: {
-    inputTokens: number | null;
-    outputTokens: number | null;
-    cost: number | null;
-    currency: string | null;
-  };
-  source: SourceRef;
-};
-
-export type EvidencePacket = {
-  schemaVersion: 1;
-  runId: string;
-  main: NodeKey;
-  cutoff: string;
-  nodes: Array<{
-    key: NodeKey;
-    parent: NodeKey | null;
-    disposition: Disposition;
-    coverage: Coverage;
-  }>;
-  events: SafeEvent[];
-  gaps: Array<{ code: string; node?: NodeKey }>;
-};
-
-export type Finding = {
-  id: string;
-  criterion: number;
-  classification: "observed" | "candidate";
-  ruleId: string;
-  sources: SourceRef[];
-  claimCode: string;
-};
-
-export type Proposal = {
-  id: string;
-  revision: string;
-  status: "proposed";
-  findingIds: string[];
-  mechanism: string;
-  candidateGuidanceIds: string[];
-  verificationCodes: string[];
-  semanticReviewRequired: boolean;
-};
-
-export type Analysis = {
-  schemaVersion: 1;
-  findings: Finding[];
-  proposals: Proposal[];
-  criteria: Array<{
-    criterion: number;
-    state: CriterionState;
-    reasonCode: string;
-  }>;
-};
-
-export interface Analyzer {
-  readonly mode: "local-rules";
-  analyze(packet: EvidencePacket, signal: AbortSignal): Promise<Analysis>;
-}
+export type GenerationLayout = "v1" | "v2";
+export type ArtifactKind =
+  | "report"
+  | "proposals"
+  | "session"
+  | "receipt"
+  | "summary"
+  | "ledger"
+  | "html";
+export const ARTIFACT_KINDS = [
+  "report",
+  "proposals",
+  "session",
+  "receipt",
+  "summary",
+  "ledger",
+  "html",
+] as const;
+export const artifactKindSchema = z.enum(ARTIFACT_KINDS);
 
 export type ArtifactReceipt = {
   schemaVersion: 1;
@@ -95,46 +31,6 @@ export type ArtifactReceipt = {
   status: "complete" | "partial" | "failed";
   modelCalls: 0;
   outboundRequests: 0;
-};
-
-export interface EvidenceSource {
-  inventory(
-    main: NodeKey,
-    cutoff: string,
-    signal: AbortSignal,
-  ): AsyncIterable<{
-    key: NodeKey;
-    parent: NodeKey | null;
-    disposition: Disposition;
-  }>;
-  read(node: NodeKey, signal: AbortSignal): AsyncIterable<SafeEvent>;
-}
-
-export type PrepareRequest = {
-  main: NodeKey;
-  checkpointId: string;
-  cutoff: string;
-  root: string;
-  consent: "local-only";
-  /** Required human attestation; adapters must capture a real user action. */
-  storageRiskAcknowledged: true;
-};
-
-export type Checkpoint = {
-  main: NodeKey;
-  checkpointId: string;
-  sequence: number;
-  mainAgent: boolean;
-  diagnostic: boolean;
-  substantive: boolean;
-  intent: "completed" | "closed-partial";
-  ready: boolean;
-};
-
-export type Invitation = {
-  state: "absent" | "pending" | "later" | "skipped" | "running" | "reported";
-  checkpointId: string;
-  sequence: number;
 };
 
 export type LocalManifest = {
@@ -182,20 +78,12 @@ export const DEFAULT_LIMITS: Readonly<EvidenceLimits> = Object.freeze({
 });
 
 const IDENTIFIER = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
-const MODEL = /^[A-Za-z0-9][A-Za-z0-9._:/+@-]{0,127}$/;
-const CURRENCY = /^[A-Z]{3}$/;
 
 export const identifierSchema = z
   .string()
   .min(1)
   .max(128)
   .regex(IDENTIFIER, "Expected a bounded identifier");
-
-const modelSchema = z
-  .string()
-  .min(1)
-  .max(128)
-  .regex(MODEL, "Expected a bounded model identifier");
 
 export const timestampSchema = z.string().refine(
   (value) => {
@@ -244,111 +132,6 @@ export const dispositionSchema = z.enum([
   "unavailable",
   "remote-not-authorized",
 ]);
-
-export const coverageSchema = z.enum([
-  "structured-events",
-  "partial",
-  "summary-only",
-  "restricted",
-  "unavailable",
-]);
-
-export const criterionStateSchema = z.enum([
-  "met",
-  "finding",
-  "not-applicable",
-  "not-assessable",
-]);
-
-export const sourceRefSchema = z.strictObject({
-  node: nodeKeySchema,
-  eventId: identifierSchema,
-  line: z.number().int().nonnegative().optional(),
-});
-
-const countsSchema = z.strictObject({
-  inputTokens: z.number().int().nonnegative().nullable(),
-  outputTokens: z.number().int().nonnegative().nullable(),
-  cost: z.number().finite().nonnegative().nullable(),
-  currency: z.string().regex(CURRENCY).nullable(),
-});
-
-export const safeEventSchema = z.strictObject({
-  id: identifierSchema,
-  node: nodeKeySchema,
-  at: timestampSchema,
-  kind: z.enum(["launch", "permission", "check", "completion", "usage", "gap"]),
-  outcome: z
-    .enum([
-      "claimed-complete",
-      "passed",
-      "failed",
-      "denied",
-      "canceled",
-      "unknown",
-    ])
-    .optional(),
-  provider: modelSchema.optional(),
-  model: modelSchema.optional(),
-  tool: identifierSchema.optional(),
-  counts: countsSchema.optional(),
-  source: sourceRefSchema,
-});
-
-const packetNodeSchema = z.strictObject({
-  key: nodeKeySchema,
-  parent: nodeKeySchema.nullable(),
-  disposition: dispositionSchema,
-  coverage: coverageSchema,
-});
-
-const gapSchema = z.strictObject({
-  code: z.string().min(1).max(128),
-  node: nodeKeySchema.optional(),
-});
-
-export const evidencePacketSchema = z.strictObject({
-  schemaVersion: z.literal(1),
-  runId: identifierSchema,
-  main: nodeKeySchema,
-  cutoff: timestampSchema,
-  nodes: z.array(packetNodeSchema),
-  events: z.array(safeEventSchema),
-  gaps: z.array(gapSchema),
-});
-
-export const prepareRequestSchema = z.strictObject({
-  main: nodeKeySchema,
-  checkpointId: identifierSchema,
-  cutoff: timestampSchema,
-  root: z.string().min(1).max(4_096),
-  consent: z.literal("local-only"),
-  storageRiskAcknowledged: z.literal(true),
-});
-
-export const checkpointSchema = z.strictObject({
-  main: nodeKeySchema,
-  checkpointId: identifierSchema,
-  sequence: z.number().int().nonnegative(),
-  mainAgent: z.boolean(),
-  diagnostic: z.boolean(),
-  substantive: z.boolean(),
-  intent: z.enum(["completed", "closed-partial"]),
-  ready: z.boolean(),
-});
-
-export const invitationSchema = z.strictObject({
-  state: z.enum([
-    "absent",
-    "pending",
-    "later",
-    "skipped",
-    "running",
-    "reported",
-  ]),
-  checkpointId: identifierSchema,
-  sequence: z.number().int().nonnegative(),
-});
 
 const manifestNodeSchema = z.strictObject({
   key: nodeKeySchema,
@@ -437,39 +220,6 @@ export const localManifestSchema = z
       });
   });
 
-const findingSchema = z.strictObject({
-  id: identifierSchema,
-  criterion: z.number().int().positive(),
-  classification: z.enum(["observed", "candidate"]),
-  ruleId: identifierSchema,
-  sources: z.array(sourceRefSchema),
-  claimCode: identifierSchema,
-});
-
-const proposalSchema = z.strictObject({
-  id: identifierSchema,
-  revision: identifierSchema,
-  status: z.literal("proposed"),
-  findingIds: z.array(identifierSchema),
-  mechanism: identifierSchema,
-  candidateGuidanceIds: z.array(identifierSchema),
-  verificationCodes: z.array(identifierSchema),
-  semanticReviewRequired: z.boolean(),
-});
-
-export const analysisSchema = z.strictObject({
-  schemaVersion: z.literal(1),
-  findings: z.array(findingSchema),
-  proposals: z.array(proposalSchema),
-  criteria: z.array(
-    z.strictObject({
-      criterion: z.number().int().positive(),
-      state: criterionStateSchema,
-      reasonCode: identifierSchema,
-    }),
-  ),
-});
-
 export const artifactReceiptSchema = z.strictObject({
   schemaVersion: z.literal(1),
   artifactId: identifierSchema,
@@ -479,16 +229,6 @@ export const artifactReceiptSchema = z.strictObject({
   outboundRequests: z.literal(0),
 });
 
-export const inventoryEntrySchema = z.strictObject({
-  key: nodeKeySchema,
-  parent: nodeKeySchema.nullable(),
-  disposition: dispositionSchema,
-});
-
 export function sameNodeKey(left: NodeKey, right: NodeKey): boolean {
   return left.hostId === right.hostId && left.sessionId === right.sessionId;
-}
-
-export function nodeKeyId(key: NodeKey): string {
-  return `${key.hostId}\u0000${key.sessionId}`;
 }

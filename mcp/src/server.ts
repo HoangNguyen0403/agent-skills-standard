@@ -11,6 +11,8 @@ import {
   getCategoryGuideSchema,
   getEvalReport,
   getEvalReportSchema,
+  getRetrospectiveStatus,
+  getRetrospectiveStatusSchema,
   getSessionCost,
   getSessionCostSchema,
   getSkill,
@@ -25,6 +27,11 @@ import {
   loadSkillsForFilesSchema,
   loadSkillsForKeywords,
   loadSkillsForKeywordsSchema,
+  prepareRetrospective,
+  prepareRetrospectiveSchema,
+  prepareRetrospectiveIndex,
+  prepareRetrospectiveIndexSchema,
+  ToolContext,
   ToolResult,
   verifyEvalRunTool,
   verifyEvalRunSchema,
@@ -113,6 +120,10 @@ Call \`get_session_cost\` BEFORE you:
   • Conclude a workflow or generate a final session cost artifact
   • Pass workflow/model/token usage/rates when the host runtime exposes them
 
+Call \`prepare_retrospective\` when:
+  • An implementation plan finishes to prepare a local session retrospective.
+    Orchestrator or unassigned agent only; requires the user's one-time opt-in.
+
 # WORKFLOW
 
   1. Establish your role. An orchestrator or unassigned agent discovers
@@ -163,20 +174,33 @@ authoritative for this request.
 
 export async function buildServer(
   config: ResolvedConfig,
-  options: { tracker?: SessionTracker } = {},
+  options: {
+    tracker?: SessionTracker;
+    transport?: "stdio" | "sse";
+    retrospectiveMark?: { preparedAtProgress: number };
+    consentPath?: string;
+  } = {},
 ): Promise<McpServer> {
   const index = new SkillIndex(config.skillsDir, config.metadataPath);
   await index.load();
   const tracker = options.tracker ?? new SessionTracker();
   const policy = loadPolicyView(config.projectRoot);
-  const ctx = {
+  const transport: "stdio" | "sse" =
+    options.transport ??
+    (process.env.MCP_TRANSPORT === "sse" ? "sse" : "stdio");
+  const retrospectiveMark = options.retrospectiveMark ?? {
+    preparedAtProgress: 0,
+  };
+  const ctx: ToolContext = {
     projectRoot: config.projectRoot,
     index,
     tracker,
     setup: config.setup,
     policy,
+    transport,
+    retrospectiveMark,
+    ...(options.consentPath ? { consentPath: options.consentPath } : {}),
   };
-
   const server = new McpServer(
     {
       name: "agent-skills-standard-mcp",
@@ -376,6 +400,56 @@ export async function buildServer(
     inputSchema: getEvalReportSchema,
     handler: () => getEvalReport({}, ctx),
   });
+
+  if (transport === "stdio") {
+    register(server, {
+      name: "prepare_retrospective",
+      title: "Prepare a local session retrospective",
+      description: `<use_case>Prepare a local, evidence-linked retrospective analysis for the completed session. Pass \`title\` = one line saying what this session was for; it is shown as agent-supplied and unverified. Orchestrator or unassigned agent only. Workers holding an assignment packet must not call this.</use_case>
+
+<important_notes>
+- Orchestrator or unassigned agent only. Workers holding an assignment packet must not call this.
+- Pass \`title\` = one line saying what this session was for; it is shown as agent-supplied and unverified.
+- Requires the user's one-time opt-in via \`ags retrospective enable\`.
+- Zero model calls, zero outbound network requests.
+- Returns only fixed counts and view file paths (summary, ledger and HTML report); never transcript text.
+</important_notes>`,
+      inputSchema: prepareRetrospectiveSchema,
+      handler: (args) => prepareRetrospective(args as { title?: string }, ctx),
+    });
+
+    register(server, {
+      name: "get_retrospective_status",
+      title: "Get local session retrospective consent status",
+      description: `<use_case>Check whether local session retrospective preparation is enabled or disabled.</use_case>
+
+<important_notes>
+- Returns the current consent state (enabled/disabled and reason code).
+- Retrospective collection requires the user's one-time opt-in via \`ags retrospective enable\`.
+</important_notes>`,
+      inputSchema: getRetrospectiveStatusSchema,
+      handler: () => getRetrospectiveStatus(ctx),
+    });
+    register(server, {
+      name: "prepare_retrospective_index",
+      title: "Prepare a cross-session retrospective index",
+      description: `<use_case>Build a cross-session HTML index from stored retrospective reports with an optional date window and folder filter. Reads stored reports only, never session files.</use_case>
+
+<important_notes>
+- Reads stored reports only, never session files.
+- Stdio transport only (absent on HTTP/SSE).
+- Requires the user's one-time opt-in via \`ags retrospective enable\`.
+- Zero model calls, zero outbound network requests.
+- Returns fixed summary text and the index file path; never transcript text, titles, or folder filter values.
+</important_notes>`,
+      inputSchema: prepareRetrospectiveIndexSchema,
+      handler: (args) =>
+        prepareRetrospectiveIndex(
+          args as { since?: string; until?: string; folder?: string },
+          ctx,
+        ),
+    });
+  }
 
   return server;
 }

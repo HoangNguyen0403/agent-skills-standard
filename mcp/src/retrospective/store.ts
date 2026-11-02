@@ -6,12 +6,14 @@ import path from "node:path";
 import { z } from "zod";
 import {
   DEFAULT_LIMITS,
+  artifactKindSchema,
   artifactReceiptSchema,
   identifierSchema,
   nodeKeySchema,
   sameNodeKey,
   timestampSchema,
   type ArtifactReceipt,
+  type GenerationLayout,
   type NodeKey,
 } from "./contracts";
 import {
@@ -67,10 +69,47 @@ export const ARTIFACT_FILES = Object.freeze({
   proposals: "proposals.md",
   session: "session.json",
   receipt: "receipt.json",
+  summary: "summary.md",
+  ledger: "ledger.json",
+  html: "report.html",
 });
 
 export type ArtifactKind = keyof typeof ARTIFACT_FILES;
 export type ArtifactStatus = "complete" | "partial" | "failed";
+export type { GenerationLayout };
+
+export const SUPPORTED_INDEX_SCHEMA_VERSIONS: readonly number[] = Object.freeze(
+  [1],
+);
+export const SUPPORTED_GENERATION_SCHEMA_VERSIONS: readonly number[] =
+  Object.freeze([1, 2]);
+
+export type LayoutDefinition = {
+  readonly schemaVersion: number;
+  readonly primaryKind: ArtifactKind;
+  readonly kinds: readonly ArtifactKind[];
+};
+
+export const GENERATION_LAYOUTS: Readonly<
+  Record<GenerationLayout, LayoutDefinition>
+> = Object.freeze({
+  v1: {
+    schemaVersion: 1,
+    primaryKind: "report",
+    kinds: ["report", "proposals", "session", "receipt"],
+  },
+  v2: {
+    schemaVersion: 2,
+    primaryKind: "summary",
+    kinds: ["summary", "ledger", "html"],
+  },
+});
+
+export function primaryKindForLayout(layout: GenerationLayout): ArtifactKind {
+  const def = GENERATION_LAYOUTS[layout];
+  if (!def) throw new StoreError("INVALID_LAYOUT");
+  return def.primaryKind;
+}
 
 const MAX_INDEX_BYTES = 4_194_304;
 const MAX_INDEX_POINTER_BYTES = 256;
@@ -165,6 +204,8 @@ const claimRecordSchema = z.strictObject({
   publishedGenerationId: identifierSchema.optional(),
   canceledAt: timestampSchema.optional(),
   cancelReason: z.enum(["user", "deleted"]).optional(),
+  /** Layout of the generation this claim will publish; absent legacy means v1. */
+  layout: z.enum(["v1", "v2"]).optional(),
 });
 
 const indexEntrySchema = z.strictObject({
@@ -173,7 +214,7 @@ const indexEntrySchema = z.strictObject({
   generationId: identifierSchema,
   runId: identifierSchema,
   checkpointId: identifierSchema,
-  kind: z.enum(["report", "proposals", "session", "receipt"]),
+  kind: artifactKindSchema,
   status: z.enum(["complete", "partial", "failed"]),
   publishedAt: timestampSchema,
   bytes: z.number().int().nonnegative(),
@@ -185,9 +226,13 @@ const indexEntrySchema = z.strictObject({
    * pre-fence state.
    */
   fence: identifierSchema.nullable().optional(),
+  /** Serialization version of the generation that produced this entry. */
+  schemaVersion: z.number().int().positive().optional(),
+  /** Layout of that generation; absent legacy entries are v1. */
+  layout: z.enum(["v1", "v2"]).optional(),
 });
 const indexGenerationSchema = z.strictObject({
-  schemaVersion: z.literal(1),
+  schemaVersion: z.number().int().positive(),
   generation: z.number().int().positive(),
   updatedAt: timestampSchema,
   counts: z.strictObject({
@@ -224,6 +269,7 @@ export type RunClaim = {
   generation: number;
   fence: string | null;
   createdAt: string;
+  layout?: GenerationLayout;
 };
 export type PreparationAccess =
   | { readonly role: "owner"; readonly claim: RunClaim }
@@ -239,6 +285,7 @@ export type PreparationWaitOptions = {
   readonly signal: AbortSignal;
   /** Run the caller acquired or joined; any other run revokes the wait. */
   readonly expectedRunId: string;
+  readonly layout?: GenerationLayout;
 };
 
 export type PublishArtifact = {
@@ -251,6 +298,8 @@ export type PublishOptions = {
   status?: ArtifactStatus;
   labels?: { title?: string; project?: string };
   publishedAt?: string;
+  layout?: GenerationLayout;
+  schemaVersion?: number;
 };
 
 export type PublishResult = {
@@ -698,6 +747,35 @@ async function removeRunStaging(
   }
 }
 
+/**
+ * Fail closed before any read-through or deletion. Only the total absence of
+ * `generation.json` means a legacy v1 generation; a present but unreadable or
+ * unsupported record is unknown state, never silently v1.
+ */
+async function assertGenerationSupported(generationDir: string): Promise<void> {
+  const genMetaPath = path.join(generationDir, "generation.json");
+  const genMetaBuffer = await readPrivateFileOptional(
+    genMetaPath,
+    MAX_RECORD_BYTES,
+  );
+  if (!genMetaBuffer) return;
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(genMetaBuffer.toString("utf8"));
+  } catch {
+    throw new StoreError("UNSUPPORTED_SCHEMA_VERSION");
+  }
+  const schemaVersion =
+    parsed !== null && typeof parsed === "object"
+      ? Reflect.get(parsed, "schemaVersion")
+      : undefined;
+  if (
+    typeof schemaVersion !== "number" ||
+    !SUPPORTED_GENERATION_SCHEMA_VERSIONS.includes(schemaVersion)
+  )
+    throw new StoreError("UNSUPPORTED_SCHEMA_VERSION");
+}
+
 async function readIndex(
   layout: StoreLayout,
   bound?: ObservationBound,
@@ -717,7 +795,34 @@ async function readIndex(
     bound,
   );
   if (!buffer) throw new StoreError("INDEX_CORRUPT");
-  return parseRecord(indexGenerationSchema, buffer, "INDEX_CORRUPT");
+  let rawJson: unknown;
+  try {
+    rawJson = JSON.parse(buffer.toString("utf8"));
+  } catch {
+    throw new StoreError("INDEX_CORRUPT");
+  }
+  if (rawJson && typeof rawJson === "object" && "schemaVersion" in rawJson) {
+    const sv = rawJson.schemaVersion;
+    if (
+      typeof sv === "number" &&
+      !SUPPORTED_INDEX_SCHEMA_VERSIONS.includes(sv)
+    ) {
+      throw new StoreError("UNSUPPORTED_SCHEMA_VERSION");
+    }
+  }
+  const parsed = parseRecord(indexGenerationSchema, buffer, "INDEX_CORRUPT");
+  if (!SUPPORTED_INDEX_SCHEMA_VERSIONS.includes(parsed.schemaVersion)) {
+    throw new StoreError("UNSUPPORTED_SCHEMA_VERSION");
+  }
+  for (const entry of parsed.entries) {
+    if (
+      entry.schemaVersion !== undefined &&
+      !SUPPORTED_GENERATION_SCHEMA_VERSIONS.includes(entry.schemaVersion)
+    ) {
+      throw new StoreError("UNSUPPORTED_SCHEMA_VERSION");
+    }
+  }
+  return parsed;
 }
 
 async function writeIndexGeneration(
@@ -822,6 +927,7 @@ function toPublicClaim(record: ClaimRecord, root: string): RunClaim {
     generation: record.generation,
     fence: record.fence,
     createdAt: record.createdAt,
+    layout: record.layout,
   };
 }
 
@@ -965,9 +1071,12 @@ export async function claimRun(
   root: string,
   main: NodeKey,
   checkpointId: string,
+  options?: { layout?: GenerationLayout },
 ): Promise<RunClaim> {
   const checkpoint = parseIdentifier(checkpointId, "INVALID_CHECKPOINT_ID");
   const key = parseNodeKey(main, "INVALID_NODE_KEY");
+  const targetLayout: GenerationLayout = options?.layout ?? "v1";
+  const primaryKind = primaryKindForLayout(targetLayout);
   return await withSessionLock(root, key, async (layout, token) => {
     const sessionDir = path.join(layout.sessionsDir, token);
     if (!(await lstatOrNull(sessionDir)))
@@ -976,6 +1085,7 @@ export async function claimRun(
     if (!session) throw new StoreError("SESSION_UNAVAILABLE");
     await sweepStaging(session.stagingDir);
     const fence = await readFence(layout, token);
+    const index = await readIndex(layout);
     const existing = await readClaimRecord(layout, token);
     if (existing) {
       if (
@@ -986,37 +1096,60 @@ export async function claimRun(
           "CLAIM_REVOKED",
           "This run was revoked by a deletion or cancellation; re-run deletion or cancel explicitly to recover.",
         );
-      const committed = findCommittedRun(
-        await readIndex(layout),
-        token,
-        existing.runId,
-        fence,
-      );
+      const committed = findCommittedRun(index, token, existing.runId, fence);
       if (committed) {
         await reconcileCommittedClaim(layout, token, existing, committed).catch(
           () => undefined,
         );
-        if (existing.checkpointId === checkpoint)
-          throw publishedGenerationError(
-            "This checkpoint already produced a published generation.",
-            committed.generationId,
-          );
+        if (existing.checkpointId === checkpoint) {
+          const claimLayout = existing.layout ?? "v1";
+          if (claimLayout === targetLayout) {
+            throw publishedGenerationError(
+              "This checkpoint already produced a published generation.",
+              committed.generationId,
+            );
+          }
+        }
       } else if (existing.state === "active") {
         if (Date.now() - Date.parse(existing.heartbeatAt) > CLAIM_STALE_MS)
           throw new StoreError("STALE_CLAIM");
-        if (existing.checkpointId !== checkpoint)
+        const claimLayout = existing.layout ?? "v1";
+        if (
+          existing.checkpointId !== checkpoint ||
+          claimLayout !== targetLayout
+        )
           throw new StoreError("RUN_ACTIVE");
         return toPublicClaim(existing, layout.root);
       } else if (
         existing.state === "published" &&
         existing.checkpointId === checkpoint
       ) {
-        throw publishedGenerationError(
-          "This checkpoint already produced a published generation.",
-          existing.publishedGenerationId,
-        );
+        const claimLayout = existing.layout ?? "v1";
+        if (claimLayout === targetLayout) {
+          throw publishedGenerationError(
+            "This checkpoint already produced a published generation.",
+            existing.publishedGenerationId,
+          );
+        }
       }
     }
+    // A committed generation is identified by its layout's primary kind, so a
+    // v1 report and a v2 summary of the same checkpoint are separate
+    // publications and each is refused only against its own layout. This holds
+    // after a later layout replaced the single claim record.
+    const published = index?.entries.find(
+      (entry) =>
+        entry.sessionToken === token &&
+        entry.checkpointId === checkpoint &&
+        entry.kind === primaryKind &&
+        (entry.layout ?? "v1") === targetLayout &&
+        isCurrentGeneration(entry, fence),
+    );
+    if (published)
+      throw publishedGenerationError(
+        "This checkpoint already produced a published generation.",
+        published.generationId,
+      );
     const now = new Date().toISOString();
     const record: ClaimRecord = {
       schemaVersion: 1,
@@ -1029,6 +1162,8 @@ export async function claimRun(
       fence: fence?.tombstone ?? null,
       createdAt: now,
       heartbeatAt: now,
+      // A v1 claim records nothing new: absent means v1 to every reader.
+      ...(targetLayout === "v1" ? {} : { layout: targetLayout }),
     };
     await assertStoreCapacity(layout.root, MAX_RECORD_BYTES);
     await writePrivateFileAtomic(
@@ -1039,18 +1174,31 @@ export async function claimRun(
   });
 }
 
-function receiptFromRun(entries: IndexEntry[], runId: string): ArtifactReceipt {
-  const reports = entries.filter(
-    (entry) => entry.runId === runId && entry.kind === "report",
-  );
-  if (reports.length !== 1)
+function receiptFromRun(
+  entries: IndexEntry[],
+  runId: string,
+  layout?: GenerationLayout,
+): ArtifactReceipt {
+  const runEntries = entries.filter((entry) => entry.runId === runId);
+  if (runEntries.length === 0)
     throw new StoreError("PREPARATION_RECEIPT_UNAVAILABLE");
-  const report = reports[0];
+
+  // The layout is authoritative, never the artifact kind: a recorded layout
+  // wins, and an entry written before layouts existed is v1 by policy.
+  const effectiveLayout: GenerationLayout =
+    layout ??
+    runEntries.find((entry) => entry.layout !== undefined)?.layout ??
+    "v1";
+
+  const primaryKind = primaryKindForLayout(effectiveLayout);
+  const primary = runEntries.find((entry) => entry.kind === primaryKind);
+  if (!primary) throw new StoreError("PREPARATION_RECEIPT_UNAVAILABLE");
+
   return artifactReceiptSchema.parse({
     schemaVersion: 1,
-    artifactId: report.artifactId,
+    artifactId: primary.artifactId,
     runId,
-    status: report.status,
+    status: primary.status,
     modelCalls: 0,
     outboundRequests: 0,
   });
@@ -1061,9 +1209,13 @@ export async function acquirePreparation(
   root: string,
   main: NodeKey,
   checkpointId: string,
+  options?: { layout?: GenerationLayout },
 ): Promise<PreparationAccess> {
   const checkpoint = parseIdentifier(checkpointId, "INVALID_CHECKPOINT_ID");
   const key = parseNodeKey(main, "INVALID_NODE_KEY");
+  const targetLayout: GenerationLayout = options?.layout ?? "v1";
+  const primaryKind = primaryKindForLayout(targetLayout);
+
   return await withSessionLock(root, key, async (layout, token) => {
     const sessionDir = path.join(layout.sessionsDir, token);
     if (!(await lstatOrNull(sessionDir)))
@@ -1076,7 +1228,8 @@ export async function acquirePreparation(
       (entry) =>
         entry.sessionToken === token &&
         entry.checkpointId === checkpoint &&
-        entry.kind === "report" &&
+        entry.kind === primaryKind &&
+        (entry.layout ?? "v1") === targetLayout &&
         isCurrentGeneration(entry, fence),
     );
     if (previous) return { role: "join", runId: previous.runId };
@@ -1096,15 +1249,23 @@ export async function acquirePreparation(
         await reconcileCommittedClaim(layout, token, existing, committed).catch(
           () => undefined,
         );
-        if (existing.checkpointId === checkpoint)
-          throw publishedGenerationError(
-            "This checkpoint already produced a published generation.",
-            committed.generationId,
-          );
+        if (existing.checkpointId === checkpoint) {
+          const claimLayout = existing.layout ?? "v1";
+          if (claimLayout === targetLayout) {
+            throw publishedGenerationError(
+              "This checkpoint already produced a published generation.",
+              committed.generationId,
+            );
+          }
+        }
       } else if (existing.state === "active") {
         if (Date.now() - Date.parse(existing.heartbeatAt) > CLAIM_STALE_MS)
           throw new StoreError("STALE_CLAIM");
-        if (existing.checkpointId !== checkpoint)
+        const claimLayout = existing.layout ?? "v1";
+        if (
+          existing.checkpointId !== checkpoint ||
+          claimLayout !== targetLayout
+        )
           throw new StoreError("RUN_ACTIVE");
         return { role: "join", runId: existing.runId };
       }
@@ -1122,6 +1283,8 @@ export async function acquirePreparation(
       fence: fence?.tombstone ?? null,
       createdAt: now,
       heartbeatAt: now,
+      // A v1 claim records nothing new: absent means v1 to every reader.
+      ...(targetLayout === "v1" ? {} : { layout: targetLayout }),
     };
     await assertStoreCapacity(layout.root, MAX_RECORD_BYTES);
     await writePrivateFileAtomic(
@@ -1131,15 +1294,20 @@ export async function acquirePreparation(
     return { role: "owner", claim: toPublicClaim(record, layout.root) };
   });
 }
-/** Resolve only a report entry committed by the indexed run generation. */
+
+/** Resolve only a primary entry committed by the indexed run generation. */
 export async function resolvePublishedPreparation(
   root: string,
   main: NodeKey,
   checkpointId: string,
   bound?: ObservationBound,
+  options?: { layout?: GenerationLayout },
 ): Promise<PreparationResolution> {
   const checkpoint = parseIdentifier(checkpointId, "INVALID_CHECKPOINT_ID");
   const key = parseNodeKey(main, "INVALID_NODE_KEY");
+  const targetLayout: GenerationLayout = options?.layout ?? "v1";
+  const primaryKind = primaryKindForLayout(targetLayout);
+
   return await withSessionLock(
     root,
     key,
@@ -1148,15 +1316,16 @@ export async function resolvePublishedPreparation(
       const fence = await readFence(layout, token, bound);
       assertObservationBound(bound);
       const index = await readIndex(layout, bound);
-      const report = index?.entries.find(
+      const primaryEntry = index?.entries.find(
         (entry) =>
           entry.sessionToken === token &&
           entry.checkpointId === checkpoint &&
-          entry.kind === "report" &&
+          entry.kind === primaryKind &&
+          (entry.layout ?? "v1") === targetLayout &&
           isCurrentGeneration(entry, fence),
       );
       assertObservationBound(bound);
-      if (report)
+      if (primaryEntry)
         return {
           status: "published",
           receipt: receiptFromRun(
@@ -1165,7 +1334,8 @@ export async function resolvePublishedPreparation(
                 entry.sessionToken === token &&
                 isCurrentGeneration(entry, fence),
             ),
-            report.runId,
+            primaryEntry.runId,
+            targetLayout,
           ),
         };
       const claim = await readClaimRecord(layout, token, bound);
@@ -1173,6 +1343,8 @@ export async function resolvePublishedPreparation(
       if (!claim) throw new StoreError("RUN_NOT_FOUND");
       if (claim.checkpointId !== checkpoint)
         throw new StoreError("RUN_NOT_FOUND");
+      const claimLayout = claim.layout ?? "v1";
+      if (claimLayout !== targetLayout) throw new StoreError("RUN_NOT_FOUND");
       if (!isCurrentGeneration(claim, fence))
         throw new StoreError(
           "CLAIM_REVOKED",
@@ -1276,7 +1448,9 @@ export async function waitForPublishedPreparation(
   const observeOnce = async (): Promise<PreparationResolution> => {
     try {
       return await settleObservation(bound, () =>
-        resolvePublishedPreparation(root, main, checkpointId, bound),
+        resolvePublishedPreparation(root, main, checkpointId, bound, {
+          layout: options.layout,
+        }),
       );
     } catch (error) {
       return mapObservationError(error);
@@ -1417,6 +1591,16 @@ export async function publishRun(
       throw new StoreError("CLAIM_STALE");
 
     const prepared = prepareArtifacts(artifacts);
+    // An explicit layout, or the one the claim was acquired for; artifact
+    // kinds never select a layout, so generations without an explicit layout
+    // publish as v1.
+    const layoutId: GenerationLayout = options.layout ?? claim.layout ?? "v1";
+    const layoutDef = GENERATION_LAYOUTS[layoutId];
+    const generationSchemaVersion =
+      options.schemaVersion ?? layoutDef.schemaVersion;
+    // Never write a generation this store could not read back.
+    if (!SUPPORTED_GENERATION_SCHEMA_VERSIONS.includes(generationSchemaVersion))
+      throw new StoreError("UNSUPPORTED_SCHEMA_VERSION");
     validateLabels(options.labels);
     const status = resolveStatus(options.status);
     const publishedAt = resolveTimestamp(options.publishedAt);
@@ -1461,6 +1645,23 @@ export async function publishRun(
           path.join(stageDir, artifact.fileName),
           artifact.data,
         );
+      // A v1 generation must stay byte-compatible with what the store wrote
+      // before layouts existed: four artifact files and nothing else. Only a
+      // v2 generation records its layout and serialization version here.
+      if (layoutId === "v2") {
+        const generationMeta = {
+          schemaVersion: generationSchemaVersion,
+          layout: layoutId,
+          generationId,
+          runId: record.runId,
+          checkpointId: record.checkpointId,
+          publishedAt,
+        };
+        await writePrivateFileExclusive(
+          path.join(stageDir, "generation.json"),
+          JSON.stringify(generationMeta),
+        );
+      }
       await syncDirectory(stageDir);
       await fsp.rename(stageDir, generationDir);
       await syncDirectory(session.generationsDir);
@@ -1482,6 +1683,10 @@ export async function publishRun(
           publishedAt,
           bytes: artifact.data.length,
           fence: record.fence ?? null,
+          // v1 entries stay byte-compatible: absent means v1/1 to readers.
+          ...(layoutId === "v1"
+            ? {}
+            : { schemaVersion: generationSchemaVersion, layout: layoutId }),
         });
       }
       const nextIndex: IndexGeneration = {
@@ -1610,6 +1815,9 @@ export async function cancelRun(claim: RunClaim): Promise<void> {
  * Manual retention deletion. Writes the tombstone first so every claim issued
  * before this point is invalid, then removes managed artifacts and index
  * entries. Source transcripts and unrelated files are untouched.
+ *
+ * Every persisted version is validated before the tombstone or any unlink, so
+ * a store holding an unknown generation/index version is left untouched.
  */
 export async function deleteSession(
   root: string,
@@ -1618,14 +1826,30 @@ export async function deleteSession(
   const key = parseNodeKey(main, "INVALID_NODE_KEY");
   return await withSessionLock(root, key, async (layout, token) => {
     const index = await readIndex(layout);
+    const sessionDir = path.join(layout.sessionsDir, token);
+    const generationsDir = path.join(sessionDir, "generations");
+    // An unreadable generation directory is unknown state, not an empty one.
+    const generationsStats = await lstatOrNull(generationsDir);
+    if (generationsStats) {
+      if (generationsStats.isSymbolicLink() || !generationsStats.isDirectory())
+        throw new StoreError("UNSAFE_PATH");
+      const genEntries = await fsp.readdir(generationsDir, {
+        withFileTypes: true,
+      });
+      for (const genEntry of genEntries) {
+        if (!genEntry.isDirectory()) continue;
+        await assertGenerationSupported(
+          path.join(generationsDir, genEntry.name),
+        );
+      }
+    }
+    const meta = await readMeta(layout, token);
     const remaining = index
       ? index.entries.filter((entry) => entry.sessionToken !== token)
       : [];
     const removedArtifacts = index
       ? index.entries.length - remaining.length
       : 0;
-    const meta = await readMeta(layout, token);
-    const sessionDir = path.join(layout.sessionsDir, token);
     const now = new Date().toISOString();
     const fence: FenceRecord = {
       schemaVersion: 1,
@@ -1803,6 +2027,7 @@ export async function resolveArtifact(
   assertPrivateDirectory(generationDir, generationStats);
   if (process.platform === "win32")
     await verifyWindowsPrivatePath(generationDir);
+  await assertGenerationSupported(generationDir);
   const absolutePath = path.join(generationDir, ARTIFACT_FILES[entry.kind]);
   const stats = await lstatOrNull(absolutePath);
   if (!stats) throw new StoreError("ARTIFACT_MISSING");

@@ -18,12 +18,17 @@ import {
 } from "../services/EvalsIndex";
 import { PolicyView } from "../services/PolicyIndex";
 
+import { retrospectiveNudge } from "./retrospective";
+
 export interface ToolContext {
   projectRoot: string;
   index: SkillIndex;
   tracker: SessionTracker;
   setup: SetupHint;
   policy: PolicyView;
+  transport?: "stdio" | "sse";
+  retrospectiveMark?: { preparedAtProgress: number };
+  consentPath?: string;
 }
 
 export interface ToolResult {
@@ -491,7 +496,12 @@ export async function auditSessionCompliance(
       ),
     );
   }
-  return { content: [{ type: "text", text: lines.join("\n") }] };
+  let text = lines.join("\n");
+  const nudge = await retrospectiveNudge(ctx);
+  if (nudge) {
+    text = `${text}\n\n${nudge}`;
+  }
+  return { content: [{ type: "text", text }] };
 }
 
 /**
@@ -747,7 +757,12 @@ export async function getSessionCost(
     "",
     ...(events.length ? events.map(formatConsultationEvent) : ["_(none)_"]),
   ];
-  return { content: [{ type: "text", text: lines.join("\n") }] };
+  let text = lines.join("\n");
+  const nudge = await retrospectiveNudge(ctx);
+  if (nudge) {
+    text = `${text}\n\n${nudge}`;
+  }
+  return { content: [{ type: "text", text }] };
 }
 
 // ---------- list_workflows ----------
@@ -1110,3 +1125,17 @@ function renderSkill(
 ): string {
   return `<!-- skill: ${category}/${id} | matched: ${why} -->\n${body}`;
 }
+
+export {
+  prepareRetrospective,
+  prepareRetrospectiveSchema,
+  prepareRetrospectiveIndex,
+  prepareRetrospectiveIndexSchema,
+  getRetrospectiveStatus,
+  getRetrospectiveStatusSchema,
+  retrospectiveNudge,
+  DISABLED_RETROSPECTIVE_TEXT,
+  RETROSPECTIVE_NUDGE_TEXT,
+  renderRunResultText,
+  renderIndexQueryErrorText,
+} from "./retrospective";

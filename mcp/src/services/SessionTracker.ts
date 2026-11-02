@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 export interface LoadEvent {
   /** ISO timestamp when the load happened. */
   at: string;
@@ -45,6 +47,74 @@ export interface SkillContextCost {
   bodyReturnCount: number;
 }
 
+/** One skill returned in full this session, aggregated across calls. */
+export interface SkillUsageEntry {
+  /** `category/skill`, sanitized to the safe-identifier form. */
+  id: string;
+  /** Body returns for this skill, counting repeats. */
+  returns: number;
+  /** Earliest recorded return of this skill. */
+  firstAt: string;
+  /** Distinct tools that returned this skill, sorted. */
+  via: string[];
+}
+
+/**
+ * Counts-only snapshot of skill lookups for the retrospective ledger.
+ * Registry ids and counts only: the `input` the agent passed (files, keywords,
+ * single ids) is never part of the snapshot.
+ */
+export interface SkillUsageSnapshot {
+  /** Tracker start time (ISO). */
+  since: string;
+  /** Recorded events of any kind. */
+  events: number;
+  /** Lookup calls made through a skill-loading tool. */
+  loadCalls: number;
+  /** Lookup calls whose routing matched no skill. */
+  noMatchCalls: number;
+  /** Skill bodies returned in full, counting repeats. */
+  bodyReturns: number;
+  /** Returns served from context instead of resent. */
+  dedupedReturns: number;
+  /** Estimated tokens of skill bodies returned in full. */
+  estimatedTokens: number;
+  /** Selected ids whose body was not returned, summed over calls. */
+  selectedNotLoaded: number;
+  /** Unique workflows loaded. */
+  workflows: number;
+  /** Unique category guides loaded. */
+  guides: number;
+  /** Unique skills returned. */
+  skillsTotal: number;
+  /** Top skills by returns desc then id asc, capped. */
+  skills: SkillUsageEntry[];
+}
+
+const LOAD_CALL_VIAS: Record<LoadEvent["via"], boolean> = {
+  load_skills_for_files: true,
+  load_skills_for_keywords: true,
+  get_skill: true,
+  get_category_guide: true,
+  list_categories: false,
+  list_workflows: false,
+  get_workflow: true,
+  get_session_cost: false,
+};
+
+/** Registry ids are printed into reports, so anything else becomes a stable placeholder. */
+const SAFE_SKILL_ID_REGEX = /^[A-Za-z0-9._:/@+-]{1,96}$/;
+const MAX_SKILL_USAGE_ENTRIES = 20;
+
+function sanitizeSkillId(id: string): string {
+  if (SAFE_SKILL_ID_REGEX.test(id)) return id;
+  const hash = createHash("sha256")
+    .update(id, "utf8")
+    .digest("hex")
+    .slice(0, 8);
+  return `skill-${hash}`;
+}
+
 /**
  * In-memory record of which skills were loaded in the current MCP session.
  * Lives for the lifetime of the stdio process — one session per agent run.
@@ -62,6 +132,14 @@ export class SessionTracker {
 
   record(event: Omit<LoadEvent, "at">): void {
     this.events.push({ at: new Date().toISOString(), ...event });
+  }
+
+  /**
+   * Observed tool calls in order of recording.
+   * Returns a copy so callers cannot mutate tracker state.
+   */
+  observedToolCalls(): Array<{ tool: string; at: string }> {
+    return this.events.map((event) => ({ tool: event.via, at: event.at }));
   }
 
   /** Unique skill bodies returned so far, formatted as `category/id`. */
@@ -136,11 +214,86 @@ export class SessionTracker {
       skillsLoaded: this.loadedSkills().length,
       guidesLoaded: this.loadedGuides().length,
       workflowsLoaded: this.loadedWorkflows().length,
-      noMatchCalls: this.events.filter(
-        (event) =>
-          this.noMatchTools.has(event.via) && event.loaded.length === 0,
-      ).length,
+      noMatchCalls: this.countNoMatchCalls(),
       callsByTool,
+    };
+  }
+
+  /**
+   * Counts-only view of skill lookups for the retrospective ledger.
+   * Reads recorded events, never the `input` strings the agent passed.
+   */
+  skillUsage(): SkillUsageSnapshot {
+    let loadCalls = 0;
+    let selectedNotLoaded = 0;
+    let dedupedReturns = 0;
+    // Skill keys whose body was returned in full at least once.
+    const returnedKeys = new Set<string>();
+    const entries = new Map<
+      string,
+      { returns: number; firstAt: string; via: Set<string> }
+    >();
+
+    for (const event of this.events) {
+      if (LOAD_CALL_VIAS[event.via]) loadCalls += 1;
+
+      const loadedSkills = event.loaded.filter((key) => this.isSkillKey(key));
+      const loadedUnique = new Set(loadedSkills);
+      for (const key of new Set(event.selected ?? [])) {
+        if (this.isSkillKey(key) && !loadedUnique.has(key)) {
+          selectedNotLoaded += 1;
+        }
+      }
+
+      for (const key of loadedSkills) {
+        const existing = entries.get(key);
+        if (existing) {
+          existing.returns += 1;
+          if (event.at < existing.firstAt) existing.firstAt = event.at;
+          existing.via.add(event.via);
+        } else {
+          entries.set(key, {
+            returns: 1,
+            firstAt: event.at,
+            via: new Set([event.via]),
+          });
+        }
+        if (event.bodyDigests?.[key] === undefined) {
+          // No body was read on this call: it was served from context only if
+          // the body had already been returned in full earlier this session.
+          if (returnedKeys.has(key)) dedupedReturns += 1;
+        } else {
+          returnedKeys.add(key);
+        }
+      }
+    }
+
+    const cost = this.skillContextCost();
+    const skills = Array.from(entries, ([id, entry]) => ({
+      id: sanitizeSkillId(id),
+      returns: entry.returns,
+      firstAt: entry.firstAt,
+      via: Array.from(entry.via).sort(),
+    }))
+      .sort((a, b) => {
+        if (b.returns !== a.returns) return b.returns - a.returns;
+        return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+      })
+      .slice(0, MAX_SKILL_USAGE_ENTRIES);
+
+    return {
+      since: this.startedAt,
+      events: this.events.length,
+      loadCalls,
+      noMatchCalls: this.countNoMatchCalls(),
+      bodyReturns: cost.bodyReturnCount,
+      dedupedReturns,
+      estimatedTokens: cost.totalEstimatedTokens,
+      selectedNotLoaded,
+      workflows: this.loadedWorkflows().length,
+      guides: this.loadedGuides().length,
+      skillsTotal: entries.size,
+      skills,
     };
   }
 
@@ -176,6 +329,12 @@ export class SessionTracker {
 
   private isSkillKey(key: string): boolean {
     return !key.startsWith("workflow/") && !key.startsWith("category/");
+  }
+
+  private countNoMatchCalls(): number {
+    return this.events.filter(
+      (event) => this.noMatchTools.has(event.via) && event.loaded.length === 0,
+    ).length;
   }
 
   private uniqueSkillKeys(keys: string[]): string[] {

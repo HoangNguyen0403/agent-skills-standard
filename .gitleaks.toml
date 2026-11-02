@@ -69,3 +69,32 @@ regexes = [
   '''owasp-api\.md"?\s*:\s*"b6844ad13dddf7c341fb4454ba51b6111eb89b3e23b9ec10f7822ad995b3b84b''',
   '''smartbear-api\.md"?\s*:\s*"fab7799f729491aab0131dd6a5db8614b003009c034723eafd22b9d0a23583ab''',
 ]
+
+# Retrospective redaction tests must feed realistic secret SHAPES (API key, JWT, Slack,
+# Stripe, GitHub, Anthropic) to redactCommand() and assert they are stripped. Each entry
+# pairs ONE anchored spec path with the exact fake literals it uses (`condition = "AND"`),
+# so the same values in any other file, or any other secret in these files, stay detectable.
+# The JWT is the public jwt.io example token.
+[[allowlists]]
+description = "Retrospective redaction unit test: fake secret shapes asserted to be redacted by redactCommand(). Literal-scoped to this spec."
+condition = "AND"
+paths = [
+  '''^mcp/test/retrospective-permission-requests\.spec\.ts$''',
+]
+regexes = [
+  '''^sk-ant-api03-123456$''',
+  '''^ghp_secret987654321$''',
+  '''^sk_live_abcdef123456$''',
+  '''^aW52YWxpZF9zZWNyZXRfdG9rZW5fZm9yX3Rlc3Rpbmc9$''',
+  '''^eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ\.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c$''',
+]
+
+[[allowlists]]
+description = "Retrospective run test: fake API key planted in a permission request to prove it never reaches summary.md, ledger.json or report.html. Literal-scoped to this spec."
+condition = "AND"
+paths = [
+  '''^mcp/test/retrospective-run\.spec\.ts$''',
+]
+regexes = [
+  '''^sk-test-1234567890abcdef1234$''',
+]
