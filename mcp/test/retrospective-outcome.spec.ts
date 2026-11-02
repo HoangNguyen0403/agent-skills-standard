@@ -607,3 +607,292 @@ describe("readGitOutcome", () => {
     expect(Number.isNaN(outcome.deletions)).toBe(false);
   });
 });
+
+interface FakeGitInvocation {
+  argv: string[];
+  env: string[];
+  envValues: {
+    GIT_TERMINAL_PROMPT?: string;
+    GIT_OPTIONAL_LOCKS?: string;
+    GIT_CONFIG_NOSYSTEM?: string;
+    GIT_CONFIG_GLOBAL?: string;
+    LC_ALL?: string;
+  };
+  hasSecret: boolean;
+}
+
+async function setupFakeGit(
+  logFilePath: string,
+  options?: { revParseExitCode?: number },
+): Promise<string> {
+  const fakeBinDir = await createTempDir();
+  const gitScriptPath = path.join(fakeBinDir, "git");
+  const revParseExitCode = options?.revParseExitCode ?? 0;
+
+  const scriptContent = `#!/usr/bin/env node
+const fs = require("node:fs");
+
+const logFile = ${JSON.stringify(logFilePath)};
+const argv = process.argv.slice(2);
+const envKeys = Object.keys(process.env).sort();
+const record = {
+  argv,
+  env: envKeys,
+  envValues: {
+    GIT_TERMINAL_PROMPT: process.env.GIT_TERMINAL_PROMPT,
+    GIT_OPTIONAL_LOCKS: process.env.GIT_OPTIONAL_LOCKS,
+    GIT_CONFIG_NOSYSTEM: process.env.GIT_CONFIG_NOSYSTEM,
+    GIT_CONFIG_GLOBAL: process.env.GIT_CONFIG_GLOBAL,
+    LC_ALL: process.env.LC_ALL,
+  },
+  hasSecret: envKeys.includes("RETRO_TEST_SECRET"),
+};
+
+fs.appendFileSync(logFile, JSON.stringify(record) + "\\n", "utf8");
+
+const cIndex = argv.indexOf("-C");
+const subcmd = cIndex !== -1 && cIndex + 2 < argv.length ? argv[cIndex + 2] : "";
+
+if (subcmd === "rev-parse") {
+  if (${revParseExitCode} !== 0) {
+    process.exit(${revParseExitCode});
+  }
+  process.stdout.write("true\\n");
+  process.exit(0);
+} else if (subcmd === "symbolic-ref") {
+  process.stdout.write("main\\n");
+  process.exit(0);
+} else if (subcmd === "log") {
+  process.stdout.write("");
+  process.exit(0);
+} else {
+  process.exit(0);
+}
+`;
+
+  await fs.writeFile(gitScriptPath, scriptContent, { mode: 0o755 });
+  await fs.chmod(gitScriptPath, 0o755);
+
+  try {
+    await fs.symlink(process.execPath, path.join(fakeBinDir, "node"));
+  } catch {
+    // ignore if symlink creation fails
+  }
+
+  return fakeBinDir;
+}
+
+describe("readGitOutcome hardening flags and environment scrub", () => {
+  it.skipIf(process.platform === "win32")(
+    "executes git with required hardening flags, scrubbed environment, and expected subcommands",
+    async () => {
+      const fakeLogDir = await createTempDir();
+      const logFile = path.join(fakeLogDir, "fake-git.log");
+      const fakeBinDir = await setupFakeGit(logFile);
+      const repoDir = await createTempDir();
+
+      const from = "2026-11-01T10:00:00Z";
+      const to = "2026-11-01T12:00:00Z";
+
+      const originalPath = process.env.PATH;
+      const originalSecret = process.env.RETRO_TEST_SECRET;
+      const originalHome = process.env.HOME;
+
+      try {
+        process.env.PATH = `${fakeBinDir}${path.delimiter}${path.dirname(process.execPath)}`;
+        process.env.RETRO_TEST_SECRET = "s3cret";
+        process.env.HOME = path.join(fakeLogDir, "fake-home");
+
+        const ac = new AbortController();
+        const outcome = await readGitOutcome(
+          { cwd: repoDir, from, to },
+          ac.signal,
+        );
+
+        const logContent = await fs.readFile(logFile, "utf8");
+        const invocations: FakeGitInvocation[] = logContent
+          .trim()
+          .split("\n")
+          .filter((line) => line.length > 0)
+          .map((line) => JSON.parse(line));
+
+        expect(invocations).toHaveLength(3);
+
+        // Assertion 1: argv begins with exact hardening flags in order
+        const realRepoDir = await fs.realpath(repoDir);
+        const expectedPrefix = [
+          "-c",
+          "core.fsmonitor=false",
+          "-c",
+          `core.hooksPath=${os.devNull}`,
+          "-c",
+          "core.pager=cat",
+          "-c",
+          "diff.external=",
+          "-c",
+          "core.untrackedCache=false",
+          "-C",
+          realRepoDir,
+        ];
+        for (const inv of invocations) {
+          expect(inv.argv.slice(0, expectedPrefix.length)).toEqual(
+            expectedPrefix,
+          );
+        }
+
+        // Assertion 2: subcommand set is exactly {rev-parse, symbolic-ref, log}
+        const subcommands = invocations.map((inv) => {
+          const cIndex = inv.argv.indexOf("-C");
+          return cIndex !== -1 && cIndex + 2 < inv.argv.length
+            ? inv.argv[cIndex + 2]
+            : undefined;
+        });
+        expect(subcommands).toEqual(["rev-parse", "symbolic-ref", "log"]);
+        expect(new Set(subcommands)).toEqual(
+          new Set(["rev-parse", "symbolic-ref", "log"]),
+        );
+        for (const forbidden of ["status", "diff", "checkout", "config"]) {
+          expect(subcommands).not.toContain(forbidden);
+        }
+
+        // Assertion 3: log argv contains required flags and timestamps
+        const logInvocation = invocations.find((inv) => {
+          const cIndex = inv.argv.indexOf("-C");
+          return cIndex !== -1 && inv.argv[cIndex + 2] === "log";
+        });
+        expect(logInvocation).toBeDefined();
+        expect(logInvocation!.argv).toContain("--no-ext-diff");
+        expect(logInvocation!.argv).toContain("--no-textconv");
+        expect(logInvocation!.argv).toContain("--all");
+        expect(logInvocation!.argv).toContain("--no-color");
+        expect(logInvocation!.argv).toContain(`--since=${from}`);
+        expect(logInvocation!.argv).toContain(`--until=${to}`);
+
+        // Assertion 4: env keys scrubbed, secret and HOME absent, and specific variables verified
+        for (const inv of invocations) {
+          expect(inv.hasSecret).toBe(false);
+          expect(inv.env).not.toContain("RETRO_TEST_SECRET");
+          expect(inv.env).not.toContain("HOME");
+          expect(inv.envValues.GIT_TERMINAL_PROMPT).toBe("0");
+          expect(inv.envValues.GIT_OPTIONAL_LOCKS).toBe("0");
+          expect(inv.envValues.GIT_CONFIG_NOSYSTEM).toBe("1");
+          expect(inv.envValues.GIT_CONFIG_GLOBAL).toBe(os.devNull);
+          expect(inv.envValues.LC_ALL).toBe("C");
+        }
+
+        // Assertion 5: outcome result with branch main and all counts 0
+        expect(outcome).toEqual({
+          source: "git",
+          branch: "main",
+          commits: 0,
+          revertCommits: 0,
+          mergeCommits: 0,
+          filesChanged: 0,
+          insertions: 0,
+          deletions: 0,
+          windowFrom: from,
+          windowTo: to,
+        });
+      } finally {
+        if (originalPath !== undefined) {
+          process.env.PATH = originalPath;
+        } else {
+          delete process.env.PATH;
+        }
+        if (originalSecret !== undefined) {
+          process.env.RETRO_TEST_SECRET = originalSecret;
+        } else {
+          delete process.env.RETRO_TEST_SECRET;
+        }
+        if (originalHome !== undefined) {
+          process.env.HOME = originalHome;
+        } else {
+          delete process.env.HOME;
+        }
+      }
+    },
+  );
+
+  it.skipIf(process.platform === "win32")(
+    "returns unavailable not-a-repo when rev-parse exits with error code 2",
+    async () => {
+      const fakeLogDir = await createTempDir();
+      const logFile = path.join(fakeLogDir, "fake-git-not-a-repo.log");
+      const fakeBinDir = await setupFakeGit(logFile, { revParseExitCode: 2 });
+      const repoDir = await createTempDir();
+
+      const from = "2026-11-01T10:00:00Z";
+      const to = "2026-11-01T12:00:00Z";
+
+      const originalPath = process.env.PATH;
+      const originalSecret = process.env.RETRO_TEST_SECRET;
+      const originalHome = process.env.HOME;
+
+      try {
+        process.env.PATH = `${fakeBinDir}${path.delimiter}${path.dirname(process.execPath)}`;
+        process.env.RETRO_TEST_SECRET = "s3cret";
+        process.env.HOME = path.join(fakeLogDir, "fake-home");
+
+        const ac = new AbortController();
+        const outcome = await readGitOutcome(
+          { cwd: repoDir, from, to },
+          ac.signal,
+        );
+
+        expect(outcome).toEqual({
+          source: "unavailable",
+          reason: "not-a-repo",
+        });
+
+        const logContent = await fs.readFile(logFile, "utf8");
+        const invocations: FakeGitInvocation[] = logContent
+          .trim()
+          .split("\n")
+          .filter((line) => line.length > 0)
+          .map((line) => JSON.parse(line));
+
+        expect(invocations).toHaveLength(1);
+        const revParseInv = invocations[0];
+        const realRepoDir = await fs.realpath(repoDir);
+        const expectedPrefix = [
+          "-c",
+          "core.fsmonitor=false",
+          "-c",
+          `core.hooksPath=${os.devNull}`,
+          "-c",
+          "core.pager=cat",
+          "-c",
+          "diff.external=",
+          "-c",
+          "core.untrackedCache=false",
+          "-C",
+          realRepoDir,
+        ];
+        expect(revParseInv.argv.slice(0, expectedPrefix.length)).toEqual(
+          expectedPrefix,
+        );
+        const cIndex = revParseInv.argv.indexOf("-C");
+        expect(revParseInv.argv[cIndex + 2]).toBe("rev-parse");
+        expect(revParseInv.hasSecret).toBe(false);
+        expect(revParseInv.env).not.toContain("RETRO_TEST_SECRET");
+        expect(revParseInv.env).not.toContain("HOME");
+      } finally {
+        if (originalPath !== undefined) {
+          process.env.PATH = originalPath;
+        } else {
+          delete process.env.PATH;
+        }
+        if (originalSecret !== undefined) {
+          process.env.RETRO_TEST_SECRET = originalSecret;
+        } else {
+          delete process.env.RETRO_TEST_SECRET;
+        }
+        if (originalHome !== undefined) {
+          process.env.HOME = originalHome;
+        } else {
+          delete process.env.HOME;
+        }
+      }
+    },
+  );
+});
