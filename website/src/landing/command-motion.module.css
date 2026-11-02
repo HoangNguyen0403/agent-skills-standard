@@ -1,0 +1,75 @@
+/* command-motion.module.css - Bounded typewriter reveal animation for command rows */
+
+.commandWrapper {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+/* Pending entry: reserved width in layout, zero visual clip before entry */
+.pending {
+  display: inline-block;
+  max-width: 0ch;
+  overflow: hidden;
+  white-space: pre;
+  opacity: 0;
+  vertical-align: middle;
+}
+
+/* Active bounded typewriter animation */
+.typing {
+  display: inline-block;
+  max-width: 0ch;
+  overflow: hidden;
+  white-space: pre;
+  opacity: 1;
+  border-right: 2px solid var(--lime, #c7f36b);
+  padding-right: 1px;
+  vertical-align: middle;
+  animation:
+    commandTypewriter var(--type-duration, 650ms) steps(var(--char-count, 30), end) forwards,
+    commandBlink 500ms step-end 3 forwards;
+}
+
+/* Completed reveal state: fully displayed, no cursor, static */
+.complete {
+  display: inline-block;
+  max-width: none;
+  overflow: visible;
+  white-space: pre;
+  opacity: 1;
+  border-right: none;
+  vertical-align: middle;
+}
+
+@keyframes commandTypewriter {
+  from {
+    max-width: 0ch;
+  }
+  to {
+    max-width: calc(var(--char-count, 30) * 1ch + 2px);
+  }
+}
+
+@keyframes commandBlink {
+  0%, 100% {
+    border-color: var(--lime, #c7f36b);
+  }
+  50% {
+    border-color: transparent;
+  }
+}
+
+/* Reduced motion constraint: immediate stable presentation */
+@media (prefers-reduced-motion: reduce) {
+  .pending,
+  .typing,
+  .complete {
+    max-width: none !important;
+    opacity: 1 !important;
+    animation: none !important;
+    border-right: none !important;
+    overflow: visible !important;
+  }
+}

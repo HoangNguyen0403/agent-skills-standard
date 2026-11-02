@@ -5,6 +5,7 @@ import { HeroSection } from "./sections/HeroSection";
 import { CompatibilitySection } from "./sections/CompatibilitySection";
 import { ProblemSection } from "./sections/ProblemSection";
 import { SetupSection } from "./sections/SetupSection";
+import { CoverageSection } from "./sections/CoverageSection";
 import { SpecimenSection } from "./sections/SpecimenSection";
 import { WorkflowSection } from "./sections/WorkflowSection";
 import { CustomizationSection } from "./sections/CustomizationSection";
@@ -24,12 +25,13 @@ export function LandingPage(): React.JSX.Element {
       {/* Semantic header outside main */}
       <Header />
 
-      {/* Main content containing 11 narrative regions */}
+      {/* Main content containing 12 narrative regions */}
       <main id="main-content" className={styles.main} tabIndex={-1}>
         <HeroSection />
         <CompatibilitySection />
         <ProblemSection />
         <SetupSection />
+        <CoverageSection />
         <SpecimenSection />
         <WorkflowSection />
         <CustomizationSection />

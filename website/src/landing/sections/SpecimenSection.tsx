@@ -6,7 +6,7 @@ import styles from "../landing.module.css";
 export function SpecimenSection(): React.JSX.Element {
   return (
     <section
-      id="skills"
+      id="specimen"
       tabIndex={-1}
       className={`${styles.darkSection} ${styles.specimenSection} ${styles.anchorTarget}`}
       aria-labelledby="specimen-heading"

@@ -1,6 +1,14 @@
+export type CommandId =
+  | "install"
+  | "init"
+  | "sync"
+  | "npx-init"
+  | "npx-sync";
+
 export interface CommandItem {
-  readonly id: "init" | "sync";
+  readonly id: CommandId;
   readonly command: string;
+  readonly label?: string;
 }
 
 export interface NavigationItem {
@@ -101,15 +109,40 @@ export interface LandingContent {
 export const sourceRevision =
   "73422bdeff746281177d55ccb7d2169471eb475a" as const;
 
-export const commands: readonly CommandItem[] = [
+export const primaryCommands: readonly CommandItem[] = [
+  {
+    id: "install",
+    command: "npm install -g agent-skills-standard@latest",
+    label: "Install CLI globally",
+  },
   {
     id: "init",
-    command: "npx agent-skills-standard@latest init",
+    command: "ags init",
+    label: "Initialize repository",
   },
   {
     id: "sync",
-    command: "npx agent-skills-standard@latest sync",
+    command: "ags sync",
+    label: "Sync standards & instructions",
   },
+] as const;
+
+export const secondaryCommands: readonly CommandItem[] = [
+  {
+    id: "npx-init",
+    command: "npx agent-skills-standard@latest init",
+    label: "Initialize repository",
+  },
+  {
+    id: "npx-sync",
+    command: "npx agent-skills-standard@latest sync",
+    label: "Sync standards & instructions",
+  },
+] as const;
+
+export const commands: readonly CommandItem[] = [
+  ...primaryCommands,
+  ...secondaryCommands,
 ] as const;
 
 /**
@@ -288,7 +321,8 @@ export const content: LandingContent = {
   },
   quickStart: {
     title: "Quick start",
-    subtitle: "Two commands to configure your repository. No account required.",
+    subtitle:
+      "Configure your repository in three steps, or run via npx. No account required.",
     prerequisite:
       "Requires Node.js and npm. See the setup documentation for installation instructions.",
   },

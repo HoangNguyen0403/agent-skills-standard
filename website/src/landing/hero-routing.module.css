@@ -77,7 +77,6 @@
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transition: opacity 140ms ease;
 }
 
 .nodeStackLayerActive {
@@ -192,7 +191,6 @@
 /* Reduced motion overrides */
 @media (prefers-reduced-motion: reduce) {
   .selectorPill,
-  .nodeStackLayer,
   .ruleSourceLink {
     transition-duration: 0.001ms !important;
   }

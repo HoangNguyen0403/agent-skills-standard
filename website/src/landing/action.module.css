@@ -27,6 +27,10 @@
   outline-offset: 3px;
 }
 
+.base:active {
+  transform: scale(0.98);
+}
+
 /* Primary lime button: dark ink text, 48-56px height, min 44px target */
 .primary {
   composes: base;
@@ -38,6 +42,11 @@
 
 .primary:hover {
   background-color: #bbf058;
+}
+
+.primary:active {
+  background-color: #aee04b;
+  color: var(--ink, #101312);
 }
 
 /* Secondary dark/outline button */
@@ -55,6 +64,12 @@
   color: var(--lime, #c7f36b);
 }
 
+.secondary:active {
+  background-color: rgba(199, 243, 107, 0.12);
+  border-color: var(--lime, #c7f36b);
+  color: var(--lime, #c7f36b);
+}
+
 /* Text-only action */
 .text {
   composes: base;
@@ -65,6 +80,11 @@
 }
 
 .text:hover {
+  color: var(--lime, #c7f36b);
+}
+
+.text:active {
+  background-color: rgba(199, 243, 107, 0.08);
   color: var(--lime, #c7f36b);
 }
 
@@ -94,6 +114,11 @@
   background-color: #bbf058;
 }
 
+.compact:active {
+  background-color: #aee04b;
+  color: var(--ink, #101312);
+}
+
 .copyFixed {
   width: 120px;
   min-width: 120px;
@@ -113,4 +138,15 @@
   justify-content: center;
   width: 18px;
   height: 18px;
+}
+
+/* Reduced motion overrides for action buttons */
+@media (prefers-reduced-motion: reduce) {
+  .base {
+    transition: none;
+  }
+
+  .base:active {
+    transform: none;
+  }
 }
