@@ -419,14 +419,19 @@ function renderTiles(
 
   // 4. Coverage
   let coverageTileClass = "";
-  let coverageFormatted = "0 of 0";
+  let coverageFormatted = "n/a";
   let coverageDetailText = "not measured";
 
   if (coverageClaim) {
     const created = countOf(coverageClaim.values, "agentsCreated");
     const observed = countOf(coverageClaim.values, "agentsRead");
-    coverageFormatted = `${observed} of ${created}`;
-    coverageDetailText = "created agents observed";
+    if (created > 0) {
+      coverageFormatted = `${observed} of ${created}`;
+      coverageDetailText = "created agents observed";
+    } else {
+      coverageFormatted = "none created";
+      coverageDetailText = "no agents to observe";
+    }
     if (created > 0 && observed * 4 < created) {
       coverageTileClass = "red";
     }
@@ -801,7 +806,7 @@ function renderOutcome(outcome: LedgerOutcome | undefined): string {
 </tbody>
 </table>
 <p class="mt">Commits are counted across all branches of the repository in the session window and may include other work; the branch is the current one, not necessarily the session's.</p>\n`;
-    headline = "see section";
+    headline = `${plural(effectiveOutcome.commits, "commit")}, ${plural(effectiveOutcome.filesChanged, "file")} changed`;
   }
 
   return wrapCollapsed("<h3>Outcome</h3>", headline, body);
@@ -1301,7 +1306,10 @@ function renderAgentsTable(
   ) {
     const observed = countOf(coverageClaim.values, "agentsRead");
     const created = countOf(coverageClaim.values, "agentsCreated");
-    headline = `${observed} of ${plural(created, "agent")} observed`;
+    headline =
+      created > 0
+        ? `${observed} of ${plural(created, "agent")} observed`
+        : null;
   }
 
   return wrapCollapsed("<h3>Agents</h3>", headline, body);

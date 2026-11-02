@@ -2398,6 +2398,52 @@ describe("renderReportHtml", () => {
       expect(doNextIdx).toBeLessThan(firstDetailsIdx);
     });
 
+    it("shows a singular git outcome headline and drops the Agents headline when no agents were created", () => {
+      const mainAgent: LedgerAgent = {
+        label: "main",
+        kind: "orchestrator",
+        model: "gpt-5.4",
+        turns: 4,
+        costCents: 100,
+        compactions: 0,
+        cacheReadPerTurn: 1000,
+        errorStops: 0,
+        toolCalls: 3,
+        toolErrors: 0,
+        editCalls: 1,
+        bashCalls: 1,
+        readCalls: 1,
+        agsLookups: 0,
+        permissionAnswers: 0,
+      };
+      const ledger = createLedgerFixture({
+        outcome: {
+          source: "git",
+          branch: "main",
+          commits: 1,
+          mergeCommits: 0,
+          revertCommits: 0,
+          filesChanged: 1,
+          insertions: 3,
+          deletions: 1,
+          windowFrom: "2026-10-01T10:00:00.000Z",
+          windowTo: "2026-10-01T12:00:00.000Z",
+        },
+        agents: [mainAgent],
+        claims: [createClaim("coverage", { agentsCreated: 0, agentsRead: 0 })],
+      });
+
+      const html = renderReportHtml(ledger);
+
+      expect(html).toContain(
+        '<details class="sec"><summary><h3>Outcome</h3><span class="sum">1 commit, 1 file changed</span></summary>',
+      );
+      expect(html).toContain(
+        '<details class="sec"><summary><h3>Agents</h3></summary>',
+      );
+      expect(html).not.toContain("0 of 0");
+    });
+
     it("(b) each collapsed section summary contains its exact headline string with plural variants", () => {
       const { ledger, context } = createRichLedger();
       const html = renderReportHtml(ledger, context);
@@ -2406,7 +2452,7 @@ describe("renderReportHtml", () => {
         '<details class="sec"><summary><h3>Permission requests</h3><span class="sum">5 requests, 1 denied, 1 unanswered</span></summary>',
       );
       expect(html).toContain(
-        '<details class="sec"><summary><h3>Outcome</h3><span class="sum">see section</span></summary>',
+        '<details class="sec"><summary><h3>Outcome</h3><span class="sum">3 commits, 2 files changed</span></summary>',
       );
       expect(html).toContain(
         '<details class="sec"><summary><h3>Timeline</h3><span class="sum">2 days</span></summary>',
