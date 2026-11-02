@@ -842,6 +842,25 @@ describe("redactCommand privacy boundary and rules", () => {
     expect(redactCommand(`run: ${run39}`)).toBe(`run: ${run39}`);
   });
 
+  it("Rule 2.5g: redacts a 40-character hex run but keeps long paths, routes and lowercase identifiers", () => {
+    const sha = "0123456789abcdef0123456789abcdef01234567";
+    expect(redactCommand(`git show ${sha}`)).toBe("git show [redacted]");
+
+    const longPath =
+      "/Users/nguyenhuyhoang/OtherProjects/agent-skills-standard/mcp/src/retrospective/permission-requests.ts";
+    expect(redactCommand(`cat ${longPath}`)).toBe(`cat ${longPath}`);
+
+    const route = "xd://mcp__agent_skills_standard_load_skills_for_files";
+    expect(redactCommand(`Path: ${route}`)).toBe(`Path: ${route}`);
+
+    const dated =
+      ".agent/sdd/2026-10-11-untrusted-workspace-admission-implementation.md";
+    expect(redactCommand(`File: ${dated}`)).toBe(`File: ${dated}`);
+
+    const camel = "ThisIsAVeryLongCamelCaseIdentifierNameWithoutAnyDigitsAtAll";
+    expect(redactCommand(`import ${camel}`)).toBe(`import ${camel}`);
+  });
+
   it("Rule 2.5 preservation: preserves paths with / and dots, -p flag, and --version", () => {
     const path = "/Users/x/secret/file.txt";
     expect(redactCommand(`cat ${path}`)).toBe(`cat ${path}`);

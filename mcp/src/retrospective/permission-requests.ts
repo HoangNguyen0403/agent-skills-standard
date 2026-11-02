@@ -54,7 +54,7 @@ const JWT_REGEX =
   /(?<=^|[^A-Za-z0-9_.-])eyJ[A-Za-z0-9_-]{5,1000}\.[A-Za-z0-9_-]{5,1000}\.[A-Za-z0-9_-]{5,1000}(?![A-Za-z0-9_.-])/g;
 
 const GENERIC_SECRET_RUN_REGEX =
-  /(?<=^|[^A-Za-z0-9+/_=-])[A-Za-z0-9+/_=-]{40,4000}(?![A-Za-z0-9+/_=-])/g;
+  /(?<![A-Za-z0-9+_=-])[A-Za-z0-9+_=-]{40,4000}(?![A-Za-z0-9+_=-])/g;
 
 /**
  * Redacts secrets from command text per Contract v3.4 Section 2.
@@ -103,8 +103,14 @@ export function redactCommand(text: string): string {
   sanitized = sanitized.replace(SLACK_TOKEN_REGEX, "[redacted]");
   sanitized = sanitized.replace(JWT_REGEX, "[redacted]");
 
-  // Any other run of 40+ chars from [A-Za-z0-9+/_=-]
-  sanitized = sanitized.replace(GENERIC_SECRET_RUN_REGEX, "[redacted]");
+  // Any other run of 40+ chars from [A-Za-z0-9+_=-] that looks random: it has a digit and
+  // either an uppercase letter or is pure hex. Slash-separated path segments and long
+  // lowercase identifiers (route names, file names) are kept so the command stays reviewable.
+  sanitized = sanitized.replace(GENERIC_SECRET_RUN_REGEX, (run) =>
+    /[0-9]/.test(run) && (/[A-Z]/.test(run) || /^[0-9a-f]+$/.test(run))
+      ? "[redacted]"
+      : run,
+  );
 
   // 3. Length ceiling
   if (sanitized.length > MAX_COMMAND_CHARS) {
