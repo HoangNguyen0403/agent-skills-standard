@@ -16,6 +16,7 @@ import {
 } from "../src/tools";
 import * as runModule from "../src/retrospective/run";
 import {
+  CONSENT_TEXT_VERSION,
   writeConsent,
   removeConsent,
   type ConsentRecord,
@@ -68,7 +69,7 @@ function createConsentRecord(
 ): ConsentRecord {
   return {
     schemaVersion: 1,
-    consentTextVersion: "1",
+    consentTextVersion: CONSENT_TEXT_VERSION,
     grantedAt: new Date().toISOString(),
     storeRoot: storeDir,
     allowedSourceRoots: allowedRoots,

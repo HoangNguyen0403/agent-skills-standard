@@ -7,6 +7,7 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { buildServer } from "../src/server";
 import {
+  CONSENT_TEXT_VERSION,
   writeConsent,
   consentFilePath,
   type ConsentRecord,
@@ -70,7 +71,7 @@ function createConsentRecord(
 ): ConsentRecord {
   return {
     schemaVersion: 1,
-    consentTextVersion: "1",
+    consentTextVersion: CONSENT_TEXT_VERSION,
     grantedAt: new Date().toISOString(),
     storeRoot: storeDir,
     allowedSourceRoots: allowedRoots,

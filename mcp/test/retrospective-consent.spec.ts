@@ -168,7 +168,7 @@ describe("retrospective readConsent fail-closed behavior", () => {
   it("returns version for wrong consentTextVersion", async () => {
     const dir = await temporaryDirectory();
     const filePath = path.join(dir, "wrong-version.json");
-    const record = { ...createSampleRecord(dir), consentTextVersion: "2" };
+    const record = { ...createSampleRecord(dir), consentTextVersion: "1" };
     await writePrivateFile(filePath, JSON.stringify(record));
     expect(await readConsent(filePath)).toEqual({
       state: "disabled",

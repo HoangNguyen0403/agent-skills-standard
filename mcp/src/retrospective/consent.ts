@@ -13,12 +13,14 @@ import {
   writePrivateFileAtomic,
 } from "./platform-private";
 
-export const CONSENT_TEXT_VERSION = "1";
+export const CONSENT_TEXT_VERSION = "2";
 
 export const CONSENT_TEXT = `Retrospective collection runs entirely on your local machine.
 Zero model calls and zero network requests are made.
 All report files are stored with owner-only private permissions on disk.
 Transcripts and session events are read only from the explicitly listed source roots.
+Reports include the commands agents asked permission to run, with secrets removed on a best-effort basis. Check them before sharing a report.
+Reports also read commit and file counts from git in each session's working folder, which is outside the listed source roots. Commit messages, file names and file contents are not stored.
 You can revoke this consent and remove the record at any time by running:
   ags-retrospective disable`;
 
