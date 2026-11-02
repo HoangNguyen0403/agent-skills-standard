@@ -29,17 +29,17 @@ roots; commit messages, file names, and hashes are never stored); the full table
 [`session-retrospective-privacy.md`](./session-retrospective-privacy.md).
 
 > **Status: unreleased source, not a released product.** The MCP-native tools
-> (`prepare_retrospective`, `get_retrospective_status`), the consent commands (`enable`,
-> `disable`, `consent-status`) and the manual manifest CLI exist only in the source tree
-> (`mcp/src/retrospective*`, `mcp/src/tools/retrospective.ts`), with the public
-> `agent-skills-standard-mcp/retrospective` subpath. On macOS the fresh build (including the
-> declaration emit), the 976-test MCP suite (5 skipped) and the CLI/tarball smoke pass locally;
-> redaction, git-argument, and environment rules were mutation-checked; nothing is
-> published to the registry, so no registry version contains any of it. The optional Paseo and OMP
-> adapter packages exist as source (`integrations/session-retrospective/`) and are not installed;
-> the Paseo session-data/report-reading RPCs are **disabled** — that panel only explains the
-> limitation and points to the local CLI. Windows/Linux, live host loading, native host UI and
-> process-level egress proof remain unverified.
+> (`prepare_retrospective`, `get_retrospective_status`, `prepare_retrospective_index`), the consent
+> commands (`enable`, `disable`, `consent-status`), the cross-session index command (`index`) and the
+> manual manifest CLI exist only in the source tree (`mcp/src/retrospective*`,
+> `mcp/src/tools/retrospective.ts`), with the public `agent-skills-standard-mcp/retrospective`
+> subpath. On macOS the fresh build (including the declaration emit), the 1034-test MCP suite
+> (5 skipped) and the CLI/tarball smoke pass locally; redaction, git-argument, environment, and index
+> rules were mutation-checked; nothing is published to the registry, so no registry version contains
+> any of it. The optional Paseo and OMP adapter packages exist as source
+> (`integrations/session-retrospective/`) and are not installed; the Paseo session-data/report-reading
+> RPCs are **disabled** — that panel only explains the limitation and points to the local CLI.
+> Windows/Linux, live host loading, native host UI and process-level egress proof remain unverified.
 > Tracking entry: `CHANGELOG.md` → `[Unreleased]`.
 
 ## MCP-native retrospective (primary path)
@@ -103,16 +103,16 @@ and tells the orchestrator to call `prepare_retrospective`, then report the cove
 the three file paths (`summary.md`, `ledger.json`, `report.html`) to the user. When the nudge is empty, tool output is byte-identical to the
 output without this feature.
 
-### The two tools
+### The MCP tools
 
 | Tool | Arguments | Call it as |
 | --- | --- | --- |
 | `prepare_retrospective` | `title` (optional string, max 200 chars, displayed as "agent-supplied, unverified") | The orchestrator, or an agent with no assignment packet. A worker holding an assignment packet must not call it. |
 | `get_retrospective_status` | none | Anyone; returns consent state only, from the same fail-closed record. |
+| `prepare_retrospective_index` | `since` (optional YYYY-MM-DD), `until` (optional YYYY-MM-DD), `folder` (optional string, max 120 chars) | Anyone / orchestrator; housekeeping tool to generate `<storeRoot>/index.html` across stored sessions. Does not count toward substantive nudge calls. |
 
-Both are registered on the stdio transport only (`mcp/src/server.ts`), so they are absent from the
-SSE transport and from the HTTP server (`mcp/src/http.ts` pins `transport: "sse"`).
-
+All three are registered on the stdio transport only (`mcp/src/server.ts`), so they are absent from
+the SSE transport and from the HTTP server (`mcp/src/http.ts` pins `transport: "sse"`).
 `prepare_retrospective` finds the caller's own session file by matching the server's own recorded
 tool calls (tool name and receive time) against calls in session files inside the consented source
 roots, with a 250 ms tolerance. A tie, any unreadable, oversized or over-cap candidate, or a nested
@@ -243,6 +243,118 @@ counts. Every numeric claim value is backed by an evidence entry:
 - Per-row evidence IDs back every value (e.g. `agg:permreq:tool:<name>:asked`, `agg:claim:<claim>:<value>`),
   which the deterministic verifier checks before publication.
 - Repeat calls read this committed ledger, allowing `already-prepared` to report published numbers.
+
+### Cross-session index (`index.html`)
+
+To see patterns, cost concentration, and recurring problems across multiple finished sessions, the
+engine provides a cross-session index command and a companion MCP tool. This is an engine command
+and MCP tool, never a workflow (a workflow is non-deterministic agent text that skips the verifier).
+
+#### CLI invocation
+
+```bash
+ags-retrospective index [--since YYYY-MM-DD] [--until YYYY-MM-DD] [--folder NAME]
+```
+
+- Requires enabled consent (uses the consented `storeRoot`). Missing consent prints the standard
+  `{"schemaVersion":1,"state":"disabled",...}` JSON payload.
+- On success, stdout is one JSON line:
+  `{"schemaVersion":1,"state":"written","path":"...","sessions":N,"omitted":M,"unreadable":K,"since":"...","until":"..."}`.
+- Invalid arguments exit `1` with `{"schemaVersion":1,"error":{"code":"<CODE>"}}` on stderr, where
+  code is `INVALID_DATE`, `INVALID_RANGE`, or `INVALID_FOLDER`.
+- Unknown flags exit `2`.
+
+#### MCP tool: `prepare_retrospective_index`
+
+Registered on stdio only (absent on SSE and HTTP), consent-gated like `prepare_retrospective`:
+
+- Arguments: `since` (optional string, YYYY-MM-DD), `until` (optional string, YYYY-MM-DD), and
+  `folder` (optional string, max 120 chars).
+- Returns only fixed text:
+  `Retrospective index written: <n> sessions (<m> older in range not shown), <k> unreadable, window <since> to <until>. Open: <path>`
+  (or fixed disabled text, or fixed invalid-query text naming only the error code).
+- It never echoes the folder value in tool returns.
+- Housekeeping tool: calling it does not increment the substantive-tool-call counter for the
+  retrospective nudge.
+
+#### Date and folder filter rules
+
+Filtering is applied when the page is built (the generated HTML contains no client-side scripts):
+
+- Dates are UTC `YYYY-MM-DD`, inclusive, matched against the UTC day the session's report ended
+  (the ledger `to` timestamp).
+- Defaults: `until` defaults to today (UTC); `since` defaults to 29 days earlier (a 30-day window).
+  If only `since` is supplied, `until` is today. If only `until` is supplied, `since` is 29 days
+  earlier.
+- The maximum allowed window is 366 days (`INVALID_RANGE` beyond that, or if `since` is after `until`).
+- `folder` matches the stored ledger folder `name` or `parent/name` exactly (case-sensitive).
+- At most 200 sessions are shown, newest first. If more matched, the page notes how many older
+  sessions were omitted and advises narrowing the range.
+
+#### Source, privacy and output
+
+- **Reads only stored ledgers:** reads only existing `v2` ledgers in the consented store root (the
+  same read-only enumeration used by the trend comparison). It never opens session files, runs no
+  git commands, and stores no command text.
+- **No new consent text required:** reads stay strictly within the already-consented store root;
+  consent text remains version 2.
+- **Atomic publication:** output is written to `<storeRoot>/index.html` with owner-only permissions
+  (mode 0600) via atomic write. It is replaced on every call (no incremental state). The store does
+  not list it and does not count it as a generation; its size (a few KB) does count toward the
+  store byte cap, because the cap measures the whole store root.
+- **One row per session:** shows the generation with the latest end time (ties broken by greatest
+  artifact id). A session with multiple reports displays a `+N earlier` note.
+- **Unreadable reports:** ledgers that cannot be read or lack a usable end date (older formats,
+  damaged, oversized > 2 MiB, missing date) are counted as `unreadable` and noted on the page;
+  they are never shown as sessions.
+
+#### Page layout
+
+Like `report.html`, the index is self-contained HTML (inline CSS, no script, no external URLs, CSP
+`default-src 'none'; style-src 'unsafe-inline'`, all dynamic text HTML-escaped):
+
+1. **Header & Summary Tiles:** displays the date window and folder filter, followed by summary
+   tiles over all matched sessions: *Sessions*, *Estimated cost*, *ACT items*, and *Permission
+   denials*.
+2. **Recurring problems table:** an open table showing rules that fired across the matched sessions,
+   how many sessions matched, how many had an ACT-level finding, and their fixed owner:
+   - *Permission answers* -> permission setup
+   - *Main agent carries most of the cost* -> orchestration config
+   - *Edits without a file lookup* -> agent routing
+   - *Lookups that matched nothing* -> agent routing
+   - *Human interventions* -> orchestration config
+   - *Agents ending in errors* -> provider route monitoring
+   - *Delegation not observable* -> session linkage
+   - *Tracker numbers not measured* -> tracker binding
+3. **Native `<details>` monthly sections:** grouped by month, newest month open by default, older
+   months collapsed. Each summary headline lists session count, estimated cost, and ACT count.
+   The table contains Date, Session (agent-supplied title or short id, with `+N earlier` note),
+   Folder (`parent/name` or `name`), Branch, Outcome, Cost, ACT, WATCH, Denied, and a relative link
+   to `report.html`.
+4. **Hints & Range controls:** if no reports match, displays `No reports in this range.` along with
+   total store sessions and the newest report date. Shows count of unreadable or omitted reports,
+   and the exact CLI command to narrow or widen the window.
+
+#### Verification on real data
+
+Tested against five finished sessions in a real store: the default window matched all five, a
+narrowed window matched four, a folder filter matched the two sessions of that folder, and an empty
+range showed the empty text and total store session count. Totals ($324.64 est., 26 denials, 3 ACT
+items) matched the individual reports, and relative links resolved inside the store. Checked
+structurally only (no scripts, no external URLs, relative links without `..`), not visually rendered.
+Tests: 1,034 pass (5 skipped); date logic, window edges, tie rules, ordering, caps, escaping, and
+recurring counts were mutation-checked.
+
+#### Operational limits
+
+- Shows only the latest report per session.
+- Session day is the UTC day of the report end time.
+- Recurring table counts sessions per rule across the window, not temporal trends.
+- Turn counts include all observed workers.
+- Cost is a price-table estimate.
+- Unprepared sessions never appear; the index reflects only stored reports.
+- Date filtering is applied at build time; changing the window requires running the command or tool
+  again.
 ### Disabling and deleting
 
 `ags-retrospective disable` turns collection off immediately and prints
@@ -502,11 +614,9 @@ caps refuse new generations; they never delete older ones to make room.
 ## Exit codes
 
 | Code | Meaning |
-| --- | --- |
-| `0` | complete, or an explicitly labelled partial publication; also `--help` |
-| `1` | refusal or failure (absent consent, missing storage-risk acknowledgement, bad manifest, unsafe root, unsupported mode, artifact not found) |
+| `0` | complete, or an explicitly labelled partial publication; successful index publication; also `--help` |
+| `1` | refusal or failure (absent consent, missing storage-risk acknowledgement, bad manifest, unsafe root, unsupported mode, artifact not found, invalid date/range/folder on index) |
 | `2` | usage error (unknown command or option, option belonging to another command, missing option value, relative `--root`, more than 24 arguments, argument over 4096 characters, NUL byte) |
-
 Failure output never echoes the manifest path, a filesystem or runtime message, a stack trace or
 file content — only a stable error code.
 
@@ -514,6 +624,7 @@ file content — only a stable error code.
 
 - **MCP-native (primary):** the orchestrator calls `prepare_retrospective`. No manifest, no path
   argument, no host panel. The server binds its own session file or reports why it cannot.
+- **Cross-session index:** run `ags-retrospective index` from a terminal or invoke `prepare_retrospective_index` via MCP over stdio to regenerate `<storeRoot>/index.html`.
 - **Manual CLI (advanced), every host:** author a manifest, then run `prepare` yourself. This is
   the fallback for hosts without a session reader and for custom manifests.
 - **Paseo source package:** the session-data-collecting and report-reading RPCs are **disabled**.

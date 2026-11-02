@@ -16,7 +16,7 @@ preparer can see, what it must never see, what leaves your machine and what it c
 | Collection | your machine | allowlisted structured fields from `local-allowed` sources |
 | Analysis | your machine | deterministic local rules; no model, no network |
 | Render | your machine | static templates, HTML escaping, inline CSS, CSP `default-src 'none'; style-src 'unsafe-inline'`, no script, no external URLs |
-| Publication | your machine | private local store under the chosen root (three artifacts: `summary.md`, `ledger.json`, `report.html`, plus `generation.json`) |
+| Publication | your machine | private local store under the chosen root (three artifacts: `summary.md`, `ledger.json`, `report.html`, plus `generation.json`; and cross-session `<storeRoot>/index.html`) |
 
 Default counters are fixed: **0 model calls, 0 outbound requests, 0 automatic retries, 1
 concurrent run per session.** There is no scheduler, no background learner and no telemetry
@@ -25,10 +25,15 @@ upload.
 ## MCP-native path: what is read
 
 The MCP-native path is the primary path. The agent-skills-standard MCP server registers
-`prepare_retrospective` (no arguments) and `get_retrospective_status` (consent state only) on the
-stdio transport alone, so they do not exist on SSE or on the HTTP server. The path works with or
-without OMP or Paseo. The manual manifest CLI keeps its own allowlist, described under
-[What is collected](#what-is-collected).
+`prepare_retrospective` (optional `title` argument), `get_retrospective_status` (consent state only),
+and `prepare_retrospective_index` (optional `since`, `until`, `folder`) on the stdio transport alone,
+so they do not exist on SSE or on the HTTP server. The path works with or without OMP or Paseo.
+The manual manifest CLI keeps its own allowlist, described under [What is collected](#what-is-collected).
+
+Cross-session index generation (`ags-retrospective index` and `prepare_retrospective_index`) reads
+**ONLY already-stored v2 ledgers** in the consented store root. It never opens session files, runs
+no git commands, and contains NO command text. No new consent text is needed (nothing is read outside
+the already-consented store root; consent text remains version 2).
 
 Reading a session file is the most sensitive step in this feature, so the boundary is fixed.
 
@@ -220,8 +225,9 @@ agent that calls `prepare_retrospective` receives a small fixed-text result — 
 counts, the artifact id and the three file paths (`summary.md`, `ledger.json`, `report.html`) — and
 nothing else: no transcript text, no claim sentences, no report body. The three paths are a
 deliberate, bounded piece of egress; the file contents behind them are not. `get_retrospective_status`
-returns the consent state only, and no MCP tool reads a report back.
-
+returns the consent state only, and `prepare_retrospective_index` returns fixed text with the path
+to `<storeRoot>/index.html` (never returning report content or echoing the folder value). No MCP tool
+reads a report back.
 Report content is never returned by a tool response. Reaching it takes a deliberate local action: a
 terminal `paths` invocation on the owning machine on the manual path, or opening one of the three
 returned paths on the MCP-native path — which a human does, and which an agent with file-read
@@ -307,6 +313,21 @@ MCP-native generations use store layout `v2`. A v2 generation directory holds fo
   under "Do next", and native `<details>` collapsed sections with headline numbers. Checked
   structurally, not visually.
 - `generation.json` — the layout and serialization record written only for a v2 generation.
+
+#### Cross-session index artifact (`index.html`)
+
+When generated via `ags-retrospective index` or `prepare_retrospective_index`, `<storeRoot>/index.html`
+is written directly into the store root:
+
+- **Owner-only atomic write:** created mode `0600` via atomic write; replaced in full on every run
+  (no incremental state).
+- **Not a generation:** the store does not count it as a generation and does not list it in
+  generation listings; its size does count toward the store byte cap, because the cap measures the
+  whole store root.
+- **Content & privacy:** reads only stored v2 ledgers. Contains folder `parent/name`, branch (from
+  stored git outcome), agent-supplied title (unverified; escaped), outcome text, cost estimate, turns
+  (all observed agents), ACT/WATCH counts, permission denials, and relative links to each session's
+  `report.html`. It contains **no command text**.
 
 Older generations written by earlier builds (two-file v2) and ledgers without the new fields are
 unreadable and fail closed with `STORED_LEDGER_INVALID` (intended; a test covers it).

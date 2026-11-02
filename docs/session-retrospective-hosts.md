@@ -1,13 +1,13 @@
 # Session Retrospectives — Host Integration and Limitations
 
-The primary route needs no host integration. Two tools inside the `agent-skills-standard` MCP
-server, registered on stdio only, prepare and check a retrospective from any MCP-capable host that
-runs that server locally: `prepare_retrospective` (orchestrator or unassigned agent only; takes an
-optional `title` up to 200 chars, displayed as "agent-supplied, unverified") and `get_retrospective_status`
-(consent state only). It works with or without OMP or Paseo,
-and without an adapter, an invitation package or a host version check. Both tools exist in this
+The primary route needs no host integration. Three tools inside the `agent-skills-standard` MCP
+server, registered on stdio only, prepare, check, and index retrospectives from any MCP-capable host
+that runs that server locally: `prepare_retrospective` (orchestrator or unassigned agent only; takes
+an optional `title` up to 200 chars, displayed as "agent-supplied, unverified"),
+`get_retrospective_status` (consent state only), and `prepare_retrospective_index` (cross-session
+index generation; optional `since`, `until`, `folder`). It works with or without OMP or Paseo, and
+without an adapter, an invitation package or a host version check. All three tools exist in this
 repository's source; no published registry version contains them.
-
 Host adapters are optional discovery aids layered on the same local CLI: a discoverable slash
 command or panel action that hands the CLI an explicit manifest. They never gate the capability,
 and everything they can reach is reachable from a terminal.
@@ -24,11 +24,11 @@ and everything they can reach is reachable from a terminal.
 
 ## Transport rule
 
-The server registers both tools in exactly one guarded block, `if (transport === "stdio")` in
-`mcp/src/server.ts`. The HTTP entry point pins its transport to `"sse"`
-(`mcp/src/http.ts:41`), so the retrospective tools never appear on an SSE session or on the HTTP
-server, and the nudge is suppressed there as well. A local run defaults to stdio; only an explicit
-`MCP_TRANSPORT=sse` or the HTTP entry point changes that.
+The server registers these tools in guarded blocks, `if (transport === "stdio")` in
+`mcp/src/server.ts`. The HTTP entry point pins its transport to `"sse"` (`mcp/src/http.ts:41`), so
+the retrospective tools never appear on an SSE session or on the HTTP server, and the nudge is
+suppressed there as well. A local run defaults to stdio; only an explicit `MCP_TRANSPORT=sse` or the
+HTTP entry point changes that.
 
 The consequence, stated plainly: **a remote or HTTP deployment of this server cannot prepare a
 retrospective.** Use a local stdio server, or use the CLI directly. The tools read session files and
@@ -71,7 +71,7 @@ host can contribute to the analysis; Provider coverage above does that.
 
 | Host | Version | Surface used | Status |
 | --- | --- | --- | --- |
-| Terminal / any host | Node.js 20+ | `ags-retrospective prepare` after a source build or local tarball install | source build or local tarball; macOS-only verification |
+| Terminal / any host | Node.js 20+ | `ags-retrospective prepare`, `ags-retrospective index` after a source build or local tarball install | source build or local tarball; macOS-only verification |
 | Paseo | 0.13.2 (installed) | source package; panel action exists but its data-collecting/report-reading RPCs are disabled | capability disabled; adapter not installed |
 | Paseo | < 0.13 | none as an adapter; MCP-native route through a local stdio server | unsupported as an adapter; manual CLI or MCP-native route |
 | OMP | 18.13.1 (installed) | source manual adapter: `/retrospective manifest <absolute-path>` with a per-run storage-risk confirmation | verified by the CI adapter script against the pinned 18.13.1 SDK tarball; live host loading unverified |
