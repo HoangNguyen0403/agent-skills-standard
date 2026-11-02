@@ -10,3 +10,8 @@
  * category versions are maintained today).
  */
 export const MCP_COMPATIBLE_VERSION = '0.6.1';
+
+/**
+ * Minimum `agent-skills-standard-mcp` version required for session retrospectives.
+ */
+export const RETROSPECTIVE_MIN_MCP_VERSION = '0.8.0';
