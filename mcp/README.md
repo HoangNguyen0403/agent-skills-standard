@@ -92,7 +92,7 @@ The source ships **two stdio-only MCP tools plus a console binary**, and none of
 - `prepare_retrospective` and `get_retrospective_status` are registered only when the transport is
   stdio (`mcp/src/server.ts` checks `transport === "stdio"`). They are absent on SSE and on the HTTP
   server, which pins `transport: "sse"` in `createMcpHttpApp` so an ambient `MCP_TRANSPORT` cannot
-  widen the surface. `prepare_retrospective` takes no arguments and is for the orchestrator or an
+  widen the surface. `prepare_retrospective` accepts an optional `title` input (max 200 chars, displayed as "agent-supplied, unverified") and is for the orchestrator or an
   unassigned agent — a worker holding an assignment packet must not call it; `get_retrospective_status`
   reports consent state only.
 - The console binary `ags-retrospective` → `dist/retrospective-cli.js` is the human-facing entry
@@ -103,8 +103,8 @@ The source ships **two stdio-only MCP tools plus a console binary**, and none of
 
 **None of it is in a published release**: no registry version ships these tools, this binary or this
 subpath. Locally, the fresh build (including the declaration-only
-`tsc -p tsconfig.retrospective-types.json` emit) and a packed-tarball consumer smoke both pass on
-macOS; an earlier `tsup --dts` attempt had failed against the installed TypeScript compiler API and
+`tsc -p tsconfig.retrospective-types.json` emit), the 976-test suite (5 skipped), and a packed-tarball consumer smoke pass on
+macOS; redaction, git-arg, and environment rules were mutation-checked; an earlier `tsup --dts` attempt had failed against the installed TypeScript compiler API and
 that failure is kept as history, with the temporary compatibility dev dependency removed.
 **Host integration is still not claimed.**
 
@@ -125,7 +125,7 @@ ags-retrospective consent-status
 `{"schemaVersion":1,"enabled":false,"removed":<boolean>}`. `consent-status` prints
 `{"schemaVersion":1,"state":"enabled","storeRoot":<path>,"allowedSourceRoots":[...]}` or
 `{"schemaVersion":1,"state":"disabled","reason":"<missing|invalid|permissive|symlink|version>"}`; a
-missing record is an ordinary `disabled` result, not an error. The consent file is owner-only and read
+missing record is an ordinary `disabled` result, not an error; pre-existing version 1 consent records fail closed as disabled with reason `version` until `enable` is re-run. The consent file is owner-only and read
 fail-closed — missing, empty, malformed, unknown keys, relative paths, wrong version, group/other
 readable, symlink or non-regular each count as disabled:
 
@@ -149,10 +149,10 @@ Contract constraints to preserve when the binary ships:
 - The library contract is equally strict: `PrepareRequest` requires `storageRiskAcknowledged: true`, and `prepareLocal` refuses `STORAGE_RISK_NOT_ACKNOWLEDGED` before any read, schema parse, store access or claim. The public subpath is deliberately bounded — `collectEvidence`, `claimRun`, `cancelRun`, `publishRun`, `prepareStore`, `withSessionLock`, `sessionToken` and `storeLayout` (and their types) are **not exported**; mutators, claims, locks and store layout are internal, tests import modules directly.
 - `paths` is human-facing. It is not to be called automatically through a hosted agent's tool return; doing so would send report content to a model provider.
 - Exit codes: usage `2`, refusal or failure `1`, complete or explicitly labelled partial publication `0`.
-- Two tools are exposed on stdio: `prepare_retrospective` and `get_retrospective_status`. They never return transcript text or report bodies — only state, numbers, an artifact id and the two artifact paths (`summary.md`, `ledger.json`); file contents stay on local disk.
+- Two tools are exposed on stdio: `prepare_retrospective` and `get_retrospective_status`. They never return transcript text or report bodies — only state, numbers, an artifact id and the three artifact paths (`summary.md`, `ledger.json`, `report.html`); file contents stay on local disk.
 - `delete` requires `--confirm` and operates only inside the validated managed store.
 
-Full behaviour, privacy model and host versions: [`../docs/session-retrospective.md`](../docs/session-retrospective.md), with the privacy boundary in [`../docs/session-retrospective-privacy.md`](../docs/session-retrospective-privacy.md) and provider coverage in [`../docs/session-retrospective-hosts.md`](../docs/session-retrospective-hosts.md). Status: unreleased source; fresh build, test suite and packed-tarball consumer smoke pass locally on macOS. Not published, no version bump, and no host-integration, Windows/Linux or process-level egress claim is made. Skill, workflow and rule text that would trigger `prepare_retrospective` is not part of this change; it arrives later, after a value pilot.
+Full behaviour, privacy model and host versions: [`../docs/session-retrospective.md`](../docs/session-retrospective.md), with the privacy boundary in [`../docs/session-retrospective-privacy.md`](../docs/session-retrospective-privacy.md) and provider coverage in [`../docs/session-retrospective-hosts.md`](../docs/session-retrospective-hosts.md). Status: unreleased source; fresh build, 976 passing tests (5 skipped) and packed-tarball consumer smoke pass locally on macOS. Not published, no version bump, and no host-integration, Windows/Linux or process-level egress claim is made. Skill, workflow and rule text that would trigger `prepare_retrospective` is not part of this change; it arrives later, after a value pilot.
 
 ## Configure your AI agent
 

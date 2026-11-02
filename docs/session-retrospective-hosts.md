@@ -2,8 +2,9 @@
 
 The primary route needs no host integration. Two tools inside the `agent-skills-standard` MCP
 server, registered on stdio only, prepare and check a retrospective from any MCP-capable host that
-runs that server locally: `prepare_retrospective` (no arguments; orchestrator or unassigned agent
-only) and `get_retrospective_status` (consent state only). It works with or without OMP or Paseo,
+runs that server locally: `prepare_retrospective` (orchestrator or unassigned agent only; takes an
+optional `title` up to 200 chars, displayed as "agent-supplied, unverified") and `get_retrospective_status`
+(consent state only). It works with or without OMP or Paseo,
 and without an adapter, an invitation package or a host version check. Both tools exist in this
 repository's source; no published registry version contains them.
 
@@ -44,7 +45,7 @@ adapter surfaces exist; that is the Compatibility table below.
 | Provider | Session binding | Server skill lookups | Per-session timing and host skill reads |
 | --- | --- | --- | --- |
 | OMP | exact, from native session files | yes | yes |
-| Codex | no reader in the engine yet; tracker-only, never a wrong bind | yes | not measured |
+| Codex | structural counts only; no session reader in engine yet | yes | not measured |
 | Claude Code | no reader yet; tracker-only | yes | not measured |
 | Gemini | no reader yet; tracker-only | yes | not measured |
 
@@ -217,7 +218,16 @@ output byte-identical to the output without the feature.
   roots are the host's complete session store.
 - Whether the server inherits `PI_SESSION_FILE` or Paseo's `PASEO_*` variables from the launching
   host is untested.
-- The Codex turn rule is a conservative assumption; Codex has no reader in the engine yet.
+- Codex gets structural counts only; Claude Code and Gemini have no reader in the engine yet.
+- Paseo agent sessions cannot be linked to the main session from session files alone (about 313 of
+  342 created agents in pilot data are unobservable); this is explicitly reported as delegation coverage.
+- Tracker-derived numbers (lookups that matched nothing, bodies returned) are "not measured" for
+  replayed sessions.
+- Consent text is version 2: an existing version 1 consent record fails closed as disabled (`version`);
+  re-run `ags-retrospective enable` to grant consent.
+- Older generations written by earlier builds (two-file v2) or ledgers lacking new fields fail closed
+  with `STORED_LEDGER_INVALID`.
+- Cost is an estimate based on a price table; "returned" skills does not mean "followed".
 - Nested workers beyond 256 per session are not scored.
 - Nothing is deleted automatically. Remove one prepared session with
   `ags-retrospective delete --root <abs> --session <id> --host <id> --confirm`.
@@ -296,8 +306,8 @@ are specified but not implemented.
 
 ## Where the files live
 
-Reports belong to the host that owns the session. The MCP tools return two file paths (summary and
-ledger); an adapter may show links resolved through validated artifact IDs and that host's
+Reports belong to the host that owns the session. The MCP tools return three file paths (summary,
+ledger, and HTML report); an adapter may show links resolved through validated artifact IDs and that host's
 navigation surface, and always includes the full native path as a fallback. Never open anything
 automatically — the human clicks Open report, Review proposals, Open folder, or copies a path.
 

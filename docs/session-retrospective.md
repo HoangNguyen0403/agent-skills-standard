@@ -8,8 +8,8 @@ Two paths produce that artifact:
 
 - **MCP-native (primary).** With the `agent-skills-standard` MCP server registered over stdio and a
   one-time human opt-in, the orchestrator calls `prepare_retrospective`. The server binds its own
-  session file from its own recorded tool calls, counts what happened, and publishes `summary.md`
-  and `ledger.json`. No manifest is written or read.
+  session file from its own recorded tool calls, counts what happened, and publishes `summary.md`,
+  `ledger.json` and `report.html`. No manifest is written or read.
 - **Manual manifest (advanced).** You author a manifest naming the session, its checkpoint, its
   cutoff and every node in the delegation tree, then run `ags-retrospective prepare` from a
   terminal. Use it for custom manifests, adapter-supplied manifests, or hosts without a session
@@ -17,21 +17,24 @@ Two paths produce that artifact:
 
 Both paths read only explicitly authorized local sources, apply deterministic local rules, and
 publish into a private local store. Neither rewrites a transcript, writes memory, changes a skill
-or a route, adopts a proposal, uploads anything, or produces a "score". For the MCP-native path,
-the read boundary is a fixed list of structural fields — session and parent session ids, model,
-assistant stop reason, tool name and tool-call id, plus the tool name of this server's own `write`
-calls and the sanitized skill id of `read skill://...` calls; the full table is in
-[`session-retrospective-privacy.md`](./session-retrospective-privacy.md). The agreed boundary
-approves five structural fields; this path uses two of them today, and the other three —
-permission verdicts, follow-up target agent ids and `verification | tool-miss` error classes — are
-collected only by the manual manifest path.
+For the MCP-native path, the read boundary covers allowlisted structural fields — session and parent
+session ids, model, assistant stop reason, tool name and tool-call id, the server tool name of this
+server's own `write xd://mcp__agent_skills_standard_<tool>` calls, sanitized skill ids of `read skill://...`
+calls, and `<permission-request>` records inside `permission-required` notification messages (opaque
+request id, tool, kind, command text with linear-time best-effort secret redaction bounded at 2000
+chars, joined to `respond_to_permission` verdicts). It also reads folder labels `{name, parent}` from
+the session header `cwd` (no raw path stored or shown), and executes safe, bounded `execFile` git calls
+in the session's working folder to read commit and file counts (which reads outside the listed source
+roots; commit messages, file names, and hashes are never stored); the full table is in
+[`session-retrospective-privacy.md`](./session-retrospective-privacy.md).
 
 > **Status: unreleased source, not a released product.** The MCP-native tools
 > (`prepare_retrospective`, `get_retrospective_status`), the consent commands (`enable`,
 > `disable`, `consent-status`) and the manual manifest CLI exist only in the source tree
 > (`mcp/src/retrospective*`, `mcp/src/tools/retrospective.ts`), with the public
 > `agent-skills-standard-mcp/retrospective` subpath. On macOS the fresh build (including the
-> declaration emit), the MCP test suite and the CLI/tarball smoke pass locally; nothing is
+> declaration emit), the 976-test MCP suite (5 skipped) and the CLI/tarball smoke pass locally;
+> redaction, git-argument, and environment rules were mutation-checked; nothing is
 > published to the registry, so no registry version contains any of it. The optional Paseo and OMP
 > adapter packages exist as source (`integrations/session-retrospective/`) and are not installed;
 > the Paseo session-data/report-reading RPCs are **disabled** — that panel only explains the
@@ -80,11 +83,14 @@ and `allowedSourceRoots` when enabled, or `{"schemaVersion":1,"state":"disabled"
 The record is `retrospective-consent.json`: POSIX
 `$XDG_CONFIG_HOME/agent-skills-standard/retrospective-consent.json` when `XDG_CONFIG_HOME` is set
 and absolute, else `~/.config/agent-skills-standard/retrospective-consent.json`; on Windows
-`%APPDATA%\agent-skills-standard\retrospective-consent.json`. It is owner-only and read
-fail-closed: missing, empty, malformed, unknown-key, relative-path, wrong-version,
+`%APPDATA%\agent-skills-standard\retrospective-consent.json`.
+
+The consent text is version `2` (it explicitly discloses permission request command recording and git
+activity metrics read outside source roots). An existing record with version `1` is treated as disabled
+(reason `version`), requiring the user to run `ags-retrospective enable` again to re-consent. It is
+owner-only and read fail-closed: missing, empty, malformed, unknown-key, relative-path, wrong-version,
 group/other-readable, symlink and non-regular files all count as disabled (reasons `missing`,
 `invalid`, `permissive`, `symlink`, `version`).
-
 ### The nudge
 
 `audit_session_compliance` and `get_session_cost` append one fixed paragraph only when all three
@@ -94,14 +100,14 @@ itself, so repeated cost reporting cannot manufacture new work.
 
 The paragraph is the same every time. It tells workers that hold an assignment packet to ignore it,
 and tells the orchestrator to call `prepare_retrospective`, then report the coverage, the counts and
-the two file paths to the user. When the nudge is empty, tool output is byte-identical to the
+the three file paths (`summary.md`, `ledger.json`, `report.html`) to the user. When the nudge is empty, tool output is byte-identical to the
 output without this feature.
 
 ### The two tools
 
 | Tool | Arguments | Call it as |
 | --- | --- | --- |
-| `prepare_retrospective` | none | The orchestrator, or an agent with no assignment packet. A worker holding an assignment packet must not call it. |
+| `prepare_retrospective` | `title` (optional string, max 200 chars, displayed as "agent-supplied, unverified") | The orchestrator, or an agent with no assignment packet. A worker holding an assignment packet must not call it. |
 | `get_retrospective_status` | none | Anyone; returns consent state only, from the same fail-closed record. |
 
 Both are registered on the stdio transport only (`mcp/src/server.ts`), so they are absent from the
@@ -120,7 +126,7 @@ reads and publication.
 
 | State | What it tells the operator |
 | --- | --- |
-| `prepared` | A new generation was published; the result carries the coverage, the counts, the artifact id and the two file paths. |
+| `prepared` | A new generation was published; the result carries the coverage, the counts, the artifact id and the three file paths (`summary.md`, `ledger.json`, `report.html`). |
 | `already-prepared` | A committed ledger already existed for this session and checkpoint; the result reports those published numbers instead of publishing again. |
 | `disabled` | Consent is off or unreadable (fail-closed); the agent is told to ask the user to run `ags-retrospective enable`. |
 | `not-substantive` | The server's tracker recorded no tool calls, typically right after a restart; nothing is published. |
@@ -128,59 +134,115 @@ reads and publication.
 | `child-session` | The caller's session file belongs to a nested worker; nothing is published, because this tool is orchestrator-only. |
 | `failed` | The run aborted with a stable code; nothing is published. |
 
-A published result contains only numbers, fixed words, the artifact id and the two file paths. It
+A published result contains only numbers, fixed words, the artifact id and the three file paths. It
 never carries transcript text, claim sentences or the report body. One honest limitation: the tool
 returns file **paths**, so an agent with file-read access could open `summary.md`. That file
-contains numbers, registry skill ids and fixed sentences only — never transcript text.
+contains numbers and fixed sentences only: no skill names or ids, no command text, no transcript text.
 
 ### Where the files go
 
 Everything lands in the private store under the consented store root, in a `v2` generation:
-`summary.md`, `ledger.json` and `generation.json`. Nothing is uploaded; nothing opens
+`summary.md`, `ledger.json`, `report.html` and `generation.json`. Nothing is uploaded; nothing opens
 automatically.
 
+Older generations written by earlier builds (two-file v2) and ledgers without the new fields are
+unreadable and fail closed with `STORED_LEDGER_INVALID` (intended; a test covers it).
 Generations written by the manual path (`v1`) stay readable and deletable, and are never rewritten
 by this path.
 
 ### Report layout
 
-The first two lines of `summary.md` are this, with the placeholders replaced:
+Each published generation in the v2 store produces **three local artifacts**:
 
-```
+1. `summary.md` — a concise, model-safe summary (capped at 80 lines and 8 KB). It contains no
+   skill names or IDs, no command text, and no raw transcript text.
+2. `ledger.json` — verified facts, claims, evidence IDs, day-model cells, and committed counts.
+3. `report.html` — a self-contained HTML report generated directly by the engine (never by a
+   workflow or model; no workflow calls `prepare_retrospective`). It uses inline CSS, no script,
+   no external URLs, strict CSP (`default-src 'none'; style-src 'unsafe-inline'`), and escapes all
+   dynamic text. Note: rendering has been checked structurally only, not visually.
+
+#### `summary.md` structure
+
+The header lines of `summary.md`:
+
+```text
 Coverage: <complete|partial> | Evidence: <native session files|tracker only (no session files read)> | Root: <unverified root|n/a> | Delegation: <n/a|none created|K of N created agents read> | Cutoff: <iso>
-Scope: session <first 8 characters of the session id> | <first event time> to <last event time>
+Scope: session <first 8 characters of session id> | folder <parent/name> | <first event time> to <last event time>
 ```
 
-`Delegation` is the part of the line that keeps `complete` honest: `complete` means every session
-file that was found was read in full; `K of N created agents read` says how many of the agents the
-session created have a session file that was read. The session part of `Scope` is omitted for a
-tracker-only report.
+If an optional title was passed to `prepare_retrospective`, an unverified title line follows:
+`Title: <title> (agent-supplied, unverified)`.
 
-Then fixed second-level headings:
+Then fixed second-level sections:
 
-```
-## What the numbers say
-## Skills
-## Leads
-## What this cannot tell you
-```
+- `## Bottom line` — summary clauses for observed agents, main cost and turns (with percentage share
+  and cached token rates), permission answers (with denials), and AGS lookups by main vs. workers.
+- `## Scorecards` — compact scorecard lines covering Guardrails, Delegation & cost, Tool health, AGS
+  lookups, and Outcome.
+- `## Do next` — prioritized, actionable next steps for the operator or manager.
+- `## For the maintainer` — structural coverage gaps (e.g. unlinked child agent sessions) and
+  tracker-binding limitations, if present.
+- `## Limits` — fixed caveats: counts show where to look, not why; cost is an estimate from a price
+  table.
 
-`## What the numbers say` carries three observations: coverage (sessions read in full, skipped
-lines, created agents with and without a read session file), error-stop exposure (stops over
-assistant turns, with the day-model cell of highest rate and the cell with most stops, each with
-its own numbers; cells with fewer than 5 turns are not ranked by rate) and tool calls (how many
-returned an error and the three tools with most errors). A "may undercount" phrase appears next to
-any number that may be low because lines were skipped. `## Skills` is described below. `## Leads`
-holds at most 5 entries, each with a claim id and a confirm/refute note; a lead appears only when
-its own numbers give a reason to look (no error-stop lead for zero error stops), and otherwise the
-section says no leads were identified. The whole file is capped at 40 lines and 4 KB. There is no
-verdict wording: counts show where to look, not why.
+#### `report.html` layout
 
-`ledger.json` holds the claims, their evidence, the day-model cells (up to 50, plus any cell a
-claim names) and the committed counts. Every number in a claim has its own evidence entry
-(`agg:claim:<claim>:<value>`), which the verifier checks before anything is published. A repeat
-call reads the committed ledger, which is why `already-prepared` reports the published numbers.
+The HTML report is structured for quick human review without external dependencies or scripts:
 
+- **Header and Summary Tiles** — displays folder label `{name, parent}` (taken from the session header
+  `cwd`; no raw absolute path is stored or shown), branch at report time, session id, time window,
+  coverage, delegation, and cutoff instant, followed by top-level summary metric tiles.
+- **Decisions for you** — high-level decision guidance based on verified findings.
+- **Do next (ACT / WATCH cards)** — each card details:
+  - *Saw*: the observed condition.
+  - *Change*: recommended action with its owner (e.g. permission setup, orchestration config).
+  - *Next time*: the concrete measure to watch.
+  - *Unknown*: what the data cannot establish.
+  These cards remain open.
+- **Collapsed Native Details Sections** — all subsequent sections are wrapped in native `<details>`
+  elements, collapsed by default, each showing a headline summary number in its title row:
+  - *Permission requests* (headline: e.g. `X requests, Y denied, Z unanswered`) — shows up to 50
+    distinct permission requests, denied first, plus tool and program tables. Command text (or
+    request title) undergoes linear-time secret redaction (2000 chars ceiling); operators are advised
+    to check commands before sharing.
+  - *Outcome* (headline: commit and file counts) — repository outcome metrics across all branches in
+    the session window (commits, merge commits, reverts, files changed, insertions, deletions;
+    branch now) read via `execFile` from the session folder outside source roots; or an unavailability
+    reason (`folder-missing`, `not-a-repo`, `git-error`, `not-measured`).
+  - *Timeline* (headline: e.g. `X days`) — per-day assistant turns, cost, and error stops.
+  - *Cost and models* (headline: e.g. `$X.XX est., Y models`) — main-versus-workers cost breakdown
+    (price-table estimate in dollars), and per-model rows with turns, input/output/cached tokens, and
+    error stops.
+  - *Tool failures* (headline: e.g. `X of Y tool calls failed`) — calls and error counts per tool.
+  - *Error stops* (headline: e.g. `X error stops`) — error stops broken down by day and model.
+  - *AGS lookups* (headline: e.g. `X lookups, Y matched nothing`) — routing breakdown for
+    `load_skills_for_files`, `load_skills_for_keywords`, `get_skill`, `get_workflow`, and
+    `get_category_guide`; skills returned parsed from `<!-- skill: <category>/<id> | matched: ... -->`
+    markers (validated against registry IDs; "returned" is not "followed"); lookups matching nothing,
+    bodies returned, and bodies reused from context. Tracker numbers are "not measured" for replayed
+    sessions.
+  - *Compared with earlier reports for this folder* (headline: e.g. `compared with X earlier reports`) —
+    trend comparison table against up to three earlier generations for the same folder (read-only
+    over the store, same folder only).
+  - *Agents* (headline: e.g. `X agents`) — table of observed agents, turns, cost, compactions, cache
+    reads, error stops, tool calls, edit/bash/read calls, lookups, and models.
+  - *Limits* — fixed engine bounds, disclaimers, and pricing table notes.
+  - *For the maintainer* (headline: e.g. `X items`) — maintainer notices on unlinked agents (~313 of
+    342 unlinked in pilot data) and process-scoped tracker limits.
+  A one-line hint explains the collapsing. There is no script-based "expand all".
+
+#### `ledger.json` claims and evidence
+
+`ledger.json` holds verified facts, claims, day-model cells (up to 50 plus named cells), and committed
+counts. Every numeric claim value is backed by an evidence entry:
+
+- Fixed-template claims: `coverage`, `error-stop-exposure`, `skill-usage`, `skill-trigger-timing`,
+  `host-skill-reads`, `tool-errors`, `permission-answers`, `cost-drivers`, `routing-order`,
+  `ags-lookups`, `session-outcome`, and `permission-requests`.
+- Per-row evidence IDs back every value (e.g. `agg:permreq:tool:<name>:asked`, `agg:claim:<claim>:<value>`),
+  which the deterministic verifier checks before publication.
+- Repeat calls read this committed ledger, allowing `already-prepared` to report published numbers.
 ### Disabling and deleting
 
 `ags-retrospective disable` turns collection off immediately and prints
