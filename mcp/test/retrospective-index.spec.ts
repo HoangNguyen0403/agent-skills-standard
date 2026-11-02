@@ -700,6 +700,137 @@ describe("collectIndex", () => {
     expect(result.rows[0].session).toBe("sess-valid");
   });
 
+  it("counts a ledger that is valid JSON but fails the ledger shape as unreadable", async () => {
+    const root = await newRoot();
+    await publishTestLedger(
+      root,
+      "sess-valid-shape",
+      "cp-1",
+      JSON.stringify(
+        makeMinimalLedger({
+          session: "sess-valid-shape",
+          to: "2026-10-05T10:00:00.000Z",
+        }),
+      ),
+    );
+    await publishTestLedger(
+      root,
+      "sess-bad-shape",
+      "cp-2",
+      JSON.stringify({ schemaVersion: 1 }),
+    );
+
+    const result = await collectIndex(root, {
+      since: "2026-09-01",
+      until: "2026-10-31",
+      folder: null,
+    });
+
+    expect(result.unreadable).toBe(1);
+    expect(result.matched).toBe(1);
+    expect(result.rows.map((r) => r.session)).toEqual(["sess-valid-shape"]);
+  });
+
+  it("orders rows newest first and breaks equal end times by session id", async () => {
+    const root = await newRoot();
+    const entries: Array<[string, string]> = [
+      ["sess-b", "2026-10-03T10:00:00.000Z"],
+      ["sess-c", "2026-10-05T10:00:00.000Z"],
+      ["sess-a", "2026-10-03T10:00:00.000Z"],
+      ["sess-d", "2026-10-01T10:00:00.000Z"],
+    ];
+    let n = 0;
+    for (const [session, to] of entries) {
+      n += 1;
+      await publishTestLedger(
+        root,
+        session,
+        `cp-${n}`,
+        JSON.stringify(makeMinimalLedger({ session, to })),
+      );
+    }
+
+    const result = await collectIndex(root, {
+      since: "2026-09-01",
+      until: "2026-10-31",
+      folder: null,
+    });
+
+    expect(result.rows.map((r) => r.session)).toEqual([
+      "sess-c",
+      "sess-a",
+      "sess-b",
+      "sess-d",
+    ]);
+  });
+
+  it("lists recurring rules with equal counts in alphabetical order", async () => {
+    const root = await newRoot();
+    await publishTestLedger(
+      root,
+      "sess-r1",
+      "cp-1",
+      JSON.stringify(
+        makeMinimalLedger({
+          session: "sess-r1",
+          to: "2026-10-02T10:00:00.000Z",
+          improvements: [
+            { rule: "lookup-misses", level: "watch" },
+            { rule: "coverage-gap", level: "watch" },
+          ],
+        }),
+      ),
+    );
+
+    const result = await collectIndex(root, {
+      since: "2026-09-01",
+      until: "2026-10-31",
+      folder: null,
+    });
+
+    expect(result.recurring.map((r) => r.rule)).toEqual([
+      "coverage-gap",
+      "lookup-misses",
+    ]);
+  });
+
+  it("shows at most the row cap newest first, reports the rest as omitted, and totals cover every match", async () => {
+    expect(INDEX_MAX_ROWS).toBe(200);
+    const root = await newRoot();
+    const total = 5;
+    for (let i = 0; i < total; i++) {
+      const session = `sess-cap-${i}`;
+      await publishTestLedger(
+        root,
+        session,
+        `cp-${i}`,
+        JSON.stringify(
+          makeMinimalLedger({
+            session,
+            to: `2026-10-0${i + 1}T10:00:00.000Z`,
+            turns: 10,
+          }),
+        ),
+      );
+    }
+
+    const result = await collectIndex(
+      root,
+      { since: "2026-09-01", until: "2026-10-31", folder: null },
+      { maxRows: 3 },
+    );
+
+    expect(result.matched).toBe(total);
+    expect(result.rows.map((r) => r.session)).toEqual([
+      "sess-cap-4",
+      "sess-cap-3",
+      "sess-cap-2",
+    ]);
+    expect(result.omitted).toBe(2);
+    expect(result.totals.sessions).toBe(total);
+    expect(result.totals.turns).toBe(50);
+  });
+
   it("counts recurring improvement rules once per session and tracks act levels", async () => {
     const root = await newRoot();
 

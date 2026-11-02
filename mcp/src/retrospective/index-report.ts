@@ -412,6 +412,7 @@ type ScannedReport = {
 export async function collectIndex(
   root: string,
   query: IndexQuery,
+  options: { maxRows?: number } = {},
 ): Promise<IndexResult> {
   const emptyResult: IndexResult = {
     query,
@@ -507,6 +508,10 @@ export async function collectIndex(
         }
 
         const day = extractDay(to);
+        if (day.length === 0) {
+          unreadable++;
+          continue;
+        }
         const sessionId = data.session ?? null;
         const htmlPath = path.join(
           path.dirname(resolved.absolutePath),
@@ -735,7 +740,11 @@ export async function collectIndex(
     });
 
     const matched = matchedRows.length;
-    const rows = matchedRows.slice(0, INDEX_MAX_ROWS);
+    const rowCap = Math.min(
+      INDEX_MAX_ROWS,
+      Math.max(1, options.maxRows ?? INDEX_MAX_ROWS),
+    );
+    const rows = matchedRows.slice(0, rowCap);
     const omitted = matched - rows.length;
 
     return {
