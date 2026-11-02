@@ -1,62 +1,61 @@
 ---
-description: "Prepare and verify a staged or production deployment with rollback and smoke checks."
+description: "Dispatch provider-neutral cloud operations and verify staged or production releases with rollback and smoke checks."
 ---
 
 # Deploy Release Workflow
 
-Goal: Ship verified work with explicit deployment steps, smoke checks, and rollback criteria.
+Goal: Execute one authorized cloud operation, or ship verified work with explicit deployment steps, smoke checks, and rollback criteria.
 
 ## Steps
 
-1. Confirm readiness:
-   - Verify the test cycle closure summary, open defect ledger, and residual-risk ledger per `skills/quality-engineering/quality-engineering-test-plan-authoring/references/lifecycle-and-roles.md`. Carry `delivery_mode`, the work-item reference plus released revision, technical verification reference, and any business acceptance reference separately. Technical PASS or acceptance never substitutes for deployment authorization; absent acceptance is `not assessed`.
-   - Mobile release gates (Contract C6): verify build artifact digest/version, release signing/distribution context, and device smoke checks. Missing build artifacts or drivers cannot be replaced with web evidence.
-   - Required approvals are present, and production carries a named release owner's authorization; proposal in ledger is not execution or release permission. Link the existing verify/UAT records and state their authority limits rather than inferring lifecycle state from timestamps or filenames.
-   - Migrations, feature flags, and measurement contracts are accounted for. When an initiative uses product evidence (`docs/product/<slug>/evidence.json`), carry measurement owner, registered MET baseline or exact scoped exception DEC, query, instrumentation, cohort, window, guardrails, and review trigger; never fabricate agent-created baselines, approval, or causal ROI.
-   - `release_confidence` is `high`, or `medium` with documented risk; `low` is NO-GO unless the release owner overrides in writing.
-2. Prepare release:
-   - Identify version, environment, deploy command, and owner.
-   - Confirm secrets, config, queues, cron, and external services.
-   - Define rollback command or revert path.
-   - Environment tier: dev deploys freely; staging deploys behind the smoke gate; production is prepared by the agent and authorized by the named release owner through the guardrail approval gate.
-3. Deploy:
-   - Run staging deploy first when available.
-   - Rehearse the rollback in staging before promoting to production.
-   - Run smoke checks before promotion.
-   - Promote only when smoke checks pass.
-4. Monitor:
-   - Check logs, metrics, errors, latency, and core user flows.
-   - Guardrail harm or regression escalates immediately to authorized incident controls (`incident-hotfix`); stop or roll back on defined failure signals.
-5. Persist and route:
-   - Write run record to `artifacts/runs/[slug]/[compactISO]-deploy-release.json` when file writes allowed. Feature `feature_status=released` is preserved even when product value observations remain pending or inconclusive.
-   - User-facing notes -> `publish-notes`.
-   - Process and standards feedback -> `retro-learn`.
+1. Parse, load, and gate:
+   - Accept `operation=setup | deploy | verify | monitor | diagnose | recover`. Default to `deploy` only when genuinely omitted; reject unknown, conflicting, or typo modes before any provider call.
+   - Resolve `common-devops-operations` through the AGS MCP `get_skill(category="common", name="common-devops-operations")` when available, else from the consumer's supported installed-skill location; resolve its references and the operations-report reference relative to that loaded skill. If the contract cannot be obtained, block affected execution instead of improvising authorization.
+   - Classify by actual effect, never the label: any promotion, traffic switch, or configuration change introducing a new release is deploy-bearing and enters step 3 even under `setup` or `recover`; `recover` cannot introduce an unverified build. `verify`, `monitor`, and `diagnose` stay read-only, and a mutation request blocks for reclassification plus renewed authorization.
+   - Fresh task-linked active harm gate: before any ordinary dispatch or execution, hand ownership to `incident-hotfix`, which chooses and authorizes mitigation. An existing incident-owned fixed grant executes once through the shared procedure and returns here; no recursive intake.
+2. Execute non-release effects:
+   - `verify`, `monitor`, `diagnose`, `setup`, and a fixed `recover` run only their own classified, authorized action set through the shared procedure, with outward verification where that operation defines it. This branch never stages, rehearses, or promotes a release.
+3. Release readiness (deploy-bearing effects only):
+   - Test-cycle closure summary, open-defect ledger, and residual-risk ledger verified against the loaded `quality-engineering-test-plan-authoring` `references/lifecycle-and-roles.md`; carry `delivery_mode`, work-item plus released revision, technical verification ref, and business acceptance ref or `not assessed`. Technical PASS or acceptance never grants deployment authority.
+   - Production promotion requires a named release owner's scoped authorization; for cloud operations, staging and dev mutations need their own bound grant too. No environment deploys freely, and a merge event is not an approval.
+   - Mobile release gates (Contract C6): build artifact digest/version, release signing/distribution context, and device smoke checks. Missing build artifacts or drivers cannot be replaced with web evidence. Mixed mobile/backend action sets classify each action independently; cloud MCP gaps never erase C6 or block unrelated distribution.
+   - Migrations and feature flags are accounted for alongside measurement contracts; with product evidence (`docs/product/<slug>/evidence.json`), carry measurement owner, registered MET baseline or exact scoped exception DEC, query, instrumentation, cohort, window, guardrails, and review trigger; never fabricate baselines, approval, or causal ROI.
+   - `release_confidence` is `high`, or `medium` with documented risk; `low` is NO-GO without a written release-owner override.
+4. Prepare, stage, promote, and inspect:
+   - Identify version, environment, action set, artifact identity, owner, and rollback command or revert path; confirm secrets, config, queues, cron, and external services.
+   - Deploy to staging first when available, rehearse the rollback there, and run smoke checks; promote only when smoke passes.
+   - Set a bounded post-release observation window; after promotion, inspect applicable provider logs, metrics, errors, latency, and core user flows. Record telemetry gaps explicitly; missing telemetry is not healthy. Failure signals stop rollout and route to `incident-hotfix`; roll back per defined criteria.
+   - Recheck target, principal continuity, permission, approval expiry, and fresh harm immediately before promotion; reconcile actual resource state after any timeout before retrying; verify the live target origin, never a provider success flag alone.
+5. Stop on harm and route ownership:
+   - Active harm stops promotion and hands to `incident-hotfix`; statistical control bands and scan deltas belong to `monitor-respond`, and a discrete failed build or expired certificate needs no statistical baseline.
+6. Persist and route:
+   - Emit one operations report in the shared evidence shape, and add the run record below only for a verified, authorized release.
+   - Non-deploy operations preserve the prior evidenced lifecycle and never advance or downgrade it; an operations receipt is never a release or rollback record. Without lifecycle evidence, emit operations evidence only (`feature_lifecycle: not_assessed`, no feature run record).
+   - Hand to `publish-notes` only with release evidence; otherwise `recommended_next_workflow: null` and `next_action: none`.
 ## Runtime Contract
-- Use once verification/UAT signoff is PASS and a release window is open.
-- Required inputs: verification report plus release version, environment, and rollback path. Proposal in ledger is not host deployment authorization.
-- Return BLOCKED when required approvals, migrations, or rollback path are unresolved, when a production deploy has no named authorizer, or when a product-evidence initiative lacks a registered MET baseline (or scoped exception), measurement owner, instrumentation, guardrails, or review trigger. Feature released status is retained when product value is pending or inconclusive.
+- Use for cloud or hosting operations and any release promotion; an unspecified mode means `deploy`. Required inputs: operation mode, target/principal scope, and, for deploy-bearing effects, verification, acceptance reference, release authority, and rollback path.
+- Return BLOCKED with the exact reason (`missing_mcp`, `disconnected_mcp`, `unauthenticated`, `wrong_target`, `missing_capability`, `permission_denied`, `approval_required`, `approval_expired`, `unsupported_enforcement`, `uncertain_write`, `verification_failed`). Offline document review may continue under an explicit evidence limit; it never counts as operational proof.
 ## Handoff Payload
-- `slug`, `delivery_mode`, work-item reference plus released revision, technical verification and acceptance refs (or `not assessed`), release authority reference, `release_confidence`, release verdict (GO/NO-GO/ROLLED-BACK), smoke check results, measurement contract refs when present, rollback path, outcome report, next workflow.
+- `slug`, `operation`, classified effect, target/principal scope, `delivery_mode`, work-item reference plus revision, technical and acceptance refs (`not assessed` when absent), release authority reference, `release_confidence`, verdict (GO/NO-GO/ROLLED-BACK), smoke results, measurement refs, artifact identity, rollback path, operations report, outcome report, `next_action`.
 ## Blocking Questions
 - Ask max 3 at a time with a recommended default and 2-3 options.
 
 ## Output Template
 
 ```md
-# Deployment Report: [Name]
+# Operations And Deployment Report: [Name]
 
 ## Decision Brief
-- Work item: [ref @ revision]; delivery mode: brief | standard | extended
-- Technical verification: [ref]; business acceptance: [ref or not assessed]; release authority: [owner/ref]
+- Operation + classified effect: [setup | deploy | verify | monitor | diagnose | recover] / [read_only | config_mutation | deploy_bearing]
+- Work item: [ref @ revision]; delivery mode: brief | standard | extended; versions, environments, and commands: [refs]
+- Technical verification: [ref]; business acceptance: [ref or not assessed]; release authority: [owner/ref @ expiry]
+
+## Operations Report
+- Target / principal: [scope]; artifact or resource: [digest/ARN]; capabilities: [tools]; outcome: [completed | failed | blocked | uncertain_write + reason]
+- Feature lifecycle: [preserved: <state> | not_assessed | advanced: released]; next action: [none | step]
 
 ## Release Verdict
 GO | NO-GO | ROLLED-BACK
-
-## Release
-
-## Environments
-
-## Commands
 
 ## Smoke Checks
 
@@ -71,7 +70,7 @@ GO | NO-GO | ROLLED-BACK
 
 ## Next Workflow
 
-publish-notes | retro-learn
+publish-notes | retro-learn | incident-hotfix
 
 ## Cost Report
 Call `get_session_cost(workflow="deploy-release")` before final handoff.

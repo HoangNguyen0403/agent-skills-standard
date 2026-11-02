@@ -1,6 +1,6 @@
 # Provider-neutral DevOps Operations Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking. Execution mode requires separate user approval; this document does not authorize implementation.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking. Execution mode was subsequently approved by the user for both linked plans with Subagent-Driven execution, and implementation of the approved source changes has begun; this document still does not authorize cloud/provider operations, MCP installation, premium calls, push or merge.
 
 **Goal:** Extend the existing `deploy-release` workflow into one capability-aware, MCP-required DevOps entrypoint without duplicating or weakening existing release, incident, monitoring, or verification contracts.
 
@@ -40,7 +40,7 @@ All 38 canonical workflow descriptions were inspected; operations-adjacent bodie
 | `.agents/workflows/uat-signoff.md`, `publish-notes.md` | Business authority and communications | Keep unchanged; existing release callers remain valid |
 | Generated host workflow exports | Native distribution | Regenerate selected outputs; remove only demonstrably orphaned generator-owned outputs using supported ownership-safe generation |
 
-No delete-for-count targets. Do not conflate optional unselected workflows with missing/duplicate mirrors. No blanket prune, manual lock surgery, or forwarding aliases. The separately approved planning amendment for `review-ticket` is linked below and does not authorize implementation or deletion.
+No delete-for-count targets. Do not conflate optional unselected workflows with missing/duplicate mirrors. No blanket prune, manual lock surgery, or forwarding aliases. The separately approved `review-ticket` consolidation amendment is linked below; implementation of the approved source changes is authorized, while that workflow's retirement still depends on the slice's preservation and ownership-safe publication proofs.
 
 Known inbound callers of `deploy-release`: `.agents/workflows/uat-signoff.md:26,31,63,66`, `traceability-audit.md:60`, `verify-bug.md:92,95`, `incident-hotfix.md:13`, `publish-notes.md:30`, `sdlc.md:39,49`; `scripts/workflow-chain.ts:24`; `scripts/audit-sdlc.ts:269,319`. Preserve them through the default-deploy contract. Re-read line ranges at execution revision; do not trust stale line numbers.
 
@@ -209,7 +209,7 @@ Tasks 1 and 2 can run concurrently using the interfaces in this plan. Task 3 dep
 
 The user approved adding an independently reviewable cleanup plan: [Review Workflow Consolidation Implementation Plan](2026-11-01-review-workflow-consolidation.md), with [its own design](../specs/2026-11-01-review-workflow-consolidation-design.md). Keep `code-review`; preserve scoped ticket/AC, specialist and PR-metadata capabilities; migrate active callers and safely retire `review-ticket`. Three bounded tasks cover behavior preservation, ownership-safe retirement proof, and atomic migration/integration. This is separate from the five DevOps tasks, not a sixth mixed-responsibility task.
 
-Shared files are `.agents/workflows/sdlc.md`, metadata, quick-reference documentation and generated distribution. Serialize consolidation integration against DevOps Tasks 3/5 through one owner; no concurrent writers or generators. Review consolidation can be accepted separately. Prior premium/standard DevOps review verdicts do not cover this new scope or the later linking edits. No extra premium call or implementation was authorized.
+Shared files are `.agents/workflows/sdlc.md`, metadata, quick-reference documentation and generated distribution. Serialize consolidation integration against DevOps Tasks 3/5 through one owner; no concurrent writers or generators. Review consolidation can be accepted separately. Prior premium/standard DevOps review verdicts do not cover this new scope or the later linking edits. No extra premium call was authorized; implementation of the approved source changes was subsequently authorized with Subagent-Driven execution, and cloud/provider operations, MCP installation, push and merge remain unauthorized.
 
 ## Approved premium review and correction disposition
 
@@ -228,8 +228,8 @@ Verdict: NEEDS REVISION; retain the existing workflow ID but make it an effect-b
 
 Additional parent verification corrected existing test paths to their real `__tests__` locations and identified `mcp/test/WorkflowIndex.spec.ts`. A baseline `rtk pnpm audit:sdlc` passed in the original checkout; this is not a behavioral result or proof of the future implementation. The corrected documents have not been re-reviewed by premium. Independent non-premium correction verification may check closure without invoking premium again.
 
-The consequential question reviewed was whether extending the release entrypoint preserves authority/incident/lifecycle boundaries. The advisor recommended in-place effect-based dispatch rather than a rename or second workflow. Implementation still requires user approval and an explicit execution-mode choice.
+The consequential question reviewed was whether extending the release entrypoint preserves authority/incident/lifecycle boundaries. The advisor recommended in-place effect-based dispatch rather than a rename or second workflow. Implementation was subsequently approved by the user with Subagent-Driven execution; this historical disposition does not grant cloud, MCP-install, premium, push or merge authority.
 
 ## Plan validation and limits
 
-Plan self-review checks: each DevOps spec requirement has a task; all changed source paths are named as existing or new; no operations-workflow removal or manual generated-copy deletion assumed; the companion review retirement has its own proof gates; no code runtime/schema introduced accidentally; no unapproved live-provider qualification claimed. Verification commands are future execution instructions, not receipts. Prior reviewed hashes remain in the receipt; later planning amendments are not retroactively reviewed. Implementation starts only after applicable review disposition and user approval of execution mode.
+Plan self-review checks: each DevOps spec requirement has a task; all changed source paths are named as existing or new; no operations-workflow removal or manual generated-copy deletion assumed; the companion review retirement has its own proof gates; no code runtime/schema introduced accidentally; no unapproved live-provider qualification claimed. Verification commands are future execution instructions, not receipts. Prior reviewed hashes remain in the receipt; later planning amendments are not retroactively reviewed. Implementation began only after the applicable review disposition and the user's approval of both linked plans with Subagent-Driven execution.

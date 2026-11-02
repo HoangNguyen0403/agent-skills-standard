@@ -15,7 +15,7 @@ Agent Skills Standard syncs workflows into each agent's native surface. Run `ags
 | Verify                 | Did we prove it with fresh evidence?             | `verify-work`              | Work is code-complete but unproven                                     | `docs/srs/srs-walkthrough-[slug].md`  |
 | UAT Signoff            | Does the business accept it?                     | `uat-signoff`              | `verify-work` PASS needs business acceptance before release            | signoff decision                      |
 | Trace                  | Is every requirement document-linked?            | `traceability-audit`       | Pre-release or handoff needs a document-link map                      | document-link report (not execution proof) |
-| Release                | Is deployment safe?                              | `deploy-release`           | Verification passed and deployment is planned                          | deployment report                     |
+| Release                | Is deployment safe, or which cloud operation is requested? | `deploy-release` | Verification passed and deployment planned, or setup/deploy/verify/monitor/diagnose/recover needed | deployment or operations report |
 | Incident               | How do we stop harm right now?                   | `incident-hotfix`          | Production incident or urgent regression needs mitigate-first response | mitigation + handoff                  |
 | Maintain               | Is production still inside its control bands?    | `monitor-respond`          | Control band breached or a scheduled scan completed                    | tiered response + routed intake       |
 | Publish                | What do users need to know?                      | `publish-notes`            | Need release communication                                             | release notes                         |
@@ -34,7 +34,7 @@ Agent Skills Standard syncs workflows into each agent's native surface. Run `ags
 
 Use the task-linked approved brief/ticket and its stable slug. An unrelated newest document or working-tree change is not task authority or approval. Equivalent approved evidence can satisfy a requirement without a separate BRD/PRD/SRS filename. Reused approved exact-revision context skips rediscovery; missing document filenames never reset settled work.
 
-A stale or disputed decision blocks only its consuming action; unaffected approved decisions and independent scopes remain reusable without global reset. Production harm or urgent regressions always route to `incident-hotfix` first, even if product learning is stale. Known low-risk routine maintenance routes directly to `dev-fix` or `implement-feature` with proportional evidence, avoiding universal market research.
+A stale or disputed decision blocks only its consuming action; unaffected approved decisions and independent scopes remain reusable without global reset. Production harm or urgent regressions always route to `incident-hotfix` first, even if product learning is stale and even when the request is phrased as an explicit diagnose or recover. Known low-risk routine maintenance routes directly to `dev-fix` or `implement-feature` with proportional evidence, avoiding universal market research.
 
 `plan-feature` owns outcome, scope, acceptance criteria, dependencies and provisional product slices; consequential architecture, API/data contracts, migrations and technical decisions route to `design-solution`.
 
@@ -61,6 +61,25 @@ Carry `delivery_mode` in task and handoff metadata, separately from `snc_tier`. 
 Rules that hold in every mode: a sensitive change always receives its technical design and human approval; a missing mode is a routing decision based on approved evidence and risk, not automatic permission for the brief path; material scope growth reopens only the affected slices. Diff size never selects the mode — a one-line authorization change is `extended`.
 
 Core PRD sections: decision brief, outcome/guardrails, scope/non-goals, canonical `REQ`/`AC` rows (with owner, priority, and the single verification lane), open consequential decisions, references. Core SRS sections: decision brief, trace source, architecture/contract delta, one card per technical requirement carrying its only verification mapping, blockers/references. Personas, flows, analytics, NFR tables, migration plans, and risk sections are extensions: include one only when its trigger applies, and treat an omitted applicable extension as an owned blocker rather than silent scope loss.
+
+### Provider-Neutral Cloud Operations
+
+`deploy-release` is the single cloud operations dispatcher. `common-devops-operations` owns the shared preflight, authorization, effect-classification, and reporting procedure; provider references load on demand. No second operations workflow, alias, or competing checklist exists.
+
+| Operation | Scope | Entry gate |
+| --- | --- | --- |
+| `setup` | Hosting, DNS, TLS, edge configuration | Approved configuration plan; mail records reviewed before nameserver changes |
+| `deploy` (default when omitted) | Release promotion and rollout | Full release readiness gates |
+| `verify` | Live origin health, routing, headers | Read-only |
+| `monitor` | Metrics, alerts, quota signals | Read-only; missing telemetry is not health |
+| `diagnose` | Bounded evidence and hypothesis investigation | Read-only; no mutation disguised as diagnosis |
+| `recover` | Fixed mitigation from an identified prior verified state | Prior artifact identified; no fresh build |
+
+Rules across all modes: unknown, conflicting, or typo modes are rejected without provider calls; actual effect decides release gates, so a `setup` DNS switch or a `recover` introducing a new build enters deploy readiness; read-only modes cannot write; a monitor receipt is never a release, deployment, or rollback record. Terminal or blocked outcomes take a null `recommended_next_workflow` with `next_action` recorded, never a default planning or fix route.
+
+Missing prerequisites report `missing_mcp`, `disconnected_mcp`, `unauthenticated`, `wrong_target`, `missing_capability`, `permission_denied`, `approval_required`, `approval_expired`, `unsupported_enforcement`, `uncertain_write`, or `verification_failed`. Offline document review continues with an explicit evidence limit and is not operational proof.
+
+Identity, provider permission, organizational authority, human approval, and host enforcement are separate facts; no agent self-approves or broadens a role to clear an error. A verified authorized release emits the release run record; non-deploy actions preserve prior evidenced `feature_status` or emit operations evidence only (`feature_lifecycle: not_assessed`, no feature record), and `recommended_next_workflow` is `null` without release evidence. Package, scorer, actual-agent, and provider-sandbox qualification lanes stay separate; only lanes actually run are claimed.
 
 ### Gate Commands And Assurance Boundaries
 
@@ -302,6 +321,9 @@ Use `skills/common/common-software-requirements/references/requirements-standard
 - `implement-feature`: failing test first, no pre-test implementation kept as reference.
 - `dev-fix`: root cause explicit before code proposal.
 - `verify-work`: no PASS from stale runs; evidence must be fresh.
+- `deploy-release`: no mode label waives release gates; no environment deploys freely; a merge event is not an approval.
+- `incident-hotfix`: missing identity, authority, required MCP, or enforceable scope blocks the mutation, never the safe scoped analysis.
+- `monitor-respond`: owns statistical bands and scan diffs only; a receipt is not a deployment record.
 - `code-review`: keep review diff-first; request ticket/AC, architecture, PR metadata, or specialist lanes only when scope requires them.
 - `codebase-review`: record source provenance, review context including prompt-injection posture, runtime contract, optional runtime attestation, policy-enforcement coverage, and evidence coverage before broad scoring.
 - `skill-benchmark`: include pressure scenarios, rationalizations, red flags, and behavior assertions for guardrail skills.

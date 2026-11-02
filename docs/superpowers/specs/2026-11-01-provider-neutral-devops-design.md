@@ -1,6 +1,6 @@
 # Provider-neutral DevOps operations design
 
-Status: revised after one approved premium consultation; implementation remains unapproved.
+Status: revised after one approved premium consultation; the user subsequently approved both linked plans with Subagent-Driven execution and implementation of the approved source changes has begun. Operational authority (cloud/provider operations, MCP installation, premium, push/merge) is not granted, and the qualification and retirement gates below remain open.
 Date: 2026-11-01
 Scope: personal Agent Skills Standard repository; separate from website PR #280.
 
@@ -106,8 +106,8 @@ Extract principles rather than copying upstream recipes. If copying substantial 
 
 ## Approval and review
 
-The user authorized one bounded read-only consultation with `Personal · Premium Advisor`, `openai-codex/gpt-6-astra`, medium. The advisor reviewed the initial documents and returned NEEDS REVISION: effect-based release gates, incident authority/routing contradictions, non-release lifecycle semantics, and behavioral qualification. This revision incorporates those findings; the advisor has not re-reviewed it and no second premium call is authorized. The existing workflow ID remains the recommended boundary. Implementation and execution mode require separate approval. Review disposition is recorded with the implementation plan.
+The user authorized one bounded read-only consultation with `Personal · Premium Advisor`, `openai-codex/gpt-6-astra`, medium. The advisor reviewed the initial documents and returned NEEDS REVISION: effect-based release gates, incident authority/routing contradictions, non-release lifecycle semantics, and behavioral qualification. This revision incorporates those findings; the advisor has not re-reviewed it and no second premium call is authorized. The existing workflow ID remains the recommended boundary. Implementation and execution mode were subsequently approved by the user for both linked plans with Subagent-Driven execution; that approval covers the approved source changes only and does not authorize cloud/provider operations, MCP installation, premium calls, push or merge. Review disposition is recorded with the implementation plan.
 
 ## Companion cleanup amendment
 
-The user subsequently approved planning consolidation of `review-ticket` into `code-review`. See `2026-11-01-review-workflow-consolidation-design.md` and `../plans/2026-11-01-review-workflow-consolidation.md`. That slice preserves ticket/AC, specialist and PR-metadata capabilities, migrates active callers, and gates retirement on ownership-safe publication. It does not change the six DevOps operations or their authority rules. Shared router/docs/metadata/generation edits require one integration owner. Earlier review verdicts apply only to the recorded document hashes and do not cover this new scope or these linking edits; no additional premium invocation or implementation is authorized.
+The user subsequently approved planning consolidation of `review-ticket` into `code-review`. See `2026-11-01-review-workflow-consolidation-design.md` and `../plans/2026-11-01-review-workflow-consolidation.md`. That slice preserves ticket/AC, specialist and PR-metadata capabilities, migrates active callers, and gates retirement on ownership-safe publication. It does not change the six DevOps operations or their authority rules. Shared router/docs/metadata/generation edits require one integration owner. Earlier review verdicts apply only to the recorded document hashes and do not cover this new scope or these linking edits; no additional premium invocation is authorized, and cloud/provider operations, MCP installation, push and merge remain unauthorized.
