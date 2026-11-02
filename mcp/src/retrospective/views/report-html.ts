@@ -81,6 +81,26 @@ export type LedgerOutcome =
 
 export type { ReportContext, SessionRates };
 
+export type LedgerPermissionRow = {
+  name: string;
+  asked: number;
+  allow: number;
+  deny: number;
+  other: number;
+  unanswered: number;
+};
+
+export type LedgerPermissionRequests = {
+  asked: number;
+  answered: number;
+  unanswered: number;
+  answeredWithoutRequest: number;
+  agentsAsked: number;
+  tools: LedgerPermissionRow[];
+  programs: LedgerPermissionRow[];
+  distinctPrograms: number;
+};
+
 type ViewLedger = Ledger & {
   label?: string | null;
   models?: LedgerModel[];
@@ -90,6 +110,7 @@ type ViewLedger = Ledger & {
   folder?: LedgerFolder | null;
   lookups?: LedgerLookups | null;
   otherAgents?: { count: number; turns: number; costCents: number } | null;
+  permissionRequests?: LedgerPermissionRequests | null;
 };
 
 const LOOKUP_TOOLS = [
@@ -134,7 +155,7 @@ const DECISION_BY_RULE: Record<string, string> = {
 
 const UNKNOWN_BY_RULE: Record<string, string> = {
   "guardrail-answers":
-    "which agents asked and what for: the file shows counts and allow or deny, not the request",
+    "why each request was needed and whether the command was safe: only the tool and the program word are recorded",
   "cost-concentration":
     "why the main kept the work and whether the spend was worth it",
   "unguarded-edits": "whether the edited files needed a skill",
@@ -541,6 +562,115 @@ function renderDoNext(improvements: LedgerImprovement[] | undefined): string {
   }
 
   return body;
+}
+
+function renderPermissionRequests(
+  permissionRequests: LedgerPermissionRequests | null | undefined,
+  permissionRequestsClaim: Claim | undefined,
+): string {
+  if (!permissionRequests) return "";
+
+  const asked = permissionRequestsClaim
+    ? countOf(permissionRequestsClaim.values, "asked")
+    : permissionRequests.asked;
+  const agentsAsked = permissionRequestsClaim
+    ? countOf(permissionRequestsClaim.values, "agentsAsked")
+    : permissionRequests.agentsAsked;
+  const answered = permissionRequestsClaim
+    ? countOf(permissionRequestsClaim.values, "answered")
+    : permissionRequests.answered;
+  const allowed = permissionRequestsClaim
+    ? countOf(permissionRequestsClaim.values, "allowed")
+    : permissionRequests.tools.reduce((sum, r) => sum + r.allow, 0);
+  const denied = permissionRequestsClaim
+    ? countOf(permissionRequestsClaim.values, "denied")
+    : permissionRequests.tools.reduce((sum, r) => sum + r.deny, 0);
+  const unanswered = permissionRequestsClaim
+    ? countOf(permissionRequestsClaim.values, "unanswered")
+    : permissionRequests.unanswered;
+  const answeredWithoutRequest = permissionRequestsClaim
+    ? countOf(permissionRequestsClaim.values, "answeredWithoutRequest")
+    : permissionRequests.answeredWithoutRequest;
+
+  let html = "<h3>Permission requests</h3>\n";
+  html +=
+    "<p>What agents asked permission for, and what was answered. Only the tool and the first word of a command are recorded; the command text is not read.</p>\n";
+  html += `<p>${asked} requests from ${agentsAsked} agents; ${answered} answered (${allowed} allowed, ${denied} denied), ${unanswered} unanswered.</p>\n`;
+
+  html += `<h4>By tool</h4>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Asked</th>
+<th>Allowed</th>
+<th>Denied</th>
+<th>Other</th>
+<th>Unanswered</th>
+</tr>
+</thead>
+<tbody>\n`;
+  for (const r of permissionRequests.tools) {
+    html += `<tr><td>${escapeHtml(r.name)}</td><td>${r.asked}</td><td>${r.allow}</td><td>${r.deny}</td><td>${r.other}</td><td>${r.unanswered}</td></tr>\n`;
+  }
+  html += `</tbody>
+</table>\n`;
+
+  html += `<h4>By program (bash)</h4>
+<table>
+<thead>
+<tr>
+<th>Program</th>
+<th>Asked</th>
+<th>Allowed</th>
+<th>Denied</th>
+<th>Other</th>
+<th>Unanswered</th>
+<th>Allowed share %</th>
+</tr>
+</thead>
+<tbody>\n`;
+  for (const r of permissionRequests.programs) {
+    const sharePct = r.asked > 0 ? Math.round((r.allow * 100) / r.asked) : 0;
+    html += `<tr><td>${escapeHtml(r.name)}</td><td>${r.asked}</td><td>${r.allow}</td><td>${r.deny}</td><td>${r.other}</td><td>${r.unanswered}</td><td>${sharePct}%</td></tr>\n`;
+  }
+  html += `</tbody>
+</table>\n`;
+
+  const allowlistCandidates: string[] = [];
+  for (const r of permissionRequests.programs) {
+    if (r.asked >= 5 && r.deny === 0 && r.allow > 0) {
+      allowlistCandidates.push(r.name);
+      if (allowlistCandidates.length === 5) break;
+    }
+  }
+  if (allowlistCandidates.length > 0) {
+    const listStr = allowlistCandidates
+      .map((name) => escapeHtml(name))
+      .join(", ");
+    html += `<p>Programs with repeated allowed requests (5 or more, none denied) are allowlist candidates: ${listStr}.</p>\n`;
+  }
+
+  const deniedPrograms: string[] = [];
+  for (const r of permissionRequests.programs) {
+    if (r.deny > 0) {
+      deniedPrograms.push(r.name);
+      if (deniedPrograms.length === 5) break;
+    }
+  }
+  if (deniedPrograms.length > 0) {
+    const listStr = deniedPrograms.map((name) => escapeHtml(name)).join(", ");
+    html += `<p>Denied requests show where the setup said no; read them before widening the allowlist: ${listStr}.</p>\n`;
+  }
+
+  if (answeredWithoutRequest > 0) {
+    html += `<p>${answeredWithoutRequest} answers had no matching request in this session file (answered through a pending-permissions list).</p>\n`;
+  }
+
+  html +=
+    "<p>Programs are the first word of the command (after wrappers such as rtk proxy and env); sudo, sh and bash hide the real command.</p>\n";
+
+  return html;
 }
 
 function renderOutcome(outcome: LedgerOutcome | undefined): string {
@@ -1088,6 +1218,15 @@ export function renderReportHtml(
   const routingClaim = ledger.claims.find(
     (c) => c.template === "routing-order",
   );
+  const permissionRequestsClaim = ledger.claims.find(
+    (c) => c.template === ("permission-requests" as Claim["template"]),
+  );
+  const permReqs =
+    "permissionRequests" in vLedger ? vLedger.permissionRequests : null;
+  const permissionRequestsHtml = renderPermissionRequests(
+    permReqs,
+    permissionRequestsClaim,
+  );
 
   const headerHtml = renderHeader(vLedger, coverageClaim);
   const bottomLineHtml = renderBottomLine(
@@ -1121,6 +1260,7 @@ export function renderReportHtml(
     tilesHtml,
     decisionsHtml,
     doNextHtml,
+    permissionRequestsHtml,
     outcomeHtml,
     timelineHtml,
     costAndModelsHtml,

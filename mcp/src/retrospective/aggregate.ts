@@ -11,6 +11,7 @@ import {
   extractServerToolName,
 } from "./server-tools";
 import { parseLookupResult } from "./lookup-results";
+import { parsePermissionRequestMessage } from "./permission-requests";
 
 export const LOOKUP_TOOLS = [
   "load_skills_for_files",
@@ -185,6 +186,53 @@ export type PermissionAnswers = {
   /** answers whose target key could not be added because 20 keys exist (still counted in allow/deny/other). */
   untrackedTargets: number;
 };
+export type PermissionRequestTally = {
+  asked: number;
+  allow: number;
+  deny: number;
+  other: number;
+  unanswered: number;
+};
+export type PermissionRequestStats = {
+  asked: number;
+  answered: number;
+  answeredWithoutRequest: number;
+  agentsAsked: number;
+  tools: Record<string, PermissionRequestTally>;
+  programs: Record<string, PermissionRequestTally>;
+};
+
+export function createEmptyPermissionRequestStats(): PermissionRequestStats {
+  return {
+    asked: 0,
+    answered: 0,
+    answeredWithoutRequest: 0,
+    agentsAsked: 0,
+    tools: {},
+    programs: {},
+  };
+}
+
+export function clonePermissionRequestStats(
+  stats: PermissionRequestStats,
+): PermissionRequestStats {
+  const tools: Record<string, PermissionRequestTally> = {};
+  for (const [k, v] of Object.entries(stats.tools)) {
+    tools[k] = { ...v };
+  }
+  const programs: Record<string, PermissionRequestTally> = {};
+  for (const [k, v] of Object.entries(stats.programs)) {
+    programs[k] = { ...v };
+  }
+  return {
+    asked: stats.asked,
+    answered: stats.answered,
+    answeredWithoutRequest: stats.answeredWithoutRequest,
+    agentsAsked: stats.agentsAsked,
+    tools,
+    programs,
+  };
+}
 
 export type ContextStats = {
   /** max over assistant turns of usage.cacheRead (cacheRead ?? cachedInput) */
@@ -231,6 +279,7 @@ export type SessionAggregate = {
   hostSkillReads: Record<string, number>;
   skillLoad: SessionSkillLoad;
   permissionAnswers: PermissionAnswers;
+  permissionRequests: PermissionRequestStats;
   context: ContextStats;
   routing: RoutingOrder;
   lookups: LookupStats;
@@ -292,6 +341,7 @@ export type NodeUsage = {
   serverToolCalls: Record<string, number>;
   models: Record<string, number>;
   permissionAnswers: PermissionAnswers;
+  permissionRequests: PermissionRequestStats;
   context: ContextStats;
   routing: RoutingOrder;
   lookups: LookupStats;
@@ -361,6 +411,107 @@ const MAX_SKILL_LOAD_NODES = 256;
 export const MAX_TREE_NODES = 64;
 const VALID_TARGET_ID = /^[A-Za-z0-9-]{8,128}$/;
 const MAX_PERMISSION_TARGET_KEYS = 20;
+const MAX_REQUEST_VERDICTS_CAP = 20_000;
+const MAX_DISTINCT_AGENTS_CAP = 500;
+const MAX_TOOL_TALLY_KEYS = 20;
+const MAX_PROGRAM_TALLY_KEYS = 60;
+
+function recordPermissionTally(
+  map: Record<string, PermissionRequestTally>,
+  rawKey: string,
+  verdict: "allow" | "deny" | "other" | "unanswered",
+  maxKeys: number,
+): void {
+  let targetKey = rawKey;
+  if (!Object.hasOwn(map, targetKey)) {
+    if (Object.keys(map).length >= maxKeys) {
+      targetKey = "other";
+    }
+  }
+  const entry = (map[targetKey] ??= {
+    asked: 0,
+    allow: 0,
+    deny: 0,
+    other: 0,
+    unanswered: 0,
+  });
+  entry.asked += 1;
+  entry[verdict] += 1;
+
+  const keys = Object.keys(map);
+  if (keys.length > maxKeys) {
+    const nonOther = keys.filter((k) => k !== "other");
+    const lastKey = nonOther[nonOther.length - 1];
+    const lastEntry = map[lastKey];
+    delete map[lastKey];
+    const otherEntry = (map["other"] ??= {
+      asked: 0,
+      allow: 0,
+      deny: 0,
+      other: 0,
+      unanswered: 0,
+    });
+    otherEntry.asked += lastEntry.asked;
+    otherEntry.allow += lastEntry.allow;
+    otherEntry.deny += lastEntry.deny;
+    otherEntry.other += lastEntry.other;
+    otherEntry.unanswered += lastEntry.unanswered;
+  }
+}
+
+function buildPermissionRequestStats(
+  requests: Map<
+    string,
+    { tool: string; program: string | null; agent: string }
+  >,
+  verdicts: Map<string, "allow" | "deny" | "other">,
+): PermissionRequestStats {
+  const tools: Record<string, PermissionRequestTally> = {};
+  const programs: Record<string, PermissionRequestTally> = {};
+
+  let answered = 0;
+  const distinctAgents = new Set<string>();
+
+  for (const [reqId, req] of requests.entries()) {
+    if (distinctAgents.size < MAX_DISTINCT_AGENTS_CAP) {
+      distinctAgents.add(req.agent);
+    }
+    const verdict = verdicts.get(reqId);
+    let verdictKey: "allow" | "deny" | "other" | "unanswered";
+    if (verdict !== undefined) {
+      answered += 1;
+      verdictKey = verdict;
+    } else {
+      verdictKey = "unanswered";
+    }
+
+    recordPermissionTally(tools, req.tool, verdictKey, MAX_TOOL_TALLY_KEYS);
+    if (req.program !== null) {
+      recordPermissionTally(
+        programs,
+        req.program,
+        verdictKey,
+        MAX_PROGRAM_TALLY_KEYS,
+      );
+    }
+  }
+
+  let answeredWithoutRequest = 0;
+  for (const reqId of verdicts.keys()) {
+    if (!requests.has(reqId)) {
+      answeredWithoutRequest += 1;
+    }
+  }
+
+  return {
+    asked: requests.size,
+    answered,
+    answeredWithoutRequest,
+    agentsAsked: distinctAgents.size,
+    tools,
+    programs,
+  };
+}
 
 function derivePermissionTargetKey(rawId: unknown): string {
   if (typeof rawId === "string" && VALID_TARGET_ID.test(rawId)) {
@@ -666,6 +817,11 @@ export async function aggregateSession(
       byTarget: {},
       untrackedTargets: 0,
     };
+    const permissionRequestsMap = new Map<
+      string,
+      { tool: string; program: string | null; agent: string }
+    >();
+    const permissionVerdictsMap = new Map<string, "allow" | "deny" | "other">();
     const context: ContextStats = {
       maxCacheRead: 0,
       postCompactionTurns: 0,
@@ -793,6 +949,23 @@ export async function aggregateSession(
 
         if (msg.role === "user") {
           userMessages += 1;
+          const text = extractTextContent(msg.content);
+          if (text.includes("permission-required")) {
+            const parsed = parsePermissionRequestMessage(text);
+            if (
+              parsed !== null &&
+              (permissionRequestsMap.size < MAX_REQUEST_VERDICTS_CAP ||
+                permissionRequestsMap.has(parsed.requestId))
+            ) {
+              if (!permissionRequestsMap.has(parsed.requestId)) {
+                permissionRequestsMap.set(parsed.requestId, {
+                  tool: parsed.tool,
+                  program: parsed.program,
+                  agent: parsed.agent,
+                });
+              }
+            }
+          }
           return;
         }
 
@@ -1106,6 +1279,18 @@ export async function aggregateSession(
                         : "";
                     const targetKey = derivePermissionTargetKey(rawAgentId);
                     recordPermissionTarget(permissionAnswers, targetKey);
+                    if (
+                      args !== null &&
+                      typeof args.requestId === "string" &&
+                      /^[A-Za-z0-9-]{1,64}$/.test(args.requestId)
+                    ) {
+                      if (
+                        permissionVerdictsMap.size < MAX_REQUEST_VERDICTS_CAP ||
+                        permissionVerdictsMap.has(args.requestId)
+                      ) {
+                        permissionVerdictsMap.set(args.requestId, behavior);
+                      }
+                    }
                   }
                 }
               }
@@ -1503,6 +1688,14 @@ export async function aggregateSession(
       partialReason = "time-ceiling";
     }
 
+    const permissionRequests: PermissionRequestStats =
+      source.format === "codex"
+        ? createEmptyPermissionRequestStats()
+        : buildPermissionRequestStats(
+            permissionRequestsMap,
+            permissionVerdictsMap,
+          );
+
     const completenessStatus =
       skippedLines > 0 ? "may-undercount-by-skipped-lines" : "complete";
 
@@ -1548,6 +1741,7 @@ export async function aggregateSession(
       skillLoad,
       permissionAnswers,
       context,
+      permissionRequests,
       routing,
       lookups,
       folder,
@@ -1704,6 +1898,7 @@ export function rollUp(aggregates: AggregatedSession[]): TreeAggregate {
           byTarget: { ...agg.permissionAnswers.byTarget },
           untrackedTargets: agg.permissionAnswers.untrackedTargets,
         },
+        permissionRequests: clonePermissionRequestStats(agg.permissionRequests),
         context: { ...agg.context },
         routing: { ...agg.routing },
         lookups: cloneLookupStats(agg.lookups),

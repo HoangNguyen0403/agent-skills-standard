@@ -67,6 +67,26 @@ export type LedgerOutcome =
       reason: "folder-missing" | "not-a-repo" | "git-error" | "not-measured";
     };
 
+export type LedgerPermissionRow = {
+  name: string;
+  asked: number;
+  allow: number;
+  deny: number;
+  other: number;
+  unanswered: number;
+};
+
+export type LedgerPermissionRequests = {
+  asked: number;
+  answered: number;
+  unanswered: number;
+  answeredWithoutRequest: number;
+  agentsAsked: number;
+  tools: LedgerPermissionRow[];
+  programs: LedgerPermissionRow[];
+  distinctPrograms: number;
+};
+
 type ViewLedger = Ledger & {
   folder?: LedgerFolder | null;
   lookups?: unknown;
@@ -78,6 +98,7 @@ type ViewLedger = Ledger & {
   days?: LedgerDay[];
   toolRows?: LedgerToolRow[];
   outcome?: LedgerOutcome;
+  permissionRequests?: LedgerPermissionRequests | null;
 };
 
 type RenderOptions = {
@@ -251,6 +272,52 @@ function renderAgsLookupsLine(lookupsClaim: Claim): string {
   )}. Calls by file ${filesCalls} (${filesNoMatch} matched nothing), by keyword ${keywordsCalls} (${keywordsNoMatch}), by name ${nameCalls} (${nameNoMatch}). Skill-level detail is in report.html.`;
 }
 
+function renderPermissionRequestsLine(
+  ledger: ViewLedger,
+  pr: LedgerPermissionRequests,
+): string {
+  const permReqClaim = ledger.claims.find(
+    (c) => (c.template as string) === "permission-requests",
+  );
+  const asked = permReqClaim ? countOf(permReqClaim.values, "asked") : pr.asked;
+  const agentsAsked = permReqClaim
+    ? countOf(permReqClaim.values, "agentsAsked")
+    : pr.agentsAsked;
+  const answered = permReqClaim
+    ? countOf(permReqClaim.values, "answered")
+    : pr.answered;
+  const unanswered = permReqClaim
+    ? countOf(permReqClaim.values, "unanswered")
+    : pr.unanswered;
+  const allowed = permReqClaim
+    ? countOf(permReqClaim.values, "allowed")
+    : pr.tools.reduce((sum, t) => sum + t.allow, 0);
+  const denied = permReqClaim
+    ? countOf(permReqClaim.values, "denied")
+    : pr.tools.reduce((sum, t) => sum + t.deny, 0);
+
+  let line = `Permission requests: ${plural(asked, "request")} from ${plural(
+    agentsAsked,
+    "agent",
+  )}; ${answered} answered (${allowed} allowed, ${denied} denied), ${unanswered} unanswered.`;
+
+  if (pr.tools && pr.tools.length > 0) {
+    const topTools = pr.tools.slice(0, 3);
+    const toolParts = topTools.map((t) => `${t.name} ${t.asked}`);
+    line += ` By tool: ${toolParts.join(", ")}.`;
+  }
+
+  if (pr.programs && pr.programs.length > 0) {
+    const topPrograms = pr.programs.slice(0, 5);
+    const progParts = topPrograms.map(
+      (p) => `${p.name} ${p.asked} (${p.allow} allowed, ${p.deny} denied)`,
+    );
+    line += ` Top programs: ${progParts.join(", ")}.`;
+  }
+
+  return line;
+}
+
 function renderLines(ledger: ViewLedger, options: RenderOptions): string[] {
   const lines: string[] = [];
 
@@ -393,6 +460,11 @@ function renderLines(ledger: ViewLedger, options: RenderOptions): string[] {
     );
   } else {
     lines.push("Guardrails: no permission answers, asks or aborts observed.");
+  }
+
+  // Permission requests scorecard line
+  if (ledger.permissionRequests != null) {
+    lines.push(renderPermissionRequestsLine(ledger, ledger.permissionRequests));
   }
 
   // Cost scorecard line

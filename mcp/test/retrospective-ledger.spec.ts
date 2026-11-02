@@ -11,10 +11,15 @@ import {
 import {
   buildLedger,
   checkClaimRules,
+  SAFE_PERMISSION_NAME_REGEX,
   sanitizeLabel,
   verifyLedger,
   type Claim,
   type LedgerInput,
+  type LedgerPermissionRequests,
+  type LedgerPermissionRow,
+  type PermissionRequestStats,
+  type PermissionRequestTally,
 } from "../src/retrospective/ledger";
 import type { SkillUsageSnapshot } from "../src/services/SessionTracker";
 
@@ -3254,6 +3259,615 @@ describe("retrospective ledger", () => {
 
       const unsanitized = { ...ledger, label: "Unsanitized <bad> title" };
       expect(verifyLedger(unsanitized, input)).toEqual({
+        ok: false,
+        problems: ["NUMBER_MISMATCH", "UNSAFE_VALUE"],
+      });
+    });
+  });
+
+  describe("Slice E3: permissionRequests in ledger, claim emission, evidence ids, sorting/caps, and tamper detection", () => {
+    it("null rules: yields null permissionRequests and omits claim on null tree, unmeasured nodes, or zero asked/answeredWithoutRequest", () => {
+      // 1. null tree (tracker-only)
+      const trackerLedger = buildLedger({ ...DEFAULT_INPUT, tree: null });
+      expect(trackerLedger.permissionRequests).toBeNull();
+      expect(
+        trackerLedger.claims.some((c) => c.template === "permission-requests"),
+      ).toBe(false);
+
+      // 2. tree with nodes having no permissionRequests
+      const defaultLedger = buildLedger(DEFAULT_INPUT);
+      expect(defaultLedger.permissionRequests).toBeNull();
+      expect(
+        defaultLedger.claims.some((c) => c.template === "permission-requests"),
+      ).toBe(false);
+
+      // 3. tree with nodes having 0 asked and 0 answeredWithoutRequest
+      const zeroTree = createTreeFixture({
+        nodes: [
+          {
+            ...createNodeUsage(0),
+            permissionRequests: {
+              asked: 0,
+              answered: 0,
+              answeredWithoutRequest: 0,
+              agentsAsked: 0,
+              tools: {},
+              programs: {},
+            },
+          },
+        ],
+      });
+      const zeroLedger = buildLedger({ ...DEFAULT_INPUT, tree: zeroTree });
+      expect(zeroLedger.permissionRequests).toBeNull();
+      expect(
+        zeroLedger.claims.some((c) => c.template === "permission-requests"),
+      ).toBe(false);
+
+      // 4. tree with 0 asked but answeredWithoutRequest > 0 yields non-null permissionRequests and emits claim
+      const answerOnlyTree = createTreeFixture({
+        nodes: [
+          {
+            ...createNodeUsage(0),
+            permissionRequests: {
+              asked: 0,
+              answered: 0,
+              answeredWithoutRequest: 3,
+              agentsAsked: 0,
+              tools: {},
+              programs: {},
+            },
+          },
+        ],
+      });
+      const answerOnlyLedger = buildLedger({
+        ...DEFAULT_INPUT,
+        tree: answerOnlyTree,
+      });
+      expect(answerOnlyLedger.permissionRequests).toEqual({
+        asked: 0,
+        answered: 0,
+        unanswered: 0,
+        answeredWithoutRequest: 3,
+        agentsAsked: 0,
+        tools: [],
+        programs: [],
+        distinctPrograms: 0,
+      });
+      const answerClaim = answerOnlyLedger.claims.find(
+        (c) => c.template === "permission-requests",
+      );
+      expect(answerClaim).toBeDefined();
+      expect(answerClaim?.values.answeredWithoutRequest).toBe(3);
+      expect(answerClaim?.denominator).toEqual({
+        count: 0,
+        unit: "permission requests",
+      });
+    });
+
+    it("merges tallies per tool and per program across nodes", () => {
+      const node0 = {
+        ...createNodeUsage(0),
+        permissionRequests: {
+          asked: 3,
+          answered: 3,
+          answeredWithoutRequest: 1,
+          agentsAsked: 1,
+          tools: {
+            bash: { asked: 2, allow: 1, deny: 1, other: 0, unanswered: 0 },
+            read: { asked: 1, allow: 1, deny: 0, other: 0, unanswered: 0 },
+          },
+          programs: {
+            git: { asked: 2, allow: 1, deny: 1, other: 0, unanswered: 0 },
+          },
+        },
+      };
+
+      const node1 = {
+        ...createNodeUsage(1),
+        permissionRequests: {
+          asked: 4,
+          answered: 3,
+          answeredWithoutRequest: 0,
+          agentsAsked: 1,
+          tools: {
+            bash: { asked: 3, allow: 2, deny: 0, other: 0, unanswered: 1 },
+            write: { asked: 1, allow: 1, deny: 0, other: 0, unanswered: 0 },
+          },
+          programs: {
+            git: { asked: 1, allow: 1, deny: 0, other: 0, unanswered: 0 },
+            npm: { asked: 2, allow: 1, deny: 0, other: 0, unanswered: 1 },
+          },
+        },
+      };
+
+      const tree = createTreeFixture({ nodes: [node0, node1] });
+      const ledger = buildLedger({ ...DEFAULT_INPUT, tree });
+
+      expect(ledger.permissionRequests).toBeDefined();
+      const pr = ledger.permissionRequests;
+      if (!pr) throw new Error("permissionRequests must not be null");
+
+      expect(pr.asked).toBe(7);
+      expect(pr.answered).toBe(6);
+      expect(pr.unanswered).toBe(1);
+      expect(pr.answeredWithoutRequest).toBe(1);
+      expect(pr.agentsAsked).toBe(2);
+      expect(pr.distinctPrograms).toBe(2);
+
+      // tools merged: bash (asked 5, allow 3, deny 1, other 0, unanswered 1)
+      const bashTool = pr.tools.find((t) => t.name === "bash");
+      expect(bashTool).toEqual({
+        name: "bash",
+        asked: 5,
+        allow: 3,
+        deny: 1,
+        other: 0,
+        unanswered: 1,
+      });
+
+      // programs merged: git (asked 3, allow 2, deny 1, other 0, unanswered 0), npm (asked 2, allow 1, deny 0, other 0, unanswered 1)
+      const gitProg = pr.programs.find((p) => p.name === "git");
+      expect(gitProg).toEqual({
+        name: "git",
+        asked: 3,
+        allow: 2,
+        deny: 1,
+        other: 0,
+        unanswered: 0,
+      });
+      const npmProg = pr.programs.find((p) => p.name === "npm");
+      expect(npmProg).toEqual({
+        name: "npm",
+        asked: 2,
+        allow: 1,
+        deny: 0,
+        other: 0,
+        unanswered: 1,
+      });
+    });
+
+    it("sorts tools (cap 10) and programs (cap 15) by asked desc then name asc, with distinctPrograms before the cut", () => {
+      // 12 tools: tool-00 .. tool-11
+      const toolsMap: Record<string, PermissionRequestTally> = {};
+      for (let i = 0; i < 12; i += 1) {
+        const pad = String(i).padStart(2, "0");
+        toolsMap[`tool-${pad}`] = {
+          asked: i + 1, // tool-11 has asked 12, tool-00 has asked 1
+          allow: i + 1,
+          deny: 0,
+          other: 0,
+          unanswered: 0,
+        };
+      }
+
+      // 18 programs: prog-00 .. prog-17 plus "other"
+      const programsMap: Record<string, PermissionRequestTally> = {};
+      for (let i = 0; i < 18; i += 1) {
+        const pad = String(i).padStart(2, "0");
+        programsMap[`prog-${pad}`] = {
+          asked: i + 1,
+          allow: i + 1,
+          deny: 0,
+          other: 0,
+          unanswered: 0,
+        };
+      }
+      programsMap["other"] = {
+        asked: 10,
+        allow: 10,
+        deny: 0,
+        other: 0,
+        unanswered: 0,
+      };
+
+      const node = {
+        ...createNodeUsage(0),
+        permissionRequests: {
+          asked: 200,
+          answered: 200,
+          answeredWithoutRequest: 0,
+          agentsAsked: 1,
+          tools: toolsMap,
+          programs: programsMap,
+        },
+      };
+
+      const tree = createTreeFixture({ nodes: [node] });
+      const ledger = buildLedger({ ...DEFAULT_INPUT, tree });
+
+      const pr = ledger.permissionRequests;
+      if (!pr) throw new Error("permissionRequests must not be null");
+
+      // Tools capped at 10
+      expect(pr.tools).toHaveLength(10);
+      expect(pr.tools[0].name).toBe("tool-11"); // asked 12
+      expect(pr.tools[9].name).toBe("tool-02"); // asked 3
+      // tool-01 and tool-00 are excluded by cap
+
+      // Programs capped at 15
+      expect(pr.programs).toHaveLength(15);
+      // Total keys before cut: 18 (prog-00..prog-17) + 1 ("other") = 19
+      expect(pr.distinctPrograms).toBe(19);
+
+      // "other" has asked 10, so it appears in the top 15 sorted like any program
+      expect(pr.programs.some((p) => p.name === "other")).toBe(true);
+
+      // Verify tie breaking by name asc
+      const tieToolsMap: Record<string, PermissionRequestTally> = {
+        beta: { asked: 5, allow: 5, deny: 0, other: 0, unanswered: 0 },
+        alpha: { asked: 5, allow: 5, deny: 0, other: 0, unanswered: 0 },
+      };
+      const tieTree = createTreeFixture({
+        nodes: [
+          {
+            ...createNodeUsage(0),
+            permissionRequests: {
+              asked: 10,
+              answered: 10,
+              answeredWithoutRequest: 0,
+              agentsAsked: 1,
+              tools: tieToolsMap,
+              programs: {},
+            },
+          },
+        ],
+      });
+      const tieLedger = buildLedger({ ...DEFAULT_INPUT, tree: tieTree });
+      expect(tieLedger.permissionRequests?.tools.map((t) => t.name)).toEqual([
+        "alpha",
+        "beta",
+      ]);
+    });
+
+    it("re-sanitizes unsafe tool and program names to 'other' and folds their tallies", () => {
+      const hostileNode = {
+        ...createNodeUsage(0),
+        permissionRequests: {
+          asked: 6,
+          answered: 6,
+          answeredWithoutRequest: 0,
+          agentsAsked: 1,
+          tools: {
+            safe_tool: { asked: 2, allow: 2, deny: 0, other: 0, unanswered: 0 },
+            "bad\x00tool": {
+              asked: 2,
+              allow: 1,
+              deny: 1,
+              other: 0,
+              unanswered: 0,
+            },
+            tool_name_that_exceeds_thirty_two_characters_limit: {
+              asked: 2,
+              allow: 2,
+              deny: 0,
+              other: 0,
+              unanswered: 0,
+            },
+          },
+          programs: {
+            "safe-prog": {
+              asked: 3,
+              allow: 3,
+              deny: 0,
+              other: 0,
+              unanswered: 0,
+            },
+            "bad\x1fprog": {
+              asked: 1,
+              allow: 0,
+              deny: 1,
+              other: 0,
+              unanswered: 0,
+            },
+            overly_long_program_word_that_has_more_than_32_characters: {
+              asked: 2,
+              allow: 2,
+              deny: 0,
+              other: 0,
+              unanswered: 0,
+            },
+          },
+        },
+      };
+
+      const tree = createTreeFixture({ nodes: [hostileNode] });
+      const ledger = buildLedger({ ...DEFAULT_INPUT, tree });
+
+      const pr = ledger.permissionRequests;
+      if (!pr) throw new Error("permissionRequests must not be null");
+
+      // Tools should have "safe_tool" and "other" (with 2 + 2 = 4 asked)
+      expect(pr.tools).toHaveLength(2);
+      const otherTool = pr.tools.find((t) => t.name === "other");
+      expect(otherTool).toEqual({
+        name: "other",
+        asked: 4,
+        allow: 3,
+        deny: 1,
+        other: 0,
+        unanswered: 0,
+      });
+
+      // Programs should have "safe-prog" and "other" (with 1 + 2 = 3 asked)
+      expect(pr.programs).toHaveLength(2);
+      const otherProg = pr.programs.find((p) => p.name === "other");
+      expect(otherProg).toEqual({
+        name: "other",
+        asked: 3,
+        allow: 2,
+        deny: 1,
+        other: 0,
+        unanswered: 0,
+      });
+    });
+
+    it("emits permission-requests claim with exact values, denominator, and aggregate evidence entries", () => {
+      const node = {
+        ...createNodeUsage(0),
+        permissionRequests: {
+          asked: 10,
+          answered: 8,
+          answeredWithoutRequest: 2,
+          agentsAsked: 3,
+          tools: {
+            bash: { asked: 6, allow: 4, deny: 2, other: 0, unanswered: 0 },
+            read: { asked: 4, allow: 2, deny: 0, other: 0, unanswered: 2 },
+          },
+          programs: {
+            git: { asked: 4, allow: 3, deny: 1, other: 0, unanswered: 0 },
+            npm: { asked: 2, allow: 1, deny: 1, other: 0, unanswered: 0 },
+          },
+        },
+      };
+
+      const tree = createTreeFixture({ nodes: [node] });
+      const input = { ...DEFAULT_INPUT, tree };
+      const ledger = buildLedger(input);
+
+      const claim = ledger.claims.find(
+        (c) => c.template === "permission-requests",
+      );
+      expect(claim).toBeDefined();
+      if (!claim) return;
+
+      expect(claim.type).toBe("observation");
+      expect(claim.denominator).toEqual({
+        count: 10,
+        unit: "permission requests",
+      });
+      expect(claim.values).toEqual({
+        asked: 10,
+        answered: 8,
+        unanswered: 2,
+        answeredWithoutRequest: 2,
+        agentsAsked: 3,
+        bashAsked: 6,
+        distinctPrograms: 2,
+        allowed: 6,
+        denied: 2,
+        otherVerdict: 0,
+      });
+
+      // Per-value evidence invariant check
+      for (const [k, v] of Object.entries(claim.values)) {
+        if (typeof v === "number") {
+          const evId = `agg:claim:permission-requests:${k}`;
+          expect(ledger.evidence[evId]).toEqual({
+            kind: "aggregate",
+            value: v,
+          });
+          expect(claim.supporting).toContain(evId);
+        }
+      }
+
+      // Listed row evidence: tool rows
+      expect(ledger.evidence["agg:permreq:tool:bash:asked"]).toEqual({
+        kind: "aggregate",
+        value: 6,
+      });
+      expect(ledger.evidence["agg:permreq:tool:bash:allow"]).toEqual({
+        kind: "aggregate",
+        value: 4,
+      });
+      expect(ledger.evidence["agg:permreq:tool:bash:deny"]).toEqual({
+        kind: "aggregate",
+        value: 2,
+      });
+      expect(ledger.evidence["agg:permreq:tool:bash:other"]).toEqual({
+        kind: "aggregate",
+        value: 0,
+      });
+      expect(ledger.evidence["agg:permreq:tool:bash:unanswered"]).toEqual({
+        kind: "aggregate",
+        value: 0,
+      });
+
+      // Listed row evidence: program rows
+      expect(ledger.evidence["agg:permreq:program:git:asked"]).toEqual({
+        kind: "aggregate",
+        value: 4,
+      });
+      expect(ledger.evidence["agg:permreq:program:git:allow"]).toEqual({
+        kind: "aggregate",
+        value: 3,
+      });
+      expect(ledger.evidence["agg:permreq:program:git:deny"]).toEqual({
+        kind: "aggregate",
+        value: 1,
+      });
+      expect(ledger.evidence["agg:permreq:program:git:other"]).toEqual({
+        kind: "aggregate",
+        value: 0,
+      });
+      expect(ledger.evidence["agg:permreq:program:git:unanswered"]).toEqual({
+        kind: "aggregate",
+        value: 0,
+      });
+
+      // verifyLedger passes on untampered ledger
+      expect(verifyLedger(ledger, input)).toEqual({ ok: true });
+    });
+
+    it("tamper detection: detects modifications to permissionRequests rows, distinctPrograms, claims, and evidence", () => {
+      const node = {
+        ...createNodeUsage(0),
+        permissionRequests: {
+          asked: 4,
+          answered: 4,
+          answeredWithoutRequest: 0,
+          agentsAsked: 1,
+          tools: {
+            bash: { asked: 4, allow: 3, deny: 1, other: 0, unanswered: 0 },
+          },
+          programs: {
+            git: { asked: 4, allow: 3, deny: 1, other: 0, unanswered: 0 },
+          },
+        },
+      };
+
+      const tree = createTreeFixture({ nodes: [node] });
+      const input = { ...DEFAULT_INPUT, tree };
+      const ledger = buildLedger(input);
+      expect(verifyLedger(ledger, input)).toEqual({ ok: true });
+
+      // 1. Tamper tool row count
+      const tamperedTool = {
+        ...ledger,
+        permissionRequests: {
+          ...ledger.permissionRequests!,
+          tools: [
+            {
+              ...ledger.permissionRequests!.tools[0],
+              asked: 999,
+            },
+          ],
+        },
+      };
+      expect(verifyLedger(tamperedTool, input)).toEqual({
+        ok: false,
+        problems: ["NUMBER_MISMATCH"],
+      });
+
+      // 2. Tamper program row count
+      const tamperedProg = {
+        ...ledger,
+        permissionRequests: {
+          ...ledger.permissionRequests!,
+          programs: [
+            {
+              ...ledger.permissionRequests!.programs[0],
+              allow: 999,
+            },
+          ],
+        },
+      };
+      expect(verifyLedger(tamperedProg, input)).toEqual({
+        ok: false,
+        problems: ["NUMBER_MISMATCH"],
+      });
+
+      // 3. Tamper distinctPrograms
+      const tamperedDistinct = {
+        ...ledger,
+        permissionRequests: {
+          ...ledger.permissionRequests!,
+          distinctPrograms: 999,
+        },
+      };
+      expect(verifyLedger(tamperedDistinct, input)).toEqual({
+        ok: false,
+        problems: ["NUMBER_MISMATCH"],
+      });
+
+      // 4. Tamper claim value
+      const claim = ledger.claims.find(
+        (c) => c.template === "permission-requests",
+      );
+      if (!claim) throw new Error("claim missing");
+      const tamperedClaim = {
+        ...ledger,
+        claims: ledger.claims.map((c) =>
+          c.template === "permission-requests"
+            ? { ...c, values: { ...c.values, asked: 999 } }
+            : c,
+        ),
+      };
+      expect(verifyLedger(tamperedClaim, input)).toEqual({
+        ok: false,
+        problems: ["NUMBER_MISMATCH"],
+      });
+
+      // 5. Tamper evidence value
+      const tamperedEvidence = {
+        ...ledger,
+        evidence: {
+          ...ledger.evidence,
+          "agg:claim:permission-requests:asked": {
+            kind: "aggregate" as const,
+            value: 999,
+          },
+        },
+      };
+      expect(verifyLedger(tamperedEvidence, input)).toEqual({
+        ok: false,
+        problems: ["NUMBER_MISMATCH"],
+      });
+
+      // 6. Delete evidence entry
+      const deletedEvidence = {
+        ...ledger,
+        evidence: { ...ledger.evidence },
+      };
+      delete deletedEvidence.evidence["agg:claim:permission-requests:asked"];
+      expect(verifyLedger(deletedEvidence, input)).toEqual({
+        ok: false,
+        problems: ["DANGLING_EVIDENCE"],
+      });
+
+      // 7. Remove claim denominator -> MISSING_SCOPE
+      const noDenominator = {
+        ...ledger,
+        claims: ledger.claims.map((c) => {
+          if (c.template === "permission-requests") {
+            const copy = { ...c };
+            delete copy.denominator;
+            return copy;
+          }
+          return c;
+        }),
+      };
+      expect(verifyLedger(noDenominator, input)).toEqual({
+        ok: false,
+        problems: ["MISSING_SCOPE"],
+      });
+
+      // 8. Unsafe tool name in permissionRequests -> UNSAFE_VALUE
+      const unsafeToolName = {
+        ...ledger,
+        permissionRequests: {
+          ...ledger.permissionRequests!,
+          tools: [
+            {
+              ...ledger.permissionRequests!.tools[0],
+              name: "bad tool name with spaces and @!#$%",
+            },
+          ],
+        },
+      };
+      expect(verifyLedger(unsafeToolName, input)).toEqual({
+        ok: false,
+        problems: ["NUMBER_MISMATCH", "UNSAFE_VALUE"],
+      });
+
+      // 9. Negative number in permissionRequests -> UNSAFE_VALUE
+      const negativeCount = {
+        ...ledger,
+        permissionRequests: {
+          ...ledger.permissionRequests!,
+          asked: -1,
+        },
+      };
+      expect(verifyLedger(negativeCount, input)).toEqual({
         ok: false,
         problems: ["NUMBER_MISMATCH", "UNSAFE_VALUE"],
       });

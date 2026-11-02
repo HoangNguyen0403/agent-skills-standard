@@ -1979,6 +1979,7 @@ describe("runRetrospective orchestration (Task S4b)", () => {
         windowFrom: cutoff,
         windowTo: cutoff,
       },
+      permissionRequests: null,
       agents: [],
       otherAgents: null,
       improvements: [],
@@ -2206,5 +2207,130 @@ describe("runRetrospective orchestration (Task S4b)", () => {
     expect(ledgerText).not.toContain("/Users/secret_agent");
     expect(reportHtml).not.toContain(secretPath);
     expect(reportHtml).not.toContain("/Users/secret_agent");
+  });
+
+  it("rejects a stored ledger that lacks the permissionRequests field", async () => {
+    const fx = await setupBoundSession(
+      "ags-run-stored-no-permreq-",
+      "sess-stored-no-permreq",
+    );
+    const cutoff = "2026-10-01T00:00:00.000Z";
+    const olderLedger = {
+      schemaVersion: 1,
+      cutoff,
+      session: "abcdef12",
+      evidenceMode: "native-files",
+      rootVerification: "unverified-root",
+      coverage: "complete",
+      counts: {
+        agentsCreated: 0,
+        sessionsLinked: 1,
+        failedToolCalls: 0,
+        errorStops: 0,
+        claims: 1,
+        hypotheses: 0,
+      },
+      label: null,
+      folder: null,
+      lookups: null,
+      skillUsage: null,
+      hostSkills: null,
+      cells: [
+        { key: "2026-10-01|model-a", turns: 10, errorStops: 0, costCents: 100 },
+      ],
+      models: [
+        {
+          model: "model-a",
+          turns: 10,
+          costCents: 100,
+          inputTokens: 100,
+          outputTokens: 50,
+          cacheReadTokens: 10,
+          errorStops: 0,
+        },
+      ],
+      days: [{ day: "2026-10-01", turns: 10, costCents: 100, errorStops: 0 }],
+      toolRows: [],
+      outcome: { source: "unavailable", reason: "not-measured" },
+      agents: [],
+      otherAgents: null,
+      improvements: [],
+      claims: [
+        {
+          id: "0123456789abcdef",
+          type: "observation",
+          template: "coverage",
+          values: { sessions: 1, fullyRead: 1 },
+          scope: {
+            nodes: [{ hostId: "local", sessionId: "sess-stored-no-permreq" }],
+            from: cutoff,
+            to: cutoff,
+          },
+          coverage: "complete",
+          supporting: [],
+          contradicting: [],
+          basedOn: [],
+        },
+      ],
+      evidence: {},
+    };
+    await publishManualGeneration(fx, `${JSON.stringify(olderLedger)}\n`);
+
+    const deps: RunDeps = {
+      tracker: fx.tracker,
+      workspace: fx.workspaceDir,
+      consentPath: fx.consentPath,
+    };
+
+    const res = await runRetrospective(deps, new AbortController().signal);
+    expect(res).toEqual({
+      resultVersion: 1,
+      state: "failed",
+      code: "STORED_LEDGER_INVALID",
+    });
+  });
+
+  it("privacy invariant: permission-required command description containing fake secrets never appears in summary.md, ledger.json, or report.html", async () => {
+    const secretToken = "sk-test-123";
+    const secretPath = "/Users/x/secret";
+    const sessionId = "sess-privacy-permreq-check";
+    const fx = await setupBoundSession("ags-run-perm-privacy-", sessionId);
+
+    const userRow = lineJson({
+      type: "message",
+      id: "msg-perm-required-secret",
+      timestamp: "2026-10-01T10:02:00.000Z",
+      message: {
+        role: "user",
+        content: [
+          {
+            type: "text",
+            text: `<paseo-system event="permission-required">\n<permission-request>\n{"requestId": "req-priv-1", "agentId": "agent-12345678", "request": {"name": "bash", "description": "Command: rtk proxy env TOKEN=${secretToken} ${secretPath}/script.sh run"}}\n</permission-request>\n</paseo-system>`,
+          },
+        ],
+      },
+    });
+    await fsp.appendFile(fx.mainFile, userRow);
+
+    const deps: RunDeps = {
+      tracker: fx.tracker,
+      workspace: fx.workspaceDir,
+      consentPath: fx.consentPath,
+    };
+
+    const res = await runRetrospective(deps, new AbortController().signal);
+    expect(res.state).toBe("prepared");
+    if (res.state !== "prepared") return;
+
+    const summary = await fsp.readFile(res.viewPaths.summary, "utf8");
+    const ledgerText = await fsp.readFile(res.viewPaths.ledger, "utf8");
+    const reportHtml = await fsp.readFile(res.viewPaths.reportHtml, "utf8");
+
+    expect(summary).not.toContain(secretToken);
+    expect(summary).not.toContain(secretPath);
+    expect(ledgerText).not.toContain(secretToken);
+    expect(ledgerText).not.toContain(secretPath);
+    expect(reportHtml).not.toContain(secretToken);
+    expect(reportHtml).not.toContain(secretPath);
   });
 });

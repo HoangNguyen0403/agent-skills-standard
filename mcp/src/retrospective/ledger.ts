@@ -5,6 +5,7 @@ import {
   type LookupToolName,
   type NodeSkillLoad,
   type NodeUsage,
+  type PermissionRequestStats,
   type TreeAggregate,
 } from "./aggregate";
 
@@ -32,7 +33,8 @@ export type ClaimTemplateId =
   | "cost-drivers"
   | "routing-order"
   | "ags-lookups"
-  | "session-outcome";
+  | "session-outcome"
+  | "permission-requests";
 export type LedgerFolder = { name: string; parent: string | null };
 export type LedgerLookupTool = {
   tool: LookupToolName;
@@ -108,6 +110,26 @@ export type LedgerOutcome =
       source: "unavailable";
       reason: "folder-missing" | "not-a-repo" | "git-error" | "not-measured";
     };
+
+export type LedgerPermissionRow = {
+  name: string;
+  asked: number;
+  allow: number;
+  deny: number;
+  other: number;
+  unanswered: number;
+};
+
+export type LedgerPermissionRequests = {
+  asked: number;
+  answered: number;
+  unanswered: number;
+  answeredWithoutRequest: number;
+  agentsAsked: number;
+  tools: LedgerPermissionRow[]; // at most 10, by asked desc then name asc
+  programs: LedgerPermissionRow[]; // at most 15, by asked desc then name asc ("other" is listed like any program)
+  distinctPrograms: number; // number of keys in the merged programs map before the cut
+};
 
 export type LedgerInput = {
   tree: TreeAggregate | null;
@@ -199,6 +221,7 @@ export type Ledger = {
   days: LedgerDay[];
   toolRows: LedgerToolRow[];
   outcome: LedgerOutcome;
+  permissionRequests: LedgerPermissionRequests | null;
   agents: LedgerAgent[];
   otherAgents: { count: number; turns: number; costCents: number } | null;
   improvements: LedgerImprovement[];
@@ -701,6 +724,189 @@ function buildToolRows(tree: TreeAggregate | null): LedgerToolRow[] {
     .slice(0, 10);
 }
 
+export const SAFE_PERMISSION_NAME_REGEX = /^[A-Za-z0-9._ -]{1,32}$/;
+
+function hasPermissionRequests(
+  node: NodeUsage,
+): node is NodeUsage & { permissionRequests: PermissionRequestStats } {
+  return (
+    "permissionRequests" in node &&
+    node.permissionRequests !== null &&
+    typeof node.permissionRequests === "object"
+  );
+}
+
+function comparePermissionRows(
+  a: LedgerPermissionRow,
+  b: LedgerPermissionRow,
+): number {
+  if (b.asked !== a.asked) {
+    return b.asked - a.asked;
+  }
+  return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
+}
+
+type PermissionRequestsBuildResult = {
+  permissionRequests: LedgerPermissionRequests;
+  claimValues: {
+    bashAsked: number;
+    allowed: number;
+    denied: number;
+    otherVerdict: number;
+  };
+};
+
+function buildLedgerPermissionRequests(
+  tree: TreeAggregate | null,
+): PermissionRequestsBuildResult | null {
+  if (tree === null || !Array.isArray(tree.nodes) || tree.nodes.length === 0) {
+    return null;
+  }
+
+  let totalAsked = 0;
+  let totalAnswered = 0;
+  let totalAnsweredWithoutRequest = 0;
+  let totalAgentsAsked = 0;
+
+  const mergedTools = new Map<
+    string,
+    {
+      asked: number;
+      allow: number;
+      deny: number;
+      other: number;
+      unanswered: number;
+    }
+  >();
+  const mergedPrograms = new Map<
+    string,
+    {
+      asked: number;
+      allow: number;
+      deny: number;
+      other: number;
+      unanswered: number;
+    }
+  >();
+
+  for (const node of tree.nodes) {
+    if (!hasPermissionRequests(node)) continue;
+    const stats = node.permissionRequests;
+    totalAsked += stats.asked ?? 0;
+    totalAnswered += stats.answered ?? 0;
+    totalAnsweredWithoutRequest += stats.answeredWithoutRequest ?? 0;
+    totalAgentsAsked += stats.agentsAsked ?? 0;
+
+    if (stats.tools && typeof stats.tools === "object") {
+      for (const [rawName, tally] of Object.entries(stats.tools)) {
+        if (!tally || typeof tally !== "object") continue;
+        const name = SAFE_PERMISSION_NAME_REGEX.test(rawName)
+          ? rawName
+          : "other";
+        const existing = mergedTools.get(name) ?? {
+          asked: 0,
+          allow: 0,
+          deny: 0,
+          other: 0,
+          unanswered: 0,
+        };
+        existing.asked += tally.asked ?? 0;
+        existing.allow += tally.allow ?? 0;
+        existing.deny += tally.deny ?? 0;
+        existing.other += tally.other ?? 0;
+        existing.unanswered += tally.unanswered ?? 0;
+        mergedTools.set(name, existing);
+      }
+    }
+
+    if (stats.programs && typeof stats.programs === "object") {
+      for (const [rawName, tally] of Object.entries(stats.programs)) {
+        if (!tally || typeof tally !== "object") continue;
+        const name = SAFE_PERMISSION_NAME_REGEX.test(rawName)
+          ? rawName
+          : "other";
+        const existing = mergedPrograms.get(name) ?? {
+          asked: 0,
+          allow: 0,
+          deny: 0,
+          other: 0,
+          unanswered: 0,
+        };
+        existing.asked += tally.asked ?? 0;
+        existing.allow += tally.allow ?? 0;
+        existing.deny += tally.deny ?? 0;
+        existing.other += tally.other ?? 0;
+        existing.unanswered += tally.unanswered ?? 0;
+        mergedPrograms.set(name, existing);
+      }
+    }
+  }
+
+  if (totalAsked === 0 && totalAnsweredWithoutRequest === 0) {
+    return null;
+  }
+
+  const distinctPrograms = mergedPrograms.size;
+  const unanswered = Math.max(0, totalAsked - totalAnswered);
+
+  let allowed = 0;
+  let denied = 0;
+  let otherVerdict = 0;
+  for (const tally of mergedTools.values()) {
+    allowed += tally.allow;
+    denied += tally.deny;
+    otherVerdict += tally.other;
+  }
+
+  let bashAsked = 0;
+  for (const tally of mergedPrograms.values()) {
+    bashAsked += tally.asked;
+  }
+
+  const tools: LedgerPermissionRow[] = Array.from(mergedTools.entries())
+    .map(([name, tally]) => ({
+      name,
+      asked: tally.asked,
+      allow: tally.allow,
+      deny: tally.deny,
+      other: tally.other,
+      unanswered: tally.unanswered,
+    }))
+    .sort(comparePermissionRows)
+    .slice(0, 10);
+
+  const programs: LedgerPermissionRow[] = Array.from(mergedPrograms.entries())
+    .map(([name, tally]) => ({
+      name,
+      asked: tally.asked,
+      allow: tally.allow,
+      deny: tally.deny,
+      other: tally.other,
+      unanswered: tally.unanswered,
+    }))
+    .sort(comparePermissionRows)
+    .slice(0, 15);
+
+  return {
+    permissionRequests: {
+      asked: totalAsked,
+      answered: totalAnswered,
+      unanswered,
+      answeredWithoutRequest: totalAnsweredWithoutRequest,
+      agentsAsked: totalAgentsAsked,
+      tools,
+      programs,
+      distinctPrograms,
+    },
+    claimValues: {
+      bashAsked,
+      allowed,
+      denied,
+      otherVerdict,
+    },
+  };
+}
+
 /**
  * Every numeric claim value carries its own aggregate evidence entry, and the
  * claim's supporting list names it, so a reader can resolve the number.
@@ -870,6 +1076,9 @@ export function buildLedger(input: LedgerInput): Ledger {
   const models = buildLedgerModels(tree);
   const days = buildLedgerDays(tree);
   const toolRows = buildToolRows(tree);
+  const permBuildResult = buildLedgerPermissionRequests(tree);
+  const permissionRequests =
+    permBuildResult !== null ? permBuildResult.permissionRequests : null;
   const allCells = collectCells(tree);
   // Claim-referenced cells may be appended past the cap before evidence is added.
   const cells = [...allCells].sort(compareCellTurns).slice(0, MAX_CELLS);
@@ -1960,6 +2169,92 @@ export function buildLedger(input: LedgerInput): Ledger {
     });
   }
 
+  if (permBuildResult !== null) {
+    const pr = permBuildResult.permissionRequests;
+    const permValues: Record<string, number | string> = {
+      asked: pr.asked,
+      answered: pr.answered,
+      unanswered: pr.unanswered,
+      answeredWithoutRequest: pr.answeredWithoutRequest,
+      agentsAsked: pr.agentsAsked,
+      bashAsked: permBuildResult.claimValues.bashAsked,
+      distinctPrograms: pr.distinctPrograms,
+      allowed: permBuildResult.claimValues.allowed,
+      denied: permBuildResult.claimValues.denied,
+      otherVerdict: permBuildResult.claimValues.otherVerdict,
+    };
+
+    const permSupporting: EvidenceId[] = [];
+    addClaimValueEvidence(
+      "permission-requests",
+      permValues,
+      permSupporting,
+      evidence,
+    );
+
+    claims.push({
+      id: computeClaimId("permission-requests", scope, permSupporting),
+      type: "observation",
+      template: "permission-requests",
+      values: permValues,
+      scope,
+      denominator: {
+        count: pr.asked,
+        unit: "permission requests",
+      },
+      coverage: overallCoverage,
+      supporting: permSupporting,
+      contradicting: [],
+      basedOn: [],
+    });
+
+    for (const row of pr.tools) {
+      evidence[`agg:permreq:tool:${row.name}:asked`] = {
+        kind: "aggregate",
+        value: row.asked,
+      };
+      evidence[`agg:permreq:tool:${row.name}:allow`] = {
+        kind: "aggregate",
+        value: row.allow,
+      };
+      evidence[`agg:permreq:tool:${row.name}:deny`] = {
+        kind: "aggregate",
+        value: row.deny,
+      };
+      evidence[`agg:permreq:tool:${row.name}:other`] = {
+        kind: "aggregate",
+        value: row.other,
+      };
+      evidence[`agg:permreq:tool:${row.name}:unanswered`] = {
+        kind: "aggregate",
+        value: row.unanswered,
+      };
+    }
+
+    for (const row of pr.programs) {
+      evidence[`agg:permreq:program:${row.name}:asked`] = {
+        kind: "aggregate",
+        value: row.asked,
+      };
+      evidence[`agg:permreq:program:${row.name}:allow`] = {
+        kind: "aggregate",
+        value: row.allow,
+      };
+      evidence[`agg:permreq:program:${row.name}:deny`] = {
+        kind: "aggregate",
+        value: row.deny,
+      };
+      evidence[`agg:permreq:program:${row.name}:other`] = {
+        kind: "aggregate",
+        value: row.other,
+      };
+      evidence[`agg:permreq:program:${row.name}:unanswered`] = {
+        kind: "aggregate",
+        value: row.unanswered,
+      };
+    }
+  }
+
   const sortedEvidence: Record<
     EvidenceId,
     { kind: "aggregate"; value: number | string }
@@ -1995,6 +2290,7 @@ export function buildLedger(input: LedgerInput): Ledger {
     days,
     toolRows,
     outcome,
+    permissionRequests,
     agents,
     otherAgents,
     improvements,
@@ -2045,7 +2341,8 @@ export function checkClaimRules(ledger: Ledger): LedgerProblemCode[] {
       claim.template === "cost-drivers" ||
       claim.template === "routing-order" ||
       claim.template === "ags-lookups" ||
-      claim.template === "session-outcome"
+      claim.template === "session-outcome" ||
+      claim.template === "permission-requests"
     ) {
       if (
         !claim.denominator ||
@@ -2259,6 +2556,69 @@ export function checkClaimRules(ledger: Ledger): LedgerProblemCode[] {
     }
   }
 
+  if (ledger.permissionRequests !== null) {
+    if (typeof ledger.permissionRequests !== "object") {
+      problems.add("UNSAFE_VALUE");
+    } else {
+      const pr = ledger.permissionRequests;
+      const numericHeaderFields = [
+        pr.asked,
+        pr.answered,
+        pr.unanswered,
+        pr.answeredWithoutRequest,
+        pr.agentsAsked,
+        pr.distinctPrograms,
+      ];
+      if (
+        numericHeaderFields.some(
+          (val) => typeof val !== "number" || !Number.isFinite(val) || val < 0,
+        )
+      ) {
+        problems.add("UNSAFE_VALUE");
+      }
+      if (Array.isArray(pr.tools)) {
+        for (const t of pr.tools) {
+          if (
+            typeof t?.name !== "string" ||
+            !SAFE_PERMISSION_NAME_REGEX.test(t.name)
+          ) {
+            problems.add("UNSAFE_VALUE");
+          }
+          if (
+            [t?.asked, t?.allow, t?.deny, t?.other, t?.unanswered].some(
+              (val) =>
+                typeof val !== "number" || !Number.isFinite(val) || val < 0,
+            )
+          ) {
+            problems.add("UNSAFE_VALUE");
+          }
+        }
+      } else {
+        problems.add("UNSAFE_VALUE");
+      }
+      if (Array.isArray(pr.programs)) {
+        for (const p of pr.programs) {
+          if (
+            typeof p?.name !== "string" ||
+            !SAFE_PERMISSION_NAME_REGEX.test(p.name)
+          ) {
+            problems.add("UNSAFE_VALUE");
+          }
+          if (
+            [p?.asked, p?.allow, p?.deny, p?.other, p?.unanswered].some(
+              (val) =>
+                typeof val !== "number" || !Number.isFinite(val) || val < 0,
+            )
+          ) {
+            problems.add("UNSAFE_VALUE");
+          }
+        }
+      } else {
+        problems.add("UNSAFE_VALUE");
+      }
+    }
+  }
+
   return Array.from(problems).sort() as LedgerProblemCode[];
 }
 
@@ -2462,6 +2822,13 @@ export function verifyLedger(
   }
 
   if (JSON.stringify(ledger.outcome) !== JSON.stringify(expected.outcome)) {
+    problems.add("NUMBER_MISMATCH");
+  }
+
+  if (
+    JSON.stringify(ledger.permissionRequests) !==
+    JSON.stringify(expected.permissionRequests)
+  ) {
     problems.add("NUMBER_MISMATCH");
   }
 

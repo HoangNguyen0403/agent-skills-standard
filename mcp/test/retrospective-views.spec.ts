@@ -12,6 +12,8 @@ import {
   type LedgerDay,
   type LedgerModel,
   type LedgerOutcome,
+  type LedgerPermissionRequests,
+  type LedgerPermissionRow,
   type LedgerToolRow,
   type OtherAgentsSummary,
   renderSummary,
@@ -272,6 +274,7 @@ type ViewLedgerInput = {
   days?: LedgerDay[];
   toolRows?: LedgerToolRow[];
   outcome?: LedgerOutcome;
+  permissionRequests?: LedgerPermissionRequests | null;
 };
 
 function viewLedger(input: ViewLedgerInput = {}): Ledger {
@@ -319,6 +322,7 @@ function viewLedger(input: ViewLedgerInput = {}): Ledger {
     days: input.days ?? [],
     toolRows: input.toolRows ?? [],
     outcome: input.outcome ?? { source: "unavailable", reason: "not-measured" },
+    permissionRequests: input.permissionRequests ?? null,
   } as unknown as Ledger;
 }
 
@@ -2322,6 +2326,517 @@ describe("retrospective summary view v3", () => {
       expect(summary).not.toContain("common-best-practices");
       expect(summary).not.toContain("typescript-language");
       expect(summary).not.toContain("skill://");
+    });
+  });
+
+  describe("contract v3.3 permission requests (Slice G3)", () => {
+    it("omits Permission requests line when permissionRequests is null", () => {
+      const ledger = viewLedger({ permissionRequests: null });
+      const summary = renderSummary(ledger);
+      expect(summary).not.toContain("Permission requests:");
+      const lines = summary.split("\n");
+      const guardIdx = lines.findIndex((l) => l.startsWith("Guardrails:"));
+      expect(guardIdx).toBeGreaterThan(-1);
+      expect(lines[guardIdx + 1]?.startsWith("Permission requests:")).toBe(
+        false,
+      );
+    });
+
+    it("renders exact line with plural forms, top-3 tools, and top-5 programs", () => {
+      const ledger = viewLedger({
+        permissionRequests: {
+          asked: 5,
+          answered: 4,
+          unanswered: 1,
+          answeredWithoutRequest: 0,
+          agentsAsked: 2,
+          tools: [
+            {
+              name: "bash",
+              asked: 4,
+              allow: 3,
+              deny: 1,
+              other: 0,
+              unanswered: 0,
+            },
+            {
+              name: "read",
+              asked: 1,
+              allow: 0,
+              deny: 0,
+              other: 0,
+              unanswered: 1,
+            },
+          ],
+          programs: [
+            {
+              name: "git",
+              asked: 3,
+              allow: 2,
+              deny: 1,
+              other: 0,
+              unanswered: 0,
+            },
+            {
+              name: "curl",
+              asked: 1,
+              allow: 1,
+              deny: 0,
+              other: 0,
+              unanswered: 0,
+            },
+          ],
+          distinctPrograms: 2,
+        },
+        claims: [
+          viewClaim(
+            "claim:perm-req",
+            "permission-requests" as unknown as Claim["template"],
+            {
+              asked: 5,
+              answered: 4,
+              unanswered: 1,
+              answeredWithoutRequest: 0,
+              agentsAsked: 2,
+              allowed: 3,
+              denied: 1,
+              bashAsked: 4,
+              distinctPrograms: 2,
+              otherVerdict: 0,
+            },
+          ),
+        ],
+      });
+      const summary = renderSummary(ledger);
+      const lines = summary.split("\n");
+      const guardIdx = lines.findIndex((l) => l.startsWith("Guardrails:"));
+      expect(guardIdx).toBeGreaterThan(-1);
+      expect(lines[guardIdx + 1]).toBe(
+        "Permission requests: 5 requests from 2 agents; 4 answered (3 allowed, 1 denied), 1 unanswered. By tool: bash 4, read 1. Top programs: git 3 (2 allowed, 1 denied), curl 1 (1 allowed, 0 denied).",
+      );
+    });
+
+    it("renders singular variants for 1 request and 1 agent", () => {
+      const ledger = viewLedger({
+        permissionRequests: {
+          asked: 1,
+          answered: 1,
+          unanswered: 0,
+          answeredWithoutRequest: 0,
+          agentsAsked: 1,
+          tools: [
+            {
+              name: "bash",
+              asked: 1,
+              allow: 1,
+              deny: 0,
+              other: 0,
+              unanswered: 0,
+            },
+          ],
+          programs: [
+            {
+              name: "git",
+              asked: 1,
+              allow: 1,
+              deny: 0,
+              other: 0,
+              unanswered: 0,
+            },
+          ],
+          distinctPrograms: 1,
+        },
+        claims: [
+          viewClaim(
+            "claim:perm-req",
+            "permission-requests" as unknown as Claim["template"],
+            {
+              asked: 1,
+              answered: 1,
+              unanswered: 0,
+              answeredWithoutRequest: 0,
+              agentsAsked: 1,
+              allowed: 1,
+              denied: 0,
+              bashAsked: 1,
+              distinctPrograms: 1,
+              otherVerdict: 0,
+            },
+          ),
+        ],
+      });
+      const summary = renderSummary(ledger);
+      const lines = summary.split("\n");
+      const guardIdx = lines.findIndex((l) => l.startsWith("Guardrails:"));
+      expect(guardIdx).toBeGreaterThan(-1);
+      expect(lines[guardIdx + 1]).toBe(
+        "Permission requests: 1 request from 1 agent; 1 answered (1 allowed, 0 denied), 0 unanswered. By tool: bash 1. Top programs: git 1 (1 allowed, 0 denied).",
+      );
+    });
+
+    it("renders zero plural variants when counts are zero", () => {
+      const ledger = viewLedger({
+        permissionRequests: {
+          asked: 0,
+          answered: 0,
+          unanswered: 0,
+          answeredWithoutRequest: 0,
+          agentsAsked: 0,
+          tools: [],
+          programs: [],
+          distinctPrograms: 0,
+        },
+        claims: [
+          viewClaim(
+            "claim:perm-req",
+            "permission-requests" as unknown as Claim["template"],
+            {
+              asked: 0,
+              answered: 0,
+              unanswered: 0,
+              answeredWithoutRequest: 0,
+              agentsAsked: 0,
+              allowed: 0,
+              denied: 0,
+              bashAsked: 0,
+              distinctPrograms: 0,
+              otherVerdict: 0,
+            },
+          ),
+        ],
+      });
+      const summary = renderSummary(ledger);
+      const lines = summary.split("\n");
+      const guardIdx = lines.findIndex((l) => l.startsWith("Guardrails:"));
+      expect(guardIdx).toBeGreaterThan(-1);
+      expect(lines[guardIdx + 1]).toBe(
+        "Permission requests: 0 requests from 0 agents; 0 answered (0 allowed, 0 denied), 0 unanswered.",
+      );
+    });
+
+    it("omits By tool and Top programs sentences when the lists are empty", () => {
+      const ledger = viewLedger({
+        permissionRequests: {
+          asked: 2,
+          answered: 2,
+          unanswered: 0,
+          answeredWithoutRequest: 0,
+          agentsAsked: 1,
+          tools: [],
+          programs: [],
+          distinctPrograms: 0,
+        },
+        claims: [
+          viewClaim(
+            "claim:perm-req",
+            "permission-requests" as unknown as Claim["template"],
+            {
+              asked: 2,
+              answered: 2,
+              unanswered: 0,
+              answeredWithoutRequest: 0,
+              agentsAsked: 1,
+              allowed: 2,
+              denied: 0,
+              bashAsked: 0,
+              distinctPrograms: 0,
+              otherVerdict: 0,
+            },
+          ),
+        ],
+      });
+      const summary = renderSummary(ledger);
+      const lines = summary.split("\n");
+      const guardIdx = lines.findIndex((l) => l.startsWith("Guardrails:"));
+      expect(guardIdx).toBeGreaterThan(-1);
+      expect(lines[guardIdx + 1]).toBe(
+        "Permission requests: 2 requests from 1 agent; 2 answered (2 allowed, 0 denied), 0 unanswered.",
+      );
+      expect(lines[guardIdx + 1]).not.toContain("By tool:");
+      expect(lines[guardIdx + 1]).not.toContain("Top programs:");
+    });
+
+    it("omits Top programs sentence when programs list is empty but tools list is present", () => {
+      const ledger = viewLedger({
+        permissionRequests: {
+          asked: 1,
+          answered: 1,
+          unanswered: 0,
+          answeredWithoutRequest: 0,
+          agentsAsked: 1,
+          tools: [
+            {
+              name: "edit",
+              asked: 1,
+              allow: 1,
+              deny: 0,
+              other: 0,
+              unanswered: 0,
+            },
+          ],
+          programs: [],
+          distinctPrograms: 0,
+        },
+        claims: [
+          viewClaim(
+            "claim:perm-req",
+            "permission-requests" as unknown as Claim["template"],
+            {
+              asked: 1,
+              answered: 1,
+              unanswered: 0,
+              answeredWithoutRequest: 0,
+              agentsAsked: 1,
+              allowed: 1,
+              denied: 0,
+              bashAsked: 0,
+              distinctPrograms: 0,
+              otherVerdict: 0,
+            },
+          ),
+        ],
+      });
+      const summary = renderSummary(ledger);
+      const lines = summary.split("\n");
+      const guardIdx = lines.findIndex((l) => l.startsWith("Guardrails:"));
+      expect(guardIdx).toBeGreaterThan(-1);
+      expect(lines[guardIdx + 1]).toBe(
+        "Permission requests: 1 request from 1 agent; 1 answered (1 allowed, 0 denied), 0 unanswered. By tool: edit 1.",
+      );
+      expect(lines[guardIdx + 1]).not.toContain("Top programs:");
+    });
+
+    it("enforces top-3 cap on tools and top-5 cap on programs", () => {
+      const ledger = viewLedger({
+        permissionRequests: {
+          asked: 30,
+          answered: 28,
+          unanswered: 2,
+          answeredWithoutRequest: 0,
+          agentsAsked: 3,
+          tools: [
+            {
+              name: "bash",
+              asked: 10,
+              allow: 8,
+              deny: 2,
+              other: 0,
+              unanswered: 0,
+            },
+            {
+              name: "edit",
+              asked: 8,
+              allow: 7,
+              deny: 1,
+              other: 0,
+              unanswered: 0,
+            },
+            {
+              name: "read",
+              asked: 6,
+              allow: 6,
+              deny: 0,
+              other: 0,
+              unanswered: 0,
+            },
+            {
+              name: "write",
+              asked: 4,
+              allow: 4,
+              deny: 0,
+              other: 0,
+              unanswered: 0,
+            },
+            {
+              name: "other",
+              asked: 2,
+              allow: 0,
+              deny: 0,
+              other: 0,
+              unanswered: 2,
+            },
+          ],
+          programs: [
+            {
+              name: "git",
+              asked: 5,
+              allow: 4,
+              deny: 1,
+              other: 0,
+              unanswered: 0,
+            },
+            {
+              name: "npm",
+              asked: 4,
+              allow: 3,
+              deny: 1,
+              other: 0,
+              unanswered: 0,
+            },
+            {
+              name: "cargo",
+              asked: 3,
+              allow: 2,
+              deny: 1,
+              other: 0,
+              unanswered: 0,
+            },
+            {
+              name: "python",
+              asked: 2,
+              allow: 1,
+              deny: 1,
+              other: 0,
+              unanswered: 0,
+            },
+            {
+              name: "sh",
+              asked: 2,
+              allow: 1,
+              deny: 1,
+              other: 0,
+              unanswered: 0,
+            },
+            {
+              name: "node",
+              asked: 1,
+              allow: 1,
+              deny: 0,
+              other: 0,
+              unanswered: 0,
+            },
+            {
+              name: "docker",
+              asked: 1,
+              allow: 0,
+              deny: 1,
+              other: 0,
+              unanswered: 0,
+            },
+          ],
+          distinctPrograms: 7,
+        },
+        claims: [
+          viewClaim(
+            "claim:perm-req",
+            "permission-requests" as unknown as Claim["template"],
+            {
+              asked: 30,
+              answered: 28,
+              unanswered: 2,
+              answeredWithoutRequest: 0,
+              agentsAsked: 3,
+              allowed: 25,
+              denied: 3,
+              bashAsked: 18,
+              distinctPrograms: 7,
+              otherVerdict: 0,
+            },
+          ),
+        ],
+      });
+      const summary = renderSummary(ledger);
+      const lines = summary.split("\n");
+      const guardIdx = lines.findIndex((l) => l.startsWith("Guardrails:"));
+      expect(guardIdx).toBeGreaterThan(-1);
+      expect(lines[guardIdx + 1]).toBe(
+        "Permission requests: 30 requests from 3 agents; 28 answered (25 allowed, 3 denied), 2 unanswered. By tool: bash 10, edit 8, read 6. Top programs: git 5 (4 allowed, 1 denied), npm 4 (3 allowed, 1 denied), cargo 3 (2 allowed, 1 denied), python 2 (1 allowed, 1 denied), sh 2 (1 allowed, 1 denied).",
+      );
+      expect(lines[guardIdx + 1]).not.toContain("write 4");
+      expect(lines[guardIdx + 1]).not.toContain("other 2");
+      expect(lines[guardIdx + 1]).not.toContain("node 1");
+      expect(lines[guardIdx + 1]).not.toContain("docker 1");
+    });
+
+    it("never outputs command text, arguments, or file paths anywhere in summary", () => {
+      const ledger = viewLedger({
+        permissionRequests: {
+          asked: 2,
+          answered: 2,
+          unanswered: 0,
+          answeredWithoutRequest: 0,
+          agentsAsked: 1,
+          tools: [
+            {
+              name: "bash",
+              asked: 2,
+              allow: 1,
+              deny: 1,
+              other: 0,
+              unanswered: 0,
+            },
+          ],
+          programs: [
+            {
+              name: "sed",
+              asked: 2,
+              allow: 1,
+              deny: 1,
+              other: 0,
+              unanswered: 0,
+            },
+          ],
+          distinctPrograms: 1,
+        },
+      });
+      const summary = renderSummary(ledger);
+      expect(summary).not.toContain("Command:");
+      expect(summary).not.toContain("rm -rf");
+      expect(summary).not.toContain("/Users/");
+      expect(summary).not.toContain("/secret/");
+      expect(summary).not.toContain("sk-test-123");
+      expect(summary).toContain(
+        "Permission requests: 2 requests from 1 agent; 2 answered (1 allowed, 1 denied), 0 unanswered. By tool: bash 2. Top programs: sed 2 (1 allowed, 1 denied).",
+      );
+    });
+
+    it("falls back to ledger.permissionRequests values when permission-requests claim is absent", () => {
+      const ledger = viewLedger({
+        claims: [],
+        permissionRequests: {
+          asked: 3,
+          answered: 2,
+          unanswered: 1,
+          answeredWithoutRequest: 0,
+          agentsAsked: 2,
+          tools: [
+            {
+              name: "bash",
+              asked: 2,
+              allow: 1,
+              deny: 1,
+              other: 0,
+              unanswered: 0,
+            },
+            {
+              name: "read",
+              asked: 1,
+              allow: 0,
+              deny: 0,
+              other: 0,
+              unanswered: 1,
+            },
+          ],
+          programs: [
+            {
+              name: "git",
+              asked: 2,
+              allow: 1,
+              deny: 1,
+              other: 0,
+              unanswered: 0,
+            },
+          ],
+          distinctPrograms: 1,
+        },
+      });
+      const summary = renderSummary(ledger);
+      const lines = summary.split("\n");
+      const guardIdx = lines.findIndex((l) => l.startsWith("Guardrails:"));
+      expect(guardIdx).toBeGreaterThan(-1);
+      expect(lines[guardIdx + 1]).toBe(
+        "Permission requests: 3 requests from 2 agents; 2 answered (1 allowed, 1 denied), 1 unanswered. By tool: bash 2, read 1. Top programs: git 2 (1 allowed, 1 denied).",
+      );
     });
   });
 });

@@ -16,6 +16,8 @@ import {
   type LedgerLookups,
   type LedgerModel,
   type LedgerOutcome,
+  type LedgerPermissionRequests,
+  type LedgerPermissionRow,
   type LedgerToolRow,
   renderReportHtml,
 } from "../src/retrospective/views/report-html";
@@ -52,6 +54,7 @@ function createLedgerFixture(
     outcome?: LedgerOutcome;
     folder?: LedgerFolder | null;
     lookups?: LedgerLookups | null;
+    permissionRequests?: LedgerPermissionRequests | null;
   } = {},
 ): Ledger {
   return {
@@ -82,6 +85,7 @@ function createLedgerFixture(
     improvements: [],
     claims: [],
     evidence: {},
+    permissionRequests: null,
     ...overrides,
   } as unknown as Ledger;
 }
@@ -454,7 +458,7 @@ describe("renderReportHtml", () => {
         "Next time: permission answers per 100 turns (now 1.5).",
       );
       expect(html).toContain(
-        "Unknown: which agents asked and what for: the file shows counts and allow or deny, not the request.",
+        "Unknown: why each request was needed and whether the command was safe: only the tool and the program word are recorded.",
       );
     });
 
@@ -650,6 +654,423 @@ describe("renderReportHtml", () => {
       );
       expect(html).toContain(
         "Server tracker numbers cover this process only, so lookups that matched nothing and bodies returned are not measured for this session (tracker-binding).",
+      );
+    });
+  });
+
+  describe("permission requests section", () => {
+    it("omits permission requests section when permissionRequests is null", () => {
+      const ledger = createLedgerFixture({ permissionRequests: null });
+      const html = renderReportHtml(ledger);
+
+      expect(html).not.toContain("<h3>Permission requests</h3>");
+      expect(html).not.toContain("By tool");
+      expect(html).not.toContain("By program (bash)");
+    });
+
+    it("renders permission requests section between Do next and Outcome when present", () => {
+      const permReqs: LedgerPermissionRequests = {
+        asked: 8,
+        answered: 7,
+        unanswered: 1,
+        answeredWithoutRequest: 0,
+        agentsAsked: 2,
+        tools: [
+          {
+            name: "bash",
+            asked: 5,
+            allow: 4,
+            deny: 1,
+            other: 0,
+            unanswered: 0,
+          },
+          {
+            name: "edit",
+            asked: 3,
+            allow: 2,
+            deny: 0,
+            other: 0,
+            unanswered: 1,
+          },
+        ],
+        programs: [
+          {
+            name: "git",
+            asked: 5,
+            allow: 4,
+            deny: 1,
+            other: 0,
+            unanswered: 0,
+          },
+        ],
+        distinctPrograms: 1,
+      };
+      const ledger = createLedgerFixture({ permissionRequests: permReqs });
+      const html = renderReportHtml(ledger);
+
+      const doNextIndex = html.indexOf("<h3>Do next</h3>");
+      const permReqIndex = html.indexOf("<h3>Permission requests</h3>");
+      const outcomeIndex = html.indexOf("<h3>Outcome</h3>");
+
+      expect(doNextIndex).toBeGreaterThan(-1);
+      expect(permReqIndex).toBeGreaterThan(doNextIndex);
+      expect(outcomeIndex).toBeGreaterThan(permReqIndex);
+    });
+
+    it("renders intro paragraph, headline line, and footer sentence verbatim", () => {
+      const permReqs: LedgerPermissionRequests = {
+        asked: 10,
+        answered: 9,
+        unanswered: 1,
+        answeredWithoutRequest: 0,
+        agentsAsked: 3,
+        tools: [
+          {
+            name: "bash",
+            asked: 10,
+            allow: 8,
+            deny: 1,
+            other: 0,
+            unanswered: 1,
+          },
+        ],
+        programs: [
+          {
+            name: "npm",
+            asked: 10,
+            allow: 8,
+            deny: 1,
+            other: 0,
+            unanswered: 1,
+          },
+        ],
+        distinctPrograms: 1,
+      };
+      const ledger = createLedgerFixture({
+        permissionRequests: permReqs,
+        claims: [
+          createClaim("permission-requests", {
+            asked: 10,
+            answered: 9,
+            unanswered: 1,
+            answeredWithoutRequest: 0,
+            agentsAsked: 3,
+            bashAsked: 10,
+            distinctPrograms: 1,
+            allowed: 8,
+            denied: 1,
+            otherVerdict: 0,
+          }),
+        ],
+      });
+      const html = renderReportHtml(ledger);
+
+      expect(html).toContain(
+        "<p>What agents asked permission for, and what was answered. Only the tool and the first word of a command are recorded; the command text is not read.</p>",
+      );
+      expect(html).toContain(
+        "<p>10 requests from 3 agents; 9 answered (8 allowed, 1 denied), 1 unanswered.</p>",
+      );
+      expect(html).toContain(
+        "<p>Programs are the first word of the command (after wrappers such as rtk proxy and env); sudo, sh and bash hide the real command.</p>",
+      );
+    });
+
+    it("renders By tool table with Tool, Asked, Allowed, Denied, Other, Unanswered headers and row values", () => {
+      const permReqs: LedgerPermissionRequests = {
+        asked: 6,
+        answered: 6,
+        unanswered: 0,
+        answeredWithoutRequest: 0,
+        agentsAsked: 1,
+        tools: [
+          {
+            name: "bash",
+            asked: 4,
+            allow: 3,
+            deny: 1,
+            other: 0,
+            unanswered: 0,
+          },
+          {
+            name: "other",
+            asked: 2,
+            allow: 1,
+            deny: 0,
+            other: 1,
+            unanswered: 0,
+          },
+        ],
+        programs: [],
+        distinctPrograms: 0,
+      };
+      const ledger = createLedgerFixture({ permissionRequests: permReqs });
+      const html = renderReportHtml(ledger);
+
+      expect(html).toContain("<h4>By tool</h4>");
+      expect(html).toContain(
+        "<tr>\n<th>Tool</th>\n<th>Asked</th>\n<th>Allowed</th>\n<th>Denied</th>\n<th>Other</th>\n<th>Unanswered</th>\n</tr>",
+      );
+      expect(html).toContain(
+        "<tr><td>bash</td><td>4</td><td>3</td><td>1</td><td>0</td><td>0</td></tr>",
+      );
+      expect(html).toContain(
+        "<tr><td>other</td><td>2</td><td>1</td><td>0</td><td>1</td><td>0</td></tr>",
+      );
+    });
+
+    it("renders By program (bash) table with rounded Allowed share %", () => {
+      const permReqs: LedgerPermissionRequests = {
+        asked: 7,
+        answered: 7,
+        unanswered: 0,
+        answeredWithoutRequest: 0,
+        agentsAsked: 1,
+        tools: [
+          {
+            name: "bash",
+            asked: 7,
+            allow: 5,
+            deny: 2,
+            other: 0,
+            unanswered: 0,
+          },
+        ],
+        programs: [
+          {
+            name: "git",
+            asked: 3,
+            allow: 2, // 2/3 = 66.666...% -> 67%
+            deny: 1,
+            other: 0,
+            unanswered: 0,
+          },
+          {
+            name: "curl",
+            asked: 3,
+            allow: 1, // 1/3 = 33.333...% -> 33%
+            deny: 1,
+            other: 1,
+            unanswered: 0,
+          },
+          {
+            name: "other",
+            asked: 1,
+            allow: 1, // 1/1 = 100%
+            deny: 0,
+            other: 0,
+            unanswered: 0,
+          },
+        ],
+        distinctPrograms: 3,
+      };
+      const ledger = createLedgerFixture({ permissionRequests: permReqs });
+      const html = renderReportHtml(ledger);
+
+      expect(html).toContain("<h4>By program (bash)</h4>");
+      expect(html).toContain(
+        "<tr>\n<th>Program</th>\n<th>Asked</th>\n<th>Allowed</th>\n<th>Denied</th>\n<th>Other</th>\n<th>Unanswered</th>\n<th>Allowed share %</th>\n</tr>",
+      );
+      expect(html).toContain(
+        "<tr><td>git</td><td>3</td><td>2</td><td>1</td><td>0</td><td>0</td><td>67%</td></tr>",
+      );
+      expect(html).toContain(
+        "<tr><td>curl</td><td>3</td><td>1</td><td>1</td><td>1</td><td>0</td><td>33%</td></tr>",
+      );
+      expect(html).toContain(
+        "<tr><td>other</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td><td>100%</td></tr>",
+      );
+    });
+
+    it("renders allowlist candidates sentence when asked >= 5, deny === 0, and allow > 0 capped at 5 programs", () => {
+      const permReqs: LedgerPermissionRequests = {
+        asked: 35,
+        answered: 35,
+        unanswered: 0,
+        answeredWithoutRequest: 0,
+        agentsAsked: 2,
+        tools: [],
+        programs: [
+          { name: "p1", asked: 5, allow: 5, deny: 0, other: 0, unanswered: 0 },
+          { name: "p2", asked: 6, allow: 6, deny: 0, other: 0, unanswered: 0 },
+          { name: "p3", asked: 7, allow: 7, deny: 0, other: 0, unanswered: 0 },
+          { name: "p4", asked: 8, allow: 8, deny: 0, other: 0, unanswered: 0 },
+          { name: "p5", asked: 9, allow: 9, deny: 0, other: 0, unanswered: 0 },
+          {
+            name: "p6",
+            asked: 10,
+            allow: 10,
+            deny: 0,
+            other: 0,
+            unanswered: 0,
+          },
+        ],
+        distinctPrograms: 6,
+      };
+      const ledger = createLedgerFixture({ permissionRequests: permReqs });
+      const html = renderReportHtml(ledger);
+
+      expect(html).toContain(
+        "<p>Programs with repeated allowed requests (5 or more, none denied) are allowlist candidates: p1, p2, p3, p4, p5.</p>",
+      );
+      expect(html).not.toContain("p6.");
+    });
+
+    it("omits allowlist candidates sentence when no program has asked >= 5 with deny === 0 and allow > 0", () => {
+      const permReqs: LedgerPermissionRequests = {
+        asked: 6,
+        answered: 6,
+        unanswered: 0,
+        answeredWithoutRequest: 0,
+        agentsAsked: 1,
+        tools: [],
+        programs: [
+          // asked < 5
+          { name: "p1", asked: 4, allow: 4, deny: 0, other: 0, unanswered: 0 },
+          // asked >= 5 but deny > 0
+          { name: "p2", asked: 5, allow: 4, deny: 1, other: 0, unanswered: 0 },
+          // asked >= 5 but allow === 0
+          { name: "p3", asked: 5, allow: 0, deny: 0, other: 5, unanswered: 0 },
+        ],
+        distinctPrograms: 3,
+      };
+      const ledger = createLedgerFixture({ permissionRequests: permReqs });
+      const html = renderReportHtml(ledger);
+
+      expect(html).not.toContain("allowlist candidates");
+    });
+
+    it("renders denied requests sentence when any program has deny > 0 capped at 5 programs", () => {
+      const permReqs: LedgerPermissionRequests = {
+        asked: 12,
+        answered: 12,
+        unanswered: 0,
+        answeredWithoutRequest: 0,
+        agentsAsked: 2,
+        tools: [],
+        programs: [
+          { name: "d1", asked: 2, allow: 1, deny: 1, other: 0, unanswered: 0 },
+          { name: "d2", asked: 2, allow: 1, deny: 1, other: 0, unanswered: 0 },
+          { name: "d3", asked: 2, allow: 1, deny: 1, other: 0, unanswered: 0 },
+          { name: "d4", asked: 2, allow: 1, deny: 1, other: 0, unanswered: 0 },
+          { name: "d5", asked: 2, allow: 1, deny: 1, other: 0, unanswered: 0 },
+          { name: "d6", asked: 2, allow: 1, deny: 1, other: 0, unanswered: 0 },
+        ],
+        distinctPrograms: 6,
+      };
+      const ledger = createLedgerFixture({ permissionRequests: permReqs });
+      const html = renderReportHtml(ledger);
+
+      expect(html).toContain(
+        "<p>Denied requests show where the setup said no; read them before widening the allowlist: d1, d2, d3, d4, d5.</p>",
+      );
+      expect(html).not.toContain("d6.");
+    });
+
+    it("omits denied requests sentence when no program has deny > 0", () => {
+      const permReqs: LedgerPermissionRequests = {
+        asked: 5,
+        answered: 5,
+        unanswered: 0,
+        answeredWithoutRequest: 0,
+        agentsAsked: 1,
+        tools: [],
+        programs: [
+          { name: "ok1", asked: 5, allow: 5, deny: 0, other: 0, unanswered: 0 },
+        ],
+        distinctPrograms: 1,
+      };
+      const ledger = createLedgerFixture({ permissionRequests: permReqs });
+      const html = renderReportHtml(ledger);
+
+      expect(html).not.toContain(
+        "Denied requests show where the setup said no; read them before widening the allowlist",
+      );
+    });
+
+    it("renders answeredWithoutRequest line when > 0 and omits when 0", () => {
+      const permReqsWithUnmatched: LedgerPermissionRequests = {
+        asked: 2,
+        answered: 2,
+        unanswered: 0,
+        answeredWithoutRequest: 3,
+        agentsAsked: 1,
+        tools: [],
+        programs: [],
+        distinctPrograms: 0,
+      };
+      const htmlWith = renderReportHtml(
+        createLedgerFixture({ permissionRequests: permReqsWithUnmatched }),
+      );
+      expect(htmlWith).toContain(
+        "<p>3 answers had no matching request in this session file (answered through a pending-permissions list).</p>",
+      );
+
+      const permReqsZero: LedgerPermissionRequests = {
+        ...permReqsWithUnmatched,
+        answeredWithoutRequest: 0,
+      };
+      const htmlWithout = renderReportHtml(
+        createLedgerFixture({ permissionRequests: permReqsZero }),
+      );
+      expect(htmlWithout).not.toContain(
+        "had no matching request in this session file",
+      );
+    });
+
+    it("escapes hostile tool and program names across tables and lists", () => {
+      const hostileToolName = '<b>tool<script>alert("tool")</script></b>';
+      const hostileProgramCandidate = 'cand<script>alert("cand")</script>&"\'';
+      const hostileProgramDenied = 'deny<script>alert("deny")</script>';
+
+      const permReqs: LedgerPermissionRequests = {
+        asked: 10,
+        answered: 10,
+        unanswered: 0,
+        answeredWithoutRequest: 0,
+        agentsAsked: 1,
+        tools: [
+          {
+            name: hostileToolName,
+            asked: 5,
+            allow: 5,
+            deny: 0,
+            other: 0,
+            unanswered: 0,
+          },
+        ],
+        programs: [
+          {
+            name: hostileProgramCandidate,
+            asked: 6,
+            allow: 6,
+            deny: 0,
+            other: 0,
+            unanswered: 0,
+          },
+          {
+            name: hostileProgramDenied,
+            asked: 2,
+            allow: 0,
+            deny: 2,
+            other: 0,
+            unanswered: 0,
+          },
+        ],
+        distinctPrograms: 2,
+      };
+      const ledger = createLedgerFixture({ permissionRequests: permReqs });
+      const html = renderReportHtml(ledger);
+
+      expect(html).not.toMatch(/<script>/i);
+      expect(html).toContain(
+        "&lt;b&gt;tool&lt;script&gt;alert(&quot;tool&quot;)&lt;/script&gt;&lt;/b&gt;",
+      );
+      expect(html).toContain(
+        "cand&lt;script&gt;alert(&quot;cand&quot;)&lt;/script&gt;&amp;&quot;&#39;",
+      );
+      expect(html).toContain(
+        "deny&lt;script&gt;alert(&quot;deny&quot;)&lt;/script&gt;",
       );
     });
   });

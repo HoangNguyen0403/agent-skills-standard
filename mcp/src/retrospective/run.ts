@@ -123,6 +123,7 @@ const storedClaimSchema = z.strictObject({
     "routing-order",
     "ags-lookups",
     "session-outcome",
+    "permission-requests",
   ]),
   values: z.record(z.string(), z.union([z.number(), z.string()])),
   scope: z.strictObject({
@@ -230,6 +231,28 @@ const storedOutcomeSchema = z.discriminatedUnion("source", [
     ]),
   }),
 ]);
+
+const storedPermissionRowSchema = z.strictObject({
+  name: z.string().min(1),
+  asked: z.number().int().nonnegative(),
+  allow: z.number().int().nonnegative(),
+  deny: z.number().int().nonnegative(),
+  other: z.number().int().nonnegative(),
+  unanswered: z.number().int().nonnegative(),
+});
+
+const storedPermissionRequestsSchema = z
+  .strictObject({
+    asked: z.number().int().nonnegative(),
+    answered: z.number().int().nonnegative(),
+    unanswered: z.number().int().nonnegative(),
+    answeredWithoutRequest: z.number().int().nonnegative(),
+    agentsAsked: z.number().int().nonnegative(),
+    tools: z.array(storedPermissionRowSchema).max(10),
+    programs: z.array(storedPermissionRowSchema).max(15),
+    distinctPrograms: z.number().int().nonnegative(),
+  })
+  .nullable();
 const storedAgentSchema = z.strictObject({
   label: z.string().min(1),
   kind: z.enum(["read-only", "editing"]),
@@ -349,6 +372,7 @@ const storedLedgerSchema = z.strictObject({
   days: z.array(storedDaySchema),
   toolRows: z.array(storedToolRowSchema),
   outcome: storedOutcomeSchema,
+  permissionRequests: storedPermissionRequestsSchema,
   agents: z.array(storedAgentSchema),
   otherAgents: storedOtherAgentsSchema,
   improvements: z.array(storedImprovementSchema),
