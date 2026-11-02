@@ -205,6 +205,7 @@ export type RoutingOrder = {
 export type SessionAggregate = {
   node: NodeKey;
   format: "omp" | "codex";
+  cwdRaw: string | null;
   first: string | null;
   last: string | null;
   assistantTurns: number;
@@ -254,6 +255,9 @@ export type JointSeries = {
       errorStops: number;
       costUnits: number;
       costKnownTurns: number;
+      inputTokens: number;
+      outputTokens: number;
+      cacheReadTokens: number;
     }
   >;
 };
@@ -503,6 +507,9 @@ function recordJointEntry(
   errorStops: number,
   costUnits: number,
   costKnownTurns: number,
+  inputTokens: number,
+  outputTokens: number,
+  cacheReadTokens: number,
 ): void {
   const boundedDay =
     day === "unknown-day" ? "unknown-day" : boundIdentifier(day);
@@ -520,11 +527,17 @@ function recordJointEntry(
     errorStops: 0,
     costUnits: 0,
     costKnownTurns: 0,
+    inputTokens: 0,
+    outputTokens: 0,
+    cacheReadTokens: 0,
   });
   entry.turns += turns;
   entry.errorStops += errorStops;
   entry.costUnits += costUnits;
   entry.costKnownTurns += costKnownTurns;
+  entry.inputTokens += inputTokens;
+  entry.outputTokens += outputTokens;
+  entry.cacheReadTokens += cacheReadTokens;
 }
 
 export async function captureSnapshot(
@@ -673,6 +686,7 @@ export async function aggregateSession(
     const seenToolCallIds = new Set<string>();
     const lookups = createEmptyLookupStats();
     let folder: FolderLabel | null = null;
+    let cwdRaw: string | null = null;
     const lookupCallTool = new Map<string, LookupToolName>();
 
     const updateTimestamps = (ts: unknown): void => {
@@ -694,6 +708,9 @@ export async function aggregateSession(
       if (row.type === "session") {
         if (typeof row.cwd === "string") {
           folder = folderLabel(row.cwd);
+          cwdRaw = row.cwd.length <= 1024 ? row.cwd : null;
+        } else {
+          cwdRaw = null;
         }
         return;
       }
@@ -868,6 +885,9 @@ export async function aggregateSession(
           }
 
           let turnCost: number | null = null;
+          let turnInp = 0;
+          let turnOut = 0;
+          let turnCr = 0;
           if (isObject(msg.usage)) {
             const inp =
               typeof msg.usage.input === "number" &&
@@ -902,6 +922,9 @@ export async function aggregateSession(
             tokens.output += out;
             tokens.cacheRead += cr;
             tokens.cacheWrite += cw;
+            turnInp = inp;
+            turnOut = out;
+            turnCr = cr;
             if (cr > context.maxCacheRead) {
               context.maxCacheRead = cr;
             }
@@ -937,6 +960,9 @@ export async function aggregateSession(
             errorStops,
             turnCost ?? 0,
             turnCost !== null ? 1 : 0,
+            turnInp,
+            turnOut,
+            turnCr,
           );
 
           if (Array.isArray(msg.content)) {
@@ -1138,7 +1164,7 @@ export async function aggregateSession(
             recordBoundedMap(models, modelName);
             costUnknownTurns += 1;
             const day = extractDay(row.timestamp);
-            recordJointEntry(series, day, modelName, 1, 0, 0, 0);
+            recordJointEntry(series, day, modelName, 1, 0, 0, 0, 0, 0, 0);
             codexTurnOpen = false;
           }
           return;
@@ -1332,7 +1358,18 @@ export async function aggregateSession(
             recordBoundedMap(models, modelName);
             costUnknownTurns += 1;
             const day = extractDay(row.timestamp);
-            recordJointEntry(series, day, modelName, 1, 0, 0, 0);
+            recordJointEntry(
+              series,
+              day,
+              modelName,
+              1,
+              0,
+              0,
+              0,
+              counters !== null ? counters.input : 0,
+              counters !== null ? counters.output : 0,
+              counters !== null ? counters.cacheRead : 0,
+            );
             codexTurnOpen = false;
           }
         }
@@ -1491,6 +1528,7 @@ export async function aggregateSession(
     return {
       node: { ...source.node },
       format: source.format,
+      cwdRaw,
       first,
       last,
       assistantTurns,
@@ -1690,11 +1728,17 @@ export function rollUp(aggregates: AggregatedSession[]): TreeAggregate {
         errorStops: 0,
         costUnits: 0,
         costKnownTurns: 0,
+        inputTokens: 0,
+        outputTokens: 0,
+        cacheReadTokens: 0,
       });
       entry.turns += v.turns;
       entry.errorStops += v.errorStops;
       entry.costUnits += v.costUnits;
       entry.costKnownTurns += v.costKnownTurns;
+      entry.inputTokens += v.inputTokens;
+      entry.outputTokens += v.outputTokens;
+      entry.cacheReadTokens += v.cacheReadTokens;
     }
   }
 

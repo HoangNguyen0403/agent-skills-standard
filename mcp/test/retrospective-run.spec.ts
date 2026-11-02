@@ -2,7 +2,7 @@ import crypto from "node:crypto";
 import fsp from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   CONSENT_TEXT_VERSION,
   removeConsent,
@@ -13,7 +13,24 @@ import { discoverSession } from "../src/retrospective/discovery";
 import { prepareV2 } from "../src/retrospective/prepare";
 import { runRetrospective, type RunDeps } from "../src/retrospective/run";
 import { SessionTracker } from "../src/services/SessionTracker";
+import { readGitOutcome } from "../src/retrospective/outcome";
+import { loadPreviousReports } from "../src/retrospective/trend";
 
+vi.mock("../src/retrospective/outcome", () => ({
+  readGitOutcome: vi.fn(
+    async (
+      _input: { cwd: string | null; from: string; to: string },
+      _signal: AbortSignal,
+    ) => ({
+      source: "unavailable" as const,
+      reason: "not-measured" as const,
+    }),
+  ),
+}));
+
+vi.mock("../src/retrospective/trend", () => ({
+  loadPreviousReports: vi.fn(async () => []),
+}));
 const tempDirs: string[] = [];
 
 async function makeTempDir(prefix: string): Promise<string> {
@@ -1408,7 +1425,17 @@ describe("runRetrospective orchestration (Task S4b)", () => {
       await fsp.readFile(res.viewPaths.ledger, "utf8"),
     ) as {
       session: string | null;
-      cells: Array<{ key: string; turns: number; errorStops: number }>;
+      label: string | null;
+      cells: Array<{
+        key: string;
+        turns: number;
+        errorStops: number;
+        costCents: number;
+      }>;
+      models: unknown[];
+      days: unknown[];
+      toolRows: unknown[];
+      outcome: unknown;
       counts: Record<string, number>;
     };
     expect(ledger.session).toBe(sessionId.slice(0, 8));
@@ -1417,7 +1444,13 @@ describe("runRetrospective orchestration (Task S4b)", () => {
       expect(typeof cell.key).toBe("string");
       expect(Number.isInteger(cell.turns)).toBe(true);
       expect(Number.isInteger(cell.errorStops)).toBe(true);
+      expect(Number.isInteger(cell.costCents)).toBe(true);
     }
+    expect(ledger.label).toBeNull();
+    expect(Array.isArray(ledger.models)).toBe(true);
+    expect(Array.isArray(ledger.days)).toBe(true);
+    expect(Array.isArray(ledger.toolRows)).toBe(true);
+    expect(ledger.outcome).toBeDefined();
     expect(ledger.counts).toEqual(res.counts);
   });
 
@@ -1661,5 +1694,517 @@ describe("runRetrospective orchestration (Task S4b)", () => {
       state: "failed",
       code: "STORED_LEDGER_INVALID",
     });
+  });
+
+  it("rejects a stored ledger that lacks the label field", async () => {
+    const fx = await setupBoundSession(
+      "ags-run-stored-no-label-",
+      "sess-stored-no-label",
+    );
+    const cutoff = "2026-10-01T00:00:00.000Z";
+    const olderLedger = {
+      schemaVersion: 1,
+      cutoff,
+      session: "abcdef12",
+      evidenceMode: "native-files",
+      rootVerification: "unverified-root",
+      coverage: "complete",
+      counts: {
+        agentsCreated: 0,
+        sessionsLinked: 1,
+        failedToolCalls: 0,
+        errorStops: 0,
+        claims: 1,
+        hypotheses: 0,
+      },
+      folder: null,
+      lookups: null,
+      skillUsage: null,
+      hostSkills: null,
+      cells: [
+        { key: "2026-10-01|model-a", turns: 10, errorStops: 0, costCents: 100 },
+      ],
+      models: [
+        {
+          model: "model-a",
+          turns: 10,
+          costCents: 100,
+          inputTokens: 100,
+          outputTokens: 50,
+          cacheReadTokens: 10,
+          errorStops: 0,
+        },
+      ],
+      days: [{ day: "2026-10-01", turns: 10, costCents: 100, errorStops: 0 }],
+      toolRows: [],
+      outcome: { source: "unavailable", reason: "not-measured" },
+      agents: [],
+      otherAgents: null,
+      improvements: [],
+      claims: [
+        {
+          id: "0123456789abcdef",
+          type: "observation",
+          template: "coverage",
+          values: { sessions: 1, fullyRead: 1 },
+          scope: {
+            nodes: [{ hostId: "local", sessionId: "sess-stored-no-label" }],
+            from: cutoff,
+            to: cutoff,
+          },
+          coverage: "complete",
+          supporting: [],
+          contradicting: [],
+          basedOn: [],
+        },
+      ],
+      evidence: {},
+    };
+    await publishManualGeneration(fx, `${JSON.stringify(olderLedger)}\n`);
+
+    const deps: RunDeps = {
+      tracker: fx.tracker,
+      workspace: fx.workspaceDir,
+      consentPath: fx.consentPath,
+    };
+
+    const res = await runRetrospective(deps, new AbortController().signal);
+    expect(res).toEqual({
+      resultVersion: 1,
+      state: "failed",
+      code: "STORED_LEDGER_INVALID",
+    });
+  });
+
+  it("rejects a stored ledger that lacks the models field", async () => {
+    const fx = await setupBoundSession(
+      "ags-run-stored-no-models-",
+      "sess-stored-no-models",
+    );
+    const cutoff = "2026-10-01T00:00:00.000Z";
+    const olderLedger = {
+      schemaVersion: 1,
+      cutoff,
+      session: "abcdef12",
+      evidenceMode: "native-files",
+      rootVerification: "unverified-root",
+      coverage: "complete",
+      counts: {
+        agentsCreated: 0,
+        sessionsLinked: 1,
+        failedToolCalls: 0,
+        errorStops: 0,
+        claims: 1,
+        hypotheses: 0,
+      },
+      label: null,
+      folder: null,
+      lookups: null,
+      skillUsage: null,
+      hostSkills: null,
+      cells: [
+        { key: "2026-10-01|model-a", turns: 10, errorStops: 0, costCents: 100 },
+      ],
+      days: [{ day: "2026-10-01", turns: 10, costCents: 100, errorStops: 0 }],
+      toolRows: [],
+      outcome: { source: "unavailable", reason: "not-measured" },
+      agents: [],
+      otherAgents: null,
+      improvements: [],
+      claims: [
+        {
+          id: "0123456789abcdef",
+          type: "observation",
+          template: "coverage",
+          values: { sessions: 1, fullyRead: 1 },
+          scope: {
+            nodes: [{ hostId: "local", sessionId: "sess-stored-no-models" }],
+            from: cutoff,
+            to: cutoff,
+          },
+          coverage: "complete",
+          supporting: [],
+          contradicting: [],
+          basedOn: [],
+        },
+      ],
+      evidence: {},
+    };
+    await publishManualGeneration(fx, `${JSON.stringify(olderLedger)}\n`);
+
+    const deps: RunDeps = {
+      tracker: fx.tracker,
+      workspace: fx.workspaceDir,
+      consentPath: fx.consentPath,
+    };
+
+    const res = await runRetrospective(deps, new AbortController().signal);
+    expect(res).toEqual({
+      resultVersion: 1,
+      state: "failed",
+      code: "STORED_LEDGER_INVALID",
+    });
+  });
+
+  it("rejects a stored ledger whose cells lack costCents", async () => {
+    const fx = await setupBoundSession(
+      "ags-run-stored-no-costcents-",
+      "sess-stored-no-costcents",
+    );
+    const cutoff = "2026-10-01T00:00:00.000Z";
+    const olderLedger = {
+      schemaVersion: 1,
+      cutoff,
+      session: "abcdef12",
+      evidenceMode: "native-files",
+      rootVerification: "unverified-root",
+      coverage: "complete",
+      counts: {
+        agentsCreated: 0,
+        sessionsLinked: 1,
+        failedToolCalls: 0,
+        errorStops: 0,
+        claims: 1,
+        hypotheses: 0,
+      },
+      label: null,
+      folder: null,
+      lookups: null,
+      skillUsage: null,
+      hostSkills: null,
+      cells: [{ key: "2026-10-01|model-a", turns: 10, errorStops: 0 }],
+      models: [
+        {
+          model: "model-a",
+          turns: 10,
+          costCents: 100,
+          inputTokens: 100,
+          outputTokens: 50,
+          cacheReadTokens: 10,
+          errorStops: 0,
+        },
+      ],
+      days: [{ day: "2026-10-01", turns: 10, costCents: 100, errorStops: 0 }],
+      toolRows: [],
+      outcome: { source: "unavailable", reason: "not-measured" },
+      agents: [],
+      otherAgents: null,
+      improvements: [],
+      claims: [
+        {
+          id: "0123456789abcdef",
+          type: "observation",
+          template: "coverage",
+          values: { sessions: 1, fullyRead: 1 },
+          scope: {
+            nodes: [{ hostId: "local", sessionId: "sess-stored-no-costcents" }],
+            from: cutoff,
+            to: cutoff,
+          },
+          coverage: "complete",
+          supporting: [],
+          contradicting: [],
+          basedOn: [],
+        },
+      ],
+      evidence: {},
+    };
+    await publishManualGeneration(fx, `${JSON.stringify(olderLedger)}\n`);
+
+    const deps: RunDeps = {
+      tracker: fx.tracker,
+      workspace: fx.workspaceDir,
+      consentPath: fx.consentPath,
+    };
+
+    const res = await runRetrospective(deps, new AbortController().signal);
+    expect(res).toEqual({
+      resultVersion: 1,
+      state: "failed",
+      code: "STORED_LEDGER_INVALID",
+    });
+  });
+
+  it("accepts a stored ledger with new fields and session-outcome claim", async () => {
+    const fx = await setupBoundSession(
+      "ags-run-stored-outcome-",
+      "sess-stored-outcome",
+    );
+    const cutoff = "2026-10-01T00:00:00.000Z";
+    const validLedger = {
+      schemaVersion: 1,
+      cutoff,
+      session: "abcdef12",
+      evidenceMode: "native-files",
+      rootVerification: "unverified-root",
+      coverage: "complete",
+      counts: {
+        agentsCreated: 0,
+        sessionsLinked: 1,
+        failedToolCalls: 0,
+        errorStops: 0,
+        claims: 2,
+        hypotheses: 0,
+      },
+      label: "agent supplied label",
+      folder: null,
+      lookups: null,
+      skillUsage: null,
+      hostSkills: null,
+      cells: [
+        { key: "2026-10-01|model-a", turns: 10, errorStops: 0, costCents: 100 },
+      ],
+      models: [
+        {
+          model: "model-a",
+          turns: 10,
+          costCents: 100,
+          inputTokens: 100,
+          outputTokens: 50,
+          cacheReadTokens: 10,
+          errorStops: 0,
+        },
+      ],
+      days: [{ day: "2026-10-01", turns: 10, costCents: 100, errorStops: 0 }],
+      toolRows: [],
+      outcome: {
+        source: "git",
+        branch: "main",
+        commits: 3,
+        revertCommits: 0,
+        mergeCommits: 0,
+        filesChanged: 2,
+        insertions: 20,
+        deletions: 5,
+        windowFrom: cutoff,
+        windowTo: cutoff,
+      },
+      agents: [],
+      otherAgents: null,
+      improvements: [],
+      claims: [
+        {
+          id: "0123456789abcdef",
+          type: "observation",
+          template: "coverage",
+          values: { sessions: 1, fullyRead: 1 },
+          scope: {
+            nodes: [{ hostId: "local", sessionId: "sess-stored-outcome" }],
+            from: cutoff,
+            to: cutoff,
+          },
+          coverage: "complete",
+          supporting: [],
+          contradicting: [],
+          basedOn: [],
+        },
+        {
+          id: "123456789abcdef0",
+          type: "observation",
+          template: "session-outcome",
+          values: {
+            commits: 3,
+            revertCommits: 0,
+            mergeCommits: 0,
+            filesChanged: 2,
+            insertions: 20,
+            deletions: 5,
+            completeness: "complete",
+          },
+          scope: {
+            nodes: [{ hostId: "local", sessionId: "sess-stored-outcome" }],
+            from: cutoff,
+            to: cutoff,
+          },
+          coverage: "complete",
+          supporting: [],
+          contradicting: [],
+          basedOn: [],
+        },
+      ],
+      evidence: {},
+    };
+    await publishManualGeneration(fx, `${JSON.stringify(validLedger)}\n`);
+
+    const deps: RunDeps = {
+      tracker: fx.tracker,
+      workspace: fx.workspaceDir,
+      consentPath: fx.consentPath,
+    };
+
+    const res = await runRetrospective(deps, new AbortController().signal);
+    expect(res.state).toBe("already-prepared");
+    if (res.state === "already-prepared") {
+      expect(res.counts.claims).toBe(2);
+    }
+  });
+
+  it("sanitizes RunDeps.title and passes it into published ledger.label", async () => {
+    const fx = await setupBoundSession(
+      "ags-run-title-label-",
+      "sess-title-label",
+    );
+    const deps: RunDeps = {
+      tracker: fx.tracker,
+      workspace: fx.workspaceDir,
+      consentPath: fx.consentPath,
+      title: "  Fix <bug> in `parser`\nand update  ",
+    };
+
+    const res = await runRetrospective(deps, new AbortController().signal);
+    expect(res.state).toBe("prepared");
+    if (res.state !== "prepared") return;
+
+    const ledger = JSON.parse(await fsp.readFile(res.viewPaths.ledger, "utf8"));
+    expect(ledger.label).toBe("Fix 'bug' in 'parser' and update");
+  });
+
+  it("calls readGitOutcome with session date range and passes git outcome into published ledger and claims", async () => {
+    const gitOutcome = {
+      source: "git" as const,
+      branch: "main",
+      commits: 4,
+      revertCommits: 1,
+      mergeCommits: 0,
+      filesChanged: 7,
+      insertions: 88,
+      deletions: 12,
+      windowFrom: "2026-10-01T10:00:00.000Z",
+      windowTo: "2026-10-01T12:00:00.000Z",
+    };
+    vi.mocked(readGitOutcome).mockResolvedValueOnce(gitOutcome);
+
+    const fx = await setupBoundSession(
+      "ags-run-git-outcome-",
+      "sess-git-outcome",
+    );
+    const deps: RunDeps = {
+      tracker: fx.tracker,
+      workspace: fx.workspaceDir,
+      consentPath: fx.consentPath,
+    };
+
+    const res = await runRetrospective(deps, new AbortController().signal);
+    expect(res.state).toBe("prepared");
+    if (res.state !== "prepared") return;
+
+    const ledger = JSON.parse(await fsp.readFile(res.viewPaths.ledger, "utf8"));
+    expect(ledger.outcome).toEqual(gitOutcome);
+    const outcomeClaim = ledger.claims.find(
+      (c: { template: string }) => c.template === "session-outcome",
+    );
+    expect(outcomeClaim).toBeDefined();
+    expect(outcomeClaim.values.commits).toBe(4);
+  });
+
+  it("sets unavailable not-measured outcome for tracker-only run", async () => {
+    const root = await makeTempDir("ags-run-tracker-outcome-");
+    const storeRoot = path.join(root, "store");
+    const consentPath = path.join(root, "consent.json");
+    const workspaceDir = path.join(root, "workspace");
+    await fsp.mkdir(workspaceDir, { recursive: true });
+    const consentRecord = createConsentRecord(storeRoot, [workspaceDir]);
+    await writeConsent(consentRecord, consentPath);
+
+    const tracker = new SessionTracker();
+    tracker.record({
+      via: "load_skills_for_files",
+      input: ["src/app.ts"],
+      loaded: ["typescript/typescript-language"],
+      selected: ["typescript/typescript-language"],
+    });
+
+    const deps: RunDeps = {
+      tracker,
+      workspace: workspaceDir,
+      consentPath,
+    };
+
+    const res = await runRetrospective(deps, new AbortController().signal);
+    expect(res.state).toBe("prepared");
+    if (res.state !== "prepared") return;
+    expect(res.evidenceMode).toBe("tracker-only");
+
+    const ledger = JSON.parse(await fsp.readFile(res.viewPaths.ledger, "utf8"));
+    expect(ledger.outcome).toEqual({
+      source: "unavailable",
+      reason: "not-measured",
+    });
+  });
+
+  it("swallows loadPreviousReports trend loader errors and successfully completes preparation", async () => {
+    vi.mocked(loadPreviousReports).mockRejectedValueOnce(
+      new Error("trend store corrupt"),
+    );
+
+    const fx = await setupBoundSession(
+      "ags-run-trend-fail-",
+      "sess-trend-fail",
+    );
+    const deps: RunDeps = {
+      tracker: fx.tracker,
+      workspace: fx.workspaceDir,
+      consentPath: fx.consentPath,
+    };
+
+    const res = await runRetrospective(deps, new AbortController().signal);
+    expect(res.state).toBe("prepared");
+  });
+
+  it("privacy invariant: raw session cwd never appears in summary.md, ledger.json, or report.html", async () => {
+    const secretPath = "/Users/secret_agent/classified_project_area_xyz987";
+    const sessionId = "sess-privacy-check";
+    const root = await makeTempDir("ags-run-privacy-");
+    const storeRoot = path.join(root, "store");
+    const consentPath = path.join(root, "consent.json");
+    const sessionsDir = path.join(root, "sessions");
+    const workspaceDir = path.join(root, "workspace");
+    await fsp.mkdir(sessionsDir, { recursive: true, mode: 0o700 });
+    await fsp.mkdir(workspaceDir, { recursive: true });
+
+    const consentRecord = createConsentRecord(storeRoot, [sessionsDir]);
+    await writeConsent(consentRecord, consentPath);
+
+    const mainFile = path.join(sessionsDir, `${sessionId}.jsonl`);
+    const tracker = new SessionTracker();
+    const header = sessionHeader({ id: sessionId, cwd: secretPath });
+    const callMsg = ompMcpToolCall({
+      callId: "call-priv-1",
+      tool: "load_skills_for_files",
+      timestamp: "2026-10-01T10:00:00.000Z",
+    });
+    const resultMsg = toolResult({
+      callId: "call-priv-1",
+      timestamp: "2026-10-01T10:00:01.000Z",
+    });
+    await fsp.writeFile(mainFile, `${header}${callMsg}${resultMsg}`);
+    tracker.record({
+      via: "load_skills_for_files",
+      input: ["src/index.ts"],
+      loaded: ["typescript/typescript-language"],
+      selected: ["typescript/typescript-language"],
+    });
+
+    const deps: RunDeps = {
+      tracker,
+      workspace: workspaceDir,
+      consentPath,
+    };
+
+    const res = await runRetrospective(deps, new AbortController().signal);
+    expect(res.state).toBe("prepared");
+    if (res.state !== "prepared") return;
+
+    const summary = await fsp.readFile(res.viewPaths.summary, "utf8");
+    const ledgerText = await fsp.readFile(res.viewPaths.ledger, "utf8");
+    const reportHtml = await fsp.readFile(res.viewPaths.reportHtml, "utf8");
+
+    // The raw full cwd path and ancestor paths above the bounded labels must NEVER appear
+    expect(summary).not.toContain(secretPath);
+    expect(summary).not.toContain("/Users/secret_agent");
+    expect(ledgerText).not.toContain(secretPath);
+    expect(ledgerText).not.toContain("/Users/secret_agent");
+    expect(reportHtml).not.toContain(secretPath);
+    expect(reportHtml).not.toContain("/Users/secret_agent");
   });
 });

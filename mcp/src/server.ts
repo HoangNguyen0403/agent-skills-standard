@@ -403,16 +403,17 @@ export async function buildServer(
     register(server, {
       name: "prepare_retrospective",
       title: "Prepare a local session retrospective",
-      description: `<use_case>Prepare a local, evidence-linked retrospective analysis for the completed session. Orchestrator or unassigned agent only. Workers holding an assignment packet must not call this.</use_case>
+      description: `<use_case>Prepare a local, evidence-linked retrospective analysis for the completed session. Pass \`title\` = one line saying what this session was for; it is shown as agent-supplied and unverified. Orchestrator or unassigned agent only. Workers holding an assignment packet must not call this.</use_case>
 
 <important_notes>
 - Orchestrator or unassigned agent only. Workers holding an assignment packet must not call this.
+- Pass \`title\` = one line saying what this session was for; it is shown as agent-supplied and unverified.
 - Requires the user's one-time opt-in via \`ags-retrospective enable\`.
 - Zero model calls, zero outbound network requests.
 - Returns only fixed counts and view file paths (summary, ledger and HTML report); never transcript text.
 </important_notes>`,
       inputSchema: prepareRetrospectiveSchema,
-      handler: () => prepareRetrospective(ctx),
+      handler: (args) => prepareRetrospective(args as { title?: string }, ctx),
     });
 
     register(server, {

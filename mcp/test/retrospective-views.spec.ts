@@ -9,6 +9,10 @@ import {
 } from "../src/retrospective/ledger";
 import {
   type LedgerAgent,
+  type LedgerDay,
+  type LedgerModel,
+  type LedgerOutcome,
+  type LedgerToolRow,
   type OtherAgentsSummary,
   renderSummary,
 } from "../src/retrospective/views/summary";
@@ -263,6 +267,11 @@ type ViewLedgerInput = {
   agents?: LedgerAgent[];
   otherAgents?: OtherAgentsSummary | null;
   improvements?: LedgerImprovement[];
+  label?: string | null;
+  models?: LedgerModel[];
+  days?: LedgerDay[];
+  toolRows?: LedgerToolRow[];
+  outcome?: LedgerOutcome;
 };
 
 function viewLedger(input: ViewLedgerInput = {}): Ledger {
@@ -305,11 +314,16 @@ function viewLedger(input: ViewLedgerInput = {}): Ledger {
     agents: input.agents ?? [],
     otherAgents: input.otherAgents ?? null,
     improvements: input.improvements ?? [],
+    label: input.label ?? null,
+    models: input.models ?? [],
+    days: input.days ?? [],
+    toolRows: input.toolRows ?? [],
+    outcome: input.outcome ?? { source: "unavailable", reason: "not-measured" },
   } as unknown as Ledger;
 }
 
 describe("retrospective summary view v3", () => {
-  it("renders summary within 60 lines and 6144 bytes on a 200-cell fixture", () => {
+  it("renders summary within 80 lines and 8192 bytes on a 200-cell fixture", () => {
     const input: LedgerInput = {
       tree: create200CellTree(),
       mainSessionId: "abcdef1234567890",
@@ -321,14 +335,16 @@ describe("retrospective summary view v3", () => {
       agentsCreated: 50,
       sessionsLinked: 40,
       trackerSince: null,
+      label: null,
+      outcome: { source: "unavailable", reason: "not-measured" },
     } as unknown as LedgerInput;
 
     const ledger = buildLedger(input);
     const summary = renderSummary(ledger);
 
     const lines = summary.split("\n");
-    expect(lines.length).toBeLessThanOrEqual(60);
-    expect(Buffer.byteLength(summary, "utf8")).toBeLessThanOrEqual(6144);
+    expect(lines.length).toBeLessThanOrEqual(80);
+    expect(Buffer.byteLength(summary, "utf8")).toBeLessThanOrEqual(8192);
     expect(lines[0]).toBe(
       "Coverage: complete | Evidence: native session files | Root: unverified root | Delegation: 40 of 50 created agents read | Cutoff: 2026-10-28T23:59:59.000Z",
     );
@@ -690,6 +706,9 @@ describe("retrospective summary view v3", () => {
     expect(lines[scoreIdx + 6]).toBe(
       "Coverage: 2 of 5 created agents observed; observed workers: 1 read-only, 1 editing; 2 sessions read in full (0 lines skipped).",
     );
+    expect(lines[scoreIdx + 7]).toBe(
+      "Outcome: not measured (not measured for this run).",
+    );
   });
 
   it("handles scorecard absent-claim variants", () => {
@@ -735,6 +754,9 @@ describe("retrospective summary view v3", () => {
     );
     expect(lines[scoreIdx + 2]).toBe(
       "Coverage: 2 of 2 created agents observed; observed workers: 0 read-only, 0 editing; 1 session read in full (5 lines skipped).",
+    );
+    expect(lines[scoreIdx + 3]).toBe(
+      "Outcome: not measured (not measured for this run).",
     );
     expect(summary).not.toContain("Cost: main");
     expect(summary).not.toContain("AGS routing: main");
@@ -1636,7 +1658,7 @@ describe("retrospective summary view v3", () => {
     expect(summary).not.toContain("postgres-pool");
   });
 
-  it("fits 60-line and 6144-byte budget when AGS lookups and lookup-misses are present", () => {
+  it("fits 80-line and 8192-byte budget when AGS lookups and lookup-misses are present", () => {
     const improvements: LedgerImprovement[] = [
       {
         rule: "guardrail-answers",
@@ -1818,11 +1840,488 @@ describe("retrospective summary view v3", () => {
     const summary = renderSummary(ledger);
     const lines = summary.split("\n");
 
-    expect(lines.length).toBeLessThanOrEqual(60);
-    expect(Buffer.byteLength(summary, "utf8")).toBeLessThanOrEqual(6144);
+    expect(lines.length).toBeLessThanOrEqual(80);
+    expect(Buffer.byteLength(summary, "utf8")).toBeLessThanOrEqual(8192);
     expect(summary).toContain(
       "AGS lookups: 8 skill bodies returned from 5 distinct skills;",
     );
     expect(summary).toContain("3 of 15 lookups matched nothing");
+  });
+  describe("contract v3.2 summary extensions", () => {
+    it("renders Title line after Scope line when ledger.label is non-null", () => {
+      const ledger = viewLedger({
+        label: "Refactor session retrospective MCP server",
+      });
+      const summary = renderSummary(ledger);
+      const lines = summary.split("\n");
+      expect(lines[1]).toContain("Scope:");
+      expect(lines[2]).toBe(
+        "Title: Refactor session retrospective MCP server (agent-supplied, unverified)",
+      );
+      expect(lines[3]).toBe("");
+      expect(lines[4]).toBe("## Bottom line");
+    });
+
+    it("omits Title line when ledger.label is null", () => {
+      const ledger = viewLedger({
+        label: null,
+      });
+      const summary = renderSummary(ledger);
+      const lines = summary.split("\n");
+      expect(lines[1]).toContain("Scope:");
+      expect(lines[2]).toBe("");
+      expect(lines[3]).toBe("## Bottom line");
+      expect(summary).not.toContain("Title:");
+    });
+
+    it("renders Tool failures scorecard line with top 3 toolRows and plural tool calls", () => {
+      const ledger = viewLedger({
+        claims: [
+          viewClaim("claim:tool-errors", "tool-errors", {
+            toolCalls: 25,
+            failedToolCalls: 7,
+          }),
+        ],
+        toolRows: [
+          { tool: "bash", calls: 10, errors: 4 },
+          { tool: "read", calls: 8, errors: 2 },
+          { tool: "write", calls: 4, errors: 1 },
+          { tool: "edit", calls: 3, errors: 1 },
+        ],
+      });
+      const summary = renderSummary(ledger);
+      expect(summary).toContain(
+        "Tool failures: 7 of 25 tool calls returned an error (bash x4, read x2, write x1).",
+      );
+    });
+
+    it("renders Tool failures scorecard line with singular tool call and single tool error", () => {
+      const ledger = viewLedger({
+        claims: [
+          viewClaim("claim:tool-errors", "tool-errors", {
+            toolCalls: 1,
+            failedToolCalls: 1,
+          }),
+        ],
+        toolRows: [{ tool: "bash", calls: 1, errors: 1 }],
+      });
+      const summary = renderSummary(ledger);
+      expect(summary).toContain(
+        "Tool failures: 1 of 1 tool call returned an error (bash x1).",
+      );
+    });
+
+    it("renders Tool failures scorecard line with zero errors without parenthesis", () => {
+      const ledger = viewLedger({
+        claims: [
+          viewClaim("claim:tool-errors", "tool-errors", {
+            toolCalls: 5,
+            failedToolCalls: 0,
+          }),
+        ],
+        toolRows: [],
+      });
+      const summary = renderSummary(ledger);
+      expect(summary).toContain(
+        "Tool failures: 0 of 5 tool calls returned an error.",
+      );
+      expect(summary).not.toContain(
+        "Tool failures: 0 of 5 tool calls returned an error (",
+      );
+    });
+
+    it("omits Tool failures scorecard line when tool-errors claim is absent", () => {
+      const ledger = viewLedger({
+        claims: [],
+        toolRows: [{ tool: "bash", calls: 5, errors: 2 }],
+      });
+      const summary = renderSummary(ledger);
+      expect(summary).not.toContain("Tool failures:");
+    });
+
+    it("omits Tool failures scorecard line when toolCalls is zero", () => {
+      const ledger = viewLedger({
+        claims: [
+          viewClaim("claim:tool-errors", "tool-errors", {
+            toolCalls: 0,
+            failedToolCalls: 0,
+          }),
+        ],
+        toolRows: [],
+      });
+      const summary = renderSummary(ledger);
+      expect(summary).not.toContain("Tool failures:");
+    });
+
+    it("renders Error stops scorecard line with both highest rate and most stops cells", () => {
+      const ledger = viewLedger({
+        claims: [
+          viewClaim("claim:error-stops", "error-stop-exposure", {
+            errorStops: 5,
+            turns: 20,
+            topCell: "2026-10-01|gpt-4",
+            topCellErrorStops: 3,
+            topCellTurns: 6,
+            busiestCell: "2026-10-02|claude",
+            busiestCellErrorStops: 4,
+            busiestCellTurns: 10,
+          }),
+        ],
+      });
+      const summary = renderSummary(ledger);
+      expect(summary).toContain(
+        "Error stops: 5 across 20 assistant turns. Highest rate: 2026-10-01|gpt-4 (3 of 6 turns). Most stops: 2026-10-02|claude (4 of 10 turns).",
+      );
+    });
+
+    it("renders Error stops scorecard line with singular assistant turn and turn count", () => {
+      const ledger = viewLedger({
+        claims: [
+          viewClaim("claim:error-stops", "error-stop-exposure", {
+            errorStops: 1,
+            turns: 1,
+            topCell: "2026-10-01|gpt-4",
+            topCellErrorStops: 1,
+            topCellTurns: 1,
+            busiestCell: "2026-10-01|gpt-4",
+            busiestCellErrorStops: 1,
+            busiestCellTurns: 1,
+          }),
+        ],
+      });
+      const summary = renderSummary(ledger);
+      expect(summary).toContain(
+        "Error stops: 1 across 1 assistant turn. Highest rate: 2026-10-01|gpt-4 (1 of 1 turn). Most stops: 2026-10-01|gpt-4 (1 of 1 turn).",
+      );
+    });
+
+    it("renders Error stops scorecard line with only most stops when topCell is absent", () => {
+      const ledger = viewLedger({
+        claims: [
+          viewClaim("claim:error-stops", "error-stop-exposure", {
+            errorStops: 2,
+            turns: 4,
+            busiestCell: "2026-10-01|gpt-4",
+            busiestCellErrorStops: 2,
+            busiestCellTurns: 4,
+          }),
+        ],
+      });
+      const summary = renderSummary(ledger);
+      expect(summary).toContain(
+        "Error stops: 2 across 4 assistant turns. Most stops: 2026-10-01|gpt-4 (2 of 4 turns).",
+      );
+      expect(summary).not.toContain("Highest rate:");
+    });
+
+    it("renders Error stops scorecard line with base count only when no cells are named", () => {
+      const ledger = viewLedger({
+        claims: [
+          viewClaim("claim:error-stops", "error-stop-exposure", {
+            errorStops: 2,
+            turns: 10,
+          }),
+        ],
+      });
+      const summary = renderSummary(ledger);
+      expect(summary).toContain("Error stops: 2 across 10 assistant turns.");
+      expect(summary).not.toContain("Highest rate:");
+      expect(summary).not.toContain("Most stops:");
+    });
+
+    it("omits Error stops scorecard line when error-stop-exposure claim is absent", () => {
+      const ledger = viewLedger({
+        claims: [],
+      });
+      const summary = renderSummary(ledger);
+      expect(summary).not.toContain("Error stops:");
+    });
+
+    it("omits Error stops scorecard line when errorStops is zero", () => {
+      const ledger = viewLedger({
+        claims: [
+          viewClaim("claim:error-stops", "error-stop-exposure", {
+            errorStops: 0,
+            turns: 10,
+          }),
+        ],
+      });
+      const summary = renderSummary(ledger);
+      expect(summary).not.toContain("Error stops:");
+    });
+
+    it("renders Outcome scorecard line for git source with plural commits, files, reverts and merges", () => {
+      const ledger = viewLedger({
+        outcome: {
+          source: "git",
+          branch: "feat/mcp-native-retrospective",
+          commits: 4,
+          revertCommits: 2,
+          mergeCommits: 2,
+          filesChanged: 8,
+          insertions: 120,
+          deletions: 45,
+          windowFrom: "2026-10-01T00:00:00.000Z",
+          windowTo: "2026-10-01T12:00:00.000Z",
+        },
+      });
+      const summary = renderSummary(ledger);
+      expect(summary).toContain(
+        "Outcome: 4 commits in the session window (8 files changed, +120 -45), 2 reverts, 2 merge commits; branch now feat/mcp-native-retrospective.",
+      );
+    });
+
+    it("renders Outcome scorecard line for git source with singular commit, file, revert and merge", () => {
+      const ledger = viewLedger({
+        outcome: {
+          source: "git",
+          branch: "main",
+          commits: 1,
+          revertCommits: 1,
+          mergeCommits: 1,
+          filesChanged: 1,
+          insertions: 5,
+          deletions: 2,
+          windowFrom: "2026-10-01T00:00:00.000Z",
+          windowTo: "2026-10-01T12:00:00.000Z",
+        },
+      });
+      const summary = renderSummary(ledger);
+      expect(summary).toContain(
+        "Outcome: 1 commit in the session window (1 file changed, +5 -2), 1 revert, 1 merge commit; branch now main.",
+      );
+    });
+
+    it("renders Outcome scorecard line for git source with zero reverts and merge commits", () => {
+      const ledger = viewLedger({
+        outcome: {
+          source: "git",
+          branch: "main",
+          commits: 2,
+          revertCommits: 0,
+          mergeCommits: 0,
+          filesChanged: 3,
+          insertions: 50,
+          deletions: 10,
+          windowFrom: "2026-10-01T00:00:00.000Z",
+          windowTo: "2026-10-01T12:00:00.000Z",
+        },
+      });
+      const summary = renderSummary(ledger);
+      expect(summary).toContain(
+        "Outcome: 2 commits in the session window (3 files changed, +50 -10), 0 reverts, 0 merge commits; branch now main.",
+      );
+    });
+
+    it("renders Outcome scorecard line for git source when branch is null as detached HEAD", () => {
+      const ledger = viewLedger({
+        outcome: {
+          source: "git",
+          branch: null,
+          commits: 3,
+          revertCommits: 0,
+          mergeCommits: 1,
+          filesChanged: 2,
+          insertions: 25,
+          deletions: 8,
+          windowFrom: "2026-10-01T00:00:00.000Z",
+          windowTo: "2026-10-01T12:00:00.000Z",
+        },
+      });
+      const summary = renderSummary(ledger);
+      expect(summary).toContain(
+        "Outcome: 3 commits in the session window (2 files changed, +25 -8), 0 reverts, 1 merge commit; branch now detached HEAD.",
+      );
+    });
+
+    it("renders Outcome scorecard line for unavailable source with each reason variant", () => {
+      const reasons = [
+        {
+          reason: "folder-missing",
+          expected: "Outcome: not measured (session folder missing).",
+        },
+        {
+          reason: "not-a-repo",
+          expected: "Outcome: not measured (not a git repository).",
+        },
+        {
+          reason: "git-error",
+          expected: "Outcome: not measured (git could not be read safely).",
+        },
+        {
+          reason: "not-measured",
+          expected: "Outcome: not measured (not measured for this run).",
+        },
+      ] as const;
+
+      for (const { reason, expected } of reasons) {
+        const ledger = viewLedger({
+          outcome: { source: "unavailable", reason },
+        });
+        const summary = renderSummary(ledger);
+        expect(summary).toContain(expected);
+      }
+    });
+
+    it("renders scorecard lines in exact order (Guardrails, Cost, Tool failures, Error stops, AGS routing, Coverage, Outcome)", () => {
+      const ledger = viewLedger({
+        claims: [
+          viewClaim("claim:perm", "permission-answers", {
+            answers: 2,
+            allow: 2,
+            deny: 0,
+            other: 0,
+            targets: 1,
+            maxPerTarget: 2,
+            targetsAtLeast3: 0,
+            askCalls: 0,
+            abortedStops: 0,
+            turns: 20,
+          }),
+          viewClaim("claim:cost", "cost-drivers", {
+            turnsMain: 20,
+            costCentsMain: 200,
+            turnsOthers: 0,
+            costCentsOthers: 0,
+            cacheReadPerTurnMain: 10000,
+            cacheReadPerTurnOthers: 0,
+            compactionsMain: 0,
+            postCompactionCacheReadPerTurnMain: 0,
+            maxCacheReadMain: 10000,
+            mainToolCalls: 10,
+            mainReadCalls: 5,
+            mainEditCalls: 3,
+            mainBashCalls: 2,
+            mainCoordinationCalls: 0,
+            costCentsMainReads: 100,
+            costCentsMainCoordination: 0,
+          }),
+          viewClaim("claim:tool-errors", "tool-errors", {
+            toolCalls: 10,
+            failedToolCalls: 2,
+          }),
+          viewClaim("claim:error-stops", "error-stop-exposure", {
+            errorStops: 1,
+            turns: 20,
+            busiestCell: "2026-10-01|gpt-4",
+            busiestCellErrorStops: 1,
+            busiestCellTurns: 20,
+          }),
+          viewClaim("claim:routing", "routing-order", {
+            lookupsMain: 1,
+            lookupsOthers: 0,
+            byFilesTotal: 1,
+            byKeywordsTotal: 0,
+            getSkillTotal: 0,
+            agentsWithLookup: 1,
+            agentsTotal: 1,
+            editEpisodesMain: 3,
+            unguardedEditsMain: 0,
+            editEpisodesOthers: 0,
+            unguardedEditsOthers: 0,
+            overheadCalls: 0,
+            hostSkillReadCalls: 0,
+          }),
+        ],
+        toolRows: [{ tool: "bash", calls: 2, errors: 2 }],
+        outcome: {
+          source: "git",
+          branch: "main",
+          commits: 1,
+          revertCommits: 0,
+          mergeCommits: 0,
+          filesChanged: 1,
+          insertions: 10,
+          deletions: 2,
+          windowFrom: "2026-10-01T00:00:00.000Z",
+          windowTo: "2026-10-01T12:00:00.000Z",
+        },
+      });
+
+      const summary = renderSummary(ledger);
+      const lines = summary.split("\n");
+      const scoreIdx = lines.indexOf("## Scorecards");
+      expect(scoreIdx).toBeGreaterThan(-1);
+
+      expect(lines[scoreIdx + 1]).toContain("Guardrails:");
+      expect(lines[scoreIdx + 2]).toContain("Cost:");
+      expect(lines[scoreIdx + 3]).toBe(
+        "Tool failures: 2 of 10 tool calls returned an error (bash x2).",
+      );
+      expect(lines[scoreIdx + 4]).toBe(
+        "Error stops: 1 across 20 assistant turns. Most stops: 2026-10-01|gpt-4 (1 of 20 turns).",
+      );
+      expect(lines[scoreIdx + 5]).toContain("AGS routing:");
+      expect(lines[scoreIdx + 6]).toContain("Edits:");
+      expect(lines[scoreIdx + 7]).toContain("Coverage:");
+      expect(lines[scoreIdx + 8]).toBe(
+        "Outcome: 1 commit in the session window (1 file changed, +10 -2), 0 reverts, 0 merge commits; branch now main.",
+      );
+    });
+
+    it("enforces 80-line ceiling and truncates lines exceeding 80", () => {
+      const manyImprovements: LedgerImprovement[] = Array.from(
+        { length: 30 },
+        (_, i) => ({
+          rule: "guardrail-answers",
+          level: "act",
+          destination: "permission-setup",
+          audience: "manager",
+          claimIds: [],
+          evidence: [],
+          values: {
+            answers: 10 + i,
+            allow: 5,
+            deny: 5 + i,
+            targetsAtLeast3: 1,
+            per100Tenths: 100 + i,
+          },
+        }),
+      );
+
+      const ledger = viewLedger({
+        improvements: manyImprovements,
+      });
+      const summary = renderSummary(ledger);
+      const lines = summary.split("\n");
+      expect(lines.length).toBeLessThanOrEqual(80);
+      expect(Buffer.byteLength(summary, "utf8")).toBeLessThanOrEqual(8192);
+    });
+
+    it("does not output any skill names in the summary", () => {
+      const ledger = viewLedger({
+        label: "Session testing skill anonymity",
+        claims: [
+          viewClaim("claim:tool-errors", "tool-errors", {
+            toolCalls: 5,
+            failedToolCalls: 1,
+          }),
+          viewClaim("claim:error-stops", "error-stop-exposure", {
+            errorStops: 1,
+            turns: 10,
+            busiestCell: "2026-10-01|gpt-4",
+            busiestCellErrorStops: 1,
+            busiestCellTurns: 10,
+          }),
+        ],
+        toolRows: [{ tool: "bash", calls: 2, errors: 1 }],
+        outcome: {
+          source: "git",
+          branch: "main",
+          commits: 1,
+          revertCommits: 0,
+          mergeCommits: 0,
+          filesChanged: 1,
+          insertions: 5,
+          deletions: 1,
+          windowFrom: "2026-10-01T00:00:00.000Z",
+          windowTo: "2026-10-01T12:00:00.000Z",
+        },
+      });
+      const summary = renderSummary(ledger);
+      expect(summary).not.toContain("common-best-practices");
+      expect(summary).not.toContain("typescript-language");
+      expect(summary).not.toContain("skill://");
+    });
   });
 });

@@ -140,6 +140,7 @@ function aggregatedSession(
 ): AggregatedSession {
   return {
     format: "omp",
+    cwdRaw: null,
     first: "2026-10-01T10:00:00.000Z",
     last: "2026-10-01T10:00:30.000Z",
     assistantTurns: 0,
@@ -343,17 +344,24 @@ describe("retrospective aggregate pass", () => {
     expect(result.skippedLines).toBe(0);
     expect(result.metricCompleteness.assistantTurns).toBe("complete");
 
+    expect(result.cwdRaw).toBe("/test/workspace");
     expect(result.series.byDayModel["2026-10-01|provider/model-a"]).toEqual({
       turns: 1,
       errorStops: 0,
       costUnits: 0.001,
       costKnownTurns: 1,
+      inputTokens: 10,
+      outputTokens: 5,
+      cacheReadTokens: 2,
     });
     expect(result.series.byDayModel["2026-10-01|provider/model-b"]).toEqual({
       turns: 1,
       errorStops: 1,
       costUnits: 0.002,
       costKnownTurns: 1,
+      inputTokens: 8,
+      outputTokens: 4,
+      cacheReadTokens: 0,
     });
   });
 
@@ -445,12 +453,16 @@ describe("retrospective aggregate pass", () => {
     expect(result.stopReasons).toEqual({ aborted: 1 });
     expect(result.toolCalls).toEqual({ glob: 1 });
     expect(result.toolErrors).toEqual({});
+    expect(result.cwdRaw).toBeNull();
     expect(result.coverage).toBe("complete");
     expect(result.series.byDayModel["2026-10-01|openai/gpt-4o"]).toEqual({
       turns: 1,
       errorStops: 0,
       costUnits: 0,
       costKnownTurns: 0,
+      inputTokens: 15,
+      outputTokens: 6,
+      cacheReadTokens: 3,
     });
   });
 
@@ -1191,12 +1203,18 @@ describe("retrospective aggregate pass", () => {
       errorStops: 1,
       costUnits: 0,
       costKnownTurns: 0,
+      inputTokens: 2,
+      outputTokens: 2,
+      cacheReadTokens: 0,
     });
     expect(res2.series.byDayModel["2026-10-01|model-a"]).toEqual({
       turns: 2,
       errorStops: 0,
       costUnits: 0,
       costKnownTurns: 0,
+      inputTokens: 2,
+      outputTokens: 2,
+      cacheReadTokens: 0,
     });
   });
 
@@ -1555,6 +1573,7 @@ describe("retrospective aggregate pass", () => {
     const agg1: AggregatedSession = {
       node: { hostId: "h1", sessionId: "s1" },
       format: "omp",
+      cwdRaw: null,
       first: "2026-10-01T10:00:00.000Z",
       last: "2026-10-01T10:05:00.000Z",
       assistantTurns: 2,
@@ -1615,6 +1634,9 @@ describe("retrospective aggregate pass", () => {
             errorStops: 0,
             costUnits: 0.002,
             costKnownTurns: 2,
+            inputTokens: 20,
+            outputTokens: 10,
+            cacheReadTokens: 5,
           },
         },
       },
@@ -1623,6 +1645,7 @@ describe("retrospective aggregate pass", () => {
     const agg2: AggregatedSession = {
       node: { hostId: "h2", sessionId: "s2" },
       format: "codex",
+      cwdRaw: null,
       first: "2026-10-01T10:02:00.000Z",
       last: "2026-10-01T10:10:00.000Z",
       assistantTurns: 3,
@@ -1684,6 +1707,9 @@ describe("retrospective aggregate pass", () => {
             errorStops: 1,
             costUnits: 0.003,
             costKnownTurns: 1,
+            inputTokens: 30,
+            outputTokens: 15,
+            cacheReadTokens: 0,
           },
         },
       },
@@ -1756,12 +1782,18 @@ describe("retrospective aggregate pass", () => {
       errorStops: 0,
       costUnits: 0.002,
       costKnownTurns: 2,
+      inputTokens: 20,
+      outputTokens: 10,
+      cacheReadTokens: 5,
     });
     expect(tree.series.byDayModel["2026-10-01|model-b"]).toEqual({
       turns: 3,
       errorStops: 1,
       costUnits: 0.003,
       costKnownTurns: 1,
+      inputTokens: 30,
+      outputTokens: 15,
+      cacheReadTokens: 0,
     });
   });
 
@@ -1769,6 +1801,7 @@ describe("retrospective aggregate pass", () => {
     const base: AggregatedSession = {
       node: { hostId: "h1", sessionId: "s1" },
       format: "omp",
+      cwdRaw: null,
       first: "2026-10-01T10:00:00.000Z",
       last: "2026-10-01T10:05:00.000Z",
       assistantTurns: 2,
@@ -3464,6 +3497,391 @@ describe("retrospective aggregate pass", () => {
       // Empty aggregates returns null folder
       const emptyTree = rollUp([]);
       expect(emptyTree.folder).toBeNull();
+    });
+  });
+
+  describe("Slice D2: tokens per cell series and session cwdRaw", () => {
+    it("sums tokens per cell matching node token totals for a session across two days and two models", async () => {
+      const root = await temporaryRoot();
+      const result = await aggregateRows(root, "two-days-two-models.jsonl", [
+        {
+          type: "session",
+          version: 3,
+          id: "sess-d2",
+          timestamp: "2026-10-01T10:00:00.000Z",
+          cwd: "/workspace/project",
+        },
+        {
+          type: "message",
+          timestamp: "2026-10-01T10:01:00.000Z",
+          message: {
+            role: "assistant",
+            model: "model-a",
+            stopReason: "stop",
+            usage: {
+              input: 100,
+              output: 50,
+              cacheRead: 20,
+              cacheWrite: 5,
+              cost: { total: 0.01 },
+            },
+          },
+        },
+        {
+          type: "message",
+          timestamp: "2026-10-01T10:02:00.000Z",
+          message: {
+            role: "assistant",
+            model: "model-b",
+            stopReason: "stop",
+            usage: {
+              input: 200,
+              output: 80,
+              cacheRead: 40,
+              cacheWrite: 10,
+              cost: { total: 0.02 },
+            },
+          },
+        },
+        {
+          type: "message",
+          timestamp: "2026-10-02T10:01:00.000Z",
+          message: {
+            role: "assistant",
+            model: "model-a",
+            stopReason: "error",
+            usage: {
+              input: 300,
+              output: 120,
+              cacheRead: 60,
+              cacheWrite: 15,
+              cost: { total: 0.03 },
+            },
+          },
+        },
+        {
+          type: "message",
+          timestamp: "2026-10-02T10:02:00.000Z",
+          message: {
+            role: "assistant",
+            model: "model-b",
+            stopReason: "stop",
+            usage: {
+              input: 400,
+              output: 160,
+              cacheRead: 80,
+              cacheWrite: 20,
+              cost: { total: 0.04 },
+            },
+          },
+        },
+      ]);
+
+      expect(result.assistantTurns).toBe(4);
+      expect(result.tokens).toEqual({
+        input: 1000,
+        output: 410,
+        cacheRead: 200,
+        cacheWrite: 50,
+      });
+
+      expect(result.series.byDayModel["2026-10-01|model-a"]).toEqual({
+        turns: 1,
+        errorStops: 0,
+        costUnits: 0.01,
+        costKnownTurns: 1,
+        inputTokens: 100,
+        outputTokens: 50,
+        cacheReadTokens: 20,
+      });
+      expect(result.series.byDayModel["2026-10-01|model-b"]).toEqual({
+        turns: 1,
+        errorStops: 0,
+        costUnits: 0.02,
+        costKnownTurns: 1,
+        inputTokens: 200,
+        outputTokens: 80,
+        cacheReadTokens: 40,
+      });
+      expect(result.series.byDayModel["2026-10-02|model-a"]).toEqual({
+        turns: 1,
+        errorStops: 1,
+        costUnits: 0.03,
+        costKnownTurns: 1,
+        inputTokens: 300,
+        outputTokens: 120,
+        cacheReadTokens: 60,
+      });
+      expect(result.series.byDayModel["2026-10-02|model-b"]).toEqual({
+        turns: 1,
+        errorStops: 0,
+        costUnits: 0.04,
+        costKnownTurns: 1,
+        inputTokens: 400,
+        outputTokens: 160,
+        cacheReadTokens: 80,
+      });
+
+      const cells = Object.values(result.series.byDayModel);
+      const sumInput = cells.reduce((sum, cell) => sum + cell.inputTokens, 0);
+      const sumOutput = cells.reduce((sum, cell) => sum + cell.outputTokens, 0);
+      const sumCacheRead = cells.reduce(
+        (sum, cell) => sum + cell.cacheReadTokens,
+        0,
+      );
+
+      expect(sumInput).toBe(result.tokens.input);
+      expect(sumOutput).toBe(result.tokens.output);
+      expect(sumCacheRead).toBe(result.tokens.cacheRead);
+    });
+
+    it("merges series tokens across multiple nodes in rollUp", () => {
+      const agg1 = aggregatedSession({
+        node: { hostId: "h1", sessionId: "sess-1" },
+        assistantTurns: 2,
+        tokens: { input: 300, output: 130, cacheRead: 60, cacheWrite: 15 },
+        series: {
+          byDayModel: {
+            "2026-10-01|model-a": {
+              turns: 1,
+              errorStops: 0,
+              costUnits: 0.01,
+              costKnownTurns: 1,
+              inputTokens: 100,
+              outputTokens: 50,
+              cacheReadTokens: 20,
+            },
+            "2026-10-01|model-b": {
+              turns: 1,
+              errorStops: 0,
+              costUnits: 0.02,
+              costKnownTurns: 1,
+              inputTokens: 200,
+              outputTokens: 80,
+              cacheReadTokens: 40,
+            },
+          },
+        },
+      });
+
+      const agg2 = aggregatedSession({
+        node: { hostId: "h2", sessionId: "sess-2" },
+        assistantTurns: 3,
+        tokens: { input: 700, output: 280, cacheRead: 140, cacheWrite: 35 },
+        series: {
+          byDayModel: {
+            "2026-10-01|model-a": {
+              turns: 2,
+              errorStops: 1,
+              costUnits: 0.03,
+              costKnownTurns: 2,
+              inputTokens: 300,
+              outputTokens: 120,
+              cacheReadTokens: 60,
+            },
+            "2026-10-02|model-b": {
+              turns: 1,
+              errorStops: 0,
+              costUnits: 0.04,
+              costKnownTurns: 1,
+              inputTokens: 400,
+              outputTokens: 160,
+              cacheReadTokens: 80,
+            },
+          },
+        },
+      });
+
+      const tree = rollUp([agg1, agg2]);
+
+      expect(tree.series.byDayModel["2026-10-01|model-a"]).toEqual({
+        turns: 3,
+        errorStops: 1,
+        costUnits: 0.04,
+        costKnownTurns: 3,
+        inputTokens: 400,
+        outputTokens: 170,
+        cacheReadTokens: 80,
+      });
+      expect(tree.series.byDayModel["2026-10-01|model-b"]).toEqual({
+        turns: 1,
+        errorStops: 0,
+        costUnits: 0.02,
+        costKnownTurns: 1,
+        inputTokens: 200,
+        outputTokens: 80,
+        cacheReadTokens: 40,
+      });
+      expect(tree.series.byDayModel["2026-10-02|model-b"]).toEqual({
+        turns: 1,
+        errorStops: 0,
+        costUnits: 0.04,
+        costKnownTurns: 1,
+        inputTokens: 400,
+        outputTokens: 160,
+        cacheReadTokens: 80,
+      });
+
+      const treeCells = Object.values(tree.series.byDayModel);
+      expect(treeCells.reduce((sum, cell) => sum + cell.inputTokens, 0)).toBe(
+        tree.tokens.input,
+      );
+      expect(treeCells.reduce((sum, cell) => sum + cell.outputTokens, 0)).toBe(
+        tree.tokens.output,
+      );
+      expect(
+        treeCells.reduce((sum, cell) => sum + cell.cacheReadTokens, 0),
+      ).toBe(tree.tokens.cacheRead);
+    });
+
+    it("captures cwdRaw when session cwd is present and <= 1024 characters", async () => {
+      const root = await temporaryRoot();
+      const normalResult = await aggregateRows(root, "cwd-normal.jsonl", [
+        {
+          type: "session",
+          version: 3,
+          id: "sess-cwd-1",
+          timestamp: "2026-10-01T10:00:00.000Z",
+          cwd: "/path/to/project",
+        },
+      ]);
+      expect(normalResult.cwdRaw).toBe("/path/to/project");
+
+      const boundaryCwd = "/" + "a".repeat(1023);
+      expect(boundaryCwd.length).toBe(1024);
+      const boundaryResult = await aggregateRows(root, "cwd-boundary.jsonl", [
+        {
+          type: "session",
+          version: 3,
+          id: "sess-cwd-2",
+          timestamp: "2026-10-01T10:00:00.000Z",
+          cwd: boundaryCwd,
+        },
+      ]);
+      expect(boundaryResult.cwdRaw).toBe(boundaryCwd);
+    });
+
+    it("sets cwdRaw to null when session cwd exceeds 1024 characters", async () => {
+      const root = await temporaryRoot();
+      const oversizedCwd = "/" + "a".repeat(1024);
+      expect(oversizedCwd.length).toBe(1025);
+      const result = await aggregateRows(root, "cwd-oversized.jsonl", [
+        {
+          type: "session",
+          version: 3,
+          id: "sess-cwd-over",
+          timestamp: "2026-10-01T10:00:00.000Z",
+          cwd: oversizedCwd,
+        },
+      ]);
+      expect(result.cwdRaw).toBeNull();
+    });
+
+    it("sets cwdRaw to null when session cwd is non-string or session row is missing", async () => {
+      const root = await temporaryRoot();
+      const numResult = await aggregateRows(root, "cwd-num.jsonl", [
+        {
+          type: "session",
+          version: 3,
+          id: "sess-num",
+          timestamp: "2026-10-01T10:00:00.000Z",
+          cwd: 12345,
+        },
+      ]);
+      expect(numResult.cwdRaw).toBeNull();
+
+      const nullResult = await aggregateRows(root, "cwd-null.jsonl", [
+        {
+          type: "session",
+          version: 3,
+          id: "sess-null",
+          timestamp: "2026-10-01T10:00:00.000Z",
+          cwd: null,
+        },
+      ]);
+      expect(nullResult.cwdRaw).toBeNull();
+
+      const boolResult = await aggregateRows(root, "cwd-bool.jsonl", [
+        {
+          type: "session",
+          version: 3,
+          id: "sess-bool",
+          timestamp: "2026-10-01T10:00:00.000Z",
+          cwd: true,
+        },
+      ]);
+      expect(boolResult.cwdRaw).toBeNull();
+
+      const objResult = await aggregateRows(root, "cwd-obj.jsonl", [
+        {
+          type: "session",
+          version: 3,
+          id: "sess-obj",
+          timestamp: "2026-10-01T10:00:00.000Z",
+          cwd: {},
+        },
+      ]);
+      expect(objResult.cwdRaw).toBeNull();
+
+      const noCwdResult = await aggregateRows(root, "cwd-missing.jsonl", [
+        {
+          type: "session",
+          version: 3,
+          id: "sess-nocwd",
+          timestamp: "2026-10-01T10:00:00.000Z",
+        },
+      ]);
+      expect(noCwdResult.cwdRaw).toBeNull();
+
+      const noSessionResult = await aggregateRows(root, "no-session.jsonl", [
+        {
+          type: "message",
+          timestamp: "2026-10-01T10:00:00.000Z",
+          message: { role: "user", content: [{ type: "text", text: "hi" }] },
+        },
+      ]);
+      expect(noSessionResult.cwdRaw).toBeNull();
+    });
+
+    it("sets cwdRaw to null for Codex format sessions", async () => {
+      const root = await temporaryRoot();
+      const codexPath = await writeJsonl(root, "codex-cwd.jsonl", [
+        {
+          type: "session_meta",
+          timestamp: "2026-10-01T12:00:00.000Z",
+          payload: { id: "codex-1", cwd: "/test/workspace" },
+        },
+        {
+          type: "turn_context",
+          timestamp: "2026-10-01T12:00:05.000Z",
+          payload: { model: "openai/gpt-4o" },
+        },
+        {
+          type: "event_msg",
+          timestamp: "2026-10-01T12:00:10.000Z",
+          payload: { type: "user_message", message: "hello" },
+        },
+        {
+          type: "event_msg",
+          timestamp: "2026-10-01T12:00:15.000Z",
+          payload: { type: "agent_message", message: "hi" },
+        },
+      ]);
+
+      const source = {
+        node: { hostId: "h1", sessionId: "codex-1" },
+        format: "codex" as const,
+        absolutePath: codexPath,
+      };
+      const snapshot = await captureSnapshot(source, 10_000_000);
+      const result = await aggregateSession(
+        source,
+        snapshot,
+        DEFAULT_LIMITS,
+        new AbortController().signal,
+      );
+
+      expect(result.cwdRaw).toBeNull();
     });
   });
 });

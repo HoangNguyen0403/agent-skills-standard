@@ -1,18 +1,20 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { buildServer } from "../src/server";
 import {
   auditSessionCompliance,
   getSessionCost,
   prepareRetrospective,
+  prepareRetrospectiveSchema,
   getRetrospectiveStatus,
   retrospectiveNudge,
   DISABLED_RETROSPECTIVE_TEXT,
   RETROSPECTIVE_NUDGE_TEXT,
   type ToolContext,
 } from "../src/tools";
+import * as runModule from "../src/retrospective/run";
 import {
   writeConsent,
   removeConsent,
@@ -844,7 +846,7 @@ describe("retrospective MCP tools and nudge", () => {
     expect(await retrospectiveNudge(ctx)).toBe(RETROSPECTIVE_NUDGE_TEXT);
   });
 
-  it("prepare_retrospective tool description contains the worker-exclusion sentence", async () => {
+  it("prepare_retrospective tool description contains the worker-exclusion and title sentences", async () => {
     const server = await buildServer(
       {
         projectRoot: "/tmp/project",
@@ -863,5 +865,163 @@ describe("retrospective MCP tools and nudge", () => {
     expect(registeredTools["prepare_retrospective"].description).toContain(
       "Orchestrator or unassigned agent only. Workers holding an assignment packet must not call this.",
     );
+    expect(registeredTools["prepare_retrospective"].description).toContain(
+      "Pass `title` = one line saying what this session was for; it is shown as agent-supplied and unverified",
+    );
+  });
+
+  it("retrospective nudge text contains the title instruction", () => {
+    expect(RETROSPECTIVE_NUDGE_TEXT).toContain(
+      "pass `title` = one line saying what this session was for; it is shown as agent-supplied and unverified",
+    );
+  });
+
+  describe("prepareRetrospectiveSchema", () => {
+    it("accepts missing title", () => {
+      const parsed = prepareRetrospectiveSchema.safeParse({});
+      expect(parsed.success).toBe(true);
+      if (parsed.success) {
+        expect(parsed.data.title).toBeUndefined();
+      }
+    });
+
+    it("accepts a 200-char title", () => {
+      const title200 = "x".repeat(200);
+      const parsed = prepareRetrospectiveSchema.safeParse({ title: title200 });
+      expect(parsed.success).toBe(true);
+      if (parsed.success) {
+        expect(parsed.data.title).toBe(title200);
+      }
+    });
+
+    it("rejects 201 chars", () => {
+      const title201 = "x".repeat(201);
+      const parsed = prepareRetrospectiveSchema.safeParse({ title: title201 });
+      expect(parsed.success).toBe(false);
+    });
+
+    it("rejects non-strings", () => {
+      expect(prepareRetrospectiveSchema.safeParse({ title: 123 }).success).toBe(
+        false,
+      );
+      expect(
+        prepareRetrospectiveSchema.safeParse({ title: true }).success,
+      ).toBe(false);
+      expect(
+        prepareRetrospectiveSchema.safeParse({ title: ["array"] }).success,
+      ).toBe(false);
+      expect(
+        prepareRetrospectiveSchema.safeParse({ title: { nested: true } })
+          .success,
+      ).toBe(false);
+    });
+  });
+
+  it("the title reaches runRetrospective unchanged when provided or omitted", async () => {
+    const root = await temporaryDirectory();
+    const workspace = path.join(root, "workspace");
+    const consentPath = path.join(root, "consent.json");
+
+    const spy = vi
+      .spyOn(runModule, "runRetrospective")
+      .mockResolvedValue({ resultVersion: 1, state: "disabled" });
+
+    const ctx: ToolContext = {
+      projectRoot: workspace,
+      index: new SkillIndex(workspace, null, { kind: "ready" }),
+      tracker: new SessionTracker(),
+      setup: { kind: "ready" },
+      policy: loadPolicyView(workspace),
+      transport: "stdio",
+      consentPath,
+    };
+
+    // (a) title provided
+    const testTitle = "Implement OAuth token refresh with 200 char max limit";
+    await prepareRetrospective({ title: testTitle }, ctx);
+    expect(spy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: testTitle,
+        workspace,
+        consentPath,
+      }),
+      expect.any(AbortSignal),
+    );
+
+    // (b) title omitted (empty args object)
+    spy.mockClear();
+    await prepareRetrospective({}, ctx);
+    expect(spy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: undefined,
+        workspace,
+        consentPath,
+      }),
+      expect.any(AbortSignal),
+    );
+
+    // (c) title omitted (direct ctx invocation)
+    spy.mockClear();
+    await prepareRetrospective(ctx);
+    expect(spy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: undefined,
+        workspace,
+        consentPath,
+      }),
+      expect.any(AbortSignal),
+    );
+
+    spy.mockRestore();
+  });
+
+  it("server prepare_retrospective handler passes title to runRetrospective and registers inputSchema", async () => {
+    const root = await temporaryDirectory();
+    const workspace = path.join(root, "workspace");
+    const consentPath = path.join(root, "consent.json");
+
+    const spy = vi
+      .spyOn(runModule, "runRetrospective")
+      .mockResolvedValue({ resultVersion: 1, state: "disabled" });
+
+    const server = await buildServer(
+      {
+        projectRoot: workspace,
+        skillsDir: null,
+        setup: { kind: "ready" },
+      },
+      { transport: "stdio", consentPath },
+    );
+
+    interface ServerWithTools {
+      _registeredTools: Record<
+        string,
+        {
+          inputSchema: unknown;
+          handler: (args: Record<string, unknown>) => Promise<unknown>;
+        }
+      >;
+    }
+    const registeredTools = (server as unknown as ServerWithTools)
+      ._registeredTools;
+    expect(registeredTools["prepare_retrospective"]).toBeDefined();
+    expect(registeredTools["prepare_retrospective"].inputSchema).toBe(
+      prepareRetrospectiveSchema,
+    );
+
+    const serverTitle = "Refactor MCP server input schema registration";
+    await registeredTools["prepare_retrospective"].handler({
+      title: serverTitle,
+    });
+
+    expect(spy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: serverTitle,
+        workspace,
+      }),
+      expect.any(AbortSignal),
+    );
+
+    spy.mockRestore();
   });
 });

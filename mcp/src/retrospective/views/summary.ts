@@ -1,8 +1,8 @@
 import type { LedgerImprovement } from "../improvements";
 import type { Claim, Ledger } from "../ledger";
 import { formatMoney, formatRate, formatTokensK, plural } from "./format";
-const MAX_SUMMARY_LINES = 60;
-const MAX_SUMMARY_BYTES = 6144;
+const MAX_SUMMARY_LINES = 80;
+const MAX_SUMMARY_BYTES = 8192;
 
 export type LedgerAgent = {
   label: string;
@@ -30,12 +30,54 @@ export type OtherAgentsSummary = {
 
 export type LedgerFolder = { name: string; parent: string | null };
 
+export type LedgerModel = {
+  model: string;
+  turns: number;
+  costCents: number;
+  inputTokens: number;
+  outputTokens: number;
+  cacheReadTokens: number;
+  errorStops: number;
+};
+
+export type LedgerDay = {
+  day: string;
+  turns: number;
+  costCents: number;
+  errorStops: number;
+};
+
+export type LedgerToolRow = { tool: string; calls: number; errors: number };
+
+export type LedgerOutcome =
+  | {
+      source: "git";
+      branch: string | null;
+      commits: number;
+      revertCommits: number;
+      mergeCommits: number;
+      filesChanged: number;
+      insertions: number;
+      deletions: number;
+      windowFrom: string;
+      windowTo: string;
+    }
+  | {
+      source: "unavailable";
+      reason: "folder-missing" | "not-a-repo" | "git-error" | "not-measured";
+    };
+
 type ViewLedger = Ledger & {
   folder?: LedgerFolder | null;
   lookups?: unknown;
   agents?: LedgerAgent[];
   otherAgents?: OtherAgentsSummary | null;
   improvements?: LedgerImprovement[];
+  label?: string | null;
+  models?: LedgerModel[];
+  days?: LedgerDay[];
+  toolRows?: LedgerToolRow[];
+  outcome?: LedgerOutcome;
 };
 
 type RenderOptions = {
@@ -50,6 +92,15 @@ const DESTINATION_LABELS: Record<string, string> = {
   "provider-route-monitoring": "provider route monitoring",
   "session-linkage": "session linkage",
   "tracker-binding": "tracker binding",
+};
+const OUTCOME_UNAVAILABLE_REASONS: Record<
+  "folder-missing" | "not-a-repo" | "git-error" | "not-measured",
+  string
+> = {
+  "folder-missing": "session folder missing",
+  "not-a-repo": "not a git repository",
+  "git-error": "git could not be read safely",
+  "not-measured": "not measured for this run",
 };
 
 function countOf(values: Claim["values"] | undefined, key: string): number {
@@ -250,6 +301,9 @@ function renderLines(ledger: ViewLedger, options: RenderOptions): string[] {
       `Scope: ${sessionPart}${folderPart}${coverageClaim.scope.from} to ${coverageClaim.scope.to}`,
     );
   }
+  if (ledger.label != null) {
+    lines.push(`Title: ${ledger.label} (agent-supplied, unverified)`);
+  }
 
   // ## Bottom line
   lines.push("");
@@ -372,6 +426,55 @@ function renderLines(ledger: ViewLedger, options: RenderOptions): string[] {
       `Cost: main ${plural(turnsMain, "turn")}, ${costMain} est., ${plural(compactionsMain, "compaction")} (post-compaction floor ${floor}, peak ${max} cached tokens per turn); workers ${plural(turnsOthers, "turn")}, ${costOthers} est. Main made ${plural(reads, "read")}, ${plural(edits, "edit")}, ${bash} bash and ${plural(coord, "coordination call")} itself; call-share estimate: reads ${costReads}, coordination ${costCoord}.`,
     );
   }
+  // Tool failures scorecard line
+  const toolErrorsClaim = ledger.claims.find(
+    (c) => c.template === "tool-errors",
+  );
+  if (toolErrorsClaim) {
+    const calls = countOf(toolErrorsClaim.values, "toolCalls");
+    if (calls > 0) {
+      const failed = countOf(toolErrorsClaim.values, "failedToolCalls");
+      const toolRows = (ledger.toolRows ?? []).slice(0, 3);
+      const detail =
+        toolRows.length > 0
+          ? ` (${toolRows.map((r) => `${r.tool} x${r.errors}`).join(", ")})`
+          : "";
+      lines.push(
+        `Tool failures: ${failed} of ${plural(
+          calls,
+          "tool call",
+        )} returned an error${detail}.`,
+      );
+    }
+  }
+
+  // Error stops scorecard line
+  const errorStopClaim = ledger.claims.find(
+    (c) => c.template === "error-stop-exposure",
+  );
+  if (errorStopClaim) {
+    const errorStops = countOf(errorStopClaim.values, "errorStops");
+    if (errorStops > 0) {
+      const turns = countOf(errorStopClaim.values, "turns");
+      let line = `Error stops: ${errorStops} across ${plural(
+        turns,
+        "assistant turn",
+      )}.`;
+      const topCell = stringOf(errorStopClaim.values, "topCell");
+      if (topCell) {
+        const e = countOf(errorStopClaim.values, "topCellErrorStops");
+        const t = countOf(errorStopClaim.values, "topCellTurns");
+        line += ` Highest rate: ${topCell} (${e} of ${plural(t, "turn")}).`;
+      }
+      const busiestCell = stringOf(errorStopClaim.values, "busiestCell");
+      if (busiestCell) {
+        const e = countOf(errorStopClaim.values, "busiestCellErrorStops");
+        const t = countOf(errorStopClaim.values, "busiestCellTurns");
+        line += ` Most stops: ${busiestCell} (${e} of ${plural(t, "turn")}).`;
+      }
+      lines.push(line);
+    }
+  }
 
   // AGS routing scorecard lines
   if (routingClaim) {
@@ -466,6 +569,29 @@ function renderLines(ledger: ViewLedger, options: RenderOptions): string[] {
     lines.push(
       `Coverage: ${observed} of ${plural(created, "created agent")} observed; observed workers: ${n} read-only, ${m} editing; ${plural(files, "session")} read in full (${plural(skipped, "line")} skipped).`,
     );
+  }
+  // Outcome scorecard line
+  const outcome = ledger.outcome ?? {
+    source: "unavailable",
+    reason: "not-measured",
+  };
+  if (outcome.source === "git") {
+    const branchText = outcome.branch ?? "detached HEAD";
+    lines.push(
+      `Outcome: ${plural(outcome.commits, "commit")} in the session window (${plural(
+        outcome.filesChanged,
+        "file",
+      )} changed, +${outcome.insertions} -${outcome.deletions}), ${plural(
+        outcome.revertCommits,
+        "revert",
+      )}, ${plural(outcome.mergeCommits, "merge commit")}; branch now ${branchText}.`,
+    );
+  } else {
+    const reasonText =
+      OUTCOME_UNAVAILABLE_REASONS[
+        outcome.reason as keyof typeof OUTCOME_UNAVAILABLE_REASONS
+      ] ?? "not measured for this run";
+    lines.push(`Outcome: not measured (${reasonText}).`);
   }
 
   // ## Do next

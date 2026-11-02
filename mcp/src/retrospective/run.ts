@@ -16,11 +16,14 @@ import type { ArtifactReceipt, NodeKey } from "./contracts";
 import { discoverSession, type DiscoveryLimits } from "./discovery";
 import {
   buildLedger,
+  sanitizeLabel,
   verifyLedger,
   type Ledger,
   type LedgerCounts,
   type LedgerInput,
 } from "./ledger";
+import { readGitOutcome } from "./outcome";
+import { loadPreviousReports, type SessionRates } from "./trend";
 import { prepareV2 } from "./prepare";
 import { RetrospectiveError } from "./rules";
 import { resolveArtifact, StoreError } from "./store";
@@ -44,6 +47,8 @@ export type RunDeps = {
   platform?: NodeJS.Platform;
   /** TEST SEAM ONLY: applied immediately after buildLedger and before verifyLedger */
   tamperLedger?: (ledger: Ledger) => Ledger;
+  /** Optional title from tool / agent */
+  title?: string;
 };
 
 export type RunResult =
@@ -117,6 +122,7 @@ const storedClaimSchema = z.strictObject({
     "cost-drivers",
     "routing-order",
     "ags-lookups",
+    "session-outcome",
   ]),
   values: z.record(z.string(), z.union([z.number(), z.string()])),
   scope: z.strictObject({
@@ -175,7 +181,55 @@ const storedCellSchema = z.strictObject({
   key: z.string().min(1),
   turns: z.number().int().nonnegative(),
   errorStops: z.number().int().nonnegative(),
+  costCents: z.number().int().nonnegative(),
 });
+
+const storedModelSchema = z.strictObject({
+  model: z.string().min(1),
+  turns: z.number().int().nonnegative(),
+  costCents: z.number().int().nonnegative(),
+  inputTokens: z.number().int().nonnegative(),
+  outputTokens: z.number().int().nonnegative(),
+  cacheReadTokens: z.number().int().nonnegative(),
+  errorStops: z.number().int().nonnegative(),
+});
+
+const storedDaySchema = z.strictObject({
+  day: z.string().min(1),
+  turns: z.number().int().nonnegative(),
+  costCents: z.number().int().nonnegative(),
+  errorStops: z.number().int().nonnegative(),
+});
+
+const storedToolRowSchema = z.strictObject({
+  tool: z.string().min(1),
+  calls: z.number().int().nonnegative(),
+  errors: z.number().int().nonnegative(),
+});
+
+const storedOutcomeSchema = z.discriminatedUnion("source", [
+  z.strictObject({
+    source: z.literal("git"),
+    branch: z.string().min(1).nullable(),
+    commits: z.number().int().nonnegative(),
+    revertCommits: z.number().int().nonnegative(),
+    mergeCommits: z.number().int().nonnegative(),
+    filesChanged: z.number().int().nonnegative(),
+    insertions: z.number().int().nonnegative(),
+    deletions: z.number().int().nonnegative(),
+    windowFrom: z.string().min(1),
+    windowTo: z.string().min(1),
+  }),
+  z.strictObject({
+    source: z.literal("unavailable"),
+    reason: z.enum([
+      "folder-missing",
+      "not-a-repo",
+      "git-error",
+      "not-measured",
+    ]),
+  }),
+]);
 const storedAgentSchema = z.strictObject({
   label: z.string().min(1),
   kind: z.enum(["read-only", "editing"]),
@@ -285,11 +339,16 @@ const storedLedgerSchema = z.strictObject({
     claims: z.number().int().nonnegative(),
     hypotheses: z.number().int().nonnegative(),
   }),
+  label: z.string().min(1).max(120).nullable(),
   folder: storedFolderSchema,
   lookups: storedLookupsSchema,
   skillUsage: storedSkillUsageSchema.nullable(),
   hostSkills: storedHostSkillsSchema.nullable(),
   cells: z.array(storedCellSchema),
+  models: z.array(storedModelSchema),
+  days: z.array(storedDaySchema),
+  toolRows: z.array(storedToolRowSchema),
+  outcome: storedOutcomeSchema,
   agents: z.array(storedAgentSchema),
   otherAgents: storedOtherAgentsSchema,
   improvements: z.array(storedImprovementSchema),
@@ -605,6 +664,8 @@ export async function runRetrospective(
         sessionsLinked: 0,
         skillUsage,
         trackerSince: skillUsage !== null ? skillUsageSnapshot.since : null,
+        label: sanitizeLabel(deps.title),
+        outcome: { source: "unavailable", reason: "not-measured" },
       };
 
       let ledger = buildLedger(ledgerInput);
@@ -618,8 +679,7 @@ export async function runRetrospective(
 
       const summaryText = renderSummary(ledger);
       const ledgerText = `${JSON.stringify(ledger)}\n`;
-      const htmlText = renderReportHtml(ledger);
-
+      const htmlText = renderReportHtml(ledger, { previous: [] });
       if (deps.beforePublish) {
         await deps.beforePublish();
       }
@@ -723,6 +783,20 @@ export async function runRetrospective(
     const mainKey = discovery.manifest.main;
     const checkpointId = discovery.manifest.checkpointId;
 
+    const firstAgg = aggregates[0];
+    const cwdRaw =
+      firstAgg !== undefined &&
+      "cwdRaw" in firstAgg &&
+      typeof firstAgg.cwdRaw === "string"
+        ? firstAgg.cwdRaw
+        : null;
+
+    const cutoff = discovery.manifest.cutoff;
+    const outcome = await readGitOutcome(
+      { cwd: cwdRaw, from: tree.first ?? cutoff, to: tree.last ?? cutoff },
+      signal,
+    );
+
     const ledgerInput: LedgerInput = {
       tree,
       mainSessionId: mainKey.sessionId,
@@ -734,6 +808,8 @@ export async function runRetrospective(
       sessionsLinked: childFiles.length + 1,
       skillUsage,
       trackerSince: skillUsage !== null ? skillUsageSnapshot.since : null,
+      label: sanitizeLabel(deps.title),
+      outcome,
     };
     let ledger = buildLedger(ledgerInput);
     if (deps.tamperLedger) {
@@ -746,8 +822,19 @@ export async function runRetrospective(
 
     const summaryText = renderSummary(ledger);
     const ledgerText = `${JSON.stringify(ledger)}\n`;
-    const htmlText = renderReportHtml(ledger);
 
+    let previous: SessionRates[] = [];
+    try {
+      previous = await loadPreviousReports(
+        originalConsent.storeRoot,
+        ledger.folder,
+        ledger.session,
+        5,
+      );
+    } catch {
+      previous = [];
+    }
+    const htmlText = renderReportHtml(ledger, { previous });
     if (deps.beforePublish) {
       await deps.beforePublish();
     }

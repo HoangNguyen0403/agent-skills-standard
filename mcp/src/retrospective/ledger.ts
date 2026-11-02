@@ -31,8 +31,8 @@ export type ClaimTemplateId =
   | "permission-answers"
   | "cost-drivers"
   | "routing-order"
-  | "ags-lookups";
-
+  | "ags-lookups"
+  | "session-outcome";
 export type LedgerFolder = { name: string; parent: string | null };
 export type LedgerLookupTool = {
   tool: LookupToolName;
@@ -71,6 +71,44 @@ export type Claim = {
   basedOn: string[];
 };
 
+export type LedgerModel = {
+  model: string;
+  turns: number;
+  costCents: number;
+  inputTokens: number;
+  outputTokens: number;
+  cacheReadTokens: number;
+  errorStops: number;
+};
+export type LedgerDay = {
+  day: string;
+  turns: number;
+  costCents: number;
+  errorStops: number;
+};
+export type LedgerToolRow = {
+  tool: string;
+  calls: number;
+  errors: number;
+};
+export type LedgerOutcome =
+  | {
+      source: "git";
+      branch: string | null;
+      commits: number;
+      revertCommits: number;
+      mergeCommits: number;
+      filesChanged: number;
+      insertions: number;
+      deletions: number;
+      windowFrom: string;
+      windowTo: string;
+    }
+  | {
+      source: "unavailable";
+      reason: "folder-missing" | "not-a-repo" | "git-error" | "not-measured";
+    };
+
 export type LedgerInput = {
   tree: TreeAggregate | null;
   /** Bound main session id, or null for a tracker-only run. */
@@ -85,6 +123,8 @@ export type LedgerInput = {
   skillUsage: SkillUsageSnapshot | null;
   /** Server tracker start timestamp (`skillUsageSnapshot.since`), null when no skill usage. */
   trackerSince: string | null;
+  label: string | null;
+  outcome: LedgerOutcome;
 };
 
 export type LedgerCounts = {
@@ -111,6 +151,7 @@ export type LedgerCell = {
   key: string;
   turns: number;
   errorStops: number;
+  costCents: number;
 };
 export type LedgerAgent = {
   label: string;
@@ -142,6 +183,7 @@ export type Ledger = {
   rootVerification: LedgerInput["rootVerification"];
   coverage: "complete" | "partial";
   counts: LedgerCounts;
+  label: string | null;
   folder: LedgerFolder | null;
   lookups: LedgerLookups | null;
   /** Copy of the tracker snapshot the skill claims were built from. */
@@ -153,6 +195,10 @@ export type Ledger = {
    * value names (appended past the cap so the evidence keeps resolving).
    */
   cells: LedgerCell[];
+  models: LedgerModel[];
+  days: LedgerDay[];
+  toolRows: LedgerToolRow[];
+  outcome: LedgerOutcome;
   agents: LedgerAgent[];
   otherAgents: { count: number; turns: number; costCents: number } | null;
   improvements: LedgerImprovement[];
@@ -188,6 +234,12 @@ const SAFE_TOOL_NAME_REGEX = /^[A-Za-z0-9._:-]{1,48}$/;
 const SAFE_TOP_ERROR_TOOLS_REGEX =
   /^[A-Za-z0-9._:-]{1,48}:[0-9]+(?:,[A-Za-z0-9._:-]{1,48}:[0-9]+){0,2}$/;
 const MAX_TOP_ERROR_TOOLS = 3;
+const VALID_UNAVAILABLE_REASONS: Record<string, true> = {
+  "folder-missing": true,
+  "not-a-repo": true,
+  "git-error": true,
+  "not-measured": true,
+};
 
 export const COORDINATION_TOOLS = new Set<string>([
   "respond_to_permission",
@@ -260,6 +312,26 @@ export function sanitizeCellKey(rawKey: string): string {
   const rawDay = rawKey.slice(0, pipeIdx);
   const rawModel = rawKey.slice(pipeIdx + 1);
   return `${sanitizeDay(rawDay)}|${sanitizeModel(rawModel)}`;
+}
+
+/** C0 and C1 control characters, built from code points so the source has no raw control escapes. */
+const LABEL_CONTROL_CHARACTERS = new RegExp(
+  `[${String.fromCharCode(0x00)}-${String.fromCharCode(0x1f)}${String.fromCharCode(0x7f)}-${String.fromCharCode(0x9f)}]`,
+  "g",
+);
+
+export function sanitizeLabel(raw: string | undefined): string | null {
+  if (typeof raw !== "string") {
+    return null;
+  }
+  const replaced = raw
+    .replace(LABEL_CONTROL_CHARACTERS, " ")
+    .replace(/[`<>]/g, "'")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 120)
+    .trim();
+  return replaced.length > 0 ? replaced : null;
 }
 
 function resolveNodes(input: LedgerInput): NodeKey[] {
@@ -424,6 +496,7 @@ function collectCells(tree: TreeAggregate | null): LedgerCell[] {
     key: sanitizeCellKey(rawKey),
     turns: cell.turns,
     errorStops: cell.errorStops,
+    costCents: Math.round(cell.costUnits * 100),
   }));
 }
 
@@ -456,6 +529,10 @@ function addCellEvidence(
       kind: "aggregate",
       value: cell.errorStops,
     };
+    evidence[`agg:cell:${cell.key}:costCents`] = {
+      kind: "aggregate",
+      value: cell.costCents,
+    };
   }
 }
 
@@ -467,6 +544,161 @@ function sanitizeToolName(tool: string): string {
     .digest("hex")
     .slice(0, 8);
   return `tool-${hash}`;
+}
+
+function buildLedgerModels(tree: TreeAggregate | null): LedgerModel[] {
+  if (tree === null) return [];
+  const modelMap = new Map<
+    string,
+    {
+      model: string;
+      turns: number;
+      errorStops: number;
+      costRaw: number;
+      inputTokens: number;
+      outputTokens: number;
+      cacheReadTokens: number;
+    }
+  >();
+
+  for (const [rawKey, cell] of Object.entries(tree.series.byDayModel)) {
+    const pipeIdx = rawKey.indexOf("|");
+    const rawModel = pipeIdx === -1 ? rawKey : rawKey.slice(pipeIdx + 1);
+    const model = sanitizeModel(rawModel);
+    const existing = modelMap.get(model);
+    const inputTokens =
+      "inputTokens" in cell && typeof cell.inputTokens === "number"
+        ? cell.inputTokens
+        : 0;
+    const outputTokens =
+      "outputTokens" in cell && typeof cell.outputTokens === "number"
+        ? cell.outputTokens
+        : 0;
+    const cacheReadTokens =
+      "cacheReadTokens" in cell && typeof cell.cacheReadTokens === "number"
+        ? cell.cacheReadTokens
+        : 0;
+
+    if (existing) {
+      existing.turns += cell.turns;
+      existing.errorStops += cell.errorStops;
+      existing.costRaw += cell.costUnits ?? 0;
+      existing.inputTokens += inputTokens;
+      existing.outputTokens += outputTokens;
+      existing.cacheReadTokens += cacheReadTokens;
+    } else {
+      modelMap.set(model, {
+        model,
+        turns: cell.turns,
+        errorStops: cell.errorStops,
+        costRaw: cell.costUnits ?? 0,
+        inputTokens,
+        outputTokens,
+        cacheReadTokens,
+      });
+    }
+  }
+
+  return Array.from(modelMap.values())
+    .map((entry) => ({
+      model: entry.model,
+      turns: entry.turns,
+      costCents: Math.round(entry.costRaw * 100),
+      inputTokens: entry.inputTokens,
+      outputTokens: entry.outputTokens,
+      cacheReadTokens: entry.cacheReadTokens,
+      errorStops: entry.errorStops,
+    }))
+    .sort((a, b) => {
+      if (b.costCents !== a.costCents) return b.costCents - a.costCents;
+      return a.model < b.model ? -1 : a.model > b.model ? 1 : 0;
+    })
+    .slice(0, 20);
+}
+
+function compareDayStrings(a: string, b: string): number {
+  if (a === b) return 0;
+  if (a === "unknown-day") return 1;
+  if (b === "unknown-day") return -1;
+  return a < b ? -1 : 1;
+}
+
+function buildLedgerDays(tree: TreeAggregate | null): LedgerDay[] {
+  if (tree === null) return [];
+  const dayMap = new Map<
+    string,
+    {
+      day: string;
+      turns: number;
+      errorStops: number;
+      costRaw: number;
+    }
+  >();
+
+  for (const [rawKey, cell] of Object.entries(tree.series.byDayModel)) {
+    const pipeIdx = rawKey.indexOf("|");
+    const rawDay = pipeIdx === -1 ? "unknown-day" : rawKey.slice(0, pipeIdx);
+    const day = sanitizeDay(rawDay);
+    const existing = dayMap.get(day);
+    if (existing) {
+      existing.turns += cell.turns;
+      existing.errorStops += cell.errorStops;
+      existing.costRaw += cell.costUnits ?? 0;
+    } else {
+      dayMap.set(day, {
+        day,
+        turns: cell.turns,
+        errorStops: cell.errorStops,
+        costRaw: cell.costUnits ?? 0,
+      });
+    }
+  }
+
+  let dayEntries: LedgerDay[] = Array.from(dayMap.values()).map((entry) => ({
+    day: entry.day,
+    turns: entry.turns,
+    costCents: Math.round(entry.costRaw * 100),
+    errorStops: entry.errorStops,
+  }));
+
+  if (dayEntries.length > 62) {
+    dayEntries.sort((a, b) => {
+      if (b.turns !== a.turns) return b.turns - a.turns;
+      return compareDayStrings(a.day, b.day);
+    });
+    dayEntries = dayEntries.slice(0, 62);
+  }
+
+  return dayEntries.sort((a, b) => compareDayStrings(a.day, b.day));
+}
+
+function buildToolRows(tree: TreeAggregate | null): LedgerToolRow[] {
+  if (tree === null) return [];
+  const toolMap = new Map<
+    string,
+    { tool: string; calls: number; errors: number }
+  >();
+
+  for (const [rawTool, errors] of Object.entries(tree.toolErrors)) {
+    if (!Number.isFinite(errors) || errors <= 0) continue;
+    const tool = sanitizeToolName(rawTool);
+    const calls = tree.toolCalls[rawTool] ?? 0;
+    const existing = toolMap.get(tool);
+    if (existing) {
+      existing.errors += errors;
+      existing.calls += calls;
+    } else {
+      toolMap.set(tool, { tool, calls, errors });
+    }
+  }
+
+  return Array.from(toolMap.values())
+    .sort((a, b) => {
+      if (b.errors !== a.errors) return b.errors - a.errors;
+      if (b.calls !== a.calls) return b.calls - a.calls;
+      return a.tool < b.tool ? -1 : a.tool > b.tool ? 1 : 0;
+    })
+    .slice(0, 10);
 }
 
 /**
@@ -633,10 +865,14 @@ export function buildLedger(input: LedgerInput): Ledger {
   > = {};
 
   const session = deriveSessionLabel(input.mainSessionId);
+  const label = input.label;
+  const outcome = input.outcome;
+  const models = buildLedgerModels(tree);
+  const days = buildLedgerDays(tree);
+  const toolRows = buildToolRows(tree);
   const allCells = collectCells(tree);
   // Claim-referenced cells may be appended past the cap before evidence is added.
   const cells = [...allCells].sort(compareCellTurns).slice(0, MAX_CELLS);
-
   const sessions = tree ? tree.sessions : 0;
   const fullyRead = tree ? tree.fullyRead : 0;
   const skippedLines = tree ? tree.skippedLines : 0;
@@ -1610,6 +1846,120 @@ export function buildLedger(input: LedgerInput): Ledger {
 
   addCellEvidence(cells, evidence);
 
+  for (const m of models) {
+    evidence[`agg:model:${m.model}:turns`] = {
+      kind: "aggregate",
+      value: m.turns,
+    };
+    evidence[`agg:model:${m.model}:costCents`] = {
+      kind: "aggregate",
+      value: m.costCents,
+    };
+    evidence[`agg:model:${m.model}:inputTokens`] = {
+      kind: "aggregate",
+      value: m.inputTokens,
+    };
+    evidence[`agg:model:${m.model}:outputTokens`] = {
+      kind: "aggregate",
+      value: m.outputTokens,
+    };
+    evidence[`agg:model:${m.model}:cacheReadTokens`] = {
+      kind: "aggregate",
+      value: m.cacheReadTokens,
+    };
+    evidence[`agg:model:${m.model}:errorStops`] = {
+      kind: "aggregate",
+      value: m.errorStops,
+    };
+  }
+
+  for (const d of days) {
+    evidence[`agg:day:${d.day}:turns`] = {
+      kind: "aggregate",
+      value: d.turns,
+    };
+    evidence[`agg:day:${d.day}:costCents`] = {
+      kind: "aggregate",
+      value: d.costCents,
+    };
+    evidence[`agg:day:${d.day}:errorStops`] = {
+      kind: "aggregate",
+      value: d.errorStops,
+    };
+  }
+
+  for (const t of toolRows) {
+    evidence[`agg:tool:${t.tool}:calls`] = {
+      kind: "aggregate",
+      value: t.calls,
+    };
+    evidence[`agg:tool:${t.tool}:errors`] = {
+      kind: "aggregate",
+      value: t.errors,
+    };
+  }
+
+  if (outcome.source === "git") {
+    evidence["agg:outcome:commits"] = {
+      kind: "aggregate",
+      value: outcome.commits,
+    };
+    evidence["agg:outcome:revertCommits"] = {
+      kind: "aggregate",
+      value: outcome.revertCommits,
+    };
+    evidence["agg:outcome:mergeCommits"] = {
+      kind: "aggregate",
+      value: outcome.mergeCommits,
+    };
+    evidence["agg:outcome:filesChanged"] = {
+      kind: "aggregate",
+      value: outcome.filesChanged,
+    };
+    evidence["agg:outcome:insertions"] = {
+      kind: "aggregate",
+      value: outcome.insertions,
+    };
+    evidence["agg:outcome:deletions"] = {
+      kind: "aggregate",
+      value: outcome.deletions,
+    };
+
+    const outcomeValues: Record<string, number | string> = {
+      commits: outcome.commits,
+      revertCommits: outcome.revertCommits,
+      mergeCommits: outcome.mergeCommits,
+      filesChanged: outcome.filesChanged,
+      insertions: outcome.insertions,
+      deletions: outcome.deletions,
+      completeness:
+        overallCoverage === "partial"
+          ? "may-undercount-by-skipped-lines"
+          : "complete",
+    };
+
+    const outcomeSupporting: EvidenceId[] = [];
+    addClaimValueEvidence(
+      "session-outcome",
+      outcomeValues,
+      outcomeSupporting,
+      evidence,
+    );
+
+    claims.push({
+      id: computeClaimId("session-outcome", scope, outcomeSupporting),
+      type: "observation",
+      template: "session-outcome",
+      values: outcomeValues,
+      scope,
+      denominator: { count: outcome.commits, unit: "commits" },
+      coverage: overallCoverage,
+      supporting: outcomeSupporting,
+      contradicting: [],
+      basedOn: [],
+    });
+  }
+
   const sortedEvidence: Record<
     EvidenceId,
     { kind: "aggregate"; value: number | string }
@@ -1635,11 +1985,16 @@ export function buildLedger(input: LedgerInput): Ledger {
     rootVerification: input.rootVerification,
     coverage: overallCoverage,
     counts,
+    label,
     folder,
     lookups,
     skillUsage,
     hostSkills,
     cells,
+    models,
+    days,
+    toolRows,
+    outcome,
     agents,
     otherAgents,
     improvements,
@@ -1689,7 +2044,8 @@ export function checkClaimRules(ledger: Ledger): LedgerProblemCode[] {
       claim.template === "permission-answers" ||
       claim.template === "cost-drivers" ||
       claim.template === "routing-order" ||
-      claim.template === "ags-lookups"
+      claim.template === "ags-lookups" ||
+      claim.template === "session-outcome"
     ) {
       if (
         !claim.denominator ||
@@ -1769,6 +2125,137 @@ export function checkClaimRules(ledger: Ledger): LedgerProblemCode[] {
       if (entry.value !== val) {
         problems.add("NUMBER_MISMATCH");
       }
+    }
+  }
+
+  if (ledger.label !== null) {
+    if (
+      typeof ledger.label !== "string" ||
+      sanitizeLabel(ledger.label) !== ledger.label
+    ) {
+      problems.add("UNSAFE_VALUE");
+    }
+  }
+
+  if (Array.isArray(ledger.models)) {
+    for (const m of ledger.models) {
+      if (typeof m?.model !== "string" || sanitizeModel(m.model) !== m.model) {
+        problems.add("UNSAFE_VALUE");
+      }
+      if (
+        typeof m?.turns !== "number" ||
+        !Number.isFinite(m.turns) ||
+        m.turns < 0 ||
+        typeof m?.costCents !== "number" ||
+        !Number.isFinite(m.costCents) ||
+        m.costCents < 0 ||
+        typeof m?.errorStops !== "number" ||
+        !Number.isFinite(m.errorStops) ||
+        m.errorStops < 0 ||
+        typeof m?.inputTokens !== "number" ||
+        !Number.isFinite(m.inputTokens) ||
+        m.inputTokens < 0 ||
+        typeof m?.outputTokens !== "number" ||
+        !Number.isFinite(m.outputTokens) ||
+        m.outputTokens < 0 ||
+        typeof m?.cacheReadTokens !== "number" ||
+        !Number.isFinite(m.cacheReadTokens) ||
+        m.cacheReadTokens < 0
+      ) {
+        problems.add("UNSAFE_VALUE");
+      }
+    }
+  }
+
+  if (Array.isArray(ledger.days)) {
+    for (const d of ledger.days) {
+      if (typeof d?.day !== "string" || sanitizeDay(d.day) !== d.day) {
+        problems.add("UNSAFE_VALUE");
+      }
+      if (
+        typeof d?.turns !== "number" ||
+        !Number.isFinite(d.turns) ||
+        d.turns < 0 ||
+        typeof d?.costCents !== "number" ||
+        !Number.isFinite(d.costCents) ||
+        d.costCents < 0 ||
+        typeof d?.errorStops !== "number" ||
+        !Number.isFinite(d.errorStops) ||
+        d.errorStops < 0
+      ) {
+        problems.add("UNSAFE_VALUE");
+      }
+    }
+  }
+
+  if (Array.isArray(ledger.toolRows)) {
+    for (const t of ledger.toolRows) {
+      if (typeof t?.tool !== "string" || sanitizeToolName(t.tool) !== t.tool) {
+        problems.add("UNSAFE_VALUE");
+      }
+      if (
+        typeof t?.calls !== "number" ||
+        !Number.isFinite(t.calls) ||
+        t.calls < 0 ||
+        typeof t?.errors !== "number" ||
+        !Number.isFinite(t.errors) ||
+        t.errors <= 0
+      ) {
+        problems.add("UNSAFE_VALUE");
+      }
+    }
+  }
+
+  if (Array.isArray(ledger.cells)) {
+    for (const c of ledger.cells) {
+      if (
+        typeof c?.costCents !== "number" ||
+        !Number.isFinite(c.costCents) ||
+        c.costCents < 0
+      ) {
+        problems.add("UNSAFE_VALUE");
+      }
+    }
+  }
+
+  if (ledger.outcome && typeof ledger.outcome === "object") {
+    if (ledger.outcome.source === "git") {
+      if (
+        ledger.outcome.branch !== null &&
+        (typeof ledger.outcome.branch !== "string" ||
+          !/^[A-Za-z0-9._/-]{1,100}$/.test(ledger.outcome.branch))
+      ) {
+        problems.add("UNSAFE_VALUE");
+      }
+      const gitCounts = [
+        ledger.outcome.commits,
+        ledger.outcome.revertCommits,
+        ledger.outcome.mergeCommits,
+        ledger.outcome.filesChanged,
+        ledger.outcome.insertions,
+        ledger.outcome.deletions,
+      ];
+      if (
+        gitCounts.some(
+          (val) => typeof val !== "number" || !Number.isFinite(val) || val < 0,
+        )
+      ) {
+        problems.add("UNSAFE_VALUE");
+      }
+      if (
+        typeof ledger.outcome.windowFrom !== "string" ||
+        ledger.outcome.windowFrom.trim() === "" ||
+        typeof ledger.outcome.windowTo !== "string" ||
+        ledger.outcome.windowTo.trim() === ""
+      ) {
+        problems.add("UNSAFE_VALUE");
+      }
+    } else if (ledger.outcome.source === "unavailable") {
+      if (!VALID_UNAVAILABLE_REASONS[ledger.outcome.reason]) {
+        problems.add("UNSAFE_VALUE");
+      }
+    } else {
+      problems.add("UNSAFE_VALUE");
     }
   }
 
@@ -1959,6 +2446,26 @@ export function verifyLedger(
   }
 
   if (JSON.stringify(ledger.lookups) !== JSON.stringify(expected.lookups)) {
+    problems.add("NUMBER_MISMATCH");
+  }
+
+  if (JSON.stringify(ledger.models) !== JSON.stringify(expected.models)) {
+    problems.add("NUMBER_MISMATCH");
+  }
+
+  if (JSON.stringify(ledger.days) !== JSON.stringify(expected.days)) {
+    problems.add("NUMBER_MISMATCH");
+  }
+
+  if (JSON.stringify(ledger.toolRows) !== JSON.stringify(expected.toolRows)) {
+    problems.add("NUMBER_MISMATCH");
+  }
+
+  if (JSON.stringify(ledger.outcome) !== JSON.stringify(expected.outcome)) {
+    problems.add("NUMBER_MISMATCH");
+  }
+
+  if (ledger.label !== expected.label) {
     problems.add("NUMBER_MISMATCH");
   }
 

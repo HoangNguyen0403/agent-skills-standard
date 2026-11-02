@@ -1,16 +1,28 @@
 import { z } from "zod";
 import type { ToolContext, ToolResult } from "./index";
 import { readConsent } from "../retrospective/consent";
-import { runRetrospective, type RunResult } from "../retrospective/run";
+import {
+  runRetrospective,
+  type RunDeps,
+  type RunResult,
+} from "../retrospective/run";
 
-export const prepareRetrospectiveSchema = z.object({});
+export const prepareRetrospectiveSchema = z.object({
+  title: z
+    .string()
+    .max(200)
+    .optional()
+    .describe(
+      "One line saying what this session was for; it is shown as agent-supplied and unverified.",
+    ),
+});
 export const getRetrospectiveStatusSchema = z.object({});
 
 export const DISABLED_RETROSPECTIVE_TEXT =
   "Retrospective preparation is disabled. Ask the user to run `ags-retrospective enable` in an interactive terminal to enable local retrospective collection.";
 
 export const RETROSPECTIVE_NUDGE_TEXT =
-  "Retrospective pending. If you hold an assignment packet (you are a worker), ignore this section. Otherwise call `prepare_retrospective` now, then tell the user the coverage, the counts and the file paths (summary, ledger and HTML report) it returns, and that they can open either.";
+  "Retrospective pending. If you hold an assignment packet (you are a worker), ignore this section. Otherwise call `prepare_retrospective` now (pass `title` = one line saying what this session was for; it is shown as agent-supplied and unverified), then tell the user the coverage, the counts and the file paths (summary, ledger and HTML report) it returns, and that they can open either.";
 
 /**
  * Progress that can justify asking for a retrospective: every recorded tool
@@ -64,7 +76,29 @@ export function renderRunResultText(result: RunResult): string {
 
 export async function prepareRetrospective(
   ctx: ToolContext,
+): Promise<ToolResult>;
+export async function prepareRetrospective(
+  args: { title?: string },
+  ctx: ToolContext,
+): Promise<ToolResult>;
+export async function prepareRetrospective(
+  argsOrCtx: { title?: string } | ToolContext,
+  maybeCtx?: ToolContext,
 ): Promise<ToolResult> {
+  let title: string | undefined;
+  let ctx: ToolContext;
+
+  if (maybeCtx !== undefined) {
+    ctx = maybeCtx;
+    if ("title" in argsOrCtx && typeof argsOrCtx.title === "string") {
+      title = argsOrCtx.title;
+    }
+  } else if ("projectRoot" in argsOrCtx) {
+    ctx = argsOrCtx;
+  } else {
+    throw new Error("Invalid arguments: ToolContext required");
+  }
+
   const controller = new AbortController();
   const timeoutId = setTimeout(() => {
     controller.abort();
@@ -76,7 +110,8 @@ export async function prepareRetrospective(
         tracker: ctx.tracker,
         workspace: ctx.projectRoot,
         ...(ctx.consentPath ? { consentPath: ctx.consentPath } : {}),
-      },
+        title,
+      } as RunDeps,
       controller.signal,
     );
 

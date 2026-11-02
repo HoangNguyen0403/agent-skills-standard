@@ -1,5 +1,6 @@
 import type { LedgerImprovement } from "../improvements";
 import type { Claim, Ledger, LedgerAgent } from "../ledger";
+import { computeRates, type ReportContext, type SessionRates } from "../trend";
 import {
   escapeHtml,
   formatMoney,
@@ -37,7 +38,55 @@ export type LedgerLookups = {
   capped: boolean;
 };
 
+export type LedgerModel = {
+  model: string;
+  turns: number;
+  costCents: number;
+  inputTokens: number;
+  outputTokens: number;
+  cacheReadTokens: number;
+  errorStops: number;
+};
+
+export type LedgerDay = {
+  day: string;
+  turns: number;
+  costCents: number;
+  errorStops: number;
+};
+
+export type LedgerToolRow = {
+  tool: string;
+  calls: number;
+  errors: number;
+};
+
+export type LedgerOutcome =
+  | {
+      source: "git";
+      branch: string | null;
+      commits: number;
+      revertCommits: number;
+      mergeCommits: number;
+      filesChanged: number;
+      insertions: number;
+      deletions: number;
+      windowFrom: string;
+      windowTo: string;
+    }
+  | {
+      source: "unavailable";
+      reason: "folder-missing" | "not-a-repo" | "git-error" | "not-measured";
+    };
+
+export type { ReportContext, SessionRates };
+
 type ViewLedger = Ledger & {
+  label?: string | null;
+  models?: LedgerModel[];
+  days?: LedgerDay[];
+  toolRows?: LedgerToolRow[];
+  outcome?: LedgerOutcome;
   folder?: LedgerFolder | null;
   lookups?: LedgerLookups | null;
   otherAgents?: { count: number; turns: number; costCents: number } | null;
@@ -67,6 +116,53 @@ const DESTINATION_LABELS: Record<string, string> = {
   "session-linkage": "session linkage",
   "tracker-binding": "tracker binding",
 };
+
+const DECISION_BY_RULE: Record<string, string> = {
+  "guardrail-answers":
+    "Decide: allowlist the repeated safe requests, or tighten what workers may ask for?",
+  "cost-concentration":
+    "Decide: split the orchestrator session and hand reads and edits to workers, or accept the cost?",
+  "unguarded-edits":
+    "Decide: require a file lookup before edits in the worker brief?",
+  "human-intervention":
+    "Decide: which asks and aborts the setup should answer without a human?",
+  "agent-error-concentration":
+    "Decide: check the provider route before the next run?",
+  "lookup-misses":
+    "Decide: fix the trigger words and file patterns of the skills these lookups missed?",
+};
+
+const UNKNOWN_BY_RULE: Record<string, string> = {
+  "guardrail-answers":
+    "which agents asked and what for: the file shows counts and allow or deny, not the request",
+  "cost-concentration":
+    "why the main kept the work and whether the spend was worth it",
+  "unguarded-edits": "whether the edited files needed a skill",
+  "human-intervention": "what each ask or abort was about",
+  "agent-error-concentration": "the error category behind each stop",
+  "lookup-misses": "which file types the empty lookups were for",
+};
+
+export function formatTokensCompact(tokens: number): string {
+  if (!Number.isFinite(tokens) || tokens <= 0) return "0";
+  if (tokens >= 1_000_000) {
+    const val = tokens / 1_000_000;
+    const str =
+      val >= 100
+        ? Math.round(val).toString()
+        : (Math.round(val * 10) / 10).toString();
+    return `${str}M`;
+  }
+  if (tokens >= 1_000) {
+    const val = tokens / 1_000;
+    const str =
+      val >= 100
+        ? Math.round(val).toString()
+        : (Math.round(val * 10) / 10).toString();
+    return `${str}k`;
+  }
+  return String(tokens);
+}
 
 function countOf(values: Claim["values"] | undefined, key: string): number {
   if (!values) return 0;
@@ -104,7 +200,17 @@ function renderHeader(
     metaParts.push("Folder: folder not recorded");
   }
 
-  metaParts.push("Branch: branch not recorded");
+  let branchText: string;
+  if (ledger.outcome && ledger.outcome.source === "git") {
+    if (ledger.outcome.branch === null) {
+      branchText = "Branch now: detached HEAD";
+    } else {
+      branchText = `Branch now: ${escapeHtml(ledger.outcome.branch)}`;
+    }
+  } else {
+    branchText = "branch not recorded";
+  }
+  metaParts.push(branchText);
 
   if (ledger.session !== null && ledger.session !== undefined) {
     metaParts.push(`Session ${escapeHtml(ledger.session)}`);
@@ -128,7 +234,12 @@ function renderHeader(
   );
   metaParts.push(`Cutoff: ${escapeHtml(ledger.cutoff)}`);
 
-  return `<h1>Agent retrospective</h1>\n<p class="meta">${metaParts.join(" &middot; ")}</p>`;
+  let titleHtml = "";
+  if (ledger.label !== null && ledger.label !== undefined) {
+    titleHtml = `<p class="title">Title: ${escapeHtml(ledger.label)} <span class="soft">(agent-supplied, unverified)</span></p>\n`;
+  }
+
+  return `<h1>Agent retrospective</h1>\n${titleHtml}<p class="meta">${metaParts.join(" &middot; ")}</p>`;
 }
 
 function renderBottomLine(
@@ -298,6 +409,25 @@ function renderTiles(
 </div>`;
 }
 
+function renderDecisions(
+  improvements: LedgerImprovement[] | undefined,
+): string {
+  const managerImps = (improvements ?? []).filter(
+    (imp) => imp.audience === "manager",
+  );
+  const bullets: string[] = [];
+
+  for (const imp of managerImps) {
+    const text = DECISION_BY_RULE[imp.rule];
+    if (text) {
+      bullets.push(`<li>${escapeHtml(text)}</li>`);
+    }
+  }
+
+  if (bullets.length === 0) return "";
+  return `<h3>Decisions for you</h3>\n<ul>\n${bullets.join("\n")}\n</ul>`;
+}
+
 function renderManagerImprovementCard(imp: LedgerImprovement): string {
   const val = imp.values;
   let title: string;
@@ -373,8 +503,9 @@ function renderManagerImprovementCard(imp: LedgerImprovement): string {
 
   const level = imp.level;
   const chipClass = level === "act" ? "act" : "watch";
+  const unknownText = UNKNOWN_BY_RULE[imp.rule] ?? "";
 
-  return `<div class="card ${chipClass}"><h4><span class="chip ${chipClass}">${escapeHtml(level.toUpperCase())}</span>${escapeHtml(title)}</h4><p><b>Saw:</b> ${escapeHtml(saw)}</p><p class="chg">Change (${escapeHtml(destLabel)}): ${escapeHtml(change)}. Next time: ${escapeHtml(metric)} (now ${escapeHtml(valueStr)}).</p></div>`;
+  return `<div class="card ${chipClass}"><h4><span class="chip ${chipClass}">${escapeHtml(level.toUpperCase())}</span>${escapeHtml(title)}</h4><p><b>Saw:</b> ${escapeHtml(saw)}</p><p class="chg">Change (${escapeHtml(destLabel)}): ${escapeHtml(change)}.</p><p>Next time: ${escapeHtml(metric)} (now ${escapeHtml(valueStr)}).</p><p>Unknown: ${escapeHtml(unknownText)}.</p></div>`;
 }
 
 function renderDoNext(improvements: LedgerImprovement[] | undefined): string {
@@ -412,7 +543,303 @@ function renderDoNext(improvements: LedgerImprovement[] | undefined): string {
   return body;
 }
 
-function renderLookups(lookups: LedgerLookups | null | undefined): string {
+function renderOutcome(outcome: LedgerOutcome | undefined): string {
+  const effectiveOutcome: LedgerOutcome = outcome ?? {
+    source: "unavailable",
+    reason: "not-measured",
+  };
+
+  let body = "<h3>Outcome</h3>\n";
+
+  if (effectiveOutcome.source === "unavailable") {
+    let sentence: string;
+    switch (effectiveOutcome.reason) {
+      case "folder-missing":
+        sentence =
+          "The session's folder no longer exists, so no git outcome could be read.";
+        break;
+      case "not-a-repo":
+        sentence = "The folder is not a git repository.";
+        break;
+      case "git-error":
+        sentence = "Git could not be read safely for this folder.";
+        break;
+      case "not-measured":
+      default:
+        sentence = "Outcome was not measured for this run.";
+        break;
+    }
+    body += `<p>${sentence}</p>\n`;
+    return body;
+  }
+
+  const windowStr = `${escapeHtml(effectiveOutcome.windowFrom)} to ${escapeHtml(effectiveOutcome.windowTo)}`;
+  body += `<table>
+<thead>
+<tr>
+<th>Commits</th>
+<th>Merge commits</th>
+<th>Reverts</th>
+<th>Files changed</th>
+<th>Insertions (+)</th>
+<th>Deletions (-)</th>
+<th>Window</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>${effectiveOutcome.commits}</td>
+<td>${effectiveOutcome.mergeCommits}</td>
+<td>${effectiveOutcome.revertCommits}</td>
+<td>${effectiveOutcome.filesChanged}</td>
+<td>+${effectiveOutcome.insertions}</td>
+<td>-${effectiveOutcome.deletions}</td>
+<td>${windowStr}</td>
+</tr>
+</tbody>
+</table>
+<p class="mt">Commits are counted across all branches of the repository in the session window and may include other work; the branch is the current one, not necessarily the session's.</p>\n`;
+
+  return body;
+}
+
+function renderTimeline(days: LedgerDay[] | undefined): string {
+  if (!days || days.length === 0) {
+    return "<h3>Timeline</h3>\n<p>No timeline recorded.</p>\n";
+  }
+
+  const maxTurns = Math.max(1, ...days.map((d) => d.turns));
+
+  let note = "";
+  if (days.length > 31) {
+    note = `<p class="mt">Session spans ${days.length} days (more than 31 days; all rows shown).</p>\n`;
+  }
+
+  let rows = "";
+  for (const d of days) {
+    const pct = maxTurns > 0 ? Math.round((d.turns * 100) / maxTurns) : 0;
+    rows += `<tr><td>${escapeHtml(d.day)}</td><td>${d.turns} <span class="bar" style="width:${pct}%"></span></td><td>${escapeHtml(formatMoney(d.costCents))} est.</td><td>${d.errorStops}</td></tr>\n`;
+  }
+
+  return `<h3>Timeline</h3>
+<table>
+<thead>
+<tr>
+<th>Day</th>
+<th>Turns</th>
+<th>Cost</th>
+<th>Error stops</th>
+</tr>
+</thead>
+<tbody>
+${rows}</tbody>
+</table>
+${note}`;
+}
+
+function renderCostAndModels(
+  ledger: ViewLedger,
+  costDriversClaim: Claim | undefined,
+): string {
+  const models = ledger.models ?? [];
+  if (!costDriversClaim && models.length === 0) return "";
+
+  let html = "<h3>Cost and models</h3>\n";
+
+  if (costDriversClaim) {
+    const turnsMain = countOf(costDriversClaim.values, "turnsMain");
+    const costCentsMain = countOf(costDriversClaim.values, "costCentsMain");
+    const costCentsOthers = countOf(costDriversClaim.values, "costCentsOthers");
+    const turnsOthers = countOf(costDriversClaim.values, "turnsOthers");
+    const cacheReadPerTurnMain = countOf(
+      costDriversClaim.values,
+      "cacheReadPerTurnMain",
+    );
+    const cacheReadPerTurnOthers = countOf(
+      costDriversClaim.values,
+      "cacheReadPerTurnOthers",
+    );
+    const compactionsMain = countOf(costDriversClaim.values, "compactionsMain");
+    const compactionsOthers = (ledger.agents ?? [])
+      .filter((a) => a.label !== "main")
+      .reduce((sum, a) => sum + (a.compactions ?? 0), 0);
+
+    const reads = countOf(costDriversClaim.values, "mainReadCalls");
+    const edits = countOf(costDriversClaim.values, "mainEditCalls");
+    const bash = countOf(costDriversClaim.values, "mainBashCalls");
+    const coord = countOf(costDriversClaim.values, "mainCoordinationCalls");
+    const costReads = formatMoney(
+      countOf(costDriversClaim.values, "costCentsMainReads"),
+    );
+    const costCoord = formatMoney(
+      countOf(costDriversClaim.values, "costCentsMainCoordination"),
+    );
+
+    html += `<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Main</th>
+<th>Workers</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>Turns</td><td>${turnsMain}</td><td>${turnsOthers}</td></tr>
+<tr><td>Cost</td><td>${escapeHtml(formatMoney(costCentsMain))} est.</td><td>${escapeHtml(formatMoney(costCentsOthers))} est.</td></tr>
+<tr><td>Cached tokens per turn</td><td>${escapeHtml(formatTokensK(cacheReadPerTurnMain))}</td><td>${escapeHtml(turnsOthers > 0 ? formatTokensK(cacheReadPerTurnOthers) : "none")}</td></tr>
+<tr><td>Compactions</td><td>${compactionsMain}</td><td>${compactionsOthers}</td></tr>
+</tbody>
+</table>
+<p>Main made ${escapeHtml(plural(reads, "read"))}, ${escapeHtml(plural(edits, "edit"))}, ${bash} bash and ${escapeHtml(plural(coord, "coordination call"))} itself; call-share estimate: reads ${escapeHtml(costReads)}, coordination ${escapeHtml(costCoord)} (estimate).</p>\n`;
+  }
+
+  if (models.length > 0) {
+    let rows = "";
+    let totalTurns = 0;
+    let totalCostCents = 0;
+    let totalInput = 0;
+    let totalOutput = 0;
+    let totalCached = 0;
+    let totalErrorStops = 0;
+
+    for (const m of models) {
+      totalTurns += m.turns;
+      totalCostCents += m.costCents;
+      totalInput += m.inputTokens;
+      totalOutput += m.outputTokens;
+      totalCached += m.cacheReadTokens;
+      totalErrorStops += m.errorStops;
+
+      rows += `<tr><td>${escapeHtml(m.model)}</td><td>${m.turns}</td><td>${escapeHtml(formatMoney(m.costCents))} est.</td><td>${formatTokensCompact(m.inputTokens)}</td><td>${formatTokensCompact(m.outputTokens)}</td><td>${formatTokensCompact(m.cacheReadTokens)}</td><td>${m.errorStops}</td></tr>\n`;
+    }
+
+    html += `<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Turns</th>
+<th>Cost</th>
+<th>Input tokens</th>
+<th>Output tokens</th>
+<th>Cached tokens</th>
+<th>Error stops</th>
+</tr>
+</thead>
+<tbody>
+${rows}<tr class="total"><td>Total</td><td>${totalTurns}</td><td>${escapeHtml(formatMoney(totalCostCents))} est.</td><td>${formatTokensCompact(totalInput)}</td><td>${formatTokensCompact(totalOutput)}</td><td>${formatTokensCompact(totalCached)}</td><td>${totalErrorStops}</td></tr>
+</tbody>
+</table>\n`;
+  }
+
+  return html;
+}
+
+function renderToolFailures(
+  toolRows: LedgerToolRow[] | undefined,
+  claims: Claim[] | undefined,
+): string {
+  if (!toolRows || toolRows.length === 0) return "";
+
+  const toolErrorsClaim = (claims ?? []).find(
+    (c) => c.template === "tool-errors",
+  );
+  const failed = toolErrorsClaim
+    ? countOf(toolErrorsClaim.values, "failedToolCalls")
+    : toolRows.reduce((sum, r) => sum + r.errors, 0);
+  const calls = toolErrorsClaim
+    ? countOf(toolErrorsClaim.values, "toolCalls")
+    : toolRows.reduce((sum, r) => sum + r.calls, 0);
+
+  let rows = "";
+  for (const r of toolRows) {
+    const rate = r.calls > 0 ? (r.errors * 100) / r.calls : 0;
+    rows += `<tr><td>${escapeHtml(r.tool)}</td><td>${r.calls}</td><td>${r.errors}</td><td>${rate.toFixed(1)}%</td></tr>\n`;
+  }
+
+  return `<h3>Tool failures</h3>
+<p>${failed} of ${calls} tool calls returned an error.</p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Calls</th>
+<th>Failures</th>
+<th>Failure rate</th>
+</tr>
+</thead>
+<tbody>
+${rows}</tbody>
+</table>\n`;
+}
+
+function renderErrorStops(cells: Ledger["cells"] | undefined): string {
+  const errorCells = (cells ?? []).filter((c) => c.errorStops > 0);
+  if (errorCells.length === 0) return "";
+
+  const sorted = [...errorCells]
+    .sort((a, b) => b.errorStops - a.errorStops)
+    .slice(0, 10);
+
+  const eligibleForRate = sorted.filter((c) => c.turns >= 5);
+  let highestRateCell: (typeof sorted)[0] | null = null;
+  let highestRate = -1;
+  for (const c of eligibleForRate) {
+    const rate = c.turns > 0 ? c.errorStops / c.turns : 0;
+    if (rate > highestRate) {
+      highestRate = rate;
+      highestRateCell = c;
+    }
+  }
+
+  let mostStopsCell: (typeof sorted)[0] | null = null;
+  let mostStops = -1;
+  for (const c of sorted) {
+    if (c.errorStops > mostStops) {
+      mostStops = c.errorStops;
+      mostStopsCell = c;
+    }
+  }
+
+  let rows = "";
+  for (const c of sorted) {
+    const pipeIdx = c.key.indexOf("|");
+    const day = pipeIdx >= 0 ? c.key.slice(0, pipeIdx) : c.key;
+    const model = pipeIdx >= 0 ? c.key.slice(pipeIdx + 1) : "unknown";
+    const rate = c.turns > 0 ? (c.errorStops * 100) / c.turns : 0;
+
+    const chips: string[] = [];
+    if (c === mostStopsCell) {
+      chips.push('<span class="chip act">most stops</span>');
+    }
+    if (c === highestRateCell) {
+      chips.push('<span class="chip watch">highest rate</span>');
+    }
+    const chipsHtml = chips.length > 0 ? ` ${chips.join(" ")}` : "";
+
+    rows += `<tr><td>${escapeHtml(day)}</td><td>${escapeHtml(model)}${chipsHtml}</td><td>${c.errorStops}</td><td>${c.turns}</td><td>${rate.toFixed(1)}%</td></tr>\n`;
+  }
+
+  return `<h3>Error stops</h3>
+<p>Error stops are turns that ended in an error; the file records that, not why.</p>
+<table>
+<thead>
+<tr>
+<th>Day</th>
+<th>Model</th>
+<th>Error stops</th>
+<th>Turns</th>
+<th>Rate</th>
+</tr>
+</thead>
+<tbody>
+${rows}</tbody>
+</table>\n`;
+}
+
+function renderLookups(
+  lookups: LedgerLookups | null | undefined,
+  claims: Claim[] | undefined,
+): string {
   let html = "<h3>AGS lookups</h3>\n";
   if (!lookups) {
     html += "<p>AGS lookups were not measured (no session files read).</p>\n";
@@ -435,124 +862,163 @@ function renderLookups(lookups: LedgerLookups | null | undefined): string {
 </thead>
 <tbody>\n`;
 
-  const toolMap = new Map<string, LedgerLookupTool>();
-  for (const t of lookups.tools) {
-    toolMap.set(t.tool, t);
-  }
-
-  let totCalls = 0;
-  let totNoMatch = 0;
-  let totBodies = 0;
-  let totReused = 0;
-  let totErrors = 0;
-  let totMain = 0;
-  let totWorkers = 0;
-
   for (const toolName of LOOKUP_TOOLS) {
-    const t = toolMap.get(toolName) ?? {
-      tool: toolName,
-      calls: 0,
-      noMatchCalls: 0,
-      errorCalls: 0,
-      bodiesReturned: 0,
-      reusedBodies: 0,
-      mainCalls: 0,
-      workerCalls: 0,
-    };
-    totCalls += t.calls;
-    totNoMatch += t.noMatchCalls;
-    totBodies += t.bodiesReturned;
-    totReused += t.reusedBodies;
-    totErrors += t.errorCalls;
-    totMain += t.mainCalls;
-    totWorkers += t.workerCalls;
-
+    const t = lookups.tools.find((item) => item.tool === toolName);
     const label = TOOL_LABELS[toolName] ?? toolName;
+    if (!t) {
+      html += `<tr><td>${escapeHtml(label)}</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0/0</td></tr>\n`;
+      continue;
+    }
     html += `<tr><td>${escapeHtml(label)}</td><td>${t.calls}</td><td>${t.noMatchCalls}</td><td>${t.bodiesReturned}</td><td>${t.reusedBodies}</td><td>${t.errorCalls}</td><td>${t.mainCalls}/${t.workerCalls}</td></tr>\n`;
-  }
-
-  html += `<tr class="total"><td>Total</td><td>${totCalls}</td><td>${totNoMatch}</td><td>${totBodies}</td><td>${totReused}</td><td>${totErrors}</td><td>${totMain}/${totWorkers}</td></tr>
-</tbody>
-</table>\n`;
-
-  html += `<h4>Skills AGS returned</h4>\n<table>
-<thead>
-<tr>
-<th>Skill id</th>
-<th>Delivered</th>
-<th>By main</th>
-<th>By workers</th>
-</tr>
-</thead>
-<tbody>\n`;
-
-  const topSkills = (lookups.skills ?? []).slice(0, 30);
-  for (const s of topSkills) {
-    html += `<tr><td>${escapeHtml(s.id)}</td><td>${s.returns}</td><td>${s.mainReturns}</td><td>${s.workerReturns}</td></tr>\n`;
   }
 
   html += `</tbody>
 </table>\n`;
 
+  if (lookups.skills.length > 0) {
+    html += `<table>
+<thead>
+<tr>
+<th>Skill id</th>
+<th>Returned</th>
+<th>Main/Workers</th>
+</tr>
+</thead>
+<tbody>\n`;
+    for (const s of lookups.skills) {
+      html += `<tr><td>${escapeHtml(s.id)}</td><td>${s.returns}</td><td>${s.mainReturns}/${s.workerReturns}</td></tr>\n`;
+    }
+    html += `</tbody>
+</table>\n`;
+  }
+
   const cappedSentence = lookups.capped
-    ? " Some agents returned more than 100 distinct skills; counts for the rest are grouped."
+    ? "; the session hit the top-30 skill cap"
     : "";
   html += `<p class="mt">${lookups.distinctSkills} distinct skills; ${lookups.otherSkillReturns} more deliveries outside this list; ${lookups.unvalidatedReturns} deliveries with an unreadable id.${cappedSentence}</p>\n`;
+
+  const timingClaim = (claims ?? []).find(
+    (c) => c.template === "skill-trigger-timing",
+  );
+  if (timingClaim) {
+    const mainCallsBeforeFirstSkillLoad = countOf(
+      timingClaim.values,
+      "mainCallsBeforeFirstSkillLoad",
+    );
+    const sessionsWithSkillLoad = countOf(
+      timingClaim.values,
+      "sessionsWithSkillLoad",
+    );
+    const measuredSessions = countOf(timingClaim.values, "measuredSessions");
+    html += `<p class="mt">The main session made ${mainCallsBeforeFirstSkillLoad} other tool calls before its first skill lookup; ${sessionsWithSkillLoad} of ${measuredSessions} sessions looked a skill up.</p>\n`;
+  }
 
   return html;
 }
 
-function renderCostAndContext(
-  ledger: ViewLedger,
-  costDriversClaim: Claim | undefined,
-): string {
-  if (!costDriversClaim) return "";
+function renderTrend(ledger: Ledger, context?: ReportContext): string {
+  if (!context || !context.previous || context.previous.length === 0) {
+    return "";
+  }
 
-  const turnsMain = countOf(costDriversClaim.values, "turnsMain");
-  const costCentsMain = countOf(costDriversClaim.values, "costCentsMain");
-  const costCentsOthers = countOf(costDriversClaim.values, "costCentsOthers");
-  const turnsOthers = countOf(costDriversClaim.values, "turnsOthers");
-  const cacheReadPerTurnMain = countOf(
-    costDriversClaim.values,
-    "cacheReadPerTurnMain",
-  );
-  const cacheReadPerTurnOthers = countOf(
-    costDriversClaim.values,
-    "cacheReadPerTurnOthers",
-  );
-  const compactionsMain = countOf(costDriversClaim.values, "compactionsMain");
-  const compactionsOthers = (ledger.agents ?? [])
-    .filter((a) => a.label !== "main")
-    .reduce((sum, a) => sum + (a.compactions ?? 0), 0);
+  const current = computeRates(ledger);
+  const prevList = context.previous.slice(0, 3);
 
-  const reads = countOf(costDriversClaim.values, "mainReadCalls");
-  const edits = countOf(costDriversClaim.values, "mainEditCalls");
-  const bash = countOf(costDriversClaim.values, "mainBashCalls");
-  const coord = countOf(costDriversClaim.values, "mainCoordinationCalls");
-  const costReads = formatMoney(
-    countOf(costDriversClaim.values, "costCentsMainReads"),
-  );
-  const costCoord = formatMoney(
-    countOf(costDriversClaim.values, "costCentsMainCoordination"),
-  );
+  const prevHeaders = prevList
+    .map((p) => {
+      const id8 = p.session ? p.session.slice(0, 8) : "unknown";
+      const date = p.to
+        ? p.to.includes("T")
+          ? p.to.slice(0, 10)
+          : p.to
+        : "unknown";
+      return `<th>session ${escapeHtml(id8)} ending ${escapeHtml(date)}</th>`;
+    })
+    .join("\n");
 
-  return `<h3>Cost and context</h3>
+  type MetricRow = {
+    label: string;
+    formatter: (r: SessionRates) => string;
+  };
+
+  const metrics: MetricRow[] = [
+    {
+      label: "Cost per 100 turns",
+      formatter: (r) =>
+        r.costCentsPer100Turns === null || r.costCentsPer100Turns === undefined
+          ? "n/a"
+          : formatMoney(r.costCentsPer100Turns),
+    },
+    {
+      label: "Permission answers per 100 turns",
+      formatter: (r) =>
+        r.permissionAnswersPer100TurnsTenths === null ||
+        r.permissionAnswersPer100TurnsTenths === undefined
+          ? "n/a"
+          : formatRate(r.permissionAnswersPer100TurnsTenths),
+    },
+    {
+      label: "Error stops per 100 turns",
+      formatter: (r) =>
+        r.errorStopsPer100TurnsTenths === null ||
+        r.errorStopsPer100TurnsTenths === undefined
+          ? "n/a"
+          : formatRate(r.errorStopsPer100TurnsTenths),
+    },
+    {
+      label: "Tool errors per 100 calls",
+      formatter: (r) =>
+        r.toolErrorsPer100CallsTenths === null ||
+        r.toolErrorsPer100CallsTenths === undefined
+          ? "n/a"
+          : formatRate(r.toolErrorsPer100CallsTenths),
+    },
+    {
+      label: "Lookups matching nothing",
+      formatter: (r) =>
+        r.lookupMissPercent === null || r.lookupMissPercent === undefined
+          ? "n/a"
+          : `${r.lookupMissPercent}%`,
+    },
+    {
+      label: "Compactions per 100 turns",
+      formatter: (r) =>
+        r.compactionsPer100TurnsTenths === null ||
+        r.compactionsPer100TurnsTenths === undefined
+          ? "n/a"
+          : formatRate(r.compactionsPer100TurnsTenths),
+    },
+    {
+      label: "Unguarded edits",
+      formatter: (r) =>
+        r.unguardedEditPercent === null || r.unguardedEditPercent === undefined
+          ? "n/a"
+          : `${r.unguardedEditPercent}%`,
+    },
+  ];
+
+  let rows = "";
+  for (const m of metrics) {
+    const curVal = m.formatter(current);
+    const prevVals = prevList
+      .map((p) => `<td>${escapeHtml(m.formatter(p))}</td>`)
+      .join("");
+    rows += `<tr><td>${escapeHtml(m.label)}</td><td>${escapeHtml(curVal)}</td>${prevVals}</tr>\n`;
+  }
+
+  return `<h3>Compared with earlier reports for this folder</h3>
+<p>Earlier reports for the same folder; not necessarily the same task.</p>
 <table>
 <thead>
 <tr>
 <th>Metric</th>
-<th>Main</th>
-<th>Workers</th>
+<th>This session</th>
+${prevHeaders}
 </tr>
 </thead>
 <tbody>
-<tr><td>Turns</td><td>${turnsMain}</td><td>${turnsOthers}</td></tr>
-<tr><td>Cost</td><td>${escapeHtml(formatMoney(costCentsMain))} est.</td><td>${escapeHtml(formatMoney(costCentsOthers))} est.</td></tr>
-<tr><td>Cached tokens per turn</td><td>${escapeHtml(formatTokensK(cacheReadPerTurnMain))}</td><td>${escapeHtml(turnsOthers > 0 ? formatTokensK(cacheReadPerTurnOthers) : "none")}</td></tr>
-<tr><td>Compactions</td><td>${compactionsMain}</td><td>${compactionsOthers}</td></tr>
-</tbody>
-</table>
-<p>Main made ${escapeHtml(plural(reads, "read"))}, ${escapeHtml(plural(edits, "edit"))}, ${bash} bash and ${escapeHtml(plural(coord, "coordination call"))} itself; call-share estimate: reads ${escapeHtml(costReads)}, coordination ${escapeHtml(costCoord)} (estimate).</p>\n`;
+${rows}</tbody>
+</table>\n`;
 }
 
 function renderAgentsTable(
@@ -602,10 +1068,14 @@ function renderLimits(): string {
 <li>Agents without a read session file are not covered.</li>
 <li>The root session is not verified against the host.</li>
 <li>AGS lookups are counted, not whether the rules were followed.</li>
+<li>Commit counts and the branch come from git at report time.</li>
 </ul>\n`;
 }
 
-export function renderReportHtml(ledger: Ledger): string {
+export function renderReportHtml(
+  ledger: Ledger,
+  context?: ReportContext,
+): string {
   const vLedger = ledger as ViewLedger;
 
   const coverageClaim = ledger.claims.find((c) => c.template === "coverage");
@@ -633,9 +1103,15 @@ export function renderReportHtml(ledger: Ledger): string {
     costDriversClaim,
     permClaim,
   );
+  const decisionsHtml = renderDecisions(vLedger.improvements);
   const doNextHtml = renderDoNext(vLedger.improvements);
-  const lookupsHtml = renderLookups(vLedger.lookups);
-  const costHtml = renderCostAndContext(vLedger, costDriversClaim);
+  const outcomeHtml = renderOutcome(vLedger.outcome);
+  const timelineHtml = renderTimeline(vLedger.days);
+  const costAndModelsHtml = renderCostAndModels(vLedger, costDriversClaim);
+  const toolFailuresHtml = renderToolFailures(vLedger.toolRows, ledger.claims);
+  const errorStopsHtml = renderErrorStops(ledger.cells);
+  const lookupsHtml = renderLookups(vLedger.lookups, ledger.claims);
+  const trendHtml = renderTrend(ledger, context);
   const agentsHtml = renderAgentsTable(vLedger.agents, vLedger.otherAgents);
   const limitsHtml = renderLimits();
 
@@ -643,9 +1119,15 @@ export function renderReportHtml(ledger: Ledger): string {
     headerHtml,
     bottomLineHtml,
     tilesHtml,
+    decisionsHtml,
     doNextHtml,
+    outcomeHtml,
+    timelineHtml,
+    costAndModelsHtml,
+    toolFailuresHtml,
+    errorStopsHtml,
     lookupsHtml,
-    costHtml,
+    trendHtml,
     agentsHtml,
     limitsHtml,
   ].filter((p) => p.length > 0);
@@ -663,6 +1145,8 @@ export function renderReportHtml(ledger: Ledger): string {
 body{font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif;color:var(--ink);margin:0;background:#fff}
 .wrap{max-width:1000px;margin:0 auto;padding:20px}
 .meta{color:var(--mute);font-size:13px;margin:6px 0 14px}
+.title{font-size:14px;margin:4px 0}
+.soft{color:var(--mute);font-size:12px}
 h1{font-size:22px;margin:6px 0}
 h2{font-size:19px;border-top:2px solid var(--line);padding-top:16px;margin-top:30px}
 h3{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--mute);margin:20px 0 8px}
@@ -688,6 +1172,7 @@ h4{margin:0 0 6px;font-size:15px}
 .chip.watch{background:#d98a00}
 .chip.none{background:#7b8794}
 .mt,.mt li{font-size:13px;color:var(--mute)}
+.bar{display:inline-block;height:8px;background:var(--mute);border-radius:2px;margin-left:6px;vertical-align:middle}
 table{border-collapse:collapse;width:100%;font-size:13px;margin:8px 0}
 th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right}
 th:first-child,td:first-child{text-align:left}

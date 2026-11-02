@@ -11,6 +11,7 @@ import {
 import {
   buildLedger,
   checkClaimRules,
+  sanitizeLabel,
   verifyLedger,
   type Claim,
   type LedgerInput,
@@ -186,12 +187,18 @@ function createTreeFixture(
           errorStops: 2,
           costUnits: 8,
           costKnownTurns: 10,
+          inputTokens: 0,
+          outputTokens: 0,
+          cacheReadTokens: 0,
         },
         "2026-10-01|model-b": {
           turns: 10,
           errorStops: 1,
           costUnits: 7,
           costKnownTurns: 10,
+          inputTokens: 0,
+          outputTokens: 0,
+          cacheReadTokens: 0,
         },
       },
     },
@@ -211,6 +218,8 @@ const DEFAULT_INPUT: LedgerInput = {
   sessionsLinked: 3,
   skillUsage: null,
   trackerSince: null,
+  label: null,
+  outcome: { source: "unavailable", reason: "not-measured" },
 };
 
 /** Tree with two measured sessions; the main session made three skill lookups. */
@@ -333,9 +342,38 @@ describe("retrospective ledger", () => {
 
     expect(ledger.session).toBe("abcdef12");
     expect(ledger.cells).toEqual([
-      { key: "2026-10-01|model-a", turns: 10, errorStops: 2 },
-      { key: "2026-10-01|model-b", turns: 10, errorStops: 1 },
+      { key: "2026-10-01|model-a", turns: 10, errorStops: 2, costCents: 800 },
+      { key: "2026-10-01|model-b", turns: 10, errorStops: 1, costCents: 700 },
     ]);
+    expect(ledger.label).toBeNull();
+    expect(ledger.models).toEqual([
+      {
+        model: "model-a",
+        turns: 10,
+        costCents: 800,
+        inputTokens: 0,
+        outputTokens: 0,
+        cacheReadTokens: 0,
+        errorStops: 2,
+      },
+      {
+        model: "model-b",
+        turns: 10,
+        costCents: 700,
+        inputTokens: 0,
+        outputTokens: 0,
+        cacheReadTokens: 0,
+        errorStops: 1,
+      },
+    ]);
+    expect(ledger.days).toEqual([
+      { day: "2026-10-01", turns: 20, costCents: 1500, errorStops: 3 },
+    ]);
+    expect(ledger.toolRows).toEqual([]);
+    expect(ledger.outcome).toEqual({
+      source: "unavailable",
+      reason: "not-measured",
+    });
 
     expect(ledger.agents).toEqual([
       {
@@ -928,6 +966,8 @@ describe("retrospective ledger", () => {
       unlinkedAgents: 2,
       agentsCreated: 5,
       sessionsLinked: 3,
+      label: null,
+      outcome: { source: "unavailable", reason: "not-measured" },
     };
 
     const ledger = buildLedger(trackerInput);
@@ -984,6 +1024,8 @@ describe("retrospective ledger", () => {
       unlinkedAgents: 2,
       agentsCreated: 5,
       sessionsLinked: 3,
+      label: null,
+      outcome: { source: "unavailable", reason: "not-measured" },
     };
     expect(buildLedger(trackerInput).counts).toEqual({
       agentsCreated: 5,
@@ -1178,6 +1220,8 @@ describe("retrospective ledger", () => {
       sessionsLinked: 0,
       skillUsage: skillUsageFixture(),
       trackerSince: null,
+      label: null,
+      outcome: { source: "unavailable", reason: "not-measured" },
     };
     const trackerLedger = buildLedger(trackerOnly);
     const trackerClaim = trackerLedger.claims.find(
@@ -1741,9 +1785,11 @@ describe("retrospective ledger", () => {
         errorStops: index === 59 ? 9 : 0,
         costUnits: 1,
         costKnownTurns: 1,
+        inputTokens: 0,
+        outputTokens: 0,
+        cacheReadTokens: 0,
       };
     }
-
     const cappedInput: LedgerInput = {
       ...DEFAULT_INPUT,
       tree: createTreeFixture({
@@ -1757,17 +1803,20 @@ describe("retrospective ledger", () => {
       key: "2026-10-01|model-00",
       turns: 60,
       errorStops: 0,
+      costCents: 100,
     });
     expect(capped.cells[49]).toEqual({
       key: "2026-10-01|model-49",
       turns: 11,
       errorStops: 0,
+      costCents: 100,
     });
     // The busiest cell is outside the top 50 by turns, so it is appended.
     expect(capped.cells[50]).toEqual({
       key: "2026-10-01|model-59",
       turns: 1,
       errorStops: 9,
+      costCents: 100,
     });
 
     const cappedClaim = capped.claims.find(
@@ -1793,6 +1842,9 @@ describe("retrospective ledger", () => {
         errorStops: 0,
         costUnits: 1,
         costKnownTurns: 1,
+        inputTokens: 0,
+        outputTokens: 0,
+        cacheReadTokens: 0,
       };
     }
     topOutside["2026-10-01|model-outside"] = {
@@ -1800,6 +1852,9 @@ describe("retrospective ledger", () => {
       errorStops: 5,
       costUnits: 1,
       costKnownTurns: 5,
+      inputTokens: 0,
+      outputTokens: 0,
+      cacheReadTokens: 0,
     };
     const outsideInput: LedgerInput = {
       ...DEFAULT_INPUT,
@@ -2800,6 +2855,405 @@ describe("retrospective ledger", () => {
         },
       };
       expect(verifyLedger(tamperedUnsafeSkill, input)).toEqual({
+        ok: false,
+        problems: ["NUMBER_MISMATCH", "UNSAFE_VALUE"],
+      });
+    });
+  });
+
+  describe("Slice E2: models, days, toolRows, outcome, label, cell costCents, and session-outcome claim", () => {
+    it("computes cell costCents as Math.round(costUnits * 100) and populates agg:cell:<key>:costCents evidence", () => {
+      const tree = createTreeFixture({
+        series: {
+          byDayModel: {
+            "2026-10-01|model-a": {
+              turns: 10,
+              errorStops: 1,
+              costUnits: 1.234,
+              costKnownTurns: 10,
+              inputTokens: 100,
+              outputTokens: 50,
+              cacheReadTokens: 25,
+            },
+          },
+        },
+      });
+      const input = { ...DEFAULT_INPUT, tree };
+      const ledger = buildLedger(input);
+
+      expect(ledger.cells[0]?.costCents).toBe(123);
+      expect(ledger.evidence["agg:cell:2026-10-01|model-a:costCents"]).toEqual({
+        kind: "aggregate",
+        value: 123,
+      });
+      expect(verifyLedger(ledger, input)).toEqual({ ok: true });
+
+      const tampered = {
+        ...ledger,
+        cells: [{ ...ledger.cells[0]!, costCents: 999 }],
+      };
+      expect(verifyLedger(tampered, input)).toEqual({
+        ok: false,
+        problems: ["NUMBER_MISMATCH"],
+      });
+    });
+
+    it("groups cells by model, sorts by costCents desc then model asc, caps at 20, and adds agg:model evidence", () => {
+      const byDayModel: TreeAggregate["series"]["byDayModel"] = {};
+      // Create 25 models
+      for (let i = 0; i < 25; i += 1) {
+        const id = String(i).padStart(2, "0");
+        byDayModel[`2026-10-01|model-${id}`] = {
+          turns: 10 + i,
+          errorStops: i % 2,
+          costUnits: i * 0.5,
+          costKnownTurns: 10 + i,
+          inputTokens: 100 * (i + 1),
+          outputTokens: 50 * (i + 1),
+          cacheReadTokens: 20 * (i + 1),
+        };
+      }
+      const tree = createTreeFixture({ series: { byDayModel } });
+      const input = { ...DEFAULT_INPUT, tree };
+      const ledger = buildLedger(input);
+
+      expect(ledger.models).toHaveLength(20);
+      // Highest cost model (model-24) should be first
+      expect(ledger.models[0]?.model).toBe("model-24");
+      expect(ledger.models[0]?.costCents).toBe(Math.round(24 * 0.5 * 100));
+      expect(ledger.models[0]?.turns).toBe(34);
+      expect(ledger.models[0]?.inputTokens).toBe(2500);
+      expect(ledger.models[0]?.outputTokens).toBe(1250);
+      expect(ledger.models[0]?.cacheReadTokens).toBe(500);
+      expect(ledger.models[0]?.errorStops).toBe(0);
+
+      // Check evidence entries for top model
+      expect(ledger.evidence["agg:model:model-24:turns"]).toEqual({
+        kind: "aggregate",
+        value: 34,
+      });
+      expect(ledger.evidence["agg:model:model-24:costCents"]).toEqual({
+        kind: "aggregate",
+        value: 1200,
+      });
+      expect(ledger.evidence["agg:model:model-24:inputTokens"]).toEqual({
+        kind: "aggregate",
+        value: 2500,
+      });
+      expect(ledger.evidence["agg:model:model-24:outputTokens"]).toEqual({
+        kind: "aggregate",
+        value: 1250,
+      });
+      expect(ledger.evidence["agg:model:model-24:cacheReadTokens"]).toEqual({
+        kind: "aggregate",
+        value: 500,
+      });
+      expect(ledger.evidence["agg:model:model-24:errorStops"]).toEqual({
+        kind: "aggregate",
+        value: 0,
+      });
+      expect(verifyLedger(ledger, input)).toEqual({ ok: true });
+
+      // Tampered model field causes NUMBER_MISMATCH
+      const tampered = {
+        ...ledger,
+        models: [
+          { ...ledger.models[0]!, turns: 9999 },
+          ...ledger.models.slice(1),
+        ],
+      };
+      expect(verifyLedger(tampered, input)).toEqual({
+        ok: false,
+        problems: ["NUMBER_MISMATCH"],
+      });
+
+      // Unsafe model name causes UNSAFE_VALUE
+      const unsafe = {
+        ...ledger,
+        models: [{ ...ledger.models[0]!, model: "invalid model with spaces" }],
+      };
+      expect(verifyLedger(unsafe, input)).toEqual({
+        ok: false,
+        problems: ["NUMBER_MISMATCH", "UNSAFE_VALUE"],
+      });
+    });
+
+    it("groups cells by day, sorts ascending with unknown-day last, caps at 62 by turns, and adds agg:day evidence", () => {
+      const byDayModel: TreeAggregate["series"]["byDayModel"] = {};
+      // 65 distinct days: 64 formatted YYYY-MM-DD + 1 unknown-day
+      for (let i = 1; i <= 64; i += 1) {
+        const dayStr = `2026-01-${String(i).padStart(2, "0")}`;
+        byDayModel[`${dayStr}|model-a`] = {
+          turns: i, // earlier dates have fewer turns
+          errorStops: 1,
+          costUnits: 1,
+          costKnownTurns: i,
+          inputTokens: 10,
+          outputTokens: 5,
+          cacheReadTokens: 2,
+        };
+      }
+      byDayModel["unknown-day|model-a"] = {
+        turns: 100, // lots of turns, should be retained
+        errorStops: 0,
+        costUnits: 2,
+        costKnownTurns: 100,
+        inputTokens: 20,
+        outputTokens: 10,
+        cacheReadTokens: 5,
+      };
+
+      const tree = createTreeFixture({ series: { byDayModel } });
+      const input = { ...DEFAULT_INPUT, tree };
+      const ledger = buildLedger(input);
+
+      expect(ledger.days).toHaveLength(62);
+      // unknown-day must be sorted last
+      expect(ledger.days[ledger.days.length - 1]?.day).toBe("unknown-day");
+      // Lowest turns (days 1, 2, 3) were dropped by the 62 cap
+      expect(ledger.days.some((d) => d.day === "2026-01-01")).toBe(false);
+      expect(ledger.days.some((d) => d.day === "2026-01-02")).toBe(false);
+      expect(ledger.days.some((d) => d.day === "2026-01-03")).toBe(false);
+      expect(ledger.days[0]?.day).toBe("2026-01-04");
+
+      expect(ledger.evidence["agg:day:unknown-day:turns"]).toEqual({
+        kind: "aggregate",
+        value: 100,
+      });
+      expect(ledger.evidence["agg:day:unknown-day:costCents"]).toEqual({
+        kind: "aggregate",
+        value: 200,
+      });
+      expect(ledger.evidence["agg:day:unknown-day:errorStops"]).toEqual({
+        kind: "aggregate",
+        value: 0,
+      });
+      expect(verifyLedger(ledger, input)).toEqual({ ok: true });
+
+      const tampered = {
+        ...ledger,
+        days: [
+          { ...ledger.days[0]!, errorStops: 999 },
+          ...ledger.days.slice(1),
+        ],
+      };
+      expect(verifyLedger(tampered, input)).toEqual({
+        ok: false,
+        problems: ["NUMBER_MISMATCH"],
+      });
+
+      const unsafe = {
+        ...ledger,
+        days: [{ ...ledger.days[0]!, day: "bad-day-format" }],
+      };
+      expect(verifyLedger(unsafe, input)).toEqual({
+        ok: false,
+        problems: ["NUMBER_MISMATCH", "UNSAFE_VALUE"],
+      });
+    });
+
+    it("derives toolRows for tools with errors > 0, sorts by errors desc, calls desc, tool asc, capped at 10", () => {
+      const toolCalls: Record<string, number> = {};
+      const toolErrors: Record<string, number> = {};
+      for (let i = 0; i < 15; i += 1) {
+        const toolName = `tool-${String(i).padStart(2, "0")}`;
+        toolCalls[toolName] = 20 + i;
+        toolErrors[toolName] = i; // tool-00 has 0 errors (should be excluded)
+      }
+      const tree = createTreeFixture({ toolCalls, toolErrors });
+      const input = { ...DEFAULT_INPUT, tree };
+      const ledger = buildLedger(input);
+
+      expect(ledger.toolRows).toHaveLength(10);
+      // Tool-00 has 0 errors and is not included
+      expect(ledger.toolRows.some((t) => t.tool === "tool-00")).toBe(false);
+      // Highest error is tool-14 with 14 errors
+      expect(ledger.toolRows[0]?.tool).toBe("tool-14");
+      expect(ledger.toolRows[0]?.errors).toBe(14);
+      expect(ledger.toolRows[0]?.calls).toBe(34);
+
+      expect(ledger.evidence["agg:tool:tool-14:calls"]).toEqual({
+        kind: "aggregate",
+        value: 34,
+      });
+      expect(ledger.evidence["agg:tool:tool-14:errors"]).toEqual({
+        kind: "aggregate",
+        value: 14,
+      });
+      expect(verifyLedger(ledger, input)).toEqual({ ok: true });
+
+      const tampered = {
+        ...ledger,
+        toolRows: [
+          { ...ledger.toolRows[0]!, errors: 888 },
+          ...ledger.toolRows.slice(1),
+        ],
+      };
+      expect(verifyLedger(tampered, input)).toEqual({
+        ok: false,
+        problems: ["NUMBER_MISMATCH"],
+      });
+
+      const unsafe = {
+        ...ledger,
+        toolRows: [
+          { ...ledger.toolRows[0]!, tool: "invalid tool with spaces!" },
+        ],
+      };
+      expect(verifyLedger(unsafe, input)).toEqual({
+        ok: false,
+        problems: ["NUMBER_MISMATCH", "UNSAFE_VALUE"],
+      });
+    });
+
+    it("emits session-outcome claim and agg:outcome:* evidence only when outcome.source is git", () => {
+      const gitOutcome = {
+        source: "git" as const,
+        branch: "feature/slice-e2",
+        commits: 5,
+        revertCommits: 1,
+        mergeCommits: 2,
+        filesChanged: 10,
+        insertions: 120,
+        deletions: 40,
+        windowFrom: "2026-10-01T10:00:00.000Z",
+        windowTo: "2026-10-01T12:00:00.000Z",
+      };
+      const input = { ...DEFAULT_INPUT, outcome: gitOutcome };
+      const ledger = buildLedger(input);
+
+      const claim = ledger.claims.find((c) => c.template === "session-outcome");
+      expect(claim).toBeDefined();
+      expect(claim?.type).toBe("observation");
+      expect(claim?.values).toEqual({
+        commits: 5,
+        revertCommits: 1,
+        mergeCommits: 2,
+        filesChanged: 10,
+        insertions: 120,
+        deletions: 40,
+        completeness: "complete",
+      });
+      expect(claim?.denominator).toEqual({ count: 5, unit: "commits" });
+      expect(claim?.supporting).toEqual([
+        "agg:claim:session-outcome:commits",
+        "agg:claim:session-outcome:revertCommits",
+        "agg:claim:session-outcome:mergeCommits",
+        "agg:claim:session-outcome:filesChanged",
+        "agg:claim:session-outcome:insertions",
+        "agg:claim:session-outcome:deletions",
+      ]);
+
+      expect(ledger.evidence["agg:outcome:commits"]).toEqual({
+        kind: "aggregate",
+        value: 5,
+      });
+      expect(ledger.evidence["agg:outcome:revertCommits"]).toEqual({
+        kind: "aggregate",
+        value: 1,
+      });
+      expect(ledger.evidence["agg:outcome:mergeCommits"]).toEqual({
+        kind: "aggregate",
+        value: 2,
+      });
+      expect(ledger.evidence["agg:outcome:filesChanged"]).toEqual({
+        kind: "aggregate",
+        value: 10,
+      });
+      expect(ledger.evidence["agg:outcome:insertions"]).toEqual({
+        kind: "aggregate",
+        value: 120,
+      });
+      expect(ledger.evidence["agg:outcome:deletions"]).toEqual({
+        kind: "aggregate",
+        value: 40,
+      });
+      expect(verifyLedger(ledger, input)).toEqual({ ok: true });
+
+      // Partial coverage sets completeness to may-undercount-by-skipped-lines
+      const partialInput = {
+        ...input,
+        tree: createTreeFixture({ coverage: "partial" }),
+      };
+      const partialLedger = buildLedger(partialInput);
+      const partialClaim = partialLedger.claims.find(
+        (c) => c.template === "session-outcome",
+      );
+      expect(partialClaim?.values.completeness).toBe(
+        "may-undercount-by-skipped-lines",
+      );
+      expect(verifyLedger(partialLedger, partialInput)).toEqual({ ok: true });
+
+      // Tampered outcome causes NUMBER_MISMATCH
+      const tampered = {
+        ...ledger,
+        outcome: { ...gitOutcome, commits: 999 },
+      };
+      expect(verifyLedger(tampered, input)).toEqual({
+        ok: false,
+        problems: ["NUMBER_MISMATCH"],
+      });
+
+      // Unsafe branch causes UNSAFE_VALUE
+      const unsafeBranch = {
+        ...ledger,
+        outcome: { ...gitOutcome, branch: "bad branch with spaces!" },
+      };
+      expect(verifyLedger(unsafeBranch, input)).toEqual({
+        ok: false,
+        problems: ["NUMBER_MISMATCH", "UNSAFE_VALUE"],
+      });
+
+      // Unavailable outcome omits session-outcome claim and agg:outcome:* evidence
+      const unavailableInput = {
+        ...DEFAULT_INPUT,
+        outcome: {
+          source: "unavailable" as const,
+          reason: "not-a-repo" as const,
+        },
+      };
+      const unavailableLedger = buildLedger(unavailableInput);
+      expect(
+        unavailableLedger.claims.some((c) => c.template === "session-outcome"),
+      ).toBe(false);
+      expect(
+        Object.keys(unavailableLedger.evidence).some((k) =>
+          k.startsWith("agg:outcome:"),
+        ),
+      ).toBe(false);
+      expect(verifyLedger(unavailableLedger, unavailableInput)).toEqual({
+        ok: true,
+      });
+    });
+
+    it("sanitizes label per contract rules and verifies label flow and tamper detection", () => {
+      expect(sanitizeLabel(undefined)).toBeNull();
+      expect(sanitizeLabel("")).toBeNull();
+      expect(sanitizeLabel("    \n\t  ")).toBeNull();
+      expect(sanitizeLabel("hello\x00world\x1f")).toBe("hello world");
+      expect(sanitizeLabel("a <tag> with `code`")).toBe("a 'tag' with 'code'");
+      expect(sanitizeLabel("  multiple    spaces   and\nlines  ")).toBe(
+        "multiple spaces and lines",
+      );
+      const longLabel = "a".repeat(150);
+      expect(sanitizeLabel(longLabel)).toBe("a".repeat(120));
+
+      const input = {
+        ...DEFAULT_INPUT,
+        label: sanitizeLabel("My Verified Session Title"),
+      };
+      const ledger = buildLedger(input);
+      expect(ledger.label).toBe("My Verified Session Title");
+      expect(verifyLedger(ledger, input)).toEqual({ ok: true });
+
+      const tampered = { ...ledger, label: "Different Title" };
+      expect(verifyLedger(tampered, input)).toEqual({
+        ok: false,
+        problems: ["NUMBER_MISMATCH"],
+      });
+
+      const unsanitized = { ...ledger, label: "Unsanitized <bad> title" };
+      expect(verifyLedger(unsanitized, input)).toEqual({
         ok: false,
         problems: ["NUMBER_MISMATCH", "UNSAFE_VALUE"],
       });

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { LedgerImprovement } from "../src/retrospective/improvements";
 import type { Claim, Ledger, LedgerAgent } from "../src/retrospective/ledger";
+import type { ReportContext, SessionRates } from "../src/retrospective/trend";
 import {
   escapeHtml,
   formatMoney,
@@ -9,8 +10,13 @@ import {
   plural,
 } from "../src/retrospective/views/format";
 import {
+  formatTokensCompact,
+  type LedgerDay,
   type LedgerFolder,
   type LedgerLookups,
+  type LedgerModel,
+  type LedgerOutcome,
+  type LedgerToolRow,
   renderReportHtml,
 } from "../src/retrospective/views/report-html";
 
@@ -25,7 +31,7 @@ function createClaim(
   values: Record<string, number | string>,
 ): Claim {
   return {
-    id: `claim-${template}`,
+    id: `c_${template}`,
     type: "observation",
     template,
     values,
@@ -39,6 +45,11 @@ function createClaim(
 
 function createLedgerFixture(
   overrides: Partial<Ledger> & {
+    label?: string | null;
+    models?: LedgerModel[];
+    days?: LedgerDay[];
+    toolRows?: LedgerToolRow[];
+    outcome?: LedgerOutcome;
     folder?: LedgerFolder | null;
     lookups?: LedgerLookups | null;
   } = {},
@@ -47,6 +58,11 @@ function createLedgerFixture(
     schemaVersion: 1,
     cutoff: "2026-10-01T12:00:00.000Z",
     session: "01a167e1",
+    label: null,
+    models: [],
+    days: [],
+    toolRows: [],
+    outcome: { source: "unavailable", reason: "not-measured" },
     evidenceMode: "native-files",
     rootVerification: "unverified-root",
     coverage: "complete",
@@ -67,7 +83,7 @@ function createLedgerFixture(
     claims: [],
     evidence: {},
     ...overrides,
-  } as Ledger;
+  } as unknown as Ledger;
 }
 
 describe("format helpers", () => {
@@ -76,39 +92,44 @@ describe("format helpers", () => {
     expect(plural(2, "apple")).toBe("2 apples");
     expect(plural(0, "apple")).toBe("0 apples");
     expect(plural(1, "child", "children")).toBe("1 child");
-    expect(plural(5, "child", "children")).toBe("5 children");
+    expect(plural(3, "child", "children")).toBe("3 children");
   });
 
   it("formatMoney formats cents to dollars", () => {
     expect(formatMoney(0)).toBe("$0.00");
-    expect(formatMoney(25)).toBe("$0.25");
     expect(formatMoney(1234)).toBe("$12.34");
-    expect(formatMoney(50000)).toBe("$500.00");
+    expect(formatMoney(50)).toBe("$0.50");
+    expect(formatMoney(5000)).toBe("$50.00");
   });
 
   it("formatTokensK rounds to thousands with k suffix", () => {
     expect(formatTokensK(0)).toBe("0k");
-    expect(formatTokensK(499)).toBe("0k");
-    expect(formatTokensK(500)).toBe("1k");
-    expect(formatTokensK(28123)).toBe("28k");
-    expect(formatTokensK(155400)).toBe("155k");
+    expect(formatTokensK(999)).toBe("1k");
+    expect(formatTokensK(12345)).toBe("12k");
+    expect(formatTokensK(50000)).toBe("50k");
   });
 
   it("formatRate divides tenths by 10 with 1 decimal place", () => {
     expect(formatRate(0)).toBe("0.0");
-    expect(formatRate(4)).toBe("0.4");
-    expect(formatRate(127)).toBe("12.7");
+    expect(formatRate(15)).toBe("1.5");
+    expect(formatRate(100)).toBe("10.0");
   });
 
   it("escapeHtml replaces &, <, >, \", and '", () => {
-    expect(escapeHtml("&")).toBe("&amp;");
-    expect(escapeHtml("<")).toBe("&lt;");
-    expect(escapeHtml(">")).toBe("&gt;");
-    expect(escapeHtml('"')).toBe("&quot;");
-    expect(escapeHtml("'")).toBe("&#39;");
-    expect(escapeHtml('<script>alert("x & y")</script>')).toBe(
-      "&lt;script&gt;alert(&quot;x &amp; y&quot;)&lt;/script&gt;",
-    );
+    expect(escapeHtml("a & b")).toBe("a &amp; b");
+    expect(escapeHtml("<tag>")).toBe("&lt;tag&gt;");
+    expect(escapeHtml('"quote"')).toBe("&quot;quote&quot;");
+    expect(escapeHtml("it's")).toBe("it&#39;s");
+  });
+
+  it("formatTokensCompact formats numbers into compact k and M strings", () => {
+    expect(formatTokensCompact(0)).toBe("0");
+    expect(formatTokensCompact(-5)).toBe("0");
+    expect(formatTokensCompact(500)).toBe("500");
+    expect(formatTokensCompact(1000)).toBe("1k");
+    expect(formatTokensCompact(1500)).toBe("1.5k");
+    expect(formatTokensCompact(456000)).toBe("456k");
+    expect(formatTokensCompact(12300000)).toBe("12.3M");
   });
 });
 
@@ -149,114 +170,170 @@ describe("renderReportHtml", () => {
     expect(html).not.toMatch(/https?:\/\//i);
   });
 
-  it("escapes hostile strings in folder, model, skill id, and agent label", () => {
-    const hostileFolder: LedgerFolder = {
-      name: '<script>alert("folder")</script>',
-      parent: "<b>parent</b>",
-    };
-    const hostileAgent: LedgerAgent = {
-      label: '<script>alert("main")</script>',
-      kind: "editing",
-      model: "gpt-6<script>",
-      turns: 5,
-      costCents: 100,
-      compactions: 0,
-      cacheReadPerTurn: 1000,
-      errorStops: 0,
-      toolCalls: 5,
-      toolErrors: 0,
-      editCalls: 2,
-      bashCalls: 1,
-      readCalls: 2,
-      agsLookups: 0,
-      permissionAnswers: 0,
-    };
-    const hostileLookups: LedgerLookups = {
-      tools: [
-        {
-          tool: "load_skills_for_files",
-          calls: 1,
-          noMatchCalls: 0,
-          errorCalls: 0,
-          bodiesReturned: 1,
-          reusedBodies: 0,
-          mainCalls: 1,
-          workerCalls: 0,
-        },
-        {
-          tool: "load_skills_for_keywords",
-          calls: 0,
-          noMatchCalls: 0,
-          errorCalls: 0,
-          bodiesReturned: 0,
-          reusedBodies: 0,
-          mainCalls: 0,
-          workerCalls: 0,
-        },
-        {
-          tool: "get_skill",
-          calls: 0,
-          noMatchCalls: 0,
-          errorCalls: 0,
-          bodiesReturned: 0,
-          reusedBodies: 0,
-          mainCalls: 0,
-          workerCalls: 0,
-        },
-        {
-          tool: "get_workflow",
-          calls: 0,
-          noMatchCalls: 0,
-          errorCalls: 0,
-          bodiesReturned: 0,
-          reusedBodies: 0,
-          mainCalls: 0,
-          workerCalls: 0,
-        },
-        {
-          tool: "get_category_guide",
-          calls: 0,
-          noMatchCalls: 0,
-          errorCalls: 0,
-          bodiesReturned: 0,
-          reusedBodies: 0,
-          mainCalls: 0,
-          workerCalls: 0,
-        },
-      ],
-      skills: [
-        {
-          id: 'test/<script>alert("skill")</script>',
-          returns: 1,
-          mainReturns: 1,
-          workerReturns: 0,
-        },
-      ],
-      distinctSkills: 1,
-      otherSkillReturns: 0,
-      unvalidatedReturns: 0,
-      capped: false,
-    };
+  describe("header section", () => {
+    it("renders title line when label is present", () => {
+      const ledger = createLedgerFixture({
+        label: "Refactor database migrations",
+      });
+      const html = renderReportHtml(ledger);
 
-    const ledger = createLedgerFixture({
-      folder: hostileFolder,
-      agents: [hostileAgent],
-      lookups: hostileLookups,
+      expect(html).toContain(
+        '<p class="title">Title: Refactor database migrations <span class="soft">(agent-supplied, unverified)</span></p>',
+      );
     });
 
-    const html = renderReportHtml(ledger);
-    expect(html).not.toMatch(/<script>/i);
-    expect(html).toContain(
-      "&lt;script&gt;alert(&quot;folder&quot;)&lt;/script&gt;",
-    );
-    expect(html).toContain("&lt;b&gt;parent&lt;/b&gt;");
-    expect(html).toContain(
-      "&lt;script&gt;alert(&quot;main&quot;)&lt;/script&gt;",
-    );
-    expect(html).toContain("gpt-6&lt;script&gt;");
-    expect(html).toContain(
-      "test/&lt;script&gt;alert(&quot;skill&quot;)&lt;/script&gt;",
-    );
+    it("omits title line when label is null", () => {
+      const ledger = createLedgerFixture({ label: null });
+      const html = renderReportHtml(ledger);
+
+      expect(html).not.toContain("Title:");
+      expect(html).not.toContain("(agent-supplied, unverified)");
+    });
+
+    it("renders branch now with branch name when git outcome has branch", () => {
+      const ledger = createLedgerFixture({
+        outcome: {
+          source: "git",
+          branch: "feat/mcp-native-retrospective",
+          commits: 3,
+          revertCommits: 0,
+          mergeCommits: 0,
+          filesChanged: 5,
+          insertions: 120,
+          deletions: 30,
+          windowFrom: "2026-10-01T10:00:00.000Z",
+          windowTo: "2026-10-01T11:00:00.000Z",
+        },
+      });
+      const html = renderReportHtml(ledger);
+      expect(html).toContain("Branch now: feat/mcp-native-retrospective");
+    });
+
+    it("renders detached HEAD when git outcome has null branch", () => {
+      const ledger = createLedgerFixture({
+        outcome: {
+          source: "git",
+          branch: null,
+          commits: 1,
+          revertCommits: 0,
+          mergeCommits: 0,
+          filesChanged: 1,
+          insertions: 5,
+          deletions: 0,
+          windowFrom: "2026-10-01T10:00:00.000Z",
+          windowTo: "2026-10-01T11:00:00.000Z",
+        },
+      });
+      const html = renderReportHtml(ledger);
+      expect(html).toContain("Branch now: detached HEAD");
+    });
+
+    it("renders branch not recorded when outcome is unavailable", () => {
+      const ledger = createLedgerFixture({
+        outcome: { source: "unavailable", reason: "not-a-repo" },
+      });
+      const html = renderReportHtml(ledger);
+      expect(html).toContain("branch not recorded");
+      expect(html).not.toContain("Branch now:");
+    });
+  });
+
+  describe("decisions for you section", () => {
+    it("renders decisions right after tiles with exact fixed sentences per rule", () => {
+      const imps: LedgerImprovement[] = [
+        {
+          rule: "guardrail-answers",
+          level: "act",
+          destination: "permission-setup",
+          audience: "manager",
+          claimIds: ["c1"],
+          evidence: ["e1"],
+          values: {},
+        },
+        {
+          rule: "cost-concentration",
+          level: "watch",
+          destination: "orchestration-config",
+          audience: "manager",
+          claimIds: ["c2"],
+          evidence: ["e2"],
+          values: {},
+        },
+        {
+          rule: "unguarded-edits",
+          level: "act",
+          destination: "agent-routing",
+          audience: "manager",
+          claimIds: ["c3"],
+          evidence: ["e3"],
+          values: {},
+        },
+        {
+          rule: "human-intervention",
+          level: "watch",
+          destination: "permission-setup",
+          audience: "manager",
+          claimIds: ["c4"],
+          evidence: ["e4"],
+          values: {},
+        },
+        {
+          rule: "agent-error-concentration",
+          level: "act",
+          destination: "provider-route-monitoring",
+          audience: "manager",
+          claimIds: ["c5"],
+          evidence: ["e5"],
+          values: {},
+        },
+        {
+          rule: "lookup-misses",
+          level: "watch",
+          destination: "agent-routing",
+          audience: "manager",
+          claimIds: ["c6"],
+          evidence: ["e6"],
+          values: {},
+        },
+      ];
+      const ledger = createLedgerFixture({ improvements: imps });
+      const html = renderReportHtml(ledger);
+
+      expect(html).toContain("<h3>Decisions for you</h3>");
+      expect(html).toContain(
+        "Decide: allowlist the repeated safe requests, or tighten what workers may ask for?",
+      );
+      expect(html).toContain(
+        "Decide: split the orchestrator session and hand reads and edits to workers, or accept the cost?",
+      );
+      expect(html).toContain(
+        "Decide: require a file lookup before edits in the worker brief?",
+      );
+      expect(html).toContain(
+        "Decide: which asks and aborts the setup should answer without a human?",
+      );
+      expect(html).toContain(
+        "Decide: check the provider route before the next run?",
+      );
+      expect(html).toContain(
+        "Decide: fix the trigger words and file patterns of the skills these lookups missed?",
+      );
+
+      // Verify position: after tiles, before do next
+      const tilesIdx = html.indexOf('<div class="tiles">');
+      const decisionsIdx = html.indexOf("<h3>Decisions for you</h3>");
+      const doNextIdx = html.indexOf("<h3>Do next</h3>");
+      expect(tilesIdx).toBeGreaterThan(-1);
+      expect(decisionsIdx).toBeGreaterThan(tilesIdx);
+      expect(doNextIdx).toBeGreaterThan(decisionsIdx);
+    });
+
+    it("omits decisions section when no manager improvements exist", () => {
+      const ledger = createLedgerFixture({ improvements: [] });
+      const html = renderReportHtml(ledger);
+
+      expect(html).not.toContain("<h3>Decisions for you</h3>");
+    });
   });
 
   describe("tile colour rules", () => {
@@ -346,235 +423,8 @@ describe("renderReportHtml", () => {
     });
   });
 
-  describe("section presence and omission per absent claim", () => {
-    it("omits scope and coverage details in bottom line when coverage claim is absent", () => {
-      const ledger = createLedgerFixture({
-        claims: [],
-      });
-      const html = renderReportHtml(ledger);
-      expect(html).not.toContain("Observed: main");
-      expect(html).toContain("Coverage: complete");
-    });
-
-    it("omits cost and context section when cost-drivers claim is absent", () => {
-      const ledger = createLedgerFixture({
-        claims: [],
-      });
-      const html = renderReportHtml(ledger);
-      expect(html).not.toContain("Cost and context");
-      expect(html).not.toContain("Cached tokens per turn");
-    });
-
-    it("renders unmeasured message when lookups is null", () => {
-      const ledger = createLedgerFixture({
-        lookups: null,
-      });
-      const html = renderReportHtml(ledger);
-      expect(html).toContain(
-        "AGS lookups were not measured (no session files read).",
-      );
-    });
-
-    it("renders neutral card when no manager improvements exist", () => {
-      const ledger = createLedgerFixture({
-        improvements: [],
-      });
-      const html = renderReportHtml(ledger);
-      expect(html).toContain("No actions suggested from the measured signals");
-      expect(html).toContain("This is not a judgment of session quality.");
-      expect(html).toContain('<span class="chip none">NONE</span>');
-    });
-
-    it("omits maintainer section when no maintainer improvements exist", () => {
-      const ledger = createLedgerFixture({
-        improvements: [],
-      });
-      const html = renderReportHtml(ledger);
-      expect(html).not.toContain("For the maintainer");
-    });
-  });
-
-  describe("AGS lookups table and skills ranking", () => {
-    it("renders tools in LOOKUP_TOOLS order with totals row and skills ranking", () => {
-      const lookups: LedgerLookups = {
-        tools: [
-          {
-            tool: "load_skills_for_files",
-            calls: 10,
-            noMatchCalls: 2,
-            errorCalls: 0,
-            bodiesReturned: 8,
-            reusedBodies: 1,
-            mainCalls: 6,
-            workerCalls: 4,
-          },
-          {
-            tool: "load_skills_for_keywords",
-            calls: 5,
-            noMatchCalls: 1,
-            errorCalls: 0,
-            bodiesReturned: 4,
-            reusedBodies: 0,
-            mainCalls: 3,
-            workerCalls: 2,
-          },
-          {
-            tool: "get_skill",
-            calls: 2,
-            noMatchCalls: 0,
-            errorCalls: 0,
-            bodiesReturned: 2,
-            reusedBodies: 0,
-            mainCalls: 2,
-            workerCalls: 0,
-          },
-          {
-            tool: "get_workflow",
-            calls: 1,
-            noMatchCalls: 0,
-            errorCalls: 0,
-            bodiesReturned: 1,
-            reusedBodies: 0,
-            mainCalls: 1,
-            workerCalls: 0,
-          },
-          {
-            tool: "get_category_guide",
-            calls: 0,
-            noMatchCalls: 0,
-            errorCalls: 0,
-            bodiesReturned: 0,
-            reusedBodies: 0,
-            mainCalls: 0,
-            workerCalls: 0,
-          },
-        ],
-        skills: [
-          {
-            id: "common/common-tdd",
-            returns: 5,
-            mainReturns: 3,
-            workerReturns: 2,
-          },
-          {
-            id: "typescript/typescript-language",
-            returns: 3,
-            mainReturns: 3,
-            workerReturns: 0,
-          },
-        ],
-        distinctSkills: 2,
-        otherSkillReturns: 4,
-        unvalidatedReturns: 1,
-        capped: true,
-      };
-
-      const ledger = createLedgerFixture({ lookups });
-      const html = renderReportHtml(ledger);
-
-      expect(html).toContain("by file");
-      expect(html).toContain("by keyword");
-      expect(html).toContain("by name (get_skill)");
-      expect(html).toContain("workflow");
-      expect(html).toContain("category guide");
-
-      // Verify order: by file comes before by keyword, before by name, etc.
-      const idxFile = html.indexOf("by file");
-      const idxKeywords = html.indexOf("by keyword");
-      const idxName = html.indexOf("by name (get_skill)");
-      const idxWorkflow = html.indexOf("workflow");
-      const idxGuide = html.indexOf("category guide");
-      expect(idxFile).toBeLessThan(idxKeywords);
-      expect(idxKeywords).toBeLessThan(idxName);
-      expect(idxName).toBeLessThan(idxWorkflow);
-      expect(idxWorkflow).toBeLessThan(idxGuide);
-
-      // Verify totals row: total calls = 10+5+2+1+0 = 18; noMatch = 2+1 = 3; bodies = 8+4+2+1 = 15; reused = 1; main = 6+3+2+1=12; workers = 4+2=6
-      expect(html).toContain(
-        '<tr class="total"><td>Total</td><td>18</td><td>3</td><td>15</td><td>1</td><td>0</td><td>12/6</td></tr>',
-      );
-
-      // Skills ranking table
-      expect(html).toContain("common/common-tdd");
-      expect(html).toContain("typescript/typescript-language");
-
-      // Below text
-      expect(html).toContain(
-        "2 distinct skills; 4 more deliveries outside this list; 1 deliveries with an unreadable id. Some agents returned more than 100 distinct skills; counts for the rest are grouped.",
-      );
-    });
-
-    it("omits capped sentence when lookups.capped is false", () => {
-      const lookups: LedgerLookups = {
-        tools: [
-          {
-            tool: "load_skills_for_files",
-            calls: 1,
-            noMatchCalls: 0,
-            errorCalls: 0,
-            bodiesReturned: 1,
-            reusedBodies: 0,
-            mainCalls: 1,
-            workerCalls: 0,
-          },
-          {
-            tool: "load_skills_for_keywords",
-            calls: 0,
-            noMatchCalls: 0,
-            errorCalls: 0,
-            bodiesReturned: 0,
-            reusedBodies: 0,
-            mainCalls: 0,
-            workerCalls: 0,
-          },
-          {
-            tool: "get_skill",
-            calls: 0,
-            noMatchCalls: 0,
-            errorCalls: 0,
-            bodiesReturned: 0,
-            reusedBodies: 0,
-            mainCalls: 0,
-            workerCalls: 0,
-          },
-          {
-            tool: "get_workflow",
-            calls: 0,
-            noMatchCalls: 0,
-            errorCalls: 0,
-            bodiesReturned: 0,
-            reusedBodies: 0,
-            mainCalls: 0,
-            workerCalls: 0,
-          },
-          {
-            tool: "get_category_guide",
-            calls: 0,
-            noMatchCalls: 0,
-            errorCalls: 0,
-            bodiesReturned: 0,
-            reusedBodies: 0,
-            mainCalls: 0,
-            workerCalls: 0,
-          },
-        ],
-        skills: [],
-        distinctSkills: 0,
-        otherSkillReturns: 0,
-        unvalidatedReturns: 0,
-        capped: false,
-      };
-
-      const ledger = createLedgerFixture({ lookups });
-      const html = renderReportHtml(ledger);
-      expect(html).not.toContain(
-        "Some agents returned more than 100 distinct skills; counts for the rest are grouped.",
-      );
-    });
-  });
-
-  describe("improvement cards exact wording", () => {
-    it("renders guardrail-answers improvement card", () => {
+  describe("improvement cards exact wording and new rows", () => {
+    it("renders guardrail-answers card with Change, Next time, and Unknown", () => {
       const imp: LedgerImprovement = {
         rule: "guardrail-answers",
         level: "act",
@@ -598,11 +448,17 @@ describe("renderReportHtml", () => {
         "the orchestrator answered 4 permission requests; 1 agents were answered 3 or more times; 1 were denials.",
       );
       expect(html).toContain(
-        "Change (permission setup): add repeated safe requests to the allowlist (allowed answers show setup gaps) and check what each denial asked for (denials show rule violations). Next time: permission answers per 100 turns (now 1.5).",
+        "Change (permission setup): add repeated safe requests to the allowlist (allowed answers show setup gaps) and check what each denial asked for (denials show rule violations).",
+      );
+      expect(html).toContain(
+        "Next time: permission answers per 100 turns (now 1.5).",
+      );
+      expect(html).toContain(
+        "Unknown: which agents asked and what for: the file shows counts and allow or deny, not the request.",
       );
     });
 
-    it("renders cost-concentration improvement card", () => {
+    it("renders cost-concentration card with Change, Next time, and Unknown", () => {
       const imp: LedgerImprovement = {
         rule: "cost-concentration",
         level: "watch",
@@ -628,11 +484,17 @@ describe("renderReportHtml", () => {
         "main runs at 120k cached tokens per turn (workers 30k) with 1 compactions; it made 50 reads, 10 edits and 25 coordination calls itself.",
       );
       expect(html).toContain(
-        "Change (orchestration config): check whether those reads and edits could be delegated; consider a turn limit per session and a cost alert. Next time: cached tokens per main turn (now 120k).",
+        "Change (orchestration config): check whether those reads and edits could be delegated; consider a turn limit per session and a cost alert.",
+      );
+      expect(html).toContain(
+        "Next time: cached tokens per main turn (now 120k).",
+      );
+      expect(html).toContain(
+        "Unknown: why the main kept the work and whether the spend was worth it.",
       );
     });
 
-    it("renders unguarded-edits improvement card", () => {
+    it("renders unguarded-edits card with Change, Next time, and Unknown", () => {
       const imp: LedgerImprovement = {
         rule: "unguarded-edits",
         level: "act",
@@ -656,11 +518,15 @@ describe("renderReportHtml", () => {
         "edit and file-write calls with no load_skills_for_files by the same agent since its last compaction; 2 file lookups vs 1 lookups by name.",
       );
       expect(html).toContain(
-        "Change (AGS routing): check the router trigger and the brief given to agents that edit files. Next time: unguarded edit share (now 50%).",
+        "Change (AGS routing): check the router trigger and the brief given to agents that edit files.",
+      );
+      expect(html).toContain("Next time: unguarded edit share (now 50%).");
+      expect(html).toContain(
+        "Unknown: whether the edited files needed a skill.",
       );
     });
 
-    it("renders lookup-misses improvement card", () => {
+    it("renders lookup-misses card with Change, Next time, and Unknown", () => {
       const imp: LedgerImprovement = {
         rule: "lookup-misses",
         level: "watch",
@@ -684,11 +550,17 @@ describe("renderReportHtml", () => {
         "AGS returned no skill for 40% of lookups (5 by file, 3 by keyword).",
       );
       expect(html).toContain(
-        "Change (AGS routing): check the trigger words and file patterns of the skills these lookups should have found, and the file types the lookups were for. Next time: lookups that matched nothing (now 40%).",
+        "Change (AGS routing): check the trigger words and file patterns of the skills these lookups should have found, and the file types the lookups were for.",
+      );
+      expect(html).toContain(
+        "Next time: lookups that matched nothing (now 40%).",
+      );
+      expect(html).toContain(
+        "Unknown: which file types the empty lookups were for.",
       );
     });
 
-    it("renders human-intervention improvement card", () => {
+    it("renders human-intervention card with Change, Next time, and Unknown", () => {
       const imp: LedgerImprovement = {
         rule: "human-intervention",
         level: "watch",
@@ -710,11 +582,15 @@ describe("renderReportHtml", () => {
         "the agents asked a human or were stopped by one 2.0 times per 100 turns.",
       );
       expect(html).toContain(
-        "Change (permission setup): check which of those decisions the setup could take without asking. Next time: asks and aborts per 100 turns (now 2.0).",
+        "Change (permission setup): check which of those decisions the setup could take without asking.",
       );
+      expect(html).toContain(
+        "Next time: asks and aborts per 100 turns (now 2.0).",
+      );
+      expect(html).toContain("Unknown: what each ask or abort was about.");
     });
 
-    it("renders agent-error-concentration improvement card", () => {
+    it("renders agent-error-concentration card with Change, Next time, and Unknown", () => {
       const imp: LedgerImprovement = {
         rule: "agent-error-concentration",
         level: "act",
@@ -736,8 +612,12 @@ describe("renderReportHtml", () => {
       );
       expect(html).toContain("the worst: 5 of 8 turns.");
       expect(html).toContain(
-        "Change (provider route monitoring): read the error category of those records before changing any routing. Next time: agents above half error turns (now 2).",
+        "Change (provider route monitoring): read the error category of those records before changing any routing.",
       );
+      expect(html).toContain(
+        "Next time: agents above half error turns (now 2).",
+      );
+      expect(html).toContain("Unknown: the error category behind each stop.");
     });
 
     it("renders maintainer improvements", () => {
@@ -771,6 +651,434 @@ describe("renderReportHtml", () => {
       expect(html).toContain(
         "Server tracker numbers cover this process only, so lookups that matched nothing and bodies returned are not measured for this session (tracker-binding).",
       );
+    });
+  });
+
+  describe("outcome section", () => {
+    it("renders git outcome table and caveat sentence when source is git", () => {
+      const outcome: LedgerOutcome = {
+        source: "git",
+        branch: "main",
+        commits: 5,
+        revertCommits: 1,
+        mergeCommits: 2,
+        filesChanged: 14,
+        insertions: 350,
+        deletions: 120,
+        windowFrom: "2026-10-01T08:00:00.000Z",
+        windowTo: "2026-10-01T12:00:00.000Z",
+      };
+      const ledger = createLedgerFixture({ outcome });
+      const html = renderReportHtml(ledger);
+
+      expect(html).toContain("<h3>Outcome</h3>");
+      expect(html).toContain("<th>Commits</th>");
+      expect(html).toContain("<th>Merge commits</th>");
+      expect(html).toContain("<th>Reverts</th>");
+      expect(html).toContain("<th>Files changed</th>");
+      expect(html).toContain("<th>Insertions (+)</th>");
+      expect(html).toContain("<th>Deletions (-)</th>");
+      expect(html).toContain("<th>Window</th>");
+
+      expect(html).toContain("<td>5</td>");
+      expect(html).toContain("<td>2</td>");
+      expect(html).toContain("<td>1</td>");
+      expect(html).toContain("<td>14</td>");
+      expect(html).toContain("<td>+350</td>");
+      expect(html).toContain("<td>-120</td>");
+      expect(html).toContain(
+        "<td>2026-10-01T08:00:00.000Z to 2026-10-01T12:00:00.000Z</td>",
+      );
+      expect(html).toContain(
+        "Commits are counted across all branches of the repository in the session window and may include other work; the branch is the current one, not necessarily the session's.",
+      );
+    });
+
+    it("renders exact sentence for each unavailable reason", () => {
+      const reasons: Array<[LedgerOutcome["reason"], string]> = [
+        [
+          "folder-missing",
+          "The session's folder no longer exists, so no git outcome could be read.",
+        ],
+        ["not-a-repo", "The folder is not a git repository."],
+        ["git-error", "Git could not be read safely for this folder."],
+        ["not-measured", "Outcome was not measured for this run."],
+      ];
+
+      for (const [reason, sentence] of reasons) {
+        const ledger = createLedgerFixture({
+          outcome: { source: "unavailable", reason },
+        });
+        const html = renderReportHtml(ledger);
+        expect(html).toContain("<h3>Outcome</h3>");
+        expect(html).toContain(`<p>${sentence}</p>`);
+      }
+    });
+  });
+
+  describe("timeline section", () => {
+    it("renders timeline table with inline CSS bar based on max turns", () => {
+      const days: LedgerDay[] = [
+        { day: "2026-10-01", turns: 20, costCents: 500, errorStops: 1 },
+        { day: "2026-10-02", turns: 10, costCents: 250, errorStops: 0 },
+      ];
+      const ledger = createLedgerFixture({ days });
+      const html = renderReportHtml(ledger);
+
+      expect(html).toContain("<h3>Timeline</h3>");
+      expect(html).toContain("<th>Day</th>");
+      expect(html).toContain("<th>Turns</th>");
+      expect(html).toContain("<th>Cost</th>");
+      expect(html).toContain("<th>Error stops</th>");
+
+      expect(html).toContain("<td>2026-10-01</td>");
+      expect(html).toContain(
+        '<td>20 <span class="bar" style="width:100%"></span></td>',
+      );
+      expect(html).toContain("<td>$5.00 est.</td>");
+      expect(html).toContain("<td>1</td>");
+
+      expect(html).toContain("<td>2026-10-02</td>");
+      expect(html).toContain(
+        '<td>10 <span class="bar" style="width:50%"></span></td>',
+      );
+      expect(html).toContain("<td>$2.50 est.</td>");
+      expect(html).toContain("<td>0</td>");
+    });
+
+    it("renders a one-line note when days count exceeds 31", () => {
+      const days: LedgerDay[] = [];
+      for (let i = 1; i <= 35; i++) {
+        days.push({
+          day: `2026-10-${String(i).padStart(2, "0")}`,
+          turns: 5,
+          costCents: 100,
+          errorStops: 0,
+        });
+      }
+      const ledger = createLedgerFixture({ days });
+      const html = renderReportHtml(ledger);
+
+      expect(html).toContain(
+        '<p class="mt">Session spans 35 days (more than 31 days; all rows shown).</p>',
+      );
+    });
+
+    it("omits the > 31 days note when days count is <= 31", () => {
+      const days: LedgerDay[] = [
+        { day: "2026-10-01", turns: 5, costCents: 100, errorStops: 0 },
+      ];
+      const ledger = createLedgerFixture({ days });
+      const html = renderReportHtml(ledger);
+
+      expect(html).not.toContain("more than 31 days");
+    });
+  });
+
+  describe("cost and models section", () => {
+    it("renders main-vs-workers table and models breakdown table with total row", () => {
+      const models: LedgerModel[] = [
+        {
+          model: "claude-3-5-sonnet",
+          turns: 30,
+          costCents: 450,
+          inputTokens: 12300000,
+          outputTokens: 456000,
+          cacheReadTokens: 5000000,
+          errorStops: 1,
+        },
+        {
+          model: "gemini-1.5-pro",
+          turns: 10,
+          costCents: 150,
+          inputTokens: 2000000,
+          outputTokens: 100000,
+          cacheReadTokens: 1000000,
+          errorStops: 0,
+        },
+      ];
+      const ledger = createLedgerFixture({
+        models,
+        claims: [
+          createClaim("cost-drivers", {
+            turnsMain: 25,
+            costCentsMain: 400,
+            turnsOthers: 15,
+            costCentsOthers: 200,
+            cacheReadPerTurnMain: 100000,
+            cacheReadPerTurnOthers: 20000,
+            compactionsMain: 0,
+            mainReadCalls: 10,
+            mainEditCalls: 5,
+            mainBashCalls: 2,
+            mainCoordinationCalls: 8,
+            costCentsMainReads: 150,
+            costCentsMainCoordination: 100,
+          }),
+        ],
+      });
+      const html = renderReportHtml(ledger);
+
+      expect(html).toContain("<h3>Cost and models</h3>");
+      expect(html).toContain("<th>Metric</th>");
+      expect(html).toContain("<th>Main</th>");
+      expect(html).toContain("<th>Workers</th>");
+
+      expect(html).toContain("<th>Model</th>");
+      expect(html).toContain("<th>Input tokens</th>");
+      expect(html).toContain("<th>Output tokens</th>");
+      expect(html).toContain("<th>Cached tokens</th>");
+
+      // Model 1
+      expect(html).toContain("<td>claude-3-5-sonnet</td>");
+      expect(html).toContain("<td>12.3M</td>");
+      expect(html).toContain("<td>456k</td>");
+      expect(html).toContain("<td>5M</td>");
+
+      // Model 2
+      expect(html).toContain("<td>gemini-1.5-pro</td>");
+      expect(html).toContain("<td>2M</td>");
+      expect(html).toContain("<td>100k</td>");
+      expect(html).toContain("<td>1M</td>");
+
+      // Total row
+      expect(html).toContain(
+        '<tr class="total"><td>Total</td><td>40</td><td>$6.00 est.</td><td>14.3M</td><td>556k</td><td>6M</td><td>1</td></tr>',
+      );
+    });
+  });
+
+  describe("tool failures section", () => {
+    it("renders tool failures table and summary line from tool-errors claim", () => {
+      const toolRows: LedgerToolRow[] = [
+        { tool: "bash", calls: 20, errors: 4 },
+        { tool: "read_file", calls: 50, errors: 2 },
+      ];
+      const ledger = createLedgerFixture({
+        toolRows,
+        claims: [
+          createClaim("tool-errors", {
+            failedToolCalls: 6,
+            toolCalls: 70,
+          }),
+        ],
+      });
+      const html = renderReportHtml(ledger);
+
+      expect(html).toContain("<h3>Tool failures</h3>");
+      expect(html).toContain("<p>6 of 70 tool calls returned an error.</p>");
+      expect(html).toContain(
+        "<td>bash</td><td>20</td><td>4</td><td>20.0%</td>",
+      );
+      expect(html).toContain(
+        "<td>read_file</td><td>50</td><td>2</td><td>4.0%</td>",
+      );
+    });
+
+    it("omits tool failures section when toolRows is empty", () => {
+      const ledger = createLedgerFixture({ toolRows: [] });
+      const html = renderReportHtml(ledger);
+
+      expect(html).not.toContain("<h3>Tool failures</h3>");
+    });
+  });
+
+  describe("error stops section", () => {
+    it("renders top cells by error stops with chips and explanation sentence", () => {
+      const ledger = createLedgerFixture({
+        cells: [
+          {
+            key: "2026-10-01|gpt-4o",
+            turns: 10,
+            errorStops: 4, // rate 40% (turns >= 5) -> highest rate
+          },
+          {
+            key: "2026-10-01|claude-3-opus",
+            turns: 20,
+            errorStops: 6, // 6 stops -> most stops, rate 30%
+          },
+          {
+            key: "2026-10-02|claude-3-sonnet",
+            turns: 15,
+            errorStops: 2,
+          },
+          {
+            key: "2026-10-02|zero-errors-model",
+            turns: 5,
+            errorStops: 0, // should not be listed
+          },
+        ],
+      });
+      const html = renderReportHtml(ledger);
+
+      expect(html).toContain("<h3>Error stops</h3>");
+      expect(html).toContain(
+        "<p>Error stops are turns that ended in an error; the file records that, not why.</p>",
+      );
+      expect(html).toContain("<th>Day</th>");
+      expect(html).toContain("<th>Model</th>");
+      expect(html).toContain("<th>Error stops</th>");
+      expect(html).toContain("<th>Turns</th>");
+      expect(html).toContain("<th>Rate</th>");
+
+      expect(html).toContain('<span class="chip act">most stops</span>');
+      expect(html).toContain('<span class="chip watch">highest rate</span>');
+      expect(html).not.toContain("zero-errors-model");
+    });
+
+    it("omits error stops section when no cells have errorStops > 0", () => {
+      const ledger = createLedgerFixture({
+        cells: [
+          {
+            key: "2026-10-01|claude-3-sonnet",
+            turns: 10,
+            errorStops: 0,
+          },
+        ],
+      });
+      const html = renderReportHtml(ledger);
+
+      expect(html).not.toContain("<h3>Error stops</h3>");
+    });
+  });
+
+  describe("AGS lookups and timing line", () => {
+    it("renders skill-trigger-timing sentence when claim is present", () => {
+      const toolNames: LedgerLookups["tools"][number]["tool"][] = [
+        "load_skills_for_files",
+        "load_skills_for_keywords",
+        "get_skill",
+        "get_workflow",
+        "get_category_guide",
+      ];
+      const ledger = createLedgerFixture({
+        claims: [
+          createClaim("skill-trigger-timing", {
+            mainCallsBeforeFirstSkillLoad: 4,
+            sessionsWithSkillLoad: 2,
+            measuredSessions: 3,
+          }),
+        ],
+        lookups: {
+          tools: toolNames.map((tool) => ({
+            tool,
+            calls: 0,
+            noMatchCalls: 0,
+            errorCalls: 0,
+            bodiesReturned: 0,
+            reusedBodies: 0,
+            mainCalls: 0,
+            workerCalls: 0,
+          })),
+          skills: [],
+          distinctSkills: 0,
+          otherSkillReturns: 0,
+          unvalidatedReturns: 0,
+          capped: false,
+        },
+      });
+      const html = renderReportHtml(ledger);
+
+      expect(html).toContain(
+        "The main session made 4 other tool calls before its first skill lookup; 2 of 3 sessions looked a skill up.",
+      );
+    });
+
+    it("omits skill-trigger-timing sentence when claim is absent", () => {
+      const ledger = createLedgerFixture({ claims: [] });
+      const html = renderReportHtml(ledger);
+
+      expect(html).not.toContain(
+        "other tool calls before its first skill lookup",
+      );
+    });
+  });
+
+  describe("trend section", () => {
+    it("omits trend section when context is undefined or previous is empty", () => {
+      const ledger = createLedgerFixture();
+      expect(renderReportHtml(ledger)).not.toContain(
+        "Compared with earlier reports for this folder",
+      );
+      expect(renderReportHtml(ledger, { previous: [] })).not.toContain(
+        "Compared with earlier reports for this folder",
+      );
+    });
+
+    it("renders trend table with 7 metric rows and up to 3 previous sessions", () => {
+      const prev1: SessionRates = {
+        session: "prev0001-session",
+        to: "2026-09-30T15:00:00.000Z",
+        turns: 40,
+        costCentsPer100Turns: 1200,
+        permissionAnswersPer100TurnsTenths: 25,
+        errorStopsPer100TurnsTenths: 10,
+        toolErrorsPer100CallsTenths: 5,
+        lookupMissPercent: 20,
+        compactionsPer100TurnsTenths: 0,
+        unguardedEditPercent: 15,
+      };
+      const prev2: SessionRates = {
+        session: "prev0002-session",
+        to: "2026-09-29T12:00:00.000Z",
+        turns: 30,
+        costCentsPer100Turns: null,
+        permissionAnswersPer100TurnsTenths: null,
+        errorStopsPer100TurnsTenths: null,
+        toolErrorsPer100CallsTenths: null,
+        lookupMissPercent: null,
+        compactionsPer100TurnsTenths: null,
+        unguardedEditPercent: null,
+      };
+      const context: ReportContext = {
+        previous: [prev1, prev2],
+      };
+
+      const ledger = createLedgerFixture({
+        session: "curr0001-session",
+        claims: [
+          createClaim("coverage", { agentsCreated: 1, agentsRead: 1 }),
+          createClaim("cost-drivers", {
+            turnsMain: 20,
+            costCentsMain: 500,
+            turnsOthers: 0,
+            costCentsOthers: 0,
+          }),
+        ],
+      });
+
+      const html = renderReportHtml(ledger, context);
+
+      expect(html).toContain(
+        "<h3>Compared with earlier reports for this folder</h3>",
+      );
+      expect(html).toContain(
+        "<p>Earlier reports for the same folder; not necessarily the same task.</p>",
+      );
+      expect(html).toContain("<th>This session</th>");
+      expect(html).toContain("<th>session prev0001 ending 2026-09-30</th>");
+      expect(html).toContain("<th>session prev0002 ending 2026-09-29</th>");
+
+      // 7 metrics
+      expect(html).toContain("<td>Cost per 100 turns</td>");
+      expect(html).toContain("<td>Permission answers per 100 turns</td>");
+      expect(html).toContain("<td>Error stops per 100 turns</td>");
+      expect(html).toContain("<td>Tool errors per 100 calls</td>");
+      expect(html).toContain("<td>Lookups matching nothing</td>");
+      expect(html).toContain("<td>Compactions per 100 turns</td>");
+      expect(html).toContain("<td>Unguarded edits</td>");
+
+      // Formatted values from prev1
+      expect(html).toContain("<td>$12.00</td>");
+      expect(html).toContain("<td>2.5</td>");
+      expect(html).toContain("<td>1.0</td>");
+      expect(html).toContain("<td>0.5</td>");
+      expect(html).toContain("<td>20%</td>");
+      expect(html).toContain("<td>0.0</td>");
+      expect(html).toContain("<td>15%</td>");
+
+      // Null values from prev2 formatted as n/a
+      expect(html).toContain("<td>n/a</td>");
     });
   });
 
@@ -823,12 +1131,12 @@ describe("renderReportHtml", () => {
       expect(html).toContain("<td>$15.00</td>");
       expect(html).toContain("<td>40k</td>");
       expect(html).toContain("<td>2/100</td>");
-      expect(html).toContain("<td>3</td>"); // permission answers for main
+      expect(html).toContain("<td>3</td>");
     });
   });
 
   describe("limits section", () => {
-    it("renders all five limits bullets verbatim", () => {
+    it("renders all six limits bullets verbatim", () => {
       const ledger = createLedgerFixture();
       const html = renderReportHtml(ledger);
 
@@ -845,6 +1153,179 @@ describe("renderReportHtml", () => {
       );
       expect(html).toContain(
         "AGS lookups are counted, not whether the rules were followed.",
+      );
+      expect(html).toContain(
+        "Commit counts and the branch come from git at report time.",
+      );
+    });
+  });
+
+  describe("hostile string escaping across all sections", () => {
+    it("escapes hostile strings in folder, model, skill id, agent label, title, branch, and tool", () => {
+      const hostileFolder: LedgerFolder = {
+        name: '<script>alert("folder")</script>',
+        parent: "<b>parent</b>",
+      };
+      const hostileAgent: LedgerAgent = {
+        label: '<script>alert("main")</script>',
+        kind: "editing",
+        model: "gpt-6<script>",
+        turns: 5,
+        costCents: 100,
+        compactions: 0,
+        cacheReadPerTurn: 1000,
+        errorStops: 0,
+        toolCalls: 5,
+        toolErrors: 0,
+        editCalls: 2,
+        bashCalls: 1,
+        readCalls: 2,
+        agsLookups: 0,
+        permissionAnswers: 0,
+      };
+      const hostileLookups: LedgerLookups = {
+        tools: [
+          {
+            tool: "load_skills_for_files",
+            calls: 1,
+            noMatchCalls: 0,
+            errorCalls: 0,
+            bodiesReturned: 1,
+            reusedBodies: 0,
+            mainCalls: 1,
+            workerCalls: 0,
+          },
+          {
+            tool: "load_skills_for_keywords",
+            calls: 0,
+            noMatchCalls: 0,
+            errorCalls: 0,
+            bodiesReturned: 0,
+            reusedBodies: 0,
+            mainCalls: 0,
+            workerCalls: 0,
+          },
+          {
+            tool: "get_skill",
+            calls: 0,
+            noMatchCalls: 0,
+            errorCalls: 0,
+            bodiesReturned: 0,
+            reusedBodies: 0,
+            mainCalls: 0,
+            workerCalls: 0,
+          },
+          {
+            tool: "get_workflow",
+            calls: 0,
+            noMatchCalls: 0,
+            errorCalls: 0,
+            bodiesReturned: 0,
+            reusedBodies: 0,
+            mainCalls: 0,
+            workerCalls: 0,
+          },
+          {
+            tool: "get_category_guide",
+            calls: 0,
+            noMatchCalls: 0,
+            errorCalls: 0,
+            bodiesReturned: 0,
+            reusedBodies: 0,
+            mainCalls: 0,
+            workerCalls: 0,
+          },
+        ],
+        skills: [
+          {
+            id: 'test/<script>alert("skill")</script>',
+            returns: 1,
+            mainReturns: 1,
+            workerReturns: 0,
+          },
+        ],
+        distinctSkills: 1,
+        otherSkillReturns: 0,
+        unvalidatedReturns: 0,
+        capped: false,
+      };
+
+      const ledger = createLedgerFixture({
+        label: '<script>alert("label")</script>',
+        outcome: {
+          source: "git",
+          branch: '<script>alert("branch")</script>',
+          commits: 1,
+          revertCommits: 0,
+          mergeCommits: 0,
+          filesChanged: 1,
+          insertions: 1,
+          deletions: 0,
+          windowFrom: '<script>alert("from")</script>',
+          windowTo: '<script>alert("to")</script>',
+        },
+        days: [
+          {
+            day: '<script>alert("day")</script>',
+            turns: 5,
+            costCents: 100,
+            errorStops: 1,
+          },
+        ],
+        models: [
+          {
+            model: '<script>alert("model")</script>',
+            turns: 5,
+            costCents: 100,
+            inputTokens: 1000,
+            outputTokens: 500,
+            cacheReadTokens: 200,
+            errorStops: 1,
+          },
+        ],
+        toolRows: [
+          {
+            tool: '<script>alert("tool")</script>',
+            calls: 10,
+            errors: 2,
+          },
+        ],
+        cells: [
+          {
+            key: '<script>alert("day")</script>|<script>alert("model")</script>',
+            turns: 5,
+            errorStops: 1,
+          },
+        ],
+        folder: hostileFolder,
+        agents: [hostileAgent],
+        lookups: hostileLookups,
+      });
+
+      const html = renderReportHtml(ledger);
+      expect(html).not.toMatch(/<script>/i);
+      expect(html).toContain(
+        "&lt;script&gt;alert(&quot;label&quot;)&lt;/script&gt;",
+      );
+      expect(html).toContain(
+        "&lt;script&gt;alert(&quot;branch&quot;)&lt;/script&gt;",
+      );
+      expect(html).toContain(
+        "&lt;script&gt;alert(&quot;folder&quot;)&lt;/script&gt;",
+      );
+      expect(html).toContain("&lt;b&gt;parent&lt;/b&gt;");
+      expect(html).toContain(
+        "&lt;script&gt;alert(&quot;main&quot;)&lt;/script&gt;",
+      );
+      expect(html).toContain("gpt-6&lt;script&gt;");
+      expect(html).toContain(
+        "test/&lt;script&gt;alert(&quot;skill&quot;)&lt;/script&gt;",
+      );
+      expect(html).toContain(
+        "&lt;script&gt;alert(&quot;day&quot;)&lt;/script&gt;",
+      );
+      expect(html).toContain(
+        "&lt;script&gt;alert(&quot;tool&quot;)&lt;/script&gt;",
       );
     });
   });
