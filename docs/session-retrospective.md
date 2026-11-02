@@ -33,7 +33,7 @@ roots; commit messages, file names, and hashes are never stored); the full table
 > commands (`enable`, `disable`, `consent-status`), the cross-session index command (`index`) and the
 > manual manifest CLI exist only in the source tree (`mcp/src/retrospective*`,
 > `mcp/src/tools/retrospective.ts`), with the public `agent-skills-standard-mcp/retrospective`
-> subpath. On macOS the fresh build (including the declaration emit), the 1034-test MCP suite
+> subpath. On macOS the fresh build (including the declaration emit), the 1037-test MCP suite
 > (5 skipped) and the CLI/tarball smoke pass locally; redaction, git-argument, environment, and index
 > rules were mutation-checked; nothing is published to the registry, so no registry version contains
 > any of it. The optional Paseo and OMP adapter packages exist as source

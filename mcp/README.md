@@ -106,7 +106,7 @@ The source ships **three stdio-only MCP tools plus a console binary**, and none 
 
 **None of it is in a published release**: no registry version ships these tools, this binary or this
 subpath. Locally, the fresh build (including the declaration-only
-`tsc -p tsconfig.retrospective-types.json` emit), the 1034-test suite (5 skipped), and a packed-tarball consumer smoke pass on
+`tsc -p tsconfig.retrospective-types.json` emit), the 1037-test suite (5 skipped), and a packed-tarball consumer smoke pass on
 macOS; redaction, git-arg, and environment rules were mutation-checked; an earlier `tsup --dts` attempt had failed against the installed TypeScript compiler API and
 that failure is kept as history, with the temporary compatibility dev dependency removed.
 **Host integration is still not claimed.**
@@ -156,7 +156,7 @@ Contract constraints to preserve when the binary ships:
 - Three tools are exposed on stdio: `prepare_retrospective`, `get_retrospective_status`, and `prepare_retrospective_index`. They never return transcript text or report bodies — only state, numbers, an artifact id, or paths (`summary.md`, `ledger.json`, `report.html`, or `<storeRoot>/index.html`); file contents stay on local disk.
 - `delete` requires `--confirm` and operates only inside the validated managed store.
 
-Full behaviour, privacy model and host versions: [`../docs/session-retrospective.md`](../docs/session-retrospective.md), with the privacy boundary in [`../docs/session-retrospective-privacy.md`](../docs/session-retrospective-privacy.md) and provider coverage in [`../docs/session-retrospective-hosts.md`](../docs/session-retrospective-hosts.md). Status: unreleased source; fresh build, 1034 passing tests (5 skipped) and packed-tarball consumer smoke pass locally on macOS. Not published, no version bump, and no host-integration, Windows/Linux or process-level egress claim is made. Skill, workflow and rule text that would trigger `prepare_retrospective` is not part of this change; it arrives later, after a value pilot.
+Full behaviour, privacy model and host versions: [`../docs/session-retrospective.md`](../docs/session-retrospective.md), with the privacy boundary in [`../docs/session-retrospective-privacy.md`](../docs/session-retrospective-privacy.md) and provider coverage in [`../docs/session-retrospective-hosts.md`](../docs/session-retrospective-hosts.md). Status: unreleased source; fresh build, 1037 passing tests (5 skipped) and packed-tarball consumer smoke pass locally on macOS. Not published, no version bump, and no host-integration, Windows/Linux or process-level egress claim is made. Skill, workflow and rule text that would trigger `prepare_retrospective` is not part of this change; it arrives later, after a value pilot.
 
 ## Configure your AI agent
 
