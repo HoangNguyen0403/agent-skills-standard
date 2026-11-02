@@ -245,29 +245,7 @@ async function prepareMotionPage(page: Page): Promise<void> {
 }
 
 async function prepareCapacityMotionPage(page: Page): Promise<void> {
-  const browser = page.context().browser();
-  if (!browser) throw new Error('A browser instance is required to measure the static target geometry.');
-  const baseURL = test.info().project.use.baseURL;
-  if (typeof baseURL !== 'string') throw new Error('The capacity geometry probe requires the configured base URL.');
-  const probeContext = await browser.newContext({
-    baseURL,
-    javaScriptEnabled: false,
-    viewport: { width: 1440, height: 900 },
-  });
-  let targetBottom: number | undefined;
-  try {
-    const probePage = await probeContext.newPage();
-    await probePage.goto('/');
-    targetBottom = await probePage.locator('[data-motion]').evaluateAll((targets) =>
-      Math.max(...targets.map((target) => target.getBoundingClientRect().bottom)),
-    );
-  } finally {
-    await probeContext.close();
-  }
-  if (typeof targetBottom !== 'number' || !Number.isFinite(targetBottom)) {
-    throw new Error('The static page must render motion targets for the capacity geometry probe.');
-  }
-  await page.setViewportSize({ width: 1440, height: Math.ceil(targetBottom + 40) });
+  await page.setViewportSize({ width: 1440, height: 4000 });
   await prepareMotionPage(page);
 }
 

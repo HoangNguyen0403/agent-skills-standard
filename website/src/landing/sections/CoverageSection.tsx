@@ -29,7 +29,7 @@ export function CoverageSection({
       <div className={landingStyles.container}>
         {/* Section Header */}
         <header className={styles.headerBlock}>
-          <p className={styles.kicker}>03 / SUPPORTED COVERAGE</p>
+          <p className={styles.kicker}>05 / SUPPORTED COVERAGE</p>
           <h2 id="coverage-heading" className={styles.title}>
             Comprehensive coverage across languages, frameworks, and roles
           </h2>

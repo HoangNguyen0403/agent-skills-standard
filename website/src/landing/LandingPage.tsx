@@ -31,9 +31,9 @@ export function LandingPage(): React.JSX.Element {
         <CompatibilitySection />
         <ProblemSection />
         <SetupSection />
-        <CoverageSection />
         <SpecimenSection />
         <WorkflowSection />
+        <CoverageSection />
         <CustomizationSection />
         <EvidenceSection />
         <QuickStartSection />
