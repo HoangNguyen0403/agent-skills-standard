@@ -1144,7 +1144,8 @@ describe("ags-retrospective index", () => {
     expect(parsed.schemaVersion).toBe(1);
     expect(parsed.state).toBe("written");
     expect(typeof parsed.path).toBe("string");
-    expect(parsed.path.startsWith("/")).toBe(true);
+    expect(path.isAbsolute(parsed.path)).toBe(true);
+    expect(path.basename(parsed.path)).toBe("index.html");
     expect(typeof parsed.sessions).toBe("number");
     expect(typeof parsed.omitted).toBe("number");
     expect(typeof parsed.unreadable).toBe("number");
