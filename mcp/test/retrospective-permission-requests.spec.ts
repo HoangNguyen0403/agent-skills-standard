@@ -652,6 +652,18 @@ describe("redactCommand privacy boundary and rules", () => {
     expect(redacted.endsWith("…[truncated]")).toBe(true);
   });
 
+  it("Rule 1.1: drops text beyond 4000 characters even when redaction shrinks the kept part", () => {
+    const unit = `TOKEN=${"a".repeat(60)} `;
+    const input = unit.repeat(60) + "MARKER_BEYOND_CUT";
+    expect(input.length).toBeGreaterThan(4000);
+
+    const redacted = redactCommand(input);
+
+    expect(redacted.length).toBeLessThan(MAX_COMMAND_CHARS);
+    expect(redacted).not.toContain("MARKER_BEYOND_CUT");
+    expect(redacted.startsWith("TOKEN=[redacted] ")).toBe(true);
+  });
+
   it("Rule 1.2: replaces control characters except newline and tab with a space", () => {
     const raw = `echo\x00\x07hello\x0bworld\x0c!\r\n\tsecond\x7fline\x80\x9ftest`;
     const redacted = redactCommand(raw);
