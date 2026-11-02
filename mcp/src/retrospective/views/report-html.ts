@@ -557,25 +557,46 @@ function renderDoNext(improvements: LedgerImprovement[] | undefined): string {
     }
   }
 
+  return body;
+}
+
+function wrapCollapsed(
+  titleHtml: string,
+  headline: string | null,
+  innerHtml: string,
+): string {
+  const sumHtml =
+    headline !== null ? `<span class="sum">${escapeHtml(headline)}</span>` : "";
+  return `<details class="sec"><summary>${titleHtml}${sumHtml}</summary>\n${innerHtml}</details>`;
+}
+
+function renderMaintainerImprovements(
+  improvements: LedgerImprovement[] | undefined,
+): string {
   const maintainerImps = (improvements ?? []).filter(
     (imp) => imp.audience === "maintainer",
   );
-  if (maintainerImps.length > 0) {
-    body += `<h3 class="mt">For the maintainer</h3>\n<ul class="mt">\n`;
-    for (const imp of maintainerImps) {
-      if (imp.rule === "coverage-gap") {
-        const text = `${imp.values.unlinkedAgents ?? 0} of ${imp.values.agentsCreated ?? 0} created agents have no session file read; Paseo agent sessions cannot be linked from the session file alone (session-linkage).`;
-        body += `<li>${escapeHtml(text)}</li>\n`;
-      } else if (imp.rule === "tracker-not-measured") {
-        const text =
-          "Server tracker numbers cover this process only, so lookups that matched nothing and bodies returned are not measured for this session (tracker-binding).";
-        body += `<li>${escapeHtml(text)}</li>\n`;
-      }
-    }
-    body += "</ul>\n";
-  }
+  if (maintainerImps.length === 0) return "";
 
-  return body;
+  let body = '<ul class="mt">\n';
+  for (const imp of maintainerImps) {
+    if (imp.rule === "coverage-gap") {
+      const text = `${imp.values.unlinkedAgents ?? 0} of ${imp.values.agentsCreated ?? 0} created agents have no session file read; Paseo agent sessions cannot be linked from the session file alone (session-linkage).`;
+      body += `<li>${escapeHtml(text)}</li>\n`;
+    } else if (imp.rule === "tracker-not-measured") {
+      const text =
+        "Server tracker numbers cover this process only, so lookups that matched nothing and bodies returned are not measured for this session (tracker-binding).";
+      body += `<li>${escapeHtml(text)}</li>\n`;
+    }
+  }
+  body += "</ul>\n";
+
+  const headline = plural(maintainerImps.length, "item");
+  return wrapCollapsed(
+    '<h3 class="mt">For the maintainer</h3>',
+    headline,
+    body,
+  );
 }
 
 function renderPermissionRequests(
@@ -606,12 +627,10 @@ function renderPermissionRequests(
     ? countOf(permissionRequestsClaim.values, "answeredWithoutRequest")
     : permissionRequests.answeredWithoutRequest;
 
-  let html = "<h3>Permission requests</h3>\n";
-  html +=
+  let body =
     "<p>What agents asked permission for, and what was answered. Commands are shown as recorded, after best-effort removal of secrets (tokens, keys, passwords, credentials in URLs). Review before sharing this report.</p>\n";
-  html += `<p>${plural(asked, "request")} from ${plural(agentsAsked, "agent")}; ${answered} answered (${allowed} allowed, ${denied} denied), ${unanswered} unanswered.</p>\n`;
-
-  html += `<h4>By tool</h4>
+  body += `<p>${plural(asked, "request")} from ${plural(agentsAsked, "agent")}; ${answered} answered (${allowed} allowed, ${denied} denied), ${unanswered} unanswered.</p>\n`;
+  body += `<h4>By tool</h4>
 <table>
 <thead>
 <tr>
@@ -625,12 +644,12 @@ function renderPermissionRequests(
 </thead>
 <tbody>\n`;
   for (const r of permissionRequests.tools) {
-    html += `<tr><td>${escapeHtml(r.name)}</td><td>${r.asked}</td><td>${r.allow}</td><td>${r.deny}</td><td>${r.other}</td><td>${r.unanswered}</td></tr>\n`;
+    body += `<tr><td>${escapeHtml(r.name)}</td><td>${r.asked}</td><td>${r.allow}</td><td>${r.deny}</td><td>${r.other}</td><td>${r.unanswered}</td></tr>\n`;
   }
-  html += `</tbody>
+  body += `</tbody>
 </table>\n`;
 
-  html += `<h4>By program (bash)</h4>
+  body += `<h4>By program (bash)</h4>
 <table>
 <thead>
 <tr>
@@ -646,11 +665,10 @@ function renderPermissionRequests(
 <tbody>\n`;
   for (const r of permissionRequests.programs) {
     const sharePct = r.asked > 0 ? Math.round((r.allow * 100) / r.asked) : 0;
-    html += `<tr><td>${escapeHtml(r.name)}</td><td>${r.asked}</td><td>${r.allow}</td><td>${r.deny}</td><td>${r.other}</td><td>${r.unanswered}</td><td>${sharePct}%</td></tr>\n`;
+    body += `<tr><td>${escapeHtml(r.name)}</td><td>${r.asked}</td><td>${r.allow}</td><td>${r.deny}</td><td>${r.other}</td><td>${r.unanswered}</td><td>${sharePct}%</td></tr>\n`;
   }
-  html += `</tbody>
+  body += `</tbody>
 </table>\n`;
-
   const allowlistCandidates: string[] = [];
   for (const r of permissionRequests.programs) {
     if (r.asked >= 5 && r.deny === 0 && r.allow > 0) {
@@ -662,7 +680,7 @@ function renderPermissionRequests(
     const listStr = allowlistCandidates
       .map((name) => escapeHtml(name))
       .join(", ");
-    html += `<p>Programs with repeated allowed requests (5 or more, none denied) are allowlist candidates: ${listStr}.</p>\n`;
+    body += `<p>Programs with repeated allowed requests (5 or more, none denied) are allowlist candidates: ${listStr}.</p>\n`;
   }
 
   const deniedPrograms: string[] = [];
@@ -674,10 +692,10 @@ function renderPermissionRequests(
   }
   if (deniedPrograms.length > 0) {
     const listStr = deniedPrograms.map((name) => escapeHtml(name)).join(", ");
-    html += `<p>Denied requests show where the setup said no; read them before widening the allowlist: ${listStr}.</p>\n`;
+    body += `<p>Denied requests show where the setup said no; read them before widening the allowlist: ${listStr}.</p>\n`;
   }
   if (permissionRequests.commands && permissionRequests.commands.length > 0) {
-    html += `<h4>Requests to review</h4>
+    body += `<h4>Requests to review</h4>
 <table>
 <thead>
 <tr>
@@ -701,28 +719,30 @@ function renderPermissionRequests(
           ? `${escapeHtml(r.tool)} (${escapeHtml(r.kind)})`
           : escapeHtml(r.tool);
       const trClass = r.deny > 0 ? ' class="denied"' : "";
-      html += `<tr${trClass}><td>${escapeHtml(verdicts)}</td><td>${r.asked}</td><td>${toolText}</td><td><pre class="cmd">${escapeHtml(r.text)}</pre></td></tr>\n`;
+      body += `<tr${trClass}><td>${escapeHtml(verdicts)}</td><td>${r.asked}</td><td>${toolText}</td><td><pre class="cmd">${escapeHtml(r.text)}</pre></td></tr>\n`;
     }
-    html += `</tbody>
+    body += `</tbody>
 </table>\n`;
 
     if (
       permissionRequests.distinctCommands > permissionRequests.commands.length
     ) {
-      html += `<p>Showing ${permissionRequests.commands.length} of ${permissionRequests.distinctCommands} distinct requests; denied ones come first.</p>\n`;
+      body += `<p>Showing ${permissionRequests.commands.length} of ${permissionRequests.distinctCommands} distinct requests; denied ones come first.</p>\n`;
     }
     if (permissionRequests.commandsOmitted > 0) {
-      html += `<p>${permissionRequests.commandsOmitted} requests had no command text recorded.</p>\n`;
+      body += `<p>${permissionRequests.commandsOmitted} requests had no command text recorded.</p>\n`;
     }
   }
 
   if (answeredWithoutRequest > 0) {
-    html += `<p>${answeredWithoutRequest} answers had no matching request in this session file (answered through a pending-permissions list).</p>\n`;
+    body += `<p>${answeredWithoutRequest} answers had no matching request in this session file (answered through a pending-permissions list).</p>\n`;
   }
 
-  html +=
+  body +=
     "<p>Programs are the first word of the command (after wrappers such as rtk proxy and env). Redaction is best effort: check the commands before sharing this report.</p>\n";
-  return html;
+
+  const headline = `${plural(asked, "request")}, ${denied} denied, ${unanswered} unanswered`;
+  return wrapCollapsed("<h3>Permission requests</h3>", headline, body);
 }
 
 function renderOutcome(outcome: LedgerOutcome | undefined): string {
@@ -731,7 +751,8 @@ function renderOutcome(outcome: LedgerOutcome | undefined): string {
     reason: "not-measured",
   };
 
-  let body = "<h3>Outcome</h3>\n";
+  let body: string;
+  let headline: string;
 
   if (effectiveOutcome.source === "unavailable") {
     let sentence: string;
@@ -751,12 +772,11 @@ function renderOutcome(outcome: LedgerOutcome | undefined): string {
         sentence = "Outcome was not measured for this run.";
         break;
     }
-    body += `<p>${sentence}</p>\n`;
-    return body;
-  }
-
-  const windowStr = `${escapeHtml(effectiveOutcome.windowFrom)} to ${escapeHtml(effectiveOutcome.windowTo)}`;
-  body += `<table>
+    body = `<p>${sentence}</p>\n`;
+    headline = sentence.length <= 80 ? sentence : "see section";
+  } else {
+    const windowStr = `${escapeHtml(effectiveOutcome.windowFrom)} to ${escapeHtml(effectiveOutcome.windowTo)}`;
+    body = `<table>
 <thead>
 <tr>
 <th>Commits</th>
@@ -781,13 +801,19 @@ function renderOutcome(outcome: LedgerOutcome | undefined): string {
 </tbody>
 </table>
 <p class="mt">Commits are counted across all branches of the repository in the session window and may include other work; the branch is the current one, not necessarily the session's.</p>\n`;
+    headline = "see section";
+  }
 
-  return body;
+  return wrapCollapsed("<h3>Outcome</h3>", headline, body);
 }
 
 function renderTimeline(days: LedgerDay[] | undefined): string {
   if (!days || days.length === 0) {
-    return "<h3>Timeline</h3>\n<p>No timeline recorded.</p>\n";
+    return wrapCollapsed(
+      "<h3>Timeline</h3>",
+      null,
+      "<p>No timeline recorded.</p>\n",
+    );
   }
 
   const maxTurns = Math.max(1, ...days.map((d) => d.turns));
@@ -803,8 +829,7 @@ function renderTimeline(days: LedgerDay[] | undefined): string {
     rows += `<tr><td>${escapeHtml(d.day)}</td><td>${d.turns} <span class="bar" style="width:${pct}%"></span></td><td>${escapeHtml(formatMoney(d.costCents))} est.</td><td>${d.errorStops}</td></tr>\n`;
   }
 
-  return `<h3>Timeline</h3>
-<table>
+  const body = `<table>
 <thead>
 <tr>
 <th>Day</th>
@@ -817,6 +842,9 @@ function renderTimeline(days: LedgerDay[] | undefined): string {
 ${rows}</tbody>
 </table>
 ${note}`;
+
+  const headline = plural(days.length, "day");
+  return wrapCollapsed("<h3>Timeline</h3>", headline, body);
 }
 
 function renderCostAndModels(
@@ -826,12 +854,14 @@ function renderCostAndModels(
   const models = ledger.models ?? [];
   if (!costDriversClaim && models.length === 0) return "";
 
-  let html = "<h3>Cost and models</h3>\n";
+  let body = "";
+  let totalCostCents = 0;
 
   if (costDriversClaim) {
     const turnsMain = countOf(costDriversClaim.values, "turnsMain");
     const costCentsMain = countOf(costDriversClaim.values, "costCentsMain");
     const costCentsOthers = countOf(costDriversClaim.values, "costCentsOthers");
+    totalCostCents += costCentsMain + costCentsOthers;
     const turnsOthers = countOf(costDriversClaim.values, "turnsOthers");
     const cacheReadPerTurnMain = countOf(
       costDriversClaim.values,
@@ -857,7 +887,7 @@ function renderCostAndModels(
       countOf(costDriversClaim.values, "costCentsMainCoordination"),
     );
 
-    html += `<table>
+    body += `<table>
 <thead>
 <tr>
 <th>Metric</th>
@@ -878,7 +908,7 @@ function renderCostAndModels(
   if (models.length > 0) {
     let rows = "";
     let totalTurns = 0;
-    let totalCostCents = 0;
+    let modelsTotalCostCents = 0;
     let totalInput = 0;
     let totalOutput = 0;
     let totalCached = 0;
@@ -886,7 +916,7 @@ function renderCostAndModels(
 
     for (const m of models) {
       totalTurns += m.turns;
-      totalCostCents += m.costCents;
+      modelsTotalCostCents += m.costCents;
       totalInput += m.inputTokens;
       totalOutput += m.outputTokens;
       totalCached += m.cacheReadTokens;
@@ -895,7 +925,11 @@ function renderCostAndModels(
       rows += `<tr><td>${escapeHtml(m.model)}</td><td>${m.turns}</td><td>${escapeHtml(formatMoney(m.costCents))} est.</td><td>${formatTokensCompact(m.inputTokens)}</td><td>${formatTokensCompact(m.outputTokens)}</td><td>${formatTokensCompact(m.cacheReadTokens)}</td><td>${m.errorStops}</td></tr>\n`;
     }
 
-    html += `<table>
+    if (!costDriversClaim) {
+      totalCostCents = modelsTotalCostCents;
+    }
+
+    body += `<table>
 <thead>
 <tr>
 <th>Model</th>
@@ -908,12 +942,13 @@ function renderCostAndModels(
 </tr>
 </thead>
 <tbody>
-${rows}<tr class="total"><td>Total</td><td>${totalTurns}</td><td>${escapeHtml(formatMoney(totalCostCents))} est.</td><td>${formatTokensCompact(totalInput)}</td><td>${formatTokensCompact(totalOutput)}</td><td>${formatTokensCompact(totalCached)}</td><td>${totalErrorStops}</td></tr>
+${rows}<tr class="total"><td>Total</td><td>${totalTurns}</td><td>${escapeHtml(formatMoney(modelsTotalCostCents))} est.</td><td>${formatTokensCompact(totalInput)}</td><td>${formatTokensCompact(totalOutput)}</td><td>${formatTokensCompact(totalCached)}</td><td>${totalErrorStops}</td></tr>
 </tbody>
 </table>\n`;
   }
 
-  return html;
+  const headline = `${formatMoney(totalCostCents)} est., ${plural(models.length, "model")}`;
+  return wrapCollapsed("<h3>Cost and models</h3>", headline, body);
 }
 
 function renderToolFailures(
@@ -938,8 +973,7 @@ function renderToolFailures(
     rows += `<tr><td>${escapeHtml(r.tool)}</td><td>${r.calls}</td><td>${r.errors}</td><td>${rate.toFixed(1)}%</td></tr>\n`;
   }
 
-  return `<h3>Tool failures</h3>
-<p>${failed} of ${calls} tool calls returned an error.</p>
+  const body = `<p>${failed} of ${calls} tool calls returned an error.</p>
 <table>
 <thead>
 <tr>
@@ -952,6 +986,9 @@ function renderToolFailures(
 <tbody>
 ${rows}</tbody>
 </table>\n`;
+
+  const headline = `${failed} of ${plural(calls, "tool call")} failed`;
+  return wrapCollapsed("<h3>Tool failures</h3>", headline, body);
 }
 
 function renderErrorStops(cells: Ledger["cells"] | undefined): string {
@@ -983,6 +1020,10 @@ function renderErrorStops(cells: Ledger["cells"] | undefined): string {
   }
 
   let rows = "";
+  let totalStops = 0;
+  for (const c of errorCells) {
+    totalStops += c.errorStops;
+  }
   for (const c of sorted) {
     const pipeIdx = c.key.indexOf("|");
     const day = pipeIdx >= 0 ? c.key.slice(0, pipeIdx) : c.key;
@@ -1001,8 +1042,7 @@ function renderErrorStops(cells: Ledger["cells"] | undefined): string {
     rows += `<tr><td>${escapeHtml(day)}</td><td>${escapeHtml(model)}${chipsHtml}</td><td>${c.errorStops}</td><td>${c.turns}</td><td>${rate.toFixed(1)}%</td></tr>\n`;
   }
 
-  return `<h3>Error stops</h3>
-<p>Error stops are turns that ended in an error; the file records that, not why.</p>
+  const body = `<p>Error stops are turns that ended in an error; the file records that, not why.</p>
 <table>
 <thead>
 <tr>
@@ -1016,21 +1056,24 @@ function renderErrorStops(cells: Ledger["cells"] | undefined): string {
 <tbody>
 ${rows}</tbody>
 </table>\n`;
+
+  const headline = plural(totalStops, "error stop");
+  return wrapCollapsed("<h3>Error stops</h3>", headline, body);
 }
 
 function renderLookups(
   lookups: LedgerLookups | null | undefined,
   claims: Claim[] | undefined,
 ): string {
-  let html = "<h3>AGS lookups</h3>\n";
   if (!lookups) {
-    html += "<p>AGS lookups were not measured (no session files read).</p>\n";
-    return html;
+    const body =
+      "<p>AGS lookups were not measured (no session files read).</p>\n";
+    return wrapCollapsed("<h3>AGS lookups</h3>", null, body);
   }
 
-  html +=
+  let body =
     "<p>What AGS returned for lookups made in this session. Returned is not followed: the file shows what AGS sent, not what the agent did.</p>\n";
-  html += `<table>
+  body += `<table>
 <thead>
 <tr>
 <th>Tool</th>
@@ -1044,21 +1087,25 @@ function renderLookups(
 </thead>
 <tbody>\n`;
 
+  let totalCalls = 0;
+  let totalNoMatch = 0;
   for (const toolName of LOOKUP_TOOLS) {
     const t = lookups.tools.find((item) => item.tool === toolName);
     const label = TOOL_LABELS[toolName] ?? toolName;
     if (!t) {
-      html += `<tr><td>${escapeHtml(label)}</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0/0</td></tr>\n`;
+      body += `<tr><td>${escapeHtml(label)}</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0/0</td></tr>\n`;
       continue;
     }
-    html += `<tr><td>${escapeHtml(label)}</td><td>${t.calls}</td><td>${t.noMatchCalls}</td><td>${t.bodiesReturned}</td><td>${t.reusedBodies}</td><td>${t.errorCalls}</td><td>${t.mainCalls}/${t.workerCalls}</td></tr>\n`;
+    totalCalls += t.calls;
+    totalNoMatch += t.noMatchCalls;
+    body += `<tr><td>${escapeHtml(label)}</td><td>${t.calls}</td><td>${t.noMatchCalls}</td><td>${t.bodiesReturned}</td><td>${t.reusedBodies}</td><td>${t.errorCalls}</td><td>${t.mainCalls}/${t.workerCalls}</td></tr>\n`;
   }
 
-  html += `</tbody>
+  body += `</tbody>
 </table>\n`;
 
   if (lookups.skills.length > 0) {
-    html += `<table>
+    body += `<table>
 <thead>
 <tr>
 <th>Skill id</th>
@@ -1068,16 +1115,16 @@ function renderLookups(
 </thead>
 <tbody>\n`;
     for (const s of lookups.skills) {
-      html += `<tr><td>${escapeHtml(s.id)}</td><td>${s.returns}</td><td>${s.mainReturns}/${s.workerReturns}</td></tr>\n`;
+      body += `<tr><td>${escapeHtml(s.id)}</td><td>${s.returns}</td><td>${s.mainReturns}/${s.workerReturns}</td></tr>\n`;
     }
-    html += `</tbody>
+    body += `</tbody>
 </table>\n`;
   }
 
   const cappedSentence = lookups.capped
     ? "; the session hit the top-30 skill cap"
     : "";
-  html += `<p class="mt">${lookups.distinctSkills} distinct skills; ${lookups.otherSkillReturns} more deliveries outside this list; ${lookups.unvalidatedReturns} deliveries with an unreadable id.${cappedSentence}</p>\n`;
+  body += `<p class="mt">${lookups.distinctSkills} distinct skills; ${lookups.otherSkillReturns} more deliveries outside this list; ${lookups.unvalidatedReturns} deliveries with an unreadable id.${cappedSentence}</p>\n`;
 
   const timingClaim = (claims ?? []).find(
     (c) => c.template === "skill-trigger-timing",
@@ -1092,10 +1139,11 @@ function renderLookups(
       "sessionsWithSkillLoad",
     );
     const measuredSessions = countOf(timingClaim.values, "measuredSessions");
-    html += `<p class="mt">The main session made ${mainCallsBeforeFirstSkillLoad} other tool calls before its first skill lookup; ${sessionsWithSkillLoad} of ${measuredSessions} sessions looked a skill up.</p>\n`;
+    body += `<p class="mt">The main session made ${mainCallsBeforeFirstSkillLoad} other tool calls before its first skill lookup; ${sessionsWithSkillLoad} of ${measuredSessions} sessions looked a skill up.</p>\n`;
   }
 
-  return html;
+  const headline = `${plural(totalCalls, "lookup")}, ${totalNoMatch} matched nothing`;
+  return wrapCollapsed("<h3>AGS lookups</h3>", headline, body);
 }
 
 function renderTrend(ledger: Ledger, context?: ReportContext): string {
@@ -1188,8 +1236,7 @@ function renderTrend(ledger: Ledger, context?: ReportContext): string {
     rows += `<tr><td>${escapeHtml(m.label)}</td><td>${escapeHtml(curVal)}</td>${prevVals}</tr>\n`;
   }
 
-  return `<h3>Compared with earlier reports for this folder</h3>
-<p>Earlier reports for the same folder; not necessarily the same task.</p>
+  const body = `<p>Earlier reports for the same folder; not necessarily the same task.</p>
 <table>
 <thead>
 <tr>
@@ -1201,16 +1248,23 @@ ${prevHeaders}
 <tbody>
 ${rows}</tbody>
 </table>\n`;
+
+  const headline = `compared with ${plural(prevList.length, "earlier report")}`;
+  return wrapCollapsed(
+    "<h3>Compared with earlier reports for this folder</h3>",
+    headline,
+    body,
+  );
 }
 
 function renderAgentsTable(
   agents: LedgerAgent[] | undefined,
   otherAgents: ViewLedger["otherAgents"],
+  coverageClaim: Claim | undefined,
 ): string {
   if (!agents || agents.length === 0) return "";
 
-  let html = `<h3>Agents</h3>
-<table>
+  let body = `<table>
 <thead>
 <tr>
 <th>Agent</th>
@@ -1229,22 +1283,32 @@ function renderAgentsTable(
   const displayed = agents.slice(0, 12);
   for (const a of displayed) {
     const trClass = a.label === "main" ? ' class="main"' : "";
-    html += `<tr${trClass}><td>${escapeHtml(a.label)}</td><td>${escapeHtml(a.kind)}</td><td>${escapeHtml(a.model)}</td><td>${a.turns}</td><td>${escapeHtml(formatMoney(a.costCents))}</td><td>${escapeHtml(formatTokensK(a.cacheReadPerTurn))}</td><td>${a.compactions}</td><td>${a.toolErrors}/${a.toolCalls}</td><td>${a.permissionAnswers}</td></tr>\n`;
+    body += `<tr${trClass}><td>${escapeHtml(a.label)}</td><td>${escapeHtml(a.kind)}</td><td>${escapeHtml(a.model)}</td><td>${a.turns}</td><td>${escapeHtml(formatMoney(a.costCents))}</td><td>${escapeHtml(formatTokensK(a.cacheReadPerTurn))}</td><td>${a.compactions}</td><td>${a.toolErrors}/${a.toolCalls}</td><td>${a.permissionAnswers}</td></tr>\n`;
   }
 
   if (otherAgents && otherAgents.count > 0) {
-    html += `<tr><td>${otherAgents.count} more agents</td><td>-</td><td>-</td><td>${otherAgents.turns}</td><td>${escapeHtml(formatMoney(otherAgents.costCents))}</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>\n`;
+    body += `<tr><td>${otherAgents.count} more agents</td><td>-</td><td>-</td><td>${otherAgents.turns}</td><td>${escapeHtml(formatMoney(otherAgents.costCents))}</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>\n`;
   }
 
-  html += `</tbody>
+  body += `</tbody>
 </table>\n`;
 
-  return html;
+  let headline: string | null = null;
+  if (
+    coverageClaim &&
+    coverageClaim.values.agentsRead !== undefined &&
+    coverageClaim.values.agentsCreated !== undefined
+  ) {
+    const observed = countOf(coverageClaim.values, "agentsRead");
+    const created = countOf(coverageClaim.values, "agentsCreated");
+    headline = `${observed} of ${plural(created, "agent")} observed`;
+  }
+
+  return wrapCollapsed("<h3>Agents</h3>", headline, body);
 }
 
 function renderLimits(): string {
-  return `<h3>Limits</h3>
-<ul>
+  const body = `<ul>
 <li>Counts show where to look, not why.</li>
 <li>Cost is a price-table estimate; call-share attribution is an estimate.</li>
 <li>Agents without a read session file are not covered.</li>
@@ -1252,6 +1316,8 @@ function renderLimits(): string {
 <li>AGS lookups are counted, not whether the rules were followed.</li>
 <li>Commit counts and the branch come from git at report time.</li>
 </ul>\n`;
+
+  return wrapCollapsed("<h3>Limits</h3>", null, body);
 }
 
 export function renderReportHtml(
@@ -1303,15 +1369,15 @@ export function renderReportHtml(
   const errorStopsHtml = renderErrorStops(ledger.cells);
   const lookupsHtml = renderLookups(vLedger.lookups, ledger.claims);
   const trendHtml = renderTrend(ledger, context);
-  const agentsHtml = renderAgentsTable(vLedger.agents, vLedger.otherAgents);
+  const agentsHtml = renderAgentsTable(
+    vLedger.agents,
+    vLedger.otherAgents,
+    coverageClaim,
+  );
   const limitsHtml = renderLimits();
+  const maintainerHtml = renderMaintainerImprovements(vLedger.improvements);
 
-  const parts = [
-    headerHtml,
-    bottomLineHtml,
-    tilesHtml,
-    decisionsHtml,
-    doNextHtml,
+  const collapsedSections = [
     permissionRequestsHtml,
     outcomeHtml,
     timelineHtml,
@@ -1322,6 +1388,22 @@ export function renderReportHtml(
     trendHtml,
     agentsHtml,
     limitsHtml,
+    maintainerHtml,
+  ].filter((p) => p.length > 0);
+
+  const hintHtml =
+    collapsedSections.length > 0
+      ? '<p class="hint">Sections below are collapsed. Click a title to expand it.</p>'
+      : "";
+
+  const parts = [
+    headerHtml,
+    bottomLineHtml,
+    tilesHtml,
+    decisionsHtml,
+    doNextHtml,
+    hintHtml,
+    ...collapsedSections,
   ].filter((p) => p.length > 0);
 
   return `<!doctype html>
@@ -1377,6 +1459,15 @@ li{margin:4px 0;font-size:14px}
 pre.cmd{white-space:pre-wrap;word-break:break-word;margin:0;font:12px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;max-width:70ch;text-align:left}
 tr.denied{border-left:3px solid var(--red)}
 tr.denied td:first-child{border-left:3px solid var(--red)}
+details.sec{border-top:1px solid var(--line, #ddd);margin:0}
+details.sec>summary{cursor:pointer;list-style:none;display:flex;gap:12px;align-items:baseline;padding:10px 0}
+details.sec>summary::-webkit-details-marker{display:none}
+details.sec>summary::before{content:"\\25B8";color:#666}
+details.sec[open]>summary::before{content:"\\25BE"}
+details.sec>summary h3{margin:0}
+.sum{color:#555;font-size:13px}
+.hint{color:var(--mute);font-size:13px;margin:12px 0}
+@media print{details.sec>summary{break-after:avoid}}
 
 </style>
 </head>

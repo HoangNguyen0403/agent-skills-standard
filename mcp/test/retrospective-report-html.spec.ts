@@ -2165,4 +2165,415 @@ describe("renderReportHtml", () => {
       );
     });
   });
+
+  describe("collapsible sections (SLICE F6)", () => {
+    function createRichLedger(): { ledger: Ledger; context: ReportContext } {
+      const imps: LedgerImprovement[] = [
+        {
+          rule: "guardrail-answers",
+          level: "act",
+          action: "tighten-routing",
+          destination: "router-configuration",
+          audience: "manager",
+          claimIds: ["c1"],
+          evidence: ["e1"],
+          values: {
+            answers: 4,
+            allow: 3,
+            deny: 1,
+            targetsAtLeast3: 1,
+            per100Tenths: 25,
+          },
+        },
+        {
+          rule: "coverage-gap",
+          level: "watch",
+          action: "read-sessions",
+          destination: "session-linkage",
+          audience: "maintainer",
+          claimIds: ["m1"],
+          evidence: ["me1"],
+          values: { unlinkedAgents: 2, agentsCreated: 4 },
+        },
+        {
+          rule: "tracker-not-measured",
+          level: "watch",
+          action: "bind-tracker",
+          destination: "tracker-binding",
+          audience: "maintainer",
+          claimIds: ["m2"],
+          evidence: ["me2"],
+          values: {},
+        },
+      ];
+
+      const permReqs: LedgerPermissionRequests = {
+        asked: 5,
+        agentsAsked: 2,
+        answered: 4,
+        unanswered: 1,
+        answeredWithoutRequest: 0,
+        tools: [
+          {
+            name: "bash",
+            asked: 4,
+            allow: 3,
+            deny: 1,
+            other: 0,
+            unanswered: 0,
+          },
+          {
+            name: "edit",
+            asked: 1,
+            allow: 0,
+            deny: 0,
+            other: 0,
+            unanswered: 1,
+          },
+        ],
+        programs: [
+          { name: "git", asked: 4, allow: 3, deny: 1, other: 0, unanswered: 0 },
+        ],
+        commands: [
+          {
+            tool: "bash",
+            kind: "tool",
+            text: "git push",
+            allow: 0,
+            deny: 1,
+            other: 0,
+            unanswered: 0,
+            asked: 1,
+          },
+        ],
+        distinctCommands: 1,
+        commandsOmitted: 0,
+      };
+
+      const outcome: LedgerOutcome = {
+        source: "git",
+        branch: "main",
+        commits: 3,
+        mergeCommits: 0,
+        revertCommits: 0,
+        filesChanged: 2,
+        insertions: 50,
+        deletions: 10,
+        windowFrom: "2026-10-01T10:00:00.000Z",
+        windowTo: "2026-10-01T11:00:00.000Z",
+      };
+
+      const days: LedgerDay[] = [
+        { day: "2026-10-01", turns: 10, costCents: 500, errorStops: 1 },
+        { day: "2026-10-02", turns: 5, costCents: 250, errorStops: 0 },
+      ];
+
+      const models: LedgerModel[] = [
+        {
+          model: "gpt-5.4",
+          turns: 15,
+          costCents: 750,
+          inputTokens: 10000,
+          outputTokens: 2000,
+          cacheReadTokens: 50000,
+          errorStops: 1,
+        },
+      ];
+
+      const toolRows: LedgerToolRow[] = [{ tool: "bash", calls: 8, errors: 2 }];
+
+      const cells = [{ key: "2026-10-01|gpt-5.4", errorStops: 1, turns: 10 }];
+
+      const lookups: LedgerLookups = {
+        tools: [
+          {
+            tool: "load_skills_for_files",
+            calls: 6,
+            noMatchCalls: 1,
+            bodiesReturned: 5,
+            reusedBodies: 0,
+            errorCalls: 0,
+            mainCalls: 6,
+            workerCalls: 0,
+          },
+        ],
+        skills: [
+          {
+            id: "typescript-language",
+            returns: 5,
+            mainReturns: 5,
+            workerReturns: 0,
+          },
+        ],
+        distinctSkills: 1,
+        otherSkillReturns: 0,
+        unvalidatedReturns: 0,
+        capped: false,
+      };
+
+      const agents: LedgerAgent[] = [
+        {
+          label: "main",
+          kind: "orchestrator",
+          model: "gpt-5.4",
+          turns: 15,
+          costCents: 750,
+          compactions: 0,
+          cacheReadPerTurn: 3333,
+          errorStops: 1,
+          toolCalls: 10,
+          toolErrors: 2,
+          editCalls: 2,
+          bashCalls: 4,
+          readCalls: 4,
+          agsLookups: 6,
+          permissionAnswers: 4,
+        },
+      ];
+
+      const ledger = createLedgerFixture({
+        improvements: imps,
+        permissionRequests: permReqs,
+        outcome,
+        days,
+        models,
+        toolRows,
+        cells,
+        lookups,
+        agents,
+        claims: [
+          createClaim("coverage", { agentsCreated: 2, agentsRead: 2 }),
+          createClaim("cost-drivers", {
+            turnsMain: 15,
+            costCentsMain: 750,
+            turnsOthers: 0,
+            costCentsOthers: 0,
+            cacheReadPerTurnMain: 3333,
+            cacheReadPerTurnOthers: 0,
+            compactionsMain: 0,
+            mainReadCalls: 4,
+            mainEditCalls: 2,
+            mainBashCalls: 4,
+            mainCoordinationCalls: 0,
+            costCentsMainReads: 100,
+            costCentsMainCoordination: 0,
+          }),
+        ],
+      });
+
+      const context: ReportContext = {
+        previous: [
+          {
+            session: "prev-1",
+            from: "2026-09-30T10:00:00.000Z",
+            to: "2026-09-30T11:00:00.000Z",
+            costCentsPer100Turns: 400,
+          },
+        ],
+      };
+
+      return { ledger, context };
+    }
+
+    it("(a) renders exactly the intended sections collapsed without open attribute and uncollapsed preamble", () => {
+      const { ledger, context } = createRichLedger();
+      const html = renderReportHtml(ledger, context);
+
+      const detailsMatches = html.match(/<details class="sec">/g);
+      expect(detailsMatches).toBeDefined();
+      expect(detailsMatches?.length).toBe(11);
+
+      expect(html).not.toMatch(/<details[^>]*\bopen\b/);
+
+      const firstDetailsIdx = html.indexOf("<details");
+      const headerIdx = html.indexOf("<h1>Agent retrospective</h1>");
+      const tilesIdx = html.indexOf('<div class="tiles">');
+      const decisionsIdx = html.indexOf("<h3>Decisions for you</h3>");
+      const doNextIdx = html.indexOf("<h3>Do next</h3>");
+
+      expect(headerIdx).toBeGreaterThan(-1);
+      expect(tilesIdx).toBeGreaterThan(headerIdx);
+      expect(decisionsIdx).toBeGreaterThan(tilesIdx);
+      expect(doNextIdx).toBeGreaterThan(decisionsIdx);
+      expect(doNextIdx).toBeLessThan(firstDetailsIdx);
+    });
+
+    it("(b) each collapsed section summary contains its exact headline string with plural variants", () => {
+      const { ledger, context } = createRichLedger();
+      const html = renderReportHtml(ledger, context);
+
+      expect(html).toContain(
+        '<details class="sec"><summary><h3>Permission requests</h3><span class="sum">5 requests, 1 denied, 1 unanswered</span></summary>',
+      );
+      expect(html).toContain(
+        '<details class="sec"><summary><h3>Outcome</h3><span class="sum">see section</span></summary>',
+      );
+      expect(html).toContain(
+        '<details class="sec"><summary><h3>Timeline</h3><span class="sum">2 days</span></summary>',
+      );
+      expect(html).toContain(
+        '<details class="sec"><summary><h3>Cost and models</h3><span class="sum">$7.50 est., 1 model</span></summary>',
+      );
+      expect(html).toContain(
+        '<details class="sec"><summary><h3>Tool failures</h3><span class="sum">2 of 8 tool calls failed</span></summary>',
+      );
+      expect(html).toContain(
+        '<details class="sec"><summary><h3>Error stops</h3><span class="sum">1 error stop</span></summary>',
+      );
+      expect(html).toContain(
+        '<details class="sec"><summary><h3>AGS lookups</h3><span class="sum">6 lookups, 1 matched nothing</span></summary>',
+      );
+      expect(html).toContain(
+        '<details class="sec"><summary><h3>Compared with earlier reports for this folder</h3><span class="sum">compared with 1 earlier report</span></summary>',
+      );
+      expect(html).toContain(
+        '<details class="sec"><summary><h3>Agents</h3><span class="sum">2 of 2 agents observed</span></summary>',
+      );
+      expect(html).toContain(
+        '<details class="sec"><summary><h3>Limits</h3></summary>',
+      );
+      expect(html).not.toMatch(/<summary><h3>Limits<\/h3><span class="sum">/);
+      expect(html).toContain(
+        '<details class="sec"><summary><h3 class="mt">For the maintainer</h3><span class="sum">2 items</span></summary>',
+      );
+
+      // Test plural variants:
+      // Permission requests: 1 request
+      const singleReqLedger = createLedgerFixture({
+        permissionRequests: {
+          asked: 1,
+          agentsAsked: 1,
+          answered: 1,
+          unanswered: 0,
+          answeredWithoutRequest: 0,
+          tools: [
+            {
+              name: "bash",
+              asked: 1,
+              allow: 1,
+              deny: 0,
+              other: 0,
+              unanswered: 0,
+            },
+          ],
+          programs: [
+            {
+              name: "git",
+              asked: 1,
+              allow: 1,
+              deny: 0,
+              other: 0,
+              unanswered: 0,
+            },
+          ],
+          commands: [],
+          distinctCommands: 0,
+          commandsOmitted: 0,
+        },
+      });
+      const singleReqHtml = renderReportHtml(singleReqLedger);
+      expect(singleReqHtml).toContain(
+        '<details class="sec"><summary><h3>Permission requests</h3><span class="sum">1 request, 0 denied, 0 unanswered</span></summary>',
+      );
+
+      // Trend: 2 earlier reports
+      const multiTrendContext: ReportContext = {
+        previous: [
+          {
+            session: "s1",
+            to: "2026-09-30T10:00:00.000Z",
+            costCentsPer100Turns: 100,
+          },
+          {
+            session: "s2",
+            to: "2026-09-29T10:00:00.000Z",
+            costCentsPer100Turns: 200,
+          },
+        ],
+      };
+      const multiTrendHtml = renderReportHtml(ledger, multiTrendContext);
+      expect(multiTrendHtml).toContain(
+        '<details class="sec"><summary><h3>Compared with earlier reports for this folder</h3><span class="sum">compared with 2 earlier reports</span></summary>',
+      );
+
+      // Outcome: unavailable short sentence reused as headline
+      const unavailLedger = createLedgerFixture({
+        outcome: { source: "unavailable", reason: "not-measured" },
+      });
+      const unavailHtml = renderReportHtml(unavailLedger);
+      expect(unavailHtml).toContain(
+        '<details class="sec"><summary><h3>Outcome</h3><span class="sum">Outcome was not measured for this run.</span></summary>',
+      );
+    });
+
+    it("(c) a section whose data is missing renders no <details> at all", () => {
+      const emptyLedger = createLedgerFixture({
+        permissionRequests: null,
+        models: [],
+        days: [],
+        toolRows: [],
+        cells: [],
+        lookups: null,
+        agents: [],
+        improvements: [],
+        claims: [],
+      });
+      const html = renderReportHtml(emptyLedger);
+
+      expect(html).not.toContain("<h3>Permission requests</h3>");
+      expect(html).not.toContain("<h3>Tool failures</h3>");
+      expect(html).not.toContain("<h3>Error stops</h3>");
+      expect(html).not.toContain("<h3>Cost and models</h3>");
+      expect(html).not.toContain(
+        "<h3>Compared with earlier reports for this folder</h3>",
+      );
+      expect(html).not.toContain("<h3>Agents</h3>");
+      expect(html).not.toContain("For the maintainer");
+    });
+
+    it("(d) the hint line appears iff a collapsed section exists", () => {
+      const { ledger, context } = createRichLedger();
+      const html = renderReportHtml(ledger, context);
+
+      const hintText =
+        '<p class="hint">Sections below are collapsed. Click a title to expand it.</p>';
+      expect(html).toContain(hintText);
+
+      const doNextIdx = html.indexOf("<h3>Do next</h3>");
+      const hintIdx = html.indexOf(hintText);
+      const firstDetailsIdx = html.indexOf("<details");
+
+      expect(hintIdx).toBeGreaterThan(doNextIdx);
+      expect(hintIdx).toBeLessThan(firstDetailsIdx);
+    });
+
+    it("(e) escaping: hostile strings in summary headlines produce no unescaped <script tags", () => {
+      const hostileClaim = createClaim("coverage", {
+        agentsCreated: 2,
+        agentsRead: 2,
+      });
+      const hostileLedger = createLedgerFixture({
+        outcome: {
+          source: "unavailable",
+          reason:
+            '<script>alert("outcome")</script>' as unknown as "not-measured",
+        },
+        claims: [hostileClaim],
+      });
+      const html = renderReportHtml(hostileLedger);
+
+      expect(html).not.toMatch(/<script>/i);
+      expect(html).not.toMatch(/<script\b/i);
+    });
+
+    it("(f) CSP meta tag is preserved and no <script anywhere in document", () => {
+      const { ledger, context } = createRichLedger();
+      const html = renderReportHtml(ledger, context);
+
+      expect(html).toContain(
+        "<meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'none'; style-src 'unsafe-inline'\">",
+      );
+      expect(html).not.toContain("<script");
+    });
+  });
 });
