@@ -1,6 +1,6 @@
 # Review Workflow Consolidation Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking. This is a planning-only addition; implementation, deletion, publication and execution mode remain unapproved.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking. This addition was subsequently approved for implementation by the user with Subagent-Driven execution, and approved source changes are in progress; deletion, publication and any operational authority remain separately gated.
 
 **Goal:** Retire the duplicate `review-ticket` entrypoint while preserving its ticket/AC, specialist and PR-metadata capabilities under canonical `code-review`.
 
@@ -118,11 +118,11 @@ rtk pnpm generate-indices --check
 
 ## Integration order with DevOps plan
 
-This cleanup is independently reviewable and not a prerequisite for designing provider-neutral operations. R1 reference/skill work can proceed independently of DevOps Tasks 1/2 after execution approval. R3 and DevOps Task 3 both own `.agents/workflows/sdlc.md`; R3 and DevOps Task 5 both touch metadata/docs/generation. Sequence those through one integration owner, reuse frozen source inputs, and run the final shared gates once. Do not fan out shared router/metadata writers.
+This cleanup is independently reviewable and not a prerequisite for designing provider-neutral operations. R1 reference/skill work can proceed independently of DevOps Tasks 1/2; the user's approval of Subagent-Driven execution covers both linked plans and is already in effect. R3 and DevOps Task 3 both own `.agents/workflows/sdlc.md`; R3 and DevOps Task 5 both touch metadata/docs/generation. Sequence those through one integration owner, reuse frozen source inputs, and run the final shared gates once. Do not fan out shared router/metadata writers.
 
 ## Planning amendment and approvals
 
-The user's “Yes” authorized adding this slice to the planning branch only. Prior premium/standard DevOps verdicts apply to the document hashes in `2026-11-01-provider-neutral-devops-review.md`, not this companion scope or modified parent links. No new premium consultation was requested. This plan requires independent preservation/migration review and user execution approval before implementing or removing anything.
+The user's “Yes” authorized adding this slice to the planning branch only. Prior premium/standard DevOps verdicts apply to the document hashes in `2026-11-01-provider-neutral-devops-review.md`, not this companion scope or modified parent links. No new premium consultation was requested. Independent preservation/migration review and user execution approval are prerequisites **before implementation**, not integration-time conditions: the readiness review returned READY FOR EXECUTION before source implementation (reviewer `0e466ab0-299d-499a-8100-4bea0337deb6`), and the user subsequently approved both linked plans with Subagent-Driven execution without granting cloud, MCP-install, premium, push or merge authority. Removal additionally requires the R2 ownership-safe publication proof and independent review of the delivered changes.
 
 ## Self-review checklist
 

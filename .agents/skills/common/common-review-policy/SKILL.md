@@ -25,7 +25,7 @@ Every pull request gets the same passes in the same order. A review that varies 
 ## 1. The Policy File
 
 - Location: `docs/review-policy.md`, tracked in the repository and reviewed like code.
-- `code-review` and `review-ticket` load it when present; its severity and skip rules override their defaults.
+- `code-review` loads it when present (including ticket/AC enriched scopes); its severity and skip rules override workflow defaults.
 - Owned by the technical lead. Absent the file, the workflow defaults apply and the review says so.
 - Load `references/review-policy-template.md` when drafting or auditing the file.
 
@@ -64,7 +64,7 @@ Declare the passes and their order. Each pass names what it checks and what it e
 ## 6. Separation of Duties
 
 - The agent reviews and proposes; a human approves. The agent never approves its own change.
-- Approval is enforced by branch protection, not by the reviewing agent's verdict.
+- Approval is enforced by verified branch protection and host controls, not assumed or declared by the reviewing agent's verdict.
 - Publishing findings to a ticket or pull request needs operator approval, and never happens from untrusted review context.
 
 ## Anti-Patterns

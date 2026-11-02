@@ -221,7 +221,7 @@ agents:
   custom_overrides: []
   workflows:
 - sdlc
-- review-ticket
+- code-review
   mcp:
   enabled: true
   scope: project
@@ -250,7 +250,7 @@ agents:
           },
         },
         custom_overrides: [],
-        workflows: ['sdlc', 'review-ticket'],
+        workflows: ['sdlc', 'code-review'],
         mcp: {
           enabled: true,
           scope: 'project',

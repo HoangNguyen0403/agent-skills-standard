@@ -26,6 +26,9 @@ metadata:
 - **Review completeness**: Include test coverage and edge-case coverage even when CI is green or the requester asks for a quick review.
 - **Test-Review Evidence Gate**: Before flagging a `[MAJOR]` missing-test finding, apply [../common-tdd/references/quality-contract.md](../common-tdd/references/quality-contract.md): explicitly name (1) the changed business contract, (2) the concrete plausible fault escaping to consumers, and (3) proof that nearby or upstream suites do not already cover it. Verify one logical contract per test; multiple assertions are allowed for related aspects/side effects. Do NOT demand a test per public symbol, private method, or trivial getter/echo.
 
+- **Independence**: Review must be independent of the change author; self-approval is forbidden and host controls/provenance must be verified separately.
+- **Scoped Evidence**: Diff-only review requires only diff/files. Missing optional metadata is a recorded gap, not a blocker; missing required scope evidence blocks approval.
+- **Orchestration**: When ticket/AC verification, PR metadata/threads, or specialist lenses are needed, load [references/orchestration.md](references/orchestration.md).
 ## Review Checklist (Mandatory)
 
 - [ ] **Security**: No injection, secrets, auth leaks.
@@ -67,6 +70,7 @@ Fix: 1-2 line code or action.
 
 - [Output Templates](references/output-format.md)
 - [Full Checklist](references/checklist.md)
+- [Orchestration and Specialist Lanes](references/orchestration.md)
 
 ## Canonical response anchors
 

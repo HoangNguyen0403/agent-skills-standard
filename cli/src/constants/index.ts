@@ -82,7 +82,6 @@ export const DEFAULT_WORKFLOWS = [
   'deploy-release',
   'plan-feature',
   'implementation-readiness',
-  'review-ticket',
   'traceability-audit',
   'session-report',
   'publish-notes',

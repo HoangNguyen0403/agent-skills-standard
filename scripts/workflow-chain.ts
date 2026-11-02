@@ -26,7 +26,6 @@ export const CORE_SDLC_CHAIN = [
   "retro-learn",
   "session-report",
   "dev-fix",
-  "review-ticket",
   "code-review",
   "codebase-review",
   "verify-bug",

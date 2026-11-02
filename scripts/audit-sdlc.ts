@@ -42,7 +42,6 @@ const SECURITY_ARTIFACT_MARKDOWN = "artifacts/security-review.md";
 const TRUST_POLICY_REFERENCE = "trust-review-policy.md";
 const SECURITY_EVIDENCE_WORKFLOWS = [
   "code-review",
-  "review-ticket",
   "codebase-review",
   "security-test",
   "pentest",
@@ -56,7 +55,6 @@ const SECURITY_ARTIFACT_CONTRACT_TERMS = [
 const SECURITY_FINDING_QUALITY_TERMS = ["exploit path", "confidence"];
 const TRUST_POLICY_WORKFLOWS = [
   "code-review",
-  "review-ticket",
   "security-test",
 ];
 
@@ -297,11 +295,6 @@ const WORKFLOW_RULES: Record<string, WorkflowRule> = {
     requireOutputTemplate: true,
   },
   "implement-feature": {
-    maxLines: 80,
-    requireGoal: true,
-    requireOutputTemplate: true,
-  },
-  "review-ticket": {
     maxLines: 80,
     requireGoal: true,
     requireOutputTemplate: true,
@@ -651,9 +644,7 @@ async function main() {
       }
 
       if (
-        ["code-review", "review-ticket", "security-test", "pentest"].includes(
-          workflow,
-        )
+        ["code-review", "security-test", "pentest"].includes(workflow)
       ) {
         for (const term of SECURITY_FINDING_QUALITY_TERMS) {
           if (content.toLowerCase().includes(term)) {
@@ -866,7 +857,6 @@ async function main() {
     const entries = await fs.readdir(PROMPTS_DIR);
     const securityPromptsNeedingContract = new Set([
       "code-review.prompt.md",
-      "review-ticket.prompt.md",
       "codebase-review.prompt.md",
       "security-test.prompt.md",
       "pentest.prompt.md",

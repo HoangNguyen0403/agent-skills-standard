@@ -330,6 +330,7 @@ _Date: 2026-05-14_
 _Date: 2026-05-14_
 **Decision**: Ship a compact default SDLC workflow chain: `sdlc`, `brainstorm-feature`, `plan-feature`, `design-solution`, `implementation-readiness`, `implement-feature`, `review-ticket`, `verify-work`, `traceability-audit`, `deploy-release`, `publish-notes`, `session-report`, and `retro-learn`.
 **Reason**: Existing workflows covered isolated steps. A visible lifecycle spine makes the repository an SDLC standards layer while preserving token economy through short workflow files and references.
+**Amendment (2026-11-01)**: `review-ticket` was consolidated into `code-review`, which now owns the single review entrypoint while retaining ticket/acceptance-criteria coverage, PR metadata/threads and specialist lenses on demand, plus the fast/deep scopes and security, trust and independence gates. The original decision above is retained as history. A consumer that selected `review-ticket` must migrate that selection explicitly to `code-review` in its own authorized configuration; no forwarding alias exists, and historical run records keep the retired ID.
 
 ### ADR-007: Specialists Are Native Sub-Agents
 
