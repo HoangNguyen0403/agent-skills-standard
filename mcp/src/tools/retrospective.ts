@@ -2,6 +2,13 @@ import { z } from "zod";
 import type { ToolContext, ToolResult } from "./index";
 import { readConsent } from "../retrospective/consent";
 import {
+  collectIndex,
+  parseIndexQuery,
+  renderIndexHtml,
+  writeIndex,
+  type IndexQueryError,
+} from "../retrospective/index-report";
+import {
   runRetrospective,
   type RunDeps,
   type RunResult,
@@ -17,6 +24,23 @@ export const prepareRetrospectiveSchema = z.object({
     ),
 });
 export const getRetrospectiveStatusSchema = z.object({});
+export const prepareRetrospectiveIndexSchema = z.object({
+  since: z
+    .string()
+    .optional()
+    .describe(
+      "Start date (YYYY-MM-DD, UTC, inclusive). Defaults to 29 days before until.",
+    ),
+  until: z
+    .string()
+    .optional()
+    .describe("End date (YYYY-MM-DD, UTC, inclusive). Defaults to today."),
+  folder: z
+    .string()
+    .max(120)
+    .optional()
+    .describe("Filter by folder name or parent/name (max 120 characters)."),
+});
 
 export const DISABLED_RETROSPECTIVE_TEXT =
   "Retrospective preparation is disabled. Ask the user to run `ags-retrospective enable` in an interactive terminal to enable local retrospective collection.";
@@ -191,5 +215,84 @@ export async function retrospectiveNudge(ctx: ToolContext): Promise<string> {
     return RETROSPECTIVE_NUDGE_TEXT;
   } catch {
     return "";
+  }
+}
+
+export function renderIndexQueryErrorText(code: IndexQueryError): string {
+  return `Retrospective index query invalid: ${code}.`;
+}
+
+export async function prepareRetrospectiveIndex(
+  ctx: ToolContext,
+): Promise<ToolResult>;
+export async function prepareRetrospectiveIndex(
+  args: { since?: string; until?: string; folder?: string },
+  ctx: ToolContext,
+): Promise<ToolResult>;
+export async function prepareRetrospectiveIndex(
+  argsOrCtx: { since?: string; until?: string; folder?: string } | ToolContext,
+  maybeCtx?: ToolContext,
+): Promise<ToolResult> {
+  let args: { since?: unknown; until?: unknown; folder?: unknown } = {};
+  let ctx: ToolContext;
+
+  if (maybeCtx !== undefined) {
+    ctx = maybeCtx;
+    if (
+      typeof argsOrCtx === "object" &&
+      argsOrCtx !== null &&
+      !("projectRoot" in argsOrCtx)
+    ) {
+      args = argsOrCtx;
+    }
+  } else if (
+    typeof argsOrCtx === "object" &&
+    argsOrCtx !== null &&
+    "projectRoot" in argsOrCtx
+  ) {
+    ctx = argsOrCtx as ToolContext;
+  } else {
+    throw new Error("Invalid arguments: ToolContext required");
+  }
+
+  const parsed = parseIndexQuery(args, new Date());
+  if (!parsed.ok) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: renderIndexQueryErrorText(parsed.code),
+        },
+      ],
+      isError: true,
+    };
+  }
+
+  try {
+    const consent = await readConsent(ctx.consentPath);
+    if (consent.state !== "enabled") {
+      return {
+        content: [{ type: "text", text: DISABLED_RETROSPECTIVE_TEXT }],
+      };
+    }
+
+    const result = await collectIndex(consent.record.storeRoot, parsed.query);
+    const html = renderIndexHtml(result);
+    const indexPath = await writeIndex(consent.record.storeRoot, html);
+
+    const text = `Retrospective index written: ${result.rows.length} sessions (${result.omitted} older in range not shown), ${result.unreadable} unreadable, window ${result.query.since} to ${result.query.until}. Open: ${indexPath}`;
+    return {
+      content: [{ type: "text", text }],
+    };
+  } catch {
+    return {
+      content: [
+        {
+          type: "text",
+          text: "Retrospective index preparation failed.",
+        },
+      ],
+      isError: true,
+    };
   }
 }

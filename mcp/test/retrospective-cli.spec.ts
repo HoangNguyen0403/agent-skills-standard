@@ -690,7 +690,7 @@ describe("ags-retrospective consent commands", () => {
     const tempConfig = path.join(tempHome, "custom-config");
     await fs.mkdir(tempConfig, { recursive: true });
     const storeDir = path.join(tempHome, "store");
-    await fs.mkdir(storeDir, { recursive: true });
+    await fs.mkdir(storeDir, { recursive: true, mode: 0o700 });
     const sourceDir = path.join(tempHome, "sessions");
     await fs.mkdir(sourceDir, { recursive: true });
     const targetConsentPath = consentFilePath(
@@ -988,4 +988,167 @@ describe("ags-retrospective consent commands", () => {
       });
     },
   );
+});
+
+describe("ags-retrospective index", () => {
+  type TestHarness = {
+    tempHome: string;
+    tempConfig: string;
+    storeDir: string;
+    sourceDir: string;
+    targetConsentPath: string;
+    createIo: (overrides?: Partial<CliIo>) => {
+      io: CliIo;
+      getWritten: () => string;
+    };
+  };
+
+  async function setupHarness(): Promise<TestHarness> {
+    const tempHome = await temporaryDirectory();
+    const tempConfig = path.join(tempHome, "custom-config");
+    await fs.mkdir(tempConfig, { recursive: true });
+    const storeDir = path.join(tempHome, "store");
+    await fs.mkdir(storeDir, { recursive: true, mode: 0o700 });
+    const sourceDir = path.join(tempHome, "sessions");
+    await fs.mkdir(sourceDir, { recursive: true });
+    const targetConsentPath = consentFilePath(
+      { XDG_CONFIG_HOME: tempConfig },
+      process.platform,
+      tempHome,
+    );
+
+    const createIo = (overrides?: Partial<CliIo>) => {
+      let written = "";
+      const io: CliIo = {
+        isTTY: true,
+        ask: async () => "yes",
+        write: (text: string) => {
+          written += text;
+        },
+        env: { XDG_CONFIG_HOME: tempConfig },
+        platform: process.platform,
+        home: tempHome,
+        ...overrides,
+      };
+      return { io, getWritten: () => written };
+    };
+
+    return {
+      tempHome,
+      tempConfig,
+      storeDir,
+      sourceDir,
+      targetConsentPath,
+      createIo,
+    };
+  }
+
+  it("--help includes ags-retrospective index command in usage", async () => {
+    const { createIo } = await setupHarness();
+    const { io } = createIo();
+    const outcome = await runRetrospectiveCli(["--help"], io);
+    expect(outcome.code).toBe(0);
+    expect(outcome.stdout).toContain(
+      "ags-retrospective index [--since YYYY-MM-DD] [--until YYYY-MM-DD] [--folder NAME]",
+    );
+  });
+
+  it("index with no consent file -> code 0, state: disabled", async () => {
+    const { createIo } = await setupHarness();
+    const { io } = createIo();
+    const outcome = await runRetrospectiveCli(["index"], io);
+    expect(outcome.code).toBe(0);
+    expect(outcome.stderr).toBe("");
+    expect(JSON.parse(outcome.stdout)).toEqual({
+      schemaVersion: 1,
+      state: "disabled",
+      reason: "missing",
+    });
+  });
+
+  it("index with invalid date -> code 1, stderr has INVALID_DATE", async () => {
+    const { createIo } = await setupHarness();
+    const { io } = createIo();
+    const outcome = await runRetrospectiveCli(
+      ["index", "--since", "2026-99-99"],
+      io,
+    );
+    expect(outcome.code).toBe(1);
+    expect(outcome.stdout).toBe("");
+    expect(JSON.parse(outcome.stderr)).toEqual({
+      schemaVersion: 1,
+      error: { code: "INVALID_DATE" },
+    });
+  });
+
+  it("index with invalid range (since > until) -> code 1, stderr has INVALID_RANGE", async () => {
+    const { createIo } = await setupHarness();
+    const { io } = createIo();
+    const outcome = await runRetrospectiveCli(
+      ["index", "--since", "2026-10-25", "--until", "2026-10-01"],
+      io,
+    );
+    expect(outcome.code).toBe(1);
+    expect(outcome.stdout).toBe("");
+    expect(JSON.parse(outcome.stderr)).toEqual({
+      schemaVersion: 1,
+      error: { code: "INVALID_RANGE" },
+    });
+  });
+
+  it("index with invalid folder (control character) -> code 1, stderr has INVALID_FOLDER", async () => {
+    const { createIo } = await setupHarness();
+    const { io } = createIo();
+    const outcome = await runRetrospectiveCli(
+      ["index", "--folder", "bad\x01folder"],
+      io,
+    );
+    expect(outcome.code).toBe(1);
+    expect(outcome.stdout).toBe("");
+    expect(JSON.parse(outcome.stderr)).toEqual({
+      schemaVersion: 1,
+      error: { code: "INVALID_FOLDER" },
+    });
+  });
+
+  it("index with unknown flag -> code 2 (usage error)", async () => {
+    const { createIo } = await setupHarness();
+    const { io } = createIo();
+    const outcome = await runRetrospectiveCli(
+      ["index", "--root", "/tmp/store"],
+      io,
+    );
+    expect(outcome.code).toBe(2);
+    expect(outcome.stderr).toContain("Option --root is not valid for index.");
+  });
+
+  it("index with enabled consent produces written state with counts and date range", async () => {
+    const { storeDir, sourceDir, createIo } = await setupHarness();
+    const { io: enableIo } = createIo({
+      isTTY: true,
+      ask: async () => "yes",
+    });
+    await runRetrospectiveCli(
+      ["enable", "--store-root", storeDir, "--source-root", sourceDir],
+      enableIo,
+    );
+
+    const { io } = createIo();
+    const outcome = await runRetrospectiveCli(
+      ["index", "--since", "2026-10-01", "--until", "2026-10-31"],
+      io,
+    );
+    expect(outcome.code).toBe(0);
+    expect(outcome.stderr).toBe("");
+    const parsed = JSON.parse(outcome.stdout);
+    expect(parsed.schemaVersion).toBe(1);
+    expect(parsed.state).toBe("written");
+    expect(typeof parsed.path).toBe("string");
+    expect(parsed.path.startsWith("/")).toBe(true);
+    expect(typeof parsed.sessions).toBe("number");
+    expect(typeof parsed.omitted).toBe("number");
+    expect(typeof parsed.unreadable).toBe("number");
+    expect(parsed.since).toBe("2026-10-01");
+    expect(parsed.until).toBe("2026-10-31");
+  });
 });

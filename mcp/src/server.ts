@@ -29,6 +29,8 @@ import {
   loadSkillsForKeywordsSchema,
   prepareRetrospective,
   prepareRetrospectiveSchema,
+  prepareRetrospectiveIndex,
+  prepareRetrospectiveIndexSchema,
   ToolContext,
   ToolResult,
   verifyEvalRunTool,
@@ -427,6 +429,25 @@ export async function buildServer(
 </important_notes>`,
       inputSchema: getRetrospectiveStatusSchema,
       handler: () => getRetrospectiveStatus(ctx),
+    });
+    register(server, {
+      name: "prepare_retrospective_index",
+      title: "Prepare a cross-session retrospective index",
+      description: `<use_case>Build a cross-session HTML index from stored retrospective reports with an optional date window and folder filter. Reads stored reports only, never session files.</use_case>
+
+<important_notes>
+- Reads stored reports only, never session files.
+- Stdio transport only (absent on HTTP/SSE).
+- Requires the user's one-time opt-in via \`ags-retrospective enable\`.
+- Zero model calls, zero outbound network requests.
+- Returns fixed summary text and the index file path; never transcript text, titles, or folder filter values.
+</important_notes>`,
+      inputSchema: prepareRetrospectiveIndexSchema,
+      handler: (args) =>
+        prepareRetrospectiveIndex(
+          args as { since?: string; until?: string; folder?: string },
+          ctx,
+        ),
     });
   }
 

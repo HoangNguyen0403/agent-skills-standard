@@ -8,6 +8,9 @@ import {
   getSessionCost,
   prepareRetrospective,
   prepareRetrospectiveSchema,
+  prepareRetrospectiveIndex,
+  prepareRetrospectiveIndexSchema,
+  renderIndexQueryErrorText,
   getRetrospectiveStatus,
   retrospectiveNudge,
   DISABLED_RETROSPECTIVE_TEXT,
@@ -915,6 +918,186 @@ describe("retrospective MCP tools and nudge", () => {
         prepareRetrospectiveSchema.safeParse({ title: { nested: true } })
           .success,
       ).toBe(false);
+    });
+  });
+
+  describe("prepareRetrospectiveIndexSchema", () => {
+    it("accepts empty options", () => {
+      const parsed = prepareRetrospectiveIndexSchema.safeParse({});
+      expect(parsed.success).toBe(true);
+    });
+
+    it("accepts valid query options with max 120 char folder", () => {
+      const folder120 = "f".repeat(120);
+      const parsed = prepareRetrospectiveIndexSchema.safeParse({
+        since: "2026-10-01",
+        until: "2026-10-31",
+        folder: folder120,
+      });
+      expect(parsed.success).toBe(true);
+      if (parsed.success) {
+        expect(parsed.data.since).toBe("2026-10-01");
+        expect(parsed.data.until).toBe("2026-10-31");
+        expect(parsed.data.folder).toBe(folder120);
+      }
+    });
+
+    it("rejects folder exceeding 120 chars", () => {
+      const folder121 = "f".repeat(121);
+      const parsed = prepareRetrospectiveIndexSchema.safeParse({
+        folder: folder121,
+      });
+      expect(parsed.success).toBe(false);
+    });
+  });
+
+  describe("prepare_retrospective_index tool", () => {
+    it("validates arguments before any store or consent read and never echoes folder argument", async () => {
+      const root = await temporaryDirectory();
+      const workspace = path.join(root, "workspace");
+      const nonexistentConsent = path.join(root, "no-such-dir", "consent.json");
+
+      const ctx: ToolContext = {
+        projectRoot: workspace,
+        index: new SkillIndex(workspace, null, { kind: "ready" }),
+        tracker: new SessionTracker(),
+        setup: { kind: "ready" },
+        policy: loadPolicyView(workspace),
+        transport: "stdio",
+        consentPath: nonexistentConsent,
+      };
+
+      const sensitiveFolder = "super-secret-folder-name";
+
+      // INVALID_DATE
+      const resDate = await prepareRetrospectiveIndex(
+        { since: "not-a-date", folder: sensitiveFolder },
+        ctx,
+      );
+      expect(resDate.isError).toBe(true);
+      expect(resDate.content[0].text).toBe(
+        renderIndexQueryErrorText("INVALID_DATE"),
+      );
+      expect(resDate.content[0].text).toBe(
+        "Retrospective index query invalid: INVALID_DATE.",
+      );
+      expect(resDate.content[0].text).not.toContain(sensitiveFolder);
+
+      // INVALID_RANGE
+      const resRange = await prepareRetrospectiveIndex(
+        { since: "2026-10-20", until: "2026-10-01", folder: sensitiveFolder },
+        ctx,
+      );
+      expect(resRange.isError).toBe(true);
+      expect(resRange.content[0].text).toBe(
+        renderIndexQueryErrorText("INVALID_RANGE"),
+      );
+      expect(resRange.content[0].text).toBe(
+        "Retrospective index query invalid: INVALID_RANGE.",
+      );
+      expect(resRange.content[0].text).not.toContain(sensitiveFolder);
+
+      // INVALID_FOLDER (e.g. contains control char)
+      const resFolder = await prepareRetrospectiveIndex(
+        { folder: `${sensitiveFolder}\x00` },
+        ctx,
+      );
+      expect(resFolder.isError).toBe(true);
+      expect(resFolder.content[0].text).toBe(
+        renderIndexQueryErrorText("INVALID_FOLDER"),
+      );
+      expect(resFolder.content[0].text).toBe(
+        "Retrospective index query invalid: INVALID_FOLDER.",
+      );
+      expect(resFolder.content[0].text).not.toContain(sensitiveFolder);
+    });
+
+    it("returns fixed disabled text when consent is missing or disabled", async () => {
+      const root = await temporaryDirectory();
+      const workspace = path.join(root, "workspace");
+      const consentPath = path.join(root, "missing-consent.json");
+
+      const ctx: ToolContext = {
+        projectRoot: workspace,
+        index: new SkillIndex(workspace, null, { kind: "ready" }),
+        tracker: new SessionTracker(),
+        setup: { kind: "ready" },
+        policy: loadPolicyView(workspace),
+        transport: "stdio",
+        consentPath,
+      };
+
+      const res = await prepareRetrospectiveIndex(
+        { since: "2026-10-01", until: "2026-10-10" },
+        ctx,
+      );
+      expect(res.isError).toBeUndefined();
+      expect(res.content[0].text).toBe(DISABLED_RETROSPECTIVE_TEXT);
+    });
+
+    it("returns exact fixed text with real store and consent and never echoes folder argument", async () => {
+      const root = await temporaryDirectory();
+      const workspace = path.join(root, "workspace");
+      const store = path.join(root, "store");
+      const allowed = path.join(root, "allowed");
+      const consentPath = path.join(root, "consent.json");
+
+      await fs.mkdir(allowed, { recursive: true });
+      await fs.mkdir(store, { recursive: true, mode: 0o700 });
+      await writeConsent(createConsentRecord([allowed], store), consentPath);
+
+      const ctx: ToolContext = {
+        projectRoot: workspace,
+        index: new SkillIndex(workspace, null, { kind: "ready" }),
+        tracker: new SessionTracker(),
+        setup: { kind: "ready" },
+        policy: loadPolicyView(workspace),
+        transport: "stdio",
+        consentPath,
+      };
+
+      const secretFolder = "internal-billing-service";
+      const res = await prepareRetrospectiveIndex(
+        { since: "2026-10-01", until: "2026-10-20", folder: secretFolder },
+        ctx,
+      );
+
+      expect(res.isError).toBeUndefined();
+      expect(res.content[0].text).toMatch(
+        /^Retrospective index written: \d+ sessions \(\d+ older in range not shown\), \d+ unreadable, window 2026-10-01 to 2026-10-20\. Open: .+$/,
+      );
+      expect(res.content[0].text).not.toContain(secretFolder);
+    });
+
+    it("server registers prepare_retrospective_index on stdio and exposes schema", async () => {
+      const root = await temporaryDirectory();
+      const workspace = path.join(root, "workspace");
+      const consentPath = path.join(root, "consent.json");
+
+      const server = await buildServer(
+        {
+          projectRoot: workspace,
+          skillsDir: null,
+          setup: { kind: "ready" },
+        },
+        { transport: "stdio", consentPath },
+      );
+
+      interface ServerWithTools {
+        _registeredTools: Record<
+          string,
+          {
+            inputSchema: unknown;
+            handler: (args: Record<string, unknown>) => Promise<unknown>;
+          }
+        >;
+      }
+      const registeredTools = (server as unknown as ServerWithTools)
+        ._registeredTools;
+      expect(registeredTools["prepare_retrospective_index"]).toBeDefined();
+      expect(registeredTools["prepare_retrospective_index"].inputSchema).toBe(
+        prepareRetrospectiveIndexSchema,
+      );
     });
   });
 

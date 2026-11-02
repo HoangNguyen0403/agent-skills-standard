@@ -38,6 +38,12 @@ import {
   type ResolvedArtifact,
 } from "./retrospective";
 import { lstatOrNull } from "./retrospective/platform-private";
+import {
+  collectIndex,
+  parseIndexQuery,
+  renderIndexHtml,
+  writeIndex,
+} from "./retrospective/index-report";
 
 const EXIT_OK = 0;
 const EXIT_REFUSED = 1;
@@ -59,6 +65,7 @@ const USAGE = [
   "  ags-retrospective delete  --root <absolute> --session <id> --host <id> --confirm",
   "  ags-retrospective enable [--store-root <absolute>] [--source-root <absolute>]...",
   "  ags-retrospective disable",
+  "  ags-retrospective index [--since YYYY-MM-DD] [--until YYYY-MM-DD] [--folder NAME]",
   "  ags-retrospective consent-status",
   "This tool is for a human at a terminal. Consent flags are attestations, not",
   "authentication: an agent must never supply them on your behalf. `paths` is",
@@ -76,7 +83,8 @@ type Command =
   | "delete"
   | "enable"
   | "disable"
-  | "consent-status";
+  | "consent-status"
+  | "index";
 
 const COMMANDS: readonly Command[] = [
   "prepare",
@@ -86,6 +94,7 @@ const COMMANDS: readonly Command[] = [
   "enable",
   "disable",
   "consent-status",
+  "index",
 ];
 
 const OPTIONS = {
@@ -101,6 +110,9 @@ const OPTIONS = {
   help: { type: "boolean", short: "h" },
   "store-root": { type: "string" },
   "source-root": { type: "string", multiple: true },
+  since: { type: "string" },
+  until: { type: "string" },
+  folder: { type: "string" },
 } as const;
 
 type ValueKey = keyof typeof OPTIONS;
@@ -115,6 +127,7 @@ const ALLOWED: Record<Command, readonly ValueKey[]> = {
   enable: ["store-root", "source-root", "help"],
   disable: ["help"],
   "consent-status": ["help"],
+  index: ["since", "until", "folder", "help"],
 };
 
 class UsageError extends Error {}
@@ -491,6 +504,45 @@ async function runConsentStatus(io: CliIo): Promise<
   };
 }
 
+async function runIndex(values: Values, io: CliIo): Promise<unknown> {
+  const parsed = parseIndexQuery(
+    {
+      since: values.since,
+      until: values.until,
+      folder: values.folder,
+    },
+    new Date(),
+  );
+  if (!parsed.ok) {
+    throw new Refusal(parsed.code);
+  }
+
+  const targetPath = consentFilePath(io.env, io.platform, io.home);
+  const consent = await readConsent(targetPath);
+  if (consent.state !== "enabled") {
+    return {
+      schemaVersion: 1,
+      state: "disabled",
+      reason: consent.reason,
+    };
+  }
+
+  const result = await collectIndex(consent.record.storeRoot, parsed.query);
+  const html = renderIndexHtml(result);
+  const absolutePath = await writeIndex(consent.record.storeRoot, html);
+
+  return {
+    schemaVersion: 1,
+    state: "written",
+    path: absolutePath,
+    sessions: result.rows.length,
+    omitted: result.omitted,
+    unreadable: result.unreadable,
+    since: result.query.since,
+    until: result.query.until,
+  };
+}
+
 async function dispatch(invocation: Invocation, io: CliIo): Promise<unknown> {
   switch (invocation.command) {
     case "prepare":
@@ -507,6 +559,8 @@ async function dispatch(invocation: Invocation, io: CliIo): Promise<unknown> {
       return runDisable(io);
     case "consent-status":
       return runConsentStatus(io);
+    case "index":
+      return runIndex(invocation.values, io);
     default:
       throw new UsageError("A command is required.");
   }

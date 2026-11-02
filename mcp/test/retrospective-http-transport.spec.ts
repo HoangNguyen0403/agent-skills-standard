@@ -81,6 +81,7 @@ describe("MCP HTTP surface and retrospective tools", () => {
     expect(names).toContain("list_categories");
     expect(names).not.toContain("prepare_retrospective");
     expect(names).not.toContain("get_retrospective_status");
+    expect(names).not.toContain("prepare_retrospective_index");
   });
 
   it("omits retrospective tools even when the ambient MCP_TRANSPORT is stdio", async () => {
@@ -90,5 +91,6 @@ describe("MCP HTTP surface and retrospective tools", () => {
     expect(names).toContain("list_categories");
     expect(names).not.toContain("prepare_retrospective");
     expect(names).not.toContain("get_retrospective_status");
+    expect(names).not.toContain("prepare_retrospective_index");
   });
 });

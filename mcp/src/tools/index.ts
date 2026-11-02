@@ -1129,10 +1129,13 @@ function renderSkill(
 export {
   prepareRetrospective,
   prepareRetrospectiveSchema,
+  prepareRetrospectiveIndex,
+  prepareRetrospectiveIndexSchema,
   getRetrospectiveStatus,
   getRetrospectiveStatusSchema,
   retrospectiveNudge,
   DISABLED_RETROSPECTIVE_TEXT,
   RETROSPECTIVE_NUDGE_TEXT,
   renderRunResultText,
+  renderIndexQueryErrorText,
 } from "./retrospective";

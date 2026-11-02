@@ -20,6 +20,7 @@ export const SKILL_LOAD_TOOLS: readonly string[] = [
 /** Server tools that are finalization or housekeeping and never count as work. */
 export const SERVER_HOUSEKEEPING_TOOLS: readonly string[] = [
   "prepare_retrospective",
+  "prepare_retrospective_index",
   "get_retrospective_status",
   "get_session_cost",
   "audit_session_compliance",

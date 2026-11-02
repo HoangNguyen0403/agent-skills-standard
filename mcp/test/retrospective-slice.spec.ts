@@ -216,6 +216,7 @@ describe("retrospective vertical slice — real server over stdio", () => {
     const toolNames = tools.tools.map((t) => t.name);
     expect(toolNames).toContain("prepare_retrospective");
     expect(toolNames).toContain("get_retrospective_status");
+    expect(toolNames).toContain("prepare_retrospective_index");
 
     // Session binding needs a recorded call in the same server process:
     // make a real tracked call and bracket its arrival window
@@ -463,6 +464,7 @@ describe("retrospective vertical slice — real server over stdio", () => {
       ._registeredTools;
     expect(registered["prepare_retrospective"]).toBeUndefined();
     expect(registered["get_retrospective_status"]).toBeUndefined();
+    expect(registered["prepare_retrospective_index"]).toBeUndefined();
     expect(registered["list_categories"]).toBeDefined();
   });
 
