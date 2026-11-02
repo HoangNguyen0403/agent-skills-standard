@@ -12,6 +12,10 @@ import {
   type AggregateLimits,
   type AggregatedSession,
   type AggregatedSessionResult,
+  createEmptyLookupStats,
+  folderLabel,
+  LOOKUP_TOOLS,
+  type LookupStats,
 } from "../src/retrospective/aggregate";
 import { extractHostSkillId } from "../src/retrospective/server-tools";
 
@@ -175,6 +179,8 @@ function aggregatedSession(
       editEpisodes: 0,
       unguardedEditEpisodes: 0,
     },
+    lookups: createEmptyLookupStats(),
+    folder: null,
     coverage: "complete",
     skippedLines: 0,
     metricCompleteness: {},
@@ -1593,6 +1599,8 @@ describe("retrospective aggregate pass", () => {
         editEpisodes: 0,
         unguardedEditEpisodes: 0,
       },
+      lookups: createEmptyLookupStats(),
+      folder: null,
       coverage: "complete",
       skippedLines: 0,
       metricCompleteness: {
@@ -1659,6 +1667,8 @@ describe("retrospective aggregate pass", () => {
         editEpisodes: 0,
         unguardedEditEpisodes: 0,
       },
+      lookups: createEmptyLookupStats(),
+      folder: null,
       coverage: "partial",
       partialReason: "size-ceiling",
       skippedLines: 1,
@@ -1798,6 +1808,8 @@ describe("retrospective aggregate pass", () => {
         editEpisodes: 0,
         unguardedEditEpisodes: 0,
       },
+      lookups: createEmptyLookupStats(),
+      folder: null,
       coverage: "complete",
       skippedLines: 1,
       metricCompleteness: {
@@ -2903,6 +2915,7 @@ describe("retrospective aggregate pass", () => {
         editEpisodes: 3,
         unguardedEditEpisodes: 1,
       },
+      lookups: createEmptyLookupStats(),
       skillLoadCalls: 2,
       first: "2026-10-01T10:00:00.000Z",
       last: "2026-10-01T10:05:00.000Z",
@@ -2938,6 +2951,7 @@ describe("retrospective aggregate pass", () => {
         editEpisodes: 0,
         unguardedEditEpisodes: 0,
       },
+      lookups: createEmptyLookupStats(),
       skillLoadCalls: 0,
       first: "2026-10-01T10:02:00.000Z",
       last: "2026-10-01T10:04:00.000Z",
@@ -2988,6 +3002,468 @@ describe("retrospective aggregate pass", () => {
     expect(result.routing).toEqual({
       editEpisodes: 0,
       unguardedEditEpisodes: 0,
+    });
+    expect(result.lookups).toEqual(createEmptyLookupStats());
+    expect(result.folder).toBeNull();
+  });
+
+  describe("folderLabel", () => {
+    it("extracts name and parent from a posix path", () => {
+      expect(folderLabel("/Users/alice/projects/my-repo")).toEqual({
+        name: "my-repo",
+        parent: "projects",
+      });
+    });
+
+    it("handles trailing slashes on posix paths", () => {
+      expect(folderLabel("/home/dev/workdir/")).toEqual({
+        name: "workdir",
+        parent: "dev",
+      });
+    });
+
+    it("returns parent null when only a single segment exists", () => {
+      expect(folderLabel("/workspace")).toEqual({
+        name: "workspace",
+        parent: null,
+      });
+      expect(folderLabel("workspace")).toEqual({
+        name: "workspace",
+        parent: null,
+      });
+    });
+
+    it("extracts name and parent from a Windows path with backslashes", () => {
+      expect(folderLabel("C:\\Users\\alice\\projects\\my-repo")).toEqual({
+        name: "my-repo",
+        parent: "projects",
+      });
+    });
+
+    it("sanitizes/hashes labels not matching allowed pattern /^[A-Za-z0-9._ -]{1,64}$/", () => {
+      const raw = "repo$with*illegal#chars!";
+      const hash = crypto
+        .createHash("sha256")
+        .update(raw)
+        .digest("hex")
+        .slice(0, 8);
+      expect(folderLabel(`/home/dev/${raw}`)).toEqual({
+        name: `folder-${hash}`,
+        parent: "dev",
+      });
+    });
+
+    it("hashes Windows drive root parent when it contains a colon", () => {
+      const colonHash = crypto
+        .createHash("sha256")
+        .update("C:")
+        .digest("hex")
+        .slice(0, 8);
+      expect(folderLabel("C:\\my-repo")).toEqual({
+        name: "my-repo",
+        parent: `folder-${colonHash}`,
+      });
+    });
+
+    it("hashes labels longer than 64 characters", () => {
+      const longName = "a".repeat(65);
+      const hash = crypto
+        .createHash("sha256")
+        .update(longName)
+        .digest("hex")
+        .slice(0, 8);
+      expect(folderLabel(`/dev/${longName}`)).toEqual({
+        name: `folder-${hash}`,
+        parent: "dev",
+      });
+    });
+
+    it("returns null for non-string or empty cwd", () => {
+      expect(folderLabel(null)).toBeNull();
+      expect(folderLabel(undefined)).toBeNull();
+      expect(folderLabel("")).toBeNull();
+      expect(folderLabel("///")).toBeNull();
+      expect(folderLabel("\\\\\\")).toBeNull();
+    });
+  });
+
+  describe("Slice D: lookup results and session identity", () => {
+    function toolResult(options: {
+      toolCallId: string;
+      content: unknown;
+      isError?: boolean;
+      timestamp?: string;
+    }): Record<string, unknown> {
+      return {
+        type: "message",
+        id: `msg-res-${options.toolCallId}`,
+        timestamp: options.timestamp ?? "2026-10-01T10:00:20.000Z",
+        message: {
+          role: "toolResult",
+          toolCallId: options.toolCallId,
+          toolName: "write",
+          isError: options.isError ?? false,
+          content: options.content,
+        },
+      };
+    }
+
+    it("extracts session folder from header row in OMP transcripts", async () => {
+      const root = await temporaryRoot();
+      const resWithCwd = await aggregateRows(root, "with-cwd.jsonl", [
+        {
+          type: "session",
+          version: 3,
+          id: "s-1",
+          timestamp: "2026-10-01T10:00:00.000Z",
+          cwd: "/home/alice/project-a",
+        },
+      ]);
+      expect(resWithCwd.folder).toEqual({
+        name: "project-a",
+        parent: "alice",
+      });
+
+      const resNoCwd = await aggregateRows(root, "no-cwd.jsonl", [
+        {
+          type: "session",
+          version: 3,
+          id: "s-2",
+          timestamp: "2026-10-01T10:00:00.000Z",
+        },
+      ]);
+      expect(resNoCwd.folder).toBeNull();
+    });
+
+    it("attributes lookup result by call id and ignores results with unknown call ids", async () => {
+      const root = await temporaryRoot();
+      const result = await aggregateRows(root, "attr.jsonl", [
+        {
+          type: "session",
+          version: 3,
+          id: "s-attr",
+          timestamp: "2026-10-01T10:00:00.000Z",
+          cwd: "/workspace/repo",
+        },
+        ompAssistantRow({
+          messageId: "m1",
+          timestamp: "2026-10-01T10:00:10.000Z",
+          calls: [serverCall({ id: "c-known", tool: "load_skills_for_files" })],
+        }),
+        // Tool result for unknown call id
+        toolResult({
+          toolCallId: "c-unknown",
+          content: [
+            {
+              type: "text",
+              text: "<!-- skill: test/skill | matched: file:src/a.ts -->",
+            },
+          ],
+        }),
+        // Tool result for known call id
+        toolResult({
+          toolCallId: "c-known",
+          content: [
+            {
+              type: "text",
+              text: "<!-- skill: test/skill | matched: file:src/a.ts -->",
+            },
+          ],
+        }),
+      ]);
+
+      // Only c-known is counted
+      expect(result.lookups.tools.load_skills_for_files.calls).toBe(1);
+      expect(result.lookups.tools.load_skills_for_files.bodiesReturned).toBe(1);
+      expect(result.lookups.skills).toEqual({ "test/skill": 1 });
+    });
+
+    it("tracks each of the five lookup tools individually with all keys present", async () => {
+      const root = await temporaryRoot();
+      const result = await aggregateRows(root, "all-five.jsonl", [
+        {
+          type: "session",
+          version: 3,
+          id: "s-five",
+          timestamp: "2026-10-01T10:00:00.000Z",
+          cwd: "/workspace/repo",
+        },
+        ompAssistantRow({
+          messageId: "m1",
+          timestamp: "2026-10-01T10:00:10.000Z",
+          calls: [
+            serverCall({ id: "c-files", tool: "load_skills_for_files" }),
+            serverCall({ id: "c-kw", tool: "load_skills_for_keywords" }),
+            serverCall({ id: "c-skill", tool: "get_skill" }),
+            serverCall({ id: "c-wf", tool: "get_workflow" }),
+            serverCall({ id: "c-guide", tool: "get_category_guide" }),
+          ],
+        }),
+        toolResult({
+          toolCallId: "c-files",
+          content: "<!-- skill: nextjs/app-router | matched: file:page.tsx -->",
+        }),
+        toolResult({
+          toolCallId: "c-kw",
+          content: "No skill keyword triggers matched: xyz",
+        }),
+        toolResult({
+          toolCallId: "c-skill",
+          content:
+            "<!-- skill: flutter/flutter-base | matched: already loaded this session -->",
+        }),
+        toolResult({
+          toolCallId: "c-wf",
+          content:
+            "<!-- Provenance: Loaded workflow/dev-fix via get_workflow -->\n# Workflow: dev-fix",
+        }),
+        toolResult({
+          toolCallId: "c-guide",
+          content:
+            'Category "nextjs" is installed, but it does not provide a category guide yet.',
+        }),
+      ]);
+
+      for (const toolName of LOOKUP_TOOLS) {
+        expect(result.lookups.tools[toolName]).toBeDefined();
+      }
+
+      expect(result.lookups.tools.load_skills_for_files).toEqual({
+        calls: 1,
+        noMatchCalls: 0,
+        errorCalls: 0,
+        bodiesReturned: 1,
+        reusedBodies: 0,
+      });
+      expect(result.lookups.tools.load_skills_for_keywords).toEqual({
+        calls: 1,
+        noMatchCalls: 1,
+        errorCalls: 0,
+        bodiesReturned: 0,
+        reusedBodies: 0,
+      });
+      expect(result.lookups.tools.get_skill).toEqual({
+        calls: 1,
+        noMatchCalls: 0,
+        errorCalls: 0,
+        bodiesReturned: 0,
+        reusedBodies: 1,
+      });
+      expect(result.lookups.tools.get_workflow).toEqual({
+        calls: 1,
+        noMatchCalls: 0,
+        errorCalls: 0,
+        bodiesReturned: 1,
+        reusedBodies: 0,
+      });
+      expect(result.lookups.tools.get_category_guide).toEqual({
+        calls: 1,
+        noMatchCalls: 1,
+        errorCalls: 0,
+        bodiesReturned: 0,
+        reusedBodies: 0,
+      });
+      expect(result.lookups.skills).toEqual({ "nextjs/app-router": 1 });
+    });
+
+    it("distinguishes delivered vs reused bodies, records errorCalls on error, and tracks unvalidated ids", async () => {
+      const root = await temporaryRoot();
+      const result = await aggregateRows(root, "detail.jsonl", [
+        {
+          type: "session",
+          version: 3,
+          id: "s-detail",
+          timestamp: "2026-10-01T10:00:00.000Z",
+          cwd: "/workspace/repo",
+        },
+        ompAssistantRow({
+          messageId: "m1",
+          timestamp: "2026-10-01T10:00:10.000Z",
+          calls: [
+            serverCall({ id: "c-err", tool: "get_skill" }),
+            serverCall({ id: "c-mixed", tool: "load_skills_for_files" }),
+          ],
+        }),
+        toolResult({
+          toolCallId: "c-err",
+          isError: true,
+          content: "Something failed",
+        }),
+        toolResult({
+          toolCallId: "c-mixed",
+          content: [
+            {
+              type: "text",
+              text: [
+                "<!-- skill: react/hooks | matched: file:src/comp.tsx -->",
+                "<!-- skill: react/state | matched: file:src/comp.tsx (already loaded) -->",
+                "<!-- skill: Bad/../x | matched: file:src/comp.tsx -->",
+              ].join("\n"),
+            },
+          ],
+        }),
+      ]);
+
+      expect(result.lookups.tools.get_skill.errorCalls).toBe(1);
+      expect(result.lookups.tools.get_skill.calls).toBe(1);
+
+      expect(result.lookups.tools.load_skills_for_files.calls).toBe(1);
+      expect(result.lookups.tools.load_skills_for_files.bodiesReturned).toBe(2); // 1 valid + 1 unvalidated
+      expect(result.lookups.tools.load_skills_for_files.reusedBodies).toBe(1);
+      expect(result.lookups.unvalidatedReturns).toBe(1);
+      expect(result.lookups.skills).toEqual({ "react/hooks": 1 });
+    });
+
+    it("caps skills at 100 distinct keys, sets skillsCapped and counts otherReturns", async () => {
+      const root = await temporaryRoot();
+
+      // Build 101 distinct skill markers in one result
+      const markers: string[] = [];
+      for (let i = 0; i < 101; i++) {
+        markers.push(
+          `<!-- skill: cat/skill-${String(i).padStart(3, "0")} | matched: direct -->`,
+        );
+      }
+      // Plus one repeat of an already existing skill (skill-000)
+      markers.push("<!-- skill: cat/skill-000 | matched: direct -->");
+
+      const result = await aggregateRows(root, "cap.jsonl", [
+        {
+          type: "session",
+          version: 3,
+          id: "s-cap",
+          timestamp: "2026-10-01T10:00:00.000Z",
+          cwd: "/workspace/repo",
+        },
+        ompAssistantRow({
+          messageId: "m1",
+          timestamp: "2026-10-01T10:00:10.000Z",
+          calls: [serverCall({ id: "c-cap", tool: "load_skills_for_files" })],
+        }),
+        toolResult({
+          toolCallId: "c-cap",
+          content: markers.join("\n"),
+        }),
+      ]);
+
+      expect(Object.keys(result.lookups.skills)).toHaveLength(100);
+      expect(result.lookups.skillsCapped).toBe(true);
+      expect(result.lookups.otherReturns).toBe(1); // 101st distinct skill was dropped
+      expect(result.lookups.skills["cat/skill-000"]).toBe(2); // repeat of existing key succeeded
+      expect(result.lookups.tools.load_skills_for_files.bodiesReturned).toBe(
+        102,
+      );
+    });
+
+    it("never parses tool result text of other tools", async () => {
+      const root = await temporaryRoot();
+      const result = await aggregateRows(root, "other-tools.jsonl", [
+        {
+          type: "session",
+          version: 3,
+          id: "s-other",
+          timestamp: "2026-10-01T10:00:00.000Z",
+          cwd: "/workspace/repo",
+        },
+        ompAssistantRow({
+          messageId: "m1",
+          timestamp: "2026-10-01T10:00:10.000Z",
+          calls: [
+            {
+              id: "c-bash",
+              name: "bash",
+              arguments: { command: "echo hello" },
+            },
+          ],
+        }),
+        {
+          type: "message",
+          id: "msg-bash-res",
+          timestamp: "2026-10-01T10:00:20.000Z",
+          message: {
+            role: "toolResult",
+            toolCallId: "c-bash",
+            toolName: "bash",
+            content: [
+              {
+                type: "text",
+                text: "<!-- skill: secret/skill | matched: direct -->",
+              },
+            ],
+          },
+        },
+      ]);
+
+      expect(result.lookups.skills).toEqual({});
+      expect(result.lookups.tools.load_skills_for_files.calls).toBe(0);
+    });
+
+    it("bounds the pending call map to 64 ids and drops oldest", async () => {
+      const root = await temporaryRoot();
+      const calls = [];
+      for (let i = 0; i < 65; i++) {
+        calls.push(serverCall({ id: `c-${i}`, tool: "load_skills_for_files" }));
+      }
+
+      const result = await aggregateRows(root, "pending-bound.jsonl", [
+        {
+          type: "session",
+          version: 3,
+          id: "s-pending",
+          timestamp: "2026-10-01T10:00:00.000Z",
+          cwd: "/workspace/repo",
+        },
+        ompAssistantRow({
+          messageId: "m1",
+          timestamp: "2026-10-01T10:00:10.000Z",
+          calls,
+        }),
+        // Try to deliver result for oldest call c-0 (should have been dropped from map)
+        toolResult({
+          toolCallId: "c-0",
+          content: "<!-- skill: test/oldest | matched: direct -->",
+        }),
+        // Deliver result for newest call c-64 (should be retained)
+        toolResult({
+          toolCallId: "c-64",
+          content: "<!-- skill: test/newest | matched: direct -->",
+        }),
+      ]);
+
+      expect(result.lookups.tools.load_skills_for_files.calls).toBe(1);
+      expect(result.lookups.skills).toEqual({ "test/newest": 1 });
+    });
+
+    it("rollUp carries deep-copied lookups per node and folder from first aggregate", () => {
+      const aggMain = aggregatedSession({
+        node: { hostId: "h1", sessionId: "main" },
+        folder: { name: "main-folder", parent: "workspace" },
+      });
+      aggMain.lookups.tools.get_skill.calls = 5;
+      aggMain.lookups.skills["react/hooks"] = 3;
+
+      const aggWorker = aggregatedSession({
+        node: { hostId: "h1", sessionId: "worker" },
+        folder: { name: "worker-folder", parent: "sub" },
+      });
+      aggWorker.lookups.tools.load_skills_for_files.calls = 2;
+      aggWorker.lookups.skills["golang/testing"] = 1;
+
+      const tree = rollUp([aggMain, aggWorker]);
+      expect(tree.folder).toEqual({ name: "main-folder", parent: "workspace" });
+      expect(tree.nodes).toHaveLength(2);
+      expect(tree.nodes[0].lookups.tools.get_skill.calls).toBe(5);
+      expect(tree.nodes[0].lookups.skills).toEqual({ "react/hooks": 3 });
+      expect(tree.nodes[1].lookups.tools.load_skills_for_files.calls).toBe(2);
+      expect(tree.nodes[1].lookups.skills).toEqual({ "golang/testing": 1 });
+
+      // Mutating source aggregate does not affect tree.nodes (deep copy check)
+      aggMain.lookups.tools.get_skill.calls = 999;
+      expect(tree.nodes[0].lookups.tools.get_skill.calls).toBe(5);
+
+      // Empty aggregates returns null folder
+      const emptyTree = rollUp([]);
+      expect(emptyTree.folder).toBeNull();
     });
   });
 });

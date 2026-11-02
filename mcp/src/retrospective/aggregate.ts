@@ -10,7 +10,132 @@ import {
   extractHostSkillId,
   extractServerToolName,
 } from "./server-tools";
+import { parseLookupResult } from "./lookup-results";
 
+export const LOOKUP_TOOLS = [
+  "load_skills_for_files",
+  "load_skills_for_keywords",
+  "get_skill",
+  "get_workflow",
+  "get_category_guide",
+] as const;
+
+export type LookupToolName = (typeof LOOKUP_TOOLS)[number];
+
+export type LookupToolStats = {
+  calls: number;
+  noMatchCalls: number;
+  errorCalls: number;
+  bodiesReturned: number;
+  reusedBodies: number;
+};
+
+export type LookupStats = {
+  tools: Record<LookupToolName, LookupToolStats>; // all five keys always present
+  skills: Record<string, number>; // validated registry id -> bodies DELIVERED (reused excluded); at most 100 keys
+  skillsCapped: boolean; // a delivered body's id was dropped because 100 keys existed
+  otherReturns: number; // delivered bodies whose id was dropped by the cap
+  unvalidatedReturns: number; // delivered bodies whose marker id failed validation
+};
+
+export type FolderLabel = { name: string; parent: string | null };
+
+export function createEmptyLookupStats(): LookupStats {
+  return {
+    tools: {
+      load_skills_for_files: {
+        calls: 0,
+        noMatchCalls: 0,
+        errorCalls: 0,
+        bodiesReturned: 0,
+        reusedBodies: 0,
+      },
+      load_skills_for_keywords: {
+        calls: 0,
+        noMatchCalls: 0,
+        errorCalls: 0,
+        bodiesReturned: 0,
+        reusedBodies: 0,
+      },
+      get_skill: {
+        calls: 0,
+        noMatchCalls: 0,
+        errorCalls: 0,
+        bodiesReturned: 0,
+        reusedBodies: 0,
+      },
+      get_workflow: {
+        calls: 0,
+        noMatchCalls: 0,
+        errorCalls: 0,
+        bodiesReturned: 0,
+        reusedBodies: 0,
+      },
+      get_category_guide: {
+        calls: 0,
+        noMatchCalls: 0,
+        errorCalls: 0,
+        bodiesReturned: 0,
+        reusedBodies: 0,
+      },
+    },
+    skills: {},
+    skillsCapped: false,
+    otherReturns: 0,
+    unvalidatedReturns: 0,
+  };
+}
+
+export function cloneLookupStats(stats: LookupStats): LookupStats {
+  return {
+    tools: {
+      load_skills_for_files: { ...stats.tools.load_skills_for_files },
+      load_skills_for_keywords: { ...stats.tools.load_skills_for_keywords },
+      get_skill: { ...stats.tools.get_skill },
+      get_workflow: { ...stats.tools.get_workflow },
+      get_category_guide: { ...stats.tools.get_category_guide },
+    },
+    skills: { ...stats.skills },
+    skillsCapped: stats.skillsCapped,
+    otherReturns: stats.otherReturns,
+    unvalidatedReturns: stats.unvalidatedReturns,
+  };
+}
+
+/**
+ * Derives bounded folder labels from session cwd per Contract v3.1 Section 0:
+ * Keeps ONLY the last path segment (`name`) and the one before it (`parent`).
+ * Split on `/` and `\`. A label is kept when it matches `/^[A-Za-z0-9._ -]{1,64}$/`;
+ * otherwise it becomes `folder-<first 8 hex of sha256(label)>`. Never stores the full path.
+ */
+export function folderLabel(cwd: unknown): FolderLabel | null {
+  if (typeof cwd !== "string") {
+    return null;
+  }
+  const segments = cwd.split(/[/\\]+/).filter((s) => s.length > 0);
+  if (segments.length === 0) {
+    return null;
+  }
+  const nameRaw = segments[segments.length - 1];
+  const parentRaw = segments.length >= 2 ? segments[segments.length - 2] : null;
+
+  const sanitize = (label: string): string => {
+    if (/^[A-Za-z0-9._ -]{1,64}$/.test(label)) {
+      return label;
+    }
+    const hash = crypto
+      .createHash("sha256")
+      .update(label)
+      .digest("hex")
+      .slice(0, 8);
+    return `folder-${hash}`;
+  };
+
+  return {
+    name: sanitize(nameRaw),
+    parent: parentRaw !== null ? sanitize(parentRaw) : null,
+  };
+}
 export { RetrospectiveError };
 
 export type SideCalls = {
@@ -107,6 +232,8 @@ export type SessionAggregate = {
   permissionAnswers: PermissionAnswers;
   context: ContextStats;
   routing: RoutingOrder;
+  lookups: LookupStats;
+  folder: FolderLabel | null;
   coverage: "complete" | "partial";
   partialReason?: "size-ceiling" | "time-ceiling" | "unreadable-lines";
   skippedLines: number;
@@ -163,6 +290,7 @@ export type NodeUsage = {
   permissionAnswers: PermissionAnswers;
   context: ContextStats;
   routing: RoutingOrder;
+  lookups: LookupStats;
   skillLoadCalls: number; // node.skillLoad.skillLoadCalls (0 when not measured)
   first: string | null;
   last: string | null;
@@ -201,6 +329,7 @@ export type TreeAggregate = {
   skillLoad: { nodes: NodeSkillLoad[]; omittedNodes: number };
   /** Nodes in input order, capped at 64 entries. */
   nodes: NodeUsage[];
+  folder: FolderLabel | null;
   skippedLines: number;
   metricCompleteness: MetricCompleteness;
   series: JointSeries;
@@ -283,6 +412,27 @@ function isEditEpisodeCall(
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+const LOOKUP_TOOLS_SET = new Set<string>(LOOKUP_TOOLS);
+
+function extractTextContent(content: unknown): string {
+  if (typeof content === "string") {
+    return content;
+  }
+  if (Array.isArray(content)) {
+    let result = "";
+    for (const part of content) {
+      if (
+        isObject(part) &&
+        part.type === "text" &&
+        typeof part.text === "string"
+      ) {
+        result += part.text;
+      }
+    }
+    return result;
+  }
+  return "";
 }
 
 function boundIdentifier(value: unknown): string {
@@ -521,6 +671,9 @@ export async function aggregateSession(
     let codexPreviousTotal: { input: number; output: number } | null = null;
     let codexLastOnlySinceTotal = { input: 0, output: 0 };
     const seenToolCallIds = new Set<string>();
+    const lookups = createEmptyLookupStats();
+    let folder: FolderLabel | null = null;
+    const lookupCallTool = new Map<string, LookupToolName>();
 
     const updateTimestamps = (ts: unknown): void => {
       const millis = toEpochMillis(ts);
@@ -538,6 +691,12 @@ export async function aggregateSession(
 
     const processOmpRow = (row: Record<string, unknown>): void => {
       updateTimestamps(row.timestamp);
+      if (row.type === "session") {
+        if (typeof row.cwd === "string") {
+          folder = folderLabel(row.cwd);
+        }
+        return;
+      }
 
       if (row.type === "model_change") {
         if (typeof row.model === "string") {
@@ -647,6 +806,45 @@ export async function aggregateSession(
               recordBoundedMap(toolErrors, toolName);
             }
           }
+
+          if (toolCallId && lookupCallTool.has(toolCallId)) {
+            const lookupTool = lookupCallTool.get(toolCallId)!;
+            lookupCallTool.delete(toolCallId);
+            lookups.tools[lookupTool].calls += 1;
+            if (msg.isError === true) {
+              lookups.tools[lookupTool].errorCalls += 1;
+            } else {
+              const text = extractTextContent(msg.content);
+              const parsed = parseLookupResult(lookupTool, text);
+              if (parsed.noMatch) {
+                lookups.tools[lookupTool].noMatchCalls += 1;
+              }
+              for (const body of parsed.bodies) {
+                if (body.reused) {
+                  lookups.tools[lookupTool].reusedBodies += 1;
+                } else {
+                  lookups.tools[lookupTool].bodiesReturned += 1;
+                  if (body.id !== null) {
+                    if (body.id in lookups.skills) {
+                      lookups.skills[body.id] += 1;
+                    } else if (Object.keys(lookups.skills).length < 100) {
+                      lookups.skills[body.id] = 1;
+                    } else {
+                      lookups.skillsCapped = true;
+                      lookups.otherReturns += 1;
+                    }
+                  } else {
+                    lookups.unvalidatedReturns += 1;
+                  }
+                }
+              }
+              if (parsed.workflowBodies > 0) {
+                lookups.tools[lookupTool].bodiesReturned +=
+                  parsed.workflowBodies;
+              }
+            }
+          }
+
           return;
         }
 
@@ -799,6 +997,24 @@ export async function aggregateSession(
                     : typeof part.toolCallId === "string"
                       ? part.toolCallId
                       : undefined;
+                if (serverTool !== null && LOOKUP_TOOLS_SET.has(serverTool)) {
+                  if (toolCallId) {
+                    if (lookupCallTool.has(toolCallId)) {
+                      lookupCallTool.delete(toolCallId);
+                    }
+                    lookupCallTool.set(
+                      toolCallId,
+                      serverTool as LookupToolName,
+                    );
+                    if (lookupCallTool.size > 64) {
+                      const oldest = lookupCallTool.keys().next().value;
+                      if (oldest !== undefined) {
+                        lookupCallTool.delete(oldest);
+                      }
+                    }
+                  }
+                  // calls in lookups.tools counts RESULTS seen (a call without a result row is not counted).
+                }
 
                 const isNewToolCall = toolCallId
                   ? !seenToolCallIds.has(toolCallId)
@@ -1295,6 +1511,8 @@ export async function aggregateSession(
       permissionAnswers,
       context,
       routing,
+      lookups,
+      folder,
       coverage,
       ...(partialReason !== undefined ? { partialReason } : {}),
       skippedLines,
@@ -1450,6 +1668,7 @@ export function rollUp(aggregates: AggregatedSession[]): TreeAggregate {
         },
         context: { ...agg.context },
         routing: { ...agg.routing },
+        lookups: cloneLookupStats(agg.lookups),
         skillLoadCalls: agg.skillLoad.measured
           ? agg.skillLoad.skillLoadCalls
           : 0,
@@ -1519,6 +1738,7 @@ export function rollUp(aggregates: AggregatedSession[]): TreeAggregate {
     hostSkillReads,
     skillLoad: { nodes: skillLoadNodes, omittedNodes: omittedSkillLoadNodes },
     nodes,
+    folder: aggregates.length > 0 ? (aggregates[0].folder ?? null) : null,
     skippedLines,
     metricCompleteness,
     series,

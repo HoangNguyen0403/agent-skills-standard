@@ -34,6 +34,8 @@ describe("retrospective improvements derivation (Slice B2)", () => {
       ).toBe(10);
       expect(IMPROVEMENT_THRESHOLDS.UNGUARDED_EDITS_MIN_EPISODES).toBe(10);
       expect(IMPROVEMENT_THRESHOLDS.UNGUARDED_EDITS_SHARE_MULTIPLIER).toBe(2);
+      expect(IMPROVEMENT_THRESHOLDS.LOOKUP_MISSES_MIN_CALLS).toBe(10);
+      expect(IMPROVEMENT_THRESHOLDS.LOOKUP_MISSES_NO_MATCH_MULTIPLIER).toBe(4);
       expect(IMPROVEMENT_THRESHOLDS.HUMAN_INTERVENTION_PER_100_TURNS).toBe(1);
       expect(IMPROVEMENT_THRESHOLDS.AGENT_ERROR_CONCENTRATION_MIN_TURNS).toBe(
         5,
@@ -436,7 +438,123 @@ describe("retrospective improvements derivation (Slice B2)", () => {
     });
   });
 
-  describe("Rule 4: human-intervention", () => {
+  describe("Rule 4: lookup-misses", () => {
+    it("does not fire when ags-lookups claim is missing", () => {
+      const input = createEmptyInput();
+      const improvements = deriveImprovements(input);
+      expect(improvements.some((i) => i.rule === "lookup-misses")).toBe(false);
+    });
+
+    it("does not fire when calls < 10 even with 100% misses (9 calls, 9 misses boundary)", () => {
+      const input = createEmptyInput();
+      input.claims.push({
+        id: "claim:lookups:1",
+        template: "ags-lookups",
+        values: {
+          calls: 9,
+          noMatchCalls: 9,
+          filesNoMatch: 5,
+          keywordsNoMatch: 4,
+        },
+      });
+      const improvements = deriveImprovements(input);
+      expect(improvements.some((i) => i.rule === "lookup-misses")).toBe(false);
+    });
+
+    it("does not fire when noMatchCalls * 4 < calls (10 calls, 2 misses = 20% < 25%)", () => {
+      const input = createEmptyInput();
+      input.claims.push({
+        id: "claim:lookups:1",
+        template: "ags-lookups",
+        values: {
+          calls: 10,
+          noMatchCalls: 2,
+          filesNoMatch: 1,
+          keywordsNoMatch: 1,
+        },
+      });
+      const improvements = deriveImprovements(input);
+      expect(improvements.some((i) => i.rule === "lookup-misses")).toBe(false);
+    });
+
+    it("does not fire at 24% misses boundary (100 calls, 24 misses)", () => {
+      const input = createEmptyInput();
+      input.claims.push({
+        id: "claim:lookups:1",
+        template: "ags-lookups",
+        values: {
+          calls: 100,
+          noMatchCalls: 24,
+          filesNoMatch: 14,
+          keywordsNoMatch: 10,
+        },
+      });
+      const improvements = deriveImprovements(input);
+      expect(improvements.some((i) => i.rule === "lookup-misses")).toBe(false);
+    });
+
+    it("fires with level 'watch' at exact 25% boundary (100 calls, 25 misses)", () => {
+      const input = createEmptyInput();
+      input.claims.push({
+        id: "claim:lookups:1",
+        template: "ags-lookups",
+        values: {
+          calls: 100,
+          noMatchCalls: 25,
+          filesNoMatch: 15,
+          keywordsNoMatch: 10,
+        },
+      });
+      const improvements = deriveImprovements(input);
+      const match = improvements.find((i) => i.rule === "lookup-misses");
+      expect(match).toBeDefined();
+      expect(match?.level).toBe("watch");
+      expect(match?.audience).toBe("manager");
+      expect(match?.destination).toBe("agent-routing");
+      expect(match?.claimIds).toEqual(["claim:lookups:1"]);
+      expect(match?.evidence).toEqual([
+        "agg:claim:ags-lookups:calls",
+        "agg:claim:ags-lookups:noMatchCalls",
+      ]);
+      expect(match?.values).toEqual({
+        calls: 100,
+        noMatchCalls: 25,
+        percent: 25,
+        filesNoMatch: 15,
+        keywordsNoMatch: 10,
+      });
+    });
+
+    it("fires with level 'watch' at 10 calls boundary (10 calls, 3 misses = 30%)", () => {
+      const input = createEmptyInput();
+      input.claims.push({
+        id: "claim:lookups:2",
+        template: "ags-lookups",
+        values: {
+          calls: 10,
+          noMatchCalls: 3,
+          filesNoMatch: 2,
+          keywordsNoMatch: 1,
+        },
+      });
+      const improvements = deriveImprovements(input);
+      const match = improvements.find((i) => i.rule === "lookup-misses");
+      expect(match).toBeDefined();
+      expect(match?.level).toBe("watch");
+      expect(match?.audience).toBe("manager");
+      expect(match?.destination).toBe("agent-routing");
+      expect(match?.claimIds).toEqual(["claim:lookups:2"]);
+      expect(match?.values).toEqual({
+        calls: 10,
+        noMatchCalls: 3,
+        percent: 30,
+        filesNoMatch: 2,
+        keywordsNoMatch: 1,
+      });
+    });
+  });
+
+  describe("Rule 5: human-intervention", () => {
     it("does not fire when permission-answers claim is missing", () => {
       const input = createEmptyInput();
       const improvements = deriveImprovements(input);
@@ -513,7 +631,7 @@ describe("retrospective improvements derivation (Slice B2)", () => {
     });
   });
 
-  describe("Rule 5: agent-error-concentration", () => {
+  describe("Rule 6: agent-error-concentration", () => {
     it("does not fire when agents list is empty", () => {
       const input = createEmptyInput();
       const improvements = deriveImprovements(input);
@@ -607,7 +725,7 @@ describe("retrospective improvements derivation (Slice B2)", () => {
     });
   });
 
-  describe("Rule 6: coverage-gap", () => {
+  describe("Rule 7: coverage-gap", () => {
     it("does not fire when agentsCreated is 0 (boundary)", () => {
       const input = createEmptyInput();
       input.agentsCreated = 0;
@@ -657,7 +775,7 @@ describe("retrospective improvements derivation (Slice B2)", () => {
     });
   });
 
-  describe("Rule 7: tracker-not-measured", () => {
+  describe("Rule 8: tracker-not-measured", () => {
     it("does not fire when trackerWindow is null", () => {
       const input = createEmptyInput();
       input.trackerWindow = null;
@@ -807,6 +925,47 @@ describe("retrospective improvements derivation (Slice B2)", () => {
           audience: "maintainer",
         },
       ]);
+    });
+
+    it("orders lookup-misses after unguarded-edits and among manager watch rules", () => {
+      const input: ImprovementInput = {
+        claims: [
+          {
+            id: "claim:routing:1",
+            template: "routing-order",
+            values: {
+              editEpisodesMain: 6,
+              editEpisodesOthers: 6,
+              unguardedEditsMain: 4,
+              unguardedEditsOthers: 3,
+              byFilesTotal: 10,
+              getSkillTotal: 2,
+            },
+          },
+          {
+            id: "claim:lookups:1",
+            template: "ags-lookups",
+            values: {
+              calls: 20,
+              noMatchCalls: 10,
+              filesNoMatch: 6,
+              keywordsNoMatch: 4,
+            },
+          },
+        ],
+        agents: [],
+        agentsCreated: 0,
+        unlinkedAgents: 0,
+        trackerWindow: null,
+      };
+
+      const improvements = deriveImprovements(input);
+      expect(improvements.map((i) => i.rule)).toEqual([
+        "unguarded-edits",
+        "lookup-misses",
+      ]);
+      expect(improvements[0].level).toBe("act");
+      expect(improvements[1].level).toBe("watch");
     });
 
     it("contains no free text in values or output fields across all rules", () => {

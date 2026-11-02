@@ -71,6 +71,7 @@ export const ARTIFACT_FILES = Object.freeze({
   receipt: "receipt.json",
   summary: "summary.md",
   ledger: "ledger.json",
+  html: "report.html",
 });
 
 export type ArtifactKind = keyof typeof ARTIFACT_FILES;
@@ -100,7 +101,7 @@ export const GENERATION_LAYOUTS: Readonly<
   v2: {
     schemaVersion: 2,
     primaryKind: "summary",
-    kinds: ["summary", "ledger"],
+    kinds: ["summary", "ledger", "html"],
   },
 });
 

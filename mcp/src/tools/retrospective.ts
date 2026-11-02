@@ -10,7 +10,7 @@ export const DISABLED_RETROSPECTIVE_TEXT =
   "Retrospective preparation is disabled. Ask the user to run `ags-retrospective enable` in an interactive terminal to enable local retrospective collection.";
 
 export const RETROSPECTIVE_NUDGE_TEXT =
-  "Retrospective pending. If you hold an assignment packet (you are a worker), ignore this section. Otherwise call `prepare_retrospective` now, then tell the user the coverage, the counts and the file paths (summary and ledger) it returns, and that they can open either.";
+  "Retrospective pending. If you hold an assignment packet (you are a worker), ignore this section. Otherwise call `prepare_retrospective` now, then tell the user the coverage, the counts and the file paths (summary, ledger and HTML report) it returns, and that they can open either.";
 
 /**
  * Progress that can justify asking for a retrospective: every recorded tool
@@ -32,8 +32,8 @@ function renderPrepared(
       : `Retrospective prepared (artifact id: ${result.artifactId}, evidence mode: ${result.evidenceMode}).`;
   const coverageLine = `Coverage: ${result.coverage} (${result.fullyRead}/${result.sessions} sessions fully read).`;
   const countsLine = `Counts: ${result.counts.agentsCreated} agents created, ${result.counts.sessionsLinked} sessions linked, ${result.counts.failedToolCalls} failed tool calls, ${result.counts.errorStops} error stops, ${result.counts.claims} claims, ${result.counts.hypotheses} hypotheses.`;
-  const pathsLine = `View paths:\n- Summary: ${result.viewPaths.summary}\n- Ledger: ${result.viewPaths.ledger}`;
-  const relayInstruction = `Relay to the user: the coverage (${result.coverage}), the counts line above, and the file paths (summary and ledger). Inform the user that they can open either path.`;
+  const pathsLine = `View paths:\n- Summary: ${result.viewPaths.summary}\n- Ledger: ${result.viewPaths.ledger}\n- Report (HTML, open in a browser): ${result.viewPaths.reportHtml}`;
+  const relayInstruction = `Relay to the user: the coverage (${result.coverage}), the counts line above, and the file paths (summary, ledger and HTML report). Inform the user that they can open either path.`;
 
   return [
     statusLine,

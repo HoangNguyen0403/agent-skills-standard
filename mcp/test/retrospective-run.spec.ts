@@ -304,7 +304,12 @@ async function publishManualGeneration(
       main: discovery.manifest.main,
       checkpointId: discovery.manifest.checkpointId,
     },
-    { summary: "# manual summary\n", ledger: ledgerText, status: "complete" },
+    {
+      summary: "# manual summary\n",
+      ledger: ledgerText,
+      reportHtml: "<!DOCTYPE html><html><body>manual report</body></html>\n",
+      status: "complete",
+    },
     new AbortController().signal,
   );
 }
@@ -400,6 +405,10 @@ describe("runRetrospective orchestration (Task S4b)", () => {
     const ledgerContent = await fsp.readFile(result.viewPaths.ledger, "utf8");
     const parsedLedger = JSON.parse(ledgerContent);
     expect(parsedLedger.evidenceMode).toBe("tracker-only");
+    expect(result.viewPaths.reportHtml).toBeTruthy();
+    expect(result.viewPaths.reportHtml.endsWith(".html")).toBe(true);
+    const htmlContent = await fsp.readFile(result.viewPaths.reportHtml, "utf8");
+    expect(htmlContent.length).toBeGreaterThan(0);
   });
 
   it("prepared then a second identical call returns already-prepared with identical artifact and paths", async () => {
@@ -438,6 +447,10 @@ describe("runRetrospective orchestration (Task S4b)", () => {
     expect(res1.evidenceMode).toBe("native-files");
     expect(res1.viewPaths.summary).toBeTruthy();
     expect(res1.viewPaths.ledger).toBeTruthy();
+    expect(res1.viewPaths.reportHtml).toBeTruthy();
+    expect(res1.viewPaths.reportHtml.endsWith(".html")).toBe(true);
+    const htmlContent1 = await fsp.readFile(res1.viewPaths.reportHtml, "utf8");
+    expect(htmlContent1.length).toBeGreaterThan(0);
 
     const summaryContent = await fsp.readFile(res1.viewPaths.summary, "utf8");
     const firstLine = summaryContent.split("\n")[0];
@@ -463,6 +476,7 @@ describe("runRetrospective orchestration (Task S4b)", () => {
     expect(res2.evidenceMode).toBe("native-files");
     expect(res2.artifactId).toBe(res1.artifactId);
     expect(res2.viewPaths).toEqual(res1.viewPaths);
+    expect(res2.viewPaths.reportHtml).toBe(res1.viewPaths.reportHtml);
   });
 
   it("ambiguous-session passes through without publishing", async () => {
@@ -1496,6 +1510,132 @@ describe("runRetrospective orchestration (Task S4b)", () => {
           values: { sessions: 1, fullyRead: 1 },
           scope: {
             nodes: [{ hostId: "local", sessionId: "sess-stored-no-agents" }],
+            from: cutoff,
+            to: cutoff,
+          },
+          coverage: "complete",
+          supporting: [],
+          contradicting: [],
+          basedOn: [],
+        },
+      ],
+      evidence: {},
+    };
+    await publishManualGeneration(fx, `${JSON.stringify(olderLedger)}\n`);
+
+    const deps: RunDeps = {
+      tracker: fx.tracker,
+      workspace: fx.workspaceDir,
+      consentPath: fx.consentPath,
+    };
+
+    const res = await runRetrospective(deps, new AbortController().signal);
+    expect(res).toEqual({
+      resultVersion: 1,
+      state: "failed",
+      code: "STORED_LEDGER_INVALID",
+    });
+  });
+
+  it("rejects a stored ledger that lacks the folder field", async () => {
+    const fx = await setupBoundSession(
+      "ags-run-stored-no-folder-",
+      "sess-stored-no-folder",
+    );
+    const cutoff = "2026-10-01T00:00:00.000Z";
+    const olderLedger = {
+      schemaVersion: 1,
+      cutoff,
+      session: "abcdef12",
+      evidenceMode: "native-files",
+      rootVerification: "unverified-root",
+      coverage: "complete",
+      counts: {
+        agentsCreated: 0,
+        sessionsLinked: 1,
+        failedToolCalls: 0,
+        errorStops: 0,
+        claims: 1,
+        hypotheses: 0,
+      },
+      lookups: null,
+      skillUsage: null,
+      hostSkills: null,
+      cells: [],
+      agents: [],
+      otherAgents: null,
+      improvements: [],
+      claims: [
+        {
+          id: "0123456789abcdef",
+          type: "observation",
+          template: "coverage",
+          values: { sessions: 1, fullyRead: 1 },
+          scope: {
+            nodes: [{ hostId: "local", sessionId: "sess-stored-no-folder" }],
+            from: cutoff,
+            to: cutoff,
+          },
+          coverage: "complete",
+          supporting: [],
+          contradicting: [],
+          basedOn: [],
+        },
+      ],
+      evidence: {},
+    };
+    await publishManualGeneration(fx, `${JSON.stringify(olderLedger)}\n`);
+
+    const deps: RunDeps = {
+      tracker: fx.tracker,
+      workspace: fx.workspaceDir,
+      consentPath: fx.consentPath,
+    };
+
+    const res = await runRetrospective(deps, new AbortController().signal);
+    expect(res).toEqual({
+      resultVersion: 1,
+      state: "failed",
+      code: "STORED_LEDGER_INVALID",
+    });
+  });
+
+  it("rejects a stored ledger that lacks the lookups field", async () => {
+    const fx = await setupBoundSession(
+      "ags-run-stored-no-lookups-",
+      "sess-stored-no-lookups",
+    );
+    const cutoff = "2026-10-01T00:00:00.000Z";
+    const olderLedger = {
+      schemaVersion: 1,
+      cutoff,
+      session: "abcdef12",
+      evidenceMode: "native-files",
+      rootVerification: "unverified-root",
+      coverage: "complete",
+      counts: {
+        agentsCreated: 0,
+        sessionsLinked: 1,
+        failedToolCalls: 0,
+        errorStops: 0,
+        claims: 1,
+        hypotheses: 0,
+      },
+      folder: null,
+      skillUsage: null,
+      hostSkills: null,
+      cells: [],
+      agents: [],
+      otherAgents: null,
+      improvements: [],
+      claims: [
+        {
+          id: "0123456789abcdef",
+          type: "observation",
+          template: "coverage",
+          values: { sessions: 1, fullyRead: 1 },
+          scope: {
+            nodes: [{ hostId: "local", sessionId: "sess-stored-no-lookups" }],
             from: cutoff,
             to: cutoff,
           },

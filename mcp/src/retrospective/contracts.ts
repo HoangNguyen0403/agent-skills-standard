@@ -20,7 +20,13 @@ export type EventOutcome =
 export type SourceRef = { node: NodeKey; eventId: string; line?: number };
 export type GenerationLayout = "v1" | "v2";
 export type ArtifactKind =
-  "report" | "proposals" | "session" | "receipt" | "summary" | "ledger";
+  | "report"
+  | "proposals"
+  | "session"
+  | "receipt"
+  | "summary"
+  | "ledger"
+  | "html";
 export const ARTIFACT_KINDS = [
   "report",
   "proposals",
@@ -28,6 +34,7 @@ export const ARTIFACT_KINDS = [
   "receipt",
   "summary",
   "ledger",
+  "html",
 ] as const;
 export const artifactKindSchema = z.enum(ARTIFACT_KINDS);
 

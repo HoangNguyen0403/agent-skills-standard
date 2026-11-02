@@ -1,6 +1,14 @@
 import { createHash } from "node:crypto";
 import type { SkillUsageSnapshot } from "../services/SessionTracker";
-import type { NodeSkillLoad, NodeUsage, TreeAggregate } from "./aggregate";
+import {
+  LOOKUP_TOOLS,
+  type LookupToolName,
+  type NodeSkillLoad,
+  type NodeUsage,
+  type TreeAggregate,
+} from "./aggregate";
+
+export { LOOKUP_TOOLS, type LookupToolName };
 import type { NodeKey } from "./contracts";
 import {
   deriveImprovements,
@@ -22,8 +30,34 @@ export type ClaimTemplateId =
   | "coverage"
   | "permission-answers"
   | "cost-drivers"
-  | "routing-order";
+  | "routing-order"
+  | "ags-lookups";
 
+export type LedgerFolder = { name: string; parent: string | null };
+export type LedgerLookupTool = {
+  tool: LookupToolName;
+  calls: number;
+  noMatchCalls: number;
+  errorCalls: number;
+  bodiesReturned: number;
+  reusedBodies: number;
+  mainCalls: number;
+  workerCalls: number;
+};
+export type LedgerLookupSkill = {
+  id: string;
+  returns: number;
+  mainReturns: number;
+  workerReturns: number;
+};
+export type LedgerLookups = {
+  tools: LedgerLookupTool[]; // exactly 5, in LOOKUP_TOOLS order
+  skills: LedgerLookupSkill[]; // top 30 by returns desc, then id asc
+  distinctSkills: number; // distinct validated ids across all nodes (before the top-30 cut)
+  otherSkillReturns: number; // delivered bodies of skills outside the top 30 + sum of node otherReturns
+  unvalidatedReturns: number; // sum over nodes
+  capped: boolean; // any node skillsCapped
+};
 export type Claim = {
   id: string;
   type: "observation" | "hypothesis" | "recommendation";
@@ -108,6 +142,8 @@ export type Ledger = {
   rootVerification: LedgerInput["rootVerification"];
   coverage: "complete" | "partial";
   counts: LedgerCounts;
+  folder: LedgerFolder | null;
+  lookups: LedgerLookups | null;
   /** Copy of the tracker snapshot the skill claims were built from. */
   skillUsage: SkillUsageSnapshot | null;
   /** Copy of the host-mechanism skill reads the host claim was built from. */
@@ -468,6 +504,104 @@ function sameHostSkills(
   return true;
 }
 
+function buildLedgerLookups(nodes: NodeUsage[]): LedgerLookups {
+  const mainNode = nodes.find((n) => n.ordinal === 0) ?? nodes[0];
+
+  const tools: LedgerLookupTool[] = [];
+  for (const toolName of LOOKUP_TOOLS) {
+    let calls = 0;
+    let noMatchCalls = 0;
+    let errorCalls = 0;
+    let bodiesReturned = 0;
+    let reusedBodies = 0;
+    let mainCalls = 0;
+    let workerCalls = 0;
+
+    for (const node of nodes) {
+      const stats = node.lookups?.tools?.[toolName];
+      if (!stats) continue;
+      calls += stats.calls;
+      noMatchCalls += stats.noMatchCalls;
+      errorCalls += stats.errorCalls;
+      bodiesReturned += stats.bodiesReturned;
+      reusedBodies += stats.reusedBodies;
+
+      const isMain = node.ordinal === 0 || node === mainNode;
+      if (isMain) {
+        mainCalls += stats.calls;
+      } else {
+        workerCalls += stats.calls;
+      }
+    }
+
+    tools.push({
+      tool: toolName,
+      calls,
+      noMatchCalls,
+      errorCalls,
+      bodiesReturned,
+      reusedBodies,
+      mainCalls,
+      workerCalls,
+    });
+  }
+
+  const skillMap = new Map<
+    string,
+    { id: string; returns: number; mainReturns: number; workerReturns: number }
+  >();
+
+  for (const node of nodes) {
+    const isMain = node.ordinal === 0 || node === mainNode;
+    if (!node.lookups?.skills) continue;
+    for (const [id, count] of Object.entries(node.lookups.skills)) {
+      if (typeof count !== "number" || count <= 0) continue;
+      let entry = skillMap.get(id);
+      if (!entry) {
+        entry = { id, returns: 0, mainReturns: 0, workerReturns: 0 };
+        skillMap.set(id, entry);
+      }
+      entry.returns += count;
+      if (isMain) {
+        entry.mainReturns += count;
+      } else {
+        entry.workerReturns += count;
+      }
+    }
+  }
+
+  const distinctSkills = skillMap.size;
+
+  const sortedSkills = Array.from(skillMap.values()).sort((a, b) => {
+    if (b.returns !== a.returns) return b.returns - a.returns;
+    return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+  });
+
+  const skills = sortedSkills.slice(0, 30);
+  const overflowSkills = sortedSkills.slice(30);
+
+  let otherSkillReturns = overflowSkills.reduce((sum, s) => sum + s.returns, 0);
+  for (const node of nodes) {
+    otherSkillReturns += node.lookups?.otherReturns ?? 0;
+  }
+
+  let unvalidatedReturns = 0;
+  for (const node of nodes) {
+    unvalidatedReturns += node.lookups?.unvalidatedReturns ?? 0;
+  }
+
+  const capped = nodes.some((node) => node.lookups?.skillsCapped === true);
+
+  return {
+    tools,
+    skills,
+    distinctSkills,
+    otherSkillReturns,
+    unvalidatedReturns,
+    capped,
+  };
+}
+
 export function buildLedger(input: LedgerInput): Ledger {
   const tree = input.tree;
   const isPartial =
@@ -477,6 +611,15 @@ export function buildLedger(input: LedgerInput): Ledger {
   const overallCoverage: "complete" | "partial" = isPartial
     ? "partial"
     : "complete";
+
+  const folder: LedgerFolder | null =
+    tree?.folder != null
+      ? { name: tree.folder.name, parent: tree.folder.parent }
+      : null;
+  const lookups =
+    tree !== null && Array.isArray(tree.nodes) && tree.nodes.length > 0
+      ? buildLedgerLookups(tree.nodes)
+      : null;
 
   const from = tree?.first ?? input.cutoff;
   const to = tree?.last ?? input.cutoff;
@@ -1341,6 +1484,104 @@ export function buildLedger(input: LedgerInput): Ledger {
     });
   }
 
+  if (lookups !== null) {
+    for (const tool of lookups.tools) {
+      evidence[`agg:lookups:${tool.tool}:calls`] = {
+        kind: "aggregate",
+        value: tool.calls,
+      };
+      evidence[`agg:lookups:${tool.tool}:noMatchCalls`] = {
+        kind: "aggregate",
+        value: tool.noMatchCalls,
+      };
+      evidence[`agg:lookups:${tool.tool}:errorCalls`] = {
+        kind: "aggregate",
+        value: tool.errorCalls,
+      };
+      evidence[`agg:lookups:${tool.tool}:bodiesReturned`] = {
+        kind: "aggregate",
+        value: tool.bodiesReturned,
+      };
+      evidence[`agg:lookups:${tool.tool}:reusedBodies`] = {
+        kind: "aggregate",
+        value: tool.reusedBodies,
+      };
+    }
+    for (const skill of lookups.skills) {
+      evidence[`agg:lookups:skill:${skill.id}:returns`] = {
+        kind: "aggregate",
+        value: skill.returns,
+      };
+    }
+
+    const totalCalls = lookups.tools.reduce((sum, t) => sum + t.calls, 0);
+    if (totalCalls > 0) {
+      const filesTool = lookups.tools.find(
+        (t) => t.tool === "load_skills_for_files",
+      );
+      const keywordsTool = lookups.tools.find(
+        (t) => t.tool === "load_skills_for_keywords",
+      );
+      const getSkillTool = lookups.tools.find((t) => t.tool === "get_skill");
+      const workflowTool = lookups.tools.find((t) => t.tool === "get_workflow");
+      const guideTool = lookups.tools.find(
+        (t) => t.tool === "get_category_guide",
+      );
+
+      const lookupsValues: Record<string, number | string> = {
+        calls: totalCalls,
+        noMatchCalls: lookups.tools.reduce((sum, t) => sum + t.noMatchCalls, 0),
+        errorCalls: lookups.tools.reduce((sum, t) => sum + t.errorCalls, 0),
+        bodiesReturned: lookups.tools.reduce(
+          (sum, t) => sum + t.bodiesReturned,
+          0,
+        ),
+        reusedBodies: lookups.tools.reduce((sum, t) => sum + t.reusedBodies, 0),
+        distinctSkills: lookups.distinctSkills,
+        mainCalls: lookups.tools.reduce((sum, t) => sum + t.mainCalls, 0),
+        workerCalls: lookups.tools.reduce((sum, t) => sum + t.workerCalls, 0),
+        filesCalls: filesTool?.calls ?? 0,
+        filesNoMatch: filesTool?.noMatchCalls ?? 0,
+        keywordsCalls: keywordsTool?.calls ?? 0,
+        keywordsNoMatch: keywordsTool?.noMatchCalls ?? 0,
+        nameCalls: getSkillTool?.calls ?? 0,
+        nameNoMatch: getSkillTool?.noMatchCalls ?? 0,
+        workflowCalls: workflowTool?.calls ?? 0,
+        guideCalls: guideTool?.calls ?? 0,
+        completeness:
+          tree &&
+          (["toolCalls", "toolErrors"] as const).some(
+            (key) =>
+              tree.metricCompleteness[key] ===
+              "may-undercount-by-skipped-lines",
+          )
+            ? "may-undercount-by-skipped-lines"
+            : "complete",
+      };
+
+      const lookupsSupporting: EvidenceId[] = [];
+      addClaimValueEvidence(
+        "ags-lookups",
+        lookupsValues,
+        lookupsSupporting,
+        evidence,
+      );
+
+      claims.push({
+        id: computeClaimId("ags-lookups", scope, lookupsSupporting),
+        type: "observation",
+        template: "ags-lookups",
+        values: lookupsValues,
+        scope,
+        denominator: { count: totalCalls, unit: "lookups" },
+        coverage: overallCoverage,
+        supporting: lookupsSupporting,
+        contradicting: [],
+        basedOn: [],
+      });
+    }
+  }
+
   const skillUsageClaim = claims.find((c) => c.template === "skill-usage");
   const trackerWindow =
     skillUsageClaim !== undefined &&
@@ -1394,6 +1635,8 @@ export function buildLedger(input: LedgerInput): Ledger {
     rootVerification: input.rootVerification,
     coverage: overallCoverage,
     counts,
+    folder,
+    lookups,
     skillUsage,
     hostSkills,
     cells,
@@ -1445,7 +1688,8 @@ export function checkClaimRules(ledger: Ledger): LedgerProblemCode[] {
       claim.template === "tool-errors" ||
       claim.template === "permission-answers" ||
       claim.template === "cost-drivers" ||
-      claim.template === "routing-order"
+      claim.template === "routing-order" ||
+      claim.template === "ags-lookups"
     ) {
       if (
         !claim.denominator ||
@@ -1680,6 +1924,41 @@ export function verifyLedger(
     JSON.stringify(ledger.improvements) !==
     JSON.stringify(expected.improvements)
   ) {
+    problems.add("NUMBER_MISMATCH");
+  }
+
+  const SAFE_FOLDER_LABEL_REGEX = /^[A-Za-z0-9._ -]{1,64}$/;
+
+  if (ledger.folder !== null && typeof ledger.folder === "object") {
+    if (
+      typeof ledger.folder.name !== "string" ||
+      !SAFE_FOLDER_LABEL_REGEX.test(ledger.folder.name) ||
+      (ledger.folder.parent !== null &&
+        (typeof ledger.folder.parent !== "string" ||
+          !SAFE_FOLDER_LABEL_REGEX.test(ledger.folder.parent)))
+    ) {
+      problems.add("UNSAFE_VALUE");
+    }
+  }
+
+  if (JSON.stringify(ledger.folder) !== JSON.stringify(expected.folder)) {
+    problems.add("NUMBER_MISMATCH");
+  }
+
+  if (ledger.lookups !== null && typeof ledger.lookups === "object") {
+    if (Array.isArray(ledger.lookups.skills)) {
+      for (const skill of ledger.lookups.skills) {
+        if (
+          typeof skill?.id !== "string" ||
+          !SAFE_SKILL_ID_REGEX.test(skill.id)
+        ) {
+          problems.add("UNSAFE_VALUE");
+        }
+      }
+    }
+  }
+
+  if (JSON.stringify(ledger.lookups) !== JSON.stringify(expected.lookups)) {
     problems.add("NUMBER_MISMATCH");
   }
 

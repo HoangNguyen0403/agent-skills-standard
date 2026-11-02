@@ -1,6 +1,6 @@
 import type { LedgerImprovement } from "../improvements";
 import type { Claim, Ledger } from "../ledger";
-
+import { formatMoney, formatRate, formatTokensK, plural } from "./format";
 const MAX_SUMMARY_LINES = 60;
 const MAX_SUMMARY_BYTES = 6144;
 
@@ -28,7 +28,11 @@ export type OtherAgentsSummary = {
   costCents: number;
 };
 
+export type LedgerFolder = { name: string; parent: string | null };
+
 type ViewLedger = Ledger & {
+  folder?: LedgerFolder | null;
+  lookups?: unknown;
   agents?: LedgerAgent[];
   otherAgents?: OtherAgentsSummary | null;
   improvements?: LedgerImprovement[];
@@ -48,12 +52,6 @@ const DESTINATION_LABELS: Record<string, string> = {
   "tracker-binding": "tracker binding",
 };
 
-/** `1 session` / `2 sessions`; pass a plural form for nouns that do not take `s`. */
-function plural(n: number, singular: string, pluralForm?: string): string {
-  if (n === 1) return `1 ${singular}`;
-  return `${n} ${pluralForm ?? `${singular}s`}`;
-}
-
 function countOf(values: Claim["values"] | undefined, key: string): number {
   if (!values) return 0;
   const value = values[key];
@@ -67,18 +65,6 @@ function stringOf(
   if (!values) return null;
   const value = values[key];
   return typeof value === "string" ? value : null;
-}
-
-function formatMoney(cents: number): string {
-  return `$${(cents / 100).toFixed(2)}`;
-}
-
-function formatTokensK(tokens: number): string {
-  return `${Math.round(tokens / 1000)}k`;
-}
-
-function formatRate(tenths: number): string {
-  return (tenths / 10).toFixed(1);
 }
 
 function renderDelegationSegment(
@@ -153,6 +139,14 @@ function renderManagerImprovement(imp: LedgerImprovement, k: number): string[] {
       valueStr = `${agentsCount}`;
       break;
     }
+    case "lookup-misses": {
+      title = `${val.noMatchCalls ?? 0} of ${val.calls ?? 0} lookups matched nothing`;
+      saw = `AGS returned no skill for ${val.percent ?? 0}% of lookups (${val.filesNoMatch ?? 0} by file, ${val.keywordsNoMatch ?? 0} by keyword).`;
+      change = `check the trigger words and file patterns of the skills these lookups should have found, and the file types the lookups were for`;
+      metric = "lookups that matched nothing";
+      valueStr = `${val.percent ?? 0}%`;
+      break;
+    }
     default: {
       return [];
     }
@@ -174,6 +168,36 @@ function renderMaintainerImprovement(imp: LedgerImprovement): string | null {
     default:
       return null;
   }
+}
+function renderAgsLookupsLine(lookupsClaim: Claim): string {
+  const v = lookupsClaim.values;
+  const bodiesReturned = countOf(v, "bodiesReturned");
+  const distinctSkills = countOf(v, "distinctSkills");
+  const calls = countOf(v, "calls");
+  const noMatchCalls = countOf(v, "noMatchCalls");
+  const reusedBodies = countOf(v, "reusedBodies");
+  const errorCalls = countOf(v, "errorCalls");
+  const filesCalls = countOf(v, "filesCalls");
+  const filesNoMatch = countOf(v, "filesNoMatch");
+  const keywordsCalls = countOf(v, "keywordsCalls");
+  const keywordsNoMatch = countOf(v, "keywordsNoMatch");
+  const nameCalls = countOf(v, "nameCalls");
+  const nameNoMatch = countOf(v, "nameNoMatch");
+
+  return `AGS lookups: ${plural(
+    bodiesReturned,
+    "skill body",
+    "skill bodies",
+  )} returned from ${plural(
+    distinctSkills,
+    "distinct skill",
+  )}; ${noMatchCalls} of ${plural(
+    calls,
+    "lookup",
+  )} matched nothing; ${reusedBodies} already loaded; ${plural(
+    errorCalls,
+    "error",
+  )}. Calls by file ${filesCalls} (${filesNoMatch} matched nothing), by keyword ${keywordsCalls} (${keywordsNoMatch}), by name ${nameCalls} (${nameNoMatch}). Skill-level detail is in report.html.`;
 }
 
 function renderLines(ledger: ViewLedger, options: RenderOptions): string[] {
@@ -199,6 +223,9 @@ function renderLines(ledger: ViewLedger, options: RenderOptions): string[] {
   const skillUsageClaim = ledger.claims.find(
     (c) => c.template === "skill-usage",
   );
+  const lookupsClaim = ledger.claims.find(
+    (c) => (c.template as string) === "ags-lookups",
+  );
 
   // Line 1: Header
   lines.push(
@@ -212,8 +239,15 @@ function renderLines(ledger: ViewLedger, options: RenderOptions): string[] {
   if (coverageClaim) {
     const sessionPart =
       ledger.session === null ? "" : `session ${ledger.session} | `;
+    let folderPart = "";
+    if (ledger.folder) {
+      const folderStr = ledger.folder.parent
+        ? `${ledger.folder.parent}/${ledger.folder.name}`
+        : ledger.folder.name;
+      folderPart = `folder ${folderStr} | `;
+    }
     lines.push(
-      `Scope: ${sessionPart}${coverageClaim.scope.from} to ${coverageClaim.scope.to}`,
+      `Scope: ${sessionPart}${folderPart}${coverageClaim.scope.from} to ${coverageClaim.scope.to}`,
     );
   }
 
@@ -379,6 +413,10 @@ function renderLines(ledger: ViewLedger, options: RenderOptions): string[] {
       )} per 100 turns); ${agentsWithLookup} of ${plural(agentsTotal, "agent")} looked something up; ${byFilesTotal} by file, ${byKeywordsTotal} by keyword, ${getSkillTotal} by name; ${plural(overheadCalls, "ceremony call")}; ${plural(hostReads, "host skill read")} (counted, not named).`,
     );
 
+    if (lookupsClaim && countOf(lookupsClaim.values, "calls") > 0) {
+      lines.push(renderAgsLookupsLine(lookupsClaim));
+    }
+
     const editEpisodes =
       countOf(routingClaim.values, "editEpisodesMain") +
       countOf(routingClaim.values, "editEpisodesOthers");
@@ -388,6 +426,8 @@ function renderLines(ledger: ViewLedger, options: RenderOptions): string[] {
     lines.push(
       `Edits: ${plural(editEpisodes, "edit or file-write call")}, ${unguarded} with no file lookup since the agent's last compaction.`,
     );
+  } else if (lookupsClaim && countOf(lookupsClaim.values, "calls") > 0) {
+    lines.push(renderAgsLookupsLine(lookupsClaim));
   }
 
   // Tracker line (from skill-usage claim)

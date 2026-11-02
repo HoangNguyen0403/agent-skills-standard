@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 import crypto from "node:crypto";
-import type { NodeUsage, TreeAggregate } from "../src/retrospective/aggregate";
+import {
+  LOOKUP_TOOLS,
+  type FolderLabel,
+  type LookupStats,
+  type LookupToolName,
+  type NodeUsage,
+  type TreeAggregate,
+} from "../src/retrospective/aggregate";
 import {
   buildLedger,
   checkClaimRules,
@@ -9,6 +16,52 @@ import {
   type LedgerInput,
 } from "../src/retrospective/ledger";
 import type { SkillUsageSnapshot } from "../src/services/SessionTracker";
+
+function createZeroLookups(): LookupStats {
+  return {
+    tools: {
+      load_skills_for_files: {
+        calls: 0,
+        noMatchCalls: 0,
+        errorCalls: 0,
+        bodiesReturned: 0,
+        reusedBodies: 0,
+      },
+      load_skills_for_keywords: {
+        calls: 0,
+        noMatchCalls: 0,
+        errorCalls: 0,
+        bodiesReturned: 0,
+        reusedBodies: 0,
+      },
+      get_skill: {
+        calls: 0,
+        noMatchCalls: 0,
+        errorCalls: 0,
+        bodiesReturned: 0,
+        reusedBodies: 0,
+      },
+      get_workflow: {
+        calls: 0,
+        noMatchCalls: 0,
+        errorCalls: 0,
+        bodiesReturned: 0,
+        reusedBodies: 0,
+      },
+      get_category_guide: {
+        calls: 0,
+        noMatchCalls: 0,
+        errorCalls: 0,
+        bodiesReturned: 0,
+        reusedBodies: 0,
+      },
+    },
+    skills: {},
+    skillsCapped: false,
+    otherReturns: 0,
+    unvalidatedReturns: 0,
+  };
+}
 
 function createNodeUsage(
   ordinal: number,
@@ -55,6 +108,7 @@ function createNodeUsage(
       unguardedEditEpisodes: 0,
     },
     skillLoadCalls: 0,
+    lookups: createZeroLookups(),
     first:
       ordinal === 0 ? "2026-10-01T10:00:00.000Z" : "2026-10-01T10:30:00.000Z",
     last:
@@ -70,6 +124,7 @@ function createTreeFixture(
     sessions: 2,
     fullyRead: 2,
     coverage: "complete",
+    folder: null,
     first: "2026-10-01T10:00:00.000Z",
     last: "2026-10-01T11:00:00.000Z",
     assistantTurns: 20,
@@ -2386,6 +2441,368 @@ describe("retrospective ledger", () => {
           problems: ["NUMBER_MISMATCH"],
         });
       }
+    });
+  });
+
+  describe("Slice E: folder passthrough, lookups merge, ags-lookups claim, and tamper detection", () => {
+    it("passes folder through from tree.folder (with and without parent), null for tracker-only", () => {
+      const treeWithParent = createTreeFixture({
+        folder: { name: "my-repo", parent: "my-org" },
+      });
+      const ledgerWithParent = buildLedger({
+        ...DEFAULT_INPUT,
+        tree: treeWithParent,
+      });
+      expect(ledgerWithParent.folder).toEqual({
+        name: "my-repo",
+        parent: "my-org",
+      });
+      expect(
+        verifyLedger(ledgerWithParent, {
+          ...DEFAULT_INPUT,
+          tree: treeWithParent,
+        }),
+      ).toEqual({ ok: true });
+
+      const treeNoParent = createTreeFixture({
+        folder: { name: "root-repo", parent: null },
+      });
+      const ledgerNoParent = buildLedger({
+        ...DEFAULT_INPUT,
+        tree: treeNoParent,
+      });
+      expect(ledgerNoParent.folder).toEqual({
+        name: "root-repo",
+        parent: null,
+      });
+      expect(
+        verifyLedger(ledgerNoParent, {
+          ...DEFAULT_INPUT,
+          tree: treeNoParent,
+        }),
+      ).toEqual({ ok: true });
+
+      const treeNullFolder = createTreeFixture({ folder: null });
+      const ledgerNullFolder = buildLedger({
+        ...DEFAULT_INPUT,
+        tree: treeNullFolder,
+      });
+      expect(ledgerNullFolder.folder).toBeNull();
+
+      const trackerOnlyInput: LedgerInput = {
+        ...DEFAULT_INPUT,
+        tree: null,
+        evidenceMode: "tracker-only",
+      };
+      const trackerLedger = buildLedger(trackerOnlyInput);
+      expect(trackerLedger.folder).toBeNull();
+      expect(trackerLedger.lookups).toBeNull();
+    });
+
+    it("fails verification when folder is tampered or contains unsafe characters", () => {
+      const tree = createTreeFixture({
+        folder: { name: "safe-name", parent: "safe-parent" },
+      });
+      const input = { ...DEFAULT_INPUT, tree };
+      const ledger = buildLedger(input);
+
+      const tamperedMismatch = {
+        ...ledger,
+        folder: { name: "other-name", parent: "safe-parent" },
+      };
+      expect(verifyLedger(tamperedMismatch, input)).toEqual({
+        ok: false,
+        problems: ["NUMBER_MISMATCH"],
+      });
+
+      const tamperedUnsafe = {
+        ...ledger,
+        folder: { name: "../bad/name", parent: null },
+      };
+      expect(verifyLedger(tamperedUnsafe, input)).toEqual({
+        ok: false,
+        problems: ["NUMBER_MISMATCH", "UNSAFE_VALUE"],
+      });
+    });
+
+    it("merges lookups across main and worker nodes with correct split and ordering", () => {
+      const mainLookups = createZeroLookups();
+      mainLookups.tools.load_skills_for_files = {
+        calls: 3,
+        noMatchCalls: 1,
+        errorCalls: 0,
+        bodiesReturned: 2,
+        reusedBodies: 1,
+      };
+      mainLookups.tools.get_skill = {
+        calls: 2,
+        noMatchCalls: 0,
+        errorCalls: 0,
+        bodiesReturned: 2,
+        reusedBodies: 0,
+      };
+      mainLookups.skills = {
+        "common/alpha": 2,
+        "common/shared": 1,
+      };
+      mainLookups.unvalidatedReturns = 1;
+
+      const workerLookups = createZeroLookups();
+      workerLookups.tools.load_skills_for_files = {
+        calls: 5,
+        noMatchCalls: 2,
+        errorCalls: 1,
+        bodiesReturned: 3,
+        reusedBodies: 0,
+      };
+      workerLookups.tools.load_skills_for_keywords = {
+        calls: 4,
+        noMatchCalls: 1,
+        errorCalls: 0,
+        bodiesReturned: 3,
+        reusedBodies: 0,
+      };
+      workerLookups.skills = {
+        "common/beta": 3,
+        "common/shared": 4,
+      };
+      workerLookups.unvalidatedReturns = 2;
+      workerLookups.otherReturns = 3;
+      workerLookups.skillsCapped = true;
+
+      const tree = createTreeFixture({
+        nodes: [
+          createNodeUsage(0, { lookups: mainLookups }),
+          createNodeUsage(1, { lookups: workerLookups }),
+        ],
+      });
+      const input = { ...DEFAULT_INPUT, tree };
+      const ledger = buildLedger(input);
+
+      expect(ledger.lookups).toBeDefined();
+      if (!ledger.lookups) return;
+
+      expect(ledger.lookups.tools).toHaveLength(5);
+      expect(ledger.lookups.tools.map((t) => t.tool)).toEqual([
+        "load_skills_for_files",
+        "load_skills_for_keywords",
+        "get_skill",
+        "get_workflow",
+        "get_category_guide",
+      ]);
+
+      const filesTool = ledger.lookups.tools[0];
+      expect(filesTool).toEqual({
+        tool: "load_skills_for_files",
+        calls: 8,
+        noMatchCalls: 3,
+        errorCalls: 1,
+        bodiesReturned: 5,
+        reusedBodies: 1,
+        mainCalls: 3,
+        workerCalls: 5,
+      });
+
+      const keywordsTool = ledger.lookups.tools[1];
+      expect(keywordsTool).toEqual({
+        tool: "load_skills_for_keywords",
+        calls: 4,
+        noMatchCalls: 1,
+        errorCalls: 0,
+        bodiesReturned: 3,
+        reusedBodies: 0,
+        mainCalls: 0,
+        workerCalls: 4,
+      });
+
+      const getSkillTool = ledger.lookups.tools[2];
+      expect(getSkillTool).toEqual({
+        tool: "get_skill",
+        calls: 2,
+        noMatchCalls: 0,
+        errorCalls: 0,
+        bodiesReturned: 2,
+        reusedBodies: 0,
+        mainCalls: 2,
+        workerCalls: 0,
+      });
+
+      expect(ledger.lookups.distinctSkills).toBe(3);
+      expect(ledger.lookups.unvalidatedReturns).toBe(3); // 1 + 2
+      expect(ledger.lookups.otherSkillReturns).toBe(3); // 0 outside top-30 + 3 node otherReturns
+      expect(ledger.lookups.capped).toBe(true); // worker was capped
+
+      // Skills ranked by returns desc then id asc
+      // common/shared: 1+4 = 5 (main 1, worker 4)
+      // common/beta: 3 (main 0, worker 3)
+      // common/alpha: 2 (main 2, worker 0)
+      expect(ledger.lookups.skills).toEqual([
+        { id: "common/shared", returns: 5, mainReturns: 1, workerReturns: 4 },
+        { id: "common/beta", returns: 3, mainReturns: 0, workerReturns: 3 },
+        { id: "common/alpha", returns: 2, mainReturns: 2, workerReturns: 0 },
+      ]);
+
+      // Evidence invariant checks
+      expect(
+        ledger.evidence["agg:lookups:load_skills_for_files:calls"],
+      ).toEqual({
+        kind: "aggregate",
+        value: 8,
+      });
+      expect(
+        ledger.evidence["agg:lookups:load_skills_for_files:noMatchCalls"],
+      ).toEqual({
+        kind: "aggregate",
+        value: 3,
+      });
+      expect(
+        ledger.evidence["agg:lookups:skill:common/shared:returns"],
+      ).toEqual({
+        kind: "aggregate",
+        value: 5,
+      });
+
+      // Claim ags-lookups emitted
+      const lookupsClaim = ledger.claims.find(
+        (c) => c.template === "ags-lookups",
+      );
+      expect(lookupsClaim).toBeDefined();
+      expect(lookupsClaim?.type).toBe("observation");
+      expect(lookupsClaim?.denominator).toEqual({ count: 14, unit: "lookups" }); // 8 + 4 + 2
+      expect(lookupsClaim?.values).toEqual({
+        calls: 14,
+        noMatchCalls: 4, // 3 + 1
+        errorCalls: 1,
+        bodiesReturned: 10, // 5 + 3 + 2
+        reusedBodies: 1,
+        distinctSkills: 3,
+        mainCalls: 5, // 3 + 2
+        workerCalls: 9, // 5 + 4
+        filesCalls: 8,
+        filesNoMatch: 3,
+        keywordsCalls: 4,
+        keywordsNoMatch: 1,
+        nameCalls: 2,
+        nameNoMatch: 0,
+        workflowCalls: 0,
+        guideCalls: 0,
+        completeness: "complete",
+      });
+
+      // Verification succeeds
+      expect(verifyLedger(ledger, input)).toEqual({ ok: true });
+    });
+
+    it("applies top-30 cut and adds overflow skill returns to otherSkillReturns", () => {
+      const lookups = createZeroLookups();
+      lookups.tools.load_skills_for_files.calls = 40;
+      lookups.otherReturns = 10;
+
+      // Create 35 distinct skills with counts 1..35
+      for (let i = 1; i <= 35; i += 1) {
+        const id = `cat/skill-${String(i).padStart(2, "0")}`;
+        lookups.skills[id] = i;
+      }
+
+      const tree = createTreeFixture({
+        nodes: [createNodeUsage(0, { lookups })],
+      });
+      const input = { ...DEFAULT_INPUT, tree };
+      const ledger = buildLedger(input);
+
+      expect(ledger.lookups?.distinctSkills).toBe(35);
+      expect(ledger.lookups?.skills).toHaveLength(30);
+
+      // Top skill is skill-35 with 35 returns
+      expect(ledger.lookups?.skills[0].id).toBe("cat/skill-35");
+      expect(ledger.lookups?.skills[0].returns).toBe(35);
+
+      // 30th skill is skill-06 with 6 returns
+      expect(ledger.lookups?.skills[29].id).toBe("cat/skill-06");
+      expect(ledger.lookups?.skills[29].returns).toBe(6);
+
+      // Overflow skills: skill-01 through skill-05 sum = 1 + 2 + 3 + 4 + 5 = 15
+      // otherSkillReturns = 15 + node otherReturns (10) = 25
+      expect(ledger.lookups?.otherSkillReturns).toBe(25);
+
+      // Deterministic tie-breaking: id ascending
+      const tieLookups = createZeroLookups();
+      tieLookups.tools.get_skill.calls = 3;
+      tieLookups.skills = {
+        "cat/z-skill": 5,
+        "cat/a-skill": 5,
+      };
+      const tieTree = createTreeFixture({
+        nodes: [createNodeUsage(0, { lookups: tieLookups })],
+      });
+      const tieLedger = buildLedger({ ...DEFAULT_INPUT, tree: tieTree });
+      expect(tieLedger.lookups?.skills.map((s) => s.id)).toEqual([
+        "cat/a-skill",
+        "cat/z-skill",
+      ]);
+    });
+
+    it("omits ags-lookups claim when total calls is 0", () => {
+      const zeroLookupsTree = createTreeFixture({
+        nodes: [createNodeUsage(0), createNodeUsage(1)],
+      });
+      const ledger = buildLedger({ ...DEFAULT_INPUT, tree: zeroLookupsTree });
+
+      expect(ledger.lookups).toBeDefined();
+      expect(ledger.lookups?.tools.every((t) => t.calls === 0)).toBe(true);
+
+      const lookupsClaim = ledger.claims.find(
+        (c) => c.template === "ags-lookups",
+      );
+      expect(lookupsClaim).toBeUndefined();
+      expect(
+        verifyLedger(ledger, { ...DEFAULT_INPUT, tree: zeroLookupsTree }),
+      ).toEqual({
+        ok: true,
+      });
+    });
+
+    it("detects tampered lookups during verifyLedger", () => {
+      const lookups = createZeroLookups();
+      lookups.tools.load_skills_for_files.calls = 10;
+      lookups.skills = { "test/skill": 5 };
+
+      const tree = createTreeFixture({
+        nodes: [createNodeUsage(0, { lookups })],
+      });
+      const input = { ...DEFAULT_INPUT, tree };
+      const ledger = buildLedger(input);
+
+      const tamperedCalls = {
+        ...ledger,
+        lookups: {
+          ...ledger.lookups!,
+          distinctSkills: 999,
+        },
+      };
+      expect(verifyLedger(tamperedCalls, input)).toEqual({
+        ok: false,
+        problems: ["NUMBER_MISMATCH"],
+      });
+
+      const tamperedUnsafeSkill = {
+        ...ledger,
+        lookups: {
+          ...ledger.lookups!,
+          skills: [
+            {
+              id: "bad skill id with spaces!",
+              returns: 5,
+              mainReturns: 5,
+              workerReturns: 0,
+            },
+          ],
+        },
+      };
+      expect(verifyLedger(tamperedUnsafeSkill, input)).toEqual({
+        ok: false,
+        problems: ["NUMBER_MISMATCH", "UNSAFE_VALUE"],
+      });
     });
   });
 });

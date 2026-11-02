@@ -409,7 +409,7 @@ export async function buildServer(
 - Orchestrator or unassigned agent only. Workers holding an assignment packet must not call this.
 - Requires the user's one-time opt-in via \`ags-retrospective enable\`.
 - Zero model calls, zero outbound network requests.
-- Returns only fixed counts and view file paths (summary and ledger); never transcript text.
+- Returns only fixed counts and view file paths (summary, ledger and HTML report); never transcript text.
 </important_notes>`,
       inputSchema: prepareRetrospectiveSchema,
       handler: () => prepareRetrospective(ctx),

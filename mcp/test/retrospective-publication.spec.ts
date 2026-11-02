@@ -534,13 +534,14 @@ describe("prepareLocal publication", () => {
 });
 
 describe("v2 publication and versioned layouts", () => {
-  it("v2 publish of kinds summary + ledger: generation readable and dedupes on second identical publish", async () => {
+  it("v2 publish of kinds summary + ledger + html: generation readable, private mode, and dedupes on second identical publish", async () => {
     const root = await newRoot();
     const source = new FixtureSource(baseEvents);
     const req = request(root, { checkpointId: "cp-v2-dedupe" });
     const v2Content: V2Content = {
       summary: "# Session retrospective summary\n\n- Status: complete\n",
       ledger: JSON.stringify({ schemaVersion: 1, status: "complete" }) + "\n",
+      reportHtml: "<!doctype html><html><body>Report</body></html>\n",
       status: "complete",
     };
     const { receipt: receipt1 } = await prepareV2(
@@ -568,10 +569,29 @@ describe("v2 publication and versioned layouts", () => {
     expect(resolvedLedger.kind).toBe("ledger");
     expect(resolvedLedger.absolutePath.endsWith("ledger.json")).toBe(true);
 
+    const resolvedHtml = await resolveArtifact(root, `${receipt1.runId}.html`);
+    expect(resolvedHtml.kind).toBe("html");
+    expect(resolvedHtml.absolutePath.endsWith("report.html")).toBe(true);
+    const htmlContent = await fs.readFile(resolvedHtml.absolutePath, "utf8");
+    expect(htmlContent).toContain("<!doctype html>");
+
+    if (process.platform !== "win32") {
+      const summaryStats = await fs.stat(resolvedSummary.absolutePath);
+      const ledgerStats = await fs.stat(resolvedLedger.absolutePath);
+      const htmlStats = await fs.stat(resolvedHtml.absolutePath);
+      expect(summaryStats.mode & 0o077).toBe(0);
+      expect(ledgerStats.mode & 0o077).toBe(0);
+      expect(htmlStats.mode & 0o077).toBe(0);
+    }
+
     const page1 = await listPublished(root);
-    expect(page1.entries).toHaveLength(2);
+    expect(page1.entries).toHaveLength(3);
     expect(page1.entries.map((entry) => entry.artifactId).sort()).toEqual(
-      [`${receipt1.runId}.ledger`, `${receipt1.runId}.summary`].sort(),
+      [
+        `${receipt1.runId}.html`,
+        `${receipt1.runId}.ledger`,
+        `${receipt1.runId}.summary`,
+      ].sort(),
     );
 
     const { receipt: receipt2 } = await prepareV2(
@@ -582,7 +602,7 @@ describe("v2 publication and versioned layouts", () => {
     expect(receipt2).toEqual(receipt1);
 
     const page2 = await listPublished(root);
-    expect(page2.entries).toHaveLength(2);
+    expect(page2.entries).toHaveLength(3);
 
     const generationsDir = path.join(
       root,
@@ -764,6 +784,7 @@ describe("v2 publication and versioned layouts", () => {
     const v2Content: V2Content = {
       summary: "# Session retrospective summary\n\n- Status: complete\n",
       ledger: JSON.stringify({ schemaVersion: 1, status: "complete" }) + "\n",
+      reportHtml: "<!doctype html><html><body>Report</body></html>\n",
       status: "complete",
     };
     const { receipt: v2Receipt } = await prepareV2(
@@ -774,7 +795,7 @@ describe("v2 publication and versioned layouts", () => {
     expect(v2Receipt.artifactId).toBe(`${v2Receipt.runId}.summary`);
 
     const pageAfter = await listPublished(root);
-    expect(pageAfter.entries).toHaveLength(6);
+    expect(pageAfter.entries).toHaveLength(7);
     expect(
       pageAfter.entries
         .filter((entry) => entry.artifactId.startsWith(`${runId}.`))
@@ -796,7 +817,7 @@ describe("v2 publication and versioned layouts", () => {
 
     const deleted = await deleteSession(root, MAIN);
     expect(deleted.deleted).toBe(true);
-    expect(deleted.removedArtifacts).toBe(6);
+    expect(deleted.removedArtifacts).toBe(7);
     expect((await listPublished(root)).entries).toEqual([]);
     await expect(
       resolveArtifact(root, `${runId}.report`),
@@ -920,7 +941,7 @@ describe("v2 publication and versioned layouts", () => {
     );
   });
 
-  it("deleting a session with one v1 (4 artifacts) and one v2 (2 artifacts) removes both and reports 6 removed artifacts", async () => {
+  it("deleting a session with one v1 (4 artifacts) and one v2 (3 artifacts) removes both and reports 7 removed artifacts", async () => {
     const root = await newRoot();
     const v1Claim = await claimRun(root, MAIN, "cp-del-v1");
     await publishRun(v1Claim, [
@@ -962,12 +983,17 @@ describe("v2 publication and versioned layouts", () => {
           kind: "ledger",
           content: "{}\n",
         },
+        {
+          artifactId: `${v2Claim.runId}.html`,
+          kind: "html",
+          content: "<!doctype html><html></html>\n",
+        },
       ],
       { layout: "v2" },
     );
 
     const beforePage = await listPublished(root);
-    expect(beforePage.entries).toHaveLength(6);
+    expect(beforePage.entries).toHaveLength(7);
 
     const v1Generation = await resolveArtifact(root, `${v1Claim.runId}.report`);
     const v1GenerationDir = path.dirname(v1Generation.absolutePath);
@@ -1006,14 +1032,13 @@ describe("v2 publication and versioned layouts", () => {
     const v2Entries = currentIndex.entries.filter(
       (entry) => entry.runId === v2Claim.runId,
     );
-    expect(v2Entries).toHaveLength(2);
+    expect(v2Entries).toHaveLength(3);
     for (const entry of v2Entries)
       expect(entry).toMatchObject({ layout: "v2", schemaVersion: 2 });
 
     const result = await deleteSession(root, MAIN);
     expect(result.deleted).toBe(true);
-    expect(result.removedArtifacts).toBe(6);
-
+    expect(result.removedArtifacts).toBe(7);
     const afterPage = await listPublished(root);
     expect(afterPage.entries).toHaveLength(0);
   });
@@ -1033,6 +1058,7 @@ describe("v2 publication and versioned layouts", () => {
     const v2Content: V2Content = {
       summary: "# Session retrospective summary\n\n- Status: complete\n",
       ledger: JSON.stringify({ schemaVersion: 1, status: "complete" }) + "\n",
+      reportHtml: "<!doctype html><html></html>\n",
       status: "complete",
     };
     const { receipt: v2Receipt } = await prepareV2(
@@ -1044,8 +1070,7 @@ describe("v2 publication and versioned layouts", () => {
     expect(v2Receipt.runId).not.toBe(v1Receipt.runId);
 
     const page = await listPublished(root);
-    expect(page.entries).toHaveLength(6);
-
+    expect(page.entries).toHaveLength(7);
     const { receipt: v2Repeat } = await prepareV2(
       { root, main: MAIN, checkpointId },
       v2Content,
@@ -1104,5 +1129,56 @@ describe("v2 publication and versioned layouts", () => {
     const stagingDir = path.join(sessionDir, "staging");
     const stagingChildren = await fs.readdir(stagingDir).catch(() => []);
     expect(stagingChildren).toHaveLength(0);
+  });
+
+  it("older two-file v2 generation lacking report.html fails closed on resolveArtifact with ARTIFACT_MISSING", async () => {
+    const root = await newRoot();
+    const v2Claim = await claimRun(root, MAIN, "cp-old-two-file", {
+      layout: "v2",
+    });
+    // Publish only summary and ledger (legacy 2-file v2)
+    await publishRun(
+      v2Claim,
+      [
+        {
+          artifactId: `${v2Claim.runId}.summary`,
+          kind: "summary",
+          content: "# Old Summary\n",
+        },
+        {
+          artifactId: `${v2Claim.runId}.ledger`,
+          kind: "ledger",
+          content: "{}\n",
+        },
+      ],
+      { layout: "v2" },
+    );
+
+    // Reading the missing html artifact fails closed with ARTIFACT_NOT_FOUND (not indexed)
+    await expect(
+      resolveArtifact(root, `${v2Claim.runId}.html`),
+    ).rejects.toMatchObject({
+      code: "ARTIFACT_NOT_FOUND",
+    });
+
+    // If an index entry exists for an artifact whose file was never written,
+    // resolveArtifact fails closed with ARTIFACT_MISSING
+    const summaryArtifact = await resolveArtifact(
+      root,
+      `${v2Claim.runId}.summary`,
+    );
+    const genDir = path.dirname(summaryArtifact.absolutePath);
+    // Delete summary.md to simulate an incomplete/missing file in generation
+    await fs.unlink(summaryArtifact.absolutePath);
+    await expect(
+      resolveArtifact(root, `${v2Claim.runId}.summary`),
+    ).rejects.toMatchObject({
+      code: "ARTIFACT_MISSING",
+    });
+
+    // Cleanup via deleteSession still succeeds and cleanly removes the generation directory
+    const delResult = await deleteSession(root, MAIN);
+    expect(delResult.deleted).toBe(true);
+    await expect(fs.access(genDir)).rejects.toMatchObject({ code: "ENOENT" });
   });
 });

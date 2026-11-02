@@ -20,6 +20,7 @@ function createTreeFixture(
   return {
     sessions: 2,
     fullyRead: 2,
+    folder: null,
     coverage: "complete",
     first: "2026-10-01T10:00:00.000Z",
     last: "2026-10-01T11:00:00.000Z",
@@ -109,6 +110,7 @@ function create200CellTree(): TreeAggregate {
   return {
     sessions: 200,
     fullyRead: 200,
+    folder: null,
     coverage: "complete",
     first: "2026-10-01T00:00:00.000Z",
     last: "2026-10-28T23:59:59.000Z",
@@ -205,7 +207,7 @@ const VIEW_SCOPE = {
 
 function viewClaim(
   id: string,
-  template: Claim["template"],
+  template: Claim["template"] | "ags-lookups",
   values: Record<string, number | string>,
 ): Claim {
   return {
@@ -229,6 +231,29 @@ type ViewLedgerInput = {
   coverageValues?: Record<string, number | string>;
   claims?: Claim[];
   session?: string | null;
+  folder?: { name: string; parent: string | null } | null;
+  lookups?: {
+    tools?: Array<{
+      tool: string;
+      calls: number;
+      noMatchCalls: number;
+      errorCalls: number;
+      bodiesReturned: number;
+      reusedBodies: number;
+      mainCalls: number;
+      workerCalls: number;
+    }>;
+    skills?: Array<{
+      id: string;
+      returns: number;
+      mainReturns: number;
+      workerReturns: number;
+    }>;
+    distinctSkills?: number;
+    otherSkillReturns?: number;
+    unvalidatedReturns?: number;
+    capped?: boolean;
+  } | null;
   coverage?: "complete" | "partial";
   evidenceMode?: "native-files" | "tracker-only";
   rootVerification?: Ledger["rootVerification"];
@@ -258,6 +283,8 @@ function viewLedger(input: ViewLedgerInput = {}): Ledger {
   return {
     schemaVersion: 1,
     session: input.session === undefined ? "abcdef12" : input.session,
+    folder: input.folder ?? null,
+    lookups: input.lookups ?? null,
     cells: input.cells ?? [],
     cutoff: "2026-10-01T12:00:00.000Z",
     evidenceMode: input.evidenceMode ?? "native-files",
@@ -1266,5 +1293,536 @@ describe("retrospective summary view v3", () => {
       const text = renderSummary(fixture);
       expect(text).not.toMatch(forbidden);
     }
+  });
+
+  it("renders Scope line variants with and without folder and parent", () => {
+    // 1. folder present with parent
+    const withParent = renderSummary(
+      viewLedger({
+        session: "abcdef12",
+        folder: { parent: "ags", name: "mcp-retrospective" },
+      }),
+    );
+    expect(withParent.split("\n")[1]).toBe(
+      "Scope: session abcdef12 | folder ags/mcp-retrospective | 2026-10-01T10:00:00.000Z to 2026-10-01T11:00:00.000Z",
+    );
+
+    // 2. folder present without parent
+    const withoutParent = renderSummary(
+      viewLedger({
+        session: "abcdef12",
+        folder: { parent: null, name: "repo" },
+      }),
+    );
+    expect(withoutParent.split("\n")[1]).toBe(
+      "Scope: session abcdef12 | folder repo | 2026-10-01T10:00:00.000Z to 2026-10-01T11:00:00.000Z",
+    );
+
+    // 3. folder null with session
+    const nullFolder = renderSummary(
+      viewLedger({
+        session: "abcdef12",
+        folder: null,
+      }),
+    );
+    expect(nullFolder.split("\n")[1]).toBe(
+      "Scope: session abcdef12 | 2026-10-01T10:00:00.000Z to 2026-10-01T11:00:00.000Z",
+    );
+
+    // 4. folder present in tracker-only (session: null)
+    const trackerWithFolder = renderSummary(
+      viewLedger({
+        session: null,
+        evidenceMode: "tracker-only",
+        folder: { parent: "ags", name: "mcp-retrospective" },
+      }),
+    );
+    expect(trackerWithFolder.split("\n")[1]).toBe(
+      "Scope: folder ags/mcp-retrospective | 2026-10-01T10:00:00.000Z to 2026-10-01T11:00:00.000Z",
+    );
+
+    // 5. folder null in tracker-only (session: null)
+    const trackerNullFolder = renderSummary(
+      viewLedger({
+        session: null,
+        evidenceMode: "tracker-only",
+        folder: null,
+      }),
+    );
+    expect(trackerNullFolder.split("\n")[1]).toBe(
+      "Scope: 2026-10-01T10:00:00.000Z to 2026-10-01T11:00:00.000Z",
+    );
+  });
+
+  it("renders AGS lookups scorecard line with exact numbers and plural forms", () => {
+    const pluralLedger = viewLedger({
+      claims: [
+        viewClaim("claim:routing", "routing-order", {
+          lookupsMain: 12,
+          lookupsOthers: 4,
+          byFilesTotal: 8,
+          byKeywordsTotal: 3,
+          getSkillTotal: 1,
+          agentsWithLookup: 2,
+          agentsTotal: 3,
+          editEpisodesMain: 10,
+          unguardedEditsMain: 3,
+          editEpisodesOthers: 5,
+          unguardedEditsOthers: 2,
+          overheadCalls: 2,
+          hostSkillReadCalls: 0,
+        }),
+        viewClaim("claim:lookups", "ags-lookups", {
+          calls: 15,
+          noMatchCalls: 3,
+          errorCalls: 2,
+          bodiesReturned: 8,
+          reusedBodies: 4,
+          distinctSkills: 5,
+          filesCalls: 7,
+          filesNoMatch: 2,
+          keywordsCalls: 5,
+          keywordsNoMatch: 1,
+          nameCalls: 3,
+          nameNoMatch: 0,
+        }),
+      ],
+    });
+
+    const pluralSummary = renderSummary(pluralLedger);
+    const pluralLines = pluralSummary.split("\n");
+    const scoreIdx = pluralLines.indexOf("## Scorecards");
+    expect(scoreIdx).toBeGreaterThan(-1);
+
+    expect(pluralLines[scoreIdx + 2]).toContain("AGS routing: main");
+    expect(pluralLines[scoreIdx + 3]).toBe(
+      "AGS lookups: 8 skill bodies returned from 5 distinct skills; 3 of 15 lookups matched nothing; 4 already loaded; 2 errors. Calls by file 7 (2 matched nothing), by keyword 5 (1), by name 3 (0). Skill-level detail is in report.html.",
+    );
+    expect(pluralLines[scoreIdx + 4]).toContain(
+      "Edits: 15 edit or file-write calls",
+    );
+
+    const singularLedger = viewLedger({
+      claims: [
+        viewClaim("claim:routing", "routing-order", {
+          lookupsMain: 1,
+          lookupsOthers: 0,
+          byFilesTotal: 1,
+          byKeywordsTotal: 0,
+          getSkillTotal: 0,
+          agentsWithLookup: 1,
+          agentsTotal: 1,
+          editEpisodesMain: 1,
+          unguardedEditsMain: 0,
+          editEpisodesOthers: 0,
+          unguardedEditsOthers: 0,
+          overheadCalls: 0,
+          hostSkillReadCalls: 0,
+        }),
+        viewClaim("claim:lookups", "ags-lookups", {
+          calls: 1,
+          noMatchCalls: 1,
+          errorCalls: 1,
+          bodiesReturned: 1,
+          reusedBodies: 0,
+          distinctSkills: 1,
+          filesCalls: 1,
+          filesNoMatch: 1,
+          keywordsCalls: 0,
+          keywordsNoMatch: 0,
+          nameCalls: 0,
+          nameNoMatch: 0,
+        }),
+      ],
+    });
+
+    const singularSummary = renderSummary(singularLedger);
+    const singularLines = singularSummary.split("\n");
+    const singScoreIdx = singularLines.indexOf("## Scorecards");
+    expect(singularLines[singScoreIdx + 3]).toBe(
+      "AGS lookups: 1 skill body returned from 1 distinct skill; 1 of 1 lookup matched nothing; 0 already loaded; 1 error. Calls by file 1 (1 matched nothing), by keyword 0 (0), by name 0 (0). Skill-level detail is in report.html.",
+    );
+  });
+
+  it("omits AGS lookups line when calls is zero or claim is absent", () => {
+    const zeroCallsSummary = renderSummary(
+      viewLedger({
+        claims: [
+          viewClaim("claim:routing", "routing-order", {
+            lookupsMain: 0,
+            lookupsOthers: 0,
+            byFilesTotal: 0,
+            byKeywordsTotal: 0,
+            getSkillTotal: 0,
+            agentsWithLookup: 0,
+            agentsTotal: 1,
+            editEpisodesMain: 0,
+            unguardedEditsMain: 0,
+            editEpisodesOthers: 0,
+            unguardedEditsOthers: 0,
+            overheadCalls: 0,
+            hostSkillReadCalls: 0,
+          }),
+          viewClaim("claim:lookups", "ags-lookups", {
+            calls: 0,
+            noMatchCalls: 0,
+            errorCalls: 0,
+            bodiesReturned: 0,
+            reusedBodies: 0,
+            distinctSkills: 0,
+            filesCalls: 0,
+            filesNoMatch: 0,
+            keywordsCalls: 0,
+            keywordsNoMatch: 0,
+            nameCalls: 0,
+            nameNoMatch: 0,
+          }),
+        ],
+      }),
+    );
+    expect(
+      zeroCallsSummary
+        .split("\n")
+        .some(
+          (line) =>
+            line.startsWith("AGS lookups: ") && line.includes("returned from"),
+        ),
+    ).toBe(false);
+
+    const noClaimSummary = renderSummary(
+      viewLedger({
+        claims: [
+          viewClaim("claim:routing", "routing-order", {
+            lookupsMain: 5,
+            lookupsOthers: 0,
+            byFilesTotal: 5,
+            byKeywordsTotal: 0,
+            getSkillTotal: 0,
+            agentsWithLookup: 1,
+            agentsTotal: 1,
+            editEpisodesMain: 0,
+            unguardedEditsMain: 0,
+            editEpisodesOthers: 0,
+            unguardedEditsOthers: 0,
+            overheadCalls: 0,
+            hostSkillReadCalls: 0,
+          }),
+        ],
+      }),
+    );
+    expect(
+      noClaimSummary
+        .split("\n")
+        .some(
+          (line) =>
+            line.startsWith("AGS lookups: ") && line.includes("returned from"),
+        ),
+    ).toBe(false);
+  });
+
+  it("renders lookup-misses manager improvement card with exact wording", () => {
+    const improvements: LedgerImprovement[] = [
+      {
+        rule: "lookup-misses" as LedgerImprovement["rule"],
+        level: "watch",
+        destination: "agent-routing",
+        audience: "manager",
+        claimIds: ["claim:lookups"],
+        evidence: [
+          "agg:claim:ags-lookups:calls",
+          "agg:claim:ags-lookups:noMatchCalls",
+        ],
+        values: {
+          calls: 20,
+          noMatchCalls: 6,
+          percent: 30,
+          filesNoMatch: 4,
+          keywordsNoMatch: 2,
+        },
+      },
+    ];
+
+    const summary = renderSummary(viewLedger({ improvements }));
+    const lines = summary.split("\n");
+    const doNextIdx = lines.indexOf("## Do next");
+    expect(doNextIdx).toBeGreaterThan(-1);
+
+    expect(lines[doNextIdx + 1]).toBe(
+      "1. [WATCH] 6 of 20 lookups matched nothing",
+    );
+    expect(lines[doNextIdx + 2]).toBe(
+      "   Saw: AGS returned no skill for 30% of lookups (4 by file, 2 by keyword).",
+    );
+    expect(lines[doNextIdx + 3]).toBe(
+      "   Change (AGS routing): check the trigger words and file patterns of the skills these lookups should have found, and the file types the lookups were for. Next time: lookups that matched nothing (now 30%).",
+    );
+  });
+
+  it("does not leak skill names or ids anywhere in summary.md even when ledger.lookups has skill ids", () => {
+    const summary = renderSummary(
+      viewLedger({
+        lookups: {
+          tools: [
+            {
+              tool: "load_skills_for_files",
+              calls: 10,
+              noMatchCalls: 2,
+              errorCalls: 0,
+              bodiesReturned: 8,
+              reusedBodies: 2,
+              mainCalls: 6,
+              workerCalls: 4,
+            },
+          ],
+          skills: [
+            {
+              id: "typescript/strict-types",
+              returns: 5,
+              mainReturns: 3,
+              workerReturns: 2,
+            },
+            {
+              id: "database/postgres-pool",
+              returns: 3,
+              mainReturns: 1,
+              workerReturns: 2,
+            },
+          ],
+          distinctSkills: 2,
+          otherSkillReturns: 0,
+          unvalidatedReturns: 0,
+          capped: false,
+        },
+        claims: [
+          viewClaim("claim:routing", "routing-order", {
+            lookupsMain: 6,
+            lookupsOthers: 4,
+            byFilesTotal: 10,
+            byKeywordsTotal: 0,
+            getSkillTotal: 0,
+            agentsWithLookup: 2,
+            agentsTotal: 2,
+            editEpisodesMain: 2,
+            unguardedEditsMain: 0,
+            editEpisodesOthers: 0,
+            unguardedEditsOthers: 0,
+            overheadCalls: 0,
+            hostSkillReadCalls: 0,
+          }),
+          viewClaim("claim:lookups", "ags-lookups", {
+            calls: 10,
+            noMatchCalls: 2,
+            errorCalls: 0,
+            bodiesReturned: 8,
+            reusedBodies: 2,
+            distinctSkills: 2,
+            filesCalls: 10,
+            filesNoMatch: 2,
+            keywordsCalls: 0,
+            keywordsNoMatch: 0,
+            nameCalls: 0,
+            nameNoMatch: 0,
+          }),
+        ],
+      }),
+    );
+
+    expect(summary).toContain(
+      "AGS lookups: 8 skill bodies returned from 2 distinct skills;",
+    );
+    expect(summary).not.toContain("typescript/strict-types");
+    expect(summary).not.toContain("strict-types");
+    expect(summary).not.toContain("database/postgres-pool");
+    expect(summary).not.toContain("postgres-pool");
+  });
+
+  it("fits 60-line and 6144-byte budget when AGS lookups and lookup-misses are present", () => {
+    const improvements: LedgerImprovement[] = [
+      {
+        rule: "guardrail-answers",
+        level: "act",
+        destination: "permission-setup",
+        audience: "manager",
+        claimIds: ["claim:perm"],
+        evidence: ["agg:claim:permission-answers:answers"],
+        values: {
+          answers: 5,
+          allow: 4,
+          deny: 1,
+          targetsAtLeast3: 1,
+          per100Tenths: 125,
+        },
+      },
+      {
+        rule: "cost-concentration",
+        level: "watch",
+        destination: "orchestration-config",
+        audience: "manager",
+        claimIds: ["claim:cost"],
+        evidence: ["agg:claim:cost-drivers:costCentsMain"],
+        values: {
+          sharePercent: 62,
+          cacheReadPerTurnMain: 25000,
+          cacheReadPerTurnOthers: 5000,
+          compactionsMain: 2,
+          mainReadCalls: 30,
+          mainEditCalls: 10,
+          mainCoordinationCalls: 15,
+        },
+      },
+      {
+        rule: "unguarded-edits",
+        level: "watch",
+        destination: "agent-routing",
+        audience: "manager",
+        claimIds: ["claim:routing"],
+        evidence: ["agg:claim:routing-order:unguardedEditsMain"],
+        values: {
+          unguardedEdits: 5,
+          editEpisodes: 15,
+          byFilesTotal: 8,
+          getSkillTotal: 1,
+          unguardedPercent: 33,
+        },
+      },
+      {
+        rule: "lookup-misses" as LedgerImprovement["rule"],
+        level: "watch",
+        destination: "agent-routing",
+        audience: "manager",
+        claimIds: ["claim:lookups"],
+        evidence: ["agg:claim:ags-lookups:noMatchCalls"],
+        values: {
+          calls: 15,
+          noMatchCalls: 3,
+          percent: 20,
+          filesNoMatch: 2,
+          keywordsNoMatch: 1,
+        },
+      },
+      {
+        rule: "coverage-gap",
+        level: "watch",
+        destination: "session-linkage",
+        audience: "maintainer",
+        claimIds: [COVERAGE_ID],
+        evidence: ["agg:claim:coverage:unlinkedAgents"],
+        values: {
+          unlinkedAgents: 1,
+          agentsCreated: 5,
+        },
+      },
+      {
+        rule: "tracker-not-measured",
+        level: "watch",
+        destination: "tracker-binding",
+        audience: "maintainer",
+        claimIds: ["claim:skill"],
+        evidence: ["agg:claim:skill-usage:trackerWindow"],
+        values: {},
+      },
+    ];
+
+    const ledger = viewLedger({
+      coverageValues: {
+        agentsCreated: 5,
+        sessionsLinked: 3,
+        sessions: 2,
+        skippedLines: 0,
+      },
+      folder: { parent: "ags", name: "mcp-retrospective" },
+      agents: [
+        {
+          label: "main",
+          kind: "editing",
+          turns: 100,
+          costCents: 1550,
+          compactions: 2,
+          cacheReadPerTurn: 25000,
+          errorStops: 0,
+          toolCalls: 60,
+          toolErrors: 0,
+          editCalls: 10,
+          bashCalls: 5,
+          readCalls: 30,
+          agsLookups: 12,
+          permissionAnswers: 5,
+          model: "claude-3-5-sonnet",
+        },
+      ],
+      claims: [
+        viewClaim("claim:perm", "permission-answers", {
+          answers: 5,
+          allow: 4,
+          deny: 1,
+          targetsAtLeast3: 1,
+          turns: 40,
+        }),
+        viewClaim("claim:cost", "cost-drivers", {
+          turnsMain: 100,
+          costCentsMain: 1550,
+          turnsOthers: 50,
+          costCentsOthers: 950,
+          cacheReadPerTurnMain: 25000,
+          cacheReadPerTurnOthers: 5000,
+          compactionsMain: 2,
+          postCompactionCacheReadPerTurnMain: 12000,
+          maxCacheReadMain: 45000,
+          mainToolCalls: 60,
+          mainReadCalls: 30,
+          mainEditCalls: 10,
+          mainBashCalls: 5,
+          mainCoordinationCalls: 15,
+          costCentsMainReads: 775,
+          costCentsMainCoordination: 388,
+        }),
+        viewClaim("claim:routing", "routing-order", {
+          lookupsMain: 12,
+          lookupsOthers: 4,
+          byFilesTotal: 8,
+          byKeywordsTotal: 3,
+          getSkillTotal: 1,
+          agentsWithLookup: 2,
+          agentsTotal: 3,
+          editEpisodesMain: 10,
+          unguardedEditsMain: 3,
+          editEpisodesOthers: 5,
+          unguardedEditsOthers: 2,
+          overheadCalls: 2,
+          hostSkillReadCalls: 0,
+        }),
+        viewClaim("claim:lookups", "ags-lookups", {
+          calls: 15,
+          noMatchCalls: 3,
+          errorCalls: 2,
+          bodiesReturned: 8,
+          reusedBodies: 4,
+          distinctSkills: 5,
+          filesCalls: 7,
+          filesNoMatch: 2,
+          keywordsCalls: 5,
+          keywordsNoMatch: 1,
+          nameCalls: 3,
+          nameNoMatch: 0,
+        }),
+        viewClaim("claim:skill", "skill-usage", {
+          trackerWindow: "matches-session",
+          noMatchCalls: 1,
+          loadCalls: 3,
+          bodyReturns: 2,
+        }),
+      ],
+      improvements,
+    });
+
+    const summary = renderSummary(ledger);
+    const lines = summary.split("\n");
+
+    expect(lines.length).toBeLessThanOrEqual(60);
+    expect(Buffer.byteLength(summary, "utf8")).toBeLessThanOrEqual(6144);
+    expect(summary).toContain(
+      "AGS lookups: 8 skill bodies returned from 5 distinct skills;",
+    );
+    expect(summary).toContain("3 of 15 lookups matched nothing");
   });
 });

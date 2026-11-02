@@ -25,6 +25,7 @@ import { prepareV2 } from "./prepare";
 import { RetrospectiveError } from "./rules";
 import { resolveArtifact, StoreError } from "./store";
 import { renderSummary } from "./views/summary";
+import { renderReportHtml } from "./views/report-html";
 import type { SessionTracker } from "../services/SessionTracker";
 
 export type RunDeps = {
@@ -62,7 +63,7 @@ export type RunResult =
         claims: number;
         hypotheses: number;
       };
-      viewPaths: { summary: string; ledger: string };
+      viewPaths: { summary: string; ledger: string; reportHtml: string };
     }
   | {
       resultVersion: 1;
@@ -115,6 +116,7 @@ const storedClaimSchema = z.strictObject({
     "permission-answers",
     "cost-drivers",
     "routing-order",
+    "ags-lookups",
   ]),
   values: z.record(z.string(), z.union([z.number(), z.string()])),
   scope: z.strictObject({
@@ -205,6 +207,7 @@ const storedImprovementSchema = z.strictObject({
     "guardrail-answers",
     "cost-concentration",
     "unguarded-edits",
+    "lookup-misses",
     "human-intervention",
     "agent-error-concentration",
     "coverage-gap",
@@ -225,6 +228,48 @@ const storedImprovementSchema = z.strictObject({
   values: z.record(z.string(), z.number().int()),
 });
 
+const storedFolderSchema = z
+  .strictObject({
+    name: z.string().min(1),
+    parent: z.string().min(1).nullable(),
+  })
+  .nullable();
+
+const storedLookupToolSchema = z.strictObject({
+  tool: z.enum([
+    "load_skills_for_files",
+    "load_skills_for_keywords",
+    "get_skill",
+    "get_workflow",
+    "get_category_guide",
+  ]),
+  calls: z.number().int().nonnegative(),
+  noMatchCalls: z.number().int().nonnegative(),
+  errorCalls: z.number().int().nonnegative(),
+  bodiesReturned: z.number().int().nonnegative(),
+  reusedBodies: z.number().int().nonnegative(),
+  mainCalls: z.number().int().nonnegative(),
+  workerCalls: z.number().int().nonnegative(),
+});
+
+const storedLookupSkillSchema = z.strictObject({
+  id: z.string().min(1),
+  returns: z.number().int().nonnegative(),
+  mainReturns: z.number().int().nonnegative(),
+  workerReturns: z.number().int().nonnegative(),
+});
+
+const storedLookupsSchema = z
+  .strictObject({
+    tools: z.array(storedLookupToolSchema).length(5),
+    skills: z.array(storedLookupSkillSchema).max(30),
+    distinctSkills: z.number().int().nonnegative(),
+    otherSkillReturns: z.number().int().nonnegative(),
+    unvalidatedReturns: z.number().int().nonnegative(),
+    capped: z.boolean(),
+  })
+  .nullable();
+
 const storedLedgerSchema = z.strictObject({
   schemaVersion: z.literal(1),
   cutoff: z.string().min(1),
@@ -240,6 +285,8 @@ const storedLedgerSchema = z.strictObject({
     claims: z.number().int().nonnegative(),
     hypotheses: z.number().int().nonnegative(),
   }),
+  folder: storedFolderSchema,
+  lookups: storedLookupsSchema,
   skillUsage: storedSkillUsageSchema.nullable(),
   hostSkills: storedHostSkillsSchema.nullable(),
   cells: z.array(storedCellSchema),
@@ -286,7 +333,7 @@ async function resolveSiblingPath(
   baseArtifactId: string,
   baseSessionToken: string,
   baseGenerationId: string,
-  targetKind: "summary" | "ledger",
+  targetKind: "summary" | "ledger" | "html",
 ): Promise<string> {
   const runId = runIdFromArtifact(baseArtifactId, "summary");
   const siblingId = `${runId}.${targetKind}`;
@@ -441,6 +488,13 @@ async function publishResult(args: {
     resolvedSummary.generationId,
     "ledger",
   );
+  const htmlPath = await resolveSiblingPath(
+    args.storeRoot,
+    args.prep.receipt.artifactId,
+    resolvedSummary.sessionToken,
+    resolvedSummary.generationId,
+    "html",
+  );
 
   // A joined run observed someone else's committed generation: report its numbers,
   // never the ones recomputed from a source that moved on since.
@@ -460,6 +514,7 @@ async function publishResult(args: {
     viewPaths: {
       summary: resolvedSummary.absolutePath,
       ledger: ledgerPath,
+      reportHtml: htmlPath,
     },
   };
 }
@@ -563,6 +618,7 @@ export async function runRetrospective(
 
       const summaryText = renderSummary(ledger);
       const ledgerText = `${JSON.stringify(ledger)}\n`;
+      const htmlText = renderReportHtml(ledger);
 
       if (deps.beforePublish) {
         await deps.beforePublish();
@@ -574,7 +630,12 @@ export async function runRetrospective(
 
       const prep = await prepareV2(
         { root: originalConsent.storeRoot, main, checkpointId },
-        { summary: summaryText, ledger: ledgerText, status: "partial" },
+        {
+          summary: summaryText,
+          ledger: ledgerText,
+          reportHtml: htmlText,
+          status: "partial",
+        },
         signal,
       );
 
@@ -685,6 +746,7 @@ export async function runRetrospective(
 
     const summaryText = renderSummary(ledger);
     const ledgerText = `${JSON.stringify(ledger)}\n`;
+    const htmlText = renderReportHtml(ledger);
 
     if (deps.beforePublish) {
       await deps.beforePublish();
@@ -696,7 +758,12 @@ export async function runRetrospective(
 
     const prep = await prepareV2(
       { root: originalConsent.storeRoot, main: mainKey, checkpointId },
-      { summary: summaryText, ledger: ledgerText, status: ledger.coverage },
+      {
+        summary: summaryText,
+        ledger: ledgerText,
+        reportHtml: htmlText,
+        status: ledger.coverage,
+      },
       signal,
     );
 

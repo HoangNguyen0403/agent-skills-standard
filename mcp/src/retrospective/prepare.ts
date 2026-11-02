@@ -342,6 +342,7 @@ export async function prepareLocal(
 export type V2Content = {
   summary: string;
   ledger: string;
+  reportHtml: string;
   status: ReportStatus;
 };
 
@@ -411,9 +412,11 @@ export async function prepareV2(
     try {
       const summaryId = artifactIdFor(claim.runId, "summary");
       const ledgerId = artifactIdFor(claim.runId, "ledger");
+      const htmlId = artifactIdFor(claim.runId, "html");
       const artifacts: PublishArtifact[] = [
         { artifactId: summaryId, kind: "summary", content: content.summary },
         { artifactId: ledgerId, kind: "ledger", content: content.ledger },
+        { artifactId: htmlId, kind: "html", content: content.reportHtml },
       ];
       const result = await publishRun(claim, artifacts, {
         status: content.status,

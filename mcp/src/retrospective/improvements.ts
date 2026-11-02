@@ -7,6 +7,7 @@ export type ImprovementRuleId =
   | "guardrail-answers"
   | "cost-concentration"
   | "unguarded-edits"
+  | "lookup-misses"
   | "human-intervention"
   | "agent-error-concentration"
   | "coverage-gap"
@@ -63,6 +64,10 @@ export const IMPROVEMENT_THRESHOLDS = Object.freeze({
   UNGUARDED_EDITS_MIN_EPISODES: 10,
   /** unguarded-edits: unguarded multiplier vs total edit episodes (unguarded * 2 >= total -> >= 50%) */
   UNGUARDED_EDITS_SHARE_MULTIPLIER: 2,
+  /** lookup-misses: minimum lookup calls required to fire */
+  LOOKUP_MISSES_MIN_CALLS: 10,
+  /** lookup-misses: noMatchCalls multiplier vs calls (noMatchCalls * 4 >= calls -> >= 25%) */
+  LOOKUP_MISSES_NO_MATCH_MULTIPLIER: 4,
   /** human-intervention: (askCalls + abortedStops) per 100 turns threshold (>= 1 per 100 turns) */
   HUMAN_INTERVENTION_PER_100_TURNS: 1,
   /** agent-error-concentration: minimum agent turns to qualify */
@@ -300,7 +305,47 @@ export function deriveImprovements(
     }
   }
 
-  // 4. human-intervention
+  // 4. lookup-misses
+  // Audience: manager, Destination: agent-routing
+  // Fires when claim 'ags-lookups' exists, calls >= 10 and noMatchCalls * 4 >= calls.
+  // level 'watch'.
+  // values: calls, noMatchCalls, percent (round(noMatchCalls*100/calls)), filesNoMatch, keywordsNoMatch.
+  // evidence: agg:claim:ags-lookups:calls, agg:claim:ags-lookups:noMatchCalls.
+  const lookupsClaim = claimsByTemplate.get("ags-lookups");
+  if (lookupsClaim) {
+    const calls = getNumber(lookupsClaim.values, "calls");
+    const noMatchCalls = getNumber(lookupsClaim.values, "noMatchCalls");
+    if (
+      calls >= IMPROVEMENT_THRESHOLDS.LOOKUP_MISSES_MIN_CALLS &&
+      noMatchCalls * IMPROVEMENT_THRESHOLDS.LOOKUP_MISSES_NO_MATCH_MULTIPLIER >=
+        calls
+    ) {
+      const filesNoMatch = getNumber(lookupsClaim.values, "filesNoMatch");
+      const keywordsNoMatch = getNumber(lookupsClaim.values, "keywordsNoMatch");
+      const percent = calls > 0 ? Math.round((noMatchCalls * 100) / calls) : 0;
+
+      managerImprovements.push({
+        rule: "lookup-misses",
+        level: "watch",
+        destination: "agent-routing",
+        audience: "manager",
+        claimIds: [lookupsClaim.id],
+        evidence: [
+          "agg:claim:ags-lookups:calls",
+          "agg:claim:ags-lookups:noMatchCalls",
+        ],
+        values: {
+          calls,
+          noMatchCalls,
+          percent,
+          filesNoMatch,
+          keywordsNoMatch,
+        },
+      });
+    }
+  }
+
+  // 5. human-intervention
   // Audience: manager, Destination: orchestration-config
   // Fires when claim 'permission-answers' exists and (askCalls + abortedStops)*100 >= turns (>= 1 per 100 turns).
   // level 'watch'.
@@ -337,7 +382,7 @@ export function deriveImprovements(
     }
   }
 
-  // 5. agent-error-concentration
+  // 6. agent-error-concentration
   // Audience: manager, Destination: provider-route-monitoring
   // Fires when at least one entry of `agents` has turns >= 5 and errorStops*2 >= turns.
   // level 'watch'.
@@ -396,7 +441,7 @@ export function deriveImprovements(
     });
   }
 
-  // 6. coverage-gap
+  // 7. coverage-gap
   // Audience: maintainer, Destination: session-linkage, level: 'watch'
   // Fires when agentsCreated > 0 and unlinkedAgents*4 >= agentsCreated.
   // values: agentsCreated, unlinkedAgents. evidence: []; claimIds: the coverage claim id when present.
@@ -421,7 +466,7 @@ export function deriveImprovements(
     });
   }
 
-  // 7. tracker-not-measured
+  // 8. tracker-not-measured
   // Audience: maintainer, Destination: tracker-binding, level: 'watch'
   // Fires when trackerWindow === "process-only".
   // values: {}. claimIds: the skill-usage claim id when present.
@@ -439,7 +484,7 @@ export function deriveImprovements(
   }
 
   // Ordering:
-  // All manager rules first, in order of rules 1..5:
+  // All manager rules first, in order of rules 1..6:
   // Stable sort: 'act' before 'watch'
   const managerAct: LedgerImprovement[] = [];
   const managerWatch: LedgerImprovement[] = [];
