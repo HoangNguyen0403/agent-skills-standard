@@ -193,6 +193,13 @@ export type PermissionRequestTally = {
   other: number;
   unanswered: number;
 };
+export type PermissionCommandEntry = {
+  text: string;
+  tool: string;
+  kind: string;
+  tally: PermissionRequestTally;
+};
+
 export type PermissionRequestStats = {
   asked: number;
   answered: number;
@@ -200,6 +207,8 @@ export type PermissionRequestStats = {
   agentsAsked: number;
   tools: Record<string, PermissionRequestTally>;
   programs: Record<string, PermissionRequestTally>;
+  commands: Record<string, PermissionCommandEntry>;
+  commandsOmitted: number;
 };
 
 export function createEmptyPermissionRequestStats(): PermissionRequestStats {
@@ -210,6 +219,8 @@ export function createEmptyPermissionRequestStats(): PermissionRequestStats {
     agentsAsked: 0,
     tools: {},
     programs: {},
+    commands: {},
+    commandsOmitted: 0,
   };
 }
 
@@ -224,6 +235,15 @@ export function clonePermissionRequestStats(
   for (const [k, v] of Object.entries(stats.programs)) {
     programs[k] = { ...v };
   }
+  const commands: Record<string, PermissionCommandEntry> = {};
+  for (const [k, v] of Object.entries(stats.commands)) {
+    commands[k] = {
+      text: v.text,
+      tool: v.tool,
+      kind: v.kind,
+      tally: { ...v.tally },
+    };
+  }
   return {
     asked: stats.asked,
     answered: stats.answered,
@@ -231,6 +251,8 @@ export function clonePermissionRequestStats(
     agentsAsked: stats.agentsAsked,
     tools,
     programs,
+    commands,
+    commandsOmitted: stats.commandsOmitted,
   };
 }
 
@@ -415,7 +437,7 @@ const MAX_REQUEST_VERDICTS_CAP = 20_000;
 const MAX_DISTINCT_AGENTS_CAP = 500;
 const MAX_TOOL_TALLY_KEYS = 20;
 const MAX_PROGRAM_TALLY_KEYS = 60;
-
+const MAX_COMMAND_TALLY_KEYS = 200;
 function recordPermissionTally(
   map: Record<string, PermissionRequestTally>,
   rawKey: string,
@@ -462,12 +484,21 @@ function recordPermissionTally(
 function buildPermissionRequestStats(
   requests: Map<
     string,
-    { tool: string; program: string | null; agent: string }
+    {
+      tool: string;
+      program: string | null;
+      agent: string;
+      kind: string;
+      command: string | null;
+    }
   >,
   verdicts: Map<string, "allow" | "deny" | "other">,
 ): PermissionRequestStats {
   const tools: Record<string, PermissionRequestTally> = {};
   const programs: Record<string, PermissionRequestTally> = {};
+  const commands: Record<string, PermissionCommandEntry> = {};
+  let commandsOmitted = 0;
+  let commandKeysCount = 0;
 
   let answered = 0;
   const distinctAgents = new Set<string>();
@@ -494,6 +525,39 @@ function buildPermissionRequestStats(
         MAX_PROGRAM_TALLY_KEYS,
       );
     }
+
+    if (req.command === null) {
+      commandsOmitted += 1;
+    } else {
+      const hashInput = `${req.tool}\n${req.kind}\n${req.command}`;
+      const cmdKey = crypto
+        .createHash("sha256")
+        .update(hashInput)
+        .digest("hex")
+        .slice(0, 16);
+
+      const existing = commands[cmdKey];
+      if (existing !== undefined) {
+        existing.tally.asked += 1;
+        existing.tally[verdictKey] += 1;
+      } else if (commandKeysCount < MAX_COMMAND_TALLY_KEYS) {
+        commandKeysCount += 1;
+        commands[cmdKey] = {
+          text: req.command,
+          tool: req.tool,
+          kind: req.kind,
+          tally: {
+            asked: 1,
+            allow: verdictKey === "allow" ? 1 : 0,
+            deny: verdictKey === "deny" ? 1 : 0,
+            other: verdictKey === "other" ? 1 : 0,
+            unanswered: verdictKey === "unanswered" ? 1 : 0,
+          },
+        };
+      } else {
+        commandsOmitted += 1;
+      }
+    }
   }
 
   let answeredWithoutRequest = 0;
@@ -510,6 +574,8 @@ function buildPermissionRequestStats(
     agentsAsked: distinctAgents.size,
     tools,
     programs,
+    commands,
+    commandsOmitted,
   };
 }
 
@@ -819,7 +885,13 @@ export async function aggregateSession(
     };
     const permissionRequestsMap = new Map<
       string,
-      { tool: string; program: string | null; agent: string }
+      {
+        tool: string;
+        program: string | null;
+        agent: string;
+        kind: string;
+        command: string | null;
+      }
     >();
     const permissionVerdictsMap = new Map<string, "allow" | "deny" | "other">();
     const context: ContextStats = {
@@ -962,6 +1034,8 @@ export async function aggregateSession(
                   tool: parsed.tool,
                   program: parsed.program,
                   agent: parsed.agent,
+                  kind: parsed.kind,
+                  command: parsed.command,
                 });
               }
             }

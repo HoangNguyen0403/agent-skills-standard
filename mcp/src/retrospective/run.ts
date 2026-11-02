@@ -241,6 +241,17 @@ const storedPermissionRowSchema = z.strictObject({
   unanswered: z.number().int().nonnegative(),
 });
 
+const storedPermissionCommandSchema = z.strictObject({
+  text: z.string(),
+  tool: z.string().min(1),
+  kind: z.string().min(1),
+  asked: z.number().int().nonnegative(),
+  allow: z.number().int().nonnegative(),
+  deny: z.number().int().nonnegative(),
+  other: z.number().int().nonnegative(),
+  unanswered: z.number().int().nonnegative(),
+});
+
 const storedPermissionRequestsSchema = z
   .strictObject({
     asked: z.number().int().nonnegative(),
@@ -251,6 +262,9 @@ const storedPermissionRequestsSchema = z
     tools: z.array(storedPermissionRowSchema).max(10),
     programs: z.array(storedPermissionRowSchema).max(15),
     distinctPrograms: z.number().int().nonnegative(),
+    commands: z.array(storedPermissionCommandSchema).max(50),
+    distinctCommands: z.number().int().nonnegative(),
+    commandsOmitted: z.number().int().nonnegative(),
   })
   .nullable();
 const storedAgentSchema = z.strictObject({

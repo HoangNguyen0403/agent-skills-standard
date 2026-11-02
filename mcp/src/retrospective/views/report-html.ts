@@ -90,6 +90,17 @@ export type LedgerPermissionRow = {
   unanswered: number;
 };
 
+export type LedgerPermissionCommand = {
+  text: string;
+  tool: string;
+  kind: string;
+  asked: number;
+  allow: number;
+  deny: number;
+  other: number;
+  unanswered: number;
+};
+
 export type LedgerPermissionRequests = {
   asked: number;
   answered: number;
@@ -99,6 +110,9 @@ export type LedgerPermissionRequests = {
   tools: LedgerPermissionRow[];
   programs: LedgerPermissionRow[];
   distinctPrograms: number;
+  commands: LedgerPermissionCommand[];
+  distinctCommands: number;
+  commandsOmitted: number;
 };
 
 type ViewLedger = Ledger & {
@@ -155,7 +169,7 @@ const DECISION_BY_RULE: Record<string, string> = {
 
 const UNKNOWN_BY_RULE: Record<string, string> = {
   "guardrail-answers":
-    "why each request was needed and whether the command was safe: only the tool and the program word are recorded",
+    "whether each command was safe: read the commands in Permission requests",
   "cost-concentration":
     "why the main kept the work and whether the spend was worth it",
   "unguarded-edits": "whether the edited files needed a skill",
@@ -594,8 +608,8 @@ function renderPermissionRequests(
 
   let html = "<h3>Permission requests</h3>\n";
   html +=
-    "<p>What agents asked permission for, and what was answered. Only the tool and the first word of a command are recorded; the command text is not read.</p>\n";
-  html += `<p>${asked} requests from ${agentsAsked} agents; ${answered} answered (${allowed} allowed, ${denied} denied), ${unanswered} unanswered.</p>\n`;
+    "<p>What agents asked permission for, and what was answered. Commands are shown as recorded, after best-effort removal of secrets (tokens, keys, passwords, credentials in URLs). Review before sharing this report.</p>\n";
+  html += `<p>${plural(asked, "request")} from ${plural(agentsAsked, "agent")}; ${answered} answered (${allowed} allowed, ${denied} denied), ${unanswered} unanswered.</p>\n`;
 
   html += `<h4>By tool</h4>
 <table>
@@ -662,14 +676,52 @@ function renderPermissionRequests(
     const listStr = deniedPrograms.map((name) => escapeHtml(name)).join(", ");
     html += `<p>Denied requests show where the setup said no; read them before widening the allowlist: ${listStr}.</p>\n`;
   }
+  if (permissionRequests.commands && permissionRequests.commands.length > 0) {
+    html += `<h4>Requests to review</h4>
+<table>
+<thead>
+<tr>
+<th>Verdicts</th>
+<th>Asked</th>
+<th>Tool</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>\n`;
+    for (const r of permissionRequests.commands) {
+      let verdicts = `${r.allow} allowed, ${r.deny} denied`;
+      if (r.other > 0) {
+        verdicts += `, ${r.other} other`;
+      }
+      if (r.unanswered > 0) {
+        verdicts += `, ${r.unanswered} unanswered`;
+      }
+      const toolText =
+        r.kind !== "tool"
+          ? `${escapeHtml(r.tool)} (${escapeHtml(r.kind)})`
+          : escapeHtml(r.tool);
+      const trClass = r.deny > 0 ? ' class="denied"' : "";
+      html += `<tr${trClass}><td>${escapeHtml(verdicts)}</td><td>${r.asked}</td><td>${toolText}</td><td><pre class="cmd">${escapeHtml(r.text)}</pre></td></tr>\n`;
+    }
+    html += `</tbody>
+</table>\n`;
+
+    if (
+      permissionRequests.distinctCommands > permissionRequests.commands.length
+    ) {
+      html += `<p>Showing ${permissionRequests.commands.length} of ${permissionRequests.distinctCommands} distinct requests; denied ones come first.</p>\n`;
+    }
+    if (permissionRequests.commandsOmitted > 0) {
+      html += `<p>${permissionRequests.commandsOmitted} requests had no command text recorded.</p>\n`;
+    }
+  }
 
   if (answeredWithoutRequest > 0) {
     html += `<p>${answeredWithoutRequest} answers had no matching request in this session file (answered through a pending-permissions list).</p>\n`;
   }
 
   html +=
-    "<p>Programs are the first word of the command (after wrappers such as rtk proxy and env); sudo, sh and bash hide the real command.</p>\n";
-
+    "<p>Programs are the first word of the command (after wrappers such as rtk proxy and env). Redaction is best effort: check the commands before sharing this report.</p>\n";
   return html;
 }
 
@@ -1322,6 +1374,10 @@ tr.total td{font-weight:700;border-top:1px solid var(--line)}
 ul{margin:8px 0;padding-left:20px}
 li{margin:4px 0;font-size:14px}
 @media(max-width:820px){.tiles{grid-template-columns:1fr}}
+pre.cmd{white-space:pre-wrap;word-break:break-word;margin:0;font:12px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;max-width:70ch;text-align:left}
+tr.denied{border-left:3px solid var(--red)}
+tr.denied td:first-child{border-left:3px solid var(--red)}
+
 </style>
 </head>
 <body>

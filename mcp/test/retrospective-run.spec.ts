@@ -2290,9 +2290,210 @@ describe("runRetrospective orchestration (Task S4b)", () => {
     });
   });
 
+  it("rejects a stored ledger whose permissionRequests field lacks commands, distinctCommands, or commandsOmitted", async () => {
+    const fx = await setupBoundSession(
+      "ags-run-stored-no-commands-",
+      "sess-stored-no-commands",
+    );
+    const cutoff = "2026-10-01T00:00:00.000Z";
+    const olderLedger = {
+      schemaVersion: 1,
+      cutoff,
+      session: "abcdef12",
+      evidenceMode: "native-files",
+      rootVerification: "unverified-root",
+      coverage: "complete",
+      counts: {
+        agentsCreated: 0,
+        sessionsLinked: 1,
+        failedToolCalls: 0,
+        errorStops: 0,
+        claims: 1,
+        hypotheses: 0,
+      },
+      label: null,
+      folder: null,
+      lookups: null,
+      skillUsage: null,
+      hostSkills: null,
+      cells: [
+        { key: "2026-10-01|model-a", turns: 10, errorStops: 0, costCents: 100 },
+      ],
+      models: [
+        {
+          model: "model-a",
+          turns: 10,
+          costCents: 100,
+          inputTokens: 100,
+          outputTokens: 50,
+          cacheReadTokens: 10,
+          errorStops: 0,
+        },
+      ],
+      days: [{ day: "2026-10-01", turns: 10, costCents: 100, errorStops: 0 }],
+      toolRows: [],
+      outcome: { source: "unavailable", reason: "not-measured" },
+      permissionRequests: {
+        asked: 2,
+        answered: 2,
+        unanswered: 0,
+        answeredWithoutRequest: 0,
+        agentsAsked: 1,
+        tools: [],
+        programs: [],
+        distinctPrograms: 0,
+        // lacks commands, distinctCommands, commandsOmitted
+      },
+      agents: [],
+      otherAgents: null,
+      improvements: [],
+      claims: [
+        {
+          id: "0123456789abcdef",
+          type: "observation",
+          template: "coverage",
+          values: { sessions: 1, fullyRead: 1 },
+          scope: {
+            nodes: [{ hostId: "local", sessionId: "sess-stored-no-commands" }],
+            from: cutoff,
+            to: cutoff,
+          },
+          coverage: "complete",
+          supporting: [],
+          contradicting: [],
+          basedOn: [],
+        },
+      ],
+      evidence: {},
+    };
+    await publishManualGeneration(fx, `${JSON.stringify(olderLedger)}\n`);
+
+    const deps: RunDeps = {
+      tracker: fx.tracker,
+      workspace: fx.workspaceDir,
+      consentPath: fx.consentPath,
+    };
+
+    const res = await runRetrospective(deps, new AbortController().signal);
+    expect(res).toEqual({
+      resultVersion: 1,
+      state: "failed",
+      code: "STORED_LEDGER_INVALID",
+    });
+  });
+
+  it("rejects a stored ledger whose permissionRequests.commands exceeds the cap of 50", async () => {
+    const fx = await setupBoundSession(
+      "ags-run-stored-too-many-cmds-",
+      "sess-stored-too-many-cmds",
+    );
+    const cutoff = "2026-10-01T00:00:00.000Z";
+    const fiftyOneCommands = [];
+    for (let i = 0; i < 51; i++) {
+      fiftyOneCommands.push({
+        text: `cmd-${i}`,
+        tool: "bash",
+        kind: "bash",
+        asked: 1,
+        allow: 1,
+        deny: 0,
+        other: 0,
+        unanswered: 0,
+      });
+    }
+    const invalidLedger = {
+      schemaVersion: 1,
+      cutoff,
+      session: "abcdef12",
+      evidenceMode: "native-files",
+      rootVerification: "unverified-root",
+      coverage: "complete",
+      counts: {
+        agentsCreated: 0,
+        sessionsLinked: 1,
+        failedToolCalls: 0,
+        errorStops: 0,
+        claims: 1,
+        hypotheses: 0,
+      },
+      label: null,
+      folder: null,
+      lookups: null,
+      skillUsage: null,
+      hostSkills: null,
+      cells: [
+        { key: "2026-10-01|model-a", turns: 10, errorStops: 0, costCents: 100 },
+      ],
+      models: [
+        {
+          model: "model-a",
+          turns: 10,
+          costCents: 100,
+          inputTokens: 100,
+          outputTokens: 50,
+          cacheReadTokens: 10,
+          errorStops: 0,
+        },
+      ],
+      days: [{ day: "2026-10-01", turns: 10, costCents: 100, errorStops: 0 }],
+      toolRows: [],
+      outcome: { source: "unavailable", reason: "not-measured" },
+      permissionRequests: {
+        asked: 51,
+        answered: 51,
+        unanswered: 0,
+        answeredWithoutRequest: 0,
+        agentsAsked: 1,
+        tools: [],
+        programs: [],
+        distinctPrograms: 0,
+        commands: fiftyOneCommands,
+        distinctCommands: 51,
+        commandsOmitted: 0,
+      },
+      agents: [],
+      otherAgents: null,
+      improvements: [],
+      claims: [
+        {
+          id: "0123456789abcdef",
+          type: "observation",
+          template: "coverage",
+          values: { sessions: 1, fullyRead: 1 },
+          scope: {
+            nodes: [
+              { hostId: "local", sessionId: "sess-stored-too-many-cmds" },
+            ],
+            from: cutoff,
+            to: cutoff,
+          },
+          coverage: "complete",
+          supporting: [],
+          contradicting: [],
+          basedOn: [],
+        },
+      ],
+      evidence: {},
+    };
+    await publishManualGeneration(fx, `${JSON.stringify(invalidLedger)}\n`);
+
+    const deps: RunDeps = {
+      tracker: fx.tracker,
+      workspace: fx.workspaceDir,
+      consentPath: fx.consentPath,
+    };
+
+    const res = await runRetrospective(deps, new AbortController().signal);
+    expect(res).toEqual({
+      resultVersion: 1,
+      state: "failed",
+      code: "STORED_LEDGER_INVALID",
+    });
+  });
+
   it("privacy invariant: permission-required command description containing fake secrets never appears in summary.md, ledger.json, or report.html", async () => {
-    const secretToken = "sk-test-123";
-    const secretPath = "/Users/x/secret";
+    const secretToken = "sk-test-1234567890abcdef1234";
+    const secretPath = "/Users/x/secret/file.txt";
     const sessionId = "sess-privacy-permreq-check";
     const fx = await setupBoundSession("ags-run-perm-privacy-", sessionId);
 
@@ -2305,7 +2506,7 @@ describe("runRetrospective orchestration (Task S4b)", () => {
         content: [
           {
             type: "text",
-            text: `<paseo-system event="permission-required">\n<permission-request>\n{"requestId": "req-priv-1", "agentId": "agent-12345678", "request": {"name": "bash", "description": "Command: rtk proxy env TOKEN=${secretToken} ${secretPath}/script.sh run"}}\n</permission-request>\n</paseo-system>`,
+            text: `<paseo-system event="permission-required">\n<permission-request>\n{"requestId": "req-priv-1", "agentId": "agent-12345678", "request": {"name": "bash", "description": "Command: API_KEY=${secretToken} curl ${secretPath}"}}\n</permission-request>\n</paseo-system>`,
           },
         ],
       },
@@ -2327,10 +2528,15 @@ describe("runRetrospective orchestration (Task S4b)", () => {
     const reportHtml = await fsp.readFile(res.viewPaths.reportHtml, "utf8");
 
     expect(summary).not.toContain(secretToken);
-    expect(summary).not.toContain(secretPath);
     expect(ledgerText).not.toContain(secretToken);
-    expect(ledgerText).not.toContain(secretPath);
     expect(reportHtml).not.toContain(secretToken);
-    expect(reportHtml).not.toContain(secretPath);
+
+    expect(ledgerText).toContain(secretPath);
+    expect(reportHtml).toContain(secretPath);
+    expect(summary).not.toContain(secretPath);
+
+    // The program word (curl) may appear in summary.md; the command text may not.
+    expect(summary).not.toContain(`curl ${secretPath}`);
+    expect(summary).not.toContain("API_KEY");
   });
 });

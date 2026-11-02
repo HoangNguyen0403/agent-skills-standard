@@ -8,6 +8,7 @@ import {
   type PermissionRequestStats,
   type TreeAggregate,
 } from "./aggregate";
+import { MAX_COMMAND_CHARS } from "./permission-requests";
 
 export { LOOKUP_TOOLS, type LookupToolName };
 import type { NodeKey } from "./contracts";
@@ -120,6 +121,17 @@ export type LedgerPermissionRow = {
   unanswered: number;
 };
 
+export type LedgerPermissionCommand = {
+  text: string;
+  tool: string;
+  kind: string;
+  asked: number;
+  allow: number;
+  deny: number;
+  other: number;
+  unanswered: number;
+};
+
 export type LedgerPermissionRequests = {
   asked: number;
   answered: number;
@@ -129,6 +141,9 @@ export type LedgerPermissionRequests = {
   tools: LedgerPermissionRow[]; // at most 10, by asked desc then name asc
   programs: LedgerPermissionRow[]; // at most 15, by asked desc then name asc ("other" is listed like any program)
   distinctPrograms: number; // number of keys in the merged programs map before the cut
+  commands: LedgerPermissionCommand[]; // at most 50, rows with deny > 0 first, then asked desc, then text asc, then tool asc
+  distinctCommands: number; // merged distinct count before the cut
+  commandsOmitted: number; // sum of node commandsOmitted only
 };
 
 export type LedgerInput = {
@@ -745,6 +760,34 @@ function comparePermissionRows(
   }
   return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
 }
+function comparePermissionCommands(
+  a: LedgerPermissionCommand,
+  b: LedgerPermissionCommand,
+): number {
+  const aDenied = a.deny > 0;
+  const bDenied = b.deny > 0;
+  if (aDenied !== bDenied) {
+    return aDenied ? -1 : 1;
+  }
+  if (b.asked !== a.asked) {
+    return b.asked - a.asked;
+  }
+  if (a.text !== b.text) {
+    return a.text < b.text ? -1 : 1;
+  }
+  if (a.tool !== b.tool) {
+    return a.tool < b.tool ? -1 : 1;
+  }
+  return a.kind < b.kind ? -1 : a.kind > b.kind ? 1 : 0;
+}
+
+/**
+ * Matches C0/C1 control characters other than \t (0x09) and \n (0x0a).
+ * Built from code points so the source has no raw control escapes.
+ */
+const COMMAND_CONTROL_CHARACTERS = new RegExp(
+  `[${String.fromCharCode(0x00)}-${String.fromCharCode(0x08)}${String.fromCharCode(0x0b)}-${String.fromCharCode(0x1f)}${String.fromCharCode(0x7f)}-${String.fromCharCode(0x9f)}]`,
+);
 
 type PermissionRequestsBuildResult = {
   permissionRequests: LedgerPermissionRequests;
@@ -768,6 +811,7 @@ function buildLedgerPermissionRequests(
   let totalAnsweredWithoutRequest = 0;
   let totalAgentsAsked = 0;
 
+  let totalCommandsOmitted = 0;
   const mergedTools = new Map<
     string,
     {
@@ -788,6 +832,7 @@ function buildLedgerPermissionRequests(
       unanswered: number;
     }
   >();
+  const mergedCommands = new Map<string, LedgerPermissionCommand>();
 
   for (const node of tree.nodes) {
     if (!hasPermissionRequests(node)) continue;
@@ -796,6 +841,7 @@ function buildLedgerPermissionRequests(
     totalAnswered += stats.answered ?? 0;
     totalAnsweredWithoutRequest += stats.answeredWithoutRequest ?? 0;
     totalAgentsAsked += stats.agentsAsked ?? 0;
+    totalCommandsOmitted += stats.commandsOmitted ?? 0;
 
     if (stats.tools && typeof stats.tools === "object") {
       for (const [rawName, tally] of Object.entries(stats.tools)) {
@@ -840,6 +886,44 @@ function buildLedgerPermissionRequests(
         mergedPrograms.set(name, existing);
       }
     }
+
+    if (stats.commands && typeof stats.commands === "object") {
+      for (const entry of Object.values(stats.commands)) {
+        if (!entry || typeof entry !== "object") continue;
+        if (
+          typeof entry.text !== "string" ||
+          typeof entry.tool !== "string" ||
+          typeof entry.kind !== "string"
+        ) {
+          continue;
+        }
+        const tally = entry.tally;
+        if (!tally || typeof tally !== "object") continue;
+        const tool = SAFE_PERMISSION_NAME_REGEX.test(entry.tool)
+          ? entry.tool
+          : "other";
+        const kind = SAFE_PERMISSION_NAME_REGEX.test(entry.kind)
+          ? entry.kind
+          : "other";
+        const key = `${tool}\0${kind}\0${entry.text}`;
+        const existing = mergedCommands.get(key) ?? {
+          text: entry.text,
+          tool,
+          kind,
+          asked: 0,
+          allow: 0,
+          deny: 0,
+          other: 0,
+          unanswered: 0,
+        };
+        existing.asked += tally.asked ?? 0;
+        existing.allow += tally.allow ?? 0;
+        existing.deny += tally.deny ?? 0;
+        existing.other += tally.other ?? 0;
+        existing.unanswered += tally.unanswered ?? 0;
+        mergedCommands.set(key, existing);
+      }
+    }
   }
 
   if (totalAsked === 0 && totalAnsweredWithoutRequest === 0) {
@@ -847,6 +931,7 @@ function buildLedgerPermissionRequests(
   }
 
   const distinctPrograms = mergedPrograms.size;
+  const distinctCommands = mergedCommands.size;
   const unanswered = Math.max(0, totalAsked - totalAnswered);
 
   let allowed = 0;
@@ -887,6 +972,12 @@ function buildLedgerPermissionRequests(
     .sort(comparePermissionRows)
     .slice(0, 15);
 
+  const commands: LedgerPermissionCommand[] = Array.from(
+    mergedCommands.values(),
+  )
+    .sort(comparePermissionCommands)
+    .slice(0, 50);
+
   return {
     permissionRequests: {
       asked: totalAsked,
@@ -897,6 +988,9 @@ function buildLedgerPermissionRequests(
       tools,
       programs,
       distinctPrograms,
+      commands,
+      distinctCommands,
+      commandsOmitted: totalCommandsOmitted,
     },
     claimValues: {
       bashAsked,
@@ -2182,6 +2276,8 @@ export function buildLedger(input: LedgerInput): Ledger {
       allowed: permBuildResult.claimValues.allowed,
       denied: permBuildResult.claimValues.denied,
       otherVerdict: permBuildResult.claimValues.otherVerdict,
+      distinctCommands: pr.distinctCommands,
+      commandsShown: pr.commands.length,
     };
 
     const permSupporting: EvidenceId[] = [];
@@ -2249,6 +2345,30 @@ export function buildLedger(input: LedgerInput): Ledger {
         value: row.other,
       };
       evidence[`agg:permreq:program:${row.name}:unanswered`] = {
+        kind: "aggregate",
+        value: row.unanswered,
+      };
+    }
+
+    for (let index = 0; index < pr.commands.length; index++) {
+      const row = pr.commands[index];
+      evidence[`agg:permreq:command:${index}:asked`] = {
+        kind: "aggregate",
+        value: row.asked,
+      };
+      evidence[`agg:permreq:command:${index}:allow`] = {
+        kind: "aggregate",
+        value: row.allow,
+      };
+      evidence[`agg:permreq:command:${index}:deny`] = {
+        kind: "aggregate",
+        value: row.deny,
+      };
+      evidence[`agg:permreq:command:${index}:other`] = {
+        kind: "aggregate",
+        value: row.other,
+      };
+      evidence[`agg:permreq:command:${index}:unanswered`] = {
         kind: "aggregate",
         value: row.unanswered,
       };
@@ -2568,6 +2688,8 @@ export function checkClaimRules(ledger: Ledger): LedgerProblemCode[] {
         pr.answeredWithoutRequest,
         pr.agentsAsked,
         pr.distinctPrograms,
+        pr.distinctCommands,
+        pr.commandsOmitted,
       ];
       if (
         numericHeaderFields.some(
@@ -2606,6 +2728,44 @@ export function checkClaimRules(ledger: Ledger): LedgerProblemCode[] {
           }
           if (
             [p?.asked, p?.allow, p?.deny, p?.other, p?.unanswered].some(
+              (val) =>
+                typeof val !== "number" || !Number.isFinite(val) || val < 0,
+            )
+          ) {
+            problems.add("UNSAFE_VALUE");
+          }
+        }
+      } else {
+        problems.add("UNSAFE_VALUE");
+      }
+      if (Array.isArray(pr.commands)) {
+        if (pr.commands.length > 50) {
+          problems.add("UNSAFE_VALUE");
+        }
+        for (const cmd of pr.commands) {
+          if (
+            typeof cmd?.text !== "string" ||
+            cmd.text.length > MAX_COMMAND_CHARS + 20 ||
+            COMMAND_CONTROL_CHARACTERS.test(cmd.text)
+          ) {
+            problems.add("UNSAFE_VALUE");
+          }
+          if (
+            typeof cmd?.tool !== "string" ||
+            !SAFE_PERMISSION_NAME_REGEX.test(cmd.tool) ||
+            typeof cmd?.kind !== "string" ||
+            !SAFE_PERMISSION_NAME_REGEX.test(cmd.kind)
+          ) {
+            problems.add("UNSAFE_VALUE");
+          }
+          if (
+            [
+              cmd?.asked,
+              cmd?.allow,
+              cmd?.deny,
+              cmd?.other,
+              cmd?.unanswered,
+            ].some(
               (val) =>
                 typeof val !== "number" || !Number.isFinite(val) || val < 0,
             )

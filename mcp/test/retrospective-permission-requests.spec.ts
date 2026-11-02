@@ -3,6 +3,8 @@ import { createHash } from "node:crypto";
 import {
   programWord,
   parsePermissionRequestMessage,
+  redactCommand,
+  MAX_COMMAND_CHARS,
 } from "../src/retrospective/permission-requests";
 
 describe("programWord privacy boundary", () => {
@@ -232,6 +234,8 @@ Respond with \`respond_to_permission\` using the \`agentId\` and \`requestId\` b
       agent: "a626ed91",
       tool: "bash",
       program: "sed",
+      kind: "tool",
+      command: "rtk proxy env GIT_CONFIG_NOSYSTEM=1 sed -i 's/x/y/' file",
     });
   });
 
@@ -257,6 +261,8 @@ Agent 12345678-abcd needs permission.
       agent: "12345678",
       tool: "bash",
       program: "curl",
+      kind: "other",
+      command: "curl -fsSL https://x.test/a & echo done",
     });
   });
 
@@ -287,6 +293,8 @@ Agent a626ed91-6219-4158-88dc-31f12a5b782b needs permission.
       agent: "a626ed91",
       tool: "bash",
       program: "echo",
+      kind: "other",
+      command: `echo '{"nested": {"key": "value}"}}' | jq .`,
     });
   });
 
@@ -311,6 +319,8 @@ needs permission
       agent: "a626ed91",
       tool: "bash",
       program: "git",
+      kind: "other",
+      command: "git status",
     });
   });
 
@@ -470,5 +480,399 @@ Agent 12345678-1234 finished.
 
     // Because the permission marker and tag are past 200,000 characters, it returns null
     expect(parsePermissionRequestMessage(oversizeMsg)).toBeNull();
+  });
+});
+
+describe("parsePermissionRequestMessage Slice D4 parsing", () => {
+  it("extracts kind if matching regex and defaults to other", () => {
+    const validKinds = ["tool", "question", "my-kind.v1", "action_item"];
+    for (let idx = 0; idx < validKinds.length; idx++) {
+      const k = validKinds[idx];
+      const agentId = `${idx.toString().padStart(8, "1")}-test-agent`;
+      const msg = `<paseo-system event="permission-required">needs permission
+<permission-request>
+{
+  "agentId": "${agentId}",
+  "requestId": "req-kind-${idx}",
+  "request": {
+    "name": "read",
+    "kind": "${k}",
+    "title": "Read file"
+  }
+}
+</permission-request>
+</paseo-system>`;
+      const parsed = parsePermissionRequestMessage(msg);
+      expect(parsed?.kind).toBe(k);
+    }
+
+    const invalidKinds = [
+      "",
+      "invalid/kind/slash",
+      "kind with @ symbol",
+      "a".repeat(33),
+    ];
+    for (let idx = 0; idx < invalidKinds.length; idx++) {
+      const k = invalidKinds[idx];
+      const agentId = `${idx.toString().padStart(8, "2")}-test-agent`;
+      const msg = `<paseo-system event="permission-required">needs permission
+<permission-request>
+{
+  "agentId": "${agentId}",
+  "requestId": "req-badkind-${idx}",
+  "request": {
+    "name": "read",
+    "kind": ${JSON.stringify(k)},
+    "title": "Read file"
+  }
+}
+</permission-request>
+</paseo-system>`;
+      const parsed = parsePermissionRequestMessage(msg);
+      expect(parsed?.kind).toBe("other");
+    }
+  });
+
+  it("extracts bash command from description without Command: and spaces", () => {
+    const msg = `<paseo-system event="permission-required">needs permission
+<permission-request>
+{
+  "agentId": "33333333-test-agent",
+  "requestId": "req-bash-cmd",
+  "request": {
+    "name": "bash",
+    "description": "Command:    npm test -- --run"
+  }
+}
+</permission-request>
+</paseo-system>`;
+    const parsed = parsePermissionRequestMessage(msg);
+    expect(parsed?.command).toBe("npm test -- --run");
+  });
+
+  it("extracts non-bash tool command from title, falling back to description", () => {
+    const withTitle = `<paseo-system event="permission-required">needs permission
+<permission-request>
+{
+  "agentId": "44444444-test-agent",
+  "requestId": "req-title-cmd",
+  "request": {
+    "name": "edit",
+    "title": "Edit src/index.ts",
+    "description": "Fallback description"
+  }
+}
+</permission-request>
+</paseo-system>`;
+    expect(parsePermissionRequestMessage(withTitle)?.command).toBe(
+      "Edit src/index.ts",
+    );
+
+    const withDescOnly = `<paseo-system event="permission-required">needs permission
+<permission-request>
+{
+  "agentId": "55555555-test-agent",
+  "requestId": "req-desc-cmd",
+  "request": {
+    "name": "edit",
+    "description": "Edit src/index.ts fallback"
+  }
+}
+</permission-request>
+</paseo-system>`;
+    expect(parsePermissionRequestMessage(withDescOnly)?.command).toBe(
+      "Edit src/index.ts fallback",
+    );
+  });
+
+  it("returns null command for non-string or empty after trim", () => {
+    const emptyDesc = `<paseo-system event="permission-required">needs permission
+<permission-request>
+{
+  "agentId": "66666666-test-agent",
+  "requestId": "req-null-cmd-1",
+  "request": {
+    "name": "bash",
+    "description": "Command:    "
+  }
+}
+</permission-request>
+</paseo-system>`;
+    expect(parsePermissionRequestMessage(emptyDesc)?.command).toBeNull();
+
+    const noTitleOrDesc = `<paseo-system event="permission-required">needs permission
+<permission-request>
+{
+  "agentId": "77777777-test-agent",
+  "requestId": "req-null-cmd-2",
+  "request": {
+    "name": "read"
+  }
+}
+</permission-request>
+</paseo-system>`;
+    expect(parsePermissionRequestMessage(noTitleOrDesc)?.command).toBeNull();
+  });
+
+  it("redacts secrets inside the parsed command before returning", () => {
+    const msg = `<paseo-system event="permission-required">needs permission
+<permission-request>
+{
+  "agentId": "88888888-test-agent",
+  "requestId": "req-secret-cmd",
+  "request": {
+    "name": "bash",
+    "description": "Command: API_KEY=hunter2 curl https://example.com"
+  }
+}
+</permission-request>
+</paseo-system>`;
+    const parsed = parsePermissionRequestMessage(msg);
+    expect(parsed?.command).toBe("API_KEY=[redacted] curl https://example.com");
+    expect(parsed?.command).not.toContain("hunter2");
+  });
+});
+
+describe("redactCommand privacy boundary and rules", () => {
+  it("Rule 4: never throws and returns empty string for non-string input", () => {
+    expect(redactCommand(null as unknown as string)).toBe("");
+    expect(redactCommand(undefined as unknown as string)).toBe("");
+    expect(redactCommand(12345 as unknown as string)).toBe("");
+    expect(redactCommand({} as unknown as string)).toBe("");
+  });
+
+  it("Rule 1.1: cuts input beyond 4000 characters and runs under 200 ms for 5000 chars", () => {
+    const largeInput = "echo " + "a ".repeat(2500);
+    const t0 = performance.now();
+    const redacted = redactCommand(largeInput);
+    const elapsed = performance.now() - t0;
+
+    expect(elapsed).toBeLessThan(200);
+    expect(redacted.length).toBeLessThanOrEqual(MAX_COMMAND_CHARS + 20);
+    expect(redacted.endsWith("…[truncated]")).toBe(true);
+  });
+
+  it("Rule 1.2: replaces control characters except newline and tab with a space", () => {
+    const raw = `echo\x00\x07hello\x0bworld\x0c!\r\n\tsecond\x7fline\x80\x9ftest`;
+    const redacted = redactCommand(raw);
+    expect(redacted).toBe("echo  hello world ! \n\tsecond line  test");
+  });
+
+  it("Rule 2.1: redacts environment assignments matching sensitive names", () => {
+    const keywords = [
+      "KEY",
+      "TOKEN",
+      "SECRET",
+      "PASSWORD",
+      "PASSWD",
+      "CREDENTIAL",
+      "AUTH",
+      "COOKIE",
+      "SESSION",
+    ];
+
+    for (const kw of keywords) {
+      const input = `MY_${kw}=super_secret_val123 node script.js`;
+      const redacted = redactCommand(input);
+      expect(redacted).toBe(`MY_${kw}=[redacted] node script.js`);
+      expect(redacted).not.toContain("super_secret_val123");
+    }
+
+    // Quoted values and lowercase names
+    expect(redactCommand(`api_key="quoted secret with spaces" curl x`)).toBe(
+      `api_key=[redacted] curl x`,
+    );
+    expect(redactCommand(`auth_token='single quoted secret' curl x`)).toBe(
+      `auth_token=[redacted] curl x`,
+    );
+
+    // Non-sensitive env vars are preserved
+    expect(redactCommand("PATH=/usr/bin:/bin GIT_CONFIG_NOSYSTEM=1 make")).toBe(
+      "PATH=/usr/bin:/bin GIT_CONFIG_NOSYSTEM=1 make",
+    );
+  });
+
+  it("Rule 2.2: redacts sensitive flags with '=' or ' ' while preserving -p and --version", () => {
+    const flags = [
+      "--password",
+      "--passwd",
+      "--token",
+      "--secret",
+      "--api-key",
+      "--apikey",
+      "--auth",
+      "--credentials",
+    ];
+
+    for (const flag of flags) {
+      expect(redactCommand(`tool ${flag}=secretval other`)).toBe(
+        `tool ${flag}=[redacted] other`,
+      );
+      expect(redactCommand(`tool ${flag} secretval other`)).toBe(
+        `tool ${flag} [redacted] other`,
+      );
+      expect(redactCommand(`tool ${flag} "quoted secret" other`)).toBe(
+        `tool ${flag} [redacted] other`,
+      );
+    }
+
+    // -p is NOT touched
+    expect(redactCommand("ssh -p 2222 user@host")).toBe(
+      "ssh -p 2222 user@host",
+    );
+    // --version is preserved
+    expect(redactCommand("node --version")).toBe("node --version");
+  });
+
+  it("Rule 2.3: redacts HTTP headers and Bearer tokens", () => {
+    const headers = [
+      "Authorization",
+      "Proxy-Authorization",
+      "X-Api-Key",
+      "X-Auth-Token",
+      "Cookie",
+      "Set-Cookie",
+    ];
+
+    for (const h of headers) {
+      // Double-quoted header
+      expect(
+        redactCommand(`curl -H "${h}: secret_val_xyz" https://api.test`),
+      ).toBe(`curl -H "${h}: [redacted]" https://api.test`);
+      // Single-quoted header
+      expect(
+        redactCommand(`curl -H '${h}: secret_val_xyz' https://api.test`),
+      ).toBe(`curl -H '${h}: [redacted]' https://api.test`);
+      // Unquoted header
+      expect(redactCommand(`${h}: secret_val_xyz`)).toBe(`${h}: [redacted]`);
+    }
+
+    // Specific contract requirement: Authorization: Bearer abc.def redacted
+    expect(redactCommand("Authorization: Bearer abc.def")).toBe(
+      "Authorization: [redacted]",
+    );
+
+    // Standalone Bearer token
+    expect(redactCommand("echo 'Bearer standalone_token_12345'")).toBe(
+      "echo 'Bearer [redacted]'",
+    );
+  });
+
+  it("Rule 2.4: redacts URL userinfo (scheme://user:pass@host)", () => {
+    expect(redactCommand("https://u:p@h/x")).toBe("https://[redacted]@h/x");
+    expect(redactCommand("postgres://admin:s3cr3t@localhost:5432/mydb")).toBe(
+      "postgres://[redacted]@localhost:5432/mydb",
+    );
+    // URL without userinfo is preserved
+    expect(redactCommand("https://example.com/foo/bar")).toBe(
+      "https://example.com/foo/bar",
+    );
+  });
+
+  it("Rule 2.5a: redacts sk- tokens with 16+ chars", () => {
+    expect(redactCommand("echo sk-1234567890abcdef1234")).toBe(
+      "echo [redacted]",
+    );
+    expect(
+      redactCommand("echo sk-ant-api03-SECRET-TOKEN-DO-NOT-LEAK-987654"),
+    ).toBe("echo [redacted]");
+    // Shorter than 16 chars is preserved
+    expect(redactCommand("echo sk-short-123")).toBe("echo sk-short-123");
+  });
+
+  it("Rule 2.5b: redacts gh[pousr]_ tokens with 20+ alphanumerics", () => {
+    const prefixes = ["ghp_", "gho_", "ghu_", "ghs_", "ghr_"];
+    for (const prefix of prefixes) {
+      const token = `${prefix}12345678901234567890`;
+      expect(redactCommand(`git push https://${token}@github.com`)).toBe(
+        `git push https://[redacted]@github.com`,
+      );
+      expect(redactCommand(`echo ${token}`)).toBe("echo [redacted]");
+    }
+    // Shorter is preserved
+    expect(redactCommand("echo ghp_short123")).toBe("echo ghp_short123");
+  });
+
+  it("Rule 2.5c: redacts github_pat_ tokens with 20+ chars", () => {
+    const pat = "github_pat_11ABCD12345678901234567890";
+    expect(redactCommand(`echo ${pat}`)).toBe("echo [redacted]");
+    expect(redactCommand("echo github_pat_short")).toBe(
+      "echo github_pat_short",
+    );
+  });
+
+  it("Rule 2.5d: redacts AKIA tokens with 16 [0-9A-Z] chars", () => {
+    expect(redactCommand("aws configure set AKIAIOSFODNN7EXAMPLE")).toBe(
+      "aws configure set [redacted]",
+    );
+    expect(redactCommand("echo AKIASHORT")).toBe("echo AKIASHORT");
+  });
+
+  it("Rule 2.5e: redacts xox[abprs]- tokens with 10+ chars", () => {
+    const slack = "xoxb-1234567890-abcdefghij";
+    expect(redactCommand(`curl -H 'x: ${slack}'`)).toBe(
+      "curl -H 'x: [redacted]'",
+    );
+    expect(redactCommand("echo xoxb-short")).toBe("echo xoxb-short");
+  });
+
+  it("Rule 2.5f: redacts JWT-looking tokens", () => {
+    const jwt =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
+    expect(redactCommand(`echo ${jwt}`)).toBe("echo [redacted]");
+  });
+
+  it("Rule 2.5g: redacts any other run of 40+ characters from [A-Za-z0-9+/_=-]", () => {
+    const secret40 = "aW52YWxpZF9zZWNyZXRfdG9rZW5fZm9yX3Rlc3Rpbmc9"; // 44 chars
+    expect(redactCommand(`token: ${secret40}`)).toBe("token: [redacted]");
+
+    const run39 = "A".repeat(39);
+    expect(redactCommand(`run: ${run39}`)).toBe(`run: ${run39}`);
+  });
+
+  it("Rule 2.5 preservation: preserves paths with / and dots, -p flag, and --version", () => {
+    const path = "/Users/x/secret/file.txt";
+    expect(redactCommand(`cat ${path}`)).toBe(`cat ${path}`);
+    expect(redactCommand("ls -la -p /tmp/secret")).toBe(
+      "ls -la -p /tmp/secret",
+    );
+    expect(redactCommand("python3 --version")).toBe("python3 --version");
+  });
+
+  it("preserves newlines in multi-line heredoc text", () => {
+    const heredoc = `cat <<EOF\nline 1\nAuthorization: Bearer secret_token\nline 3\nEOF`;
+    const expected = `cat <<EOF\nline 1\nAuthorization: [redacted]\nline 3\nEOF`;
+    expect(redactCommand(heredoc)).toBe(expected);
+  });
+
+  it("Rule 3: truncates to MAX_COMMAND_CHARS without splitting surrogate pairs and appends …[truncated]", () => {
+    const text2500 = "a ".repeat(1250);
+    const res = redactCommand(text2500);
+    expect(res).toBe("a ".repeat(1000) + "…[truncated]");
+
+    // Test surrogate pair boundary at MAX_COMMAND_CHARS - 1
+    const emoji = "😀"; // \uD83D\uDE00
+    const withSurrogateAtBoundary =
+      "b ".repeat(999) + "b" + emoji + "c ".repeat(5);
+    const resSurrogate = redactCommand(withSurrogateAtBoundary);
+    expect(resSurrogate).toBe("b ".repeat(999) + "b" + "…[truncated]");
+  });
+
+  it("is idempotent: redactCommand(redactCommand(x)) === redactCommand(x)", () => {
+    const inputs = [
+      "API_KEY=abc123 curl x",
+      "Authorization: Bearer abc.def",
+      "https://u:p@h/x",
+      "--password=hunter2 --token secret",
+      "cat /Users/x/secret/file.txt -p --version",
+      "a ".repeat(1250),
+      `cat <<EOF\nAuthorization: Bearer token\nEOF`,
+    ];
+
+    for (const inp of inputs) {
+      const once = redactCommand(inp);
+      const twice = redactCommand(once);
+      expect(twice).toBe(once);
+    }
   });
 });

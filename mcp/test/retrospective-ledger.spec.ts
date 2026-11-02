@@ -16,11 +16,13 @@ import {
   verifyLedger,
   type Claim,
   type LedgerInput,
+  type LedgerPermissionCommand,
   type LedgerPermissionRequests,
   type LedgerPermissionRow,
   type PermissionRequestStats,
   type PermissionRequestTally,
 } from "../src/retrospective/ledger";
+import { MAX_COMMAND_CHARS } from "../src/retrospective/permission-requests";
 import type { SkillUsageSnapshot } from "../src/services/SessionTracker";
 
 function createZeroLookups(): LookupStats {
@@ -3332,6 +3334,9 @@ describe("retrospective ledger", () => {
         tools: [],
         programs: [],
         distinctPrograms: 0,
+        commands: [],
+        distinctCommands: 0,
+        commandsOmitted: 0,
       });
       const answerClaim = answerOnlyLedger.claims.find(
         (c) => c.template === "permission-requests",
@@ -3646,6 +3651,8 @@ describe("retrospective ledger", () => {
         allowed: 6,
         denied: 2,
         otherVerdict: 0,
+        distinctCommands: 0,
+        commandsShown: 0,
       });
 
       // Per-value evidence invariant check
@@ -3871,6 +3878,668 @@ describe("retrospective ledger", () => {
         ok: false,
         problems: ["NUMBER_MISMATCH", "UNSAFE_VALUE"],
       });
+    });
+  });
+
+  describe("Slice E4: permissionRequests commands, sorting, caps, claim values, and tamper detection", () => {
+    it("merges commands across nodes by (tool, kind, text), summing tallies and node commandsOmitted", () => {
+      const node0 = {
+        ...createNodeUsage(0),
+        permissionRequests: {
+          asked: 3,
+          answered: 3,
+          answeredWithoutRequest: 0,
+          agentsAsked: 1,
+          tools: {
+            bash: { asked: 2, allow: 1, deny: 1, other: 0, unanswered: 0 },
+            read: { asked: 1, allow: 1, deny: 0, other: 0, unanswered: 0 },
+          },
+          programs: {
+            npm: { asked: 2, allow: 1, deny: 1, other: 0, unanswered: 0 },
+          },
+          commands: {
+            k1: {
+              text: "npm test",
+              tool: "bash",
+              kind: "bash",
+              tally: { asked: 2, allow: 1, deny: 1, other: 0, unanswered: 0 },
+            },
+            k2: {
+              text: "src/index.ts",
+              tool: "read",
+              kind: "file",
+              tally: { asked: 1, allow: 1, deny: 0, other: 0, unanswered: 0 },
+            },
+          },
+          commandsOmitted: 2,
+        },
+      };
+
+      const node1 = {
+        ...createNodeUsage(1),
+        permissionRequests: {
+          asked: 4,
+          answered: 3,
+          answeredWithoutRequest: 0,
+          agentsAsked: 1,
+          tools: {
+            bash: { asked: 4, allow: 3, deny: 0, other: 0, unanswered: 1 },
+          },
+          programs: {
+            npm: { asked: 3, allow: 2, deny: 0, other: 0, unanswered: 1 },
+            git: { asked: 1, allow: 1, deny: 0, other: 0, unanswered: 0 },
+          },
+          commands: {
+            k1: {
+              text: "npm test",
+              tool: "bash",
+              kind: "bash",
+              tally: { asked: 3, allow: 2, deny: 0, other: 0, unanswered: 1 },
+            },
+            k3: {
+              text: "git status",
+              tool: "bash",
+              kind: "bash",
+              tally: { asked: 1, allow: 1, deny: 0, other: 0, unanswered: 0 },
+            },
+          },
+          commandsOmitted: 1,
+        },
+      };
+
+      const tree = createTreeFixture({ nodes: [node0, node1] });
+      const ledger = buildLedger({ ...DEFAULT_INPUT, tree });
+
+      const pr = ledger.permissionRequests;
+      expect(pr).toBeDefined();
+      if (!pr) throw new Error("pr must not be null");
+
+      expect(pr.distinctCommands).toBe(3);
+      expect(pr.commandsOmitted).toBe(3);
+      expect(pr.commands).toHaveLength(3);
+
+      // "npm test" had deny > 0 (1 deny in node0), so it sorts first!
+      expect(pr.commands[0]).toEqual({
+        text: "npm test",
+        tool: "bash",
+        kind: "bash",
+        asked: 5,
+        allow: 3,
+        deny: 1,
+        other: 0,
+        unanswered: 1,
+      });
+
+      // Remaining two have deny = 0 and asked = 1; "git status" < "src/index.ts"
+      expect(pr.commands[1]).toEqual({
+        text: "git status",
+        tool: "bash",
+        kind: "bash",
+        asked: 1,
+        allow: 1,
+        deny: 0,
+        other: 0,
+        unanswered: 0,
+      });
+
+      expect(pr.commands[2]).toEqual({
+        text: "src/index.ts",
+        tool: "read",
+        kind: "file",
+        asked: 1,
+        allow: 1,
+        deny: 0,
+        other: 0,
+        unanswered: 0,
+      });
+    });
+
+    it("sorts commands with deny > 0 first, then asked desc, then text asc (code-unit order), then tool asc, and caps at 50", () => {
+      const commandsMap: Record<
+        string,
+        {
+          text: string;
+          tool: string;
+          kind: string;
+          tally: {
+            asked: number;
+            allow: number;
+            deny: number;
+            other: number;
+            unanswered: number;
+          };
+        }
+      > = {};
+
+      for (let i = 0; i < 60; i++) {
+        const pad = String(i).padStart(2, "0");
+        const isDenied = i < 20;
+        const asked = i >= 20 ? 100 : i < 10 ? 5 : 10;
+        const deny = isDenied ? 1 : 0;
+        const allow = asked - deny;
+        commandsMap[`key-${pad}`] = {
+          text: `command-${pad}`,
+          tool: i % 2 === 0 ? "bash" : "write",
+          kind: "tool",
+          tally: { asked, allow, deny, other: 0, unanswered: 0 },
+        };
+      }
+
+      commandsMap["tie-text-1"] = {
+        text: "same-text",
+        tool: "beta-tool",
+        kind: "tool",
+        tally: { asked: 200, allow: 200, deny: 0, other: 0, unanswered: 0 },
+      };
+      commandsMap["tie-text-2"] = {
+        text: "same-text",
+        tool: "alpha-tool",
+        kind: "tool",
+        tally: { asked: 200, allow: 200, deny: 0, other: 0, unanswered: 0 },
+      };
+
+      const node = {
+        ...createNodeUsage(0),
+        permissionRequests: {
+          asked: 5000,
+          answered: 5000,
+          answeredWithoutRequest: 0,
+          agentsAsked: 1,
+          tools: {},
+          programs: {},
+          commands: commandsMap,
+          commandsOmitted: 4,
+        },
+      };
+
+      const tree = createTreeFixture({ nodes: [node] });
+      const ledger = buildLedger({ ...DEFAULT_INPUT, tree });
+      const pr = ledger.permissionRequests;
+      expect(pr).toBeDefined();
+      if (!pr) throw new Error("pr must not be null");
+
+      expect(pr.distinctCommands).toBe(62);
+      expect(pr.commandsOmitted).toBe(4);
+      expect(pr.commands).toHaveLength(50);
+
+      // All denied rows (20 of them) must appear BEFORE any non-denied rows
+      for (let i = 0; i < 20; i++) {
+        expect(pr.commands[i].deny).toBeGreaterThan(0);
+      }
+      for (let i = 20; i < 50; i++) {
+        expect(pr.commands[i].deny).toBe(0);
+      }
+
+      // Among denied rows, asked = 10 (cmd-10..19) must appear BEFORE asked = 5 (cmd-00..09)
+      for (let i = 0; i < 10; i++) {
+        expect(pr.commands[i].asked).toBe(10);
+      }
+      for (let i = 10; i < 20; i++) {
+        expect(pr.commands[i].asked).toBe(5);
+      }
+
+      // Tiebreaker by tool asc when text and asked are identical
+      const tieAlphaIdx = pr.commands.findIndex((c) => c.tool === "alpha-tool");
+      const tieBetaIdx = pr.commands.findIndex((c) => c.tool === "beta-tool");
+      expect(tieAlphaIdx).toBeGreaterThanOrEqual(0);
+      expect(tieBetaIdx).toBeGreaterThanOrEqual(0);
+      expect(tieAlphaIdx).toBeLessThan(tieBetaIdx);
+
+      // Verify claim values reflect distinctCommands and commandsShown
+      const claim = ledger.claims.find(
+        (c) => c.template === "permission-requests",
+      );
+      expect(claim).toBeDefined();
+      expect(claim?.values.distinctCommands).toBe(62);
+      expect(claim?.values.commandsShown).toBe(50);
+    });
+
+    it("emits agg:permreq:command:<index>:<verdict> evidence entries and claim values", () => {
+      const node = {
+        ...createNodeUsage(0),
+        permissionRequests: {
+          asked: 5,
+          answered: 4,
+          answeredWithoutRequest: 0,
+          agentsAsked: 1,
+          tools: {
+            bash: { asked: 5, allow: 3, deny: 1, other: 0, unanswered: 1 },
+          },
+          programs: {
+            git: { asked: 5, allow: 3, deny: 1, other: 0, unanswered: 1 },
+          },
+          commands: {
+            k1: {
+              text: "git push",
+              tool: "bash",
+              kind: "bash",
+              tally: { asked: 2, allow: 1, deny: 1, other: 0, unanswered: 0 },
+            },
+            k2: {
+              text: "git pull",
+              tool: "bash",
+              kind: "bash",
+              tally: { asked: 3, allow: 2, deny: 0, other: 0, unanswered: 1 },
+            },
+          },
+          commandsOmitted: 0,
+        },
+      };
+
+      const tree = createTreeFixture({ nodes: [node] });
+      const input = { ...DEFAULT_INPUT, tree };
+      const ledger = buildLedger(input);
+
+      const claim = ledger.claims.find(
+        (c) => c.template === "permission-requests",
+      );
+      expect(claim).toBeDefined();
+      if (!claim) return;
+
+      expect(claim.values.distinctCommands).toBe(2);
+      expect(claim.values.commandsShown).toBe(2);
+
+      // Claim value evidence entries
+      expect(
+        ledger.evidence["agg:claim:permission-requests:distinctCommands"],
+      ).toEqual({
+        kind: "aggregate",
+        value: 2,
+      });
+      expect(
+        ledger.evidence["agg:claim:permission-requests:commandsShown"],
+      ).toEqual({
+        kind: "aggregate",
+        value: 2,
+      });
+      expect(claim.supporting).toContain(
+        "agg:claim:permission-requests:distinctCommands",
+      );
+      expect(claim.supporting).toContain(
+        "agg:claim:permission-requests:commandsShown",
+      );
+
+      // Per-command row evidence:
+      // index 0: "git push" (denied = 1, so sorts first)
+      expect(ledger.evidence["agg:permreq:command:0:asked"]).toEqual({
+        kind: "aggregate",
+        value: 2,
+      });
+      expect(ledger.evidence["agg:permreq:command:0:allow"]).toEqual({
+        kind: "aggregate",
+        value: 1,
+      });
+      expect(ledger.evidence["agg:permreq:command:0:deny"]).toEqual({
+        kind: "aggregate",
+        value: 1,
+      });
+      expect(ledger.evidence["agg:permreq:command:0:other"]).toEqual({
+        kind: "aggregate",
+        value: 0,
+      });
+      expect(ledger.evidence["agg:permreq:command:0:unanswered"]).toEqual({
+        kind: "aggregate",
+        value: 0,
+      });
+
+      // index 1: "git pull"
+      expect(ledger.evidence["agg:permreq:command:1:asked"]).toEqual({
+        kind: "aggregate",
+        value: 3,
+      });
+      expect(ledger.evidence["agg:permreq:command:1:allow"]).toEqual({
+        kind: "aggregate",
+        value: 2,
+      });
+      expect(ledger.evidence["agg:permreq:command:1:deny"]).toEqual({
+        kind: "aggregate",
+        value: 0,
+      });
+      expect(ledger.evidence["agg:permreq:command:1:other"]).toEqual({
+        kind: "aggregate",
+        value: 0,
+      });
+      expect(ledger.evidence["agg:permreq:command:1:unanswered"]).toEqual({
+        kind: "aggregate",
+        value: 1,
+      });
+
+      expect(verifyLedger(ledger, input)).toEqual({ ok: true });
+    });
+
+    it("tamper detection: detects modification to commands rows, distinctCommands, commandsOmitted, and claim values", () => {
+      const node = {
+        ...createNodeUsage(0),
+        permissionRequests: {
+          asked: 3,
+          answered: 3,
+          answeredWithoutRequest: 0,
+          agentsAsked: 1,
+          tools: {
+            bash: { asked: 3, allow: 2, deny: 1, other: 0, unanswered: 0 },
+          },
+          programs: {
+            npm: { asked: 3, allow: 2, deny: 1, other: 0, unanswered: 0 },
+          },
+          commands: {
+            k1: {
+              text: "npm test",
+              tool: "bash",
+              kind: "bash",
+              tally: { asked: 3, allow: 2, deny: 1, other: 0, unanswered: 0 },
+            },
+          },
+          commandsOmitted: 0,
+        },
+      };
+
+      const tree = createTreeFixture({ nodes: [node] });
+      const input = { ...DEFAULT_INPUT, tree };
+      const ledger = buildLedger(input);
+      expect(verifyLedger(ledger, input)).toEqual({ ok: true });
+
+      // 1. Tamper command asked
+      const tamperedCmdAsked = {
+        ...ledger,
+        permissionRequests: {
+          ...ledger.permissionRequests!,
+          commands: [
+            {
+              ...ledger.permissionRequests!.commands[0],
+              asked: 999,
+            },
+          ],
+        },
+      };
+      expect(verifyLedger(tamperedCmdAsked, input)).toEqual({
+        ok: false,
+        problems: ["NUMBER_MISMATCH"],
+      });
+
+      // 2. Tamper command deny
+      const tamperedCmdDeny = {
+        ...ledger,
+        permissionRequests: {
+          ...ledger.permissionRequests!,
+          commands: [
+            {
+              ...ledger.permissionRequests!.commands[0],
+              deny: 999,
+            },
+          ],
+        },
+      };
+      expect(verifyLedger(tamperedCmdDeny, input)).toEqual({
+        ok: false,
+        problems: ["NUMBER_MISMATCH"],
+      });
+
+      // 3. Tamper distinctCommands
+      const tamperedDistinct = {
+        ...ledger,
+        permissionRequests: {
+          ...ledger.permissionRequests!,
+          distinctCommands: 999,
+        },
+      };
+      expect(verifyLedger(tamperedDistinct, input)).toEqual({
+        ok: false,
+        problems: ["NUMBER_MISMATCH"],
+      });
+
+      // 4. Tamper commandsOmitted
+      const tamperedOmitted = {
+        ...ledger,
+        permissionRequests: {
+          ...ledger.permissionRequests!,
+          commandsOmitted: 999,
+        },
+      };
+      expect(verifyLedger(tamperedOmitted, input)).toEqual({
+        ok: false,
+        problems: ["NUMBER_MISMATCH"],
+      });
+
+      // 5. Tamper claim distinctCommands
+      const tamperedClaimDistinct = {
+        ...ledger,
+        claims: ledger.claims.map((c) =>
+          c.template === "permission-requests"
+            ? { ...c, values: { ...c.values, distinctCommands: 999 } }
+            : c,
+        ),
+      };
+      expect(verifyLedger(tamperedClaimDistinct, input)).toEqual({
+        ok: false,
+        problems: ["NUMBER_MISMATCH"],
+      });
+
+      // 6. Tamper claim commandsShown
+      const tamperedClaimShown = {
+        ...ledger,
+        claims: ledger.claims.map((c) =>
+          c.template === "permission-requests"
+            ? { ...c, values: { ...c.values, commandsShown: 999 } }
+            : c,
+        ),
+      };
+      expect(verifyLedger(tamperedClaimShown, input)).toEqual({
+        ok: false,
+        problems: ["NUMBER_MISMATCH"],
+      });
+    });
+
+    it("flags UNSAFE_VALUE when command text exceeds MAX_COMMAND_CHARS + 20, contains control chars, or has unsafe fields", () => {
+      const node = {
+        ...createNodeUsage(0),
+        permissionRequests: {
+          asked: 1,
+          answered: 1,
+          answeredWithoutRequest: 0,
+          agentsAsked: 1,
+          tools: {
+            bash: { asked: 1, allow: 1, deny: 0, other: 0, unanswered: 0 },
+          },
+          programs: {
+            echo: { asked: 1, allow: 1, deny: 0, other: 0, unanswered: 0 },
+          },
+          commands: {
+            k1: {
+              text: "echo safe",
+              tool: "bash",
+              kind: "bash",
+              tally: { asked: 1, allow: 1, deny: 0, other: 0, unanswered: 0 },
+            },
+          },
+          commandsOmitted: 0,
+        },
+      };
+
+      const tree = createTreeFixture({ nodes: [node] });
+      const input = { ...DEFAULT_INPUT, tree };
+      const ledger = buildLedger(input);
+      expect(verifyLedger(ledger, input)).toEqual({ ok: true });
+
+      // 1. Command text exactly MAX_COMMAND_CHARS + 20 is allowed
+      const maxLenText = "x".repeat(MAX_COMMAND_CHARS + 20);
+      const atMaxLedger = {
+        ...ledger,
+        permissionRequests: {
+          ...ledger.permissionRequests!,
+          commands: [
+            {
+              ...ledger.permissionRequests!.commands[0],
+              text: maxLenText,
+            },
+          ],
+        },
+      };
+      expect(checkClaimRules(atMaxLedger)).toEqual([]);
+
+      // 2. Command text exceeding MAX_COMMAND_CHARS + 20 -> UNSAFE_VALUE
+      const tooLongText = "x".repeat(MAX_COMMAND_CHARS + 21);
+      const tooLongLedger = {
+        ...ledger,
+        permissionRequests: {
+          ...ledger.permissionRequests!,
+          commands: [
+            {
+              ...ledger.permissionRequests!.commands[0],
+              text: tooLongText,
+            },
+          ],
+        },
+      };
+      expect(verifyLedger(tooLongLedger, input)).toEqual({
+        ok: false,
+        problems: ["NUMBER_MISMATCH", "UNSAFE_VALUE"],
+      });
+
+      // 3. Command text containing null character (\0) -> UNSAFE_VALUE
+      const nullCharLedger = {
+        ...ledger,
+        permissionRequests: {
+          ...ledger.permissionRequests!,
+          commands: [
+            {
+              ...ledger.permissionRequests!.commands[0],
+              text: "echo \0 bad",
+            },
+          ],
+        },
+      };
+      expect(verifyLedger(nullCharLedger, input)).toEqual({
+        ok: false,
+        problems: ["NUMBER_MISMATCH", "UNSAFE_VALUE"],
+      });
+
+      // 4. Command text containing ESC (\x1b) -> UNSAFE_VALUE
+      const escCharLedger = {
+        ...ledger,
+        permissionRequests: {
+          ...ledger.permissionRequests!,
+          commands: [
+            {
+              ...ledger.permissionRequests!.commands[0],
+              text: "echo \x1b[31mred\x1b[0m",
+            },
+          ],
+        },
+      };
+      expect(verifyLedger(escCharLedger, input)).toEqual({
+        ok: false,
+        problems: ["NUMBER_MISMATCH", "UNSAFE_VALUE"],
+      });
+
+      // 5. Command text containing \r -> UNSAFE_VALUE
+      const crCharLedger = {
+        ...ledger,
+        permissionRequests: {
+          ...ledger.permissionRequests!,
+          commands: [
+            {
+              ...ledger.permissionRequests!.commands[0],
+              text: "echo line1\r\necho line2",
+            },
+          ],
+        },
+      };
+      expect(verifyLedger(crCharLedger, input)).toEqual({
+        ok: false,
+        problems: ["NUMBER_MISMATCH", "UNSAFE_VALUE"],
+      });
+
+      // 6. Command text containing \n and \t is ALLOWED (not unsafe)
+      const newlineTabLedger = {
+        ...ledger,
+        permissionRequests: {
+          ...ledger.permissionRequests!,
+          commands: [
+            {
+              ...ledger.permissionRequests!.commands[0],
+              text: "cat << 'EOF'\n\tline1\nEOF",
+            },
+          ],
+        },
+      };
+      expect(checkClaimRules(newlineTabLedger)).toEqual([]);
+
+      // 7. Unsafe tool name -> UNSAFE_VALUE
+      const unsafeTool = {
+        ...ledger,
+        permissionRequests: {
+          ...ledger.permissionRequests!,
+          commands: [
+            {
+              ...ledger.permissionRequests!.commands[0],
+              tool: "bad/tool?name",
+            },
+          ],
+        },
+      };
+      expect(verifyLedger(unsafeTool, input)).toEqual({
+        ok: false,
+        problems: ["NUMBER_MISMATCH", "UNSAFE_VALUE"],
+      });
+
+      // 8. Unsafe kind -> UNSAFE_VALUE
+      const unsafeKind = {
+        ...ledger,
+        permissionRequests: {
+          ...ledger.permissionRequests!,
+          commands: [
+            {
+              ...ledger.permissionRequests!.commands[0],
+              kind: "bad*kind!",
+            },
+          ],
+        },
+      };
+      expect(verifyLedger(unsafeKind, input)).toEqual({
+        ok: false,
+        problems: ["NUMBER_MISMATCH", "UNSAFE_VALUE"],
+      });
+
+      // 9. Negative number in command -> UNSAFE_VALUE
+      const negativeAsked = {
+        ...ledger,
+        permissionRequests: {
+          ...ledger.permissionRequests!,
+          commands: [
+            {
+              ...ledger.permissionRequests!.commands[0],
+              asked: -1,
+            },
+          ],
+        },
+      };
+      expect(verifyLedger(negativeAsked, input)).toEqual({
+        ok: false,
+        problems: ["NUMBER_MISMATCH", "UNSAFE_VALUE"],
+      });
+
+      // 10. More than 50 commands -> UNSAFE_VALUE
+      const fiftyOneCommands: LedgerPermissionCommand[] = [];
+      for (let i = 0; i < 51; i++) {
+        fiftyOneCommands.push({
+          text: `cmd-${i}`,
+          tool: "bash",
+          kind: "bash",
+          asked: 1,
+          allow: 1,
+          deny: 0,
+          other: 0,
+          unanswered: 0,
+        });
+      }
+      const tooManyCmds = {
+        ...ledger,
+        permissionRequests: {
+          ...ledger.permissionRequests!,
+          commands: fiftyOneCommands,
+        },
+      };
+      expect(checkClaimRules(tooManyCmds)).toContain("UNSAFE_VALUE");
     });
   });
 });

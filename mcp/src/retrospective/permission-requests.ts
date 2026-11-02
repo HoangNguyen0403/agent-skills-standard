@@ -5,7 +5,119 @@ export type ParsedPermissionRequest = {
   agent: string;
   tool: string;
   program: string | null;
+  kind: string;
+  command: string | null;
 };
+
+export const MAX_COMMAND_CHARS = 2000;
+
+const KIND_REGEX = /^[A-Za-z0-9._ -]{1,32}$/;
+
+/** C0 and C1 control characters excluding \t (0x09) and \n (0x0a). */
+const CONTROL_CHARACTERS_EXCEPT_NL_TAB = new RegExp(
+  `[${String.fromCharCode(0x00)}-${String.fromCharCode(0x08)}${String.fromCharCode(0x0b)}-${String.fromCharCode(0x1f)}${String.fromCharCode(0x7f)}-${String.fromCharCode(0x9f)}]`,
+  "g",
+);
+
+const ENV_NAME_SENSITIVE_REGEX =
+  /(?:KEY|TOKEN|SECRET|PASSW(?:OR)?D|CREDENTIAL|AUTH|COOKIE|SESSION)/i;
+
+const ENV_ASSIGNMENT_CAPTURE_REGEX =
+  /(?<=^|[\s"';])([A-Za-z_][A-Za-z0-9_]{0,127})=("[^"\n]{0,2000}"|'[^'\n]{0,2000}'|\S{1,2000})/g;
+
+const SENSITIVE_FLAGS_REGEX =
+  /(?<=^|[\s"';])(--(?:password|passwd|token|secret|api-key|apikey|auth|credentials))(=| )("[^"\n]{0,2000}"|'[^'\n]{0,2000}'|\S{1,2000})/g;
+
+const SENSITIVE_HEADERS_REGEX =
+  /(?<=^|[\s"'])((?:Authorization|Proxy-Authorization|X-Api-Key|X-Auth-Token|Cookie|Set-Cookie):)[ \t]*([^"'\r\n]+)/gi;
+
+const BEARER_TOKEN_REGEX = /(?<=^|[\s"'])Bearer[ \t]+([^\s"'\r\n]{1,2000})/gi;
+
+const URL_USERINFO_REGEX =
+  /([A-Za-z][A-Za-z0-9+.-]{0,31}:\/\/)(?:[^/\s@"']{1,256})@/g;
+
+const SK_TOKEN_REGEX =
+  /(?<=^|[^A-Za-z0-9_-])sk-[A-Za-z0-9_-]{16,256}(?![A-Za-z0-9_-])/g;
+
+const GH_TOKEN_REGEX =
+  /(?<=^|[^A-Za-z0-9_])gh[pousr]_[A-Za-z0-9]{20,256}(?![A-Za-z0-9])/g;
+
+const GH_PAT_REGEX =
+  /(?<=^|[^A-Za-z0-9_])github_pat_[A-Za-z0-9_]{20,256}(?![A-Za-z0-9_])/g;
+
+const AKIA_REGEX = /(?<=^|[^A-Za-z0-9])AKIA[0-9A-Z]{16}(?![0-9A-Z])/g;
+
+const SLACK_TOKEN_REGEX =
+  /(?<=^|[^A-Za-z0-9-])xox[abprs]-[A-Za-z0-9-]{10,256}(?![A-Za-z0-9-])/g;
+
+const JWT_REGEX =
+  /(?<=^|[^A-Za-z0-9_.-])eyJ[A-Za-z0-9_-]{5,1000}\.[A-Za-z0-9_-]{5,1000}\.[A-Za-z0-9_-]{5,1000}(?![A-Za-z0-9_.-])/g;
+
+const GENERIC_SECRET_RUN_REGEX =
+  /(?<=^|[^A-Za-z0-9+/_=-])[A-Za-z0-9+/_=-]{40,4000}(?![A-Za-z0-9+/_=-])/g;
+
+/**
+ * Redacts secrets from command text per Contract v3.4 Section 2.
+ * Pure, bounded, linear-time, never throws.
+ */
+export function redactCommand(text: string): string {
+  if (typeof text !== "string") {
+    return "";
+  }
+
+  // 1. Input beyond 4000 chars is cut first
+  let sanitized = text.length > 4000 ? text.slice(0, 4000) : text;
+
+  // Replace control characters except \n and \t with a space
+  sanitized = sanitized.replace(CONTROL_CHARACTERS_EXCEPT_NL_TAB, " ");
+
+  // 2. Secret redactions
+  // Environment assignments NAME=value
+  sanitized = sanitized.replace(
+    ENV_ASSIGNMENT_CAPTURE_REGEX,
+    (match, name: string) => {
+      if (ENV_NAME_SENSITIVE_REGEX.test(name)) {
+        return `${name}=[redacted]`;
+      }
+      return match;
+    },
+  );
+
+  // Flags
+  sanitized = sanitized.replace(SENSITIVE_FLAGS_REGEX, "$1$2[redacted]");
+
+  // HTTP header values
+  sanitized = sanitized.replace(SENSITIVE_HEADERS_REGEX, "$1 [redacted]");
+
+  // Bearer <token>
+  sanitized = sanitized.replace(BEARER_TOKEN_REGEX, "Bearer [redacted]");
+
+  // URL userinfo
+  sanitized = sanitized.replace(URL_USERINFO_REGEX, "$1[redacted]@");
+
+  // Known token shapes
+  sanitized = sanitized.replace(SK_TOKEN_REGEX, "[redacted]");
+  sanitized = sanitized.replace(GH_TOKEN_REGEX, "[redacted]");
+  sanitized = sanitized.replace(GH_PAT_REGEX, "[redacted]");
+  sanitized = sanitized.replace(AKIA_REGEX, "[redacted]");
+  sanitized = sanitized.replace(SLACK_TOKEN_REGEX, "[redacted]");
+  sanitized = sanitized.replace(JWT_REGEX, "[redacted]");
+
+  // Any other run of 40+ chars from [A-Za-z0-9+/_=-]
+  sanitized = sanitized.replace(GENERIC_SECRET_RUN_REGEX, "[redacted]");
+
+  // 3. Length ceiling
+  if (sanitized.length > MAX_COMMAND_CHARS) {
+    let cutLen = MAX_COMMAND_CHARS;
+    const highSurrogate = sanitized.charCodeAt(cutLen - 1);
+    if (highSurrogate >= 0xd800 && highSurrogate <= 0xdbff) {
+      cutLen -= 1;
+    }
+    sanitized = sanitized.slice(0, cutLen) + "…[truncated]";
+  }
+
+  return sanitized;
+}
 
 const SAFE_PROGRAM_REGEX = /^[a-z0-9][a-z0-9._+-]{0,31}$/;
 const ENV_ASSIGNMENT_REGEX = /^[A-Za-z_][A-Za-z0-9_]*=/;
@@ -245,11 +357,51 @@ export function parsePermissionRequestMessage(
         : "";
     program = programWord(desc);
   }
+  let kind = "other";
+  if (
+    reqObj !== null &&
+    typeof reqObj.kind === "string" &&
+    KIND_REGEX.test(reqObj.kind)
+  ) {
+    kind = reqObj.kind;
+  }
+
+  let rawCommand: string | null = null;
+  if (tool === "bash") {
+    if (reqObj !== null && typeof reqObj.description === "string") {
+      let desc = reqObj.description.trim();
+      if (desc.startsWith("Command:")) {
+        desc = desc.slice("Command:".length).replace(/^[ \t]+/, "");
+      }
+      if (desc.trim().length > 0) {
+        rawCommand = desc;
+      }
+    }
+  } else {
+    if (reqObj !== null) {
+      if (typeof reqObj.title === "string" && reqObj.title.trim().length > 0) {
+        rawCommand = reqObj.title.trim();
+      } else if (
+        typeof reqObj.description === "string" &&
+        reqObj.description.trim().length > 0
+      ) {
+        rawCommand = reqObj.description.trim();
+      }
+    }
+  }
+
+  let command: string | null = null;
+  if (rawCommand !== null) {
+    const redacted = redactCommand(rawCommand);
+    command = redacted.trim().length > 0 ? redacted : null;
+  }
 
   return {
     requestId,
     agent,
     tool,
     program,
+    kind,
+    command,
   };
 }
