@@ -266,6 +266,71 @@ Agent 12345678-abcd needs permission.
     });
   });
 
+  it("does not double-unescape: escaped ampersand entities stay literal text in an escaped message", () => {
+    const escaped = `&lt;paseo-system event=&quot;permission-required&quot;&gt;
+Agent 12345678-abcd needs permission.
+&lt;permission-request&gt;
+{
+  &quot;agentId&quot;: &quot;12345678-abcd-ef01-2345&quot;,
+  &quot;requestId&quot;: &quot;req-double-1&quot;,
+  &quot;request&quot;: {
+    &quot;name&quot;: &quot;bash&quot;,
+    &quot;description&quot;: &quot;Command: echo &amp;lt;b&amp;gt; &amp;amp;&amp;amp; echo &amp;quot;x&amp;quot;&quot;
+  }
+}
+&lt;/permission-request&gt;
+&lt;/paseo-system&gt;`;
+
+    const result = parsePermissionRequestMessage(escaped);
+
+    expect(result).not.toBeNull();
+    expect(result?.command).toBe(
+      "echo &lt;b&gt; &amp;&amp; echo &quot;x&quot;",
+    );
+  });
+
+  it("never decodes entity-like text inside a RAW message", () => {
+    const raw = `<paseo-system event="permission-required">
+Agent 12345678-abcd needs permission.
+<permission-request>
+{
+  "agentId": "12345678-abcd-ef01-2345",
+  "requestId": "req-raw-entities",
+  "request": {
+    "name": "bash",
+    "description": "Command: echo &lt;tag&gt; &amp; &quot;q&quot;"
+  }
+}
+</permission-request>
+</paseo-system>`;
+
+    const result = parsePermissionRequestMessage(raw);
+
+    expect(result?.command).toBe("echo &lt;tag&gt; &amp; &quot;q&quot;");
+  });
+
+  it("keeps a request whose command contains a literal close tag instead of dropping it", () => {
+    const raw = `<paseo-system event="permission-required">
+Agent 12345678-abcd needs permission.
+<permission-request>
+{
+  "agentId": "12345678-abcd-ef01-2345",
+  "requestId": "req-close-tag",
+  "request": {
+    "name": "bash",
+    "description": "Command: echo </permission-request> && rm -rf build"
+  }
+}
+</permission-request>
+</paseo-system>`;
+
+    const result = parsePermissionRequestMessage(raw);
+
+    expect(result).not.toBeNull();
+    expect(result?.requestId).toBe("req-close-tag");
+    expect(result?.command).toBe("echo </permission-request> && rm -rf build");
+  });
+
   it("parses nested objects and braces inside JSON strings without regex brace corruption", () => {
     const complexJsonMessage = `<paseo-system event="permission-required">
 Agent a626ed91-6219-4158-88dc-31f12a5b782b needs permission.

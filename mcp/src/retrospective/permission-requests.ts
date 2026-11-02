@@ -283,30 +283,48 @@ export function parsePermissionRequestMessage(
     return null;
   }
 
-  const unescaped = scanned
-    .replace(/&quot;/g, '"')
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">");
-
+  // Decode only when the block is HTML-escaped; a raw message is taken as is, so entity-like
+  // text inside a raw command is never decoded. `&amp;` is unescaped LAST so an escaped
+  // ampersand cannot be decoded twice (`&amp;lt;` stays the literal text `&lt;`).
   const openTag = "<permission-request>";
   const closeTag = "</permission-request>";
+  let unescaped: string;
+  if (scanned.includes(openTag)) {
+    unescaped = scanned;
+  } else if (scanned.includes("&lt;permission-request&gt;")) {
+    unescaped = scanned
+      .replace(/&quot;/g, '"')
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&amp;/g, "&");
+  } else {
+    return null;
+  }
+
   const startIdx = unescaped.indexOf(openTag);
   if (startIdx === -1) {
     return null;
   }
 
+  // A command may itself contain the close tag: try each close tag in turn (bounded) until
+  // the text between parses as JSON, so such a request is not silently dropped.
   const jsonStart = startIdx + openTag.length;
-  const endIdx = unescaped.indexOf(closeTag, jsonStart);
-  if (endIdx === -1) {
-    return null;
-  }
-
-  const rawJson = unescaped.slice(jsonStart, endIdx).trim();
   let parsed: unknown;
-  try {
-    parsed = JSON.parse(rawJson);
-  } catch {
+  let parsedOk = false;
+  let searchFrom = jsonStart;
+  for (let attempt = 0; attempt < 8 && !parsedOk; attempt++) {
+    const endIdx = unescaped.indexOf(closeTag, searchFrom);
+    if (endIdx === -1) {
+      break;
+    }
+    try {
+      parsed = JSON.parse(unescaped.slice(jsonStart, endIdx).trim());
+      parsedOk = true;
+    } catch {
+      searchFrom = endIdx + closeTag.length;
+    }
+  }
+  if (!parsedOk) {
     return null;
   }
 
