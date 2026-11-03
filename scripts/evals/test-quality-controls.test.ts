@@ -417,7 +417,7 @@ const structuralMutations: readonly StructuralMutation[] = [
   },
   {
     label: "blank line between rows",
-    mutate: (safe) => safe.replace("\n", "\n\n"),
+    mutate: (safe) => safe.replaceAll("\n", "\n\n"),
   },
   {
     label: "trailing prose on a row",

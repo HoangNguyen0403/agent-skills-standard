@@ -37,10 +37,10 @@ function slugFromFilenameTail(tail: string): string {
 }
 
 /** Captures complete reserved-prefix candidates, including malformed separator runs. */
-const TOKEN_RE = /\b(BRD-OBJ|REQ|AC|SRS)(?:-[A-Za-z0-9]+|--+[A-Za-z0-9-]*|-(?!\*)){1,}/g;
+const TOKEN_RE = /\b(BRD-OBJ|REQ|AC|SRS)(?:-[A-Za-z0-9]+|--+[A-Za-z0-9-]*)+/g;
 
 /** Captures the same complete candidate at the beginning of a field value. */
-const ID_TOKEN_AT_START_RE = /^(BRD-OBJ|REQ|AC|SRS)(?:-[A-Za-z0-9]+|--+[A-Za-z0-9-]*|-(?!\*)){1,}/;
+const ID_TOKEN_AT_START_RE = /^(BRD-OBJ|REQ|AC|SRS)(?:-[A-Za-z0-9]+|--+[A-Za-z0-9-]*)+/;
 
 
 /**
