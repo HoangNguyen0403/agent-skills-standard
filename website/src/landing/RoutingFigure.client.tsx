@@ -101,7 +101,6 @@ export function RoutingFigure(): React.JSX.Element {
                 key={example.id}
                 type="button"
                 onClick={() => handleSelect(example.id)}
-                disabled={!mounted}
                 className={`${routingStyles.selectorPill} ${
                   isSelected ? routingStyles.selectorPillActive : ""
                 }`}

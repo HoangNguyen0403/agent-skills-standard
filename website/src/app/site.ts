@@ -11,8 +11,14 @@ export interface SiteConfig {
 
 export function getSiteConfig(): SiteConfig {
   const envSiteUrl = process.env.SITE_URL?.trim();
-
   if (!envSiteUrl) {
+    if (process.env.NODE_ENV === "development") {
+      return {
+        siteUrl: "http://localhost:3000",
+        isProductionApproved: false,
+        shouldIndex: false,
+      };
+    }
     throw new Error(
       "Missing required SITE_URL environment variable. For local build and verification use: SITE_URL=http://127.0.0.1:4321",
     );

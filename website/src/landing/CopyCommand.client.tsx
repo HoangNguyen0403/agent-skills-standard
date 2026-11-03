@@ -139,7 +139,7 @@ export function CopyCommand({
           }
         }
       },
-      { threshold: 0.1 },
+      { threshold: 0.25 },
     );
 
     observer.observe(rowEl);
@@ -163,7 +163,7 @@ export function CopyCommand({
   // When typing begins, schedule bounded completion safety timer
   useEffect(() => {
     if (revealState === "typing") {
-      const typeDuration = Math.min(Math.max(command.length * 18, 250), 750);
+      const typeDuration = Math.min(Math.max(command.length * 32, 450), 1400);
       completeTimerRef.current = setTimeout(() => {
         setRevealState("complete");
       }, typeDuration + 1500);
@@ -262,7 +262,7 @@ export function CopyCommand({
         ? motionStyles.typing
         : motionStyles.pending;
 
-  const typeDuration = Math.min(Math.max(command.length * 18, 250), 750);
+  const typeDuration = Math.min(Math.max(command.length * 32, 450), 1400);
 
   return (
     <div

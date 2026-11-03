@@ -73,7 +73,7 @@ export function QuickStartSection(): React.JSX.Element {
               </div>
             </div>
             <div className={styles.stepCommand}>
-              <CopyCommand id="install" command={installCmd} delay={0} />
+              <CopyCommand id="install" command={installCmd} delay={100} />
             </div>
           </li>
 
@@ -90,7 +90,7 @@ export function QuickStartSection(): React.JSX.Element {
               </div>
             </div>
             <div className={styles.stepCommand}>
-              <CopyCommand id="init" command={initCmd} delay={200} />
+              <CopyCommand id="init" command={initCmd} delay={450} />
             </div>
           </li>
 
@@ -108,7 +108,7 @@ export function QuickStartSection(): React.JSX.Element {
               </div>
             </div>
             <div className={styles.stepCommand}>
-              <CopyCommand id="sync" command={syncCmd} delay={400} />
+              <CopyCommand id="sync" command={syncCmd} delay={800} />
             </div>
           </li>
         </ol>
