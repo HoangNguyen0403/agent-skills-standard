@@ -64,9 +64,14 @@
     "How do I use BlocBuilder in Flutter?",
     "Add a test for the LoginBloc",
     "Fix the navigation so the back button works correctly",
-    "I need to add a loading spinner to the checkout page"
+    "I need to add a loading spinner to the checkout page",
+    "Brainstorm feature for our landing page and SEO readiness",
+    "Plan feature for generic task complexity routing",
+    "Define domain entities for a non-Flutter backend service"
   ],
   "should_trigger": [
-    "I'm adding a new 'promotions' feature. Where should I put the files?"
+    "I'm adding a new 'promotions' feature in Flutter. Where should I put the files?",
+    "Organize Flutter feature structure under lib/features/",
+    "Structure domain and presentation layers in Flutter feature clean architecture"
   ]
 }

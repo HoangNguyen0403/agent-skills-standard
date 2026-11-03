@@ -4,10 +4,11 @@ Thank you for your interest in contributing! This document provides guidelines f
 
 ## 1. Development Setup
 
-### Prequisites
+### Prerequisites
 
-- Node.js v18+
-- pnpm (v9+)
+- **Repository Root & Tooling**: The root `package.json` *declares* `node: ">= 20.0.0"`. That manifest declaration covers root scripts only; it is not evidence that the CLI, MCP server, or website build runs on Node 20.
+- **CLI Runtime & Website**: Supported Node.js 22 LTS `>= 22.13` on the 22.x line, or a newer supported LTS. The CLI declares no `engines` field; its declared dependency intersection is `^22.13.0 || >= 23.5.0` (`commander` 15 declares `>= 22.12.0`, `inquirer` 14 declares `>= 23.5.0 || ^22.13.0 || ^20.17.0`). The website package declares no `engines` field either, so use the same supported LTS line rather than any Node version above 22.13.
+- **pnpm**: `v10.0.0+` (matching root `packageManager: pnpm@10.0.0`)
 
 ### Installation
 
@@ -140,7 +141,9 @@ Rules:
 - Keep seven advanced PM skills keyword-only (`triggers.files: []`); keep `product-evidence` scoped to `docs/product/*/evidence.json`; keep foundation BRD/PRD skills scoped to their respective spec files. Never add broad markdown globs or universal file triggers that activate PM skills unexpectedly.
 - Standalone validator (`validate-product-evidence.mjs`) and investment calculator
   (`evaluate-investment.mjs`) require Node >=20. In contrast, CLI sync and the T09
-  integration harness require Node 22+ (using `Promise.withResolvers`).
+  integration harness use `Promise.withResolvers` (available from Node 22.0.0) and
+  therefore run only on the supported CLI range in Prerequisites (Node 22 LTS
+  `>= 22.13` or a newer supported LTS).
 - Invocation of standalone resources returns structural findings and host-check
   eligibility, never autonomous action consent. Review scripts before execution;
   sync preserves bytes and ownership but does not grant autonomous spend,

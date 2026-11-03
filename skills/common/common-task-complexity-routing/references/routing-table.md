@@ -60,6 +60,25 @@ Capability states how much model strength the work needs. Thinking effort states
 
 SNC sensitivity floors are unchanged. A small edit or a lower capability hint never lowers a floor, never authorizes premium spend and never removes a required reviewer.
 
+### Per-slice routing and evidence reuse
+
+Each delegated slice of a multi-step plan is assessed independently on its own Spread, Novelty, and Centrality:
+- **Independent slice sizing**: A parent task scored `tier=high` often contains deterministic file lookups, test executions, or bounded edits. These sub-slices do not inherit the parent's expensive analysis tier; each slice is independently sized on its own Spread, Novelty, Centrality, risk floor, and verification adequacy, routing deterministic operations to existing tools and bounded peripheral changes to tier-adequate fast or standard capabilities without an unconditional fast shortcut or sensitivity floor bypass.
+- **Evidence reuse**: Reusable approved discovery or repo context already in the workspace must be reused directly. Do not launch repeated discovery scouts when existing evidence answers the question.
+- **Adequate capability for open-ended analysis**: When a question genuinely requires open-ended investigation, use an eligible, adequately capable analysis route. Reject both redundant scouting and indiscriminate always-cheapest routing.
+
+### Host profiles versus native roles
+
+- **Host profiles**: Named provider/model/mode configurations (e.g. Paseo profiles: provider, model, modeId, thinkingOptionId, features) are explicit host-side launch settings.
+- **Native roles & hints**: Capability hints (`fast`, `standard`, `strong`) and native role labels (e.g. OMP `@discovery`, `role smol`) are provider-neutral requests, not host profiles.
+- **Configuration rule**: Stating a profile name in prompt text is not configuration. Explicit settings must be honored; never assume a prompt label authorizes an account or executes a specific route. Never spawn unchecked workers on unknown routes.
+
+### Tool argument rejections versus provider exhaustion
+
+- **Argument rejection is not exhaustion**: When a tool or adapter rejects a model argument (e.g. host task tool rejecting `model` on non-seance tasks) or fails schema validation, this is an argument/adapter failure, NOT provider exhaustion.
+- **No unchecked fallback**: Never drop the configuration to silently fall back to an unchecked default model, and never treat an invalid argument as an HTTP 429 quota failure.
+- **Recovery**: Stop and use a supported already-authorized route or return `needs_context` or `blocked` naming the exact rejected parameter or resolution gap.
+
 ### Host-owned resolution
 
 - Eligibility, approved profiles, supported effort and authorized fallback come from current host/project configuration. A capability hint is not account authorization, so an unauthorized cheaper account stays unavailable; substitute only inside already-authorized routes.
@@ -89,9 +108,11 @@ Reuse the existing handoff/receipt record; add no telemetry store and no mandato
 | --- | --- |
 | Missing prerequisite, context, standard or authority | `needs_context` or `blocked` naming the exact item; no provider fallback |
 | Defective or incomplete output | One corrective assignment naming the failed AC and expected result; not provider failure |
-| Observed provider exhaustion (quota, rate limit, unavailable) | Only an already-authorized eligible fallback; record exhaustion evidence and the selected route |
+| Tool argument rejection or unsupported parameter | Adapter/schema error: use a supported authorized route or return `needs_context`/`blocked` naming the rejected parameter; NEVER treat as 429 quota exhaustion or spawn unchecked default |
+| Observed provider exhaustion (factual 429, rate limit, quota exceeded) | Advance only to an already-authorized eligible fallback in the project ladder; record exhaustion evidence and the selected fallback route in the receipt |
+| Sufficient existing discovery evidence | Reuse verified evidence directly; do not launch redundant discovery scouts |
+| Genuine open-ended analysis | Eligible adequate analysis route; avoid indiscriminate always-cheapest reflex |
 | A preference for stronger capability | Capability hint only; premium remains a separately approved, bounded, analysis-only step |
-
 ### Cost vocabulary
 
 - API usage is billed per token; subscription or quota plans consume allowance rather than itemized money; elapsed time is neither.

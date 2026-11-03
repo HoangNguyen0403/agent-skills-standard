@@ -9,14 +9,16 @@ metadata:
     - 'app.json'
     - 'StyleSheet.create'
     keywords:
-    - feature
-    - module
-    - directory structure
-    - separation of concerns
+    - react-native
+    - react native project
+    - react native architecture
+    - react native feature structure
+    - react native folder structure
+    - mobile architecture
     - Expo
     - React Navigation
-    - react-native
-    - mobile architecture
+    - react native mobile navigation
+    - react native clean architecture
 ---
 # React Native Architecture
 

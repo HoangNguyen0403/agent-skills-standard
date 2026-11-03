@@ -35,6 +35,7 @@ export interface SourceLinks {
   readonly evals: string;
   readonly contributing: string;
   readonly license: string;
+  readonly issues: string;
 }
 
 export interface LandingContent {
@@ -183,6 +184,8 @@ export const sourceLinks: SourceLinks = {
     "https://github.com/HoangNguyen0403/agent-skills-standard/blob/main/CONTRIBUTING.md",
   license:
     "https://github.com/HoangNguyen0403/agent-skills-standard/blob/main/LICENSE",
+  issues:
+    "https://github.com/HoangNguyen0403/agent-skills-standard/issues",
 } as const;
 
 export const compatibleAgents: readonly string[] = [
@@ -258,8 +261,8 @@ export const content: LandingContent = {
     afterTitle: "Portable standards. Relevant context.",
     afterPoints: [
       "Single source of truth versioned in your repository.",
-      "Context triggered automatically per file and task.",
-      "Deterministic SDLC workflows from planning to review.",
+      "Trigger-based instruction delivery per file and task; adherence remains host- and model-dependent.",
+      "Structured advisory SDLC workflows from planning to review.",
     ],
   },
   setup: {
@@ -283,7 +286,7 @@ export const content: LandingContent = {
         step: "03",
         title: "Work in your agent",
         description:
-          "Your agent loads matching guidance automatically based on touched files and triggers.",
+          "Your agent receives matching instructions based on file and task triggers; rule adherence depends on host capabilities.",
       },
     ],
   },
@@ -315,9 +318,9 @@ export const content: LandingContent = {
       "Measures prompt token footprint across skill categories and frameworks.",
     evalsTitle: "Live skill evals",
     evalsDesc:
-      "Evaluates empirical task success rates with and without loaded skill context.",
+      "Measures baseline and with-skill transcript-assertion pass rates across evaluation test cases.",
     readinessCaveat:
-      "Results vary across models. Current catalog readiness in live evals is marked NOT READY.",
+      "Results vary across models. Asserts transcript output matches; catalog readiness in live evals is marked NOT READY.",
   },
   quickStart: {
     title: "Quick start",

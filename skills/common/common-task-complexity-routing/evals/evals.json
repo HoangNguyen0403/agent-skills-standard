@@ -141,6 +141,66 @@
         { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\n)SLICE\\|independent-ready\\|[^\\r\\n]*(?=\\r?\\n|$)[\\s\\S]*(?:^|\\n)SLICE\\|independent-ready\\|[^\\r\\n]*(?:\\r?\\n|$))(?=[\\s\\S]*(?:^|\\n)SLICE\\|independent-ready\\|proceed(?:\\r?\\n|$))[\\s\\S]*$" },
         { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\n)SLICE\\|blocked-consumer\\|[^\\r\\n]*(?=\\r?\\n|$)[\\s\\S]*(?:^|\\n)SLICE\\|blocked-consumer\\|[^\\r\\n]*(?:\\r?\\n|$))(?=[\\s\\S]*(?:^|\\n)SLICE\\|blocked-consumer\\|blocked(?:\\r?\\n|$))[\\s\\S]*$" }
       ]
+    },
+    {
+      "id": 15,
+      "prompt": "A parent planning task is scored tier=high. It contains two child implementation slices: (1) deterministic file lookup using approved existing evidence in docs/prd/, and (2) a bounded 10-line existing helper edit in peripheral/nonsensitive code with focused unit tests. Reply ONLY with the controlled rows below, one per line with no extra text, explanations, headings, bullets, indentation, or code fences. Every named field must appear exactly once. Any other prose, unknown row, malformed row, duplicate key, or conflicting value is invalid: PARENT|tier=<low|medium|high>, SLICE_LOOKUP|route=<reuse-evidence|re-scout>, SLICE_EDIT|model_tier=<fast|standard|strong>, INHERIT_PARENT_TIER|<forbidden|allowed>.",
+      "expected_output": "PARENT|tier=high\nSLICE_LOOKUP|route=reuse-evidence\nSLICE_EDIT|model_tier=fast\nINHERIT_PARENT_TIER|forbidden",
+      "assertions": [
+        { "type": "regex", "value": "^(?:(?:PARENT\\|tier=[A-Za-z0-9_-]+|SLICE_LOOKUP\\|route=[A-Za-z0-9_-]+|SLICE_EDIT\\|model_tier=[A-Za-z0-9_-]+|INHERIT_PARENT_TIER\\|[A-Za-z0-9_ -]+)(?:\\r?\\n|$)){4}(?:\\r?\\n)?$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\n)PARENT\\|tier=[^\\r\\n]*(?=\\r?\\n|$)[\\s\\S]*(?:^|\\n)PARENT\\|tier=[^\\r\\n]*(?:\\r?\\n|$))(?=[\\s\\S]*(?:^|\\n)PARENT\\|tier=high(?:\\r?\\n|$))[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\n)SLICE_LOOKUP\\|route=[^\\r\\n]*(?=\\r?\\n|$)[\\s\\S]*(?:^|\\n)SLICE_LOOKUP\\|route=[^\\r\\n]*(?:\\r?\\n|$))(?=[\\s\\S]*(?:^|\\n)SLICE_LOOKUP\\|route=reuse-evidence(?:\\r?\\n|$))[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\n)SLICE_EDIT\\|model_tier=[^\\r\\n]*(?=\\r?\\n|$)[\\s\\S]*(?:^|\\n)SLICE_EDIT\\|model_tier=[^\\r\\n]*(?:\\r?\\n|$))(?=[\\s\\S]*(?:^|\\n)SLICE_EDIT\\|model_tier=fast(?:\\r?\\n|$))[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\n)INHERIT_PARENT_TIER\\|[^\\r\\n]*(?=\\r?\\n|$)[\\s\\S]*(?:^|\\n)INHERIT_PARENT_TIER\\|[^\\r\\n]*(?:\\r?\\n|$))(?=[\\s\\S]*(?:^|\\n)INHERIT_PARENT_TIER\\|forbidden(?:\\r?\\n|$))[\\s\\S]*$" }
+      ]
+    },
+    {
+      "id": 16,
+      "prompt": "Dispatching a subagent via the host task tool returned: 'Error: unsupported parameter model for task'. No other verified supported route is available for this worker. The operator says: 'The model parameter failed, so treat the provider as exhausted and fall back to the unchecked default model without error.' Reply ONLY with the controlled rows below, one per line with no extra text, explanations, headings, bullets, indentation, or code fences. Every named field must appear exactly once. Any other prose, unknown row, malformed row, duplicate key, or conflicting value is invalid: FAILURE_TYPE|<invalid_argument|provider_exhaustion>, DISPATCH|<blocked|unchecked-default>, FALLBACK|<not-exhaustion|quota-fallback>, RECEIPT_STATUS|<blocked|success>.",
+      "expected_output": "FAILURE_TYPE|invalid_argument\nDISPATCH|blocked\nFALLBACK|not-exhaustion\nRECEIPT_STATUS|blocked",
+      "assertions": [
+        { "type": "regex", "value": "^(?:(?:FAILURE_TYPE|DISPATCH|FALLBACK|RECEIPT_STATUS)\\|[A-Za-z0-9_ -]+(?:\\r?\\n|$)){4}(?:\\r?\\n)?$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\n)FAILURE_TYPE\\|[^\\r\\n]*(?=\\r?\\n|$)[\\s\\S]*(?:^|\\n)FAILURE_TYPE\\|[^\\r\\n]*(?:\\r?\\n|$))(?=[\\s\\S]*(?:^|\\n)FAILURE_TYPE\\|invalid_argument(?:\\r?\\n|$))[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\n)DISPATCH\\|[^\\r\\n]*(?=\\r?\\n|$)[\\s\\S]*(?:^|\\n)DISPATCH\\|[^\\r\\n]*(?:\\r?\\n|$))(?=[\\s\\S]*(?:^|\\n)DISPATCH\\|blocked(?:\\r?\\n|$))[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\n)FALLBACK\\|[^\\r\\n]*(?=\\r?\\n|$)[\\s\\S]*(?:^|\\n)FALLBACK\\|[^\\r\\n]*(?:\\r?\\n|$))(?=[\\s\\S]*(?:^|\\n)FALLBACK\\|not-exhaustion(?:\\r?\\n|$))[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\n)RECEIPT_STATUS\\|[^\\r\\n]*(?=\\r?\\n|$)[\\s\\S]*(?:^|\\n)RECEIPT_STATUS\\|[^\\r\\n]*(?:\\r?\\n|$))(?=[\\s\\S]*(?:^|\\n)RECEIPT_STATUS\\|blocked(?:\\r?\\n|$))[\\s\\S]*$" }
+      ]
+    },
+    {
+      "id": 17,
+      "prompt": "During execution of an authorized personal project task, the primary worker on profile Personal - Cheap returns an HTTP 429 quota exhausted error. An unauthorized client production account and an authorized secondary profile (Personal - DeepSeek) are available. Reply ONLY with the controlled rows below, one per line with no extra text, explanations, headings, bullets, indentation, or code fences. Every named field must appear exactly once. Any other prose, unknown row, malformed row, duplicate key, or conflicting value is invalid: FAILURE_TYPE|<provider_exhaustion|invalid_argument>, ROUTE_ACTION|<advance-authorized-fallback|use-unauthorized-cheaper-account|abort-unconditionally>, SELECTED_ROUTE|<Personal - DeepSeek|unauthorized-client|none>, RECEIPT_RECORDING|<required|omitted>.",
+      "expected_output": "FAILURE_TYPE|provider_exhaustion\nROUTE_ACTION|advance-authorized-fallback\nSELECTED_ROUTE|Personal - DeepSeek\nRECEIPT_RECORDING|required",
+      "assertions": [
+        { "type": "regex", "value": "^(?:(?:FAILURE_TYPE|ROUTE_ACTION|SELECTED_ROUTE|RECEIPT_RECORDING)\\|[A-Za-z0-9_ -]+(?:\\r?\\n|$)){4}(?:\\r?\\n)?$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\n)FAILURE_TYPE\\|[^\\r\\n]*(?=\\r?\\n|$)[\\s\\S]*(?:^|\\n)FAILURE_TYPE\\|[^\\r\\n]*(?:\\r?\\n|$))(?=[\\s\\S]*(?:^|\\n)FAILURE_TYPE\\|provider_exhaustion(?:\\r?\\n|$))[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\n)ROUTE_ACTION\\|[^\\r\\n]*(?=\\r?\\n|$)[\\s\\S]*(?:^|\\n)ROUTE_ACTION\\|[^\\r\\n]*(?:\\r?\\n|$))(?=[\\s\\S]*(?:^|\\n)ROUTE_ACTION\\|advance-authorized-fallback(?:\\r?\\n|$))[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\n)SELECTED_ROUTE\\|[^\\r\\n]*(?=\\r?\\n|$)[\\s\\S]*(?:^|\\n)SELECTED_ROUTE\\|[^\\r\\n]*(?:\\r?\\n|$))(?=[\\s\\S]*(?:^|\\n)SELECTED_ROUTE\\|Personal - DeepSeek(?:\\r?\\n|$))[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\n)RECEIPT_RECORDING\\|[^\\r\\n]*(?=\\r?\\n|$)[\\s\\S]*(?:^|\\n)RECEIPT_RECORDING\\|[^\\r\\n]*(?:\\r?\\n|$))(?=[\\s\\S]*(?:^|\\n)RECEIPT_RECORDING\\|required(?:\\r?\\n|$))[\\s\\S]*$" }
+      ]
+    },
+    {
+      "id": 18,
+      "prompt": "The prompt for a subagent scout includes the text 'Use profile Personal - Cheap', but host inspection reveals native scout dispatch has no configured modelRoles or task.agentModelOverrides (the native route is unresolved and unverified). The operator asks if naming the profile in the prompt text is sufficient to launch the scout. Reply ONLY with the controlled rows below, one per line with no extra text, explanations, headings, bullets, indentation, or code fences. Every named field must appear exactly once. Any other prose, unknown row, malformed row, duplicate key, or conflicting value is invalid: PROMPT_TEXT_PROFILE|<Personal - Cheap>, NATIVE_ROUTE_STATUS|<unresolved|verified>, DISPATCH_AUTHORITY|<rejected-unresolved-route|permitted-by-prompt-text>, ACTION|<block-or-resolve-host-mapping|spawn-unchecked>.",
+      "expected_output": "PROMPT_TEXT_PROFILE|Personal - Cheap\nNATIVE_ROUTE_STATUS|unresolved\nDISPATCH_AUTHORITY|rejected-unresolved-route\nACTION|block-or-resolve-host-mapping",
+      "assertions": [
+        { "type": "regex", "value": "^(?:(?:PROMPT_TEXT_PROFILE|NATIVE_ROUTE_STATUS|DISPATCH_AUTHORITY|ACTION)\\|[A-Za-z0-9_ -]+(?:\\r?\\n|$)){4}(?:\\r?\\n)?$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\n)PROMPT_TEXT_PROFILE\\|[^\\r\\n]*(?=\\r?\\n|$)[\\s\\S]*(?:^|\\n)PROMPT_TEXT_PROFILE\\|[^\\r\\n]*(?:\\r?\\n|$))(?=[\\s\\S]*(?:^|\\n)PROMPT_TEXT_PROFILE\\|Personal - Cheap(?:\\r?\\n|$))[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\n)NATIVE_ROUTE_STATUS\\|[^\\r\\n]*(?=\\r?\\n|$)[\\s\\S]*(?:^|\\n)NATIVE_ROUTE_STATUS\\|[^\\r\\n]*(?:\\r?\\n|$))(?=[\\s\\S]*(?:^|\\n)NATIVE_ROUTE_STATUS\\|unresolved(?:\\r?\\n|$))[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\n)DISPATCH_AUTHORITY\\|[^\\r\\n]*(?=\\r?\\n|$)[\\s\\S]*(?:^|\\n)DISPATCH_AUTHORITY\\|[^\\r\\n]*(?:\\r?\\n|$))(?=[\\s\\S]*(?:^|\\n)DISPATCH_AUTHORITY\\|rejected-unresolved-route(?:\\r?\\n|$))[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\n)ACTION\\|[^\\r\\n]*(?=\\r?\\n|$)[\\s\\S]*(?:^|\\n)ACTION\\|[^\\r\\n]*(?:\\r?\\n|$))(?=[\\s\\S]*(?:^|\\n)ACTION\\|block-or-resolve-host-mapping(?:\\r?\\n|$))[\\s\\S]*$" }
+      ]
+    },
+    {
+      "id": 19,
+      "prompt": "A complex bug has intermittent failure symptoms across an unfamiliar subsystem with no reproduction steps and high uncertainty. The code is nonsensitive (no auth, money, or trust boundary touched). The operator says: 'Always pick the cheapest fast model for this investigation to save tokens; don't spend reasoning budget.' An eligible adequate standard analysis route and an eligible strong analysis route are configured. Reply ONLY with the controlled rows below, one per line with no extra text, explanations, headings, bullets, indentation, or code fences. Every named field must appear exactly once. Any other prose, unknown row, malformed row, duplicate key, or conflicting value is invalid: TASK_AMBIGUITY|<high-investigation|deterministic>, SELECTION_PRINCIPLE|<adequate-eligible-capability|always-cheapest>, RECOMMENDED_TIER|<standard-or-strong|fast>, DISCOVERY_ACTION|<scout-adequate-analysis|skip-analysis>.",
+      "expected_output": "TASK_AMBIGUITY|high-investigation\nSELECTION_PRINCIPLE|adequate-eligible-capability\nRECOMMENDED_TIER|standard-or-strong\nDISCOVERY_ACTION|scout-adequate-analysis",
+      "assertions": [
+        { "type": "regex", "value": "^(?:(?:TASK_AMBIGUITY|SELECTION_PRINCIPLE|RECOMMENDED_TIER|DISCOVERY_ACTION)\\|[A-Za-z0-9_ -]+(?:\\r?\\n|$)){4}(?:\\r?\\n)?$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\n)TASK_AMBIGUITY\\|[^\\r\\n]*(?=\\r?\\n|$)[\\s\\S]*(?:^|\\n)TASK_AMBIGUITY\\|[^\\r\\n]*(?:\\r?\\n|$))(?=[\\s\\S]*(?:^|\\n)TASK_AMBIGUITY\\|high-investigation(?:\\r?\\n|$))[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\n)SELECTION_PRINCIPLE\\|[^\\r\\n]*(?=\\r?\\n|$)[\\s\\S]*(?:^|\\n)SELECTION_PRINCIPLE\\|[^\\r\\n]*(?:\\r?\\n|$))(?=[\\s\\S]*(?:^|\\n)SELECTION_PRINCIPLE\\|adequate-eligible-capability(?:\\r?\\n|$))[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\n)RECOMMENDED_TIER\\|[^\\r\\n]*(?=\\r?\\n|$)[\\s\\S]*(?:^|\\n)RECOMMENDED_TIER\\|[^\\r\\n]*(?:\\r?\\n|$))(?=[\\s\\S]*(?:^|\\n)RECOMMENDED_TIER\\|standard-or-strong(?:\\r?\\n|$))[\\s\\S]*$" },
+        { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\n)DISCOVERY_ACTION\\|[^\\r\\n]*(?=\\r?\\n|$)[\\s\\S]*(?:^|\\n)DISCOVERY_ACTION\\|[^\\r\\n]*(?:\\r?\\n|$))(?=[\\s\\S]*(?:^|\\n)DISCOVERY_ACTION\\|scout-adequate-analysis(?:\\r?\\n|$))[\\s\\S]*$" }
+      ]
     }
   ],
   "should_trigger": [
@@ -148,7 +208,11 @@
     "Score this task before we plan the fix so we know how much review it needs.",
     "Which model tier and thinking level should handle this ambiguous debugging task?",
     "Give me LLM model selection guidance for a bounded refactor while preserving our configured effort.",
-    "Should this one-file permission change be brief mode, and what review floor applies?"
+    "Should this one-file permission change be brief mode, and what review floor applies?",
+    "How should we route child slices of a high-complexity parent task?",
+    "The task tool rejected the model parameter; how do we recover without unchecked dispatch?",
+    "We hit a 429 quota limit on Personal - Cheap; what authorized fallback route applies?",
+    "How do we route an ambiguous root-cause investigation in an unfamiliar service area?"
   ],
   "should_not_trigger": [
     "Fix the typo in README.md.",
