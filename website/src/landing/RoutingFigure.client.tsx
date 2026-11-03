@@ -24,16 +24,21 @@ export function RoutingFigure(): React.JSX.Element {
     HERO_SKILL_EXAMPLES.find((ex) => ex.id === selectedSkillId) ??
     DEFAULT_HERO_SKILL_EXAMPLE;
 
-  const handleSelect = (id: string) => {
-    setSelectedSkillId(id);
-  };
-
-  const handleReplay = () => {
+  const triggerRoutingMotion = () => {
     const el = figureRef.current;
     if (!el) return;
     el.dispatchEvent(
       new CustomEvent("motion-replay", { bubbles: true, cancelable: true }),
     );
+  };
+
+  const handleSelect = (id: string) => {
+    setSelectedSkillId(id);
+    triggerRoutingMotion();
+  };
+
+  const handleReplay = () => {
+    triggerRoutingMotion();
   };
 
   return (
@@ -96,7 +101,6 @@ export function RoutingFigure(): React.JSX.Element {
                 key={example.id}
                 type="button"
                 onClick={() => handleSelect(example.id)}
-                disabled={!mounted}
                 className={`${routingStyles.selectorPill} ${
                   isSelected ? routingStyles.selectorPillActive : ""
                 }`}

@@ -189,4 +189,53 @@ describe('CopyCommand', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Copied sync command to clipboard');
     expect(writeText).toHaveBeenCalledTimes(2);
   });
+
+  it('CopyCommand_WhenCopyIsTriggeredDuringTypewriterReveal_CopiesFullCommand', async () => {
+    const user = userEvent.setup();
+    const command = 'npm install -g agent-skills-standard@latest';
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'clipboard', {
+      value: { writeText },
+      writable: true,
+      configurable: true,
+    });
+
+    let observerCallback: IntersectionObserverCallback | undefined;
+    class MockIntersectionObserver implements IntersectionObserver {
+      readonly root: Element | Document | null = null;
+      readonly rootMargin: string = '';
+      readonly thresholds: readonly number[] = [0.2];
+      constructor(callback: IntersectionObserverCallback) {
+        observerCallback = callback;
+      }
+      observe = vi.fn();
+      unobserve = vi.fn();
+      disconnect = vi.fn();
+      takeRecords = vi.fn(() => []);
+    }
+    vi.stubGlobal('IntersectionObserver', MockIntersectionObserver);
+
+    render(<CopyCommand id="install" command={command} delay={0} />);
+
+    act(() => {
+      observerCallback?.(
+        [
+          {
+            isIntersecting: true,
+            target: screen.getByText(command).closest('[data-command]')!,
+          } as unknown as IntersectionObserverEntry,
+        ],
+        {} as IntersectionObserver,
+      );
+    });
+
+    const copyBtn = screen.getByRole('button', { name: /copy install command/i });
+    await user.click(copyBtn);
+
+    expect(writeText).toHaveBeenCalledWith(command);
+    await within(copyBtn).findByText(/^Copied$/);
+    expect(screen.getByRole('status')).toHaveTextContent('Copied install command to clipboard');
+
+    vi.unstubAllGlobals();
+  });
 });

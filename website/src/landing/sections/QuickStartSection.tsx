@@ -1,12 +1,31 @@
 import React from "react";
-import { content, commands, sourceLinks } from "../content";
+import {
+  content,
+  primaryCommands,
+  secondaryCommands,
+  sourceLinks,
+} from "../content";
 import { CopyCommand } from "../CopyCommand.client";
 import landingStyles from "../landing.module.css";
 import styles from "./QuickStart.module.css";
 
 export function QuickStartSection(): React.JSX.Element {
-  const initCmd = commands.find((c) => c.id === "init") ?? commands[0];
-  const syncCmd = commands.find((c) => c.id === "sync") ?? commands[1];
+  const installCmd =
+    primaryCommands.find((c) => c.id === "install")?.command ??
+    primaryCommands[0].command;
+  const initCmd =
+    primaryCommands.find((c) => c.id === "init")?.command ??
+    primaryCommands[1].command;
+  const syncCmd =
+    primaryCommands.find((c) => c.id === "sync")?.command ??
+    primaryCommands[2].command;
+
+  const npxInitCmd =
+    secondaryCommands.find((c) => c.id === "npx-init")?.command ??
+    secondaryCommands[0].command;
+  const npxSyncCmd =
+    secondaryCommands.find((c) => c.id === "npx-sync")?.command ??
+    secondaryCommands[1].command;
 
   return (
     <section
@@ -42,6 +61,26 @@ export function QuickStartSection(): React.JSX.Element {
             <div className={styles.stepHeader}>
               <span className={styles.stepBadge}>01</span>
               <div className={styles.stepMeta}>
+                <h3 className={styles.stepTitle}>Install CLI globally</h3>
+                <p className={styles.stepPurpose}>
+                  Install the canonical{" "}
+                  <code className={styles.inlineCode}>
+                    agent-skills-standard
+                  </code>{" "}
+                  binary and{" "}
+                  <code className={styles.inlineCode}>ags</code> alias.
+                </p>
+              </div>
+            </div>
+            <div className={styles.stepCommand}>
+              <CopyCommand id="install" command={installCmd} delay={100} />
+            </div>
+          </li>
+
+          <li className={styles.stepItem} role="listitem">
+            <div className={styles.stepHeader}>
+              <span className={styles.stepBadge}>02</span>
+              <div className={styles.stepMeta}>
                 <h3 className={styles.stepTitle}>Initialize repository</h3>
                 <p className={styles.stepPurpose}>
                   Detect existing agents and create your repository&apos;s{" "}
@@ -51,13 +90,13 @@ export function QuickStartSection(): React.JSX.Element {
               </div>
             </div>
             <div className={styles.stepCommand}>
-              <CopyCommand id="init" command={initCmd.command} />
+              <CopyCommand id="init" command={initCmd} delay={450} />
             </div>
           </li>
 
           <li className={styles.stepItem} role="listitem">
             <div className={styles.stepHeader}>
-              <span className={styles.stepBadge}>02</span>
+              <span className={styles.stepBadge}>03</span>
               <div className={styles.stepMeta}>
                 <h3 className={styles.stepTitle}>
                   Sync standards &amp; instructions
@@ -69,10 +108,47 @@ export function QuickStartSection(): React.JSX.Element {
               </div>
             </div>
             <div className={styles.stepCommand}>
-              <CopyCommand id="sync" command={syncCmd.command} />
+              <CopyCommand id="sync" command={syncCmd} delay={800} />
             </div>
           </li>
         </ol>
+
+        <div className={styles.secondaryContainer}>
+          <div className={styles.secondaryHeader}>
+            <h3 className={styles.secondaryTitle}>
+              Zero-install alternative (npx)
+            </h3>
+            <p className={styles.secondaryPurpose}>
+              Prefer not to install globally? Run the CLI directly using npx:
+            </p>
+          </div>
+
+          <ol className={styles.secondaryList} role="list">
+            <li className={styles.secondaryItem} role="listitem">
+              <div className={styles.secondaryMeta}>
+                <span className={styles.secondaryBadge}>Alt 01</span>
+                <span className={styles.secondaryLabel}>
+                  Initialize repository:
+                </span>
+              </div>
+              <div className={styles.stepCommand}>
+                <CopyCommand id="npx-init" command={npxInitCmd} delay={0} />
+              </div>
+            </li>
+
+            <li className={styles.secondaryItem} role="listitem">
+              <div className={styles.secondaryMeta}>
+                <span className={styles.secondaryBadge}>Alt 02</span>
+                <span className={styles.secondaryLabel}>
+                  Sync standards &amp; instructions:
+                </span>
+              </div>
+              <div className={styles.stepCommand}>
+                <CopyCommand id="npx-sync" command={npxSyncCmd} delay={200} />
+              </div>
+            </li>
+          </ol>
+        </div>
       </div>
     </section>
   );

@@ -2,25 +2,37 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { ActionIcon } from "./ActionIcon";
+import type { CommandId } from "./content";
 import styles from "./interaction.module.css";
+import motionStyles from "./command-motion.module.css";
+
+export type { CommandId };
 
 export interface CopyCommandProps {
-  id: "init" | "sync";
+  id: CommandId;
   command: string;
+  delay?: number;
 }
 
 type CopyStatus = "idle" | "pending" | "copied" | "failed";
+type RevealState = "pending" | "typing" | "complete";
 
 export function CopyCommand({
   id,
   command,
+  delay = 0,
 }: CopyCommandProps): React.JSX.Element {
   const [mounted, setMounted] = useState<boolean>(false);
   const [status, setStatus] = useState<CopyStatus>("idle");
+  const [revealState, setRevealState] = useState<RevealState>("pending");
 
+  const rowRef = useRef<HTMLDivElement>(null);
   const codeRef = useRef<HTMLElement>(null);
   const resetTimerRef = useRef<number | NodeJS.Timeout | null>(null);
+  const delayTimerRef = useRef<number | NodeJS.Timeout | null>(null);
+  const completeTimerRef = useRef<number | NodeJS.Timeout | null>(null);
   const operationIdRef = useRef<number>(0);
+  const hasAnimatedRef = useRef<boolean>(false);
 
   const recoveryMessage =
     "Copy failed. Select the command to copy it manually, or retry.";
@@ -32,15 +44,147 @@ export function CopyCommand({
     setStatus("idle");
   }, [id, command]);
 
+  // Unmount-only cleanup: invalidate any in-flight write and drop its reset timer.
   useEffect(() => {
-    setMounted(true);
     return () => {
-      // Invalidate outstanding operation identity and timer on unmount
       operationIdRef.current++;
       clearTimeout(resetTimerRef.current ?? undefined);
       resetTimerRef.current = null;
     };
   }, []);
+
+  useEffect(() => {
+    let unmounted = false;
+    setMounted(true);
+
+    const reducedMotionQuery =
+      typeof window !== "undefined" && window.matchMedia
+        ? window.matchMedia("(prefers-reduced-motion: reduce)")
+        : null;
+
+    const hasIntersectionObserver =
+      typeof window !== "undefined" &&
+      typeof window.IntersectionObserver !== "undefined";
+
+    const handleReducedMotionChange = (
+      e: MediaQueryListEvent | MediaQueryList,
+    ) => {
+      if (e.matches) {
+        if (delayTimerRef.current) {
+          clearTimeout(delayTimerRef.current);
+          delayTimerRef.current = null;
+        }
+        if (completeTimerRef.current) {
+          clearTimeout(completeTimerRef.current);
+          completeTimerRef.current = null;
+        }
+        if (!unmounted) {
+          setRevealState("complete");
+        }
+        hasAnimatedRef.current = true;
+      }
+    };
+
+    if (
+      reducedMotionQuery?.matches ||
+      !hasIntersectionObserver ||
+      hasAnimatedRef.current
+    ) {
+      setRevealState("complete");
+      hasAnimatedRef.current = true;
+    }
+
+    if (reducedMotionQuery) {
+      reducedMotionQuery.addEventListener("change", handleReducedMotionChange);
+    }
+
+    const rowEl = rowRef.current;
+    if (
+      !rowEl ||
+      reducedMotionQuery?.matches ||
+      !hasIntersectionObserver ||
+      hasAnimatedRef.current
+    ) {
+      return () => {
+        unmounted = true;
+        if (reducedMotionQuery) {
+          reducedMotionQuery.removeEventListener(
+            "change",
+            handleReducedMotionChange,
+          );
+        }
+        clearTimeout(delayTimerRef.current ?? undefined);
+        delayTimerRef.current = null;
+        clearTimeout(completeTimerRef.current ?? undefined);
+        completeTimerRef.current = null;
+      };
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (unmounted) return;
+        const entry = entries[0];
+        if (entry && entry.isIntersecting) {
+          observer.disconnect();
+          hasAnimatedRef.current = true;
+
+          if (delay > 0) {
+            delayTimerRef.current = setTimeout(() => {
+              if (!unmounted) {
+                setRevealState("typing");
+              }
+            }, delay);
+          } else {
+            setRevealState("typing");
+          }
+        }
+      },
+      { threshold: 0.25 },
+    );
+
+    observer.observe(rowEl);
+
+    return () => {
+      unmounted = true;
+      observer.disconnect();
+      if (reducedMotionQuery) {
+        reducedMotionQuery.removeEventListener(
+          "change",
+          handleReducedMotionChange,
+        );
+      }
+      clearTimeout(delayTimerRef.current ?? undefined);
+      delayTimerRef.current = null;
+      clearTimeout(completeTimerRef.current ?? undefined);
+      completeTimerRef.current = null;
+    };
+  }, [delay]);
+
+  // When typing begins, schedule bounded completion safety timer
+  useEffect(() => {
+    if (revealState === "typing") {
+      const typeDuration = Math.min(Math.max(command.length * 32, 450), 1400);
+      completeTimerRef.current = setTimeout(() => {
+        setRevealState("complete");
+      }, typeDuration + 1500);
+    }
+  }, [revealState, command.length]);
+
+  const handleAnimationEnd = useCallback(
+    (e: React.AnimationEvent<HTMLElement>) => {
+      if (
+        e.animationName.includes("Blink") ||
+        e.animationName.includes("Typewriter")
+      ) {
+        if (e.animationName.includes("Blink")) {
+          setRevealState("complete");
+          clearTimeout(completeTimerRef.current ?? undefined);
+          completeTimerRef.current = null;
+        }
+      }
+    },
+    [],
+  );
 
   const handleCopy = useCallback(async () => {
     // Disable duplicate pending writes
@@ -111,8 +255,22 @@ export function CopyCommand({
           ? `Copying ${id} command...`
           : "";
 
+  const motionClass =
+    !mounted || revealState === "complete"
+      ? motionStyles.complete
+      : revealState === "typing"
+        ? motionStyles.typing
+        : motionStyles.pending;
+
+  const typeDuration = Math.min(Math.max(command.length * 32, 450), 1400);
+
   return (
-    <div className={styles.commandRow} data-command={command}>
+    <div
+      ref={rowRef}
+      className={styles.commandRow}
+      data-command={command}
+      data-revealed={revealState}
+    >
       {/* Semantic pre/code element with manual select preservation */}
       <div className={styles.commandContent}>
         <pre
@@ -120,7 +278,18 @@ export function CopyCommand({
           tabIndex={0}
           aria-label={`${id} command`}
         >
-          <code ref={codeRef} className={styles.commandCode}>
+          <code
+            ref={codeRef}
+            className={`${styles.commandCode} ${motionClass}`}
+            data-motion-state={revealState}
+            style={
+              {
+                "--char-count": command.length,
+                "--type-duration": `${typeDuration}ms`,
+              } as React.CSSProperties
+            }
+            onAnimationEnd={handleAnimationEnd}
+          >
             {command}
           </code>
         </pre>
@@ -155,7 +324,7 @@ export function CopyCommand({
 
       <div className={styles.controlArea}>
         {!mounted ? (
-          // No-JS baseline: do not expose an inert interactive button before client hydration
+          // No-JS baseline: do not expose an interactive button before client hydration
           <span className={styles.noJsNotice} aria-hidden="true" />
         ) : (
           <button

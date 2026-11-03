@@ -18,6 +18,7 @@
     Monaco, Consolas, monospace;
 
   --max-content-width: 1264px;
+  --header-offset: 80px;
 }
 
 *,
@@ -37,6 +38,20 @@ html {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Smooth scrolling for in-page navigation (only when reduced motion is not preferred) */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* In-page anchor navigation: offset for fixed header */
+:target,
+main[id],
+section[id] {
+  scroll-margin-top: var(--header-offset, 80px);
 }
 
 @media (max-width: 768px) {
@@ -73,6 +88,11 @@ body {
   top: 16px;
   outline: 3px solid var(--paper);
   outline-offset: 2px;
+}
+
+.skip-link:active {
+  color: var(--ink);
+  background-color: #aee04b;
 }
 
 /* Heading typography */
@@ -118,10 +138,24 @@ a {
   color: inherit;
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
+  transition: color 160ms ease, opacity 160ms ease;
+}
+
+/* Zero-specificity subject so explicit button-link press colors win */
+a:where(:not(.skip-link)):active {
+  color: var(--lime);
+}
+
+header nav a:active {
+  color: var(--lime);
 }
 
 /* Reduced motion global overrides */
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+
   *,
   *::before,
   *::after {
@@ -129,5 +163,9 @@ a {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  a {
+    transition: none;
   }
 }

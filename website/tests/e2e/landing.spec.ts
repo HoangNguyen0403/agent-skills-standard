@@ -3,8 +3,11 @@ import { test, expect } from '@playwright/test';
 import type { Locator, Page } from '@playwright/test';
 
 const commands = {
-  init: 'npx agent-skills-standard@latest init',
-  sync: 'npx agent-skills-standard@latest sync',
+  install: 'npm install -g agent-skills-standard@latest',
+  init: 'ags init',
+  sync: 'ags sync',
+  npxInit: 'npx agent-skills-standard@latest init',
+  npxSync: 'npx agent-skills-standard@latest sync',
 };
 
 async function animationCount(locator: Locator): Promise<number> {
@@ -428,8 +431,13 @@ test.describe('Agent Skills Standard landing page', () => {
     await expect(page).toHaveURL(/#quick-start/);
     const quickStart = page.locator('#quick-start');
     await expect(quickStart).toBeVisible();
-    await expect(quickStart.getByText(commands.init)).toBeVisible();
-    await expect(quickStart.getByText(commands.sync)).toBeVisible();
+    for (const command of [commands.install, commands.init, commands.sync]) {
+      const row = quickStart.locator('[data-command]').filter({ hasText: command });
+      await row.scrollIntoViewIfNeeded();
+      await expect(row.locator('code')).toHaveText(command);
+      await expect(row).toHaveAttribute('data-revealed', 'complete');
+      await expect(row.locator('code')).toBeVisible();
+    }
   });
 
   test('Clipboard grants write the exact command and keep feedback isolated by row', async ({ page, context }) => {
@@ -478,6 +486,7 @@ test.describe('Agent Skills Standard landing page', () => {
     if (!idleControl || !followingRow) throw new Error('Quick Start rows must have layout boxes.');
     expect(idleControl.width).toBe(120);
     expect(idleControl.height).toBe(48);
+    const followingRowDocumentY = await page.evaluate((y) => y + window.scrollY, followingRow.y);
 
     await initCopy.click();
     const retry = initRow.getByRole('button', { name: /retry copy init command/i });
@@ -496,7 +505,7 @@ test.describe('Agent Skills Standard landing page', () => {
     if (!errorControl || !recoveryRow) throw new Error('Recovery rows must have layout boxes.');
     expect(errorControl.width).toBe(idleControl.width);
     expect(errorControl.height).toBe(idleControl.height);
-    expect(recoveryRow.y).toBe(followingRow.y);
+    expect(await page.evaluate((y) => y + window.scrollY, recoveryRow.y)).toBe(followingRowDocumentY);
 
     await retry.click();
     await expect(initRow.getByRole('button', { name: /^copy init command$/i })).toHaveText(/copied/i);
@@ -506,7 +515,7 @@ test.describe('Agent Skills Standard landing page', () => {
     if (!successControl || !successRow) throw new Error('Success rows must have layout boxes.');
     expect(successControl.width).toBe(idleControl.width);
     expect(successControl.height).toBe(idleControl.height);
-    expect(successRow.y).toBe(followingRow.y);
+    expect(await page.evaluate((y) => y + window.scrollY, successRow.y)).toBe(followingRowDocumentY);
   });
 
 
@@ -521,6 +530,38 @@ test.describe('Agent Skills Standard landing page', () => {
     await syncRow.getByRole('button', { name: /select sync command text/i }).click();
     await expect.poll(() => page.evaluate(() => window.getSelection()?.toString().trim())).toBe(commands.sync);
     await expect(syncRow.getByText(/copied/i)).toHaveCount(0);
+  });
+
+  test('AC-LP-03, AC-LP-04: Copying during typewriter reveal captures complete command and preserves geometry', async ({ page, context }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    await page.goto('/');
+    const quickStart = page.locator('#quick-start');
+    const installRow = quickStart.locator('[data-command]').filter({ hasText: commands.install });
+    await installRow.scrollIntoViewIfNeeded();
+
+    // Enter the reveal before copying: the row must still be mid-animation.
+    await expect(installRow).toHaveAttribute('data-revealed', 'typing');
+    const duringReveal = await installRow.boundingBox();
+    if (!duringReveal) throw new Error('Command row must have a layout box during the reveal.');
+    expect(duringReveal.height).toBeGreaterThanOrEqual(48);
+
+    const copyBtn = installRow.getByRole('button', { name: /^copy install command$/i });
+    await copyBtn.click();
+
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(commands.install);
+    await expect(copyBtn).toHaveText(/copied/i);
+
+    const code = installRow.locator('code');
+    await expect(code).toHaveText(commands.install);
+
+    // Completing the reveal must not shift the reserved row geometry.
+    await expect(installRow).toHaveAttribute('data-revealed', 'complete');
+    const afterReveal = await installRow.boundingBox();
+    if (!afterReveal) throw new Error('Command row must keep a layout box after the reveal.');
+    expect(afterReveal.width).toBe(duringReveal.width);
+    expect(afterReveal.height).toBe(duringReveal.height);
+    expect(afterReveal.x).toBe(duringReveal.x);
+    expect(afterReveal.y).toBe(duringReveal.y);
   });
 
   test('Mobile menu supports Enter, Space, Escape restoration, and focused hash destination', async ({ page }) => {
@@ -550,6 +591,55 @@ test.describe('Agent Skills Standard landing page', () => {
     await expect(page).toHaveURL(/#how-it-works/);
     await expect(details).not.toHaveAttribute('open', '');
     await expect(page.locator('#how-it-works')).toBeFocused();
+  });
+
+  test('AC-LP-01, AC-LP-05: Skills navigation links to supported coverage section with canonical links', async ({ page }) => {
+    await page.goto('/');
+    const mobileMenu = page.locator('summary').filter({ hasText: 'Menu' });
+    let skillsNavigation = page.getByRole('navigation', { name: /main navigation/i });
+    if (await mobileMenu.isVisible()) {
+      await mobileMenu.click();
+      skillsNavigation = page.getByRole('navigation', { name: /mobile navigation/i });
+    }
+    const skillsLink = skillsNavigation.getByRole('link', { name: /^skills$/i });
+    await skillsLink.click();
+
+    await expect(page).toHaveURL(/#skills/);
+    const coverage = page.locator('#skills');
+    await expect(coverage).toBeVisible();
+
+    await expect(coverage.getByRole('list', { name: /Supported programming languages/i })).toBeVisible();
+    await expect(coverage.getByRole('list', { name: /Supported frameworks and platforms/i })).toBeVisible();
+    await expect(coverage.getByRole('list', { name: /Supported specialist subagents/i })).toBeVisible();
+    await expect(coverage.getByRole('list', { name: /Default foundation product management skills/i })).toBeVisible();
+    await expect(coverage.getByRole('list', { name: /Optional product management capabilities/i })).toBeVisible();
+    await expect(coverage.getByRole('list', { name: /Supported quality engineering skills/i })).toBeVisible();
+
+    // Every entry links to its canonical registry source, not a display copy.
+    const canonicalIndexLinks = coverage
+      .getByRole('list', { name: /Supported (programming languages|frameworks and platforms)/i })
+      .getByRole('link');
+    const canonicalIndexCount = await canonicalIndexLinks.count();
+    expect(canonicalIndexCount).toBeGreaterThan(0);
+    for (let index = 0; index < canonicalIndexCount; index += 1) {
+      await expect(canonicalIndexLinks.nth(index)).toHaveAttribute('href', /\/skills\/[a-z-]+\/_INDEX\.md$/);
+    }
+
+    // Product-management foundation entries resolve to canonical SKILL.md files.
+    const foundationLinks = coverage
+      .getByRole('list', { name: /Default foundation product management skills/i })
+      .getByRole('link');
+    const foundationCount = await foundationLinks.count();
+    expect(foundationCount).toBeGreaterThan(0);
+    for (let index = 0; index < foundationCount; index += 1) {
+      await expect(foundationLinks.nth(index)).toHaveAttribute('href', /\/skills\/product-management\/[a-z-]+\/SKILL\.md$/);
+    }
+
+    await expect(coverage.getByRole('link', { name: /agent-capabilities\.md matrix/i }))
+      .toHaveAttribute('href', /\/docs\/agent-capabilities\.md$/);
+
+    const specimen = page.locator('#specimen');
+    await expect(specimen).toBeVisible();
   });
 
   test('Native FAQ supports keyboard toggles and independent open answers', async ({ page }) => {
@@ -609,6 +699,7 @@ test.describe('Agent Skills Standard landing page', () => {
       await expect(faqItem.locator(':scope > :not(summary)')).toBeVisible();
 
       const quickStart = page.locator('#quick-start');
+      await expect(quickStart.getByText(commands.install)).toBeVisible();
       await expect(quickStart.getByText(commands.init)).toBeVisible();
       await expect(quickStart.getByText(commands.sync)).toBeVisible();
       await expect(quickStart.getByRole('link').first()).toBeVisible();
@@ -650,30 +741,35 @@ test.describe('Agent Skills Standard landing page', () => {
       const quickStart = page.locator('#quick-start');
       await quickStart.scrollIntoViewIfNeeded();
       const initRow = quickStart.locator('[data-command]').filter({ hasText: commands.init });
+      const installRow = quickStart.locator('[data-command]').filter({ hasText: commands.install });
       const syncRow = quickStart.locator('[data-command]').filter({ hasText: commands.sync });
       await initRow.getByRole('button', { name: /^copy init command$/i }).click();
       const retry = initRow.getByRole('button', { name: /retry copy init command/i });
       await expect(retry).toBeVisible();
-      const panel = await initRow.locator('pre').boundingBox();
-      const row = await initRow.boundingBox();
+      await installRow.scrollIntoViewIfNeeded();
+      await expect(installRow).toHaveAttribute('data-revealed', 'complete');
+      const panel = await installRow.locator('pre').boundingBox();
+      const installBox = await installRow.boundingBox();
+      const initBox = await initRow.boundingBox();
       const retryBox = await retry.boundingBox();
       const syncBox = await syncRow.boundingBox();
-      if (!panel || !row || !retryBox || !syncBox) throw new Error('Quick Start scrollport and recovery rows must have layout boxes.');
+      if (!panel || !installBox || !initBox || !retryBox || !syncBox) throw new Error('Quick Start scrollport and recovery rows must have layout boxes.');
+      await expect(installRow.locator('code')).toHaveText(commands.install);
       await expect(syncRow.locator('code')).toHaveText(commands.sync);
-      expect(panel.x).toBeGreaterThanOrEqual(row.x);
-      expect(panel.x + panel.width).toBeLessThanOrEqual(row.x + row.width);
+      expect(panel.x).toBeGreaterThanOrEqual(installBox.x);
+      expect(panel.x + panel.width).toBeLessThanOrEqual(installBox.x + installBox.width);
       expect(panel.x).toBeGreaterThanOrEqual(0);
       expect(panel.x + panel.width).toBeLessThanOrEqual(width);
       expect(retryBox.x).toBeGreaterThanOrEqual(0);
       expect(retryBox.x + retryBox.width).toBeLessThanOrEqual(width);
       expect(retryBox.width).toBe(120);
       expect(retryBox.height).toBe(48);
-      expect(syncBox.y).toBeGreaterThanOrEqual(row.y + row.height);
+      expect(syncBox.y).toBeGreaterThanOrEqual(initBox.y + initBox.height);
       if (width <= 375) {
-        expect(Number(await initRow.locator('code').evaluate((element) =>
+        expect(Number(await installRow.locator('code').evaluate((element) =>
           Number.parseFloat(getComputedStyle(element).fontSize),
         ))).toBeGreaterThanOrEqual(16);
-        const pre = initRow.locator('pre');
+        const pre = installRow.locator('pre');
         const scrollport = await pre.evaluate((element) => ({
           overflowX: getComputedStyle(element).overflowX,
           clientWidth: element.clientWidth,
@@ -733,6 +829,37 @@ test.describe('Agent Skills Standard landing page', () => {
     const frames = await stopMotionCapacityObservation(page, 'active-replay');
     expectMotionCapacityAtMostThree(frames);
     expect(frames.some(({ routingActive }) => routingActive)).toBe(true);
+  });
+
+  test('AC-LP-02: Selection starts a bounded routing transition and rapid switching ends cleanly on the target', async ({ page }) => {
+    await prepareMotionPage(page);
+    const routing = page.locator('[data-motion="routing"]');
+    await routing.scrollIntoViewIfNeeded();
+
+    const reactPill = routing.getByRole('button', { name: /select react example with button\.tsx/i });
+    await reactPill.click();
+    await expect(routing).toHaveAttribute('data-motion-state', 'running');
+    await expect.poll(() => animationCount(routing)).toBeGreaterThan(0);
+    await expect(routing).toHaveAttribute('data-motion-state', 'complete', { timeout: 3000 });
+    await expect.poll(() => animationCount(routing)).toBe(0);
+    await expect(routing.getByText('Matching skill: react-component-patterns', { exact: true })).toBeVisible();
+
+    const tsPill = routing.getByRole('button', { name: /select typescript example with checkout\.ts/i });
+    const goPill = routing.getByRole('button', { name: /select go example with checkout_test\.go/i });
+
+    await startMotionCapacityObservation(page, 'rapid-selection');
+    await reactPill.click();
+    await goPill.click();
+    await tsPill.click();
+    await goPill.click();
+
+    await expect(routing).toHaveAttribute('data-motion-state', 'running');
+    await expect(routing).toHaveAttribute('data-motion-state', 'complete', { timeout: 3000 });
+    await expect.poll(() => animationCount(routing)).toBe(0);
+    await expect(routing.getByText('Matching skill: golang-testing', { exact: true })).toBeVisible();
+
+    const frames = await stopMotionCapacityObservation(page, 'rapid-selection');
+    expectMotionCapacityAtMostThree(frames);
   });
 
   test('Motion cancels an active offscreen animation and does not replay on re-entry', async ({ page }) => {
@@ -1282,7 +1409,7 @@ test.describe('Agent Skills Standard landing page', () => {
       const owner = decorations.nth(plan.ownerIndex);
       expect(await trackAnimationLifecycle(owner, 'queue-capacity-release')).toBeGreaterThan(0);
 
-      await page.evaluate((delta) => window.scrollTo(0, window.scrollY + delta), plan.delta);
+      await page.evaluate((delta) => window.scrollTo({ top: window.scrollY + delta, behavior: 'instant' }), plan.delta);
       await expectObservedCancellation(page, 'queue-capacity-release');
       await expect(candidate).toHaveAttribute('data-motion-state', 'running');
       await expect.poll(() => animationCount(candidate)).toBeGreaterThan(0);
@@ -1316,7 +1443,7 @@ test.describe('Agent Skills Standard landing page', () => {
       await expect(queued).toHaveAttribute('data-motion-state', 'idle');
       expect(await animationCount(queued)).toBe(0);
 
-      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+      await page.evaluate(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' }));
       await expect(queued).toHaveAttribute('data-motion-state', 'complete');
       await expect.poll(() => animationCount(queued)).toBe(0);
       await queued.scrollIntoViewIfNeeded();

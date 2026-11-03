@@ -99,6 +99,77 @@
   width: 100%;
 }
 
+.secondaryContainer {
+  margin-top: 48px;
+  padding: 24px 28px;
+  background-color: rgba(187, 195, 186, 0.03);
+  border: 1px solid rgba(187, 195, 186, 0.12);
+  border-radius: 8px;
+}
+
+.secondaryHeader {
+  margin-bottom: 20px;
+}
+
+.secondaryTitle {
+  font-family: var(--font-heading), "Space Grotesk", sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--paper, #f5f2e9);
+  margin: 0 0 6px 0;
+}
+
+.secondaryPurpose {
+  font-family: var(--font-body), "Source Sans 3", sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--muted, #bbc3ba);
+  margin: 0;
+}
+
+.secondaryList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.secondaryItem {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.secondaryMeta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.secondaryBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background-color: rgba(187, 195, 186, 0.08);
+  border: 1px solid rgba(187, 195, 186, 0.2);
+  color: var(--muted, #bbc3ba);
+  font-family: var(--font-mono), "IBM Plex Mono", monospace;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.secondaryLabel {
+  font-family: var(--font-body), "Source Sans 3", sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--paper, #f5f2e9);
+}
+
 @media (max-width: 640px) {
   .prereqNotice {
     flex-direction: column;
@@ -120,5 +191,10 @@
     width: 32px;
     height: 32px;
     font-size: 13px;
+  }
+
+  .secondaryContainer {
+    margin-top: 36px;
+    padding: 18px 16px;
   }
 }
