@@ -21,9 +21,10 @@
         {
           "type": "contains_any",
           "value": [
+            "tsconfig paths",
+            "path alias",
             "TypeScript imports",
-            "typed absolute imports",
-            "path alias"
+            "typed absolute imports"
           ]
         }
       ]
@@ -39,7 +40,12 @@
         },
         {
           "type": "contains_any",
-          "value": ["single responsibility", "one purpose", "single-purpose"]
+          "value": [
+            "separate concerns",
+            "single responsibility",
+            "one purpose",
+            "single-purpose"
+          ]
         },
         {
           "type": "contains_any",
