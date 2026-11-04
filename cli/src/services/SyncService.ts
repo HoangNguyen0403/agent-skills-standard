@@ -202,7 +202,7 @@ export class SyncService {
   private githubService: GithubService;
   private skillSyncService: SkillSyncService;
   private workflowSyncService: WorkflowSyncService;
-  private specialistSyncService = new SpecialistSyncService();
+  private specialistSyncService: SpecialistSyncService;
   private gitService = new GitService();
   private lockfileService = new LockfileService();
   private writer: InstallWriter = new PassthroughWriter(process.cwd());
@@ -231,6 +231,7 @@ export class SyncService {
     this.githubService = githubService;
     this.skillSyncService = new SkillSyncService(githubService);
     this.workflowSyncService = new WorkflowSyncService(githubService);
+    this.specialistSyncService = new SpecialistSyncService(githubService);
   }
 
   async reconcileConfig(

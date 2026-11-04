@@ -106,6 +106,7 @@ export class SyncCommand {
 
       // 3. Check for updates
       const updates = await this.syncService.checkForUpdates(config);
+      let refsChanged = false;
 
       if (updates && Object.keys(updates).length > 0) {
         if (options.dryRun) {
@@ -153,10 +154,13 @@ export class SyncCommand {
             for (const [cat, ref] of Object.entries(updates)) {
               if (cat === 'workflows') {
                 config.workflows_ref = ref;
+                refsChanged = true;
               } else if (cat === 'specialists') {
                 config.specialists_ref = ref;
+                refsChanged = true;
               } else if (config.skills[cat]) {
                 config.skills[cat].ref = ref;
+                refsChanged = true;
               }
             }
             await this.configService.saveConfig(config);
@@ -167,6 +171,14 @@ export class SyncCommand {
             );
           }
         }
+      }
+
+      // Accepted version changes move the config off the refs and release
+      // manifests pinned above. Assembly and lock provenance must describe the
+      // refs actually downloaded, so re-resolve before installation: otherwise
+      // the previous release manifests reject the new bytes as tampered.
+      if (refsChanged) {
+        await this.syncService.resolvePins(config);
       }
 
       if (!options.json) {
