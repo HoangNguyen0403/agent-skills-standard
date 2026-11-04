@@ -177,6 +177,9 @@ jobs:
       - name: Eval Alignment Gate
         run: pnpm check-alignment
 
+      - name: MCP Version Sync
+        run: pnpm check:mcp-version
+
       - name: Skill Freshness Audit (offline)
         run: pnpm freshness:audit
 

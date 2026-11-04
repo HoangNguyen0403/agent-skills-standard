@@ -27,6 +27,18 @@ export type CategoryConfig = SkillEntry;
 export type McpScope = 'project' | 'user' | 'snippets-only' | 'disabled';
 
 /**
+ * How runtimes should launch the `agent-skills-standard-mcp` server:
+ *   - `auto`   — default. Use a globally installed `ags-mcp` only when its
+ *                version matches the CLI pin; otherwise fall back to npx
+ *                (on win32, always npx — Node clients cannot spawn .cmd
+ *                without a shell).
+ *   - `global` — always launch the globally installed `ags-mcp` binary.
+ *   - `npx`    — always launch via `npx -y --prefer-offline <pkg>@<pin>`;
+ *                works without a global install.
+ */
+export type McpVia = 'auto' | 'npx' | 'global';
+
+/**
  * Optional MCP integration block for `.skillsrc`. The CLI never edits runtime
  * configs without explicit user consent recorded here.
  */
@@ -39,6 +51,11 @@ export interface McpConfig {
   prompted: boolean;
   /** Optional: pin a specific MCP server version. Default: MCP_COMPATIBLE_VERSION (the version this CLI release was built against). */
   version?: string;
+  /**
+   * How runtimes launch the MCP server. Default: `auto` (version-matched
+   * global `ags-mcp` when available, otherwise the npx fallback).
+   */
+  via?: McpVia;
   /** Whether to additionally generate snippet files during MCP install. Default: false. */
   snippets?: boolean;
 }

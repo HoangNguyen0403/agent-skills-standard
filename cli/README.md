@@ -41,7 +41,7 @@ The result: your AI agent reads `AGENTS.md`, follows the router to the right cat
 | `init`     | Detects your tech stack (Flutter, React, Go, etc.) and creates a `.skillsrc` config                                                                                                                |
 | `sync`     | Fetches skills from the registry, writes to agent folders, generates `_INDEX.md` + `AGENTS.md`                                                                                                     |
 | `skills`   | Category-first manager: pick categories (and optionally nested skills or a published category release), review once, then save and sync every configured agent                                        |
-| `mcp`      | Manage the optional MCP server integration (status / enable / disable / scope / install / uninstall / snippets) — see [Optional: MCP Runtime Enforcement](#optional-mcp-runtime-enforcement) below |
+| `mcp`      | Manage the optional MCP server integration (status / enable / disable / scope / via / install / uninstall / snippets) — see [Optional: MCP Runtime Enforcement](#optional-mcp-runtime-enforcement) below |
 | `validate` | Checks your custom skills against format and token standards                                                                                                                                       |
 | `feedback` | Submits improvement suggestions to the registry                                                                                                                                                    |
 | `upgrade`  | Updates the CLI to the latest version                                                                                                                                                              |
@@ -180,9 +180,13 @@ The CLI **distributes** skills as static files. The companion [`agent-skills-sta
 ```bash
 ags mcp status              # show current state + per-agent install
 ags mcp scope project       # project | user | snippets-only | disabled
+ags mcp via auto            # auto | npx | global launch mode (auto prefers a version-matched global ags-mcp)
+ags mcp enable --install-global   # npm i -g agent-skills-standard-mcp@<pin>, then verify the reported version
 ags mcp install             # apply changes
 ags mcp uninstall --from project   # remove our entry; siblings preserved
 ```
+
+Launch mode defaults to `auto`: the generated entry uses a globally installed `ags-mcp` only when its `--version` exactly matches the CLI pin, and otherwise falls back to `npx -y --prefer-offline agent-skills-standard-mcp@<pin>`. `ags mcp status` prints the resolved launch line, the pin, and the detected global version; `ags mcp install --via <mode>` overrides the mode for that run without persisting it.
 
 The CLI **never** modifies user-home files (`~/.cursor/mcp.json`, `~/.gemini/settings.json`, etc.) unless you explicitly choose `scope: user` AND confirm each write. See [`mcp/README.md`](../mcp/README.md) for full details and [`mcp/ARCHITECTURE.md`](../mcp/ARCHITECTURE.md) for the threat model.
 

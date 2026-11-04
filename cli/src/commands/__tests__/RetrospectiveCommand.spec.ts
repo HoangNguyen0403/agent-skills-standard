@@ -78,16 +78,19 @@ describe('RetrospectiveCommand', () => {
 
       await command.run('status');
 
+      expect(mockSpawn).toHaveBeenCalledTimes(1);
       expect(mockSpawn).toHaveBeenCalledWith(
         'npx',
         [
           '-y',
+          '--prefer-offline',
           `agent-skills-standard-mcp@${MCP_COMPATIBLE_VERSION}`,
           'retrospective',
           'consent-status',
         ],
         { stdio: 'inherit' },
       );
+      expect(process.exitCode).toBe(0);
     });
 
     it('override env skips the guard', async () => {
@@ -104,6 +107,7 @@ describe('RetrospectiveCommand', () => {
         'npx',
         [
           '-y',
+          '--prefer-offline',
           'agent-skills-standard-mcp@0.8.0',
           'retrospective',
           'consent-status',
@@ -126,7 +130,13 @@ describe('RetrospectiveCommand', () => {
 
       expect(mockSpawn).toHaveBeenCalledWith(
         'npx',
-        ['-y', 'pkg@test', 'retrospective', 'consent-status'],
+        [
+          '-y',
+          '--prefer-offline',
+          'pkg@test',
+          'retrospective',
+          'consent-status',
+        ],
         { stdio: 'inherit' },
       );
     });
@@ -141,21 +151,21 @@ describe('RetrospectiveCommand', () => {
       await command.run('enable');
       expect(mockSpawn).toHaveBeenLastCalledWith(
         'npx',
-        ['-y', 'pkg@test', 'retrospective', 'enable'],
+        ['-y', '--prefer-offline', 'pkg@test', 'retrospective', 'enable'],
         { stdio: 'inherit' },
       );
 
       await command.run('disable');
       expect(mockSpawn).toHaveBeenLastCalledWith(
         'npx',
-        ['-y', 'pkg@test', 'retrospective', 'disable'],
+        ['-y', '--prefer-offline', 'pkg@test', 'retrospective', 'disable'],
         { stdio: 'inherit' },
       );
 
       await command.run('index');
       expect(mockSpawn).toHaveBeenLastCalledWith(
         'npx',
-        ['-y', 'pkg@test', 'retrospective', 'index'],
+        ['-y', '--prefer-offline', 'pkg@test', 'retrospective', 'index'],
         { stdio: 'inherit' },
       );
     });
@@ -179,6 +189,7 @@ describe('RetrospectiveCommand', () => {
         'npx',
         [
           '-y',
+          '--prefer-offline',
           'pkg@x',
           'retrospective',
           'enable',
@@ -211,6 +222,7 @@ describe('RetrospectiveCommand', () => {
         'npx',
         [
           '-y',
+          '--prefer-offline',
           'pkg@x',
           'retrospective',
           'index',
@@ -389,6 +401,7 @@ describe('RetrospectiveCommand', () => {
         'npx.cmd',
         [
           '-y',
+          '--prefer-offline',
           'pkg@test',
           'retrospective',
           'enable',
@@ -412,7 +425,13 @@ describe('RetrospectiveCommand', () => {
 
       expect(mockSpawn).toHaveBeenCalledWith(
         'npx',
-        ['-y', 'pkg@test', 'retrospective', 'consent-status'],
+        [
+          '-y',
+          '--prefer-offline',
+          'pkg@test',
+          'retrospective',
+          'consent-status',
+        ],
         { stdio: 'inherit' },
       );
     });
@@ -543,21 +562,21 @@ describe('RetrospectiveCommand', () => {
       await command.run('enable', { storeRoot: undefined, sourceRoot: [] });
       expect(mockSpawn).toHaveBeenLastCalledWith(
         'npx',
-        ['-y', 'pkg@test', 'retrospective', 'enable'],
+        ['-y', '--prefer-offline', 'pkg@test', 'retrospective', 'enable'],
         { stdio: 'inherit' },
       );
 
       await command.run('enable', { storeRoot: '', sourceRoot: '' });
       expect(mockSpawn).toHaveBeenLastCalledWith(
         'npx',
-        ['-y', 'pkg@test', 'retrospective', 'enable'],
+        ['-y', '--prefer-offline', 'pkg@test', 'retrospective', 'enable'],
         { stdio: 'inherit' },
       );
 
       await command.run('index', { since: '', until: '', folder: '' });
       expect(mockSpawn).toHaveBeenLastCalledWith(
         'npx',
-        ['-y', 'pkg@test', 'retrospective', 'index'],
+        ['-y', '--prefer-offline', 'pkg@test', 'retrospective', 'index'],
         { stdio: 'inherit' },
       );
     });
@@ -575,6 +594,7 @@ describe('RetrospectiveCommand', () => {
         'npx',
         [
           '-y',
+          '--prefer-offline',
           'pkg@test',
           'retrospective',
           'enable',

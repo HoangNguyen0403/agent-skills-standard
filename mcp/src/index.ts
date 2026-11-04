@@ -15,6 +15,10 @@ import {
 } from "./retrospective-cli";
 
 async function main() {
+  if (process.argv.includes("--version") || process.argv.includes("-v")) {
+    process.stdout.write(`${SERVER_VERSION}\n`);
+    return;
+  }
   if (isRetrospectiveInvocation(process.argv)) {
     process.exitCode = await runRetrospectiveCliFromProcess(
       process.argv.slice(3),

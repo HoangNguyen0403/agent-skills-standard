@@ -2,6 +2,58 @@
 
 Agent Skills Standard workflows must work with or without external MCPs.
 
+## AGS MCP Server Launch Modes
+
+The `agent-skills-standard-mcp` server that `ags mcp install` registers can be launched three ways. The mode is stored in `.skillsrc` as `mcp.via` and can be overridden per run with `--via`.
+
+| Mode | Generated launch entry | When to use |
+| --- | --- | --- |
+| `npx` | `npx -y --prefer-offline agent-skills-standard-mcp@<pin>` | Always works; resolves the pinned package through the local npm cache. |
+| `global` | `ags-mcp` (POSIX) / `cmd /c ags-mcp` (win32) | A matching global install exists; no registry or npx resolution per spawn. |
+| `auto` (default) | `global` when a globally installed `ags-mcp --version` equals the CLI pin, otherwise `npx` | Best default: fast when a version-matched global exists, safe otherwise. |
+
+Measured on a warm npm cache: an npx launch costs about **0.6s per client spawn** (package resolution plus process start) versus about **0.17s for the direct global binary**. Because every MCP client spawn pays that cost, `auto` switches to the global binary only when its version exactly matches the CLI pin; a stale or newer global silently falls back to npx rather than serving a mismatched tool surface. On win32 `auto` always uses npx because Node-based clients cannot spawn a `.cmd` shim without a shell.
+
+```bash
+ags mcp via auto|npx|global    # persist the launch mode
+ags mcp install --via global   # one-shot override, not persisted
+ags mcp enable --install-global  # npm i -g agent-skills-standard-mcp@<pin>, then verify
+ags mcp status                 # shows via, the resolved command, the pin, and the detected global version
+```
+
+`--install-global` never runs implicitly from `sync`; it is an explicit opt-in. If the installed binary does not report the pin afterwards, the command prints the manual `npm i -g` line and exits 1.
+
+### Choosing a mode
+
+Leave it on `auto` unless you have a reason not to. `auto` is the fastest launch available on the machine *and* the safe fallback: a global binary is used only when its reported version equals the CLI pin, so a stale or newer global never serves a mismatched tool surface.
+
+- Pick `npx` explicitly when you cannot install global packages (managed laptops, sandboxed CI images) or want a launch line with no `PATH` assumptions.
+- Pick `global` when you install `agent-skills-standard-mcp` globally yourself and want the shortest spawn on every agent start.
+
+The decision table, the copy-paste happy path, and the one-line migration note live in the root README: [Launch mode — pick once, then forget](../README.md#launch-mode--pick-once-then-forget). This guide deliberately does not restate them.
+
+### Verifying your install
+
+`ags mcp status` is read-only — it never writes configs. Key fields:
+
+| Field | Meaning |
+| --- | --- |
+| `enabled` / `scope` | Consent flag and write scope from `.skillsrc`. |
+| `via` | Persisted launch mode (`auto` when unset). |
+| `launch` | The exact command an MCP client will spawn for the current mode. |
+| `pin` | The `agent-skills-standard-mcp` version the CLI expects (`0.8.0` today, or `mcp.version` if you set one). |
+| `global` | The version reported by a globally installed `ags-mcp`, or `not found`. |
+
+It then lists each configured agent with `project:` / `user:` checkmarks, and warns when `.skillsrc` and the runtime configs disagree (for example `mcp.enabled=true` but nothing registered). The `global` row is the one to read when a launch feels slow: if it differs from `pin`, `auto` is quietly using `npx`, and the same warning tells you the exact `npm i -g` line. `ags-mcp --version` prints the same semver the probe reads; servers published before that flag existed are detected from their installed manifest under `npm root -g` instead, so an older global install still resolves to a version rather than a silent `not found`.
+
+### Troubleshooting and migration
+
+- **Global version mismatch** — `ags mcp status` prints `Global ags-mcp is <x> but the CLI pin is <y>; "auto" will use npx until they match`. Fix with `npm i -g agent-skills-standard-mcp@0.8.0`, or let the CLI do it: `ags mcp enable --install-global` (installs, re-probes, exits `1` on mismatch).
+- **Offline / cold cache** — `--prefer-offline` consults the npm cache first but still installs the package when it is absent, so the first spawn needs the registry once and later spawns do not. `~/.npm/_npx` is machine-global and keyed by spec, so several worktrees on the same pin share that cache instead of re-downloading.
+- **Windows** — `auto` stays on `npx` by design: Node-based clients cannot spawn a `.cmd` shim without a shell, so the generated entry would be unusable. `via: global` generates `cmd /c ags-mcp` if you accept the extra shell.
+- **Stale or unpinned configs** — an entry such as `npx -y agent-skills-standard-mcp` keeps working; the next `ags sync` (with MCP enabled) or `ags mcp install` replaces that server entry in place with the resolved launch line while leaving sibling servers untouched. User-scope files are only rewritten after the usual per-file confirmation.
+- **Rollback** — `ags mcp via npx` then `ags mcp install` puts every entry back on the npx launch line; `ags mcp uninstall --from=all` removes the entry entirely.
+
 ## Supported Integration Surfaces
 
 | Surface | Used For | Fallback |

@@ -92,6 +92,7 @@
     "audit:sdlc": "node --import tsx ./scripts/audit-sdlc.ts",
     "check-alignment": "tsx scripts/check-alignment.ts",
     "check-alignment:strict": "tsx scripts/check-alignment.ts --threshold 90",
+    "check:mcp-version": "tsx scripts/check-mcp-version-sync.ts",
     "audit:injection": "tsx scripts/scan-injection.ts",
     "docs:scan": "tsx scripts/scan-docs.ts scripts server/src",
     "docs:capabilities": "tsx scripts/generate-capabilities-doc.ts",

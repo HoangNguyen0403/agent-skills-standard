@@ -1,11 +1,13 @@
+import { execFileSync } from 'child_process';
 import fs from 'fs-extra';
 import os from 'os';
 import path from 'path';
 import { Agent } from '../constants';
 import { AGENT_CAPABILITIES } from '../capabilities/agentCapabilities';
 import { MCP_COMPATIBLE_VERSION } from '../constants/mcp';
-import { McpConfig } from '../models/config';
+import { McpConfig, McpVia } from '../models/config';
 import {
+  McpServerEntry,
   hasTomlMcpServer,
   removeTomlMcpServer,
   renderTomlMcpServer,
@@ -41,6 +43,11 @@ export interface McpTarget {
 
 export const SERVER_NAME = 'agent-skills-standard';
 export const PACKAGE = 'agent-skills-standard-mcp';
+
+/** Sentinel: the `ags-mcp` command is not on PATH (no manifest fallback allowed). */
+const GLOBAL_BINARY_MISSING = Symbol('ags-mcp-missing');
+const SEMVER_PREFIX = /^\d+\.\d+\.\d+/;
+const SEMVER_EXACT = /^\d+\.\d+\.\d+$/;
 
 const getTargets = (
   home = os.homedir(),
@@ -108,16 +115,116 @@ export class McpConfigService {
    * <package>`, which would otherwise pull whatever is latest on npm the
    * moment the agent starts — an unpinned update-drift surface (AST07).
    * Pass an explicit `version` (from `mcp.version` in .skillsrc) to override.
+   *
+   * `via` selects the launch strategy (default `auto`). A global install
+   * avoids the ~0.6s npx resolution overhead on every client spawn, but a
+   * stale global must never be silently preferred over the pin.
    */
-  buildEntry(version?: string): { command: string; args: string[] } {
-    const spec = `${PACKAGE}@${version || MCP_COMPATIBLE_VERSION}`;
-    return { command: 'npx', args: ['-y', spec] };
+  buildEntry(opts: { version?: string; via?: McpVia } = {}): McpServerEntry {
+    const version = opts.version || MCP_COMPATIBLE_VERSION;
+    const via = opts.via ?? 'auto';
+    const platform = this.testPlatform ?? process.platform;
+    const useGlobal =
+      via === 'global' ||
+      (via === 'auto' &&
+        platform !== 'win32' &&
+        this.detectGlobalVersion() === version);
+    if (useGlobal) {
+      return platform === 'win32'
+        ? { command: 'cmd', args: ['/c', 'ags-mcp'] }
+        : { command: 'ags-mcp', args: [] };
+    }
+    return {
+      command: 'npx',
+      args: ['-y', '--prefer-offline', `${PACKAGE}@${version}`],
+    };
+  }
+
+  /**
+   * Version reported by a globally installed `ags-mcp`, or `null` when the
+   * binary is missing/unusable.
+   *
+   * Two probes, in order:
+   *  1. `ags-mcp --version` — authoritative and install-manager agnostic.
+   *  2. the manifest under `npm root -g` — required for servers published
+   *     before `--version` existed, where probe 1 either prints nothing or
+   *     times out because the stdio server starts normally instead.
+   * A missing binary (ENOENT) never falls through: an installed manifest
+   * alone does not prove the command is on the client's PATH.
+   */
+  detectGlobalVersion(): string | null {
+    const binaryVersion = this.probeGlobalBinaryVersion();
+    if (binaryVersion === GLOBAL_BINARY_MISSING) return null;
+    return binaryVersion ?? this.probeGlobalManifestVersion();
+  }
+
+  /** `ags-mcp --version`, or the sentinel when the command is not on PATH. */
+  private probeGlobalBinaryVersion():
+    string | null | typeof GLOBAL_BINARY_MISSING {
+    try {
+      if (this.testGlobalVersionProbe) return this.testGlobalVersionProbe();
+      const output = execFileSync('ags-mcp', ['--version'], {
+        encoding: 'utf8',
+        timeout: 2000,
+        stdio: ['ignore', 'pipe', 'ignore'],
+      });
+      const firstLine = String(output).split('\n')[0].trim();
+      return SEMVER_PREFIX.test(firstLine) ? firstLine : null;
+    } catch (err) {
+      return (err as NodeJS.ErrnoException).code === 'ENOENT'
+        ? GLOBAL_BINARY_MISSING
+        : null;
+    }
+  }
+
+  /** Version field of the globally installed manifest, purely from disk. */
+  private probeGlobalManifestVersion(): string | null {
+    if (this.testGlobalManifestProbe) return this.testGlobalManifestProbe();
+    const isWindows = (this.testPlatform ?? process.platform) === 'win32';
+    try {
+      const globalRoot = String(
+        execFileSync(isWindows ? 'npm.cmd' : 'npm', ['root', '-g'], {
+          encoding: 'utf8',
+          timeout: 5000,
+          stdio: ['ignore', 'pipe', 'ignore'],
+          ...(isWindows ? { shell: true } : {}),
+        }),
+      ).trim();
+      if (!globalRoot) return null;
+      const manifestPath = path.join(globalRoot, PACKAGE, 'package.json');
+      if (!fs.pathExistsSync(manifestPath)) return null;
+      const manifest = fs.readJsonSync(manifestPath) as { version?: unknown };
+      return typeof manifest.version === 'string' &&
+        SEMVER_EXACT.test(manifest.version)
+        ? manifest.version
+        : null;
+    } catch {
+      return null;
+    }
   }
 
   /** For testing: allows overriding the home directory. */
   private testHome: string | null = null;
   setHomeForTesting(home: string | null): void {
     this.testHome = home;
+  }
+
+  /** For testing: allows overriding the detected platform. */
+  private testPlatform: NodeJS.Platform | null = null;
+  setPlatformForTesting(platform: NodeJS.Platform | null): void {
+    this.testPlatform = platform;
+  }
+
+  /** For testing: allows overriding the global-version probe. */
+  private testGlobalVersionProbe: (() => string | null) | null = null;
+  setGlobalVersionProbeForTesting(fn: (() => string | null) | null): void {
+    this.testGlobalVersionProbe = fn;
+  }
+
+  /** For testing: allows overriding the `npm root -g` manifest probe. */
+  private testGlobalManifestProbe: (() => string | null) | null = null;
+  setGlobalManifestProbeForTesting(fn: (() => string | null) | null): void {
+    this.testGlobalManifestProbe = fn;
   }
 
   private getTargets(): Record<string, McpTarget> {
@@ -149,7 +256,7 @@ export class McpConfigService {
     }
 
     const TARGETS = this.getTargets();
-    const entry = this.buildEntry(mcp.version);
+    const entry = this.buildEntry({ version: mcp.version, via: mcp.via });
     // Only generate snippets if:
     // 1. scope is 'snippets-only'
     // 2. user explicitly requested snippets via mcp.snippets flag

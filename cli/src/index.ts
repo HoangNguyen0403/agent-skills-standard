@@ -233,11 +233,16 @@ program
 program
   .command('mcp <action> [scope]')
   .description(
-    'Manage the optional MCP server integration. Actions: status | enable | disable | scope <project|user|snippets-only|disabled> | install | uninstall | snippets',
+    'Manage the optional MCP server integration. Actions: status | enable | disable | scope <project|user|snippets-only|disabled> | via <auto|npx|global> | install | uninstall | snippets',
   )
   .option(
     '--scope <scope>',
     'Override scope for install (project|user|snippets-only|disabled)',
+  )
+  .option('--via <via>', 'Override launch mode for this run (auto|npx|global)')
+  .option(
+    '--install-global',
+    'On enable: install agent-skills-standard-mcp@<pin> globally, then verify its version',
   )
   .option(
     '--from <from>',
@@ -251,7 +256,13 @@ program
     ) => {
       // Allow `ags mcp scope project` (positional) AND `ags mcp scope --scope project`.
       const merged: Record<string, string> = { ...opts };
-      if (positional) merged.scope = opts.scope ?? positional;
+      if (positional) {
+        if (action === 'via') {
+          merged.via = opts.via ?? positional;
+        } else {
+          merged.scope = opts.scope ?? positional;
+        }
+      }
       const cmd = new McpCommand();
       await cmd.run(action, merged);
     },

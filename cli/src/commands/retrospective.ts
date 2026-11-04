@@ -218,6 +218,7 @@ export class RetrospectiveCommand {
         : `${PACKAGE}@${this.mcpVersion}`;
     const argsToSpawn = [
       '-y',
+      '--prefer-offline',
       spec,
       'retrospective',
       mappedAction,

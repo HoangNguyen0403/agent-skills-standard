@@ -26,6 +26,7 @@ const McpConfigSchema = z.object({
   scope: McpScopeSchema,
   prompted: z.boolean(),
   version: z.string().optional(),
+  via: z.enum(['auto', 'npx', 'global']).optional(),
   snippets: z.boolean().optional(),
 });
 
@@ -82,6 +83,7 @@ const MCP_FIELD_KEYS = [
   'scope',
   'prompted',
   'version',
+  'via',
   'snippets',
 ] as const;
 
