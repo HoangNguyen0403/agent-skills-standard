@@ -225,12 +225,19 @@ export function CopyCommand({
 
       // Only transmit if consent was granted at start and remains valid under the same epoch
       if (actionConsentEpoch !== null) {
+        const placement =
+          id === "init" || id === "npx-init"
+            ? "quickstart_init"
+            : id === "sync" || id === "npx-sync"
+              ? "quickstart_sync"
+              : "unknown";
+
         trackEvent(
           {
             event_name: "install_command_copy",
             campaign_id: "standards-demo-01",
             asset_id: "unknown",
-            placement: id === "init" ? "quickstart_init" : "quickstart_sync",
+            placement,
           },
           actionConsentEpoch,
         ).catch(() => {});

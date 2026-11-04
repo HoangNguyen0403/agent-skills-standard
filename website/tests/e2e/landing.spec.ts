@@ -505,7 +505,6 @@ test.describe('Agent Skills Standard landing page', () => {
     const idleControl = await initCopy.boundingBox();
     const followingRow = await syncCopy.boundingBox();
     if (!idleControl || !followingRow) throw new Error('Quick Start rows must have layout boxes.');
-    const followingRowTop = await syncRow.evaluate((element) => element.getBoundingClientRect().top + window.scrollY);
     expect(idleControl.width).toBe(120);
     expect(idleControl.height).toBe(48);
     const followingRowDocumentY = await page.evaluate((y) => y + window.scrollY, followingRow.y);
@@ -721,9 +720,9 @@ test.describe('Agent Skills Standard landing page', () => {
       await expect(faqItem.locator(':scope > :not(summary)')).toBeVisible();
 
       const quickStart = page.locator('#quick-start');
-      await expect(quickStart.getByText(commands.install)).toBeVisible();
-      await expect(quickStart.getByText(commands.init)).toBeVisible();
-      await expect(quickStart.getByText(commands.sync)).toBeVisible();
+      await expect(quickStart.locator('[data-command]').filter({ hasText: commands.install }).locator('code')).toBeVisible();
+      await expect(quickStart.locator('[data-command]').filter({ hasText: commands.init }).locator('code')).toBeVisible();
+      await expect(quickStart.locator('[data-command]').filter({ hasText: commands.sync }).locator('code')).toBeVisible();
       await expect(quickStart.getByRole('link', { name: /follow step-by-step tutorial/i })).toBeVisible();
 
       // Demo player in No-JS mode provides fallback download link, full transcript link, and toggleable scene summary

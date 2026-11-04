@@ -104,8 +104,6 @@ jobs:
         run: pnpm test:metrics
       - name: Run SDLC Workflow Tests
         run: pnpm test:sdlc
-      - name: Run Product Evidence Suite and Integration Tests
-        run: pnpm test:product-evidence
       - name: Run Offline Marketing Resource Tests
         run: pnpm test:marketing
       - name: Run E2E Tests

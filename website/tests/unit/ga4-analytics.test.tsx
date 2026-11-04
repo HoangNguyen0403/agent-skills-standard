@@ -899,6 +899,103 @@ describe('CopyCommand Deferred Clipboard Write with GA4 (SDK boundary)', () => {
       placement: 'quickstart_init',
     });
   });
+
+  it('CopyCommand_WhenCopyingInstallCommand_TransmitsUnknownPlacement', async () => {
+    const mockGtag = vi.fn();
+    window.gtag = mockGtag;
+
+    const mockWriteText = vi.fn().mockResolvedValue(undefined);
+    Object.assign(navigator, { clipboard: { writeText: mockWriteText } });
+
+    function InstallCommandHarness(): React.JSX.Element {
+      const { acceptConsent } = useGA4();
+      return (
+        <div>
+          <button data-testid="accept-consent" onClick={acceptConsent}>
+            Accept
+          </button>
+          <CopyCommand id="install" command="npm install -g agent-skills-standard" />
+        </div>
+      );
+    }
+
+    render(
+      <GA4Provider overrideConfig={syntheticConfig}>
+        <InstallCommandHarness />
+      </GA4Provider>,
+    );
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('accept-consent'));
+    });
+
+    const copyBtn = screen.getByRole('button', { name: /copy install command/i });
+    await act(async () => {
+      fireEvent.click(copyBtn);
+    });
+
+    expect(mockGtag).toHaveBeenCalledWith('event', 'install_command_copy', {
+      schema_version: 1,
+      campaign_id: 'standards-demo-01',
+      asset_id: 'unknown',
+      placement: 'unknown',
+    });
+  });
+
+  it('CopyCommand_WhenCopyingNpxInitAndSyncCommands_MapsToTruthfulPlacements', async () => {
+    const mockGtag = vi.fn();
+    window.gtag = mockGtag;
+
+    const mockWriteText = vi.fn().mockResolvedValue(undefined);
+    Object.assign(navigator, { clipboard: { writeText: mockWriteText } });
+
+    function SecondaryCommandsHarness(): React.JSX.Element {
+      const { acceptConsent } = useGA4();
+      return (
+        <div>
+          <button data-testid="accept-consent" onClick={acceptConsent}>
+            Accept
+          </button>
+          <CopyCommand id="npx-init" command="npx agent-skills-standard init" />
+          <CopyCommand id="npx-sync" command="npx agent-skills-standard sync" />
+        </div>
+      );
+    }
+
+    render(
+      <GA4Provider overrideConfig={syntheticConfig}>
+        <SecondaryCommandsHarness />
+      </GA4Provider>,
+    );
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('accept-consent'));
+    });
+
+    const npxInitBtn = screen.getByRole('button', { name: /copy npx-init command/i });
+    await act(async () => {
+      fireEvent.click(npxInitBtn);
+    });
+
+    expect(mockGtag).toHaveBeenCalledWith('event', 'install_command_copy', {
+      schema_version: 1,
+      campaign_id: 'standards-demo-01',
+      asset_id: 'unknown',
+      placement: 'quickstart_init',
+    });
+
+    const npxSyncBtn = screen.getByRole('button', { name: /copy npx-sync command/i });
+    await act(async () => {
+      fireEvent.click(npxSyncBtn);
+    });
+
+    expect(mockGtag).toHaveBeenCalledWith('event', 'install_command_copy', {
+      schema_version: 1,
+      campaign_id: 'standards-demo-01',
+      asset_id: 'unknown',
+      placement: 'quickstart_sync',
+    });
+  });
 });
 
 describe('DemoPlayer Playing Negatives with GA4 (SDK boundary)', () => {

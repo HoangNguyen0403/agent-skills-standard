@@ -12,7 +12,6 @@
 import fs from "fs-extra";
 import path from "path";
 import pc from "picocolors";
-import { checkRegexAlignment } from "./evals/alignment";
 
 export function parseThreshold(argv: string[] = process.argv): number {
   const idx = argv.indexOf("--threshold");

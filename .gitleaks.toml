@@ -97,6 +97,8 @@ paths = [
 ]
 regexes = [
   '''^sk-test-1234567890abcdef1234$''',
+]
+
 [[rules]]
 id = "generic-api-key"
 
