@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Quick Navigation
 
+## [cli-v2.7.2] - 2026-11-04
+
+**Category**: CLI Tool
+
+### Fixed
+- fix(sync): sync reliability, failure classification, and attribution provenance (#289)
+
 ## [Unreleased]
 ### Added
 - **SEO discoverability readiness and cost-aware agent routing (source candidate; `common` `2.9.4`, `@ags/website`)**:
