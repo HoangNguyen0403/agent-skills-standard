@@ -9,6 +9,7 @@ import { ConfigService, ConfigSnapshot } from '../ConfigService';
 import { GithubService, ReleaseManifest } from '../GithubService';
 import { LOCKFILE_NAME, sha256 } from '../LockfileService';
 import { SkillAssemblyError } from '../SkillSyncService';
+import { IntegrityError } from '../GithubService';
 import {
   PreparedSkillChange,
   SkillSelectionApplyService,
@@ -539,7 +540,7 @@ describe('SkillSelectionApplyService', () => {
     });
     await expect(
       applyService.prepare(initial, proposed),
-    ).rejects.toBeInstanceOf(SkillAssemblyError);
+    ).rejects.toBeInstanceOf(IntegrityError);
     expect(await readConfigBytes()).toBe(configBytes);
     expect(await fs.pathExists(projectPath('.claude/skills'))).toBe(false);
   });

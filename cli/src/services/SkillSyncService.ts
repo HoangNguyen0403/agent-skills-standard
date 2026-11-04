@@ -1,20 +1,35 @@
 import * as yaml from 'js-yaml';
+import fs from 'fs-extra';
 import path from 'path';
 import pc from 'picocolors';
 import { Agent, SUPPORTED_AGENTS } from '../constants';
 import { SkillConfig } from '../models/config';
 import {
+  AttributionDestinationBinding,
+  AttributionFileRecord,
+  AttributionPackageRecord,
+  AttributionSourceRecord,
+  AttributionVerificationBasis,
   CollectedSkill,
   GitHubTreeItem,
   GitHubTreeResponse,
   SkillOrigin,
 } from '../models/types';
-import { GithubService } from './GithubService';
+import { sha256 } from './LockfileService';
+import { GithubService, IntegrityError } from './GithubService';
 import { resolveSkillFolders } from './SkillSelectionService';
 import { isOverriddenRel, toPosixRel } from './install/pathMatch';
 import { InstallWriter, PassthroughWriter } from './install/OwnershipWriter';
 import { ManifestVerifier } from './install/ManifestVerifier';
 import { assertNoSymlinksUnderRoot } from './install/safePath';
+
+const GIT_BLOB_SHA1_RE = /^[0-9a-f]{40}$/;
+const ATTRIBUTION_FAMILY_RE = /^(LICENSE|NOTICE)(?:\.(?:md|txt))?$/i;
+
+interface WrittenAttributionBinding {
+  name: string;
+  binding: AttributionDestinationBinding;
+}
 
 /**
  * A selected registry category or package could not be assembled completely.
@@ -33,6 +48,7 @@ export class SkillAssemblyError extends Error {
 export class SkillSyncService {
   private readonly failedPackagesByCategory = new Map<string, Set<string>>();
   private readonly failedCategories = new Set<string>();
+  private readonly failureDetails = new Map<string, string>();
 
   constructor(private githubService: GithubService) {}
 
@@ -58,6 +74,7 @@ export class SkillSyncService {
   ): Promise<CollectedSkill[]> {
     this.failedPackagesByCategory.clear();
     this.failedCategories.clear();
+    this.failureDetails.clear();
 
     const collected: CollectedSkill[] = [];
     const collectedOrigins = new Map<string, SkillOrigin>();
@@ -75,16 +92,33 @@ export class SkillSyncService {
       const ref = catConfig.ref || 'main';
 
       console.log(pc.gray(`  - Discovering ${category} (${ref})...`));
+      const resolvedSource = origins[category];
+      const commit =
+        resolvedSource?.commit && GIT_BLOB_SHA1_RE.test(resolvedSource.commit)
+          ? resolvedSource.commit
+          : undefined;
+      const verifier = verifiers[category];
+      if (verifier && commit) {
+        const rejection = verifier.checkSourceCommit(commit);
+        if (rejection) {
+          // A manifest that does not describe the resolved commit is an
+          // integrity failure, not a recoverable assembly/package failure.
+          throw new IntegrityError(`${category}@${ref}: ${rejection}`);
+        }
+      }
+      // Acquisition is bound to the resolved commit when known, so a tag that
+      // moved after resolution cannot supply bytes for a different commit.
       const treeData =
         trees[category] ??
-        (await this.githubService.getRepoTree(owner, repo, ref));
+        (commit
+          ? await this.githubService.getRepoTree(owner, repo, ref, { commit })
+          : await this.githubService.getRepoTree(owner, repo, ref));
       if (!treeData) {
         this.failedCategories.add(category);
         console.log(pc.red(`    ❌ Failed to fetch ${category}@${ref}.`));
         continue;
       }
 
-      const resolvedSource = origins[category];
       const origin: SkillOrigin | undefined = resolvedSource
         ? {
             category,
@@ -92,6 +126,10 @@ export class SkillSyncService {
             commit: resolvedSource.commit,
           }
         : undefined;
+      const source =
+        commit && resolvedSource
+          ? { requestedRef: resolvedSource.ref, resolvedCommit: commit }
+          : undefined;
 
       const foldersToSync = resolveSkillFolders(
         category,
@@ -108,6 +146,7 @@ export class SkillSyncService {
           absOrRelSkill,
           treeData.tree,
           verifiers,
+          source,
         );
         if (skill) {
           const collectedSkill = origin ? { ...skill, origin } : skill;
@@ -145,7 +184,11 @@ export class SkillSyncService {
       ...conflicts,
       ...Array.from(this.failedPackagesByCategory).flatMap(
         ([category, skills]) =>
-          Array.from(skills, (skill) => `${category}/${skill}`),
+          Array.from(skills, (skill) => {
+            const key = `${category}/${skill}`;
+            const detail = this.failureDetails.get(key);
+            return detail ? `${key} (${detail})` : key;
+          }),
       ),
     ];
     if (failures.length > 0) throw new SkillAssemblyError(failures);
@@ -162,8 +205,9 @@ export class SkillSyncService {
     agents: Agent[],
     writer: InstallWriter = new PassthroughWriter(process.cwd()),
     rootDir: string = process.cwd(),
-  ): Promise<void> {
+  ): Promise<Record<string, AttributionPackageRecord>> {
     const overrides = config.custom_overrides || [];
+    const written = new Map<string, AttributionDestinationBinding[]>();
 
     // Inspect every selected destination before writing the first agent's copy.
     for (const agentId of agents) {
@@ -192,7 +236,7 @@ export class SkillSyncService {
       const basePath = agentDef.path;
 
       for (const skill of skills) {
-        await this.writeSkillForAgent(
+        const bindings = await this.writeSkillForAgent(
           agentId,
           skill,
           overrides,
@@ -202,9 +246,54 @@ export class SkillSyncService {
           false,
           rootDir,
         );
+        for (const { name, binding } of bindings) {
+          const key = `${skill.category}/${skill.skill}\0${name}`;
+          const existing = written.get(key) ?? [];
+          if (
+            !existing.some(
+              (current) =>
+                current.agent === binding.agent &&
+                current.path === binding.path,
+            )
+          ) {
+            existing.push(binding);
+          }
+          written.set(key, existing);
+        }
       }
       console.log(pc.gray(`  - Updated ${basePath}/ (${agentDef.name})`));
     }
+
+    const registry = config.registry ?? '';
+    const packages: Record<string, AttributionPackageRecord> = {};
+    for (const skill of skills) {
+      const origin = skill.origin;
+      if (!origin?.commit || !GIT_BLOB_SHA1_RE.test(origin.commit)) continue;
+      const files: AttributionFileRecord[] = [];
+      for (const file of skill.files) {
+        if (!file.attribution) continue;
+        const destinations = written.get(
+          `${skill.category}/${skill.skill}\0${file.name}`,
+        );
+        // Only bytes actually published keep qualified metadata; overridden or
+        // otherwise skipped files are never stamped.
+        if (!destinations || destinations.length === 0) continue;
+        files.push({
+          ...file.attribution,
+          name: file.name,
+          destinations,
+        });
+      }
+      if (files.length === 0) continue;
+      packages[`${skill.category}/${skill.skill}`] = {
+        registry,
+        declaringCategory: origin.category,
+        requestedRef: origin.ref,
+        resolvedCommit: origin.commit,
+        files,
+      };
+    }
+    return packages;
   }
 
   private async writeSkillForAgent(
@@ -216,7 +305,7 @@ export class SkillSyncService {
     config: SkillConfig,
     preflightOnly = false,
     rootDir: string = basePath,
-  ): Promise<void> {
+  ): Promise<WrittenAttributionBinding[]> {
     const isKiro = agentId === Agent.Kiro;
     const skillPath = isKiro
       ? path.join(basePath, `${skill.category}-${skill.skill}`)
@@ -237,8 +326,12 @@ export class SkillSyncService {
     const source = `skill:${skill.category}/${skill.skill}@${
       skill.origin?.ref ?? config.skills?.[skill.category]?.ref ?? 'main'
     }`;
-    const pending: Array<{ target: string; content: string | Buffer }> | null =
-      preflightOnly ? null : [];
+    const pending: Array<{
+      target: string;
+      content: string | Buffer;
+      name: string;
+      attributed: boolean;
+    }> | null = preflightOnly ? null : [];
     for (const fileItem of skill.files) {
       const targetFilePath = path.join(skillPath, fileItem.name);
       if (!this.isPathSafe(targetFilePath, skillPath)) {
@@ -262,16 +355,50 @@ export class SkillSyncService {
         isKiro && fileItem.name === 'SKILL.md'
           ? this.transformSkillForKiro(fileItem.content, skill.category)
           : (fileItem.bytes ?? fileItem.content);
-      pending.push({ target: targetFilePath, content });
+      pending.push({
+        target: targetFilePath,
+        content,
+        name: fileItem.name,
+        attributed: fileItem.attribution !== undefined,
+      });
     }
-    if (pending === null) return;
+    if (pending === null) return [];
 
-    for (const { target, content } of pending) {
+    const bindings: WrittenAttributionBinding[] = [];
+    for (const { target, content, name, attributed } of pending) {
       await writer.write(target, content, {
         owner: 'skill',
         source,
         agent: agentId,
       });
+      if (!attributed) continue;
+      // The writer may have refused the write (user-edited owned file,
+      // unknown file, or an ownership conflict). Provenance is only recorded
+      // for bytes that are actually installed now; consent never overrides
+      // ownership protection.
+      const installedDigest = await this.readInstalledDigest(target);
+      const writtenDigest = sha256(content);
+      if (installedDigest !== writtenDigest) continue;
+      // The installed digest is derived from the bytes actually written for
+      // this agent, so an adapter transform is recorded instead of assumed.
+      bindings.push({
+        name,
+        binding: {
+          agent: agentId,
+          path: toPosixRel(rootDir, target),
+          sha256: writtenDigest,
+        },
+      });
+    }
+    return bindings;
+  }
+
+  /** Digest of the file as it exists on disk, or null when unreadable. */
+  private async readInstalledDigest(absPath: string): Promise<string | null> {
+    try {
+      return sha256(await fs.readFile(absPath));
+    } catch {
+      return null;
     }
   }
 
@@ -283,6 +410,7 @@ export class SkillSyncService {
     absOrRelSkill: string,
     tree: GitHubTreeItem[],
     verifiers: Record<string, ManifestVerifier> = {},
+    source?: { requestedRef: string; resolvedCommit: string },
   ): Promise<CollectedSkill | null> {
     const [sourceCat, skillName] = absOrRelSkill.includes('/')
       ? absOrRelSkill.split('/')
@@ -296,25 +424,37 @@ export class SkillSyncService {
         file.path.startsWith(prefix) &&
         this.isPackageResource(file.path.slice(prefix.length)),
     );
-    const rootAttributionFiles = tree.filter(
-      (file) =>
-        file.type === 'blob' &&
-        this.isRootAttributionFile(file.path) &&
-        !packageFiles.some(
-          (packageFile) =>
-            packageFile.path.slice(prefix.length).toLowerCase() ===
-            file.path.toLowerCase(),
-        ),
+    // LICENSE and NOTICE are separate families: any package-local member of a
+    // family supersedes the repository-root member, regardless of extension
+    // variant. This never drops the other family.
+    const localFamilies = new Set(
+      packageFiles
+        .map((file) => this.attributionFamily(file.path.slice(prefix.length)))
+        .filter((family): family is 'license' | 'notice' => family !== null),
     );
-    const downloadTasks = [...packageFiles, ...rootAttributionFiles]
-      .sort((left, right) => left.path.localeCompare(right.path))
-      .map((file) => ({
-        owner,
-        repo,
-        ref,
-        path: file.path,
-        sha: file.sha,
-      }));
+    const rootAttributionFiles = tree.filter((file) => {
+      if (file.type !== 'blob' || !this.isRootAttributionFile(file.path)) {
+        return false;
+      }
+      const family = this.attributionFamily(file.path);
+      if (!family || localFamilies.has(family)) return false;
+      return !packageFiles.some(
+        (packageFile) =>
+          packageFile.path.slice(prefix.length).toLowerCase() ===
+          file.path.toLowerCase(),
+      );
+    });
+    const selectedFiles = [...packageFiles, ...rootAttributionFiles].sort(
+      (left, right) => left.path.localeCompare(right.path),
+    );
+    const downloadTasks = selectedFiles.map((file) => ({
+      owner,
+      repo,
+      ref,
+      path: file.path,
+      sha: file.sha,
+      ...(source ? { commit: source.resolvedCommit } : {}),
+    }));
 
     const { ok: files, failed } =
       await this.githubService.downloadFilesConcurrentBytes(downloadTasks);
@@ -322,14 +462,25 @@ export class SkillSyncService {
     // The selected category owns the fetched tree/ref; a physical category's
     // unrelated release manifest cannot verify an imported package.
     const verifier = verifiers[category];
+    let integrityFailure: { path: string; reason: string } | undefined;
     if (verifier) {
-      // Repo-root LICENSE/NOTICE sit outside every release scope (the manifest
-      // only covers skills/<category>), so they can never be listed. They are
-      // still blob-sha checked against the pinned tree in the download itself.
       for (const f of files) {
-        if (this.isRootAttributionFile(f.path)) continue;
+        if (this.isRootAttributionFile(f.path)) {
+          // Repo-root LICENSE/NOTICE sit outside every category scope; a
+          // manifest that binds them must be enforced, and a legacy manifest
+          // without a root entry leaves the commit-tree/blob basis.
+          const rejection = verifier.checkRootAttribution(f.path, f.content);
+          if (rejection) {
+            failed.push({ path: f.path, reason: rejection });
+            integrityFailure ??= { path: f.path, reason: rejection };
+          }
+          continue;
+        }
         const rejection = verifier.check(f.path, f.content);
-        if (rejection) failed.push({ path: f.path, reason: rejection });
+        if (rejection) {
+          failed.push({ path: f.path, reason: rejection });
+          integrityFailure ??= { path: f.path, reason: rejection };
+        }
       }
     }
     for (const failure of failed) {
@@ -337,6 +488,14 @@ export class SkillSyncService {
         pc.red(
           `    ❌ ${sourceCat}/${skillName}: ${failure.path} — ${failure.reason}`,
         ),
+      );
+    }
+    if (integrityFailure) {
+      // An explicit manifest rejection is content-integrity evidence, not a
+      // missing/incomplete package: surface the detailed path and digest
+      // diagnostic as a typed IntegrityError the command can classify.
+      throw new IntegrityError(
+        `Release manifest verification failed for ${sourceCat}/${skillName}: ${integrityFailure.path} — ${integrityFailure.reason}`,
       );
     }
 
@@ -348,7 +507,55 @@ export class SkillSyncService {
       failed.length > 0 ||
       files.length !== downloadTasks.length
     ) {
+      this.markPackageFailed(
+        sourceCat,
+        skillName,
+        failed[0]?.reason ??
+          (hasSkillDefinition
+            ? 'downloaded file count mismatch'
+            : 'missing SKILL.md'),
+      );
       return null;
+    }
+
+    const blobShaByPath = new Map(
+      selectedFiles.map((file) => [file.path, file.sha]),
+    );
+    const records = new Map<string, AttributionSourceRecord>();
+    if (source) {
+      for (const file of files) {
+        const isPackageFile = file.path.startsWith(prefix);
+        const name = isPackageFile ? file.path.slice(prefix.length) : file.path;
+        if (this.attributionFamily(name) === null) continue;
+        const blobSha1 = blobShaByPath.get(file.path);
+        if (!blobSha1 || !GIT_BLOB_SHA1_RE.test(blobSha1)) {
+          // A Git blob SHA-1 is required source evidence; a missing or
+          // non-SHA-1 tree identity is an integrity failure, not a fallback to
+          // a content digest.
+          this.markPackageFailed(
+            sourceCat,
+            skillName,
+            `missing Git blob identity for ${file.path}`,
+          );
+          return null;
+        }
+        // The exact bytes that were written define attribution; text decoding
+        // is never used to re-encode them.
+        const basis: AttributionVerificationBasis = verifier?.hasManifestEntry(
+          file.path,
+        )
+          ? 'release-manifest'
+          : 'commit-tree-blob';
+        records.set(name, {
+          sourcePath: file.path,
+          sourceKind: isPackageFile ? 'package' : 'root',
+          requestedRef: source.requestedRef,
+          resolvedCommit: source.resolvedCommit,
+          blobSha1,
+          sha256: sha256(file.content),
+          basis,
+        });
+      }
     }
 
     console.log(
@@ -359,13 +566,18 @@ export class SkillSyncService {
     return {
       category: sourceCat,
       skill: skillName,
-      files: files.map((file) => ({
-        name: file.path.startsWith(prefix)
+      files: files.map((file) => {
+        const name = file.path.startsWith(prefix)
           ? file.path.slice(prefix.length)
-          : file.path,
-        content: file.content.toString('utf8'),
-        bytes: file.content,
-      })),
+          : file.path;
+        const attribution = records.get(name);
+        return {
+          name,
+          content: file.content.toString('utf8'),
+          bytes: file.content,
+          ...(attribution ? { attribution } : {}),
+        };
+      }),
     };
   }
 
@@ -427,20 +639,35 @@ export class SkillSyncService {
     );
   }
 
-  private isRootAttributionFile(filePath: string): boolean {
-    return (
-      !filePath.includes('/') &&
-      /^(LICENSE|NOTICE)(?:\.(?:md|txt))?$/i.test(filePath)
-    );
+  private attributionFamily(filePath: string): 'license' | 'notice' | null {
+    // Only a top-level LICENSE/NOTICE is attribution. A nested file such as
+    // references/LICENSE is an ordinary package resource: it is neither a
+    // family override nor a recordable attribution file.
+    if (filePath.includes('/')) return null;
+    const match = ATTRIBUTION_FAMILY_RE.exec(filePath);
+    if (!match) return null;
+    return match[1].toLowerCase() === 'license' ? 'license' : 'notice';
   }
 
-  private markPackageFailed(category: string, skill: string): void {
+  private isRootAttributionFile(filePath: string): boolean {
+    return this.attributionFamily(filePath) !== null;
+  }
+
+  private markPackageFailed(
+    category: string,
+    skill: string,
+    detail?: string,
+  ): void {
     let failedSkills = this.failedPackagesByCategory.get(category);
     if (!failedSkills) {
       failedSkills = new Set<string>();
       this.failedPackagesByCategory.set(category, failedSkills);
     }
     failedSkills.add(skill);
+    const key = `${category}/${skill}`;
+    if (detail && !this.failureDetails.has(key)) {
+      this.failureDetails.set(key, detail);
+    }
   }
 
   private isRecord(value: unknown): value is Record<string, unknown> {

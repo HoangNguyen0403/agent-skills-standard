@@ -115,6 +115,86 @@ export interface CollectedSkillFile {
   content: string;
   /** Original download bytes; written when no adapter transform is required */
   bytes?: Buffer;
+  /**
+   * Declaring-source identity of this exact file. Present only when the
+   * acquisition was bound to a resolved commit; never synthesized from the
+   * current branch or a lockfile default.
+   */
+  attribution?: AttributionSourceRecord;
+}
+
+/**
+ * Where an attribution file came from: inside the selected package tree or the
+ * repository root of the same selected source.
+ */
+export type AttributionSourceKind = 'package' | 'root';
+
+/**
+ * How the downloaded bytes were verified. `release-manifest` means the digest
+ * was checked against a release manifest bound to the resolved commit;
+ * `commit-tree-blob` means only the pinned commit tree's blob identity and the
+ * downloaded bytes were checked.
+ */
+export type AttributionVerificationBasis =
+  'release-manifest' | 'commit-tree-blob';
+
+/**
+ * Source identity of one attribution file captured at download time.
+ */
+export interface AttributionSourceRecord {
+  /** Bounded repository-relative source path of the exact bytes. */
+  sourcePath: string;
+  sourceKind: AttributionSourceKind;
+  /** Requested ref of the declaring source (tag or branch). */
+  requestedRef: string;
+  /** Commit actually fetched for the declaring source. */
+  resolvedCommit: string;
+  /** Git blob SHA-1 from the pinned tree; never a truncated SHA-256. */
+  blobSha1: string;
+  /** SHA-256 of the exact source bytes. */
+  sha256: string;
+  basis: AttributionVerificationBasis;
+}
+
+/**
+ * One installed copy of an attribution file for a specific agent.
+ */
+export interface AttributionDestinationBinding {
+  agent: string;
+  /** Bounded project-relative installed path. */
+  path: string;
+  /** SHA-256 of the bytes actually written for this agent. */
+  sha256: string;
+}
+
+/**
+ * Qualified attribution record for one installed file.
+ */
+export interface AttributionFileRecord extends AttributionSourceRecord {
+  /** Filename relative to the installed skill directory. */
+  name: string;
+  destinations: AttributionDestinationBinding[];
+}
+
+/**
+ * Qualified attribution record for one physical package (`<category>/<skill>`).
+ */
+export interface AttributionPackageRecord {
+  registry: string;
+  /** Category whose configuration selected this physical package. */
+  declaringCategory: string;
+  requestedRef: string;
+  resolvedCommit: string;
+  files: AttributionFileRecord[];
+}
+
+/**
+ * Additive provenance namespace inside the version-2 lock. Missing is valid
+ * legacy state and must never be read as an invented origin.
+ */
+export interface AttributionCatalog {
+  version: 1;
+  packages: Record<string, AttributionPackageRecord>;
 }
 
 /**

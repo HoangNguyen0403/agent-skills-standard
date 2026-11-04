@@ -11,7 +11,8 @@ export async function emitSpecialists(
 ): Promise<number> {
   const specialistsDir = path.join(repoRoot, 'skills', 'specialists');
   const service = new SpecialistSyncService();
-  return service.syncSpecialists(targetDir, [Agent.OpenCode], specialistsDir);
+  const specialists = await service.readLocalSpecialists(specialistsDir);
+  return service.writeSpecialists(targetDir, [Agent.OpenCode], specialists);
 }
 
 async function main() {

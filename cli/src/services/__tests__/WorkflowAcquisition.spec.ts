@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { SkillConfig } from '../../models/config';
 import { WorkflowSyncService } from '../WorkflowSyncService';
+import { IntegrityError } from '../GithubService';
 import type { GithubService } from '../GithubService';
 import type { ManifestVerifier } from '../install/ManifestVerifier';
 
@@ -83,7 +84,7 @@ describe('WorkflowSyncService.acquireWorkflows', () => {
     expect(files).toEqual(['dev-fix.md']);
   });
 
-  it('reports integrity rejection as incomplete instead of a partial success', async () => {
+  it('throws a typed integrity failure instead of a partial success', async () => {
     github.getRepoTree.mockResolvedValue({
       tree: [{ path: devFixPath, sha: 'a' }],
     });
@@ -95,17 +96,12 @@ describe('WorkflowSyncService.acquireWorkflows', () => {
       check: () => 'digest mismatch',
     } as unknown as ManifestVerifier;
 
-    const result = await service.acquireWorkflows(
-      makeConfig(['dev-fix']),
-      'main',
-      verifier,
-    );
+    const failure = await service
+      .acquireWorkflows(makeConfig(['dev-fix']), 'main', verifier)
+      .catch((error: unknown) => error);
 
-    expect(result.status).toBe('incomplete');
-    expect(result.workflows).toEqual([]);
-    expect(result.failures).toEqual([
-      { path: devFixPath, reason: 'digest mismatch' },
-    ]);
+    expect(failure).toBeInstanceOf(IntegrityError);
+    expect((failure as Error).message).toContain(devFixPath);
   });
 
   it('treats a successfully discovered empty registry as a complete empty set', async () => {

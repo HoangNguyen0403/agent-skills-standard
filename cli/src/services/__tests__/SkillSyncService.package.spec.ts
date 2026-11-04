@@ -4,9 +4,15 @@ import path from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Agent, SUPPORTED_AGENTS } from '../../constants';
 import { SkillConfig } from '../../models/config';
-import { CollectedSkill } from '../../models/types';
+import { AttributionPackageRecord, CollectedSkill } from '../../models/types';
 import { GithubService } from '../GithubService';
-import { InstallWriter, PassthroughWriter } from '../install/OwnershipWriter';
+import { BackupService } from '../install/BackupService';
+import {
+  InstallWriter,
+  OwnershipWriter,
+  PassthroughWriter,
+} from '../install/OwnershipWriter';
+import { sha256 } from '../LockfileService';
 import { SkillSyncService } from '../SkillSyncService';
 
 interface SkillSyncServiceInternals {
@@ -17,14 +23,14 @@ interface SkillSyncServiceInternals {
     basePath: string,
     writer: InstallWriter,
     config: SkillConfig,
-  ): Promise<void>;
+  ): Promise<unknown>;
   writeSkills(
     skills: CollectedSkill[],
     config: SkillConfig,
     agents: Agent[],
     writer: InstallWriter,
     rootDir?: string,
-  ): Promise<void>;
+  ): Promise<Record<string, AttributionPackageRecord>>;
 }
 
 const CONFIG = {
@@ -264,6 +270,119 @@ describe('SkillSyncService package installation', () => {
     } finally {
       claude.path = oldClaudePath;
       cursor.path = oldCursorPath;
+    }
+  });
+
+  // Test intent: the ownership writer keeps user-edited owned files and
+  // unknown files. Qualification must never stamp provenance for bytes the
+  // writer refused; only the final accepted bytes are bound.
+  it('does not bind attribution for files the ownership writer refused', async () => {
+    const root = await createRoot();
+    const claude = SUPPORTED_AGENTS.find((agent) => agent.id === Agent.Claude)!;
+    const oldClaudePath = claude.path;
+    claude.path = path.join(root, '.claude', 'skills');
+    const skillDir = path.join(claude.path, 'cybersecurity', 'cyber-evidence');
+    const licenseRel = '.claude/skills/cybersecurity/cyber-evidence/LICENSE';
+    const noticeRel = '.claude/skills/cybersecurity/cyber-evidence/NOTICE';
+    const noticeMdRel = '.claude/skills/cybersecurity/cyber-evidence/NOTICE.md';
+    try {
+      await fs.outputFile(
+        path.join(skillDir, 'LICENSE'),
+        'old upstream license',
+      );
+      await fs.outputFile(path.join(skillDir, 'NOTICE'), 'user notice');
+      await fs.outputFile(path.join(skillDir, 'NOTICE.md'), 'user notice md');
+
+      const writer = new OwnershipWriter({
+        rootDir: root,
+        previous: {
+          [licenseRel]: {
+            owner: 'skill',
+            source: 'skill:cybersecurity/cyber-evidence@v1',
+            agent: Agent.Claude,
+            sha256: sha256('old upstream license'),
+          },
+          [noticeRel]: {
+            owner: 'skill',
+            source: 'skill:cybersecurity/cyber-evidence@v1',
+            agent: Agent.Claude,
+            sha256: sha256('old upstream notice'),
+          },
+        },
+        dryRun: false,
+        force: new Set(),
+        adoptUnknown: false,
+        overrides: [],
+        backups: new BackupService(),
+      });
+
+      const commit = 'a'.repeat(40);
+      const source = (path: string) => ({
+        sourcePath: path,
+        sourceKind: 'package' as const,
+        requestedRef: 'v1',
+        resolvedCommit: commit,
+        blobSha1: 'b'.repeat(40),
+        sha256: sha256('incoming'),
+        basis: 'release-manifest' as const,
+      });
+      const packages = await service().writeSkills(
+        [
+          {
+            category: 'cybersecurity',
+            skill: 'cyber-evidence',
+            origin: { category: 'cybersecurity', ref: 'v1', commit },
+            files: [
+              {
+                name: 'LICENSE',
+                content: 'new upstream license',
+                attribution: source(
+                  'skills/cybersecurity/cyber-evidence/LICENSE',
+                ),
+              },
+              {
+                name: 'NOTICE',
+                content: 'new upstream notice',
+                attribution: source(
+                  'skills/cybersecurity/cyber-evidence/NOTICE',
+                ),
+              },
+              {
+                name: 'NOTICE.md',
+                content: 'new upstream notice md',
+                attribution: source(
+                  'skills/cybersecurity/cyber-evidence/NOTICE.md',
+                ),
+              },
+            ],
+          },
+        ],
+        CONFIG,
+        [Agent.Claude],
+        writer,
+        root,
+      );
+
+      expect(writer.plan.updated).toEqual([licenseRel]);
+      expect(writer.plan.kept).toEqual([noticeRel]);
+      expect(writer.plan.unknown).toEqual([noticeMdRel]);
+      const record = packages['cybersecurity/cyber-evidence'];
+      expect(record.files.map((file) => file.name)).toEqual(['LICENSE']);
+      expect(record.files[0].destinations).toEqual([
+        {
+          agent: Agent.Claude,
+          path: licenseRel,
+          sha256: sha256('new upstream license'),
+        },
+      ]);
+      expect(await fs.readFile(path.join(skillDir, 'NOTICE'), 'utf8')).toBe(
+        'user notice',
+      );
+      expect(await fs.readFile(path.join(skillDir, 'NOTICE.md'), 'utf8')).toBe(
+        'user notice md',
+      );
+    } finally {
+      claude.path = oldClaudePath;
     }
   });
 

@@ -459,7 +459,14 @@ async function generate() {
       let specialistsOk = false;
       const localSpecialistsDir = path.join(skillsDir, "specialists");
       if (await fs.pathExists(localSpecialistsDir)) {
-        specialistsOk = await syncService.syncSpecialists(config);
+        // Acquisition is complete by construction for a local authoring
+        // source; publication stays inside the active ownership lifecycle.
+        const specialistAcquisition =
+          await syncService.acquireSpecialists(config);
+        specialistsOk = await syncService.writeSpecialists(
+          specialistAcquisition,
+          config,
+        );
         console.log(`✅ Synced specialists for: ${agents.join(", ")}`);
       }
 

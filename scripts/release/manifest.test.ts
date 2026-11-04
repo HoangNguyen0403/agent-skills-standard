@@ -104,3 +104,90 @@ test("buildManifest throws when scope folder has no files", () => {
     fs.rmSync(tempDir, { recursive: true, force: true });
   }
 });
+
+test("buildManifest hashes raw file bytes rather than a UTF-8 re-encoding", () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "manifest-test-"));
+  try {
+    const binary = Buffer.from([0xff, 0xfe, 0x00, 0x41]);
+    const relPath = "skills/typescript/a/assets/payload.bin";
+    const fullPath = path.join(tempDir, relPath);
+    fs.mkdirSync(path.dirname(fullPath), { recursive: true });
+    fs.writeFileSync(fullPath, binary);
+
+    const manifest = buildManifest(tempDir, "typescript-v1.0.0", "abcdef");
+
+    assert.equal(
+      manifest.files[relPath],
+      createHash("sha256").update(binary).digest("hex"),
+    );
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+test("buildManifest binds repository-root attribution into the schema-1 files map for category releases", () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "manifest-test-"));
+  try {
+    fs.mkdirSync(path.join(tempDir, "skills/typescript/a"), {
+      recursive: true,
+    });
+    fs.writeFileSync(
+      path.join(tempDir, "skills/typescript/a/SKILL.md"),
+      "content",
+    );
+    fs.writeFileSync(path.join(tempDir, "LICENSE"), "apache text");
+    fs.writeFileSync(path.join(tempDir, "NOTICE.md"), "notice text");
+    // Unrelated root files are never bound as attribution.
+    fs.writeFileSync(path.join(tempDir, "README.md"), "readme");
+
+    const manifest = buildManifest(tempDir, "typescript-v1.0.0", "abcdef");
+
+    assert.equal(
+      manifest.files.LICENSE,
+      createHash("sha256").update("apache text").digest("hex"),
+    );
+    assert.equal(
+      manifest.files["NOTICE.md"],
+      createHash("sha256").update("notice text").digest("hex"),
+    );
+    assert.equal(manifest.files["README.md"], undefined);
+    assert.equal(
+      manifest.files["skills/typescript/a/SKILL.md"],
+      createHash("sha256").update("content").digest("hex"),
+    );
+    assert.equal(manifest.schema_version, 1);
+    assert.equal("root_attribution" in manifest, false);
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+test("buildManifest does not bind root attribution for workflow and specialist scopes", () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "manifest-test-"));
+  try {
+    fs.writeFileSync(path.join(tempDir, "LICENSE"), "apache text");
+    fs.mkdirSync(path.join(tempDir, ".agents/workflows"), { recursive: true });
+    fs.writeFileSync(
+      path.join(tempDir, ".agents/workflows/dev-fix.md"),
+      "workflow",
+    );
+    fs.mkdirSync(path.join(tempDir, "skills/specialists"), {
+      recursive: true,
+    });
+    fs.writeFileSync(
+      path.join(tempDir, "skills/specialists/reviewer.md"),
+      "specialist",
+    );
+
+    assert.equal(
+      buildManifest(tempDir, "workflows-v1.0.0", "abcdef").files.LICENSE,
+      undefined,
+    );
+    assert.equal(
+      buildManifest(tempDir, "specialists-v1.0.0", "abcdef").files.LICENSE,
+      undefined,
+    );
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});

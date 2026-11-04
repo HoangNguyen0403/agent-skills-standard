@@ -49,4 +49,61 @@ describe('ManifestVerifier', () => {
     ).toBeNull();
     expect(verifier.check('/.agents/workflows/dev-fix.md', content)).toBeNull();
   });
+
+  it('exposes the manifest commit and rejects a different resolved commit', () => {
+    const verifier = new ManifestVerifier(sampleManifest);
+    expect(verifier.commit).toBe('a'.repeat(40));
+    expect(verifier.checkSourceCommit('a'.repeat(40))).toBeNull();
+    expect(verifier.checkSourceCommit('b'.repeat(40))).toMatch(
+      /does not match the resolved source commit/i,
+    );
+    expect(
+      new ManifestVerifier(null).checkSourceCommit('b'.repeat(40)),
+    ).toBeNull();
+  });
+
+  it('reports whether a path is covered by a manifest entry', () => {
+    const verifier = new ManifestVerifier({
+      ...sampleManifest,
+      files: { ...sampleManifest.files, LICENSE: sha256 },
+    });
+    expect(verifier.hasManifestEntry('.agents/workflows/dev-fix.md')).toBe(
+      true,
+    );
+    expect(verifier.hasManifestEntry('LICENSE')).toBe(true);
+    expect(verifier.hasManifestEntry('NOTICE')).toBe(false);
+  });
+
+  it('enforces a root file the schema-1 files map binds and allows an unbound legacy manifest', () => {
+    const withRoot = new ManifestVerifier({
+      ...sampleManifest,
+      files: { ...sampleManifest.files, LICENSE: sha256 },
+    });
+    expect(withRoot.checkRootAttribution('LICENSE', content)).toBeNull();
+    expect(withRoot.checkRootAttribution('LICENSE', 'apache text')).toMatch(
+      /root attribution/,
+    );
+    // A manifest that binds one root file does not reject another root file it
+    // does not list; those stay commit-tree verified.
+    expect(withRoot.checkRootAttribution('NOTICE', content)).toBeNull();
+
+    const legacy = new ManifestVerifier(sampleManifest);
+    expect(legacy.checkRootAttribution('LICENSE', 'apache text')).toBeNull();
+  });
+
+  it('enforces every applicable root binding, never skipping a listed conflict', () => {
+    const verifier = new ManifestVerifier({
+      ...sampleManifest,
+      files: {
+        ...sampleManifest.files,
+        LICENSE: sha256,
+        NOTICE: sha256,
+      },
+    });
+    expect(verifier.checkRootAttribution('LICENSE', content)).toBeNull();
+    expect(verifier.checkRootAttribution('NOTICE', content)).toBeNull();
+    expect(verifier.checkRootAttribution('NOTICE', 'other notice')).toMatch(
+      /root attribution/,
+    );
+  });
 });

@@ -7,14 +7,27 @@ import { Agent, SUPPORTED_AGENTS } from '../constants';
 import { disclosureLines } from '../capabilities/agentCapabilities';
 import { SkillConfig } from '../models/config';
 import {
+  AttributionCatalog,
+  AttributionDestinationBinding,
+  AttributionFileRecord,
+  AttributionPackageRecord,
   CollectedSkill,
   GitHubTreeResponse,
   RegistryMetadata,
 } from '../models/types';
 import { AgentBridgeService } from './AgentBridgeService';
+import {
+  AttributionComparison,
+  InstalledAttributionState,
+  buildAttributionCatalog,
+  collectInstalledAttributionDigests,
+  compareAttribution,
+  readInstalledAttributionDigest,
+} from './AttributionService';
 import { ConfigService } from './ConfigService';
 import { DetectionService } from './DetectionService';
 import { GithubService, ReleaseManifest } from './GithubService';
+import type { GithubRequestError } from './GithubService';
 import { IndexGeneratorServiceImpl } from './IndexGeneratorServiceImpl';
 import { SkillAssemblyError, SkillSyncService } from './SkillSyncService';
 import { WorkflowSyncService } from './WorkflowSyncService';
@@ -23,6 +36,7 @@ import type {
   WorkflowWriteResult,
 } from './WorkflowSyncService';
 import { SpecialistSyncService } from './SpecialistSyncService';
+import type { SpecialistAcquisition } from './SpecialistSyncService';
 import { GitService } from './GitService';
 import {
   LockfileService,
@@ -44,6 +58,8 @@ import {
 } from './install/OwnershipWriter';
 import { SourceRef, VerifyResult } from './LockfileService';
 import { ManifestVerifier } from './install/ManifestVerifier';
+import { isAutomaticUpgrade } from './install/UpdatePolicy';
+import { isOverriddenRel, toPosixRel } from './install/pathMatch';
 import {
   RefResolver,
   ResolvedRefs,
@@ -54,23 +70,20 @@ const defaultExec = (
   cmd: string,
   args: string[],
 ): Promise<{ code: number; stderr: string }> => {
-  const { promise, resolve, reject } = Promise.withResolvers<{
-    code: number;
-    stderr: string;
-  }>();
-  execFile(cmd, args, (error, _stdout, stderr) => {
-    if (error) {
-      if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-        return reject(error);
+  return new Promise((resolve, reject) => {
+    execFile(cmd, args, (error, _stdout, stderr) => {
+      if (error) {
+        if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+          return reject(error);
+        }
+        return resolve({
+          code: typeof error.code === 'number' ? error.code : 1,
+          stderr: stderr || error.message,
+        });
       }
-      return resolve({
-        code: typeof error.code === 'number' ? error.code : 1,
-        stderr: stderr || error.message,
-      });
-    }
-    resolve({ code: 0, stderr: stderr || '' });
+      resolve({ code: 0, stderr: stderr || '' });
+    });
   });
-  return promise;
 };
 
 /**
@@ -191,6 +204,34 @@ function assertIncludeTargetExists(
   }
 }
 
+/** Bounded attribution-family filename used for installed variant discovery. */
+const ATTRIBUTION_FILE_NAME_RE = /^(LICENSE|NOTICE)(?:\.(?:md|txt))?$/i;
+
+/**
+ * An attribution-family file found in an installed package directory that no
+ * candidate or catalog record describes. Its origin is unknown; only the
+ * actual installed bytes are evidence.
+ */
+export interface InstalledAttributionVariant {
+  packageId: string;
+  name: string;
+  agent: string;
+  path: string;
+  sha256: string | null;
+}
+
+/**
+ * Plan for one run: candidate records, the comparison against qualified state,
+ * the installed-byte map used for that comparison, and installed attribution
+ * files that exist outside both the candidate and the catalog.
+ */
+export interface AttributionPlan {
+  planned: Record<string, AttributionPackageRecord>;
+  comparison: AttributionComparison;
+  installed: InstalledAttributionState;
+  installedOnly: InstalledAttributionVariant[];
+}
+
 /**
  * Service responsible for coordinating the synchronization of agent skills and workflows.
  * It acts as a facade, delegating specialized synchronization tasks to SkillSyncService
@@ -224,6 +265,11 @@ export class SyncService {
   };
   private warnedMovedTags = new Set<string>();
   private installScope: 'all' | 'skills' = 'all';
+  /** Attribution records for the packages actually published by this run. */
+  private skillAttributionPackages: Record<
+    string,
+    AttributionPackageRecord
+  > | null = null;
 
   constructor(
     githubService: GithubService = new GithubService(process.env.GITHUB_TOKEN),
@@ -269,12 +315,25 @@ export class SyncService {
     const skillCategories = categories.filter(
       (category) => category !== 'specialists',
     );
+    // Ordinary sync has already resolved every selected ref; pass that exact
+    // identity so acquisition and provenance are bound to the resolved commit
+    // instead of the mutable ref string.
+    const sourceOrigins =
+      origins ??
+      Object.fromEntries(
+        skillCategories
+          .filter((category) => this.resolvedRefs?.skills[category])
+          .map((category) => {
+            const source = this.resolvedRefs!.skills[category];
+            return [category, { ref: source.ref, commit: source.commit }];
+          }),
+      );
     return this.skillSyncService.assembleSkills(
       skillCategories,
       config,
       this.manifestVerifiers.skills,
       trees,
-      origins,
+      sourceOrigins,
       requireSkillDefinition,
     );
   }
@@ -469,6 +528,7 @@ export class SyncService {
     );
     this.dryRun = opts.dryRun;
     this.previousLock = lock;
+    this.skillAttributionPackages = null;
     this.pendingWorkflowWrites = { canonical: [], bindings: [] };
     this.installScope = opts.scope ?? 'all';
     if (opts.resolvedRefs) {
@@ -602,9 +662,85 @@ export class SyncService {
         entries,
       };
       if (catalog) lock.workflowCatalog = catalog;
+      const attribution = await this.buildAttributionCatalog(
+        configured,
+        entries,
+      );
+      if (attribution) lock.attributionCatalog = attribution;
       await this.lockfileService.write(process.cwd(), lock);
     }
     return plan;
+  }
+
+  /**
+   * Merges this run's published attribution over the previous catalog at file
+   * granularity. A previous file survives only when the declaring category is
+   * still configured, this run did not publish replacement bytes for that file,
+   * and every recorded destination still survives ownership finalization with
+   * the exact recorded bytes. Preserved overrides/untouched files therefore
+   * keep their provenance instead of reading as removals; pruned destinations,
+   * removed agents, unconfigured categories and edited copies still drop.
+   */
+  private async buildAttributionCatalog(
+    configured: ReadonlySet<string>,
+    entries: Record<string, { owner: string; agent: string }>,
+  ): Promise<AttributionCatalog | undefined> {
+    const previous = this.previousLock?.attributionCatalog;
+    const written = this.skillAttributionPackages;
+    if (!written && !previous) return undefined;
+
+    const mergedPackages: Record<string, AttributionPackageRecord> = {};
+    for (const [packageId, record] of Object.entries(
+      previous?.packages ?? {},
+    )) {
+      if (!configured.has(record.declaringCategory)) continue;
+      const replacement = written?.[packageId];
+      const retainedFiles: AttributionFileRecord[] = [];
+      for (const file of record.files) {
+        if (
+          replacement?.files.some((candidate) => candidate.name === file.name)
+        ) {
+          // New bytes are authoritative for this filename.
+          continue;
+        }
+        if (await this.attributionFileDestinationsSurvive(file, entries)) {
+          retainedFiles.push(file);
+        }
+      }
+      if (retainedFiles.length === 0) continue;
+      mergedPackages[packageId] = {
+        ...(replacement ?? record),
+        files: [...(replacement?.files ?? []), ...retainedFiles],
+      };
+    }
+
+    const merged = buildAttributionCatalog({
+      ...mergedPackages,
+      ...(written ?? {}),
+    });
+    if (previous) return merged;
+    return Object.keys(merged.packages).length > 0 ? merged : undefined;
+  }
+
+  /**
+   * A retained file must describe only bytes that are still installed: every
+   * destination has to survive ownership finalization for the recorded agent
+   * and still hash to its recorded digest.
+   */
+  private async attributionFileDestinationsSurvive(
+    file: AttributionFileRecord,
+    entries: Record<string, { owner: string; agent: string }>,
+  ): Promise<boolean> {
+    for (const binding of file.destinations) {
+      const entry = entries[binding.path];
+      if (!entry || entry.agent !== binding.agent) return false;
+      const digest = await readInstalledAttributionDigest(
+        process.cwd(),
+        binding.path,
+      );
+      if (digest !== binding.sha256) return false;
+    }
+    return true;
   }
 
   /**
@@ -892,7 +1028,7 @@ export class SyncService {
       await this.notifyLegacyAgentFolder();
     }
     const agents = await this.resolveTargetAgents(config);
-    await this.skillSyncService.writeSkills(
+    this.skillAttributionPackages = await this.skillSyncService.writeSkills(
       skills,
       config,
       agents,
@@ -907,6 +1043,7 @@ export class SyncService {
       config,
       ref,
       this.manifestVerifiers.workflows,
+      this.resolvedRefs?.workflows.commit ?? undefined,
     );
   }
 
@@ -917,6 +1054,7 @@ export class SyncService {
       config,
       ref,
       this.manifestVerifiers.workflows,
+      this.resolvedRefs?.workflows.commit ?? undefined,
     );
   }
 
@@ -933,35 +1071,372 @@ export class SyncService {
     );
   }
 
-  async syncSpecialists(config: SkillConfig): Promise<boolean> {
-    const agents = await this.resolveTargetAgents(config);
-    if (agents.length === 0) return true;
-
+  /**
+   * Acquires every desired specialist before any managed publication. A local
+   * `skills/specialists` directory is the project's own source and is complete
+   * by construction; otherwise the pinned remote source is acquired and its
+   * completeness is reported explicitly.
+   */
+  async acquireSpecialists(
+    config: SkillConfig,
+  ): Promise<SpecialistAcquisition> {
     const localRegistrySource = path.join(process.cwd(), 'skills/specialists');
     if (await fs.pathExists(localRegistrySource)) {
-      const count = await this.specialistSyncService.syncSpecialists(
-        process.cwd(),
-        agents,
-        localRegistrySource,
-        this.writer,
-      );
-      return count > 0;
+      return {
+        status: 'complete',
+        specialists:
+          await this.specialistSyncService.readLocalSpecialists(
+            localRegistrySource,
+          ),
+        failures: [],
+      };
     }
 
     const ref =
       this.resolvedRefs?.specialists.ref || config.specialists_ref || 'main';
-    const specialists = await this.specialistSyncService.assembleSpecialists(
+    return this.specialistSyncService.acquireSpecialists(
       config,
       ref,
       this.manifestVerifiers.specialists,
+      this.resolvedRefs?.specialists.commit ?? undefined,
     );
-    const count = await this.specialistSyncService.syncCollectedSpecialists(
+  }
+
+  /**
+   * Publishes the specialists acquired during preflight. Returns whether any
+   * specialist is desired, which is the only evidence that authorizes pruning
+   * previously installed specialist exports.
+   */
+  async writeSpecialists(
+    acquisition: SpecialistAcquisition,
+    config: SkillConfig,
+  ): Promise<boolean> {
+    const agents = await this.resolveTargetAgents(config);
+    if (agents.length === 0) return true;
+
+    await this.specialistSyncService.writeSpecialists(
       process.cwd(),
       agents,
-      specialists,
+      acquisition.specialists,
       this.writer,
     );
-    return count > 0;
+    return acquisition.specialists.length > 0;
+  }
+
+  /** The typed throttle failure, if this operation latched one. */
+  get rateLimitFailure(): GithubRequestError | null {
+    return this.githubService.rateLimitFailure;
+  }
+
+  /**
+   * Builds the attribution plan for the acquired (unpublished) skills and
+   * compares it with the qualified state of the current installation. Nothing
+   * is written: the command layer owns consent and publication.
+   *
+   * Destination bindings are derived from the same agent layout the ownership
+   * writer will use, so the collector reads the bytes a previous run would
+   * have installed at exactly those paths. The candidate digest recorded here
+   * is the source digest; publication re-derives the installed digest from the
+   * actual written bytes.
+   */
+  async planAttribution(
+    skills: CollectedSkill[],
+    config: SkillConfig,
+  ): Promise<AttributionPlan> {
+    const agents = await this.resolveTargetAgents(config);
+    const overrides = config.custom_overrides ?? [];
+    const registry = config.registry ?? '';
+    const previousCatalog = this.previousLock?.attributionCatalog;
+    const planned: Record<string, AttributionPackageRecord> = {};
+    /** `<packageId>\0<fileName>` -> effective destination paths. */
+    const publishedPaths = new Set<string>();
+
+    const agentDir = (agentId: Agent, skill: CollectedSkill): string | null => {
+      const basePath = SUPPORTED_AGENTS.find(
+        (agent) => agent.id === agentId,
+      )?.path;
+      if (!basePath) return null;
+      return agentId === Agent.Kiro
+        ? path.join(basePath, `${skill.category}-${skill.skill}`)
+        : path.join(basePath, skill.category, skill.skill);
+    };
+
+    for (const skill of skills) {
+      const origin = skill.origin;
+      const packageId = `${skill.category}/${skill.skill}`;
+      const files: AttributionFileRecord[] = [];
+      for (const file of skill.files) {
+        if (!file.attribution) continue;
+        const destinations: AttributionDestinationBinding[] = [];
+        for (const agentId of agents) {
+          const dir = agentDir(agentId, skill);
+          if (!dir) continue;
+          const relative = toPosixRel(process.cwd(), path.join(dir, file.name));
+          if (isOverriddenRel(relative, overrides)) continue;
+          // Remember every path this run would publish so preserved-record and
+          // installed-variant discovery never double-counts them.
+          publishedPaths.add(`${packageId}\0${file.name}\0${relative}`);
+          destinations.push({
+            agent: agentId,
+            path: relative,
+            sha256: file.attribution.sha256,
+          });
+        }
+        if (destinations.length === 0) continue;
+        files.push({ ...file.attribution, name: file.name, destinations });
+      }
+
+      const previous = previousCatalog?.packages[packageId];
+      // Files this run preserves (all destinations overridden or pruning
+      // disabled) are re-recorded verbatim from the previous catalog so a
+      // preserved file is never misreported as a removal.
+      const preserved = this.preservedAttributionFiles(
+        packageId,
+        previous,
+        publishedPaths,
+        overrides,
+        config.prune !== false,
+      );
+
+      if (files.length === 0) {
+        // No candidate attribution files: a fully preserved package keeps its
+        // previous origin so it stays `unchanged` rather than `removed`.
+        if (previous && preserved.length === previous.files.length) {
+          planned[packageId] = { ...previous, files: preserved };
+        }
+        continue;
+      }
+      if (!origin?.commit || !/^[0-9a-f]{40}$/.test(origin.commit)) continue;
+      for (const file of preserved) {
+        if (!files.some((candidate) => candidate.name === file.name)) {
+          files.push(file);
+        }
+      }
+      planned[packageId] = {
+        registry,
+        declaringCategory: origin.category,
+        requestedRef: origin.ref,
+        resolvedCommit: origin.commit,
+        files,
+      };
+    }
+
+    // Packages that are entirely preserved and have no candidate package at
+    // all still need their previous record, otherwise they read as removals.
+    for (const [packageId, record] of Object.entries(
+      previousCatalog?.packages ?? {},
+    )) {
+      if (planned[packageId]) continue;
+      const preserved = this.preservedAttributionFiles(
+        packageId,
+        record,
+        publishedPaths,
+        overrides,
+        config.prune !== false,
+      );
+      if (preserved.length !== record.files.length) continue;
+      planned[packageId] = { ...record, files: preserved };
+    }
+
+    const installedOnly = await this.discoverInstalledAttributionVariants(
+      skills,
+      planned,
+      previousCatalog?.packages ?? {},
+      agents,
+      overrides,
+      publishedPaths,
+    );
+
+    const installed = await collectInstalledAttributionDigests(
+      process.cwd(),
+      this.mergeAttributionDestinations(
+        planned,
+        previousCatalog?.packages ?? {},
+      ),
+    );
+    const hasInstalledBytes =
+      installedOnly.some((variant) => variant.sha256 !== null) ||
+      Object.values(installed).some((perFile) =>
+        Object.values(perFile).some((bindings) =>
+          bindings.some((binding) => binding.sha256 !== null),
+        ),
+      );
+    const hasExistingInstallation =
+      Object.keys(this.previousLock?.entries ?? {}).length > 0 ||
+      hasInstalledBytes;
+
+    return {
+      planned,
+      installed,
+      installedOnly,
+      comparison: compareAttribution({
+        planned,
+        previousCatalog,
+        hasExistingInstallation,
+        installed,
+      }),
+    };
+  }
+
+  /**
+   * Previous records whose bytes this run will not touch: every recorded
+   * destination is either a configured override or (when pruning is disabled)
+   * a destination the ownership finalizer keeps. The record is returned
+   * verbatim so the comparison sees preserved bytes, not a removal.
+   */
+  private preservedAttributionFiles(
+    packageId: string,
+    previous: AttributionPackageRecord | undefined,
+    publishedPaths: ReadonlySet<string>,
+    overrides: string[],
+    prune: boolean,
+  ): AttributionFileRecord[] {
+    if (!previous) return [];
+    const preserved: AttributionFileRecord[] = [];
+    for (const file of previous.files) {
+      const untouched = file.destinations.every((destination) => {
+        if (
+          publishedPaths.has(`${packageId}\0${file.name}\0${destination.path}`)
+        ) {
+          return false;
+        }
+        return isOverriddenRel(destination.path, overrides) || !prune;
+      });
+      if (untouched) preserved.push({ ...file });
+    }
+    return preserved;
+  }
+
+  /**
+   * Bounded discovery of attribution-family files that exist in installed
+   * package directories but appear in neither the candidate nor the catalog.
+   * Only effective package directories are read — candidate packages plus
+   * directories referenced by previous destinations — only top-level
+   * LICENSE/NOTICE variants are considered, and the actual installed digest is
+   * reported with no invented origin.
+   */
+  private async discoverInstalledAttributionVariants(
+    skills: CollectedSkill[],
+    planned: Record<string, AttributionPackageRecord>,
+    previous: Record<string, AttributionPackageRecord>,
+    agents: Agent[],
+    overrides: string[],
+    publishedPaths: ReadonlySet<string>,
+  ): Promise<InstalledAttributionVariant[]> {
+    const knownPaths = new Set<string>();
+    for (const record of [
+      ...Object.values(planned),
+      ...Object.values(previous),
+    ]) {
+      for (const file of record.files) {
+        for (const destination of file.destinations) {
+          knownPaths.add(destination.path);
+        }
+      }
+    }
+
+    const scan = new Map<
+      string,
+      { packageId: string; agent: string; dir: string }
+    >();
+    for (const skill of skills) {
+      const packageId = `${skill.category}/${skill.skill}`;
+      for (const agentId of agents) {
+        const basePath = SUPPORTED_AGENTS.find(
+          (agent) => agent.id === agentId,
+        )?.path;
+        if (!basePath) continue;
+        const dir =
+          agentId === Agent.Kiro
+            ? path.join(basePath, `${skill.category}-${skill.skill}`)
+            : path.join(basePath, skill.category, skill.skill);
+        scan.set(dir, { packageId, agent: agentId, dir });
+      }
+    }
+    for (const [packageId, record] of Object.entries(previous)) {
+      for (const file of record.files) {
+        for (const destination of file.destinations) {
+          const dir = path.dirname(path.join(process.cwd(), destination.path));
+          scan.set(dir, {
+            packageId,
+            agent: destination.agent,
+            dir,
+          });
+        }
+      }
+    }
+
+    const variants = new Map<string, InstalledAttributionVariant>();
+    for (const { packageId, agent, dir } of scan.values()) {
+      let entries: string[];
+      try {
+        entries = await fs.readdir(dir);
+      } catch {
+        continue;
+      }
+      for (const entry of entries) {
+        if (!ATTRIBUTION_FILE_NAME_RE.test(entry)) continue;
+        const relative = toPosixRel(process.cwd(), path.join(dir, entry));
+        if (
+          knownPaths.has(relative) ||
+          publishedPaths.has(`${packageId}\0${entry}\0${relative}`) ||
+          isOverriddenRel(relative, overrides)
+        ) {
+          continue;
+        }
+        variants.set(relative, {
+          packageId,
+          name: entry,
+          agent,
+          path: relative,
+          sha256: await readInstalledAttributionDigest(process.cwd(), relative),
+        });
+      }
+    }
+    return [...variants.values()].sort((left, right) =>
+      left.path.localeCompare(right.path),
+    );
+  }
+
+  /**
+   * Unions the planned and previously recorded destination sets per package
+   * and filename so the installed-state read covers both sides of the
+   * comparison. Extra bindings never qualify a record; they only let the
+   * comparison see the real bytes at every path it may judge.
+   */
+  private mergeAttributionDestinations(
+    planned: Record<string, AttributionPackageRecord>,
+    previous: Record<string, AttributionPackageRecord>,
+  ): Record<string, AttributionPackageRecord> {
+    const merged: Record<string, AttributionPackageRecord> = { ...planned };
+    for (const [packageId, record] of Object.entries(previous)) {
+      const base = merged[packageId];
+      if (!base) {
+        merged[packageId] = record;
+        continue;
+      }
+      const files = base.files.map((file) => ({ ...file }));
+      for (const priorFile of record.files) {
+        const existing = files.find((file) => file.name === priorFile.name);
+        if (!existing) {
+          files.push({ ...priorFile });
+          continue;
+        }
+        for (const destination of priorFile.destinations) {
+          if (
+            !existing.destinations.some(
+              (current) =>
+                current.agent === destination.agent &&
+                current.path === destination.path,
+            )
+          ) {
+            existing.destinations.push(destination);
+          }
+        }
+      }
+      merged[packageId] = { ...base, files };
+    }
+    return merged;
   }
 
   async applyIndices(
@@ -1021,7 +1496,7 @@ export class SyncService {
       // and base_language_skills it needs without writing anything to disk.
       const meta = localMetadata ?? (await this.fetchRegistryMetadata(config));
       if (meta) {
-        generator.withMetadata(meta);
+        generator.withMetadata(meta as never);
       }
 
       // Generate per-category _INDEX.md files for all target agents
@@ -1157,24 +1632,35 @@ export class SyncService {
       const remoteMetaCat = remoteMeta.categories?.[cat];
       if (!remoteMetaCat?.version) continue;
 
-      const latestRef = `${remoteMetaCat.tag_prefix || ''}${remoteMetaCat.version}`;
-      if (catConfig.ref !== latestRef) {
+      const prefix = remoteMetaCat.tag_prefix || '';
+      const latestRef = `${prefix}${remoteMetaCat.version}`;
+      // An unpinned category keeps the existing initial-pin path; a pinned ref
+      // is only replaced by a strictly newer comparable stable release.
+      const shouldOffer =
+        catConfig.ref === undefined ||
+        isAutomaticUpgrade(catConfig.ref, latestRef, prefix);
+      if (shouldOffer) {
         candidates.push({ key: cat, ref: latestRef });
       }
     }
 
     if (remoteMeta.releases?.workflows?.version) {
-      const latestWorkflowsRef = `${remoteMeta.releases.workflows.tag_prefix || ''}${remoteMeta.releases.workflows.version}`;
-      if (config.workflows_ref && config.workflows_ref !== latestWorkflowsRef) {
+      const prefix = remoteMeta.releases.workflows.tag_prefix || '';
+      const latestWorkflowsRef = `${prefix}${remoteMeta.releases.workflows.version}`;
+      if (
+        config.workflows_ref &&
+        isAutomaticUpgrade(config.workflows_ref, latestWorkflowsRef, prefix)
+      ) {
         candidates.push({ key: 'workflows', ref: latestWorkflowsRef });
       }
     }
 
     if (remoteMeta.categories?.specialists?.version) {
-      const latestSpecialistsRef = `${remoteMeta.categories.specialists.tag_prefix || ''}${remoteMeta.categories.specialists.version}`;
+      const prefix = remoteMeta.categories.specialists.tag_prefix || '';
+      const latestSpecialistsRef = `${prefix}${remoteMeta.categories.specialists.version}`;
       if (
         config.specialists_ref &&
-        config.specialists_ref !== latestSpecialistsRef
+        isAutomaticUpgrade(config.specialists_ref, latestSpecialistsRef, prefix)
       ) {
         candidates.push({ key: 'specialists', ref: latestSpecialistsRef });
       }

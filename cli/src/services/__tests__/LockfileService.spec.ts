@@ -3,6 +3,7 @@ import os from 'os';
 import path from 'path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Agent } from '../../constants';
+import type { AttributionCatalog } from '../../models/types';
 import {
   LockfileService,
   LOCKFILE_NAME,
@@ -831,5 +832,161 @@ describe('LockfileService v2', () => {
         expect(await fs.readFile(lockPath)).toEqual(previous);
       },
     );
+  });
+
+  describe('attributionCatalog', () => {
+    function baseLock(): SkillsLockFile {
+      return {
+        version: 2,
+        registry: 'https://github.com/test/repo',
+        generatedAt: '2026-10-23T00:00:00.000Z',
+        sources: {},
+        entries: {},
+      };
+    }
+
+    function attributionCatalog(): AttributionCatalog {
+      return {
+        version: 1,
+        packages: {
+          'typescript/typescript-core': {
+            registry: 'https://github.com/test/repo',
+            declaringCategory: 'typescript',
+            requestedRef: 'typescript-v1.0.0',
+            resolvedCommit: 'a'.repeat(40),
+            files: [
+              {
+                name: 'LICENSE',
+                sourcePath: 'LICENSE',
+                sourceKind: 'root',
+                requestedRef: 'typescript-v1.0.0',
+                resolvedCommit: 'a'.repeat(40),
+                blobSha1: 'b'.repeat(40),
+                sha256: sha256('apache text'),
+                basis: 'commit-tree-blob',
+                destinations: [
+                  {
+                    agent: 'claude',
+                    path: '.claude/skills/typescript/typescript-core/LICENSE',
+                    sha256: sha256('apache text'),
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      };
+    }
+
+    it('round-trips an optional versioned attribution catalog', async () => {
+      const lock = baseLock();
+      lock.attributionCatalog = attributionCatalog();
+
+      await service.write(root, lock);
+      const loaded = await service.load(root, []);
+
+      expect(loaded.lock?.attributionCatalog).toEqual(attributionCatalog());
+    });
+
+    it('round-trips an empty catalog as qualified no-attribution state', async () => {
+      const lock = baseLock();
+      lock.attributionCatalog = { version: 1, packages: {} };
+
+      await service.write(root, lock);
+      const loaded = await service.load(root, []);
+
+      expect(loaded.lock?.attributionCatalog).toEqual({
+        version: 1,
+        packages: {},
+      });
+    });
+
+    it('rejects an unsupported catalog version at load instead of reading it as legacy', async () => {
+      await fs.writeJson(path.join(root, LOCKFILE_NAME), {
+        ...baseLock(),
+        attributionCatalog: { version: 2, packages: {} },
+      });
+
+      await expect(service.load(root, [])).rejects.toThrow(
+        /attributionCatalog.*unsupported version/i,
+      );
+    });
+
+    it('rejects a malformed qualified record at load (SHA-256 as Git blob identity)', async () => {
+      const invalid = attributionCatalog();
+      invalid.packages['typescript/typescript-core'].files[0].blobSha1 =
+        sha256('apache text');
+      await fs.writeJson(path.join(root, LOCKFILE_NAME), {
+        ...baseLock(),
+        attributionCatalog: invalid,
+      });
+
+      await expect(service.load(root, [])).rejects.toThrow(/blobSha1/i);
+    });
+
+    it('rejects a qualified record without a bounded declaringCategory at load', async () => {
+      const invalid = attributionCatalog();
+      delete (
+        invalid.packages['typescript/typescript-core'] as Partial<
+          AttributionCatalog['packages'][string]
+        >
+      ).declaringCategory;
+      await fs.writeJson(path.join(root, LOCKFILE_NAME), {
+        ...baseLock(),
+        attributionCatalog: invalid,
+      });
+
+      await expect(service.load(root, [])).rejects.toThrow(
+        /declaringCategory/i,
+      );
+    });
+
+    it('refuses to publish an invalid catalog and preserves the previous lock bytes', async () => {
+      await service.write(root, {
+        ...baseLock(),
+        attributionCatalog: attributionCatalog(),
+      });
+      const lockPath = path.join(root, LOCKFILE_NAME);
+      const previous = await fs.readFile(lockPath);
+
+      const invalid = attributionCatalog();
+      invalid.packages['typescript/typescript-core'].files[0].sourcePath =
+        '../outside/LICENSE';
+
+      await expect(
+        service.write(root, { ...baseLock(), attributionCatalog: invalid }),
+      ).rejects.toThrow(/sourcePath/i);
+
+      expect(await fs.readFile(lockPath)).toEqual(previous);
+    });
+
+    it('preserves unrelated extension fields and an omitted catalog across partial rewrites', async () => {
+      const lockPath = path.join(root, LOCKFILE_NAME);
+      await fs.writeJson(lockPath, {
+        ...baseLock(),
+        attributionCatalog: attributionCatalog(),
+        vendorExtension: { keep: true },
+      });
+
+      // A writer that does not know about the additive namespaces.
+      await service.write(root, baseLock());
+
+      const raw = (await fs.readJson(lockPath)) as Record<string, unknown>;
+      expect(raw.vendorExtension).toEqual({ keep: true });
+      expect(raw.attributionCatalog).toEqual(attributionCatalog());
+    });
+
+    it('disclosure updates validate and preserve the attribution catalog', async () => {
+      await service.write(root, {
+        ...baseLock(),
+        attributionCatalog: attributionCatalog(),
+      });
+
+      await service.writeDisclosed(root, { claude: ['hooks'] });
+
+      const loaded = await service.load(root, []);
+      expect(loaded.lock?.disclosed).toEqual({ claude: ['hooks'] });
+      expect(loaded.lock?.attributionCatalog).toEqual(attributionCatalog());
+    });
   });
 });

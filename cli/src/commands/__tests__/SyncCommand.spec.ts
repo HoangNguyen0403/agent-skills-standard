@@ -10,7 +10,9 @@ import {
   vi,
 } from 'vitest';
 import { ConfigService } from '../../services/ConfigService';
+import type { ConfigSnapshot } from '../../services/ConfigService';
 import { DetectionService } from '../../services/DetectionService';
+import type { SkillConfig } from '../../models/config';
 import { SyncService } from '../../services/SyncService';
 import { HookService } from '../../services/HookService';
 import { SyncCommand } from '../sync';
@@ -56,9 +58,6 @@ describe('SyncCommand', () => {
       applyIndices: vi.fn(),
       checkForUpdates: vi.fn().mockResolvedValue(null),
       acquireWorkflows: acquireWorkflowsMock,
-      // Retained so the pre-acquisition production path still runs; the
-      // command is expected to stop using it once acquisition is wired.
-      assembleWorkflows: vi.fn().mockResolvedValue([]),
       writeWorkflows: vi.fn(),
       reconcileWorkflows: vi.fn().mockResolvedValue(false),
       resolvePins: vi.fn().mockResolvedValue({
@@ -68,7 +67,25 @@ describe('SyncCommand', () => {
         newPins: {},
         warnings: [],
       }),
-      syncSpecialists: vi.fn().mockResolvedValue(true),
+      acquireSpecialists: vi.fn().mockResolvedValue({
+        status: 'complete',
+        specialists: [],
+        failures: [],
+      }),
+      writeSpecialists: vi.fn().mockResolvedValue(true),
+      rateLimitFailure: null,
+      planAttribution: vi.fn().mockResolvedValue({
+        planned: {},
+        installed: {},
+        installedOnly: [],
+        comparison: {
+          firstInstall: true,
+          requiresConsent: false,
+          packages: [],
+          legacyUnqualified: [],
+          disclosures: [],
+        },
+      }),
       discloseCapabilities: vi.fn().mockResolvedValue(undefined),
       beginInstall: vi.fn().mockResolvedValue(undefined),
       completeInstall: vi.fn().mockResolvedValue({
@@ -82,18 +99,39 @@ describe('SyncCommand', () => {
         backupId: null,
       }),
     } as unknown as Mocked<SyncService>;
+    // The command reads a write-free snapshot. Tests seed the config through
+    // this mock; readSnapshot derives the snapshot shape so each test only
+    // declares the configuration it cares about.
+    const loadConfig = vi.fn().mockResolvedValue({
+      registry: 'url',
+      skills: {
+        common: { ref: 'v1.0.0' },
+      },
+      agents: [Agent.Antigravity],
+      // Mark MCP as already-prompted-and-disabled so Phase 7 fast-returns.
+      // Tests that exercise the MCP path should override this.
+      mcp: { enabled: false, scope: 'disabled', prompted: true },
+    });
     mockConfigService = {
-      loadConfig: vi.fn().mockResolvedValue({
-        registry: 'url',
-        skills: {
-          common: { ref: 'v1.0.0' },
-        },
-        agents: [Agent.Antigravity],
-        // Mark MCP as already-prompted-and-disabled so Phase 7 fast-returns.
-        // Tests that exercise the MCP path should override this.
-        mcp: { enabled: false, scope: 'disabled', prompted: true },
+      loadConfig,
+      readSnapshot: vi.fn(async () => {
+        const config = await loadConfig();
+        if (!config) return null;
+        return {
+          config,
+          raw: {},
+          sourcePath: '.skillsrc',
+          fingerprint: 'f'.repeat(64),
+        };
       }),
       saveConfig: vi.fn(),
+      saveReviewedConfig: vi.fn(
+        async (snapshot: ConfigSnapshot, next: SkillConfig) => ({
+          ...snapshot,
+          config: next,
+          fingerprint: 'e'.repeat(64),
+        }),
+      ),
     } as unknown as Mocked<ConfigService>;
     mockDetectionService = {
       getProjectDeps: vi.fn().mockResolvedValue(new Set()),
@@ -123,7 +161,7 @@ describe('SyncCommand', () => {
 
   it('should finalize sync with a post-prune index refresh', async () => {
     await command.run();
-    expect(mockConfigService.loadConfig).toHaveBeenCalled();
+    expect(mockConfigService.readSnapshot).toHaveBeenCalled();
     expect(console.log).toHaveBeenCalledWith(
       expect.stringContaining('Syncing skills'),
     );
@@ -146,7 +184,7 @@ describe('SyncCommand', () => {
       mockSyncService.reconcileConfig.mockResolvedValue(true);
       await command.run({ dryRun: true });
 
-      expect(mockConfigService.saveConfig).not.toHaveBeenCalled();
+      expect(mockConfigService.saveReviewedConfig).not.toHaveBeenCalled();
       expect(mockHookService.install).not.toHaveBeenCalled();
       expect(mockSyncService.discloseCapabilities).not.toHaveBeenCalled();
     });
@@ -163,16 +201,24 @@ describe('SyncCommand', () => {
         backupId: null,
       };
       mockSyncService.completeInstall.mockResolvedValue(plan);
+      const stdout: string[] = [];
+      const writeSpy = vi
+        .spyOn(process.stdout, 'write')
+        .mockImplementation((chunk: string | Uint8Array) => {
+          stdout.push(String(chunk));
+          return true;
+        });
 
       await command.run({ dryRun: true, json: true });
 
-      expect(console.log).toHaveBeenCalledWith(
-        JSON.stringify({
+      writeSpy.mockRestore();
+      expect(stdout).toEqual([
+        `${JSON.stringify({
           schema_version: 1,
           kind: 'sync.plan',
           data: plan,
-        }),
-      );
+        })}\n`,
+      ]);
     });
 
     it('force paths are passed to beginInstall', async () => {
@@ -278,7 +324,7 @@ describe('SyncCommand', () => {
     mockSyncService.reconcileWorkflows.mockResolvedValue(true);
     await command.run();
     expect(mockSyncService.reconcileWorkflows).toHaveBeenCalled();
-    expect(mockConfigService.saveConfig).toHaveBeenCalled();
+    expect(mockConfigService.saveReviewedConfig).toHaveBeenCalled();
   });
 
   it('should write newPins to config and saveConfig when not dry-run', async () => {
@@ -295,7 +341,8 @@ describe('SyncCommand', () => {
 
     await command.run();
 
-    expect(mockConfigService.saveConfig).toHaveBeenCalledWith(
+    expect(mockConfigService.saveReviewedConfig).toHaveBeenCalledWith(
+      expect.anything(),
       expect.objectContaining({
         workflows_ref: 'workflows-v1.0.0',
         specialists_ref: 'specialists-v2.0.0',
@@ -322,7 +369,7 @@ describe('SyncCommand', () => {
 
     await command.run({ dryRun: true });
 
-    expect(mockConfigService.saveConfig).not.toHaveBeenCalled();
+    expect(mockConfigService.saveReviewedConfig).not.toHaveBeenCalled();
     expect(console.log).toHaveBeenCalledWith(
       expect.stringContaining(
         '(dry-run) would pin workflows-v1.0.0, specialists-v2.0.0 in .skillsrc',
@@ -364,10 +411,12 @@ describe('SyncCommand', () => {
     );
   });
 
-  it('should handle missing config', async () => {
+  it('should report a missing config as a failure', async () => {
     mockConfigService.loadConfig.mockResolvedValue(null);
-    await command.run();
-    expect(console.log).toHaveBeenCalledWith(
+    const outcome = await command.run();
+    expect(outcome.status).toBe('failure');
+    expect(console.error).toHaveBeenCalledWith(
+      expect.stringContaining('Sync failed'),
       expect.stringContaining('not found'),
     );
   });
@@ -399,7 +448,8 @@ describe('SyncCommand', () => {
         expect.stringContaining('New skill versions detected'),
       );
       expect(inquirer.prompt).toHaveBeenCalled();
-      expect(mockConfigService.saveConfig).toHaveBeenCalledWith(
+      expect(mockConfigService.saveReviewedConfig).toHaveBeenCalledWith(
+        expect.anything(),
         expect.objectContaining({
           skills: {
             common: { ref: 'v1.1.0' },
@@ -429,9 +479,10 @@ describe('SyncCommand', () => {
       expect(inquirer.prompt).toHaveBeenCalled();
       // It might be called for MCP now, so we can't just check not.toHaveBeenCalled
       // Instead we check it was NOT called for versions
-      const saveCalls = vi.mocked(mockConfigService.saveConfig).mock.calls;
+      const saveCalls = vi.mocked(mockConfigService.saveReviewedConfig).mock
+        .calls;
       const versionUpdateCall = saveCalls.find(
-        (call) => call[0].skills?.common?.ref === 'v1.1.0',
+        (call) => call[1].skills?.common?.ref === 'v1.1.0',
       );
       expect(versionUpdateCall).toBeUndefined();
 
@@ -448,7 +499,8 @@ describe('SyncCommand', () => {
       await command.run({ yes: true });
 
       expect(inquirer.prompt).not.toHaveBeenCalled();
-      expect(mockConfigService.saveConfig).toHaveBeenCalledWith(
+      expect(mockConfigService.saveReviewedConfig).toHaveBeenCalledWith(
+        expect.anything(),
         expect.objectContaining({
           skills: {
             common: { ref: 'v1.1.0' },
@@ -469,8 +521,23 @@ describe('SyncCommand', () => {
       await command.run();
 
       expect(inquirer.prompt).not.toHaveBeenCalled();
-      expect(mockConfigService.saveConfig).not.toHaveBeenCalled();
+      expect(mockConfigService.saveReviewedConfig).not.toHaveBeenCalled();
       expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('Non-interactive environment detected'),
+      );
+    });
+
+    it('skips the version prompt in --json mode even on a TTY', async () => {
+      process.stdin.isTTY = true;
+      mockSyncService.checkForUpdates.mockResolvedValue({
+        common: 'v1.1.0',
+      });
+
+      await command.run({ json: true });
+
+      expect(inquirer.prompt).not.toHaveBeenCalled();
+      expect(mockConfigService.saveReviewedConfig).not.toHaveBeenCalled();
+      expect(console.error).toHaveBeenCalledWith(
         expect.stringContaining('Non-interactive environment detected'),
       );
     });
@@ -517,7 +584,8 @@ describe('SyncCommand', () => {
       await command.run();
 
       expect(inquirer.prompt).toHaveBeenCalled();
-      expect(mockConfigService.saveConfig).toHaveBeenCalledWith(
+      expect(mockConfigService.saveReviewedConfig).toHaveBeenCalledWith(
+        expect.anything(),
         expect.objectContaining({
           mcp: expect.objectContaining({ enabled: true, prompted: true }),
         }),
@@ -565,7 +633,8 @@ describe('SyncCommand', () => {
       await command.run({ yes: true });
 
       expect(inquirer.prompt).not.toHaveBeenCalled();
-      expect(mockConfigService.saveConfig).toHaveBeenCalledWith(
+      expect(mockConfigService.saveReviewedConfig).toHaveBeenCalledWith(
+        expect.anything(),
         expect.objectContaining({
           mcp: expect.objectContaining({
             enabled: true,
@@ -631,7 +700,8 @@ describe('SyncCommand', () => {
 
       await command.run();
 
-      expect(mockConfigService.saveConfig).toHaveBeenCalledWith(
+      expect(mockConfigService.saveReviewedConfig).toHaveBeenCalledWith(
+        expect.anything(),
         expect.objectContaining({
           mcp: expect.objectContaining({
             enabled: false,
@@ -641,6 +711,27 @@ describe('SyncCommand', () => {
         }),
       );
       expect(mockMcpService.install).not.toHaveBeenCalled();
+    });
+
+    it('publishes MCP consent on top of the snapshot returned by the initial publication', async () => {
+      mockSyncService.reconcileWorkflows.mockResolvedValue(true);
+      mockConfigService.loadConfig.mockResolvedValue({
+        registry: 'url',
+        skills: {},
+        mcp: { enabled: false, scope: 'disabled', prompted: false },
+      } as any);
+
+      await command.run({ yes: true });
+
+      const calls = vi.mocked(mockConfigService.saveReviewedConfig).mock.calls;
+      expect(calls).toHaveLength(2);
+      const firstPersisted = await vi.mocked(
+        mockConfigService.saveReviewedConfig,
+      ).mock.results[0]?.value;
+      expect(calls[1]?.[0]).toBe(firstPersisted);
+      expect(calls[1]?.[1]?.mcp).toEqual(
+        expect.objectContaining({ enabled: true, prompted: true }),
+      );
     });
 
     it('should fast-return if MCP is disabled after prompting', async () => {
@@ -665,7 +756,7 @@ describe('SyncCommand', () => {
 
       expect(inquirer.prompt).not.toHaveBeenCalled();
       expect(mockMcpService.install).toHaveBeenCalled();
-      expect(mockConfigService.saveConfig).not.toHaveBeenCalled();
+      expect(mockConfigService.saveReviewedConfig).not.toHaveBeenCalled();
     });
 
     it('should cover options.snippets branch when mcp is enabled', async () => {
@@ -710,6 +801,22 @@ describe('SyncCommand', () => {
         'some/file',
       );
       expect(resultNo).toBe(true);
+    });
+
+    it('declines user-scope MCP writes without prompting in --json mode', async () => {
+      mockConfigService.loadConfig.mockResolvedValue({
+        registry: 'url',
+        skills: {},
+        mcp: { enabled: true, scope: 'project', prompted: true },
+      } as any);
+
+      await command.run({ json: true });
+
+      expect(inquirer.prompt).not.toHaveBeenCalled();
+      const installArgs = mockMcpService.install.mock.calls[0][0];
+      await expect(
+        installArgs.userScopePrompt('claude', 'some/file'),
+      ).resolves.toBe(false);
     });
   });
 
@@ -895,7 +1002,7 @@ describe('SyncCommand', () => {
         .join('\n');
     }
 
-    it('reports incomplete acquisition and does not claim sync success', async () => {
+    it('aborts publication when workflow acquisition is incomplete', async () => {
       acquireWorkflowsMock.mockResolvedValue({
         status: 'incomplete',
         workflows: [],
@@ -907,22 +1014,42 @@ describe('SyncCommand', () => {
         ],
       });
 
-      await command.run();
+      const outcome = await command.run();
 
+      expect(outcome.status).toBe('failure');
+      if (outcome.status === 'failure') {
+        expect(outcome.failure.details?.workflowFailures).toEqual([
+          {
+            path: '.agents/workflows/plan-feature.md',
+            reason: 'download failed',
+          },
+        ]);
+      }
       expect(output()).toContain('.agents/workflows/plan-feature.md');
       expect(output()).toContain('download failed');
       expect(output()).not.toContain('All skills synced successfully');
-      // The acquisition result must reach finalization so incomplete fetches
-      // cannot authorize absence-based pruning; byte-level retention is
-      // covered by WorkflowCatalogInstall against a real install.
-      expect(mockSyncService.completeInstall).toHaveBeenCalledWith(
-        expect.any(Object),
-        expect.objectContaining({
-          workflowAcquisition: expect.objectContaining({
-            status: 'incomplete',
-          }),
-        }),
-      );
+      // Nothing may be published or finalized from an incomplete selection.
+      expect(mockSyncService.writeSkills).not.toHaveBeenCalled();
+      expect(mockSyncService.completeInstall).not.toHaveBeenCalled();
+    });
+
+    it('aborts publication when specialist acquisition is incomplete', async () => {
+      mockSyncService.acquireSpecialists.mockResolvedValue({
+        status: 'incomplete',
+        specialists: [],
+        failures: [
+          {
+            path: 'skills/specialists/reviewer/SKILL.md',
+            reason: 'download failed',
+          },
+        ],
+      });
+
+      const outcome = await command.run();
+
+      expect(outcome.status).toBe('failure');
+      expect(mockSyncService.writeSkills).not.toHaveBeenCalled();
+      expect(mockSyncService.completeInstall).not.toHaveBeenCalled();
     });
   });
 });

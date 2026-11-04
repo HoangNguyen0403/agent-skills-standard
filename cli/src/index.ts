@@ -21,8 +21,11 @@ import { RestoreCommand } from './commands/restore';
 import { UninstallCommand } from './commands/uninstall';
 import { PolicyCommand } from './commands/policy';
 
-// Load .env from current directory (for development and other env vars)
-dotenv.config();
+// Load .env from current directory (for development and other env vars).
+// `quiet` is explicit so startup never writes a banner to stdout/stderr and
+// machine output stays a single JSON document; it must not depend on ambient
+// DOTENV_CONFIG_QUIET.
+dotenv.config({ quiet: true });
 
 // Detect stale pnpm shim: old pnpm global stores don't embed the version tag
 // in the shim path (e.g. /global/v11/<hash>/node_modules/...).  When such a
@@ -77,10 +80,19 @@ program
     'Overwrite these files even if you edited them (backed up first)',
   )
   .option('--verbose', 'With --dry-run: list every path')
-  .option('--json', 'With --dry-run: print the plan as JSON (sync.plan)')
+  .option(
+    '--json',
+    'Emit one versioned JSON envelope on stdout (sync.plan for --dry-run, sync.result/sync.error otherwise)',
+  )
+  .option(
+    '--accept-attribution-changes',
+    'Consent to the previewed attribution changes for this run only (ordinary --yes is not consent)',
+  )
   .action(async (options) => {
     const sync = new SyncCommand();
-    await sync.run(options);
+    const outcome = await sync.run(options);
+    process.exitCode =
+      outcome.status === 'success' || outcome.status === 'dry-run' ? 0 : 1;
   });
 
 program

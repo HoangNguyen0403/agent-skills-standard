@@ -14,7 +14,6 @@ skills:
     include:
       - product-business-requirements
       - product-requirements
-  exclude: {}
   quality-engineering:
     ref: quality-engineering-v1.6.2
   system-design:

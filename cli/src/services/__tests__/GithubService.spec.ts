@@ -1,6 +1,12 @@
 import fetch from 'cross-fetch';
+import { PassThrough } from 'node:stream';
+import {
+  setImmediate as tick,
+  setTimeout as delay,
+} from 'node:timers/promises';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { GithubService, IntegrityError } from '../GithubService';
+import { GithubRequestError } from '../github/GithubRequestError';
 
 vi.mock('cross-fetch', () => ({
   default: vi.fn(),
@@ -319,22 +325,78 @@ describe('GithubService', () => {
       expect(failed).toEqual([{ path: 'fail-file', reason: 'not found' }]);
     });
 
-    it('should collect an integrity-check failure without aborting the rest of the batch', async () => {
-      vi.mocked(fetch).mockResolvedValue({
-        ok: true,
-        arrayBuffer: () => Promise.resolve(Buffer.from('hello world', 'utf8')),
-      } as unknown as Response);
+    it('rethrows an integrity failure only after a sibling body settles', async () => {
+      const siblingBody = new PassThrough();
+      const expectedError = new IntegrityError(
+        'injected body integrity failure',
+      );
+      vi.mocked(fetch).mockImplementation((url: RequestInfo | URL) => {
+        if (url.toString().includes('sibling')) {
+          return Promise.resolve({
+            ok: true,
+            status: 200,
+            statusText: 'OK',
+            headers: new Headers(),
+            arrayBuffer: async () => {
+              const chunks: Buffer[] = [];
+              for await (const chunk of siblingBody) {
+                chunks.push(Buffer.from(chunk));
+              }
+              return Buffer.concat(chunks);
+            },
+          } as unknown as Response);
+        }
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          statusText: 'OK',
+          headers: new Headers(),
+          arrayBuffer: async () => {
+            throw expectedError;
+          },
+        } as unknown as Response);
+      });
 
       const tasks = [
-        { owner: 'o', repo: 'r', ref: 'm', path: 'tampered', sha: 'deadbeef' },
-        { owner: 'o', repo: 'r', ref: 'm', path: 'untracked' },
+        { owner: 'o', repo: 'r', ref: 'm', path: 'tampered' },
+        { owner: 'o', repo: 'r', ref: 'm', path: 'sibling' },
       ];
 
-      const { ok, failed } = await githubService.downloadFilesConcurrent(tasks);
-      expect(ok).toEqual([{ path: 'untracked', content: 'hello world' }]);
-      expect(failed).toHaveLength(1);
-      expect(failed[0].path).toBe('tampered');
-      expect(failed[0].reason).toMatch(/blob sha mismatch/);
+      let settled = false;
+      const batch = githubService.downloadFilesConcurrent(tasks).then(
+        (value) => {
+          settled = true;
+          return { kind: 'value' as const, value };
+        },
+        (error: unknown) => {
+          settled = true;
+          return { kind: 'error' as const, error };
+        },
+      );
+
+      try {
+        await tick();
+        await tick();
+        expect(settled).toBe(false);
+
+        siblingBody.end('hello world');
+        const outcome = await batch;
+
+        expect(outcome.kind).toBe('error');
+        if (outcome.kind !== 'error') throw new Error('expected rejection');
+        expect(outcome.error).toBe(expectedError);
+        expect(fetch).toHaveBeenCalledTimes(2);
+      } finally {
+        siblingBody.destroy();
+        if (!settled) {
+          const cleanupTimeout = new AbortController();
+          await Promise.race([
+            batch,
+            delay(1000, undefined, { signal: cleanupTimeout.signal }),
+          ]);
+          cleanupTimeout.abort();
+        }
+      }
     });
 
     it('should handle empty task list', async () => {
@@ -489,19 +551,23 @@ describe('GithubService', () => {
       ).rejects.toBeInstanceOf(IntegrityError);
     });
 
-    it('throws on non-404 HTTP failures and transport errors', async () => {
+    it('throws typed failures on non-404 HTTP failures and transport errors', async () => {
       vi.mocked(fetch).mockResolvedValueOnce({
         ok: false,
         status: 500,
       } as Response);
-      await expect(
-        githubService.getReleaseManifest('owner', 'repo', 'v1.0.0'),
-      ).rejects.toThrow('HTTP 500');
+      const httpFailure = await githubService
+        .getReleaseManifest('owner', 'repo', 'v1.0.0')
+        .catch((error: unknown) => error);
+      expect(httpFailure).toBeInstanceOf(GithubRequestError);
+      expect(httpFailure).toMatchObject({ kind: 'transport', status: 500 });
 
       vi.mocked(fetch).mockRejectedValueOnce(new Error('Network error'));
-      await expect(
-        githubService.getReleaseManifest('owner', 'repo', 'v1.0.0'),
-      ).rejects.toThrow('Failed to fetch MANIFEST.json');
+      const transportFailure = await githubService
+        .getReleaseManifest('owner', 'repo', 'v1.0.0')
+        .catch((error: unknown) => error);
+      expect(transportFailure).toBeInstanceOf(GithubRequestError);
+      expect(transportFailure).toMatchObject({ kind: 'transport' });
     });
 
     it('throws on schema and digest-shape violations', async () => {
