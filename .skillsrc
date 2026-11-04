@@ -8,19 +8,19 @@ skills:
   typescript:
     ref: typescript-v1.3.4
   common:
-    ref: common-v2.9.0
+    ref: common-v2.9.4
   product-management:
-    ref: product-management-v1.1.0
+    ref: product-management-v1.0.2
     include:
       - product-business-requirements
       - product-requirements
   exclude: {}
   quality-engineering:
-    ref: quality-engineering-v1.6.0
+    ref: quality-engineering-v1.6.2
   system-design:
-    ref: system-design-v1.2.0
+    ref: system-design-v1.2.5
   cybersecurity:
-    ref: cybersecurity-v1.0.0
+    ref: cybersecurity-v1.0.2
 custom_overrides: []
 workflows:
   - sdlc
@@ -55,9 +55,9 @@ workflows:
   - cyber-exercise
   - cyber-triage
   - cyber-purple-validation
+workflows_ref: workflows-v2.1.1
+specialists_ref: specialists-v1.5.2
 mcp:
   enabled: true
   scope: project
   prompted: true
-workflows_ref: workflows-v1.0.0
-specialists_ref: specialists-v1.5.0
