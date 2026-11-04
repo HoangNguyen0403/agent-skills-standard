@@ -1483,5 +1483,52 @@ test.describe('Agent Skills Standard landing page', () => {
     expect((await request.get('/')).status()).toBe(200);
     expect((await request.get('/nonexistent-test-path-404')).status()).toBe(404);
   });
+
+  test('AC-DISC-002, AC-003, AC-004: Static served origin exposes expected head metadata, robots.txt, and sitemap.xml', async ({ page, request }) => {
+    await page.goto('/');
+
+    // Canonical resolves to the served static origin root. Trailing-slash presence is not
+    // significant; unexpected origin, path, query, or fragment are.
+    const canonical = page.locator('link[rel="canonical"]');
+    await expect(canonical).toHaveCount(1);
+    const canonicalHref = await canonical.getAttribute('href');
+    const canonicalUrl = new URL(canonicalHref ?? '');
+    expect(canonicalUrl.origin).toBe('http://127.0.0.1:4321');
+    expect(canonicalUrl.pathname).toBe('/');
+    expect(canonicalUrl.search).toBe('');
+    expect(canonicalUrl.hash).toBe('');
+
+    // Local static export build is noindex, nofollow
+    const robotsMeta = page.locator('meta[name="robots"]');
+    await expect(robotsMeta).toHaveAttribute('content', /noindex,\s*nofollow/i);
+
+    // robots.txt route returns 200, disallow for local mode, and sitemap reference
+    const robotsResponse = await request.get('/robots.txt');
+    expect(robotsResponse.status()).toBe(200);
+    const robotsText = await robotsResponse.text();
+    // robots.txt directive field names are case-insensitive; require a wildcard
+    // user-agent line and a root disallow, and keep the exact sitemap origin
+    expect(robotsText).toMatch(/^user-agent:\s*\*\s*$/im);
+    expect(robotsText).toMatch(/^disallow:\s*\/\s*$/im);
+    expect(robotsText).toContain('Sitemap: http://127.0.0.1:4321/sitemap.xml');
+
+    // sitemap.xml route returns 200 and points to canonical root without fabricated freshness
+    const sitemapResponse = await request.get('/sitemap.xml');
+    expect(sitemapResponse.status()).toBe(200);
+    const sitemapText = await sitemapResponse.text();
+    expect(sitemapText).toContain('<loc>http://127.0.0.1:4321/</loc>');
+  });
+
+  test('AC-020, AC-021: Footer exposes verified contribution and questions/feedback destinations', async ({ page }) => {
+    await page.goto('/');
+    const footer = page.getByRole('contentinfo');
+    await expect(footer).toBeVisible();
+
+    const questionsLink = footer.getByRole('link', { name: /questions/i });
+    await expect(questionsLink).toHaveAttribute('href', 'https://github.com/HoangNguyen0403/agent-skills-standard/issues');
+
+    const contributingLink = footer.getByRole('link', { name: /contributing/i });
+    await expect(contributingLink).toHaveAttribute('href', /CONTRIBUTING\.md$/);
+  });
 });
 

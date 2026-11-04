@@ -137,7 +137,16 @@
     "Write Jest tests for a React component",
     "PHPUnit tests for a Symfony application",
     "Testing in NestJS with supertest",
-    "Go table-driven tests with testify"
+    "Go table-driven tests with testify",
+    "Plan feature for our web application and SEO readiness",
+    "Write a unit test for a Python service",
+    "Mock payment gateway in a Node.js API",
+    "Set up in-memory sqlite for Go integration tests"
   ],
-  "should_trigger": ["Write a Pest feature test in Laravel"]
+  "should_trigger": [
+    "Write a Pest feature test in Laravel",
+    "Use RefreshDatabase in Laravel tests",
+    "Create Eloquent Factories for test data in Laravel",
+    "Mock external services in Laravel tests"
+  ]
 }

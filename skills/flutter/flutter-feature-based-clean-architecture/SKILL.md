@@ -6,11 +6,14 @@ metadata:
     files:
     - 'lib/features/**'
     keywords:
-    - feature
-    - domain
-    - infrastructure
-    - application
-    - presentation
+    - flutter feature
+    - feature in flutter
+    - flutter clean architecture
+    - feature-based clean architecture
+    - flutter domain layer
+    - flutter presentation layer
+    - lib/features
+    - flutter architecture
 ---
 # Feature-Based Clean Architecture
 

@@ -1,5 +1,5 @@
 // scripts/trace/graph.ts
-import type { IdKind, SlugTrace, TraceRef } from "./types";
+import { QUALIFIED_ID_GRAMMAR, type IdKind, type SlugTrace, type TraceRef } from "./types";
 
 export type IssueCode =
   | "duplicate-id"
@@ -10,8 +10,8 @@ export type IssueCode =
   | "malformed-id"
   | "slug-file-mismatch"
   | "missing-scope"
-  | "empty-scope";
-
+  | "empty-scope"
+  | "mismatched-kind";
 export type IssueSeverity = "error" | "warn";
 
 export interface TraceIssue {
@@ -34,6 +34,7 @@ const SEVERITY_BY_CODE: Record<IssueCode, IssueSeverity> = {
   "slug-file-mismatch": "warn",
   "missing-scope": "error",
   "empty-scope": "error",
+  "mismatched-kind": "error",
 };
 
 function issue(code: IssueCode, slug: string, extra: Omit<TraceIssue, "code" | "severity" | "slug">): TraceIssue {
@@ -44,7 +45,7 @@ function issue(code: IssueCode, slug: string, extra: Omit<TraceIssue, "code" | "
 function declarationsByKind(refs: TraceRef[], kind: IdKind): Map<string, TraceRef[]> {
   const groups = new Map<string, TraceRef[]>();
   for (const ref of refs) {
-    if (ref.kind !== kind || ref.role !== "declaration" || !ref.valid) continue;
+    if (ref.kind !== kind || ref.role !== "declaration" || !ref.valid || ref.qualified) continue;
     const group = groups.get(ref.id);
     if (group) group.push(ref);
     else groups.set(ref.id, [ref]);
@@ -71,6 +72,28 @@ function duplicateIdIssues(trace: SlugTrace): TraceIssue[] {
         );
       }
     }
+
+    const sourceGroups = new Map<string, TraceRef[]>();
+    for (const ref of trace.references) {
+      if (ref.kind !== kind || ref.role !== "declaration" || !ref.valid || !ref.qualified) continue;
+      const group = sourceGroups.get(ref.id);
+      if (group) group.push(ref);
+      else sourceGroups.set(ref.id, [ref]);
+    }
+    for (const [id, occurrences] of sourceGroups) {
+      if (occurrences.length < 2) continue;
+      const [first, ...rest] = occurrences;
+      for (const dup of rest) {
+        out.push(
+          issue("duplicate-id", trace.slug, {
+            id,
+            file: dup.fromFile,
+            line: dup.line,
+            message: `source ${id} declared again at ${dup.fromFile}:${dup.line}; first declared at ${first.fromFile}:${first.line}`,
+          }),
+        );
+      }
+    }
   }
   return out;
 }
@@ -83,7 +106,24 @@ function danglingRefIssues(trace: SlugTrace): TraceIssue[] {
     if (ref.role !== "reference" || !ref.valid) continue;
     const key = `${ref.kind}:${ref.id}`;
     if (seen.has(key)) continue;
-    if (trace.declared.get(ref.kind)?.has(ref.id)) continue;
+
+    if (ref.qualified) {
+      const sourceSet = trace.sourceDeclared?.get(ref.kind);
+      if (sourceSet?.has(ref.id)) continue;
+      let hasMember = false;
+      if (sourceSet) {
+        for (const declId of sourceSet) {
+          if (declId.startsWith(`${ref.id}-`)) {
+            hasMember = true;
+            break;
+          }
+        }
+      }
+      if (hasMember) continue;
+    } else {
+      if (trace.declared.get(ref.kind)?.has(ref.id)) continue;
+    }
+
     seen.add(key);
     out.push(
       issue("dangling-ref", trace.slug, {
@@ -93,6 +133,64 @@ function danglingRefIssues(trace: SlugTrace): TraceIssue[] {
         message: `${ref.id} is referenced at ${ref.fromFile}:${ref.line} but never declared in slug "${trace.slug}"`,
       }),
     );
+  }
+  return out;
+}
+
+/** sourceMappingIssues: validates explicit source-to-formal relationships from PRD tables. */
+function sourceMappingIssues(trace: SlugTrace): TraceIssue[] {
+  const out: TraceIssue[] = [];
+  if (!trace.sourceMappings) return out;
+
+  for (const mapping of trace.sourceMappings) {
+    const isValidSourceId = QUALIFIED_ID_GRAMMAR[mapping.sourceKind]?.test(mapping.sourceId) ?? false;
+    if (!isValidSourceId) {
+      out.push(
+        issue("malformed-id", trace.slug, {
+          id: mapping.sourceId,
+          file: mapping.fromFile,
+          line: mapping.line,
+          message: `"${mapping.sourceId}" mapped at ${mapping.fromFile}:${mapping.line} looks like a ${mapping.sourceKind} id but violates its grammar`,
+        }),
+      );
+    }
+
+    if (mapping.sourceKind !== mapping.formalKind) {
+      out.push(
+        issue("mismatched-kind", trace.slug, {
+          id: mapping.sourceId,
+          file: mapping.fromFile,
+          line: mapping.line,
+          message: `source ${mapping.sourceId} (${mapping.sourceKind}) cannot map to formal target ${mapping.formalId} (${mapping.formalKind}) due to mismatched kind`,
+        }),
+      );
+      continue;
+    }
+
+    if (!trace.declared.get(mapping.formalKind)?.has(mapping.formalId)) {
+      out.push(
+        issue("dangling-ref", trace.slug, {
+          id: mapping.formalId,
+          file: mapping.fromFile,
+          line: mapping.line,
+          message: `formal target ${mapping.formalId} for source ${mapping.sourceId} is never declared in slug "${trace.slug}"`,
+        }),
+      );
+    }
+
+    const sourceSet = trace.sourceDeclared?.get(mapping.sourceKind);
+    const declaredSource =
+      sourceSet?.has(mapping.sourceId) || [...(sourceSet ?? [])].some((d) => d.startsWith(`${mapping.sourceId}-`));
+    if (!declaredSource) {
+      out.push(
+        issue("dangling-ref", trace.slug, {
+          id: mapping.sourceId,
+          file: mapping.fromFile,
+          line: mapping.line,
+          message: `source ${mapping.sourceId} mapped at ${mapping.fromFile}:${mapping.line} is never declared in slug "${trace.slug}"`,
+        }),
+      );
+    }
   }
   return out;
 }
@@ -202,6 +300,7 @@ export function buildTraceGraph(slugs: SlugTrace[]): TraceIssue[] {
     issues.push(
       ...duplicateIdIssues(trace),
       ...danglingRefIssues(trace),
+      ...sourceMappingIssues(trace),
       ...malformedIdIssues(trace),
       ...orphanIssues(trace, "REQ", "orphan-req"),
       ...orphanIssues(trace, "AC", "orphan-ac"),

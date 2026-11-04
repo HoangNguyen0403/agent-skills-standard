@@ -32,6 +32,12 @@ export function Footer(): React.JSX.Element {
               </a>
             </li>
             <li>
+              <a href={sourceLinks.issues} className={styles.footerLink}>
+                <span>Questions</span>
+                <span aria-hidden="true">&nbsp;↗</span>
+              </a>
+            </li>
+            <li>
               <a href={sourceLinks.workflow} className={styles.footerLink}>
                 <span>Workflow guide</span>
                 <span aria-hidden="true">&nbsp;↗</span>

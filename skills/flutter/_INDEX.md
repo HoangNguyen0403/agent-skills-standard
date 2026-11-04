@@ -12,7 +12,7 @@
 | flutter-dependency-injection | `**/injection.dart`, `**/locator.dart` | GetIt, injectable, singleton, module, lazySingleton, factory |
 | **flutter-design-system** | `**/theme/**`, `**/*_theme.dart`, `**/*_colors.dart`, `**/*_dls/**`, `**/foundation/**`, `**/presentation/**`, `**/ui/**`, `**/widgets/**` | ThemeData, ColorScheme, AppColors, VColors, VSpacing, AppTheme, design token |
 | flutter-error-handling | `lib/domain/**`, `lib/infrastructure/**` | Either, fold, Left, Right, Failure, dartz |
-| **flutter-feature-based-clean-architecture** | `lib/features/**` | feature, domain, infrastructure, application, presentation |
+| **flutter-feature-based-clean-architecture** | `lib/features/**` | flutter feature, feature in flutter, flutter clean architecture, feature-based clean architecture, flutter domain layer, flutter presentation layer, lib/features, flutter architecture |
 | **flutter-getx-navigation** | `**/app_pages.dart`, `**/app_routes.dart` | GetPage, Get.to, Get.off, Get.offAll, Get.toNamed, GetMiddleware |
 | **flutter-getx-state-management** | `**_controller.dart`, `**/bindings/*.dart` | GetxController, Obx, GetBuilder, .obs, Get.put, Get.find, Get.lazyPut |
 | **flutter-go-router-navigation** | `**/router.dart`, `**/app_router.dart` | GoRouter, GoRoute, StatefulShellRoute, redirection, typed-routes |

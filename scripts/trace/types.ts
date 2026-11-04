@@ -11,6 +11,26 @@ export const ID_GRAMMAR: Record<IdKind, RegExp> = {
   SRS: /^SRS-\d{3,}$/,
 };
 
+/**
+ * Namespace-qualified historical source-group ID grammar:
+ * prefix + generic uppercase namespace identifier segment(s) + canonical terminal >=3-digit numeric suffix.
+ * e.g. `REQ-PILOT-001`, `AC-DISC-001`, `REQ-SUB-MODULE-001`.
+ * Does not authorize formal declarations or satisfy --required.
+ */
+export const QUALIFIED_ID_GRAMMAR: Partial<Record<IdKind, RegExp>> = {
+  REQ: /^REQ-[A-Z][A-Z0-9]*(?:-[A-Z][A-Z0-9]*)*-\d{3,}$/,
+  AC: /^AC-[A-Z][A-Z0-9]*(?:-[A-Z][A-Z0-9]*)*-\d{3,}$/,
+};
+
+/**
+ * Namespace prefix grammar for seed family mentions in prose:
+ * prefix + uppercase namespace identifier(s) without terminal numeric suffix.
+ * Valid as a reference only when member declarations exist in the slug.
+ */
+export const QUALIFIED_NAMESPACE_GRAMMAR: Partial<Record<IdKind, RegExp>> = {
+  REQ: /^REQ-[A-Z][A-Z0-9]*(?:-[A-Z][A-Z0-9]*)*$/,
+  AC: /^AC-[A-Z][A-Z0-9]*(?:-[A-Z][A-Z0-9]*)*$/,
+};
 /** How a token occurrence was used at its source location. */
 export type TraceRole = "declaration" | "reference";
 
@@ -34,17 +54,36 @@ export interface TraceRef {
    * weak declaration is demoted to a reference when a strong one exists.
    */
   weak?: boolean;
-  /** True when `id` matches `ID_GRAMMAR[kind]`. */
+  /** True when `id` matches `ID_GRAMMAR[kind]` or `QUALIFIED_ID_GRAMMAR[kind]`. */
   valid: boolean;
+  /** True when `id` is a namespace-qualified source-group ID rather than a numeric formal ID. */
+  qualified?: boolean;
 }
 
+/** One documented source-to-formal mapping from PRD requirement or AC tables. */
+export interface SourceMapping {
+  /** Historical source ID, e.g. "REQ-DISC-001" or "AC-DISC-001". */
+  sourceId: string;
+  sourceKind: IdKind;
+  /** Formal canonical target ID, e.g. "REQ-001" or "AC-001". */
+  formalId: string;
+  formalKind: IdKind;
+  /** File path relative to scan root where mapping was documented. */
+  fromFile: string;
+  /** 1-indexed line number where mapping was documented. */
+  line: number;
+}
 /** All requirement-doc trace data for one slug (one BRD/PRD/SRS filename group). */
 export interface SlugTrace {
   slug: string;
   /** File paths relative to the scan root, sorted. */
   files: string[];
-  /** Valid, declaration-role IDs, grouped by kind. */
+  /** Valid, declaration-role formal IDs, grouped by kind. */
   declared: Map<IdKind, Set<string>>;
+  /** Valid, declaration-role historical source-group IDs, grouped by kind. */
+  sourceDeclared?: Map<IdKind, Set<string>>;
+  /** Explicit source-to-formal relationships resolved from table columns. */
+  sourceMappings?: SourceMapping[];
   /** Every token occurrence found across `files` (declarations, references, and malformed tokens). */
   references: TraceRef[];
 }

@@ -44,8 +44,9 @@ export function EvidenceSection(): React.JSX.Element {
               {content.evidence.evalsTitle}
             </h3>
             <p className={`${styles.bodyText} ${styles.cardBodyText}`}>
-              {content.evidence.evalsDesc} Compares baseline and with-skill
-              outcomes over reported test cases.
+              {content.evidence.evalsDesc} Evaluates response transcripts
+              against output assertions—not executable task verification or
+              guaranteed rule adherence.
             </p>
             <div>
               <a href={sourceLinks.evals} className={styles.textLinkInk}>

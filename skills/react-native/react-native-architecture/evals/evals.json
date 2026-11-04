@@ -21,9 +21,10 @@
         {
           "type": "contains_any",
           "value": [
+            "tsconfig paths",
+            "path alias",
             "TypeScript imports",
-            "typed absolute imports",
-            "path alias"
+            "typed absolute imports"
           ]
         }
       ]
@@ -39,7 +40,12 @@
         },
         {
           "type": "contains_any",
-          "value": ["single responsibility", "one purpose", "single-purpose"]
+          "value": [
+            "separate concerns",
+            "single responsibility",
+            "one purpose",
+            "single-purpose"
+          ]
         },
         {
           "type": "contains_any",
@@ -75,9 +81,15 @@
     "How do I optimize FlatList performance?",
     "How do I implement certificate pinning?",
     "How do I write a unit test for a React Native component?",
-    "How do I set up EAS Build?"
+    "How do I set up EAS Build?",
+    "Plan feature for website discoverability and SEO",
+    "Module directory structure for a backend service",
+    "Separation of concerns for a CLI tool",
+    "How should I organize feature folders in a generic web app?"
   ],
   "should_trigger": [
-    "How should I organize my React Native project as it grows to 20+ screens?"
+    "How should I organize my React Native project as it grows to 20+ screens?",
+    "Structure features in a React Native Expo application",
+    "Apply clean architecture patterns to React Native mobile navigation"
   ]
 }

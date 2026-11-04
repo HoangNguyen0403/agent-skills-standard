@@ -5,7 +5,7 @@
 
 | Skill | File pattern | Keywords |
 | ----- | ------------ | -------- |
-| **react-native-architecture** | `src/**/*.tsx`, `src/**/*.ts`, `app.json`, `StyleSheet.create` | feature, module, directory structure, separation of concerns, Expo, React Navigation, react-native, mobile architecture |
+| **react-native-architecture** | `src/**/*.tsx`, `src/**/*.ts`, `app.json`, `StyleSheet.create` | react-native, react native project, react native architecture, react native feature structure, react native folder structure, mobile architecture, Expo, React Navigation, react native mobile navigation, react native clean architecture |
 | react-native-deployment | `app.json`, `eas.json`, `android/app/build.gradle`, `ios/**` | deployment, codepush, eas, release, build, fastlane |
 | react-native-dls | `**/*Screen.tsx`, `**/*Component.tsx`, `**/theme/**`, `**/styles/**` | StyleSheet, styled-components, theme, colors, spacing |
 | react-native-navigation | `**/App.tsx`, `**/*Navigator.tsx`, `**/*Screen.tsx` | NavigationContainer, createNativeStackNavigator, createBottomTabNavigator, linking, deep link |

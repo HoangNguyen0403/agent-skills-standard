@@ -297,13 +297,13 @@
   },
   "categories": {
     "flutter": {
-      "version": "1.8.3",
-      "last_updated": "2026-10-27",
+      "version": "1.8.4",
+      "last_updated": "2026-11-03",
       "tag_prefix": "flutter-v",
       "token_metrics": {
         "total_skills": 22,
-        "total_tokens": 13637,
-        "avg_tokens_per_skill": 620,
+        "total_tokens": 13672,
+        "avg_tokens_per_skill": 621,
         "largest_skill": "flutter-testing (1506 tokens)"
       },
       "owners": [
@@ -417,13 +417,13 @@
       ]
     },
     "react-native": {
-      "version": "1.5.2",
-      "last_updated": "2026-10-27",
+      "version": "1.5.3",
+      "last_updated": "2026-11-03",
       "tag_prefix": "react-native-v",
       "token_metrics": {
         "total_skills": 13,
-        "total_tokens": 6622,
-        "avg_tokens_per_skill": 509,
+        "total_tokens": 6653,
+        "avg_tokens_per_skill": 512,
         "largest_skill": "react-native-testing (742 tokens)"
       },
       "owners": [
@@ -489,13 +489,13 @@
       ]
     },
     "common": {
-      "version": "2.9.3",
-      "last_updated": "2026-11-01",
+      "version": "2.9.4",
+      "last_updated": "2026-11-03",
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 46,
-        "total_tokens": 49193,
-        "avg_tokens_per_skill": 1069,
+        "total_tokens": 49281,
+        "avg_tokens_per_skill": 1071,
         "largest_skill": "common-subagent-driven-development (2563 tokens)"
       },
       "owners": [
@@ -789,14 +789,14 @@
       ]
     },
     "laravel": {
-      "version": "1.4.1",
-      "last_updated": "2026-10-01",
+      "version": "1.4.2",
+      "last_updated": "2026-11-03",
       "tag_prefix": "laravel-v",
       "token_metrics": {
         "total_skills": 10,
-        "total_tokens": 7818,
-        "avg_tokens_per_skill": 782,
-        "largest_skill": "laravel-testing (989 tokens)"
+        "total_tokens": 7858,
+        "avg_tokens_per_skill": 786,
+        "largest_skill": "laravel-testing (1029 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -871,7 +871,7 @@
   },
   "releases": {
     "workflows": {
-      "version": "2.1.0",
+      "version": "2.1.1",
       "tag_prefix": "workflows-v"
     }
   },

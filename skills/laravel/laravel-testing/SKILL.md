@@ -7,11 +7,16 @@ metadata:
     - 'tests/**/*.php'
     - 'phpunit.xml'
     keywords:
-    - feature
-    - unit
-    - mock
-    - factory
-    - sqlite
+    - laravel testing
+    - pest feature test
+    - laravel pest
+    - laravel unit test
+    - laravel tests
+    - RefreshDatabase
+    - Eloquent factory
+    - Eloquent factories
+    - laravel mock
+    - sqlite in-memory test
 ---
 # Laravel Testing
 
