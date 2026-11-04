@@ -4600,14 +4600,18 @@ export async function runIsolatedGeneration(
     );
     if (checkOnly) {
       if (outOfDateFiles.length > 0 || retirements.confirmed.length > 0) {
-        const pending = [
-          ...outOfDateFiles,
+        const details = [
+          ...outOfDateFiles.map(
+            (file) => `  • ${file} (modified in canonical source)`,
+          ),
           ...retirements.confirmed.map(
-            (retirement) => `${retirement.relPath} (owned retirement)`,
+            (retirement) =>
+              `  • ${retirement.relPath} (retired or source removed)`,
           ),
         ];
         throw new Error(
-          `Prepared generator outputs are stale: ${pending.join(", ")}. Run isolated generation in apply mode.`,
+          `Prepared generator outputs are stale:\n${details.join("\n")}\n\n` +
+            `Fix: Run 'pnpm generate-indices' to reconcile generated files and .skills-lock.json, then stage changes and re-commit.`,
         );
       }
       await appendLog(

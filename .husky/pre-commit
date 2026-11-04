@@ -1,5 +1,3 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
 
 # Add local node/npm/pnpm to PATH in case GUI git clients (like GitHub Desktop, Tower, etc.)
 # don't inherit the shell's environment variables.
