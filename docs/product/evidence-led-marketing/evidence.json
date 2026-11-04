@@ -1,0 +1,448 @@
+{
+  "schema_version": 1,
+  "slug": "evidence-led-marketing",
+  "product_id": "agent-skills-standard",
+  "revision": "r1",
+  "synthetic": true,
+  "updated_at": "2026-01-01T00:00:00Z",
+  "strategy_authority": null,
+  "strategy_gap": "Proposal state: PRD uses REQ-MKT authority-ID prefix incompatible with current authority validator grammar; formal strategy approval pending integration design.",
+  "authorities": [],
+  "authority_history": [],
+  "records": [
+    {
+      "id": "SRC-001",
+      "kind": "SRC",
+      "revision": "r1",
+      "owner": "measurement-owner",
+      "scope": {
+        "segment": "synthetic-cohort",
+        "geography": "global",
+        "window": {
+          "start": "2026-01-01T00:00:00Z",
+          "end": "2026-12-31T00:00:00Z"
+        }
+      },
+      "depends_on": [],
+      "freshness": {
+        "status": "current",
+        "rationale": "Synthetic cohort query origin fixture",
+        "reviewed_at": "2026-01-01T00:00:00Z",
+        "expires_at": "2026-12-31T00:00:00Z",
+        "review_triggers": ["source revision update"]
+      },
+      "data": {
+        "locator": {
+          "kind": "local",
+          "path": "fixtures/synthetic-cohort-source.json",
+          "sha256": "163c0a827e7be8cfac5d3a0a72b9302f6d10c1a6515a1ce3a0a88527ed7b85ed"
+        },
+        "origin": {
+          "publisher": "agent-skills-standard-team",
+          "origin_id": "urn:synthetic:cohort-origin-01",
+          "classification": "primary",
+          "revision": "syn-origin-r1",
+          "observed_at": "2026-01-01T00:00:00Z",
+          "scope": {
+            "segment": "synthetic-cohort",
+            "geography": "global",
+            "window": {
+              "start": "2026-01-01T00:00:00Z",
+              "end": "2026-12-31T00:00:00Z"
+            }
+          }
+        },
+        "retrieved_at": "2026-01-01T00:00:00Z",
+        "privacy": {
+          "classification": "public",
+          "redaction": "pointer_only",
+          "access": "available"
+        },
+        "license": {
+          "identifier": "MIT",
+          "usage": "reuse_permitted",
+          "restrictions": []
+        },
+        "status": "available",
+        "limitations": ["Synthetic fixture data only"]
+      }
+    },
+    {
+      "id": "SRC-002",
+      "kind": "SRC",
+      "revision": "r1",
+      "owner": "measurement-owner",
+      "scope": {
+        "segment": "synthetic-cohort",
+        "geography": "global",
+        "window": {
+          "start": "2026-01-01T00:00:00Z",
+          "end": "2026-12-31T00:00:00Z"
+        }
+      },
+      "depends_on": [],
+      "freshness": {
+        "status": "current",
+        "rationale": "Synthetic investment accounting origin fixture",
+        "reviewed_at": "2026-01-01T00:00:00Z",
+        "expires_at": "2026-12-31T00:00:00Z",
+        "review_triggers": ["investment revision update"]
+      },
+      "data": {
+        "locator": {
+          "kind": "local",
+          "path": "fixtures/synthetic-investment.json",
+          "sha256": "ac393ed676abdd00a50a833f42272b8d16d8cad2b32550823a47e8fef9afbd18"
+        },
+        "origin": {
+          "publisher": "agent-skills-standard-team",
+          "origin_id": "urn:synthetic:investment-origin-01",
+          "classification": "primary",
+          "revision": "syn-inv-r1",
+          "observed_at": "2026-01-01T00:00:00Z",
+          "scope": {
+            "segment": "synthetic-cohort",
+            "geography": "global",
+            "window": {
+              "start": "2026-01-01T00:00:00Z",
+              "end": "2026-12-31T00:00:00Z"
+            }
+          }
+        },
+        "retrieved_at": "2026-01-01T00:00:00Z",
+        "privacy": {
+          "classification": "public",
+          "redaction": "pointer_only",
+          "access": "available"
+        },
+        "license": {
+          "identifier": "MIT",
+          "usage": "reuse_permitted",
+          "restrictions": []
+        },
+        "status": "available",
+        "limitations": ["Synthetic financial scenario only"]
+      }
+    },
+    {
+      "id": "SRC-003",
+      "kind": "SRC",
+      "revision": "r1",
+      "owner": "measurement-owner",
+      "scope": {
+        "segment": "synthetic-cohort",
+        "geography": "global",
+        "window": {
+          "start": "2026-01-01T00:00:00Z",
+          "end": "2026-12-31T00:00:00Z"
+        }
+      },
+      "depends_on": [],
+      "freshness": {
+        "status": "current",
+        "rationale": "Synthetic task verification evidence fixture",
+        "reviewed_at": "2026-01-01T00:00:00Z",
+        "expires_at": "2026-12-31T00:00:00Z",
+        "review_triggers": ["task evidence revision update"]
+      },
+      "data": {
+        "locator": {
+          "kind": "local",
+          "path": "fixtures/synthetic-task-evidence.json",
+          "sha256": "884e1156daf1594827d322a6bd66468d63c4ab09546b5cf27db1eb16070509f4"
+        },
+        "origin": {
+          "publisher": "agent-skills-standard-team",
+          "origin_id": "urn:synthetic:task-origin-01",
+          "classification": "primary",
+          "revision": "syn-task-r1",
+          "observed_at": "2026-01-01T00:00:00Z",
+          "scope": {
+            "segment": "synthetic-cohort",
+            "geography": "global",
+            "window": {
+              "start": "2026-01-01T00:00:00Z",
+              "end": "2026-12-31T00:00:00Z"
+            }
+          }
+        },
+        "retrieved_at": "2026-01-01T00:00:00Z",
+        "privacy": {
+          "classification": "public",
+          "redaction": "pointer_only",
+          "access": "available"
+        },
+        "license": {
+          "identifier": "MIT",
+          "usage": "reuse_permitted",
+          "restrictions": []
+        },
+        "status": "available",
+        "limitations": ["Synthetic task verification only"]
+      }
+    },
+    {
+      "id": "MET-001",
+      "kind": "MET",
+      "revision": "r1",
+      "owner": "measurement-owner",
+      "scope": {
+        "segment": "synthetic-cohort",
+        "geography": "global",
+        "window": {
+          "start": "2026-01-01T00:00:00Z",
+          "end": "2026-12-31T00:00:00Z"
+        }
+      },
+      "depends_on": [
+        {
+          "id": "SRC-001",
+          "revision": "r1"
+        }
+      ],
+      "freshness": {
+        "status": "unknown",
+        "rationale": "Proposal state metric",
+        "reviewed_at": null,
+        "expires_at": null,
+        "review_triggers": ["campaign execution"]
+      },
+      "data": {
+        "definition": "Cohort activation rate: verified pilot starters completing setup and useful task",
+        "unit": "ratio",
+        "denominator": "Eligible consenting external starters",
+        "query": {
+          "id": "SRC-001",
+          "revision": "r1"
+        },
+        "query_revision": "syn-origin-r1",
+        "baseline": null,
+        "baseline_exception": null,
+        "comparison_window": {
+          "start": "2026-01-01T00:00:00Z",
+          "end": "2026-10-01T00:00:00Z"
+        },
+        "eligibility": "Consented external pilot participants",
+        "target": "Demonstrate measurable activation rate >= 0.50",
+        "guardrail": "No private participant leakage",
+        "measurement_owner": "measurement-owner",
+        "review_trigger": "Post-campaign review at 30 days",
+        "status": "planned"
+      }
+    },
+    {
+      "id": "MET-002",
+      "kind": "MET",
+      "revision": "r1",
+      "owner": "measurement-owner",
+      "scope": {
+        "segment": "synthetic-cohort",
+        "geography": "global",
+        "window": {
+          "start": "2026-01-01T00:00:00Z",
+          "end": "2026-12-31T00:00:00Z"
+        }
+      },
+      "depends_on": [
+        {
+          "id": "SRC-001",
+          "revision": "r1"
+        }
+      ],
+      "freshness": {
+        "status": "unknown",
+        "rationale": "Proposal state metric",
+        "reviewed_at": null,
+        "expires_at": null,
+        "review_triggers": ["campaign execution"]
+      },
+      "data": {
+        "definition": "14-day mature cohort repeat rate",
+        "unit": "ratio",
+        "denominator": "Eligible mature activated participants",
+        "query": {
+          "id": "SRC-001",
+          "revision": "r1"
+        },
+        "query_revision": "syn-origin-r1",
+        "baseline": null,
+        "baseline_exception": null,
+        "comparison_window": {
+          "start": "2026-01-01T00:00:00Z",
+          "end": "2026-10-01T00:00:00Z"
+        },
+        "eligibility": "Consented external pilot participants with mature activation",
+        "target": "Demonstrate mature repeat rate >= 0.30",
+        "guardrail": "No same-day repeats counted",
+        "measurement_owner": "measurement-owner",
+        "review_trigger": "Post-campaign review at 44 days",
+        "status": "planned"
+      }
+    },
+    {
+      "id": "MET-003",
+      "kind": "MET",
+      "revision": "r1",
+      "owner": "measurement-owner",
+      "scope": {
+        "segment": "synthetic-cohort",
+        "geography": "global",
+        "window": {
+          "start": "2026-01-01T00:00:00Z",
+          "end": "2026-12-31T00:00:00Z"
+        }
+      },
+      "depends_on": [
+        {
+          "id": "SRC-001",
+          "revision": "r1"
+        }
+      ],
+      "freshness": {
+        "status": "unknown",
+        "rationale": "Proposal state metric",
+        "reviewed_at": null,
+        "expires_at": null,
+        "review_triggers": ["campaign execution"]
+      },
+      "data": {
+        "definition": "Cash efficiency per verified activation",
+        "unit": "USD/activation",
+        "denominator": "Verified activated participants",
+        "query": {
+          "id": "SRC-001",
+          "revision": "r1"
+        },
+        "query_revision": "syn-origin-r1",
+        "baseline": null,
+        "baseline_exception": null,
+        "comparison_window": {
+          "start": "2026-01-01T00:00:00Z",
+          "end": "2026-10-01T00:00:00Z"
+        },
+        "eligibility": "Consented external pilot participants",
+        "target": "Track incremental cash spend per activation",
+        "guardrail": "No labor hours converted to cash",
+        "measurement_owner": "measurement-owner",
+        "review_trigger": "Post-campaign review at 30 days",
+        "status": "planned"
+      }
+    },
+    {
+      "id": "MET-004",
+      "kind": "MET",
+      "revision": "r1",
+      "owner": "measurement-owner",
+      "scope": {
+        "segment": "synthetic-cohort",
+        "geography": "global",
+        "window": {
+          "start": "2026-01-01T00:00:00Z",
+          "end": "2026-12-31T00:00:00Z"
+        }
+      },
+      "depends_on": [
+        {
+          "id": "SRC-001",
+          "revision": "r1"
+        }
+      ],
+      "freshness": {
+        "status": "unknown",
+        "rationale": "Proposal state metric",
+        "reviewed_at": null,
+        "expires_at": null,
+        "review_triggers": ["campaign execution"]
+      },
+      "data": {
+        "definition": "Cash efficiency per mature confirmed repeat user",
+        "unit": "USD/repeat",
+        "denominator": "Mature confirmed repeat users",
+        "query": {
+          "id": "SRC-001",
+          "revision": "r1"
+        },
+        "query_revision": "syn-origin-r1",
+        "baseline": null,
+        "baseline_exception": null,
+        "comparison_window": {
+          "start": "2026-01-01T00:00:00Z",
+          "end": "2026-10-01T00:00:00Z"
+        },
+        "eligibility": "Consented external pilot participants with qualifying repeat",
+        "target": "Track incremental cash spend per mature repeat",
+        "guardrail": "Zero denominator yields unavailable",
+        "measurement_owner": "measurement-owner",
+        "review_trigger": "Post-campaign review at 44 days",
+        "status": "planned"
+      }
+    },
+    {
+      "id": "MET-005",
+      "kind": "MET",
+      "revision": "r1",
+      "owner": "measurement-owner",
+      "scope": {
+        "segment": "synthetic-cohort",
+        "geography": "global",
+        "window": {
+          "start": "2026-01-01T00:00:00Z",
+          "end": "2026-12-31T00:00:00Z"
+        }
+      },
+      "depends_on": [
+        {
+          "id": "SRC-001",
+          "revision": "r1"
+        }
+      ],
+      "freshness": {
+        "status": "unknown",
+        "rationale": "Proposal state metric",
+        "reviewed_at": null,
+        "expires_at": null,
+        "review_triggers": ["campaign execution"]
+      },
+      "data": {
+        "definition": "Capacity hours consumed per mature confirmed repeat user",
+        "unit": "hours/repeat",
+        "denominator": "Mature confirmed repeat users",
+        "query": {
+          "id": "SRC-001",
+          "revision": "r1"
+        },
+        "query_revision": "syn-origin-r1",
+        "baseline": null,
+        "baseline_exception": null,
+        "comparison_window": {
+          "start": "2026-01-01T00:00:00Z",
+          "end": "2026-10-01T00:00:00Z"
+        },
+        "eligibility": "Consented external pilot participants with qualifying repeat",
+        "target": "Track operational capacity consumed per mature repeat",
+        "guardrail": "Capacity hours remain distinct from cash",
+        "measurement_owner": "measurement-owner",
+        "review_trigger": "Post-campaign review at 44 days",
+        "status": "planned"
+      }
+    }
+  ],
+  "record_history": [],
+  "bridges": [],
+  "product_state": {
+    "value": "unvalidated",
+    "reason": "Proposal state: offline synthetic measurement contract verification.",
+    "scope": {
+      "segment": "synthetic-cohort",
+      "geography": "global",
+      "window": {
+        "start": "2026-01-01T00:00:00Z",
+        "end": "2026-12-31T00:00:00Z"
+      }
+    },
+    "hypotheses": [],
+    "decision": null,
+    "assessed_at": "2026-01-01T00:00:00Z",
+    "history": []
+  }
+}

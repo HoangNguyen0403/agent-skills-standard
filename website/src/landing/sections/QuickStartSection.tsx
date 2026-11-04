@@ -8,7 +8,8 @@ import {
 import { CopyCommand } from "../CopyCommand.client";
 import landingStyles from "../landing.module.css";
 import styles from "./QuickStart.module.css";
-
+import { DemoPlayer } from "../DemoPlayer";
+import { GA4Link } from "../analytics/GA4Link.client";
 export function QuickStartSection(): React.JSX.Element {
   const installCmd =
     primaryCommands.find((c) => c.id === "install")?.command ??
@@ -50,10 +51,35 @@ export function QuickStartSection(): React.JSX.Element {
         <div className={styles.prereqNotice}>
           <p className={styles.prereqText}>{content.quickStart.prerequisite}</p>
 
-          <a href={sourceLinks.docs} className={landingStyles.textLinkLime}>
-            <span>Read setup docs before you sync</span>
-            <span aria-hidden="true">↗</span>
-          </a>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "16px" }}>
+            <GA4Link
+              href={sourceLinks.docs}
+              className={landingStyles.textLinkLime}
+              event={{
+                event_name: "setup_guide_open",
+                campaign_id: "standards-demo-01",
+                asset_id: "tutorial-standards-adoption-01",
+                placement: "quickstart_docs",
+              }}
+            >
+              <span>Read setup docs before you sync</span>
+              <span aria-hidden="true">↗</span>
+            </GA4Link>
+
+            <GA4Link
+              href={sourceLinks.tutorial}
+              className={landingStyles.textLinkLime}
+              event={{
+                event_name: "setup_guide_open",
+                campaign_id: "standards-demo-01",
+                asset_id: "tutorial-standards-adoption-01",
+                placement: "quickstart_tutorial",
+              }}
+            >
+              <span>Follow step-by-step tutorial</span>
+              <span aria-hidden="true">↗</span>
+            </GA4Link>
+          </div>
         </div>
 
         <ol className={styles.stepsList} role="list">
@@ -149,6 +175,8 @@ export function QuickStartSection(): React.JSX.Element {
             </li>
           </ol>
         </div>
+
+        <DemoPlayer />
       </div>
     </section>
   );

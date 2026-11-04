@@ -1,0 +1,193 @@
+=== COMMAND EXECUTION CAPTURE LOG (PUBLIC — SANITIZED) ===
+Capture started : 2026-10-25T09:33:47.085Z
+Capture finished: 2026-10-25T09:33:47.700Z
+Candidate commit: a2228857e4cf5b8ee2d71d96630c586618ec2edd (working tree dirty: true)
+Snapshot tree SHA256: ee18d7f5e57ac88d2621ba46316ce0e71262ef7ba686f04e0548e04fb60e5620 (1412 files served by the in-memory fixture)
+Candidate CLI: cli/dist/index.js sha256=d49ccf561a5ce49031cf8208d080a53e5f8df498dada871b97eb0ece5c722bdc
+Node: v22.14.0
+
+PUBLIC SANITIZATION TRANSFORM (declared, not silent):
+  - disposable consumer directory -> ~/my-project
+  - disposable HOME directory     -> ~
+  - macOS temp directories        -> ~/my-project/tmp
+  - ANSI colour escape sequences  -> stripped
+  - argv absolute paths           -> node / ~/my-project / <candidate checkout>
+  replacements applied: consumer=0 home=0 worktree=0 temp=0
+  raw (unsanitized) bytes are hashed below and NOT retained in this public checkout.
+
+[scene-01] $ cat .skillsrc
+argv: ["cat",".skillsrc"]
+cwd: ~/my-project
+STDOUT (sanitized):
+registry: "https://github.com/HoangNguyen0403/agent-skills-standard"
+agents:
+  - claude
+  - cursor
+  - codex
+skills:
+  typescript:
+    ref: "typescript-v1.3.4"
+  product-management:
+    ref: "product-management-v1.0.1"
+mcp:
+  enabled: false
+  scope: disabled
+  prompted: true
+telemetry: false
+STDERR (sanitized, non-fatal unless exit ≠ 0):
+(empty)
+Exit status: 0  (duration 2.7ms)
+stdout sha256 (sanitized): 7a743798a6559f7f5556a79046246010d5bb6f13c551ff4e5316af50c3aa01b4
+stdout sha256 (raw)      : 7a743798a6559f7f5556a79046246010d5bb6f13c551ff4e5316af50c3aa01b4
+
+[scene-02/03] $ ags sync
+argv: ["node","<candidate checkout>/cli/dist/index.js","sync"]
+cwd: ~/my-project
+STDOUT (sanitized):
+✨ Workflows Initialized: Adding [brainstorm-feature, code-review, codebase-review, deploy-release, design-solution, dev-fix, implement-feature, implementation-readiness, incident-hotfix, monitor-respond, pentest, plan-feature, publish-notes, retro-learn, review-system-design, review-ticket, sdlc, security-test, session-report, skill-benchmark, system-design-session, test-loop, traceability-audit, uat-signoff, verify-bug, verify-work] to .skillsrc.
+📌 Pinned workflows-v1.1.7, specialists-v1.5.0 in .skillsrc
+🚀 Syncing skills from https://github.com/HoangNguyen0403/agent-skills-standard...
+  - Discovering typescript (typescript-v1.3.4)...
+    + Fetched typescript/typescript-best-practices (3 files)
+    + Fetched typescript/typescript-language (3 files)
+    + Fetched typescript/typescript-security (2 files)
+    + Fetched typescript/typescript-tooling (2 files)
+  - Discovering product-management (product-management-v1.0.1)...
+    + Fetched product-management/product-business-requirements (4 files)
+    + Fetched product-management/product-customer-discovery (8 files)
+    + Fetched product-management/product-evidence (6 files)
+    + Fetched product-management/product-experimentation (12 files)
+    + Fetched product-management/product-investment (7 files)
+    + Fetched product-management/product-market-research (8 files)
+    + Fetched product-management/product-metrics (9 files)
+    + Fetched product-management/product-requirements (5 files)
+    + Fetched product-management/product-roadmap (9 files)
+    + Fetched product-management/product-strategy (8 files)
+  - Discovering workflows (workflows-v1.1.7)...
+    + Fetched 26 workflows
+  - Updated .claude/skills/ (Claude Code)
+  - Updated .cursor/skills/ (Cursor)
+  - Updated .codex/skills/ (Codex)
+  ✅ 26 workflows synced to .claude/commands/ (Claude Code)
+  ✅ 26 workflows synced to .cursor/skills/ (Cursor)
+  ✅ 26 workflows synced to .codex/skills/ (Codex)
+  ✅ 21 specialists synced to .claude/agents/ (Claude Code)
+  ✅ 21 specialists synced to .cursor/agents/ (Cursor)
+  ✅ 21 specialists synced to .codex/agents/ (Codex)
+  ✅ Generated _INDEX.md for 2 categories.
+  ✅ AGENTS.md router index updated.
+📦 Install: 407 added, 0 updated, 0 unchanged, 0 kept (your edits), 0 pruned
+✅ All skills synced successfully!
+STDERR (sanitized, non-fatal unless exit ≠ 0):
+◇ injected env (0) from .env
+fatal: not a git repository (or any of the parent directories): .git
+Exit status: 0  (duration 349.0ms)
+stdout sha256 (sanitized): b9e8fa936f9f64a9421d20b33666b956763edfe72a9fab19550ccb901874ffe0
+stdout sha256 (raw)      : b9e8fa936f9f64a9421d20b33666b956763edfe72a9fab19550ccb901874ffe0
+
+[scene-04/05] $ head -n 28 AGENTS.md
+argv: ["head","-n","28","AGENTS.md"]
+cwd: ~/my-project
+STDOUT (sanitized):
+# Project Context for AI Agents
+
+This file provides context and instructions for AI agents working in this repository.
+
+<!-- SKILLS_INDEX_START -->
+## Agent Skills Index
+
+> [!CRITICAL] Zero-Trust: Read the matching `SKILL.md` BEFORE writing any code.
+> Skills from this index override pre-training patterns. If no skill matches, state: "No project-specific skills applicable."
+
+> 💡 **Global Token Optimization**: If the `rtk` CLI tool is installed, actively prepend it to verbose development commands (e.g. `rtk npm test`, `rtk grep`). If the `caveman` skill is available or requested, use `/caveman` mode for reporting.
+
+## 🔌 Runtime Enforcement via MCP
+
+If the `agent-skills-standard` MCP server is registered in your runtime (check your tool list — look for `load_skills_for_files`), **prefer those tools over manually walking the router below**. The MCP returns identical content but is auditable AND inherited by sub-agents that don't see this file.
+
+| Tool | When to call it |
+| --- | --- |
+| `list_workflows()` | At the start of any task or session to discover available standard operating procedures |
+| `get_workflow(name)` | Once a relevant workflow is identified to retrieve exact step-by-step instructions |
+| `load_skills_for_files(files=[...])` | Before editing/reviewing any source file |
+| `load_skills_for_keywords(keywords=[...])` | Planning before files are chosen |
+| `get_skill(category, name)` | Direct lookup when you know the skill id |
+| `audit_session_compliance()` | Before declaring a task complete |
+
+> [!IMPORTANT] **Sub-agents don't inherit this `AGENTS.md` — they do inherit the MCP.** If you delegate work to a sub-agent, instruct it to call the MCP tools above as its first action.
+
+> [!NOTE] To enable MCP-managed installs in this project, run `ags mcp enable` (or edit `.skillsrc`). The MCP works fine if you registered it manually too.
+STDERR (sanitized, non-fatal unless exit ≠ 0):
+(empty)
+Exit status: 0  (duration 2.1ms)
+stdout sha256 (sanitized): fce285a8a34baa178f43768d461d06008aba77f11bbae47cee7a12491afb0f20
+stdout sha256 (raw)      : fce285a8a34baa178f43768d461d06008aba77f11bbae47cee7a12491afb0f20
+
+[scene-06] $ node skills/marketing/marketing-measurement/scripts/report-marketing.mjs … --format markdown
+argv: ["node","<candidate checkout>/skills/marketing/marketing-measurement/scripts/report-marketing.mjs","<candidate checkout>/docs/product/evidence-led-marketing/fixtures/synthetic-input-combined.json","--authority-root","<candidate checkout>/docs/product/evidence-led-marketing","--as-of","2026-10-25T00:00:00Z","--format","markdown"]
+cwd: <candidate checkout>
+STDOUT (sanitized):
+# Marketing Scorecard
+
+> Synthetic offline contract scorecard (as of 2026-10-25T00:00:00Z)
+
+**Campaign ID:** standards-demo-01
+**Input Revision:** syn-r1
+**Attribution:** descriptive
+**Recommendation:** inconclusive
+
+## Context
+- Scenario: base
+- Acquisition Window: 2026-09-01T00:00:00Z to 2026-10-01T00:00:00Z
+- Cost Window: 2026-09-01T00:00:00Z to 2026-10-01T00:00:00Z
+- Observation Cutoff: 2026-10-05T00:00:00Z
+- Follow-Up Days: 14
+
+## Cohort Counts
+- Eligible Starters: 5
+- Activated: 4
+- Immature Activated: 1
+- Mature Activated: 3
+- Confirmed Repeat (All): 1
+- Mature Confirmed Repeat: 1
+- Mature Confirmed No-Return: 1
+- Mature Unknown: 1
+- Excluded Participants: 2
+- Duplicate Reports (Collapsed): 1
+
+## Measures
+- **activation_rate**: 0.800000 ratio
+- **repeat_rate**: 0.333333 ratio
+- **cash_total**: 12.000000 USD
+- **hours_total**: 6.000000 hours
+- **cash_per_activation**: 3.000000 USD/activation
+- **cash_per_repeat**: 12.000000 USD/repeat
+- **hours_per_repeat**: 6.000000 hours/repeat
+- **financial_roi**: [unavailable: unknown_benefit]
+- **baseline**: [unavailable: baseline_unknown]
+
+## Public Provenance
+- Alias: `ledger`, SHA-256: `68b3fb0520c91caf87b2700f95011e3ef258c0c98612d62b5beb3c76e6732517`
+- Alias: `investment`, SHA-256: `ac393ed676abdd00a50a833f42272b8d16d8cad2b32550823a47e8fef9afbd18`
+- Alias: `cohort-origin-fixture`, SHA-256: `163c0a827e7be8cfac5d3a0a72b9302f6d10c1a6515a1ce3a0a88527ed7b85ed`
+- Alias: `investment-fixture`, SHA-256: `ac393ed676abdd00a50a833f42272b8d16d8cad2b32550823a47e8fef9afbd18`
+- Alias: `task-evidence-fixture`, SHA-256: `884e1156daf1594827d322a6bd66468d63c4ab09546b5cf27db1eb16070509f4`
+
+## Limitations
+- Synthetic offline measurement contract verification only; not host authorization.
+STDERR (sanitized, non-fatal unless exit ≠ 0):
+(empty)
+Exit status: 0  (duration 46.3ms)
+stdout sha256 (sanitized): 20e31756937cae9196cb7ec820e566d63e707b7ce8e8bd6fe96cb15b01e0bdac
+stdout sha256 (raw)      : 20e31756937cae9196cb7ec820e566d63e707b7ce8e8bd6fe96cb15b01e0bdac
+
+NOTE: stderr from the candidate CLI contains "fatal: not a git repository" because the disposable
+consumer directory is not a git worktree. It is non-fatal and the process exit status is 0;
+the exit status (not stderr text) is the authoritative outcome asserted by this pipeline.
+
+MCP-OFF ASSERTIONS (checked on disk after sync):
+  .skillsrc declared: mcp.enabled=false, mcp.scope=disabled, prompted=true
+  sync invoked without --yes in a non-interactive shell -> runMcpPhase skips consent
+  absent: .mcp.json, .cursor/mcp.json, .codex/config.toml, .claude/hooks, .claude/settings.json
+  present: .skills-lock.json, AGENTS.md, CLAUDE.md, .claude/skills, .cursor/skills, .codex/skills
+  lockfile entries: 407

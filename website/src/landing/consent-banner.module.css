@@ -1,0 +1,172 @@
+.banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--ink, #101312);
+  color: var(--paper, #f5f2e9);
+  border-top: 2px solid var(--lime, #c7f36b);
+  padding: 24px 0;
+  z-index: 1000;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.container {
+  max-width: var(--max-content-width, 1264px);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 24px;
+  padding-right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-sizing: border-box;
+}
+
+@media (min-width: 900px) {
+  .container {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.title {
+  font-family: var(--font-heading), "Space Grotesk", sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+  color: var(--lime, #c7f36b);
+  letter-spacing: -0.01em;
+}
+
+.body {
+  font-family: var(--font-body), "Source Sans 3", sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--sand, #bbbfa8);
+  margin: 0;
+}
+
+.body code {
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.acceptButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--lime, #c7f36b);
+  color: var(--ink, #101312);
+  font-family: var(--font-body), "Source Sans 3", sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 10px 20px;
+  min-height: 44px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 160ms ease;
+}
+
+.acceptButton:hover {
+  background-color: #bbf058;
+}
+
+.acceptButton:focus-visible {
+  outline: 3px solid var(--lime, #c7f36b);
+  outline-offset: 3px;
+}
+
+.declineButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  color: var(--paper, #f5f2e9);
+  font-family: var(--font-body), "Source Sans 3", sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 10px 20px;
+  min-height: 44px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: border-color 160ms ease, background-color 160ms ease;
+}
+
+.declineButton:hover {
+  border-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.declineButton:focus-visible {
+  outline: 3px solid var(--lime, #c7f36b);
+  outline-offset: 3px;
+}
+
+.dockedBar {
+  position: fixed;
+  bottom: 12px;
+  right: 12px;
+  background-color: var(--ink, #101312);
+  border: 1px solid rgba(187, 195, 186, 0.3);
+  border-radius: 8px;
+  padding: 8px 16px;
+  z-index: 999;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.dockedContainer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dockedStatus {
+  font-family: var(--font-body), "Source Sans 3", sans-serif;
+  font-size: 13px;
+  color: var(--sand, #bbbfa8);
+}
+
+.linkButton {
+  background: none;
+  border: none;
+  color: var(--lime, #c7f36b);
+  font-family: var(--font-body), "Source Sans 3", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 4px 0;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.linkButton:hover {
+  color: #bbf058;
+}
+
+.linkButton:focus-visible {
+  outline: 2px solid var(--lime, #c7f36b);
+  outline-offset: 2px;
+}

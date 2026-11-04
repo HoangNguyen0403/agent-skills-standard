@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "synthetic": false,
+  "initiative": "evidence-led-marketing",
+  "campaign_id": "standards-demo-01",
+  "title": "agent-skills-standard: Multi-Agent AI Standards Walkthrough",
+  "context_revision": "ctx-rev-20261025-capture-ee18d7f5",
+  "media_specs": {
+    "resolution": "1920x1080",
+    "framerate": 30,
+    "audio_sample_rate_hz": 48000,
+    "aspect_ratio": "16:9"
+  },
+  "rights": {
+    "license": "Apache-2.0",
+    "audio_provenance": "Clean synthesized audio silence track generated via ffmpeg lavfi; zero third-party commercial audio; no spoken narration or synthetic voiceover; synchronized visual subtitles provided for accessibility",
+    "assets_cleared": true,
+    "cleared_by": "HoangNguyen0403"
+  },
+  "cost": {
+    "mode": "zero_cost_local",
+    "estimated_usd": 0,
+    "spending_cap_usd": 0,
+    "authorization": null
+  },
+  "scenes": [
+    {
+      "id": "scene-01",
+      "title": "Configuring .skillsrc for Multi-Agent Projects",
+      "duration_seconds": 7,
+      "actions": [
+        {
+          "type": "terminal_command",
+          "content": "cat .skillsrc",
+          "claim_ref": "CLM-001",
+          "expected_output": "registry: \"https://github.com/HoangNguyen0403/agent-skills-standard\"\nagents:\n  - claude\n  - cursor\n  - codex\nskills:\n  typescript:\n    ref: \"typescript-v1.3.4\"\n  product-management:\n    ref: \"product-management-v1.0.1\"\nmcp:\n  enabled: false\n  scope: disabled\n  prompted: true\ntelemetry: false"
+        }
+      ],
+      "captions": [
+        {
+          "start_seconds": 0.5,
+          "end_seconds": 6,
+          "text": "Define the target agents and pinned skill versions once in .skillsrc."
+        }
+      ]
+    },
+    {
+      "id": "scene-02",
+      "title": "Synchronizing Pinned Skills with ags sync",
+      "duration_seconds": 8,
+      "actions": [
+        {
+          "type": "terminal_command",
+          "content": "ags sync (exact invocation: node cli/dist/index.js sync — candidate build)",
+          "claim_ref": "CLM-001",
+          "expected_output": "🚀 Syncing skills from https://github.com/HoangNguyen0403/agent-skills-standard...\n  - Discovering typescript (typescript-v1.3.4)...\n    + Fetched typescript/typescript-best-practices (3 files)\n    + Fetched typescript/typescript-language (3 files)\n    + Fetched typescript/typescript-security (2 files)\n    + Fetched typescript/typescript-tooling (2 files)\n  - Discovering product-management (product-management-v1.0.1)...\n    + Fetched product-management/product-business-requirements (4 files)\n    + Fetched product-management/product-customer-discovery (8 files)\n    + Fetched product-management/product-evidence (6 files)\n    + Fetched product-management/product-experimentation (12 files)\n    + Fetched product-management/product-investment (7 files)"
+        }
+      ],
+      "captions": [
+        {
+          "start_seconds": 0.5,
+          "end_seconds": 7,
+          "text": "ags sync fetches only the pinned categories and writes native mirrors for each agent."
+        }
+      ]
+    },
+    {
+      "id": "scene-03",
+      "title": "Native Mirrors, Lockfile, and No MCP Writes",
+      "duration_seconds": 8,
+      "actions": [
+        {
+          "type": "terminal_command",
+          "content": "ags sync (same execution as scene-02, stdout excerpt lines 22–34 of 34)",
+          "claim_ref": "CLM-001",
+          "expected_output": "  - Updated .claude/skills/ (Claude Code)\n  - Updated .cursor/skills/ (Cursor)\n  - Updated .codex/skills/ (Codex)\n  ✅ 26 workflows synced to .claude/commands/ (Claude Code)\n  ✅ 26 workflows synced to .cursor/skills/ (Cursor)\n  ✅ 26 workflows synced to .codex/skills/ (Codex)\n  ✅ 21 specialists synced to .claude/agents/ (Claude Code)\n  ✅ 21 specialists synced to .cursor/agents/ (Cursor)\n  ✅ 21 specialists synced to .codex/agents/ (Codex)\n  ✅ Generated _INDEX.md for 2 categories.\n  ✅ AGENTS.md router index updated.\n📦 Install: 407 added, 0 updated, 0 unchanged, 0 kept (your edits), 0 pruned\n✅ All skills synced successfully!"
+        }
+      ],
+      "captions": [
+        {
+          "start_seconds": 0.5,
+          "end_seconds": 7,
+          "text": "Native directories and lockfile are written; no MCP runtime config is touched while MCP stays disabled."
+        }
+      ]
+    },
+    {
+      "id": "scene-04",
+      "title": "Generated AGENTS.md: Agent Skills Index",
+      "duration_seconds": 8,
+      "actions": [
+        {
+          "type": "terminal_command",
+          "content": "head -n 28 AGENTS.md (excerpt lines 6–17 of 28)",
+          "claim_ref": "CLM-004",
+          "expected_output": "## Agent Skills Index\n\n> [!CRITICAL] Zero-Trust: Read the matching `SKILL.md` BEFORE writing any code.\n> Skills from this index override pre-training patterns. If no skill matches, state: \"No project-specific skills applicable.\"\n\n> 💡 **Global Token Optimization**: If the `rtk` CLI tool is installed, actively prepend it to verbose development commands (e.g. `rtk npm test`, `rtk grep`). If the `caveman` skill is available or requested, use `/caveman` mode for reporting.\n\n## 🔌 Runtime Enforcement via MCP\n\nIf the `agent-skills-standard` MCP server is registered in your runtime (check your tool list — look for `load_skills_for_files`), **prefer those tools over manually walking the router below**. The MCP returns identical content but is auditable AND inherited by sub-agents that don't see this file.\n\n| Tool | When to call it |"
+        }
+      ],
+      "captions": [
+        {
+          "start_seconds": 0.5,
+          "end_seconds": 7,
+          "text": "Generated AGENTS.md opens with the Agent Skills Index and the Zero-Trust rule to read matching SKILL.md files."
+        }
+      ]
+    },
+    {
+      "id": "scene-05",
+      "title": "Generated AGENTS.md: MCP Section (Disabled)",
+      "duration_seconds": 8,
+      "actions": [
+        {
+          "type": "terminal_command",
+          "content": "head -n 28 AGENTS.md (same execution as scene-04, excerpt lines 19–28 of 28)",
+          "claim_ref": "CLM-004",
+          "expected_output": "| `list_workflows()` | At the start of any task or session to discover available standard operating procedures |\n| `get_workflow(name)` | Once a relevant workflow is identified to retrieve exact step-by-step instructions |\n| `load_skills_for_files(files=[...])` | Before editing/reviewing any source file |\n| `load_skills_for_keywords(keywords=[...])` | Planning before files are chosen |\n| `get_skill(category, name)` | Direct lookup when you know the skill id |\n| `audit_session_compliance()` | Before declaring a task complete |\n\n> [!IMPORTANT] **Sub-agents don't inherit this `AGENTS.md` — they do inherit the MCP.** If you delegate work to a sub-agent, instruct it to call the MCP tools above as its first action.\n\n> [!NOTE] To enable MCP-managed installs in this project, run `ags mcp enable` (or edit `.skillsrc`). The MCP works fine if you registered it manually too."
+        }
+      ],
+      "captions": [
+        {
+          "start_seconds": 0.5,
+          "end_seconds": 7,
+          "text": "The MCP section states when it applies and, with MCP disabled, tells you to enable it explicitly."
+        }
+      ]
+    },
+    {
+      "id": "scene-06",
+      "title": "Secondary Appendix: Synthetic Cohort Scorecard",
+      "duration_seconds": 10,
+      "actions": [
+        {
+          "type": "terminal_command",
+          "content": "node skills/marketing/marketing-measurement/scripts/report-marketing.mjs … --format markdown (excerpts lines 1–8 and 17–24 of 48)",
+          "claim_ref": "CLM-003",
+          "expected_output": "# Marketing Scorecard\n\n> Synthetic offline contract scorecard (as of 2026-10-25T00:00:00Z)\n\n**Campaign ID:** standards-demo-01\n**Input Revision:** syn-r1\n**Attribution:** descriptive\n**Recommendation:** inconclusive\n… (excerpt continues at line 17) …\n## Cohort Counts\n- Eligible Starters: 5\n- Activated: 4\n- Immature Activated: 1\n- Mature Activated: 3\n- Confirmed Repeat (All): 1\n- Mature Confirmed Repeat: 1\n- Mature Confirmed No-Return: 1"
+        }
+      ],
+      "captions": [
+        {
+          "start_seconds": 0.5,
+          "end_seconds": 9,
+          "text": "The scorecard reports synthetic cohort counts and recommendation: inconclusive — no ROI is fabricated."
+        }
+      ]
+    },
+    {
+      "id": "scene-07",
+      "title": "Compliance Caveat and Prepared State",
+      "duration_seconds": 7,
+      "actions": [
+        {
+          "type": "narration",
+          "content": "Standards files provide structured context, but AI models remain probabilistic. CI test gates remain essential.",
+          "claim_ref": null
+        }
+      ],
+      "captions": [
+        {
+          "start_seconds": 0.5,
+          "end_seconds": 6,
+          "text": "Standards files provide context, but AI models remain probabilistic. CI test gates remain essential."
+        }
+      ]
+    }
+  ]
+}

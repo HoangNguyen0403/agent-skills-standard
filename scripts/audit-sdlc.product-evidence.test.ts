@@ -4,6 +4,7 @@ import path from "node:path";
 import test from "node:test";
 import {
   OPTIONAL_PRODUCT_WORKFLOWS,
+  OPTIONAL_WORKFLOWS,
   auditOptionalWorkflow,
   validateOptionalWorkflowReachability,
 } from "./audit-sdlc";
@@ -259,5 +260,45 @@ test("validateOptionalWorkflowReachability: rejects missing direct route despite
       issue.includes("sdlc.md router cannot reach optional workflow: discover-product"),
     ),
     "Should reject when direct arrow route is missing even if workflow name is mentioned elsewhere",
+  );
+});
+
+test("auditOptionalWorkflow: accepts optional marketing-campaign workflow", async () => {
+  const content = await readWorkflow("marketing-campaign");
+  const issues = auditOptionalWorkflow("marketing-campaign", content);
+  assert.deepEqual(
+    issues,
+    [],
+    `Expected marketing-campaign.md to have 0 issues, got: ${issues.join("; ")}`,
+  );
+});
+
+test("auditOptionalWorkflow: rejects marketing-campaign when budget/authority boundary missing", async () => {
+  const content = await readWorkflow("marketing-campaign");
+  const mutated = content
+    .replace(/AUTHORIZATION_REQUIRED/g, "AUTO_AUTHORIZED")
+    .replace(/host approval/g, "agent approval")
+    .replace(/host authorization/g, "agent execution")
+    .replace(/host decision/g, "agent decision")
+    .replace(/proposal-only/g, "fully-automated");
+  const issues = auditOptionalWorkflow("marketing-campaign", mutated);
+  assert.ok(
+    issues.some((issue) =>
+      issue.includes("missing host authorization gap boundary"),
+    ),
+    "Should reject when host authorization boundary is removed",
+  );
+});
+
+test("auditOptionalWorkflow: rejects marketing-campaign when Cost Report is missing", async () => {
+  const content = await readWorkflow("marketing-campaign");
+  const mutated = content.replace(
+    'get_session_cost(workflow="marketing-campaign")',
+    'get_session_cost()',
+  );
+  const issues = auditOptionalWorkflow("marketing-campaign", mutated);
+  assert.ok(
+    issues.some((issue) => issue.includes("Cost Report must call")),
+    "Should report incorrect cost report call",
   );
 });
