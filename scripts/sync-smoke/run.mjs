@@ -67,6 +67,9 @@ const REGISTRY_URL = `https://${FIXTURE_HOSTS.web}/${OWNER}/${REPO}`;
 const TAG_V1 = 'demo-v1.0.0';
 const TAG_V2 = 'demo-v1.0.1';
 const TAG_V3 = 'demo-v1.0.2';
+
+/** Escapes every regex metacharacter, including backslash, for literal matching. */
+const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const WORKFLOWS_EMPTY = 'workflows-v1.0.0';
 const WORKFLOWS_FULL = 'workflows-v1.1.0';
 const SPECIALISTS_EMPTY = 'specialists-v1.0.0';
@@ -1673,7 +1676,7 @@ scenario({
       const before = await walkFiles(ctx.project);
       registry.setRef('main', commits.mainV2);
       const treeTarget = new RegExp(
-        `/git/trees/(?:${TAG_V2.replace(/\./g, '\\.')}|${commits.next})`,
+        `/git/trees/(?:${escapeRegExp(TAG_V2)}|${commits.next})`,
       );
       registry.injectFault({
         host: FIXTURE_HOSTS.api,
@@ -1775,7 +1778,7 @@ scenario({
       registry.setRef('main', commits.mainV2);
       registry.injectFault({
         host: FIXTURE_HOSTS.api,
-        path: new RegExp(`/commits/${TAG_V2.replace(/\./g, '\\.')}`),
+        path: new RegExp(`/commits/${escapeRegExp(TAG_V2)}`),
         status: 403,
         headers: {
           'retry-after': '30',
@@ -1856,7 +1859,7 @@ scenario({
       registry.setRef('main', commits.mainV2);
       registry.injectFault({
         host: FIXTURE_HOSTS.api,
-        path: new RegExp(`/commits/${TAG_V2.replace(/\./g, '\\.')}`),
+        path: new RegExp(`/commits/${escapeRegExp(TAG_V2)}`),
         status: 403,
         headers: { 'x-ratelimit-remaining': '1234' },
         body: JSON.stringify({ message: 'Resource not accessible by integration' }),
@@ -1933,7 +1936,7 @@ scenario({
       registry.setRef('main', commits.mainV2);
       registry.injectFault({
         host: FIXTURE_HOSTS.api,
-        path: new RegExp(`/commits/${TAG_V2.replace(/\./g, '\\.')}`),
+        path: new RegExp(`/commits/${escapeRegExp(TAG_V2)}`),
         status: 429,
         headers: { 'retry-after': '5', 'x-ratelimit-remaining': '0' },
         body: JSON.stringify({ message: 'API rate limit exceeded' }),

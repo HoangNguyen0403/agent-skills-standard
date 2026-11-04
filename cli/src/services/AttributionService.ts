@@ -25,7 +25,8 @@ export const ATTRIBUTION_CATALOG_VERSION = 1;
 const DIGEST_RE = /^[0-9a-f]{64}$/;
 const GIT_BLOB_SHA1_RE = /^[0-9a-f]{40}$/;
 const COMMIT_RE = /^[0-9a-f]{40}$/;
-const PACKAGE_ID_RE = /^[A-Za-z0-9][A-Za-z0-9._-]*\/[A-Za-z0-9][A-Za-z0-9._-]*$/;
+const PACKAGE_ID_RE =
+  /^[A-Za-z0-9][A-Za-z0-9._-]*\/[A-Za-z0-9][A-Za-z0-9._-]*$/;
 const CATEGORY_TOKEN_RE = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
 const ATTRIBUTION_FILE_NAME_RE = /^(LICENSE|NOTICE)(?:\.(?:md|txt))?$/i;
 
@@ -65,10 +66,7 @@ function assertString(where: string, field: string, value: unknown): string {
   return value;
 }
 
-function assertRecord(
-  where: string,
-  value: unknown,
-): Record<string, unknown> {
+function assertRecord(where: string, value: unknown): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     fail(where, 'must be an object');
   }
@@ -141,10 +139,7 @@ function parseFile(where: string, value: unknown): AttributionFileRecord {
   if (raw.sourceKind !== 'package' && raw.sourceKind !== 'root') {
     fail(where, 'has an invalid sourceKind');
   }
-  if (
-    raw.basis !== 'release-manifest' &&
-    raw.basis !== 'commit-tree-blob'
-  ) {
+  if (raw.basis !== 'release-manifest' && raw.basis !== 'commit-tree-blob') {
     fail(where, 'has an invalid verification basis');
   }
   if (!Array.isArray(raw.destinations) || raw.destinations.length === 0) {
@@ -166,10 +161,7 @@ function parseFile(where: string, value: unknown): AttributionFileRecord {
   };
 }
 
-function parsePackage(
-  where: string,
-  value: unknown,
-): AttributionPackageRecord {
+function parsePackage(where: string, value: unknown): AttributionPackageRecord {
   const raw = assertRecord(where, value);
   assertExactKeys(where, raw, [
     'registry',
@@ -215,7 +207,9 @@ function fileNameKey(name: string, seen: Set<string>): boolean {
  * Validates and narrows the optional attribution catalog. Unknown versions and
  * malformed qualified records fail closed so no caller can republish them.
  */
-export function validateAttributionCatalog(catalog: unknown): AttributionCatalog {
+export function validateAttributionCatalog(
+  catalog: unknown,
+): AttributionCatalog {
   const raw = assertRecord('root', catalog);
   assertExactKeys('root', raw, ['version', 'packages']);
   if (raw.version !== ATTRIBUTION_CATALOG_VERSION) {
@@ -246,11 +240,7 @@ export type AttributionChangeReason =
   | 'installed-bytes-mismatch';
 
 export type AttributionFileChangeStatus =
-  | 'added'
-  | 'changed'
-  | 'removed'
-  | 'unchanged'
-  | 'origin-changed';
+  'added' | 'changed' | 'removed' | 'unchanged' | 'origin-changed';
 
 export interface AttributionFileChange {
   name: string;
@@ -364,8 +354,16 @@ function compareFiles(
   planned: AttributionPackageRecord,
   unqualifiedNames: Set<string>,
   originMoved: boolean,
-): { files: AttributionFileChange[]; sawAdded: boolean; sawRemoved: boolean; sawBytesChanged: boolean; sawOriginChanged: boolean } {
-  const previousByName = new Map(previous.files.map((file) => [file.name, file]));
+): {
+  files: AttributionFileChange[];
+  sawAdded: boolean;
+  sawRemoved: boolean;
+  sawBytesChanged: boolean;
+  sawOriginChanged: boolean;
+} {
+  const previousByName = new Map(
+    previous.files.map((file) => [file.name, file]),
+  );
   const plannedByName = new Map(planned.files.map((file) => [file.name, file]));
   const names = [
     ...new Set([...previousByName.keys(), ...plannedByName.keys()]),
@@ -707,9 +705,7 @@ export function mergeAttributionCatalog(
   retain: (packageId: string, record: AttributionPackageRecord) => boolean,
 ): AttributionCatalog {
   const packages: Record<string, AttributionPackageRecord> = {};
-  for (const [packageId, record] of Object.entries(
-    previous?.packages ?? {},
-  )) {
+  for (const [packageId, record] of Object.entries(previous?.packages ?? {})) {
     if (packageId in next.packages) continue;
     if (!retain(packageId, record)) continue;
     packages[packageId] = record;

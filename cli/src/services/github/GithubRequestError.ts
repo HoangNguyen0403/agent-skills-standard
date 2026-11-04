@@ -8,11 +8,7 @@
 import { Readable } from 'node:stream';
 
 export type GithubFailureKind =
-  | 'rate-limited'
-  | 'access-denied'
-  | 'not-found'
-  | 'transport'
-  | 'integrity';
+  'rate-limited' | 'access-denied' | 'not-found' | 'transport' | 'integrity';
 
 export type GithubRateLimitKind = 'primary' | 'secondary';
 
@@ -262,9 +258,7 @@ export function abandonResponseBody(res: Response): void {
  * Node stream that `cross-fetch` returns and a WHATWG stream. Any timeout,
  * oversize read, or stream error releases the body and returns null.
  */
-export function readAmbiguousErrorBody(
-  res: Response,
-): Promise<string | null> {
+export function readAmbiguousErrorBody(res: Response): Promise<string | null> {
   const body: unknown = res.body;
   if (body instanceof Readable) return readNodeBody(body);
   if (typeof ReadableStream !== 'undefined' && body instanceof ReadableStream) {
@@ -316,7 +310,9 @@ export class GithubRequestError extends Error {
   }
 
   static isAccessDenial(error: unknown): error is GithubRequestError {
-    return error instanceof GithubRequestError && error.kind === 'access-denied';
+    return (
+      error instanceof GithubRequestError && error.kind === 'access-denied'
+    );
   }
 }
 

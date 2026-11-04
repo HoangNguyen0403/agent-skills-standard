@@ -67,7 +67,8 @@ export class SpecialistSyncService {
       // A manifest for another commit cannot verify this source, even when the
       // bytes happen to be identical: refuse before any acquisition.
       const rejection = verifier.checkSourceCommit(commit);
-      if (rejection) throw new IntegrityError(`specialists@${ref}: ${rejection}`);
+      if (rejection)
+        throw new IntegrityError(`specialists@${ref}: ${rejection}`);
     }
     const treeData = await this.githubService.getRepoTree(
       owner,

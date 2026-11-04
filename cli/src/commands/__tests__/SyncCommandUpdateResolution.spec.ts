@@ -636,7 +636,10 @@ describe('SyncCommand version-update resolution refresh', () => {
         authenticated: false,
         status: kind === 'rate-limited' ? 429 : 403,
         ...(kind === 'rate-limited'
-          ? { rateLimitKind: 'primary' as const, resetAt: '2030-01-01T00:00:00.000Z' }
+          ? {
+              rateLimitKind: 'primary' as const,
+              resetAt: '2030-01-01T00:00:00.000Z',
+            }
           : {}),
       });
 
@@ -804,7 +807,9 @@ describe('SyncCommand version-update resolution refresh', () => {
       expect(accepted.status).toBe('success');
       const rewritten = await fs.readJson(lockPath);
       expect(rewritten.attributionCatalog?.version).toBe(1);
-      expect(rewritten.attributionCatalog.packages['common/alpha']).toBeDefined();
+      expect(
+        rewritten.attributionCatalog.packages['common/alpha'],
+      ).toBeDefined();
     });
 
     it('cancels without publishing when the interactive attribution prompt is declined', async () => {
@@ -981,13 +986,9 @@ describe('SyncCommand version-update resolution refresh', () => {
         ? details.installedOnly
         : [];
       expect(
-        variants.some(
-          (variant) => asRecord(variant)?.name === 'LICENSE',
-        ),
+        variants.some((variant) => asRecord(variant)?.name === 'LICENSE'),
       ).toBe(true);
-      const packages = Array.isArray(details.packages)
-        ? details.packages
-        : [];
+      const packages = Array.isArray(details.packages) ? details.packages : [];
       expect(
         packages.some((item) => asRecord(item)?.packageId === 'common/alpha'),
       ).toBe(true);
@@ -998,9 +999,7 @@ describe('SyncCommand version-update resolution refresh', () => {
       publishOutcomeReleases();
       await writeOutcomeConfig();
       expect((await runCommand()).status).toBe('success');
-      const lockBefore = await fs.readJson(
-        path.join(tempDir, LOCKFILE_NAME),
-      );
+      const lockBefore = await fs.readJson(path.join(tempDir, LOCKFILE_NAME));
       expect(
         lockBefore.attributionCatalog.packages['common/alpha'].files[0].name,
       ).toBe('LICENSE');
@@ -1029,14 +1028,11 @@ describe('SyncCommand version-update resolution refresh', () => {
       const outcome = await runCommand({ json: true, yes: true });
 
       expect(outcome.status).toBe('success');
-      const stderrText = vi
-        .mocked(console.error)
-        .mock.calls.flat()
-        .join('\n');
+      const stderrText = vi.mocked(console.error).mock.calls.flat().join('\n');
       expect(stderrText).not.toContain('Attribution changes require consent');
-      expect(
-        await readProject('.claude/skills/common/alpha/LICENSE'),
-      ).toEqual(licenseBefore);
+      expect(await readProject('.claude/skills/common/alpha/LICENSE')).toEqual(
+        licenseBefore,
+      );
       const lockAfter = await fs.readJson(path.join(tempDir, LOCKFILE_NAME));
       const record = lockAfter.attributionCatalog.packages['common/alpha'];
       expect(record.files[0].name).toBe('LICENSE');
@@ -1066,10 +1062,7 @@ describe('SyncCommand version-update resolution refresh', () => {
       );
       expect(denied.result.status).toBe('failure');
 
-      const stderrText = vi
-        .mocked(console.error)
-        .mock.calls.flat()
-        .join('\n');
+      const stderrText = vi.mocked(console.error).mock.calls.flat().join('\n');
       expect(stderrText).toContain('old: unknown origin');
       expect(stderrText).toContain('unchanged LICENSE');
       expect(stderrText).toContain('installed: claude:');
@@ -1078,13 +1071,9 @@ describe('SyncCommand version-update resolution refresh', () => {
       const envelope = asRecord(JSON.parse(denied.stdout));
       const data = asRecord(envelope?.data) ?? {};
       const details = asRecord(data.details) ?? {};
-      const packages = Array.isArray(details.packages)
-        ? details.packages
-        : [];
+      const packages = Array.isArray(details.packages) ? details.packages : [];
       const alpha = asRecord(
-        packages.find(
-          (item) => asRecord(item)?.packageId === 'common/alpha',
-        ),
+        packages.find((item) => asRecord(item)?.packageId === 'common/alpha'),
       );
       const files = Array.isArray(alpha?.files) ? alpha.files : [];
       const license = asRecord(
@@ -1092,7 +1081,9 @@ describe('SyncCommand version-update resolution refresh', () => {
       );
       expect(license?.previous).toBeNull();
       expect(license?.previousSha256).toBe(sha256(LICENSE_V1));
-      expect(asRecord(license?.planned)?.resolvedCommit).toBe(COMMON_OLD_COMMIT);
+      expect(asRecord(license?.planned)?.resolvedCommit).toBe(
+        COMMON_OLD_COMMIT,
+      );
       const installed = Array.isArray(license?.installed)
         ? license.installed
         : [];
@@ -1137,10 +1128,7 @@ describe('SyncCommand version-update resolution refresh', () => {
       expect((await runCommand()).status).toBe('success');
 
       transport.publish(COMMON_NEW, COMMON_NEW_COMMIT, {
-        'skills/common/alpha/SKILL.md': skillMarkdown(
-          'alpha',
-          'alpha-v2.9.4',
-        ),
+        'skills/common/alpha/SKILL.md': skillMarkdown('alpha', 'alpha-v2.9.4'),
         [PACKAGE_LICENSE_PATH]: LICENSE_V1,
       });
       transport.publishManifest(COMMON_NEW, COMMON_NEW_COMMIT);
@@ -1180,10 +1168,7 @@ describe('SyncCommand version-update resolution refresh', () => {
 
       // Same LICENSE bytes, new ref and commit: origin-only change.
       transport.publish(COMMON_NEW, COMMON_NEW_COMMIT, {
-        'skills/common/alpha/SKILL.md': skillMarkdown(
-          'alpha',
-          'alpha-v2.9.4',
-        ),
+        'skills/common/alpha/SKILL.md': skillMarkdown('alpha', 'alpha-v2.9.4'),
         [PACKAGE_LICENSE_PATH]: LICENSE_V1,
       });
       transport.publishManifest(COMMON_NEW, COMMON_NEW_COMMIT);
@@ -1208,9 +1193,9 @@ describe('SyncCommand version-update resolution refresh', () => {
         acceptAttributionChanges: true,
       });
       expect(accepted.status).toBe('success');
-      expect(
-        await readProject('.claude/skills/common/alpha/LICENSE'),
-      ).toEqual(Buffer.from(LICENSE_V1));
+      expect(await readProject('.claude/skills/common/alpha/LICENSE')).toEqual(
+        Buffer.from(LICENSE_V1),
+      );
       const lock = await fs.readJson(path.join(tempDir, LOCKFILE_NAME));
       expect(lock.sources['skills/common']).toEqual({
         ref: COMMON_NEW,
@@ -1230,7 +1215,9 @@ describe('SyncCommand version-update resolution refresh', () => {
       const configPath = path.join(tempDir, '.skillsrc');
 
       transport.onGetRepoTree = async () => {
-        const current: unknown = JSON.parse(await fs.readFile(configPath, 'utf8'));
+        const current: unknown = JSON.parse(
+          await fs.readFile(configPath, 'utf8'),
+        );
         const record = asRecord(current) ?? {};
         await fs.outputFile(
           configPath,
@@ -1238,7 +1225,9 @@ describe('SyncCommand version-update resolution refresh', () => {
         );
       };
 
-      const preflightRun = await captureStdout(() => runCommand({ json: true }));
+      const preflightRun = await captureStdout(() =>
+        runCommand({ json: true }),
+      );
       expect(preflightRun.result.status).toBe('failure');
       expect(parseEnvelope(preflightRun.stdout).code).toBe('config-invalid');
 

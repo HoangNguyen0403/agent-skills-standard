@@ -2,7 +2,10 @@ import inquirer from 'inquirer';
 import pc from 'picocolors';
 import { Agent } from '../constants';
 import { McpScope, SkillConfig } from '../models/config';
-import { ConfigValidationError, ConfigService } from '../services/ConfigService';
+import {
+  ConfigValidationError,
+  ConfigService,
+} from '../services/ConfigService';
 import type { ConfigSnapshot } from '../services/ConfigService';
 import { DetectionService } from '../services/DetectionService';
 import {
@@ -132,7 +135,6 @@ export class SyncCommand {
     // changed. Mutating that baseline in place would make accepted pins, refs
     // and MCP consent look unchanged and silently drop them from the file.
     const config = structuredClone(snapshot.config);
-    let configChanged = false;
 
     // 1. Reconcile dependencies in memory only.
     const projectDeps = await this.detectionService.getProjectDeps();
@@ -140,9 +142,8 @@ export class SyncCommand {
       config,
       projectDeps,
     );
-    const workflowsChanged =
-      await this.syncService.reconcileWorkflows(config);
-    configChanged = skillsChanged || workflowsChanged;
+    const workflowsChanged = await this.syncService.reconcileWorkflows(config);
+    let configChanged = skillsChanged || workflowsChanged;
 
     // 2. Resolve the final identities for every selected source.
     const resolvedRefs = await this.syncService.resolvePins(config);
@@ -271,8 +272,7 @@ export class SyncCommand {
       config,
     );
 
-    const workflowAcquisition =
-      await this.syncService.acquireWorkflows(config);
+    const workflowAcquisition = await this.syncService.acquireWorkflows(config);
     if (workflowAcquisition.status === 'incomplete') {
       throw new SyncFailureError({
         code: 'sync-failed',
@@ -539,7 +539,9 @@ export class SyncCommand {
         path?: unknown;
         reason?: unknown;
       }>) {
-        console.error(pc.red(`   ❌ ${String(item.path)} — ${String(item.reason)}`));
+        console.error(
+          pc.red(`   ❌ ${String(item.path)} — ${String(item.reason)}`),
+        );
       }
     }
   }
@@ -641,7 +643,13 @@ export class SyncCommand {
   }
 
   private describeAttributionOrigin(
-    record: { sourcePath: string; requestedRef: string; resolvedCommit: string; basis: string; sha256: string } | null,
+    record: {
+      sourcePath: string;
+      requestedRef: string;
+      resolvedCommit: string;
+      basis: string;
+      sha256: string;
+    } | null,
     digest: string | null,
     kind: 'old' | 'new',
   ): string {

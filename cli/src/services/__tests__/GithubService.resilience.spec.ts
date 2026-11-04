@@ -1,6 +1,9 @@
 import fetch from 'cross-fetch';
 import { PassThrough } from 'node:stream';
-import { setImmediate as tick, setTimeout as delay } from 'node:timers/promises';
+import {
+  setImmediate as tick,
+  setTimeout as delay,
+} from 'node:timers/promises';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { GithubService, IntegrityError } from '../GithubService';
 import { GithubRequestError } from '../github/GithubRequestError';
@@ -53,7 +56,12 @@ function errorResponse(
   } as unknown as Response;
 }
 
-const TREE = { sha: 'tree-sha', url: 'https://api.github.com/x', tree: [], truncated: false };
+const TREE = {
+  sha: 'tree-sha',
+  url: 'https://api.github.com/x',
+  tree: [],
+  truncated: false,
+};
 
 describe('GithubService failure classification', () => {
   let service: GithubService;
@@ -89,12 +97,18 @@ describe('GithubService failure classification', () => {
     expect(typed.authenticated).toBe(true);
     expect(typed.retryAfterSeconds).toBe(60);
     expect(typed.resetAt).toBe(new Date(resetSeconds * 1000).toISOString());
-    expect(typed.endpoint).toBe('https://api.github.com/repos/owner/repo/git/trees/main');
+    expect(typed.endpoint).toBe(
+      'https://api.github.com/repos/owner/repo/git/trees/main',
+    );
   });
 
   it('keeps an ordinary 403 as access denial instead of quota exhaustion', async () => {
     vi.mocked(fetch).mockResolvedValue(
-      errorResponse(403, { 'x-ratelimit-remaining': '4999' }, '{"message":"Resource not accessible by integration"}'),
+      errorResponse(
+        403,
+        { 'x-ratelimit-remaining': '4999' },
+        '{"message":"Resource not accessible by integration"}',
+      ),
     );
 
     const failure = await service
@@ -110,7 +124,10 @@ describe('GithubService failure classification', () => {
 
   it('classifies retry-after throttling as secondary when primary budget remains', async () => {
     vi.mocked(fetch).mockResolvedValue(
-      errorResponse(403, { 'x-ratelimit-remaining': '4999', 'retry-after': '30' }),
+      errorResponse(403, {
+        'x-ratelimit-remaining': '4999',
+        'retry-after': '30',
+      }),
     );
 
     const failure = await service
@@ -240,7 +257,12 @@ describe('GithubService session request reuse', () => {
 
   it('returns cached results detached from consumer mutation', async () => {
     vi.mocked(fetch).mockResolvedValue(
-      okJson({ sha: 'tree-sha', url: 'u', tree: [{ path: 'a', type: 'blob', sha: 's', url: 'u' }], truncated: false }),
+      okJson({
+        sha: 'tree-sha',
+        url: 'u',
+        tree: [{ path: 'a', type: 'blob', sha: 's', url: 'u' }],
+        truncated: false,
+      }),
     );
 
     const first = await service.getRepoTree('owner', 'repo', 'main');
@@ -254,9 +276,9 @@ describe('GithubService session request reuse', () => {
 
   it('clears caches and the throttle latch on resetOperation', async () => {
     vi.mocked(fetch).mockResolvedValueOnce(errorResponse(429));
-    await expect(service.getRepoTree('owner', 'repo', 'main')).rejects.toBeInstanceOf(
-      GithubRequestError,
-    );
+    await expect(
+      service.getRepoTree('owner', 'repo', 'main'),
+    ).rejects.toBeInstanceOf(GithubRequestError);
     expect(service.rateLimited).toBe(true);
 
     await expect(service.getRepoInfo('owner', 'repo')).rejects.toBeInstanceOf(
@@ -268,7 +290,9 @@ describe('GithubService session request reuse', () => {
     expect(service.rateLimited).toBe(false);
 
     vi.mocked(fetch).mockResolvedValueOnce(okJson(TREE));
-    await expect(service.getRepoTree('owner', 'repo', 'main')).resolves.toEqual(TREE);
+    await expect(service.getRepoTree('owner', 'repo', 'main')).resolves.toEqual(
+      TREE,
+    );
     expect(fetch).toHaveBeenCalledTimes(2);
   });
 });
@@ -305,7 +329,9 @@ describe('GithubService download scheduling under throttling', () => {
     vi.mocked(fetch).mockResolvedValue(errorResponse(404));
 
     expect(await service.getRepoTree('o', 'r', 'missing')).toBeNull();
-    expect(await service.getRawFileBytes('o', 'r', 'missing', 'a.md')).toBeNull();
+    expect(
+      await service.getRawFileBytes('o', 'r', 'missing', 'a.md'),
+    ).toBeNull();
     expect(await service.getReleaseManifest('o', 'r', 'missing')).toBeNull();
   });
 
@@ -472,7 +498,9 @@ describe('GithubService corrective regressions', () => {
   it('keeps secret-bearing transport causes out of the public error', async () => {
     const secret = 'ghp_SYNTHETICsecret123';
     vi.mocked(fetch).mockRejectedValue(
-      new Error(`connect failed: https://user:${secret}@api.github.com/repos/o/r`),
+      new Error(
+        `connect failed: https://user:${secret}@api.github.com/repos/o/r`,
+      ),
     );
 
     const failure = await service
@@ -663,7 +691,8 @@ describe('GithubService typed batch failures', () => {
         headers: new Headers(),
         arrayBuffer: async () => {
           const chunks: Buffer[] = [];
-          for await (const chunk of siblingBody) chunks.push(Buffer.from(chunk));
+          for await (const chunk of siblingBody)
+            chunks.push(Buffer.from(chunk));
           return Buffer.concat(chunks);
         },
       } as unknown as Response);
@@ -671,10 +700,7 @@ describe('GithubService typed batch failures', () => {
 
     let batchSettled = false;
     const batch = service
-      .downloadFilesConcurrentBytes([
-        task('tampered.md'),
-        task('sibling.md'),
-      ])
+      .downloadFilesConcurrentBytes([task('tampered.md'), task('sibling.md')])
       .then(
         (value) => {
           batchSettled = true;
@@ -738,7 +764,9 @@ describe('GithubService typed batch failures', () => {
   it('keeps an ordinary missing file as a failed result', async () => {
     vi.mocked(fetch).mockResolvedValue(errorResponse(404));
 
-    const result = await service.downloadFilesConcurrentBytes([task('gone.md')]);
+    const result = await service.downloadFilesConcurrentBytes([
+      task('gone.md'),
+    ]);
 
     expect(result.rateLimited).toBeUndefined();
     expect(result.ok).toEqual([]);

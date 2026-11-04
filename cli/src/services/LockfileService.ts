@@ -275,8 +275,11 @@ function parseLockV2(raw: unknown): SkillsLockFile {
       `Invalid .skills-lock.json: ${where} ${issue?.message ?? 'is invalid'}`,
     );
   }
-  const { workflowCatalog: rawCatalog, attributionCatalog: rawAttribution, ...rest } =
-    parsed.data;
+  const {
+    workflowCatalog: rawCatalog,
+    attributionCatalog: rawAttribution,
+    ...rest
+  } = parsed.data;
   const generation = parseGenerationLedger(
     (raw as Record<string, unknown>).generation,
   );

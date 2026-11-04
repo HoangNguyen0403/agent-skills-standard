@@ -848,11 +848,7 @@ description: "Review security"
           files: [{ name: 'other.md', content: 'content' }],
         },
       ];
-      await service.writeSpecialists(
-        rootDir,
-        [Agent.Claude],
-        specialists,
-      );
+      await service.writeSpecialists(rootDir, [Agent.Claude], specialists);
       expect(fs.outputFile).not.toHaveBeenCalled();
     });
 
@@ -864,11 +860,7 @@ description: "Review security"
           files: [{ name: 'SKILL.md', content: 'content' }],
         },
       ];
-      await service.writeSpecialists(
-        rootDir,
-        [Agent.Claude],
-        specialists,
-      );
+      await service.writeSpecialists(rootDir, [Agent.Claude], specialists);
       expect(fs.outputFile).not.toHaveBeenCalled();
     });
 
@@ -881,11 +873,7 @@ description: "Review security"
           files: [{ name: 'SKILL.md', content: 'content' }],
         },
       ];
-      await service.writeSpecialists(
-        rootDir,
-        [Agent.Claude],
-        specialists,
-      );
+      await service.writeSpecialists(rootDir, [Agent.Claude], specialists);
       expect(logSpy).not.toHaveBeenCalled();
     });
   });

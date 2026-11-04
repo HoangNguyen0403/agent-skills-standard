@@ -1,6 +1,9 @@
 import fetch from 'cross-fetch';
 import { PassThrough } from 'node:stream';
-import { setImmediate as tick, setTimeout as delay } from 'node:timers/promises';
+import {
+  setImmediate as tick,
+  setTimeout as delay,
+} from 'node:timers/promises';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { GithubService, IntegrityError } from '../GithubService';
 import { GithubRequestError } from '../github/GithubRequestError';

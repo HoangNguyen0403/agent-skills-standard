@@ -99,6 +99,16 @@ regexes = [
   '''^sk-test-1234567890abcdef1234$''',
 ]
 
+[[allowlists]]
+description = "GitHub request error test: fake token planted in a transport error cause to prove it never reaches the public error message or JSON projection. Literal-scoped to this spec."
+condition = "AND"
+paths = [
+  '''^cli/src/services/__tests__/GithubService\.resilience\.spec\.ts$''',
+]
+regexes = [
+  '''^ghp_SYNTHETICsecret123$''',
+]
+
 [[rules]]
 id = "generic-api-key"
 

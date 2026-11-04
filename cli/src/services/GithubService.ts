@@ -204,10 +204,7 @@ export class GithubService {
    * - Transport messages are fixed text; the raw error (which may contain
    *   credentials in a URL) stays internal to `cause`.
    */
-  private async request(
-    url: string,
-    init?: RequestInit,
-  ): Promise<Response> {
+  private async request(url: string, init?: RequestInit): Promise<Response> {
     if (this.rateLimitError) throw this.rateLimitError;
 
     const epoch = this.operationEpoch;
@@ -286,9 +283,7 @@ export class GithubService {
   }
 
   private static isAbsence(error: unknown): boolean {
-    return (
-      error instanceof GithubRequestError && error.kind === 'not-found'
-    );
+    return error instanceof GithubRequestError && error.kind === 'not-found';
   }
 
   /**

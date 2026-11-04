@@ -136,8 +136,7 @@ export type AttributionSourceKind = 'package' | 'root';
  * downloaded bytes were checked.
  */
 export type AttributionVerificationBasis =
-  | 'release-manifest'
-  | 'commit-tree-blob';
+  'release-manifest' | 'commit-tree-blob';
 
 /**
  * Source identity of one attribution file captured at download time.

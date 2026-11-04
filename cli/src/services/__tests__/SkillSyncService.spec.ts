@@ -837,9 +837,7 @@ describe('SkillSyncService', () => {
           'skills/c/s/LICENSE': createHash('sha256')
             .update('apache text')
             .digest('hex'),
-          NOTICE: createHash('sha256')
-            .update('notice text')
-            .digest('hex'),
+          NOTICE: createHash('sha256').update('notice text').digest('hex'),
         },
       });
 
@@ -984,7 +982,12 @@ describe('SkillSyncService', () => {
           sha: '6'.repeat(40),
           url: 'local',
         },
-        { path: 'skills/c/s/SKILL.md', type: 'blob', sha: SKILL_BLOB, url: 's' },
+        {
+          path: 'skills/c/s/SKILL.md',
+          type: 'blob',
+          sha: SKILL_BLOB,
+          url: 's',
+        },
       ];
       mockGithubService.getRepoTree.mockResolvedValue({ tree });
       mockGithubService.downloadFilesConcurrentBytes.mockImplementation(
@@ -1027,7 +1030,12 @@ describe('SkillSyncService', () => {
           sha: '7'.repeat(40),
           url: 'local-notice',
         },
-        { path: 'skills/c/s/SKILL.md', type: 'blob', sha: SKILL_BLOB, url: 's' },
+        {
+          path: 'skills/c/s/SKILL.md',
+          type: 'blob',
+          sha: SKILL_BLOB,
+          url: 's',
+        },
       ];
       mockGithubService.getRepoTree.mockResolvedValue({ tree });
       mockGithubService.downloadFilesConcurrentBytes.mockImplementation(
@@ -1087,9 +1095,7 @@ describe('SkillSyncService', () => {
         skill: 's',
         origin: { category: 'c', ref: 'c-v1.0.0', commit: COMMIT_A },
       });
-      const notice = result[0].files.find(
-        (file) => file.name === 'NOTICE.md',
-      );
+      const notice = result[0].files.find((file) => file.name === 'NOTICE.md');
       expect(notice?.attribution).toMatchObject({
         sourcePath: 'skills/other/s/NOTICE.md',
         sourceKind: 'package',
@@ -1213,9 +1219,9 @@ describe('SkillSyncService', () => {
       const record = packages['c/s'];
       expect(record.declaringCategory).toBe('c');
       expect(record.files.map((file) => file.name)).toEqual(['LICENSE']);
-      expect(validateAttributionCatalog(buildAttributionCatalog(packages))).toEqual(
-        buildAttributionCatalog(packages),
-      );
+      expect(
+        validateAttributionCatalog(buildAttributionCatalog(packages)),
+      ).toEqual(buildAttributionCatalog(packages));
     });
 
     // Test intent: qualified metadata binds the exact installed destination

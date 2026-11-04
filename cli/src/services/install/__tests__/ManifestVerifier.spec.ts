@@ -57,7 +57,9 @@ describe('ManifestVerifier', () => {
     expect(verifier.checkSourceCommit('b'.repeat(40))).toMatch(
       /does not match the resolved source commit/i,
     );
-    expect(new ManifestVerifier(null).checkSourceCommit('b'.repeat(40))).toBeNull();
+    expect(
+      new ManifestVerifier(null).checkSourceCommit('b'.repeat(40)),
+    ).toBeNull();
   });
 
   it('reports whether a path is covered by a manifest entry', () => {
@@ -65,7 +67,9 @@ describe('ManifestVerifier', () => {
       ...sampleManifest,
       files: { ...sampleManifest.files, LICENSE: sha256 },
     });
-    expect(verifier.hasManifestEntry('.agents/workflows/dev-fix.md')).toBe(true);
+    expect(verifier.hasManifestEntry('.agents/workflows/dev-fix.md')).toBe(
+      true,
+    );
     expect(verifier.hasManifestEntry('LICENSE')).toBe(true);
     expect(verifier.hasManifestEntry('NOTICE')).toBe(false);
   });

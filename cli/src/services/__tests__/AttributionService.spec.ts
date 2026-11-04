@@ -280,9 +280,7 @@ describe('compareAttribution consent predicate', () => {
       reason: 'installed-bytes-mismatch',
       previous: null,
     });
-    expect(
-      comparison.packages[0].files[0].previous,
-    ).toBeNull();
+    expect(comparison.packages[0].files[0].previous).toBeNull();
   });
 
   it('requires consent when a recorded destination is missing', () => {
@@ -566,7 +564,10 @@ describe('collectInstalledAttributionDigests', () => {
     );
     temporaryRoots.push(root, external);
     const rel = '.claude/skills/c/s/LICENSE';
-    await fs.outputFile(path.join(external, 'skills/c/s/LICENSE'), 'apache text');
+    await fs.outputFile(
+      path.join(external, 'skills/c/s/LICENSE'),
+      'apache text',
+    );
     await fs.symlink(external, path.join(root, '.claude'));
 
     const digests = await collectInstalledAttributionDigests(root, {
@@ -609,7 +610,10 @@ describe('mergeAttributionCatalog', () => {
       (packageId) => packageId === 'c/kept',
     );
 
-    expect(Object.keys(merged.packages).sort()).toEqual(['c/kept', 'c/replaced']);
+    expect(Object.keys(merged.packages).sort()).toEqual([
+      'c/kept',
+      'c/replaced',
+    ]);
     expect(merged.packages['c/replaced'].files[0].name).toBe('LICENSE');
   });
 

@@ -64,7 +64,9 @@ describe('SyncService attribution retention', () => {
 
   beforeEach(async () => {
     originalCwd = process.cwd();
-    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'ags-attribution-retention-'));
+    tempDir = await fs.mkdtemp(
+      path.join(os.tmpdir(), 'ags-attribution-retention-'),
+    );
     process.chdir(tempDir);
     syncService = new SyncService();
   });
@@ -167,9 +169,7 @@ describe('SyncService attribution retention', () => {
 
     const catalog = await run(config({ skills: { c: { ref: 'v1' } } }), []);
 
-    expect(
-      await fs.pathExists(path.join(tempDir, surviving.path)),
-    ).toBe(true);
+    expect(await fs.pathExists(path.join(tempDir, surviving.path))).toBe(true);
     expect(catalog?.packages['c/s']).toBeUndefined();
   });
 
@@ -215,7 +215,9 @@ describe('SyncService attribution retention', () => {
 
     const catalog = await run(config({ agents: [Agent.Cursor] }), []);
 
-    expect(await fs.pathExists(path.join(tempDir, claudeCopy.path))).toBe(false);
+    expect(await fs.pathExists(path.join(tempDir, claudeCopy.path))).toBe(
+      false,
+    );
     expect(await fs.pathExists(path.join(tempDir, cursorCopy.path))).toBe(true);
     expect(catalog?.packages['c/s']).toBeUndefined();
   });

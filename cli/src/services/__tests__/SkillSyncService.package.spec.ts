@@ -4,10 +4,7 @@ import path from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Agent, SUPPORTED_AGENTS } from '../../constants';
 import { SkillConfig } from '../../models/config';
-import {
-  AttributionPackageRecord,
-  CollectedSkill,
-} from '../../models/types';
+import { AttributionPackageRecord, CollectedSkill } from '../../models/types';
 import { GithubService } from '../GithubService';
 import { BackupService } from '../install/BackupService';
 import {
@@ -289,7 +286,10 @@ describe('SkillSyncService package installation', () => {
     const noticeRel = '.claude/skills/cybersecurity/cyber-evidence/NOTICE';
     const noticeMdRel = '.claude/skills/cybersecurity/cyber-evidence/NOTICE.md';
     try {
-      await fs.outputFile(path.join(skillDir, 'LICENSE'), 'old upstream license');
+      await fs.outputFile(
+        path.join(skillDir, 'LICENSE'),
+        'old upstream license',
+      );
       await fs.outputFile(path.join(skillDir, 'NOTICE'), 'user notice');
       await fs.outputFile(path.join(skillDir, 'NOTICE.md'), 'user notice md');
 
@@ -336,12 +336,16 @@ describe('SkillSyncService package installation', () => {
               {
                 name: 'LICENSE',
                 content: 'new upstream license',
-                attribution: source('skills/cybersecurity/cyber-evidence/LICENSE'),
+                attribution: source(
+                  'skills/cybersecurity/cyber-evidence/LICENSE',
+                ),
               },
               {
                 name: 'NOTICE',
                 content: 'new upstream notice',
-                attribution: source('skills/cybersecurity/cyber-evidence/NOTICE'),
+                attribution: source(
+                  'skills/cybersecurity/cyber-evidence/NOTICE',
+                ),
               },
               {
                 name: 'NOTICE.md',

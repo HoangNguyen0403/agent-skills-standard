@@ -71,17 +71,17 @@ const defaultExec = (
   args: string[],
 ): Promise<{ code: number; stderr: string }> => {
   return new Promise((resolve, reject) => {
-  execFile(cmd, args, (error, _stdout, stderr) => {
-    if (error) {
-      if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-        return reject(error);
+    execFile(cmd, args, (error, _stdout, stderr) => {
+      if (error) {
+        if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+          return reject(error);
+        }
+        return resolve({
+          code: typeof error.code === 'number' ? error.code : 1,
+          stderr: stderr || error.message,
+        });
       }
-      return resolve({
-        code: typeof error.code === 'number' ? error.code : 1,
-        stderr: stderr || error.message,
-      });
-    }
-    resolve({ code: 0, stderr: stderr || '' });
+      resolve({ code: 0, stderr: stderr || '' });
     });
   });
 };
@@ -1295,7 +1295,9 @@ export class SyncService {
     const preserved: AttributionFileRecord[] = [];
     for (const file of previous.files) {
       const untouched = file.destinations.every((destination) => {
-        if (publishedPaths.has(`${packageId}\0${file.name}\0${destination.path}`)) {
+        if (
+          publishedPaths.has(`${packageId}\0${file.name}\0${destination.path}`)
+        ) {
           return false;
         }
         return isOverriddenRel(destination.path, overrides) || !prune;
@@ -1354,9 +1356,7 @@ export class SyncService {
     for (const [packageId, record] of Object.entries(previous)) {
       for (const file of record.files) {
         for (const destination of file.destinations) {
-          const dir = path.dirname(
-            path.join(process.cwd(), destination.path),
-          );
+          const dir = path.dirname(path.join(process.cwd(), destination.path));
           scan.set(dir, {
             packageId,
             agent: destination.agent,
@@ -1389,10 +1389,7 @@ export class SyncService {
           name: entry,
           agent,
           path: relative,
-          sha256: await readInstalledAttributionDigest(
-            process.cwd(),
-            relative,
-          ),
+          sha256: await readInstalledAttributionDigest(process.cwd(), relative),
         });
       }
     }
@@ -1663,11 +1660,7 @@ export class SyncService {
       const latestSpecialistsRef = `${prefix}${remoteMeta.categories.specialists.version}`;
       if (
         config.specialists_ref &&
-        isAutomaticUpgrade(
-          config.specialists_ref,
-          latestSpecialistsRef,
-          prefix,
-        )
+        isAutomaticUpgrade(config.specialists_ref, latestSpecialistsRef, prefix)
       ) {
         candidates.push({ key: 'specialists', ref: latestSpecialistsRef });
       }

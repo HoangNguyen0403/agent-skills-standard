@@ -94,8 +94,7 @@ export class SkillSyncService {
       console.log(pc.gray(`  - Discovering ${category} (${ref})...`));
       const resolvedSource = origins[category];
       const commit =
-        resolvedSource?.commit &&
-        GIT_BLOB_SHA1_RE.test(resolvedSource.commit)
+        resolvedSource?.commit && GIT_BLOB_SHA1_RE.test(resolvedSource.commit)
           ? resolvedSource.commit
           : undefined;
       const verifier = verifiers[category];
@@ -430,9 +429,7 @@ export class SkillSyncService {
     // variant. This never drops the other family.
     const localFamilies = new Set(
       packageFiles
-        .map((file) =>
-          this.attributionFamily(file.path.slice(prefix.length)),
-        )
+        .map((file) => this.attributionFamily(file.path.slice(prefix.length)))
         .filter((family): family is 'license' | 'notice' => family !== null),
     );
     const rootAttributionFiles = tree.filter((file) => {
@@ -514,7 +511,9 @@ export class SkillSyncService {
         sourceCat,
         skillName,
         failed[0]?.reason ??
-          (hasSkillDefinition ? 'downloaded file count mismatch' : 'missing SKILL.md'),
+          (hasSkillDefinition
+            ? 'downloaded file count mismatch'
+            : 'missing SKILL.md'),
       );
       return null;
     }
@@ -526,9 +525,7 @@ export class SkillSyncService {
     if (source) {
       for (const file of files) {
         const isPackageFile = file.path.startsWith(prefix);
-        const name = isPackageFile
-          ? file.path.slice(prefix.length)
-          : file.path;
+        const name = isPackageFile ? file.path.slice(prefix.length) : file.path;
         if (this.attributionFamily(name) === null) continue;
         const blobSha1 = blobShaByPath.get(file.path);
         if (!blobSha1 || !GIT_BLOB_SHA1_RE.test(blobSha1)) {

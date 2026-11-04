@@ -125,11 +125,13 @@ describe('SyncCommand', () => {
         };
       }),
       saveConfig: vi.fn(),
-      saveReviewedConfig: vi.fn(async (snapshot: ConfigSnapshot, next: SkillConfig) => ({
-        ...snapshot,
-        config: next,
-        fingerprint: 'e'.repeat(64),
-      })),
+      saveReviewedConfig: vi.fn(
+        async (snapshot: ConfigSnapshot, next: SkillConfig) => ({
+          ...snapshot,
+          config: next,
+          fingerprint: 'e'.repeat(64),
+        }),
+      ),
     } as unknown as Mocked<ConfigService>;
     mockDetectionService = {
       getProjectDeps: vi.fn().mockResolvedValue(new Set()),
@@ -1035,7 +1037,12 @@ describe('SyncCommand', () => {
       mockSyncService.acquireSpecialists.mockResolvedValue({
         status: 'incomplete',
         specialists: [],
-        failures: [{ path: 'skills/specialists/reviewer/SKILL.md', reason: 'download failed' }],
+        failures: [
+          {
+            path: 'skills/specialists/reviewer/SKILL.md',
+            reason: 'download failed',
+          },
+        ],
       });
 
       const outcome = await command.run();
