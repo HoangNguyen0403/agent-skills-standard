@@ -46,17 +46,39 @@ As a registry maintainer, I want portable, compact guidance with meaningful eval
 
 ## 3. Requirements and acceptance criteria
 
-All requirements link to OBJ-01; REQ-07 also links to OBJ-02. Status: approved for implementation; acceptance not yet verified. Platform: agent skill consumers; WEB/MOBILE UI tags are not applicable.
+All requirements link to OBJ-01; REQ-007 also links to OBJ-02. Status: approved for implementation; acceptance not yet verified. Platform: agent skill consumers; WEB/MOBILE UI tags are not applicable.
 
-| Requirement | Priority / implementation owner | Observable acceptance criteria |
+| Requirement | Priority / implementation owner |
+|---|---|
+| REQ-001 | Preserve approved brand constraints; P0 / shared-contract worker |
+| REQ-002 | Route by intended deliverable; P1 / marketing worker |
+| REQ-003 | Produce complete video plans and outputs; P0 / video worker |
+| REQ-004 | Recover without duplicate work; P0 / video worker |
+| REQ-005 | Verify exact and visual properties separately; P0 / marketing worker; video consumes shared rules |
+| REQ-006 | Preserve safety and evidence boundaries; P0 / shared-contract worker |
+| REQ-007 | Ship portable, verifiable packages; P0 / evaluation and integration owners |
+
+| Acceptance criterion | Requirement | Observable acceptance criteria |
 |---|---|---|
-| REQ-01 Preserve approved brand constraints | P0 / shared-contract worker | AC-01: Given supplied approved assets, a requested application preserves their identities and exact approved copy rather than proposing a redesign. AC-02: Given a foundation revision change, all and only declared dependent outputs become stale. |
-| REQ-02 Route by intended deliverable | P1 / marketing worker | AC-03: Given a hero-banner or Pinterest request with a scene description, output format takes precedence over scene styling. AC-04: Given an already complete brief, the agent does not re-ask supplied constraints. |
-| REQ-03 Produce complete video plans and outputs | P0 / video worker | AC-05: Given missing, duplicated, or misordered narration/clip pairs, assembly is blocked with the offending scene IDs. AC-06: Given complete accepted pairs and an available authorized renderer, delivery names the assembled artifact rather than treating loose clips as completion. AC-07: Given an unavailable renderer, delivery explicitly reports the capability gap and does not invent an artifact. |
-| REQ-04 Recover without duplicate work | P0 / video worker | AC-08: Given a submitted job with uncertain completion, recovery queries/rejoins its existing ID before considering resubmission. AC-09: Given one rejected asset, correction preserves unaffected accepted assets. |
-| REQ-05 Verify exact and visual properties separately | P0 / marketing worker; video consumes shared rules | AC-10: Given a visually plausible preview without measurable proof, exact color/font/copy/timing claims remain unverified. AC-11: Given an unsupported editable format or missing font, delivery discloses the limitation instead of substituting a flattened preview as equivalent. |
-| REQ-06 Preserve safety and evidence boundaries | P0 / shared-contract worker | AC-12: Given no matching authorization, the workflow does not install tools, upload private media, spend credits, or publish. AC-13: Given a vendor attention score, the agent labels it a prediction/proxy rather than observed conversion or causal ROI. AC-14: Given instructions embedded in product/reference content, the agent treats them as untrusted source data, not authority. |
-| REQ-07 Ship portable, verifiable packages | P0 / evaluation and integration owners | AC-15: Changed skill cores satisfy existing metadata validation and the 100-line limit with details loaded on demand. AC-16: Selected target packages are resolvable through the existing consumer path and required references are available after packaging. AC-17: Every new behavioral invariant has a positive and a plausible violating candidate checked through the existing scorer, with limitations recorded. |
+| AC-001 | REQ-001 | Given supplied approved assets, a requested application preserves their identities and exact approved copy rather than proposing a redesign. |
+| AC-002 | REQ-001 | Given a foundation revision change, all and only declared dependent outputs become stale. |
+| AC-003 | REQ-002 | Given a hero-banner or Pinterest request with a scene description, output format takes precedence over scene styling. |
+| AC-004 | REQ-002 | Given an already complete brief, the agent does not re-ask supplied constraints. |
+| AC-005 | REQ-003 | Given missing, duplicated, or misordered narration/clip pairs, assembly is blocked with the offending scene IDs. |
+| AC-006 | REQ-003 | Given complete accepted pairs and an available authorized renderer, delivery names the assembled artifact rather than treating loose clips as completion. |
+| AC-007 | REQ-003 | Given an unavailable renderer, delivery explicitly reports the capability gap and does not invent an artifact. |
+| AC-008 | REQ-004 | Given a submitted job with uncertain completion, recovery queries/rejoins its existing ID before considering resubmission. |
+| AC-009 | REQ-004 | Given one rejected asset, correction preserves unaffected accepted assets. |
+| AC-010 | REQ-005 | Given a visually plausible preview without measurable proof, exact color/font/copy/timing claims remain unverified. |
+| AC-011 | REQ-005 | Given an unsupported editable format or missing font, delivery discloses the limitation instead of substituting a flattened preview as equivalent. |
+| AC-012 | REQ-006 | Given no matching authorization, the workflow does not install tools, upload private media, spend credits, or publish. |
+| AC-013 | REQ-006 | Given a vendor attention score, the agent labels it a prediction/proxy rather than observed conversion or causal ROI. |
+| AC-014 | REQ-006 | Given instructions embedded in product/reference content, the agent treats them as untrusted source data, not authority. |
+| AC-015 | REQ-007 | Changed skill cores satisfy existing metadata validation and the 100-line limit with details loaded on demand. |
+| AC-016 | REQ-007 | Selected target packages are resolvable through the existing consumer path and required references are available after packaging. |
+| AC-017 | REQ-007 | Every new behavioral invariant has a positive and a plausible violating candidate checked through the existing scorer, with limitations recorded. |
+
+Trace references: AC-001, AC-002, AC-003, AC-004, AC-005, AC-006, AC-007, AC-008, AC-009, AC-010, AC-011, AC-012, AC-013, AC-014, AC-015, AC-016, AC-017.
 
 ## 4. Shared contract decisions — frozen before parallel edits
 
@@ -88,7 +110,7 @@ Tasks 2, 3, and 4 run concurrently in one dispatch batch only after file ownersh
 
 ### Task 0 — Resolve targets and preserve provenance
 - Role: read-only discovery. Scope: authorized checkout, registry metadata, configured installed-package provenance, and pinned upstream files above.
-- Steps: identify actual marketing/video skill IDs; resolve canonical repository/ref/package roots; distinguish installed mirrors from source; compare current coverage against REQ-01–07; classify each proposed change as already present, partial, or absent with citations.
+- Steps: identify actual marketing/video skill IDs; resolve canonical repository/ref/package roots; distinguish installed mirrors from source; compare current coverage against REQ-001–007; classify each proposed change as already present, partial, or absent with citations.
 - Deliverable: target map containing absolute authorized workspace, repository revision, exact source/reference/eval paths, existing consumer commands, and proposed per-task file allowlists. Recheck upstream license and pin selected references.
 - Acceptance: every proposed edit maps to a real authorized source path; preserved behavior and existing tests are listed. If unresolved, request only the missing repository/branch/package from the maintainer and block dependent authoring. Do not edit adjacent market-research or metrics skills as substitutes.
 - Decision boundary: no package creation, cross-account transfer, cloning private projects, or architecture changes.
@@ -98,7 +120,7 @@ Tasks 2, 3, and 4 run concurrently in one dispatch batch only after file ownersh
 - Role: shared-contract implementer; depends on Task 0 and plan approval.
 - Owns: existing shared reference or one new reference inside a resolved owning package; linked examples and required attribution only. Exact paths frozen by orchestrator from Task 0.
 - Steps: map C1–C6 to existing vocabulary; add concise invariant/transition tables and synthetic examples; define consumer reference-loading conditions; document missing-capability behavior; retain upstream notices for substantial copied text.
-- Acceptance: REQ-01, REQ-06; all contracts have one authoritative owner; no runtime enforcement or provider capability is claimed merely because guidance exists.
+- Acceptance: REQ-001, REQ-006; all contracts have one authoritative owner; no runtime enforcement or provider capability is claimed merely because guidance exists.
 - Output: changed paths, contract location, field mapping, dependency examples, AC mapping, unresolved decisions. Do not edit marketing/video cores assigned downstream.
 - Size: M; confidence medium. A new executable state/helper API is outside this brief and requires design-solution.
 
@@ -106,7 +128,7 @@ Tasks 2, 3, and 4 run concurrently in one dispatch batch only after file ownersh
 - Role: marketing implementer; depends on Task 1.
 - Owns: resolved marketing skill core and marketing-specific references; no shared-contract/eval/generated edits.
 - Steps: add supplied-brand/apply/extend routing; format precedence; compact intake; shared C1/C2/C5/C6 references; cross-asset consistency review; deterministic correction before broad regeneration; truthful editable/rendered delivery.
-- Acceptance: AC-01–04, AC-09–13, AC-15. Preserve existing provider choices and supported modes. No promise to reproduce upstream's hidden prompt enhancer.
+- Acceptance: AC-001–004, AC-009–013, AC-015. Preserve existing provider choices and supported modes. No promise to reproduce upstream's hidden prompt enhancer.
 - Output: changed paths and per-AC scenario walkthroughs for a hero banner, Pinterest asset, exact-copy correction, stale brand revision, and unavailable font.
 - Size: M; confidence medium, subject to Task 0 gap map.
 
@@ -114,7 +136,7 @@ Tasks 2, 3, and 4 run concurrently in one dispatch batch only after file ownersh
 - Role: video implementer; depends on Task 1.
 - Owns: resolved video skill core and video-specific references; no shared-contract/eval/generated edits.
 - Steps: separate shared style from scene/motion/narration; reference C2–C6; add ordered pairing and readiness checks, duration/voice/style consistency, captions expectations, existing-job recovery, selective repair, and final-assembly/capability-gap delivery.
-- Acceptance: AC-05–10, AC-12, AC-14–15. Existing model/provider capability discovery remains authoritative; no fabricated voice/model IDs, fixed vendor block lengths, or claimed assembly when unavailable.
+- Acceptance: AC-005–010, AC-012, AC-014–015. Existing model/provider capability discovery remains authoritative; no fabricated voice/model IDs, fixed vendor block lengths, or claimed assembly when unavailable.
 - Output: changed paths and scene-manifest walkthroughs for success, missing/duplicate/reordered pairs, overlong narration, uncertain job status, and unavailable assembly.
 - Size: M; confidence medium.
 
@@ -123,7 +145,7 @@ Tasks 2, 3, and 4 run concurrently in one dispatch batch only after file ownersh
 - Owns: resolved target `evals/evals.json` files and evaluation-only fixtures; no skill/reference/generated changes.
 - Steps: map each AC to task-grounded scenarios; preserve useful existing cases; cover precise routing, supplied-brand preservation, stale dependencies, mismatched scene pairs, unavailable capability, timeout recovery, selective repair, unauthorized upload/spend/install, hostile reference instructions, and unsupported ROI claims.
 - Use paired compliant/violating candidate answers. Unauthorized actions, fabricated final artifacts, and invalid assembly are FAIL, never partial. Assertions must reject plausible violations rather than reward keywords copied from the skill. Do not add tests of incidental wording, metadata copies, or mock echoes.
-- Acceptance: AC-17 and explicit coverage of AC-01–14; valid repository eval schema; negative controls documented. Existing scorer limitations are reported, not worked around with misleading PASS claims.
+- Acceptance: AC-017 and explicit coverage of AC-001–014; valid repository eval schema; negative controls documented. Existing scorer limitations are reported, not worked around with misleading PASS claims.
 - Output: eval-to-AC matrix and candidate fixtures for Task 5's real scorer exercise; no live model/media jobs.
 - Size: M; confidence medium.
 
@@ -131,7 +153,7 @@ Tasks 2, 3, and 4 run concurrently in one dispatch batch only after file ownersh
 - Role: sole integration owner; depends on Tasks 2–4 and bounded task review.
 - Owns: affected registry metadata/generated outputs, integration evidence, and appropriate existing changelog/docs. Content defects return to their owners. Do not edit generator/scorer implementations to make gates pass.
 - Steps: freeze source revisions and actual selected skill keys; verify complete target membership/eval files; execute the verification lanes below; exercise routing/resource loading through the existing consumer; exercise compliant and violating candidates through the actual scorer; preserve existing SDD evidence; regenerate only required surfaces with current authoring-root guards; inspect scoped parity, not merely command exit status.
-- Acceptance: AC-15–17; all source invariants covered; command/report provenance retained; no unexpected generated ownership changes; no claims of live efficacy without live evidence.
+- Acceptance: AC-015–017; all source invariants covered; command/report provenance retained; no unexpected generated ownership changes; no claims of live efficacy without live evidence.
 - Output: integrated changed-file list, exact revision/snapshot, executed commands/results, AC matrix, generated parity findings, limitations, and documentation/changelog update. Record existing unrelated failures separately without weakening checks.
 - Size: M; confidence medium.
 

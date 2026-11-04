@@ -42,30 +42,30 @@ Inputs are immutable snapshots. Corrections create new source revisions/hashes a
 
 ## 2. Requirement Trace
 
-| BRD Objective | PRD Req | AC | SRS | Design / Owner / Verification |
+| BRD Objective | PRD REQ reference | AC references | SRS references | Design / Owner / Verification |
 | --- | --- | --- | --- | --- |
-| BRD-OBJ-003 | REQ-001 | AC-001, AC-002 | SRS-001 | CMP-001; research owner; VER-001 |
-| BRD-OBJ-001, BRD-OBJ-002 | REQ-002 | AC-003, AC-004 | SRS-006 | CMP-001; campaign owner; VER-006 |
-| BRD-OBJ-001, BRD-OBJ-002 | REQ-003 | AC-005, AC-006 | SRS-001, SRS-004, SRS-006 | CMP-001; measurement owner; VER-001, VER-005 |
-| BRD-OBJ-001, BRD-OBJ-002 | REQ-003 | AC-007, AC-009 | SRS-002, SRS-004, SRS-006 | CMP-001; measurement owner; VER-002, VER-003, VER-005 |
-| BRD-OBJ-001, BRD-OBJ-002 | REQ-003 | AC-008 | SRS-003, SRS-004, SRS-006 | CMP-001; measurement owner; VER-004, VER-005 |
-| BRD-OBJ-001, BRD-OBJ-002 | REQ-003 | AC-010, AC-011, AC-012 | SRS-004, SRS-005, SRS-006 | CMP-001; measurement owner; VER-006, VER-007 |
-| BRD-OBJ-001, BRD-OBJ-002, BRD-OBJ-003 | REQ-004 | AC-013, AC-014, AC-015 | SRS-008 | CMP-005; QA owner; VER-009 |
-| BRD-OBJ-001, BRD-OBJ-002, BRD-OBJ-003 | REQ-004 | AC-016 | SRS-007 | CMP-003; integration owner; VER-008 |
-| BRD-OBJ-001, BRD-OBJ-003 | REQ-005 | AC-017 | SRS-008 | CMP-005; research owner; VER-009 |
-| BRD-OBJ-001, BRD-OBJ-003 | REQ-006 | AC-018 | SRS-008 | CMP-005; research owner; VER-009 |
-| BRD-OBJ-001, BRD-OBJ-003 | REQ-007 | AC-019 | SRS-008 | CMP-005; evidence owner; VER-009 |
-| BRD-OBJ-001, BRD-OBJ-002 | REQ-008 | AC-020 | SRS-008 | CMP-005; campaign owner; VER-009 |
-| BRD-OBJ-001, BRD-OBJ-002 | REQ-009 | AC-021 | SRS-008 | CMP-005; content owner; VER-009 |
-| BRD-OBJ-001, BRD-OBJ-002, BRD-OBJ-003 | REQ-010 | AC-022 | SRS-008 | CMP-005; content owner; VER-009 |
-| BRD-OBJ-001, BRD-OBJ-002 | REQ-011 | AC-023 | SRS-008 | CMP-005; web owner; VER-009 |
-| BRD-OBJ-001, BRD-OBJ-002 | REQ-012 | AC-024 | SRS-008 | CMP-005; content owner; VER-009 |
-| BRD-OBJ-002, BRD-OBJ-003 | REQ-013 | AC-025 | SRS-008 | CMP-005; campaign owner; VER-009 |
-| BRD-OBJ-001, BRD-OBJ-002, BRD-OBJ-003 | REQ-014 | AC-026 | SRS-008 | CMP-005; campaign owner; VER-009 |
-| BRD-OBJ-001, BRD-OBJ-002, BRD-OBJ-003 | REQ-015 | AC-027 | SRS-008 | CMP-005; media owner; VER-009 |
-| BRD-OBJ-001, BRD-OBJ-002, BRD-OBJ-003 | REQ-016 | AC-028 | SRS-001, SRS-006 | CMP-001; measurement owner; VER-001 |
-| BRD-OBJ-001, BRD-OBJ-003 | REQ-017 | AC-029, AC-030, AC-031, AC-032 | SRS-009 | CMP-004; web owner; VER-010 |
-| BRD-OBJ-001, BRD-OBJ-003 | REQ-018 | AC-033, AC-034 | SRS-006, SRS-010 | CMP-001; privacy/measurement owner; VER-011 |
+| Objective reference: BRD-OBJ-003 | REQ-001 | AC-001, AC-002 | SRS-001 | CMP-001; research owner; VER-001 |
+| Objective reference: BRD-OBJ-001, BRD-OBJ-002 | REQ-002 | AC-003, AC-004 | SRS-006 | CMP-001; campaign owner; VER-006 |
+| Objective reference: BRD-OBJ-001, BRD-OBJ-002 | REQ-003 | AC-005, AC-006 | SRS-001, SRS-004, SRS-006 | CMP-001; measurement owner; VER-001, VER-005 |
+| Objective reference: BRD-OBJ-001, BRD-OBJ-002 | REQ-003 | AC-007, AC-009 | SRS-002, SRS-004, SRS-006 | CMP-001; measurement owner; VER-002, VER-003, VER-005 |
+| Objective reference: BRD-OBJ-001, BRD-OBJ-002 | REQ-003 | AC-008 | SRS-003, SRS-004, SRS-006 | CMP-001; measurement owner; VER-004, VER-005 |
+| Objective reference: BRD-OBJ-001, BRD-OBJ-002 | REQ-003 | AC-010, AC-011, AC-012 | SRS-004, SRS-005, SRS-006 | CMP-001; measurement owner; VER-006, VER-007 |
+| Objective reference: BRD-OBJ-001, BRD-OBJ-002, BRD-OBJ-003 | REQ-004 | AC-013, AC-014, AC-015 | SRS-008 | CMP-005; QA owner; VER-009 |
+| Objective reference: BRD-OBJ-001, BRD-OBJ-002, BRD-OBJ-003 | REQ-004 | AC-016 | SRS-007 | CMP-003; integration owner; VER-008 |
+| Objective reference: BRD-OBJ-001, BRD-OBJ-003 | REQ-005 | AC-017 | SRS-008 | CMP-005; research owner; VER-009 |
+| Objective reference: BRD-OBJ-001, BRD-OBJ-003 | REQ-006 | AC-018 | SRS-008 | CMP-005; research owner; VER-009 |
+| Objective reference: BRD-OBJ-001, BRD-OBJ-003 | REQ-007 | AC-019 | SRS-008 | CMP-005; evidence owner; VER-009 |
+| Objective reference: BRD-OBJ-001, BRD-OBJ-002 | REQ-008 | AC-020 | SRS-008 | CMP-005; campaign owner; VER-009 |
+| Objective reference: BRD-OBJ-001, BRD-OBJ-002 | REQ-009 | AC-021 | SRS-008 | CMP-005; content owner; VER-009 |
+| Objective reference: BRD-OBJ-001, BRD-OBJ-002, BRD-OBJ-003 | REQ-010 | AC-022 | SRS-008 | CMP-005; content owner; VER-009 |
+| Objective reference: BRD-OBJ-001, BRD-OBJ-002 | REQ-011 | AC-023 | SRS-008 | CMP-005; web owner; VER-009 |
+| Objective reference: BRD-OBJ-001, BRD-OBJ-002 | REQ-012 | AC-024 | SRS-008 | CMP-005; content owner; VER-009 |
+| Objective reference: BRD-OBJ-002, BRD-OBJ-003 | REQ-013 | AC-025 | SRS-008 | CMP-005; campaign owner; VER-009 |
+| Objective reference: BRD-OBJ-001, BRD-OBJ-002, BRD-OBJ-003 | REQ-014 | AC-026 | SRS-008 | CMP-005; campaign owner; VER-009 |
+| Objective reference: BRD-OBJ-001, BRD-OBJ-002, BRD-OBJ-003 | REQ-015 | AC-027 | SRS-008 | CMP-005; media owner; VER-009 |
+| Objective reference: BRD-OBJ-001, BRD-OBJ-002, BRD-OBJ-003 | REQ-016 | AC-028 | SRS-001, SRS-006 | CMP-001; measurement owner; VER-001 |
+| Objective reference: BRD-OBJ-001, BRD-OBJ-003 | REQ-017 | AC-029, AC-030, AC-031, AC-032 | SRS-009 | CMP-004; web owner; VER-010 |
+| Objective reference: BRD-OBJ-001, BRD-OBJ-003 | REQ-018 | AC-033, AC-034 | SRS-006, SRS-010 | CMP-001; privacy/measurement owner; VER-011 |
 
 ## 3. Requirement cards
 

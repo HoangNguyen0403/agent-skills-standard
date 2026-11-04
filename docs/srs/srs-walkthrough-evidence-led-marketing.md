@@ -9,7 +9,7 @@ Status legend: **PASS (local)** = exercised in the accepted local scope; **PARTI
 
 ## Requirement status
 
-| REQ | Capability | Local status | Evidence and qualification |
+| PRD REQ reference | Capability | Local status | Evidence and qualification |
 | --- | --- | --- | --- |
 | [`REQ-001`](../prd/prd-evidence-led-marketing.md) | Sourced positioning/proof | PARTIAL | T03 definition packages accepted by independent review; no live model efficacy or real audience study. |
 | [`REQ-002`](../prd/prd-evidence-led-marketing.md) | Truthful landing/demo/community campaign | PASS (local) for assets and landing; publication not authorized | T09 accepted assets; T10 accepted local surface; drafts remain `prepared`. |
@@ -30,7 +30,7 @@ Status legend: **PASS (local)** = exercised in the accepted local scope; **PARTI
 
 ## Acceptance criteria trace
 
-| AC | Local status | Proof / evidence | Limit |
+| PRD AC reference | Local status | Proof / evidence | Limit |
 | --- | --- | --- | --- |
 | [`AC-001`](../prd/prd-evidence-led-marketing.md) | PARTIAL | T03 proof/positioning rubric cases accepted | Definition/rubric, not model output quality |
 | [`AC-002`](../prd/prd-evidence-led-marketing.md) | PARTIAL | T03 assumption-labelling cases accepted | Same |
