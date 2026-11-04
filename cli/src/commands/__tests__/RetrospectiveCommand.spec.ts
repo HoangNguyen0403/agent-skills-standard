@@ -45,7 +45,30 @@ describe('RetrospectiveCommand', () => {
   });
 
   describe('version guard', () => {
+    it('ships a pinned MCP version that satisfies the retrospective minimum', () => {
+      expect(
+        isVersionAtLeast(MCP_COMPATIBLE_VERSION, RETROSPECTIVE_MIN_MCP_VERSION),
+      ).toBe(true);
+    });
+
     it('refuses without spawning when pinned < min and no override', async () => {
+      const command = new RetrospectiveCommand({
+        spawnFn: mockSpawn,
+        platform: 'linux',
+        env: {},
+        mcpVersion: '0.6.1',
+      });
+
+      await command.run('status');
+
+      expect(mockSpawn).not.toHaveBeenCalled();
+      expect(process.exitCode).toBe(1);
+      expect(logs.join('\n')).toBe(
+        `Session retrospectives need agent-skills-standard-mcp ${RETROSPECTIVE_MIN_MCP_VERSION} or newer, but this ags is pinned to 0.6.1. Upgrade ags (ags upgrade), or set AGS_MCP_PACKAGE_SPEC to a newer package for testing.`,
+      );
+    });
+
+    it('spawns the shipped MCP pin by default', async () => {
       const command = new RetrospectiveCommand({
         spawnFn: mockSpawn,
         platform: 'linux',
@@ -54,10 +77,15 @@ describe('RetrospectiveCommand', () => {
 
       await command.run('status');
 
-      expect(mockSpawn).not.toHaveBeenCalled();
-      expect(process.exitCode).toBe(1);
-      expect(logs.join('\n')).toBe(
-        `Session retrospectives need agent-skills-standard-mcp ${RETROSPECTIVE_MIN_MCP_VERSION} or newer, but this ags is pinned to ${MCP_COMPATIBLE_VERSION}. Upgrade ags (ags upgrade), or set AGS_MCP_PACKAGE_SPEC to a newer package for testing.`,
+      expect(mockSpawn).toHaveBeenCalledWith(
+        'npx',
+        [
+          '-y',
+          `agent-skills-standard-mcp@${MCP_COMPATIBLE_VERSION}`,
+          'retrospective',
+          'consent-status',
+        ],
+        { stdio: 'inherit' },
       );
     });
 

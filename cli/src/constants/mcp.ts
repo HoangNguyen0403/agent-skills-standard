@@ -9,7 +9,7 @@
  * no automated sync between the two (mirrors how skills/metadata.json
  * category versions are maintained today).
  */
-export const MCP_COMPATIBLE_VERSION = '0.6.1';
+export const MCP_COMPATIBLE_VERSION = '0.8.0';
 
 /**
  * Minimum `agent-skills-standard-mcp` version required for session retrospectives.

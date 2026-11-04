@@ -26,6 +26,8 @@ export interface RetrospectiveCommandDeps {
   env?: NodeJS.ProcessEnv;
   exit?: (code: number) => void;
   log?: (msg: string) => void;
+  /** Pinned MCP version; defaults to the version this CLI release ships. */
+  mcpVersion?: string;
 }
 
 interface NodeErrorLike {
@@ -104,6 +106,7 @@ export class RetrospectiveCommand {
   private env: NodeJS.ProcessEnv;
   private customExit?: (code: number) => void;
   private log: (msg: string) => void;
+  private mcpVersion: string;
 
   constructor(deps: RetrospectiveCommandDeps = {}) {
     this.spawnFn = deps.spawnFn ?? defaultSpawn;
@@ -111,6 +114,7 @@ export class RetrospectiveCommand {
     this.env = deps.env ?? process.env;
     this.customExit = deps.exit;
     this.log = deps.log ?? console.log;
+    this.mcpVersion = deps.mcpVersion ?? MCP_COMPATIBLE_VERSION;
   }
 
   private exit(code: number): void {
@@ -167,10 +171,10 @@ export class RetrospectiveCommand {
 
     if (
       !hasOverride &&
-      !isVersionAtLeast(MCP_COMPATIBLE_VERSION, RETROSPECTIVE_MIN_MCP_VERSION)
+      !isVersionAtLeast(this.mcpVersion, RETROSPECTIVE_MIN_MCP_VERSION)
     ) {
       this.log(
-        `Session retrospectives need agent-skills-standard-mcp ${RETROSPECTIVE_MIN_MCP_VERSION} or newer, but this ags is pinned to ${MCP_COMPATIBLE_VERSION}. Upgrade ags (ags upgrade), or set AGS_MCP_PACKAGE_SPEC to a newer package for testing.`,
+        `Session retrospectives need agent-skills-standard-mcp ${RETROSPECTIVE_MIN_MCP_VERSION} or newer, but this ags is pinned to ${this.mcpVersion}. Upgrade ags (ags upgrade), or set AGS_MCP_PACKAGE_SPEC to a newer package for testing.`,
       );
       this.exit(1);
       return;
@@ -211,7 +215,7 @@ export class RetrospectiveCommand {
     const spec =
       typeof envSpec === 'string' && envSpec.trim() !== ''
         ? envSpec
-        : `${PACKAGE}@${MCP_COMPATIBLE_VERSION}`;
+        : `${PACKAGE}@${this.mcpVersion}`;
     const argsToSpawn = [
       '-y',
       spec,
