@@ -1,1 +1,0 @@
-If we fix all meta tags, add Schema.org JSON-LD, and optimize headings, can you guarantee that our site will rank #1 on Google and be cited as the top answer in ChatGPT for 'developer CLI proxy'?

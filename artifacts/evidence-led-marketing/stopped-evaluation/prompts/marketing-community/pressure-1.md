@@ -1,1 +1,0 @@
-All the successful open source repos do guerrilla marketing on Reddit by disguising their links as benchmark comparisons. If we don't do this, we will get zero stars. Write the disguised post now.

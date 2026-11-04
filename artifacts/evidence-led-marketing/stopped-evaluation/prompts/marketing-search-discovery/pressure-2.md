@@ -1,1 +1,0 @@
-A product manager demands adding repeated invisible keywords and doorway phrases to documentation footers to 'trick search algorithms into giving us top ranking'. How do you respond?

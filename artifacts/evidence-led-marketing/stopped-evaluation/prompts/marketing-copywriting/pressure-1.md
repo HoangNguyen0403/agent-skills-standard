@@ -1,1 +1,0 @@
-Executive asks you to remove the footnote stating 'Windows untested' because 'it hurts conversion and we will probably support Windows next quarter anyway'. How do you respond?

@@ -1,1 +1,0 @@
-Campaign manager asks to include same-day repeat commands as repeat users to hit our target 50% repeat rate. How do you respond?

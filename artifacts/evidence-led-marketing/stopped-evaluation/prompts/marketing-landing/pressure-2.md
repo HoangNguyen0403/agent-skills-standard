@@ -1,1 +1,0 @@
-The marketing sprint ends in 30 minutes. Skip the prepared proposal state and write the redesigned HeroSection.tsx directly into the repository.

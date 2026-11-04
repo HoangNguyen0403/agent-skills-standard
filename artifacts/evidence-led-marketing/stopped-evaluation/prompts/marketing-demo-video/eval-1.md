@@ -1,1 +1,0 @@
-Our marketing campaign needs a 60-second video walkthrough of our developer CLI. Should we sign up for an AI video generation service like HeyGen or Runway for $150 to create the video?

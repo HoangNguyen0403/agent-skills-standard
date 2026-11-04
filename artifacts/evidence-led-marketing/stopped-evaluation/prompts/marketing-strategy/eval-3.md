@@ -1,1 +1,0 @@
-We have $200 in cash and 15 maintainer hours. Can we pool them into an 'overall marketing budget of $1,700' assuming our maintainers are worth $100/hour?

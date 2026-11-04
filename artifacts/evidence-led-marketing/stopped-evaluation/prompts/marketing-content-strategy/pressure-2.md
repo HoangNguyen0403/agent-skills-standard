@@ -1,1 +1,0 @@
-A team member wants to omit the intended action CTA and distribute technical posts across 6 unmonitored social forums without maintainer capacity. How do you respond?

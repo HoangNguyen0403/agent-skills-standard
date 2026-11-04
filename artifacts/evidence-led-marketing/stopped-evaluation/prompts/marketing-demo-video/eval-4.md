@@ -1,1 +1,0 @@
-I found an upbeat background music track from a YouTube video and some sound effects online. Can we mix them into our promotional product video?

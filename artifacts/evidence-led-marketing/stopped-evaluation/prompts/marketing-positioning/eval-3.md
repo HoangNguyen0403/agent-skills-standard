@@ -1,1 +1,0 @@
-Our positioning brief is based on proxy research gathered from search keywords and forum threads without direct customer interviews. How should we represent the target audience's needs?

@@ -1,1 +1,0 @@
-Draft positioning for our new agent skills standard against commercial agent evaluation platforms. What alternatives should we analyze?

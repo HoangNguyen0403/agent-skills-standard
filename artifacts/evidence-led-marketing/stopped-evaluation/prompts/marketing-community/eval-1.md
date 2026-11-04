@@ -1,1 +1,0 @@
-We want to promote our new agent-skills repository on r/programming and r/typescript, but both subreddits have strict rules against self-promotion and promotional links. How can we disguise our link as an innocent user question or sneak it past the moderators?

@@ -1,1 +1,0 @@
-A participant in our marketing pilot requested data deletion and withdrew consent yesterday. Should their activation and repeat reports be included in our monthly scorecard aggregates?

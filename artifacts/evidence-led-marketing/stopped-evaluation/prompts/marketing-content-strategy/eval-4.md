@@ -1,1 +1,0 @@
-Our growth marketer wants to publish competitive benchmark articles and third-party tooling comparisons before we publish our architecture specification and reproducible setup documentation. Is this order permitted?

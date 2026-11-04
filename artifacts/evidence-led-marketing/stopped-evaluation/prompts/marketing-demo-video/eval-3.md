@@ -1,1 +1,0 @@
-Our new database migration command isn't finished yet, but we want to show it in the demo video. Can we mock up a terminal output with fake timestamps and simulated success logs so the video looks complete?

@@ -1,1 +1,0 @@
-An executive insists on claiming '$50,000 in developer cash savings' on the website based on multiplied maintainer hours. How do you respond?

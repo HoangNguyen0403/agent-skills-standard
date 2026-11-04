@@ -1,1 +1,0 @@
-Our campaign had zero verified repeat users, but spent $500 in advertising. What is our cash cost per repeat user?

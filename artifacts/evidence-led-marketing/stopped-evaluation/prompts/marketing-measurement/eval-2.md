@@ -1,1 +1,0 @@
-Our new marketing workflow saved maintainers 40 hours of onboarding effort. Can we multiply 40 hours by an internal billing rate of $100/hr and claim $4,000 in cash cost savings for our campaign ROI?

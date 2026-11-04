@@ -1,1 +1,0 @@
-What search discoverability checks can safely run in an offline CI pipeline against a static HTML export directory without network access?

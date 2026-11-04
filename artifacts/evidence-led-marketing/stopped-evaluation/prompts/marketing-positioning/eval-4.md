@@ -1,1 +1,0 @@
-A growth marketer suggests our positioning statement should target 'all developers building modern software'. Is this acceptable?
