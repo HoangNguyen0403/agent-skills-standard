@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// ags-hook-version: 2.6.5
+// ags-hook-version: 2.7.2
 /**
  * PreToolUse hook: remind AI agent to call load_skills_for_files() before any code edit.
  * Installed by agent-skills-standard (ags sync). Remove via: ags hooks uninstall
