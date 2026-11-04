@@ -4,8 +4,23 @@ import * as yaml from 'js-yaml';
 import path from 'path';
 import { z } from 'zod';
 import { Agent, getAgentDefinition } from '../constants';
+import type { AttributionCatalog } from '../models/types';
+import { validateAttributionCatalog } from './AttributionService';
 
 export const LOCKFILE_NAME = '.skills-lock.json';
+
+/** Top-level names this writer owns; anything else is preserved verbatim. */
+const KNOWN_LOCK_KEYS: Record<string, true> = {
+  version: true,
+  registry: true,
+  generatedAt: true,
+  sources: true,
+  entries: true,
+  generation: true,
+  disclosed: true,
+  workflowCatalog: true,
+  attributionCatalog: true,
+};
 export type Owner = 'skill' | 'workflow' | 'specialist' | 'bridge' | 'index';
 
 /**
@@ -90,6 +105,12 @@ export interface SkillsLockFile {
   generation?: GenerationLedger;
   disclosed?: Record<string, string[]>;
   workflowCatalog?: WorkflowCatalog;
+  /**
+   * Additive qualified attribution provenance. Missing is valid legacy state;
+   * older writers may drop it, which requires requalification rather than an
+   * invented origin.
+   */
+  attributionCatalog?: AttributionCatalog;
 }
 
 export interface LoadedLock {
@@ -235,6 +256,7 @@ const lockV2Schema = z
     ),
     disclosed: z.record(z.string(), z.array(z.string())).optional(),
     workflowCatalog: z.unknown().optional(),
+    attributionCatalog: z.unknown().optional(),
   })
   .passthrough();
 
@@ -253,7 +275,8 @@ function parseLockV2(raw: unknown): SkillsLockFile {
       `Invalid .skills-lock.json: ${where} ${issue?.message ?? 'is invalid'}`,
     );
   }
-  const { workflowCatalog: rawCatalog, ...rest } = parsed.data;
+  const { workflowCatalog: rawCatalog, attributionCatalog: rawAttribution, ...rest } =
+    parsed.data;
   const generation = parseGenerationLedger(
     (raw as Record<string, unknown>).generation,
   );
@@ -263,6 +286,9 @@ function parseLockV2(raw: unknown): SkillsLockFile {
     ...(rawCatalog === undefined
       ? {}
       : { workflowCatalog: validateWorkflowCatalog(rawCatalog) }),
+    ...(rawAttribution === undefined
+      ? {}
+      : { attributionCatalog: validateAttributionCatalog(rawAttribution) }),
   };
 }
 
@@ -535,27 +561,39 @@ export class LockfileService {
       // Validate before touching the previous publication.
       validateWorkflowCatalog(lock.workflowCatalog);
     }
+    if (lock.attributionCatalog !== undefined) {
+      validateAttributionCatalog(lock.attributionCatalog);
+    }
+    let existingRaw: Record<string, unknown> | undefined;
     let existingDisclosed: Record<string, string[]> | undefined;
     let existingGeneration: GenerationLedger | undefined;
+    let existingAttribution: AttributionCatalog | undefined;
     if (await fs.pathExists(file)) {
-      let raw:
+      try {
+        existingRaw = (await readJsonStrict(file)) as Record<string, unknown>;
+      } catch {
+        // Unreadable/unparseable previous lock: nothing to preserve.
+      }
+      const raw = existingRaw as
         | {
             version?: unknown;
             disclosed?: Record<string, string[]>;
             generation?: unknown;
+            attributionCatalog?: unknown;
           }
         | undefined;
-      try {
-        raw = (await readJsonStrict(file)) as typeof raw;
-      } catch {
-        // Unreadable/unparseable previous lock: nothing to preserve.
-      }
       if (raw) {
         existingDisclosed = raw.disclosed;
         if (raw.version === 2) {
-          // Semantic validation is never swallowed: an invalid ledger in the
-          // previous lock must fail the write before publication.
+          // Semantic validation is never swallowed: an invalid ledger or
+          // catalog in the previous lock must fail the write before
+          // publication.
           existingGeneration = parseGenerationLedger(raw.generation);
+          if (raw.attributionCatalog !== undefined) {
+            existingAttribution = validateAttributionCatalog(
+              raw.attributionCatalog,
+            );
+          }
         } else if (raw.generation !== undefined) {
           throw new Error('Unsupported repository-generation lock namespace');
         }
@@ -566,6 +604,12 @@ export class LockfileService {
         ? existingGeneration
         : parseGenerationLedger(lock.generation);
     const disclosed = lock.disclosed ?? existingDisclosed;
+    // A writer that does not know the additive namespace must not strip
+    // qualified provenance it cannot recreate.
+    const attribution =
+      lock.attributionCatalog === undefined
+        ? existingAttribution
+        : lock.attributionCatalog;
     const sortedEntries: Record<string, ManifestEntry> = {};
     for (const k of Object.keys(lock.entries).sort()) {
       sortedEntries[k] = lock.entries[k];
@@ -574,17 +618,27 @@ export class LockfileService {
     for (const k of Object.keys(generation?.entries ?? {}).sort()) {
       sortedGenerationEntries[k] = generation!.entries[k];
     }
-    const out: SkillsLockFile = {
+    const out: Record<string, unknown> = {
       ...lock,
       entries: sortedEntries,
       ...(generation
         ? { generation: { version: 1, entries: sortedGenerationEntries } }
         : {}),
       ...(disclosed ? { disclosed } : {}),
+      ...(attribution ? { attributionCatalog: attribution } : {}),
     };
     if (!generation) delete out.generation;
     if (!disclosed) {
       delete out.disclosed;
+    }
+    if (!attribution) {
+      delete out.attributionCatalog;
+    }
+    // Preserve unrelated extension fields from the previous lock instead of
+    // silently dropping every namespace this writer does not recognize.
+    for (const [key, value] of Object.entries(existingRaw ?? {})) {
+      if (KNOWN_LOCK_KEYS[key] || key in out) continue;
+      out[key] = value;
     }
     await this.publishAtomic(file, out);
   }
@@ -634,6 +688,9 @@ export class LockfileService {
     if (raw.workflowCatalog !== undefined) {
       // Validate the object being republished before replacing the lock.
       validateWorkflowCatalog(raw.workflowCatalog);
+    }
+    if (raw.attributionCatalog !== undefined) {
+      validateAttributionCatalog(raw.attributionCatalog);
     }
     await this.publishAtomic(file, { ...raw, disclosed });
   }

@@ -101,7 +101,9 @@ type SyncServicePrivates = {
     reconcileDependencies: ReturnType<typeof vi.fn>;
   };
   specialistSyncService: {
-    syncSpecialists: ReturnType<typeof vi.fn>;
+    acquireSpecialists: ReturnType<typeof vi.fn>;
+    readLocalSpecialists: ReturnType<typeof vi.fn>;
+    writeSpecialists: ReturnType<typeof vi.fn>;
   };
 };
 function privatesOf(s: SyncService): SyncServicePrivates {
@@ -724,7 +726,7 @@ describe('SyncService', () => {
     it('should check remote registry for updates', async () => {
       const config = makeConfig({
         registry: 'https://github.com/o/r',
-        skills: { ts: { ref: 'v1' } },
+        skills: { ts: { ref: 'v1.0.0' } },
       });
 
       mockGithubService.getRepoInfo.mockResolvedValue({
@@ -732,17 +734,36 @@ describe('SyncService', () => {
       });
       mockGithubService.getRawFile.mockResolvedValue(
         JSON.stringify({
-          categories: { ts: { version: 'v2' } },
+          categories: { ts: { version: '2.0.0', tag_prefix: 'v' } },
         }),
       );
 
       const updates = await syncService.checkForUpdates(config);
-      expect(updates).toEqual({ ts: 'v2' });
+      expect(updates).toEqual({ ts: 'v2.0.0' });
     });
+
+    it('never offers a lower, equal, prerelease, or incomparable advertised ref', async () => {
+      const advertised = ['1.0.0', '1.2.3', '2.0.0-beta.1', 'nightly'];
+      for (const version of advertised) {
+        mockGithubService.getRawFile.mockResolvedValue(
+          JSON.stringify({
+            categories: { ts: { version, tag_prefix: 'v' } },
+          }),
+        );
+        const updates = await syncService.checkForUpdates(
+          makeConfig({
+            registry: 'https://github.com/o/r',
+            skills: { ts: { ref: 'v1.2.3' } },
+          }),
+        );
+        expect(updates).toEqual({});
+      }
+    });
+
     it('should not offer updates if candidate tag does not exist on remote repository', async () => {
       const config = makeConfig({
         registry: 'https://github.com/o/r',
-        skills: { ts: { ref: 'v1' } },
+        skills: { ts: { ref: 'v1.0.0' } },
       });
 
       mockGithubService.getRepoInfo.mockResolvedValue({
@@ -750,7 +771,7 @@ describe('SyncService', () => {
       });
       mockGithubService.getRawFile.mockResolvedValue(
         JSON.stringify({
-          categories: { ts: { version: 'v2' } },
+          categories: { ts: { version: '2.0.0', tag_prefix: 'v' } },
         }),
       );
       mockGithubService.resolveCommit.mockResolvedValue(null);
@@ -872,23 +893,56 @@ describe('SyncService', () => {
       );
     });
 
-    it('syncSpecialists should return early if no agents resolved', async () => {
+    it('writeSpecialists returns true early when no agents are configured', async () => {
       const config = makeConfig({ agents: [] });
       const p = privatesOf(syncService);
       // @ts-expect-error - accessing private service
       vi.mocked(p.detectionService.detectAgents).mockResolvedValue({});
 
-      const spy = vi.spyOn(p as any, 'resolveTargetAgents');
-      await syncService.syncSpecialists(config);
-      expect(spy).toHaveReturnedWith(Promise.resolve([]));
+      await expect(
+        syncService.writeSpecialists(
+          { status: 'complete', specialists: [], failures: [] },
+          config,
+        ),
+      ).resolves.toBe(true);
     });
 
-    it('syncSpecialists should fallback to internal specialists if primary agent path does not exist', async () => {
-      const config = makeConfig({ agents: [Agent.Antigravity] });
+    it('acquireSpecialists reports remote acquisition through the resolved source', async () => {
+      const config = makeConfig({
+        registry: 'https://github.com/owner/repo',
+        agents: [Agent.Claude],
+        specialists_ref: 'specialists-v1.0.0',
+      });
+      mockGithubService.getRepoInfo.mockResolvedValue({
+        default_branch: 'main',
+      });
+      mockGithubService.getRawFile.mockResolvedValue(
+        JSON.stringify({
+          categories: {
+            specialists: { version: '1.0.0', tag_prefix: 'specialists-v' },
+          },
+        }),
+      );
+      await syncService.resolvePins(config);
       vi.mocked(fs.pathExists).mockResolvedValue(false as never);
+      const p = privatesOf(syncService);
+      const acquireSpy = vi
+        .spyOn(p.specialistSyncService, 'acquireSpecialists')
+        .mockResolvedValue({
+          status: 'complete',
+          specialists: [],
+          failures: [],
+        });
 
-      await syncService.syncSpecialists(config);
-      // Logic hit, coverage achieved.
+      const acquired = await syncService.acquireSpecialists(config);
+
+      expect(acquired.status).toBe('complete');
+      expect(acquireSpy).toHaveBeenCalledWith(
+        config,
+        'specialists-v1.0.0',
+        expect.anything(),
+        '1111111111111111111111111111111111111111',
+      );
     });
   });
 
@@ -927,7 +981,7 @@ describe('SyncService', () => {
     it('uses tag_prefix if present', async () => {
       const config = makeConfig({
         registry: 'https://github.com/o/r',
-        skills: { ts: { ref: 'v1' } },
+        skills: { ts: { ref: 'v1.0.0' } },
       });
       mockGithubService.getRawFile.mockResolvedValue(
         JSON.stringify({
@@ -993,7 +1047,7 @@ describe('SyncService', () => {
     });
 
     it('does nothing when .agent does not exist', async () => {
-      vi.mocked(fs.pathExists).mockResolvedValue(false);
+      vi.mocked(fs.pathExists).mockResolvedValue(false as never);
       const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
       await syncService.writeSkills([], makeConfig());
@@ -1006,7 +1060,7 @@ describe('SyncService', () => {
 
   describe('warnIfSyncingFromSameRepo (Lines 78-83)', () => {
     it('should warn when local git remote matches the registry URL', async () => {
-      const { GitService } = await import('../GitService');
+      const { GitService } = await import('../GitService.js');
       const gitRemoteSpy = vi
         .spyOn(GitService.prototype, 'getRemoteUrl')
         .mockReturnValue('https://github.com/owner/repo');
@@ -1029,25 +1083,31 @@ describe('SyncService', () => {
     });
   });
 
-  describe('syncSpecialists local flow (Line 118)', () => {
-    it('should sync using local specialists if local specialists directory exists', async () => {
+  describe('specialist publication', () => {
+    it('should write the acquired specialists through the ownership writer', async () => {
       const config = makeConfig({ agents: [Agent.Claude] });
-
-      vi.mocked(fs.pathExists).mockImplementation(async (p: string) => {
-        return p.endsWith('skills/specialists');
-      });
-
       const p = privatesOf(syncService);
-      const syncSpy = vi
-        .spyOn(p.specialistSyncService as any, 'syncSpecialists')
-        .mockResolvedValue(undefined);
+      const writeSpy = vi
+        .spyOn(p.specialistSyncService, 'writeSpecialists')
+        .mockResolvedValue(1);
+      const specialists = [
+        {
+          category: 'specialists',
+          skill: 'reviewer',
+          files: [{ name: 'SKILL.md', content: 'content' }],
+        },
+      ];
 
-      await syncService.syncSpecialists(config);
+      const ok = await syncService.writeSpecialists(
+        { status: 'complete', specialists, failures: [] },
+        config,
+      );
 
-      expect(syncSpy).toHaveBeenCalledWith(
+      expect(ok).toBe(true);
+      expect(writeSpy).toHaveBeenCalledWith(
         process.cwd(),
         [Agent.Claude],
-        expect.stringContaining('skills/specialists'),
+        specialists,
         expect.anything(),
       );
     });
@@ -1204,6 +1264,7 @@ describe('SyncService', () => {
         }),
       );
     });
+
     it('completeInstall awaits requested index refresh with local metadata before writing the lock', async () => {
       const config = makeConfig({ agents: [Agent.Cursor] });
       const localMetadata = {
@@ -1276,6 +1337,7 @@ describe('SyncService', () => {
         config,
         'workflows-v2.5.0',
         expect.anything(),
+        '1111111111111111111111111111111111111111',
       );
     });
 

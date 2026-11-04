@@ -9,6 +9,7 @@ import { ConfigService, ConfigSnapshot } from '../ConfigService';
 import { GithubService, ReleaseManifest } from '../GithubService';
 import { LOCKFILE_NAME, sha256 } from '../LockfileService';
 import { SkillAssemblyError } from '../SkillSyncService';
+import { IntegrityError } from '../GithubService';
 import {
   PreparedSkillChange,
   SkillSelectionApplyService,
@@ -537,9 +538,9 @@ describe('SkillSelectionApplyService', () => {
     transport.publish(COMMON_V1, COMMON_V1_COMMIT, {
       [packagePath]: skillMarkdown('tampered-source'),
     });
-    await expect(
-      applyService.prepare(initial, proposed),
-    ).rejects.toBeInstanceOf(SkillAssemblyError);
+    await expect(applyService.prepare(initial, proposed)).rejects.toBeInstanceOf(
+      IntegrityError,
+    );
     expect(await readConfigBytes()).toBe(configBytes);
     expect(await fs.pathExists(projectPath('.claude/skills'))).toBe(false);
   });

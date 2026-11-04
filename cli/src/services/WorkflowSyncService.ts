@@ -8,7 +8,7 @@ import {
 } from '../constants';
 import { SkillConfig } from '../models/config';
 import { CollectedSkill } from '../models/types';
-import { GithubService } from './GithubService';
+import { GithubService, IntegrityError } from './GithubService';
 import { SHARED_WORKFLOW_AGENT, sha256 } from './LockfileService';
 import { WorkflowTransformer } from './utils/WorkflowTransformer';
 
@@ -146,19 +146,24 @@ export class WorkflowSyncService {
     config: SkillConfig,
     ref: string = 'main',
     verifier?: ManifestVerifier,
+    commit?: string,
   ): Promise<CollectedSkill[]> {
-    return (await this.acquireWorkflows(config, ref, verifier)).workflows;
+    return (await this.acquireWorkflows(config, ref, verifier, commit))
+      .workflows;
   }
 
   /**
    * Acquires the selected canonical workflows and reports whether the desired
    * set is complete. Partial discovery/download/integrity failures are
-   * `incomplete` and never authorize absence-based pruning.
+   * `incomplete` and never authorize absence-based pruning. When `commit` is
+   * supplied, discovery and downloads use that immutable identity instead of
+   * the mutable ref string.
    */
   async acquireWorkflows(
     config: SkillConfig,
     ref: string = 'main',
     verifier?: ManifestVerifier,
+    commit?: string,
   ): Promise<WorkflowAcquisition> {
     if (config.workflows === false || config.workflows === undefined) {
       return { status: 'disabled', workflows: [], failures: [] };
@@ -182,9 +187,20 @@ export class WorkflowSyncService {
     }
 
     const { owner, repo } = githubMatch;
+    if (verifier && commit) {
+      // A manifest for another commit cannot verify this source, even when the
+      // bytes happen to be identical: refuse before discovery/download.
+      const rejection = verifier.checkSourceCommit(commit);
+      if (rejection) throw new IntegrityError(`workflows@${ref}: ${rejection}`);
+    }
     console.log(pc.gray(`  - Discovering workflows (${ref})...`));
 
-    const treeData = await this.githubService.getRepoTree(owner, repo, ref);
+    const treeData = await this.githubService.getRepoTree(
+      owner,
+      repo,
+      ref,
+      commit ? { commit } : undefined,
+    );
     if (!treeData) {
       console.log(pc.red(`    ❌ Failed to fetch workflows@${ref}.`));
       return {
@@ -220,25 +236,31 @@ export class WorkflowSyncService {
       return { status: 'complete', workflows: [], failures: [] };
     }
 
-    const { ok: files, failed } =
-      await this.githubService.downloadFilesConcurrent(
-        workflowFiles.map((f) => ({
-          owner,
-          repo,
-          ref,
-          path: f.path,
-          sha: f.sha,
-        })),
-      );
+    const downloadResult = await this.githubService.downloadFilesConcurrent(
+      workflowFiles.map((f) => ({
+        owner,
+        repo,
+        ref,
+        path: f.path,
+        sha: f.sha,
+        ...(commit ? { commit } : {}),
+      })),
+    );
+    // A confirmed throttle is a typed failure, not an incomplete selection:
+    // callers must be able to report the rate limit instead of a generic
+    // acquisition error.
+    if (downloadResult.rateLimited) throw downloadResult.rateLimited;
+    const { ok: files, failed } = downloadResult;
 
     const okFiles: typeof files = [];
     for (const f of files) {
       const rejection = verifier?.check(f.path, f.content);
       if (rejection) {
-        failed.push({ path: f.path, reason: rejection });
-      } else {
-        okFiles.push(f);
+        // Explicit manifest verification failure is an integrity failure, not
+        // an incomplete selection: never publish a partial workflow set.
+        throw new IntegrityError(`${f.path}: ${rejection}`);
       }
+      okFiles.push(f);
     }
 
     for (const failure of failed) {

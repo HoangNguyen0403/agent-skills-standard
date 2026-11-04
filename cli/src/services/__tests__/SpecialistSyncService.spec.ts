@@ -1,17 +1,37 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import fs from 'fs-extra';
+import { createHash } from 'node:crypto';
 import type { Stats } from 'node:fs';
 import path from 'path';
+import fetch from 'cross-fetch';
 import { SpecialistSyncService } from '../SpecialistSyncService';
 import { Agent } from '../../constants';
-import type { GithubService } from '../GithubService';
-import type { ManifestVerifier } from '../install/ManifestVerifier';
+import { GithubService, IntegrityError } from '../GithubService';
+import { ManifestVerifier } from '../install/ManifestVerifier';
 
 vi.mock('fs-extra');
+vi.mock('cross-fetch', () => ({ default: vi.fn() }));
+
+const gitBlobSha1 = (content: string): string => {
+  const body = Buffer.from(content, 'utf8');
+  return createHash('sha1')
+    .update(Buffer.from(`blob ${body.byteLength}\0`, 'utf8'))
+    .update(body)
+    .digest('hex');
+};
 
 describe('SpecialistSyncService', () => {
   const service = new SpecialistSyncService();
   const rootDir = '/root';
+
+  const syncLocal = async (agents: Agent[]): Promise<number> =>
+    service.writeSpecialists(
+      rootDir,
+      agents,
+      await service.readLocalSpecialists(
+        path.join(rootDir, 'skills/specialists'),
+      ),
+    );
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -38,7 +58,7 @@ Check OWASP.` as any,
     );
     vi.mocked(fs.statSync).mockReturnValue({ isDirectory: () => true } as any);
 
-    await service.syncSpecialists(rootDir, [Agent.Claude]);
+    await syncLocal([Agent.Claude]);
 
     const targetFile = path.join(
       rootDir,
@@ -68,7 +88,7 @@ Check OWASP.` as any,
       },
     ];
     const fakeWriter = { write: vi.fn() };
-    const count = await service.syncCollectedSpecialists(
+    const count = await service.writeSpecialists(
       rootDir,
       [Agent.Claude],
       specialists,
@@ -126,19 +146,39 @@ Red green refactor.`;
     } as any;
     const remoteService = new SpecialistSyncService(githubService);
 
-    const specialists = await remoteService.assembleSpecialists({
-      registry: 'https://github.com/owner/repo',
-      agents: [Agent.Codex],
-      skills: {},
-    });
+    const acquired = await remoteService.acquireSpecialists(
+      {
+        registry: 'https://github.com/owner/repo',
+        agents: [Agent.Codex],
+        skills: {},
+      },
+      'specialists-v1.0.0',
+      undefined,
+      'c'.repeat(40),
+    );
 
-    expect(specialists).toHaveLength(2);
-    expect(specialists[0].category).toBe('specialists');
+    expect(acquired.status).toBe('complete');
+    expect(acquired.specialists).toHaveLength(2);
+    expect(acquired.specialists[0].category).toBe('specialists');
+    // Acquisition is bound to the resolved commit when one is supplied.
+    expect(githubService.getRepoTree).toHaveBeenCalledWith(
+      'owner',
+      'repo',
+      'specialists-v1.0.0',
+      { commit: 'c'.repeat(40) },
+    );
+    expect(githubService.getRawFile).toHaveBeenCalledWith(
+      'owner',
+      'repo',
+      'specialists-v1.0.0',
+      'skills/specialists/specialist-security-reviewer/SKILL.md',
+      { commit: 'c'.repeat(40) },
+    );
 
-    await remoteService.syncCollectedSpecialists(
+    await remoteService.writeSpecialists(
       rootDir,
       [Agent.Codex],
-      specialists,
+      acquired.specialists,
     );
 
     expect(fs.outputFile).toHaveBeenCalledWith(
@@ -177,7 +217,7 @@ Follow ${folder}.` as any;
     });
     vi.mocked(fs.statSync).mockReturnValue({ isDirectory: () => true } as any);
 
-    await service.syncSpecialists(rootDir, [Agent.Claude, Agent.Codex]);
+    await syncLocal([Agent.Claude, Agent.Codex]);
 
     expect(fs.outputFile).toHaveBeenCalledWith(
       path.join(rootDir, '.claude/agents/architecture-guard.md'),
@@ -211,7 +251,7 @@ Check OWASP.` as any,
     );
     vi.mocked(fs.statSync).mockReturnValue({ isDirectory: () => true } as any);
 
-    await service.syncSpecialists(rootDir, [Agent.Cursor]);
+    await syncLocal([Agent.Cursor]);
 
     const targetFile = path.join(
       rootDir,
@@ -246,7 +286,7 @@ Check OWASP.` as any,
     );
     vi.mocked(fs.statSync).mockReturnValue({ isDirectory: () => true } as any);
 
-    await service.syncSpecialists(rootDir, [Agent.Copilot]);
+    await syncLocal([Agent.Copilot]);
 
     const targetFile = path.join(
       rootDir,
@@ -289,7 +329,7 @@ Check OWASP.` as any,
     );
     vi.mocked(fs.statSync).mockReturnValue({ isDirectory: () => true } as any);
 
-    await service.syncSpecialists(rootDir, [Agent.Codex]); // Codex
+    await syncLocal([Agent.Codex]); // Codex
 
     const targetFile = path.join(
       rootDir,
@@ -338,7 +378,7 @@ Review security.`;
       isDirectory: () => true,
     } as unknown as Stats);
 
-    await service.syncSpecialists(rootDir, [Agent.Codex]);
+    await syncLocal([Agent.Codex]);
 
     const codexAgentsDir = `${path.join(rootDir, '.codex/agents')}${path.sep}`;
     const written = vi
@@ -380,7 +420,7 @@ Check OWASP.` as any,
     );
     vi.mocked(fs.statSync).mockReturnValue({ isDirectory: () => true } as any);
 
-    await service.syncSpecialists(rootDir, [Agent.OpenCode]);
+    await syncLocal([Agent.OpenCode]);
 
     const targetFile = path.join(
       rootDir,
@@ -410,7 +450,7 @@ Check OWASP.` as any,
     );
     vi.mocked(fs.statSync).mockReturnValue({ isDirectory: () => true } as any);
 
-    await service.syncSpecialists(rootDir, [Agent.Gemini]);
+    await syncLocal([Agent.Gemini]);
 
     const targetFile = path.join(
       rootDir,
@@ -440,7 +480,7 @@ Check OWASP.` as any,
     );
     vi.mocked(fs.statSync).mockReturnValue({ isDirectory: () => true } as any);
 
-    await service.syncSpecialists(rootDir, [Agent.Kiro]);
+    await syncLocal([Agent.Kiro]);
 
     const targetFile = path.join(rootDir, '.kiro/agents/security-reviewer.md');
     expect(fs.outputFile).toHaveBeenCalledWith(
@@ -471,7 +511,7 @@ description: "Review security"
 
   it('should return early if specialists directory does not exist', async () => {
     vi.mocked(fs.pathExists).mockResolvedValue(false as never);
-    await service.syncSpecialists(rootDir, [Agent.Claude]);
+    await syncLocal([Agent.Claude]);
     expect(fs.readdir).not.toHaveBeenCalled();
   });
 
@@ -485,7 +525,7 @@ description: "Review security"
     vi.mocked(fs.readdir).mockResolvedValue(['some-folder'] as any);
     vi.mocked(fs.statSync).mockReturnValue({ isDirectory: () => true } as any);
 
-    await service.syncSpecialists(rootDir, [Agent.Claude]);
+    await syncLocal([Agent.Claude]);
     expect(fs.readFile).not.toHaveBeenCalled();
   });
 
@@ -495,12 +535,12 @@ description: "Review security"
     vi.mocked(fs.readdir).mockResolvedValue([] as any);
     const logSpy = vi.spyOn(console, 'log');
 
-    await service.syncSpecialists(rootDir, [Agent.Claude]);
+    await syncLocal([Agent.Claude]);
     expect(logSpy).not.toHaveBeenCalled();
   });
 
-  describe('assembleSpecialists github failures (Lines 24-28)', () => {
-    it('should fetch tree at the passed ref and not call getRepoInfo', async () => {
+  describe('acquireSpecialists failures', () => {
+    it('should fetch tree at the passed ref without options when no commit is resolved', async () => {
       const githubService = {
         getRepoInfo: vi.fn(),
         getRepoTree: vi.fn().mockResolvedValue({ tree: [] }),
@@ -508,7 +548,7 @@ description: "Review security"
       const remoteService = new SpecialistSyncService(
         githubService as unknown as GithubService,
       );
-      await remoteService.assembleSpecialists(
+      const acquired = await remoteService.acquireSpecialists(
         {
           registry: 'https://github.com/owner/repo',
           agents: [],
@@ -516,26 +556,30 @@ description: "Review security"
         },
         'specialists-v2.0.0',
       );
+      expect(acquired.status).toBe('complete');
+      expect(acquired.specialists).toEqual([]);
       expect(githubService.getRepoTree).toHaveBeenCalledWith(
         'owner',
         'repo',
         'specialists-v2.0.0',
+        undefined,
       );
       expect(githubService.getRepoInfo).not.toHaveBeenCalled();
     });
 
-    it('should drop rejected specialist files and keep valid ones when verifier rejects a file', async () => {
+    it('rejects the selection when a verifier rejects a specialist file', async () => {
       const githubService = {
-        getRepoInfo: vi.fn(),
         getRepoTree: vi.fn().mockResolvedValue({
           tree: [
             {
               path: 'skills/specialists/specialist-one/SKILL.md',
               type: 'blob',
+              sha: 'a'.repeat(40),
             },
             {
               path: 'skills/specialists/specialist-bad/SKILL.md',
               type: 'blob',
+              sha: 'b'.repeat(40),
             },
           ],
         }),
@@ -557,36 +601,200 @@ description: "Review security"
       const remoteService = new SpecialistSyncService(
         githubService as unknown as GithubService,
       );
-      const result = await remoteService.assembleSpecialists(
-        {
-          registry: 'https://github.com/owner/repo',
-          agents: [],
-          skills: {},
-        },
-        'specialists-v2.0.0',
-        fakeVerifier as unknown as ManifestVerifier,
+
+      const failure = await remoteService
+        .acquireSpecialists(
+          {
+            registry: 'https://github.com/owner/repo',
+            agents: [],
+            skills: {},
+          },
+          'specialists-v2.0.0',
+          fakeVerifier as unknown as ManifestVerifier,
+        )
+        .catch((error: unknown) => error);
+
+      expect(failure).toBeInstanceOf(IntegrityError);
+      expect((failure as Error).message).toContain(
+        'skills/specialists/specialist-bad/SKILL.md',
       );
-      expect(result).toHaveLength(1);
-      expect(result[0].skill).toBe('specialist-one');
     });
 
-    it('should return empty if getRepoTree returns null', async () => {
+    it('should report an unavailable tree as incomplete', async () => {
       const githubService = {
         getRepoInfo: vi.fn().mockResolvedValue({ default_branch: 'develop' }),
         getRepoTree: vi.fn().mockResolvedValue(null),
       } as any;
       const remoteService = new SpecialistSyncService(githubService);
-      const result = await remoteService.assembleSpecialists({
+      const acquired = await remoteService.acquireSpecialists({
         registry: 'https://github.com/owner/repo',
         agents: [],
         skills: {},
       });
-      expect(result).toEqual([]);
+      expect(acquired.status).toBe('incomplete');
+      expect(acquired.specialists).toEqual([]);
+      expect(acquired.failures).toHaveLength(1);
+    });
+    it('rejects a manifest describing a different resolved commit even with identical bytes', async () => {
+      const githubService = {
+        getRepoTree: vi.fn().mockResolvedValue({
+          tree: [
+            {
+              path: 'skills/specialists/reviewer/SKILL.md',
+              type: 'blob',
+              sha: gitBlobSha1('reviewer body'),
+            },
+          ],
+        }),
+      };
+      const remoteService = new SpecialistSyncService(
+        githubService as unknown as GithubService,
+      );
+      const verifier = new ManifestVerifier({
+        schema_version: 1,
+        tag: 'specialists-v1.0.0',
+        commit: 'a'.repeat(40),
+        files: {
+          'skills/specialists/reviewer/SKILL.md': 'b'.repeat(64),
+        },
+      });
+
+      await expect(
+        remoteService.acquireSpecialists(
+          { registry: 'https://github.com/owner/repo', agents: [], skills: {} },
+          'specialists-v1.0.0',
+          verifier,
+          'c'.repeat(40),
+        ),
+      ).rejects.toBeInstanceOf(IntegrityError);
+      expect(githubService.getRepoTree).not.toHaveBeenCalled();
+    });
+
+    it('rejects a specialist whose bytes fail explicit manifest verification', async () => {
+      const githubService = {
+        getRepoTree: vi.fn().mockResolvedValue({
+          tree: [
+            {
+              path: 'skills/specialists/reviewer/SKILL.md',
+              type: 'blob',
+              sha: gitBlobSha1('honest body'),
+            },
+          ],
+        }),
+        getRawFile: vi.fn().mockResolvedValue('tampered body'),
+      };
+      const remoteService = new SpecialistSyncService(
+        githubService as unknown as GithubService,
+      );
+      const verifier = new ManifestVerifier({
+        schema_version: 1,
+        tag: 'specialists-v1.0.0',
+        commit: 'c'.repeat(40),
+        files: {
+          'skills/specialists/reviewer/SKILL.md': 'b'.repeat(64),
+        },
+      });
+
+      const failure = await remoteService
+        .acquireSpecialists(
+          { registry: 'https://github.com/owner/repo', agents: [], skills: {} },
+          'specialists-v1.0.0',
+          verifier,
+          'c'.repeat(40),
+        )
+        .catch((error: unknown) => error);
+
+      expect(failure).toBeInstanceOf(IntegrityError);
+      expect((failure as Error).message).toContain(
+        'skills/specialists/reviewer/SKILL.md',
+      );
+      expect((failure as Error).message).toContain(
+        'sha256 does not match release MANIFEST.json',
+      );
+    });
+
+    it('binds raw specialist downloads to the tree blob sha', async () => {
+      const githubService = {
+        getRepoTree: vi.fn().mockResolvedValue({
+          tree: [
+            {
+              path: 'skills/specialists/reviewer/SKILL.md',
+              type: 'blob',
+              sha: 'd'.repeat(40),
+            },
+          ],
+        }),
+        getRawFile: vi.fn().mockResolvedValue('reviewer body'),
+      };
+      const remoteService = new SpecialistSyncService(
+        githubService as unknown as GithubService,
+      );
+
+      await remoteService.acquireSpecialists(
+        { registry: 'https://github.com/owner/repo', agents: [], skills: {} },
+        'specialists-v1.0.0',
+        undefined,
+        'c'.repeat(40),
+      );
+
+      expect(githubService.getRawFile).toHaveBeenCalledWith(
+        'owner',
+        'repo',
+        'specialists-v1.0.0',
+        'skills/specialists/reviewer/SKILL.md',
+        { expectedSha: 'd'.repeat(40), commit: 'c'.repeat(40) },
+      );
+    });
+
+    it('rejects tampered raw bytes through the real HTTP boundary even without a manifest', async () => {
+      const honest = 'honest specialist body';
+      const tampered = 'tampered specialist body';
+      const treeSha = gitBlobSha1(honest);
+      vi.mocked(fetch).mockImplementation(async (input: RequestInfo | URL) => {
+        const url = String(input);
+        if (url.includes('/git/trees/')) {
+          return {
+            ok: true,
+            status: 200,
+            headers: new Headers(),
+            json: async () => ({
+              sha: 'e'.repeat(40),
+              url: 'fixture://tree',
+              truncated: false,
+              tree: [
+                {
+                  path: 'skills/specialists/reviewer/SKILL.md',
+                  type: 'blob',
+                  sha: treeSha,
+                  url: 'fixture://blob',
+                },
+              ],
+            }),
+          } as unknown as Response;
+        }
+        return {
+          ok: true,
+          status: 200,
+          headers: new Headers(),
+          arrayBuffer: async () => Buffer.from(tampered, 'utf8'),
+        } as unknown as Response;
+      });
+      const remoteService = new SpecialistSyncService(new GithubService());
+
+      await expect(
+        remoteService.acquireSpecialists(
+          { registry: 'https://github.com/owner/repo', agents: [], skills: {} },
+          'specialists-v1.0.0',
+          undefined,
+          'e'.repeat(40),
+        ),
+      ).rejects.toBeInstanceOf(IntegrityError);
+      vi.mocked(fetch).mockReset();
     });
   });
 
-  describe('assembleSpecialists filtering and content check (Lines 41-49)', () => {
-    it('should skip file if specialistName is falsy or getRawFile returns empty', async () => {
+  describe('acquireSpecialists filtering and content check', () => {
+    it('should fail closed on an empty specialist name or missing content', async () => {
       const githubService = {
         getRepoInfo: vi.fn().mockResolvedValue({ default_branch: 'main' }),
         getRepoTree: vi.fn().mockResolvedValue({
@@ -601,16 +809,21 @@ description: "Review security"
         getRawFile: vi.fn().mockResolvedValue(null),
       } as any;
       const remoteService = new SpecialistSyncService(githubService);
-      const result = await remoteService.assembleSpecialists({
+      const acquired = await remoteService.acquireSpecialists({
         registry: 'https://github.com/owner/repo',
         agents: [],
         skills: {},
       });
-      expect(result).toEqual([]);
+      expect(acquired.specialists).toEqual([]);
+      expect(acquired.status).toBe('incomplete');
+      expect(acquired.failures.map((failure) => failure.path)).toEqual([
+        'skills/specialists//SKILL.md',
+        'skills/specialists/specialist-empty/SKILL.md',
+      ]);
     });
   });
 
-  describe('syncCollectedSpecialists edge cases (Lines 70-95)', () => {
+  describe('writeSpecialists edge cases', () => {
     it('should skip unrecognized agent IDs or agents without agentPath', async () => {
       const specialists = [
         {
@@ -619,7 +832,7 @@ description: "Review security"
           files: [{ name: 'SKILL.md', content: 'content' }],
         },
       ];
-      await service.syncCollectedSpecialists(
+      await service.writeSpecialists(
         rootDir,
         ['non-existent-agent' as any],
         specialists,
@@ -635,7 +848,7 @@ description: "Review security"
           files: [{ name: 'other.md', content: 'content' }],
         },
       ];
-      await service.syncCollectedSpecialists(
+      await service.writeSpecialists(
         rootDir,
         [Agent.Claude],
         specialists,
@@ -651,7 +864,7 @@ description: "Review security"
           files: [{ name: 'SKILL.md', content: 'content' }],
         },
       ];
-      await service.syncCollectedSpecialists(
+      await service.writeSpecialists(
         rootDir,
         [Agent.Claude],
         specialists,
@@ -668,7 +881,7 @@ description: "Review security"
           files: [{ name: 'SKILL.md', content: 'content' }],
         },
       ];
-      await service.syncCollectedSpecialists(
+      await service.writeSpecialists(
         rootDir,
         [Agent.Claude],
         specialists,

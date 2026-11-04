@@ -8,7 +8,8 @@ import type { CollectedSkill } from '../../models/types';
 import { WorkflowSyncService } from '../WorkflowSyncService';
 import { SHARED_WORKFLOW_AGENT } from '../LockfileService';
 import type { InstallWriter } from '../install/OwnershipWriter';
-import type { ManifestVerifier } from '../install/ManifestVerifier';
+import { ManifestVerifier } from '../install/ManifestVerifier';
+import { IntegrityError } from '../GithubService';
 
 // Mock fs-extra
 vi.mock('fs-extra');
@@ -343,19 +344,142 @@ describe('WorkflowSyncService', () => {
         'o',
         'r',
         'workflows-v1.0.0',
+        undefined,
       );
       expect(mockGithubService.getRepoInfo).not.toHaveBeenCalled();
     });
 
-    it('should drop rejected workflow files and keep valid ones when verifier rejects a file', async () => {
+    it('binds discovery and downloads to the resolved commit when supplied', async () => {
+      const config = {
+        registry: 'https://github.com/o/r',
+        workflows: ['sdlc'],
+      } as unknown as SkillConfig;
+      mockGithubService.getRepoTree.mockResolvedValue({
+        tree: [{ path: '.agents/workflows/sdlc.md', type: 'blob', sha: 'a' }],
+      });
+      mockGithubService.downloadFilesConcurrent.mockResolvedValue({
+        ok: [{ path: '.agents/workflows/sdlc.md', content: 'body' }],
+        failed: [],
+      });
+
+      await workflowSyncService.acquireWorkflows(
+        config,
+        'workflows-v1.0.0',
+        undefined,
+        'b'.repeat(40),
+      );
+
+      expect(mockGithubService.getRepoTree).toHaveBeenCalledWith(
+        'o',
+        'r',
+        'workflows-v1.0.0',
+        { commit: 'b'.repeat(40) },
+      );
+      expect(mockGithubService.downloadFilesConcurrent).toHaveBeenCalledWith([
+        expect.objectContaining({
+          ref: 'workflows-v1.0.0',
+          commit: 'b'.repeat(40),
+        }),
+      ]);
+    });
+
+    it('rejects a manifest describing a different resolved commit even with identical bytes', async () => {
+      const config = {
+        registry: 'https://github.com/o/r',
+        workflows: ['sdlc'],
+      } as unknown as SkillConfig;
+      mockGithubService.getRepoTree.mockResolvedValue({
+        tree: [{ path: '.agents/workflows/sdlc.md', type: 'blob', sha: 'a' }],
+      });
+      const verifier = new ManifestVerifier({
+        schema_version: 1,
+        tag: 'workflows-v1.0.0',
+        // Same file map, different commit than the resolved source.
+        commit: 'a'.repeat(40),
+        files: { '.agents/workflows/sdlc.md': 'b'.repeat(64) },
+      });
+
+      await expect(
+        workflowSyncService.acquireWorkflows(
+          config,
+          'workflows-v1.0.0',
+          verifier,
+          'c'.repeat(40),
+        ),
+      ).rejects.toBeInstanceOf(IntegrityError);
+      expect(mockGithubService.downloadFilesConcurrent).not.toHaveBeenCalled();
+      await expect(
+        workflowSyncService.acquireWorkflows(
+          config,
+          'workflows-v1.0.0',
+          verifier,
+          'c'.repeat(40),
+        ),
+      ).rejects.toThrow(/commit .* does not match the resolved source commit/);
+    });
+
+    it('rejects a workflow whose bytes fail explicit manifest verification', async () => {
+      const config = {
+        registry: 'https://github.com/o/r',
+        workflows: ['sdlc'],
+      } as unknown as SkillConfig;
+      mockGithubService.getRepoTree.mockResolvedValue({
+        tree: [{ path: '.agents/workflows/sdlc.md', type: 'blob', sha: 'a' }],
+      });
+      mockGithubService.downloadFilesConcurrent.mockResolvedValue({
+        ok: [{ path: '.agents/workflows/sdlc.md', content: 'tampered body' }],
+        failed: [],
+      });
+      const verifier = new ManifestVerifier({
+        schema_version: 1,
+        tag: 'workflows-v1.0.0',
+        commit: 'c'.repeat(40),
+        files: { '.agents/workflows/sdlc.md': 'b'.repeat(64) },
+      });
+
+      const failure = await workflowSyncService
+        .acquireWorkflows(config, 'workflows-v1.0.0', verifier, 'c'.repeat(40))
+        .catch((error: unknown) => error);
+
+      expect(failure).toBeInstanceOf(IntegrityError);
+      expect((failure as Error).message).toContain('.agents/workflows/sdlc.md');
+      expect((failure as Error).message).toContain(
+        'sha256 does not match release MANIFEST.json',
+      );
+    });
+
+    it('rethrows a latched throttle instead of reporting an incomplete selection', async () => {
+      const config = {
+        registry: 'https://github.com/o/r',
+        workflows: true,
+      } as unknown as SkillConfig;
+      const throttle = Object.assign(new Error('rate limited'), {
+        name: 'GithubRequestError',
+        kind: 'rate-limited',
+      });
+      mockGithubService.getRepoTree.mockResolvedValue({
+        tree: [{ path: '.agents/workflows/sdlc.md', type: 'blob', sha: 'a' }],
+      });
+      mockGithubService.downloadFilesConcurrent.mockResolvedValue({
+        ok: [],
+        failed: [],
+        rateLimited: throttle,
+      });
+
+      await expect(workflowSyncService.acquireWorkflows(config)).rejects.toBe(
+        throttle,
+      );
+    });
+
+    it('rejects the whole selection when a verifier rejects one workflow file', async () => {
       const config = {
         registry: 'https://github.com/o/r',
         workflows: true,
       } as unknown as SkillConfig;
       mockGithubService.getRepoTree.mockResolvedValue({
         tree: [
-          { path: '.agents/workflows/valid.md', type: 'blob' },
-          { path: '.agents/workflows/tampered.md', type: 'blob' },
+          { path: '.agents/workflows/valid.md', type: 'blob', sha: 'a' },
+          { path: '.agents/workflows/tampered.md', type: 'blob', sha: 'b' },
         ],
       });
       mockGithubService.downloadFilesConcurrent.mockResolvedValue({
@@ -375,15 +499,18 @@ describe('WorkflowSyncService', () => {
         }),
       };
 
-      const result = await workflowSyncService.assembleWorkflows(
-        config,
-        'workflows-v1.0.0',
-        fakeVerifier as unknown as ManifestVerifier,
-      );
+      const failure = await workflowSyncService
+        .assembleWorkflows(
+          config,
+          'workflows-v1.0.0',
+          fakeVerifier as unknown as ManifestVerifier,
+        )
+        .catch((error: unknown) => error);
 
-      expect(result).toHaveLength(1);
-      expect(result[0].files).toHaveLength(1);
-      expect(result[0].files[0].name).toBe('valid.md');
+      expect(failure).toBeInstanceOf(IntegrityError);
+      expect((failure as Error).message).toContain(
+        '.agents/workflows/tampered.md',
+      );
     });
   });
 

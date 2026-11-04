@@ -60,6 +60,31 @@ const SkillConfigSchema = z.object({
   telemetry: z.boolean().optional(),
 });
 
+/**
+ * Known top-level runtime fields a reviewed publication may replace. Unlisted
+ * (unknown/extension) root fields are always preserved verbatim.
+ */
+const REVIEWED_ROOT_FIELDS = [
+  'registry',
+  'agents',
+  'custom_overrides',
+  'workflows',
+  'prune',
+  'workflows_ref',
+  'specialists_ref',
+  'telemetry',
+  'skills_mode',
+] as const;
+
+/** Known MCP fields; unknown MCP extension keys survive an MCP consent update. */
+const MCP_FIELD_KEYS = [
+  'enabled',
+  'scope',
+  'prompted',
+  'version',
+  'snippets',
+] as const;
+
 const DEFAULT_SDLC_SUPPORT_CATEGORIES = ['quality-engineering'] as const;
 const PRIMARY_CONFIG_FILE = '.skillsrc';
 const LEGACY_YAML_CONFIG_FILE = '.skillsrc.yaml';
@@ -71,6 +96,11 @@ type ConfigMigrationResult = {
 
 type ConfigSource = {
   config: SkillConfig;
+  /**
+   * Validated normalized document used for publication. It keeps schema-external
+   * root and category fields so a migration write never strips user data.
+   */
+  document: Record<string, unknown>;
   raw: Record<string, unknown>;
   sourcePath: string;
   fingerprint: string;
@@ -81,6 +111,49 @@ type ConfigSource = {
 
 const CONFIG_CONFLICT_MESSAGE =
   'Configuration changed on disk since it was opened; reload before applying.';
+
+/**
+ * Keys that belong inside a category entry, with repair guidance. They can
+ * never be category names, so a config that places one in category position is
+ * reported instead of being coerced into an empty category and fetched from
+ * the registry.
+ */
+type ReservedSelectionKey = 'ref' | 'include' | 'exclude';
+
+const RESERVED_SELECTION_KEYS: Record<ReservedSelectionKey, string> = {
+  ref: 'set `ref` on the category itself, e.g. `skills.<category>.ref`',
+  include:
+    'move the allowlist under the category it applies to, e.g. `skills.<category>.include`',
+  exclude:
+    'move the exclusion list under the category it applies to, e.g. `skills.<category>.exclude`; a global `skills.exclude` is not supported',
+};
+
+function isReservedSelectionKey(key: string): key is ReservedSelectionKey {
+  return Object.prototype.hasOwnProperty.call(RESERVED_SELECTION_KEYS, key);
+}
+
+function isLegacySectionKey(trimmed: string): string | null {
+  if (trimmed === 'workflows:') return 'workflows';
+  if (trimmed === 'mcp:') return 'mcp';
+  if (trimmed.startsWith('custom_overrides:')) return 'custom_overrides';
+  return null;
+}
+
+/**
+ * Invalid configuration that names both the file and the logical key needing
+ * repair. Callers surface the message verbatim rather than guessing a
+ * migration or rewriting the user's document.
+ */
+export class ConfigValidationError extends Error {
+  constructor(
+    readonly configPath: string,
+    readonly logicalPath: string,
+    detail: string,
+  ) {
+    super(`Invalid configuration at ${configPath}: "${logicalPath}" ${detail}`);
+    this.name = 'ConfigValidationError';
+  }
+}
 
 /**
  * Read-only view of the configuration used by the interactive manager. It
@@ -166,6 +239,50 @@ export class ConfigService {
       .filter(Boolean);
   }
 
+  /**
+   * Parses one inline legacy value with the document YAML parser so quoted
+   * scalars and flow collections keep their YAML meaning. Shapes the
+   * line-oriented fallback cannot represent unambiguously are refused instead
+   * of being published as raw token strings.
+   */
+  private parseLegacyYamlValue(
+    raw: string,
+    configPath: string,
+    logicalPath: string,
+  ): unknown {
+    let parsed: unknown;
+    try {
+      parsed = yaml.load(raw);
+    } catch (error) {
+      throw new ConfigValidationError(
+        configPath,
+        logicalPath,
+        `has an inline value ("${raw}") that is not valid YAML: ${(error as Error).message}`,
+      );
+    }
+
+    const isFlowCollection = raw.startsWith('{') || raw.startsWith('[');
+    if (isFlowCollection) {
+      if (!this.isRecord(parsed) && !Array.isArray(parsed)) {
+        throw new ConfigValidationError(
+          configPath,
+          logicalPath,
+          `has an inline value ("${raw}") that does not parse as a YAML collection.`,
+        );
+      }
+      return parsed;
+    }
+
+    if (typeof parsed === 'object' && parsed !== null) {
+      throw new ConfigValidationError(
+        configPath,
+        logicalPath,
+        `has an inline value ("${raw}") that parses as a YAML collection without flow braces; quote it or use {..}/[..].`,
+      );
+    }
+    return parsed;
+  }
+
   private parseLegacyBoolean(value: string): boolean | undefined {
     const normalized = value.trim().toLowerCase();
     if (normalized === 'true') return true;
@@ -175,6 +292,7 @@ export class ConfigService {
 
   private migrateLegacyTextConfig(
     content: string,
+    configPath: string,
   ): Record<string, unknown> | null {
     const lines = content.split(/\r?\n/);
     const registryLine = lines.find((line) =>
@@ -206,51 +324,148 @@ export class ConfigService {
     }
     config.agents = agents;
 
-    const sectionNames = new Set(['custom_overrides', 'workflows', 'mcp']);
+    const skills: Record<string, CategoryConfig & Record<string, unknown>> = {};
+    config.skills = skills;
+
     let currentCategory: string | null = null;
+    let currentCategoryIndent = 0;
+    let pendingList: { key: string; indent: number } | null = null;
 
     for (let index = skillsIndex + 1; index < lines.length; index += 1) {
-      const trimmed = lines[index].trim();
-      if (!trimmed) continue;
+      const line = lines[index];
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) continue;
 
-      if (
-        trimmed === 'workflows:' ||
-        trimmed === 'mcp:' ||
-        trimmed.startsWith('custom_overrides:')
-      ) {
+      const indent = line.length - line.trimStart().length;
+      const sectionKey = isLegacySectionKey(trimmed);
+
+      if (sectionKey) {
+        // A section nested deeper than the category it appears under is
+        // ambiguous: it is neither the documented flattened root section nor a
+        // known extension, so refuse before writing anything.
+        if (currentCategory && indent > currentCategoryIndent) {
+          throw new ConfigValidationError(
+            configPath,
+            `skills.${currentCategory}.${sectionKey}`,
+            'is indented as a category property but names a root section; cannot infer which it is.',
+          );
+        }
         break;
       }
 
-      const categoryMatch = trimmed.match(/^([A-Za-z0-9-]+):$/);
-      if (categoryMatch && !sectionNames.has(categoryMatch[1])) {
-        currentCategory = categoryMatch[1];
-        (config.skills as Record<string, CategoryConfig>)[currentCategory] = {};
+      if (trimmed.startsWith('- ')) {
+        const item = trimmed.slice(2).trim();
+        if (!pendingList || !currentCategory) continue;
+        if (indent < pendingList.indent) {
+          throw new ConfigValidationError(
+            configPath,
+            `skills.${currentCategory}.${pendingList.key}`,
+            `has a list item ("${item}") indented less than the key that opened it; cannot infer membership.`,
+          );
+        }
+        if (item) {
+          const entry = skills[currentCategory];
+          const value = this.parseLegacyYamlValue(
+            item,
+            configPath,
+            `skills.${currentCategory}.${pendingList.key}`,
+          );
+          if (
+            isReservedSelectionKey(pendingList.key) &&
+            typeof value !== 'string'
+          ) {
+            throw new ConfigValidationError(
+              configPath,
+              `skills.${currentCategory}.${pendingList.key}`,
+              `has a non-string list item ("${item}"); selection ids must be strings.`,
+            );
+          }
+          const current = entry[pendingList.key];
+          entry[pendingList.key] = Array.isArray(current)
+            ? [...current, value]
+            : [value];
+        }
         continue;
       }
 
-      if (!currentCategory) continue;
+      const keyMatch = trimmed.match(/^([A-Za-z0-9_-]+):(?:\s*(.*))?$/);
+      if (!keyMatch) continue;
+      const key = keyMatch[1];
+      const inlineValue = (keyMatch[2] ?? '').trim();
+      const isNestedProperty =
+        currentCategory !== null && indent > currentCategoryIndent;
 
-      const refMatch = trimmed.match(/^ref:\s*(.+)$/);
-      if (refMatch) {
-        (config.skills as Record<string, CategoryConfig>)[currentCategory].ref =
-          refMatch[1].trim();
+      if (pendingList && indent > pendingList.indent) {
+        throw new ConfigValidationError(
+          configPath,
+          `skills.${currentCategory}.${pendingList.key}`,
+          'opened a block list, but a nested key appears instead; cannot infer membership.',
+        );
+      }
+
+      if (isReservedSelectionKey(key)) {
+        // A selection key above the category level cannot be attributed to a
+        // category; guessing would silently move a global exclusion.
+        if (!currentCategory || indent < currentCategoryIndent) {
+          throw new ConfigValidationError(
+            configPath,
+            key,
+            `cannot infer which category this ${key} applies to. Correction: ${RESERVED_SELECTION_KEYS[key]}.`,
+          );
+        }
+
+        pendingList = null;
+        const entry = skills[currentCategory];
+        if (key === 'ref') {
+          if (!inlineValue) {
+            throw new ConfigValidationError(
+              configPath,
+              `skills.${currentCategory}.ref`,
+              'must name a git ref.',
+            );
+          }
+          entry.ref = inlineValue;
+          continue;
+        }
+
+        entry[key] = inlineValue ? this.parseLegacyList(inlineValue) : [];
+        if (!inlineValue) pendingList = { key, indent };
         continue;
       }
 
-      const excludeMatch = trimmed.match(/^exclude:\s*(.+)$/);
-      if (excludeMatch) {
-        (config.skills as Record<string, CategoryConfig>)[
-          currentCategory
-        ].exclude = this.parseLegacyList(excludeMatch[1]);
+      if (isNestedProperty && currentCategory) {
+        // Deeper keys are category-scoped extensions, never categories. Their
+        // values keep their YAML meaning so a later save cannot change or drop
+        // them.
+        pendingList = null;
+        const entry = skills[currentCategory];
+        if (inlineValue) {
+          entry[key] = this.parseLegacyYamlValue(
+            inlineValue,
+            configPath,
+            `skills.${currentCategory}.${key}`,
+          );
+        } else {
+          entry[key] = null;
+          pendingList = { key, indent };
+        }
         continue;
       }
 
-      const includeMatch = trimmed.match(/^include:\s*(.+)$/);
-      if (includeMatch) {
-        (config.skills as Record<string, CategoryConfig>)[
-          currentCategory
-        ].include = this.parseLegacyList(includeMatch[1]);
+      if (inlineValue) {
+        // Only the documented flattened form (`category:` with no value) is
+        // recoverable; an inline value would be silently discarded otherwise.
+        throw new ConfigValidationError(
+          configPath,
+          `skills.${key}`,
+          `has an inline value ("${inlineValue}") where a category entry is required. Correction: write selection keys as nested mapping entries under "skills.${key}".`,
+        );
       }
+
+      currentCategory = key;
+      currentCategoryIndent = indent;
+      pendingList = null;
+      skills[currentCategory] = {};
     }
 
     const overridesLine = lines.find((line) =>
@@ -298,7 +513,55 @@ export class ConfigService {
     return config;
   }
 
-  private normalizeRawConfig(rawConfig: unknown): ConfigMigrationResult {
+  private describeValue(value: unknown): string {
+    if (Array.isArray(value)) return 'a list';
+    if (value === null) return 'null';
+    return `a ${typeof value}`;
+  }
+
+  /**
+   * Rejects reserved selection keys and non-mapping category values before any
+   * registry request, naming the exact logical key. Category names themselves
+   * are never checked against a local allowlist: a project may use any category
+   * the remote registry actually publishes.
+   */
+  private assertValidSkillCategories(
+    skills: unknown,
+    configPath: string,
+  ): asserts skills is
+    Record<string, Record<string, unknown> | null | undefined> | undefined {
+    if (skills === undefined) return;
+    if (!this.isRecord(skills)) {
+      throw new ConfigValidationError(
+        configPath,
+        'skills',
+        `must be a mapping of category name to its selection, not ${this.describeValue(skills)}.`,
+      );
+    }
+
+    for (const [category, value] of Object.entries(skills)) {
+      if (isReservedSelectionKey(category)) {
+        throw new ConfigValidationError(
+          configPath,
+          `skills.${category}`,
+          `is a reserved selection key, not a category. Correction: ${RESERVED_SELECTION_KEYS[category]}.`,
+        );
+      }
+      if (value === null || value === undefined) continue;
+      if (!this.isRecord(value)) {
+        throw new ConfigValidationError(
+          configPath,
+          `skills.${category}`,
+          `must be a mapping of optional ref/include/exclude (plus extension keys), not ${this.describeValue(value)}.`,
+        );
+      }
+    }
+  }
+
+  private normalizeRawConfig(
+    rawConfig: unknown,
+    configPath: string,
+  ): ConfigMigrationResult {
     if (!this.isRecord(rawConfig)) {
       return { config: {}, migrated: false };
     }
@@ -325,10 +588,15 @@ export class ConfigService {
       normalized.agents = updatedAgents;
     }
 
+    this.assertValidSkillCategories(normalized.skills, configPath);
+
     if (this.isRecord(normalized.skills)) {
       const normalizedSkills: Record<string, Record<string, unknown>> = {};
       for (const [category, value] of Object.entries(normalized.skills)) {
-        if (!this.isRecord(value)) {
+        if (value === null || value === undefined) {
+          // A bare legacy category (`typescript:`) declares membership with no
+          // selection yet; that is a valid v1/v2 equivalent, not a category
+          // value we may invent.
           normalizedSkills[category] = {};
           migrated = true;
           continue;
@@ -388,13 +656,26 @@ export class ConfigService {
     if (!configPath) return null;
 
     const content = await fs.readFile(configPath, 'utf8');
+    return this.parseConfigSource(content, configPath, cwd);
+  }
+
+  /**
+   * Parses already-read bytes with the same parser as `readConfigSource`. Used
+   * by reviewed publication so its baseline comes from the verified file
+   * content rather than caller-held snapshot objects.
+   */
+  private parseConfigSource(
+    content: string,
+    configPath: string,
+    cwd: string,
+  ): ConfigSource {
     let rawConfig: unknown;
     let migratedFromText = false;
 
     try {
       rawConfig = yaml.load(content);
     } catch (parseError) {
-      rawConfig = this.migrateLegacyTextConfig(content);
+      rawConfig = this.migrateLegacyTextConfig(content, configPath);
       migratedFromText = rawConfig !== null;
 
       if (!migratedFromText) {
@@ -402,8 +683,10 @@ export class ConfigService {
       }
     }
 
-    const { config: normalizedConfig, migrated } =
-      this.normalizeRawConfig(rawConfig);
+    const { config: normalizedConfig, migrated } = this.normalizeRawConfig(
+      rawConfig,
+      configPath,
+    );
 
     const parsed = SkillConfigSchema.safeParse(normalizedConfig);
 
@@ -413,6 +696,10 @@ export class ConfigService {
 
     return {
       config: parsed.data as SkillConfig,
+      // Validated normalized document, not the parsed projection: schema
+      // parsing strips unknown keys, and a migration write must not delete
+      // unrelated extension fields.
+      document: normalizedConfig,
       // Original document, not normalized values: a save must preserve
       // unrelated legacy values (e.g. an `openai` agent alias) verbatim.
       raw: this.isRecord(rawConfig) ? { ...rawConfig } : {},
@@ -444,7 +731,7 @@ export class ConfigService {
       ) {
         await fs.outputFile(
           this.getPrimaryConfigPath(cwd),
-          this.dumpConfig(source.config as unknown as Record<string, unknown>),
+          this.dumpConfig(source.document),
         );
       }
 
@@ -454,6 +741,9 @@ export class ConfigService {
 
       return source.config;
     } catch (error) {
+      // Validation errors already name the file and repair; wrapping them
+      // would bury that under a generic load failure.
+      if (error instanceof ConfigValidationError) throw error;
       throw new Error(`Failed to load config: ${error}`, { cause: error });
     }
   }
@@ -486,11 +776,73 @@ export class ConfigService {
     next: SkillConfig,
     cwd: string = process.cwd(),
   ): Promise<ConfigSnapshot> {
-    const parsed = SkillConfigSchema.safeParse(next);
-    if (!parsed.success) {
-      throw new Error(`Invalid .skillsrc format: ${parsed.error.message}`);
+    return this.commitReviewedSnapshot(
+      snapshot,
+      next,
+      cwd,
+      (baseline, validated) => {
+        const raw = baseline.raw;
+        const merged: Record<string, unknown> = { ...raw };
+        merged.skills = this.mergeSkillEntries(raw.skills, validated.skills);
+        if (validated.skills_mode) {
+          merged.skills_mode = validated.skills_mode;
+        } else {
+          delete merged.skills_mode;
+        }
+        return merged;
+      },
+    );
+  }
+
+  /**
+   * Publishes a complete reviewed configuration (accepted category/workflow/
+   * specialist pins and later MCP consent updates) without dropping unknown
+   * data. Changed known runtime fields are applied over the source document,
+   * skill entries merge while preserving category extensions, and unknown root
+   * fields plus unknown MCP extension fields survive.
+   */
+  async saveReviewedConfig(
+    snapshot: ConfigSnapshot,
+    next: SkillConfig,
+    cwd: string = process.cwd(),
+  ): Promise<ConfigSnapshot> {
+    return this.commitReviewedSnapshot(
+      snapshot,
+      next,
+      cwd,
+      (baseline, validated, configPath) =>
+        this.buildReviewedDocument(
+          baseline.config,
+          baseline.raw,
+          validated,
+          configPath,
+        ),
+    );
+  }
+
+  /**
+   * Shared publication: validate, verify the snapshot still matches the file
+   * bytes, re-parse those bytes as the only baseline, build and validate the
+   * normalized document, then write. Any failure refuses before the filesystem
+   * is touched. `snapshot.config`/`snapshot.raw` are never used as a baseline
+   * because callers can mutate them in place.
+   */
+  private async commitReviewedSnapshot(
+    snapshot: ConfigSnapshot,
+    next: SkillConfig,
+    cwd: string,
+    buildDocument: (
+      baseline: ConfigSource,
+      validated: SkillConfig,
+      configPath: string,
+    ) => Record<string, unknown>,
+  ): Promise<ConfigSnapshot> {
+    this.assertValidSkillCategories(next.skills, snapshot.sourcePath);
+    const parsedNext = SkillConfigSchema.safeParse(next);
+    if (!parsedNext.success) {
+      throw new Error(`Invalid .skillsrc format: ${parsedNext.error.message}`);
     }
-    const validated = parsed.data as SkillConfig;
+    const validated = parsedNext.data as SkillConfig;
 
     const currentPath = await this.resolveConfigPath(cwd);
     if (currentPath !== snapshot.sourcePath) {
@@ -505,18 +857,27 @@ export class ConfigService {
       throw new Error(CONFIG_CONFLICT_MESSAGE);
     }
 
-    const merged: Record<string, unknown> = { ...snapshot.raw };
-    merged.skills = this.mergeSkillEntries(
-      snapshot.raw.skills,
-      validated.skills,
+    // Only the verified source bytes define the baseline. Reusing the normal
+    // read path keeps one parser; no second recovery parser exists.
+    const baseline = this.parseConfigSource(
+      currentContent,
+      snapshot.sourcePath,
+      cwd,
     );
-    if (validated.skills_mode) {
-      merged.skills_mode = validated.skills_mode;
-    } else {
-      delete merged.skills_mode;
+    const primaryConfigPath = this.getPrimaryConfigPath(cwd);
+    const merged = buildDocument(baseline, validated, primaryConfigPath);
+
+    // Validate the normalized projection that a reload would produce, and
+    // return that projection so callers see exactly the persisted state.
+    const { config: normalizedDocument } = this.normalizeRawConfig(
+      merged,
+      primaryConfigPath,
+    );
+    const persisted = SkillConfigSchema.safeParse(normalizedDocument);
+    if (!persisted.success) {
+      throw new Error(`Invalid .skillsrc format: ${persisted.error.message}`);
     }
 
-    const primaryConfigPath = this.getPrimaryConfigPath(cwd);
     const content = this.dumpConfig(merged);
     await fs.outputFile(primaryConfigPath, content);
 
@@ -531,11 +892,90 @@ export class ConfigService {
     }
 
     return {
-      config: validated,
+      config: persisted.data as SkillConfig,
       raw: merged,
       sourcePath: primaryConfigPath,
       fingerprint: createHash('sha256').update(content, 'utf8').digest('hex'),
     };
+  }
+
+  private buildReviewedDocument(
+    previous: SkillConfig,
+    raw: Record<string, unknown>,
+    next: SkillConfig,
+    configPath: string,
+  ): Record<string, unknown> {
+    const merged: Record<string, unknown> = { ...raw };
+    merged.skills = this.mergeSkillEntries(raw.skills, next.skills);
+
+    const previousFields = previous as unknown as Record<string, unknown>;
+    const nextFields = next as unknown as Record<string, unknown>;
+
+    for (const field of REVIEWED_ROOT_FIELDS) {
+      if (this.valuesEqual(nextFields[field], previousFields[field])) continue;
+      if (nextFields[field] === undefined) {
+        delete merged[field];
+      } else {
+        merged[field] = nextFields[field];
+      }
+    }
+
+    if (!this.valuesEqual(next.mcp, previous.mcp)) {
+      if (next.mcp === undefined) {
+        const unknownKeys = this.isRecord(raw.mcp)
+          ? Object.keys(raw.mcp).filter(
+              (key) => !(MCP_FIELD_KEYS as readonly string[]).includes(key),
+            )
+          : [];
+        if (unknownKeys.length > 0) {
+          // Removing the whole block would silently discard data this service
+          // does not understand; refuse before any write instead.
+          throw new ConfigValidationError(
+            configPath,
+            'mcp',
+            `cannot be removed because it contains unrecognized extension keys (${unknownKeys.join(', ')}); remove them explicitly first.`,
+          );
+        }
+        delete merged.mcp;
+      } else {
+        const rawMcp = this.isRecord(raw.mcp) ? raw.mcp : {};
+        const mcp: Record<string, unknown> = { ...rawMcp };
+        const nextMcp = next.mcp as unknown as Record<string, unknown>;
+        for (const key of MCP_FIELD_KEYS) {
+          if (Object.prototype.hasOwnProperty.call(nextMcp, key)) {
+            mcp[key] = nextMcp[key];
+          } else {
+            delete mcp[key];
+          }
+        }
+        merged.mcp = mcp;
+      }
+    }
+
+    return merged;
+  }
+
+  private valuesEqual(left: unknown, right: unknown): boolean {
+    if (left === right) return true;
+    if (Array.isArray(left) && Array.isArray(right)) {
+      return (
+        left.length === right.length &&
+        left.every((value, index) => this.valuesEqual(value, right[index]))
+      );
+    }
+    if (this.isRecord(left) && this.isRecord(right)) {
+      const leftKeys = Object.keys(left);
+      const rightKeys = Object.keys(right);
+      return (
+        leftKeys.length === rightKeys.length &&
+        leftKeys.every(
+          (key) =>
+            Object.prototype.hasOwnProperty.call(right, key) &&
+            this.valuesEqual(left[key], right[key]),
+        )
+      );
+    }
+    return false;
   }
 
   private mergeSkillEntries(
@@ -584,9 +1024,11 @@ export class ConfigService {
     const primaryConfigPath = this.getPrimaryConfigPath(cwd);
     const legacyYamlPath = this.getLegacyYamlConfigPath(cwd);
 
+    this.assertValidSkillCategories(config.skills, primaryConfigPath);
+
     await fs.outputFile(
       primaryConfigPath,
-      this.dumpConfig(config as Record<string, unknown>),
+      this.dumpConfig(config as unknown as Record<string, unknown>),
     );
 
     if (
