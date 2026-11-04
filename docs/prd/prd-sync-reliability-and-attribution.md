@@ -14,7 +14,7 @@ Date: 2026-11-04
 
 **Approval recorded:** Hoang Nguyen approved this scope, proposed behavioral defaults, and implementation decomposition in this conversation on 2026-11-04 (`approve plan`). This does not authorize publishing, retagging releases, changing licenses, importing credentials, or a particular paid agent route. Before dispatch, select eligible profiles explicitly; no native scout/default-model calls. Independent review must be separately owned and follow the approved routing policy.
 
-**Approved scope amendment:** Hoang Nguyen selected `persistent_cache_scope: Defer persistent cache` and `corrective_route: Extra DeepSeek correction` in this conversation. Persistent disk caching, persisted conditional metadata, REQ-04 / AC-07–09, and slice S5 are deferred from this change; their original design text below is retained for historical traceability, not current delivery or verification obligations. Remove unintegrated S5 helpers/tests; introduce no native addon/helper. Session caching/deduplication, REQ-01–03 and REQ-05–12, AC-01–06 and AC-10–23 remain subject to their existing gates, including MAINT-only S6. One additional correction on the original Personal - DeepSeek workers is authorized for the blocked retained slices; no automatic further retry or model change follows. This amendment makes no implementation, security, licensing, or release PASS claim.
+**Approved scope amendment:** Hoang Nguyen selected `persistent_cache_scope: Defer persistent cache` and `corrective_route: Extra DeepSeek correction` in this conversation. Persistent disk caching, persisted conditional metadata, REQ-004 / AC-007–009, and slice S5 are deferred from this change; their original design text below is retained for historical traceability, not current delivery or verification obligations. Remove unintegrated S5 helpers/tests; introduce no native addon/helper. Session caching/deduplication, REQ-001–003 and REQ-005–012, AC-001–006 and AC-010–023 remain subject to their existing gates, including MAINT-only S6. One additional correction on the original Personal - DeepSeek workers is authorized for the blocked retained slices; no automatic further retry or model change follows. This amendment makes no implementation, security, licensing, or release PASS claim.
 
 **Already delivered:** [PR #288](https://github.com/HoangNguyen0403/agent-skills-standard/pull/288) is MERGED, merge commit `a5ab1fac253b3ce5023b262720b57e743feff7cb`. It refreshes refs/manifests after accepted updates. Retain its regression coverage; do not rebuild that fix. Repository state/CLI publication must be rechecked at implementation start; merge is not proof of installed version or npm publication.
 
@@ -64,18 +64,18 @@ Objective O1: dependable, understandable sync without weakening source or attrib
 
 | ID | Requirement | Owner | Priority |
 | --- | --- | --- | --- |
-| REQ-01 | Deduplicate session requests and reuse discovery only for identical resolved source identities. | ENG | P1 |
-| REQ-02 | Classify remote failures and stop further acquisition on confirmed rate limiting. | ENG | P0 |
-| REQ-03 | Return truthful nonzero failure outcomes and safe recovery/auth diagnostics. | ENG | P0 |
-| REQ-04 | Reuse bounded, verified public content across runs without trusting mutable refs or local cache claims. | ENG | P1 |
-| REQ-05 | Keep final refs, commit/tree/content identity, manifests, and lock provenance consistent. | ENG | P0 |
-| REQ-06 | Preserve attribution bytes from their actual selected source and record their origin. | ENG | P0 |
-| REQ-07 | Preview and separately authorize attribution changes before installation/config publication. | ENG / MAINT | P0 |
-| REQ-08 | Resolve intended MIT distribution through a qualified forward release, not license text replacement. | MAINT | P0 |
-| REQ-09 | Offer newer compatible category/workflow/specialist versions, never incidental downgrades or named-ref replacements. | ENG | P1 |
-| REQ-10 | Prevent exclusion/config keys from becoming fetched categories; preserve valid custom registry categories. | ENG | P1 |
-| REQ-11 | Preserve installed managed state on acquisition/integrity/attribution-preflight failure. | ENG | P0 |
-| REQ-12 | Qualify the integrated CLI, compatibility, documentation, and release evidence. | QA / MAINT | P0 |
+| REQ-001 | Deduplicate session requests and reuse discovery only for identical resolved source identities. | ENG | P1 |
+| REQ-002 | Classify remote failures and stop further acquisition on confirmed rate limiting. | ENG | P0 |
+| REQ-003 | Return truthful nonzero failure outcomes and safe recovery/auth diagnostics. | ENG | P0 |
+| REQ-004 | Reuse bounded, verified public content across runs without trusting mutable refs or local cache claims. | ENG | P1 |
+| REQ-005 | Keep final refs, commit/tree/content identity, manifests, and lock provenance consistent. | ENG | P0 |
+| REQ-006 | Preserve attribution bytes from their actual selected source and record their origin. | ENG | P0 |
+| REQ-007 | Preview and separately authorize attribution changes before installation/config publication. | ENG / MAINT | P0 |
+| REQ-008 | Resolve intended MIT distribution through a qualified forward release, not license text replacement. | MAINT | P0 |
+| REQ-009 | Offer newer compatible category/workflow/specialist versions, never incidental downgrades or named-ref replacements. | ENG | P1 |
+| REQ-010 | Prevent exclusion/config keys from becoming fetched categories; preserve valid custom registry categories. | ENG | P1 |
+| REQ-011 | Preserve installed managed state on acquisition/integrity/attribution-preflight failure. | ENG | P0 |
+| REQ-012 | Qualify the integrated CLI, compatibility, documentation, and release evidence. | QA / MAINT | P0 |
 
 ### Canonical acceptance criteria
 
@@ -83,29 +83,29 @@ Each row has one verification lane and one observable contract; slice sections r
 
 | ID | Req | Given / when | Expected result | Owner | Lane |
 | --- | --- | --- | --- | --- | --- |
-| AC-01 | 01 | Multiple consumers concurrently request the same repository/commit tree. | One network tree request serves them; unrelated commits remain distinct. | QA | integration |
-| AC-02 | 01 | Accepted updates resolve a ref already requested in that invocation. | Resolution is coalesced; failed requests do not poison later legitimate recovery. | QA | integration |
-| AC-03 | 02 | API returns primary exhaustion (403/429, remaining=0). | Sync stops scheduling remote acquisition and returns reset-aware failure; already-in-flight work is bounded/settled and cannot publish. | QA | integration |
-| AC-04 | 02 | Secondary throttling supplies Retry-After, or 403 is ordinary denied access. | Throttling gets correct guidance without a retry storm; access denial is not mislabeled quota exhaustion. | QA | integration |
-| AC-05 | 03 | Sync fails through normal or JSON invocation. | Process exits nonzero, output describes one failure outcome, and no success summary is emitted. | QA | CLI smoke |
-| AC-06 | 03 | Token is present/absent and a request fails. | Diagnostics report auth presence and remediation without exposing token/header values or importing ambient credentials. | QA | integration |
-| AC-07 | 04 | A public immutable package is cached with validated source evidence and the same commit is selected again. | Content/tree downloads are avoided where eligible; current metadata/ref authorization checks are not silently skipped. | QA | integration |
-| AC-08 | 04 | Cache bytes/evidence are corrupt, mismatched, partial, oversized, or symlink-substituted. | They cannot satisfy verification; cache is rejected safely and any refetch follows the same failure rules. | QA | integration |
-| AC-09 | 04 | Metadata endpoint returns authenticated 304 after a valid conditional request. | Previously validated metadata for that exact request/auth scope is reused; 304 without a usable body is not treated as empty success. | QA | integration |
-| AC-10 | 05 | Two tags share a commit, a different tag has another commit, or a tag moves between runs. | Only identical commit trees are shared; moved-source detection and matching release verification remain effective. | QA | integration |
-| AC-11 | 05 | Changed/new package bytes or tampered bytes follow an accepted version update. | Existing PR #288 guarantees remain: correct bytes pass, tampered bytes fail, final provenance matches. | QA | integration |
-| AC-12 | 06 | Package attribution exists, or only selected-source root attribution exists. | Correct precedence and exact bytes are preserved, with source path/ref/commit/digest and verification basis recorded. | QA | integration |
-| AC-13 | 06 | Historical tag has Apache root attribution and current branch has MIT. | Sync never substitutes current-branch MIT for the pinned historical source. | QA | integration |
-| AC-14 | 07 | Existing installed attribution differs from the proposed source, including addition/removal or an unqualified legacy record. | Preview identifies package, old/new digest and origin; no silent overwrite or invented old-source provenance occurs. | QA | integration |
-| AC-15 | 07,11 | Attribution change is declined, or non-interactive sync lacks its separate consent. | Preflight fails/cancels without publishing config refs, installed outputs, or lock changes. Ordinary --yes is insufficient. | QA | CLI smoke |
-| AC-16 | 07 | Explicit attribution consent is supplied for a specific computed sync plan. | Only that plan's verified attribution changes may publish; changed inputs require renewed qualification. | QA | integration |
-| AC-17 | 08 | MAINT approves a documented licensing/provenance assessment for a new release. | New immutable category release contains approved source/license/NOTICE bytes and matching manifests; old releases remain untouched. | MAINT | release qualification |
-| AC-18 | 09 | Advertised version is lower/equal/newer, prerelease, branch, or commit relative to configured source. | Stable semver upgrades only are offered automatically; lower/equal and incomparable explicit pins are not replaced. | QA | integration |
-| AC-19 | 10 | Valid JSON/YAML or legacy block/inline include/exclude configuration is loaded. | Intended membership is preserved and no include/exclude/ref key becomes a category. | QA | integration |
-| AC-20 | 10 | Reserved key/malformed category is found, or a custom registry defines a legitimate category. | Malformed input fails before remote acquisition with a precise path; valid custom categories still work, without local hardcoded category allowlists. | QA | integration |
-| AC-21 | 11 | Preflight acquisition, integrity verification, or attribution qualification fails. | Existing managed files, lock, and saved requested refs retain their pre-run bytes. | QA | CLI smoke |
-| AC-22 | 12 | All slices are integrated and built. | Real entrypoint passes isolated acceptance/decline/dry-run/tamper/rate-limit/license-change scenarios and produces installed-byte/source evidence. | QA | CLI smoke |
-| AC-23 | 12 | Release PR is prepared. | Affected tests/build/docs and independent-review receipts are explicit; failing/not-run checks are not reported PASS. | MAINT | release review |
+| AC-001 | 01 | Multiple consumers concurrently request the same repository/commit tree. | One network tree request serves them; unrelated commits remain distinct. | QA | integration |
+| AC-002 | 01 | Accepted updates resolve a ref already requested in that invocation. | Resolution is coalesced; failed requests do not poison later legitimate recovery. | QA | integration |
+| AC-003 | 02 | API returns primary exhaustion (403/429, remaining=0). | Sync stops scheduling remote acquisition and returns reset-aware failure; already-in-flight work is bounded/settled and cannot publish. | QA | integration |
+| AC-004 | 02 | Secondary throttling supplies Retry-After, or 403 is ordinary denied access. | Throttling gets correct guidance without a retry storm; access denial is not mislabeled quota exhaustion. | QA | integration |
+| AC-005 | 03 | Sync fails through normal or JSON invocation. | Process exits nonzero, output describes one failure outcome, and no success summary is emitted. | QA | CLI smoke |
+| AC-006 | 03 | Token is present/absent and a request fails. | Diagnostics report auth presence and remediation without exposing token/header values or importing ambient credentials. | QA | integration |
+| AC-007 | 04 | A public immutable package is cached with validated source evidence and the same commit is selected again. | Content/tree downloads are avoided where eligible; current metadata/ref authorization checks are not silently skipped. | QA | integration |
+| AC-008 | 04 | Cache bytes/evidence are corrupt, mismatched, partial, oversized, or symlink-substituted. | They cannot satisfy verification; cache is rejected safely and any refetch follows the same failure rules. | QA | integration |
+| AC-009 | 04 | Metadata endpoint returns authenticated 304 after a valid conditional request. | Previously validated metadata for that exact request/auth scope is reused; 304 without a usable body is not treated as empty success. | QA | integration |
+| AC-010 | 05 | Two tags share a commit, a different tag has another commit, or a tag moves between runs. | Only identical commit trees are shared; moved-source detection and matching release verification remain effective. | QA | integration |
+| AC-011 | 05 | Changed/new package bytes or tampered bytes follow an accepted version update. | Existing PR #288 guarantees remain: correct bytes pass, tampered bytes fail, final provenance matches. | QA | integration |
+| AC-012 | 06 | Package attribution exists, or only selected-source root attribution exists. | Correct precedence and exact bytes are preserved, with source path/ref/commit/digest and verification basis recorded. | QA | integration |
+| AC-013 | 06 | Historical tag has Apache root attribution and current branch has MIT. | Sync never substitutes current-branch MIT for the pinned historical source. | QA | integration |
+| AC-014 | 07 | Existing installed attribution differs from the proposed source, including addition/removal or an unqualified legacy record. | Preview identifies package, old/new digest and origin; no silent overwrite or invented old-source provenance occurs. | QA | integration |
+| AC-015 | 07,11 | Attribution change is declined, or non-interactive sync lacks its separate consent. | Preflight fails/cancels without publishing config refs, installed outputs, or lock changes. Ordinary --yes is insufficient. | QA | CLI smoke |
+| AC-016 | 07 | Explicit attribution consent is supplied for a specific computed sync plan. | Only that plan's verified attribution changes may publish; changed inputs require renewed qualification. | QA | integration |
+| AC-017 | 08 | MAINT approves a documented licensing/provenance assessment for a new release. | New immutable category release contains approved source/license/NOTICE bytes and matching manifests; old releases remain untouched. | MAINT | release qualification |
+| AC-018 | 09 | Advertised version is lower/equal/newer, prerelease, branch, or commit relative to configured source. | Stable semver upgrades only are offered automatically; lower/equal and incomparable explicit pins are not replaced. | QA | integration |
+| AC-019 | 10 | Valid JSON/YAML or legacy block/inline include/exclude configuration is loaded. | Intended membership is preserved and no include/exclude/ref key becomes a category. | QA | integration |
+| AC-020 | 10 | Reserved key/malformed category is found, or a custom registry defines a legitimate category. | Malformed input fails before remote acquisition with a precise path; valid custom categories still work, without local hardcoded category allowlists. | QA | integration |
+| AC-021 | 11 | Preflight acquisition, integrity verification, or attribution qualification fails. | Existing managed files, lock, and saved requested refs retain their pre-run bytes. | QA | CLI smoke |
+| AC-022 | 12 | All slices are integrated and built. | Real entrypoint passes isolated acceptance/decline/dry-run/tamper/rate-limit/license-change scenarios and produces installed-byte/source evidence. | QA | CLI smoke |
+| AC-023 | 12 | Release PR is prepared. | Affected tests/build/docs and independent-review receipts are explicit; failing/not-run checks are not reported PASS. | MAINT | release review |
 
 ## 5. Proposed shared contracts and decisions
 
@@ -113,7 +113,7 @@ These are design inputs requiring approval, not existing APIs.
 
 ### Source and request identity
 
-One final source context carries registry identity, requested ref, resolved commit, tree identity, and matching release manifest identity. Ref selection must finish before acquisition. Prefer resolving the final plan once rather than restoring the stale-manifest ordering to save requests. Preserve the merged safety fix until replacement orchestration proves AC-11.
+One final source context carries registry identity, requested ref, resolved commit, tree identity, and matching release manifest identity. Ref selection must finish before acquisition. Prefer resolving the final plan once rather than restoring the stale-manifest ordering to save requests. Preserve the merged safety fix until replacement orchestration proves AC-011.
 
 Session caches include request URL/representation and auth context; commit-tree reuse is keyed by registry/repository/commit. Concurrent callers share one pending request. Transient failures are evicted. Do not persist bearer tokens or treat a tag string as immutable. Fetch root LICENSE/NOTICE once per selected source, not separately for every package.
 

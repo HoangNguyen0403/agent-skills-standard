@@ -4,7 +4,7 @@ Status: S0 DESIGN APPROVED by Hoang Nguyen on 2026-11-04 in this conversation; i
 
 Authority: `docs/prd/prd-sync-reliability-and-attribution.md`, approved by Hoang Nguyen in this conversation on 2026-11-04; subsequent instruction: `start implement the plan`. Delivery mode extended. The approved PRD is the only requirements/AC source; IDs below map implementation boundaries, not duplicate requirements.
 
-**Approved scope amendment:** Hoang Nguyen selected `persistent_cache_scope: Defer persistent cache` in this conversation. HLD-05 / S5 and REQ-04 / AC-07–09 are deferred from this change, including persisted metadata/conditional-request obligations. Their original design remains below for traceability only; no native component, disk-cache client integration, or cache-specific proof fetch is authorized by the active scope. Retain HLD-01 session reuse, source/manifest integrity, HLD-02 selection, HLD-03 attribution, and HLD-04 preflight/consent contracts unchanged. S7 qualifies the retained scope; MAINT-only S6 remains separately gated. No safety contract is weakened or deferred-cache support claimed.
+**Approved scope amendment:** Hoang Nguyen selected `persistent_cache_scope: Defer persistent cache` in this conversation. HLD-05 / S5 and REQ-004 / AC-007–009 are deferred from this change, including persisted metadata/conditional-request obligations. Their original design remains below for traceability only; no native component, disk-cache client integration, or cache-specific proof fetch is authorized by the active scope. Retain HLD-01 session reuse, source/manifest integrity, HLD-02 selection, HLD-03 attribution, and HLD-04 preflight/consent contracts unchanged. S7 qualifies the retained scope; MAINT-only S6 remains separately gated. No safety contract is weakened or deferred-cache support claimed.
 
 ## Decision brief
 
@@ -18,7 +18,7 @@ Remaining human gates: approve these contracts and select a permitted separate r
 
 ## HLD-01 / CMP-HTTP: request and failure boundary
 
-Maps REQ-01..05; AC-01..11. Owner S1: `GithubService.ts` plus new `services/github/GithubRequestError.ts` and HTTP tests. S5 extends the same boundary only after S1 settles.
+Maps REQ-001..005; AC-001..011. Owner S1: `GithubService.ts` plus new `services/github/GithubRequestError.ts` and HTTP tests. S5 extends the same boundary only after S1 settles.
 
 Export `GithubRequestError extends Error` with readonly `kind: 'rate-limited' | 'access-denied' | 'not-found' | 'transport' | 'integrity'`, numeric HTTP status when present, sanitized endpoint (no credentials/query secrets), `authenticated: boolean`, `retryAfterSeconds?: number`, `resetAt?: string` (ISO), and `rateLimitKind?: 'primary' | 'secondary'`. Error cause stays internal; printable/JSON projections use a safe allowlist. Existing IntegrityError remains available; do not create a compatibility alias or remove callers without migrating them.
 
@@ -30,7 +30,7 @@ Keep public method signatures where feasible; additions are narrow optional para
 
 ## HLD-02 / CMP-SELECTION: config and version policy
 
-Maps REQ-09..10; AC-18..20. Owner S2: `ConfigService.ts`, new `services/install/UpdatePolicy.ts`, focused config/update tests. Integration owner applies UpdatePolicy to `SyncService.checkForUpdates`; S2 must not edit SyncService concurrently with S3/S4.
+Maps REQ-009..010; AC-018..020. Owner S2: `ConfigService.ts`, new `services/install/UpdatePolicy.ts`, focused config/update tests. Integration owner applies UpdatePolicy to `SyncService.checkForUpdates`; S2 must not edit SyncService concurrently with S3/S4.
 
 UpdatePolicy API: `isAutomaticUpgrade(currentRef: string | undefined, candidateRef: string, tagPrefix: string): boolean`. Accept only canonical comparable stable semver refs for the same configured prefix and strictly greater numeric major/minor/patch. Undefined initial pins may be handled by the existing initial-pin path, not mislabeled upgrades. Prereleases/custom refs/branches/commit pins are preserved. Use an existing suitable semver dependency if present; do not add a new dependency for a three-component comparison without review. Return false for malformed/incomparable refs. S2 supplies tests covering workflow/specialist reuse; S4 applies the same policy in all three candidate paths.
 
@@ -38,7 +38,7 @@ Config validation happens before registry I/O. Reject `include`, `exclude`, `ref
 
 ## HLD-03 / CMP-ATTRIBUTION: provenance data
 
-Maps REQ-05..08; AC-10..17. Owner S3: `SkillSyncService.ts`, `LockfileService.ts`, `services/AttributionService.ts` and relevant data models/tests; limited SyncService persistence glue after S1/S2 are settled. S4 owns command consent/publication.
+Maps REQ-005..008; AC-010..017. Owner S3: `SkillSyncService.ts`, `LockfileService.ts`, `services/AttributionService.ts` and relevant data models/tests; limited SyncService persistence glue after S1/S2 are settled. S4 owns command consent/publication.
 
 Collected package attribution records carry physical package ID, source kind (`package`/`root`), bounded repository path, declaring source requested ref, resolved commit, blob SHA-1, SHA-256, verification basis (`release-manifest`/`commit-tree-blob`), and installed relative filename. Blob SHA-1 is Git blob identity, not a truncated SHA-256. Use actual downloaded bytes and tree blob values. Root LICENSE/NOTICE stays from the same source as the package; package-local LICENSE variants override root LICENSE variants as one family, and NOTICE variants are a separate family. Never normalize/rewrite license text or infer SPDX identity as authority. Any release manifest used for selected-source verification must have `manifest.commit === resolvedCommit`; a syntactically valid but different commit is an integrity failure.
 
@@ -50,7 +50,7 @@ Future release manifests include required root LICENSE/NOTICE outside the catego
 
 ## HLD-04 / CMP-COMMAND: preflight and publication
 
-Maps REQ-02,03,07,11,12; AC-03..06,14..16,21..23. Owner S4: `commands/sync.ts`, `index.ts`, `SyncService.ts` (exclusive integration ownership after S3 settles), acquisition APIs where necessary, command tests.
+Maps REQ-002,03,07,11,12; AC-003..006,14..16,21..23. Owner S4: `commands/sync.ts`, `index.ts`, `SyncService.ts` (exclusive integration ownership after S3 settles), acquisition APIs where necessary, command tests.
 
 Flow: read/validate -> reconcile in memory -> obtain metadata/select final refs -> resolve final source identities/verifiers -> acquire skills/workflows/specialists -> validate complete acquisition and attribution plan -> show/obtain separate attribution consent -> begin/publish using existing ownership writer -> save accepted configuration/lock -> success -> existing separately consented post-success MCP/hooks.
 
@@ -64,7 +64,7 @@ This guarantees byte preservation for preflight failures, not crash-atomic multi
 
 ## HLD-05 / CMP-CACHE: durable cache
 
-Maps REQ-04,05; AC-07..11. Owner S5: `services/github/VerifiedPublicCache.ts` and GitHub client integration after S1. No lock/command edits without integration ownership transfer.
+Maps REQ-004,05; AC-007..011. Owner S5: `services/github/VerifiedPublicCache.ts` and GitHub client integration after S1. No lock/command edits without integration ownership transfer.
 
 Schema-1 private user cache under platform user cache root (reuse installed project convention if one exists; otherwise explicit XDG_CACHE_HOME or HOME/.cache/agent-skills-standard/github). 256 MiB/4096 complete records; file content stays within existing 1 MiB file bound. Proposed decode caps: trees16MiB, manifests4MiB, metadata4MiB; reject truncation/incomplete trees. Cap applies to actual bytes, not stat alone. Never follow symlink cache roots/records, accept traversal names, or execute cached content.
 
@@ -78,6 +78,25 @@ Atomic uniquely created private temp file + rename, cleanup on errors, bounded c
 Canonical ACs stay in PRD. S1 owns HTTP-boundary request-count and failure classifier fixtures. S2 owns parsing/update policy behavioral tests. S3 owns provenance byte/hash/path/legacy tests. S4 owns full preflight byte preservation and consent/exit/JSON scenarios. S5 owns cache fault/concurrency/eviction tests. S7 creates a disposable asynchronous built-CLI HTTP/preload fixture using isolated HOME/config and real application services; no live quota exhaustion, no real workspace sync. Existing whole-project type errors are recorded, not rerun to reconfirm or hidden.
 
 Execution contract: workers skip build/lint/full suites/formatters mid-flight. Focused initial RED and final GREEN are allowed sequentially within owned files, with no peer mutation in a shared test process. Finish and freeze slices before covering integrated checks. Preserve RED infrastructure failures separately. Required independent review is separate from implementation ownership. Plan IDs map HLD-01=S1; HLD-02=S2; HLD-03=S3; HLD-04=S4; HLD-05=S5; S6 licensing is MAINT-only and blocked; S7 integrates all engineering ACs.
+
+## Requirement Trace
+
+Scope comes from the filename slug `sync-reliability-and-attribution`. Each PRD requirement maps to the acceptance criteria that verify it and to the design section and slice that own it. No BRD objective exists for this slice, so no BRD edge is claimed.
+
+| Design / slice | PRD REQ reference | AC references | Owner / verification |
+| --- | --- | --- | --- |
+| HLD-01; S1 | REQ-001 | AC-001, AC-002 | S1 request-count fixtures; integration |
+| HLD-01, HLD-04; S1, S4 | REQ-002 | AC-003, AC-004 | S1 classifier fixtures; S4 command outcomes; integration |
+| HLD-04; S4 | REQ-003 | AC-005, AC-006 | S4 exit/JSON/auth-guidance scenarios; CLI smoke |
+| HLD-05; S5 | REQ-004 | AC-007, AC-008, AC-009 | Deferred by the approved scope amendment; not delivered or verified here |
+| HLD-01, HLD-03; S1, S3 | REQ-005 | AC-010, AC-011 | S1 commit-keyed reuse; S3 manifest/commit binding; integration |
+| HLD-03; S3 | REQ-006 | AC-012, AC-013 | S3 provenance byte/hash/path tests; integration |
+| HLD-03, HLD-04; S3, S4 | REQ-007 | AC-014, AC-015, AC-016 | S3 comparison predicate; S4 preview and consent; CLI smoke |
+| S6 | REQ-008 | AC-017 | Maintainer licensing authority; blocked, no release approval claimed |
+| HLD-02; S2 | REQ-009 | AC-018 | S2 update-policy tests; integration |
+| HLD-02; S2 | REQ-010 | AC-019, AC-020 | S2 selection parsing and validation tests; integration |
+| HLD-04; S4 | REQ-011 | AC-015, AC-021 | S4 preflight byte-preservation scenarios; CLI smoke |
+| S7 | REQ-012 | AC-022, AC-023 | Built-entrypoint smoke and review receipts; release review |
 
 ## ADR-01: snapshot-correct sync with explicit transition consent
 
