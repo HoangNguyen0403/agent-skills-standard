@@ -181,12 +181,12 @@ The CLI **distributes** skills as static files. The companion [`agent-skills-sta
 ags mcp status              # show current state + per-agent install
 ags mcp scope project       # project | user | snippets-only | disabled
 ags mcp via auto            # auto | npx | global launch mode (auto prefers a version-matched global ags-mcp)
-ags mcp enable --install-global   # npm i -g agent-skills-standard-mcp@<pin>, then verify the reported version
+ags mcp enable              # opt in; global launch mode installs agent-skills-standard-mcp@<pin> and verifies it
 ags mcp install             # apply changes
 ags mcp uninstall --from project   # remove our entry; siblings preserved
 ```
 
-Launch mode defaults to `auto`: the generated entry uses a globally installed `ags-mcp` only when its `--version` exactly matches the CLI pin, and otherwise falls back to `npx -y --prefer-offline agent-skills-standard-mcp@<pin>`. `ags mcp status` prints the resolved launch line, the pin, and the detected global version; `ags mcp install --via <mode>` overrides the mode for that run without persisting it. `ags upgrade` does not rewrite runtime configs — run `ags sync` (or `ags mcp install`) to move them to the new pin; `ags mcp status` and `ags doctor` flag configured-vs-expected drift.
+Launch mode defaults to `auto`: the generated entry uses a globally installed `ags-mcp` only when its `--version` exactly matches the CLI pin, and otherwise falls back to `npx -y --prefer-offline agent-skills-standard-mcp@<pin>`. With `via: global` (saved mode, or `ags mcp enable --via global`), `ags mcp enable` installs `agent-skills-standard-mcp@<pin>` globally via npm, verifies the reported version, then writes the runtime configs; a failed install or mismatched probe exits `1` and leaves `.skillsrc` and the configs untouched. `--install-global` remains available as an explicit trigger for the same install. `ags mcp status` prints the resolved launch line, the pin, and the detected global version; `ags mcp install --via <mode>` overrides the mode for that run without persisting it. `ags upgrade` does not rewrite runtime configs — run `ags sync` (or `ags mcp install`) to move them to the new pin; `ags mcp status` and `ags doctor` flag configured-vs-expected drift.
 
 The CLI **never** modifies user-home files (`~/.cursor/mcp.json`, `~/.gemini/settings.json`, etc.) unless you explicitly choose `scope: user` AND confirm each write. See [`mcp/README.md`](../mcp/README.md) for full details and [`mcp/ARCHITECTURE.md`](../mcp/ARCHITECTURE.md) for the threat model.
 

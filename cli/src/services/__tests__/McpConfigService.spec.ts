@@ -10,6 +10,7 @@ import {
   PACKAGE,
   SERVER_NAME,
   defaultMcpConfig,
+  globalVersionProbeCommand,
 } from '../McpConfigService';
 import { MCP_COMPATIBLE_VERSION } from '../../constants/mcp';
 
@@ -23,6 +24,7 @@ describe('McpConfigService', () => {
     service.setPlatformForTesting('linux');
     service.setGlobalVersionProbeForTesting(() => null);
     service.setGlobalManifestProbeForTesting(() => null);
+    service.setGlobalPathProbeForTesting(null);
     root = await fs.mkdtemp(path.join(os.tmpdir(), 'mcp-svc-'));
     mockHome = await fs.mkdtemp(path.join(os.tmpdir(), 'mcp-home-'));
     service.setHomeForTesting(mockHome);
@@ -156,6 +158,60 @@ describe('McpConfigService', () => {
       service.setGlobalVersionProbeForTesting(() => '0.9.0');
       service.setGlobalManifestProbeForTesting(() => '0.8.0');
       expect(service.detectGlobalVersion()).toBe('0.9.0');
+    });
+
+    it('does not trust the manifest on win32 when the shim is not on PATH', () => {
+      service.setPlatformForTesting('win32');
+      service.setGlobalVersionProbeForTesting(() => null);
+      service.setGlobalPathProbeForTesting(() => false);
+      service.setGlobalManifestProbeForTesting(() => '0.8.0');
+      expect(service.detectGlobalVersion()).toBeNull();
+    });
+
+    it('allows the manifest fallback on win32 for a resolvable legacy binary', () => {
+      service.setPlatformForTesting('win32');
+      service.setGlobalVersionProbeForTesting(() => null);
+      service.setGlobalPathProbeForTesting(() => true);
+      service.setGlobalManifestProbeForTesting(() => '0.8.0');
+      expect(service.detectGlobalVersion()).toBe('0.8.0');
+    });
+
+    it('returns the win32 version probe result without consulting PATH', () => {
+      service.setPlatformForTesting('win32');
+      const pathProbe = vi.fn(() => false);
+      service.setGlobalVersionProbeForTesting(() => MCP_COMPATIBLE_VERSION);
+      service.setGlobalPathProbeForTesting(pathProbe);
+      service.setGlobalManifestProbeForTesting(() => '0.8.0');
+      expect(service.detectGlobalVersion()).toBe(MCP_COMPATIBLE_VERSION);
+      expect(pathProbe).not.toHaveBeenCalled();
+    });
+
+    it('keeps the POSIX manifest fallback without a PATH gate', () => {
+      service.setPlatformForTesting('linux');
+      service.setGlobalVersionProbeForTesting(() => null);
+      service.setGlobalPathProbeForTesting(() => false);
+      service.setGlobalManifestProbeForTesting(() => '0.8.0');
+      expect(service.detectGlobalVersion()).toBe('0.8.0');
+    });
+  });
+
+  describe('globalVersionProbeCommand', () => {
+    it('invokes the binary directly on POSIX without a shell', () => {
+      expect(globalVersionProbeCommand('darwin')).toEqual({
+        command: 'ags-mcp',
+        args: ['--version'],
+      });
+      expect(globalVersionProbeCommand('linux')).toEqual({
+        command: 'ags-mcp',
+        args: ['--version'],
+      });
+    });
+
+    it('goes through cmd /c on Windows so the npm .cmd shim is spawnable', () => {
+      expect(globalVersionProbeCommand('win32')).toEqual({
+        command: 'cmd',
+        args: ['/c', 'ags-mcp', '--version'],
+      });
     });
   });
 

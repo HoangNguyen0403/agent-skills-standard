@@ -242,7 +242,7 @@ program
   .option('--via <via>', 'Override launch mode for this run (auto|npx|global)')
   .option(
     '--install-global',
-    'On enable: install agent-skills-standard-mcp@<pin> globally, then verify its version',
+    'On enable: install agent-skills-standard-mcp@<pin> globally, then verify its version (automatic when launch mode is global)',
   )
   .option(
     '--from <from>',

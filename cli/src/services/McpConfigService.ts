@@ -115,6 +115,22 @@ export interface McpStatusRow {
 }
 
 /**
+ * Command used to run `ags-mcp --version`.
+ *
+ * On Windows npm exposes the binary as a `.cmd` shim, which `execFileSync`
+ * cannot spawn directly (ENOENT), so the probe goes through `cmd /c` — the
+ * same shape the generated global launch entry uses. POSIX keeps the bare
+ * binary with no shell.
+ */
+export function globalVersionProbeCommand(
+  platform: NodeJS.Platform = process.platform,
+): { command: string; args: string[] } {
+  return platform === 'win32'
+    ? { command: 'cmd', args: ['/c', 'ags-mcp', '--version'] }
+    : { command: 'ags-mcp', args: ['--version'] };
+}
+
+/**
  * Owns all MCP-config writes. Pure logic — never prompts the user directly.
  * The caller (sync command, mcp subcommand) supplies a `userScopePrompt`
  * callback that is invoked ONLY when the user has chosen `scope: 'user'` AND
@@ -161,13 +177,39 @@ export class McpConfigService {
    *  2. the manifest under `npm root -g` — required for servers published
    *     before `--version` existed, where probe 1 either prints nothing or
    *     times out because the stdio server starts normally instead.
-   * A missing binary (ENOENT) never falls through: an installed manifest
-   * alone does not prove the command is on the client's PATH.
+   * A missing binary never falls through: an installed manifest alone does
+   * not prove the command is on the client's PATH. POSIX surfaces that as
+   * ENOENT; win32 (which probes through `cmd /c`) proves it with
+   * `where.exe ags-mcp` before allowing the legacy manifest fallback.
    */
   detectGlobalVersion(): string | null {
     const binaryVersion = this.probeGlobalBinaryVersion();
     if (binaryVersion === GLOBAL_BINARY_MISSING) return null;
-    return binaryVersion ?? this.probeGlobalManifestVersion();
+    if (binaryVersion) return binaryVersion;
+    // win32 probes through `cmd /c`, so an absent shim exits non-zero instead
+    // of raising ENOENT. Prove `ags-mcp` resolves on PATH before trusting the
+    // manifest: an installed package alone does not make the launcher usable.
+    if (!this.probeGlobalBinaryOnPath()) return null;
+    return this.probeGlobalManifestVersion();
+  }
+
+  /**
+   * Whether `ags-mcp` resolves on PATH. POSIX misses already surface as
+   * ENOENT in the version probe, so only win32 needs the explicit check.
+   */
+  private probeGlobalBinaryOnPath(): boolean {
+    if ((this.testPlatform ?? process.platform) !== 'win32') return true;
+    if (this.testGlobalPathProbe) return this.testGlobalPathProbe();
+    try {
+      const output = execFileSync('where.exe', ['ags-mcp'], {
+        encoding: 'utf8',
+        timeout: 2000,
+        stdio: ['ignore', 'pipe', 'ignore'],
+      });
+      return String(output).trim().length > 0;
+    } catch {
+      return false;
+    }
   }
 
   /** `ags-mcp --version`, or the sentinel when the command is not on PATH. */
@@ -175,7 +217,10 @@ export class McpConfigService {
     string | null | typeof GLOBAL_BINARY_MISSING {
     try {
       if (this.testGlobalVersionProbe) return this.testGlobalVersionProbe();
-      const output = execFileSync('ags-mcp', ['--version'], {
+      const { command, args } = globalVersionProbeCommand(
+        this.testPlatform ?? process.platform,
+      );
+      const output = execFileSync(command, args, {
         encoding: 'utf8',
         timeout: 2000,
         stdio: ['ignore', 'pipe', 'ignore'],
@@ -237,6 +282,12 @@ export class McpConfigService {
   private testGlobalManifestProbe: (() => string | null) | null = null;
   setGlobalManifestProbeForTesting(fn: (() => string | null) | null): void {
     this.testGlobalManifestProbe = fn;
+  }
+
+  /** For testing: allows overriding the win32 PATH-resolution probe. */
+  private testGlobalPathProbe: (() => boolean) | null = null;
+  setGlobalPathProbeForTesting(fn: (() => boolean) | null): void {
+    this.testGlobalPathProbe = fn;
   }
 
   private getTargets(): Record<string, McpTarget> {

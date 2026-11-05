@@ -63,8 +63,10 @@ function formatEntry(
  *   uninstall [--from=...] Remove our entry from configs (project | user | all)
  *   snippets [--via=...]   Generate fresh snippet files in ./mcp-config-snippets/
  *
- * `--install-global` (on enable) installs `agent-skills-standard-mcp@<pin>`
- * globally, then verifies the installed binary reports the pin.
+ * `enable` also installs `agent-skills-standard-mcp@<pin>` globally and
+ * verifies the reported version whenever the effective launch mode is
+ * `global` (saved mode or `--via global`) — no extra flag required.
+ * `--install-global` remains as an explicit trigger for the same install.
  */
 export class McpCommand {
   private configService: ConfigService;
@@ -79,6 +81,43 @@ export class McpCommand {
   /** For testing: replace the global npm installer (never run real npm in unit tests). */
   setGlobalInstallerForTesting(fn: ((spec: string) => void) | null): void {
     this.globalInstaller = fn ?? defaultGlobalInstaller;
+  }
+
+  /**
+   * Install the pinned package globally and prove the installed binary
+   * reports that exact pin. Returns false (with exit code 1) when either
+   * step fails so callers can abort before persisting or writing configs.
+   */
+  private ensureGlobalPin(pin: string): boolean {
+    const spec = `${PACKAGE}@${pin}`;
+    try {
+      this.globalInstaller(spec);
+    } catch {
+      console.log(pc.red(`❌ Global install failed. Run manually:`));
+      console.log(pc.gray(`   npm i -g ${spec}`));
+      process.exitCode = 1;
+      return false;
+    }
+    const detected = this.mcpService.detectGlobalVersion();
+    if (detected !== pin) {
+      console.log(
+        pc.red(
+          `❌ Global ags-mcp reports ${detected ?? 'no version'} but the CLI pin is ${pin}.`,
+        ),
+      );
+      if (!detected) {
+        console.log(
+          pc.gray(
+            "   Probe found no usable version: check that npm's global bin directory is on PATH and that `ags-mcp --version` prints the expected pin.",
+          ),
+        );
+      }
+      console.log(pc.gray(`   Run manually: npm i -g ${spec}`));
+      process.exitCode = 1;
+      return false;
+    }
+    console.log(pc.green(`✅ Global ags-mcp ${pin} installed and verified.`));
+    return true;
   }
 
   async run(
@@ -261,6 +300,25 @@ export class McpCommand {
     }
   }
 
+  /**
+   * Per-file consent for user-home MCP configs. Shared by every install path
+   * so `enable` (including global mode) cannot drift from `actionInstall`.
+   */
+  private async promptUserScopeWrite(
+    agent: Agent,
+    file: string,
+  ): Promise<boolean> {
+    const { ok } = await inquirer.prompt([
+      {
+        type: 'confirm',
+        name: 'ok',
+        message: `Write user-scope MCP config for ${pc.cyan(agent)} at ${pc.gray(file)}?`,
+        default: false,
+      },
+    ]);
+    return ok;
+  }
+
   private async actionEnable(
     config: SkillConfig,
     agents: Agent[],
@@ -285,43 +343,32 @@ export class McpCommand {
       return;
     }
 
-    if (options.installGlobal) {
+    // Effective launch mode: a per-run override wins, else the saved mode.
+    // `global` mode is only usable with a matching global install, so enable
+    // performs that install automatically instead of requiring a second flag.
+    const effectiveVia: McpVia = viaOverride ?? mcp.via ?? 'auto';
+    const needsGlobalInstall =
+      Boolean(options.installGlobal) || effectiveVia === 'global';
+    if (needsGlobalInstall) {
       const pin = mcp.version ?? MCP_COMPATIBLE_VERSION;
-      const spec = `${PACKAGE}@${pin}`;
-      try {
-        this.globalInstaller(spec);
-      } catch {
-        console.log(pc.red(`❌ Global install failed. Run manually:`));
-        console.log(pc.gray(`   npm i -g ${spec}`));
-        process.exitCode = 1;
-        return;
-      }
-      const detected = this.mcpService.detectGlobalVersion();
-      if (detected !== pin) {
-        console.log(
-          pc.red(
-            `❌ Global ags-mcp reports ${detected ?? 'no version'} but the CLI pin is ${pin}.`,
-          ),
-        );
-        console.log(pc.gray(`   Run manually: npm i -g ${spec}`));
-        process.exitCode = 1;
-        return;
-      }
-      console.log(pc.green(`✅ Global ags-mcp ${pin} installed and verified.`));
+      if (!this.ensureGlobalPin(pin)) return;
     }
 
     config.mcp = { ...mcp, enabled: true, prompted: true };
     await this.configService.saveConfig(config);
     console.log(pc.green('✅ MCP enabled.'));
 
-    if (viaOverride) {
+    if (viaOverride || effectiveVia === 'global') {
+      const installVia: McpVia = viaOverride ?? 'global';
       const report = await this.mcpService.install({
         rootDir: cwd,
         agents,
-        mcp: { ...config.mcp, via: viaOverride },
+        mcp: { ...config.mcp, via: installVia },
+        userScopePrompt: (agent, file) =>
+          this.promptUserScopeWrite(agent, file),
       });
       console.log(
-        pc.gray(`   Installed configs using launch mode "${viaOverride}".`),
+        pc.gray(`   Installed configs using launch mode "${installVia}".`),
       );
       this.printReport(report, cwd);
       return;
@@ -354,7 +401,7 @@ export class McpCommand {
     if (via === 'global') {
       console.log(
         pc.yellow(
-          '⚠️  "global" requires a matching global install: `ags mcp enable --install-global`.',
+          '⚠️  "global" requires a matching global install: `ags mcp enable` installs and verifies it automatically.',
         ),
       );
     } else if (via === 'auto') {
@@ -428,18 +475,6 @@ export class McpCommand {
       return;
     }
 
-    const userPrompt = async (agent: Agent, file: string): Promise<boolean> => {
-      const { ok } = await inquirer.prompt([
-        {
-          type: 'confirm',
-          name: 'ok',
-          message: `Write user-scope MCP config for ${pc.cyan(agent)} at ${pc.gray(file)}?`,
-          default: false,
-        },
-      ]);
-      return ok;
-    };
-
     const report = await this.mcpService.install({
       rootDir: cwd,
       agents,
@@ -449,7 +484,7 @@ export class McpCommand {
         scope: effectiveScope,
         ...(viaOverride ? { via: viaOverride } : {}),
       },
-      userScopePrompt: userPrompt,
+      userScopePrompt: (agent, file) => this.promptUserScopeWrite(agent, file),
     });
 
     this.printReport(report, cwd);
