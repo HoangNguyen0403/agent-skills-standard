@@ -158,6 +158,107 @@ describe('McpConfigService', () => {
     });
   });
 
+  describe('detectGlobalVersion — real probes', () => {
+    const originalPath = process.env.PATH;
+    let binDir: string;
+    let globalRoot: string;
+
+    async function writeExecutable(name: string, body: string): Promise<void> {
+      const file = path.join(binDir, name);
+      await fs.writeFile(file, `#!/bin/sh\n${body}\n`);
+      await fs.chmod(file, 0o755);
+    }
+
+    async function writeManifest(version: string): Promise<void> {
+      await fs.outputJson(
+        path.join(globalRoot, PACKAGE, 'package.json'),
+        { version },
+        { spaces: 2 },
+      );
+    }
+
+    beforeEach(async () => {
+      // Use the real probes: PATH is isolated to a temp bin directory.
+      service.setGlobalVersionProbeForTesting(null);
+      service.setGlobalManifestProbeForTesting(null);
+      binDir = await fs.mkdtemp(path.join(os.tmpdir(), 'mcp-bin-'));
+      globalRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'mcp-groot-'));
+      process.env.PATH = binDir;
+    });
+
+    afterEach(async () => {
+      process.env.PATH = originalPath;
+      await fs.remove(binDir);
+      await fs.remove(globalRoot);
+    });
+
+    const posixOnly = process.platform === 'win32' ? it.skip : it;
+
+    posixOnly('reads the version from `ags-mcp --version`', async () => {
+      await writeExecutable('ags-mcp', 'echo 0.8.0');
+      expect(service.detectGlobalVersion()).toBe('0.8.0');
+    });
+
+    posixOnly(
+      'ignores silence and falls back to the global manifest',
+      async () => {
+        // Published servers before `--version` support start the stdio server
+        // instead of printing a version.
+        await writeExecutable('ags-mcp', 'exit 0');
+        await writeExecutable('npm', `echo ${globalRoot}`);
+        await writeManifest('0.8.0');
+        expect(service.detectGlobalVersion()).toBe('0.8.0');
+      },
+    );
+
+    posixOnly(
+      'falls back to the manifest when the binary exits non-zero',
+      async () => {
+        await writeExecutable('ags-mcp', 'exit 1');
+        await writeExecutable('npm', `echo ${globalRoot}`);
+        await writeManifest('0.8.0');
+        expect(service.detectGlobalVersion()).toBe('0.8.0');
+      },
+    );
+
+    posixOnly('returns null when `npm root -g` fails', async () => {
+      await writeExecutable('ags-mcp', 'exit 0');
+      await writeExecutable('npm', 'exit 1');
+      expect(service.detectGlobalVersion()).toBeNull();
+    });
+
+    posixOnly('returns null when `npm root -g` prints nothing', async () => {
+      await writeExecutable('ags-mcp', 'exit 0');
+      await writeExecutable('npm', ':');
+      expect(service.detectGlobalVersion()).toBeNull();
+    });
+
+    posixOnly('returns null when the global manifest is absent', async () => {
+      await writeExecutable('ags-mcp', 'exit 0');
+      await writeExecutable('npm', `echo ${globalRoot}`);
+      expect(service.detectGlobalVersion()).toBeNull();
+    });
+
+    posixOnly(
+      'returns null when the manifest version is not semver',
+      async () => {
+        await writeExecutable('ags-mcp', 'exit 0');
+        await writeExecutable('npm', `echo ${globalRoot}`);
+        await writeManifest('not-a-version');
+        expect(service.detectGlobalVersion()).toBeNull();
+      },
+    );
+
+    posixOnly(
+      'never consults the manifest when `ags-mcp` is absent',
+      async () => {
+        await writeExecutable('npm', `echo ${globalRoot}`);
+        await writeManifest('0.8.0');
+        expect(service.detectGlobalVersion()).toBeNull();
+      },
+    );
+  });
+
   describe('install', () => {
     it('writes project-scope configs and snippets', async () => {
       const report = await service.install({

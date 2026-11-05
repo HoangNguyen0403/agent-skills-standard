@@ -666,6 +666,73 @@ describe('McpCommand — actionStatus mismatch detection', () => {
       expect(saved.mcp?.via).toBeUndefined();
     });
 
+    it('enable rejects an invalid --via value', async () => {
+      mockConfigService.loadConfig.mockResolvedValue(makeConfig());
+
+      await command.run('enable', { via: 'bogus' });
+
+      expect(mockConfigService.saveConfig).not.toHaveBeenCalled();
+      expect(output()).toContain('Invalid --via value');
+    });
+
+    it('snippets rejects an invalid --via value', async () => {
+      mockConfigService.loadConfig.mockResolvedValue(makeConfig());
+
+      await command.run('snippets', { via: 'bogus' });
+
+      expect(mockMcpService.install).not.toHaveBeenCalled();
+      expect(output()).toContain('Invalid --via value');
+    });
+
+    it('status prints a bare binary as the launch line', async () => {
+      mockConfigService.loadConfig.mockResolvedValue(
+        makeConfig({
+          mcp: {
+            enabled: true,
+            scope: 'project',
+            prompted: true,
+            via: 'global',
+          },
+        }),
+      );
+      mockMcpService.status.mockResolvedValue([]);
+      mockMcpService.buildEntry.mockReturnValue({
+        command: 'ags-mcp',
+        args: [],
+      });
+
+      await command.run('status');
+
+      expect(output()).toContain('launch  : ags-mcp');
+    });
+
+    it('scope user warns that writes prompt per file', async () => {
+      mockConfigService.loadConfig.mockResolvedValue(makeConfig());
+
+      await command.run('scope', { scope: 'user' });
+
+      expect(output()).toContain('prompted per file');
+    });
+
+    it('"via auto" explains the resolution order', async () => {
+      mockConfigService.loadConfig.mockResolvedValue(makeConfig());
+
+      await command.run('via', { via: 'auto' });
+
+      expect(output()).toContain('version-matched global ags-mcp');
+    });
+
+    it('enable --install-global reports a probe that finds no version', async () => {
+      mockConfigService.loadConfig.mockResolvedValue(makeConfig());
+      command.setGlobalInstallerForTesting(vi.fn());
+      mockMcpService.detectGlobalVersion.mockReturnValue(null);
+
+      await command.run('enable', { installGlobal: 'true' });
+
+      expect(process.exitCode).toBe(1);
+      expect(output()).toContain('reports no version');
+    });
+
     it('enable --install-global installs the pinned package and verifies the probe', async () => {
       mockConfigService.loadConfig.mockResolvedValue(
         makeConfig({
