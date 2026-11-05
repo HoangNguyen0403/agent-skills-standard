@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { buildServer } from "../src/server";
@@ -16,6 +16,10 @@ import {
   DISABLED_RETROSPECTIVE_TEXT,
   RETROSPECTIVE_NUDGE_TEXT,
 } from "../src/tools";
+
+// Every case here spawns a real node+tsx server (some spawn it twice), so the
+// global 5 s default is too tight on shared CI runners.
+vi.setConfig({ testTimeout: 30_000 });
 
 const temporaryRoots: string[] = [];
 
