@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Quick Navigation
 
-## [Unreleased]
+## [cli-v2.7.4] - 2026-11-05
 
 ### Fixed
 - fix(cli): make global MCP enable install and verify the pinned package automatically.
