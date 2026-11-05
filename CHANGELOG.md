@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Quick Navigation
 
+## [cli-v2.7.3] - 2026-11-05
+
+**Category**: CLI Tool
+
+### Added
+- feat(mcp): prefer a version-matched global binary with npx fallback (#291)
+
+### Fixed
+- fix(cli): pin agent-skills-standard-mcp 0.8.0 (#290)
+
+### Maintenance
+- test(cli): cover retrospective startup and option branches (#292)
+
+### Other Changes
+- Delete PRD documents for Evidence-led Marketing and Sync Reliability and Attribution as part of project restructuring and focus realignment.
+
 ## [cli-v2.7.2] - 2026-11-04
 
 **Category**: CLI Tool
@@ -14,8 +30,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - fix(sync): sync reliability, failure classification, and attribution provenance (#289)
 
-## [Unreleased]
-### Fixed
 - **CLI pins `agent-skills-standard-mcp` 0.8.0**: `MCP_COMPATIBLE_VERSION` still pointed at `0.6.1` after the MCP `0.8.0` release, so `ags sync` rewrote every runtime config to the older pin and `ags retrospective` refused to start with the version guard. The pin now matches `mcp/package.json`; a regression test asserts the shipped pin satisfies `RETROSPECTIVE_MIN_MCP_VERSION`, and the guard path is exercised through an injectable pin instead of the release constant.
 
 ### Added
