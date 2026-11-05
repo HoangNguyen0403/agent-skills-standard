@@ -4,7 +4,7 @@ MCP server that lets any AI agent — Claude Code, Cursor, Antigravity, Kiro, Co
 
 Makes standards consultation explicit: `AGENTS.md` and `_INDEX.md` are passive prompt context, while this MCP returns standards through auditable tool calls. Each agent or sub-agent must perform its own applicable lookup; parent-session consultation does not prove fresh-worker delivery or enforced behavior.
 
-**Current release:** `v0.8.0` — explicit consultation auditing, session accounting, retrospective tooling, package-aligned security fixes, and supported streamable HTTP request handling. Per-release detail: [CHANGELOG](../CHANGELOG.md).
+**Current release:** `v0.8.1` — explicit consultation auditing, session accounting, retrospective tooling, package-aligned security fixes, and supported streamable HTTP request handling. Per-release detail: [CHANGELOG](../CHANGELOG.md).
 
 ## High-Density Architecture (Zero-Trust)
 
@@ -74,7 +74,7 @@ ags mcp install             # Apply changes
 To install or run the MCP standalone:
 
 ```bash
-npx -y --prefer-offline agent-skills-standard-mcp@0.8.0
+npx -y --prefer-offline agent-skills-standard-mcp@0.8.1
 
 # Or build from source
 pnpm install && pnpm mcp:build
@@ -150,7 +150,7 @@ Full behaviour, privacy model and host versions: [`../docs/session-retrospective
 Every MCP client spawns the server as a fresh process, and an `npx` launch pays npm package resolution each time. On a warm npm cache, measured locally on macOS: **≈0.6s per `npx` spawn** versus **≈0.17s for the direct global binary** (`npx --offline` was ≈0.49s). Those are local warm-cache numbers, not a universal benchmark — but the relative ordering is why a global install exists.
 
 ```bash
-npm i -g agent-skills-standard-mcp@0.8.0   # must match the CLI pin
+npm i -g agent-skills-standard-mcp@0.8.1   # must match the CLI pin
 ags-mcp --version                          # prints the semver it reports
 ags mcp via auto                           # use it only when the version matches
 ```
@@ -172,7 +172,7 @@ Add to `.mcp.json` (project-local) or `~/.claude/.mcp.json` (global):
   "mcpServers": {
     "agent-skills-standard": {
       "command": "npx",
-      "args": ["-y", "--prefer-offline", "agent-skills-standard-mcp@0.8.0"]
+      "args": ["-y", "--prefer-offline", "agent-skills-standard-mcp@0.8.1"]
     }
   }
 }
@@ -201,7 +201,7 @@ Add to `~/.cursor/mcp.json`:
   "mcpServers": {
     "agent-skills-standard": {
       "command": "npx",
-      "args": ["-y", "--prefer-offline", "agent-skills-standard-mcp@0.8.0"]
+      "args": ["-y", "--prefer-offline", "agent-skills-standard-mcp@0.8.1"]
     }
   }
 }
@@ -219,7 +219,7 @@ Add to `~/.continue/config.json` under `experimental.modelContextProtocolServers
         "transport": {
           "type": "stdio",
           "command": "npx",
-          "args": ["-y", "--prefer-offline", "agent-skills-standard-mcp@0.8.0"]
+          "args": ["-y", "--prefer-offline", "agent-skills-standard-mcp@0.8.1"]
         }
       }
     ]
@@ -236,7 +236,7 @@ Add to `~/.gemini/settings.json`:
   "mcpServers": {
     "agent-skills-standard": {
       "command": "npx",
-      "args": ["-y", "--prefer-offline", "agent-skills-standard-mcp@0.8.0"]
+      "args": ["-y", "--prefer-offline", "agent-skills-standard-mcp@0.8.1"]
     }
   }
 }
@@ -266,7 +266,7 @@ To run the MCP as a standalone HTTP service (e.g., for GoClaw agents):
 ```bash
 export MCP_TRANSPORT=sse
 export PORT=8768
-npx -y --prefer-offline agent-skills-standard-mcp@0.8.0
+npx -y --prefer-offline agent-skills-standard-mcp@0.8.1
 ```
 
 HTTP mode is stateless. Each request uses a fresh MCP server and transport, so clients can initialize and then make subsequent tool calls without a server-side session.

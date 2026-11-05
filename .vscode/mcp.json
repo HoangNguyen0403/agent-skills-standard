@@ -5,7 +5,7 @@
       "args": [
         "-y",
         "--prefer-offline",
-        "agent-skills-standard-mcp@0.8.0"
+        "agent-skills-standard-mcp@0.8.1"
       ]
     }
   }

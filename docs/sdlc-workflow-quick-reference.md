@@ -242,7 +242,7 @@ When consent is enabled, the MCP server may nudge the agent after `audit_session
 - Preparation never edits skills, routing, memory or `AGENTS_LEARNING.md`; proposal adoption is a separate authorized step with independent review.
 - Restricted, unavailable or remote evidence becomes an explicit coverage gap; it is never silently fetched or claimed complete.
 
-**Unpublished: source-available; no registry release ships it.** `ags retrospective` needs an `ags` release that pins `agent-skills-standard-mcp` 0.8.0 or newer and refuses until then. Detail: `docs/session-retrospective.md`.
+**Unpublished: source-available; no registry release ships it.** `ags retrospective` needs an `ags` release that pins `agent-skills-standard-mcp` 0.8.1 or newer and refuses until then. Detail: `docs/session-retrospective.md`.
 
 ## Agentic Runtime Contract
 
