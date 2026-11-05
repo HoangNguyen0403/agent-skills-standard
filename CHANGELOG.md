@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Quick Navigation
 
+## [Unreleased]
+
+### Added
+- **Quality Engineering (Testing Reference Improvements)**: Added deterministic Playwright collection readiness rules (`locator.all()` contract-based completion vs retrying assertions) and parallel worker/account isolation lifecycle guidance with scenario-owned mutable data and auth-state proof boundaries (`quality-engineering-selector-stability`, `quality-engineering-playwright-pom-generation`, `quality-engineering-test-plan-authoring`).
+
 ## [cli-v2.7.4] - 2026-11-05
 
 ### Fixed

@@ -65,3 +65,4 @@ Page objects expose locators and action methods; specs assert on them. An `expec
 - [Page Object Template](references/page-object-template.md)
 - [Fixture Wiring](references/fixture-wiring.md)
 - [Playwright MCP Authoring](references/playwright-mcp-authoring.md)
+- [Parallel Fixture Lifecycle](references/parallel-fixture-lifecycle.md)

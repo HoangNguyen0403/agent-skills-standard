@@ -503,13 +503,13 @@
       ]
     },
     "quality-engineering": {
-      "version": "1.6.2",
-      "last_updated": "2026-10-27",
+      "version": "1.6.3",
+      "last_updated": "2026-11-05",
       "tag_prefix": "quality-engineering-v",
       "token_metrics": {
         "total_skills": 17,
-        "total_tokens": 17291,
-        "avg_tokens_per_skill": 1017,
+        "total_tokens": 17611,
+        "avg_tokens_per_skill": 1036,
         "largest_skill": "quality-engineering-api-testing (1633 tokens)"
       },
       "owners": [

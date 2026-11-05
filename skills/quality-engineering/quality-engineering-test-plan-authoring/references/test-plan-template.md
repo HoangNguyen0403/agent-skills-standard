@@ -97,7 +97,7 @@ STLC Gate: Planning -> Case/Environment Setup (see skills/quality-engineering/qu
 - [screen]-[element]-[role] gap items: elements needing stable test IDs/accessibility locators per `quality-engineering-selector-stability`
 
 ## Data & Reset
-- Web/API: scenario-specific seed fixtures and reset mechanisms; missing reset commands surfaced, never invented
+- Web/API: scenario-specific seed fixtures, invocation-run/project/shard/slot/test/attempt namespace formulas, failure diagnostic capture before teardown, and orphan TTL/janitor boundaries; distinguish worker account concurrency slot allocation from per-test mutable data isolation; never invoke blanket table truncate or global wipes in teardown; missing reset commands surfaced, never invented
 - Mobile: scenario-specific setup and state fixtures; explicitly preserve prior build/session/offline queue until verification and failure evidence are captured; do NOT execute blanket app-data wipe or unconditional fullReset
 
 ## Closure & Residual Risk (STLC Stage 6)
