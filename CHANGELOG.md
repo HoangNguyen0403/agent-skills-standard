@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - fix(sync): sync reliability, failure classification, and attribution provenance (#289)
 
 ## [Unreleased]
+### Fixed
+- **CLI pins `agent-skills-standard-mcp` 0.8.0**: `MCP_COMPATIBLE_VERSION` still pointed at `0.6.1` after the MCP `0.8.0` release, so `ags sync` rewrote every runtime config to the older pin and `ags retrospective` refused to start with the version guard. The pin now matches `mcp/package.json`; a regression test asserts the shipped pin satisfies `RETROSPECTIVE_MIN_MCP_VERSION`, and the guard path is exercised through an injectable pin instead of the release constant.
+
 ### Added
 - **SEO discoverability readiness and cost-aware agent routing (source candidate; `common` `2.9.4`, `@ags/website`)**:
   - **README and entry journey**: Restructured README opening around purpose, target developer, concrete use case, and next action; reconciled quantitative claims against sourced release snapshots; verified direct questions and contribution destinations; documented primary npm global install with secondary npx setup (isolated npx `--version` PASS 2.6.6 entrypoint check).
