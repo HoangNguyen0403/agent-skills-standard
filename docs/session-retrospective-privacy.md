@@ -31,7 +31,7 @@ The path works with or without OMP or Paseo.
 Cross-session index generation (`ags retrospective index` and `prepare_retrospective_index`) reads
 **ONLY already-stored v2 ledgers** in the consented store root. It never opens session files, runs
 no git commands, and contains NO command text. No new consent text is needed (nothing is read outside
-the already-consented store root; consent text remains version 2).
+the already-consented store root).
 
 Reading a session file is the most sensitive step in this feature, so the boundary is fixed.
 
@@ -82,7 +82,7 @@ advises operators to check commands before sharing.
 ### Git outcome safety and root boundary
 
 Git outcome metrics read repository activity from the session's working folder. **NOTE: this reads
-outside the listed source roots**, which is explicitly disclosed in the version 2 consent text.
+outside the listed source roots**, which is explicitly disclosed in the version 2 and 3 consent text.
 
 The engine enforces strict execution boundaries:
 
@@ -113,11 +113,33 @@ returns transcript text, a claim sentence or a report body.
 
 The MCP-native path is opt-in, once, by the human. `ags retrospective enable` requires an
 interactive terminal (otherwise it refuses `TTY_REQUIRED` and writes nothing), prints the fixed
-consent text plus the store root and the source roots, and accepts only the exact word `yes`
-(otherwise `CONSENT_DECLINED`, and nothing is written). `ags retrospective disable` needs no terminal.
-`ags retrospective status` prints the state and, when enabled, the store root and the allowed source roots.
+consent text plus the store root and the exact source roots that will be read, and accepts only the
+exact word `yes` (otherwise `CONSENT_DECLINED`, and nothing is written). `ags retrospective disable`
+needs no terminal. `ags retrospective status` prints the state and, when enabled, the store root and
+the allowed source roots.
 Command detail, including the root flags, is in
 [./session-retrospective.md](./session-retrospective.md).
+
+The prompt also discloses, in a separate section, local transcript folders belonging to providers
+this build has no reader for — the documented defaults `~/.claude/projects` and `~/.gemini/tmp`.
+That disclosure is presence-only: one `lstat` per path, no enumeration, no file opened, nothing
+parsed, and the paths are never added to the consent record. A detected folder does not mean the
+provider is running, and a relocated store is not detected. Nothing inside those folders is read at
+any later point.
+
+Separately from presence detection, the overlap check canonicalizes the candidate root and each
+store path (resolving symlinks, including through existing ancestors) and compares lexical and
+canonical forms in both directions. That is path metadata only: it reads no transcript content, opens
+no store file and enumerates nothing. It refuses a custom `--source-root` that is one of those
+folders, an ancestor of one, a descendant of one, or an alias that resolves onto one, and it applies
+the same check to discovered default roots, because a symlinked `~/.omp` or `~/.codex` parent could
+otherwise resolve into a store that `discovery.ts` would enumerate. Refusal is
+`SOURCE_ROOT_UNSUPPORTED_STORE`, before the prompt is shown, so a consented root can never make an
+unsupported store readable. Resolution is fail-closed: only a genuinely absent suffix is appended
+after `lstat` confirms the entry does not exist. A dangling link, an unreadable component, a symlink
+loop, a non-directory component or an I/O error refuses enable with
+`SOURCE_ROOT_CANONICALIZATION_FAILED` rather than falling back to a lexical path that could hide an
+alias. The canonicalization is disclosed in the consent text itself.
 
 The record lives at:
 
@@ -129,10 +151,11 @@ The record lives at:
 The roots named in that record are the boundary for session transcripts: the MCP-native path reads
 session files only inside the recorded source roots and writes only under the recorded store root.
 Repository activity metrics (commit and file counts) are read from git in the session's working folder,
-which is outside the listed source roots, as explicitly disclosed in consent text version 2.
+which is outside the listed source roots, as explicitly disclosed in consent text version 2 and later.
 
-The consent text is version `2`. An existing record with version `1` is treated as disabled
-(reason `version`), requiring the user to run `ags retrospective enable` again to re-consent.
+The consent text is version `4` (version 4 discloses canonicalization of source and store paths for
+alias checks, path metadata only). An existing record with version `1`, `2` or `3` is treated as
+disabled (reason `version`), requiring the user to run `ags retrospective enable` again to re-consent.
 
 The file is owner-only, and the reader fails closed. Each of these is a disabled state, never an
 enabled state built from guessed data:
@@ -143,7 +166,7 @@ enabled state built from guessed data:
 | `invalid` | empty, malformed, unknown keys, a relative path, an oversized or non-regular file |
 | `permissive` | group- or other-readable, owned by another user, or failing the Windows private-path check |
 | `symlink` | the open refused the record because it is a symbolic link |
-| `version` | a consent text version this build does not accept (including version 1 records) |
+| `version` | a consent text version this build does not accept (including version 1, 2 and 3 records) |
 
 Ownership, mode, size and content are checked on one open descriptor and on the bytes read from
 it, and where the platform supports it the open itself refuses a symbolic link. The record

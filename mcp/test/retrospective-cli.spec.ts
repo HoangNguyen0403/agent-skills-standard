@@ -388,6 +388,383 @@ describe("retrospective CLI consent commands", () => {
     });
   });
 
+  it("unsupported provider stores are disclosed by presence but never consented", async () => {
+    const { tempHome, storeDir, createIo } = await setupHarness();
+    const defaultOmp = path.join(tempHome, ".omp", "agent", "sessions");
+    await fs.mkdir(defaultOmp, { recursive: true });
+    const claudeStore = path.join(tempHome, ".claude", "projects");
+    const geminiStore = path.join(tempHome, ".gemini", "tmp");
+    await fs.mkdir(claudeStore, { recursive: true });
+    await fs.mkdir(geminiStore, { recursive: true });
+
+    const { io, getWritten } = createIo({
+      isTTY: true,
+      ask: async () => "yes",
+    });
+    const outcome = await runRetrospectiveCli(
+      ["enable", "--store-root", storeDir],
+      io,
+    );
+    expect(outcome.code).toBe(0);
+
+    const written = getWritten();
+    expect(written).toContain("providers this build cannot read");
+    expect(written).toContain("Presence only");
+    expect(written).toContain(`Claude Code: ${claudeStore}`);
+    expect(written).toContain(`Gemini: ${geminiStore}`);
+    expect(written).toContain("not evidence that the provider is running");
+
+    const statusOutcome = await runRetrospectiveCli(["consent-status"], io);
+    expect(JSON.parse(statusOutcome.stdout)).toEqual({
+      schemaVersion: 1,
+      state: "enabled",
+      storeRoot: storeDir,
+      allowedSourceRoots: [defaultOmp],
+    });
+  });
+
+  it("discloses an unsupported store without enumerating it", async () => {
+    const { tempHome, storeDir, createIo } = await setupHarness();
+    await fs.mkdir(path.join(tempHome, ".omp", "agent", "sessions"), {
+      recursive: true,
+    });
+    const claudeStore = path.join(tempHome, ".claude", "projects");
+    await fs.mkdir(claudeStore, { recursive: true });
+    await fs.writeFile(path.join(claudeStore, "transcript.jsonl"), "{}\n");
+    // Execute-only: the entry itself is stat-able, its contents are not listable.
+    await fs.chmod(claudeStore, 0o100);
+    try {
+      const { io, getWritten } = createIo({
+        isTTY: true,
+        ask: async () => "yes",
+      });
+      const outcome = await runRetrospectiveCli(
+        ["enable", "--store-root", storeDir],
+        io,
+      );
+      expect(outcome.code).toBe(0);
+      expect(getWritten()).toContain(`Claude Code: ${claudeStore}`);
+    } finally {
+      await fs.chmod(claudeStore, 0o700);
+    }
+  });
+
+  it("refuses custom roots that overlap an unsupported provider store", async () => {
+    const cases: Array<{ name: string; root: (home: string) => string }> = [
+      {
+        name: "the Claude store itself",
+        root: (home) => path.join(home, ".claude", "projects"),
+      },
+      {
+        name: "a Claude store ancestor",
+        root: (home) => path.join(home, ".claude"),
+      },
+      { name: "the home directory", root: (home) => home },
+      {
+        name: "a Claude store descendant",
+        root: (home) => path.join(home, ".claude", "projects", "nested"),
+      },
+      {
+        name: "the Gemini store itself",
+        root: (home) => path.join(home, ".gemini", "tmp"),
+      },
+    ];
+
+    for (const testCase of cases) {
+      const { tempHome, storeDir, targetConsentPath, createIo } =
+        await setupHarness();
+      await fs.mkdir(path.join(tempHome, ".claude", "projects", "nested"), {
+        recursive: true,
+      });
+      await fs.mkdir(path.join(tempHome, ".gemini", "tmp"), {
+        recursive: true,
+      });
+      const { io, getWritten } = createIo({
+        isTTY: true,
+        ask: async () => "yes",
+      });
+      const outcome = await runRetrospectiveCli(
+        [
+          "enable",
+          "--store-root",
+          storeDir,
+          "--source-root",
+          testCase.root(tempHome),
+        ],
+        io,
+      );
+      expect(outcome.code, testCase.name).toBe(1);
+      expect(JSON.parse(outcome.stderr), testCase.name).toEqual({
+        schemaVersion: 1,
+        error: { code: "SOURCE_ROOT_UNSUPPORTED_STORE" },
+      });
+      expect(outcome.stdout, testCase.name).toBe("");
+      expect(getWritten(), testCase.name).toBe("");
+      const exists = await fs
+        .access(targetConsentPath)
+        .then(() => true)
+        .catch(() => false);
+      expect(exists, testCase.name).toBe(false);
+    }
+  });
+
+  it("refuses an ancestor root even when no unsupported store exists yet", async () => {
+    const { tempHome, storeDir, targetConsentPath, createIo } =
+      await setupHarness();
+    const { io, getWritten } = createIo({
+      isTTY: true,
+      ask: async () => "yes",
+    });
+    const outcome = await runRetrospectiveCli(
+      ["enable", "--store-root", storeDir, "--source-root", tempHome],
+      io,
+    );
+    expect(outcome.code).toBe(1);
+    expect(JSON.parse(outcome.stderr)).toEqual({
+      schemaVersion: 1,
+      error: { code: "SOURCE_ROOT_UNSUPPORTED_STORE" },
+    });
+    expect(getWritten()).toBe("");
+    const exists = await fs
+      .access(targetConsentPath)
+      .then(() => true)
+      .catch(() => false);
+    expect(exists).toBe(false);
+  });
+
+  it.skipIf(process.platform === "win32")(
+    "refuses a symlink alias that resolves onto an unsupported store",
+    async () => {
+      const { tempHome, storeDir, targetConsentPath, createIo } =
+        await setupHarness();
+      await fs.mkdir(path.join(tempHome, ".claude", "projects"), {
+        recursive: true,
+      });
+      const alias = path.join(tempHome, "claude-alias");
+      await fs.symlink(path.join(tempHome, ".claude"), alias);
+
+      const { io, getWritten } = createIo({
+        isTTY: true,
+        ask: async () => "yes",
+      });
+      const outcome = await runRetrospectiveCli(
+        ["enable", "--store-root", storeDir, "--source-root", alias],
+        io,
+      );
+      expect(outcome.code).toBe(1);
+      expect(JSON.parse(outcome.stderr)).toEqual({
+        schemaVersion: 1,
+        error: { code: "SOURCE_ROOT_UNSUPPORTED_STORE" },
+      });
+      expect(getWritten()).toBe("");
+      const exists = await fs
+        .access(targetConsentPath)
+        .then(() => true)
+        .catch(() => false);
+      expect(exists).toBe(false);
+    },
+  );
+
+  it.skipIf(process.platform === "win32")(
+    "refuses a default OMP root reached through a symlinked parent into an unsupported store",
+    async () => {
+      const { tempHome, storeDir, targetConsentPath, createIo } =
+        await setupHarness();
+      const realOmp = path.join(tempHome, ".claude", "projects", "omp-store");
+      await fs.mkdir(path.join(realOmp, "agent", "sessions"), {
+        recursive: true,
+      });
+      await fs.symlink(realOmp, path.join(tempHome, ".omp"));
+
+      const { io, getWritten } = createIo({
+        isTTY: true,
+        ask: async () => "yes",
+      });
+      const outcome = await runRetrospectiveCli(
+        ["enable", "--store-root", storeDir],
+        io,
+      );
+      expect(outcome.code).toBe(1);
+      expect(JSON.parse(outcome.stderr)).toEqual({
+        schemaVersion: 1,
+        error: { code: "SOURCE_ROOT_UNSUPPORTED_STORE" },
+      });
+      expect(outcome.stdout).toBe("");
+      expect(getWritten()).toBe("");
+      const exists = await fs
+        .access(targetConsentPath)
+        .then(() => true)
+        .catch(() => false);
+      expect(exists).toBe(false);
+    },
+  );
+
+  it.skipIf(process.platform === "win32" || process.getuid?.() === 0)(
+    "refuses an external root when the store parent cannot be resolved",
+    async () => {
+      const { tempHome, storeDir, targetConsentPath, createIo } =
+        await setupHarness();
+      const external = path.join(tempHome, "external-sessions");
+      await fs.mkdir(external, { recursive: true });
+      const claudeParent = path.join(tempHome, ".claude");
+      await fs.mkdir(claudeParent, { recursive: true });
+      await fs.symlink(external, path.join(claudeParent, "projects"));
+      await fs.chmod(claudeParent, 0o000);
+      try {
+        const { io, getWritten } = createIo({
+          isTTY: true,
+          ask: async () => "yes",
+        });
+        const outcome = await runRetrospectiveCli(
+          ["enable", "--store-root", storeDir, "--source-root", external],
+          io,
+        );
+        expect(outcome.code).toBe(1);
+        expect(JSON.parse(outcome.stderr)).toEqual({
+          schemaVersion: 1,
+          error: { code: "SOURCE_ROOT_CANONICALIZATION_FAILED" },
+        });
+        expect(outcome.stdout).toBe("");
+        expect(getWritten()).toBe("");
+        const exists = await fs
+          .access(targetConsentPath)
+          .then(() => true)
+          .catch(() => false);
+        expect(exists).toBe(false);
+      } finally {
+        await fs.chmod(claudeParent, 0o700);
+      }
+    },
+  );
+
+  it.skipIf(process.platform === "win32")(
+    "refuses when a store path is an unresolvable symlink",
+    async () => {
+      const { tempHome, storeDir, targetConsentPath, createIo } =
+        await setupHarness();
+      await fs.mkdir(path.join(tempHome, ".omp", "agent", "sessions"), {
+        recursive: true,
+      });
+      await fs.mkdir(path.join(tempHome, ".claude"), { recursive: true });
+      await fs.symlink(
+        path.join(tempHome, "missing-target"),
+        path.join(tempHome, ".claude", "projects"),
+      );
+      const { io, getWritten } = createIo({
+        isTTY: true,
+        ask: async () => "yes",
+      });
+      const outcome = await runRetrospectiveCli(
+        ["enable", "--store-root", storeDir],
+        io,
+      );
+      expect(outcome.code).toBe(1);
+      expect(JSON.parse(outcome.stderr)).toEqual({
+        schemaVersion: 1,
+        error: { code: "SOURCE_ROOT_CANONICALIZATION_FAILED" },
+      });
+      expect(getWritten()).toBe("");
+      const exists = await fs
+        .access(targetConsentPath)
+        .then(() => true)
+        .catch(() => false);
+      expect(exists).toBe(false);
+    },
+  );
+
+  it("custom --source-root replaces defaults but still discloses unsupported stores", async () => {
+    const { tempHome, storeDir, sourceDir, createIo } = await setupHarness();
+    const defaultOmp = path.join(tempHome, ".omp", "agent", "sessions");
+    await fs.mkdir(defaultOmp, { recursive: true });
+    const geminiStore = path.join(tempHome, ".gemini", "tmp");
+    await fs.mkdir(geminiStore, { recursive: true });
+
+    const { io, getWritten } = createIo({
+      isTTY: true,
+      ask: async () => "yes",
+    });
+    const outcome = await runRetrospectiveCli(
+      ["enable", "--store-root", storeDir, "--source-root", sourceDir],
+      io,
+    );
+    expect(outcome.code).toBe(0);
+
+    const written = getWritten();
+    expect(written).toContain("Allowed source roots (read after consent):");
+    expect(written).toContain(sourceDir);
+    expect(written).not.toContain(defaultOmp);
+    expect(written).toContain(`Gemini: ${geminiStore}`);
+
+    const statusOutcome = await runRetrospectiveCli(["consent-status"], io);
+    expect(JSON.parse(statusOutcome.stdout)).toEqual({
+      schemaVersion: 1,
+      state: "enabled",
+      storeRoot: storeDir,
+      allowedSourceRoots: [sourceDir],
+    });
+  });
+
+  it("omits the unsupported-store section when no such folders exist", async () => {
+    const { storeDir, sourceDir, createIo } = await setupHarness();
+    const { io, getWritten } = createIo({
+      isTTY: true,
+      ask: async () => "yes",
+    });
+    const outcome = await runRetrospectiveCli(
+      ["enable", "--store-root", storeDir, "--source-root", sourceDir],
+      io,
+    );
+    expect(outcome.code).toBe(0);
+    const written = getWritten();
+    expect(written).not.toContain("Claude Code");
+    expect(written).not.toContain("providers this build cannot read");
+  });
+
+  it("an existing version 2 consent record is disabled until it is granted again", async () => {
+    const { storeDir, sourceDir, targetConsentPath, createIo } =
+      await setupHarness();
+    await fs.mkdir(path.dirname(targetConsentPath), {
+      recursive: true,
+      mode: 0o700,
+    });
+    const staleRecord = {
+      schemaVersion: 1,
+      consentTextVersion: "2",
+      grantedAt: "2026-11-01T12:00:00.000Z",
+      storeRoot: storeDir,
+      allowedSourceRoots: [sourceDir],
+      storageRiskAcknowledged: true,
+    };
+    await fs.writeFile(targetConsentPath, JSON.stringify(staleRecord), {
+      mode: 0o600,
+    });
+    if (process.platform !== "win32") {
+      await fs.chmod(targetConsentPath, 0o600);
+    }
+
+    const { io } = createIo({ isTTY: true, ask: async () => "yes" });
+    const before = await runRetrospectiveCli(["consent-status"], io);
+    expect(JSON.parse(before.stdout)).toEqual({
+      schemaVersion: 1,
+      state: "disabled",
+      reason: "version",
+    });
+
+    const enable = await runRetrospectiveCli(
+      ["enable", "--store-root", storeDir, "--source-root", sourceDir],
+      io,
+    );
+    expect(enable.code).toBe(0);
+
+    const after = await runRetrospectiveCli(["consent-status"], io);
+    expect(JSON.parse(after.stdout)).toEqual({
+      schemaVersion: 1,
+      state: "enabled",
+      storeRoot: storeDir,
+      allowedSourceRoots: [sourceDir],
+    });
+  });
+
   it("disable removes and is idempotent; works with isTTY: false", async () => {
     const { storeDir, sourceDir, targetConsentPath, createIo } =
       await setupHarness();
@@ -480,6 +857,9 @@ describe("retrospective CLI consent commands", () => {
     expect(written).toContain(storeDir);
     expect(written).toContain(sourceDir);
     expect(written).toContain('Type "yes" to enable');
+    expect(written).toContain("canonicalized (symlinks resolved)");
+    expect(written).toContain("This uses path metadata only");
+    expect(written).toContain("the check reads no transcript content");
   });
 
   it.skipIf(process.platform === "win32")(
