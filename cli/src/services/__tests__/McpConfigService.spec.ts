@@ -6,6 +6,7 @@ import { Agent } from '../../constants';
 import { McpConfig } from '../../models/config';
 import {
   McpConfigService,
+  McpTarget,
   PACKAGE,
   SERVER_NAME,
   defaultMcpConfig,
@@ -19,6 +20,9 @@ describe('McpConfigService', () => {
 
   beforeEach(async () => {
     service = new McpConfigService();
+    service.setPlatformForTesting('linux');
+    service.setGlobalVersionProbeForTesting(() => null);
+    service.setGlobalManifestProbeForTesting(() => null);
     root = await fs.mkdtemp(path.join(os.tmpdir(), 'mcp-svc-'));
     mockHome = await fs.mkdtemp(path.join(os.tmpdir(), 'mcp-home-'));
     service.setHomeForTesting(mockHome);
@@ -42,16 +46,218 @@ describe('McpConfigService', () => {
   }
 
   describe('buildEntry', () => {
-    it('pins to the CLI-compatible MCP version by default (no unversioned npx)', () => {
-      const entry = service.buildEntry();
-      expect(entry.args).toContain(`${PACKAGE}@${MCP_COMPATIBLE_VERSION}`);
-      expect(entry.args).not.toContain(PACKAGE);
+    it('npx mode pins to the CLI-compatible MCP version with --prefer-offline', () => {
+      const entry = service.buildEntry({ via: 'npx' });
+      expect(entry).toEqual({
+        command: 'npx',
+        args: [
+          '-y',
+          '--prefer-offline',
+          `${PACKAGE}@${MCP_COMPATIBLE_VERSION}`,
+        ],
+      });
     });
 
-    it('honors an explicit version override', () => {
-      const entry = service.buildEntry('1.2.3');
+    it('npx mode honors an explicit version override', () => {
+      const entry = service.buildEntry({ version: '1.2.3', via: 'npx' });
       expect(entry.args).toContain(`${PACKAGE}@1.2.3`);
+      expect(entry.args[0]).toBe('-y');
+      expect(entry.args[1]).toBe('--prefer-offline');
     });
+
+    it('global mode uses the POSIX binary directly', () => {
+      service.setPlatformForTesting('linux');
+      expect(service.buildEntry({ via: 'global' })).toEqual({
+        command: 'ags-mcp',
+        args: [],
+      });
+    });
+
+    it('global mode uses cmd /c on win32', () => {
+      service.setPlatformForTesting('win32');
+      expect(service.buildEntry({ via: 'global' })).toEqual({
+        command: 'cmd',
+        args: ['/c', 'ags-mcp'],
+      });
+    });
+
+    it('auto uses the global binary when the detected version matches the pin', () => {
+      service.setGlobalVersionProbeForTesting(() => MCP_COMPATIBLE_VERSION);
+      expect(service.buildEntry({ via: 'auto' })).toEqual({
+        command: 'ags-mcp',
+        args: [],
+      });
+    });
+
+    it('auto uses a manifest-verified global binary published before --version', () => {
+      service.setGlobalVersionProbeForTesting(() => null);
+      service.setGlobalManifestProbeForTesting(() => MCP_COMPATIBLE_VERSION);
+      expect(service.buildEntry({ via: 'auto' }).command).toBe('ags-mcp');
+    });
+
+    it('auto falls back to npx when the probe misses', () => {
+      service.setGlobalVersionProbeForTesting(() => null);
+      const entry = service.buildEntry({ via: 'auto' });
+      expect(entry.command).toBe('npx');
+      expect(entry.args).toContain(`${PACKAGE}@${MCP_COMPATIBLE_VERSION}`);
+    });
+
+    it('auto falls back to npx when the global version differs from the pin', () => {
+      service.setGlobalVersionProbeForTesting(() => '9.9.9');
+      expect(service.buildEntry({ via: 'auto' }).command).toBe('npx');
+    });
+
+    it('auto never uses a global binary on win32', () => {
+      service.setPlatformForTesting('win32');
+      service.setGlobalVersionProbeForTesting(() => MCP_COMPATIBLE_VERSION);
+      expect(service.buildEntry({ via: 'auto' }).command).toBe('npx');
+    });
+
+    it('omitting via defaults to auto', () => {
+      service.setGlobalVersionProbeForTesting(() => MCP_COMPATIBLE_VERSION);
+      expect(service.buildEntry().command).toBe('ags-mcp');
+    });
+  });
+
+  describe('detectGlobalVersion', () => {
+    it('returns the injected probe value', () => {
+      service.setGlobalVersionProbeForTesting(() => '0.8.0');
+      expect(service.detectGlobalVersion()).toBe('0.8.0');
+    });
+
+    it('returns null when the binary is not on PATH', () => {
+      service.setGlobalVersionProbeForTesting(() => {
+        throw Object.assign(new Error('spawn ags-mcp ENOENT'), {
+          code: 'ENOENT',
+        });
+      });
+      expect(service.detectGlobalVersion()).toBeNull();
+    });
+
+    it('falls back to the global manifest when the binary prints no version', () => {
+      // Published servers before `--version` support start the stdio server
+      // instead of printing anything, so the manifest is the only truth.
+      service.setGlobalVersionProbeForTesting(() => null);
+      service.setGlobalManifestProbeForTesting(() => '0.8.0');
+      expect(service.detectGlobalVersion()).toBe('0.8.0');
+    });
+
+    it('never trusts the manifest when the binary is missing', () => {
+      service.setGlobalVersionProbeForTesting(() => {
+        throw Object.assign(new Error('spawn ags-mcp ENOENT'), {
+          code: 'ENOENT',
+        });
+      });
+      service.setGlobalManifestProbeForTesting(() => '0.8.0');
+      expect(service.detectGlobalVersion()).toBeNull();
+    });
+
+    it('prefers the binary version over the manifest', () => {
+      service.setGlobalVersionProbeForTesting(() => '0.9.0');
+      service.setGlobalManifestProbeForTesting(() => '0.8.0');
+      expect(service.detectGlobalVersion()).toBe('0.9.0');
+    });
+  });
+
+  describe('detectGlobalVersion — real probes', () => {
+    const originalPath = process.env.PATH;
+    let binDir: string;
+    let globalRoot: string;
+
+    async function writeExecutable(name: string, body: string): Promise<void> {
+      const file = path.join(binDir, name);
+      await fs.writeFile(file, `#!/bin/sh\n${body}\n`);
+      await fs.chmod(file, 0o755);
+    }
+
+    async function writeManifest(version: string): Promise<void> {
+      await fs.outputJson(
+        path.join(globalRoot, PACKAGE, 'package.json'),
+        { version },
+        { spaces: 2 },
+      );
+    }
+
+    beforeEach(async () => {
+      // Use the real probes: PATH is isolated to a temp bin directory.
+      service.setGlobalVersionProbeForTesting(null);
+      service.setGlobalManifestProbeForTesting(null);
+      binDir = await fs.mkdtemp(path.join(os.tmpdir(), 'mcp-bin-'));
+      globalRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'mcp-groot-'));
+      process.env.PATH = binDir;
+    });
+
+    afterEach(async () => {
+      process.env.PATH = originalPath;
+      await fs.remove(binDir);
+      await fs.remove(globalRoot);
+    });
+
+    const posixOnly = process.platform === 'win32' ? it.skip : it;
+
+    posixOnly('reads the version from `ags-mcp --version`', async () => {
+      await writeExecutable('ags-mcp', 'echo 0.8.0');
+      expect(service.detectGlobalVersion()).toBe('0.8.0');
+    });
+
+    posixOnly(
+      'ignores silence and falls back to the global manifest',
+      async () => {
+        // Published servers before `--version` support start the stdio server
+        // instead of printing a version.
+        await writeExecutable('ags-mcp', 'exit 0');
+        await writeExecutable('npm', `echo ${globalRoot}`);
+        await writeManifest('0.8.0');
+        expect(service.detectGlobalVersion()).toBe('0.8.0');
+      },
+    );
+
+    posixOnly(
+      'falls back to the manifest when the binary exits non-zero',
+      async () => {
+        await writeExecutable('ags-mcp', 'exit 1');
+        await writeExecutable('npm', `echo ${globalRoot}`);
+        await writeManifest('0.8.0');
+        expect(service.detectGlobalVersion()).toBe('0.8.0');
+      },
+    );
+
+    posixOnly('returns null when `npm root -g` fails', async () => {
+      await writeExecutable('ags-mcp', 'exit 0');
+      await writeExecutable('npm', 'exit 1');
+      expect(service.detectGlobalVersion()).toBeNull();
+    });
+
+    posixOnly('returns null when `npm root -g` prints nothing', async () => {
+      await writeExecutable('ags-mcp', 'exit 0');
+      await writeExecutable('npm', ':');
+      expect(service.detectGlobalVersion()).toBeNull();
+    });
+
+    posixOnly('returns null when the global manifest is absent', async () => {
+      await writeExecutable('ags-mcp', 'exit 0');
+      await writeExecutable('npm', `echo ${globalRoot}`);
+      expect(service.detectGlobalVersion()).toBeNull();
+    });
+
+    posixOnly(
+      'returns null when the manifest version is not semver',
+      async () => {
+        await writeExecutable('ags-mcp', 'exit 0');
+        await writeExecutable('npm', `echo ${globalRoot}`);
+        await writeManifest('not-a-version');
+        expect(service.detectGlobalVersion()).toBeNull();
+      },
+    );
+
+    posixOnly(
+      'never consults the manifest when `ags-mcp` is absent',
+      async () => {
+        await writeExecutable('npm', `echo ${globalRoot}`);
+        await writeManifest('0.8.0');
+        expect(service.detectGlobalVersion()).toBeNull();
+      },
+    );
   });
 
   describe('install', () => {
@@ -227,6 +433,168 @@ describe('McpConfigService', () => {
         agents: ['unknown' as any],
       });
       expect(stats).toHaveLength(0);
+    });
+
+    it('carries the parsed json-map entry for project and user scopes', async () => {
+      const userPrompt = vi.fn().mockResolvedValue(true);
+      await service.install({
+        rootDir: root,
+        agents: [Agent.Claude],
+        mcp: mcp('user'),
+        userScopePrompt: userPrompt,
+      });
+      const expected = service.buildEntry({ via: 'npx' });
+
+      const stats = await service.status({
+        rootDir: root,
+        agents: [Agent.Claude],
+      });
+
+      expect(stats[0].projectEntry).toEqual(expected);
+      expect(stats[0].userEntry).toEqual(expected);
+    });
+
+    it('carries the parsed json-list entry from the transport block', async () => {
+      const listTarget: McpTarget = {
+        agent: Agent.Claude,
+        projectFile: 'list-mcp.json',
+        userFile: null,
+        key: 'mcp.servers',
+        shape: 'list',
+      };
+      vi.spyOn(
+        service as unknown as { getTargets(): Record<string, McpTarget> },
+        'getTargets',
+      ).mockReturnValue({ [Agent.Claude]: listTarget });
+      const expected = service.buildEntry({ via: 'npx' });
+      await fs.outputJson(path.join(root, 'list-mcp.json'), {
+        mcp: {
+          servers: [
+            {
+              name: SERVER_NAME,
+              transport: { type: 'stdio', ...expected },
+            },
+          ],
+        },
+      });
+
+      const stats = await service.status({
+        rootDir: root,
+        agents: [Agent.Claude],
+      });
+
+      expect(stats[0].projectEntry).toEqual(expected);
+    });
+
+    it('carries the parsed TOML entry', async () => {
+      await service.install({
+        rootDir: root,
+        agents: [Agent.Codex],
+        mcp: mcp('project'),
+      });
+
+      const stats = await service.status({
+        rootDir: root,
+        agents: [Agent.Codex],
+      });
+
+      expect(stats[0].projectEntry).toEqual(service.buildEntry({ via: 'npx' }));
+    });
+
+    it('defaults missing args to an empty array', async () => {
+      await fs.outputJson(path.join(root, '.mcp.json'), {
+        mcpServers: { [SERVER_NAME]: { command: 'ags-mcp' } },
+      });
+
+      const stats = await service.status({
+        rootDir: root,
+        agents: [Agent.Claude],
+      });
+
+      expect(stats[0].projectEntry).toEqual({
+        command: 'ags-mcp',
+        args: [],
+      });
+    });
+
+    it('returns null entries for files without our valid entry', async () => {
+      await fs.outputJson(path.join(root, '.mcp.json'), {
+        mcpServers: {
+          [SERVER_NAME]: { command: 42, args: 'not-an-array' },
+        },
+      });
+      await fs.outputJson(path.join(root, '.cursor', 'mcp.json'), {
+        mcpServers: {},
+      });
+
+      const stats = await service.status({
+        rootDir: root,
+        agents: [Agent.Claude, Agent.Cursor],
+      });
+
+      expect(stats[0].projectEntry).toBeNull();
+      expect(stats[1].projectEntry).toBeNull();
+    });
+
+    it('returns null for list entries without a valid transport', async () => {
+      const listTarget: McpTarget = {
+        agent: Agent.Claude,
+        projectFile: 'list-invalid.json',
+        userFile: null,
+        key: 'mcp.servers',
+        shape: 'list',
+      };
+      vi.spyOn(
+        service as unknown as { getTargets(): Record<string, McpTarget> },
+        'getTargets',
+      ).mockReturnValue({ [Agent.Claude]: listTarget });
+      await fs.outputJson(path.join(root, 'list-invalid.json'), {
+        mcp: { servers: [{ name: SERVER_NAME }] },
+      });
+
+      const stats = await service.status({
+        rootDir: root,
+        agents: [Agent.Claude],
+      });
+
+      expect(stats[0].projectEntry).toBeNull();
+    });
+    it('returns null when a container has the wrong shape', async () => {
+      const listTarget: McpTarget = {
+        agent: Agent.Claude,
+        projectFile: 'shape-list.json',
+        userFile: null,
+        key: 'mcp.servers',
+        shape: 'list',
+      };
+      const mapTarget: McpTarget = {
+        agent: Agent.Cursor,
+        projectFile: 'shape-map.json',
+        userFile: null,
+        key: 'mcpServers',
+        shape: 'map',
+      };
+      vi.spyOn(
+        service as unknown as { getTargets(): Record<string, McpTarget> },
+        'getTargets',
+      ).mockReturnValue({
+        [Agent.Claude]: listTarget,
+        [Agent.Cursor]: mapTarget,
+      });
+      await fs.outputJson(path.join(root, 'shape-list.json'), {
+        mcp: { servers: {} },
+      });
+      await fs.outputJson(path.join(root, 'shape-map.json'), {
+        mcpServers: [],
+      });
+
+      const stats = await service.status({
+        rootDir: root,
+        agents: [Agent.Claude, Agent.Cursor],
+      });
+
+      expect(stats[0].projectEntry).toBeNull();
+      expect(stats[1].projectEntry).toBeNull();
     });
   });
 
@@ -534,6 +902,33 @@ describe('McpConfigService', () => {
       });
       const snip = report.snippets.find((s) => s.agent === Agent.Codex)!;
       expect(snip.file).toBe(path.join('mcp-config-snippets', 'codex.toml'));
+    });
+
+    it('renders an empty args array for a global launch in toml', async () => {
+      service.setPlatformForTesting('linux');
+      const report = await service.install({
+        rootDir: root,
+        agents: [Agent.Codex],
+        mcp: { ...mcp('project'), snippets: true, via: 'global' },
+      });
+      const snip = report.snippets.find((s) => s.agent === Agent.Codex)!;
+      const text = await fs.readFile(path.join(root, snip.file), 'utf8');
+      expect(text).toContain('command = "ags-mcp"');
+      expect(text).toContain('args = []');
+    });
+
+    it('uses the configured via for merged project configs', async () => {
+      service.setPlatformForTesting('linux');
+      await service.install({
+        rootDir: root,
+        agents: [Agent.Claude],
+        mcp: { ...mcp('project'), via: 'global' },
+      });
+      const data = await fs.readJson(path.join(root, '.mcp.json'));
+      expect(data.mcpServers[SERVER_NAME]).toEqual({
+        command: 'ags-mcp',
+        args: [],
+      });
     });
   });
 });

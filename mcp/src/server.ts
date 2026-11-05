@@ -1,5 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
+import pkg from "../package.json";
 import { ResolvedConfig } from "./config";
 import { SessionTracker } from "./services/SessionTracker";
 import { loadPolicyView } from "./services/PolicyIndex";
@@ -62,8 +63,13 @@ function register(server: McpServer, tool: ToolDef): void {
   );
 }
 
-/** MCP server version, shared with telemetry records. */
-export const SERVER_VERSION = "0.6.0";
+/**
+ * MCP server version, shared with telemetry records and `--version`.
+ * Read from `mcp/package.json` at build time (the bundler inlines the JSON),
+ * so `dist/` alone stays the single source of truth — never hardcode a
+ * semver literal here.
+ */
+export const SERVER_VERSION: string = pkg.version;
 
 /**
  * Server-level instructions. Pinned to the McpServer constructor so every

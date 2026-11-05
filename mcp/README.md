@@ -4,7 +4,7 @@ MCP server that lets any AI agent — Claude Code, Cursor, Antigravity, Kiro, Co
 
 Makes standards consultation explicit: `AGENTS.md` and `_INDEX.md` are passive prompt context, while this MCP returns standards through auditable tool calls. Each agent or sub-agent must perform its own applicable lookup; parent-session consultation does not prove fresh-worker delivery or enforced behavior.
 
-**Current release:** `v0.6.1` — explicit consultation auditing, package-aligned security fixes, and supported streamable HTTP request handling.
+**Current release:** `v0.8.0` — explicit consultation auditing, session accounting, retrospective tooling, package-aligned security fixes, and supported streamable HTTP request handling. Per-release detail: [CHANGELOG](../CHANGELOG.md).
 
 ## High-Density Architecture (Zero-Trust)
 
@@ -74,7 +74,7 @@ ags mcp install             # Apply changes
 To install or run the MCP standalone:
 
 ```bash
-npx agent-skills-standard-mcp
+npx -y --prefer-offline agent-skills-standard-mcp@0.8.0
 
 # Or build from source
 pnpm install && pnpm mcp:build
@@ -85,9 +85,9 @@ node mcp/dist/index.js
 
 The candidate adds `ags-mcp-session-report --manifest <manifest.json> [--json]` for explicitly selected Codex JSONL and OMP v3 journals. It retains OMP model-usage calls and orchestration/cache-write buckets separately from transcript and conversation counters; absent submetrics stay unknown, and oversized journals stop at the first resource limit. It reports aggregate counters and inventory coverage only; it does not discover host activity or infer prices. See [`SESSION_REPORT.md`](SESSION_REPORT.md) for the manifest, counter semantics, unknown values, and privacy limits. Real-journal use remains subject to separate Personal-journal authorization.
 
-### Session retrospectives (`ags retrospective`, unreleased source candidate)
+### Session retrospectives (`ags retrospective`)
 
-The source ships **three stdio-only MCP tools plus a retrospective subcommand** in the server package, and none of it is released.
+The package ships **three stdio-only MCP tools plus a retrospective subcommand**; it is inert until a human opts in with `ags retrospective enable` in an interactive terminal.
 
 - `prepare_retrospective`, `get_retrospective_status`, and `prepare_retrospective_index` are registered
   only when the transport is stdio (`mcp/src/server.ts` checks `transport === "stdio"`). They are
@@ -143,7 +143,21 @@ Contract constraints to preserve when the binary ships:
 - Exit codes: usage `2`, refusal or failure `1`, successful index publication `0`.
 - Three tools are exposed on stdio: `prepare_retrospective`, `get_retrospective_status`, and `prepare_retrospective_index`. They never return transcript text or report bodies — only state, numbers, an artifact id, or paths (`summary.md`, `ledger.json`, `report.html`, or `<storeRoot>/index.html`); file contents stay on local disk.
 
-Full behaviour, privacy model and host versions: [`../docs/session-retrospective.md`](../docs/session-retrospective.md), with the privacy boundary in [`../docs/session-retrospective-privacy.md`](../docs/session-retrospective-privacy.md) and provider coverage in [`../docs/session-retrospective-hosts.md`](../docs/session-retrospective-hosts.md). Status: unreleased source; fresh build, passing MCP test suite and packed-tarball consumer smoke pass locally on macOS. Not published, no version bump, and no host-integration, Windows/Linux or process-level egress claim is made; no CI job runs on Windows. Skill, workflow and rule text that would trigger `prepare_retrospective` is not part of this change; it arrives later, after a value pilot.
+Full behaviour, privacy model and host versions: [`../docs/session-retrospective.md`](../docs/session-retrospective.md), with the privacy boundary in [`../docs/session-retrospective-privacy.md`](../docs/session-retrospective-privacy.md) and provider coverage in [`../docs/session-retrospective-hosts.md`](../docs/session-retrospective-hosts.md). Status: published in `0.8.0` and inert until consent; fresh build, passing MCP test suite and packed-tarball consumer smoke pass locally on macOS. No host-integration, Windows/Linux or process-level egress claim is made; no CI job runs on Windows. Skill, workflow and rule text that would trigger `prepare_retrospective` is not part of this change; it arrives later, after a value pilot.
+
+### Faster startup: one global install
+
+Every MCP client spawns the server as a fresh process, and an `npx` launch pays npm package resolution each time. On a warm npm cache, measured locally on macOS: **≈0.6s per `npx` spawn** versus **≈0.17s for the direct global binary** (`npx --offline` was ≈0.49s). Those are local warm-cache numbers, not a universal benchmark — but the relative ordering is why a global install exists.
+
+```bash
+npm i -g agent-skills-standard-mcp@0.8.0   # must match the CLI pin
+ags-mcp --version                          # prints the semver it reports
+ags mcp via auto                           # use it only when the version matches
+```
+
+`ags mcp enable --install-global` runs the global install for you and verifies the reported version, exiting `1` if it does not match the pin. With `via: auto` (the default), a global binary is used **only** when `ags-mcp --version` exactly equals the CLI pin; otherwise the client falls back to the pinned `npx` line, so a stale global can never serve a mismatched tool surface. On Windows, `auto` always stays on `npx`.
+
+`~/.npm/_npx` is machine-global and keyed by package spec, so several worktrees pointed at the same pin share one cached download — they do not re-download, though each client spawn still pays the resolution cost.
 
 ## Configure your AI agent
 
@@ -158,11 +172,25 @@ Add to `.mcp.json` (project-local) or `~/.claude/.mcp.json` (global):
   "mcpServers": {
     "agent-skills-standard": {
       "command": "npx",
-      "args": ["-y", "agent-skills-standard-mcp"]
+      "args": ["-y", "--prefer-offline", "agent-skills-standard-mcp@0.8.0"]
     }
   }
 }
 ```
+
+If you installed the server globally (see [Faster startup](#faster-startup-one-global-install)), the same entry is just:
+
+```json
+{
+  "mcpServers": {
+    "agent-skills-standard": {
+      "command": "ags-mcp"
+    }
+  }
+}
+```
+
+Every runtime below accepts either shape; only the `command`/`args` pair changes.
 
 ### Cursor
 
@@ -173,7 +201,7 @@ Add to `~/.cursor/mcp.json`:
   "mcpServers": {
     "agent-skills-standard": {
       "command": "npx",
-      "args": ["-y", "agent-skills-standard-mcp"]
+      "args": ["-y", "--prefer-offline", "agent-skills-standard-mcp@0.8.0"]
     }
   }
 }
@@ -191,7 +219,7 @@ Add to `~/.continue/config.json` under `experimental.modelContextProtocolServers
         "transport": {
           "type": "stdio",
           "command": "npx",
-          "args": ["-y", "agent-skills-standard-mcp"]
+          "args": ["-y", "--prefer-offline", "agent-skills-standard-mcp@0.8.0"]
         }
       }
     ]
@@ -208,7 +236,7 @@ Add to `~/.gemini/settings.json`:
   "mcpServers": {
     "agent-skills-standard": {
       "command": "npx",
-      "args": ["-y", "agent-skills-standard-mcp"]
+      "args": ["-y", "--prefer-offline", "agent-skills-standard-mcp@0.8.0"]
     }
   }
 }
@@ -238,7 +266,7 @@ To run the MCP as a standalone HTTP service (e.g., for GoClaw agents):
 ```bash
 export MCP_TRANSPORT=sse
 export PORT=8768
-npx agent-skills-standard-mcp
+npx -y --prefer-offline agent-skills-standard-mcp@0.8.0
 ```
 
 HTTP mode is stateless. Each request uses a fresh MCP server and transport, so clients can initialize and then make subsequent tool calls without a server-side session.

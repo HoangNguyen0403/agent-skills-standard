@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   hasTomlMcpServer,
+  readTomlMcpServer,
   removeTomlMcpServer,
   renderTomlMcpServer,
   upsertTomlMcpServer,
@@ -65,5 +66,57 @@ describe('codexTomlMcp', () => {
     expect(
       renderTomlMcpServer(N, { command: 'n"px', args: ['a\\b'] }),
     ).toContain('command = "n\\"px"\nargs = ["a\\\\b"]');
+  });
+  it('reads back exactly what it renders', () => {
+    expect(readTomlMcpServer(TABLE, N)).toEqual(E);
+    const escaped = { command: 'n"px', args: ['a\\b', 'plain'] };
+    expect(readTomlMcpServer(renderTomlMcpServer(N, escaped), N)).toEqual(
+      escaped,
+    );
+  });
+  it('ignores unrelated tables and subtables', () => {
+    const content =
+      '[mcp_servers.other]\ncommand = "x"\nargs = ["y"]\n\n' +
+      TABLE +
+      '\n[mcp_servers.agent-skills-standard.env]\nX = "1"\n';
+    expect(readTomlMcpServer(content, N)).toEqual(E);
+    expect(readTomlMcpServer(content, 'other')).toEqual({
+      command: 'x',
+      args: ['y'],
+    });
+  });
+  it('returns null when the table or either key is absent', () => {
+    expect(readTomlMcpServer('', N)).toBeNull();
+    expect(
+      readTomlMcpServer(
+        '[mcp_servers.agent-skills-standard]\ncommand = "x"\n',
+        N,
+      ),
+    ).toBeNull();
+    expect(
+      readTomlMcpServer('[mcp_servers.agent-skills-standard]\nargs = []\n', N),
+    ).toBeNull();
+  });
+  it('parses single-quoted args as literal strings', () => {
+    expect(
+      readTomlMcpServer(
+        "[mcp_servers.agent-skills-standard]\ncommand = 'ags-mcp'\nargs = ['a', 'b']\n",
+        N,
+      ),
+    ).toEqual({ command: 'ags-mcp', args: ['a', 'b'] });
+  });
+  it('returns null for unquoted or malformed values', () => {
+    expect(
+      readTomlMcpServer(
+        '[mcp_servers.agent-skills-standard]\ncommand = npx\nargs = ["-y"]\n',
+        N,
+      ),
+    ).toBeNull();
+    expect(
+      readTomlMcpServer(
+        '[mcp_servers.agent-skills-standard]\ncommand = "npx"\nargs = [-y]\n',
+        N,
+      ),
+    ).toBeNull();
   });
 });

@@ -5,9 +5,8 @@
  * agent-skills-standard-mcp`, which would silently pull whatever is latest
  * on npm at the moment the agent starts.
  *
- * Bump this alongside mcp/package.json's version when releasing — there is
- * no automated sync between the two (mirrors how skills/metadata.json
- * category versions are maintained today).
+ * Bumped automatically by `scripts/release-mcp.ts` when the MCP package is
+ * released and gated in CI, so this pin always matches `mcp/package.json`.
  */
 export const MCP_COMPATIBLE_VERSION = '0.8.0';
 

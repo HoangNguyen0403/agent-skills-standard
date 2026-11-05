@@ -12,7 +12,9 @@ import {
   LockfileService,
   VerifyResult,
 } from './LockfileService';
-import { McpConfigService } from './McpConfigService';
+import { MCP_COMPATIBLE_VERSION } from '../constants/mcp';
+import { McpConfigService, McpStatusRow } from './McpConfigService';
+import { McpServerEntry, sameMcpEntry } from './utils/codexTomlMcp';
 
 export type CheckStatus = 'ok' | 'warn' | 'fail' | 'skip';
 export interface DoctorFix {
@@ -47,10 +49,8 @@ export interface DoctorReportData {
 export interface DoctorDeps {
   loadConfig(rootDir: string): Promise<SkillConfig | null>;
   detectAgents(): Promise<Record<string, boolean>>;
-  mcpStatus(
-    rootDir: string,
-    agents: Agent[],
-  ): Promise<Array<{ agent: Agent; project?: boolean; user?: boolean }>>;
+  mcpStatus(rootDir: string, agents: Agent[]): Promise<McpStatusRow[]>;
+  buildMcpEntry?(config: SkillConfig): McpServerEntry;
   hookStatus(rootDir: string, agents: Agent[]): Promise<HookStatusRow[]>;
   verifyLock(
     rootDir: string,
@@ -77,6 +77,8 @@ export function defaultDoctorDeps(): DoctorDeps {
     loadConfig: (rootDir) => config.loadConfig(rootDir),
     detectAgents: () => detection.detectAgents(),
     mcpStatus: (rootDir, agents) => mcp.status({ rootDir, agents }),
+    buildMcpEntry: (cfg) =>
+      mcp.buildEntry({ version: cfg.mcp?.version, via: cfg.mcp?.via }),
     hookStatus: (rootDir, agents) => hooks.status({ rootDir, agents }),
     verifyLock: async (rootDir, agents) => {
       const { lock: l } = await lock.load(rootDir, agents);
@@ -261,23 +263,88 @@ export class DoctorService {
         scope === 'project' ? !r.project : !(r.project || r.user),
       )
       .map((r) => r.agent);
-    if (missing.length === 0)
+    if (missing.length > 0) {
       return check(
         'mcp',
-        'ok',
-        `registered for ${rows.map((r) => r.agent).join(', ') || 'no MCP-capable agents'}`,
+        'fail',
+        `MCP server not registered for: ${missing.join(', ')}`,
+        {
+          description: `register MCP for ${missing.join(', ')}`,
+          apply: async () => {
+            for (const agent of missing)
+              await this.deps.installMcp(rootDir, agent, config);
+          },
+        },
       );
-    return check(
-      'mcp',
-      'fail',
-      `MCP server not registered for: ${missing.join(', ')}`,
-      {
-        description: `register MCP for ${missing.join(', ')}`,
+    }
+
+    const expected = this.deps.buildMcpEntry
+      ? this.deps.buildMcpEntry(config)
+      : new McpConfigService().buildEntry({
+          version: config.mcp.version,
+          via: config.mcp.via,
+        });
+    const pin = config.mcp.version ?? MCP_COMPATIBLE_VERSION;
+    const drifted: Array<{
+      agent: Agent;
+      scope: 'project' | 'user';
+      entry: McpServerEntry;
+    }> = [];
+    for (const row of rows) {
+      if (scope === 'project') {
+        if (
+          row.project &&
+          row.projectEntry &&
+          !sameMcpEntry(row.projectEntry, expected)
+        ) {
+          drifted.push({
+            agent: row.agent,
+            scope: 'project',
+            entry: row.projectEntry,
+          });
+        }
+        continue;
+      }
+      if (
+        row.project &&
+        row.projectEntry &&
+        !sameMcpEntry(row.projectEntry, expected)
+      ) {
+        drifted.push({
+          agent: row.agent,
+          scope: 'project',
+          entry: row.projectEntry,
+        });
+      }
+      if (row.user && row.userEntry && !sameMcpEntry(row.userEntry, expected)) {
+        drifted.push({
+          agent: row.agent,
+          scope: 'user',
+          entry: row.userEntry,
+        });
+      }
+    }
+    if (drifted.length > 0) {
+      const driftedAgents = [...new Set(drifted.map((item) => item.agent))];
+      const detail = drifted
+        .map(
+          (item) =>
+            `${item.agent} ${item.scope} pins ${item.entry.command}${item.entry.args.length ? ` ${item.entry.args.join(' ')}` : ''} but this CLI expects agent-skills-standard-mcp@${pin}`,
+        )
+        .join('; ');
+      return check('mcp', 'warn', `MCP pin drift: ${detail}`, {
+        description: `refresh MCP entry for ${driftedAgents.join(', ')}`,
         apply: async () => {
-          for (const agent of missing)
+          for (const agent of driftedAgents)
             await this.deps.installMcp(rootDir, agent, config);
         },
-      },
+      });
+    }
+
+    return check(
+      'mcp',
+      'ok',
+      `registered for ${rows.map((r) => r.agent).join(', ') || 'no MCP-capable agents'}`,
     );
   }
 

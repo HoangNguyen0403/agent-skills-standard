@@ -1,6 +1,15 @@
 import inquirer from 'inquirer';
-import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  Mocked,
+  vi,
+} from 'vitest';
 import { Agent } from '../../constants';
+import { MCP_COMPATIBLE_VERSION } from '../../constants/mcp';
 import { McpScope, SkillConfig } from '../../models/config';
 import { ConfigService } from '../../services/ConfigService';
 import { McpConfigService } from '../../services/McpConfigService';
@@ -56,10 +65,22 @@ describe('McpCommand — actionStatus mismatch detection', () => {
       status: vi.fn(),
       install: vi.fn(),
       uninstall: vi.fn(),
-      buildEntry: vi.fn(),
+      buildEntry: vi.fn().mockReturnValue({
+        command: 'npx',
+        args: [
+          '-y',
+          '--prefer-offline',
+          `agent-skills-standard-mcp@${MCP_COMPATIBLE_VERSION}`,
+        ],
+      }),
+      detectGlobalVersion: vi.fn().mockReturnValue(null),
     } as unknown as Mocked<McpConfigService>;
 
     command = new McpCommand(mockConfigService, mockMcpService);
+  });
+
+  afterEach(() => {
+    process.exitCode = undefined;
   });
 
   function output(): string {
@@ -430,7 +451,10 @@ describe('McpCommand — actionStatus mismatch detection', () => {
           mcp: { enabled: true, scope: 'project', prompted: true },
         }),
       );
-      await command.run('scope', { _: ['user'] });
+      // Commander delivers the positional value as an array in this seam.
+      await command.run('scope', {
+        _: ['user'],
+      } as unknown as Record<string, string>);
       expect(mockConfigService.saveConfig).toHaveBeenCalledWith(
         expect.objectContaining({
           mcp: expect.objectContaining({ scope: 'user' }),
@@ -472,6 +496,439 @@ describe('McpCommand — actionStatus mismatch detection', () => {
       );
       await command.run('disable');
       expect(mockConfigService.saveConfig).toHaveBeenCalled();
+    });
+  });
+
+  describe('launch mode (via)', () => {
+    it('status prints via, resolved launch command, pin, and detected global version', async () => {
+      mockConfigService.loadConfig.mockResolvedValue(
+        makeConfig({
+          mcp: {
+            enabled: true,
+            scope: 'project',
+            prompted: true,
+            via: 'global',
+          },
+        }),
+      );
+      mockMcpService.status.mockResolvedValue([
+        { agent: Agent.Claude, project: true, user: false },
+      ]);
+      mockMcpService.detectGlobalVersion.mockReturnValue(
+        MCP_COMPATIBLE_VERSION,
+      );
+
+      await command.run('status');
+
+      expect(output()).toContain('via     : global');
+      expect(output()).toContain('launch  : npx -y --prefer-offline');
+      expect(output()).toContain(`pin     : ${MCP_COMPATIBLE_VERSION}`);
+      expect(output()).toContain(`global  : ${MCP_COMPATIBLE_VERSION}`);
+      expect(mockMcpService.buildEntry).toHaveBeenCalledWith({
+        version: undefined,
+        via: 'global',
+      });
+      expect(output()).not.toContain('Global ags-mcp is');
+    });
+
+    it('status warns when the detected global version differs from the pin', async () => {
+      mockConfigService.loadConfig.mockResolvedValue(
+        makeConfig({
+          mcp: { enabled: true, scope: 'project', prompted: true },
+        }),
+      );
+      mockMcpService.status.mockResolvedValue([
+        { agent: Agent.Claude, project: true, user: false },
+      ]);
+      mockMcpService.detectGlobalVersion.mockReturnValue('0.7.0');
+
+      await command.run('status');
+
+      expect(output()).toContain('Global ags-mcp is 0.7.0');
+      expect(output()).toContain(
+        `npm i -g agent-skills-standard-mcp@${MCP_COMPATIBLE_VERSION}`,
+      );
+    });
+
+    it('"via" persists the launch mode', async () => {
+      mockConfigService.loadConfig.mockResolvedValue(makeConfig());
+
+      await command.run('via', { via: 'global' });
+
+      expect(mockConfigService.saveConfig).toHaveBeenCalledWith(
+        expect.objectContaining({
+          mcp: expect.objectContaining({ via: 'global' }),
+        }),
+      );
+      expect(output()).toContain('MCP launch mode set to "global"');
+    });
+
+    it('"via" accepts a positional value', async () => {
+      mockConfigService.loadConfig.mockResolvedValue(makeConfig());
+
+      await command.run('via', {
+        _: ['npx'],
+      } as unknown as Record<string, string>);
+
+      expect(mockConfigService.saveConfig).toHaveBeenCalledWith(
+        expect.objectContaining({
+          mcp: expect.objectContaining({ via: 'npx' }),
+        }),
+      );
+    });
+
+    it('rejects an invalid "via" value', async () => {
+      mockConfigService.loadConfig.mockResolvedValue(makeConfig());
+
+      await command.run('via', { via: 'bogus' });
+
+      expect(mockConfigService.saveConfig).not.toHaveBeenCalled();
+      expect(output()).toContain('Invalid via');
+    });
+
+    it('install --via overrides the mode for that run without persisting', async () => {
+      mockConfigService.loadConfig.mockResolvedValue(
+        makeConfig({
+          mcp: { enabled: true, scope: 'project', prompted: true },
+        }),
+      );
+      mockMcpService.install.mockResolvedValue({
+        projectWrites: [],
+        userWrites: [],
+        snippets: [],
+        declined: [],
+        unsupported: [],
+      });
+
+      await command.run('install', { via: 'global' });
+
+      expect(mockMcpService.install).toHaveBeenCalledWith(
+        expect.objectContaining({
+          mcp: expect.objectContaining({ via: 'global' }),
+        }),
+      );
+      expect(mockConfigService.saveConfig).not.toHaveBeenCalled();
+    });
+
+    it('install rejects an invalid --via value', async () => {
+      mockConfigService.loadConfig.mockResolvedValue(makeConfig());
+
+      await command.run('install', { via: 'bogus' });
+
+      expect(mockMcpService.install).not.toHaveBeenCalled();
+      expect(output()).toContain('Invalid --via value');
+    });
+
+    it('snippets --via overrides the mode', async () => {
+      mockConfigService.loadConfig.mockResolvedValue(makeConfig());
+      mockMcpService.install.mockResolvedValue({
+        projectWrites: [],
+        userWrites: [],
+        snippets: [{ agent: Agent.Claude, file: 'claude.json' }],
+        declined: [],
+        unsupported: [],
+      });
+
+      await command.run('snippets', { via: 'global' });
+
+      expect(mockMcpService.install).toHaveBeenCalledWith(
+        expect.objectContaining({
+          mcp: expect.objectContaining({
+            via: 'global',
+            scope: 'snippets-only',
+          }),
+        }),
+      );
+    });
+
+    it('enable --via installs configs with the override but does not persist it', async () => {
+      mockConfigService.loadConfig.mockResolvedValue(
+        makeConfig({
+          mcp: { enabled: false, scope: 'project', prompted: false },
+        }),
+      );
+      mockMcpService.install.mockResolvedValue({
+        projectWrites: [],
+        userWrites: [],
+        snippets: [],
+        declined: [],
+        unsupported: [],
+      });
+
+      await command.run('enable', { via: 'npx' });
+
+      expect(mockMcpService.install).toHaveBeenCalledWith(
+        expect.objectContaining({
+          mcp: expect.objectContaining({ via: 'npx', enabled: true }),
+        }),
+      );
+      const saved = mockConfigService.saveConfig.mock.calls[0][0];
+      expect(saved.mcp?.via).toBeUndefined();
+    });
+
+    it('enable rejects an invalid --via value', async () => {
+      mockConfigService.loadConfig.mockResolvedValue(makeConfig());
+
+      await command.run('enable', { via: 'bogus' });
+
+      expect(mockConfigService.saveConfig).not.toHaveBeenCalled();
+      expect(output()).toContain('Invalid --via value');
+    });
+
+    it('snippets rejects an invalid --via value', async () => {
+      mockConfigService.loadConfig.mockResolvedValue(makeConfig());
+
+      await command.run('snippets', { via: 'bogus' });
+
+      expect(mockMcpService.install).not.toHaveBeenCalled();
+      expect(output()).toContain('Invalid --via value');
+    });
+
+    it('status prints the configured entry and warns on pin drift', async () => {
+      const stale = {
+        command: 'npx',
+        args: ['-y', '--prefer-offline', 'agent-skills-standard-mcp@0.6.1'],
+      };
+      mockConfigService.loadConfig.mockResolvedValue(
+        makeConfig({
+          mcp: { enabled: true, scope: 'project', prompted: true },
+        }),
+      );
+      mockMcpService.status.mockResolvedValue([
+        {
+          agent: Agent.Claude,
+          project: true,
+          user: false,
+          projectEntry: stale,
+          userEntry: null,
+        },
+      ]);
+
+      await command.run('status');
+
+      expect(output()).toContain(
+        'project: ✓ npx -y --prefer-offline agent-skills-standard-mcp@0.6.1',
+      );
+      expect(output()).toContain(
+        'MCP pin drift: claude project pins npx -y --prefer-offline agent-skills-standard-mcp@0.6.1',
+      );
+      expect(output()).toContain(
+        `this CLI expects npx -y --prefer-offline agent-skills-standard-mcp@${MCP_COMPATIBLE_VERSION}`,
+      );
+      expect(output()).toContain(
+        'Run `ags sync` (or `ags mcp install`) to refresh; existing agents pick it up on their next MCP start.',
+      );
+    });
+
+    it('status stays silent when the configured entry matches the expected one', async () => {
+      const expected = {
+        command: 'npx',
+        args: [
+          '-y',
+          '--prefer-offline',
+          `agent-skills-standard-mcp@${MCP_COMPATIBLE_VERSION}`,
+        ],
+      };
+      mockConfigService.loadConfig.mockResolvedValue(
+        makeConfig({
+          mcp: { enabled: true, scope: 'project', prompted: true },
+        }),
+      );
+      mockMcpService.status.mockResolvedValue([
+        {
+          agent: Agent.Claude,
+          project: true,
+          user: false,
+          projectEntry: expected,
+          userEntry: null,
+        },
+      ]);
+
+      await command.run('status');
+
+      expect(output()).not.toContain('MCP pin drift');
+      expect(output()).toContain(
+        `project: ✓ npx -y --prefer-offline agent-skills-standard-mcp@${MCP_COMPATIBLE_VERSION}`,
+      );
+    });
+
+    it('status warns on user-scope drift too', async () => {
+      mockConfigService.loadConfig.mockResolvedValue(
+        makeConfig({
+          mcp: { enabled: true, scope: 'user', prompted: true },
+        }),
+      );
+      mockMcpService.status.mockResolvedValue([
+        {
+          agent: Agent.Claude,
+          project: false,
+          user: true,
+          projectEntry: null,
+          userEntry: {
+            command: 'npx',
+            args: ['-y', '--prefer-offline', 'agent-skills-standard-mcp@0.6.1'],
+          },
+        },
+      ]);
+
+      await command.run('status');
+
+      expect(output()).toContain('MCP pin drift: claude user pins');
+      expect(output()).toContain('project: ✗ (none)');
+    });
+
+    it('status renders (none) and stays silent when a present entry is unreadable', async () => {
+      mockConfigService.loadConfig.mockResolvedValue(
+        makeConfig({
+          mcp: { enabled: true, scope: 'project', prompted: true },
+        }),
+      );
+      mockMcpService.status.mockResolvedValue([
+        {
+          agent: Agent.Claude,
+          project: true,
+          user: false,
+          projectEntry: null,
+          userEntry: null,
+        },
+      ]);
+
+      await command.run('status');
+
+      expect(output()).toContain('project: ✓ (none)');
+      expect(output()).not.toContain('MCP pin drift');
+    });
+
+    it('status keeps a bare global entry clean and drift-free', async () => {
+      const globalEntry = { command: 'ags-mcp', args: [] };
+      mockConfigService.loadConfig.mockResolvedValue(
+        makeConfig({
+          mcp: {
+            enabled: true,
+            scope: 'project',
+            prompted: true,
+            via: 'global',
+          },
+        }),
+      );
+      mockMcpService.buildEntry.mockReturnValue(globalEntry);
+      mockMcpService.status.mockResolvedValue([
+        {
+          agent: Agent.Claude,
+          project: true,
+          user: false,
+          projectEntry: globalEntry,
+          userEntry: null,
+        },
+      ]);
+
+      await command.run('status');
+
+      expect(output()).toContain('project: ✓ ags-mcp');
+      expect(output()).not.toContain('MCP pin drift');
+    });
+
+    it('status prints a bare binary as the launch line', async () => {
+      mockConfigService.loadConfig.mockResolvedValue(
+        makeConfig({
+          mcp: {
+            enabled: true,
+            scope: 'project',
+            prompted: true,
+            via: 'global',
+          },
+        }),
+      );
+      mockMcpService.status.mockResolvedValue([]);
+      mockMcpService.buildEntry.mockReturnValue({
+        command: 'ags-mcp',
+        args: [],
+      });
+
+      await command.run('status');
+
+      expect(output()).toContain('launch  : ags-mcp');
+    });
+
+    it('scope user warns that writes prompt per file', async () => {
+      mockConfigService.loadConfig.mockResolvedValue(makeConfig());
+
+      await command.run('scope', { scope: 'user' });
+
+      expect(output()).toContain('prompted per file');
+    });
+
+    it('"via auto" explains the resolution order', async () => {
+      mockConfigService.loadConfig.mockResolvedValue(makeConfig());
+
+      await command.run('via', { via: 'auto' });
+
+      expect(output()).toContain('version-matched global ags-mcp');
+    });
+
+    it('enable --install-global reports a probe that finds no version', async () => {
+      mockConfigService.loadConfig.mockResolvedValue(makeConfig());
+      command.setGlobalInstallerForTesting(vi.fn());
+      mockMcpService.detectGlobalVersion.mockReturnValue(null);
+
+      await command.run('enable', { installGlobal: 'true' });
+
+      expect(process.exitCode).toBe(1);
+      expect(output()).toContain('reports no version');
+    });
+
+    it('enable --install-global installs the pinned package and verifies the probe', async () => {
+      mockConfigService.loadConfig.mockResolvedValue(
+        makeConfig({
+          mcp: { enabled: false, scope: 'project', prompted: false },
+        }),
+      );
+      const installer = vi.fn();
+      command.setGlobalInstallerForTesting(installer);
+      mockMcpService.detectGlobalVersion.mockReturnValue(
+        MCP_COMPATIBLE_VERSION,
+      );
+
+      await command.run('enable', { installGlobal: 'true' });
+
+      expect(installer).toHaveBeenCalledWith(
+        `agent-skills-standard-mcp@${MCP_COMPATIBLE_VERSION}`,
+      );
+      expect(mockConfigService.saveConfig).toHaveBeenCalled();
+      expect(output()).toContain('installed and verified');
+      expect(process.exitCode).toBeUndefined();
+    });
+
+    it('enable --install-global exits 1 on version mismatch and does not enable', async () => {
+      mockConfigService.loadConfig.mockResolvedValue(
+        makeConfig({
+          mcp: { enabled: false, scope: 'project', prompted: false },
+        }),
+      );
+      command.setGlobalInstallerForTesting(vi.fn());
+      mockMcpService.detectGlobalVersion.mockReturnValue('0.0.1');
+
+      await command.run('enable', { installGlobal: 'true' });
+
+      expect(process.exitCode).toBe(1);
+      expect(mockConfigService.saveConfig).not.toHaveBeenCalled();
+      expect(output()).toContain('reports 0.0.1');
+      expect(output()).toContain(
+        `npm i -g agent-skills-standard-mcp@${MCP_COMPATIBLE_VERSION}`,
+      );
+    });
+
+    it('enable --install-global exits 1 when npm fails', async () => {
+      mockConfigService.loadConfig.mockResolvedValue(makeConfig());
+      command.setGlobalInstallerForTesting(() => {
+        throw new Error('npm failed');
+      });
+
+      await command.run('enable', { installGlobal: 'true' });
+
+      expect(process.exitCode).toBe(1);
+      expect(mockConfigService.saveConfig).not.toHaveBeenCalled();
+      expect(output()).toContain('Global install failed');
     });
   });
 });

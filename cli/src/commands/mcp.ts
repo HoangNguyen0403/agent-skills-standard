@@ -1,13 +1,17 @@
+import { execFileSync } from 'child_process';
 import inquirer from 'inquirer';
 import path from 'path';
 import pc from 'picocolors';
 import { Agent } from '../constants';
+import { MCP_COMPATIBLE_VERSION } from '../constants/mcp';
 import { ConfigService } from '../services/ConfigService';
 import {
   McpConfigService,
+  PACKAGE,
   defaultMcpConfig,
 } from '../services/McpConfigService';
-import { McpScope, SkillConfig } from '../models/config';
+import { sameMcpEntry } from '../services/utils/codexTomlMcp';
+import { McpScope, McpVia, SkillConfig } from '../models/config';
 
 const VALID_SCOPES: McpScope[] = [
   'project',
@@ -16,26 +20,65 @@ const VALID_SCOPES: McpScope[] = [
   'disabled',
 ];
 
+const VALID_VIAS: McpVia[] = ['auto', 'npx', 'global'];
+
+function parseVia(value: unknown): McpVia | null {
+  return typeof value === 'string' && VALID_VIAS.includes(value as McpVia)
+    ? (value as McpVia)
+    : null;
+}
+
+function defaultGlobalInstaller(spec: string): void {
+  if (process.platform === 'win32') {
+    execFileSync('npm.cmd', ['i', '-g', spec], {
+      stdio: 'inherit',
+      shell: true,
+    });
+    return;
+  }
+  execFileSync('npm', ['i', '-g', spec], { stdio: 'inherit' });
+}
+
+function formatEntry(
+  entry: { command: string; args: string[] } | null | undefined,
+): string {
+  if (!entry) return '(none)';
+  return entry.args.length
+    ? `${entry.command} ${entry.args.join(' ')}`
+    : entry.command;
+}
+
 /**
  * `ags mcp <action>` — manage the optional MCP server integration without
  * editing `.skillsrc` by hand.
  *
  * Sub-actions:
- *   status                 Show current scope, enabled state, and which configs are wired
- *   enable                 Set mcp.enabled=true; install configs at the configured scope
+ *   status                 Show scope, launch mode, resolved command, and installed configs
+ *   enable [--via=...]     Set mcp.enabled=true; optionally install configs at the configured scope
  *   disable                Set mcp.enabled=false; existing configs are NOT removed
  *   scope <scope>          Change scope: project | user | snippets-only | disabled
- *   install [--scope=...]  One-shot install at the given (or configured) scope
+ *   via <auto|npx|global>  Change launch mode (default: auto)
+ *   install [--scope=...] [--via=...]
+ *                          One-shot install at the given (or configured) scope/mode
  *   uninstall [--from=...] Remove our entry from configs (project | user | all)
- *   snippets               Generate fresh snippet files in ./mcp-config-snippets/
+ *   snippets [--via=...]   Generate fresh snippet files in ./mcp-config-snippets/
+ *
+ * `--install-global` (on enable) installs `agent-skills-standard-mcp@<pin>`
+ * globally, then verifies the installed binary reports the pin.
  */
 export class McpCommand {
   private configService: ConfigService;
   private mcpService: McpConfigService;
+  private globalInstaller: (spec: string) => void = defaultGlobalInstaller;
 
   constructor(configService?: ConfigService, mcpService?: McpConfigService) {
     this.configService = configService ?? new ConfigService();
     this.mcpService = mcpService ?? new McpConfigService();
+  }
+
+  /** For testing: replace the global npm installer (never run real npm in unit tests). */
+  setGlobalInstallerForTesting(fn: ((spec: string) => void) | null): void {
+    this.globalInstaller = fn ?? defaultGlobalInstaller;
   }
 
   async run(
@@ -59,21 +102,23 @@ export class McpCommand {
       case 'status':
         return this.actionStatus(config, cwd);
       case 'enable':
-        return this.actionEnable(config);
+        return this.actionEnable(config, agents, cwd, options);
       case 'disable':
         return this.actionDisable(config);
       case 'scope':
         return this.actionScope(config, options);
+      case 'via':
+        return this.actionVia(config, options);
       case 'install':
         return this.actionInstall(config, agents, cwd, options);
       case 'uninstall':
         return this.actionUninstall(config, agents, cwd, options);
       case 'snippets':
-        return this.actionSnippets(config, agents, cwd);
+        return this.actionSnippets(config, agents, cwd, options);
       default:
         console.log(
           pc.red(`Unknown action: ${action}`),
-          '\nValid actions: status, enable, disable, scope, install, uninstall, snippets',
+          '\nValid actions: status, enable, disable, scope, via, install, uninstall, snippets',
         );
     }
   }
@@ -88,8 +133,32 @@ export class McpCommand {
     console.log(pc.bold('\n🔌 MCP integration status\n'));
     console.log(`  enabled : ${mcp.enabled ? pc.green('yes') : pc.gray('no')}`);
     console.log(`  scope   : ${pc.cyan(mcp.scope)}`);
+    console.log(`  via     : ${pc.cyan(mcp.via ?? 'auto')}`);
     console.log(`  prompted: ${mcp.prompted ? 'yes' : 'no'}`);
     if (mcp.version) console.log(`  version : ${mcp.version}`);
+
+    const pin = mcp.version ?? MCP_COMPATIBLE_VERSION;
+    const entry = this.mcpService.buildEntry({
+      version: mcp.version,
+      via: mcp.via,
+    });
+    const launch = entry.args.length
+      ? `${entry.command} ${entry.args.join(' ')}`
+      : entry.command;
+    console.log(`  launch  : ${pc.gray(launch)}`);
+    console.log(`  pin     : ${pin}`);
+    const detected = this.mcpService.detectGlobalVersion();
+    console.log(
+      `  global  : ${detected ? pc.green(detected) : pc.gray('not found')}`,
+    );
+    if (detected && detected !== pin) {
+      console.log(
+        pc.yellow(
+          `\n⚠️  Global ags-mcp is ${detected} but the CLI pin is ${pin}; "auto" will use npx until they match.`,
+        ),
+      );
+      console.log(pc.gray(`   Update with: npm i -g ${PACKAGE}@${pin}`));
+    }
 
     if (rows.length === 0) {
       console.log(pc.gray('\n  (no agents configured)'));
@@ -97,18 +166,59 @@ export class McpCommand {
     }
     console.log('\n  Per-agent installation state:');
     let installedAnywhere = false;
+    const drift: Array<{
+      agent: Agent;
+      scope: 'project' | 'user';
+      configured: { command: string; args: string[] };
+    }> = [];
     for (const row of rows) {
       const project =
         row.project === undefined
           ? '—'
-          : row.project
-            ? pc.green('✓')
-            : pc.gray('✗');
+          : `${row.project ? pc.green('✓') : pc.gray('✗')} ${formatEntry(row.projectEntry)}`;
       const user =
-        row.user === undefined ? '—' : row.user ? pc.green('✓') : pc.gray('✗');
+        row.user === undefined
+          ? '—'
+          : `${row.user ? pc.green('✓') : pc.gray('✗')} ${formatEntry(row.userEntry)}`;
       if (row.project === true || row.user === true) installedAnywhere = true;
+      if (
+        row.project === true &&
+        row.projectEntry &&
+        !sameMcpEntry(row.projectEntry, entry)
+      ) {
+        drift.push({
+          agent: row.agent,
+          scope: 'project',
+          configured: row.projectEntry,
+        });
+      }
+      if (
+        row.user === true &&
+        row.userEntry &&
+        !sameMcpEntry(row.userEntry, entry)
+      ) {
+        drift.push({
+          agent: row.agent,
+          scope: 'user',
+          configured: row.userEntry,
+        });
+      }
       console.log(
         `    ${row.agent.padEnd(12)} project: ${project}   user: ${user}`,
+      );
+    }
+    if (drift.length > 0) {
+      for (const item of drift) {
+        console.log(
+          pc.yellow(
+            `\n⚠️  MCP pin drift: ${item.agent} ${item.scope} pins ${formatEntry(item.configured)} but this CLI expects ${launch}.`,
+          ),
+        );
+      }
+      console.log(
+        pc.gray(
+          '   Run `ags sync` (or `ags mcp install`) to refresh; existing agents pick it up on their next MCP start.',
+        ),
       );
     }
 
@@ -151,8 +261,21 @@ export class McpCommand {
     }
   }
 
-  private async actionEnable(config: SkillConfig): Promise<void> {
+  private async actionEnable(
+    config: SkillConfig,
+    agents: Agent[],
+    cwd: string,
+    options: Record<string, string>,
+  ): Promise<void> {
     const mcp = config.mcp ?? defaultMcpConfig();
+    const viaOverrideRaw = options.via;
+    const viaOverride = viaOverrideRaw ? parseVia(viaOverrideRaw) : undefined;
+    if (viaOverrideRaw && !viaOverride) {
+      console.log(
+        pc.red(`Invalid --via value. Valid: ${VALID_VIAS.join(' | ')}`),
+      );
+      return;
+    }
     if (mcp.scope === 'disabled') {
       console.log(
         pc.yellow(
@@ -161,14 +284,86 @@ export class McpCommand {
       );
       return;
     }
+
+    if (options.installGlobal) {
+      const pin = mcp.version ?? MCP_COMPATIBLE_VERSION;
+      const spec = `${PACKAGE}@${pin}`;
+      try {
+        this.globalInstaller(spec);
+      } catch {
+        console.log(pc.red(`❌ Global install failed. Run manually:`));
+        console.log(pc.gray(`   npm i -g ${spec}`));
+        process.exitCode = 1;
+        return;
+      }
+      const detected = this.mcpService.detectGlobalVersion();
+      if (detected !== pin) {
+        console.log(
+          pc.red(
+            `❌ Global ags-mcp reports ${detected ?? 'no version'} but the CLI pin is ${pin}.`,
+          ),
+        );
+        console.log(pc.gray(`   Run manually: npm i -g ${spec}`));
+        process.exitCode = 1;
+        return;
+      }
+      console.log(pc.green(`✅ Global ags-mcp ${pin} installed and verified.`));
+    }
+
     config.mcp = { ...mcp, enabled: true, prompted: true };
     await this.configService.saveConfig(config);
     console.log(pc.green('✅ MCP enabled.'));
+
+    if (viaOverride) {
+      const report = await this.mcpService.install({
+        rootDir: cwd,
+        agents,
+        mcp: { ...config.mcp, via: viaOverride },
+      });
+      console.log(
+        pc.gray(`   Installed configs using launch mode "${viaOverride}".`),
+      );
+      this.printReport(report, cwd);
+      return;
+    }
+
     console.log(
       pc.gray(
         '   Run `ags mcp install` to write configs now, or it happens on next `sync`.',
       ),
     );
+  }
+
+  private async actionVia(
+    config: SkillConfig,
+    options: Record<string, string>,
+  ): Promise<void> {
+    const via = options.via ?? options._?.[0];
+    if (!parseVia(via)) {
+      console.log(pc.red(`Invalid via. Valid: ${VALID_VIAS.join(' | ')}`));
+      return;
+    }
+    const mcp = config.mcp ?? defaultMcpConfig();
+    config.mcp = {
+      ...mcp,
+      via: via as McpVia,
+      prompted: true,
+    };
+    await this.configService.saveConfig(config);
+    console.log(pc.green(`✅ MCP launch mode set to "${via}".`));
+    if (via === 'global') {
+      console.log(
+        pc.yellow(
+          '⚠️  "global" requires a matching global install: `ags mcp enable --install-global`.',
+        ),
+      );
+    } else if (via === 'auto') {
+      console.log(
+        pc.gray(
+          '   "auto" uses a version-matched global ags-mcp when present, otherwise npx.',
+        ),
+      );
+    }
   }
 
   private async actionDisable(config: SkillConfig): Promise<void> {
@@ -220,6 +415,14 @@ export class McpCommand {
       );
       return;
     }
+    const viaOverrideRaw = options.via;
+    const viaOverride = viaOverrideRaw ? parseVia(viaOverrideRaw) : undefined;
+    if (viaOverrideRaw && !viaOverride) {
+      console.log(
+        pc.red(`Invalid --via value. Valid: ${VALID_VIAS.join(' | ')}`),
+      );
+      return;
+    }
     if (effectiveScope === 'disabled') {
       console.log(pc.yellow('Scope is "disabled" — nothing to install.'));
       return;
@@ -240,7 +443,12 @@ export class McpCommand {
     const report = await this.mcpService.install({
       rootDir: cwd,
       agents,
-      mcp: { ...mcp, enabled: true, scope: effectiveScope },
+      mcp: {
+        ...mcp,
+        enabled: true,
+        scope: effectiveScope,
+        ...(viaOverride ? { via: viaOverride } : {}),
+      },
       userScopePrompt: userPrompt,
     });
 
@@ -277,12 +485,26 @@ export class McpCommand {
     config: SkillConfig,
     agents: Agent[],
     cwd: string,
+    options: Record<string, string>,
   ): Promise<void> {
     const mcp = config.mcp ?? defaultMcpConfig();
+    const viaOverrideRaw = options.via;
+    const viaOverride = viaOverrideRaw ? parseVia(viaOverrideRaw) : undefined;
+    if (viaOverrideRaw && !viaOverride) {
+      console.log(
+        pc.red(`Invalid --via value. Valid: ${VALID_VIAS.join(' | ')}`),
+      );
+      return;
+    }
     const report = await this.mcpService.install({
       rootDir: cwd,
       agents,
-      mcp: { ...mcp, enabled: true, scope: 'snippets-only' },
+      mcp: {
+        ...mcp,
+        enabled: true,
+        scope: 'snippets-only',
+        ...(viaOverride ? { via: viaOverride } : {}),
+      },
     });
     if (report.snippets.length === 0) {
       console.log(

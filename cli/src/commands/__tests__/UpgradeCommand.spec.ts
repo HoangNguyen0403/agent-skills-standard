@@ -66,6 +66,53 @@ describe('UpgradeCommand', () => {
     );
   });
 
+  it('tells the user that upgrade does not rewrite MCP configs when MCP is enabled', async () => {
+    const command = new UpgradeCommand({
+      loadMcpEnabled: async () => true,
+    });
+    command.currentVersion = '1.0.0';
+    vi.spyOn(command, 'detectPackageManager').mockReturnValue('npm');
+    vi.mocked(execSync).mockImplementation((input: unknown) => {
+      const text = String(input);
+      if (text.includes('npm view agent-skills-standard version')) {
+        return '2.0.0\n';
+      }
+      if (text === 'ags -V') return '2.0.0\n';
+      return '';
+    });
+
+    await command.run({});
+
+    expect(consoleLogMock).toHaveBeenCalledWith(
+      expect.stringContaining('MCP configs are not rewritten by upgrade'),
+    );
+    expect(consoleLogMock).toHaveBeenCalledWith(
+      expect.stringContaining('`ags sync` (or `ags mcp install`)'),
+    );
+  });
+
+  it('stays silent about MCP configs when MCP is disabled', async () => {
+    const command = new UpgradeCommand({
+      loadMcpEnabled: async () => false,
+    });
+    command.currentVersion = '1.0.0';
+    vi.spyOn(command, 'detectPackageManager').mockReturnValue('npm');
+    vi.mocked(execSync).mockImplementation((input: unknown) => {
+      const text = String(input);
+      if (text.includes('npm view agent-skills-standard version')) {
+        return '2.0.0\n';
+      }
+      if (text === 'ags -V') return '2.0.0\n';
+      return '';
+    });
+
+    await command.run({});
+
+    expect(consoleLogMock).not.toHaveBeenCalledWith(
+      expect.stringContaining('MCP configs are not rewritten by upgrade'),
+    );
+  });
+
   it('should perform upgrade using detected package manager (pnpm)', async () => {
     vi.spyOn(upgradeCommand, 'detectPackageManager').mockReturnValue('pnpm');
 

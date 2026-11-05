@@ -12,10 +12,35 @@ import {
 const ROOT_DIR = path.resolve(__dirname, '..');
 const MCP_DIR = path.join(ROOT_DIR, 'mcp');
 const PACKAGE_JSON_PATH = path.join(MCP_DIR, 'package.json');
+const CLI_MCP_CONSTANTS_PATH = path.join(
+  ROOT_DIR,
+  'cli',
+  'src',
+  'constants',
+  'mcp.ts',
+);
 const CHANGELOG_PATH = path.join(ROOT_DIR, 'CHANGELOG.md');
 
 const isDryRun = process.argv.includes('--dry-run');
 const noEdit = process.argv.includes('--no-edit');
+
+/**
+ * Keep the CLI's default MCP pin in lockstep with the shipped server version.
+ * Rewrites that single const and nothing else in the constants module.
+ */
+async function syncCliCompatibleVersion(finalVersion: string): Promise<void> {
+  const source = await fs.readFile(CLI_MCP_CONSTANTS_PATH, 'utf8');
+  const pattern = /(export const MCP_COMPATIBLE_VERSION = )'[^']*'/;
+  if (!pattern.test(source)) {
+    throw new Error(
+      `Could not find "export const MCP_COMPATIBLE_VERSION = '<version>'" in ${CLI_MCP_CONSTANTS_PATH}.`,
+    );
+  }
+  await fs.writeFile(
+    CLI_MCP_CONSTANTS_PATH,
+    source.replace(pattern, `$1'${finalVersion}'`),
+  );
+}
 
 async function main() {
   console.log(pc.bold(pc.blue('\n🚀 Agent Skills MCP - Release Manager\n')));
@@ -126,6 +151,7 @@ async function main() {
 
   console.log(pc.bold('1. Update Versions:'));
   console.log(pc.dim(`   - mcp/package.json`));
+  console.log(pc.dim(`   - cli/src/constants/mcp.ts (MCP_COMPATIBLE_VERSION)`));
   console.log(`   Version: ${currentVersion} -> ${pc.green(finalVersion)}`);
 
   console.log(pc.bold('\n2. Update Changelog:'));
@@ -183,6 +209,14 @@ async function main() {
     // 1. Update package.json
     pkg.version = finalVersion;
     await fs.writeJson(PACKAGE_JSON_PATH, pkg, { spaces: 2 });
+
+    // 1b. Keep the CLI's default MCP pin in sync with the released server.
+    await syncCliCompatibleVersion(finalVersion);
+    console.log(
+      pc.gray(
+        `Synced MCP_COMPATIBLE_VERSION = '${finalVersion}' into cli/src/constants/mcp.ts`,
+      ),
+    );
 
     // 2. Update Changelog
     if (notes) {
