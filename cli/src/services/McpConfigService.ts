@@ -9,6 +9,7 @@ import { McpConfig, McpVia } from '../models/config';
 import {
   McpServerEntry,
   hasTomlMcpServer,
+  readTomlMcpServer,
   removeTomlMcpServer,
   renderTomlMcpServer,
   upsertTomlMcpServer,
@@ -100,6 +101,17 @@ export interface McpWriteReport {
 
 export interface UserScopePrompt {
   (agent: Agent, file: string): Promise<boolean>;
+}
+
+/** Installed-state row plus the parsed entries found in each scope. */
+export interface McpStatusRow {
+  agent: Agent;
+  project?: boolean;
+  user?: boolean;
+  /** Parsed `{command,args}` for our project entry, or null when absent. */
+  projectEntry?: McpServerEntry | null;
+  /** Parsed `{command,args}` for our user entry, or null when absent. */
+  userEntry?: McpServerEntry | null;
 }
 
 /**
@@ -365,23 +377,21 @@ export class McpConfigService {
   async status(opts: {
     rootDir: string;
     agents: Agent[];
-  }): Promise<Array<{ agent: Agent; project?: boolean; user?: boolean }>> {
-    const out: Array<{ agent: Agent; project?: boolean; user?: boolean }> = [];
+  }): Promise<McpStatusRow[]> {
+    const out: McpStatusRow[] = [];
     const TARGETS = this.getTargets();
     for (const agent of opts.agents) {
       const target = TARGETS[agent];
       if (!target) continue;
-      const row: { agent: Agent; project?: boolean; user?: boolean } = {
-        agent,
-      };
+      const row: McpStatusRow = { agent };
       if (target.projectFile) {
-        row.project = await this.hasOurEntry(
-          path.join(opts.rootDir, target.projectFile),
-          target,
-        );
+        const abs = path.join(opts.rootDir, target.projectFile);
+        row.project = await this.hasOurEntry(abs, target);
+        row.projectEntry = await this.readEntry(abs, target);
       }
       if (target.userFile) {
         row.user = await this.hasOurEntry(target.userFile, target);
+        row.userEntry = await this.readEntry(target.userFile, target);
       }
       out.push(row);
     }
@@ -389,6 +399,49 @@ export class McpConfigService {
   }
 
   // ---- private helpers ----
+
+  /** Parse the entry this service wrote for `SERVER_NAME`, if present. */
+  private async readEntry(
+    abs: string,
+    target: McpTarget,
+  ): Promise<McpServerEntry | null> {
+    if (!(await fs.pathExists(abs))) return null;
+    if (target.format === 'toml') {
+      return readTomlMcpServer(await fs.readFile(abs, 'utf8'), SERVER_NAME);
+    }
+    const data = (await fs.readJson(abs).catch(() => null)) as Record<
+      string,
+      unknown
+    > | null;
+    if (!data) return null;
+    const container = this.getNestedValue(data, target.key);
+    if (!container) return null;
+    if (target.shape === 'map') {
+      if (typeof container !== 'object' || Array.isArray(container)) {
+        return null;
+      }
+      return this.normalizeEntry(
+        (container as Record<string, unknown>)[SERVER_NAME],
+      );
+    }
+    if (!Array.isArray(container)) return null;
+    const item = (container as Array<Record<string, unknown>>).find(
+      (entry) => entry.name === SERVER_NAME,
+    );
+    return this.normalizeEntry(item?.transport);
+  }
+
+  private normalizeEntry(value: unknown): McpServerEntry | null {
+    if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+      return null;
+    }
+    const record = value as Record<string, unknown>;
+    if (typeof record.command !== 'string') return null;
+    const args = Array.isArray(record.args)
+      ? record.args.map((arg) => String(arg))
+      : [];
+    return { command: record.command, args };
+  }
 
   private async generateSnippets(
     rootDir: string,
@@ -523,8 +576,12 @@ export class McpConfigService {
     const container = this.getNestedValue(data, target.key);
     if (!container) return false;
     if (target.shape === 'map') {
+      if (typeof container !== 'object' || Array.isArray(container)) {
+        return false;
+      }
       return Boolean((container as Record<string, unknown>)[SERVER_NAME]);
     }
+    if (!Array.isArray(container)) return false;
     return (container as Array<Record<string, unknown>>).some(
       (item) => item.name === SERVER_NAME,
     );

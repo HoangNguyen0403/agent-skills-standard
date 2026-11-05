@@ -10,6 +10,7 @@ import {
   PACKAGE,
   defaultMcpConfig,
 } from '../services/McpConfigService';
+import { sameMcpEntry } from '../services/utils/codexTomlMcp';
 import { McpScope, McpVia, SkillConfig } from '../models/config';
 
 const VALID_SCOPES: McpScope[] = [
@@ -36,6 +37,15 @@ function defaultGlobalInstaller(spec: string): void {
     return;
   }
   execFileSync('npm', ['i', '-g', spec], { stdio: 'inherit' });
+}
+
+function formatEntry(
+  entry: { command: string; args: string[] } | null | undefined,
+): string {
+  if (!entry) return '(none)';
+  return entry.args.length
+    ? `${entry.command} ${entry.args.join(' ')}`
+    : entry.command;
 }
 
 /**
@@ -156,18 +166,59 @@ export class McpCommand {
     }
     console.log('\n  Per-agent installation state:');
     let installedAnywhere = false;
+    const drift: Array<{
+      agent: Agent;
+      scope: 'project' | 'user';
+      configured: { command: string; args: string[] };
+    }> = [];
     for (const row of rows) {
       const project =
         row.project === undefined
           ? '—'
-          : row.project
-            ? pc.green('✓')
-            : pc.gray('✗');
+          : `${row.project ? pc.green('✓') : pc.gray('✗')} ${formatEntry(row.projectEntry)}`;
       const user =
-        row.user === undefined ? '—' : row.user ? pc.green('✓') : pc.gray('✗');
+        row.user === undefined
+          ? '—'
+          : `${row.user ? pc.green('✓') : pc.gray('✗')} ${formatEntry(row.userEntry)}`;
       if (row.project === true || row.user === true) installedAnywhere = true;
+      if (
+        row.project === true &&
+        row.projectEntry &&
+        !sameMcpEntry(row.projectEntry, entry)
+      ) {
+        drift.push({
+          agent: row.agent,
+          scope: 'project',
+          configured: row.projectEntry,
+        });
+      }
+      if (
+        row.user === true &&
+        row.userEntry &&
+        !sameMcpEntry(row.userEntry, entry)
+      ) {
+        drift.push({
+          agent: row.agent,
+          scope: 'user',
+          configured: row.userEntry,
+        });
+      }
       console.log(
         `    ${row.agent.padEnd(12)} project: ${project}   user: ${user}`,
+      );
+    }
+    if (drift.length > 0) {
+      for (const item of drift) {
+        console.log(
+          pc.yellow(
+            `\n⚠️  MCP pin drift: ${item.agent} ${item.scope} pins ${formatEntry(item.configured)} but this CLI expects ${launch}.`,
+          ),
+        );
+      }
+      console.log(
+        pc.gray(
+          '   Run `ags sync` (or `ags mcp install`) to refresh; existing agents pick it up on their next MCP start.',
+        ),
       );
     }
 

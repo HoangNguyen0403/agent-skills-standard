@@ -4,7 +4,9 @@ import path from 'path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import pkg from '../../../package.json';
 import { Agent } from '../../constants';
+import { MCP_COMPATIBLE_VERSION } from '../../constants/mcp';
 import { SkillConfig } from '../../models/config';
+import { PACKAGE } from '../McpConfigService';
 import { DoctorDeps, DoctorService } from '../DoctorService';
 
 describe('DoctorService', () => {
@@ -30,6 +32,14 @@ describe('DoctorService', () => {
       mcpStatus: vi
         .fn()
         .mockResolvedValue([{ agent: Agent.Claude, project: true }]),
+      buildMcpEntry: vi.fn().mockReturnValue({
+        command: 'npx',
+        args: [
+          '-y',
+          '--prefer-offline',
+          `${PACKAGE}@${MCP_COMPATIBLE_VERSION}`,
+        ],
+      }),
       hookStatus: vi.fn().mockResolvedValue([]),
       verifyLock: vi.fn().mockResolvedValue({
         found: true,
@@ -351,6 +361,139 @@ describe('DoctorService', () => {
     expect(byName(checksEmpty, 'mcp').evidence).toContain(
       'no MCP-capable agents',
     );
+  });
+
+  it('17a. warns when every agent is registered but an entry drifts', async () => {
+    const d = deps({
+      mcpStatus: vi.fn().mockResolvedValue([
+        {
+          agent: Agent.Claude,
+          project: true,
+          projectEntry: {
+            command: 'npx',
+            args: ['-y', '--prefer-offline', `${PACKAGE}@0.6.1`],
+          },
+        },
+      ]),
+    });
+    const svc = new DoctorService(d);
+    const checks = await svc.runChecks({ rootDir: root, offline: true });
+    const mcp = byName(checks, 'mcp');
+
+    expect(mcp.status).toBe('warn');
+    expect(mcp.evidence).toContain('MCP pin drift');
+    expect(mcp.evidence).toContain(`agent-skills-standard-mcp@0.6.1`);
+    expect(mcp.evidence).toContain(
+      `agent-skills-standard-mcp@${MCP_COMPATIBLE_VERSION}`,
+    );
+    expect(mcp.fix).toBeDefined();
+    await mcp.fix!.apply();
+    expect(d.installMcp).toHaveBeenCalledWith(root, Agent.Claude, CONFIG);
+  });
+
+  it('17b. stays ok when the configured entry matches the expected entry', async () => {
+    const expected = {
+      command: 'npx',
+      args: ['-y', '--prefer-offline', `${PACKAGE}@${MCP_COMPATIBLE_VERSION}`],
+    };
+    const d = deps({
+      mcpStatus: vi.fn().mockResolvedValue([
+        {
+          agent: Agent.Claude,
+          project: true,
+          projectEntry: expected,
+        },
+      ]),
+    });
+    const svc = new DoctorService(d);
+    const checks = await svc.runChecks({ rootDir: root, offline: true });
+
+    expect(byName(checks, 'mcp').status).toBe('ok');
+  });
+
+  it('17c. missing registration wins over drift', async () => {
+    const d = deps({
+      mcpStatus: vi.fn().mockResolvedValue([
+        {
+          agent: Agent.Claude,
+          project: true,
+          projectEntry: {
+            command: 'npx',
+            args: ['-y', '--prefer-offline', `${PACKAGE}@0.6.1`],
+          },
+        },
+        { agent: Agent.Cursor, project: false },
+      ]),
+    });
+    const svc = new DoctorService(d);
+    const checks = await svc.runChecks({ rootDir: root, offline: true });
+    const mcp = byName(checks, 'mcp');
+
+    expect(mcp.status).toBe('fail');
+    expect(mcp.evidence).toContain('not registered for: cursor');
+    expect(mcp.evidence).not.toContain('MCP pin drift');
+  });
+
+  it('17d. user-scope drift covers global entries with no args', async () => {
+    const d = deps({
+      loadConfig: vi.fn().mockResolvedValue({
+        ...CONFIG,
+        mcp: { enabled: true, scope: 'user', prompted: true, via: 'npx' },
+      }),
+      mcpStatus: vi.fn().mockResolvedValue([
+        {
+          agent: Agent.Claude,
+          project: false,
+          user: true,
+          userEntry: { command: 'ags-mcp', args: [] },
+        },
+      ]),
+    });
+    const svc = new DoctorService(d);
+    const checks = await svc.runChecks({ rootDir: root, offline: true });
+    const mcp = byName(checks, 'mcp');
+
+    expect(mcp.status).toBe('warn');
+    expect(mcp.evidence).toContain('claude user pins ags-mcp');
+    expect(mcp.fix).toBeDefined();
+    await mcp.fix!.apply();
+    expect(d.installMcp).toHaveBeenCalledWith(root, Agent.Claude, {
+      ...CONFIG,
+      mcp: { enabled: true, scope: 'user', prompted: true, via: 'npx' },
+    });
+  });
+
+  it('17e. builds the expected entry when the optional dep is absent', async () => {
+    const d = deps({
+      loadConfig: vi.fn().mockResolvedValue({
+        ...CONFIG,
+        mcp: {
+          enabled: true,
+          scope: 'project',
+          prompted: true,
+          via: 'npx',
+        },
+      }),
+      mcpStatus: vi.fn().mockResolvedValue([
+        {
+          agent: Agent.Claude,
+          project: true,
+          projectEntry: {
+            command: 'npx',
+            args: [
+              '-y',
+              '--prefer-offline',
+              `${PACKAGE}@${MCP_COMPATIBLE_VERSION}`,
+            ],
+          },
+        },
+      ]),
+    });
+    delete d.buildMcpEntry;
+    const svc = new DoctorService(d);
+    const checks = await svc.runChecks({ rootDir: root, offline: true });
+
+    expect(byName(checks, 'mcp').status).toBe('ok');
   });
 
   // Test intent: skips hooks check gracefully when hook files contain no script or script does not exist on disk

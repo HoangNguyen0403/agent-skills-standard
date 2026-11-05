@@ -4,6 +4,13 @@ import path from 'path';
 import pc from 'picocolors';
 import inquirer from 'inquirer';
 import pkg from '../../package.json';
+import { MCP_COMPATIBLE_VERSION } from '../constants/mcp';
+import { ConfigService } from '../services/ConfigService';
+
+export interface UpgradeCommandDeps {
+  /** Test seam: whether `.skillsrc` enables MCP. Defaults to a real config load. */
+  loadMcpEnabled?: () => Promise<boolean>;
+}
 
 /**
  * Command for upgrading the `agent-skills-standard` CLI to the latest version.
@@ -11,6 +18,8 @@ import pkg from '../../package.json';
  */
 export class UpgradeCommand {
   private currentVersion = pkg.version;
+
+  constructor(private deps: UpgradeCommandDeps = {}) {}
 
   /**
    * Executes the upgrade flow.
@@ -81,6 +90,8 @@ export class UpgradeCommand {
         const fallbackCmd = this.getUpgradeCommand(pm, 'latest');
         execSync(fallbackCmd, { stdio: 'inherit' });
       }
+
+      await this.printMcpRefreshHint();
 
       if (pm === 'pnpm') {
         const installedVersion =
@@ -192,6 +203,22 @@ export class UpgradeCommand {
     } catch {
       console.log('\n' + pc.red('❌ Automatic upgrade failed.'));
       this.printManualInstructions(pm, latestVersion);
+    }
+  }
+
+  private async printMcpRefreshHint(): Promise<void> {
+    try {
+      const enabled = this.deps.loadMcpEnabled
+        ? await this.deps.loadMcpEnabled()
+        : ((await new ConfigService().loadConfig())?.mcp?.enabled ?? false);
+      if (!enabled) return;
+      console.log(
+        pc.gray(
+          `MCP configs are not rewritten by upgrade — run \`ags sync\` (or \`ags mcp install\`) to move them to ${MCP_COMPATIBLE_VERSION}.`,
+        ),
+      );
+    } catch {
+      // A broken/unreadable .skillsrc must never fail an otherwise successful upgrade.
     }
   }
 

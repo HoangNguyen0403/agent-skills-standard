@@ -48,6 +48,7 @@ It then lists each configured agent with `project:` / `user:` checkmarks, and wa
 
 ### Troubleshooting and migration
 
+- **Upgrading the CLI does not rewrite runtime MCP configs** — `ags upgrade` replaces the CLI only. Existing configs keep their previous pin until `ags sync` (with MCP enabled) or `ags mcp install` rewrites the entry; the agent picks up the new pin on its next MCP start. `ags mcp status` and `ags doctor` now compare each configured entry with the expected one and report drift, so an old `@0.6.1` entry is visible instead of looking freshly installed.
 - **Global version mismatch** — `ags mcp status` prints `Global ags-mcp is <x> but the CLI pin is <y>; "auto" will use npx until they match`. Fix with `npm i -g agent-skills-standard-mcp@0.8.0`, or let the CLI do it: `ags mcp enable --install-global` (installs, re-probes, exits `1` on mismatch).
 - **Offline / cold cache** — `--prefer-offline` consults the npm cache first but still installs the package when it is absent, so the first spawn needs the registry once and later spawns do not. `~/.npm/_npx` is machine-global and keyed by spec, so several worktrees on the same pin share that cache instead of re-downloading.
 - **Windows** — `auto` stays on `npx` by design: Node-based clients cannot spawn a `.cmd` shim without a shell, so the generated entry would be unusable. `via: global` generates `cmd /c ags-mcp` if you accept the extra shell.

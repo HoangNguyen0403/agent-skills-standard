@@ -6,6 +6,7 @@ import { Agent } from '../../constants';
 import { McpConfig } from '../../models/config';
 import {
   McpConfigService,
+  McpTarget,
   PACKAGE,
   SERVER_NAME,
   defaultMcpConfig,
@@ -432,6 +433,168 @@ describe('McpConfigService', () => {
         agents: ['unknown' as any],
       });
       expect(stats).toHaveLength(0);
+    });
+
+    it('carries the parsed json-map entry for project and user scopes', async () => {
+      const userPrompt = vi.fn().mockResolvedValue(true);
+      await service.install({
+        rootDir: root,
+        agents: [Agent.Claude],
+        mcp: mcp('user'),
+        userScopePrompt: userPrompt,
+      });
+      const expected = service.buildEntry({ via: 'npx' });
+
+      const stats = await service.status({
+        rootDir: root,
+        agents: [Agent.Claude],
+      });
+
+      expect(stats[0].projectEntry).toEqual(expected);
+      expect(stats[0].userEntry).toEqual(expected);
+    });
+
+    it('carries the parsed json-list entry from the transport block', async () => {
+      const listTarget: McpTarget = {
+        agent: Agent.Claude,
+        projectFile: 'list-mcp.json',
+        userFile: null,
+        key: 'mcp.servers',
+        shape: 'list',
+      };
+      vi.spyOn(
+        service as unknown as { getTargets(): Record<string, McpTarget> },
+        'getTargets',
+      ).mockReturnValue({ [Agent.Claude]: listTarget });
+      const expected = service.buildEntry({ via: 'npx' });
+      await fs.outputJson(path.join(root, 'list-mcp.json'), {
+        mcp: {
+          servers: [
+            {
+              name: SERVER_NAME,
+              transport: { type: 'stdio', ...expected },
+            },
+          ],
+        },
+      });
+
+      const stats = await service.status({
+        rootDir: root,
+        agents: [Agent.Claude],
+      });
+
+      expect(stats[0].projectEntry).toEqual(expected);
+    });
+
+    it('carries the parsed TOML entry', async () => {
+      await service.install({
+        rootDir: root,
+        agents: [Agent.Codex],
+        mcp: mcp('project'),
+      });
+
+      const stats = await service.status({
+        rootDir: root,
+        agents: [Agent.Codex],
+      });
+
+      expect(stats[0].projectEntry).toEqual(service.buildEntry({ via: 'npx' }));
+    });
+
+    it('defaults missing args to an empty array', async () => {
+      await fs.outputJson(path.join(root, '.mcp.json'), {
+        mcpServers: { [SERVER_NAME]: { command: 'ags-mcp' } },
+      });
+
+      const stats = await service.status({
+        rootDir: root,
+        agents: [Agent.Claude],
+      });
+
+      expect(stats[0].projectEntry).toEqual({
+        command: 'ags-mcp',
+        args: [],
+      });
+    });
+
+    it('returns null entries for files without our valid entry', async () => {
+      await fs.outputJson(path.join(root, '.mcp.json'), {
+        mcpServers: {
+          [SERVER_NAME]: { command: 42, args: 'not-an-array' },
+        },
+      });
+      await fs.outputJson(path.join(root, '.cursor', 'mcp.json'), {
+        mcpServers: {},
+      });
+
+      const stats = await service.status({
+        rootDir: root,
+        agents: [Agent.Claude, Agent.Cursor],
+      });
+
+      expect(stats[0].projectEntry).toBeNull();
+      expect(stats[1].projectEntry).toBeNull();
+    });
+
+    it('returns null for list entries without a valid transport', async () => {
+      const listTarget: McpTarget = {
+        agent: Agent.Claude,
+        projectFile: 'list-invalid.json',
+        userFile: null,
+        key: 'mcp.servers',
+        shape: 'list',
+      };
+      vi.spyOn(
+        service as unknown as { getTargets(): Record<string, McpTarget> },
+        'getTargets',
+      ).mockReturnValue({ [Agent.Claude]: listTarget });
+      await fs.outputJson(path.join(root, 'list-invalid.json'), {
+        mcp: { servers: [{ name: SERVER_NAME }] },
+      });
+
+      const stats = await service.status({
+        rootDir: root,
+        agents: [Agent.Claude],
+      });
+
+      expect(stats[0].projectEntry).toBeNull();
+    });
+    it('returns null when a container has the wrong shape', async () => {
+      const listTarget: McpTarget = {
+        agent: Agent.Claude,
+        projectFile: 'shape-list.json',
+        userFile: null,
+        key: 'mcp.servers',
+        shape: 'list',
+      };
+      const mapTarget: McpTarget = {
+        agent: Agent.Cursor,
+        projectFile: 'shape-map.json',
+        userFile: null,
+        key: 'mcpServers',
+        shape: 'map',
+      };
+      vi.spyOn(
+        service as unknown as { getTargets(): Record<string, McpTarget> },
+        'getTargets',
+      ).mockReturnValue({
+        [Agent.Claude]: listTarget,
+        [Agent.Cursor]: mapTarget,
+      });
+      await fs.outputJson(path.join(root, 'shape-list.json'), {
+        mcp: { servers: {} },
+      });
+      await fs.outputJson(path.join(root, 'shape-map.json'), {
+        mcpServers: [],
+      });
+
+      const stats = await service.status({
+        rootDir: root,
+        agents: [Agent.Claude, Agent.Cursor],
+      });
+
+      expect(stats[0].projectEntry).toBeNull();
+      expect(stats[1].projectEntry).toBeNull();
     });
   });
 

@@ -231,6 +231,7 @@ ags mcp status                    # confirm via, launch, pin, and detected globa
 
 Doing nothing also works: with the default `auto`, entries keep using `npx` until a version-matched global install exists. Existing unpinned `npx -y agent-skills-standard-mcp` entries are rewritten in place by the next `ags sync` (when MCP is enabled) or `ags mcp install`; nothing breaks in the meantime.
 
+- **Upgrade does not rewrite MCP configs** — `ags upgrade` only replaces the CLI; existing runtime configs keep their previous pin until `ags sync` (or `ags mcp install`) rewrites them, and each agent picks up the new pin on its next MCP start. `ags mcp status` and `ags doctor` flag configured-vs-expected entry drift in the meantime.
 - **Mismatch warning in `ags mcp status`** — the global binary is not the CLI pin: run `npm i -g agent-skills-standard-mcp@0.8.0` (or `ags mcp enable --install-global`).
 - **Offline or first run** — `--prefer-offline` reads the npm cache first and still installs the package if it is absent, so a warm cache is an optimization, not a requirement.
 - **Windows** — `auto` always uses `npx` there by design: Node-based clients cannot spawn the `.cmd` shim without a shell.

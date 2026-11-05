@@ -684,6 +684,150 @@ describe('McpCommand — actionStatus mismatch detection', () => {
       expect(output()).toContain('Invalid --via value');
     });
 
+    it('status prints the configured entry and warns on pin drift', async () => {
+      const stale = {
+        command: 'npx',
+        args: ['-y', '--prefer-offline', 'agent-skills-standard-mcp@0.6.1'],
+      };
+      mockConfigService.loadConfig.mockResolvedValue(
+        makeConfig({
+          mcp: { enabled: true, scope: 'project', prompted: true },
+        }),
+      );
+      mockMcpService.status.mockResolvedValue([
+        {
+          agent: Agent.Claude,
+          project: true,
+          user: false,
+          projectEntry: stale,
+          userEntry: null,
+        },
+      ]);
+
+      await command.run('status');
+
+      expect(output()).toContain(
+        'project: ✓ npx -y --prefer-offline agent-skills-standard-mcp@0.6.1',
+      );
+      expect(output()).toContain(
+        'MCP pin drift: claude project pins npx -y --prefer-offline agent-skills-standard-mcp@0.6.1',
+      );
+      expect(output()).toContain(
+        `this CLI expects npx -y --prefer-offline agent-skills-standard-mcp@${MCP_COMPATIBLE_VERSION}`,
+      );
+      expect(output()).toContain(
+        'Run `ags sync` (or `ags mcp install`) to refresh; existing agents pick it up on their next MCP start.',
+      );
+    });
+
+    it('status stays silent when the configured entry matches the expected one', async () => {
+      const expected = {
+        command: 'npx',
+        args: [
+          '-y',
+          '--prefer-offline',
+          `agent-skills-standard-mcp@${MCP_COMPATIBLE_VERSION}`,
+        ],
+      };
+      mockConfigService.loadConfig.mockResolvedValue(
+        makeConfig({
+          mcp: { enabled: true, scope: 'project', prompted: true },
+        }),
+      );
+      mockMcpService.status.mockResolvedValue([
+        {
+          agent: Agent.Claude,
+          project: true,
+          user: false,
+          projectEntry: expected,
+          userEntry: null,
+        },
+      ]);
+
+      await command.run('status');
+
+      expect(output()).not.toContain('MCP pin drift');
+      expect(output()).toContain(
+        `project: ✓ npx -y --prefer-offline agent-skills-standard-mcp@${MCP_COMPATIBLE_VERSION}`,
+      );
+    });
+
+    it('status warns on user-scope drift too', async () => {
+      mockConfigService.loadConfig.mockResolvedValue(
+        makeConfig({
+          mcp: { enabled: true, scope: 'user', prompted: true },
+        }),
+      );
+      mockMcpService.status.mockResolvedValue([
+        {
+          agent: Agent.Claude,
+          project: false,
+          user: true,
+          projectEntry: null,
+          userEntry: {
+            command: 'npx',
+            args: ['-y', '--prefer-offline', 'agent-skills-standard-mcp@0.6.1'],
+          },
+        },
+      ]);
+
+      await command.run('status');
+
+      expect(output()).toContain('MCP pin drift: claude user pins');
+      expect(output()).toContain('project: ✗ (none)');
+    });
+
+    it('status renders (none) and stays silent when a present entry is unreadable', async () => {
+      mockConfigService.loadConfig.mockResolvedValue(
+        makeConfig({
+          mcp: { enabled: true, scope: 'project', prompted: true },
+        }),
+      );
+      mockMcpService.status.mockResolvedValue([
+        {
+          agent: Agent.Claude,
+          project: true,
+          user: false,
+          projectEntry: null,
+          userEntry: null,
+        },
+      ]);
+
+      await command.run('status');
+
+      expect(output()).toContain('project: ✓ (none)');
+      expect(output()).not.toContain('MCP pin drift');
+    });
+
+    it('status keeps a bare global entry clean and drift-free', async () => {
+      const globalEntry = { command: 'ags-mcp', args: [] };
+      mockConfigService.loadConfig.mockResolvedValue(
+        makeConfig({
+          mcp: {
+            enabled: true,
+            scope: 'project',
+            prompted: true,
+            via: 'global',
+          },
+        }),
+      );
+      mockMcpService.buildEntry.mockReturnValue(globalEntry);
+      mockMcpService.status.mockResolvedValue([
+        {
+          agent: Agent.Claude,
+          project: true,
+          user: false,
+          projectEntry: globalEntry,
+          userEntry: null,
+        },
+      ]);
+
+      await command.run('status');
+
+      expect(output()).toContain('project: ✓ ags-mcp');
+      expect(output()).not.toContain('MCP pin drift');
+    });
+
     it('status prints a bare binary as the launch line', async () => {
       mockConfigService.loadConfig.mockResolvedValue(
         makeConfig({
