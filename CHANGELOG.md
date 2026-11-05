@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Quick Navigation
 
+## [mcp-v0.8.1] - 2026-11-05
+
+**Category**: MCP Server
+
+### Added
+- feat(mcp): prefer a version-matched global binary with npx fallback (#291)
+
 ## [cli-v2.7.3] - 2026-11-05
 
 **Category**: CLI Tool
