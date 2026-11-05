@@ -111,6 +111,25 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
+  cli-mcp-platform-tests:
+    name: CLI MCP tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22.x"
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+      - name: Install CLI workspace dependencies
+        run: pnpm install --frozen-lockfile --filter ./cli...
+      - name: Run MCP command and service tests
+        run: pnpm --filter ./cli exec vitest run src/commands/__tests__/McpCommand.spec.ts src/services/__tests__/McpConfigService.spec.ts
+
   validate-skills:
     runs-on: ubuntu-latest
     needs: [lint-and-format, unit-tests]

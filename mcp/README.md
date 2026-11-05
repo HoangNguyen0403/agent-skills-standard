@@ -155,7 +155,7 @@ ags-mcp --version                          # prints the semver it reports
 ags mcp via auto                           # use it only when the version matches
 ```
 
-`ags mcp enable --install-global` runs the global install for you and verifies the reported version, exiting `1` if it does not match the pin. With `via: auto` (the default), a global binary is used **only** when `ags-mcp --version` exactly equals the CLI pin; otherwise the client falls back to the pinned `npx` line, so a stale global can never serve a mismatched tool surface. On Windows, `auto` always stays on `npx`.
+Selecting global mode (`ags mcp via global`) and running `ags mcp enable` makes the CLI run the pinned global install for you and verify the reported version, exiting `1` without saving enabled state or writing configs if it does not match the pin. `ags mcp enable --install-global` remains available as an explicit trigger for the same install. With `via: auto` (the default), a global binary is used **only** when `ags-mcp --version` exactly equals the CLI pin; otherwise the client falls back to the pinned `npx` line, so a stale global can never serve a mismatched tool surface. On Windows, `auto` always stays on `npx`.
 
 `~/.npm/_npx` is machine-global and keyed by package spec, so several worktrees pointed at the same pin share one cached download — they do not re-download, though each client spawn still pays the resolution cost.
 

@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Quick Navigation
 
+## [Unreleased]
+
+### Fixed
+- fix(cli): make global MCP enable install and verify the pinned package automatically.
+
+### Changed
+- test(cli): run MCP command and service regressions on Linux, macOS, and Windows.
+
 ## [mcp-v0.8.1] - 2026-11-05
 
 **Category**: MCP Server
