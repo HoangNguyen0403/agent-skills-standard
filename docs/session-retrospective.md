@@ -59,13 +59,26 @@ ags retrospective enable [--store-root <abs>] [--source-root <abs>]...
 
 - An interactive terminal is required. Without one the command refuses with `TTY_REQUIRED` and
   writes nothing.
-- It prints fixed consent text plus the store root and the allowed source roots on stderr, and
-  accepts only the exact word `yes`. Anything else refuses with `CONSENT_DECLINED` and writes
-  nothing.
+- It prints fixed consent text plus the store root and the exact source roots that will be read on
+  stderr, and accepts only the exact word `yes`. Anything else refuses with `CONSENT_DECLINED` and
+  writes nothing.
 - Default store root: `~/ags/diagnostics`. Default source roots: whichever exist among
   `~/.omp/agent/sessions` and `~/.codex/sessions`.
 - `--source-root` is repeatable, must be absolute and must exist, and replaces the defaults. If no
-  source root is left, the command refuses with `NO_SOURCE_ROOTS`.
+  source root is left, the command refuses with `NO_SOURCE_ROOTS`. A path that is, contains, or sits
+  inside an unsupported provider store — including through a symlink alias — is refused with
+  `SOURCE_ROOT_UNSUPPORTED_STORE` before anything is printed or written. A source or store path that
+  cannot be resolved — permission denied on a component, a symlink loop, a non-directory component, a
+  dangling link, or an I/O error — refuses with `SOURCE_ROOT_CANONICALIZATION_FAILED` instead of
+  falling back to a lexical path.
+- If `~/.claude/projects` or `~/.gemini/tmp` exists, the prompt lists it in a separate disclosure
+  section: presence only, never enumerated, read, parsed, or added to the consent record. It is not
+  evidence that the provider is running, and a relocated store (for example a custom
+  `CLAUDE_CONFIG_DIR`) is not detected. A discovered default root that resolves into one of those
+  folders (for example a symlinked `~/.omp`) is refused with `SOURCE_ROOT_UNSUPPORTED_STORE` too.
+  That refusal canonicalizes the candidate root and store paths for the alias check — path metadata
+  only; it reads no transcript content and enumerates nothing.
+- The prompt names only the roots recorded in the consent file; nothing outside them is scanned.
 - stdout is exactly `{"schemaVersion":1,"enabled":true}`.
 
 **An agent can never enable this.** There is no tool, no flag and no non-interactive route, so a
@@ -83,12 +96,15 @@ The record is `retrospective-consent.json`: POSIX
 and absolute, else `~/.config/agent-skills-standard/retrospective-consent.json`; on Windows
 `%APPDATA%\agent-skills-standard\retrospective-consent.json`.
 
-The consent text is version `2` (it explicitly discloses permission request command recording and git
-activity metrics read outside source roots). An existing record with version `1` is treated as disabled
-(reason `version`), requiring the user to run `ags retrospective enable` again to re-consent. It is
-owner-only and read fail-closed: missing, empty, malformed, unknown-key, relative-path, wrong-version,
-group/other-readable, symlink and non-regular files all count as disabled (reasons `missing`,
-`invalid`, `permissive`, `symlink`, `version`).
+The consent text is version `4` (version 2 added permission request command recording and git
+activity metrics read outside source roots; version 3 added the presence-only disclosure of local
+transcript folders for providers this build cannot read; version 4 discloses that source-root and
+unsupported-store paths are canonicalized for alias checks, using path metadata only, with no
+transcript content read by that check). An existing record with version `1`, `2` or `3` is treated as
+disabled (reason `version`), requiring the user to run `ags retrospective enable` again to re-consent;
+consent never expands silently. It is owner-only and read fail-closed: missing, empty, malformed,
+unknown-key, relative-path, wrong-version, group/other-readable, symlink and non-regular files all
+count as disabled (reasons `missing`, `invalid`, `permissive`, `symlink`, `version`).
 ### The nudge
 
 `audit_session_compliance` and `get_session_cost` append one fixed paragraph only when all three
@@ -295,7 +311,7 @@ Filtering is applied when the page is built (the generated HTML contains no clie
   same read-only enumeration used by the trend comparison). It never opens session files, runs no
   git commands, and stores no command text.
 - **No new consent text required:** reads stay strictly within the already-consented store root;
-  consent text remains version 2.
+  index generation reads neither session files nor the new presence-only disclosure.
 - **Atomic publication:** output is written to `<storeRoot>/index.html` with owner-only permissions
   (mode 0600) via atomic write. It is replaced on every call (no incremental state). The store does
   not list it and does not count it as a generation; its size (a few KB) does count toward the

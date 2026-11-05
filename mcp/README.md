@@ -112,11 +112,16 @@ that failure is kept as history, with the temporary compatibility dev dependency
 **Host integration is still not claimed.**
 
 Opt-in is a one-time human action; an agent can never do it (no terminal, no flag, no tool). `enable`
-requires an interactive terminal, prints the fixed consent text with the store root and source roots
-on stderr, accepts only the exact word `yes`, and otherwise writes nothing (`TTY_REQUIRED`,
-`CONSENT_DECLINED`). The default store root is `~/ags/diagnostics`; default source roots are those
-that exist among `~/.omp/agent/sessions` and `~/.codex/sessions`, and `--source-root` (repeatable,
-absolute, must exist) replaces them; none left is `NO_SOURCE_ROOTS`. stdout stays one JSON line.
+requires an interactive terminal, prints the fixed consent text with the store root and the exact
+source roots that will be read on stderr, accepts only the exact word `yes`, and otherwise writes
+nothing (`TTY_REQUIRED`, `CONSENT_DECLINED`). The default store root is `~/ags/diagnostics`; default
+source roots are those that exist among `~/.omp/agent/sessions` and `~/.codex/sessions`, and
+`--source-root` (repeatable, absolute, must exist) replaces them; none left is `NO_SOURCE_ROOTS`. A
+separate, non-consented section of the prompt discloses any existing `~/.claude/projects` or
+`~/.gemini/tmp` folder by presence only — one `lstat`, no enumeration, no read, nothing added to the
+consent record, and no claim that the provider is running. Separately, the overlap refusal
+canonicalizes the candidate root and store paths (symlinks resolved through existing ancestors, path
+metadata only) before the prompt, and the consent text states that. stdout stays one JSON line.
 
 ```text
 ags retrospective enable [--store-root <absolute>] [--source-root <absolute>]...
@@ -129,7 +134,7 @@ ags retrospective index [--since YYYY-MM-DD] [--until YYYY-MM-DD] [--folder NAME
 `{"schemaVersion":1,"enabled":false,"removed":<boolean>}`. `status` (forwarded as `consent-status` in the package) prints
 `{"schemaVersion":1,"state":"enabled","storeRoot":<path>,"allowedSourceRoots":[...]}` or
 `{"schemaVersion":1,"state":"disabled","reason":"<missing|invalid|permissive|symlink|version>"}`; a
-missing record is an ordinary `disabled` result, not an error; pre-existing version 1 consent records fail closed as disabled with reason `version` until `enable` is re-run. The consent file is owner-only and read
+missing record is an ordinary `disabled` result, not an error; pre-existing version 1, 2 and 3 consent records fail closed as disabled with reason `version` until `enable` is re-run. The consent file is owner-only and read
 fail-closed — missing, empty, malformed, unknown keys, relative paths, wrong version, group/other
 readable, symlink or non-regular each count as disabled:
 
@@ -139,7 +144,7 @@ readable, symlink or non-regular each count as disabled:
 Contract constraints to preserve when the binary ships:
 
 - stdout is exactly one JSON line. `index` prints `{"schemaVersion":1,"state":"written","path":<path>,"sessions":<number>,"omitted":<number>,"unreadable":<number>,"since":<string|null>,"until":<string|null>}`.
-- Refusals print `{"schemaVersion":1,"error":{"code":"<STABLE_CODE>"}}` to stderr — code only, never a manifest path, fs/runtime message, stack trace or file content. Codes include `TTY_REQUIRED`, `CONSENT_DECLINED`, `NO_SOURCE_ROOTS`, `ROOT_PERMISSIVE`, `ROOT_SYMLINK`, `ROOT_OWNER_MISMATCH`, `PRIVATE_MODE`, `STORE_ROOT_INSIDE_PROJECT`, `STORE_ROOT_UNRESOLVED`, `INVALID_DATE`, `INVALID_RANGE`, `INVALID_FOLDER`, `FAILED`. An existing root with group/other permissions is `ROOT_PERMISSIVE`; remediate with `mkdir -m 700` or `chmod 700` on a dedicated directory, never a shared/synced folder.
+- Refusals print `{"schemaVersion":1,"error":{"code":"<STABLE_CODE>"}}` to stderr — code only, never a manifest path, fs/runtime message, stack trace or file content. Codes include `TTY_REQUIRED`, `CONSENT_DECLINED`, `NO_SOURCE_ROOTS`, `SOURCE_ROOT_UNSUPPORTED_STORE`, `SOURCE_ROOT_CANONICALIZATION_FAILED`, `ROOT_PERMISSIVE`, `ROOT_SYMLINK`, `ROOT_OWNER_MISMATCH`, `PRIVATE_MODE`, `STORE_ROOT_INSIDE_PROJECT`, `STORE_ROOT_UNRESOLVED`, `INVALID_DATE`, `INVALID_RANGE`, `INVALID_FOLDER`, `FAILED`. An existing root with group/other permissions is `ROOT_PERMISSIVE`; remediate with `mkdir -m 700` or `chmod 700` on a dedicated directory, never a shared/synced folder.
 - Exit codes: usage `2`, refusal or failure `1`, successful index publication `0`.
 - Three tools are exposed on stdio: `prepare_retrospective`, `get_retrospective_status`, and `prepare_retrospective_index`. They never return transcript text or report bodies — only state, numbers, an artifact id, or paths (`summary.md`, `ledger.json`, `report.html`, or `<storeRoot>/index.html`); file contents stay on local disk.
 

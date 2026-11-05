@@ -277,7 +277,7 @@ program
   .option('--store-root <path>', 'Store root directory')
   .option(
     '--source-root <path>',
-    'Additional source root for transcripts (repeatable)',
+    'Override the default transcript source roots (repeatable; replaces ~/.omp/agent/sessions and ~/.codex/sessions)',
     (val: string, prev?: string[]) => (prev ? [...prev, val] : [val]),
   )
   .option('--since <YYYY-MM-DD>', 'Index sessions since date')
