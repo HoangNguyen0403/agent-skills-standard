@@ -4,6 +4,7 @@ import {
   RETROSPECTIVE_MIN_MCP_VERSION,
 } from '../../constants/mcp';
 import {
+  defaultSpawn,
   isVersionAtLeast,
   RetrospectiveCommand,
   SpawnFn,
@@ -483,6 +484,123 @@ describe('RetrospectiveCommand', () => {
 
       expect(process.exitCode).toBe(1);
       expect(logs.join('\n')).toBe('Could not run npx: spawn failed');
+    });
+
+    it('stringifies a non-Error rejection when child cannot be started', async () => {
+      mockSpawn.mockRejectedValue('plain failure');
+      const command = new RetrospectiveCommand({
+        spawnFn: mockSpawn,
+        platform: 'linux',
+        env: { AGS_MCP_PACKAGE_SPEC: 'pkg@test' },
+      });
+
+      await command.run('status');
+
+      expect(process.exitCode).toBe(1);
+      expect(logs.join('\n')).toBe('Could not run npx: plain failure');
+    });
+  });
+
+  describe('exit handler injection', () => {
+    it('invokes the injected exit handler for refusals and unknown actions', async () => {
+      const exitCodes: number[] = [];
+      const command = new RetrospectiveCommand({
+        spawnFn: mockSpawn,
+        platform: 'linux',
+        env: {},
+        mcpVersion: '0.6.1',
+        exit: (code) => exitCodes.push(code),
+      });
+
+      await command.run('status');
+      expect(exitCodes).toEqual([1]);
+
+      await command.run('not-an-action');
+      expect(exitCodes).toEqual([1, 2]);
+      expect(mockSpawn).not.toHaveBeenCalled();
+    });
+
+    it('uses process defaults when optional dependencies are omitted', async () => {
+      const command = new RetrospectiveCommand();
+
+      await command.run('not an action');
+
+      expect(process.exitCode).toBe(2);
+      expect(logs.join('\n')).toBe(
+        'Unknown action. Use: enable | disable | status | index',
+      );
+    });
+  });
+
+  describe('option filtering', () => {
+    it('skips undefined and empty option values without forwarding them', async () => {
+      const command = new RetrospectiveCommand({
+        spawnFn: mockSpawn,
+        platform: 'linux',
+        env: { AGS_MCP_PACKAGE_SPEC: 'pkg@test' },
+      });
+
+      await command.run('enable', { storeRoot: undefined, sourceRoot: [] });
+      expect(mockSpawn).toHaveBeenLastCalledWith(
+        'npx',
+        ['-y', 'pkg@test', 'retrospective', 'enable'],
+        { stdio: 'inherit' },
+      );
+
+      await command.run('enable', { storeRoot: '', sourceRoot: '' });
+      expect(mockSpawn).toHaveBeenLastCalledWith(
+        'npx',
+        ['-y', 'pkg@test', 'retrospective', 'enable'],
+        { stdio: 'inherit' },
+      );
+
+      await command.run('index', { since: '', until: '', folder: '' });
+      expect(mockSpawn).toHaveBeenLastCalledWith(
+        'npx',
+        ['-y', 'pkg@test', 'retrospective', 'index'],
+        { stdio: 'inherit' },
+      );
+    });
+
+    it('forwards a single scalar sourceRoot', async () => {
+      const command = new RetrospectiveCommand({
+        spawnFn: mockSpawn,
+        platform: 'linux',
+        env: { AGS_MCP_PACKAGE_SPEC: 'pkg@test' },
+      });
+
+      await command.run('enable', { sourceRoot: '/only-root' });
+
+      expect(mockSpawn).toHaveBeenLastCalledWith(
+        'npx',
+        [
+          '-y',
+          'pkg@test',
+          'retrospective',
+          'enable',
+          '--source-root',
+          '/only-root',
+        ],
+        { stdio: 'inherit' },
+      );
+    });
+  });
+
+  describe('defaultSpawn', () => {
+    it('resolves the child process exit code', async () => {
+      await expect(
+        defaultSpawn(process.execPath, ['-e', 'process.exit(0)'], {
+          stdio: 'inherit',
+        }),
+      ).resolves.toEqual({ code: 0 });
+    });
+
+    it('rejects with the spawn error when the binary does not exist', async () => {
+      await expect(
+        defaultSpawn('ags-definitely-missing-binary', [], {
+          stdio: 'inherit',
+        }),
+      ).rejects.toMatchObject({ code: 'ENOENT' });
     });
   });
 });
