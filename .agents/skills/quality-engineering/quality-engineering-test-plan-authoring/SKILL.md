@@ -33,7 +33,7 @@ Connects the 6 STLC stages (Requirement Analysis, Test Planning, Test Case/Data 
 
 ## Seed, Selector Gaps & Reset
 
-`tests/seed.spec.ts` (or platform equivalent) carries shared prerequisites (auth/navigation, no assertions). `Selector Gaps` follow `<screen>-<element>-<role>`. `Data & Reset` defines scenario-specific state fixtures and state preservation; no blanket data wipe or fullReset before verification and failure evidence are secured.
+`tests/seed.spec.ts` (or platform equivalent) carries shared prerequisites (auth/navigation, no assertions). `Selector Gaps` follow `<screen>-<element>-<role>`. `Data & Reset` defines scenario-specific state fixtures, invocation-run/project/shard/slot/test/attempt namespace formulas, failure diagnostic capture before teardown, and orphan TTL/janitor boundaries; parallel worker accounts isolate concurrency slots, not test data. No blanket data wipe, table truncate, or fullReset before verification and failure evidence are secured.
 
 ## Scenario Classes & Closure
 
@@ -51,6 +51,7 @@ Manual Zephyr TCs stay the system of record for business sign-off (`quality-engi
 - Technical PASS impersonating human UAT signoff or release authorization.
 - Marking an unavailable required test as not-applicable instead of BLOCKED.
 - Blanket app-data wipe or fullReset that destroys upgrade/restoration state before verification.
+- Treating worker account allocation as proof of test independence without scenario data isolation and reset.
 - Concealing open defects, missing drivers, or unverified device cells at closure.
 ## References
 

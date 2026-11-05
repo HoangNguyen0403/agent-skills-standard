@@ -33,3 +33,6 @@ Rules:
 - The seed spec (`tests/seed.spec.ts`) imports `test` from `./fixtures` too, so auth/navigation prerequisites run through the same page objects.
 - Do not put `beforeEach` auth here; that is the seed's job (`quality-engineering-test-plan-authoring` Seed section).
 - When Playwright Test Agents are initialised (`specs/` + `tests/seed.spec.ts` exist), keep the fixture file name `tests/fixtures.ts` so the vendor generator finds it.
+- Parallel execution & account allocation: when parallel tests require worker-specific accounts or scenario data isolation, compose worker and test fixtures inside `tests/fixtures.ts` without introducing secondary fixture entrypoints. See [Parallel Fixture Lifecycle](parallel-fixture-lifecycle.md).
+- Seed prerequisite contract: the seed defines prerequisites and navigation; worker fixtures support the seed contract through the same entrypoint rather than executing seed per worker.
+- Assertions remain in specs: neither page objects nor fixtures should execute assertions.

@@ -47,6 +47,9 @@ Add ids to leaf interactive/assertable elements only, never layout wrappers. Nev
 
 `rename` (id changed), `restructure` (DOM/tree moved), `i18n` (visible text changed, id untouched).
 
+## Collection Readiness
+
+Prefer retrying assertions (`expect(locator).toHaveCount(...)`, `toHaveText([...])`) over immediate enumeration (`locator.all()`). `all()` samples count immediately and returns live positional locators without waiting, risking false-green empty iterations. Establish declared finite completion and exact expected identities before iterating. Never assume count alone freezes dynamic lists or guarantees membership stability; target elements by stable IDs via POM actions, never `.all()` indices.
 ## Anti-Patterns
 
 - Text selectors on translated strings, index-based locators (`nth`), generated/hashed class names.
@@ -54,9 +57,12 @@ Add ids to leaf interactive/assertable elements only, never layout wrappers. Nev
 - Overwriting or stripping accessible labels to insert test identifiers.
 - Using web CSS / XPath selectors in native mobile automation.
 - "xpath just for now" — there is no temporary XPath; use the ladder from the first commit.
+- Immediate `locator.all()` loops on dynamic lists without asserting completion and identity readiness (causes false-green passes on empty lists).
+- Using `nth()` or `.all()` positional indices to target or mutate items; target by stable semantic IDs/keys through page objects instead.
 ## References
 
 - [Selector Ladder Details](references/selector-ladder.md)
 - [Test-ID Naming](references/testid-naming.md)
 - [Insertion Policy](references/insertion-policy.md)
 - [Drift Classification](references/drift-classification.md)
+- [Collection Readiness & Dynamic Lists](references/collection-readiness.md)
