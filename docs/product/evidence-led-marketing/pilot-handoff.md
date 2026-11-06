@@ -3,14 +3,14 @@
 ## Status & Governance Notice
 - **Status**: `prepared_pending_T12_and_human_acceptance`
 - **Initiative Slug**: `evidence-led-marketing` | **Campaign ID**: `standards-demo-01` | **Context Revision**: `ctx-rev-20261025-capture-ee18d7f5`
-- **Scope**: **Preparation only (T13)** (`docs/srs/srs-task-list-evidence-led-marketing.md:79`). T13 depends on T12 (`docs/srs/srs-task-list-evidence-led-marketing.md:78`), which remains partial (blocked on T11). Staged strictly as `prepared_pending_T12_and_human_acceptance`; does not execute actual pilot, external outreach, infrastructure deployment, evaluator calls, or simulated human approvals.
+- **Scope**: **Preparation only (T13)** (task-list T13, formerly `docs/srs/srs-task-list-evidence-led-marketing.md:79`; retired with the initiative's source documents). T13 depends on T12 (formerly line 78), which remains partial (blocked on T11). Staged strictly as `prepared_pending_T12_and_human_acceptance`; does not execute actual pilot, external outreach, infrastructure deployment, evaluator calls, or simulated human approvals.
 - **Precedence**: Canonical operational runbook; supersedes historical campaign draft at `campaigns/standards-demo-01/review-handoff.md`.
 
 ---
 
 ## 1. Traceability & Pre-Pilot Governance Gates
 
-Governed by canonical SRS (`docs/srs/srs-evidence-led-marketing.md`: SRS-001..006, SRS-010) and PRD (`docs/prd/prd-evidence-led-marketing.md`):
+Governed by the initiative's retired SRS (`srs-evidence-led-marketing.md`: SRS-001..006, SRS-010) and PRD (`prd-evidence-led-marketing.md`); both documents were removed with their source material. Requirement IDs below are retained as historical references only:
 
 1. **Gate 1: Upstream T12 Release Verification**: Integrated candidate verification, evals, and security checks must settle (`PENDING T12`).
 2. **Gate 2: Human Response Owner Assignment (AC-026)**: Named maintainer assigned to community monitoring and triage (`PROPOSED: HoangNguyen`).
