@@ -10,6 +10,17 @@ INK = "#1F2933"
 MUTED = "#616E7C"
 WARN = "#DD6B20"
 WARN_TEXT = "#7B341E"
+INK_DARK = "#F9FAFB"
+MUTED_DARK = "#9CA3AF"
+WARN_DARK = "#ED8936"
+WARN_TEXT_DARK = "#FBD38D"
+DARK_BG = "#111827"
+DARK_CARD_BG = "#1F2937"
+DARK_BORDER = "#4B5563"
+
+_C4_EDGE_DARK = ("endArrow=blockThin;html=1;fontSize=10;fontColor=#F9FAFB;strokeWidth=1;"
+                 "endFill=1;strokeColor=#9CA3AF;edgeStyle=orthogonalEdgeStyle;rounded=0;"
+                 "labelBackgroundColor=#111827;")
 
 _C4_EDGE = ("endArrow=blockThin;html=1;fontSize=10;fontColor=#404040;strokeWidth=1;"
             "endFill=1;strokeColor=#828282;edgeStyle=orthogonalEdgeStyle;rounded=0;"
@@ -36,7 +47,7 @@ STYLE_CATALOG = {
     "person": {
         "style": ("html=1;fontSize=11;dashed=0;whiteSpace=wrap;fillColor=#083F75;"
                   "strokeColor=#06315C;fontColor=#ffffff;shape=mxgraph.c4.person2"),
-        "w": 80, "h": 100, "legend": "Person", "layer": 0,
+        "w": 140, "h": 100, "legend": "Person", "layer": 0,
     },
     "system": {
         "style": ("rounded=1;whiteSpace=wrap;html=1;labelBackgroundColor=none;"
@@ -96,12 +107,13 @@ STYLE_CATALOG = {
         "w": 160, "h": 60, "legend": "State", "layer": 1,
     },
     "start": {
-        "style": "ellipse;html=1;fillColor=#1F2933;strokeColor=#1F2933;",
+        "style": "ellipse;html=1;fillColor=#1F2933;strokeColor=#1F2933;verticalAlign=top;verticalLabelPosition=bottom;align=center;labelPosition=center;",
         "w": 40, "h": 40, "legend": "Start", "layer": 0,
     },
     "end": {
-        "style": ("ellipse;shape=doubleEllipse;html=1;fillColor=#1F2933;"
-                  "strokeColor=#1F2933;margin=3;"),
+        "style": ("ellipse;shape=doubleEllipse;html=1;fillColor=#FFFFFF;"
+                  "strokeColor=#1F2933;strokeWidth=3;margin=3;verticalAlign=top;"
+                  "verticalLabelPosition=bottom;align=center;labelPosition=center;"),
         "w": 40, "h": 40, "legend": "End", "layer": 9,
     },
     "gcp:gke": _gcp("container_engine", "GKE cluster"),
@@ -128,6 +140,42 @@ EDGE_STYLES = {
     "reverse": _C4_EDGE + "strokeColor=#B0B7BF;",
     "return": _C4_EDGE + "dashed=1;dashPattern=4 4;endArrow=open;",
 }
+EDGE_STYLES_DARK = {
+    "sync": _C4_EDGE_DARK,
+    "async": _C4_EDGE_DARK + "dashed=1;dashPattern=6 4;",
+    "reverse": _C4_EDGE_DARK + "strokeColor=#6B7280;",
+    "return": _C4_EDGE_DARK + "dashed=1;dashPattern=4 4;endArrow=open;",
+}
+
+def get_edge_style(style_key="sync", mode="light"):
+    if mode == "dark":
+        return EDGE_STYLES_DARK.get(style_key, _C4_EDGE_DARK)
+    return EDGE_STYLES.get(style_key, _C4_EDGE)
+
+def get_node_style(kind, mode="light"):
+    base_style = STYLE_CATALOG[kind]["style"]
+    if mode != "dark":
+        return base_style
+    if kind == "person":
+        return ("html=1;fontSize=11;dashed=0;whiteSpace=wrap;fillColor=#1D70B8;"
+                "strokeColor=#60A5FA;fontColor=#ffffff;shape=mxgraph.c4.person2")
+    if kind == "saas":
+        return ("rounded=1;whiteSpace=wrap;html=1;labelBackgroundColor=none;"
+                "fillColor=#1F2937;fontColor=#F9FAFB;align=center;arcSize=10;"
+                "strokeColor=#4B5563")
+    if kind == "start":
+        return ("ellipse;html=1;fillColor=#F9FAFB;strokeColor=#F9FAFB;"
+                "verticalAlign=top;verticalLabelPosition=bottom;align=center;labelPosition=center;")
+    if kind == "end":
+        return ("ellipse;shape=doubleEllipse;html=1;fillColor=%s;"
+                "strokeColor=#F9FAFB;strokeWidth=3;margin=3;verticalAlign=top;"
+                "verticalLabelPosition=bottom;align=center;labelPosition=center;"
+                % DARK_BG)
+    if kind.startswith("aws:"):
+        return base_style.replace("fontColor=#232F3E", "fontColor=#F9FAFB")
+    if kind.startswith("gcp:"):
+        return base_style + ";fontColor=#F9FAFB;"
+    return base_style
 
 # Stored on shapes as draw.io custom properties, visible via Edit Data.
 NODE_PROPERTIES = (
@@ -236,5 +284,11 @@ STYLE_CATALOG["entity"] = {
     "w": 200, "h": ENTITY_HEADER_H, "legend": "Entity (table)", "layer": 2,
 }
 ENTITY_ROW_STYLE = ("text;strokeColor=#9AA5B1;fillColor=#ffffff;align=left;verticalAlign=middle;"
-                    "spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],"
-                    "[1,0.5]];portConstraint=eastwest;html=1;fontSize=11;fontColor=#1F2933;")
+                    "spacingLeft=6;spacingRight=6;whiteSpace=wrap;overflow=visible;rotatable=0;"
+                    "points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontSize=11;"
+                    "fontColor=#1F2933;")
+ENTITY_ROW_STYLE_DARK = (
+    "text;strokeColor=#4B5563;fillColor=#1F2937;align=left;verticalAlign=middle;"
+    "spacingLeft=6;spacingRight=6;whiteSpace=wrap;overflow=visible;rotatable=0;"
+    "points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontSize=11;fontColor=#F9FAFB;"
+)

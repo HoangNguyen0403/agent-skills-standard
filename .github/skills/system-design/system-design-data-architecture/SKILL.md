@@ -50,9 +50,7 @@ Access patterns and per-operation invariants choose the store. Ownership precede
 
 ## Scaling Order
 
-Apply in order and stop as soon as headroom is sufficient: index and query fixes, then read replicas,
-then caching, then vertical scale, then partition or archive cold data, then shard. Sharding is last
-because it costs cross-shard queries, rebalancing, and a permanent partition key commitment.
+Apply in order: resolve query shape, unindexed scans, and query amplification (loops, serializers, GraphQL fan-out); see [database-query-performance](../../database/database-query-performance/SKILL.md) for bounded batching and request-scoped DataLoaders. Then read replicas, caching, vertical scale, partitioning/archival, and sharding last. Sharding costs cross-shard joins, rebalancing, and permanent partition keys.
 
 ## Partitioning
 
@@ -69,7 +67,7 @@ because it costs cross-shard queries, rebalancing, and a permanent partition key
 - **No unbounded table growth**: define retention, archival tier, and deletion at design time.
 - **No denormalization without an update path**: every copy needs an owner and a refresh trigger.
 - **No relevance as authorization**: ranking, similarity, or a namespace does not decide who may read a row.
-
+- **No blanket giant JOIN for amplification**: multi-row JOINs corrupt pagination and inflate memory; use bounded batching.
 ## Verify
 
 - [ ] Critical paths name source, sink, transformations, authoritative owner, derived copies, invariant, user-visible outcome, adverse timeline, and observable verification; see [flow contract](references/flow-contracts.md).
@@ -77,10 +75,10 @@ because it costs cross-shard queries, rebalancing, and a permanent partition key
 - [ ] Consistency and freshness are stated per relevant operation/flow.
 - [ ] Partitioning, hot-key mitigation, retention, archival, and deletion are addressed when workload or lifecycle makes them material.
 - [ ] Tenant-scoped flows name authenticated scope at every derived stage, the deny path for missing scope, and derived-copy revocation/invalidation; see [tenant-safe retrieval](references/tenant-safe-retrieval.md).
-
+- [ ] Access amplification (loops, resolvers, aggregates) is bounded via batching or projection before caching or replicas; see [database-query-performance](../../database/database-query-performance/SKILL.md).
 ## References
 
-- [Database Scaling](references/database-scaling.md) - store comparison, replication topologies, sharding mechanics, migration patterns
+- [Database Scaling](references/database-scaling.md) - store comparison, replication topologies, sharding mechanics, query amplification & batching
 - [Flow Contracts](references/flow-contracts.md) - critical-flow authority, copies, invariant and verification record
 - [Tenant-Safe Retrieval](references/tenant-safe-retrieval.md) - authenticated scope through retrieval, rerank, cache, jobs and derived-copy revocation
 

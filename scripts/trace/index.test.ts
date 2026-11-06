@@ -39,7 +39,10 @@ test("run() exits 0 with zero issues when docs/brd and docs/prd are both absent"
   });
   const human = run(["--root", tmp]);
   assert.equal(human.exitCode, 0);
-  assert.match(human.output, /not_applicable; no requirement sources; no release assurance/);
+  assert.match(
+    human.output,
+    /not_applicable; no requirement sources; no release assurance/,
+  );
 });
 
 test("run() reports zero issues for the clean fixture", () => {
@@ -59,7 +62,13 @@ test("run() reports zero issues for the clean fixture", () => {
 });
 
 test("requested absent scope cannot report success", () => {
-  const result = run(["--root", path.join(FIXTURES, "clean"), "--slug", "absent", "--json"]);
+  const result = run([
+    "--root",
+    path.join(FIXTURES, "clean"),
+    "--slug",
+    "absent",
+    "--json",
+  ]);
   assert.equal(result.exitCode, 1);
   const parsed = JSON.parse(result.output);
   assert.equal(parsed.ok, false);
@@ -78,7 +87,14 @@ test("an explicit --slug fails even when the root holds no requirement sources",
 });
 
 test("--required passes a matching scope that declares REQ and AC", () => {
-  const result = run(["--root", path.join(FIXTURES, "clean"), "--slug", "checkout", "--required", "--json"]);
+  const result = run([
+    "--root",
+    path.join(FIXTURES, "clean"),
+    "--slug",
+    "checkout",
+    "--required",
+    "--json",
+  ]);
   assert.equal(result.exitCode, 0);
   const parsed = JSON.parse(result.output);
   assert.equal(parsed.ok, true);
@@ -90,7 +106,8 @@ test("--required passes a matching scope that declares REQ and AC", () => {
 
 test("--required rejects a filename-only scope that declares neither REQ nor AC", () => {
   const root = writeRoot({
-    "docs/prd/prd-filenameonly.md": "# PRD: Filename Only\n\nProse only; no governed identifiers here.\n",
+    "docs/prd/prd-filenameonly.md":
+      "# PRD: Filename Only\n\nProse only; no governed identifiers here.\n",
   });
 
   // Optional discovery keeps working: a filename alone is not an invented requirement.
@@ -98,7 +115,14 @@ test("--required rejects a filename-only scope that declares neither REQ nor AC"
   assert.equal(optional.exitCode, 0);
   assert.deepEqual(codes(JSON.parse(optional.output)), []);
 
-  const required = run(["--root", root, "--slug", "filenameonly", "--required", "--json"]);
+  const required = run([
+    "--root",
+    root,
+    "--slug",
+    "filenameonly",
+    "--required",
+    "--json",
+  ]);
   assert.equal(required.exitCode, 1);
   const parsed = JSON.parse(required.output);
   assert.equal(parsed.ok, false);
@@ -110,7 +134,14 @@ test("--required rejects a scope that declares REQ but no AC", () => {
     "docs/prd/prd-partial.md":
       "# PRD: Partial\n\n| Req ID | Requirement |\n| --- | --- |\n| REQ-001 | Requirement without an acceptance criterion |\n",
   });
-  const result = run(["--root", root, "--slug", "partial", "--required", "--json"]);
+  const result = run([
+    "--root",
+    root,
+    "--slug",
+    "partial",
+    "--required",
+    "--json",
+  ]);
   assert.equal(result.exitCode, 1);
   const parsed = JSON.parse(result.output);
   assert.equal(parsed.ok, false);
@@ -123,17 +154,32 @@ test("--required leaves graph checks in force for the selected scope", () => {
     "docs/prd/prd-graph.md":
       "# PRD\n\n| Req ID | Requirement | BRD Objective Ref |\n| --- | --- | --- |\n| REQ-001 | Declared | BRD-OBJ-001 |\n\n| AC ID | Linked Req |\n| --- | --- |\n| AC-001 | REQ-001 |\n",
   });
-  const result = run(["--root", root, "--slug", "graph", "--required", "--json"]);
+  const result = run([
+    "--root",
+    root,
+    "--slug",
+    "graph",
+    "--required",
+    "--json",
+  ]);
   assert.equal(result.exitCode, 1);
   const reported = codes(JSON.parse(result.output));
-  assert.ok(reported.includes("orphan-ac"), `expected orphan-ac, got ${reported.join(", ")}`);
-  assert.ok(!reported.includes("empty-scope"), "a scope declaring REQ and AC is not empty");
+  assert.ok(
+    reported.includes("orphan-ac"),
+    `expected orphan-ac, got ${reported.join(", ")}`,
+  );
+  assert.ok(
+    !reported.includes("empty-scope"),
+    "a scope declaring REQ and AC is not empty",
+  );
 });
 
 test("--required without --slug is a usage error", () => {
   assert.throws(
     () => run(["--root", path.join(FIXTURES, "clean"), "--required"]),
-    (error: unknown) => error instanceof UsageError && /--required requires a --slug/.test(error.message),
+    (error: unknown) =>
+      error instanceof UsageError &&
+      /--required requires a --slug/.test(error.message),
   );
 });
 
@@ -145,22 +191,35 @@ test("--slug rejects empty, flag-shaped, and missing values", () => {
   ]) {
     assert.throws(
       () => run(argv),
-      (error: unknown) => error instanceof UsageError && /--slug requires a nonempty value/.test(error.message),
+      (error: unknown) =>
+        error instanceof UsageError &&
+        /--slug requires a nonempty value/.test(error.message),
     );
   }
   assert.throws(
     () => run(["--root", root, "--slug", "--json"]),
-    (error: unknown) => error instanceof UsageError && /--slug requires a value, got flag-shaped/.test(error.message),
+    (error: unknown) =>
+      error instanceof UsageError &&
+      /--slug requires a value, got flag-shaped/.test(error.message),
   );
 });
 
 test("missing requested scope fails in the human format too", () => {
-  const { exitCode } = run(["--root", path.join(FIXTURES, "clean"), "--slug", "absent"]);
+  const { exitCode } = run([
+    "--root",
+    path.join(FIXTURES, "clean"),
+    "--slug",
+    "absent",
+  ]);
   assert.equal(exitCode, 1);
 });
 
 test("run() reports every seeded issue code for the broken fixture and exits 1", () => {
-  const { exitCode, output } = run(["--root", path.join(FIXTURES, "broken"), "--json"]);
+  const { exitCode, output } = run([
+    "--root",
+    path.join(FIXTURES, "broken"),
+    "--json",
+  ]);
   assert.equal(exitCode, 1);
   const parsed = JSON.parse(output);
   assert.equal(parsed.ok, false);
@@ -179,13 +238,25 @@ test("run() reports every seeded issue code for the broken fixture and exits 1",
 });
 
 test("--slug filters both the slug list and the issue list, but graph checks still see the whole repo", () => {
-  const { exitCode, output } = run(["--root", path.join(FIXTURES, "broken"), "--slug", "mismatch-a", "--json"]);
+  const { exitCode, output } = run([
+    "--root",
+    path.join(FIXTURES, "broken"),
+    "--slug",
+    "mismatch-a",
+    "--json",
+  ]);
   assert.equal(exitCode, 1);
   const parsed = JSON.parse(output);
   assert.deepEqual(parsed.slugs, ["mismatch-a"]);
   assert.ok(parsed.issues.length > 0);
-  assert.ok(parsed.issues.every((i: { slug: string }) => i.slug === "mismatch-a"));
-  assert.ok(parsed.issues.some((i: { code: string }) => i.code === "slug-file-mismatch"));
+  assert.ok(
+    parsed.issues.every((i: { slug: string }) => i.slug === "mismatch-a"),
+  );
+  assert.ok(
+    parsed.issues.some(
+      (i: { code: string }) => i.code === "slug-file-mismatch",
+    ),
+  );
 });
 
 test("--strict turns a warn-only result into a failure; plain mode leaves it passing", () => {
@@ -245,7 +316,9 @@ test("run() succeeds on a slug with full-token source mappings and --required", 
   assert.equal(res.exitCode, 0);
   const parsed = JSON.parse(res.output);
   assert.equal(parsed.ok, true);
-  const errors = parsed.issues.filter((i: { severity: string }) => i.severity === "error");
+  const errors = parsed.issues.filter(
+    (i: { severity: string }) => i.severity === "error",
+  );
   assert.deepEqual(errors, []);
 });
 
@@ -277,7 +350,9 @@ test("run() fails on a slug with source mapping kind mismatch", () => {
   assert.equal(res.exitCode, 1);
   const parsed = JSON.parse(res.output);
   assert.equal(parsed.ok, false);
-  assert.ok(parsed.issues.some((i: { code: string }) => i.code === "mismatched-kind"));
+  assert.ok(
+    parsed.issues.some((i: { code: string }) => i.code === "mismatched-kind"),
+  );
 });
 
 test("run() fails on a slug when mapped source ID has an undersized numeric suffix", () => {
@@ -315,7 +390,10 @@ test("run() fails on a slug when mapped source ID has an undersized numeric suff
   assert.equal(res.exitCode, 1);
   const parsed = JSON.parse(res.output);
   assert.equal(parsed.ok, false);
-  const malformed = parsed.issues.find((i: { code: string; id?: string }) => i.code === "malformed-id" && i.id === "REQ-PILOT-01");
+  const malformed = parsed.issues.find(
+    (i: { code: string; id?: string }) =>
+      i.code === "malformed-id" && i.id === "REQ-PILOT-01",
+  );
   assert.ok(malformed, "must report malformed-id for REQ-PILOT-01");
 });
 
@@ -349,11 +427,20 @@ test("run() exits 0 when bold diagnostic prose precedes namespace family referen
     ].join("\n"),
   });
 
-  const res = run(["--root", root, "--slug", "prose-safe", "--required", "--json"]);
+  const res = run([
+    "--root",
+    root,
+    "--slug",
+    "prose-safe",
+    "--required",
+    "--json",
+  ]);
   assert.equal(res.exitCode, 0);
   const parsed = JSON.parse(res.output);
   assert.equal(parsed.ok, true);
-  const errors = parsed.issues.filter((i: { severity: string }) => i.severity === "error");
+  const errors = parsed.issues.filter(
+    (i: { severity: string }) => i.severity === "error",
+  );
   assert.deepEqual(errors, []);
 });
 
@@ -383,7 +470,10 @@ test("run() fails when a genuine ID field carries a malformed ID value", () => {
   const parsed = JSON.parse(res.output);
   assert.equal(parsed.ok, false);
   assert.ok(
-    parsed.issues.some((i: { code: string; id?: string }) => i.code === "malformed-id" && i.id === "REQ-1"),
+    parsed.issues.some(
+      (i: { code: string; id?: string }) =>
+        i.code === "malformed-id" && i.id === "REQ-1",
+    ),
     "a malformed value in a real ID field must still be rejected",
   );
 });
@@ -426,7 +516,9 @@ test("run() exits 0 when bold id words in prose cite namespace families", () => 
   assert.equal(res.exitCode, 0);
   const parsed = JSON.parse(res.output);
   assert.equal(parsed.ok, true);
-  const errors = parsed.issues.filter((i: { severity: string }) => i.severity === "error");
+  const errors = parsed.issues.filter(
+    (i: { severity: string }) => i.severity === "error",
+  );
   assert.deepEqual(errors, []);
 });
 test("run() distinguishes table references from declarations by exact token span", () => {
@@ -448,25 +540,42 @@ test("run() distinguishes table references from declarations by exact token span
       "",
     ].join("\n"),
   });
-  const repeated = run(["--root", root, "--slug", "repeated-table-text", "--json"]);
+  const repeated = run([
+    "--root",
+    root,
+    "--slug",
+    "repeated-table-text",
+    "--json",
+  ]);
   assert.equal(repeated.exitCode, 0);
   const repeatedPayload = JSON.parse(repeated.output);
   assert.deepEqual(
-    repeatedPayload.issues.filter((issue: { code: string }) => issue.code === "duplicate-id"),
+    repeatedPayload.issues.filter(
+      (issue: { code: string }) => issue.code === "duplicate-id",
+    ),
     [],
   );
 
-  const prefix = run(["--root", root, "--slug", "prefix-table-reference", "--json"]);
+  const prefix = run([
+    "--root",
+    root,
+    "--slug",
+    "prefix-table-reference",
+    "--json",
+  ]);
   assert.equal(prefix.exitCode, 1);
   const prefixPayload = JSON.parse(prefix.output);
   assert.ok(
     prefixPayload.issues.some(
-      (issue: { code: string; id?: string }) => issue.code === "dangling-ref" && issue.id === "REQ-001",
+      (issue: { code: string; id?: string }) =>
+        issue.code === "dangling-ref" && issue.id === "REQ-001",
     ),
     "REQ-001 in prose must remain an unresolved reference, not a prefix-created declaration",
   );
   assert.deepEqual(
-    prefixPayload.issues.filter((issue: { code: string }) => issue.code === "duplicate-id"),
+    prefixPayload.issues.filter(
+      (issue: { code: string }) => issue.code === "duplicate-id",
+    ),
     [],
   );
 });
@@ -498,7 +607,8 @@ test("run() rejects complete malformed separator candidates at field and source-
     const parsed = JSON.parse(result.output);
     assert.ok(
       parsed.issues.some(
-        (issue: { code: string; id?: string }) => issue.code === "malformed-id" && issue.id === id,
+        (issue: { code: string; id?: string }) =>
+          issue.code === "malformed-id" && issue.id === id,
       ),
       `the complete malformed candidate ${id} must be reported`,
     );
@@ -526,11 +636,23 @@ test("run() preserves canonical numeric IDs in legacy Source columns", () => {
       "",
     ].join("\n"),
   });
-  const result = run(["--root", root, "--slug", "legacy-source", "--required", "--json"]);
+  const result = run([
+    "--root",
+    root,
+    "--slug",
+    "legacy-source",
+    "--required",
+    "--json",
+  ]);
   assert.equal(result.exitCode, 0);
   const parsed = JSON.parse(result.output);
   assert.equal(parsed.ok, true);
-  assert.deepEqual(parsed.issues.filter((issue: { severity: string }) => issue.severity === "error"), []);
+  assert.deepEqual(
+    parsed.issues.filter(
+      (issue: { severity: string }) => issue.severity === "error",
+    ),
+    [],
+  );
 });
 
 test("run() fails --required on unrelated Note|Status table with first-cell mentions", () => {
@@ -547,7 +669,14 @@ test("run() fails --required on unrelated Note|Status table with first-cell ment
       "",
     ].join("\n"),
   });
-  const result = run(["--root", root, "--slug", "notes", "--required", "--json"]);
+  const result = run([
+    "--root",
+    root,
+    "--slug",
+    "notes",
+    "--required",
+    "--json",
+  ]);
   assert.equal(result.exitCode, 1);
   const parsed = JSON.parse(result.output);
   assert.equal(parsed.ok, false);
@@ -571,11 +700,23 @@ test("run() passes --required on unrecognized header Item|Description table with
       "",
     ].join("\n"),
   });
-  const result = run(["--root", root, "--slug", "exact-cell", "--required", "--json"]);
+  const result = run([
+    "--root",
+    root,
+    "--slug",
+    "exact-cell",
+    "--required",
+    "--json",
+  ]);
   assert.equal(result.exitCode, 0);
   const parsed = JSON.parse(result.output);
   assert.equal(parsed.ok, true);
-  assert.deepEqual(parsed.issues.filter((issue: { severity: string }) => issue.severity === "error"), []);
+  assert.deepEqual(
+    parsed.issues.filter(
+      (issue: { severity: string }) => issue.severity === "error",
+    ),
+    [],
+  );
 });
 
 test("run() passes --required on a slug with single uppercase namespace formal IDs and 2-digit ACs", () => {
@@ -616,5 +757,10 @@ test("run() passes --required on a slug with single uppercase namespace formal I
   assert.equal(result.exitCode, 0);
   const parsed = JSON.parse(result.output);
   assert.equal(parsed.ok, true);
-  assert.deepEqual(parsed.issues.filter((issue: { severity: string }) => issue.severity === "error"), []);
+  assert.deepEqual(
+    parsed.issues.filter(
+      (issue: { severity: string }) => issue.severity === "error",
+    ),
+    [],
+  );
 });

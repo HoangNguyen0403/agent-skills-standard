@@ -26,7 +26,11 @@ export const FEATURE_STATUS_VALUES = [
 export type FeatureStatus = (typeof FEATURE_STATUS_VALUES)[number];
 
 /** `cost.source` enum accepted by run records. */
-export const COST_SOURCE_VALUES = ["host", "agent-estimate", "unavailable"] as const;
+export const COST_SOURCE_VALUES = [
+  "host",
+  "agent-estimate",
+  "unavailable",
+] as const;
 export type CostSource = (typeof COST_SOURCE_VALUES)[number];
 
 export interface RequirementTrace {
@@ -119,7 +123,9 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 }
 
 function isStringArray(value: unknown): value is string[] {
-  return Array.isArray(value) && value.every((item) => typeof item === "string");
+  return (
+    Array.isArray(value) && value.every((item) => typeof item === "string")
+  );
 }
 
 function validateTraceIdArray(
@@ -162,7 +168,11 @@ function validateRequirementTrace(
   issues: ValidationIssue[],
 ): void {
   if (!isPlainObject(value)) {
-    issues.push({ severity: "error", file: sourcePath, message: "requirement_trace must be an object" });
+    issues.push({
+      severity: "error",
+      file: sourcePath,
+      message: "requirement_trace must be an object",
+    });
     return;
   }
   for (const key of REQUIRED_TRACE_KEYS) {
@@ -178,13 +188,24 @@ function validateRequirementTrace(
   }
 }
 
-function validateCost(value: unknown, sourcePath: string, issues: ValidationIssue[]): void {
+function validateCost(
+  value: unknown,
+  sourcePath: string,
+  issues: ValidationIssue[],
+): void {
   if (!isPlainObject(value)) {
-    issues.push({ severity: "error", file: sourcePath, message: "cost must be an object" });
+    issues.push({
+      severity: "error",
+      file: sourcePath,
+      message: "cost must be an object",
+    });
     return;
   }
   const source = value.source;
-  if (typeof source !== "string" || !COST_SOURCE_VALUES.includes(source as CostSource)) {
+  if (
+    typeof source !== "string" ||
+    !COST_SOURCE_VALUES.includes(source as CostSource)
+  ) {
     issues.push({
       severity: "error",
       file: sourcePath,
@@ -194,7 +215,11 @@ function validateCost(value: unknown, sourcePath: string, issues: ValidationIssu
   }
 
   if (source === "unavailable") {
-    for (const field of ["prompt_tokens", "completion_tokens", "estimated_usd"] as const) {
+    for (const field of [
+      "prompt_tokens",
+      "completion_tokens",
+      "estimated_usd",
+    ] as const) {
       if (value[field] !== undefined) {
         issues.push({
           severity: "error",
@@ -216,14 +241,29 @@ function validateCost(value: unknown, sourcePath: string, issues: ValidationIssu
       });
     }
   }
-  if (value.estimated_usd !== undefined && typeof value.estimated_usd !== "number") {
-    issues.push({ severity: "error", file: sourcePath, message: "cost.estimated_usd must be a number" });
+  if (
+    value.estimated_usd !== undefined &&
+    typeof value.estimated_usd !== "number"
+  ) {
+    issues.push({
+      severity: "error",
+      file: sourcePath,
+      message: "cost.estimated_usd must be a number",
+    });
   }
 }
 
-function validateAgent(value: unknown, sourcePath: string, issues: ValidationIssue[]): void {
+function validateAgent(
+  value: unknown,
+  sourcePath: string,
+  issues: ValidationIssue[],
+): void {
   if (!isPlainObject(value)) {
-    issues.push({ severity: "error", file: sourcePath, message: "agent must be an object" });
+    issues.push({
+      severity: "error",
+      file: sourcePath,
+      message: "agent must be an object",
+    });
     return;
   }
   for (const field of ["identity", "model"] as const) {
@@ -242,16 +282,29 @@ function validateAgent(value: unknown, sourcePath: string, issues: ValidationIss
  * (schema_version 1). Returns every problem found; an empty array means
  * the record is valid.
  */
-export function validateRunRecord(value: unknown, sourcePath: string): ValidationIssue[] {
+export function validateRunRecord(
+  value: unknown,
+  sourcePath: string,
+): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
 
   if (!isPlainObject(value)) {
-    return [{ severity: "error", file: sourcePath, message: "run record must be a JSON object" }];
+    return [
+      {
+        severity: "error",
+        file: sourcePath,
+        message: "run record must be a JSON object",
+      },
+    ];
   }
 
   for (const key of REQUIRED_TOP_LEVEL_KEYS) {
     if (!(key in value)) {
-      issues.push({ severity: "error", file: sourcePath, message: `missing required field "${key}"` });
+      issues.push({
+        severity: "error",
+        file: sourcePath,
+        message: `missing required field "${key}"`,
+      });
     }
   }
 
@@ -264,7 +317,11 @@ export function validateRunRecord(value: unknown, sourcePath: string): Validatio
   }
 
   for (const field of ["run_id", "slug", "workflow"] as const) {
-    if (field in value && (typeof value[field] !== "string" || isPlaceholder(value[field] as string))) {
+    if (
+      field in value &&
+      (typeof value[field] !== "string" ||
+        isPlaceholder(value[field] as string))
+    ) {
       issues.push({
         severity: "error",
         file: sourcePath,
@@ -275,7 +332,10 @@ export function validateRunRecord(value: unknown, sourcePath: string): Validatio
 
   if ("feature_status" in value) {
     const status = value.feature_status;
-    if (typeof status !== "string" || !FEATURE_STATUS_VALUES.includes(status as FeatureStatus)) {
+    if (
+      typeof status !== "string" ||
+      !FEATURE_STATUS_VALUES.includes(status as FeatureStatus)
+    ) {
       issues.push({
         severity: "error",
         file: sourcePath,
@@ -302,7 +362,11 @@ export function validateRunRecord(value: unknown, sourcePath: string): Validatio
     }
     const parsed = new Date(raw);
     if (Number.isNaN(parsed.getTime())) {
-      issues.push({ severity: "error", file: sourcePath, message: `${field} is not a valid timestamp` });
+      issues.push({
+        severity: "error",
+        file: sourcePath,
+        message: `${field} is not a valid timestamp`,
+      });
       continue;
     }
     setter(parsed);
@@ -319,9 +383,17 @@ export function validateRunRecord(value: unknown, sourcePath: string): Validatio
     validateRequirementTrace(value.requirement_trace, sourcePath, issues);
   }
 
-  for (const field of ["completed_evidence", "missing_evidence", "decision_needed"] as const) {
+  for (const field of [
+    "completed_evidence",
+    "missing_evidence",
+    "decision_needed",
+  ] as const) {
     if (field in value && !isStringArray(value[field])) {
-      issues.push({ severity: "error", file: sourcePath, message: `${field} must be a string array` });
+      issues.push({
+        severity: "error",
+        file: sourcePath,
+        message: `${field} must be a string array`,
+      });
     }
   }
 
@@ -332,7 +404,8 @@ export function validateRunRecord(value: unknown, sourcePath: string): Validatio
         issues.push({
           severity: "error",
           file: sourcePath,
-          message: "recommended_next_workflow must be null or a non-empty string",
+          message:
+            "recommended_next_workflow must be null or a non-empty string",
         });
       } else if (!fs.existsSync(path.join(WORKFLOWS_DIR, `${next}.md`))) {
         issues.push({

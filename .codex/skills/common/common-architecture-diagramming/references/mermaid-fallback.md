@@ -12,11 +12,16 @@ first path that exists, in this order:
    author shapes from scratch, that bypasses the house style, the legend, and the evidence
    properties.
 2. **draw.io Desktop** via `scripts/export_drawio.py` (`DRAWIO_BIN`, then `PATH`, then the
-   per-OS install locations). Missing binary: the script exits 1 with an install hint.
-3. **Neither available**: deliver the `.drawio` and say so. The specialist's `DIAGRAM:` line
+   per-OS install locations). Missing binary: the script exits 2 with an install hint.
+   A zero exit code proves the tool ran, not that labels or connectors are legible; visual
+   inspection remains mandatory before delivery.
+3. **Static offline viewing package** via `scripts/export_html.py` for dual-theme
+   distribution and self-contained inspection. Generates light/dark `.drawio`, embeds verified
+   PNG data in a static HTML page with strict CSP and no active scripts. See
+   [offline export](offline-export.md).
+4. **Neither available**: deliver the `.drawio` and say so. The specialist's `DIAGRAM:` line
    reads `image: not exported (no draw.io MCP or CLI)`. Never hand-draw SVG or ASCII as a
    substitute; the layout check already proved the picture, the reader opens the file.
-
 ## When Mermaid is right
 
 draw.io is the deliverable. Mermaid is correct in exactly three cases:

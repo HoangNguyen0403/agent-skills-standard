@@ -1,5 +1,10 @@
 // scripts/trace/graph.ts
-import { QUALIFIED_ID_GRAMMAR, type IdKind, type SlugTrace, type TraceRef } from "./types";
+import {
+  QUALIFIED_ID_GRAMMAR,
+  type IdKind,
+  type SlugTrace,
+  type TraceRef,
+} from "./types";
 
 export type IssueCode =
   | "duplicate-id"
@@ -37,15 +42,28 @@ const SEVERITY_BY_CODE: Record<IssueCode, IssueSeverity> = {
   "mismatched-kind": "error",
 };
 
-function issue(code: IssueCode, slug: string, extra: Omit<TraceIssue, "code" | "severity" | "slug">): TraceIssue {
+function issue(
+  code: IssueCode,
+  slug: string,
+  extra: Omit<TraceIssue, "code" | "severity" | "slug">,
+): TraceIssue {
   return { code, severity: SEVERITY_BY_CODE[code], slug, ...extra };
 }
 
 /** Declaration-role, valid refs for `kind`, grouped by id, in first-seen order. */
-function declarationsByKind(refs: TraceRef[], kind: IdKind): Map<string, TraceRef[]> {
+function declarationsByKind(
+  refs: TraceRef[],
+  kind: IdKind,
+): Map<string, TraceRef[]> {
   const groups = new Map<string, TraceRef[]>();
   for (const ref of refs) {
-    if (ref.kind !== kind || ref.role !== "declaration" || !ref.valid || ref.qualified) continue;
+    if (
+      ref.kind !== kind ||
+      ref.role !== "declaration" ||
+      !ref.valid ||
+      ref.qualified
+    )
+      continue;
     const group = groups.get(ref.id);
     if (group) group.push(ref);
     else groups.set(ref.id, [ref]);
@@ -58,7 +76,10 @@ function duplicateIdIssues(trace: SlugTrace): TraceIssue[] {
   const out: TraceIssue[] = [];
   const kinds: IdKind[] = ["BRD-OBJ", "REQ", "AC", "SRS"];
   for (const kind of kinds) {
-    for (const [id, occurrences] of declarationsByKind(trace.references, kind)) {
+    for (const [id, occurrences] of declarationsByKind(
+      trace.references,
+      kind,
+    )) {
       if (occurrences.length < 2) continue;
       const [first, ...rest] = occurrences;
       for (const dup of rest) {
@@ -75,7 +96,13 @@ function duplicateIdIssues(trace: SlugTrace): TraceIssue[] {
 
     const sourceGroups = new Map<string, TraceRef[]>();
     for (const ref of trace.references) {
-      if (ref.kind !== kind || ref.role !== "declaration" || !ref.valid || !ref.qualified) continue;
+      if (
+        ref.kind !== kind ||
+        ref.role !== "declaration" ||
+        !ref.valid ||
+        !ref.qualified
+      )
+        continue;
       const group = sourceGroups.get(ref.id);
       if (group) group.push(ref);
       else sourceGroups.set(ref.id, [ref]);
@@ -110,11 +137,17 @@ function danglingRefIssues(trace: SlugTrace): TraceIssue[] {
     const sourceSet = trace.sourceDeclared?.get(ref.kind);
     const hasSourceDecl =
       sourceSet?.has(ref.id) ||
-      (sourceSet ? [...sourceSet].some((declId) => declId.startsWith(`${ref.id}-`)) : false);
+      (sourceSet
+        ? [...sourceSet].some((declId) => declId.startsWith(`${ref.id}-`))
+        : false);
     const hasFormalDecl = trace.declared.get(ref.kind)?.has(ref.id) ?? false;
     // Untyped prose cannot choose between a formal and a historical declaration.
     // This must be decided before any single-authority shortcut resolves the link.
-    const ambiguousAuthority = ref.authority === undefined && !ref.qualified && hasFormalDecl && hasSourceDecl;
+    const ambiguousAuthority =
+      ref.authority === undefined &&
+      !ref.qualified &&
+      hasFormalDecl &&
+      hasSourceDecl;
 
     if (ambiguousAuthority) {
       seen.add(key);
@@ -152,7 +185,8 @@ function sourceMappingIssues(trace: SlugTrace): TraceIssue[] {
   if (!trace.sourceMappings) return out;
 
   for (const mapping of trace.sourceMappings) {
-    const isValidSourceId = QUALIFIED_ID_GRAMMAR[mapping.sourceKind]?.test(mapping.sourceId) ?? false;
+    const isValidSourceId =
+      QUALIFIED_ID_GRAMMAR[mapping.sourceKind]?.test(mapping.sourceId) ?? false;
     if (!isValidSourceId) {
       out.push(
         issue("malformed-id", trace.slug, {
@@ -189,7 +223,8 @@ function sourceMappingIssues(trace: SlugTrace): TraceIssue[] {
 
     const sourceSet = trace.sourceDeclared?.get(mapping.sourceKind);
     const declaredSource =
-      sourceSet?.has(mapping.sourceId) || [...(sourceSet ?? [])].some((d) => d.startsWith(`${mapping.sourceId}-`));
+      sourceSet?.has(mapping.sourceId) ||
+      [...(sourceSet ?? [])].some((d) => d.startsWith(`${mapping.sourceId}-`));
     if (!declaredSource) {
       out.push(
         issue("dangling-ref", trace.slug, {
@@ -219,17 +254,35 @@ function malformedIdIssues(trace: SlugTrace): TraceIssue[] {
 }
 
 /** orphan-req / orphan-ac: declared id with zero downstream references resolved to formal authority. */
-function orphanIssues(trace: SlugTrace, kind: "REQ" | "AC", code: "orphan-req" | "orphan-ac"): TraceIssue[] {
+function orphanIssues(
+  trace: SlugTrace,
+  kind: "REQ" | "AC",
+  code: "orphan-req" | "orphan-ac",
+): TraceIssue[] {
   const out: TraceIssue[] = [];
   const downstreamKind = kind === "REQ" ? "AC" : "SRS";
   const sourceSet = trace.sourceDeclared?.get(kind);
   for (const [id, occurrences] of declarationsByKind(trace.references, kind)) {
     const referenced = trace.references.some((ref) => {
-      if (ref.role !== "reference" || !ref.valid || ref.kind !== kind || ref.id !== id) return false;
+      if (
+        ref.role !== "reference" ||
+        !ref.valid ||
+        ref.kind !== kind ||
+        ref.id !== id
+      )
+        return false;
       if (ref.authority === "formal") return true;
-      if (ref.authority === "source" || ref.qualified || !trace.declared.get(kind)?.has(id)) return false;
+      if (
+        ref.authority === "source" ||
+        ref.qualified ||
+        !trace.declared.get(kind)?.has(id)
+      )
+        return false;
       const hasSourceDecl =
-        sourceSet?.has(id) || (sourceSet ? [...sourceSet].some((declId) => declId.startsWith(`${id}-`)) : false);
+        sourceSet?.has(id) ||
+        (sourceSet
+          ? [...sourceSet].some((declId) => declId.startsWith(`${id}-`))
+          : false);
       return !hasSourceDecl;
     });
     if (referenced) continue;
@@ -252,7 +305,11 @@ function unlinkedReqIssues(trace: SlugTrace): TraceIssue[] {
   for (const [id, occurrences] of declarationsByKind(trace.references, "REQ")) {
     const declaration = occurrences[0];
     const linked = trace.references.some(
-      (ref) => ref.kind === "BRD-OBJ" && ref.valid && ref.fromFile === declaration.fromFile && ref.line === declaration.line,
+      (ref) =>
+        ref.kind === "BRD-OBJ" &&
+        ref.valid &&
+        ref.fromFile === declaration.fromFile &&
+        ref.line === declaration.line,
     );
     if (linked) continue;
     out.push(
@@ -288,11 +345,27 @@ function slugFileMismatchIssues(allSlugs: SlugTrace[]): TraceIssue[] {
       const referencingSlugs = new Set<string>();
       let referencedWithinSlug = false;
       for (const decl of declarations) {
-        if (trace.references.some((r) => r.role === "reference" && r.valid && r.kind === decl.kind && r.id === decl.id)) {
+        if (
+          trace.references.some(
+            (r) =>
+              r.role === "reference" &&
+              r.valid &&
+              r.kind === decl.kind &&
+              r.id === decl.id,
+          )
+        ) {
           referencedWithinSlug = true;
         }
         for (const other of others) {
-          if (other.references.some((r) => r.role === "reference" && r.valid && r.kind === decl.kind && r.id === decl.id)) {
+          if (
+            other.references.some(
+              (r) =>
+                r.role === "reference" &&
+                r.valid &&
+                r.kind === decl.kind &&
+                r.id === decl.id,
+            )
+          ) {
             referencingSlugs.add(other.slug);
           }
         }
