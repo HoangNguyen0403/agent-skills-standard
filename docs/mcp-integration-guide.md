@@ -48,21 +48,23 @@ It then lists each configured agent with `project:` / `user:` checkmarks, and wa
 
 ### Moving to the CLI pin: `ags mcp upgrade`
 
-The CLI is the version authority for the integration: the target is always the `MCP_COMPATIBLE_VERSION` compiled into the CLI you are running, never a version discovered on the network or a floating `@latest`. Moving the pin is therefore a two-step, explicit order — `ags upgrade` first, then:
+The CLI is the version authority for the integration: the target is the effective pin, `mcp.version ?? MCP_COMPATIBLE_VERSION` — a project `mcp.version` in `.skillsrc` wins, otherwise the version compiled into the CLI you are running. It is never a version discovered on the network or a floating `@latest`. Moving the default pin is therefore a two-step, explicit order — `ags upgrade` first, then:
 
 ```bash
-ags mcp upgrade                 # move a detected global ags-mcp and enabled configs to the CLI pin
+ags mcp upgrade                 # move a detected global ags-mcp and enabled configs to the effective pin
 ags mcp upgrade --dry-run       # print the planned steps and change nothing
 ags mcp upgrade --via global    # override the launch mode for this run only
 ```
 
 | Target | Behavior |
 | --- | --- |
-| Global binary | A detected `ags-mcp` whose version differs from the pin is installed as `agent-skills-standard-mcp@<pin>` and re-probed. A failed install, or a probe that does not report the pin, prints the manual `npm i -g` line and exits `1`. An absent global install is reported and never created implicitly. |
-| Runtime configs | With `mcp.enabled=true` at `project` or `user` scope, entries are rewritten to the pin at that scope, with the same per-file consent prompts as any other user-scope write. Configured launch mode is preserved; `--via` overrides it for this run only, exactly like `install`. `snippets-only` and `disabled` scopes are left alone. |
+| Effective pin | `mcp.version` from `.skillsrc` when set, else the CLI's `MCP_COMPATIBLE_VERSION`. When a project pin differs from the compiled one, the command prints a note naming both and uses the project value — the same precedence as `status`, `enable` and `install`. |
+| Global binary | A detected `ags-mcp` whose version differs from the effective pin is installed as `agent-skills-standard-mcp@<pin>` and re-probed. A failed install, or a probe that does not report the pin, prints the manual `npm i -g` line and exits `1`. An absent global install is reported and never created implicitly. |
+| Runtime configs | With `mcp.enabled=true` at `project` or `user` scope, entries are rewritten to the effective pin at that scope, with the same per-file consent prompts as any other user-scope write. Configured launch mode is preserved; `--via` overrides it for this run only, exactly like `install`. `snippets-only` and `disabled` scopes are left alone. |
+| `global` mode without a global install | When the effective mode is `global` and no readable global `ags-mcp` exists, configs are **not** written: a config pointing at a missing binary would only move the failure to the next spawn. It prints the manual `npm i -g` line and exits `1`, leaving existing configs untouched. |
 | Nothing to do | No global install to move and no enabled `project`/`user` configs: it names the command that would create each side and exits `0`. |
 
-`--dry-run` performs no global install, no config write and no `.skillsrc` write. The command never edits `.skillsrc`, never publishes an npm package, never grants consent and never restarts a host process: each agent picks up the new pin on its next MCP start.
+`--dry-run` is accepted only by `upgrade`; any other `ags mcp` action rejects it with exit `1` instead of silently ignoring it. On `upgrade` it performs no global install, no config write and no `.skillsrc` write. The command never edits `.skillsrc`, never publishes an npm package, never grants consent and never restarts a host process: each agent picks up the new pin on its next MCP start.
 
 ### Troubleshooting and migration
 

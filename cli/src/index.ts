@@ -246,7 +246,7 @@ program
   )
   .option(
     '--dry-run',
-    'For upgrade: print the plan without installing or writing configs',
+    'For upgrade only: print the plan without installing or writing configs',
   )
   .option(
     '--from <from>',
