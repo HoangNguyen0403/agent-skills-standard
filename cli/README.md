@@ -41,7 +41,7 @@ The result: your AI agent reads `AGENTS.md`, follows the router to the right cat
 | `init`     | Detects your tech stack (Flutter, React, Go, etc.) and creates a `.skillsrc` config                                                                                                                |
 | `sync`     | Fetches skills from the registry, writes to agent folders, generates `_INDEX.md` + `AGENTS.md`                                                                                                     |
 | `skills`   | Category-first manager: pick categories (and optionally nested skills or a published category release), review once, then save and sync every configured agent                                        |
-| `mcp`      | Manage the optional MCP server integration (status / enable / disable / scope / via / install / uninstall / snippets) — see [Optional: MCP Runtime Enforcement](#optional-mcp-runtime-enforcement) below |
+| `mcp`      | Manage the optional MCP server integration (status / enable / disable / scope / via / install / upgrade / uninstall / snippets) — see [Optional: MCP Runtime Enforcement](#optional-mcp-runtime-enforcement) below |
 | `validate` | Checks your custom skills against format and token standards                                                                                                                                       |
 | `feedback` | Submits improvement suggestions to the registry                                                                                                                                                    |
 | `upgrade`  | Updates the CLI to the latest version                                                                                                                                                              |
@@ -183,12 +183,15 @@ ags mcp scope project       # project | user | snippets-only | disabled
 ags mcp via auto            # auto | npx | global launch mode (auto prefers a version-matched global ags-mcp)
 ags mcp enable              # opt in; global launch mode installs agent-skills-standard-mcp@<pin> and verifies it
 ags mcp install             # apply changes
+ags mcp upgrade             # move a detected global ags-mcp and enabled configs to this CLI's pin
 ags mcp uninstall --from project   # remove our entry; siblings preserved
 ```
 
 Launch mode defaults to `auto`: the generated entry uses a globally installed `ags-mcp` only when its `--version` exactly matches the CLI pin, and otherwise falls back to `npx -y --prefer-offline agent-skills-standard-mcp@<pin>`. With `via: global` (saved mode, or `ags mcp enable --via global`), `ags mcp enable` installs `agent-skills-standard-mcp@<pin>` globally via npm, verifies the reported version, then writes the runtime configs; a failed install or mismatched probe exits `1` and leaves `.skillsrc` and the configs untouched. `--install-global` remains available as an explicit trigger for the same install. `ags mcp status` prints the resolved launch line, the pin, and the detected global version; `ags mcp install --via <mode>` overrides the mode for that run without persisting it. `ags upgrade` does not rewrite runtime configs — run `ags sync` (or `ags mcp install`) to move them to the new pin; `ags mcp status` and `ags doctor` flag configured-vs-expected drift.
 
 The CLI **never** modifies user-home files (`~/.cursor/mcp.json`, `~/.gemini/settings.json`, etc.) unless you explicitly choose `scope: user` AND confirm each write. See [`mcp/README.md`](../mcp/README.md) for full details and [`mcp/ARCHITECTURE.md`](../mcp/ARCHITECTURE.md) for the threat model.
+
+`ags mcp upgrade [--dry-run] [--via auto|npx|global]` moves the whole integration to the effective pin — `mcp.version` when `.skillsrc` pins one, otherwise the version compiled into the running CLI, so `ags upgrade` is what moves that default. A detected stale global `ags-mcp` is replaced with `agent-skills-standard-mcp@<pin>` and re-probed (nonzero exit plus the manual `npm i -g` line on failure); enabled `project`/`user` configs are then rewritten at the configured scope, keeping configured `via` and the usual per-file user-scope prompts, and `--via` overrides the mode for that run only. With `via: global` (or `--via global`) and no readable global `ags-mcp`, it refuses to write configs that could not start: it prints the manual `npm i -g` line, exits `1`, and leaves existing configs untouched. `--dry-run` reports the plan and changes nothing, and is rejected (exit `1`) by every other `ags mcp` action; an absent global install is reported, never created implicitly; `.skillsrc` is never rewritten and nothing is published. Hosts pick up the new pin on their next MCP start.
 
 
 ## Installation Health: `ags doctor`

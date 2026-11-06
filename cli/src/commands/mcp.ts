@@ -62,6 +62,10 @@ function formatEntry(
  *                          One-shot install at the given (or configured) scope/mode
  *   uninstall [--from=...] Remove our entry from configs (project | user | all)
  *   snippets [--via=...]   Generate fresh snippet files in ./mcp-config-snippets/
+ *   upgrade [--dry-run] [--via=...]
+ *                          Move the global install and enabled configs to the
+ *                          effective pin (mcp.version, else the compiled pin);
+ *                          no network version discovery
  *
  * `enable` also installs `agent-skills-standard-mcp@<pin>` globally and
  * verifies the reported version whenever the effective launch mode is
@@ -124,6 +128,16 @@ export class McpCommand {
     action: string,
     options: Record<string, string> = {},
   ): Promise<void> {
+    // `--dry-run` only means something for `upgrade`; silently ignoring it on
+    // a mutating action would be worse than failing.
+    if (options.dryRun && action !== 'upgrade') {
+      console.log(
+        pc.red(`--dry-run is only supported by \`ags mcp upgrade\`.`),
+      );
+      process.exitCode = 1;
+      return;
+    }
+
     const config = await this.configService.loadConfig();
     if (!config) {
       console.log(
@@ -154,10 +168,12 @@ export class McpCommand {
         return this.actionUninstall(config, agents, cwd, options);
       case 'snippets':
         return this.actionSnippets(config, agents, cwd, options);
+      case 'upgrade':
+        return this.actionUpgrade(config, agents, cwd, options);
       default:
         console.log(
           pc.red(`Unknown action: ${action}`),
-          '\nValid actions: status, enable, disable, scope, via, install, uninstall, snippets',
+          '\nValid actions: status, enable, disable, scope, via, install, uninstall, snippets, upgrade',
         );
     }
   }
@@ -551,6 +567,159 @@ export class McpCommand {
     for (const s of report.snippets) {
       console.log(`   - ${pc.cyan(s.agent)} → ${pc.gray(s.file)}`);
     }
+  }
+
+  /**
+   * `upgrade` — converge the global install and the enabled runtime configs
+   * onto the effective pin: `mcp.version` when the project pins one, else
+   * `MCP_COMPATIBLE_VERSION` (same precedence as status/enable/install).
+   *
+   * No registry lookup, no unpinned install, no `.skillsrc` rewrite;
+   * `--via` is a per-run override only.
+   */
+  private async actionUpgrade(
+    config: SkillConfig,
+    agents: Agent[],
+    cwd: string,
+    options: Record<string, string>,
+  ): Promise<void> {
+    const mcp = config.mcp ?? defaultMcpConfig();
+    const target = mcp.version ?? MCP_COMPATIBLE_VERSION;
+    const dryRun = Boolean(options.dryRun);
+
+    const viaOverrideRaw = options.via;
+    const viaOverride = viaOverrideRaw ? parseVia(viaOverrideRaw) : undefined;
+    if (viaOverrideRaw && !viaOverride) {
+      console.log(
+        pc.red(`Invalid --via value. Valid: ${VALID_VIAS.join(' | ')}`),
+      );
+      return;
+    }
+
+    const effectiveVia: McpVia = viaOverride ?? mcp.via ?? 'auto';
+    const detected = this.mcpService.detectGlobalVersion();
+    const globalStale = Boolean(detected) && detected !== target;
+    const configsInScope =
+      mcp.enabled === true && (mcp.scope === 'project' || mcp.scope === 'user');
+    const configsState = configsInScope
+      ? `refresh (scope ${mcp.scope}, via ${effectiveVia})`
+      : mcp.enabled === true
+        ? `none (scope ${mcp.scope})`
+        : 'none (MCP disabled)';
+
+    console.log(pc.bold(`\n🔌 MCP upgrade (pin ${target})\n`));
+    if (mcp.version && mcp.version !== MCP_COMPATIBLE_VERSION) {
+      console.log(
+        pc.yellow(
+          `  note    : project pin ${mcp.version} wins; this CLI was built against ${MCP_COMPATIBLE_VERSION}`,
+        ),
+      );
+    }
+    if (!detected) {
+      console.log(
+        `  global  : ${pc.gray('no readable global ags-mcp detected')}`,
+      );
+    } else if (!globalStale) {
+      console.log(`  global  : ${pc.green(detected)} ${pc.gray('(current)')}`);
+    } else {
+      console.log(
+        `  global  : ${pc.yellow(detected)} → ${pc.cyan(`${PACKAGE}@${target}`)}`,
+      );
+    }
+    console.log(`  configs : ${configsState}`);
+
+    if (dryRun) {
+      // Mirror the real run: an unusable "global" mode is refused, not
+      // reported as a successful plan.
+      if (effectiveVia === 'global' && !detected) {
+        console.log(
+          pc.yellow(
+            '⚠️  Launch mode "global" needs a global install; refusing to write configs that would fail to start.',
+          ),
+        );
+        console.log(pc.gray(`   Run manually: npm i -g ${PACKAGE}@${target}`));
+        process.exitCode = 1;
+        return;
+      }
+      console.log(
+        pc.gray(
+          '\nDry run: no global install, no config writes, no .skillsrc change.',
+        ),
+      );
+      if (
+        effectiveVia === 'auto' &&
+        globalStale &&
+        process.platform !== 'win32'
+      ) {
+        console.log(
+          pc.gray(
+            '   "auto" entries resolve to the global binary once it reports the pin.',
+          ),
+        );
+      }
+      return;
+    }
+
+    if (globalStale) {
+      if (!this.ensureGlobalPin(target)) return;
+    } else if (detected) {
+      console.log(
+        pc.green(`✅ Global ags-mcp already at ${target} — no install needed.`),
+      );
+    } else if (effectiveVia !== 'global') {
+      console.log(
+        pc.gray(
+          `ℹ️  No readable global ags-mcp detected; install it with \`npm i -g ${PACKAGE}@${target}\` if you use "global" mode.`,
+        ),
+      );
+    }
+
+    if (!configsInScope) {
+      console.log(
+        pc.gray(
+          mcp.enabled === true
+            ? '   No runtime configs to refresh at this scope.'
+            : '   Enable configs with `ags mcp enable` to have them refreshed on upgrade.',
+        ),
+      );
+      if (globalStale) this.printHostRestartHint();
+      return;
+    }
+
+    // "global" launch mode cannot work without a matching global binary;
+    // writing configs that cannot start would just move the failure.
+    if (effectiveVia === 'global' && !detected) {
+      console.log(
+        pc.yellow(
+          '⚠️  Launch mode "global" needs a global install; refusing to write configs that would fail to start.',
+        ),
+      );
+      console.log(pc.gray(`   Run manually: npm i -g ${PACKAGE}@${target}`));
+      process.exitCode = 1;
+      return;
+    }
+
+    const report = await this.mcpService.install({
+      rootDir: cwd,
+      agents,
+      mcp: {
+        ...mcp,
+        version: target,
+        enabled: true,
+        ...(viaOverride ? { via: viaOverride } : {}),
+      },
+      userScopePrompt: (agent, file) => this.promptUserScopeWrite(agent, file),
+    });
+    this.printReport(report, cwd);
+    this.printHostRestartHint();
+  }
+
+  private printHostRestartHint(): void {
+    console.log(
+      pc.gray(
+        '\nHosts pick up the new pin on their next MCP start (no process restart from here).',
+      ),
+    );
   }
 
   // ---- output ----

@@ -52,28 +52,32 @@ Deterministic local rules over allowlisted structured events. An event carries o
 - Proposal linkage never triggers an edit. Implementation, independent review and adoption remain separate authorized steps.
 - The preparer never executes transcript commands, follows embedded URLs or paths, loads includes, invokes agents or mutates skills.
 
-## Triggering manually (intended contract)
+## Triggering preparation
 
-Preparation is announced, never automatic. Users trigger it by explicit CLI or host action; there is no magic phrase.
+Preparation supports two explicit triggers:
 
-Intended CLI from the packaged `agent-skills-standard-mcp` release:
+1. **Automatic at settled implementation completion**:
+   An orchestrator or unassigned agent on a local stdio MCP transport calls `get_session_cost` with caller-declared completion (never host-authenticated):
+   `get_session_cost(workflow="implement-feature", outcome="implemented", completion={role: "orchestrator", activeTasks: 0, pendingTasks: 0})`.
+   Role "unassigned" is supported; workers must never pass completion or trigger preparation. Automatic preparation requires one-time user-managed consent (`ags retrospective enable`), positive binding to a local native main session, and settled active and pending task counts at zero. If consent is disabled, the session is child/ambiguous/no-evidence, or transport is non-stdio, automatic preparation is explicitly refused with an un-prepared status (no tracker-only fallback, no silent success claim).
+
+2. **Standalone direct request**:
+   Any user or orchestrator requesting a retrospective outside SDLC workflows can directly invoke the MCP tool `prepare_retrospective(title="optional title")`. Workers holding an assignment packet are prohibited from invoking it. Standalone direct invocation requires one-time user consent, operates on local stdio, and publishes the same private artifacts (`summary.md`, `ledger.json`, `report.html`). It has no prerequisite on `get_session_cost`, SDLC workflow name, or declared task counts.
+
+CLI and host commands:
 
 ```text
-ags-retrospective prepare --manifest <local-manifest.json> --consent local-only --ack-storage-risk [--root <absolute>]
-ags-retrospective status --root <absolute> --artifact <opaque-id>
-ags-retrospective paths --root <absolute> --artifact <opaque-id>
-ags-retrospective delete --root <absolute> --session <id> --host <id> --confirm
+ags retrospective enable [--store-root <abs>] [--source-root <abs>]...
+ags retrospective disable
+ags retrospective status
+ags retrospective index [--since <YYYY-MM-DD>] [--until <YYYY-MM-DD>]
 ```
 
-> **Source-available, unpublished.** The binary, flags and exit codes are implemented and have passed local macOS smoke; no registry release ships them. State that automatic preparation is unavailable; never improvise a command or claim an unverified flag or host integration.
+> **Capabilities & release status**: The MCP server in `agent-skills-standard-mcp` 0.8.1 includes the three manual retrospective tools (`prepare_retrospective`, `get_retrospective_status`, `prepare_retrospective_index`) and CLI management commands over local stdio. The extended automatic preparation schema (`completion` object on `get_session_cost`) is an unreleased source-only capability pending subsequent release.
 
-- `prepare` requires an explicit human consent flag **and** `--ack-storage-risk` on every run (a per-run decision record for an unknown sync/backup risk; `STORAGE_RISK_NOT_ACKNOWLEDGED` otherwise). This is core-enforced, not CLI decoration: the request type requires `storageRiskAcknowledged: true`, and the library refuses before any read. Adapters collect the same acknowledgement in their own local UI.
-- It also needs a strict local manifest declaring provenance (`user-supplied` or `host-local`) and a fixed cutoff; URLs are rejected. The human authors the manifest — no adapter generates one.
-- An agent silently supplying consent or acknowledgement flags is not human consent. `paths` is human-facing and is never called from a hosted tool return.
-- A pre-existing root with group/other permissions is refused (`ROOT_PERMISSIVE`): create an owner-only root with `mkdir -m 700` or `chmod 700` a dedicated directory, never a shared or synced folder.
-- Manifest selection admits only regular, non-symlink files the human explicitly authorized; never paths taken from transcript text.
-- Default stdout is a minimal JSON receipt; diagnostic content is never printed. Exit `2` usage, `1` failure or refusal, `0` complete or explicitly labelled partial.
-
+- One-time consent is strictly human-managed via interactive CLI (`ags retrospective enable`). Agents cannot grant consent.
+- Output artifacts (`summary.md`, `ledger.json`, `report.html`) are written to the configured local store root (default `~/ags/diagnostics`) with owner-only permissions.
+- Reports and raw session text are never loaded back into model context or returned over the tool wire.
 ## Worked dispositions
 
 Preparer output contains only projection-supported facts, `not-assessable` states with the missing evidence, and static catalog codes. Anything needing excluded text is human-supplied: a person reviews it separately, and its conclusions are not represented as preparer output.

@@ -1233,4 +1233,338 @@ describe('McpCommand — actionStatus mismatch detection', () => {
       expect(output()).toContain('Global install failed');
     });
   });
+
+  describe('upgrade', () => {
+    const emptyReport = {
+      projectWrites: [],
+      userWrites: [],
+      snippets: [],
+      declined: [],
+      unsupported: [],
+    };
+
+    function enabledConfig(): SkillConfig {
+      return makeConfig({
+        mcp: { enabled: true, scope: 'project', prompted: true, via: 'auto' },
+      });
+    }
+
+    it('U1 installs and verifies the pin when the global install is stale', async () => {
+      const installer = vi.fn();
+      command.setGlobalInstallerForTesting(installer);
+      mockConfigService.loadConfig.mockResolvedValue(enabledConfig());
+      mockMcpService.install.mockResolvedValue(emptyReport);
+      mockMcpService.detectGlobalVersion
+        .mockReturnValueOnce('0.7.0')
+        .mockReturnValue(MCP_COMPATIBLE_VERSION);
+
+      await command.run('upgrade');
+
+      expect(installer).toHaveBeenCalledWith(
+        `agent-skills-standard-mcp@${MCP_COMPATIBLE_VERSION}`,
+      );
+      expect(output()).toContain('installed and verified');
+      expect(mockMcpService.install).toHaveBeenCalledWith(
+        expect.objectContaining({
+          mcp: expect.objectContaining({ version: MCP_COMPATIBLE_VERSION }),
+        }),
+      );
+      expect(process.exitCode).toBeUndefined();
+    });
+
+    it('U1 exits 1 with the manual command and writes no configs when the install fails', async () => {
+      const installer = vi.fn(() => {
+        throw new Error('npm failed');
+      });
+      command.setGlobalInstallerForTesting(installer);
+      mockConfigService.loadConfig.mockResolvedValue(enabledConfig());
+      mockMcpService.detectGlobalVersion.mockReturnValue('0.7.0');
+
+      await command.run('upgrade');
+
+      expect(process.exitCode).toBe(1);
+      expect(output()).toContain('Global install failed');
+      expect(output()).toContain(
+        `npm i -g agent-skills-standard-mcp@${MCP_COMPATIBLE_VERSION}`,
+      );
+      expect(mockMcpService.install).not.toHaveBeenCalled();
+      expect(mockConfigService.saveConfig).not.toHaveBeenCalled();
+    });
+
+    it('U2 does not reinstall a global install already at the pin', async () => {
+      const installer = vi.fn();
+      command.setGlobalInstallerForTesting(installer);
+      mockConfigService.loadConfig.mockResolvedValue(enabledConfig());
+      mockMcpService.install.mockResolvedValue(emptyReport);
+      mockMcpService.detectGlobalVersion.mockReturnValue(
+        MCP_COMPATIBLE_VERSION,
+      );
+
+      await command.run('upgrade');
+
+      expect(installer).not.toHaveBeenCalled();
+      expect(output()).toContain('already at');
+      expect(output()).toContain('no install needed');
+      expect(process.exitCode).toBeUndefined();
+    });
+
+    it('U3 --dry-run prints the plan and performs no install or write', async () => {
+      const installer = vi.fn();
+      command.setGlobalInstallerForTesting(installer);
+      mockConfigService.loadConfig.mockResolvedValue(enabledConfig());
+      mockMcpService.detectGlobalVersion.mockReturnValue('0.7.0');
+
+      await command.run('upgrade', { dryRun: 'true' });
+
+      expect(installer).not.toHaveBeenCalled();
+      expect(mockMcpService.install).not.toHaveBeenCalled();
+      expect(mockConfigService.saveConfig).not.toHaveBeenCalled();
+      expect(output()).toContain('Dry run');
+      expect(output()).toContain(
+        `0.7.0 → agent-skills-standard-mcp@${MCP_COMPATIBLE_VERSION}`,
+      );
+      expect(output()).toContain('refresh (scope project');
+      // buildEntry keeps npx on win32, so the note only applies elsewhere.
+      if (process.platform !== 'win32') {
+        expect(output()).toContain(
+          '"auto" entries resolve to the global binary',
+        );
+      }
+      expect(process.exitCode).toBeUndefined();
+    });
+
+    it('U4 refreshes enabled configs at the pin and honors --via for this run only', async () => {
+      command.setGlobalInstallerForTesting(vi.fn());
+      mockConfigService.loadConfig.mockResolvedValue(enabledConfig());
+      mockMcpService.install.mockResolvedValue(emptyReport);
+      mockMcpService.detectGlobalVersion.mockReturnValue(
+        MCP_COMPATIBLE_VERSION,
+      );
+
+      await command.run('upgrade', { via: 'global' });
+
+      expect(mockMcpService.install).toHaveBeenCalledWith(
+        expect.objectContaining({
+          mcp: expect.objectContaining({
+            enabled: true,
+            scope: 'project',
+            via: 'global',
+            version: MCP_COMPATIBLE_VERSION,
+          }),
+          userScopePrompt: expect.any(Function),
+        }),
+      );
+      expect(mockConfigService.saveConfig).not.toHaveBeenCalled();
+      expect(output()).toContain('next MCP start');
+    });
+
+    it('U4 writes no configs for disabled and snippets-only projects', async () => {
+      command.setGlobalInstallerForTesting(vi.fn());
+      mockConfigService.loadConfig.mockResolvedValue(
+        makeConfig({
+          mcp: { enabled: false, scope: 'project', prompted: false },
+        }),
+      );
+
+      await command.run('upgrade');
+
+      expect(mockMcpService.install).not.toHaveBeenCalled();
+      expect(output()).toContain('none (MCP disabled)');
+
+      vi.clearAllMocks();
+      logs = [];
+      mockConfigService.loadConfig.mockResolvedValue(
+        makeConfig({
+          mcp: { enabled: true, scope: 'snippets-only', prompted: true },
+        }),
+      );
+
+      await command.run('upgrade');
+
+      expect(mockMcpService.install).not.toHaveBeenCalled();
+      expect(output()).toContain('none (scope snippets-only)');
+      expect(output()).toContain('No runtime configs to refresh');
+    });
+
+    it('U5 prints guidance and exits 0 with no global install and no enabled configs', async () => {
+      const installer = vi.fn();
+      command.setGlobalInstallerForTesting(installer);
+      mockConfigService.loadConfig.mockResolvedValue(
+        makeConfig({
+          mcp: { enabled: false, scope: 'disabled', prompted: false },
+        }),
+      );
+      mockMcpService.detectGlobalVersion.mockReturnValue(null);
+
+      await command.run('upgrade');
+
+      expect(installer).not.toHaveBeenCalled();
+      expect(mockMcpService.install).not.toHaveBeenCalled();
+      expect(mockConfigService.saveConfig).not.toHaveBeenCalled();
+      expect(output()).toContain('no readable global ags-mcp detected');
+      expect(output()).toContain('`ags mcp enable`');
+      expect(output()).not.toContain('next MCP start');
+      expect(process.exitCode).toBeUndefined();
+    });
+
+    it('F1 targets the project pin from mcp.version, not the compiled pin', async () => {
+      const installer = vi.fn();
+      command.setGlobalInstallerForTesting(installer);
+      mockConfigService.loadConfig.mockResolvedValue(
+        makeConfig({
+          mcp: {
+            enabled: true,
+            scope: 'project',
+            prompted: true,
+            via: 'auto',
+            version: '0.7.5',
+          },
+        }),
+      );
+      mockMcpService.install.mockResolvedValue(emptyReport);
+      mockMcpService.detectGlobalVersion
+        .mockReturnValueOnce('0.7.0')
+        .mockReturnValue('0.7.5');
+
+      await command.run('upgrade');
+
+      expect(installer).toHaveBeenCalledWith('agent-skills-standard-mcp@0.7.5');
+      expect(mockMcpService.install).toHaveBeenCalledWith(
+        expect.objectContaining({
+          mcp: expect.objectContaining({ version: '0.7.5' }),
+        }),
+      );
+      expect(mockConfigService.saveConfig).not.toHaveBeenCalled();
+      expect(output()).toContain('project pin 0.7.5 wins');
+      expect(process.exitCode).toBeUndefined();
+    });
+
+    it('F2 refuses the config refresh when via is global and no global binary is readable', async () => {
+      const installer = vi.fn();
+      command.setGlobalInstallerForTesting(installer);
+      mockConfigService.loadConfig.mockResolvedValue(
+        makeConfig({
+          mcp: {
+            enabled: true,
+            scope: 'project',
+            prompted: true,
+            via: 'global',
+          },
+        }),
+      );
+      mockMcpService.detectGlobalVersion.mockReturnValue(null);
+
+      await command.run('upgrade');
+
+      expect(mockMcpService.install).not.toHaveBeenCalled();
+      expect(mockConfigService.saveConfig).not.toHaveBeenCalled();
+      expect(process.exitCode).toBe(1);
+      expect(output()).toContain(
+        `npm i -g agent-skills-standard-mcp@${MCP_COMPATIBLE_VERSION}`,
+      );
+      expect(output()).toContain('needs a global install');
+      expect(output()).not.toContain('next MCP start');
+    });
+
+    it('R1 dry-run refuses unusable global mode instead of printing a success plan', async () => {
+      const installer = vi.fn();
+      command.setGlobalInstallerForTesting(installer);
+      mockConfigService.loadConfig.mockResolvedValue(
+        makeConfig({
+          mcp: {
+            enabled: true,
+            scope: 'project',
+            prompted: true,
+            via: 'global',
+          },
+        }),
+      );
+      mockMcpService.detectGlobalVersion.mockReturnValue(null);
+
+      await command.run('upgrade', { dryRun: 'true' });
+
+      expect(process.exitCode).toBe(1);
+      expect(mockMcpService.install).not.toHaveBeenCalled();
+      expect(installer).not.toHaveBeenCalled();
+      expect(output()).toContain('needs a global install');
+      expect(output()).toContain(
+        `npm i -g agent-skills-standard-mcp@${MCP_COMPATIBLE_VERSION}`,
+      );
+      expect(output()).not.toContain('Dry run: no global install');
+      expect(output()).not.toContain('"auto" entries resolve');
+    });
+
+    it('F2 allows auto mode to fall back to npx when no global binary is readable', async () => {
+      command.setGlobalInstallerForTesting(vi.fn());
+      mockConfigService.loadConfig.mockResolvedValue(enabledConfig());
+      mockMcpService.install.mockResolvedValue(emptyReport);
+      mockMcpService.detectGlobalVersion.mockReturnValue(null);
+
+      await command.run('upgrade');
+
+      expect(mockMcpService.install).toHaveBeenCalledWith(
+        expect.objectContaining({
+          mcp: expect.objectContaining({ enabled: true, via: 'auto' }),
+        }),
+      );
+      expect(process.exitCode).toBeUndefined();
+    });
+
+    it('F4 still reports the host restart when a global upgrade happens out of config scope', async () => {
+      const installer = vi.fn();
+      command.setGlobalInstallerForTesting(installer);
+      mockConfigService.loadConfig.mockResolvedValue(
+        makeConfig({
+          mcp: { enabled: false, scope: 'disabled', prompted: false },
+        }),
+      );
+      mockMcpService.detectGlobalVersion
+        .mockReturnValueOnce('0.7.0')
+        .mockReturnValue(MCP_COMPATIBLE_VERSION);
+
+      await command.run('upgrade');
+
+      expect(installer).toHaveBeenCalledWith(
+        `agent-skills-standard-mcp@${MCP_COMPATIBLE_VERSION}`,
+      );
+      expect(mockMcpService.install).not.toHaveBeenCalled();
+      expect(output()).toContain('next MCP start');
+      expect(process.exitCode).toBeUndefined();
+    });
+
+    it('F3 rejects --dry-run for install and performs no writes', async () => {
+      const installer = vi.fn();
+      command.setGlobalInstallerForTesting(installer);
+      mockConfigService.loadConfig.mockResolvedValue(enabledConfig());
+
+      await command.run('install', { dryRun: 'true' });
+
+      expect(process.exitCode).toBe(1);
+      expect(output()).toContain('only supported by');
+      expect(installer).not.toHaveBeenCalled();
+      expect(mockMcpService.install).not.toHaveBeenCalled();
+      expect(mockConfigService.saveConfig).not.toHaveBeenCalled();
+    });
+
+    it('U6 rejects an invalid --via without touching state', async () => {
+      const installer = vi.fn();
+      command.setGlobalInstallerForTesting(installer);
+      mockConfigService.loadConfig.mockResolvedValue(enabledConfig());
+      mockMcpService.detectGlobalVersion.mockReturnValue('0.7.0');
+
+      await command.run('upgrade', { via: 'bogus' });
+
+      expect(output()).toContain('Invalid --via value');
+      expect(installer).not.toHaveBeenCalled();
+      expect(mockMcpService.install).not.toHaveBeenCalled();
+    });
+
+    it('U7 lists upgrade among the valid actions', async () => {
+      mockConfigService.loadConfig.mockResolvedValue(makeConfig());
+
+      await command.run('nope');
+
+      expect(output()).toContain('snippets, upgrade');
+    });
+  });
 });

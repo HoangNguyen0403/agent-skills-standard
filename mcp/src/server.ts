@@ -351,6 +351,8 @@ export async function buildServer(
 <aliases>"what is the cost of this run", "show token usage", "session telemetry"</aliases>
 
 <important_notes>
+- At the end of an \`implement-feature\` plan, pass \`completion\` only when the outcome is \`implemented\` and every plan task is settled (zero active, zero pending). On stdio this runs the consented local retrospective engine once; the result is reported alongside the cost table.
+- The completion object is caller-declared readiness, not host-authenticated proof. Workers and unsettled plans omit it.
 </important_notes>`,
     inputSchema: getSessionCostSchema,
     handler: (args) =>
@@ -371,6 +373,11 @@ export async function buildServer(
           otherCost?: number;
           currency?: string;
           costSource?: "host" | "agent-estimate";
+          completion?: {
+            role: "orchestrator" | "unassigned" | "worker";
+            activeTasks: number;
+            pendingTasks: number;
+          };
         },
         ctx,
       ),

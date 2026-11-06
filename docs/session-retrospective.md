@@ -24,15 +24,12 @@ in the session's working folder to read commit and file counts (which reads outs
 roots; commit messages, file names, and hashes are never stored); the full table is in
 [`session-retrospective-privacy.md`](./session-retrospective-privacy.md).
 
-> **Status: unreleased source, not a released product.** The MCP-native tools
+> **Status: capability release boundary.** The three MCP retrospective tools
 > (`prepare_retrospective`, `get_retrospective_status`, `prepare_retrospective_index`) and the
-> `ags retrospective` CLI command (`enable`, `disable`, `status`, `index`) exist only in the source
-> tree (`mcp/src/retrospective*`, `mcp/src/tools/retrospective.ts`, `cli/src/commands/retrospective.ts`).
-> On macOS the fresh build, passing MCP test suite and CLI/tarball smoke pass locally; redaction,
-> git-argument, environment, and index rules were mutation-checked; nothing is published to the
-> registry, so no registry version contains any of it. There are no host adapter packages; the MCP
-> tools and the `ags retrospective` CLI command are the surfaces. Windows/Linux, live host loading,
-> native host UI and process-level egress proof remain unverified; no CI job runs on Windows.
+> `ags retrospective` CLI command (`enable`, `disable`, `status`, `index`) are included over stdio
+> in released `agent-skills-standard-mcp` 0.8.1.
+> The extended automatic completion preparation via `get_session_cost` (`completion` object with role and task counts)
+> is an unreleased source capability currently in PR #295.
 > Tracking entry: `CHANGELOG.md` → `[Unreleased]`.
 
 ## Getting started
@@ -121,7 +118,7 @@ output without this feature.
 
 | Tool | Arguments | Call it as |
 | --- | --- | --- |
-| `prepare_retrospective` | `title` (optional string, max 200 chars, displayed as "agent-supplied, unverified") | The orchestrator, or an agent with no assignment packet. A worker holding an assignment packet must not call it. |
+| `prepare_retrospective` | `title` (optional string, max 200 chars, displayed as "agent-supplied, unverified") | The orchestrator, or an agent with no assignment packet. A worker holding an assignment packet must not call it. Standalone direct invocation requires no prior `get_session_cost` call or active workflow. |
 | `get_retrospective_status` | none | Anyone; returns consent state only, from the same fail-closed record. |
 | `prepare_retrospective_index` | `since` (optional YYYY-MM-DD), `until` (optional YYYY-MM-DD), `folder` (optional string, max 120 chars) | Anyone / orchestrator; housekeeping tool to generate `<storeRoot>/index.html` across stored sessions. Does not count toward substantive nudge calls. |
 

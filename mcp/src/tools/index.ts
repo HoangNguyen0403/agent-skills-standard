@@ -18,7 +18,10 @@ import {
 } from "../services/EvalsIndex";
 import { PolicyView } from "../services/PolicyIndex";
 
-import { retrospectiveNudge } from "./retrospective";
+import {
+  automaticRetrospectiveText,
+  retrospectiveNudge,
+} from "./retrospective";
 
 export interface ToolContext {
   projectRoot: string;
@@ -642,6 +645,16 @@ export const getSessionCostSchema = z.object({
     .describe(
       "Caller-declared source for the token/pricing fields above ('host' or 'agent-estimate'). Host authenticity is unverified by this MCP server.",
     ),
+  completion: z
+    .strictObject({
+      role: z.enum(["orchestrator", "unassigned", "worker"]),
+      activeTasks: z.number().int().nonnegative(),
+      pendingTasks: z.number().int().nonnegative(),
+    })
+    .optional()
+    .describe(
+      "Caller-declared completion readiness. Supply only at the final cost call for an implement-feature plan whose outcome is 'implemented' and whose tasks are all settled: role of the calling agent, plus the counts of active and pending plan tasks. This is a claim, not host-authenticated proof; a worker or an unsettled plan must leave it out. When eligible on stdio, local retrospective preparation runs once through the same consented engine as prepare_retrospective.",
+    ),
 });
 
 export async function getSessionCost(
@@ -662,6 +675,11 @@ export async function getSessionCost(
     otherCost?: number;
     currency?: string;
     costSource?: "host" | "agent-estimate";
+    completion?: {
+      role: "orchestrator" | "unassigned" | "worker";
+      activeTasks: number;
+      pendingTasks: number;
+    };
   },
   ctx: ToolContext,
 ): Promise<ToolResult> {
@@ -758,9 +776,17 @@ export async function getSessionCost(
     ...(events.length ? events.map(formatConsultationEvent) : ["_(none)_"]),
   ];
   let text = lines.join("\n");
-  const nudge = await retrospectiveNudge(ctx);
-  if (nudge) {
-    text = `${text}\n\n${nudge}`;
+  // A completion call owns retrospective disposition: the automatic result
+  // (success or refusal) must never be paired with a "prepare now" nudge.
+  if (args.completion === undefined) {
+    const nudge = await retrospectiveNudge(ctx);
+    if (nudge) {
+      text = `${text}\n\n${nudge}`;
+    }
+  }
+  const automatic = await automaticRetrospectiveText(args, ctx);
+  if (automatic) {
+    text = `${text}\n\n${automatic}`;
   }
   return { content: [{ type: "text", text }] };
 }
@@ -1134,8 +1160,13 @@ export {
   getRetrospectiveStatus,
   getRetrospectiveStatusSchema,
   retrospectiveNudge,
+  automaticRetrospectiveText,
   DISABLED_RETROSPECTIVE_TEXT,
   RETROSPECTIVE_NUDGE_TEXT,
+  AUTO_RETROSPECTIVE_WORKFLOW_SKIPPED_TEXT,
+  AUTO_RETROSPECTIVE_WORKER_SKIPPED_TEXT,
+  AUTO_RETROSPECTIVE_TASKS_SKIPPED_TEXT,
+  AUTO_RETROSPECTIVE_TRANSPORT_SKIPPED_TEXT,
   renderRunResultText,
   renderIndexQueryErrorText,
 } from "./retrospective";

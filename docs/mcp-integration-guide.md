@@ -46,10 +46,30 @@ The decision table, the copy-paste happy path, and the one-line migration note l
 
 It then lists each configured agent with `project:` / `user:` checkmarks, and warns when `.skillsrc` and the runtime configs disagree (for example `mcp.enabled=true` but nothing registered). The `global` row is the one to read when a launch feels slow: if it differs from `pin`, `auto` is quietly using `npx`, and the same warning tells you the exact `npm i -g` line. `ags-mcp --version` prints the same semver the probe reads; servers published before that flag existed are detected from their installed manifest under `npm root -g` instead, so an older global install still resolves to a version rather than a silent `not found`.
 
+### Moving to the CLI pin: `ags mcp upgrade`
+
+The CLI is the version authority for the integration: the target is the effective pin, `mcp.version ?? MCP_COMPATIBLE_VERSION` — a project `mcp.version` in `.skillsrc` wins, otherwise the version compiled into the CLI you are running. It is never a version discovered on the network or a floating `@latest`. Moving the default pin is therefore a two-step, explicit order — `ags upgrade` first, then:
+
+```bash
+ags mcp upgrade                 # move a detected global ags-mcp and enabled configs to the effective pin
+ags mcp upgrade --dry-run       # print the planned steps and change nothing
+ags mcp upgrade --via global    # override the launch mode for this run only
+```
+
+| Target | Behavior |
+| --- | --- |
+| Effective pin | `mcp.version` from `.skillsrc` when set, else the CLI's `MCP_COMPATIBLE_VERSION`. When a project pin differs from the compiled one, the command prints a note naming both and uses the project value — the same precedence as `status`, `enable` and `install`. |
+| Global binary | A detected `ags-mcp` whose version differs from the effective pin is installed as `agent-skills-standard-mcp@<pin>` and re-probed. A failed install, or a probe that does not report the pin, prints the manual `npm i -g` line and exits `1`. An absent global install is reported and never created implicitly. |
+| Runtime configs | With `mcp.enabled=true` at `project` or `user` scope, entries are rewritten to the effective pin at that scope, with the same per-file consent prompts as any other user-scope write. Configured launch mode is preserved; `--via` overrides it for this run only, exactly like `install`. `snippets-only` and `disabled` scopes are left alone. |
+| `global` mode without a global install | When the effective mode is `global` and no readable global `ags-mcp` exists, configs are **not** written: a config pointing at a missing binary would only move the failure to the next spawn. It prints the manual `npm i -g` line and exits `1`, leaving existing configs untouched. |
+| Nothing to do | No global install to move and no enabled `project`/`user` configs: it names the command that would create each side and exits `0`. |
+
+`--dry-run` is accepted only by `upgrade`; any other `ags mcp` action rejects it with exit `1` instead of silently ignoring it. On `upgrade` it performs no global install, no config write and no `.skillsrc` write. The command never edits `.skillsrc`, never publishes an npm package, never grants consent and never restarts a host process: each agent picks up the new pin on its next MCP start.
+
 ### Troubleshooting and migration
 
-- **Upgrading the CLI does not rewrite runtime MCP configs** — `ags upgrade` replaces the CLI only. Existing configs keep their previous pin until `ags sync` (with MCP enabled) or `ags mcp install` rewrites the entry; the agent picks up the new pin on its next MCP start. `ags mcp status` and `ags doctor` now compare each configured entry with the expected one and report drift, so an old `@0.6.1` entry is visible instead of looking freshly installed.
-- **Global version mismatch** — `ags mcp status` prints `Global ags-mcp is <x> but the CLI pin is <y>; "auto" will use npx until they match`. Fix with `npm i -g agent-skills-standard-mcp@0.8.1`, or let the CLI do it with global mode selected: `ags mcp via global && ags mcp enable` (installs, re-probes, exits `1` on mismatch; `--install-global` remains an explicit trigger for the same install).
+- **Upgrading the CLI does not rewrite runtime MCP configs** — `ags upgrade` replaces the CLI only. Existing configs keep their previous pin until `ags sync` (with MCP enabled), `ags mcp install`, or `ags mcp upgrade` rewrites the entry; the agent picks up the new pin on its next MCP start. `ags mcp status` and `ags doctor` now compare each configured entry with the expected one and report drift, so an old `@0.6.1` entry is visible instead of looking freshly installed.
+- **Global version mismatch** — `ags mcp status` prints `Global ags-mcp is <x> but the CLI pin is <y>; "auto" will use npx until they match`. Fix with `npm i -g agent-skills-standard-mcp@0.8.1`, run `ags mcp upgrade` to install the pinned version and refresh enabled configs in one step, or let the CLI do it with global mode selected: `ags mcp via global && ags mcp enable` (installs, re-probes, exits `1` on mismatch; `--install-global` remains an explicit trigger for the same install).
 - **Offline / cold cache** — `--prefer-offline` consults the npm cache first but still installs the package when it is absent, so the first spawn needs the registry once and later spawns do not. `~/.npm/_npx` is machine-global and keyed by spec, so several worktrees on the same pin share that cache instead of re-downloading.
 - **Windows** — `auto` stays on `npx` by design: Node-based clients cannot spawn a `.cmd` shim without a shell, so the generated entry would be unusable. `via: global` generates `cmd /c ags-mcp` if you accept the extra shell.
 - **Stale or unpinned configs** — an entry such as `npx -y agent-skills-standard-mcp` keeps working; the next `ags sync` (with MCP enabled) or `ags mcp install` replaces that server entry in place with the resolved launch line while leaving sibling servers untouched. User-scope files are only rewritten after the usual per-file confirmation.
