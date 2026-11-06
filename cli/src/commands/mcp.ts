@@ -62,6 +62,9 @@ function formatEntry(
  *                          One-shot install at the given (or configured) scope/mode
  *   uninstall [--from=...] Remove our entry from configs (project | user | all)
  *   snippets [--via=...]   Generate fresh snippet files in ./mcp-config-snippets/
+ *   upgrade [--dry-run] [--via=...]
+ *                          Move the global install and enabled configs to the
+ *                          CLI's compiled pin (no network version discovery)
  *
  * `enable` also installs `agent-skills-standard-mcp@<pin>` globally and
  * verifies the reported version whenever the effective launch mode is
@@ -154,10 +157,12 @@ export class McpCommand {
         return this.actionUninstall(config, agents, cwd, options);
       case 'snippets':
         return this.actionSnippets(config, agents, cwd, options);
+      case 'upgrade':
+        return this.actionUpgrade(config, agents, cwd, options);
       default:
         console.log(
           pc.red(`Unknown action: ${action}`),
-          '\nValid actions: status, enable, disable, scope, via, install, uninstall, snippets',
+          '\nValid actions: status, enable, disable, scope, via, install, uninstall, snippets, upgrade',
         );
     }
   }
@@ -551,6 +556,109 @@ export class McpCommand {
     for (const s of report.snippets) {
       console.log(`   - ${pc.cyan(s.agent)} → ${pc.gray(s.file)}`);
     }
+  }
+
+  /**
+   * `upgrade` — converge the global install and the enabled runtime configs
+   * onto the pin this CLI was compiled against.
+   *
+   * The CLI is the only version authority: the target is always
+   * `MCP_COMPATIBLE_VERSION`, never a registry lookup and never an unpinned
+   * install. `.skillsrc` is never rewritten; `--via` is a per-run override.
+   */
+  private async actionUpgrade(
+    config: SkillConfig,
+    agents: Agent[],
+    cwd: string,
+    options: Record<string, string>,
+  ): Promise<void> {
+    const mcp = config.mcp ?? defaultMcpConfig();
+    const pin = MCP_COMPATIBLE_VERSION;
+    const dryRun = Boolean(options.dryRun);
+
+    const viaOverrideRaw = options.via;
+    const viaOverride = viaOverrideRaw ? parseVia(viaOverrideRaw) : undefined;
+    if (viaOverrideRaw && !viaOverride) {
+      console.log(
+        pc.red(`Invalid --via value. Valid: ${VALID_VIAS.join(' | ')}`),
+      );
+      return;
+    }
+
+    const detected = this.mcpService.detectGlobalVersion();
+    const configsInScope =
+      mcp.enabled === true && (mcp.scope === 'project' || mcp.scope === 'user');
+    const configsState = configsInScope
+      ? `refresh (scope ${mcp.scope}, via ${viaOverride ?? mcp.via ?? 'auto'})`
+      : mcp.enabled === true
+        ? `none (scope ${mcp.scope})`
+        : 'none (MCP disabled)';
+
+    console.log(pc.bold(`\n🔌 MCP upgrade (pin ${pin})\n`));
+    if (!detected) {
+      console.log(
+        `  global  : ${pc.gray('not installed')} ${pc.gray('(upgrade never installs implicitly)')}`,
+      );
+    } else if (detected === pin) {
+      console.log(`  global  : ${pc.green(detected)} ${pc.gray('(current)')}`);
+    } else {
+      console.log(
+        `  global  : ${pc.yellow(detected)} → ${pc.cyan(`${PACKAGE}@${pin}`)}`,
+      );
+    }
+    console.log(`  configs : ${configsState}`);
+
+    if (dryRun) {
+      console.log(
+        pc.gray(
+          '\nDry run: no global install, no config writes, no .skillsrc change.',
+        ),
+      );
+      return;
+    }
+
+    if (detected && detected !== pin && !this.ensureGlobalPin(pin)) return;
+    if (detected === pin) {
+      console.log(
+        pc.green(`✅ Global ags-mcp already at ${pin} — no install needed.`),
+      );
+    }
+    if (!detected) {
+      console.log(
+        pc.gray(
+          `ℹ️  Global ags-mcp is absent; install it with \`npm i -g ${PACKAGE}@${pin}\` if you use "global" mode.`,
+        ),
+      );
+    }
+
+    if (!configsInScope) {
+      console.log(
+        pc.gray(
+          mcp.enabled === true
+            ? '   No runtime configs to refresh at this scope.'
+            : '   Enable configs with `ags mcp enable` to have them refreshed on upgrade.',
+        ),
+      );
+      return;
+    }
+
+    const report = await this.mcpService.install({
+      rootDir: cwd,
+      agents,
+      mcp: {
+        ...mcp,
+        version: pin,
+        enabled: true,
+        ...(viaOverride ? { via: viaOverride } : {}),
+      },
+      userScopePrompt: (agent, file) => this.promptUserScopeWrite(agent, file),
+    });
+    this.printReport(report, cwd);
+    console.log(
+      pc.gray(
+        '\nHosts pick up the new pin on their next MCP start (no process restart from here).',
+      ),
+    );
   }
 
   // ---- output ----

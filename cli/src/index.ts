@@ -233,7 +233,7 @@ program
 program
   .command('mcp <action> [scope]')
   .description(
-    'Manage the optional MCP server integration. Actions: status | enable | disable | scope <project|user|snippets-only|disabled> | via <auto|npx|global> | install | uninstall | snippets',
+    'Manage the optional MCP server integration. Actions: status | enable | disable | scope <project|user|snippets-only|disabled> | via <auto|npx|global> | install | uninstall | snippets | upgrade',
   )
   .option(
     '--scope <scope>',
@@ -243,6 +243,10 @@ program
   .option(
     '--install-global',
     'On enable: install agent-skills-standard-mcp@<pin> globally, then verify its version (automatic when launch mode is global)',
+  )
+  .option(
+    '--dry-run',
+    'For upgrade: print the plan without installing or writing configs',
   )
   .option(
     '--from <from>',
