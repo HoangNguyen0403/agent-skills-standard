@@ -1,0 +1,61 @@
+### Result
+{"driver":"playwright-cli","offlineOpen":true,"baseline":{"title":"Acme Orders — System Context — Offline Architecture Package","text":"Acme Orders — System Context\nSCOPE\nWho uses Acme Orders and which external systems it depends on; internals excluded.\nTYPE\ncontext\nAUDIENCE\nexec\nVERSION / DATE\n1.0 (2026-09-13)\nSOURCE DIGEST\nsha256:9e0cd75f8e22756ea969ad31cdcd6301e06922d94746b61220890d371bc9116f\nTheme:\nAuto (System)\nLight\nDark\nDiagram Elements\nperson: 1\nsaas: 1\nsystem: 1\nsystem-ext: 2\nEvidence & Confidence\nunspecified: 9\n\nCitations: docs/prd.md:12, docs/prd.md:20, docs/prd.md:41, docs/prd.md:44, docs/prd.md:47","scrollWidth":1440,"viewportWidth":1440,"images":[{"alt":"Acme Orders — System Context (Light theme)","complete":true,"width":2078,"height":1614},{"alt":"Acme Orders — System Context (Dark theme)","complete":true,"width":2078,"height":1614}],"scripts":0},"baselineExternal":[],"themes":[{"control":"light","state":[{"alt":"Acme Orders — System Context (Light theme)","visible":true},{"alt":"Acme Orders — System Context (Dark theme)","visible":false}]},{"control":"dark","state":[{"alt":"Acme Orders — System Context (Light theme)","visible":false},{"alt":"Acme Orders — System Context (Dark theme)","visible":true}]}],"automatic":["Acme Orders — System Context (Dark theme)"],"probes":{"violations":[{"directive":"script-src-elem","blocked":"inline"},{"directive":"connect-src","blocked":"https://diagram-probe.invalid/connect"},{"directive":"img-src","blocked":"https://diagram-probe.invalid/image"}],"executed":false},"requests":[{"url":"file:///Users/nguyenhuyhoang/.paseo/worktrees/0vty4mn4/zealous-flamingo/artifacts/runs/system-design-visualization-improvements/offline-package-roundtrip/index.html","type":"document"},{"url":"https://diagram-probe.invalid/image","type":"image"}],"responses":[],"console":[{"type":"error","text":"Executing inline script violates the following Content Security Policy directive 'script-src 'none''. Either the 'unsafe-inline' keyword, a hash ('sha256-BELTh8hc/umfuQfaibHyNBDoUNUbxQpfpnvw3nGNEpQ='), or a nonce ('nonce-...') is required to enable inline execution. The action has been blocked."},{"type":"error","text":"Connecting to 'https://diagram-probe.invalid/connect' violates the following Content Security Policy directive: \"connect-src 'none'\". The action has been blocked."},{"type":"error","text":"Fetch API cannot load https://diagram-probe.invalid/connect. Refused to connect because it violates the document's Content Security Policy."},{"type":"error","text":"Loading the image 'https://diagram-probe.invalid/image' violates the following Content Security Policy directive: \"img-src data:\". The action has been blocked."}],"limits":["Browser consumption only; does not govern Desktop","Interception prevents HTTP egress; CSP observations recorded separately","Does not establish human paired-reader improvement"]}
+### Ran Playwright code
+```js
+await (async (page) => {
+  // Temporary Playwright CLI scenario. All observations stay in one invocation.
+  const url = 'file:///Users/nguyenhuyhoang/.paseo/worktrees/0vty4mn4/zealous-flamingo/artifacts/runs/system-design-visualization-improvements/offline-package-roundtrip/index.html';
+  const observations = {requests: [], responses: [], console: [], themes: []};
+  const field = (object, name) => typeof object[name] === 'function' ? object[name]() : object[name];
+  page.on('request', request => observations.requests.push({url:field(request,'url'),type:field(request,'resourceType')}));
+  page.on('response', response => { const url=field(response,'url'); if (/^https?:/.test(url)) observations.responses.push({url,status:field(response,'status')}); });
+  page.on('console', message => observations.console.push({type:field(message,'type'),text:field(message,'text')}));
+  await page.context().route(/^https?:/, route => route.abort('blockedbyclient'));
+  await page.context().setOffline(true);
+  await page.setViewportSize({width:1440,height:1000});
+  await page.emulateMedia({colorScheme:'light'});
+  await page.goto(url);
+  await page.locator('img').first().waitFor({state:'visible'});
+  const baseline = await page.evaluate(() => ({title:document.title,text:document.body.innerText,scrollWidth:document.documentElement.scrollWidth,viewportWidth:window.innerWidth,images:[...document.images].map(image=>({alt:image.alt,complete:image.complete,width:image.naturalWidth,height:image.naturalHeight})),scripts:document.scripts.length}));
+  if (baseline.scripts !== 0 || baseline.images.length !== 2 || baseline.images.some(image=>!image.complete || image.width <= 0)) throw new Error('Offline page images/scripts invariant failed');
+  if (baseline.scrollWidth > baseline.viewportWidth) throw new Error('Metadata or diagram overflows the viewport');
+  if (!/sha256:[a-f0-9]{64}/.test(baseline.text)) throw new Error('Full snapshot digest is not visible');
+  for (const mode of ['light','dark']) {
+    await page.getByText(mode === 'light' ? 'Light' : 'Dark',{exact:true}).click();
+    const state = await page.locator('img').evaluateAll(images => images.map(image=>({alt:image.alt,visible:getComputedStyle(image).display !== 'none'})));
+    const visible = state.filter(image=>image.visible);
+    if (visible.length !== 1 || !visible[0].alt.toLowerCase().includes(mode)) throw new Error(`Manual ${mode} switch did not select one matching image`);
+    observations.themes.push({control:mode,state});
+    await page.screenshot({path:`.playwright-cli/AC-04-${mode}-roundtrip.png`,fullPage:true});
+  }
+  await page.getByText('Auto (System)',{exact:true}).click();
+  await page.emulateMedia({colorScheme:'dark'});
+  const automatic = await page.locator('img').evaluateAll(images=>images.filter(image=>getComputedStyle(image).display !== 'none').map(image=>image.alt));
+  if (automatic.length !== 1 || !automatic[0].toLowerCase().includes('dark')) throw new Error('System dark preference not reflected');
+  const baselineExternal = observations.requests.filter(request=>/^https?:/.test(request.url));
+  if (baselineExternal.length !== 0) throw new Error('Baseline page attempted external request');
+  // Connectivity is enabled only behind an abort-all HTTP interceptor for CSP observations.
+  await page.context().setOffline(false);
+  await page.evaluate(async () => {
+    window.__violations = [];
+    window.addEventListener('securitypolicyviolation', event=>window.__violations.push({directive:event.effectiveDirective,blocked:event.blockedURI}));
+    const script = document.createElement('script');
+    script.textContent = 'window.__injectedExecuted = true';
+    document.body.append(script);
+    const image = document.createElement('img'); image.src='https://diagram-probe.invalid/image'; document.body.append(image);
+    await fetch('https://diagram-probe.invalid/connect').catch(()=>null);
+  });
+  await page.waitForFunction(() => window.__violations.length >= 3);
+  const probes = await page.evaluate(() => ({violations:window.__violations,executed:window.__injectedExecuted === true}));
+  if (probes.executed || observations.responses.length !== 0) throw new Error('Script executed or external HTTP response observed');
+  const result = {driver:'playwright-cli',offlineOpen:true,baseline,baselineExternal,themes:observations.themes,automatic,probes,requests:observations.requests,responses:observations.responses,console:observations.console,limits:['Browser consumption only; does not govern Desktop','Interception prevents HTTP egress; CSP observations recorded separately','Does not establish human paired-reader improvement']};
+  return result;
+}
+)(page);
+```
+### Page
+- Page URL: file:///Users/nguyenhuyhoang/.paseo/worktrees/0vty4mn4/zealous-flamingo/artifacts/runs/system-design-visualization-improvements/offline-package-roundtrip/index.html
+- Page Title: Acme Orders — System Context — Offline Architecture Package
+- Console: 4 errors, 0 warnings
+### Events
+- New console entries: .playwright-cli/console-2026-11-06T06-39-02-470Z.log#L1-L4

@@ -103,9 +103,9 @@ const ISO_8601_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/;
 const PLACEHOLDER_PATTERNS = [/\*/, /<.*>/, /\[.*\]/, /\bTODO\b/i, /\bTBD\b/i];
 
 const TRACE_ID_PATTERNS: Record<keyof RequirementTrace, RegExp> = {
-  brd_objectives: /^BRD-OBJ-\d{3,}$/,
-  requirements: /^REQ-\d{3,}$/,
-  acceptance_criteria: /^AC-\d{3,}$/,
+  brd_objectives: /^BRD-OBJ-(?:[A-Z][A-Z0-9]*-)?\d{3,}$/,
+  requirements: /^REQ-(?:[A-Z][A-Z0-9]*-)?\d{3,}$/,
+  acceptance_criteria: /^AC-\d{2,}$/,
   srs: /^SRS-\d{3,}$/,
 };
 

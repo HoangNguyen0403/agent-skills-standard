@@ -1,0 +1,34 @@
+{
+  "command": [
+    "/usr/bin/sandbox-exec",
+    "-p",
+    "(version 1) (allow default) (deny network*)",
+    "/Applications/draw.io.app/Contents/MacOS/draw.io",
+    "--log-net-log=artifacts/runs/system-design-visualization-improvements/desktop-network-observations.json.netlog.json",
+    "--net-log-capture-mode=Default",
+    "--disable-background-networking",
+    "-x",
+    "-f",
+    "png",
+    "-e",
+    "-b",
+    "20",
+    "-s",
+    "2",
+    "-o",
+    "artifacts/runs/system-design-visualization-improvements/desktop-network-probe.png",
+    "skills/common/common-architecture-diagramming/assets/fixtures/context.drawio"
+  ],
+  "exit": 1,
+  "stdout": "",
+  "stderr": "sandbox initialization failed: Operation not permitted\nFailed to initialize sandbox.sandbox initialization failed: Operation not permitted\nFailed to initialize sandbox.Failed to initialize sandbox.[6965:1105/100851.674993:ERROR:content/browser/gpu/gpu_process_host.cc:1035] GPU process exited unexpectedly: exit_code=6\n[6965:1105/100851.675635:ERROR:content/browser/network_service_instance_impl.cc:650] Network service crashed or was terminated, restarting service.\nFailed to initialize sandbox.Error: Renderer process gone (crashed): skills/common/common-architecture-diagramming/assets/fixtures/context.drawio\nsandbox initialization failed: Operation not permitted\nFailed to initialize sandbox.",
+  "outputExists": false,
+  "netlog": {
+    "unavailable": "Unexpected end of JSON input"
+  },
+  "limits": [
+    "OS deny-network restriction covers Desktop invocation separately from browser CSP",
+    "Netlog observations are Chromium events, not proof of complete OS syscall coverage",
+    "This temporary observation does not change production exporter behavior"
+  ]
+}

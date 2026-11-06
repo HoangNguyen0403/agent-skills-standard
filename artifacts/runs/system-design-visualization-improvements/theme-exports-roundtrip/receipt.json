@@ -1,0 +1,107 @@
+{
+  "observations": [
+    {
+      "type": "component",
+      "theme": "light",
+      "png": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/component-light.png",
+      "sha256": "53147fa7791a56b3bc56a835dc7f6a72d6946d5b411f9f73972ed799464cd9e9"
+    },
+    {
+      "type": "component",
+      "theme": "dark",
+      "png": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/component-dark.png",
+      "sha256": "ce36a462b15cb5c991142f97a9afc9e70d4a745ec399a977737003bc735054a6"
+    },
+    {
+      "type": "container",
+      "theme": "light",
+      "png": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/container-light.png",
+      "sha256": "c275fb580cea577e0744cf3ae349f1686fc0919917061be0e811fea29b36db68"
+    },
+    {
+      "type": "container",
+      "theme": "dark",
+      "png": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/container-dark.png",
+      "sha256": "58a2492678f0d0653b3360554414b9bbc5cc9ac417eaa8678b2f7ef774315f10"
+    },
+    {
+      "type": "context",
+      "theme": "light",
+      "png": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/context-light.png",
+      "sha256": "4c765343066210e28e3549f522feca29251e28cabdac4263cdcb1bcbe1bff8c0"
+    },
+    {
+      "type": "context",
+      "theme": "dark",
+      "png": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/context-dark.png",
+      "sha256": "f687183bc1d4fbe781fd5766d1808854a0129d71eba4751d4947270b3afe3395"
+    },
+    {
+      "type": "dataflow",
+      "theme": "light",
+      "png": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/dataflow-light.png",
+      "sha256": "88bd76a57f35ec78b5339e6d8ff4443bf022f9ca6639fe392343085674217ffe"
+    },
+    {
+      "type": "dataflow",
+      "theme": "dark",
+      "png": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/dataflow-dark.png",
+      "sha256": "fdf0c9e3d8d949c0bb44d722399fcfb2a2eea453a181b9d2d30b8a634a897680"
+    },
+    {
+      "type": "deployment",
+      "theme": "light",
+      "png": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-light.png",
+      "sha256": "747b0aae7f10257bda60a3a370e3301e2126694e05196a9a2e8f7b36f2a32ab1"
+    },
+    {
+      "type": "deployment",
+      "theme": "dark",
+      "png": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-dark.png",
+      "sha256": "9ba98659fa1edb6af3c2997e521008a54874b191533f7f573a9e6775482e28d5"
+    },
+    {
+      "type": "erd",
+      "theme": "light",
+      "png": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/erd-light.png",
+      "sha256": "ff78b4266a8409a264a07d0f0bf8ffd1c26408cf484e778d40093936eb707e13"
+    },
+    {
+      "type": "erd",
+      "theme": "dark",
+      "png": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/erd-dark.png",
+      "sha256": "40de5ba8c04735481b1f031e4aa1724750182c67720cfabb4f22bc6461e9aa14"
+    },
+    {
+      "type": "sequence",
+      "theme": "light",
+      "png": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/sequence-light.png",
+      "sha256": "a181c9e8572ba018bc5905531d089ab80477bed1785e05d8377f190611c76a94"
+    },
+    {
+      "type": "sequence",
+      "theme": "dark",
+      "png": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/sequence-dark.png",
+      "sha256": "e8ad05e16b63a56ff954674c79249967c8448c7939b71d4e469b9e1cec1158f5"
+    },
+    {
+      "type": "state",
+      "theme": "light",
+      "png": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/state-light.png",
+      "sha256": "d7720a9b4a97da2511ec045f66060a3dde86469bd5eb09807d56b89f7d140a00"
+    },
+    {
+      "type": "state",
+      "theme": "dark",
+      "png": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/state-dark.png",
+      "sha256": "1cb6d8ddd62fce168b45d2c2074d299038f7e7a34eecbcbb8fa57bdc73766cdd"
+    }
+  ],
+  "checks": [
+    "spec validation",
+    "strict layout",
+    "theme semantic equality",
+    "input immutability",
+    "real Desktop PNG export"
+  ]
+}

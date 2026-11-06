@@ -1,0 +1,44 @@
+{
+  "observations": [
+    {
+      "case": "long-sequence",
+      "theme": "light",
+      "png": "artifacts/runs/system-design-visualization-improvements/adverse-exports-roundtrip/long-sequence-light.png",
+      "sha256": "99469b58ede96435b54dc537da1c920fc534a45791999f681db259944ed86941"
+    },
+    {
+      "case": "long-sequence",
+      "theme": "dark",
+      "png": "artifacts/runs/system-design-visualization-improvements/adverse-exports-roundtrip/long-sequence-dark.png",
+      "sha256": "dac992eb83a6b85fbadf2494756d5869bc9f97a48c2a02377b1eb385f497232f"
+    },
+    {
+      "case": "long-erd",
+      "theme": "light",
+      "png": "artifacts/runs/system-design-visualization-improvements/adverse-exports-roundtrip/long-erd-light.png",
+      "sha256": "d2f14a7c05343b92a216cee097bf1f1fe84844396c31de12e2e345a659aae6f5"
+    },
+    {
+      "case": "long-erd",
+      "theme": "dark",
+      "png": "artifacts/runs/system-design-visualization-improvements/adverse-exports-roundtrip/long-erd-dark.png",
+      "sha256": "d762aeaab67f82a7e1cb865545796264a21b991be1f194dc5049f6643be11537"
+    },
+    {
+      "case": "long-header-groups-hub",
+      "theme": "light",
+      "png": "artifacts/runs/system-design-visualization-improvements/adverse-exports-roundtrip/long-header-groups-hub-light.png",
+      "sha256": "24cb886635372df5c63b80a46ea9f381de3e9d336c86ac9374ce951b200d481c"
+    },
+    {
+      "case": "long-header-groups-hub",
+      "theme": "dark",
+      "png": "artifacts/runs/system-design-visualization-improvements/adverse-exports-roundtrip/long-header-groups-hub-dark.png",
+      "sha256": "575aa7183c331dbd6cf24138781e4a954e68a440db606d0cff11720b62299691"
+    }
+  ],
+  "limits": [
+    "Requires actual image inspection for clipping and overlap",
+    "No arbitrary input-size or capacity guarantee"
+  ]
+}

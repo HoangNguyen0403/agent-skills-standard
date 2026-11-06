@@ -1,0 +1,140 @@
+{
+  "title": "Complete architecture evidence and boundary semantics for the long-running payment orchestration and reconciliation subsystem Complete architecture evidence and boundary semantics for the long-running payment orchestration and reconciliation subsystem Complete architecture evidence and boundary semantics for the long-running payment orchestration and reconciliation subsystem ",
+  "type": "erd",
+  "audience": "tech",
+  "version": "1.0",
+  "date": "2026-09-13",
+  "author": "Solution Architecture",
+  "scope": "Preserve all participant, relationship and provenance meaning across multi-line descriptions without hiding overflow or moving metadata into unrelated diagram content. Preserve all participant, relationship and provenance meaning across multi-line descriptions without hiding overflow or moving metadata into unrelated diagram content. Preserve all participant, relationship and provenance meaning across multi-line descriptions without hiding overflow or moving metadata into unrelated diagram content. Preserve all participant, relationship and provenance meaning across multi-line descriptions without hiding overflow or moving metadata into unrelated diagram content. ",
+  "nodes": [
+    {
+      "id": "customers",
+      "label": "customers \u2014 tenant scoped historical reconciliation entity with complete provenance  \u2014 tenant scoped historical reconciliation entity with complete provenance ",
+      "kind": "entity",
+      "evidence": "../fixtures/schemas/orders.sql:1",
+      "columns": [
+        {
+          "name": "id_tenant_scoped_reconciliation_identifier_with_complete_semantic_meaning",
+          "type": "uuid \u2014 complete long storage type and validation constraints remain visible",
+          "pk": true,
+          "nullable": false
+        },
+        {
+          "name": "email_tenant_scoped_reconciliation_identifier_with_complete_semantic_meaning",
+          "type": "text \u2014 complete long storage type and validation constraints remain visible",
+          "nullable": false
+        },
+        {
+          "name": "name_tenant_scoped_reconciliation_identifier_with_complete_semantic_meaning",
+          "type": "text \u2014 complete long storage type and validation constraints remain visible"
+        }
+      ],
+      "identity": "synthetic.presentation.0",
+      "lifecycle": "proposed",
+      "evidence_confidence": "documented",
+      "evidence_kind": "document",
+      "sublabel": "Authorization is retained for every relation and projection Authorization is retained for every relation and projection "
+    },
+    {
+      "id": "orders",
+      "label": "orders \u2014 tenant scoped historical reconciliation entity with complete provenance  \u2014 tenant scoped historical reconciliation entity with complete provenance ",
+      "kind": "entity",
+      "evidence": "../fixtures/schemas/orders.sql:7",
+      "columns": [
+        {
+          "name": "id_tenant_scoped_reconciliation_identifier_with_complete_semantic_meaning",
+          "type": "uuid \u2014 complete long storage type and validation constraints remain visible",
+          "pk": true,
+          "nullable": false
+        },
+        {
+          "name": "customer_id_tenant_scoped_reconciliation_identifier_with_complete_semantic_meaning",
+          "type": "uuid \u2014 complete long storage type and validation constraints remain visible",
+          "fk": true,
+          "nullable": false
+        },
+        {
+          "name": "status_tenant_scoped_reconciliation_identifier_with_complete_semantic_meaning",
+          "type": "text \u2014 complete long storage type and validation constraints remain visible",
+          "nullable": false
+        },
+        {
+          "name": "placed_at_tenant_scoped_reconciliation_identifier_with_complete_semantic_meaning",
+          "type": "timestamptz \u2014 complete long storage type and validation constraints remain visible",
+          "nullable": false
+        }
+      ],
+      "identity": "synthetic.presentation.1",
+      "lifecycle": "proposed",
+      "evidence_confidence": "documented",
+      "evidence_kind": "document",
+      "sublabel": "Authorization is retained for every relation and projection Authorization is retained for every relation and projection "
+    },
+    {
+      "id": "order_items",
+      "label": "order_items \u2014 tenant scoped historical reconciliation entity with complete provenance  \u2014 tenant scoped historical reconciliation entity with complete provenance ",
+      "kind": "entity",
+      "evidence": "../fixtures/schemas/orders.sql:14",
+      "columns": [
+        {
+          "name": "order_id_tenant_scoped_reconciliation_identifier_with_complete_semantic_meaning",
+          "type": "uuid \u2014 complete long storage type and validation constraints remain visible",
+          "pk": true,
+          "fk": true,
+          "nullable": false
+        },
+        {
+          "name": "sku_tenant_scoped_reconciliation_identifier_with_complete_semantic_meaning",
+          "type": "text \u2014 complete long storage type and validation constraints remain visible",
+          "pk": true,
+          "nullable": false
+        },
+        {
+          "name": "qty_tenant_scoped_reconciliation_identifier_with_complete_semantic_meaning",
+          "type": "integer \u2014 complete long storage type and validation constraints remain visible",
+          "nullable": false
+        }
+      ],
+      "identity": "synthetic.presentation.2",
+      "lifecycle": "proposed",
+      "evidence_confidence": "documented",
+      "evidence_kind": "document",
+      "sublabel": "Authorization is retained for every relation and projection Authorization is retained for every relation and projection "
+    }
+  ],
+  "edges": [
+    {
+      "from": "orders",
+      "to": "customers",
+      "cardinality": "many-to-one",
+      "evidence": "../fixtures/schemas/orders.sql:9",
+      "identity": "synthetic.presentation.3",
+      "lifecycle": "proposed",
+      "evidence_confidence": "documented",
+      "evidence_kind": "document"
+    },
+    {
+      "from": "order_items",
+      "to": "orders",
+      "cardinality": "many-to-one",
+      "evidence": "../fixtures/schemas/orders.sql:19",
+      "identity": "synthetic.presentation.4",
+      "lifecycle": "proposed",
+      "evidence_confidence": "documented",
+      "evidence_kind": "document"
+    }
+  ],
+  "view": {
+    "question": "How does the complete request travel through the relevant trust boundaries while preserving authorization and tenant scope? How does the complete request travel through the relevant trust boundaries while preserving authorization and tenant scope? How does the complete request travel through the relevant trust boundaries while preserving authorization and tenant scope? ",
+    "decision": "Choose the smallest bounded request flow, retaining independent evidence and explicit uncertainty on every unsupported relationship. Choose the smallest bounded request flow, retaining independent evidence and explicit uncertainty on every unsupported relationship. Choose the smallest bounded request flow, retaining independent evidence and explicit uncertainty on every unsupported relationship. ",
+    "scenario": "A tenant issues one request, receives a deterministic ordered page, and examines related records without an unbounded per-record fan-out. A tenant issues one request, receives a deterministic ordered page, and examines related records without an unbounded per-record fan-out. A tenant issues one request, receives a deterministic ordered page, and examines related records without an unbounded per-record fan-out. ",
+    "invariant": "Keep parent pagination, empty relations, authorization boundaries, relationship direction and complete citation metadata unchanged. Keep parent pagination, empty relations, authorization boundaries, relationship direction and complete citation metadata unchanged. Keep parent pagination, empty relations, authorization boundaries, relationship direction and complete citation metadata unchanged. ",
+    "status": "proposed",
+    "evidence": "docs/example-architecture.md:20",
+    "evidence_kind": "document",
+    "omissions": [
+      "Production capacity is not established by this synthetic presentation exercise. Production capacity is not established by this synthetic presentation exercise. Production capacity is not established by this synthetic presentation exercise. ",
+      "No remote resources or citation targets are fetched during rendering. No remote resources or citation targets are fetched during rendering. No remote resources or citation targets are fetched during rendering. "
+    ]
+  }
+}

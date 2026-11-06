@@ -1,0 +1,44 @@
+{
+  "slug": "system-design-visualization-improvements",
+  "operator_profile": "technical",
+  "lane": "direction",
+  "snc_tier": "high",
+  "delivery_mode": "extended",
+  "work_item": "docs/srs/srs-system-design-visualization-improvements.md",
+  "source_revision": "52671cf9ed6a1c376dfaaae7e621dbc51a4c8765 plus recorded cumulative workspace snapshots",
+  "approval_reference": "Maintainer: approve corrections; subagent-driven; repair baseline. Separately: Align trace parser too. Later: Resume after quota reset; quota has been reset.",
+  "owner": "requesting maintainer / registry maintainer; independent verification actors recorded in proof receipts",
+  "goal": "Improve canonical system-design/diagramming skills and bounded N+1 recognition/remediation without creating a second semantic authority or importing unsupported benchmark claims",
+  "changes": [
+    "Shared emitted label/header/entity/message plans, full-rectangle strict checks, theme-aware styles, preserved vendor art/provenance, distinct state terminal and round-trip fractional waypoint serialization",
+    "PNG-only escaped static offline package with exact JSON snapshot, private no-clobber publication, staging-only cleanup and canonical same-capture manifest binding",
+    "Canonical N+1 evidence tiers and semantics-preserving bounded remedies; reviewed manual held-out cases and denial-safe lexical smoke assertions",
+    "Real in-memory SQLite fixture with scoped data, independent oracle, trace counts/fingerprints, pagination/empty/high-fanout/aggregate controls",
+    "Generic formal trace-ID grammar aligned in outcome and document consumers; historical authority, ambiguity, orphan and exact-scope guards preserved"
+  ],
+  "verification": [
+    {"command": "Python unittest test_fixtures test_check_layout test_render_drawio test_view_manifest test_export_html with UPDATE_GOLDEN empty", "status": "PASS", "tests": 207, "seconds": 0.142},
+    {"command": "Real Desktop standard/adverse smoke", "status": "PASS", "exports": 22, "evidence": ["theme-exports-roundtrip/receipt.json", "adverse-exports-roundtrip/receipt.json"]},
+    {"command": "Actual playwright-cli offline context/adversarial metadata and intercepted CSP probes", "status": "PASS", "evidence": ["browser-context-final.raw.txt", "browser-adversarial-final.raw.txt"], "cleanup": "named sessions closed"},
+    {"command": "Real SQLite CLI and focused unittest", "status": "PASS", "tests": 12, "observations": 11, "controls": 11},
+    {"command": "Node26 existing-dependency adapted-loader outcome/trace tests", "status": "PASS", "outcome_tests": 37, "trace_tests": 68, "qualification": "not original pnpm/tsx runtime"},
+    {"command": "Exact required feature document audit and verification run-record audit", "status": "PASS", "qualification": "document-links-only / record-schema-and-scope-valid, not execution or approval"},
+    {"command": "Independent integrated implementation source review", "status": "CLOSED", "evidence": "integrated-source-review.json"},
+    {"command": "Full deterministic/live evaluator module", "status": "BLOCKED", "reason": "absent gpt-tokenizer/native workspace prerequisites; no install or substitute runtime"},
+    {"command": "Desktop network-denial verification", "status": "BLOCKED", "reason": "nested sandbox initialization unavailable; no bypass; browser CSP is separate"},
+    {"command": "Build/lint/formatters/generated-consumer parity/human reader/live efficacy/release", "status": "NOT RUN"}
+  ],
+  "requirements_drift": "Canonical PRD AC-01 through AC-09 unchanged; separately approved document-consumer alignment recorded in SRS. BRD objectives formatted as declarations without renumbering; walkthrough evidence rows are references, not duplicate AC definitions.",
+  "evidence_lanes": {"technical": "implemented; focused local checks passed; overall required external verification lanes BLOCKED", "business_acceptance": "not assessed", "release": "not assessed / unauthorized"},
+  "sdd_status_view": "NOT RUN: no managed *state*.json found in feature execution-plan, trace-alignment-plan or run-artifact directories. Native Paseo terminal/freeze receipts and execution-progress.json are retained; no synthetic host state was invented.",
+  "follow_ups": [
+    {"criterion": "AC-06", "owner": "requesting maintainer", "input": "paired baseline/candidate reading answers/times under approved scoring"},
+    {"criterion": "AC-07/AC-08/held-out AC-09", "owner": "maintainer plus independent QA", "input": "explicit eligible account/model/effort/cap/expiry evaluation authority and native prerequisites"},
+    {"criterion": "Desktop network boundary", "owner": "authorized host/operator", "input": "supported enforced isolation or appropriately scoped process-attributed observations"},
+    {"criterion": "Generated consumer parity and release", "owner": "registry maintainer", "input": "separate generation/release authority after required gates"}
+  ],
+  "skill_feedback": {"artifact": "retrospective-candidates.json", "adoption": "proposed only; no AGENTS_LEARNING.md/policy/memory promotion", "local_preparation": "manual-only until reliable final readiness; no automated preparation action supplied"},
+  "local_delivery_disposition": {"documentation_review": "closed; final-delivery-review.json", "archive_and_owned_probe_cleanup": "Recorded separately in archive-cleanup-receipt.json after checksum verification; no feature acceptance implied"},
+  "next_workflow": "verify-work",
+  "cost": {"source": "unavailable", "qualification": "No complete comparable parent/worker/reviewer/repair/failed-attempt accounting or measured savings claim"}
+}

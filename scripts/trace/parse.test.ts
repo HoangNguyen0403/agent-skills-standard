@@ -519,3 +519,163 @@ test("unrelated Note|Status table does not declare REQ or AC, while exact first-
   assert.ok(exactSlug.declared.get("REQ")?.has("REQ-001"));
   assert.ok(exactSlug.declared.get("AC")?.has("AC-001"));
 });
+
+test("parseRepo accepts single uppercase namespace formal IDs and 2-digit ACs as formal declarations", () => {
+  const root = writeSlugTree({
+    "docs/brd/brd-aligned.md": [
+      "# BRD: Aligned",
+      "",
+      "- **Objective ID**: BRD-OBJ-VIS-001",
+      "- **Objective ID**: BRD-OBJ-PERF-001",
+      "- **Objective ID**: BRD-OBJ-001",
+      "",
+    ].join("\n"),
+    "docs/prd/prd-aligned.md": [
+      "# PRD: Aligned",
+      "",
+      "| Req ID | Requirement | BRD Objective Ref |",
+      "| --- | --- | --- |",
+      "| REQ-VIS-001 | Visual requirement | BRD-OBJ-VIS-001 |",
+      "| REQ-PERF-001 | Performance requirement | BRD-OBJ-PERF-001 |",
+      "| REQ-001 | Plain numeric requirement | BRD-OBJ-001 |",
+      "",
+      "| AC ID | Req ID | Given | When | Then |",
+      "| --- | --- | --- | --- | --- |",
+      "| AC-01 | REQ-VIS-001 | given | when | then |",
+      "| AC-02 | REQ-PERF-001 | given | when | then |",
+      "| AC-001 | REQ-001 | given | when | then |",
+      "",
+    ].join("\n"),
+    "docs/srs/srs-aligned.md": [
+      "# SRS: Aligned",
+      "",
+      "### SRS-001: First SRS",
+      "- Source: REQ-VIS-001, AC-01",
+      "",
+      "### SRS-002: Second SRS",
+      "- Source: REQ-PERF-001, AC-02",
+      "",
+      "### SRS-003: Third SRS",
+      "- Source: REQ-001, AC-001",
+      "",
+    ].join("\n"),
+  });
+
+  const slugs = parseRepo(root);
+  const slug = slugs.find((s) => s.slug === "aligned");
+  assert.ok(slug);
+
+  // Formal declarations
+  const brdObj = slug!.declared.get("BRD-OBJ");
+  assert.ok(brdObj?.has("BRD-OBJ-VIS-001"));
+  assert.ok(brdObj?.has("BRD-OBJ-PERF-001"));
+  assert.ok(brdObj?.has("BRD-OBJ-001"));
+  assert.equal(brdObj?.size, 3);
+
+  const reqs = slug!.declared.get("REQ");
+  assert.ok(reqs?.has("REQ-VIS-001"));
+  assert.ok(reqs?.has("REQ-PERF-001"));
+  assert.ok(reqs?.has("REQ-001"));
+  assert.equal(reqs?.size, 3);
+
+  const acs = slug!.declared.get("AC");
+  assert.ok(acs?.has("AC-01"));
+  assert.ok(acs?.has("AC-02"));
+  assert.ok(acs?.has("AC-001"));
+  assert.equal(acs?.size, 3);
+
+  const srs = slug!.declared.get("SRS");
+  assert.ok(srs?.has("SRS-001"));
+  assert.ok(srs?.has("SRS-002"));
+  assert.ok(srs?.has("SRS-003"));
+  assert.equal(srs?.size, 3);
+
+  // References should all be valid and formal (not qualified historical)
+  const ac01Ref = slug!.references.find((r) => r.id === "AC-01" && r.role === "declaration");
+  assert.ok(ac01Ref);
+  assert.equal(ac01Ref!.valid, true);
+  assert.equal(ac01Ref!.qualified ?? false, false);
+
+  const reqVisRef = slug!.references.find((r) => r.id === "REQ-VIS-001" && r.role === "declaration");
+  assert.ok(reqVisRef);
+  assert.equal(reqVisRef!.valid, true);
+  assert.equal(reqVisRef!.qualified ?? false, false);
+});
+
+test("parseRepo rejects multi-namespace formal IDs or lowercase IDs as declarations", () => {
+  const root = writeSlugTree({
+    "docs/prd/prd-multins.md": [
+      "# PRD: Multi NS",
+      "",
+      "| Req ID | Requirement |",
+      "| --- | --- |",
+      "| REQ-SUB-MOD-001 | multi namespace |",
+      "| REQ-vis-001 | lowercase namespace |",
+      "| REQ-1 | short numeric |",
+      "| AC-1 | single digit AC |",
+      "",
+    ].join("\n"),
+  });
+
+  const slugs = parseRepo(root);
+  const slug = slugs.find((s) => s.slug === "multins");
+  assert.ok(slug);
+
+  // None of these should be in declared formal REQ or AC
+  assert.equal(slug!.declared.get("REQ")?.size ?? 0, 0);
+  assert.equal(slug!.declared.get("AC")?.size ?? 0, 0);
+
+  const ac1 = slug!.references.find((r) => r.id === "AC-1");
+  assert.ok(ac1);
+  assert.equal(ac1!.valid, false, "AC-1 must remain invalid");
+
+  const req1 = slug!.references.find((r) => r.id === "REQ-1");
+  assert.ok(req1);
+  assert.equal(req1!.valid, false, "REQ-1 must remain invalid");
+
+  const lower = slug!.references.find((r) => r.id === "REQ-vis-001");
+  assert.ok(lower);
+  assert.equal(lower!.valid, false, "REQ-vis-001 must remain invalid");
+
+  // An explicit formal column obeys the formal grammar only: the historical
+  // multi-namespace grammar may not rescue REQ-SUB-MOD-001, and the rejected
+  // candidate must not be reclassified as a historical source declaration.
+  const multiNs = slug!.references.find((r) => r.id === "REQ-SUB-MOD-001");
+  assert.ok(multiNs);
+  assert.equal(multiNs!.role, "declaration");
+  assert.equal(multiNs!.valid, false, "REQ-SUB-MOD-001 in a Req ID column must violate the formal grammar");
+  assert.equal(multiNs!.qualified ?? false, false, "a malformed formal candidate must not become a source declaration");
+  assert.ok(!slug!.declared.get("REQ")?.has("REQ-SUB-MOD-001"));
+  assert.ok(!slug!.sourceDeclared?.get("REQ")?.has("REQ-SUB-MOD-001"));
+});
+
+test("historical candidate columns keep the multi-namespace grammar that formal columns reject", () => {
+  const root = writeSlugTree({
+    "docs/brd/brd-historical-ns.md": [
+      "# BRD",
+      "",
+      "| Capability | Candidate requirement | Rationale |",
+      "| --- | --- | --- |",
+      "| Nested setup | REQ-SUB-MOD-001 | multi namespace source group |",
+      "",
+    ].join("\n"),
+    "docs/prd/prd-historical-ns.md": [
+      "# PRD",
+      "",
+      "| Req ID | Requirement |",
+      "| --- | --- |",
+      "| REQ-001 | Formal requirement |",
+      "",
+    ].join("\n"),
+  });
+
+  const slug = parseRepo(root).find((entry) => entry.slug === "historical-ns");
+  assert.ok(slug);
+  const historical = slug!.references.find((r) => r.id === "REQ-SUB-MOD-001");
+  assert.ok(historical);
+  assert.equal(historical!.role, "declaration");
+  assert.equal(historical!.valid, true, "a multi-namespace token is a valid historical source declaration");
+  assert.equal(historical!.qualified, true);
+  assert.ok(slug!.sourceDeclared?.get("REQ")?.has("REQ-SUB-MOD-001"));
+  assert.ok(!slug!.declared.get("REQ")?.has("REQ-SUB-MOD-001"), "the source group must not count as a formal REQ");
+});

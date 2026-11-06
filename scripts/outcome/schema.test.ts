@@ -62,6 +62,102 @@ test("validateRunRecord rejects a non-conforming REQ id even without wildcard", 
   assert.ok(issues.some((issue) => /does not match/.test(issue.message)));
 });
 
+test("validateRunRecord accepts approved qualified and 2-digit AC IDs from system-design-visualization-improvements", () => {
+  const record = validRecord({
+    requirement_trace: {
+      brd_objectives: ["BRD-OBJ-VIS-001", "BRD-OBJ-PERF-001"],
+      requirements: [
+        "REQ-VIS-001",
+        "REQ-VIS-002",
+        "REQ-VIS-003",
+        "REQ-VIS-004",
+        "REQ-VIS-005",
+        "REQ-VIS-006",
+        "REQ-PERF-001",
+        "REQ-PERF-002",
+        "REQ-PERF-003",
+      ],
+      acceptance_criteria: [
+        "AC-01",
+        "AC-02",
+        "AC-03",
+        "AC-04",
+        "AC-05",
+        "AC-06",
+        "AC-07",
+        "AC-08",
+        "AC-09",
+      ],
+      srs: [
+        "SRS-001",
+        "SRS-002",
+        "SRS-003",
+        "SRS-004",
+        "SRS-005",
+        "SRS-006",
+        "SRS-007",
+        "SRS-008",
+        "SRS-009",
+        "SRS-010",
+      ],
+    },
+  });
+  const issues = validateRunRecord(record, "fixture.json");
+  assert.deepEqual(issues, []);
+});
+
+test("validateRunRecord accepts generic uppercase-alphanumeric namespaces for BRD and REQ", () => {
+  const record = validRecord({
+    requirement_trace: {
+      brd_objectives: ["BRD-OBJ-A1-001"],
+      requirements: ["REQ-B2-001"],
+      acceptance_criteria: ["AC-10"],
+      srs: ["SRS-001"],
+    },
+  });
+  const issues = validateRunRecord(record, "fixture.json");
+  assert.deepEqual(issues, []);
+});
+
+test("validateRunRecord rejects malformed or out-of-bound trace IDs across all trace fields", () => {
+  const malformedCases: Array<{
+    field: keyof RunRecord["requirement_trace"];
+    id: string;
+    description: string;
+  }> = [
+    { field: "brd_objectives", id: "BRD-OBJ-01", description: "BRD-OBJ with fewer than 3 digits" },
+    { field: "brd_objectives", id: "BRD-OBJ-vis-001", description: "BRD-OBJ with lowercase namespace" },
+    { field: "brd_objectives", id: "BRD-OBJ-VIS--001", description: "BRD-OBJ with double hyphen in namespace" },
+    { field: "brd_objectives", id: "BRD-OBJ-VIS-PERF-001", description: "BRD-OBJ with multiple namespaces" },
+    { field: "brd_objectives", id: "BRD-OBJ-1A-001", description: "BRD-OBJ with namespace starting with digit" },
+    { field: "brd_objectives", id: "BRD-OBJ-", description: "BRD-OBJ missing number" },
+    { field: "requirements", id: "REQ-01", description: "REQ with fewer than 3 digits" },
+    { field: "requirements", id: "REQ-vis-001", description: "REQ with lowercase namespace" },
+    { field: "requirements", id: "REQ-VIS-PERF-001", description: "REQ with multiple namespaces" },
+    { field: "requirements", id: "REQ-1A-001", description: "REQ with namespace starting with digit" },
+    { field: "acceptance_criteria", id: "AC-1", description: "AC with fewer than 2 digits" },
+    { field: "acceptance_criteria", id: "AC-VIS-01", description: "AC with namespace" },
+    { field: "acceptance_criteria", id: "AC-abc", description: "AC non-numeric" },
+    { field: "srs", id: "SRS-01", description: "SRS with fewer than 3 digits" },
+    { field: "srs", id: "SRS-VIS-001", description: "SRS with namespace prefix" },
+  ];
+
+  for (const { field, id, description } of malformedCases) {
+    const trace = {
+      brd_objectives: ["BRD-OBJ-001"],
+      requirements: ["REQ-001"],
+      acceptance_criteria: ["AC-01"],
+      srs: ["SRS-001"],
+      [field]: [id],
+    };
+    const issues = validateRunRecord(validRecord({ requirement_trace: trace }), "fixture.json");
+    assert.ok(
+      issues.some((issue) => /does not match/.test(issue.message)),
+      `Expected rejection for ${description} (id="${id}")`,
+    );
+  }
+});
+
 test("validateRunRecord rejects cost.source unavailable with estimated_usd present", () => {
   const record = validRecord({ cost: { source: "unavailable", estimated_usd: 1.5 } });
   const issues = validateRunRecord(record, "fixture.json");

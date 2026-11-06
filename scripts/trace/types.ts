@@ -3,14 +3,18 @@
 /** Requirement-ID kind understood by the trace graph. */
 export type IdKind = "BRD-OBJ" | "REQ" | "AC" | "SRS";
 
-/** Canonical grammar per kind: `^BRD-OBJ-\d{3,}$`, `^REQ-\d{3,}$`, `^AC-\d{3,}$`, `^SRS-\d{3,}$`. */
+/** Canonical formal grammar per kind with optional single uppercase-alphanumeric namespace for BRD-OBJ and REQ:
+ * BRD-OBJ: optional single uppercase namespace with >=3 digits: `^BRD-OBJ-(?:[A-Z][A-Z0-9]*-)?\d{3,}$`
+ * REQ: optional single uppercase namespace with >=3 digits: `^REQ-(?:[A-Z][A-Z0-9]*-)?\d{3,}$`
+ * AC: numeric with >=2 digits: `^AC-\d{2,}$`
+ * SRS: numeric with >=3 digits: `^SRS-\d{3,}$`
+ */
 export const ID_GRAMMAR: Record<IdKind, RegExp> = {
-  "BRD-OBJ": /^BRD-OBJ-\d{3,}$/,
-  REQ: /^REQ-\d{3,}$/,
-  AC: /^AC-\d{3,}$/,
+  "BRD-OBJ": /^BRD-OBJ-(?:[A-Z][A-Z0-9]*-)?\d{3,}$/,
+  REQ: /^REQ-(?:[A-Z][A-Z0-9]*-)?\d{3,}$/,
+  AC: /^AC-\d{2,}$/,
   SRS: /^SRS-\d{3,}$/,
 };
-
 /**
  * Namespace-qualified historical source-group ID grammar:
  * prefix + generic uppercase namespace identifier segment(s) + canonical terminal >=3-digit numeric suffix.
@@ -58,6 +62,13 @@ export interface TraceRef {
   valid: boolean;
   /** True when `id` is a namespace-qualified source-group ID rather than a numeric formal ID. */
   qualified?: boolean;
+  /**
+   * Authority implied by the occurrence's own location inside a typed table
+   * column: `formal` for an explicit ID column, `source` for a historical
+   * candidate/source column. Absent for headings, ID fields, first-cell
+   * restatements and prose, which stay untyped and may use family inference.
+   */
+  authority?: "formal" | "source";
 }
 
 /** One documented source-to-formal mapping from PRD requirement or AC tables. */

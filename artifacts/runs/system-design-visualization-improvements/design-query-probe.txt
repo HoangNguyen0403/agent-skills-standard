@@ -1,0 +1,67 @@
+import json
+import sqlite3
+from time import perf_counter
+
+# Ephemeral feasibility experiment; not a shipped fixture or ORM benchmark.
+db = sqlite3.connect(":memory:")
+db.executescript("""
+CREATE TABLE parents (id INTEGER PRIMARY KEY, name TEXT NOT NULL);
+CREATE TABLE children (id INTEGER PRIMARY KEY, parent_id INTEGER NOT NULL, body TEXT NOT NULL);
+CREATE INDEX child_parent ON children(parent_id, id);
+""")
+for parent_id in range(1, 51):
+    db.execute("INSERT INTO parents VALUES (?, ?)", (parent_id, "parent-%d" % parent_id))
+    for offset in range(parent_id % 4):
+        child_id = parent_id * 10 + offset
+        db.execute("INSERT INTO children VALUES (?, ?, ?)", (child_id, parent_id, "body-%d" % child_id))
+db.commit()
+
+
+def read(limit, batched):
+    emitted = []
+    db.set_trace_callback(lambda sql: emitted.append(sql) if sql.lstrip().upper().startswith("SELECT") else None)
+    start = perf_counter()
+    parents = db.execute("SELECT id, name FROM parents ORDER BY id LIMIT ?", (limit,)).fetchall()
+    related = {parent_id: [] for parent_id, _ in parents}
+    if batched and parents:
+        ids = [parent_id for parent_id, _ in parents]
+        placeholders = ",".join("?" for _ in ids)
+        rows = db.execute("SELECT parent_id, id, body FROM children WHERE parent_id IN (" + placeholders + ") ORDER BY parent_id, id", ids)
+        for parent_id, child_id, body in rows:
+            related[parent_id].append([child_id, body])
+    else:
+        for parent_id, _ in parents:
+            rows = db.execute("SELECT id, body FROM children WHERE parent_id = ? ORDER BY id", (parent_id,)).fetchall()
+            related[parent_id] = [[child_id, body] for child_id, body in rows]
+    result = [[parent_id, name, related[parent_id]] for parent_id, name in parents]
+    elapsed_ms = (perf_counter() - start) * 1000
+    db.set_trace_callback(None)
+    return result, emitted, elapsed_ms
+
+
+observations = []
+for n in (1, 10, 50):
+    baseline, before, before_ms = read(n, False)
+    candidate, after, after_ms = read(n, True)
+    assert baseline == candidate
+    assert len(before) == 1 + n
+    assert len(after) == 2
+    observations.append({
+        "parents": n,
+        "n_plus_one_selects": len(before),
+        "bounded_batch_selects": len(after),
+        "results_equal": baseline == candidate,
+        "parents_returned": len(candidate),
+        "children_returned": sum(len(row[2]) for row in candidate),
+        "serialized_result_bytes": len(json.dumps(candidate).encode()),
+        "baseline_elapsed_ms": round(before_ms, 3),
+        "batch_elapsed_ms": round(after_ms, 3),
+    })
+print(json.dumps({
+    "sqlite_version": sqlite3.sqlite_version,
+    "storage": "ephemeral in-memory",
+    "instrumentation": "sqlite set_trace_callback, SELECT statements only",
+    "scope": "query shape and equivalent synthetic results; not PostgreSQL, ORM or production-performance proof",
+    "observations": observations,
+}, indent=2))
+db.close()

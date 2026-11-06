@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "task_id": "offline-export-capture-repair",
+  "task_number": 1,
+  "goal": "Bind selected spec to exact canonically validated capture",
+  "owner": "Personal - DeepSeek exporter residual owner",
+  "project_domain": "Personal agent-skills-standard prj_24334e6778b1395c",
+  "workspace_root": "/Users/nguyenhuyhoang/.paseo/worktrees/0vty4mn4/zealous-flamingo",
+  "plan_sha256": "297c5ff5934fe9368415e31fc7dfe2c16b0125dd0228f9f410b64a63f8ba4611",
+  "non_goals": [
+    "No installs, model eval execution, publication, commits, delegation or unrelated edits"
+  ],
+  "authority": {
+    "allowed_operations": [
+      "Read and edit owned paths under approved SRS/packet",
+      "Freeze and return evidence"
+    ],
+    "forbidden_actions": [
+      "Run tests/build/lint/formatters mid-flight",
+      "Edit peer-owned paths",
+      "Deploy or spend"
+    ],
+    "required_approvals": [
+      "User approved corrected contracts; subagent-driven; repair baseline"
+    ]
+  },
+  "global_invariants": [
+    "Preserve approved IDs, semantics, evidence and independent review",
+    "No fabricated verification"
+  ],
+  "owned_paths": [
+    "skills/common/common-architecture-diagramming/scripts/export_html.py",
+    "skills/common/common-architecture-diagramming/scripts/test_export_html.py",
+    "skills/common/common-architecture-diagramming/scripts/validate_manifest.py",
+    "skills/common/common-architecture-diagramming/scripts/test_view_manifest.py",
+    "skills/common/common-architecture-diagramming/references/offline-export.md"
+  ],
+  "acceptance_criteria": [
+    {
+      "id": "AC-01",
+      "expectation": "Apply canonical PRD AC-01 and corresponding SRS contract in this task scope"
+    },
+    {
+      "id": "AC-04",
+      "expectation": "Apply canonical PRD AC-04 and corresponding SRS contract in this task scope"
+    },
+    {
+      "id": "AC-05",
+      "expectation": "Apply canonical PRD AC-05 and corresponding SRS contract in this task scope"
+    }
+  ],
+  "verification": [
+    {
+      "command": "Parent runs focused Python/native checks and actual ingress smoke after all relevant owners freeze",
+      "cwd": "/Users/nguyenhuyhoang/.paseo/worktrees/0vty4mn4/zealous-flamingo",
+      "expected": "Owned behavior passes; unavailable native/eval/human lanes explicit NOT RUN"
+    }
+  ],
+  "required_standards": [
+    {
+      "id": "common-architecture-diagramming",
+      "path": "skills/common/common-architecture-diagramming/SKILL.md",
+      "revision": "0ea84fb78e9f46fc318e84c400d2674c771c39f350a31a24b20d65af8c0a9427"
+    },
+    {
+      "id": "common-security-standards",
+      "path": "skills/common/common-security-standards/SKILL.md",
+      "revision": "26ac1d160a2b2ffe48e3a1afe609cef6f559be2fe9c89c81840ae8d8a217ca9e"
+    }
+  ],
+  "source_revision": "52671cf9ed6a1c376dfaaae7e621dbc51a4c8765",
+  "dirty_identity": "d8876d7c0286d34d2e17860c8a161a678c970123129a3c9faa0351cb5901ba2f",
+  "source_files": [
+    {
+      "path": "docs/prd/prd-system-design-visualization-improvements.md",
+      "sha256": "1fe4e418408e3b0a09ae938da20ecfcb6c1cbe15435cecbbb9ab46af69d0c659"
+    },
+    {
+      "path": "docs/srs/srs-system-design-visualization-improvements.md",
+      "sha256": "46b35a78b9d69ce2266e50021623fa1f6273a4286e2c2adfa1c751aefe7d6cad"
+    },
+    {
+      "path": "docs/adr/adr-system-design-visualization-improvements.md",
+      "sha256": "23715f039a099e62b4b411d100539442843370b4a655ce0d0db663f74e423f54"
+    }
+  ],
+  "dependencies": [],
+  "output_contract": {
+    "receipt_destination": "artifacts/runs/system-design-visualization-improvements/exporter-residual-receipt.md",
+    "status_vocabulary": [
+      "completed",
+      "needs_context",
+      "blocked"
+    ],
+    "stop_conditions": [
+      "Freeze after owned edits",
+      "Return material missing contract to parent"
+    ]
+  },
+  "limits": {
+    "status": "advisory",
+    "correction_attempts": 1
+  }
+}

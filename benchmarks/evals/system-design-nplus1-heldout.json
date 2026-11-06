@@ -1,0 +1,224 @@
+{
+  "manifest_type": "manual_behavioral_heldout",
+  "note": "Curated behavioral held-out cases and calibration examples for manual/reviewed evaluation under fixed model/tools; this is not a native runner execution manifest.",
+  "cases": [
+    {
+      "case_id": "N1-01",
+      "family": "orm-lazy-loop",
+      "surface": "backend",
+      "base_prompt": "In a user profile service, the endpoint retrieves 25 user records from the database. A foreach loop iterates over each user and invokes user.getPreferences(), which lazily queries the user_preferences table. The team observes high latency and asks for an architectural review.",
+      "variant_prompt": "The user count increases to 250 users per page and latency spikes tenfold. An engineer suggests putting a Redis cache in front of getPreferences() or wrapping the loop in concurrent worker threads. Revise the design.",
+      "changed_constraint": "Parent page size increases tenfold; latency increases proportionally with N.",
+      "expected_invariant": "Query execution must not issue per-entity sequential queries (scaling as 1+N); child relation loading must satisfy the declared bounded query bound Q_base + R * ceil(N / B); static inspection remains suspected until confirmed by trace; cache or concurrency must not substitute for query pattern optimization.",
+      "mandatory_evidence": [
+        "Classification of static loop as suspected query amplification pending trace",
+        "Bounded batch key prefetch or eager loading strategy",
+        "Explicit rejection of cache-first or concurrent-per-row fixes",
+        "Preservation of empty relations and user ordering"
+      ],
+      "hard_failures": [
+        "Claims cache-first fixes the underlying N+1 query shape",
+        "Recommends concurrent per-row database queries as an architectural remedy",
+        "Treats static code inspection as measured production bottleneck without trace evidence"
+      ],
+      "source_fixture": "skills/database/database-query-performance/references/nplus1-diagnosis.md#amplification-patterns"
+    },
+    {
+      "case_id": "N1-02",
+      "family": "serializer-lazy-load",
+      "surface": "api",
+      "base_prompt": "A REST catalog API returns 50 products per page. The controller queries Product.findAll(). The JSON serializer template accesses product.category.name and product.reviews.count(). Profiling shows 101 queries executed for a single page request. Analyze the cause and propose the smallest safe remedy.",
+      "variant_prompt": "The response must also include whether the requesting customer has bookmarked each product, filtered by customer_id. Ensure the solution maintains tenant/customer privacy.",
+      "changed_constraint": "Added customer-specific bookmark relationship requiring tenant/customer scope filtering.",
+      "expected_invariant": "Serializer must not execute uninstrumented lazy queries; customer-scoped child lookups must preserve authorization and tenant boundaries.",
+      "mandatory_evidence": [
+        "Identification of hidden serializer/template traversal as the amplification entrypoint",
+        "Pre-fetching or projecting required attributes at the query layer before serialization",
+        "Pushdown or subquery for aggregate review counts instead of loading all review rows",
+        "Preservation of customer_id predicate on bookmark lookup"
+      ],
+      "hard_failures": [
+        "Leaves lazy loading in the serializer and suggests client pagination reduction instead",
+        "Customer bookmark query omits customer_id filter causing cross-tenant data leak",
+        "Recommends blanket multi-table JOIN that multiplies product rows across reviews"
+      ],
+      "source_fixture": "skills/database/database-query-performance/references/nplus1-diagnosis.md#amplification-patterns"
+    },
+    {
+      "case_id": "N1-03",
+      "family": "per-record-aggregate",
+      "surface": "backend",
+      "base_prompt": "An admin dashboard lists 100 merchant accounts. For each merchant, it runs SELECT COUNT(*) FROM orders WHERE merchant_id = ? AND status = 'completed' and SELECT SUM(amount) FROM orders WHERE merchant_id = ?. The team proposes fetching all orders into memory to calculate counts in application code.",
+      "variant_prompt": "The order volume per merchant ranges from 0 to 500,000 orders. Calculate the memory and query impact, and provide a bounded database-level design.",
+      "changed_constraint": "High order cardinality per merchant makes in-memory calculation catastrophic.",
+      "expected_invariant": "Aggregates must be computed in the database engine without fetching full order rows into memory or running per-record loops.",
+      "mandatory_evidence": [
+        "Identification of per-record aggregate amplification",
+        "Pushdown of COUNT and SUM using GROUP BY merchant_id or correlated subquery",
+        "Rejection of loading full child rows into application memory",
+        "Correct handling of zero-order merchants (returning count 0, sum 0, not omitted)"
+      ],
+      "hard_failures": [
+        "Approves in-memory aggregation of 500,000 orders per merchant",
+        "Suggests adding an index without changing the 200 individual query loops",
+        "Omits zero-order merchants or causes null-pointer exceptions on empty aggregates"
+      ],
+      "source_fixture": "skills/database/database-query-performance/references/nplus1-diagnosis.md#remedy-selection-matrix"
+    },
+    {
+      "case_id": "N1-04",
+      "family": "graphql-resolver-fanout",
+      "surface": "api",
+      "base_prompt": "A GraphQL API serves a query for 30 authors, resolving each author's books field. The books resolver independently calls db.findBooksByAuthor(author.id). Describe the execution flow and the standard resolution pattern.",
+      "variant_prompt": "The service is deployed in a multi-tenant SaaS environment where 50 tenants share the API cluster. The developer suggests using a global process-level cache for the DataLoader.",
+      "changed_constraint": "Multi-tenant environment requires strict isolation; global caching introduces severe cross-tenant risk.",
+      "expected_invariant": "DataLoader must be scoped strictly to the execution of a single request; keys must never cross tenant or request boundaries.",
+      "mandatory_evidence": [
+        "Identification of GraphQL field resolver fan-out",
+        "Request-scoped DataLoader implementation with batch key loading",
+        "Explicit rejection of global or cross-request DataLoader caching",
+        "Tenant isolation predicate enforced in batched child query"
+      ],
+      "hard_failures": [
+        "Permits global or process-level cache for DataLoader across requests",
+        "Claims GraphQL resolvers cannot suffer from N+1 query amplification",
+        "Fails to batch keys, leaving independent resolver queries intact"
+      ],
+      "source_fixture": "skills/system-design/system-design-communication/references/communication-selection.md#9"
+    },
+    {
+      "case_id": "N1-05",
+      "family": "already-batched-control",
+      "surface": "negative-control",
+      "base_prompt": "An import job reads 1,000 incoming item IDs. It chunks the IDs into slices of 50 and executes SELECT * FROM items WHERE id IN (?) for each chunk, resulting in 20 queries total. A static code scanner flags this as an N+1 query vulnerability. Audit the code and provide a verdict.",
+      "variant_prompt": "The batch size is configurable from 10 to 500. Evaluate the trade-off of chunk size against database parameter limits.",
+      "changed_constraint": "Evaluating chunk size boundaries against query bounds and engine parameter limits.",
+      "expected_invariant": "Chunked batch loading conforming to the declared query bound Q_base + R * ceil(N / B) (e.g. ceil(1000/50) = 20 queries) loads in declared bounded chunks rather than issuing per-entity queries; it is already batched and must NOT be flagged as an unmitigated N+1 query amplification defect.",
+      "mandatory_evidence": [
+        "Recognition that the pattern is already bounded batch loading",
+        "Rejection of false-positive N+1 classification",
+        "Analysis of chunk size B against query count and SQL parameter limits",
+        "Preservation of batch boundary without converting to single unbounded IN clause"
+      ],
+      "hard_failures": [
+        "Flags already-batched query as a critical N+1 defect requiring rewrite",
+        "Suggests replacing bounded chunks with an unbounded single query with 50,000 parameters",
+        "Fails to recognize that query count satisfies the declared batch bound Q_base + R * ceil(N / B) rather than issuing per-entity queries"
+      ],
+      "source_fixture": "skills/database/database-query-performance/references/nplus1-diagnosis.md#negative-controls-not-n1-amplification"
+    },
+    {
+      "case_id": "N1-06",
+      "family": "spare-instance-control",
+      "surface": "negative-control",
+      "base_prompt": "An architecture proposal specifies: 'To ensure high availability, the payment gateway cluster will run an N+1 redundancy configuration with 4 active nodes and 1 hot spare node.' A reviewer marks this as a severe database performance risk that will amplify query volume. Review the architecture.",
+      "variant_prompt": "The cluster expands to N+2 redundancy with 8 active nodes and 2 hot spares across two availability zones. Re-evaluate the classification.",
+      "changed_constraint": "Compute redundancy expands across availability zones.",
+      "expected_invariant": "N+1 spare-instance redundancy is an infrastructure availability pattern, not a database query amplification defect; lexical match must not cause false-positive review rejection.",
+      "mandatory_evidence": [
+        "Explicit distinction between compute/hardware N+1 redundancy and database query amplification",
+        "Rejection of the reviewer's performance finding as a lexical false positive",
+        "Verification of failover domains and health checks for the hot spare nodes",
+        "Proper score attribution under Redundancy axis, not Data scaling"
+      ],
+      "hard_failures": [
+        "Agrees that N+1 spare-instance redundancy causes database N+1 query loops",
+        "Prescribes DataLoader or SQL JOIN to fix cluster node redundancy",
+        "Penalizes Data scaling score based on compute redundancy nomenclature"
+      ],
+      "source_fixture": "skills/system-design/system-design-review/references/mistakes-table.md#35"
+    },
+    {
+      "case_id": "N1-07",
+      "family": "slow-constant-query",
+      "surface": "negative-control",
+      "base_prompt": "An order detail page takes 3.5 seconds to load. Inspection shows exactly 2 SQL queries are executed regardless of order size: one lookup by order_id (5ms) and one audit log query SELECT * FROM audit_logs WHERE action_type = 'order_placed' AND created_at > ? (3495ms). A developer proposes applying DataLoader batching to fix this N+1 problem. Review the diagnosis.",
+      "variant_prompt": "The audit log table has 20 million rows and no index on (action_type, created_at). Propose the correct diagnosis and fix.",
+      "changed_constraint": "High table cardinality confirms unindexed sequential scan on a constant-count query.",
+      "expected_invariant": "A slow query with constant execution count O(1) is an indexing/scan issue, not an N+1 query amplification issue; DataLoader does not fix unindexed table scans.",
+      "mandatory_evidence": [
+        "Recognition that query count is constant (2 queries, O(1)) and not amplified by parent count",
+        "Rejection of DataLoader or relation batching as inapplicable",
+        "Diagnosis of full table scan via EXPLAIN plan",
+        "Recommendation of composite index on (action_type, created_at) with write-cost consideration"
+      ],
+      "hard_failures": [
+        "Diagnoses the issue as N+1 query amplification",
+        "Prescribes DataLoader or batching to fix a 2-query constant routine",
+        "Fails to recommend EXPLAIN inspection or appropriate index"
+      ],
+      "source_fixture": "skills/database/database-query-performance/references/nplus1-diagnosis.md#negative-controls-not-n1-amplification"
+    },
+    {
+      "case_id": "N1-08",
+      "family": "paginated-tenant-loading",
+      "surface": "backend",
+      "base_prompt": "A multi-tenant SaaS application lists organizations with pagination: LIMIT 20 OFFSET 40 WHERE tenant_id = 'T1'. For each organization, 0 to 100 members must be loaded. The developer proposes: SELECT * FROM organizations o LEFT JOIN members m ON o.id = m.org_id WHERE o.tenant_id = 'T1' LIMIT 20 OFFSET 40. Audit this proposal.",
+      "variant_prompt": "Some organizations have 0 members; others have 100. Evaluate row multiplication, offset corruption, and tenant isolation.",
+      "changed_constraint": "Varying 1:N cardinality directly demonstrates pagination offset breakage.",
+      "expected_invariant": "LEFT JOIN across 1:N relations multiplies rows and breaks parent pagination LIMIT/OFFSET; parent keys must be paginated independently of child relation loading.",
+      "mandatory_evidence": [
+        "Demonstration that LEFT JOIN corrupts parent pagination: 1 organization with 20 members consumes the entire LIMIT 20",
+        "Recommendation of two-query bounded loading: paginated parent query, then bounded child query WHERE org_id IN (...) AND tenant_id = 'T1'",
+        "Preservation of tenant_id filter across all child queries",
+        "Handling of empty member collections without dropping parent organizations"
+      ],
+      "hard_failures": [
+        "Approves the single LEFT JOIN with LIMIT/OFFSET on the joined rows",
+        "Drops tenant_id predicate on the child query allowing cross-tenant data access",
+        "Suggests fetching all organizations unpaginated into memory"
+      ],
+      "source_fixture": "skills/database/database-query-performance/references/nplus1-diagnosis.md#crucial-invariants-to-preserve"
+    }
+  ],
+  "calibration": [
+    {
+      "case_id": "CAL-N1-01",
+      "example_type": "vocabulary-only answer",
+      "prompt": "How do you solve N+1 queries in a paginated list API?",
+      "answer": "Apply DataLoader, JOIN, caching, and batching to scale the architecture.",
+      "expected_verdict": "unsound",
+      "rationale": "Lists keywords without distinguishing access patterns, parent pagination boundaries, cardinality, tenant scope, or why blanket JOINs corrupt offsets."
+    },
+    {
+      "case_id": "CAL-N1-02",
+      "example_type": "blanket giant join prescription",
+      "prompt": "An endpoint paginates 25 parents with LIMIT 25 OFFSET 50 and loops to load children. How should this be fixed?",
+      "answer": "Replace the loop with a single LEFT JOIN across parent and child tables with LIMIT 25 OFFSET 50. One query is always better than two.",
+      "expected_verdict": "unsound",
+      "rationale": "Joining 1:N relations multiplies rows and breaks parent pagination offset. 1 parent with 25 children consumes the entire page, omitting the remaining 24 parents."
+    },
+    {
+      "case_id": "CAL-N1-03",
+      "example_type": "cache-first query amplification cure",
+      "prompt": "An ORM loop issues 100 queries for 100 records in a web controller. How should the team optimize this?",
+      "answer": "Add a Redis cache over the child query method with a 60-second TTL. The cache will absorb the database queries after the first pass.",
+      "expected_verdict": "unsound",
+      "rationale": "Hides unoptimized O(N) database queries behind a cache rather than fixing the query pattern. Cold misses still trigger 100 round-trips and risk cross-tenant cache pollution."
+    },
+    {
+      "case_id": "CAL-N1-04",
+      "example_type": "cross-tenant global dataloader cache",
+      "prompt": "In a multi-tenant GraphQL API, where should the DataLoader instance be instantiated and cached?",
+      "answer": "Create a singleton DataLoader at the application server level so all users and tenants share the cached entities.",
+      "expected_verdict": "unsound",
+      "rationale": "A global DataLoader singleton leaks confidential tenant data across requests. DataLoaders must be strictly request-scoped."
+    },
+    {
+      "case_id": "CAL-N1-05",
+      "example_type": "spare-instance redundancy false positive",
+      "prompt": "Audit this infrastructure statement: 'The database cluster uses 3 active replicas and 1 standby replica in an N+1 redundancy setup.'",
+      "answer": "This architecture has an N+1 query problem. You must batch the queries or use a DataLoader across the standby replica.",
+      "expected_verdict": "unsound",
+      "rationale": "Conflates compute/hardware N+1 spare-instance redundancy with database N+1 query amplification. No query batching or DataLoader is applicable to node redundancy."
+    },
+    {
+      "case_id": "CAL-N1-06",
+      "example_type": "sound bounded remedy",
+      "prompt": "An API lists 20 merchant accounts using LIMIT 20 OFFSET 0, and a loop queries order counts for each merchant. Propose a remedy.",
+      "answer": "Classify the code-only loop as suspected amplification. Do not use a blanket LEFT JOIN as it multiplies rows and alters pagination semantics. Instead, execute the paginated merchant query first, then execute a single aggregate query pushing down COUNT using WHERE merchant_id IN (?) GROUP BY merchant_id, or use a correlated subquery in the merchant projection. This bounds query count to Q_base + 1, preserves LIMIT/OFFSET pagination, maintains tenant scope, and avoids loading order entities into application memory. Verify with an instrumented query trace.",
+      "expected_verdict": "sound",
+      "rationale": "Classifies evidence tier (suspected), rejects blanket JOIN, protects parent pagination and tenant isolation, pushes down aggregates, and specifies instrumented trace verification."
+    }
+  ]
+}

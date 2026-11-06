@@ -1,0 +1,15 @@
+{
+  "status": "implementation-in-progress",
+  "base": "52671cf9ed6a1c376dfaaae7e621dbc51a4c8765",
+  "observed_checks": {
+    "diagram_python_suite": {"tests": 192, "passed": 192, "seconds": 0.155, "scope": "Frozen preliminary corrected renderer/exporter; not final after residual repair", "snapshot": ".agent/sdd/execution-plan/review-52671cf9e-workspace-9cfc289d77c0-d326f22d0e40.diff"},
+    "desktop_exports": {"count": 16, "types": 8, "themes": 2, "receipt": "theme-exports-final/receipt.json", "scope": "Same preliminary renderer snapshot; strict layout, theme text/IDs/source/target equality and input immutability. This did not verify rich sequence edge metadata; independent source review found its loss."},
+    "trace_tests": {"passed": 67, "failed": 0, "duration_ms": 162.404709, "runtime": "Node 26 adapted-loader reusing installed dependencies; no installs or source mocks", "snapshot": ".agent/sdd/trace-alignment-plan/review-52671cf9e-workspace-b53141bfca1a-83d6aad275c4.diff", "history": "Prior62-test pass missed three authority defects. First67-test run reproduced unreachable ambiguity reporting (66pass1fail); corrected final run67pass. Independent rereview pending."},
+    "required_document_trace": {"ok": true, "assurance_kind": "document_links", "execution_evidence": "not_evaluated", "requested_scope": "system-design-visualization-improvements", "required": true, "issues": [], "independent_review": "pending"}
+  },
+  "active_repairs": {
+    "renderer": {"owner": "ba424f5d-f635-4ce0-81e7-8553f3e9e179", "profile": "Personal - DeepSeek", "reason": "Prior Cheap original and one corrective round still failed emitted-plan agreement and removed sequence provenance", "packet": "renderer-residual-packet.md", "obligations": ["restore sequence EDGE_PROPERTIES", "emitted edge label plan", "ERD startSize and wrapped column text", "one stored header plan", "one sequence rectangle plan", "distinct state terminal and emitted below-symbol label width"]}
+  },
+  "external_gates": ["Human paired-reader acceptance not run", "Live held-out model efficacy not run or authorized", "Desktop denied-network proof environment-blocked; no bypass", "Native eval preflight missing gpt-tokenizer; no installation authorized", "Publication and release not authorized"],
+  "claim_boundary": "A passing source/test or document-links check does not establish full feature acceptance, geometry correctness, security runtime proof, live skill efficacy, human benefit or publication authority."
+}

@@ -577,3 +577,44 @@ test("run() passes --required on unrecognized header Item|Description table with
   assert.equal(parsed.ok, true);
   assert.deepEqual(parsed.issues.filter((issue: { severity: string }) => issue.severity === "error"), []);
 });
+
+test("run() passes --required on a slug with single uppercase namespace formal IDs and 2-digit ACs", () => {
+  const root = writeRoot({
+    "docs/brd/brd-vis.md": [
+      "# BRD",
+      "",
+      "- **Objective ID**: BRD-OBJ-VIS-001",
+      "- **Objective ID**: BRD-OBJ-PERF-001",
+      "",
+    ].join("\n"),
+    "docs/prd/prd-vis.md": [
+      "# PRD",
+      "",
+      "| Req ID | Requirement | BRD Objective Ref |",
+      "| --- | --- | --- |",
+      "| REQ-VIS-001 | Visual requirement | BRD-OBJ-VIS-001 |",
+      "| REQ-PERF-001 | Performance requirement | BRD-OBJ-PERF-001 |",
+      "",
+      "| AC ID | Req ID | Given | When | Then |",
+      "| --- | --- | --- | --- | --- |",
+      "| AC-01 | REQ-VIS-001 | given | when | then |",
+      "| AC-02 | REQ-PERF-001 | given | when | then |",
+      "",
+    ].join("\n"),
+    "docs/srs/srs-vis.md": [
+      "# SRS",
+      "",
+      "### SRS-001: First SRS",
+      "- Source: REQ-VIS-001, AC-01",
+      "",
+      "### SRS-002: Second SRS",
+      "- Source: REQ-PERF-001, AC-02",
+      "",
+    ].join("\n"),
+  });
+  const result = run(["--root", root, "--slug", "vis", "--required", "--json"]);
+  assert.equal(result.exitCode, 0);
+  const parsed = JSON.parse(result.output);
+  assert.equal(parsed.ok, true);
+  assert.deepEqual(parsed.issues.filter((issue: { severity: string }) => issue.severity === "error"), []);
+});

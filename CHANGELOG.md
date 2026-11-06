@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Quick Navigation
+## [Unreleased]
+
+### Added
+- **Static offline architecture diagram export (source candidate; `common-architecture-diagramming`)**: Added standalone `export_html.py`, which packages an architecture diagram spec into a self-contained local bundle (`spec.json`, light/dark `.drawio`, `index.html`) with embedded base64 PNGs and a strict CSP, so the diagram opens with no network access and no page scripts. Renderer and export pipeline are frozen with focused checks passing; counts, timings, layout and digest details live in the [walkthrough](docs/srs/srs-walkthrough-system-design-visualization-improvements.md#10-integrated-implementation-checkpoint), usage in `skills/common/common-architecture-diagramming/references/offline-export.md`.
+- **Evidence-based N+1 query amplification diagnostic fixture (source candidate; `database-query-performance`)**: Added a real local SQLite smoke fixture and test suite (`scripts/nplus1_smoke.py`, `scripts/test_nplus1_smoke.py`) that shows executable high fan-out versus aggregate query shapes rather than asserting fan-out in prose. Conceptual distinctions stay in `references/nplus1-diagnosis.md`, and the measurements and their limits are in the [walkthrough](docs/srs/srs-walkthrough-system-design-visualization-improvements.md#10-integrated-implementation-checkpoint).
+- **Bounded trace grammar and parser alignment (source candidate; `outcome`, `trace`)**: The trace validator and parser now accept single namespaces for BRD-OBJ and REQ, plus numeric AC IDs with at least two digits; legacy numeric forms remain valid, so approved source IDs no longer have to be renumbered to pass tooling. Focused outcome and document-trace checks pass and the required-slug audit reports no issues; details in the [walkthrough](docs/srs/srs-walkthrough-system-design-visualization-improvements.md#10-integrated-implementation-checkpoint).
+
+### Changed
+- **Design, performance, and trace delivery guidance reconciliation (source candidate; `system-design`, `database`, `common`)**: `CONTRIBUTING.md`, the ADR, and implementation readiness now point at the frozen renderer, export, N+1 fixture and trace evidence, name the canonical verification commands (`pnpm test:outcome`, `pnpm test:trace`, `rtk pnpm audit:trace`), and separate native tooling prerequisites from ephemeral probe execution.
+- **Boundary**: external gates remain pending — AC-06 paired human readers and AC-07…09 held-out model evaluations are NOT RUN/unauthorized, Desktop denied-network proof is environment-blocked (browser CSP is not Desktop network enforcement), native pnpm/tsx and gpt-tokenizer are absent without installs, and consumer-generation parity, deployment and release are unassessed.
 
 ## [cli-v2.7.4] - 2026-11-05
 

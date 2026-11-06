@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "slug": "system-design-visualization-improvements",
+  "status": "completed",
+  "archive": {
+    "manifest": "artifacts/system-design-visualization-improvements/evidence/manifest.json",
+    "status": "verified-copy",
+    "files": 312,
+    "bytes": 55231380,
+    "verification": "Archiver compared SHA-256 of every source payload and destination payload before returning success; required evidence paths must exist; symlinks rejected",
+    "script_evidence": "artifacts/system-design-visualization-improvements/evidence/archive-evidence.py.txt"
+  },
+  "cleanup": {
+    "status": "completed after verified-copy",
+    "removed_owned_executable_probes": 17,
+    "scope": "16 operation-owned scripts under artifact run root and exact /tmp/probe_binding.py; specialized REM results confirmed deletion",
+    "preservation": "Original evidence reports, JSON, images, production tests and fixtures retained; probe source preserved as non-executable .txt in checksum archive; no wildcard bytecode cleanup"
+  },
+  "final_review": {
+    "status": "qualified source-and-documentation closure",
+    "notification": "9eb19cdb-e6c8-4f24-a64b-b07b596880d1",
+    "snapshot": ".agent/sdd/execution-plan/review-52671cf9e-workspace-0c56183df0c5-9124fc6cab88.diff"
+  },
+  "last_record_audit": {"ok": true, "issues": [], "recordsChecked": 1, "recordsMatched": 1, "assurance": "record-schema-and-scope-valid", "runtime": "Node26 adapted loader using existing dependencies; temporary loader now archived and removed"},
+  "limits": ["Archive is a frozen evidence snapshot before cleanup; this receipt is the post-archive local closure", "No human-reader or live-model acceptance, Desktop network enforcement proof, native prerequisite success, generated-consumer parity, build/lint/formatter pass or release authorization inferred"]
+}

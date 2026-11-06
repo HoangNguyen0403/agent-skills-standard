@@ -1,0 +1,69 @@
+{
+  "version": "1.0",
+  "date": "2026-09-13",
+  "author": "Solution Architecture",
+  "title": "Acme Orders — System Context",
+  "type": "context",
+  "audience": "exec",
+  "scope": "Who uses Acme Orders and which external systems it depends on; internals excluded.",
+  "nodes": [
+    {
+      "id": "buyer",
+      "label": "Pharmacy Buyer",
+      "sublabel": "Places and tracks orders",
+      "kind": "person",
+      "evidence": "docs/prd.md:12"
+    },
+    {
+      "id": "acme",
+      "label": "Acme Orders",
+      "sublabel": "Order capture and fulfilment",
+      "kind": "system",
+      "evidence": "docs/prd.md:20"
+    },
+    {
+      "id": "erp",
+      "label": "SAP ERP",
+      "sublabel": "Stock and invoicing",
+      "kind": "system-ext",
+      "evidence": "docs/prd.md:41"
+    },
+    {
+      "id": "idp",
+      "label": "Okta",
+      "sublabel": "Single sign-on",
+      "kind": "saas",
+      "evidence": "docs/prd.md:44"
+    },
+    {
+      "id": "courier",
+      "label": "Courier Network",
+      "sublabel": "Last-mile delivery",
+      "kind": "system-ext",
+      "evidence": "docs/prd.md:47"
+    }
+  ],
+  "edges": [
+    {
+      "from": "buyer",
+      "to": "acme",
+      "label": "Places order / HTTPS"
+    },
+    {
+      "from": "acme",
+      "to": "erp",
+      "label": "Syncs order and stock / IDoc",
+      "style": "async"
+    },
+    {
+      "from": "acme",
+      "to": "idp",
+      "label": "Authenticates / OIDC"
+    },
+    {
+      "from": "acme",
+      "to": "courier",
+      "label": "Books delivery / REST"
+    }
+  ]
+}

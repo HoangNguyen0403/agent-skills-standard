@@ -199,16 +199,35 @@ pnpm build
 
 `pnpm freshness:check` is the weekly upstream drift job (`.github/workflows/skill-freshness.yml`), not a PR gate: it needs a `GITHUB_TOKEN` (up to ~110 GitHub requests) and exits 1 whenever any upstream has shipped a new major, regardless of your change. Run it locally only when reviewing pins; see `docs/FRESHNESS.md`.
 
-For changes to the architecture-diagram pipeline, also run its stdlib Python suite and a real render:
+For changes to the architecture-diagram pipeline, also run its stdlib Python suite, offline export verification, and a real render:
 
 ```bash
 python3 -m unittest discover -s skills/common/common-architecture-diagramming/scripts -p 'test_*.py'
 python3 skills/common/common-architecture-diagramming/scripts/validate_manifest.py skills/common/common-architecture-diagramming/assets/fixtures/view-manifest.json
 python3 skills/common/common-architecture-diagramming/scripts/render_drawio.py skills/common/common-architecture-diagramming/assets/fixtures/component.spec.json -o /tmp/component.drawio --strict
+python3 skills/common/common-architecture-diagramming/scripts/export_html.py skills/common/common-architecture-diagramming/assets/fixtures/component.spec.json --output-dir /tmp/component-package/
 ```
 
-Inspect the rendered image in draw.io, not only XML or geometry checks. Refresh golden files only after an intentional renderer change (`UPDATE_GOLDEN=1 python3 -m unittest test_fixtures` from the scripts directory), then verify without the update flag. Never acknowledge overwriting a manually edited diagram without first reconciling its semantic changes into the spec. For system-design guidance, pair lexical checks with the independent rubric; targeted comparisons are not aggregate quality scores.
+Inspect the rendered image in draw.io and open `/tmp/component-package/index.html` locally to visually inspect both light and dark themes at 100% zoom, not only XML or geometry checks. Refresh golden files only after an intentional renderer change (`UPDATE_GOLDEN=1 python3 -m unittest test_fixtures` from the scripts directory), then verify without the update flag. Never acknowledge overwriting a manually edited diagram without first reconciling its semantic changes into the spec. Detailed offline bundle specifications and security boundaries are documented in `skills/common/common-architecture-diagramming/references/offline-export.md`.
 
+For database query performance and N+1 query amplification changes, run the stdlib Python regression suite and real SQLite smoke fixture:
+
+```bash
+python3 -m unittest discover -s skills/database/database-query-performance/scripts -p 'test_*.py' -v
+python3 skills/database/database-query-performance/scripts/nplus1_smoke.py --json
+```
+
+The fixture verifies runtime statement counting ($1 + N$ queries), bounded batch remediation ($Q_{base} + \lceil N / B \rceil$, yielding 2 SELECTs even under high fan-out with 250 child relations), pagination, tenant isolation, and aggregate projection on real local SQLite without requiring external database services or packages. Direct serialized representation bytes are recorded locally and do not establish wire bytes or PostgreSQL capacity proof. Conceptual distinctions (already-batched queries, slow constant-count routines, and N+1 spare-instance redundancy) belong to guidance and held-out model evaluation, documented in `skills/database/database-query-performance/references/nplus1-diagnosis.md`.
+
+For outcome trace and document-link audits, run the canonical project audit commands:
+
+```bash
+pnpm test:outcome
+pnpm test:trace
+rtk pnpm audit:trace --slug system-design-visualization-improvements --required --json
+```
+
+These commands represent the canonical package runner paths and require the repository's native tooling prerequisites (Node.js LTS, pnpm, and configured workspace dependencies). In environments where local dependencies or global `tsx` are missing, native execution remains an environment prerequisite rather than a passing check; historical probe evidence using an ephemeral loader is archived separately in run records and does not replace canonical setup.
 For live-eval or eval-definition changes, also run:
 
 ```bash

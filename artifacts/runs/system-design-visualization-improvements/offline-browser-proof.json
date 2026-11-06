@@ -1,0 +1,14 @@
+{
+  "status": "pass_for_context_package_consumption",
+  "driver": "playwright-cli 0.1.8",
+  "session": "design-candidate (closed)",
+  "package": "artifacts/runs/system-design-visualization-improvements/offline-package",
+  "source_digest": "sha256:9e0cd75f8e22756ea969ad31cdcd6301e06922d94746b61220890d371bc9116f",
+  "generation": {"command":"python3 skills/common/common-architecture-diagramming/scripts/export_html.py skills/common/common-architecture-diagramming/assets/fixtures/context.spec.json --output-dir artifacts/runs/system-design-visualization-improvements/offline-package","exit":0,"renderer":"real draw.io Desktop PNG export, both themes"},
+  "observed": {"network_offline_open":true,"pngs_loaded":[{"theme":"light","width":2078,"height":1614},{"theme":"dark","width":2078,"height":1614}],"baseline_scripts":0,"baseline_external_attempts":[],"manual_light_selects_only_light":true,"manual_dark_selects_only_dark":true,"auto_dark_media_selects_dark":true},
+  "separate_security_probes": {"connectivity":"online behind abort-all HTTP/HTTPS interception","violations":[{"directive":"script-src-elem","blocked":"inline"},{"directive":"connect-src","blocked":"https://diagram-probe.invalid/connect"},{"directive":"img-src","blocked":"https://diagram-probe.invalid/image"}],"inline_script_executed":false,"successful_http_responses":[],"recorded_probe_request":"https://diagram-probe.invalid/image","console_errors":"Four expected CSP/fetch rejection messages; not unexplained application errors"},
+  "screenshots": [".playwright-cli/AC-04-light-after.png",".playwright-cli/AC-04-dark-after.png"],
+  "visual_observations": ["Metadata and citations display; digest causes horizontal overflow at1440px", "Person label/warning remains crowded; recovery owner assigned", "Dark diagram rendered and text visible; complete contrast/eight-type review pending"],
+  "harness_repairs": ["Initial probe used unavailable Node URL global in Playwright sandbox; replaced with explicit file URL", "Hidden radios required clicking their visible labels, not force-checking hidden inputs", "Observer copied URL strings but erroneously called request.url(); fixed before complete observation"],
+  "limits": ["Feature source still under correction; not final-revision proof", "One context package, not every diagram type", "No human paired-reader usefulness acceptance", "Desktop network enforcement remains independently environment-blocked", "No live model evaluations or publication authorized"]
+}

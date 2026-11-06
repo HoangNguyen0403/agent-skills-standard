@@ -1,0 +1,19 @@
+{
+  "reviewer": "4811d741-1477-45a7-85e2-56b9a967f10f",
+  "profile": "Personal · Analysis & Review",
+  "disposition": "changes_requested",
+  "evidence_kind": "read_only_source_review",
+  "base_revision": "52671cf9ed6a1c376dfaaae7e621dbc51a4c8765",
+  "cumulative_diff": ".agent/sdd/execution-plan/review-52671cf9e-workspace-364fe789a8f2-72a3341eb4be.diff",
+  "findings": [
+    {"severity":"major","owner_task":3,"path":"benchmarks/evals/system-design-nplus1-heldout.json","issue":"Incorrect asymptotic not-linear oracle rejects legitimate fixed-size batching; grade concrete declared Q_base + R * ceil(N/B)"},
+    {"severity":"major","owner_task":4,"path":"skills/database/database-query-performance/scripts/nplus1_smoke.py","issue":"Required deterministic high-child-cardinality runtime variant absent; only0-3 children tested"},
+    {"severity":"major","owner_task":3,"path":"skills/system-design/system-design-review/evals/evals.json","issue":"Literal not_contains universal fix also rejects correct negated refusal; remove wording-dependent ban"},
+    {"severity":"minor_acceptance","owner_task":4,"path":"skills/database/database-query-performance/scripts/nplus1_smoke.py","issue":"Trace callback emits expanded literals but normalization targets placeholders; fingerprints vary with IDs/tenants"},
+    {"severity":"minor_acceptance","owner_task":3,"paths":["skills/system-design/system-design-data-architecture/references/database-scaling.md","skills/system-design/system-design-review/references/mistakes-table.md"],"issue":"Canonical guidance links need ../../../database not ../../database"},
+    {"severity":"minor_contract","owner_task":4,"path":"skills/database/database-query-performance/scripts/nplus1_smoke.py","issue":"50-key cap default not enforced; validate page/batch bounds and offset, preserve nonzero failed-invariant receipt"}
+  ],
+  "positive_observations": ["Independent deterministic result oracle does not query database or use baseline", "Page-first loading and child tenant predicates", "Trace lifetime excludes setup and clears in finally", "Serialized bytes honestly named", "Trace-ID production diff matches approved grammar without unrelated weakening"],
+  "limits": ["No commands/tests by reviewer", "Held-out corpus is manual cases/calibration, not native runner manifest", "No live model/human usefulness efficacy established"],
+  "correction_state": "One focused correction sent to each Task3/4 owner; verification and cumulative rereview pending"
+}

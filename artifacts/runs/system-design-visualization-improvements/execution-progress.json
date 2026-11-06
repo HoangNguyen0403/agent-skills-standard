@@ -1,0 +1,29 @@
+{
+  "slug": "system-design-visualization-improvements",
+  "authority": "Requesting maintainer: approve corrections; subagent-driven; repair baseline; then check and continue",
+  "base_revision": "52671cf9ed6a1c376dfaaae7e621dbc51a4c8765",
+  "execution": "bounded Subagent-Driven; one implementation owner per component",
+  "initial_worker_profile": {"name":"Personal - Cheap","provider":"omp","model":"google-antigravity/gemini-3.8-flash","mode":"write","effort":"medium"},
+  "workers": {
+    "renderer": {"id":"fc133d92-c2ed-42ea-8a83-5e9f2397016f","state":"frozen; final207-test suite and16+6 exact-source Desktop exports pass", "routing":"Cheap original/correction -> DeepSeek original/correction -> Personal Delivery precision repair; explicit user quota-reset resume"},
+    "offline_export": {"id":"f90e8abd-1f23-485d-b8db-c5be67d788e0","state":"frozen; canonical same-capture binding and final offline/adversarial browser smoke pass"},
+    "guidance": {"id":"4ad30348-af6a-496e-8fa0-576aed206efe","state":"frozen; source corrections reviewed; live held-out model efficacy NOT RUN"},
+    "sqlite": {"id":"e89dba9f-316a-41e0-aa59-7d06b7408e31","state":"frozen;12 tests and real CLI11 observations/11 controls pass; independent scoped review closed"},
+    "outcome_schema": {"id":"adab897c-6ce6-4b99-8c9d-d7fe75d44bcc","state":"frozen;37 actual adapted-loader outcome tests pass"},
+    "document_trace": {"id":"1f1dba3b-df29-421d-8dd8-2e56f8a37bc2","state":"frozen;68 tests and exact required-scope CLI pass; formal/source authority and orphan guards independently reviewed"},
+    "documentation": {"id":"75a826d0-f9ba-4d08-b533-3e047fa8680d","state":"frozen; final historical-coverage and formal-ID wording corrections independently closed; Cheap capacity503 recorded before eligible DeepSeek fallback"}
+  },
+  "observed_checks": [
+    {"command":"python3 skills/database/database-query-performance/scripts/nplus1_smoke.py --json","result":"exit 0; status pass; eight controls verified; real sqlite3 execution"},
+    {"command":"python3 -m unittest discover -s skills/database/database-query-performance/scripts -p test_nplus1_smoke.py -v","result":"10 tests passed in 0.025s"},
+    {"command":"node --experimental-specifier-resolution=node --test scripts/outcome/schema.test.ts","result":"exit 1 before tests: ERR_MODULE_NOT_FOUND extensionless ./schema; Node 26.0.0"},
+    {"command":"JSON parse frozen three skill eval files and held-out artifact","result":"parse success; eval counts 3/16/11; held-out cases8; structural proof only"},
+    {"command":"full final diagram Python suite with UPDATE_GOLDEN empty","result":"207 passed in0.142s after intentional reviewed eight-fixture refresh"},
+    {"command":"final-source standard and adverse actual Desktop exports","result":"16 standard plus6 adverse exports; source immutability and rich sequence metadata checked"},
+    {"command":"Node26 adapted-loader outcome/trace tests and exact required document audit","result":"37 outcome tests;68 trace tests; required document-links-only audit issues[]"},
+    {"command":"playwright-cli final-source offline context and adversarial metadata consumer smoke","result":"two PNGs, themes, full digest/no overflow, zero baseline external attempts; controlled CSP probes blocked; no active metadata; sessions closed"}
+  ],
+  "verification_limits": ["Native pnpm/tsx/node_modules unavailable; existing-dependency adapted-loader checks are separately labeled, no installation authorized", "Actual playwright-cli browser lane completed; initial Paseo host timeout was not absence of browser runtime", "No live model evaluation or human paired-reader acceptance executed", "Desktop denied-network verification environment-blocked; browser CSP does not govern Desktop", "Eval preflight missing gpt-tokenizer; no premium substitution or package install"],
+  "independent_review": {"architecture_actor":"4811d741-1477-45a7-85e2-56b9a967f10f","security_actor":"53968879-ec1a-44e4-b79f-3a93e9a0aeb7","scope":"approved56-file source-and-documentation cumulative snapshot", "state":"qualified final closure; no unresolved material finding; final-delivery-review.json; not feature acceptance"},
+  "release": "not authorized"
+}
