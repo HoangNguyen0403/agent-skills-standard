@@ -4,7 +4,7 @@ MCP server that lets any AI agent — Claude Code, Cursor, Antigravity, Kiro, Co
 
 Makes standards consultation explicit: `AGENTS.md` and `_INDEX.md` are passive prompt context, while this MCP returns standards through auditable tool calls. Each agent or sub-agent must perform its own applicable lookup; parent-session consultation does not prove fresh-worker delivery or enforced behavior.
 
-**Current release:** `v0.8.1` — explicit consultation auditing, session accounting, retrospective tooling, package-aligned security fixes, and supported streamable HTTP request handling. Per-release detail: [CHANGELOG](../CHANGELOG.md).
+**Current release:** `v0.8.2` — explicit consultation auditing, session accounting, retrospective tooling, package-aligned security fixes, and supported streamable HTTP request handling. Per-release detail: [CHANGELOG](../CHANGELOG.md).
 
 ## High-Density Architecture (Zero-Trust)
 
