@@ -251,7 +251,7 @@ Human baseline design approval and Personal review authorization were explicitly
 
 Independent documentary review is complete; the maintainer has now explicitly approved its narrow correction delta, Subagent-Driven execution and focused baseline repair. Existing source/verification results are preserved as failing-before evidence, not waived. No premium fallback, package installation, live model evaluation or publication is authorized.
 
-Implementation is authorized within the [bounded execution packets](../../artifacts/runs/system-design-visualization-improvements/execution-plan.md), one owner per shared component. Native environment gaps remain explicit; no full-plan verification or human usefulness acceptance is claimed merely from dispatch.
+Implementation is authorized within the [bounded execution packets](../../artifacts/evidence/system-design-visualization-improvements/execution-plan.md), one owner per shared component. Native environment gaps remain explicit; no full-plan verification or human usefulness acceptance is claimed merely from dispatch.
 
 - [Design walkthrough and exact observations](srs-walkthrough-system-design-visualization-improvements.md)
 - [ADR](../adr/adr-system-design-visualization-improvements.md)

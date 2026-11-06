@@ -20,7 +20,7 @@ Executed:
 rtk proxy python3 skills/common/common-architecture-diagramming/scripts/export_drawio.py skills/common/common-architecture-diagramming/assets/fixtures/context.drawio -f png -o /tmp/ass-design-smoke.olOA5u/context.png
 ```
 
-Observed output: `wrote /tmp/ass-design-smoke.olOA5u/context.png`; exit 0. Existing fixture was not regenerated or modified. Read the actual PNG through the image tool; image dimensions were 2078×1614. Retained a byte-for-byte evidence copy at [design-baseline-context.png](../../artifacts/runs/system-design-visualization-improvements/design-baseline-context.png).
+Observed output: `wrote /tmp/ass-design-smoke.olOA5u/context.png`; exit 0. Existing fixture was not regenerated or modified. Read the actual PNG through the image tool; image dimensions were 2078×1614. Retained a byte-for-byte evidence copy at [design-baseline-context.png](../../artifacts/evidence/system-design-visualization-improvements/design-baseline-context.png).
 
 - Existing input SHA-256: `57a43a861074f9efedbe5f493f95727f81812de14773a263140b9c1312be47df`.
 - Retained PNG SHA-256: `c49f6f4ff89dfd2ac789dfd27ec0aeb2b77125abc3316a8c3badcad3bb4a64fa`.
@@ -30,7 +30,7 @@ Observed output: `wrote /tmp/ass-design-smoke.olOA5u/context.png`; exit 0. Exist
 
 ## 3. Actual query-shape feasibility experiment
 
-Executed a temporary, dependency-free Python script against an ephemeral SQLite `:memory:` database. No app data, ORM, PostgreSQL process, Docker image, network service or external account was used. The non-executable archived source is [design-query-probe.txt](../../artifacts/runs/system-design-visualization-improvements/design-query-probe.txt); its SHA-256 is `f05208943cb7c0bbdb99832f43790385fc3fb83db1996eb60e494eb21d2114b4`. The temporary executable copy is not a shipped fixture and is removed after archiving/verification.
+Executed a temporary, dependency-free Python script against an ephemeral SQLite `:memory:` database. No app data, ORM, PostgreSQL process, Docker image, network service or external account was used. The non-executable archived source is [design-query-probe.txt](../../artifacts/evidence/system-design-visualization-improvements/design-query-probe.txt); its SHA-256 is `f05208943cb7c0bbdb99832f43790385fc3fb83db1996eb60e494eb21d2114b4`. The temporary executable copy is not a shipped fixture and is removed after archiving/verification.
 
 Dataset and measurement:
 
@@ -39,7 +39,7 @@ Dataset and measurement:
 - Baseline: `SELECT id, name FROM parents ORDER BY id LIMIT ?`, then parameterized `SELECT id, body FROM children WHERE parent_id = ? ORDER BY id` per parent.
 - Candidate: identical parent query, then one bounded-key `WHERE parent_id IN (...) ORDER BY parent_id, id` child query. Values use parameters; only placeholder syntax is assembled from the selected key count.
 - `sqlite3.Connection.set_trace_callback` counted real emitted SELECT statements during reads, excluding setup/seeding/commit. It was cleared after each scenario.
-- Actual linked SQLite version: **3.53.2**. Exact output is retained in [design-query-probe.json](../../artifacts/runs/system-design-visualization-improvements/design-query-probe.json).
+- Actual linked SQLite version: **3.53.2**. Exact output is retained in [design-query-probe.json](../../artifacts/evidence/system-design-visualization-improvements/design-query-probe.json).
 
 | Parents | Baseline SELECTs | Batch SELECTs | Results equal | Child rows | Serialized result bytes | Baseline ms | Batch ms |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -112,7 +112,7 @@ Observed after initial frozen delivery:
 
 Parent inspection and independent security review also require corrected ancestor permission/no-follow checks, same-snapshot canonical manifest binding, complete file writes, working manual theme controls and parsed-structure injection assertions. These are active implementation corrections, not cleared runtime controls. Final cumulative review and actual theme/package smoke follow freeze.
 
-Evidence: [execution progress](../../artifacts/runs/system-design-visualization-improvements/execution-progress.json), [Task 3–5 independent findings](../../artifacts/runs/system-design-visualization-improvements/review-tasks-3-5.json), [Desktop environment failure](../../artifacts/runs/system-design-visualization-improvements/desktop-network-observations.json).
+Evidence: [execution progress](../../artifacts/evidence/system-design-visualization-improvements/execution-progress.json), [Task 3–5 independent findings](../../artifacts/evidence/system-design-visualization-improvements/review-tasks-3-5.json), [Desktop environment failure](../../artifacts/evidence/system-design-visualization-improvements/desktop-network-observations.json).
 
 Human paired-reader usefulness (AC-06), authorized held-out model judgments (AC-07…09) and release remain separate unexercised gates. No whole-feature `verified` claim is made.
 
@@ -127,7 +127,7 @@ The maintainer subsequently approved the document-trace parser extension and ret
 - **Offline context and adversarial-metadata browser checks PASS:** both embedded PNGs load with networking disabled; manual and system theme selection work; full digest remains visible with document width equal to the 1440px viewport. No baseline HTTP attempts or executable metadata structure occurred. Separately intercepted script/image/connect probes produced CSP violations without execution or successful HTTP responses. Both named browser sessions were closed.
 - **Real SQLite fixture:** 12 tests PASS and CLI 11 observations/11 controls PASS. At 10 and 50 parents, baseline counts are 11/51 versus two batched SELECTs with independent result checks. A 250-child relation uses two SELECTs; an aggregate returns count 250 in one SELECT without materializing children. Reported bytes are serialized UTF-8 JSON, not wire bytes or PostgreSQL capacity evidence.
 - **Trace compatibility:** 37 outcome tests and 68 document-trace tests PASS using Node 26 and an explicitly adapted loader reusing existing dependencies. The exact required feature audit reports no document-link issues; execution evidence is `not_evaluated`. Formal and historical-source authorities remain separate, including ambiguity and orphan coverage. Native pnpm/tsx execution is not inferred.
-- Independent final review closed the approved source-and-documentation scope with no unresolved material finding; see [final delivery review](../../artifacts/runs/system-design-visualization-improvements/final-delivery-review.json). This is qualified review closure, not human acceptance or release approval.
+- Independent final review closed the approved source-and-documentation scope with no unresolved material finding; see [final delivery review](../../artifacts/evidence/system-design-visualization-improvements/final-delivery-review.json). This is qualified review closure, not human acceptance or release approval.
 
 ### Acceptance disposition
 
@@ -147,7 +147,7 @@ The maintainer subsequently approved the document-trace parser extension and ret
 
 **Technical verification remains qualified/blocked, not whole-feature PASS.** Desktop denied-network verification is environment-blocked; ordinary Desktop export and browser CSP do not prove Desktop egress enforcement. Eval preflight lacks `gpt-tokenizer`, and native workspace pnpm/tsx prerequisites were not installed. Build/lint/formatter checks were not run. Human-reader acceptance, live model efficacy, generated-consumer parity and release/publication remain unassessed or unauthorized. No sandbox bypass, package installation, version bump, commit or publication is implied.
 
-Current receipts: [renderer and browser proof](../../artifacts/runs/system-design-visualization-improvements/renderer-final-proof.json), [trace proof](../../artifacts/runs/system-design-visualization-improvements/trace-final-proof.json), and [proposed retrospective candidates](../../artifacts/runs/system-design-visualization-improvements/retrospective-candidates.json). Raw observations and export receipts are retained. The [archive and cleanup receipt](../../artifacts/runs/system-design-visualization-improvements/archive-cleanup-receipt.json) records 312 checksum-verified copies and subsequent removal of 17 operation-owned temporary probes; their source remains non-executable archival evidence.
+Current receipts: [renderer and browser proof](../../artifacts/evidence/system-design-visualization-improvements/renderer-final-proof.json), [trace proof](../../artifacts/evidence/system-design-visualization-improvements/trace-final-proof.json), and [proposed retrospective candidates](../../artifacts/evidence/system-design-visualization-improvements/retrospective-candidates.json). Raw observations and export receipts are retained. The [archive and cleanup receipt](../../artifacts/evidence/system-design-visualization-improvements/archive-cleanup-receipt.json) records 312 checksum-verified copies and subsequent removal of 17 operation-owned temporary probes; their source remains non-executable archival evidence.
 
 ## 11. PR pipeline repair and native prerequisite checkpoint
 
@@ -155,6 +155,6 @@ PR [#298](https://github.com/HoangNguyen0403/agent-skills-standard/pull/298) exp
 
 The maintainer subsequently authorized locked dependency restoration. Native `pnpm` execution now passes 37 outcome tests, 68 trace tests, 456 evaluation-script tests, required trace and run-record audits, CLI build, and workspace lint checks. Changed root TypeScript formatting was repaired with the existing Prettier configuration and verified after freeze. Evaluation preflight for the four changed skills reports zero issues. Local runtime is Node 26.0.0/pnpm 10.0.0; this is native execution, not a supported-LTS claim or the earlier adapted loader.
 
-The nonmutating workspace format check still reports 14 unchanged website files; those are not silently rewritten as part of this repair. CLI validation auto-discovery selected zero skill bodies at committed HEAD, so its successful category-metadata check is not claimed as feature skill-body coverage. Exact observations and remaining repair gates are in [the native checkpoint](../../artifacts/runs/system-design-visualization-improvements/ci-native-checkpoint.json). Human-reader acceptance, live model judgments, Desktop network enforcement and release remain separately unclosed.
+The nonmutating workspace format check still reports 14 unchanged website files; those are not silently rewritten as part of this repair. CLI validation auto-discovery selected zero skill bodies at committed HEAD, so its successful category-metadata check is not claimed as feature skill-body coverage. Exact observations and remaining repair gates are in [the native checkpoint](../../artifacts/evidence/system-design-visualization-improvements/ci-native-checkpoint.json). Human-reader acceptance, live model judgments, Desktop network enforcement and release remain separately unclosed.
 
-Post-freeze `pnpm generate-indices --check` and `pnpm docs:capabilities:check` both passed. The configured `.claude` consumer ran all 207 diagram/exporter tests successfully, then performed a strict dark-component render and actual Desktop PNG export; [consumer image](../../artifacts/runs/system-design-visualization-improvements/consumer-smoke.png). Independent repair review found no blocker or major finding in the formatting-only TypeScript delta or the four canonical/120 mirrored generated outputs. Fresh-clone PR checks remain the remote pipeline gate; local ownership state alone is not CI proof.
+Post-freeze `pnpm generate-indices --check` and `pnpm docs:capabilities:check` both passed. The configured `.claude` consumer ran all 207 diagram/exporter tests successfully, then performed a strict dark-component render and actual Desktop PNG export; [consumer image](../../artifacts/evidence/system-design-visualization-improvements/consumer-smoke.png). Independent repair review found no blocker or major finding in the formatting-only TypeScript delta or the four canonical/120 mirrored generated outputs. Fresh-clone PR checks remain the remote pipeline gate; local ownership state alone is not CI proof.
