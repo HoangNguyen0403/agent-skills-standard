@@ -47,10 +47,9 @@ common/session-retrospective/
 ## Local preparation
 
 - **Disposition** — Main, non-diagnostic substantive checkpoint plus verified readiness: offer local preparation once when the host supports it, otherwise give manual instructions; trivial task: no prompt. A completion signal is a claim, not acceptance or approval
-- **Trigger** — Explicit CLI or host action only; no magic phrase. `Later` keeps passive access, `Skip` suppresses that checkpoint, and only meaningful new work plus a new checkpoint re-qualifies. Details: [references/local-preparation.md](references/local-preparation.md)
+- **Trigger** — Two paths: automatic when orchestrator/unassigned completes implementation and passes settled task counts to `get_session_cost`; standalone via direct `prepare_retrospective` call with optional title and no workflow prerequisites. Both require local stdio and one-time CLI consent (`ags retrospective enable`). Details: [references/local-preparation.md](references/local-preparation.md)
 - **Scope** — Deterministic local rules over allowlisted structured events; findings are `observed` or `candidate`, semantic judgments `not-assessable`, restricted sources explicit gaps
 - **Boundaries** — Local-only by default; no automatic `AGENTS_LEARNING.md`, memory, registry or adoption writes; never load reports back into model context; adoption stays a separate authorized step
-
 ## Prevention mechanisms
 
 | Failure shape | Mechanism | Verify with |

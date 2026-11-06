@@ -245,6 +245,50 @@ describe("WorkflowTelemetry", () => {
     expect(result).toEqual({ ok: true, report: "telemetry" });
   });
 
+  it("carries an explicit completion object through the finalize request", async () => {
+    const invokeGetSessionCost = vi.fn().mockResolvedValue(null);
+
+    await finalizeWorkflowTelemetry({
+      trigger: { activeWorkflow: "implement-feature", status: "completed" },
+      outcome: "implemented",
+      completion: { role: "orchestrator", activeTasks: 0, pendingTasks: 0 },
+      invokeGetSessionCost,
+    });
+
+    expect(invokeGetSessionCost).toHaveBeenCalledWith(
+      expect.objectContaining({
+        outcome: "implemented",
+        completion: { role: "orchestrator", activeTasks: 0, pendingTasks: 0 },
+      }),
+    );
+  });
+
+  it("never infers outcome from the telemetry trigger status", () => {
+    const request = buildSessionCostRequest({
+      workflow: "implement-feature",
+    });
+    expect("outcome" in request).toBe(false);
+  });
+
+  it("omits completion instead of defaulting counts when readiness is not supplied", async () => {
+    const invokeGetSessionCost = vi.fn().mockResolvedValue(null);
+
+    await finalizeWorkflowTelemetry({
+      trigger: { activeWorkflow: "implement-feature", status: "completed" },
+      invokeGetSessionCost,
+    });
+
+    const request = invokeGetSessionCost.mock.calls[0][0] as Record<
+      string,
+      unknown
+    >;
+    expect("completion" in request).toBe(false);
+    expect(
+      "completion" in
+        buildSessionCostRequest({ workflow: "implement-feature" }),
+    ).toBe(false);
+  });
+
   it("reports host provenance only when the host adapter supplied the request", () => {
     expect(
       summarizeSessionCostCoverage(

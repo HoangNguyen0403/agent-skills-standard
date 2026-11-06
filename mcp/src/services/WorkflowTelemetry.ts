@@ -29,6 +29,12 @@ export interface RuntimePricingSnapshot {
  * - `agent-estimate`: caller-typed values without host adapter assertion.
  * - `unavailable`: required token/pricing fields are missing.
  */
+export interface CompletionReadiness {
+  role: "orchestrator" | "unassigned" | "worker";
+  activeTasks: number;
+  pendingTasks: number;
+}
+
 export type CostSource = "host" | "agent-estimate" | "unavailable";
 export interface SessionCostRequest {
   workflow: string;
@@ -50,6 +56,12 @@ export interface SessionCostRequest {
    * remains unverified by this MCP server without an authenticated host boundary.
    */
   costSource?: "host" | "agent-estimate";
+  /**
+   * Caller-supplied workflow terminal feature_status. Never inferred from the
+   * telemetry trigger's status; automatic retrospective eligibility reads it.
+   */
+  outcome?: string;
+  completion?: CompletionReadiness;
 }
 
 export interface SessionCostCoverage {
@@ -169,6 +181,8 @@ export interface FinalizeWorkflowTelemetryOptions<T> {
   model?: string;
   usage?: RuntimeUsageSnapshot;
   pricing?: RuntimePricingSnapshot;
+  outcome?: string;
+  completion?: CompletionReadiness;
   invokeGetSessionCost: (args: SessionCostRequest) => Promise<T>;
 }
 
@@ -186,8 +200,10 @@ export function buildSessionCostRequest(args: {
   model?: string;
   usage?: RuntimeUsageSnapshot;
   pricing?: RuntimePricingSnapshot;
+  outcome?: string;
+  completion?: CompletionReadiness;
 }): SessionCostRequest {
-  const { workflow, model, usage, pricing } = args;
+  const { workflow, model, usage, pricing, outcome, completion } = args;
   return {
     workflow,
     model,
@@ -205,6 +221,8 @@ export function buildSessionCostRequest(args: {
     // This is the documented host-adapter path: usage/pricing came from the
     // runtime's own telemetry, not from an agent typing numbers.
     costSource: "host",
+    ...(outcome === undefined ? {} : { outcome }),
+    ...(completion ? { completion } : {}),
   };
 }
 
@@ -219,6 +237,8 @@ export async function finalizeWorkflowTelemetry<T>(
       model: options.model,
       usage: options.usage,
       pricing: options.pricing,
+      outcome: options.outcome,
+      completion: options.completion,
     }),
   );
 }

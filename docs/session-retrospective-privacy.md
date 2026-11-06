@@ -3,10 +3,9 @@
 Read this before you enable collection for the first time. It states what the
 preparer can see, what it must never see, what leaves your machine and what it cannot guarantee.
 
-> **Status: source feature, not a released product.** Behaviour described here is the agreed
-> contract for this repository's in-progress work. Runtime verification, including
-> process-level network observation and cross-platform path checks, remains pending. See
-> `CHANGELOG.md` → `[Unreleased]`.
+> **Status: capability release boundary.** Manual retrospective tools and CLI commands are released in
+> `agent-skills-standard-mcp` 0.8.1 over local stdio. Extended automatic preparation via `get_session_cost`
+> completion readiness is unreleased source in PR #295. See `CHANGELOG.md` → `[Unreleased]`.
 
 ## Processing model
 

@@ -13,6 +13,7 @@ import {
   type RunDeps,
   type RunResult,
 } from "../retrospective/run";
+import type { CompletionReadiness } from "../services/WorkflowTelemetry";
 
 export const prepareRetrospectiveSchema = z.object({
   title: z
@@ -47,6 +48,25 @@ export const DISABLED_RETROSPECTIVE_TEXT =
 
 export const RETROSPECTIVE_NUDGE_TEXT =
   "Retrospective pending. If you hold an assignment packet (you are a worker), ignore this section. Otherwise call `prepare_retrospective` now (pass `title` = one line saying what this session was for; it is shown as agent-supplied and unverified), then tell the user the coverage, the counts and the file paths (summary, ledger and HTML report) it returns, and that they can open either.";
+
+export const AUTO_RETROSPECTIVE_WORKFLOW_SKIPPED_TEXT =
+  "Automatic retrospective skipped: only an `implement-feature` completion with outcome `implemented` is eligible.";
+export const AUTO_RETROSPECTIVE_WORKER_SKIPPED_TEXT =
+  "Automatic retrospective skipped: workers holding an assignment packet never prepare retrospectives.";
+export const AUTO_RETROSPECTIVE_TASKS_SKIPPED_TEXT =
+  "Automatic retrospective skipped: the caller declared active or pending plan tasks.";
+export const AUTO_RETROSPECTIVE_TRANSPORT_SKIPPED_TEXT =
+  "Automatic retrospective skipped: automatic preparation is stdio-only.";
+
+/**
+ * Caller-declared completion readiness accepted by `get_session_cost`. This is a
+ * claim, not host-authenticated proof that the plan actually finished.
+ */
+export type CompletionTriggerArgs = {
+  workflow?: string;
+  outcome?: string;
+  completion?: CompletionReadiness;
+};
 
 /**
  * Progress that can justify asking for a retrospective: every recorded tool
@@ -93,9 +113,87 @@ export function renderRunResultText(result: RunResult): string {
       return "Retrospective aborted: candidate session binding is ambiguous.";
     case "child-session":
       return "Retrospective skipped: current session is a child or worker session.";
+    case "no-native-evidence":
+      return "Retrospective skipped: automatic preparation requires a positively bound native session.";
     case "failed":
       return "Retrospective preparation failed.";
   }
+}
+
+/** Runs the real preparation engine under the shared 60s deadline. */
+async function executeRetrospective(
+  ctx: ToolContext,
+  options: { title?: string; requireNativeMain?: boolean },
+): Promise<RunResult> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => {
+    controller.abort();
+  }, 60_000);
+
+  try {
+    return await runRetrospective(
+      {
+        tracker: ctx.tracker,
+        workspace: ctx.projectRoot,
+        ...(ctx.consentPath ? { consentPath: ctx.consentPath } : {}),
+        ...options,
+      } as RunDeps,
+      controller.signal,
+    );
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+function markPrepared(ctx: ToolContext): void {
+  ctx.retrospectiveMark ??= { preparedAtProgress: 0 };
+  ctx.retrospectiveMark.preparedAtProgress = substantiveProgress(ctx);
+}
+
+/**
+ * Automatic preparation for an eligible `implement-feature` completion call.
+ * Returns `null` when the caller supplied no completion object, so legacy cost
+ * output stays byte-identical. Every other outcome returns an honest fixed
+ * disposition: skip reason, refusal, or failure — never a delivery claim.
+ */
+export async function automaticRetrospectiveText(
+  args: CompletionTriggerArgs,
+  ctx: ToolContext,
+): Promise<string | null> {
+  const completion = args.completion;
+  if (!completion) return null;
+
+  const eligibility =
+    args.workflow !== "implement-feature" || args.outcome !== "implemented"
+      ? AUTO_RETROSPECTIVE_WORKFLOW_SKIPPED_TEXT
+      : completion.role === "worker"
+        ? AUTO_RETROSPECTIVE_WORKER_SKIPPED_TEXT
+        : completion.activeTasks !== 0 || completion.pendingTasks !== 0
+          ? AUTO_RETROSPECTIVE_TASKS_SKIPPED_TEXT
+          : ctx.transport !== "stdio"
+            ? AUTO_RETROSPECTIVE_TRANSPORT_SKIPPED_TEXT
+            : null;
+  if (eligibility) return eligibility;
+
+  let result: RunResult;
+  try {
+    result = await executeRetrospective(ctx, { requireNativeMain: true });
+  } catch {
+    return "Automatic retrospective preparation failed.";
+  }
+
+  const header =
+    "Automatic retrospective triggered by caller-declared completion (implement-feature, outcome implemented, zero active/pending tasks). The caller's claim is not host-authenticated proof of delivery.";
+
+  if (result.state === "prepared" || result.state === "already-prepared") {
+    markPrepared(ctx);
+    return `${header}\n\n${renderPrepared(result)}`;
+  }
+  if (result.state === "failed") {
+    const code = result.code ? ` (code: ${result.code})` : "";
+    return `Automatic retrospective preparation failed${code}: no retrospective was published.`;
+  }
+  return `${header}\n\n${renderRunResultText(result)}`;
 }
 
 export async function prepareRetrospective(
@@ -123,25 +221,11 @@ export async function prepareRetrospective(
     throw new Error("Invalid arguments: ToolContext required");
   }
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => {
-    controller.abort();
-  }, 60_000);
-
   try {
-    const result = await runRetrospective(
-      {
-        tracker: ctx.tracker,
-        workspace: ctx.projectRoot,
-        ...(ctx.consentPath ? { consentPath: ctx.consentPath } : {}),
-        title,
-      } as RunDeps,
-      controller.signal,
-    );
+    const result = await executeRetrospective(ctx, { title });
 
     if (result.state === "prepared" || result.state === "already-prepared") {
-      ctx.retrospectiveMark ??= { preparedAtProgress: 0 };
-      ctx.retrospectiveMark.preparedAtProgress = substantiveProgress(ctx);
+      markPrepared(ctx);
     }
 
     const text = renderRunResultText(result);
@@ -154,8 +238,6 @@ export async function prepareRetrospective(
       content: [{ type: "text", text: "Retrospective preparation failed." }],
       isError: true,
     };
-  } finally {
-    clearTimeout(timeoutId);
   }
 }
 

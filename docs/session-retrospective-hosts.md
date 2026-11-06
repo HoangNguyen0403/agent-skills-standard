@@ -6,15 +6,15 @@ that runs that server locally: `prepare_retrospective` (orchestrator or unassign
 an optional `title` up to 200 chars, displayed as "agent-supplied, unverified"),
 `get_retrospective_status` (consent state only), and `prepare_retrospective_index` (cross-session
 index generation; optional `since`, `until`, `folder`). It works with or without OMP or Paseo, and
-without a host adapter package or a host version check. All three tools exist in this
-repository's source; no published registry version contains them.
+without a host adapter package or a host version check. The three MCP retrospective tools
+and `ags retrospective` CLI command exist in the released `agent-skills-standard-mcp` 0.8.1 package over local stdio.
+The extended automatic completion preparation via `get_session_cost` is unreleased source in PR #295.
 The MCP tools and the `ags retrospective` CLI command are the surfaces; there are no host adapter packages.
 Everything reachable by the feature is reachable through the MCP server or from a terminal.
 
-> **Status: source feature, not a released product.** The `ags retrospective` CLI command and local
-> analysis build and pass their local tests and smoke on macOS; nothing is published to
-> the registry. There are no host adapter packages; the MCP tools and the `ags retrospective` CLI
-> command are the surfaces. Windows and Linux runtime remain unverified; no CI job runs on Windows. Version
+> **Status: capability release boundary.** The `ags retrospective` CLI command and local
+> analysis tools are available via `agent-skills-standard-mcp` 0.8.1 over local stdio; automatic completion preparation
+> via `get_session_cost` with settled task counts is an in-progress source feature. Windows and Linux runtime remain unverified; no CI job runs on Windows. Version
 > facts below come from installed binaries, released SDK packages and public host documentation — not
 > from a completed integration run. See `CHANGELOG.md` → `[Unreleased]`.
 

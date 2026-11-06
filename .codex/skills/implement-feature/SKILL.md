@@ -91,9 +91,9 @@ Goal: Build an approved feature through bounded TDD slices and route settled wor
 ## Next Workflow
 
 verify-work
+```
 
 ## Cost Report
 
-Call `get_session_cost(workflow="implement-feature")` before final handoff.
-```
+Call `get_session_cost(workflow="implement-feature")` before handoff (or with `outcome="implemented"`, `completion={role: "orchestrator", activeTasks: 0, pendingTasks: 0}` when orchestrator/unassigned on local stdio with workers/checks settled and consent enabled to trigger preparation; workers never pass completion).
 

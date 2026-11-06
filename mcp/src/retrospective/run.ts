@@ -49,6 +49,8 @@ export type RunDeps = {
   tamperLedger?: (ledger: Ledger) => Ledger;
   /** Optional title from tool / agent */
   title?: string;
+  /** When true (e.g. automatic trigger), require positively bound native main; refuse tracker-only */
+  requireNativeMain?: boolean;
 };
 
 export type RunResult =
@@ -77,6 +79,7 @@ export type RunResult =
         | "not-substantive"
         | "ambiguous-session"
         | "child-session"
+        | "no-native-evidence"
         | "failed";
       code?: string;
     };
@@ -671,6 +674,9 @@ export async function runRetrospective(
     const deadline = Date.now() + effectiveLimits.maxMillis;
 
     if (discovery.state === "no-evidence") {
+      if (deps.requireNativeMain) {
+        return { resultVersion: 1, state: "no-native-evidence" };
+      }
       // Tracker-only path
       const startedAt = summary.startedAt;
       const eventCount = summary.toolCalls;
