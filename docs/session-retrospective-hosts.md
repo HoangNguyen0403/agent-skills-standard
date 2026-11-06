@@ -54,6 +54,18 @@ For a host without a reader, the first summary line says `partial` and
 `tracker only (no session files read)`. The engine never guesses a binding, so the missing reader is
 a coverage limit rather than an error, and no session is ever attached to the wrong host.
 
+Because Claude Code and Gemini do keep local transcripts by default (`~/.claude/projects` and
+`~/.gemini/tmp`), `ags retrospective enable` checks those two paths with a single `lstat` and lists
+any that exist in a separate, non-consented disclosure section of the prompt. That is presence
+information only: the folders are never enumerated, opened or parsed, they are not added to the
+consent record, and their presence says nothing about whether the provider is running. The check
+uses the documented default locations; a relocated store (for example a custom `CLAUDE_CONFIG_DIR`)
+is not detected. `--source-root` replaces the default supported roots with explicit paths; it does
+not add a transcript reader for a provider that has none, and naming a disclosed store, an ancestor,
+a descendant, or a symlink alias of one is refused with `SOURCE_ROOT_UNSUPPORTED_STORE` before the
+prompt is shown; a path that cannot be resolved refuses with
+`SOURCE_ROOT_CANONICALIZATION_FAILED`.
+
 Codex loads skills by reading `SKILL.md` through shell commands, and Claude Code has its own `Skill`
 tool. Counting those would need new session readers and further privacy fields, so it is not part of
 this change. Host skill reads are currently counted for OMP only, and loaded is not the same as
@@ -124,8 +136,8 @@ tools, and an empty nudge leaves the output byte-identical to the output without
   342 created agents in pilot data are unobservable); this is explicitly reported as delegation coverage.
 - Tracker-derived numbers (lookups that matched nothing, bodies returned) are "not measured" for
   replayed sessions.
-- Consent text is version 2: an existing version 1 consent record fails closed as disabled (`version`);
-  re-run `ags retrospective enable` to grant consent.
+- Consent text is version 4: an existing version 1, 2 or 3 consent record fails closed as disabled
+  (`version`); re-run `ags retrospective enable` to grant consent.
 - Older generations written by earlier builds (two-file v2) or ledgers lacking new fields fail closed
   with `STORED_LEDGER_INVALID`.
 - Cost is an estimate based on a price table; "returned" skills does not mean "followed".

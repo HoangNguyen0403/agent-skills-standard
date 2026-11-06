@@ -165,16 +165,22 @@ describe("retrospective readConsent fail-closed behavior", () => {
     });
   });
 
-  it("returns version for wrong consentTextVersion", async () => {
-    const dir = await temporaryDirectory();
-    const filePath = path.join(dir, "wrong-version.json");
-    const record = { ...createSampleRecord(dir), consentTextVersion: "1" };
-    await writePrivateFile(filePath, JSON.stringify(record));
-    expect(await readConsent(filePath)).toEqual({
-      state: "disabled",
-      reason: "version",
-    });
-  });
+  it.each(["1", "2", "3"])(
+    "returns version for the previous consentTextVersion %s",
+    async (version) => {
+      const dir = await temporaryDirectory();
+      const filePath = path.join(dir, `wrong-version-${version}.json`);
+      const record = {
+        ...createSampleRecord(dir),
+        consentTextVersion: version,
+      };
+      await writePrivateFile(filePath, JSON.stringify(record));
+      expect(await readConsent(filePath)).toEqual({
+        state: "disabled",
+        reason: "version",
+      });
+    },
+  );
 
   it.skipIf(process.platform === "win32")(
     "returns permissive for mode 644 on POSIX",
