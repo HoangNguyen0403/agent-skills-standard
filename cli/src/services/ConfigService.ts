@@ -121,7 +121,7 @@ export class ConfigService {
     return null;
   }
 
-  private dumpConfig(config: Record<string, unknown>): string {
+  private dumpConfig(config: SkillConfig | Record<string, unknown>): string {
     return yaml.dump(config, {
       noRefs: true,
       lineWidth: -1,
@@ -444,7 +444,7 @@ export class ConfigService {
       ) {
         await fs.outputFile(
           this.getPrimaryConfigPath(cwd),
-          this.dumpConfig(source.config as unknown as Record<string, unknown>),
+          this.dumpConfig(source.config),
         );
       }
 
@@ -584,10 +584,7 @@ export class ConfigService {
     const primaryConfigPath = this.getPrimaryConfigPath(cwd);
     const legacyYamlPath = this.getLegacyYamlConfigPath(cwd);
 
-    await fs.outputFile(
-      primaryConfigPath,
-      this.dumpConfig(config as Record<string, unknown>),
-    );
+    await fs.outputFile(primaryConfigPath, this.dumpConfig(config));
 
     if (
       legacyYamlPath !== primaryConfigPath &&

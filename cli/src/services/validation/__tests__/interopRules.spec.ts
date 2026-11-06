@@ -83,7 +83,6 @@ describe('AgentSkillsSpecRule', () => {
   const run = (name: string) =>
     new AgentSkillsSpecRule().validate(
       `---\nname: ${name}\ndescription: d\n---\n`,
-      '/x/SKILL.md',
     );
   it('accepts kebab-case', async () => {
     expect((await run('react-hooks-2')).passed).toBe(true);
@@ -107,7 +106,6 @@ describe('TriggerPhraseRule', () => {
   const run = (d: string) =>
     new TriggerPhraseRule().validate(
       `---\nname: a\ndescription: ${d}\n---\n`,
-      '/a/SKILL.md',
     );
   it.each([
     'Do X. Use when editing Y.',
@@ -128,7 +126,6 @@ describe('TriggerPhraseRule', () => {
   it('reads block-scalar descriptions', async () => {
     const r = await new TriggerPhraseRule().validate(
       '---\nname: a\ndescription: >\n  Rules for X.\n  Use when Y.\n---\n',
-      '/a/SKILL.md',
     );
     expect(r.warnings).toEqual([]);
   });

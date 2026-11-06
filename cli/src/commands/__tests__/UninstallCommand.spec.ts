@@ -5,6 +5,7 @@ import {
   expect,
   it,
   vi,
+  type Mock,
   type MockInstance,
 } from 'vitest';
 import { Agent } from '../../constants';
@@ -25,8 +26,8 @@ describe('UninstallCommand', () => {
     loadConfig: ReturnType<typeof vi.fn>;
   };
   let logSpy: MockInstance;
-  let confirmMock: ReturnType<typeof vi.fn>;
-  let isTTYMock: ReturnType<typeof vi.fn>;
+  let confirmMock: Mock<(message: string) => Promise<boolean>>;
+  let isTTYMock: Mock<() => boolean>;
   let command: UninstallCommand;
 
   const validConfig: SkillConfig = {
@@ -43,8 +44,10 @@ describe('UninstallCommand', () => {
     mockConfigService = {
       loadConfig: vi.fn().mockResolvedValue(validConfig),
     };
-    confirmMock = vi.fn().mockResolvedValue(true);
-    isTTYMock = vi.fn().mockReturnValue(true);
+    confirmMock = vi
+      .fn<(message: string) => Promise<boolean>>()
+      .mockResolvedValue(true);
+    isTTYMock = vi.fn<() => boolean>().mockReturnValue(true);
     logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
     process.exitCode = undefined;
 

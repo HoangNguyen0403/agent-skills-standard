@@ -5,6 +5,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { hasNoRequirementSources, parseRepo } from "./parse";
+import type { IdKind } from "./types";
 
 const FIXTURES = path.join(__dirname, "__fixtures__");
 
@@ -197,29 +198,126 @@ test("parseRepo resolves explicit source mappings and keeps source declarations 
   );
 });
 
-test("parseRepo marks qualified IDs with undersized, missing, or nonnumeric terminal suffix as invalid", () => {
+test("canonical formal grammar accepts numeric and namespaced exactly-two-digit declarations", () => {
+  const root = writeSlugTree({
+    "docs/brd/brd-canonical.md": "# BRD\n\n# BRD-OBJ-CT-01 Objective\n\n- **Objective ID**: BRD-OBJ-002\n",
+    "docs/prd/prd-canonical.md": [
+      "# PRD",
+      "",
+      "| Req ID | Statement | BRD |",
+      "| --- | --- | --- |",
+      "| REQ-CT-01 | do the thing | BRD-OBJ-CT-01 |",
+      "",
+      "### AC-CT-01 Acceptance criterion",
+      "",
+      "- **Source**: REQ-CT-01",
+      "",
+      "| SRS ID | Method |",
+      "| --- | --- |",
+      "| SRS-CT-01 | test |",
+      "",
+    ].join("\n"),
+  });
+
+  const slug = parseRepo(root).find((s) => s.slug === "canonical");
+  assert.ok(slug);
+  const expected: [IdKind, string][] = [
+    ["BRD-OBJ", "BRD-OBJ-CT-01"],
+    ["BRD-OBJ", "BRD-OBJ-002"],
+    ["REQ", "REQ-CT-01"],
+    ["AC", "AC-CT-01"],
+    ["SRS", "SRS-CT-01"],
+  ];
+  for (const [kind, id] of expected) {
+    assert.ok(slug!.declared.get(kind)?.has(id), `${id} must be a canonical ${kind} declaration`);
+    const ref = slug!.references.find((r) => r.id === id && r.role === "declaration");
+    assert.equal(ref?.valid, true, `${id} must be valid`);
+    assert.equal(ref?.qualified, false, `${id} must not be classified as a historical source`);
+  }
+  assert.equal(slug!.sourceDeclared?.get("REQ")?.has("REQ-CT-01") ?? false, false);
+});
+
+test("namespaced IDs are role-specific: two digits are formal while three digits stay historical sources", () => {
   const root = writeSlugTree({
     "docs/brd/brd-suffixes.md": [
       "# BRD",
       "",
       "| Req ID | Requirement |",
       "| --- | --- |",
-      "| REQ-PILOT-01 | undersized suffix |",
+      "| REQ-PILOT-01 | canonical two-digit formal |",
+      "| REQ-PILOT-001 | historical three-digit source |",
       "| REQ-PILOT | missing suffix |",
       "| REQ-PILOT-EXTRA | nonnumeric suffix |",
-      "| REQ-PILOT-001 | valid terminal suffix |",
+      "| REQ-ct-01 | lowercase namespace |",
       "",
     ].join("\n"),
   });
 
-  const slugs = parseRepo(root);
-  const slug = slugs.find((s) => s.slug === "suffixes");
+  const slug = parseRepo(root).find((s) => s.slug === "suffixes");
   assert.ok(slug);
   const refsById = new Map(slug!.references.map((r) => [r.id, r]));
-  assert.equal(refsById.get("REQ-PILOT-01")?.valid, false, "REQ-PILOT-01 must be invalid (undersized suffix)");
-  assert.equal(refsById.get("REQ-PILOT")?.valid, false, "REQ-PILOT must be invalid (missing terminal suffix)");
-  assert.equal(refsById.get("REQ-PILOT-EXTRA")?.valid, false, "REQ-PILOT-EXTRA must be invalid (nonnumeric terminal suffix)");
-  assert.equal(refsById.get("REQ-PILOT-001")?.valid, true, "REQ-PILOT-001 must be valid (canonical >=3 digits)");
+
+  const formal = refsById.get("REQ-PILOT-01");
+  assert.equal(formal?.role, "declaration");
+  assert.equal(formal?.valid, true, "REQ-PILOT-01 is canonical formal (exactly two digits)");
+  assert.equal(formal?.qualified, false);
+  assert.ok(slug!.declared.get("REQ")?.has("REQ-PILOT-01"));
+  assert.equal(slug!.sourceDeclared?.get("REQ")?.has("REQ-PILOT-01") ?? false, false);
+
+  const historical = refsById.get("REQ-PILOT-001");
+  assert.equal(historical?.valid, true, "REQ-PILOT-001 must remain a valid historical source ID");
+  assert.equal(historical?.qualified, true);
+  assert.ok(slug!.sourceDeclared?.get("REQ")?.has("REQ-PILOT-001"));
+  assert.equal(
+    slug!.declared.get("REQ")?.has("REQ-PILOT-001") ?? false,
+    false,
+    "three-digit namespaced IDs must not be reinterpreted as canonical",
+  );
+
+  for (const id of ["REQ-PILOT", "REQ-PILOT-EXTRA", "REQ-ct-01"]) {
+    assert.equal(refsById.get(id)?.valid, false, `${id} must stay invalid`);
+  }
+  assert.deepEqual([...(slug!.declared.get("REQ") ?? [])], ["REQ-PILOT-01"]);
+});
+
+test("recognized source contexts reject two-digit canonical-looking IDs and retain mapping diagnostics", () => {
+  const root = writeSlugTree({
+    "docs/brd/brd-source-priority.md": [
+      "# BRD",
+      "",
+      "| Capability | Candidate requirement | Rationale |",
+      "| --- | --- | --- |",
+      "| Setup | REQ-CT-02 | two-digit token in a source-only table |",
+      "",
+    ].join("\n"),
+    "docs/prd/prd-source-priority.md": [
+      "# PRD",
+      "",
+      "| Req ID | Source | Requirement |",
+      "| --- | --- | --- |",
+      "| REQ-001 | REQ-CT-01 | two-digit token in a Source column |",
+      "",
+      "| AC ID | Source group | Req ID |",
+      "| --- | --- | --- |",
+      "| AC-001 | AC-CT-01 | REQ-001 |",
+      "",
+    ].join("\n"),
+  });
+
+  const slug = parseRepo(root).find((s) => s.slug === "source-priority");
+  assert.ok(slug);
+  for (const id of ["REQ-CT-01", "REQ-CT-02", "AC-CT-01"]) {
+    const ref = slug!.references.find((r) => r.id === id);
+    assert.ok(ref, `${id} must surface as an occurrence`);
+    assert.equal(ref!.valid, false, `${id} must be invalid as a historical source ID`);
+  }
+  assert.deepEqual([...(slug!.declared.get("REQ") ?? [])], ["REQ-001"]);
+  assert.deepEqual([...(slug!.declared.get("AC") ?? [])], ["AC-001"]);
+  assert.equal(slug!.sourceDeclared?.get("REQ")?.has("REQ-CT-01") ?? false, false);
+  assert.equal(slug!.sourceDeclared?.get("AC")?.has("AC-CT-01") ?? false, false);
+
+  const retained = slug!.sourceMappings?.find((m) => m.sourceId === "REQ-CT-01" && m.formalId === "REQ-001");
+  assert.ok(retained, "the documented mapping must be retained so its diagnostic is not filtered away");
 });
 
 test("bold diagnostic prose mentioning id leaves later namespace tokens as references", () => {

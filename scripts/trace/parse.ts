@@ -263,10 +263,13 @@ function scanFile(content: string, fromFile: string): { refs: TraceRef[]; mappin
         }
       }
 
-      // Declarations and mapped rows require canonical >=3-digit terminal suffix
-      // Prose references can reference declared qualified namespace prefixes (e.g. REQ-DISC)
-      const valid =
-        role === "declaration" || isMappedSource
+      // Source context has priority: a mapped/recognized historical source must be a
+      // qualified >=3-digit source ID even when its text matches canonical formal grammar.
+      // Declarations accept canonical formal or historical source IDs; prose references may
+      // also name a declared qualified namespace prefix (e.g. REQ-DISC).
+      const valid = isMappedSource
+        ? isQualifiedId
+        : role === "declaration"
           ? isFormal || isQualifiedId
           : isFormal || isQualifiedId || isQualifiedNs;
       const qualified = (isQualifiedId || (!isMappedSource && role === "reference" && isQualifiedNs)) && !isFormal;

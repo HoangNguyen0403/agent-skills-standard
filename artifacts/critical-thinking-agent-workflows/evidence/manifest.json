@@ -1,0 +1,830 @@
+{
+  "schema_version": 1,
+  "slug": "critical-thinking-agent-workflows",
+  "scope": "Selected immutable verification logs, receipts, reports and archived reproduction harnesses; not full agent transcripts/dispatch instructions/credentials",
+  "source_revision": "1c79a7edb22b768ad5362e2e10766df2978e8642 plus reviewed working changes",
+  "redaction": "Text checkout/home paths replaced with <CHECKOUT>/<HOME>; originals retained locally unchanged; binary harness archives retained verbatim",
+  "assurance": "Content identity and recorded execution only, not authenticated reviewer identity or human acceptance",
+  "archive": "session-evidence.tar.gz",
+  "files": [
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/catalog-consumer.json",
+      "original_sha256": "dda1109d3c3f5380db1da32e8afa898f7667ffb3194a2b5141ca8967cd85b1ae",
+      "published_sha256": "dda1109d3c3f5380db1da32e8afa898f7667ffb3194a2b5141ca8967cd85b1ae",
+      "bytes": 321,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/catalog-consumer.log",
+      "original_sha256": "e9015bf6fb64777d556254d5c33e5fe1c17de1ff361eafa9c904084e8dbe5719",
+      "published_sha256": "e9015bf6fb64777d556254d5c33e5fe1c17de1ff361eafa9c904084e8dbe5719",
+      "bytes": 3755,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/catalog-correction-red.json",
+      "original_sha256": "7aae356a46d04d3b850e36993178a37b28a6f453a09a93f8b39c74a5349c6b8c",
+      "published_sha256": "7aae356a46d04d3b850e36993178a37b28a6f453a09a93f8b39c74a5349c6b8c",
+      "bytes": 917,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/catalog-generation-check.json",
+      "original_sha256": "cbe890015501f1bf5ca6277a1b10a9a13e666cef7f0f3eef19397fa2673df0c8",
+      "published_sha256": "cbe890015501f1bf5ca6277a1b10a9a13e666cef7f0f3eef19397fa2673df0c8",
+      "bytes": 335,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/catalog-generation-check.log",
+      "original_sha256": "0eca6aa91f397d57e7a9d8c94a96ca52b3ccd73c722cf3a5d0da95db3071bec5",
+      "published_sha256": "0eca6aa91f397d57e7a9d8c94a96ca52b3ccd73c722cf3a5d0da95db3071bec5",
+      "bytes": 664,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/catalog-generation.json",
+      "original_sha256": "bfeae9eb9c0aac4f8d314e18262c92d930628886541b3f7c502fdf4c956db8e4",
+      "published_sha256": "bfeae9eb9c0aac4f8d314e18262c92d930628886541b3f7c502fdf4c956db8e4",
+      "bytes": 314,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/catalog-generation.log",
+      "original_sha256": "d834d89809fe5a7edc513d77457f7a11f397e8da9265d9cc06ca1454a56dd902",
+      "published_sha256": "ff9d80765c0c3d4d1176f6d14ee69fde4d2c483c3c2bf4dbe85573c1efd7ba01",
+      "bytes": 442,
+      "redacted": true
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/catalog-red-receipt.json",
+      "original_sha256": "18aee09e7c134c8f091c47e8cbb64ea692b54e098c751ea2060bb968c11ca80f",
+      "published_sha256": "18aee09e7c134c8f091c47e8cbb64ea692b54e098c751ea2060bb968c11ca80f",
+      "bytes": 1212,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/catalog-repair-report.md",
+      "original_sha256": "3248fc541d30088aa5233224aa6efa51da6983a2c0a1e66940d8ede216b1f716",
+      "published_sha256": "3248fc541d30088aa5233224aa6efa51da6983a2c0a1e66940d8ede216b1f716",
+      "bytes": 19438,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/catalog-source-review.json",
+      "original_sha256": "1b85040d0cca8cc87689e820de9f6e033f9ba1784a39aceca9f768b5ae2bc179",
+      "published_sha256": "1b85040d0cca8cc87689e820de9f6e033f9ba1784a39aceca9f768b5ae2bc179",
+      "bytes": 1230,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/catalog-test-remediation-report.md",
+      "original_sha256": "9ea1866c4cc7899c6dadeb5853fd1774c1dc973aca94ebced26b251f484c578d",
+      "published_sha256": "9ea1866c4cc7899c6dadeb5853fd1774c1dc973aca94ebced26b251f484c578d",
+      "bytes": 2559,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/closure-membership.json",
+      "original_sha256": "761f40783bfb6f3e178439b5ee9367c960ccd4b9cea14283e192b37d66c67982",
+      "published_sha256": "761f40783bfb6f3e178439b5ee9367c960ccd4b9cea14283e192b37d66c67982",
+      "bytes": 352,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/closure-membership.log",
+      "original_sha256": "12124c0f777ab732b8e762d4e37f72d7b50bc5d05d6b831acfea0ad9e1246ab8",
+      "published_sha256": "12124c0f777ab732b8e762d4e37f72d7b50bc5d05d6b831acfea0ad9e1246ab8",
+      "bytes": 1429,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/closure-outcome-audit.json",
+      "original_sha256": "850493a05e2ddc7b05f6d9585aa7077c288bd4a46aaf87f338f793d370f557fb",
+      "published_sha256": "850493a05e2ddc7b05f6d9585aa7077c288bd4a46aaf87f338f793d370f557fb",
+      "bytes": 542,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/closure-outcome-audit.log",
+      "original_sha256": "faaedb899c9105cb0dddad9d0009917a28f1f915018945f1d5f9e63e6af87f37",
+      "published_sha256": "3d54b78396fc70e8527116facac042797bb305856665ac6ade5ab368f1aebbdc",
+      "bytes": 878,
+      "redacted": true
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/closure-receipt.json",
+      "original_sha256": "1b62c77f7755dd46da6592fd22e54793cfe3eccf9a570a332f85b74af51de090",
+      "published_sha256": "1b62c77f7755dd46da6592fd22e54793cfe3eccf9a570a332f85b74af51de090",
+      "bytes": 1398,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/closure-trace-audit.json",
+      "original_sha256": "573c3787e665018b905815d12c02e822512b3b45bf19a762b0b3ea4f1f07ad4a",
+      "published_sha256": "573c3787e665018b905815d12c02e822512b3b45bf19a762b0b3ea4f1f07ad4a",
+      "bytes": 359,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/closure-trace-audit.log",
+      "original_sha256": "c7504c9aa70bf8d80ea0b751b486ae8650e1ae059a3bb2a32fa3aff7e5052646",
+      "published_sha256": "29903c62df077eea53245aaaa1ccc8924b9871d7506679a1172b9ae41f3c7f4d",
+      "bytes": 699,
+      "redacted": true
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/compiler-status.json",
+      "original_sha256": "0ae78715dff7ca25d1d507491324475a79b19004ebfe2585b7dad1223faa0b31",
+      "published_sha256": "0ae78715dff7ca25d1d507491324475a79b19004ebfe2585b7dad1223faa0b31",
+      "bytes": 904,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/consumer-boundary.json",
+      "original_sha256": "23c5acf98f124985f618146115f8d53a46d51193f205018221b096397fce0b65",
+      "published_sha256": "23c5acf98f124985f618146115f8d53a46d51193f205018221b096397fce0b65",
+      "bytes": 1358,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/consumer-final.json",
+      "original_sha256": "98e3792735cc17fe04a02d1a13331c2dfcbc5dbfbc83481c3b17ccd67387cc21",
+      "published_sha256": "98e3792735cc17fe04a02d1a13331c2dfcbc5dbfbc83481c3b17ccd67387cc21",
+      "bytes": 319,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/consumer-final.log",
+      "original_sha256": "1ea5144471d878ca109162abb5f8a6af5d52a47c84075c8ab6b1f83cede7d693",
+      "published_sha256": "1ea5144471d878ca109162abb5f8a6af5d52a47c84075c8ab6b1f83cede7d693",
+      "bytes": 3753,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/consumer-generated.json",
+      "original_sha256": "0a5714bac12aeee4ec74cf1a25a28a6107d3be72fd458a99fe59ba1a257b29aa",
+      "published_sha256": "0a5714bac12aeee4ec74cf1a25a28a6107d3be72fd458a99fe59ba1a257b29aa",
+      "bytes": 323,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/consumer-generated.log",
+      "original_sha256": "69fcd3bba6ac591ec8f35c62f91369c8e887ea62865c2f5d3967c450147a2bcf",
+      "published_sha256": "59723063d91e25b90478b7ce3419e8f7be06d88741b620604366f6148df3a345",
+      "bytes": 885,
+      "redacted": true
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/consumer-run.json",
+      "original_sha256": "a3d7917a0dfbe773e94b2ff74b0f6d3ce29b4d8aec829e8c0cf178c47889d90d",
+      "published_sha256": "a3d7917a0dfbe773e94b2ff74b0f6d3ce29b4d8aec829e8c0cf178c47889d90d",
+      "bytes": 317,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/consumer-run.log",
+      "original_sha256": "92b654c03b5f2740a49eaeda3215866a3256d33996f0f45c2feb1fc51f9050a3",
+      "published_sha256": "92b654c03b5f2740a49eaeda3215866a3256d33996f0f45c2feb1fc51f9050a3",
+      "bytes": 3709,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/consumer-smoke.json",
+      "original_sha256": "8d1e0879b80a6125e2584660a7876bd1ca1cbfaaf0deb01019832fc2d9a89627",
+      "published_sha256": "8d1e0879b80a6125e2584660a7876bd1ca1cbfaaf0deb01019832fc2d9a89627",
+      "bytes": 3475,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/corrected-fixture-green.json",
+      "original_sha256": "fee21271c10aaebf7cc5fbcd5fc973fa472afd1b997f9326ac6a88e2ed1e5c7c",
+      "published_sha256": "fee21271c10aaebf7cc5fbcd5fc973fa472afd1b997f9326ac6a88e2ed1e5c7c",
+      "bytes": 581,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/corrected-fixture-green.log",
+      "original_sha256": "8d617b01829e51d440a9f5d6dd090cbbb62c7c487f7a1efed0eec52efbc9e480",
+      "published_sha256": "8d617b01829e51d440a9f5d6dd090cbbb62c7c487f7a1efed0eec52efbc9e480",
+      "bytes": 2012,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/correction-first-green-status.json",
+      "original_sha256": "20ecf71a2253ee0e4d1c6298e010546b8fdff909728e259871a749512b68a342",
+      "published_sha256": "20ecf71a2253ee0e4d1c6298e010546b8fdff909728e259871a749512b68a342",
+      "bytes": 868,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/correction-green.json",
+      "original_sha256": "4b15b7ac09678cbe2d0f03739bdc60fe4802518abb18b8e8b5bde25e5b160827",
+      "published_sha256": "4b15b7ac09678cbe2d0f03739bdc60fe4802518abb18b8e8b5bde25e5b160827",
+      "bytes": 574,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/correction-green.log",
+      "original_sha256": "ecfb0274c3c80ad3ed06d9a021029d81db60fb76ee6b21ba9ad0eb1cc863f46d",
+      "published_sha256": "1379e668259abf01c0395551015d1d8727e279b2b58e47fa3b7b3802138d82ee",
+      "bytes": 3478,
+      "redacted": true
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/correction-red.json",
+      "original_sha256": "ea2d21f22d54ce6ae6151f9281567e60ced398d442cc6be26058eb19135aece2",
+      "published_sha256": "ea2d21f22d54ce6ae6151f9281567e60ced398d442cc6be26058eb19135aece2",
+      "bytes": 453,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/correction-red.log",
+      "original_sha256": "a3ec29a12a9e74d85bf6a3b7fa9371257676b964b4eb2c2a9e3a4fe130c0f9e8",
+      "published_sha256": "b48ae5a1fb610383f65a9edfe2c823974d7e1766ce55d2b77c06ac936eb1bedd",
+      "bytes": 4353,
+      "redacted": true
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/eligibility-green.json",
+      "original_sha256": "e4d15103e06ff704d15544086f55765cde283c67e139c39cf4c396233c0c74ae",
+      "published_sha256": "e4d15103e06ff704d15544086f55765cde283c67e139c39cf4c396233c0c74ae",
+      "bytes": 601,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/eligibility-green.log",
+      "original_sha256": "1154c846d7f7684047f97bd5d2f572d4c0e5e13abcb8f6a8ca8c73fa38e102ca",
+      "published_sha256": "1154c846d7f7684047f97bd5d2f572d4c0e5e13abcb8f6a8ca8c73fa38e102ca",
+      "bytes": 2137,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/eligibility-red-classification.json",
+      "original_sha256": "eb7a201ef92c27d0c77813bf91c13152231743c2c6cd2529ab17ad151165a72e",
+      "published_sha256": "eb7a201ef92c27d0c77813bf91c13152231743c2c6cd2529ab17ad151165a72e",
+      "bytes": 863,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/eligibility-red.json",
+      "original_sha256": "c9a2c285f87c24226381dfa4beba701e4014fd34f61514963a8ec7f223eabba2",
+      "published_sha256": "c9a2c285f87c24226381dfa4beba701e4014fd34f61514963a8ec7f223eabba2",
+      "bytes": 450,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/eligibility-red.log",
+      "original_sha256": "8185be68e7e7302cae9de0cd686d15f2226a16291bb029238a7ae426126cd37f",
+      "published_sha256": "5e7b2826cfb0ebd8930f8b02916eb35a0f02b7640af613d6d261ec81dd17bd21",
+      "bytes": 3442,
+      "redacted": true
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/final-audits.json",
+      "original_sha256": "2101c0b5b2aee45bc4751cf9d39529078d3f6cd276ac6b02dfce085af70cdfeb",
+      "published_sha256": "2101c0b5b2aee45bc4751cf9d39529078d3f6cd276ac6b02dfce085af70cdfeb",
+      "bytes": 738,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/final-cli-suite.json",
+      "original_sha256": "48b9cc9fdfc6ee9d54dc762d88b618a45d5897f24678fbf6570eda1068add8a2",
+      "published_sha256": "48b9cc9fdfc6ee9d54dc762d88b618a45d5897f24678fbf6570eda1068add8a2",
+      "bytes": 285,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/final-cli-suite.log",
+      "original_sha256": "bf3edec56bc610937f00561ee2aeea989604e2eb8eb5f3b0ed5aac5ac19381a4",
+      "published_sha256": "18eace97357211925d33d37dc4364466758fd6167f08fbb25c432117bbd6c078",
+      "bytes": 3278,
+      "redacted": true
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/final-delivery-review.json",
+      "original_sha256": "d0e3a213f13d383d29f5e12309dba8d5c582d5af305ea82c58ca08342c9bdcac",
+      "published_sha256": "d0e3a213f13d383d29f5e12309dba8d5c582d5af305ea82c58ca08342c9bdcac",
+      "bytes": 1987,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/final-eligibility-report.md",
+      "original_sha256": "3db6a8205358582d2881d3ad9ba984d10440bd394408cf2fdd3dc3a35aaf0765",
+      "published_sha256": "3db6a8205358582d2881d3ad9ba984d10440bd394408cf2fdd3dc3a35aaf0765",
+      "bytes": 4945,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/final-generation-suite.json",
+      "original_sha256": "c421d339050e6c3d08350b99cd07247681f4f233a836ff5a08a9909fbe5ef0ae",
+      "published_sha256": "c421d339050e6c3d08350b99cd07247681f4f233a836ff5a08a9909fbe5ef0ae",
+      "bytes": 279,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/final-generation-suite.log",
+      "original_sha256": "bc9cc2676d5b2bdc6cfe13670bc9d69ce350eb68319049774226a9b96c250637",
+      "published_sha256": "666705b7b8843f35d6cf0fcb3651f94737683bc8db067366e02089da1ece305d",
+      "bytes": 11841,
+      "redacted": true
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/final-mcp-suite.json",
+      "original_sha256": "39f454e0988464173d101399bbae5fa832882ae571a2074278c1dfe7ac18c4a0",
+      "published_sha256": "39f454e0988464173d101399bbae5fa832882ae571a2074278c1dfe7ac18c4a0",
+      "bytes": 285,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/final-mcp-suite.log",
+      "original_sha256": "770b1aecb21da05ea497bf8e18617fb19b1043ca481d63b5c8079d1d74b8d6ff",
+      "published_sha256": "b56bb69074a17d08c36e18b9d5db62158d259712abeeb994360866957db31069",
+      "bytes": 1809,
+      "redacted": true
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/final-membership.json",
+      "original_sha256": "bed9461b1bfde746cbf429f14bde2de571dde4bb0ab11ba4612928d296fbb885",
+      "published_sha256": "bed9461b1bfde746cbf429f14bde2de571dde4bb0ab11ba4612928d296fbb885",
+      "bytes": 350,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/final-membership.log",
+      "original_sha256": "59505aadb030dca3b2935b1e81a8ca13a0365e26a1dd5e90b7e8b303ebc39367",
+      "published_sha256": "59505aadb030dca3b2935b1e81a8ca13a0365e26a1dd5e90b7e8b303ebc39367",
+      "bytes": 1427,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/final-outcome-audit.json",
+      "original_sha256": "db74000590d1cfff8ee3f56dc6e18ca69b4aa09e64e6d1c0fefbbfe5a4203555",
+      "published_sha256": "db74000590d1cfff8ee3f56dc6e18ca69b4aa09e64e6d1c0fefbbfe5a4203555",
+      "bytes": 540,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/final-outcome-audit.log",
+      "original_sha256": "c04deb3ae542c41757b4bdd5fcdef0882e8796502ba84b27528c49426b86970c",
+      "published_sha256": "f954707546f6aea19ebb698bca536381db80adcf821edf97d213311f1c783633",
+      "bytes": 876,
+      "redacted": true
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/final-root-consumer.json",
+      "original_sha256": "5d50cf66c03d94dab5cdd30be309e10db47ab7129fdfab452899b3b12f520208",
+      "published_sha256": "5d50cf66c03d94dab5cdd30be309e10db47ab7129fdfab452899b3b12f520208",
+      "bytes": 324,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/final-root-consumer.log",
+      "original_sha256": "d7fd7e3d873b1608d84a9649404297eb1852f3b7d2296ee91f0c61b08a283f51",
+      "published_sha256": "d7fd7e3d873b1608d84a9649404297eb1852f3b7d2296ee91f0c61b08a283f51",
+      "bytes": 3758,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/final-root-generation.json",
+      "original_sha256": "df5e845382713b243c0c0c0dc7616e17d197d45c043848bbc15f47a08bfc57bd",
+      "published_sha256": "df5e845382713b243c0c0c0dc7616e17d197d45c043848bbc15f47a08bfc57bd",
+      "bytes": 317,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/final-root-generation.log",
+      "original_sha256": "299cd95cdd51633e265600eebe4917233a049917a223b2ff66faa09efec52cdf",
+      "published_sha256": "beaca0bcc652edc9971e5296016e4123c5f735b2c2265b063398af273749895e",
+      "bytes": 445,
+      "redacted": true
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/final-root-parity.json",
+      "original_sha256": "5ec91f9cace8d7133286104a5f85be54948d70a4cad1db96756928d7d154b21e",
+      "published_sha256": "5ec91f9cace8d7133286104a5f85be54948d70a4cad1db96756928d7d154b21e",
+      "bytes": 328,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/final-root-parity.log",
+      "original_sha256": "e112efc678affa9c9609960de73ad0e824788571f6a050a88f31935637d4e6fb",
+      "published_sha256": "e112efc678affa9c9609960de73ad0e824788571f6a050a88f31935637d4e6fb",
+      "bytes": 657,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/final-technical-receipt.json",
+      "original_sha256": "44986ee2bc8d222b230a604579042e5a97a3476964f58cf9ff60422fc6101ee1",
+      "published_sha256": "44986ee2bc8d222b230a604579042e5a97a3476964f58cf9ff60422fc6101ee1",
+      "bytes": 1861,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/final-trace-audit.json",
+      "original_sha256": "475f910ef1d1aa56c075898d1efc8a881a0ddb744309148c24d3230832124d48",
+      "published_sha256": "475f910ef1d1aa56c075898d1efc8a881a0ddb744309148c24d3230832124d48",
+      "bytes": 357,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/final-trace-audit.log",
+      "original_sha256": "d8ec8207249bc80a4ae9ea9029140c300ca6f440a8356e285a40a7e0ff8341f0",
+      "published_sha256": "f67480d50df091b420364925f9351d80064eac13625548e23ec8e16981172f04",
+      "bytes": 697,
+      "redacted": true
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/full-evals.json",
+      "original_sha256": "fe9408f9f5588e8d6f345c7f15a29b946b78b672593bb6dd19a9903d5ac3a1c8",
+      "published_sha256": "fe9408f9f5588e8d6f345c7f15a29b946b78b672593bb6dd19a9903d5ac3a1c8",
+      "bytes": 262,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/full-evals.log",
+      "original_sha256": "3eac311affd52233e4095d01daf353ea382dd40dd382a345d13aebfc07f3d964",
+      "published_sha256": "4d3809c4ec1798efe22cbc684c0639d2842450c7b28fdccb44a328ad0fbb15d5",
+      "bytes": 37909,
+      "redacted": true
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/full-outcome.json",
+      "original_sha256": "408f37a948e366830333daa53a45585d022595ccaf204f1877b8dabbb57bd7f9",
+      "published_sha256": "408f37a948e366830333daa53a45585d022595ccaf204f1877b8dabbb57bd7f9",
+      "bytes": 266,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/full-outcome.log",
+      "original_sha256": "6bbfe4d58cc0eaa999c537863607ee844c07ec689fc9224441af706665c13625",
+      "published_sha256": "85c304c9641b00f4c2839a2d3b1415fd07f36faec9d3cfd43beb01eb2753de29",
+      "bytes": 3690,
+      "redacted": true
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/full-trace.json",
+      "original_sha256": "01d1ff626619b5f720b5392645d073e94ddc1dd30ecec8cd63a099ba48e03671",
+      "published_sha256": "01d1ff626619b5f720b5392645d073e94ddc1dd30ecec8cd63a099ba48e03671",
+      "bytes": 262,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/full-trace.log",
+      "original_sha256": "e5d183c8272ec865d8ef525597147b0cd082b76d1078b40e22a428f6e88ba209",
+      "published_sha256": "441f2ad64b782ff103231a9dba9b1832feb115fe9a35f7e8160aae23292ae51d",
+      "bytes": 6287,
+      "redacted": true
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/generated-evidence.json",
+      "original_sha256": "14ceda0e5085d8ed7e9b2cc45980a384a2d6faab2073574de1f233d4fa386668",
+      "published_sha256": "14ceda0e5085d8ed7e9b2cc45980a384a2d6faab2073574de1f233d4fa386668",
+      "bytes": 3461,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/generation-adopt.json",
+      "original_sha256": "8fd3cc27d730497ca70c775cb98924b2141ba57e4c9456b3d9cce2d1e01712d6",
+      "published_sha256": "8fd3cc27d730497ca70c775cb98924b2141ba57e4c9456b3d9cce2d1e01712d6",
+      "bytes": 380,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/generation-adopt.log",
+      "original_sha256": "f47fb12a767e5ed57a1a4452ae6fddb6c87fd11fa93a5e2a8c0485ee9025aa0e",
+      "published_sha256": "205bb3c4d3dcbdfb2a79ab5cc398e6e1d09dcb2aaf9d7fde58e9e5f046910873",
+      "bytes": 1334,
+      "redacted": true
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/generation-check.json",
+      "original_sha256": "33149ef0a51da62f88ee116032da9ce46f0fa3ea8bacc32fb757d6e4c7bfda7c",
+      "published_sha256": "33149ef0a51da62f88ee116032da9ce46f0fa3ea8bacc32fb757d6e4c7bfda7c",
+      "bytes": 327,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/generation-check.log",
+      "original_sha256": "1aa2e7e2f2b891772c94737d85291677819463d33e8b12588a3d856dc6225b6d",
+      "published_sha256": "1aa2e7e2f2b891772c94737d85291677819463d33e8b12588a3d856dc6225b6d",
+      "bytes": 755,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/generation-final-check.json",
+      "original_sha256": "e000803231afe47d607ef6e1836b26ddc4b6881352cc9c6d878a4f16b7490ec3",
+      "published_sha256": "e000803231afe47d607ef6e1836b26ddc4b6881352cc9c6d878a4f16b7490ec3",
+      "bytes": 333,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/generation-final-check.log",
+      "original_sha256": "1b1d48366b5185c5ace529d03c11c28fcc962dc9c0a7af53e9a3cf671f6ca139",
+      "published_sha256": "1b1d48366b5185c5ace529d03c11c28fcc962dc9c0a7af53e9a3cf671f6ca139",
+      "bytes": 662,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/generation-frozen-check.json",
+      "original_sha256": "4286b2d1161654cbd37107b6dc473983028b8805a3190291c40732f1bf9076bf",
+      "published_sha256": "4286b2d1161654cbd37107b6dc473983028b8805a3190291c40732f1bf9076bf",
+      "bytes": 334,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/generation-frozen-check.log",
+      "original_sha256": "011bd3865144d9d4908478a81c14cb1e6d6dafd64ba77cbb8d6ba60793f753a9",
+      "published_sha256": "011bd3865144d9d4908478a81c14cb1e6d6dafd64ba77cbb8d6ba60793f753a9",
+      "bytes": 762,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/green-evaluation.log",
+      "original_sha256": "db907bc009b5e4c31219dafc3e14db754f150eca2143495245fc5ffbd6d1ccd8",
+      "published_sha256": "db907bc009b5e4c31219dafc3e14db754f150eca2143495245fc5ffbd6d1ccd8",
+      "bytes": 2251,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/green-focused.json",
+      "original_sha256": "799ebf8f5432b5d7e3a88bb61bc335698eb1c3db7eb968fe0c3523122488a613",
+      "published_sha256": "799ebf8f5432b5d7e3a88bb61bc335698eb1c3db7eb968fe0c3523122488a613",
+      "bytes": 11315,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/green-reporting.log",
+      "original_sha256": "fe205c925420c671cfd4441a6ef498f09139444d534667fe0777027f323e467d",
+      "published_sha256": "fe205c925420c671cfd4441a6ef498f09139444d534667fe0777027f323e467d",
+      "bytes": 8808,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/guidance-remediation-report.md",
+      "original_sha256": "4ada4b7457ba8453932e10d5f35c4f6d41245eb3ae58ac537cf5cc8cf2b41728",
+      "published_sha256": "4ada4b7457ba8453932e10d5f35c4f6d41245eb3ae58ac537cf5cc8cf2b41728",
+      "bytes": 3448,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/integration-report.md",
+      "original_sha256": "66cbb33a4a8f0e7faa137e3d06333324b889554d0614f51f39631305b37a674d",
+      "published_sha256": "0a6d444dc90f79c870d221960ebd6558807ad3404c6e0968c23894468d3eddc3",
+      "bytes": 6707,
+      "redacted": true
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/language-diagnostics.json",
+      "original_sha256": "7d8034565af62e738de0e966e79b4c8257c41da547edab53afc80086b626da8c",
+      "published_sha256": "7d8034565af62e738de0e966e79b4c8257c41da547edab53afc80086b626da8c",
+      "bytes": 303,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/local-provenance-decision.json",
+      "original_sha256": "cb22d20482152714f2224a2264479746fd21b8afbe8ef6c317a3a405b49d01fb",
+      "published_sha256": "cb22d20482152714f2224a2264479746fd21b8afbe8ef6c317a3a405b49d01fb",
+      "bytes": 1004,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/membership-checkpoint.json",
+      "original_sha256": "4124e7b6176232e872a26c0e2911f32397374271a2d9f43c99319d3ac520b6f3",
+      "published_sha256": "4124e7b6176232e872a26c0e2911f32397374271a2d9f43c99319d3ac520b6f3",
+      "bytes": 355,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/membership-checkpoint.log",
+      "original_sha256": "efc5b6ec8e059a7bede1ff3e94cce4187eb4df16b63b7fb2f70d2915ac35d307",
+      "published_sha256": "efc5b6ec8e059a7bede1ff3e94cce4187eb4df16b63b7fb2f70d2915ac35d307",
+      "bytes": 1432,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/outcome-checkpoint.json",
+      "original_sha256": "0dcd0b3316c4fe41f6a3df7b61401b38c168ca886d7771e99e5bb4105c8a764b",
+      "published_sha256": "0dcd0b3316c4fe41f6a3df7b61401b38c168ca886d7771e99e5bb4105c8a764b",
+      "bytes": 539,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/outcome-checkpoint.log",
+      "original_sha256": "c4aa2ada5b43f39f784a5fb0f75533404c26f8410d8b4c90605bb4016aa64e72",
+      "published_sha256": "93208aabb2c381ac932c5bc513ee6b045e89c41aa0f23ffb6ae7adb8e60fd35d",
+      "bytes": 875,
+      "redacted": true
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/red-evaluation.log",
+      "original_sha256": "2b0e67157c34685e31c39e397fd0d208659596f1b8152001b21bea4c03a93319",
+      "published_sha256": "701d24db3e28985a332e4ddfb3fd24b6238e2e5fca71f6d17165f06161194216",
+      "bytes": 11030,
+      "redacted": true
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/red-focused.json",
+      "original_sha256": "1528c113dbc3ed460f8d3543e79fed5f4f3ef449049d563a9b0118031671bcce",
+      "published_sha256": "1528c113dbc3ed460f8d3543e79fed5f4f3ef449049d563a9b0118031671bcce",
+      "bytes": 12692,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/red-reporting.log",
+      "original_sha256": "2638210fe06fa53dad60544ced000c1b2eead0e437e07c03339c8bd64f299baf",
+      "published_sha256": "bdd0f066a481b5d49d662601a2de1759433ce242b73d20aca05b6e311e8a67ba",
+      "bytes": 21898,
+      "redacted": true
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/repair-full-generation.json",
+      "original_sha256": "8d5d44932525781bf523d41abca6eebf813bbb7e5531382fce5204735cbea788",
+      "published_sha256": "8d5d44932525781bf523d41abca6eebf813bbb7e5531382fce5204735cbea788",
+      "bytes": 279,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/repair-full-generation.log",
+      "original_sha256": "93136a9f75562efe6bbb55ff0dd1fbe560d4ae57226963623ac1f7914d4b34fc",
+      "published_sha256": "2f9e40a26ce65a8523c8e3a220b5fab6138d02fb956d0b4574eb7980696ea787",
+      "bytes": 10780,
+      "redacted": true
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/repair-green-cli.json",
+      "original_sha256": "cdf03ab0d984facc4b68568e39c533d1c75141182436434a351b5c1401eef0c4",
+      "published_sha256": "cdf03ab0d984facc4b68568e39c533d1c75141182436434a351b5c1401eef0c4",
+      "bytes": 365,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/repair-green-cli.log",
+      "original_sha256": "e9c300fa12bfa8d07b5d7440763e0096e7c7fa4eb69d5816a1cc5049997e331c",
+      "published_sha256": "042e062d0110694f25470574f0d2596e55d36f1d8ba2af61698475a83a443c59",
+      "bytes": 851,
+      "redacted": true
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/repair-green-generation.json",
+      "original_sha256": "79ed9916466a5d5f0f6e9c7ed5d37d5608cb4e1ae09bb49b68a96f95bf6bf059",
+      "published_sha256": "79ed9916466a5d5f0f6e9c7ed5d37d5608cb4e1ae09bb49b68a96f95bf6bf059",
+      "bytes": 500,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/repair-green-generation.log",
+      "original_sha256": "fd09c3524204a7331a87b0e3974b679a8d185cbbeeda4e6b1b2c2ec89f7e0d48",
+      "published_sha256": "fd09c3524204a7331a87b0e3974b679a8d185cbbeeda4e6b1b2c2ec89f7e0d48",
+      "bytes": 972,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/repair-green-mcp.json",
+      "original_sha256": "4cb56d5abe0e0d9ed99708b7d93ca33b59025f15cf56ceecfc5b3a5f64f03834",
+      "published_sha256": "4cb56d5abe0e0d9ed99708b7d93ca33b59025f15cf56ceecfc5b3a5f64f03834",
+      "bytes": 345,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/repair-green-mcp.log",
+      "original_sha256": "c35d29cec407957bcebce93357ba0cb2377bb3cc376d5efc4a2b6d2e6917e62a",
+      "published_sha256": "1c9d68325a1881ffc855c8748021d30d5e130a804e84042853a45eb1a819e424",
+      "bytes": 831,
+      "redacted": true
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/repair-red-cli.json",
+      "original_sha256": "9a7043338ae1c7bcaf84a6e85470c155bc0b8abf37b711d465efd4284833a35c",
+      "published_sha256": "9a7043338ae1c7bcaf84a6e85470c155bc0b8abf37b711d465efd4284833a35c",
+      "bytes": 363,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/repair-red-cli.log",
+      "original_sha256": "6e670e7482911b414f1ae165f4d253618b31691117834550b3ea5e33cb1ba05f",
+      "published_sha256": "175f3310f433f81a4ad59ebcf93fcb84d436876da0678cfebc86e2ad09b8b5e6",
+      "bytes": 2646,
+      "redacted": true
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/repair-red-generation.json",
+      "original_sha256": "2ab9b138447891206da09e425a9a558ffe87ded43bda315eac65b3a9f30ad015",
+      "published_sha256": "2ab9b138447891206da09e425a9a558ffe87ded43bda315eac65b3a9f30ad015",
+      "bytes": 498,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/repair-red-generation.log",
+      "original_sha256": "2ccf72099ae054fc305e917d95f60459ce24b263047d2add29845cab2a2c5929",
+      "published_sha256": "f696abe3aab2c3da261f64b187e22ffe19ae521e4f8335167250c33385e94892",
+      "bytes": 2741,
+      "redacted": true
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/repair-red-mcp.json",
+      "original_sha256": "6e924ca27aa35f485b0856a7c9860b3960183c987dc27399f49de1e876cdeb4f",
+      "published_sha256": "6e924ca27aa35f485b0856a7c9860b3960183c987dc27399f49de1e876cdeb4f",
+      "bytes": 343,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/repair-red-mcp.log",
+      "original_sha256": "da4f4feb7c2d179580cf9b3590fef36968642f23dc45b2776e64f2bb7c61eb8b",
+      "published_sha256": "3d6e917eeef951b83f0a4d37fd5ef182bf91a3a161a412c55a295d255af12e7a",
+      "bytes": 2579,
+      "redacted": true
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/repair-typecheck-cli.json",
+      "original_sha256": "4d77829cb848cae97c2e840ce87e9fce583751473ebf62b6145f065359f901af",
+      "published_sha256": "4d77829cb848cae97c2e840ce87e9fce583751473ebf62b6145f065359f901af",
+      "bytes": 317,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/repair-typecheck-cli.log",
+      "original_sha256": "05da4ee73956c5d44413f9538566aa765b3c9839d65b721fdc02bf8ad643e005",
+      "published_sha256": "05da4ee73956c5d44413f9538566aa765b3c9839d65b721fdc02bf8ad643e005",
+      "bytes": 3104,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/repair-typecheck-mcp.json",
+      "original_sha256": "3f29fe74bf30d8f15c3fd8882ef6ae473f44f1cdfb297b74ba24ad476bd9d924",
+      "published_sha256": "3f29fe74bf30d8f15c3fd8882ef6ae473f44f1cdfb297b74ba24ad476bd9d924",
+      "bytes": 317,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/repair-typecheck-mcp.log",
+      "original_sha256": "69fc4986296b756aa2c1799d93e74760ca73c5f3b4f6c864cab4f9bfe50f5d7e",
+      "published_sha256": "69fc4986296b756aa2c1799d93e74760ca73c5f3b4f6c864cab4f9bfe50f5d7e",
+      "bytes": 256,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/sdlc-audit.json",
+      "original_sha256": "7aa3e34911c4c79d93e5742bb9894fb8be72bdf40b5cf922773f5b3e9b4a2125",
+      "published_sha256": "7aa3e34911c4c79d93e5742bb9894fb8be72bdf40b5cf922773f5b3e9b4a2125",
+      "bytes": 262,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/sdlc-audit.log",
+      "original_sha256": "eb80bf408dbb1c910a9e126dc7a7b4d8c49d3d2ea9c90124c40efe4cc23d3b33",
+      "published_sha256": "c805786215ee959a4bf59202d531f3dc0bf3a8c98212be49b8e7b21101f0bb62",
+      "bytes": 18625,
+      "redacted": true
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/source-review-receipt.json",
+      "original_sha256": "294f2c7e7b37d0c52211a0f308d2098cd460f13159ebe42a37dce15265809a72",
+      "published_sha256": "294f2c7e7b37d0c52211a0f308d2098cd460f13159ebe42a37dce15265809a72",
+      "bytes": 1118,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/task-1-report.md",
+      "original_sha256": "0bc7c1403a7d75995179bf471d71479fe8317ee4ae4baccb1d698f258a177e9f",
+      "published_sha256": "06f30f40171f454c572c6fff12842d1abd1022ca0c299e8fc6011d8eb96ab6d2",
+      "bytes": 9434,
+      "redacted": true
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/task-2-report.md",
+      "original_sha256": "d19e19cc6d7c7a21744e0e07b0e763c19007da70f16b46e4658cb62c0a692335",
+      "published_sha256": "eb9f87174f33396a2e49bf34ddfe9ce9367ef8c530a68e5fde783fe731283162",
+      "bytes": 15023,
+      "redacted": true
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/task-3-report.md",
+      "original_sha256": "18cf4e2513576124400ff3014cc30f3516fb1bf6dd8a5165264958ab9ee3ceb9",
+      "published_sha256": "f86e2e4d6c2c084170e8b6c8365e62901088c83c83c48ac64f86d06e8331bc03",
+      "bytes": 11585,
+      "redacted": true
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/trace-audit.json",
+      "original_sha256": "70bac7b3d3dcadb1a833982050de1fe4f500fcd1dff63f0a103de1809abae9c5",
+      "published_sha256": "70bac7b3d3dcadb1a833982050de1fe4f500fcd1dff63f0a103de1809abae9c5",
+      "bytes": 351,
+      "redacted": false
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/trace-audit.log",
+      "original_sha256": "6f44990f590acadf02eb186bb7abb3810830ba99b5c97a5c4aa272c4bcc7f659",
+      "published_sha256": "1e6dfbf573ea3300bfff4cc1adc1ed97eee263d83b4f5f45dab03dff0a2902e5",
+      "bytes": 691,
+      "redacted": true
+    },
+    {
+      "path": ".agent/sdd/critical-thinking-agent-workflows/verification-harnesses.tar.gz",
+      "original_sha256": "8607897b67e505b318b6a4e7338df1120b257218ebd4101d0b3b6a57e88bae68",
+      "published_sha256": "8607897b67e505b318b6a4e7338df1120b257218ebd4101d0b3b6a57e88bae68",
+      "bytes": 8093,
+      "redacted": false
+    }
+  ]
+}

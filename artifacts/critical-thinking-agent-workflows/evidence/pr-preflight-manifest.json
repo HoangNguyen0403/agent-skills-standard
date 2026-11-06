@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "scope": "Local PR gates after required common/workflow patch metadata updates",
+  "redaction": "Checkout/home paths replaced; original logs unchanged locally",
+  "archive": "pr-preflight.tar.gz",
+  "files": [
+    {
+      "path": ".agent/sdd/pr-critical-thinking/alignment.json",
+      "original_sha256": "50ee390c80172d607a49488d47604646c407c19af888de8fcc79b6c812c26e0a",
+      "published_sha256": "50ee390c80172d607a49488d47604646c407c19af888de8fcc79b6c812c26e0a",
+      "bytes": 226
+    },
+    {
+      "path": ".agent/sdd/pr-critical-thinking/alignment.log",
+      "original_sha256": "8000833f783106296fdefca85468b3916c2aa26f6ec1d9ca5bea26ea29d30350",
+      "published_sha256": "efce655edffddea23deb10a2e265336a4f1518581df073b7996f09739d2776df",
+      "bytes": 700
+    },
+    {
+      "path": ".agent/sdd/pr-critical-thinking/audit-sdlc.json",
+      "original_sha256": "49758bf35f312b45253d1f7cfb3064d77a584a3cc68d8ca3b9ef58acf7122e5e",
+      "published_sha256": "49758bf35f312b45253d1f7cfb3064d77a584a3cc68d8ca3b9ef58acf7122e5e",
+      "bytes": 222
+    },
+    {
+      "path": ".agent/sdd/pr-critical-thinking/audit-sdlc.log",
+      "original_sha256": "b8a9be8f094c4b852c0e8cc347b4cf8e08dd9b40cdf93b37f92b3c8f7897ae2d",
+      "published_sha256": "be11d4ca370c30e4de6836f8f99aec4e17885d17ae4686a83b0e8488e6551985",
+      "bytes": 18678
+    },
+    {
+      "path": ".agent/sdd/pr-critical-thinking/audit-skills.json",
+      "original_sha256": "b393e8cc519a07a2901f76a777471b4fed0348cf96f1f8614bf7a66e7c0bcb67",
+      "published_sha256": "b393e8cc519a07a2901f76a777471b4fed0348cf96f1f8614bf7a66e7c0bcb67",
+      "bytes": 226
+    },
+    {
+      "path": ".agent/sdd/pr-critical-thinking/audit-skills.log",
+      "original_sha256": "59a82702226dac19bfaa753fa1bbf1f6de60a3fd0640274c2a609d22df397597",
+      "published_sha256": "9aaa7d54042b054f0d449c6c097eb1241a74504a7eafc4a3eded1a77ff6f067e",
+      "bytes": 454
+    },
+    {
+      "path": ".agent/sdd/pr-critical-thinking/build.json",
+      "original_sha256": "95f22bca462b1f63833c0b86b7de5e9afc107d9ceb96038d8f6002ebdd205200",
+      "published_sha256": "95f22bca462b1f63833c0b86b7de5e9afc107d9ceb96038d8f6002ebdd205200",
+      "bytes": 212
+    },
+    {
+      "path": ".agent/sdd/pr-critical-thinking/build.log",
+      "original_sha256": "08f2872bf6e26f2ecca90a49922ff3678e2381e22ab1f7ed2304abb61da8172d",
+      "published_sha256": "aa78e2b961ea5fb10a6e516826d895af8c13e3250398dc3486095070106da656",
+      "bytes": 1005
+    },
+    {
+      "path": ".agent/sdd/pr-critical-thinking/capabilities.json",
+      "original_sha256": "1deb9fd61cecd2ade72d9c7017c7c4ab6973a96bfb5db143fea97f576a887010",
+      "published_sha256": "1deb9fd61cecd2ade72d9c7017c7c4ab6973a96bfb5db143fea97f576a887010",
+      "bytes": 237
+    },
+    {
+      "path": ".agent/sdd/pr-critical-thinking/capabilities.log",
+      "original_sha256": "d27117657c4d3fdf207150f3a4ddd4fc00ee45c777e29e5376e7893cb6c43aea",
+      "published_sha256": "7b07664868392cf59129b186320b37f218aa6292a7de680e3d287ed2f4a3f9b6",
+      "bytes": 471
+    },
+    {
+      "path": ".agent/sdd/pr-critical-thinking/eval-definition-audit.json",
+      "original_sha256": "6402d2dfac612be6c94b74cca31fc4a54a70d45f6c49de01e23bce70b795a29d",
+      "published_sha256": "6402d2dfac612be6c94b74cca31fc4a54a70d45f6c49de01e23bce70b795a29d",
+      "bytes": 234
+    },
+    {
+      "path": ".agent/sdd/pr-critical-thinking/eval-definition-audit.log",
+      "original_sha256": "6bd8680c4e45dd29c6435f1755b7474636569a282cfb7295788ef23acd0f9d18",
+      "published_sha256": "cf386ef62c7593918e9dcd57f6340e41619ee4e9b7f4b2ba6621dd28dc5377a8",
+      "bytes": 451
+    },
+    {
+      "path": ".agent/sdd/pr-critical-thinking/freshness.json",
+      "original_sha256": "2c4f434bd2c3fd4cae1cefb93db7e691f15225b0845cb6fa01aa6c16ab4cf22e",
+      "published_sha256": "2c4f434bd2c3fd4cae1cefb93db7e691f15225b0845cb6fa01aa6c16ab4cf22e",
+      "bytes": 226
+    },
+    {
+      "path": ".agent/sdd/pr-critical-thinking/freshness.log",
+      "original_sha256": "73dfcd025ae822f7b531cd97dcaa3b6fa63f85f91e9c5063d762b7c34b03e155",
+      "published_sha256": "877766f7f677680ca59302f6c3d68423d01f1293cbed4da00a54d2997aafa054",
+      "bytes": 3176
+    },
+    {
+      "path": ".agent/sdd/pr-critical-thinking/generate.json",
+      "original_sha256": "142f43745f83c9f009ce102f6e1aed8ddc0f642580acec7716a3449a6266d30d",
+      "published_sha256": "142f43745f83c9f009ce102f6e1aed8ddc0f642580acec7716a3449a6266d30d",
+      "bytes": 264
+    },
+    {
+      "path": ".agent/sdd/pr-critical-thinking/generate.log",
+      "original_sha256": "e61d7ec16ca9dbf4d0cda62a793571b07ec18c73a4ad98c6c598e928345a6475",
+      "published_sha256": "2cd2045a05f4ee52046b6866e776c62005defc30acc6c4a0b1da0ac52db564c3",
+      "bytes": 519
+    },
+    {
+      "path": ".agent/sdd/pr-critical-thinking/generation-check.json",
+      "original_sha256": "d0fd34d1ae99dfdf989b878b76c23c1aad2a83cce090104776f8ca35aaa51a60",
+      "published_sha256": "d0fd34d1ae99dfdf989b878b76c23c1aad2a83cce090104776f8ca35aaa51a60",
+      "bytes": 287
+    },
+    {
+      "path": ".agent/sdd/pr-critical-thinking/generation-check.log",
+      "original_sha256": "973b11a16d181765ee6e05fc93e796de517d6c373152fc75d4c841780dc78d85",
+      "published_sha256": "21565d3f8d25a913c558b752d60fa228713d220c8cfcbcc03abccc74b6cb922a",
+      "bytes": 753
+    },
+    {
+      "path": ".agent/sdd/pr-critical-thinking/injection.json",
+      "original_sha256": "95133d87766e3d0e2cc09542bb289959ad375c1d1bed70e9d2c5caaf61f8544c",
+      "published_sha256": "95133d87766e3d0e2cc09542bb289959ad375c1d1bed70e9d2c5caaf61f8544c",
+      "bytes": 226
+    },
+    {
+      "path": ".agent/sdd/pr-critical-thinking/injection.log",
+      "original_sha256": "b29099e99315a1e9837bf3605a51612702353525a26e1a8c8491c19b4eae28a5",
+      "published_sha256": "729b99eb42fa1c43a6b362844cb2dded18d55471d0cfc516d00f57f5d9571174",
+      "bytes": 484
+    },
+    {
+      "path": ".agent/sdd/pr-critical-thinking/preflight-results.json",
+      "original_sha256": "7ab32b15e9b59c42ce846c3f33a36e771cafef4bc16389705b0114c4a8015fed",
+      "published_sha256": "7ab32b15e9b59c42ce846c3f33a36e771cafef4bc16389705b0114c4a8015fed",
+      "bytes": 3148
+    },
+    {
+      "path": ".agent/sdd/pr-critical-thinking/root-tests.json",
+      "original_sha256": "7d8b706b58c32338a3ffc4e66cdb211a6f8d9de225a8a511edeaa0e107536224",
+      "published_sha256": "7d8b706b58c32338a3ffc4e66cdb211a6f8d9de225a8a511edeaa0e107536224",
+      "bytes": 216
+    },
+    {
+      "path": ".agent/sdd/pr-critical-thinking/root-tests.log",
+      "original_sha256": "ff64eb7489f1a2ff2e6d9a520d853ea6dfb4de900d7304e59aba7c9115c6a0e8",
+      "published_sha256": "d53e6efa935c9483932dc96ce3153c82775236afc58cf9bc08a7d9112c963ce5",
+      "bytes": 83898
+    },
+    {
+      "path": ".agent/sdd/pr-critical-thinking/validate-all.json",
+      "original_sha256": "2c98db1974939460231189590f31e39a4134248586046d6e101a30052abaed5e",
+      "published_sha256": "2c98db1974939460231189590f31e39a4134248586046d6e101a30052abaed5e",
+      "bytes": 255
+    },
+    {
+      "path": ".agent/sdd/pr-critical-thinking/validate-all.log",
+      "original_sha256": "5f58182456474b2b847007a6d5e3f357ffa8daca3b576b86c093e40a4100a8d9",
+      "published_sha256": "0cdae5b044878753401ee925d86e8ecea5fb74a4c7b172e7165e636b3d66ad52",
+      "bytes": 23919
+    }
+  ]
+}

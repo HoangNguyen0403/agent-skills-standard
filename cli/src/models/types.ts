@@ -85,9 +85,21 @@ export interface RevocationEntry {
 }
 
 /**
+ * Subset of the registry's metadata.json that the IndexGeneratorService needs at
+ * index-generation time. Provided by the caller (e.g. SyncService) so the file
+ * never needs to be written to disk inside the user's project.
+ */
+export interface RemoteMetadata {
+  file_routing?: Record<string, string[]>;
+  broad_globs?: string[];
+  base_language_skills?: Record<string, string>;
+  foundational_composite_rules?: Record<string, string[]>;
+}
+
+/**
  * Root metadata structure for the skill registry (metadata.json).
  */
-export interface RegistryMetadata {
+export interface RegistryMetadata extends RemoteMetadata {
   /** Global registry settings */
   global: {
     /** Registry author/owner */

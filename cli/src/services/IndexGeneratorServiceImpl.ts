@@ -1,7 +1,8 @@
 import fs from 'fs-extra';
 import path from 'path';
+import type { RemoteMetadata } from '../models/types';
 import { IndexContentBuilder } from './IndexContentBuilder';
-import { IndexGeneratorService, RemoteMetadata } from './IndexGeneratorService';
+import { IndexGeneratorService } from './IndexGeneratorService';
 import { MetadataReader } from './MetadataReader';
 
 /**

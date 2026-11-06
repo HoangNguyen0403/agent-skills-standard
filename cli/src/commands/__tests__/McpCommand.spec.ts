@@ -424,21 +424,6 @@ describe('McpCommand — actionStatus mismatch detection', () => {
       expect(output()).toContain('project: —   user: —');
     });
 
-    it('scope action using positional argument options._', async () => {
-      mockConfigService.loadConfig.mockResolvedValue(
-        makeConfig({
-          mcp: { enabled: true, scope: 'project', prompted: true },
-        }),
-      );
-      await command.run('scope', { _: ['user'] });
-      expect(mockConfigService.saveConfig).toHaveBeenCalledWith(
-        expect.objectContaining({
-          mcp: expect.objectContaining({ scope: 'user' }),
-        }),
-      );
-      expect(output()).toContain('MCP scope set to "user"');
-    });
-
     it('install action with projectWrites having action updated', async () => {
       mockConfigService.loadConfig.mockResolvedValue(makeConfig());
       mockMcpService.install.mockResolvedValue({

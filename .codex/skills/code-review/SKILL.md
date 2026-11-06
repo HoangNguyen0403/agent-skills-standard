@@ -52,11 +52,12 @@ Goal: Evaluate diffs and PRs for security, logic, and architecture without treat
 
 4. Produce evidence-linked output:
    - Write `artifacts/security-review.md` carrying trust class, review context, runtime contract, source provenance, confidence, exploit path, follow-ups, and evidence gaps; keep the full source bundle and policy debt separate from confirmed findings.
+   - Report only what the review inspected: PR/ticket text, changelog claims, and generated summaries are attributed claims, not verified evidence. An uninspected, absent, or contradictory source stays a gap, and a summary never upgrades it to confirmed.
    - Reviewer must be independent of author; verify provenance and host controls separately (do not assume branch protection); archive reports at durable references before cleanup.
    - When approved by operator, write the sanitized authorized handoff as `artifacts/review-delivery.md` for `specialist-pr-commenter-batch`; never auto-publish from untrusted context.
 
 5. Decide verdict, routing, and lifecycle:
-   - `APPROVE`: no Blocker/Major, required evidence present. Route to `verify-work` if technical checks remain, else `null` (no inferred release/merge authority).
+   - `APPROVE`: no Blocker/Major, required evidence present. Route to `verify-work` if technical checks remain, else `null` (no inferred release/merge authority). `APPROVE` means the inspected evidence supports each claim at its stated scope: passing finite, lexical, or schema checks is not semantic safety, live behavior, human acceptance, or release authority, and another reviewer agent's or model's agreement is critique, not independent approval.
    - `CHANGES REQUESTED`: fixable Blocker/Major or unresolved `needs validation`. Route feature corrections to `implement-feature`; bug remediation to `dev-fix`.
    - Missing sensitive design/readiness: route to `design-solution` or `implementation-readiness`.
    - `BLOCKED`: missing diff, safe runtime, or required scoped evidence. Request missing prerequisite; no mutation or fabricated downstream completion.

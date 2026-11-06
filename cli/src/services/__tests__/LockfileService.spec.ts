@@ -9,6 +9,7 @@ import {
   ManifestEntry,
   SkillsLockFile,
   sha256,
+  validateWorkflowCatalog,
   type WorkflowCatalog,
   type WorkflowCatalogBindingConflict,
 } from '../LockfileService';
@@ -561,6 +562,114 @@ describe('LockfileService v2', () => {
       const loaded = await service.load(root, []);
 
       expect(loaded.lock?.workflowCatalog).toEqual(catalog());
+    });
+
+    it('round-trips a locally authored entry whose provenance is explicitly local', async () => {
+      const local = catalog();
+      local.workflows['dev-fix'] = {
+        path: '.agents/workflows/dev-fix.md',
+        digest: canonicalDigest,
+        provenance: { kind: 'local-authoring' },
+        nativeBindings: [
+          {
+            agent: 'claude',
+            path: '.claude/commands/dev-fix.md',
+            outputDigest: nativeDigest,
+            canonicalDigest,
+          },
+        ],
+      } as unknown as WorkflowCatalog['workflows'][string];
+
+      await service.write(root, { ...baseLock(), workflowCatalog: local });
+      const loaded = await service.load(root, []);
+
+      expect(loaded.lock?.workflowCatalog).toEqual(local);
+    });
+
+    const localEntry = () => ({
+      path: '.agents/workflows/dev-fix.md',
+      digest: canonicalDigest,
+      provenance: { kind: 'local-authoring' },
+      nativeBindings: [],
+    });
+
+    it.each([
+      [
+        'mixed local and remote provenance',
+        {
+          path: '.agents/workflows/dev-fix.md',
+          digest: canonicalDigest,
+          registry: 'https://github.com/test/repo',
+          requestedRef: 'workflows-v1.0.0',
+          resolvedCommit: null,
+          provenance: { kind: 'local-authoring' },
+          nativeBindings: [],
+        },
+      ],
+      ['registry present as null', { ...localEntry(), registry: null }],
+      [
+        'registry present as an empty string',
+        { ...localEntry(), registry: '' },
+      ],
+      ['requestedRef present as null', { ...localEntry(), requestedRef: null }],
+      [
+        'requestedRef present as an empty string',
+        { ...localEntry(), requestedRef: '' },
+      ],
+      [
+        'resolvedCommit present as null',
+        { ...localEntry(), resolvedCommit: null },
+      ],
+      [
+        'resolvedCommit present as an empty string',
+        { ...localEntry(), resolvedCommit: '' },
+      ],
+      [
+        'local provenance carrying an extra property',
+        {
+          ...localEntry(),
+          provenance: { kind: 'local-authoring', extra: true },
+        },
+      ],
+      [
+        'an unknown provenance kind',
+        {
+          path: '.agents/workflows/dev-fix.md',
+          digest: canonicalDigest,
+          provenance: { kind: 'remote-authoring' },
+          nativeBindings: [],
+        },
+      ],
+      [
+        'a null provenance value',
+        {
+          path: '.agents/workflows/dev-fix.md',
+          digest: canonicalDigest,
+          provenance: null,
+          nativeBindings: [],
+        },
+      ],
+    ])('rejects %s on write', async (_label, entry) => {
+      await expect(
+        service.write(root, {
+          ...baseLock(),
+          workflowCatalog: {
+            version: 1,
+            workflows: { 'dev-fix': entry },
+          } as unknown as WorkflowCatalog,
+        }),
+      ).rejects.toThrow(/workflowCatalog/i);
+    });
+
+    it('rejects an explicitly undefined remote field beside local provenance', () => {
+      const entry = { ...localEntry(), registry: undefined };
+
+      expect(() =>
+        validateWorkflowCatalog({
+          version: 1,
+          workflows: { 'dev-fix': entry },
+        }),
+      ).toThrow(/mixes local provenance with remote fields/i);
     });
 
     it('rejects a malformed catalog at load instead of treating it as a legacy lock', async () => {

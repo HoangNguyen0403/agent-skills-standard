@@ -23,6 +23,7 @@ import type { SkillConfig } from "../../cli/src/models/config";
 import type { CollectedSkill } from "../../cli/src/models/types";
 import { SyncService } from "../../cli/src/services/SyncService";
 import { SpecialistTransformer } from "../../cli/src/services/utils/SpecialistTransformer";
+import { lookupWorkflow } from "../../mcp/src/services/WorkflowIndex";
 
 const REPOSITORY_ROOT = path.resolve(__dirname, "..", "..");
 
@@ -61,6 +62,8 @@ interface FixtureOptions {
   driftSourceDuringIndices?: boolean;
   /** Fail the real child phase after its producer completes. */
   failAfterIndices?: boolean;
+  /** Corrupt the staged workflow catalog after the real producer ran. */
+  stagedCatalogMutation?: "drop" | "digest";
   /** Remove the baseline capabilities doc (docs/ directory stays). */
   omitBaselineCapabilitiesDoc?: boolean;
   /** Skip all baseline mirror files for this skill. */
@@ -228,6 +231,24 @@ const GENERATE_INDICES_WRAPPER = [
   "    execFileSync('git', ['-C', repo, 'commit', '--quiet', '--allow-empty', '-m', 'fixture head drift']);",
   "  }",
   "  recordHook('git-mutation', { mutation: mutation, path: rel || null, unrelated: process.env.FIXTURE_GIT_UNRELATED_PATH || null });",
+  "}",
+  "if (process.env.FIXTURE_STAGED_CATALOG && process.env.FIXTURE_STAGED_CATALOG !== 'none') {",
+  "  const lockPath = path.join(process.cwd(), '.skills-lock.json');",
+  "  const lock = JSON.parse(fs.readFileSync(lockPath, 'utf8'));",
+  "  const workflows = lock.workflowCatalog && lock.workflowCatalog.workflows;",
+  "  if (!workflows || !workflows.demo) throw new Error('fixture staged catalog has no demo entry');",
+  "  const mode = process.env.FIXTURE_STAGED_CATALOG;",
+  "  if (mode === 'drop') {",
+  "    delete workflows.demo;",
+  "  } else if (mode === 'digest') {",
+  "    const digest = '0'.repeat(64);",
+  "    workflows.demo.digest = digest;",
+  "    for (const binding of workflows.demo.nativeBindings) binding.canonicalDigest = digest;",
+  "  } else {",
+  "    throw new Error('unknown fixture staged catalog mode ' + mode);",
+  "  }",
+  "  fs.writeFileSync(lockPath, JSON.stringify(lock, null, 2) + '\\n');",
+  '  recordHook("staged-catalog", { mode: mode });',
   "}",
   "if (process.env.FIXTURE_FORCE_INDICES_EXIT) process.exit(Number(process.env.FIXTURE_FORCE_INDICES_EXIT));",
   'process.exit(typeof result.status === "number" ? result.status : 1);',
@@ -558,7 +579,8 @@ async function populateFixtureRepo(
   if (
     options.mutateDuringIndices ||
     options.failAfterIndices ||
-    options.driftSourceDuringIndices
+    options.driftSourceDuringIndices ||
+    options.stagedCatalogMutation
   ) {
     await installIndicesWrapper(root);
   }
@@ -3484,6 +3506,292 @@ test("a deselected workflow export retires with its catalog binding while the ca
     const repeated = await runIsolatedGeneration({ repoRoot: root });
     assert.equal(repeated.success, true, repeated.error ?? "");
     assert.deepEqual(repeated.retiredFiles, []);
+  });
+});
+
+test("a consumer lock without a workflow catalog bootstraps local provenance that the real consumer serves", async () => {
+  await withFixture({}, async (root) => {
+    const lockPath = path.join(root, ".skills-lock.json");
+    const before = await fs.readJson(lockPath);
+    delete before.workflowCatalog;
+    await fs.writeJson(lockPath, before, { spaces: 2 });
+
+    const applied = await runIsolatedGeneration({ repoRoot: root });
+    assert.equal(applied.success, true, applied.error ?? "");
+    assert.ok(
+      applied.verifiedFiles.includes(".skills-lock.json"),
+      "a catalog-only bootstrap is published as a lock change",
+    );
+
+    const lock = await fs.readJson(lockPath);
+    const entry = lock.workflowCatalog?.workflows?.demo;
+    assert.ok(entry, "the catalog is republished from validated stage bytes");
+    assert.deepEqual(entry.provenance, { kind: "local-authoring" });
+    for (const field of ["registry", "requestedRef", "resolvedCommit"]) {
+      assert.equal(
+        Object.prototype.hasOwnProperty.call(entry, field),
+        false,
+        `${field} must not be invented for locally authored bytes`,
+      );
+    }
+    const canonicalBytes = await fs.readFile(
+      path.join(root, DEMO_CANONICAL_REL),
+    );
+    assert.equal(entry.digest, sha256(canonicalBytes));
+    assert.ok(entry.nativeBindings.length > 0);
+    for (const binding of entry.nativeBindings) {
+      assert.equal(
+        binding.canonicalDigest,
+        entry.digest,
+        "each binding references the published canonical digest",
+      );
+      assert.equal(
+        binding.outputDigest,
+        sha256(await fs.readFile(path.join(root, binding.path))),
+        "each binding digests the actual published export",
+      );
+    }
+
+    const served = await lookupWorkflow(root, "demo");
+    assert.equal(served.status, "managed");
+    assert.equal(served.body, "# Demo");
+    assert.equal(served.nativeParity, true);
+  });
+});
+
+test("repeat generation with a bootstrapped catalog does not churn the lock", async () => {
+  await withFixture({}, async (root) => {
+    const lockPath = path.join(root, ".skills-lock.json");
+    const before = await fs.readJson(lockPath);
+    delete before.workflowCatalog;
+    await fs.writeJson(lockPath, before, { spaces: 2 });
+
+    const first = await runIsolatedGeneration({ repoRoot: root });
+    assert.equal(first.success, true, first.error ?? "");
+    const published = await fs.readFile(lockPath);
+
+    const second = await runIsolatedGeneration({ repoRoot: root });
+    assert.equal(second.success, true, second.error ?? "");
+    assert.deepEqual(await fs.readFile(lockPath), published);
+  });
+});
+
+test("an unchanged remote catalog entry keeps its provenance while an unrelated entry survives", async () => {
+  await withFixture({}, async (root) => {
+    const lockPath = path.join(root, ".skills-lock.json");
+    const lock = await fs.readJson(lockPath);
+    const canonicalBytes = await fs.readFile(
+      path.join(root, DEMO_CANONICAL_REL),
+    );
+    const remoteDemo = {
+      path: DEMO_CANONICAL_REL,
+      digest: sha256(canonicalBytes),
+      registry: "https://example.invalid/registry",
+      requestedRef: "workflows-v9.9.9",
+      resolvedCommit: "abc123",
+      nativeBindings: lock.workflowCatalog.workflows.demo.nativeBindings,
+    };
+    const retainedBytes =
+      "---\ndescription: Retained workflow\n---\n# Retained\n";
+    const retainedPath = ".agents/workflows/retained.md";
+    await fs.outputFile(path.join(root, retainedPath), retainedBytes);
+    const retainedEntry = {
+      path: retainedPath,
+      // Deliberately stale: prior-only unrelated entries must be retained
+      // verbatim, never re-validated into a blanket generation failure.
+      digest: sha256("stale unrelated bytes"),
+      registry: "https://example.invalid/registry",
+      requestedRef: "workflows-v1.0.0",
+      resolvedCommit: null,
+      nativeBindings: [],
+    };
+    lock.workflowCatalog = {
+      version: 1,
+      workflows: { demo: remoteDemo, retained: retainedEntry },
+    };
+    await fs.writeJson(lockPath, lock, { spaces: 2 });
+
+    const applied = await runIsolatedGeneration({ repoRoot: root });
+    assert.equal(applied.success, true, applied.error ?? "");
+
+    const after = await fs.readJson(lockPath);
+    assert.deepEqual(after.workflowCatalog.workflows.demo, remoteDemo);
+    assert.deepEqual(after.workflowCatalog.workflows.retained, retainedEntry);
+  });
+});
+
+test("new local canonical bytes get local provenance instead of the previous remote pin", async () => {
+  await withFixture({}, async (root) => {
+    const lockPath = path.join(root, ".skills-lock.json");
+    const lock = await fs.readJson(lockPath);
+    lock.workflowCatalog.workflows.demo = {
+      path: DEMO_CANONICAL_REL,
+      digest: sha256("previous remote bytes"),
+      registry: "https://example.invalid/registry",
+      requestedRef: "workflows-v1.0.0",
+      resolvedCommit: "abc123",
+      nativeBindings: [],
+    };
+    await fs.writeJson(lockPath, lock, { spaces: 2 });
+    const canonicalPath = path.join(root, DEMO_CANONICAL_REL);
+    await fs.writeFile(
+      canonicalPath,
+      "---\ndescription: Demo workflow\n---\n# Demo revised\n",
+    );
+
+    const applied = await runIsolatedGeneration({ repoRoot: root });
+    assert.equal(applied.success, true, applied.error ?? "");
+
+    const after = await fs.readJson(lockPath);
+    const entry = after.workflowCatalog.workflows.demo;
+    assert.deepEqual(entry.provenance, { kind: "local-authoring" });
+    for (const field of ["registry", "requestedRef", "resolvedCommit"]) {
+      assert.equal(
+        Object.prototype.hasOwnProperty.call(entry, field),
+        false,
+        `${field} must not be restamped from the previous remote entry`,
+      );
+    }
+    assert.equal(entry.digest, sha256(await fs.readFile(canonicalPath)));
+  });
+});
+
+async function snapshotDeclaredOutputs(
+  root: string,
+): Promise<Map<string, Buffer | null>> {
+  const snapshot = new Map<string, Buffer | null>();
+  for (const relPath of (await buildGenerationPlan(root)).declaredFiles) {
+    const outputPath = path.join(root, relPath);
+    snapshot.set(
+      relPath,
+      (await fs.pathExists(outputPath)) ? await fs.readFile(outputPath) : null,
+    );
+  }
+  return snapshot;
+}
+
+async function assertDeclaredOutputsUnchanged(
+  root: string,
+  snapshot: Map<string, Buffer | null>,
+): Promise<void> {
+  for (const [relPath, expected] of snapshot) {
+    const outputPath = path.join(root, relPath);
+    if (expected === null) {
+      assert.equal(
+        await fs.pathExists(outputPath),
+        false,
+        `${relPath} appeared`,
+      );
+      continue;
+    }
+    assert.deepEqual(
+      await fs.readFile(outputPath),
+      expected,
+      `${relPath} changed`,
+    );
+  }
+}
+
+test("a catalog-only lock change fails --check without writing and passes after apply", async () => {
+  await withFixture({}, async (root) => {
+    const lockPath = path.join(root, ".skills-lock.json");
+    const lock = await fs.readJson(lockPath);
+    delete lock.workflowCatalog;
+    await fs.writeJson(lockPath, lock, { spaces: 2 });
+    const lockBeforeCheck = await fs.readFile(lockPath);
+    const outputsBefore = await snapshotDeclaredOutputs(root);
+
+    const stale = await runIsolatedGeneration({
+      repoRoot: root,
+      checkOnly: true,
+    });
+    assert.equal(stale.success, false, "a missing catalog is a stale manifest");
+    assert.match(stale.error ?? "", /Prepared generator outputs are stale/);
+    assert.match(stale.error ?? "", /\.skills-lock\.json/);
+    assert.deepEqual(await fs.readFile(lockPath), lockBeforeCheck);
+    await assertDeclaredOutputsUnchanged(root, outputsBefore);
+    const leftovers = (await fs.readdir(root)).filter(
+      (name) =>
+        name.startsWith(".skills-lock.json.") ||
+        name.startsWith("skills-lock.json.ags-tmp-"),
+    );
+    assert.deepEqual(leftovers, [], "no lock publication temp survived --check");
+
+    const applied = await runIsolatedGeneration({ repoRoot: root });
+    assert.equal(applied.success, true, applied.error ?? "");
+    const appliedLock = await fs.readJson(lockPath);
+    assert.deepEqual(appliedLock.workflowCatalog?.workflows?.demo?.provenance, {
+      kind: "local-authoring",
+    });
+    const appliedLockBytes = await fs.readFile(lockPath);
+
+    const checked = await runIsolatedGeneration({
+      repoRoot: root,
+      checkOnly: true,
+    });
+    assert.equal(checked.success, true, checked.error ?? "");
+    assert.deepEqual(await fs.readFile(lockPath), appliedLockBytes);
+  });
+});
+
+async function assertStagedCatalogRefusal(
+  mode: "drop" | "digest",
+): Promise<void> {
+  await withFixture({ stagedCatalogMutation: mode }, async (root) => {
+    const lockPath = path.join(root, ".skills-lock.json");
+    const lock = await fs.readJson(lockPath);
+    delete lock.workflowCatalog;
+    await fs.writeJson(lockPath, lock, { spaces: 2 });
+    const lockBefore = await fs.readFile(lockPath);
+    const outputsBefore = await snapshotDeclaredOutputs(root);
+
+    await withEnv({ FIXTURE_STAGED_CATALOG: mode }, async () => {
+      const checked = await runIsolatedGeneration({
+        repoRoot: root,
+        checkOnly: true,
+      });
+      assert.equal(
+        checked.success,
+        false,
+        "an incomplete staged catalog must fail --check",
+      );
+    });
+    assert.deepEqual(await fs.readFile(lockPath), lockBefore);
+    await assertDeclaredOutputsUnchanged(root, outputsBefore);
+
+    await withEnv({ FIXTURE_STAGED_CATALOG: mode }, async () => {
+      const applied = await runIsolatedGeneration({ repoRoot: root });
+      assert.equal(
+        applied.success,
+        false,
+        "an incomplete staged catalog must not publish",
+      );
+    });
+    assert.deepEqual(await fs.readFile(lockPath), lockBefore);
+    await assertDeclaredOutputsUnchanged(root, outputsBefore);
+  });
+}
+
+test("check and apply refuse a selected workflow missing from the staged catalog", async () => {
+  await assertStagedCatalogRefusal("drop");
+});
+
+test("check and apply refuse a selected workflow whose staged catalog digest drifted", async () => {
+  await assertStagedCatalogRefusal("digest");
+});
+
+test("generation without config does not require a workflow catalog for local canonical workflows", async () => {
+  await withFixture({}, async (root) => {
+    const lockPath = path.join(root, ".skills-lock.json");
+    const lock = await fs.readJson(lockPath);
+    delete lock.workflowCatalog;
+    await fs.writeJson(lockPath, lock, { spaces: 2 });
+    await fs.remove(path.join(root, ".skillsrc"));
+
+    const result = await runIsolatedGeneration({ repoRoot: root });
+
+    assert.equal(result.success, true);
+    assert.equal((await fs.readJson(lockPath)).workflowCatalog, undefined);
   });
 });
 

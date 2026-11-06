@@ -54,23 +54,20 @@ const defaultExec = (
   cmd: string,
   args: string[],
 ): Promise<{ code: number; stderr: string }> => {
-  const { promise, resolve, reject } = Promise.withResolvers<{
-    code: number;
-    stderr: string;
-  }>();
-  execFile(cmd, args, (error, _stdout, stderr) => {
-    if (error) {
-      if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-        return reject(error);
+  return new Promise<{ code: number; stderr: string }>((resolve, reject) => {
+    execFile(cmd, args, (error, _stdout, stderr) => {
+      if (error) {
+        if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+          return reject(error);
+        }
+        return resolve({
+          code: typeof error.code === 'number' ? error.code : 1,
+          stderr: stderr || error.message,
+        });
       }
-      return resolve({
-        code: typeof error.code === 'number' ? error.code : 1,
-        stderr: stderr || error.message,
-      });
-    }
-    resolve({ code: 0, stderr: stderr || '' });
+      resolve({ code: 0, stderr: stderr || '' });
+    });
   });
-  return promise;
 };
 
 /**
@@ -506,6 +503,13 @@ export class SyncService {
        */
       completedSkillCategories?: string[];
       workflowAcquisition?: WorkflowAcquisition;
+      /**
+       * Canonical workflow bodies in this run were read from the checkout
+       * itself. New catalog entries then carry explicit local provenance
+       * instead of the configured registry pins. Remote callers omit this and
+       * keep the existing remote attribution.
+       */
+      workflowProvenance?: 'local-authoring';
     },
   ): Promise<InstallPlan> {
     if (!this.ownership) {
@@ -592,6 +596,7 @@ export class SyncService {
         config,
         run.workflowAcquisition,
         entries,
+        run.workflowProvenance,
       );
       const lock: SkillsLockFile = {
         version: 2,
@@ -616,6 +621,7 @@ export class SyncService {
     config: SkillConfig,
     acquisition: WorkflowAcquisition | undefined,
     entries: Record<string, { owner: string; agent: string }>,
+    origin?: 'local-authoring',
   ): Promise<WorkflowCatalog | undefined> {
     const previous = this.previousLock?.workflowCatalog;
     if (acquisition?.status === 'incomplete') {
@@ -692,16 +698,29 @@ export class SyncService {
       }
 
       const priorEntry = previous?.workflows[planned.name];
-      const provenance = priorEntry?.digest === digest ? priorEntry : null;
-      workflows[planned.name] = {
+      const prior = priorEntry?.digest === digest ? priorEntry : null;
+      const workflow: WorkflowCatalogWorkflow = {
         path: planned.path,
         digest,
-        registry: provenance?.registry ?? config.registry,
-        requestedRef: provenance?.requestedRef ?? workflowSource.ref,
-        resolvedCommit: provenance?.resolvedCommit ?? workflowSource.commit,
         nativeBindings,
         nativeConflicts,
       };
+      if (prior?.provenance) {
+        // Unchanged bytes keep their recorded local attestation verbatim.
+        workflow.provenance = { kind: 'local-authoring' };
+      } else if (prior) {
+        workflow.registry = prior.registry;
+        workflow.requestedRef = prior.requestedRef;
+        workflow.resolvedCommit = prior.resolvedCommit ?? null;
+      } else if (origin === 'local-authoring') {
+        // Read from this checkout: no registry/ref/commit is implied.
+        workflow.provenance = { kind: 'local-authoring' };
+      } else {
+        workflow.registry = config.registry;
+        workflow.requestedRef = workflowSource.ref;
+        workflow.resolvedCommit = workflowSource.commit;
+      }
+      workflows[planned.name] = workflow;
     }
 
     return { version: 1, workflows };

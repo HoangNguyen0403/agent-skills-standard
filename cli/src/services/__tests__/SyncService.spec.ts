@@ -993,7 +993,7 @@ describe('SyncService', () => {
     });
 
     it('does nothing when .agent does not exist', async () => {
-      vi.mocked(fs.pathExists).mockResolvedValue(false);
+      vi.mocked(fs.pathExists).mockImplementation(async () => false);
       const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
       await syncService.writeSkills([], makeConfig());
@@ -1006,7 +1006,7 @@ describe('SyncService', () => {
 
   describe('warnIfSyncingFromSameRepo (Lines 78-83)', () => {
     it('should warn when local git remote matches the registry URL', async () => {
-      const { GitService } = await import('../GitService');
+      const { GitService } = await import('../GitService.js');
       const gitRemoteSpy = vi
         .spyOn(GitService.prototype, 'getRemoteUrl')
         .mockReturnValue('https://github.com/owner/repo');

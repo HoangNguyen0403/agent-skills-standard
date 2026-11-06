@@ -1,6 +1,7 @@
 // scripts/outcome/schema.ts
 import fs from "fs-extra";
 import path from "path";
+import { ID_GRAMMAR } from "../trace/types";
 
 const ROOT = path.join(__dirname, "..", "..");
 const WORKFLOWS_DIR = path.join(ROOT, ".agents", "workflows");
@@ -102,11 +103,12 @@ const ISO_8601_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/;
 
 const PLACEHOLDER_PATTERNS = [/\*/, /<.*>/, /\[.*\]/, /\bTODO\b/i, /\bTBD\b/i];
 
+/** Field-specific kind checks; the grammar itself is the pure `scripts/trace/types` source. */
 const TRACE_ID_PATTERNS: Record<keyof RequirementTrace, RegExp> = {
-  brd_objectives: /^BRD-OBJ-\d{3,}$/,
-  requirements: /^REQ-\d{3,}$/,
-  acceptance_criteria: /^AC-\d{3,}$/,
-  srs: /^SRS-\d{3,}$/,
+  brd_objectives: ID_GRAMMAR["BRD-OBJ"],
+  requirements: ID_GRAMMAR.REQ,
+  acceptance_criteria: ID_GRAMMAR.AC,
+  srs: ID_GRAMMAR.SRS,
 };
 
 function isPlaceholder(value: string): boolean {

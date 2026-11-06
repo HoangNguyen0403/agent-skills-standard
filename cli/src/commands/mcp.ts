@@ -187,7 +187,9 @@ export class McpCommand {
     config: SkillConfig,
     options: Record<string, string>,
   ): Promise<void> {
-    const scope = options.scope ?? options._?.[0];
+    // Positional scope is mapped onto `options.scope` by the Commander
+    // adapter, which preserves explicit `--scope` precedence.
+    const scope = options.scope;
     if (!scope || !VALID_SCOPES.includes(scope as McpScope)) {
       console.log(pc.red(`Invalid scope. Valid: ${VALID_SCOPES.join(' | ')}`));
       return;
