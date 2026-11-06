@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Quick Navigation
 
+## [mcp-v0.8.2] - 2026-11-06
+
+**Category**: MCP Server
+
+### Added
+- feat(mcp): disclose unsupported provider transcript stores and refuse alias roots (#294)
+
+### Fixed
+- fix(qe): harden Playwright testing guidance (#295)
+- fix(cli): install pinned MCP on global enable (#293)
+
+### Maintenance
+- chore: update agent-skills-standard-mcp version to 0.8.1 across configurations and documentation
+
 ## [Unreleased]
 
 ### Added
