@@ -231,8 +231,8 @@ export function DemoPlayer(): React.JSX.Element {
     >
       <div className={styles.demoHeader}>
         <p className={styles.demoKicker}>
-          EDITED 56s PRESENTATION · LOCAL CANDIDATE EXECUTION · CAPTURED
-          WITHOUT TELEMETRY
+          EDITED 56s PRESENTATION · LOCAL CANDIDATE EXECUTION · CAPTURED WITHOUT
+          TELEMETRY
         </p>
         <h3 id="demo-player-heading" className={styles.demoTitle}>
           Syncing Agent Skills Across Multi-Agent Projects
@@ -253,7 +253,9 @@ export function DemoPlayer(): React.JSX.Element {
           ref={videoRef}
           className={styles.videoElement}
           controls={
-            requiresExplicitStart ? !isClient || startStatus === "started" : true
+            requiresExplicitStart
+              ? !isClient || startStatus === "started"
+              : true
           }
           preload="metadata"
           playsInline
@@ -275,7 +277,10 @@ export function DemoPlayer(): React.JSX.Element {
           <div className={styles.videoFallback}>
             <p>
               Your browser does not support HTML5 video playback. You can{" "}
-              <a href="/media/standards-demo-01.mp4" className={styles.demoLink}>
+              <a
+                href="/media/standards-demo-01.mp4"
+                className={styles.demoLink}
+              >
                 download the MP4 video directly (56s, 1080p)
               </a>
               , read the{" "}
@@ -317,7 +322,8 @@ export function DemoPlayer(): React.JSX.Element {
 
       <div className={styles.demoMeta}>
         <span className={styles.demoScopeTag}>
-          Edited 56s presentation of captured local candidate command output · Candidate a2228857 · Tree ee18d7f5 · Captured without telemetry
+          Edited 56s presentation of captured local candidate command output ·
+          Candidate a2228857 · Tree ee18d7f5 · Captured without telemetry
         </span>
 
         <div className={styles.demoActions}>
@@ -374,8 +380,9 @@ export function DemoPlayer(): React.JSX.Element {
           <div className={styles.caveatNote}>
             <p style={{ margin: "0 0 8px 0" }}>
               <strong>Operational Limitation:</strong> Standards files provide
-              structured context to AI agents; they do not enforce LLM compliance.
-              CI evaluation gates and automated regression testing remain mandatory.
+              structured context to AI agents; they do not enforce LLM
+              compliance. CI evaluation gates and automated regression testing
+              remain mandatory.
             </p>
             <p style={{ margin: "0 0 8px 0" }}>
               The linked transcript is the accepted video transcript: sanitized
