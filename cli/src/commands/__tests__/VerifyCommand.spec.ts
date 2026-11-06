@@ -1,4 +1,12 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+  type MockInstance,
+} from 'vitest';
 import { Agent } from '../../constants';
 import { SkillConfig } from '../../models/config';
 import { ConfigService } from '../../services/ConfigService';
@@ -17,7 +25,7 @@ describe('VerifyCommand', () => {
   let configService: ConfigService;
   let syncService: SyncService;
   let command: VerifyCommand;
-  let logSpy: ReturnType<typeof vi.spyOn>;
+  let logSpy: MockInstance<typeof console.log>;
 
   beforeEach(() => {
     configService = { loadConfig: vi.fn() } as unknown as ConfigService;

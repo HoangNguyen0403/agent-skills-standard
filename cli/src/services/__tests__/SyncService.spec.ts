@@ -1047,7 +1047,7 @@ describe('SyncService', () => {
     });
 
     it('does nothing when .agent does not exist', async () => {
-      vi.mocked(fs.pathExists).mockResolvedValue(false as never);
+      vi.mocked(fs.pathExists).mockImplementation(async () => false);
       const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
       await syncService.writeSkills([], makeConfig());

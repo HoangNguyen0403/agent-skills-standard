@@ -216,6 +216,76 @@ describe("WorkflowIndex and Workflow Tools", () => {
       expect(result.parityIssues).toEqual([]);
     });
 
+    function localCatalog(): CatalogShape {
+      return {
+        version: 1,
+        workflows: {
+          "dev-fix": {
+            path: CANONICAL,
+            digest: digest(RAW),
+            provenance: { kind: "local-authoring" },
+            nativeBindings: [
+              {
+                agent: "claude",
+                path: NATIVE,
+                outputDigest: digest(NATIVE_OUTPUT),
+                canonicalDigest: digest(RAW),
+              },
+            ],
+          },
+        } as unknown as CatalogShape["workflows"],
+      };
+    }
+
+    it("serves a locally authored entry whose provenance is explicitly local", async () => {
+      await writeInstall(root, { catalog: localCatalog() });
+
+      const result = await lookupWorkflow(root, "dev-fix");
+
+      expect(result.status).toBe("managed");
+      expect(result.body).toBe(BODY);
+      expect(result.digest).toBe(digest(RAW));
+      expect(result.nativeParity).toBe(true);
+      expect(result.parityIssues).toEqual([]);
+    });
+
+    it.each([
+      [
+        "mixed local and remote provenance",
+        {
+          registry: "https://github.com/owner/repo",
+          requestedRef: "workflows-v1.0.0",
+          resolvedCommit: null,
+          provenance: { kind: "local-authoring" },
+        },
+      ],
+      ["registry present as null", { registry: null }],
+      ["registry present as an empty string", { registry: "" }],
+      ["requestedRef present as null", { requestedRef: null }],
+      ["requestedRef present as an empty string", { requestedRef: "" }],
+      ["resolvedCommit present as null", { resolvedCommit: null }],
+      ["resolvedCommit present as an empty string", { resolvedCommit: "" }],
+      [
+        "local provenance carrying an extra property",
+        { provenance: { kind: "local-authoring", extra: true } },
+      ],
+      ["an unknown provenance kind", { provenance: { kind: "remote-authoring" } }],
+      ["a null provenance value", { provenance: null }],
+    ])("fails closed on %s in a catalog entry", async (_label, extra) => {
+      const catalog = localCatalog();
+      catalog.workflows["dev-fix"] = {
+        ...catalog.workflows["dev-fix"],
+        ...extra,
+      } as unknown as CatalogShape["workflows"][string];
+
+      await writeInstall(root, { catalog });
+
+      const result = await lookupWorkflow(root, "dev-fix");
+
+      expect(result.status).toBe("unavailable");
+      expect(result.reason).toMatch(/invalid/i);
+    });
+
     it("does not claim native parity when a native export no longer matches its recorded digest", async () => {
       await writeInstall(root);
       await fs.writeFile(path.join(root, NATIVE), "user-edited export");

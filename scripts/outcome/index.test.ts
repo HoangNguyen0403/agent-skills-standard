@@ -186,6 +186,45 @@ test("exactly one schema-valid match exposes schema-and-scope assurance", async 
   assert.equal(RUN_RECORD_ASSURANCE, "record-schema-and-scope-valid");
 });
 
+test("required scope accepts a record tracing approved namespaced two-digit IDs", async (t) => {
+  const dir = tempRunsDir(t);
+  writeJson(
+    dir,
+    "checkout-retry/namespaced.json",
+    validRecord({
+      requirement_trace: {
+        brd_objectives: ["BRD-OBJ-CT-01"],
+        requirements: ["REQ-CT-01"],
+        acceptance_criteria: ["AC-CT-12"],
+        srs: ["SRS-CT-01"],
+      },
+    }),
+  );
+
+  const result = await validateRunRecords(dir, SCOPE);
+  assert.deepEqual(result, { issues: [], checked: 1, matched: 1 });
+});
+
+test("a namespaced three-digit historical source ID cannot satisfy required scope", async (t) => {
+  const dir = tempRunsDir(t);
+  writeJson(
+    dir,
+    "checkout-retry/source.json",
+    validRecord({
+      requirement_trace: {
+        brd_objectives: ["BRD-OBJ-001"],
+        requirements: ["REQ-DISC-001"],
+        acceptance_criteria: ["AC-001"],
+        srs: ["SRS-001"],
+      },
+    }),
+  );
+
+  const result = await validateRunRecords(dir, SCOPE);
+  assert.equal(result.matched, 0);
+  assert.ok(result.issues.some((issue) => /not schema-valid/.test(issue.message)));
+});
+
 test("schema validity never claims approval for a record with open evidence and decisions", async (t) => {
   const dir = tempRunsDir(t);
   writeJson(

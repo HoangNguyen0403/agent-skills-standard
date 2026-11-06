@@ -60,13 +60,25 @@ export interface WorkflowCatalogBindingConflict {
   path: string;
 }
 
+export interface WorkflowCatalogLocalProvenance {
+  /**
+   * The bytes were read and bound from this checkout, not acquired remotely.
+   * It attests local bytes only: not a registry, revision, authorship or
+   * approval claim.
+   */
+  kind: 'local-authoring';
+}
+
 export interface WorkflowCatalogWorkflow {
   /** Bounded project-relative canonical body path. */
   path: string;
   digest: string;
-  registry: string;
-  requestedRef: string;
-  resolvedCommit: string | null;
+  /** Remote acquisition attribution. Absent for locally authored entries. */
+  registry?: string;
+  requestedRef?: string;
+  resolvedCommit?: string | null;
+  /** Present only when the entry was published from locally authored bytes. */
+  provenance?: WorkflowCatalogLocalProvenance;
   /**
    * Verified native exports. Several providers may alias the same physical
    * output path (e.g. Antigravity and Kiro), provided their digests agree.
@@ -350,23 +362,47 @@ function assertWorkflowCatalog(version: unknown, workflows: unknown) {
         `Invalid .skills-lock.json workflowCatalog: workflow '${name}' has an invalid digest`,
       );
     }
-    if (typeof entry.registry !== 'string') {
-      throw new Error(
-        `Invalid .skills-lock.json workflowCatalog: workflow '${name}' has an invalid registry`,
-      );
-    }
-    if (typeof entry.requestedRef !== 'string') {
-      throw new Error(
-        `Invalid .skills-lock.json workflowCatalog: workflow '${name}' has an invalid requestedRef`,
-      );
-    }
-    if (
-      entry.resolvedCommit !== null &&
-      typeof entry.resolvedCommit !== 'string'
-    ) {
-      throw new Error(
-        `Invalid .skills-lock.json workflowCatalog: workflow '${name}' has an invalid resolvedCommit`,
-      );
+    if (Object.prototype.hasOwnProperty.call(entry, 'provenance')) {
+      if (
+        Object.prototype.hasOwnProperty.call(entry, 'registry') ||
+        Object.prototype.hasOwnProperty.call(entry, 'requestedRef') ||
+        Object.prototype.hasOwnProperty.call(entry, 'resolvedCommit')
+      ) {
+        throw new Error(
+          `Invalid .skills-lock.json workflowCatalog: workflow '${name}' mixes local provenance with remote fields`,
+        );
+      }
+      const provenance = entry.provenance as unknown;
+      if (
+        !provenance ||
+        typeof provenance !== 'object' ||
+        Array.isArray(provenance) ||
+        Object.keys(provenance as Record<string, unknown>).length !== 1 ||
+        (provenance as Record<string, unknown>).kind !== 'local-authoring'
+      ) {
+        throw new Error(
+          `Invalid .skills-lock.json workflowCatalog: workflow '${name}' has invalid local provenance`,
+        );
+      }
+    } else {
+      if (typeof entry.registry !== 'string') {
+        throw new Error(
+          `Invalid .skills-lock.json workflowCatalog: workflow '${name}' has an invalid registry`,
+        );
+      }
+      if (typeof entry.requestedRef !== 'string') {
+        throw new Error(
+          `Invalid .skills-lock.json workflowCatalog: workflow '${name}' has an invalid requestedRef`,
+        );
+      }
+      if (
+        entry.resolvedCommit !== null &&
+        typeof entry.resolvedCommit !== 'string'
+      ) {
+        throw new Error(
+          `Invalid .skills-lock.json workflowCatalog: workflow '${name}' has an invalid resolvedCommit`,
+        );
+      }
     }
     if (!Array.isArray(entry.nativeBindings)) {
       throw new Error(

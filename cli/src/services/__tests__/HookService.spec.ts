@@ -4,7 +4,11 @@ import os from 'os';
 import path from 'path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Agent } from '../../constants';
-import { HookService, UNIVERSAL_SKILL_LOADER_JS } from '../HookService';
+import {
+  HookService,
+  KIRO_HOOK_MD,
+  UNIVERSAL_SKILL_LOADER_JS,
+} from '../HookService';
 import { matchesPattern as policyMatchesPattern } from '../policy/match';
 
 describe('HookService', () => {
@@ -677,7 +681,6 @@ describe('HookService', () => {
       expect(report.writes.find((w) => w.agent === Agent.Kiro)?.action).toBe(
         'updated',
       );
-      const { KIRO_HOOK_MD } = await import('../HookService');
       expect(await fs.readFile(hookPath, 'utf8')).toBe(KIRO_HOOK_MD);
     });
 

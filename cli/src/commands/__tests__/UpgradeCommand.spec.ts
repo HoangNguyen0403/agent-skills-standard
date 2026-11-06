@@ -31,7 +31,9 @@ describe('UpgradeCommand', () => {
 
   beforeEach(async () => {
     vi.resetModules();
-    const mod = await import('../upgrade');
+    // Dynamic: the module must be re-imported after resetModules() so the fs
+    // and child_process mocks above apply; a static import would bind earlier.
+    const mod = await import('../upgrade.js');
     UpgradeCommand = mod.UpgradeCommand;
     upgradeCommand = new UpgradeCommand();
 

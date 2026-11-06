@@ -233,47 +233,70 @@ test("buildTraceGraph reports malformed-id on malformed longer tokens", () => {
   assert.ok(malformed, "must report malformed-id for REQ-001-EXTRA");
 });
 
-test("buildTraceGraph reports malformed-id on undersized, missing, or nonnumeric terminal suffix despite matching declaration+mapping", () => {
+test("buildTraceGraph treats namespaced two-digit IDs as malformed sources but canonical declarations", () => {
   const root = writeTempTree({
-    "docs/brd/brd-bad-suffix.md": [
+    "docs/brd/brd-role-grammar.md": [
       "# BRD",
       "",
       "| Req ID | Requirement |",
       "| --- | --- |",
-      "| REQ-PILOT-01 | undersized 2-digit suffix |",
-      "| REQ-PILOT | missing terminal suffix |",
-      "| REQ-PILOT-EXTRA | nonnumeric terminal suffix |",
-      "| REQ-PILOT-001 | valid 3-digit suffix |",
-      "",
-      "- **AC-PILOT-001 → REQ-PILOT-001:** valid AC",
+      "| REQ-PILOT-01 | canonical two-digit formal |",
+      "| REQ-PILOT | missing suffix |",
+      "| REQ-PILOT-EXTRA | nonnumeric suffix |",
       "",
     ].join("\n"),
-    "docs/prd/prd-bad-suffix.md": [
+    "docs/prd/prd-role-grammar.md": [
       "# PRD",
       "",
       "| Req ID | Source | Requirement |",
       "| --- | --- | --- |",
-      "| REQ-001 | REQ-PILOT-01 | maps undersized source |",
-      "| REQ-002 | REQ-PILOT | maps suffixless source |",
-      "| REQ-003 | REQ-PILOT-EXTRA | maps nonnumeric source |",
-      "| REQ-004 | REQ-PILOT-001 | maps valid source |",
-      "",
-      "| AC ID | Source group | Req ID | Preconditions |",
-      "| --- | --- | --- | --- |",
-      "| AC-001 | AC-PILOT-001 | REQ-004 | valid AC |",
-      "",
-      "Coverage references: AC-001.",
+      "| REQ-001 | REQ-PILOT-01 | two-digit canonical-looking source |",
+      "| REQ-002 | REQ-PILOT | suffixless source |",
+      "| REQ-003 | REQ-PILOT-EXTRA | nonnumeric source |",
       "",
     ].join("\n"),
   });
 
-  const slugs = parseRepo(root);
-  const issues = buildTraceGraph(slugs);
-  const malformedIds = issues.filter((i) => i.code === "malformed-id").map((i) => i.id);
-  assert.ok(malformedIds.includes("REQ-PILOT-01"), "REQ-PILOT-01 must be reported as malformed-id");
-  assert.ok(malformedIds.includes("REQ-PILOT"), "REQ-PILOT must be reported as malformed-id");
-  assert.ok(malformedIds.includes("REQ-PILOT-EXTRA"), "REQ-PILOT-EXTRA must be reported as malformed-id");
-  assert.ok(!malformedIds.includes("REQ-PILOT-001"), "valid REQ-PILOT-001 must not be reported as malformed");
+  const issues = buildTraceGraph(parseRepo(root));
+  const malformed = issues.filter((i) => i.code === "malformed-id");
+  const sourceMalformed = malformed.filter((i) => i.file?.endsWith("prd-role-grammar.md"));
+  assert.ok(
+    sourceMalformed.some((i) => i.id === "REQ-PILOT-01"),
+    "REQ-PILOT-01 in a Source column must be a malformed historical source",
+  );
+  assert.ok(sourceMalformed.some((i) => i.id === "REQ-PILOT"), "REQ-PILOT must be reported as malformed-id");
+  assert.ok(sourceMalformed.some((i) => i.id === "REQ-PILOT-EXTRA"), "REQ-PILOT-EXTRA must be reported as malformed-id");
+  assert.equal(
+    malformed.some((i) => i.id === "REQ-PILOT-01" && i.file?.endsWith("brd-role-grammar.md")),
+    false,
+    "the same token is canonical formal in a declaration column",
+  );
+});
+
+test("buildTraceGraph accepts canonical namespaced two-digit declarations without inventing errors", () => {
+  const root = writeTempTree({
+    "docs/brd/brd-canonical.md": "# BRD\n\n# BRD-OBJ-CT-01 Objective\n",
+    "docs/prd/prd-canonical.md": [
+      "# PRD",
+      "",
+      "| Req ID | Requirement | BRD |",
+      "| --- | --- | --- |",
+      "| REQ-CT-01 | Do the thing | BRD-OBJ-CT-01 |",
+      "",
+      "| AC ID | Linked Req |",
+      "| --- | --- |",
+      "| AC-CT-01 | REQ-CT-01 |",
+      "",
+    ].join("\n"),
+    "docs/srs/srs-canonical.md": "# SRS\n\n### SRS-CT-01: contract\n\n- **Source**: REQ-CT-01, AC-CT-01\n",
+  });
+
+  const issues = buildTraceGraph(parseRepo(root));
+  assert.deepEqual(
+    issues.filter((i) => i.severity === "error"),
+    [],
+    "canonical namespaced declarations must not manufacture malformed, dangling, duplicate, or orphan errors",
+  );
 });
 
 test("buildTraceGraph accepts bold diagnostic prose plus namespace family references without false errors", () => {

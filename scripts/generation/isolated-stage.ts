@@ -7,6 +7,7 @@ import * as yaml from "js-yaml";
 import {
   parseGenerationLedger,
   sha256,
+  validateWorkflowCatalog,
   SHARED_WORKFLOW_AGENT,
   type GenerationEntry,
   type ManifestEntry,
@@ -95,6 +96,12 @@ export interface GenerationPlan {
   indexJsonCategories: Array<{ category: string; skillIds: string[] }>;
   mirrorFiles: MirrorFileTarget[];
   ruleFiles: string[];
+  /**
+   * Canonical workflow bodies for the configured selection that generation
+   * owns (excluding explicit overrides). Their staged catalog entries are
+   * required, not optional.
+   */
+  workflowSources: string[];
   workflowOutputs: WorkflowTarget[];
   specialistOutputs: SpecialistTarget[];
   missingWorkflowSources: string[];
@@ -618,6 +625,16 @@ export async function buildGenerationPlan(
       if (!allWorkflowNames.includes(name)) missingWorkflowSources.push(name);
     }
   }
+  // Explicit overrides keep user-authored canonical bodies out of generation
+  // ownership, so they are not required catalog membership either. Without a
+  // loaded configuration the catalog producer does not run at all, so no staged
+  // catalog entry can be required even when canonical workflow files exist.
+  const workflowSources = config
+    ? workflowNames
+        .map((name) => path.posix.join(".agents", "workflows", `${name}.md`))
+        .filter((relPath) => !isOverriddenRel(relPath, overrides))
+        .sort()
+    : [];
 
   const specialistDir = path.join(skillsDir, "specialists");
   const specialistNames = (await fs.pathExists(specialistDir))
@@ -786,6 +803,7 @@ export async function buildGenerationPlan(
     indexJsonCategories,
     mirrorFiles,
     ruleFiles: ruleFiles.sort(),
+    workflowSources,
     workflowOutputs: workflowOutputs.sort((left, right) =>
       left.relPath.localeCompare(right.relPath),
     ),
@@ -3273,6 +3291,56 @@ async function restoreRetiredOutputs(
   return { restored, failures };
 }
 
+function catalogEntryIdentity(entry: WorkflowCatalogWorkflow): string {
+  return JSON.stringify({
+    path: entry.path,
+    digest: entry.digest,
+    nativeBindings: entry.nativeBindings,
+    nativeConflicts: entry.nativeConflicts ?? [],
+  });
+}
+
+/**
+ * Overlays the verified stage catalog on the prior one. An entry whose
+ * verified content and bindings are unchanged keeps its previous record
+ * verbatim (including provenance); a changed entry is replaced by the freshly
+ * verified one; prior entries the stage did not cover are retained.
+ */
+function mergeWorkflowCatalog(
+  prior: WorkflowCatalog,
+  staged: WorkflowCatalog,
+): WorkflowCatalog {
+  const workflows: Record<string, WorkflowCatalogWorkflow> = {
+    ...prior.workflows,
+  };
+  for (const [name, entry] of Object.entries(staged.workflows)) {
+    const before = prior.workflows[name];
+    workflows[name] =
+      before && catalogEntryIdentity(before) === catalogEntryIdentity(entry)
+        ? before
+        : entry;
+  }
+  return { version: 1, workflows };
+}
+
+/**
+ * Keeps only catalog entries whose staged canonical bytes still match the
+ * recorded digest, so a bootstrap never publishes a claim for content the
+ * verified stage does not actually hold.
+ */
+async function verifiedStageCatalog(
+  stageRoot: string,
+  catalog: WorkflowCatalog,
+): Promise<WorkflowCatalog> {
+  const workflows: Record<string, WorkflowCatalogWorkflow> = {};
+  for (const [name, entry] of Object.entries(catalog.workflows)) {
+    const digest = await fileSha256(path.join(stageRoot, entry.path));
+    if (digest !== entry.digest) continue;
+    workflows[name] = entry;
+  }
+  return { version: 1, workflows };
+}
+
 /**
  * Mirrors confirmed retirements into the workflow catalog without re-stamping
  * anything: a workflow entry is dropped only when its canonical body ownership
@@ -3427,8 +3495,53 @@ function sourceKeysForChangedOutputs(
   return keys;
 }
 
-async function persistVerifiedOwnership(
-  repoRoot: string,
+/**
+ * Requires the staged catalog to carry every selected canonical workflow with
+ * the exact path and the digest of the staged body. Required membership comes
+ * from the configured selection, never from surviving catalog entries, so a
+ * silently dropped selection cannot claim complete generation.
+ */
+async function assertRequiredWorkflowCatalog(
+  stageRoot: string,
+  stageCatalog: WorkflowCatalog | undefined,
+  plan: GenerationPlan,
+): Promise<void> {
+  if (!stageCatalog) {
+    if (plan.workflowSources.length > 0) {
+      throw new Error(
+        "Staged workflow catalog is missing while workflows are selected.",
+      );
+    }
+    return;
+  }
+  for (const source of plan.workflowSources) {
+    const name = path.posix.basename(source, ".md");
+    const entry = stageCatalog.workflows[name];
+    if (!entry || entry.path !== source) {
+      throw new Error(
+        `Selected workflow "${name}" is missing from the staged workflow catalog.`,
+      );
+    }
+    if ((await fileSha256(path.join(stageRoot, source))) !== entry.digest) {
+      throw new Error(
+        `Staged workflow catalog digest for selected "${name}" does not match its staged canonical body.`,
+      );
+    }
+  }
+}
+
+interface CandidateLock {
+  /** Candidate manifest, or null when there is nothing to own. */
+  next: SkillsLockFile | null;
+  changed: boolean;
+}
+
+/**
+ * Computes the ownership manifest this run would publish. Read-only: `--check`
+ * and apply share this candidate, so a lock-only change (workflow catalog,
+ * sources, provenance) can never pass the check while apply would rewrite it.
+ */
+async function buildCandidateLock(
   stageRoot: string,
   plan: GenerationPlan,
   ownershipPaths: string[],
@@ -3436,20 +3549,16 @@ async function persistVerifiedOwnership(
   resolvedCliEntries: Map<string, ManifestEntry>,
   previous: SkillsLockFile | null,
   stagedLock: SkillsLockFile | null,
-  previousDigest: string | null,
   provenanceRefreshed: Map<string, string>,
   retiredPaths: string[],
-  beforeRename: () => Promise<void>,
-  onRenamed: () => void,
-  onCommitted: () => void,
-): Promise<boolean> {
+): Promise<CandidateLock> {
   if (
     !previous &&
     ownershipPaths.length === 0 &&
     provenanceRefreshed.size === 0 &&
     retiredPaths.length === 0
   ) {
-    return false;
+    return { next: null, changed: false };
   }
   const generationEntries = { ...(previous?.generation?.entries ?? {}) };
   const entries = { ...(previous?.entries ?? {}) };
@@ -3504,8 +3613,19 @@ async function persistVerifiedOwnership(
     const source = stagedLock?.sources[sourceKey];
     if (source) sources[sourceKey] = source;
   }
+  const priorCatalog = previous?.workflowCatalog;
+  const stageCatalog = !stagedLock?.workflowCatalog
+    ? undefined
+    : validateWorkflowCatalog(stagedLock.workflowCatalog);
+  await assertRequiredWorkflowCatalog(stageRoot, stageCatalog, plan);
+  // Non-required staged entries are still filtered against real stage bytes.
+  const verifiedStage = stageCatalog
+    ? await verifiedStageCatalog(stageRoot, stageCatalog)
+    : undefined;
   const nextWorkflowCatalog = reconcileRetiredWorkflowCatalog(
-    previous?.workflowCatalog,
+    priorCatalog && verifiedStage
+      ? mergeWorkflowCatalog(priorCatalog, verifiedStage)
+      : (priorCatalog ?? verifiedStage),
     new Set(retiredPaths),
   );
   const next = withSortedEntries({
@@ -3523,9 +3643,45 @@ async function persistVerifiedOwnership(
       : {}),
     ...(nextWorkflowCatalog ? { workflowCatalog: nextWorkflowCatalog } : {}),
   });
-  if (previous && lockContentIdentity(previous) === lockContentIdentity(next)) {
-    return false;
-  }
+  return {
+    next,
+    changed:
+      !previous || lockContentIdentity(previous) !== lockContentIdentity(next),
+  };
+}
+
+/**
+ * Publishes the candidate ownership manifest atomically after the caller has
+ * verified destination stability. Returns false when nothing would change.
+ */
+async function persistVerifiedOwnership(
+  repoRoot: string,
+  stageRoot: string,
+  plan: GenerationPlan,
+  ownershipPaths: string[],
+  stagedDigests: Map<string, string | null>,
+  resolvedCliEntries: Map<string, ManifestEntry>,
+  previous: SkillsLockFile | null,
+  stagedLock: SkillsLockFile | null,
+  previousDigest: string | null,
+  provenanceRefreshed: Map<string, string>,
+  retiredPaths: string[],
+  beforeRename: () => Promise<void>,
+  onRenamed: () => void,
+  onCommitted: () => void,
+): Promise<boolean> {
+  const { next, changed } = await buildCandidateLock(
+    stageRoot,
+    plan,
+    ownershipPaths,
+    stagedDigests,
+    resolvedCliEntries,
+    previous,
+    stagedLock,
+    provenanceRefreshed,
+    retiredPaths,
+  );
+  if (!next || !changed) return false;
 
   const lockPath = path.join(repoRoot, ".skills-lock.json");
   if (
@@ -4595,11 +4751,40 @@ export async function runIsolatedGeneration(
     }
     await assertStableState();
 
+    // Required selected-workflow membership is proven before any output is
+    // published or any catalog entry is written, in check and apply alike.
+    await assertRequiredWorkflowCatalog(
+      stageRoot,
+      !stagedLock?.workflowCatalog
+        ? undefined
+        : validateWorkflowCatalog(stagedLock.workflowCatalog),
+      plan,
+    );
+
     const pendingRetirements = retirements.confirmed.filter(
       (retirement) => retirement.deleteDigest !== null,
     );
     if (checkOnly) {
-      if (outOfDateFiles.length > 0 || retirements.confirmed.length > 0) {
+      // The manifest candidate is computed exactly as apply would compute it,
+      // including catalog bootstrap/merge and provenance refresh, so a
+      // lock-only staleness cannot be reported as up to date.
+      const candidate = await buildCandidateLock(
+        stageRoot,
+        plan,
+        outOfDateFiles,
+        stagedDigests,
+        resolvedCliEntries,
+        currentLock,
+        stagedLock,
+        provenanceRefreshed,
+        retiredPaths,
+      );
+      const lockChanged = currentLock !== null && candidate.changed;
+      if (
+        outOfDateFiles.length > 0 ||
+        retirements.confirmed.length > 0 ||
+        lockChanged
+      ) {
         const details = [
           ...outOfDateFiles.map(
             (file) => `  • ${file} (modified in canonical source)`,
@@ -4608,6 +4793,13 @@ export async function runIsolatedGeneration(
             (retirement) =>
               `  • ${retirement.relPath} (retired or source removed)`,
           ),
+          ...(lockChanged &&
+          outOfDateFiles.length === 0 &&
+          retirements.confirmed.length === 0
+            ? [
+                "  • .skills-lock.json (ownership manifest or workflow catalog stale)",
+              ]
+            : []),
         ];
         throw new Error(
           `Prepared generator outputs are stale:\n${details.join("\n")}\n\n` +

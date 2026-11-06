@@ -2,18 +2,7 @@ import fs from 'fs-extra';
 import * as yaml from 'js-yaml';
 import path from 'path';
 import { INJECTION_PATTERNS } from '../constants/security';
-
-/**
- * Subset of the registry's metadata.json that the IndexGeneratorService needs at
- * index-generation time. Provided by the caller (e.g. SyncService) so the file
- * never needs to be written to disk inside the user's project.
- */
-export interface RemoteMetadata {
-  file_routing?: Record<string, string[]>;
-  broad_globs?: string[];
-  base_language_skills?: Record<string, string>;
-  foundational_composite_rules?: Record<string, string[]>;
-}
+import type { RemoteMetadata } from '../models/types';
 
 /**
  * Metadata structure for a skill, extracted from the frontmatter and content of a SKILL.md file.
