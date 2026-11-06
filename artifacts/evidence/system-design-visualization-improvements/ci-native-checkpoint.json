@@ -1,0 +1,26 @@
+{
+  "slug": "system-design-visualization-improvements",
+  "pr": 298,
+  "runtime": {"node": "26.0.0", "pnpm": "10.0.0", "native_tsx": true, "adapted_loader": false, "qualification": "Local Node26, not an LTS runtime claim; remote original native Node22 unit job passed"},
+  "install": {"command": "pnpm install --frozen-lockfile", "status": "passed", "seconds": 5.02, "ignored_dependency_build_scripts": ["@parcel/watcher", "@scarf/scarf", "esbuild", "unrs-resolver"], "qualification": "No blanket approval of dependency build scripts; actual CLI build subsequently passed"},
+  "checks": {
+    "outcome": {"passed": 37, "failed": 0, "post_format_duration_ms": 547.8805},
+    "trace": {"passed": 68, "failed": 0, "post_format_duration_ms": 630.714834},
+    "required_trace": {"ok": true, "issues": [], "assurance": "document-links-only", "execution_evidence": "not_evaluated"},
+    "cli_build": {"status": "passed", "qualification": "Vite native config future-loader warning retained; CLI build is not root-script or Python typechecking"},
+    "workspace_lint_check": {"status": "passed", "packages": ["cli", "mcp", "website"]},
+    "workspace_format_check": {"status": "failed", "scope": "14 existing unmodified website files", "qualification": "Not rewritten as part of diagram/trace repair; original CI uses mutating format and passed"},
+    "changed_root_ts_format_check": {"status": "passed_after", "files": 7, "repair": "Existing Prettier formatting only; parent post-freeze check and native37+68 tests passed"},
+    "eval_script_tests": {"passed": 456, "failed": 0, "duration_ms": 3519.34725},
+    "nplus1_eval_preflight": {"generatedAt": "2026-11-06T11:59:23.459Z", "issueCount": 0, "issues": [], "skills_file": "benchmarks/evals/system-design-nplus1-skills.txt", "qualification": "Preflight only, not live model efficacy or manual held-out acceptance"},
+    "exact_pr_changed_skills_preflight": {"issueCount": 0, "issues": [], "skills_file": "artifacts/runs/system-design-visualization-improvements/ci-changed-skills.txt"},
+    "verify_run_record_audit": {"ok": true, "issues": [], "recordsChecked": 1, "recordsMatched": 1, "assurance": "record-schema-and-scope-valid"},
+    "cli_validate": {"status": "passed", "skill_count": 0, "category_metadata": "valid", "qualification": "Changed-skills auto-discovery selected zero at committed HEAD; not asserted as skill-body coverage"},
+    "generation_check": {"status": "passed", "receipt": "ci-generation-check-receipt.json", "qualification": "Plain check after bounded historical-producer adoption/apply; no CI or ownership guard weakened"},
+    "capabilities_check": {"status": "passed", "path": "docs/agent-capabilities.md"},
+    "configured_consumer": {"host": ".claude", "tests_passed": 207, "tests_failed": 0, "seconds": 0.140, "strict_render": "passed", "actual_desktop_export": "passed", "image": "consumer-smoke.png", "image_sha256": "ce36a462b15cb5c991142f97a9afc9e70d4a745ec399a977737003bc735054a6", "drawio": "consumer-smoke.drawio", "drawio_sha256": "72f753125964641fd37ae94335638a7516e8968e7a2d33585ae0c26d9812a6b7", "qualification": "Actual generated-resource execution and one dark component export; not arbitrary-input geometry or Desktop egress enforcement proof"},
+    "historical_ownership_proof": {"base": "52671cf9ed6a1c376dfaaae7e621dbc51a4c8765", "adopted_paths": 108, "digest_pair_mismatches": 0, "copied_and_verified": 125, "retired": 0, "proof": "artifacts/generation-logs/attempt-2026-11-06T12-01-27-401Z-236abd/adoption/proof.json"}
+  },
+  "independent_repair_review": {"agent": "1768f200-7e42-454a-bb6d-d087bb1fea09", "notification": "a00dd8a7-4363-4bf6-85a9-a5fe31cfa681", "status": "qualified closure; no blocker or major findings", "scope": "Seven formatting-only root TS files, four canonical generated outputs, 120 mirrored resources and status documentation", "qualification": "Read-only diff/proof inspection, not independent runtime execution"},
+  "remaining": ["Pushed-revision CI verification", "14 unchanged website files fail nonmutating workspace format check", "Human acceptance/live judgment/Desktop network lanes remain external"]
+}

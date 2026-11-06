@@ -1,0 +1,16 @@
+{
+  "date": "2026-11-06",
+  "host": "macOS 27.0.1 arm64, /Applications/draw.io.app (draw.io Desktop)",
+  "command": ["/usr/bin/sandbox-exec", "-p", "(version 1) (allow default) (deny network*)", "/Applications/draw.io.app/Contents/MacOS/draw.io", "--no-sandbox", "--log-net-log=<tmp>", "--net-log-capture-mode=Default", "--disable-background-networking", "-x", "-f", "png", "-e", "-b", "20", "-s", "2", "-o", "<tmp>.png", "skills/common/common-architecture-diagramming/assets/fixtures/context.drawio"],
+  "why_no_sandbox_flag": "The earlier attempt (desktop-network-observations.json) failed because Chromium's own sandbox cannot nest inside an outer seatbelt profile. --no-sandbox disables only Chromium's internal sandbox; the OS-level network denial still wraps the process.",
+  "negative_control": {"command": "same sandbox-exec profile around /usr/bin/curl -m 5 https://example.com", "result": "curl exit 6, Could not resolve host, http_code 000", "meaning": "the profile denies resolution/network for a child process on this host"},
+  "result": {"export_exit": 0, "png": "desktop-egress-denied-probe.png", "png_sha256": "d7f99775c933c398967f2b787b4bf4c3586bf00f800e82aaf5ef12d2398ee8c1", "png_dimensions": "2078x1614", "netlog": "desktop-egress-denied.netlog.json", "netlog_sha256": "63631884e79e0781ba2302af12cb80bd6f62e7cecd96c0e43e030d4192ee96ca", "netlog_events": 18, "url_request_start_job_urls": 0, "host_resolver_events": 0, "socket_events": 0},
+  "claim": "Under an enforced OS network denial verified by a negative control, the draw.io Desktop export of an unmodified fixture completes and produces a correctly sized PNG, and the Chromium netlog records no URL requests, host resolutions or sockets.",
+  "limits": [
+    "One fixture (context.drawio), one run; not every diagram type or theme.",
+    "Chromium internal sandbox disabled for this run; export behavior with it enabled under the same outer denial is not shown (it cannot initialize nested).",
+    "Netlog is Chromium events, not complete syscall coverage; the OS denial is the enforcement evidence, the netlog is corroboration.",
+    "Shows the export does not require network; it does not prove future draw.io versions never attempt it.",
+    "PNG bytes were not compared to an unsandboxed export; only dimensions and successful completion are claimed."
+  ]
+}

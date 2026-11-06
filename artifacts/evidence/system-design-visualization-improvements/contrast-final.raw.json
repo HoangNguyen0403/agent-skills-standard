@@ -1,0 +1,1896 @@
+{
+  "observations": [
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-light.drawio",
+      "cell": "_title",
+      "ink": "#1F2933",
+      "paper": "#FFFFFF",
+      "contrast": 14.755,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-light.drawio",
+      "cell": "_meta",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-light.drawio",
+      "cell": "_group_vpc",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-light.drawio",
+      "cell": "_edge_0",
+      "ink": "#7B341E",
+      "paper": "#FFFFFF",
+      "contrast": 8.928,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-light.drawio",
+      "cell": "_edge_1",
+      "ink": "#7B341E",
+      "paper": "#FFFFFF",
+      "contrast": 8.928,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-light.drawio",
+      "cell": "_edge_2",
+      "ink": "#7B341E",
+      "paper": "#FFFFFF",
+      "contrast": 8.928,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-light.drawio",
+      "cell": "_edge_3",
+      "ink": "#7B341E",
+      "paper": "#FFFFFF",
+      "contrast": 8.928,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-light.drawio",
+      "cell": "_edge_4",
+      "ink": "#7B341E",
+      "paper": "#FFFFFF",
+      "contrast": 8.928,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-light.drawio",
+      "cell": "_edge_5",
+      "ink": "#7B341E",
+      "paper": "#FFFFFF",
+      "contrast": 8.928,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-light.drawio",
+      "cell": "_legend_title",
+      "ink": "#1F2933",
+      "paper": "#FFFFFF",
+      "contrast": 14.755,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-light.drawio",
+      "cell": "_legend_text_0",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-light.drawio",
+      "cell": "_legend_text_1",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-light.drawio",
+      "cell": "_legend_text_2",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-light.drawio",
+      "cell": "_legend_text_3",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-light.drawio",
+      "cell": "_legend_text_4",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-light.drawio",
+      "cell": "_legend_text_5",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-light.drawio",
+      "cell": "_legend_text_6",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-light.drawio",
+      "cell": "_legend_text_7",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-light.drawio",
+      "cell": "_legend_edge_text_0",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-light.drawio",
+      "cell": "_legend_edge_text_1",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/context-light.drawio",
+      "cell": "_title",
+      "ink": "#1F2933",
+      "paper": "#FFFFFF",
+      "contrast": 14.755,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/context-light.drawio",
+      "cell": "_meta",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/context-light.drawio",
+      "cell": "_edge_0",
+      "ink": "#7B341E",
+      "paper": "#FFFFFF",
+      "contrast": 8.928,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/context-light.drawio",
+      "cell": "_edge_1",
+      "ink": "#7B341E",
+      "paper": "#FFFFFF",
+      "contrast": 8.928,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/context-light.drawio",
+      "cell": "_edge_2",
+      "ink": "#7B341E",
+      "paper": "#FFFFFF",
+      "contrast": 8.928,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/context-light.drawio",
+      "cell": "_edge_3",
+      "ink": "#7B341E",
+      "paper": "#FFFFFF",
+      "contrast": 8.928,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/context-light.drawio",
+      "cell": "_legend_title",
+      "ink": "#1F2933",
+      "paper": "#FFFFFF",
+      "contrast": 14.755,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/context-light.drawio",
+      "cell": "_legend_text_0",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/context-light.drawio",
+      "cell": "_legend_text_1",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/context-light.drawio",
+      "cell": "_legend_text_2",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/context-light.drawio",
+      "cell": "_legend_text_3",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/context-light.drawio",
+      "cell": "_legend_text_4",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/context-light.drawio",
+      "cell": "_legend_edge_text_0",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/context-light.drawio",
+      "cell": "_legend_edge_text_1",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/state-light.drawio",
+      "cell": "_title",
+      "ink": "#1F2933",
+      "paper": "#FFFFFF",
+      "contrast": 14.755,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/state-light.drawio",
+      "cell": "_meta",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/state-light.drawio",
+      "cell": "_edge_0",
+      "ink": "#7B341E",
+      "paper": "#FFFFFF",
+      "contrast": 8.928,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/state-light.drawio",
+      "cell": "_edge_1",
+      "ink": "#7B341E",
+      "paper": "#FFFFFF",
+      "contrast": 8.928,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/state-light.drawio",
+      "cell": "_edge_2",
+      "ink": "#7B341E",
+      "paper": "#FFFFFF",
+      "contrast": 8.928,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/state-light.drawio",
+      "cell": "_edge_3",
+      "ink": "#7B341E",
+      "paper": "#FFFFFF",
+      "contrast": 8.928,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/state-light.drawio",
+      "cell": "_edge_4",
+      "ink": "#7B341E",
+      "paper": "#FFFFFF",
+      "contrast": 8.928,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/state-light.drawio",
+      "cell": "_legend_title",
+      "ink": "#1F2933",
+      "paper": "#FFFFFF",
+      "contrast": 14.755,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/state-light.drawio",
+      "cell": "_legend_text_0",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/state-light.drawio",
+      "cell": "_legend_text_1",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/state-light.drawio",
+      "cell": "_legend_text_2",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/state-light.drawio",
+      "cell": "_legend_text_3",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/state-light.drawio",
+      "cell": "_legend_edge_text_0",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/sequence-dark.drawio",
+      "cell": "_title",
+      "ink": "#F9FAFB",
+      "paper": "#111827",
+      "contrast": 16.975,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/sequence-dark.drawio",
+      "cell": "_meta",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/sequence-dark.drawio",
+      "cell": "_msg_0",
+      "ink": "#FBD38D",
+      "paper": "#1F2937",
+      "contrast": 10.348,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/sequence-dark.drawio",
+      "cell": "_msg_1",
+      "ink": "#FBD38D",
+      "paper": "#1F2937",
+      "contrast": 10.348,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/sequence-dark.drawio",
+      "cell": "_msg_2",
+      "ink": "#FBD38D",
+      "paper": "#1F2937",
+      "contrast": 10.348,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/sequence-dark.drawio",
+      "cell": "_msg_3",
+      "ink": "#FBD38D",
+      "paper": "#1F2937",
+      "contrast": 10.348,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/sequence-dark.drawio",
+      "cell": "_msg_4",
+      "ink": "#FBD38D",
+      "paper": "#1F2937",
+      "contrast": 10.348,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/sequence-dark.drawio",
+      "cell": "_msg_5",
+      "ink": "#FBD38D",
+      "paper": "#1F2937",
+      "contrast": 10.348,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/sequence-dark.drawio",
+      "cell": "_legend_title",
+      "ink": "#F9FAFB",
+      "paper": "#111827",
+      "contrast": 16.975,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/sequence-dark.drawio",
+      "cell": "_legend_text_0",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/sequence-dark.drawio",
+      "cell": "_legend_text_1",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/sequence-dark.drawio",
+      "cell": "_legend_edge_text_0",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/sequence-dark.drawio",
+      "cell": "_legend_edge_text_1",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/dataflow-light.drawio",
+      "cell": "_title",
+      "ink": "#1F2933",
+      "paper": "#FFFFFF",
+      "contrast": 14.755,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/dataflow-light.drawio",
+      "cell": "_meta",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/dataflow-light.drawio",
+      "cell": "_edge_0",
+      "ink": "#7B341E",
+      "paper": "#FFFFFF",
+      "contrast": 8.928,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/dataflow-light.drawio",
+      "cell": "_edge_1",
+      "ink": "#7B341E",
+      "paper": "#FFFFFF",
+      "contrast": 8.928,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/dataflow-light.drawio",
+      "cell": "_edge_2",
+      "ink": "#7B341E",
+      "paper": "#FFFFFF",
+      "contrast": 8.928,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/dataflow-light.drawio",
+      "cell": "_edge_3",
+      "ink": "#7B341E",
+      "paper": "#FFFFFF",
+      "contrast": 8.928,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/dataflow-light.drawio",
+      "cell": "_legend_title",
+      "ink": "#1F2933",
+      "paper": "#FFFFFF",
+      "contrast": 14.755,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/dataflow-light.drawio",
+      "cell": "_legend_text_0",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/dataflow-light.drawio",
+      "cell": "_legend_text_1",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/dataflow-light.drawio",
+      "cell": "_legend_text_2",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/dataflow-light.drawio",
+      "cell": "_legend_text_3",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/dataflow-light.drawio",
+      "cell": "_legend_text_4",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/dataflow-light.drawio",
+      "cell": "_legend_text_5",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/dataflow-light.drawio",
+      "cell": "_legend_edge_text_0",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/dataflow-light.drawio",
+      "cell": "_legend_edge_text_1",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/dataflow-dark.drawio",
+      "cell": "_title",
+      "ink": "#F9FAFB",
+      "paper": "#111827",
+      "contrast": 16.975,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/dataflow-dark.drawio",
+      "cell": "_meta",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/dataflow-dark.drawio",
+      "cell": "_edge_0",
+      "ink": "#FBD38D",
+      "paper": "#1F2937",
+      "contrast": 10.348,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/dataflow-dark.drawio",
+      "cell": "_edge_1",
+      "ink": "#FBD38D",
+      "paper": "#1F2937",
+      "contrast": 10.348,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/dataflow-dark.drawio",
+      "cell": "_edge_2",
+      "ink": "#FBD38D",
+      "paper": "#1F2937",
+      "contrast": 10.348,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/dataflow-dark.drawio",
+      "cell": "_edge_3",
+      "ink": "#FBD38D",
+      "paper": "#1F2937",
+      "contrast": 10.348,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/dataflow-dark.drawio",
+      "cell": "_legend_title",
+      "ink": "#F9FAFB",
+      "paper": "#111827",
+      "contrast": 16.975,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/dataflow-dark.drawio",
+      "cell": "_legend_text_0",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/dataflow-dark.drawio",
+      "cell": "_legend_text_1",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/dataflow-dark.drawio",
+      "cell": "_legend_text_2",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/dataflow-dark.drawio",
+      "cell": "_legend_text_3",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/dataflow-dark.drawio",
+      "cell": "_legend_text_4",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/dataflow-dark.drawio",
+      "cell": "_legend_text_5",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/dataflow-dark.drawio",
+      "cell": "_legend_edge_text_0",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/dataflow-dark.drawio",
+      "cell": "_legend_edge_text_1",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/component-light.drawio",
+      "cell": "_title",
+      "ink": "#1F2933",
+      "paper": "#FFFFFF",
+      "contrast": 14.755,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/component-light.drawio",
+      "cell": "_meta",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/component-light.drawio",
+      "cell": "_view_contract",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/component-light.drawio",
+      "cell": "_edge_0",
+      "ink": "#404040",
+      "paper": "#FFFFFF",
+      "contrast": 10.368,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/component-light.drawio",
+      "cell": "_edge_1",
+      "ink": "#404040",
+      "paper": "#FFFFFF",
+      "contrast": 10.368,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/component-light.drawio",
+      "cell": "_legend_title",
+      "ink": "#1F2933",
+      "paper": "#FFFFFF",
+      "contrast": 14.755,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/component-light.drawio",
+      "cell": "_legend_text_0",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/component-light.drawio",
+      "cell": "_legend_text_1",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/component-light.drawio",
+      "cell": "_legend_edge_text_0",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/context-dark.drawio",
+      "cell": "_title",
+      "ink": "#F9FAFB",
+      "paper": "#111827",
+      "contrast": 16.975,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/context-dark.drawio",
+      "cell": "_meta",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/context-dark.drawio",
+      "cell": "_edge_0",
+      "ink": "#FBD38D",
+      "paper": "#1F2937",
+      "contrast": 10.348,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/context-dark.drawio",
+      "cell": "_edge_1",
+      "ink": "#FBD38D",
+      "paper": "#1F2937",
+      "contrast": 10.348,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/context-dark.drawio",
+      "cell": "_edge_2",
+      "ink": "#FBD38D",
+      "paper": "#1F2937",
+      "contrast": 10.348,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/context-dark.drawio",
+      "cell": "_edge_3",
+      "ink": "#FBD38D",
+      "paper": "#1F2937",
+      "contrast": 10.348,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/context-dark.drawio",
+      "cell": "_legend_title",
+      "ink": "#F9FAFB",
+      "paper": "#111827",
+      "contrast": 16.975,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/context-dark.drawio",
+      "cell": "_legend_text_0",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/context-dark.drawio",
+      "cell": "_legend_text_1",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/context-dark.drawio",
+      "cell": "_legend_text_2",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/context-dark.drawio",
+      "cell": "_legend_text_3",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/context-dark.drawio",
+      "cell": "_legend_text_4",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/context-dark.drawio",
+      "cell": "_legend_edge_text_0",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/context-dark.drawio",
+      "cell": "_legend_edge_text_1",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/component-dark.drawio",
+      "cell": "_title",
+      "ink": "#F9FAFB",
+      "paper": "#111827",
+      "contrast": 16.975,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/component-dark.drawio",
+      "cell": "_meta",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/component-dark.drawio",
+      "cell": "_view_contract",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/component-dark.drawio",
+      "cell": "_edge_0",
+      "ink": "#F9FAFB",
+      "paper": "#111827",
+      "contrast": 16.975,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/component-dark.drawio",
+      "cell": "_edge_1",
+      "ink": "#F9FAFB",
+      "paper": "#111827",
+      "contrast": 16.975,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/component-dark.drawio",
+      "cell": "_legend_title",
+      "ink": "#F9FAFB",
+      "paper": "#111827",
+      "contrast": 16.975,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/component-dark.drawio",
+      "cell": "_legend_text_0",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/component-dark.drawio",
+      "cell": "_legend_text_1",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/component-dark.drawio",
+      "cell": "_legend_edge_text_0",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/erd-light.drawio",
+      "cell": "_title",
+      "ink": "#1F2933",
+      "paper": "#FFFFFF",
+      "contrast": 14.755,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/erd-light.drawio",
+      "cell": "_meta",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/erd-light.drawio",
+      "cell": "customers__row_0",
+      "ink": "#1F2933",
+      "paper": "#ffffff",
+      "contrast": 14.755,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/erd-light.drawio",
+      "cell": "customers__row_1",
+      "ink": "#1F2933",
+      "paper": "#ffffff",
+      "contrast": 14.755,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/erd-light.drawio",
+      "cell": "customers__row_2",
+      "ink": "#1F2933",
+      "paper": "#ffffff",
+      "contrast": 14.755,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/erd-light.drawio",
+      "cell": "orders__row_0",
+      "ink": "#1F2933",
+      "paper": "#ffffff",
+      "contrast": 14.755,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/erd-light.drawio",
+      "cell": "orders__row_1",
+      "ink": "#1F2933",
+      "paper": "#ffffff",
+      "contrast": 14.755,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/erd-light.drawio",
+      "cell": "orders__row_2",
+      "ink": "#1F2933",
+      "paper": "#ffffff",
+      "contrast": 14.755,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/erd-light.drawio",
+      "cell": "orders__row_3",
+      "ink": "#1F2933",
+      "paper": "#ffffff",
+      "contrast": 14.755,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/erd-light.drawio",
+      "cell": "order_items__row_0",
+      "ink": "#1F2933",
+      "paper": "#ffffff",
+      "contrast": 14.755,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/erd-light.drawio",
+      "cell": "order_items__row_1",
+      "ink": "#1F2933",
+      "paper": "#ffffff",
+      "contrast": 14.755,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/erd-light.drawio",
+      "cell": "order_items__row_2",
+      "ink": "#1F2933",
+      "paper": "#ffffff",
+      "contrast": 14.755,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/erd-light.drawio",
+      "cell": "_rel_0",
+      "ink": "#7B341E",
+      "paper": "#FFFFFF",
+      "contrast": 8.928,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/erd-light.drawio",
+      "cell": "_rel_1",
+      "ink": "#7B341E",
+      "paper": "#FFFFFF",
+      "contrast": 8.928,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/erd-light.drawio",
+      "cell": "_legend_title",
+      "ink": "#1F2933",
+      "paper": "#FFFFFF",
+      "contrast": 14.755,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/erd-light.drawio",
+      "cell": "_legend_text_0",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/erd-light.drawio",
+      "cell": "_legend_text_1",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/erd-light.drawio",
+      "cell": "_legend_edge_text_0",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/erd-dark.drawio",
+      "cell": "_title",
+      "ink": "#F9FAFB",
+      "paper": "#111827",
+      "contrast": 16.975,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/erd-dark.drawio",
+      "cell": "_meta",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/erd-dark.drawio",
+      "cell": "customers__row_0",
+      "ink": "#F9FAFB",
+      "paper": "#1F2937",
+      "contrast": 14.047,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/erd-dark.drawio",
+      "cell": "customers__row_1",
+      "ink": "#F9FAFB",
+      "paper": "#1F2937",
+      "contrast": 14.047,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/erd-dark.drawio",
+      "cell": "customers__row_2",
+      "ink": "#F9FAFB",
+      "paper": "#1F2937",
+      "contrast": 14.047,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/erd-dark.drawio",
+      "cell": "orders__row_0",
+      "ink": "#F9FAFB",
+      "paper": "#1F2937",
+      "contrast": 14.047,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/erd-dark.drawio",
+      "cell": "orders__row_1",
+      "ink": "#F9FAFB",
+      "paper": "#1F2937",
+      "contrast": 14.047,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/erd-dark.drawio",
+      "cell": "orders__row_2",
+      "ink": "#F9FAFB",
+      "paper": "#1F2937",
+      "contrast": 14.047,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/erd-dark.drawio",
+      "cell": "orders__row_3",
+      "ink": "#F9FAFB",
+      "paper": "#1F2937",
+      "contrast": 14.047,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/erd-dark.drawio",
+      "cell": "order_items__row_0",
+      "ink": "#F9FAFB",
+      "paper": "#1F2937",
+      "contrast": 14.047,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/erd-dark.drawio",
+      "cell": "order_items__row_1",
+      "ink": "#F9FAFB",
+      "paper": "#1F2937",
+      "contrast": 14.047,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/erd-dark.drawio",
+      "cell": "order_items__row_2",
+      "ink": "#F9FAFB",
+      "paper": "#1F2937",
+      "contrast": 14.047,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/erd-dark.drawio",
+      "cell": "_rel_0",
+      "ink": "#FBD38D",
+      "paper": "#1F2937",
+      "contrast": 10.348,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/erd-dark.drawio",
+      "cell": "_rel_1",
+      "ink": "#FBD38D",
+      "paper": "#1F2937",
+      "contrast": 10.348,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/erd-dark.drawio",
+      "cell": "_legend_title",
+      "ink": "#F9FAFB",
+      "paper": "#111827",
+      "contrast": 16.975,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/erd-dark.drawio",
+      "cell": "_legend_text_0",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/erd-dark.drawio",
+      "cell": "_legend_text_1",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/erd-dark.drawio",
+      "cell": "_legend_edge_text_0",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/state-dark.drawio",
+      "cell": "_title",
+      "ink": "#F9FAFB",
+      "paper": "#111827",
+      "contrast": 16.975,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/state-dark.drawio",
+      "cell": "_meta",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/state-dark.drawio",
+      "cell": "_edge_0",
+      "ink": "#FBD38D",
+      "paper": "#1F2937",
+      "contrast": 10.348,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/state-dark.drawio",
+      "cell": "_edge_1",
+      "ink": "#FBD38D",
+      "paper": "#1F2937",
+      "contrast": 10.348,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/state-dark.drawio",
+      "cell": "_edge_2",
+      "ink": "#FBD38D",
+      "paper": "#1F2937",
+      "contrast": 10.348,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/state-dark.drawio",
+      "cell": "_edge_3",
+      "ink": "#FBD38D",
+      "paper": "#1F2937",
+      "contrast": 10.348,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/state-dark.drawio",
+      "cell": "_edge_4",
+      "ink": "#FBD38D",
+      "paper": "#1F2937",
+      "contrast": 10.348,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/state-dark.drawio",
+      "cell": "_legend_title",
+      "ink": "#F9FAFB",
+      "paper": "#111827",
+      "contrast": 16.975,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/state-dark.drawio",
+      "cell": "_legend_text_0",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/state-dark.drawio",
+      "cell": "_legend_text_1",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/state-dark.drawio",
+      "cell": "_legend_text_2",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/state-dark.drawio",
+      "cell": "_legend_text_3",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/state-dark.drawio",
+      "cell": "_legend_edge_text_0",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/sequence-light.drawio",
+      "cell": "_title",
+      "ink": "#1F2933",
+      "paper": "#FFFFFF",
+      "contrast": 14.755,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/sequence-light.drawio",
+      "cell": "_meta",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/sequence-light.drawio",
+      "cell": "_msg_0",
+      "ink": "#7B341E",
+      "paper": "#FFFFFF",
+      "contrast": 8.928,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/sequence-light.drawio",
+      "cell": "_msg_1",
+      "ink": "#7B341E",
+      "paper": "#FFFFFF",
+      "contrast": 8.928,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/sequence-light.drawio",
+      "cell": "_msg_2",
+      "ink": "#7B341E",
+      "paper": "#FFFFFF",
+      "contrast": 8.928,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/sequence-light.drawio",
+      "cell": "_msg_3",
+      "ink": "#7B341E",
+      "paper": "#FFFFFF",
+      "contrast": 8.928,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/sequence-light.drawio",
+      "cell": "_msg_4",
+      "ink": "#7B341E",
+      "paper": "#FFFFFF",
+      "contrast": 8.928,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/sequence-light.drawio",
+      "cell": "_msg_5",
+      "ink": "#7B341E",
+      "paper": "#FFFFFF",
+      "contrast": 8.928,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/sequence-light.drawio",
+      "cell": "_legend_title",
+      "ink": "#1F2933",
+      "paper": "#FFFFFF",
+      "contrast": 14.755,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/sequence-light.drawio",
+      "cell": "_legend_text_0",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/sequence-light.drawio",
+      "cell": "_legend_text_1",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/sequence-light.drawio",
+      "cell": "_legend_edge_text_0",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/sequence-light.drawio",
+      "cell": "_legend_edge_text_1",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/container-dark.drawio",
+      "cell": "_title",
+      "ink": "#F9FAFB",
+      "paper": "#111827",
+      "contrast": 16.975,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/container-dark.drawio",
+      "cell": "_meta",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/container-dark.drawio",
+      "cell": "_group_gke",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/container-dark.drawio",
+      "cell": "_edge_0",
+      "ink": "#FBD38D",
+      "paper": "#1F2937",
+      "contrast": 10.348,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/container-dark.drawio",
+      "cell": "_edge_1",
+      "ink": "#FBD38D",
+      "paper": "#1F2937",
+      "contrast": 10.348,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/container-dark.drawio",
+      "cell": "_edge_2",
+      "ink": "#FBD38D",
+      "paper": "#1F2937",
+      "contrast": 10.348,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/container-dark.drawio",
+      "cell": "_edge_3",
+      "ink": "#FBD38D",
+      "paper": "#1F2937",
+      "contrast": 10.348,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/container-dark.drawio",
+      "cell": "_edge_4",
+      "ink": "#FBD38D",
+      "paper": "#1F2937",
+      "contrast": 10.348,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/container-dark.drawio",
+      "cell": "_legend_title",
+      "ink": "#F9FAFB",
+      "paper": "#111827",
+      "contrast": 16.975,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/container-dark.drawio",
+      "cell": "_legend_text_0",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/container-dark.drawio",
+      "cell": "_legend_text_1",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/container-dark.drawio",
+      "cell": "_legend_text_2",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/container-dark.drawio",
+      "cell": "_legend_text_3",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/container-dark.drawio",
+      "cell": "_legend_text_4",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/container-dark.drawio",
+      "cell": "_legend_edge_text_0",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/container-dark.drawio",
+      "cell": "_legend_edge_text_1",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/container-light.drawio",
+      "cell": "_title",
+      "ink": "#1F2933",
+      "paper": "#FFFFFF",
+      "contrast": 14.755,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/container-light.drawio",
+      "cell": "_meta",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/container-light.drawio",
+      "cell": "_group_gke",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/container-light.drawio",
+      "cell": "_edge_0",
+      "ink": "#7B341E",
+      "paper": "#FFFFFF",
+      "contrast": 8.928,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/container-light.drawio",
+      "cell": "_edge_1",
+      "ink": "#7B341E",
+      "paper": "#FFFFFF",
+      "contrast": 8.928,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/container-light.drawio",
+      "cell": "_edge_2",
+      "ink": "#7B341E",
+      "paper": "#FFFFFF",
+      "contrast": 8.928,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/container-light.drawio",
+      "cell": "_edge_3",
+      "ink": "#7B341E",
+      "paper": "#FFFFFF",
+      "contrast": 8.928,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/container-light.drawio",
+      "cell": "_edge_4",
+      "ink": "#7B341E",
+      "paper": "#FFFFFF",
+      "contrast": 8.928,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/container-light.drawio",
+      "cell": "_legend_title",
+      "ink": "#1F2933",
+      "paper": "#FFFFFF",
+      "contrast": 14.755,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/container-light.drawio",
+      "cell": "_legend_text_0",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/container-light.drawio",
+      "cell": "_legend_text_1",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/container-light.drawio",
+      "cell": "_legend_text_2",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/container-light.drawio",
+      "cell": "_legend_text_3",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/container-light.drawio",
+      "cell": "_legend_text_4",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/container-light.drawio",
+      "cell": "_legend_edge_text_0",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/container-light.drawio",
+      "cell": "_legend_edge_text_1",
+      "ink": "#616E7C",
+      "paper": "#FFFFFF",
+      "contrast": 5.211,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-dark.drawio",
+      "cell": "_title",
+      "ink": "#F9FAFB",
+      "paper": "#111827",
+      "contrast": 16.975,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-dark.drawio",
+      "cell": "_meta",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-dark.drawio",
+      "cell": "_group_vpc",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-dark.drawio",
+      "cell": "_edge_0",
+      "ink": "#FBD38D",
+      "paper": "#1F2937",
+      "contrast": 10.348,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-dark.drawio",
+      "cell": "_edge_1",
+      "ink": "#FBD38D",
+      "paper": "#1F2937",
+      "contrast": 10.348,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-dark.drawio",
+      "cell": "_edge_2",
+      "ink": "#FBD38D",
+      "paper": "#1F2937",
+      "contrast": 10.348,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-dark.drawio",
+      "cell": "_edge_3",
+      "ink": "#FBD38D",
+      "paper": "#1F2937",
+      "contrast": 10.348,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-dark.drawio",
+      "cell": "_edge_4",
+      "ink": "#FBD38D",
+      "paper": "#1F2937",
+      "contrast": 10.348,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-dark.drawio",
+      "cell": "_edge_5",
+      "ink": "#FBD38D",
+      "paper": "#1F2937",
+      "contrast": 10.348,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-dark.drawio",
+      "cell": "_legend_title",
+      "ink": "#F9FAFB",
+      "paper": "#111827",
+      "contrast": 16.975,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-dark.drawio",
+      "cell": "_legend_text_0",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-dark.drawio",
+      "cell": "_legend_text_1",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-dark.drawio",
+      "cell": "_legend_text_2",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-dark.drawio",
+      "cell": "_legend_text_3",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-dark.drawio",
+      "cell": "_legend_text_4",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-dark.drawio",
+      "cell": "_legend_text_5",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-dark.drawio",
+      "cell": "_legend_text_6",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-dark.drawio",
+      "cell": "_legend_text_7",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-dark.drawio",
+      "cell": "_legend_edge_text_0",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    },
+    {
+      "file": "artifacts/runs/system-design-visualization-improvements/theme-exports-roundtrip/deployment-dark.drawio",
+      "cell": "_legend_edge_text_1",
+      "ink": "#9CA3AF",
+      "paper": "#111827",
+      "contrast": 6.987,
+      "below_AA_normal": false
+    }
+  ],
+  "limits": [
+    "Inline font spans and actual Desktop rasterization require separate inspection",
+    "Large text has different WCAG threshold; flagged rows require size/context adjudication"
+  ]
+}

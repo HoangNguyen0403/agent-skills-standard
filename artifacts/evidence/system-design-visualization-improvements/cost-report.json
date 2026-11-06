@@ -1,0 +1,12 @@
+{
+  "workflow": "session-report; verify-work",
+  "slug": "system-design-visualization-improvements",
+  "outcome": "implemented",
+  "source": "MCP get_session_cost observation",
+  "observed_mcp_session": {"started_at": "2026-11-05T07:10:42.935Z", "elapsed_seconds_at_query": 102082, "mcp_tool_calls": 60, "skills_loaded": 35, "workflow_bodies_returned": 4, "category_guide_bodies_returned": 0},
+  "token_usage": "unavailable: host did not expose complete parent/worker/reviewer/repair/failed-attempt token usage",
+  "pricing": "unavailable: complete comparable account/provider pricing not supplied",
+  "total_billed_cost": "unavailable",
+  "cost_status": "partial; no exact cost or monetary saving claimed",
+  "limits": ["MCP session observations are not all native tool calls or worker delivery evidence", "Provider-specific partial agent usage cannot be presented as whole accepted-task accounting", "Elapsed time is wall-clock observation, not active compute or delivery benefit", "No live model evaluation or premium consultation authorized"]
+}

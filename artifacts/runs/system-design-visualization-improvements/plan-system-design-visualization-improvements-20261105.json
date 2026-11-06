@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "run_id": "plan-system-design-visualization-improvements-20261105",
+  "slug": "system-design-visualization-improvements",
+  "workflow": "plan-feature",
+  "feature_status": "requirements_ready",
+  "started_at": "2026-11-05T07:31:48Z",
+  "completed_at": "2026-11-05T07:36:47Z",
+  "requirement_trace": {
+    "brd_objectives": ["BRD-OBJ-VIS-001", "BRD-OBJ-PERF-001"],
+    "requirements": ["REQ-VIS-001", "REQ-VIS-002", "REQ-VIS-003", "REQ-VIS-004", "REQ-VIS-005", "REQ-VIS-006", "REQ-PERF-001", "REQ-PERF-002", "REQ-PERF-003"],
+    "acceptance_criteria": ["AC-01", "AC-02", "AC-03", "AC-04", "AC-05", "AC-06", "AC-07", "AC-08", "AC-09"],
+    "srs": []
+  },
+  "completed_evidence": [
+    "Approved Direction scope A plus required N+1 B1; explicit maintainer approvals in conversation and BRD Approval section",
+    "Approved BRD before canonical relocation: sha256 ea1270a08b12b91b3d8b81f64b585053d524f53565882ef4bd7e0f203839c4c1",
+    "docs/prd/prd-system-design-visualization-improvements.md: canonical requirement and AC tables, accountable roles, priorities, verification lanes, six bounded delivery slices and owned technical decisions",
+    "BRD acceptance definitions relocated to the canonical PRD without changing existing IDs or approved scope",
+    "Existing evidence inventories reused; bounded verification-entrypoint lookup identified exact Python, eval and outcome audit surfaces",
+    "Local export_drawio.resolve_binary() returned /Applications/draw.io.app/Contents/MacOS/draw.io; binary discovery only, no image export",
+    "PASS: dependency-free planning check found nine unique canonical requirement/AC mappings, six slices, 11 resolving local links and BRD definition delegation",
+    "FAIL: dependency-free probe evaluated exact TRACE_ID_PATTERNS from scripts/outcome/schema.ts and rejected all 20 preserved objective/requirement/AC IDs; not a full schema audit",
+    "Delivery decomposition, priorities and ownership plan explicitly approved by requesting maintainer via ok on 2026-11-05"
+  ],
+  "missing_evidence": [
+    "A separately selected implementation execution approach; technical-design approval remains separate from the approved delivery plan",
+    "D-VIS: backward-compatible layout/theme and derived HTML/export technical contract; actual image/offline/visual smoke",
+    "D-N1: selected real database/framework entrypoint, bounded fixture and instrumented query-growth/result-equivalence evidence",
+    "D-TRACE: machine-schema compatibility for approved legacy IDs; scripts/outcome/schema.ts accepts numeric-only trace IDs",
+    "Native pnpm audit:outcome invocation could not execute its validator: tsx command not found and node_modules missing; local dependency prerequisite owned by tooling maintainer, no installation performed",
+    "Held-out live skill evaluation under explicitly authorized account/model/quota and independent semantic adjudication",
+    "Paired reader baseline/candidate usefulness acceptance; no numerical benefit has been measured"
+  ],
+  "decision_needed": [
+    "Engineering and independent reviewer: resolve D-VIS and D-N1 in design-solution without expanding into deferred B2/vendor/nesting scope",
+    "Tooling maintainer and Product owner: resolve D-TRACE without silent ID migration, empty machine trace arrays or unapproved validator changes",
+    "Before implementation: settle D-EXEC and materialize eligible host profiles; live evaluation authorization remains separate"
+  ],
+  "recommended_next_workflow": "design-solution",
+  "cost": {"source": "unavailable"},
+  "agent": {"identity": "omp orchestrator", "model": "openai-codex/gpt-6.1-sol"}
+}

@@ -4,8 +4,7 @@ import React, { useCallback } from "react";
 import { useGA4 } from "./GA4Context";
 import type { RawEventInput } from "./ga4-client";
 
-export interface GA4LinkProps
-  extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
+export interface GA4LinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
   readonly event: RawEventInput;
   readonly children: React.ReactNode;
 }

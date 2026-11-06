@@ -40,8 +40,8 @@ function slugFromFilenameTail(tail: string): string {
 const TOKEN_RE = /\b(BRD-OBJ|REQ|AC|SRS)(?:-[A-Za-z0-9]+|--+[A-Za-z0-9-]*)+/g;
 
 /** Captures the same complete candidate at the beginning of a field value. */
-const ID_TOKEN_AT_START_RE = /^(BRD-OBJ|REQ|AC|SRS)(?:-[A-Za-z0-9]+|--+[A-Za-z0-9-]*)+/;
-
+const ID_TOKEN_AT_START_RE =
+  /^(BRD-OBJ|REQ|AC|SRS)(?:-[A-Za-z0-9]+|--+[A-Za-z0-9-]*)+/;
 
 /**
  * Bold standalone ID field label, e.g. `**Objective ID**:`, `**AC ID**`,
@@ -52,7 +52,6 @@ const ID_FIELD_LABEL_RE = /\*\*(?:[^*]*\s)?ID\s*:?\s*\*\*/i;
 
 /** Inline markup a field value may be wrapped in before the id token (`**`, `` ` ``, `_`, `"`). */
 const VALUE_MARKUP_RE = /^[`*_'"[\]()]*/;
-
 
 /**
  * Index of the ID-shaped value that immediately follows an ID field label, or
@@ -95,26 +94,44 @@ function isSeparatorRow(line: string | undefined): boolean {
 interface TableColumnInfo {
   formalCol?: number;
   sourceCol?: number;
+  /** Every header cell recognized as an explicit formal ID column, in column order. */
+  formalCols: number[];
+  /** Every header cell recognized as a historical candidate/source column, in column order. */
+  sourceCols: number[];
 }
 
 function parseTableHeader(headerLine: string): TableColumnInfo {
   const cells = tableCells(headerLine) ?? [];
-  let formalCol: number | undefined;
-  let sourceCol: number | undefined;
+  const formalCols: number[] = [];
+  const sourceCols: number[] = [];
 
   for (let c = 0; c < cells.length; c++) {
     const header = cells[c].toLowerCase();
-    if (/^(req|ac|srs|brd(-obj)?)\s*(id)?$/i.test(header) || header === "id" || header === "requirement id") {
-      if (formalCol === undefined) formalCol = c;
-    } else if (/^candidate\s+requirement$/i.test(header) || /^source(\s+group)?$/i.test(header)) {
-      sourceCol = c;
+    if (
+      /^(req|ac|srs|brd(-obj)?)\s*(id)?$/i.test(header) ||
+      header === "id" ||
+      header === "requirement id"
+    ) {
+      formalCols.push(c);
+    } else if (
+      /^candidate\s+requirement$/i.test(header) ||
+      /^source(\s+group)?$/i.test(header)
+    ) {
+      sourceCols.push(c);
     }
   }
-  return { formalCol, sourceCol };
+  return {
+    formalCol: formalCols[0],
+    sourceCol: sourceCols[0],
+    formalCols,
+    sourceCols,
+  };
 }
 
 /** Cell text and absolute line offsets for occurrence-level table classification. */
-function tableCellSpans(line: string): { text: string; start: number; end: number }[] | undefined {
+function tableCellSpans(
+  line: string,
+): { text: string; start: number; end: number }[] | undefined {
   const trimmed = line.trim();
   if (!trimmed.startsWith("|") || !trimmed.endsWith("|")) return undefined;
   const spans: { text: string; start: number; end: number }[] = [];
@@ -125,15 +142,21 @@ function tableCellSpans(line: string): { text: string; start: number; end: numbe
     const raw = line.slice(start, separator);
     const leading = raw.length - raw.trimStart().length;
     const text = raw.trim();
-    spans.push({ text, start: start + leading, end: start + leading + text.length });
+    spans.push({
+      text,
+      start: start + leading,
+      end: start + leading + text.length,
+    });
     start = separator + 1;
   }
   return spans;
 }
 
-
 /** Scans one file's lines (fenced code blocks skipped) into raw token occurrences. */
-function scanFile(content: string, fromFile: string): { refs: TraceRef[]; mappings: SourceMapping[] } {
+function scanFile(
+  content: string,
+  fromFile: string,
+): { refs: TraceRef[]; mappings: SourceMapping[] } {
   const refs: TraceRef[] = [];
   const mappings: SourceMapping[] = [];
   const lines = content.split(/\r?\n/);
@@ -176,7 +199,12 @@ function scanFile(content: string, fromFile: string): { refs: TraceRef[]; mappin
     const rowCells = rowCellSpans?.map((span) => span.text);
 
     // If this row has both formal and source columns, extract source mappings
-    if (currentTable && currentTable.formalCol !== undefined && currentTable.sourceCol !== undefined && rowCells) {
+    if (
+      currentTable &&
+      currentTable.formalCol !== undefined &&
+      currentTable.sourceCol !== undefined &&
+      rowCells
+    ) {
       const formalCell = rowCells[currentTable.formalCol] ?? "";
       const sourceCell = rowCells[currentTable.sourceCol] ?? "";
 
@@ -197,7 +225,11 @@ function scanFile(content: string, fromFile: string): { refs: TraceRef[]; mappin
 
       for (const f of formalTokens) {
         for (const s of sourceTokens) {
-          if ((s.kind !== "REQ" && s.kind !== "AC") || /^(?:REQ|AC)-\d/.test(s.id)) continue;
+          if (
+            (s.kind !== "REQ" && s.kind !== "AC") ||
+            /^(?:REQ|AC)-\d/.test(s.id)
+          )
+            continue;
           mappings.push({
             sourceId: s.id,
             sourceKind: s.kind,
@@ -217,7 +249,41 @@ function scanFile(content: string, fromFile: string): { refs: TraceRef[]; mappin
       const kind = (id.startsWith("BRD-OBJ-") ? "BRD-OBJ" : match[1]) as IdKind;
       const isFormal = ID_GRAMMAR[kind]?.test(id) ?? false;
       const isQualifiedId = QUALIFIED_ID_GRAMMAR[kind]?.test(id) ?? false;
-      const isQualifiedNs = QUALIFIED_NAMESPACE_GRAMMAR[kind]?.test(id) ?? false;
+      const isQualifiedNs =
+        QUALIFIED_NAMESPACE_GRAMMAR[kind]?.test(id) ?? false;
+
+      const cellIndex = rowCellSpans
+        ? rowCellSpans.findIndex(
+            (span) =>
+              match!.index >= span.start &&
+              match!.index + id.length <= span.end,
+          )
+        : -1;
+      const inFormalColumn =
+        currentTable !== null &&
+        cellIndex >= 0 &&
+        currentTable.formalCols.includes(cellIndex);
+      const inSourceColumn =
+        currentTable !== null &&
+        cellIndex >= 0 &&
+        currentTable.sourceCols.includes(cellIndex);
+      const inPrimaryFormalColumn =
+        currentTable !== null &&
+        cellIndex >= 0 &&
+        currentTable.formalCol === cellIndex;
+      // A historical source token is namespace-qualified; a bare numeric ID in a
+      // source column is a canonical formal ID the source column merely links.
+      const isSourceShaped =
+        (kind === "REQ" || kind === "AC") && !/^(?:REQ|AC)-\d/.test(id);
+      // Authority fixed by the occurrence's own location. Only untyped prose,
+      // headings and ID fields may fall back to historical family inference.
+      const authority: "formal" | "source" | undefined = inFormalColumn
+        ? "formal"
+        : inSourceColumn
+          ? isSourceShaped
+            ? "source"
+            : "formal"
+          : undefined;
 
       let role: "declaration" | "reference" = "reference";
       let weak = false;
@@ -228,29 +294,20 @@ function scanFile(content: string, fromFile: string): { refs: TraceRef[]; mappin
         role = "declaration";
       } else if (bulletLeadId && match.index === line.indexOf(bulletLeadId)) {
         role = "declaration";
-      } else if (currentTable && currentTable.formalCol !== undefined && rowCellSpans) {
-        const formalSpan = rowCellSpans[currentTable.formalCol];
-        const sourceSpan = currentTable.sourceCol === undefined ? undefined : rowCellSpans[currentTable.sourceCol];
-        if (formalSpan && match.index >= formalSpan.start && match.index + id.length <= formalSpan.end) {
+      } else if (inPrimaryFormalColumn) {
+        role = "declaration";
+        weak = true;
+      } else if (inSourceColumn) {
+        if (currentTable!.formalCol === undefined) {
           role = "declaration";
           weak = true;
         }
-        if (sourceSpan && match.index >= sourceSpan.start && match.index + id.length <= sourceSpan.end) {
-          isMappedSource = (kind === "REQ" || kind === "AC") && !/^(?:REQ|AC)-\d/.test(id);
-        }
+        isMappedSource = isSourceShaped;
       } else if (
-        currentTable &&
-        currentTable.formalCol === undefined &&
-        currentTable.sourceCol !== undefined &&
-        rowCellSpans
+        currentTable === null ||
+        (currentTable.formalCol === undefined &&
+          currentTable.sourceCol === undefined)
       ) {
-        const sourceSpan = rowCellSpans[currentTable.sourceCol];
-        if (sourceSpan && match.index >= sourceSpan.start && match.index + id.length <= sourceSpan.end) {
-          role = "declaration";
-          weak = true;
-          isMappedSource = (kind === "REQ" || kind === "AC") && !/^(?:REQ|AC)-\d/.test(id);
-        }
-      } else {
         const firstCell = rowCellSpans?.[0];
         if (
           firstCell &&
@@ -263,15 +320,32 @@ function scanFile(content: string, fromFile: string): { refs: TraceRef[]; mappin
         }
       }
 
-      // Declarations and mapped rows require canonical >=3-digit terminal suffix
-      // Prose references can reference declared qualified namespace prefixes (e.g. REQ-DISC)
-      const valid =
-        role === "declaration" || isMappedSource
-          ? isFormal || isQualifiedId
+      // An explicit formal column is governed by the formal grammar alone: the
+      // historical multi-namespace grammar may not rescue a malformed formal row.
+      // Declarations and mapped rows require a canonical terminal >=3-digit suffix;
+      // prose references may name a declared qualified namespace prefix (e.g. REQ-DISC).
+      const valid = inFormalColumn
+        ? isFormal
+        : role === "declaration" || isMappedSource
+          ? (isFormal && !isMappedSource) || isQualifiedId
           : isFormal || isQualifiedId || isQualifiedNs;
-      const qualified = (isQualifiedId || (!isMappedSource && role === "reference" && isQualifiedNs)) && !isFormal;
-
-      refs.push({ id, kind, fromFile, line: lineNo, role, weak, valid, qualified });
+      const qualified =
+        valid &&
+        (isMappedSource ||
+          ((isQualifiedId ||
+            (!isMappedSource && role === "reference" && isQualifiedNs)) &&
+            !isFormal));
+      refs.push({
+        id,
+        kind,
+        fromFile,
+        line: lineNo,
+        role,
+        weak,
+        valid,
+        qualified,
+        authority,
+      });
     }
   }
 
@@ -294,14 +368,18 @@ function listMarkdownFiles(dir: string): string[] {
  * Missing source directories are skipped (fail-open on absence).
  */
 export function parseRepo(root: string): SlugTrace[] {
-  const bySlug = new Map<string, { files: Set<string>; refs: TraceRef[]; mappings: SourceMapping[] }>();
+  const bySlug = new Map<
+    string,
+    { files: Set<string>; refs: TraceRef[]; mappings: SourceMapping[] }
+  >();
 
   for (const dir of SOURCE_DIRS) {
     const absDir = path.join(root, dir);
     for (const filename of listMarkdownFiles(absDir)) {
       const match = filename.match(FILENAME_RE);
       if (!match) continue;
-      const slug = match[1] === "srs" ? slugFromFilenameTail(match[2]) : match[2];
+      const slug =
+        match[1] === "srs" ? slugFromFilenameTail(match[2]) : match[2];
       const relFile = path.join(dir, filename);
       const content = fs.readFileSync(path.join(absDir, filename), "utf8");
       const scanResult = scanFile(content, relFile);
@@ -318,15 +396,28 @@ export function parseRepo(root: string): SlugTrace[] {
   }
 
   const slugs: SlugTrace[] = [];
-  for (const [slug, entry] of [...bySlug.entries()].sort((a, b) => a[0].localeCompare(b[0]))) {
-    // Demote table cells that restate IDs already declared by headings/idFields
+  for (const [slug, entry] of [...bySlug.entries()].sort((a, b) =>
+    a[0].localeCompare(b[0]),
+  )) {
+    // Demote table cells that restate an ID already declared by a heading or ID
+    // field *of the same authority*: a formal restatement is not a historical
+    // source declaration, and vice versa.
     const strong = new Set<string>();
     for (const ref of entry.refs) {
-      if (ref.role === "declaration" && !ref.weak && ref.valid) strong.add(`${ref.kind}:${ref.id}`);
+      if (ref.role === "declaration" && !ref.weak && ref.valid) {
+        strong.add(
+          `${ref.qualified ? "source" : "formal"}:${ref.kind}:${ref.id}`,
+        );
+      }
     }
     for (const ref of entry.refs) {
       if (ref.role !== "declaration" || !ref.weak || !ref.valid) continue;
-      if (strong.has(`${ref.kind}:${ref.id}`)) ref.role = "reference";
+      if (
+        strong.has(
+          `${ref.qualified ? "source" : "formal"}:${ref.kind}:${ref.id}`,
+        )
+      )
+        ref.role = "reference";
     }
 
     const declared = new Map<IdKind, Set<string>>();
@@ -334,7 +425,8 @@ export function parseRepo(root: string): SlugTrace[] {
     for (const ref of entry.refs) {
       if (ref.role !== "declaration" || !ref.valid) continue;
       if (ref.qualified) {
-        if (!sourceDeclared.has(ref.kind)) sourceDeclared.set(ref.kind, new Set());
+        if (!sourceDeclared.has(ref.kind))
+          sourceDeclared.set(ref.kind, new Set());
         sourceDeclared.get(ref.kind)!.add(ref.id);
       } else {
         if (!declared.has(ref.kind)) declared.set(ref.kind, new Set());
@@ -342,6 +434,24 @@ export function parseRepo(root: string): SlugTrace[] {
       }
     }
 
+    // Untyped prose may inherit the historical source authority from a declared
+    // source ID or its namespace family. Occurrences inside typed table columns
+    // keep the authority their column implies, and a token declared under both
+    // authorities stays unresolved so the graph can report the ambiguity.
+    if (sourceDeclared.size > 0) {
+      for (const ref of entry.refs) {
+        if (ref.role !== "reference" || ref.qualified || !ref.valid) continue;
+        if (ref.authority !== undefined) continue;
+        const sourceSet = sourceDeclared.get(ref.kind);
+        if (!sourceSet) continue;
+        const inSourceFamily =
+          sourceSet.has(ref.id) ||
+          [...sourceSet].some((declId) => declId.startsWith(`${ref.id}-`));
+        if (!inSourceFamily) continue;
+        if (declared.get(ref.kind)?.has(ref.id)) continue;
+        ref.qualified = true;
+      }
+    }
     slugs.push({
       slug,
       files: [...entry.files].sort(),
@@ -356,5 +466,8 @@ export function parseRepo(root: string): SlugTrace[] {
 
 /** True when neither `docs/brd/` nor `docs/prd/` exists under `root`. */
 export function hasNoRequirementSources(root: string): boolean {
-  return !fs.existsSync(path.join(root, "docs/brd")) && !fs.existsSync(path.join(root, "docs/prd"));
+  return (
+    !fs.existsSync(path.join(root, "docs/brd")) &&
+    !fs.existsSync(path.join(root, "docs/prd"))
+  );
 }

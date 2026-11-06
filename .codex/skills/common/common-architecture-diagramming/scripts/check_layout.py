@@ -4,11 +4,24 @@
 Runs automatically from render_drawio.py, or on its own:
     python3 check_layout.py spec.json
 Exit code 0 when clean, 2 when there are findings.
+
+Every check here measures the same plans the renderer emits (`text_layout`), so
+a clean run means the drawn picture is clean, not that an estimate was clean.
 """
 
 import argparse
 import json
 import sys
+from dataclasses import dataclass
+from typing import Any, Dict, List, Tuple
+
+import text_layout
+
+SEQUENCE_MESSAGE_TOP_GAP = 24
+SEQUENCE_MESSAGE_MID_GAP = 26
+SEQUENCE_MESSAGE_MIN_STEP = 60
+SEQUENCE_MESSAGE_BOTTOM = 40
+
 
 def _centre(box):
     x, y, w, h = box
@@ -51,7 +64,7 @@ def route(source_box, target_box):
     return [start, (start[0], mid_y), (end[0], mid_y), end]
 
 
-LABEL_W, LABEL_H = 96, 16   # a typical 10px edge label, for collision checks
+LABEL_W, LABEL_H = 96, 16   # fallback label box, for collision checks without a plan
 
 
 def _band_key(src, dst, side, rows):
@@ -108,8 +121,14 @@ def plan_routes(spec, boxes, rows=None):
     return [(edge, points) for edge, points in routes]
 
 
-def labels_collide(p, q):
-    return abs(p[0] - q[0]) < LABEL_W and abs(p[1] - q[1]) < LABEL_H
+def labels_collide(p, q, size_p=(LABEL_W, LABEL_H), size_q=(LABEL_W, LABEL_H)):
+    pw, ph = size_p
+    qw, qh = size_q
+    return abs(p[0] - q[0]) < (pw + qw) / 2.0 and abs(p[1] - q[1]) < (ph + qh) / 2.0
+
+
+def edge_label_size(edge):
+    return text_layout.edge_label_size(edge)
 
 
 def _dist(a, b):
@@ -137,6 +156,67 @@ def label_point(points):
             return (a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t)
         target -= seg
     return points[-1]
+
+
+@dataclass(frozen=True)
+class SequenceMessage:
+    """One sequence message as drawn: its row, its endpoints, and its label rectangle."""
+    index: int
+    edge: Dict[str, Any]
+    plan: text_layout.LabelPlan
+    y: int
+    source_x: float
+    target_x: float
+    rect: Tuple[float, float, int, int]
+
+    @property
+    def anchor(self) -> Tuple[float, float]:
+        return ((self.source_x + self.target_x) / 2.0, float(self.y))
+
+
+def _participant_bottom(nodes, boxes):
+    return max((boxes[n["id"]][1] + boxes[n["id"]][3] for n in nodes if n["id"] in boxes),
+               default=0)
+
+
+def sequence_messages(nodes, edges, boxes) -> List[SequenceMessage]:
+    """The single message-position plan: rows, endpoints, and label rectangles.
+
+    Rows advance by the taller of a minimum step and the two neighbouring label
+    heights, so an expanded message label never lands on its neighbour.
+    """
+    participant_bottom = _participant_bottom(nodes, boxes)
+    messages: List[SequenceMessage] = []
+    previous_y = None
+    previous_h = 0
+    for index, edge in enumerate(edges):
+        plan = text_layout.edge_label_plan(edge)
+        if previous_y is None:
+            y = participant_bottom + SEQUENCE_MESSAGE_TOP_GAP + plan.height / 2.0
+        else:
+            step = max(SEQUENCE_MESSAGE_MIN_STEP,
+                       previous_h / 2.0 + plan.height / 2.0 + SEQUENCE_MESSAGE_MID_GAP)
+            y = previous_y + step
+        source = boxes.get(edge.get("from"))
+        target = boxes.get(edge.get("to"))
+        source_x = float(int(source[0] + source[2] / 2.0)) if source else 0.0
+        target_x = float(int(target[0] + target[2] / 2.0)) if target else 0.0
+        y = float(int(round(y)))
+        anchor = ((source_x + target_x) / 2.0, y)
+        messages.append(SequenceMessage(index, edge, plan, int(y),
+                                        source_x, target_x,
+                                        text_layout.label_rect(anchor, plan)))
+        previous_y, previous_h = y, plan.height
+    return messages
+
+
+def sequence_bottom(nodes, messages, boxes) -> int:
+    """Where the lifelines stop: below the last message label."""
+    participant_bottom = _participant_bottom(nodes, boxes)
+    if not messages:
+        return int(participant_bottom + SEQUENCE_MESSAGE_TOP_GAP + SEQUENCE_MESSAGE_BOTTOM)
+    last = messages[-1]
+    return int(round(last.y + last.plan.height / 2.0 + SEQUENCE_MESSAGE_BOTTOM))
 
 
 def _inside(point, box):
@@ -172,20 +252,33 @@ def _edge_findings(spec, layout):
     labels = []
     for edge, points in routes:
         src, dst = edge["from"], edge["to"]
-        lp = label_point(points)
-        for other, (osrc, odst) in labels:
-            if labels_collide(lp, other):
+        plan = text_layout.edge_label_plan(edge)
+        label_rect = text_layout.label_rect(label_point(points), plan)
+
+        for other_rect, (osrc, odst) in labels:
+            if text_layout.rects_overlap(label_rect, other_rect):
                 findings.append("labels of edges %s -> %s and %s -> %s overlap"
                                 % (osrc, odst, src, dst))
-        if edge.get("label"):
-            labels.append((lp, (src, dst)))
+        if not plan.empty:
+            labels.append((label_rect, (src, dst)))
+
         for third in boxes:
             if third in (src, dst):
                 continue
             if any(_segment_crosses(p, q, boxes[third]) for p, q in zip(points, points[1:])):
                 findings.append("edge %s -> %s crosses node %s" % (src, dst, third))
-            if _inside(lp, boxes[third]):
-                findings.append("label of edge %s -> %s sits on node %s" % (src, dst, third))
+            if _overlap(label_rect, boxes[third]):
+                findings.append("label of edge %s -> %s overlaps node %s" % (src, dst, third))
+
+        for other_edge, other_points in routes:
+            if other_edge is edge:
+                continue
+            osrc, odst = other_edge["from"], other_edge["to"]
+            if osrc in (src, dst) or odst in (src, dst):
+                continue
+            if any(_segment_crosses(p, q, label_rect) for p, q in zip(other_points, other_points[1:])):
+                findings.append("unrelated edge %s -> %s crosses label of edge %s -> %s"
+                                % (osrc, odst, src, dst))
     return findings
 
 
@@ -200,12 +293,46 @@ def _group_findings(spec, layout):
             if node_id not in members.get(group_id, set()) and _overlap(gbox, box)]
 
 
+def _sequence_findings(spec, layout):
+    findings = []
+    nodes = spec.get("nodes") or []
+    messages = sequence_messages(nodes, spec.get("edges") or [], layout.boxes)
+    for index, message in enumerate(messages):
+        for other in messages[:index]:
+            if text_layout.rects_overlap(message.rect, other.rect):
+                findings.append("messages %d and %d labels overlap"
+                                % (other.index, message.index))
+        for node in nodes:
+            box = layout.boxes.get(node["id"])
+            if box and text_layout.rects_overlap(message.rect, box):
+                findings.append("message %d label overlaps participant %s"
+                                % (message.index, node["id"]))
+    return findings
+
+
+def _header_findings(spec, layout):
+    findings = []
+    header_box = getattr(layout, "header_box", None)
+    if not header_box or header_box[3] <= 0:
+        return findings
+    for node_id, box in layout.boxes.items():
+        if _overlap(header_box, box):
+            findings.append("node %s overlaps header/view contract" % node_id)
+    for group_id, box in layout.groups.items():
+        if _overlap(header_box, box):
+            findings.append("group %s overlaps header/view contract" % group_id)
+    return findings
+
+
 def check(spec, layout):
     """Return human-readable findings; empty means the picture should be clean."""
     findings = _overlap_findings(layout.boxes)
-    if spec.get("type") != "sequence":    # messages are horizontal by construction
+    if spec.get("type") == "sequence":
+        findings += _sequence_findings(spec, layout)
+    else:
         findings += _edge_findings(spec, layout)
     findings += _group_findings(spec, layout)
+    findings += _header_findings(spec, layout)
     return findings
 
 

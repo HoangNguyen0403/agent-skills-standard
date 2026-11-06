@@ -1,9 +1,4 @@
-export type CommandId =
-  | "install"
-  | "init"
-  | "sync"
-  | "npx-init"
-  | "npx-sync";
+export type CommandId = "install" | "init" | "sync" | "npx-init" | "npx-sync";
 
 export interface CommandItem {
   readonly id: CommandId;
@@ -186,8 +181,7 @@ export const sourceLinks: SourceLinks = {
     "https://github.com/HoangNguyen0403/agent-skills-standard/blob/main/CONTRIBUTING.md",
   license:
     "https://github.com/HoangNguyen0403/agent-skills-standard/blob/main/LICENSE",
-  issues:
-    "https://github.com/HoangNguyen0403/agent-skills-standard/issues",
+  issues: "https://github.com/HoangNguyen0403/agent-skills-standard/issues",
 } as const;
 
 export const compatibleAgents: readonly string[] = [

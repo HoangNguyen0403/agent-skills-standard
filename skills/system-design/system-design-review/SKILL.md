@@ -26,7 +26,7 @@ Score claims against evidence appropriate to the declared review scope. A propos
 | Requirements | Functional, NFR, and out-of-scope written with owners | Only a feature description exists |
 | Capacity evidence | Peak QPS, storage, and bandwidth computed and current | Numbers absent or older than the last traffic change |
 | Redundancy | Failure domains, recovery mechanisms and ownership fit the stated objective; proposals include validation criteria, operations claims require measured drills when recovery is in scope | Critical SPOF or no viable recovery for the stated objective |
-| Data scaling | Access patterns mapped, ownership single, growth path stated; critical-flow authority, derived copies, freshness, and backlog are checked when material | One shared store, no growth plan, unbounded tables, or a material flow invariant/copy risk left unresolved |
+| Data scaling | Access patterns mapped, ownership single, growth path stated; query amplification diagnosed via canonical database-query-performance; copies/authority checked | One shared store, no growth plan, unbounded tables, or an unmitigated amplification/copy risk |
 | Caching | Hot read paths cached with TTL and invalidation defined | No cache on a proven hot path, or uninvalidatable cache |
 | Async offload | Slow/bursty work is isolated when required by stated SLO or failure constraints, with bounded drain/recovery; bounded synchronous work is valid when it meets them | Required isolation is absent or synchronous coupling violates the stated constraints |
 | Observability | Journey indicators, signal/alert ownership, runbooks and validation fit declared scope; operations claims require observed SLO/telemetry | No relevant journey signals, owner or response path for a material risk |
@@ -79,14 +79,15 @@ adverse timelines, invariants, recovery, and scope-specific evidence as findings
 - Queue with no drain-rate budget, no DLQ, and alerting on depth rather than age.
 - Alerts on CPU rather than user-visible symptoms or error-budget burn.
 - Migration and code shipped as one irreversible step.
-
+- Suspected N+1 loop treated as measured bottleneck without trace, or fixed with blanket giant JOIN/cache.
+- Redundant N+1 spare compute nodes confused with database query amplification.
 ## Anti-Patterns
 
 - **No score without evidence**: cite the metric, artifact, or drill; otherwise mark `UNVERIFIED`.
 - **No rewrite recommendation by default**: prefer the smallest fix that removes the proven bottleneck.
 - **No uniform severity**: rank by user impact and reversibility, not by axis order.
 - **No finding without a next action**: every gap gets an owner-ready fix.
-
+- **No blanket giant JOIN fix**: joining relations multiplies rows and corrupts pagination; recommend bounded batching.
 ## References
 
 - [Scorecard](references/scorecard.md) - scoring rubric, weighting guidance, report template

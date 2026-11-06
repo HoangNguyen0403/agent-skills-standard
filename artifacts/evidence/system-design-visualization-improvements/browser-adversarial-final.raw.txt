@@ -1,0 +1,39 @@
+### Result
+{"driver":"playwright-cli","offlineOpen":true,"result":{"title":"<script>window.diagramInjected=true</script> — literal title — Offline Architecture Package","text":"<script>window.diagramInjected=true</script> — literal title\nSCOPE\n\"><iframe src=\"https://diagram-probe.invalid/frame\"></iframe> — literal scope\nTYPE\ncontext\nAUDIENCE\nexec\nVERSION / DATE\n<img src=x onerror=\"window.diagramInjected=true\"> (2026-09-13)\nSOURCE DIGEST\nsha256:986ca1d6c6a579867f9d520b4bb2d4eaee4c9e7f88408d9e9fd464d99d679998\nTheme:\nAuto (System)\nLight\nDark\nDiagram Elements\nperson: 1\nsaas: 1\nsystem: 1\nsystem-ext: 2\nEvidence & Confidence\nunspecified: 9\n\nCitations: <script>citation-only</script>.go:10, docs/prd.md:20, docs/prd.md:41, docs/prd.md:44, docs/prd.md:47","scripts":0,"executableElements":0,"eventAttributes":[],"navigableJavascript":[],"executed":false,"images":[{"complete":true,"width":2100,"height":1614,"src":"data:image/png;base64,"},{"complete":true,"width":2100,"height":1614,"src":"data:image/png;base64,"}],"scrollWidth":1440,"viewportWidth":1440},"requests":["file:///Users/nguyenhuyhoang/.paseo/worktrees/0vty4mn4/zealous-flamingo/artifacts/runs/system-design-visualization-improvements/offline-adversarial-roundtrip/index.html"],"responses":[],"limits":["Browser consumer boundary only; no Desktop network guarantee","Synthetic malicious-looking metadata is literal data, not an execution instruction"]}
+### Ran Playwright code
+```js
+await (async (page) => {
+  const url = 'file:///Users/nguyenhuyhoang/.paseo/worktrees/0vty4mn4/zealous-flamingo/artifacts/runs/system-design-visualization-improvements/offline-adversarial-roundtrip/index.html';
+  const requests = [], responses = [];
+  const field = (object, name) => typeof object[name] === 'function' ? object[name]() : object[name];
+  page.on('request', request => requests.push(field(request, 'url')));
+  page.on('response', response => { const url = field(response, 'url'); if (/^https?:/.test(url)) responses.push(url); });
+  await page.context().route(/^https?:/, route => route.abort('blockedbyclient'));
+  await page.context().setOffline(true);
+  await page.emulateMedia({colorScheme:'light'});
+  await page.setViewportSize({width:1440,height:1000});
+  await page.goto(url);
+  await page.locator('img').first().waitFor({state:'visible'});
+  const result = await page.evaluate(() => ({
+    title:document.title, text:document.body.innerText,
+    scripts:document.scripts.length,
+    executableElements:document.querySelectorAll('script,iframe,object,embed,form').length,
+    eventAttributes:[...document.querySelectorAll('*')].flatMap(element => [...element.attributes].filter(attribute => /^on/i.test(attribute.name)).map(attribute => attribute.name)),
+    navigableJavascript:[...document.querySelectorAll('[href],[src],[action]')].flatMap(element => [...element.attributes].filter(attribute => /^(href|src|action)$/.test(attribute.name) && /^\s*javascript:/i.test(attribute.value)).map(attribute => attribute.value)),
+    executed:window.diagramInjected === true,
+    images:[...document.images].map(image => ({complete:image.complete,width:image.naturalWidth,height:image.naturalHeight,src:image.getAttribute('src').slice(0,22)})),
+    scrollWidth:document.documentElement.scrollWidth, viewportWidth:window.innerWidth
+  }));
+  if (result.scripts || result.executableElements || result.eventAttributes.length || result.navigableJavascript.length || result.executed) throw new Error('Untrusted metadata created executable structure');
+  if (!result.title.includes('<script>window.diagramInjected=true</script>') || !result.text.includes('<img src=x onerror="window.diagramInjected=true">')) throw new Error('Escaped malicious-looking metadata not preserved literally');
+  if (result.images.length !== 2 || result.images.some(image => !image.complete || image.width <= 0 || !image.src.startsWith('data:image/png;base64,'))) throw new Error('Offline PNG snapshot invariant failed');
+  if (result.scrollWidth > result.viewportWidth) throw new Error('Adversarial metadata overflows viewport');
+  if (requests.some(url => /^https?:/.test(url)) || responses.length) throw new Error('Adversarial metadata attempted external resource');
+  await page.screenshot({path:'.playwright-cli/adversarial-offline-roundtrip.png',fullPage:true});
+  return {driver:'playwright-cli',offlineOpen:true,result,requests,responses,limits:['Browser consumer boundary only; no Desktop network guarantee','Synthetic malicious-looking metadata is literal data, not an execution instruction']};
+}
+)(page);
+```
+### Page
+- Page URL: file:///Users/nguyenhuyhoang/.paseo/worktrees/0vty4mn4/zealous-flamingo/artifacts/runs/system-design-visualization-improvements/offline-adversarial-roundtrip/index.html
+- Page Title: <script>window.diagramInjected=true</script> — literal title — Offline Architecture Package

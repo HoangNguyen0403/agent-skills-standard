@@ -1,0 +1,458 @@
+{
+  "version": "2.0",
+  "question_set_version": "ac06-q2",
+  "frozen_at": "2026-11-06",
+  "owner": "PO / human validation owner",
+  "warning": "Answer key. Never shown to the reader and never shipped with reader materials.",
+  "frozen_hashes": {
+    "questions.json": "521218f1e7960fad672c145055caac431c7f9bc70339dced99443727e3856e52",
+    "questions.reader.json": "c8c9677cc90ed600c8725ec83c9d0a9c116a2dfdc7cc099a9ccedc33cfb55e72",
+    "scoring-key/arm-map.json": "ed7e18621a9eed9f07b43145d02a725c994a777de81a23a06870cab7ce72359a",
+    "specs": {
+      "S1-simple-stack": "b5ea12ff1ae0b502cf797fa3b9013118856a822adcb034b44f3a2206633fa20f",
+      "S2-dev-tooling": "bb6f80ca0b76a9a5cc70ec88e9f5fd4d165c6fe9f1e731161315180dffb2d376",
+      "S3-long-label-hub": "3347d9df0d014c08f3cd4453e6f2d83809e9c68a650afe51916acf4eb67c2cf7",
+      "S4-nested-deployment": "63b0a66c228c7bf4198bdf45f47902378c23d51026ae7985367250e8f6d27df0",
+      "S5-stateful-dataflow": "76ccc3aebb2e16740873af87d9250f8b25492f523d6c0d73df0610d397a61343",
+      "S6-sdk-ipc": "f547d6c123098e3c5b56eeba4b7c2bf6af30f1ea56e54da3d54a57501e467004"
+    }
+  },
+  "targets": {
+    "min_correct_pct_applicable": 90.0,
+    "min_time_reduction_pct": 20.0,
+    "regression_rule": "strict: any question answered correctly in the baseline arm and not correctly in the candidate arm, for the same scenario, is a regression; any regression fails the no-regression target and is listed in the report. This is the maintainer-approved reading for this kit.",
+    "regression_target": "no question regresses from correct on baseline to not-correct on candidate",
+    "window": "both sessions must start within 30 days after implementation begins (run-metadata.json implementation_start, when supplied)",
+    "session_gap_hours_min": 48,
+    "interpretation_time": "per scenario-arm: the sum of the four per-question seconds; the arm figure is the median of the six scenario-arm totals, so each arm contributes six values",
+    "target_arm": "candidate"
+  },
+  "verdict_scale": {
+    "correct": "Every `required` item is present and consistent with the answer, and no `reject` item applies. `optional` items are extra credit only: they are never needed for `correct` and never downgrade a correct answer.",
+    "partial": "An answer that carries most of the required content but omits or garbles at least one required item; scored as not correct and reported separately.",
+    "incorrect": "An answer that contradicts the key, omits a required item, or hits a `reject` item.",
+    "q1_terminals": "Q1 is correct when the answer begins at the entry node, keeps the required hops in flow order, and ends at one of the scenario's `accepted_terminals`. Continuing past an accepted terminal is allowed only through nodes the scenario lists in `accepted_extra_hops`; those extra hops are never required and never a reject.",
+    "q2_completeness": "Q2 is scored identically in all six scenarios: the boundary boxes must be named with all their members and the outside set must be complete, either every member named or its size stated explicitly.",
+    "q3_absent": "A justified 'absent' answer is correct when it names the node that the key requires (for example 'absent for the request flow; the Session Store holds session state' names the Session Store), and incorrect when it names no store the diagram draws or claims no state exists anywhere. An 'absent' answer is never required: naming the store directly is always correct.",
+    "q4_exhaustive": "Q4 is scored on the marked set only. A list is read as exhaustive, so a bare list of the marked nodes/edges is correct in every scenario; adding 'and nothing else is marked' is optional, never required and never a reject.",
+    "q4_provenance": "Metric provenance words - 'measured', 'estimated', 'target' - are not uncertainty markers. Listing a metric's provenance word under Q4 is optional noise: never a required item and never a reject. Only 'proposed', 'assumed' and the UNVERIFIED marker count as uncertainty."
+  },
+  "non_applicable_policy": "Applicability is fixed in questions.json before any reading. A reader-reported 'applicable=false' that contradicts the key is a data error, not a scoring decision, and scorer.py rejects it.",
+  "scenarios": {
+    "S1-simple-stack": {
+      "diagram_title": "Acme Orders — Containers",
+      "questions": {
+        "Q1": {
+          "applicable": true,
+          "required": [
+            "Path starts at Storefront",
+            "Order API is the next hop",
+            "Orders DB (Postgres 16) is the terminal node"
+          ],
+          "accepted_terminals": ["Orders DB"],
+          "accepted_extra_hops": [],
+          "terminal_note": "The primary flow is the order write path, so Orders DB is the terminus. Order API also branches to Catalogue Cache and Order Events; naming either in brackets is harmless, and neither is a required hop or a reject.",
+          "optional": [
+            "Order API reached from Storefront over GraphQL/HTTPS and writing to Orders DB",
+            "Fulfilment Worker named only as a downstream consumer of Order Events, not as a hop on this path"
+          ],
+          "reject": [
+            "Order Events or Fulfilment Worker placed on the primary order path",
+            "Catalogue Cache claimed as the terminal store of the primary path"
+          ],
+          "spec_refs": ["nodes:web", "nodes:api", "nodes:db", "edges:web->api", "edges:api->db"]
+        },
+        "Q2": {
+          "applicable": true,
+          "required": [
+            "Boundary 'GKE — asia-southeast1' named",
+            "All five members named inside it: Storefront, Order API, Fulfilment Worker, Orders DB, Catalogue Cache",
+            "Outside set complete: Order Events, named or counted as the only node outside"
+          ],
+          "optional": [],
+          "reject": [
+            "Order Events placed inside the boundary",
+            "A second boundary box invented"
+          ],
+          "spec_refs": ["groups:gke", "nodes:web", "nodes:api", "nodes:worker", "nodes:db", "nodes:cache", "nodes:queue"]
+        },
+        "Q3": {
+          "applicable": true,
+          "required": [
+            "Orders DB (Postgres 16) named as the authoritative store for orders"
+          ],
+          "inference": "The word 'authoritative' is not printed. The answer must infer authority from Orders DB being the Postgres store that Order API writes to over the SQL edge.",
+          "optional": [
+            "Catalogue Cache described as a derived cache copy (Redis) rather than the authority"
+          ],
+          "reject": [
+            "Catalogue Cache named as authoritative",
+            "Order Events named as the authoritative store"
+          ],
+          "spec_refs": ["nodes:db", "nodes:cache", "nodes:queue", "edges:api->db"]
+        },
+        "Q4": {
+          "applicable": true,
+          "required": [
+            "Explicit 'none marked': no node or edge carries UNVERIFIED and none is proposed"
+          ],
+          "optional": [
+            "Observation that every node carries an evidence tag (implemented · documented or implemented · observed)"
+          ],
+          "reject": [
+            "Any node claimed to be UNVERIFIED or proposed"
+          ],
+          "spec_refs": ["all nodes carry lifecycle+evidence_confidence", "no UNVERIFIED styling in image"]
+        }
+      }
+    },
+    "S2-dev-tooling": {
+      "diagram_title": "Devkit — Developer Tooling Path",
+      "questions": {
+        "Q1": {
+          "applicable": true,
+          "required": [
+            "Path starts at Editor Extension",
+            "Devkit CLI is the next hop",
+            "Artifact Registry is the terminal node"
+          ],
+          "accepted_terminals": ["Artifact Registry"],
+          "accepted_extra_hops": [],
+          "optional": [
+            "Devkit CLI shown reading and writing Local Build Cache without ending there",
+            "Artifact Registry called the source of pinned packages"
+          ],
+          "reject": [
+            "CI Runner placed on the developer's primary path",
+            "Local Build Cache claimed as the terminal node"
+          ],
+          "spec_refs": ["nodes:editor", "nodes:cli", "nodes:registry", "edges:editor->cli", "edges:cli->registry", "edges:cli->local_cache"]
+        },
+        "Q2": {
+          "applicable": true,
+          "required": [
+            "Boundary 'Developer workstation' named with its three members: Editor Extension, Devkit CLI, Local Build Cache",
+            "Boundary 'Shared CI — org-wide runners' named with its member: CI Runner",
+            "Outside set complete: Artifact Registry and Remote Execution Farm, both named or counted as the two nodes outside"
+          ],
+          "optional": [],
+          "reject": [
+            "Local Build Cache placed outside the workstation boundary",
+            "Remote Execution Farm placed inside Shared CI"
+          ],
+          "spec_refs": ["groups:workstation", "groups:shared_ci", "nodes:editor", "nodes:cli", "nodes:local_cache", "nodes:ci", "nodes:registry", "nodes:remote_exec"]
+        },
+        "Q3": {
+          "applicable": true,
+          "required": [
+            "Artifact Registry named as the authoritative source of pinned artifacts"
+          ],
+          "inference": "The word 'authoritative' is not printed. The answer must infer it from 'Immutable pinned tarballs' and the CLI fetch edge, and from Local Build Cache being a cap-limited local copy.",
+          "optional": [
+            "Local Build Cache described as a local derived cache with a 12 GB cap"
+          ],
+          "reject": [
+            "Local Build Cache named as authoritative",
+            "Claim that no store of any kind is drawn"
+          ],
+          "spec_refs": ["nodes:registry", "nodes:local_cache", "edges:cli->registry"]
+        },
+        "Q4": {
+          "applicable": true,
+          "required": [
+            "Remote Execution Farm named as proposed/unverified",
+            "Its incoming CI Runner -> Remote Execution Farm edge named as UNVERIFIED"
+          ],
+          "optional": [
+            "Phrase 'planned' or 'proposed' quoted from the node sublabel"
+          ],
+          "reject": [
+            "Any other node or edge claimed UNVERIFIED",
+            "'None marked' claimed"
+          ],
+          "spec_refs": ["nodes:remote_exec", "edges:ci->remote_exec"]
+        }
+      }
+    },
+    "S3-long-label-hub": {
+      "diagram_title": "Payment Ingestion Hub — Long Label and High Fanout Layout",
+      "questions": {
+        "Q1": {
+          "applicable": true,
+          "required": [
+            "Path starts at Checkout Frontend Application Client",
+            "Global API Gateway and Edge Router is the next hop",
+            "Central Payment Ingestion and Multi-Region Transaction Orchestration Hub is the next hop"
+          ],
+          "accepted_terminals": [
+            "Primary Authoritative Double-Entry Ledger Store",
+            "External Payment Settlement and Acquiring Bank Network"
+          ],
+          "accepted_extra_hops": [],
+          "optional": [
+            "Payment Events and Audit Trail Queue named as a branch off the hub, not the terminus",
+            "Fraud Analysis Engine named as a synchronous check, not a primary-path hop"
+          ],
+          "reject": [
+            "Ledger store placed before the hub",
+            "Fraud detector placed on the implemented main path as a present component"
+          ],
+          "spec_refs": ["nodes:web_checkout", "nodes:edge_proxy", "nodes:payment_hub", "nodes:ledger_db", "nodes:acquirer_gateway", "nodes:event_stream", "edges:web_checkout->edge_proxy", "edges:edge_proxy->payment_hub", "edges:payment_hub->ledger_db", "edges:payment_hub->acquirer_gateway"]
+        },
+        "Q2": {
+          "applicable": true,
+          "required": [
+            "Boundary 'Managed Edge & Public Ingress Boundary' named with its member: Global API Gateway and Edge Router",
+            "Boundary 'Internal Payment Core & Processing Subsystem' named with all three members: Central Payment Ingestion Hub, Primary Authoritative Double-Entry Ledger Store, Payment Events and Audit Trail Queue",
+            "Outside set complete: Checkout Frontend Application Client, Real-time Fraud Analysis Engine, External Payment Settlement and Acquiring Bank Network, all named or counted as the three nodes outside"
+          ],
+          "optional": [],
+          "reject": [
+            "Ledger store or event queue placed outside the core boundary",
+            "Fraud detector placed inside a boundary"
+          ],
+          "spec_refs": ["groups:ingress", "groups:core", "nodes:edge_proxy", "nodes:payment_hub", "nodes:ledger_db", "nodes:event_stream", "nodes:web_checkout", "nodes:fraud_detector", "nodes:acquirer_gateway"]
+        },
+        "Q3": {
+          "applicable": true,
+          "required": [
+            "Primary Authoritative Double-Entry Ledger Store named as the authoritative store"
+          ],
+          "inference": "This is the only scenario where the word 'authoritative' is printed, in the node label itself.",
+          "optional": [
+            "Payment Events and Audit Trail Queue described as a trail/audit copy, not the system of record"
+          ],
+          "reject": [
+            "Payment Events queue named as the authoritative state",
+            "Hub named as the authoritative store of record"
+          ],
+          "spec_refs": ["nodes:ledger_db", "nodes:event_stream"]
+        },
+        "Q4": {
+          "applicable": true,
+          "required": [
+            "Real-time Machine Learning Fraud Analysis Engine named as proposed/unverified",
+            "Hub -> fraud detector edge named as UNVERIFIED"
+          ],
+          "optional": [
+            "Fraud node called proposed from its 'proposed · unverified' tag"
+          ],
+          "reject": [
+            "Any other node or edge claimed UNVERIFIED",
+            "'None marked' claimed"
+          ],
+          "spec_refs": ["nodes:fraud_detector", "edges:payment_hub->fraud_detector"]
+        }
+      }
+    },
+    "S4-nested-deployment": {
+      "diagram_title": "Acme Orders — Multi-Region Deployment",
+      "questions": {
+        "Q1": {
+          "applicable": true,
+          "required": [
+            "Path starts at Route 53",
+            "ALB prod is the next hop",
+            "Order API in ap-southeast-1 prod is the next hop",
+            "Aurora writer is the terminal node"
+          ],
+          "accepted_terminals": ["Aurora writer"],
+          "accepted_extra_hops": [],
+          "optional": [
+            "Failover branch to ALB DR named as secondary, not primary",
+            "DR Order API and Aurora replica named as the non-primary region"
+          ],
+          "reject": [
+            "Route 53 -> ALB DR shown as the primary path",
+            "Aurora replica named as the terminal primary store"
+          ],
+          "spec_refs": ["nodes:dns", "nodes:alb_prod", "nodes:eks_prod", "nodes:aurora_prod", "edges:dns->alb_prod", "edges:alb_prod->eks_prod", "edges:eks_prod->aurora_prod"]
+        },
+        "Q2": {
+          "applicable": true,
+          "required": [
+            "Boundary 'ap-southeast-1 prod' named with its three members: ALB prod, Order API (EKS acme-prod, ns orders), Aurora writer",
+            "Boundary 'ap-southeast-2 DR' named with its three members: ALB DR, Order API (EKS acme-dr, ns orders), Aurora replica",
+            "Outside set complete: Route 53, named or counted as the only node outside"
+          ],
+          "optional": [],
+          "reject": [
+            "Route 53 placed inside a region box",
+            "DR members placed in the prod box"
+          ],
+          "spec_refs": ["groups:prod_ap", "groups:dr_ap", "nodes:dns", "nodes:alb_prod", "nodes:eks_prod", "nodes:aurora_prod", "nodes:alb_dr", "nodes:eks_dr", "nodes:aurora_dr"]
+        },
+        "Q3": {
+          "applicable": true,
+          "required": [
+            "Aurora writer in ap-southeast-1 prod named as authoritative"
+          ],
+          "inference": "Authority is inferred from the 'Aurora writer' label versus 'Aurora replica' / 'Global Database secondary' and the replication edge direction; the word 'authoritative' is not printed.",
+          "optional": [
+            "Aurora replica named as the Global Database secondary",
+            "Replication direction stated as writer -> replica"
+          ],
+          "reject": [
+            "Replica named as authoritative",
+            "Claim that no authoritative store is drawn"
+          ],
+          "spec_refs": ["nodes:aurora_prod", "nodes:aurora_dr", "edges:aurora_prod->aurora_dr"]
+        },
+        "Q4": {
+          "applicable": true,
+          "required": [
+            "Order API in ap-southeast-2 DR (EKS acme-dr) named as the marked node"
+          ],
+          "optional": [
+            "Statement that no other node or edge carries the marker",
+            "Marker called 'proposed · assumed' from the node tag"
+          ],
+          "reject": [
+            "Prod nodes claimed UNVERIFIED",
+            "'None marked' claimed"
+          ],
+          "spec_refs": ["nodes:eks_dr"]
+        }
+      }
+    },
+    "S5-stateful-dataflow": {
+      "diagram_title": "Acme Settlement — Event Data Flow With Retry State",
+      "questions": {
+        "Q1": {
+          "applicable": true,
+          "required": [
+            "Path starts at Partner Webhook Ingress",
+            "settlement.events is the next hop",
+            "Settlement Worker is the next hop"
+          ],
+          "accepted_terminals": ["Ledger DB", "Partner Settlement API"],
+          "accepted_extra_hops": [],
+          "optional": [
+            "Idempotency Key Store named as a side check on the worker, not a hop on the main path",
+            "Retry and DLQ named as the failure branch rather than the main path"
+          ],
+          "reject": [
+            "Retry and DLQ placed on the main path",
+            "Settlement Worker placed before settlement.events"
+          ],
+          "spec_refs": ["nodes:webhook", "nodes:events", "nodes:consumer", "nodes:ledger", "nodes:dedupe", "nodes:partner_api", "edges:webhook->events", "edges:events->consumer", "edges:consumer->ledger", "edges:consumer->partner_api"]
+        },
+        "Q2": {
+          "applicable": true,
+          "required": [
+            "Boundary 'Settlement data boundary' named with both members: Idempotency Key Store, Ledger DB",
+            "Outside set complete: Partner Webhook Ingress, settlement.events, Settlement Worker, Retry and DLQ, Partner Settlement API, all five named or counted as the five nodes outside"
+          ],
+          "optional": [],
+          "reject": [
+            "Settlement Worker placed inside the data boundary",
+            "Retry and DLQ placed inside the data boundary"
+          ],
+          "spec_refs": ["groups:settlement", "nodes:dedupe", "nodes:ledger", "nodes:webhook", "nodes:events", "nodes:consumer", "nodes:retry", "nodes:partner_api"]
+        },
+        "Q3": {
+          "applicable": true,
+          "required": [
+            "Ledger DB named as the authoritative store for settlement entries"
+          ],
+          "inference": "The word 'authoritative' is not printed. The answer must infer it from Ledger DB being the serializable Postgres store that Settlement Worker writes to, and from Idempotency Key Store being a TTL cache.",
+          "optional": [
+            "Idempotency Key Store described as expiring dedupe state (Redis, 7-day TTL), not the record"
+          ],
+          "reject": [
+            "Idempotency Key Store named as authoritative of record",
+            "settlement.events named as the authoritative store"
+          ],
+          "spec_refs": ["nodes:ledger", "nodes:dedupe", "nodes:events", "edges:consumer->ledger"]
+        },
+        "Q4": {
+          "applicable": true,
+          "required": [
+            "Partner Settlement API named as the marked node",
+            "Settlement Worker -> Partner Settlement API edge named as UNVERIFIED"
+          ],
+          "optional": [
+            "Statement that no other node or edge carries the marker",
+            "Wording 'assumed' quoted from the node tag"
+          ],
+          "reject": [
+            "Ledger DB or Settlement Worker claimed UNVERIFIED",
+            "'None marked' claimed"
+          ],
+          "spec_refs": ["nodes:partner_api", "edges:consumer->partner_api"]
+        }
+      }
+    },
+    "S6-sdk-ipc": {
+      "diagram_title": "Acme Agent — SDK and IPC Boundary",
+      "questions": {
+        "Q1": {
+          "applicable": true,
+          "required": [
+            "Path starts at Host Application",
+            "Client SDK is the next hop",
+            "IPC Transport is the next hop",
+            "Agent Daemon is the terminal node"
+          ],
+          "accepted_terminals": ["Agent Daemon"],
+          "accepted_extra_hops": ["Inference Runtime"],
+          "terminal_note": "The diagram scope is 'how a host application reaches the agent daemon across the process boundary', so Agent Daemon is the terminus. Inference Runtime is drawn after it ('Spawns and streams / stdio') and is accepted as an extra hop: continuing to it is correct, never required, and never a reject.",
+          "optional": [
+            "Inference Runtime named as a hop after the Agent Daemon",
+            "Session Store named as a side read/write from the daemon, not a hop on the path"
+          ],
+          "reject": [
+            "Inference Runtime placed before the Agent Daemon",
+            "Session Store placed on the main request path"
+          ],
+          "spec_refs": ["nodes:app", "nodes:sdk", "nodes:ipc", "nodes:daemon", "nodes:runtime", "edges:app->sdk", "edges:sdk->ipc", "edges:ipc->daemon", "edges:daemon->runtime"]
+        },
+        "Q2": {
+          "applicable": true,
+          "required": [
+            "Boundary 'Host application process — Node 20' named with its two members: Host Application, Client SDK",
+            "Boundary 'Agent daemon process — Go, per user' named with its three members: Agent Daemon, Session Store, Inference Runtime",
+            "Outside set complete: IPC Transport, named or counted as the only node outside"
+          ],
+          "optional": [],
+          "reject": [
+            "IPC Transport placed inside the host process box",
+            "Session Store placed in the host process box"
+          ],
+          "spec_refs": ["groups:host", "groups:daemon", "nodes:app", "nodes:sdk", "nodes:daemon", "nodes:session", "nodes:runtime", "nodes:ipc"]
+        },
+        "Q3": {
+          "applicable": true,
+          "required": [
+            "Session Store (SQLite, per workspace) named as the node holding session state"
+          ],
+          "inference": "The diagram prints no word for 'authoritative' or 'stateless'; the answer must infer the store from the node kind, sublabel and the daemon's read/write SQL edge.",
+          "absent_answers": "Correct: 'absent for the request flow; the Session Store holds session state' (it names the required node). Incorrect: 'absent' with no store, or any claim that the diagram shows no state at all.",
+          "optional": [
+            "Statement that no other node is drawn as a session store, i.e. IPC Transport only carries frames"
+          ],
+          "reject": [
+            "IPC Transport named as an authoritative store",
+            "Claim that the diagram shows no state at all"
+          ],
+          "spec_refs": ["nodes:session", "nodes:ipc", "edges:daemon->session"]
+        },
+        "Q4": {
+          "applicable": true,
+          "required": [
+            "IPC Transport named as the marked node"
+          ],
+          "optional": [
+            "Statement that no other node or edge carries the marker",
+            "Marker called 'unverified' from the node tag"
+          ],
+          "reject": [
+            "Client SDK or Agent Daemon claimed UNVERIFIED",
+            "'None marked' claimed"
+          ],
+          "spec_refs": ["nodes:ipc"]
+        }
+      }
+    }
+  }
+}

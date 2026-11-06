@@ -1,0 +1,17 @@
+{
+  "execution_mode": "actual TypeScript sources via temporary Node26 loader; no source logic mocks or installed packages",
+  "runtime": "Node v26.0.0",
+  "dependency_provenance": {"fs-extra":"existing global agent-skills-standard-mcp dependency","picocolors":"existing pnpm global1.1.1","js-yaml":"existing pnpm global5.5.0"},
+  "observed": [
+    {"surface":"schema focused tests","passed":16,"failed":0},
+    {"surface":"all scripts/outcome/*.test.ts","passed":37,"failed":0,"duration_ms":146.570333,"contracts":"schema, template structure, exact-scope/malformed/duplicate/missing record behavior"},
+    {"surface":"real validateRunRecord against original approved plan record","issues":[]},
+    {"surface":"scripts/outcome/index.ts required exact plan identity over mixed evidence directory","exit":1,"records_checked":24,"records_matched":1,"reason":"EveryJSON treated as runrecord; assignments/raw receipts/specs are not runrecords; malformed partial netlog also rejected. Not waived or misrepresented as passing."},
+    {"surface":"same exact canonical outcome CLI over records-only byte-identical original plan snapshot","exit":0,"records_checked":1,"records_matched":1,"issues":[],"assurance":"record-schema-and-scope-valid","snapshot":"artifacts/outcomes/system-design-visualization-improvements-plan/plan.json","sha256":"b8028b735048144d8d611cdab1ab62e20b1112f1f8b95e0c4dfb9c61fb4b007b"},
+    {"surface":"actual scripts/trace/index.ts required document scope","exit":1,"reason":"Separate numeric-only formal grammar rejects approved qualified IDs/two-digit ACs; user explicitly authorized bounded trace-parser alignment, now being implemented"},
+    {"surface":"no-cost eval grounding preflight","status":"environment_blocked","reason":"gpt-tokenizer absent after checking existing pnpm/global/npm caches; no installation authorized"},
+    {"surface":"installed ags2.7.4 validate changed skills","exit":0,"passed":4,"failed":0,"warnings":["system-design-review SKILL8039bytes exceeds7168 advisory; all4skills format valid"],"limits":"Not pnpm validate:all, injection scan, SDLC audit, live eval or usefulness proof"}
+  ],
+  "adaptation": "Resolve extensionless TS imports and existing dependency paths, prepend module-local __dirname/__filename after shebang; preserves actual test/production logic. Original unadapted pnpm/tsx path remains unavailable.",
+  "limits": ["Node MODULE_TYPELESS_PACKAGE_JSON warnings retained, not suppressed", "Native suite result not framework/production performance proof", "No model evaluations or publication", "Record schema/scope validity is never approval"]
+}

@@ -21,6 +21,7 @@ EXEC_NODE_CAP = 12
 
 REQUIRED_FIELDS = ("title", "type", "audience", "version", "date", "scope")
 AUDIENCES = ("exec", "tech")
+THEME_MODES = ("light", "dark")
 
 # A metric provenance says whether the number is a target, estimate, or measurement.
 # Metric provenance describes the kind of number, not its confidence.
@@ -58,10 +59,13 @@ def validate(spec, require_contract=False):
     if theme is not None:
         if not isinstance(theme, dict):
             errors.append("theme must be an object")
-        elif "accent" in theme and (
-                not isinstance(theme["accent"], str) or
-                not re.fullmatch(r"#[0-9a-fA-F]{6}", theme["accent"])):
-            errors.append("theme accent must be a six-digit hex colour")
+        else:
+            if "accent" in theme and (
+                    not isinstance(theme["accent"], str) or
+                    not re.fullmatch(r"#[0-9a-fA-F]{6}", theme["accent"])):
+                errors.append("theme accent must be a six-digit hex colour")
+            if "mode" in theme and theme["mode"] not in THEME_MODES:
+                errors.append("theme mode must be 'light' or 'dark'")
 
     diagram_type = spec.get("type")
     if diagram_type and diagram_type not in DIAGRAM_TYPES:

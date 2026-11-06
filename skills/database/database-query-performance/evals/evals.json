@@ -24,14 +24,56 @@
           "description": "Uses query-plan evidence before choosing an index"
         }
       ]
+    },
+    {
+      "id": 2,
+      "prompt": "Our paginated orders API loops over 20 order records to fetch customer details and order item counts. Should we wrap the endpoint in Redis caching or use a giant multi-table LEFT JOIN?",
+      "expected_output": "Classify static code inspection as suspected amplification. Reject wrapping unoptimized loops in cache and reject blanket giant LEFT JOIN because joining 1:N relations multiplies rows and breaks parent LIMIT/OFFSET pagination. Recommend pushdown aggregates (GROUP BY) for counts and bounded batch key loading for customer records, preserving pagination, tenant boundaries, and empty relations.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": ["suspected", "trace", "evidence", "runtime"],
+          "description": "Distinguishes suspected code pattern from measured runtime evidence"
+        },
+        {
+          "type": "contains_any",
+          "value": ["pagination", "LIMIT", "row multiplication", "Cartesian"],
+          "description": "Explains why blanket giant JOIN breaks pagination or inflates rows"
+        },
+        {
+          "type": "contains_any",
+          "value": ["batch", "GROUP BY", "aggregate", "push down"],
+          "description": "Recommends bounded batching or aggregate pushdown"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "We are designing high availability for our background worker cluster and planning N+1 redundancy with 4 active worker instances and 1 hot standby spare instance. What database query optimizations or DataLoader batching strategies should we apply to fix this N+1 issue?",
+      "expected_output": "Reject the false positive: N+1 redundancy in worker clustering is high-availability infrastructure spare capacity, not an N+1 database query amplification defect. No database query changes, indexes, or DataLoader batching are required for server instance redundancy.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": ["redundancy", "high availability", "spare", "compute"],
+          "description": "Recognizes instance redundancy context"
+        },
+        {
+          "type": "contains_any",
+          "value": ["not", "false positive", "different", "not a database", "not an N+1 query"],
+          "description": "Rejects instance redundancy as a database query defect"
+        }
+      ]
     }
   ],
   "should_not_trigger": [
     "Rotate JWT secrets",
     "Add a loading spinner to a form",
-    "Create a NestJS module"
+    "Create a NestJS module",
+    "Configure a CSS grid layout"
   ],
   "should_trigger": [
-    "The orders listing is slow. Should I just add another index?"
+    "The orders listing is slow. Should I just add another index?",
+    "Our GraphQL resolver has an N+1 query amplification loop fetching authors for each book",
+    "Diagnose database query latency and slow queries in this API"
   ]
 }

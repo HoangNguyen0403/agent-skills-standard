@@ -1,0 +1,130 @@
+{
+  "version": "2.0",
+  "frozen_at": "2026-11-06",
+  "owner": "PO / human validation owner",
+  "warning": "Operator-only. Never shown to the reader and never shipped with reader materials.",
+  "design": {
+    "name": "two-session washout, single reader",
+    "why": "A single reader cannot read both arms of one scenario back to back without the second read measuring carry-over. Each scenario is therefore seen exactly once per session, and the two session reads of the same scenario are separated by at least 48 hours of washout.",
+    "session_gap_hours_min": 48,
+    "session1": "scenario/arm pairs A; the reader sees each of the six scenarios once, one arm each.",
+    "session2": "scenario/arm pairs B; the reader sees the other arm of every scenario.",
+    "balance": "each session carries three baseline and three candidate arms",
+    "order": "scenario order inside each session is seeded and independent of arm role",
+    "reader_sees": "images/reader/session1/S<k>.png and images/reader/session2/S<k>.png, where k is the scenario's 1-based position in questions.json. No file, folder or sheet cell in the reader hand-out names an arm role."
+  },
+  "seed": "ac06-2026-11-06-washout",
+  "seed_method": {
+    "arm_draw": "per scenario: n = int(sha256(seed + ':' + scenario)[:8], 16). The session-1 ROLE is baseline when n is even and candidate when n is odd; the session-2 role is the opposite. The arm LETTERS are then relabelled so A is always the session-1 arm and B the session-2 arm, so a letter does not imply a role. Reference values: S1 0x8895ddd1 odd -> candidate first; S2 0x5c0425fd odd -> candidate first, flipped by the balance correction below to baseline first; S3 0xe82850b0 even -> baseline first; S4 0xdc5babf9 odd -> candidate first; S5 0x7ca6f8c4 even -> baseline first; S6 0xe162641d odd -> candidate first.",
+    "balance_correction": "the raw draw put four candidates in session 1 (S1, S2, S4, S6) and two baselines (S3, S5). The session-1 role of the candidate scenario with the smallest hash value, S2-dev-tooling (sha256 prefix 5c0425fd), was flipped so session 1 holds three of each. This is the only edit to the raw draw and it is deterministic.",
+    "session_order": "session 1 lists the six scenarios sorted by sha256(seed + ':order1:' + scenario); session 2 by sha256(seed + ':order2:' + scenario)."
+  },
+  "role_check": {
+    "session1_baseline_scenarios": ["S2-dev-tooling", "S3-long-label-hub", "S5-stateful-dataflow"],
+    "session1_candidate_scenarios": ["S1-simple-stack", "S4-nested-deployment", "S6-sdk-ipc"]
+  },
+  "reader_files": {
+    "session1/S1.png": "S1-simple-stack",
+    "session1/S2.png": "S2-dev-tooling",
+    "session1/S3.png": "S3-long-label-hub",
+    "session1/S4.png": "S4-nested-deployment",
+    "session1/S5.png": "S5-stateful-dataflow",
+    "session1/S6.png": "S6-sdk-ipc",
+    "session2/S1.png": "S1-simple-stack",
+    "session2/S2.png": "S2-dev-tooling",
+    "session2/S3.png": "S3-long-label-hub",
+    "session2/S4.png": "S4-nested-deployment",
+    "session2/S5.png": "S5-stateful-dataflow",
+    "session2/S6.png": "S6-sdk-ipc"
+  },
+  "sessions": {
+    "1": ["S1-simple-stack", "S2-dev-tooling", "S3-long-label-hub", "S5-stateful-dataflow", "S4-nested-deployment", "S6-sdk-ipc"],
+    "2": ["S2-dev-tooling", "S3-long-label-hub", "S4-nested-deployment", "S6-sdk-ipc", "S5-stateful-dataflow", "S1-simple-stack"]
+  },
+  "scenarios": {
+    "S1-simple-stack": {
+      "reader_file": "S1.png",
+      "arms": {"A": "candidate", "B": "baseline"},
+      "session1": {"arm": "A", "role": "candidate"},
+      "session2": {"arm": "B", "role": "baseline"},
+      "frozen_images": {
+        "baseline": {"path": "images/S1-simple-stack-baseline.png", "sha256": "d9c6007a67bf83d6b25afbebf9a3ebae324ae77b36a4b7cf1d6dcb0bad5c9125"},
+        "candidate": {"path": "images/S1-simple-stack-candidate.png", "sha256": "0bd06d515b80a3cba1909c1c6ff89130a16984da7093d10aea53ee485546deeb"}
+      },
+      "reader_images": {
+        "session1": {"path": "images/reader/session1/S1.png", "sha256": "0bd06d515b80a3cba1909c1c6ff89130a16984da7093d10aea53ee485546deeb"},
+        "session2": {"path": "images/reader/session2/S1.png", "sha256": "d9c6007a67bf83d6b25afbebf9a3ebae324ae77b36a4b7cf1d6dcb0bad5c9125"}
+      }
+    },
+    "S2-dev-tooling": {
+      "reader_file": "S2.png",
+      "arms": {"A": "baseline", "B": "candidate"},
+      "session1": {"arm": "A", "role": "baseline"},
+      "session2": {"arm": "B", "role": "candidate"},
+      "frozen_images": {
+        "baseline": {"path": "images/S2-dev-tooling-baseline.png", "sha256": "f43a082a8ddfbaf9369e7037d630b7b2cba5b9a4f162c05355bb7e577b32b6af"},
+        "candidate": {"path": "images/S2-dev-tooling-candidate.png", "sha256": "56559ac7ff09cd0d019a16dfee36e07fc330952ceb9bfb5822dbb990c0e33191"}
+      },
+      "reader_images": {
+        "session1": {"path": "images/reader/session1/S2.png", "sha256": "f43a082a8ddfbaf9369e7037d630b7b2cba5b9a4f162c05355bb7e577b32b6af"},
+        "session2": {"path": "images/reader/session2/S2.png", "sha256": "56559ac7ff09cd0d019a16dfee36e07fc330952ceb9bfb5822dbb990c0e33191"}
+      }
+    },
+    "S3-long-label-hub": {
+      "reader_file": "S3.png",
+      "arms": {"A": "baseline", "B": "candidate"},
+      "session1": {"arm": "A", "role": "baseline"},
+      "session2": {"arm": "B", "role": "candidate"},
+      "frozen_images": {
+        "baseline": {"path": "images/S3-long-label-hub-baseline.png", "sha256": "5bfb122d584314212697d1224a3c39c3b7f08e022cda63a86e59093860978671"},
+        "candidate": {"path": "images/S3-long-label-hub-candidate.png", "sha256": "7fc9961e0b7f4b7d8b40e89d56bc9fe0b9ab6c53825f13f5ad83bae31cdd3cb8"}
+      },
+      "reader_images": {
+        "session1": {"path": "images/reader/session1/S3.png", "sha256": "5bfb122d584314212697d1224a3c39c3b7f08e022cda63a86e59093860978671"},
+        "session2": {"path": "images/reader/session2/S3.png", "sha256": "7fc9961e0b7f4b7d8b40e89d56bc9fe0b9ab6c53825f13f5ad83bae31cdd3cb8"}
+      }
+    },
+    "S4-nested-deployment": {
+      "reader_file": "S4.png",
+      "arms": {"A": "candidate", "B": "baseline"},
+      "session1": {"arm": "A", "role": "candidate"},
+      "session2": {"arm": "B", "role": "baseline"},
+      "frozen_images": {
+        "baseline": {"path": "images/S4-nested-deployment-baseline.png", "sha256": "97fad4a6cbeb6bf011898f4be7480fe74ca48234cf22349168409cba88160101"},
+        "candidate": {"path": "images/S4-nested-deployment-candidate.png", "sha256": "fff8ca1f0463855a7480dd9de69d9e60a70546e6a637089ad52e3d166ba682e2"}
+      },
+      "reader_images": {
+        "session1": {"path": "images/reader/session1/S4.png", "sha256": "fff8ca1f0463855a7480dd9de69d9e60a70546e6a637089ad52e3d166ba682e2"},
+        "session2": {"path": "images/reader/session2/S4.png", "sha256": "97fad4a6cbeb6bf011898f4be7480fe74ca48234cf22349168409cba88160101"}
+      }
+    },
+    "S5-stateful-dataflow": {
+      "reader_file": "S5.png",
+      "arms": {"A": "baseline", "B": "candidate"},
+      "session1": {"arm": "A", "role": "baseline"},
+      "session2": {"arm": "B", "role": "candidate"},
+      "frozen_images": {
+        "baseline": {"path": "images/S5-stateful-dataflow-baseline.png", "sha256": "b66a94b3085761933daf63fb800d47a0e3d4f46ed2d52df8ace199c0f4d1caf4"},
+        "candidate": {"path": "images/S5-stateful-dataflow-candidate.png", "sha256": "804e9dbb057f3ad0fdb4245145478934616fa71ece6c7d6ea3ff0e6f21ba23be"}
+      },
+      "reader_images": {
+        "session1": {"path": "images/reader/session1/S5.png", "sha256": "b66a94b3085761933daf63fb800d47a0e3d4f46ed2d52df8ace199c0f4d1caf4"},
+        "session2": {"path": "images/reader/session2/S5.png", "sha256": "804e9dbb057f3ad0fdb4245145478934616fa71ece6c7d6ea3ff0e6f21ba23be"}
+      }
+    },
+    "S6-sdk-ipc": {
+      "reader_file": "S6.png",
+      "arms": {"A": "candidate", "B": "baseline"},
+      "session1": {"arm": "A", "role": "candidate"},
+      "session2": {"arm": "B", "role": "baseline"},
+      "frozen_images": {
+        "baseline": {"path": "images/S6-sdk-ipc-baseline.png", "sha256": "c26e46f491abe4ebef9259fafdbfc954c930ef8f83abe9a126912f7220ad6236"},
+        "candidate": {"path": "images/S6-sdk-ipc-candidate.png", "sha256": "04751a132fdf66bdbc44e975af8643325de3463577e4e27844ea2f0112f357e3"}
+      },
+      "reader_images": {
+        "session1": {"path": "images/reader/session1/S6.png", "sha256": "04751a132fdf66bdbc44e975af8643325de3463577e4e27844ea2f0112f357e3"},
+        "session2": {"path": "images/reader/session2/S6.png", "sha256": "c26e46f491abe4ebef9259fafdbfc954c930ef8f83abe9a126912f7220ad6236"}
+      }
+    }
+  }
+}

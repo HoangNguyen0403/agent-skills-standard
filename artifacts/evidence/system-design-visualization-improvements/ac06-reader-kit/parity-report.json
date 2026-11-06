@@ -1,0 +1,55 @@
+{
+  "check": "render-level semantic parity of the two arms' .drawio cell ids and normalised labels",
+  "scope_limit": "Not a reader result and not a pixel comparison: it proves the exported cell values/ids match, not that the two PNGs look identical.",
+  "normalisation": "html.parser with entity decoding (repeated), tags removed, <br> as space, whitespace collapsed; a literal '<' inside a label survives as text",
+  "scenarios": {
+    "S1-simple-stack": {
+      "baseline_cells": 30,
+      "candidate_cells": 30,
+      "ids_identical": true,
+      "values_identical": true,
+      "differences": []
+    },
+    "S2-dev-tooling": {
+      "baseline_cells": 32,
+      "candidate_cells": 32,
+      "ids_identical": true,
+      "values_identical": true,
+      "differences": []
+    },
+    "S3-long-label-hub": {
+      "baseline_cells": 37,
+      "candidate_cells": 37,
+      "ids_identical": true,
+      "values_identical": true,
+      "differences": []
+    },
+    "S4-nested-deployment": {
+      "baseline_cells": 36,
+      "candidate_cells": 36,
+      "ids_identical": true,
+      "values_identical": true,
+      "differences": []
+    },
+    "S5-stateful-dataflow": {
+      "baseline_cells": 39,
+      "candidate_cells": 39,
+      "ids_identical": true,
+      "values_identical": true,
+      "differences": []
+    },
+    "S6-sdk-ipc": {
+      "baseline_cells": 31,
+      "candidate_cells": 31,
+      "ids_identical": true,
+      "values_identical": true,
+      "differences": []
+    }
+  },
+  "summary": {
+    "scenarios": 6,
+    "identical": 6,
+    "differing": 0,
+    "all_identical": true
+  }
+}

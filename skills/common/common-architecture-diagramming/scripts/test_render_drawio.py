@@ -5,23 +5,24 @@ Run: python3 test_render_drawio.py
 """
 
 import contextlib
+import glob
+import hashlib
 import io
 import json
-import hashlib
 import math
-
 import os
 import sys
 import tempfile
 import unittest
 import xml.etree.ElementTree as ET
-
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+import check_layout
 import export_drawio
 import render_drawio
+import render_erd
+import text_layout
 import validate_spec
-
 
 def digest_for_fixture_source(content):
     return "sha256:" + hashlib.sha256(content.encode("utf-8")).hexdigest()
@@ -194,6 +195,57 @@ def all_values(root):
 def document_order_ids(root):
     model_root = root.find("./diagram/mxGraphModel/root")
     return [child.get("id") for child in model_root]
+
+
+def rendered_lines(value):
+    """The emitted label's lines: a <br> is the break and nothing else."""
+    return (value or "").split("<br>")
+
+
+def wrap_replays_source(source, value):
+    """True when the emitted breaks never lose a character of the source.
+
+    A break either consumes whitespace from the source (a word boundary) or continues a
+    token (an over-budget chunk); the remaining characters must match in order.
+    """
+    lines = rendered_lines(value)
+    if not lines or lines[0] != source[:len(lines[0])]:
+        return False
+    pos = len(lines[0])
+    for line in lines[1:]:
+        while pos < len(source) and source[pos].isspace():
+            pos += 1
+        if source[pos:pos + len(line)] != line:
+            return False
+        pos += len(line)
+    return pos == len(source)
+
+
+def intra_token_breaks(source, value):
+    """Source offsets where an emitted break falls inside a token (no whitespace there)."""
+    lines = rendered_lines(value)
+    pos, offsets = len(lines[0]), []
+    for line in lines[1:]:
+        if pos < len(source) and not source[pos].isspace():
+            offsets.append(pos)
+        while pos < len(source) and source[pos].isspace():
+            pos += 1
+        pos += len(line)
+    return offsets
+
+
+def token_at(source, offset):
+    start = end = offset
+    while start > 0 and not source[start - 1].isspace():
+        start -= 1
+    while end < len(source) and not source[end].isspace():
+        end += 1
+    return source[start:end]
+
+
+def word_boundary_text(value):
+    """Read a label whose breaks all fall on word boundaries: a <br> is one space."""
+    return " ".join((value or "").replace("<br>", " ").split())
 
 
 class TestValidator(unittest.TestCase):
@@ -817,15 +869,17 @@ class TestErdRenderer(unittest.TestCase):
 
     def test_entity_height_grows_with_columns(self):
         root = parse(render_drawio.render(erd_spec()))
-        self.assertEqual(self.geom(root, "orders")[3], 30 + 3 * 22)
-        self.assertEqual(self.geom(root, "customers")[3], 30 + 2 * 22)
-
+        self.assertGreater(self.geom(root, "orders")[3], self.geom(root, "customers")[3],
+                           "entity with 3 columns and metric must be taller than entity with 2 columns")
     def test_relation_carries_er_arrows_for_cardinality(self):
         root = parse(render_drawio.render(erd_spec()))
         edge = [c for c in cells(root) if c.get("source") == "orders"][0]
-        self.assertIn("edgeStyle=entityRelationEdgeStyle", edge.get("style"))
+        self.assertIn("edgeStyle=orthogonalEdgeStyle", edge.get("style"))
         self.assertIn("startArrow=ERmany", edge.get("style"))
         self.assertIn("endArrow=ERmandOne", edge.get("style"))
+        # The route is pinned to ports, so the drawn line is the checked one.
+        for port in ("exitX=", "exitY=", "entryX=", "entryY="):
+            self.assertIn(port, edge.get("style"))
         self.assertEqual(edge.get("value"), "placed by")
 
     def test_erd_relation_preserves_edge_evidence(self):
@@ -1019,6 +1073,640 @@ class TestExportBinaryResolution(unittest.TestCase):
             self.assertIn(flag, cmd)
         self.assertIn("png", cmd)
         self.assertIn("2", cmd)
+
+
+
+class TestThemesAndLiteralEscaping(unittest.TestCase):
+    def test_render_default_theme_is_light(self):
+        xml = render_drawio.render(context_spec())
+        root = parse(xml)
+        model = root.find("./diagram/mxGraphModel")
+        self.assertNotIn("background", model.attrib)
+        self.assertIn("labelBackgroundColor=#ffffff", xml)
+
+    def test_render_theme_dark_sets_dark_background_and_palette(self):
+        xml = render_drawio.render(context_spec(), theme="dark")
+        root = parse(xml)
+        model = root.find("./diagram/mxGraphModel")
+        self.assertEqual(model.get("background"), "#111827")
+        self.assertEqual(model.get("pageBackgroundColor"), "#111827")
+        self.assertIn("labelBackgroundColor=#111827", xml)
+        self.assertIn("fontColor=#F9FAFB", style_of(root, "_title"))
+
+    def test_render_spec_theme_mode_dark_defaults_to_dark(self):
+        spec = context_spec(theme={"mode": "dark", "accent": "#3B82F6"})
+        xml = render_drawio.render(spec)
+        root = parse(xml)
+        model = root.find("./diagram/mxGraphModel")
+        self.assertEqual(model.get("background"), "#111827")
+
+    def test_render_unknown_theme_raises_spec_error(self):
+        with self.assertRaises(render_drawio.SpecError) as ctx:
+            render_drawio.render(context_spec(), theme="neon")
+        self.assertIn("unknown theme mode 'neon'", str(ctx.exception))
+
+    def test_validate_spec_theme_modes(self):
+        valid_light = context_spec(theme={"mode": "light"})
+        valid_dark = context_spec(theme={"mode": "dark"})
+        invalid_mode = context_spec(theme={"mode": "sepia"})
+        self.assertEqual(validate_spec.validate(valid_light), [])
+        self.assertEqual(validate_spec.validate(valid_dark), [])
+        errors = validate_spec.validate(invalid_mode)
+        self.assertTrue(any("theme mode must be 'light' or 'dark'" in e for e in errors))
+
+    def test_literal_text_escaping_in_labels_and_values(self):
+        spec = context_spec(
+            title="<Special & Title>",
+            nodes=[
+                {"id": "cust", "label": "Customer <Admin> & 'Buyer'", "sublabel": "Role <Primary>",
+                 "kind": "person", "evidence": "docs/a.md:1"},
+                {"id": "acme", "label": "Acme <Core>", "kind": "system", "evidence": "docs/a.md:2"},
+            ],
+            edges=[
+                {"from": "cust", "to": "acme", "label": "Sends <payload> & 'data'",
+                 "evidence": "docs/a.md:4", "evidence_kind": "document", "evidence_confidence": "documented"},
+            ]
+        )
+        xml = render_drawio.render(spec)
+        root = parse(xml)
+        title_val = value_of(root, "_title")
+        self.assertIn("&lt;Special &amp; Title&gt;", title_val)
+        node_val = value_of(root, "cust")
+        self.assertIn("&lt;Admin&gt;", node_val)
+        self.assertIn("&amp;", node_val)
+        edge = next(c for c in cells(root) if c.get("edge") == "1")
+        self.assertIn("&lt;payload&gt;", edge.get("value", ""))
+
+    def test_palette_isolation_leaves_style_catalog_unmutated(self):
+        import style_catalog
+        orig_saas_style = style_catalog.STYLE_CATALOG["saas"]["style"]
+        orig_edge_style = style_catalog.EDGE_STYLES["sync"]
+        render_drawio.render(context_spec(), theme="dark")
+        self.assertEqual(style_catalog.STYLE_CATALOG["saas"]["style"], orig_saas_style)
+        self.assertEqual(style_catalog.EDGE_STYLES["sync"], orig_edge_style)
+
+    def test_all_eight_diagram_types_render_both_themes(self):
+        import glob
+        fixtures_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "fixtures")
+        for spec_path in sorted(glob.glob(os.path.join(fixtures_dir, "*.spec.json"))):
+            with open(spec_path, encoding="utf-8") as f:
+                spec = json.load(f)
+            xml_light = render_drawio.render(spec, theme="light")
+            xml_dark = render_drawio.render(spec, theme="dark")
+            self.assertIn("<mxfile", xml_light)
+            self.assertIn("<mxfile", xml_dark)
+            self.assertIn('background="#111827"', xml_dark)
+
+    def test_long_label_geometry_expands_footprint(self):
+        spec = container_spec()
+        spec["nodes"][1]["label"] = "A Very Long Container Label That Wraps Across Multiple Consecutive Lines In The Grid"
+        spec["nodes"][1]["sublabel"] = "Extensive Technology Sublabel Explaining Runtime Architecture In Detail"
+        lay = render_drawio.layout(spec)
+        bx, by, bw, bh = lay.boxes["api"]
+        cx, cy, cw, ch = lay.cells["api"]
+        self.assertGreater(bh, 80)
+        self.assertEqual(ch, bh)
+        self.assertEqual(cw, 180)
+    def test_person_shape_width_and_multiline_unverified_room(self):
+        spec = context_spec()
+        lay = render_drawio.layout(spec)
+        bx, by, bw, bh = lay.boxes["cust"]
+        cx, cy, cw, ch = lay.cells["cust"]
+        self.assertGreater(cw, 80, "person shape width must be wider than narrow 80px to accommodate label")
+        self.assertGreaterEqual(bw, cw)
+        self.assertGreaterEqual(bh, 100)
+        acme_x = lay.cells["acme"][0]
+        self.assertGreaterEqual(acme_x - (cx + cw), render_drawio.MIN_LABEL_GAP,
+                                "column separation must be preserved")
+        self.assertEqual(check_layout.check(spec, lay), [])
+
+    def test_person_dark_mode_contrast_and_style(self):
+        import style_catalog
+        dark_style = style_catalog.get_node_style("person", mode="dark")
+        self.assertIn("fillColor=#1D70B8", dark_style)
+        self.assertIn("strokeColor=#60A5FA", dark_style)
+        self.assertIn("fontColor=#ffffff", dark_style)
+        # WCAG contrast calculation
+        def lum(hex_code):
+            h = hex_code.lstrip("#")
+            rgb = [int(h[i:i+2], 16)/255.0 for i in (0, 2, 4)]
+            rgb_lin = [c/12.92 if c <= 0.03928 else ((c+0.055)/1.055)**2.4 for c in rgb]
+            return 0.2126*rgb_lin[0] + 0.7152*rgb_lin[1] + 0.0722*rgb_lin[2]
+        def cr(c1, c2):
+            l1, l2 = lum(c1), lum(c2)
+            return (max(l1, l2) + 0.05) / (min(l1, l2) + 0.05)
+        bg_dark = style_catalog.DARK_BG  # #111827
+        person_fill = "#1D70B8"
+        person_stroke = "#60A5FA"
+        white_text = "#ffffff"
+        self.assertGreaterEqual(cr(person_fill, bg_dark), 3.0, "UI element fill contrast against dark BG >= 3.0")
+        self.assertGreaterEqual(cr(white_text, person_fill), 4.5, "Text contrast on person fill >= 4.5 (WCAG AA)")
+        self.assertGreaterEqual(cr(person_stroke, bg_dark), 3.0, "Stroke contrast against dark BG >= 3.0")
+
+    def test_supported_aws_dark_mode_contrast(self):
+        import style_catalog
+        aws_style_dark = style_catalog.get_node_style("aws:lambda", mode="dark")
+        self.assertIn("fontColor=#F9FAFB", aws_style_dark)
+        self.assertIn("fillColor=#ED7100", aws_style_dark, "brand icon fill must be preserved")
+        # Contrast of label text against dark background
+        def lum(hex_code):
+            h = hex_code.lstrip("#")
+            rgb = [int(h[i:i+2], 16)/255.0 for i in (0, 2, 4)]
+            rgb_lin = [c/12.92 if c <= 0.03928 else ((c+0.055)/1.055)**2.4 for c in rgb]
+            return 0.2126*rgb_lin[0] + 0.7152*rgb_lin[1] + 0.0722*rgb_lin[2]
+        def cr(c1, c2):
+            l1, l2 = lum(c1), lum(c2)
+            return (max(l1, l2) + 0.05) / (min(l1, l2) + 0.05)
+        self.assertGreaterEqual(cr("#F9FAFB", style_catalog.DARK_BG), 4.5,
+                                "AWS dark label text contrast against dark background >= 4.5 (WCAG AA)")
+
+    def test_unverified_vendor_icon_stencils_preserve_brand_art(self):
+        import style_catalog
+        gcp_bq = style_catalog.STYLE_CATALOG["gcp:bigquery"]["style"]
+        unverified_gcp = render_drawio._unverified_style(gcp_bq, mode="light")
+        self.assertIn("fillColor=#3B8DF1", unverified_gcp, "vendor brand color must be preserved")
+        self.assertNotIn("dashed=1", unverified_gcp, "vendor icon stencil shape must not be dashed")
+        self.assertIn("fontColor=", unverified_gcp, "warning fontColor must be applied for label")
+
+    def test_state_start_end_circle_label_placement(self):
+        import style_catalog
+        start_style = style_catalog.STYLE_CATALOG["start"]["style"]
+        self.assertIn("verticalLabelPosition=bottom", start_style)
+        self.assertIn("align=center", start_style)
+        # Test layout with unverified start node
+        spec = {
+            "title": "State Flow", "type": "state",
+            "nodes": [
+                {"id": "s0", "kind": "start", "evidence": ""},
+                {"id": "st1", "label": "Active", "kind": "state", "evidence": "a.go:1", "evidence_kind": "code", "evidence_confidence": "documented"},
+            ],
+            "edges": [{"from": "s0", "to": "st1", "label": "activate"}]
+        }
+        lay = render_drawio.layout(spec)
+        cw, ch = lay.cells["s0"][2], lay.cells["s0"][3]
+        self.assertEqual((cw, ch), (40, 40), "start circle symbol must remain 40x40")
+        self.assertGreaterEqual(lay.boxes["s0"][3], 40, "footprint must reserve space for label below circle")
+        self.assertEqual(check_layout.check(spec, lay), [])
+
+    def test_sequence_participant_expansion_and_message_spacing(self):
+        spec = {
+            "title": "Sequence Flow", "type": "sequence",
+            "nodes": [
+                {"id": "client", "label": "Web Client Application", "sublabel": "Browser SPA with Detailed Runtime",
+                 "kind": "participant", "evidence": "web.ts:1", "evidence_kind": "code", "evidence_confidence": "documented"},
+                {"id": "server", "label": "Backend API Server", "sublabel": "Go Service Engine",
+                 "kind": "participant", "evidence": "server.go:1", "evidence_kind": "code", "evidence_confidence": "documented"},
+            ],
+            "edges": [
+                {"from": "client", "to": "server", "label": "POST /order with high payload",
+                 "metric": "p99 150ms", "evidence": "api.ts:10", "evidence_kind": "code", "evidence_confidence": "documented"},
+            ]
+        }
+        lay = render_drawio.layout(spec)
+        part_h = lay.boxes["client"][3]
+        self.assertGreater(part_h, 50, "participant footprint expands for sublabel")
+        self.assertEqual(check_layout.check(spec, lay), [])
+
+    def test_erd_entity_dimension_expansion(self):
+        import render_erd
+        node = {
+            "id": "orders", "label": "Orders Table", "sublabel": "PostgreSQL Multi-AZ Primary",
+            "kind": "entity", "lifecycle": "implemented", "evidence_confidence": "documented",
+            "evidence": "schema.sql:1", "evidence_kind": "code",
+            "columns": [
+                {"name": "id", "type": "bigint", "pk": True},
+                {"name": "very_long_custom_serialized_configuration_payload", "type": "jsonb with composite constraints", "nullable": False},
+            ]
+        }
+        h = render_erd.entity_height(node)
+        self.assertGreater(h, 30 + 22 * 2, "entity height expands to prevent text clipping")
+
+    def test_header_and_group_bounds_expansion(self):
+        spec = container_spec(
+            title="A Very Long Architecture Title That Spans Multiple Lines In The Header Layout",
+            scope="A very long scope description explaining in extensive prose the complete boundary, system context, excluded modules, external interactions, and security requirements across the entire stack.",
+            view={
+                "question": "How do order events propagate safely?",
+                "decision": "Use event outbox pattern with transactional log tailing",
+                "scenario": "Peak holiday flash sale volume",
+                "invariant": "No lost payment events even during partition",
+            }
+        )
+        lay = render_drawio.layout(spec)
+        hx, hy, hw, hh = lay.header_box
+        self.assertGreater(hh, 100, "header box must expand for multiline scope and view contract")
+        # Verify all nodes sit strictly below the header box
+        for node_id, (bx, by, bw, bh) in lay.boxes.items():
+            self.assertGreaterEqual(by, hy + hh, "nodes must not overlap header box")
+        self.assertEqual(check_layout.check(spec, lay), [])
+
+    def test_multiline_unverified_edges_auto_expand_row_gap(self):
+        fixtures_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "fixtures")
+        with open(os.path.join(fixtures_dir, "dataflow.spec.json"), encoding="utf-8") as f:
+            spec = json.load(f)
+        lay = render_drawio.layout(spec)
+        findings = check_layout.check(spec, lay)
+        self.assertEqual(findings, [], "dataflow row gap must expand to eliminate label overlap")
+
+    def test_all_eight_diagram_types_preserve_semantics_across_themes(self):
+        from html.parser import HTMLParser
+        class HTMLText(HTMLParser):
+            def __init__(self, val):
+                super().__init__()
+                self.text = []
+                self.feed(val or "")
+            def handle_data(self, val):
+                self.text.append(val)
+        fixtures_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "fixtures")
+        for spec_path in sorted(glob.glob(os.path.join(fixtures_dir, "*.spec.json"))):
+            with open(spec_path, encoding="utf-8") as f:
+                spec = json.load(f)
+            xml_light = render_drawio.render(spec, theme="light")
+            xml_dark = render_drawio.render(spec, theme="dark")
+            root_l = parse(xml_light)
+            root_d = parse(xml_dark)
+            sem_l = sorted((c.get("id") or "", c.get("source") or "", c.get("target") or "", "".join(HTMLText(c.get("value")).text))
+                           for c in cells(root_l))
+            sem_d = sorted((c.get("id") or "", c.get("source") or "", c.get("target") or "", "".join(HTMLText(c.get("value")).text))
+                           for c in cells(root_d))
+            self.assertEqual(sem_l, sem_d)
+
+
+class TestEmittedGeometryPlans(unittest.TestCase):
+    """The plans the checker measures must be the geometry the renderer draws."""
+
+    PROVENANCE = ("identity", "evidence", "evidence_kind", "evidence_revision",
+                  "evidence_digest", "evidence_confidence", "lifecycle", "metric_provenance")
+
+    def sequence_spec(self, label="Reads the ledger", metric="p99 90ms"):
+        return {
+            "title": "Ledger write", "type": "sequence", "audience": "tech",
+            "version": "1.0", "date": "2026-09-13", "author": "Test",
+            "scope": "One ledger write.",
+            "nodes": [
+                {"id": "buyer", "label": "Buyer", "kind": "participant", "evidence": "a.md:1"},
+                {"id": "api", "label": "Order API", "kind": "participant", "evidence": "a.md:2"},
+                {"id": "db", "label": "Ledger", "kind": "participant", "evidence": "a.md:3"},
+            ],
+            "edges": [
+                {"id": "e0", "from": "buyer", "to": "api", "label": label, "metric": metric,
+                 "evidence": "a.md:4", "evidence_kind": "document",
+                 "evidence_confidence": "documented"},
+                {"id": "e1", "from": "api", "to": "db", "label": label + " again",
+                 "evidence": "a.md:5", "evidence_kind": "document",
+                 "evidence_confidence": "documented"},
+            ],
+        }
+
+    def test_sequence_message_cells_carry_populated_edge_provenance(self):
+        spec = self.sequence_spec()
+        edge = spec["edges"][0]
+        edge.update({
+            "identity": "sequence.message.write",
+            "evidence": "docs/sequence.md:4",
+            "evidence_kind": "document",
+            "evidence_revision": "captured-review-revision",
+            "evidence_digest": "sha256:" + "a" * 64,
+            "evidence_confidence": "documented",
+            "lifecycle": "proposed",
+            "metric_provenance": "measured",
+        })
+        root = parse(render_drawio.render(spec))
+        messages = [c for c in cells(root) if (c.get("id") or "").startswith("_msg_")]
+        self.assertEqual(len(messages), len(spec["edges"]))
+        for key in self.PROVENANCE:
+            self.assertEqual(messages[0].get(key), str(edge[key]), key)
+        # The supported control must not invent the fields it does not carry.
+        self.assertIsNone(messages[1].get("identity"))
+
+    def test_sequence_message_geometry_matches_the_shared_plan(self):
+        spec = self.sequence_spec(label="POST /orders with a long tenant scoped payload " * 4)
+        lay = render_drawio.layout(spec)
+        messages = check_layout.sequence_messages(spec["nodes"], spec["edges"], lay.boxes)
+        root = parse(render_drawio.render(spec))
+        for message in messages:
+            cell = cell_by_id(root, "_msg_%d" % message.index)
+            geometry = cell.find("mxGeometry")
+            self.assertEqual((float(geometry.get("width")), float(geometry.get("height"))),
+                             (message.plan.width, message.plan.height), message.index)
+            points = cell.findall(".//mxPoint")
+            self.assertEqual(float(points[0].get("x")), message.source_x)
+            self.assertEqual(float(points[1].get("x")), message.target_x)
+            self.assertEqual(float(points[0].get("y")), float(message.y))
+            self.assertEqual(float(points[1].get("y")), float(message.y))
+            self.assertEqual(float(points[2].get("x")), message.anchor[0])
+            self.assertEqual(cell.get("value"),
+                             render_drawio._edge_value(message.edge))
+        for index, message in enumerate(messages[1:], start=1):
+            self.assertFalse(text_layout.rects_overlap(message.rect, messages[index - 1].rect),
+                             "planned message rectangles must never overlap")
+        for message in messages:
+            for node in spec["nodes"]:
+                self.assertFalse(
+                    text_layout.rects_overlap(message.rect, lay.boxes[node["id"]]),
+                    "planned message rectangle must clear participant %s" % node["id"])
+        self.assertEqual(check_layout.check(spec, lay), [])
+
+    def test_routed_edge_label_geometry_and_escaping_match_the_plan(self):
+        spec = container_spec()
+        edge = spec["edges"][0]
+        edge["label"] = "Reads <orders> & writes"
+        lay = render_drawio.layout(spec)
+        root = parse(render_drawio.render(spec))
+        plan = text_layout.edge_label_plan(edge)
+        cell = next(c for c in cells(root)
+                    if c.get("source") == edge["from"] and c.get("target") == edge["to"])
+        geometry = cell.find("mxGeometry")
+        self.assertEqual((float(geometry.get("width")), float(geometry.get("height"))),
+                         (plan.width, plan.height))
+        routes = {(e["from"], e["to"]): points
+                  for e, points in check_layout.plan_routes(spec, lay.boxes, lay.rows)}
+        fraction = check_layout.label_fraction(routes[(edge["from"], edge["to"])])
+        self.assertEqual(geometry.get("x"), "%g" % (2 * fraction - 1))
+        self.assertIn("&lt;orders&gt;", cell.get("value"))
+        self.assertIn("&amp;", cell.get("value"))
+        for line in plan.lines:
+            self.assertIn(line.text, cell.get("value"))
+    def test_ordinary_edge_waypoints_preserve_fractional_planned_coordinates(self):
+        spec = container_spec()
+        spec["nodes"].append({"id": "queue", "label": "Events", "kind": "queue", "group": "gcp",
+                              "evidence": "docs/a.md:13"})
+        spec["edges"].append({"from": "api", "to": "queue", "label": "publishes",
+                              "evidence": "docs/a.md:15", "evidence_kind": "document",
+                              "evidence_confidence": "documented"})
+        lay = render_drawio.layout(spec)
+        root = parse(render_drawio.render(spec))
+        routes = {id(edge): points for edge, points in
+                  check_layout.plan_routes(spec, lay.boxes, lay.rows)}
+        drawn_edges = {cell.get("id"): cell for cell in cells(root)
+                       if (cell.get("id") or "").startswith("_edge_")}
+        expected_fractional_route = False
+        for index, edge in enumerate(spec["edges"]):
+            points = routes[id(edge)]
+            expected = points[1:3] if len(points) == 4 and points[1] != points[2] else []
+            drawn = [(float(point.get("x")), float(point.get("y")))
+                     for point in drawn_edges["_edge_%d" % index].findall(
+                         "mxGeometry/Array/mxPoint")]
+            self.assertEqual(drawn, [(float(x), float(y)) for x, y in expected])
+            expected_fractional_route |= any(x % 1 or y % 1 for x, y in expected)
+        self.assertTrue(expected_fractional_route,
+                        "fixture must exercise a fractional ordinary-edge waypoint")
+
+
+    def test_cross_row_edge_label_rectangle_clears_every_other_node(self):
+        spec = container_spec()
+        lay = render_drawio.layout(spec)
+        routes = {(e["from"], e["to"]): points
+                  for e, points in check_layout.plan_routes(spec, lay.boxes, lay.rows)}
+        edge = next(e for e in spec["edges"] if e["from"] == "api" and e["to"] == "db")
+        plan = text_layout.edge_label_plan(edge)
+        rect = text_layout.label_rect(check_layout.label_point(routes[("api", "db")]), plan)
+        for node_id, box in lay.boxes.items():
+            if node_id in ("api", "db"):
+                continue
+            self.assertFalse(text_layout.rects_overlap(rect, box), node_id)
+
+    def test_erd_swimlane_start_size_rows_and_header_text_match_the_plan(self):
+        spec = erd_spec()
+        node = spec["nodes"][1]
+        node.update({
+            "label": "Orders with tenant scoped reconciliation history " * 2,
+            "sublabel": "PostgreSQL multi-region primary with async replica",
+            "lifecycle": "implemented",
+            "evidence_confidence": "documented",
+        })
+        node["columns"] = [
+            {"name": "id", "type": "uuid", "pk": True},
+            {"name": "tenant_scoped_reconciliation_identifier_with_semantic_meaning",
+             "type": "numeric(38, 12) with check constraint and default", "nullable": False},
+        ]
+        plan = text_layout.entity_plan(node, render_erd.ENTITY_W)
+        self.assertGreater(plan.header_height, text_layout.ENTITY_HEADER_MIN_H)
+        root = parse(render_drawio.render(spec))
+        lay = render_drawio.layout(spec)
+
+        self.assertIn("startSize=%d;" % plan.header_height, style_of(root, "orders"))
+        entity = cell_by_id(root, "orders")
+        geometry = entity.find("mxGeometry")
+        self.assertEqual(float(geometry.get("height")), plan.total_height)
+        self.assertEqual(float(geometry.get("y")), lay.cells["orders"][1])
+        self.assertEqual(value_of(root, "orders"), plan.header_text)
+
+        cur_y = plan.header_height
+        for index, row in enumerate(plan.rows):
+            row_cell = cell_by_id(root, "orders__row_%d" % index)
+            row_geometry = row_cell.find("mxGeometry")
+            self.assertEqual(row_cell.get("value"), row.text)
+            self.assertEqual(float(row_geometry.get("y")), cur_y)
+            self.assertEqual(float(row_geometry.get("height")), row.height)
+            self.assertNotIn("overflow=hidden", row_cell.get("style"))
+            cur_y += row.height
+        self.assertEqual(cur_y, plan.total_height)
+        # The long column is emitted in full and wrapped, never clipped: the emitted
+        # breaks consume only source whitespace or continue an over-budget token, every
+        # word that fits the row budget stays intact on one line, and no line exceeds it.
+        column = node["columns"][1]
+        source_text = text_layout.entity_row_text(column)
+        emitted = cell_by_id(root, "orders__row_1").get("value")
+        self.assertTrue(wrap_replays_source(source_text, emitted),
+                        "wrapped rows must keep every source character in order")
+        budget = text_layout.chars_for(render_erd.ENTITY_W, text_layout.ENTITY_ROW_SIZE,
+                                       2 * text_layout.ENTITY_ROW_SPACING + 4)
+        lines = rendered_lines(emitted)
+        self.assertGreater(len(lines), 1)
+        self.assertGreater(plan.rows[1].height, text_layout.ENTITY_ROW_MIN_H)
+        for line in lines:
+            self.assertLessEqual(len(line), budget, line)
+        for word in source_text.split():
+            if len(word) <= budget:
+                self.assertTrue(any(word in line for line in lines),
+                                "word %r must survive intact on one line" % word)
+        breaks = intra_token_breaks(source_text, emitted)
+        self.assertTrue(breaks, "the over-budget identifier must be chunked, not clipped")
+        for offset in breaks:
+            self.assertGreater(len(token_at(source_text, offset)), budget,
+                               "only an over-budget token may break mid-token")
+        self.assertIn("tenant_scoped_reconciliation_identifier_with_semantic_meaning",
+                      "".join(lines))
+
+    def test_header_plan_owns_every_emitted_header_offset(self):
+        spec = container_spec(
+            title="A deliberately long architecture title that has to wrap " * 2,
+            scope="A long scope that explains the boundary in prose " * 6,
+            view={
+                "question": "How do orders travel safely? " * 3,
+                "decision": "Outbox with transactional log tailing " * 3,
+                "scenario": "Peak sale volume " * 4,
+                "invariant": "No lost payment events " * 4,
+            },
+        )
+        lay = render_drawio.layout(spec)
+        header = lay.header
+        self.assertIsNotNone(header.contract)
+        self.assertGreater(header.body_y, header.rule_y)
+        root = parse(render_drawio.render(spec))
+        blocks = (("_title", header.title), ("_meta", header.meta),
+                  ("_view_contract", header.contract))
+        for cell_id, block in blocks:
+            cell = cell_by_id(root, cell_id)
+            geometry = cell.find("mxGeometry")
+            self.assertEqual(cell.get("value"), block.text, cell_id)
+            self.assertEqual(
+                (float(geometry.get("x")), float(geometry.get("y")),
+                 float(geometry.get("width")), float(geometry.get("height"))),
+                (float(render_drawio.MARGIN_X + block.x), float(block.y),
+                 float(block.width), float(block.height)), cell_id)
+            self.assertIn("fontSize=%d" % block.size, cell.get("style"))
+        rule = cell_by_id(root, "_rule").find("mxGeometry")
+        self.assertEqual(float(rule.get("y")), float(header.rule_y))
+        self.assertEqual(lay.header_box,
+                         (render_drawio.MARGIN_X, text_layout.HEADER_TITLE_Y,
+                          header.width, header.height))
+        for node_id, (_, y, _, _) in lay.boxes.items():
+            self.assertGreaterEqual(y, header.body_y, node_id)
+        meta = word_boundary_text(cell_by_id(root, "_meta").get("value"))
+        self.assertIn(spec["scope"], meta)
+
+    def test_erd_header_wraps_at_the_emitted_swimlane_font(self):
+        spec = erd_spec()
+        node = spec["nodes"][1]
+        node.update({
+            "label": "Orders ledger",
+            "sublabel": "PostgreSQL multi-region primary with asynchronous replica and "
+                        "tenant scoped reconciliation history retained for audit replay",
+            "lifecycle": "implemented",
+            "evidence_confidence": "documented",
+            "metric": "4M rows retained · measured over the last full billing cycle",
+            "metric_provenance": "measured",
+        })
+        plan = text_layout.entity_plan(node, render_erd.ENTITY_W)
+        root = parse(render_drawio.render(spec))
+        style = dict(part.split("=", 1) for part in style_of(root, "orders").split(";")
+                     if "=" in part)
+        self.assertEqual(int(style["fontSize"]), text_layout.ENTITY_HEADER_FONT)
+        self.assertEqual(int(style["startSize"]), plan.header_height)
+        self.assertEqual(value_of(root, "orders"), plan.header_text)
+
+        budget = text_layout.entity_header_budget(render_erd.ENTITY_W)
+        allowed = render_erd.ENTITY_W - 2 * text_layout.ENTITY_PAD_X
+        lines = rendered_lines(plan.header_text)
+        self.assertGreater(len(lines), 4, "long sublabel, state, and metric must wrap")
+        for line in lines:
+            self.assertLessEqual(len(line), budget, line)
+            self.assertLessEqual(
+                len(line) * text_layout.char_px(text_layout.ENTITY_HEADER_FONT), allowed, line)
+        source = " ".join(text_layout._entity_header_parts(node))
+        self.assertTrue(wrap_replays_source(source, plan.header_text),
+                        "header wrapping must keep every part's characters in order")
+        for word in ("asynchronous", "replica", "reconciliation", "measured"):
+            self.assertTrue(any(word in line for line in lines),
+                            "header word %r must survive intact on one line" % word)
+
+    def test_erd_relation_is_drawn_on_the_route_the_checker_measures(self):
+        spec = erd_spec()
+        spec["edges"].append({"from": "customers", "to": "orders", "cardinality": "zero-or-one",
+                              "label": "last order", "evidence": "db/schema.sql:10",
+                              "evidence_kind": "document",
+                              "evidence_confidence": "documented"})
+        lay = render_drawio.layout(spec)
+        root = parse(render_drawio.render(spec))
+        routes = {id(edge): points for edge, points in
+                  check_layout.plan_routes(spec, lay.boxes, lay.rows)}
+        relations = {cell.get("id"): cell for cell in cells(root)
+                     if (cell.get("id") or "").startswith("_rel_")}
+        for index, edge in enumerate(spec["edges"]):
+            cell = relations["_rel_%d" % index]
+            points = routes[id(edge)]
+            geometry = cell.find("mxGeometry")
+            plan = text_layout.edge_label_plan(edge)
+            self.assertEqual((float(geometry.get("width")), float(geometry.get("height"))),
+                             (plan.width, plan.height))
+            self.assertEqual(geometry.get("x"),
+                             "%g" % (2 * check_layout.label_fraction(points) - 1))
+            expected = points[1:3] if len(points) == 4 and points[1] != points[2] else []
+            drawn = [(float(point.get("x")), float(point.get("y")))
+                     for point in geometry.findall("./Array/mxPoint")]
+            self.assertEqual(drawn, [(float(x), float(y)) for x, y in expected])
+            sides = check_layout.anchor_sides(lay.boxes[edge["from"]],
+                                              lay.boxes[edge["to"]])
+            (ex, ey) = render_drawio._PORTS[sides[0]]
+            (nx, ny) = render_drawio._PORTS[sides[1]]
+            style = dict(part.split("=", 1) for part in cell.get("style").split(";")
+                         if "=" in part)
+            self.assertEqual((style["exitX"], style["exitY"], style["entryX"], style["entryY"]),
+                             (str(ex), str(ey), str(nx), str(ny)))
+            self.assertIn("edgeStyle=orthogonalEdgeStyle", cell.get("style"))
+            self.assertIn("startArrow=%s" % render_erd.ER_ARROWS[
+                edge["cardinality"]][0], cell.get("style"))
+
+    def test_group_headers_expanding_upward_push_the_body_below_the_rule(self):
+        spec = container_spec(groups=[{
+            "id": "gcp",
+            "label": "Explicit security boundary and ownership responsibility " * 6,
+            "kind": "boundary",
+        }])
+        lay = render_drawio.layout(spec)
+        group_top = min(box[1] for box in lay.groups.values())
+        self.assertGreaterEqual(group_top,
+                                lay.header.rule_y + text_layout.HEADER_BODY_GAP)
+        self.assertGreaterEqual(min(box[1] for box in lay.boxes.values()),
+                                lay.header.body_y)
+        self.assertEqual(check_layout.check(spec, lay), [])
+
+    def test_state_terminal_is_distinct_from_start_in_both_themes(self):
+        import style_catalog
+
+        def tokens(style):
+            return dict(part.split("=", 1) for part in style.split(";") if "=" in part)
+
+        for mode in ("light", "dark"):
+            start = tokens(style_catalog.get_node_style("start", mode=mode))
+            end = tokens(style_catalog.get_node_style("end", mode=mode))
+            self.assertIn("doubleEllipse", end.get("shape", ""))
+            self.assertNotIn("shape", start)
+            self.assertEqual(end.get("strokeWidth"), "3")
+            self.assertNotEqual(start.get("fillColor"), end.get("fillColor"))
+            self.assertEqual((end.get("fillColor"), end.get("strokeColor")),
+                             (style_catalog.DARK_BG, "#F9FAFB") if mode == "dark"
+                             else ("#FFFFFF", "#1F2933"))
+
+        spec = {
+            "title": "Order lifecycle", "type": "state", "audience": "tech",
+            "version": "1.0", "date": "2026-09-09", "author": "T", "scope": "States.",
+            "nodes": [
+                {"id": "s", "kind": "start", "evidence": "x:1"},
+                {"id": "d", "label": "Delivered", "kind": "end", "evidence": "x:2"},
+            ],
+            "edges": [{"from": "s", "to": "d", "label": "delivered"}],
+        }
+        root = parse(render_drawio.render(spec, theme="dark"))
+        self.assertIn("doubleEllipse", style_of(root, "d"))
+        self.assertIn("strokeWidth=3", style_of(root, "d"))
+        self.assertNotIn("doubleEllipse", style_of(root, "s"))
+
+    def test_circle_under_label_width_and_height_are_emitted_not_just_planned(self):
+        spec = {
+            "title": "State flow", "type": "state", "audience": "tech", "version": "1.0",
+            "date": "2026-09-09", "author": "T", "scope": "One circle label.",
+            "nodes": [
+                {"id": "s", "label": "Settlement start for every captured payment",
+                 "kind": "start", "evidence": "x:1", "evidence_kind": "code",
+                 "evidence_confidence": "documented"},
+                {"id": "st", "label": "Active", "kind": "state", "evidence": "x:2",
+                 "evidence_kind": "code", "evidence_confidence": "documented"},
+            ],
+            "edges": [{"from": "s", "to": "st", "label": "activate"}],
+        }
+        lay = render_drawio.layout(spec)
+        plan = text_layout.circle_label_plan(spec["nodes"][0])
+        self.assertGreater(plan.width, 40)
+        root = parse(render_drawio.render(spec))
+        style = style_of(root, "s")
+        self.assertIn("labelWidth=%d;" % plan.width, style)
+        self.assertIn("labelHeight=%d;" % plan.height, style)
+        self.assertEqual(lay.boxes["s"][2], max(40, plan.width))
+        self.assertEqual(lay.boxes["s"][3], 40 + 8 + plan.height)
+        self.assertEqual(cell_by_id(root, "s").find("mxGeometry").get("width"), "40")
 
 
 if __name__ == "__main__":

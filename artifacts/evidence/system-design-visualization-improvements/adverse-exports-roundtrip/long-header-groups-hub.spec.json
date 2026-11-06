@@ -1,0 +1,195 @@
+{
+  "title": "Complete architecture evidence and boundary semantics for the long-running payment orchestration and reconciliation subsystem Complete architecture evidence and boundary semantics for the long-running payment orchestration and reconciliation subsystem Complete architecture evidence and boundary semantics for the long-running payment orchestration and reconciliation subsystem ",
+  "type": "container",
+  "audience": "tech",
+  "version": "1.0",
+  "date": "2026-11-05",
+  "author": "Architecture Maintainer",
+  "scope": "Preserve all participant, relationship and provenance meaning across multi-line descriptions without hiding overflow or moving metadata into unrelated diagram content. Preserve all participant, relationship and provenance meaning across multi-line descriptions without hiding overflow or moving metadata into unrelated diagram content. Preserve all participant, relationship and provenance meaning across multi-line descriptions without hiding overflow or moving metadata into unrelated diagram content. Preserve all participant, relationship and provenance meaning across multi-line descriptions without hiding overflow or moving metadata into unrelated diagram content. ",
+  "theme": {
+    "accent": "#1E6FD9",
+    "mode": "light"
+  },
+  "groups": [
+    {
+      "id": "ingress",
+      "label": "Managed Edge & Public Ingress Boundary \u2014 explicit security boundary and ownership responsibility  \u2014 explicit security boundary and ownership responsibility  \u2014 explicit security boundary and ownership responsibility  \u2014 explicit security boundary and ownership responsibility  \u2014 explicit security boundary and ownership responsibility "
+    },
+    {
+      "id": "core",
+      "label": "Internal Payment Core & Processing Subsystem \u2014 explicit security boundary and ownership responsibility  \u2014 explicit security boundary and ownership responsibility  \u2014 explicit security boundary and ownership responsibility  \u2014 explicit security boundary and ownership responsibility  \u2014 explicit security boundary and ownership responsibility "
+    }
+  ],
+  "nodes": [
+    {
+      "id": "web_checkout",
+      "label": "Checkout Frontend Application Client",
+      "sublabel": "Next.js / TypeScript Web App",
+      "kind": "container",
+      "layer": 0,
+      "lifecycle": "implemented",
+      "evidence": "docs/architecture/checkout.md:14",
+      "evidence_kind": "document",
+      "evidence_confidence": "documented",
+      "identity": "synthetic.presentation.0"
+    },
+    {
+      "id": "edge_proxy",
+      "label": "Global API Gateway and Edge Router",
+      "sublabel": "Kong Gateway / Envoy Proxy",
+      "kind": "cloud:gateway",
+      "group": "ingress",
+      "layer": 1,
+      "lifecycle": "implemented",
+      "evidence": "docs/architecture/gateway.md:20",
+      "evidence_kind": "document",
+      "evidence_confidence": "documented",
+      "metric": "p99 < 15ms \u00b7 measured",
+      "metric_provenance": "target",
+      "identity": "synthetic.presentation.1"
+    },
+    {
+      "id": "payment_hub",
+      "label": "Central Payment Ingestion and Multi-Region Transaction Orchestration Hub",
+      "sublabel": "Go / gRPC Distributed Engine with Asynchronous Compensation",
+      "kind": "container",
+      "group": "core",
+      "layer": 2,
+      "lifecycle": "implemented",
+      "evidence": "docs/architecture/payments.md:45",
+      "evidence_kind": "code",
+      "evidence_confidence": "documented",
+      "metric": "10,000 tx/sec throughput",
+      "metric_provenance": "target",
+      "identity": "synthetic.presentation.2"
+    },
+    {
+      "id": "ledger_db",
+      "label": "Primary Authoritative Double-Entry Ledger Store",
+      "sublabel": "Amazon Aurora PostgreSQL Multi-AZ",
+      "kind": "aws:rds",
+      "group": "core",
+      "layer": 3,
+      "lifecycle": "implemented",
+      "evidence": "docs/architecture/db.md:10",
+      "evidence_kind": "deployment",
+      "evidence_confidence": "observed",
+      "metric": "5 TB storage",
+      "metric_provenance": "target",
+      "identity": "synthetic.presentation.3"
+    },
+    {
+      "id": "event_stream",
+      "label": "Payment Events and Audit Trail Queue",
+      "sublabel": "Amazon Simple Queue Service",
+      "kind": "aws:sqs",
+      "group": "core",
+      "layer": 3,
+      "lifecycle": "implemented",
+      "evidence": "docs/architecture/events.md:8",
+      "evidence_kind": "deployment",
+      "evidence_confidence": "observed",
+      "metric": "100k msg/min",
+      "metric_provenance": "target",
+      "identity": "synthetic.presentation.4"
+    },
+    {
+      "id": "fraud_detector",
+      "label": "Real-time Machine Learning Fraud Analysis Engine",
+      "sublabel": "Python Microservice / Redis Feature Store",
+      "kind": "container",
+      "layer": 2,
+      "lifecycle": "proposed",
+      "evidence": "",
+      "evidence_confidence": "unverified",
+      "identity": "synthetic.presentation.5"
+    },
+    {
+      "id": "acquirer_gateway",
+      "label": "External Payment Settlement and Acquiring Bank Network",
+      "sublabel": "Stripe & Visa Direct REST APIs",
+      "kind": "saas",
+      "layer": 4,
+      "lifecycle": "implemented",
+      "evidence": "docs/architecture/settlement.md:32",
+      "evidence_kind": "document",
+      "evidence_confidence": "documented",
+      "identity": "synthetic.presentation.6"
+    }
+  ],
+  "edges": [
+    {
+      "from": "web_checkout",
+      "to": "edge_proxy",
+      "label": "Submits checkout order over HTTPS/REST with idempotency token",
+      "evidence": "docs/architecture/checkout.md:28",
+      "evidence_kind": "document",
+      "evidence_confidence": "documented",
+      "identity": "synthetic.presentation.7",
+      "lifecycle": "proposed"
+    },
+    {
+      "from": "edge_proxy",
+      "to": "payment_hub",
+      "label": "Routes encrypted payload via internal mTLS gRPC call",
+      "evidence": "docs/architecture/gateway.md:40",
+      "evidence_kind": "document",
+      "evidence_confidence": "documented",
+      "identity": "synthetic.presentation.8",
+      "lifecycle": "proposed"
+    },
+    {
+      "from": "payment_hub",
+      "to": "fraud_detector",
+      "label": "Synchronous fraud assessment check",
+      "evidence": "",
+      "evidence_confidence": "unverified",
+      "identity": "synthetic.presentation.9",
+      "lifecycle": "proposed"
+    },
+    {
+      "from": "payment_hub",
+      "to": "ledger_db",
+      "label": "Persists immutable transaction ledger record via connection pool",
+      "evidence": "docs/architecture/payments.md:88",
+      "evidence_kind": "code",
+      "evidence_confidence": "documented",
+      "identity": "synthetic.presentation.10",
+      "lifecycle": "proposed"
+    },
+    {
+      "from": "payment_hub",
+      "to": "event_stream",
+      "label": "Publishes payment completed event",
+      "style": "async",
+      "evidence": "docs/architecture/payments.md:92",
+      "evidence_kind": "code",
+      "evidence_confidence": "documented",
+      "identity": "synthetic.presentation.11",
+      "lifecycle": "proposed"
+    },
+    {
+      "from": "payment_hub",
+      "to": "acquirer_gateway",
+      "label": "Executes card authorization and funds capture",
+      "evidence": "docs/architecture/payments.md:99",
+      "evidence_kind": "document",
+      "evidence_confidence": "documented",
+      "identity": "synthetic.presentation.12",
+      "lifecycle": "proposed"
+    }
+  ],
+  "view": {
+    "question": "How does the complete request travel through the relevant trust boundaries while preserving authorization and tenant scope? How does the complete request travel through the relevant trust boundaries while preserving authorization and tenant scope? How does the complete request travel through the relevant trust boundaries while preserving authorization and tenant scope? ",
+    "decision": "Choose the smallest bounded request flow, retaining independent evidence and explicit uncertainty on every unsupported relationship. Choose the smallest bounded request flow, retaining independent evidence and explicit uncertainty on every unsupported relationship. Choose the smallest bounded request flow, retaining independent evidence and explicit uncertainty on every unsupported relationship. ",
+    "scenario": "A tenant issues one request, receives a deterministic ordered page, and examines related records without an unbounded per-record fan-out. A tenant issues one request, receives a deterministic ordered page, and examines related records without an unbounded per-record fan-out. A tenant issues one request, receives a deterministic ordered page, and examines related records without an unbounded per-record fan-out. ",
+    "invariant": "Keep parent pagination, empty relations, authorization boundaries, relationship direction and complete citation metadata unchanged. Keep parent pagination, empty relations, authorization boundaries, relationship direction and complete citation metadata unchanged. Keep parent pagination, empty relations, authorization boundaries, relationship direction and complete citation metadata unchanged. ",
+    "status": "proposed",
+    "evidence": "docs/example-architecture.md:20",
+    "evidence_kind": "document",
+    "omissions": [
+      "Production capacity is not established by this synthetic presentation exercise. Production capacity is not established by this synthetic presentation exercise. Production capacity is not established by this synthetic presentation exercise. ",
+      "No remote resources or citation targets are fetched during rendering. No remote resources or citation targets are fetched during rendering. No remote resources or citation targets are fetched during rendering. "
+    ]
+  }
+}

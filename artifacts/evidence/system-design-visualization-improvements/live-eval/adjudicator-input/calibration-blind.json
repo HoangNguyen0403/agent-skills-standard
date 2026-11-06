@@ -1,0 +1,32 @@
+[
+  {
+    "case_id": "CAL-N1-01",
+    "prompt": "How do you solve N+1 queries in a paginated list API?",
+    "answer": "Apply DataLoader, JOIN, caching, and batching to scale the architecture."
+  },
+  {
+    "case_id": "CAL-N1-02",
+    "prompt": "An endpoint paginates 25 parents with LIMIT 25 OFFSET 50 and loops to load children. How should this be fixed?",
+    "answer": "Replace the loop with a single LEFT JOIN across parent and child tables with LIMIT 25 OFFSET 50. One query is always better than two."
+  },
+  {
+    "case_id": "CAL-N1-03",
+    "prompt": "An ORM loop issues 100 queries for 100 records in a web controller. How should the team optimize this?",
+    "answer": "Add a Redis cache over the child query method with a 60-second TTL. The cache will absorb the database queries after the first pass."
+  },
+  {
+    "case_id": "CAL-N1-04",
+    "prompt": "In a multi-tenant GraphQL API, where should the DataLoader instance be instantiated and cached?",
+    "answer": "Create a singleton DataLoader at the application server level so all users and tenants share the cached entities."
+  },
+  {
+    "case_id": "CAL-N1-05",
+    "prompt": "Audit this infrastructure statement: 'The database cluster uses 3 active replicas and 1 standby replica in an N+1 redundancy setup.'",
+    "answer": "This architecture has an N+1 query problem. You must batch the queries or use a DataLoader across the standby replica."
+  },
+  {
+    "case_id": "CAL-N1-06",
+    "prompt": "An API lists 20 merchant accounts using LIMIT 20 OFFSET 0, and a loop queries order counts for each merchant. Propose a remedy.",
+    "answer": "Classify the code-only loop as suspected amplification. Do not use a blanket LEFT JOIN as it multiplies rows and alters pagination semantics. Instead, execute the paginated merchant query first, then execute a single aggregate query pushing down COUNT using WHERE merchant_id IN (?) GROUP BY merchant_id, or use a correlated subquery in the merchant projection. This bounds query count to Q_base + 1, preserves LIMIT/OFFSET pagination, maintains tenant scope, and avoids loading order entities into application memory. Verify with an instrumented query trace."
+  }
+]

@@ -9,14 +9,8 @@ import React, {
   useMemo,
   useEffect,
 } from "react";
-import {
-  getGA4Config,
-  type GA4Config,
-} from "./ga4-config";
-import {
-  type RawEventInput,
-  sendGA4Event,
-} from "./ga4-client";
+import { getGA4Config, type GA4Config } from "./ga4-config";
+import { type RawEventInput, sendGA4Event } from "./ga4-client";
 
 export type ConsentStatus = "undecided" | "granted" | "denied";
 
@@ -311,10 +305,7 @@ export function GA4Provider({
       purgeAppPendingCommandsFromDataLayer();
 
       // After a terminal load failure no further commands are queued.
-      if (
-        !isScriptFailedRef.current &&
-        typeof window.gtag === "function"
-      ) {
+      if (!isScriptFailedRef.current && typeof window.gtag === "function") {
         window.gtag("consent", "update", DENIED_CONSENT);
       }
 
@@ -330,10 +321,7 @@ export function GA4Provider({
   }, []);
 
   const trackEvent = useCallback(
-    async (
-      input: RawEventInput,
-      actionEpoch?: number,
-    ): Promise<boolean> => {
+    async (input: RawEventInput, actionEpoch?: number): Promise<boolean> => {
       if (unmountedRef.current) {
         return false;
       }
@@ -352,10 +340,7 @@ export function GA4Provider({
       }
 
       // Action began before consent or under an invalidated consent epoch
-      if (
-        actionEpoch !== undefined &&
-        actionEpoch !== currentSnapshot.epoch
-      ) {
+      if (actionEpoch !== undefined && actionEpoch !== currentSnapshot.epoch) {
         return false;
       }
 

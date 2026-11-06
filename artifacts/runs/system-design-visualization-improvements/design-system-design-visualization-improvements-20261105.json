@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "run_id": "design-system-design-visualization-improvements-20261105",
+  "slug": "system-design-visualization-improvements",
+  "workflow": "design-solution",
+  "feature_status": "requirements_ready",
+  "started_at": "2026-11-05T07:45:32Z",
+  "completed_at": "2026-11-05T07:56:52Z",
+  "requirement_trace": {
+    "brd_objectives": ["BRD-OBJ-VIS-001", "BRD-OBJ-PERF-001"],
+    "requirements": ["REQ-VIS-001", "REQ-VIS-002", "REQ-VIS-003", "REQ-VIS-004", "REQ-VIS-005", "REQ-VIS-006", "REQ-PERF-001", "REQ-PERF-002", "REQ-PERF-003"],
+    "acceptance_criteria": ["AC-01", "AC-02", "AC-03", "AC-04", "AC-05", "AC-06", "AC-07", "AC-08", "AC-09"],
+    "srs": ["SRS-001", "SRS-002", "SRS-003", "SRS-004", "SRS-005", "SRS-006", "SRS-007", "SRS-008", "SRS-009", "SRS-010"]
+  },
+  "completed_evidence": [
+    "Approved PRD source revision sha256 f1ed4fe790932e6500b5b29c4fca01c5cd06d3be292c8ee03322af81ca5d435f; approved scope/delivery plan and prior scoped approvals retained",
+    "docs/srs/srs-system-design-visualization-improvements.md: ten technical cards, one HLD, six components, five LLD contracts, logical flows, NFR/security/failure/rollback boundaries and pending independent/human gates",
+    "docs/adr/adr-system-design-visualization-improvements.md: proposed single semantic authority, per-render themes, PNG-only static package, real SQLite fixture and generic bounded trace-ID compatibility decision",
+    "Detailed text-to-markup/static-view trust-boundary assessment raises downstream SNC to S=2 N=1 C=2 total=5 high and delivery_mode=extended; no implementation authority inferred",
+    "Existing context.drawio actually exported with the current Desktop backend; 2078x1614 PNG inspected and archived as design-baseline-context.png, sha256 c49f6f4ff89dfd2ac789dfd27ec0aeb2b77125abc3316a8c3badcad3bb4a64fa",
+    "Image observation: crowded buyer/uncertainty text and difficult-to-discern connectors; export success is not visual acceptance",
+    "Actual ephemeral SQLite 3.53.2 experiment: N=1,10,50 yielded SELECT counts 2,11,51 baseline versus 2,2,2 batched, with equal synthetic outputs; not ORM/PostgreSQL/performance acceptance",
+    "design-query-probe.txt archives non-executable diagnostic source with sha256 f05208943cb7c0bbdb99832f43790385fc3fb83db1996eb60e494eb21d2114b4; design-query-probe.json retains exact observations",
+    "Proposed SRS trace grammar corpus passed 24 acceptance and 12 malformed-rejection cases; source validator unchanged and full native audit not executed",
+    "Archived image/source SHA-256 checks and retained observation consistency passed",
+    "Explicit human selection Approve technical design on 2026-11-05 covers SRS/ADR including trace compatibility; approved SRS sha256 1309563d70d611f5b5f6a7100803c2f431c7cad3c051fe0b29f3bdf3d822fd7a and ADR sha256 862316f011fe46a4b2046bbd398f42f808ababf4800e56a4f2a35ce9b803f50c before approval-only status updates",
+    "Personal independent architecture/security reviews completed and focused follow-ups cleared the applied narrow correction delta without residual material design blockers; revision-scoped results in docs/srs/design-review-system-design-visualization-improvements.md",
+    "Architecture original scorecard 63/70 applicable points and semantic rubric 16/16; correction delta independently confirmed without rescoring or human approval",
+    "Current baseline diagram checks ran once: 141 tests, seven existing golden fixture subtest failures; read-only diagnosis found representative unverified-style delimiter drift; no source/golden mutation or unchanged rerun"
+  ],
+  "missing_evidence": [
+    "Human confirmation of independently cleared narrow correction delta; readiness assessment records immediate gated dispatch and conditional PARTIAL named slices",
+    "Renderer/golden maintainer adjudication and repair authorization for seven failing baseline fixture subtests; no blind rebaseline",
+    "Implementation execution-mode selection and eligible configured worker assignments",
+    "Actual new layout/dark-theme/static-package implementation, all-eight-type compatibility, contrast, offline/no-network and injection-surface verification",
+    "Future real N+1 fixture with independent result/page/scope oracles, controls and reviewed held-out skill judgments; temporary design probe is not that acceptance",
+    "Full native outcome schema audit and regression checks: prior tsx/node_modules prerequisite failure remains unresolved; legacy source IDs remain incompatible until an approved validator change is delivered",
+    "Paired human reader usefulness acceptance and authorized canonical publication/consumer-discovery evidence"
+  ],
+  "decision_needed": [
+    "Requesting maintainer: confirm corrected publication/failure/threat-model contract; original technical baseline approval is retained",
+    "Before implementation: separately select execution approach, eligible worker profiles and any installation/live-eval usage authority"
+  ],
+  "recommended_next_workflow": "implementation-readiness",
+  "cost": {"source": "unavailable"},
+  "agent": {"identity": "omp orchestrator", "model": "openai-codex/gpt-6.1-sol"}
+}

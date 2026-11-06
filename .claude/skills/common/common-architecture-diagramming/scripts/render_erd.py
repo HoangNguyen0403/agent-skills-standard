@@ -1,20 +1,29 @@
 #!/usr/bin/env python3
 """Entity-relationship rendering for the draw.io pipeline.
 
-Entities are swimlane cells whose children are one text row per column; relations use
-draw.io's entityRelationEdgeStyle with IE-notation arrows chosen by cardinality.
+Entities are swimlane cells whose children are one text row per column; relations are
+orthogonal edges carrying IE-notation arrows chosen by cardinality, drawn on explicit
+ports and waypoints so the rendered route is the one `check_layout` measures.
+
+Header height, header text and row heights come from `text_layout.entity_plan`, the
+same plan the checker measures: the swimlane's `startSize` is the planned header, and
+each row's height is the height its wrapped text needs.
 """
 
 import xml.etree.ElementTree as ET
-
-from style_catalog import (EDGE_PROPERTIES, ENTITY_HEADER_H, ENTITY_ROW_H, ENTITY_ROW_STYLE,
-                           ER_ARROWS, STYLE_CATALOG, _C4_EDGE)
+import text_layout
+from style_catalog import (EDGE_PROPERTIES, ENTITY_ROW_STYLE, ER_ARROWS, STYLE_CATALOG,
+                           _C4_EDGE)
 
 ENTITY_W = STYLE_CATALOG["entity"]["w"]
 
 
+def entity_plan(node):
+    return text_layout.entity_plan(node, ENTITY_W)
+
+
 def entity_height(node):
-    return ENTITY_HEADER_H + ENTITY_ROW_H * len(node.get("columns") or [])
+    return entity_plan(node).total_height
 
 
 def _depths(nodes, edges):
@@ -39,64 +48,103 @@ def _depths(nodes, edges):
     return depth
 
 
-def layout_erd(nodes, edges):
+def layout_erd(nodes, edges, body_y=170):
     from render_drawio import _place_columns
     depth = _depths(nodes, edges)
     columns = {}
     for node in nodes:
         kind = dict(STYLE_CATALOG["entity"], h=entity_height(node))
         columns.setdefault(depth[node["id"]], []).append((node, kind))
-    return _place_columns(columns)
+    return _place_columns(columns, body_y=body_y)
 
 
-def _row_text(column):
-    prefix = "PK " if column.get("pk") else "FK " if column.get("fk") else ""
-    suffix = " ?" if column.get("nullable", True) and not column.get("pk") else ""
-    return "%s%s : %s%s" % (prefix, column["name"], column["type"], suffix)
+def _entity_style(mode, header_height):
+    """The swimlane style with the planned header and font as its actual startSize/fontSize."""
+    from style_catalog import get_node_style
+    tokens = [token for token in get_node_style("entity", mode=mode).split(";") if token]
+    replacements = {"startSize=": header_height, "fontSize=": text_layout.ENTITY_HEADER_FONT}
+    styled = []
+    for token in tokens:
+        prefix = next((key for key in replacements if token.startswith(key)), None)
+        styled.append("%s%d" % (prefix, replacements[prefix]) if prefix else token)
+    return ";".join(styled) + ";"
 
 
-def render_entities(root, nodes, placed):
+def render_entities(root, nodes, placed, mode="light"):
     from render_drawio import _geometry, _node_cell
+    from style_catalog import ENTITY_ROW_STYLE_DARK
+    row_style = ENTITY_ROW_STYLE_DARK if mode == "dark" else ENTITY_ROW_STYLE
     for node in nodes:
         x, y = placed[node["id"]]
-        _node_cell(root, node, STYLE_CATALOG["entity"]["style"], x, y, ENTITY_W,
-                   entity_height(node))
-        for index, column in enumerate(node.get("columns") or []):
-            row = ET.SubElement(root, "mxCell", {
-                "id": "%s__row_%d" % (node["id"], index), "value": _row_text(column),
-                "style": ENTITY_ROW_STYLE, "vertex": "1", "parent": node["id"],
+        plan = entity_plan(node)
+        _node_cell(root, node, _entity_style(mode, plan.header_height),
+                   x, y, ENTITY_W, plan.total_height, mode=mode, label=plan.header_text)
+        cur_y = plan.header_height
+        for index, row in enumerate(plan.rows):
+            cell = ET.SubElement(root, "mxCell", {
+                "id": "%s__row_%d" % (node["id"], index), "value": row.text,
+                "style": row_style, "vertex": "1", "parent": node["id"],
             })
-            _geometry(row, 0, ENTITY_HEADER_H + index * ENTITY_ROW_H, ENTITY_W, ENTITY_ROW_H)
+            _geometry(cell, 0, cur_y, ENTITY_W, row.height)
+            cur_y += row.height
 
 
-def relation_style(cardinality):
+def relation_style(cardinality, mode="light"):
+    """Orthogonal base with IE-notation arrows: cardinality without a private router."""
+    from style_catalog import _C4_EDGE_DARK
     start, end = ER_ARROWS[cardinality]
-    base = _C4_EDGE.replace("edgeStyle=orthogonalEdgeStyle", "edgeStyle=entityRelationEdgeStyle")
-    base = base.replace("endArrow=blockThin;", "").replace("endFill=1;", "")
+    edge_base = _C4_EDGE_DARK if mode == "dark" else _C4_EDGE
+    base = edge_base.replace("endArrow=blockThin;", "").replace("endFill=1;", "")
     return base + "startArrow=%s;endArrow=%s;startFill=0;endFill=0;" % (start, end)
 
 
-def render_relations(root, edges):
-    from render_drawio import _edge_value, _has_supported_evidence, _unverified_style
+def render_relations(root, spec, edges, lay, mode="light"):
+    """Draw each relation on the planned route: same ports, waypoints, and label anchor
+    the checker measures (`check_layout.plan_routes`/`label_fraction`)."""
+    from render_drawio import (_anchor_style, _edge_value, _has_supported_evidence,
+                               _property_value, _unverified_style)
+    import check_layout
+    boxes = lay.boxes
+    routes = {id(edge): points
+              for edge, points in check_layout.plan_routes(spec, boxes, lay.rows)}
+    label_h = {node["id"]: max(0, boxes[node["id"]][3] - lay.cells[node["id"]][3])
+               for node in spec["nodes"]}
     for index, edge in enumerate(edges):
-        style = relation_style(edge["cardinality"])
+        style = relation_style(edge["cardinality"], mode=mode)
         if not _has_supported_evidence(edge):
-            style = _unverified_style(style)
+            style = _unverified_style(style, mode=mode)
+        points = routes.get(id(edge))
+        if points:
+            style += _anchor_style(boxes[edge["from"]], boxes[edge["to"]],
+                                   label_h[edge["from"]], label_h[edge["to"]])
         attrs = {
-            "id": "_rel_%d" % index, "value": _edge_value(edge),
+            "id": "_rel_%d" % index, "value": _edge_value(edge, mode=mode),
             "style": style, "edge": "1", "parent": "1",
             "source": edge["from"], "target": edge["to"],
         }
-        attrs.update({key: edge[key] for key in EDGE_PROPERTIES if edge.get(key) is not None})
+        attrs.update({
+            key: _property_value(edge[key])
+            for key in EDGE_PROPERTIES if edge.get(key) is not None
+        })
         cell = ET.SubElement(root, "mxCell", attrs)
-        ET.SubElement(cell, "mxGeometry", {"relative": "1", "as": "geometry"})
+        plan = text_layout.edge_label_plan(edge)
+        fraction = check_layout.label_fraction(points) if points else 0.5
+        geometry = ET.SubElement(cell, "mxGeometry", {
+            "x": "%g" % (2 * fraction - 1),
+            "width": str(plan.width), "height": str(plan.height),
+            "relative": "1", "as": "geometry",
+        })
+        if points and len(points) == 4 and points[1] != points[2]:
+            waypoints = ET.SubElement(geometry, "Array", {"as": "points"})
+            for x, y in points[1:3]:
+                ET.SubElement(waypoints, "mxPoint", {"x": str(x), "y": str(y)})
 
 
-def legend_entries(edges):
+def legend_entries(edges, mode="light"):
     seen, entries = set(), []
     for edge in edges:
         card = edge["cardinality"]
         if card not in seen:
             seen.add(card)
-            entries.append((relation_style(card), card))
+            entries.append((relation_style(card, mode=mode), card))
     return entries

@@ -1,0 +1,19 @@
+{
+  "surface": "real sqlite3 in-memory query entrypoint",
+  "command": "rtk proxy env PYTHONDONTWRITEBYTECODE=1 python3 skills/database/database-query-performance/scripts/nplus1_smoke.py --json",
+  "exit_code": 0,
+  "status": "pass",
+  "environment": {"python":"3.14.5","sqlite":"3.53.2","platform":"macOS-27.0.1-arm64-arm-64bit-Mach-O"},
+  "measured": [
+    {"parents":1,"baseline_selects":2,"candidate_selects":2,"oracle_match":true,"children":1,"serialized_bytes":177},
+    {"parents":10,"baseline_selects":11,"candidate_selects":2,"oracle_match":true,"children":15,"serialized_bytes":2229},
+    {"parents":50,"baseline_selects":51,"candidate_selects":2,"oracle_match":true,"children":75,"serialized_bytes":11289},
+    {"scenario":"empty_page","baseline_selects":1,"candidate_selects":1,"parents":0,"serialized_bytes":2},
+    {"scenario":"high_fanout_relation","parents":1,"children":250,"candidate_selects":2,"serialized_bytes":23088,"oracle_match":true},
+    {"scenario":"high_fanout_aggregate","parents":1,"child_entities_materialized":0,"child_count":250,"candidate_selects":1,"serialized_bytes":56,"oracle_match":true}
+  ],
+  "controls_passed": ["independent oracle","baseline amplification rejected for10/50","bounded candidate","empty parent page","continuation ordering/no duplicates","overlapping tenant identities isolated","empty child relation","aggregate projection","high-child-count distinction","real literal trace fingerprints","fixture parameter bounds"],
+  "focused_tests": {"command":"python3 -m unittest discover -s skills/database/database-query-performance/scripts -p test_nplus1_smoke.py -v","passed":12,"elapsed_seconds":0.025},
+  "source_output_reference":"artifact://74 (session tool output)",
+  "limits": ["Serialized bytes are JSON UTF-8, not wire bytes", "Single in-memory timings are observations, no speedup/latency claim", "No PostgreSQL/ORM/model efficacy proof", "Independent corrected-source review pending", "Runtime subset does not close all of AC-09 without authorized held-out judgments"]
+}

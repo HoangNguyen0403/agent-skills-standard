@@ -1,0 +1,11 @@
+{
+  "sqlite_version": "3.53.2",
+  "storage": "ephemeral in-memory",
+  "instrumentation": "sqlite set_trace_callback, SELECT statements only",
+  "scope": "query shape and equivalent synthetic results; not PostgreSQL, ORM or production-performance proof",
+  "observations": [
+    {"parents": 1, "n_plus_one_selects": 2, "bounded_batch_selects": 2, "results_equal": true, "parents_returned": 1, "children_returned": 1, "serialized_result_bytes": 36, "baseline_elapsed_ms": 0.024, "batch_elapsed_ms": 0.016},
+    {"parents": 10, "n_plus_one_selects": 11, "bounded_batch_selects": 2, "results_equal": true, "parents_returned": 10, "children_returned": 15, "serialized_result_bytes": 455, "baseline_elapsed_ms": 0.031, "batch_elapsed_ms": 0.033},
+    {"parents": 50, "n_plus_one_selects": 51, "bounded_batch_selects": 2, "results_equal": true, "parents_returned": 50, "children_returned": 75, "serialized_result_bytes": 2455, "baseline_elapsed_ms": 0.295, "batch_elapsed_ms": 0.084}
+  ]
+}

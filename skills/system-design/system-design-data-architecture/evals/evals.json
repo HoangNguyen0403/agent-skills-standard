@@ -222,6 +222,16 @@
         { "type": "contains_any", "value": ["separates revocation from erasure", "denied at every serving path immediately"], "description": "Denies serving before physical erasure completes" },
         { "type": "contains_any", "value": ["propagation bound", "tombstone or epoch"], "description": "Bounds erasure and fences replay or restore" }
       ]
+    },
+    {
+      "id": 16,
+      "prompt": "In our multi-tenant data architecture, a team proposing an order-management GraphQL API is seeing database bottlenecks on list queries. They propose adding a Redis cache layer and sharding the orders table by tenant ID. Static review shows the GraphQL resolvers iterate over order items to fetch product inventory individually. How should we address this bottleneck?",
+      "expected_output": "Diagnose access-pattern query amplification before premature caching or sharding. Classify the static resolver loop as suspected N+1 amplification. Do not shard or wrap in cache as the primary fix; solve at the query layer using request-scoped DataLoader batching or bounded batch prefetch. Preserve tenant isolation predicates and parent pagination without blanket giant JOINs that multiply rows.",
+      "assertions": [
+        { "type": "contains_any", "value": ["query amplification", "N+1", "resolver", "fan-out"], "description": "Diagnoses resolver fan-out / query amplification" },
+        { "type": "contains_any", "value": ["DataLoader", "batch", "batching"], "description": "Recommends request-scoped DataLoader or batching" },
+        { "type": "contains_any", "value": ["premature", "scaling order", "before", "caching"], "description": "Rejects premature sharding or caching ahead of query fix" }
+      ]
     }
   ],
   "should_trigger": [

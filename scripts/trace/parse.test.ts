@@ -15,9 +15,18 @@ test("parseRepo ignores id-shaped tokens inside fenced code blocks", () => {
   const seenIds = checkout!.references.map((r) => r.id);
   // The clean SRS file embeds a fenced "### SRS-999 ... REQ-999, AC-999" template
   // example; none of those tokens may surface as real occurrences.
-  assert.ok(!seenIds.includes("SRS-999"), "fenced SRS-999 leaked into references");
-  assert.ok(!seenIds.includes("REQ-999"), "fenced REQ-999 leaked into references");
-  assert.ok(!seenIds.includes("AC-999"), "fenced AC-999 leaked into references");
+  assert.ok(
+    !seenIds.includes("SRS-999"),
+    "fenced SRS-999 leaked into references",
+  );
+  assert.ok(
+    !seenIds.includes("REQ-999"),
+    "fenced REQ-999 leaked into references",
+  );
+  assert.ok(
+    !seenIds.includes("AC-999"),
+    "fenced AC-999 leaked into references",
+  );
   assert.ok(!checkout!.declared.get("SRS")?.has("SRS-999"));
 });
 
@@ -95,17 +104,30 @@ test("a trace matrix restating a heading-declared id is a reference, not a secon
   const srsDeclarations = demo!.references.filter(
     (r) => r.kind === "SRS" && r.id === "SRS-001" && r.role === "declaration",
   );
-  assert.equal(srsDeclarations.length, 1, "SRS-001 must be declared exactly once (the heading)");
-  const brdDeclarations = demo!.references.filter(
-    (r) => r.kind === "BRD-OBJ" && r.id === "BRD-OBJ-001" && r.role === "declaration",
+  assert.equal(
+    srsDeclarations.length,
+    1,
+    "SRS-001 must be declared exactly once (the heading)",
   );
-  assert.equal(brdDeclarations.length, 1, "BRD-OBJ-001 must be declared exactly once (the BRD)");
+  const brdDeclarations = demo!.references.filter(
+    (r) =>
+      r.kind === "BRD-OBJ" &&
+      r.id === "BRD-OBJ-001" &&
+      r.role === "declaration",
+  );
+  assert.equal(
+    brdDeclarations.length,
+    1,
+    "BRD-OBJ-001 must be declared exactly once (the BRD)",
+  );
 });
 
 test("srs-task-list-<slug> and srs-walkthrough-<slug> join their feature slug", () => {
   const root = writeSlugTree({
-    "docs/prd/prd-demo.md": "# PRD\n\n| ID | Statement |\n| --- | --- |\n| REQ-001 | do it |\n",
-    "docs/srs/srs-demo.md": "# SRS\n\n### SRS-001: c\n\n- **Source**: REQ-001\n",
+    "docs/prd/prd-demo.md":
+      "# PRD\n\n| ID | Statement |\n| --- | --- |\n| REQ-001 | do it |\n",
+    "docs/srs/srs-demo.md":
+      "# SRS\n\n### SRS-001: c\n\n- **Source**: REQ-001\n",
     "docs/srs/srs-task-list-demo.md": "# Tasks\n\nImplements SRS-001.\n",
     "docs/srs/srs-walkthrough-demo.md": "# Walkthrough\n\nProves SRS-001.\n",
   });
@@ -136,10 +158,19 @@ test("parseRepo captures complete hyphenated tokens and marks malformed longer I
   const malformedSlug = slugs.find((s) => s.slug === "malformed");
   assert.ok(malformedSlug);
   const refTokens = malformedSlug!.references.map((r) => r.id);
-  assert.ok(refTokens.includes("REQ-001-EXTRA"), "must capture complete token REQ-001-EXTRA, not prefix REQ-001");
+  assert.ok(
+    refTokens.includes("REQ-001-EXTRA"),
+    "must capture complete token REQ-001-EXTRA, not prefix REQ-001",
+  );
   assert.ok(refTokens.includes("REQ-1"));
-  const extraRef = malformedSlug!.references.find((r) => r.id === "REQ-001-EXTRA");
-  assert.equal(extraRef?.valid, false, "malformed longer token must not be marked valid");
+  const extraRef = malformedSlug!.references.find(
+    (r) => r.id === "REQ-001-EXTRA",
+  );
+  assert.equal(
+    extraRef?.valid,
+    false,
+    "malformed longer token must not be marked valid",
+  );
 });
 
 test("parseRepo resolves explicit source mappings and keeps source declarations distinct from formal counts", () => {
@@ -185,16 +216,24 @@ test("parseRepo resolves explicit source mappings and keeps source declarations 
 
   // Source mappings must record one-to-many refinements
   assert.ok(sourced!.sourceMappings);
-  const reqMapping = sourced!.sourceMappings!.find((m) => m.sourceId === "REQ-DISC-001");
+  const reqMapping = sourced!.sourceMappings!.find(
+    (m) => m.sourceId === "REQ-DISC-001",
+  );
   assert.ok(reqMapping);
   assert.equal(reqMapping!.formalId, "REQ-001");
 
-  const acMappings = sourced!.sourceMappings!.filter((m) => m.sourceId === "AC-DISC-001");
-  assert.equal(acMappings.length, 2, "AC-DISC-001 must map to both AC-001 and AC-002");
-  assert.deepEqual(
-    acMappings.map((m) => m.formalId).sort(),
-    ["AC-001", "AC-002"],
+  const acMappings = sourced!.sourceMappings!.filter(
+    (m) => m.sourceId === "AC-DISC-001",
   );
+  assert.equal(
+    acMappings.length,
+    2,
+    "AC-DISC-001 must map to both AC-001 and AC-002",
+  );
+  assert.deepEqual(acMappings.map((m) => m.formalId).sort(), [
+    "AC-001",
+    "AC-002",
+  ]);
 });
 
 test("parseRepo marks qualified IDs with undersized, missing, or nonnumeric terminal suffix as invalid", () => {
@@ -216,10 +255,26 @@ test("parseRepo marks qualified IDs with undersized, missing, or nonnumeric term
   const slug = slugs.find((s) => s.slug === "suffixes");
   assert.ok(slug);
   const refsById = new Map(slug!.references.map((r) => [r.id, r]));
-  assert.equal(refsById.get("REQ-PILOT-01")?.valid, false, "REQ-PILOT-01 must be invalid (undersized suffix)");
-  assert.equal(refsById.get("REQ-PILOT")?.valid, false, "REQ-PILOT must be invalid (missing terminal suffix)");
-  assert.equal(refsById.get("REQ-PILOT-EXTRA")?.valid, false, "REQ-PILOT-EXTRA must be invalid (nonnumeric terminal suffix)");
-  assert.equal(refsById.get("REQ-PILOT-001")?.valid, true, "REQ-PILOT-001 must be valid (canonical >=3 digits)");
+  assert.equal(
+    refsById.get("REQ-PILOT-01")?.valid,
+    false,
+    "REQ-PILOT-01 must be invalid (undersized suffix)",
+  );
+  assert.equal(
+    refsById.get("REQ-PILOT")?.valid,
+    false,
+    "REQ-PILOT must be invalid (missing terminal suffix)",
+  );
+  assert.equal(
+    refsById.get("REQ-PILOT-EXTRA")?.valid,
+    false,
+    "REQ-PILOT-EXTRA must be invalid (nonnumeric terminal suffix)",
+  );
+  assert.equal(
+    refsById.get("REQ-PILOT-001")?.valid,
+    true,
+    "REQ-PILOT-001 must be valid (canonical >=3 digits)",
+  );
 });
 
 test("bold diagnostic prose mentioning id leaves later namespace tokens as references", () => {
@@ -254,11 +309,21 @@ test("bold diagnostic prose mentioning id leaves later namespace tokens as refer
   const prose = slugs.find((s) => s.slug === "prose");
   assert.ok(prose);
 
-  const familyRefs = prose!.references.filter((r) => r.id === "REQ-DISC" || r.id === "AC-DISC");
+  const familyRefs = prose!.references.filter(
+    (r) => r.id === "REQ-DISC" || r.id === "AC-DISC",
+  );
   assert.equal(familyRefs.length, 2, "prose must surface both family mentions");
   for (const ref of familyRefs) {
-    assert.equal(ref.role, "reference", `${ref.id} must not be promoted to a declaration by bold prose`);
-    assert.equal(ref.valid, true, `${ref.id} must stay a valid namespace reference`);
+    assert.equal(
+      ref.role,
+      "reference",
+      `${ref.id} must not be promoted to a declaration by bold prose`,
+    );
+    assert.equal(
+      ref.valid,
+      true,
+      `${ref.id} must stay a valid namespace reference`,
+    );
     assert.equal(ref.qualified, true);
   }
   assert.deepEqual([...(prose!.declared.get("REQ") ?? [])], ["REQ-001"]);
@@ -285,10 +350,19 @@ test("a bold ID field label declares its value while a non-ID label does not", (
   assert.ok(field!.declared.get("BRD-OBJ")?.has("BRD-OBJ-001"));
   assert.ok(field!.declared.get("REQ")?.has("REQ-001"));
   assert.ok(field!.declared.get("AC")?.has("AC-001"));
-  assert.ok(field!.declared.get("REQ")?.has("REQ-002"), "a bare `**ID**` label must still declare its immediate value");
+  assert.ok(
+    field!.declared.get("REQ")?.has("REQ-002"),
+    "a bare `**ID**` label must still declare its immediate value",
+  );
 
-  const sourceLine = field!.references.find((r) => r.line === 5 && r.id === "REQ-001");
-  assert.equal(sourceLine?.role, "reference", "a non-ID field label must not declare its value");
+  const sourceLine = field!.references.find(
+    (r) => r.line === 5 && r.id === "REQ-001",
+  );
+  assert.equal(
+    sourceLine?.role,
+    "reference",
+    "a non-ID field label must not declare its value",
+  );
 });
 
 test("a malformed value inside a genuine ID field is flagged invalid, not accepted", () => {
@@ -303,13 +377,29 @@ test("a malformed value inside a genuine ID field is flagged invalid, not accept
 
   const shortId = bad!.references.find((r) => r.id === "BRD-OBJ-1");
   assert.equal(shortId?.role, "declaration");
-  assert.equal(shortId?.valid, false, "BRD-OBJ-1 must stay invalid even as a field value");
+  assert.equal(
+    shortId?.valid,
+    false,
+    "BRD-OBJ-1 must stay invalid even as a field value",
+  );
 
   const namespaceOnly = bad!.references.find((r) => r.id === "REQ-DISC");
   assert.equal(namespaceOnly?.role, "declaration");
-  assert.equal(namespaceOnly?.valid, false, "a namespace-only token is not a valid formal field value");
-  assert.equal(bad!.declared.get("BRD-OBJ")?.size ?? 0, 0, "malformed field value must not enter declared IDs");
-  assert.equal(bad!.sourceDeclared?.get("REQ")?.size ?? 0, 0, "namespace-only field value must not declare a source ID");
+  assert.equal(
+    namespaceOnly?.valid,
+    false,
+    "a namespace-only token is not a valid formal field value",
+  );
+  assert.equal(
+    bad!.declared.get("BRD-OBJ")?.size ?? 0,
+    0,
+    "malformed field value must not enter declared IDs",
+  );
+  assert.equal(
+    bad!.sourceDeclared?.get("REQ")?.size ?? 0,
+    0,
+    "namespace-only field value must not declare a source ID",
+  );
 });
 
 test("bold id words in prose stay references unless a label is followed immediately by a value", () => {
@@ -349,14 +439,31 @@ test("bold id words in prose stay references unless a label is followed immediat
   assert.ok(slug);
 
   const proseRefs = slug!.references.filter(
-    (r) => r.fromFile.endsWith("prd-prose-idword.md") && (r.id === "REQ-PILOT" || r.id === "AC-PILOT"),
+    (r) =>
+      r.fromFile.endsWith("prd-prose-idword.md") &&
+      (r.id === "REQ-PILOT" || r.id === "AC-PILOT"),
   );
-  assert.equal(proseRefs.length, 4, "each prose mention must surface as an occurrence");
+  assert.equal(
+    proseRefs.length,
+    4,
+    "each prose mention must surface as an occurrence",
+  );
   for (const ref of proseRefs) {
-    assert.equal(ref.role, "reference", `${ref.id} at line ${ref.line} must not be promoted to a declaration`);
-    assert.equal(ref.valid, true, `${ref.id} must stay a valid namespace reference`);
+    assert.equal(
+      ref.role,
+      "reference",
+      `${ref.id} at line ${ref.line} must not be promoted to a declaration`,
+    );
+    assert.equal(
+      ref.valid,
+      true,
+      `${ref.id} must stay a valid namespace reference`,
+    );
   }
-  assert.equal(slug!.sourceDeclared?.get("REQ")?.has("REQ-PILOT") ?? false, false);
+  assert.equal(
+    slug!.sourceDeclared?.get("REQ")?.has("REQ-PILOT") ?? false,
+    false,
+  );
   assert.ok(slug!.sourceDeclared?.get("REQ")?.has("REQ-PILOT-001"));
   assert.equal(slug!.declared.get("REQ")?.size, 1);
   assert.ok(slug!.declared.get("REQ")?.has("REQ-001"));
@@ -386,7 +493,9 @@ test("table roles belong to the token occurrence's exact column and span", () =>
   assert.deepEqual([...(slug.declared.get("REQ") ?? [])], ["REQ-001"]);
   assert.equal(slug.sourceMappings?.length, 1);
   assert.equal(slug.sourceMappings?.[0].sourceId, "REQ-PILOT-001");
-  const rowRefs = slug.references.filter((ref) => ref.fromFile.endsWith("prd-columns.md") && ref.line === 5);
+  const rowRefs = slug.references.filter(
+    (ref) => ref.fromFile.endsWith("prd-columns.md") && ref.line === 5,
+  );
   assert.deepEqual(
     rowRefs.map((ref) => [ref.id, ref.role]),
     [
@@ -423,14 +532,29 @@ test("complete malformed separator candidates stay invalid while namespace wildc
   });
   const slug = parseRepo(root).find((entry) => entry.slug === "separators");
   assert.ok(slug);
-  for (const id of ["REQ-001--EXTRA", "REQ-PILOT-001--EXTRA", "REQ--PILOT-001"]) {
+  for (const id of [
+    "REQ-001--EXTRA",
+    "REQ-PILOT-001--EXTRA",
+    "REQ--PILOT-001",
+  ]) {
     const ref = slug.references.find((entry) => entry.id === id);
     assert.ok(ref, `must retain the complete candidate ${id}`);
-    assert.equal(ref.valid, false, `${id} must be rejected rather than truncated`);
+    assert.equal(
+      ref.valid,
+      false,
+      `${id} must be rejected rather than truncated`,
+    );
   }
   const family = slug.references.find((entry) => entry.id === "REQ-PILOT");
-  assert.equal(family?.valid, true, "the explicit REQ-PILOT-* family notation remains a valid reference");
-  assert.ok(!slug.declared.get("REQ")?.has("REQ-001"), "malformed REQ candidate must not register a phantom valid declaration");
+  assert.equal(
+    family?.valid,
+    true,
+    "the explicit REQ-PILOT-* family notation remains a valid reference",
+  );
+  assert.ok(
+    !slug.declared.get("REQ")?.has("REQ-001"),
+    "malformed REQ candidate must not register a phantom valid declaration",
+  );
 });
 
 test("numeric legacy source-column IDs remain references, not qualified alias declarations", () => {
@@ -456,13 +580,19 @@ test("numeric legacy source-column IDs remain references, not qualified alias de
   assert.deepEqual(slug.sourceMappings, []);
   assert.equal(
     slug.references.find(
-      (ref) => ref.id === "BRD-OBJ-001" && ref.fromFile.endsWith("prd-legacy-source.md") && ref.line === 7,
+      (ref) =>
+        ref.id === "BRD-OBJ-001" &&
+        ref.fromFile.endsWith("prd-legacy-source.md") &&
+        ref.line === 7,
     )?.role,
     "reference",
   );
   assert.equal(
     slug.references.find(
-      (ref) => ref.id === "REQ-002" && ref.fromFile.endsWith("prd-legacy-source.md") && ref.line === 11,
+      (ref) =>
+        ref.id === "REQ-002" &&
+        ref.fromFile.endsWith("prd-legacy-source.md") &&
+        ref.line === 11,
     )?.role,
     "reference",
   );
@@ -506,11 +636,13 @@ test("unrelated Note|Status table does not declare REQ or AC, while exact first-
   assert.equal(notesSlug.declared.get("REQ")?.size ?? 0, 0);
   assert.equal(notesSlug.declared.get("AC")?.size ?? 0, 0);
   assert.equal(
-    notesSlug.references.find((ref) => ref.id === "REQ-001" && ref.line === 5)?.role,
+    notesSlug.references.find((ref) => ref.id === "REQ-001" && ref.line === 5)
+      ?.role,
     "reference",
   );
   assert.equal(
-    notesSlug.references.find((ref) => ref.id === "AC-001" && ref.line === 6)?.role,
+    notesSlug.references.find((ref) => ref.id === "AC-001" && ref.line === 6)
+      ?.role,
     "reference",
   );
 
@@ -518,4 +650,183 @@ test("unrelated Note|Status table does not declare REQ or AC, while exact first-
   assert.ok(exactSlug);
   assert.ok(exactSlug.declared.get("REQ")?.has("REQ-001"));
   assert.ok(exactSlug.declared.get("AC")?.has("AC-001"));
+});
+
+test("parseRepo accepts single uppercase namespace formal IDs and 2-digit ACs as formal declarations", () => {
+  const root = writeSlugTree({
+    "docs/brd/brd-aligned.md": [
+      "# BRD: Aligned",
+      "",
+      "- **Objective ID**: BRD-OBJ-VIS-001",
+      "- **Objective ID**: BRD-OBJ-PERF-001",
+      "- **Objective ID**: BRD-OBJ-001",
+      "",
+    ].join("\n"),
+    "docs/prd/prd-aligned.md": [
+      "# PRD: Aligned",
+      "",
+      "| Req ID | Requirement | BRD Objective Ref |",
+      "| --- | --- | --- |",
+      "| REQ-VIS-001 | Visual requirement | BRD-OBJ-VIS-001 |",
+      "| REQ-PERF-001 | Performance requirement | BRD-OBJ-PERF-001 |",
+      "| REQ-001 | Plain numeric requirement | BRD-OBJ-001 |",
+      "",
+      "| AC ID | Req ID | Given | When | Then |",
+      "| --- | --- | --- | --- | --- |",
+      "| AC-01 | REQ-VIS-001 | given | when | then |",
+      "| AC-02 | REQ-PERF-001 | given | when | then |",
+      "| AC-001 | REQ-001 | given | when | then |",
+      "",
+    ].join("\n"),
+    "docs/srs/srs-aligned.md": [
+      "# SRS: Aligned",
+      "",
+      "### SRS-001: First SRS",
+      "- Source: REQ-VIS-001, AC-01",
+      "",
+      "### SRS-002: Second SRS",
+      "- Source: REQ-PERF-001, AC-02",
+      "",
+      "### SRS-003: Third SRS",
+      "- Source: REQ-001, AC-001",
+      "",
+    ].join("\n"),
+  });
+
+  const slugs = parseRepo(root);
+  const slug = slugs.find((s) => s.slug === "aligned");
+  assert.ok(slug);
+
+  // Formal declarations
+  const brdObj = slug!.declared.get("BRD-OBJ");
+  assert.ok(brdObj?.has("BRD-OBJ-VIS-001"));
+  assert.ok(brdObj?.has("BRD-OBJ-PERF-001"));
+  assert.ok(brdObj?.has("BRD-OBJ-001"));
+  assert.equal(brdObj?.size, 3);
+
+  const reqs = slug!.declared.get("REQ");
+  assert.ok(reqs?.has("REQ-VIS-001"));
+  assert.ok(reqs?.has("REQ-PERF-001"));
+  assert.ok(reqs?.has("REQ-001"));
+  assert.equal(reqs?.size, 3);
+
+  const acs = slug!.declared.get("AC");
+  assert.ok(acs?.has("AC-01"));
+  assert.ok(acs?.has("AC-02"));
+  assert.ok(acs?.has("AC-001"));
+  assert.equal(acs?.size, 3);
+
+  const srs = slug!.declared.get("SRS");
+  assert.ok(srs?.has("SRS-001"));
+  assert.ok(srs?.has("SRS-002"));
+  assert.ok(srs?.has("SRS-003"));
+  assert.equal(srs?.size, 3);
+
+  // References should all be valid and formal (not qualified historical)
+  const ac01Ref = slug!.references.find(
+    (r) => r.id === "AC-01" && r.role === "declaration",
+  );
+  assert.ok(ac01Ref);
+  assert.equal(ac01Ref!.valid, true);
+  assert.equal(ac01Ref!.qualified ?? false, false);
+
+  const reqVisRef = slug!.references.find(
+    (r) => r.id === "REQ-VIS-001" && r.role === "declaration",
+  );
+  assert.ok(reqVisRef);
+  assert.equal(reqVisRef!.valid, true);
+  assert.equal(reqVisRef!.qualified ?? false, false);
+});
+
+test("parseRepo rejects multi-namespace formal IDs or lowercase IDs as declarations", () => {
+  const root = writeSlugTree({
+    "docs/prd/prd-multins.md": [
+      "# PRD: Multi NS",
+      "",
+      "| Req ID | Requirement |",
+      "| --- | --- |",
+      "| REQ-SUB-MOD-001 | multi namespace |",
+      "| REQ-vis-001 | lowercase namespace |",
+      "| REQ-1 | short numeric |",
+      "| AC-1 | single digit AC |",
+      "",
+    ].join("\n"),
+  });
+
+  const slugs = parseRepo(root);
+  const slug = slugs.find((s) => s.slug === "multins");
+  assert.ok(slug);
+
+  // None of these should be in declared formal REQ or AC
+  assert.equal(slug!.declared.get("REQ")?.size ?? 0, 0);
+  assert.equal(slug!.declared.get("AC")?.size ?? 0, 0);
+
+  const ac1 = slug!.references.find((r) => r.id === "AC-1");
+  assert.ok(ac1);
+  assert.equal(ac1!.valid, false, "AC-1 must remain invalid");
+
+  const req1 = slug!.references.find((r) => r.id === "REQ-1");
+  assert.ok(req1);
+  assert.equal(req1!.valid, false, "REQ-1 must remain invalid");
+
+  const lower = slug!.references.find((r) => r.id === "REQ-vis-001");
+  assert.ok(lower);
+  assert.equal(lower!.valid, false, "REQ-vis-001 must remain invalid");
+
+  // An explicit formal column obeys the formal grammar only: the historical
+  // multi-namespace grammar may not rescue REQ-SUB-MOD-001, and the rejected
+  // candidate must not be reclassified as a historical source declaration.
+  const multiNs = slug!.references.find((r) => r.id === "REQ-SUB-MOD-001");
+  assert.ok(multiNs);
+  assert.equal(multiNs!.role, "declaration");
+  assert.equal(
+    multiNs!.valid,
+    false,
+    "REQ-SUB-MOD-001 in a Req ID column must violate the formal grammar",
+  );
+  assert.equal(
+    multiNs!.qualified ?? false,
+    false,
+    "a malformed formal candidate must not become a source declaration",
+  );
+  assert.ok(!slug!.declared.get("REQ")?.has("REQ-SUB-MOD-001"));
+  assert.ok(!slug!.sourceDeclared?.get("REQ")?.has("REQ-SUB-MOD-001"));
+});
+
+test("historical candidate columns keep the multi-namespace grammar that formal columns reject", () => {
+  const root = writeSlugTree({
+    "docs/brd/brd-historical-ns.md": [
+      "# BRD",
+      "",
+      "| Capability | Candidate requirement | Rationale |",
+      "| --- | --- | --- |",
+      "| Nested setup | REQ-SUB-MOD-001 | multi namespace source group |",
+      "",
+    ].join("\n"),
+    "docs/prd/prd-historical-ns.md": [
+      "# PRD",
+      "",
+      "| Req ID | Requirement |",
+      "| --- | --- |",
+      "| REQ-001 | Formal requirement |",
+      "",
+    ].join("\n"),
+  });
+
+  const slug = parseRepo(root).find((entry) => entry.slug === "historical-ns");
+  assert.ok(slug);
+  const historical = slug!.references.find((r) => r.id === "REQ-SUB-MOD-001");
+  assert.ok(historical);
+  assert.equal(historical!.role, "declaration");
+  assert.equal(
+    historical!.valid,
+    true,
+    "a multi-namespace token is a valid historical source declaration",
+  );
+  assert.equal(historical!.qualified, true);
+  assert.ok(slug!.sourceDeclared?.get("REQ")?.has("REQ-SUB-MOD-001"));
+  assert.ok(
+    !slug!.declared.get("REQ")?.has("REQ-SUB-MOD-001"),
+    "the source group must not count as a formal REQ",
+  );
 });

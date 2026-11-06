@@ -1,0 +1,547 @@
+{
+  "base": "52671cf9ed6a1c376dfaaae7e621dbc51a4c8765",
+  "producer": "git archive + real generator phases",
+  "adopted": [
+    {
+      "path": ".agents/skills/common/common-architecture-diagramming/SKILL.md",
+      "sha256": "0ea84fb78e9f46fc318e84c400d2674c771c39f350a31a24b20d65af8c0a9427",
+      "baseSha256": "0ea84fb78e9f46fc318e84c400d2674c771c39f350a31a24b20d65af8c0a9427"
+    },
+    {
+      "path": ".agents/skills/common/common-architecture-diagramming/assets/fixtures/component.drawio",
+      "sha256": "0ceba562b308426fd3be95920782f24b53e610f1f7ba6eed2f0c5f1182147c51",
+      "baseSha256": "0ceba562b308426fd3be95920782f24b53e610f1f7ba6eed2f0c5f1182147c51"
+    },
+    {
+      "path": ".agents/skills/common/common-architecture-diagramming/assets/fixtures/container.drawio",
+      "sha256": "c9bb12e0502e8dc667981c0f5d0bd48c348191732cf9514758ed6fc59d920bb0",
+      "baseSha256": "c9bb12e0502e8dc667981c0f5d0bd48c348191732cf9514758ed6fc59d920bb0"
+    },
+    {
+      "path": ".agents/skills/common/common-architecture-diagramming/assets/fixtures/context.drawio",
+      "sha256": "57a43a861074f9efedbe5f493f95727f81812de14773a263140b9c1312be47df",
+      "baseSha256": "57a43a861074f9efedbe5f493f95727f81812de14773a263140b9c1312be47df"
+    },
+    {
+      "path": ".agents/skills/common/common-architecture-diagramming/assets/fixtures/dataflow.drawio",
+      "sha256": "daefa36eed79023d67e7f2cd5146a865c8085a79235ff8d4208ee23fbed9d522",
+      "baseSha256": "daefa36eed79023d67e7f2cd5146a865c8085a79235ff8d4208ee23fbed9d522"
+    },
+    {
+      "path": ".agents/skills/common/common-architecture-diagramming/assets/fixtures/deployment.drawio",
+      "sha256": "4df229e28fb356958020aa6b8084070572c7613f7a725e0ca91f9e2d9418768e",
+      "baseSha256": "4df229e28fb356958020aa6b8084070572c7613f7a725e0ca91f9e2d9418768e"
+    },
+    {
+      "path": ".agents/skills/common/common-architecture-diagramming/assets/fixtures/erd.drawio",
+      "sha256": "0ca92e12648a00dc1adc6a04dfbf0ae122f2b6dba967a9e32722a06e43000001",
+      "baseSha256": "0ca92e12648a00dc1adc6a04dfbf0ae122f2b6dba967a9e32722a06e43000001"
+    },
+    {
+      "path": ".agents/skills/common/common-architecture-diagramming/assets/fixtures/sequence.drawio",
+      "sha256": "57b9912d78386892d1c14a942b03cc6d917b16e4d7d9f4cad1a9b825f64e5951",
+      "baseSha256": "57b9912d78386892d1c14a942b03cc6d917b16e4d7d9f4cad1a9b825f64e5951"
+    },
+    {
+      "path": ".agents/skills/common/common-architecture-diagramming/assets/fixtures/state.drawio",
+      "sha256": "75609542ffbdbf6bb0c0e2532e37bc713432a56e4911f78ee98c3d1be2ca233c",
+      "baseSha256": "75609542ffbdbf6bb0c0e2532e37bc713432a56e4911f78ee98c3d1be2ca233c"
+    },
+    {
+      "path": ".agents/skills/common/common-architecture-diagramming/references/diagram-spec.md",
+      "sha256": "8e0d76ab2df7d3d6735c3c1b1435efb292c20cf3ff35a659c70cacdc29387f39",
+      "baseSha256": "8e0d76ab2df7d3d6735c3c1b1435efb292c20cf3ff35a659c70cacdc29387f39"
+    },
+    {
+      "path": ".agents/skills/common/common-architecture-diagramming/references/layout-rules.md",
+      "sha256": "d886335abc62ff8e6ef0d336f40507acd77ea0af31a620f6f2385e8b8633b429",
+      "baseSha256": "d886335abc62ff8e6ef0d336f40507acd77ea0af31a620f6f2385e8b8633b429"
+    },
+    {
+      "path": ".agents/skills/common/common-architecture-diagramming/references/mermaid-fallback.md",
+      "sha256": "7fd8efae54dfdf0f1cf1e8b3e407edfb35accdd79702ba3516bd71647413d6b1",
+      "baseSha256": "7fd8efae54dfdf0f1cf1e8b3e407edfb35accdd79702ba3516bd71647413d6b1"
+    },
+    {
+      "path": ".agents/skills/common/common-architecture-diagramming/scripts/check_layout.py",
+      "sha256": "c4affa0f23658f504ba45246b9622fb3d5401a339220b2674f41193d9a25e795",
+      "baseSha256": "c4affa0f23658f504ba45246b9622fb3d5401a339220b2674f41193d9a25e795"
+    },
+    {
+      "path": ".agents/skills/common/common-architecture-diagramming/scripts/render_drawio.py",
+      "sha256": "89e438b4877bfaf207a436d30b78749825788e1ebdb909dfbe25a9fe6b4f926f",
+      "baseSha256": "89e438b4877bfaf207a436d30b78749825788e1ebdb909dfbe25a9fe6b4f926f"
+    },
+    {
+      "path": ".agents/skills/common/common-architecture-diagramming/scripts/render_erd.py",
+      "sha256": "6192395781b356f05e2dbac89eb013c0d27c8fb3f1f54fdb2edc9203e6059475",
+      "baseSha256": "6192395781b356f05e2dbac89eb013c0d27c8fb3f1f54fdb2edc9203e6059475"
+    },
+    {
+      "path": ".agents/skills/common/common-architecture-diagramming/scripts/style_catalog.py",
+      "sha256": "76b752673bc5dad2fae758f0e59b7f7197f286de43dbcc7f2eb3e912fa091008",
+      "baseSha256": "76b752673bc5dad2fae758f0e59b7f7197f286de43dbcc7f2eb3e912fa091008"
+    },
+    {
+      "path": ".agents/skills/common/common-architecture-diagramming/scripts/test_check_layout.py",
+      "sha256": "45ce66fdd94be5330fc08a68e446d20091306eed218d31d3baf9a5b7d626bf8b",
+      "baseSha256": "45ce66fdd94be5330fc08a68e446d20091306eed218d31d3baf9a5b7d626bf8b"
+    },
+    {
+      "path": ".agents/skills/common/common-architecture-diagramming/scripts/test_render_drawio.py",
+      "sha256": "12363e0a8ab091c955487919f6f09da31f1b77276c0f8b384d75642f0c383c7f",
+      "baseSha256": "12363e0a8ab091c955487919f6f09da31f1b77276c0f8b384d75642f0c383c7f"
+    },
+    {
+      "path": ".agents/skills/common/common-architecture-diagramming/scripts/test_view_manifest.py",
+      "sha256": "e736a96945a9db5a59f570c8157351fc12f0d1ac64e61e8aa5f7b9e8b6b38dc6",
+      "baseSha256": "e736a96945a9db5a59f570c8157351fc12f0d1ac64e61e8aa5f7b9e8b6b38dc6"
+    },
+    {
+      "path": ".agents/skills/common/common-architecture-diagramming/scripts/validate_manifest.py",
+      "sha256": "467df5de3278e75c3691c87b9ea5614d572348c1e682a9a6524a7d1c0b11eed5",
+      "baseSha256": "467df5de3278e75c3691c87b9ea5614d572348c1e682a9a6524a7d1c0b11eed5"
+    },
+    {
+      "path": ".agents/skills/common/common-architecture-diagramming/scripts/validate_spec.py",
+      "sha256": "a54e3c58e07e01593fadf990863f930501547ecfde11bffe51572464832f9546",
+      "baseSha256": "a54e3c58e07e01593fadf990863f930501547ecfde11bffe51572464832f9546"
+    },
+    {
+      "path": ".agents/skills/system-design/system-design-data-architecture/SKILL.md",
+      "sha256": "e673583ba86f4fb92be74924a85eb139df4476b93b5ce7ddf1730ccd591a796d",
+      "baseSha256": "e673583ba86f4fb92be74924a85eb139df4476b93b5ce7ddf1730ccd591a796d"
+    },
+    {
+      "path": ".agents/skills/system-design/system-design-data-architecture/references/database-scaling.md",
+      "sha256": "73ad2504d03275a31897a1fa7242c44824e5d5ef1a6f39f0cb41b6771cc63222",
+      "baseSha256": "73ad2504d03275a31897a1fa7242c44824e5d5ef1a6f39f0cb41b6771cc63222"
+    },
+    {
+      "path": ".agents/skills/system-design/system-design-review/SKILL.md",
+      "sha256": "2ea78f997d334582f75f3694337e06aad98f460917ce5111e93bf89c4dc9b8fa",
+      "baseSha256": "2ea78f997d334582f75f3694337e06aad98f460917ce5111e93bf89c4dc9b8fa"
+    },
+    {
+      "path": ".agents/skills/system-design/system-design-review/references/mistakes-table.md",
+      "sha256": "1b6f7a7f4a342b79ed01f0c8f37570669535eda06477205af93773e67c71e04f",
+      "baseSha256": "1b6f7a7f4a342b79ed01f0c8f37570669535eda06477205af93773e67c71e04f"
+    },
+    {
+      "path": ".agents/skills/system-design/system-design-review/references/semantic-evaluation.md",
+      "sha256": "abda039e29d4708a2475bdf69a4e1abfe32411893391b85e352baa14d2be0127",
+      "baseSha256": "abda039e29d4708a2475bdf69a4e1abfe32411893391b85e352baa14d2be0127"
+    },
+    {
+      "path": ".claude/skills/common/common-architecture-diagramming/SKILL.md",
+      "sha256": "0ea84fb78e9f46fc318e84c400d2674c771c39f350a31a24b20d65af8c0a9427",
+      "baseSha256": "0ea84fb78e9f46fc318e84c400d2674c771c39f350a31a24b20d65af8c0a9427"
+    },
+    {
+      "path": ".claude/skills/common/common-architecture-diagramming/assets/fixtures/component.drawio",
+      "sha256": "0ceba562b308426fd3be95920782f24b53e610f1f7ba6eed2f0c5f1182147c51",
+      "baseSha256": "0ceba562b308426fd3be95920782f24b53e610f1f7ba6eed2f0c5f1182147c51"
+    },
+    {
+      "path": ".claude/skills/common/common-architecture-diagramming/assets/fixtures/container.drawio",
+      "sha256": "c9bb12e0502e8dc667981c0f5d0bd48c348191732cf9514758ed6fc59d920bb0",
+      "baseSha256": "c9bb12e0502e8dc667981c0f5d0bd48c348191732cf9514758ed6fc59d920bb0"
+    },
+    {
+      "path": ".claude/skills/common/common-architecture-diagramming/assets/fixtures/context.drawio",
+      "sha256": "57a43a861074f9efedbe5f493f95727f81812de14773a263140b9c1312be47df",
+      "baseSha256": "57a43a861074f9efedbe5f493f95727f81812de14773a263140b9c1312be47df"
+    },
+    {
+      "path": ".claude/skills/common/common-architecture-diagramming/assets/fixtures/dataflow.drawio",
+      "sha256": "daefa36eed79023d67e7f2cd5146a865c8085a79235ff8d4208ee23fbed9d522",
+      "baseSha256": "daefa36eed79023d67e7f2cd5146a865c8085a79235ff8d4208ee23fbed9d522"
+    },
+    {
+      "path": ".claude/skills/common/common-architecture-diagramming/assets/fixtures/deployment.drawio",
+      "sha256": "4df229e28fb356958020aa6b8084070572c7613f7a725e0ca91f9e2d9418768e",
+      "baseSha256": "4df229e28fb356958020aa6b8084070572c7613f7a725e0ca91f9e2d9418768e"
+    },
+    {
+      "path": ".claude/skills/common/common-architecture-diagramming/assets/fixtures/erd.drawio",
+      "sha256": "0ca92e12648a00dc1adc6a04dfbf0ae122f2b6dba967a9e32722a06e43000001",
+      "baseSha256": "0ca92e12648a00dc1adc6a04dfbf0ae122f2b6dba967a9e32722a06e43000001"
+    },
+    {
+      "path": ".claude/skills/common/common-architecture-diagramming/assets/fixtures/sequence.drawio",
+      "sha256": "57b9912d78386892d1c14a942b03cc6d917b16e4d7d9f4cad1a9b825f64e5951",
+      "baseSha256": "57b9912d78386892d1c14a942b03cc6d917b16e4d7d9f4cad1a9b825f64e5951"
+    },
+    {
+      "path": ".claude/skills/common/common-architecture-diagramming/assets/fixtures/state.drawio",
+      "sha256": "75609542ffbdbf6bb0c0e2532e37bc713432a56e4911f78ee98c3d1be2ca233c",
+      "baseSha256": "75609542ffbdbf6bb0c0e2532e37bc713432a56e4911f78ee98c3d1be2ca233c"
+    },
+    {
+      "path": ".claude/skills/common/common-architecture-diagramming/references/diagram-spec.md",
+      "sha256": "8e0d76ab2df7d3d6735c3c1b1435efb292c20cf3ff35a659c70cacdc29387f39",
+      "baseSha256": "8e0d76ab2df7d3d6735c3c1b1435efb292c20cf3ff35a659c70cacdc29387f39"
+    },
+    {
+      "path": ".claude/skills/common/common-architecture-diagramming/references/layout-rules.md",
+      "sha256": "d886335abc62ff8e6ef0d336f40507acd77ea0af31a620f6f2385e8b8633b429",
+      "baseSha256": "d886335abc62ff8e6ef0d336f40507acd77ea0af31a620f6f2385e8b8633b429"
+    },
+    {
+      "path": ".claude/skills/common/common-architecture-diagramming/references/mermaid-fallback.md",
+      "sha256": "7fd8efae54dfdf0f1cf1e8b3e407edfb35accdd79702ba3516bd71647413d6b1",
+      "baseSha256": "7fd8efae54dfdf0f1cf1e8b3e407edfb35accdd79702ba3516bd71647413d6b1"
+    },
+    {
+      "path": ".claude/skills/common/common-architecture-diagramming/scripts/check_layout.py",
+      "sha256": "c4affa0f23658f504ba45246b9622fb3d5401a339220b2674f41193d9a25e795",
+      "baseSha256": "c4affa0f23658f504ba45246b9622fb3d5401a339220b2674f41193d9a25e795"
+    },
+    {
+      "path": ".claude/skills/common/common-architecture-diagramming/scripts/render_drawio.py",
+      "sha256": "89e438b4877bfaf207a436d30b78749825788e1ebdb909dfbe25a9fe6b4f926f",
+      "baseSha256": "89e438b4877bfaf207a436d30b78749825788e1ebdb909dfbe25a9fe6b4f926f"
+    },
+    {
+      "path": ".claude/skills/common/common-architecture-diagramming/scripts/render_erd.py",
+      "sha256": "6192395781b356f05e2dbac89eb013c0d27c8fb3f1f54fdb2edc9203e6059475",
+      "baseSha256": "6192395781b356f05e2dbac89eb013c0d27c8fb3f1f54fdb2edc9203e6059475"
+    },
+    {
+      "path": ".claude/skills/common/common-architecture-diagramming/scripts/style_catalog.py",
+      "sha256": "76b752673bc5dad2fae758f0e59b7f7197f286de43dbcc7f2eb3e912fa091008",
+      "baseSha256": "76b752673bc5dad2fae758f0e59b7f7197f286de43dbcc7f2eb3e912fa091008"
+    },
+    {
+      "path": ".claude/skills/common/common-architecture-diagramming/scripts/test_check_layout.py",
+      "sha256": "45ce66fdd94be5330fc08a68e446d20091306eed218d31d3baf9a5b7d626bf8b",
+      "baseSha256": "45ce66fdd94be5330fc08a68e446d20091306eed218d31d3baf9a5b7d626bf8b"
+    },
+    {
+      "path": ".claude/skills/common/common-architecture-diagramming/scripts/test_render_drawio.py",
+      "sha256": "12363e0a8ab091c955487919f6f09da31f1b77276c0f8b384d75642f0c383c7f",
+      "baseSha256": "12363e0a8ab091c955487919f6f09da31f1b77276c0f8b384d75642f0c383c7f"
+    },
+    {
+      "path": ".claude/skills/common/common-architecture-diagramming/scripts/test_view_manifest.py",
+      "sha256": "e736a96945a9db5a59f570c8157351fc12f0d1ac64e61e8aa5f7b9e8b6b38dc6",
+      "baseSha256": "e736a96945a9db5a59f570c8157351fc12f0d1ac64e61e8aa5f7b9e8b6b38dc6"
+    },
+    {
+      "path": ".claude/skills/common/common-architecture-diagramming/scripts/validate_manifest.py",
+      "sha256": "467df5de3278e75c3691c87b9ea5614d572348c1e682a9a6524a7d1c0b11eed5",
+      "baseSha256": "467df5de3278e75c3691c87b9ea5614d572348c1e682a9a6524a7d1c0b11eed5"
+    },
+    {
+      "path": ".claude/skills/common/common-architecture-diagramming/scripts/validate_spec.py",
+      "sha256": "a54e3c58e07e01593fadf990863f930501547ecfde11bffe51572464832f9546",
+      "baseSha256": "a54e3c58e07e01593fadf990863f930501547ecfde11bffe51572464832f9546"
+    },
+    {
+      "path": ".claude/skills/system-design/system-design-data-architecture/SKILL.md",
+      "sha256": "e673583ba86f4fb92be74924a85eb139df4476b93b5ce7ddf1730ccd591a796d",
+      "baseSha256": "e673583ba86f4fb92be74924a85eb139df4476b93b5ce7ddf1730ccd591a796d"
+    },
+    {
+      "path": ".claude/skills/system-design/system-design-data-architecture/references/database-scaling.md",
+      "sha256": "73ad2504d03275a31897a1fa7242c44824e5d5ef1a6f39f0cb41b6771cc63222",
+      "baseSha256": "73ad2504d03275a31897a1fa7242c44824e5d5ef1a6f39f0cb41b6771cc63222"
+    },
+    {
+      "path": ".claude/skills/system-design/system-design-review/SKILL.md",
+      "sha256": "2ea78f997d334582f75f3694337e06aad98f460917ce5111e93bf89c4dc9b8fa",
+      "baseSha256": "2ea78f997d334582f75f3694337e06aad98f460917ce5111e93bf89c4dc9b8fa"
+    },
+    {
+      "path": ".claude/skills/system-design/system-design-review/references/mistakes-table.md",
+      "sha256": "1b6f7a7f4a342b79ed01f0c8f37570669535eda06477205af93773e67c71e04f",
+      "baseSha256": "1b6f7a7f4a342b79ed01f0c8f37570669535eda06477205af93773e67c71e04f"
+    },
+    {
+      "path": ".claude/skills/system-design/system-design-review/references/semantic-evaluation.md",
+      "sha256": "abda039e29d4708a2475bdf69a4e1abfe32411893391b85e352baa14d2be0127",
+      "baseSha256": "abda039e29d4708a2475bdf69a4e1abfe32411893391b85e352baa14d2be0127"
+    },
+    {
+      "path": ".codex/skills/common/common-architecture-diagramming/SKILL.md",
+      "sha256": "0ea84fb78e9f46fc318e84c400d2674c771c39f350a31a24b20d65af8c0a9427",
+      "baseSha256": "0ea84fb78e9f46fc318e84c400d2674c771c39f350a31a24b20d65af8c0a9427"
+    },
+    {
+      "path": ".codex/skills/common/common-architecture-diagramming/assets/fixtures/component.drawio",
+      "sha256": "0ceba562b308426fd3be95920782f24b53e610f1f7ba6eed2f0c5f1182147c51",
+      "baseSha256": "0ceba562b308426fd3be95920782f24b53e610f1f7ba6eed2f0c5f1182147c51"
+    },
+    {
+      "path": ".codex/skills/common/common-architecture-diagramming/assets/fixtures/container.drawio",
+      "sha256": "c9bb12e0502e8dc667981c0f5d0bd48c348191732cf9514758ed6fc59d920bb0",
+      "baseSha256": "c9bb12e0502e8dc667981c0f5d0bd48c348191732cf9514758ed6fc59d920bb0"
+    },
+    {
+      "path": ".codex/skills/common/common-architecture-diagramming/assets/fixtures/context.drawio",
+      "sha256": "57a43a861074f9efedbe5f493f95727f81812de14773a263140b9c1312be47df",
+      "baseSha256": "57a43a861074f9efedbe5f493f95727f81812de14773a263140b9c1312be47df"
+    },
+    {
+      "path": ".codex/skills/common/common-architecture-diagramming/assets/fixtures/dataflow.drawio",
+      "sha256": "daefa36eed79023d67e7f2cd5146a865c8085a79235ff8d4208ee23fbed9d522",
+      "baseSha256": "daefa36eed79023d67e7f2cd5146a865c8085a79235ff8d4208ee23fbed9d522"
+    },
+    {
+      "path": ".codex/skills/common/common-architecture-diagramming/assets/fixtures/deployment.drawio",
+      "sha256": "4df229e28fb356958020aa6b8084070572c7613f7a725e0ca91f9e2d9418768e",
+      "baseSha256": "4df229e28fb356958020aa6b8084070572c7613f7a725e0ca91f9e2d9418768e"
+    },
+    {
+      "path": ".codex/skills/common/common-architecture-diagramming/assets/fixtures/erd.drawio",
+      "sha256": "0ca92e12648a00dc1adc6a04dfbf0ae122f2b6dba967a9e32722a06e43000001",
+      "baseSha256": "0ca92e12648a00dc1adc6a04dfbf0ae122f2b6dba967a9e32722a06e43000001"
+    },
+    {
+      "path": ".codex/skills/common/common-architecture-diagramming/assets/fixtures/sequence.drawio",
+      "sha256": "57b9912d78386892d1c14a942b03cc6d917b16e4d7d9f4cad1a9b825f64e5951",
+      "baseSha256": "57b9912d78386892d1c14a942b03cc6d917b16e4d7d9f4cad1a9b825f64e5951"
+    },
+    {
+      "path": ".codex/skills/common/common-architecture-diagramming/assets/fixtures/state.drawio",
+      "sha256": "75609542ffbdbf6bb0c0e2532e37bc713432a56e4911f78ee98c3d1be2ca233c",
+      "baseSha256": "75609542ffbdbf6bb0c0e2532e37bc713432a56e4911f78ee98c3d1be2ca233c"
+    },
+    {
+      "path": ".codex/skills/common/common-architecture-diagramming/references/diagram-spec.md",
+      "sha256": "8e0d76ab2df7d3d6735c3c1b1435efb292c20cf3ff35a659c70cacdc29387f39",
+      "baseSha256": "8e0d76ab2df7d3d6735c3c1b1435efb292c20cf3ff35a659c70cacdc29387f39"
+    },
+    {
+      "path": ".codex/skills/common/common-architecture-diagramming/references/layout-rules.md",
+      "sha256": "d886335abc62ff8e6ef0d336f40507acd77ea0af31a620f6f2385e8b8633b429",
+      "baseSha256": "d886335abc62ff8e6ef0d336f40507acd77ea0af31a620f6f2385e8b8633b429"
+    },
+    {
+      "path": ".codex/skills/common/common-architecture-diagramming/references/mermaid-fallback.md",
+      "sha256": "7fd8efae54dfdf0f1cf1e8b3e407edfb35accdd79702ba3516bd71647413d6b1",
+      "baseSha256": "7fd8efae54dfdf0f1cf1e8b3e407edfb35accdd79702ba3516bd71647413d6b1"
+    },
+    {
+      "path": ".codex/skills/common/common-architecture-diagramming/scripts/check_layout.py",
+      "sha256": "c4affa0f23658f504ba45246b9622fb3d5401a339220b2674f41193d9a25e795",
+      "baseSha256": "c4affa0f23658f504ba45246b9622fb3d5401a339220b2674f41193d9a25e795"
+    },
+    {
+      "path": ".codex/skills/common/common-architecture-diagramming/scripts/render_drawio.py",
+      "sha256": "89e438b4877bfaf207a436d30b78749825788e1ebdb909dfbe25a9fe6b4f926f",
+      "baseSha256": "89e438b4877bfaf207a436d30b78749825788e1ebdb909dfbe25a9fe6b4f926f"
+    },
+    {
+      "path": ".codex/skills/common/common-architecture-diagramming/scripts/render_erd.py",
+      "sha256": "6192395781b356f05e2dbac89eb013c0d27c8fb3f1f54fdb2edc9203e6059475",
+      "baseSha256": "6192395781b356f05e2dbac89eb013c0d27c8fb3f1f54fdb2edc9203e6059475"
+    },
+    {
+      "path": ".codex/skills/common/common-architecture-diagramming/scripts/style_catalog.py",
+      "sha256": "76b752673bc5dad2fae758f0e59b7f7197f286de43dbcc7f2eb3e912fa091008",
+      "baseSha256": "76b752673bc5dad2fae758f0e59b7f7197f286de43dbcc7f2eb3e912fa091008"
+    },
+    {
+      "path": ".codex/skills/common/common-architecture-diagramming/scripts/test_check_layout.py",
+      "sha256": "45ce66fdd94be5330fc08a68e446d20091306eed218d31d3baf9a5b7d626bf8b",
+      "baseSha256": "45ce66fdd94be5330fc08a68e446d20091306eed218d31d3baf9a5b7d626bf8b"
+    },
+    {
+      "path": ".codex/skills/common/common-architecture-diagramming/scripts/test_render_drawio.py",
+      "sha256": "12363e0a8ab091c955487919f6f09da31f1b77276c0f8b384d75642f0c383c7f",
+      "baseSha256": "12363e0a8ab091c955487919f6f09da31f1b77276c0f8b384d75642f0c383c7f"
+    },
+    {
+      "path": ".codex/skills/common/common-architecture-diagramming/scripts/test_view_manifest.py",
+      "sha256": "e736a96945a9db5a59f570c8157351fc12f0d1ac64e61e8aa5f7b9e8b6b38dc6",
+      "baseSha256": "e736a96945a9db5a59f570c8157351fc12f0d1ac64e61e8aa5f7b9e8b6b38dc6"
+    },
+    {
+      "path": ".codex/skills/common/common-architecture-diagramming/scripts/validate_manifest.py",
+      "sha256": "467df5de3278e75c3691c87b9ea5614d572348c1e682a9a6524a7d1c0b11eed5",
+      "baseSha256": "467df5de3278e75c3691c87b9ea5614d572348c1e682a9a6524a7d1c0b11eed5"
+    },
+    {
+      "path": ".codex/skills/common/common-architecture-diagramming/scripts/validate_spec.py",
+      "sha256": "a54e3c58e07e01593fadf990863f930501547ecfde11bffe51572464832f9546",
+      "baseSha256": "a54e3c58e07e01593fadf990863f930501547ecfde11bffe51572464832f9546"
+    },
+    {
+      "path": ".codex/skills/system-design/system-design-data-architecture/SKILL.md",
+      "sha256": "e673583ba86f4fb92be74924a85eb139df4476b93b5ce7ddf1730ccd591a796d",
+      "baseSha256": "e673583ba86f4fb92be74924a85eb139df4476b93b5ce7ddf1730ccd591a796d"
+    },
+    {
+      "path": ".codex/skills/system-design/system-design-data-architecture/references/database-scaling.md",
+      "sha256": "73ad2504d03275a31897a1fa7242c44824e5d5ef1a6f39f0cb41b6771cc63222",
+      "baseSha256": "73ad2504d03275a31897a1fa7242c44824e5d5ef1a6f39f0cb41b6771cc63222"
+    },
+    {
+      "path": ".codex/skills/system-design/system-design-review/SKILL.md",
+      "sha256": "2ea78f997d334582f75f3694337e06aad98f460917ce5111e93bf89c4dc9b8fa",
+      "baseSha256": "2ea78f997d334582f75f3694337e06aad98f460917ce5111e93bf89c4dc9b8fa"
+    },
+    {
+      "path": ".codex/skills/system-design/system-design-review/references/mistakes-table.md",
+      "sha256": "1b6f7a7f4a342b79ed01f0c8f37570669535eda06477205af93773e67c71e04f",
+      "baseSha256": "1b6f7a7f4a342b79ed01f0c8f37570669535eda06477205af93773e67c71e04f"
+    },
+    {
+      "path": ".codex/skills/system-design/system-design-review/references/semantic-evaluation.md",
+      "sha256": "abda039e29d4708a2475bdf69a4e1abfe32411893391b85e352baa14d2be0127",
+      "baseSha256": "abda039e29d4708a2475bdf69a4e1abfe32411893391b85e352baa14d2be0127"
+    },
+    {
+      "path": ".github/skills/common/common-architecture-diagramming/SKILL.md",
+      "sha256": "0ea84fb78e9f46fc318e84c400d2674c771c39f350a31a24b20d65af8c0a9427",
+      "baseSha256": "0ea84fb78e9f46fc318e84c400d2674c771c39f350a31a24b20d65af8c0a9427"
+    },
+    {
+      "path": ".github/skills/common/common-architecture-diagramming/assets/fixtures/component.drawio",
+      "sha256": "0ceba562b308426fd3be95920782f24b53e610f1f7ba6eed2f0c5f1182147c51",
+      "baseSha256": "0ceba562b308426fd3be95920782f24b53e610f1f7ba6eed2f0c5f1182147c51"
+    },
+    {
+      "path": ".github/skills/common/common-architecture-diagramming/assets/fixtures/container.drawio",
+      "sha256": "c9bb12e0502e8dc667981c0f5d0bd48c348191732cf9514758ed6fc59d920bb0",
+      "baseSha256": "c9bb12e0502e8dc667981c0f5d0bd48c348191732cf9514758ed6fc59d920bb0"
+    },
+    {
+      "path": ".github/skills/common/common-architecture-diagramming/assets/fixtures/context.drawio",
+      "sha256": "57a43a861074f9efedbe5f493f95727f81812de14773a263140b9c1312be47df",
+      "baseSha256": "57a43a861074f9efedbe5f493f95727f81812de14773a263140b9c1312be47df"
+    },
+    {
+      "path": ".github/skills/common/common-architecture-diagramming/assets/fixtures/dataflow.drawio",
+      "sha256": "daefa36eed79023d67e7f2cd5146a865c8085a79235ff8d4208ee23fbed9d522",
+      "baseSha256": "daefa36eed79023d67e7f2cd5146a865c8085a79235ff8d4208ee23fbed9d522"
+    },
+    {
+      "path": ".github/skills/common/common-architecture-diagramming/assets/fixtures/deployment.drawio",
+      "sha256": "4df229e28fb356958020aa6b8084070572c7613f7a725e0ca91f9e2d9418768e",
+      "baseSha256": "4df229e28fb356958020aa6b8084070572c7613f7a725e0ca91f9e2d9418768e"
+    },
+    {
+      "path": ".github/skills/common/common-architecture-diagramming/assets/fixtures/erd.drawio",
+      "sha256": "0ca92e12648a00dc1adc6a04dfbf0ae122f2b6dba967a9e32722a06e43000001",
+      "baseSha256": "0ca92e12648a00dc1adc6a04dfbf0ae122f2b6dba967a9e32722a06e43000001"
+    },
+    {
+      "path": ".github/skills/common/common-architecture-diagramming/assets/fixtures/sequence.drawio",
+      "sha256": "57b9912d78386892d1c14a942b03cc6d917b16e4d7d9f4cad1a9b825f64e5951",
+      "baseSha256": "57b9912d78386892d1c14a942b03cc6d917b16e4d7d9f4cad1a9b825f64e5951"
+    },
+    {
+      "path": ".github/skills/common/common-architecture-diagramming/assets/fixtures/state.drawio",
+      "sha256": "75609542ffbdbf6bb0c0e2532e37bc713432a56e4911f78ee98c3d1be2ca233c",
+      "baseSha256": "75609542ffbdbf6bb0c0e2532e37bc713432a56e4911f78ee98c3d1be2ca233c"
+    },
+    {
+      "path": ".github/skills/common/common-architecture-diagramming/references/diagram-spec.md",
+      "sha256": "8e0d76ab2df7d3d6735c3c1b1435efb292c20cf3ff35a659c70cacdc29387f39",
+      "baseSha256": "8e0d76ab2df7d3d6735c3c1b1435efb292c20cf3ff35a659c70cacdc29387f39"
+    },
+    {
+      "path": ".github/skills/common/common-architecture-diagramming/references/layout-rules.md",
+      "sha256": "d886335abc62ff8e6ef0d336f40507acd77ea0af31a620f6f2385e8b8633b429",
+      "baseSha256": "d886335abc62ff8e6ef0d336f40507acd77ea0af31a620f6f2385e8b8633b429"
+    },
+    {
+      "path": ".github/skills/common/common-architecture-diagramming/references/mermaid-fallback.md",
+      "sha256": "7fd8efae54dfdf0f1cf1e8b3e407edfb35accdd79702ba3516bd71647413d6b1",
+      "baseSha256": "7fd8efae54dfdf0f1cf1e8b3e407edfb35accdd79702ba3516bd71647413d6b1"
+    },
+    {
+      "path": ".github/skills/common/common-architecture-diagramming/scripts/check_layout.py",
+      "sha256": "c4affa0f23658f504ba45246b9622fb3d5401a339220b2674f41193d9a25e795",
+      "baseSha256": "c4affa0f23658f504ba45246b9622fb3d5401a339220b2674f41193d9a25e795"
+    },
+    {
+      "path": ".github/skills/common/common-architecture-diagramming/scripts/render_drawio.py",
+      "sha256": "89e438b4877bfaf207a436d30b78749825788e1ebdb909dfbe25a9fe6b4f926f",
+      "baseSha256": "89e438b4877bfaf207a436d30b78749825788e1ebdb909dfbe25a9fe6b4f926f"
+    },
+    {
+      "path": ".github/skills/common/common-architecture-diagramming/scripts/render_erd.py",
+      "sha256": "6192395781b356f05e2dbac89eb013c0d27c8fb3f1f54fdb2edc9203e6059475",
+      "baseSha256": "6192395781b356f05e2dbac89eb013c0d27c8fb3f1f54fdb2edc9203e6059475"
+    },
+    {
+      "path": ".github/skills/common/common-architecture-diagramming/scripts/style_catalog.py",
+      "sha256": "76b752673bc5dad2fae758f0e59b7f7197f286de43dbcc7f2eb3e912fa091008",
+      "baseSha256": "76b752673bc5dad2fae758f0e59b7f7197f286de43dbcc7f2eb3e912fa091008"
+    },
+    {
+      "path": ".github/skills/common/common-architecture-diagramming/scripts/test_check_layout.py",
+      "sha256": "45ce66fdd94be5330fc08a68e446d20091306eed218d31d3baf9a5b7d626bf8b",
+      "baseSha256": "45ce66fdd94be5330fc08a68e446d20091306eed218d31d3baf9a5b7d626bf8b"
+    },
+    {
+      "path": ".github/skills/common/common-architecture-diagramming/scripts/test_render_drawio.py",
+      "sha256": "12363e0a8ab091c955487919f6f09da31f1b77276c0f8b384d75642f0c383c7f",
+      "baseSha256": "12363e0a8ab091c955487919f6f09da31f1b77276c0f8b384d75642f0c383c7f"
+    },
+    {
+      "path": ".github/skills/common/common-architecture-diagramming/scripts/test_view_manifest.py",
+      "sha256": "e736a96945a9db5a59f570c8157351fc12f0d1ac64e61e8aa5f7b9e8b6b38dc6",
+      "baseSha256": "e736a96945a9db5a59f570c8157351fc12f0d1ac64e61e8aa5f7b9e8b6b38dc6"
+    },
+    {
+      "path": ".github/skills/common/common-architecture-diagramming/scripts/validate_manifest.py",
+      "sha256": "467df5de3278e75c3691c87b9ea5614d572348c1e682a9a6524a7d1c0b11eed5",
+      "baseSha256": "467df5de3278e75c3691c87b9ea5614d572348c1e682a9a6524a7d1c0b11eed5"
+    },
+    {
+      "path": ".github/skills/common/common-architecture-diagramming/scripts/validate_spec.py",
+      "sha256": "a54e3c58e07e01593fadf990863f930501547ecfde11bffe51572464832f9546",
+      "baseSha256": "a54e3c58e07e01593fadf990863f930501547ecfde11bffe51572464832f9546"
+    },
+    {
+      "path": ".github/skills/system-design/system-design-data-architecture/SKILL.md",
+      "sha256": "e673583ba86f4fb92be74924a85eb139df4476b93b5ce7ddf1730ccd591a796d",
+      "baseSha256": "e673583ba86f4fb92be74924a85eb139df4476b93b5ce7ddf1730ccd591a796d"
+    },
+    {
+      "path": ".github/skills/system-design/system-design-data-architecture/references/database-scaling.md",
+      "sha256": "73ad2504d03275a31897a1fa7242c44824e5d5ef1a6f39f0cb41b6771cc63222",
+      "baseSha256": "73ad2504d03275a31897a1fa7242c44824e5d5ef1a6f39f0cb41b6771cc63222"
+    },
+    {
+      "path": ".github/skills/system-design/system-design-review/SKILL.md",
+      "sha256": "2ea78f997d334582f75f3694337e06aad98f460917ce5111e93bf89c4dc9b8fa",
+      "baseSha256": "2ea78f997d334582f75f3694337e06aad98f460917ce5111e93bf89c4dc9b8fa"
+    },
+    {
+      "path": ".github/skills/system-design/system-design-review/references/mistakes-table.md",
+      "sha256": "1b6f7a7f4a342b79ed01f0c8f37570669535eda06477205af93773e67c71e04f",
+      "baseSha256": "1b6f7a7f4a342b79ed01f0c8f37570669535eda06477205af93773e67c71e04f"
+    },
+    {
+      "path": ".github/skills/system-design/system-design-review/references/semantic-evaluation.md",
+      "sha256": "abda039e29d4708a2475bdf69a4e1abfe32411893391b85e352baa14d2be0127",
+      "baseSha256": "abda039e29d4708a2475bdf69a4e1abfe32411893391b85e352baa14d2be0127"
+    },
+    {
+      "path": "skills/README.md",
+      "sha256": "48366fa4da7a1aea5693245b067cdc60b97e5c64697cc539f7eb34cfaadeb6c6",
+      "baseSha256": "48366fa4da7a1aea5693245b067cdc60b97e5c64697cc539f7eb34cfaadeb6c6"
+    },
+    {
+      "path": "skills/database/_INDEX.md",
+      "sha256": "b6d51f76f12b3e3b1ea1b0357c840de3209da96e6a429f5c49345e3a8ded6615",
+      "baseSha256": "b6d51f76f12b3e3b1ea1b0357c840de3209da96e6a429f5c49345e3a8ded6615"
+    },
+    {
+      "path": "skills/index.json",
+      "sha256": "ab41ccc56d41b6d7d70fd866bf0a44ba56aacd6994225ebf3ca840136e19c930",
+      "baseSha256": "ab41ccc56d41b6d7d70fd866bf0a44ba56aacd6994225ebf3ca840136e19c930"
+    },
+    {
+      "path": "skills/metadata.json",
+      "sha256": "5ff7335a5d414943176a22466006be2ab659de357329bf87ec143c3aab20e3d7",
+      "baseSha256": "5ff7335a5d414943176a22466006be2ab659de357329bf87ec143c3aab20e3d7",
+      "scopeSha256": "e64d7dc2248deb182d61ea9ef34a4021b13e4a87966aaa7d02c39fde4741883c"
+    }
+  ]
+}

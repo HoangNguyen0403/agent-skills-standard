@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "task_id": "design-improvements-4",
+  "task_number": 4,
+  "goal": "Real scoped bounded-query fixture",
+  "owner": "Personal - Cheap worker 4",
+  "project_domain": "Personal agent-skills-standard prj_24334e6778b1395c",
+  "workspace_root": "/Users/nguyenhuyhoang/.paseo/worktrees/0vty4mn4/zealous-flamingo",
+  "plan_sha256": "7460a2ffd4f1179fe90191ad465b880adc7a9319219474aa79fe03417142737b",
+  "non_goals": [
+    "No installs, model eval execution, publication, commits, delegation or unrelated edits"
+  ],
+  "authority": {
+    "allowed_operations": [
+      "Read and edit owned paths under approved SRS/packet",
+      "Freeze and return evidence"
+    ],
+    "forbidden_actions": [
+      "Run tests/build/lint/formatters mid-flight",
+      "Edit peer-owned paths",
+      "Deploy or spend"
+    ],
+    "required_approvals": [
+      "User approved corrected contracts; subagent-driven; repair baseline"
+    ]
+  },
+  "global_invariants": [
+    "Preserve approved IDs, semantics, evidence and independent review",
+    "No fabricated verification"
+  ],
+  "owned_paths": [
+    "skills/database/database-query-performance/scripts/nplus1_smoke.py",
+    "skills/database/database-query-performance/scripts/test_nplus1_smoke.py"
+  ],
+  "acceptance_criteria": [
+    {
+      "id": "AC-09",
+      "expectation": "Apply canonical PRD AC-09 and corresponding SRS contract in this task scope"
+    }
+  ],
+  "verification": [
+    {
+      "command": "Parent runs focused Python/native checks and actual ingress smoke after all relevant owners freeze",
+      "cwd": "/Users/nguyenhuyhoang/.paseo/worktrees/0vty4mn4/zealous-flamingo",
+      "expected": "Owned behavior passes; unavailable native/eval/human lanes explicit NOT RUN"
+    }
+  ],
+  "required_standards": [
+    {
+      "id": "database-query-performance",
+      "path": "skills/database/database-query-performance/SKILL.md",
+      "revision": "2b036001cef94fdb62f61c6881fb243aedb8db1500e5504edee98f4a5a8ad78a"
+    },
+    {
+      "id": "python-language",
+      "path": "skills/python/python-language/SKILL.md",
+      "revision": "930c3d23e0d1a1871555602eebb2e100d22363fb093f42e2b649f10823a489d8"
+    }
+  ],
+  "source_revision": "52671cf9ed6a1c376dfaaae7e621dbc51a4c8765",
+  "dirty_identity": "e956b81155f45ded09e056cda7b589c7618beb6d986981620dab75c6b2308836",
+  "source_files": [
+    {
+      "path": "docs/prd/prd-system-design-visualization-improvements.md",
+      "sha256": "1fe4e418408e3b0a09ae938da20ecfcb6c1cbe15435cecbbb9ab46af69d0c659"
+    },
+    {
+      "path": "docs/srs/srs-system-design-visualization-improvements.md",
+      "sha256": "4fe86e3f3ac3623fb4e7c0fb4273942fa851b37b9118fb1a65d035aebc0c8d6e"
+    },
+    {
+      "path": "docs/adr/adr-system-design-visualization-improvements.md",
+      "sha256": "7700c81d4738f3dee0327441f60e46da65b2c911dcd264d540aea75ba8223f9a"
+    }
+  ],
+  "dependencies": [],
+  "output_contract": {
+    "receipt_destination": "artifacts/runs/system-design-visualization-improvements/worker-4-receipt.md",
+    "status_vocabulary": [
+      "completed",
+      "needs_context",
+      "blocked"
+    ],
+    "stop_conditions": [
+      "Freeze after owned edits",
+      "Return material missing contract to parent"
+    ]
+  },
+  "limits": {
+    "status": "advisory",
+    "correction_attempts": 1
+  }
+}

@@ -1,0 +1,149 @@
+{
+  "version": "1.0",
+  "date": "2026-09-13",
+  "author": "Solution Architecture",
+  "title": "Complete architecture evidence and boundary semantics for the long-running payment orchestration and reconciliation subsystem Complete architecture evidence and boundary semantics for the long-running payment orchestration and reconciliation subsystem Complete architecture evidence and boundary semantics for the long-running payment orchestration and reconciliation subsystem ",
+  "type": "sequence",
+  "audience": "tech",
+  "scope": "Preserve all participant, relationship and provenance meaning across multi-line descriptions without hiding overflow or moving metadata into unrelated diagram content. Preserve all participant, relationship and provenance meaning across multi-line descriptions without hiding overflow or moving metadata into unrelated diagram content. Preserve all participant, relationship and provenance meaning across multi-line descriptions without hiding overflow or moving metadata into unrelated diagram content. Preserve all participant, relationship and provenance meaning across multi-line descriptions without hiding overflow or moving metadata into unrelated diagram content. ",
+  "nodes": [
+    {
+      "id": "buyer",
+      "label": "Buyer \u2014 long participant identity and authorization responsibility  \u2014 long participant identity and authorization responsibility  \u2014 long participant identity and authorization responsibility  \u2014 long participant identity and authorization responsibility ",
+      "kind": "participant",
+      "evidence": "docs/prd.md:12",
+      "identity": "synthetic.presentation.0",
+      "lifecycle": "proposed",
+      "evidence_confidence": "documented",
+      "evidence_kind": "document",
+      "sublabel": "Tenant-scoped request execution and independently evidenced failure handling Tenant-scoped request execution and independently evidenced failure handling Tenant-scoped request execution and independently evidenced failure handling "
+    },
+    {
+      "id": "web",
+      "label": "Storefront \u2014 long participant identity and authorization responsibility  \u2014 long participant identity and authorization responsibility  \u2014 long participant identity and authorization responsibility  \u2014 long participant identity and authorization responsibility ",
+      "kind": "participant",
+      "evidence": "apps/web/checkout.tsx:1",
+      "identity": "synthetic.presentation.1",
+      "lifecycle": "proposed",
+      "evidence_confidence": "documented",
+      "evidence_kind": "document",
+      "sublabel": "Tenant-scoped request execution and independently evidenced failure handling Tenant-scoped request execution and independently evidenced failure handling Tenant-scoped request execution and independently evidenced failure handling "
+    },
+    {
+      "id": "api",
+      "label": "Order API \u2014 long participant identity and authorization responsibility  \u2014 long participant identity and authorization responsibility  \u2014 long participant identity and authorization responsibility  \u2014 long participant identity and authorization responsibility ",
+      "kind": "participant",
+      "evidence": "services/order-api/checkout.go:1",
+      "identity": "synthetic.presentation.2",
+      "lifecycle": "proposed",
+      "evidence_confidence": "documented",
+      "evidence_kind": "document",
+      "sublabel": "Tenant-scoped request execution and independently evidenced failure handling Tenant-scoped request execution and independently evidenced failure handling Tenant-scoped request execution and independently evidenced failure handling "
+    },
+    {
+      "id": "db",
+      "label": "Orders DB \u2014 long participant identity and authorization responsibility  \u2014 long participant identity and authorization responsibility  \u2014 long participant identity and authorization responsibility  \u2014 long participant identity and authorization responsibility ",
+      "kind": "participant",
+      "evidence": "infra/sql.tf:4",
+      "identity": "synthetic.presentation.3",
+      "lifecycle": "proposed",
+      "evidence_confidence": "documented",
+      "evidence_kind": "document",
+      "sublabel": "Tenant-scoped request execution and independently evidenced failure handling Tenant-scoped request execution and independently evidenced failure handling Tenant-scoped request execution and independently evidenced failure handling "
+    }
+  ],
+  "edges": [
+    {
+      "from": "buyer",
+      "to": "web",
+      "label": "Confirm order\nLong message details preserve ordering, transaction semantics and tenant authorization without overlapping other message labels. \nLong message details preserve ordering, transaction semantics and tenant authorization without overlapping other message labels. \nLong message details preserve ordering, transaction semantics and tenant authorization without overlapping other message labels. ",
+      "identity": "sequence.message.0",
+      "lifecycle": "proposed",
+      "evidence_confidence": "documented",
+      "evidence": "docs/sequence.md:1",
+      "evidence_kind": "document",
+      "evidence_revision": "captured-review-revision",
+      "evidence_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "from": "web",
+      "to": "api",
+      "label": "POST /orders\nLong message details preserve ordering, transaction semantics and tenant authorization without overlapping other message labels. \nLong message details preserve ordering, transaction semantics and tenant authorization without overlapping other message labels. \nLong message details preserve ordering, transaction semantics and tenant authorization without overlapping other message labels. ",
+      "metric": "p99 120ms",
+      "identity": "sequence.message.1",
+      "lifecycle": "proposed",
+      "evidence_confidence": "documented",
+      "metric_provenance": "target",
+      "evidence": "docs/sequence.md:2",
+      "evidence_kind": "document",
+      "evidence_revision": "captured-review-revision",
+      "evidence_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "from": "api",
+      "to": "db",
+      "label": "INSERT order (tx)\nLong message details preserve ordering, transaction semantics and tenant authorization without overlapping other message labels. \nLong message details preserve ordering, transaction semantics and tenant authorization without overlapping other message labels. \nLong message details preserve ordering, transaction semantics and tenant authorization without overlapping other message labels. ",
+      "metric": "p99 15ms",
+      "identity": "sequence.message.2",
+      "lifecycle": "proposed",
+      "evidence_confidence": "documented",
+      "metric_provenance": "target",
+      "evidence": "docs/sequence.md:3",
+      "evidence_kind": "document",
+      "evidence_revision": "captured-review-revision",
+      "evidence_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "from": "db",
+      "to": "api",
+      "label": "order id\nLong message details preserve ordering, transaction semantics and tenant authorization without overlapping other message labels. \nLong message details preserve ordering, transaction semantics and tenant authorization without overlapping other message labels. \nLong message details preserve ordering, transaction semantics and tenant authorization without overlapping other message labels. ",
+      "style": "return",
+      "identity": "sequence.message.3",
+      "lifecycle": "proposed",
+      "evidence_confidence": "documented",
+      "evidence": "docs/sequence.md:4",
+      "evidence_kind": "document",
+      "evidence_revision": "captured-review-revision",
+      "evidence_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "from": "api",
+      "to": "web",
+      "label": "201 Created\nLong message details preserve ordering, transaction semantics and tenant authorization without overlapping other message labels. \nLong message details preserve ordering, transaction semantics and tenant authorization without overlapping other message labels. \nLong message details preserve ordering, transaction semantics and tenant authorization without overlapping other message labels. ",
+      "style": "return",
+      "identity": "sequence.message.4",
+      "lifecycle": "proposed",
+      "evidence_confidence": "documented",
+      "evidence": "docs/sequence.md:5",
+      "evidence_kind": "document",
+      "evidence_revision": "captured-review-revision",
+      "evidence_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "from": "web",
+      "to": "buyer",
+      "label": "Confirmation page\nLong message details preserve ordering, transaction semantics and tenant authorization without overlapping other message labels. \nLong message details preserve ordering, transaction semantics and tenant authorization without overlapping other message labels. \nLong message details preserve ordering, transaction semantics and tenant authorization without overlapping other message labels. ",
+      "style": "return",
+      "identity": "sequence.message.5",
+      "lifecycle": "proposed",
+      "evidence_confidence": "documented",
+      "evidence": "docs/sequence.md:6",
+      "evidence_kind": "document",
+      "evidence_revision": "captured-review-revision",
+      "evidence_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  ],
+  "view": {
+    "question": "How does the complete request travel through the relevant trust boundaries while preserving authorization and tenant scope? How does the complete request travel through the relevant trust boundaries while preserving authorization and tenant scope? How does the complete request travel through the relevant trust boundaries while preserving authorization and tenant scope? ",
+    "decision": "Choose the smallest bounded request flow, retaining independent evidence and explicit uncertainty on every unsupported relationship. Choose the smallest bounded request flow, retaining independent evidence and explicit uncertainty on every unsupported relationship. Choose the smallest bounded request flow, retaining independent evidence and explicit uncertainty on every unsupported relationship. ",
+    "scenario": "A tenant issues one request, receives a deterministic ordered page, and examines related records without an unbounded per-record fan-out. A tenant issues one request, receives a deterministic ordered page, and examines related records without an unbounded per-record fan-out. A tenant issues one request, receives a deterministic ordered page, and examines related records without an unbounded per-record fan-out. ",
+    "invariant": "Keep parent pagination, empty relations, authorization boundaries, relationship direction and complete citation metadata unchanged. Keep parent pagination, empty relations, authorization boundaries, relationship direction and complete citation metadata unchanged. Keep parent pagination, empty relations, authorization boundaries, relationship direction and complete citation metadata unchanged. ",
+    "status": "proposed",
+    "evidence": "docs/example-architecture.md:20",
+    "evidence_kind": "document",
+    "omissions": [
+      "Production capacity is not established by this synthetic presentation exercise. Production capacity is not established by this synthetic presentation exercise. Production capacity is not established by this synthetic presentation exercise. ",
+      "No remote resources or citation targets are fetched during rendering. No remote resources or citation targets are fetched during rendering. No remote resources or citation targets are fetched during rendering. "
+    ]
+  }
+}

@@ -1,0 +1,155 @@
+{
+  "title": "Acme Settlement \u2014 Event Data Flow With Retry State",
+  "type": "dataflow",
+  "audience": "tech",
+  "version": "1.0",
+  "date": "2026-11-06",
+  "author": "Architecture Maintainer",
+  "scope": "How partner settlement events are consumed, deduplicated and retried; analytics path excluded.",
+  "groups": [
+    {
+      "id": "settlement",
+      "label": "Settlement data boundary"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "webhook",
+      "label": "Partner Webhook Ingress",
+      "sublabel": "Gateway, HMAC-signed",
+      "kind": "cloud:gateway",
+      "layer": 0,
+      "evidence": "infra/webhook-gw.tf:6",
+      "evidence_kind": "deployment",
+      "evidence_confidence": "observed",
+      "metric": "~40 events/s",
+      "metric_provenance": "measured"
+    },
+    {
+      "id": "events",
+      "label": "settlement.events",
+      "sublabel": "SQS, at-least-once",
+      "kind": "queue",
+      "layer": 1,
+      "evidence": "infra/sqs.tf:12",
+      "evidence_kind": "deployment",
+      "evidence_confidence": "observed",
+      "metric": "4-day retention",
+      "metric_provenance": "measured"
+    },
+    {
+      "id": "consumer",
+      "label": "Settlement Worker",
+      "sublabel": "Go, batches of 100",
+      "kind": "container",
+      "layer": 2,
+      "evidence": "services/settlement/main.go:1",
+      "evidence_kind": "code",
+      "evidence_confidence": "documented",
+      "metric": "3 concurrent consumers",
+      "metric_provenance": "estimated"
+    },
+    {
+      "id": "dedupe",
+      "label": "Idempotency Key Store",
+      "sublabel": "Redis, 7-day TTL",
+      "kind": "cache",
+      "group": "settlement",
+      "layer": 3,
+      "evidence": "services/settlement/idempotency.go:18",
+      "evidence_kind": "code",
+      "evidence_confidence": "documented"
+    },
+    {
+      "id": "ledger",
+      "label": "Ledger DB",
+      "sublabel": "Postgres, serializable",
+      "kind": "db",
+      "group": "settlement",
+      "layer": 3,
+      "evidence": "db/schema.sql:41",
+      "evidence_kind": "code",
+      "evidence_confidence": "documented",
+      "metric": "180 GB",
+      "metric_provenance": "measured"
+    },
+    {
+      "id": "retry",
+      "label": "Retry and DLQ",
+      "sublabel": "3 attempts, exponential backoff",
+      "kind": "queue",
+      "layer": 3,
+      "evidence": "infra/sqs-retry.tf:3",
+      "evidence_kind": "deployment",
+      "evidence_confidence": "observed"
+    },
+    {
+      "id": "partner_api",
+      "label": "Partner Settlement API",
+      "sublabel": "Ack and reconciliation",
+      "kind": "saas",
+      "layer": 2,
+      "lifecycle": "implemented",
+      "evidence_confidence": "assumed"
+    }
+  ],
+  "edges": [
+    {
+      "from": "webhook",
+      "to": "events",
+      "label": "Publishes signed event",
+      "style": "async",
+      "evidence": "infra/webhook-gw.tf:18",
+      "evidence_kind": "deployment",
+      "evidence_confidence": "observed"
+    },
+    {
+      "from": "events",
+      "to": "consumer",
+      "label": "Polls batch of 100",
+      "style": "async",
+      "evidence": "services/settlement/main.go:44",
+      "evidence_kind": "code",
+      "evidence_confidence": "documented"
+    },
+    {
+      "from": "consumer",
+      "to": "dedupe",
+      "label": "Checks and sets key / Redis",
+      "evidence": "services/settlement/idempotency.go:31",
+      "evidence_kind": "code",
+      "evidence_confidence": "documented"
+    },
+    {
+      "from": "consumer",
+      "to": "ledger",
+      "label": "Writes ledger entry / SQL",
+      "evidence": "services/settlement/ledger.go:22",
+      "evidence_kind": "code",
+      "evidence_confidence": "documented"
+    },
+    {
+      "from": "consumer",
+      "to": "retry",
+      "label": "Dead-letters after 3 failures",
+      "style": "async",
+      "evidence": "infra/sqs-retry.tf:14",
+      "evidence_kind": "deployment",
+      "evidence_confidence": "observed"
+    },
+    {
+      "from": "retry",
+      "to": "consumer",
+      "label": "Redelivers after backoff",
+      "style": "async",
+      "evidence": "services/settlement/retry.go:17",
+      "evidence_kind": "code",
+      "evidence_confidence": "documented"
+    },
+    {
+      "from": "consumer",
+      "to": "partner_api",
+      "label": "Posts settlement ack / HTTPS"
+    }
+  ]
+}
