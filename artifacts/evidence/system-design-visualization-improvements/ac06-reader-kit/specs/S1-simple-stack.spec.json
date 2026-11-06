@@ -1,0 +1,141 @@
+{
+  "version": "1.0",
+  "date": "2026-09-13",
+  "author": "Solution Architecture",
+  "title": "Acme Orders \u2014 Containers",
+  "type": "container",
+  "audience": "tech",
+  "scope": "Deployable units inside Acme Orders and the stores they own; infrastructure excluded.",
+  "groups": [
+    {
+      "id": "gke",
+      "label": "GKE \u2014 asia-southeast1",
+      "kind": "boundary"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "web",
+      "label": "Storefront",
+      "sublabel": "Next.js",
+      "kind": "container",
+      "group": "gke",
+      "evidence": "apps/web/package.json:1",
+      "metric": "3k QPS peak",
+      "constraint": "buyers order from mobile browsers",
+      "lifecycle": "implemented",
+      "evidence_kind": "code",
+      "evidence_confidence": "documented"
+    },
+    {
+      "id": "api",
+      "label": "Order API",
+      "sublabel": "Go",
+      "kind": "container",
+      "group": "gke",
+      "evidence": "services/order-api/main.go:1",
+      "metric": "12k QPS peak \u00b7 p99 200ms",
+      "constraint": "120k read QPS on a 3k QPS store",
+      "lifecycle": "implemented",
+      "evidence_kind": "code",
+      "evidence_confidence": "documented"
+    },
+    {
+      "id": "worker",
+      "label": "Fulfilment Worker",
+      "sublabel": "Go",
+      "kind": "container",
+      "group": "gke",
+      "evidence": "services/fulfilment/main.go:1",
+      "metric": "800 msg/s",
+      "constraint": "ERP sync must not block checkout",
+      "lifecycle": "implemented",
+      "evidence_kind": "code",
+      "evidence_confidence": "documented"
+    },
+    {
+      "id": "db",
+      "label": "Orders DB",
+      "sublabel": "Postgres 16",
+      "kind": "db",
+      "group": "gke",
+      "evidence": "infra/sql.tf:4",
+      "metric": "2 TB/yr",
+      "constraint": "orders need transactional writes",
+      "lifecycle": "implemented",
+      "evidence_kind": "deployment",
+      "evidence_confidence": "observed"
+    },
+    {
+      "id": "cache",
+      "label": "Catalogue Cache",
+      "sublabel": "Redis",
+      "kind": "cache",
+      "group": "gke",
+      "evidence": "infra/redis.tf:2",
+      "metric": "40 GB working set",
+      "constraint": "catalogue reads are 40:1 over writes",
+      "lifecycle": "implemented",
+      "evidence_kind": "deployment",
+      "evidence_confidence": "observed"
+    },
+    {
+      "id": "queue",
+      "label": "Order Events",
+      "sublabel": "Pub/Sub",
+      "kind": "queue",
+      "evidence": "infra/pubsub.tf:1",
+      "metric": "~1k events/s",
+      "constraint": "downstream consumers run at their own pace",
+      "lifecycle": "implemented",
+      "evidence_kind": "deployment",
+      "evidence_confidence": "observed"
+    }
+  ],
+  "edges": [
+    {
+      "from": "web",
+      "to": "api",
+      "label": "GraphQL / HTTPS",
+      "metric": "p99 120ms",
+      "evidence": "apps/web/src/api.ts:18",
+      "evidence_kind": "code",
+      "evidence_confidence": "documented"
+    },
+    {
+      "from": "api",
+      "to": "db",
+      "label": "SQL",
+      "evidence": "services/order-api/store.go:33",
+      "evidence_kind": "code",
+      "evidence_confidence": "documented"
+    },
+    {
+      "from": "api",
+      "to": "cache",
+      "label": "GET / Redis protocol",
+      "evidence": "services/order-api/catalogue.go:12",
+      "evidence_kind": "code",
+      "evidence_confidence": "documented"
+    },
+    {
+      "from": "api",
+      "to": "queue",
+      "label": "Publishes OrderPlaced",
+      "style": "async",
+      "metric": "~1k/s",
+      "evidence": "services/order-api/events.go:26",
+      "evidence_kind": "code",
+      "evidence_confidence": "documented"
+    },
+    {
+      "from": "queue",
+      "to": "worker",
+      "label": "Subscribes OrderPlaced",
+      "style": "async",
+      "evidence": "services/fulfilment/consume.go:14",
+      "evidence_kind": "code",
+      "evidence_confidence": "documented"
+    }
+  ]
+}

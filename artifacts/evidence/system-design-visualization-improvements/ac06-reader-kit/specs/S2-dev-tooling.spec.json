@@ -1,0 +1,119 @@
+{
+  "title": "Devkit \u2014 Developer Tooling Path",
+  "type": "container",
+  "audience": "tech",
+  "version": "1.0",
+  "date": "2026-11-06",
+  "author": "Architecture Maintainer",
+  "scope": "How a developer edit travels from editor to pinned artifacts; application runtime excluded.",
+  "groups": [
+    {
+      "id": "workstation",
+      "label": "Developer workstation"
+    },
+    {
+      "id": "shared_ci",
+      "label": "Shared CI \u2014 org-wide runners"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "editor",
+      "label": "Editor Extension",
+      "sublabel": "VS Code client, TypeScript",
+      "kind": "component",
+      "group": "workstation",
+      "evidence": "tools/editor-extension/package.json:1",
+      "evidence_kind": "code",
+      "evidence_confidence": "documented"
+    },
+    {
+      "id": "cli",
+      "label": "Devkit CLI",
+      "sublabel": "Go binary in PATH",
+      "kind": "container",
+      "group": "workstation",
+      "evidence": "tools/devkit/cmd/devkit/main.go:1",
+      "evidence_kind": "code",
+      "evidence_confidence": "documented",
+      "metric": "1.4 s median build",
+      "metric_provenance": "measured"
+    },
+    {
+      "id": "local_cache",
+      "label": "Local Build Cache",
+      "sublabel": "Content-addressed, 12 GB cap",
+      "kind": "cache",
+      "group": "workstation",
+      "evidence": "tools/devkit/cache.go:22",
+      "evidence_kind": "code",
+      "evidence_confidence": "documented"
+    },
+    {
+      "id": "ci",
+      "label": "CI Runner",
+      "sublabel": "Ephemeral, 8 vCPU",
+      "kind": "container",
+      "group": "shared_ci",
+      "evidence": "ci/pipeline.yml:14",
+      "evidence_kind": "document",
+      "evidence_confidence": "documented",
+      "metric": "~900 jobs/day",
+      "metric_provenance": "estimated"
+    },
+    {
+      "id": "registry",
+      "label": "Artifact Registry",
+      "sublabel": "Immutable pinned tarballs",
+      "kind": "cloud:object-store",
+      "layer": 3,
+      "evidence": "infra/registry.tf:5",
+      "evidence_kind": "deployment",
+      "evidence_confidence": "observed",
+      "metric": "410 GB, 6.2M objects",
+      "metric_provenance": "measured"
+    },
+    {
+      "id": "remote_exec",
+      "label": "Remote Execution Farm",
+      "sublabel": "Planned: shared build workers",
+      "kind": "container",
+      "layer": 2,
+      "lifecycle": "proposed",
+      "evidence_confidence": "unverified"
+    }
+  ],
+  "edges": [
+    {
+      "from": "editor",
+      "to": "cli",
+      "label": "Runs devkit build / exec",
+      "evidence": "tools/editor-extension/src/commands.ts:31",
+      "evidence_kind": "code",
+      "evidence_confidence": "documented"
+    },
+    {
+      "from": "cli",
+      "to": "local_cache",
+      "label": "Reads and writes blobs",
+      "evidence": "tools/devkit/cache.go:48",
+      "evidence_kind": "code",
+      "evidence_confidence": "documented"
+    },
+    {
+      "from": "cli",
+      "to": "registry",
+      "label": "Fetches pinned packages / HTTPS",
+      "evidence": "tools/devkit/resolve.go:75",
+      "evidence_kind": "code",
+      "evidence_confidence": "documented"
+    },
+    {
+      "from": "ci",
+      "to": "remote_exec",
+      "label": "Submits build action / gRPC",
+      "style": "async",
+      "evidence_confidence": "unverified"
+    }
+  ]
+}

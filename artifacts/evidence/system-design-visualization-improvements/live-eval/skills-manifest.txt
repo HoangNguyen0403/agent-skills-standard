@@ -1,0 +1,15 @@
+58613c533b5740f258b8deb496b400db680a5982faf9dd97bcab0cb621eb9a5c  ./database-query-performance/SKILL.md
+3e61e0187ae46ce3d464cde13d42407fa197d8104db92b560afd4461ae243649  ./database-query-performance/references/index-strategies.md
+74001e1d567ec1514a5a2e9aa9bf9b56a6c6f3f08d8da7f46faae5e72697088e  ./database-query-performance/references/nplus1-diagnosis.md
+032fb36ac8074322c84f2f00469ca77c5f9b0a46fc83b9357dfd11f846341ccf  ./system-design-communication/SKILL.md
+097666ef2c99199589fe2513ce895c0af05459ab8939012ee2fa3157e074a097  ./system-design-communication/references/communication-selection.md
+6bb987df29e6aebfa9d19f22c2911333146a121f3a42262cd682c239c2186883  ./system-design-data-architecture/SKILL.md
+c4262a31e9be1c21dff27e4da687f57f24f75498f675841067322336223875a8  ./system-design-data-architecture/references/database-scaling.md
+4131b570c4cd754db19201243d850d8a2ad8156ee9e3c4c7836ce709a040a1d3  ./system-design-data-architecture/references/dfd-review.md
+6215b36242151b6238253d52dfcdbf4eaf8fe6acae137d1618aae8d2aa77281c  ./system-design-data-architecture/references/flow-contracts.md
+fa37e6f2569c328b0dd9cd87d103e523968d47a2c7f0ea47932b44198683d571  ./system-design-data-architecture/references/tenant-safe-retrieval.md
+521e8b81c55dcbbfa429f642b9a440342a07248929ee3d3fbb41979132c1817d  ./system-design-data-architecture/references/worked-flows.md
+1e1573026cb014b8951ff7e6a83ad8a613108fc184efe8d986c78b68262704f3  ./system-design-review/SKILL.md
+7ed2cec26920922bf70b7260fc28976891fa760cbcd71c5fdb1120677e1706bf  ./system-design-review/references/mistakes-table.md
+333a56d857d7a70308de4c4fd043d17d8c44dbe00e5ce5e7d67141871c3207a6  ./system-design-review/references/scorecard.md
+a87d787a168d7aea21fd951c8e7ed18279a97f0c08b05b79c6d4f64d2ab3a84a  ./system-design-review/references/semantic-evaluation.md

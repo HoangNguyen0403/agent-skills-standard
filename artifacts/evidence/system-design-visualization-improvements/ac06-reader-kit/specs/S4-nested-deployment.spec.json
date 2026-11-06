@@ -1,0 +1,164 @@
+{
+  "title": "Acme Orders \u2014 Multi-Region Deployment",
+  "type": "deployment",
+  "audience": "tech",
+  "version": "1.0",
+  "date": "2026-11-06",
+  "author": "Architecture Maintainer",
+  "scope": "Where Acme Orders runs across primary and DR regions; cluster and namespace collapse into node sublabels, static asset delivery excluded.",
+  "groups": [
+    {
+      "id": "prod_ap",
+      "label": "ap-southeast-1 prod"
+    },
+    {
+      "id": "dr_ap",
+      "label": "ap-southeast-2 DR"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "dns",
+      "label": "Route 53",
+      "sublabel": "Failover routing policy",
+      "kind": "aws:route53",
+      "layer": 0,
+      "evidence": "infra/dns.tf:9",
+      "evidence_kind": "deployment",
+      "evidence_confidence": "observed",
+      "metric": "60 s health-check TTL",
+      "metric_provenance": "target"
+    },
+    {
+      "id": "alb_prod",
+      "label": "ALB prod",
+      "sublabel": "TLS termination, acme-prod/orders",
+      "kind": "aws:elb",
+      "group": "prod_ap",
+      "evidence": "infra/alb-prod.tf:3",
+      "evidence_kind": "deployment",
+      "evidence_confidence": "observed",
+      "metric": "12k req/s peak",
+      "metric_provenance": "measured"
+    },
+    {
+      "id": "eks_prod",
+      "label": "Order API",
+      "sublabel": "EKS acme-prod, ns orders, 6 pods",
+      "kind": "aws:eks",
+      "group": "prod_ap",
+      "evidence": "infra/eks-prod.tf:7",
+      "evidence_kind": "deployment",
+      "evidence_confidence": "observed",
+      "metric": "6 pods \u00b7 2 vCPU each",
+      "metric_provenance": "measured"
+    },
+    {
+      "id": "aurora_prod",
+      "label": "Aurora writer",
+      "sublabel": "db.r6g.2xlarge",
+      "kind": "aws:aurora",
+      "group": "prod_ap",
+      "evidence": "infra/aurora-prod.tf:4",
+      "evidence_kind": "deployment",
+      "evidence_confidence": "observed",
+      "metric": "2 TB",
+      "metric_provenance": "measured"
+    },
+    {
+      "id": "alb_dr",
+      "label": "ALB DR",
+      "sublabel": "Warm standby, acme-dr/orders",
+      "kind": "aws:elb",
+      "group": "dr_ap",
+      "evidence": "infra/alb-dr.tf:3",
+      "evidence_kind": "deployment",
+      "evidence_confidence": "observed",
+      "metric": "0 req/s steady state",
+      "metric_provenance": "measured"
+    },
+    {
+      "id": "eks_dr",
+      "label": "Order API",
+      "sublabel": "EKS acme-dr, ns orders, 2 pods",
+      "kind": "aws:eks",
+      "group": "dr_ap",
+      "lifecycle": "proposed",
+      "evidence_confidence": "assumed",
+      "metric": "2 pods \u00b7 target scale-out 8",
+      "metric_provenance": "target"
+    },
+    {
+      "id": "aurora_dr",
+      "label": "Aurora replica",
+      "sublabel": "Global Database secondary",
+      "kind": "aws:aurora",
+      "group": "dr_ap",
+      "evidence": "infra/aurora-dr.tf:4",
+      "evidence_kind": "deployment",
+      "evidence_confidence": "observed"
+    }
+  ],
+  "edges": [
+    {
+      "from": "dns",
+      "to": "alb_prod",
+      "label": "Alias record / HTTPS",
+      "evidence": "infra/dns.tf:11",
+      "evidence_kind": "deployment",
+      "evidence_confidence": "observed"
+    },
+    {
+      "from": "alb_prod",
+      "to": "eks_prod",
+      "label": "HTTP / target group",
+      "evidence": "infra/alb-prod.tf:19",
+      "evidence_kind": "deployment",
+      "evidence_confidence": "observed"
+    },
+    {
+      "from": "eks_prod",
+      "to": "aurora_prod",
+      "label": "SQL / TLS",
+      "evidence": "infra/eks-prod.tf:44",
+      "evidence_kind": "deployment",
+      "evidence_confidence": "observed"
+    },
+    {
+      "from": "dns",
+      "to": "alb_dr",
+      "label": "Failover record / health check",
+      "style": "async",
+      "evidence": "infra/dns.tf:18",
+      "evidence_kind": "deployment",
+      "evidence_confidence": "observed"
+    },
+    {
+      "from": "alb_dr",
+      "to": "eks_dr",
+      "label": "HTTP / target group",
+      "evidence": "infra/alb-dr.tf:19",
+      "evidence_kind": "deployment",
+      "evidence_confidence": "observed"
+    },
+    {
+      "from": "eks_dr",
+      "to": "aurora_dr",
+      "label": "Read-only SQL",
+      "evidence": "infra/eks-dr.tf:31",
+      "evidence_kind": "deployment",
+      "evidence_confidence": "observed"
+    },
+    {
+      "from": "aurora_prod",
+      "to": "aurora_dr",
+      "label": "Global DB replication / async",
+      "style": "async",
+      "metric": "sub-1 s replica lag",
+      "metric_provenance": "target",
+      "evidence": "infra/aurora-dr.tf:12",
+      "evidence_kind": "deployment",
+      "evidence_confidence": "observed"
+    }
+  ]
+}

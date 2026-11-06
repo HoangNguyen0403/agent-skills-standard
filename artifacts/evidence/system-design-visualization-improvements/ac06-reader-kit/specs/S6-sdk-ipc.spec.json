@@ -1,0 +1,149 @@
+{
+  "title": "Acme Agent \u2014 SDK and IPC Boundary",
+  "type": "component",
+  "audience": "tech",
+  "version": "1.0",
+  "date": "2026-11-06",
+  "author": "Architecture Maintainer",
+  "scope": "How a host application reaches the agent daemon across the process boundary; inference internals excluded.",
+  "groups": [
+    {
+      "id": "host",
+      "label": "Host application process \u2014 Node 20"
+    },
+    {
+      "id": "daemon",
+      "label": "Agent daemon process \u2014 Go, per user"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "app",
+      "label": "Host Application",
+      "sublabel": "CLI or IDE plugin",
+      "kind": "component",
+      "group": "host",
+      "layer": 0,
+      "evidence": "apps/host/src/index.ts:1",
+      "evidence_kind": "code",
+      "evidence_confidence": "documented"
+    },
+    {
+      "id": "sdk",
+      "label": "Client SDK",
+      "sublabel": "TypeScript, in-process",
+      "kind": "component",
+      "group": "host",
+      "layer": 1,
+      "evidence": "packages/sdk/src/client.ts:12",
+      "evidence_kind": "code",
+      "evidence_confidence": "documented",
+      "metric": "1.1 MB unpacked"
+    },
+    {
+      "id": "ipc",
+      "label": "IPC Transport",
+      "sublabel": "Unix socket, length-prefixed JSON",
+      "kind": "component",
+      "layer": 2,
+      "evidence_confidence": "unverified"
+    },
+    {
+      "id": "daemon",
+      "label": "Agent Daemon",
+      "sublabel": "Go, one per user session",
+      "kind": "component",
+      "group": "daemon",
+      "layer": 3,
+      "evidence": "services/daemon/main.go:1",
+      "evidence_kind": "code",
+      "evidence_confidence": "documented",
+      "metric": "~35 MB RSS idle",
+      "metric_provenance": "measured"
+    },
+    {
+      "id": "session",
+      "label": "Session Store",
+      "sublabel": "SQLite, per workspace",
+      "kind": "db",
+      "group": "daemon",
+      "layer": 4,
+      "evidence": "services/daemon/store.go:9",
+      "evidence_kind": "code",
+      "evidence_confidence": "documented"
+    },
+    {
+      "id": "runtime",
+      "label": "Inference Runtime",
+      "sublabel": "Bundled binary, stdio",
+      "kind": "component",
+      "group": "daemon",
+      "layer": 4,
+      "evidence": "services/daemon/runtime.go:21",
+      "evidence_kind": "code",
+      "evidence_confidence": "documented",
+      "metric": "6.4 GB context window",
+      "metric_provenance": "estimated"
+    }
+  ],
+  "edges": [
+    {
+      "from": "app",
+      "to": "sdk",
+      "label": "Calls SDK API in-process",
+      "evidence": "apps/host/src/index.ts:22",
+      "evidence_kind": "code",
+      "evidence_confidence": "documented"
+    },
+    {
+      "from": "sdk",
+      "to": "ipc",
+      "label": "Frames request / JSON-RPC",
+      "evidence": "packages/sdk/src/client.ts:48",
+      "evidence_kind": "code",
+      "evidence_confidence": "documented"
+    },
+    {
+      "from": "ipc",
+      "to": "daemon",
+      "label": "Forwards frame / unix socket",
+      "evidence": "services/daemon/ipc.go:31",
+      "evidence_kind": "code",
+      "evidence_confidence": "documented"
+    },
+    {
+      "from": "daemon",
+      "to": "runtime",
+      "label": "Spawns and streams / stdio",
+      "evidence": "services/daemon/runtime.go:44",
+      "evidence_kind": "code",
+      "evidence_confidence": "documented"
+    },
+    {
+      "from": "runtime",
+      "to": "daemon",
+      "label": "Streams token deltas",
+      "style": "reverse",
+      "evidence": "services/daemon/runtime.go:78",
+      "evidence_kind": "code",
+      "evidence_confidence": "documented"
+    },
+    {
+      "from": "daemon",
+      "to": "session",
+      "label": "Reads and writes session / SQL",
+      "evidence": "services/daemon/store.go:26",
+      "evidence_kind": "code",
+      "evidence_confidence": "documented"
+    },
+    {
+      "from": "daemon",
+      "to": "ipc",
+      "label": "Frames response",
+      "style": "reverse",
+      "evidence": "services/daemon/ipc.go:64",
+      "evidence_kind": "code",
+      "evidence_confidence": "documented"
+    }
+  ]
+}

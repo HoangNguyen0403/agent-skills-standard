@@ -1,0 +1,100 @@
+{
+  "version": "1.1",
+  "question_set_version": "ac06-q2",
+  "frozen_at": "2026-11-06",
+  "frozen_before_comparison": true,
+  "statement": "This set is identical for both session reads, both arms of every scenario, and was fixed before any image was shown to a reader. Editing it after a reading starts invalidates that reading.",
+  "instructions_to_reader": "Answer from the image alone. Do not consult the spec, source, README, scoring key or arm map.",
+  "answer_convention": {
+    "node_reference": "Use the label exactly as printed in the diagram; node ids in the scoring key are for traceability only.",
+    "edge_reference": "Name both endpoints, e.g. 'Storefront -> Order API'.",
+    "lists_in_csv": "Separate list items with ' -> ' or ';'. Put the whole cell in double quotes if the answer contains a comma; an unquoted comma splits the row and the sheet is rejected.",
+    "empty_and_wrong": "If the diagram does not show the thing asked for, say 'not shown' rather than guessing."
+  },
+  "questions": [
+    {
+      "id": "Q1",
+      "slot": "main_path",
+      "text": "List the nodes along the primary flow in order, from the entry node to the node where the flow terminates (a store, an external system, or an end state). If two terminal nodes are defensible, give the path to the one you judge primary and name the other terminal in brackets. Name each node as printed.",
+      "answer_type": "ordered node list",
+      "scoring_note": "Direction is scored. A branch that leaves the primary path is not an error. Where the key accepts more than one terminal node, either is accepted.",
+      "applicability_rule": "Applicable to every scenario: each diagram draws one directed flow from an entry node with no inbound edge to a terminal node."
+    },
+    {
+      "id": "Q2",
+      "slot": "boundary",
+      "text": "List every boundary or group box drawn on the diagram and which nodes sit inside each one. Then name every node that sits outside all boundary boxes, or state that none is drawn.",
+      "answer_type": "boundary name -> member nodes, plus outside set",
+      "scoring_note": "Correct when every drawn boundary is named with all of its members and the complete set of nodes outside all boundaries is named, or its size is given explicitly. Group labels and node labels may be paraphrased.",
+      "applicability_rule": "Applicable to every scenario: at least one boundary box is drawn."
+    },
+    {
+      "id": "Q3",
+      "slot": "authoritative_state",
+      "text": "Which node holds the authoritative state for the primary flow? If the diagram shows no authoritative store for that flow, state that it is absent and name what the diagram shows in its place.",
+      "answer_type": "single node, or 'absent' with justification",
+      "scoring_note": "A cache, queue or derived copy is not authoritative. 'Absent' scores only when the diagram genuinely draws no authoritative store for the primary flow.",
+      "applicability_rule": "Applicable to every scenario: the question is answerable from the drawing, including the justified 'absent' answer."
+    },
+    {
+      "id": "Q4",
+      "slot": "uncertainty",
+      "text": "Which nodes or edges are marked as lacking supporting evidence (UNVERIFIED) or as proposed/assumed? List them. If none are marked, say so explicitly.",
+      "answer_type": "list of marked nodes/edges, or an explicit 'none marked'",
+      "scoring_note": "Correct when the marked set matches the diagram exactly. Claiming uncertainty that is not drawn is an error, and so is missing a drawn UNVERIFIED marker.",
+      "applicability_rule": "Applicable to every scenario: every diagram either shows UNVERIFIED markers or shows none, and both are scorable answers."
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "S1-simple-stack",
+      "label": "Simple stack",
+      "reader_file": "S1.png",
+      "questions": ["Q1", "Q2", "Q3", "Q4"],
+      "non_applicable_questions": []
+    },
+    {
+      "id": "S2-dev-tooling",
+      "label": "Dev tooling",
+      "reader_file": "S2.png",
+      "questions": ["Q1", "Q2", "Q3", "Q4"],
+      "non_applicable_questions": []
+    },
+    {
+      "id": "S3-long-label-hub",
+      "label": "Long-label hub",
+      "reader_file": "S3.png",
+      "questions": ["Q1", "Q2", "Q3", "Q4"],
+      "non_applicable_questions": []
+    },
+    {
+      "id": "S4-nested-deployment",
+      "label": "Nested deployment needs",
+      "reader_file": "S4.png",
+      "questions": ["Q1", "Q2", "Q3", "Q4"],
+      "non_applicable_questions": []
+    },
+    {
+      "id": "S5-stateful-dataflow",
+      "label": "Stateful dataflow",
+      "reader_file": "S5.png",
+      "questions": ["Q1", "Q2", "Q3", "Q4"],
+      "non_applicable_questions": []
+    },
+    {
+      "id": "S6-sdk-ipc",
+      "label": "SDK / IPC",
+      "reader_file": "S6.png",
+      "questions": ["Q1", "Q2", "Q3", "Q4"],
+      "non_applicable_questions": []
+    }
+  ],
+  "totals": {
+    "scenarios": 6,
+    "questions_per_scenario": 4,
+    "answers_per_session": 24,
+    "answers_per_arm": 24,
+    "non_applicable_questions_per_arm": 0,
+    "applicable_denominator_per_arm": 24
+  }
+}
