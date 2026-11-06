@@ -48,6 +48,13 @@ For substantial scope, multi-actor workflows, interacting rules, or multiple del
 
 Sufficiently specified routine fixes or maintenance tickets with approved behavioral AC, accountable owner, scope fence, approval, and verification lane satisfy readiness without mandatory separate document files or full modeling detours. However, changes touching sensitive domains enforce the sensitive-change floor per `requirements-modeling.md` requiring technical design and human approval before coding.
 
+### Project Verification Readiness & Operational Kits
+
+Reusable operational guidance (`common-project-verification`) and project-owned verification kits (`docs/verification/<app>/`) provide structured launch, read-only doctor, real journey driving, and cleanup procedures.
+- **Readiness consumption**: `implementation-readiness` consumes kit references where supplied; missing optional kits report an affected scope prerequisite gap, never a blanket block.
+- **Verification execution**: `verify-work` retains existing driver ladders and verdict semantics (PASS, FAIL, BLOCKED); proof binds to exact source/build/dirty identity. Stale affected proof cannot PASS; unrelated valid proof remains usable.
+- **Authority boundaries**: Technical verification, doctor health checks, or passing tests do not substitute for business acceptance or deployment authorization (`uat-signoff` and `deploy-release` remain distinct authority gates).
+
 ### Delivery Mode (`brief` | `standard` | `extended`)
 
 Carry `delivery_mode` in task and handoff metadata, separately from `snc_tier`. It is a routing decision about how much specification the work needs — never an authorization.

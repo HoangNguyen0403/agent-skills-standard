@@ -1,0 +1,9 @@
+{
+  "id": "cli-policy",
+  "version": 1,
+  "note": "Repo-script CLI invocation policy. Consumed by JRN-TRACE-01 and JRN-OUTCOME-01 only; the consumer journey drives the production API and the CLI doctor through its own recipe policy.",
+  "loader_rel": "node_modules/tsx/dist/loader.mjs",
+  "timeout_ms": 180000,
+  "env_strip": ["GITHUB_TOKEN", "GH_TOKEN", "NPM_TOKEN", "OPENAI_API_KEY", "ANTHROPIC_API_KEY"],
+  "max_capture_bytes": 262144
+}

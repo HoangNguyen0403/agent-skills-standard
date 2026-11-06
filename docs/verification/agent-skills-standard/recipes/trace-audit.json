@@ -1,0 +1,60 @@
+{
+  "journey": "JRN-TRACE-01",
+  "surface": "repo-cli",
+  "entry": "scripts/trace/index.ts",
+  "assurance": "document-links-only",
+  "consumed_recipe_inputs": ["recipes/trace-audit.json", "recipes/cli-policy.json"],
+  "consumed_product_inputs": [
+    "scripts/trace/index.ts",
+    "scripts/trace/parse.ts",
+    "scripts/trace/graph.ts",
+    "scripts/trace/types.ts",
+    "docs/prd/prd-pstack-verification-readiness.md",
+    "docs/srs/srs-pstack-verification-readiness.md"
+  ],
+  "scenarios": [
+    {
+      "id": "trace-valid-scope",
+      "kind": "drive",
+      "args": ["--slug", "pstack-verification-readiness", "--required", "--json"],
+      "expect": {
+        "exit": 0,
+        "json": {
+          "ok": true,
+          "assurance": "document-links-only",
+          "requested_scope": "pstack-verification-readiness"
+        }
+      }
+    },
+    {
+      "id": "trace-missing-scope",
+      "kind": "drive",
+      "args": ["--slug", "nonexistent-feature-slug-12345", "--required", "--json"],
+      "expect": {
+        "exit": 1,
+        "json": { "ok": false },
+        "issue_code": "missing-scope",
+        "issue_count": 1
+      }
+    },
+    {
+      "id": "trace-empty-scope",
+      "kind": "drive",
+      "args": ["--slug", "trace-empty", "--required", "--json", "--root", "{{SCRATCH}}/trace-empty"],
+      "expect": {
+        "exit": 1,
+        "json": { "ok": false },
+        "issue_code": "empty-scope"
+      }
+    },
+    {
+      "id": "trace-usage-error",
+      "kind": "drive",
+      "args": ["--required"],
+      "expect": {
+        "exit": 2,
+        "stderr_contains": "--required requires a --slug"
+      }
+    }
+  ]
+}

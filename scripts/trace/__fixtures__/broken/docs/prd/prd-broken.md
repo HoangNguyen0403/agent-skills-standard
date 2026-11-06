@@ -16,4 +16,4 @@
 | --- | --- | --- | --- | --- | --- | --- |
 | AC-001 | REQ-001 | happy path | cart ready | payment fails once | retries and succeeds | Approved |
 | AC-002 | REQ-002 | no downstream SRS ever cites this AC | cart ready | payment fails | retries | Approved |
-| AC-01 | REQ-001 | malformed AC id | cart ready | payment fails | retries | Draft |
+| AC-1 | REQ-001 | malformed AC id | cart ready | payment fails | retries | Draft |

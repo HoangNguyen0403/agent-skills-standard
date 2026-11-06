@@ -263,7 +263,8 @@ function scanFile(content: string, fromFile: string): { refs: TraceRef[]; mappin
         }
       }
 
-      // Declarations and mapped rows require canonical >=3-digit terminal suffix
+      // Declarations and mapped rows require a canonical id: AC terminal suffix >=2 digits,
+      // BRD-OBJ/REQ/SRS >=3 digits, or a qualified historical id
       // Prose references can reference declared qualified namespace prefixes (e.g. REQ-DISC)
       const valid =
         role === "declaration" || isMappedSource
