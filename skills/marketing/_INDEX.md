@@ -7,9 +7,9 @@
 | ----- | ----------------------- |
 | **marketing-audience-research** | marketing audience research, developer audience discovery, audience problem mapping, customer research synthesis |
 | marketing-community | community engagement plan, developer forum participation, channel rules compliance, open-source community outreach |
-| **marketing-content-strategy** | marketing content strategy, content planning, editorial sequence, asset intent mapping |
+| **marketing-content-strategy** | marketing content strategy, content planning, editorial sequence, asset intent mapping, youtube content strategy, youtube editorial slate, video content planning |
 | **marketing-copywriting** | marketing copywriting, write marketing copy, proof qualification copy, technical copy draft |
-| **marketing-demo-video** | demo video, terminal demo recording, product demo video, captioned demo, ffmpeg demo video, demo storyboard |
+| **marketing-demo-video** | demo video, terminal demo recording, product demo video, captioned demo, ffmpeg demo video, demo storyboard, youtube script, title thumbnail, youtube shorts, retention review |
 | marketing-landing | landing page audit, conversion pathway diagnosis, responsive landing review, landing CTA hierarchy |
 | marketing-launch | launch checklist, campaign launch coordination, release readiness gate, release communication plan |
 | **marketing-measurement** | marketing scorecard, campaign measurement, cohort activation rate, cohort repeat rate |

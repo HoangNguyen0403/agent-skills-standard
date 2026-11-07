@@ -869,17 +869,17 @@
       }
     },
     "marketing": {
-      "version": "1.0.0",
-      "last_updated": "2026-10-25",
+      "version": "1.0.1",
+      "last_updated": "2026-11-07",
       "tag_prefix": "marketing-v",
       "owners": [
         "HoangNguyen0403"
       ],
       "token_metrics": {
         "total_skills": 12,
-        "total_tokens": 14614,
-        "avg_tokens_per_skill": 1218,
-        "largest_skill": "marketing-demo-video (2243 tokens)"
+        "total_tokens": 15040,
+        "avg_tokens_per_skill": 1253,
+        "largest_skill": "marketing-demo-video (2468 tokens)"
       }
     }
   },

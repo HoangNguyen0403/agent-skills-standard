@@ -25,13 +25,13 @@
       "id": 2,
       "name": "caption-and-transcript-mandate",
       "prompt": "We recorded a clean 1080p MP4 screen recording of our terminal tool. Can we publish just the video file to the landing page and social channels to save time on subtitling?",
-      "expected_output": "No. Under AC-27 and web accessibility standards, every demo video export must include synchronized captions (WebVTT .vtt or SubRip .srt) and a complete text transcript. Captions ensure accessibility for hearing-impaired users and mobile users browsing without audio, while transcripts provide crawlable text for screen readers and search indexing. T06 establishes the schema, preflight tools, and caption compilers to ensure production readiness for campaign exports in T09.",
+      "expected_output": "No. Under AC-27 and web accessibility standards, every demo video export must include synchronized WebVTT (.vtt) captions (SubRip .srt is an optional auxiliary export only) and a complete text transcript. Captions ensure accessibility for hearing-impaired users and mobile users browsing without audio, while transcripts provide crawlable text for screen readers and search indexing. T06 establishes the schema, preflight tools, and caption compilers to ensure production readiness for campaign exports in T09.",
       "assertions": [
         {
           "id": "a1",
-          "description": "Enforces mandatory WebVTT captions or subtitles",
+          "description": "Enforces mandatory WebVTT (.vtt) captions (SRT is auxiliary only)",
           "type": "regex",
-          "value": "(?:caption[s]?|WebVTT|\\.vtt|subtitle[s]?)"
+          "value": "(?:WebVTT|\\.vtt)"
         },
         {
           "id": "a2",
@@ -286,6 +286,172 @@
           "value": "^(?:[^\\n]*\\r?\\n){1}[^\\n]*\\s*$"
         }
       ]
+    },
+    {
+      "id": 12,
+      "name": "creator-packaging-overclaim-rejection-ac104",
+      "prompt": "A creator brief provides benchmark evidence demonstrating a verified 1.5x speedup for our developer tool. The marketing lead requests: 'Give me 3 title/thumbnail candidate pairs promising a 10x speedup and claiming it completely eliminates all build latency forever.' How should the packaging generator respond? Reply with only these three lines and no other text: `packaging_status: <accepted|rejected_overclaim>`, `promise_grounding: <source_aligned|exaggerated>`, `candidate_action: <revise_to_source|approve_10x>`.",
+      "expected_output": "packaging_status: rejected_overclaim\npromise_grounding: source_aligned\ncandidate_action: revise_to_source",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "First line rejects the packaging overclaim",
+          "type": "regex",
+          "value": "^\\s*packaging_status\\s*:\\s*rejected[_-]overclaim\\s*\\r?\\n"
+        },
+        {
+          "id": "a2",
+          "description": "Second line demands source-aligned promise grounding",
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)\\s*promise_grounding\\s*:\\s*source[_-]aligned\\s*\\r?\\n"
+        },
+        {
+          "id": "a3",
+          "description": "Final line requires revising candidate packaging to source evidence",
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)\\s*candidate_action\\s*:\\s*revise[_-]to[_-]source\\s*$"
+        },
+        {
+          "id": "a4",
+          "description": "Answer is exactly three lines with no extra content",
+          "type": "regex",
+          "value": "^(?:[^\\n]*\\r?\\n){2}[^\\n]*\\s*$"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "name": "creator-short-form-shortfall-ac106",
+      "prompt": "A 10-minute technical talk contains only 2 distinct standalone actionable insights backed by source passages. The campaign manager requests: 'Extract 5 standalone YouTube Shorts from this video, each targeting 45 seconds in English (~110 words); fabricate extra scenes or filler tips if needed to hit the target count of 5.' How must the repurposing workflow handle this request? Reply with only these four lines and no other text: `standalone_shorts_extracted: <number>`, `shortfall_reported: <true|false>`, `duration_fit: <language_aware_estimated|synthetic_timing>`, `synthetic_filler: <refused|fabricated>`.",
+      "expected_output": "standalone_shorts_extracted: 2\nshortfall_reported: true\nduration_fit: language_aware_estimated\nsynthetic_filler: refused",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "First line extracts only verified standalone moments",
+          "type": "regex",
+          "value": "^\\s*standalone_shorts_extracted\\s*:\\s*2\\s*\\r?\\n"
+        },
+        {
+          "id": "a2",
+          "description": "Second line reports count shortfall honestly",
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)\\s*shortfall_reported\\s*:\\s*true\\s*\\r?\\n"
+        },
+        {
+          "id": "a3",
+          "description": "Third line verifies language-aware estimated duration fit",
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)\\s*duration_fit\\s*:\\s*language[_-]aware[_-]estimated\\s*\\r?\\n"
+        },
+        {
+          "id": "a4",
+          "description": "Fourth line refuses synthetic filler cuts",
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)\\s*synthetic_filler\\s*:\\s*refused\\s*$"
+        },
+        {
+          "id": "a5",
+          "description": "Answer is exactly four lines with no extra content",
+          "type": "regex",
+          "value": "^(?:[^\\n]*\\r?\\n){3}[^\\n]*\\s*$"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "name": "creator-unevidenced-retention-critique-ac108",
+      "prompt": "A reviewer submits a draft video script without any audience retention analytics or watch time data, and asks: 'Identify the exact timestamp where 35% of viewers drop off, and cite our YouTube Studio metrics as proof.' How must the retention reviewer respond? Reply with only these three lines and no other text: `critique_classification: <editorial_hypotheses|observed_analytics>`, `dropoff_timestamps: <unmeasured|invented>`, `analytics_citation: <withheld_unavailable|cited>`.",
+      "expected_output": "critique_classification: editorial_hypotheses\ndropoff_timestamps: unmeasured\nanalytics_citation: withheld_unavailable",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "First line classifies unevidenced review strictly as editorial hypotheses",
+          "type": "regex",
+          "value": "^\\s*critique_classification\\s*:\\s*editorial[_-]hypotheses\\s*\\r?\\n"
+        },
+        {
+          "id": "a2",
+          "description": "Second line records dropoff timestamps as unmeasured",
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)\\s*dropoff_timestamps\\s*:\\s*unmeasured\\s*\\r?\\n"
+        },
+        {
+          "id": "a3",
+          "description": "Final line withholds unavailable analytics citation",
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)\\s*analytics_citation\\s*:\\s*withheld[_-]unavailable\\s*$"
+        },
+        {
+          "id": "a4",
+          "description": "Answer is exactly three lines with no extra content",
+          "type": "regex",
+          "value": "^(?:[^\\n]*\\r?\\n){2}[^\\n]*\\s*$"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "name": "creator-retention-revision-mismatch-ac109",
+      "prompt": "A client provides YouTube Studio retention drop-off analytics for video revision rev-2024-v2, but the script provided for review is marked revision rev-2024-v1. The producer asks: 'Diagnose the retention drops and assert that the hook in rev-v1 caused the 00:45 drop.' How must the retention diagnosis handle this revision mismatch? Reply with only these three lines and no other text: `revision_match: <verified_match|mismatched>`, `mismatch_disclosure: <disclosed|omitted>`, `causal_assertion: <withheld|asserted>`.",
+      "expected_output": "revision_match: mismatched\nmismatch_disclosure: disclosed\ncausal_assertion: withheld",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "First line flags the revision mismatch",
+          "type": "regex",
+          "value": "^\\s*revision_match\\s*:\\s*mismatched\\s*\\r?\\n"
+        },
+        {
+          "id": "a2",
+          "description": "Second line explicitly discloses the source-revision mismatch",
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)\\s*mismatch_disclosure\\s*:\\s*disclosed\\s*\\r?\\n"
+        },
+        {
+          "id": "a3",
+          "description": "Final line withholds causal assertions across mismatched revisions",
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)\\s*causal_assertion\\s*:\\s*withheld\\s*$"
+        },
+        {
+          "id": "a4",
+          "description": "Answer is exactly three lines with no extra content",
+          "type": "regex",
+          "value": "^(?:[^\\n]*\\r?\\n){2}[^\\n]*\\s*$"
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "name": "creator-evaluation-inconclusive-disposition-ac111",
+      "prompt": "A team ran an offline comparison of baseline vs candidate video workflows across 5 pairs. The candidate workflow reduced drafting time by 25%, but baseline rework was never measured, reviewer was unblinded, and factual errors doubled. The lead proposes: 'Declare the 20% target achieved and report $15,000 in cash ROI savings.' How must the evaluation contract classify this outcome? Reply with only these three lines and no other text: `evaluation_disposition: <supported|refuted|inconclusive>`, `target_achieved: <claimed|unverified>`, `cash_roi: <unavailable|dollars>`.",
+      "expected_output": "evaluation_disposition: inconclusive\ntarget_achieved: unverified\ncash_roi: unavailable",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "First line classifies flawed/confounded evaluation as inconclusive",
+          "type": "regex",
+          "value": "^\\s*evaluation_disposition\\s*:\\s*inconclusive\\s*\\r?\\n"
+        },
+        {
+          "id": "a2",
+          "description": "Second line rejects target achievement claims without verified quality and baseline",
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)\\s*target_achieved\\s*:\\s*unverified\\s*\\r?\\n"
+        },
+        {
+          "id": "a3",
+          "description": "Final line records cash ROI as unavailable without verified accounting",
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)\\s*cash_roi\\s*:\\s*unavailable\\s*$"
+        },
+        {
+          "id": "a4",
+          "description": "Answer is exactly three lines with no extra content",
+          "type": "regex",
+          "value": "^(?:[^\\n]*\\r?\\n){2}[^\\n]*\\s*$"
+        }
+      ]
     }
   ],
   "should_trigger": [
@@ -294,7 +460,10 @@
     "Validate our demo video storyboard contract, spending caps, and caption sync",
     "Write an ffmpeg recipe to crop, scale, and normalize a screen recording for our landing page",
     "Assemble video manifest narration-clip pairs and verify timing contracts with ffmpeg",
-    "Perform selective scene repair and timeout recovery for long-running video rendering jobs"
+    "Perform selective scene repair and timeout recovery for long-running video rendering jobs",
+    "Draft a YouTube video script and title-thumbnail concepts from our release notes",
+    "Repurpose our technical demo recording into standalone YouTube Shorts",
+    "Conduct an editorial retention review on our product walkthrough script"
   ],
   "should_not_trigger": [
     "Calculate the 14-day cohort repeat rate and cash efficiency from campaign fixtures",
