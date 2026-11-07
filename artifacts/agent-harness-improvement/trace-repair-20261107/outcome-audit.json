@@ -1,0 +1,25 @@
+{
+  "observed_at": "2026-11-07T01:39:10.783Z",
+  "entrypoint": "scripts/outcome/index.ts",
+  "args": [
+    "--records",
+    "--required",
+    "--slug",
+    "agent-harness-improvement",
+    "--workflow",
+    "dev-fix",
+    "--run-id",
+    "repair-agent-harness-trace-20261107",
+    "--json"
+  ],
+  "exitCode": 0,
+  "output": {
+    "ok": true,
+    "issues": [],
+    "recordsChecked": 5,
+    "recordsMatched": 1,
+    "assurance": "record-schema-and-scope-valid"
+  },
+  "runtime": "v26.0.0",
+  "limits": "Unchanged entrypoint with installed-dependency and relative-TS resolution adapter; assurance limited to auditor output, not runtime enforcement or approval."
+}
