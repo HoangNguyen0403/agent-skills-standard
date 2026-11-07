@@ -395,11 +395,15 @@
         var places = parseInt(placesSelect.value, 10);
         var total = places * selectedEvent.price;
 
-        confirmDetails.innerHTML =
-          "<div><strong>" + selectedEvent.title + "</strong></div>" +
-          "<div>" + places + " places</div>" +
-          "<div>Total: $" + total + "</div>";
-
+        var titleElement = document.createElement("strong");
+        titleElement.textContent = selectedEvent.title;
+        var titleRow = document.createElement("div");
+        titleRow.appendChild(titleElement);
+        var placesRow = document.createElement("div");
+        placesRow.textContent = places + " places";
+        var totalRow = document.createElement("div");
+        totalRow.textContent = "Total: $" + total;
+        confirmDetails.replaceChildren(titleRow, placesRow, totalRow);
         confirmBox.hidden = false;
       });
     })();
