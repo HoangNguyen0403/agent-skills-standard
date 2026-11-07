@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relay Dispatch — Shipments</title>
+  <style>
+    :root {
+      --bg-neutral: #f4f6f8;
+      --surface: #ffffff;
+      --surface-subtle: #f8fafc;
+      --border-color: #cbd5e1;
+      --border-subtle: #e2e8f0;
+      --navy-primary: #1e3a8a;
+      --navy-dark: #0f172a;
+      --navy-light: #eff6ff;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --focus-ring: #1e3a8a;
+      --status-ontime-bg: #ecfdf5;
+      --status-ontime-text: #065f46;
+      --status-ontime-border: #a7f3d0;
+      --status-delayed-bg: #fffbeb;
+      --status-delayed-text: #92400e;
+      --status-delayed-border: #fde68a;
+      --status-delivered-bg: #f1f5f9;
+      --status-delivered-text: #334155;
+      --status-delivered-border: #cbd5e1;
+      --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-stack);
+      background-color: var(--bg-neutral);
+      color: var(--text-main);
+      line-height: 1.45;
+      font-size: 0.95rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Skip link */
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 1rem;
+      background: var(--navy-primary);
+      color: #ffffff;
+      padding: 0.5rem 1rem;
+      z-index: 100;
+      text-decoration: none;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    .skip-link:focus {
+      top: 1rem;
+    }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border-color);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0.85rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .app-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--navy-primary);
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .app-badge {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      background: var(--navy-light);
+      color: var(--navy-primary);
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      border: 1px solid #bfdbfe;
+    }
+
+    main {
+      flex: 1;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.75rem 1.5rem 3rem;
+    }
+
+    /* Page heading & summary */
+    .page-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .heading-group {
+      display: flex;
+      align-items: baseline;
+      gap: 0.75rem;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 750;
+      color: var(--navy-dark);
+      letter-spacing: -0.02em;
+    }
+
+    .shipments-count {
+      font-size: 0.95rem;
+      font-weight: 550;
+      color: var(--text-muted);
+    }
+
+    /* Dashboard card */
+    .dashboard-card {
+      background: var(--surface);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+    }
+
+    /* Filter toolbar */
+    .filter-bar {
+      padding: 1rem 1.25rem;
+      background: var(--surface-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      gap: 1.25rem;
+    }
+
+    .filter-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .filter-item label {
+      font-size: 0.82rem;
+      font-weight: 650;
+      color: var(--navy-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .filter-item select,
+    .filter-item input {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.9rem;
+      font-family: inherit;
+      color: var(--text-main);
+      background-color: var(--surface);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      min-width: 140px;
+    }
+
+    .filter-item input {
+      min-width: 200px;
+    }
+
+    /* Focus */
+    select:focus-visible,
+    input:focus-visible,
+    button:focus-visible,
+    a:focus-visible {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 2px;
+    }
+
+    /* Table styling */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.92rem;
+    }
+
+    th {
+      background: var(--surface-subtle);
+      color: var(--text-muted);
+      font-weight: 650;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 0.75rem 1.25rem;
+      border-bottom: 1px solid var(--border-color);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 0.85rem 1.25rem;
+      border-bottom: 1px solid var(--border-subtle);
+      vertical-align: middle;
+      color: var(--text-main);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background-color: #f8fafc;
+    }
+
+    .cell-id {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-weight: 700;
+      color: var(--navy-primary);
+    }
+
+    .cell-customer {
+      font-weight: 600;
+    }
+
+    /* Status badge */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    .status-badge.on-time {
+      background: var(--status-ontime-bg);
+      color: var(--status-ontime-text);
+      border-color: var(--status-ontime-border);
+    }
+
+    .status-badge.delayed {
+      background: var(--status-delayed-bg);
+      color: var(--status-delayed-text);
+      border-color: var(--status-delayed-border);
+    }
+
+    .status-badge.delivered {
+      background: var(--status-delivered-bg);
+      color: var(--status-delivered-text);
+      border-color: var(--status-delivered-border);
+    }
+
+    .status-icon {
+      font-size: 0.75rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    /* Action button */
+    .btn-details {
+      background-color: var(--surface);
+      color: var(--navy-primary);
+      border: 1px solid #bfdbfe;
+      padding: 0.4rem 0.85rem;
+      border-radius: 5px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .btn-details:hover {
+      background-color: var(--navy-light);
+      border-color: var(--navy-primary);
+    }
+
+    /* Empty state */
+    .empty-state {
+      padding: 3rem 1.5rem;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    .empty-state p {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--navy-dark);
+      margin-bottom: 1rem;
+    }
+
+    .btn-clear {
+      background: var(--navy-primary);
+      color: #ffffff;
+      border: none;
+      padding: 0.55rem 1.1rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn-clear:hover {
+      background: #172554;
+    }
+
+    /* State banners: loading and error */
+    .state-banner {
+      background: var(--surface);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 3.5rem 1.5rem;
+      text-align: center;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .state-banner[hidden] {
+      display: none;
+    }
+
+    .loading-text {
+      font-size: 1.15rem;
+      font-weight: 650;
+      color: var(--navy-primary);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .spinner {
+      width: 1.25rem;
+      height: 1.25rem;
+      border: 2px solid #bfdbfe;
+      border-top-color: var(--navy-primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .spinner {
+        animation: none;
+      }
+    }
+
+    .error-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #b91c1c;
+      margin-bottom: 1rem;
+    }
+
+    .btn-retry {
+      background: var(--navy-primary);
+      color: #ffffff;
+      border: none;
+      padding: 0.6rem 1.25rem;
+      border-radius: 6px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn-retry:hover {
+      background: #172554;
+    }
+
+    /* Modal Details Dialog */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.5);
+      backdrop-filter: blur(2px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+      z-index: 1000;
+    }
+
+    .modal-backdrop[hidden] {
+      display: none;
+    }
+
+    .modal-box {
+      background: var(--surface);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      max-width: 480px;
+      width: 100%;
+      padding: 1.75rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      position: relative;
+    }
+
+    .modal-box h2 {
+      font-size: 1.25rem;
+      font-weight: 750;
+      color: var(--navy-dark);
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 0.75rem;
+    }
+
+    .details-grid {
+      display: grid;
+      grid-template-columns: 110px 1fr;
+      row-gap: 0.75rem;
+      column-gap: 1rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.95rem;
+    }
+
+    .details-label {
+      font-weight: 650;
+      color: var(--text-muted);
+    }
+
+    .details-val {
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .dispatch-note-box {
+      background-color: var(--navy-light);
+      border: 1px solid #bfdbfe;
+      border-radius: 6px;
+      padding: 0.85rem 1rem;
+      color: var(--navy-primary);
+      font-size: 0.92rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      line-height: 1.4;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .btn-close-modal {
+      background-color: var(--surface-subtle);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 0.55rem 1.1rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn-close-modal:hover {
+      background-color: #e2e8f0;
+    }
+
+    footer {
+      padding: 1.5rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--border-subtle);
+      background: var(--surface);
+      margin-top: auto;
+    }
+
+    @media (max-width: 640px) {
+      .header-inner {
+        padding: 0.75rem 1rem;
+      }
+      main {
+        padding: 1.25rem 1rem 2rem;
+      }
+      .filter-bar {
+        padding: 0.85rem;
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .filter-item select,
+      .filter-item input {
+        width: 100%;
+        min-width: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to shipments list</a>
+
+  <header>
+    <div class="header-inner">
+      <div class="app-title">
+        <span>Relay Dispatch</span>
+        <span class="app-badge">Ops</span>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <div class="page-header">
+      <div class="heading-group">
+        <h1>Shipments</h1>
+        <span id="shipment-count-text" class="shipments-count">6 shipments</span>
+      </div>
+    </div>
+
+    <!-- Loading fixture state -->
+    <div id="loading-view" class="state-banner" hidden>
+      <div class="loading-text" role="status">
+        <div class="spinner" aria-hidden="true"></div>
+        <span>Loading shipments…</span>
+      </div>
+    </div>
+
+    <!-- Error fixture state -->
+    <div id="error-view" class="state-banner" hidden>
+      <h2 class="error-title" role="alert">Shipments unavailable.</h2>
+      <button type="button" id="retry-btn" class="btn-retry">Retry</button>
+    </div>
+
+    <!-- Main Dashboard View -->
+    <div id="dashboard-view" class="dashboard-card">
+      <!-- Filter Bar -->
+      <section class="filter-bar" aria-label="Shipment filters">
+        <div class="filter-item">
+          <label for="region-select">Region</label>
+          <select id="region-select">
+            <option value="All">All</option>
+            <option value="North">North</option>
+            <option value="South">South</option>
+            <option value="West">West</option>
+          </select>
+        </div>
+
+        <div class="filter-item">
+          <label for="status-select">Status</label>
+          <select id="status-select">
+            <option value="All">All</option>
+            <option value="On time">On time</option>
+            <option value="Delayed">Delayed</option>
+            <option value="Delivered">Delivered</option>
+          </select>
+        </div>
+
+        <div class="filter-item">
+          <label for="search-input">Search shipment ID</label>
+          <input
+            type="search"
+            id="search-input"
+            placeholder="e.g. R-104"
+            autocomplete="off"
+          >
+        </div>
+      </section>
+
+      <!-- Table View -->
+      <div class="table-container">
+        <table id="shipments-table" aria-label="Shipments summary">
+          <thead>
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">Customer</th>
+              <th scope="col">Region</th>
+              <th scope="col">Status</th>
+              <th scope="col">ETA</th>
+              <th scope="col"><span class="sr-only">Actions</span></th>
+            </tr>
+          </thead>
+          <tbody id="shipments-tbody">
+            <!-- Dynamically populated rows -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Empty state when no shipments match -->
+      <div id="empty-state" class="empty-state" hidden>
+        <p role="status">No shipments match.</p>
+        <button type="button" id="clear-filters-btn" class="btn-clear">Clear filters</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Details Dialog Modal -->
+  <div id="details-modal" class="modal-backdrop" hidden>
+    <div
+      role="dialog"
+      id="details-dialog"
+      aria-modal="true"
+      aria-labelledby="details-dialog-title"
+      class="modal-box"
+    >
+      <h2 id="details-dialog-title">Shipment Details</h2>
+      <div class="details-grid">
+        <div class="details-label">ID</div>
+        <div id="detail-id" class="details-val cell-id"></div>
+
+        <div class="details-label">Customer</div>
+        <div id="detail-customer" class="details-val"></div>
+
+        <div class="details-label">Region</div>
+        <div id="detail-region" class="details-val"></div>
+
+        <div class="details-label">Status</div>
+        <div id="detail-status" class="details-val"></div>
+
+        <div class="details-label">ETA</div>
+        <div id="detail-eta" class="details-val"></div>
+      </div>
+
+      <div class="dispatch-note-box">
+        Dispatch note: Call receiving desk on arrival.
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" id="close-details-btn" class="btn-close-modal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>Relay Dispatch — Operations Dashboard</p>
+  </footer>
+
+  <script>
+    (function() {
+      const RAW_SHIPMENTS = [
+        { id: 'R-101', customer: 'Alder Books', region: 'North', status: 'On time', eta: '09:20' },
+        { id: 'R-102', birchLab: 'Birch Lab', customer: 'Birch Lab', region: 'South', status: 'Delayed', eta: '09:45' },
+        { id: 'R-103', customer: 'Cedar School', region: 'North', status: 'On time', eta: '10:10' },
+        { id: 'R-104', customer: 'Dune Clinic', region: 'North', status: 'Delayed', eta: '10:30' },
+        { id: 'R-105', customer: 'Elm Studio', region: 'West', status: 'Delivered', eta: '08:55' },
+        { id: 'R-106', customer: 'Fern Pantry', region: 'North', status: 'Delayed', eta: '11:00' }
+      ];
+
+      const regionSelect = document.getElementById('region-select');
+      const statusSelect = document.getElementById('status-select');
+      const searchInput = document.getElementById('search-input');
+      const shipmentsTbody = document.getElementById('shipments-tbody');
+      const emptyState = document.getElementById('empty-state');
+      const shipmentsTable = document.getElementById('shipments-table');
+      const clearFiltersBtn = document.getElementById('clear-filters-btn');
+      const shipmentCountText = document.getElementById('shipment-count-text');
+
+      const loadingView = document.getElementById('loading-view');
+      const errorView = document.getElementById('error-view');
+      const dashboardView = document.getElementById('dashboard-view');
+      const retryBtn = document.getElementById('retry-btn');
+
+      const detailsModal = document.getElementById('details-modal');
+      const detailsDialog = document.getElementById('details-dialog');
+      const closeDetailsBtn = document.getElementById('close-details-btn');
+      const detailId = document.getElementById('detail-id');
+      const detailCustomer = document.getElementById('detail-customer');
+      const detailRegion = document.getElementById('detail-region');
+      const detailStatus = document.getElementById('detail-status');
+      const detailEta = document.getElementById('detail-eta');
+
+      let lastActiveTrigger = null;
+
+      function getStatusBadgeHtml(status) {
+        if (status === 'On time') {
+          return '<span class="status-badge on-time"><span class="status-icon" aria-hidden="true">✓</span> On time</span>';
+        }
+        if (status === 'Delayed') {
+          return '<span class="status-badge delayed"><span class="status-icon" aria-hidden="true">!</span> Delayed</span>';
+        }
+        if (status === 'Delivered') {
+          return '<span class="status-badge delivered"><span class="status-icon" aria-hidden="true">■</span> Delivered</span>';
+        }
+        return '<span class="status-badge">' + status + '</span>';
+      }
+
+      function renderTable(rows) {
+        shipmentsTbody.innerHTML = '';
+        shipmentCountText.textContent = rows.length + ' shipment' + (rows.length === 1 ? '' : 's');
+
+        if (rows.length === 0) {
+          shipmentsTable.hidden = true;
+          emptyState.hidden = false;
+          return;
+        }
+
+        shipmentsTable.hidden = false;
+        emptyState.hidden = true;
+
+        rows.forEach(function(row) {
+          const tr = document.createElement('tr');
+
+          tr.innerHTML =
+            '<td class="cell-id">' + row.id + '</td>' +
+            '<td class="cell-customer">' + row.customer + '</td>' +
+            '<td>' + row.region + '</td>' +
+            '<td>' + getStatusBadgeHtml(row.status) + '</td>' +
+            '<td>' + row.eta + '</td>' +
+            '<td style="text-align: right;">' +
+              '<button type="button" class="btn-details" data-id="' + row.id + '" aria-label="View details for shipment ' + row.id + '">' +
+                'View details' +
+              '</button>' +
+            '</td>';
+
+          shipmentsTbody.appendChild(tr);
+        });
+
+        // Attach details events
+        const buttons = shipmentsTbody.querySelectorAll('.btn-details');
+        buttons.forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            const sid = btn.getAttribute('data-id');
+            const item = RAW_SHIPMENTS.find(function(s) { return s.id === sid; });
+            if (item) {
+              openDetails(item, btn);
+            }
+          });
+        });
+      }
+
+      function filterShipments() {
+        const region = regionSelect.value;
+        const status = statusSelect.value;
+        const query = searchInput.value.trim().toLowerCase();
+
+        const filtered = RAW_SHIPMENTS.filter(function(row) {
+          if (region !== 'All' && row.region !== region) return false;
+          if (status !== 'All' && row.status !== status) return false;
+          if (query !== '' && !row.id.toLowerCase().includes(query)) return false;
+          return true;
+        });
+
+        renderTable(filtered);
+      }
+
+      function clearFilters() {
+        regionSelect.value = 'All';
+        statusSelect.value = 'All';
+        searchInput.value = '';
+        filterShipments();
+        searchInput.focus();
+      }
+
+      function openDetails(item, triggerEl) {
+        lastActiveTrigger = triggerEl;
+        detailId.textContent = item.id;
+        detailCustomer.textContent = item.customer;
+        detailRegion.textContent = item.region;
+        detailStatus.textContent = item.status;
+        detailEta.textContent = item.eta;
+
+        detailsModal.hidden = false;
+        closeDetailsBtn.focus();
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeDetails() {
+        detailsModal.hidden = true;
+        document.body.style.overflow = '';
+        if (lastActiveTrigger && typeof lastActiveTrigger.focus === 'function') {
+          lastActiveTrigger.focus();
+        }
+      }
+
+      regionSelect.addEventListener('change', filterShipments);
+      statusSelect.addEventListener('change', filterShipments);
+      searchInput.addEventListener('input', filterShipments);
+      clearFiltersBtn.addEventListener('click', clearFilters);
+      closeDetailsBtn.addEventListener('click', closeDetails);
+
+      detailsModal.addEventListener('click', function(e) {
+        if (e.target === detailsModal) {
+          closeDetails();
+        }
+      });
+
+      document.addEventListener('keydown', function(e) {
+        if (detailsModal.hidden) return;
+
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          closeDetails();
+          return;
+        }
+
+        if (e.key === 'Tab') {
+          const focusable = detailsDialog.querySelectorAll(
+            'button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+          );
+          if (focusable.length === 0) return;
+          const first = focusable[0];
+          const last = focusable[focusable.length - 1];
+
+          if (e.shiftKey) {
+            if (document.activeElement === first) {
+              e.preventDefault();
+              last.focus();
+            }
+          } else {
+            if (document.activeElement === last) {
+              e.preventDefault();
+              first.focus();
+            }
+          }
+        }
+      });
+
+      // Fixture state management via URL query parameter
+      const params = new URLSearchParams(window.location.search);
+      const fixtureParam = params.get('fixture');
+
+      if (fixtureParam === 'loading') {
+        dashboardView.hidden = true;
+        errorView.hidden = true;
+        loadingView.hidden = false;
+
+        setTimeout(function() {
+          loadingView.hidden = true;
+          dashboardView.hidden = false;
+          filterShipments();
+        }, 1000);
+      } else if (fixtureParam === 'error') {
+        dashboardView.hidden = true;
+        loadingView.hidden = true;
+        errorView.hidden = false;
+
+        retryBtn.addEventListener('click', function() {
+          errorView.hidden = true;
+          loadingView.hidden = false;
+
+          setTimeout(function() {
+            loadingView.hidden = true;
+            dashboardView.hidden = false;
+            filterShipments();
+          }, 1000);
+        });
+      } else {
+        dashboardView.hidden = false;
+        loadingView.hidden = true;
+        errorView.hidden = true;
+        filterShipments();
+      }
+    })();
+  </script>
+</body>
+</html>

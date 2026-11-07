@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nightjar Sessions</title>
+  <style>
+    :root {
+      --bg: #111318;
+      --text: #f7f2e8;
+      --accent: #f2bd51;
+      --card-bg: #1b1e26;
+      --border: #2d3340;
+      --text-muted: #a6adb9;
+      --focus-ring: #f2bd51;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      padding: 24px 16px;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 16px;
+    }
+
+    .wordmark {
+      margin: 0;
+      margin-bottom: 8px;
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--accent);
+      line-height: 1.2;
+    }
+
+    .intro {
+      font-size: 18px;
+      color: var(--text);
+      font-style: italic;
+    }
+
+    main {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    @media (min-width: 768px) {
+      main {
+        display: grid;
+        grid-template-columns: 3fr 2fr;
+        gap: 32px;
+        align-items: start;
+      }
+    }
+
+    .events-section h2, .reservation-panel h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 16px;
+      letter-spacing: -0.2px;
+    }
+
+    .event-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      list-style: none;
+    }
+
+    .event-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      justify-content: space-between;
+    }
+
+    @media (min-width: 480px) {
+      .event-card {
+        flex-direction: row;
+        align-items: center;
+      }
+    }
+
+    .event-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .event-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .event-details {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .btn-reserve {
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      background-color: transparent;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      border-radius: 4px;
+      padding: 8px 16px;
+      min-height: 44px;
+      cursor: pointer;
+      text-align: center;
+      align-self: flex-start;
+    }
+
+    @media (min-width: 480px) {
+      .btn-reserve {
+        align-self: center;
+      }
+    }
+
+    .btn-reserve:hover {
+      background-color: var(--accent);
+      color: #111318;
+    }
+
+    .btn-reserve:focus-visible {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 2px;
+    }
+
+    .reservation-panel {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+
+    .selected-event-display {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--accent);
+      padding: 8px 12px;
+      background: rgba(242, 189, 81, 0.1);
+      border: 1px solid rgba(242, 189, 81, 0.3);
+      border-radius: 4px;
+      margin-bottom: 16px;
+    }
+
+    select {
+      width: 100%;
+      font-family: inherit;
+      font-size: 16px;
+      background-color: #111318;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 10px 12px;
+      min-height: 44px;
+      cursor: pointer;
+    }
+
+    select:focus-visible {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 2px;
+    }
+
+    .btn-submit {
+      width: 100%;
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 700;
+      background-color: var(--accent);
+      color: #111318;
+      border: none;
+      border-radius: 4px;
+      padding: 12px 16px;
+      min-height: 44px;
+      cursor: pointer;
+      margin-bottom: 12px;
+    }
+
+    .btn-submit:hover:not(:disabled) {
+      background-color: #dfad44;
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-submit:focus-visible {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 2px;
+    }
+
+    .disclosure {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .confirmation-box {
+      margin-top: 16px;
+      padding: 16px;
+      background-color: rgba(242, 189, 81, 0.1);
+      border: 1px solid var(--accent);
+      border-radius: 4px;
+    }
+
+    .confirmation-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .confirmation-details {
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    footer {
+      margin-top: 40px;
+      border-top: 1px solid var(--border);
+      padding-top: 20px;
+      font-size: 14px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1 class="wordmark">Nightjar Sessions</h1>
+      <p class="intro">Small-room performances. Listen closely.</p>
+    </header>
+
+    <main>
+      <section class="events-section" aria-labelledby="events-heading">
+        <h2 id="events-heading">Upcoming Sessions</h2>
+        <ul class="event-list">
+          <li class="event-card">
+            <div class="event-info">
+              <div class="event-title">Static Bloom</div>
+              <div class="event-details">21 May 2027 — 20:00 — $18</div>
+            </div>
+            <button
+              type="button"
+              class="btn-reserve"
+              aria-label="Reserve Static Bloom"
+              data-title="Static Bloom"
+              data-price="18"
+            >
+              Reserve
+            </button>
+          </li>
+          <li class="event-card">
+            <div class="event-info">
+              <div class="event-title">Paper Satellites</div>
+              <div class="event-details">28 May 2027 — 20:00 — $22</div>
+            </div>
+            <button
+              type="button"
+              class="btn-reserve"
+              aria-label="Reserve Paper Satellites"
+              data-title="Paper Satellites"
+              data-price="22"
+            >
+              Reserve
+            </button>
+          </li>
+        </ul>
+      </section>
+
+      <section class="reservation-panel" aria-labelledby="reservation-heading">
+        <h2 id="reservation-heading">Reservation</h2>
+        <form id="reservation-form">
+          <div class="form-group">
+            <label id="selected-event-label">Selected event</label>
+            <div
+              id="selected-event-display"
+              class="selected-event-display"
+              aria-labelledby="selected-event-label"
+            >
+              No event selected. Choose an event to reserve.
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="places-select">Places</label>
+            <select id="places-select" name="places">
+              <option value="1">1</option>
+              <option value="2">2</option>
+            </select>
+          </div>
+
+          <button
+            type="submit"
+            id="submit-btn"
+            class="btn-submit"
+            disabled
+          >
+            Confirm demo reservation
+          </button>
+
+          <p class="disclosure">Demo only. No payment or ticket is issued.</p>
+
+          <div
+            id="confirmation-box"
+            class="confirmation-box"
+            role="status"
+            aria-live="polite"
+            hidden
+          >
+            <div class="confirmation-title">Reservation saved</div>
+            <div class="confirmation-details" id="confirmation-details"></div>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <footer>
+      <p>Nightjar Sessions — fictional venue.</p>
+    </footer>
+  </div>
+
+  <script>
+    (function() {
+      var selectedEvent = null;
+
+      var reserveButtons = document.querySelectorAll(".btn-reserve");
+      var eventDisplay = document.getElementById("selected-event-display");
+      var placesSelect = document.getElementById("places-select");
+      var submitBtn = document.getElementById("submit-btn");
+      var form = document.getElementById("reservation-form");
+      var confirmBox = document.getElementById("confirmation-box");
+      var confirmDetails = document.getElementById("confirmation-details");
+
+      reserveButtons.forEach(function(btn) {
+        btn.addEventListener("click", function() {
+          selectedEvent = {
+            title: btn.getAttribute("data-title"),
+            price: parseInt(btn.getAttribute("data-price"), 10)
+          };
+          eventDisplay.textContent = selectedEvent.title + " — $" + selectedEvent.price;
+          submitBtn.disabled = false;
+          confirmBox.hidden = true;
+          // Set focus to the places select or submit button for accessibility
+          placesSelect.focus();
+        });
+      });
+
+      form.addEventListener("submit", function(e) {
+        e.preventDefault();
+        if (!selectedEvent) return;
+
+        var places = parseInt(placesSelect.value, 10);
+        var total = places * selectedEvent.price;
+
+        confirmDetails.innerHTML =
+          "<div><strong>" + selectedEvent.title + "</strong></div>" +
+          "<div>" + places + " places</div>" +
+          "<div>Total: $" + total + "</div>";
+
+        confirmBox.hidden = false;
+      });
+    })();
+  </script>
+</body>
+</html>

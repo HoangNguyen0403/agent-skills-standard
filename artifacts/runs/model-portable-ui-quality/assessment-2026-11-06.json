@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "run_id": "assessment-model-portable-ui-quality-2026-11-06",
+  "slug": "model-portable-ui-quality",
+  "workflow": "validate-product",
+  "feature_status": "requirements_ready",
+  "started_at": "2026-11-06T16:54:08Z",
+  "completed_at": "2026-11-06T17:34:01Z",
+  "requirement_trace": {
+    "brd_objectives": ["BRD-OBJ-001"],
+    "requirements": ["REQ-001", "REQ-002", "REQ-003", "REQ-004"],
+    "acceptance_criteria": ["AC-001", "AC-002", "AC-003", "AC-004", "AC-005", "AC-006"],
+    "srs": []
+  },
+  "completed_evidence": [
+    "docs/product/model-portable-ui-quality/capability-audit.md: canonical owner inventory, all12 reference dispositions and ranked leverage recommendations",
+    "docs/product/model-portable-ui-quality/evaluation-protocol.md: six fixed briefs, rubric, observation/repair/review/authority protocol",
+    "artifacts/runs/model-portable-ui-quality/review-2026-11-06.md: independent AC-001 through AC-006 PASS, minor matrix finding corrected and reviewer closure received",
+    "Two disjoint read-only authors returned documents; orchestrator published; separate reviewer assessed persisted integration",
+    "Throwaway Node logical smoke passed five decision-policy scenarios and 72-output/216-version arithmetic; not empirical execution",
+    "Validated task packets published using canonical task_brief.py; cumulative two-document review package generated",
+    "Proposal-only experiment: no UI generations, browser sessions, code/asset imports, installations or rollout"
+  ],
+  "missing_evidence": [
+    "No model-quality improvement or end-user usability evidence; experiment not run",
+    "Runnable frozen starters and calibrated independent reviewers",
+    "Exact eligible model/version/settings, candidate guidance revision and runtime/tools",
+    "Finite host-enforced invocation/window/budget bounds, canonical product ledger/gate and authenticated experiment consent",
+    "Canonical Outcome RunRecord schema validator unavailable because tsx is not installed; no dependencies installed",
+    "Aggregate host usage and total actor monetary cost unavailable"
+  ],
+  "decision_needed": [
+    "Before empirical execution, maintainer selects exact candidate/model/runtime/resource bounds and provides matching authenticated authorization; otherwise retain current guidance"
+  ],
+  "recommended_next_workflow": null,
+  "cost": {"source": "unavailable"},
+  "agent": {"identity": "omp orchestrator with independent assessment authors and reviewer", "model": "openai-codex/gpt-6.1-sol"}
+}

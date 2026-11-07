@@ -1,0 +1,14 @@
+{
+  "status":"frozen-reference-fixtures",
+  "scope":"Six deterministic local reference implementations; B5/B6 are identical future-arm starters; these are NOT experimental model outputs",
+  "files":[
+    {"id":"B1","path":"benchmarks/ui-quality/fixtures/b1-fieldnote.html","sha256":"4a2390c5f00e4355ec307bf72eb9f1facc77cdbaa55aac873b8f7038ef41d50f"},
+    {"id":"B2","path":"benchmarks/ui-quality/fixtures/b2-relay-dispatch.html","sha256":"73775a6af52f7d258f596297f50424eff21ec742f7d30fbff7c7d90eaa068362"},
+    {"id":"B3","path":"benchmarks/ui-quality/fixtures/b3-harbor-workshops.html","sha256":"3785f642cdbc2d1412fdf615cbb6e9e9a27ea553508299e35285b487ef77308a"},
+    {"id":"B4","path":"benchmarks/ui-quality/fixtures/b4-common-ground.html","sha256":"d55ae1b0f33d55eee5d709613e5cb8f4bb9dc8ada0261927c4af4c39f1584db3"},
+    {"id":"B5","path":"benchmarks/ui-quality/fixtures/b5-cedar-tasks.html","sha256":"6cd1e165252fd9c9d2777d2425c4d2c884266a6e6f48383ddeab8b075edb4d60"},
+    {"id":"B6","path":"benchmarks/ui-quality/fixtures/b6-nightjar-sessions.html","sha256":"b536e085e7214d33f3cfab26974f03591548b6f7fa593bda2c699fa0b44cabde"}
+  ],
+  "technical_evidence":{"driver":"playwright-cli0.1.8","browser":"Chromium156.0.8078.4","desktop_mobile_task_layout_retry":{"checks":25,"pass":25,"fail":0},"focus_motion_semantics":{"checks":5,"pass":5,"fail":0},"tablet_document_bounds":{"checks":6,"pass":6,"fail":0},"page_errors":[],"report":"verification-report.md","screenshots":"local untracked .playwright-cli/ui-quality-fixtures/","cache_control":"Final checks use revision query parameters; an earlier post-correction navigation observed stale DOM, not accepted as final proof"},
+  "limits":["WebKit27.2 and axe4.14.0 smoke now available in verification-status.json; no full per-state or WCAG conformance proof","Document-level bounds do not prohibit local horizontal scrolling in dense data table","No screen-reader/200percentzoom proof; B2 color-contrast and B6 aria-prohibited-attr incomplete checks need manual review","Independent reviewer closed all4source findings after correction; runtime results are parent-observed, not independently rerun","Hashes bind current fixture bytes, not UI quality or experiment authority"]
+}

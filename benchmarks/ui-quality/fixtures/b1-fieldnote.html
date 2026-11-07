@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fieldnote — Volunteer Scheduling</title>
+  <style>
+    :root {
+      --bg-warm: #fcfbf9;
+      --surface: #ffffff;
+      --surface-border: #e6e0d6;
+      --text-main: #212623;
+      --text-muted: #4e5751;
+      --accent-green: #245e3c;
+      --accent-green-hover: #1b492f;
+      --accent-green-focus: #153824;
+      --accent-light: #eef5f0;
+      --error-text: #b91c1c;
+      --error-bg: #fef2f2;
+      --error-border: #fca5a5;
+      --focus-ring: #245e3c;
+      --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-stack);
+      background-color: var(--bg-warm);
+      color: var(--text-main);
+      line-height: 1.5;
+      font-size: 1rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Skip link */
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 1rem;
+      background: var(--accent-green);
+      color: #ffffff;
+      padding: 0.5rem 1rem;
+      z-index: 100;
+      text-decoration: none;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    .skip-link:focus {
+      top: 1rem;
+    }
+
+    /* Header & Navigation */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--surface-border);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .header-container {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--accent-green);
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+
+    nav ul {
+      display: flex;
+      gap: 1.75rem;
+      list-style: none;
+    }
+
+    nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95rem;
+      padding: 0.35rem 0.2rem;
+      transition: color 0.15s ease;
+    }
+
+    nav a:hover {
+      color: var(--text-main);
+    }
+
+    /* Focus styling */
+    a:focus-visible,
+    button:focus-visible,
+    input:focus-visible {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 3px;
+    }
+
+    /* Main layout */
+    main {
+      flex: 1;
+      max-width: 1040px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 4rem;
+    }
+
+    /* Hero section */
+    .hero {
+      text-align: center;
+      max-width: 680px;
+      margin: 0 auto 4rem;
+    }
+
+    .hero h1 {
+      font-size: 2.25rem;
+      line-height: 1.25;
+      font-weight: 750;
+      color: var(--text-main);
+      margin-bottom: 1rem;
+      letter-spacing: -0.025em;
+    }
+
+    .hero p {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* Features section */
+    .features-section {
+      margin-bottom: 5rem;
+      scroll-margin-top: 5rem;
+    }
+
+    .features-section h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      letter-spacing: -0.015em;
+      text-align: center;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      border-radius: 8px;
+      padding: 1.75rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+
+    .feature-card h3 {
+      font-size: 1.1rem;
+      font-weight: 650;
+      color: var(--text-main);
+      margin-bottom: 0.5rem;
+    }
+
+    .feature-card p {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Plans section */
+    .plans-section {
+      scroll-margin-top: 5rem;
+      margin-bottom: 3rem;
+    }
+
+    .plans-section h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 1.75rem;
+      letter-spacing: -0.015em;
+      text-align: center;
+    }
+
+    .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .plan-card {
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      border-radius: 10px;
+      padding: 2.25rem 2rem;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
+      position: relative;
+    }
+
+    .plan-card.highlight {
+      border: 2px solid var(--accent-green);
+    }
+
+    .plan-header {
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid var(--surface-border);
+    }
+
+    .plan-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .plan-price {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: var(--accent-green);
+      letter-spacing: -0.02em;
+    }
+
+    .plan-features {
+      list-style: none;
+      margin-bottom: 2rem;
+      flex-grow: 1;
+    }
+
+    .plan-features li {
+      padding: 0.5rem 0;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .plan-features li::before {
+      content: "✓";
+      color: var(--accent-green);
+      font-weight: bold;
+    }
+
+    .btn-choose {
+      background-color: var(--accent-green);
+      color: #ffffff;
+      border: none;
+      border-radius: 6px;
+      padding: 0.85rem 1.25rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      text-align: center;
+      transition: background-color 0.15s ease;
+      font-family: inherit;
+    }
+
+    .btn-choose:hover {
+      background-color: var(--accent-green-hover);
+    }
+
+    .btn-secondary {
+      background-color: transparent;
+      color: var(--accent-green);
+      border: 1.5px solid var(--accent-green);
+      border-radius: 6px;
+      padding: 0.85rem 1.25rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: not-allowed;
+      width: 100%;
+      text-align: center;
+      font-family: inherit;
+      opacity: 0.85;
+    }
+
+    .plan-disclosure {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.85rem;
+      text-align: center;
+    }
+
+    /* Footer */
+    footer {
+      background: var(--surface);
+      border-top: 1px solid var(--surface-border);
+      padding: 2rem 1.5rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-top: auto;
+    }
+
+    /* Modal Dialog */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(33, 38, 35, 0.45);
+      backdrop-filter: blur(2px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      z-index: 1000;
+    }
+
+    .modal-backdrop[hidden] {
+      display: none;
+    }
+
+    .dialog-box {
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      border-radius: 10px;
+      max-width: 440px;
+      width: 100%;
+      padding: 2rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+      position: relative;
+    }
+
+    .dialog-box h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+      color: var(--text-main);
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      color: var(--text-main);
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 0.75rem 0.85rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-family: inherit;
+      color: var(--text-main);
+      background: #ffffff;
+    }
+
+    .form-group input[aria-invalid="true"] {
+      border-color: var(--error-border);
+      background-color: var(--error-bg);
+    }
+
+    .error-alert {
+      color: var(--error-text);
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-top: 0.45rem;
+    }
+
+    .error-alert[hidden] {
+      display: none;
+    }
+
+    .dialog-actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+    }
+
+    .btn-continue {
+      flex: 1;
+      background-color: var(--accent-green);
+      color: #ffffff;
+      border: none;
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn-continue:hover {
+      background-color: var(--accent-green-hover);
+    }
+
+    .btn-cancel {
+      background-color: #f1f5f9;
+      color: var(--text-main);
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn-cancel:hover {
+      background-color: #e2e8f0;
+    }
+
+    .dialog-disclosure {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 1rem;
+      text-align: center;
+    }
+
+    .confirmation-view {
+      padding: 0.5rem 0;
+    }
+
+    .confirmation-view[hidden] {
+      display: none;
+    }
+
+    .confirmation-msg {
+      background-color: var(--accent-light);
+      border: 1px solid #c2e2cf;
+      color: var(--accent-green);
+      padding: 1rem;
+      border-radius: 6px;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 640px) {
+      .header-container {
+        padding: 0.85rem 1rem;
+      }
+      main {
+        padding: 2rem 1rem 3rem;
+      }
+      .hero h1 {
+        font-size: 1.85rem;
+      }
+      .dialog-box {
+        padding: 1.5rem 1.25rem;
+      }
+      .dialog-actions {
+        flex-direction: column-reverse;
+      }
+      .btn-cancel, .btn-continue {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <header>
+    <div class="header-container">
+      <a href="#" class="brand">Fieldnote</a>
+      <nav aria-label="Main Navigation">
+        <ul>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#plans">Plans</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <section class="hero">
+      <h1>Keep your volunteer shifts in one place.</h1>
+      <p>Plan shifts, share updates, and give every volunteer a clear next step.</p>
+    </section>
+
+    <section id="features" class="features-section" aria-labelledby="features-heading">
+      <h2 id="features-heading">Features</h2>
+      <div class="feature-grid">
+        <article class="feature-card">
+          <h3>Shared roster</h3>
+          <p>See who is covering each shift.</p>
+        </article>
+        <article class="feature-card">
+          <h3>Shift reminders</h3>
+          <p>Send a reminder before a shift begins.</p>
+        </article>
+        <article class="feature-card">
+          <h3>Printable schedule</h3>
+          <p>Keep a paper copy at the venue.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="plans" class="plans-section" aria-labelledby="plans-heading">
+      <h2 id="plans-heading">Plans</h2>
+      <div class="plans-grid">
+        <!-- Starter Plan -->
+        <article class="plan-card highlight">
+          <div class="plan-header">
+            <h3 class="plan-name">Starter</h3>
+            <div class="plan-price">$0 / month</div>
+          </div>
+          <ul class="plan-features">
+            <li>1 team</li>
+            <li>Up to 20 volunteers</li>
+          </ul>
+          <button type="button" id="choose-starter-btn" class="btn-choose">Choose Starter</button>
+          <p class="plan-disclosure">Demo only. No account will be created.</p>
+        </article>
+
+        <!-- Team Plan -->
+        <article class="plan-card">
+          <div class="plan-header">
+            <h3 class="plan-name">Team</h3>
+            <div class="plan-price">$12 / month</div>
+          </div>
+          <ul class="plan-features">
+            <li>Up to 5 teams</li>
+            <li>Up to 100 volunteers</li>
+          </ul>
+          <button type="button" class="btn-secondary" disabled>Team Plan</button>
+          <p class="plan-disclosure">Available for growing volunteer teams.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Fieldnote — a fictional volunteer scheduling service.</p>
+  </footer>
+
+  <!-- Modal Dialog -->
+  <div id="modal-container" class="modal-backdrop" hidden>
+    <div
+      role="dialog"
+      id="starter-dialog"
+      aria-modal="true"
+      aria-labelledby="dialog-title"
+      class="dialog-box"
+    >
+      <div id="dialog-form-view">
+        <h2 id="dialog-title">Start with Starter</h2>
+        <form id="starter-form" novalidate>
+          <div class="form-group">
+            <label for="email-input">Email</label>
+            <input
+              type="email"
+              id="email-input"
+              name="email"
+              placeholder="e.g. name@example.test"
+              aria-describedby="email-error"
+            >
+            <div id="email-error" class="error-alert" role="alert" hidden>Enter a valid email address.</div>
+          </div>
+
+          <div class="dialog-actions">
+            <button type="button" id="cancel-btn" class="btn-cancel">Cancel</button>
+            <button type="submit" id="continue-btn" class="btn-continue">Continue</button>
+          </div>
+
+          <p class="dialog-disclosure">Demo only. No account will be created.</p>
+        </form>
+      </div>
+
+      <div id="dialog-confirmation-view" class="confirmation-view" hidden>
+        <h2 id="confirmation-title">Start with Starter</h2>
+        <div id="confirmation-msg" class="confirmation-msg" role="status"></div>
+        <p class="dialog-disclosure">Demo only. No account will be created.</p>
+        <div class="dialog-actions" style="margin-top: 1.25rem;">
+          <button type="button" id="close-dialog-btn" class="btn-cancel" style="width: 100%;">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const chooseStarterBtn = document.getElementById('choose-starter-btn');
+      const modalContainer = document.getElementById('modal-container');
+      const starterDialog = document.getElementById('starter-dialog');
+      const dialogFormView = document.getElementById('dialog-form-view');
+      const dialogConfirmationView = document.getElementById('dialog-confirmation-view');
+      const starterForm = document.getElementById('starter-form');
+      const emailInput = document.getElementById('email-input');
+      const emailError = document.getElementById('email-error');
+      const continueBtn = document.getElementById('continue-btn');
+      const cancelBtn = document.getElementById('cancel-btn');
+      const closeDialogBtn = document.getElementById('close-dialog-btn');
+      const confirmationMsg = document.getElementById('confirmation-msg');
+
+      let lastFocusedElement = null;
+
+      function openDialog() {
+        lastFocusedElement = document.activeElement;
+        modalContainer.hidden = false;
+        dialogFormView.hidden = false;
+        dialogConfirmationView.hidden = true;
+        emailError.hidden = true;
+        emailInput.removeAttribute('aria-invalid');
+        emailInput.value = '';
+        emailInput.focus();
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeDialog() {
+        modalContainer.hidden = true;
+        document.body.style.overflow = '';
+        if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
+          lastFocusedElement.focus();
+        }
+      }
+
+      function isValidEmail(val) {
+        if (!val || typeof val !== 'string') return false;
+        const trimmed = val.trim();
+        // RFC5322-compliant simple check for address@domain.tld
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
+      }
+
+      chooseStarterBtn.addEventListener('click', openDialog);
+      cancelBtn.addEventListener('click', closeDialog);
+      closeDialogBtn.addEventListener('click', closeDialog);
+
+      modalContainer.addEventListener('click', function(e) {
+        if (e.target === modalContainer) {
+          closeDialog();
+        }
+      });
+
+      document.addEventListener('keydown', function(e) {
+        if (modalContainer.hidden) return;
+
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          closeDialog();
+          return;
+        }
+
+        // Trap focus inside dialog
+        if (e.key === 'Tab') {
+          const focusableElements = starterDialog.querySelectorAll(
+            'button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+          );
+          const focusable = Array.prototype.filter.call(focusableElements, function(el) {
+            return el.offsetParent !== null;
+          });
+
+          if (focusable.length === 0) return;
+
+          const first = focusable[0];
+          const last = focusable[focusable.length - 1];
+
+          if (e.shiftKey) {
+            if (document.activeElement === first) {
+              e.preventDefault();
+              last.focus();
+            }
+          } else {
+            if (document.activeElement === last) {
+              e.preventDefault();
+              first.focus();
+            }
+          }
+        }
+      });
+
+      starterForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const value = emailInput.value.trim();
+
+        if (!isValidEmail(value)) {
+          emailInput.setAttribute('aria-invalid', 'true');
+          emailError.hidden = false;
+          emailInput.focus();
+          return;
+        }
+
+        // Valid email (e.g. mira@example.test)
+        emailInput.removeAttribute('aria-invalid');
+        emailError.hidden = true;
+        confirmationMsg.textContent = 'Starter selected for ' + value + '.';
+        dialogFormView.hidden = true;
+        dialogConfirmationView.hidden = false;
+        closeDialogBtn.focus();
+      });
+
+      emailInput.addEventListener('input', function() {
+        if (!emailError.hidden) {
+          emailError.hidden = true;
+          emailInput.removeAttribute('aria-invalid');
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
