@@ -855,17 +855,17 @@
       ]
     },
     "product-management": {
-      "version": "1.0.2",
-      "last_updated": "2026-10-29",
+      "version": "1.0.3",
+      "last_updated": "2026-11-07",
       "tag_prefix": "product-management-v",
       "owners": [
         "HoangNguyen0403"
       ],
       "token_metrics": {
         "total_skills": 10,
-        "total_tokens": 14561,
-        "avg_tokens_per_skill": 1456,
-        "largest_skill": "product-requirements (2166 tokens)"
+        "total_tokens": 14574,
+        "avg_tokens_per_skill": 1457,
+        "largest_skill": "product-requirements (2179 tokens)"
       }
     },
     "marketing": {
@@ -885,7 +885,7 @@
   },
   "releases": {
     "workflows": {
-      "version": "2.1.2",
+      "version": "2.1.3",
       "tag_prefix": "workflows-v"
     }
   },
