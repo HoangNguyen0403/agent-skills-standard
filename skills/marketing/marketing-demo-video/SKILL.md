@@ -1,6 +1,6 @@
 ---
 name: marketing-demo-video
-description: 'Produces authentic, accessible product and terminal demo videos with zero mandatory fees, verified command execution, and open-source recipes. Enforces audio-video scene pairing, recovery rejoin, assembled delivery, WebVTT captions, and spend/rights governance. (triggers: `demo video`, `terminal demo recording`, `product demo video`, `captioned demo`, `ffmpeg demo video`, `demo storyboard`)'
+description: 'Produces authentic, accessible product and terminal demo videos with zero mandatory fees, verified command execution, and open-source recipes. Enforces audio-video scene pairing, recovery rejoin, assembled delivery, WebVTT captions, and spend/rights governance. Optional creator editorial path for YouTube packaging and repurposing. (triggers: `demo video`, `terminal demo recording`, `product demo video`, `captioned demo`, `ffmpeg demo video`, `demo storyboard`, `youtube script`, `title thumbnail`, `youtube shorts`, `retention review`)'
 guardrail: true
 metadata:
   triggers:
@@ -12,6 +12,10 @@ metadata:
       - 'captioned demo'
       - 'ffmpeg demo video'
       - 'demo storyboard'
+      - 'youtube script'
+      - 'title thumbnail'
+      - 'youtube shorts'
+      - 'retention review'
 ---
 
 # Demo Video Production Standard
@@ -26,6 +30,7 @@ Downstream video workflows MUST resolve the shared creative production contract 
 1. **Resolution**: Check `<agent-root>/marketing/marketing-content-strategy/references/creative-production-contract.md`, then flattened `<agent-root>/marketing-marketing-content-strategy/references/creative-production-contract.md`.
 2. **Missing Contract**: Report `capability_gap: "missing_creative_production_contract"`. Do NOT silently install packages or claim creative-production readiness.
 3. **Preserved Standalone Capabilities**: Local `ffmpeg` recipes and storyboard CLI (`scripts/validate-demo-storyboard.mjs`) remain operational without this contract. Closed schema (`demo-storyboard.schema.json`) is unchanged; do NOT inject production review records into it.
+4. **Optional Creator Editorial Path**: For YouTube scripts, packaging, Shorts repurposing, or retention reviews, resolve package-local `references/creator-editorial.md` and `references/creator-evaluation.md` on demand. If absent, report `capability_gap: "missing_creator_editorial"`; ordinary capture remains operational.
 
 ## 2. Core Rules
 
@@ -85,4 +90,6 @@ Executed actions (`terminal_command`, `editor_action`, `ui_interaction`) declare
 - [Shared Creative Production Contract](../marketing-content-strategy/references/creative-production-contract.md) — Canonical multi-asset governance (C1–C6). Resolve via installed package path.
 - [Capture & Edit Recipe](references/capture-edit-recipe.md) — Local capture, cropping, padding, ffmpeg audio muxing/assembly, and ffprobe PTS verification.
 - [Rights & Cost Checklist](references/rights-cost-checklist.md) — Provenance, spend caps, recovery rejoin, and storyboard CLI input/diagnostic boundaries.
+- [Creator Editorial Reference](references/creator-editorial.md) — On-demand YouTube strategy, packaging, script structuring, Shorts, and retention review.
+- [Offline Creator Evaluation Contract](references/creator-evaluation.md) — Precommitment evaluation contract for quality non-regression and time-reduction benchmarking.
 - [Storyboard Schema](assets/demo-storyboard.schema.json) — Closed JSON Schema for evidence-bound demo contracts.
