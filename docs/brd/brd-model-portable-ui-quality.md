@@ -43,7 +43,8 @@ The experiment size and thresholds are proposed defaults for planning, not proof
 
 ## Why
 
-**BRD-OBJ-001:** Help maintainers and consuming developers distinguish useful UI guidance from attractive wording, and choose improvements based on observed product-fit and usability rather than screenshot fashion.
+- **Objective ID**: BRD-OBJ-001
+- **Objective Statement**: Help maintainers and consuming developers distinguish useful UI guidance from attractive wording, and choose improvements based on observed product-fit and usability rather than screenshot fashion.
 
 **SMART metric — proposed default:** Within 30 calendar days after separately authorized evaluation starts, publish the defined baseline comparison and a prioritized recommendation. A candidate is worth adopting only if it wins at least 8 of the 12 paired outputs for every tested model, with ties not counted as wins; introduces no new critical accessibility or primary-task blocker relative to baseline; and does not increase the median human repair rounds per model. Record absolute defects in both arms: baseline defects still require resolution before a screen is called acceptable. The win threshold is an operational decision rule, not statistical significance. If no candidate meets it, report no demonstrated improvement and retain the existing guidance.
 

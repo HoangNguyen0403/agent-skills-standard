@@ -114,7 +114,7 @@ Estimates are relative deliverable sizes, not time, price or model-spend commitm
 
 ### Verification And Completion Boundary
 
-Use the AC-row lanes; no runtime behavior is changed by this planning artifact. For future A/B delivery, independently read the referenced canonical evidence and walk a success case, a generated-code failure, an infrastructure failure, a tie and a critical regression through the specified policy. This is protocol consistency proof, not execution of the 72-output experiment. Record calibration as pending if example artifacts are unavailable.
+Use the defined acceptance-criteria rows; no runtime behavior is changed by this planning artifact. For future A/B delivery, independently read the referenced canonical evidence and walk a success case, a generated-code failure, an infrastructure failure, a tie and a critical regression through the specified policy. This is protocol consistency proof, not execution of the 72-output experiment. Record calibration as pending if example artifacts are unavailable.
 
 For this plan, validate its persisted Outcome RunRecord through the existing `scripts/outcome/index.ts --records --required` entrypoint, scoped by slug/workflow/run ID. Schema/scope success is not plan approval or empirical acceptance. No application smoke run or broad test suite is warranted by documentation-only planning.
 
