@@ -1,0 +1,314 @@
+--- artifacts/agent-harness-improvement/trace-repair-20261107/preimage/brd.md
++++ docs/brd/brd-agent-harness-improvement.md
+@@ -23,16 +23,16 @@
+ 
+ ### Acceptance criteria for the recommended first slice
+ 
+-These are proposed downstream requirements, not claims that this discovery implemented them.
++These are proposed downstream requirements, not claims that this discovery implemented them. Upstream reference-only criteria; formal declarations reside in the canonical PRD requirements table (see [editorial identity mapping](../../artifacts/agent-harness-improvement/trace-repair-20261107/identity-mapping.md)).
+ 
+-| ID | Observable acceptance |
++| Criterion | Observable acceptance |
+ | --- | --- |
+-| AC-HAR-01 | A version/revision-bound capability record identifies the owner, entrypoint, configuration evidence, and support status for intent/assignment, model/account authorization, context, tools, recovery, verification, and economics. Unknown and unsupported remain distinct. |
+-| AC-HAR-02 | A dispatch-surface inventory covers Paseo creation, model/settings updates, CLI launches, schedules/heartbeats, and OMP-native workers. Each states which control is reused and which remains unverified; no launch route inherits a safety claim solely from another route. |
+-| AC-HAR-03 | Every promoted enforcement claim has retained allowed/denied execution evidence at its actual boundary. Include missing/expired approval and wrong-project/account cases where the claimed control covers them. Prompt compliance, serialized configuration, synthetic fixtures, and credential availability cannot promote a claim to live enforcement. No real premium request is needed or authorized by this brief. |
+-| AC-HAR-04 | One bounded non-sensitive task can be traced from assignment through completion notification and independent acceptance using existing IDs/receipts. Cancelled/timed-out attempts remain non-completed. Recovery evidence identifies what is persisted and what must be revalidated. |
+-| AC-HAR-05 | The same task's accounting declares expected actors, including parent, workers, review, repairs, failures, and cancellations. Missing usage/prices remain unavailable; API money, subscription quota, tokens, cache activity, and elapsed time remain separate. |
+-| AC-HAR-06 | The recommendation names evidenced gaps, no-change findings, and a stop/defer result when added controls or optimization cannot be justified. No second runtime or telemetry store is introduced merely to complete the baseline. |
++| Criterion AC-001 | A version/revision-bound capability record identifies the owner, entrypoint, configuration evidence, and support status for intent/assignment, model/account authorization, context, tools, recovery, verification, and economics. Unknown and unsupported remain distinct. |
++| Criterion AC-002 | A dispatch-surface inventory covers Paseo creation, model/settings updates, CLI launches, schedules/heartbeats, and OMP-native workers. Each states which control is reused and which remains unverified; no launch route inherits a safety claim solely from another route. |
++| Criterion AC-003 | Every promoted enforcement claim has retained allowed/denied execution evidence at its actual boundary. Include missing/expired approval and wrong-project/account cases where the claimed control covers them. Prompt compliance, serialized configuration, synthetic fixtures, and credential availability cannot promote a claim to live enforcement. No real premium request is needed or authorized by this brief. |
++| Criterion AC-004 | One bounded non-sensitive task can be traced from assignment through completion notification and independent acceptance using existing IDs/receipts. Cancelled/timed-out attempts remain non-completed. Recovery evidence identifies what is persisted and what must be revalidated. |
++| Criterion AC-005 | The same task's accounting declares expected actors, including parent, workers, review, repairs, failures, and cancellations. Missing usage/prices remain unavailable; API money, subscription quota, tokens, cache activity, and elapsed time remain separate. |
++| Criterion AC-006 | The recommendation names evidenced gaps, no-change findings, and a stop/defer result when added controls or optimization cannot be justified. No second runtime or telemetry store is introduced merely to complete the baseline. |
+ 
+ ## Why / Value Rationale
+ 
+@@ -42,8 +42,10 @@
+ 
+ **TO-BE:** operators can tell what is enforced, by which owner, for which revision, and at what observed total task cost before approving additional investment.
+ 
+-**Objective BRD-HAR-01 → candidate REQ-HAR-01 → AC-HAR-01–06:** within 14 calendar days of separately authorized first-slice execution, classify all seven capability areas and every listed dispatch surface, retain evidence for every promoted support claim, and produce one complete task/acceptance/accounting walkthrough. Owner: validation owner. This is a proposed SMART target, not a delivery commitment.
++**Objective ID**: BRD-OBJ-001
+ 
++**Objective BRD-OBJ-001 → candidate REQ-001 → AC-001–006:** within 14 calendar days of separately authorized first-slice execution, classify all seven capability areas and every listed dispatch surface, retain evidence for every promoted support claim, and produce one complete task/acceptance/accounting walkthrough. Owner: validation owner. This is a proposed SMART target, not a delivery commitment.
++
+ **Optimization hypothesis, not validated ROI:** after baseline establishment, test one change at a time. A proposed decision threshold is at least 10% lower median active operator handling time per accepted task, with no observed acceptance or safety regression. Baseline, sample sufficiency, variance, review labor, and exposure/budget limits must be precommitted in `validate-product`; 10% is a decision target, not a prediction. Reject monetary savings claims without comparable complete actor coverage and resolved prices.
+ 
+ ## Article Investigation
+@@ -91,7 +93,7 @@
+ 
+ ### A. Reuse and qualify existing harness controls — recommended
+ 
+-First deliver the bounded assurance baseline (AC-HAR-01–06). Then authorize only corrections backed by actual gaps. Assumption: current owner boundaries can be observed without creating a second runtime. First failure condition: acceptance traces cannot be collected through supported interfaces. Worst plausible case: instrumentation/authority gaps prevent comparison; report unverified and stop promotion. Cost to abandon: retain a useful capability inventory and evidence without runtime migration.
++First deliver the bounded assurance baseline (AC-001–006). Then authorize only corrections backed by actual gaps. Assumption: current owner boundaries can be observed without creating a second runtime. First failure condition: acceptance traces cannot be collected through supported interfaces. Worst plausible case: instrumentation/authority gaps prevent comparison; report unverified and stop promotion. Cost to abandon: retain a useful capability inventory and evidence without runtime migration.
+ 
+ ### B. Build a unified control plane now — defer
+ 
+@@ -230,9 +232,9 @@
+   "started_at": "2026-11-06T15:55:39Z",
+   "completed_at": "2026-11-06T16:01:30Z",
+   "requirement_trace": {
+-    "brd_objectives": ["BRD-HAR-01"],
+-    "requirements": ["REQ-HAR-01"],
+-    "acceptance_criteria": ["AC-HAR-01", "AC-HAR-02", "AC-HAR-03", "AC-HAR-04", "AC-HAR-05", "AC-HAR-06"],
++    "brd_objectives": ["BRD-OBJ-001"],
++    "requirements": ["REQ-001"],
++    "acceptance_criteria": ["AC-001", "AC-002", "AC-003", "AC-004", "AC-005", "AC-006"],
+     "srs": []
+   },
+   "completed_evidence": ["primary-source investigation", "three-product capability inventory", "read-only installed CLI observations", "hook reminder observation", "ROI hypotheses and first-slice contract"],
+
+--- artifacts/agent-harness-improvement/trace-repair-20261107/preimage/prd.md
++++ docs/prd/prd-agent-harness-improvement.md
+@@ -10,7 +10,7 @@
+ 
+ ## Decision Brief
+ 
+-- **Changes since approved brief:** Decompose only the assurance-baseline first slice into bounded work packages and verification ownership. Preserve BRD-HAR-01, REQ-HAR-01 and AC-HAR-01–06. No authorization engine, profile changes, instruction rewrite, cache, or optimization experiment is added.
++- **Changes since approved brief:** Decompose only the assurance-baseline first slice into bounded work packages and verification ownership. Promote BRD-OBJ-001, REQ-001 and AC-001–006 to active canonical declarations (preserving historical requirement meanings via [editorial identity mapping](../../artifacts/agent-harness-improvement/trace-repair-20261107/identity-mapping.md)). No authorization engine, profile changes, instruction rewrite, cache, or optimization experiment is added.
+ - **Recommendation:** Qualify the installed integration using existing capability records, conformance evidence, assignment/acceptance receipts and task economics. Produce a retained baseline and gap disposition, not a new runtime or monitoring store.
+ - **Impact if wrong:** A source-only or synthetic pass could become a false security guarantee; incomplete usage could become a false savings claim. Promotion rules and independent verification below prohibit both.
+ - **Evidence:** Reuse the approved [BRD and evidence ledger](../brd/brd-agent-harness-improvement.md), source snapshot approval state `57F6`, and its recorded versions/observations. The snapshot tag identifies the planning input in this conversation, not a durable commit identity. Capture source digests at execution. No fresh runtime, account, or model-efficacy claim is made by this plan.
+@@ -20,7 +20,7 @@
+ 
+ ## Outcome And Guardrails
+ 
+-**Objective:** BRD-HAR-01. Establish what the harness guarantees, by which owner and revision, before committing to fixes or economic optimization.
++**Objective:** BRD-OBJ-001. Establish what the harness guarantees, by which owner and revision, before committing to fixes or economic optimization.
+ 
+ **SMART metric carried forward:** Within 14 calendar days of separately authorized execution, classify all seven capability areas and the listed dispatch surfaces, retain evidence for every promoted support claim, and provide one assignment/acceptance/accounting walkthrough. The window starts only with execution authorization; it is not a delivery commitment made by this plan.
+ 
+@@ -34,13 +34,13 @@
+ 
+ Containment tree; each leaf has one owning package and maps to the canonical REQ/AC tables:
+ 
+-- Establish assurance baseline — REQ-HAR-01.
+-  - Classify capabilities — in_scope, A, AC-HAR-01.
+-  - Map dispatch boundaries — in_scope, B, AC-HAR-02.
+-  - Qualify enforcement claims — in_scope, C, AC-HAR-03.
+-  - Trace lifecycle acceptance — in_scope, D, AC-HAR-04.
+-  - Reconcile task economics — in_scope, D, AC-HAR-05.
+-  - Disposition investment gaps — in_scope, E, AC-HAR-06.
++- Establish assurance baseline — REQ-001.
++  - Classify capabilities — in_scope, A, AC-001.
++  - Map dispatch boundaries — in_scope, B, AC-002.
++  - Qualify enforcement claims — in_scope, C, AC-003.
++  - Trace lifecycle acceptance — in_scope, D, AC-004.
++  - Reconcile task economics — in_scope, D, AC-005.
++  - Disposition investment gaps — in_scope, E, AC-006.
+ 
+ Capabilities covered by A: intent/assignment, model/account authorization, context/memory, tools, recovery, verification and economics. Runtime owners contribute evidence to a single integration owner; they do not co-edit the baseline.
+ 
+@@ -56,26 +56,24 @@
+ 
+ ## Requirements And Acceptance Criteria
+ 
+-This table is the delivery-level definition. The BRD retains the historical approved scope; its criteria are not edited or renumbered.
++This table is the canonical delivery-level requirements definition. Promoted numeric declarations correspond one-to-one with historical requirement identities documented in [identity-mapping.md](../../artifacts/agent-harness-improvement/trace-repair-20261107/identity-mapping.md).
+ 
+-**Run-record serialization:** The existing Outcome RunRecord v1 validator accepts only numeric trace identifiers (`scripts/outcome/schema.ts:105–110`). The alias columns below provide one-to-one serialization names, not new requirements or replacement IDs. Human handoffs keep HAR IDs; machine traces use these aliases and link this PRD. BRD-HAR-01 maps to BRD-OBJ-001 solely for serialization. No validator change or second editable requirements database is proposed.
++| Req ID | Requirement | Product / engineering / verification owner | Priority | Status | BRD objective |
++| --- | --- | --- | --- | --- | --- |
++| REQ-001 | Deliver a revision-bound, evidence-qualified baseline of the current Paseo/OMP/standards integration and a justified gap/no-change/defer recommendation without introducing a replacement runtime. | Requesting operator / baseline integration owner / independent QA verifier | P0 | Proposed delivery detail under approved BRD scope | BRD-OBJ-001 |
+ 
+-| Req ID | Serialization alias | Requirement | Product / engineering / verification owner | Priority | Status | BRD objective |
+-| --- | --- | --- | --- | --- | --- | --- |
+-| REQ-HAR-01 | REQ-001 | Deliver a revision-bound, evidence-qualified baseline of the current Paseo/OMP/standards integration and a justified gap/no-change/defer recommendation without introducing a replacement runtime. | Requesting operator / baseline integration owner / independent QA verifier | P0 | Proposed delivery detail under approved BRD scope | BRD-HAR-01 |
+-
+ Each AC has one acceptance owner and one verification lane. Packages reference IDs rather than redefining criteria.
+ 
+-| AC ID | Serialization alias | Req ID | Given | When | Then | Acceptance owner | Verification lane |
+-| --- | --- | --- | --- | --- | --- | --- | --- |
+-| AC-HAR-01 | AC-001 | REQ-HAR-01 | The seven capability areas and an identified installed/source snapshot | The integration owner publishes the baseline | Every area has an owner, actual entrypoint, version/revision or explicit missing identity, controlling configuration evidence or an explicit missing/unavailable configuration-evidence limitation, evidence references and a qualified support state; absent evidence is not reported as unsupported capability. | Independent QA verifier | Manual version-bound evidence review |
+-| AC-HAR-02 | AC-002 | REQ-HAR-01 | The six dispatch surfaces in the scope inventory | The runtime evidence owners map their control paths | Each surface names its enforcement owner, trusted authority source, existing control/entrypoint reused or an explicit finding that no applicable control has been established, and known evidence/unknowns; a guarantee from one surface is not transferred to another without matching proof. | Independent QA verifier | Manual cross-entrypoint boundary review |
+-| AC-HAR-03 | AC-003 | REQ-HAR-01 | A proposed enforcement claim, its stated controls and separately authorized safe probe environment | The runtime verifier evaluates allow/deny evidence | The claim is promoted only with retained actual-boundary allow and denial evidence for the stated controls, including absent/expired approval and wrong project/account where those controls are claimed; missing, synthetic, stale or unavailable evidence leaves the claim unverified rather than passed. | Independent runtime/security verifier | Isolated host conformance scenario |
+-| AC-HAR-04 | AC-004 | REQ-HAR-01 | One authorized non-sensitive task, bounded run limits and an independent reviewer | The verifier follows assignment, execution and acceptance and examines stopped/recovered states | A correlated receipt shows assignment through notification and independently accepted result; cancellation/timeout is never completion, and recovered state identifies persisted evidence and required revalidation. | Independent QA verifier | Bounded cross-runtime lifecycle scenario |
+-| AC-HAR-05 | AC-005 | REQ-HAR-01 | The AC-HAR-04 task, declared expected actors and retained attempt inventory | The verifier reconciles task accounting | Parent, workers, review, repairs, failures and cancelled attempts are either accounted for or explicitly missing; token categories, API money, subscription quota, cache activity and elapsed time stay distinct, with unknown rates/usage preserved and no unsupported savings claim. | Independent economics verifier | Task-cohort accounting reconciliation |
+-| AC-HAR-06 | AC-006 | REQ-HAR-01 | The baseline and all available scenario outcomes, including unresolved prerequisites | The integration owner submits the investment disposition | Every observed issue has a reuse/fix-candidate/no-change/defer disposition with evidence, owner and consequence; inconclusive evidence cannot justify a full build, and missing live walkthrough evidence prevents full-slice completion. | Requesting operator | Human disposition review |
++| AC ID | Req ID | Given | When | Then | Acceptance owner | Verification lane |
++| --- | --- | --- | --- | --- | --- | --- |
++| AC-001 | REQ-001 | The seven capability areas and an identified installed/source snapshot | The integration owner publishes the baseline | Every area has an owner, actual entrypoint, version/revision or explicit missing identity, controlling configuration evidence or an explicit missing/unavailable configuration-evidence limitation, evidence references and a qualified support state; absent evidence is not reported as unsupported capability. | Independent QA verifier | Manual version-bound evidence review |
++| AC-002 | REQ-001 | The six dispatch surfaces in the scope inventory | The runtime evidence owners map their control paths | Each surface names its enforcement owner, trusted authority source, existing control/entrypoint reused or an explicit finding that no applicable control has been established, and known evidence/unknowns; a guarantee from one surface is not transferred to another without matching proof. | Independent QA verifier | Manual cross-entrypoint boundary review |
++| AC-003 | REQ-001 | A proposed enforcement claim, its stated controls and separately authorized safe probe environment | The runtime verifier evaluates allow/deny evidence | The claim is promoted only with retained actual-boundary allow and denial evidence for the stated controls, including absent/expired approval and wrong project/account where those controls are claimed; missing, synthetic, stale or unavailable evidence leaves the claim unverified rather than passed. | Independent runtime/security verifier | Isolated host conformance scenario |
++| AC-004 | REQ-001 | One authorized non-sensitive task, bounded run limits and an independent reviewer | The verifier follows assignment, execution and acceptance and examines stopped/recovered states | A correlated receipt shows assignment through notification and independently accepted result; cancellation/timeout is never completion, and recovered state identifies persisted evidence and required revalidation. | Independent QA verifier | Bounded cross-runtime lifecycle scenario |
++| AC-005 | REQ-001 | The AC-004 task, declared expected actors and retained attempt inventory | The verifier reconciles task accounting | Parent, workers, review, repairs, failures and cancelled attempts are either accounted for or explicitly missing; token categories, API money, subscription quota, cache activity and elapsed time stay distinct, with unknown rates/usage preserved and no unsupported savings claim. | Independent economics verifier | Task-cohort accounting reconciliation |
++| AC-006 | REQ-001 | The baseline and all available scenario outcomes, including unresolved prerequisites | The integration owner submits the investment disposition | Every observed issue has a reuse/fix-candidate/no-change/defer disposition with evidence, owner and consequence; inconclusive evidence cannot justify a full build, and missing live walkthrough evidence prevents full-slice completion. | Requesting operator | Human disposition review |
+ 
+-The QA/economics roles may be held by one verifier if independent of package implementation. Human acceptance at AC-HAR-06 cannot be supplied by an agent. Scope coverage and readiness may be partial; an unverified capability is a valid finding, whereas an unexecuted required lifecycle walkthrough is unfinished delivery.
++The QA/economics roles may be held by one verifier if independent of package implementation. Human acceptance at AC-006 cannot be supplied by an agent. Scope coverage and readiness may be partial; an unverified capability is a valid finding, whereas an unexecuted required lifecycle walkthrough is unfinished delivery.
+ 
+ ## Evidence And Authority Decision Rules
+ 
+@@ -121,11 +119,11 @@
+ 
+ | Package | One owner / repository boundary | References | Expected artifact | Dependencies | Estimate / confidence | Per-package routing |
+ | --- | --- | --- | --- | --- | --- | --- |
+-| A — Classify capability evidence | Standards evidence owner; read existing ARCHITECTURE, capability/qualification and receipt owners; own capability-baseline artifact only | REQ-HAR-01; AC-HAR-01 | Version-bound capability inventory with current/unknown support and source links | Design contract and selected execution approach | S / high for inventory | S=1 N=0 C=1 total=2, low; eligible fast or standard analysis based on evidence ambiguity |
+-| B — Map runtime dispatch boundaries | Runtime evidence owner; read supported Paseo/OMP source/adapters; own dispatch-boundary artifact only | REQ-HAR-01; AC-HAR-02 | Six-surface ownership/authority map with exact revisions and testable claims | Design contract and selected execution approach; independent of A | M / medium | S=2 N=1 C=2 total=5, high; eligible strong analysis, no automatic premium |
+-| C — Qualify enforcement evidence | Runtime conformance owner; isolated probe artifacts, no shared host-policy edits | REQ-HAR-01; AC-HAR-03 | Retained allow/deny observations or explicit unverified gaps, with commands, identities, expected/actual results and stop reasons | A+B relevant evidence, reviewed technical design, readiness, pre-execution validate-product gate and live authority where needed | M / low until probe boundary is resolved | S=2 N=1 C=2 total=5, high; strong eligible runtime/security verification |
+-| D — Trace lifecycle and economics | Task walkthrough owner; one bounded task plus correlated existing receipts/usage; no new telemetry store | REQ-HAR-01; AC-HAR-04/05 | Independently reviewed task trace and actor-accounting report | A+B relevant evidence, design/readiness, pre-execution validate-product gate and separately scoped task authority; independent of C where no C-controlled prerequisite is needed | M / medium for receipts, low for complete native usage | S=2 N=1 C=2 total=5, high; standard/strong eligible execution and independent verification sized to actual action risk |
+-| E — Integrate and disposition | Baseline integration owner owns aggregate baseline/cross-links; independent verifier reviews A–D; operator accepts | REQ-HAR-01; AC-HAR-06 | One coherent baseline, partial/full criterion outcomes and reuse/fix/no-change/defer recommendation | A/B; completion waits for required C/D evidence or reports affected incompleteness | S / medium | S=1 N=1 C=1 total=3, medium; eligible standard integration plus independent review |
++| A — Classify capability evidence | Standards evidence owner; read existing ARCHITECTURE, capability/qualification and receipt owners; own capability-baseline artifact only | REQ-001; AC-001 | Version-bound capability inventory with current/unknown support and source links | Design contract and selected execution approach | S / high for inventory | S=1 N=0 C=1 total=2, low; eligible fast or standard analysis based on evidence ambiguity |
++| B — Map runtime dispatch boundaries | Runtime evidence owner; read supported Paseo/OMP source/adapters; own dispatch-boundary artifact only | REQ-001; AC-002 | Six-surface ownership/authority map with exact revisions and testable claims | Design contract and selected execution approach; independent of A | M / medium | S=2 N=1 C=2 total=5, high; eligible strong analysis, no automatic premium |
++| C — Qualify enforcement evidence | Runtime conformance owner; isolated probe artifacts, no shared host-policy edits | REQ-001; AC-003 | Retained allow/deny observations or explicit unverified gaps, with commands, identities, expected/actual results and stop reasons | A+B relevant evidence, reviewed technical design, readiness, pre-execution validate-product gate and live authority where needed | M / low until probe boundary is resolved | S=2 N=1 C=2 total=5, high; strong eligible runtime/security verification |
++| D — Trace lifecycle and economics | Task walkthrough owner; one bounded task plus correlated existing receipts/usage; no new telemetry store | REQ-001; AC-004; AC-005 | Independently reviewed task trace and actor-accounting report | A+B relevant evidence, design/readiness, pre-execution validate-product gate and separately scoped task authority; independent of C where no C-controlled prerequisite is needed | M / medium for receipts, low for complete native usage | S=2 N=1 C=2 total=5, high; standard/strong eligible execution and independent verification sized to actual action risk |
++| E — Integrate and disposition | Baseline integration owner owns aggregate baseline/cross-links; independent verifier reviews A–D; operator accepts | REQ-001; AC-006 | One coherent baseline, partial/full criterion outcomes and reuse/fix/no-change/defer recommendation | A/B; completion waits for required C/D evidence or reports affected incompleteness | S / medium | S=1 N=1 C=1 total=3, medium; eligible standard integration plus independent review |
+ 
+ **Scheduling:** after the shared design contract, A and B may run concurrently. Once their relevant interfaces/prerequisites exist, C and D may run concurrently only with disjoint task resources and no hidden dependency. Integration owns shared files; workers submit bounded evidence, not concurrent edits to the same baseline. A separate verifier—not the implementation owner—checks each final acceptance result. Actual commercial profiles/model/effort are resolved at dispatch under the host policy; routing hints do not grant an account or authorize premium calls.
+ 
+@@ -162,9 +160,9 @@
+ 
+ ## Planning Artifact Verification
+ 
+-- The unchanged `scripts/outcome/schema.ts` validator accepted the persisted planning record with its exact slug/workflow/run identity. Six unique HAR AC rows mapped one-to-one to numeric serialization aliases, and all local Markdown links resolved.
++- The unchanged `scripts/outcome/schema.ts` validator accepted the persisted planning record with its exact slug/workflow/run identity. Six unique AC rows mapped one-to-one to numeric declarations, and all local Markdown links resolved.
+ - Executed with Node 26 native TypeScript loading and the already installed MCP package's fs-extra dependency via temporary module resolution; no repository dependencies were installed and no source validator was modified. Node emitted a module-type inference warning; validation completed successfully.
+-- Independent BRD-to-PRD review found three fidelity gaps: explicit controlling configuration evidence, identification of reused controls, and the pre-execution validate-product gate. These were corrected in the canonical AC rows and live-package dependencies without changing HAR identities or expanding scope.
++- Independent BRD-to-PRD review found three fidelity gaps: explicit controlling configuration evidence, identification of reused controls, and the pre-execution validate-product gate. These were corrected in the canonical AC rows and live-package dependencies without changing requirement identities or expanding scope.
+ - This is planning artifact/schema verification, not executed assurance criteria, runtime denial proof, source-build parity or model efficacy. The temporary validation script is removed after verification.
+ 
+ ## Status And Receipt
+
+--- artifacts/agent-harness-improvement/trace-repair-20261107/preimage/srs.md
++++ docs/srs/srs-agent-harness-improvement.md
+@@ -21,11 +21,11 @@
+ 
+ ## Trace Source And Revision
+ 
+-Authoritative original intent, primary sources, objective and scope owner: [approved BRD](../brd/brd-agent-harness-improvement.md), operator-approved 2026-11-06. BRD SHA-256: `895af9eb1339ee3b32a687154013adab0c642c59caa939ee0c959677fd15be6a`.
++Authoritative original intent, primary sources, objective and scope owner: [approved BRD](../brd/brd-agent-harness-improvement.md), operator-approved 2026-11-06. Approved BRD preimage SHA-256: `895af9eb1339ee3b32a687154013adab0c642c59caa939ee0c959677fd15be6a` (frozen at [preimage/brd.md](../../artifacts/agent-harness-improvement/trace-repair-20261107/preimage/brd.md)).
+ 
+-Authoritative delivery detail: [PRD](../prd/prd-agent-harness-improvement.md), delivered content SHA-256 before approval annotation `b7574367a83f0e7a1581e8ad69e54f236aeaf1406bc93d2ddd4030c18031f2c2`; approval annotated SHA-256 `62e784bf8b02be5e58f8e695ece45dbd939c3521526ab59ef0591c8ef29bd868`. The operator's latest “ok” approves that delivered plan and progression to design. These digests bind bytes, not authenticated approval; authority comes from the conversation.
++Authoritative delivery detail: [PRD](../prd/prd-agent-harness-improvement.md), delivered content SHA-256 before approval annotation `b7574367a83f0e7a1581e8ad69e54f236aeaf1406bc93d2ddd4030c18031f2c2`; approval annotated SHA-256 `62e784bf8b02be5e58f8e695ece45dbd939c3521526ab59ef0591c8ef29bd868` (frozen at [preimage/prd.md](../../artifacts/agent-harness-improvement/trace-repair-20261107/preimage/prd.md)). The operator's latest “ok” approves that delivered plan and progression to design. These digests bind preimage bytes, not authenticated approval; authority comes from the conversation.
+ 
+-Preserve BRD-HAR-01 → REQ-HAR-01 → AC-HAR-01–06. The PRD's numeric aliases are serialization-only for RunRecord v1, not replacement requirement IDs. SRS-001–006 are new technical IDs. No live activation or empirically validated ROI is inherited.
++Trace links follow promoted formal declarations: BRD-OBJ-001 → REQ-001 → AC-001–006 → SRS-001–006. Editorial migration from historical identities is documented in [identity-mapping.md](../../artifacts/agent-harness-improvement/trace-repair-20261107/identity-mapping.md). SRS-001–006 are technical specification IDs. No live activation or empirically validated ROI is inherited.
+ 
+ ## Architecture And Contract Delta
+ 
+@@ -43,7 +43,7 @@
+ | CMP-004 Usage reconciliation | Economics verifier; explicit permitted session manifest and actor/attempt mapping | Missing journal/actor or price yields partial/unavailable economics |
+ | CMP-005 Independent acceptance | Independent QA/security verifier plus operator final disposition | Missing independence/required walkthrough prevents completion |
+ 
+-REQ-HAR-01 → HLD-001 → CMP-001–005. Technical cards below bind LLD and VER references; their verification mappings are authoritative and are not repeated in another matrix. Tables and ordered flows answer the ownership/ordering questions; a new diagram adds no required contract.
++REQ-001 → HLD-001 → CMP-001–005. Technical cards below bind LLD and VER references; their verification mappings are authoritative and are not repeated in another matrix. Tables and ordered flows answer the ownership/ordering questions; a new diagram adds no required contract.
+ 
+ ### Storage and ownership
+ 
+@@ -62,11 +62,11 @@
+ 
+ ## Technical Requirements
+ 
+-All six cards are Must / Draft pending design approval, and source REQ-HAR-01. Failure behavior is part of the contract, not a reduced completion criterion.
++All six cards are Must / Draft pending design approval, and source REQ-001. Failure behavior is part of the contract, not a reduced completion criterion.
+ 
+ ### SRS-001: Bind capability evidence to current identity
+ 
+-- **Source:** AC-HAR-01; HLD-001; CMP-001; LLD-001.
++- **Source:** AC-001; HLD-001; CMP-001; LLD-001.
+ - **Behavior:** For each capability area, integration receives source/runtime/config references, validates retained paths and identities, and emits the A inventory with explicit implemented/observed/unverified distinctions. Record controlling configuration evidence or the reason it is unavailable. Keep unsupported capability separate from a failed search or missing checkout.
+ - **Failure/fallback:** Changed runtime/config invalidates only affected current claims; historical observations stay labelled historical. Broken/missing digest reference cannot be silently reused. Missing identity leaves an explicit limitation.
+ - **NFR/security:** No credentials or private memory in reports; no implicit support promotion from source docs. Seven-area completeness is checked against the PRD inventory, not an invented percentage.
+@@ -74,7 +74,7 @@
+ 
+ ### SRS-002: Map actual dispatch ingress without host aliases
+ 
+-- **Source:** AC-HAR-02; HLD-001; CMP-002; LLD-002.
++- **Source:** AC-002; HLD-001; CMP-002; LLD-002.
+ - **Behavior:** For each of the PRD's six surfaces, record its actual route, existing control reused or explicit no-established-control finding, trust source, owner, known evidence and unverified coverage. Native OMP grants, tool approval and project/account/premium authorization are different claims.
+ - **Failure/fallback:** Paseo/OMP are not qualifier hosts; do not alias them to codex or claude, add native host IDs or declare supported through an unsupported parser. Record boundary observations manually under this baseline and defer any reusable registry extension to a separate approved scope.
+ - **NFR/security:** Permission to inspect/read a route does not authorize executing it or accessing another account. Parent grants cannot be inferred to govern CLI, settings updates, schedules or nested workers.
+@@ -82,7 +82,7 @@
+ 
+ ### SRS-003: Require authentic safe-boundary evidence for promotion
+ 
+-- **Source:** AC-HAR-03; HLD-001; CMP-002/005; LLD-003.
++- **Source:** AC-003; HLD-001; CMP-002/005; LLD-003.
+ - **Behavior:** Verifier receives a precise claim and scope, authenticated host authority, reviewed harmless pre-effect probe and fixed expected outcome. Run only if all readiness conditions hold. Retain actual allow and deny observations for each claimed control; include missing/expired or wrong project/account cases only where that control is claimed and a safe interface can exercise it before any paid/protected effect.
+ - **Failure/fallback:** No boundary or authority → NOT RUN/unverified with owner and missing prerequisite. Failed denial → stop, record observed failure and candidate fix; never invoke a real premium model, cross-client account or protected external action to prove it. Fixtures remain fixtures. A forged `live` field cannot establish authenticity.
+ - **NFR/security:** No host policy edits, allowlist expansion, disabled approval controls, credential inspection or agent-issued human grant. Unknown deployment-wide enforcement is not falsely described as absent or safe.
+@@ -90,7 +90,7 @@
+ 
+ ### SRS-004: Correlate one real lifecycle and independent acceptance
+ 
+-- **Source:** AC-HAR-04; HLD-001; CMP-003/005; LLD-004.
++- **Source:** AC-004; HLD-001; CMP-003/005; LLD-004.
+ - **Behavior:** Before permitted dispatch, task owner freezes assignment scope, task/attempt identifiers, runtime/workspace and independent result oracle. Retain returned native/Paseo IDs and expected notification association. Trace assignment → dispatch → result/notification → collected evidence → independent acceptance. Resume is the same task/scope/authority with a new attempt where applicable, not an unrelated dispatch disguised as recovery.
+ - **Failure/fallback:** Timeout or cancellation acknowledgement is not completion and does not establish cessation. Preserve running/stop-requested/unknown until supported runtime evidence establishes stopped state; verify owned writers ceased before conflicting resource reuse. Reconcile unknown completion before retrying any effect. If required live walkthrough is unavailable, D and full-slice completion remain incomplete.
+ - **NFR/security:** Progress helper owner/paused fields are declarations; no authentication or live cancellation is implied. Preserve all attempts. Independent reviewer differs from task implementer; operator final acceptance remains separate.
+@@ -98,7 +98,7 @@
+ 
+ ### SRS-005: Reconcile usage without incompatible format conversion
+ 
+-- **Source:** AC-HAR-05; HLD-001; CMP-004; LLD-005.
++- **Source:** AC-005; HLD-001; CMP-004; LLD-005.
+ - **Behavior:** Economics owner declares expected parent/worker/reviewer/integration/repair actors and actual attempts, then maps only authorized native session IDs/paths to those identities. Existing SessionJournal reads explicit codex/omp sources; task/parent labels and expectedActors express declared correlation. Store redacted aggregate report and unresolved actor/attempt mapping in the D report. Absence of failure/cancellation in a run is not an instruction to generate one.
+ - **Failure/fallback:** Missing session/usage/actor/price → explicit missing coverage, no monetary savings. Manifest role names differ from eval actor roles; no automatic lossless conversion to taskUsage is assumed. Duplicate session attribution is reconciled before sums; do not add native orchestration totals to leaf usage without demonstrated non-overlap.
+ - **NFR/security:** Explicit data authority is required before journal extraction. Full raw transcripts are not copied into baseline artifacts. API billed money, estimates, subscription quota, input/cache-write/cache-read/output/reasoning categories and elapsed time remain separate; missing components remain null/unavailable, never zero.
+@@ -106,7 +106,7 @@
+ 
+ ### SRS-006: Publish a qualified disposition, not a self-issued release
+ 
+-- **Source:** AC-HAR-06; HLD-001; CMP-001/005; LLD-006.
++- **Source:** AC-006; HLD-001; CMP-001/005; LLD-006.
+ - **Behavior:** Integration freezes A–D evidence, verifier reviews the exact snapshot, and baseline assigns each issue a reuse/fix-candidate/no-change/defer disposition with owner/consequence. Report per-criterion proof and missing prerequisites. Link actual operator acceptance before marking final human disposition accepted.
+ - **Failure/fallback:** Conflicting/stale evidence reopens affected claims only. Inconclusive data allows no-build/defer recommendations, not a full build justification. Missing required D proof means partial baseline; unknown C support is an honest finding, not fabricated PASS. Operator may accept a partial report but that does not satisfy missing technical criteria.
+ - **NFR/security:** No publication/activation side effects and no runtime-source changes required. Record schema-valid, technically verified and human accepted as different states.
+
+--- artifacts/agent-harness-improvement/trace-repair-20261107/preimage/walkthrough.md
++++ docs/srs/srs-walkthrough-agent-harness-improvement.md
+@@ -16,7 +16,7 @@
+ 
+ ## Acceptance Status
+ 
+-SRS-001–006 specify the technical realization of the PRD's existing AC-HAR-01–06. Their actual verification evidence belongs at the prospective run paths defined in the SRS. None is marked technically passed by document existence, helper validation or this walkthrough.
++SRS-001–006 specify the technical realization of the PRD's promoted AC-001–006 (migrated from historical criteria documented in [identity-mapping.md](../../artifacts/agent-harness-improvement/trace-repair-20261107/identity-mapping.md)). Their actual verification evidence belongs at the prospective run paths defined in the SRS. None is marked technically passed by document existence, helper validation or this walkthrough.
+ 
+ | Delivery area | Current result |
+ | --- | --- |
+
+--- artifacts/agent-harness-improvement/trace-repair-20261107/preimage/readiness.md
++++ docs/validation/readiness-agent-harness-improvement.md
+@@ -9,10 +9,10 @@
+ 
+ ## Delivery Mode And Work Item
+ 
+-- Work item: [approved BRD](../brd/brd-agent-harness-improvement.md), BRD-HAR-01; [approved PRD](../prd/prd-agent-harness-improvement.md), REQ-HAR-01 / AC-HAR-01–06; [approved SRS](../srs/srs-agent-harness-improvement.md), SRS-001–006.
++- Work item: [approved BRD](../brd/brd-agent-harness-improvement.md), BRD-OBJ-001; [approved PRD](../prd/prd-agent-harness-improvement.md), REQ-001 / AC-001–006; [approved SRS](../srs/srs-agent-harness-improvement.md), SRS-001–006 (editorial trace identity repair documented in [identity-mapping.md](../../artifacts/agent-harness-improvement/trace-repair-20261107/identity-mapping.md)).
+ - Source, delivery-plan and technical-design approvals: requesting operator, 2026-11-06. Operator subsequently selected “Subagent-Driven A/B” in the execution-choice tool. This authorizes bounded analytical A/B artifact delivery and independent review only; C/D live runtime authority remains withheld.
+-- Current SRS SHA-256 after approval annotation: `1397437e7b2a547b5218ae0a3b12d0a6c29ce5277d201f7be09203461528d3d7`.
+-- Current PRD SHA-256: `62e784bf8b02be5e58f8e695ece45dbd939c3521526ab59ef0591c8ef29bd868`.
++- Approved SRS preimage SHA-256: `1397437e7b2a547b5218ae0a3b12d0a6c29ce5277d201f7be09203461528d3d7` (frozen at [preimage/srs.md](../../artifacts/agent-harness-improvement/trace-repair-20261107/preimage/srs.md)).
++- Approved PRD preimage SHA-256: `62e784bf8b02be5e58f8e695ece45dbd939c3521526ab59ef0591c8ef29bd868` (frozen at [preimage/prd.md](../../artifacts/agent-harness-improvement/trace-repair-20261107/preimage/prd.md)).
+ - Evidence lanes: design artifact consistency verified in the [design walkthrough](../srs/srs-walkthrough-agent-harness-improvement.md); actual assurance technical verification NOT RUN; business acceptance not assessed; release not assessed. Historical design/run records retain the approval state at their recording time, not current execution authority.
+ 
+ ## Verdict
+@@ -25,11 +25,11 @@
+ 
+ | Package | Owner | Criteria / lane | Status and dependency |
+ | --- | --- | --- | --- |
+-| A — Capability inventory | Standards evidence owner; requesting operator accountable | AC-HAR-01 / SRS-001; manual version/config evidence review | READY for bounded analytical delivery; validated packet-a.md, one report author, separate verifier |
+-| B — Dispatch boundary map | Runtime evidence owner; requesting operator accountable | AC-HAR-02 / SRS-002; manual actual-ingress/source review | READY for bounded read-only boundary analysis; validated packet-b.md, preserve unverified runtime controls |
+-| C — Enforcement qualification | Runtime conformance owner; independent security verifier | AC-HAR-03 / SRS-003; isolated host conformance | Live execution blocked: no approved safe pre-effect probe boundary, authentic scoped host authority, finite limits or pre-execution validation. Honest unverified findings can be prepared from B evidence without running probes |
+-| D — Lifecycle and economics | Task walkthrough owner; independent QA/economics verifier | AC-HAR-04/05 / SRS-004/005; live lifecycle and cohort reconciliation | Blocked: authorized deterministic task/oracle, host authority/bounds, permitted native sources/actor mapping, pre-execution validation and real task packet absent |
+-| E — Integrate and disposition | Baseline integration owner, independent verifier; operator final acceptance | AC-HAR-06 / SRS-006; human disposition | Partial integration depends on actual A/B evidence; full technical delivery needs required D proof and criterion outcomes. No agent supplies human final disposition |
++| A — Capability inventory | Standards evidence owner; requesting operator accountable | AC-001 / SRS-001; manual version/config evidence review | READY for bounded analytical delivery; validated packet-a.md, one report author, separate verifier |
++| B — Dispatch boundary map | Runtime evidence owner; requesting operator accountable | AC-002 / SRS-002; manual actual-ingress/source review | READY for bounded read-only boundary analysis; validated packet-b.md, preserve unverified runtime controls |
++| C — Enforcement qualification | Runtime conformance owner; independent security verifier | AC-003 / SRS-003; isolated host conformance | Live execution blocked: no approved safe pre-effect probe boundary, authentic scoped host authority, finite limits or pre-execution validation. Honest unverified findings can be prepared from B evidence without running probes |
++| D — Lifecycle and economics | Task walkthrough owner; independent QA/economics verifier | AC-004/005 / SRS-004/005; live lifecycle and cohort reconciliation | Blocked: authorized deterministic task/oracle, host authority/bounds, permitted native sources/actor mapping, pre-execution validation and real task packet absent |
++| E — Integrate and disposition | Baseline integration owner, independent verifier; operator final acceptance | AC-006 / SRS-006; human disposition | Partial integration depends on actual A/B evidence; full technical delivery needs required D proof and criterion outcomes. No agent supplies human final disposition |
+ 
+ A/B ownership is disjoint under the SRS artifact root: capabilities.md and dispatch-boundaries.md. Integration alone owns baseline.md. An actual dispatcher must bind the declared roles to eligible workers and exact paths/standards/source identities; role names are not external maintainer commitments. The selected analysis workers must remain read-only outside their own evidence-artifact ownership and cannot execute C/D implicitly.
+ 
+@@ -37,7 +37,7 @@
+ 
+ This applies the existing STLC Stages 1–2 reference without adding a second canonical AC definition or verification mapping.
+ 
+-- **Acceptance:** AC-HAR-01–06 remain canonical in the PRD, with explicit owners/lanes. Operator disposition of the baseline is pending and cannot be replaced by artifact-schema PASS.
++- **Acceptance:** AC-001–006 remain canonical in the PRD, with explicit owners/lanes. Operator disposition of the baseline is pending and cannot be replaced by artifact-schema PASS.
+ - **System:** SRS-003/004 define actual-boundary control and lifecycle observations. Missing live task/probe authority blocks those scenarios; discovery help output is not system proof.
+ - **Integration:** SRS-002/005 distinguish dispatch routes, native-grant boundaries and session/accounting interfaces. No Paseo/OMP native qualifier alias is permitted; SessionJournal is not eval taskUsage. API/runtime changes are out of scope.
+ - **Unit:** No production code changes are proposed, so no new unit test is required for A/B report authoring. Existing helper/schema checks establish artifact contracts only. Any later source change requires its own focused behavioral regression strategy and approval; source-text tests are not a substitute.
+

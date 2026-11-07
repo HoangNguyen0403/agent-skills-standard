@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "run_id": "plan-agent-harness-improvement-20261106",
+  "slug": "agent-harness-improvement",
+  "workflow": "plan-feature",
+  "feature_status": "requirements_ready",
+  "started_at": "2026-11-06T16:52:03Z",
+  "completed_at": "2026-11-06T16:56:47Z",
+  "requirement_trace": {
+    "brd_objectives": ["BRD-OBJ-001"],
+    "requirements": ["REQ-001"],
+    "acceptance_criteria": ["AC-001", "AC-002", "AC-003", "AC-004", "AC-005", "AC-006"],
+    "srs": []
+  },
+  "completed_evidence": [
+    "Approved scope: docs/brd/brd-agent-harness-improvement.md; operator approval 2026-11-06",
+    "Proposed delivery plan: docs/prd/prd-agent-harness-improvement.md",
+    "Stable HAR identifiers preserved; numeric RunRecord serialization aliases defined in the PRD",
+    "Five bounded packages with owners, dependency boundaries, estimates and verification lanes",
+    "Design handoff and separate runtime authority, spend and implementation gates",
+    "Unchanged repository RunRecord v1 validator accepted exact record scope; six unique AC aliases and local Markdown links verified",
+    "Independent BRD fidelity review completed; configuration evidence, reused-control identification and pre-execution validate-product gate restored"
+  ],
+  "missing_evidence": [
+    "Operator approval of delivery plan and selection of execution approach",
+    "Technical design binding existing qualification and receipts to Paseo/OMP",
+    "Authorized live boundary, lifecycle and accounting observations",
+    "Complete comparable task economics and realized ROI"
+  ],
+  "decision_needed": [
+    "Review delivery plan for progression to design-solution; implementation remains unauthorized"
+  ],
+  "recommended_next_workflow": "design-solution",
+  "cost": { "source": "unavailable" },
+  "agent": {
+    "identity": "OMP orchestrator",
+    "model": "openai-codex/gpt-6.1-sol"
+  }
+}
