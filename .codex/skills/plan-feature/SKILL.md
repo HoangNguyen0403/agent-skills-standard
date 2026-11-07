@@ -19,7 +19,6 @@ Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|chan
 
 When the user asks to perform this workflow, execute the following steps:
 
-
 # Feature Planning Workflow (PRD / What)
 
 Goal: Produce a PM-owned decision-complete PRD, delivery plan, and IT Department handoff before code starts.
@@ -44,6 +43,7 @@ Goal: Produce a PM-owned decision-complete PRD, delivery plan, and IT Department
    - Define each AC once; reference it elsewhere. Omit an inapplicable extension instead of writing "none"; when an extension applies, its omission is an owned blocker.
    - Substantial scope adds the capability inventory; ambiguity adds flows/decision tables. No mandatory story paraphrases or second verification matrix.
 5. Create implementation plan:
+   - Decompose into demonstrable feature slices per `product-management/product-requirements/references/feature-slicing.md`: each slice delivers complete, observable producer-to-consumer behavior. Regroup layer-only tasks; classify non-feature work into explicit typed exceptions (prerequisite, research, mechanical_refactor) with concrete verification, consumers, and dependencies.
    - Map each slice to requirement/AC references, owner role, repo/module, expected artifact, and verification lane; estimate it (t-shirt + confidence); keep unresolved architecture for `design-solution`. Route slices independently per `common-task-complexity-routing/references/routing-table.md#capability-and-effort-resolution`; reuse evidence and avoid inheriting parent model tier.
 6. Route:
    - Continue when assumptions are non-critical; return BLOCKED for missing owner, untestable AC, approval, or release constraint. Empirical hypothesis testing needed -> `validate-product` (when selected/installed; else record capability gap and route to `implementation-readiness`); architecture/contracts unclear -> `design-solution`; approved plan with trace and testable ACs -> `implementation-readiness`.
