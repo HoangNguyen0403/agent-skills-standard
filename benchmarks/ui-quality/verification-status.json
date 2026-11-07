@@ -1,0 +1,26 @@
+{
+  "status": "fixtures_verified_candidate_frozen_experiment_paused",
+  "scope": "Six deterministic reference fixtures and candidate preparation, not experimental outputs",
+  "candidate": "frozen-proposal-unvalidated; see candidate-freeze.json",
+  "final_browser_smoke": {
+    "driver": "playwright-cli0.1.8",
+    "browser": "Chromium156.0.8078.4",
+    "desktop_mobile_task_layout_retry": {"checks":25,"passed":25,"failed":0},
+    "focus_motion_heading": {"checks":5,"passed":5,"failed":0},
+    "tablet_document_bounds": {"checks":6,"passed":6,"failed":0},
+    "page_errors": [],
+    "evidence": "verification-report.md (local untracked screenshots in .playwright-cli/ui-quality-fixtures/)",
+    "cache_note": "Final corrected-source checks used revision queries after old B3 DOM was observed on an earlier navigation",
+    "baseline": "23passed2failed before checkbox correction; baseline-results.json retains result"
+  },
+  "independent_review": {
+    "agent": "c387479c-421b-4164-ab6e-a76846bd51a2",
+    "result": "All4original source findings closed; no reopened findings",
+    "runtime_limit": "Reviewer did not independently execute parent browser checks"
+  },
+  "fixtures": "All6hashes frozen in fixtures-freeze.json",
+  "isolated_tooling": {"playwright":"1.64.1","webkit":"27.2","axePlaywright":"4.14.0","initial_mobile_states":6,"axe_violations":0,"axe_incomplete":{"B2":["color-contrast"],"B6":["aria-prohibited-attr"]},"webkit_B5_keyboard":"PASS","results":".playwright-cli/ui-quality-fixtures/tooling-results.json"},
+  "unverified_lanes": ["screen-reader","200percentzoom","fullcontrast","axe incomplete/manual review","complete per-state WebKit tasks"],
+  "experiment": "PAUSED BY OPERATOR; no model-generation runs. Local isolated tooling explicitly allowed and provisioned; other runtime/calibration/model pinning/authority gates remain.",
+  "cleanup": "Throwaway browser/tooling smoke scripts removed after proof; snapshots/config/screenshots/results and isolated installed dependencies retained; browser/server closed"
+}

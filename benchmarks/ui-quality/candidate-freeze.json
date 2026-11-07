@@ -1,0 +1,14 @@
+{
+  "candidate": "explicit-ui-preflight-v1",
+  "status": "frozen-proposal-unvalidated",
+  "addendum": {"path":"benchmarks/ui-quality/candidate-addendum.txt","sha256":"9d2a616e2e34f5a579140d57652001902bf739ea7f4b860e00194edfe70baec2","encoding":"UTF-8","line_endings":"LF","terminal_newlines":1},
+  "baseline_sources": [
+    {"path":"skills/common/common-ui-design/SKILL.md","sha256":"8ecc00ddab7c7d05086280fa11945f3b5c992cc96d90f6a1cc32ca4fdcc1f19e"},
+    {"path":"skills/common/common-ui-design/references/human-direction.md","sha256":"dc64c86d842a3e0f2046b15488be3612a60e357251f04f3290ddf46c0fa21dff"}
+  ],
+  "serialization": "Future candidate guidance = identical frozen baseline supplied bytes + one LF separator + addendum bytes. Full request payloads and any applicable baseline reference ordering must be frozen before execution; this source identity record does not claim complete experimental request payloads exist.",
+  "canonical_sources_modified": false,
+  "independent_source_review": "c387479c-421b-4164-ab6e-a76846bd51a2: acceptable as frozen experimental proposal, not adopted improvement",
+  "empirical_validation": "not_run",
+  "authority": "No model-generation experiment authorized with unresolved resource/runtime/reviewer gates"
+}

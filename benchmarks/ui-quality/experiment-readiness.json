@@ -1,0 +1,16 @@
+{
+  "status": "EXPERIMENT_PAUSED_BY_OPERATOR",
+  "ready_scope": ["All6 reference fixtures corrected, browser-smoked and hash-frozen", "Candidate addendum/proposal and source hashes frozen; no canonical skill mutation", "Isolated Playwright1.64.1, WebKit27.2 and axe integration4.14.0 installed with operator approval; initial-state smoke completed"],
+  "requested_scope": "Full three-model72-output comparison, per user ok do all of them",
+  "empirical_execution": "NOT RUN",
+  "blocking_gaps": [
+    {"area":"resource_authority","gap":"Operator selected Pause experiment and Allow isolated tooling. No empirical resource limit or generation authorization supplied; no experiment runs permitted.","owner":"requesting maintainer"},
+    {"area":"host_controls","gap":"Documented OMP max-cost permits overshoot and excludes memory extraction; no verified aggregate hard-spend or exact transport-attempt control. Strict session isolation and complete actual-payload provenance not implemented by existing Codex-only text runner.","owner":"evaluation runtime owner"},
+    {"area":"required_browser_matrix","gap":"Chromium and isolated WebKit available; complete per-state cross-engine task protocol not executed.","owner":"verification owner"},
+    {"area":"accessibility","gap":"Isolated axe scan on6mobile initial states:0violations, incomplete color-contrast on B2 and aria-prohibited-attr on B6 require manual review. Actual screen-reader announcements/zoom/full-state coverage unverified.","owner":"verification owner"},
+    {"area":"models_and_reviewers","gap":"Eligible exact immutable model versions/settings not frozen; two independent calibrated artifact reviewers and adjudicator not assigned/calibrated. Source reviewer is not experimental review calibration.","owner":"evaluation owner"},
+    {"area":"product_authority","gap":"Canonical experiment ledger and authenticated bounded learning authorization/gate not established; no product IDs or approval fabricated.","owner":"requesting maintainer and evaluation owner"}
+  ],
+  "candidate_model_options": "Available registry shows Gemini Flash, Codex Luna and Sol; availability is not immutable pinning or account/quota authorization. No premium use or DeepSeek benchmark-arm policy exception inferred.",
+  "safe_action": "Honor operator pause: preserve verified preparation/tooling and generate no experimental outputs. Resume only after new authorization and remaining named gates resolve."
+}

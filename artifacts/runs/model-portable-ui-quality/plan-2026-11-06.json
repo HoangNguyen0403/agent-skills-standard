@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "run_id": "plan-model-portable-ui-quality-2026-11-06",
+  "slug": "model-portable-ui-quality",
+  "workflow": "plan-feature",
+  "feature_status": "requirements_ready",
+  "started_at": "2026-11-06T16:31:28Z",
+  "completed_at": "2026-11-06T16:33:33Z",
+  "requirement_trace": {
+    "brd_objectives": ["BRD-OBJ-001"],
+    "requirements": ["REQ-001", "REQ-002", "REQ-003", "REQ-004"],
+    "acceptance_criteria": ["AC-001", "AC-002", "AC-003", "AC-004", "AC-005", "AC-006"],
+    "srs": []
+  },
+  "completed_evidence": [
+    "Approved scope and metric: docs/brd/brd-model-portable-ui-quality.md, approval approved(requesting-maintainer, 2026-11-06), read snapshot 6807",
+    "Canonical proposed requirements, AC ownership and verification lanes: docs/prd/prd-model-portable-ui-quality.md",
+    "Bounded parallel A/B assignments, integration and independent review dependencies specified in PRD",
+    "Existing intake evidence reused; no new model performance or runtime verification claimed",
+    "Built-in Node consistency smoke passed JSON parsing, unique canonical trace rows, pending approval/execution state, source/next-workflow existence and matrix arithmetic; this is not canonical schema validation"
+  ],
+  "missing_evidence": [
+    "Canonical scoped schema validator could not start because pnpm exec tsx reported Command tsx not found; no dependencies installed",
+    "Plan approval and selected execution approach",
+    "Delivered assessment and calibrated evaluation protocol",
+    "Eligible model/account/runtime selection and separately authorized resource allowance",
+    "Rendered baseline/candidate artifacts and controlled per-model results"
+  ],
+  "decision_needed": [
+    "Requesting maintainer approves or corrects delivery plan and explicitly selects execution approach",
+    "Before future empirical execution, maintainer authorizes exact eligible model set, reviewers, runtime and resource cap"
+  ],
+  "recommended_next_workflow": "validate-product",
+  "cost": {"source": "unavailable"},
+  "agent": {"identity": "omp trusted coding assistant", "model": "openai-codex/gpt-6.1-sol"}
+}

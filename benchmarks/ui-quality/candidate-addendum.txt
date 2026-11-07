@@ -1,0 +1,8 @@
+Experimental addendum: explicit UI preflight
+
+Before your first implementation action, emit one compact response artifact titled "UI preflight" with these four labeled rows, grounded only in the supplied brief, existing interface, and applicable guidance:
+- Task: audience, primary action, and observable success.
+- Content: required copy, data, labels, and disclosures mapped to their intended interface locations; identify verbatim requirements without rewriting them.
+- States: applicable initial, interaction, success, failure, and recovery states mapped as trigger -> visible outcome; include only states supported by the supplied task.
+- Preservation: supplied keep/change constraints, authorized change tier for an existing design, and protected content, behavior, structure, and brand requirements; for a new screen without a baseline, state that explicitly.
+Use exact source references where they avoid repeating long supplied content. Mark unspecified items as unspecified rather than inventing requirements. Then implement within the existing instructions and authorization; this artifact adds no approval pause, new aesthetic rule, or claim that verification has passed.

@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Harbor Workshops — Reserve Seat</title>
+  <style>
+    :root {
+      --bg-slate: #f6f9fa;
+      --surface: #ffffff;
+      --surface-subtle: #edf3f5;
+      --border-color: #cbdbe2;
+      --teal-primary: #0e4c63;
+      --teal-hover: #093749;
+      --teal-light: #e5f1f5;
+      --text-main: #192730;
+      --text-muted: #4e626e;
+      --focus-ring: #0e4c63;
+      --error-text: #b91c1c;
+      --error-bg: #fef2f2;
+      --error-border: #fca5a5;
+      --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-stack);
+      background-color: var(--bg-slate);
+      color: var(--text-main);
+      line-height: 1.5;
+      font-size: 1rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Skip link */
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 1rem;
+      background: var(--teal-primary);
+      color: #ffffff;
+      padding: 0.5rem 1rem;
+      z-index: 100;
+      text-decoration: none;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    .skip-link:focus {
+      top: 1rem;
+    }
+
+    /* Header */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .header-inner {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      font-size: 1.25rem;
+      font-weight: 750;
+      color: var(--teal-primary);
+      letter-spacing: -0.01em;
+      text-decoration: none;
+    }
+
+    /* Main container */
+    main {
+      flex: 1;
+      max-width: 640px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 4rem;
+    }
+
+    /* Card container */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 2.25rem;
+      box-shadow: 0 2px 8px rgba(14, 76, 99, 0.05);
+    }
+
+    h1 {
+      font-size: 1.55rem;
+      font-weight: 750;
+      color: var(--teal-primary);
+      letter-spacing: -0.02em;
+      margin-bottom: 1.25rem;
+      line-height: 1.3;
+    }
+
+    /* Workshop event details summary */
+    .workshop-details {
+      background-color: var(--surface-subtle);
+      border: 1px solid #d4e3ea;
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .workshop-name {
+      font-weight: 650;
+      color: var(--text-main);
+      font-size: 1.05rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .workshop-price {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--teal-primary);
+    }
+
+    /* Form controls */
+    .form-group {
+      margin-bottom: 1.35rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.92rem;
+      font-weight: 650;
+      color: var(--text-main);
+      margin-bottom: 0.4rem;
+    }
+
+    .helper-text {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 0.45rem;
+      line-height: 1.4;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    select {
+      width: 100%;
+      padding: 0.75rem 0.85rem;
+      font-size: 1rem;
+      font-family: inherit;
+      color: var(--text-main);
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    input[aria-invalid="true"],
+    select[aria-invalid="true"] {
+      border-color: var(--error-border);
+      background-color: var(--error-bg);
+    }
+
+    input:focus-visible,
+    select:focus-visible,
+    button:focus-visible,
+    a:focus-visible {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 2px;
+    }
+
+    /* Error alerts */
+    .field-error {
+      color: var(--error-text);
+      font-size: 0.85rem;
+      font-weight: 550;
+      margin-top: 0.45rem;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .field-error[hidden] {
+      display: none;
+    }
+
+    /* Service-level failure alert */
+    .service-alert {
+      background-color: var(--error-bg);
+      border: 1px solid var(--error-border);
+      color: var(--error-text);
+      padding: 0.9rem 1.15rem;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      line-height: 1.45;
+    }
+
+    .service-alert[hidden] {
+      display: none;
+    }
+
+    /* Action button */
+    .btn-submit {
+      background-color: var(--teal-primary);
+      color: #ffffff;
+      border: none;
+      border-radius: 6px;
+      padding: 0.85rem 1.5rem;
+      font-size: 1.05rem;
+      font-weight: 650;
+      cursor: pointer;
+      width: 100%;
+      text-align: center;
+      font-family: inherit;
+      transition: background-color 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      margin-top: 0.5rem;
+    }
+
+    .btn-submit:hover:not(:disabled) {
+      background-color: var(--teal-hover);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .disclosure {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 1rem;
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    /* Confirmation view */
+    .confirmation-card {
+      background-color: var(--surface);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 2.25rem;
+      box-shadow: 0 2px 8px rgba(14, 76, 99, 0.05);
+    }
+
+    .confirmation-card[hidden] {
+      display: none;
+    }
+
+    .confirmation-banner {
+      background-color: var(--teal-light);
+      border: 1px solid #c0dce5;
+      color: var(--teal-primary);
+      padding: 0.85rem 1.25rem;
+      border-radius: 6px;
+      font-size: 1.2rem;
+      font-weight: 750;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .confirmation-banner:focus {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 2px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto !important;
+      }
+    }
+
+    .receipt-list {
+      background-color: var(--surface-subtle);
+      border: 1px solid #d4e3ea;
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .receipt-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-bottom: 1px solid #dce8ee;
+      padding-bottom: 0.6rem;
+    }
+
+    .receipt-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .receipt-label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .receipt-value {
+      font-size: 1rem;
+      font-weight: 650;
+      color: var(--text-main);
+    }
+
+    .receipt-value.reference {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      color: var(--teal-primary);
+      font-weight: 750;
+    }
+
+    .receipt-value.total {
+      font-size: 1.15rem;
+      color: var(--teal-primary);
+      font-weight: 800;
+    }
+
+    footer {
+      padding: 2rem 1.5rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      border-top: 1px solid var(--border-color);
+      background: var(--surface);
+      margin-top: auto;
+    }
+
+    @media (max-width: 640px) {
+      main {
+        padding: 1.5rem 1rem 3rem;
+      }
+      .card, .confirmation-card {
+        padding: 1.5rem 1.25rem;
+      }
+      h1 {
+        font-size: 1.35rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to reservation form</a>
+
+  <header>
+    <div class="header-inner">
+      <a href="#" class="brand">Harbor Workshops</a>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <!-- Form Card -->
+    <div id="form-container" class="card">
+      <h1>Reserve a repair workshop seat</h1>
+
+      <div class="workshop-details">
+        <div class="workshop-name">Bicycle basics — 18 May 2027, 10:00–12:00</div>
+        <div class="workshop-price">$15 per attendee</div>
+      </div>
+
+      <!-- Service-level error alert -->
+      <div id="service-error" class="service-alert" role="alert" hidden>
+        Reservation failed. Your details are saved. Try again.
+      </div>
+
+      <form id="reservation-form" novalidate>
+        <div class="form-group">
+          <label for="full-name-input">Full name</label>
+          <input
+            type="text"
+            id="full-name-input"
+            name="fullName"
+            autocomplete="name"
+            aria-describedby="name-error"
+          >
+          <div id="name-error" class="field-error" role="alert" hidden>
+            Enter your full name.
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email-input">Email</label>
+          <div id="email-helper" class="helper-text">
+            We use your email only for this reservation.
+          </div>
+          <input
+            type="email"
+            id="email-input"
+            name="email"
+            autocomplete="email"
+            aria-describedby="email-helper email-error"
+          >
+          <div id="email-error" class="field-error" role="alert" hidden>
+            Enter a valid email address.
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="attendees-select">Attendees</label>
+          <select id="attendees-select" name="attendees">
+            <option value="1">1</option>
+            <option value="2">2</option>
+          </select>
+        </div>
+
+        <button type="submit" id="reserve-btn" class="btn-submit">
+          Reserve seat
+        </button>
+
+        <p class="disclosure">Demo reservation. No payment is collected.</p>
+      </form>
+    </div>
+
+    <!-- Confirmation View -->
+    <div id="confirmation-view" class="confirmation-card" hidden>
+      <h2 id="confirmation-heading" class="confirmation-banner" tabindex="-1">
+        Reservation confirmed
+      </h2>
+
+      <div class="receipt-list">
+        <div class="receipt-row">
+          <span class="receipt-label">Booking Reference</span>
+          <span class="receipt-value reference">Reference: HW-204</span>
+        </div>
+        <div class="receipt-row">
+          <span class="receipt-label">Name</span>
+          <span id="confirm-name" class="receipt-value">Mira Chen</span>
+        </div>
+        <div class="receipt-row">
+          <span class="receipt-label">Party Size</span>
+          <span id="confirm-attendees" class="receipt-value">2 attendees</span>
+        </div>
+        <div class="receipt-row">
+          <span class="receipt-label">Amount</span>
+          <span id="confirm-total" class="receipt-value total">Total: $30</span>
+        </div>
+        <div class="receipt-row">
+          <span class="receipt-label">Email</span>
+          <span id="confirm-email" class="receipt-value">mira@example.test</span>
+        </div>
+      </div>
+
+      <p class="disclosure">Demo reservation. No payment is collected.</p>
+    </div>
+  </main>
+
+  <footer>
+    <p>Harbor Workshops — Community Repair & Learning</p>
+  </footer>
+
+  <script>
+    (function() {
+      const form = document.getElementById('reservation-form');
+      const formContainer = document.getElementById('form-container');
+      const confirmationView = document.getElementById('confirmation-view');
+      const serviceError = document.getElementById('service-error');
+
+      const fullNameInput = document.getElementById('full-name-input');
+      const emailInput = document.getElementById('email-input');
+      const attendeesSelect = document.getElementById('attendees-select');
+      const reserveBtn = document.getElementById('reserve-btn');
+
+      const nameError = document.getElementById('name-error');
+      const emailError = document.getElementById('email-error');
+
+      const confirmName = document.getElementById('confirm-name');
+      const confirmAttendees = document.getElementById('confirm-attendees');
+      const confirmTotal = document.getElementById('confirm-total');
+      const confirmEmail = document.getElementById('confirm-email');
+
+      const confirmationHeading = document.getElementById('confirmation-heading');
+
+      function getScrollBehavior() {
+        return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+      }
+      // State machine tracking valid submissions:
+      // 0: Initial attempt
+      // 1: Failed first attempt (service failure)
+      // 2: Confirmed second attempt
+      let validSubmissionCount = 0;
+      let isSubmitting = false;
+
+      function isValidEmail(val) {
+        if (!val || typeof val !== 'string') return false;
+        const trimmed = val.trim();
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
+      }
+
+      function clearValidationErrors() {
+        fullNameInput.removeAttribute('aria-invalid');
+        emailInput.removeAttribute('aria-invalid');
+        nameError.hidden = true;
+        emailError.hidden = true;
+      }
+
+      fullNameInput.addEventListener('input', function() {
+        if (!nameError.hidden) {
+          nameError.hidden = true;
+          fullNameInput.removeAttribute('aria-invalid');
+        }
+      });
+
+      emailInput.addEventListener('input', function() {
+        if (!emailError.hidden) {
+          emailError.hidden = true;
+          emailInput.removeAttribute('aria-invalid');
+        }
+      });
+
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        if (isSubmitting) {
+          return; // Prevent duplicate submissions while in-flight
+        }
+
+        clearValidationErrors();
+
+        const nameVal = fullNameInput.value.trim();
+        const emailVal = emailInput.value.trim();
+        const attendeesVal = attendeesSelect.value;
+
+        let hasError = false;
+        let firstInvalidInput = null;
+
+        if (nameVal.length === 0) {
+          fullNameInput.setAttribute('aria-invalid', 'true');
+          nameError.hidden = false;
+          hasError = true;
+          if (!firstInvalidInput) firstInvalidInput = fullNameInput;
+        }
+
+        if (!isValidEmail(emailVal)) {
+          emailInput.setAttribute('aria-invalid', 'true');
+          emailError.hidden = false;
+          hasError = true;
+          if (!firstInvalidInput) firstInvalidInput = emailInput;
+        }
+
+        if (hasError) {
+          firstInvalidInput.focus();
+          return;
+        }
+
+        // Form inputs are valid. Initiate submission transition.
+        isSubmitting = true;
+        reserveBtn.disabled = true;
+        reserveBtn.textContent = 'Reserving…';
+        form.setAttribute('aria-busy', 'true');
+        serviceError.hidden = true;
+
+        if (validSubmissionCount === 0) {
+          // First valid submit -> simulate service failure after 1,000 ms
+          setTimeout(function() {
+            validSubmissionCount = 1;
+            isSubmitting = false;
+            form.removeAttribute('aria-busy');
+            reserveBtn.disabled = false;
+            reserveBtn.textContent = 'Reserve seat';
+
+            // Show service failure alert
+            serviceError.hidden = false;
+            serviceError.scrollIntoView({ behavior: getScrollBehavior(), block: 'nearest' });
+
+            // Values are preserved in fullNameInput, emailInput, attendeesSelect
+          }, 1000);
+        } else {
+          // Second valid submit -> succeed after 1,000 ms
+          setTimeout(function() {
+            isSubmitting = false;
+            formContainer.hidden = true;
+            confirmationView.hidden = false;
+
+            // Populate confirmation details with exact required strings
+            confirmName.textContent = nameVal;
+            confirmAttendees.textContent = attendeesVal === '1' ? '1 attendee' : '2 attendees';
+            const price = attendeesVal === '1' ? '$15' : '$30';
+            confirmTotal.textContent = 'Total: ' + price;
+            confirmEmail.textContent = emailVal;
+
+            confirmationHeading.focus();
+            confirmationView.scrollIntoView({ behavior: getScrollBehavior(), block: 'start' });
+          }, 1000);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

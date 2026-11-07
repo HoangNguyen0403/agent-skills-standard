@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Common Ground Library — Borrow a repair kit</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #cbd5e1;
+      --primary: #0f766e;
+      --primary-hover: #115e59;
+      --focus-ring: #0284c7;
+      --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      font-size: 16px;
+      padding: 16px;
+    }
+
+    .container {
+      max-width: 640px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: var(--card-shadow);
+      padding: 24px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 16px;
+      margin-bottom: 20px;
+    }
+
+    .brand-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 8px;
+      line-height: 1.2;
+    }
+
+    .tagline {
+      font-size: 16px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      list-style: none;
+      padding: 0;
+      margin-bottom: 8px;
+    }
+
+    .nav-links a {
+      color: var(--primary);
+      text-decoration: underline;
+      font-weight: 600;
+      font-size: 14px;
+      padding: 4px 0;
+    }
+
+    .nav-links a:focus-visible {
+      outline: 3px solid var(--focus-ring);
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+
+    section {
+      margin-bottom: 24px;
+    }
+
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 12px;
+      border-left: 4px solid var(--primary);
+      padding-left: 8px;
+    }
+
+    ul {
+      list-style-type: disc;
+      padding-left: 24px;
+      margin-bottom: 12px;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    .safety-alert {
+      background-color: #fffbeb;
+      border-left: 4px solid #b45309;
+      padding: 12px 16px;
+      border-radius: 4px;
+      margin: 12px 0;
+      font-weight: 500;
+    }
+
+    .btn {
+      display: inline-block;
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 600;
+      color: #ffffff;
+      background-color: var(--primary);
+      border: 2px solid var(--primary);
+      border-radius: 6px;
+      padding: 12px 20px;
+      min-height: 44px;
+      min-width: 44px;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      background-color: var(--primary-hover);
+      border-color: var(--primary-hover);
+    }
+
+    .btn:focus-visible {
+      outline: 3px solid var(--focus-ring);
+      outline-offset: 3px;
+    }
+
+    .availability-result {
+      margin-top: 12px;
+      padding: 12px 16px;
+      background-color: #f0fdf4;
+      border: 1px solid #86efac;
+      border-radius: 6px;
+      font-weight: 600;
+      color: #166534;
+    }
+
+    .faq-item {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+
+    .faq-btn {
+      width: 100%;
+      text-align: left;
+      background: #f1f5f9;
+      border: none;
+      padding: 14px 16px;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      min-height: 44px;
+    }
+
+    .faq-btn:hover {
+      background: #e2e8f0;
+    }
+
+    .faq-btn:focus-visible {
+      outline: 3px solid var(--focus-ring);
+      outline-offset: -2px;
+    }
+
+    .faq-icon {
+      font-size: 14px;
+      font-weight: bold;
+      transition: transform 0.2s ease;
+    }
+
+    .faq-content {
+      padding: 14px 16px;
+      background: var(--card-bg);
+      border-top: 1px solid var(--border);
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+      margin-top: 24px;
+      font-size: 14px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    /* Accessibility utility for visually hidden but screen-reader announcement */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand-title">Common Ground Library</div>
+      <h1>Borrow a repair kit</h1>
+      <p class="tagline">Borrow tools for small household repairs. Kits are free for library members.</p>
+      <nav aria-label="Page sections">
+        <ul class="nav-links">
+          <li><a href="#included">What is included</a></li>
+          <li><a href="#before-booking">Before you book</a></li>
+          <li><a href="#loan-period">Loan period</a></li>
+          <li><a href="#collection-hours">Collection hours</a></li>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="#availability">Check availability</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <section id="included">
+        <h2>What is included</h2>
+        <ul>
+          <li>One screwdriver with interchangeable bits.</li>
+          <li>One adjustable wrench.</li>
+          <li>One tape measure.</li>
+        </ul>
+      </section>
+
+      <section id="before-booking">
+        <h2>Before you book</h2>
+        <ul>
+          <li>Bring your library card and photo identification.</li>
+          <li>Collect and return the kit at the service desk.</li>
+          <li>Keep small parts away from children.</li>
+        </ul>
+      </section>
+
+      <section id="loan-period">
+        <h2>Loan period</h2>
+        <p>Borrow a kit for 7 days. Renew once if no one is waiting.</p>
+      </section>
+
+      <section id="collection-hours">
+        <h2>Collection hours</h2>
+        <ul>
+          <li>Monday–Friday: 09:00–18:00.</li>
+          <li>Saturday: 10:00–14:00.</li>
+          <li>Sunday: closed.</li>
+        </ul>
+      </section>
+
+      <section id="faq">
+        <h2>Frequently Asked Questions</h2>
+        <div class="faq-item">
+          <h3>
+            <button
+              type="button"
+              class="faq-btn"
+              id="faq-btn-1"
+              aria-expanded="false"
+              aria-controls="faq-ans-1"
+            >
+              <span>Who can borrow a kit?</span>
+              <span class="faq-icon" aria-hidden="true">+</span>
+            </button>
+          </h3>
+          <div
+            id="faq-ans-1"
+            class="faq-content"
+            role="region"
+            aria-labelledby="faq-btn-1"
+            hidden
+          >
+            <p>Members aged 18 or over can borrow one kit at a time.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="availability">
+        <h2>Availability</h2>
+        <button
+          type="button"
+          class="btn"
+          id="check-btn"
+          aria-controls="availability-msg"
+        >
+          Check availability
+        </button>
+        <div
+          id="availability-msg"
+          class="availability-result"
+          role="status"
+          aria-live="polite"
+          hidden
+        >
+          2 kits available at Central Branch.
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>This is a fictional service demonstration.</p>
+    </footer>
+  </div>
+
+  <script>
+    (function() {
+      // FAQ toggle logic
+      var faqBtn = document.getElementById('faq-btn-1');
+      var faqAns = document.getElementById('faq-ans-1');
+      var faqIcon = faqBtn.querySelector('.faq-icon');
+
+      faqBtn.addEventListener('click', function() {
+        var isExpanded = faqBtn.getAttribute('aria-expanded') === 'true';
+        var nextState = !isExpanded;
+        faqBtn.setAttribute('aria-expanded', String(nextState));
+        if (nextState) {
+          faqAns.removeAttribute('hidden');
+          faqIcon.textContent = '−';
+        } else {
+          faqAns.setAttribute('hidden', '');
+          faqIcon.textContent = '+';
+        }
+      });
+
+      // Check availability button logic
+      var checkBtn = document.getElementById('check-btn');
+      var availMsg = document.getElementById('availability-msg');
+
+      checkBtn.addEventListener('click', function() {
+        availMsg.removeAttribute('hidden');
+      });
+    })();
+  </script>
+</body>
+</html>

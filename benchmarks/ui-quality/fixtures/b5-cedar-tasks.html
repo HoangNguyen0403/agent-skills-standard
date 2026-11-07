@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cedar Tasks</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #f4f4f4;
+      color: #222222;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    header {
+      padding: 17px;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .filters {
+      display: flex;
+      gap: 8px;
+      padding: 0 17px 12px 17px;
+    }
+
+    .filter-btn {
+      font-family: inherit;
+      font-size: 16px;
+      background: #ffffff;
+      border: 1px solid #cccccc;
+      border-radius: 4px;
+      padding: 6px 12px;
+      cursor: pointer;
+      color: #222222;
+    }
+
+    .filter-btn:focus-visible {
+      outline: 2px solid #005fcc;
+      outline-offset: 2px;
+    }
+
+    .filter-btn[aria-pressed="true"] {
+      background: #222222;
+      color: #ffffff;
+      border-color: #222222;
+    }
+
+    .task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      list-style: none;
+      padding: 0 17px;
+    }
+
+    .task-row {
+      background-color: #ffffff;
+      padding: 11px;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+    }
+
+    .task-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      cursor: pointer;
+      font-size: 16px;
+      user-select: none;
+    }
+
+    .task-checkbox {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .task-checkbox:focus-visible {
+      outline: 2px solid #005fcc;
+      outline-offset: 2px;
+    }
+
+    .empty-state {
+      background-color: #ffffff;
+      padding: 11px;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      color: #666666;
+    }
+
+    footer {
+      padding: 17px;
+      font-size: 16px;
+      color: #222222;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Cedar Tasks</h1>
+    </header>
+
+    <div class="filters" role="group" aria-label="Task status filters">
+      <button type="button" class="filter-btn" id="filter-all" aria-pressed="true">All</button>
+      <button type="button" class="filter-btn" id="filter-open" aria-pressed="false">Open</button>
+      <button type="button" class="filter-btn" id="filter-completed" aria-pressed="false">Completed</button>
+    </div>
+
+    <main>
+      <ul class="task-list" id="task-list">
+        <li class="task-row" id="row-T-201" data-task-id="T-201">
+          <label class="task-label">
+            <input type="checkbox" class="task-checkbox" id="check-T-201" aria-label="T-201 — Publish rota — Due 18 May">
+            <span>T-201 — Publish rota — Due 18 May</span>
+          </label>
+        </li>
+        <li class="task-row" id="row-T-202" data-task-id="T-202">
+          <label class="task-label">
+            <input type="checkbox" class="task-checkbox" id="check-T-202" aria-label="T-202 — Confirm room booking — Due 19 May">
+            <span>T-202 — Confirm room booking — Due 19 May</span>
+          </label>
+        </li>
+        <li class="task-row" id="row-T-203" data-task-id="T-203">
+          <label class="task-label">
+            <input type="checkbox" class="task-checkbox" id="check-T-203" aria-label="T-203 — Send volunteer reminder — Due 20 May">
+            <span>T-203 — Send volunteer reminder — Due 20 May</span>
+          </label>
+        </li>
+      </ul>
+      <div id="empty-state" class="empty-state" style="margin: 0 17px; display: none;"></div>
+    </main>
+
+    <footer>
+      <div id="footer-count">3 open tasks</div>
+    </footer>
+  </div>
+
+  <script>
+    (function() {
+      var tasks = [
+        { id: "T-201", text: "T-201 — Publish rota — Due 18 May", completed: false },
+        { id: "T-202", text: "T-202 — Confirm room booking — Due 19 May", completed: false },
+        { id: "T-203", text: "T-203 — Send volunteer reminder — Due 20 May", completed: false }
+      ];
+
+      var currentFilter = "All"; // "All" | "Open" | "Completed"
+
+      var filterAllBtn = document.getElementById("filter-all");
+      var filterOpenBtn = document.getElementById("filter-open");
+      var filterCompletedBtn = document.getElementById("filter-completed");
+      var taskListEl = document.getElementById("task-list");
+      var emptyStateEl = document.getElementById("empty-state");
+      var footerCountEl = document.getElementById("footer-count");
+
+      function updateFooter() {
+        var openCount = tasks.filter(function(t) { return !t.completed; }).length;
+        footerCountEl.textContent = openCount + " open tasks";
+      }
+
+      function activeFilterButton() {
+        if (currentFilter === "Completed") return filterCompletedBtn;
+        if (currentFilter === "Open") return filterOpenBtn;
+        return filterAllBtn;
+      }
+
+      function render(changedTaskId) {
+        // Capture the focused checkbox before mutating visibility, so keyboard
+        // position can be preserved (or deterministically recovered) afterwards.
+        var active = document.activeElement;
+        var activeCheckboxId = (active && active.classList && active.classList.contains("task-checkbox")) ? active.id : null;
+
+        // Filter buttons aria-pressed
+        filterAllBtn.setAttribute("aria-pressed", String(currentFilter === "All"));
+        filterOpenBtn.setAttribute("aria-pressed", String(currentFilter === "Open"));
+        filterCompletedBtn.setAttribute("aria-pressed", String(currentFilter === "Completed"));
+
+        var visibleCount = 0;
+        tasks.forEach(function(task) {
+          var row = document.getElementById("row-" + task.id);
+          var checkbox = document.getElementById("check-" + task.id);
+          checkbox.checked = task.completed;
+
+          var isVisible = true;
+          if (currentFilter === "Open") isVisible = !task.completed;
+          else if (currentFilter === "Completed") isVisible = task.completed;
+
+          if (isVisible) {
+            row.style.display = "flex";
+            visibleCount++;
+          } else {
+            row.style.display = "none";
+          }
+        });
+
+        if (visibleCount === 0) {
+          emptyStateEl.style.display = "block";
+          if (currentFilter === "Completed") {
+            emptyStateEl.textContent = "No completed tasks.";
+          } else if (currentFilter === "Open") {
+            emptyStateEl.textContent = "No open tasks.";
+          } else {
+            emptyStateEl.textContent = "No tasks.";
+          }
+        } else {
+          emptyStateEl.style.display = "none";
+        }
+
+        // Focus management: never let keyboard focus drop to <body>.
+        // 1. Keep the focused checkbox when its row survives the render.
+        // 2. Otherwise keep the just-changed task when its row is still shown.
+        // 3. Otherwise (active row disappeared, empty list, or focus already lost)
+        //    move focus to the selected filter button.
+        var focusTarget = null;
+        if (activeCheckboxId) {
+          var activeRow = document.getElementById("row-" + activeCheckboxId.replace(/^check-/, ""));
+          if (activeRow && activeRow.style.display !== "none") {
+            focusTarget = document.getElementById(activeCheckboxId);
+          } else {
+            focusTarget = activeFilterButton();
+          }
+        }
+        if (!focusTarget && changedTaskId) {
+          var changedRow = document.getElementById("row-" + changedTaskId);
+          if (changedRow && changedRow.style.display !== "none") {
+            focusTarget = document.getElementById("check-" + changedTaskId);
+          }
+        }
+        if (!focusTarget && (changedTaskId || visibleCount === 0)) focusTarget = activeFilterButton();
+        if (focusTarget) focusTarget.focus();
+
+        updateFooter();
+      }
+
+      tasks.forEach(function(task) {
+        var checkbox = document.getElementById("check-" + task.id);
+        checkbox.addEventListener("change", function() {
+          task.completed = checkbox.checked;
+          render(task.id);
+        });
+      });
+      filterAllBtn.addEventListener("click", function() {
+        currentFilter = "All";
+        render();
+      });
+
+      filterOpenBtn.addEventListener("click", function() {
+        currentFilter = "Open";
+        render();
+      });
+
+      filterCompletedBtn.addEventListener("click", function() {
+        currentFilter = "Completed";
+        render();
+      });
+
+      // Initial render
+      render();
+    })();
+  </script>
+</body>
+</html>
