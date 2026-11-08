@@ -80,8 +80,8 @@ A rule that must always hold belongs in a hook, not in a prompt. Prompts persuad
 ## References
 
 - [Guardrail Policy Template](references/guardrails-template.yaml)
-- [Runtime Adapters](references/runtime-adapters.md)
-- [Untrusted Workspace Admission](references/untrusted-workspace-admission.md) — review checklist, not a control
+- [Runtime Adapters & Five-Checkpoint Map](references/runtime-adapters.md)
+- [Untrusted Workspace Admission & Rubric](references/untrusted-workspace-admission.md) — review checklist, not a control
 
 ## Canonical response anchors
 
