@@ -307,7 +307,7 @@ Use `skills/common/common-software-requirements/references/requirements-standard
 
 ## Requirement Quality Rule
 
-- BRD: SMART objective, stakeholders, AS-IS/TO-BE, cost-benefit, glossary, validation owner.
+- BRD: SMART objective, stakeholders, AS-IS/TO-BE, cost-benefit, glossary, validation owner; `brainstorm-feature` intake provides intent playback, anti-goals, consequential questions, challenge/reversal conditions, a compact ≤250-word approval card, and preapproval planner-critical guess checks.
 - PRD: decision brief first, then outcome/guardrails, scope/non-goals, canonical `REQ-*`/`AC-*` rows carrying owner, priority, and the single verification lane, open consequential decisions, references. Personas, use cases, Gherkin, analytics, risks, and rollout are conditional extensions: add the ones the change actually triggers.
 - SRS/FRS: `BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> evidence`, one card per technical requirement with its only verification mapping, NFR measurement where a threshold is committed, failure modes where the behavior has a fallback.
 - Every level: define each requirement and criterion once; a second verification matrix or restated AC row is a defect, not extra rigor.
