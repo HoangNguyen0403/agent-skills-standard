@@ -20,11 +20,11 @@ repository_status: planning_artifacts_only; activation_status: not_required
 
 ## Outcome And Guardrails
 
-**Objective:** Carry approved `BRD-OBJ-ARCH-01`: reduce contradictory or undiscoverable architecture instructions without expanding mandatory ceremony. Its delivery trace identifier is `BRD-OBJ-001`, mapped below; the approved source is unchanged.
+**Objective:** Carry approved `BRD-OBJ-001`: reduce contradictory or undiscoverable architecture instructions without expanding mandatory ceremony.
 
 **Outcome:** A maintainer requesting a system architect can discover the correct broad entry, navigate existing roles, and apply consistent decision-relevant input, option and abstraction rules.
 
-**Metric:** By first-increment acceptance, the in-scope AC rows below have claim-appropriate evidence and no material regression in selected existing routing/design checks. The approved source target for AC-ARCH-01–05 is retained. Baseline: observed exact-role lookup miss, absent category-guide response and documented conflicting instructions. Frequency of harm, time savings and model-decision quality are unmeasured. Owner: requesting maintainer; acceptance window: first review after delivery, not a calendar commitment.
+**Metric:** By first-increment acceptance, the in-scope AC rows below have claim-appropriate evidence and no material regression in selected existing routing/design checks. The approved source target for AC-001–005 is retained. Baseline: observed exact-role lookup miss, absent category-guide response and documented conflicting instructions. Frequency of harm, time savings and model-decision quality are unmeasured. Owner: requesting maintainer; acceptance window: first review after delivery, not a calendar commitment.
 
 **Guardrails:** Preserve real missing-input blockers, existing bounded specialist responsibility, logical-flow-first reasoning, conditional view/deep-dive selection, independent semantic judgment, trust/data/recovery hard gates and evidence provenance. Do not introduce component, option, document, specialist or diagram quotas. No new application API, data schema, authorization mechanism or runtime enforcement is in scope.
 
@@ -50,7 +50,7 @@ Improve architecture standards
 
 ### Deferred
 
-- Original high-load worked example: source `REQ-ARCH-03` / `AC-ARCH-06`, represented by REQ-003 / AC-006 below. It remains a later candidate, not bundled into first-increment implementation.
+- Original high-load worked example: REQ-003 / AC-006 below. It remains a later candidate, not bundled into first-increment implementation.
 - Live current-versus-candidate evaluation, ROI claims and expansion of held-out cases. The existing backend ROI pilot remains prepared/not executed; recover its approved PRD/dispatch authority before extending it. No held-out packet was opened during this planning phase.
 - Installed-host delivery of category-root guides. Planning found no established copy path in the inspected sync/generation code. This is a delivery limitation, not an assertion that a source guide is absent or that every host is incapable of finding it. Its future scope owner is the requesting maintainer; it has no delivery commitment or invented ticket.
 
@@ -58,27 +58,14 @@ Improve architecture standards
 
 New mega-skills, matcher redesign, broad CLI changes, additional architecture frameworks or scorecards, workflow ownership replacement, new runtime/security controls, reproduction of external prompts/code/hooks, diagram restyling, paid model campaigns, production mutation, public release or host activation. Web/mobile story tags, markets and toggles do not apply to this registry/MCP standards contract.
 
-## Source Authority And Identifier Mapping
+## Source Authority And Identifier Normalization
 
-Authoritative approved source: [BRD](../brd/brd-system-architecture-skill-evolution.md), SHA-256 `d6b1b7d18e4904f5171064105bf59e687af44221b3e3fe2a929fd75971eb91cb`, approved by requesting maintainer on 2026-11-07.
+Authoritative approved source: [BRD](../brd/brd-system-architecture-skill-evolution.md), approved by requesting maintainer on 2026-11-07. Its identifiers were normalized to the repository's numeric trace grammar (`BRD-OBJ-001`, `REQ-001..004`, `AC-001..008`; semantics and scope unchanged; its seed table now links rather than re-declares IDs) so the trace audit and RunRecord schema accept them; the BRD digest after normalization is SHA-256 `cf26095b52626c25fb64128b977bb16314f974cff0ae6ec3b6b32e9236bae684`. This PRD owns the canonical delivery definitions and atomizes three source criteria into additional rows:
 
-The RunRecord v1 schema requires numeric trace IDs. Preserve the source identifiers as historical approval references; the mappings below identify their delivery-level counterparts, not new product evidence records. Do not rewrite the approved BRD to pretend its embedded seed report was a schema-validated receipt. This PRD owns the canonical delivery definitions; the persisted planning receipt uses these numeric identifiers.
-
-| Source trace seed | Delivery trace |
-| --- | --- |
-| BRD-OBJ-ARCH-01 | BRD-OBJ-001 |
-| REQ-ARCH-01 | REQ-001 |
-| REQ-ARCH-02 | REQ-002 |
-| REQ-ARCH-03 | REQ-003, deferred |
-| REQ-ARCH-04 | REQ-004 |
-| AC-ARCH-01 | AC-001 and AC-009, atomized discovery versus role-boundary outcomes |
-| AC-ARCH-02 | AC-002 |
-| AC-ARCH-03 | AC-003 and AC-010, sufficient versus insufficient constraints |
-| AC-ARCH-04 | AC-004 and AC-011, hypothetical versus concrete variation |
-| AC-ARCH-05 | AC-005, proposed registry-backed consumer boundary |
-| AC-ARCH-06 | AC-006, deferred |
-| AC-ARCH-07 | AC-007 |
-| AC-ARCH-08 | AC-008, scoped to affected routing/skill-package outputs; no installed-host guide parity claim |
+- AC-001 is split into AC-001 (discovery) and AC-009 (role boundaries).
+- AC-003 is split into AC-003 (sufficient constraints) and AC-010 (consequential missing input).
+- AC-004 is split into AC-004 (hypothetical extension) and AC-011 (concrete variation).
+- REQ-003 and AC-006 are deferred. AC-008 is scoped to affected routing/skill-package outputs, with no installed-host guide parity claim; AC-005 is the registry-backed consumer boundary.
 
 ## Requirements And Acceptance Criteria
 

@@ -40,25 +40,25 @@ Make existing architecture guidance easier to discover and internally consistent
 
 ### Acceptance Criteria / Requirement Trace Seed
 
-| ID | Observable acceptance condition | Candidate requirement |
+| Seed | Observable acceptance condition | Delivery requirement link |
 | --- | --- | --- |
-| AC-ARCH-01 | Consumer discovery for `system architect` returns relevant design guidance and clarifies whole-system facilitation versus bounded component deep dive. Requests for design, review, and approved implementation contracts route to their existing owners without introducing a competing workflow. | REQ-ARCH-01 |
-| AC-ARCH-02 | A bounded component with one viable solution receives that solution and its rationale, not fabricated alternatives. Real competing approaches retain rejected reasons and reversal conditions. | REQ-ARCH-02 |
-| AC-ARCH-03 | A stateless/client/SDK brief with sufficient decision-relevant constraints proceeds without invented QPS, storage, or distributed consistency requirements. Missing material constraints still block the affected decision; relevant backend capacity remains required. | REQ-ARCH-02 |
-| AC-ARCH-04 | A one-variant design does not acquire Strategy/Factory solely for hypothetical extension. Additional abstraction requires a concrete variation, constraint, or justified change boundary. | REQ-ARCH-02 |
-| AC-ARCH-05 | A compact category entry explains existing workflow/skill ownership and conditional loading. It does not duplicate normative rules or force all system-design skills into context. Real MCP category discovery returns the entry through the supported guide convention. | REQ-ARCH-01 |
-| AC-ARCH-06 | Any high-load example separates edge traffic from origin traffic and labels figures target/estimated/measured; traces one user operation through authority, copies and async work; explains a concrete adverse timeline and observable result. It never claims the screenshot proves throughput or recovery. | REQ-ARCH-03 |
-| AC-ARCH-07 | Future verification separates routing/structural checks, behavioral judgment, and runnable-artifact checks. Current-versus-candidate claims use frozen sources and independent grading; no efficacy, cost-saving, or ROI claim is made without relevant comparable observations. | REQ-ARCH-04 |
-| AC-ARCH-08 | Canonical changes, generated routing/exports, and consumer discovery are verified together under the existing publication contract. No source-copy drift, new outcome schema, or external instruction/code reuse is introduced. | REQ-ARCH-04 |
+| Seed 1 (AC-001) | Consumer discovery for `system architect` returns relevant design guidance and clarifies whole-system facilitation versus bounded component deep dive. Requests for design, review, and approved implementation contracts route to their existing owners without introducing a competing workflow. | REQ-001 |
+| Seed 2 (AC-002) | A bounded component with one viable solution receives that solution and its rationale, not fabricated alternatives. Real competing approaches retain rejected reasons and reversal conditions. | REQ-002 |
+| Seed 3 (AC-003) | A stateless/client/SDK brief with sufficient decision-relevant constraints proceeds without invented QPS, storage, or distributed consistency requirements. Missing material constraints still block the affected decision; relevant backend capacity remains required. | REQ-002 |
+| Seed 4 (AC-004) | A one-variant design does not acquire Strategy/Factory solely for hypothetical extension. Additional abstraction requires a concrete variation, constraint, or justified change boundary. | REQ-002 |
+| Seed 5 (AC-005) | A compact category entry explains existing workflow/skill ownership and conditional loading. It does not duplicate normative rules or force all system-design skills into context. Real MCP category discovery returns the entry through the supported guide convention. | REQ-001 |
+| Seed 6 (AC-006) | Any high-load example separates edge traffic from origin traffic and labels figures target/estimated/measured; traces one user operation through authority, copies and async work; explains a concrete adverse timeline and observable result. It never claims the screenshot proves throughput or recovery. | REQ-003 |
+| Seed 7 (AC-007) | Future verification separates routing/structural checks, behavioral judgment, and runnable-artifact checks. Current-versus-candidate claims use frozen sources and independent grading; no efficacy, cost-saving, or ROI claim is made without relevant comparable observations. | REQ-004 |
+| Seed 8 (AC-008) | Canonical changes, generated routing/exports, and consumer discovery are verified together under the existing publication contract. No source-copy drift, new outcome schema, or external instruction/code reuse is introduced. | REQ-004 |
 
 ## Why / Value Context
 
-- Objective BRD-OBJ-ARCH-01: reduce contradictory or undiscoverable architecture instructions without expanding mandatory ceremony.
+- **Objective ID**: BRD-OBJ-001 — reduce contradictory or undiscoverable architecture instructions without expanding mandatory ceremony.
 - Users: maintainers, architecture leads, design-session facilitators, bounded design workers, independent reviewers, and downstream implementers.
 - AS-IS: sophisticated distributed guidance exists, but role naming and some older unconditional instructions disagree with the newer scope-aware methodology (confirmed in Evidence).
 - TO-BE: a discoverable role map and consistent applicability rules; examples demonstrate reasoning rather than prescribe stacks.
 - Value hypothesis: fewer unnecessary blockers, fabricated choices, premature abstractions, and missed skills. Actual frequency and time savings are unknown.
-- Proposed SMART metric: by acceptance of the first approved improvement increment, all AC-ARCH-01–05 scenarios pass through their applicable discovery/behavioral lane, with no material regression in selected existing design cases. AC-ARCH-06–08 govern examples, evaluation, and publication when included. Baseline: one directly observed role lookup miss and the three documented instruction tensions below; model-behavior baseline is not measured. Owner: requesting maintainer; acceptance window: first review after delivery, not a promised calendar date.
+- Proposed SMART metric: by acceptance of the first approved improvement increment, all AC-001–005 scenarios pass through their applicable discovery/behavioral lane, with no material regression in selected existing design cases. AC-006–008 govern examples, evaluation, and publication when included. Baseline: one directly observed role lookup miss and the three documented instruction tensions below; model-behavior baseline is not measured. Owner: requesting maintainer; acceptance window: first review after delivery, not a promised calendar date.
 
 ## Capability Inventory: Retain Before Extending
 
@@ -210,9 +210,9 @@ No application code or skill behavior was changed; tests/build/lint and model ef
   "started_at": "2026-11-07T06:18:28Z",
   "completed_at": "2026-11-07T06:28:28Z",
   "requirement_trace": {
-    "brd_objectives": ["BRD-OBJ-ARCH-01"],
-    "requirements": ["REQ-ARCH-01", "REQ-ARCH-02", "REQ-ARCH-03", "REQ-ARCH-04"],
-    "acceptance_criteria": ["AC-ARCH-01", "AC-ARCH-02", "AC-ARCH-03", "AC-ARCH-04", "AC-ARCH-05", "AC-ARCH-06", "AC-ARCH-07", "AC-ARCH-08"],
+    "brd_objectives": ["BRD-OBJ-001"],
+    "requirements": ["REQ-001", "REQ-002", "REQ-003", "REQ-004"],
+    "acceptance_criteria": ["AC-001", "AC-002", "AC-003", "AC-004", "AC-005", "AC-006", "AC-007", "AC-008"],
     "srs": []
   },
   "completed_evidence": ["E-01", "E-02", "E-03", "E-04", "E-05", "E-06", "E-07", "E-08", "E-09", "E-11", "E-12"],
