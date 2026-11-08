@@ -14,6 +14,7 @@ metadata:
       - requirements clarification
       - capacity planning
       - scale this
+      - system architect
 ---
 
 # System Design Methodology

@@ -628,6 +628,58 @@ describe("SkillIndex — repository trigger routing", () => {
     expect(ids).toContain("database-mongodb");
     expect(ids).not.toContain("laravel-eloquent");
   });
+
+  it("routes broad system architect queries to system-design-methodology", () => {
+    const cases = [
+      "system architect",
+      "System Architect",
+      "need a system architect for review",
+      "system architect guidance",
+    ];
+
+    for (const query of cases) {
+      const ids = registryIndex
+        .matchKeywords([query])
+        .map((match) => match.skill.id);
+
+      expect(ids, query).toContain("system-design-methodology");
+    }
+  });
+
+  it("rejects phrase fragments and embedded near misses from routing to system-design-methodology", () => {
+    const cases = [
+      "architect",
+      "system",
+      "system architecting",
+      "ecosystem architect",
+    ];
+
+    for (const query of cases) {
+      const ids = registryIndex
+        .matchKeywords([query])
+        .map((match) => match.skill.id);
+
+      expect(ids, query).not.toContain("system-design-methodology");
+    }
+  });
+
+  it("keeps broad system architect queries separate from specialist-system-architect", () => {
+    const ids = registryIndex
+      .matchKeywords(["system architect"])
+      .map((match) => match.skill.id);
+
+    expect(ids).toContain("system-design-methodology");
+    expect(ids).not.toContain("specialist-system-architect");
+  });
+
+  it("preserves additive co-matching on mixed broad and narrow architecture inputs", () => {
+    const ids = registryIndex
+      .matchKeywords(["system architect component design"])
+      .map((match) => match.skill.id);
+
+    expect(ids).toContain("system-design-methodology");
+    expect(ids).toContain("specialist-system-architect");
+  });
 });
 
 // ---------- composite-trigger expansion ----------

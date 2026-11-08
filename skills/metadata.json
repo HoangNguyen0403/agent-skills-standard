@@ -527,14 +527,14 @@
       ]
     },
     "specialists": {
-      "version": "1.5.2",
-      "last_updated": "2026-11-01",
+      "version": "1.5.3",
+      "last_updated": "2026-11-07",
       "tag_prefix": "specialists-v",
       "token_metrics": {
         "total_skills": 21,
-        "total_tokens": 12385,
-        "avg_tokens_per_skill": 590,
-        "largest_skill": "specialist-solution-diagrammer (1033 tokens)"
+        "total_tokens": 12670,
+        "avg_tokens_per_skill": 603,
+        "largest_skill": "specialist-system-architect (1120 tokens)"
       },
       "owners": [
         "HoangNguyen0403"

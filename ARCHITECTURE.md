@@ -294,7 +294,7 @@ This is a **High-Density** project. Every feature must be evaluated against its 
 - **Router Index**: ~20 lines (~600 tokens) — constant regardless of skill count.
 - **Category Index**: ~10-15 lines per category.
 - **References**: Heavy content goes to `references/` folder, loaded only on demand.
-- **Framework Maps**: Large framework packs may add category-level `references/framework-map.md` for stack-wide routing and official-doc freshness notes without bloating individual `SKILL.md` files.
+- **Framework Maps**: Large framework packs may add category-level `references/framework-map.md` for stack-wide routing, role navigation, and freshness notes without bloating individual `SKILL.md` files. Category guides are served through registry-backed MCP (`get_category_guide`) reading canonical paths; current sync/generation tooling does not copy category-root guides to installed host directories (installed-host delivery deferred).
 - **Behavior Guardrails**: Discipline skills may add pressure scenarios, rationalizations, red flags, and behavior assertions in `evals/evals.json`, not by bloating `SKILL.md`.
 - **No omission-as-optimization**: Required bodies are never suppressed to reduce prompt bytes. Repeat-inclusive body returns are recorded so repeated delivery is measured honestly; savings claims require complete coverage, not a shorter prompt.
 - **Quality Model**: Treat skill health as four axes: routing accuracy, structural quality, token economy, and behavior-pressure coverage for guardrail skills.

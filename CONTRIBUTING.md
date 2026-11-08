@@ -68,7 +68,7 @@ Skills are the core value of this project.
 2. **Create**: Add your category folder in `skills/`.
 3. **Validate**: Keep each canonical `SKILL.md` at or below 100 lines; verify token budget with `pnpm calculate-tokens`.
 4. **Reference**: Move detailed content to `references/`.
-5. **Framework packs**: Large framework categories may add category-level `references/framework-map.md`; keep skill files focused on decisions and verification.
+5. **Framework packs**: Large framework categories may add category-level `references/framework-map.md` for role navigation and stack routing (served via registry-backed MCP; current sync/generation tooling does not copy category-root guides to installed host directories (installed-host delivery deferred)); keep skill files focused on decisions and verification.
 6. **Guardrail skills**: Add `pressure_scenarios`, `rationalizations`, `red_flags`, and behavior assertions to `evals/evals.json`.
 7. **Evidence first**: Retain applicable earlier cases, remove obsolete expectations, and add preventing cases for corrected behavior. Candidate fixtures are not live efficacy evidence.
 8. **Public package boundary**: Do not ship project-specific environment, VPN, account-selection, or credential-handling recipes in reusable skills or references.
