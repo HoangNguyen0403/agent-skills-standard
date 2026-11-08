@@ -1,0 +1,565 @@
+{
+  "policyRevision": "2026-11-07-synthetic-teaching-pnsd-001",
+  "principals": {
+    "AV": { "id": "AV", "tenantId": "A", "role": "viewer" },
+    "AE": { "id": "AE", "tenantId": "A", "role": "editor" },
+    "BV": { "id": "BV", "tenantId": "B", "role": "viewer" },
+    "BE": { "id": "BE", "tenantId": "B", "role": "editor" }
+  },
+  "initialResources": {
+    "rA": { "id": "rA", "tenantId": "A", "value": "A0" },
+    "rB": { "id": "rB", "tenantId": "B", "value": "B0" }
+  },
+  "expectedStates": {
+    "S0": {
+      "rA": { "id": "rA", "tenantId": "A", "value": "A0" },
+      "rB": { "id": "rB", "tenantId": "B", "value": "B0" }
+    },
+    "SA": {
+      "rA": { "id": "rA", "tenantId": "A", "value": "A1" },
+      "rB": { "id": "rB", "tenantId": "B", "value": "B0" }
+    },
+    "SB": {
+      "rA": { "id": "rA", "tenantId": "A", "value": "A0" },
+      "rB": { "id": "rB", "tenantId": "B", "value": "B1" }
+    }
+  },
+  "cases": [
+    {
+      "caseId": "AV-rA-read",
+      "policyRow": "P2",
+      "principalId": "AV",
+      "request": {
+        "action": "read",
+        "resourceId": "rA"
+      },
+      "expectedFixed": {
+        "response": {
+          "verdict": "allow",
+          "resource": { "id": "rA", "tenantId": "A", "value": "A0" },
+          "error": null
+        },
+        "stateRef": "S0"
+      },
+      "expectedVulnerable": {
+        "response": {
+          "verdict": "allow",
+          "resource": { "id": "rA", "tenantId": "A", "value": "A0" },
+          "error": null
+        },
+        "stateRef": "S0"
+      },
+      "rationale": "Same-tenant viewer permitted read under normative policy rule P2; vulnerable characterization also permits read without tenant check."
+    },
+    {
+      "caseId": "AV-rA-update",
+      "policyRow": "P2",
+      "principalId": "AV",
+      "request": {
+        "action": "update",
+        "resourceId": "rA",
+        "value": "A1"
+      },
+      "expectedFixed": {
+        "response": {
+          "verdict": "deny",
+          "resource": null,
+          "error": "access-denied"
+        },
+        "stateRef": "S0"
+      },
+      "expectedVulnerable": {
+        "response": {
+          "verdict": "deny",
+          "resource": null,
+          "error": "access-denied"
+        },
+        "stateRef": "S0"
+      },
+      "rationale": "Same-tenant viewer denied update under normative policy rule P2; vulnerable characterization denies update because trusted viewer role is not editor."
+    },
+    {
+      "caseId": "AV-rB-read",
+      "policyRow": "P1",
+      "principalId": "AV",
+      "request": {
+        "action": "read",
+        "resourceId": "rB"
+      },
+      "expectedFixed": {
+        "response": {
+          "verdict": "deny",
+          "resource": null,
+          "error": "access-denied"
+        },
+        "stateRef": "S0"
+      },
+      "expectedVulnerable": {
+        "response": {
+          "verdict": "allow",
+          "resource": { "id": "rB", "tenantId": "B", "value": "B0" },
+          "error": null
+        },
+        "stateRef": "S0"
+      },
+      "rationale": "Cross-tenant access denied under normative precedence rule P1; vulnerable characterization allows read because tenant boundary check is completely omitted."
+    },
+    {
+      "caseId": "AV-rB-update",
+      "policyRow": "P1",
+      "principalId": "AV",
+      "request": {
+        "action": "update",
+        "resourceId": "rB",
+        "value": "B1"
+      },
+      "expectedFixed": {
+        "response": {
+          "verdict": "deny",
+          "resource": null,
+          "error": "access-denied"
+        },
+        "stateRef": "S0"
+      },
+      "expectedVulnerable": {
+        "response": {
+          "verdict": "deny",
+          "resource": null,
+          "error": "access-denied"
+        },
+        "stateRef": "S0"
+      },
+      "rationale": "Cross-tenant access denied under normative precedence rule P1; vulnerable characterization denies update because trusted role is viewer."
+    },
+    {
+      "caseId": "AE-rA-read",
+      "policyRow": "P3",
+      "principalId": "AE",
+      "request": {
+        "action": "read",
+        "resourceId": "rA"
+      },
+      "expectedFixed": {
+        "response": {
+          "verdict": "allow",
+          "resource": { "id": "rA", "tenantId": "A", "value": "A0" },
+          "error": null
+        },
+        "stateRef": "S0"
+      },
+      "expectedVulnerable": {
+        "response": {
+          "verdict": "allow",
+          "resource": { "id": "rA", "tenantId": "A", "value": "A0" },
+          "error": null
+        },
+        "stateRef": "S0"
+      },
+      "rationale": "Same-tenant editor permitted read under normative policy rule P3; vulnerable characterization also allows read."
+    },
+    {
+      "caseId": "AE-rA-update",
+      "policyRow": "P3",
+      "principalId": "AE",
+      "request": {
+        "action": "update",
+        "resourceId": "rA",
+        "value": "A1"
+      },
+      "expectedFixed": {
+        "response": {
+          "verdict": "allow",
+          "resource": { "id": "rA", "tenantId": "A", "value": "A1" },
+          "error": null
+        },
+        "stateRef": "SA"
+      },
+      "expectedVulnerable": {
+        "response": {
+          "verdict": "allow",
+          "resource": { "id": "rA", "tenantId": "A", "value": "A1" },
+          "error": null
+        },
+        "stateRef": "SA"
+      },
+      "rationale": "Same-tenant editor permitted update under normative policy rule P3; updates target rA value to A1 (state SA); vulnerable characterization allows update as editor."
+    },
+    {
+      "caseId": "AE-rB-read",
+      "policyRow": "P1",
+      "principalId": "AE",
+      "request": {
+        "action": "read",
+        "resourceId": "rB"
+      },
+      "expectedFixed": {
+        "response": {
+          "verdict": "deny",
+          "resource": null,
+          "error": "access-denied"
+        },
+        "stateRef": "S0"
+      },
+      "expectedVulnerable": {
+        "response": {
+          "verdict": "allow",
+          "resource": { "id": "rB", "tenantId": "B", "value": "B0" },
+          "error": null
+        },
+        "stateRef": "S0"
+      },
+      "rationale": "Cross-tenant access denied under normative precedence rule P1; vulnerable characterization allows read across tenants."
+    },
+    {
+      "caseId": "AE-rB-update",
+      "policyRow": "P1",
+      "principalId": "AE",
+      "request": {
+        "action": "update",
+        "resourceId": "rB",
+        "value": "B1"
+      },
+      "expectedFixed": {
+        "response": {
+          "verdict": "deny",
+          "resource": null,
+          "error": "access-denied"
+        },
+        "stateRef": "S0"
+      },
+      "expectedVulnerable": {
+        "response": {
+          "verdict": "allow",
+          "resource": { "id": "rB", "tenantId": "B", "value": "B1" },
+          "error": null
+        },
+        "stateRef": "SB"
+      },
+      "rationale": "Cross-tenant access denied under normative precedence rule P1; vulnerable characterization allows cross-tenant update because it checks only editor role and ignores tenancy, mutating state to SB."
+    },
+    {
+      "caseId": "BV-rA-read",
+      "policyRow": "P1",
+      "principalId": "BV",
+      "request": {
+        "action": "read",
+        "resourceId": "rA"
+      },
+      "expectedFixed": {
+        "response": {
+          "verdict": "deny",
+          "resource": null,
+          "error": "access-denied"
+        },
+        "stateRef": "S0"
+      },
+      "expectedVulnerable": {
+        "response": {
+          "verdict": "allow",
+          "resource": { "id": "rA", "tenantId": "A", "value": "A0" },
+          "error": null
+        },
+        "stateRef": "S0"
+      },
+      "rationale": "Cross-tenant access denied under normative precedence rule P1; vulnerable characterization allows read across tenants."
+    },
+    {
+      "caseId": "BV-rA-update",
+      "policyRow": "P1",
+      "principalId": "BV",
+      "request": {
+        "action": "update",
+        "resourceId": "rA",
+        "value": "A1"
+      },
+      "expectedFixed": {
+        "response": {
+          "verdict": "deny",
+          "resource": null,
+          "error": "access-denied"
+        },
+        "stateRef": "S0"
+      },
+      "expectedVulnerable": {
+        "response": {
+          "verdict": "deny",
+          "resource": null,
+          "error": "access-denied"
+        },
+        "stateRef": "S0"
+      },
+      "rationale": "Cross-tenant access denied under normative precedence rule P1; vulnerable characterization denies update because trusted role is viewer."
+    },
+    {
+      "caseId": "BV-rB-read",
+      "policyRow": "P2",
+      "principalId": "BV",
+      "request": {
+        "action": "read",
+        "resourceId": "rB"
+      },
+      "expectedFixed": {
+        "response": {
+          "verdict": "allow",
+          "resource": { "id": "rB", "tenantId": "B", "value": "B0" },
+          "error": null
+        },
+        "stateRef": "S0"
+      },
+      "expectedVulnerable": {
+        "response": {
+          "verdict": "allow",
+          "resource": { "id": "rB", "tenantId": "B", "value": "B0" },
+          "error": null
+        },
+        "stateRef": "S0"
+      },
+      "rationale": "Same-tenant viewer permitted read under normative policy rule P2; vulnerable characterization also allows read."
+    },
+    {
+      "caseId": "BV-rB-update",
+      "policyRow": "P2",
+      "principalId": "BV",
+      "request": {
+        "action": "update",
+        "resourceId": "rB",
+        "value": "B1"
+      },
+      "expectedFixed": {
+        "response": {
+          "verdict": "deny",
+          "resource": null,
+          "error": "access-denied"
+        },
+        "stateRef": "S0"
+      },
+      "expectedVulnerable": {
+        "response": {
+          "verdict": "deny",
+          "resource": null,
+          "error": "access-denied"
+        },
+        "stateRef": "S0"
+      },
+      "rationale": "Same-tenant viewer denied update under normative policy rule P2; vulnerable characterization denies update because trusted role is viewer."
+    },
+    {
+      "caseId": "BE-rA-read",
+      "policyRow": "P1",
+      "principalId": "BE",
+      "request": {
+        "action": "read",
+        "resourceId": "rA"
+      },
+      "expectedFixed": {
+        "response": {
+          "verdict": "deny",
+          "resource": null,
+          "error": "access-denied"
+        },
+        "stateRef": "S0"
+      },
+      "expectedVulnerable": {
+        "response": {
+          "verdict": "allow",
+          "resource": { "id": "rA", "tenantId": "A", "value": "A0" },
+          "error": null
+        },
+        "stateRef": "S0"
+      },
+      "rationale": "Cross-tenant access denied under normative precedence rule P1; vulnerable characterization allows read across tenants."
+    },
+    {
+      "caseId": "BE-rA-update",
+      "policyRow": "P1",
+      "principalId": "BE",
+      "request": {
+        "action": "update",
+        "resourceId": "rA",
+        "value": "A1"
+      },
+      "expectedFixed": {
+        "response": {
+          "verdict": "deny",
+          "resource": null,
+          "error": "access-denied"
+        },
+        "stateRef": "S0"
+      },
+      "expectedVulnerable": {
+        "response": {
+          "verdict": "allow",
+          "resource": { "id": "rA", "tenantId": "A", "value": "A1" },
+          "error": null
+        },
+        "stateRef": "SA"
+      },
+      "rationale": "Cross-tenant access denied under normative precedence rule P1; vulnerable characterization allows cross-tenant update because it checks only editor role and ignores tenancy, mutating state to SA."
+    },
+    {
+      "caseId": "BE-rB-read",
+      "policyRow": "P3",
+      "principalId": "BE",
+      "request": {
+        "action": "read",
+        "resourceId": "rB"
+      },
+      "expectedFixed": {
+        "response": {
+          "verdict": "allow",
+          "resource": { "id": "rB", "tenantId": "B", "value": "B0" },
+          "error": null
+        },
+        "stateRef": "S0"
+      },
+      "expectedVulnerable": {
+        "response": {
+          "verdict": "allow",
+          "resource": { "id": "rB", "tenantId": "B", "value": "B0" },
+          "error": null
+        },
+        "stateRef": "S0"
+      },
+      "rationale": "Same-tenant editor permitted read under normative policy rule P3; vulnerable characterization also allows read."
+    },
+    {
+      "caseId": "BE-rB-update",
+      "policyRow": "P3",
+      "principalId": "BE",
+      "request": {
+        "action": "update",
+        "resourceId": "rB",
+        "value": "B1"
+      },
+      "expectedFixed": {
+        "response": {
+          "verdict": "allow",
+          "resource": { "id": "rB", "tenantId": "B", "value": "B1" },
+          "error": null
+        },
+        "stateRef": "SB"
+      },
+      "expectedVulnerable": {
+        "response": {
+          "verdict": "allow",
+          "resource": { "id": "rB", "tenantId": "B", "value": "B1" },
+          "error": null
+        },
+        "stateRef": "SB"
+      },
+      "rationale": "Same-tenant editor permitted update under normative policy rule P3; updates target rB value to B1 (state SB); vulnerable characterization allows update as editor."
+    },
+    {
+      "caseId": "AV-rA-update-claimed-editor",
+      "policyRow": "P2",
+      "principalId": "AV",
+      "request": {
+        "action": "update",
+        "resourceId": "rA",
+        "value": "A1",
+        "claimedRole": "editor"
+      },
+      "expectedFixed": {
+        "response": {
+          "verdict": "deny",
+          "resource": null,
+          "error": "access-denied"
+        },
+        "stateRef": "S0"
+      },
+      "expectedVulnerable": {
+        "response": {
+          "verdict": "allow",
+          "resource": { "id": "rA", "tenantId": "A", "value": "A1" },
+          "error": null
+        },
+        "stateRef": "SA"
+      },
+      "rationale": "Same-tenant viewer denied update under normative policy rule P2; untrusted claimedRole gives no authority. Vulnerable characterization trusts claimedRole=editor and allows update, mutating state to SA."
+    },
+    {
+      "caseId": "AV-rB-update-claimed-editor",
+      "policyRow": "P1",
+      "principalId": "AV",
+      "request": {
+        "action": "update",
+        "resourceId": "rB",
+        "value": "B1",
+        "claimedRole": "editor"
+      },
+      "expectedFixed": {
+        "response": {
+          "verdict": "deny",
+          "resource": null,
+          "error": "access-denied"
+        },
+        "stateRef": "S0"
+      },
+      "expectedVulnerable": {
+        "response": {
+          "verdict": "allow",
+          "resource": { "id": "rB", "tenantId": "B", "value": "B1" },
+          "error": null
+        },
+        "stateRef": "SB"
+      },
+      "rationale": "Cross-tenant update denied under normative precedence rule P1; untrusted claimedRole gives no authority. Vulnerable characterization ignores tenant boundary, trusts claimedRole=editor, and allows update, mutating state to SB."
+    },
+    {
+      "caseId": "BV-rA-update-claimed-editor",
+      "policyRow": "P1",
+      "principalId": "BV",
+      "request": {
+        "action": "update",
+        "resourceId": "rA",
+        "value": "A1",
+        "claimedRole": "editor"
+      },
+      "expectedFixed": {
+        "response": {
+          "verdict": "deny",
+          "resource": null,
+          "error": "access-denied"
+        },
+        "stateRef": "S0"
+      },
+      "expectedVulnerable": {
+        "response": {
+          "verdict": "allow",
+          "resource": { "id": "rA", "tenantId": "A", "value": "A1" },
+          "error": null
+        },
+        "stateRef": "SA"
+      },
+      "rationale": "Cross-tenant update denied under normative precedence rule P1; untrusted claimedRole gives no authority. Vulnerable characterization ignores tenant boundary, trusts claimedRole=editor, and allows update, mutating state to SA."
+    },
+    {
+      "caseId": "BV-rB-update-claimed-editor",
+      "policyRow": "P2",
+      "principalId": "BV",
+      "request": {
+        "action": "update",
+        "resourceId": "rB",
+        "value": "B1",
+        "claimedRole": "editor"
+      },
+      "expectedFixed": {
+        "response": {
+          "verdict": "deny",
+          "resource": null,
+          "error": "access-denied"
+        },
+        "stateRef": "S0"
+      },
+      "expectedVulnerable": {
+        "response": {
+          "verdict": "allow",
+          "resource": { "id": "rB", "tenantId": "B", "value": "B1" },
+          "error": null
+        },
+        "stateRef": "SB"
+      },
+      "rationale": "Same-tenant viewer denied update under normative policy rule P2; untrusted claimedRole gives no authority. Vulnerable characterization trusts claimedRole=editor and allows update, mutating state to SB."
+    }
+  ]
+}
