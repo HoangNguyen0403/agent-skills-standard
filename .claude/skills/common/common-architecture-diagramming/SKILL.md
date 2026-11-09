@@ -41,8 +41,11 @@ so diagrams stay identical across authors, repositories, and sessions.
 5. Export the image: a draw.io MCP tool if the session has one, else
    `python3 scripts/export_drawio.py docs/architecture/<slug>.drawio -f png -o docs/architecture/<slug>.png`,
    else ship the `.drawio` and say the image was not exported. See [export paths](references/mermaid-fallback.md).
-6. Inspect the exported image at normal reading size; strict validation cannot prove labels and edges are legible. Fix the spec and re-export before handoff.
-
+   For self-contained offline delivery with coordinated light and dark themes, use
+   `python3 scripts/export_html.py spec.json --output-dir docs/architecture/<slug>-package/ [--manifest view-manifest.json]`.
+   See [offline export](references/offline-export.md).
+6. Inspect the exported image or static package at normal reading size; strict validation or zero exit
+   codes cannot prove labels and edges are legible or semantically correct. Fix the spec and re-export before handoff.
 The JSON spec is the semantic source of truth; `.drawio` is the editable presentation and the
 image is a copy for a deck. Generated XML records its own baseline; regeneration protects
 manual edits by default. Use `--acknowledge-manual-edits` only after returning semantic changes to the spec.
@@ -87,6 +90,5 @@ manual edits by default. Use `--acknowledge-manual-edits` only after returning s
 - [Diagram spec](references/diagram-spec.md) · [View manifest](references/view-manifest.md) · [Style catalog](references/style-catalog.md) · [House style](references/house-style.md)
 - [Source extraction](references/source-extraction.md) · [Exec readability](references/exec-readability.md)
 - [C4 model](references/c4-model.md) · [Cloud](references/cloud-architecture.md) · [Best practices](references/best-practices.md)
-- [Layout rules](references/layout-rules.md) · [Checklist](references/checklist.md) · [Export paths and Mermaid fallback](references/mermaid-fallback.md)
-- Runnable examples: `assets/fixtures/<type>.spec.json`, one per diagram type, plus schema samples under `assets/fixtures/schemas/`.
+- [Layout rules](references/layout-rules.md) · [Checklist](references/checklist.md) · [Export paths and Mermaid fallback](references/mermaid-fallback.md) · [Offline export](references/offline-export.md)
 - Batch or delegated drawing: `specialist-solution-diagrammer`.

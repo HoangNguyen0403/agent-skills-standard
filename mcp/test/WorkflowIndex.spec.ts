@@ -269,7 +269,10 @@ describe("WorkflowIndex and Workflow Tools", () => {
         "local provenance carrying an extra property",
         { provenance: { kind: "local-authoring", extra: true } },
       ],
-      ["an unknown provenance kind", { provenance: { kind: "remote-authoring" } }],
+      [
+        "an unknown provenance kind",
+        { provenance: { kind: "remote-authoring" } },
+      ],
       ["a null provenance value", { provenance: null }],
     ])("fails closed on %s in a catalog entry", async (_label, extra) => {
       const catalog = localCatalog();

@@ -554,7 +554,6 @@ describe('McpCommand — actionStatus mismatch detection', () => {
       expect(output()).toContain('project: —   user: —');
     });
 
-
     it('install action with projectWrites having action updated', async () => {
       mockConfigService.loadConfig.mockResolvedValue(makeConfig());
       mockMcpService.install.mockResolvedValue({

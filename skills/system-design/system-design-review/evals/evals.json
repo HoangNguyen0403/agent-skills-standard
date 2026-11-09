@@ -144,6 +144,16 @@
         { "type": "contains_any", "value": ["document", "plan", "proposed"], "description": "Recognizes documentary evidence scope" },
         { "type": "contains_any", "value": ["unverified", "not measured", "not operational"], "description": "Rejects unsupported operations claim" }
       ]
+    },
+    {
+      "id": 11,
+      "prompt": "A proposed design document notes that an order listing endpoint with pagination (20 orders per page) loops over each order to fetch item records, and suggests that adding a blanket LEFT JOIN across the entire order and item tables is the universal fix. The author claims this eliminates all database bottlenecks. Review this design proposal.",
+      "expected_output": "Connects design review to canonical database-query-performance. Identifies the loop as a suspected query amplification risk (design-level), but rejects the claim that a blanket giant LEFT JOIN is a universal fix: multi-table joins on 1:N relations multiply rows, inflate hydration memory, and break parent pagination LIMIT/OFFSET. Recommends bounded batch key lookup or request-scoped loading preserving pagination and tenant scope, and requires instrumented query tracing to verify.",
+      "assertions": [
+        { "type": "contains_any", "value": ["amplification", "N+1", "suspected", "risk"], "description": "Identifies query amplification risk" },
+        { "type": "contains_any", "value": ["pagination", "row multiplication", "Cartesian", "LIMIT", "duplicate rows"], "description": "Rejects giant JOIN due to pagination/row inflation" },
+        { "type": "contains_any", "value": ["batch", "batching", "bounded", "DataLoader"], "description": "Recommends bounded batching or DataLoader" }
+      ]
     }
   ],
   "should_trigger": [

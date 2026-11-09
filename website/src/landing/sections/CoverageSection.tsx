@@ -34,10 +34,11 @@ export function CoverageSection({
             Comprehensive coverage across languages, frameworks, and roles
           </h2>
           <p className={styles.lead}>
-            Agent Skills Standard is not limited to a single language or specimen.
-            The canonical registry covers {COVERAGE_META.totalCategories} categories,
-            pairing rule-based coding standards with specialized subagent personas
-            and multi-phase SDLC workflows.
+            Agent Skills Standard is not limited to a single language or
+            specimen. The canonical registry covers{" "}
+            {COVERAGE_META.totalCategories} categories, pairing rule-based
+            coding standards with specialized subagent personas and multi-phase
+            SDLC workflows.
           </p>
         </header>
 
@@ -45,7 +46,9 @@ export function CoverageSection({
         <div className={styles.distinctionSection}>
           <div className={styles.groupHeader}>
             <div className={styles.groupTitleArea}>
-              <h3 className={styles.groupHeading}>Three Distinct Capability Layers</h3>
+              <h3 className={styles.groupHeading}>
+                Three Distinct Capability Layers
+              </h3>
               <span className={styles.groupBadge}>Architecture</span>
             </div>
             <a
@@ -58,8 +61,9 @@ export function CoverageSection({
           </div>
 
           <p className={styles.groupDescription}>
-            Understand how guidance skills, specialist subagents, and SDLC workflows
-            operate together rather than treating all capabilities as identical prompt text.
+            Understand how guidance skills, specialist subagents, and SDLC
+            workflows operate together rather than treating all capabilities as
+            identical prompt text.
           </p>
 
           <div className={styles.distinctionGrid}>
@@ -79,12 +83,14 @@ export function CoverageSection({
         {/* Defaults & Installation Scope Notice (AC-LP-06) */}
         <div className={styles.noticeBanner}>
           <h4 className={styles.noticeTitle}>
-            <span aria-hidden="true">[·]</span> Installation &amp; Customization Policy
+            <span aria-hidden="true">[·]</span> Installation &amp; Customization
+            Policy
           </h4>
           <p className={styles.noticeText}>
-            Running <code>ags init</code> activates detected languages and frameworks
-            plus core foundational standards. It does not install the entire catalog indiscriminately.
-            You can selectively enable or customize categories in <code>.skillsrc</code>.
+            Running <code>ags init</code> activates detected languages and
+            frameworks plus core foundational standards. It does not install the
+            entire catalog indiscriminately. You can selectively enable or
+            customize categories in <code>.skillsrc</code>.
           </p>
           <div>
             <a
@@ -116,8 +122,9 @@ export function CoverageSection({
           </div>
 
           <p className={styles.groupDescription}>
-            Base-language skills provide foundational language syntax, modern typing idioms,
-            strict null safety, and clean code conventions for each runtime.
+            Base-language skills provide foundational language syntax, modern
+            typing idioms, strict null safety, and clean code conventions for
+            each runtime.
           </p>
 
           <ul
@@ -157,7 +164,9 @@ export function CoverageSection({
         <div className={styles.groupSection}>
           <div className={styles.groupHeader}>
             <div className={styles.groupTitleArea}>
-              <h3 className={styles.groupHeading}>Frameworks &amp; Platforms</h3>
+              <h3 className={styles.groupHeading}>
+                Frameworks &amp; Platforms
+              </h3>
               <span className={styles.groupBadge}>
                 {FRAMEWORK_COVERAGE.length} Frameworks &amp; Stacks
               </span>
@@ -172,8 +181,9 @@ export function CoverageSection({
           </div>
 
           <p className={styles.groupDescription}>
-            Opinionated architectural patterns, component composition, state management,
-            and data persistence standards tailored to specific web, mobile, and backend frameworks.
+            Opinionated architectural patterns, component composition, state
+            management, and data persistence standards tailored to specific web,
+            mobile, and backend frameworks.
           </p>
 
           <ul
@@ -228,20 +238,24 @@ export function CoverageSection({
           </div>
 
           <p className={styles.groupDescription}>
-            Focused persona definitions exported into host-native agent directories.
-            Runtime dispatch support varies across hosts; see the capability matrix.
+            Focused persona definitions exported into host-native agent
+            directories. Runtime dispatch support varies across hosts; see the
+            capability matrix.
           </p>
 
           {/* Host dispatch caveat (AC-LP-06) */}
           <div className={styles.noticeBanner}>
             <h4 className={styles.noticeTitle}>
-              <span aria-hidden="true">⚡</span> Host Dispatch Varies Across Agents
+              <span aria-hidden="true">⚡</span> Host Dispatch Varies Across
+              Agents
             </h4>
             <p className={styles.noticeText}>
-              Different agent hosts support different delegation surfaces. Claude Code, Copilot, Codex,
-              OpenCode, and Gemini provide native subagent surfaces; Cursor and Kiro operate instruction-only;
-              and other hosts do not support specialist subagents. A serialized agent file is not proof of working
-              runtime dispatch. Check the agent capability matrix for verified support.
+              Different agent hosts support different delegation surfaces.
+              Claude Code, Copilot, Codex, OpenCode, and Gemini provide native
+              subagent surfaces; Cursor and Kiro operate instruction-only; and
+              other hosts do not support specialist subagents. A serialized
+              agent file is not proof of working runtime dispatch. Check the
+              agent capability matrix for verified support.
             </p>
             <div>
               <a
@@ -300,8 +314,9 @@ export function CoverageSection({
           </div>
 
           <p className={styles.groupDescription}>
-            Structured requirements contracts connecting business goals to verifiable delivery.
-            Distinguishes the shared foundation from opt-in advanced capabilities.
+            Structured requirements contracts connecting business goals to
+            verifiable delivery. Distinguishes the shared foundation from opt-in
+            advanced capabilities.
           </p>
 
           <div className={styles.pmContainer}>
@@ -402,8 +417,8 @@ export function CoverageSection({
           </div>
 
           <p className={styles.groupDescription}>
-            Full lifecycle test engineering: test planning, selector stability, test healing,
-            API fuzzing, and coverage auditing.
+            Full lifecycle test engineering: test planning, selector stability,
+            test healing, API fuzzing, and coverage auditing.
           </p>
 
           <ul
@@ -449,8 +464,9 @@ export function CoverageSection({
           </div>
 
           <p className={styles.groupDescription}>
-            Cross-stack guidance is loaded when enabled categories and relevant file/task triggers match.
-            System design and cybersecurity standards are context-triggered rather than unconditional.
+            Cross-stack guidance is loaded when enabled categories and relevant
+            file/task triggers match. System design and cybersecurity standards
+            are context-triggered rather than unconditional.
           </p>
 
           <ul
@@ -487,8 +503,8 @@ export function CoverageSection({
         {/* Section Footer / Audit ledger */}
         <footer className={styles.coverageFooter}>
           <p className={styles.auditNote}>
-            Source: Derived directly from <code>skills/metadata.json</code> and canonical
-            registry indexes. No unverified headline counts.
+            Source: Derived directly from <code>skills/metadata.json</code> and
+            canonical registry indexes. No unverified headline counts.
           </p>
           <div className={styles.footerActions}>
             <a

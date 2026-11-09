@@ -11,6 +11,7 @@ import os
 import re
 import stat
 import sys
+from collections.abc import MutableMapping
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -277,8 +278,16 @@ def _load_sources(
 
 
 def _validate_manifest_data(
-    manifest: object, root: Path, root_fd: int
+    manifest: object, root: Path, root_fd: int,
+    *, captures: MutableMapping[str, str] | None = None,
 ) -> ManifestReport:
+    """Validate manifest data and optionally record exact per-view spec captures.
+
+    ``captures`` is an operation-local sink: for each view whose spec payload was opened,
+    decoded and validated here, it receives ``view id -> "sha256:<hex>"`` computed from the
+    exact bounded bytes that were parsed. Callers may consume a capture only after the whole
+    report passes; the sink has no global state and default callers are unchanged.
+    """
     errors: list[str] = []
     review_needed: list[str] = []
     if not isinstance(manifest, dict):
@@ -326,10 +335,13 @@ def _validate_manifest_data(
             expected = []
         try:
             spec_parts = _safe_child_parts(view.get("spec"), "view spec path")
-            spec = _read_json_from_root(root_fd, spec_parts)
+            spec_payload = _read_bounded(root_fd, spec_parts, "JSON file")
+            spec = json.loads(spec_payload.decode("utf-8"))
         except (OSError, UnicodeDecodeError, json.JSONDecodeError, ValueError) as error:
             errors.append("view %s: %s" % (view_id, error))
             continue
+        if captures is not None:
+            captures[view_id] = "sha256:" + hashlib.sha256(spec_payload).hexdigest()
         errors.extend("view %s: %s" % (view_id, error)
                       for error in validate_spec.validate(spec, require_contract=True))
         if not isinstance(spec, dict):
@@ -432,7 +444,9 @@ def _validate_manifest_data(
     return ManifestReport(tuple(dict.fromkeys(errors)), tuple(dict.fromkeys(review_needed)))
 
 
-def validate_manifest(path: str | Path) -> ManifestReport:
+def validate_manifest(
+    path: str | Path, *, captures: MutableMapping[str, str] | None = None
+) -> ManifestReport:
     """Validate using the caller-selected manifest directory as the trust boundary."""
     manifest_path = Path(path)
     root = manifest_path.parent
@@ -444,7 +458,7 @@ def validate_manifest(path: str | Path) -> ManifestReport:
         _close_fd(root_fd)
         return ManifestReport(("cannot read manifest: %s" % error,), ())
     try:
-        return _validate_manifest_data(manifest, root, root_fd)
+        return _validate_manifest_data(manifest, root, root_fd, captures=captures)
     finally:
         _close_fd(root_fd)
 
