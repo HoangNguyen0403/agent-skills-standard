@@ -622,3 +622,39 @@ Use standard Promise executors with captured resolvers for deterministic barrier
 
 ### Trigger Miss
 None established. The missed verification boundary was the existing CI runtime, not a missing project skill.
+
+---
+
+## Agent Learning Log: Iteration #26
+
+**Date**: 2026-11-09 | **Task**: Implement standalone L3 skill evaluator CLI and evidence management (D1–D4).
+**Signal**: Session retrospective
+**Skills**: common/common-session-retrospective, common/common-learning-log, common/common-tdd, system-design/system-design-principles
+**Scope**: project
+**Candidate**: l3-evaluator-evidence-lifecycle-invariants | **Status**: proposed
+**Improvement**: IMP-l3-evals-lifecycle-001 | **Prevention**: regression-test
+**Verification**: scripts/evals/l3/index.test.ts, scripts/evals/l3/evidence.test.ts, scripts/evals/l3/runtime/collector.ts
+**Provenance**: PR #311, commit `ac2b15a7`, 12 rounds of independent VMO review
+**Evaluation**: 252 tests pass across 46 suites; verified against real-path memory limits and consumer smoke
+**Review**: VMO reviewer 1682860e ACCEPT for D1–D4; no shared guidance promoted
+**Rollback**: not-applicable
+
+### ❌ Mistake Made
+1. V8 heap limits: Assumed `v8.getHeapStatistics().heap_size_limit` corresponds 1:1 with `--max-old-space-size=768`. Node allocates young generation space on top of old space (~864 MiB total), causing `heap_size_limit > 800` to fail closed on its own launcher.
+2. Ingress trust boundary: In `stubs.ts`, candidate-provided `message_ids` were appended to the ledger before verifying workload trust, leaking untrusted IDs into the evidence table and threatening cardinality bounds.
+3. Subcommand stubbing: `build` and `run` initially implemented as zero-exit stubs returning success without invoking the runtime adapter or publishing receipts.
+4. Reviewer blinding: `exportReviewerBundle` attached unscrubbed raw file buffers, leaking protocol arm labels (`A0`, `A1`, `A2`) and host paths.
+5. Disk scratch leakage: Test suites left 4,055 orphaned `l3-*` temporary directories in `/tmp`, consuming 24 GiB and triggering `ENOSPC`.
+
+### 🚫 Pattern to Avoid
+- **No raw heap limit checks without young-gen margin**: Never compare total `heap_size_limit` directly against `--max-old-space-size` without accounting for V8 semi-space overhead or inspecting `process.execArgv`.
+- **No ledger recording before trust verification**: Never record untrusted candidate inputs in authoritative evidence tables before trust status is confirmed.
+- **No zero-exit scaffolds**: Never return success or exit `0` on unexecuted runtime commands; fail closed with explicit terminal receipts (`preflight_failed`).
+- **No unscrubbed raw files in blinded exports**: Never attach raw file buffers to exports designed to blind arm labels and machine paths.
+- **No uncollected temp directories**: Never create `mkdtemp` scratch directories in tests without mandatory cleanup in `finally` blocks.
+
+### ✅ Better Approach
+Inspect `process.execArgv` for declared old-space limits or allow a calibrated young-gen allowance (~950 MiB). Verify trust before appending ledger rows; record `message_ids: []` with an untrusted counter for unverified calls. Implement real preflight calls that fail closed with atomic receipts and non-zero exits when live hypervisors are absent. Blind exports by stripping raw files and retaining only scrubbed views and raw cryptographic digests. Ensure all tests register recursive `rm` cleanup in `finally` blocks.
+
+### Trigger Miss
+None established. The issues involved runtime V8 heap semantics, protocol boundary enforcement, and integration lifecycle rather than an unavailable skill.
