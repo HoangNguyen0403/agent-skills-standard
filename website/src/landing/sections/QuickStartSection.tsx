@@ -93,8 +93,8 @@ export function QuickStartSection(): React.JSX.Element {
                   <code className={styles.inlineCode}>
                     agent-skills-standard
                   </code>{" "}
-                  binary and{" "}
-                  <code className={styles.inlineCode}>ags</code> alias.
+                  binary and <code className={styles.inlineCode}>ags</code>{" "}
+                  alias.
                 </p>
               </div>
             </div>

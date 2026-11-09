@@ -104,9 +104,7 @@ describe('AgentSkillsSpecRule', () => {
 
 describe('TriggerPhraseRule', () => {
   const run = (d: string) =>
-    new TriggerPhraseRule().validate(
-      `---\nname: a\ndescription: ${d}\n---\n`,
-    );
+    new TriggerPhraseRule().validate(`---\nname: a\ndescription: ${d}\n---\n`);
   it.each([
     'Do X. Use when editing Y.',
     'Do X. use for Y.',

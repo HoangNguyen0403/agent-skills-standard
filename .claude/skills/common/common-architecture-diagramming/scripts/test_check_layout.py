@@ -10,6 +10,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import check_layout
 import render_drawio
+import text_layout
 from test_render_drawio import container_spec, context_spec, erd_spec
 
 
@@ -260,6 +261,64 @@ class TestGapSlots(unittest.TestCase):
         stacked = [check_layout.label_point(routes[("a", "b")])] * 2
         self.assertTrue(check_layout.labels_collide(stacked[0], stacked[1]))
         self.assertFalse(check_layout.labels_collide((0, 0), (0, 40)))
+
+    def test_edge_label_size_expands_with_metric_and_unverified(self):
+        edge_simple = {"from": "a", "to": "b", "label": "HTTP"}
+        w1, h1 = check_layout.edge_label_size(edge_simple)
+        edge_complex = {
+            "from": "a", "to": "b", "label": "HTTP Request Payload Validation",
+            "metric": "p99 < 15ms · measured", "evidence": ""
+        }
+        w2, h2 = check_layout.edge_label_size(edge_complex)
+        self.assertGreater(h2, h1)
+        self.assertGreaterEqual(w2, w1)
+
+    def test_multiline_edge_labels_collision_detects_overlap(self):
+        pos_a = (100.0, 100.0)
+        pos_b = (100.0, 125.0)
+        self.assertFalse(check_layout.labels_collide(pos_a, pos_b))
+        self.assertTrue(check_layout.labels_collide(pos_a, pos_b, (96, 40), (96, 40)))
+
+class TestEmittedPlanFindings(unittest.TestCase):
+    def test_sequence_plan_reserves_room_below_expanded_participants(self):
+        spec = {"type": "sequence", "nodes": [{"id": "u"}, {"id": "w"}],
+                "edges": [{"from": "u", "to": "w", "label": "word " * 120}]}
+        lay = layout_of({"u": (0, 0, 160, 400), "w": (400, 0, 160, 600)})
+        messages = check_layout.sequence_messages(spec["nodes"], spec["edges"], lay.boxes)
+        participant_bottom = 600
+        self.assertGreaterEqual(messages[0].rect[1], participant_bottom)
+        self.assertGreaterEqual(
+            check_layout.sequence_bottom(spec["nodes"], messages, lay.boxes),
+            messages[0].rect[1] + messages[0].rect[3])
+        self.assertEqual(check_layout.check(spec, lay), [])
+
+    def test_sequence_plan_keeps_long_labels_clear_of_neighbours(self):
+        spec = {"type": "sequence",
+                "nodes": [{"id": "u"}, {"id": "w"}, {"id": "o"}],
+                "edges": [{"from": "u", "to": "w", "label": "POST /orders " * 8},
+                          {"from": "w", "to": "o", "label": "SELECT ledger " * 8},
+                          {"from": "o", "to": "w", "label": "row set " * 4}]}
+        lay = layout_of({"u": (50, 170, 160, 60), "w": (410, 170, 160, 60),
+                         "o": (770, 170, 160, 60)})
+        self.assertEqual(check_layout.check(spec, lay), [])
+        messages = check_layout.sequence_messages(spec["nodes"], spec["edges"], lay.boxes)
+        for index, message in enumerate(messages):
+            self.assertEqual((message.rect[2], message.rect[3]),
+                             (message.plan.width, message.plan.height))
+            for earlier in messages[:index]:
+                self.assertFalse(text_layout.rects_overlap(message.rect, earlier.rect))
+
+    def test_group_box_reaching_into_the_header_is_reported(self):
+        header = text_layout.plan_header({"title": "Short"}, 1000)
+        spec = {"type": "container", "nodes": [{"id": "a", "group": "g"}],
+                "edges": [], "groups": [{"id": "g", "label": "G"}]}
+        lay = render_drawio.Layout(
+            boxes={"a": (40, 200, 100, 50)},
+            groups={"g": (40, 60, 300, 200)},
+            header_box=(render_drawio.MARGIN_X, text_layout.HEADER_TITLE_Y,
+                        header.width, header.height))
+        findings = check_layout.check(spec, lay)
+        self.assertTrue(any("group g overlaps header" in f for f in findings), findings)
 
 
 if __name__ == "__main__":

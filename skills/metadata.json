@@ -494,8 +494,8 @@
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 47,
-        "total_tokens": 50648,
-        "avg_tokens_per_skill": 1078,
+        "total_tokens": 50708,
+        "avg_tokens_per_skill": 1079,
         "largest_skill": "common-subagent-driven-development (2563 tokens)"
       },
       "owners": [
@@ -813,14 +813,14 @@
       ]
     },
     "system-design": {
-      "version": "1.2.5",
-      "last_updated": "2026-10-26",
+      "version": "1.2.6",
+      "last_updated": "2026-11-09",
       "tag_prefix": "system-design-v",
       "token_metrics": {
         "total_skills": 13,
-        "total_tokens": 16813,
-        "avg_tokens_per_skill": 1293,
-        "largest_skill": "system-design-review (1935 tokens)"
+        "total_tokens": 17005,
+        "avg_tokens_per_skill": 1308,
+        "largest_skill": "system-design-review (2010 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -841,13 +841,13 @@
       }
     },
     "database": {
-      "version": "1.4.1",
-      "last_updated": "2026-08-24",
+      "version": "1.4.2",
+      "last_updated": "2026-11-09",
       "tag_prefix": "database-v",
       "token_metrics": {
         "total_skills": 8,
-        "total_tokens": 3914,
-        "avg_tokens_per_skill": 489,
+        "total_tokens": 4269,
+        "avg_tokens_per_skill": 534,
         "largest_skill": "database-hana (920 tokens)"
       },
       "owners": [

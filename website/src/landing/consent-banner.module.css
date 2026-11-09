@@ -110,7 +110,9 @@
   border-radius: 6px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   cursor: pointer;
-  transition: border-color 160ms ease, background-color 160ms ease;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease;
 }
 
 .declineButton:hover {

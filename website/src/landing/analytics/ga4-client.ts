@@ -1,4 +1,4 @@
-import type { GA4Config } from './ga4-config';
+import type { GA4Config } from "./ga4-config";
 
 /**
  * GA4 Direct Tag Client & Field Normalization
@@ -21,44 +21,42 @@ declare global {
 }
 
 export type GA4EventName =
-  | 'demo_play'
-  | 'setup_guide_open'
-  | 'install_command_copy'
-  | 'github_click';
+  "demo_play" | "setup_guide_open" | "install_command_copy" | "github_click";
 
 export const ALLOWED_EVENTS: readonly GA4EventName[] = [
-  'demo_play',
-  'setup_guide_open',
-  'install_command_copy',
-  'github_click',
+  "demo_play",
+  "setup_guide_open",
+  "install_command_copy",
+  "github_click",
 ] as const;
 
-export const REGISTERED_CAMPAIGNS = ['standards-demo-01'] as const;
+export const REGISTERED_CAMPAIGNS = ["standards-demo-01"] as const;
 
 /**
  * Authoritative registered asset identifiers from actual campaign frontmatter.
  * demo-01 is synthetic-only; unregistered demo/copy actions fall back to 'unknown'.
  */
-export const REGISTERED_ASSETS_BY_CAMPAIGN: Record<string, readonly string[]> = {
-  'standards-demo-01': [
-    'tutorial-standards-adoption-01',
-    'announcement-github-01',
-    'showcase-community-01',
-  ],
-};
+export const REGISTERED_ASSETS_BY_CAMPAIGN: Record<string, readonly string[]> =
+  {
+    "standards-demo-01": [
+      "tutorial-standards-adoption-01",
+      "announcement-github-01",
+      "showcase-community-01",
+    ],
+  };
 
 export const ALLOWED_PLACEMENTS = [
-  'quickstart_demo',
-  'quickstart_init',
-  'quickstart_sync',
-  'quickstart_docs',
-  'quickstart_tutorial',
-  'header_github',
-  'community_github',
-  'footer_github',
+  "quickstart_demo",
+  "quickstart_init",
+  "quickstart_sync",
+  "quickstart_docs",
+  "quickstart_tutorial",
+  "header_github",
+  "community_github",
+  "footer_github",
 ] as const;
 
-export type GA4Placement = (typeof ALLOWED_PLACEMENTS)[number] | 'unknown';
+export type GA4Placement = (typeof ALLOWED_PLACEMENTS)[number] | "unknown";
 
 export interface RawEventInput {
   schema_version?: number;
@@ -80,14 +78,18 @@ export function normalizeEventInput(input: RawEventInput): {
   asset_id: string;
   placement: string;
 } {
-  const rawCampaign = input.campaign_id?.trim() ?? '';
-  const rawAsset = input.asset_id?.trim() ?? '';
-  const rawPlacement = input.placement?.trim() ?? '';
+  const rawCampaign = input.campaign_id?.trim() ?? "";
+  const rawAsset = input.asset_id?.trim() ?? "";
+  const rawPlacement = input.placement?.trim() ?? "";
 
-  let validCampaign = 'unknown';
-  let validAsset = 'unknown';
+  let validCampaign = "unknown";
+  let validAsset = "unknown";
 
-  if (REGISTERED_CAMPAIGNS.includes(rawCampaign as (typeof REGISTERED_CAMPAIGNS)[number])) {
+  if (
+    REGISTERED_CAMPAIGNS.includes(
+      rawCampaign as (typeof REGISTERED_CAMPAIGNS)[number],
+    )
+  ) {
     validCampaign = rawCampaign;
     const allowedAssets = REGISTERED_ASSETS_BY_CAMPAIGN[rawCampaign] ?? [];
     if (allowedAssets.includes(rawAsset)) {
@@ -99,7 +101,7 @@ export function normalizeEventInput(input: RawEventInput): {
     rawPlacement as (typeof ALLOWED_PLACEMENTS)[number],
   )
     ? rawPlacement
-    : 'unknown';
+    : "unknown";
 
   return {
     campaign_id: validCampaign,
@@ -119,15 +121,12 @@ export function buildGA4EventParams(input: RawEventInput): GA4AppEventParams {
   };
 }
 
-export function sendGA4Event(
-  input: RawEventInput,
-  config: GA4Config,
-): boolean {
+export function sendGA4Event(input: RawEventInput, config: GA4Config): boolean {
   if (!ALLOWED_EVENTS.includes(input.event_name)) {
     return false;
   }
 
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     return false;
   }
 
@@ -139,8 +138,8 @@ export function sendGA4Event(
   const params = buildGA4EventParams(input);
 
   try {
-    if (typeof window.gtag === 'function') {
-      window.gtag('event', input.event_name, params);
+    if (typeof window.gtag === "function") {
+      window.gtag("event", input.event_name, params);
       return true;
     }
   } catch {

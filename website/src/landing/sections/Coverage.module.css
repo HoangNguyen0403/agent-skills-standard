@@ -261,7 +261,9 @@
   justify-content: space-between;
   gap: 14px;
   position: relative;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
 }
 
 .card:hover {

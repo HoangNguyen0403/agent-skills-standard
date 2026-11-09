@@ -28,7 +28,8 @@
   padding-right: 1px;
   vertical-align: middle;
   animation:
-    commandTypewriter var(--type-duration, 800ms) steps(var(--char-count, 30), end) forwards,
+    commandTypewriter var(--type-duration, 800ms)
+      steps(var(--char-count, 30), end) forwards,
     commandBlink 500ms step-end 4 forwards;
 }
 
@@ -53,7 +54,8 @@
 }
 
 @keyframes commandBlink {
-  0%, 100% {
+  0%,
+  100% {
     border-color: var(--lime, #c7f36b);
   }
   50% {

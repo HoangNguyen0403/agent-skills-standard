@@ -40,6 +40,7 @@ The spec is the only thing you write. `render_drawio.py` turns it into draw.io X
 | `version`, `date` | yes | A diagram without a date is assumed stale. |
 | `scope` | yes | One sentence. What this diagram does and does not cover. |
 | `author` | no | Shown in the title block. |
+| `theme.mode` | no | Presentation mode: `light` or `dark`. Default `light`. |
 | `theme.accent` | no | Single accent colour. Default `#1E6FD9`. |
 | `groups[]` | no | `id`, `label`. Drawn as a dashed boundary box behind its members. |
 | `nodes[]` | yes | `id`, `label`, `kind`; optional `sublabel`, `group`, `layer`, `evidence`, `metric`, `constraint`; `columns[]` on `entity` only. |
