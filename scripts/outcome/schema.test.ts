@@ -117,6 +117,58 @@ test("validateRunRecord rejects non-object input", () => {
   assert.deepEqual(issues, [{ severity: "error", file: "fixture.json", message: "run record must be a JSON object" }]);
 });
 
+test("validateRunRecord accepts two-digit and longer AC ids alongside three-digit ids", () => {
+  const record = validRecord({
+    requirement_trace: {
+      brd_objectives: ["BRD-OBJ-001"],
+      requirements: ["REQ-001"],
+      acceptance_criteria: ["AC-01", "AC-001", "AC-1234"],
+      srs: ["SRS-001"],
+    },
+  });
+  assert.deepEqual(validateRunRecord(record, "fixture.json"), []);
+});
+
+test("validateRunRecord rejects single-digit, empty, nonnumeric and trailing-junk AC ids", () => {
+  for (const bad of ["AC-1", "AC-", "AC-abc", "AC-01x"]) {
+    const record = validRecord({
+      requirement_trace: {
+        brd_objectives: ["BRD-OBJ-001"],
+        requirements: ["REQ-001"],
+        acceptance_criteria: [bad],
+        srs: ["SRS-001"],
+      },
+    });
+    const issues = validateRunRecord(record, "fixture.json");
+    assert.equal(issues.length, 1, `${bad} must be the only rejected field`);
+    assert.match(issues[0].message, /does not match/, `${bad} must be rejected as non-conforming`);
+  }
+});
+
+test("validateRunRecord keeps REQ, BRD-OBJ and SRS at their existing three-digit minimum", () => {
+  const recordWith = (field: "brd_objectives" | "requirements" | "srs", value: string): RunRecord => {
+    const trace = {
+      brd_objectives: ["BRD-OBJ-001"],
+      requirements: ["REQ-001"],
+      acceptance_criteria: ["AC-01"],
+      srs: ["SRS-001"],
+    };
+    trace[field] = [value];
+    return validRecord({ requirement_trace: trace });
+  };
+  for (const [field, value] of [
+    ["brd_objectives", "BRD-OBJ-01"],
+    ["requirements", "REQ-01"],
+    ["srs", "SRS-01"],
+  ] as const) {
+    const issues = validateRunRecord(recordWith(field, value), "fixture.json");
+    assert.ok(
+      issues.some((issue) => /does not match/.test(issue.message)),
+      `${value} must stay rejected; only the AC grammar widens`,
+    );
+  }
+});
+
 // Sanity check that a temp-dir fixture round-trips through JSON.parse + validateRunRecord,
 // per the "fixtures written to a temp dir, never real repo paths" convention.
 test("validateRunRecord validates a record read from a temp-dir fixture file", () => {

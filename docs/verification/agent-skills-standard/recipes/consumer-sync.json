@@ -1,0 +1,53 @@
+{
+  "journey": "JRN-CONSUMER-01",
+  "surface": "production-lib+repo-cli",
+  "consumed_recipe_inputs": ["recipes/consumer-sync.json"],
+  "consumed_product_inputs": [
+    "cli/src/index.ts",
+    "cli/src/commands/doctor.ts",
+    "cli/src/services/DoctorService.ts",
+    "cli/src/services/SyncService.ts",
+    "cli/src/services/LockfileService.ts",
+    "cli/src/services/ConfigService.ts",
+    "cli/src/services/utils/WorkflowTransformer.ts",
+    "cli/src/constants/index.ts",
+    "cli/src/constants/enums.ts",
+    "cli/src/capabilities/agentCapabilities.ts",
+    "cli/src/models/config.ts",
+    "cli/src/models/types.ts",
+    "LICENSE",
+    "mcp/src/services/WorkflowIndex.ts",
+    "skills/common/common-project-verification/SKILL.md",
+    "skills/common/common-project-verification/references/kit-contract.md",
+    "skills/common/common-project-verification/references/maintenance.md",
+    ".agents/workflows/implementation-readiness.md",
+    ".agents/workflows/verify-work.md"
+  ],
+  "skill": {
+    "category": "common",
+    "id": "common-project-verification",
+    "ref": "1c79a7edb22b-working-tree"
+  },
+  "workflows": ["implementation-readiness", "verify-work"],
+  "registry": "https://github.com/HoangNguyen0403/agent-skills-standard",
+  "agents": ["claude", "cursor"],
+  "packaged_resource_rule": "SKILL.md | references/** | scripts/** | assets/** | LICENSE|NOTICE (mirrors SkillSyncService.isPackageResource; mirrored, not invoked)",
+  "expect": {
+    "lock_version": 2,
+    "lock_workflow_catalog_version": 1,
+    "sentinel_name": "consumer-user-notes.txt",
+    "sentinel_body": "unrelated consumer file; must survive install cycles\n",
+    "doctor": {
+      "kind": "doctor.report",
+      "schema_version": 1,
+      "healthy": true,
+      "check_status": {
+        "config": "ok",
+        "lockfile": "ok",
+        "agents": "ok",
+        "legacy_folders": "ok",
+        "cli_version": "skip"
+      }
+    }
+  }
+}

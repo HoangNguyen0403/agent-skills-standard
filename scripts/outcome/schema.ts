@@ -105,7 +105,7 @@ const PLACEHOLDER_PATTERNS = [/\*/, /<.*>/, /\[.*\]/, /\bTODO\b/i, /\bTBD\b/i];
 const TRACE_ID_PATTERNS: Record<keyof RequirementTrace, RegExp> = {
   brd_objectives: /^BRD-OBJ-\d{3,}$/,
   requirements: /^REQ-\d{3,}$/,
-  acceptance_criteria: /^AC-\d{3,}$/,
+  acceptance_criteria: /^AC-\d{2,}$/,
   srs: /^SRS-\d{3,}$/,
 };
 

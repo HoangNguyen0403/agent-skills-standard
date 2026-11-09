@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "kit": "agent-skills-standard repository verification kit",
+  "source_revision": "1c79a7edb22b768ad5362e2e10766df2978e8642",
+  "dirty_identity": "docs/prd/prd-pstack-verification-readiness.md:bd7e4536a3e5409a34a176073229993122ff2d2dd4f156d2455fcf19bf34b425;docs/srs/srs-pstack-verification-readiness.md:887bc7d3244cca1072c2a18382f0c65378cfd5434390bcd17b23b6a4d9caa1fe",
+  "canonical_inputs": [
+    {
+      "path": "docs/prd/prd-pstack-verification-readiness.md",
+      "sha256": "bd7e4536a3e5409a34a176073229993122ff2d2dd4f156d2455fcf19bf34b425"
+    },
+    {
+      "path": "docs/srs/srs-pstack-verification-readiness.md",
+      "sha256": "887bc7d3244cca1072c2a18382f0c65378cfd5434390bcd17b23b6a4d9caa1fe"
+    }
+  ],
+  "journeys": [
+    { "id": "JRN-TRACE-01", "recipe": "recipes/trace-audit.json" },
+    { "id": "JRN-OUTCOME-01", "recipe": "recipes/outcome-audit.json" },
+    { "id": "JRN-CONSUMER-01", "recipe": "recipes/consumer-sync.json" }
+  ],
+  "evidence_dir": "artifacts/verification/agent-skills-standard",
+  "evidence_name_prefix": "verification"
+}

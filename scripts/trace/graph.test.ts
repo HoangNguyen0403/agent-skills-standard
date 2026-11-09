@@ -380,3 +380,61 @@ test("buildTraceGraph keeps hyphen-id and bare-ID prose next to namespace famili
     "bold id words in prose must not become declarations or malformed ids",
   );
 });
+
+test("buildTraceGraph keeps AC-01 and AC-001 as distinct declarations", () => {
+  const root = writeTempTree({
+    "docs/brd/brd-ac-width.md": "# BRD\n\n- **Objective ID**: BRD-OBJ-001\n",
+    "docs/prd/prd-ac-width.md": [
+      "# PRD",
+      "",
+      "| Req ID | Requirement | BRD Objective Ref |",
+      "| --- | --- | --- |",
+      "| REQ-001 | Two-digit AC support | BRD-OBJ-001 |",
+      "",
+      "| AC ID | Linked Req |",
+      "| --- | --- |",
+      "| AC-01 | REQ-001 |",
+      "| AC-001 | REQ-001 |",
+      "",
+      "Coverage references AC-001 only.",
+      "",
+    ].join("\n"),
+  });
+
+  const issues = buildTraceGraph(parseRepo(root));
+  assert.deepEqual(
+    issues.filter((i) => i.code === "orphan-ac").map((i) => i.id),
+    ["AC-01"],
+    "a reference to AC-001 must not resolve the distinct AC-01 declaration",
+  );
+  assert.deepEqual(issues.filter((i) => i.code === "dangling-ref"), []);
+  assert.deepEqual(issues.filter((i) => i.code === "malformed-id"), []);
+});
+
+test("buildTraceGraph leaves an AC-01 reference unresolved when only AC-001 is declared", () => {
+  const root = writeTempTree({
+    "docs/brd/brd-ac-padded.md": "# BRD\n\n- **Objective ID**: BRD-OBJ-001\n",
+    "docs/prd/prd-ac-padded.md": [
+      "# PRD",
+      "",
+      "| Req ID | Requirement | BRD Objective Ref |",
+      "| --- | --- | --- |",
+      "| REQ-001 | Padding-sensitive AC resolution | BRD-OBJ-001 |",
+      "",
+      "| AC ID | Linked Req |",
+      "| --- | --- |",
+      "| AC-001 | REQ-001 |",
+      "",
+      "Coverage references AC-01.",
+      "",
+    ].join("\n"),
+  });
+
+  const issues = buildTraceGraph(parseRepo(root));
+  assert.deepEqual(
+    issues.filter((i) => i.code === "dangling-ref").map((i) => i.id),
+    ["AC-01"],
+    "AC-01 must stay unresolved instead of aliasing AC-001",
+  );
+  assert.ok(!issues.some((i) => i.code === "malformed-id"), "AC-01 is well-formed, only unresolved");
+});

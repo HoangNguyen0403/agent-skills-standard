@@ -1,0 +1,120 @@
+{
+  "journey": "JRN-OUTCOME-01",
+  "surface": "repo-cli",
+  "entry": "scripts/outcome/index.ts",
+  "assurance": "record-schema-and-scope-valid",
+  "consumed_recipe_inputs": ["recipes/outcome-audit.json", "recipes/cli-policy.json"],
+  "consumed_product_inputs": [
+    "scripts/outcome/index.ts",
+    "scripts/outcome/schema.ts",
+    "scripts/outcome/template.ts",
+    "scripts/workflow-chain.ts",
+    "artifacts/runs/pstack-verification-readiness/20261105T072631Z-design-solution.json"
+  ],
+  "required_scope": {
+    "slug": "pstack-verification-readiness",
+    "workflow": "design-solution",
+    "run_id": "20261105T072631Z-design-solution"
+  },
+  "scenarios": [
+    {
+      "id": "outcome-exact-one-valid",
+      "kind": "drive",
+      "args": [
+        "--records",
+        "--required",
+        "--slug",
+        "pstack-verification-readiness",
+        "--workflow",
+        "design-solution",
+        "--run-id",
+        "20261105T072631Z-design-solution",
+        "--json"
+      ],
+      "expect": {
+        "exit": 0,
+        "json": {
+          "ok": true,
+          "assurance": "record-schema-and-scope-valid",
+          "recordsMatched": 1
+        }
+      }
+    },
+    {
+      "id": "outcome-missing-scope",
+      "kind": "drive",
+      "args": [
+        "--records",
+        "--required",
+        "--slug",
+        "pstack-verification-readiness",
+        "--workflow",
+        "nonexistent-workflow",
+        "--run-id",
+        "20261105T000000Z-nonexistent",
+        "--json"
+      ],
+      "expect": {
+        "exit": 1,
+        "json": { "ok": false, "recordsMatched": 0 },
+        "issue_message_contains": "no run record matches required scope"
+      }
+    },
+    {
+      "id": "outcome-duplicate-identity",
+      "kind": "drive-fixture",
+      "fixture": "duplicate",
+      "args": [
+        "--records",
+        "--required",
+        "--slug",
+        "kit-duplicate-slug",
+        "--workflow",
+        "kit-duplicate-workflow",
+        "--run-id",
+        "20261105T000000Z-kit-duplicate",
+        "--dir",
+        "{{SCRATCH}}/outcome-duplicate",
+        "--json"
+      ],
+      "expect": {
+        "exit": 1,
+        "json": { "ok": false, "recordsMatched": 2 },
+        "issue_message_contains": "duplicate run record identity",
+        "issue_count": 1
+      }
+    },
+    {
+      "id": "outcome-invalid-schema",
+      "kind": "drive-fixture",
+      "fixture": "invalid",
+      "args": [
+        "--records",
+        "--required",
+        "--slug",
+        "kit-invalid-slug",
+        "--workflow",
+        "kit-invalid-workflow",
+        "--run-id",
+        "20261105T000000Z-kit-invalid",
+        "--dir",
+        "{{SCRATCH}}/outcome-invalid",
+        "--json"
+      ],
+      "expect": {
+        "exit": 1,
+        "json": { "ok": false, "recordsMatched": 0 },
+        "issue_message_contains": "missing required field"
+      }
+    },
+    {
+      "id": "outcome-usage-error",
+      "kind": "drive",
+      "args": ["--slug", "pstack-verification-readiness", "--json"],
+      "expect": {
+        "exit": 2,
+        "json": { "ok": false, "usageError": true }
+      }
+    }
+  ]
+}
