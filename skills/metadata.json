@@ -494,7 +494,7 @@
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 47,
-        "total_tokens": 51171,
+        "total_tokens": 51203,
         "avg_tokens_per_skill": 1089,
         "largest_skill": "common-subagent-driven-development (2563 tokens)"
       },
@@ -813,13 +813,13 @@
       ]
     },
     "system-design": {
-      "version": "1.2.6",
+      "version": "1.2.7",
       "last_updated": "2026-11-09",
       "tag_prefix": "system-design-v",
       "token_metrics": {
-        "total_skills": 13,
-        "total_tokens": 17388,
-        "avg_tokens_per_skill": 1338,
+        "total_skills": 14,
+        "total_tokens": 18945,
+        "avg_tokens_per_skill": 1353,
         "largest_skill": "system-design-review (2010 tokens)"
       },
       "owners": [

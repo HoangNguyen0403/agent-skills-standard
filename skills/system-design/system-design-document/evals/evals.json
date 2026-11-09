@@ -1,0 +1,208 @@
+{
+  "skill_name": "system-design-document",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Draw the HLD for our new app and compare 3 ETL options for our review document.",
+      "expected_output": "Structures the architecture document with a clean top-to-bottom HLD containing under 15 boxes and a unified identity & access layer in front of business modules. Maps features using a screen/feature -> module table (1:1 mapping). Models each ETL option with the uniform shape (sources -> job -> staging -> store), presents a unified comparison table with identical rows, places the recommended option first, and provides an evidence list distinguishing verified in repo vs assumed facts.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": [
+            "top-to-bottom",
+            "HLD",
+            "identity & access"
+          ],
+          "description": "Enforces top-to-bottom HLD hierarchy and single identity layer"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "sources -> job -> staging -> store",
+            "uniform shape",
+            "verified in repo vs assumed"
+          ],
+          "description": "Requires uniform option diagrams and explicit evidence separation"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "screen/feature -> module",
+            "1:1 mapping",
+            "screen-to-module"
+          ],
+          "description": "Includes a screen/feature to module mapping table"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Update the architecture doc after the engineering manager's comments: we resolved the database choice to Postgres, need client sign-off on the retention policy, and author marked decisions as 'my call'.",
+      "expected_output": "Applies the review standard: once an item is resolved, move it to Decisions with evidence rather than leaving it as a question. Replaces 'my call' with one of the declared parties (Vendor, Client technical team, Client product owner team). Formats pending items in Sign-offs as 'Agree that...' rows with named approvers rather than open questions.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": [
+            "Resolved items leave the list",
+            "move it to Decisions",
+            "Decisions"
+          ],
+          "description": "Moves resolved items to Decisions table"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "declared parties",
+            "Vendor",
+            "Client technical team",
+            "Client product owner team"
+          ],
+          "description": "Restricts decision owners to declared parties"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "Agree that...",
+            "named person's agreement",
+            "sign-offs"
+          ],
+          "description": "Phrases pending sign-offs as agreements rather than questions"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Review this dataflow and module layout: the worker points arrows into Mixpanel and Salesforce, background jobs are grouped under a 'Schedule' module, and Auth and RBAC are drawn inside each microservice.",
+      "expected_output": "Corrects dataflow arrows to follow the direction of data flow (source -> job -> staging -> store), ensuring no arrow enters a system the design only reads from like Mixpanel. Enforces single-capability module boundaries without catch-alls like 'Schedule'. Consolidates authentication and authorization into one identity & access layer drawn once in front of all modules rather than duplicated.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": [
+            "direction of data flow",
+            "data movement",
+            "reads from"
+          ],
+          "description": "Enforces arrows represent data movement direction"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "catch-alls",
+            "one module per capability",
+            "Schedule"
+          ],
+          "description": "Rejects catch-all Schedule module in favor of single-capability modules"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "identity & access layer",
+            "drawn once",
+            "not duplicated"
+          ],
+          "description": "Draws authentication and authorization once in front of modules"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Prepare the architecture document for client export: ensure settings administration is clear and tables render correctly in docx.",
+      "expected_output": "States explicitly whether settings are hardcoded vendor config files or admin screens rather than leaving configuration implicit. Configures tables with fixed layout (w:tblLayout), content-based column widths, and repeated header rows (w:tblHeader) to prevent clipped cells, and requires authors to visually inspect rendered pages before delivery.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": [
+            "config files",
+            "admin screens",
+            "Configuration vs admin UI"
+          ],
+          "description": "Explicitly distinguishes config files from admin UI"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "fixed layout",
+            "w:tblLayout",
+            "repeat header row",
+            "w:tblHeader"
+          ],
+          "description": "Applies fixed table layout and repeating headers for docx export"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "visually inspect",
+            "visual inspection",
+            "before delivery"
+          ],
+          "description": "Requires visual inspection of rendered tables and diagrams before delivery"
+        }
+      ]
+    }
+  ],
+  "should_trigger": [
+    "draw the HLD for our new app and compare 3 ETL options",
+    "update the architecture doc after the engineering manager's comments",
+    "write a design document for the sales app",
+    "structure our high level design document according to the review standard",
+    "compare solution options for data ingestion in our architecture document"
+  ],
+  "should_not_trigger": [
+    "optimise this SQL query",
+    "write Go unit tests",
+    "review a PR diff",
+    "configure docker compose for local postgres",
+    "benchmark redis throughput"
+  ],
+  "pressure_scenarios": [
+    {
+      "prompt": "We discussed the caching strategy and decided on Redis, but let's keep the question 'Should we use Redis or Memcached?' in the Open Questions section just in case, along with several other questions for the client.",
+      "behavior_assertions": [
+        "move it to Decisions",
+        "Agree that...",
+        "Decisions"
+      ]
+    },
+    {
+      "prompt": "For the database selection decision, just put 'my call' or 'AI' as the decision maker since we picked it in this chat.",
+      "behavior_assertions": [
+        "declared parties",
+        "Vendor",
+        "NEVER \"my call\""
+      ]
+    },
+    {
+      "prompt": "In the dataflow diagram, draw an arrow pointing from the sync worker into Mixpanel and Salesforce to show that the worker queries their APIs.",
+      "behavior_assertions": [
+        "direction of data flow",
+        "NEVER draw an arrow entering a system the design only reads from",
+        "data movement"
+      ]
+    },
+    {
+      "prompt": "Group the data sync, reporting cron, cleanup script, and email sender into a single 'Schedule' module, and put separate Authentication and Authorization boxes inside each microservice.",
+      "behavior_assertions": [
+        "one module per capability",
+        "no catch-alls",
+        "identity & access layer"
+      ]
+    }
+  ],
+  "rationalizations": [
+    "Leaving open questions in sign-offs provides more context for reviewers.",
+    "Writing 'my call' is faster than mapping to formal stakeholder parties.",
+    "Arrows should point to whichever system the query request is sent to.",
+    "A 'Schedule' module is a convenient place to group background scripts.",
+    "Duplicating Auth and RBAC in every service makes each service look autonomous."
+  ],
+  "red_flags": [
+    "Keeping answered questions in the Open Items or Sign-offs section.",
+    "Using 'my call', 'AI', or author roles in the Decisions table.",
+    "Drawing arrows entering read-only source systems.",
+    "HLD diagram exceeding 15 boxes or lacking a top-to-bottom hierarchy.",
+    "Creating catch-all modules like 'Schedule', 'Common', or 'Manager'.",
+    "Duplicating authentication and authorization across multiple module boxes.",
+    "Comparing solution options using inconsistent diagram shapes or evaluation rows.",
+    "Shipping Word documents without fixed table layout and visual verification."
+  ]
+}

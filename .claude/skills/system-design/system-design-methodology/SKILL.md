@@ -61,6 +61,7 @@ Classify work mode, depth, and system surface independently. Load only the relev
 
 - HLD gives boundaries and decisions; LLD gives one component/flow's contract and behavior. Flow records link to the existing trace without expanding machine-readable fields.
 - Keep requirements, estimates, assumptions, missing evidence, ownership, and verification connected. A document or planned check is not runtime/deployment evidence.
+- Review document structure, option comparisons, and sign-offs follow [system-design-document](../system-design-document/SKILL.md).
 
 ## Design-to-Delivery Boundary
 

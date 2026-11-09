@@ -55,6 +55,7 @@ async function main() {
       },
       workflows: true, // Enable workflows for advanced sync test
       workflows_ref: 'main',
+      specialists_ref: 'main',
     };
 
     await fs.writeJson(path.join(TEMP_DIR, '.skillsrc'), mockConfig, {
@@ -139,6 +140,11 @@ async function main() {
   } finally {
     // Cleanup
     await fs.remove(TEMP_DIR);
+    try {
+      execSync(`git checkout -- "${TEMP_DIR}"`, { stdio: 'ignore' });
+    } catch {
+      // Ignore if not in a git repo
+    }
   }
 }
 
