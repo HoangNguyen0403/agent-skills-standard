@@ -484,6 +484,9 @@ async function generate() {
           workflows: collectedWorkflows,
           failures: [],
         },
+        // These canonical bodies were read from this checkout, so new catalog
+        // entries must not claim the configured registry/ref as acquisition.
+        workflowProvenance: 'local-authoring',
       });
       await MarkdownUtils.injectIndex(
         repoRoot,

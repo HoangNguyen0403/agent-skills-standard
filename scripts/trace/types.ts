@@ -3,12 +3,17 @@
 /** Requirement-ID kind understood by the trace graph. */
 export type IdKind = "BRD-OBJ" | "REQ" | "AC" | "SRS";
 
-/** Canonical grammar per kind: `^BRD-OBJ-\d{3,}$`, `^REQ-\d{3,}$`, `^AC-\d{2,}$`, `^SRS-\d{3,}$`. */
+/**
+ * Canonical formal grammar per kind:
+ * numeric `^P-\d{3,}$` (AC allows `\d{2,}$`) or uppercase namespaced `^P-[A-Z][A-Z0-9]*(?:-[A-Z][A-Z0-9]*)*-\d{2}$`.
+ * Namespaced ordinals are exactly two digits, so three-or-more-digit namespaced
+ * IDs stay in `QUALIFIED_ID_GRAMMAR` (historical sources); the sets are disjoint.
+ */
 export const ID_GRAMMAR: Record<IdKind, RegExp> = {
-  "BRD-OBJ": /^BRD-OBJ-\d{3,}$/,
-  REQ: /^REQ-\d{3,}$/,
-  AC: /^AC-\d{2,}$/,
-  SRS: /^SRS-\d{3,}$/,
+  "BRD-OBJ": /^BRD-OBJ-(?:\d{3,}|[A-Z][A-Z0-9]*(?:-[A-Z][A-Z0-9]*)*-\d{2})$/,
+  REQ: /^REQ-(?:\d{3,}|[A-Z][A-Z0-9]*(?:-[A-Z][A-Z0-9]*)*-\d{2})$/,
+  AC: /^AC-(?:\d{2,}|[A-Z][A-Z0-9]*(?:-[A-Z][A-Z0-9]*)*-\d{2})$/,
+  SRS: /^SRS-(?:\d{3,}|[A-Z][A-Z0-9]*(?:-[A-Z][A-Z0-9]*)*-\d{2})$/,
 };
 
 /**

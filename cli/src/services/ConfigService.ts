@@ -196,7 +196,7 @@ export class ConfigService {
     return null;
   }
 
-  private dumpConfig(config: Record<string, unknown>): string {
+  private dumpConfig(config: SkillConfig | Record<string, unknown>): string {
     return yaml.dump(config, {
       noRefs: true,
       lineWidth: -1,
@@ -1028,10 +1028,7 @@ export class ConfigService {
 
     this.assertValidSkillCategories(config.skills, primaryConfigPath);
 
-    await fs.outputFile(
-      primaryConfigPath,
-      this.dumpConfig(config as unknown as Record<string, unknown>),
-    );
+    await fs.outputFile(primaryConfigPath, this.dumpConfig(config));
 
     if (
       legacyYamlPath !== primaryConfigPath &&

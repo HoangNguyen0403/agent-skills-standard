@@ -280,43 +280,63 @@ test("run() fails on a slug with source mapping kind mismatch", () => {
   assert.ok(parsed.issues.some((i: { code: string }) => i.code === "mismatched-kind"));
 });
 
-test("run() fails on a slug when mapped source ID has an undersized numeric suffix", () => {
+test("run() passes --required on canonical namespaced two-digit REQ and AC declarations", () => {
   const root = writeRoot({
-    "docs/brd/brd-alias-smoke.md": [
-      "# Brief: Alias smoke",
+    "docs/brd/brd-namespaced.md": "# BRD\n\n# BRD-OBJ-CT-01 Objective\n",
+    "docs/prd/prd-namespaced.md": [
+      "# PRD",
       "",
-      "| Req ID | Requirement |",
-      "| --- | --- |",
-      "| REQ-PILOT-01 | Preserve bytes. |",
-      "",
-      "| AC ID | Acceptance group |",
-      "| --- | --- |",
-      "| AC-PILOT-001 | Preserve successful and rejected input behavior. |",
-      "",
-    ].join("\n"),
-    "docs/prd/prd-alias-smoke.md": [
-      "# Plan: Alias smoke",
-      "",
-      "| Req ID | Source | Requirement |",
+      "| Req ID | Requirement | BRD |",
       "| --- | --- | --- |",
-      "| REQ-001 | REQ-PILOT-01 | Preserve bytes. |",
+      "| REQ-CT-01 | Do the thing | BRD-OBJ-CT-01 |",
       "",
-      "| AC ID | Source group | Req ID | Acceptance |",
-      "| --- | --- | --- | --- |",
-      "| AC-001 | AC-PILOT-001 | REQ-001 | Accepted bytes are retained. |",
-      "| AC-002 | AC-PILOT-001 | REQ-001 | Rejected bytes do not change storage. |",
+      "| AC ID | Linked Req |",
+      "| --- | --- |",
+      "| AC-CT-01 | REQ-CT-01 |",
       "",
-      "Coverage references: AC-001, AC-002.",
+      "Coverage references: AC-CT-01.",
       "",
     ].join("\n"),
   });
 
-  const res = run(["--root", root, "--slug", "alias-smoke", "--json"]);
+  const res = run(["--root", root, "--slug", "namespaced", "--required", "--json"]);
+  assert.equal(res.exitCode, 0);
+  const parsed = JSON.parse(res.output);
+  assert.equal(parsed.ok, true);
+  assert.deepEqual(parsed.issues.filter((i: { severity: string }) => i.severity === "error"), []);
+});
+
+test("run() --required cannot be satisfied by IDs that only appear in recognized source contexts", () => {
+  const root = writeRoot({
+    "docs/brd/brd-source-only.md": [
+      "# BRD",
+      "",
+      "| Capability | Candidate requirement | Rationale |",
+      "| --- | --- | --- |",
+      "| Setup | REQ-CT-01 | canonical-looking historical source |",
+      "",
+    ].join("\n"),
+    "docs/prd/prd-source-only.md": [
+      "# PRD",
+      "",
+      "| Source group | Rationale |",
+      "| --- | --- |",
+      "| AC-CT-01 | canonical-looking source-only row |",
+      "",
+    ].join("\n"),
+  });
+
+  const res = run(["--root", root, "--slug", "source-only", "--required", "--json"]);
   assert.equal(res.exitCode, 1);
   const parsed = JSON.parse(res.output);
   assert.equal(parsed.ok, false);
-  const malformed = parsed.issues.find((i: { code: string; id?: string }) => i.code === "malformed-id" && i.id === "REQ-PILOT-01");
-  assert.ok(malformed, "must report malformed-id for REQ-PILOT-01");
+  assert.ok(codes(parsed).includes("empty-scope"), "source-context IDs must not create canonical requirement scope");
+  assert.ok(
+    parsed.issues.some(
+      (issue: { code: string; id?: string }) => issue.code === "malformed-id" && issue.id === "REQ-CT-01",
+    ),
+    "the invalid historical source must retain its diagnostic",
+  );
 });
 
 test("run() exits 0 when bold diagnostic prose precedes namespace family references", () => {

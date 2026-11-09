@@ -62,6 +62,44 @@ test("validateRunRecord rejects a non-conforming REQ id even without wildcard", 
   assert.ok(issues.some((issue) => /does not match/.test(issue.message)));
 });
 
+test("validateRunRecord accepts approved namespaced two-digit formal IDs", () => {
+  const record = validRecord({
+    requirement_trace: {
+      brd_objectives: ["BRD-OBJ-CT-01"],
+      requirements: ["REQ-CT-01"],
+      acceptance_criteria: ["AC-CT-12"],
+      srs: ["SRS-CT-01"],
+    },
+  });
+  assert.deepEqual(validateRunRecord(record, "fixture.json"), []);
+});
+
+test("validateRunRecord rejects historical, lowercase, undersized, and wrong-kind namespaced IDs", () => {
+  const cases: [keyof RunRecord["requirement_trace"], string][] = [
+    ["requirements", "REQ-DISC-001"],
+    ["requirements", "REQ-CT-001"],
+    ["requirements", "REQ-CT-1"],
+    ["requirements", "REQ-ct-01"],
+    ["acceptance_criteria", "REQ-CT-01"],
+    ["requirements", "AC-CT-01"],
+  ];
+  for (const [field, id] of cases) {
+    const record = validRecord({
+      requirement_trace: {
+        brd_objectives: ["BRD-OBJ-001"],
+        requirements: field === "requirements" ? [id] : ["REQ-001"],
+        acceptance_criteria: field === "acceptance_criteria" ? [id] : ["AC-001"],
+        srs: ["SRS-001"],
+      },
+    });
+    const issues = validateRunRecord(record, "fixture.json");
+    assert.ok(
+      issues.some((issue) => issue.message.includes(`requirement_trace.${field} id "${id}" does not match`)),
+      `${id} in ${field} must be rejected`,
+    );
+  }
+});
+
 test("validateRunRecord rejects cost.source unavailable with estimated_usd present", () => {
   const record = validRecord({ cost: { source: "unavailable", estimated_usd: 1.5 } });
   const issues = validateRunRecord(record, "fixture.json");

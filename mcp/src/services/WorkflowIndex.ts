@@ -117,17 +117,37 @@ function catalogError(catalog: unknown): string | null {
     if (typeof entry.digest !== "string" || !DIGEST_RE.test(entry.digest)) {
       return `workflow '${name}' has an invalid digest`;
     }
-    if (
-      typeof entry.registry !== "string" ||
-      typeof entry.requestedRef !== "string"
-    ) {
-      return `workflow '${name}' has invalid provenance`;
-    }
-    if (
-      entry.resolvedCommit !== null &&
-      typeof entry.resolvedCommit !== "string"
-    ) {
-      return `workflow '${name}' has an invalid resolved commit`;
+    if (Object.prototype.hasOwnProperty.call(entry, "provenance")) {
+      if (
+        Object.prototype.hasOwnProperty.call(entry, "registry") ||
+        Object.prototype.hasOwnProperty.call(entry, "requestedRef") ||
+        Object.prototype.hasOwnProperty.call(entry, "resolvedCommit")
+      ) {
+        return `workflow '${name}' mixes local provenance with remote fields`;
+      }
+      const provenance = entry.provenance as unknown;
+      if (
+        !provenance ||
+        typeof provenance !== "object" ||
+        Array.isArray(provenance) ||
+        Object.keys(provenance as Record<string, unknown>).length !== 1 ||
+        (provenance as Record<string, unknown>).kind !== "local-authoring"
+      ) {
+        return `workflow '${name}' has invalid local provenance`;
+      }
+    } else {
+      if (
+        typeof entry.registry !== "string" ||
+        typeof entry.requestedRef !== "string"
+      ) {
+        return `workflow '${name}' has invalid provenance`;
+      }
+      if (
+        entry.resolvedCommit !== null &&
+        typeof entry.resolvedCommit !== "string"
+      ) {
+        return `workflow '${name}' has an invalid resolved commit`;
+      }
     }
     if (!Array.isArray(entry.nativeBindings)) {
       return `workflow '${name}' has no native bindings array`;

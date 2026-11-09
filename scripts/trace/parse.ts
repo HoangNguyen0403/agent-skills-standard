@@ -172,6 +172,7 @@ function scanFile(content: string, fromFile: string): { refs: TraceRef[]; mappin
     const idFieldStart = idFieldValueStart(line);
     const bulletLeadMatch = line.match(/^\s*[-*]\s+\*\*([A-Za-z0-9_-]+)/);
     const bulletLeadId = bulletLeadMatch ? bulletLeadMatch[1] : undefined;
+    const isBulletMapping = /^\s*[-*]\s+\*\*[A-Za-z0-9_-]+\s*(?:→|->)/.test(line);
     const rowCellSpans = isTableRow ? tableCellSpans(line) : undefined;
     const rowCells = rowCellSpans?.map((span) => span.text);
 
@@ -228,6 +229,9 @@ function scanFile(content: string, fromFile: string): { refs: TraceRef[]; mappin
         role = "declaration";
       } else if (bulletLeadId && match.index === line.indexOf(bulletLeadId)) {
         role = "declaration";
+        if (isBulletMapping) {
+          isMappedSource = (kind === "REQ" || kind === "AC") && !/^(?:REQ|AC)-\d/.test(id);
+        }
       } else if (currentTable && currentTable.formalCol !== undefined && rowCellSpans) {
         const formalSpan = rowCellSpans[currentTable.formalCol];
         const sourceSpan = currentTable.sourceCol === undefined ? undefined : rowCellSpans[currentTable.sourceCol];
@@ -263,11 +267,13 @@ function scanFile(content: string, fromFile: string): { refs: TraceRef[]; mappin
         }
       }
 
-      // Declarations and mapped rows require a canonical id: AC terminal suffix >=2 digits,
-      // BRD-OBJ/REQ/SRS >=3 digits, or a qualified historical id
-      // Prose references can reference declared qualified namespace prefixes (e.g. REQ-DISC)
-      const valid =
-        role === "declaration" || isMappedSource
+      // Source context has priority: a mapped/recognized historical source must be a
+      // qualified >=3-digit source ID even when its text matches canonical formal grammar.
+      // Declarations accept canonical formal or historical source IDs; prose references may
+      // also name a declared qualified namespace prefix (e.g. REQ-DISC).
+      const valid = isMappedSource
+        ? isQualifiedId
+        : role === "declaration"
           ? isFormal || isQualifiedId
           : isFormal || isQualifiedId || isQualifiedNs;
       const qualified = (isQualifiedId || (!isMappedSource && role === "reference" && isQualifiedNs)) && !isFormal;
