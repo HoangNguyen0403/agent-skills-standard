@@ -490,12 +490,12 @@
     },
     "common": {
       "version": "2.9.6",
-      "last_updated": "2026-11-06",
+      "last_updated": "2026-11-09",
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 47,
-        "total_tokens": 50708,
-        "avg_tokens_per_skill": 1079,
+        "total_tokens": 51171,
+        "avg_tokens_per_skill": 1089,
         "largest_skill": "common-subagent-driven-development (2563 tokens)"
       },
       "owners": [

@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Common (Evidence-Backed Guardrail Assurance, Category v2.9.6)**: Updated `common-agent-guardrails` and `common-llm-security` with portable guidance and demand-loaded references for the five evaluation checkpoints, authority lifecycle states, incremental human evaluation rubrics, and comparison protocol.
 - **Static offline architecture diagram export (`common-architecture-diagramming`)**: Added standalone `export_html.py`, which packages an architecture diagram spec into a self-contained local bundle (`spec.json`, light/dark `.drawio`, `index.html`) with embedded base64 PNGs and a strict CSP, so the diagram opens with no network access and no page scripts.
 - **Evidence-based N+1 query amplification diagnostic fixture (`database-query-performance`, `database` `1.4.2`)**: Added a real local SQLite smoke fixture and test suite (`scripts/nplus1_smoke.py`, `scripts/test_nplus1_smoke.py`) that shows executable high fan-out versus aggregate query shapes rather than asserting fan-out in prose. Conceptual distinctions stay in `references/nplus1-diagnosis.md`.
 - **System design data architecture and review guidance (`system-design`, `system-design` `1.2.6`)**: Added N+1 query amplification mitigation guidance in database scaling references, updated mistake tables, and aligned semantic evaluation criteria.
