@@ -92,3 +92,4 @@ manual edits by default. Use `--acknowledge-manual-edits` only after returning s
 - [C4 model](references/c4-model.md) · [Cloud](references/cloud-architecture.md) · [Best practices](references/best-practices.md)
 - [Layout rules](references/layout-rules.md) · [Checklist](references/checklist.md) · [Export paths and Mermaid fallback](references/mermaid-fallback.md) · [Offline export](references/offline-export.md)
 - Batch or delegated drawing: `specialist-solution-diagrammer`.
+- HLD document structure and reviewer standards: [system-design-document](../../system-design/system-design-document/SKILL.md).

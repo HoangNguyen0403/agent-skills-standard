@@ -1,6 +1,12 @@
 <!-- AUTO-GENERATED from SKILL.md frontmatters — do not edit manually -->
 # system-design Skills Index
 
+## File Match (auto-check against the file you are editing)
+
+| Skill | File pattern | Keywords |
+| ----- | ------------ | -------- |
+| **system-design-document** | `docs/**/*-design.md`, `docs/superpowers/specs/*.md` | hld, high level design, architecture document, design document, solution options, option comparison, etl options, architecture review comments |
+
 ## Keyword Match (only when user's request mentions these)
 
 | Skill | Match when user mentions |
