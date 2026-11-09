@@ -1,9 +1,9 @@
 # Runtime Adapters
 
-The policy in `guardrails-template.yaml` is runtime-neutral. Each host enforces it through its own
-interception point. Map every populated policy entry to one of the rows below; a class with no
-adapter on the current host is not enforced, and must be reported as unenforced rather than assumed.
-
+The policy in `guardrails-template.yaml` is runtime-neutral. The table below lists potential
+host integration locations, not installed or effective proof. Missing verification or mapping on
+a host means enforcement is unknown, not absent capability. Only a confirmed, tested route that fails
+to intercept the attempted action establishes that the control is unenforced for that route.
 ## Interception Points
 
 | Host | Before a tool runs | After an edit | Policy location |
@@ -33,8 +33,18 @@ Hosts differ in how they signal a decision. Normalize to the three outcomes in t
 - Subagents and background runs may not inherit project hooks. Confirm inheritance, or enforce the same class in CI where the work lands.
 - For untrusted-workspace review, distinguish declared policy from observed/verified behavior and report unknown or untested routes as unavailable or not run. A scan result is not install-safety or isolation evidence; see [admission guidance](untrusted-workspace-admission.md).
 
+## Five-Checkpoint Assurance Map
+
+A complete guardrail review evaluates five distinct checkpoints across the agent lifecycle. Each checkpoint has an authoritative teaching owner that defines guidelines and an actual enforcement owner that executes restrictions.
+
+| Checkpoint | Description | Teaching Owner | Actual Enforcement Owner | Applicable Routes | Limitations & Evidence State |
+| --- | --- | --- | --- | --- | --- |
+| 1. Input | Direct user prompts, task instructions, attachments | [common-llm-security](../../common-llm-security/SKILL.md) | Client / Host UI & Host API ingress filters | Prompt ingestion, user turn, API ingress | Delimiters/prompts are structural cues, not host containment; client/host API enforcement remains unverified unless observed. |
+| 2. Retrieval | RAG context, local search/read, web/MCP fetches | [common-llm-security](../../common-llm-security/SKILL.md) | Tool runtime, local environment, egress proxy | Filesystem reads, MCP transport, outbound HTTP | Tool content is untrusted data; static scanning or retrieval filters do not guarantee runtime isolation or egress prevention. |
+| 3. Tool Calls | Agent tool executions, file edits, shell commands | [common-agent-guardrails](../SKILL.md) | Host interception hooks (`PreToolUse`), OS/container sandbox | Native tools, subshell/bash, spawned descendants | Hooks enforce only mapped tools; alternate execution paths, subagents, or unintercepted descendants require explicit verification. |
+| 4. Output | LLM responses, file writes, outbound network | [common-llm-security](../../common-llm-security/SKILL.md) | Host egress filters, downstream sink parameterization, DOM escaping | LLM response stream, file modification, API egress | Schema validity and redaction do not reverse prior leakage; output handling cannot substitute for upstream execution blocks. |
+| 5. Human Approval | Production deployment, migration, privilege escalation | [untrusted-workspace-admission](untrusted-workspace-admission.md) | Host approval channel, independent human operator | Production commands, irreversible actions, policy changes | Agent permission responses or self-approvals cannot satisfy human-only gates; host approval UI must be independently verified. |
+
 ## Verification
 
-For each enforced class, keep one reproducible check: attempt the forbidden action, capture the
-block output, and store it as the control's evidence. Re-run the checks whenever the policy or the
-host configuration changes; an unverified guardrail is a claim, not a control.
+For each enforced class, keep one reproducible check: attempt the forbidden action, capture the block output, and store it as the control's evidence using the [admission reporting conventions and evidence states](untrusted-workspace-admission.md#report-do-not-overclaim) (declared, observed, verified, unavailable, failed, not run). Distinguish direct subprocess results (e.g. executing a standalone hook script) from actual host-interception proof across all entry routes. Re-run checks whenever policy or host configuration changes; an unverified guardrail is an unverified claim, not an active control. For concrete examples of declared-only and direct-hook evidence assessments, see the [illustrative assessment records](untrusted-workspace-admission.md#illustrative-assessment-records).
