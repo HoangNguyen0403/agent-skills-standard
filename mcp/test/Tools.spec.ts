@@ -766,3 +766,33 @@ describe("tools — product evidence & PM routing", () => {
     );
   });
 });
+
+describe("tools — system-design category guide & architecture role routing", () => {
+  it("serves the system-design category guide from the canonical registry", async () => {
+    const registrySkillsDir = path.resolve(__dirname, "../../skills");
+    const ctx = await makeCtx(registrySkillsDir);
+
+    const out = await getCategoryGuide({ category: "system-design" }, ctx);
+    const body = text(out);
+
+    expect(body).toContain("# Category Guide: system-design");
+    expect(body).toContain("specialist-system-architect");
+    expect(body).toContain("design-solution");
+  });
+
+  it("routes broad system architect keyword queries through loadSkillsForKeywords", async () => {
+    const registrySkillsDir = path.resolve(__dirname, "../../skills");
+    const ctx = await makeCtx(registrySkillsDir);
+
+    const out = await loadSkillsForKeywords(
+      { keywords: ["system architect"] },
+      ctx,
+    );
+    const body = text(out);
+
+    expect(body).toContain("skill: system-design/system-design-methodology");
+    expect(body).not.toContain(
+      "skill: specialists/specialist-system-architect",
+    );
+  });
+});

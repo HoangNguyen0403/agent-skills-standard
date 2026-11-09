@@ -65,7 +65,7 @@ See [implementation examples](references/implementation.md) for dependency flow 
 
 - **Design Docs**: Write specs before major implementations.
 - **Versioning**: Version APIs/schemas for backward compatibility.
-- **Extensibility**: Use Strategy/Factory for future changes.
+- **Extensibility**: Introduce Strategy/Factory or similar abstraction only when concrete variation, multi-tenant divergence, or an explicit plugin boundary exists. Hypothetical future extension alone does not justify abstraction layers.
 
 ## References
 
@@ -76,4 +76,4 @@ See [implementation examples](references/implementation.md) for dependency flow 
 
 - **No god classes**: Single Responsibility — one reason to change per module.
 - **No blanket synchronous-coupling ban**: choose synchronous, asynchronous, or hybrid communication from the boundary's consistency, latency, failure, and coupling requirements. A bounded synchronous transaction can protect an immediate invariant; independent notifications may remain asynchronous. State the trade-offs and failure behavior.
-- **No premature abstraction**: Design for current load; scale when proven needed.
+- **No premature abstraction**: Design for current requirements and proven load; introduce abstraction patterns (e.g. Strategy/Factory) when concrete variation, multi-vendor/tenant divergence, or an explicit plugin/change boundary exists, rather than for speculative future extension. Conversely, do not ban valid abstractions when concrete variation justifies them.

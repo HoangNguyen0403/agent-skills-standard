@@ -17,8 +17,7 @@ metadata:
 # Capacity Estimation
 
 ## **Priority: P1 (HIGH)**
-
-Estimate before you architect. One order of magnitude decides cache, shard, and queue choices.
+Estimate decision-relevant quantities before you architect. One order of magnitude decides cache, shard, and queue choices. Scope estimation strictly to the surface: estimate capacity for backend/data paths, memory/battery/network bounds for client/mobile, and call rates/buffers for SDKs; do not compute or demand irrelevant metrics for stateless, client, or SDK components.
 
 ## Core Formulas
 
@@ -32,11 +31,10 @@ Estimate before you architect. One order of magnitude decides cache, shard, and 
 ## Method
 
 1. Round every input to one significant figure. Precision here is false precision.
-2. Compute average, then peak, then storage, then bandwidth, then memory.
-3. Compare each result to a known ceiling from [estimation numbers](references/estimation-numbers.md): single-node QPS, disk IOPS, NIC throughput, RAM per instance.
-4. Name the **shaping quantity** - the first number that breaks a single-node ceiling. It dictates the first component added in high-level design.
+2. Compute only decision-relevant quantities for the component's surface (for backend/data paths: average/peak rates, storage, bandwidth, memory; for client/device: storage/memory limits, network/battery budgets; for SDKs: call rate, concurrency, buffer bounds).
+3. Compare each calculated quantity to known ceilings from [estimation numbers](references/estimation-numbers.md) (single-node QPS, disk IOPS, NIC throughput, RAM per instance) or relevant client/device/platform bounds.
+4. Name the **shaping quantity** — the primary quantity that breaks a single-node or local resource ceiling, when one exists. It dictates where scale or partitioning mechanisms must be introduced.
 5. Restate every assumed input beside the result so a wrong assumption is visible, not buried.
-
 ## Cost
 
 - Convert the sized capacity into monthly spend before recommending it: compute, storage plus egress, managed-service premiums, and the multiplier any redundancy applies.
@@ -54,16 +52,16 @@ Estimate before you architect. One order of magnitude decides cache, shard, and 
 
 ## Anti-Patterns
 
-- **No design before numbers**: never pick a database or cache before QPS and storage exist.
+- **No design before numbers**: never choose persistent storage, caching, or partitioning components before the quantities governing their selection exist (e.g., QPS and data volume for a backend store; memory/disk bounds and eviction rate for a client cache). Do not fabricate or demand irrelevant backend traffic or storage metrics for stateless, client, or SDK designs.
 - **No average-only sizing**: capacity is provisioned for peak, cost is modeled on average.
 - **No hidden units**: state units and time windows on every number (QPS, GB/day, GB/year).
 - **No unverified precision**: do not report 4,873 QPS from an assumed DAU; report ~5k QPS.
 
 ## Verify
 
-- [ ] Average and peak QPS both stated, with the peak factor named
-- [ ] Storage projected over the retention window including replication
-- [ ] Shaping quantity identified and mapped to a design consequence
+- [ ] Decision-relevant quantities for the surface computed and bounded (e.g., average/peak QPS for data paths; memory/storage bounds for client caches; call rates/buffers for SDKs)
+- [ ] Storage projected over the retention window including replication when persistent state exists
+- [ ] Shaping quantity identified and mapped to a design consequence when scaling or resource ceilings are reached
 - [ ] Every assumed input labeled beside the result
 
 ## References
