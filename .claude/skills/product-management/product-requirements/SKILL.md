@@ -73,9 +73,9 @@ metadata:
 
 - [Full PRD Template](references/prd-template.md)
 - [Requirements Modeling](references/requirements-modeling.md)
+- [Feature Slicing](references/feature-slicing.md)
 - [Validation Checklist](references/checklist.md)
 - [Requirements Baseline](../../common/common-software-requirements/references/requirements-standards-baseline.md)
-
 ## Ownership checklist
 
 - Record the Product owner, Engineering owner, and QA/release owner for every requirement or release decision.
