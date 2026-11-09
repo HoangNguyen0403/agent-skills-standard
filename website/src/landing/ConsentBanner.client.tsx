@@ -34,23 +34,28 @@ export function ConsentBanner(): React.JSX.Element | null {
             </h2>
             <p className={styles.body}>
               Analytics collection is <strong>disabled by default</strong>. If
-              you choose to opt in, Google Analytics 4 (via Google tag) is loaded
-              to measure four explicit user actions: demo playback, command
-              copy, setup documentation links, and GitHub repository links.
+              you choose to opt in, Google Analytics 4 (via Google tag) is
+              loaded to measure four explicit user actions: demo playback,
+              command copy, setup documentation links, and GitHub repository
+              links.
             </p>
             <p className={styles.body}>
-              Google sets session-only analytics cookies (<code>cookie_expires: 0</code>,{" "}
-              <code>cookie_domain: &apos;none&apos;</code>) and processes your browser IP
-              address, User-Agent, and session identifiers. Advertising features,
-              Google Signals, and ad personalization are disabled. We do{" "}
-              <strong>not</strong> claim completely anonymous or identifier-free
-              operation, as browser and network metadata are processed by Google.
-              See{" "}
+              Google sets session-only analytics cookies (
+              <code>cookie_expires: 0</code>,{" "}
+              <code>cookie_domain: &apos;none&apos;</code>) and processes your
+              browser IP address, User-Agent, and session identifiers.
+              Advertising features, Google Signals, and ad personalization are
+              disabled. We do <strong>not</strong> claim completely anonymous or
+              identifier-free operation, as browser and network metadata are
+              processed by Google. See{" "}
               <a
                 href="https://policies.google.com/privacy"
                 target="_blank"
                 rel="noreferrer noopener"
-                style={{ color: "var(--lime, #c7f36b)", textDecoration: "underline" }}
+                style={{
+                  color: "var(--lime, #c7f36b)",
+                  textDecoration: "underline",
+                }}
               >
                 Google Privacy Policy
               </a>{" "}
@@ -59,12 +64,15 @@ export function ConsentBanner(): React.JSX.Element | null {
                 href="https://support.google.com/analytics/answer/6004245"
                 target="_blank"
                 rel="noreferrer noopener"
-                style={{ color: "var(--lime, #c7f36b)", textDecoration: "underline" }}
+                style={{
+                  color: "var(--lime, #c7f36b)",
+                  textDecoration: "underline",
+                }}
               >
                 Google Analytics Data Privacy
               </a>{" "}
-              for vendor processing details. You may withdraw consent at any time
-              to immediately disable collection and remove session cookies.
+              for vendor processing details. You may withdraw consent at any
+              time to immediately disable collection and remove session cookies.
             </p>
           </div>
 

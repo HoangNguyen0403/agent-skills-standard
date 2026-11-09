@@ -78,3 +78,11 @@ to physical shards. Growth moves buckets, never keys, and the mapping is small e
 - For CDC plus backfill, fence stale backfill against source versions, checkpoint resumably, bound and observe lag, compare parity, and define cutover/rollback gates before switching authority or reads.
 - Treat deletion, retention, schema migration, restore, and expiry as flow-wide lifecycle events: identify affected derived copies and clients, propagation/verification, and the path that prevents stale replay or resurrection.
 - Add a saga, specialized store, queue, or strong-consistency mechanism only when the operation's boundary and failure model require it. Name the invariant and recovery behavior; preserve simple transactional or stateless paths where sufficient.
+
+## Query Amplification and Access Patterns
+
+Before scaling a database with read replicas, sharding, or caching, diagnose query amplification:
+- **Identify pattern**: static code loops, serializer/template lazy loads, per-record aggregates, or GraphQL resolver fan-out.
+- **Evidence classification**: code-only evidence is `suspected`; architectural proposals are `design risk`; runtime telemetry/traces are `observed`.
+- **Bounded remedies**: see [N+1 Diagnosis & Remedies](../../../database/database-query-performance/references/nplus1-diagnosis.md). Prefer aggregate pushdown (`GROUP BY`), bounded batch lookups ($Q_{base} + R \cdot \lceil N / B \rceil$), or request-scoped DataLoaders.
+- **Invariants**: preserve parent pagination (`LIMIT`/`OFFSET`), tenant isolation predicates, empty collections, and deterministic ordering. Reject blanket giant JOINs that inflate memory and break pagination.

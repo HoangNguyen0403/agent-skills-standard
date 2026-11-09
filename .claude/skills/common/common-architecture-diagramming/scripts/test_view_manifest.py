@@ -436,6 +436,72 @@ class TestManifest(unittest.TestCase):
         self.assertEqual(report.review_needed, ())
 
 
+    def test_capture_sink_records_exact_canonical_view_bytes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            view_file = write_json(root, "context.json", spec(
+                [node("api", "orders.api"), node("db", "orders.db")],
+                [edge("orders.reads", "api", "db")],
+            ))
+            manifest = self.manifest(root, [{
+                "id": "context", "spec": "context.json",
+                "scope": ["orders.api", "orders.db"],
+            }])
+            captures: dict[str, str] = {}
+            report = validate_manifest.validate_manifest(manifest, captures=captures)
+            expected = "sha256:" + hashlib.sha256(view_file.read_bytes()).hexdigest()
+        self.assertEqual(report.errors, ())
+        self.assertEqual(report.review_needed, ())
+        self.assertEqual(captures, {"context": expected})
+
+    def test_capture_sink_binds_the_payload_parsed_not_a_later_file_state(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            view_file = write_json(root, "context.json", spec(
+                [node("api", "orders.api"), node("db", "orders.db")],
+                [edge("orders.reads", "api", "db")],
+            ))
+            manifest = self.manifest(root, [{
+                "id": "context", "spec": "context.json",
+                "scope": ["orders.api", "orders.db"],
+            }])
+            parsed_bytes = view_file.read_bytes()
+            swaps: list[bytes] = []
+            real_read_bounded = validate_manifest._read_bounded
+
+            def swap_after_read(root_fd, parts, label):
+                payload = real_read_bounded(root_fd, parts, label)
+                if parts == ("context.json",) and not swaps:
+                    swaps.append(payload)
+                    view_file.write_bytes(b'{"title": "changed after canonical read"}')
+                return payload
+
+            captures: dict[str, str] = {}
+            with mock.patch.object(
+                validate_manifest, "_read_bounded", side_effect=swap_after_read
+            ):
+                report = validate_manifest.validate_manifest(manifest, captures=captures)
+            on_disk = view_file.read_bytes()
+        self.assertEqual(swaps, [parsed_bytes])
+        self.assertNotEqual(on_disk, parsed_bytes)
+        self.assertEqual(report.errors, ())
+        self.assertEqual(
+            captures, {"context": "sha256:" + hashlib.sha256(parsed_bytes).hexdigest()}
+        )
+
+    def test_capture_sink_omits_views_that_were_never_parsed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "specdir").mkdir()
+            manifest = self.manifest(root, [{
+                "id": "directory", "spec": "specdir",
+                "scope": ["orders.api"], "relationships": [],
+            }])
+            captures: dict[str, str] = {}
+            report = validate_manifest.validate_manifest(manifest, captures=captures)
+        self.assertTrue(report.errors)
+        self.assertEqual(captures, {})
+
     def test_manifest_rejects_parent_path_without_opening_it(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

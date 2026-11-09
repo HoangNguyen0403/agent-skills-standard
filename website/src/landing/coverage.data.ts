@@ -97,8 +97,7 @@ interface ParsedSkill {
 }
 
 /** Canonical `skills/_INDEX.md` line: `- **[category/skill]**: description`. */
-const SKILL_LINE =
-  /^-\s+\*\*\[([^/]+)\/([^\]]+)\]\*\*:\s*(?:🚨\s*)?(.+)$/;
+const SKILL_LINE = /^-\s+\*\*\[([^/]+)\/([^\]]+)\]\*\*:\s*(?:🚨\s*)?(.+)$/;
 
 function parseSkillIndex(
   category: string,
@@ -235,7 +234,9 @@ function formatSkillName(skillId: string, category: LeafCategoryId): string {
   return base
     .split("-")
     .map((word) =>
-      ACRONYMS[word] ? word.toUpperCase() : word.charAt(0).toUpperCase() + word.slice(1),
+      ACRONYMS[word]
+        ? word.toUpperCase()
+        : word.charAt(0).toUpperCase() + word.slice(1),
     )
     .join(" ");
 }
@@ -361,7 +362,10 @@ export const QUALITY_ENGINEERING_COVERAGE: readonly CoverageItem[] =
   );
 
 interface CrossCuttingDefinition {
-  readonly id: Extract<CategoryId, "common" | "system-design" | "cybersecurity">;
+  readonly id: Extract<
+    CategoryId,
+    "common" | "system-design" | "cybersecurity"
+  >;
   readonly name: string;
   /** Representative canonical skill whose description introduces the category. */
   readonly baseSkill: string;
@@ -387,11 +391,7 @@ const CROSS_CUTTING_TAXONOMY: readonly CrossCuttingDefinition[] = [
 
 export const CROSS_CUTTING_COVERAGE: readonly CoverageItem[] =
   CROSS_CUTTING_TAXONOMY.map((definition) =>
-    categoryCoverageItem(
-      definition.id,
-      definition.name,
-      definition.baseSkill,
-    ),
+    categoryCoverageItem(definition.id, definition.name, definition.baseSkill),
   );
 
 assertRegistryConsistency();

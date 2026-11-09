@@ -3,7 +3,7 @@ import {
   EXACT_GA4_TAG_SRC,
   EXACT_GA4_COLLECT_ENDPOINTS,
   FIXED_PAGE_TITLE,
-} from './ga4-predicate.mjs';
+} from "./ga4-predicate.mjs";
 
 /**
  * GA4 configuration and enablement gate.
