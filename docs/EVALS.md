@@ -390,3 +390,24 @@ Completed transcripts and generated scores remain immutable. Backfilled `inputs.
 `pnpm evals:report` retains every physical run in `benchmarks/evals/history.json` and `benchmarks/evals/archive/`, then projects an `all` run into its category partitions before selecting the newest complete partition per category.
 
 Do not publish a pending run, hand-edit scores, or edit exported workflow copies independently of `.agents/workflows/evals-run.md`.
+
+## L3 Executable Skill Evaluator (Standalone CLI)
+
+The L3 evaluator (`scripts/evals/l3/index.ts`) provides bounded executable evaluation under the `artifact-v1` protocol:
+
+```bash
+# Strict frozen manifest validation (fails closed unless --allow-trusted-staging is explicitly passed)
+pnpm evals:l3 validate --manifest <path/to/manifest.json> [--allow-trusted-staging]
+
+# Host authority verification and build preflight check (requires independent host grant)
+pnpm evals:l3 build --manifest <path/to/manifest.json> --grant <path/to/host-grant.json>
+
+# Staged attempt execution and atomic terminal receipt publication
+pnpm evals:l3 run --manifest <path/to/manifest.json> --grant <path/to/host-grant.json> [--runs-dir <output/dir>]
+```
+
+### Invariants
+- `validate` operates entirely offline, performs D1 structural and filesystem validation, and fails closed without silent fallback if descriptor-anchored traversal is unavailable unless `--allow-trusted-staging` is explicitly supplied.
+- `build` and `run` require independent host authority grants supplied outside the manifest via `--grant <path>`; self-granting from manifest fields is forbidden.
+- Without live D5 hypervisor execution, `build` and `run` engage D2 runtime adapter preflight. `build` stages `runs/<run_id>/build/` and publishes `build-receipt.json`; `run` stages an exclusive attempt directory (`runs/<run_id>/<attempt_id>/`), publishes an atomic terminal receipt (`preflight_failed` or `infrastructure_error`), and removes the `interrupted.json` marker. Both exit non-zero. `build` then `run` on the same manifest never collides. Overwriting existing attempt directories, build directories, or receipts is strictly refused.
+- Reviewer bundle export blinds all protocol arms (`A0`, `A1`, `A2`), machine paths, and structured verdict/reason metadata. It returns only scrubbed views plus exact per-artifact SHA-256 digests and byte counts; no raw artifact bytes leave the manager, so arm labels and host paths cannot leak through the export.

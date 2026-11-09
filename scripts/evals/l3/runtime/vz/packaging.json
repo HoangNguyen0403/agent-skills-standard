@@ -1,0 +1,267 @@
+{
+  "schema_version": 1,
+  "binary_name": "l3vz",
+  "topology": "apple-vz-direct-arm64",
+  "arch": "aarch64",
+  "source": "Runner.swift",
+  "entitlements": "Runner.entitlements",
+  "swiftc": {
+    "target": "arm64-apple-macos14.0",
+    "flags": [
+      "-O",
+      "-whole-module-optimization"
+    ],
+    "frameworks": [
+      "Virtualization",
+      "Foundation"
+    ]
+  },
+  "guest_programs": {
+    "controller": {
+      "guest_path": "/opt/l3/controller.mjs",
+      "source": "../guest/controller-main.ts",
+      "launcher": "imports ./runtime/guest/controller-main.js (emitted modules stay at their relative-import locations)",
+      "runtime": "node",
+      "node_flags": [
+        "--no-warnings",
+        "--enable-source-maps"
+      ]
+    },
+    "collector": {
+      "guest_path": "/opt/l3/collector.mjs",
+      "source": "../guest/collector-main.ts",
+      "launcher": "imports ./runtime/guest/collector-main.js",
+      "runtime": "node",
+      "node_flags": [
+        "--no-warnings"
+      ]
+    },
+    "init": {
+      "controller": {
+        "guest_path": "/opt/l3/init-controller",
+        "source": "init-controller.sh"
+      },
+      "collector": {
+        "guest_path": "/opt/l3/init-collector",
+        "source": "init-collector.sh"
+      }
+    },
+    "aux_peercred": {
+      "guest_path": "/opt/l3/aux_peercred",
+      "source": "../guest/aux_peercred.c",
+      "build": "cc -O2 -std=c11 -Wall -Wextra -D_GNU_SOURCE",
+      "protocol": "socket inherited as descriptor 3; SO_PEERCRED pid plus exact /proc/<pid>/cgroup match, re-checked before every frame"
+    }
+  },
+  "driver_tree": {
+    "bundle_entry": "drivers.json (per-file + aggregate tree digests)",
+    "guest_target": "/opt/l3/drivers",
+    "module_format": "NodeNext-ESM",
+    "source_root": "../../cases",
+    "entrypoint": "cases/index.js",
+    "dependencies": []
+  },
+  "input_bundle": {
+    "format": "l3bundle-v1",
+    "required_entries": [
+      "attempt.json",
+      "manifest.json",
+      "expected.json",
+      "drivers.json",
+      "workspace.tar",
+      "deps.tar"
+    ],
+    "optional_entries": [
+      "stages.json",
+      "input/<relative path>"
+    ],
+    "device": "/dev/vdc",
+    "mode": "read-only"
+  },
+  "device_layout": {
+    "start": [
+      {
+        "name": "root",
+        "device": "/dev/vda",
+        "mode": "rw",
+        "fs": "ext4",
+        "path_suffix": "root.img"
+      },
+      {
+        "name": "state",
+        "device": "/dev/vdb",
+        "mode": "rw",
+        "fs": "ext4",
+        "path_suffix": "state.img"
+      },
+      {
+        "name": "input",
+        "device": "/dev/vdc",
+        "mode": "ro",
+        "format": "l3bundle-v1",
+        "path_suffix": "input.img"
+      }
+    ],
+    "collect": [
+      {
+        "name": "collector",
+        "device": "/dev/vda",
+        "mode": "rw",
+        "fs": "ext4",
+        "path_suffix": "collector.img"
+      },
+      {
+        "name": "state",
+        "device": "/dev/vdb",
+        "mode": "ro",
+        "fs": "ext4",
+        "path_suffix": "state.img"
+      }
+    ],
+    "guest_mounts": {
+      "controller": [
+        {
+          "device": "/dev/vdb",
+          "path": "/state",
+          "mode": "rw",
+          "owner": "init-controller"
+        },
+        {
+          "device": "/dev/vdc",
+          "path": "(raw device, never mounted)",
+          "mode": "ro",
+          "owner": "controller-main"
+        }
+      ],
+      "collector": [
+        {
+          "device": "/dev/vdb",
+          "path": "/evidence",
+          "mode": "ro",
+          "owner": "init-collector"
+        }
+      ]
+    },
+    "candidate_mounts": [
+      {
+        "source": "/state/volumes/<volume>",
+        "target": "/workspace/attempt",
+        "mode": "rw"
+      },
+      {
+        "source": "/state/input",
+        "target": "/workspace/input",
+        "mode": "ro"
+      },
+      {
+        "source": "/state/candidate/<volume>",
+        "target": "/run/l3",
+        "mode": "rw",
+        "contents": "aux.sock, provider.sock, summarizer.sock (trusted handlers stay in the controller process)"
+      }
+    ],
+    "never_mounted_into_candidate": [
+      "/state/stubs",
+      "/state/build",
+      "/dev/vdc",
+      "/dev/vdb"
+    ],
+    "console": {
+      "device": "/dev/hvc0",
+      "mode": "output-only",
+      "protocol": "newline-delimited-json"
+    }
+  },
+  "runtime_dependencies": {
+    "node_version": "22.13.1",
+    "docker_version": "27.5.1",
+    "packages_required_in_rootfs": [
+      "node",
+      "docker",
+      "docker buildx",
+      "e2fsprogs (mkfs.ext4)",
+      "util-linux (blkid, mount, mountpoint, truncate)",
+      "cc (aux_peercred build only)"
+    ],
+    "builder_policy": {
+      "mechanism": "fixed nonprivileged offline Node builder container released by a trusted pre-start supervisor",
+      "argv_source": "/opt/l3/build/supervisor.mjs (packaged read-only image content)",
+      "compiler": "the TypeScript compiler from the frozen offline dependency bundle; a missing compiler or project fails the build",
+      "enforced": [
+        "network=none and pull=never for an approved sha256 builder image digest",
+        "memory and memory-swap equal to the manifest build ceiling",
+        "nano-cpus equal to the manifest build cpu ceiling",
+        "pids-limit equal to the manifest build process ceiling",
+        "read-only root, exactly four read-only bind mounts (tools, source, deps, control) and no extra mount",
+        "user=1000:1000, cap-drop=ALL, no-new-privileges, no privileged/devices/host-pid",
+        "bounded tmpfs /tmp, /work and /output sized from the manifest workspace ceiling",
+        "kernel cgroup memory.max, pids.max and cpu.max verified before the supervisor is released",
+        "fixed recipe only: copy source, npm ci --offline --ignore-scripts --no-audit --no-fund, fixed tsc invocation",
+        "compiled entrypoint and every produced file verified by digest before packaging",
+        "one absolute whole-stage deadline and whole-container removal on every path"
+      ],
+      "argv_contract": {
+        "frozen": true,
+        "cmdline": [
+          "/opt/l3/build/supervisor.mjs",
+          "/control/go",
+          "/src",
+          "/deps",
+          "/work",
+          "/output"
+        ],
+        "validated_against": "the stored container Config.Cmd, exactly and in order"
+      },
+      "packaged_root": "/workspace (compiled tree + locked runtime dependencies)",
+      "entrypoint": "/workspace/app/index.js",
+      "writable_partition": "tmp/work/output are tmpfs slices of the single manifest workspace allowance, never each the full allowance",
+      "log_capture": "the raw combined log stream is read live under the stage byte bound; overrun cuts the stream and removes the whole container"
+    },
+    "evidence_artifacts": [
+      "events.jsonl",
+      "output.log",
+      "receipt.json"
+    ],
+    "evidence_limits": {
+      "artifact_bytes": 1048576,
+      "aggregate_bytes": 4194304,
+      "frames": 4096
+    },
+    "tenant_stages": {
+      "bundle_entry": "stages.json {version:1, reviewed_locations:[{stage,path}]}",
+      "observed_contents": "controller pauses the candidate and copies the reviewed locations from the state volume into /state/snapshots/<id> with pause-time digests"
+    },
+    "candidate_queue_observer": {
+      "bundle_entries": [
+        "queue_observer.json {version:4, mechanism:file_spool, executable_sha256, observer_sha256, approval_reason, queue_records{path,encoding}, record_fields{connection,message,request_seq,payload_bytes,payload_sha256,state}, state_map{accepted,delivered,dropped,retained} (candidate 'rejected' tokens belong to 'dropped'), queue_payloads{path,file,connection_directory}, delivery_outbox{path,file,connection_directory}, transition_log:'append_only'}",
+        "queue_observer_review.json {version:1, run_id, attempt_id, executable_sha256, program_sha256, artifact_sha256, custodian, issued_at, expires_at, signature}"
+      ],
+      "trust_anchor": "/opt/l3/observer-trust/<custodian>.pub (provisioned read-only image content; never in the bundle)",
+      "program_binding": "program_sha256 is recomputed from /opt/l3/runtime/guest/queue-observer.js inside the packaged image",
+      "observed_contents": "admitted before launch; reads the authoritative append-only queue history, only currently held payloads from the separately reviewed queue_payloads root, and selected delivery bytes from the distinct delivery_outbox root; cross-checks trusted workload payload digests and controller receipts from actual D1 read exchanges",
+      "refusal": "missing keys, missing custody, digest/identity/time mismatch, unsupported mechanism or unaccounted bytes refuse admission; the candidate is not launched for a bundle that declares an observer it cannot substantiate",
+      "delivery_evidence": "the candidate atomically publishes exact whole selected messages to the reviewed delivery_outbox before a successful D1 read response; D2 independently reads and hashes those bytes against the trusted send before retaining a receipt; ACKs and candidate response fields alone never prove delivery",
+      "lifecycle": "per-message transition reconstruction permits a never-accepted send-time drop without payload files, accepted messages held/retained in queue_payloads, post-accept drops, and delivered messages only when actual outbox bytes match the D2 read receipt; final inspection requires a permitted terminal for accepted messages, not universal delivery"
+    },
+    "stage_correspondence": {
+      "bundle_entries": [
+        "stages.json {version:2, reviewed_locations, approval_reason}",
+        "stages_review.json {version:1, run_id, attempt_id, executable_sha256, program_sha256, artifact_sha256, custodian, issued_at, expires_at, signature}"
+      ],
+      "refusal": "unsigned or digest-mismatched stage correspondence is refused; a location list alone is not a review"
+    },
+    "build_facts": {
+      "path": "/opt/l3/build-facts.json",
+      "schema": "{schema_version:1, builder_image_digest:'sha256:<64 hex>', offline_bundle_sha256:'<64 hex>'}",
+      "provisioning": "installed with the approved prepared-image facts by provisioning (D5); the controller verifies the frozen deps.tar digest against it and fails the build preflight when it is absent or malformed"
+    },
+    "offline_image_pinned": "provided as sha256 digests in the approved prepared-images facts",
+    "evidence_encoding": {
+      "console": "raw bytes carried as canonical base64 chunks sized by the encoded frame budget (reversible for NUL and invalid UTF-8)",
+      "evidence": "events.jsonl#evidence: versioned section, one JSON item per line, dense seq, trailer count + SHA-256; all-or-nothing",
+      "declared_limits": "unchanged pending the reviewed numeric proposal"
+    }
+  },
+  "signing": "NOT PERFORMED \u2014 requires separate authority (D5)",
+  "build_recipe": "vz/package.mjs (invoked by package.sh) emits the guest ESM tree with its relative-import locations preserved, normalizes extensionless D1 specifiers to .js for Node ESM, writes thin controller/collector launchers, emits the D3 driver tree plus drivers.json, installs the init wrappers, compiles aux_peercred on Linux and compiles l3vz. Image construction, install and signing are D5."
+}
