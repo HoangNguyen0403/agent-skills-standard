@@ -1,6 +1,6 @@
 ---
 name: marketing-content-strategy
-description: 'Develops evidence-led content strategy mapping audience intent, distribution channel, and intended action for each asset. Plans thematic clusters and editorial sequencing without keyword-volume fabrication or bulk unevidenced publishing. (triggers: `marketing content strategy`, `content planning`, `editorial sequence`, `asset intent mapping`)'
+description: 'Develops evidence-led content strategy mapping audience intent, distribution channel, and intended action for each asset. Plans thematic clusters and editorial sequencing. Optional creator editorial path for YouTube strategy and repurposing. (triggers: `marketing content strategy`, `content planning`, `editorial sequence`, `asset intent mapping`, `youtube content strategy`, `youtube editorial slate`, `video content planning`)'
 guardrail: true
 metadata:
   triggers:
@@ -10,6 +10,9 @@ metadata:
       - 'content planning'
       - 'editorial sequence'
       - 'asset intent mapping'
+      - 'youtube content strategy'
+      - 'youtube editorial slate'
+      - 'video content planning'
 ---
 
 # Marketing Content Strategy
@@ -25,6 +28,9 @@ Plan evidence-led technical content mapping audience intent, distribution channe
    - Resolve package-local reference: `references/creative-production-contract.md`.
    - If missing, report explicit gap `capability_gap: "missing_creative_production_contract"` for creative production. Standalone content planning remains operational with documented limits.
 3. **Context Revision**: Bind asset proposals to an exact `context_revision` token matching the campaign and proof ledger.
+4. **Optional Creator Editorial Reference Resolution**:
+   - Resolve `<skill-root>/marketing/marketing-demo-video/references/creator-editorial.md`, then flattened `<skill-root>/marketing-marketing-demo-video/references/creator-editorial.md`.
+   - If missing, report `capability_gap: "missing_creator_editorial_reference"` for creator editorial tasks; standard content planning remains operational; missing optional guide is not a mandatory capture block.
 
 ## 2. Core Protocol: Intent, Channel, and Action Triad (AC-21)
 
@@ -74,3 +80,4 @@ Every proposed asset MUST declare the triad contract:
 - [Creative Production Contract](references/creative-production-contract.md) — Shared multi-asset governance, C1–C6 specifications, and invalidation rules.
 - [Content Mapping](references/content-mapping.md) — Triad specification, format-over-scene routing, and brief mapping.
 - [Editorial Governance](references/editorial-governance.md) — Sequencing precedence, capacity pacing, selective repair, and state transitions.
+- [Creator Editorial Reference](../marketing-demo-video/references/creator-editorial.md) — Optional YouTube positioning, packaging, Shorts, and retention guidance.
