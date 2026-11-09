@@ -18,7 +18,13 @@ Validate one approved claim at a time; unsupported live controls produce a block
 ```text
 cyber-scoped-validation/
 ├── SKILL.md
-├── references/validation-record.md
+├── assets/
+│   └── offline-access-control-matrix.json
+├── references/
+│   ├── validation-record.md
+│   └── offline-access-control-worked-recipe.md
+├── scripts/
+│   └── offline-access-control-fixture.mjs
 └── evals/evals.json
 ```
 
@@ -48,6 +54,7 @@ cyber-scoped-validation/
 ## References
 
 - [Validation record](references/validation-record.md)
+- [Offline access control worked recipe](references/offline-access-control-worked-recipe.md)
 - [Lab validation contract](../cyber-lab-validation/SKILL.md)
 - [Authorization matrix](../cyber-authorization/references/runtime-authorization-matrix.md)
 - [Evidence record](../cyber-evidence/references/evidence-record.md)
