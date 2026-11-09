@@ -622,3 +622,32 @@ Use standard Promise executors with captured resolvers for deterministic barrier
 
 ### Trigger Miss
 None established. The missed verification boundary was the existing CI runtime, not a missing project skill.
+
+---
+
+## Agent Learning Log: Iteration #26
+
+**Date**: 2026-11-09 | **Task**: Improve architecture diagramming, N+1 query guidance, and PR pipeline stabilization.
+**Signal**: Session retrospective & User correction
+**Skills**: common/common-session-retrospective, common/common-learning-log, common/common-architecture-diagramming, database/database-query-performance
+**Scope**: project
+**Candidate**: `audit-namespace-isolation-and-trace-failopen-scope` | **Status**: proposed
+**Provenance**: PR #298 (`improve-system-design-skills-stack-diagram`); CI runs 42212640377, 42215481704, 42596277716, 42600324528
+**Evaluation**: all 19 PR checks PASS on rebased commit `bd1a7a25f`; unit and outcome suites 41/41, 66/66, 238/238, 12/12.
+**Review**: maintainer directed scope cleanup, rebase onto develop, and patch version bumps for `database` and `system-design` (excluding `common`).
+**Rollback**: git revert to `f8da7029c`
+
+### Mistakes Made
+1. **Outcome Audit Namespace Pollution**: Storing test receipts, synthetic specs, and execution evidence JSON under `artifacts/runs/` broke `pnpm audit:outcome`, which recursively validates every `.json` file in that directory against the strict `RunRecord` schema.
+2. **Trace Audit Activation Side-Effect**: Introducing `docs/brd/` and `docs/prd/` terminated the repository-wide `hasNoRequirementSources` fail-open gate in `scripts/trace/`, exposing 90 unlinked requirement references in older historical documentation.
+3. **Generation Drift & Base Ownership**: Editing canonical `skills/` without immediately running `pnpm generate-indices --adopt-base <sha>` left generated host mirrors and `.skills-lock.json` stale, failing the CI generation check.
+4. **Cross-Workspace Formatting Scope**: Relying on scoped formatting rather than workspace-wide `pnpm format:check` allowed pre-existing formatting drift in `website/` and `cli/` to fail the build.
+
+### Better Approach
+1. **Strict Evidence Directory Separation**: Reserve `artifacts/runs/` exclusively for canonical `RunRecord` instances. Store all auxiliary receipts, specs, and rendered artifacts in `artifacts/evidence/` or an isolated directory.
+2. **Awareness of Global Requirement Gates**: Recognize that adding a BRD or PRD activates repository-wide trace auditing. When requirement documents are removed or not yet ready for whole-repo linking, keep requirement scope isolated.
+3. **Pre-PR Generation Rehearsal**: Always run `pnpm generate-indices` (using `--adopt-base <develop_sha>` when base ownership is required) to synchronize all four host mirrors and verify with `pnpm generate-indices --check` before opening or updating a PR.
+4. **Workspace-Wide Format Verification**: Run `pnpm format:check` across all workspace packages (`cli`, `mcp`, `website`) to catch any formatting discrepancies before pushing.
+
+### Trigger Miss
+None established. Applicable project skills were loaded; the root causes stemmed from CI gate interactions and directory placement assumptions.
