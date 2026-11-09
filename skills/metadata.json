@@ -489,7 +489,7 @@
       ]
     },
     "common": {
-      "version": "2.10.0",
+      "version": "2.9.6",
       "last_updated": "2026-11-06",
       "tag_prefix": "common-v",
       "token_metrics": {
