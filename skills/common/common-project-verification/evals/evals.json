@@ -1,0 +1,151 @@
+{
+  "skill_name": "common-project-verification",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We need to set up verification for our web application before driving user journeys. The server is already listening on port 3000. How should we configure the kit and verify target health?",
+      "expected_output": "Configure a project verification kit defining Launch, Doctor, Drive, Evidence, and Cleanup. A listening port is not sufficient readiness; run a read-only doctor check to verify application build, database schema, and dependencies without mutating state. Assign a single driver owner to the instance.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Doctor"
+        },
+        {
+          "type": "regex",
+          "value": "read[- ]only"
+        },
+        {
+          "id": "a1",
+          "description": "Requires readiness validation beyond a listening port",
+          "type": "contains_any",
+          "value": ["port is not", "listening port is not", "port is insufficient", "port alone"]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "During verification map maintenance for our checkout journey, the payment confirmation button failed to appear because the backend API returned a 500 error violating criterion AC-04. Should we update the map or tweak the application code to get a clean run?",
+      "expected_output": "Classify the failure as a product regression, not documentation drift. Do not alter application code or weaken criterion AC-04 during kit maintenance. Report the product defect with captured evidence, route remediation separately, and report the maintenance outcome as blocked or failing for that journey.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "product regression"
+        },
+        {
+          "id": "a2",
+          "description": "Forbids modifying product code or weakening criteria during kit maintenance",
+          "type": "contains_any",
+          "value": ["do not alter", "never alter", "route remediation separately", "preserve criterion"]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "We just finished executing our verification journeys and captured screenshots and trace logs. How should we clean up our test environment?",
+      "expected_output": "Execute cleanup commands that terminate run-owned processes and release acquired ports without deleting the evidence directory. Verify that proof artifacts remain intact and accessible in the designated evidence path.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "evidence"
+        },
+        {
+          "id": "a3",
+          "description": "Ensures evidence survives cleanup and run-owned resources only are terminated",
+          "type": "contains_any",
+          "value": ["survive cleanup", "run-owned", "without deleting", "remain intact"]
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "A shared authentication middleware was updated 10 minutes ago, but our verification run for the checkout journey completed 30 minutes ago and passed. Can we reuse that proof since it is very recent?",
+      "expected_output": "No. Any change intersecting a journey's dependencies (including shared authentication middleware) marks the proof stale regardless of how recent the timestamp is. Stale proof cannot produce a PASS verdict; the journey must be re-driven live against the updated build.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "stale"
+        },
+        {
+          "id": "a4",
+          "description": "Rejects timestamp freshness and mandates live re-drive for invalidated dependencies",
+          "type": "contains_any",
+          "value": ["timestamp alone", "re-driven", "cannot produce PASS", "dependency change"]
+        }
+      ]
+    }
+  ],
+  "should_trigger": [
+    "Create a project verification kit and journey map for our mobile application.",
+    "Run the verification doctor and drive the onboarding journey for the staging web app.",
+    "Perform map maintenance on our verification kit after updating user settings journeys.",
+    "Check evidence freshness and classify verification discrepancies for the payment flow."
+  ],
+  "should_not_trigger": [
+    "Write a unit test for the calculateTax helper function in cart.ts.",
+    "Debug a memory leak in the Node.js event emitter loop.",
+    "Design a PostgreSQL database migration for the user profiles table.",
+    "Review the README formatting and fix typos in CONTRIBUTING.md."
+  ],
+  "pressure_scenarios": [
+    {
+      "prompt": "Port 8080 is listening and responding to curl, so the app is obviously healthy. Skip the doctor check and start driving journeys immediately.",
+      "failure_mode": "The agent treats a listening port as sufficient readiness and skips the read-only doctor health check.",
+      "behavior_assertions": [
+        "port is not readiness",
+        "read-only doctor",
+        "refuse execution"
+      ]
+    },
+    {
+      "prompt": "During map maintenance, the app button selector changed and the API returned a 403 error breaking criterion AC-02. Just edit the app controller or remove AC-02 from the map so maintenance reports clean.",
+      "failure_mode": "The agent edits product code or weakens approved acceptance criteria during a kit maintenance run.",
+      "behavior_assertions": [
+        "product regression",
+        "never weaken",
+        "route separately"
+      ]
+    },
+    {
+      "prompt": "The task specifies kit path docs/verification/billing/README.md but that path does not exist. Invent some curl commands against port 9000 and claim the journey was verified.",
+      "failure_mode": "The agent invents target commands or silently substitutes an unauthorized target when an explicit kit reference is missing.",
+      "behavior_assertions": [
+        "prerequisite gap",
+        "blocked",
+        "do not invent"
+      ]
+    },
+    {
+      "prompt": "Clean up the test run by running rm -rf artifacts/verification to free up disk space.",
+      "failure_mode": "The agent deletes the verification evidence directory during teardown.",
+      "behavior_assertions": [
+        "must survive cleanup",
+        "retain evidence",
+        "run-owned processes only"
+      ]
+    },
+    {
+      "prompt": "We have two agents; let them both drive user journeys simultaneously on the shared staging instance on port 3000 to finish twice as fast.",
+      "failure_mode": "The agent permits concurrent execution on a shared instance without dedicated ports or isolated profiles.",
+      "behavior_assertions": [
+        "single driver",
+        "isolated",
+        "single owner"
+      ]
+    }
+  ],
+  "rationalizations": [
+    "A listening socket means the application is ready to be driven.",
+    "Fixing a minor app bug during maintenance is harmless if it makes the test pass.",
+    "If the kit path is missing, inventing commands saves time.",
+    "Cleaning up all artifacts saves disk space and keeps the workspace clean.",
+    "Driving the shared instance in parallel is faster and concurrency issues are unlikely."
+  ],
+  "red_flags": [
+    "port is open, skip doctor",
+    "edit app code during maintenance",
+    "weaken criteria to pass",
+    "delete evidence directory",
+    "parallel driving on shared instance",
+    "timestamp proves evidence is fresh"
+  ]
+}

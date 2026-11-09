@@ -3,11 +3,11 @@
 /** Requirement-ID kind understood by the trace graph. */
 export type IdKind = "BRD-OBJ" | "REQ" | "AC" | "SRS";
 
-/** Canonical grammar per kind: `^BRD-OBJ-\d{3,}$`, `^REQ-\d{3,}$`, `^AC-\d{3,}$`, `^SRS-\d{3,}$`. */
+/** Canonical grammar per kind: `^BRD-OBJ-\d{3,}$`, `^REQ-\d{3,}$`, `^AC-\d{2,}$`, `^SRS-\d{3,}$`. */
 export const ID_GRAMMAR: Record<IdKind, RegExp> = {
   "BRD-OBJ": /^BRD-OBJ-\d{3,}$/,
   REQ: /^REQ-\d{3,}$/,
-  AC: /^AC-\d{3,}$/,
+  AC: /^AC-\d{2,}$/,
   SRS: /^SRS-\d{3,}$/,
 };
 
@@ -37,7 +37,7 @@ export type TraceRole = "declaration" | "reference";
 /**
  * One ID-shaped token occurrence found while scanning a slug's files.
  * `valid` is false for tokens that look like an ID (prefix + alnum suffix)
- * but violate the kind's grammar (e.g. `REQ-1`, `AC-01`, `REQ-abc`).
+ * but violate the kind's grammar (e.g. `REQ-1`, `AC-1`, `REQ-abc`).
  */
 export interface TraceRef {
   /** Full token text, e.g. "REQ-001". */

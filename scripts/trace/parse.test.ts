@@ -519,3 +519,86 @@ test("unrelated Note|Status table does not declare REQ or AC, while exact first-
   assert.ok(exactSlug.declared.get("REQ")?.has("REQ-001"));
   assert.ok(exactSlug.declared.get("AC")?.has("AC-001"));
 });
+
+test("parseRepo accepts two-digit AC ids as declarations distinct from three-digit AC ids", () => {
+  const root = writeSlugTree({
+    "docs/brd/brd-ac-width.md": "# BRD\n\n- **Objective ID**: BRD-OBJ-001\n",
+    "docs/prd/prd-ac-width.md": [
+      "# PRD",
+      "",
+      "| Req ID | Requirement | BRD Objective Ref |",
+      "| --- | --- | --- |",
+      "| REQ-001 | Two-digit AC support | BRD-OBJ-001 |",
+      "",
+      "| AC ID | Linked Req |",
+      "| --- | --- |",
+      "| AC-01 | REQ-001 |",
+      "| AC-001 | REQ-001 |",
+      "",
+      "Coverage references AC-01 and AC-001.",
+      "",
+    ].join("\n"),
+  });
+
+  const slug = parseRepo(root).find((s) => s.slug === "ac-width");
+  assert.ok(slug);
+  assert.deepEqual([...(slug!.declared.get("AC") ?? [])], ["AC-01", "AC-001"]);
+  for (const id of ["AC-01", "AC-001"]) {
+    const declaration = slug!.references.find((ref) => ref.id === id && ref.role === "declaration");
+    assert.equal(declaration?.valid, true, `${id} must be a valid formal declaration`);
+    assert.equal(declaration?.qualified, false, `${id} must not be treated as a qualified historical id`);
+    assert.ok(
+      slug!.references.some((ref) => ref.id === id && ref.role === "reference" && ref.valid),
+      `${id} must also stay a valid plain reference`,
+    );
+  }
+});
+
+test("parseRepo keeps single-digit and nonnumeric AC ids invalid while REQ/SRS keep three digits", () => {
+  const root = writeSlugTree({
+    "docs/prd/prd-ac-junk.md": [
+      "# PRD",
+      "",
+      "| AC ID | Linked Req |",
+      "| --- | --- |",
+      "| AC-1 | REQ-001 |",
+      "",
+      "References AC-abc, AC-01x, REQ-01 and SRS-01.",
+      "",
+    ].join("\n"),
+  });
+
+  const slug = parseRepo(root).find((s) => s.slug === "ac-junk");
+  assert.ok(slug);
+  const refsById = new Map(slug!.references.map((ref) => [ref.id, ref]));
+  assert.equal(refsById.get("AC-1")?.valid, false, "AC-1 must stay invalid");
+  assert.equal(refsById.get("AC-abc")?.valid, false, "a nonnumeric AC suffix must stay invalid");
+  assert.equal(refsById.get("AC-01x")?.valid, false, "a trailing-junk AC suffix must stay invalid");
+  assert.equal(refsById.get("REQ-01")?.valid, false, "REQ keeps its three-digit minimum");
+  assert.equal(refsById.get("SRS-01")?.valid, false, "SRS keeps its three-digit minimum");
+  assert.equal(slug!.declared.get("AC")?.size ?? 0, 0, "malformed AC ids must not enter declared ACs");
+});
+
+test("parseRepo keeps the qualified historical AC grammar at three terminal digits", () => {
+  const root = writeSlugTree({
+    "docs/brd/brd-ac-source.md": [
+      "# BRD",
+      "",
+      "| Capability | Candidate requirement | Rationale | Out-of-scope pair |",
+      "| --- | --- | --- | --- |",
+      "| Core | REQ-DISC-001 | rationale | none |",
+      "",
+      "- **AC-DISC-01 → REQ-DISC-001:** undersized historical AC id.",
+      "- **AC-DISC-001 → REQ-DISC-001:** valid historical AC id.",
+      "",
+    ].join("\n"),
+  });
+
+  const slug = parseRepo(root).find((s) => s.slug === "ac-source");
+  assert.ok(slug);
+  const refsById = new Map(slug!.references.map((ref) => [ref.id, ref]));
+  assert.equal(refsById.get("AC-DISC-01")?.valid, false, "AC-DISC-01 must stay invalid");
+  assert.equal(refsById.get("AC-DISC-001")?.valid, true, "AC-DISC-001 must stay valid");
+  assert.ok(!slug!.sourceDeclared?.get("AC")?.has("AC-DISC-01"));
+  assert.ok(slug!.sourceDeclared?.get("AC")?.has("AC-DISC-001"));
+});

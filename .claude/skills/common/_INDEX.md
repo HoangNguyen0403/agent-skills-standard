@@ -49,6 +49,7 @@
 | **common-owasp** | security review, OWASP, broken access control, IDOR, BOLA, injection, broken auth, API review, authorization, access control, mobile security |
 | **common-pentest-methodology** | pentest, penetration test, red team, attack surface, threat model, PTES, security assessment, exploit, hacker score |
 | **common-performance-engineering** | performance, optimize, profiling, scalability, latency, throughput, memory leak, bottleneck |
+| **common-project-verification** | project verification, verification kit, journey map, verification doctor, drive journey, verify journey, evidence retention, map maintenance, proof freshness, verification discrepancy |
 | **common-protocol-enforcement** | verify done, protocol check, self-scan, pre-write audit, task complete, audit violations, retrospective, scan, red-team |
 | **common-security-standards** | security, encrypt, authenticate, authorize |
 | common-store-changelog | generate changelog, app store notes, play store release, what's new, release notes, version notes, store release |
