@@ -21,7 +21,7 @@ metadata:
 
 ## Preflight
 
-- Stitch tools (`list_projects`, `list_screens`, `get_screen`) must be in the tool list. Missing → `BLOCKED (stitch-mcp)`.
+- Stitch tools (`list_projects`, `list_screens`, `get_screen`) must be in the tool list for current-screen work. Missing → block only current-screen retrieval, verification, and writes as `BLOCKED (stitch-mcp)`; a clearly labelled historical critique may still proceed.
 - Endpoint `https://stitch.googleapis.com/mcp`, header `X-Goog-Api-Key`. Config added mid-session loads only after restart. Setup: [Stitch MCP](references/stitch-mcp.md).
 
 ## Read
@@ -31,7 +31,11 @@ metadata:
 - Read SVG source as text first. Bound raster output and both browser screenshot dimensions before image ingestion; never request `fullPage`. Account for physical pixels (`CSS pixels × devicePixelRatio`); review tall pages with an overview and separate viewport captures.
 - A rejected image in a generation/edit response does not prove the backend write failed. Recover IDs, metadata, and completed screens before any retry. If documented tool behavior can embed an oversized image and no host-supported resize/text-only route exists, stop before the write call.
 - If a retained conversation image blocks work, query advertised commands and follow [OMP image recovery](references/stitch-mcp.md#omp-image-recovery); preserve source screenshots before `/shake images`.
-- Run `node scripts/audit_html.js <dir>`. Audit output is evidence; screenshots confirm visual judgement.
+- Run `node scripts/audit_html.js <dir>` only on files verified present on disk. Audit output is evidence for DOM/contrast lanes; screenshots confirm visual judgement.
+- Cite the specific screen ID and version; a project thumbnail does not establish currentness. Verify downloads by validated media type, decoded screenshot dimensions, and SHA-256 bound to the requested screen/source; a "download successful" response or non-zero size is not proof.
+- Missing or invalid HTML means the audit check is `NOT RUN (HTML unavailable)` and the DOM lane is `NOT ASSESSED`, never an empty-directory pass. Screenshots prove rendered composition only, not DOM semantics, keyboard/ARIA behaviour, touch ergonomics, or device equivalence.
+- Missing tools or credentials block dependent lanes (`BLOCKED (stitch-mcp)` for current-screen retrieval, verification, writes); absent access never authorises editing credentials, MCP config, daemon config, or inventing data. Mark unretrieved lanes `NOT ASSESSED` and still review genuinely retained evidence, labelled historical when currentness is unestablished.
+- Detailed download, currentness, and partial-review rules: [Review Evidence](references/review-evidence.md).
 
 ## Human Direction
 

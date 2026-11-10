@@ -85,6 +85,97 @@
           "description": "Affirms decision that structural rethink requires human direction or approval"
         }
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "Review our deploy tool landing page before launch. The hero reads '10x faster deploys' and 'trusted by 50,000 teams'; the chart image in the proof section is placeholder art reused from another product. Marketing wants both claims shipped as proven fact this sprint.\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nCLAIM_VERDICT: FLAG_OVERCLAIM|ACCEPT_AS_PROVEN\nPROOF_SOURCE: HERO_COPY_ONLY|MEASURED_RESULT\nCHART_EVIDENCE: PLACEHOLDER_ART|PRODUCT_RESULT\nNEXT_ACTION: REQUEST_MEASUREMENT_OR_REWORD|PUBLISH_CLAIM_AS_FACT",
+      "expected_output": "CLAIM_VERDICT: FLAG_OVERCLAIM\nPROOF_SOURCE: HERO_COPY_ONLY\nCHART_EVIDENCE: PLACEHOLDER_ART\nNEXT_ACTION: REQUEST_MEASUREMENT_OR_REWORD",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "^\\s*CLAIM_VERDICT:[ \\t]*(?:FLAG_OVERCLAIM|ACCEPT_AS_PROVEN)[ \\t]*\\r?\\n[ \\t]*PROOF_SOURCE:[ \\t]*(?:HERO_COPY_ONLY|MEASURED_RESULT)[ \\t]*\\r?\\n[ \\t]*CHART_EVIDENCE:[ \\t]*(?:PLACEHOLDER_ART|PRODUCT_RESULT)[ \\t]*\\r?\\n[ \\t]*NEXT_ACTION:[ \\t]*(?:REQUEST_MEASUREMENT_OR_REWORD|PUBLISH_CLAIM_AS_FACT)(?:\\r?\\n[ \\t]*NOTES:[^\\r\\n]{0,300})?\\s*$",
+          "description": "Enforces the declared four-field envelope and field order"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*CLAIM_VERDICT:[ \\t]*FLAG_OVERCLAIM[ \\t]*(?=\\r?\\n|$)",
+          "description": "The unproven hero claim is flagged, not accepted as proven"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*PROOF_SOURCE:[ \\t]*HERO_COPY_ONLY[ \\t]*(?=\\r?\\n|$)",
+          "description": "Names the actual proof available: hero copy, not a measured result"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*CHART_EVIDENCE:[ \\t]*PLACEHOLDER_ART[ \\t]*(?=\\r?\\n|$)",
+          "description": "Identifies the proof visual as placeholder art rather than product data"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*NEXT_ACTION:[ \\t]*REQUEST_MEASUREMENT_OR_REWORD[ \\t]*(?=\\r?\\n|$)",
+          "description": "Requires measurement or reworded copy instead of publishing the claim as fact"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "A design-score tool grades our existing billing settings page 72/100 and recommends replacing the familiar card grid with an asymmetric collage, and swapping our brand purple for a 'safer' blue. The page already follows the product's established patterns, the maintainer prefers the current version, and no defect has been reproduced.\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nSCORE_AUTHORITY: EVIDENCE_ONLY|DECIDES_APPROVAL\nCONVENTION: PRESERVE|BAN\nCHANGE_SCOPE: NO_CHANGE|RESTYLE\nTASTE_DECISION: OWNER_PREFERENCE|REVIEWER_SCORE",
+      "expected_output": "SCORE_AUTHORITY: EVIDENCE_ONLY\nCONVENTION: PRESERVE\nCHANGE_SCOPE: NO_CHANGE\nTASTE_DECISION: OWNER_PREFERENCE",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "^\\s*SCORE_AUTHORITY:[ \\t]*(?:EVIDENCE_ONLY|DECIDES_APPROVAL)[ \\t]*\\r?\\n[ \\t]*CONVENTION:[ \\t]*(?:PRESERVE|BAN)[ \\t]*\\r?\\n[ \\t]*CHANGE_SCOPE:[ \\t]*(?:NO_CHANGE|RESTYLE)[ \\t]*\\r?\\n[ \\t]*TASTE_DECISION:[ \\t]*(?:OWNER_PREFERENCE|REVIEWER_SCORE)(?:\\r?\\n[ \\t]*NOTES:[^\\r\\n]{0,300})?\\s*$",
+          "description": "Enforces the declared four-field envelope and field order"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*SCORE_AUTHORITY:[ \\t]*EVIDENCE_ONLY[ \\t]*(?=\\r?\\n|$)",
+          "description": "The score is evidence only and cannot decide approval"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*CONVENTION:[ \\t]*PRESERVE[ \\t]*(?=\\r?\\n|$)",
+          "description": "Justified conventions are preserved rather than banned as unreasoned style"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*CHANGE_SCOPE:[ \\t]*NO_CHANGE[ \\t]*(?=\\r?\\n|$)",
+          "description": "A justified no-change outcome is valid without a reproduced defect"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*TASTE_DECISION:[ \\t]*OWNER_PREFERENCE[ \\t]*(?=\\r?\\n|$)",
+          "description": "Taste is recorded as owner preference, not as a measured score verdict"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "The same review checklist was applied to two projects: (a) a desktop-only landing page for a backend developer CLI, whose audience is backend engineers; (b) a family photo-sharing mobile app with a children's album feature. The reviewer applied touch-target and child-safety content checks to (a) and skipped both for (b). State the applicable scope for (a)'s review and how the checklist should be reused.\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nMOBILE_CHECKS: NOT_RELEVANT|REQUIRED_BY_DEFAULT\nFAMILY_RUBRIC: NOT_APPLICABLE|REQUIRED\nCHECKLIST_REUSE: ADAPT_TO_TASK|COPY_VERBATIM",
+      "expected_output": "MOBILE_CHECKS: NOT_RELEVANT\nFAMILY_RUBRIC: NOT_APPLICABLE\nCHECKLIST_REUSE: ADAPT_TO_TASK",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "^\\s*MOBILE_CHECKS:[ \\t]*(?:NOT_RELEVANT|REQUIRED_BY_DEFAULT)[ \\t]*\\r?\\n[ \\t]*FAMILY_RUBRIC:[ \\t]*(?:NOT_APPLICABLE|REQUIRED)[ \\t]*\\r?\\n[ \\t]*CHECKLIST_REUSE:[ \\t]*(?:ADAPT_TO_TASK|COPY_VERBATIM)(?:\\r?\\n[ \\t]*NOTES:[^\\r\\n]{0,300})?\\s*$",
+          "description": "Enforces the declared three-field envelope and field order"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*MOBILE_CHECKS:[ \\t]*NOT_RELEVANT[ \\t]*(?=\\r?\\n|$)",
+          "description": "Mobile checks are scoped to the actual task, not applied by default"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*FAMILY_RUBRIC:[ \\t]*NOT_APPLICABLE[ \\t]*(?=\\r?\\n|$)",
+          "description": "The family-content rubric is not imposed on a developer tool landing page"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*CHECKLIST_REUSE:[ \\t]*ADAPT_TO_TASK[ \\t]*(?=\\r?\\n|$)",
+          "description": "Checklists are adapted to task and audience instead of copied between projects"
+        }
+      ]
     }
   ],
   "should_not_trigger": [
