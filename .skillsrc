@@ -54,6 +54,7 @@ workflows:
   - cyber-exercise
   - cyber-triage
   - cyber-purple-validation
+  - mcp-security-assessment
 workflows_ref: workflows-v2.1.1
 specialists_ref: specialists-v1.5.2
 mcp:

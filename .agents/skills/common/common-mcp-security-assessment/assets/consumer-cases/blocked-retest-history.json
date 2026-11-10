@@ -1,0 +1,32 @@
+{
+  "case_id": "blocked-retest-history",
+  "scope_ref": "synthetic-assessment-scope",
+  "taxonomy_ref": "165fe0f78ef104459237b4a8e0f6e78db9b02391",
+  "target_runtime_authority": "none",
+  "output_ref": "artifacts/mcp-security-review.md",
+  "existing_output_present": true,
+  "artifacts": [
+    {
+      "artifact_id": "prior-corroborated-finding",
+      "kind": "supplied prior canonical finding record",
+      "collected_at": "2026-11-01T14:00:00Z",
+      "data": {
+        "finding_id": "F-MCP-001",
+        "integration_ref": "notes-synthetic",
+        "category": "MCP02",
+        "finding_status": "confirmed",
+        "evidence_refs": ["notes-config-export", "notes-policy-export"]
+      }
+    },
+    {
+      "artifact_id": "retest-step-disposition",
+      "kind": "supplied retest disposition",
+      "collected_at": "2026-11-08T14:00:00Z",
+      "data": {
+        "finding_id": "F-MCP-001",
+        "step_state": "blocked",
+        "reason": "host runtime isolation unavailable for live retest"
+      }
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "case_id": "stdio-vs-http",
+  "scope_ref": "synthetic-assessment-scope",
+  "taxonomy_ref": "165fe0f78ef104459237b4a8e0f6e78db9b02391",
+  "target_runtime_authority": "none",
+  "artifacts": [
+    {
+      "artifact_id": "local-stdio-export",
+      "kind": "supplied client configuration export",
+      "collected_at": "2026-11-05T12:00:00Z",
+      "data": {
+        "integration_ref": "local-formatter-stdio",
+        "transport": "stdio",
+        "package_identity": {
+          "name": "synthetic-local-formatter",
+          "version": "1.0.2",
+          "runnable_package_supplied": false
+        },
+        "oauth_config_present": false,
+        "privilege_boundary": "local user workspace only; no network listener"
+      }
+    },
+    {
+      "artifact_id": "remote-http-client-export",
+      "kind": "supplied client configuration export",
+      "collected_at": "2026-11-05T12:00:00Z",
+      "data": {
+        "integration_ref": "remote-catalog-http",
+        "transport": "streamable-http",
+        "endpoint_identity": "https://mcp.example.invalid/catalog",
+        "client_oauth_config_present": false,
+        "server_auth_policy_supplied": false
+      }
+    }
+  ]
+}

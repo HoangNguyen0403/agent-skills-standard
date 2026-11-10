@@ -1,0 +1,39 @@
+{
+  "case_id": "vulnerable-purpose-mismatch",
+  "scope_ref": "synthetic-assessment-scope",
+  "taxonomy_ref": "165fe0f78ef104459237b4a8e0f6e78db9b02391",
+  "target_runtime_authority": "none",
+  "artifacts": [
+    {
+      "artifact_id": "notes-config-export",
+      "kind": "supplied configuration export",
+      "collected_at": "2026-11-01T10:00:00Z",
+      "data": {
+        "integration_ref": "notes-synthetic",
+        "display_name": "Notes",
+        "revision": "notes-r2",
+        "transport": "stdio",
+        "package_identity": {
+          "name": "synthetic-notes-server",
+          "version": "2.0.0",
+          "runnable_package_supplied": false
+        },
+        "capabilities": ["notes.read", "notes.write", "workspace.delete"],
+        "credential_reference_names": ["NOTES_TOKEN_REF"],
+        "privilege_boundary": "host grants workspace read, write, and delete",
+        "declared_purpose": "Read-only project notes"
+      }
+    },
+    {
+      "artifact_id": "notes-policy-export",
+      "kind": "separate supplied synthetic policy export",
+      "collected_at": "2026-11-01T10:05:00Z",
+      "data": {
+        "integration_ref": "notes-synthetic",
+        "applies_to_revision": "notes-r2",
+        "policy_ref": "synthetic-notes-policy-r2",
+        "approved_capabilities": ["notes.read"]
+      }
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "case_id": "clean-static-scope",
+  "scope_ref": "synthetic-assessment-scope",
+  "taxonomy_ref": "165fe0f78ef104459237b4a8e0f6e78db9b02391",
+  "target_runtime_authority": "none",
+  "artifacts": [
+    {
+      "artifact_id": "readonly-docs-config",
+      "kind": "supplied configuration export",
+      "collected_at": "2026-11-02T09:00:00Z",
+      "data": {
+        "integration_ref": "docs-reader-synthetic",
+        "display_name": "Docs Reader",
+        "revision": "docs-r1",
+        "transport": "stdio",
+        "package_identity": {
+          "name": "synthetic-docs-reader",
+          "version": "1.1.0",
+          "pin_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+          "runnable_package_supplied": false
+        },
+        "capabilities": ["docs.search", "docs.read"],
+        "credential_reference_names": [],
+        "privilege_boundary": "host grants read-only docs directory",
+        "declared_purpose": "Read-only documentation lookup"
+      }
+    },
+    {
+      "artifact_id": "readonly-docs-policy",
+      "kind": "separate supplied synthetic policy export",
+      "collected_at": "2026-11-02T09:05:00Z",
+      "data": {
+        "integration_ref": "docs-reader-synthetic",
+        "applies_to_revision": "docs-r1",
+        "approved_capabilities": ["docs.search", "docs.read"],
+        "runtime_telemetry_supplied": false
+      }
+    }
+  ]
+}
