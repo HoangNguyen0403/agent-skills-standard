@@ -5,25 +5,72 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-### Quick Navigation
+## Quick Navigation
+
+- [Unreleased](#unreleased) — Pending source changes and release candidates
+- [Release Streams](#release-streams) — Independent package and category tag prefixes
+- [Recent Releases](#recent-releases) — Dated releases from October – November 2026
+- [Historical Archives](#historical-archives) — Collapsible archive (`2026-09` back to `v1.0.0`)
+
+### Release Streams
+
+| Stream | Tag Prefix | Scope |
+| --- | --- | --- |
+| **Unreleased** | `Unreleased` | Pending source changes and release candidates |
+| **CLI Tool** | `cli-v*` | `agent-skills-standard` (`ags`) CLI package |
+| **MCP Server** | `mcp-v*` | `agent-skills-standard-mcp` server package |
+| **Skill & Workflow Packs** | `<category>-v*`, `workflows-v*`, `specialists-v*` | Versioned registry categories, workflows, and specialists |
+| **Tooling** | `tooling` | Repository CI, evaluation, benchmark, and trace tooling |
+| **Unified (Legacy)** | `v1.0.0` – `v2.1.3` | Pre-split unified monorepo releases |
+
+### Recent Releases
+
+| Release / Section | Date | Stream |
+| --- | --- | --- |
+| [`[mcp-v0.8.2]`](#mcp-v082---2026-11-06) | 2026-11-06 | MCP Server |
+| [`[Unreleased]`](#unreleased) | — | Unreleased |
+| [`[cli-v2.7.4]`](#cli-v274---2026-11-05) | 2026-11-05 | CLI Tool |
+| [`[mcp-v0.8.1]`](#mcp-v081---2026-11-05) | 2026-11-05 | MCP Server |
+| [`[cli-v2.7.3]`](#cli-v273---2026-11-05) | 2026-11-05 | CLI Tool |
+| [`[cli-v2.7.2]`](#cli-v272---2026-11-04) | 2026-11-04 | CLI Tool |
+| [`[common-v2.9.0]` `[workflow-v1.1.6]` `[system-design-v1.2.4]` `[quality-engineering-v1.6.1]` `[product-management-v1.0.1]`](#common-v290-workflow-v116-system-design-v124-quality-engineering-v161-product-management-v101---2026-10-21) | 2026-10-21 | Skill & Workflow Packs |
+| [`[common-v2.8.7]`](#common-v287---2026-10-09) | 2026-10-09 | Skill & Workflow Packs |
+| [`[mcp-v0.7.0]`](#mcp-v070---2026-10-09) | 2026-10-09 | MCP Server |
+| [`[workflows-v1.1.5]`](#workflows-v115---2026-10-09) | 2026-10-09 | Skill & Workflow Packs |
+| [`[cli-v2.6.6]` / `[mcp-v0.6.1]`](#cli-v266--mcp-v061---2026-10-07) | 2026-10-07 | CLI Tool & MCP Server |
+| [`[common-v2.8.6]`](#common-v286---2026-10-07) | 2026-10-07 | Skill & Workflow Packs |
+| [`[golang-v1.3.9]`](#golang-v139---2026-10-07) | 2026-10-07 | Skill & Workflow Packs |
+| [`[react-v1.4.2]`](#react-v142---2026-10-07) | 2026-10-07 | Skill & Workflow Packs |
+| [`[workflows-v1.1.4]`](#workflows-v114---2026-10-07) | 2026-10-07 | Skill & Workflow Packs |
+| [Historical Archives](#historical-archives) | 2026-01-15 – 2026-09-30 | Collapsible Eras |
+
+---
 
 ## [mcp-v0.8.2] - 2026-11-06
 
-**Category**: MCP Server
+**Stream**: MCP Server · **Category**: MCP Server
 
 ### Added
+
 - feat(mcp): disclose unsupported provider transcript stores and refuse alias roots (#294)
 
 ### Fixed
+
 - fix(qe): harden Playwright testing guidance (#295)
 - fix(cli): install pinned MCP on global enable (#293)
 
 ### Maintenance
+
 - chore: update agent-skills-standard-mcp version to 0.8.1 across configurations and documentation
+
+---
 
 ## [Unreleased]
 
+**Stream**: Unreleased
+
 ### Added
+
 - **Common (UI Quality Standards & Visual Review, Category v2.9.6)**: Added task-first composition, semantic design-system tokens, contextual color harmony, and composited background contrast rules across `common-ui-design` and `common-web-visual-testing`, separating functional smoke verification, human visual review, and model-efficacy acceptance.
 - feat(evals): add standalone L3 skill evaluator CLI (`evals:l3`), manifest validator, independent host grant verification, and atomic evidence management (`scripts/evals/l3/`).
 - **System Design & Architecture (Role Discovery and Decision Guidance)**: Added broad `system architect` role discovery routing to `system-design-methodology`, introduced a compact registry-backed category navigation guide (`system-design/references/framework-map.md`), and reconciled architecture guidance across `specialist-system-architect`, `system-design-estimation`, and `system-design-principles` to support direct recommendation of single viable options without padded alternatives, surface-relevant scoping for inputs/estimation without fabricating backend metrics, and concrete-variation justification for abstractions like Strategy/Factory.
@@ -47,47 +94,66 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Cybersecurity (Offline Access-Control Worked Recipe)**: Added a demand-loaded offline recipe to `cyber-scoped-validation` that teaches tenant-aware access-control review from supplied synthetic artifacts, with an original twenty-case permissions matrix, two pure example functions (deliberately vulnerable and fixed), and a native Node behavior test. The recipe records pinned-upstream dispositions for Claude-Red, including a verified counterexample to its Neo4j CVE mapping, and keeps finding statuses, blocked-retest handling and the no-evasion boundary on the existing `cyber-evidence` contracts. Offline and supplied-evidence only: no lab activation, no change to ADR-019 gates, no new adapter, and no claim of provider acceptance, reduced refusals, deployed-system proof or host isolation.
 - **CLI (`ags mcp upgrade`)**: Added `ags mcp upgrade [--dry-run] [--via <mode>]` to move the MCP integration to the effective pin — `mcp.version` from `.skillsrc` when the project pins one, otherwise the `MCP_COMPATIBLE_VERSION` compiled into the running CLI, so `ags upgrade` remains the only way to move that default. A detected global `ags-mcp` on a different version is replaced with `agent-skills-standard-mcp@<target>` and re-probed (nonzero exit plus the manual `npm i -g` line on failure); enabled project/user configs are rewritten at the configured scope with the existing per-file consent prompts, and `--via` overrides the launch mode for that run only. When the effective launch mode is `global` and no readable global `ags-mcp` exists, the command refuses with `GLOBAL_MCP_NOT_FOUND` before modifying any files or issuing npm commands.
 
+---
+
 ## [cli-v2.7.4] - 2026-11-05
 
+**Stream**: CLI Tool
+
 ### Fixed
+
 - fix(cli): make global MCP enable install and verify the pinned package automatically.
 
 ### Changed
+
 - test(cli): run MCP command and service regressions on Linux, macOS, and Windows.
+
+---
 
 ## [mcp-v0.8.1] - 2026-11-05
 
-**Category**: MCP Server
+**Stream**: MCP Server · **Category**: MCP Server
 
 ### Added
+
 - feat(mcp): prefer a version-matched global binary with npx fallback (#291)
+
+---
 
 ## [cli-v2.7.3] - 2026-11-05
 
-**Category**: CLI Tool
+**Stream**: CLI Tool · **Category**: CLI Tool
 
 ### Added
+
 - feat(mcp): prefer a version-matched global binary with npx fallback (#291)
 
 ### Fixed
+
 - fix(cli): pin agent-skills-standard-mcp 0.8.0 (#290)
 
 ### Maintenance
+
 - test(cli): cover retrospective startup and option branches (#292)
 
 ### Other Changes
+
 - Delete PRD documents for Evidence-led Marketing and Sync Reliability and Attribution as part of project restructuring and focus realignment.
+
+---
 
 ## [cli-v2.7.2] - 2026-11-04
 
-**Category**: CLI Tool
+**Stream**: CLI Tool · **Category**: CLI Tool
 
 ### Fixed
+
 - fix(sync): sync reliability, failure classification, and attribution provenance (#289)
 
 - **CLI pins `agent-skills-standard-mcp` 0.8.0**: `MCP_COMPATIBLE_VERSION` still pointed at `0.6.1` after the MCP `0.8.0` release, so `ags sync` rewrote every runtime config to the older pin and `ags retrospective` refused to start with the version guard. The pin now matches `mcp/package.json`; a regression test asserts the shipped pin satisfies `RETROSPECTIVE_MIN_MCP_VERSION`, and the guard path is exercised through an injectable pin instead of the release constant.
 
 ### Added
+
 - **MCP launch modes (unreleased)**: Added `mcp.via` (`auto` | `npx` | `global`, default `auto`), so the generated MCP entry uses a globally installed `ags-mcp` only when `ags-mcp --version` exactly equals the CLI pin and otherwise emits `npx -y --prefer-offline agent-skills-standard-mcp@<pin>` (`auto` stays on npx on win32; `global` emits `ags-mcp`, or `cmd /c ags-mcp` there). Global detection asks `ags-mcp --version` first and falls back to the installed manifest under `npm root -g` for publishes that predate that flag, while a binary missing from `PATH` never falls through to the manifest. Added `ags mcp via <mode>` to persist the choice, a run-only `--via` override on `install`/`snippets`/`enable`, `ags mcp enable --install-global` (`npm i -g`, re-probe, and fallback instructions) and `ags mcp enable --dry-run` to preview the effective stanza without writing configs.
 - **SEO discoverability readiness and cost-aware agent routing (source candidate; `common` `2.9.4`, `@ags/website`)**:
   - **README and entry journey**: Restructured README opening around purpose, target developer, concrete use case, and next action; reconciled quantitative claims against sourced release snapshots; verified direct questions and contribution destinations; documented primary npm global install with secondary npx setup (isolated npx `--version` PASS 2.6.6 entrypoint check).
@@ -117,8 +183,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **STLC lifecycle, roles, and closure**: Added `lifecycle-and-roles.md` connecting 6 STLC stages, 4 V-model pairings, and 9 QA roles to owning skills/workflows. Updated SDLC workflows (`test-loop`, `implementation-readiness`, `verify-work`, `traceability-audit`, `uat-signoff`, `deploy-release`, `publish-notes`, `retro-learn`) with C2 API and C6 mobile scenario templates. Guard overrides in `nestjs-testing` qualified so bypassed guards cannot serve as security proof.
   - **Comprehensive mobile testing matrix**: Added `mobile-testing-matrix.md` under `common-mobile-visual-testing` covering 10 mobile quality areas (functional, lifecycle/restoration, device matrix, permissions, offline/sync, install/upgrade, accessibility, performance, security, release smoke) across 4 stacks (iOS/Swift, Android/Kotlin, Flutter/Dart, React Native/TypeScript) with platform-specific selector and layer hierarchies.
   - **Verification & quality**: Verified via synthetic fixture checks with real Chromium Playwright locator assertion execution, authored keyword router activation cases, TypeScript syntax parse validations, and real-scorer calibration on the candidate repository scorer (44/44 PASS). Native mobile device execution, physical hardware labs, and real model-generated candidate runs remain accurately reported as `BLOCKED`/`NOT RUN`. Staged generation executed in disposable isolation with full surface parity.
-
-
 
 - **System-design ROI guidance (`1.2.5` candidate)**: Updated four system-design packages for overload/failure capacity, tenant-safe retrieval and revocation, and durable external effects; added tenant-safe retrieval and durable-execution references. T5 bound 34 lexical evals/88 assertions to the accepted sources. T6 review found four host indexes omitted four changed skill routes (9/13 rows). An integration-only staged regeneration restored all 13 canonical rows and 138 source trigger keywords; the actual four-package consumer index hash, route IDs and trigger rows are recorded. This is a bounded workaround, not a generator lifecycle fix; the original 9-row cause remains unproven and a separate runtime ownership issue remains. Initial failures are archived; independent scoped review APPROVED for repository distribution integration only, and the final 54-entry manifest digest confirmation is recorded. Semantic efficacy, realized ROI, human acceptance and release remain unverified.
 - **Reusable book-to-skill reference skill**: Added a portable, rights-aware technique for converting authorized book material into discoverable skills, including a bounded large-source delegation reference for coordinator-led multi-packet synthesis.
@@ -165,8 +229,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Eval reporting**: reason about attempt outcomes (`completed`, `failed`, `retried`, `interrupted`, `cancelled`) instead of token-only summaries; a baseline run is compared only against the declared immutable baseline.
 - **BA and SDLC guidance**: Added proportionate elicitation planning and source confirmation, shared requirements distinctions for conflict, quality versus need, and temporary transitions, and evidence-based diagnosis of solution versus organizational limitations. Updated four selected workflow references; bounded independent grading of 12 paired synthetic cases observed one completeness improvement, 11 ties, and no critical regression, without establishing broad or causal superiority.
 
-### Changed
-
 - **Untrusted-workspace admission guidance**: Added a portable admission checklist plus runtime-adapter caveats separating declared policy from observed host behavior, provider/account/model eligibility from context-transfer authorization, sealed starting identity, private-workflow mutation and output promotion, and truthful scan/hook reporting. Replaced the two lexical `evals.json` word-matching files in `common-agent-guardrails` and `common-llm-security` with a human-graded, explicitly unrun behavior rubric. No admission service, sandbox, or runtime control is added, and no eval PASS is claimed.
 
 ### Removed
@@ -183,6 +245,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Contract remains dormant in repository: no operational attack scripts, no live tool autoactivation, no G3/G4/G5 promotion, and no measured model compatibility improvement claimed.
 
 ### Fixed
+
 - **CLI typecheck contracts**: Corrected all 17 CLI `tsc --noEmit` diagnostics by fixing stale test/API usage and shared contract types — typed TTY/confirmation/spy mocks, `NodeNext` `.js` dynamic imports, exact validator call signatures, the unsupported MCP positional-scope `options._` fallback together with its duplicate test, the private config serializer input union, an `ES2022`-compatible `Promise` subprocess adapter, and one canonical `RemoteMetadata` model — with compiler options, `lib`/`target`, assertions and runtime behavior unchanged. Observed PASS: CLI and MCP `tsc --noEmit` exit 0; CLI 1554 tests in 71 files; MCP 979 pass/4 skip in 33 files; generator 95; evals 477; reporting 92; plus subprocess, Commander-scope, routing and same-root consumer smokes. Receipts: `.agent/sdd/cli-typecheck-contracts/delivery-report.md`. Final documentation review and scoped document audit pending; no acceptance, merge, release, live-efficacy or cross-platform claim.
 - **`ags sync` rejected its own accepted version updates**: `resolvePins()` captured refs and release manifests before `checkForUpdates()` offered newer versions, so accepting an update changed `.skillsrc` but assembly still downloaded from the new refs against the previous release manifests — changed files failed the SHA-256 check and newly added files were rejected as "not listed in release MANIFEST.json". `sync` now re-resolves pins and manifest verifiers after an accepted ref change and before `beginInstall`, so skill, workflow and specialist bytes are verified against the manifest of the release actually downloaded, and lock provenance records those refs/commits. Declined, non-interactive, no-update and dry-run paths still resolve exactly once; tampered new-release bytes remain rejected before publication. `SyncService` now hands its injected `GithubService` to `SpecialistSyncService` as it already did for skills and workflows (same default transport, so no behavior change outside transport injection). Verified by a command-level regression spec driving the real `SyncCommand` and `SyncService` through a deterministic registry double: RED before the change (`Failed to assemble selected skills: common/alpha, common/beta`), GREEN 5/5 after (accepted bytes and lock provenance, tampered new-release bytes rejected by the new manifest's SHA-256 check with nothing published, decline/no-update/dry-run each resolving exactly once), plus a throwaway real-entrypoint smoke (`SyncCommand#run`, temp HOME/cwd, fake registry transport only) that installed `common-v2.9.4` bytes and recorded `skills/common`, `workflows`, `specialists` sources, and rejected tampered bytes with `sha256 does not match release MANIFEST.json` without publishing. Full suite, build and lint were not run in this slice.
 - **Native specialist regeneration ownership (`generate-indices`)**: Root `pnpm generate-indices` finalized ownership before a standalone specialist passthrough wrote native specialist exports, so the written bytes no longer matched the recorded manifest digest and the run failed before publication with no files applied. The generator now regenerates native specialist exports through the same `SyncService` writer inside the begin/complete transaction and carries the real completion result into finalization; the standalone `SpecialistSyncService` passthrough is removed. A targeted real-entrypoint native export A/B/update/check regression passed 1/1 (5.34 s). Full root generation, the covering suites and publication remain unverified, and no release, version change or native-SDK claim is made.
@@ -272,7 +335,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Marketing consumer and handoff evidence**: Verified normal remote synchronization, installed resource execution, manifest integrity and MCP lookup against published candidate SHA `703f750b`. Added a prepared pilot-handoff runbook with explicit private-data, maturity, cost and human-decision boundaries; T12 and human acceptance remain open. Evaluation remains at 2/246 with historical pair comparability unverified.
 - **Creative Production Guidance & Verification (candidate)**: Improved portable creative production guidance across `marketing-content-strategy`, `marketing-copywriting`, and `marketing-demo-video`. Established canonical creative-production contract (`skills/marketing/marketing-content-strategy/references/creative-production-contract.md`) covering brief structure, brand locking with selective dependency invalidation, 1:1 narration/clip manifest pairing, timeout recovery without duplicate resubmissions, delivery and QA truthfulness, and host authorization/spend boundaries. Verified offline scope via local registry snapshot synchronization, MCP keyword routing, real-scorer execution on paired candidate corpus (73 typed eval cases: 19 accepted passing, 54 rejected failing; 0 false positives, 0 false negatives; 18 diagnostic pressure cases; 10 manual cases), and synthetic ffmpeg/ffprobe video recipe smoke proving audio lead-in, trailing hold, and global WebVTT retiming. Live media generation, paid jobs, and external uploads remain explicitly blocked.
 
+---
+
 ## [common-v2.9.0] [workflow-v1.1.6] [system-design-v1.2.4] [quality-engineering-v1.6.1] [product-management-v1.0.1] - 2026-10-21
+
+**Stream**: Skill & Workflow Packs
 
 ### Added
 
@@ -320,9 +387,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Common**: `2.8.7` → `2.9.0`
 - **Quality Engineering**: `1.6.0` → `1.6.1`
 
+---
+
 ## [common-v2.8.7] - 2026-10-09
 
-**Category**: Progress Receipts
+**Stream**: Skill & Workflow Packs · **Category**: Progress Receipts
 
 ### Added
 
@@ -332,9 +401,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Common Skills**: `2.8.6` → `2.8.7`
 
+---
+
 ## [mcp-v0.7.0] - 2026-10-09
 
-**Category**: MCP Session Reporting
+**Stream**: MCP Server · **Category**: MCP Session Reporting
 
 ### Added
 
@@ -350,9 +421,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **MCP**: `0.6.1` → `0.7.0`
 
+---
+
 ## [workflows-v1.1.5] - 2026-10-09
 
-**Category**: SDLC Workflow Readiness
+**Stream**: Skill & Workflow Packs · **Category**: SDLC Workflow Readiness
 
 ### Changed
 
@@ -362,9 +435,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Workflows**: `1.1.4` → `1.1.5`
 
+---
+
 ## [cli-v2.6.6] / [mcp-v0.6.1] - 2026-10-07
 
-**Category**: CLI Tool, MCP Server, Dependency Security
+**Stream**: CLI Tool & MCP Server · **Category**: CLI Tool, MCP Server, Dependency Security
 
 ### Changed
 
@@ -382,9 +457,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **CLI**: `2.6.5` → `2.6.6`
 - **MCP**: `0.6.0` → `0.6.1`
 
+---
+
 ## [common-v2.8.6] - 2026-10-07
 
-**Category**: Context Optimization & Decision Discipline
+**Stream**: Skill & Workflow Packs · **Category**: Context Optimization & Decision Discipline
 
 ### Changed
 
@@ -395,9 +472,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Common Skills**: `2.8.5` → `2.8.6`
 
+---
+
 ## [golang-v1.3.9] - 2026-10-07
 
-**Category**: Routing Precision
+**Stream**: Skill & Workflow Packs · **Category**: Routing Precision
 
 ### Changed
 
@@ -407,9 +486,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Golang Skills**: `1.3.8` → `1.3.9`
 
+---
+
 ## [react-v1.4.2] - 2026-10-07
 
-**Category**: Routing Precision
+**Stream**: Skill & Workflow Packs · **Category**: Routing Precision
 
 ### Changed
 
@@ -419,9 +500,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **React Skills**: `1.4.1` → `1.4.2`
 
+---
+
 ## [workflows-v1.1.4] - 2026-10-07
 
-**Category**: Execution & Delivery Governance
+**Stream**: Skill & Workflow Packs · **Category**: Execution & Delivery Governance
 
 ### Changed
 
@@ -431,9 +514,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Workflows**: `1.1.3` → `1.1.4`
 
+---
+
+## Historical Archives
+
+Older releases are grouped into collapsible eras in reverse-chronological order. Every release identifier, date, and entry detail is preserved inside its archive section.
+
+| Archive Era | Coverage | Dates |
+| --- | --- | --- |
+| Quality-over-Quantity Test Standards & Execution Gates | `android-v1.5.1` – `common-v2.8.2` | — |
+| September 2026 Releases | `common-v2.8.1` – `common-v2.5.0` | 2026-09-09 – 2026-09-30 |
+| July – August 2026 Releases | `system-design-v1.0.0` – `common-v2.2.2` | 2026-07-04 – 2026-08-30 |
+| April – June 2026 Multi-Stream Releases | `python-v1.0.0` – `cli-v2.2.0` / `mcp-v0.1.0` | 2026-04-22 – 2026-06-29 |
+| v2.0.x – v2.1.x Legacy Unified History | `2.1.3` – `2.0.0` | 2026-03-25 – 2026-04-22 |
+| v1.0.x – v1.10.x Legacy Unified History | `1.10.4` – `1.0.0` | 2026-01-15 – 2026-03-21 |
+
+<details>
+<summary>Quality-over-Quantity Test Standards &amp; Execution Gates (android-v1.5.1 – common-v2.8.2)</summary>
+
 ## [android-v1.5.1]
 
-**Category**: Quality-over-quantity test standards
+**Stream**: Skill & Workflow Packs · **Category**: Quality-over-quantity test standards
 
 ### Changed
 
@@ -445,7 +546,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [angular-v1.5.1]
 
-**Category**: Quality-over-quantity test standards
+**Stream**: Skill & Workflow Packs · **Category**: Quality-over-quantity test standards
 
 ### Changed
 
@@ -457,7 +558,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [java-v1.3.5]
 
-**Category**: Quality-over-quantity test standards
+**Stream**: Skill & Workflow Packs · **Category**: Quality-over-quantity test standards
 
 ### Changed
 
@@ -469,7 +570,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [laravel-v1.4.1]
 
-**Category**: Quality-over-quantity test standards
+**Stream**: Skill & Workflow Packs · **Category**: Quality-over-quantity test standards
 
 ### Changed
 
@@ -481,7 +582,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [nestjs-v1.4.7]
 
-**Category**: Quality-over-quantity test standards
+**Stream**: Skill & Workflow Packs · **Category**: Quality-over-quantity test standards
 
 ### Changed
 
@@ -493,7 +594,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [php-v1.3.7]
 
-**Category**: Quality-over-quantity test standards
+**Stream**: Skill & Workflow Packs · **Category**: Quality-over-quantity test standards
 
 ### Changed
 
@@ -505,7 +606,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [python-v1.0.1]
 
-**Category**: Quality-over-quantity test standards
+**Stream**: Skill & Workflow Packs · **Category**: Quality-over-quantity test standards
 
 ### Changed
 
@@ -517,7 +618,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [react-native-v1.5.1]
 
-**Category**: Quality-over-quantity test standards
+**Stream**: Skill & Workflow Packs · **Category**: Quality-over-quantity test standards
 
 ### Changed
 
@@ -529,7 +630,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [spring-boot-v1.4.1]
 
-**Category**: Quality-over-quantity test standards
+**Stream**: Skill & Workflow Packs · **Category**: Quality-over-quantity test standards
 
 ### Changed
 
@@ -541,7 +642,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [swift-v1.3.7]
 
-**Category**: Quality-over-quantity test standards
+**Stream**: Skill & Workflow Packs · **Category**: Quality-over-quantity test standards
 
 ### Changed
 
@@ -553,7 +654,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [common-v2.8.3]
 
-**Category**: Quality-over-quantity test standards
+**Stream**: Skill & Workflow Packs · **Category**: Quality-over-quantity test standards
 
 ### Changed
 
@@ -566,7 +667,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [flutter-v1.8.2]
 
-**Category**: Quality-over-quantity test standards
+**Stream**: Skill & Workflow Packs · **Category**: Quality-over-quantity test standards
 
 ### Changed
 
@@ -578,7 +679,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [golang-v1.3.8]
 
-**Category**: Quality-over-quantity test standards
+**Stream**: Skill & Workflow Packs · **Category**: Quality-over-quantity test standards
 
 ### Changed
 
@@ -590,7 +691,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [nextjs-v1.4.7]
 
-**Category**: Quality-over-quantity test standards
+**Stream**: Skill & Workflow Packs · **Category**: Quality-over-quantity test standards
 
 ### Changed
 
@@ -602,7 +703,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [react-v1.4.1]
 
-**Category**: Quality-over-quantity test standards
+**Stream**: Skill & Workflow Packs · **Category**: Quality-over-quantity test standards
 
 ### Changed
 
@@ -614,7 +715,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [workflows-v1.1.1]
 
-**Category**: Design-to-delivery execution gate
+**Stream**: Skill & Workflow Packs · **Category**: Design-to-delivery execution gate
 
 ### Changed
 
@@ -626,7 +727,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [system-design-v1.2.1]
 
-**Category**: HLD-to-LLD design delivery gate
+**Stream**: Skill & Workflow Packs · **Category**: HLD-to-LLD design delivery gate
 
 ### Changed
 
@@ -640,7 +741,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [common-v2.8.2]
 
-**Category**: Exported architecture diagram readability gate
+**Stream**: Skill & Workflow Packs · **Category**: Exported architecture diagram readability gate
 
 ### Changed
 
@@ -650,11 +751,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Common Skills**: `2.8.1` → `2.8.2`
 
----
+</details>
+
+<details>
+<summary>September 2026 Releases (common-v2.8.1 – common-v2.5.0, 2026-09-09 – 2026-09-30)</summary>
 
 ## [common-v2.8.1] - 2026-09-30
 
-**Category**: Subagent-Driven Development and Plan Execution Gate
+**Stream**: Skill & Workflow Packs · **Category**: Subagent-Driven Development and Plan Execution Gate
 
 ### Added
 
@@ -669,7 +773,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [cli-v2.6.5] - 2026-09-29
 
-**Category**: CLI Tool
+**Stream**: CLI Tool · **Category**: CLI Tool
 
 ### Fixed
 
@@ -677,7 +781,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [cli-v2.6.4] - 2026-09-29
 
-**Category**: CLI Tool
+**Stream**: CLI Tool · **Category**: CLI Tool
 
 ### Added
 
@@ -735,7 +839,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [workflows-v1.1.0]
 
-**Category**: Opt-in Stitch design workflows
+**Stream**: Skill & Workflow Packs · **Category**: Opt-in Stitch design workflows
 
 ### Added
 
@@ -749,7 +853,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [common-v2.8.0]
 
-**Category**: Google Stitch design and family UX
+**Stream**: Skill & Workflow Packs · **Category**: Google Stitch design and family UX
 
 ### Added
 
@@ -763,7 +867,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [common-v2.7.0]
 
-**Category**: Decision discipline and brainstorm lanes (T0)
+**Stream**: Skill & Workflow Packs · **Category**: Decision discipline and brainstorm lanes (T0)
 
 ### Added
 
@@ -782,7 +886,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [cybersecurity-v1.0.0]
 
-**Category**: Governed cybersecurity skills
+**Stream**: Skill & Workflow Packs · **Category**: Governed cybersecurity skills
 
 ### Added
 
@@ -843,7 +947,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [common-v2.6.0]
 
-**Category**: Decision-oriented diagrams and local evidence integrity
+**Stream**: Skill & Workflow Packs · **Category**: Decision-oriented diagrams and local evidence integrity
 
 ### Added
 
@@ -870,7 +974,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [tooling]
 
-**Area**: SDLC run ledger, requirement traceability, cost metering, benchmark gates, and control bands
+**Stream**: Tooling · **Area**: SDLC run ledger, requirement traceability, cost metering, benchmark gates, and control bands
 
 ### SDLC Control Bands & Metrics (#206)
 
@@ -937,7 +1041,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [quality-engineering-v1.6.0]
 
-**Category**: Test-loop program P0–P3, requirement-to-TC hardening, automation health, UI automation driver ladders
+**Stream**: Skill & Workflow Packs · **Category**: Test-loop program P0–P3, requirement-to-TC hardening, automation health, UI automation driver ladders
 
 > Consolidated in #192. The untagged headers `quality-engineering-v1.6.0`–`v1.8.0` written by #169, #184, #186 and #188 were merged into this one entry because nothing after `quality-engineering-v1.5.1` has been released. One minor bump per release, not per PR.
 
@@ -970,7 +1074,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [specialists-v1.4.0]
 
-**Category**: HLD-to-LLD deep-dive and diagrammer provenance alignment
+**Stream**: Skill & Workflow Packs · **Category**: HLD-to-LLD deep-dive and diagrammer provenance alignment
 
 ### Changed
 
@@ -983,7 +1087,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [system-design-v1.2.0]
 
-**Category**: HLD-to-LLD decision quality, production case packs, and nine-axis review profiles
+**Stream**: Skill & Workflow Packs · **Category**: HLD-to-LLD decision quality, production case packs, and nine-axis review profiles
 
 ### Added
 
@@ -1009,7 +1113,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [specialists-v1.3.0] - 2026-09-15
 
-**Category**: Test-loop specialists (planner, testid-inserter, healer), solution diagrammer, driver-aware generation
+**Stream**: Skill & Workflow Packs · **Category**: Test-loop specialists (planner, testid-inserter, healer), solution diagrammer, driver-aware generation
 
 > Consolidated in #192. The untagged headers `specialists-v1.4.0`–`v1.7.0` written by #169, #172, #186 and #188 were merged into this one entry because nothing after `specialists-v1.2.1` has been released. One minor bump per release, not per PR.
 
@@ -1032,7 +1136,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [cli-v2.6.2] - 2026-09-13
 
-**Category**: CLI Tool
+**Stream**: CLI Tool · **Category**: CLI Tool
 
 ### Fixed
 
@@ -1049,7 +1153,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [system-design-v1.1.0] - 2026-09-15
 
-**Category**: One diagram lane
+**Stream**: Skill & Workflow Packs · **Category**: One diagram lane
 
 > Renumbered from `2.0.0` in #192. The `system-design-diagramming` removal is recorded below, but the category is versioned as a minor bump because consumers sync by category, not by skill name.
 
@@ -1094,7 +1198,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [common-v2.5.0] - 2026-09-09
 
-**Category**: Architecture diagramming moves from Mermaid guidance to a draw.io render pipeline
+**Stream**: Skill & Workflow Packs · **Category**: Architecture diagramming moves from Mermaid guidance to a draw.io render pipeline
 
 ### Added
 
@@ -1173,9 +1277,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `common-software-requirements` (#192): `docs/requirements-standards-baseline.md` moved into `references/requirements-standards-baseline.md` so it ships with the skill; `common-business-requirements`, `common-product-requirements` and the `sdlc` workflow now link there instead of the unsynced `docs/` folder.
 - `common-web-visual-testing`, `common-mobile-visual-testing` (#192): Evidence section naming `.playwright-cli/<session>/` and `.appium-mcp/<session>/`, `browser_snapshot` alias for the MCP rung, link to the driver ladders; `appium_get_source` corrected to `appium_get_page_source`.
 
+</details>
+
+<details>
+<summary>July – August 2026 Releases (system-design-v1.0.0 – common-v2.2.2, 2026-07-04 – 2026-08-30)</summary>
+
 ## [system-design-v1.0.0] - 2026-08-30
 
-**Category**: System Design skill pack launch and architecture session workflow
+**Stream**: Skill & Workflow Packs · **Category**: System Design skill pack launch and architecture session workflow
 
 ### Added
 
@@ -1206,7 +1315,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [tooling] - 2026-08-30
 
-**Area**: Release pipeline, eval pipeline correctness, and CI
+**Stream**: Tooling · **Area**: Release pipeline, eval pipeline correctness, and CI
 
 ### Fixed
 
@@ -1224,7 +1333,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [specialists-v1.2.1] - 2026-08-30
 
-**Category**: Deep-dive fanout for design sessions
+**Stream**: Skill & Workflow Packs · **Category**: Deep-dive fanout for design sessions
 
 ### Added
 
@@ -1238,7 +1347,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [common-v2.4.1] - 2026-08-30
 
-**Category**: System design relocation out of the common pack
+**Stream**: Skill & Workflow Packs · **Category**: System design relocation out of the common pack
 
 ### Removed
 
@@ -1271,6 +1380,8 @@ Without it, upgrading past `common-v2.4.0` removes the P0 architecture guidance 
 
 ## [database-v1.4.1] - 2026-08-24
 
+**Stream**: Skill & Workflow Packs
+
 ### Added
 
 - **`database-hana` skill**: Introduced comprehensive SAP HANA database engine skill covering:
@@ -1284,6 +1395,8 @@ Without it, upgrading past `common-v2.4.0` removes the P0 architecture guidance 
 ---
 
 ## [golang-v1.3.7] - 2026-08-24
+
+**Stream**: Skill & Workflow Packs
 
 ### Changed
 
@@ -1312,7 +1425,7 @@ Without it, upgrading past `common-v2.4.0` removes the P0 architecture guidance 
 
 ## [cli-v2.6.1] - 2026-08-22
 
-**Category**: OWASP Agentic Skills Top 10 (AST) hardening
+**Stream**: CLI Tool · **Category**: OWASP Agentic Skills Top 10 (AST) hardening
 
 Maps this repo's security posture to the [OWASP Agentic Skills Top 10 v1.0](https://owasp.org/www-project-agentic-skills-top-10/) standard — see `docs/SECURITY.md`'s new coverage table for the full picture.
 
@@ -1345,14 +1458,15 @@ Maps this repo's security posture to the [OWASP Agentic Skills Top 10 v1.0](http
 
 ## [cli-v2.6.1] - 2026-08-21
 
-**Category**: Sync-format bug fixes
+**Stream**: CLI Tool · **Category**: Sync-format bug fixes
 
 ### Fixed
 
 - **Claude Specialist Frontmatter**: `SpecialistTransformer` now preserves `tools`, `model`, and `color` metadata from a specialist's `SKILL.md` frontmatter when generating `.claude/agents/*.md`, instead of silently dropping them ([#104](https://github.com/HoangNguyen0403/agent-skills-standard/issues/104)).
 - **Doubled Quotes in Emitted Workflow Descriptions**: `WorkflowTransformer.parseSource()` now strips a matching surrounding-quote pair (`"..."` or `'...'`) from a workflow source's frontmatter `description` before it reaches format emitters. Previously, a quoted description (required when the value contains a `:`, e.g. `description: "Phase one: do the thing"`) was passed through with its quotes intact, and the TOML (Gemini CLI), Copilot prompt, and SKILL.md emitters re-wrapped it in a fresh pair of quotes, producing invalid doubled-quote output (`description: ""Phase one: do the thing""`) that failed to parse. Unquoted descriptions were unaffected. (#105)
 - **Unescaped Quotes in Copilot Prompt Descriptions**: `toCopilotPrompt` now escapes `\` and `"` in `description` before embedding it in frontmatter, matching the escaping already applied by the TOML and SKILL.md emitters. Previously an internal `"` in an unquoted description could break the emitted `.prompt.md` frontmatter.
-  **Category**: License consistency fix
+
+**Category**: License consistency fix
 
 ### Fixed
 
@@ -1360,7 +1474,7 @@ Maps this repo's security posture to the [OWASP Agentic Skills Top 10 v1.0](http
 
 ## [cli-v2.6.0] - 2026-07-14
 
-**Category**: Live eval evidence retention and report clarity
+**Stream**: CLI Tool · **Category**: Live eval evidence retention and report clarity
 
 ### Added
 
@@ -1381,7 +1495,7 @@ Maps this repo's security posture to the [OWASP Agentic Skills Top 10 v1.0](http
 
 ## [cli-v2.6.0] / [mcp-v0.6.0] - 2026-07-09
 
-**Category**: Runtime skill quality — correct content, smarter MCP loading, validator hardening
+**Stream**: CLI Tool & MCP Server · **Category**: Runtime skill quality — correct content, smarter MCP loading, validator hardening
 
 ### Added
 
@@ -1437,7 +1551,7 @@ Maps this repo's security posture to the [OWASP Agentic Skills Top 10 v1.0](http
 
 ## [common-v2.2.2] - 2026-07-04
 
-**Category**: Portable SDLC outcome reporting and requirements-first delivery gates
+**Stream**: Skill & Workflow Packs · **Category**: Portable SDLC outcome reporting and requirements-first delivery gates
 
 ### Changed
 
@@ -1453,9 +1567,14 @@ Maps this repo's security posture to the [OWASP Agentic Skills Top 10 v1.0](http
 
 - **Common Skills**: `2.2.1` → `2.2.2`
 
+</details>
+
+<details>
+<summary>April – June 2026 Multi-Stream Releases (python-v1.0.0 – cli-v2.2.0 / mcp-v0.1.0, 2026-04-22 – 2026-06-29)</summary>
+
 ## [python-v1.0.0] - 2026-06-29
 
-**Category**: Python skill pack launch and release-tag enforcement
+**Stream**: Skill & Workflow Packs · **Category**: Python skill pack launch and release-tag enforcement
 
 ### Added
 
@@ -1471,7 +1590,7 @@ Maps this repo's security posture to the [OWASP Agentic Skills Top 10 v1.0](http
 
 ## [cli-v2.5.1] - 2026-06-23
 
-**Category**: Security scanning integration (SkillSpector)
+**Stream**: CLI Tool · **Category**: Security scanning integration (SkillSpector)
 
 ### Added
 
@@ -1488,9 +1607,9 @@ Maps this repo's security posture to the [OWASP Agentic Skills Top 10 v1.0](http
 - **CLI**: `2.5.0` → `2.5.1`
 - **Root**: `2.5.0` → `2.5.1`
 
-# [cli-v2.5.0] / [mcp-v0.5.0] - 2026-06-18
+## [cli-v2.5.0] / [mcp-v0.5.0] - 2026-06-18
 
-**Category**: Trusted Review Hardening, Markdown-First Security Handoff & Skill Pack Expansion
+**Stream**: CLI Tool & MCP Server · **Category**: Trusted Review Hardening, Markdown-First Security Handoff & Skill Pack Expansion
 
 ### Added
 
@@ -1518,9 +1637,9 @@ Maps this repo's security posture to the [OWASP Agentic Skills Top 10 v1.0](http
 - **Database**: `1.3.4` → `1.3.5`
 - **Specialists**: `1.1.2` → `1.1.3`
 
-# [cli-v2.4.6] - 2026-06-11
+## [cli-v2.4.6] - 2026-06-11
 
-**Category**: Enterprise SDLC & Managed Delivery Alignment
+**Stream**: CLI Tool · **Category**: Enterprise SDLC & Managed Delivery Alignment
 
 ### Added
 
@@ -1541,9 +1660,9 @@ Maps this repo's security posture to the [OWASP Agentic Skills Top 10 v1.0](http
 
 - **Common Skills**: `2.1.1`
 
-# [mcp-v0.4.1] - 2026-06-03
+## [mcp-v0.4.1] - 2026-06-03
 
-**Category**: MCP Skill loader improvement
+**Stream**: MCP Server · **Category**: MCP Skill loader improvement
 
 ### Changed
 
@@ -1553,9 +1672,9 @@ Maps this repo's security posture to the [OWASP Agentic Skills Top 10 v1.0](http
 
 - **Common Skills**: `0.4.0` → `0.4.1`
 
-# [cli-v2.4.6] - 2026-05-25
+## [cli-v2.4.6] - 2026-05-25
 
-**Category**: SDLC Requirements Template Hardening
+**Stream**: CLI Tool · **Category**: SDLC Requirements Template Hardening
 
 ### Changed
 
@@ -1567,9 +1686,9 @@ Maps this repo's security posture to the [OWASP Agentic Skills Top 10 v1.0](http
 
 - **Common Skills**: `2.0.9` → `2.1.0`
 
-# [cli-v2.4.6] - 2026-05-22
+## [cli-v2.4.6] - 2026-05-22
 
-**Category**: SDLC Requirements Traceability & Review Tooling
+**Stream**: CLI Tool · **Category**: SDLC Requirements Traceability & Review Tooling
 
 ### Added
 
@@ -1589,9 +1708,9 @@ Maps this repo's security posture to the [OWASP Agentic Skills Top 10 v1.0](http
 - **Root**: `2.4.5` → `2.4.6`
 - **Common Skills**: `2.0.8` → `2.0.9`
 
-# [cli-v2.4.5] - 2026-05-20
+## [cli-v2.4.5] - 2026-05-20
 
-**Category**: Release Readiness & CLI Packaging
+**Stream**: CLI Tool · **Category**: Release Readiness & CLI Packaging
 
 ### Fixed
 
@@ -1602,9 +1721,9 @@ Maps this repo's security posture to the [OWASP Agentic Skills Top 10 v1.0](http
 - **CLI**: `2.4.4` → `2.4.5`
 - **Root**: `2.4.4` → `2.4.5`
 
-# [cli-v2.4.4] - 2026-05-20
+## [cli-v2.4.4] - 2026-05-20
 
-**Category**: Release Readiness & CLI Packaging
+**Stream**: CLI Tool · **Category**: Release Readiness & CLI Packaging
 
 ### Fixed
 
@@ -1615,9 +1734,9 @@ Maps this repo's security posture to the [OWASP Agentic Skills Top 10 v1.0](http
 - **CLI**: `2.4.3` → `2.4.4`
 - **Root**: `2.4.3` → `2.4.4`
 
-# [cli-v2.4.3] - 2026-05-20
+## [cli-v2.4.3] - 2026-05-20
 
-**Category**: Release Readiness & CLI Packaging
+**Stream**: CLI Tool · **Category**: Release Readiness & CLI Packaging
 
 ### Fixed
 
@@ -1628,9 +1747,9 @@ Maps this repo's security posture to the [OWASP Agentic Skills Top 10 v1.0](http
 - **CLI**: `2.4.2` → `2.4.3`
 - **Root**: `2.4.2` → `2.4.3`
 
-# [cli-v2.4.2] - 2026-05-19
+## [cli-v2.4.2] - 2026-05-19
 
-**Category**: Token Optimization & Redundancy Reduction
+**Stream**: CLI Tool · **Category**: Token Optimization & Redundancy Reduction
 
 ### Added
 
@@ -1654,9 +1773,9 @@ Maps this repo's security posture to the [OWASP Agentic Skills Top 10 v1.0](http
 - **Common Skills**: `2.0.7` → `2.0.8`
 - **Specialists**: `1.1.1` → `1.1.2`
 
-# [cli-v2.4.1] - 2026-05-19
+## [cli-v2.4.1] - 2026-05-19
 
-**Category**: 🔄 Configuration Self-Healing & Legacy Migration
+**Stream**: CLI Tool · **Category**: 🔄 Configuration Self-Healing & Legacy Migration
 
 ### Fixed
 
@@ -1668,9 +1787,9 @@ Maps this repo's security posture to the [OWASP Agentic Skills Top 10 v1.0](http
 
 - **CLI**: `2.4.0` → `2.4.1`
 
-# [mcp-v0.4.0] - 2026-05-19
+## [mcp-v0.4.0] - 2026-05-19
 
-**Category**: 🔌 Workflow Discovery & Execution Engine
+**Stream**: MCP Server · **Category**: 🔌 Workflow Discovery & Execution Engine
 
 ### Added
 
@@ -1685,9 +1804,9 @@ Maps this repo's security posture to the [OWASP Agentic Skills Top 10 v1.0](http
 
 - **MCP**: `0.3.0` → `0.4.0`
 
-# [cli-v2.4.0] - 2026-05-16
+## [cli-v2.4.0] - 2026-05-16
 
-**Category**: 🧭 Agentic-AI Learning Integration, Specialist Expansion & SDLC Hardening
+**Stream**: CLI Tool · **Category**: 🧭 Agentic-AI Learning Integration, Specialist Expansion & SDLC Hardening
 
 ### Added
 
@@ -1728,7 +1847,7 @@ Maps this repo's security posture to the [OWASP Agentic Skills Top 10 v1.0](http
 
 ## [cli-v2.4.0] - 2026-06-15
 
-**Category**: CLI Tool
+**Stream**: CLI Tool · **Category**: CLI Tool
 
 ### Maintenance
 
@@ -1736,7 +1855,7 @@ Maps this repo's security posture to the [OWASP Agentic Skills Top 10 v1.0](http
 
 ## [cli-v2.2.3] - 2026-05-10
 
-**Category**: 🔄 Workflow Sync Optimization & Registry Reliability
+**Stream**: CLI Tool · **Category**: 🔄 Workflow Sync Optimization & Registry Reliability
 
 ### Fixed
 
@@ -1753,7 +1872,7 @@ Maps this repo's security posture to the [OWASP Agentic Skills Top 10 v1.0](http
 
 ## [mcp-v0.2.0] - 2026-05-09
 
-**Category**: 🚀 Transport Modernization & Security Hardening
+**Stream**: MCP Server · **Category**: 🚀 Transport Modernization & Security Hardening
 
 ### Changed
 
@@ -1769,7 +1888,7 @@ Maps this repo's security posture to the [OWASP Agentic Skills Top 10 v1.0](http
 
 ## [cli-v2.2.2] / [mcp-v0.1.2] - 2026-05-09
 
-**Category**: 🤖 Specialist Integration & Reliability Hardening
+**Stream**: CLI Tool & MCP Server · **Category**: 🤖 Specialist Integration & Reliability Hardening
 
 ### Added
 
@@ -1804,7 +1923,7 @@ Maps this repo's security posture to the [OWASP Agentic Skills Top 10 v1.0](http
 
 ## [cli-v2.2.1] / [mcp-v0.1.1] - 2026-04-23
 
-**Category**: Fix — Type Safety & Configuration Paths
+**Stream**: CLI Tool & MCP Server · **Category**: Fix — Type Safety & Configuration Paths
 
 ### Fixed
 
@@ -1818,7 +1937,7 @@ Maps this repo's security posture to the [OWASP Agentic Skills Top 10 v1.0](http
 
 ## [cli-v2.2.0] / [mcp-v0.1.0] - 2026-04-22
 
-**Category**: Runtime Enforcement Layer — MCP Server + Consent-Respecting CLI Integration
+**Stream**: CLI Tool & MCP Server · **Category**: Runtime Enforcement Layer — MCP Server + Consent-Respecting CLI Integration
 
 ### Added
 
@@ -1891,11 +2010,14 @@ Audit found 6 broad-glob non-foundational skills whose keyword sets were too spa
 - **React**: `1.3.4` → `1.3.5` (keyword expansion: `react-security`, `react-typescript`)
 - **Swift**: `1.3.4` → `1.3.5` (keyword expansion: `swift-best-practices`)
 
----
+</details>
+
+<details>
+<summary>v2.0.x – v2.1.x Legacy Unified History (2.1.3 – 2.0.0, 2026-03-25 – 2026-04-22)</summary>
 
 ## [2.1.3] - 2026-04-22
 
-**Category**: Structured Frontmatter Migration & New Workflow Skills
+**Stream**: Unified (Legacy) · **Category**: Structured Frontmatter Migration & New Workflow Skills
 
 ### Added
 
@@ -1942,7 +2064,7 @@ All categories received a patch bump for the structured frontmatter migration:
 
 ## [2.1.2] - 2026-04-11
 
-**Category**: Token Economy & Custom Skill Indexing
+**Stream**: Unified (Legacy) · **Category**: Token Economy & Custom Skill Indexing
 
 ### Added
 
@@ -1983,7 +2105,7 @@ The following category-specific versions were bumped to reflect the global "Cave
 
 ## [2.1.1] - 2026-04-04
 
-**Category**: Fix Hierarchical Index Sync
+**Stream**: Unified (Legacy) · **Category**: Fix Hierarchical Index Sync
 
 ### Fixed
 
@@ -1995,6 +2117,8 @@ The following category-specific versions were bumped to reflect the global "Cave
 - **CLI**: v2.1.1 (Patch — fix metadata injection during sync)
 
 ## [2.1.0] - 2026-04-04
+
+**Stream**: Unified (Legacy)
 
 ### Added
 
@@ -2034,7 +2158,7 @@ The following category-specific versions were bumped to reflect the global "Cave
 
 ## [2.0.1] - 2026-03-30
 
-**Category**: Security Hardening & AI Learning Log System
+**Stream**: Unified (Legacy) · **Category**: Security Hardening & AI Learning Log System
 
 ### Added
 
@@ -2059,7 +2183,7 @@ The following category-specific versions were bumped to reflect the global "Cave
 
 ## [2.0.0] - 2026-03-25
 
-**Category**: Community Skill Score Improvements & New Store Changelog Skill & QE/Security Skill Enhancements
+**Stream**: Unified (Legacy) · **Category**: Community Skill Score Improvements & New Store Changelog Skill & QE/Security Skill Enhancements
 
 ### Added
 
@@ -2086,12 +2210,14 @@ The following category-specific versions were bumped to reflect the global "Cave
 - **All 234 framework skills**: Score-optimized via community PR #68 (patch-level description and content improvements)
 - **CLI**: v2.0.0 (Major — constants update and framework bump)
 
+</details>
+
 <details>
-<summary>Click to view versions 1.9.x and 1.10.x</summary>
+<summary>v1.9.x – v1.10.x Legacy Unified History (1.10.4 – 1.8.2, 2026-03-04 – 2026-03-21)</summary>
 
 ## [1.10.4] - 2026-03-21
 
-**Category**: CLI Fixes & Skill Registration Refactor
+**Stream**: Unified (Legacy) · **Category**: CLI Fixes & Skill Registration Refactor
 
 ### Fixed
 
@@ -2100,7 +2226,7 @@ The following category-specific versions were bumped to reflect the global "Cave
 
 ## [1.10.3] - 2026-03-21
 
-**Category**: Extended Backend Hardening & New Tooling
+**Stream**: Unified (Legacy) · **Category**: Extended Backend Hardening & New Tooling
 
 ### Added
 
@@ -2149,6 +2275,8 @@ The following category-specific versions were bumped to reflect the global "Cave
 
 ## [1.10.2] - 2026-03-16
 
+**Stream**: Unified (Legacy)
+
 - **Context Architecture Mastery**: Ultra-dense files (≤ 60 lines) that do not require external references can now achieve a perfect 10/10 score without needing dummy files.
 - **Inline Triggers**: Validates the highly-optimized `(triggers: ...)` syntax in the description string instead of relying on legacy YAML arrays.
 - **Skill Optimization**: Applied genuine "Progressive Disclosure" refactoring to the heaviest `SKILL.md` files (`database-postgresql`, `nextjs-pages-router`, `common-error-handling`, etc.) dropping maximum file sizes from ~900+ tokens to ~400 tokens by extracting code blocks into `references/`.
@@ -2163,7 +2291,7 @@ The following category-specific versions were bumped to reflect the global "Cave
 
 ## [1.10.0] - 2026-03-16
 
-**Category**: Gemini CLI Standard Compliance & Refactoring
+**Stream**: Unified (Legacy) · **Category**: Gemini CLI Standard Compliance & Refactoring
 
 ### Changed (All Skills)
 
@@ -2179,7 +2307,7 @@ The following category-specific versions were bumped to reflect the global "Cave
 
 ## [1.9.3] - 2026-03-15
 
-**Category**: Protocol Security & Refactoring Fixes
+**Stream**: Unified (Legacy) · **Category**: Protocol Security & Refactoring Fixes
 
 ### Fixed (CLI)
 
@@ -2212,7 +2340,7 @@ The following category-specific versions were bumped to reflect the global "Cave
 
 ## [1.9.2] - 2026-03-08
 
-**Category**: Trigger Rate Improvements — Stricter Pre-Flight Protocol & AGENTS.md Index Upgrade
+**Stream**: Unified (Legacy) · **Category**: Trigger Rate Improvements — Stricter Pre-Flight Protocol & AGENTS.md Index Upgrade
 
 ### Changed (CLI)
 
@@ -2239,7 +2367,7 @@ The following category-specific versions were bumped to reflect the global "Cave
 
 ## [1.9.1] - 2026-03-05
 
-**Category**: Intermittent Fetch Failure & Framework Detection Fix
+**Stream**: Unified (Legacy) · **Category**: Intermittent Fetch Failure & Framework Detection Fix
 
 ### Fixed (CLI)
 
@@ -2252,7 +2380,7 @@ The following category-specific versions were bumped to reflect the global "Cave
 
 ## [1.9.0] - 2026-03-04
 
-**Category**: Universal Trigger-Rate Optimization & Skill-Creator Enhancement
+**Stream**: Unified (Legacy) · **Category**: Universal Trigger-Rate Optimization & Skill-Creator Enhancement
 
 ### Changed (Skills — All Categories)
 
@@ -2308,11 +2436,11 @@ The following category-specific versions were bumped to reflect the global "Cave
 </details>
 
 <details>
-<summary>Click to view versions 1.7.x and 1.8.x</summary>
+<summary>v1.7.x – v1.8.x Legacy Unified History (1.8.1 – 1.7.0, 2026-02-24 – 2026-03-02)</summary>
 
 ## [1.8.1] - 2026-03-02
 
-**Category**: Agent Bridge Dynamic Path Correction & Logic Optimization
+**Stream**: Unified (Legacy) · **Category**: Agent Bridge Dynamic Path Correction & Logic Optimization
 
 ### Fixed (CLI)
 
@@ -2326,7 +2454,7 @@ The following category-specific versions were bumped to reflect the global "Cave
 
 ## [1.8.0] - 2026-03-02
 
-**Category**: Common Skills Gap Closure & CLI Smart Exclusions
+**Stream**: Unified (Legacy) · **Category**: Common Skills Gap Closure & CLI Smart Exclusions
 
 ### Added (Skills)
 
@@ -2381,7 +2509,7 @@ The following category-specific versions were bumped to reflect the global "Cave
 
 ## [1.7.3] - 2026-02-25
 
-**Category**: Skill Optimization & Next.js Pages Router Support & Workflow Standard
+**Stream**: Unified (Legacy) · **Category**: Skill Optimization & Next.js Pages Router Support & Workflow Standard
 
 ### Added
 
@@ -2403,14 +2531,14 @@ The following category-specific versions were bumped to reflect the global "Cave
 
 ## [1.7.2] - 2026-02-25
 
-**Category**: Workflow Robustness & CLI Sync Logic Hardening & Skill Standardization
+**Stream**: Unified (Legacy) · **Category**: Workflow Robustness & CLI Sync Logic Hardening & Skill Standardization
 
 ### Added
 
 - **🛡️ Workflow Lite Fallbacks**: Implemented logic in `codebase-review` to use basic grep/find patterns if specialized skills are missing, ensuring a baseline audit for all projects.
 - **📚 Level 3 Reference Material**: Created `references/PATTERNS.md` and `references/REMEDIATION.md` for Architecture and Security audits, keeping primary skills lean.
 
-#### Fixed (CLI v1.7.2)
+### Fixed (CLI v1.7.2)
 
 - **🔄 Sync Logic Hardening**: Fixed `ags sync` to respect explicitly empty agent lists (`agents: []`) and skip workflow/skill discovery when Antigravity is disabled.
 - **📦 Database Auto-Detection**: Fixed `ags init` to consistently detect database needs and auto-configure matching skills for NestJS, Go, and Spring Boot.
@@ -2444,7 +2572,7 @@ The following category-specific versions were bumped to reflect the global "Cave
 
 ## [1.7.1] - 2026-02-24
 
-**Category**: Skill Standardization & Feedback Loop Hardening & Battle-Test Workflow
+**Stream**: Unified (Legacy) · **Category**: Skill Standardization & Feedback Loop Hardening & Battle-Test Workflow
 
 ### Added
 
@@ -2480,7 +2608,7 @@ The following category-specific versions were bumped to reflect the global "Cave
 
 ## [1.7.0] - 2026-02-24
 
-**Category**: Service Architecture Refactoring & Clean Code
+**Stream**: Unified (Legacy) · **Category**: Service Architecture Refactoring & Clean Code
 
 ### Changed (CLI v1.7.0)
 
@@ -2498,11 +2626,11 @@ The following category-specific versions were bumped to reflect the global "Cave
 </details>
 
 <details>
-<summary>v1.6.x History</summary>
+<summary>v1.6.x Legacy Unified History (1.6.7 – 1.6.0, 2026-01-31 – 2026-02-24)</summary>
 
 ## [1.6.7] - 2026-02-24
 
-**Category**: Database Auto-Detection & Multi-Category Filtering
+**Stream**: Unified (Legacy) · **Category**: Database Auto-Detection & Multi-Category Filtering
 
 ### Added (CLI v1.6.7)
 
@@ -2530,7 +2658,7 @@ The following category-specific versions were bumped to reflect the global "Cave
 
 ## [1.6.6] - 2026-02-19
 
-**Category**: Flutter Design System & NestJS Testing Improvements
+**Stream**: Unified (Legacy) · **Category**: Flutter Design System & NestJS Testing Improvements
 
 ### Changed (Flutter Skills v1.3.1)
 
@@ -2566,7 +2694,7 @@ The following category-specific versions were bumped to reflect the global "Cave
 
 ## [1.6.5] - 2026-02-07
 
-**Category**: Index Robustness & Formatting & Skill Filtering
+**Stream**: Unified (Legacy) · **Category**: Index Robustness & Formatting & Skill Filtering
 
 ### Fixed (CLI v1.6.5)
 
@@ -2582,7 +2710,7 @@ The following category-specific versions were bumped to reflect the global "Cave
 
 ## [1.6.4] - 2026-02-07
 
-**Category**: Workflow Automation & E2E Verification Expansion
+**Stream**: Unified (Legacy) · **Category**: Workflow Automation & E2E Verification Expansion
 
 ### Added (CLI v1.6.4)
 
@@ -2600,7 +2728,7 @@ The following category-specific versions were bumped to reflect the global "Cave
 
 ## [1.6.3] - 2026-02-07
 
-**Category**: Documentation Governance & CLI/Server Hardening & Skillset Expansion
+**Stream**: Unified (Legacy) · **Category**: Documentation Governance & CLI/Server Hardening & Skillset Expansion
 
 ### Added (CLI v1.6.3)
 
@@ -2642,7 +2770,7 @@ The following category-specific versions were bumped to reflect the global "Cave
 
 ## [1.6.2] - 2026-02-01
 
-**Category**: Hybrid Rule Injection & GitHub Copilot Optimization
+**Stream**: Unified (Legacy) · **Category**: Hybrid Rule Injection & GitHub Copilot Optimization
 
 ### Added (CLI v1.6.2)
 
@@ -2658,7 +2786,7 @@ The following category-specific versions were bumped to reflect the global "Cave
 
 ## [1.6.1] - 2026-02-01
 
-**Category**: Skill Indexing Robustness & Bug Fixes
+**Stream**: Unified (Legacy) · **Category**: Skill Indexing Robustness & Bug Fixes
 
 ### Fixed (CLI v1.6.1)
 
@@ -2669,7 +2797,7 @@ The following category-specific versions were bumped to reflect the global "Cave
 
 ## [1.6.0] - 2026-01-31
 
-**Category**: Global Skill Compliance Audit & Progressive Disclosure Architecture & CLI Type-Safety
+**Stream**: Unified (Legacy) · **Category**: Global Skill Compliance Audit & Progressive Disclosure Architecture & CLI Type-Safety
 
 ### Changed (⚡ Skill Registry v1.6.0)
 
@@ -2729,11 +2857,11 @@ The following category-specific versions were bumped to reflect the global "Cave
 </details>
 
 <details>
-<summary>v1.5.x History</summary>
+<summary>v1.5.x Legacy Unified History (1.5.1 – 1.5.0, 2026-01-26)</summary>
 
 ## [1.5.1] - 2026-01-26
 
-**Category**: Systematic Token Optimization & Adaptive Model Selection & Sub-Agent Delegation Protocol
+**Stream**: Unified (Legacy) · **Category**: Systematic Token Optimization & Adaptive Model Selection & Sub-Agent Delegation Protocol
 
 ### Added (Common Skills v1.2.4)
 
@@ -2804,7 +2932,7 @@ The following category-specific versions were bumped to reflect the global "Cave
 
 ## [1.5.0] - 2026-01-26
 
-**Category**: Automated Feedback System & 100% Test Coverage & Build/Path Robustness
+**Stream**: Unified (Legacy) · **Category**: Automated Feedback System & 100% Test Coverage & Build/Path Robustness
 
 ### Added (CLI v1.5.0)
 
@@ -2837,11 +2965,11 @@ The following category-specific versions were bumped to reflect the global "Cave
 </details>
 
 <details>
-<summary>v1.4.x History</summary>
+<summary>v1.4.x Legacy Unified History (1.4.1 – 1.4.0, 2026-01-23)</summary>
 
 ## [1.4.1] - 2026-01-23
 
-**Category**: CLI Architectural Refactor & SOLID Principles Enforcement & Security Standards Consistency & React Native Support
+**Stream**: Unified (Legacy) · **Category**: CLI Architectural Refactor & SOLID Principles Enforcement & Security Standards Consistency & React Native Support
 
 ### Added (CLI v1.4.1)
 
@@ -2911,7 +3039,7 @@ The following category-specific versions were bumped to reflect the global "Cave
 
 ## [1.4.0] - 2026-01-23
 
-**Category**: Dynamic Skill Re-detection & Multi-module Android Support
+**Stream**: Unified (Legacy) · **Category**: Dynamic Skill Re-detection & Multi-module Android Support
 
 ### Added (CLI v1.4.0)
 
@@ -2970,11 +3098,11 @@ The following category-specific versions were bumped to reflect the global "Cave
 </details>
 
 <details>
-<summary>v1.3.x History</summary>
+<summary>v1.3.x Legacy Unified History (1.3.2 – 1.3.0, 2026-01-21 – 2026-01-22)</summary>
 
 ## [1.3.2] - 2026-01-22
 
-**Category**: Angular Expert Standards & Modern v17+ Patterns
+**Stream**: Unified (Legacy) · **Category**: Angular Expert Standards & Modern v17+ Patterns
 
 ### Added (Angular Skills v1.0.0)
 
@@ -3019,7 +3147,7 @@ The following category-specific versions were bumped to reflect the global "Cave
 
 ## [1.3.1] - 2026-01-22
 
-**Category**: Content-Level Optimization & Token Economy Guardrails and Workflow Automation & Code Review Standards
+**Stream**: Unified (Legacy) · **Category**: Content-Level Optimization & Token Economy Guardrails and Workflow Automation & Code Review Standards
 
 ### Added (CLI v1.3.1)
 
@@ -3060,7 +3188,7 @@ The following category-specific versions were bumped to reflect the global "Cave
 
 ## [1.3.0] - 2026-01-21
 
-**Category**: High-Density Standards & CLI Architecture Refactor
+**Stream**: Unified (Legacy) · **Category**: High-Density Standards & CLI Architecture Refactor
 
 ### Added (Common Skills v1.1.0)
 
@@ -3091,11 +3219,11 @@ The following category-specific versions were bumped to reflect the global "Cave
 </details>
 
 <details>
-<summary>v1.2.x History</summary>
+<summary>v1.2.x Legacy Unified History (1.2.0, 2026-01-20)</summary>
 
 ## [1.2.0] - 2026-01-20
 
-**Category**: Universal "Common" Skills & Windsurf Support
+**Stream**: Unified (Legacy) · **Category**: Universal "Common" Skills & Windsurf Support
 
 ### Added (Common Skills v1.0.0)
 
@@ -3129,11 +3257,11 @@ Major expansion of framework-agnostic standards to ensure high-quality software 
 </details>
 
 <details>
-<summary>v1.1.x History</summary>
+<summary>v1.1.x Legacy Unified History (1.1.2 – 1.1.0, 2026-01-18 – 2026-01-19)</summary>
 
 ## [1.1.2] - 2026-01-19
 
-**Category**: Flutter Skill Expansion & CLI Refinement
+**Stream**: Unified (Legacy) · **Category**: Flutter Skill Expansion & CLI Refinement
 
 ### Added (Flutter Skills v1.1.0)
 
@@ -3165,7 +3293,7 @@ Major expansion of the Flutter ecosystem with new reactive patterns, legacy supp
 
 ## [1.1.1] - 2026-01-18
 
-**Category**: Fullstack Framework (Next.js) & CLI Improvements
+**Stream**: Unified (Legacy) · **Category**: Fullstack Framework (Next.js) & CLI Improvements
 
 ### Added (CLI v1.1.1)
 
@@ -3192,6 +3320,8 @@ Comprehensive guide for App Router architecture and React Server Components.
 - **Optimization** - Core Web Vitals monitoring, built-in components, and Metadata API.
 
 ## [1.1.0] - 2026-01-18
+
+**Stream**: Unified (Legacy)
 
 ### Added (NestJS Skills v1.1.0)
 
@@ -3249,11 +3379,11 @@ Includes 18 specialized High-Density skills for Enterprise Backend Development.
 </details>
 
 <details>
-<summary>v1.0.x History</summary>
+<summary>v1.0.x Legacy Unified History (1.0.0, 2026-01-15)</summary>
 
 ## [1.0.0] - 2026-01-15
 
-**Category**: Flutter Framework Skills & Dart Programming Language Skills
+**Stream**: Unified (Legacy) · **Category**: Flutter Framework Skills & Dart Programming Language Skills
 
 ### Added (Flutter & Dart)
 
@@ -3300,9 +3430,9 @@ Includes 18 specialized High-Density skills for Enterprise Backend Development.
 - Progressive disclosure with main SKILL.md files
 - Version sync support via .skillsrc configuration
 
+</details>
+
 ---
 
 **Maintainer**: Hoang Nguyen  
 **Registry**: <https://github.com/HoangNguyen0403/agent-skills-standard>
-
-</details>
