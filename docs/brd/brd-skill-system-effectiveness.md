@@ -23,17 +23,23 @@ SNC: S=2 N=1 C=2 total=5 tier=high. Cross-component assessment includes routing,
 
 **Non-goals:** Rewrite the architecture; expand the skill catalog; certify every host; audit every skill; change security enforcement; automatically promote feedback into policy; claim the article's illustrative token savings as this project's ROI.
 
-### Acceptance criteria and requirement trace seed
+### Acceptance criteria and direction contract
 
-- **BRD-OBJ-001 → REQ-001 → AC-001:** Map all eight article layers to repository evidence and state whether each claim is design, implemented source, observed runtime, or measured outcome.
-- **BRD-OBJ-001 → REQ-002 → AC-002:** Give a qualified good-enough verdict, with report dates, evaluated populations and limitations; do not merge different report populations.
-- **BRD-OBJ-002 → REQ-003 → AC-003:** Rank improvement opportunities with maintainer benefit, user benefit, cost/risk and a measurable validation method; benefits not measured remain hypotheses.
-- **BRD-OBJ-002 → REQ-004 → AC-004:** Define the first bounded slice using existing pilot/measurement contracts; identify owner, decision gate and missing evidence without reopening approved unrelated work.
-- **BRD-OBJ-002 → REQ-005 → AC-005:** Save this pending brief, preserve approval boundaries, and route empirical value hypotheses to validate-product before any efficacy claim.
+- **Clause 1 — Evidence mapping:** Map all eight article layers to repository evidence and state whether each claim is design, implemented source, observed runtime, or measured outcome (addresses BRD-OBJ-001).
+- **Clause 2 — Good-enough verdict:** Give a qualified good-enough verdict, with report dates, evaluated populations and limitations; do not merge different report populations (addresses BRD-OBJ-001).
+- **Clause 3 — Improvement ranking:** Rank improvement opportunities with maintainer benefit, user benefit, cost/risk and a measurable validation method; benefits not measured remain hypotheses (addresses BRD-OBJ-002).
+- **Clause 4 — First bounded slice:** Define the first bounded slice using existing pilot/measurement contracts; identify owner, decision gate and missing evidence without reopening approved unrelated work (addresses BRD-OBJ-002).
+- **Clause 5 — Route hypothesis:** Save this pending brief, preserve approval boundaries, and route empirical value hypotheses to validate-product before any efficacy claim (addresses BRD-OBJ-002).
 
-These are candidate PRD links, not a second editable definition of existing pilot requirements. Existing pilot AC-ROI-12/13/14 remain owned by their cited authority.
+These are candidate direction clauses, not a second editable definition of existing pilot requirements. Existing pilot criteria 12/13/14 remain owned by their cited authority.
 
 ## Why
+
+- **Objective ID**: BRD-OBJ-001
+- **Objective Statement**: Within 10 working days after brief approval, the requesting maintainer and validation owner produce one reviewed evidence-readiness decision covering all eight layers and every claim proposed for a selected pilot. Target: 100% of those claims have an evidence scope or explicit unknown, and zero unsupported efficacy/savings claims. This is a documentation decision window, not a spend or execution commitment.
+
+- **Objective ID**: BRD-OBJ-002
+- **Objective Statement**: If a separately authorized diagnostic is selected, retain the existing backend/system-design pilot hypothesis: at least 20% lower median human review/rework minutes versus current AGS, no accepted-task-rate regression, and no observed critical invariant violation. Baseline is not yet measured; window defaults to 30 days after separate pilot authorization and prerequisite readiness. Report counts, dispersion and incomplete attempts. A small diagnostic cannot establish safety or statistical significance.
 
 **Business objective:** Users should receive consistently useful, appropriately controlled work; maintainers should know which skills and changes improve accepted outcomes rather than only increasing catalog size or structural scores.
 
@@ -42,12 +48,6 @@ These are candidate PRD links, not a second editable definition of existing pilo
 **AS-IS:** There are concrete mechanisms for all eight layers, transcript evaluations and explicit delivery-observation accounting. Published evidence does not establish complete real-task effectiveness, complete host enforcement, or attributable labor/cost savings.
 
 **TO-BE:** Maintainers can identify exactly what is supported, on which revision/host, with what evidence; users can distinguish tested capabilities from unverified promises. Changes are adopted based on comparable accepted-task outcomes and safety checks.
-
-**SMART metric — proposed defaults:**
-
-1. BRD-OBJ-001: Within 10 working days after brief approval, the requesting maintainer and validation owner produce one reviewed evidence-readiness decision covering all eight layers and every claim proposed for a selected pilot. Target: 100% of those claims have an evidence scope or explicit unknown, and zero unsupported efficacy/savings claims. This is a documentation decision window, not a spend or execution commitment.
-2. BRD-OBJ-002: If a separately authorized diagnostic is selected, retain the existing backend/system-design pilot hypothesis: at least 20% lower median human review/rework minutes versus current AGS, no accepted-task-rate regression, and no observed critical invariant violation. Baseline is not yet measured; window defaults to 30 days after separate pilot authorization and prerequisite readiness. Report counts, dispersion and incomplete attempts. A small diagnostic cannot establish safety or statistical significance.
-
 First-pass acceptance, correction rounds, human review minutes, material revisions and human edit count are distinct. Do not substitute one for another. A target is not a result.
 
 ## Capability Inventory and Evidence
@@ -189,7 +189,7 @@ Route to validate-product for the critical value hypothesis, reusing the existin
 
 Status: `proposal_only`; delivery remains `requirements_ready`; value hypothesis remains unvalidated. This assessment reconciles earlier checkout-only unknowns; it does not replace original pilot approvals.
 
-- **Recovered authority:** Git object `4acc21f4d:docs/prd/prd-backend-system-design-roi-improvement.md` records accepted/frozen guidance and completed T6 repository integration, but explicitly leaves T7 unauthorized. Historical pilot AC-ROI-12/13/14 correspond to that PRD's canonical AC-012/013/014; do not create duplicate requirements.
+- **Recovered authority:** Git object `4acc21f4d:docs/prd/prd-backend-system-design-roi-improvement.md` records accepted/frozen guidance and completed T6 repository integration, but explicitly leaves T7 unauthorized. Historical pilot criteria correspond to that PRD's canonical criteria; do not create duplicate requirements.
 - **Recovered freeze:** `4acc21f4d:artifacts/backend-system-design-roi-improvement/evidence/reviews/accepted-source-freeze.json` identifies baseline `92d06c420f6a41f08e11579423e4e3eacdb7880d` and ten accepted source hashes. These were inspected, not all recomputed against current source.
 - **Verified current packet:** Node parsed three cases (ROI-PAY-01, ROI-TEN-01, ROI-OVL-01); current SHA-256 `5fcd1f4bcc7ff439cb950afa65be0d50f5421776911585237ef1e65f4861f0d7` equals the retained `4acc21f4d:artifacts/backend-system-design-roi-improvement/evidence/reviews/T5-acceptance-review.md` packet digest. Packet status is `prepared_sealed_not_executed`; its own provenance limits it to semi-blind evidence.
 - **Unrecovered artifact:** original `.agent/sdd/backend-system-design-roi-improvement/lead-dispatch-contract.md` was absent locally and produced no entries in the inspected all-ref path history. This is a precise retrieval gap, not proof it never existed.

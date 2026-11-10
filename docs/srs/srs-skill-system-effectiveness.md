@@ -31,8 +31,8 @@ SNC: S=2 N=2 C=2 total=6 tier=high
 ## Trace Source and Authority
 
 - Current source inspected: Git `52671cf9ed6a1c376dfaaae7e621dbc51a4c8765`, plus the explicitly approved local BRD and conversation. A commit identity does not identify uncommitted document bytes; hash this SRS and BRD at approval/dispatch.
-- Approved work item: [BRD](../brd/brd-skill-system-effectiveness.md), approval `approved(requesting maintainer, 2026-11-05)`; source links REQ-003/004/005 and AC-003/004/005. The subsequent conversation approved drafting bounded technical design, not implementing it.
-- Original pilot requirements: Git `4acc21f4d:docs/prd/prd-backend-system-design-roi-improvement.md`, REQ-006/008 and AC-012/013/017/018/019, scoped to that original slug. Do not confuse equal IDs across documents.
+- Approved work item: [BRD](../brd/brd-skill-system-effectiveness.md), approval `approved(requesting maintainer, 2026-11-05)`; source links BRD-OBJ-001 and BRD-OBJ-002. The subsequent conversation approved drafting bounded technical design, not implementing it.
+- Original pilot requirements: Git `4acc21f4d:docs/prd/prd-backend-system-design-roi-improvement.md`, requirements 006/008 and criteria 012/013/017/018/019, scoped to that original slug. Do not confuse equal IDs across documents.
 - Existing [pilot contract](../../benchmarks/evals/backend-system-design-roi-pilot.md), especially §§5–7: candidate-owned code, separate grading lanes, runtime gap and cost/approval boundaries.
 - HLD-SSE-001: generate outside isolation → ingest frozen bundle → build offline → execute with trusted fault drivers → retain evidence → independently review. All arrows are explicit handoffs, not inherited authority.
 
@@ -57,7 +57,7 @@ All cards are Must, Draft; one authoritative verification mapping per card follo
 
 ### SRS-001 — Reject unbound or unauthorized inputs
 
-Source: BRD REQ-004/AC-004; original REQ-008/AC-018. CMP-SSE-001; LLD-SSE-001.
+Source: BRD-OBJ-001, BRD-OBJ-002. CMP-SSE-001; LLD-SSE-001.
 
 Controller validates the full frozen manifest, artifacts, protocol and runtime-policy bindings before any build/run. An absent/expired grant, missing field, unknown adapter or changed digest returns `preflight_failed` without spawning a candidate. Approval names in JSON are not authority; the host adapter must independently establish the scoped grant or refuse the action. A content hash is integrity evidence, not authenticated provenance.
 
@@ -65,7 +65,7 @@ Verification: VER-SSE-001, integration/security — `preflight-rejections.json`:
 
 ### SRS-002 — Contain build and execution
 
-Source: BRD REQ-004/AC-004; original REQ-006/AC-012. CMP-SSE-001/002; LLD-SSE-002.
+Source: BRD-OBJ-001, BRD-OBJ-002. CMP-SSE-001/002; LLD-SSE-002.
 
 Build and run occur in separate fresh nonprivileged containers inside an authorized disposable Linux VM. No host home/repo, credentials, Docker socket, devices, privileged mode, external network, published ports or writable grader mount. All capabilities dropped, no-new-privileges, read-only root, non-root user, bounded writable storage, pinned approved image digest and resource limits. Only controller-owned VM workspace data is mounted; reject symlinks/hardlinks, path traversal, special files and mount escapes before ingress. Candidate does not choose images, runtime flags, mounts or shell command strings. Invoke fixed argv without a shell. Runtime controls unavailable or not verifiable → `preflight_failed`, never fall back to ordinary host execution.
 
@@ -75,7 +75,7 @@ Verification: VER-SSE-002, security/runtime — `containment-receipt.json`: adve
 
 ### SRS-003 — Execute candidate-owned mechanisms
 
-Source: original REQ-006/AC-012/013; BRD REQ-004/AC-004. CMP-SSE-002/003; LLD-SSE-003.
+Source: BRD-OBJ-001, BRD-OBJ-002. CMP-SSE-002/003; LLD-SSE-003.
 
 Admit only the frozen artifact contract for the chosen protocol: initial supported target is a dependency-locked Node.js service with a fixed entrypoint. The same language, operations, inputs and tool allowances apply to all arms. Candidate implements persistence, operation identity, authorization, caches, capacity and recovery; adapters may translate inputs/outputs but cannot insert those policies. Prose-only or incompatible output is `artifact_unavailable`/`artifact_invalid`; never synthesize an implementation and attribute it to that arm. No automatic generation repair or hidden retries. Deliberately vulnerable local controls prove the driver detects faults; they are evaluator tests and never experiment participants.
 
@@ -83,7 +83,7 @@ Verification: VER-SSE-003, integration — `adapter-conformance.json`: safe and 
 
 ### SRS-004 — Separate observed failure from absent proof
 
-Source: original REQ-008/AC-018/019; BRD REQ-003/AC-003. CMP-SSE-001/004; LLD-SSE-004.
+Source: BRD-OBJ-001, BRD-OBJ-002. CMP-SSE-001/004; LLD-SSE-004.
 
 One attempt ends in exactly one terminal state defined below. Candidate crash, bad response or resource-limit termination after case start is a retained candidate failure; VM/driver/runtime malfunction is `infrastructure_error`, not candidate unsoundness. A failed probe is not silently retried. Preserve all incurred work and observation coverage; incomplete evidence prevents pass. Any critical invariant failure aborts remaining cases under the authorized stop policy and remains in the report; it cannot be masked by later successes.
 
@@ -91,7 +91,7 @@ Verification: VER-SSE-004, integration — `lifecycle-failures.json`: injected b
 
 ### SRS-005 — Bind evidence to the exact attempt
 
-Source: original REQ-008/AC-017/018/019; BRD REQ-005/AC-005. CMP-SSE-004; LLD-SSE-004.
+Source: BRD-OBJ-001, BRD-OBJ-002. CMP-SSE-004; LLD-SSE-004.
 
 Use new immutable run/attempt directories, exclusive creation and atomic final receipt publication. Store frozen manifest, source/image/driver/policy digests, original generated artifact, approved generation-context identity, build receipts, lifecycle IDs, fault schedule/seed, independent observations, bounded stdout/stderr, verdict and limitations. Reject overwrite/resume on changed inputs. New execution is a new attempt with linkage to its predecessor, never a replacement. Candidate output is untrusted data: no tool directives, secrets or arm labels are promoted into instructions or blind grading bundles. Controller retains arm mapping separately under operator-controlled access.
 
@@ -101,7 +101,7 @@ Verification: VER-SSE-005, integration/integrity — `evidence-integrity.json`: 
 
 ### SRS-006 — Preserve protocol and publication boundaries
 
-Source: BRD REQ-003/004/005; original REQ-008/AC-019. CMP-SSE-001/004; HLD-SSE-001.
+Source: BRD-OBJ-001, BRD-OBJ-002. CMP-SSE-001/004; HLD-SSE-001.
 
 L3 uses a new `artifact-v1` protocol and explicit A0/A1/A2 arm IDs in its own schema; do not expand or reinterpret existing `baseline|with-skill` transcript types. Keep L1 lexical results, L2 semantic verdicts and L3 executable results separate. New protocol prompts are frozen and supplied identically apart from skill content; A0 receives no repository/skill mount. Content retrieval restrictions during generation require host proof, not just instructions. Keep new artifacts outside the existing report input tree so generic aggregation cannot discover them accidentally. No catalog readiness update, release or broader support claim from local controls or one diagnostic pilot.
 
@@ -285,7 +285,7 @@ A single controller/evidence integration owner arbitrates shared interfaces. D2 
 
 Design details are supplied; remaining gates are independent review and scoped implementation authority, plus provisioning authority for live qualification. These are not missing design-writing tasks. Exact input/image digests bind real artifacts at dispatch/provisioning; do not fabricate them now or treat absent future artifacts as proof of a missing architecture.
 
-Independent revision-2 review requested corrections F1/F2/F3 and tenant pause semantics. Independent revision-3 delta review closed all four and returned APPROVE FOR SOURCE IMPLEMENTATION, design scope only. See [review evidence](srs-review-skill-system-effectiveness.md) for reviewed digest and limitations. No human implementation authority, VM activation, runtime proof or spending follows from this reviewer verdict.
+Independent revision-2 review requested corrections F1/F2/F3 and tenant pause semantics. Independent revision-3 delta review closed all four and returned APPROVE FOR SOURCE IMPLEMENTATION, design scope only. See [review evidence](review-skill-system-effectiveness.md) for reviewed digest and limitations. No human implementation authority, VM activation, runtime proof or spending follows from this reviewer verdict.
 
 ## Implementation Sequence and Ownership
 
@@ -305,6 +305,6 @@ UI/mobile/visual verification is inapplicable: no UI changes. Integration/securi
 - blocked(experiment execution, maintainer, separate current scoped authorization and complete finite bounds).
 - blocked(value conclusion, human validation owner, comparable observed acceptance/review data and complete cost coverage).
 
-Revision-3 design review remains historical evidence, not proof of revision-4 implementation. The requesting maintainer approved the minimal direct-VZ backend amendment while preserving the security invariants and dedicated local disposable-VM target. D1 source/API is accepted; D2/D3 and then D4 still require implementation verification and independent acceptance. Sensitive runtime behavior is not live-qualified. The [walkthrough](srs-walkthrough-skill-system-effectiveness.md) and [review record](srs-review-skill-system-effectiveness.md) retain prior history. Parent requirements remain unchanged. Provisioning and live qualification remain separately gated.
+Revision-3 design review remains historical evidence, not proof of revision-4 implementation. The requesting maintainer approved the minimal direct-VZ backend amendment while preserving the security invariants and dedicated local disposable-VM target. D1 source/API is accepted; D2/D3 and then D4 still require implementation verification and independent acceptance. Sensitive runtime behavior is not live-qualified. The [walkthrough](srs-walkthrough-skill-system-effectiveness.md) and [review record](review-skill-system-effectiveness.md) retain prior history. Parent requirements remain unchanged. Provisioning and live qualification remain separately gated.
 
 Next: complete and independently review the bounded direct-VZ design delta and remaining D2/D3 source corrections; integrate D4 after accepted dependencies; verify the actual local validate entrypoint. D5 requires separate activation authority and observed control evidence. Do not reopen settled source authority or infer paid pilot authority.
