@@ -20,67 +20,55 @@ metadata:
 
 ## **Priority: P0 (CRITICAL)**
 
-Before writing any code, commit to deliberate aesthetic direction grounded in product context.
+Commit to deliberate aesthetic direction grounded in task, audience, and brand before writing code.
 
-## Phase 0: Design Thinking & Direction (Pre-Code)
+## Phase 0: Design Thinking & Journey Hierarchy (Pre-Code)
 
-Answer these before touching implementation:
+Answer these before choosing components or layouts:
 
-1. **Context & Baseline**: For existing designs, **polish is the default** (preserve structure/behavior). Restyle or rethink requires explicit request. For new designs, explore purposefully without an absent baseline constraint.
-2. **Audience & Task**: Who uses the interface, under what conditions, and what constitutes task success?
-3. **Character & Tone**: Define 2–3 concrete traits grounded in brand and domain (e.g., utilitarian, editorial, refined, playful, minimal) — intentionality, not extreme novelty, is key.
-4. **Visual Purpose**: Ensure visual choices support task clarity; a restrained, coherent neutral design is fully valid when justified by utility and domain.
+1. **Context & Baseline**: For existing designs, **polish is the default** (preserve structure/behavior). Restyle and rethink BOTH require explicit human request and approval; restyle preserves flow and content behavior, rethink alters structure. For new designs, explore purposefully without an absent baseline constraint.
+2. **Audience & Primary Journey**: Establish primary user journey, required decisions, content order, and dominant action before picking components. Reject automatic hero → equal-card → pricing templates without task purpose. Cards group genuinely independent items; never enforce generic symmetry over hierarchy.
+3. **Character & Tone**: Define 2–3 concrete traits grounded in brand and domain (e.g., utilitarian, editorial, refined, playful). Intentionality over extreme novelty. Restrained neutral design is valid when utility demands it.
+4. **Visual Purpose & Restraint**: Visual hierarchy must direct attention to task completion; preserve required helper text, safety notices, and keyboard focus destinations.
 
-## Aesthetic Dimensions
+## Aesthetic & Design System Foundations
 
-### Typography
-
-- Match typography to brand personality and platform conventions. Platform typography (`system-ui`, SF Pro, Roboto, Segoe UI) is valid for high-density, utility-first interfaces; pair distinctive display + refined body fonts when brand identity demands character.
+### Typography & Spatial Composition
+- Match typography to personality and platform conventions. Platform fonts (`system-ui`, SF Pro, Roboto) are valid for high-density tools; pair distinctive display + refined body fonts when identity demands character.
 - Ensure readable type scale, robust hierarchy, and accessible line lengths.
-- Self-host web fonts via framework loaders or `@font-face` — never use CDN `<link>` in production.
-- See [Font Pairing & Tone Examples](references/tones.md)
+- Self-host fonts via framework loaders or `@font-face` — never use CDN `<link>` in production.
+- Structure density by purpose: generous negative space for focus; compact rhythm for data. Grid breaks must serve flow, not ornament.
+- See [Tone Palette & Font Pairings](references/tones.md)
 
-### Color & Theme
-
-- Deliberate color system: dominant brand tone + semantic states, with an accent or restrained neutral palette suited to the task.
-- Ground mode choice (light, dark, high-contrast) in audience ergonomics, task lighting, and brand requirements.
-- Use CSS custom properties (`--color-primary`, `--color-accent`) for consistent token binding.
-- Ensure WCAG AA contrast compliance across all text and interactive states.
-
-### Spatial Composition & Depth
-
-- Structure spatial density by purpose: generous negative space for focus; controlled density for data tools.
-- Grid breaks and asymmetry must serve information flow, never decorative gimmickry.
-- Backgrounds and depth: choose functional surfaces (crisp neutrals for reading clarity, layered depth and subtle borders for elevation) aligned with tone. Avoid unconsidered solid fills and gratuitous textures alike.
+### Role-Based Color, Tokens & Contrast
+- **System First**: Use existing project design systems first. If absent, define minimal role-based tokens: brand accent vs semantic roles (success, warning, error, info); canvas, surface, overlay, border, focus; paired text/icon foregrounds; control radii and elevation.
+- **Harmony & Relationships**: Evaluate undertones, saturation, lightness, and meaningful surface separation with visual emphasis proportional to task importance. No fixed palette ratios, color counts, or mandatory OKLCH.
+- **Composited Contrast**: WCAG AA on actual browser-composited pixels for solid fills, alpha overlays, and gradients across all intermediate glyph regions and state cues (normal text ≥ 4.5:1, large text ≥ 3:1, non-text cues ≥ 3:1).
+- **Theme & States**: Dark themes require independent surface/text mappings, not color inversion; respect forced colors. Non-color-only state cues (icons/text/patterns). Cover interactive states (hover, focus, pressed, disabled, loading).
 
 ### Motion
+- One well-orchestrated transition > scattered micro-interactions. CSS-first; always honor `prefers-reduced-motion`. See [Motion Patterns](references/motion.md).
 
-- One well-orchestrated entrance or transition > scattered micro-interactions.
-- CSS-first: `@keyframes`, `transition`, `animation-delay`; motion libraries only for complex choreography.
-- Always respect `prefers-reduced-motion`.
-- See [Motion Patterns](references/motion.md)
+## Rendered Critique & Human Refinement
 
-## Human Direction & Refinement
-
-- **Existing Designs**: Default to **Polish** (fix spacing, contrast, alignment). Keep layout and behavior intact.
-- **Creative Changes**: Material creative shifts require **explicit human approval**.
-- **Critique Loop**: Follow `Observation → Impact → Smallest Change → Preserve Constraint`.
-- **Classification**: Distinguish defects (must fix), context concerns (recommend), and taste (human judgment decides; original or preference can win without objective clarity proof).
-- When using Stitch, Stitch generates screens; AI recommends and human approves direction.
+- **Rendered Inspection**: Critique actual screenshots and populated viewports with state and region specificity.
+- **Loop**: `Observation → Impact → Smallest Change → Preserve Constraint`. Distinguish verifiable facts from impact hypotheses.
+- **Classification**: Defects (must fix), context concerns (recommend), taste (human judgment decides; original or preference can win without objective proof).
+- **Three Separate Delivery Receipts**: Separate functional smoke (interaction/keyboard/contract), human visual acceptance (maintainer appearance sign-off), and model efficacy (controlled empirical benchmark).
 - See [Human Direction & Refinement Protocol](references/human-direction.md)
 
 ## Anti-Patterns
 
-- **No ungrounded novelty**: Do not force extreme brutalism or decorative chaos onto utility-first tools.
-- **No unreasoned style bans or defaults**: Do not ban colors (e.g. brand-appropriate purple) or force gratuitous accents; ground palette decisions in task and brand rationale rather than cliché.
-- **No unapproved restyle**: Never dismantle existing layouts without explicit human direction.
-- **No scattered animations**: Avoid random hover effects; keep transitions cohesive and functional.
-- **No inaccessible styling**: Never compromise readability, touch targets, or contrast for aesthetic flair.
+- **Reject unjustified template defaults**: Do not default to hero → three equal cards → pricing grid when unsupported by task.
+- **No unreasoned style bans**: Do not ban colors (e.g. brand-appropriate purple), cards, or platform fonts; ground choices in task and brand.
+- **No unapproved restyle/rethink**: Never dismantle existing layouts or recovery flows without explicit human direction.
+- **No uncomposited contrast shortcuts**: Never test gradient/alpha contrast at endpoints alone or convey status by color alone.
+- **No false equivalence**: Never treat passing automated tests as human visual acceptance or model efficacy.
 
 ## References
 
-- [Human Direction & Refinement Protocol](references/human-direction.md) — load for refinement briefs, borrow/avoid rules, and critique loops
-- [Tone Palette & Font Pairings](references/tones.md) — load when choosing aesthetic direction or fonts
+- [Human Direction & Refinement Protocol](references/human-direction.md) — refinement tiers, rendered critique loop, and concrete bad->better examples
+- [Tone Palette & Font Pairings](references/tones.md) — role-based tokens, color harmony, compositing rules, and font pairings
 - [Motion Patterns](references/motion.md) — load when implementing animations or transitions
 
 ## Canonical response anchors
