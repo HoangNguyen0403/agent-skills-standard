@@ -113,3 +113,35 @@ See [dom-snapshot-vs-screenshot.md](dom-snapshot-vs-screenshot.md).
 **Trigger:** any verification (run alongside other scenarios).
 **Steps:** `console` + `network` after navigation.
 **Pass:** No BLOCKING console errors (`Hydration failed`, `Uncaught`, etc.). Main doc HTTP `< 400`.
+
+---
+
+## 15. Multi-viewport responsive audit
+
+**Trigger:** Any layout, page, or responsive component change.
+**Steps:** Render interface across benchmark defaults: 1440×900 (desktop), 768×1024 (tablet), and 375×812 (mobile) → check primary CTA discoverability/reachability, touch targets (≥24×24px WCAG 2.5.8 AA, with spacing/inline exceptions; 44×44px AAA is separate guideline), content clipping, and unintentional horizontal overflow → capture full-resolution screenshot at each viewport.
+**Pass:** Primary task actions immediately reachable; no clipped text or obscured controls; touch targets meet minimums; local scroll areas deliberate (e.g. wide data tables).
+
+---
+
+## 16. Desktop 200% zoom check (text scaling & reflow)
+
+**Trigger:** Page layout, form, modal, or reading flow verification.
+**Steps:** Apply genuine browser-level 200% zoom on desktop (1440×900) using verified native zoom shortcuts/mechanisms with observable zoom metrics → verify text scaling and reflow. Note: this is a chosen benchmark scenario for text scaling (WCAG 1.4.4), NOT complete WCAG 1.4.10 320px reflow proof. If harness lacks genuine browser-level zoom, record status explicitly as `NOT RUN: genuine browser zoom unsupported by driver` (do NOT substitute window resize, dSF, or CSS zoom).
+**Pass:** Body text reflows without 2D scrolling; sticky headers/footers do not occlude interactive fields; actions remain operable. Documented 2D content exceptions (e.g. data tables, maps, diagrams) may provide intentional horizontal scrolling.
+
+---
+
+## 17. Composited surface & state contrast audit
+
+**Trigger:** Components with gradients, alpha overlays, backdrop filters, or custom interactive states.
+**Steps:** Sample foreground text against actual composited pixel background (across gradient spans, not endpoints alone; under translucent overlays) → inspect active `:hover` and `:focus-visible` states → verify focus indicators against adjacent surfaces. Note: Inactive/disabled controls and purely decorative elements have NO contrast requirement under WCAG 1.4.3/1.4.11.
+**Pass:** Active normal text ≥ 4.5:1, large text ≥ 3:1, focus ring and active UI state cues ≥ 3:1 against composited surfaces; visible focus indicator min 2px solid; color not sole state indicator; inactive/disabled controls exempt. Automated tool passes noted as catching only a limited subset of accessibility requirements.
+
+---
+
+## 18. Human visual acceptance walkthrough
+
+**Trigger:** Proposed UI improvement, demonstration candidate, or visual redesign.
+**Steps:** Assemble paired before/after screenshots across 1440×900, 768×1024, and 375×812 → document `Observation → Impact (labeled hypothesis) → Smallest Change → Preserve Constraint` → present to project maintainer.
+**Pass:** Maintainer explicitly grants visual acceptance. Automated test scripts or AI heuristic ratings can prove functional smoke, but NEVER grant aesthetic or visual sign-off.
