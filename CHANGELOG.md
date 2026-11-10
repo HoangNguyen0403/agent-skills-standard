@@ -10,39 +10,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [Unreleased](#unreleased) — Pending source changes and release candidates
 - [Release Streams](#release-streams) — Independent package and category tag prefixes
 - [Recent Releases](#recent-releases) — Dated releases from October – November 2026
-- [Historical Archives](#historical-archives) — Collapsible archive (`2026-09` back to `v1.0.0`)
+- [Historical Archives](#historical-archives) — Collapsible archive (`2026-10` and earlier, back to `v1.0.0`)
 
 ### Release Streams
 
-| Stream | Tag Prefix | Scope |
-| --- | --- | --- |
-| **Unreleased** | `Unreleased` | Pending source changes and release candidates |
-| **CLI Tool** | `cli-v*` | `agent-skills-standard` (`ags`) CLI package |
-| **MCP Server** | `mcp-v*` | `agent-skills-standard-mcp` server package |
-| **Skill & Workflow Packs** | `<category>-v*`, `workflows-v*`, `specialists-v*` | Versioned registry categories, workflows, and specialists |
-| **Tooling** | `tooling` | Repository CI, evaluation, benchmark, and trace tooling |
-| **Unified (Legacy)** | `v1.0.0` – `v2.1.3` | Pre-split unified monorepo releases |
+- **CLI Tool** (`cli-v*`): `agent-skills-standard` (`ags`) CLI package
+- **MCP Server** (`mcp-v*`): `agent-skills-standard-mcp` server package
+- **Skill & Workflow Packs** (`<category>-v*`, `workflows-v*`, `specialists-v*`): Versioned categories, workflows, and specialists
+- **Tooling** (`tooling`): Repository CI, evaluation, benchmark, and trace tooling
+- **Unified (Legacy)** (`v1.0.0`–`v2.1.3`): Pre-split unified monorepo releases
 
 ### Recent Releases
 
-| Release / Section | Date | Stream |
-| --- | --- | --- |
-| [`[mcp-v0.8.2]`](#mcp-v082---2026-11-06) | 2026-11-06 | MCP Server |
-| [`[Unreleased]`](#unreleased) | — | Unreleased |
-| [`[cli-v2.7.4]`](#cli-v274---2026-11-05) | 2026-11-05 | CLI Tool |
-| [`[mcp-v0.8.1]`](#mcp-v081---2026-11-05) | 2026-11-05 | MCP Server |
-| [`[cli-v2.7.3]`](#cli-v273---2026-11-05) | 2026-11-05 | CLI Tool |
-| [`[cli-v2.7.2]`](#cli-v272---2026-11-04) | 2026-11-04 | CLI Tool |
-| [`[common-v2.9.0]` `[workflow-v1.1.6]` `[system-design-v1.2.4]` `[quality-engineering-v1.6.1]` `[product-management-v1.0.1]`](#common-v290-workflow-v116-system-design-v124-quality-engineering-v161-product-management-v101---2026-10-21) | 2026-10-21 | Skill & Workflow Packs |
-| [`[common-v2.8.7]`](#common-v287---2026-10-09) | 2026-10-09 | Skill & Workflow Packs |
-| [`[mcp-v0.7.0]`](#mcp-v070---2026-10-09) | 2026-10-09 | MCP Server |
-| [`[workflows-v1.1.5]`](#workflows-v115---2026-10-09) | 2026-10-09 | Skill & Workflow Packs |
-| [`[cli-v2.6.6]` / `[mcp-v0.6.1]`](#cli-v266--mcp-v061---2026-10-07) | 2026-10-07 | CLI Tool & MCP Server |
-| [`[common-v2.8.6]`](#common-v286---2026-10-07) | 2026-10-07 | Skill & Workflow Packs |
-| [`[golang-v1.3.9]`](#golang-v139---2026-10-07) | 2026-10-07 | Skill & Workflow Packs |
-| [`[react-v1.4.2]`](#react-v142---2026-10-07) | 2026-10-07 | Skill & Workflow Packs |
-| [`[workflows-v1.1.4]`](#workflows-v114---2026-10-07) | 2026-10-07 | Skill & Workflow Packs |
-| [Historical Archives](#historical-archives) | 2026-01-15 – 2026-09-30 | Collapsible Eras |
+- **2026-11-06**: [`[mcp-v0.8.2]`](#mcp-v082---2026-11-06) (MCP Server)
+- **Pending**: [`[Unreleased]`](#unreleased)
+- **2026-11-05**: [`[cli-v2.7.4]`](#cli-v274---2026-11-05) · [`[mcp-v0.8.1]`](#mcp-v081---2026-11-05) · [`[cli-v2.7.3]`](#cli-v273---2026-11-05)
+- **2026-11-04**: [`[cli-v2.7.2]`](#cli-v272---2026-11-04)
+- **2026-10-21**: [`[common-v2.9.0]` `[workflow-v1.1.6]` `[system-design-v1.2.4]` `[quality-engineering-v1.6.1]` `[product-management-v1.0.1]`](#common-v290-workflow-v116-system-design-v124-quality-engineering-v161-product-management-v101---2026-10-21)
+- **2026-10-09**: [`[common-v2.8.7]`](#common-v287---2026-10-09) · [`[mcp-v0.7.0]`](#mcp-v070---2026-10-09) · [`[workflows-v1.1.5]`](#workflows-v115---2026-10-09)
+- **2026-10-07**: [`[cli-v2.6.6]` / `[mcp-v0.6.1]`](#cli-v266--mcp-v061---2026-10-07) · [`[common-v2.8.6]`](#common-v286---2026-10-07) · [`[golang-v1.3.9]`](#golang-v139---2026-10-07) · [`[react-v1.4.2]`](#react-v142---2026-10-07) · [`[workflows-v1.1.4]`](#workflows-v114---2026-10-07)
+- **Prior Releases**: See [Historical Archives](#historical-archives) (October 2026 and earlier)
 
 ---
 
@@ -109,6 +96,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - test(cli): run MCP command and service regressions on Linux, macOS, and Windows.
 
 ---
+
+## Historical Archives
+
+Older releases are grouped into collapsible eras in reverse-chronological order below. Every release identifier, date, and entry detail is preserved inside its archive section.
+
+<details>
+<summary>Earlier November 2026 releases</summary>
 
 ## [mcp-v0.8.1] - 2026-11-05
 
@@ -337,6 +331,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+</details>
+
+<details>
+<summary>October 2026 — earlier releases</summary>
+
 ## [common-v2.9.0] [workflow-v1.1.6] [system-design-v1.2.4] [quality-engineering-v1.6.1] [product-management-v1.0.1] - 2026-10-21
 
 **Stream**: Skill & Workflow Packs
@@ -514,20 +513,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Workflows**: `1.1.3` → `1.1.4`
 
----
-
-## Historical Archives
-
-Older releases are grouped into collapsible eras in reverse-chronological order. Every release identifier, date, and entry detail is preserved inside its archive section.
-
-| Archive Era | Coverage | Dates |
-| --- | --- | --- |
-| Quality-over-Quantity Test Standards & Execution Gates | `android-v1.5.1` – `common-v2.8.2` | — |
-| September 2026 Releases | `common-v2.8.1` – `common-v2.5.0` | 2026-09-09 – 2026-09-30 |
-| July – August 2026 Releases | `system-design-v1.0.0` – `common-v2.2.2` | 2026-07-04 – 2026-08-30 |
-| April – June 2026 Multi-Stream Releases | `python-v1.0.0` – `cli-v2.2.0` / `mcp-v0.1.0` | 2026-04-22 – 2026-06-29 |
-| v2.0.x – v2.1.x Legacy Unified History | `2.1.3` – `2.0.0` | 2026-03-25 – 2026-04-22 |
-| v1.0.x – v1.10.x Legacy Unified History | `1.10.4` – `1.0.0` | 2026-01-15 – 2026-03-21 |
+</details>
 
 <details>
 <summary>Quality-over-Quantity Test Standards &amp; Execution Gates (android-v1.5.1 – common-v2.8.2)</summary>
