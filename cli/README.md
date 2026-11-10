@@ -12,7 +12,18 @@ npx agent-skills-standard@latest init   # detect your stack
 npx agent-skills-standard@latest sync   # install skills
 ```
 
-If `ags -V` still shows an old version after reinstalling, check your PATH order. `~/Library/pnpm` must come before `~/Library/pnpm/bin`, then run `hash -r` and verify with `ags -V` again.
+## Prerequisites
+
+- **Consumer CLI (`ags`)**: Supported Node 22 LTS `>= 22.13` on the 22.x line, or a newer supported LTS. Supported means the exact declared dependency intersection `^22.13.0 || >= 23.5.0` (`commander` 15 declares `>= 22.12.0`, `inquirer` 14 declares `>= 23.5.0 || ^22.13.0 || ^20.17.0`); the CLI `package.json` declares no `engines` field of its own, so intermediate Node versions are not covered by a declared supported range.
+- **Repository Root & Tooling**: The root `package.json` _declares_ `node: ">= 20.0.0"` and `pnpm@10.0.0`. That is a manifest declaration for root scripts only, not evidence that the CLI or website build supports Node 20.
+- **Contributors & Website**: See [CONTRIBUTING.md](../CONTRIBUTING.md) for full developer requirements (supported Node 22 LTS or newer supported LTS, pnpm `10+`).
+
+### Release and PATH Notes
+
+- **Published version:** Read it from the [npm package page](https://www.npmjs.com/package/agent-skills-standard) badge or your installed binary (`ags --version`). That is the version consumers get from `@latest`.
+- **Source target:** This checkout's CLI manifest (`cli/package.json`) is at `2.7.4` (see [CHANGELOG.md](../CHANGELOG.md)). A source version is a development target, not evidence that the same build is published to npm.
+- If `ags -V` still shows an older version after reinstalling, verify your shell's PATH order (e.g. `~/Library/pnpm` before `~/Library/pnpm/bin`), run `hash -r`, and verify with `ags -V` again.
+- **`ags skills` command availability:** `ags skills` exists in source (`cli-v2.7.0`+; `2.7.4` in this checkout) and is **not** available in every published release. The published `agent-skills-standard@2.6.6` package (installed from `@latest` during the 2026-11-03 verification) exposes `init`, `sync`, `verify`, and other commands, but no `skills` subcommand. Run `ags --help` against your installed build before relying on this step; if it is absent, edit `.skillsrc` directly.
 
 ---
 
@@ -50,7 +61,7 @@ The result: your AI agent reads `AGENTS.md`, follows the router to the right cat
 | `uninstall` | Remove files ags installed (keeps files you edited); backs up first                                                                                               |
 | `verify`    | Check installed files against `.skills-lock.json` (`--strict`, `--attestation`)                                                                                   |
 | `policy`    | Manage and check project agent policies (status, check, validate, compile, adopt)                                                                                  |
-
+| `hooks`    | Manage pre-edit reminder hooks (status, install, install --enforce, uninstall)                                                                                     |
 
 ### Install Safety & Sync Options
 
@@ -62,6 +73,9 @@ The result: your AI agent reads `AGENTS.md`, follows the router to the right cat
 - `--dry-run --json`: Emit the full install plan as machine-readable JSON (`schema_version: 1, kind: 'sync.plan'`).
 - `--force <paths...>`: Overwrite specified user-edited files with upstream versions (a backup is created first).
 - **Automatic Backups**: Destructive changes (pruning or forced overwrites) automatically snapshot previous files into `.ags/backups/<timestamp>/` (retaining the 3 most recent backups).
+
+> [!WARNING]
+> **First-use check, observed 2026-11-03:** `@latest` resolved to published `2.6.6`. An isolated global install and `ags init` (Next.js/Codex template, MCP disabled) succeeded, but the follow-up `ags sync` was rejected because the configured category refs `common-v2.9.3` and `quality-engineering-v1.6.2` were unavailable; no native agent assets or `.skills-lock.json` were installed, and the CLI exit code was not captured. Separately, the `specialists` ref `v1.5.2` was unavailable, and native export completeness is unverified. This is a dated record of that attempt, not a forecast for other releases: check `ags --version` on your install, and use [GitHub Issues](https://github.com/HoangNguyen0403/agent-skills-standard/issues) if sync fails.
 
 ### Category Manager: `ags skills`
 
@@ -121,6 +135,18 @@ Manage and check deterministic project rules in `.ags/policy.json` (`protected_p
 - `ags policy adopt <ids...> [--json]`: Activate candidate rules into `.ags/policy.json` after conflict validation.
 
 Set `AGS_POLICY_BYPASS=1` (or `AGS_POLICY_BYPASS=true`) to turn policy decisions into allow while reporting waived rules.
+
+### Pre-Edit Hooks: `ags hooks`
+
+`sync` installs a `PreToolUse` hook that reminds your agent to call `load_skills_for_files` before every edit — advisory by default and never blocks work:
+
+```bash
+ags hooks status                 # Show which hook files are installed per agent
+ags hooks install                # (Re)install the reminder hook — advisory only
+ags hooks install --enforce      # Claude also BLOCKS edits to SOUL.md, MEMORY.md, .env*, .ssh/, credentials*.json|yaml
+ags hooks uninstall              # Deregister the hook (keeps the script file)
+```
+
 ---
 
 ## Configuration
@@ -143,6 +169,31 @@ skills:
   common:
     ref: common-v2.0.1
     custom_overrides: ['common-tdd'] # protect your local edits
+
+# Local custom standalone skills indexed into AGENTS.md and _INDEX.md
+custom_skills:
+  - path: "./.skills/my-custom-rule.md"
+    triggers: ["*.ts", "keyword"]
+
+# Workflows synced to native agent surfaces (.agents/workflows/, .codex/skills/, etc.)
+workflows:
+  - sdlc
+  - brainstorm-feature
+  - plan-feature
+  - design-solution
+  - implement-feature
+  - verify-work
+  - pentest
+  - security-test
+  - deploy-release
+  - publish-notes
+  - retro-learn
+
+# MCP consent and scope configuration
+mcp:
+  enabled: true
+  scope: project # project | user | snippets-only | disabled
+  prompted: true # set to false to be re-asked next sync
 ```
 
 A project without pins gets `workflows_ref` and `specialists_ref` written once to `.skillsrc` on first sync from the registry's latest releases (`--dry-run` never writes them). If the registry does not publish releases, sync falls back to the default branch with a warning.
@@ -177,14 +228,29 @@ The CLI **distributes** skills as static files. The companion [`agent-skills-sta
 
 `init` asks once whether to enable it and at what scope. Default is `project` (recommended). Change later with:
 
+### Consent Model — You Choose the Scope
+
+`init` and `sync` ask once whether to enable MCP and at what scope. Recommended choice is in **bold**:
+
+| Scope                       | What gets written                                                                                           | Touches `$HOME`?                                   |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| **`project`** (recommended) | `./mcp-config-snippets/*.json` + project-scoped runtime configs (`./.mcp.json`, `./.cursor/mcp.json`, etc.) | ❌ No                                              |
+| `user`                      | All of `project` + user-home configs (`~/.cursor/mcp.json`, `~/.gemini/settings.json`)                      | ⚠️ Yes — sync prompts before each user-scope write |
+| `snippets-only`             | Only `./mcp-config-snippets/*.json` — never edits any runtime config                                        | ❌ No                                              |
+| `disabled`                  | Nothing MCP-related                                                                                         | ❌ No                                              |
+
+The CLI never reads or modifies user-home files unless you explicitly choose `user` scope AND confirm each write. All decisions are recorded in `.skillsrc` so you are not re-prompted on every sync.
+
 ```bash
-ags mcp status              # show current state + per-agent install
-ags mcp scope project       # project | user | snippets-only | disabled
-ags mcp via auto            # auto | npx | global launch mode (auto prefers a version-matched global ags-mcp)
-ags mcp enable              # opt in; global launch mode installs agent-skills-standard-mcp@<pin> and verifies it
-ags mcp install             # apply changes
-ags mcp upgrade             # move a detected global ags-mcp and enabled configs to this CLI's pin
-ags mcp uninstall --from project   # remove our entry; siblings preserved
+ags mcp status                 # Show current state + per-agent install
+ags mcp enable                 # Opt in; global launch mode installs agent-skills-standard-mcp@<pin> and verifies it
+ags mcp disable                # Clear consent (keeps existing registrations; use uninstall to clean)
+ags mcp scope project          # Change scope: project | user | snippets-only | disabled
+ags mcp via auto               # auto | npx | global launch mode (auto prefers a version-matched global ags-mcp)
+ags mcp install                # Apply changes
+ags mcp upgrade                # Move a detected global ags-mcp and enabled configs to this CLI's pin
+ags mcp uninstall --from=all   # Remove our entry from project + user configs; siblings preserved
+ags mcp snippets               # Regenerate ./mcp-config-snippets/ without touching runtime configs
 ```
 
 Launch mode defaults to `auto`: the generated entry uses a globally installed `ags-mcp` only when its `--version` exactly matches the CLI pin, and otherwise falls back to `npx -y --prefer-offline agent-skills-standard-mcp@<pin>`. With `via: global` (saved mode, or `ags mcp enable --via global`), `ags mcp enable` installs `agent-skills-standard-mcp@<pin>` globally via npm, verifies the reported version, then writes the runtime configs; a failed install or mismatched probe exits `1` and leaves `.skillsrc` and the configs untouched. `--install-global` remains available as an explicit trigger for the same install. `ags mcp status` prints the resolved launch line, the pin, and the detected global version; `ags mcp install --via <mode>` overrides the mode for that run without persisting it. `ags upgrade` does not rewrite runtime configs — run `ags sync` (or `ags mcp install`) to move them to the new pin; `ags mcp status` and `ags doctor` flag configured-vs-expected drift.
@@ -192,7 +258,6 @@ Launch mode defaults to `auto`: the generated entry uses a globally installed `a
 The CLI **never** modifies user-home files (`~/.cursor/mcp.json`, `~/.gemini/settings.json`, etc.) unless you explicitly choose `scope: user` AND confirm each write. See [`mcp/README.md`](../mcp/README.md) for full details and [`mcp/ARCHITECTURE.md`](../mcp/ARCHITECTURE.md) for the threat model.
 
 `ags mcp upgrade [--dry-run] [--via auto|npx|global]` moves the whole integration to the effective pin — `mcp.version` when `.skillsrc` pins one, otherwise the version compiled into the running CLI, so `ags upgrade` is what moves that default. A detected stale global `ags-mcp` is replaced with `agent-skills-standard-mcp@<pin>` and re-probed (nonzero exit plus the manual `npm i -g` line on failure); enabled `project`/`user` configs are then rewritten at the configured scope, keeping configured `via` and the usual per-file user-scope prompts, and `--via` overrides the mode for that run only. With `via: global` (or `--via global`) and no readable global `ags-mcp`, it refuses to write configs that could not start: it prints the manual `npm i -g` line, exits `1`, and leaves existing configs untouched. `--dry-run` reports the plan and changes nothing, and is rejected (exit `1`) by every other `ags mcp` action; an absent global install is reported, never created implicitly; `.skillsrc` is never rewritten and nothing is published. Hosts pick up the new pin on their next MCP start.
-
 
 ## Installation Health: `ags doctor`
 
@@ -240,6 +305,7 @@ When `--json` is supplied, `ags doctor` outputs a single JSON payload matching t
 ### Exit Behavior
 
 `ags doctor` always exits with code `0` by default so it never unexpectedly breaks pipelines. When `--exit-on-fail` is passed, it exits with code `1` if any check produces a `fail` status (`healthy: false`).
+
 ---
 
 ## Privacy & Security
@@ -262,13 +328,13 @@ When `--json` is supplied, `ags doctor` outputs a single JSON payload matching t
 
 | Version | Date | Skills | Avg Tokens | Savings (%) | Report |
 | --- | --- | --- | --- | --- | --- |
-| v2.6.0 | 2026-07-10 | 264 | 528 | 46% | [Report](benchmarks/archive/v2.6.0.md) |
-| v2.4.7 | 2026-06-15 | 251 | 551 | 85% | [Report](benchmarks/archive/v2.4.7.md) |
-| v2.4.6 | 2026-06-10 | 251 | 548 | 85% | [Report](benchmarks/archive/v2.4.6.md) |
-| v2.4.1 | 2026-05-18 | 247 | 540 | 85% | [Report](benchmarks/archive/v2.4.1.md) |
-| v2.4.0 | 2026-05-14 | 246 | 540 | 85% | [Report](benchmarks/archive/v2.4.0.md) |
-| v2.3.0 | 2026-05-13 | 246 | 540 | 85% | [Report](benchmarks/archive/v2.3.0.md) |
-| v2.2.2 | 2026-05-09 | 249 | 539 | 85% | [Report](benchmarks/archive/v2.2.2.md) |
-| v2.2.0 | 2026-04-22 | 242 | 538 | 85% | [Report](benchmarks/archive/v2.2.0.md) |
-| v2.1.2 | 2026-04-11 | 237 | 516 | 86% | [Report](benchmarks/archive/v2.1.2.md) |
-| v2.1.1 | 2026-04-11 | 237 | 516 | 86% | [Report](benchmarks/archive/v2.1.1.md) |
+| v2.6.0 | 2026-07-10 | 264 | 528 | 46% | [Report](../benchmarks/archive/v2.6.0.md) |
+| v2.4.7 | 2026-06-15 | 251 | 551 | 85% | [Report](../benchmarks/archive/v2.4.7.md) |
+| v2.4.6 | 2026-06-10 | 251 | 548 | 85% | [Report](../benchmarks/archive/v2.4.6.md) |
+| v2.4.1 | 2026-05-18 | 247 | 540 | 85% | [Report](../benchmarks/archive/v2.4.1.md) |
+| v2.4.0 | 2026-05-14 | 246 | 540 | 85% | [Report](../benchmarks/archive/v2.4.0.md) |
+| v2.3.0 | 2026-05-13 | 246 | 540 | 85% | [Report](../benchmarks/archive/v2.3.0.md) |
+| v2.2.2 | 2026-05-09 | 249 | 539 | 85% | [Report](../benchmarks/archive/v2.2.2.md) |
+| v2.2.0 | 2026-04-22 | 242 | 538 | 85% | [Report](../benchmarks/archive/v2.2.0.md) |
+| v2.1.2 | 2026-04-11 | 237 | 516 | 86% | [Report](../benchmarks/archive/v2.1.2.md) |
+| v2.1.1 | 2026-04-11 | 237 | 516 | 86% | [Report](../benchmarks/archive/v2.1.1.md) |
