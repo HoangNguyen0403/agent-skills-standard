@@ -1,0 +1,53 @@
+{
+  "scenario_id": 22,
+  "arm": "baseline",
+  "git_commit": "unknown",
+  "scenario_digest": "6cb7f5bb1962aae03529a5876334fc41fb1eded65dc69ea563fc12f023e7e0b5",
+  "package_digest": null,
+  "status": "budget_stopped",
+  "model": {
+    "provider": "unknown",
+    "model_id": "unknown",
+    "settings": {},
+    "source": "cli_profile_config_not_observable"
+  },
+  "tokens": {
+    "prompt_tokens": { "value": "unknown", "source": "unmetered_subscription_host" },
+    "completion_tokens": { "value": "unknown", "source": "unmetered_subscription_host" },
+    "cached_prompt_tokens": { "value": "unknown", "source": "unmetered_subscription_host" },
+    "reasoning_tokens": { "value": "unknown", "source": "unmetered_subscription_host" },
+    "total_tokens": { "value": "unknown", "source": "unmetered_subscription_host" }
+  },
+  "financial": {
+    "estimated_cost_usd": { "value": "unknown", "source": "seat_license_no_allocation_basis" },
+    "billing_mode": "subscription",
+    "allocation_basis": null
+  },
+  "quota": {
+    "consumed_requests": { "value": "unknown", "source": "unlogged_provider_console" },
+    "rate_limit_rejections": { "value": "unknown", "source": "unlogged_provider_console" },
+    "limit_note": "No token or request metering was exposed by the host."
+  },
+  "latency_ms": {
+    "wall_clock_ms": { "value": "unknown", "source": "uninstrumented_session" },
+    "turn_latencies_ms": "unknown"
+  },
+  "tool_calls": {
+    "total_calls": { "value": "unknown", "source": "unlogged_tool_harness" },
+    "by_tool": {},
+    "failed_calls": { "value": "unknown", "source": "unlogged_tool_harness" }
+  },
+  "human_review_minutes": {
+    "minutes": { "value": "unknown", "source": "unrecorded_human_review" }
+  },
+  "attempts": [
+    {
+      "attempt_id": "att_unm01",
+      "actor_role": "intake_worker",
+      "outcome": "completed",
+      "error_message": null,
+      "tokens_total": { "value": "unknown", "source": "unmetered_subscription_host" },
+      "wall_ms": { "value": "unknown", "source": "uninstrumented_session" }
+    }
+  ]
+}

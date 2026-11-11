@@ -1,0 +1,220 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://agent-skills-standard/skills/common/common-decision-discipline/assets/cost-record.schema.json",
+  "title": "IntakeEvaluationCostRecord",
+  "description": "Canonical per-run cost record. Every mandatory metric carries a measured nonnegative value or the literal string \"unknown\", plus its own provenance source. Count metrics are integers. The schema is loaded package-relatively from this skill's assets directory; do not copy it into evaluation records.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "scenario_id",
+    "arm",
+    "git_commit",
+    "scenario_digest",
+    "package_digest",
+    "status",
+    "model",
+    "tokens",
+    "financial",
+    "quota",
+    "latency_ms",
+    "tool_calls",
+    "human_review_minutes",
+    "attempts"
+  ],
+  "definitions": {
+    "unknownOrNumber": {
+      "oneOf": [{ "type": "number", "minimum": 0 }, { "const": "unknown" }]
+    },
+    "unknownOrInteger": {
+      "oneOf": [{ "type": "integer", "minimum": 0 }, { "const": "unknown" }]
+    },
+    "numericMetric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "source"],
+      "properties": {
+        "value": { "$ref": "#/definitions/unknownOrNumber" },
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Where this individual value came from, or why it is unknown."
+        }
+      }
+    },
+    "countMetric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "source"],
+      "properties": {
+        "value": { "$ref": "#/definitions/unknownOrInteger" },
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Where this individual count came from, or why it is unknown."
+        }
+      }
+    },
+    "identityString": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "properties": {
+    "scenario_id": {
+      "oneOf": [{ "$ref": "#/definitions/identityString" }, { "type": "integer" }]
+    },
+    "arm": {
+      "type": "string",
+      "enum": ["baseline", "explore", "research-spike", "combined", "with-skill"]
+    },
+    "git_commit": {
+      "$ref": "#/definitions/identityString",
+      "description": "Package revision under test; \"unknown\" only when the checkout identity was not observable."
+    },
+    "scenario_digest": {
+      "$ref": "#/definitions/identityString",
+      "description": "SHA-256 of the frozen scenario file or scenario record."
+    },
+    "package_digest": {
+      "oneOf": [{ "$ref": "#/definitions/identityString" }, { "type": "null" }]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["completed", "failed", "exhausted", "budget_stopped", "aborted"]
+    },
+    "model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider", "model_id", "settings", "source"],
+      "properties": {
+        "provider": {
+          "$ref": "#/definitions/identityString",
+          "description": "\"unknown\" when the provider was not observable."
+        },
+        "model_id": {
+          "$ref": "#/definitions/identityString",
+          "description": "\"unknown\" when the model identity was not observable."
+        },
+        "settings": {
+          "type": "object",
+          "description": "Effort, temperature, and other settings actually applied; empty when none were configured."
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Where the model identity and settings came from."
+        }
+      }
+    },
+    "tokens": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["prompt_tokens", "completion_tokens", "total_tokens"],
+      "properties": {
+        "prompt_tokens": { "$ref": "#/definitions/countMetric" },
+        "completion_tokens": { "$ref": "#/definitions/countMetric" },
+        "cached_prompt_tokens": { "$ref": "#/definitions/countMetric" },
+        "reasoning_tokens": { "$ref": "#/definitions/countMetric" },
+        "total_tokens": { "$ref": "#/definitions/countMetric" }
+      }
+    },
+    "financial": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["estimated_cost_usd", "billing_mode", "allocation_basis"],
+      "properties": {
+        "estimated_cost_usd": {
+          "$ref": "#/definitions/numericMetric",
+          "description": "Marginal or allocated USD spend. Zero is valid only for measured zero marginal billing; an unallocated subscription cost is unknown."
+        },
+        "billing_mode": {
+          "type": "string",
+          "enum": ["api_metered", "subscription", "unknown"]
+        },
+        "allocation_basis": {
+          "type": ["string", "null"],
+          "description": "Required allocation rule when billing_mode is subscription and a cost is claimed; null when no allocation basis exists."
+        }
+      }
+    },
+    "quota": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["consumed_requests", "rate_limit_rejections"],
+      "properties": {
+        "consumed_requests": { "$ref": "#/definitions/countMetric" },
+        "rate_limit_rejections": { "$ref": "#/definitions/countMetric" },
+        "limit_note": { "type": ["string", "null"] }
+      }
+    },
+    "latency_ms": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["wall_clock_ms"],
+      "properties": {
+        "wall_clock_ms": { "$ref": "#/definitions/numericMetric" },
+        "turn_latencies_ms": {
+          "oneOf": [
+            {
+              "type": "array",
+              "items": { "$ref": "#/definitions/numericMetric" }
+            },
+            { "const": "unknown" }
+          ]
+        }
+      }
+    },
+    "tool_calls": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["total_calls"],
+      "properties": {
+        "total_calls": { "$ref": "#/definitions/countMetric" },
+        "by_tool": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/definitions/countMetric" }
+        },
+        "failed_calls": { "$ref": "#/definitions/countMetric" }
+      }
+    },
+    "human_review_minutes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["minutes"],
+      "properties": {
+        "minutes": { "$ref": "#/definitions/numericMetric" }
+      }
+    },
+    "attempts": {
+      "type": "array",
+      "minItems": 1,
+      "description": "One explicit record per attempt, including failed, retried, interrupted, cancelled, and rate-limited attempts.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["attempt_id", "actor_role", "outcome"],
+        "properties": {
+          "attempt_id": { "$ref": "#/definitions/identityString" },
+          "actor_role": {
+            "type": "string",
+            "enum": ["intake_worker", "grader", "scout", "orchestrator"]
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "completed",
+              "failed",
+              "retried",
+              "interrupted",
+              "cancelled",
+              "rate_limited_429"
+            ]
+          },
+          "error_message": { "type": ["string", "null"] },
+          "tokens_total": { "$ref": "#/definitions/countMetric" },
+          "wall_ms": { "$ref": "#/definitions/numericMetric" }
+        }
+      }
+    }
+  }
+}

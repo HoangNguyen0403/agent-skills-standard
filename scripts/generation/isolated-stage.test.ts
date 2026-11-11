@@ -4642,5 +4642,88 @@ test("provenance recovery refuses configuration drift injected by the pinned-bas
   });
 });
 
+test("all-new outputs without an existing lock file publish bytes, before-state proof, and pass check", async () => {
+  await withFixture({}, async (root) => {
+    const lockPath = path.join(root, ".skills-lock.json");
+    const hostRoot = path.join(root, ".github");
+    await fs.remove(lockPath);
+    await fs.remove(hostRoot);
 
+    const expectedNewOutputs = [
+      ".github/instructions/agent-skill-standard-rule.instructions.md",
+      ".github/prompts/demo.prompt.md",
+      ".github/agents/arch.agent.md",
+      ".github/skills/common/_INDEX.md",
+      ".github/skills/common/common-alpha/SKILL.md",
+      ".github/skills/common/common-alpha/LICENSE.TXT",
+      ".github/skills/common/common-alpha/references/details.md",
+      ".github/skills/common/common-beta/LICENSE.TXT",
+      ".github/skills/common/common-beta/SKILL.md",
+    ];
+    for (const relPath of expectedNewOutputs) {
+      assert.equal(
+        await fs.pathExists(path.join(root, relPath)),
+        false,
+        `${relPath} must be absent before generation`,
+      );
+    }
+    assert.equal(await fs.pathExists(lockPath), false);
 
+    const applied = await runIsolatedGeneration({ repoRoot: root });
+    assert.equal(applied.success, true, applied.error ?? "");
+
+    for (const relPath of expectedNewOutputs) {
+      assert.ok(
+        applied.copiedBackFiles.includes(relPath),
+        `expected ${relPath} to be published`,
+      );
+      assert.ok(
+        applied.verifiedFiles.includes(relPath),
+        `expected ${relPath} to be verified`,
+      );
+      const published = await fs.readFile(path.join(root, relPath), "utf8");
+      assert.ok(published.length > 0, `${relPath} must have published bytes`);
+    }
+    assert.ok(applied.verifiedFiles.includes(".skills-lock.json"));
+    assert.equal(await fs.pathExists(lockPath), true);
+
+    const hostRows = parseCategoryIndexRows(
+      await fs.readFile(
+        path.join(root, ".github", "skills", "common", "_INDEX.md"),
+        "utf8",
+      ),
+    );
+    assert.deepEqual(hostRows.malformed, []);
+    assert.deepEqual(hostRows.duplicates, []);
+    assert.deepEqual(hostRows.ids.sort(), ["common-alpha", "common-beta"]);
+
+    const proofPath = path.join(
+      path.dirname(applied.logPath),
+      "publication-before",
+      "proof.json",
+    );
+    assert.equal(
+      await fs.pathExists(proofPath),
+      true,
+      "publication-before/proof.json must be created for all-new outputs",
+    );
+    const proof = (await fs.readJson(proofPath)) as {
+      records: Array<{ path: string; sha256: string | null }>;
+    };
+    assert.deepEqual(
+      [...proof.records].sort((a, b) => a.path.localeCompare(b.path)),
+      [...expectedNewOutputs, ".skills-lock.json"]
+        .sort((a, b) => a.localeCompare(b))
+        .map((relPath) => ({ path: relPath, sha256: null })),
+    );
+
+    const receipt = await fs.readJson(applied.receiptPath);
+    assert.equal(receipt.status, "APPLIED");
+
+    const checked = await runIsolatedGeneration({
+      repoRoot: root,
+      checkOnly: true,
+    });
+    assert.equal(checked.success, true, checked.error ?? "");
+  });
+});

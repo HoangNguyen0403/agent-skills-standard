@@ -1,0 +1,61 @@
+{
+  "scenario_id": 20,
+  "arm": "research-spike",
+  "git_commit": "28140c6a09cc429148af67edd254f57de0958dac",
+  "scenario_digest": "6cb7f5bb1962aae03529a5876334fc41fb1eded65dc69ea563fc12f023e7e0b5",
+  "package_digest": "a084177666a783694ed28f8d2f5eebf65efbf752ae4de219a434bb1aa2237a2e",
+  "status": "completed",
+  "model": {
+    "provider": "anthropic",
+    "model_id": "claude-3-5-sonnet-20241022",
+    "settings": {
+      "reasoning_effort": null,
+      "temperature": 0
+    },
+    "source": "host_api_response"
+  },
+  "tokens": {
+    "prompt_tokens": { "value": -1, "source": "provider_usage_payload" },
+    "completion_tokens": { "value": 620, "source": "provider_usage_payload" },
+    "cached_prompt_tokens": { "value": 1280, "source": "provider_usage_payload" },
+    "reasoning_tokens": { "value": 0, "source": "provider_usage_payload" },
+    "total_tokens": { "value": 4070, "source": "provider_usage_payload" }
+  },
+  "financial": {
+    "estimated_cost_usd": { "value": 0.01965, "source": "provider_rate_card_calculation" },
+    "billing_mode": "api_metered",
+    "allocation_basis": "itemized_tokens"
+  },
+  "quota": {
+    "consumed_requests": { "value": 2, "source": "provider_request_counter" },
+    "rate_limit_rejections": { "value": 0, "source": "provider_request_counter" },
+    "limit_note": null
+  },
+  "latency_ms": {
+    "wall_clock_ms": { "value": 4820, "source": "harness_timer" },
+    "turn_latencies_ms": [
+      { "value": 2100, "source": "harness_timer" },
+      { "value": 2720, "source": "harness_timer" }
+    ]
+  },
+  "tool_calls": {
+    "total_calls": { "value": 2, "source": "harness_tool_dispatcher" },
+    "by_tool": {
+      "read_file": { "value": 2, "source": "harness_tool_dispatcher" }
+    },
+    "failed_calls": { "value": 0, "source": "harness_tool_dispatcher" }
+  },
+  "human_review_minutes": {
+    "minutes": { "value": 3.5, "source": "reviewer_stopwatch_log" }
+  },
+  "attempts": [
+    {
+      "attempt_id": "att_01a",
+      "actor_role": "intake_worker",
+      "outcome": "completed",
+      "error_message": null,
+      "tokens_total": { "value": 4070, "source": "provider_usage_payload" },
+      "wall_ms": { "value": 4820, "source": "harness_timer" }
+    }
+  ]
+}

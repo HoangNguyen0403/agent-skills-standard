@@ -1,0 +1,43 @@
+{
+  "scenario_id": 21,
+  "arm": "baseline",
+  "git_commit": "28140c6a09cc429148af67edd254f57de0958dac",
+  "scenario_digest": "6cb7f5bb1962aae03529a5876334fc41fb1eded65dc69ea563fc12f023e7e0b5",
+  "package_digest": null,
+  "status": "completed",
+  "model": {
+    "provider": "openai",
+    "model_id": "gpt-4o",
+    "settings": {},
+    "source": "cli_profile_config"
+  },
+  "tokens": {
+    "prompt_tokens": { "value": 1200, "source": "provider_usage_payload" },
+    "completion_tokens": { "value": 300, "source": "provider_usage_payload" },
+    "total_tokens": { "value": 1500, "source": "provider_usage_payload" }
+  },
+  "financial": {
+    "estimated_cost_usd": { "value": 0.05, "source": "host_estimate" },
+    "billing_mode": "api_metered",
+    "allocation_basis": "itemized_tokens"
+  },
+  "quota": {
+    "consumed_requests": { "value": 1, "source": "provider_request_counter" },
+    "rate_limit_rejections": { "value": 0, "source": "provider_request_counter" },
+    "limit_note": null
+  },
+  "latency_ms": {
+    "wall_clock_ms": { "value": 2500, "source": "harness_timer" }
+  },
+  "human_review_minutes": {
+    "minutes": { "value": 0, "source": "no_review_recorded" }
+  },
+  "attempts": [
+    {
+      "attempt_id": "att_missing01",
+      "actor_role": "intake_worker",
+      "outcome": "completed",
+      "error_message": null
+    }
+  ]
+}
