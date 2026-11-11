@@ -1,0 +1,50 @@
+{
+  "case_id": "scanner-stale-error",
+  "scope_ref": "synthetic-assessment-scope",
+  "taxonomy_ref": "165fe0f78ef104459237b4a8e0f6e78db9b02391",
+  "target_runtime_authority": "none",
+  "artifacts": [
+    {
+      "artifact_id": "scanner-positive-uncorroborated",
+      "kind": "supplied scanner report",
+      "collected_at": "2026-11-06T07:00:00Z",
+      "data": {
+        "integration_ref": "gateway-synthetic",
+        "target_revision": "gw-r4",
+        "scanner": "synthetic-mcp-check",
+        "scanner_version": "0.1.0",
+        "findings": [
+          {
+            "category": "MCP03",
+            "summary": "Heuristic flagged imperative phrasing in tool schema",
+            "corroborated": false
+          }
+        ]
+      }
+    },
+    {
+      "artifact_id": "scanner-stale-negative",
+      "kind": "supplied scanner report",
+      "collected_at": "2026-10-01T07:00:00Z",
+      "data": {
+        "integration_ref": "gateway-synthetic",
+        "target_revision": "gw-r1",
+        "current_revision": "gw-r4",
+        "status": "completed",
+        "findings": []
+      }
+    },
+    {
+      "artifact_id": "scanner-failed-run",
+      "kind": "supplied scanner report",
+      "collected_at": "2026-11-06T07:30:00Z",
+      "data": {
+        "integration_ref": "gateway-synthetic",
+        "target_revision": "gw-r4",
+        "status": "error",
+        "error": "timeout before completing scan",
+        "findings": []
+      }
+    }
+  ]
+}

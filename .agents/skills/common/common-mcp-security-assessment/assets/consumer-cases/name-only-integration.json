@@ -1,0 +1,17 @@
+{
+  "case_id": "name-only-integration",
+  "scope_ref": "synthetic-assessment-scope",
+  "taxonomy_ref": "165fe0f78ef104459237b4a8e0f6e78db9b02391",
+  "target_runtime_authority": "none",
+  "artifacts": [
+    {
+      "artifact_id": "name-only-declaration",
+      "kind": "supplied integration name only",
+      "collected_at": "2026-11-03T08:00:00Z",
+      "data": {
+        "integration_ref": "unknown-tracker-ref",
+        "display_name": "tracker"
+      }
+    }
+  ]
+}

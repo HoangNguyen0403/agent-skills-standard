@@ -197,6 +197,14 @@ Recommended host/runtime additions for SDLC-aligned security review:
 - Preserve one `security-review.md` artifact per workflow chain and refine it at each review stage.
 - Emit role-aware markdown outputs only when developer, AppSec, audit, or executive audiences actually need separate views.
 
+## Optional MCP Security Assessment (`mcp-security-assessment`)
+
+Separate from `ags mcp status` / `ags doctor` setup checks and `common-devops-operations` cloud preflight, the opt-in `mcp-security-assessment` workflow and keyword-only `common-mcp-security-assessment` skill assess explicitly supplied MCP configurations, tool manifests, policies, and sanitized scanner/runtime artifacts against pinned OWASP MCP01–MCP10 (`165fe0f78ef104459237b4a8e0f6e78db9b02391`).
+
+- Assessment defaults to offline supplied-artifact review (`active: false`): never launches packages, contacts endpoints, or collects unrelated home configs.
+- Coverage (`assessed`, `partial`, `not-assessed`, `not-applicable`) stays separate from canonical `cyber-evidence` finding statuses (`confirmed`, `suspected`, `blocked`, `not-tested`, `false-positive`).
+- Reports persist only via host create-new/no-clobber enforcement (`artifacts/mcp-security-review.md` only when authorized and absent), without modifying branch `artifacts/security-review.md`.
+
 ## Specialist Rule
 
 Specialists keep raw tool responses out of parent context. They return compact structured summaries only, with tool failures reported as `BLOCKED`.

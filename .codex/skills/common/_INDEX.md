@@ -44,6 +44,7 @@
 | common-family-ux | family app, parents and children, kids app, child ux, parent gate, preschool, parenting app, designed for families, coppa |
 | **common-git-collaboration** | commit, branch, merge, pull-request, git |
 | **common-llm-security** | LLM security, prompt injection, agent security, RAG security, AI security, openai, anthropic, langchain, LLM review |
+| **common-mcp-security-assessment** | mcp security, mcp assessment, owasp mcp, mcp top 10, mcp security report, tool poisoning, shadow mcp, mcp audit, mcp posture, mcp config review |
 | common-mobile-visual-testing | visual test, mobile test, verify ui, dark mode test, accessibility audit, behavioral test, visual regression, localization test |
 | **common-operator-profile** | operator profile, audience adaptation, non-technical stakeholder, business owner, plain language summary |
 | **common-owasp** | security review, OWASP, broken access control, IDOR, BOLA, injection, broken auth, API review, authorization, access control, mobile security |
