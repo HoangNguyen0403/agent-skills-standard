@@ -27,7 +27,7 @@ export function HeroSection(): React.JSX.Element {
 
             <div className={motionStyles.heroText}>
               <p className={styles.kickerLime}>
-                KEEP YOUR AGENT. SHARE YOUR STANDARDS.
+                PORTABLE ENGINEERING STANDARDS
               </p>
 
               <h1 className={styles.displayHeading}>{content.hero.title}</h1>

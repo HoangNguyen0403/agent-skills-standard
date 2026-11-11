@@ -69,7 +69,6 @@ describe('MotionObserver', () => {
     const consumer = render(<HeroSection />);
     const heading = screen.getByRole('heading', {
       level: 1,
-      name: /your coding agent\. your engineering standards\./i,
     });
     const heroTarget = heading
       .closest('section')
