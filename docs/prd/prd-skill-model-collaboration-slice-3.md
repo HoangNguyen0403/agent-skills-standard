@@ -16,7 +16,7 @@ activation_status: not_required
 
 ## Decision Brief
 
-- **Checkpoint:** Slice 1 is committed as `ff8f4d133339a17a0dc53d2c63db688f910bf39e`; its review and explicit AC-008 exception remain unchanged.
+- **Checkpoint:** Slice 1 is committed as `ff8f4d133339a17a0dc53d2c63db688f910bf39e`; its review and explicit [slice-1 acceptance criterion 008](prd-skill-model-collaboration.md#requirements-and-acceptance-criteria) exception remain unchanged.
 - **Recommendation:** First simplify workflow prose and unpack routing precedence. Keep inline Outcome mappings and the three common skill bodies unchanged. Do not implement template extraction or change the parser/exporters in this pass.
 - **Change from the candidate direction:** The brief proposed de-duplicating Outcome templates and shared guardrail skills together. Research found that the templates are executable validation inputs, not merely duplicated prose. This plan explicitly proposes a narrower first part; the remainder is deferred, not completed or silently discarded.
 - **Impact if wrong:** A shorter instruction changes which action is permitted, erases an exception, or routes to the wrong owner. Semantic equivalence and real consumer checks take precedence over byte reduction.

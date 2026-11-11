@@ -54,10 +54,10 @@ Relation to `docs/brd/brd-skill-system-effectiveness.md` (approved 2026-11-05): 
 
 **Acceptance criteria:**
 
-- AC-1: Each finding cites a count or file that can be re-checked from the repository.
-- AC-2: Each slice names its files, its proof, and what it must not change. (assumed)
-- AC-3: The first slice can be planned without deciding any later slice. (assumed)
-- AC-4: Nothing in the direction relies on a pass-rate or saving that has not been measured. (assumed)
+1. Each finding cites a count or file that can be re-checked from the repository.
+2. Each slice names its files, its proof, and what it must not change. (assumed)
+3. The first slice can be planned without deciding any later slice. (assumed)
+4. Nothing in the direction relies on a pass-rate or saving that has not been measured. (assumed)
 
 ## Findings
 
