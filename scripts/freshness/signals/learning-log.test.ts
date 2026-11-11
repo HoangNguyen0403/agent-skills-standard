@@ -116,3 +116,108 @@ test("learningLogIssues counts entries per skill inside the window", () => {
 test("parseLearningLog returns an empty list for text without entries", () => {
   assert.deepEqual(parseLearningLog("# nothing here\n", known), []);
 });
+
+test("parseLearningLog extracts candidate metadata fields and leaves legacy entries undefined", () => {
+  const candidateLog = `# Agent Learning Log
+
+---
+
+## Agent Learning Log: Iteration #1
+
+**Date**: 2026-09-01 | **Task**: Legacy task.
+**Signal**: User correction
+
+### Mistake Made
+Legacy body text.
+
+---
+
+## Agent Learning Log: Iteration #2
+
+**Date**: 2026-10-10 | **Task**: Structured candidate.
+**Signal**: Session retrospective
+**Skills**: common/common-tdd
+**Scope**: project
+**Candidate**: sample-candidate-id | **Status**: evaluating <!-- inline note -->
+**Improvement**: IMP-sample-1 | **Prevention**: regression-test
+**Verification**: scripts/freshness/learning-ledger.test.ts
+**Evaluation**: 12 tests pass
+**Review**: VMO reviewer 1234abcd ACCEPT
+
+### Mistake Made
+**Status**: promoted
+**Review**: self-approved in prose
+`;
+  const entries = parseLearningLog(candidateLog, known);
+  assert.equal(entries.length, 2);
+  assert.equal(entries[0].candidate, undefined);
+  assert.equal(entries[0].status, undefined);
+  assert.equal(entries[0].prevention, undefined);
+  assert.equal(entries[1].candidate, "sample-candidate-id");
+  assert.equal(entries[1].status, "evaluating");
+  assert.equal(entries[1].improvement, "IMP-sample-1");
+  assert.equal(entries[1].prevention, "regression-test");
+  assert.equal(entries[1].verification, "scripts/freshness/learning-ledger.test.ts");
+  assert.equal(entries[1].evaluation, "12 tests pass");
+  assert.equal(entries[1].review, "VMO reviewer 1234abcd ACCEPT");
+});
+
+test("parseLearningLog ignores candidate metadata and iteration headings inside backtick and tilde fences", () => {
+  const fencedLog = `# Agent Learning Log
+
+\`\`\`markdown
+## Agent Learning Log: Iteration #99
+**Candidate**: phantom-before-entries | **Status**: promoted
+\`\`\`
+
+## Agent Learning Log: Iteration #1
+**Date**: 2026-10-15 | **Task**: Real promoted entry.
+**Signal**: User correction
+**Candidate**: real-candidate | **Status**: promoted
+**Verification**: pending
+**Review**: pending
+
+\`\`\`\`markdown
+\`\`\`
+## Agent Learning Log: Iteration #100
+**Candidate**: phantom-nested | **Status**: proposed
+\`\`\`
+**Status**: proposed
+\`\`\`\`
+
+~~~markdown
+**Status**: proposed
+**Prevention**: lint
+**Verification**: fake-check
+**Review**: fake-review
+~~~
+
+### Mistake Made
+Body text mentioning common/common-tdd.
+`;
+  const entries = parseLearningLog(fencedLog, known);
+  assert.equal(entries.length, 1);
+  assert.equal(entries[0].iteration, 1);
+  assert.equal(entries[0].candidate, "real-candidate");
+  assert.equal(entries[0].status, "promoted");
+  assert.equal(entries[0].prevention, undefined);
+  assert.equal(entries[0].verification, "pending");
+  assert.equal(entries[0].review, "pending");
+  assert.deepEqual(entries[0].skills, ["common/common-tdd"]);
+});
+
+test("parseLearningLog preserves legacy skill mention extraction on ### subheading lines", () => {
+  const subheadingLog = `
+## Agent Learning Log: Iteration #1
+**Date**: 2026-09-12 | **Task**: Subheading mention only.
+**Signal**: User correction
+
+### common/common-tdd
+`;
+  const entries = parseLearningLog(subheadingLog, known);
+  assert.equal(entries.length, 1);
+  assert.deepEqual(entries[0].skills, ["common/common-tdd"]);
+  const issues = learningLogIssues(entries, { today: new Date("2026-09-14T00:00:00Z"), windowDays: 90 });
+  assert.equal(issues.length, 1);
+  assert.equal(`${issues[0].category}/${issues[0].skillName}`, "common/common-tdd");
+});

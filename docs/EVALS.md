@@ -192,7 +192,13 @@ pnpm evals:verify -- --run latest --version 2.6.0 --category all
 # Strict release queue: only failing non-baseline evidence from skills below
 # the strict gate.
 pnpm evals:queue -- --run <runId> --strict
+
+# Triage all failed assertions to a separate file without overwriting the
+# tracked remediation queue:
+pnpm evals:queue -- --run <runId> --out benchmarks/evals/assertion-triage-<runId>.json
 ```
+
+`evals:queue` writes `benchmarks/evals/remediation-queue.json` by default, or only the `--out <file>` path when supplied, and prints item counts per classification. Failed assertions are classified in precedence order: `compromised generation`, `trigger-boundary collision`, `invalid/brittle assertion` (`file_reference`, `Priority:`, or `contains`/`contains_any` assertions not grounded in the case `prompt` or `expected_output` via `isAssertionTaskAnchored`, applied to both `eval` and `pressure` cases using empty `expected_output` when absent), then `guidance present but insufficiently actionable` or `missing skill guidance`. Task-anchoring classification is a heuristic task-anchoring signal, not semantic assertion-invalidity proof (for example, guardrail pressure terms omitted from the adversarial prompt still flag here unless anchored in `prompt` or `expected_output`), and inherited `regex`/`not_contains` guidance heuristics are unchanged.
 
 ### Verify the retained canonical run
 

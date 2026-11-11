@@ -192,6 +192,7 @@ pnpm audit:sdlc
 pnpm check-alignment
 pnpm docs:capabilities:check
 pnpm freshness:audit
+pnpm learning:check
 pnpm test
 pnpm build
 ```
@@ -200,6 +201,8 @@ pnpm build
 
 
 `pnpm freshness:check` is the weekly upstream drift job (`.github/workflows/skill-freshness.yml`), not a PR gate: it needs a `GITHUB_TOKEN` (up to ~110 GitHub requests) and exits 1 whenever any upstream has shipped a new major, regardless of your change. Run it locally only when reviewing pins; see `docs/FRESHNESS.md`.
+
+`pnpm learning:ledger` prints the `AGENTS_LEARNING.md` candidate ledger (`--json` for JSON); `pnpm learning:check` gates CI on structural status and proof-reference integrity (mechanism, verification, review) without treating reference strings as human approval authentication.
 
 For changes to the architecture-diagram pipeline, also run its stdlib Python suite, offline export verification, and a real render:
 

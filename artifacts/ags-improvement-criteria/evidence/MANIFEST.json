@@ -1,0 +1,1 @@
+{"kind":"sha256-evidence-manifest","files":[{"path":"delivery.json","sha256":"c59733200fbb92fcc150bf87fbf36b263ff417f8c8ecad81c936719ce696af4c"},{"path":"review.json","sha256":"1a2ecf6c15c5a208eaf12156af4586e7d82c481346fea44bc0812d08d539ba1c"}],"note":"Local content integrity only; not authenticated human approval. Manifest intentionally excludes its own hash."}
