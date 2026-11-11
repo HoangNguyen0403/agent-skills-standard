@@ -1,12 +1,8 @@
 {
   "mcpServers": {
     "agent-skills-standard": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "--prefer-offline",
-        "agent-skills-standard-mcp@0.8.2"
-      ]
+      "command": "ags-mcp",
+      "args": []
     }
   }
 }
