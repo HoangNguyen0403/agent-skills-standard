@@ -33,6 +33,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [mcp-v0.8.3] - 2026-11-11
+
+**Category**: MCP Server
+
+### Added
+- feat(system-design): discover system architect role and reconcile architecture guidance (#307)
+- feat(skills): improve system design diagrams and N+1 guidance (#298)
+- feat(skills): strengthen decision evidence (#297)
+
+### Maintenance
+- chore(deps): combine dependency version bumps (#303, #304, #305) (#312)
+- chore: update agent-skills-standard-mcp version to 0.8.2 in configuration files
+
 ## [mcp-v0.8.2] - 2026-11-06
 
 **Stream**: MCP Server · **Category**: MCP Server
