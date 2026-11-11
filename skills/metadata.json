@@ -465,13 +465,13 @@
       ]
     },
     "nextjs": {
-      "version": "1.4.7",
-      "last_updated": "2026-10-01",
+      "version": "1.4.8",
+      "last_updated": "2026-11-11",
       "tag_prefix": "nextjs-v",
       "token_metrics": {
         "total_skills": 18,
-        "total_tokens": 12138,
-        "avg_tokens_per_skill": 674,
+        "total_tokens": 12329,
+        "avg_tokens_per_skill": 685,
         "largest_skill": "nextjs-architecture (1040 tokens)"
       },
       "owners": [

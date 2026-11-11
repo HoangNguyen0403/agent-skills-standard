@@ -4,7 +4,7 @@
     {
       "id": 1,
       "prompt": "I need to upgrade my Next.js project from version 13 to 15.",
-      "expected_output": "Incremental upgrade — never skip majors: (1) v13 -> v14 first: run npx @next/codemod@latest upgrade ., test, fix issues. (2) v14 -> v15: run codemods again. Key v15 changes: cookies(), headers(), params are now Promises — must await. Fetch defaults to no-store. Update React to 19 for Next.js 15 compatibility.",
+      "expected_output": "Incremental upgrade — never skip majors: (1) v13 -> v14 first: run npx @next/codemod@15.0.8 upgrade 14.2.35, test, fix issues. (2) v14 -> v15: run npx @next/codemod@15.0.8 upgrade 15.0.8 (or run codemods again). When the pinned CLI offers the optional React 19 codemod and React 19 Types codemod prompts, decline both — they execute floating codemod@latest and types-react-codemod@latest subprocesses — and migrate React manually. Key v15 changes: cookies(), headers(), params are now Promises — must await. Fetch defaults to no-store. Update React to 19 for Next.js 15 compatibility. These exact targets illustrate local fixture-qualified migration hops, not production or security recommendations; a real project's targets require review for its supported security fixes.",
       "assertions": [
         {
           "type": "contains",
@@ -34,7 +34,7 @@
     {
       "id": 3,
       "prompt": "I want to skip directly from Next.js 12 to 15 to save time.",
-      "expected_output": "Violation: No major version skipping. Upgrade one major at a time: 12 -> 13, 13 -> 14, 14 -> 15. Each major has different codemods and breaking changes. Skipping causes compounding failures that are hard to debug. Run npx @next/codemod@latest for each step. Test after each increment with next dev and next build.",
+      "expected_output": "Violation: No major version skipping. Upgrade one major at a time: 12 -> 13, 13 -> 14, 14 -> 15. Each major has different codemods and breaking changes. Skipping causes compounding failures that are hard to debug. Run npx @next/codemod@15.0.8 upgrade <target-version> for each step, and decline the optional React 19 and React 19 Types codemod prompts if offered — they run floating tools. Test after each increment with next dev and next build.",
       "assertions": [
         {
           "type": "contains",
