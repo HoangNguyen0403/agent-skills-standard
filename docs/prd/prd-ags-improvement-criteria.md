@@ -131,7 +131,7 @@ Each worker runs `rtk pnpm install` in its own worktree before anything else. `n
 ## Status And Receipt
 
 - `feature_status`: implemented; local verification and independent technical review complete. Remote CI and human acceptance remain unassessed.
-- Delivery evidence: `artifacts/ags-improvement-criteria/evidence/delivery.json`; independent findings and 20-row adjudication: `artifacts/ags-improvement-criteria/evidence/review.json`. Initial/corrected cumulative review packages remain retained locally under `.agent/`.
+- Delivery: local verification and independent technical review complete.
 - Original RED: NOT RUN. No paid evals, model reruns, merge, release or activation performed.
 
 ## References
@@ -173,7 +173,7 @@ Outcome: seven current cases discriminate compliant alternatives from the concre
 | AC-016 | Selected-case preflight, eval suite and check-alignment run; prior unrelated legacy debt is recorded rather than repaired; generators publish only expected metadata/version derivatives | integrator | offline commands and isolated-generation receipt |
 | AC-017 | Independent reviewer re-adjudicates all safe/wrong controls, verifies no requirements were invented or weakened, and separates finite rubric discrimination from model efficacy | independent reviewer | bounded technical review |
 
-Non-authoritative legacy-to-canonical ID mapping for archived SL2 evidence (`artifacts/ags-assertion-repair/evidence/**` retains the original IDs verbatim):
+Non-authoritative legacy-to-canonical ID mapping for SL2:
 
 ```text
 SL2-AC-01 -> AC-012
@@ -188,7 +188,7 @@ SL2-AC-06 -> AC-017
 ### Task 3 — SL2 Android
 
 - **Trace:** AC-012, AC-013, AC-014, AC-015 (worker calibration, boundary preservation, and packet receipts; feeds integrator AC-016 and independent review AC-017).
-- **Scope:** `skills/android/android-testing/evals/evals.json` eval 1; `android-architecture/evals/evals.json` eval 1; `android-compose-migration/evals/evals.json` eval 1; `android-concurrency/evals/evals.json` eval 2 (all under `skills/android/`). Also `scripts/evals/sl2-android-discriminators.test.ts` and `artifacts/ags-assertion-repair/evidence/android-controls.json`.
+- **Scope:** `skills/android/android-testing/evals/evals.json` eval 1; `android-architecture/evals/evals.json` eval 1; `android-compose-migration/evals/evals.json` eval 1; `android-concurrency/evals/evals.json` eval 2 (all under `skills/android/`). Also `scripts/evals/sl2-android-discriminators.test.ts`.
 - **Inputs:** current canonical case prompts/expected outputs, prior reviewer rows 1/8/10/90 and immutable scorer semantics; this plan.
 - **Outputs:** four case-local repairs, offline real-scorer discriminator tests and evidence packet.
 - **Real Ingress:** unchanged `checkAssertion` scoring each canonical case's assertions; eval suite discovers the new discriminator tests.
@@ -204,7 +204,7 @@ SNC S=1 N=1 C=1 total=3 medium. Implement on Personal - Cheap. Do not edit `andr
 ### Task 4 — SL2 Common
 
 - **Trace:** AC-012, AC-013, AC-014, AC-015 (worker calibration, boundary preservation, and packet receipts; feeds integrator AC-016 and independent review AC-017).
-- **Scope:** `skills/common/common-api-design/evals/evals.json` evals 2 and 3; `skills/common/common-architecture-diagramming/evals/evals.json` eval 1. Also `scripts/evals/sl2-common-discriminators.test.ts`, `artifacts/ags-assertion-repair/evidence/common-controls.json`, `skills/metadata.json` (android/common patch versions and dates only), `CHANGELOG.md` (one scoped unreleased entry).
+- **Scope:** `skills/common/common-api-design/evals/evals.json` evals 2 and 3; `skills/common/common-architecture-diagramming/evals/evals.json` eval 1. Also `scripts/evals/sl2-common-discriminators.test.ts`, `skills/metadata.json` (android/common patch versions and dates only), `CHANGELOG.md` (one scoped unreleased entry).
 - **Inputs:** existing canonical prompts/expected outputs; prior review and the three new real-scorer probes; this plan.
 - **Outputs:** three case-local repairs, offline discriminator tests and evidence packet; metadata bumps android 1.5.2→1.5.3 and common 2.9.7→2.9.8, dated 2026-11-11.
 - **Real Ingress:** unchanged `checkAssertion` scoring canonical definitions; offline test suite.
@@ -219,12 +219,12 @@ SNC S=1 N=1 C=1 total=3 medium. Implement on Personal - Cheap. Do not restore st
 
 ### SL2 Integration
 
-Integrate only owned cumulative patches from the shared base. Common owner performs the existing isolated `generate-indices` lifecycle after a separate source-freeze handoff; no hand edits to generated outputs or active ownership lock. Evals are excluded from mirror resource allowlists (`scripts/generate-indices.ts:41-47`, `scripts/generation/isolated-stage.ts:314-327`); metadata derivatives may still change. Preserve existing `.agent` evidence, execute current generator safety gates, and verify expected host/resource coverage rather than assume a successful generator proves parity. Archive versioned SL2 receipts under `artifacts/ags-assertion-repair/evidence/`. Remote CI, model efficacy and financial savings stay NOT RUN/unmeasured unless separately observed.
+Integrate only owned cumulative patches from the shared base. Common owner performs the existing isolated `generate-indices` lifecycle after a separate source-freeze handoff; no hand edits to generated outputs or active ownership lock. Evals are excluded from mirror resource allowlists (`scripts/generate-indices.ts:41-47`, `scripts/generation/isolated-stage.ts:314-327`); metadata derivatives may still change. Execute current generator safety gates, and verify expected host/resource coverage rather than assume a successful generator proves parity. Remote CI, model efficacy and financial savings stay NOT RUN/unmeasured unless separately observed.
 
 ### SL2 Verified Delivery
 
 - Local implementation and independent technical review are complete; remote CI, live-model evaluation, merge, release and human acceptance remain unassessed or unexecuted.
-- Delivery record: `artifacts/ags-assertion-repair/evidence/delivery.json`; immutable control packets, candidate receipts and cumulative review packages are retained in the same evidence directory.
+- Delivery: local implementation and independent technical review are complete; remote CI, live-model evaluation, merge, release and human acceptance remain unassessed or unexecuted.
 - AC-012, AC-013, AC-015, AC-017: independent reviewer `8bb43b31-5de4-4c41-9c2f-6d69f4d8e057` approved the bounded source and generation gate. Direct real-scorer replay matched **36/36 decisions** across semantics v1/v2: 14 original controls plus four supplemental counterexamples.
 - Original-control trajectory: frozen predecessor **3/14**, first candidate **8/14**, corrected and final candidates **14/14**. Supplemental trajectory: first correction **0/8**, fallback **8/8** across both semantics. Disclosed controls are calibrated regression evidence, not held-out model efficacy.
 - AC-014: all six skill bodies, untouched cases/triggers/pressure scenarios, scorer and protected historical inputs/results/queue remain unchanged. Only assertions in the seven approved cases changed.
