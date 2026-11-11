@@ -1,0 +1,34 @@
+{
+  "verdict": "APPROVE — bounded SL2 source and local generation gate",
+  "reviewerAgent": "8bb43b31-5de4-4c41-9c2f-6d69f4d8e057",
+  "sourceApprovalMessage": "0849952b-bc3b-4ad8-9d10-b94ff2805cac",
+  "finalApprovalMessage": "fc492d3b-9007-4784-b0ff-157bdd5d1394",
+  "reviewedPackages": ["android-fallback.diff", "common-fallback.diff"],
+  "independentlyObserved": {
+    "commonScorerDecisions": {"matched": 16, "total": 16},
+    "androidScorerDecisions": {"matched": 20, "total": 20},
+    "semanticsVersions": [1, 2],
+    "protectedGenerationHashesMatched": 59,
+    "archivedGenerationCopiesMatched": 4,
+    "declaredGenerationTargets": 2381,
+    "mirroredEvalPaths": 0,
+    "generationApply": "APPLIED",
+    "generationCheck": "PASS",
+    "generationPublishedPaths": [".skills-lock.json"]
+  },
+  "resolvedSupplementalFindings": [
+    {"id": "C-R1", "result": "Affirmative RPC route recommendation fails a3 despite another rejected example."},
+    {"id": "C-R2", "result": "Explicit removal of title/legend/scope fails a4."},
+    {"id": "A-R1", "result": "Android lifecycle APIs in ViewModel pass while domain independence remains required."},
+    {"id": "A-R2", "result": "Contrasting direct-IO recommendation fails a4 despite earlier negated Main warning."}
+  ],
+  "orchestratorAttributedChecks": {"evalSuitePassed": 909, "evalSuiteFailed": 0, "focusedTypeScriptExit": 0, "selectedPreflightIssues": 0, "alignmentThresholdPass": true},
+  "remainingInScopeBlockers": [],
+  "limits": [
+    "Technical approval is not human acceptance, merge or release authority.",
+    "Finite lexical calibration does not establish arbitrary prose correctness, Kotlin dataflow or model efficacy.",
+    "Controls were disclosed before corrections; subsequent agreement is calibrated regression, not held-out efficacy proof.",
+    "Original worker TDD RED, remote CI and live model evaluation were not established."
+  ],
+  "postGenerationDocumentation": "The PRD delivery-status note was added after the reviewed generation checkpoint. Historical pre/post PRD hashes in generation-v1 remain immutable checkpoint evidence. No generator input or repaired assertion changed afterward."
+}

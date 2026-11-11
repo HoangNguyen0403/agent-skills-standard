@@ -1,0 +1,155 @@
+{
+  "kind": "sl2-generation-evidence-manifest",
+  "slug": "ags-assertion-repair",
+  "phase": "generation-v1",
+  "date": "2026-11-11",
+  "workspace": "/Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/slippery-toad",
+  "baseRevision": "1b0302db138225f30e70cd0ea42702791cf5dc8c",
+  "commands": [
+    {
+      "command": "rtk pnpm generate-indices",
+      "mode": "isolated-apply",
+      "exitCode": 0,
+      "attemptId": "attempt-2026-11-11T08-25-50-345Z-b45e37",
+      "originalReceiptPath": "artifacts/generation-logs/attempt-2026-11-11T08-25-50-345Z-b45e37/receipt.json",
+      "originalLogPath": "artifacts/generation-logs/attempt-2026-11-11T08-25-50-345Z-b45e37/generation.log",
+      "phases": {
+        "calculateTokensExit": 0,
+        "generateIndicesExit": 0,
+        "generateCapabilitiesDocExit": 0
+      },
+      "parity": "PASS (Canonical and host parity checks passed)",
+      "provenanceRefreshedCount": 2345,
+      "declaredTargetCount": 2381,
+      "configuredHostCount": 4,
+      "copiedBackFiles": [".skills-lock.json"],
+      "verifiedFiles": [".skills-lock.json"],
+      "retiredFiles": [],
+      "retiredEntries": [],
+      "preservedOrphans": [],
+      "deletions": []
+    },
+    {
+      "command": "rtk pnpm generate-indices -- --check",
+      "mode": "isolated-check",
+      "exitCode": 1,
+      "note": "pnpm v10 forwarded literal '--' to scripts/generation/index.ts, triggering usage error; re-invoked without literal '--'."
+    },
+    {
+      "command": "rtk pnpm generate-indices --check",
+      "mode": "isolated-check",
+      "exitCode": 0,
+      "attemptId": "attempt-2026-11-11T08-26-18-313Z-a28014",
+      "originalReceiptPath": "/private/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-generation-check-attempt-2026-11-11T08-26-18-313Z-a28014/receipt.json",
+      "originalLogPath": "/private/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-generation-check-attempt-2026-11-11T08-26-18-313Z-a28014/generation.log",
+      "phases": {
+        "calculateTokensExit": 0,
+        "generateIndicesExit": 0,
+        "generateCapabilitiesDocExit": 0
+      },
+      "parity": "PASS (Canonical and host parity checks passed; prepared outputs match declared targets)"
+    }
+  ],
+  "archivedCopies": [
+    {
+      "archivedPath": "artifacts/ags-assertion-repair/evidence/generation-v1/apply-generation.log",
+      "sourcePath": "artifacts/generation-logs/attempt-2026-11-11T08-25-50-345Z-b45e37/generation.log",
+      "sha256": "cefebab2bf75d5c3d5411ab4c13275214bcdf636ac2c0c148edf6d8dc5a4d351",
+      "identical": true
+    },
+    {
+      "archivedPath": "artifacts/ags-assertion-repair/evidence/generation-v1/apply-receipt.json",
+      "sourcePath": "artifacts/generation-logs/attempt-2026-11-11T08-25-50-345Z-b45e37/receipt.json",
+      "sha256": "36dfd4198e7419e6241cf6bc724c46dc29a2bbcdab38137ec5c11f01476f3cd4",
+      "identical": true
+    },
+    {
+      "archivedPath": "artifacts/ags-assertion-repair/evidence/generation-v1/check-generation.log",
+      "sourcePath": "/private/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-generation-check-attempt-2026-11-11T08-26-18-313Z-a28014/generation.log",
+      "sha256": "6f2f4cf683bead9e43fc063a66f56038c2a6fd44794d7990f015ab606d648977",
+      "identical": true
+    },
+    {
+      "archivedPath": "artifacts/ags-assertion-repair/evidence/generation-v1/check-receipt.json",
+      "sourcePath": "/private/var/folders/bk/6qfpqsgs4vj31vdb4b0yq_f80000gp/T/ags-generation-check-attempt-2026-11-11T08-26-18-313Z-a28014/receipt.json",
+      "sha256": "3fcab6f827da9f55ddb7d9ed62c515ab01ed3149c66c5224a5f03bfb40d1e365",
+      "identical": true
+    }
+  ],
+  "generatedLockfile": {
+    "path": ".skills-lock.json",
+    "sha256": "c80b0931b2fdc2a6989f3335198ac71bc7219ac99ae53c1901adc6b76a7fc8ef"
+  },
+  "metadataVerification": {
+    "path": "skills/metadata.json",
+    "preSha256": "07078edf09edc4423841190cee99eb640282dfb96e9871f8328e8df1466df7da",
+    "postSha256": "07078edf09edc4423841190cee99eb640282dfb96e9871f8328e8df1466df7da",
+    "common": { "version": "2.9.8", "last_updated": "2026-11-11" },
+    "android": { "version": "1.5.3", "last_updated": "2026-11-11" }
+  },
+  "protectedFilesVerifiedUnchanged": {
+    "totalChecked": 59,
+    "allMatchPreRunSha256": true,
+    "files": [
+      { "path": ".agent/ags-delivery-evidence.json", "sha256": "4af152a0d947cccf4970e83946d15c7bb9a28c1d65ddf457eea6e2162a78b016" },
+      { "path": ".agent/ags-review-initial.json", "sha256": "185c344f4b5fd9793046b2f4a2c6ca38a802d5c5cf718942e6be0002ebd0f6eb" },
+      { "path": ".agent/ags-sl1-corrected.diff", "sha256": "c5ffbbd9f03876dc565f7a50a11c9e2fdcd4e29a7e2da4c9137801ae7beb6cb0" },
+      { "path": ".agent/ags-sl1-initial.diff", "sha256": "4a6be872f6a85ef4191467af76b4c19a3d6beba1d90d5701279a3e1c5ef86c4b" },
+      { "path": ".agent/ags-sl3-corrected.diff", "sha256": "88cf6e3f1a170c18557f96e8f99d195ef03634ef4ad7be7c846e63d0dedf8dc2" },
+      { "path": ".agent/ags-sl3-initial.diff", "sha256": "8c4036e5867e57cafbad3ae134bddc7862140d75561d92f3a30de63c4a20d29e" },
+      { "path": ".agent/assertion-triage-corrected-smoke.json", "sha256": "110455aab7e205df18263f9878ba9cbe18ef223ae8a8b77fdeaf13d9e3de7fbc" },
+      { "path": ".agent/assertion-triage-smoke.json", "sha256": "097e05975bc31bd04a941e8486c498320e3c948d9d99b47fdec16a4abac67515" },
+      { "path": ".agent/cli-smoke-results.json", "sha256": "55526e3a203884fcf85d318fc0069346be2acbbb0538bf278d0dd660dd6bd488" },
+      { "path": ".agent/sl2-android-corrected.diff", "sha256": "f44f760922301d25e657105bc2eaef8d4051818aed7707d68041fcbd43d0e88b" },
+      { "path": ".agent/sl2-android-fallback.diff", "sha256": "b327f06135330309094cae3c15412dbcc1d03284888ab0a3cc0fb3331fc347bf" },
+      { "path": ".agent/sl2-android-fallback.md", "sha256": "e03c64bae7aece1941532b1e96fd2c851bdaa1fcf29dc27c13be0858237dd10e" },
+      { "path": ".agent/sl2-android-initial.diff", "sha256": "2165338f49a1f95be092f39ced0c474c17f8403b35f3ddb95fde525443f9c99b" },
+      { "path": ".agent/sl2-common-corrected.diff", "sha256": "b5a614934fb49fd66001d4b7c5e94680f978ff3892cb2f4b99b5ad42602ce1fe" },
+      { "path": ".agent/sl2-common-fallback.diff", "sha256": "89013ba1d02419c0a41bad894090aff033e80cd48cee7c507c53b94de5625fd7" },
+      { "path": ".agent/sl2-common-fallback.md", "sha256": "b5ca85daf05bcf67085bf378ea4c4b6e0f6c617b5f614521796ca4b901263b81" },
+      { "path": ".agent/sl2-common-initial.diff", "sha256": "6710154d180afd267217fb31f3cb7afde8b82104d214e4389ce81346376131b9" },
+      { "path": ".agent/sl2-corrective-findings.md", "sha256": "af6b21ff8189ea7483fe8c2830df3056ea29c41d18561f9dc2a9a27a1dae8cd1" },
+      { "path": ".agent/sl2-generation-brief.md", "sha256": "46f208eb0ca1b0bbbcaf2a886475b07dc67f3ae902d844a39d4fa6e2b20153da" },
+      { "path": ".agent/sl2-score-blind.cjs", "sha256": "bebe6ab4a1b74f7cba464cf86533cc54225bc68932a7aaa2bbda106228ba5659" },
+      { "path": ".agent/sl2-score-supplemental.cjs", "sha256": "22ec4ee4329e2680bbf1661680a9aae6f9947ea82ced2667ee5b067945807da8" },
+      { "path": ".agent/sl2-verify-boundaries.cjs", "sha256": "b5f1f2434426001694971ec9f8cca00e5bac8e6d4e55a91f31484cf26d682606" },
+      { "path": "artifacts/ags-assertion-repair/evidence/android-controls-corrective1.json", "sha256": "c149d1aca597037bf7be3d5a39db2a04501709ce57e189354fd2c6b618757b00" },
+      { "path": "artifacts/ags-assertion-repair/evidence/android-controls-initial.json", "sha256": "03172f7109152ffaa1da2e07b9adf03e34696c37838866b937606f67b33564cf" },
+      { "path": "artifacts/ags-assertion-repair/evidence/android-controls.json", "sha256": "60ddbcb0fc433188fe46d7bb1923965795ab4ebd6e8c4156d284d22c7c80a6d7" },
+      { "path": "artifacts/ags-assertion-repair/evidence/android-corrective1.diff", "sha256": "f44f760922301d25e657105bc2eaef8d4051818aed7707d68041fcbd43d0e88b" },
+      { "path": "artifacts/ags-assertion-repair/evidence/android-fallback.diff", "sha256": "b327f06135330309094cae3c15412dbcc1d03284888ab0a3cc0fb3331fc347bf" },
+      { "path": "artifacts/ags-assertion-repair/evidence/android-initial.diff", "sha256": "2165338f49a1f95be092f39ced0c474c17f8403b35f3ddb95fde525443f9c99b" },
+      { "path": "artifacts/ags-assertion-repair/evidence/baseline-manifest.json", "sha256": "e15436eb0d3f995d1a1de4474d8f0e0215a766ce3696a8ba87c2dd58ac10ba79" },
+      { "path": "artifacts/ags-assertion-repair/evidence/blind-baseline.json", "sha256": "f9640354b1235be26541bca23347ba640c8cc39baf3959195df8443f2c64133a" },
+      { "path": "artifacts/ags-assertion-repair/evidence/blind-candidate-corrected.json", "sha256": "875065f6207650a3ad6046682127f80a513cacf60c06f5e0f2f0a77a8b9be22e" },
+      { "path": "artifacts/ags-assertion-repair/evidence/blind-candidate-fallback.json", "sha256": "883eca688bf49c140cfdc58a02dcdc4e87064016d63a6b97c432b187be662d87" },
+      { "path": "artifacts/ags-assertion-repair/evidence/blind-candidate-initial.json", "sha256": "7127b8eb39676044c258951c5158445f04358af3cae737a4249c909127fbc71a" },
+      { "path": "artifacts/ags-assertion-repair/evidence/blind-controls.json", "sha256": "d1cef9a5defe8be62133cdf19ac6fae0d6b224f024cc3fcb88da0aa11aec043e" },
+      { "path": "artifacts/ags-assertion-repair/evidence/boundary-corrected.json", "sha256": "9837938e4829c34b0370cd436252afb1c25bce51c508309aa23986f3a5810625" },
+      { "path": "artifacts/ags-assertion-repair/evidence/boundary-fallback.json", "sha256": "9837938e4829c34b0370cd436252afb1c25bce51c508309aa23986f3a5810625" },
+      { "path": "artifacts/ags-assertion-repair/evidence/common-controls-corrective1.json", "sha256": "524e9ad09b7f8179043640eda318ebbd5816c5e87d273343714775d3b025e1a4" },
+      { "path": "artifacts/ags-assertion-repair/evidence/common-controls-initial.json", "sha256": "1117cad5c0647447d0498d1554fbcf1909ad3c6c1ceaaad7da29e0b5eefa2286" },
+      { "path": "artifacts/ags-assertion-repair/evidence/common-controls.json", "sha256": "482f97a609bc256b145734f459f4230aaff5544875c28f9804b5142aad1c6380" },
+      { "path": "artifacts/ags-assertion-repair/evidence/common-corrective1.diff", "sha256": "b5a614934fb49fd66001d4b7c5e94680f978ff3892cb2f4b99b5ad42602ce1fe" },
+      { "path": "artifacts/ags-assertion-repair/evidence/common-fallback.diff", "sha256": "89013ba1d02419c0a41bad894090aff033e80cd48cee7c507c53b94de5625fd7" },
+      { "path": "artifacts/ags-assertion-repair/evidence/common-initial.diff", "sha256": "6710154d180afd267217fb31f3cb7afde8b82104d214e4389ce81346376131b9" },
+      { "path": "artifacts/ags-assertion-repair/evidence/supplemental-controls.json", "sha256": "d1721aa3a782dfbd0b83d4b96119a599dc7d8809f60994b8185a7cfb294f9237" },
+      { "path": "artifacts/ags-assertion-repair/evidence/supplemental-corrective1.json", "sha256": "753d0d617471d5b2c69c5589d3d0b0fa791ead0972ec3c734a1061e261fd575a" },
+      { "path": "artifacts/ags-assertion-repair/evidence/supplemental-fallback.json", "sha256": "eb71446355d68b98f4ce7ac1b1512063b2f4c971b88f0e6f4e5403bc8ada9b53" },
+      { "path": "skills/android/android-testing/evals/evals.json", "sha256": "e469767e6e9701b2258345731a69e5b6cfa59b28a2d8d17d309ae655d04d3522" },
+      { "path": "skills/android/android-architecture/evals/evals.json", "sha256": "502dd0cf15b3b0fb7f07ec5ae72af5f1082ff5c1484869d7ed71a819d43afa5c" },
+      { "path": "skills/android/android-compose-migration/evals/evals.json", "sha256": "482275df3423e92790e6ecf365227754dec71571fef2857956858e24980488e1" },
+      { "path": "skills/android/android-concurrency/evals/evals.json", "sha256": "44be332e6feff1a199afc5901f0067cd1a4532750c09edf6d16783b7ef907d30" },
+      { "path": "skills/common/common-api-design/evals/evals.json", "sha256": "2b72cd75f017efa66b063cd158620a3fad8db44d237c1a534bea86a7d962112c" },
+      { "path": "skills/common/common-architecture-diagramming/evals/evals.json", "sha256": "37b6e7d302c5ddd6a5dd2d3ba647b1b8faad7e25d9859e258e9a9d33bf96962d" },
+      { "path": "scripts/evals/sl2-android-discriminators.test.ts", "sha256": "d9c786ffbfa29c4ca58040a376b4b18fe5d0373d95c74aa8b87e1bf80989d05b" },
+      { "path": "scripts/evals/sl2-common-discriminators.test.ts", "sha256": "5b37f4a8231411d997fb049fda2b3b51e00ff4a42234da7f8c8bf5cee0f3e816" },
+      { "path": "scripts/evals/scorer.ts", "sha256": "5f2547ec911309d11b4c3db54982fcc09769f7a08678ff1e4ebfd8efacdf7142" },
+      { "path": "benchmarks/evals/history.json", "sha256": "dd1ab60f1d2f4f022a7079dd56c1252e00c97b3bd773e42fb297a7cee7a6514c" },
+      { "path": "AGENTS_LEARNING.md", "sha256": "3e700e486dab6e529df2ad1031061e371270773035a89b1a152259ff3fca71d9" },
+      { "path": "CHANGELOG.md", "sha256": "1f2fe68dee150eea524852deab2a87fd4ca913713d955ef951de2c461b138eb6" },
+      { "path": "docs/prd/prd-ags-improvement-criteria.md", "sha256": "680440480a6fde7cff97100072958cd956cf6581a3344d5710f4fd03c2ec890e" },
+      { "path": "skills/metadata.json", "sha256": "07078edf09edc4423841190cee99eb640282dfb96e9871f8328e8df1466df7da" }
+    ]
+  }
+}

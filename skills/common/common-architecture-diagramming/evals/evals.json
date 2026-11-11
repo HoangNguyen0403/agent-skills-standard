@@ -7,14 +7,35 @@
       "expected_output": "Uses a C4 system-context diagram for actors and external systems, labels relationships, avoids database-table detail, and includes title/legend/scope metadata.",
       "assertions": [
         {
-          "type": "contains_any",
-          "value": ["context", "system context", "C4"]
+          "id": "a1",
+          "description": "Requires choosing a C4 system-context or C4 level-one diagram/view",
+          "type": "regex",
+          "value": "(?<!\\b(?:avoid|not|never|instead\\s+of|rather\\s+than|skip|without|don't|do\\s+not)[^.\\n;]{0,25})(?:\\b(?:c4\\s+(?:level[- ]?(?:1|one)\\s+)?(?:system[- ]?)?context|system[- ]context(?:\\s+c4)?)\\s+(?:diagram|view|level)\\b|\\bc4\\s+level[- ]?(?:1|one)\\b(?:\\s+(?:context\\s+)?(?:diagram|view))?|\\bcontext[- ]level\\s+c4\\b)"
         },
         {
-          "type": "contains_any",
-          "value": ["actor", "payment provider", "relationship"]
+          "id": "a2",
+          "description": "Requires both actors/people/users and external systems such as a payment provider",
+          "type": "regex",
+          "value": "(?=[\\s\\S]*\\b(?:actors?|people|users?|personas?|customers?)\\b)(?=[\\s\\S]*\\b(?:external\\s+systems?|payment\\s+provider|third[- ]party\\s+systems?)\\b)"
         },
-        { "type": "contains_any", "value": ["legend", "scope", "title"] }
+        {
+          "id": "a3",
+          "description": "Requires labeled relationships, edges, connections, or interactions",
+          "type": "regex",
+          "value": "(?:\\blabel(?:ed|s|ing)?\\b[^.\\n;]{0,35}\\b(?:relationships?|arrows?|edges?|connections?|interactions?)\\b|\\b(?:relationships?|arrows?|edges?|connections?|interactions?)\\b[^.\\n;]{0,35}\\b(?:label(?:ed|s|ing)?|protocols?)\\b)"
+        },
+        {
+          "id": "a4",
+          "description": "Requires title, legend or notation-key equivalent, and scope metadata",
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:(?<!\\b(?:do\\s+not|don't|never)\\s+)\\b(?:omit|skip|exclude|drop|leave\\s+out|leave\\s+off)\\b[^.\\n;]{0,35}\\b(?:title|legend|notation\\s+key|diagram\\s+key|scope(?:\\s+(?:note|metadata))?)\\b|\\b(?:title|legend|notation\\s+key|diagram\\s+key|scope(?:\\s+(?:note|metadata))?)\\b[^.\\n;]{0,45}\\b(?:unnecessary|not\\s+needed|leave\\s+(?:it|them)\\s+off|omit(?:ted)?|skip|exclude|drop)\\b))(?=[\\s\\S]*\\b(?:includes?|adds?|provides?|gives?|shows?|states?|labels?|supplies?|presents?|displays?|contains?)\\b[^.\\n;]{0,100}\\btitle\\b)(?=[\\s\\S]*\\b(?:includes?|adds?|provides?|gives?|shows?|states?|labels?|supplies?|presents?|displays?|contains?)\\b[^.\\n;]{0,100}(?:\\blegend\\b|\\b(?:notation|diagram)\\s+key\\b|\\bkey\\s+(?:explaining|describing|showing|for)\\s+(?:the\\s+)?(?:notation|symbols?|shapes?|diagram)\\b))(?=[\\s\\S]*\\b(?:includes?|adds?|provides?|gives?|shows?|states?|labels?|supplies?|presents?|displays?|contains?)\\b[^.\\n;]{0,100}\\bscope\\b)"
+        },
+        {
+          "id": "a5",
+          "description": "Rejects choosing a C4 component, container, code, class, or component-and-table view or affirmatively showing internal classes, controllers, or schema/database tables",
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?<!\\b(?:not|avoid|avoids|avoiding|never|instead\\s+of|rather\\s+than|skip|without|no|don't|do\\s+not|exclude|excluding|omit|omitting|than)(?:(?!\\b(?:but|and)\\s+(?:use|choose|pick|show|include)\\b)[^.\\n;]){0,60})\\b(?:(?:c4\\s+)?(?:component|container|code|class)(?:\\s+and\\s+table|\\s*-and-\\s*table)?\\s+(?:diagram|view|level)|detailed\\s+component[- ]and[- ]table\\s+(?:diagram|view))\\b(?![^.\\n;]{0,35}\\b(?:avoid(?:ed)?|out\\s+of\\s+scope|exclude[ds]?|omit(?:ted)?|wrong|inappropriate|too\\s+detailed|not\\s+needed)\\b))(?![\\s\\S]*(?<!\\b(?:not|avoid|avoids|avoiding|never|instead\\s+of|rather\\s+than|skip|leave|keep|without|no|don't|do\\s+not|exclude|excluding|omit|omitting|decomposing\\s+them\\s+into)(?:(?!\\b(?:but|and)\\s+(?:use|choose|pick|show|include)\\b)[^.\\n;]){0,80})\\b(?:internal\\s+(?:service\\s+)?classes|service\\s+classes|ui\\s+classes|api\\s+controllers|database[- ]tables?(?:\\s+detail)?|schema\\s+tables?|table\\s+columns?|schema\\s+columns?)\\b(?![^.\\n;]{0,40}\\b(?:out\\s+of\\s+scope|avoid(?:ed)?|exclude[ds]?|omit(?:ted)?|left\\s+out|unnecessary|not\\s+shown|❌)\\b))[\\s\\S]*$"
+        }
       ]
     },
     {

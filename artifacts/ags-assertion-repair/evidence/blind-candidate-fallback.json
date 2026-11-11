@@ -1,0 +1,194 @@
+{
+  "kind": "offline-independent-discrimination",
+  "packetSha256": "d1cef9a5defe8be62133cdf19ac6fae0d6b224f024cc3fcb88da0aa11aec043e",
+  "scorerSha256": "5f2547ec911309d11b4c3db54982fcc09769f7a08678ff1e4ebfd8efacdf7142",
+  "semanticsVersion": 1,
+  "matched": 14,
+  "total": 14,
+  "results": [
+    {
+      "id": "T1-P",
+      "expected": true,
+      "actual": true,
+      "matched": true,
+      "failedAssertions": [],
+      "definitionSha256": "e469767e6e9701b2258345731a69e5b6cfa59b28a2d8d17d309ae655d04d3522"
+    },
+    {
+      "id": "T1-W",
+      "expected": false,
+      "actual": false,
+      "matched": true,
+      "failedAssertions": [
+        {
+          "id": "a6",
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?<!\\b(?:not|never|n't|avoid|ban|forbid|without|instead of|rather than|do not|don't|no)\\b(?:[^.;\\n]|\\.(?=\\w)){0,60})\\b(?:Thread\\.sleep|sleep\\s*\\(\\s*\\d|(?:real|live|production)\\s+(?:network|api|database|http|backend)(?:\\s+service)?)\\b)[\\s\\S]*$"
+        }
+      ],
+      "definitionSha256": "e469767e6e9701b2258345731a69e5b6cfa59b28a2d8d17d309ae655d04d3522"
+    },
+    {
+      "id": "A1-P",
+      "expected": true,
+      "actual": true,
+      "matched": true,
+      "failedAssertions": [],
+      "definitionSha256": "502dd0cf15b3b0fb7f07ec5ae72af5f1082ff5c1484869d7ed71a819d43afa5c"
+    },
+    {
+      "id": "A1-W",
+      "expected": false,
+      "actual": false,
+      "matched": true,
+      "failedAssertions": [
+        {
+          "id": "a4",
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?<!\\b(?:not|never|n't|avoid|ban|forbid|without|instead of|rather than|shouldn't|should not|must not|cannot|can't|do not|don't|no|free of|independent of)\\b(?:(?!\\b(?:but|however|yet)\\b)(?:[^.;\\n]|\\.(?=\\w))){0,50})(?:\\b(?:put|place|keep|implement|move|live|lives|belong|belongs|calculate|calculates|calculating|compute|computes|computing|handle|handles)\\b(?:[^.;\\n]|\\.(?=\\w)){0,45}\\b(?:in|inside|into)\\s+(?:the\\s+)?(?:ViewModel|Repository)\\b|\\b(?:ViewModel|Repository)\\b(?:[^.;\\n]|\\.(?=\\w)){0,35}\\b(?:owns?|contains?|holds?|calculat(?:e|es|ing)|comput(?:e|es|ing)|handles?)\\b(?:[^.;\\n]|\\.(?=\\w)){0,45}\\b(?:business\\s+(?:logic|rules)|order[- ]totals?|pricing\\s+(?:logic|rules)|calculations?)\\b|\\b(?:ViewModel|Repository)\\b\\s+is\\s+(?:the\\s+)?(?:right|best|proper)\\s+place|\\b(?:UseCase|Domain(?:\\s+layer)?)\\b(?:[^.;\\n]|\\.(?=\\w)){0,35}\\b(?:depend(?:s|ing)?\\s+on|use(?:s|ing)?|import)\\s+Android(?:\\s+(?:Context|APIs?|deps|dependencies|framework))?\\b))[\\s\\S]*$"
+        },
+        {
+          "id": "a5",
+          "type": "regex",
+          "value": "(?=[\\s\\S]*\\bViewModel\\b(?:[^.;\\n]|\\.(?=\\w)){0,60}\\b(?:orchestrat\\w*|call\\w*|trigger\\w*|invok\\w*|request\\w*|expos\\w*|map\\w*|UI\\s+state|UiState|screen\\s+state)\\b)(?=[\\s\\S]*\\bRepository\\b(?:[^.;\\n]|\\.(?=\\w)){0,60}\\b(?:data\\s+access|retriev\\w*|fetch\\w*|persist\\w*|storage|DTO\\w*|load\\w*)\\b)"
+        }
+      ],
+      "definitionSha256": "502dd0cf15b3b0fb7f07ec5ae72af5f1082ff5c1484869d7ed71a819d43afa5c"
+    },
+    {
+      "id": "M1-P",
+      "expected": true,
+      "actual": true,
+      "matched": true,
+      "failedAssertions": [],
+      "definitionSha256": "482275df3423e92790e6ecf365227754dec71571fef2857956858e24980488e1"
+    },
+    {
+      "id": "M1-W",
+      "expected": false,
+      "actual": false,
+      "matched": true,
+      "failedAssertions": [
+        {
+          "id": "a1",
+          "type": "regex",
+          "value": "(?<!\\b(?:not|never|n't|avoid|skip|without|instead of|rather than|don't|do not)\\b(?:[^.;\\n]|\\.(?=\\w)){0,40})(?:\\b(?:prefer|start|begin|pick|choose|select|target)\\b(?:[^.;\\n]|\\.(?=\\w)){0,40}\\b(?:leaf\\s+(?:xml\\s+)?(?:layout|screen)s?|small(?:er)?\\s+(?:xml\\s+)?(?:layout|screen|component)s?|simple\\s+(?:xml\\s+)?(?:layout|screen|component)s?|single\\s+(?:xml\\s+)?(?:layout|screen|component)|one\\s+(?:small,?\\s*)?(?:leaf\\s+)?(?:xml\\s+)?(?:screen|layout|reusable\\s+component|component)|incremental(?:ly)?)\\b|\\b(?:avoid|defer|leave|skip)\\b(?:[^.;\\n]|\\.(?=\\w)){0,35}\\b(?:complex|complicated)\\s+RecyclerView)"
+        },
+        {
+          "id": "a5",
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?<!\\b(?:not|never|n't|avoid|ban|forbid|without|instead of|rather than|do not|don't|should not|shouldn't|no)\\b(?:[^.;\\n]|\\.(?=\\w)){0,45})(?:\\b(?:pick(?:ing)?|choos(?:e|ing)|select(?:ing)?|start(?:ing)?\\s+with|migrat(?:e|ing))\\s+(?:the\\s+)?(?:largest|biggest|most\\s+complex)\\b(?:[^.;\\n]|\\.(?=\\w)){0,45}\\b(?:screen|layout|RecyclerView|adapter)s?\\b|\\b(?:rewrite|migrate|convert|replace)\\s+(?:the\\s+)?(?:entire|whole|all)\\s+(?:app|application|XML\\s+(?:screens?|layouts?|files?)|screens?|layouts?)\\b(?:[^.;\\n]|\\.(?=\\w)){0,45}\\b(?:at\\s+once|in\\s+(?:one|the\\s+same)\\s+(?:change|sweep|pass|PR)|together)\\b|\\bbig[- ]bang\\s+(?:rewrite|migration)\\b|\\b(?:completed|done)\\s+in\\s+one\\s+sweep\\b))[\\s\\S]*$"
+        }
+      ],
+      "definitionSha256": "482275df3423e92790e6ecf365227754dec71571fef2857956858e24980488e1"
+    },
+    {
+      "id": "C2-P",
+      "expected": true,
+      "actual": true,
+      "matched": true,
+      "failedAssertions": [],
+      "definitionSha256": "44be332e6feff1a199afc5901f0067cd1a4532750c09edf6d16783b7ef907d30"
+    },
+    {
+      "id": "C2-W",
+      "expected": false,
+      "actual": false,
+      "matched": true,
+      "failedAssertions": [
+        {
+          "id": "a2",
+          "type": "regex",
+          "value": "(?:\\b(?:use|call|pass|switch|launch|run|withContext)\\b(?:(?!(?:\\bDispatchers\\.|\\bignor|\\bbypass|\\bskip))(?:[^.;\\n]|\\.(?=\\w))){0,40}\\b(?:supplied|injected|provider(?:'s)?|(?!Dispatchers\\.)(?:[a-z0-9_]*dispatchers?|[a-z0-9_]*executors?)\\.)\\s*(?:io|main|default|dispatcher)\\b|\\b(?:never|not|n't|avoid|instead of|rather than|without|don't|do not)\\b(?:[^.;\\n]|\\.(?=\\w)){0,45}(?:\\b(?:hardcod\\w*|direct(?:ly)?)\\b(?:[^.;\\n]|\\.(?=\\w)){0,45}\\bDispatchers?|\\bDispatchers\\.(?:IO|Default|Main)\\b))"
+        },
+        {
+          "id": "a4",
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?<!\\b(?:not|never|n't|avoid|ban|forbid|without|instead of|rather than|don't|do not|shouldn't|should not)\\b(?:(?!\\b(?:but|however|yet)\\b)(?:[^.;\\n]|\\.(?=\\w))){0,45})(?:\\b(?:hardcod(?:e|es|ed|ing)|hard-cod(?:e|es|ed|ing))\\b(?:[^.;\\n]|\\.(?=\\w)){0,35}\\bDispatchers\\.(?:IO|Default|Main)\\b|\\b(?:use|uses|using|call|calls|calling|reference|references|referencing)\\b(?:[^.;\\n]|\\.(?=\\w)){0,25}\\bDispatchers\\.(?:IO|Default|Main)\\b(?:[^.;\\n]|\\.(?=\\w)){0,25}\\bdirectly\\b|\\b(?:ignor(?:e|es|ed|ing)|bypass(?:es|ed|ing)?|skip(?:s|ped|ping)?)\\b(?:[^.;\\n]|\\.(?=\\w)){0,25}\\b(?:injected|supplied)\\b(?:[^.;\\n]|\\.(?=\\w)){0,25}\\b(?:property|dispatcher|io|main|default)\\b|\\b(?:always\\s+use|should\\s+(?:always\\s+)?use)\\b(?:[^.;\\n]|\\.(?=\\w)){0,25}\\bglobal\\s+dispatcher\\b|\\b(?:instead of|rather than|without|do not|don't|skip)\\s+inject(?:ing)?\\s+(?:a\\s+)?(?:[a-z0-9_]*dispatcher[a-z0-9_]*|DispatcherProvider)\\b))[\\s\\S]*$"
+        }
+      ],
+      "definitionSha256": "44be332e6feff1a199afc5901f0067cd1a4532750c09edf6d16783b7ef907d30"
+    },
+    {
+      "id": "API2-P",
+      "expected": true,
+      "actual": true,
+      "matched": true,
+      "failedAssertions": [],
+      "definitionSha256": "2b72cd75f017efa66b063cd158620a3fad8db44d237c1a534bea86a7d962112c"
+    },
+    {
+      "id": "API2-W",
+      "expected": false,
+      "actual": false,
+      "matched": true,
+      "failedAssertions": [
+        {
+          "id": "a3",
+          "type": "regex",
+          "value": "(?:\\b(?:not|avoid|never|no|don't|do\\s+not|rather\\s+than|instead\\s+of|reject|ban|prohibit|anti-?patterns?)\\b(?:\\s+(?:using|exposing|paths?|routes?|endpoints?|naming|nouns?|like|such\\s+as|a))?[^.\\n;]{0,65}(?:\\bsingular\\b|\\b(?:verb|operation|action|rpc)[- ]?(?:style|based|in\\s+(?:url\\s+|endpoint\\s+)?(?:paths?|urls?|routes?|names?))|\\b(?:in\\s+an?\\s+endpoint\\s+name|in\\s+the\\s+http\\s+method\\s+rather\\s+than)\\b|\\/(?:get|fetch|create|update|delete|remove|list|add|cancel|retrieve|archive)(?!s?\\b)[a-z0-9_-]{2,}\\b|\\/[a-z][a-z0-9-]*(?<!s)\\b)|(?:\\bsingular\\b|\\/(?:get|fetch|create|update|delete|remove|list|add|cancel|retrieve|archive)(?!s?\\b)[a-z0-9_-]{2,}\\b)[^.\\n;]{0,30}(?:❌|anti-?pattern|avoid(?:ed)?|wrong|bad))"
+        },
+        {
+          "id": "a4",
+          "type": "regex",
+          "value": "^(?![\\s\\S]*\\b(?:avoid|never\\s+use|do\\s+not\\s+use|don't\\s+use|stop\\s+using|reject)\\b[^.\\n;]{0,35}\\b(?:plural(?:\\s+(?:nouns?|names?|paths?|routes?|collections?))?|\\/orders\\b|\\/products\\b))(?![\\s\\S]*(?<!\\b(?:not|avoid|never|don't|do\\s+not|without|instead\\s+of|rather\\s+than|reject|ban|prohibit|anti-?patterns?|wrong|bad|❌)(?:(?!\\b(?:and|but)\\s+(?:use|prefer|expose|publish|choose|recommend)\\b)[^.\\n;]){0,120})\\b(?:use|prefer|expose|exposing|publish|choose|recommend(?:ed)?)\\b[^.\\n;]{0,55}\\b(?:singular(?:\\s+(?:and\\s+verb[- ]style\\s+)?(?:nouns?|resources?|paths?|routes?|endpoints?|names?))?|verb[- ]style\\s+(?:paths?|routes?)|operation[- ]style\\s+(?:paths?|routes?|endpoints?))\\b(?![^.\\n;]{0,35}\\b(?:anti-?pattern|avoid(?:ed)?|wrong|bad|❌)\\b))(?![\\s\\S]*\\b(?:singular(?:\\s+(?:and\\s+verb[- ]style\\s+)?(?:nouns?|resources?|paths?|routes?|endpoints?|names?))?|verb[- ]style\\s+(?:paths?|routes?)|operation[- ]style\\s+(?:paths?|routes?|endpoints?))\\b[^.\\n;]{0,40}\\b(?:is|are)\\s+(?:our\\s+|the\\s+)?(?:recommended|preferred|valid|good|best)\\b)(?![\\s\\S]*(?<!\\b(?:not|avoid|never|don't|do\\s+not|without|instead\\s+of|rather\\s+than|reject|ban|prohibit|anti-?patterns?|wrong|bad|❌)(?:(?!\\b(?:and|but)\\s+(?:use|prefer|expose|publish|choose|recommend)\\b)[^.\\n;]){0,120})(?:(?:\\b(?:use|prefer|expose|exposing|publish|choose|recommend|get|post|put|patch|delete)\\s+[`\"']?\\/(?:get|fetch|create|delete|remove|cancel|retrieve|archive)(?!s?\\b)[a-z0-9_-]{2,}\\b)|(?:\\b(?:use|prefer|expose|exposing|publish|choose|recommend|get|post|put|patch|delete)\\s+[`\"']?\\/[a-z][a-z0-9-]*(?<!s)\\b[^.\\n;]{0,45}\\b(?:instead\\s+of|rather\\s+than)\\s+[`\"']?\\/[a-z][a-z0-9-]*s\\b))(?![^.\\n;]{0,35}(?:❌|anti-?pattern|avoid(?:ed)?|wrong|bad)))[\\s\\S]*$"
+        }
+      ],
+      "definitionSha256": "2b72cd75f017efa66b063cd158620a3fad8db44d237c1a534bea86a7d962112c"
+    },
+    {
+      "id": "API3-P",
+      "expected": true,
+      "actual": true,
+      "matched": true,
+      "failedAssertions": [],
+      "definitionSha256": "2b72cd75f017efa66b063cd158620a3fad8db44d237c1a534bea86a7d962112c"
+    },
+    {
+      "id": "API3-W",
+      "expected": false,
+      "actual": false,
+      "matched": true,
+      "failedAssertions": [
+        {
+          "id": "a1",
+          "type": "regex",
+          "value": "(?:\\b(?:no|avoid|never|without|don't|do\\s+not|ban|prohibit|reject)\\b[^.\\n;]{0,35}\\b(?:verbs?|operations?)\\s+in\\s+(?:url\\s+|api\\s+)?(?:paths?|urls?|routes?|endpoints?)\\b(?![^.\\n;]{0,25}\\b(?:optional|not\\s+required|unnecessary)\\b)|\\b(?:verbs?|operations?)\\s+in\\s+(?:url\\s+|api\\s+)?(?:paths?|urls?|routes?|endpoints?)\\b[^.\\n;]{0,35}\\b(?:avoid(?:ed)?|anti-?pattern|wrong|bad|prohibited|forbidden|rejected|❌)\\b|(?=[\\s\\S]*\\bnoun[- ]based\\b)(?=[\\s\\S]*(?:\\b(?:reject|avoid|ban|prohibit|never|not|rather\\s+than|instead\\s+of)\\b[^.\\n;]{0,55}\\b(?:operation|rpc(?:-shaped)?|verbs?|top-?level\\s+route|root\\s+endpoint)\\b|\\b(?:reject|avoid|ban|prohibit|never|not)\\b[^.\\n;]{0,25}(?:(?:get|post|put|patch|delete)\\s+)?\\/[a-z][a-z0-9_-]{3,}[^.\\n;]{0,35}\\b(?:rpc|operation|top-?level|root)\\b)))"
+        },
+        {
+          "id": "a3",
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?<!\\b(?:do\\s+not|don't|never|not|avoid)\\s+(?:to\\s+)?)\\b(?:put|use|add|keep|prefer|allow)\\b[^.\\n;]{0,20}\\bverbs?\\s+in\\s+(?:url\\s+|api\\s+)?(?:paths?|urls?|routes?|endpoints?)\\b(?![^.\\n;]{0,25}\\b(?:avoid|anti-?pattern|wrong|bad|never|not)\\b))(?![\\s\\S]*\\bverbs?\\s+in\\s+(?:url\\s+|api\\s+)?(?:paths?|urls?|routes?|endpoints?)\\b[^.\\n;]{0,45}\\b(?:make|makes|clearer|recommended|valid|preferred)\\b)(?![\\s\\S]*(?<!\\b(?:not|avoid|never|don't|do\\s+not|without|instead\\s+of|rather\\s+than|reject|ban|prohibit|forbid|disallow|discourage|anti-?patterns?|wrong|bad|❌)(?:(?!\\b(?:and|but)\\s+(?:use|prefer|expose|publish|choose|recommend)\\b)[^.\\n;]){0,60})(?<!(?::[a-z0-9_]+|\\{[a-z0-9_]+\\}|<[a-z0-9_]+>|\\d+))\\/(?:get|set|fetch|create|update|delete|remove|list|add|cancel|archive|capture|refund|send|submit|approve|reject|publish|ship|trigger|execute)(?!ers?\\b|ing\\b|es\\b|s\\b)[a-z0-9_-]{3,}\\b(?![^.\\n;]{0,45}(?:❌|anti-?pattern|avoid(?:ed)?|wrong|bad|rejected)))[\\s\\S]*$"
+        }
+      ],
+      "definitionSha256": "2b72cd75f017efa66b063cd158620a3fad8db44d237c1a534bea86a7d962112c"
+    },
+    {
+      "id": "D1-P",
+      "expected": true,
+      "actual": true,
+      "matched": true,
+      "failedAssertions": [],
+      "definitionSha256": "37b6e7d302c5ddd6a5dd2d3ba647b1b8faad7e25d9859e258e9a9d33bf96962d"
+    },
+    {
+      "id": "D1-W",
+      "expected": false,
+      "actual": false,
+      "matched": true,
+      "failedAssertions": [
+        {
+          "id": "a1",
+          "type": "regex",
+          "value": "(?<!\\b(?:avoid|not|never|instead\\s+of|rather\\s+than|skip|without|don't|do\\s+not)[^.\\n;]{0,25})(?:\\b(?:c4\\s+(?:level[- ]?(?:1|one)\\s+)?(?:system[- ]?)?context|system[- ]context(?:\\s+c4)?)\\s+(?:diagram|view|level)\\b|\\bc4\\s+level[- ]?(?:1|one)\\b(?:\\s+(?:context\\s+)?(?:diagram|view))?|\\bcontext[- ]level\\s+c4\\b)"
+        },
+        {
+          "id": "a5",
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?<!\\b(?:not|avoid|avoids|avoiding|never|instead\\s+of|rather\\s+than|skip|without|no|don't|do\\s+not|exclude|excluding|omit|omitting|than)(?:(?!\\b(?:but|and)\\s+(?:use|choose|pick|show|include)\\b)[^.\\n;]){0,60})\\b(?:(?:c4\\s+)?(?:component|container|code|class)(?:\\s+and\\s+table|\\s*-and-\\s*table)?\\s+(?:diagram|view|level)|detailed\\s+component[- ]and[- ]table\\s+(?:diagram|view))\\b(?![^.\\n;]{0,35}\\b(?:avoid(?:ed)?|out\\s+of\\s+scope|exclude[ds]?|omit(?:ted)?|wrong|inappropriate|too\\s+detailed|not\\s+needed)\\b))(?![\\s\\S]*(?<!\\b(?:not|avoid|avoids|avoiding|never|instead\\s+of|rather\\s+than|skip|leave|keep|without|no|don't|do\\s+not|exclude|excluding|omit|omitting|decomposing\\s+them\\s+into)(?:(?!\\b(?:but|and)\\s+(?:use|choose|pick|show|include)\\b)[^.\\n;]){0,80})\\b(?:internal\\s+(?:service\\s+)?classes|service\\s+classes|ui\\s+classes|api\\s+controllers|database[- ]tables?(?:\\s+detail)?|schema\\s+tables?|table\\s+columns?|schema\\s+columns?)\\b(?![^.\\n;]{0,40}\\b(?:out\\s+of\\s+scope|avoid(?:ed)?|exclude[ds]?|omit(?:ted)?|left\\s+out|unnecessary|not\\s+shown|❌)\\b))[\\s\\S]*$"
+        }
+      ],
+      "definitionSha256": "37b6e7d302c5ddd6a5dd2d3ba647b1b8faad7e25d9859e258e9a9d33bf96962d"
+    }
+  ]
+}

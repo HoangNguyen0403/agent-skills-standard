@@ -27,15 +27,27 @@
       "assertions": [
         {
           "id": "a1",
-          "description": "Checks the task contract includes Plural nouns",
-          "type": "contains",
-          "value": "Plural nouns"
+          "description": "Requires affirmative plural or collection resource naming guidance",
+          "type": "regex",
+          "value": "(?<!\\b(?:avoid|never|not|no|don't|do\\s+not|without|instead\\s+of|rather\\s+than)(?:\\s+\\w+){0,3}\\s+)(?:\\bplural\\s+(?:nouns?|resources?(?:\\s+names?)?|collections?(?:\\s+names?)?|paths?|endpoints?|routes?)\\b|\\bcollection\\s+(?:resource\\s+)?(?:names?|nouns?|paths?|endpoints?|routes?)\\b|\\b(?:name|keep)\\b[^.\\n;]{0,35}\\bcollections?(?:\\s+names?)?\\b[^.\\n;]{0,25}\\bplural\\b)(?![^.\\n;]{0,40}\\b(?:avoid(?:ed)?|anti-?pattern|wrong|bad|❌)\\b)"
         },
         {
           "id": "a2",
-          "description": "Checks the task contract includes /orders",
-          "type": "contains",
-          "value": "/orders"
+          "description": "Requires at least one affirmatively recommended plural or collection route without relying on a noun dictionary",
+          "type": "regex",
+          "value": "(?:(?<!\\b(?:not|avoid|never|instead\\s+of|rather\\s+than|don't|do\\s+not|without)[^.,;\\n]{0,40})\\/(?:(?:api|v\\d+)\\/)*(?!(?:get|fetch|create|delete|remove|cancel|retrieve|archive)(?!s?\\b)[a-z0-9_-]{2,})(?!status\\b|alias\\b|basis\\b|focus\\b)[a-z][a-z0-9-]*(?<!s)s(?![a-z0-9_-])|\\b(?:plural|collections?)\\b(?:\\s+\\w+){0,5}\\s*(?:names?\\s*)?(?:such\\s+as|like|e\\.g\\.?,?|:)\\s*(?:(?:get|post|put|patch|delete)\\s+)?[`\"']?\\/(?:(?:api|v\\d+)\\/)*(?!(?:get|fetch|create|delete|remove|cancel|retrieve|archive)(?!s?\\b)[a-z0-9_-]{2,})[a-z][a-z0-9-]+(?![^.,;\\n]{0,25}(?:❌|anti-?pattern|avoid)))"
+        },
+        {
+          "id": "a3",
+          "description": "Requires explicit warning against singular resource names or operation/verb-style routes",
+          "type": "regex",
+          "value": "(?:\\b(?:not|avoid|never|no|don't|do\\s+not|rather\\s+than|instead\\s+of|reject|ban|prohibit|anti-?patterns?)\\b(?:\\s+(?:using|exposing|paths?|routes?|endpoints?|naming|nouns?|like|such\\s+as|a))?[^.\\n;]{0,65}(?:\\bsingular\\b|\\b(?:verb|operation|action|rpc)[- ]?(?:style|based|in\\s+(?:url\\s+|endpoint\\s+)?(?:paths?|urls?|routes?|names?))|\\b(?:in\\s+an?\\s+endpoint\\s+name|in\\s+the\\s+http\\s+method\\s+rather\\s+than)\\b|\\/(?:get|fetch|create|update|delete|remove|list|add|cancel|retrieve|archive)(?!s?\\b)[a-z0-9_-]{2,}\\b|\\/[a-z][a-z0-9-]*(?<!s)\\b)|(?:\\bsingular\\b|\\/(?:get|fetch|create|update|delete|remove|list|add|cancel|retrieve|archive)(?!s?\\b)[a-z0-9_-]{2,}\\b)[^.\\n;]{0,30}(?:❌|anti-?pattern|avoid(?:ed)?|wrong|bad))"
+        },
+        {
+          "id": "a4",
+          "description": "Rejects avoiding plural naming, recommending singular or verb/operation-style conventions, or affirmatively recommending operation-prefixed or contradicted singular routes",
+          "type": "regex",
+          "value": "^(?![\\s\\S]*\\b(?:avoid|never\\s+use|do\\s+not\\s+use|don't\\s+use|stop\\s+using|reject)\\b[^.\\n;]{0,35}\\b(?:plural(?:\\s+(?:nouns?|names?|paths?|routes?|collections?))?|\\/orders\\b|\\/products\\b))(?![\\s\\S]*(?<!\\b(?:not|avoid|never|don't|do\\s+not|without|instead\\s+of|rather\\s+than|reject|ban|prohibit|anti-?patterns?|wrong|bad|❌)(?:(?!\\b(?:and|but)\\s+(?:use|prefer|expose|publish|choose|recommend)\\b)[^.\\n;]){0,120})\\b(?:use|prefer|expose|exposing|publish|choose|recommend(?:ed)?)\\b[^.\\n;]{0,55}\\b(?:singular(?:\\s+(?:and\\s+verb[- ]style\\s+)?(?:nouns?|resources?|paths?|routes?|endpoints?|names?))?|verb[- ]style\\s+(?:paths?|routes?)|operation[- ]style\\s+(?:paths?|routes?|endpoints?))\\b(?![^.\\n;]{0,35}\\b(?:anti-?pattern|avoid(?:ed)?|wrong|bad|❌)\\b))(?![\\s\\S]*\\b(?:singular(?:\\s+(?:and\\s+verb[- ]style\\s+)?(?:nouns?|resources?|paths?|routes?|endpoints?|names?))?|verb[- ]style\\s+(?:paths?|routes?)|operation[- ]style\\s+(?:paths?|routes?|endpoints?))\\b[^.\\n;]{0,40}\\b(?:is|are)\\s+(?:our\\s+|the\\s+)?(?:recommended|preferred|valid|good|best)\\b)(?![\\s\\S]*(?<!\\b(?:not|avoid|never|don't|do\\s+not|without|instead\\s+of|rather\\s+than|reject|ban|prohibit|anti-?patterns?|wrong|bad|❌)(?:(?!\\b(?:and|but)\\s+(?:use|prefer|expose|publish|choose|recommend)\\b)[^.\\n;]){0,120})(?:(?:\\b(?:use|prefer|expose|exposing|publish|choose|recommend|get|post|put|patch|delete)\\s+[`\"']?\\/(?:get|fetch|create|delete|remove|cancel|retrieve|archive)(?!s?\\b)[a-z0-9_-]{2,}\\b)|(?:\\b(?:use|prefer|expose|exposing|publish|choose|recommend|get|post|put|patch|delete)\\s+[`\"']?\\/[a-z][a-z0-9-]*(?<!s)\\b[^.\\n;]{0,45}\\b(?:instead\\s+of|rather\\s+than)\\s+[`\"']?\\/[a-z][a-z0-9-]*s\\b))(?![^.\\n;]{0,35}(?:❌|anti-?pattern|avoid(?:ed)?|wrong|bad)))[\\s\\S]*$"
         }
       ]
     },
@@ -46,15 +58,21 @@
       "assertions": [
         {
           "id": "a1",
-          "description": "Checks the task contract includes verbs",
-          "type": "contains",
-          "value": "verbs"
+          "description": "Requires prohibiting verbs/operations in paths or pairing noun-based resource URLs with explicit rejection of top-level operation/RPC routes",
+          "type": "regex",
+          "value": "(?:\\b(?:no|avoid|never|without|don't|do\\s+not|ban|prohibit|reject)\\b[^.\\n;]{0,35}\\b(?:verbs?|operations?)\\s+in\\s+(?:url\\s+|api\\s+)?(?:paths?|urls?|routes?|endpoints?)\\b(?![^.\\n;]{0,25}\\b(?:optional|not\\s+required|unnecessary)\\b)|\\b(?:verbs?|operations?)\\s+in\\s+(?:url\\s+|api\\s+)?(?:paths?|urls?|routes?|endpoints?)\\b[^.\\n;]{0,35}\\b(?:avoid(?:ed)?|anti-?pattern|wrong|bad|prohibited|forbidden|rejected|❌)\\b|(?=[\\s\\S]*\\bnoun[- ]based\\b)(?=[\\s\\S]*(?:\\b(?:reject|avoid|ban|prohibit|never|not|rather\\s+than|instead\\s+of)\\b[^.\\n;]{0,55}\\b(?:operation|rpc(?:-shaped)?|verbs?|top-?level\\s+route|root\\s+endpoint)\\b|\\b(?:reject|avoid|ban|prohibit|never|not)\\b[^.\\n;]{0,25}(?:(?:get|post|put|patch|delete)\\s+)?\\/[a-z][a-z0-9_-]{3,}[^.\\n;]{0,35}\\b(?:rpc|operation|top-?level|root)\\b)))"
         },
         {
           "id": "a2",
-          "description": "Checks the task contract includes paths",
-          "type": "contains",
-          "value": "paths"
+          "description": "Requires an affirmatively recommended resource-scoped action sub-resource route",
+          "type": "regex",
+          "value": "(?<!\\b(?:not|avoid|never|instead\\s+of(?:\\s+action\\s+sub-?resources?(?:\\s+like)?)?|rather\\s+than(?:\\s+action\\s+sub-?resources?(?:\\s+like)?)?|don't\\s+use|do\\s+not\\s+use)\\s+(?:routes?\\s+like\\s+|paths?\\s+like\\s+|endpoints?\\s+like\\s+|(?:get|post|put|patch|delete)\\s+)?[`\"']?)\\/(?:v\\d+\\/)?[a-z][a-z0-9-]+\\/(?::[a-z0-9_]+|\\{[a-z0-9_]+\\}|<[a-z0-9_]+>|\\d+)\\/[a-z][a-z0-9-]+(?![^.\\n;]{0,20}(?:❌|avoid|anti-?pattern))"
+        },
+        {
+          "id": "a3",
+          "description": "Rejects endorsing verbs in paths and affirmative top-level verb/operation RPC routes while allowing explicitly rejected examples",
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?<!\\b(?:do\\s+not|don't|never|not|avoid)\\s+(?:to\\s+)?)\\b(?:put|use|add|keep|prefer|allow)\\b[^.\\n;]{0,20}\\bverbs?\\s+in\\s+(?:url\\s+|api\\s+)?(?:paths?|urls?|routes?|endpoints?)\\b(?![^.\\n;]{0,25}\\b(?:avoid|anti-?pattern|wrong|bad|never|not)\\b))(?![\\s\\S]*\\bverbs?\\s+in\\s+(?:url\\s+|api\\s+)?(?:paths?|urls?|routes?|endpoints?)\\b[^.\\n;]{0,45}\\b(?:make|makes|clearer|recommended|valid|preferred)\\b)(?![\\s\\S]*(?<!\\b(?:not|avoid|never|don't|do\\s+not|without|instead\\s+of|rather\\s+than|reject|ban|prohibit|forbid|disallow|discourage|anti-?patterns?|wrong|bad|❌)(?:(?!\\b(?:and|but)\\s+(?:use|prefer|expose|publish|choose|recommend)\\b)[^.\\n;]){0,60})(?<!(?::[a-z0-9_]+|\\{[a-z0-9_]+\\}|<[a-z0-9_]+>|\\d+))\\/(?:get|set|fetch|create|update|delete|remove|list|add|cancel|archive|capture|refund|send|submit|approve|reject|publish|ship|trigger|execute)(?!ers?\\b|ing\\b|es\\b|s\\b)[a-z0-9_-]{3,}\\b(?![^.\\n;]{0,45}(?:❌|anti-?pattern|avoid(?:ed)?|wrong|bad|rejected)))[\\s\\S]*$"
         }
       ]
     }

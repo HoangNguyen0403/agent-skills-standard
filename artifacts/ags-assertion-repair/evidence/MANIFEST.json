@@ -1,0 +1,295 @@
+{
+  "kind": "SL2-final-evidence-manifest",
+  "baseRevision": "1b0302db138225f30e70cd0ea42702791cf5dc8c",
+  "checkpoint": "after local source/generation acceptance and delivery-status documentation",
+  "selfHashExcluded": true,
+  "evidence": [
+    {
+      "path": "artifacts/ags-assertion-repair/evidence/android-controls-corrective1.json",
+      "sha256": "c149d1aca597037bf7be3d5a39db2a04501709ce57e189354fd2c6b618757b00",
+      "bytes": 22811
+    },
+    {
+      "path": "artifacts/ags-assertion-repair/evidence/android-controls-initial.json",
+      "sha256": "03172f7109152ffaa1da2e07b9adf03e34696c37838866b937606f67b33564cf",
+      "bytes": 36778
+    },
+    {
+      "path": "artifacts/ags-assertion-repair/evidence/android-controls.json",
+      "sha256": "60ddbcb0fc433188fe46d7bb1923965795ab4ebd6e8c4156d284d22c7c80a6d7",
+      "bytes": 25732
+    },
+    {
+      "path": "artifacts/ags-assertion-repair/evidence/android-corrective1.diff",
+      "sha256": "f44f760922301d25e657105bc2eaef8d4051818aed7707d68041fcbd43d0e88b",
+      "bytes": 33470
+    },
+    {
+      "path": "artifacts/ags-assertion-repair/evidence/android-fallback.diff",
+      "sha256": "b327f06135330309094cae3c15412dbcc1d03284888ab0a3cc0fb3331fc347bf",
+      "bytes": 34851
+    },
+    {
+      "path": "artifacts/ags-assertion-repair/evidence/android-initial.diff",
+      "sha256": "2165338f49a1f95be092f39ced0c474c17f8403b35f3ddb95fde525443f9c99b",
+      "bytes": 22720
+    },
+    {
+      "path": "artifacts/ags-assertion-repair/evidence/baseline-manifest.json",
+      "sha256": "e15436eb0d3f995d1a1de4474d8f0e0215a766ce3696a8ba87c2dd58ac10ba79",
+      "bytes": 984
+    },
+    {
+      "path": "artifacts/ags-assertion-repair/evidence/blind-baseline.json",
+      "sha256": "f9640354b1235be26541bca23347ba640c8cc39baf3959195df8443f2c64133a",
+      "bytes": 4867
+    },
+    {
+      "path": "artifacts/ags-assertion-repair/evidence/blind-candidate-corrected.json",
+      "sha256": "875065f6207650a3ad6046682127f80a513cacf60c06f5e0f2f0a77a8b9be22e",
+      "bytes": 14894
+    },
+    {
+      "path": "artifacts/ags-assertion-repair/evidence/blind-candidate-fallback.json",
+      "sha256": "883eca688bf49c140cfdc58a02dcdc4e87064016d63a6b97c432b187be662d87",
+      "bytes": 14995
+    },
+    {
+      "path": "artifacts/ags-assertion-repair/evidence/blind-candidate-initial.json",
+      "sha256": "7127b8eb39676044c258951c5158445f04358af3cae737a4249c909127fbc71a",
+      "bytes": 12960
+    },
+    {
+      "path": "artifacts/ags-assertion-repair/evidence/blind-controls.json",
+      "sha256": "d1cef9a5defe8be62133cdf19ac6fae0d6b224f024cc3fcb88da0aa11aec043e",
+      "bytes": 7073
+    },
+    {
+      "path": "artifacts/ags-assertion-repair/evidence/boundary-corrected.json",
+      "sha256": "9837938e4829c34b0370cd436252afb1c25bce51c508309aa23986f3a5810625",
+      "bytes": 1136
+    },
+    {
+      "path": "artifacts/ags-assertion-repair/evidence/boundary-fallback.json",
+      "sha256": "9837938e4829c34b0370cd436252afb1c25bce51c508309aa23986f3a5810625",
+      "bytes": 1136
+    },
+    {
+      "path": "artifacts/ags-assertion-repair/evidence/common-controls-corrective1.json",
+      "sha256": "524e9ad09b7f8179043640eda318ebbd5816c5e87d273343714775d3b025e1a4",
+      "bytes": 20754
+    },
+    {
+      "path": "artifacts/ags-assertion-repair/evidence/common-controls-initial.json",
+      "sha256": "1117cad5c0647447d0498d1554fbcf1909ad3c6c1ceaaad7da29e0b5eefa2286",
+      "bytes": 15708
+    },
+    {
+      "path": "artifacts/ags-assertion-repair/evidence/common-controls.json",
+      "sha256": "482f97a609bc256b145734f459f4230aaff5544875c28f9804b5142aad1c6380",
+      "bytes": 23873
+    },
+    {
+      "path": "artifacts/ags-assertion-repair/evidence/common-corrective1.diff",
+      "sha256": "b5a614934fb49fd66001d4b7c5e94680f978ff3892cb2f4b99b5ad42602ce1fe",
+      "bytes": 42047
+    },
+    {
+      "path": "artifacts/ags-assertion-repair/evidence/common-fallback.diff",
+      "sha256": "89013ba1d02419c0a41bad894090aff033e80cd48cee7c507c53b94de5625fd7",
+      "bytes": 44848
+    },
+    {
+      "path": "artifacts/ags-assertion-repair/evidence/common-initial.diff",
+      "sha256": "6710154d180afd267217fb31f3cb7afde8b82104d214e4389ce81346376131b9",
+      "bytes": 25976
+    },
+    {
+      "path": "artifacts/ags-assertion-repair/evidence/delivery.json",
+      "sha256": "9a81281946d9e60399ac2e5369e96063a55858df878da7347cdda2f324141b0b",
+      "bytes": 4148
+    },
+    {
+      "path": "artifacts/ags-assertion-repair/evidence/generation-v1/apply-generation.log",
+      "sha256": "cefebab2bf75d5c3d5411ab4c13275214bcdf636ac2c0c148edf6d8dc5a4d351",
+      "bytes": 5167
+    },
+    {
+      "path": "artifacts/ags-assertion-repair/evidence/generation-v1/apply-receipt.json",
+      "sha256": "36dfd4198e7419e6241cf6bc724c46dc29a2bbcdab38137ec5c11f01476f3cd4",
+      "bytes": 189768
+    },
+    {
+      "path": "artifacts/ags-assertion-repair/evidence/generation-v1/check-generation.log",
+      "sha256": "6f2f4cf683bead9e43fc063a66f56038c2a6fd44794d7990f015ab606d648977",
+      "bytes": 5172
+    },
+    {
+      "path": "artifacts/ags-assertion-repair/evidence/generation-v1/check-receipt.json",
+      "sha256": "3fcab6f827da9f55ddb7d9ed62c515ab01ed3149c66c5224a5f03bfb40d1e365",
+      "bytes": 189638
+    },
+    {
+      "path": "artifacts/ags-assertion-repair/evidence/generation-v1/generation-manifest.json",
+      "sha256": "7bb73f5ff00ca91c7c6f65ed917f2259ce0ef09fb41c88b5716391110173501c",
+      "bytes": 12893
+    },
+    {
+      "path": "artifacts/ags-assertion-repair/evidence/generation-v1/parent-verification.json",
+      "sha256": "4814e4ae5ca3a13ce024badcb355b6abc70d079bfc9120caf5fa6bbe8b33e9ea",
+      "bytes": 374
+    },
+    {
+      "path": "artifacts/ags-assertion-repair/evidence/review.json",
+      "sha256": "5d122816ae48020c287992901ddcb8b2dc36a909a5bfe267c664c75761d20265",
+      "bytes": 2169
+    },
+    {
+      "path": "artifacts/ags-assertion-repair/evidence/selected-preflight.json",
+      "sha256": "259971db0ed4dcc9eca01b40a2683822b7fbad15a0492e773a65e59828fc3dfc",
+      "bytes": 352
+    },
+    {
+      "path": "artifacts/ags-assertion-repair/evidence/supplemental-controls.json",
+      "sha256": "d1721aa3a782dfbd0b83d4b96119a599dc7d8809f60994b8185a7cfb294f9237",
+      "bytes": 2498
+    },
+    {
+      "path": "artifacts/ags-assertion-repair/evidence/supplemental-corrective1.json",
+      "sha256": "753d0d617471d5b2c69c5589d3d0b0fa791ead0972ec3c734a1061e261fd575a",
+      "bytes": 2294
+    },
+    {
+      "path": "artifacts/ags-assertion-repair/evidence/supplemental-fallback.json",
+      "sha256": "eb71446355d68b98f4ce7ac1b1512063b2f4c971b88f0e6f4e5403bc8ada9b53",
+      "bytes": 2370
+    },
+    {
+      "path": "artifacts/ags-assertion-repair/evidence/telemetry.json",
+      "sha256": "44178e4318c29efc4f8204a0fc365b8b7104c0b3469d97e928903086db5395ed",
+      "bytes": 675
+    }
+  ],
+  "sources": [
+    {
+      "path": "skills/android/android-testing/evals/evals.json",
+      "sha256": "e469767e6e9701b2258345731a69e5b6cfa59b28a2d8d17d309ae655d04d3522",
+      "bytes": 8455
+    },
+    {
+      "path": "skills/android/android-architecture/evals/evals.json",
+      "sha256": "502dd0cf15b3b0fb7f07ec5ae72af5f1082ff5c1484869d7ed71a819d43afa5c",
+      "bytes": 5792
+    },
+    {
+      "path": "skills/android/android-compose-migration/evals/evals.json",
+      "sha256": "482275df3423e92790e6ecf365227754dec71571fef2857956858e24980488e1",
+      "bytes": 6063
+    },
+    {
+      "path": "skills/android/android-concurrency/evals/evals.json",
+      "sha256": "44be332e6feff1a199afc5901f0067cd1a4532750c09edf6d16783b7ef907d30",
+      "bytes": 5851
+    },
+    {
+      "path": "skills/common/common-api-design/evals/evals.json",
+      "sha256": "2b72cd75f017efa66b063cd158620a3fad8db44d237c1a534bea86a7d962112c",
+      "bytes": 8932
+    },
+    {
+      "path": "skills/common/common-architecture-diagramming/evals/evals.json",
+      "sha256": "37b6e7d302c5ddd6a5dd2d3ba647b1b8faad7e25d9859e258e9a9d33bf96962d",
+      "bytes": 18167
+    },
+    {
+      "path": "skills/android/android-testing/SKILL.md",
+      "sha256": "2cf9658809579214e07f69d7976799f68ef79cffc7f0012e03ae4b9b1da5d515",
+      "bytes": 4239
+    },
+    {
+      "path": "skills/android/android-architecture/SKILL.md",
+      "sha256": "e1ac27b81c528b3e2c888fad0129ebe37363b5f563289e73964e70985c468083",
+      "bytes": 2401
+    },
+    {
+      "path": "skills/android/android-compose-migration/SKILL.md",
+      "sha256": "14f3a0950e8dae1ad035b542e39a114861f31e7f5a282a30a0816a09e76b6a03",
+      "bytes": 3074
+    },
+    {
+      "path": "skills/android/android-concurrency/SKILL.md",
+      "sha256": "9ce59f05b7698e2d994e66d2ffb70c4d2ff5e8287be198614ed663fec69cab51",
+      "bytes": 1643
+    },
+    {
+      "path": "skills/common/common-api-design/SKILL.md",
+      "sha256": "aa30d38cc00683697d86ba1bbc7391d49f89cfca938815b1b9be2c9b8d1bbfb7",
+      "bytes": 3756
+    },
+    {
+      "path": "skills/common/common-architecture-diagramming/SKILL.md",
+      "sha256": "7f2f2a3d55b7cdea30636632f9d91a8dd15c5cb4d1bb159bf99347cb750ae6c8",
+      "bytes": 5477
+    },
+    {
+      "path": "scripts/evals/sl2-android-discriminators.test.ts",
+      "sha256": "d9c786ffbfa29c4ca58040a376b4b18fe5d0373d95c74aa8b87e1bf80989d05b",
+      "bytes": 14721
+    },
+    {
+      "path": "scripts/evals/sl2-common-discriminators.test.ts",
+      "sha256": "5b37f4a8231411d997fb049fda2b3b51e00ff4a42234da7f8c8bf5cee0f3e816",
+      "bytes": 21771
+    },
+    {
+      "path": "scripts/evals/scorer.ts",
+      "sha256": "5f2547ec911309d11b4c3db54982fcc09769f7a08678ff1e4ebfd8efacdf7142",
+      "bytes": 18676
+    },
+    {
+      "path": "skills/metadata.json",
+      "sha256": "07078edf09edc4423841190cee99eb640282dfb96e9871f8328e8df1466df7da",
+      "bytes": 21395
+    },
+    {
+      "path": "CHANGELOG.md",
+      "sha256": "1f2fe68dee150eea524852deab2a87fd4ca913713d955ef951de2c461b138eb6",
+      "bytes": 317112
+    },
+    {
+      "path": "docs/prd/prd-ags-improvement-criteria.md",
+      "sha256": "c6485042c88833522cc61f617c2c5c49f447e56501eeecb59c5eb181dc80e7c5",
+      "bytes": 28610
+    },
+    {
+      "path": "AGENTS_LEARNING.md",
+      "sha256": "3e700e486dab6e529df2ad1031061e371270773035a89b1a152259ff3fca71d9",
+      "bytes": 43907
+    },
+    {
+      "path": "benchmarks/evals/history.json",
+      "sha256": "dd1ab60f1d2f4f022a7079dd56c1252e00c97b3bd773e42fb297a7cee7a6514c",
+      "bytes": 1422
+    },
+    {
+      "path": "benchmarks/evals/runs/all-v2.6.0/inputs.json",
+      "sha256": "63f4e9d855caf4436cfce83a39cf60e12357c65128ff01567cd8502479ab3972",
+      "bytes": 1577172
+    },
+    {
+      "path": "benchmarks/evals/runs/all-v2.6.0/results.json",
+      "sha256": "c937fa87bde1ca95a93d644f0971b3a72aec42bc6d349ccf14d7bf93c23c6e24",
+      "bytes": 1446143
+    },
+    {
+      "path": "benchmarks/evals/remediation-queue.json",
+      "sha256": "259891af4dd1fa0d6fb44bfb9f5a81939dd761bb6464d8a515d76a8f2a3531a7",
+      "bytes": 14099
+    },
+    {
+      "path": "benchmarks/evals/assertion-triage-all-v2.6.0.json",
+      "sha256": "3da17b05c294716f22816cee74cc3db570957b21155d73dc094b9304e3825061",
+      "bytes": 364226
+    }
+  ]
+}

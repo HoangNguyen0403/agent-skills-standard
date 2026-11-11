@@ -1,0 +1,244 @@
+{
+  "kind": "sl2-calibration-controls",
+  "slice": "SL2-Common",
+  "plan": "docs/prd/prd-ags-improvement-criteria.md#SL2",
+  "baseRevision": "1b0302db138225f30e70cd0ea42702791cf5dc8c",
+  "generatedDate": "2026-11-11",
+  "scorer": "scripts/evals/scorer.ts#checkAssertion",
+  "semanticsVersionsTested": [1, 2],
+  "originalRedStatus": "NOT RUN",
+  "cases": [
+    {
+      "caseId": "common-api-design#eval-2",
+      "skill": "common/common-api-design",
+      "evalId": 2,
+      "evalsPath": "skills/common/common-api-design/evals/evals.json",
+      "originalFileSha256": "9ad8260f71ae226b388586573c6331b439059e0c75455fc0305cafa0a9b5006e",
+      "candidateFileSha256": "bcc62e00695bc21bed621eb3890eacc4be29f18ad601f6a87374f631266fd1ba",
+      "originalCaseSha256": "4b8427dd3cd87353655c119ade878f51417bfd3d77dd84e9dde6ea0eedb2ec22",
+      "candidateCaseSha256": "488b1c334d19ebda39c6db191815562ac59d3e25cfae0ab63f623054fa62faab",
+      "controls": [
+        {
+          "id": "api2-safe-canonical-expected",
+          "kind": "canonical_expected",
+          "transcript": "**Plural nouns**: `/orders`, `/products`. Not `/order`, `/getProducts`.",
+          "expectedPassed": true,
+          "expectedFailedAssertionIds": [],
+          "rationale": "Canonical expected output states plural noun collection routes and warns against singular /order and verb-in-path /getProducts."
+        },
+        {
+          "id": "api2-safe-baseline-probe-products",
+          "kind": "safe_variant",
+          "transcript": "Use collection resource names: GET /products. Avoid /getProducts and singular /product.",
+          "expectedPassed": true,
+          "expectedFailedAssertionIds": [],
+          "rationale": "Reproduced valid baseline probe using collection resource naming with /products and avoiding /getProducts and singular /product."
+        },
+        {
+          "id": "api2-safe-paraphrase-customers",
+          "kind": "safe_variant",
+          "transcript": "Expose REST collections with plural resource names such as GET /customers and /invoices. Do not use singular routes like /customer or verb-prefixed paths like /fetchCustomers.",
+          "expectedPassed": true,
+          "expectedFailedAssertionIds": [],
+          "rationale": "Equivalent plural resource guidance using /customers and /invoices instead of /orders."
+        },
+        {
+          "id": "api2-safe-anti-pattern-first",
+          "kind": "safe_variant",
+          "transcript": "Avoid singular paths like /item and verb-in-path endpoints like POST /createItem; instead expose plural collection endpoints such as GET /items.",
+          "expectedPassed": true,
+          "expectedFailedAssertionIds": [],
+          "rationale": "States anti-patterns first in an avoidance clause before recommending plural /items."
+        },
+        {
+          "id": "api2-wrong-keyword-rich-singular-and-verb",
+          "kind": "wrong_affirmative_keyword_rich",
+          "transcript": "Follow plural nouns and collection resource naming conventions by exposing GET /product and GET /getProducts instead of /orders.",
+          "expectedPassed": false,
+          "expectedFailedAssertionIds": ["a2", "a3", "a4"],
+          "rationale": "Echoes 'plural nouns', 'collection resource', and '/orders' (negated) while affirmatively recommending singular GET /product and verb-prefixed GET /getProducts."
+        },
+        {
+          "id": "api2-wrong-avoid-plural-use-singular",
+          "kind": "wrong_affirmative_keyword_rich",
+          "transcript": "In common API design, avoid plural nouns for collection resources and use singular resource paths such as GET /order and GET /product rather than /getProducts.",
+          "expectedPassed": false,
+          "expectedFailedAssertionIds": ["a1", "a2", "a4"],
+          "rationale": "Uses target vocabulary while recommending singular paths and telling callers to avoid plural nouns."
+        },
+        {
+          "id": "api2-wrong-missing-obligation-unrelated",
+          "kind": "wrong_missing_obligation",
+          "transcript": "Never use GET requests to mutate state, and never return HTTP 200 for error responses. Paginate large collections using cursor and limit.",
+          "expectedPassed": false,
+          "expectedFailedAssertionIds": ["a1", "a2", "a3"],
+          "rationale": "Mentions unrelated API rules and omits plural collection resource naming and singular/verb anti-pattern warnings."
+        },
+        {
+          "id": "api2-wrong-missing-antipattern-warning",
+          "kind": "wrong_missing_obligation",
+          "transcript": "Use plural nouns for collection resource names like /orders and /products.",
+          "expectedPassed": false,
+          "expectedFailedAssertionIds": ["a3"],
+          "rationale": "Recommends plural nouns without identifying singular or verb-in-path anti-patterns to avoid."
+        }
+      ],
+      "lexicalLimitations": [
+        "Regex checks bounded English clause windows ([^.\\n;]) and common singular/verb path tokens; multi-sentence cross-clause contradictions separated by periods or uncommon irregular singular paths (e.g. /person) are not parsed semantically.",
+        "Irregular plurals not ending in 's' (e.g. /people, /children) and singular nouns ending in 's' outside the explicit exclusion list (status, alias, basis, focus) can produce false negatives or false positives."
+      ]
+    },
+    {
+      "caseId": "common-api-design#eval-3",
+      "skill": "common/common-api-design",
+      "evalId": 3,
+      "evalsPath": "skills/common/common-api-design/evals/evals.json",
+      "originalFileSha256": "9ad8260f71ae226b388586573c6331b439059e0c75455fc0305cafa0a9b5006e",
+      "candidateFileSha256": "bcc62e00695bc21bed621eb3890eacc4be29f18ad601f6a87374f631266fd1ba",
+      "originalCaseSha256": "45ad771909db27c081767b34b99300ea77f6c0cb79a83a64524d3c4972068f86",
+      "candidateCaseSha256": "57daca6274fda1ec35f5ee3942256f073e9d13e8788fa27fc39911f714ee7d07",
+      "controls": [
+        {
+          "id": "api3-safe-canonical-expected",
+          "kind": "canonical_expected",
+          "transcript": "**No verbs in paths** (except action sub-resources): `/orders/:id/cancel` ✅, `/cancelOrder` ❌.",
+          "expectedPassed": true,
+          "expectedFailedAssertionIds": [],
+          "rationale": "Canonical expected output states no-verbs-in-paths rule, shows action sub-resource /orders/:id/cancel, and marks /cancelOrder invalid."
+        },
+        {
+          "id": "api3-safe-paraphrase-invoices",
+          "kind": "safe_variant",
+          "transcript": "Keep URLs noun-based with no verbs in paths (avoid POST /cancelOrder); model non-CRUD state changes as action sub-resources such as POST /invoices/{id}/send.",
+          "expectedPassed": true,
+          "expectedFailedAssertionIds": [],
+          "rationale": "Uses brace parameter syntax {id} and an alternate resource/action (/invoices/{id}/send) while avoiding /cancelOrder."
+        },
+        {
+          "id": "api3-safe-paraphrase-subscriptions",
+          "kind": "safe_variant",
+          "transcript": "Avoid verbs in API routes like POST /archiveOrder; instead trigger state transitions through an action subresource such as POST /subscriptions/:subscriptionId/pause.",
+          "expectedPassed": true,
+          "expectedFailedAssertionIds": [],
+          "rationale": "Paraphrases 'no verbs in paths' as 'Avoid verbs in API routes' and uses :subscriptionId/pause."
+        },
+        {
+          "id": "api3-wrong-baseline-unsafe-probe",
+          "kind": "wrong_affirmative_keyword_rich",
+          "transcript": "Put verbs in paths, for example POST /cancelOrder.",
+          "expectedPassed": false,
+          "expectedFailedAssertionIds": ["a1", "a2", "a3"],
+          "rationale": "Reproduced unsafe baseline probe recommending verbs in paths and POST /cancelOrder."
+        },
+        {
+          "id": "api3-wrong-keyword-rich-optional-verbs",
+          "kind": "wrong_affirmative_keyword_rich",
+          "transcript": "No verbs in paths is optional; for action sub-resources you can put verbs in paths like POST /cancelOrder.",
+          "expectedPassed": false,
+          "expectedFailedAssertionIds": ["a1", "a2", "a3"],
+          "rationale": "Stuffed with 'No verbs in paths' and 'action sub-resources' while declaring the rule optional and recommending POST /cancelOrder."
+        },
+        {
+          "id": "api3-wrong-keyword-rich-negated-subresource",
+          "kind": "wrong_affirmative_keyword_rich",
+          "transcript": "Instead of action sub-resources like POST /orders/:id/cancel, put verbs in paths such as POST /cancelOrder.",
+          "expectedPassed": false,
+          "expectedFailedAssertionIds": ["a1", "a2", "a3"],
+          "rationale": "Includes /orders/:id/cancel inside a negation clause while recommending POST /cancelOrder."
+        },
+        {
+          "id": "api3-wrong-missing-action-subresource",
+          "kind": "wrong_missing_obligation",
+          "transcript": "Never put verbs in URL paths; only use nouns like /orders.",
+          "expectedPassed": false,
+          "expectedFailedAssertionIds": ["a2"],
+          "rationale": "States the no-verbs rule without providing an action sub-resource pattern or example."
+        }
+      ],
+      "lexicalLimitations": [
+        "Top-level verb-in-path detection targets enumerated action verbs paired with common domain nouns (order, product, user, item, payment, invoice, account, customer, subscription) because checkAssertion compiles regexes case-insensitively ('i' flag) and cannot rely on camelCase boundaries alone.",
+        "Any 3-segment route matching /resource/:id/segment can satisfy a2 as an action sub-resource route; semantic distinction between an action sub-resource (/orders/:id/cancel) and a 3-segment nested child singleton is outside regex scope."
+      ]
+    },
+    {
+      "caseId": "common-architecture-diagramming#eval-1",
+      "skill": "common/common-architecture-diagramming",
+      "evalId": 1,
+      "evalsPath": "skills/common/common-architecture-diagramming/evals/evals.json",
+      "originalFileSha256": "5ebcb2b4bb439ae12f282b971158fae8a8a9c2834e3f1b64abf948ee28dbfa53",
+      "candidateFileSha256": "4945672e6c39d3aa0e81ee7e0e861b88e74d35dab94e4725b1bfa2f0d3dafe7a",
+      "originalCaseSha256": "0fa90159f6ad101f5820c2b7a9cc03b88459ea4507f541788291a3e78800c0f2",
+      "candidateCaseSha256": "3b80f13406181a753fc74eb9ff0564eda709a7afc1ed54404221d79ee4c6f146",
+      "controls": [
+        {
+          "id": "c4-1-safe-canonical-expected",
+          "kind": "canonical_expected",
+          "transcript": "Uses a C4 system-context diagram for actors and external systems, labels relationships, avoids database-table detail, and includes title/legend/scope metadata.",
+          "expectedPassed": true,
+          "expectedFailedAssertionIds": [],
+          "rationale": "Canonical expected output selects C4 system-context, covers actors and external systems, labeled relationships, avoids database-table detail, and requires title/legend/scope."
+        },
+        {
+          "id": "c4-1-safe-paraphrase-level1-context",
+          "kind": "safe_variant",
+          "transcript": "Use a C4 Level 1 context diagram for executives. Show the users (actors), the platform system boundary, and external systems like the payment provider with labeled relationships. Leave internal service classes and database tables out of scope, and include a title, legend, and scope note.",
+          "expectedPassed": true,
+          "expectedFailedAssertionIds": [],
+          "rationale": "Natural executive guidance using 'C4 Level 1 context diagram', explicitly excluding internal service classes and database tables."
+        },
+        {
+          "id": "c4-1-safe-paraphrase-contrast-views",
+          "kind": "safe_variant",
+          "transcript": "Select a C4 system context diagram rather than a component or container view. Include actors, our system, and external systems such as the payment provider, label every relationship with its protocol, avoid database-table or class detail, and add a title, legend, and explicit scope.",
+          "expectedPassed": true,
+          "expectedFailedAssertionIds": [],
+          "rationale": "Paraphrases 'system-context' without hyphen, contrasts component/container views in an exclusion clause, and specifies protocol-labeled relationships."
+        },
+        {
+          "id": "c4-1-wrong-baseline-unsafe-probe",
+          "kind": "wrong_affirmative_keyword_rich",
+          "transcript": "Choose a C4 component diagram with internal service classes. Include payment provider relationships, a scope, title and legend.",
+          "expectedPassed": false,
+          "expectedFailedAssertionIds": ["a1", "a2", "a3", "a5"],
+          "rationale": "Reproduced unsafe baseline probe choosing a C4 component diagram with internal service classes, omitting actors and relationship labels."
+        },
+        {
+          "id": "c4-1-wrong-keyword-rich-component-and-context",
+          "kind": "wrong_affirmative_keyword_rich",
+          "transcript": "Use a C4 component diagram alongside system-context notes showing actors, external payment provider, labeled relationships, internal service classes, and database tables, with title, legend, and scope.",
+          "expectedPassed": false,
+          "expectedFailedAssertionIds": ["a1", "a5"],
+          "rationale": "Keyword-stuffed answer containing actors, payment provider, labeled relationships, title, legend, scope, and 'system-context notes' while recommending a C4 component diagram, internal service classes, and database tables."
+        },
+        {
+          "id": "c4-1-wrong-container-diagram",
+          "kind": "wrong_affirmative_keyword_rich",
+          "transcript": "Pick a C4 container diagram for executives showing actors, the mobile app, API, database, and payment provider with labeled relationships, plus a title, legend, and scope.",
+          "expectedPassed": false,
+          "expectedFailedAssertionIds": ["a1", "a5"],
+          "rationale": "Selects C4 container level instead of executive system-context level despite including all metadata and element keywords."
+        },
+        {
+          "id": "c4-1-wrong-missing-legend",
+          "kind": "wrong_missing_obligation",
+          "transcript": "Use a C4 system-context diagram for actors and external systems like the payment provider, with labeled relationships, no database-table detail, and a clear title and scope.",
+          "expectedPassed": false,
+          "expectedFailedAssertionIds": ["a4"],
+          "rationale": "Satisfies C4 system-context, actors, external systems, labeled relationships, title, and scope, but omits legend."
+        },
+        {
+          "id": "c4-1-wrong-missing-actors-and-labels",
+          "kind": "wrong_missing_obligation",
+          "transcript": "Use a C4 system-context diagram showing external systems like the payment provider, avoiding database-table detail, with title, legend, and scope.",
+          "expectedPassed": false,
+          "expectedFailedAssertionIds": ["a2", "a3"],
+          "rationale": "Omits actors/users and labeled relationships."
+        }
+      ],
+      "lexicalLimitations": [
+        "Regex cannot verify semantic diagram completeness (e.g., whether the mobile app, API, payment provider, and database are mapped accurately to system-context boundary vs external system) or distinguish incidental mention of 'scope' in prose from a dedicated scope metadata block.",
+        "Negation-window guards inspect bounded local clauses ([^.\\n;]{0,35..45}); long parenthetical clauses or cross-sentence negations could evade the window."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "kind": "supplemental-calibration",
+  "packetSha256": "d1721aa3a782dfbd0b83d4b96119a599dc7d8809f60994b8185a7cfb294f9237",
+  "scorerSha256": "5f2547ec911309d11b4c3db54982fcc09769f7a08678ff1e4ebfd8efacdf7142",
+  "matched": 0,
+  "total": 8,
+  "results": [
+    {
+      "id": "C-R1",
+      "semanticsVersion": 1,
+      "expected": false,
+      "actual": true,
+      "matched": false,
+      "failedIds": [],
+      "definitionSha256": "21cc812ce6c97ae90c5df5dc7d912ce401a9f3d75c4f0ad4344e52b26fc8375b"
+    },
+    {
+      "id": "C-R1",
+      "semanticsVersion": 2,
+      "expected": false,
+      "actual": true,
+      "matched": false,
+      "failedIds": [],
+      "definitionSha256": "21cc812ce6c97ae90c5df5dc7d912ce401a9f3d75c4f0ad4344e52b26fc8375b"
+    },
+    {
+      "id": "C-R2",
+      "semanticsVersion": 1,
+      "expected": false,
+      "actual": true,
+      "matched": false,
+      "failedIds": [],
+      "definitionSha256": "08ba4e25a458ad3b9597e6a66d52b6e71988c5b7b9c0022ae2d078179c06a955"
+    },
+    {
+      "id": "C-R2",
+      "semanticsVersion": 2,
+      "expected": false,
+      "actual": true,
+      "matched": false,
+      "failedIds": [],
+      "definitionSha256": "08ba4e25a458ad3b9597e6a66d52b6e71988c5b7b9c0022ae2d078179c06a955"
+    },
+    {
+      "id": "A-R1",
+      "semanticsVersion": 1,
+      "expected": true,
+      "actual": false,
+      "matched": false,
+      "failedIds": [
+        "a4"
+      ],
+      "definitionSha256": "dd6da853dce5d8221fce622a53f0789079ad8266018680b775128468f3428d66"
+    },
+    {
+      "id": "A-R1",
+      "semanticsVersion": 2,
+      "expected": true,
+      "actual": false,
+      "matched": false,
+      "failedIds": [
+        "a4"
+      ],
+      "definitionSha256": "dd6da853dce5d8221fce622a53f0789079ad8266018680b775128468f3428d66"
+    },
+    {
+      "id": "A-R2",
+      "semanticsVersion": 1,
+      "expected": false,
+      "actual": true,
+      "matched": false,
+      "failedIds": [],
+      "definitionSha256": "7e7f5da4da646bba2c4db3428e33da7a3c4f2cd420afdb6fe61b152b31eabebb"
+    },
+    {
+      "id": "A-R2",
+      "semanticsVersion": 2,
+      "expected": false,
+      "actual": true,
+      "matched": false,
+      "failedIds": [],
+      "definitionSha256": "7e7f5da4da646bba2c4db3428e33da7a3c4f2cd420afdb6fe61b152b31eabebb"
+    }
+  ]
+}

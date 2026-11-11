@@ -1,0 +1,351 @@
+{
+  "packet": "sl2-android-controls",
+  "revision": "corrective-followup-2",
+  "plan": "docs/prd/prd-ags-improvement-criteria.md",
+  "planSha256": "680440480a6fde7cff97100072958cd956cf6581a3344d5710f4fd03c2ec890e",
+  "correctiveContract": ".agent/sl2-corrective-findings.md",
+  "baseRevision": "1b0302db138225f30e70cd0ea42702791cf5dc8c",
+  "scorer": {
+    "path": "scripts/evals/scorer.ts",
+    "sha256": "5f2547ec911309d11b4c3db54982fcc09769f7a08678ff1e4ebfd8efacdf7142",
+    "entrypoint": "checkAssertion"
+  },
+  "semanticsVersionsTested": [1, 2],
+  "scopeClaim": "Finite lexical rubric discrimination on declared controls and calibrated regression on the 8 disclosed Android blind controls scored by unmodified production checkAssertion across semantics v1 and v2. After disclosure of blind-controls.json, agreement on those 8 controls is calibrated regression rather than held-out proof. Retained all-v2.6.0 answers that omit expected_output obligations are recorded separately as diagnostic-incomplete replay, not safe oracles. Does not establish model efficacy or live benchmark pass rates.",
+  "followup": {
+    "assertionDefinitionHashes": {
+      "skills/android/android-architecture/evals/evals.json": "502dd0cf15b3b0fb7f07ec5ae72af5f1082ff5c1484869d7ed71a819d43afa5c",
+      "skills/android/android-concurrency/evals/evals.json": "44be332e6feff1a199afc5901f0067cd1a4532750c09edf6d16783b7ef907d30"
+    },
+    "discriminatorTestSha256": "d9c786ffbfa29c4ca58040a376b4b18fe5d0373d95c74aa8b87e1bf80989d05b",
+    "verification": "rtk node --import tsx --test scripts/evals/sl2-android-discriminators.test.ts passed 4/4 groups across semantics v1 and v2; each includes canonical sanity and full current controls.",
+    "supplementalControls": [
+      {
+        "id": "architecture1-safe-platform-dependency-confined-to-viewmodel",
+        "expectedDecision": "pass",
+        "observedDecision": "pass",
+        "observedFailedAssertionIdsBySemantics": { "1": [], "2": [] },
+        "transcript": "Keep order-total rules in a pure Kotlin Domain use case with no Android dependencies. The ViewModel orchestrates the use case, may use Android lifecycle APIs, and exposes screen state; Repository handles data access only."
+      },
+      {
+        "id": "architecture1-wrong-usecase-depends-on-android-context",
+        "expectedDecision": "fail",
+        "observedDecision": "fail",
+        "observedRequiredRejectionBySemantics": { "1": ["a4"], "2": ["a4"] },
+        "transcript": "Put calculation in domain UseCase; let UseCase depend on Android Context; ViewModel orchestrates and Repository accesses data."
+      },
+      {
+        "id": "concurrency2-wrong-direct-io-after-contrasting-never",
+        "expectedDecision": "fail",
+        "observedDecision": "fail",
+        "observedRequiredRejectionBySemantics": { "1": ["a4"], "2": ["a4"] },
+        "transcript": "Define DispatcherProvider with IO, Main and Default properties and inject it with Hilt. In tests supply StandardTestDispatcher to the provider. Never hardcode Dispatchers.Main, but use Dispatchers.IO directly in the repository for every request."
+      },
+      {
+        "id": "concurrency2-safe-warning-only-no-direct-recommendation",
+        "expectedDecision": "pass",
+        "observedDecision": "pass",
+        "observedFailedAssertionIdsBySemantics": { "1": [], "2": [] },
+        "transcript": "Inject a DispatcherProvider exposing IO, Main, and Default via Hilt and use its supplied IO property for requests. Never hardcode Dispatchers.IO; that global dispatcher is only mentioned here as the anti-pattern to avoid. Replace the provider's dispatchers with StandardTestDispatcher in tests."
+      }
+    ],
+    "originalRedStatus": "NOT RUN; first corrective candidate's original RED remains unclaimed.",
+    "calibrationStatus": "The 8 previously disclosed Android controls remain calibrated regression only, not held-out efficacy evidence."
+  },
+  "lexicalLimitations": [
+    "Negation lookbehind windows are bounded to 35-60 characters within a single clause/sentence delimited by [.;\\n] (treating dots before word characters like Thread.sleep or Dispatchers.IO as identifier dots, not sentence boundaries); negation matching for these guards also stops at contrasting coordinators but/however/yet. Negations separated by longer clauses or across sentence boundaries fall outside the guard.",
+    "Double-negation phrasing (for example 'Do not forget to call Thread.sleep(500)') can evade a simple negation lookbehind and is not parsed syntactically.",
+    "Because scorer.ts compiles regex assertions case-insensitively ('i' flag), injected lowercase code such as withContext(dispatchers.io) cannot be lexically distinguished from hardcoded withContext(Dispatchers.IO); negative concurrency guards therefore target prose hardcoding/direct-call recommendations and ignoring injected properties, while un-negated anti-pattern snippets across newlines remain outside lexical regex scope.",
+    "Regex patterns accept stated domain terms and common paraphrases rather than arbitrary unseen synonyms or Kotlin AST dataflow."
+  ],
+  "cases": [
+    {
+      "skill": "android/android-testing",
+      "evalsPath": "skills/android/android-testing/evals/evals.json",
+      "caseId": 1,
+      "originalDefinitionSha256": "0c50004e1f3eeac5e85960c834eb006d49ae5482ddf80359e443ac80c321262a",
+      "initialCandidateDefinitionSha256": "3b11ab559e0aea1e89ab04be52eb680e492c0c5f8c271655f8c822249dfc4808",
+      "finalCandidateDefinitionSha256": "e469767e6e9701b2258345731a69e5b6cfa59b28a2d8d17d309ae655d04d3522",
+      "originalCaseSha256": "2f0ac78cf127b145d67ac8a494fbb32638cd5add3aab8e0f0601ac64e1a414bd",
+      "initialCandidateCaseSha256": "482d0f14e31b41374b1875e75cd4640e52305b2b4b0f79f1fb1f50d4a2bd0224",
+      "finalCandidateCaseSha256": "684fb64fc0a21ab6eef1b3ac9a37f395d0ae2c1a4d69dcb7d6081af4a3672ecc",
+      "defectSummary": "Original a3 ('contains: Mock') rejected fake/in-memory doubles; initial candidate still rejected T1-P's 'in-memory repository double', lacked DispatcherProvider injection enforcement (a5), accepted bare StateFlow mention (a4), and missed 'production network service' (a6). Corrective repair preserves all expected_output obligations.",
+      "diagnosticRetainedReplay": [
+        {
+          "id": "testing1-retained-baseline-all-v2.6.0",
+          "status": "diagnostic-incomplete",
+          "reason": "Uses FakeUserRepository (exposing original a3 'contains: Mock' defect) but omits expected_output 'Inject DispatcherProvider' obligation (fails corrected a5).",
+          "expectedDecisionUnderRepairedContract": "fail",
+          "expectedFailedAssertionIds": ["a5"]
+        },
+        {
+          "id": "testing1-retained-with-skill-all-v2.6.0",
+          "status": "diagnostic-incomplete",
+          "reason": "Uses MockK, MainDispatcherRule, runTest, StateFlow, but omits expected_output 'Inject DispatcherProvider' obligation (fails corrected a5).",
+          "expectedDecisionUnderRepairedContract": "fail",
+          "expectedFailedAssertionIds": ["a5"]
+        }
+      ],
+      "controls": [
+        {
+          "id": "testing1-canonical-expected-output",
+          "category": "canonical-sanity",
+          "expectedDecision": "pass",
+          "expectedFailedAssertionIdsBySemantics": { "1": [], "2": [] },
+          "transcript": "Use runTest from kotlinx-coroutines-test. Apply MainDispatcherRule to replace Main dispatcher with TestDispatcher/StandardTestDispatcher. Inject DispatcherProvider. Mock dependencies with MockK or fake repositories. Collect StateFlow with turbine or awaitItem."
+        },
+        {
+          "id": "T1-P",
+          "category": "disclosed-blind-positive",
+          "expectedDecision": "pass",
+          "expectedFailedAssertionIdsBySemantics": { "1": [], "2": [] },
+          "transcript": "Run the test body with kotlinx-coroutines-test runTest. Install MainDispatcherRule with a StandardTestDispatcher backed by the test scheduler, and restore Main after the test. Supply the ViewModel an injected dispatcher provider and an in-memory repository double whose responses are configured by the test. Use Turbine to collect the StateFlow, invoke the public load action, advance the virtual scheduler, and check the emitted loading and success values with awaitItem."
+        },
+        {
+          "id": "testing1-safe-setmain-stub-injected-dispatcher",
+          "category": "safe-variant",
+          "expectedDecision": "pass",
+          "expectedFailedAssertionIdsBySemantics": { "1": [], "2": [] },
+          "transcript": "Replace Dispatchers.Main in @Before/@After with Dispatchers.setMain(StandardTestDispatcher()) and Dispatchers.resetMain(). Inject a DispatcherProvider into the ViewModel alongside a stub repository double, run inside runTest, and collect StateFlow emissions with awaitItem(). Never use Thread.sleep or call a real network endpoint."
+        },
+        {
+          "id": "T1-W",
+          "category": "disclosed-blind-negative",
+          "expectedDecision": "fail",
+          "expectedFailedAssertionIdsBySemantics": { "1": ["a6"], "2": ["a6"] },
+          "transcript": "Use runTest, MainDispatcherRule, StandardTestDispatcher and an injected DispatcherProvider with a fake repository; collect the StateFlow in Turbine and check awaitItem. Configure the fake repository to fetch its results from the production network service, then use Thread.sleep(2000) to give the request time to finish before checking the success state."
+        },
+        {
+          "id": "testing1-wrong-bare-stateflow-mention",
+          "category": "wrong-omitted-behavior",
+          "expectedDecision": "fail",
+          "expectedFailedAssertionIdsBySemantics": { "1": ["a4"], "2": ["a4"] },
+          "transcript": "Use runTest, MainDispatcherRule, an injected DispatcherProvider, and MockK for a ViewModel that exposes a StateFlow."
+        },
+        {
+          "id": "testing1-wrong-omits-main-and-dispatcher-injection",
+          "category": "wrong-omitted-behavior",
+          "expectedDecision": "fail",
+          "expectedFailedAssertionIdsBySemantics": { "1": ["a1", "a2", "a5"], "2": ["a1", "a2", "a5"] },
+          "transcript": "Create a FakeUserRepository, construct the ViewModel in a standard @Test function, call loadUser(), and assert viewModel.uiState.value directly without changing dispatchers or coroutine test scopes."
+        }
+      ]
+    },
+    {
+      "skill": "android/android-architecture",
+      "evalsPath": "skills/android/android-architecture/evals/evals.json",
+      "caseId": 1,
+      "originalDefinitionSha256": "166d65426abda89fa2adf1abd172eb7b80f237fa0725898722f7b424a88bdade",
+      "initialCandidateDefinitionSha256": "dd99a43da52bb430727ea7a8b01bdc34a104048db37aec08c15378ce10f03d88",
+      "finalCandidateDefinitionSha256": "502dd0cf15b3b0fb7f07ec5ae72af5f1082ff5c1484869d7ed71a819d43afa5c",
+      "originalCaseSha256": "21d374cc5c5c07e919427a528839d8fc117c57b5727a1ff15628915c19bbaee9",
+      "initialCandidateCaseSha256": "84a9768dc4d4268b7c6d74bbe9d92b963c3e6421562da503717ad042730de8f3",
+      "finalCandidateCaseSha256": "fc9acb98c93310abe23eb9511007bc7383675402c1b0b31749c1040b276200af",
+      "defectSummary": "Original a1 rejected spaced 'use case' and original a3 falsely rejected negated ViewModel warnings; corrective repair additionally enforces pure Kotlin / no Android dependencies (a3, a4) and ViewModel orchestration / Repository data access separation (a5).",
+      "diagnosticRetainedReplay": [
+        {
+          "id": "architecture1-retained-baseline-all-v2.6.0",
+          "status": "diagnostic-incomplete",
+          "reason": "Recommends spaced 'use case' (exposing original a1 defect) but omits explicit Domain-layer and Android-dependency independence wording (fails corrected a2, a3).",
+          "expectedDecisionUnderRepairedContract": "fail",
+          "expectedFailedAssertionIds": ["a2", "a3"]
+        },
+        {
+          "id": "architecture1-retained-with-skill-all-v2.6.0",
+          "status": "diagnostic-complete",
+          "reason": "Covers domain-layer UseCase, Pure Kotlin / must not depend on Android or Context, ViewModel orchestration, and Repository data access.",
+          "expectedDecisionUnderRepairedContract": "pass",
+          "expectedFailedAssertionIds": []
+        }
+      ],
+      "controls": [
+        {
+          "id": "architecture1-canonical-expected-output",
+          "category": "canonical-sanity",
+          "expectedDecision": "pass",
+          "expectedFailedAssertionIdsBySemantics": { "1": [], "2": [] },
+          "transcript": "Places business logic in a UseCase in the Domain layer (pure Kotlin, no Android deps). ViewModel orchestrates, Repository handles data access only."
+        },
+        {
+          "id": "A1-P",
+          "category": "disclosed-blind-positive",
+          "expectedDecision": "pass",
+          "expectedFailedAssertionIdsBySemantics": { "1": [], "2": [] },
+          "transcript": "Put the pricing calculation in a domain-layer use case implemented in plain Kotlin, independent of Android APIs. It computes the order total from the supplied order data. The ViewModel calls that operation and maps its result to screen state; the repository only retrieves and persists the data needed by the operation."
+        },
+        {
+          "id": "architecture1-safe-negated-viewmodel-pure-kotlin",
+          "category": "safe-variant",
+          "expectedDecision": "pass",
+          "expectedFailedAssertionIdsBySemantics": { "1": [], "2": [] },
+          "transcript": "Do not put business logic in the ViewModel or Repository. Implement order-total calculation in a pure Kotlin use case inside the domain layer with no Android dependencies; the ViewModel orchestrates UI state and the Repository handles data access."
+        },
+        {
+          "id": "A1-W",
+          "category": "disclosed-blind-negative",
+          "expectedDecision": "fail",
+          "expectedFailedAssertionIdsBySemantics": { "1": ["a4", "a5"], "2": ["a4", "a5"] },
+          "transcript": "Create a pure Kotlin UseCase in the Domain layer with no Android dependencies. Have the ViewModel calculate the order totals, discounts and taxes, and pass the final number into that UseCase for forwarding. Keep the Repository limited to data access."
+        },
+        {
+          "id": "architecture1-wrong-usecase-depends-on-android-context",
+          "category": "wrong-keyword-rich-affirmative",
+          "expectedDecision": "fail",
+          "expectedFailedAssertionIdsBySemantics": { "1": ["a3", "a4", "a5"], "2": ["a3", "a4", "a5"] },
+          "transcript": "Put calculation in domain UseCase; let UseCase depend on Android Context; ViewModel orchestrates and Repository accesses data."
+        },
+        {
+          "id": "architecture1-wrong-repository-instead-of-usecase",
+          "category": "wrong-keyword-rich-affirmative",
+          "expectedDecision": "fail",
+          "expectedFailedAssertionIdsBySemantics": { "1": ["a1", "a2", "a4", "a5"], "2": ["a1", "a2", "a4", "a5"] },
+          "transcript": "The Repository should own the business logic for order totals in pure Kotlin instead of a UseCase in the Domain layer, while the ViewModel simply observes UI state."
+        }
+      ]
+    },
+    {
+      "skill": "android/android-compose-migration",
+      "evalsPath": "skills/android/android-compose-migration/evals/evals.json",
+      "caseId": 1,
+      "originalDefinitionSha256": "cebbae031e43d3b179439ca0f7be28f8a16a44c6c16928cd5fa88d2b128eb5ff",
+      "initialCandidateDefinitionSha256": "5a9ca5ceaaf9937651fdc9a0630ec810338bf6c0f786f2790b3e3797c3f99002",
+      "finalCandidateDefinitionSha256": "482275df3423e92790e6ecf365227754dec71571fef2857956858e24980488e1",
+      "originalCaseSha256": "58422abb8955e8665c108bcaada33300c28f37f1eab722fcb8f54dfd309229b8",
+      "initialCandidateCaseSha256": "3c38cd3ccefa7a13813771dc6bb580143fe5be138cd70136e016e1fc313ed632",
+      "finalCandidateCaseSha256": "950a23d8771a10968aa3c4c2930d5482a9f4d1941aa12e1680aca82364d1f0fd",
+      "defectSummary": "Original a1/a3 required exact 'candidate'/'visual' tokens; initial candidate failed M1-P ('add the required libraries'), passed M1-W (complex-first all-screens-in-one-sweep), and had an invented full-theme ban. Corrective repair checks bounded target, structure/bindings inspection, Compose setup+theming, conversion+visual parity, and rejects complex-first/wholesale replacement without banning full-theme work.",
+      "diagnosticRetainedReplay": [
+        {
+          "id": "migration1-retained-baseline-all-v2.6.0",
+          "status": "diagnostic-incomplete",
+          "reason": "Incremental conversion with dependencies, theme, and @Preview/screenshots, but inventories inputs/state rather than XML structure/bindings (fails corrected a2).",
+          "expectedDecisionUnderRepairedContract": "fail",
+          "expectedFailedAssertionIds": ["a2"]
+        },
+        {
+          "id": "migration1-retained-with-skill-all-v2.6.0",
+          "status": "diagnostic-complete",
+          "reason": "Covers leaf XML layout, XML structure/bindings inventory, Compose dependencies/theme surface, composable conversion, and baseline visual comparison.",
+          "expectedDecisionUnderRepairedContract": "pass",
+          "expectedFailedAssertionIds": []
+        }
+      ],
+      "controls": [
+        {
+          "id": "migration1-canonical-expected-output",
+          "category": "canonical-sanity",
+          "expectedDecision": "pass",
+          "expectedFailedAssertionIdsBySemantics": { "1": [], "2": [] },
+          "transcript": "Identify the best XML candidate (prefer leaf layouts, avoid complex RecyclerViews), analyze its structure and bindings, set up Compose dependencies and theming, then convert each View to its Compose equivalent while maintaining visual parity."
+        },
+        {
+          "id": "M1-P",
+          "category": "disclosed-blind-positive",
+          "expectedDecision": "pass",
+          "expectedFailedAssertionIdsBySemantics": { "1": [], "2": [] },
+          "transcript": "Start with one small leaf XML layout with few custom views; leave complicated RecyclerView screens for later. Inventory its view hierarchy, bindings and event handlers. Enable Compose in the module, add the required libraries and map the existing theme. Replace each widget with its corresponding composable and compare before-and-after screenshots so layout, colors and spacing stay the same."
+        },
+        {
+          "id": "migration1-safe-leaf-bom-theme-preview-parity",
+          "category": "safe-variant",
+          "expectedDecision": "pass",
+          "expectedFailedAssertionIdsBySemantics": { "1": [], "2": [] },
+          "transcript": "Start incrementally with a single leaf XML layout, inspect its view structure and bindings, add the Compose BOM in libs.versions.toml and configure theming (including the full app theme if desired), convert each view to an equivalent composable, and compare a baseline screenshot with @Preview for visual parity."
+        },
+        {
+          "id": "M1-W",
+          "category": "disclosed-blind-negative",
+          "expectedDecision": "fail",
+          "expectedFailedAssertionIdsBySemantics": { "1": ["a1", "a5"], "2": ["a1", "a5"] },
+          "transcript": "Identify the best migration candidate by choosing the largest screen with the most complex RecyclerView adapters first. Analyze its structure and bindings, install Compose dependencies and theming, then convert every View to its Compose equivalent and verify visual parity. Replace all XML screens in the same change so migration is completed in one sweep."
+        },
+        {
+          "id": "migration1-wrong-wholesale-all-screens-together",
+          "category": "wrong-keyword-rich-affirmative",
+          "expectedDecision": "fail",
+          "expectedFailedAssertionIdsBySemantics": { "1": ["a1", "a5"], "2": ["a1", "a5"] },
+          "transcript": "Pick a candidate layout, inspect its structure and bindings, add Compose dependencies and theming, and migrate all XML screens together in one PR while converting widgets to composables with @Preview."
+        },
+        {
+          "id": "migration1-wrong-omits-structure-theming-parity",
+          "category": "wrong-omitted-behavior",
+          "expectedDecision": "fail",
+          "expectedFailedAssertionIdsBySemantics": { "1": ["a2", "a3", "a4"], "2": ["a2", "a3", "a4"] },
+          "transcript": "Pick one small leaf layout and replace XML tags with Text and Column."
+        }
+      ]
+    },
+    {
+      "skill": "android/android-concurrency",
+      "evalsPath": "skills/android/android-concurrency/evals/evals.json",
+      "caseId": 2,
+      "originalDefinitionSha256": "ee212f5e41b1cc07dcf373066fe430082e1bf36bde1038222683e3fd142dc756",
+      "initialCandidateDefinitionSha256": "768f5cc2ea410ff9c888e2b39d38044f07d0b1112d74d1581ecab8fb92d5e4d0",
+      "finalCandidateDefinitionSha256": "44be332e6feff1a199afc5901f0067cd1a4532750c09edf6d16783b7ef907d30",
+      "originalCaseSha256": "21fb69a67f913ff89217799d86dc9374407340f5922ad064b2d66ae058f9a6cb",
+      "initialCandidateCaseSha256": "1224597eb3e300237e86a072550f5214d93d94974fa61a641fdec656e57ed405",
+      "finalCandidateCaseSha256": "c3045b678fe6498a38eac8f94baa89303f386f0f87e0f23d00c7717e688ecb9d",
+      "defectSummary": "Original a1/a2/a3 required exact 'DispatcherProvider'/'hardcode' and accepted bare 'test'; initial candidate rejected C2-P because it used supplied AppExecutors.io without a literal 'hardcode' prose warning. Corrective repair requires IO/Main/Default + Hilt (a1), consumer supplied-property use OR non-hardcoding rule (a2), TestDispatcher substitution (a3), and rejects ignoring injected properties or hardcoding Dispatchers.IO (a4).",
+      "diagnosticRetainedReplay": [
+        {
+          "id": "concurrency2-retained-baseline-all-v2.6.0",
+          "status": "diagnostic-incomplete",
+          "reason": "Defines AppDispatchers without Main property and omits Hilt wiring (fails corrected a1).",
+          "expectedDecisionUnderRepairedContract": "fail",
+          "expectedFailedAssertionIds": ["a1"]
+        },
+        {
+          "id": "concurrency2-retained-with-skill-all-v2.6.0",
+          "status": "diagnostic-incomplete",
+          "reason": "Defines DispatcherProvider (IO/Main/Default) and uses StandardTestDispatcher, but omits Hilt wiring (fails corrected a1).",
+          "expectedDecisionUnderRepairedContract": "fail",
+          "expectedFailedAssertionIds": ["a1"]
+        }
+      ],
+      "controls": [
+        {
+          "id": "concurrency2-canonical-expected-output",
+          "category": "canonical-sanity",
+          "expectedDecision": "pass",
+          "expectedFailedAssertionIdsBySemantics": { "1": [], "2": [] },
+          "transcript": "Create a DispatcherProvider interface with IO/Main/Default properties. Inject it via Hilt. In tests, inject TestDispatcher/StandardTestDispatcher. Never hardcode Dispatchers.IO."
+        },
+        {
+          "id": "C2-P",
+          "category": "disclosed-blind-positive",
+          "expectedDecision": "pass",
+          "expectedFailedAssertionIdsBySemantics": { "1": [], "2": [] },
+          "transcript": "Define an AppExecutors interface exposing io, main and default CoroutineDispatcher properties. Bind its production implementation with Hilt and supply it through the constructor to the class that launches work. Use the supplied io property in withContext. In tests pass an AppExecutors implementation whose properties use StandardTestDispatcher on the runTest scheduler, so the same code runs under virtual-time control."
+        },
+        {
+          "id": "concurrency2-safe-custom-dispatchers-hilt-and-never-hardcode",
+          "category": "safe-variant",
+          "expectedDecision": "pass",
+          "expectedFailedAssertionIdsBySemantics": { "1": [], "2": [] },
+          "transcript": "Create an AppDispatchers interface with IO, Main, and Default CoroutineDispatcher properties and provide it via Hilt. Never hardcode Dispatchers.IO inside repositories or ViewModels; in tests, swap in UnconfinedTestDispatcher."
+        },
+        {
+          "id": "C2-W",
+          "category": "disclosed-blind-negative",
+          "expectedDecision": "fail",
+          "expectedFailedAssertionIdsBySemantics": { "1": ["a2", "a4"], "2": ["a2", "a4"] },
+          "transcript": "Define DispatcherProvider with IO, Main and Default properties and inject it through Hilt. In tests supply StandardTestDispatcher to the provider and use runTest. In the repository perform each request with withContext(Dispatchers.IO), ignoring the injected IO property because production I/O should always use that global dispatcher."
+        },
+        {
+          "id": "concurrency2-wrong-bare-runtest-without-test-dispatcher",
+          "category": "wrong-omitted-behavior",
+          "expectedDecision": "fail",
+          "expectedFailedAssertionIdsBySemantics": { "1": ["a3"], "2": ["a3"] },
+          "transcript": "Define a DispatcherProvider interface with IO, Main, and Default properties, bind it with Hilt, never hardcode Dispatchers.IO, and execute unit tests with runTest."
+        },
+        {
+          "id": "concurrency2-wrong-keyword-rich-hardcode-io",
+          "category": "wrong-keyword-rich-affirmative",
+          "expectedDecision": "fail",
+          "expectedFailedAssertionIdsBySemantics": { "1": ["a2", "a4"], "2": ["a2", "a4"] },
+          "transcript": "Define DispatcherProvider with IO, Main, and Default via Hilt, but hardcode Dispatchers.IO directly in the repository instead of injecting the provider; use StandardTestDispatcher in tests."
+        }
+      ]
+    }
+  ]
+}

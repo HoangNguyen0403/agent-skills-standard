@@ -65,7 +65,7 @@ Product owner: requesting maintainer. Engineering owner: assigned worker per sli
 
 ## Implementation Plan, Task Slices And Verification Plan
 
-Both slices are routed independently: SNC medium, guided, TDD, deep review. Profile: "Personal - Cheap" (`google-antigravity/gemini-3.8-flash`, mode `write`, thinking `medium`). Fallback on confirmed exhaustion only: "Personal - DeepSeek", then "Personal · Delivery". Review: "Personal · Analysis & Review", in a separate session from the implementer.
+Both slices are routed independently: SNC medium, guided, TDD, deep review. Profile: "Personal - Cheap" (`google-antigravity/gemini-3.8-flash`, mode `write`, thinking `medium`). Exhaustion and quality-failure routing follow the session policy and each profile's eligibility restrictions; one concrete corrective attempt precedes quality escalation. Review: "Personal · Analysis & Review", separate from implementation ownership.
 
 ### P0: prerequisite (typed exception: prerequisite)
 
@@ -155,3 +155,69 @@ Each worker runs `rtk pnpm install` in its own worktree before anything else. `n
 - AC-011: the CI step is statically present and the local command passes; **remote CI NOT RUN**, not PASS. Freshness audit remains the same 30 existing findings (22 medium, 8 low).
 - Protected learning log, tracked remediation queue, retained run inputs and retained results have exactly their original SHA-256 hashes.
 - Independent reviewer `8bb43b31-5de4-4c41-9c2f-6d69f4d8e057`: **APPROVE — bounded technical implementation**, after correcting fenced metadata handling, lost subheading skill extraction, historical proof validation, and pressure-assertion anchoring. This is technical review, not human acceptance or merge approval.
+
+## SL2 — Confirmed Canonical Assertion Repairs
+
+Authority: maintainer replied “yes please do next” to the recommendation to repair independently confirmed assertion defects. The existing Subagent-Driven approach and Personal profile routing remain selected. Base: `1b0302db138225f30e70cd0ea42702791cf5dc8c`.
+
+Discovery distinguishes retained-run defects from current source. `hoist`, `PATCH`, `200` and `graph LR` assertions are already absent from canonical definitions; their frozen inputs and results must not change. Four canonical Android cases retain the independently identified lexical defects. Read-only real-scorer probes additionally confirmed current Common defects: a valid `/products` collection paraphrase fails eval 2, recommending `POST /cancelOrder` passes eval 3, and choosing a C4 component diagram passes the executive context case.
+
+Outcome: seven current cases discriminate compliant alternatives from the concrete wrong behaviors required by their existing prompts/expected outputs. No new domain obligations, skill-body changes, scorer changes, live model calls, historical reruns or release.
+
+| ID | Acceptance criterion | Owner | Verification lane |
+| --- | --- | --- | --- |
+| SL2-AC-01 | Each of the seven named cases accepts two independently reviewable compliant variants, including a paraphrase or equivalent implementation without the defective exact token | respective worker | real `checkAssertion` calibration |
+| SL2-AC-02 | Each case rejects an answer missing a required behavior and an affirmative wrong/contradictory answer, including a keyword-rich wrong answer; at least two independent task-grounded assertions remain | respective worker | real-scorer controls and independent review |
+| SL2-AC-03 | Untouched case objects, trigger definitions, pressure scenarios, skill bodies, scorer and retained run evidence remain byte-identical or structurally identical at the permitted case boundary | respective worker; integrator | hash/object comparison |
+| SL2-AC-04 | Calibration packets record case IDs, original/candidate definition hashes, actual candidate texts, expected outcomes and failed assertion IDs, with semantics version and lexical limitations | respective worker | reproducible offline harness |
+| SL2-AC-05 | Selected-case preflight, eval suite and check-alignment run; prior unrelated legacy debt is recorded rather than repaired; generators publish only expected metadata/version derivatives | integrator | offline commands and isolated-generation receipt |
+| SL2-AC-06 | Independent reviewer re-adjudicates all safe/wrong controls, verifies no requirements were invented or weakened, and separates finite rubric discrimination from model efficacy | independent reviewer | bounded technical review |
+
+### Task 3 — SL2 Android
+
+- **Scope:** `skills/android/android-testing/evals/evals.json` eval 1; `android-architecture/evals/evals.json` eval 1; `android-compose-migration/evals/evals.json` eval 1; `android-concurrency/evals/evals.json` eval 2 (all under `skills/android/`). Also `scripts/evals/sl2-android-discriminators.test.ts` and `artifacts/ags-assertion-repair/evidence/android-controls.json`.
+- **Inputs:** current canonical case prompts/expected outputs, prior reviewer rows 1/8/10/90 and immutable scorer semantics; this plan.
+- **Outputs:** four case-local repairs, offline real-scorer discriminator tests and evidence packet.
+- **Real Ingress:** unchanged `checkAssertion` scoring each canonical case's assertions; eval suite discovers the new discriminator tests.
+- **Invariants:** no requirement reduction to make a candidate pass; prompt rewording may clarify existing semantics but cannot force arbitrary answer vocabulary.
+- **Positive invariant:** fake-based deterministic tests, “use case” business-layer terminology, migration target selection without “candidate”, and injected dispatcher abstractions with different names can pass when their required behavior is present.
+- **Negative invariant:** hardcoded dispatchers, business logic in ViewModels, unbounded migration suggestions, and nondeterministic tests do not pass solely by echoing keywords.
+- **Verification Owner:** worker runs focused offline harness and selected preflight after implementation; orchestrator runs integrated suite; independent reviewer adjudicates controls.
+- **Handoff / freeze:** final report freezes owned writes and provides changed files, original/candidate hashes, AC results, command outputs and explicit limits.
+- **Correction Route:** one bounded corrective follow-up; then next eligible implementation profile on a second quality failure.
+
+SNC S=1 N=1 C=1 total=3 medium. Implement on Personal - Cheap. Do not edit `android-compose`, metadata, changelog, mirrors or prior evidence. Minimum controls per case: two safe and two wrong; additional controls only for distinct ambiguity. Use the real scorer, never a copied matcher or changed scorer. Tests must assert decision outcomes, not source strings or wiring. Preserve IDs where possible and keep unrelated assertions unless they reproduce the same confirmed defect. No mid-flight build/test/formatter runs; one consolidated verification after authoring; original test RED is NOT RUN unless actually observed. Retained answer replay is diagnostic evidence, not a fresh model run.
+
+### Task 4 — SL2 Common
+
+- **Scope:** `skills/common/common-api-design/evals/evals.json` evals 2 and 3; `skills/common/common-architecture-diagramming/evals/evals.json` eval 1. Also `scripts/evals/sl2-common-discriminators.test.ts`, `artifacts/ags-assertion-repair/evidence/common-controls.json`, `skills/metadata.json` (android/common patch versions and dates only), `CHANGELOG.md` (one scoped unreleased entry).
+- **Inputs:** existing canonical prompts/expected outputs; prior review and the three new real-scorer probes; this plan.
+- **Outputs:** three case-local repairs, offline discriminator tests and evidence packet; metadata bumps android 1.5.2→1.5.3 and common 2.9.7→2.9.8, dated 2026-11-11.
+- **Real Ingress:** unchanged `checkAssertion` scoring canonical definitions; offline test suite.
+- **Invariants:** API checks retain plural resource naming and action-subresource semantics; diagram checks require the executive system-context abstraction and its existing scope/relationship metadata.
+- **Positive invariant:** collection names other than `/orders`, valid action subresources, and system-context paraphrases can pass without historical PATCH/200/Mermaid syntax requirements.
+- **Negative invariant:** verb-style `/cancelOrder` routes, singular resource naming, and component-level executive scope advice cannot pass by listing good keywords elsewhere.
+- **Verification Owner:** worker for focused offline calibration; orchestrator for integrated suite/generation; independent reviewer for control adjudication.
+- **Handoff / freeze:** final report freezes owned source writes and supplies hashes, AC results, command output and remaining lexical limits.
+- **Correction Route:** one bounded corrective follow-up; then next eligible implementation profile on a second quality failure.
+
+SNC S=1 N=1 C=1 total=3 medium. Implement on Personal - Cheap. Do not restore stale historical assertions or edit any skill body/scorer/retained run. Same four-control minimum and verification discipline as Task 3. Metadata/changelog have this single owner. Do not run generators until both source slices have integrated and the orchestrator issues the source-freeze handoff.
+
+### SL2 Integration
+
+Integrate only owned cumulative patches from the shared base. Common owner performs the existing isolated `generate-indices` lifecycle after a separate source-freeze handoff; no hand edits to generated outputs or active ownership lock. Evals are excluded from mirror resource allowlists (`scripts/generate-indices.ts:41-47`, `scripts/generation/isolated-stage.ts:314-327`); metadata derivatives may still change. Preserve existing `.agent` evidence, execute current generator safety gates, and verify expected host/resource coverage rather than assume a successful generator proves parity. Archive versioned SL2 receipts under `artifacts/ags-assertion-repair/evidence/`. Remote CI, model efficacy and financial savings stay NOT RUN/unmeasured unless separately observed.
+
+### SL2 Verified Delivery
+
+- Local implementation and independent technical review are complete; remote CI, live-model evaluation, merge, release and human acceptance remain unassessed or unexecuted.
+- Delivery record: `artifacts/ags-assertion-repair/evidence/delivery.json`; immutable control packets, candidate receipts and cumulative review packages are retained in the same evidence directory.
+- SL2-AC-01/02/04/06: independent reviewer `8bb43b31-5de4-4c41-9c2f-6d69f4d8e057` approved the bounded source and generation gate. Direct real-scorer replay matched **36/36 decisions** across semantics v1/v2: 14 original controls plus four supplemental counterexamples.
+- Original-control trajectory: frozen predecessor **3/14**, first candidate **8/14**, corrected and final candidates **14/14**. Supplemental trajectory: first correction **0/8**, fallback **8/8** across both semantics. Disclosed controls are calibrated regression evidence, not held-out model efficacy.
+- SL2-AC-03: all six skill bodies, untouched cases/triggers/pressure scenarios, scorer and protected historical inputs/results/queue remain unchanged. Only assertions in the seven approved cases changed.
+- SL2-AC-05: integrated eval suite **909 pass, 0 fail**; focused strict TypeScript exit **0**; selected alignment/definition preflight **0 issues**. Overall alignment passes; four unrelated warnings remain.
+- Isolated generation apply and check passed all three producer phases and canonical/host parity over **2,381 targets / four hosts**. Only the ignored `.skills-lock.json` was published by the existing guarded lifecycle; no tracked derivative content changed. Parent and reviewer verified **59 protected hashes** and **four archived generation copies**.
+- The forwarded `pnpm generate-indices -- --check` usage failure is preserved separately from successful `pnpm generate-indices --check`. No generator or ownership-policy workaround was introduced.
+- Cheap owners produced both initial slices and one corrective pass each. Remaining concrete polarity/scope defects were fixed by `Personal · Delivery`; `Personal - DeepSeek` was ineligible for this quality-only escalation under its exhaustion-only profile restriction. No premium advisor was used.
+- Original worker TDD RED remains **NOT RUN**. Regex morphology, bounded negation and prose/dataflow limits remain documented; total monetary savings and production/model-quality uplift are **unmeasured**.
+- Retrospective prevention proposal: judge safe-control completeness against canonical obligations before calibration; retain independent contradictory-clause and subject-scope controls. Passing authored tests alone did not establish acceptance. No automatic learning-log or policy promotion is authorized.
+- Next workflow: remote CI and maintainer review of the local delivery. Further remediation, live evaluations, merge and release require their own authority.

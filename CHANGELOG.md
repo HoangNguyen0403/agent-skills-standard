@@ -59,6 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - **Next.js (`nextjs-upgrade`, Category v1.4.8)**: Pinned `@next/codemod` invocations across upgrade workflow, guidelines, and anti-patterns to exact verified release `15.0.8` (replacing the floating `@latest` selector), added explicit pin policy and migration context, and aligned eval examples with exact target version syntax (`upgrade 14.2.35` / `upgrade 15.0.8`) preserving incremental-major upgrade requirements (#314).
+- **Evals (`android` `1.5.3`, `common` `2.9.8`, SL2 assertion repair)**: Updated canonical eval assertions across seven cases (`android-testing` eval 1, `android-architecture` eval 1, `android-compose-migration` eval 1, `android-concurrency` eval 2, `common-api-design` evals 2–3, `common-architecture-diagramming` eval 1) to calibrate offline `checkAssertion` discrimination across compliant paraphrases, missing-obligation answers, and keyword-rich wrong answers (`sl2-android-discriminators.test.ts`, `sl2-common-discriminators.test.ts`, and calibration packets under `artifacts/ags-assertion-repair/evidence/`); these checks establish finite control calibration under `v1`/`v2` scorer semantics only and do not establish model efficacy, mirror generation, or remote CI status, with skill bodies, triggers, pressure scenarios, scorer logic, and retained run artifacts unchanged.
 
 ### Added
 

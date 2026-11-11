@@ -8,21 +8,33 @@
       "assertions": [
         {
           "id": "a1",
-          "description": "Recommends UseCase for business logic",
-          "type": "contains",
-          "value": "UseCase"
+          "description": "Recommends placing business logic in a UseCase or domain service",
+          "type": "regex",
+          "value": "(?<!\\b(?:not|never|n't|avoid|skip|without|instead of|rather than|don't|do not)\\b(?:[^.;\\n]|\\.(?=\\w)){0,40})\\b(?:use\\s*cases?|domain\\s+service)\\b"
         },
         {
           "id": "a2",
-          "description": "Mentions Domain layer",
-          "type": "contains",
-          "value": "Domain"
+          "description": "Mentions the Domain layer for business logic",
+          "type": "regex",
+          "value": "(?<!\\b(?:not|never|n't|avoid|skip|without|instead of|rather than|don't|do not)\\b(?:[^.;\\n]|\\.(?=\\w)){0,40})\\bdomain\\b"
         },
         {
           "id": "a3",
-          "description": "Does not put logic in ViewModel",
-          "type": "not_contains",
-          "value": "business logic in the ViewModel"
+          "description": "Requires pure Kotlin / independence from Android dependencies in the domain layer",
+          "type": "regex",
+          "value": "(?:\\b(?:pure|plain|framework-free)\\s+Kotlin\\b|\\bKotlin[- ]only\\b|\\b(?:no|without|free\\s+of|independent\\s+of|not\\s+depend\\w*\\s+on|must\\s+not\\s+depend\\w*\\s+on|avoid(?:ing)?)\\b(?:[^.;\\n]|\\.(?=\\w)){0,30}\\bAndroid(?:\\s+(?:deps|dependencies|APIs?|imports?|framework|Context))?\\b)"
+        },
+        {
+          "id": "a4",
+          "description": "Rejects placing business logic in ViewModel/Repository or letting UseCase/Domain depend on Android",
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?<!\\b(?:not|never|n't|avoid|ban|forbid|without|instead of|rather than|shouldn't|should not|must not|cannot|can't|do not|don't|no|free of|independent of)\\b(?:(?!\\b(?:but|however|yet)\\b)(?:[^.;\\n]|\\.(?=\\w))){0,50})(?:\\b(?:put|place|keep|implement|move|live|lives|belong|belongs|calculate|calculates|calculating|compute|computes|computing|handle|handles)\\b(?:[^.;\\n]|\\.(?=\\w)){0,45}\\b(?:in|inside|into)\\s+(?:the\\s+)?(?:ViewModel|Repository)\\b|\\b(?:ViewModel|Repository)\\b(?:[^.;\\n]|\\.(?=\\w)){0,35}\\b(?:owns?|contains?|holds?|calculat(?:e|es|ing)|comput(?:e|es|ing)|handles?)\\b(?:[^.;\\n]|\\.(?=\\w)){0,45}\\b(?:business\\s+(?:logic|rules)|order[- ]totals?|pricing\\s+(?:logic|rules)|calculations?)\\b|\\b(?:ViewModel|Repository)\\b\\s+is\\s+(?:the\\s+)?(?:right|best|proper)\\s+place|\\b(?:UseCase|Domain(?:\\s+layer)?)\\b(?:[^.;\\n]|\\.(?=\\w)){0,35}\\b(?:depend(?:s|ing)?\\s+on|use(?:s|ing)?|import)\\s+Android(?:\\s+(?:Context|APIs?|deps|dependencies|framework))?\\b))[\\s\\S]*$"
+        },
+        {
+          "id": "a5",
+          "description": "Assigns orchestration/UI state to ViewModel and data access to Repository",
+          "type": "regex",
+          "value": "(?=[\\s\\S]*\\bViewModel\\b(?:[^.;\\n]|\\.(?=\\w)){0,60}\\b(?:orchestrat\\w*|call\\w*|trigger\\w*|invok\\w*|request\\w*|expos\\w*|map\\w*|UI\\s+state|UiState|screen\\s+state)\\b)(?=[\\s\\S]*\\bRepository\\b(?:[^.;\\n]|\\.(?=\\w)){0,60}\\b(?:data\\s+access|retriev\\w*|fetch\\w*|persist\\w*|storage|DTO\\w*|load\\w*)\\b)"
         }
       ]
     },

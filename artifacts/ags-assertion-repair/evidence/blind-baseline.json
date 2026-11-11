@@ -1,0 +1,195 @@
+{
+  "kind": "offline-independent-discrimination",
+  "packetSha256": "d1cef9a5defe8be62133cdf19ac6fae0d6b224f024cc3fcb88da0aa11aec043e",
+  "scorerSha256": "5f2547ec911309d11b4c3db54982fcc09769f7a08678ff1e4ebfd8efacdf7142",
+  "semanticsVersion": 1,
+  "matched": 3,
+  "total": 14,
+  "results": [
+    {
+      "id": "T1-P",
+      "expected": true,
+      "actual": false,
+      "matched": false,
+      "failedAssertions": [
+        {
+          "id": "a3",
+          "type": "contains",
+          "value": "Mock"
+        }
+      ],
+      "definitionSha256": "0c50004e1f3eeac5e85960c834eb006d49ae5482ddf80359e443ac80c321262a"
+    },
+    {
+      "id": "T1-W",
+      "expected": false,
+      "actual": false,
+      "matched": true,
+      "failedAssertions": [
+        {
+          "id": "a3",
+          "type": "contains",
+          "value": "Mock"
+        }
+      ],
+      "definitionSha256": "0c50004e1f3eeac5e85960c834eb006d49ae5482ddf80359e443ac80c321262a"
+    },
+    {
+      "id": "A1-P",
+      "expected": true,
+      "actual": false,
+      "matched": false,
+      "failedAssertions": [
+        {
+          "id": "a1",
+          "type": "contains",
+          "value": "UseCase"
+        }
+      ],
+      "definitionSha256": "166d65426abda89fa2adf1abd172eb7b80f237fa0725898722f7b424a88bdade"
+    },
+    {
+      "id": "A1-W",
+      "expected": false,
+      "actual": true,
+      "matched": false,
+      "failedAssertions": [],
+      "definitionSha256": "166d65426abda89fa2adf1abd172eb7b80f237fa0725898722f7b424a88bdade"
+    },
+    {
+      "id": "M1-P",
+      "expected": true,
+      "actual": false,
+      "matched": false,
+      "failedAssertions": [
+        {
+          "id": "a1",
+          "type": "contains",
+          "value": "candidate"
+        },
+        {
+          "id": "a2",
+          "type": "contains",
+          "value": "dependenc"
+        },
+        {
+          "id": "a3",
+          "type": "contains",
+          "value": "visual"
+        }
+      ],
+      "definitionSha256": "cebbae031e43d3b179439ca0f7be28f8a16a44c6c16928cd5fa88d2b128eb5ff"
+    },
+    {
+      "id": "M1-W",
+      "expected": false,
+      "actual": true,
+      "matched": false,
+      "failedAssertions": [],
+      "definitionSha256": "cebbae031e43d3b179439ca0f7be28f8a16a44c6c16928cd5fa88d2b128eb5ff"
+    },
+    {
+      "id": "C2-P",
+      "expected": true,
+      "actual": false,
+      "matched": false,
+      "failedAssertions": [
+        {
+          "id": "a1",
+          "type": "contains",
+          "value": "DispatcherProvider"
+        },
+        {
+          "id": "a2",
+          "type": "contains",
+          "value": "hardcode"
+        }
+      ],
+      "definitionSha256": "ee212f5e41b1cc07dcf373066fe430082e1bf36bde1038222683e3fd142dc756"
+    },
+    {
+      "id": "C2-W",
+      "expected": false,
+      "actual": false,
+      "matched": true,
+      "failedAssertions": [
+        {
+          "id": "a2",
+          "type": "contains",
+          "value": "hardcode"
+        }
+      ],
+      "definitionSha256": "ee212f5e41b1cc07dcf373066fe430082e1bf36bde1038222683e3fd142dc756"
+    },
+    {
+      "id": "API2-P",
+      "expected": true,
+      "actual": false,
+      "matched": false,
+      "failedAssertions": [
+        {
+          "id": "a1",
+          "type": "contains",
+          "value": "Plural nouns"
+        },
+        {
+          "id": "a2",
+          "type": "contains",
+          "value": "/orders"
+        }
+      ],
+      "definitionSha256": "9ad8260f71ae226b388586573c6331b349059e0c75455fc0305cafa0a9b5006e"
+    },
+    {
+      "id": "API2-W",
+      "expected": false,
+      "actual": true,
+      "matched": false,
+      "failedAssertions": [],
+      "definitionSha256": "9ad8260f71ae226b388586573c6331b349059e0c75455fc0305cafa0a9b5006e"
+    },
+    {
+      "id": "API3-P",
+      "expected": true,
+      "actual": false,
+      "matched": false,
+      "failedAssertions": [
+        {
+          "id": "a1",
+          "type": "contains",
+          "value": "verbs"
+        },
+        {
+          "id": "a2",
+          "type": "contains",
+          "value": "paths"
+        }
+      ],
+      "definitionSha256": "9ad8260f71ae226b388586573c6331b349059e0c75455fc0305cafa0a9b5006e"
+    },
+    {
+      "id": "API3-W",
+      "expected": false,
+      "actual": true,
+      "matched": false,
+      "failedAssertions": [],
+      "definitionSha256": "9ad8260f71ae226b388586573c6331b349059e0c75455fc0305cafa0a9b5006e"
+    },
+    {
+      "id": "D1-P",
+      "expected": true,
+      "actual": true,
+      "matched": true,
+      "failedAssertions": [],
+      "definitionSha256": "5ebcb2b4bb439ae12f282b971158fae8a8a9c2834e3f1b64abf948ee28dbfa53"
+    },
+    {
+      "id": "D1-W",
+      "expected": false,
+      "actual": true,
+      "matched": false,
+      "failedAssertions": [],
+      "definitionSha256": "5ebcb2b4bb439ae12f282b971158fae8a8a9c2834e3f1b64abf948ee28dbfa53"
+    }
+  ]
+}

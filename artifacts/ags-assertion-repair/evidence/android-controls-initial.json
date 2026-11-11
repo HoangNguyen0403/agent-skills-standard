@@ -1,0 +1,437 @@
+{
+  "packet": "sl2-android-controls",
+  "plan": "docs/prd/prd-ags-improvement-criteria.md",
+  "planSha256": "680440480a6fde7cff97100072958cd956cf6581a3344d5710f4fd03c2ec890e",
+  "baseRevision": "1b0302db138225f30e70cd0ea42702791cf5dc8c",
+  "scorer": {
+    "path": "scripts/evals/scorer.ts",
+    "sha256": "5f2547ec911309d11b4c3db54982fcc09769f7a08678ff1e4ebfd8efacdf7142",
+    "entrypoint": "checkAssertion"
+  },
+  "semanticsVersionsTested": [1, 2],
+  "scopeClaim": "Finite rubric discrimination on declared safe and wrong control transcripts scored by the unmodified production checkAssertion engine across semantics v1 and v2. Retained all-v2.6.0 answers are diagnostic replay only, not fresh model runs; this packet does not establish model efficacy or live benchmark pass rates.",
+  "lexicalLimitations": [
+    "Negation lookbehind windows are bounded to 35-60 characters within a single clause/sentence delimited by [.;\\n] (treating dots before word characters like Thread.sleep or Dispatchers.IO as identifier dots, not sentence boundaries); negations separated by longer clauses or across sentence boundaries fall outside the guard.",
+    "Double-negation phrasing (for example 'Do not forget to call Thread.sleep(500)') can evade a simple negation lookbehind and is not parsed syntactically.",
+    "Because scorer.ts compiles regex assertions case-insensitively ('i' flag), injected lowercase code such as withContext(dispatchers.io) cannot be lexically distinguished from hardcoded withContext(Dispatchers.IO); negative concurrency guards therefore target prose hardcoding/direct-call recommendations and un-negated anti-pattern snippets across newlines remain outside lexical regex scope.",
+    "Regex patterns accept stated domain terms and common paraphrases (e.g., use case/domain service, fake/stub/test double, Dispatchers.setMain, leaf layout/single screen, CoroutineDispatcher injection) rather than arbitrary unseen synonyms."
+  ],
+  "cases": [
+    {
+      "skill": "android/android-testing",
+      "evalsPath": "skills/android/android-testing/evals/evals.json",
+      "caseId": 1,
+      "originalDefinitionSha256": "0c50004e1f3eeac5e85960c834eb006d49ae5482ddf80359e443ac80c321262a",
+      "candidateDefinitionSha256": "3b11ab559e0aea1e89ab04be52eb680e492c0c5f8c271655f8c822249dfc4808",
+      "originalCaseSha256": "2f0ac78cf127b145d67ac8a494fbb32638cd5add3aab8e0f0601ac64e1a414bd",
+      "candidateCaseSha256": "482d0f14e31b41374b1875e75cd4640e52305b2b4b0f79f1fb1f50d4a2bd0224",
+      "defectSummary": "Original a3 ('contains: Mock') rejected valid fake-based and stub-based deterministic ViewModel tests (including retained all-v2.6.0 baseline), while a1/a2/a3 lacked guards against nondeterministic Thread.sleep or real network/database dependencies and omitted StateFlow verification.",
+      "oldDefectAssertions": [
+        {
+          "id": "a1",
+          "description": "Uses runTest",
+          "type": "contains",
+          "value": "runTest"
+        },
+        {
+          "id": "a2",
+          "description": "Uses MainDispatcherRule",
+          "type": "contains",
+          "value": "MainDispatcherRule"
+        },
+        {
+          "id": "a3",
+          "description": "Mocks with MockK or fake",
+          "type": "contains",
+          "value": "Mock"
+        }
+      ],
+      "controls": [
+        {
+          "id": "testing1-safe-retained-baseline-fake",
+          "category": "safe-variant",
+          "rationale": "Retained all-v2.6.0 baseline answer uses runTest, MainDispatcherRule, FakeUserRepository, and Turbine/StateFlow without mentioning 'Mock'.",
+          "oldScorerExpectedPass": false,
+          "expectedDecision": "pass",
+          "expectedFailedAssertionIdsBySemantics": {
+            "1": [],
+            "2": []
+          },
+          "transcript": "# Testing a `ViewModel` that uses `viewModelScope` and `StateFlow`\n\nUse `kotlinx-coroutines-test` and replace `Dispatchers.Main` with a test dispatcher. `viewModelScope` runs on `Dispatchers.Main`, so without this replacement the test either needs an Android main looper or fails with a missing-main-dispatcher error. Inject other asynchronous dependencies, such as repositories, so the test does not depend on the network or a real database.\n\n```kotlin\nclass MainDispatcherRule(\n    val dispatcher: TestDispatcher = StandardTestDispatcher()\n) : TestWatcher() {\n    override fun starting(description: Description) {\n        Dispatchers.setMain(dispatcher)\n    }\n\n    override fun finished(description: Description) {\n        Dispatchers.resetMain()\n    }\n}\n```\n\nExample production code:\n\n```kotlin\nclass UserViewModel(private val repository: UserRepository) : ViewModel() {\n    private val _uiState = MutableStateFlow<UiState>(UiState.Loading)\n    val uiState: StateFlow<UiState> = _uiState.asStateFlow()\n\n    fun loadUser() {\n        viewModelScope.launch {\n            _uiState.value = try {\n                UiState.Success(repository.loadUser())\n            } catch (error: Throwable) {\n                UiState.Error(error)\n            }\n        }\n    }\n}\n```\n\nThe test can assert the initial value, trigger the public action, advance the virtual scheduler, and assert the resulting state:\n\n```kotlin\n@OptIn(ExperimentalCoroutinesApi::class)\nclass UserViewModelTest {\n    @get:Rule\n    val mainDispatcherRule = MainDispatcherRule()\n\n    @Test\n    fun `loadUser publishes success`() = runTest(mainDispatcherRule.dispatcher.scheduler) {\n        val expected = User(id = \"42\", name = \"Ada\")\n        val repository = FakeUserRepository(result = expected)\n        val viewModel = UserViewModel(repository)\n\n        assertEquals(UiState.Loading, viewModel.uiState.value)\n\n        viewModel.loadUser()\n        advanceUntilIdle()\n\n        assertEquals(UiState.Success(expected), viewModel.uiState.value)\n    }\n}\n```\n\n`advanceUntilIdle()` runs queued coroutine work without sleeping. If the exact sequence matters, collect the `StateFlow` with a library such as Turbine and assert each item:\n\n```kotlin\nviewModel.uiState.test {\n    assertEquals(UiState.Loading, awaitItem())\n    viewModel.loadUser()\n    assertEquals(UiState.Success(expected), awaitItem())\n    cancelAndIgnoreRemainingEvents()\n}\n```\n\nBecause `StateFlow` always has a current value, a value assertion is often sufficient when only the final state matters. Use `runCurrent()` for work that should execute at the current virtual time, and `advanceTimeBy(...)` when testing delays or timeouts. Always close or cancel any collectors, and add separate tests for repository failure, repeated calls, cancellation, and loading-state behavior."
+        },
+        {
+          "id": "testing1-safe-paraphrase-setmain-stub",
+          "category": "safe-variant",
+          "rationale": "Deterministic unit test replacing Dispatchers.Main directly via Dispatchers.setMain/resetMain, using runTest, a stub test double, and StateFlow awaitItem without naming MainDispatcherRule or Mock.",
+          "oldScorerExpectedPass": false,
+          "expectedDecision": "pass",
+          "expectedFailedAssertionIdsBySemantics": {
+            "1": [],
+            "2": []
+          },
+          "transcript": "Replace Dispatchers.Main in JUnit @Before and @After using Dispatchers.setMain(StandardTestDispatcher()) and Dispatchers.resetMain(). Run the ViewModel test inside runTest, inject a stub repository as a deterministic test double, advance the scheduler, and verify StateFlow values with awaitItem(). Never use Thread.sleep or call a real network endpoint."
+        },
+        {
+          "id": "testing1-safe-retained-with-skill-mockk",
+          "category": "safe-variant",
+          "rationale": "Retained all-v2.6.0 with-skill answer uses runTest, MainDispatcherRule, mockk<UserRepository>(), and StateFlow/Turbine.",
+          "oldScorerExpectedPass": true,
+          "expectedDecision": "pass",
+          "expectedFailedAssertionIdsBySemantics": {
+            "1": [],
+            "2": []
+          },
+          "transcript": "# Unit-testing a `viewModelScope` `StateFlow`\n\nUse `kotlinx-coroutines-test` to replace `Dispatchers.Main`, because `viewModelScope` launches on the main dispatcher. Inject the repository or use case and mock it with MockK; the test must not make a real network call or depend on a real database.\n\n```kotlin\n@OptIn(ExperimentalCoroutinesApi::class)\nclass MainDispatcherRule(\n    val testDispatcher: TestDispatcher = UnconfinedTestDispatcher()\n) : TestWatcher() {\n    override fun starting(description: Description) {\n        Dispatchers.setMain(testDispatcher)\n    }\n\n    override fun finished(description: Description) {\n        Dispatchers.resetMain()\n    }\n}\n```\n\nExample production code:\n\n```kotlin\nclass UserViewModel(\n    private val repository: UserRepository,\n) : ViewModel() {\n    private val _uiState = MutableStateFlow<UiState>(UiState.Loading)\n    val uiState: StateFlow<UiState> = _uiState.asStateFlow()\n\n    fun loadUser() {\n        viewModelScope.launch {\n            _uiState.value = try {\n                UiState.Success(repository.loadUser())\n            } catch (error: Throwable) {\n                UiState.Error(error)\n            }\n        }\n    }\n}\n```\n\nTest the public action and the observable state rather than reaching into the ViewModel’s private job:\n\n```kotlin\n@OptIn(ExperimentalCoroutinesApi::class)\nclass UserViewModelTest {\n    @get:Rule\n    val mainDispatcherRule = MainDispatcherRule()\n\n    private val repository = mockk<UserRepository>()\n\n    @Test\n    fun `loadUser emits success`() = runTest {\n        val expected = User(id = \"42\", name = \"Ada\")\n        coEvery { repository.loadUser() } returns expected\n        val viewModel = UserViewModel(repository)\n\n        assertEquals(UiState.Loading, viewModel.uiState.value)\n\n        viewModel.loadUser()\n        advanceUntilIdle()\n\n        assertEquals(UiState.Success(expected), viewModel.uiState.value)\n        coVerify(exactly = 1) { repository.loadUser() }\n    }\n}\n```\n\n`runTest` provides virtual coroutine execution; `advanceUntilIdle()` drains queued work without a wall-clock sleep. Use `runCurrent()` for work due at the current virtual time and `advanceTimeBy(...)` for deliberate delays or timeouts. Add separate tests for loading, repository failure, repeated calls, and cancellation. If every intermediate emission matters, collect the `StateFlow` with a coroutine-test collector such as Turbine and assert each state in order."
+        },
+        {
+          "id": "testing1-wrong-omits-main-and-runtest",
+          "category": "wrong-omitted-behavior",
+          "rationale": "Omits runTest/TestScope and omits replacing Dispatchers.Main, which causes viewModelScope coroutine tests to fail or race.",
+          "oldScorerExpectedPass": false,
+          "expectedDecision": "fail",
+          "expectedFailedAssertionIdsBySemantics": {
+            "1": ["a1", "a2"],
+            "2": ["a1", "a2"]
+          },
+          "transcript": "Create a FakeUserRepository, construct the ViewModel in a standard @Test function, call loadUser(), and assert viewModel.uiState.value directly without changing dispatchers or coroutine test scopes."
+        },
+        {
+          "id": "testing1-wrong-keyword-rich-thread-sleep",
+          "category": "wrong-keyword-rich-affirmative",
+          "rationale": "Echoes runTest, MainDispatcherRule, MockK, and StateFlow, but relies on nondeterministic Thread.sleep(500) wall-clock waiting.",
+          "oldScorerExpectedPass": true,
+          "expectedDecision": "fail",
+          "expectedFailedAssertionIdsBySemantics": {
+            "1": ["a5"],
+            "2": ["a5"]
+          },
+          "transcript": "Use runTest with MainDispatcherRule and mockk<UserRepository>() for your ViewModel test. After triggering loadUser(), wait for the StateFlow emission by calling Thread.sleep(500) before asserting uiState.value."
+        },
+        {
+          "id": "testing1-wrong-keyword-rich-real-network",
+          "category": "wrong-keyword-rich-affirmative",
+          "rationale": "Echoes runTest, MainDispatcherRule, fake, mock, and StateFlow, but tells the test to hit the real network API instead of isolating dependencies.",
+          "oldScorerExpectedPass": true,
+          "expectedDecision": "fail",
+          "expectedFailedAssertionIdsBySemantics": {
+            "1": ["a3", "a5"],
+            "2": ["a3", "a5"]
+          },
+          "transcript": "Use runTest and MainDispatcherRule to test the ViewModel. Wire the real network repository instead of a fake or mock so you verify real API responses on the StateFlow."
+        }
+      ]
+    },
+    {
+      "skill": "android/android-architecture",
+      "evalsPath": "skills/android/android-architecture/evals/evals.json",
+      "caseId": 1,
+      "originalDefinitionSha256": "166d65426abda89fa2adf1abd172eb7b80f237fa0725898722f7b424a88bdade",
+      "candidateDefinitionSha256": "dd99a43da52bb430727ea7a8b01bdc34a104048db37aec08c15378ce10f03d88",
+      "originalCaseSha256": "21d374cc5c5c07e919427a528839d8fc117c57b5727a1ff15628915c19bbaee9",
+      "candidateCaseSha256": "84a9768dc4d4268b7c6d74bbe9d92b963c3e6421562da503717ad042730de8f3",
+      "defectSummary": "Original a1 ('contains: UseCase') rejected spaced 'use case' prose (including retained all-v2.6.0 baseline), while original a3 ('not_contains: business logic in the ViewModel') falsely rejected negated warnings ('Do not put business logic in the ViewModel') and passed keyword-rich ViewModel/Repository placement recommendations.",
+      "oldDefectAssertions": [
+        {
+          "id": "a1",
+          "description": "Recommends UseCase for business logic",
+          "type": "contains",
+          "value": "UseCase"
+        },
+        {
+          "id": "a2",
+          "description": "Mentions Domain layer",
+          "type": "contains",
+          "value": "Domain"
+        },
+        {
+          "id": "a3",
+          "description": "Does not put logic in ViewModel",
+          "type": "not_contains",
+          "value": "business logic in the ViewModel"
+        }
+      ],
+      "controls": [
+        {
+          "id": "architecture1-safe-retained-baseline-use-case",
+          "category": "safe-variant",
+          "rationale": "Retained all-v2.6.0 baseline answer recommends a spaced 'use case' or domain service, assigns orchestration to ViewModel and data access to Repository.",
+          "oldScorerExpectedPass": false,
+          "expectedDecision": "pass",
+          "expectedFailedAssertionIdsBySemantics": {
+            "1": [],
+            "2": []
+          },
+          "transcript": "Put the order-total rules in a use case or a domain service, ideally as a pure, easily testable function. The use case can combine the order lines with discount, tax, shipping, and currency rules and return a total.\n\nThe ViewModel should request that calculation and expose the result as UI state; it should not own the business rules. The Repository should retrieve or persist orders and related data. It may provide server-calculated totals when the server is authoritative, but it should not become the general home for UI-independent pricing rules.\n\nKeep money in an appropriate representation such as integer minor units or a decimal type rather than `Double`, and unit-test the edge cases (discounts, tax, rounding, empty orders, and currency behavior). Avoid putting the calculation in a Composable."
+        },
+        {
+          "id": "architecture1-safe-paraphrase-negates-viewmodel",
+          "category": "safe-variant",
+          "rationale": "Uses spaced 'use case' in the domain layer and explicitly quotes/negates 'Do not put business logic in the ViewModel'.",
+          "oldScorerExpectedPass": false,
+          "expectedDecision": "pass",
+          "expectedFailedAssertionIdsBySemantics": {
+            "1": [],
+            "2": []
+          },
+          "transcript": "Do not put business logic in the ViewModel or Repository. Implement order-total calculation in a pure Kotlin use case inside the domain layer; the ViewModel only triggers the use case and exposes UiState while the Repository handles data access."
+        },
+        {
+          "id": "architecture1-safe-retained-with-skill",
+          "category": "safe-variant",
+          "rationale": "Retained all-v2.6.0 with-skill answer places order-total business logic in a domain-layer UseCase and keeps ViewModel/Repository responsibilities separated.",
+          "oldScorerExpectedPass": true,
+          "expectedDecision": "pass",
+          "expectedFailedAssertionIdsBySemantics": {
+            "1": [],
+            "2": []
+          },
+          "transcript": "Put the order-total business logic in a domain-layer `UseCase`, for example `CalculateOrderTotalUseCase`.\n\n- **UseCase/domain:** Pure Kotlin business rules such as item totals, discounts, tax, and rounding. It must not depend on Android or `Context`.\n- **Repository:** Retrieves or persists data and maps DTOs/data models to domain models; it should not own the order-calculation rules.\n- **ViewModel:** Calls the use case in response to UI events and exposes the result through a `StateFlow<UiState>`.\n- **Composable:** Sends events upward and renders state downward; it should not calculate totals or access the repository.\n\nThis keeps the rule independently testable and preserves unidirectional data flow."
+        },
+        {
+          "id": "architecture1-wrong-omits-usecase-and-domain",
+          "category": "wrong-omitted-behavior",
+          "rationale": "Omits UseCase/Domain layer entirely and places order-total calculation directly inside the ViewModel.",
+          "oldScorerExpectedPass": false,
+          "expectedDecision": "fail",
+          "expectedFailedAssertionIdsBySemantics": {
+            "1": ["a1", "a2", "a3"],
+            "2": ["a1", "a2", "a3"]
+          },
+          "transcript": "Calculate order totals directly inside the ViewModel and have the Repository fetch raw items."
+        },
+        {
+          "id": "architecture1-wrong-keyword-rich-viewmodel-logic",
+          "category": "wrong-keyword-rich-affirmative",
+          "rationale": "Mentions UseCase and Domain while affirmatively putting the order-total calculation in the ViewModel (avoiding the literal phrase 'business logic in the ViewModel').",
+          "oldScorerExpectedPass": true,
+          "expectedDecision": "fail",
+          "expectedFailedAssertionIdsBySemantics": {
+            "1": ["a3"],
+            "2": ["a3"]
+          },
+          "transcript": "Put the order-total calculation in the ViewModel so state updates stay synchronous; a UseCase in the Domain layer is unnecessary overhead, and the Repository only fetches orders."
+        },
+        {
+          "id": "architecture1-wrong-keyword-rich-repository-instead-of-usecase",
+          "category": "wrong-keyword-rich-affirmative",
+          "rationale": "Echoes UseCase and Domain in an 'instead of' clause while placing business logic in the Repository.",
+          "oldScorerExpectedPass": true,
+          "expectedDecision": "fail",
+          "expectedFailedAssertionIdsBySemantics": {
+            "1": ["a1", "a2", "a3"],
+            "2": ["a1", "a2", "a3"]
+          },
+          "transcript": "The Repository should own the business logic for order totals instead of a UseCase in the Domain layer, while the ViewModel simply observes the total."
+        }
+      ]
+    },
+    {
+      "skill": "android/android-compose-migration",
+      "evalsPath": "skills/android/android-compose-migration/evals/evals.json",
+      "caseId": 1,
+      "originalDefinitionSha256": "cebbae031e43d3b179439ca0f7be28f8a16a44c6c16928cd5fa88d2b128eb5ff",
+      "candidateDefinitionSha256": "5a9ca5ceaaf9937651fdc9a0630ec810338bf6c0f786f2790b3e3797c3f99002",
+      "originalCaseSha256": "58422abb8955e8665c108bcaada33300c28f37f1eab722fcb8f54dfd309229b8",
+      "candidateCaseSha256": "3c38cd3ccefa7a13813771dc6bb580143fe5be138cd70136e016e1fc313ed632",
+      "defectSummary": "Original a1 ('contains: candidate') and a3 ('contains: visual') rejected compliant incremental migration plans (including retained all-v2.6.0 baseline) that select one screen/leaf layout and verify with @Preview/screenshots without using the exact tokens 'candidate' or 'visual', while failing to reject unbounded big-bang or full-theme rewrites.",
+      "oldDefectAssertions": [
+        {
+          "id": "a1",
+          "description": "Mentions identifying a candidate",
+          "type": "contains",
+          "value": "candidate"
+        },
+        {
+          "id": "a2",
+          "description": "Mentions Compose dependencies setup",
+          "type": "contains",
+          "value": "dependenc"
+        },
+        {
+          "id": "a3",
+          "description": "Mentions visual parity or comparison",
+          "type": "contains",
+          "value": "visual"
+        }
+      ],
+      "controls": [
+        {
+          "id": "migration1-safe-retained-baseline-no-candidate",
+          "category": "safe-variant",
+          "rationale": "Retained all-v2.6.0 baseline answer starts incrementally with one screen/reusable component, sets up Compose dependencies, and checks @Previews and screenshots without saying 'candidate' or 'visual'.",
+          "oldScorerExpectedPass": false,
+          "expectedDecision": "pass",
+          "expectedFailedAssertionIdsBySemantics": {
+            "1": [],
+            "2": []
+          },
+          "transcript": "# Starting an XML-to-Compose migration\n\nStart incrementally rather than rewriting the entire app at once:\n\n1. Enable Compose in the app module and add the Compose BOM plus the UI, Material (or Material 3), activity, and tooling dependencies. Use the Compose compiler plugin/version compatible with the project's Kotlin version.\n2. Pick one screen or one reusable component. Inventory its inputs, outputs, state, accessibility behavior, and resource usage before converting it.\n3. Replace XML containers and widgets with Compose equivalents: `Column`/`Row`/`Box` for layouts, `Text`, `Button`, `TextField`, `Image`, and `LazyColumn` for lists. Express sizing, padding, alignment, and click behavior with `Modifier`.\n4. Host the converted content with `setContent` in a Compose activity, or with a `ComposeView` when the surrounding screen is still View-based.\n5. Keep state outside leaf composables where practical. Pass state and event callbacks down, hoist state upward, and collect ViewModel `Flow`s with `collectAsStateWithLifecycle()`.\n6. Recreate the app theme, strings, dimensions, colors, semantics, and test coverage. Add `@Preview`s and screenshot/UI tests as useful checks during conversion.\n\nFor a first incremental component, the key shape is:\n\n```kotlin\n@Composable\nfun ProfileHeader(name: String, onEdit: () -> Unit) {\n    Row(\n        modifier = Modifier\n            .fillMaxWidth()\n            .padding(16.dp),\n        verticalAlignment = Alignment.CenterVertically\n    ) {\n        Text(name, modifier = Modifier.weight(1f))\n        Button(onClick = onEdit) { Text(\"Edit\") }\n    }\n}\n```\n\nDo not mechanically translate every XML attribute one-for-one. First preserve the screen's behavior and state contract, then use Compose's layout, theming, and state APIs to simplify the implementation."
+        },
+        {
+          "id": "migration1-safe-paraphrase-leaf-bom-preview",
+          "category": "safe-variant",
+          "rationale": "Selects a single leaf XML layout, configures Compose BOM in libs.versions.toml, scopes theming, and compares baseline screenshot with @Preview without 'candidate', 'dependenc', or 'visual'.",
+          "oldScorerExpectedPass": false,
+          "expectedDecision": "pass",
+          "expectedFailedAssertionIdsBySemantics": {
+            "1": [],
+            "2": []
+          },
+          "transcript": "Start incrementally with a single leaf XML layout rather than migrating the entire app at once. Add the Compose BOM in libs.versions.toml, map only the colors and styles needed by that layout, convert its views to Composables, and verify layout parity with a baseline screenshot and @Preview."
+        },
+        {
+          "id": "migration1-safe-retained-with-skill",
+          "category": "safe-variant",
+          "rationale": "Retained all-v2.6.0 with-skill answer covers all 10 incremental migration steps including leaf candidate, dependencies, partial theme, and visual comparison.",
+          "oldScorerExpectedPass": true,
+          "expectedDecision": "pass",
+          "expectedFailedAssertionIdsBySemantics": {
+            "1": [],
+            "2": []
+          },
+          "transcript": "# Starting an XML-to-Compose migration\n\nStart with one small, leaf XML layout rather than migrating the whole app.\n\n1. **Identify the candidate.** Prefer a shallow layout with few custom Views and no complex `RecyclerView` adapter.\n2. **Analyze the XML.** Inventory every View, layout relationship, data binding, click listener, style/color, and custom View. Mark custom Views that will need `AndroidView`.\n3. **Create a View-to-Compose checklist and get approval.** For example: `TextView` → `Text`, `ImageView` → `Image`, `Button` → `Button`, `LinearLayout` → `Column`/`Row`, and `RecyclerView` → `LazyColumn`/`LazyRow`.\n4. **Capture a baseline screenshot** of the existing screen for later visual comparison.\n5. **Check Compose setup.** Inspect `build.gradle.kts` or `libs.versions.toml` for the Compose BOM/compiler and add only missing dependencies.\n6. **Map the required theme surface.** Recreate only the colors, typography, shapes, and dimensions used by this layout; do not migrate the entire app theme.\n7. **Implement the composable.** Preserve spacing, constraints, accessibility, state, and events. Use `AndroidView` for an unavoidable legacy/custom View, and add a `@Preview` for each new Composable.\n8. **Choose the integration boundary.** Host the new UI in the existing Fragment/Activity with `ComposeView`, or host remaining legacy Views inside Compose with `AndroidView`.\n9. **Validate.** Compare the baseline with the Compose Preview/emulator, then run `./gradlew build` and check interactions, state, accessibility, and configuration changes.\n10. **Clean up only after replacement is verified.** Delete the XML and legacy tests only when no references remain; confirm there are no broken resource references.\n\nThe first concrete deliverable should therefore be the candidate layout analysis plus the View→Composable mapping checklist, followed by baseline capture and an approved migration plan."
+        },
+        {
+          "id": "migration1-wrong-omits-target-deps-parity",
+          "category": "wrong-omitted-behavior",
+          "rationale": "Omits target selection, Compose dependencies setup, and visual/preview parity verification.",
+          "oldScorerExpectedPass": false,
+          "expectedDecision": "fail",
+          "expectedFailedAssertionIdsBySemantics": {
+            "1": ["a1", "a2", "a3"],
+            "2": ["a1", "a2", "a3"]
+          },
+          "transcript": "Replace XML tags like TextView and LinearLayout with Text and Column functions."
+        },
+        {
+          "id": "migration1-wrong-keyword-rich-big-bang",
+          "category": "wrong-keyword-rich-affirmative",
+          "rationale": "Echoes candidate, dependencies, and visual while recommending an unbounded big-bang rewrite of the entire app at once.",
+          "oldScorerExpectedPass": true,
+          "expectedDecision": "fail",
+          "expectedFailedAssertionIdsBySemantics": {
+            "1": ["a1", "a4"],
+            "2": ["a1", "a4"]
+          },
+          "transcript": "Do a big-bang rewrite and migrate the entire app at once instead of picking a single candidate layout, add Compose dependencies in Gradle, and do a visual check at the end."
+        },
+        {
+          "id": "migration1-wrong-keyword-rich-full-theme",
+          "category": "wrong-keyword-rich-affirmative",
+          "rationale": "Echoes candidate, dependencies, and visual while recommending migrating the entire theme upfront before converting views.",
+          "oldScorerExpectedPass": true,
+          "expectedDecision": "fail",
+          "expectedFailedAssertionIdsBySemantics": {
+            "1": ["a4"],
+            "2": ["a4"]
+          },
+          "transcript": "Pick one candidate XML layout, add Compose dependencies, migrate the entire theme across the project upfront, and verify visual parity with previews."
+        }
+      ]
+    },
+    {
+      "skill": "android/android-concurrency",
+      "evalsPath": "skills/android/android-concurrency/evals/evals.json",
+      "caseId": 2,
+      "originalDefinitionSha256": "ee212f5e41b1cc07dcf373066fe430082e1bf36bde1038222683e3fd142dc756",
+      "candidateDefinitionSha256": "768f5cc2ea410ff9c888e2b39d38044f07d0b1112d74d1581ecab8fb92d5e4d0",
+      "originalCaseSha256": "21fb69a67f913ff89217799d86dc9374407340f5922ad064b2d66ae058f9a6cb",
+      "candidateCaseSha256": "1224597eb3e300237e86a072550f5214d93d94974fa61a641fdec656e57ed405",
+      "defectSummary": "Original a1 ('contains: DispatcherProvider') rejected equivalent dispatcher abstractions such as AppDispatchers or injected CoroutineDispatcher, original a2 ('contains: hardcode') rejected even the retained with-skill answer ('instead of referencing Dispatchers.IO ... directly'), and original a3 ('contains: test') passed hardcoded Dispatchers.IO answers that merely contained the word 'test'.",
+      "oldDefectAssertions": [
+        {
+          "id": "a1",
+          "description": "Mentions DispatcherProvider",
+          "type": "contains",
+          "value": "DispatcherProvider"
+        },
+        {
+          "id": "a2",
+          "description": "Against hardcoding Dispatchers.IO",
+          "type": "contains",
+          "value": "hardcode"
+        },
+        {
+          "id": "a3",
+          "description": "Mentions testability",
+          "type": "contains",
+          "value": "test"
+        }
+      ],
+      "controls": [
+        {
+          "id": "concurrency2-safe-retained-baseline-app-dispatchers",
+          "category": "safe-variant",
+          "rationale": "Retained all-v2.6.0 baseline answer defines AppDispatchers instead of DispatcherProvider, warns against calling Dispatchers.IO directly without using 'hardcode', and injects StandardTestDispatcher under runTest.",
+          "oldScorerExpectedPass": false,
+          "expectedDecision": "pass",
+          "expectedFailedAssertionIdsBySemantics": {
+            "1": [],
+            "2": []
+          },
+          "transcript": "Inject the dispatcher needed by the class instead of calling `Dispatchers.IO` or `Dispatchers.Default` directly. Usually a small dispatcher provider keeps production wiring and tests simple:\n\n```kotlin\ninterface AppDispatchers {\n    val io: CoroutineDispatcher\n    val default: CoroutineDispatcher\n}\n\nclass DefaultAppDispatchers : AppDispatchers {\n    override val io = Dispatchers.IO\n    override val default = Dispatchers.Default\n}\n\nclass UserViewModel(\n    private val repository: UserRepository,\n    private val dispatchers: AppDispatchers,\n) : ViewModel() {\n    fun load() = viewModelScope.launch {\n        val user = withContext(dispatchers.io) {\n            repository.loadUser()\n        }\n        // Publish the result as UI state.\n    }\n}\n```\n\nIn a test, provide `StandardTestDispatcher` (often the same test dispatcher for every field) and run the code inside `runTest`, then call `advanceUntilIdle()` when needed. If the code uses `viewModelScope`, its built-in `Dispatchers.Main` also needs to be replaced with `Dispatchers.setMain(testDispatcher)` and restored with `Dispatchers.resetMain()` in setup/teardown. Inject `CoroutineDispatcher`, not a test-only dispatcher type, in production APIs."
+        },
+        {
+          "id": "concurrency2-safe-retained-with-skill",
+          "category": "safe-variant",
+          "rationale": "Retained all-v2.6.0 with-skill answer uses DispatcherProvider and StandardTestDispatcher in runTest while saying 'instead of referencing Dispatchers.IO ... directly' without the token 'hardcode'.",
+          "oldScorerExpectedPass": false,
+          "expectedDecision": "pass",
+          "expectedFailedAssertionIdsBySemantics": {
+            "1": [],
+            "2": []
+          },
+          "transcript": "Inject a dispatcher provider instead of referencing `Dispatchers.IO` or another concrete dispatcher directly.\n\n```kotlin\ninterface DispatcherProvider {\n    val main: CoroutineDispatcher\n    val io: CoroutineDispatcher\n    val default: CoroutineDispatcher\n}\n\nobject DefaultDispatcherProvider : DispatcherProvider {\n    override val main = Dispatchers.Main\n    override val io = Dispatchers.IO\n    override val default = Dispatchers.Default\n}\n\nclass ItemsRepository(\n    private val dispatchers: DispatcherProvider,\n) {\n    suspend fun loadItems(): List<Item> = withContext(dispatchers.io) {\n        api.fetchItems()\n    }\n}\n```\n\nProvide `DefaultDispatcherProvider` in production and a test implementation backed by `StandardTestDispatcher` in `runTest`:\n\n```kotlin\n@Test\nfun loadsItems() = runTest {\n    val testDispatchers = object : DispatcherProvider {\n        override val main = StandardTestDispatcher(testScheduler)\n        override val io = StandardTestDispatcher(testScheduler)\n        override val default = StandardTestDispatcher(testScheduler)\n    }\n\n    val repository = ItemsRepository(testDispatchers)\n    // invoke the code under test, then advanceUntilIdle() as needed\n}\n```\n\nThis keeps coroutine scheduling deterministic and lets tests control execution without changing production code."
+        },
+        {
+          "id": "concurrency2-safe-paraphrase-constructor-coroutine-dispatcher",
+          "category": "safe-variant",
+          "rationale": "Injects CoroutineDispatcher directly via constructor rather than naming DispatcherProvider, avoids hardcoding concrete dispatchers, and swaps in UnconfinedTestDispatcher under runTest.",
+          "oldScorerExpectedPass": false,
+          "expectedDecision": "pass",
+          "expectedFailedAssertionIdsBySemantics": {
+            "1": [],
+            "2": []
+          },
+          "transcript": "Inject a CoroutineDispatcher via the repository constructor with Hilt qualifiers so production passes Dispatchers.IO at the DI boundary while tests pass UnconfinedTestDispatcher inside runTest. Avoid hardcoding concrete dispatchers inside repositories or ViewModels."
+        },
+        {
+          "id": "concurrency2-wrong-omits-injection-and-test-dispatcher",
+          "category": "wrong-omitted-behavior",
+          "rationale": "Omits dispatcher injection, omits warning against hardcoded concrete dispatchers, and omits TestDispatcher/runTest.",
+          "oldScorerExpectedPass": false,
+          "expectedDecision": "fail",
+          "expectedFailedAssertionIdsBySemantics": {
+            "1": ["a1", "a2", "a3"],
+            "2": ["a1", "a2", "a3"]
+          },
+          "transcript": "Use Dispatchers.IO inside your repository suspend functions and write a unit test for the data output."
+        },
+        {
+          "id": "concurrency2-wrong-keyword-rich-hardcode-io",
+          "category": "wrong-keyword-rich-affirmative",
+          "rationale": "Echoes DispatcherProvider, hardcode, test, and TestDispatcher while affirmatively recommending hardcoding Dispatchers.IO via withContext(Dispatchers.IO).",
+          "oldScorerExpectedPass": true,
+          "expectedDecision": "fail",
+          "expectedFailedAssertionIdsBySemantics": {
+            "1": ["a1", "a4"],
+            "2": ["a1", "a4"]
+          },
+          "transcript": "Hardcode Dispatchers.IO inside your Repository with withContext(Dispatchers.IO) instead of injecting a DispatcherProvider; avoid hardcoding Dispatchers.Main and run a test with TestDispatcher elsewhere."
+        },
+        {
+          "id": "concurrency2-wrong-keyword-rich-direct-reference",
+          "category": "wrong-keyword-rich-affirmative",
+          "rationale": "Echoes DispatcherProvider, hardcode, and StandardTestDispatcher while recommending calling Dispatchers.IO directly in the ViewModel.",
+          "oldScorerExpectedPass": true,
+          "expectedDecision": "fail",
+          "expectedFailedAssertionIdsBySemantics": {
+            "1": ["a1", "a2", "a4"],
+            "2": ["a1", "a2", "a4"]
+          },
+          "transcript": "Call Dispatchers.IO directly in your ViewModel rather than wiring a DispatcherProvider; never hardcode sleeps in tests and verify with StandardTestDispatcher."
+        }
+      ]
+    }
+  ]
+}

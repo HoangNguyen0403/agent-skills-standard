@@ -8,21 +8,39 @@
       "assertions": [
         {
           "id": "a1",
-          "description": "Uses runTest",
-          "type": "contains",
-          "value": "runTest"
+          "description": "Uses runTest or TestScope for controlled coroutine test scheduling",
+          "type": "regex",
+          "value": "(?<!\\b(?:not|never|n't|avoid|skip|without|instead of|rather than|don't|do not)\\b(?:[^.;\\n]|\\.(?=\\w)){0,35})\\b(?:runTest|TestScope)\\b"
         },
         {
           "id": "a2",
-          "description": "Uses MainDispatcherRule",
-          "type": "contains",
-          "value": "MainDispatcherRule"
+          "description": "Replaces Dispatchers.Main using MainDispatcherRule or Dispatchers.setMain with a TestDispatcher",
+          "type": "regex",
+          "value": "(?<!\\b(?:not|never|n't|avoid|skip|without|instead of|rather than|don't|do not)\\b(?:[^.;\\n]|\\.(?=\\w)){0,35})(?:\\bMainDispatcherRule\\b|Dispatchers\\.setMain\\s*\\(|setMain\\s*\\([^)]*Dispatcher)"
         },
         {
           "id": "a3",
-          "description": "Mocks with MockK or fake",
-          "type": "contains",
-          "value": "Mock"
+          "description": "Isolates dependencies with MockK, mocks, fakes, stubs, or test/in-memory doubles",
+          "type": "regex",
+          "value": "(?<!\\b(?:not|never|n't|avoid|skip|without|instead of|rather than|don't|do not)\\b(?:[^.;\\n]|\\.(?=\\w)){0,35})(?:\\b(?:MockK|mock(?:s|ed|ing|k)?|fake[a-z0-9_]*|stub(?:s|bed|bing)?)\\b|\\b(?:test|in[- ]memory|repository|controlled)\\s+(?:[a-z0-9_]+\\s+){0,2}doubles?\\b)"
+        },
+        {
+          "id": "a4",
+          "description": "Collects, observes, or asserts StateFlow emissions rather than bare mention",
+          "type": "regex",
+          "value": "(?<!\\b(?:not|never|n't|avoid|skip|without|instead of|rather than|don't|do not)\\b(?:[^.;\\n]|\\.(?=\\w)){0,35})(?:\\b(?:turbine|awaitItem)\\b|\\.test\\s*\\{|\\b(?:collect(?:s|ing)?|observ(?:e|es|ing)|assert(?:s|ing)?|verif(?:y|ies|ying)|check(?:s|ing)?)\\b(?:[^.;\\n]|\\.(?=\\w)){0,45}\\b(?:StateFlow|uiState|emissions?|emitted)\\b|\\b(?:StateFlow|uiState)\\b(?:[^.;\\n]|\\.(?=\\w)){0,35}\\b(?:collect(?:ed|ing)?|assert(?:ed|ions?)?|verif(?:ied|y)|checked|emissions?|emitted|value)\\b)"
+        },
+        {
+          "id": "a5",
+          "description": "Injects DispatcherProvider or a coroutine dispatcher abstraction into the ViewModel",
+          "type": "regex",
+          "value": "(?<!\\b(?:not|never|n't|avoid|skip|without|instead of|rather than|don't|do not)\\b(?:[^.;\\n]|\\.(?=\\w)){0,35})(?:\\bDispatcherProvider\\b|\\b(?:inject(?:s|ed|ing)?|supply|suppl(?:y|ies|ying)|pass(?:es|ing)?|constructor)\\b(?:[^.;\\n]|\\.(?=\\w)){0,40}\\b(?:[a-z0-9_]*dispatcher(?:s|\\s+provider)?|CoroutineDispatcher)\\b)"
+        },
+        {
+          "id": "a6",
+          "description": "Rejects wall-clock sleeps or real/production network or database dependencies in unit tests",
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?<!\\b(?:not|never|n't|avoid|ban|forbid|without|instead of|rather than|do not|don't|no)\\b(?:[^.;\\n]|\\.(?=\\w)){0,60})\\b(?:Thread\\.sleep|sleep\\s*\\(\\s*\\d|(?:real|live|production)\\s+(?:network|api|database|http|backend)(?:\\s+service)?)\\b)[\\s\\S]*$"
         }
       ]
     },
