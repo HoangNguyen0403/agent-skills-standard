@@ -33,6 +33,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [cli-v2.7.5] - 2026-11-11
+
+**Category**: CLI Tool
+
+### Added
+- feat(skills): improve system design diagrams and N+1 guidance (#298)
+- feat(skills): strengthen decision evidence (#297)
+- feat(mcp): disclose unsupported provider transcript stores and refuse alias roots (#294)
+
+### Fixed
+- fix(qe): harden Playwright testing guidance (#295)
+
+### Maintenance
+- chore(release): mcp-v0.8.3
+- docs: shorten README and streamline changelog (#313)
+- chore(deps): combine dependency version bumps (#303, #304, #305) (#312)
+- chore: update agent-skills-standard-mcp version to 0.8.2 in configuration files
+- chore(release): mcp-v0.8.2
+
 ## [mcp-v0.8.3] - 2026-11-11
 
 **Category**: MCP Server
