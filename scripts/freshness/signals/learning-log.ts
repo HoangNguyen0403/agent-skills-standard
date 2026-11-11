@@ -15,6 +15,13 @@ export interface LearningLogEntry {
   skills: string[];
   /** 1-based line of the heading. */
   line: number;
+  candidate?: string;
+  status?: string;
+  improvement?: string;
+  prevention?: string;
+  verification?: string;
+  evaluation?: string;
+  review?: string;
 }
 
 /** Repo-relative path of the log. */
@@ -28,6 +35,45 @@ const SKILLS_RE = /^\*\*Skills\*\*:\s*(.+?)\s*$/;
 const SKILL_ID_RE = /[a-z0-9-]+\/[a-z0-9-]+/g;
 /** An explicit `**Skills**:` id must look exactly like `category/skill`. */
 const SKILL_ID_EXACT = /^[a-z0-9-]+\/[a-z0-9-]+$/;
+const SUBHEADING_RE = /^###\s+/;
+const METADATA_LINE_RE = /^\*\*[A-Za-z]+\*\*:/;
+const METADATA_FIELD_RE = /^\*\*([A-Za-z]+)\*\*:\s*(.*)$/;
+interface FenceState {
+  char: "`" | "~";
+  len: number;
+}
+
+function nextFenceState(line: string, fence: FenceState | null): { fence: FenceState | null; fenced: boolean } {
+  if (!fence) {
+    const open = line.match(/^[ ]{0,3}(`{3,}|~{3,})(.*)$/);
+    if (!open) return { fence: null, fenced: false };
+    const marker = open[1];
+    if (marker[0] === "`" && open[2].includes("`")) return { fence: null, fenced: false };
+    return { fence: { char: marker[0] as "`" | "~", len: marker.length }, fenced: true };
+  }
+  const close = line.trimEnd().match(/^[ ]{0,3}(`{3,}|~{3,})$/);
+  if (close && close[1][0] === fence.char && close[1].length >= fence.len) {
+    return { fence: null, fenced: true };
+  }
+  return { fence, fenced: true };
+}
+
+function parseCandidateMetadata(line: string, entry: LearningLogEntry): void {
+  if (!METADATA_LINE_RE.test(line)) return;
+  for (const segment of line.split(/\s*\|\s*(?=\*\*[A-Za-z]+\*\*:)/)) {
+    const match = segment.match(METADATA_FIELD_RE);
+    if (!match) continue;
+    const [, key, rawValue] = match;
+    const value = rawValue.trim();
+    if (key === "Candidate") entry.candidate = value;
+    else if (key === "Status") entry.status = value;
+    else if (key === "Improvement") entry.improvement = value;
+    else if (key === "Prevention") entry.prevention = value;
+    else if (key === "Verification") entry.verification = value;
+    else if (key === "Evaluation") entry.evaluation = value;
+    else if (key === "Review") entry.review = value;
+  }
+}
 /**
  * Strips a trailing HTML comment (e.g. the template's inline hint) before
  * parsing a line. Matching paired comment delimiters with a regex is a
@@ -66,40 +112,52 @@ export function parseLearningLog(
   const lines = text.split(/\r?\n/);
   const entries: LearningLogEntry[] = [];
   let current: LearningLogEntry | null = null;
+  let inBody = false;
+  let fence: FenceState | null = null;
   const add = (entry: LearningLogEntry, id: string) => {
     if (!entry.skills.includes(id)) entry.skills.push(id);
   };
   lines.forEach((raw, index) => {
     const line = stripHtmlComments(raw).trimEnd();
-    const heading = line.match(HEADING_RE);
-    if (heading) {
-      current = { iteration: Number(heading[1]), date: "", task: "", signal: "", skills: [], line: index + 1 };
-      entries.push(current);
-      return;
+    const fenceStep = nextFenceState(line, fence);
+    fence = fenceStep.fence;
+    if (!fenceStep.fenced) {
+      const heading = line.match(HEADING_RE);
+      if (heading) {
+        current = { iteration: Number(heading[1]), date: "", task: "", signal: "", skills: [], line: index + 1 };
+        inBody = false;
+        entries.push(current);
+        return;
+      }
+      if (!current) return;
+      if (SUBHEADING_RE.test(line)) {
+        inBody = true;
+      }
+      if (!inBody) parseCandidateMetadata(line, current);
+      const date = line.match(DATE_RE);
+      if (date) {
+        current.date = date[1];
+        current.task = (date[2] ?? "").trim();
+        return;
+      }
+      const signal = line.match(SIGNAL_RE);
+      if (signal) {
+        current.signal = signal[1];
+        return;
+      }
+      const explicit = line.match(SKILLS_RE);
+      if (explicit) {
+        for (const id of explicit[1].split(",").map((s) => s.trim()).filter(Boolean)) {
+          if (!SKILL_ID_EXACT.test(id) || !knownSkills.has(id)) {
+            onUnknown(id, index + 1);
+            continue;
+          }
+          add(current, id);
+        }
+        return;
+      }
     }
     if (!current) return;
-    const date = line.match(DATE_RE);
-    if (date) {
-      current.date = date[1];
-      current.task = (date[2] ?? "").trim();
-      return;
-    }
-    const signal = line.match(SIGNAL_RE);
-    if (signal) {
-      current.signal = signal[1];
-      return;
-    }
-    const explicit = line.match(SKILLS_RE);
-    if (explicit) {
-      for (const id of explicit[1].split(",").map((s) => s.trim()).filter(Boolean)) {
-        if (!SKILL_ID_EXACT.test(id) || !knownSkills.has(id)) {
-          onUnknown(id, index + 1);
-          continue;
-        }
-        add(current, id);
-      }
-      return;
-    }
     for (const id of line.match(SKILL_ID_RE) ?? []) {
       if (knownSkills.has(id)) add(current, id);
     }

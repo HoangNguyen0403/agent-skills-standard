@@ -8,21 +8,33 @@
       "assertions": [
         {
           "id": "a1",
-          "description": "Mentions identifying a candidate",
-          "type": "contains",
-          "value": "candidate"
+          "description": "Selects a bounded small, leaf, or incremental initial target and avoids complex RecyclerViews first",
+          "type": "regex",
+          "value": "(?<!\\b(?:not|never|n't|avoid|skip|without|instead of|rather than|don't|do not)\\b(?:[^.;\\n]|\\.(?=\\w)){0,40})(?:\\b(?:prefer|start|begin|pick|choose|select|target)\\b(?:[^.;\\n]|\\.(?=\\w)){0,40}\\b(?:leaf\\s+(?:xml\\s+)?(?:layout|screen)s?|small(?:er)?\\s+(?:xml\\s+)?(?:layout|screen|component)s?|simple\\s+(?:xml\\s+)?(?:layout|screen|component)s?|single\\s+(?:xml\\s+)?(?:layout|screen|component)|one\\s+(?:small,?\\s*)?(?:leaf\\s+)?(?:xml\\s+)?(?:screen|layout|reusable\\s+component|component)|incremental(?:ly)?)\\b|\\b(?:avoid|defer|leave|skip)\\b(?:[^.;\\n]|\\.(?=\\w)){0,35}\\b(?:complex|complicated)\\s+RecyclerView)"
         },
         {
           "id": "a2",
-          "description": "Mentions Compose dependencies setup",
-          "type": "contains",
-          "value": "dependenc"
+          "description": "Inspects XML structure, view hierarchy, or bindings before converting",
+          "type": "regex",
+          "value": "(?<!\\b(?:not|never|n't|avoid|skip|without|instead of|rather than|don't|do not)\\b(?:[^.;)\\n]|\\.(?=\\w)){0,40})\\b(?:analyz\\w*|inventor\\w*|inspect\\w*|examin\\w*|audit\\w*)\\b(?:[^.;\\n]|\\.(?=\\w)){0,50}\\b(?:structure|hierarchy|views?|widgets?|bindings?|listeners?|handlers?)\\b"
         },
         {
           "id": "a3",
-          "description": "Mentions visual parity or comparison",
-          "type": "contains",
-          "value": "visual"
+          "description": "Sets up Compose dependencies or libraries and maps/configures theming",
+          "type": "regex",
+          "value": "(?=[\\s\\S]*(?<!\\b(?:not|never|n't|avoid|skip|without|instead of|rather than|don't|do not)\\b(?:[^.;\\n]|\\.(?=\\w)){0,40})(?:dependenc|compose\\s+bom|build\\.gradle|libs\\.versions\\.toml|\\b(?:enable|add|set\\s+up|configure|install)\\b(?:[^.;\\n]|\\.(?=\\w)){0,35}\\b(?:Compose|librar(?:y|ies))\\b))(?=[\\s\\S]*(?<!\\b(?:not|never|n't|avoid|skip|without|instead of|rather than|don't|do not)\\b(?:[^.;\\n]|\\.(?=\\w)){0,40})\\b(?:them(?:e|ing)|colors?|typography|shapes?|styles?)\\b)"
+        },
+        {
+          "id": "a4",
+          "description": "Converts Views to Compose equivalents while verifying visual or appearance parity",
+          "type": "regex",
+          "value": "(?=[\\s\\S]*(?<!\\b(?:not|never|n't|avoid|skip|without|instead of|rather than|don't|do not)\\b(?:[^.;\\n]|\\.(?=\\w)){0,40})\\b(?:convert\\w*|replac\\w*|migrat\\w*|map(?:ping)?)\\b(?:[^.;\\n]|\\.(?=\\w)){0,45}\\b(?:Compose\\s+equivalent|composables?|equivalent\\s+composables?)\\b)(?=[\\s\\S]*(?<!\\b(?:not|never|n't|avoid|skip|without|instead of|rather than|don't|do not)\\b(?:[^.;\\n]|\\.(?=\\w)){0,40})(?:visual\\s*(?:parity|comparison|check|diff)|(?:before[- ]and[- ]after|baseline)\\s+screenshots?|screenshots?|@?Preview\\b|Compose\\s+Preview|appearance\\s+parity|(?:layout|colors|spacing|appearance)\\b(?:[^.;\\n]|\\.(?=\\w)){0,35}\\b(?:stay\\s+the\\s+same|match|preserv\\w*|parity)\\b))"
+        },
+        {
+          "id": "a5",
+          "description": "Rejects complex-first selection or wholesale all-screens-in-one-change migration",
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?<!\\b(?:not|never|n't|avoid|ban|forbid|without|instead of|rather than|do not|don't|should not|shouldn't|no)\\b(?:[^.;\\n]|\\.(?=\\w)){0,45})(?:\\b(?:pick(?:ing)?|choos(?:e|ing)|select(?:ing)?|start(?:ing)?\\s+with|migrat(?:e|ing))\\s+(?:the\\s+)?(?:largest|biggest|most\\s+complex)\\b(?:[^.;\\n]|\\.(?=\\w)){0,45}\\b(?:screen|layout|RecyclerView|adapter)s?\\b|\\b(?:rewrite|migrate|convert|replace)\\s+(?:the\\s+)?(?:entire|whole|all)\\s+(?:app|application|XML\\s+(?:screens?|layouts?|files?)|screens?|layouts?)\\b(?:[^.;\\n]|\\.(?=\\w)){0,45}\\b(?:at\\s+once|in\\s+(?:one|the\\s+same)\\s+(?:change|sweep|pass|PR)|together)\\b|\\bbig[- ]bang\\s+(?:rewrite|migration)\\b|\\b(?:completed|done)\\s+in\\s+one\\s+sweep\\b))[\\s\\S]*$"
         }
       ]
     },

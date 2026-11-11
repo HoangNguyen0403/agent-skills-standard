@@ -33,21 +33,27 @@
       "assertions": [
         {
           "id": "a1",
-          "description": "Mentions DispatcherProvider",
-          "type": "contains",
-          "value": "DispatcherProvider"
+          "description": "Defines an IO/Main/Default dispatcher abstraction and wires it via Hilt/DI",
+          "type": "regex",
+          "value": "(?=[\\s\\S]*(?<!\\b(?:not|never|n't|avoid|skip|without|instead of|rather than|don't|do not)\\b(?:[^.;\\n]|\\.(?=\\w)){0,40})(?:\\b(?:DispatcherProvider|[A-Za-z0-9_]*Dispatchers?|[A-Za-z0-9_]*Executors?)\\b|\\bCoroutineDispatcher\\b))(?=[\\s\\S]*\\bIO\\b)(?=[\\s\\S]*\\bMain\\b)(?=[\\s\\S]*\\bDefault\\b)(?=[\\s\\S]*(?<!\\b(?:not|never|n't|avoid|skip|without|instead of|rather than|don't|do not)\\b(?:[^.;\\n]|\\.(?=\\w)){0,35})\\b(?:Hilt|@HiltViewModel|@Inject|@Binds|@Provides)\\b)"
         },
         {
           "id": "a2",
-          "description": "Against hardcoding Dispatchers.IO",
-          "type": "contains",
-          "value": "hardcode"
+          "description": "Uses the supplied/injected dispatcher property or explicitly states not to hardcode concrete Dispatchers",
+          "type": "regex",
+          "value": "(?:\\b(?:use|call|pass|switch|launch|run|withContext)\\b(?:(?!(?:\\bDispatchers\\.|\\bignor|\\bbypass|\\bskip))(?:[^.;\\n]|\\.(?=\\w))){0,40}\\b(?:supplied|injected|provider(?:'s)?|(?!Dispatchers\\.)(?:[a-z0-9_]*dispatchers?|[a-z0-9_]*executors?)\\.)\\s*(?:io|main|default|dispatcher)\\b|\\b(?:never|not|n't|avoid|instead of|rather than|without|don't|do not)\\b(?:[^.;\\n]|\\.(?=\\w)){0,45}(?:\\b(?:hardcod\\w*|direct(?:ly)?)\\b(?:[^.;\\n]|\\.(?=\\w)){0,45}\\bDispatchers?|\\bDispatchers\\.(?:IO|Default|Main)\\b))"
         },
         {
           "id": "a3",
-          "description": "Mentions testability",
-          "type": "contains",
-          "value": "test"
+          "description": "Substitutes TestDispatcher, StandardTestDispatcher, or UnconfinedTestDispatcher in tests",
+          "type": "regex",
+          "value": "(?<!\\b(?:not|never|n't|avoid|skip|without|instead of|rather than|don't|do not)\\b(?:[^.;\\n]|\\.(?=\\w)){0,35})\\b(?:StandardTestDispatcher|UnconfinedTestDispatcher|TestDispatcher)\\b"
+        },
+        {
+          "id": "a4",
+          "description": "Rejects hardcoded/direct Dispatchers.IO recommendations or ignoring the injected dispatcher",
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?<!\\b(?:not|never|n't|avoid|ban|forbid|without|instead of|rather than|don't|do not|shouldn't|should not)\\b(?:(?!\\b(?:but|however|yet)\\b)(?:[^.;\\n]|\\.(?=\\w))){0,45})(?:\\b(?:hardcod(?:e|es|ed|ing)|hard-cod(?:e|es|ed|ing))\\b(?:[^.;\\n]|\\.(?=\\w)){0,35}\\bDispatchers\\.(?:IO|Default|Main)\\b|\\b(?:use|uses|using|call|calls|calling|reference|references|referencing)\\b(?:[^.;\\n]|\\.(?=\\w)){0,25}\\bDispatchers\\.(?:IO|Default|Main)\\b(?:[^.;\\n]|\\.(?=\\w)){0,25}\\bdirectly\\b|\\b(?:ignor(?:e|es|ed|ing)|bypass(?:es|ed|ing)?|skip(?:s|ped|ping)?)\\b(?:[^.;\\n]|\\.(?=\\w)){0,25}\\b(?:injected|supplied)\\b(?:[^.;\\n]|\\.(?=\\w)){0,25}\\b(?:property|dispatcher|io|main|default)\\b|\\b(?:always\\s+use|should\\s+(?:always\\s+)?use)\\b(?:[^.;\\n]|\\.(?=\\w)){0,25}\\bglobal\\s+dispatcher\\b|\\b(?:instead of|rather than|without|do not|don't|skip)\\s+inject(?:ing)?\\s+(?:a\\s+)?(?:[a-z0-9_]*dispatcher[a-z0-9_]*|DispatcherProvider)\\b))[\\s\\S]*$"
         }
       ]
     },

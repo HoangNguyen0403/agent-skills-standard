@@ -6,7 +6,7 @@ import { listCategories } from "./manifest";
 import { loadManifest } from "./manifest";
 import { evaluateSkillReadiness } from "./readiness";
 import { loadRunInputs } from "./snapshot";
-import type { ManifestV2, SkillResult } from "./types";
+import type { CaseScore, ManifestV2, RunInputsV2, SkillResult } from "./types";
 
 type AssertionType =
   | "contains"
@@ -36,6 +36,7 @@ interface EvalDefinition {
   should_not_trigger?: string[];
   pressure_scenarios?: Array<{
     prompt?: string;
+    expected_output?: string;
     behavior_assertions?: string[];
   }>;
 }
@@ -589,21 +590,129 @@ export function standardizeEvalDefinitions(
   return before;
 }
 
-function classifyFailure(
-  skillMarkdown: string,
+interface FailureClassificationInput {
+  skillMarkdown: string;
+  failedAssertion: string;
+  compromised: boolean;
+  assertion?: Assertion;
+  prompt?: string;
+  expectedOutput?: string;
+}
+
+const CLASSIFICATION_ORDER: RemediationQueueItem["classification"][] = [
+  "invalid/brittle assertion",
+  "outdated domain expectation",
+  "missing skill guidance",
+  "guidance present but insufficiently actionable",
+  "trigger-boundary collision",
+  "compromised generation",
+];
+
+function resolveSkillEvalDefinition(
+  repoRoot: string,
+  category: string,
+  skillName: string,
+  inputs: RunInputsV2 | null,
+): EvalDefinition {
+  const snapshotEvals = inputs?.sources[`${category}/${skillName}`]?.evals as
+    | EvalDefinition
+    | undefined;
+  return snapshotEvals ?? readDefinition(repoRoot, category, skillName);
+}
+
+function matchFailedAssertion(
+  assertions: Assertion[],
   failedAssertion: string,
-  compromised: boolean,
+): Assertion | undefined {
+  return assertions.find(
+    (assertion) =>
+      `${assertion.type}:${String(assertion.value)}` === failedAssertion ||
+      `${assertion.type}:${assertionValues(assertion).join(",")}` ===
+        failedAssertion,
+  );
+}
+
+function resolveCaseClassificationContext(
+  definition: EvalDefinition,
+  score: CaseScore,
+  failedAssertion: string,
+  skillKey: string,
+): Pick<FailureClassificationInput, "assertion" | "prompt" | "expectedOutput"> {
+  if (score.kind === "trigger") return {};
+  if (score.kind === "pressure") {
+    const index = Number(score.id.replace(/^pressure-/, "")) - 1;
+    const scenario =
+      Number.isInteger(index) && index >= 0
+        ? definition.pressure_scenarios?.[index]
+        : undefined;
+    if (!scenario) {
+      throw new Error(
+        `Cannot resolve pressure scenario '${score.id}' for ${skillKey}`,
+      );
+    }
+    const assertions: Assertion[] = (scenario.behavior_assertions ?? []).map(
+      (value) => ({ type: "contains", value }),
+    );
+    const assertion = matchFailedAssertion(assertions, failedAssertion);
+    if (!assertion) {
+      throw new Error(
+        `Cannot resolve pressure assertion '${failedAssertion}' for ${skillKey} (${score.id})`,
+      );
+    }
+    return {
+      assertion,
+      prompt: scenario.prompt,
+      expectedOutput: scenario.expected_output ?? "",
+    };
+  }
+  const rawId = score.id.replace(/^eval-/, "");
+  const evaluation = (definition.evals ?? []).find(
+    (item) => String(item.id) === rawId || String(item.id) === score.id,
+  );
+  if (!evaluation) {
+    throw new Error(`Cannot resolve eval case '${score.id}' for ${skillKey}`);
+  }
+  const assertion = matchFailedAssertion(
+    evaluation.assertions ?? [],
+    failedAssertion,
+  );
+  if (!assertion) {
+    throw new Error(
+      `Cannot resolve assertion '${failedAssertion}' for ${skillKey} (${score.id})`,
+    );
+  }
+  return {
+    assertion,
+    prompt: evaluation.prompt,
+    expectedOutput: evaluation.expected_output ?? "",
+  };
+}
+
+function classifyFailure(
+  input: FailureClassificationInput,
 ): RemediationQueueItem["classification"] {
-  if (compromised) return "compromised generation";
-  if (failedAssertion.startsWith("trigger marker"))
+  if (input.compromised) return "compromised generation";
+  if (input.failedAssertion.startsWith("trigger marker"))
     return "trigger-boundary collision";
   if (
-    failedAssertion.startsWith("file_reference") ||
-    /^contains:Priority:/i.test(failedAssertion)
+    input.failedAssertion.startsWith("file_reference") ||
+    /^contains:Priority:/i.test(input.failedAssertion)
   )
     return "invalid/brittle assertion";
-  const [, value = ""] = failedAssertion.split(":", 2);
-  return skillMarkdown.toLowerCase().includes(value.toLowerCase())
+  if (
+    input.assertion &&
+    !isAssertionTaskAnchored(
+      input.assertion,
+      input.prompt,
+      input.expectedOutput,
+    )
+  )
+    return "invalid/brittle assertion";
+  const lowerSkill = input.skillMarkdown.toLowerCase();
+  const values = input.assertion
+    ? assertionValues(input.assertion)
+    : [input.failedAssertion.slice(input.failedAssertion.indexOf(":") + 1)];
+  return values.some((value) => lowerSkill.includes(value.toLowerCase()))
     ? "guidance present but insufficiently actionable"
     : "missing skill guidance";
 }
@@ -659,40 +768,90 @@ export function buildRemediationQueue(
         ),
         "utf8",
       );
+    const nonTriggerFailures = scoreListWithFailures(skill.scores);
+    const evalDefinition = nonTriggerFailures
+      ? resolveSkillEvalDefinition(
+          repoRoot,
+          skill.category,
+          skill.skillName,
+          inputs,
+        )
+      : undefined;
+    const skillKey = `${skill.category}/${skill.skillName}`;
     for (const score of skill.scores)
       if (
         (!options.strictOnly || score.arm !== "baseline") &&
         score.failedAssertions.length > 0
       )
-        for (const failure of score.failedAssertions)
+        for (const failure of score.failedAssertions) {
+          const context =
+            score.kind === "trigger"
+              ? {}
+              : resolveCaseClassificationContext(
+                  evalDefinition as EvalDefinition,
+                  score,
+                  failure,
+                  skillKey,
+                );
           queue.push({
             category: skill.category,
             skillName: skill.skillName,
             caseId: score.id,
             arm: score.arm,
-            classification: classifyFailure(
+            classification: classifyFailure({
               skillMarkdown,
-              failure,
-              manifest.schemaVersion === 2 &&
+              failedAssertion: failure,
+              compromised:
+                manifest.schemaVersion === 2 &&
                 isCompromisedRunArm(
                   manifest,
                   skill.category,
                   skill.skillName,
                   score.arm,
                 ),
-            ),
+              ...context,
+            }),
             evidence: failure,
           });
+        }
   }
   return queue;
 }
 
-export function main(): void {
-  const action = process.argv[2] ?? "audit";
+function scoreListWithFailures(scores: CaseScore[]): boolean {
+  return scores.some(
+    (score) => score.kind !== "trigger" && score.failedAssertions.length > 0,
+  );
+}
+
+function flagValue(argv: string[], flag: string): string | undefined {
+  const index = argv.indexOf(flag);
+  if (index === -1) return undefined;
+  const value = argv[index + 1];
+  if (!value || value.startsWith("--")) {
+    throw new Error(`${flag} requires a value`);
+  }
+  return value;
+}
+
+function summarizeQueueClassifications(
+  queue: RemediationQueueItem[],
+): Record<RemediationQueueItem["classification"], number> {
+  const counts = Object.fromEntries(
+    CLASSIFICATION_ORDER.map((classification) => [classification, 0]),
+  ) as Record<RemediationQueueItem["classification"], number>;
+  for (const item of queue) counts[item.classification] += 1;
+  return counts;
+}
+
+export function main(argv = process.argv, repoRoot = ROOT_DIR): void {
+  const evalsDir =
+    repoRoot === ROOT_DIR
+      ? EVALS_DIR
+      : path.join(repoRoot, "benchmarks", "evals");
+  const action = argv[2] ?? "audit";
   if (action === "preflight") {
-    const selectionIndex = process.argv.indexOf("--skills-file");
-    const selectionPath =
-      selectionIndex === -1 ? undefined : process.argv[selectionIndex + 1];
+    const selectionPath = flagValue(argv, "--skills-file");
     const selectedSkills = selectionPath
       ? new Set(
           fs
@@ -702,8 +861,9 @@ export function main(): void {
             .filter(Boolean),
         )
       : undefined;
-    const issues = auditAssertionAlignment(ROOT_DIR, selectedSkills);
-    const output = path.join(EVALS_DIR, "eval-preflight.json");
+    const issues = auditAssertionAlignment(repoRoot, selectedSkills);
+    const output = path.join(evalsDir, "eval-preflight.json");
+    fs.ensureDirSync(path.dirname(output));
     fs.writeJSONSync(
       output,
       {
@@ -718,14 +878,11 @@ export function main(): void {
     return;
   }
   if (action === "audit") {
-    const initialIssues = standardizeEvalDefinitions(
-      ROOT_DIR,
-      process.argv.includes("--write"),
-    );
-    const issues = process.argv.includes("--write")
-      ? auditEvalDefinitions(ROOT_DIR)
-      : initialIssues;
-    const output = path.join(EVALS_DIR, "eval-audit.json");
+    const write = argv.includes("--write");
+    const initialIssues = standardizeEvalDefinitions(repoRoot, write);
+    const issues = write ? auditEvalDefinitions(repoRoot) : initialIssues;
+    const output = path.join(evalsDir, "eval-audit.json");
+    fs.ensureDirSync(path.dirname(output));
     fs.writeJSONSync(
       output,
       {
@@ -739,17 +896,24 @@ export function main(): void {
     return;
   }
   if (action === "queue") {
-    const runId = process.argv[process.argv.indexOf("--run") + 1];
+    const runId = flagValue(argv, "--run");
     if (!runId) throw new Error("--run <runId> is required");
-    const strictOnly = process.argv.includes("--strict");
-    const queue = buildRemediationQueue(runId, ROOT_DIR, { strictOnly });
-    const output = path.join(EVALS_DIR, "remediation-queue.json");
+    const strictOnly = argv.includes("--strict");
+    const outPath = flagValue(argv, "--out");
+    const queue = buildRemediationQueue(runId, repoRoot, { strictOnly });
+    const countsByClassification = summarizeQueueClassifications(queue);
+    const output = outPath
+      ? path.resolve(outPath)
+      : path.join(evalsDir, "remediation-queue.json");
+    fs.ensureDirSync(path.dirname(output));
     fs.writeJSONSync(
       output,
       {
         runId,
         generatedAt: new Date().toISOString(),
         scope: strictOnly ? "strict-release-blockers" : "all-failed-assertions",
+        itemCount: queue.length,
+        countsByClassification,
         items: queue,
       },
       { spaces: 2 },
@@ -757,6 +921,9 @@ export function main(): void {
     console.log(
       `Remediation queue${strictOnly ? " (strict)" : ""}: ${queue.length} items (${output})`,
     );
+    for (const classification of CLASSIFICATION_ORDER) {
+      console.log(`  ${classification}: ${countsByClassification[classification]}`);
+    }
     return;
   }
   throw new Error(`Unknown action: ${action}; use audit or queue`);

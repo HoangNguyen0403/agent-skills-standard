@@ -85,6 +85,8 @@
     "freshness:audit": "tsx scripts/freshness/index.ts audit",
     "freshness:check": "tsx scripts/freshness/index.ts check",
     "freshness:report": "tsx scripts/freshness/index.ts report",
+    "learning:ledger": "tsx scripts/freshness/learning-ledger.ts",
+    "learning:check": "tsx scripts/freshness/learning-ledger.ts --check",
     "evals:standardize": "tsx scripts/evals/quality.ts audit --write",
     "generate-indices": "tsx scripts/generation/index.ts",
     "audit:skills": "tsx scripts/audit-skills.ts",
