@@ -2995,6 +2995,7 @@ async function archivePublicationBeforeState(
   baselineDigests: Map<string, string | null>,
   lockDigest: string | null,
 ): Promise<void> {
+  const beforeDir = path.join(logDir, "publication-before");
   const records: Array<{ path: string; sha256: string | null }> = [];
   const pathsToArchive = Array.from(
     new Set([...outputPaths, ".skills-lock.json"]),
@@ -3021,13 +3022,14 @@ async function archivePublicationBeforeState(
         `Destination "${relPath}" changed during before-state archival.`,
       );
     }
-    const archivePath = path.join(logDir, "publication-before", relPath);
+    const archivePath = path.join(beforeDir, relPath);
     await fs.ensureDir(path.dirname(archivePath));
     await fs.writeFile(archivePath, bytes, { flag: "wx", mode: 0o444 });
     records.push({ path: relPath, sha256: digest });
   }
+  await fs.ensureDir(beforeDir);
   await fs.writeJson(
-    path.join(logDir, "publication-before", "proof.json"),
+    path.join(beforeDir, "proof.json"),
     { records },
     { spaces: 2, flag: "wx", mode: 0o444 },
   );
