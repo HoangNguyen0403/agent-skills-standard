@@ -56,6 +56,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Stream**: Unreleased
 
+### Fixed
+
+- **Next.js (`nextjs-upgrade`, Category v1.4.8)**: Pinned `@next/codemod` invocations across upgrade workflow, guidelines, and anti-patterns to exact verified release `15.0.8` (replacing the floating `@latest` selector), added explicit pin policy and migration context, and aligned eval examples with exact target version syntax (`upgrade 14.2.35` / `upgrade 15.0.8`) preserving incremental-major upgrade requirements (#314).
+
 ### Added
 
 - **Common & Workflows (Product-Grounded Stitch Design Review, `common` `2.9.7`, `workflows` `2.1.4`)**: Added a product-specific judgement protocol to `common-ui-design/references/human-direction.md` (demonstrated product proof, copy claim discipline, composition/evidence hierarchy, justified conventions, evidence separated from taste) and a new `common-stitch-design/references/review-evidence.md` for screen identity/currentness, verified on-disk downloads, audit false-GREEN prevention, screenshot evidence limits, and partial-review reporting. `review-stitch-design` now scopes audience, task, and devices first, loads family/mobile/accessibility guidance only when relevant, reports per-criterion coverage instead of a fabricated aggregate score, and keeps the original-screen, approval, and justified no-change branches.
