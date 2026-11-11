@@ -74,7 +74,7 @@ Each worker runs `rtk pnpm install` in its own worktree before anything else. `n
 ### Task 1 — SL1: assertion-validity triage
 
 - **SNC:** S=1 N=1 C=1 total=3 tier=medium. Estimate: S, confidence medium.
-- **Trace:** REQ-001..003, AC-001..006. Criterion Q5.
+- **Trace:** REQ-001, REQ-002, REQ-003, AC-001, AC-002, AC-003, AC-004, AC-005, AC-006. Criterion Q5.
 - **Owned files:** `scripts/evals/quality.ts`, `scripts/evals/quality.test.ts`, `benchmarks/evals/assertion-triage-all-v2.6.0.json` (generated), `docs/EVALS.md` (queue section), one `CHANGELOG.md` bullet under `[Unreleased]`.
 - **Scope:** only the SL1 owned files above.
 - **Inputs:** this approved plan; retained all-v2.6.0 inputs, scores and answers; existing queue and task-anchoring helper.
@@ -87,7 +87,7 @@ Each worker runs `rtk pnpm install` in its own worktree before anything else. `n
 - **Handoff / freeze:** final report freezes owned writes and supplies changed paths, verification output and remaining risks.
 - **Correction Route:** one concrete AC corrective follow-up; then next eligible implementation profile on quality failure.
 - **Steps:**
-  1. Write failing tests for AC-001..004 against `buildRemediationQueue` with a temp run directory fixture.
+  1. Write failing tests for AC-001, AC-002, AC-003, AC-004 against `buildRemediationQueue` with a temp run directory fixture.
   2. In `buildRemediationQueue`, look up the eval case for each failed score and pass its prompt and expected output into classification. Match the failure to the assertion object from the eval definition rather than re-parsing the failure string, because `contains_any` values contain commas.
   3. Classification precedence: compromised, trigger-boundary, brittle (`file_reference`, `Priority:`, or not task-anchored via `isAssertionTaskAnchored`), then present or missing.
   4. Add `--out <file>` to the `queue` action and print counts per classification.
@@ -99,7 +99,7 @@ Each worker runs `rtk pnpm install` in its own worktree before anything else. `n
 ### Task 2 — SL3: learning-item ledger and check
 
 - **SNC:** S=1 N=2 C=0 total=3 tier=medium. Estimate: M, confidence medium.
-- **Trace:** REQ-004..006, AC-007..011. Criteria R3, R4.
+- **Trace:** REQ-004, REQ-005, REQ-006, AC-007, AC-008, AC-009, AC-010, AC-011. Criteria R3, R4.
 - **Owned files:** `scripts/freshness/signals/learning-log.ts` and its test, new `scripts/freshness/learning-ledger.ts` and test, `package.json` (two script lines), `.github/workflows/ci.yml` (one step after the freshness audit), `CONTRIBUTING.md` (command list), one `CHANGELOG.md` bullet.
 - **Scope:** only the SL3 owned files above.
 - **Inputs:** this approved plan; append-only learning log; existing parser and log-format reference.
@@ -112,7 +112,7 @@ Each worker runs `rtk pnpm install` in its own worktree before anything else. `n
 - **Handoff / freeze:** final report freezes owned writes and supplies changed paths, verification output and remaining risks.
 - **Correction Route:** one concrete AC corrective follow-up; then next eligible implementation profile on quality failure.
 - **Steps:**
-  1. Write failing tests for AC-008..010 with inline log fixtures.
+  1. Write failing tests for AC-008, AC-009, AC-010 with inline log fixtures.
   2. Extend `LearningLogEntry` with optional `candidate`, `status`, `improvement`, `prevention`, `verification`, `evaluation`, `review`, parsed from the lines defined in `skills/common/common-learning-log/references/log-format.md`. Existing fields and `learningLogIssues` behaviour stay unchanged.
   3. Add a pure ledger builder: one row per candidate id, current status from the latest iteration, occurrences, age in days from the first occurrence.
   4. Add the check: fail on a status outside the format's list, and on any status other than `proposed` or `rejected` that lacks `Prevention`, a non-`pending` `Verification`, or a non-`pending` `Review`. Entries with no candidate line are counted as legacy and never fail.
@@ -166,15 +166,28 @@ Outcome: seven current cases discriminate compliant alternatives from the concre
 
 | ID | Acceptance criterion | Owner | Verification lane |
 | --- | --- | --- | --- |
-| SL2-AC-01 | Each of the seven named cases accepts two independently reviewable compliant variants, including a paraphrase or equivalent implementation without the defective exact token | respective worker | real `checkAssertion` calibration |
-| SL2-AC-02 | Each case rejects an answer missing a required behavior and an affirmative wrong/contradictory answer, including a keyword-rich wrong answer; at least two independent task-grounded assertions remain | respective worker | real-scorer controls and independent review |
-| SL2-AC-03 | Untouched case objects, trigger definitions, pressure scenarios, skill bodies, scorer and retained run evidence remain byte-identical or structurally identical at the permitted case boundary | respective worker; integrator | hash/object comparison |
-| SL2-AC-04 | Calibration packets record case IDs, original/candidate definition hashes, actual candidate texts, expected outcomes and failed assertion IDs, with semantics version and lexical limitations | respective worker | reproducible offline harness |
-| SL2-AC-05 | Selected-case preflight, eval suite and check-alignment run; prior unrelated legacy debt is recorded rather than repaired; generators publish only expected metadata/version derivatives | integrator | offline commands and isolated-generation receipt |
-| SL2-AC-06 | Independent reviewer re-adjudicates all safe/wrong controls, verifies no requirements were invented or weakened, and separates finite rubric discrimination from model efficacy | independent reviewer | bounded technical review |
+| AC-012 | Each of the seven named cases accepts two independently reviewable compliant variants, including a paraphrase or equivalent implementation without the defective exact token | respective worker | real `checkAssertion` calibration |
+| AC-013 | Each case rejects an answer missing a required behavior and an affirmative wrong/contradictory answer, including a keyword-rich wrong answer; at least two independent task-grounded assertions remain | respective worker | real-scorer controls and independent review |
+| AC-014 | Untouched case objects, trigger definitions, pressure scenarios, skill bodies, scorer and retained run evidence remain byte-identical or structurally identical at the permitted case boundary | respective worker; integrator | hash/object comparison |
+| AC-015 | Calibration packets record case IDs, original/candidate definition hashes, actual candidate texts, expected outcomes and failed assertion IDs, with semantics version and lexical limitations | respective worker | reproducible offline harness |
+| AC-016 | Selected-case preflight, eval suite and check-alignment run; prior unrelated legacy debt is recorded rather than repaired; generators publish only expected metadata/version derivatives | integrator | offline commands and isolated-generation receipt |
+| AC-017 | Independent reviewer re-adjudicates all safe/wrong controls, verifies no requirements were invented or weakened, and separates finite rubric discrimination from model efficacy | independent reviewer | bounded technical review |
+
+Non-authoritative legacy-to-canonical ID mapping for archived SL2 evidence (`artifacts/ags-assertion-repair/evidence/**` retains the original IDs verbatim):
+
+```text
+SL2-AC-01 -> AC-012
+SL2-AC-02 -> AC-013
+SL2-AC-03 -> AC-014
+SL2-AC-04 -> AC-015
+SL2-AC-05 -> AC-016
+SL2-AC-06 -> AC-017
+(range: SL2-AC-01..06 -> AC-012..017)
+```
 
 ### Task 3 — SL2 Android
 
+- **Trace:** AC-012, AC-013, AC-014, AC-015 (worker calibration, boundary preservation, and packet receipts; feeds integrator AC-016 and independent review AC-017).
 - **Scope:** `skills/android/android-testing/evals/evals.json` eval 1; `android-architecture/evals/evals.json` eval 1; `android-compose-migration/evals/evals.json` eval 1; `android-concurrency/evals/evals.json` eval 2 (all under `skills/android/`). Also `scripts/evals/sl2-android-discriminators.test.ts` and `artifacts/ags-assertion-repair/evidence/android-controls.json`.
 - **Inputs:** current canonical case prompts/expected outputs, prior reviewer rows 1/8/10/90 and immutable scorer semantics; this plan.
 - **Outputs:** four case-local repairs, offline real-scorer discriminator tests and evidence packet.
@@ -190,6 +203,7 @@ SNC S=1 N=1 C=1 total=3 medium. Implement on Personal - Cheap. Do not edit `andr
 
 ### Task 4 — SL2 Common
 
+- **Trace:** AC-012, AC-013, AC-014, AC-015 (worker calibration, boundary preservation, and packet receipts; feeds integrator AC-016 and independent review AC-017).
 - **Scope:** `skills/common/common-api-design/evals/evals.json` evals 2 and 3; `skills/common/common-architecture-diagramming/evals/evals.json` eval 1. Also `scripts/evals/sl2-common-discriminators.test.ts`, `artifacts/ags-assertion-repair/evidence/common-controls.json`, `skills/metadata.json` (android/common patch versions and dates only), `CHANGELOG.md` (one scoped unreleased entry).
 - **Inputs:** existing canonical prompts/expected outputs; prior review and the three new real-scorer probes; this plan.
 - **Outputs:** three case-local repairs, offline discriminator tests and evidence packet; metadata bumps android 1.5.2→1.5.3 and common 2.9.7→2.9.8, dated 2026-11-11.
@@ -211,10 +225,10 @@ Integrate only owned cumulative patches from the shared base. Common owner perfo
 
 - Local implementation and independent technical review are complete; remote CI, live-model evaluation, merge, release and human acceptance remain unassessed or unexecuted.
 - Delivery record: `artifacts/ags-assertion-repair/evidence/delivery.json`; immutable control packets, candidate receipts and cumulative review packages are retained in the same evidence directory.
-- SL2-AC-01/02/04/06: independent reviewer `8bb43b31-5de4-4c41-9c2f-6d69f4d8e057` approved the bounded source and generation gate. Direct real-scorer replay matched **36/36 decisions** across semantics v1/v2: 14 original controls plus four supplemental counterexamples.
+- AC-012, AC-013, AC-015, AC-017: independent reviewer `8bb43b31-5de4-4c41-9c2f-6d69f4d8e057` approved the bounded source and generation gate. Direct real-scorer replay matched **36/36 decisions** across semantics v1/v2: 14 original controls plus four supplemental counterexamples.
 - Original-control trajectory: frozen predecessor **3/14**, first candidate **8/14**, corrected and final candidates **14/14**. Supplemental trajectory: first correction **0/8**, fallback **8/8** across both semantics. Disclosed controls are calibrated regression evidence, not held-out model efficacy.
-- SL2-AC-03: all six skill bodies, untouched cases/triggers/pressure scenarios, scorer and protected historical inputs/results/queue remain unchanged. Only assertions in the seven approved cases changed.
-- SL2-AC-05: integrated eval suite **909 pass, 0 fail**; focused strict TypeScript exit **0**; selected alignment/definition preflight **0 issues**. Overall alignment passes; four unrelated warnings remain.
+- AC-014: all six skill bodies, untouched cases/triggers/pressure scenarios, scorer and protected historical inputs/results/queue remain unchanged. Only assertions in the seven approved cases changed.
+- AC-016: integrated eval suite **909 pass, 0 fail**; focused strict TypeScript exit **0**; selected alignment/definition preflight **0 issues**. Overall alignment passes; four unrelated warnings remain.
 - Isolated generation apply and check passed all three producer phases and canonical/host parity over **2,381 targets / four hosts**. Only the ignored `.skills-lock.json` was published by the existing guarded lifecycle; no tracked derivative content changed. Parent and reviewer verified **59 protected hashes** and **four archived generation copies**.
 - The forwarded `pnpm generate-indices -- --check` usage failure is preserved separately from successful `pnpm generate-indices --check`. No generator or ownership-policy workaround was introduced.
 - Cheap owners produced both initial slices and one corrective pass each. Remaining concrete polarity/scope defects were fixed by `Personal · Delivery`; `Personal - DeepSeek` was ineligible for this quality-only escalation under its exhaustion-only profile restriction. No premium advisor was used.
