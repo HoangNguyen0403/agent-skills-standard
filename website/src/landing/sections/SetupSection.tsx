@@ -24,13 +24,14 @@ export function SetupSection(): React.JSX.Element {
         <div className={styles.setupGrid}>
           {content.setup.steps.map((stepItem) => (
             <div key={stepItem.step} className={styles.setupCard}>
-              <span className={styles.stepNumber}>
-                {stepItem.step} &nbsp; {stepItem.title.toUpperCase()}
-              </span>
+              <span className={styles.stepNumber}>{stepItem.step}</span>
               <h3 className={styles.subsectionHeading}>{stepItem.title}</h3>
               <p className={`${styles.bodyText} ${styles.cardBodyText}`}>
                 {stepItem.description}
               </p>
+              {stepItem.command ? (
+                <code className={styles.setupCommand}>{stepItem.command}</code>
+              ) : null}
             </div>
           ))}
         </div>

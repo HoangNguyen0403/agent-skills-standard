@@ -60,7 +60,7 @@
 .displayHeading {
   font-family: var(--font-heading), "Space Grotesk", sans-serif;
   font-weight: 600;
-  font-size: clamp(38px, 6vw, 76px);
+  font-size: clamp(38px, 5vw, 64px);
   line-height: 1.05;
   letter-spacing: -0.02em;
   margin: 0;
@@ -371,7 +371,7 @@
 
 .heroGrid {
   display: grid;
-  grid-template-columns: 1fr 1.05fr;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
   gap: clamp(32px, 5vw, 64px);
   align-items: center;
 }
@@ -619,6 +619,20 @@
   letter-spacing: 0.08em;
   color: var(--ink, #101312);
   text-transform: uppercase;
+}
+
+.setupCommand {
+  display: block;
+  margin-top: 4px;
+  padding: 12px 14px;
+  border: 1px solid rgba(16, 19, 18, 0.16);
+  border-radius: 4px;
+  background: rgba(16, 19, 18, 0.04);
+  color: var(--ink, #101312);
+  font-family: var(--font-mono), "IBM Plex Mono", monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 /* ==========================================================================

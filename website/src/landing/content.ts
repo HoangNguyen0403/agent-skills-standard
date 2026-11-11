@@ -226,9 +226,9 @@ export const faq: readonly FaqItem[] = [
 
 export const content: LandingContent = {
   hero: {
-    title: "Your coding agent. Your engineering standards.",
+    title: "Keep your agent. Share your standards.",
     subtitle:
-      "Portable, versioned coding standards and SDLC workflows for the AI tools you already use. Sync once. Load the relevant skills when you work.",
+      "Versioned coding standards and SDLC workflows for the AI tools you already use. Sync once, then load guidance matched to your files and tasks.",
     primaryCta: "Get started",
     secondaryCta: "Explore skills",
     microcopy: "Open source · MIT licensed · No new agent runtime",
