@@ -47,7 +47,3 @@ See [implementation examples](references/implementation.md)
 - **No `fetch('localhost/api')` in Server Components**: Call DAL functions directly.
 - **No DAL imports in Client Components**: Use Server Actions or Route Handlers as bridges.
 
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- transform

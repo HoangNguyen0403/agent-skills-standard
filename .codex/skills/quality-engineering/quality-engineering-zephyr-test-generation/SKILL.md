@@ -80,13 +80,3 @@ metadata:
 ## Coverage wording
 
 - During impact analysis, map each AC to Covered, Partial, or Not Covered and check for duplicate test cases before drafting new ones.
-
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- duplicate
-- impact analysis
-- no platform prefix
-- separate
-
-- Additional task-grounded exact anchors: Issue Link

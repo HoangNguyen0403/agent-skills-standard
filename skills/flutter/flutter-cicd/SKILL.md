@@ -57,7 +57,3 @@ metadata:
 
 flutter/testing | dart/tooling
 
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- run analyze/format

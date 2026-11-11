@@ -50,15 +50,3 @@ Use priority rationale to justify each classification:
 ## Review wording
 
 - Call out naming violations explicitly when a test case breaks the naming convention, then split it into separate TCs with one condition on one screen.
-
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
--  naming violations
-- 1 Test Case = 1 Condition
-- High: Critical path
-- Low: Cosmetic
-- Module_Action on Screen when Condition
-- No "OR" Logic
-- Split into separate TCs
-- priority rationale

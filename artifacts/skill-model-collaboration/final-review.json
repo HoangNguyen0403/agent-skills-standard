@@ -1,0 +1,41 @@
+{
+  "reviewer": "e187de48-d8f3-4e83-a598-f50471ba4cb8",
+  "scope": "Frozen approved slice-1 workspace, T2–T7",
+  "verdict": "APPROVE_WITH_EXPLICIT_HUMAN_EXCEPTION",
+  "findings": [],
+  "base_commit": "28140c6a09cc429148af67edd254f57de0958dac",
+  "source_hash_reference": "source-review.json: slice_hashes; independently rechecked unchanged",
+  "generated_118_sha256": "440a3903f12d9554605f2e2fd425d90ba0e732fe9236af9110442c15d9e54db7",
+  "hash_algorithm": "Sorted proof target paths plus .skills-lock.json; SHA256(path + NUL + raw bytes + NUL per path)",
+  "acceptance": {
+    "AC-001_to_AC-007": "PASS: independent source review retained",
+    "AC-008": "HUMAN-ACCEPTED EXCEPTION: python-architecture retains 2 pre-existing eval cases; no unconditional pass claimed",
+    "AC-009": "PASS: final generation check",
+    "AC-010": "PASS: 241 expected tracked paths, no extra or missing"
+  },
+  "independent_checks": {
+    "adoption_proof_paths": 117,
+    "proof_snapshot_base_index_errors": 0,
+    "adoption_copied_and_verified_paths": 118,
+    "configured_mirrors_byte_compared": 116,
+    "mirror_parity_errors": 0,
+    "metadata_only_token_metrics_changed": true,
+    "cli_ledger_entries_verified": 2345,
+    "invalid_or_missing_cli_digests": 0,
+    "normal_reconciliation_changed_only": ".skills-lock.json",
+    "final_generation_check": "PASS; 2381 declared targets",
+    "canonical_skill_paths": 122,
+    "removed_padding_sections": 133,
+    "protected_core_sections": 13
+  },
+  "verification": {
+    "eval_tests": "824 PASS, 0 FAIL",
+    "benchmark_tool_tests": "8 PASS, 0 FAIL",
+    "skill_validation": "122 PASS, 0 FAIL; 13 warnings",
+    "existing_audit_errors": 2,
+    "existing_preflight_issues": 38,
+    "existing_alignment_warnings": 4,
+    "issue_identity_comparison": "unchanged from baseline"
+  },
+  "limits": ["No commits or release", "No model evaluations or efficacy/trigger/cost-savings claims", "Unconfigured installed leftovers outside parity scope", "Historical producer evidence inspected, not replayed by reviewer", "Prompt rules are not host enforcement"]
+}

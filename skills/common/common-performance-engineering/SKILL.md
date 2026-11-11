@@ -75,10 +75,3 @@ See [implementation examples](references/implementation.md) for memoization and 
 
 - [Implementation Patterns](references/implementation.md) — profiling patterns, benchmark setup
 - [API Performance Testing](../../quality-engineering/quality-engineering-api-performance-testing/SKILL.md) — workload models, latency percentiles, overload recovery
-
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- lazy
-
-- Additional task-grounded exact anchors: premature

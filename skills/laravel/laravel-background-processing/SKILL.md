@@ -66,11 +66,3 @@ app/
 ## Horizon checklist
 
 - Horizon deployments must publish and edit `config/horizon.php`, then run `php artisan horizon`; do not use `queue:work` as the production monitor.
-
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- composer
-- batch()->cancel
-
-- Additional task-grounded exact anchors: ImportRow

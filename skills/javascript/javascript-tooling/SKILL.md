@@ -67,9 +67,3 @@ See [references/REFERENCE.md](references/REFERENCE.md).
 
 best-practices | language
 
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- Pkg Manager
-- Priority
-- Testing

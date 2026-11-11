@@ -67,14 +67,3 @@ What's New in Version X.Y
 ## References
 
 - [Commit-to-Bullet Examples](references/commit_examples.md) — load when mapping specific commits to bullets
-
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- Bug fixes
-- [Fixed]
-- performance improvements
-
-## Remediation anchors
-
-- Remediation anchors: omit internal SDK changes, exactly three user-facing bullets, no jargon

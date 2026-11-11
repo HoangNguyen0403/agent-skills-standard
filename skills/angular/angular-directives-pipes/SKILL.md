@@ -37,12 +37,3 @@ metadata:
 
 - [Composition](references/composition.md)
 
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-
-- cache results
-- host: {} object
-- imports array
-- not set pure: false
-- not with @HostBinding

@@ -46,8 +46,3 @@ See [routing patterns](references/routing-patterns.md) for functional guard impl
 
 - [Routing Patterns](references/routing-patterns.md)
 
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- No logic
-- deprecated

@@ -79,11 +79,3 @@ metadata:
 ## Ownership checklist
 
 - Record the Product owner, Engineering owner, and QA/release owner for every requirement or release decision.
-
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-
-- Discovery,What outcome,Which channels
-- docs/prd
-- implementation-readiness

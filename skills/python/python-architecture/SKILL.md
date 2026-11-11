@@ -47,8 +47,3 @@ metadata:
 
 - [Framework Map](../references/framework-map.md)
 - [Clean Architecture](references/clean-architecture.md)
-
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- inject

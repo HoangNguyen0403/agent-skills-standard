@@ -41,7 +41,3 @@ metadata:
 
 - For a product detail argument, define `@Serializable data class ProductDetail(val productId: Long)` and navigate with the typed destination; retrieve it with `toRoute<ProductDetail>()`.
 
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- Define ProductDetail(val productId

@@ -42,10 +42,3 @@ See [references/REFERENCE.md](references/REFERENCE.md) for constants, custom err
 
 language | tooling
 
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- Naming
-- index.js
-
-- Additional task-grounded exact anchors: Comments

@@ -47,10 +47,3 @@ metadata:
 
 - [Harness Pattern](references/harness-pattern.md)
 
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- Never query by CSS class
-- native ESM
-
-- Additional task-grounded exact anchors: ComponentHarness

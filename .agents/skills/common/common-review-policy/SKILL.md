@@ -85,15 +85,3 @@ Declare the passes and their order. Each pass names what it checks and what it e
 ## References
 
 - [Review Policy Template](references/review-policy-template.md)
-
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-
-- docs/review-policy.md
-- Blocker, Major, Nit
-- skip list
-- nit cap
-- needs validation
-- monthly tuning
-- branch protection

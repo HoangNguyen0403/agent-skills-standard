@@ -46,13 +46,14 @@ Goal: Turn rough intent into an approved, evidence-backed brief sized to the tas
    - Planner check: resolve consequential guesses from evidence or expose owner and scope; explicitly delegate minor builder decisions; self-review for placeholders, contradictions, multi-plan scope, and two-reading ambiguity before presenting. Deep: independent check; Quick: no mandatory agent.
    - Present compact approval card (≤250 words: the whole Quick in-chat reply; the Decision Card for Standard/Deep; `references/brainstorm-review.md` under the loaded skill root). Include outcome, recommendation, scope/non-goals, impact if wrong, material assumptions/open decision, approval sought; label any consequential risk that cannot fit `Over-cap risk:` in one line and link details. Quick: in-chat contract/card only; reuse stated facts; omit repeated sections and SNC/profile/routing metadata (kept in the machine handoff). Standard/Deep: save full artifact when writes allowed and reply with the card plus the artifact path (or "full brief on request"); if writes are unavailable say `not written (no write access)` in one line and never dump the artifact. Never claim a file was saved, written, or committed unless this reply actually wrote it. Never invent a run_id, timestamp, or model identity: unknown values stay `unknown`/null.
    - Interactive: end with "Reply ok or corrections"; approval applies only to this brief. Autonomous/channel mode: `approval: assumed-autonomous`; `tier=high` still requires explicit human sign-off.
-   - Pending or high-tier awaiting sign-off: hold planning and execution; no downstream authority/readiness. Recommend `plan-feature` only after scoped approval; it grants no implementation, spend, release, or activation authority. Quick carries the concise contract in chat/payload; Standard/Deep save `docs/brd/brd-[slug].md`.
+   - Pending or high-tier awaiting sign-off: hold planning and execution; no downstream authority/readiness. Quick carries the concise contract in chat/payload; Standard/Deep save `docs/brd/brd-[slug].md`.
+   - Recommend `plan-feature` only after scoped approval; brief approval grants no implementation, spend, release, deployment, runtime exposure, or activation authority.
    - Lifecycle: pending brief uses `not_started` (or preserves existing lifecycle); never grants `requirements_ready`. Approved brief uses `requirements_ready`.
    - Route to `plan-feature`; when critical value hypotheses require bounded empirical testing, route to `validate-product` (when selected/installed; otherwise record exact capability gap, e.g. `product-management/product-experimentation not installed; opt in at a reviewed ref and sync`, keep hypothesis as unvalidated assumption, and route to `plan-feature`; recommendation grants no paid eval/execution authority).
 
 ## Runtime Contract
 
-- Use for rough feature, ops, process, or technical-direction ideas before a PRD exists. Brief approval does not grant deployment, spend, or runtime exposure authority.
+- Use for rough feature, ops, process, or technical-direction ideas before a PRD exists.
 - Required inputs: rough intent; missing owner, metric, or scope fence get drafted defaults, not a block. Return BLOCKED only when operator rejects drafted defaults for owner, value, or scope.
 
 ## Blocking Questions

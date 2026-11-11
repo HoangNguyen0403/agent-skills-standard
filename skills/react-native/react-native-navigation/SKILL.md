@@ -38,9 +38,3 @@ See [routing patterns](references/routing-patterns.md) for type-safe stack setup
 ## References
 
 See [references/routing-patterns.md](references/routing-patterns.md) for typed param lists and deep linking config.
-
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- Configure
-- Handle

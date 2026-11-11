@@ -297,14 +297,14 @@
   },
   "categories": {
     "flutter": {
-      "version": "1.8.4",
-      "last_updated": "2026-11-03",
+      "version": "1.8.5",
+      "last_updated": "2026-11-11",
       "tag_prefix": "flutter-v",
       "token_metrics": {
         "total_skills": 22,
-        "total_tokens": 13672,
-        "avg_tokens_per_skill": 621,
-        "largest_skill": "flutter-testing (1506 tokens)"
+        "total_tokens": 12881,
+        "avg_tokens_per_skill": 586,
+        "largest_skill": "flutter-testing (1434 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -321,14 +321,14 @@
       ]
     },
     "dart": {
-      "version": "1.3.6",
-      "last_updated": "2026-07-15",
+      "version": "1.3.7",
+      "last_updated": "2026-11-11",
       "tag_prefix": "dart-v",
       "token_metrics": {
         "total_skills": 3,
-        "total_tokens": 1812,
-        "avg_tokens_per_skill": 604,
-        "largest_skill": "dart-language (820 tokens)"
+        "total_tokens": 1754,
+        "avg_tokens_per_skill": 585,
+        "largest_skill": "dart-language (762 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -345,14 +345,14 @@
       ]
     },
     "typescript": {
-      "version": "1.3.4",
-      "last_updated": "2026-07-15",
+      "version": "1.3.5",
+      "last_updated": "2026-11-11",
       "tag_prefix": "typescript-v",
       "token_metrics": {
         "total_skills": 4,
-        "total_tokens": 2884,
-        "avg_tokens_per_skill": 721,
-        "largest_skill": "typescript-security (817 tokens)"
+        "total_tokens": 2749,
+        "avg_tokens_per_skill": 687,
+        "largest_skill": "typescript-security (775 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -369,14 +369,14 @@
       ]
     },
     "javascript": {
-      "version": "1.3.5",
-      "last_updated": "2026-07-15",
+      "version": "1.3.6",
+      "last_updated": "2026-11-11",
       "tag_prefix": "javascript-v",
       "token_metrics": {
         "total_skills": 3,
-        "total_tokens": 1364,
-        "avg_tokens_per_skill": 455,
-        "largest_skill": "javascript-language (547 tokens)"
+        "total_tokens": 1169,
+        "avg_tokens_per_skill": 390,
+        "largest_skill": "javascript-language (458 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -393,14 +393,14 @@
       ]
     },
     "react": {
-      "version": "1.4.2",
-      "last_updated": "2026-10-07",
+      "version": "1.4.3",
+      "last_updated": "2026-11-11",
       "tag_prefix": "react-v",
       "token_metrics": {
         "total_skills": 8,
-        "total_tokens": 5574,
-        "avg_tokens_per_skill": 697,
-        "largest_skill": "react-testing (1311 tokens)"
+        "total_tokens": 5349,
+        "avg_tokens_per_skill": 669,
+        "largest_skill": "react-testing (1265 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -417,14 +417,14 @@
       ]
     },
     "react-native": {
-      "version": "1.5.3",
-      "last_updated": "2026-11-03",
+      "version": "1.5.4",
+      "last_updated": "2026-11-11",
       "tag_prefix": "react-native-v",
       "token_metrics": {
         "total_skills": 13,
-        "total_tokens": 6653,
-        "avg_tokens_per_skill": 512,
-        "largest_skill": "react-native-testing (742 tokens)"
+        "total_tokens": 6294,
+        "avg_tokens_per_skill": 484,
+        "largest_skill": "react-native-testing (683 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -441,13 +441,13 @@
       ]
     },
     "nestjs": {
-      "version": "1.4.8",
-      "last_updated": "2026-10-27",
+      "version": "1.4.9",
+      "last_updated": "2026-11-11",
       "tag_prefix": "nestjs-v",
       "token_metrics": {
         "total_skills": 21,
-        "total_tokens": 14139,
-        "avg_tokens_per_skill": 673,
+        "total_tokens": 13990,
+        "avg_tokens_per_skill": 666,
         "largest_skill": "nestjs-testing (1239 tokens)"
       },
       "owners": [
@@ -470,8 +470,8 @@
       "tag_prefix": "nextjs-v",
       "token_metrics": {
         "total_skills": 18,
-        "total_tokens": 12329,
-        "avg_tokens_per_skill": 685,
+        "total_tokens": 11896,
+        "avg_tokens_per_skill": 661,
         "largest_skill": "nextjs-architecture (1040 tokens)"
       },
       "owners": [
@@ -494,8 +494,8 @@
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 48,
-        "total_tokens": 54096,
-        "avg_tokens_per_skill": 1127,
+        "total_tokens": 53066,
+        "avg_tokens_per_skill": 1106,
         "largest_skill": "common-subagent-driven-development (2563 tokens)"
       },
       "owners": [
@@ -503,13 +503,13 @@
       ]
     },
     "quality-engineering": {
-      "version": "1.6.3",
-      "last_updated": "2026-11-05",
+      "version": "1.6.4",
+      "last_updated": "2026-11-11",
       "tag_prefix": "quality-engineering-v",
       "token_metrics": {
         "total_skills": 17,
-        "total_tokens": 17611,
-        "avg_tokens_per_skill": 1036,
+        "total_tokens": 17207,
+        "avg_tokens_per_skill": 1012,
         "largest_skill": "quality-engineering-api-testing (1633 tokens)"
       },
       "owners": [
@@ -541,13 +541,13 @@
       ]
     },
     "golang": {
-      "version": "1.3.9",
-      "last_updated": "2026-10-07",
+      "version": "1.3.10",
+      "last_updated": "2026-11-11",
       "tag_prefix": "golang-v",
       "token_metrics": {
         "total_skills": 11,
-        "total_tokens": 6720,
-        "avg_tokens_per_skill": 611,
+        "total_tokens": 6678,
+        "avg_tokens_per_skill": 607,
         "largest_skill": "golang-testing (989 tokens)"
       },
       "owners": [
@@ -565,14 +565,14 @@
       ]
     },
     "angular": {
-      "version": "1.5.1",
-      "last_updated": "2026-10-01",
+      "version": "1.5.2",
+      "last_updated": "2026-11-11",
       "tag_prefix": "angular-v",
       "token_metrics": {
         "total_skills": 15,
-        "total_tokens": 9284,
-        "avg_tokens_per_skill": 619,
-        "largest_skill": "angular-testing (922 tokens)"
+        "total_tokens": 8426,
+        "avg_tokens_per_skill": 562,
+        "largest_skill": "angular-testing (858 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -589,14 +589,14 @@
       ]
     },
     "kotlin": {
-      "version": "1.3.4",
-      "last_updated": "2026-07-15",
+      "version": "1.3.5",
+      "last_updated": "2026-11-11",
       "tag_prefix": "kotlin-v",
       "token_metrics": {
         "total_skills": 4,
-        "total_tokens": 1796,
-        "avg_tokens_per_skill": 449,
-        "largest_skill": "kotlin-language (555 tokens)"
+        "total_tokens": 1775,
+        "avg_tokens_per_skill": 444,
+        "largest_skill": "kotlin-language (534 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -613,13 +613,13 @@
       ]
     },
     "java": {
-      "version": "1.3.5",
-      "last_updated": "2026-10-01",
+      "version": "1.3.6",
+      "last_updated": "2026-11-11",
       "tag_prefix": "java-v",
       "token_metrics": {
         "total_skills": 5,
-        "total_tokens": 3069,
-        "avg_tokens_per_skill": 614,
+        "total_tokens": 3007,
+        "avg_tokens_per_skill": 601,
         "largest_skill": "java-testing (1041 tokens)"
       },
       "owners": [
@@ -666,8 +666,8 @@
       "tag_prefix": "android-v",
       "token_metrics": {
         "total_skills": 26,
-        "total_tokens": 12418,
-        "avg_tokens_per_skill": 478,
+        "total_tokens": 12244,
+        "avg_tokens_per_skill": 471,
         "largest_skill": "android-testing (1059 tokens)"
       },
       "owners": [
@@ -689,14 +689,14 @@
       ]
     },
     "swift": {
-      "version": "1.3.8",
-      "last_updated": "2026-10-27",
+      "version": "1.3.9",
+      "last_updated": "2026-11-11",
       "tag_prefix": "swift-v",
       "token_metrics": {
         "total_skills": 8,
-        "total_tokens": 4851,
-        "avg_tokens_per_skill": 606,
-        "largest_skill": "swift-testing (989 tokens)"
+        "total_tokens": 4464,
+        "avg_tokens_per_skill": 558,
+        "largest_skill": "swift-testing (933 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -713,14 +713,14 @@
       ]
     },
     "ios": {
-      "version": "1.5.0",
-      "last_updated": "2026-07-15",
+      "version": "1.5.1",
+      "last_updated": "2026-11-11",
       "tag_prefix": "ios-v",
       "token_metrics": {
         "total_skills": 15,
-        "total_tokens": 6601,
-        "avg_tokens_per_skill": 440,
-        "largest_skill": "ios-architecture (743 tokens)"
+        "total_tokens": 6013,
+        "avg_tokens_per_skill": 401,
+        "largest_skill": "ios-architecture (666 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -741,14 +741,14 @@
       ]
     },
     "php": {
-      "version": "1.3.7",
-      "last_updated": "2026-10-01",
+      "version": "1.3.8",
+      "last_updated": "2026-11-11",
       "tag_prefix": "php-v",
       "token_metrics": {
         "total_skills": 7,
-        "total_tokens": 4429,
-        "avg_tokens_per_skill": 633,
-        "largest_skill": "php-testing (929 tokens)"
+        "total_tokens": 4118,
+        "avg_tokens_per_skill": 588,
+        "largest_skill": "php-testing (892 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -765,13 +765,13 @@
       ]
     },
     "python": {
-      "version": "1.0.1",
-      "last_updated": "2026-10-01",
+      "version": "1.0.2",
+      "last_updated": "2026-11-11",
       "tag_prefix": "python-v",
       "token_metrics": {
         "total_skills": 9,
-        "total_tokens": 4062,
-        "avg_tokens_per_skill": 451,
+        "total_tokens": 4019,
+        "avg_tokens_per_skill": 447,
         "largest_skill": "python-testing (851 tokens)"
       },
       "owners": [
@@ -789,14 +789,14 @@
       ]
     },
     "laravel": {
-      "version": "1.4.2",
-      "last_updated": "2026-11-03",
+      "version": "1.4.3",
+      "last_updated": "2026-11-11",
       "tag_prefix": "laravel-v",
       "token_metrics": {
         "total_skills": 10,
-        "total_tokens": 7858,
-        "avg_tokens_per_skill": 786,
-        "largest_skill": "laravel-testing (1029 tokens)"
+        "total_tokens": 7092,
+        "avg_tokens_per_skill": 709,
+        "largest_skill": "laravel-testing (930 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -841,13 +841,13 @@
       }
     },
     "database": {
-      "version": "1.4.2",
-      "last_updated": "2026-11-09",
+      "version": "1.4.3",
+      "last_updated": "2026-11-11",
       "tag_prefix": "database-v",
       "token_metrics": {
         "total_skills": 8,
-        "total_tokens": 4269,
-        "avg_tokens_per_skill": 534,
+        "total_tokens": 4226,
+        "avg_tokens_per_skill": 528,
         "largest_skill": "database-hana (920 tokens)"
       },
       "owners": [
@@ -855,17 +855,17 @@
       ]
     },
     "product-management": {
-      "version": "1.0.3",
-      "last_updated": "2026-11-07",
+      "version": "1.0.4",
+      "last_updated": "2026-11-11",
       "tag_prefix": "product-management-v",
       "owners": [
         "HoangNguyen0403"
       ],
       "token_metrics": {
         "total_skills": 10,
-        "total_tokens": 14574,
-        "avg_tokens_per_skill": 1457,
-        "largest_skill": "product-requirements (2179 tokens)"
+        "total_tokens": 14514,
+        "avg_tokens_per_skill": 1451,
+        "largest_skill": "product-requirements (2119 tokens)"
       }
     },
     "marketing": {
@@ -885,7 +885,7 @@
   },
   "releases": {
     "workflows": {
-      "version": "2.1.4",
+      "version": "2.1.5",
       "tag_prefix": "workflows-v"
     }
   },

@@ -45,6 +45,3 @@ See [typed forms](references/typed-forms.md) for standalone validator examples.
 
 - [Typed Forms](references/typed-forms.md)
 
-## Canonical response anchors
-
-- Additional task-grounded exact anchors: separate file

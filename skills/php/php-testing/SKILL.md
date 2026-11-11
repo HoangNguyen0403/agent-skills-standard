@@ -31,6 +31,7 @@ metadata:
 - **TDD Workflow (`[BE-TEST-05]`)**: Follow **Red-Green-Refactor**. Write failing test first, implement minimal logic, then refactor.
 - **Fluent Assertions (`[BE-TEST-03]`)**: Use **`assertSame`** (`===`) over `assertEquals` to avoid type coercion. Also use **`assertCount()`** and **`assertMatchesRegularExpression()`**. Avoid shallow assertions.
 - **Data Providers (`[BE-TEST-01]`)**: Use **`#[DataProvider('statusProvider')]`** (PHPUnit 10+) or **`dataset`** (Pest).
+- **PHPUnit Data Providers**: PHPUnit data providers must use static methods and return test-case arrays.
 - **Mocking & Isolation (`[BE-TEST-02]`, `[BE-TEST-04]`)**: Use **`createMock()`** for dependencies; ban 1:1 pass-through mock echoing. Ensure tests are independent and repeatable. DB tests must use **`Transactions`** or **`SQLite :memory:`**.
 - **Coverage**: Coverage is diagnostic and project-configured; verify risk-weighted critical paths rather than padding code for an arbitrary percentage.
 
@@ -48,10 +49,3 @@ metadata:
 ## References
 
 - [Testing Patterns & Mocks](references/implementation.md)
-
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- Define a static method returning test cases as arrays,method
-- independent
-- type coercion

@@ -53,7 +53,4 @@ Use the literal label `SMART metric` when drafting the measurable success target
 ## Blocked-request wording
 
 - If implementation cannot proceed, say clearly that you are unable to implement because required access or inputs were not supplied; do not invent evidence.
-
-## Remediation anchors
-
-- Remediation anchors: business, technical, operator_profile, infer from file and requirement references, continue with explicit assumptions when artifacts are unavailable
+- Continue independent safe analysis with explicit assumptions when artifacts are unavailable; do not implement work missing required inputs.

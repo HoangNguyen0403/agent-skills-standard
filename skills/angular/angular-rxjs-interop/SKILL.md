@@ -38,8 +38,3 @@ metadata:
 
 - [Signals vs Observables](references/observables-vs-signals.md)
 
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- toSignal()
-- {{ users() }}
