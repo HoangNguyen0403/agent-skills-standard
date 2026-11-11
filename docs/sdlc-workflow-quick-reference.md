@@ -167,13 +167,13 @@ Stitch MCP server and are not added by default initialization.
 
 | Need                                         | Workflow               | Output                                                                      |
 | -------------------------------------------- | ---------------------- | --------------------------------------------------------------------------- |
-| Review and improve an existing Stitch design | `review-stitch-design` | six-axis scorecard, findings, variant screen ids, before/after              |
+| Review and improve an existing Stitch design | `review-stitch-design` | applicable-criteria evidence coverage, findings, variant screen ids, before/after |
 | Create a new Stitch design from a brief      | `create-stitch-design` | linted DESIGN.md, design system, phone and tablet screens, review scorecard |
-
 
 ### Opt-in MCP security assessment workflow
 
 Select `mcp-security-assessment` explicitly in `.skillsrc` `workflows`; it is not added by default initialization. It composes keyword-only `common/common-mcp-security-assessment` with `cybersecurity/cyber-authorization` and `cybersecurity/cyber-evidence` for supplied-artifact OWASP MCP01–MCP10 review (`artifacts/mcp-security-review.md` when authorized; leaves `artifacts/security-review.md` untouched) without launching MCP servers or contacting targets.
+
 ## Native Runtime Surfaces
 
 | Agent               | Workflow Surface              |

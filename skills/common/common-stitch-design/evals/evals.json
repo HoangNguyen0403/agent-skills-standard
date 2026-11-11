@@ -72,6 +72,29 @@
         { "type": "regex", "value": "(?:remove|strip|clear)s?\\s+all\\s+(?:conversation )?(?:image blocks?|images?)|all\\s+(?:conversation )?(?:image blocks?|images?)[\\s\\S]*(?:are|were|will be)?\\s*(?:removed|stripped|cleared)|(?:every|all)\\s+(?:conversation )?(?:image blocks?|images?)[\\s\\S]*(?:not just|not only)[\\s\\S]*(?:the )?(?:failing|selected|offending|one)" },
         { "type": "regex", "value": "\\/compact[\\s\\S]*(?:not guaranteed|not a guaranteed|may retain|not reliable)|\\/help[\\s\\S]*(?:not advertised|not supported|don't assume|do not assume)" }
       ]
+    },
+    {
+      "id": 8,
+      "prompt": "download_assets printed 'Downloaded 3 screens successfully' for project 4041. The target folder contains only metadata JSON files - no PNG or HTML. list_projects still shows the old logo thumbnail for the same project. A bounded critique of that historical thumbnail may proceed on its own, but it cannot establish current-screen readiness. Can the current-screen review begin?\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nFILE_EVIDENCE: VERIFIED_ON_DISK|DOWNLOAD_MESSAGE_ONLY\nSCREEN_CURRENTNESS: CONFIRMED_CURRENT|HISTORICAL_THUMBNAIL_ONLY\nCURRENT_SCREEN_REVIEW: BLOCKED_PENDING_FILES|READY",
+      "expected_output": "FILE_EVIDENCE: DOWNLOAD_MESSAGE_ONLY\nSCREEN_CURRENTNESS: HISTORICAL_THUMBNAIL_ONLY\nCURRENT_SCREEN_REVIEW: BLOCKED_PENDING_FILES",
+      "assertions": [
+        { "type": "regex", "value": "^\\s*FILE_EVIDENCE:[ \\t]*(?:VERIFIED_ON_DISK|DOWNLOAD_MESSAGE_ONLY)[ \\t]*\\r?\\n[ \\t]*SCREEN_CURRENTNESS:[ \\t]*(?:CONFIRMED_CURRENT|HISTORICAL_THUMBNAIL_ONLY)[ \\t]*\\r?\\n[ \\t]*CURRENT_SCREEN_REVIEW:[ \\t]*(?:BLOCKED_PENDING_FILES|READY)(?:\\r?\\n[ \\t]*NOTES:[^\\r\\n]{0,300})?\\s*$" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)[ \\t]*FILE_EVIDENCE:[ \\t]*DOWNLOAD_MESSAGE_ONLY[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)[ \\t]*SCREEN_CURRENTNESS:[ \\t]*HISTORICAL_THUMBNAIL_ONLY[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)[ \\t]*CURRENT_SCREEN_REVIEW:[ \\t]*BLOCKED_PENDING_FILES[ \\t]*(?=\\r?\\n|$)" }
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "No HTML was exported for this Stitch project, so scripts/audit_html.js was never run. Only 2 of 9 screens were captured. Only the parent agent's token usage is metered; the reviewer's tool usage and the Stitch allowance are unknown, and no review cost can be derived from the number of screens. The reviewer wants to hand off 'accessibility audit passed' with a total review cost and full-screen coverage.\n\nReply with only these lines in this order, choosing one listed value per field. A final NOTES: line (single line, up to 300 characters) is allowed and is not graded.\nAUDIT_EVIDENCE: NOT_RUN|FULL_AUDIT_PASSED\nSCREEN_COVERAGE: PARTIAL_OBSERVED_SCREENS|ALL_SCREENS\nCOST_BASIS: METERED_PARTIAL|ESTIMATED_TOTAL\nHANDOFF_CLAIM: SCOPED_AND_PARTIAL|PASSED_AND_COMPLETE",
+      "expected_output": "AUDIT_EVIDENCE: NOT_RUN\nSCREEN_COVERAGE: PARTIAL_OBSERVED_SCREENS\nCOST_BASIS: METERED_PARTIAL\nHANDOFF_CLAIM: SCOPED_AND_PARTIAL",
+      "assertions": [
+        { "type": "regex", "value": "^\\s*AUDIT_EVIDENCE:[ \\t]*(?:NOT_RUN|FULL_AUDIT_PASSED)[ \\t]*\\r?\\n[ \\t]*SCREEN_COVERAGE:[ \\t]*(?:PARTIAL_OBSERVED_SCREENS|ALL_SCREENS)[ \\t]*\\r?\\n[ \\t]*COST_BASIS:[ \\t]*(?:METERED_PARTIAL|ESTIMATED_TOTAL)[ \\t]*\\r?\\n[ \\t]*HANDOFF_CLAIM:[ \\t]*(?:SCOPED_AND_PARTIAL|PASSED_AND_COMPLETE)(?:\\r?\\n[ \\t]*NOTES:[^\\r\\n]{0,300})?\\s*$" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)[ \\t]*AUDIT_EVIDENCE:[ \\t]*NOT_RUN[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)[ \\t]*SCREEN_COVERAGE:[ \\t]*PARTIAL_OBSERVED_SCREENS[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)[ \\t]*COST_BASIS:[ \\t]*METERED_PARTIAL[ \\t]*(?=\\r?\\n|$)" },
+        { "type": "regex", "value": "(?:^|\\r?\\n)[ \\t]*HANDOFF_CLAIM:[ \\t]*SCOPED_AND_PARTIAL[ \\t]*(?=\\r?\\n|$)" }
+      ]
     }
   ],
   "should_not_trigger": [

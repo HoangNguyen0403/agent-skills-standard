@@ -489,13 +489,13 @@
       ]
     },
     "common": {
-      "version": "2.9.6",
-      "last_updated": "2026-11-09",
+      "version": "2.9.7",
+      "last_updated": "2026-11-10",
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 48,
-        "total_tokens": 53785,
-        "avg_tokens_per_skill": 1121,
+        "total_tokens": 54096,
+        "avg_tokens_per_skill": 1127,
         "largest_skill": "common-subagent-driven-development (2563 tokens)"
       },
       "owners": [
@@ -885,7 +885,7 @@
   },
   "releases": {
     "workflows": {
-      "version": "2.1.3",
+      "version": "2.1.4",
       "tag_prefix": "workflows-v"
     }
   },
