@@ -52,8 +52,3 @@ See [references/typed-routes.md](references/typed-routes.md) for GoRouteData + r
 
 layer-based-clean-architecture | auto-route-navigation | security
 
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-
-- redirect callback

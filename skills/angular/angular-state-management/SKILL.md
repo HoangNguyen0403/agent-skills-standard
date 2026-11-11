@@ -48,8 +48,3 @@ See [signal store pattern](references/signal-store.md) for signal-based service 
 
 - [Signal Store Pattern](references/signal-store.md)
 
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- Never update signals inside effect()
-- resets when source changes

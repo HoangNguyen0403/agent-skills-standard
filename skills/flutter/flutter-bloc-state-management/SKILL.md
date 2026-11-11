@@ -73,7 +73,3 @@ metadata:
 
 - `emit()` is not a Future: **Remove** `.then()` from it, use `await` for asynchronous work, and register the event with an `on<Event>` handler.
 
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- Remove

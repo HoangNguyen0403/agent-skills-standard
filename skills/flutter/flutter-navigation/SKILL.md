@@ -45,8 +45,3 @@ See [implementation examples](references/implementation.md) for GoRouter configu
 
 flutter-design-system | flutter-notifications | mobile-ux-core
 
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- Android
-- iOS URL-type

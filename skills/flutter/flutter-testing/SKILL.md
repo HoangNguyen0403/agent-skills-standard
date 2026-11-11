@@ -72,9 +72,3 @@ Avoid calculating or inventing arbitrary numeric scores (e.g. $P \times R \times
 - [ ] Critical user flows have at least one integration test using `patrolTest`.
 - [ ] `flutter test` passes.
 - [ ] Mobile scenarios follow [Mobile Testing Methodology](../../common/common-mobile-visual-testing/SKILL.md).
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- GetIt registration
-- Register the mock with `GetIt` in `setUpAll` before building the widget under test.
-- native interactions

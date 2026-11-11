@@ -57,9 +57,3 @@ Design feature modules with singleton-first providers and explicit request-pipel
 
 - Separate Feature Modules (Auth) from Core (Config/DB) and Shared (Utils); keep controllers thin and do not return ORM entities directly.
 
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- Dependency Integrity
-- Don't return ORM entities
-- Feature Modules (Auth) vs Core (Config/DB) vs Shared (Utils)

@@ -59,7 +59,3 @@ See [references/REFERENCE.md](references/REFERENCE.md).
 
 layer-based-clean-architecture | retrofit-networking | go-router-navigation | bloc-state-management | dependency-injection
 
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- entities) but never import from loyalty's data/ or presentation/ layers,entities

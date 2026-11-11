@@ -55,10 +55,3 @@ test('increments counter on button press', () => {
 
 - [RNTL Setup & Integration Reference](references/testing-library.md)
 - [Mobile Testing Methodology](../../common/common-mobile-visual-testing/SKILL.md) — 10 mobile scope areas & C6 contract
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- Integration
-- RNTL
-
-- Additional task-grounded exact anchors: test behavior

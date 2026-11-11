@@ -46,6 +46,3 @@ metadata:
 - Do not put API keys or other secrets in the compiled bundle.
 
 
-## Canonical response anchors
-
-- Additional task-grounded exact anchors: {{ content }}

@@ -44,7 +44,3 @@ metadata:
 
 See [references/example.md](references/example.md) for typed props, generic components, and hook ref patterns.
 
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- generic

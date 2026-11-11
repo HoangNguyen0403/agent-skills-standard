@@ -65,6 +65,3 @@ metadata:
 - **No Express types in filters**: Use `HttpAdapterHost` for platform-agnostic error handling.
 - **No HttpException in services**: Throw domain errors in services; let Interceptors map to HTTP exceptions.
 
-## Canonical response anchors
-
-- Additional task-grounded exact anchors: sanitiz

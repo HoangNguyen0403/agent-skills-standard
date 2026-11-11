@@ -63,8 +63,3 @@ metadata:
 
 - [OWASP LLM — Full Detection Signals](references/owasp-llm.md) — load when auditing any LLM client code
 - [Admission Guidance](../common-agent-guardrails/references/untrusted-workspace-admission.md) — canonical authority lifecycle, admission, and evaluation rubric
-
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- sanitize

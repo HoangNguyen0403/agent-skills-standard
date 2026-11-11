@@ -54,9 +54,3 @@ See [implementation examples](references/implementation.md) for XCTest setup/tea
 
 - [XCTest Patterns & Async Tests](references/implementation.md)
 - [Mobile Testing Methodology](../../common/common-mobile-visual-testing/SKILL.md) — 10 mobile scope areas & C6 contract
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- Inject them via constructor
-- Use protocols
-- prefixed by 'test'

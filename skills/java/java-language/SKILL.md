@@ -48,11 +48,3 @@ metadata:
 
 - [Records, Pattern Matching & Virtual Threads](references/example.md)
 
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- DTOs/Value Objects
-- Lombok
-- exhaustive switch
-- if/else chains
-- sealed interface/class

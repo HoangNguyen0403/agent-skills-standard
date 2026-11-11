@@ -89,9 +89,3 @@ Emit trigger miss block (schema in [references/methodology.md](references/method
 
 Signal tables, taxonomy, report template: [references/methodology.md](references/methodology.md)
 Local preparation disposition, coverage, trigger, boundaries: [references/local-preparation.md](references/local-preparation.md)
-
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- AGENTS.md and AGENTS_LEARNING.md
-- improvement item

@@ -50,17 +50,3 @@ See [references/REFERENCE.md](references/REFERENCE.md) for modern syntax, async 
 
 best-practices | tooling
 
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- ESM import/export
-- No Callbacks
-- No var
-- Nullish ??
-- Optional Chain ?.
-- async/await
-- const default
-- let if needed
-- user?.profile?.name
-
-- Additional task-grounded exact anchors: try/catch

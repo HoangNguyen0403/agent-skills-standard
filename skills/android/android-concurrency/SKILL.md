@@ -45,6 +45,3 @@ metadata:
 - [Dispatcher Pattern](references/implementation.md)
 
 
-## Canonical response anchors
-
-- Additional task-grounded exact anchors: hardcode

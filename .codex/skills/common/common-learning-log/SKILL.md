@@ -78,13 +78,3 @@ Instruction files (`AGENTS.md`/`CLAUDE.md`) are one guidance destination, not th
 ## References
 
 - [Log Entry Format](references/log-format.md) — full entry template, improvement item schema, AGENTS_LEARNING.md bootstrap
-
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- Append to AGENTS_LEARNING, append
-- AGENTS_LEARNING.md
-- Iteration
-- improvement item
-
-- Additional task-grounded exact anchors: Pre-write; trigger

@@ -56,10 +56,3 @@ See [references/REFERENCE.md](references/REFERENCE.md).
 ## References
 
 - [go-router-navigation](../flutter-navigation/SKILL.md) | [layer-based-clean-architecture](../flutter-layer-based-clean-architecture/SKILL.md)
-
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- Use generated
-
-- Additional task-grounded exact anchors: generated typed

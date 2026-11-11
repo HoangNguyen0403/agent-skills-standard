@@ -75,12 +75,3 @@ npx esbuild-visualizer --metadata dist/my-app/browser/stats.json --open
 
 - [Angular CLI Docs](https://angular.dev/tools/cli)
 
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- Never use --force
-- angular.json
-- angular.json budgets
-- never create files manually
-
-- Additional task-grounded exact anchors: @angular/ssr

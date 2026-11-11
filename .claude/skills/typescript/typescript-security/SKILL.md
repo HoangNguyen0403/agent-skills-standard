@@ -55,7 +55,3 @@ After typing validation schemas (Zod/joi) or auth guards, call `getDiagnostics` 
 
 See [references/REFERENCE.md](references/REFERENCE.md) for Zod validation, secure cookie setup, JWT auth, security headers, and RBAC patterns.
 
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- HttpOnly

@@ -54,9 +54,3 @@ class AppButton extends StatelessWidget {
 
 - performance | testing
 
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- Extract
-- interactive elements
-- into private

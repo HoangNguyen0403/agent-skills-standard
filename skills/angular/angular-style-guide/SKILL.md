@@ -46,9 +46,3 @@ metadata:
 
 - [Naming Conventions](references/naming-convention.md)
 
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- app prefix,appHighlight,appFocusTrap
-- Flattest structure
-- do not use I,avoid the I-prefix,no I-prefix,do not prefix,No. Do not

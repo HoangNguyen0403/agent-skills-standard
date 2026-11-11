@@ -47,6 +47,3 @@ metadata:
 - [Sealed Class, When Expression & Extension Examples](references/example.md)
 
 
-## Canonical response anchors
-
-- Additional task-grounded exact anchors: data class

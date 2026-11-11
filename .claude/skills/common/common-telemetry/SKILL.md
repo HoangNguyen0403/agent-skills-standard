@@ -69,10 +69,3 @@ Ensure the `artifacts/session-cost.md` or the output template `## Cost Report` f
 
 - **No zero-coercion of missing metrics**: Missing token or rate fields must stay `unknown` or `unavailable`; never coerce to 0.
 - **No conflating catalog discovery with usage**: Listing a skill or fetching its markdown does not imply it was used in model generation.
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- Call `get_session_cost` when the host exposes it, then append the Markdown table to `artifacts/session-cost.md`.
-- Cost Provenance: `host`, `agent-estimate`, `unavailable`
-
-- Telemetry & Cost Reporting

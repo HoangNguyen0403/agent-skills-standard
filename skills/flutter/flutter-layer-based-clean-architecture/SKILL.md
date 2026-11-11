@@ -66,7 +66,3 @@ See [references/REFERENCE.md](references/REFERENCE.md).
 
 - feature-based-clean-architecture | bloc-state-management | dependency-injection | error-handling
 
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- Flutter

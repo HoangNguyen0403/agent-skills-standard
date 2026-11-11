@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-09-22T08:08:40.136Z",
-  "issueCount": 43,
+  "generatedAt": "2026-11-11T09:17:28.914Z",
+  "issueCount": 38,
   "issues": [
     {
       "category": "android",
@@ -14,13 +14,6 @@
       "skillName": "android-background-work",
       "evalId": 1,
       "assertion": "contains:Constraints",
-      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
-    },
-    {
-      "category": "android",
-      "skillName": "android-testing",
-      "evalId": 1,
-      "assertion": "contains:Mock",
       "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
     },
     {
@@ -42,13 +35,6 @@
       "skillName": "common-observability",
       "evalId": 2,
       "assertion": "contains_any:structured logger,pino,zap",
-      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
-    },
-    {
-      "category": "database",
-      "skillName": "database-mongodb",
-      "evalId": 1,
-      "assertion": "contains:index",
       "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
     },
     {
@@ -255,20 +241,6 @@
       "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
     },
     {
-      "category": "react-native",
-      "skillName": "react-native-architecture",
-      "evalId": 1,
-      "assertion": "contains_any:TypeScript imports,typed absolute imports,path alias",
-      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
-    },
-    {
-      "category": "react-native",
-      "skillName": "react-native-architecture",
-      "evalId": 2,
-      "assertion": "contains_any:single responsibility,one purpose,single-purpose",
-      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
-    },
-    {
       "category": "spring-boot",
       "skillName": "spring-boot-architecture",
       "evalId": 1,
@@ -294,13 +266,6 @@
       "skillName": "swift-best-practices",
       "evalId": 4,
       "assertion": "contains_any:is`, `has`, or `can`,isVerified,hasPremiumAccess",
-      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
-    },
-    {
-      "category": "system-design",
-      "skillName": "system-design-interview-coaching",
-      "evalId": 1,
-      "assertion": "contains_any:scope,requirements",
       "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
     }
   ]

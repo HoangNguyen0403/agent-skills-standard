@@ -45,6 +45,3 @@ See [baseline & startup](references/implementation.md) for LazyColumn optimizati
 - [Baseline & Startup](references/implementation.md)
 
 
-## Canonical response anchors
-
-- Additional task-grounded exact anchors: Baseline Profile

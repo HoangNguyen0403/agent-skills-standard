@@ -67,8 +67,3 @@ String message(Result r) => switch (r) {
 
 - Replace `!` with `?`-aware access, explicit narrowing, or a guard clause; do not silence nullability with a force unwrap.
 
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- Replace ! with ?
-- destructure,destructuring,final (error,result.error

@@ -59,13 +59,3 @@ See [implementation examples](references/implementation.md#security-headers-midd
 ## Middleware performance checklist
 
 - File sessions create I/O and locking problems at scale; prefer a production session backend and keep global middleware cheap and deterministic.
-
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- avoids file-session I/O,locking problems,scaled production
-- cheap and deterministic,Keep the middleware lightweight
-- CSP
-- prepend()
-- session fixation
-- withMiddleware()

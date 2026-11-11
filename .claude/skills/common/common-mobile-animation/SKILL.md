@@ -60,8 +60,3 @@ See [implementation examples](references/implementation.md) for Flutter and iOS 
 - [common-mobile-ux-core](../common-mobile-ux-core/SKILL.md)
 - [flutter-performance](../../flutter/flutter-performance/SKILL.md)
 - [common-performance-engineering](../common-performance-engineering/SKILL.md)
-
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- interactivePopGesture
