@@ -233,7 +233,7 @@ program
 program
   .command('mcp <action> [scope]')
   .description(
-    'Manage the optional MCP server integration. Actions: status | enable | disable | scope <project|user|snippets-only|disabled> | via <auto|npx|global> | install | uninstall | snippets | upgrade',
+    'Manage the optional MCP server integration. Actions: status | enable | disable | scope <project|user|snippets-only|disabled> | via <auto|npx|global> | install | uninstall | snippets | upgrade [version]',
   )
   .option(
     '--scope <scope>',
@@ -252,6 +252,11 @@ program
     '--from <from>',
     'For uninstall: project | user | all (default: project)',
   )
+  .option('--to <version>', 'For upgrade only: target version to upgrade to')
+  .option(
+    '--target <version>',
+    'For upgrade only: target version to upgrade to',
+  )
   .action(
     async (
       action: string,
@@ -263,9 +268,13 @@ program
       if (positional) {
         if (action === 'via') {
           merged.via = opts.via ?? positional;
+        } else if (action === 'upgrade') {
+          merged.target = opts.target ?? opts.to ?? positional;
         } else {
           merged.scope = opts.scope ?? positional;
         }
+      } else if (opts.to && !merged.target) {
+        merged.target = opts.to;
       }
       const cmd = new McpCommand();
       await cmd.run(action, merged);

@@ -5,6 +5,7 @@ import {
   describe,
   expect,
   it,
+  Mock,
   Mocked,
   vi,
 } from 'vitest';
@@ -13,7 +14,7 @@ import { MCP_COMPATIBLE_VERSION } from '../../constants/mcp';
 import { McpScope, SkillConfig } from '../../models/config';
 import { ConfigService } from '../../services/ConfigService';
 import { McpConfigService } from '../../services/McpConfigService';
-import { McpCommand } from '../mcp';
+import { McpCommand, NpmVersionResolver } from '../mcp';
 
 vi.mock('inquirer', () => ({
   default: {
@@ -1230,6 +1231,12 @@ describe('McpCommand — actionStatus mismatch detection', () => {
         mcp: { enabled: true, scope: 'project', prompted: true, via: 'auto' },
       });
     }
+    let npmResolver: Mock<NpmVersionResolver>;
+
+    beforeEach(() => {
+      npmResolver = vi.fn().mockResolvedValue(null);
+      command.setNpmVersionResolverForTesting(npmResolver);
+    });
 
     it('U1 installs and verifies the pin when the global install is stale', async () => {
       const installer = vi.fn();
@@ -1547,6 +1554,126 @@ describe('McpCommand — actionStatus mismatch detection', () => {
       await command.run('nope');
 
       expect(output()).toContain('snippets, upgrade');
+    });
+
+    it('discovers newer version on npm and runs installer and updates .skillsrc pin', async () => {
+      npmResolver.mockResolvedValue('0.8.4');
+      const installer = vi.fn();
+      command.setGlobalInstallerForTesting(installer);
+      mockConfigService.loadConfig.mockResolvedValue(
+        makeConfig({
+          mcp: {
+            enabled: true,
+            scope: 'project',
+            prompted: true,
+            via: 'auto',
+            version: '0.8.3',
+          },
+        }),
+      );
+      mockMcpService.install.mockResolvedValue(emptyReport);
+      mockMcpService.detectGlobalVersion
+        .mockReturnValueOnce('0.8.3')
+        .mockReturnValue('0.8.4');
+
+      await command.run('upgrade');
+
+      expect(installer).toHaveBeenCalledWith('agent-skills-standard-mcp@0.8.4');
+      expect(mockMcpService.install).toHaveBeenCalledWith(
+        expect.objectContaining({
+          mcp: expect.objectContaining({ version: '0.8.4' }),
+        }),
+      );
+      expect(mockConfigService.saveConfig).toHaveBeenCalledWith(
+        expect.objectContaining({
+          mcp: expect.objectContaining({ version: '0.8.4' }),
+        }),
+      );
+      expect(output()).toContain('resolved from npm registry');
+      expect(output()).toContain('Updated .skillsrc mcp.version to 0.8.4');
+      expect(process.exitCode).toBeUndefined();
+    });
+
+    it('uses explicit target version override when passed in options', async () => {
+      const installer = vi.fn();
+      command.setGlobalInstallerForTesting(installer);
+      mockConfigService.loadConfig.mockResolvedValue(enabledConfig());
+      mockMcpService.install.mockResolvedValue(emptyReport);
+      mockMcpService.detectGlobalVersion
+        .mockReturnValueOnce('0.8.0')
+        .mockReturnValue('0.8.4');
+
+      await command.run('upgrade', { target: '0.8.4' });
+
+      expect(npmResolver).not.toHaveBeenCalled();
+      expect(installer).toHaveBeenCalledWith('agent-skills-standard-mcp@0.8.4');
+      expect(mockMcpService.install).toHaveBeenCalledWith(
+        expect.objectContaining({
+          mcp: expect.objectContaining({ version: '0.8.4' }),
+        }),
+      );
+      expect(output()).toContain('0.8.4 (explicit override)');
+      expect(process.exitCode).toBeUndefined();
+    });
+
+    it('rejects invalid explicit version with exit code 1', async () => {
+      const installer = vi.fn();
+      command.setGlobalInstallerForTesting(installer);
+      mockConfigService.loadConfig.mockResolvedValue(enabledConfig());
+
+      await command.run('upgrade', { target: 'invalid-version' });
+
+      expect(process.exitCode).toBe(1);
+      expect(output()).toContain('Invalid version: invalid-version');
+      expect(installer).not.toHaveBeenCalled();
+      expect(mockMcpService.install).not.toHaveBeenCalled();
+    });
+
+    it('falls back cleanly to MCP_COMPATIBLE_VERSION when npm query fails or is offline', async () => {
+      npmResolver.mockRejectedValue(new Error('Network error / ETIMEDOUT'));
+      const installer = vi.fn();
+      command.setGlobalInstallerForTesting(installer);
+      mockConfigService.loadConfig.mockResolvedValue(enabledConfig());
+      mockMcpService.install.mockResolvedValue(emptyReport);
+      mockMcpService.detectGlobalVersion
+        .mockReturnValueOnce('0.7.0')
+        .mockReturnValue(MCP_COMPATIBLE_VERSION);
+
+      await command.run('upgrade');
+
+      expect(installer).toHaveBeenCalledWith(
+        `agent-skills-standard-mcp@${MCP_COMPATIBLE_VERSION}`,
+      );
+      expect(output()).toContain('fallback compatibility pin');
+      expect(process.exitCode).toBeUndefined();
+    });
+
+    it('does not reinstall when already up-to-date with npm version', async () => {
+      npmResolver.mockResolvedValue('0.8.4');
+      const installer = vi.fn();
+      command.setGlobalInstallerForTesting(installer);
+      mockConfigService.loadConfig.mockResolvedValue(
+        makeConfig({
+          mcp: {
+            enabled: true,
+            scope: 'project',
+            prompted: true,
+            via: 'auto',
+            version: '0.8.4',
+          },
+        }),
+      );
+      mockMcpService.install.mockResolvedValue(emptyReport);
+      mockMcpService.detectGlobalVersion.mockReturnValue('0.8.4');
+
+      await command.run('upgrade');
+
+      expect(installer).not.toHaveBeenCalled();
+      expect(output()).toContain(
+        'Global ags-mcp already at 0.8.4 — no install needed',
+      );
+      expect(mockConfigService.saveConfig).not.toHaveBeenCalled();
+      expect(process.exitCode).toBeUndefined();
     });
   });
 });

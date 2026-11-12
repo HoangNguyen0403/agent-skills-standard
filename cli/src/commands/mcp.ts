@@ -1,4 +1,4 @@
-import { execFileSync } from 'child_process';
+import { execFileSync, execSync } from 'child_process';
 import inquirer from 'inquirer';
 import path from 'path';
 import pc from 'picocolors';
@@ -38,6 +38,45 @@ function defaultGlobalInstaller(spec: string): void {
   }
   execFileSync('npm', ['i', '-g', spec], { stdio: 'inherit' });
 }
+export type NpmVersionResolver = (
+  pkgName: string,
+) => string | null | Promise<string | null>;
+
+export function compareSemver(v1: string, v2: string): number {
+  const parse = (v: string): [number, number, number] => {
+    const clean = v.replace(/^v/, '').split('-')[0] ?? '';
+    const parts = clean.split('.');
+    const major = parseInt(parts[0] ?? '', 10);
+    const minor = parseInt(parts[1] ?? '', 10);
+    const patch = parseInt(parts[2] ?? '', 10);
+    return [
+      Number.isFinite(major) ? major : 0,
+      Number.isFinite(minor) ? minor : 0,
+      Number.isFinite(patch) ? patch : 0,
+    ];
+  };
+  const [maj1, min1, pat1] = parse(v1);
+  const [maj2, min2, pat2] = parse(v2);
+  if (maj1 !== maj2) return maj1 - maj2;
+  if (min1 !== min2) return min1 - min2;
+  return pat1 - pat2;
+}
+
+function defaultNpmVersionResolver(pkgName: string): string | null {
+  try {
+    const version = execSync(`npm view ${pkgName} version`, {
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'ignore'],
+    }).trim();
+    const semverRegex = /^\d+\.\d+\.\d+(-[a-zA-Z0-9.]+)?(\+[a-zA-Z0-9.]+)?$/;
+    if (semverRegex.test(version)) {
+      return version;
+    }
+  } catch {
+    // Registry failure, offline, or timeout
+  }
+  return null;
+}
 
 function formatEntry(
   entry: { command: string; args: string[] } | null | undefined,
@@ -76,6 +115,7 @@ export class McpCommand {
   private configService: ConfigService;
   private mcpService: McpConfigService;
   private globalInstaller: (spec: string) => void = defaultGlobalInstaller;
+  private npmVersionResolver: NpmVersionResolver = defaultNpmVersionResolver;
 
   constructor(configService?: ConfigService, mcpService?: McpConfigService) {
     this.configService = configService ?? new ConfigService();
@@ -85,6 +125,10 @@ export class McpCommand {
   /** For testing: replace the global npm installer (never run real npm in unit tests). */
   setGlobalInstallerForTesting(fn: ((spec: string) => void) | null): void {
     this.globalInstaller = fn ?? defaultGlobalInstaller;
+  }
+  /** For testing: replace the npm version resolver (never run real npm view in unit tests). */
+  setNpmVersionResolverForTesting(fn: NpmVersionResolver | null): void {
+    this.npmVersionResolver = fn ?? defaultNpmVersionResolver;
   }
 
   /**
@@ -572,11 +616,12 @@ export class McpCommand {
   }
 
   /**
-   * `upgrade` — converge the global install and the enabled runtime configs
-   * onto the effective pin: `mcp.version` when the project pins one, else
-   * `MCP_COMPATIBLE_VERSION` (same precedence as status/enable/install).
+   * `ags mcp upgrade [version]` — upgrade the MCP server integration to the
+   * latest version on npm (or a specified target version), upgrade the global
+   * binary if detected, and refresh configured agent integrations.
    *
-   * No registry lookup, no unpinned install, no `.skillsrc` rewrite;
+   * If offline or the registry check fails, falls back cleanly to the project
+   * pin or MCP_COMPATIBLE_VERSION.
    * `--via` is a per-run override only.
    */
   private async actionUpgrade(
@@ -586,8 +631,46 @@ export class McpCommand {
     options: Record<string, string>,
   ): Promise<void> {
     const mcp = config.mcp ?? defaultMcpConfig();
-    const target = mcp.version ?? MCP_COMPATIBLE_VERSION;
     const dryRun = Boolean(options.dryRun);
+
+    const explicitTarget = options.target ?? options.version ?? options.to;
+    let target: string;
+    let targetSource:
+      'explicit' | 'npm' | 'project-pin' | 'fallback-compatibility';
+    if (explicitTarget) {
+      const semverRegex = /^\d+\.\d+\.\d+(-[a-zA-Z0-9.]+)?(\+[a-zA-Z0-9.]+)?$/;
+      if (!semverRegex.test(explicitTarget)) {
+        console.log(pc.red(`❌ Invalid version: ${explicitTarget}`));
+        process.exitCode = 1;
+        return;
+      }
+      target = explicitTarget;
+      targetSource = 'explicit';
+    } else {
+      let npmVersion: string | null;
+      try {
+        npmVersion = await this.npmVersionResolver(PACKAGE);
+      } catch {
+        npmVersion = null;
+      }
+
+      const semverRegex = /^\d+\.\d+\.\d+(-[a-zA-Z0-9.]+)?(\+[a-zA-Z0-9.]+)?$/;
+      if (npmVersion && semverRegex.test(npmVersion)) {
+        if (mcp.version && compareSemver(mcp.version, npmVersion) > 0) {
+          target = mcp.version;
+          targetSource = 'project-pin';
+        } else {
+          target = npmVersion;
+          targetSource = 'npm';
+        }
+      } else if (mcp.version) {
+        target = mcp.version;
+        targetSource = 'project-pin';
+      } else {
+        target = MCP_COMPATIBLE_VERSION;
+        targetSource = 'fallback-compatibility';
+      }
+    }
 
     const viaOverrideRaw = options.via;
     const viaOverride = viaOverrideRaw ? parseVia(viaOverrideRaw) : undefined;
@@ -610,10 +693,23 @@ export class McpCommand {
         : 'none (MCP disabled)';
 
     console.log(pc.bold(`\n🔌 MCP upgrade (pin ${target})\n`));
-    if (mcp.version && mcp.version !== MCP_COMPATIBLE_VERSION) {
+    if (targetSource === 'explicit') {
+      console.log(pc.gray(`  target  : ${target} (explicit override)`));
+    } else if (targetSource === 'npm') {
+      console.log(
+        pc.gray(`  target  : ${target} (resolved from npm registry)`),
+      );
+    } else if (targetSource === 'project-pin') {
+      console.log(pc.gray(`  target  : ${target} (resolved from project pin)`));
       console.log(
         pc.yellow(
           `  note    : project pin ${mcp.version} wins; this CLI was built against ${MCP_COMPATIBLE_VERSION}`,
+        ),
+      );
+    } else {
+      console.log(
+        pc.gray(
+          `  target  : ${target} (fallback compatibility pin; npm registry unavailable)`,
         ),
       );
     }
@@ -685,6 +781,11 @@ export class McpCommand {
         ),
       );
       if (globalStale) this.printHostRestartHint();
+      if (globalStale && config.mcp?.version && config.mcp.version !== target) {
+        config.mcp = { ...config.mcp, version: target };
+        await this.configService.saveConfig(config);
+        console.log(pc.green(`✅ Updated .skillsrc mcp.version to ${target}.`));
+      }
       return;
     }
 
@@ -712,6 +813,11 @@ export class McpCommand {
       },
       userScopePrompt: (agent, file) => this.promptUserScopeWrite(agent, file),
     });
+    if (config.mcp?.version && config.mcp.version !== target) {
+      config.mcp = { ...config.mcp, version: target };
+      await this.configService.saveConfig(config);
+      console.log(pc.green(`✅ Updated .skillsrc mcp.version to ${target}.`));
+    }
     this.printReport(report, cwd);
     this.printHostRestartHint();
   }
