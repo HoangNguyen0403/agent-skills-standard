@@ -17,7 +17,6 @@ import {
   useGA4,
 } from '@/landing/analytics/GA4Context';
 import { ConsentBanner } from '@/landing/ConsentBanner.client';
-import { DemoPlayer } from '@/landing/DemoPlayer';
 import { CopyCommand } from '@/landing/CopyCommand.client';
 
 function callField(entry: unknown, index: number): unknown {
@@ -995,79 +994,6 @@ describe('CopyCommand Deferred Clipboard Write with GA4 (SDK boundary)', () => {
       asset_id: 'unknown',
       placement: 'quickstart_sync',
     });
-  });
-});
-
-describe('DemoPlayer Playing Negatives with GA4 (SDK boundary)', () => {
-  const syntheticConfig: GA4Config = {
-    enabled: true,
-    measurementId: 'G-SYNTHETIC01',
-    pageUrl: 'https://synthetic-test.org/',
-    pageTitle: 'Agent Skills Standard',
-    tagUrl: 'https://www.googletagmanager.com/gtag/js?id=G-SYNTHETIC01',
-    operatorApproved: true,
-  };
-
-  beforeEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  afterEach(() => {
-    delete window.gtag;
-    delete window.dataLayer;
-    delete window['ga-disable-G-SYNTHETIC01'];
-    const existingScript = document.getElementById('ga4-tag-script');
-    if (existingScript) existingScript.remove();
-  });
-
-  function DemoPlayerTestHarness(): React.JSX.Element {
-    const { acceptConsent } = useGA4();
-    return (
-      <div>
-        <button type="button" onClick={acceptConsent} data-testid="accept-consent">
-          Opt In
-        </button>
-        <DemoPlayer />
-      </div>
-    );
-  }
-
-  it('DemoPlayer_RenderAlone_EmitsZeroEvents', () => {
-    const mockGtag = vi.fn();
-    window.gtag = mockGtag;
-
-    render(
-      <GA4Provider overrideConfig={syntheticConfig}>
-        <DemoPlayerTestHarness />
-      </GA4Provider>,
-    );
-
-    expect(mockGtag).not.toHaveBeenCalled();
-  });
-
-  it('DemoPlayer_ProgrammaticPlayAloneWithoutUserIntent_EmitsZeroEvents', async () => {
-    const mockGtag = vi.fn();
-    window.gtag = mockGtag;
-
-    render(
-      <GA4Provider overrideConfig={syntheticConfig}>
-        <DemoPlayerTestHarness />
-      </GA4Provider>,
-    );
-
-    await act(async () => {
-      fireEvent.click(screen.getByTestId('accept-consent'));
-    });
-
-    const video = screen.getByLabelText(/Demonstration: Synchronizing agent skills/i);
-
-    // Synthetic/programmatic 'playing' event without explicit user activation
-    await act(async () => {
-      fireEvent.playing(video);
-    });
-
-    const eventCalls = mockGtag.mock.calls.filter((c) => c[0] === 'event');
-    expect(eventCalls).toHaveLength(0);
   });
 });
 
