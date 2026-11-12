@@ -426,6 +426,9 @@ describe("runRetrospective orchestration (Task S4b)", () => {
     expect(result.viewPaths.reportHtml.endsWith(".html")).toBe(true);
     const htmlContent = await fsp.readFile(result.viewPaths.reportHtml, "utf8");
     expect(htmlContent.length).toBeGreaterThan(0);
+    expect(htmlContent).toContain(
+      '<a class="nav-back" href="../../../../index.html">← All sessions</a>',
+    );
   });
 
   it("prepared then a second identical call returns already-prepared with identical artifact and paths", async () => {
@@ -468,6 +471,9 @@ describe("runRetrospective orchestration (Task S4b)", () => {
     expect(res1.viewPaths.reportHtml.endsWith(".html")).toBe(true);
     const htmlContent1 = await fsp.readFile(res1.viewPaths.reportHtml, "utf8");
     expect(htmlContent1.length).toBeGreaterThan(0);
+    expect(htmlContent1).toContain(
+      '<a class="nav-back" href="../../../../index.html">← All sessions</a>',
+    );
 
     const summaryContent = await fsp.readFile(res1.viewPaths.summary, "utf8");
     const firstLine = summaryContent.split("\n")[0];

@@ -7,6 +7,7 @@ import type { LedgerFolder } from "../src/retrospective/ledger";
 import {
   claimRun,
   publishRun,
+  resolveArtifact,
   type PublishArtifact,
 } from "../src/retrospective/store";
 import {
@@ -720,5 +721,70 @@ describe("loadPreviousReports", () => {
     await expect(
       loadPreviousReports(missingRoot, TARGET_FOLDER, "sess-1", 5),
     ).resolves.toEqual([]);
+  });
+  it("computes relative reportHref when sibling report.html exists and omits or nulls when absent", async () => {
+    const root = await newRoot();
+    const withHtml = makeSampleLedger(
+      "sess-with-html",
+      TARGET_FOLDER,
+      "2026-10-02T10:00:00Z",
+    );
+    const withoutHtml = makeSampleLedger(
+      "sess-without-html",
+      TARGET_FOLDER,
+      "2026-10-01T10:00:00Z",
+    );
+
+    await publishTestLedger(
+      root,
+      "sess-with-html",
+      "cp-1",
+      JSON.stringify(withHtml),
+    );
+    const pubWithout = await publishTestLedger(
+      root,
+      "sess-without-html",
+      "cp-1",
+      JSON.stringify(withoutHtml),
+    );
+    // Remove sibling report.html from the second session's published generation
+    const htmlArtifactId = pubWithout.artifactIds.find((id) =>
+      id.endsWith(".html"),
+    );
+    expect(htmlArtifactId).toBeDefined();
+    if (htmlArtifactId) {
+      const resolvedHtml = await resolveArtifact(root, htmlArtifactId);
+      await fs.unlink(resolvedHtml.absolutePath);
+    }
+
+    const reports = await loadPreviousReports(
+      root,
+      TARGET_FOLDER,
+      "sess-current",
+      10,
+    );
+    expect(reports).toHaveLength(2);
+    expect(reports[0].session).toBe("sess-with-html");
+    expect(reports[0].reportHref).toMatch(
+      /^\.\.\/\.\.\/\.\.\/[0-9a-f]{32}\/generations\/[^/]+\/report\.html$/,
+    );
+    // Verify the relative href resolves from a sibling session's report.html to the published report.html
+    const fakeCurrentReportDir = path.join(
+      root,
+      "sessions",
+      "00000000000000000000000000000000",
+      "generations",
+      "gen-current",
+    );
+    const resolvedTarget = path.resolve(
+      fakeCurrentReportDir,
+      reports[0].reportHref ?? "",
+    );
+    await expect(fs.stat(resolvedTarget)).resolves.toMatchObject({
+      size: expect.any(Number),
+    });
+
+    expect(reports[1].session).toBe("sess-without-html");
+    expect(reports[1].reportHref ?? null).toBeNull();
   });
 });
