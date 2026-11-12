@@ -199,8 +199,21 @@ Then fixed second-level sections:
 
 #### `report.html` layout
 
-The HTML report is structured for quick human review without external dependencies or scripts:
+The HTML report is structured for quick human review without external dependencies or scripts,
+preserving strict CSP (`default-src 'none'; style-src 'unsafe-inline'`), zero `<script>` tags, zero
+external URLs, and full HTML escaping:
 
+- **Top navigation bar (`<nav class="top-nav">`)** — rendered above the header when a back-link or
+  section jump pills exist:
+  - *`← All sessions` back-link* — rendered when generated in store layout (`indexHref` set to
+    `../../../../index.html` by `runRetrospective` and validated by `sanitizeSafeRelativeHref`,
+    allowing only safe relative store paths with no scheme, query/fragment, control characters, or
+    arbitrary `..` traversal). Omitted when rendered standalone without a valid `indexHref`.
+  - *Section jump pills* — `#sec-*` anchor links for every rendered section with status badges/counts
+    (`Permissions`, `Outcome`, `Timeline`, `Cost`, `Tool failures`, `Error stops`, `Lookups`, `Trend`,
+    `Agents`, `Limits`, `Maintainer`); flagged `Permissions`, `Tool failures`, and `Error stops` pills
+    carry alert styling. Clicking a pill jumps to `<details id="sec-...">` and applies a `:target`
+    outline highlight.
 - **Header and Summary Tiles** — displays folder label `{name, parent}` (taken from the session header
   `cwd`; no raw absolute path is stored or shown), branch at report time, session id, time window,
   coverage, delegation, and cutoff instant, followed by top-level summary metric tiles.
@@ -211,37 +224,59 @@ The HTML report is structured for quick human review without external dependenci
   - *Next time*: the concrete measure to watch.
   - *Unknown*: what the data cannot establish.
   These cards remain open.
-- **Collapsed Native Details Sections** — all subsequent sections are wrapped in native `<details>`
-  elements, collapsed by default, each showing a headline summary number in its title row:
-  - *Permission requests* (headline: e.g. `X requests, Y denied, Z unanswered`) — shows up to 50
-    distinct permission requests, denied first, plus tool and program tables. Command text (or
-    request title) undergoes linear-time secret redaction (2000 chars ceiling); operators are advised
-    to check commands before sharing.
-  - *Outcome* (headline: commit and file counts) — repository outcome metrics across all branches in
-    the session window (commits, merge commits, reverts, files changed, insertions, deletions;
-    branch now) read via `execFile` from the session folder outside source roots; or an unavailability
-    reason (`folder-missing`, `not-a-repo`, `git-error`, `not-measured`).
-  - *Timeline* (headline: e.g. `X days`) — per-day assistant turns, cost, and error stops.
-  - *Cost and models* (headline: e.g. `$X.XX est., Y models`) — main-versus-workers cost breakdown
-    (price-table estimate in dollars), and per-model rows with turns, input/output/cached tokens, and
-    error stops.
-  - *Tool failures* (headline: e.g. `X of Y tool calls failed`) — calls and error counts per tool.
-  - *Error stops* (headline: e.g. `X error stops`) — error stops broken down by day and model.
-  - *AGS lookups* (headline: e.g. `X lookups, Y matched nothing`) — routing breakdown for
-    `load_skills_for_files`, `load_skills_for_keywords`, `get_skill`, `get_workflow`, and
-    `get_category_guide`; skills returned parsed from `<!-- skill: <category>/<id> | matched: ... -->`
-    markers (validated against registry IDs; "returned" is not "followed"); lookups matching nothing,
-    bodies returned, and bodies reused from context. Tracker numbers are "not measured" for replayed
-    sessions.
-  - *Compared with earlier reports for this folder* (headline: e.g. `compared with X earlier reports`) —
-    trend comparison table against up to three earlier generations for the same folder (read-only
-    over the store, same folder only).
-  - *Agents* (headline: e.g. `X agents`) — table of observed agents, turns, cost, compactions, cache
-    reads, error stops, tool calls, edit/bash/read calls, lookups, and models.
-  - *Limits* — fixed engine bounds, disclaimers, and pricing table notes.
-  - *For the maintainer* (headline: e.g. `X items`) — maintainer notices on unlinked agents (~313 of
-    342 unlinked in pilot data) and process-scoped tracker limits.
-  A one-line hint explains the collapsing. There is no script-based "expand all".
+- **Native `<details>` Sections with Smart Auto-Expand** — all subsequent sections are wrapped in
+  native `<details class="sec" id="sec-...">` elements, each showing a headline summary number in its
+  title row and wrapping data tables in responsive `.table-wrap` horizontal-scroll containers
+  (`.table-wrap.nowrap-first` for date/verdict first columns). Sections backing active findings expand
+  automatically (`<details open>`); secondary or clean sections stay collapsed by default:
+  - *Permission requests* (`#sec-permissions`; headline: e.g. `X requests, Y denied, Z unanswered`) —
+    **expanded by default** when `denied > 0`, `unanswered > 0`, or the `guardrail-answers`
+    improvement has `level === "act"`; collapsed otherwise. Shows up to 50 distinct permission
+    requests, denied first, plus tool and program tables. Command text (or request title) undergoes
+    linear-time secret redaction (2000 chars ceiling); operators are advised to check commands before
+    sharing.
+  - *Outcome* (`#sec-outcome`; headline: commit and file counts) — **collapsed by default**.
+    Repository outcome metrics across all branches in the session window (commits, merge commits,
+    reverts, files changed, insertions, deletions; branch now) read via `execFile` from the session
+    folder outside source roots; or an unavailability reason (`folder-missing`, `not-a-repo`,
+    `git-error`, `not-measured`).
+  - *Timeline* (`#sec-timeline`; headline: e.g. `X days`) — **collapsed by default**. Per-day
+    assistant turns, cost, and error stops.
+  - *Cost and models* (`#sec-cost`; headline: e.g. `$X.XX est., Y models`) — **expanded by default**
+    when the `cost-concentration` improvement has `level === "act"`; collapsed otherwise.
+    Main-versus-workers cost breakdown (price-table estimate in dollars), and per-model rows with
+    turns, input/output/cached tokens, and error stops.
+  - *Tool failures* (`#sec-tools`; headline: e.g. `X of Y tool calls failed`) — **expanded by
+    default** when tool failures > 0 and at least one `act`-level improvement is present; collapsed
+    otherwise. Calls and error counts per tool.
+  - *Error stops* (`#sec-errors`; headline: e.g. `X error stops`) — **expanded by default** when
+    total error stops > 0 or the `agent-error-concentration` improvement has `level === "act"`;
+    collapsed otherwise. Error stops broken down by day and model.
+  - *AGS lookups* (`#sec-lookups`; headline: e.g. `X lookups, Y matched nothing`) — **expanded by
+    default** when `unguarded-edits` or `lookup-misses` improvement has `level === "act"`; collapsed
+    otherwise. Routing breakdown for `load_skills_for_files`, `load_skills_for_keywords`,
+    `get_skill`, `get_workflow`, and `get_category_guide`; skills returned parsed from
+    `<!-- skill: <category>/<id> | matched: ... -->` markers (validated against registry IDs;
+    "returned" is not "followed"); lookups matching nothing, bodies returned, and bodies reused from
+    context. Tracker numbers are "not measured" for replayed sessions.
+  - *Compared with earlier reports for this folder* (`#sec-trend`; headline: e.g. `compared with X
+    earlier reports`) — **collapsed by default**. Trend comparison table against up to three earlier
+    generations for the same folder (read-only over the store, same folder only). Earlier-session
+    column headers (`session <id8> ending <date>`) render as clickable relative links
+    (`../../../<sessionToken>/generations/<generationId>/report.html`) when that generation's
+    `report.html` exists inside the store root and passes `sanitizeSafeRelativeHref`; otherwise plain
+    text headers.
+  - *Agents* (`#sec-agents`; headline: e.g. `X of Y agents observed`) — **expanded by default** when
+    `agent-error-concentration` or `human-intervention` improvement has `level === "act"`; collapsed
+    otherwise. Table of up to 12 observed agents (plus an overflow summary row if more), kind, model,
+    turns, cost, cached tokens per turn, compactions, tool errors/calls, and permission answers.
+  - *Limits* (`#sec-limits`) — **collapsed by default**. Fixed engine bounds, disclaimers, and
+    pricing table notes.
+  - *For the maintainer* (`#sec-maintainer`; headline: e.g. `X items`) — **collapsed by default**.
+    Maintainer notices on unlinked agents (~313 of 342 unlinked in pilot data) and process-scoped
+    tracker limits.
+  A one-line hint notes that flagged sections expand automatically and readers can jump via the top
+  bar or click any title to expand or collapse. There is no script-based "expand all".
 
 #### `ledger.json` claims and evidence
 
@@ -321,14 +356,17 @@ Filtering is applied when the page is built (the generated HTML contains no clie
 
 #### Page layout
 
-Like `report.html`, the index is self-contained HTML (inline CSS, no script, no external URLs, CSP
-`default-src 'none'; style-src 'unsafe-inline'`, all dynamic text HTML-escaped):
+Like `report.html`, the index is self-contained HTML (inline CSS, no `<script>`, no external URLs,
+strict CSP `default-src 'none'; style-src 'unsafe-inline'`, all dynamic text HTML-escaped):
 
 1. **Header & Summary Tiles:** displays the date window and folder filter, followed by summary
    tiles over all matched sessions: *Sessions*, *Estimated cost*, *ACT items*, and *Permission
    denials*.
-2. **Recurring problems table:** an open table showing rules that fired across the matched sessions,
-   how many sessions matched, how many had an ACT-level finding, and their fixed owner:
+2. **Recurring problems table:** wrapped in a responsive `.table-wrap` container; sorts rules with
+   active `ACT` sessions (`actSessions > 0`) above `WATCH only` rules (`0` ACT sessions), then by
+   active ACT count, session count, and rule key. Columns show `Rule`, `Owner`, `Priority` (`ACT`
+   vs muted `WATCH only` badge, with `WATCH only` rows muted), `Sessions`, and `ACT in` count
+   badge, with fixed owners:
    - *Permission answers* -> permission setup
    - *Main agent carries most of the cost* -> orchestration config
    - *Edits without a file lookup* -> agent routing
@@ -337,14 +375,22 @@ Like `report.html`, the index is self-contained HTML (inline CSS, no script, no 
    - *Agents ending in errors* -> provider route monitoring
    - *Delegation not observable* -> session linkage
    - *Tracker numbers not measured* -> tracker binding
-3. **Native `<details>` monthly sections:** grouped by month, newest month open by default, older
-   months collapsed. Each summary headline lists session count, estimated cost, and ACT count.
-   The table contains Date, Session (agent-supplied title or short id, with `+N earlier` note),
-   Folder (`parent/name` or `name`), Branch, Outcome, Cost, ACT, WATCH, Denied, and a relative link
-   to `report.html`.
+3. **Pure-CSS ACT filter & Native `<details>` monthly sections:**
+   - *Show ACT sessions only toggle:* a zero-JS checkbox filter (`#act-only`) immediately before the
+     monthly sections hides non-ACT rows (`tr.no-act`) via `#act-only:checked ~ details.sec tr.no-act`
+     without any script.
+   - *Monthly `<details class="sec">` groups:* grouped by month, newest month open by default, older
+     months collapsed. Each summary headline lists session count, estimated cost, and ACT count.
+   - *Overflow-safe tables & badges:* wrapped in `.table-wrap`, keeping `Date`, `Outcome`, `Cost`,
+     `ACT`, `WATCH`, `Denied`, and `Report` cells non-wrapping (`white-space: nowrap`) while
+     `Session (agent-supplied)` (title or short id, with `+N earlier` note), `Folder` (`parent/name`
+     or `name`), and `Branch` wrap cleanly inside bounded column widths. Numeric cells display
+     color-coded `ACT`, `WATCH`, and `Denied` badges (`0` muted), and `Report` shows an `Open report`
+     button linking via safe relative path to `report.html` (or a muted `missing` badge when absent).
 4. **Hints & Range controls:** if no reports match, displays `No reports in this range.` along with
    total store sessions and the newest report date. Shows count of unreadable or omitted reports,
-   and the exact CLI command to narrow or widen the window.
+   and the exact CLI command (`ags retrospective index --since YYYY-MM-DD --until YYYY-MM-DD --folder NAME`)
+   to narrow or widen the window.
 
 #### Verification on real data
 
@@ -352,9 +398,16 @@ Tested against five finished sessions in a real store: the default window matche
 narrowed window matched four, a folder filter matched the two sessions of that folder, and an empty
 range showed the empty text and total store session count. Totals ($324.64 est., 26 denials, 3 ACT
 items) matched the individual reports, and relative links resolved inside the store. Checked
-structurally only (no scripts, no external URLs, relative links without `..`), not visually rendered.
-Tests: the MCP suite passes; date logic, window edges, tie rules, ordering, caps, escaping, and
-recurring counts were mutation-checked.
+structurally only (no scripts, no external URLs, relative links without unsafe `..` escape), not
+visually rendered in a browser.
+Tests: structural unit tests (`retrospective-index.spec.ts`, `retrospective-report-html.spec.ts`,
+`retrospective-trend.spec.ts`, `retrospective-run.spec.ts`) pass (177 tests across 4 files),
+verifying CSP, HTML escaping, relative-link sanitization, layout classes, priority sorting, pure-CSS
+ACT filtering, top navigation, and smart `<details open>` rules; date logic, window edges, tie rules,
+ordering, caps, escaping, and recurring counts were also mutation-checked. Visual rendering of
+synthetic multi-session `index.html` and `report.html` fixtures was also inspected in headless Chrome
+at 1280px desktop width (confirming clean column wrapping and zero overlap; `390px` macOS headless
+Chrome screenshots cropped against macOS minimum window width).
 
 #### Operational limits
 

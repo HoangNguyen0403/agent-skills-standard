@@ -723,7 +723,10 @@ export async function runRetrospective(
 
       const summaryText = renderSummary(ledger);
       const ledgerText = `${JSON.stringify(ledger)}\n`;
-      const htmlText = renderReportHtml(ledger, { previous: [] });
+      const htmlText = renderReportHtml(ledger, {
+        previous: [],
+        indexHref: "../../../../index.html",
+      });
       if (deps.beforePublish) {
         await deps.beforePublish();
       }
@@ -878,7 +881,10 @@ export async function runRetrospective(
     } catch {
       previous = [];
     }
-    const htmlText = renderReportHtml(ledger, { previous });
+    const htmlText = renderReportHtml(ledger, {
+      previous,
+      indexHref: "../../../../index.html",
+    });
     if (deps.beforePublish) {
       await deps.beforePublish();
     }

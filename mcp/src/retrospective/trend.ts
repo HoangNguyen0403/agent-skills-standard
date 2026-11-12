@@ -1,4 +1,5 @@
 import * as fsp from "node:fs/promises";
+import * as path from "node:path";
 import { z } from "zod";
 import type { Ledger, LedgerFolder } from "./ledger";
 import { listPublished, resolveArtifact, type PublishedEntry } from "./store";
@@ -14,10 +15,12 @@ export type SessionRates = {
   lookupMissPercent: number | null;
   compactionsPer100TurnsTenths: number | null;
   unguardedEditPercent: number | null;
+  reportHref?: string | null;
 };
 
 export type ReportContext = {
   previous: SessionRates[];
+  indexHref?: string | null;
 };
 
 export type ComputableLedger = {
@@ -31,6 +34,25 @@ export type ComputableLedger = {
     turns?: number;
   }>;
 };
+
+const CONTROL_CHARS = new RegExp(
+  `[${String.fromCharCode(0)}-${String.fromCharCode(0x1f)}${String.fromCharCode(
+    0x7f,
+  )}]`,
+);
+
+function isSafeStoreSegment(segment: string): boolean {
+  return (
+    typeof segment === "string" &&
+    segment.length > 0 &&
+    segment !== "." &&
+    segment !== ".." &&
+    !segment.includes("..") &&
+    !segment.includes("/") &&
+    !segment.includes("\\") &&
+    !CONTROL_CHARS.test(segment)
+  );
+}
 
 const MAX_LEDGER_FILE_BYTES = 2 * 1024 * 1024; // 2 MiB
 
@@ -294,8 +316,26 @@ export async function loadPreviousReports(
         if (data.session === currentSession) {
           continue;
         }
+        let reportHref: string | null = null;
+        if (
+          isSafeStoreSegment(resolved.sessionToken) &&
+          isSafeStoreSegment(resolved.generationId)
+        ) {
+          const htmlPath = path.join(
+            path.dirname(resolved.absolutePath),
+            "report.html",
+          );
+          try {
+            const htmlStats = await fsp.stat(htmlPath);
+            if (htmlStats.isFile()) {
+              reportHref = `../../../${encodeURIComponent(resolved.sessionToken)}/generations/${encodeURIComponent(resolved.generationId)}/report.html`;
+            }
+          } catch {
+            reportHref = null;
+          }
+        }
 
-        candidates.push(computeRates(data));
+        candidates.push({ ...computeRates(data), reportHref });
       } catch {
         continue;
       }
