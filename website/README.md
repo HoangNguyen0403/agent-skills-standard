@@ -36,6 +36,24 @@ For website-local licensed font and image generation, first provision the pinned
 
 The Lighthouse script writes the complete three-run JSON receipt to ignored `website/test-results/lighthouse-summary.json`; failures and incomplete runs are recorded and fail closed. It compares unrounded medians against the score/LCP/CLS thresholds. This is lab evidence only, not a field INP measurement. The script does not claim that audits were run or passed merely because it exists. Lighthouse requires a separately served, verified export and a recorded actual Chrome executable/version; Playwright manages its own server and must not share a manually started listener.
 
+### Root scripts, release CLI & Paseo tasks
+
+From the repository root, shortcut scripts are also available:
+
+```bash
+pnpm website:typecheck
+pnpm website:lint
+pnpm website:test
+pnpm website:e2e
+SITE_URL=http://127.0.0.1:4321 pnpm website:build
+pnpm website:release
+pnpm website:release -- --dry-run --version 0.1.1 --no-changelog
+```
+
+`pnpm website:release` runs `scripts/release-website.ts` to bump `website/package.json`, optionally update `CHANGELOG.md`, stage only those release artifacts, create a `website-v*` tag, and push the branch and tag. Pushing a `website-v*` tag triggers `.github/workflows/deploy-website.yml` to verify and deploy the static export to Cloudflare Pages.
+
+`paseo.json` exposes corresponding workspace tasks (`website:build`, `website:typecheck`, `website:lint`, `website:test`, `website:release`) without embedding Cloudflare credentials or unguarded direct deploy commands.
+
 ## Landing discoverability & metadata verification — 2026-11-03
 
 Minimal SEO and discoverability fixes, boundary contracts, and technical verification implemented under Task 2 (PRD Discoverability Readiness) on base revision `8f356928d7edd0bdb1fe224414efbd6b9e8192ac`:
