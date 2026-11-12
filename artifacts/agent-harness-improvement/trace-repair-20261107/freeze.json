@@ -1,0 +1,70 @@
+{
+  "observed_at": "2026-11-07T01:35:32.922Z",
+  "preimages": [
+    {
+      "path": "artifacts/agent-harness-improvement/trace-repair-20261107/preimage/brd.md",
+      "sha256": "895af9eb1339ee3b32a687154013adab0c642c59caa939ee0c959677fd15be6a"
+    },
+    {
+      "path": "artifacts/agent-harness-improvement/trace-repair-20261107/preimage/prd.md",
+      "sha256": "62e784bf8b02be5e58f8e695ece45dbd939c3521526ab59ef0591c8ef29bd868"
+    },
+    {
+      "path": "artifacts/agent-harness-improvement/trace-repair-20261107/preimage/srs.md",
+      "sha256": "1397437e7b2a547b5218ae0a3b12d0a6c29ce5277d201f7be09203461528d3d7"
+    },
+    {
+      "path": "artifacts/agent-harness-improvement/trace-repair-20261107/preimage/walkthrough.md",
+      "sha256": "f58d46dee7194d431acafd079eb1735d6e256b8713cac5770448730b863b770d"
+    },
+    {
+      "path": "artifacts/agent-harness-improvement/trace-repair-20261107/preimage/readiness.md",
+      "sha256": "66aed694d8cb49e1843ec34e67e44e5b16d4ee59cea8a69d1805d7fc023720af"
+    }
+  ],
+  "current": [
+    {
+      "path": "docs/brd/brd-agent-harness-improvement.md",
+      "sha256": "5681d7a2c723effd8760ab06efb396c51cf0bd205c4dbc213acfd87cf9c47c8a"
+    },
+    {
+      "path": "docs/prd/prd-agent-harness-improvement.md",
+      "sha256": "08137d8025bbffff1d13667a50d3a2d974259bac103284b8edb6cabc726dc9e2"
+    },
+    {
+      "path": "docs/srs/srs-agent-harness-improvement.md",
+      "sha256": "b588c2f10b3ee2c8eddce91508c817c2c0948de36c5ccf8db2d5b2abd357b2ff"
+    },
+    {
+      "path": "docs/srs/srs-walkthrough-agent-harness-improvement.md",
+      "sha256": "ed2b5c00ab0d3114bcca0e9037c329f50b544dcb5336206106ed39f4ba2ca8aa"
+    },
+    {
+      "path": "docs/validation/readiness-agent-harness-improvement.md",
+      "sha256": "7ab8108ad07f6e658e3d182e8c8dfa7676542a5be34814f609ab4650a2b5360b"
+    },
+    {
+      "path": "artifacts/agent-harness-improvement/trace-repair-20261107/identity-mapping.md",
+      "sha256": "72032134d4f79cde4827e7f2750152e2fe6bf90ab058f6a9e98b85ec2fc7c761"
+    }
+  ],
+  "unchanged_auditor_sources": {
+    "scripts/trace/index.ts": "fa6faae77883413965c74ecb8a37ad51515a47e6afdfeea83ffd3a0b5383ba77",
+    "scripts/trace/parse.ts": "713b61b964366c4f28786343fdd0a88c544b2eea8e3814d33a1b490b3fa6d7fa",
+    "scripts/trace/graph.ts": "3633fff0ac598b97b2022fb01f1e6ce322ac6c22df87a48e6d6f0319867293ad",
+    "scripts/trace/types.ts": "edcd968f477004fc493fcf4595f671c8e1b2b44954f2088e2b6f39b782b31362",
+    "scripts/outcome/index.ts": "7dea3dbe15e22d2068b28c6373ddbe149ca34a8a23db960cfb7e46b5e9a8d4d4",
+    "scripts/outcome/schema.ts": "a62408f042101e7a0935b0d48042469059c4d2e8911a87018726c518c74f2711",
+    "scripts/outcome/template.ts": "7d9ebf2ca0fc962f7fbaac401d6e377952162a57daf8e201bb32dafbb3711df6",
+    "scripts/workflow-chain.ts": "79e5f5fba8483732fe7876033e758cf1a401ff9ed13bf229defb6286026ce7e8"
+  },
+  "unchanged_ab_evidence": {
+    "artifacts/agent-harness-improvement/ab-20261106/capabilities.md": "cc921e6884188f6556ccc64b29cc8c5fb2468d24250fecb5e88cf2a6b36e7628",
+    "artifacts/agent-harness-improvement/ab-20261106/dispatch-boundaries.md": "4394cffa790611fe8b0309d09364666e055ca7b8e1d99ee445e127ff40bf8565",
+    "artifacts/agent-harness-improvement/ab-20261106/baseline.md": "1284ac89587294bab681467abd43627e5b29624d62169e7c94ca2c5fed18f069",
+    "artifacts/agent-harness-improvement/ab-20261106/review.md": "722c091629a69183bc5c39c90d29810b9cea684b72d72c5bd69665e228151b8b",
+    "artifacts/agent-harness-improvement/ab-20261106/handoff.md": "6ef75219d3dc0bcf78448f700fc03a2919007bd839f43b321fd3ee50c3ca9909"
+  },
+  "review_package_limit": "Direct preimage-to-current diff; not a successful generated cumulative git review package. Existing artifacts are ignored; no force-add or index changes.",
+  "execution_assurance": "not_evaluated"
+}
