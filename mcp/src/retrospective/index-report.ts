@@ -782,21 +782,7 @@ export function renderIndexHtml(result: IndexResult): string {
   parts.push(tilesHtml);
 
   if (result.recurring.length > 0) {
-    let rowsHtml = "";
-    for (const item of result.recurring) {
-      const ruleLabel = RULE_LABELS[item.rule] ?? "other";
-      const destLabel = DESTINATION_LABELS[item.destination] ?? "other";
-      rowsHtml += `<tr><td>${escapeHtml(ruleLabel)}</td><td>${escapeHtml(destLabel)}</td><td>${item.sessions} of ${result.totals.sessions}</td><td>${escapeHtml(plural(item.actSessions, "session"))}</td></tr>\n`;
-    }
-    const recurringHtml = `<h2>Recurring problems</h2>
-<table>
-<thead>
-<tr><th>Rule</th><th>Owner</th><th>Sessions</th><th>ACT in</th></tr>
-</thead>
-<tbody>
-${rowsHtml}</tbody>
-</table>`;
-    parts.push(recurringHtml);
+    parts.push(renderRecurringTable(result.recurring, result.totals.sessions));
   }
 
   if (result.rows.length === 0) {
@@ -806,67 +792,7 @@ ${rowsHtml}</tbody>
         : "";
     parts.push(`<p class="hint">No reports in this range.${storeInfo}</p>`);
   } else {
-    const monthsMap = new Map<string, IndexRow[]>();
-    for (const row of result.rows) {
-      const month = row.day.slice(0, 7);
-      const list = monthsMap.get(month);
-      if (list) {
-        list.push(row);
-      } else {
-        monthsMap.set(month, [row]);
-      }
-    }
-
-    let monthIndex = 0;
-    for (const [month, monthRows] of monthsMap) {
-      const isOpen = monthIndex === 0;
-      monthIndex++;
-
-      const monthCost = monthRows.reduce((sum, r) => sum + r.costCents, 0);
-      const monthAct = monthRows.reduce((sum, r) => sum + r.act, 0);
-      const summaryText = `${plural(monthRows.length, "session")}, ${formatMoney(monthCost)} est., ${monthAct} ACT`;
-
-      let tableRows = "";
-      for (const row of monthRows) {
-        let sessionContent: string;
-        if (row.title !== null && row.title.length > 0) {
-          sessionContent = `<i>${escapeHtml(row.title)}</i>`;
-        } else {
-          sessionContent = escapeHtml(row.sessionShort);
-        }
-        if (row.generations > 1) {
-          sessionContent += ` (+${row.generations - 1} earlier)`;
-        }
-
-        const folderContent = row.folderParent
-          ? `${escapeHtml(row.folderParent)}/${escapeHtml(row.folderName ?? "")}`
-          : row.folderName
-            ? escapeHtml(row.folderName)
-            : "-";
-
-        const branchContent =
-          row.branch !== null ? escapeHtml(row.branch) : "-";
-
-        const reportContent =
-          row.reportHref !== null
-            ? `<a href="${escapeHtml(row.reportHref)}">open</a>`
-            : "missing";
-
-        tableRows += `<tr><td>${escapeHtml(row.day)}</td><td>${sessionContent}</td><td>${folderContent}</td><td>${branchContent}</td><td>${escapeHtml(row.outcome)}</td><td>${escapeHtml(formatMoney(row.costCents))} est.</td><td>${row.act}</td><td>${row.watch}</td><td>${row.denied}</td><td>${reportContent}</td></tr>\n`;
-      }
-
-      const monthHtml = `<details class="sec"${isOpen ? " open" : ""}>
-<summary><h3>${escapeHtml(month)}</h3><span class="sum">${escapeHtml(summaryText)}</span></summary>
-<table>
-<thead>
-<tr><th>Date</th><th>Session (agent-supplied)</th><th>Folder</th><th>Branch</th><th>Outcome</th><th>Cost</th><th>ACT</th><th>WATCH</th><th>Denied</th><th>Report</th></tr>
-</thead>
-<tbody>
-${tableRows}</tbody>
-</table>
-</details>`;
-      parts.push(monthHtml);
-    }
+    parts.push(renderMonthlySections(result.rows));
   }
 
   let notesHtml = "";
@@ -888,8 +814,7 @@ ${tableRows}</tbody>
 <title>Agent retrospectives</title>
 <style>
 ${REPORT_CSS}
-a{color:#0969da;text-decoration:none}
-a:hover{text-decoration:underline}
+${INDEX_CSS}
 </style>
 </head>
 <body>
@@ -898,6 +823,163 @@ ${parts.join("\n")}
 </div>
 </body>
 </html>\n`;
+}
+
+const INDEX_CSS = `a{color:#0969da;text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:1280px}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:8px 0}
+.table-wrap table{margin:0}
+.table-wrap th,.table-wrap td{padding:6px 6px}
+th,td{vertical-align:middle}
+th.left,td.left{text-align:left}
+th.status,td.status{text-align:left;white-space:nowrap}
+th.date,td.date,th.money,td.money,th.num,td.num,th.outcome,td.outcome,th.action,td.action{white-space:nowrap}
+th.col-session,td.col-session{text-align:left;min-width:150px;max-width:260px}
+th.col-folder,td.col-folder{text-align:left;min-width:100px;max-width:190px}
+th.col-branch,td.col-branch{text-align:left;min-width:90px;max-width:170px}
+table td.col-session,table td.col-folder,table td.col-branch{white-space:normal;text-align:left;overflow-wrap:anywhere;word-break:break-word}
+.badge{display:inline-block;font-size:11px;font-weight:700;line-height:1.2;padding:2px 7px;border-radius:99px;white-space:nowrap}
+.badge.act{background:#fdecea;color:var(--red);border:1px solid #f5c2c0}
+.badge.watch{background:#fff8e1;color:var(--amber);border:1px solid #f0d78c}
+.badge.mute{background:var(--bg);color:var(--mute);border:1px solid var(--line)}
+tr.watch-only td{color:var(--mute)}
+.open-btn{display:inline-block;padding:3px 10px;border-radius:6px;border:1px solid #b6d4fe;background:#f0f6ff;color:#0969da;font-size:12px;font-weight:600;white-space:nowrap;text-decoration:none}
+.open-btn:hover{background:#dceaff;text-decoration:none}
+.act-filter{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.act-filter-label{display:inline-flex;align-items:center;gap:6px;margin:10px 0 6px;padding:5px 12px;border:1px solid var(--line);border-radius:99px;background:var(--bg);color:var(--ink);font-size:13px;font-weight:600;cursor:pointer;user-select:none}
+.act-filter-label::before{content:"\\2610";font-size:14px;line-height:1}
+.act-filter:focus-visible + .act-filter-label{outline:2px solid #0969da;outline-offset:2px}
+#act-only:checked + .act-filter-label{background:#fdecea;border-color:#f5c2c0;color:var(--red)}
+#act-only:checked + .act-filter-label::before{content:"\\2611"}
+#act-only:checked ~ details.sec tr.no-act{display:none}
+@media(max-width:820px){.wrap{padding:12px}th,td{padding:5px 6px;font-size:12px}.col-session{min-width:130px;max-width:220px}.col-folder,.col-branch{min-width:90px;max-width:160px}}`;
+
+function renderRecurringTable(
+  recurring: IndexRecurring[],
+  totalSessions: number,
+): string {
+  // Prioritize rules with active ACT sessions above WATCH-only rules in HTML output
+  // while preserving collectIndex's recurring data sort contract.
+  const sorted = [...recurring].sort((a, b) => {
+    const aHasAct = a.actSessions > 0 ? 1 : 0;
+    const bHasAct = b.actSessions > 0 ? 1 : 0;
+    if (bHasAct !== aHasAct) return bHasAct - aHasAct;
+    if (b.actSessions !== a.actSessions) return b.actSessions - a.actSessions;
+    if (b.sessions !== a.sessions) return b.sessions - a.sessions;
+    return a.rule.localeCompare(b.rule);
+  });
+
+  let rowsHtml = "";
+  for (const item of sorted) {
+    const ruleLabel = RULE_LABELS[item.rule] ?? "other";
+    const destLabel = DESTINATION_LABELS[item.destination] ?? "other";
+    const hasAct = item.actSessions > 0;
+    const rowClass = hasAct ? "has-act" : "watch-only";
+    const levelBadge = hasAct
+      ? '<span class="badge act">ACT</span>'
+      : '<span class="badge mute">WATCH only</span>';
+    const actBadge = hasAct
+      ? `<span class="badge act">${escapeHtml(plural(item.actSessions, "session"))}</span>`
+      : `<span class="badge mute">${escapeHtml(plural(item.actSessions, "session"))}</span>`;
+    rowsHtml += `<tr class="${rowClass}"><td>${escapeHtml(ruleLabel)}</td><td class="left">${escapeHtml(destLabel)}</td><td class="status">${levelBadge}</td><td class="num">${item.sessions} of ${totalSessions}</td><td class="num">${actBadge}</td></tr>\n`;
+  }
+
+  return `<h2>Recurring problems</h2>
+<div class="table-wrap">
+<table>
+<thead>
+<tr><th>Rule</th><th class="left">Owner</th><th class="status">Priority</th><th class="num">Sessions</th><th class="num">ACT in</th></tr>
+</thead>
+<tbody>
+${rowsHtml}</tbody>
+</table>
+</div>`;
+}
+
+function renderMonthlySections(rows: IndexRow[]): string {
+  const monthsMap = new Map<string, IndexRow[]>();
+  for (const row of rows) {
+    const month = row.day.slice(0, 7);
+    const list = monthsMap.get(month);
+    if (list) {
+      list.push(row);
+    } else {
+      monthsMap.set(month, [row]);
+    }
+  }
+
+  // Checkbox must stay a direct preceding sibling of details.sec inside .wrap
+  // so the pure-CSS #act-only:checked ~ details.sec tr.no-act selector matches.
+  const sections: string[] = [
+    '<input type="checkbox" id="act-only" class="act-filter">\n<label for="act-only" class="act-filter-label">Show ACT sessions only</label>',
+  ];
+
+  let monthIndex = 0;
+  for (const [month, monthRows] of monthsMap) {
+    const isOpen = monthIndex === 0;
+    monthIndex++;
+
+    const monthCost = monthRows.reduce((sum, r) => sum + r.costCents, 0);
+    const monthAct = monthRows.reduce((sum, r) => sum + r.act, 0);
+    const summaryText = `${plural(monthRows.length, "session")}, ${formatMoney(monthCost)} est., ${monthAct} ACT`;
+
+    let tableRows = "";
+    for (const row of monthRows) {
+      let sessionContent: string;
+      if (row.title !== null && row.title.length > 0) {
+        sessionContent = `<i>${escapeHtml(row.title)}</i>`;
+      } else {
+        sessionContent = escapeHtml(row.sessionShort);
+      }
+      if (row.generations > 1) {
+        sessionContent += ` (+${row.generations - 1} earlier)`;
+      }
+
+      const folderContent = row.folderParent
+        ? `${escapeHtml(row.folderParent)}/${escapeHtml(row.folderName ?? "")}`
+        : row.folderName
+          ? escapeHtml(row.folderName)
+          : "-";
+
+      const branchContent = row.branch !== null ? escapeHtml(row.branch) : "-";
+
+      const rowClass = row.act > 0 ? "has-act" : "no-act";
+      const actBadge =
+        row.act > 0
+          ? `<span class="badge act">${row.act}</span>`
+          : '<span class="badge mute">0</span>';
+      const watchBadge =
+        row.watch > 0
+          ? `<span class="badge watch">${row.watch}</span>`
+          : '<span class="badge mute">0</span>';
+      const deniedBadge =
+        row.denied > 0
+          ? `<span class="badge act">${row.denied}</span>`
+          : '<span class="badge mute">0</span>';
+      const reportContent =
+        row.reportHref !== null
+          ? `<a class="open-btn" href="${escapeHtml(row.reportHref)}">Open report</a>`
+          : '<span class="badge mute">missing</span>';
+
+      tableRows += `<tr class="${rowClass}"><td class="date">${escapeHtml(row.day)}</td><td class="col-session">${sessionContent}</td><td class="col-folder">${folderContent}</td><td class="col-branch">${branchContent}</td><td class="outcome left">${escapeHtml(row.outcome)}</td><td class="money">${escapeHtml(formatMoney(row.costCents))} est.</td><td class="num">${actBadge}</td><td class="num">${watchBadge}</td><td class="num">${deniedBadge}</td><td class="action">${reportContent}</td></tr>\n`;
+    }
+
+    sections.push(`<details class="sec"${isOpen ? " open" : ""}>
+<summary><h3>${escapeHtml(month)}</h3><span class="sum">${escapeHtml(summaryText)}</span></summary>
+<div class="table-wrap">
+<table>
+<thead>
+<tr><th class="date">Date</th><th class="col-session">Session (agent-supplied)</th><th class="col-folder">Folder</th><th class="col-branch">Branch</th><th class="outcome left">Outcome</th><th class="money">Cost</th><th class="num">ACT</th><th class="num">WATCH</th><th class="num">Denied</th><th class="action">Report</th></tr>
+</thead>
+<tbody>
+${tableRows}</tbody>
+</table>
+</div>
+</details>`);
+  }
+
+  return sections.join("\n");
 }
 
 export async function writeIndex(root: string, html: string): Promise<string> {

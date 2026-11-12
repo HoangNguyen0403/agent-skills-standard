@@ -2375,23 +2375,38 @@ describe("renderReportHtml", () => {
       return { ledger, context };
     }
 
-    it("(a) renders exactly the intended sections collapsed without open attribute and uncollapsed preamble", () => {
+    it("(a) renders smart auto-expanded flagged sections, deterministic section IDs, top TOC, and uncollapsed preamble", () => {
       const { ledger, context } = createRichLedger();
       const html = renderReportHtml(ledger, context);
 
-      const detailsMatches = html.match(/<details class="sec">/g);
+      const detailsMatches = html.match(/<details class="sec" id="sec-[^"]+"/g);
       expect(detailsMatches).toBeDefined();
       expect(detailsMatches?.length).toBe(11);
 
-      expect(html).not.toMatch(/<details[^>]*\bopen\b/);
+      // Flagged sections in createRichLedger: permissions (denied/unanswered/act), tool failures (errors>0 + act), error stops (>0)
+      expect(html).toContain('<details class="sec" id="sec-permissions" open>');
+      expect(html).toContain('<details class="sec" id="sec-tools" open>');
+      expect(html).toContain('<details class="sec" id="sec-errors" open>');
 
+      // Unflagged / secondary sections remain collapsed
+      expect(html).toContain('<details class="sec" id="sec-outcome">');
+      expect(html).toContain('<details class="sec" id="sec-timeline">');
+      expect(html).toContain('<details class="sec" id="sec-cost">');
+      expect(html).toContain('<details class="sec" id="sec-lookups">');
+      expect(html).toContain('<details class="sec" id="sec-trend">');
+      expect(html).toContain('<details class="sec" id="sec-agents">');
+      expect(html).toContain('<details class="sec" id="sec-limits">');
+      expect(html).toContain('<details class="sec" id="sec-maintainer">');
+
+      const navIdx = html.indexOf('<nav class="top-nav"');
       const firstDetailsIdx = html.indexOf("<details");
       const headerIdx = html.indexOf("<h1>Agent retrospective</h1>");
       const tilesIdx = html.indexOf('<div class="tiles">');
       const decisionsIdx = html.indexOf("<h3>Decisions for you</h3>");
       const doNextIdx = html.indexOf("<h3>Do next</h3>");
 
-      expect(headerIdx).toBeGreaterThan(-1);
+      expect(navIdx).toBeGreaterThan(-1);
+      expect(headerIdx).toBeGreaterThan(navIdx);
       expect(tilesIdx).toBeGreaterThan(headerIdx);
       expect(decisionsIdx).toBeGreaterThan(tilesIdx);
       expect(doNextIdx).toBeGreaterThan(decisionsIdx);
@@ -2436,51 +2451,51 @@ describe("renderReportHtml", () => {
       const html = renderReportHtml(ledger);
 
       expect(html).toContain(
-        '<details class="sec"><summary><h3>Outcome</h3><span class="sum">1 commit, 1 file changed</span></summary>',
+        '<details class="sec" id="sec-outcome"><summary><h3>Outcome</h3><span class="sum">1 commit, 1 file changed</span></summary>',
       );
       expect(html).toContain(
-        '<details class="sec"><summary><h3>Agents</h3></summary>',
+        '<details class="sec" id="sec-agents"><summary><h3>Agents</h3></summary>',
       );
       expect(html).not.toContain("0 of 0");
     });
 
-    it("(b) each collapsed section summary contains its exact headline string with plural variants", () => {
+    it("(b) each section summary contains its exact headline string with plural variants and section id", () => {
       const { ledger, context } = createRichLedger();
       const html = renderReportHtml(ledger, context);
 
       expect(html).toContain(
-        '<details class="sec"><summary><h3>Permission requests</h3><span class="sum">5 requests, 1 denied, 1 unanswered</span></summary>',
+        '<details class="sec" id="sec-permissions" open><summary><h3>Permission requests</h3><span class="sum">5 requests, 1 denied, 1 unanswered</span></summary>',
       );
       expect(html).toContain(
-        '<details class="sec"><summary><h3>Outcome</h3><span class="sum">3 commits, 2 files changed</span></summary>',
+        '<details class="sec" id="sec-outcome"><summary><h3>Outcome</h3><span class="sum">3 commits, 2 files changed</span></summary>',
       );
       expect(html).toContain(
-        '<details class="sec"><summary><h3>Timeline</h3><span class="sum">2 days</span></summary>',
+        '<details class="sec" id="sec-timeline"><summary><h3>Timeline</h3><span class="sum">2 days</span></summary>',
       );
       expect(html).toContain(
-        '<details class="sec"><summary><h3>Cost and models</h3><span class="sum">$7.50 est., 1 model</span></summary>',
+        '<details class="sec" id="sec-cost"><summary><h3>Cost and models</h3><span class="sum">$7.50 est., 1 model</span></summary>',
       );
       expect(html).toContain(
-        '<details class="sec"><summary><h3>Tool failures</h3><span class="sum">2 of 8 tool calls failed</span></summary>',
+        '<details class="sec" id="sec-tools" open><summary><h3>Tool failures</h3><span class="sum">2 of 8 tool calls failed</span></summary>',
       );
       expect(html).toContain(
-        '<details class="sec"><summary><h3>Error stops</h3><span class="sum">1 error stop</span></summary>',
+        '<details class="sec" id="sec-errors" open><summary><h3>Error stops</h3><span class="sum">1 error stop</span></summary>',
       );
       expect(html).toContain(
-        '<details class="sec"><summary><h3>AGS lookups</h3><span class="sum">6 lookups, 1 matched nothing</span></summary>',
+        '<details class="sec" id="sec-lookups"><summary><h3>AGS lookups</h3><span class="sum">6 lookups, 1 matched nothing</span></summary>',
       );
       expect(html).toContain(
-        '<details class="sec"><summary><h3>Compared with earlier reports for this folder</h3><span class="sum">compared with 1 earlier report</span></summary>',
+        '<details class="sec" id="sec-trend"><summary><h3>Compared with earlier reports for this folder</h3><span class="sum">compared with 1 earlier report</span></summary>',
       );
       expect(html).toContain(
-        '<details class="sec"><summary><h3>Agents</h3><span class="sum">2 of 2 agents observed</span></summary>',
+        '<details class="sec" id="sec-agents"><summary><h3>Agents</h3><span class="sum">2 of 2 agents observed</span></summary>',
       );
       expect(html).toContain(
-        '<details class="sec"><summary><h3>Limits</h3></summary>',
+        '<details class="sec" id="sec-limits"><summary><h3>Limits</h3></summary>',
       );
       expect(html).not.toMatch(/<summary><h3>Limits<\/h3><span class="sum">/);
       expect(html).toContain(
-        '<details class="sec"><summary><h3 class="mt">For the maintainer</h3><span class="sum">2 items</span></summary>',
+        '<details class="sec" id="sec-maintainer"><summary><h3 class="mt">For the maintainer</h3><span class="sum">2 items</span></summary>',
       );
 
       // Test plural variants:
@@ -2519,7 +2534,7 @@ describe("renderReportHtml", () => {
       });
       const singleReqHtml = renderReportHtml(singleReqLedger);
       expect(singleReqHtml).toContain(
-        '<details class="sec"><summary><h3>Permission requests</h3><span class="sum">1 request, 0 denied, 0 unanswered</span></summary>',
+        '<details class="sec" id="sec-permissions"><summary><h3>Permission requests</h3><span class="sum">1 request, 0 denied, 0 unanswered</span></summary>',
       );
 
       // Trend: 2 earlier reports
@@ -2539,7 +2554,7 @@ describe("renderReportHtml", () => {
       };
       const multiTrendHtml = renderReportHtml(ledger, multiTrendContext);
       expect(multiTrendHtml).toContain(
-        '<details class="sec"><summary><h3>Compared with earlier reports for this folder</h3><span class="sum">compared with 2 earlier reports</span></summary>',
+        '<details class="sec" id="sec-trend"><summary><h3>Compared with earlier reports for this folder</h3><span class="sum">compared with 2 earlier reports</span></summary>',
       );
 
       // Outcome: unavailable short sentence reused as headline
@@ -2548,7 +2563,7 @@ describe("renderReportHtml", () => {
       });
       const unavailHtml = renderReportHtml(unavailLedger);
       expect(unavailHtml).toContain(
-        '<details class="sec"><summary><h3>Outcome</h3><span class="sum">Outcome was not measured for this run.</span></summary>',
+        '<details class="sec" id="sec-outcome"><summary><h3>Outcome</h3><span class="sum">Outcome was not measured for this run.</span></summary>',
       );
     });
 
@@ -2582,7 +2597,7 @@ describe("renderReportHtml", () => {
       const html = renderReportHtml(ledger, context);
 
       const hintText =
-        '<p class="hint">Sections below are collapsed. Click a title to expand it.</p>';
+        '<p class="hint">Flagged sections are expanded automatically; jump to any section above or click a title to expand or collapse.</p>';
       expect(html).toContain(hintText);
 
       const doNextIdx = html.indexOf("<h3>Do next</h3>");
@@ -2620,6 +2635,396 @@ describe("renderReportHtml", () => {
         "<meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'none'; style-src 'unsafe-inline'\">",
       );
       expect(html).not.toContain("<script");
+    });
+  });
+
+  describe("navigation, smart auto-expand truth table, table-wrap, and link safety (REQ-001, REQ-003..REQ-006)", () => {
+    function makeActImprovement(
+      rule: LedgerImprovement["rule"],
+      level: "act" | "watch" = "act",
+    ): LedgerImprovement {
+      return {
+        rule,
+        level,
+        action: "act-now",
+        destination: "orchestration-config",
+        audience: "manager",
+        claimIds: ["c1"],
+        evidence: ["e1"],
+        values: {
+          answers: 2,
+          allow: 1,
+          deny: 1,
+          targetsAtLeast3: 0,
+          per100Tenths: 10,
+          sharePercent: 90,
+          cacheReadPerTurnMain: 50000,
+          cacheReadPerTurnOthers: 0,
+          compactionsMain: 1,
+          mainReadCalls: 5,
+          mainEditCalls: 5,
+          mainCoordinationCalls: 0,
+          unguardedEdits: 2,
+          editEpisodes: 4,
+          byFilesTotal: 1,
+          getSkillTotal: 0,
+          unguardedPercent: 50,
+          noMatchCalls: 2,
+          calls: 4,
+          filesNoMatch: 2,
+          keywordsNoMatch: 0,
+          percent: 50,
+          askCalls: 2,
+          abortedStops: 1,
+          agents: 1,
+          worstErrorStops: 3,
+          worstTurns: 4,
+        },
+      };
+    }
+
+    it("renders top-nav jump pills with status hints for rendered sections only and includes :target CSS", () => {
+      const ledger = createLedgerFixture({
+        models: [
+          {
+            model: "gpt-5.4",
+            turns: 10,
+            costCents: 350,
+            inputTokens: 100,
+            outputTokens: 50,
+            cacheReadTokens: 1000,
+            errorStops: 0,
+          },
+        ],
+        toolRows: [],
+        cells: [],
+        agents: [],
+        improvements: [],
+      });
+      const html = renderReportHtml(ledger);
+
+      expect(html).toContain('<nav class="top-nav"');
+      expect(html).not.toContain("← All sessions");
+      expect(html).toContain('href="#sec-outcome"');
+      expect(html).toContain('href="#sec-timeline"');
+      expect(html).toContain('href="#sec-cost"');
+      expect(html).toContain("Cost ($3.50)");
+      expect(html).toContain('href="#sec-lookups"');
+      expect(html).toContain('href="#sec-limits"');
+      expect(html).not.toContain('href="#sec-permissions"');
+      expect(html).not.toContain('href="#sec-errors"');
+      expect(html).not.toContain('href="#sec-tools"');
+      expect(html).not.toContain('href="#sec-trend"');
+      expect(html).not.toContain('href="#sec-agents"');
+      expect(html).not.toContain('href="#sec-maintainer"');
+      expect(html).toContain(
+        "details.sec:target{outline:2px solid #0969da;border-radius:6px;padding-left:6px;padding-right:6px}",
+      );
+    });
+
+    it("renders back link to indexHref and clickable trend headers when valid, omitting hostile hrefs", () => {
+      const ledger = createLedgerFixture({
+        claims: [createClaim("coverage", { agentsCreated: 1, agentsRead: 1 })],
+      });
+      const html = renderReportHtml(ledger, {
+        indexHref: "../../../../index.html",
+        previous: [
+          {
+            session: "prev0001-session",
+            to: "2026-09-30T15:00:00.000Z",
+            turns: 10,
+            costCentsPer100Turns: 100,
+            permissionAnswersPer100TurnsTenths: 0,
+            errorStopsPer100TurnsTenths: 0,
+            toolErrorsPer100CallsTenths: 0,
+            lookupMissPercent: 0,
+            compactionsPer100TurnsTenths: 0,
+            unguardedEditPercent: 0,
+            reportHref:
+              "../../../0123456789abcdef0123456789abcdef/generations/gen-1/report.html",
+          },
+          {
+            session: "prev0002-session",
+            to: "2026-09-29T15:00:00.000Z",
+            turns: 10,
+            costCentsPer100Turns: 200,
+            permissionAnswersPer100TurnsTenths: 0,
+            errorStopsPer100TurnsTenths: 0,
+            toolErrorsPer100CallsTenths: 0,
+            lookupMissPercent: 0,
+            compactionsPer100TurnsTenths: 0,
+            unguardedEditPercent: 0,
+            reportHref: null,
+          },
+        ],
+      });
+
+      expect(html).toContain(
+        '<a class="nav-back" href="../../../../index.html">← All sessions</a>',
+      );
+      expect(html).toContain(
+        '<th><a href="../../../0123456789abcdef0123456789abcdef/generations/gen-1/report.html">session prev0001 ending 2026-09-30</a></th>',
+      );
+      expect(html).toContain("<th>session prev0002 ending 2026-09-29</th>");
+
+      const hostileInputs = [
+        "javascript:alert(1)",
+        "https://evil.example/index.html",
+        "http://evil.example/index.html",
+        "data:text/html,<script>alert(1)</script>",
+        "//evil.example/index.html",
+        "../../../../../etc/passwd",
+        "../../../../etc/passwd",
+        "../../../%2e%2e/generations/g1/report.html",
+        "../../../../index.html\x00",
+      ];
+      for (const badHref of hostileInputs) {
+        const badHtml = renderReportHtml(ledger, {
+          indexHref: badHref,
+          previous: [
+            {
+              session: "prevbad1",
+              to: "2026-09-30T15:00:00.000Z",
+              turns: 10,
+              costCentsPer100Turns: 100,
+              permissionAnswersPer100TurnsTenths: 0,
+              errorStopsPer100TurnsTenths: 0,
+              toolErrorsPer100CallsTenths: 0,
+              lookupMissPercent: 0,
+              compactionsPer100TurnsTenths: 0,
+              unguardedEditPercent: 0,
+              reportHref: badHref,
+            },
+          ],
+        });
+        expect(badHtml).not.toContain("← All sessions");
+        expect(badHtml).toContain(
+          "<th>session prevbad1 ending 2026-09-30</th>",
+        );
+        expect(badHtml).not.toMatch(/href="(?!#sec-)/);
+        expect(badHtml).not.toMatch(/https?:\/\//i);
+        expect(badHtml).not.toContain("<script");
+      }
+    });
+
+    it("keeps all sections collapsed for a clean ledger (zero denials, zero error stops, zero act improvements)", () => {
+      const cleanLedger = createLedgerFixture({
+        improvements: [makeActImprovement("cost-concentration", "watch")],
+        permissionRequests: {
+          asked: 2,
+          answered: 2,
+          unanswered: 0,
+          answeredWithoutRequest: 0,
+          agentsAsked: 1,
+          tools: [
+            {
+              name: "bash",
+              asked: 2,
+              allow: 2,
+              deny: 0,
+              other: 0,
+              unanswered: 0,
+            },
+          ],
+          programs: [],
+          distinctPrograms: 0,
+          commands: [],
+          distinctCommands: 0,
+          commandsOmitted: 0,
+        },
+        toolRows: [{ tool: "bash", calls: 10, errors: 1 }],
+        cells: [{ key: "2026-10-01|gpt-5.4", turns: 10, errorStops: 0 }],
+        models: [
+          {
+            model: "gpt-5.4",
+            turns: 10,
+            costCents: 100,
+            inputTokens: 100,
+            outputTokens: 50,
+            cacheReadTokens: 100,
+            errorStops: 0,
+          },
+        ],
+        lookups: {
+          tools: [],
+          skills: [],
+          distinctSkills: 0,
+          otherSkillReturns: 0,
+          unvalidatedReturns: 0,
+          capped: false,
+        },
+        agents: [
+          {
+            label: "main",
+            kind: "orchestrator",
+            model: "gpt-5.4",
+            turns: 10,
+            costCents: 100,
+            compactions: 0,
+            cacheReadPerTurn: 10,
+            errorStops: 0,
+            toolCalls: 10,
+            toolErrors: 1,
+            editCalls: 1,
+            bashCalls: 2,
+            readCalls: 7,
+            agsLookups: 0,
+            permissionAnswers: 2,
+          },
+        ],
+      });
+      const html = renderReportHtml(cleanLedger, {
+        previous: [
+          {
+            session: "p1",
+            to: "2026-09-29T10:00:00.000Z",
+            turns: 10,
+            costCentsPer100Turns: 100,
+            permissionAnswersPer100TurnsTenths: 0,
+            errorStopsPer100TurnsTenths: 0,
+            toolErrorsPer100CallsTenths: 0,
+            lookupMissPercent: 0,
+            compactionsPer100TurnsTenths: 0,
+            unguardedEditPercent: 0,
+          },
+        ],
+      });
+
+      expect(html).not.toMatch(/<details[^>]*\bopen\b/);
+    });
+
+    it("auto-opens sec-cost, sec-lookups, sec-agents, and sec-tools only per truth table", () => {
+      const flaggedLedger = createLedgerFixture({
+        improvements: [
+          makeActImprovement("cost-concentration", "act"),
+          makeActImprovement("unguarded-edits", "act"),
+          makeActImprovement("human-intervention", "act"),
+        ],
+        models: [
+          {
+            model: "gpt-5.4",
+            turns: 10,
+            costCents: 5000,
+            inputTokens: 100,
+            outputTokens: 50,
+            cacheReadTokens: 1000,
+            errorStops: 0,
+          },
+        ],
+        lookups: {
+          tools: [],
+          skills: [],
+          distinctSkills: 0,
+          otherSkillReturns: 0,
+          unvalidatedReturns: 0,
+          capped: false,
+        },
+        agents: [
+          {
+            label: "main",
+            kind: "orchestrator",
+            model: "gpt-5.4",
+            turns: 10,
+            costCents: 5000,
+            compactions: 0,
+            cacheReadPerTurn: 100,
+            errorStops: 0,
+            toolCalls: 10,
+            toolErrors: 0,
+            editCalls: 2,
+            bashCalls: 0,
+            readCalls: 8,
+            agsLookups: 0,
+            permissionAnswers: 0,
+          },
+        ],
+        toolRows: [{ tool: "bash", calls: 5, errors: 0 }],
+      });
+
+      const html = renderReportHtml(flaggedLedger);
+      expect(html).toContain('<details class="sec" id="sec-cost" open>');
+      expect(html).toContain('<details class="sec" id="sec-lookups" open>');
+      expect(html).toContain('<details class="sec" id="sec-agents" open>');
+      // toolRows has 0 errors even though act improvements exist -> stays collapsed
+      expect(html).toContain('<details class="sec" id="sec-tools">');
+      expect(html).toContain('<details class="sec" id="sec-outcome">');
+      expect(html).toContain('<details class="sec" id="sec-limits">');
+    });
+
+    it("wraps wide tables in .table-wrap and includes nowrap CSS rules", () => {
+      const ledger = createLedgerFixture({
+        outcome: {
+          source: "git",
+          branch: "main",
+          commits: 2,
+          mergeCommits: 0,
+          revertCommits: 0,
+          filesChanged: 3,
+          insertions: 10,
+          deletions: 4,
+          windowFrom: "2026-10-01T10:00:00.000Z",
+          windowTo: "2026-10-01T11:00:00.000Z",
+        },
+        days: [{ day: "2026-10-01", turns: 10, costCents: 100, errorStops: 1 }],
+        models: [
+          {
+            model: "gpt-5.4",
+            turns: 10,
+            costCents: 100,
+            inputTokens: 100,
+            outputTokens: 50,
+            cacheReadTokens: 200,
+            errorStops: 1,
+          },
+        ],
+        toolRows: [{ tool: "bash", calls: 5, errors: 1 }],
+        cells: [{ key: "2026-10-01|gpt-5.4", turns: 10, errorStops: 1 }],
+        agents: [
+          {
+            label: "main",
+            kind: "orchestrator",
+            model: "gpt-5.4",
+            turns: 10,
+            costCents: 100,
+            compactions: 0,
+            cacheReadPerTurn: 20,
+            errorStops: 1,
+            toolCalls: 5,
+            toolErrors: 1,
+            editCalls: 1,
+            bashCalls: 2,
+            readCalls: 2,
+            agsLookups: 0,
+            permissionAnswers: 0,
+          },
+        ],
+      });
+      const html = renderReportHtml(ledger, {
+        previous: [
+          {
+            session: "p1",
+            to: "2026-09-29T10:00:00.000Z",
+            turns: 10,
+            costCentsPer100Turns: 100,
+            permissionAnswersPer100TurnsTenths: 0,
+            errorStopsPer100TurnsTenths: 0,
+            toolErrorsPer100CallsTenths: 0,
+            lookupMissPercent: 0,
+            compactionsPer100TurnsTenths: 0,
+            unguardedEditPercent: 0,
+          },
+        ],
+      });
+      expect(html).toContain(".table-wrap{overflow-x:auto;");
+      expect(html).toContain("white-space:nowrap");
+      expect(html).toContain('<div class="table-wrap');
+      // Every <table> in report.html must be inside a .table-wrap container
+      const tableCount = (html.match(/<table>/g) ?? []).length;
+      const wrappedTableCount = (
+        html.match(/<div class="table-wrap[^"]*">\s*<table>/g) ?? []
+      ).length;
+      expect(tableCount).toBeGreaterThan(0);
+      expect(wrappedTableCount).toBe(tableCount);
     });
   });
 });

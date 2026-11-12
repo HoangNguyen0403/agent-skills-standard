@@ -127,6 +127,115 @@ type ViewLedger = Ledger & {
   permissionRequests?: LedgerPermissionRequests | null;
 };
 
+type NavItem = {
+  id: string;
+  label: string;
+  badge?: string;
+  alert?: boolean;
+};
+
+type RenderedSection = {
+  html: string;
+  nav: NavItem;
+};
+
+const CONTROL_CHARS = new RegExp(
+  `[${String.fromCharCode(0)}-${String.fromCharCode(0x1f)}${String.fromCharCode(
+    0x7f,
+  )}]`,
+);
+
+function isSafeEncodedSegment(segment: string): boolean {
+  if (
+    segment.length === 0 ||
+    /^[.]+$/.test(segment) ||
+    segment.includes("..") ||
+    !/^[A-Za-z0-9._~%-]+$/.test(segment)
+  ) {
+    return false;
+  }
+  let decoded: string;
+  try {
+    decoded = decodeURIComponent(segment);
+  } catch {
+    return false;
+  }
+  return (
+    decoded.length > 0 &&
+    decoded !== "." &&
+    decoded !== ".." &&
+    !decoded.includes("..") &&
+    !decoded.includes("/") &&
+    !decoded.includes("\\") &&
+    !decoded.includes(":") &&
+    !CONTROL_CHARS.test(decoded)
+  );
+}
+
+function sanitizeSafeRelativeHref(
+  href: string | null | undefined,
+): string | null {
+  if (typeof href !== "string" || href.length === 0) {
+    return null;
+  }
+  if (
+    CONTROL_CHARS.test(href) ||
+    /[\s\\?#:]/.test(href) ||
+    href.startsWith("/") ||
+    href.includes("//")
+  ) {
+    return null;
+  }
+  if (href === "../../../../index.html") {
+    return href;
+  }
+  if (href.startsWith("../../../") && href.endsWith("/report.html")) {
+    const middle = href.slice("../../../".length, -"/report.html".length);
+    const parts = middle.split("/");
+    if (
+      parts.length === 3 &&
+      parts[1] === "generations" &&
+      isSafeEncodedSegment(parts[0]) &&
+      isSafeEncodedSegment(parts[2])
+    ) {
+      return href;
+    }
+    return null;
+  }
+  const segments = href.split("/");
+  if (
+    segments.length > 0 &&
+    segments[segments.length - 1].endsWith(".html") &&
+    segments.every((seg) => isSafeEncodedSegment(seg))
+  ) {
+    return href;
+  }
+  return null;
+}
+
+function renderTopNav(
+  indexHref: string | null | undefined,
+  navItems: NavItem[],
+): string {
+  const safeIndexHref = sanitizeSafeRelativeHref(indexHref);
+  if (safeIndexHref === null && navItems.length === 0) {
+    return "";
+  }
+  const backLink =
+    safeIndexHref !== null
+      ? `<a class="nav-back" href="${escapeHtml(safeIndexHref)}">← All sessions</a>`
+      : "";
+  const pills = navItems
+    .map((item) => {
+      const text = item.badge ? `${item.label} (${item.badge})` : item.label;
+      const cls = item.alert ? "nav-pill alert" : "nav-pill";
+      return `<a class="${cls}" href="#${escapeHtml(item.id)}">${escapeHtml(text)}</a>`;
+    })
+    .join("\n");
+  const pillsHtml = pills ? `<div class="nav-pills">\n${pills}\n</div>` : "";
+  return `<nav class="top-nav" aria-label="Report navigation">\n${backLink}${backLink && pillsHtml ? "\n" : ""}${pillsHtml}\n</nav>`;
+}
+
 const LOOKUP_TOOLS = [
   "load_skills_for_files",
   "load_skills_for_keywords",
@@ -569,19 +678,22 @@ function wrapCollapsed(
   titleHtml: string,
   headline: string | null,
   innerHtml: string,
+  options?: { id?: string; open?: boolean },
 ): string {
   const sumHtml =
     headline !== null ? `<span class="sum">${escapeHtml(headline)}</span>` : "";
-  return `<details class="sec"><summary>${titleHtml}${sumHtml}</summary>\n${innerHtml}</details>`;
+  const idAttr = options?.id ? ` id="${escapeHtml(options.id)}"` : "";
+  const openAttr = options?.open ? " open" : "";
+  return `<details class="sec"${idAttr}${openAttr}><summary>${titleHtml}${sumHtml}</summary>\n${innerHtml}</details>`;
 }
 
 function renderMaintainerImprovements(
   improvements: LedgerImprovement[] | undefined,
-): string {
+): RenderedSection | null {
   const maintainerImps = (improvements ?? []).filter(
     (imp) => imp.audience === "maintainer",
   );
-  if (maintainerImps.length === 0) return "";
+  if (maintainerImps.length === 0) return null;
 
   let body = '<ul class="mt">\n';
   for (const imp of maintainerImps) {
@@ -597,18 +709,27 @@ function renderMaintainerImprovements(
   body += "</ul>\n";
 
   const headline = plural(maintainerImps.length, "item");
-  return wrapCollapsed(
-    '<h3 class="mt">For the maintainer</h3>',
-    headline,
-    body,
-  );
+  return {
+    html: wrapCollapsed(
+      '<h3 class="mt">For the maintainer</h3>',
+      headline,
+      body,
+      { id: "sec-maintainer", open: false },
+    ),
+    nav: {
+      id: "sec-maintainer",
+      label: "Maintainer",
+      badge: String(maintainerImps.length),
+    },
+  };
 }
 
 function renderPermissionRequests(
   permissionRequests: LedgerPermissionRequests | null | undefined,
   permissionRequestsClaim: Claim | undefined,
-): string {
-  if (!permissionRequests) return "";
+  hasGuardrailAct: boolean,
+): RenderedSection | null {
+  if (!permissionRequests) return null;
 
   const asked = permissionRequestsClaim
     ? countOf(permissionRequestsClaim.values, "asked")
@@ -636,6 +757,7 @@ function renderPermissionRequests(
     "<p>What agents asked permission for, and what was answered. Commands are shown as recorded, after best-effort removal of secrets (tokens, keys, passwords, credentials in URLs). Review before sharing this report.</p>\n";
   body += `<p>${plural(asked, "request")} from ${plural(agentsAsked, "agent")}; ${answered} answered (${allowed} allowed, ${denied} denied), ${unanswered} unanswered.</p>\n`;
   body += `<h4>By tool</h4>
+<div class="table-wrap">
 <table>
 <thead>
 <tr>
@@ -652,9 +774,11 @@ function renderPermissionRequests(
     body += `<tr><td>${escapeHtml(r.name)}</td><td>${r.asked}</td><td>${r.allow}</td><td>${r.deny}</td><td>${r.other}</td><td>${r.unanswered}</td></tr>\n`;
   }
   body += `</tbody>
-</table>\n`;
+</table>
+</div>\n`;
 
   body += `<h4>By program (bash)</h4>
+<div class="table-wrap">
 <table>
 <thead>
 <tr>
@@ -673,7 +797,8 @@ function renderPermissionRequests(
     body += `<tr><td>${escapeHtml(r.name)}</td><td>${r.asked}</td><td>${r.allow}</td><td>${r.deny}</td><td>${r.other}</td><td>${r.unanswered}</td><td>${sharePct}%</td></tr>\n`;
   }
   body += `</tbody>
-</table>\n`;
+</table>
+</div>\n`;
   const allowlistCandidates: string[] = [];
   for (const r of permissionRequests.programs) {
     if (r.asked >= 5 && r.deny === 0 && r.allow > 0) {
@@ -701,6 +826,7 @@ function renderPermissionRequests(
   }
   if (permissionRequests.commands && permissionRequests.commands.length > 0) {
     body += `<h4>Requests to review</h4>
+<div class="table-wrap nowrap-first">
 <table>
 <thead>
 <tr>
@@ -727,7 +853,8 @@ function renderPermissionRequests(
       body += `<tr${trClass}><td>${escapeHtml(verdicts)}</td><td>${r.asked}</td><td>${toolText}</td><td><pre class="cmd">${escapeHtml(r.text)}</pre></td></tr>\n`;
     }
     body += `</tbody>
-</table>\n`;
+</table>
+</div>\n`;
 
     if (
       permissionRequests.distinctCommands > permissionRequests.commands.length
@@ -747,10 +874,28 @@ function renderPermissionRequests(
     "<p>Programs are the first word of the command (after wrappers such as rtk proxy and env). Redaction is best effort: check the commands before sharing this report.</p>\n";
 
   const headline = `${plural(asked, "request")}, ${denied} denied, ${unanswered} unanswered`;
-  return wrapCollapsed("<h3>Permission requests</h3>", headline, body);
+  const shouldOpen = denied > 0 || unanswered > 0 || hasGuardrailAct;
+  const badge =
+    denied > 0
+      ? `${denied} denied`
+      : unanswered > 0
+        ? `${unanswered} unanswered`
+        : String(asked);
+  return {
+    html: wrapCollapsed("<h3>Permission requests</h3>", headline, body, {
+      id: "sec-permissions",
+      open: shouldOpen,
+    }),
+    nav: {
+      id: "sec-permissions",
+      label: "Permissions",
+      badge,
+      alert: denied > 0 || unanswered > 0,
+    },
+  };
 }
 
-function renderOutcome(outcome: LedgerOutcome | undefined): string {
+function renderOutcome(outcome: LedgerOutcome | undefined): RenderedSection {
   const effectiveOutcome: LedgerOutcome = outcome ?? {
     source: "unavailable",
     reason: "not-measured",
@@ -781,7 +926,8 @@ function renderOutcome(outcome: LedgerOutcome | undefined): string {
     headline = sentence.length <= 80 ? sentence : "see section";
   } else {
     const windowStr = `${escapeHtml(effectiveOutcome.windowFrom)} to ${escapeHtml(effectiveOutcome.windowTo)}`;
-    body = `<table>
+    body = `<div class="table-wrap">
+<table>
 <thead>
 <tr>
 <th>Commits</th>
@@ -805,24 +951,39 @@ function renderOutcome(outcome: LedgerOutcome | undefined): string {
 </tr>
 </tbody>
 </table>
+</div>
 <p class="mt">Commits are counted across all branches of the repository in the session window and may include other work; the branch is the current one, not necessarily the session's.</p>\n`;
     headline = `${plural(effectiveOutcome.commits, "commit")}, ${plural(effectiveOutcome.filesChanged, "file")} changed`;
   }
 
-  return wrapCollapsed("<h3>Outcome</h3>", headline, body);
+  return {
+    html: wrapCollapsed("<h3>Outcome</h3>", headline, body, {
+      id: "sec-outcome",
+      open: false,
+    }),
+    nav: {
+      id: "sec-outcome",
+      label: "Outcome",
+      ...(effectiveOutcome.source === "git"
+        ? { badge: plural(effectiveOutcome.commits, "commit") }
+        : {}),
+    },
+  };
 }
 
-function renderTimeline(days: LedgerDay[] | undefined): string {
+function renderTimeline(days: LedgerDay[] | undefined): RenderedSection {
   if (!days || days.length === 0) {
-    return wrapCollapsed(
-      "<h3>Timeline</h3>",
-      null,
-      "<p>No timeline recorded.</p>\n",
-    );
+    return {
+      html: wrapCollapsed(
+        "<h3>Timeline</h3>",
+        null,
+        "<p>No timeline recorded.</p>\n",
+        { id: "sec-timeline", open: false },
+      ),
+      nav: { id: "sec-timeline", label: "Timeline" },
+    };
   }
-
   const maxTurns = Math.max(1, ...days.map((d) => d.turns));
-
   let note = "";
   if (days.length > 31) {
     note = `<p class="mt">Session spans ${days.length} days (more than 31 days; all rows shown).</p>\n`;
@@ -833,8 +994,8 @@ function renderTimeline(days: LedgerDay[] | undefined): string {
     const pct = maxTurns > 0 ? Math.round((d.turns * 100) / maxTurns) : 0;
     rows += `<tr><td>${escapeHtml(d.day)}</td><td>${d.turns} <span class="bar" style="width:${pct}%"></span></td><td>${escapeHtml(formatMoney(d.costCents))} est.</td><td>${d.errorStops}</td></tr>\n`;
   }
-
-  const body = `<table>
+  const body = `<div class="table-wrap nowrap-first">
+<table>
 <thead>
 <tr>
 <th>Day</th>
@@ -846,18 +1007,26 @@ function renderTimeline(days: LedgerDay[] | undefined): string {
 <tbody>
 ${rows}</tbody>
 </table>
+</div>
 ${note}`;
 
   const headline = plural(days.length, "day");
-  return wrapCollapsed("<h3>Timeline</h3>", headline, body);
+  return {
+    html: wrapCollapsed("<h3>Timeline</h3>", headline, body, {
+      id: "sec-timeline",
+      open: false,
+    }),
+    nav: { id: "sec-timeline", label: "Timeline", badge: headline },
+  };
 }
 
 function renderCostAndModels(
   ledger: ViewLedger,
   costDriversClaim: Claim | undefined,
-): string {
+  hasCostAct: boolean,
+): RenderedSection | null {
   const models = ledger.models ?? [];
-  if (!costDriversClaim && models.length === 0) return "";
+  if (!costDriversClaim && models.length === 0) return null;
 
   let body = "";
   let totalCostCents = 0;
@@ -892,7 +1061,8 @@ function renderCostAndModels(
       countOf(costDriversClaim.values, "costCentsMainCoordination"),
     );
 
-    body += `<table>
+    body += `<div class="table-wrap">
+<table>
 <thead>
 <tr>
 <th>Metric</th>
@@ -907,6 +1077,7 @@ function renderCostAndModels(
 <tr><td>Compactions</td><td>${compactionsMain}</td><td>${compactionsOthers}</td></tr>
 </tbody>
 </table>
+</div>
 <p>Main made ${escapeHtml(plural(reads, "read"))}, ${escapeHtml(plural(edits, "edit"))}, ${bash} bash and ${escapeHtml(plural(coord, "coordination call"))} itself; call-share estimate: reads ${escapeHtml(costReads)}, coordination ${escapeHtml(costCoord)} (estimate).</p>\n`;
   }
 
@@ -934,7 +1105,8 @@ function renderCostAndModels(
       totalCostCents = modelsTotalCostCents;
     }
 
-    body += `<table>
+    body += `<div class="table-wrap">
+<table>
 <thead>
 <tr>
 <th>Model</th>
@@ -949,18 +1121,30 @@ function renderCostAndModels(
 <tbody>
 ${rows}<tr class="total"><td>Total</td><td>${totalTurns}</td><td>${escapeHtml(formatMoney(modelsTotalCostCents))} est.</td><td>${formatTokensCompact(totalInput)}</td><td>${formatTokensCompact(totalOutput)}</td><td>${formatTokensCompact(totalCached)}</td><td>${totalErrorStops}</td></tr>
 </tbody>
-</table>\n`;
+</table>
+</div>\n`;
   }
 
   const headline = `${formatMoney(totalCostCents)} est., ${plural(models.length, "model")}`;
-  return wrapCollapsed("<h3>Cost and models</h3>", headline, body);
+  return {
+    html: wrapCollapsed("<h3>Cost and models</h3>", headline, body, {
+      id: "sec-cost",
+      open: hasCostAct,
+    }),
+    nav: {
+      id: "sec-cost",
+      label: "Cost",
+      badge: formatMoney(totalCostCents),
+    },
+  };
 }
 
 function renderToolFailures(
   toolRows: LedgerToolRow[] | undefined,
   claims: Claim[] | undefined,
-): string {
-  if (!toolRows || toolRows.length === 0) return "";
+  hasAnyAct: boolean,
+): RenderedSection | null {
+  if (!toolRows || toolRows.length === 0) return null;
 
   const toolErrorsClaim = (claims ?? []).find(
     (c) => c.template === "tool-errors",
@@ -979,6 +1163,7 @@ function renderToolFailures(
   }
 
   const body = `<p>${failed} of ${calls} tool calls returned an error.</p>
+<div class="table-wrap">
 <table>
 <thead>
 <tr>
@@ -990,20 +1175,38 @@ function renderToolFailures(
 </thead>
 <tbody>
 ${rows}</tbody>
-</table>\n`;
+</table>
+</div>\n`;
 
+  const totalToolErrors = Math.max(
+    failed,
+    toolRows.reduce((sum, r) => sum + r.errors, 0),
+  );
+  const shouldOpen = totalToolErrors > 0 && hasAnyAct;
   const headline = `${failed} of ${plural(calls, "tool call")} failed`;
-  return wrapCollapsed("<h3>Tool failures</h3>", headline, body);
+  return {
+    html: wrapCollapsed("<h3>Tool failures</h3>", headline, body, {
+      id: "sec-tools",
+      open: shouldOpen,
+    }),
+    nav: {
+      id: "sec-tools",
+      label: "Tool failures",
+      badge: `${failed}/${calls}`,
+      alert: shouldOpen,
+    },
+  };
 }
 
-function renderErrorStops(cells: Ledger["cells"] | undefined): string {
+function renderErrorStops(
+  cells: Ledger["cells"] | undefined,
+  hasAgentErrorAct: boolean,
+): RenderedSection | null {
   const errorCells = (cells ?? []).filter((c) => c.errorStops > 0);
-  if (errorCells.length === 0) return "";
-
+  if (errorCells.length === 0) return null;
   const sorted = [...errorCells]
     .sort((a, b) => b.errorStops - a.errorStops)
     .slice(0, 10);
-
   const eligibleForRate = sorted.filter((c) => c.turns >= 5);
   let highestRateCell: (typeof sorted)[0] | null = null;
   let highestRate = -1;
@@ -1048,6 +1251,7 @@ function renderErrorStops(cells: Ledger["cells"] | undefined): string {
   }
 
   const body = `<p>Error stops are turns that ended in an error; the file records that, not why.</p>
+<div class="table-wrap nowrap-first">
 <table>
 <thead>
 <tr>
@@ -1060,25 +1264,46 @@ function renderErrorStops(cells: Ledger["cells"] | undefined): string {
 </thead>
 <tbody>
 ${rows}</tbody>
-</table>\n`;
+</table>
+</div>\n`;
 
   const headline = plural(totalStops, "error stop");
-  return wrapCollapsed("<h3>Error stops</h3>", headline, body);
+  const shouldOpen = totalStops > 0 || hasAgentErrorAct;
+  return {
+    html: wrapCollapsed("<h3>Error stops</h3>", headline, body, {
+      id: "sec-errors",
+      open: shouldOpen,
+    }),
+    nav: {
+      id: "sec-errors",
+      label: "Error stops",
+      badge: String(totalStops),
+      alert: shouldOpen,
+    },
+  };
 }
 
 function renderLookups(
   lookups: LedgerLookups | null | undefined,
   claims: Claim[] | undefined,
-): string {
+  hasLookupsAct: boolean,
+): RenderedSection {
   if (!lookups) {
     const body =
       "<p>AGS lookups were not measured (no session files read).</p>\n";
-    return wrapCollapsed("<h3>AGS lookups</h3>", null, body);
+    return {
+      html: wrapCollapsed("<h3>AGS lookups</h3>", null, body, {
+        id: "sec-lookups",
+        open: hasLookupsAct,
+      }),
+      nav: { id: "sec-lookups", label: "Lookups" },
+    };
   }
 
   let body =
     "<p>What AGS returned for lookups made in this session. Returned is not followed: the file shows what AGS sent, not what the agent did.</p>\n";
-  body += `<table>
+  body += `<div class="table-wrap">
+<table>
 <thead>
 <tr>
 <th>Tool</th>
@@ -1107,10 +1332,12 @@ function renderLookups(
   }
 
   body += `</tbody>
-</table>\n`;
+</table>
+</div>\n`;
 
   if (lookups.skills.length > 0) {
-    body += `<table>
+    body += `<div class="table-wrap">
+<table>
 <thead>
 <tr>
 <th>Skill id</th>
@@ -1123,7 +1350,8 @@ function renderLookups(
       body += `<tr><td>${escapeHtml(s.id)}</td><td>${s.returns}</td><td>${s.mainReturns}/${s.workerReturns}</td></tr>\n`;
     }
     body += `</tbody>
-</table>\n`;
+</table>
+</div>\n`;
   }
 
   const cappedSentence = lookups.capped
@@ -1148,12 +1376,25 @@ function renderLookups(
   }
 
   const headline = `${plural(totalCalls, "lookup")}, ${totalNoMatch} matched nothing`;
-  return wrapCollapsed("<h3>AGS lookups</h3>", headline, body);
+  return {
+    html: wrapCollapsed("<h3>AGS lookups</h3>", headline, body, {
+      id: "sec-lookups",
+      open: hasLookupsAct,
+    }),
+    nav: {
+      id: "sec-lookups",
+      label: "Lookups",
+      badge: String(totalCalls),
+    },
+  };
 }
 
-function renderTrend(ledger: Ledger, context?: ReportContext): string {
+function renderTrend(
+  ledger: Ledger,
+  context?: ReportContext,
+): RenderedSection | null {
   if (!context || !context.previous || context.previous.length === 0) {
-    return "";
+    return null;
   }
 
   const current = computeRates(ledger);
@@ -1167,7 +1408,12 @@ function renderTrend(ledger: Ledger, context?: ReportContext): string {
           ? p.to.slice(0, 10)
           : p.to
         : "unknown";
-      return `<th>session ${escapeHtml(id8)} ending ${escapeHtml(date)}</th>`;
+      const label = `session ${escapeHtml(id8)} ending ${escapeHtml(date)}`;
+      const safeHref = sanitizeSafeRelativeHref(p.reportHref);
+      if (safeHref !== null) {
+        return `<th><a href="${escapeHtml(safeHref)}">${label}</a></th>`;
+      }
+      return `<th>${label}</th>`;
     })
     .join("\n");
 
@@ -1242,6 +1488,7 @@ function renderTrend(ledger: Ledger, context?: ReportContext): string {
   }
 
   const body = `<p>Earlier reports for the same folder; not necessarily the same task.</p>
+<div class="table-wrap">
 <table>
 <thead>
 <tr>
@@ -1252,24 +1499,35 @@ ${prevHeaders}
 </thead>
 <tbody>
 ${rows}</tbody>
-</table>\n`;
+</table>
+</div>\n`;
 
   const headline = `compared with ${plural(prevList.length, "earlier report")}`;
-  return wrapCollapsed(
-    "<h3>Compared with earlier reports for this folder</h3>",
-    headline,
-    body,
-  );
+  return {
+    html: wrapCollapsed(
+      "<h3>Compared with earlier reports for this folder</h3>",
+      headline,
+      body,
+      { id: "sec-trend", open: false },
+    ),
+    nav: {
+      id: "sec-trend",
+      label: "Trend",
+      badge: `${prevList.length} earlier`,
+    },
+  };
 }
 
 function renderAgentsTable(
   agents: LedgerAgent[] | undefined,
   otherAgents: ViewLedger["otherAgents"],
   coverageClaim: Claim | undefined,
-): string {
-  if (!agents || agents.length === 0) return "";
+  hasAgentsAct: boolean,
+): RenderedSection | null {
+  if (!agents || agents.length === 0) return null;
 
-  let body = `<table>
+  let body = `<div class="table-wrap">
+<table>
 <thead>
 <tr>
 <th>Agent</th>
@@ -1296,7 +1554,8 @@ function renderAgentsTable(
   }
 
   body += `</tbody>
-</table>\n`;
+</table>
+</div>\n`;
 
   let headline: string | null = null;
   if (
@@ -1312,10 +1571,21 @@ function renderAgentsTable(
         : null;
   }
 
-  return wrapCollapsed("<h3>Agents</h3>", headline, body);
+  const totalAgentsCount = agents.length + (otherAgents?.count ?? 0);
+  return {
+    html: wrapCollapsed("<h3>Agents</h3>", headline, body, {
+      id: "sec-agents",
+      open: hasAgentsAct,
+    }),
+    nav: {
+      id: "sec-agents",
+      label: "Agents",
+      badge: String(totalAgentsCount),
+    },
+  };
 }
 
-function renderLimits(): string {
+function renderLimits(): RenderedSection {
   const body = `<ul>
 <li>Counts show where to look, not why.</li>
 <li>Cost is a price-table estimate; call-share attribution is an estimate.</li>
@@ -1325,13 +1595,27 @@ function renderLimits(): string {
 <li>Commit counts and the branch come from git at report time.</li>
 </ul>\n`;
 
-  return wrapCollapsed("<h3>Limits</h3>", null, body);
+  return {
+    html: wrapCollapsed("<h3>Limits</h3>", null, body, {
+      id: "sec-limits",
+      open: false,
+    }),
+    nav: { id: "sec-limits", label: "Limits" },
+  };
 }
 
 export const REPORT_CSS = `:root{--red:#c62828;--amber:#b26a00;--ink:#1b1f24;--mute:#5b6570;--line:#e3e7eb;--bg:#f6f8fa}
 *{box-sizing:border-box}
 body{font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif;color:var(--ink);margin:0;background:#fff}
-.wrap{max-width:1000px;margin:0 auto;padding:20px}
+.wrap{max-width:1200px;margin:0 auto;padding:20px}
+a{color:#0969da;text-decoration:none}
+a:hover{text-decoration:underline}
+.top-nav{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 12px;margin:0 0 14px;background:var(--bg);border:1px solid var(--line);border-radius:8px;font-size:13px}
+.nav-back{font-weight:600;white-space:nowrap;padding:3px 10px 3px 0;margin-right:4px;border-right:1px solid var(--line)}
+.nav-pills{display:flex;flex-wrap:wrap;gap:6px}
+.nav-pill{display:inline-block;padding:2px 9px;border:1px solid var(--line);border-radius:99px;background:#fff;color:var(--ink);white-space:nowrap;font-size:12px}
+.nav-pill:hover{border-color:#0969da;color:#0969da;text-decoration:none}
+.nav-pill.alert{border-color:var(--red);color:var(--red);font-weight:600}
 .meta{color:var(--mute);font-size:13px;margin:6px 0 14px}
 .title{font-size:14px;margin:4px 0}
 .soft{color:var(--mute);font-size:12px}
@@ -1361,10 +1645,14 @@ h4{margin:0 0 6px;font-size:15px}
 .chip.none{background:#7b8794}
 .mt,.mt li{font-size:13px;color:var(--mute)}
 .bar{display:inline-block;height:8px;background:var(--mute);border-radius:2px;margin-left:6px;vertical-align:middle}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:8px 0}
+.table-wrap table{margin:0}
 table{border-collapse:collapse;width:100%;font-size:13px;margin:8px 0}
 th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right}
 th:first-child,td:first-child{text-align:left}
-th{font-size:11px;color:var(--mute);text-transform:uppercase}
+th{font-size:11px;color:var(--mute);text-transform:uppercase;white-space:nowrap}
+td:not(:first-child){white-space:nowrap}
+.table-wrap.nowrap-first td:first-child{white-space:nowrap}
 tr.main td{font-weight:700;background:#fff8e1}
 tr.total td{font-weight:700;border-top:1px solid var(--line)}
 ul{margin:8px 0;padding-left:20px}
@@ -1374,6 +1662,7 @@ pre.cmd{white-space:pre-wrap;word-break:break-word;margin:0;font:12px/1.4 ui-mon
 tr.denied{border-left:3px solid var(--red)}
 tr.denied td:first-child{border-left:3px solid var(--red)}
 details.sec{border-top:1px solid var(--line, #ddd);margin:0}
+details.sec:target{outline:2px solid #0969da;border-radius:6px;padding-left:6px;padding-right:6px}
 details.sec>summary{cursor:pointer;list-style:none;display:flex;gap:12px;align-items:baseline;padding:10px 0}
 details.sec>summary::-webkit-details-marker{display:none}
 details.sec>summary::before{content:"\\25B8";color:#666}
@@ -1382,12 +1671,15 @@ details.sec>summary h3{margin:0}
 .sum{color:#555;font-size:13px}
 .hint{color:var(--mute);font-size:13px;margin:12px 0}
 @media print{details.sec>summary{break-after:avoid}}`;
-
 export function renderReportHtml(
   ledger: Ledger,
   context?: ReportContext,
 ): string {
   const vLedger = ledger as ViewLedger;
+  const improvements = vLedger.improvements ?? [];
+  const hasAct = (rule: string): boolean =>
+    improvements.some((imp) => imp.rule === rule && imp.level === "act");
+  const hasAnyAct = improvements.some((imp) => imp.level === "act");
 
   const coverageClaim = ledger.claims.find((c) => c.template === "coverage");
   const costDriversClaim = ledger.claims.find(
@@ -1404,10 +1696,6 @@ export function renderReportHtml(
   );
   const permReqs =
     "permissionRequests" in vLedger ? vLedger.permissionRequests : null;
-  const permissionRequestsHtml = renderPermissionRequests(
-    permReqs,
-    permissionRequestsClaim,
-  );
 
   const headerHtml = renderHeader(vLedger, coverageClaim);
   const bottomLineHtml = renderBottomLine(
@@ -1425,41 +1713,51 @@ export function renderReportHtml(
   );
   const decisionsHtml = renderDecisions(vLedger.improvements);
   const doNextHtml = renderDoNext(vLedger.improvements);
-  const outcomeHtml = renderOutcome(vLedger.outcome);
-  const timelineHtml = renderTimeline(vLedger.days);
-  const costAndModelsHtml = renderCostAndModels(vLedger, costDriversClaim);
-  const toolFailuresHtml = renderToolFailures(vLedger.toolRows, ledger.claims);
-  const errorStopsHtml = renderErrorStops(ledger.cells);
-  const lookupsHtml = renderLookups(vLedger.lookups, ledger.claims);
-  const trendHtml = renderTrend(ledger, context);
-  const agentsHtml = renderAgentsTable(
-    vLedger.agents,
-    vLedger.otherAgents,
-    coverageClaim,
-  );
-  const limitsHtml = renderLimits();
-  const maintainerHtml = renderMaintainerImprovements(vLedger.improvements);
 
-  const collapsedSections = [
-    permissionRequestsHtml,
-    outcomeHtml,
-    timelineHtml,
-    costAndModelsHtml,
-    toolFailuresHtml,
-    errorStopsHtml,
-    lookupsHtml,
-    trendHtml,
-    agentsHtml,
-    limitsHtml,
-    maintainerHtml,
-  ].filter((p) => p.length > 0);
+  const sections = [
+    renderPermissionRequests(
+      permReqs,
+      permissionRequestsClaim,
+      hasAct("guardrail-answers"),
+    ),
+    renderOutcome(vLedger.outcome),
+    renderTimeline(vLedger.days),
+    renderCostAndModels(
+      vLedger,
+      costDriversClaim,
+      hasAct("cost-concentration"),
+    ),
+    renderToolFailures(vLedger.toolRows, ledger.claims, hasAnyAct),
+    renderErrorStops(ledger.cells, hasAct("agent-error-concentration")),
+    renderLookups(
+      vLedger.lookups,
+      ledger.claims,
+      hasAct("unguarded-edits") || hasAct("lookup-misses"),
+    ),
+    renderTrend(ledger, context),
+    renderAgentsTable(
+      vLedger.agents,
+      vLedger.otherAgents,
+      coverageClaim,
+      hasAct("agent-error-concentration") || hasAct("human-intervention"),
+    ),
+    renderLimits(),
+    renderMaintainerImprovements(vLedger.improvements),
+  ].filter((sec): sec is RenderedSection => sec !== null);
+
+  const topNavHtml = renderTopNav(
+    context?.indexHref,
+    sections.map((sec) => sec.nav),
+  );
+  const collapsedSections = sections.map((sec) => sec.html);
 
   const hintHtml =
     collapsedSections.length > 0
-      ? '<p class="hint">Sections below are collapsed. Click a title to expand it.</p>'
+      ? '<p class="hint">Flagged sections are expanded automatically; jump to any section above or click a title to expand or collapse.</p>'
       : "";
 
   const parts = [
+    topNavHtml,
     headerHtml,
     bottomLineHtml,
     tilesHtml,

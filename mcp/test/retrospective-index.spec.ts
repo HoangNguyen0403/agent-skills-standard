@@ -1039,6 +1039,9 @@ describe("renderIndexHtml", () => {
     expect(html).toContain(
       "<i>&lt;script&gt;alert(&#39;title&#39;)&lt;/script&gt;</i> (+2 earlier)",
     );
+    expect(html).toContain(
+      "<meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'none'; style-src 'unsafe-inline'\">",
+    );
   });
 
   it("renders only the newest month as open and older months collapsed", () => {
@@ -1221,6 +1224,187 @@ describe("renderIndexHtml", () => {
     const run1 = renderIndexHtml(sampleResult);
     const run2 = renderIndexHtml(sampleResult);
     expect(run1).toBe(run2);
+  });
+
+  it("wraps wide tables and protects date, money, count, outcome, and action cells from mid-token wrapping", () => {
+    const longTextResult: IndexResult = {
+      query: { since: "2026-10-01", until: "2026-10-31", folder: null },
+      rows: [
+        {
+          session: "sess-long-12345678",
+          sessionShort: "sess-lon",
+          day: "2026-10-28",
+          from: "2026-10-28T09:00:00Z",
+          to: "2026-10-28T11:30:00Z",
+          folderName: "very-long-workspace-folder-name-without-spaces",
+          folderParent: "organizations-and-projects-parent-directory",
+          branch: "feature/very-long-branch-name-that-might-overflow-table",
+          title:
+            "Investigate very-long-session-title-with-continuous-tokens-and-extra-context",
+          outcome: "not measured",
+          turns: 42,
+          costCents: 1566,
+          act: 2,
+          watch: 1,
+          denied: 3,
+          generations: 1,
+          reportHref: "sessions/abc/generations/000001/report.html",
+        },
+      ],
+      matched: 1,
+      omitted: 0,
+      storeSessions: 1,
+      newestDay: "2026-10-28",
+      unreadable: 0,
+      totals: {
+        sessions: 1,
+        turns: 42,
+        costCents: 1566,
+        act: 2,
+        denied: 3,
+      },
+      recurring: [
+        {
+          rule: "guardrail-answers",
+          destination: "permission-setup",
+          sessions: 1,
+          actSessions: 1,
+        },
+      ],
+    };
+
+    const html = renderIndexHtml(longTextResult);
+
+    expect(html).toContain(".wrap{max-width:1280px}");
+    expect(html).toContain(".table-wrap{overflow-x:auto;");
+    expect(html).toContain("white-space:nowrap");
+    expect(html).toContain(
+      "table td.col-session,table td.col-folder,table td.col-branch{white-space:normal;",
+    );
+    const nowrapIdx = html.indexOf("td:not(:first-child){white-space:nowrap}");
+    const resetIdx = html.indexOf(
+      "table td.col-session,table td.col-folder,table td.col-branch{white-space:normal;",
+    );
+    expect(nowrapIdx).toBeGreaterThan(-1);
+    expect(resetIdx).toBeGreaterThan(nowrapIdx);
+    expect(html).toContain("@media(max-width:820px){");
+    expect(html).toContain('<div class="table-wrap">\n<table>');
+    expect(html).toContain('<td class="date">2026-10-28</td>');
+    expect(html).toContain('<td class="col-session">');
+    expect(html).toContain('<td class="col-folder">');
+    expect(html).toContain('<td class="col-branch">');
+    expect(html).toContain('<td class="outcome left">not measured</td>');
+    expect(html).toContain('<td class="money">$15.66 est.</td>');
+    expect(html).toContain(
+      '<td class="action"><a class="open-btn" href="sessions/abc/generations/000001/report.html">Open report</a></td>',
+    );
+  });
+
+  it("prioritizes ACT rules over WATCH-only rules, badges counts, and renders pure-CSS ACT-only filter", () => {
+    const prioritizedResult: IndexResult = {
+      query: { since: "2026-10-01", until: "2026-10-31", folder: null },
+      rows: [
+        {
+          session: "sess-watch",
+          sessionShort: "sess-wat",
+          day: "2026-10-29",
+          from: "2026-10-29T09:00:00Z",
+          to: "2026-10-29T10:00:00Z",
+          folderName: "repo",
+          folderParent: null,
+          branch: "main",
+          title: "Clean Watch Session",
+          outcome: "1 commit",
+          turns: 10,
+          costCents: 120,
+          act: 0,
+          watch: 2,
+          denied: 0,
+          generations: 1,
+          reportHref: "sessions/w1/generations/000001/report.html",
+        },
+        {
+          session: "sess-act",
+          sessionShort: "sess-act",
+          day: "2026-10-28",
+          from: "2026-10-28T09:00:00Z",
+          to: "2026-10-28T10:00:00Z",
+          folderName: "repo",
+          folderParent: null,
+          branch: "fix/guard",
+          title: "Flagged ACT Session",
+          outcome: "2 commits",
+          turns: 18,
+          costCents: 450,
+          act: 2,
+          watch: 1,
+          denied: 1,
+          generations: 1,
+          reportHref: "sessions/a1/generations/000001/report.html",
+        },
+      ],
+      matched: 2,
+      omitted: 0,
+      storeSessions: 2,
+      newestDay: "2026-10-29",
+      unreadable: 0,
+      totals: {
+        sessions: 2,
+        turns: 28,
+        costCents: 570,
+        act: 2,
+        denied: 1,
+      },
+      recurring: [
+        {
+          rule: "lookup-misses",
+          destination: "lookup-setup",
+          sessions: 2,
+          actSessions: 0,
+        },
+        {
+          rule: "guardrail-answers",
+          destination: "permission-setup",
+          sessions: 1,
+          actSessions: 1,
+        },
+      ],
+    };
+
+    const html = renderIndexHtml(prioritizedResult);
+
+    // Recurring problems sorts ACT rules (actSessions > 0) ahead of WATCH-only rules
+    const actRuleIdx = html.indexOf("Permission answers");
+    const watchRuleIdx = html.indexOf("Lookups that matched nothing");
+    expect(actRuleIdx).toBeGreaterThan(-1);
+    expect(watchRuleIdx).toBeGreaterThan(-1);
+    expect(actRuleIdx).toBeLessThan(watchRuleIdx);
+    expect(html).toContain('<span class="badge act">ACT</span>');
+    expect(html).toContain('<span class="badge mute">WATCH only</span>');
+    expect(html).toContain('<tr class="has-act">');
+    expect(html).toContain('<tr class="watch-only">');
+
+    // Pure-CSS zero-JS filter toggle directly preceding monthly details.sec siblings
+    expect(html).toContain(
+      '<input type="checkbox" id="act-only" class="act-filter">',
+    );
+    expect(html).toContain(
+      '<label for="act-only" class="act-filter-label">Show ACT sessions only</label>',
+    );
+    expect(html).toContain(
+      "#act-only:checked ~ details.sec tr.no-act{display:none}",
+    );
+    expect(html).toContain(
+      '<tr class="no-act"><td class="date">2026-10-29</td>',
+    );
+    expect(html).toContain(
+      '<tr class="has-act"><td class="date">2026-10-28</td>',
+    );
+    expect(html).toContain('<span class="badge act">2</span>');
+    expect(html).toContain('<span class="badge watch">2</span>');
+    expect(html).toContain('<span class="badge act">1</span>');
+    expect(html).toContain('<span class="badge mute">0</span>');
+    expect(html).not.toContain("<script");
   });
 });
 
