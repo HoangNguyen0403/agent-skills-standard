@@ -33,6 +33,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [mcp-v0.8.4] - 2026-11-12
+
+**Category**: MCP Server
+
+### Added
+- feat(mcp): improve retrospective diagnostic HTML UI/UX and navigation (#323)
+
 ## [cli-v2.7.5] - 2026-11-11
 
 **Category**: CLI Tool

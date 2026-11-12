@@ -8,7 +8,7 @@
  * Bumped automatically by `scripts/release-mcp.ts` when the MCP package is
  * released and gated in CI, so this pin always matches `mcp/package.json`.
  */
-export const MCP_COMPATIBLE_VERSION = '0.8.3';
+export const MCP_COMPATIBLE_VERSION = '0.8.4';
 
 /**
  * Minimum `agent-skills-standard-mcp` version required for session retrospectives.
