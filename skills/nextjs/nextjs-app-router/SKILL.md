@@ -64,6 +64,7 @@ See [implementation examples](references/implementation.md)
 - **Colocation**: Keep component files, styles, and tests inside route folder.
 - **Layouts**: Use Root Layout (`app/layout.tsx`) for `<html>` and `<body>` tags.
 - [**Self-Hosting Standard**](references/SELF_HOSTING.md)
+- [**Static Export & Cloudflare Pages**](references/CLOUDFLARE_PAGES_EXPORT.md)
 
 
 ## Anti-Patterns

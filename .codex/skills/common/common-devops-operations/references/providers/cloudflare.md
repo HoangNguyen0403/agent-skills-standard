@@ -71,6 +71,7 @@ The Code Mode MCP server exposes a compact tool interface: `search()`, `execute(
 - **Least-Privilege Token Scoping**: Never use the Global API Key or assign Account Administrator permissions. Create scoped API Tokens with minimum required permissions:
   - DNS Management: `Zone:DNS:Edit` (or `Zone:DNS:Read` for read-only modes).
   - Worker Deployment: `Account:Workers Scripts:Edit`, `Account:Workers KV:Edit`.
+  - Pages Deployment (CI/CD): `Account:Cloudflare Pages:Edit`. See [Cloudflare Pages CI/CD & DNS Onboarding](cloudflare-pages.md) for tag-gated GitHub Actions, `secrets` vs `vars`, and registrar DNS cutover.
   - Analytics / Monitoring: `Zone:Analytics:Read`, `Account:Workers Analytics:Read`.
 - **Missing Capability**: If Code Mode `execute()` is blocked or unavailable, return `missing_capability` with the link to `https://developers.cloudflare.com/agents/model-context-protocol/cloudflare/servers-for-cloudflare/`. Do **not** fall back to local `wrangler` CLI commands.
 - **Permission Denied**: If a Cloudflare API call returns HTTP 403 or error code 10000, return `permission_denied` with the missing permission scope, Account/Zone ID, and token guidance.
