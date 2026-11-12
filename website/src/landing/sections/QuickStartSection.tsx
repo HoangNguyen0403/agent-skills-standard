@@ -8,7 +8,6 @@ import {
 import { CopyCommand } from "../CopyCommand.client";
 import landingStyles from "../landing.module.css";
 import styles from "./QuickStart.module.css";
-import { DemoPlayer } from "../DemoPlayer";
 import { GA4Link } from "../analytics/GA4Link.client";
 export function QuickStartSection(): React.JSX.Element {
   const installCmd =
@@ -175,8 +174,6 @@ export function QuickStartSection(): React.JSX.Element {
             </li>
           </ol>
         </div>
-
-        <DemoPlayer />
       </div>
     </section>
   );

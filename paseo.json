@@ -11,6 +11,21 @@
     },
     "test": {
       "command": "pnpm test"
+    },
+    "website:build": {
+      "command": "pnpm website:build"
+    },
+    "website:typecheck": {
+      "command": "pnpm website:typecheck"
+    },
+    "website:lint": {
+      "command": "pnpm website:lint"
+    },
+    "website:test": {
+      "command": "pnpm website:test"
+    },
+    "website:release": {
+      "command": "pnpm website:release"
     }
   }
 }

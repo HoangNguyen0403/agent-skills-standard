@@ -11,6 +11,15 @@
 
 No Cloudflare account, project, Pages project name, production domain, billing authorization, analytics provider, or deployment approval is assumed by this runbook. All are pending inputs until approved by the repository/release owners.
 
+## Do not connect Cloudflare Dashboard Workers Builds UI
+
+Cloudflare's Dashboard Git onboarding ("Set up your application / Configure your Worker project") defaults to Workers Builds settings (`pnpm run build`, `npx wrangler deploy`, `npx wrangler preview`). **Do not** connect this UI to `main` or enable automatic Dashboard Git builds:
+
+- `@ags/website` is a static Next.js export (`website/out`) hosted on **Cloudflare Pages**, not a Cloudflare Worker.
+- Root `pnpm run build` executes `pnpm --filter ./cli build` (the CLI package), not `@ags/website`.
+- Running `npx wrangler deploy` / `npx wrangler preview` from the root expects a Worker configuration, omits `SITE_URL`, and bypasses `website-gate`, Playwright E2E, `website-v*` release-tag gating, and GitHub Environment human approval.
+- Keep Cloudflare Dashboard Git auto-builds disconnected and deploy `website/out` exclusively through `.github/workflows/deploy-website.yml`.
+
 ## Activation prerequisites — block before provisioning or publishing
 
 Obtain and record owner approval for each item before installing a GitHub integration, creating a Pages project, enabling builds, or publishing any artifact. Pages project creation or its first deployment may expose a public `*.pages.dev` address even before a custom domain is attached.
@@ -101,6 +110,32 @@ Cache policy must match the emitted asset names and paths: long-lived immutable 
 The website workflow is a required, path-aware `website-gate`; keep that final check enabled for unrelated pull requests so branch protection receives a conclusion. It must fail closed on change-detection errors and require the website job on relevant changes. Website CI must install from the root lockfile, typecheck, lint, run unit tests, build with a local `SITE_URL`, serve the exported `out` directory, run browser tests against that static origin, and retain failure artifacts. It must not deploy or publish packages.
 
 Before release approval, inspect the exact source revision and actual receipts for: static export and actual 404; unit, browser, keyboard, no-JavaScript, responsive/reflow, clipboard, reduced-motion and cancellation behavior; axe results; local CSP/hydration; metadata, fonts, and social image; and three full, unrounded, consistently configured mobile Lighthouse LHRs. Lighthouse results are lab data only and do not establish field INP. Root recursive unit CI remains a separate consumer and must pass on its existing supported Node runtime.
+
+## Tag-gated GitHub Actions deployment (`.github/workflows/deploy-website.yml`)
+
+Website deployments run through `.github/workflows/deploy-website.yml` (`Deploy Website`), keeping Cloudflare credentials and production approvals in GitHub Actions rather than Cloudflare Dashboard auto-builds.
+
+### Triggers and separation of `verify` vs `deploy`
+
+- **Release tag trigger (`push.tags: ['website-v*']`)**: targets the `production` GitHub Environment (create tags via `pnpm website:release`).
+- **Manual trigger (`workflow_dispatch`)**: accepts `target` (`preview` or `production`, default `preview`).
+- **Isolation**: PRs, regular branch pushes, and non-`website-v*` tags never trigger `deploy-website.yml`.
+- **`verify` job**: runs on Node `22.x` (`pnpm install --frozen-lockfile`, `typecheck`, `lint:check`, `test:cov`, static build, Playwright Chromium install, and `CI=true` `test:e2e`) without access to deployment secrets. It builds with `SITE_URL=http://127.0.0.1:4321` and `DEPLOYMENT_ENV=local` because `website/tests/e2e/landing.spec.ts` asserts local-origin canonical and robots metadata against `serve:export`.
+- **`deploy` job (`needs: [verify]`)**: never reuses the `verify` job's local `127.0.0.1:4321` artifact. After precondition checks pass, it runs `rm -rf website/out` and performs a clean rebuild with the target environment's `SITE_URL`, `DEPLOYMENT_ENV`, and `APPROVED_SITE_URL` (`NEXT_PUBLIC_GA4_*` deliberately unset), verifies `website/out/index.html`, `404.html`, `_headers`, and `robots.txt` before upload, deploys via pinned `pnpm dlx wrangler@4.148.0 pages deploy website/out`, and runs a post-deploy HTTP smoke check (`GET /` returns `200` with `X-Content-Type-Options: nosniff` and `Content-Security-Policy`; `GET /__ags-smoke-404-check` returns `404`).
+
+### Required GitHub Environments, variables, and secrets
+
+Configure two GitHub Environments (`preview` and `production`), requiring at least one human reviewer on `production` so even a pushed `website-v*` tag pauses until approved:
+
+| Scope | Name | Purpose |
+| --- | --- | --- |
+| Environment secret | `CLOUDFLARE_API_TOKEN` | API token scoped strictly to `Cloudflare Pages: Edit` |
+| Environment secret | `CLOUDFLARE_ACCOUNT_ID` | Target Cloudflare account ID |
+| Environment variable | `CF_PAGES_PROJECT` | Target Cloudflare Pages project name |
+| Environment variable | `SITE_URL` | Explicit origin for the target environment (`https://...` required for `production`) |
+| Environment variable | `APPROVED_SITE_URL` | Required for `production` and must equal `SITE_URL`; cleared to empty in `preview` so previews remain `noindex` |
+
+The `deploy` job fails closed before checkout or build if any required secret or variable is empty, or if `production` lacks matching HTTPS `SITE_URL` and `APPROVED_SITE_URL`.
 
 ## Preview and public-launch gates
 

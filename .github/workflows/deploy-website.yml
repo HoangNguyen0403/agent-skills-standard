@@ -1,0 +1,261 @@
+name: Deploy Website
+
+permissions:
+  contents: read
+
+on:
+  push:
+    tags:
+      - 'website-v*'
+  workflow_dispatch:
+    inputs:
+      target:
+        type: choice
+        description: 'Target Cloudflare Pages environment'
+        required: true
+        default: 'preview'
+        options:
+          - 'preview'
+          - 'production'
+
+jobs:
+  verify:
+    name: Verify Website
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22.x"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type Check Website
+        run: pnpm --filter @ags/website typecheck
+
+      - name: Lint Website
+        run: pnpm --filter @ags/website lint:check
+
+      - name: Run Unit Tests with Coverage
+        run: pnpm --filter @ags/website test:cov
+
+      - name: Build Static Export (Local E2E Origin)
+        run: pnpm --filter @ags/website build
+        env:
+          SITE_URL: "http://127.0.0.1:4321"
+          DEPLOYMENT_ENV: "local"
+
+      - name: Install Playwright Chromium
+        run: pnpm --filter @ags/website exec playwright install --with-deps chromium
+
+      - name: Run Playwright E2E Tests
+        run: pnpm --filter @ags/website test:e2e
+        env:
+          CI: "true"
+
+      - name: Upload Test Results Artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: website-test-results
+          path: |
+            website/test-results
+          retention-days: 7
+
+  deploy:
+    name: Deploy to Cloudflare Pages
+    needs: [verify]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: ${{ (github.event_name == 'push' || inputs.target == 'production') && 'production' || 'preview' }}
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - name: Determine Target & Validate Inputs
+        id: config
+        env:
+          INPUT_TARGET: ${{ inputs.target }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CF_PAGES_PROJECT: ${{ vars.CF_PAGES_PROJECT }}
+          SITE_URL: ${{ vars.SITE_URL }}
+          APPROVED_SITE_URL: ${{ vars.APPROVED_SITE_URL }}
+        run: |
+          set -euo pipefail
+
+          if [ "${GITHUB_EVENT_NAME}" = "push" ] || [ "${INPUT_TARGET:-}" = "production" ]; then
+            TARGET="production"
+          else
+            TARGET="preview"
+          fi
+
+          for var_name in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID CF_PAGES_PROJECT SITE_URL; do
+            if [ -z "${!var_name:-}" ]; then
+              echo "::error::Missing required environment input: ${var_name}"
+              exit 1
+            fi
+          done
+
+          if [ "${TARGET}" = "production" ]; then
+            case "${SITE_URL}" in
+              https://*) ;;
+              *)
+                echo "::error::Production SITE_URL must start with https://"
+                exit 1
+                ;;
+            esac
+
+            if [ -z "${APPROVED_SITE_URL:-}" ] || [ "${APPROVED_SITE_URL}" != "${SITE_URL}" ]; then
+              echo "::error::Production deployment requires APPROVED_SITE_URL to be non-empty and equal to SITE_URL"
+              exit 1
+            fi
+
+            DEPLOYMENT_ENV="production"
+            PAGES_BRANCH="main"
+          else
+            DEPLOYMENT_ENV="preview"
+            APPROVED_SITE_URL=""
+            PAGES_BRANCH="preview-${GITHUB_RUN_ID}"
+          fi
+
+          {
+            echo "target=${TARGET}"
+            echo "deployment_env=${DEPLOYMENT_ENV}"
+            echo "site_url=${SITE_URL}"
+            echo "approved_site_url=${APPROVED_SITE_URL}"
+            echo "pages_branch=${PAGES_BRANCH}"
+          } >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22.x"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Clean Rebuild Static Export
+        env:
+          SITE_URL: ${{ steps.config.outputs.site_url }}
+          DEPLOYMENT_ENV: ${{ steps.config.outputs.deployment_env }}
+          APPROVED_SITE_URL: ${{ steps.config.outputs.approved_site_url }}
+        run: |
+          set -euo pipefail
+          unset NEXT_PUBLIC_GA4_ENABLED NEXT_PUBLIC_GA4_OPERATOR_APPROVAL NEXT_PUBLIC_GA4_MEASUREMENT_ID NEXT_PUBLIC_GA4_PAGE_URL
+          rm -rf website/out
+          pnpm --filter @ags/website build
+
+      - name: Verify Export Integrity
+        env:
+          TARGET: ${{ steps.config.outputs.target }}
+          SITE_URL: ${{ steps.config.outputs.site_url }}
+        run: |
+          set -euo pipefail
+
+          for file in website/out/index.html website/out/404.html website/out/_headers website/out/robots.txt; do
+            if [ ! -s "${file}" ]; then
+              echo "::error::Missing or empty export artifact: ${file}"
+              exit 1
+            fi
+          done
+
+          EXPECTED_ORIGIN="${SITE_URL%/}"
+          if ! grep -Fq "rel=\"canonical\" href=\"${EXPECTED_ORIGIN}\"" website/out/index.html && ! grep -Fq "rel=\"canonical\" href=\"${EXPECTED_ORIGIN}/\"" website/out/index.html; then
+            echo "::error::website/out/index.html does not contain canonical href for ${EXPECTED_ORIGIN}"
+            exit 1
+          fi
+
+          if grep -Fq "http://127.0.0.1:4321" website/out/index.html; then
+            echo "::error::website/out/index.html contains local origin http://127.0.0.1:4321"
+            exit 1
+          fi
+
+          if [ "${TARGET}" = "production" ]; then
+            if ! grep -Fq "Allow: /" website/out/robots.txt; then
+              echo "::error::Production website/out/robots.txt must contain Allow: /"
+              exit 1
+            fi
+          else
+            if ! grep -Fq "Disallow: /" website/out/robots.txt; then
+              echo "::error::Preview website/out/robots.txt must contain Disallow: /"
+              exit 1
+            fi
+          fi
+
+      - name: Deploy to Cloudflare Pages
+        id: deploy_pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CF_PAGES_PROJECT: ${{ vars.CF_PAGES_PROJECT }}
+          PAGES_BRANCH: ${{ steps.config.outputs.pages_branch }}
+        run: |
+          set -euo pipefail
+          DEPLOY_LOG="$(mktemp)"
+          trap 'rm -f "${DEPLOY_LOG}"' EXIT
+
+          pnpm dlx wrangler@4.148.0 pages deploy website/out \
+            --project-name "${CF_PAGES_PROJECT}" \
+            --branch "${PAGES_BRANCH}" \
+            --commit-hash "${GITHUB_SHA}" 2>&1 | tee "${DEPLOY_LOG}"
+
+          DEPLOY_URL="$(grep -Eo 'https://[a-zA-Z0-9.-]+\.pages\.dev' "${DEPLOY_LOG}" | head -n 1 || true)"
+          if [ -z "${DEPLOY_URL}" ]; then
+            echo "::error::Could not extract Cloudflare Pages deployment URL from wrangler output"
+            exit 1
+          fi
+
+          echo "url=${DEPLOY_URL}" >> "$GITHUB_OUTPUT"
+
+      - name: Post-Deploy HTTP Smoke Check
+        env:
+          DEPLOY_URL: ${{ steps.deploy_pages.outputs.url }}
+        run: |
+          set -euo pipefail
+          STATUS=""
+          for attempt in 1 2 3 4 5; do
+            STATUS="$(curl -sS -o /dev/null -w "%{http_code}" "${DEPLOY_URL}/" || true)"
+            if [ "${STATUS}" = "200" ]; then
+              break
+            fi
+            echo "Attempt ${attempt}/5: GET ${DEPLOY_URL}/ returned HTTP ${STATUS:-error}; retrying in 3s..."
+            sleep 3
+          done
+
+          if [ "${STATUS}" != "200" ]; then
+            echo "::error::Smoke check failed: GET ${DEPLOY_URL}/ returned HTTP ${STATUS:-error}"
+            exit 1
+          fi
+
+          HEADERS_FILE="$(mktemp)"
+          trap 'rm -f "${HEADERS_FILE}"' EXIT
+          curl -sS -D "${HEADERS_FILE}" -o /dev/null "${DEPLOY_URL}/"
+
+          if ! grep -qi '^x-content-type-options:[[:space:]]*nosniff' "${HEADERS_FILE}"; then
+            echo "::error::Missing X-Content-Type-Options: nosniff header on ${DEPLOY_URL}/"
+            exit 1
+          fi
+
+          if ! grep -qi '^content-security-policy:' "${HEADERS_FILE}"; then
+            echo "::error::Missing Content-Security-Policy header on ${DEPLOY_URL}/"
+            exit 1
+          fi
+
+          NOT_FOUND_STATUS="$(curl -sS -o /dev/null -w "%{http_code}" "${DEPLOY_URL}/__ags-smoke-404-check")"
+          if [ "${NOT_FOUND_STATUS}" != "404" ]; then
+            echo "::error::Expected HTTP 404 for ${DEPLOY_URL}/__ags-smoke-404-check, got ${NOT_FOUND_STATUS}"
+            exit 1
+          fi
+
+          echo "Smoke check passed for ${DEPLOY_URL}"
