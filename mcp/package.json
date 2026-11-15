@@ -75,7 +75,7 @@
     "express": "^5.3.0",
     "fs-extra": "^11.4.1",
     "js-yaml": "^5.4.3",
-    "minimatch": "^11.0.4",
+    "minimatch": "^11.0.8",
     "zod": "^4.6.7"
   },
   "devDependencies": {
@@ -87,7 +87,7 @@
     "tsup": "^9.0.0",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
-    "vite": "^8.3.4",
+    "vite": "^8.3.8",
     "vitest": "^5.1.0"
   }
 }

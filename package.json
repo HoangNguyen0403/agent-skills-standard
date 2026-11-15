@@ -16,7 +16,9 @@
       "fast-copy": "4.1.0",
       "source-map-js": ">=1.2.2",
       "express@5>body-parser": "2.4.0",
-      "multer": "2.5.0"
+      "multer": "2.5.0",
+      "hono": ">=4.13.18",
+      "@hono/node-server": ">=2.1.6"
     }
   },
   "scripts": {
@@ -123,15 +125,15 @@
     "eslint-plugin-prettier": "^5.5.7",
     "fs-extra": "^11.4.1",
     "globals": "^17.14.0",
-    "gpt-tokenizer": "^4.0.0",
+    "gpt-tokenizer": "^4.1.2",
     "husky": "^9.1.7",
-    "inquirer": "^14.2.5",
+    "inquirer": "^14.3.0",
     "jiti": "^2.7.0",
     "js-yaml": "^5.4.3",
     "picocolors": "^1.1.1",
-    "prettier": "^3.9.10",
+    "prettier": "^3.10.0",
     "tsx": "^4.23.15",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.72.1"
+    "typescript-eslint": "^8.72.2"
   }
 }
