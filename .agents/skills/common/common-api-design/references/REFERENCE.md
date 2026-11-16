@@ -55,7 +55,7 @@ POST   /v1/orders/:id/cancel   # action sub-resource (not a verb in base URL)
 
 ```http
 HTTP/1.1 200 OK
-Deprecation: true
-Sunset: Sat, 31 Dec 2025 23:59:59 GMT
+Deprecation: @1688169599
+Sunset: Tue, 31 Dec 2024 23:59:59 GMT
 Link: </v2/orders>; rel="successor-version"
 ```

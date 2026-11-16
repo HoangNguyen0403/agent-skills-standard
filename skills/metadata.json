@@ -489,13 +489,13 @@
       ]
     },
     "common": {
-      "version": "2.9.8",
-      "last_updated": "2026-11-11",
+      "version": "2.9.9",
+      "last_updated": "2026-11-16",
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 48,
-        "total_tokens": 53066,
-        "avg_tokens_per_skill": 1106,
+        "total_tokens": 53135,
+        "avg_tokens_per_skill": 1107,
         "largest_skill": "common-subagent-driven-development (2563 tokens)"
       },
       "owners": [
@@ -813,14 +813,14 @@
       ]
     },
     "system-design": {
-      "version": "1.2.7",
-      "last_updated": "2026-11-09",
+      "version": "1.2.8",
+      "last_updated": "2026-11-16",
       "tag_prefix": "system-design-v",
       "token_metrics": {
         "total_skills": 14,
-        "total_tokens": 18945,
-        "avg_tokens_per_skill": 1353,
-        "largest_skill": "system-design-review (2010 tokens)"
+        "total_tokens": 19249,
+        "avg_tokens_per_skill": 1375,
+        "largest_skill": "system-design-review (2028 tokens)"
       },
       "owners": [
         "HoangNguyen0403"

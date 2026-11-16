@@ -42,10 +42,20 @@ delete on write (exact, needs full write coverage), versioned keys (no delete ne
 event-driven invalidation (works across services, adds a dependency).
 
 Failure modes to design against:
-- **Stampede**: many misses on one hot key at once. Fix with single-flight, jittered TTL, or refresh-ahead.
+- **Stampede**: many misses on one hot key at expiry. Use request coalescing and, for predictable hot keys, refresh-ahead; size the burst against origin concurrency bounds in [Miss-Path Protection](#miss-path-protection). TTL jitter alone does not coalesce misses for one expired key.
 - **Penetration**: repeated misses for keys that do not exist. Fix with negative caching or a bloom filter.
 - **Avalanche**: many keys expiring together. Fix with TTL jitter.
 - **Hot key**: one key exceeds one node's capacity. Fix with local replication of that key or client-side caching.
+
+### Miss-Path Protection
+
+- Size an expiry burst before choosing machinery: `concurrent fills ≈ key request rate × fill latency`; state both units and compare the result with origin concurrency headroom.
+- Coalesce in-process for one fill per instance. Use a cross-instance lease with bounded expiry and version fencing only when the per-instance fill demand across instances exceeds origin headroom.
+- Serve stale only within the declared freshness bound. Use refresh-ahead for predictable hot keys; use TTL jitter only for correlated expiry.
+- Bound waiters by count and deadline, and declare overflow behavior (for example, serve eligible stale data or fail fast). Set the fill timeout shorter than the waiter deadline.
+- On owner error, use at most a short negative TTL and cap retries. A late fill must publish only if its version is still current; it must not overwrite newer data.
+- Cold start and flush miss across many keys at once; cap origin concurrency globally.
+- Verify a concurrent miss burst produces one fill per key per declared scope; kill an owner mid-fill and confirm waiters resolve within their deadline.
 
 ## Queues and Streams
 

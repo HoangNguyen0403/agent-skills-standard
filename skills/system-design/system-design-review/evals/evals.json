@@ -154,6 +154,45 @@
         { "type": "contains_any", "value": ["pagination", "row multiplication", "Cartesian", "LIMIT", "duplicate rows"], "description": "Rejects giant JOIN due to pagination/row inflation" },
         { "type": "contains_any", "value": ["batch", "batching", "bounded", "DataLoader"], "description": "Recommends bounded batching or DataLoader" }
       ]
+    },
+    {
+      "id": 12,
+      "prompt": "Review a design where two clients read the same version and perform a read-modify-write. Both writes succeed, and the later write silently erases a concurrent committed change even though the invariant requires both updates to be preserved.",
+      "expected_output": "Treats the silent lost update as a correctness gate failure, traces the violated invariant and adverse timeline, and recommends an atomic version or validator check at the authoritative writer with a conflict outcome.",
+      "assertions": [
+        { "type": "contains_any", "value": ["lost update", "lost change", "concurrent committed change"], "description": "Identifies the concurrent overwrite" },
+        { "type": "contains_any", "value": ["atomic", "authoritative writer"], "description": "Requires atomic arbitration at the writer" },
+        { "type": "contains_any", "value": ["conflict", "re-read"], "description": "Specifies a safe conflict outcome" }
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "Review this API design: the handler returns the database row directly, including internal columns that the client does not need and should not rely on.",
+      "expected_output": "Finds the storage-to-client contract leak and recommends an explicit allow-listed response mapping that keeps internal columns private.",
+      "assertions": [
+        { "type": "contains_any", "value": ["internal column", "storage", "database row"], "description": "Identifies the leaked internal representation" },
+        { "type": "contains_any", "value": ["allow-list", "explicit mapping", "response mapping"], "description": "Recommends an explicit client contract boundary" }
+      ]
+    },
+    {
+      "id": 14,
+      "prompt": "A hot key expires at 900 requests/s while each cache fill takes 2 seconds. The origin can safely handle only 300 concurrent fills. Review the miss path and decide whether protection is needed.",
+      "expected_output": "Calculates about 1,800 concurrent fills, compares that with the 300-fill origin headroom, and recommends bounded miss-path protection appropriate to scope rather than accepting origin saturation.",
+      "assertions": [
+        { "type": "contains_any", "value": ["1,800", "1800", "1.8k"], "description": "Estimates concurrent hot-key fills" },
+        { "type": "contains_any", "value": ["300", "headroom", "origin"], "description": "Compares against origin capacity" },
+        { "type": "contains_any", "value": ["coalesc", "bounded", "miss-path"], "description": "Protects the miss path without requiring arbitrary machinery" }
+      ]
+    },
+    {
+      "id": 15,
+      "prompt": "Our postmortem found that a failure class has recurred several times. Review the design follow-up: it lists the incidents but has no mechanism changes, detection-gap owners, or accepted-risk owners and review triggers.",
+      "expected_output": "Treats recurrence as a design finding and maps each contributing cause to an owned mechanism change, a detection gap with alert/runbook ownership, or an accepted risk with a review trigger.",
+      "assertions": [
+        { "type": "contains_any", "value": ["recurring", "recurred", "recurrence"], "description": "Recognizes recurrence as a design finding" },
+        { "type": "contains_any", "value": ["mechanism", "detection gap", "accepted risk"], "description": "Maps causes to a concrete response category" },
+        { "type": "contains_any", "value": ["owner", "review trigger", "runbook"], "description": "Requires accountable follow-up" }
+      ]
     }
   ],
   "should_trigger": [

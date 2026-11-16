@@ -12,7 +12,7 @@
 | Skill | Match when user mentions |
 | ----- | ----------------------- |
 | system-design-artifact-intake | review this design, review this diagram, review this architecture, drawio, excalidraw, plantuml, structurizr, design screenshot, whiteboard photo, architecture image |
-| system-design-building-blocks | load balancer, cache strategy, message queue, cdn, api gateway, consistent hashing, pub/sub, rate limiter, backpressure |
+| system-design-building-blocks | load balancer, cache strategy, message queue, cdn, api gateway, consistent hashing, pub/sub, rate limiter, backpressure, single-flight, thundering herd |
 | system-design-case-catalog | system design interview, design twitter, design url shortener, news feed, design chat system, web crawler, unique id generator, video streaming, video publishing, ride hailing, ride dispatch, payment ledger, payment timeout, flash sale, multi-tenant SaaS, cache stampede, notification outage, chat reconnect, database migration |
 | system-design-communication | grpc, graphql vs rest, websocket, server-sent events, webhook, service discovery, protocol choice, api paradigm, dns routing |
 | system-design-data-architecture | sql vs nosql, sharding, replication, partition key, denormalization, hot partition, data store choice, read replica, polyglot persistence, system data flow, critical data flow, DFD review, data lineage, data authority, tenant isolation, multitenant retrieval, retrieval authorization, deletion propagation |
@@ -21,7 +21,7 @@
 | system-design-interview-coaching | mock interview, interview practice, interview prep, practice round, system design round, grade my design, time budget |
 | **system-design-methodology** | system design, design a system, design session, high-level design, low-level design, HLD, LLD, requirements clarification, capacity planning, scale this, system architect |
 | system-design-mobile-client | mobile client system design, offline sync, client authority, client lifecycle, SDK system design, SDK compatibility, device resource constraints |
-| **system-design-principles** | architecture, scalability, microservice, microservices, module boundary, coupling, bounded context, dependency direction, clean architecture, cap theorem, idempotency |
+| **system-design-principles** | architecture, scalability, microservice, microservices, module boundary, coupling, bounded context, dependency direction, clean architecture, cap theorem, idempotency, lost update, optimistic concurrency |
 | system-design-resilience-ops | single point of failure, failover, disaster recovery, rpo, rto, multi-region, autoscaling, deployment strategy, blue-green, canary |
 | system-design-review | design review, architecture review, design scorecard, bottleneck analysis, scalability audit, evolution roadmap, architecture assessment |
 

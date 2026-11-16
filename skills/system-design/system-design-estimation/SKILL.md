@@ -67,3 +67,4 @@ Estimate decision-relevant quantities before you architect. One order of magnitu
 ## References
 
 - [Estimation Numbers](references/estimation-numbers.md) - powers of two, latency table, single-node ceilings, worked examples
+- [Cache Miss Burst](references/estimation-numbers.md#cache-miss-burst) - size hot-key expiry demand against origin concurrency headroom.
