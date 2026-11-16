@@ -103,7 +103,7 @@
     {
       "id": "ac-005",
       "prompt": "Review an API handler that returns a raw database row. What contract changes are needed?",
-      "expected_output": "Map explicitly to an allow-listed response representation, declare one casing convention, and enforce object-level authorization for every resource/action in the data-access predicate.",
+      "expected_output": "Require explicit response mapping to an allow-listed representation, declare one casing convention, and enforce object-level authorization for every resource/action in the data-access predicate; link common-owasp as the security owner.",
       "assertions": [
         { "id": "ac-005-map", "description": "Requires explicit mapping", "type": "contains", "value": "explicit response mapping" },
         { "id": "ac-005-casing", "description": "Requires one declared casing convention", "type": "contains", "value": "casing convention" },
