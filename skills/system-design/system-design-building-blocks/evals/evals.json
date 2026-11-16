@@ -250,7 +250,7 @@
           "value": [
             "short negative TTL",
             "retries are capped",
-            "cap retries"
+            "caps retries"
           ]
         },
         {

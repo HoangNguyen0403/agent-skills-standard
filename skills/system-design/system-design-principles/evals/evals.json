@@ -183,7 +183,7 @@
         },
         {
           "type": "contains_any",
-          "value": ["does not require version", "versioning is unnecessary", "no version precondition"],
+          "value": ["does not require a version", "versioning is unnecessary", "no version precondition"],
           "description": "Does not mandate versioning"
         }
       ]
