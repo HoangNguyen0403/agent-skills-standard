@@ -28,13 +28,89 @@ interface SkillEvalCase {
 
 interface PressureScenario {
   prompt?: string;
+  behavior_assertions?: string[];
 }
 
-interface EvalsJson {
+export interface EvalsJson {
   evals?: SkillEvalCase[];
   should_trigger?: string[];
   should_not_trigger?: string[];
   pressure_scenarios?: PressureScenario[];
+}
+
+export interface EvalCaseDefinition {
+  id: string;
+  kind: EvalCaseRef["kind"];
+  prompt: string;
+  assertions?: Assertion[];
+  behaviorAssertions?: string[];
+  expectedTrigger?: "yes" | "no";
+}
+
+/**
+ * The single case-identity mapping for a skill: `eval-<id>`, positional
+ * `trigger-<n>` counted across should_trigger then should_not_trigger, and
+ * positional `pressure-<index+1>`. Manifest building and the gate's case
+ * comparison both read cases through this function.
+ */
+export function evalCaseDefinitions(evalsData: EvalsJson): EvalCaseDefinition[] {
+  const definitions: EvalCaseDefinition[] = (evalsData.evals ?? []).map(
+    (evaluation) => ({
+      id: `eval-${evaluation.id}`,
+      kind: "eval",
+      prompt: evaluation.prompt,
+      assertions: evaluation.assertions ?? [],
+    }),
+  );
+  let triggerIndex = 0;
+  for (const [field, expectedTrigger] of [
+    ["should_trigger", "yes"],
+    ["should_not_trigger", "no"],
+  ] as const) {
+    for (const prompt of evalsData[field] ?? []) {
+      definitions.push({
+        id: `trigger-${++triggerIndex}`,
+        kind: "trigger",
+        prompt,
+        expectedTrigger,
+      });
+    }
+  }
+  for (const [index, scenario] of (
+    evalsData.pressure_scenarios ?? []
+  ).entries()) {
+    if (!scenario.prompt) continue;
+    definitions.push({
+      id: `pressure-${index + 1}`,
+      kind: "pressure",
+      prompt: scenario.prompt,
+      behaviorAssertions: scenario.behavior_assertions ?? [],
+    });
+  }
+  return definitions;
+}
+
+/**
+ * Canonical text whose equality means the same case definition: prompt plus
+ * assertions for eval cases, prompt plus expected decision for trigger cases,
+ * and prompt plus behaviour assertions for pressure cases.
+ */
+export function caseDefinitionFingerprint(
+  definition: EvalCaseDefinition,
+): string {
+  const assertions = (
+    definition.kind === "pressure"
+      ? definition.behaviorAssertions
+      : definition.assertions?.map((assertion) => ({
+          type: assertion.type,
+          value: assertion.value,
+        }))
+  ) ?? [];
+  return JSON.stringify([
+    definition.prompt,
+    assertions,
+    definition.expectedTrigger ?? null,
+  ]);
 }
 
 export interface ManifestBuildOptions {
@@ -140,6 +216,41 @@ function makeCase(
   return { id, kind, arms, ...(expectedTrigger ? { expectedTrigger } : {}) };
 }
 
+function writeCasePrompt(
+  promptsDir: string,
+  definition: EvalCaseDefinition,
+  skillName: string,
+  description: string,
+): void {
+  const body =
+    definition.kind === "trigger"
+      ? triggerPromptBody(
+          skillName,
+          description,
+          definition.id,
+          definition.prompt,
+        )
+      : definition.kind === "pressure"
+        ? pressurePromptBody(definition.prompt)
+        : evalPromptBody(definition.prompt);
+  fs.writeFileSync(path.join(promptsDir, `${definition.id}.md`), body);
+}
+
+function makeManifestCase(definition: EvalCaseDefinition): EvalCaseRef {
+  if (definition.kind === "trigger") {
+    return makeCase(
+      definition.id,
+      "trigger",
+      { "with-skill": "pending" },
+      definition.expectedTrigger,
+    );
+  }
+  return makeCase(definition.id, definition.kind, {
+    baseline: "pending",
+    "with-skill": "pending",
+  });
+}
+
 function buildSkill(
   repoRoot: string,
   runDir: string,
@@ -206,49 +317,12 @@ function buildSkill(
   fs.ensureDirSync(answersDir);
 
   const cases: EvalCaseRef[] = [];
-  for (const evaluation of evalsData.evals ?? []) {
-    const id = `eval-${evaluation.id}`;
-    fs.writeFileSync(
-      path.join(promptsDir, `${id}.md`),
-      evalPromptBody(evaluation.prompt),
-    );
-    cases.push(
-      makeCase(id, "eval", { baseline: "pending", "with-skill": "pending" }),
-    );
-  }
-
-  let triggerIndex = 0;
-  for (const [field, expected] of [
-    ["should_trigger", "yes"],
-    ["should_not_trigger", "no"],
-  ] as const) {
-    (evalsData[field] ?? []).forEach((prompt) => {
-      const id = `trigger-${++triggerIndex}`;
-      fs.writeFileSync(
-        path.join(promptsDir, `${id}.md`),
-        triggerPromptBody(skillName, description, id, prompt),
-      );
-      cases.push(
-        makeCase(id, "trigger", { "with-skill": "pending" }, expected),
-      );
-    });
-  }
-
-  if (guardrailApplicable) {
-    (evalsData.pressure_scenarios ?? []).forEach((scenario, index) => {
-      if (!scenario.prompt) return;
-      const id = `pressure-${index + 1}`;
-      fs.writeFileSync(
-        path.join(promptsDir, `${id}.md`),
-        pressurePromptBody(scenario.prompt),
-      );
-      cases.push(
-        makeCase(id, "pressure", {
-          baseline: "pending",
-          "with-skill": "pending",
-        }),
-      );
-    });
+  const definitions = evalCaseDefinitions(evalsData).filter(
+    (definition) => definition.kind !== "pressure" || guardrailApplicable,
+  );
+  for (const definition of definitions) {
+    writeCasePrompt(promptsDir, definition, skillName, description);
+    cases.push(makeManifestCase(definition));
   }
   if (cases.length === 0) return null;
 

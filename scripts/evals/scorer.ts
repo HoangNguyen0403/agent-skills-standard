@@ -420,6 +420,33 @@ function isBaselineCompromised(
   );
 }
 
+/**
+ * A skill's assertion-semantics version: per-skill provenance first, then the
+ * manifest-level value. `undefined` means unresolved, never a default.
+ */
+export function resolveAssertionSemanticsVersion(
+  manifest: Manifest,
+  key: string,
+): AssertionSemanticsVersion | undefined {
+  if (manifest.schemaVersion !== 2) return undefined;
+  return (
+    manifest.provenance?.[key]?.assertionSemanticsVersion ??
+    manifest.assertionSemanticsVersion
+  );
+}
+
+/** Trigger activation-evidence version for a skill; `undefined` means unresolved. */
+export function resolveActivationEvidenceVersion(
+  manifest: Manifest,
+  key: string,
+): 2 | 3 | undefined {
+  if (manifest.schemaVersion !== 2) return undefined;
+  return (
+    manifest.provenance?.[key]?.activationEvidenceVersion ??
+    manifest.activationEvidenceVersion
+  );
+}
+
 function scoreSkill(
   runDir: string,
   manifest: Manifest,
@@ -434,22 +461,11 @@ function scoreSkill(
     ]),
   );
   const pressureByIndex = evalsData.pressure_scenarios ?? [];
-  const provenance =
-    manifest.schemaVersion === 2
-      ? manifest.provenance?.[`${skill.category}/${skill.skillName}`]
-      : undefined;
+  const key = `${skill.category}/${skill.skillName}`;
   const semanticsVersion =
-    manifest.schemaVersion === 2
-      ? (provenance?.assertionSemanticsVersion ??
-        manifest.assertionSemanticsVersion ??
-        1)
-      : 1;
+    resolveAssertionSemanticsVersion(manifest, key) ?? 1;
   const activationEvidenceTrusted =
-    manifest.schemaVersion === 2
-      ? provenance?.activationEvidenceVersion !== undefined
-        ? provenance.activationEvidenceVersion === 3
-        : manifest.activationEvidenceVersion === 3
-      : false;
+    resolveActivationEvidenceVersion(manifest, key) === 3;
   const scores: CaseScore[] = [];
 
   for (const currentCase of skill.cases) {
