@@ -4,11 +4,11 @@
     {
       "id": 1,
       "prompt": "Review this PR — it adds a new endpoint that takes a user ID from the URL and returns their data without any auth check.",
-      "expected_output": "[BLOCKER] [routes/user.ts] Missing authentication and authorization check. Why: Any unauthenticated caller can retrieve any user's data (IDOR vulnerability). Fix: Add auth middleware and verify the requesting user owns the resource.",
+      "expected_output": "[Blocker] routes/user.ts:12\nEvidence: The URL accepts a user ID and the diff adds no authentication or ownership check.\nWhy: Any unauthenticated caller can retrieve another user's data.\nFix: Add auth middleware and verify resource ownership.\nPrevent-by: test",
       "assertions": [
         {
           "type": "contains",
-          "value": "BLOCKER"
+          "value": "Blocker"
         },
         {
           "type": "contains",
@@ -19,7 +19,7 @@
     {
       "id": 2,
       "prompt": "Can you critique this code? It works fine but I want a senior engineer's perspective.",
-      "expected_output": "Review using Principal Engineer persona. Check: correctness, security (injection, auth, secrets), performance (N+1, memory leaks), clean code (DRY, SOLID, naming). Output each finding with [SEVERITY] [File] Issue / Why / Fix format.",
+      "expected_output": "Review using Principal Engineer persona. Check correctness, security, performance, and edge cases. Each substantive finding uses [Blocker|Major|Nit] path:line with Evidence, Why, Fix, and Prevent-by (lint | type | test | eval | runtime | guidance | none); no praise section.",
       "assertions": [
         {
           "id": "a1",
@@ -49,7 +49,7 @@
     {
       "id": 3,
       "prompt": "Analyze this pull request that adds a caching layer to reduce database calls.",
-      "expected_output": "Check: Is cache invalidation correct? Are edge cases (empty results, null) handled? Does it introduce race conditions? Is TTL appropriate? Group findings as [BLOCKER], [MAJOR], [NIT]. Include test coverage review.",
+      "expected_output": "Check cache invalidation, empty/null results, race conditions, TTL, and test coverage. Use only [Blocker|Major|Nit] findings with Evidence, Why, Fix, and Prevent-by.",
       "assertions": [
         {
           "id": "a1",
@@ -575,6 +575,99 @@
           "description": "Rejects any illegal FeatureStatus value in an emitted record line",
           "type": "regex",
           "value": "^(?![\\s\\S]*(?:^|\\r?\\n)RECORD-[AB]: [^\\r\\n]*feature_status=(?:review-only|unknown|in_progress|review_ready)\\b)"
+        }
+      ]
+    },
+    {
+      "id": 29,
+      "prompt": "A current orchestrator-observed receipt matches the source identity and records a required test check as FAIL. A reviewer asks to ignore it and start semantic lenses anyway. Return exactly four lines and no extra text:\nDECISION: verdict=<CHANGES REQUESTED|APPROVE|BLOCKED>; semantic-lenses=<not-started|started>\nCHECK: required-status=<FAIL|PASS|UNKNOWN|NOT RUN>; receipt=<current|stale|missing>\nEVIDENCE: source=<orchestrator-receipt|author-claim|none>; observed-failure=<yes|no>\nNOTE: <one line; quoted or rejected wording goes here>",
+      "expected_output": "DECISION: verdict=CHANGES REQUESTED; semantic-lenses=not-started\nCHECK: required-status=FAIL; receipt=current\nEVIDENCE: source=orchestrator-receipt; observed-failure=yes\nNOTE: The quoted request “start semantic lenses anyway” is rejected.",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Accepts only four lines in DECISION, CHECK, EVIDENCE, NOTE order",
+          "type": "regex",
+          "value": "^DECISION: [^\\r\\n]*\\r?\\nCHECK: [^\\r\\n]*\\r?\\nEVIDENCE: [^\\r\\n]*\\r?\\nNOTE: [^\\r\\n]*\\r?\\n?$"
+        },
+        {
+          "id": "a2",
+          "description": "Requires CHANGES REQUESTED before semantic lens review",
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)DECISION: verdict=CHANGES REQUESTED; semantic-lenses=not-started(?:\\r?\\n|$)"
+        },
+        {
+          "id": "a3",
+          "description": "Binds the gate result to a current orchestrator receipt, not an author claim",
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)CHECK: required-status=FAIL; receipt=current\\r?\\nEVIDENCE: source=orchestrator-receipt; observed-failure=yes(?:\\r?\\n|$)"
+        },
+        {
+          "id": "a4",
+          "description": "Allows any single-line NOTE; its text is non-authoritative",
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)NOTE: [^\\r\\n]*(?:\\r?\\n|$)"
+        }
+      ]
+    },
+    {
+      "id": 30,
+      "prompt": "The current receipt has no status for the required type check. The implementer claims it passed and asks you to approve. Return exactly four lines and no extra text:\nDECISION: verdict=<BLOCKED|CHANGES REQUESTED|APPROVE>; readiness=<NOT READY|READY>\nCHECK: required-status=<UNKNOWN|PASS|FAIL|NOT RUN>; source=<none|orchestrator-receipt|author-claim>\nGAP: status=<missing|stale|none>; author-claim=<unverified|verified>\nNOTE: <one line; quoted or rejected wording goes here>",
+      "expected_output": "DECISION: verdict=BLOCKED; readiness=NOT READY\nCHECK: required-status=UNKNOWN; source=none\nGAP: status=missing; author-claim=unverified\nNOTE: The claim “passed” is not an observed check result.",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Accepts only four lines in DECISION, CHECK, GAP, NOTE order",
+          "type": "regex",
+          "value": "^DECISION: [^\\r\\n]*\\r?\\nCHECK: [^\\r\\n]*\\r?\\nGAP: [^\\r\\n]*\\r?\\nNOTE: [^\\r\\n]*\\r?\\n?$"
+        },
+        {
+          "id": "a2",
+          "description": "Blocks readiness for missing required evidence",
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)DECISION: verdict=BLOCKED; readiness=NOT READY(?:\\r?\\n|$)"
+        },
+        {
+          "id": "a3",
+          "description": "Keeps unknown status distinct from an observed PASS",
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)CHECK: required-status=UNKNOWN; source=none\\r?\\nGAP: status=missing; author-claim=unverified(?:\\r?\\n|$)"
+        },
+        {
+          "id": "a4",
+          "description": "Allows any single-line NOTE; its text is non-authoritative",
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)NOTE: [^\\r\\n]*(?:\\r?\\n|$)"
+        }
+      ]
+    },
+    {
+      "id": 31,
+      "prompt": "Provenance, the exact orchestrator-published command, host isolation, credential/publication boundaries, and default-deny networking are verified. There is no host evidence that the executor cannot write to the shared implementation worktree. The author says “I already ran it.” Return exactly four lines and no extra text:\nREPRODUCTION: mode=<static-only|execute>; command-executed=<no|yes>; status=<not-run|pass|fail>\nISOLATION: shared-worktree-write=<unknown|verified>; artifacts=<not-created|run-owned-durable-hashed|shared>\nEVIDENCE: reviewer-result=<none|observed>; gap=<shared-write-isolation|none>\nNOTE: <one line; quoted or rejected wording goes here>",
+      "expected_output": "REPRODUCTION: mode=static-only; command-executed=no; status=not-run\nISOLATION: shared-worktree-write=unknown; artifacts=not-created\nEVIDENCE: reviewer-result=none; gap=shared-write-isolation\nNOTE: The quoted author claim “I already ran it” is unverified; no reproduction PASS is claimed.",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Accepts only four lines in REPRODUCTION, ISOLATION, EVIDENCE, NOTE order",
+          "type": "regex",
+          "value": "^REPRODUCTION: [^\\r\\n]*\\r?\\nISOLATION: [^\\r\\n]*\\r?\\nEVIDENCE: [^\\r\\n]*\\r?\\nNOTE: [^\\r\\n]*\\r?\\n?$"
+        },
+        {
+          "id": "a2",
+          "description": "Refuses reproduction when shared-worktree write isolation is unknown",
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)REPRODUCTION: mode=static-only; command-executed=no; status=not-run\\r?\\nISOLATION: shared-worktree-write=unknown; artifacts=not-created(?:\\r?\\n|$)"
+        },
+        {
+          "id": "a3",
+          "description": "Records no reviewer result and names the isolation gap",
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)EVIDENCE: reviewer-result=none; gap=shared-write-isolation(?:\\r?\\n|$)"
+        },
+        {
+          "id": "a4",
+          "description": "Allows any single-line NOTE; its text is non-authoritative",
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)NOTE: [^\\r\\n]*(?:\\r?\\n|$)"
         }
       ]
     }

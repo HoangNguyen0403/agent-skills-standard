@@ -48,6 +48,15 @@ Measured rows require linked deployment/defect observations and complete relevan
 - Count escaped defect observations, including `remediation: none`, separately from affected, hotfix/rollback, and rollback deployment counts.
 - Cost is per currency. Total cost requires complete lifecycle coverage and explicitly observed agent, human, and tooling components for every cohort member. Otherwise report observed component-level partials; never infer human cost from elapsed time.
 
+## Agent-review trust observations
+
+- Load the schema reference before deriving optional `trust` observations. Omission makes only these rows unavailable; preserve legacy delivery rows.
+- Cohort first technical approvals by exact revision only when the review inventory explicitly declares complete first-approval history; seed assignments use evaluation-cutoff cohorts and production deployments use `deployed_at`.
+- Keep class/configuration unknowns visible. A completed empty seed result is a miss; missing or late evidence is unavailable, not an empty miss.
+- Require exhaustive declared populations and continuous kind-specific coverage for rates. Seed evidence runs from each `assigned_at` through its `evaluation_cutoff`; later gaps do not invalidate a completed cutoff. Preserve numerator, denominator, sample, coverage, source, cohort, as-of horizon, and limitations in JSON and Markdown.
+- Match defects and historical grants to exact revision and structured `{ change_id, revision }` scope. Emit `SUSPENSION_REQUIRED` for a fresh in-window escape even if rate coverage is incomplete; missing or unresolved applicability makes a negative grant assessment unavailable.
+- These source declarations are not authenticated proof and never activate, authenticate, or grant access; do not route these rows into control bands.
+
 ## Evidence and control bands
 
 - Every available value names its source and declares `measured` or `proxy`, sample size, coverage (`complete`, `partial`, `unknown`), and limitations. Git, document, and run-record derivations are proxies with unknown coverage.

@@ -79,6 +79,7 @@ _CONTRACT_LABELS = {
     "verification owner": r"Verification Owner",
     "handoff / freeze": r"Handoff\s*/\s*freeze|Handoff|Freeze",
     "correction route": r"Correction Route",
+    "gate / rollback": r"Gate\s*/\s*rollback",
 }
 
 
@@ -153,6 +154,77 @@ def _invariant_value(line, kind):
     return match.group(1).strip() if match else None
 
 
+
+def _gate_rollback_error(lines):
+    """Return a diagnostic when the required C2 gate contract is invalid."""
+    fields = [
+        (index, _label_value(line, _CONTRACT_LABELS["gate / rollback"]))
+        for index, line in enumerate(lines)
+        if _label_value(line, _CONTRACT_LABELS["gate / rollback"]) is not None
+    ]
+    if len(fields) != 1:
+        return "exactly one populated same-line Gate / rollback field is required"
+    index, value = fields[0]
+    if not value:
+        return "Gate / rollback must have a nonempty same-line value"
+    if index + 1 < len(lines):
+        following = lines[index + 1]
+        if following.lstrip().startswith(";") or re.match(
+            r"^[ \t]+(?:[A-Za-z][A-Za-z0-9 _/-]*[ \t]*:)", following
+        ):
+            return "Gate / rollback cannot continue on another line"
+
+    segments = [segment.strip() for segment in value.split(";")]
+    if any(not segment for segment in segments):
+        return "Gate / rollback contains an empty segment"
+    first = segments[0]
+    if first.lower() in {"none", "none:"}:
+        return "Gate / rollback none requires a nonempty reason"
+    if first.lower().startswith("none:"):
+        gate_name = ""
+        gate_value = first.split(":", 1)[1].strip()
+        if not gate_value:
+            return "Gate / rollback none requires a nonempty reason"
+    else:
+        gate_name = first
+        gate_value = first
+    if _is_placeholder(gate_value):
+        return "Gate / rollback does not accept instructional placeholders"
+
+    values = {}
+    for segment in segments[1:]:
+        match = re.fullmatch(r"(control|rollback|reversibility|authorization)\s*:\s*(.+)", segment, re.IGNORECASE)
+        if not match:
+            return f"Gate / rollback contains an unknown or malformed segment: {segment}"
+        key, item = match.group(1).lower(), match.group(2).strip()
+        if key in values:
+            return f"Gate / rollback contains duplicate {key}"
+        if not item or _is_placeholder(item):
+            return f"Gate / rollback {key} must have a nonempty value"
+        values[key] = item.lower() if key in {"rollback", "reversibility"} else item
+
+    if not all(key in values for key in ("control", "rollback", "reversibility")):
+        return "Gate / rollback requires control, rollback, and reversibility"
+    rollback, reversibility = values["rollback"], values["reversibility"]
+    if reversibility not in {"gated", "revertible", "one-way"}:
+        return "Gate / rollback reversibility must be gated, revertible, or one-way"
+    if rollback not in {"flag off", "revert", "one-way"}:
+        return "Gate / rollback rollback must be flag off, revert, or one-way"
+    if (rollback, reversibility) not in {
+        ("flag off", "gated"),
+        ("revert", "revertible"),
+        ("one-way", "one-way"),
+    }:
+        return "Gate / rollback rollback and reversibility are inconsistent"
+    if rollback == "flag off" and not gate_name:
+        return "Gate / rollback flag off requires a named gate"
+    if rollback == "one-way" and not values.get("authorization"):
+        return "Gate / rollback one-way requires an authorization reference"
+    return None
+
+
+def _is_placeholder(value):
+    return value.startswith("<") and value.endswith(">")
 def validate_task_contract(extracted_lines):
     """Validate populated contract fields outside markdown fences.
 
@@ -184,6 +256,10 @@ def validate_task_contract(extracted_lines):
     handoff = _field_value(lines_outside, _CONTRACT_LABELS["handoff / freeze"])
     if not handoff or not re.search(r"\b(final|freeze|report|handoff)\b", handoff, re.IGNORECASE):
         missing.append("explicit handoff / freeze")
+
+    gate_error = _gate_rollback_error(lines_outside)
+    if gate_error:
+        missing.append(f"Gate / rollback ({gate_error})")
 
     return missing
 

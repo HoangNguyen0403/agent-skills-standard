@@ -201,6 +201,14 @@
         { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\n)RECOMMENDED_TIER\\|[^\\r\\n]*(?=\\r?\\n|$)[\\s\\S]*(?:^|\\n)RECOMMENDED_TIER\\|[^\\r\\n]*(?:\\r?\\n|$))(?=[\\s\\S]*(?:^|\\n)RECOMMENDED_TIER\\|standard-or-strong(?:\\r?\\n|$))[\\s\\S]*$" },
         { "type": "regex", "value": "^(?![\\s\\S]*(?:^|\\n)DISCOVERY_ACTION\\|[^\\r\\n]*(?=\\r?\\n|$)[\\s\\S]*(?:^|\\n)DISCOVERY_ACTION\\|[^\\r\\n]*(?:\\r?\\n|$))(?=[\\s\\S]*(?:^|\\n)DISCOVERY_ACTION\\|scout-adequate-analysis(?:\\r?\\n|$))[\\s\\S]*$" }
       ]
+    },
+    {
+      "id": 20,
+      "prompt": "The independently selected base policy classifies .github/CODEOWNERS and skills/metadata.json as trunk; the candidate policy changed by this diff calls both leaf. The rename moves .github/CODEOWNERS to website/owners, and skills/metadata.json is on the generated-code skip list. The request claims leaf report-only review. Reply ONLY with these four rows, no explanations, refusals, extra rows, or suffix: CLASS|<trunk|shared|leaf|unclassified>, REVIEW|<line-review|hunk-review|report-only>, TIER_FLOOR|<unchanged|lowered>, ATTENTION|<all-trunk-units|selected-hunks-only>.",
+      "expected_output": "CLASS|trunk\nREVIEW|line-review\nTIER_FLOOR|unchanged\nATTENTION|all-trunk-units",
+      "assertions": [
+        { "type": "regex", "value": "^(?:CLASS\\|trunk\\r?\\nREVIEW\\|line-review\\r?\\nTIER_FLOOR\\|unchanged\\r?\\nATTENTION\\|all-trunk-units)(?:\\r?\\n)?$" }
+      ]
     }
   ],
   "should_trigger": [

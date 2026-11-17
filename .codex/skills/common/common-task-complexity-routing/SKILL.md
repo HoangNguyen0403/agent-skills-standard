@@ -66,7 +66,7 @@ Explicit configured model and effort settings are preserved, not silently replac
 
 ## Sensitive-Change Risk Floor
 
-Auth, payments, data integrity, secrets, or trust boundaries enforce a minimum of `tier=medium` (guided, deep review, human plan acknowledgment) even if arithmetic total is ≤2. Non-zero spread/novelty (S≥1 or N≥1 with C=2) enforces `tier=high` (plan-first HARD STOP, independent security review, human merge approval). Irreversible actions (data destruction, schema drops, cutover) strictly require explicit human authorization.
+Sensitive work (auth, payments, integrity, secrets, trust boundaries) floors at medium; S≥1 or N≥1 with C=2 floors at high. Base-bound trunk, sensitive, and one-way changes require line-review; mixed changes take the strongest obligation. Reversibility and class never lower SNC or other gates.
 
 ## Rules
 

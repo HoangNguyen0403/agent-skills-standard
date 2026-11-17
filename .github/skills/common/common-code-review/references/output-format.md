@@ -1,27 +1,16 @@
-# Code Review Output Templates
+# Code Review Output Format
 
-## Standard Issue Block
+## Deterministic check gate
 
-````markdown
-### 🔴 [BLOCKER]
+- A current orchestrator-observed required-check `FAIL` yields `CHANGES REQUESTED` for that failure before semantic lens review.
+- Missing, unknown, `NOT RUN`, stale, or mismatched receipt data is an explicit evidence gap, never a pass. Continue useful static analysis without claiming technical readiness.
 
-**File**: `auth.ts`
-**Issue**: SQL Injection risk in `login` function.
-**Why**: Direct string concatenation allows attackers to bypass auth.
-**Fix**: Use parameterized queries.
+## Finding
 
-```typescript
-db.query('SELECT * FROM users WHERE id = $1', [userId]);
-```
-````
+`[Blocker|Major|Nit] path:line`  
+`Evidence: exact source location or observed result`  
+`Why: consumer, security, or merge risk`  
+`Fix: concrete correction`  
+`Prevent-by: lint | type | test | eval | runtime | guidance | none`
 
-```
-
-## Severity Levels
-
-| Tag | Meaning |
-| :--- | :--- |
-| `[BLOCKER]` | Security risk, crash, or broken build. Must fix. |
-| `[MAJOR]` | Logic error, performance issue, or tech debt. |
-| `[NIT]` | Variable naming, comment typos, minor structure. |
-```
+Use only Blocker, Major, or Nit. An observed/claimed result mismatch is a Blocker. No strengths or praise section. If code or a diff is unavailable, state the evidence needed before making a substantive finding.

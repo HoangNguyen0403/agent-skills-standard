@@ -117,3 +117,22 @@ test("collectUnavailable gathers every unavailable delivery-health and stage-ind
     { metric: "band: avgTokens", reason: "gate passed" },
   ]);
 });
+test("renderMarkdown preserves trust cohort metadata for available and unavailable observations", () => {
+  const output = renderMarkdown(emptyReport({
+    stageIndicators: [
+      { stage: "Trust", indicator: "agent-review escape rate for unknown", metric_result: available("1/2 (50%)", {
+        source: "delivery-observations.json#trust", basis: "measured", sampleSize: 2, coverage: "complete",
+        trust: { numerator: 1, denominator: 2, cohort: "[S,U)", asOfHorizon: "U", diagnostics: ["actual configuration: unknown"] },
+      }) },
+      { stage: "Trust", indicator: "seeded recall for leaf", metric_result: {
+        available: false, reason: "pending seed result", source: "delivery-observations.json#trust",
+        trust: { numerator: 0, denominator: 1, cohort: "[S,U)", asOfHorizon: "U", diagnostics: ["seed-1 pending"] },
+      } },
+    ],
+  }));
+  assert.match(output, /## Trust Observations/);
+  assert.match(output, /\| agent-review escape rate for unknown \| 1\/2 \(50%\) \| 1 \| 2 \| 2 \| complete/);
+  assert.match(output, /\| seeded recall for leaf \| unavailable: pending seed result \| 0 \| 1 \| n\/a \| unknown/);
+  assert.match(output, /actual configuration: unknown/);
+  assert.match(output, /seed-1 pending/);
+});

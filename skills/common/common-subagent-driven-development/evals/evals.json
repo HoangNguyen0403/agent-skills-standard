@@ -449,6 +449,30 @@
           "value": "(?:\\r?\\n)[ \\t]*PREREQUISITE:[ \\t]*INDEPENDENT_REVIEW[ \\t]*(?:\\r?\\n|$)"
         }
       ]
+    },
+    {
+      "id": 24,
+      "prompt": "The current orchestrator-observed required check is FAIL. Dispatch a separate reviewer before the implementer narrative is available. Reply with exactly these four lines in order, choosing one value per field. No other text.\nDISPATCH: BLIND|RECONCILE\nINPUTS: PACKET_DIFF_ORCHESTRATOR_RECEIPT_ONLY|INCLUDES_AUTHOR_REPORT\nCHECK: FAIL_CHANGES_REQUESTED|CONTINUE_LENSES\nEVIDENCE: FROZEN_SCOPE_DIGEST|UNBOUND",
+      "expected_output": "DISPATCH: BLIND\nINPUTS: PACKET_DIFF_ORCHESTRATOR_RECEIPT_ONLY\nCHECK: FAIL_CHANGES_REQUESTED\nEVIDENCE: FROZEN_SCOPE_DIGEST",
+      "assertions": [
+        {"type": "regex", "value": "^\\s*DISPATCH:[ \\t]*(?:BLIND|RECONCILE)[ \\t]*(?:\\r?\\n)+[ \\t]*INPUTS:[ \\t]*(?:PACKET_DIFF_ORCHESTRATOR_RECEIPT_ONLY|INCLUDES_AUTHOR_REPORT)[ \\t]*(?:\\r?\\n)+[ \\t]*CHECK:[ \\t]*(?:FAIL_CHANGES_REQUESTED|CONTINUE_LENSES)[ \\t]*(?:\\r?\\n)+[ \\t]*EVIDENCE:[ \\t]*(?:FROZEN_SCOPE_DIGEST|UNBOUND)[ \\t]*\\s*$"},
+        {"type": "regex", "value": "^\\s*DISPATCH:[ \\t]*BLIND[ \\t]*(?:\\r?\\n|$)"},
+        {"type": "regex", "value": "(?:\\r?\\n)[ \\t]*INPUTS:[ \\t]*PACKET_DIFF_ORCHESTRATOR_RECEIPT_ONLY[ \\t]*(?:\\r?\\n|$)"},
+        {"type": "regex", "value": "(?:\\r?\\n)[ \\t]*CHECK:[ \\t]*FAIL_CHANGES_REQUESTED[ \\t]*(?:\\r?\\n|$)"},
+        {"type": "regex", "value": "(?:\\r?\\n)[ \\t]*EVIDENCE:[ \\t]*FROZEN_SCOPE_DIGEST[ \\t]*(?:\\r?\\n|$)"}
+      ]
+    },
+    {
+      "id": 25,
+      "prompt": "The first reviewer cannot be resumed after phase one. May a replacement reviewer receive the author report now? Reply with exactly these four lines in order, choosing one value per field. No other text.\nRESUME: SAME_REVIEWER|UNSUPPORTED\nACTION: RECONCILE|BLOCKED\nREPLACEMENT_INPUT: AUTHOR_REPORT_NOW|FRESH_BLIND_ONLY\nPHASE_ONE: FREEZE_BEFORE_AUTHOR|AUTHOR_FIRST",
+      "expected_output": "RESUME: UNSUPPORTED\nACTION: BLOCKED\nREPLACEMENT_INPUT: FRESH_BLIND_ONLY\nPHASE_ONE: FREEZE_BEFORE_AUTHOR",
+      "assertions": [
+        {"type": "regex", "value": "^\\s*RESUME:[ \\t]*(?:SAME_REVIEWER|UNSUPPORTED)[ \\t]*(?:\\r?\\n)+[ \\t]*ACTION:[ \\t]*(?:RECONCILE|BLOCKED)[ \\t]*(?:\\r?\\n)+[ \\t]*REPLACEMENT_INPUT:[ \\t]*(?:AUTHOR_REPORT_NOW|FRESH_BLIND_ONLY)[ \\t]*(?:\\r?\\n)+[ \\t]*PHASE_ONE:[ \\t]*(?:FREEZE_BEFORE_AUTHOR|AUTHOR_FIRST)[ \\t]*\\s*$"},
+        {"type": "regex", "value": "^\\s*RESUME:[ \\t]*UNSUPPORTED[ \\t]*(?:\\r?\\n|$)"},
+        {"type": "regex", "value": "(?:\\r?\\n)[ \\t]*ACTION:[ \\t]*BLOCKED[ \\t]*(?:\\r?\\n|$)"},
+        {"type": "regex", "value": "(?:\\r?\\n)[ \\t]*REPLACEMENT_INPUT:[ \\t]*FRESH_BLIND_ONLY[ \\t]*(?:\\r?\\n|$)"},
+        {"type": "regex", "value": "(?:\\r?\\n)[ \\t]*PHASE_ONE:[ \\t]*FREEZE_BEFORE_AUTHOR[ \\t]*(?:\\r?\\n|$)"}
+      ]
     }
   ],
   "should_not_trigger": [

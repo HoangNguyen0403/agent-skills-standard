@@ -25,16 +25,11 @@ SAMPLE_COMPLETE_TASK = """# Implementation Plan
 **Invariants:**
 - Positive: returns processed state upon valid payload.
 - Negative: rejects malformed payload with 400 without crashing.
+**Gate / rollback:** none: no additional gate is needed; control: existing checks remain authoritative; rollback: revert; reversibility: revertible
+
 **Verification owner:** parent runner via `pnpm test`.
 **Handoff / freeze:** report `task-1-report.md` marked FINAL.
 **Correction route:** host ladder, max 1 follow-up.
-
-- [ ] Implement core logic
-- [ ] Add unit tests
-
-## Task 2: Adapter Implementation
-
-**Files:** `src/adapter.ts`
 """
 
 SAMPLE_INCOMPLETE_TASK = """# Implementation Plan
@@ -47,6 +42,7 @@ This task only has a description without required contract fields.
 
 ## Task 2: Another Task
 """
+
 
 SAMPLE_EMPTY_VALUES_TASK = """# Implementation Plan
 
@@ -61,6 +57,7 @@ SAMPLE_EMPTY_VALUES_TASK = """# Implementation Plan
 - Positive: 
 - Negative: 
 **Verification owner:** 
+**Gate / rollback:** 
 **Handoff / freeze:** 
 **Correction route:** 
 
@@ -111,6 +108,7 @@ SAMPLE_ONE_SIDED_INVARIANTS_TASK = """# Implementation Plan
 - Positive: returns 200 OK on valid payload.
 **Verification owner:** test runner
 **Handoff / freeze:** report `task-1-report.md` FINAL
+**Gate / rollback:** none: no gate; control: preserve existing invariant; rollback: revert; reversibility: revertible
 **Correction route:** host ladder
 
 Only positive invariant is present, negative is missing.
@@ -130,6 +128,7 @@ SAMPLE_FENCED_HEADINGS_TASK = """# Implementation Plan
 - Negative: malformed blocks emit syntax diagnostics.
 **Verification owner:** orchestrator.
 **Handoff / freeze:** report `task-1-report.md` FINAL.
+**Gate / rollback:** none: no additional gate is needed; control: existing checks remain authoritative; rollback: revert; reversibility: revertible
 **Correction route:** host ladder.
 
 Here is an example in markdown:
@@ -214,6 +213,7 @@ SAMPLE_TILDE_FENCED_HEADING_TASK = """# Implementation Plan
 - Negative: malformed blocks emit syntax diagnostics.
 **Verification owner:** orchestrator.
 **Handoff / freeze:** report `task-1-report.md` FINAL.
+**Gate / rollback:** none: no additional gate is needed; control: existing checks remain authoritative; rollback: revert; reversibility: revertible
 **Correction route:** host ladder.
 
 Example:
@@ -419,13 +419,17 @@ class TestTaskBrief(unittest.TestCase):
             self.assertEqual(f.read(), sentinel_text, "Symlink target must remain untouched")
 
     def test_default_output_refusal_creates_no_workspace_state(self):
-        """A contract refusal without --out must not create .agent/, .gitignore, or packet directories."""
+        """A missing C2 field is rejected before the default artifact root is created."""
         isolated_dir = tempfile.mkdtemp(prefix="sdd_isolated_repo_")
         try:
             plan_path = os.path.join(isolated_dir, "docs", "plans", "invalid_plan.md")
             os.makedirs(os.path.dirname(plan_path), exist_ok=True)
+            complete_without_gate = SAMPLE_COMPLETE_TASK.replace(
+                "**Gate / rollback:** none: no additional gate is needed; control: existing checks remain authoritative; rollback: revert; reversibility: revertible\n",
+                "",
+            )
             with open(plan_path, "w", encoding="utf-8") as f:
-                f.write(SAMPLE_INCOMPLETE_TASK)
+                f.write(complete_without_gate)
             assignment = self.make_assignment(plan_path, workspace_root=isolated_dir)
 
             res = self.run_brief(plan_path, 1, assignment, cwd=isolated_dir)
@@ -530,6 +534,83 @@ class TestTaskBrief(unittest.TestCase):
         res = self.run_brief(plan, 1, self.make_assignment(plan), outfile=packet_out)
         self.assertEqual(res.returncode, 0, f"Expected publish, got {res.returncode}: {res.stderr}")
         self.assertTrue(os.path.exists(packet_out))
+
+    def test_gate_rollback_rejects_invalid_contracts(self):
+        valid = "none: no additional gate is needed; control: existing checks remain authoritative; rollback: revert; reversibility: revertible"
+        invalid_values = [
+            "",
+            "none",
+            "none:",
+            "none: <reason>; control: invariant; rollback: revert; reversibility: revertible",
+            "none: reason; control: invariant; rollback: revert",
+            "none: reason; control: invariant; reversibility: revertible",
+            "none: reason; rollback: revert; reversibility: revertible",
+            "none: reason; control: invariant; rollback: flag off; reversibility: revertible",
+            "none: reason; control: invariant; rollback: revert; reversibility: gated",
+            "none: reason; control: invariant; rollback: one-way; reversibility: one-way",
+            "flag-v2; control: invariant; rollback: flag off; reversibility: revertible",
+            "none: reason; control: invariant; rollback: revert; reversibility: revertible; unknown: value",
+            "none: reason; control: invariant; control: other; rollback: revert; reversibility: revertible",
+            "none: reason; control: invariant; rollback: revert; reversibility: revertible\n; continuation",
+            "none: reason; control: <invariant>; rollback: revert; reversibility: revertible",
+            "none: reason; control: invariant; rollback: <revert>; reversibility: revertible",
+            "none: reason; control: invariant; rollback: revert; reversibility: <revertible>",
+            "none: reason; control: ; rollback: revert; reversibility: revertible",
+            "none: reason; control: invariant; rollback: ; reversibility: revertible",
+            "none: reason; control: invariant; rollback: revert; reversibility: ",
+            "none: reason; control: invariant; rollback: one-way; reversibility: one-way; authorization: <human reference>",
+            "flag-v2; control: invariant; rollback: one-way; reversibility: one-way",
+        ]
+        for index, value in enumerate(invalid_values):
+            with self.subTest(value=value):
+                task = SAMPLE_COMPLETE_TASK.replace(
+                    f"**Gate / rollback:** {valid}\n",
+                    f"**Gate / rollback:** {value}\n" if value else "",
+                )
+                plan = self.write_plan(f"gate_invalid_{index}.md", task)
+                self.assert_contract_refusal(plan, label=f"gate_invalid_{index}")
+
+    def test_gate_rollback_accepts_none_named_gate_and_authorized_one_way(self):
+        canonical = "**Gate / rollback:** none: no additional gate is needed; control: existing checks remain authoritative; rollback: revert; reversibility: revertible"
+        cases = [
+            canonical,
+            "**Gate / rollback:** release-v2; control: keep the previous version available; rollback: revert; reversibility: revertible",
+            "**Gate / rollback:** none: external action cannot be gated; control: human checks the irreversible effect; rollback: one-way; reversibility: one-way; authorization: maintainer decision record",
+            "**Gate / rollback:** feature-flag-v2; control: keep old behavior active until verification; rollback: flag off; reversibility: gated",
+        ]
+        for index, field in enumerate(cases):
+            with self.subTest(field=field):
+                task = SAMPLE_COMPLETE_TASK.replace(canonical, field)
+                plan = self.write_plan(f"gate_valid_{index}.md", task)
+                output = os.path.join(self.test_dir, f"gate_valid_{index}.packet.md")
+                result = self.run_brief(plan, 1, self.make_assignment(plan), outfile=output)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertTrue(os.path.isfile(output))
+
+    def test_gate_rollback_rejects_duplicate_field_and_fenced_only_field(self):
+        field = "**Gate / rollback:** none: no additional gate is needed; control: existing checks remain authoritative; rollback: revert; reversibility: revertible"
+        duplicate = SAMPLE_COMPLETE_TASK.replace(field, field + "\n" + field)
+        fenced = SAMPLE_COMPLETE_TASK.replace(field + "\n", "")
+        fenced = fenced.replace(
+            "## Task 1: Core Engine Implementation\n",
+            "## Task 1: Core Engine Implementation\n\n```md\n" + field + "\n```\n",
+        )
+        for index, task in enumerate((duplicate, fenced)):
+            plan = self.write_plan(f"gate_duplicate_{index}.md", task)
+            self.assert_contract_refusal(plan, label=f"gate_duplicate_{index}")
+
+    def test_gate_rollback_rejects_indented_continuation_before_publication(self):
+        field = "**Gate / rollback:** none: no additional gate is needed; control: existing checks remain authoritative; rollback: revert; reversibility: revertible"
+        continuations = [
+            "  rollback: one-way",
+            "\tcontrol: changed invariant",
+            "  unknown: hidden continuation",
+        ]
+        for index, continuation in enumerate(continuations):
+            with self.subTest(continuation=continuation):
+                task = SAMPLE_COMPLETE_TASK.replace(field, f"{field}\n{continuation}")
+                plan = self.write_plan(f"gate_continuation_{index}.md", task)
+                self.assert_contract_refusal(plan, label=f"gate_continuation_{index}")
 
     # -- task section selection -------------------------------------------
 

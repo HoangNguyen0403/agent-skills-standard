@@ -37,6 +37,7 @@ See [implementation examples](references/implementation.md) for conventional com
 - Limit to < 300 lines of code for effective review.
 - State what changed, why, and how to test. Link issues (`Closes #123`).
 - Self-review for obvious errors before requesting peers.
+- Use [the portable PR template](references/pr-template.md) for evidence, blast radius, rollback, and not-verified details.
 - PRs must pass all CI checks (lint, test, build) before merging.
 
 ## 4. Protect Secrets and Metadata

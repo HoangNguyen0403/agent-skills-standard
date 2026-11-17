@@ -11,6 +11,18 @@ export type MetricBasis = "measured" | "proxy";
 /** Whether the declared observation coverage backs the value. */
 export type MetricCoverage = "complete" | "partial" | "unknown";
 
+export interface TrustMetricMetadata {
+  numerator?: number;
+  denominator?: number;
+  sampleSize?: number | null;
+  coverage?: MetricCoverage;
+  source?: string;
+  cohort?: string;
+  asOfHorizon?: string;
+  limitations?: string[];
+  diagnostics?: string[];
+}
+
 /** A value the producer could derive, always carrying its provenance (AC-002). */
 export interface AvailableMetric {
   available: true;
@@ -26,6 +38,7 @@ export interface AvailableMetric {
   coverage: MetricCoverage;
   /** What the value does and does not mean. Never empty: every number has a limit. */
   limitations: string[];
+  trust?: TrustMetricMetadata;
 }
 
 /** REQ-002: an input the runtime cannot supply is reported unavailable with the reason, never guessed. */
@@ -34,7 +47,9 @@ export interface UnavailableMetric {
   reason: string;
   /** Source the value would have come from, when known, even though it is unavailable. */
   source?: string;
+  trust?: TrustMetricMetadata;
 }
+
 
 export type Metric = AvailableMetric | UnavailableMetric;
 
@@ -328,11 +343,139 @@ export interface DeliveryCoverage {
   complete: boolean;
 }
 
+export type TrustClass = "trunk" | "shared" | "leaf" | "unknown";
+
+export interface ReviewerConfiguration {
+  provider: string;
+  model: string;
+  effort: string;
+  mode: string;
+  features: Record<string, string>;
+}
+
+export interface TrustRecordBase {
+  id: string;
+  observed_at: string;
+  source_ref: string;
+}
+
+export interface RevisionClassRecord extends TrustRecordBase {
+  kind: "revision-class";
+  change_id: string;
+  revision: string;
+  change_class: TrustClass;
+  policy_ref: string;
+  policy_digest: string;
+}
+
+export interface AgentReviewRecord extends TrustRecordBase {
+  kind: "agent-review";
+  review_id: string;
+  change_id: string;
+  revision: string;
+  completed_at: string;
+  verdict: "approved" | "changes-requested" | "blocked";
+  reviewer_configuration: ReviewerConfiguration;
+  evidence_ref: string;
+  evidence_digest: string;
+}
+
+export interface HumanFindingRecord extends TrustRecordBase {
+  kind: "human-finding";
+  finding_id: string;
+  approval_review_id: string;
+  change_id: string;
+  revision: string;
+  detected_at: string;
+  severity: "Blocker" | "Major" | "Nit";
+  evidence_ref: string;
+  evidence_digest: string;
+}
+
+export interface SeedAssignmentRecord extends TrustRecordBase {
+  kind: "seed-assignment";
+  seed_run_id: string;
+  package_ref: string;
+  package_digest: string;
+  change_class: TrustClass;
+  assigned_at: string;
+  evaluation_cutoff: string;
+  expected_defects: { id: string; severity: "Blocker" | "Major" | "Nit" }[];
+  evidence_ref: string;
+  evidence_digest: string;
+}
+
+export interface SeedResultRecord extends TrustRecordBase {
+  kind: "seed-result";
+  seed_run_id: string;
+  completed_at: string;
+  detected_seed_ids: string[];
+  reviewer_configuration: ReviewerConfiguration;
+  review_output_ref: string;
+  review_output_digest: string;
+}
+
+export interface GrantReferenceRecord extends TrustRecordBase {
+  kind: "grant-reference";
+  grant_id: string;
+  change_class: TrustClass;
+  scope: { change_id: string; revision: string };
+  evidence_cutoff: string;
+  effective_from: string;
+  effective_until: string | null;
+  revoked_at: string | null;
+  suspended_at: string | null;
+  independent_validation_ref: string | null;
+}
+
+export type TrustRecord =
+  | RevisionClassRecord
+  | AgentReviewRecord
+  | HumanFindingRecord
+  | SeedAssignmentRecord
+  | SeedResultRecord
+  | GrantReferenceRecord;
+
+export type TrustPopulationKind = "agent-review" | "seed-assignment" | "production-deployment";
+
+export interface TrustPopulation {
+  population_kind: TrustPopulationKind;
+  population_id: string;
+  scope_ref: string;
+  inventory_digest: string;
+  from: string;
+  through: string;
+  member_ids: string[];
+  complete: boolean;
+  /** Explicit exhaustive history claim; absent/false cannot establish first approval. */
+  first_approval_history_complete?: boolean;
+  source_ref: string;
+}
+
+export type TrustCoverageKind = TrustRecord["kind"] | "deployment" | "defect";
+
+export interface TrustCoverage {
+  kind: TrustCoverageKind;
+  scope_ref: string;
+  from: string;
+  through: string;
+  complete: boolean;
+  source_ref: string;
+}
+
+export interface TrustObservationBlock {
+  schema_version: 1;
+  records: TrustRecord[];
+  populations: TrustPopulation[];
+  coverage: TrustCoverage[];
+}
+
 export interface DeliveryObservationFile {
   schema_version: 1;
   source_kind: "host-export" | "operator-recorded";
   coverage: DeliveryCoverage[];
   events: DeliveryEvent[];
+  trust?: TrustObservationBlock;
 }
 
 export interface DeliveryObservationSet {

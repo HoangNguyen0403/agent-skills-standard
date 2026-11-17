@@ -199,6 +199,94 @@ pnpm build
 
 `pnpm check-alignment` checks lexical eval alignment (that eval `contains` anchors exist in the skill body); it is not export parity, native capability or runtime-success proof. Capability-table drift is checked separately by `pnpm docs:capabilities:check`, and generated mirrors must come from `pnpm generate-indices` rather than manual edits.
 
+### Agent review trust (M1)
+
+For review changes, follow the canonical
+[adversarial review protocol](skills/common/common-code-review/references/adversarial-review.md)
+and [delivery report contract](skills/common/common-subagent-driven-development/references/delivery-report.md).
+M1 records the C2 `Gate / rollback` declaration and its control, rollback, and
+reversibility; the declaration is not authenticated approval. C3 freezes blind
+findings and their SHA-256 before author claims, then resumes the same reviewer
+for reconciliation. A replacement must restart the full blind phase.
+
+Reviewer reproduction is static-only unless provenance, the exact
+orchestrator-published command, host-enforced isolation without credentials or
+publication authority, default-deny egress, no shared-worktree writes, and
+durable verifier-owned evidence are all verified. Never run author-controlled
+tests or commands in a privileged reviewer runtime. Unknown isolation is a
+named gap, not a pass.
+
+C4 reports are decision-first; M1 defaults to `not-assessed; current human
+review applies`. Criteria, evidence, human-attention coverage, findings,
+reproduction or its gap, and residual risk stay explicit. Verdicts and lexical
+or structural checks do not grant approval or prove behavior. Unexecuted
+behavioral evaluations remain `NOT RUN`; no quality, trust, or savings uplift
+is inferred from lexical checks. Generated exports and their checks remain
+pending until all source owners freeze and the integration owner receives an
+explicit release.
+
+### Review policy gate candidate (M2, C1/C5)
+
+Classification uses the orchestrator-selected full base and the policy bytes
+from that base, never candidate policy edits. Missing policy/map is
+`unclassified` and keeps current human review; malformed policy is not the
+same as absent. Forced trunk controls include the policy, gate, recognized
+CODEOWNERS paths, and generated integrity outputs; trunk forces Centrality 2,
+and mixed changes take the strongest review obligation.
+
+Source identity preserves base, actual HEAD, index stages/modes/blobs, and
+worktree bytes separately; it includes ignored/untracked source and both rename
+endpoints. Exclusions are limited to the exact predeclared evidence-artifact
+inventory, not broad ignore or path patterns. Exit `0` means consistency only,
+`1` a named refusal, and `2` malformed/unusable input. These results do not
+authenticate actors, approval, independence, chronology, isolation, or host
+enforcement. Report-only remains **ALWAYS DISABLED**; no hunk-review grant is
+activated.
+
+The `unit-tests` CI job adds the Task 7 Python tests alongside the existing
+Python regression steps:
+
+```bash
+python3 -B -m unittest discover -s scripts/skill-tests/common-review-policy -p 'test_*.py' -v
+```
+
+This test step does not invoke `review_gate.py check` as a required policy
+check. Task 7's source/artifact-boundary correction is pending and Task 8's
+consumer policy is still being authored; do not treat this candidate as final
+gate acceptance or behavioral proof.
+
+### Trust observations and launch audit (M3, C6)
+
+The optional versioned `trust` export contains records, population manifests,
+and per-kind coverage. Rates require exhaustive populations and continuous
+applicable coverage, including first-approval history for review cohorts.
+Seed cohorts are fixed by assignment cutoff, independent of acceptance or
+merge. Keep missing classes in `unknown`; use structured scope tuples and
+actual reviewer configuration or `unknown`, never requested profiles. Missing
+coverage is unavailable, not zero. See the
+[metrics schema](skills/common/common-sdlc-metrics/references/metrics-schema.md)
+for the record and coverage contract.
+
+Historical grant references are declarations only. `SUSPENSION_REQUIRED` is
+an evidence-linked diagnostic; it does not authenticate or activate a grant
+and does not change policy. Report-only remains disabled.
+
+For medium/high work, use the
+[launch audit contract](skills/common/common-project-verification/references/launch-audit.md):
+required `FAIL` means remediation; required `NOT RUN` or missing proof means
+`BLOCKED`, not UAT. Justified `NOT APPLICABLE` is allowed. Brief/low work adds
+no audit lanes. A declared gate stages only under existing release authority
+and retains rollback rehearsal and smoke checks before promotion; otherwise
+preserve the existing staging/smoke path.
+
+The Task 10/11/12 receipts document scoped source and structural evidence only:
+Task 10's uncovered fixture reports trust rows unavailable; Task 11's finite
+controls and Task 12's structural tests do not establish trust calibration,
+live reviewer behavior, measured quality/recall/savings, or live release
+behavior. Do not publish such claims without measured observations. The M3
+docs checkpoint is not final integration acceptance; generated outputs and
+shared gates remain pending explicit parent release after all writers freeze.
+
 
 `pnpm freshness:check` is the weekly upstream drift job (`.github/workflows/skill-freshness.yml`), not a PR gate: it needs a `GITHUB_TOKEN` (up to ~110 GitHub requests) and exits 1 whenever any upstream has shipped a new major, regardless of your change. Run it locally only when reviewing pins.
 

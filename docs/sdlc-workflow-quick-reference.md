@@ -30,6 +30,52 @@ Agent Skills Standard syncs workflows into each agent's native surface. Run `ags
 | Benchmark              | Is this skill behavior improving under pressure? | `skill-benchmark`          | Need scored quality comparison vs legacy constraints                   | benchmark report                      |
 | Bug Verify             | Is the fixed bug gone in real flow?              | `verify-bug`               | Post-fix UAT validation against reproduce steps                        | bug verification report               |
 
+## Agent Review Trust (M1)
+
+For code review, follow the canonical [adversarial review protocol](../skills/common/common-code-review/references/adversarial-review.md)
+and [delivery report contract](../skills/common/common-subagent-driven-development/references/delivery-report.md), invoked by the
+[code-review workflow](../.agents/workflows/code-review.md). Record C2's
+same-line `Gate / rollback` declaration and control invariant; this declaration
+does not authenticate approval. C3 freezes blind findings and their SHA-256
+before author claims, then reconciles with the same reviewer. A replacement
+reviewer restarts the full blind phase.
+
+Review stays static-only unless provenance, the exact orchestrator-published
+command, host-enforced isolation without credentials/publication authority,
+default-deny egress, no shared-worktree writes, and durable verifier-owned
+evidence are verified. Never execute author-controlled tests in a privileged
+reviewer runtime. C4 is decision-first and defaults to
+`not-assessed; current human review applies`; criteria and evidence gaps remain
+explicit. Lexical checks do not prove reviewer behavior or quality uplift;
+unexecuted evaluations are `NOT RUN`. No report status or attention list
+authorizes skipping human review, merge, or release.
+
+## Trust Observations And Launch Audit (M3, C6)
+
+The optional versioned `trust` block uses exhaustive population manifests and
+continuous per-kind coverage. Seed cohorts are fixed by evaluation cutoff,
+not acceptance; unclassified records remain `unknown`; actual reviewer
+configuration is recorded or `unknown`. Missing coverage is unavailable, not
+zero. Historical grant references are declaration-only; `SUSPENSION_REQUIRED`
+does not edit policy or activate report-only. Follow the
+[canonical metrics schema](../skills/common/common-sdlc-metrics/references/metrics-schema.md).
+
+For medium/high work, required `FAIL` routes to remediation; required `NOT RUN`
+or missing proof means `BLOCKED`, never UAT as verified. Justified
+`NOT APPLICABLE` is allowed; brief/low work has no added audit lanes. A
+declared rollout gate keeps staging, rollback rehearsal, and smoke checks under
+existing release authority. See the
+[launch audit contract](../skills/common/common-project-verification/references/launch-audit.md).
+
+Current Task 10/11/12 receipts are scoped source/structural evidence only.
+Trust calibration, measured rates/recall/quality/savings, live reviewer
+behavior, and live release behavior remain unverified or `NOT RUN`. See the
+[Task 10](../artifacts/agent-review-trust/m3/task-10-reconciled-v3.md),
+[Task 11](../artifacts/agent-review-trust/m3/task-11-reconciled-v4.md), and
+[Task 12](../artifacts/agent-review-trust/m3/task-12-reconciled-v2.md)
+reconciliations. A report or source check does not grant review, merge, or
+release authority.
+
 ## Approved Evidence And Readiness
 
 Use the task-linked approved brief/ticket and its stable slug. An unrelated newest document or working-tree change is not task authority or approval. Equivalent approved evidence can satisfy a requirement without a separate BRD/PRD/SRS filename. Reused approved exact-revision context skips rediscovery; missing document filenames never reset settled work.

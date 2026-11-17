@@ -81,7 +81,7 @@ Do NOT rely on "it builds" — verify the fix against the issue reproduction ste
 ### Step 4: Deliver PR
 
 1.  **Commit**: Generate a commit message using `caveman-commit`.
-2.  **PR/MR Details**: Draft provider-appropriate PR/MR notes and link the source issue.
+2. **PR/MR Details**: Use `.github/pull_request_template.md` for evidence, blast radius, rollback, and not-verified details; link the source issue. Filled sections remain author claims until inspected.
 3.  **Walkthrough**:
     - Use the **Walkthrough Template** below.
     - Create project-local `docs/srs/srs-walkthrough-[slug].md` with evidence of the local verification.
