@@ -33,7 +33,12 @@ import { composeRuns } from "./compose";
 import { pruneV2Runs } from "./prune";
 import { auditAssertionAlignment } from "./quality";
 import { estimateRun } from "./estimate";
-import { gateAll, gateOne, type GateReport } from "./gate";
+import {
+  formatCaseComparison,
+  gateAll,
+  gateOne,
+  type GateReport,
+} from "./gate";
 import {
   EvalQuotaPausedError,
   evalWorkerConfig,
@@ -444,6 +449,9 @@ async function main() {
           );
           for (const breach of run.breaches) {
             console.log(`   - ${breach.skillName}: ${breach.failures.join("; ")}`);
+          }
+          for (const line of formatCaseComparison(run.caseComparison)) {
+            console.log(`   ${line}`);
           }
         }
       }

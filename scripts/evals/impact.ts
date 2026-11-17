@@ -209,7 +209,11 @@ function isCompositeEvidence(manifest: ManifestV2): boolean {
   );
 }
 
-function skillProtocolVersion(
+/**
+ * Instruction-protocol version for one skill: per-skill provenance first, and
+ * composite runs never fall back to the manifest-level value.
+ */
+export function skillProtocolVersion(
   manifest: ManifestV2,
   key: string,
 ): ManifestV2["protocol"]["instructionVersion"] | undefined {
