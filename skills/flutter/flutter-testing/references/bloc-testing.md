@@ -24,6 +24,13 @@ blocTest<AuthBloc, AuthState>(
 );
 ```
 
+## **Anti-Slop Invariants**
+
+- **No Vacuous State (`GUARD-DART-VACUOUS-STATE`)**: Never write `expect: () => [isA<AuthState>()]` without `.having(...)` property predicates or `verify` checks.
+- **No Seed Echoes (`GUARD-DART-SEED-ECHO`)**: Never assert only fields in `expect:` that were already present in `seed:` and unchanged by `act:`.
+- **No Duplicate Scenarios (`GUARD-DART-BLOC-DUPLICATE`)**: Never duplicate identical `build/seed/act/expect` test scenarios within the suite.
+- **No Mock Echoes (`GUARD-DART-MOCK-ECHO`)**: Never stub a collaborator and assert the identical token back without domain transformation.
+
 ## **Best Practices & Pitfalls**
 
 - **Do not mock based on State**: Do not use values in the BLoC state to mock data or verify calls. This is unreliable because it tracks the number of times a state is emitted (which can happen multiple times) rather than verifying the actual event trigger. Always verify the downstream Dependency/Service call in the `verify` block.

@@ -18,7 +18,7 @@ Avoid hardcoding large objects in every test. Use a Builder pattern to generate 
 class OrderBuilder {
   double _unitPrice = 100.0;
   int _quantity = 1;
-  double _discount = 0.0;
+  double _discount = 15.0; // Non-zero active operand (GUARD-UNIV-IDENTITY-FIXTURE)
   bool _isPriority = false;
 
   OrderBuilder withUnitPrice(double price) { _unitPrice = price; return this; }

@@ -302,9 +302,9 @@
       "tag_prefix": "flutter-v",
       "token_metrics": {
         "total_skills": 22,
-        "total_tokens": 12881,
-        "avg_tokens_per_skill": 586,
-        "largest_skill": "flutter-testing (1434 tokens)"
+        "total_tokens": 13140,
+        "avg_tokens_per_skill": 597,
+        "largest_skill": "flutter-testing (1693 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -398,9 +398,9 @@
       "tag_prefix": "react-v",
       "token_metrics": {
         "total_skills": 8,
-        "total_tokens": 5349,
-        "avg_tokens_per_skill": 669,
-        "largest_skill": "react-testing (1265 tokens)"
+        "total_tokens": 5404,
+        "avg_tokens_per_skill": 676,
+        "largest_skill": "react-testing (1320 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -446,9 +446,9 @@
       "tag_prefix": "nestjs-v",
       "token_metrics": {
         "total_skills": 21,
-        "total_tokens": 13990,
-        "avg_tokens_per_skill": 666,
-        "largest_skill": "nestjs-testing (1239 tokens)"
+        "total_tokens": 14033,
+        "avg_tokens_per_skill": 668,
+        "largest_skill": "nestjs-testing (1282 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -470,8 +470,8 @@
       "tag_prefix": "nextjs-v",
       "token_metrics": {
         "total_skills": 18,
-        "total_tokens": 11916,
-        "avg_tokens_per_skill": 662,
+        "total_tokens": 12116,
+        "avg_tokens_per_skill": 673,
         "largest_skill": "nextjs-architecture (1040 tokens)"
       },
       "owners": [
@@ -546,9 +546,9 @@
       "tag_prefix": "golang-v",
       "token_metrics": {
         "total_skills": 11,
-        "total_tokens": 6678,
-        "avg_tokens_per_skill": 607,
-        "largest_skill": "golang-testing (989 tokens)"
+        "total_tokens": 6892,
+        "avg_tokens_per_skill": 627,
+        "largest_skill": "golang-testing (1203 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -666,9 +666,9 @@
       "tag_prefix": "android-v",
       "token_metrics": {
         "total_skills": 26,
-        "total_tokens": 12244,
-        "avg_tokens_per_skill": 471,
-        "largest_skill": "android-testing (1059 tokens)"
+        "total_tokens": 12376,
+        "avg_tokens_per_skill": 476,
+        "largest_skill": "android-testing (1191 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -694,9 +694,9 @@
       "tag_prefix": "swift-v",
       "token_metrics": {
         "total_skills": 8,
-        "total_tokens": 4464,
-        "avg_tokens_per_skill": 558,
-        "largest_skill": "swift-testing (933 tokens)"
+        "total_tokens": 4533,
+        "avg_tokens_per_skill": 567,
+        "largest_skill": "swift-testing (1002 tokens)"
       },
       "owners": [
         "HoangNguyen0403"

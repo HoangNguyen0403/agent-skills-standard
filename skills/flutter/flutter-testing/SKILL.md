@@ -35,8 +35,8 @@ Avoid calculating or inventing arbitrary numeric scores (e.g. $P \times R \times
 ## Core Rule Anchors
 
 - **`[MOB-TEST-01]` Tripartite Naming**: Name tests `Method_Scenario_ExpectedBehavior`.
-- **`[MOB-TEST-02]` BLoC State Invariant Rule**: Assert state transitions using `isA<State>().having(...)` predicates; BAN full copyWith mirrors.
-- **`[MOB-TEST-03]` Entity Invariant & Serialization Rule**: Test calculations, validations, domain invariants, and non-trivial serialization/parsing or error mapping. BAN testing generated code, trivial getters/setters, `props`, or echo tests (`expect(item.discount, equals(5))`) where the test merely repeats literal assignments.
+- **`[MOB-TEST-02]` BLoC State Invariant Rule**: Assert state transitions using `isA<State>().having(...)` predicates; BAN full copyWith mirrors. Ban vacuous `expect: () => [isA<BaseState>()]` without `.having(...)` predicates or `verify` (`GUARD-DART-VACUOUS-STATE`), seed echoes (`GUARD-DART-SEED-ECHO`), duplicate `build/seed/act/expect` scenarios (`GUARD-DART-BLOC-DUPLICATE`), and collaborator mock echoes (`GUARD-DART-MOCK-ECHO`).
+- **`[MOB-TEST-03]` Entity Invariant & Serialization Rule**: Test calculations, validations, domain invariants, and non-trivial serialization/parsing or error mapping. BAN testing generated code, trivial getters/setters, `props`, or echo tests (`expect(item.discount, equals(5))`) repeating literal assignments. Always check for companion test file in folder before creating a new one. Calculation fixtures for fee, rebate, tax, and MOV operands must be non-zero (`GUARD-UNIV-IDENTITY-FIXTURE`); never bind to 0.0 or empty.
 - **`[MOB-TEST-04]` Contract Testing Rule**: Repositories and data sources must be tested for contract compliance, golden JSON parsing, and error mapping. BAN 1:1 pass-through mock echoing (`when(() => dataSource.get()).thenAnswer((_) async => x); expect(await repo.get(), x)`).
 - **`[MOB-TEST-05]` Bug-First Regression Lock**: Every PR fixing a bug ticket or with title `fix(...)` must introduce a failing test reproducing the defect before fixing it.
 - **`[MOB-TEST-06]` Layer & Device Fidelity**: Unit > Widget > Patrol integration (`patrolTest`). Default 800×600 widget tests do not prove device layout or native behavior; desktop emulation never substitutes native E2E.
@@ -44,20 +44,21 @@ Avoid calculating or inventing arbitrary numeric scores (e.g. $P \times R \times
 
 1. **Test Pyramid**: Unit > Widget > Integration.
 2. **Naming**: Follow `[MOB-TEST-01]` (`Method_Scenario_ExpectedBehavior`).
-3. **AAA**: Arrange, Act, Assert in all tests.
-4. **Isolated Builders**: Fluent builders when setup complexity warrants (`OrderBuilder`); avoid brittle shared global mocks.
+3. **AAA**: Arrange, Act, Assert in all tests. Check for companion test file in folder before creating new ones.
+4. **Isolated Builders**: Fluent builders when setup complexity warrants (`OrderBuilder`); non-zero calculation fixtures (`GUARD-UNIV-IDENTITY-FIXTURE`); avoid brittle shared global mocks.
 5. **File Placement**: `_integration_test.dart` ONLY in `integration_test/`.
 6. **Robot-First**: All UI assertions/interactions via **Robot pattern** (extending `BaseRobot`) — never raw `find.*`/`expect()` in test body. Use `WidgetKeys` constants from `lib/core/keys/`.
 7. **Negative Assertions**: Add `expectXxxNotVisible()` in robot only when absence is part of the business contract (e.g. restricted action hidden), not blanket pairs for unrelated content.
-8. **Widget Testing & Mocking**: Setup with `TestWrapper.init()` and `tester.pumpLocalizedWidget(...)`. Register mock BLoCs with `GetIt` in `setUpAll`; stub `state` and `stream` in `setUp` (use `whenListen` and `settle: false` for loading/transition states). Prohibit `any()`.
-9. **Integration Testing**: Use `patrolTest` with `IntegrationAuthHelper.loginOrSkip($)` for auth flows and `native interactions` (`$.native.*`) for permissions, alerts, and lifecycle. For permission flows, assert the dialog (`isPermissionDialogVisible`) before granting/denying and assert the approved allowed **and** denied outcomes as separate tests.
+8. **Widget Testing & Mocking**: Setup with `TestWrapper.init()` and `tester.pumpLocalizedWidget(...)`. Register mock BLoCs with `GetIt` in `setUpAll`; stub `state` and `stream` in `setUp` (use `whenListen` and `settle: false` for loading/transition states). Prohibit `any()`. Ban `Future.delayed(...)` fixed sleeps; use `pumpAndSettle()` or condition matchers (`GUARD-E2E-01`).
+9. **Integration Testing**: Use `patrolTest` with `IntegrationAuthHelper.loginOrSkip($)` for auth flows and `native interactions` (`$.native.*`) for permissions, alerts, and lifecycle. For permission flows, assert the dialog (`isPermissionDialogVisible`) before granting/denying and assert the approved allowed **and** denied outcomes as separate tests. Ban `Future.delayed(...)` sleeps (`GUARD-E2E-01`).
 ## Anti-Patterns & Banned Smells
 
 - **`[MOB-TEST-01]` Vague names**: Banish non-descriptive names (`testCart`).
-- **`[MOB-TEST-02]` Brittle state mirrors**: Ban 30-property `copyWith` trees in `blocTest`; use `isA<State>().having(...)`.
-- **`[MOB-TEST-03]` Entity echo tests**: Ban asserting trivial field assignments or auto-generated boilerplate (`discount: 5`). Meaningful serialization/parsing error handling remains valid.
-- **`[MOB-TEST-04]` Pass-through mock echoing**: Ban 1:1 repository-to-datasource pass-through mocks without contract assertions.
+- **`[MOB-TEST-02]` BLoC slop**: Ban vacuous `isA<State>()` without `.having(...)` (`GUARD-DART-VACUOUS-STATE`), seed echoes (`GUARD-DART-SEED-ECHO`), duplicate scenarios (`GUARD-DART-BLOC-DUPLICATE`), and 30-property `copyWith` trees.
+- **`[MOB-TEST-03]` Entity echo & identity fixtures**: Ban asserting trivial field assignments or auto-generated boilerplate (`discount: 5`). Ban 0.0/empty calculation fixtures for fee, rebate, tax, MOV (`GUARD-UNIV-IDENTITY-FIXTURE`).
+- **`[MOB-TEST-04]` Pass-through mock echoing**: Ban 1:1 repository-to-datasource pass-through mocks and collaborator echoes (`GUARD-DART-MOCK-ECHO`).
 - **`[MOB-TEST-05]` Missing bug reproduction**: Ban bug fix PRs without reproduction tests.
+- **No fixed sleeps (`GUARD-E2E-01`)**: Ban `Future.delayed(...)` in widget and Patrol tests.
 - **No blanket negative assertions**: Avoid asserting absence of unrelated content.
 - **No inline Key**: Use `WidgetKeys` constant. **No `any()`**: Use typed matchers.
 - **No local mocks**: Use `test/shared/`. **No missing bloc stub**: Stub `state` + `stream`.

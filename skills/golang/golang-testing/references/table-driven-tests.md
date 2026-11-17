@@ -41,7 +41,7 @@ func TestSomething(t *testing.T) {
 }
 ```
 
-## Table-Driven Test with Testify
+## Table-Driven Test with Testify & Anti-Slop Invariants
 
 ```go
 func TestGetOrder(t *testing.T) {
@@ -72,8 +72,18 @@ func TestGetOrder(t *testing.T) {
                 return
             }
             require.NoError(t, err)
+            // GUARD-GO-EXISTENCE-ONLY: assert payload fields and status invariants
+            require.NotNil(t, got)
             assert.Equal(t, tt.want.ID, got.ID)
+            assert.Equal(t, tt.want.Status, got.Status)
         })
     }
 }
 ```
+
+## Anti-Slop Table Test Rules
+
+- **Assert All Declared Wants (`GUARD-GO-UNCHECKED-WANT`)**: If a table struct declares `want`, `wantErr`, or `expected`, the `t.Run` block must assert on it.
+- **No Duplicate Rows (`GUARD-GO-03`)**: Never duplicate identical test cases in the slice.
+- **No Swallowed Errors (`GUARD-GO-SWALLOWED-ERR`)**: Never write `if err != nil { return }`; use `t.Fatalf` or `require.NoError`.
+- **Pure Struct Fixtures in Domain (`GUARD-GO-01`)**: Avoid mock controllers in `domain/` package tests; instantiate domain structs directly.

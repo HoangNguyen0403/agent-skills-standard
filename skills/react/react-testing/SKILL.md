@@ -28,44 +28,28 @@ metadata:
 - **`[WEB-TEST-03]` Ban on Component State & Prop Inspection**: Never inspect internal component state or props directly. Never write trivial echo assertions (`expect(true).toBe(true)`). Assert on visible user outcomes and DOM state changes.
 - **`[WEB-TEST-04]` Mock Service Worker (MSW) Network Mocking**: Intercept network requests at the HTTP boundary via MSW rather than mocking internal Apollo Client hooks (`useQuery`) or Redux dispatchers. Tests must verify true end-to-end component data flow.
 - **`[WEB-TEST-05]` Bug-First Regression Lock**: Every PR resolving a bug ticket or with title `fix(...)` must introduce a test reproducing the defect prior to the fix.
+- **`[WEB-TEST-06]` Ban on Static Artifact Pinning & Twin `.test.js` Suites**: Never assert on static `print(GQL)` query AST text or `.loc.source.body` substring matches (`GUARD-TS-STATIC-PINNING`); test the hook or query component. Never loop `Object.keys(locales/*.json)` or assert `typeof en[k] === 'string'`; assert user-visible rendered text. Never create `<stem>.test.tsx` alongside legacy `<stem>.test.jsx` (`GUARD-TS-DUAL-EXT`); migrate legacy files. Ban pass-through mock echoes (`expect(wrapper()).toBe(X)` without domain transformations).
 
 ## Implementation Guidelines
 
-- **Standards**: Use **React Testing Library (RTL)** with **Vitest or Jest**. Follow **Arrange-Act-Assert (AAA)** pattern (`[WEB-TEST-01]`).
+- **Standards**: Use **React Testing Library (RTL)** with **Vitest or Jest**. Follow **Arrange-Act-Assert (AAA)** pattern (`[WEB-TEST-01]`). Check for existing companion test files before creating new ones.
 - **User-Centric Selection**: Prioritize accessible queries: **`getByRole`**, **`findByLabelText`**, **`getByText`**. Treat `data-testid` only as an explicit fallback for complex UI elements, and strictly ban CSS class or DOM hierarchy selectors (`[WEB-TEST-02]`).
-- **Behavioral Assertions**: Test user workflows using **`userEvent.setup()`** (e.g., `const user = userEvent.setup(); await user.click(...)`) rather than firing raw synthetic DOM events with `fireEvent` (`[WEB-TEST-02]`).
-- **Network Boundary Mocking (MSW)**: Mock API network requests at the HTTP layer using **Mock Service Worker (MSW)** instead of mocking Apollo Client hooks (`useQuery`, `useMutation`) or Redux dispatchers. This validates end-to-end component data flow without leaking mock internals. **Never call real APIs** in unit/integration tests (`[WEB-TEST-04]`).
-- **Asynchrony**: Use **`await screen.findBy*`** for elements rendered after asynchronous actions. Use **`waitFor(() => ...)`** only for complex non-element updates or assertion retries.
-- **Architecture**: **Test behavior**, not implementation. Never inspect component internal `state` or `props` (`[WEB-TEST-03]`).
-- **Mocks**: Mock expensive third-party libraries (e.g., `framer-motion`, `react-router`) or heavy assets at the boundary to speed up tests.
-- **Visuals**: Use **Snapshot testing** sparingly for stable, small UI components. Banish large snapshot tests of dynamic pages. **Manual a11y checks** with `jest-axe`.
+- **Behavioral Assertions**: Test user workflows using **`userEvent.setup()`** (`await user.click(...)`) rather than `fireEvent` (`[WEB-TEST-02]`).
+- **Network Boundary Mocking (MSW)**: Mock API network requests at HTTP layer using **MSW** instead of mocking Apollo Client hooks or Redux dispatchers (`[WEB-TEST-04]`). Never call real APIs in unit/integration tests.
+- **TS Hygiene Invariants**: Always `await` promise assertions (`GUARD-TS-FLOATING-ASSERT`). Never assert only inside `catch` without an explicit failure guard in `try` (`GUARD-TS-CATCH-ONLY`). Never wrap assertions in unverified conditionals without `expect.hasAssertions()` (`GUARD-TS-CONDITIONAL-ASSERT`). Ban self-mocking and mocking the SUT (`GUARD-TS-SELF-MOCK`). Ban `setTimeout` fixed sleeps > 0ms (`GUARD-REACT-02` / `GUARD-E2E-01`); use `await screen.findBy*` or `waitFor`.
 
 ## Anti-Patterns & Banned Smells
 
 - **`[WEB-TEST-01]` Vague test names**: Banish non-descriptive names; adhere to `Method_Scenario_ExpectedBehavior`.
 - **`[WEB-TEST-02]` No Synthetic Events or CSS Selectors**: Avoid `fireEvent`; always use `userEvent.setup()`. Ban querying by CSS classes or DOM hierarchy.
-- **`[WEB-TEST-03]` No Testing Implementation Details**: Never inspect or assert on component internal `state` or `props` directly.
-- **`[WEB-TEST-04]` No Hook / Dispatcher Mocking**: Do not mock Apollo Client hooks or Redux dispatchers directly; intercept network requests via MSW handlers.
+- **`[WEB-TEST-03]` No Testing Implementation Details**: Never inspect component internal `state` or `props` directly.
+- **`[WEB-TEST-04]` No Hook / Dispatcher Mocking**: Intercept network requests via MSW handlers.
 - **`[WEB-TEST-05]` No Bug Fix Without Reproduction**: Ban bug fix PRs without defect reproduction tests.
+- **`[WEB-TEST-06]` Static pinning & twin suites**: Ban `print(GQL)` regex pinning (`GUARD-TS-STATIC-PINNING`), locale JSON key loops, twin `.test.js` sidecars (`GUARD-TS-DUAL-EXT`), and pass-through mock echoes.
+- **TS hygiene violations**: Ban floating promises (`GUARD-TS-FLOATING-ASSERT`), catch-only tests (`GUARD-TS-CATCH-ONLY`), unverified conditionals (`GUARD-TS-CONDITIONAL-ASSERT`), and fixed `setTimeout` sleeps (`GUARD-REACT-02`).
 - **No Large Dynamic Snapshots**: Ban snapshot tests of dynamic pages, lists, or complex containers.
-- **No Shallow Rendering**: Render the full component tree with required providers.
 - **No Wait-for-Find**: Prefer `await screen.findBy*` over `waitFor(() => screen.getBy*)`.
 
 ## References
 
 See [references/REFERENCE.md](references/REFERENCE.md) for MSW API mocking, Context testing, form testing, and React Router patterns.
-
-## Code
-
-```tsx
-test('submits form', async () => {
-  const user = userEvent.setup();
-  render(<LoginForm />);
-
-  await user.type(screen.getByLabelText(/email/i), 'test@test.com');
-  await user.click(screen.getByRole('button', { name: /login/i }));
-
-  expect(await screen.findByText(/welcome/i)).toBeInTheDocument();
-});
-```
-
