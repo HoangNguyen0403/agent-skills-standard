@@ -65,7 +65,9 @@ function readAgentRecords(paseoHome: string): AgentRecord[] {
     for (const file of files) {
       try {
         const record = recordFrom(
-          JSON.parse(readFileSync(path.join(agentsRoot, directory, file), "utf8")),
+          JSON.parse(
+            readFileSync(path.join(agentsRoot, directory, file), "utf8"),
+          ),
         );
         if (record) records.push(record);
       } catch {
@@ -79,15 +81,21 @@ function readAgentRecords(paseoHome: string): AgentRecord[] {
 function newest(records: readonly AgentRecord[]): AgentRecord | null {
   let best: AgentRecord | null = null;
   for (const record of records) {
-    if (!best || Date.parse(record.createdAt) >= Date.parse(best.createdAt)) best = record;
+    if (!best || Date.parse(record.createdAt) >= Date.parse(best.createdAt))
+      best = record;
   }
   return best;
 }
 
 export function createPaseoOmpAdapter(paseoHome: string): HostAdapter {
-  let cached: { byId: Map<string, AgentRecord>; bySession: Map<string, AgentRecord> } | null =
-    null;
-  const load = (): { byId: Map<string, AgentRecord>; bySession: Map<string, AgentRecord> } => {
+  let cached: {
+    byId: Map<string, AgentRecord>;
+    bySession: Map<string, AgentRecord>;
+  } | null = null;
+  const load = (): {
+    byId: Map<string, AgentRecord>;
+    bySession: Map<string, AgentRecord>;
+  } => {
     if (cached) return cached;
     const byId = new Map<string, AgentRecord[]>();
     for (const record of readAgentRecords(paseoHome)) {
@@ -100,7 +108,8 @@ export function createPaseoOmpAdapter(paseoHome: string): HostAdapter {
     }
     const bySession = new Map<string, AgentRecord>();
     for (const record of resolvedById.values()) {
-      if (!bySession.has(record.sessionId)) bySession.set(record.sessionId, record);
+      if (!bySession.has(record.sessionId))
+        bySession.set(record.sessionId, record);
     }
     cached = { byId: resolvedById, bySession };
     return cached;
@@ -110,17 +119,26 @@ export function createPaseoOmpAdapter(paseoHome: string): HostAdapter {
     async resolveWorker(dispatchId: string): Promise<HostBinding | null> {
       const record = load().byId.get(dispatchId);
       return record
-        ? { transcriptPath: record.transcriptPath, expectedSessionId: record.sessionId }
+        ? {
+            transcriptPath: record.transcriptPath,
+            expectedSessionId: record.sessionId,
+          }
         : null;
     },
-    async resolveOrchestrator(orchestratorRef: string): Promise<HostBinding | null> {
+    async resolveOrchestrator(
+      orchestratorRef: string,
+    ): Promise<HostBinding | null> {
       // `orchestrator_ref` is the orchestrator's host session id (SRS-001); an
       // agent id is accepted as well, so one registry answers both spellings.
       const loaded = load();
       const record =
-        loaded.bySession.get(orchestratorRef) ?? loaded.byId.get(orchestratorRef);
+        loaded.bySession.get(orchestratorRef) ??
+        loaded.byId.get(orchestratorRef);
       return record
-        ? { transcriptPath: record.transcriptPath, expectedSessionId: record.sessionId }
+        ? {
+            transcriptPath: record.transcriptPath,
+            expectedSessionId: record.sessionId,
+          }
         : null;
     },
   };

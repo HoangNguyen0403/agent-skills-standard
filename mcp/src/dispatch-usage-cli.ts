@@ -23,9 +23,13 @@ export class UsageError extends Error {}
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 function utcBoundary(value: string, flag: string): string {
-  if (!DATE.test(value)) throw new UsageError(`${flag} must be a UTC date (YYYY-MM-DD)`);
+  if (!DATE.test(value))
+    throw new UsageError(`${flag} must be a UTC date (YYYY-MM-DD)`);
   const parsed = new Date(`${value}T00:00:00.000Z`);
-  if (!Number.isFinite(parsed.getTime()) || !parsed.toISOString().startsWith(value)) {
+  if (
+    !Number.isFinite(parsed.getTime()) ||
+    !parsed.toISOString().startsWith(value)
+  ) {
     throw new UsageError(`${flag} must be a real calendar date`);
   }
   return parsed.toISOString();
@@ -35,7 +39,9 @@ function parseLockTimeout(value: string | undefined): number {
   if (value === undefined) return lockTimeoutFromEnvironment();
   const parsed = Number(value);
   if (!Number.isFinite(parsed) || parsed < 0) {
-    throw new UsageError("--lock-timeout-ms must be a non-negative number of milliseconds");
+    throw new UsageError(
+      "--lock-timeout-ms must be a non-negative number of milliseconds",
+    );
   }
   return parsed;
 }
@@ -82,7 +88,9 @@ export async function runDispatchUsageCli(
     (key) => values[key as keyof typeof values] === undefined,
   );
   if (missing.length > 0) {
-    throw new UsageError(`Missing required flag(s): ${missing.map((key) => `--${key}`).join(", ")}`);
+    throw new UsageError(
+      `Missing required flag(s): ${missing.map((key) => `--${key}`).join(", ")}`,
+    );
   }
   const from = utcBoundary(values.from ?? "", "--from");
   const to = utcBoundary(values.to ?? "", "--to");
@@ -118,11 +126,9 @@ export async function runDispatchUsageCli(
       ),
     };
   }
-  const write = await appendDispatchEvents(
-    observationsPath,
-    events,
-    { lockTimeoutMs: parseLockTimeout(values["lock-timeout-ms"]) },
-  );
+  const write = await appendDispatchEvents(observationsPath, events, {
+    lockTimeoutMs: parseLockTimeout(values["lock-timeout-ms"]),
+  });
   return {
     output: JSON.stringify(
       {

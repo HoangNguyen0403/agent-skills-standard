@@ -334,23 +334,27 @@ async function collectWorkerUsage(
     for (const [workspace, group] of byWorkspace) {
       const root = await mkdtemp(path.join(os.tmpdir(), "ags-dispatch-"));
       temporaryRoots.push(root);
-      const sessions: SessionManifest["sessions"] = group.map((member, index) => ({
-        path: member.transcriptPath,
-        format: "omp",
-        role: "implementation",
-        attemptOutcome: "completed",
-        // `taskId` is how a journal group is traced back to its dispatch. It is a
-        // local label, never a native identifier (the role and outcome are local
-        // labels too: nothing downstream reads them for a dispatch).
-        taskId: `session-${index}`,
-        expectedSessionId: member.sessionId,
-      }));
+      const sessions: SessionManifest["sessions"] = group.map(
+        (member, index) => ({
+          path: member.transcriptPath,
+          format: "omp",
+          role: "implementation",
+          attemptOutcome: "completed",
+          // `taskId` is how a journal group is traced back to its dispatch. It is a
+          // local label, never a native identifier (the role and outcome are local
+          // labels too: nothing downstream reads them for a dispatch).
+          taskId: `session-${index}`,
+          expectedSessionId: member.sessionId,
+        }),
+      );
       const manifest: SessionManifest = {
         workspace,
         startedAt: options.from,
         completedAt: options.to,
         sessions,
-        expectedSessionIds: sessions.map((session) => session.expectedSessionId ?? ""),
+        expectedSessionIds: sessions.map(
+          (session) => session.expectedSessionId ?? "",
+        ),
         phaseWindows: [],
       };
       const manifestPath = path.join(root, "manifest.json");
@@ -365,7 +369,9 @@ async function collectWorkerUsage(
       for (const [index, member] of group.entries()) {
         // A session that resolved but contributed no in-window row is a measured
         // zero with the journal's coverage, never an unresolved failure.
-        const groups = journal.groups.filter((entry) => entry.taskId === `session-${index}`);
+        const groups = journal.groups.filter(
+          (entry) => entry.taskId === `session-${index}`,
+        );
         measurements.set(member.dispatchId, {
           usage: summarizeGroups(groups),
           coverageComplete: journal.coverage.complete,
@@ -373,7 +379,8 @@ async function collectWorkerUsage(
       }
     }
   } finally {
-    for (const root of temporaryRoots) await rm(root, { recursive: true, force: true });
+    for (const root of temporaryRoots)
+      await rm(root, { recursive: true, force: true });
   }
   limitations.push(
     "Worker usage covers only dispatches whose transcript the host adapter resolved and whose native identity matched its own record.",
@@ -431,7 +438,9 @@ function usageEvent(input: {
     cost_basis: "host-recorded-estimate",
     coverage_complete: unavailable ? false : input.coverageComplete,
     method_ref: input.methodRef,
-    ...(input.unavailableCode ? { unavailable_code: input.unavailableCode } : {}),
+    ...(input.unavailableCode
+      ? { unavailable_code: input.unavailableCode }
+      : {}),
   };
 }
 
@@ -441,13 +450,20 @@ function usageEvent(input: {
 
 function readObservations(filePath: string): ObservationFile {
   if (!existsSync(filePath)) {
-    return { schema_version: 1, source_kind: "host-export", coverage: [], events: [] };
+    return {
+      schema_version: 1,
+      source_kind: "host-export",
+      coverage: [],
+      events: [],
+    };
   }
   let parsed: unknown;
   try {
     parsed = JSON.parse(readFileSync(filePath, "utf8"));
   } catch {
-    throw new Error("observations-invalid: the observation file is not valid JSON");
+    throw new Error(
+      "observations-invalid: the observation file is not valid JSON",
+    );
   }
   if (
     !object(parsed) ||
@@ -455,12 +471,16 @@ function readObservations(filePath: string): ObservationFile {
     !Array.isArray(parsed.events) ||
     !Array.isArray(parsed.coverage)
   ) {
-    throw new Error("observations-invalid: the observation file does not match schema 1");
+    throw new Error(
+      "observations-invalid: the observation file does not match schema 1",
+    );
   }
   return {
     schema_version: 1,
     source_kind:
-      parsed.source_kind === "operator-recorded" ? "operator-recorded" : "host-export",
+      parsed.source_kind === "operator-recorded"
+        ? "operator-recorded"
+        : "host-export",
     coverage: parsed.coverage,
     events: parsed.events.filter(object),
   };
@@ -519,7 +539,8 @@ function reportTotals(
   orchestrators: number,
   totals: Map<TotalKey, UsageTotal>,
 ): UnattributedUsage {
-  const total = (key: TotalKey): UsageTotal => totals.get(key) ?? { known: 0, unknown: 0 };
+  const total = (key: TotalKey): UsageTotal =>
+    totals.get(key) ?? { known: 0, unknown: 0 };
   return {
     orchestrators,
     turns: total("turns"),
@@ -569,7 +590,8 @@ export async function planDispatchUsage(
             windowFrom,
             windowTo,
             now,
-            methodRef: actor === "worker" ? WORKER_METHOD_REF : SUPERVISION_METHOD_REF,
+            methodRef:
+              actor === "worker" ? WORKER_METHOD_REF : SUPERVISION_METHOD_REF,
             usage: { ...UNKNOWN_USAGE },
             coverageComplete: false,
             unavailableCode: "no-adapter",
@@ -608,7 +630,11 @@ export async function planDispatchUsage(
       sessionId: header.id,
     });
   }
-  const workerMeasurements = await collectWorkerUsage(members, options, plan.limitations);
+  const workerMeasurements = await collectWorkerUsage(
+    members,
+    options,
+    plan.limitations,
+  );
 
   // Supervision side: one trace per orchestrator, one shared registry of dispatches.
   const registry = dispatches.map((dispatch) => dispatch.dispatch_id);
@@ -622,7 +648,9 @@ export async function planDispatchUsage(
   const supervisionFailure = new Map<string, UnavailableCode>();
   const supervisionCoverage = new Map<string, boolean>();
   const unattributed = new Map<TotalKey, UsageTotal>();
-  const recordedIds = new Set(recordedDispatches(file).map((dispatch) => dispatch.dispatch_id));
+  const recordedIds = new Set(
+    recordedDispatches(file).map((dispatch) => dispatch.dispatch_id),
+  );
 
   for (const [orchestratorRef, group] of byOrchestrator) {
     const binding = await adapter.resolveOrchestrator(orchestratorRef);
@@ -639,7 +667,8 @@ export async function planDispatchUsage(
     if (!trace || status !== "resolved") {
       const code: UnavailableCode =
         status === "identity-mismatch" ? "identity-mismatch" : "unresolved";
-      for (const dispatch of group) supervisionFailure.set(dispatch.dispatch_id, code);
+      for (const dispatch of group)
+        supervisionFailure.set(dispatch.dispatch_id, code);
       // Inventory stays omitted, but the reason names only the safe reference.
       plan.limitations.push(
         `inventory-unavailable: ${reference(orchestratorRef) ? orchestratorRef : "unknown"}`,
@@ -656,24 +685,35 @@ export async function planDispatchUsage(
       recordedCost: 0,
     };
     for (const dispatch of group) {
-      supervisionUsage.set(dispatch.dispatch_id, trace.usage.get(dispatch.dispatch_id) ?? measured);
+      supervisionUsage.set(
+        dispatch.dispatch_id,
+        trace.usage.get(dispatch.dispatch_id) ?? measured,
+      );
       supervisionCoverage.set(dispatch.dispatch_id, trace.malformedLines === 0);
     }
     accumulateUnattributed(unattributed, trace.unattributed);
 
     // Inventory (SRS-008): agents this orchestrator created in the window with no
     // recorded dispatch. One event per change served, one count for the window.
-    const unrecorded = trace.createdAgentIds.filter((id) => !recordedIds.has(id)).length;
+    const unrecorded = trace.createdAgentIds.filter(
+      (id) => !recordedIds.has(id),
+    ).length;
     const changes = new Map<string, RecordedDispatch>();
     for (const dispatch of group) {
-      if (!changes.has(dispatch.change_id)) changes.set(dispatch.change_id, dispatch);
+      if (!changes.has(dispatch.change_id))
+        changes.set(dispatch.change_id, dispatch);
     }
     for (const [changeId, dispatch] of changes) {
       plan.inventory.push({
         kind: "dispatch-inventory",
         id: eventId(
           "dispatch-inventory",
-          inventoryIdentity(changeId, dispatch.orchestrator_ref, windowFrom, windowTo),
+          inventoryIdentity(
+            changeId,
+            dispatch.orchestrator_ref,
+            windowFrom,
+            windowTo,
+          ),
         ),
         change_id: changeId,
         revision: dispatch.revision,
@@ -690,7 +730,9 @@ export async function planDispatchUsage(
   for (const dispatch of dispatches) {
     const workerCode =
       workerFailure.get(dispatch.dispatch_id) ??
-      (workerMeasurements.get(dispatch.dispatch_id) === null ? "unresolved" : undefined);
+      (workerMeasurements.get(dispatch.dispatch_id) === null
+        ? "unresolved"
+        : undefined);
     const worker = workerMeasurements.get(dispatch.dispatch_id) ?? null;
     plan.events.push(
       usageEvent({
@@ -749,7 +791,9 @@ export function lockTimeoutFromEnvironment(): number {
   const raw = process.env.AGS_OBSERVATIONS_LOCK_TIMEOUT_MS;
   if (!raw) return DEFAULT_LOCK_TIMEOUT_MS;
   const parsed = Number(raw);
-  return Number.isFinite(parsed) && parsed >= 0 ? parsed : DEFAULT_LOCK_TIMEOUT_MS;
+  return Number.isFinite(parsed) && parsed >= 0
+    ? parsed
+    : DEFAULT_LOCK_TIMEOUT_MS;
 }
 
 interface Lock {
@@ -765,7 +809,10 @@ async function acquireLock(filePath: string, timeoutMs: number): Promise<Lock> {
       try {
         writeSync(
           fd,
-          JSON.stringify({ pid: process.pid, created_at: new Date().toISOString() }),
+          JSON.stringify({
+            pid: process.pid,
+            created_at: new Date().toISOString(),
+          }),
         );
       } finally {
         closeSync(fd);
@@ -781,10 +828,12 @@ async function acquireLock(filePath: string, timeoutMs: number): Promise<Lock> {
       };
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== "EEXIST") {
-        throw new Error("lock-unavailable: the lock could not be created");
+        throw new Error("lock-unavailable: the lock could not be created", {
+          cause: error,
+        });
       }
       if (Date.now() >= deadline) {
-        let ageSeconds = 0;
+        let ageSeconds: number;
         try {
           ageSeconds = Math.max(
             0,
@@ -795,7 +844,8 @@ async function acquireLock(filePath: string, timeoutMs: number): Promise<Lock> {
         }
         const stale = ageSeconds * 1000 >= STALE_LOCK_MS ? ", stale" : "";
         throw new Error(
-          `lock-timeout: an existing lock is ${ageSeconds}s old (${stale}); nothing was written`,
+          `lock-timeout: an existing lock is ${ageSeconds}s old${stale}; nothing was written`,
+          { cause: error },
         );
       }
       await delay(100);
@@ -845,15 +895,19 @@ function validateEmitted(event: EmittedEvent): string[] {
       problems.push(`${String(field)} must be a reference string`);
     }
   }
-  if (!isoOrNull(event.observed_at)) problems.push("observed_at must be a UTC ISO timestamp");
+  if (!isoOrNull(event.observed_at))
+    problems.push("observed_at must be a UTC ISO timestamp");
   const from = isoOrNull(event.window_from);
   const to = isoOrNull(event.window_to);
-  if (!from || !to) problems.push("window_from and window_to must be UTC ISO timestamps");
-  else if (Date.parse(from) >= Date.parse(to)) problems.push("window_from must be before window_to");
+  if (!from || !to)
+    problems.push("window_from and window_to must be UTC ISO timestamps");
+  else if (Date.parse(from) >= Date.parse(to))
+    problems.push("window_from must be before window_to");
 
   if (usageEvent) {
     const usage = event as DispatchUsageEvent;
-    if (!ACTORS.includes(usage.actor)) problems.push(`actor must be one of: ${ACTORS.join(", ")}`);
+    if (!ACTORS.includes(usage.actor))
+      problems.push(`actor must be one of: ${ACTORS.join(", ")}`);
     const counters: Array<[string, number | null]> = [
       ["turns", usage.turns],
       ["input_tokens", usage.input_tokens],
@@ -868,11 +922,15 @@ function validateEmitted(event: EmittedEvent): string[] {
     }
     if (
       usage.recorded_cost !== null &&
-      !(typeof usage.recorded_cost === "number" &&
+      !(
+        typeof usage.recorded_cost === "number" &&
         Number.isFinite(usage.recorded_cost) &&
-        usage.recorded_cost >= 0)
+        usage.recorded_cost >= 0
+      )
     ) {
-      problems.push("recorded_cost must be a finite non-negative number or null");
+      problems.push(
+        "recorded_cost must be a finite non-negative number or null",
+      );
     }
     if (typeof usage.coverage_complete !== "boolean") {
       problems.push("coverage_complete must be a boolean");
@@ -899,12 +957,17 @@ function validateEmitted(event: EmittedEvent): string[] {
         usage.recorded_cost !== null ||
         usage.coverage_complete
       ) {
-        problems.push("an unavailable event must carry null counters and incomplete coverage");
+        problems.push(
+          "an unavailable event must carry null counters and incomplete coverage",
+        );
       }
     }
   } else {
     const inventory = event as DispatchInventoryEvent;
-    if (!Number.isSafeInteger(inventory.unrecorded_count) || inventory.unrecorded_count < 0) {
+    if (
+      !Number.isSafeInteger(inventory.unrecorded_count) ||
+      inventory.unrecorded_count < 0
+    ) {
       problems.push("unrecorded_count must be a non-negative integer");
     }
     const identity = inventoryIdentity(
@@ -940,7 +1003,8 @@ function sameWindow(left: WindowedEvent, right: WindowedEvent): boolean {
 }
 
 function asEvent(raw: Record<string, unknown>): EmittedEvent | null {
-  if (raw.kind !== "dispatch-usage" && raw.kind !== "dispatch-inventory") return null;
+  if (raw.kind !== "dispatch-usage" && raw.kind !== "dispatch-inventory")
+    return null;
   return raw as unknown as EmittedEvent;
 }
 
@@ -950,7 +1014,12 @@ function identityOf(event: EmittedEvent): string {
   const windowTo = isoOrNull(event.window_to) ?? event.window_to;
   return event.kind === "dispatch-usage"
     ? usageIdentity(event.dispatch_id, event.actor, windowFrom, windowTo)
-    : inventoryIdentity(event.change_id, event.orchestrator_ref, windowFrom, windowTo);
+    : inventoryIdentity(
+        event.change_id,
+        event.orchestrator_ref,
+        windowFrom,
+        windowTo,
+      );
 }
 
 /**
@@ -977,7 +1046,12 @@ function mergeEvents(
       replayByIdentity.set(identityOf(known), replayPayload(known));
     }
     if (raw.kind !== "dispatch") continue;
-    for (const dispatch of recordedDispatches({ schema_version: 1, source_kind: "host-export", coverage: [], events: [raw] })) {
+    for (const dispatch of recordedDispatches({
+      schema_version: 1,
+      source_kind: "host-export",
+      coverage: [],
+      events: [raw],
+    })) {
       dispatches.set(dispatch.dispatch_id, dispatch);
     }
   }
@@ -995,22 +1069,27 @@ function mergeEvents(
     const replay = replayPayload(event);
     if (byId.has(event.id)) {
       if (identities.get(event.id) !== identity) {
-        throw new Error(`event-conflict: ${event.id} is already used by a different identity`);
+        throw new Error(
+          `event-conflict: ${event.id} is already used by a different identity`,
+        );
       }
       if (replayById.get(event.id) !== replay) {
-        throw new Error(`event-conflict: ${event.id} already exists with a different payload`);
+        throw new Error(
+          `event-conflict: ${event.id} already exists with a different payload`,
+        );
       }
       skipped += 1;
       continue;
     }
     if (replayByIdentity.has(identity)) {
       if (replayByIdentity.get(identity) !== replay) {
-        throw new Error(`event-conflict: ${event.id} already exists with a different payload`);
+        throw new Error(
+          `event-conflict: ${event.id} already exists with a different payload`,
+        );
       }
       skipped += 1;
       continue;
     }
-
 
     if (event.kind === "dispatch-usage") {
       for (const raw of merged) {
@@ -1031,10 +1110,14 @@ function mergeEvents(
       }
       const dispatch = dispatches.get(event.dispatch_id);
       if (!dispatch) {
-        throw new Error(`reference-missing: ${event.id} names an unknown dispatch`);
+        throw new Error(
+          `reference-missing: ${event.id} names an unknown dispatch`,
+        );
       }
       if (dispatch.change_id !== event.change_id) {
-        throw new Error(`change-mismatch: ${event.id} does not match its dispatch change`);
+        throw new Error(
+          `change-mismatch: ${event.id} does not match its dispatch change`,
+        );
       }
       if (Date.parse(event.observed_at) < Date.parse(dispatch.observed_at)) {
         throw new Error(`chronology: ${event.id} precedes its dispatch`);

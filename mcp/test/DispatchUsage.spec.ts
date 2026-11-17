@@ -14,21 +14,34 @@ import {
 } from "../src/services/DispatchUsage";
 import { runDispatchUsageCli } from "../src/dispatch-usage-cli";
 import { readDeliveryObservations } from "../../scripts/metrics/delivery";
-import { buildDispatchFixture, FIXTURE, type DispatchFixture } from "./fixtures/dispatch-usage/build";
+import {
+  buildDispatchFixture,
+  FIXTURE,
+  type DispatchFixture,
+} from "./fixtures/dispatch-usage/build";
 
 const roots: string[] = [];
 
 afterEach(async () => {
-  await Promise.all(roots.splice(0).map((root) => fs.rm(root, { recursive: true, force: true })));
+  await Promise.all(
+    roots
+      .splice(0)
+      .map((root) => fs.rm(root, { recursive: true, force: true })),
+  );
 });
 
-async function fixture(options: { swapWorkerRecords?: boolean } = {}): Promise<DispatchFixture> {
+async function fixture(
+  options: { swapWorkerRecords?: boolean } = {},
+): Promise<DispatchFixture> {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "ags-dispatch-usage-"));
   roots.push(root);
   return buildDispatchFixture(root, options);
 }
 
-function optionsFor(tree: DispatchFixture, overrides: Partial<ImportOptions> = {}): ImportOptions {
+function optionsFor(
+  tree: DispatchFixture,
+  overrides: Partial<ImportOptions> = {},
+): ImportOptions {
   return {
     observationsPath: tree.observationsPath,
     from: FIXTURE.windowFrom,
@@ -47,11 +60,16 @@ function usageEventId(dispatchId: string, actor: "worker" | "supervision") {
   );
 }
 
-function find(tree: DispatchFixture, dispatchId: string, actor: "worker" | "supervision") {
+function find(
+  tree: DispatchFixture,
+  dispatchId: string,
+  actor: "worker" | "supervision",
+) {
   return async (): Promise<DispatchUsageEvent & { id: string }> => {
     const plan = await planDispatchUsage(optionsFor(tree));
     const event = plan.events.find(
-      (candidate) => candidate.dispatch_id === dispatchId && candidate.actor === actor,
+      (candidate) =>
+        candidate.dispatch_id === dispatchId && candidate.actor === actor,
     );
     if (!event) throw new Error(`missing ${dispatchId}/${actor}`);
     return event;
@@ -163,7 +181,9 @@ describe("planDispatchUsage", () => {
   it("records every pair as no-adapter for a host without an adapter (AC-012)", async () => {
     const tree = await fixture();
     for (const host of ["none", "unknown-host"]) {
-      const plan = await planDispatchUsage(optionsFor(tree, { host, adapter: undefined }));
+      const plan = await planDispatchUsage(
+        optionsFor(tree, { host, adapter: undefined }),
+      );
       expect(plan.events).toHaveLength(4);
       expect(plan.inventory).toHaveLength(0);
       for (const event of plan.events) {
@@ -185,7 +205,8 @@ describe("planDispatchUsage", () => {
 
     for (const dispatchId of [FIXTURE.dispatchA, FIXTURE.dispatchB]) {
       const event = plan.events.find(
-        (candidate) => candidate.dispatch_id === dispatchId && candidate.actor === "worker",
+        (candidate) =>
+          candidate.dispatch_id === dispatchId && candidate.actor === "worker",
       );
       expect(event).toMatchObject({
         unavailable_code: "identity-mismatch",
@@ -195,21 +216,30 @@ describe("planDispatchUsage", () => {
       });
     }
     // The orchestrator is untouched by a worker swap, so supervision still measures.
-    expect(plan.events.filter((event) => event.actor === "supervision")).toHaveLength(2);
     expect(
-      plan.events.find((event) => event.actor === "supervision")?.unavailable_code,
+      plan.events.filter((event) => event.actor === "supervision"),
+    ).toHaveLength(2);
+    expect(
+      plan.events.find((event) => event.actor === "supervision")
+        ?.unavailable_code,
     ).toBeUndefined();
   });
 
   it("reports an unresolved worker when the host has no record for it", async () => {
     const tree = await fixture();
-    await fs.rm(path.join(tree.paseoHome, "agents", FIXTURE.dispatchA), { recursive: true });
+    await fs.rm(path.join(tree.paseoHome, "agents", FIXTURE.dispatchA), {
+      recursive: true,
+    });
     const plan = await planDispatchUsage(optionsFor(tree));
     const event = plan.events.find(
       (candidate) =>
-        candidate.dispatch_id === FIXTURE.dispatchA && candidate.actor === "worker",
+        candidate.dispatch_id === FIXTURE.dispatchA &&
+        candidate.actor === "worker",
     );
-    expect(event).toMatchObject({ unavailable_code: "unresolved", turns: null });
+    expect(event).toMatchObject({
+      unavailable_code: "unresolved",
+      turns: null,
+    });
   });
 
   it("never emits a title, prompt or path (AC-015)", async () => {
@@ -244,9 +274,13 @@ describe("planDispatchUsage", () => {
     );
     for (const needle of forbidden) expect(output).not.toContain(needle);
 
-    await appendDispatchEvents(tree.observationsPath, [...plan.events, ...plan.inventory], {
-      lockTimeoutMs: 2_000,
-    });
+    await appendDispatchEvents(
+      tree.observationsPath,
+      [...plan.events, ...plan.inventory],
+      {
+        lockTimeoutMs: 2_000,
+      },
+    );
     const written = await fs.readFile(tree.observationsPath, "utf8");
     for (const needle of forbidden) expect(written).not.toContain(needle);
   });
@@ -257,36 +291,61 @@ describe("writer and reader parity", () => {
     ["negative turns", { turns: -1 }],
     ["negative cost", { recorded_cost: -0.5 }],
     ["unknown actor", { actor: "manager" }],
-    ["unavailable code with a counter", { unavailable_code: "no-adapter", turns: 5 }],
+    [
+      "unavailable code with a counter",
+      { unavailable_code: "no-adapter", turns: 5 },
+    ],
   ] as const;
 
-  async function readerIssues(root: string, events: Array<Record<string, unknown>>): Promise<string[]> {
+  async function readerIssues(
+    root: string,
+    events: Array<Record<string, unknown>>,
+  ): Promise<string[]> {
     const readerRoot = path.join(root, "reader-root");
     const directory = path.join(readerRoot, "artifacts", "metrics");
     await fs.mkdir(directory, { recursive: true });
     await fs.writeFile(
       path.join(directory, "delivery-observations.json"),
-      JSON.stringify({ schema_version: 1, source_kind: "operator-recorded", coverage: [], events }),
+      JSON.stringify({
+        schema_version: 1,
+        source_kind: "operator-recorded",
+        coverage: [],
+        events,
+      }),
     );
-    return readDeliveryObservations(readerRoot).issues.map((issue) => issue.message);
+    return readDeliveryObservations(readerRoot).issues.map(
+      (issue) => issue.message,
+    );
   }
 
-  it.each(rejected)("refuses %s and so does the reader", async (_label, patch) => {
-    const tree = await fixture();
-    const plan = await planDispatchUsage(optionsFor(tree));
-    const original = plan.events[0];
-    const malformed = { ...original, ...patch } as unknown as EmittedEvent;
+  it.each(rejected)(
+    "refuses %s and so does the reader",
+    async (_label, patch) => {
+      const tree = await fixture();
+      const plan = await planDispatchUsage(optionsFor(tree));
+      const original = plan.events[0];
+      const malformed = { ...original, ...patch } as unknown as EmittedEvent;
 
-    await expect(
-      appendDispatchEvents(tree.observationsPath, [malformed], { lockTimeoutMs: 2_000 }),
-    ).rejects.toThrow(/event-invalid/);
+      await expect(
+        appendDispatchEvents(tree.observationsPath, [malformed], {
+          lockTimeoutMs: 2_000,
+        }),
+      ).rejects.toThrow(/event-invalid/);
 
-    const file = JSON.parse(await fs.readFile(tree.observationsPath, "utf8")) as {
-      events: Array<Record<string, unknown>>;
-    };
-    const dispatch = file.events.find((event) => event.kind === "dispatch");
-    expect(await readerIssues(tree.root, [dispatch as Record<string, unknown>, { ...malformed }])).not.toHaveLength(0);
-  });
+      const file = JSON.parse(
+        await fs.readFile(tree.observationsPath, "utf8"),
+      ) as {
+        events: Array<Record<string, unknown>>;
+      };
+      const dispatch = file.events.find((event) => event.kind === "dispatch");
+      expect(
+        await readerIssues(tree.root, [
+          dispatch as Record<string, unknown>,
+          { ...malformed },
+        ]),
+      ).not.toHaveLength(0);
+    },
+  );
 });
 
 describe("plan totals and resolution states", () => {
@@ -313,7 +372,9 @@ describe("plan totals and resolution states", () => {
       recordedCost: { known: 0, unknown: 1 },
     });
     const agentB = plan.events.find(
-      (event) => event.dispatch_id === FIXTURE.dispatchB && event.actor === "supervision",
+      (event) =>
+        event.dispatch_id === FIXTURE.dispatchB &&
+        event.actor === "supervision",
     );
     expect(agentB).toMatchObject({
       turns: 1,
@@ -332,7 +393,8 @@ describe("plan totals and resolution states", () => {
       }),
     );
     const workerA = plan.events.find(
-      (event) => event.dispatch_id === FIXTURE.dispatchA && event.actor === "worker",
+      (event) =>
+        event.dispatch_id === FIXTURE.dispatchA && event.actor === "worker",
     );
     expect(workerA).toMatchObject({
       turns: 0,
@@ -348,12 +410,17 @@ describe("plan totals and resolution states", () => {
 
   it("reports inventory-unavailable with the safe orchestrator reference", async () => {
     const tree = await fixture();
-    await fs.rm(path.join(tree.paseoHome, "agents", FIXTURE.orchestratorAgent), {
-      recursive: true,
-    });
+    await fs.rm(
+      path.join(tree.paseoHome, "agents", FIXTURE.orchestratorAgent),
+      {
+        recursive: true,
+      },
+    );
     const plan = await planDispatchUsage(optionsFor(tree));
     expect(plan.inventory).toHaveLength(0);
-    expect(plan.limitations).toContain(`inventory-unavailable: ${FIXTURE.orchestratorRef}`);
+    expect(plan.limitations).toContain(
+      `inventory-unavailable: ${FIXTURE.orchestratorRef}`,
+    );
     for (const limitation of plan.limitations) {
       expect(limitation).not.toContain(tree.root);
     }
@@ -366,11 +433,15 @@ describe("appendDispatchEvents", () => {
     const plan = await planDispatchUsage(optionsFor(tree));
     const events: EmittedEvent[] = [...plan.events, ...plan.inventory];
 
-    const first = await appendDispatchEvents(tree.observationsPath, events, { lockTimeoutMs: 2_000 });
+    const first = await appendDispatchEvents(tree.observationsPath, events, {
+      lockTimeoutMs: 2_000,
+    });
     expect(first).toEqual({ written: 6, skipped: 0 });
     const afterFirst = await fs.readFile(tree.observationsPath, "utf8");
 
-    const replay = await appendDispatchEvents(tree.observationsPath, events, { lockTimeoutMs: 2_000 });
+    const replay = await appendDispatchEvents(tree.observationsPath, events, {
+      lockTimeoutMs: 2_000,
+    });
     expect(replay).toEqual({ written: 0, skipped: 6 });
     expect(await fs.readFile(tree.observationsPath, "utf8")).toBe(afterFirst);
 
@@ -402,7 +473,9 @@ describe("appendDispatchEvents", () => {
     const plan = await planDispatchUsage(optionsFor(tree));
     const tampered = { ...plan.events[0], method_ref: "journal-window-v1\n" };
     await expect(
-      appendDispatchEvents(tree.observationsPath, [tampered], { lockTimeoutMs: 2_000 }),
+      appendDispatchEvents(tree.observationsPath, [tampered], {
+        lockTimeoutMs: 2_000,
+      }),
     ).rejects.toThrow(/event-invalid/);
   });
 
@@ -412,14 +485,18 @@ describe("appendDispatchEvents", () => {
     const [victim, other] = [plan.events[0], plan.events[1]];
     // Seed the file with the victim's id on another identity's payload, the way a
     // hand-edited or foreign writer could.
-    const file = JSON.parse(await fs.readFile(tree.observationsPath, "utf8")) as {
+    const file = JSON.parse(
+      await fs.readFile(tree.observationsPath, "utf8"),
+    ) as {
       events: Array<Record<string, unknown>>;
     };
     file.events.push({ ...other, id: victim.id });
     await fs.writeFile(tree.observationsPath, JSON.stringify(file));
 
     await expect(
-      appendDispatchEvents(tree.observationsPath, [victim], { lockTimeoutMs: 2_000 }),
+      appendDispatchEvents(tree.observationsPath, [victim], {
+        lockTimeoutMs: 2_000,
+      }),
     ).rejects.toThrow(/event-conflict/);
   });
   it("detects replays by domain identity even when the stored id differs", async () => {
@@ -427,7 +504,9 @@ describe("appendDispatchEvents", () => {
     const plan = await planDispatchUsage(optionsFor(tree));
     const original = plan.events[0];
     if (!original) throw new Error("missing planned dispatch usage event");
-    const file = JSON.parse(await fs.readFile(tree.observationsPath, "utf8")) as {
+    const file = JSON.parse(
+      await fs.readFile(tree.observationsPath, "utf8"),
+    ) as {
       events: Array<Record<string, unknown>>;
     };
     file.events.push({ ...original, id: "foreign-valid-id" });
@@ -444,46 +523,63 @@ describe("appendDispatchEvents", () => {
     expect(await fs.readFile(tree.observationsPath, "utf8")).toBe(seeded);
 
     expect(
-      await appendDispatchEvents(tree.observationsPath, [original], { lockTimeoutMs: 2_000 }),
+      await appendDispatchEvents(tree.observationsPath, [original], {
+        lockTimeoutMs: 2_000,
+      }),
     ).toEqual({ written: 0, skipped: 1 });
     expect((await readDeliveryObservations(tree.root)).issues).toEqual([]);
   });
-
 
   it.each([
     ["dispatch-usage", "usage"],
     ["dispatch-inventory", "inventory"],
-  ] as const)("treats equivalent %s windows as the same replay", async (kind, collection) => {
-    const tree = await fixture();
-    const plan = await planDispatchUsage(optionsFor(tree));
-    const original = (collection === "usage" ? plan.events[0] : plan.inventory[0]);
-    if (!original || original.kind !== kind) throw new Error(`missing ${kind} event`);
-    const stored = {
-      ...original,
-      id: "foreign-valid-id",
-      window_from: original.window_from.replace(".000Z", "Z"),
-      window_to: original.window_to.replace(".000Z", "Z"),
-    };
-    const file = JSON.parse(await fs.readFile(tree.observationsPath, "utf8")) as {
-      events: Array<Record<string, unknown>>;
-    };
-    file.events.push(stored);
-    await fs.writeFile(tree.observationsPath, JSON.stringify(file));
+  ] as const)(
+    "treats equivalent %s windows as the same replay",
+    async (kind, collection) => {
+      const tree = await fixture();
+      const plan = await planDispatchUsage(optionsFor(tree));
+      const original =
+        collection === "usage" ? plan.events[0] : plan.inventory[0];
+      if (!original || original.kind !== kind)
+        throw new Error(`missing ${kind} event`);
+      const stored = {
+        ...original,
+        id: "foreign-valid-id",
+        window_from: original.window_from.replace(".000Z", "Z"),
+        window_to: original.window_to.replace(".000Z", "Z"),
+      };
+      const file = JSON.parse(
+        await fs.readFile(tree.observationsPath, "utf8"),
+      ) as {
+        events: Array<Record<string, unknown>>;
+      };
+      file.events.push(stored);
+      await fs.writeFile(tree.observationsPath, JSON.stringify(file));
 
-    expect(
-      await appendDispatchEvents(tree.observationsPath, [original], { lockTimeoutMs: 2_000 }),
-    ).toEqual({ written: 0, skipped: 1 });
-    expect((await readDeliveryObservations(tree.root)).issues).toEqual([]);
-  });
+      expect(
+        await appendDispatchEvents(tree.observationsPath, [original], {
+          lockTimeoutMs: 2_000,
+        }),
+      ).toEqual({ written: 0, skipped: 1 });
+      expect((await readDeliveryObservations(tree.root)).issues).toEqual([]);
+    },
+  );
 
   it("writes nothing and reports the lock age when the lock is held", async () => {
     const tree = await fixture();
     const plan = await planDispatchUsage(optionsFor(tree));
     const before = await fs.readFile(tree.observationsPath, "utf8");
-    await fs.writeFile(`${tree.observationsPath}.lock`, JSON.stringify({ pid: 1 }));
+    await fs.writeFile(
+      `${tree.observationsPath}.lock`,
+      JSON.stringify({ pid: 1 }),
+    );
     await expect(
-      appendDispatchEvents(tree.observationsPath, plan.events, { lockTimeoutMs: 150 }),
-    ).rejects.toThrow(/lock-timeout/);
+      appendDispatchEvents(tree.observationsPath, plan.events, {
+        lockTimeoutMs: 150,
+      }),
+    ).rejects.toThrow(
+      /lock-timeout: an existing lock is \d+s old; nothing was written/,
+    );
     expect(await fs.readFile(tree.observationsPath, "utf8")).toBe(before);
     expect(await fs.readFile(`${tree.observationsPath}.lock`, "utf8")).toBe(
       JSON.stringify({ pid: 1 }),

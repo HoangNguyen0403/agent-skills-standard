@@ -130,7 +130,8 @@ function counter(value: unknown): number | null {
 }
 
 function textOf(content: unknown): string {
-  if (!Array.isArray(content)) return typeof content === "string" ? content : "";
+  if (!Array.isArray(content))
+    return typeof content === "string" ? content : "";
   return content
     .map((part) =>
       object(part) && typeof part.text === "string" ? part.text : "",
@@ -141,22 +142,28 @@ function textOf(content: unknown): string {
 function chargedTurn(message: Record<string, unknown>): ChargedTurn {
   const usage = object(message.usage) ? message.usage : {};
   const cost = object(usage.cost) ? usage.cost.total : undefined;
-  const counters = { input: null, cacheRead: null, cacheWrite: null, output: null } as Record<
-    CounterField,
-    number | null
-  >;
+  const counters = {
+    input: null,
+    cacheRead: null,
+    cacheWrite: null,
+    output: null,
+  } as Record<CounterField, number | null>;
   for (const field of COUNTER_FIELDS) counters[field] = counter(usage[field]);
   const agentIds: string[] = [];
   if (Array.isArray(message.content)) {
     for (const block of message.content) {
       if (!object(block) || block.type !== "toolCall") continue;
       const args = object(block.arguments) ? block.arguments : {};
-      if (typeof args.agentId === "string" && args.agentId) agentIds.push(args.agentId);
+      if (typeof args.agentId === "string" && args.agentId)
+        agentIds.push(args.agentId);
     }
   }
   return {
     counters,
-    cost: typeof cost === "number" && Number.isFinite(cost) && cost >= 0 ? cost : null,
+    cost:
+      typeof cost === "number" && Number.isFinite(cost) && cost >= 0
+        ? cost
+        : null,
     agentIds,
   };
 }
@@ -164,7 +171,8 @@ function chargedTurn(message: Record<string, unknown>): ChargedTurn {
 function charge(accumulator: Accumulator, turn: ChargedTurn): void {
   accumulator.turns += 1;
   if (turn.counters.input === null) accumulator.inputKnown = false;
-  else if (accumulator.inputKnown) accumulator.inputTokens += turn.counters.input;
+  else if (accumulator.inputKnown)
+    accumulator.inputTokens += turn.counters.input;
   if (turn.counters.cacheRead === null) accumulator.cacheKnown = false;
   else if (accumulator.cacheKnown)
     accumulator.cachedInputTokens += turn.counters.cacheRead;
@@ -226,7 +234,12 @@ export async function readOrchestratorTrace(
         try {
           header = nativeSessionHeader(row, "omp");
         } catch {
-          return { ...result, status: "unresolved", usage: new Map(), unattributed: unknownUsage() };
+          return {
+            ...result,
+            status: "unresolved",
+            usage: new Map(),
+            unattributed: unknownUsage(),
+          };
         }
         if (header.id !== input.expectedSessionId) {
           return {
@@ -240,7 +253,8 @@ export async function readOrchestratorTrace(
       }
       if (row.type !== "message" || !object(row.message)) continue;
       const message = row.message;
-      const time = typeof row.timestamp === "string" ? Date.parse(row.timestamp) : NaN;
+      const time =
+        typeof row.timestamp === "string" ? Date.parse(row.timestamp) : NaN;
       if (!Number.isFinite(time)) {
         result.malformedLines += 1;
         continue;
@@ -251,9 +265,12 @@ export async function readOrchestratorTrace(
 
       if (role === "assistant") {
         const turn = chargedTurn(message);
-        for (const block of Array.isArray(message.content) ? message.content : []) {
+        for (const block of Array.isArray(message.content)
+          ? message.content
+          : []) {
           if (!object(block) || block.type !== "toolCall") continue;
-          if (block.name !== "create_agent" || typeof block.id !== "string") continue;
+          if (block.name !== "create_agent" || typeof block.id !== "string")
+            continue;
           pendingCreates.add(block.id);
         }
         // The pointer follows the identity actually addressed last, recorded or
@@ -276,9 +293,17 @@ export async function readOrchestratorTrace(
 
       if (role === "toolResult" && message.toolName === "create_agent") {
         const details = object(message.details) ? message.details : {};
-        const toolCallId = typeof message.toolCallId === "string" ? message.toolCallId : null;
-        const agentId = typeof details.agentId === "string" ? details.agentId : null;
-        if (!inWindow || !agentId || toolCallId === null || !pendingCreates.delete(toolCallId)) continue;
+        const toolCallId =
+          typeof message.toolCallId === "string" ? message.toolCallId : null;
+        const agentId =
+          typeof details.agentId === "string" ? details.agentId : null;
+        if (
+          !inWindow ||
+          !agentId ||
+          toolCallId === null ||
+          !pendingCreates.delete(toolCallId)
+        )
+          continue;
         createdAgentIds.push(agentId);
         continue;
       }
@@ -291,17 +316,29 @@ export async function readOrchestratorTrace(
       }
     }
   } catch {
-    return { ...result, status: "unresolved", usage: new Map(), unattributed: unknownUsage() };
+    return {
+      ...result,
+      status: "unresolved",
+      usage: new Map(),
+      unattributed: unknownUsage(),
+    };
   } finally {
     stream.destroy();
   }
 
   if (!headerSeen) {
-    return { ...result, status: "unresolved", usage: new Map(), unattributed: unknownUsage() };
+    return {
+      ...result,
+      status: "unresolved",
+      usage: new Map(),
+      unattributed: unknownUsage(),
+    };
   }
   return {
     ...result,
-    usage: new Map([...perDispatch].map(([id, accumulator]) => [id, finish(accumulator)])),
+    usage: new Map(
+      [...perDispatch].map(([id, accumulator]) => [id, finish(accumulator)]),
+    ),
     unattributed: finish(unattributed),
   };
 }

@@ -47,7 +47,12 @@ function message(
   return { type: "message", id, timestamp, message: body };
 }
 
-function usage(input: number, output: number, cost: number, cache?: { read: number; write: number }) {
+function usage(
+  input: number,
+  output: number,
+  cost: number,
+  cache?: { read: number; write: number },
+) {
   return {
     input,
     output,
@@ -57,9 +62,15 @@ function usage(input: number, output: number, cost: number, cache?: { read: numb
   };
 }
 
-async function writeJsonl(file: string, rows: Array<Record<string, unknown>>): Promise<void> {
+async function writeJsonl(
+  file: string,
+  rows: Array<Record<string, unknown>>,
+): Promise<void> {
   await mkdir(path.dirname(file), { recursive: true });
-  await writeFile(file, `${rows.map((row) => JSON.stringify(row)).join("\n")}\n`);
+  await writeFile(
+    file,
+    `${rows.map((row) => JSON.stringify(row)).join("\n")}\n`,
+  );
 }
 
 /** Drops the host-reported cost and cache counters of the named turns. */
@@ -82,7 +93,10 @@ function withoutCost(
 
 export async function buildDispatchFixture(
   root: string,
-  options: { swapWorkerRecords?: boolean; sparseUsageTurnIds?: readonly string[] } = {},
+  options: {
+    swapWorkerRecords?: boolean;
+    sparseUsageTurnIds?: readonly string[];
+  } = {},
 ): Promise<DispatchFixture> {
   const workspace = path.join(root, "workspace");
   await mkdir(workspace, { recursive: true });
@@ -95,7 +109,13 @@ export async function buildDispatchFixture(
 
   const orchestratorRows: Array<Record<string, unknown>> = [
     { type: "title", title: FIXTURE.titles[0] },
-    { type: "session", version: 3, id: FIXTURE.orchestratorRef, cwd: workspace, timestamp: "2026-10-01T19:00:00.000Z" },
+    {
+      type: "session",
+      version: 3,
+      id: FIXTURE.orchestratorRef,
+      cwd: workspace,
+      timestamp: "2026-10-01T19:00:00.000Z",
+    },
     message("2026-10-01T19:30:00.000Z", "o-user-1", {
       role: "user",
       content: [{ type: "text", text: `${FIXTURE.prompts[0]} plan the work` }],
@@ -105,7 +125,14 @@ export async function buildDispatchFixture(
       role: "assistant",
       model: "orch-model",
       usage: usage(500, 100, 0.5),
-      content: [{ type: "toolCall", id: "call-1", name: "create_agent", arguments: { title: FIXTURE.titles[0] } }],
+      content: [
+        {
+          type: "toolCall",
+          id: "call-1",
+          name: "create_agent",
+          arguments: { title: FIXTURE.titles[0] },
+        },
+      ],
     }),
     message("2026-10-01T20:01:00.000Z", "o-result-1", {
       role: "toolResult",
@@ -118,7 +145,14 @@ export async function buildDispatchFixture(
       role: "assistant",
       model: "orch-model",
       usage: usage(600, 120, 0.6),
-      content: [{ type: "toolCall", id: "call-2", name: "send_agent_prompt", arguments: { agentId: FIXTURE.dispatchA } }],
+      content: [
+        {
+          type: "toolCall",
+          id: "call-2",
+          name: "send_agent_prompt",
+          arguments: { agentId: FIXTURE.dispatchA },
+        },
+      ],
     }),
     // Notification sets the pointer, a plain user message clears it.
     message("2026-10-01T23:00:00.000Z", "o-user-2", {
@@ -130,7 +164,10 @@ export async function buildDispatchFixture(
         },
       ],
     }),
-    message("2026-10-01T23:30:00.000Z", "o-user-3", { role: "user", content: [{ type: "text", text: "continue" }] }),
+    message("2026-10-01T23:30:00.000Z", "o-user-3", {
+      role: "user",
+      content: [{ type: "text", text: "continue" }],
+    }),
     // Inside the window: no pointer yet, so this turn is unattributed.
     message("2026-10-02T00:10:00.000Z", "o-3", {
       role: "assistant",
@@ -144,10 +181,30 @@ export async function buildDispatchFixture(
       model: "orch-model",
       usage: usage(1000, 500, 0.3, { read: 4000, write: 0 }),
       content: [
-        { type: "toolCall", id: "call-3", name: "create_agent", arguments: { title: FIXTURE.titles[1] } },
-        { type: "toolCall", id: "call-4", name: "create_agent", arguments: { title: FIXTURE.prompts[1] } },
-        { type: "toolCall", id: "call-5", name: "create_agent", arguments: { title: "unrecorded" } },
-        { type: "toolCall", id: "call-6", name: "send_agent_prompt", arguments: { agentId: FIXTURE.dispatchA } },
+        {
+          type: "toolCall",
+          id: "call-3",
+          name: "create_agent",
+          arguments: { title: FIXTURE.titles[1] },
+        },
+        {
+          type: "toolCall",
+          id: "call-4",
+          name: "create_agent",
+          arguments: { title: FIXTURE.prompts[1] },
+        },
+        {
+          type: "toolCall",
+          id: "call-5",
+          name: "create_agent",
+          arguments: { title: "unrecorded" },
+        },
+        {
+          type: "toolCall",
+          id: "call-6",
+          name: "send_agent_prompt",
+          arguments: { agentId: FIXTURE.dispatchA },
+        },
       ],
     }),
     message("2026-10-02T00:22:00.000Z", "o-result-3", {
@@ -209,7 +266,13 @@ export async function buildDispatchFixture(
 
   await writeJsonl(transcripts.workerA, [
     { type: "title", title: FIXTURE.titles[1] },
-    { type: "session", version: 3, id: FIXTURE.sessionA, cwd: workspace, timestamp: "2026-10-01T21:00:00.000Z" },
+    {
+      type: "session",
+      version: 3,
+      id: FIXTURE.sessionA,
+      cwd: workspace,
+      timestamp: "2026-10-01T21:00:00.000Z",
+    },
     // Same session, before the window: must not be counted.
     message("2026-10-01T22:00:00.000Z", "a-1", {
       role: "assistant",
@@ -230,7 +293,13 @@ export async function buildDispatchFixture(
 
   await writeJsonl(transcripts.workerB, [
     { type: "title", title: FIXTURE.titles[2] },
-    { type: "session", version: 3, id: FIXTURE.sessionB, cwd: workspace, timestamp: "2026-10-02T02:30:00.000Z" },
+    {
+      type: "session",
+      version: 3,
+      id: FIXTURE.sessionB,
+      cwd: workspace,
+      timestamp: "2026-10-02T02:30:00.000Z",
+    },
     message("2026-10-02T03:00:00.000Z", "b-1", {
       role: "assistant",
       model: "worker-model",
@@ -244,7 +313,10 @@ export async function buildDispatchFixture(
       createdAt: "2026-10-01T19:00:00.000Z",
       title: FIXTURE.titles[0],
       prompt: FIXTURE.prompts[0],
-      persistence: { nativeHandle: transcripts.orchestrator, sessionId: FIXTURE.orchestratorRef },
+      persistence: {
+        nativeHandle: transcripts.orchestrator,
+        sessionId: FIXTURE.orchestratorRef,
+      },
     },
     {
       id: FIXTURE.dispatchA,
@@ -252,7 +324,9 @@ export async function buildDispatchFixture(
       title: FIXTURE.titles[1],
       prompt: FIXTURE.prompts[0],
       persistence: {
-        nativeHandle: options.swapWorkerRecords ? transcripts.workerB : transcripts.workerA,
+        nativeHandle: options.swapWorkerRecords
+          ? transcripts.workerB
+          : transcripts.workerA,
         sessionId: FIXTURE.sessionA,
       },
     },
@@ -262,7 +336,9 @@ export async function buildDispatchFixture(
       title: FIXTURE.titles[2],
       prompt: FIXTURE.prompts[1],
       persistence: {
-        nativeHandle: options.swapWorkerRecords ? transcripts.workerA : transcripts.workerB,
+        nativeHandle: options.swapWorkerRecords
+          ? transcripts.workerA
+          : transcripts.workerB,
         sessionId: FIXTURE.sessionB,
       },
     },
@@ -273,7 +349,12 @@ export async function buildDispatchFixture(
     await writeFile(path.join(directory, "agent.json"), JSON.stringify(record));
   }
 
-  const observationsPath = path.join(root, "artifacts", "metrics", "delivery-observations.json");
+  const observationsPath = path.join(
+    root,
+    "artifacts",
+    "metrics",
+    "delivery-observations.json",
+  );
   await mkdir(path.dirname(observationsPath), { recursive: true });
   await writeFile(
     observationsPath,
@@ -292,7 +373,11 @@ export async function buildDispatchFixture(
           dispatch_id: FIXTURE.dispatchA,
           role: "implementation",
           capability_hint: "standard",
-          actual: { provider: "provider-x", model: "model-a", effort: "medium" },
+          actual: {
+            provider: "provider-x",
+            model: "model-a",
+            effort: "medium",
+          },
           authority_ref: "maintainer",
           orchestrator_model: "orch-model",
           orchestrator_ref: FIXTURE.orchestratorRef,
