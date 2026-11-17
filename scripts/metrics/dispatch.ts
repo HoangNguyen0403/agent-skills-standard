@@ -429,7 +429,7 @@ function checkUsageWindows(usage: DispatchUsageEvent[]): string[] {
         if (from1 === from2 && to1 === to2) continue;
         if (windowsOverlap(from1, to1, from2, to2)) {
           problems.push(
-            `event ${right.id}: usage window ${right.window_from}/${right.window_to} overlaps ${left.window_from}/${left.window_to} for ${key.replace("\n", " of dispatch ")}; only identical replays are permitted`,
+            `event ${right.id}: usage window ${right.window_from}/${right.window_to} overlaps ${left.window_from}/${left.window_to} for actor ${right.actor} of dispatch ${right.dispatch_id}; only identical replays are permitted`,
           );
         }
       }

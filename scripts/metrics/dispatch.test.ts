@@ -455,6 +455,10 @@ test("two overlapping usage windows for one dispatch and actor reject the file",
     ]),
   );
   assert.ok(problems.some((problem) => problem.includes("overlaps")), problems.join("; "));
+  assert.ok(
+    problems.some((problem) => problem.includes("for actor worker of dispatch dispatch-1; only identical replays are permitted")),
+    problems.join("; "),
+  );
 });
 
 test("a non-overlapping second usage window for the same dispatch and actor is accepted", () => {
