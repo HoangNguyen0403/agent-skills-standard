@@ -6,6 +6,7 @@ import {
   type ImprovementRuleId,
   type LedgerImprovement,
 } from "../src/retrospective/improvements";
+import type { PermissionFriction } from "../src/retrospective/permission-friction";
 
 function createEmptyInput(): ImprovementInput {
   return {
@@ -1065,6 +1066,142 @@ describe("retrospective improvements derivation (Slice B2)", () => {
       const res1 = deriveImprovements(input);
       const res2 = deriveImprovements(input);
       expect(res1).toEqual(res2);
+    });
+  });
+
+  describe("Rule 6: repeated-permission-requests", () => {
+    function frictionInput(
+      overrides: Partial<PermissionFriction> = {},
+    ): ImprovementInput {
+      return {
+        ...createEmptyInput(),
+        permissionFriction: {
+          requests: 4,
+          answered: 3,
+          unanswered: 1,
+          repeatedRequests: 2,
+          humanAnswers: null,
+          orchestratorAnswers: 3,
+          waitMs: null,
+          waitMeasuredRequests: 0,
+          coverage: "complete",
+          limitations: [],
+          byAgent: [],
+          byTool: [],
+          ...overrides,
+        },
+      };
+    }
+
+    it("fires on observed request and repeat counts only", () => {
+      const improvements = deriveImprovements(frictionInput());
+
+      const rule = improvements.find(
+        (i) => i.rule === "repeated-permission-requests",
+      );
+      expect(rule).toBeDefined();
+      expect(rule?.level).toBe("watch");
+      expect(rule?.destination).toBe("permission-setup");
+      expect(rule?.audience).toBe("manager");
+      expect(rule?.claimIds).toEqual([]);
+      expect(rule?.values).toEqual({
+        requests: 4,
+        answered: 3,
+        unanswered: 1,
+        repeatedRequests: 2,
+        repeatedPercent: 50,
+      });
+    });
+
+    it("does not fire without friction evidence or below thresholds", () => {
+      const noFriction = deriveImprovements(createEmptyInput());
+      expect(
+        noFriction.some((i) => i.rule === "repeated-permission-requests"),
+      ).toBe(false);
+
+      const sparse = deriveImprovements(
+        frictionInput({ requests: 9, repeatedRequests: 1 }),
+      );
+      expect(
+        sparse.some((i) => i.rule === "repeated-permission-requests"),
+      ).toBe(false);
+    });
+  });
+
+  describe("Rule 9: permission-timing-unmeasured", () => {
+    it("marks unmeasured wait as a candidate measurement gap", () => {
+      const input: ImprovementInput = {
+        ...createEmptyInput(),
+        permissionFriction: {
+          requests: 2,
+          answered: 2,
+          unanswered: 0,
+          repeatedRequests: 0,
+          humanAnswers: null,
+          orchestratorAnswers: 2,
+          waitMs: null,
+          waitMeasuredRequests: 0,
+          coverage: "complete",
+          limitations: [],
+          byAgent: [],
+          byTool: [],
+        },
+      };
+
+      const rule = deriveImprovements(input).find(
+        (i) => i.rule === "permission-timing-unmeasured",
+      );
+      expect(rule?.audience).toBe("maintainer");
+      expect(rule?.destination).toBe("tracker-binding");
+      expect(rule?.values).toEqual({
+        requests: 2,
+        answered: 2,
+        waitMeasuredRequests: 0,
+      });
+    });
+
+    it("does not fire when wait was measured or nothing was answered", () => {
+      const measured = deriveImprovements({
+        ...createEmptyInput(),
+        permissionFriction: {
+          requests: 2,
+          answered: 2,
+          unanswered: 0,
+          repeatedRequests: 0,
+          humanAnswers: null,
+          orchestratorAnswers: 2,
+          waitMs: 500,
+          waitMeasuredRequests: 2,
+          coverage: "complete",
+          limitations: [],
+          byAgent: [],
+          byTool: [],
+        },
+      });
+      expect(
+        measured.some((i) => i.rule === "permission-timing-unmeasured"),
+      ).toBe(false);
+
+      const unanswered = deriveImprovements({
+        ...createEmptyInput(),
+        permissionFriction: {
+          requests: 2,
+          answered: 0,
+          unanswered: 2,
+          repeatedRequests: 0,
+          humanAnswers: null,
+          orchestratorAnswers: 0,
+          waitMs: null,
+          waitMeasuredRequests: 0,
+          coverage: "complete",
+          limitations: [],
+          byAgent: [],
+          byTool: [],
+        },
+      });
+      expect(
+        unanswered.some((i) => i.rule === "permission-timing-unmeasured"),
+      ).toBe(false);
     });
   });
 });

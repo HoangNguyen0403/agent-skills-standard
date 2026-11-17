@@ -108,7 +108,7 @@ describe("retrospective CLI usage errors", () => {
   });
   it("fails removed commands as unknown commands with exit code 2", () => {
     const expectedStderr = `Unknown command.\n\n${USAGE}\n`;
-    for (const command of ["prepare", "status", "paths", "delete"]) {
+    for (const command of ["status", "paths", "delete"]) {
       const run = runCli([command]);
       expect(run.status).toBe(2);
       expect(run.stdout).toBe("");

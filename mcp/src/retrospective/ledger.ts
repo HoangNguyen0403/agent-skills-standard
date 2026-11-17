@@ -12,6 +12,12 @@ import { MAX_COMMAND_CHARS } from "./permission-requests";
 
 export { LOOKUP_TOOLS, type LookupToolName };
 import type { NodeKey } from "./contracts";
+import type { CoverageInventory } from "./contracts";
+import {
+  buildPermissionFriction,
+  deduplicatePermissionEvents,
+  type PermissionFriction,
+} from "./permission-friction";
 import {
   deriveImprovements,
   type ImprovementInput,
@@ -129,7 +135,7 @@ export type LedgerPermissionCommand = {
   allow: number;
   deny: number;
   other: number;
-  unanswered: number;
+  unmatchedObservations: number;
 };
 
 export type LedgerPermissionRequests = {
@@ -138,12 +144,16 @@ export type LedgerPermissionRequests = {
   unanswered: number;
   answeredWithoutRequest: number;
   agentsAsked: number;
-  tools: LedgerPermissionRow[]; // at most 10, by asked desc then name asc
-  programs: LedgerPermissionRow[]; // at most 15, by asked desc then name asc ("other" is listed like any program)
-  distinctPrograms: number; // number of keys in the merged programs map before the cut
-  commands: LedgerPermissionCommand[]; // at most 50, rows with deny > 0 first, then asked desc, then text asc, then tool asc
-  distinctCommands: number; // merged distinct count before the cut
-  commandsOmitted: number; // sum of node commandsOmitted only
+  tools: LedgerPermissionRow[];
+  programs: LedgerPermissionRow[];
+  distinctPrograms: number;
+  commands: LedgerPermissionCommand[];
+  distinctCommands: number;
+  commandsOmitted: number;
+  /** Whether request, tool, and program tallies use shared event identities. */
+  requestCountsBasis: "deduplicated-events" | "raw-observations-may-duplicate";
+  /** Raw per-node command observations; the same request may appear more than once. */
+  commandCountsBasis: "raw-observations-may-duplicate";
 };
 
 export type LedgerInput = {
@@ -162,6 +172,11 @@ export type LedgerInput = {
   trackerSince: string | null;
   label: string | null;
   outcome: LedgerOutcome;
+  /**
+   * Declared or observed actor inventory. Omitted or `null` for a run with no
+   * declared roster (tracker-only, and older direct fixtures).
+   */
+  inventory?: CoverageInventory | null;
 };
 
 export type LedgerCounts = {
@@ -237,6 +252,10 @@ export type Ledger = {
   toolRows: LedgerToolRow[];
   outcome: LedgerOutcome;
   permissionRequests: LedgerPermissionRequests | null;
+  /** Deduplicated permission friction; null when no permission evidence exists. */
+  permissionFriction: PermissionFriction | null;
+  /** Actor roster and read coverage; null only for tracker-only runs. */
+  inventory: CoverageInventory | null;
   agents: LedgerAgent[];
   otherAgents: { count: number; turns: number; costCents: number } | null;
   improvements: LedgerImprovement[];
@@ -258,6 +277,9 @@ const SAFE_MODEL_REGEX = /^[A-Za-z0-9._:/@+-]{1,64}$/;
 const SAFE_DAY_REGEX = /^(\d{4}-\d{2}-\d{2}|unknown-day)$/;
 /** Registry skill ids are `category/skill`; the tracker emits the same shape. */
 const SAFE_SKILL_ID_REGEX = /^[A-Za-z0-9._:/@+-]{1,96}$/;
+/** Declared report aliases and hashed identity tokens in the actor roster. */
+const SAFE_ACTOR_LABEL_REGEX = /^[A-Za-z0-9][A-Za-z0-9 ._-]{0,23}$/;
+const SAFE_ACTOR_TOKEN_REGEX = /^(?:[0-9a-f]{8}|unknown)$/;
 /** Host skill ids are path-derived; anything outside this shape is hashed. */
 const SAFE_HOST_SKILL_ID_REGEX = /^[A-Za-z0-9][A-Za-z0-9._/-]{0,95}$/;
 /** Host skill ids carried in `hostSkills.top`. */
@@ -914,15 +936,90 @@ function buildLedgerPermissionRequests(
           allow: 0,
           deny: 0,
           other: 0,
-          unanswered: 0,
+          unmatchedObservations: 0,
         };
         existing.asked += tally.asked ?? 0;
         existing.allow += tally.allow ?? 0;
         existing.deny += tally.deny ?? 0;
         existing.other += tally.other ?? 0;
-        existing.unanswered += tally.unanswered ?? 0;
+        existing.unmatchedObservations += tally.unanswered ?? 0;
         mergedCommands.set(key, existing);
       }
+    }
+  }
+  const permissionEvents = deduplicatePermissionEvents(tree);
+  const eventEvidenceComplete = tree.nodes.every(
+    (node) =>
+      node.permissionCapture === "captured" &&
+      node.permissionRequestEvents !== undefined &&
+      node.permissionRequestEvents.length >=
+        node.permissionRequests.asked +
+          node.permissionRequests.answeredWithoutRequest,
+  );
+  if (eventEvidenceComplete) {
+    totalAsked = 0;
+    totalAnswered = 0;
+    totalAnsweredWithoutRequest = 0;
+    mergedTools.clear();
+    mergedPrograms.clear();
+    const actors = new Set<string>();
+    for (const event of permissionEvents) {
+      if (!event.observedRequest) {
+        if (event.verdict !== null) totalAnsweredWithoutRequest += 1;
+        continue;
+      }
+      totalAsked += 1;
+      actors.add(event.actorKey);
+      const tool = SAFE_PERMISSION_NAME_REGEX.test(event.tool)
+        ? event.tool
+        : "other";
+      const program =
+        event.program !== null && SAFE_PERMISSION_NAME_REGEX.test(event.program)
+          ? event.program
+          : null;
+      const toolTally = mergedTools.get(tool) ?? {
+        asked: 0,
+        allow: 0,
+        deny: 0,
+        other: 0,
+        unanswered: 0,
+      };
+      const programTally =
+        program === null
+          ? null
+          : (mergedPrograms.get(program) ?? {
+              asked: 0,
+              allow: 0,
+              deny: 0,
+              other: 0,
+              unanswered: 0,
+            });
+      toolTally.asked += 1;
+      if (programTally !== null) programTally.asked += 1;
+      if (event.verdict === "allow") {
+        toolTally.allow += 1;
+        if (programTally !== null) programTally.allow += 1;
+        totalAnswered += 1;
+      } else if (event.verdict === "deny") {
+        toolTally.deny += 1;
+        if (programTally !== null) programTally.deny += 1;
+        totalAnswered += 1;
+      } else if (event.verdict === "other") {
+        toolTally.other += 1;
+        if (programTally !== null) programTally.other += 1;
+        totalAnswered += 1;
+      }
+      mergedTools.set(tool, toolTally);
+      if (program !== null && programTally !== null) {
+        mergedPrograms.set(program, programTally);
+      }
+    }
+    totalAgentsAsked = actors.size;
+    for (const tally of [...mergedTools.values(), ...mergedPrograms.values()]) {
+      tally.unanswered = Math.max(
+        0,
+        tally.asked - tally.allow - tally.deny - tally.other,
+      );
     }
   }
 
@@ -988,6 +1085,10 @@ function buildLedgerPermissionRequests(
       tools,
       programs,
       distinctPrograms,
+      requestCountsBasis: eventEvidenceComplete
+        ? "deduplicated-events"
+        : "raw-observations-may-duplicate",
+      commandCountsBasis: "raw-observations-may-duplicate",
       commands,
       distinctCommands,
       commandsOmitted: totalCommandsOmitted,
@@ -1136,10 +1237,23 @@ function buildLedgerLookups(nodes: NodeUsage[]): LedgerLookups {
 
 export function buildLedger(input: LedgerInput): Ledger {
   const tree = input.tree;
+  const inventory = input.inventory ?? null;
+  // Declared but unread or unlinked actors are an evidence gap, not a complete
+  // delegation. Unknown inventory never certifies completeness either.
+  const inventoryIncomplete =
+    inventory !== null &&
+    (!inventory.known ||
+      inventory.read < inventory.expected ||
+      inventory.missing > 0 ||
+      inventory.restricted > 0 ||
+      inventory.unavailable > 0 ||
+      inventory.remote > 0 ||
+      inventory.unlinked > 0);
   const isPartial =
     tree === null ||
     tree.coverage === "partial" ||
-    input.evidenceMode === "tracker-only";
+    input.evidenceMode === "tracker-only" ||
+    inventoryIncomplete;
   const overallCoverage: "complete" | "partial" = isPartial
     ? "partial"
     : "complete";
@@ -1173,15 +1287,28 @@ export function buildLedger(input: LedgerInput): Ledger {
   const permBuildResult = buildLedgerPermissionRequests(tree);
   const permissionRequests =
     permBuildResult !== null ? permBuildResult.permissionRequests : null;
+  const permissionFriction = buildPermissionFriction(tree, {
+    scopeIncomplete: inventoryIncomplete,
+  });
   const allCells = collectCells(tree);
   // Claim-referenced cells may be appended past the cap before evidence is added.
   const cells = [...allCells].sort(compareCellTurns).slice(0, MAX_CELLS);
   const sessions = tree ? tree.sessions : 0;
   const fullyRead = tree ? tree.fullyRead : 0;
   const skippedLines = tree ? tree.skippedLines : 0;
-  const agentsCreated = input.agentsCreated;
-  const sessionsLinked = input.sessionsLinked;
-  const unlinkedAgents = input.unlinkedAgents;
+  // Coverage claim counts created workers, excluding main; the roster includes it.
+  const agentsCreated = inventory
+    ? inventory.known
+      ? Math.max(0, inventory.expected - 1)
+      : Math.max(input.agentsCreated, inventory.unlinked)
+    : input.agentsCreated;
+  const sessionsLinked = inventory
+    ? Math.max(0, inventory.linked - 1)
+    : input.sessionsLinked;
+  const unlinkedAgents = inventory ? inventory.unlinked : input.unlinkedAgents;
+  const agentsRead = inventory
+    ? Math.max(0, inventory.read - 1)
+    : Math.max(0, agentsCreated - unlinkedAgents);
   const skillUsage = copySkillUsage(input.skillUsage);
   const hostSkills = buildHostSkills(tree);
   const mainSkillNode: NodeSkillLoad | null =
@@ -1196,8 +1323,16 @@ export function buildLedger(input: LedgerInput): Ledger {
     agentsCreated,
     sessionsLinked,
     unlinkedAgents,
-    agentsRead: Math.max(0, agentsCreated - unlinkedAgents),
+    agentsRead,
   };
+  if (inventory !== null) {
+    coverageValues.inventoryKnown = inventory.known ? 1 : 0;
+    coverageValues.inventoryProvenance = inventory.provenance;
+    coverageValues.restrictedActors = inventory.restricted;
+    coverageValues.unavailableActors = inventory.unavailable;
+    coverageValues.remoteActors = inventory.remote;
+    coverageValues.missingActors = inventory.missing;
+  }
 
   const treeErrorStops =
     tree === null
@@ -2142,7 +2277,12 @@ export function buildLedger(input: LedgerInput): Ledger {
     })),
     agentsCreated,
     unlinkedAgents,
+    inventoryGaps:
+      inventory === null
+        ? 0
+        : Math.max(0, inventory.expected - inventory.read, inventory.unlinked),
     trackerWindow,
+    permissionFriction,
   };
 
   const improvements = deriveImprovements(improvementInput);
@@ -2368,9 +2508,9 @@ export function buildLedger(input: LedgerInput): Ledger {
         kind: "aggregate",
         value: row.other,
       };
-      evidence[`agg:permreq:command:${index}:unanswered`] = {
+      evidence[`agg:permreq:command:${index}:unmatchedObservations`] = {
         kind: "aggregate",
-        value: row.unanswered,
+        value: row.unmatchedObservations,
       };
     }
   }
@@ -2411,6 +2551,8 @@ export function buildLedger(input: LedgerInput): Ledger {
     toolRows,
     outcome,
     permissionRequests,
+    permissionFriction,
+    inventory,
     agents,
     otherAgents,
     improvements,
@@ -2764,7 +2906,7 @@ export function checkClaimRules(ledger: Ledger): LedgerProblemCode[] {
               cmd?.allow,
               cmd?.deny,
               cmd?.other,
-              cmd?.unanswered,
+              cmd?.unmatchedObservations,
             ].some(
               (val) =>
                 typeof val !== "number" || !Number.isFinite(val) || val < 0,
@@ -2990,6 +3132,29 @@ export function verifyLedger(
     JSON.stringify(expected.permissionRequests)
   ) {
     problems.add("NUMBER_MISMATCH");
+  }
+
+  if (
+    JSON.stringify(ledger.permissionFriction) !==
+    JSON.stringify(expected.permissionFriction)
+  ) {
+    problems.add("NUMBER_MISMATCH");
+  }
+
+  if (JSON.stringify(ledger.inventory) !== JSON.stringify(expected.inventory)) {
+    problems.add("NUMBER_MISMATCH");
+  }
+  if (ledger.inventory !== null && Array.isArray(ledger.inventory.actors)) {
+    for (const actor of ledger.inventory.actors) {
+      if (
+        typeof actor?.label !== "string" ||
+        !SAFE_ACTOR_LABEL_REGEX.test(actor.label) ||
+        typeof actor.token !== "string" ||
+        !SAFE_ACTOR_TOKEN_REGEX.test(actor.token)
+      ) {
+        problems.add("UNSAFE_VALUE");
+      }
+    }
   }
 
   if (ledger.label !== expected.label) {

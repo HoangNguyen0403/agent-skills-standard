@@ -161,6 +161,7 @@ function create200CellTree(): TreeAggregate {
       read: 0,
       write: 0,
     },
+    nodes: [],
     skippedLines: 0,
     metricCompleteness: {
       assistantTurns: "complete",
@@ -519,7 +520,7 @@ describe("retrospective summary view v3", () => {
     const bottomLineIdx = lines.indexOf("## Bottom line");
     expect(bottomLineIdx).toBeGreaterThan(-1);
     expect(lines[bottomLineIdx + 1]).toBe(
-      "Observed: main + 2 workers (2 of 5 created agents). Main: 100 turns, $15.50 est. (62% of observed cost) at 25k cached tokens per turn (workers: 5k). 5 permission answers (1 denied). AGS lookups: 12 by main, 4 by workers.",
+      "Observed: main + 2 workers (2 of 5 created agents). Main: 100 turns, $15.50 est. (62% of observed cost) at 25k cached tokens per turn (workers: 5k). 5 recorded permission answers (1 denied). AGS lookups: 12 by main, 4 by workers.",
     );
   });
 
@@ -567,11 +568,11 @@ describe("retrospective summary view v3", () => {
     const bottomLineIdx = lines.indexOf("## Bottom line");
     expect(bottomLineIdx).toBeGreaterThan(-1);
     expect(lines[bottomLineIdx + 1]).toBe(
-      "Observed: main + 0 workers (no agents were created). 2 permission answers (0 denied).",
+      "Observed: main + 0 workers (no agents were created). 2 recorded permission answers (0 denied).",
     );
   });
 
-  it("renders exact scorecard lines when all claims are present", () => {
+  it("renders scorecard lines with measured permission labels", () => {
     const ledger = viewLedger({
       coverageValues: {
         agentsCreated: 5,
@@ -692,9 +693,9 @@ describe("retrospective summary view v3", () => {
     const scoreIdx = lines.indexOf("## Scorecards");
     expect(scoreIdx).toBeGreaterThan(-1);
 
-    expect(lines[scoreIdx + 1]).toBe(
-      "Guardrails: 5 permission answers (12.5 per 100 turns; 4 allowed, 1 denied); 2 asks to a human; 1 aborted stop; 1 agent answered 3 or more times.",
-    );
+    expect(lines[scoreIdx + 1]).toContain("5 recorded permission answers");
+    expect(lines[scoreIdx + 1]).toContain("2 ask-tool calls");
+    expect(lines[scoreIdx + 1]).not.toContain("to a human");
     expect(lines[scoreIdx + 2]).toBe(
       "Cost: main 100 turns, $15.50 est., 2 compactions (post-compaction floor 12k, peak 45k cached tokens per turn); workers 50 turns, $9.50 est. Main made 30 reads, 10 edits, 5 bash and 15 coordination calls itself; call-share estimate: reads $7.75, coordination $3.88.",
     );
@@ -753,9 +754,9 @@ describe("retrospective summary view v3", () => {
     const scoreIdx = lines.indexOf("## Scorecards");
     expect(scoreIdx).toBeGreaterThan(-1);
 
-    expect(lines[scoreIdx + 1]).toBe(
-      "Guardrails: no permission answers, asks or aborts observed.",
-    );
+    expect(lines[scoreIdx + 1]).toContain("no recorded permission answers");
+    expect(lines[scoreIdx + 1]).toContain("ask-tool calls");
+    expect(lines[scoreIdx + 1]).not.toContain("to a human");
     expect(lines[scoreIdx + 2]).toBe(
       "Coverage: 2 of 2 created agents observed; observed workers: 0 read-only, 0 editing; 1 session read in full (5 lines skipped).",
     );
@@ -871,11 +872,15 @@ describe("retrospective summary view v3", () => {
     expect(lines[doNextIdx + 1]).toBe(
       "1. [ACT] Permission answers: 10 (8 allowed, 2 denied)",
     );
-    expect(lines[doNextIdx + 2]).toBe(
-      "   Saw: the orchestrator answered 10 permission requests; 1 agents were answered 3 or more times; 2 were denials.",
+    expect(lines[doNextIdx + 2]).toContain(
+      "respond_to_permission answer observations",
     );
-    expect(lines[doNextIdx + 3]).toBe(
-      "   Change (permission setup): add repeated safe requests to the allowlist (allowed answers show setup gaps) and check what each denial asked for (denials show rule violations). Next time: permission answers per 100 turns (now 12.7).",
+    expect(lines[doNextIdx + 2]).toContain(
+      "Answering actor and human provenance are not measured.",
+    );
+    expect(lines[doNextIdx + 2]).not.toContain("orchestrator answered");
+    expect(lines[doNextIdx + 3]).toContain(
+      "counts alone do not establish safety or justify allowlisting",
     );
 
     // Rule 2: cost-concentration
@@ -977,14 +982,10 @@ describe("retrospective summary view v3", () => {
     const doNextIdx = lines.indexOf("## Do next");
     expect(doNextIdx).toBeGreaterThan(-1);
 
-    expect(lines[doNextIdx + 1]).toBe(
-      "1. [WATCH] Human interventions: 3 asks, 1 aborted stops",
-    );
-    expect(lines[doNextIdx + 2]).toBe(
-      "   Saw: the agents asked a human or were stopped by one 2.5 times per 100 turns.",
-    );
-    expect(lines[doNextIdx + 3]).toBe(
-      "   Change (orchestration config): check which of those decisions the setup could take without asking. Next time: asks and aborts per 100 turns (now 2.5).",
+    expect(lines[doNextIdx + 1]).toContain("Ask-tool calls: 3 recorded calls");
+    expect(lines[doNextIdx + 2]).not.toContain("asked a human");
+    expect(lines[doNextIdx + 3]).toContain(
+      "review ask-tool call and aborted-stop observations",
     );
 
     expect(lines[doNextIdx + 4]).toBe(
@@ -1043,7 +1044,8 @@ describe("retrospective summary view v3", () => {
         evidence: [],
         values: {
           agentsCreated: 10,
-          unlinkedAgents: 4,
+          unlinkedAgents: 0,
+          inventoryGaps: 1,
         },
       },
       {
@@ -1062,8 +1064,11 @@ describe("retrospective summary view v3", () => {
     const maintIdx = lines.indexOf("## For the maintainer");
     expect(maintIdx).toBeGreaterThan(-1);
 
-    expect(lines[maintIdx + 1]).toBe(
-      "- 4 of 10 created agents have no session file read; Paseo agent sessions cannot be linked from the session file alone (session-linkage).",
+    expect(lines[maintIdx + 1]).toContain(
+      "Declared inventory gap: 1 entry unread or unlinked",
+    );
+    expect(lines[maintIdx + 1]).toContain(
+      "created-agent linkage lower bound: 0 of 10",
     );
     expect(lines[maintIdx + 2]).toBe(
       "- Server tracker numbers cover this process only, so lookups that matched nothing and bodies returned are not measured for this session (tracker-binding).",

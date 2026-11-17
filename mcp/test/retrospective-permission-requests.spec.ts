@@ -3,9 +3,15 @@ import { createHash } from "node:crypto";
 import {
   programWord,
   parsePermissionRequestMessage,
+  permissionActorKey,
+  permissionRequestIdentity,
   redactCommand,
   MAX_COMMAND_CHARS,
 } from "../src/retrospective/permission-requests";
+
+function actorKeyOf(agentId: string): string {
+  return `id-${createHash("sha256").update(agentId).digest("hex").slice(0, 16)}`;
+}
 
 describe("programWord privacy boundary", () => {
   const tableCases: Array<{ input: string; expected: string; reason: string }> =
@@ -232,6 +238,7 @@ Respond with \`respond_to_permission\` using the \`agentId\` and \`requestId\` b
     expect(result).toEqual({
       requestId: "15a2ae00a1707dd8",
       agent: "a626ed91",
+      actorKey: actorKeyOf("a626ed91-6219-4158-88dc-31f12a5b782b"),
       tool: "bash",
       program: "sed",
       kind: "tool",
@@ -259,6 +266,7 @@ Agent 12345678-abcd needs permission.
     expect(result).toEqual({
       requestId: "req-escaped-999",
       agent: "12345678",
+      actorKey: actorKeyOf("12345678-abcd-ef01-2345"),
       tool: "bash",
       program: "curl",
       kind: "other",
@@ -356,6 +364,7 @@ Agent a626ed91-6219-4158-88dc-31f12a5b782b needs permission.
     expect(result).toEqual({
       requestId: "req-nested-brace-123",
       agent: "a626ed91",
+      actorKey: actorKeyOf("a626ed91-6219-4158-88dc-31f12a5b782b"),
       tool: "bash",
       program: "echo",
       kind: "other",
@@ -382,6 +391,7 @@ needs permission
     expect(result).toEqual({
       requestId: "inner-req-456",
       agent: "a626ed91",
+      actorKey: actorKeyOf("a626ed91-6219-4158-88dc-31f12a5b782b"),
       tool: "bash",
       program: "git",
       kind: "other",
@@ -970,5 +980,49 @@ describe("redactCommand privacy boundary and rules", () => {
       const twice = redactCommand(once);
       expect(twice).toBe(once);
     }
+  });
+});
+
+describe("permission actor identity", () => {
+  it("derives distinct internal keys for ids sharing a display prefix", () => {
+    const first = permissionActorKey(
+      "aaaaaaaa-1111-2222-3333-444444444444",
+      "scope-a",
+    );
+    const second = permissionActorKey(
+      "aaaaaaaa-9999-8888-7777-666666666666",
+      "scope-a",
+    );
+
+    expect(first).toMatch(/^id-[0-9a-f]{16}$/);
+    expect(second).toMatch(/^id-[0-9a-f]{16}$/);
+    expect(first).not.toBe(second);
+    expect(first).not.toContain("aaaaaaaa");
+  });
+
+  it("scopes unknown ids to their observation and never joins them across scopes", () => {
+    const unknownA = permissionActorKey(undefined, "host-1\u0000session-1");
+    const unknownAAgain = permissionActorKey(
+      undefined,
+      "host-1\u0000session-1",
+    );
+    const unknownB = permissionActorKey(undefined, "host-1\u0000session-2");
+
+    expect(unknownA).toBe(unknownAAgain);
+    expect(unknownA).not.toBe(unknownB);
+    expect(unknownA).toMatch(/^unknown-[0-9a-f]{16}$/);
+  });
+
+  it("joins replays of one full identity and separates different requests", () => {
+    const actor = permissionActorKey(
+      "aaaaaaaa-1111-2222-3333-444444444444",
+      "scope",
+    );
+    const first = permissionRequestIdentity(actor, "req-1");
+    const firstAgain = permissionRequestIdentity(actor, "req-1");
+    const otherRequest = permissionRequestIdentity(actor, "req-2");
+
+    expect(firstAgain).toBe(first);
+    expect(otherRequest).not.toBe(first);
   });
 });

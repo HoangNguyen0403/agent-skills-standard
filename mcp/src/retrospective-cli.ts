@@ -25,6 +25,8 @@ import {
 } from "./retrospective/consent";
 import { RetrospectiveError } from "./retrospective/errors";
 import { StoreError } from "./retrospective/store";
+import { runRetrospective } from "./retrospective/run";
+import { SessionTracker } from "./services/SessionTracker";
 import { lstatOrNull } from "./retrospective/platform-private";
 import {
   collectIndex,
@@ -57,6 +59,11 @@ export const USAGE = [
   "    that cannot be resolved refuses with SOURCE_ROOT_CANONICALIZATION_FAILED.",
   "  agent-skills-standard-mcp retrospective disable",
   "  agent-skills-standard-mcp retrospective index [--since YYYY-MM-DD] [--until YYYY-MM-DD] [--folder NAME]",
+  "  agent-skills-standard-mcp retrospective prepare --manifest <absolute>",
+  "    Reads exactly the declared manifest nodes that resolve inside a consented",
+  "    source root, then publishes a local summary, ledger and HTML report. A",
+  "    declared actor that is missing, restricted or unavailable stays a visible",
+  "    coverage gap. A manifest path outside the consented roots is refused.",
   "  agent-skills-standard-mcp retrospective consent-status",
   "",
   "Invoking `ags retrospective <cmd>` runs the same commands through the CLI.",
@@ -68,13 +75,14 @@ export const USAGE = [
   "2 usage error.",
 ].join("\n");
 
-type Command = "enable" | "disable" | "consent-status" | "index";
+type Command = "enable" | "disable" | "consent-status" | "index" | "prepare";
 
 const COMMANDS: readonly Command[] = [
   "enable",
   "disable",
   "consent-status",
   "index",
+  "prepare",
 ];
 
 const OPTIONS = {
@@ -84,6 +92,7 @@ const OPTIONS = {
   since: { type: "string" },
   until: { type: "string" },
   folder: { type: "string" },
+  manifest: { type: "string" },
 } as const;
 
 type ValueKey = keyof typeof OPTIONS;
@@ -95,6 +104,7 @@ const ALLOWED: Record<Command, readonly ValueKey[]> = {
   disable: ["help"],
   "consent-status": ["help"],
   index: ["since", "until", "folder", "help"],
+  prepare: ["manifest", "help"],
 };
 
 type TranscriptStoreCandidate = {
@@ -477,6 +487,55 @@ async function runIndex(values: Values, io: CliIo): Promise<unknown> {
   };
 }
 
+async function runPrepare(values: Values, io: CliIo): Promise<unknown> {
+  const manifest = values.manifest;
+  if (typeof manifest !== "string" || manifest.length === 0) {
+    throw new UsageError("--manifest requires an absolute path.");
+  }
+
+  const targetPath = consentFilePath(io.env, io.platform, io.home);
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 120_000);
+  try {
+    const result = await runRetrospective(
+      {
+        tracker: new SessionTracker(),
+        workspace: process.cwd(),
+        consentPath: targetPath,
+        manifestPath: manifest,
+      },
+      controller.signal,
+    );
+    if (result.state === "prepared" || result.state === "already-prepared") {
+      return {
+        schemaVersion: 1,
+        state: result.state,
+        evidenceMode: result.evidenceMode,
+        artifactId: result.artifactId,
+        coverage: result.coverage,
+        fullyRead: result.fullyRead,
+        sessions: result.sessions,
+        counts: result.counts,
+        views: {
+          summary: result.viewPaths.summary,
+          ledger: result.viewPaths.ledger,
+          html: result.viewPaths.reportHtml,
+        },
+      };
+    }
+    if (result.state === "disabled") {
+      throw new Refusal("CONSENT_REQUIRED");
+    }
+    throw new Refusal(
+      "code" in result && typeof result.code === "string"
+        ? result.code
+        : "PREPARATION_FAILED",
+    );
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 async function dispatch(invocation: Invocation, io: CliIo): Promise<unknown> {
   switch (invocation.command) {
     case "enable":
@@ -487,6 +546,8 @@ async function dispatch(invocation: Invocation, io: CliIo): Promise<unknown> {
       return runConsentStatus(io);
     case "index":
       return runIndex(invocation.values, io);
+    case "prepare":
+      return runPrepare(invocation.values, io);
     default:
       throw new UsageError("A command is required.");
   }

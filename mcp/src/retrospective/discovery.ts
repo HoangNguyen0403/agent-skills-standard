@@ -6,6 +6,7 @@ import path from "node:path";
 import type { ConsentRecord } from "./consent";
 import {
   DEFAULT_LIMITS,
+  EVIDENCE_SEMANTICS_REVISION,
   localManifestSchema,
   type LocalManifest,
 } from "./contracts";
@@ -26,6 +27,13 @@ export type Discovery =
       manifest: LocalManifest;
       mainFile: string;
       childFiles: string[];
+      /** Linked children with the session id proven by their own header. */
+      childSessions: Array<{
+        absolutePath: string;
+        sessionId: string;
+        size: number;
+        mtimeMs: number;
+      }>;
       unlinkedAgents: number;
       rootVerification: "unverified-root";
     }
@@ -155,7 +163,10 @@ type ParseOptions = {
 
 type ParseOutcome =
   | { kind: "parsed"; candidate: ParsedCandidate; bytes: number }
+  | { kind: "not-session" }
   | { kind: "skipped" };
+
+const SESSION_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
 
 /**
  * Streams one candidate through a single descriptor, bounded by the `fstat`
@@ -185,6 +196,10 @@ async function parseCandidateFile(
 
     let sessionId: string | null = null;
     let parentSession: string | null = null;
+    let firstRowSeen = false;
+    let headerValid = false;
+    let titlePreambleSeen = false;
+    let headerConflict = false;
     let lastSubstantiveEventId: string | null = null;
     let lastEventTimestamp: string | null = null;
     let createdAgentsCount = 0;
@@ -212,17 +227,28 @@ async function parseCandidateFile(
         return;
       }
 
-      if (row.type === "session") {
-        if (typeof row.id === "string") sessionId = row.id;
-        if (typeof row.parentSession === "string")
-          parentSession = row.parentSession;
-      } else if (
-        row.type === "session_meta" &&
-        typeof row.payload === "object" &&
-        row.payload !== null
-      ) {
-        const payload = row.payload as Record<string, unknown>;
-        if (typeof payload.id === "string") sessionId = payload.id;
+      if (!firstRowSeen) {
+        if (row.type === "title" && row.v === 1 && !titlePreambleSeen) {
+          titlePreambleSeen = true;
+          return;
+        }
+        firstRowSeen = true;
+        if (
+          row.type === "session" &&
+          typeof row.id === "string" &&
+          SESSION_ID_PATTERN.test(row.id)
+        ) {
+          headerValid = true;
+          sessionId = row.id;
+          parentSession =
+            typeof row.parentSession === "string" ? row.parentSession : null;
+        }
+      } else if (row.type === "session") {
+        const rowParent =
+          typeof row.parentSession === "string" ? row.parentSession : null;
+        if (row.id !== sessionId || rowParent !== parentSession) {
+          headerConflict = true;
+        }
       }
 
       let rowTs = NaN;
@@ -396,14 +422,14 @@ async function parseCandidateFile(
       }
     }
 
-    const effectiveId =
-      sessionId ?? path.basename(filePath).replace(/\.jsonl$/i, "");
+    if (!headerValid) return { kind: "not-session" };
+    if (headerConflict || sessionId === null) return { kind: "skipped" };
 
     return {
       kind: "parsed",
       candidate: {
         filePath,
-        sessionId: effectiveId,
+        sessionId,
         parentSession,
         calls,
         createdAgentsCount,
@@ -610,6 +636,90 @@ async function resolveSiblingDir(
   return readDirectory(dirPath);
 }
 
+const MAX_HEADER_BYTES = 65_536;
+
+/**
+ * Reads only the first row of a candidate child to learn its declared header.
+ * Bounded, `O_NOFOLLOW`, and never used for aggregation. A file without a valid
+ * native session header yields no lineage.
+ */
+async function readSessionHeader(filePath: string): Promise<{
+  valid: boolean;
+  sessionId: string | null;
+  parentSession: string | null;
+}> {
+  const handle = await fsp.open(filePath, READ_FLAGS).catch(() => null);
+  if (!handle) return { valid: false, sessionId: null, parentSession: null };
+  try {
+    const stats = await handle.stat().catch(() => null);
+    if (!stats || !stats.isFile())
+      return { valid: false, sessionId: null, parentSession: null };
+    const length = Math.min(stats.size, MAX_HEADER_BYTES);
+    if (length === 0)
+      return { valid: false, sessionId: null, parentSession: null };
+    const buffer = Buffer.alloc(Number(length));
+    const read = await handle.read(buffer, 0, buffer.length, 0);
+    const text = buffer.subarray(0, read.bytesRead).toString("utf8");
+    let row: Record<string, unknown> | null = null;
+    for (const line of text.split("\n")) {
+      if (line.trim().length === 0) continue;
+      const parsed: unknown = JSON.parse(line);
+      if (
+        typeof parsed !== "object" ||
+        parsed === null ||
+        Array.isArray(parsed)
+      ) {
+        return { valid: false, sessionId: null, parentSession: null };
+      }
+      const candidate = parsed as Record<string, unknown>;
+      if (candidate.type === "title" && candidate.v === 1 && row === null) {
+        continue;
+      }
+      row = candidate;
+      break;
+    }
+    if (
+      row === null ||
+      row.type !== "session" ||
+      typeof row.id !== "string" ||
+      !SESSION_ID_PATTERN.test(row.id)
+    ) {
+      return { valid: false, sessionId: null, parentSession: null };
+    }
+    return {
+      valid: true,
+      sessionId: row.id,
+      parentSession:
+        typeof row.parentSession === "string" ? row.parentSession : null,
+    };
+  } catch {
+    return { valid: false, sessionId: null, parentSession: null };
+  } finally {
+    await handle.close().catch(() => undefined);
+  }
+}
+
+/**
+ * A child file is linked only when its own header names the bound main session
+ * as parent — by session id, by main file path, or by the main file's stem.
+ * Being inside a sibling directory is a location, not a lineage proof.
+ */
+function provesDeclaredParent(
+  declared: string | null,
+  mainSessionId: string,
+  mainFilePath: string,
+): boolean {
+  if (declared === null || declared.length === 0) return false;
+  // A bare session id may prove lineage by identity. A path-like value must
+  // resolve to exactly the bound main file; a shared basename proves nothing.
+  if (SESSION_ID_PATTERN.test(declared) && !/[\\/]/.test(declared)) {
+    return declared === mainSessionId;
+  }
+  return path.isAbsolute(declared)
+    ? path.resolve(declared) === path.resolve(mainFilePath)
+    : false;
+}
+
 export async function discoverSession(
   consent: ConsentRecord,
   observation: ServerObservation,
@@ -705,6 +815,9 @@ export async function discoverSession(
       remainingTotalBytes: effectiveLimits.maxTotalBytes - totalCandidateBytes,
     });
 
+    if (outcome.kind === "not-session") {
+      continue;
+    }
     if (outcome.kind === "skipped") {
       unscorableCount += 1;
       continue;
@@ -713,6 +826,17 @@ export async function discoverSession(
     parsedCandidates.push(outcome.candidate);
   }
   throwIfAborted(signal);
+
+  const sessionIdsSeen = new Set<string>();
+  for (const candidate of parsedCandidates) {
+    if (sessionIdsSeen.has(candidate.sessionId)) {
+      return {
+        state: "ambiguous-session",
+        candidates: parsedCandidates.length,
+      };
+    }
+    sessionIdsSeen.add(candidate.sessionId);
+  }
 
   if (parsedCandidates.length === 0) {
     if (unscorableCount > 0) {
@@ -776,6 +900,15 @@ export async function discoverSession(
   }
 
   const childFiles: string[] = [];
+  const childSessions: Array<{
+    absolutePath: string;
+    sessionId: string;
+    size: number;
+    mtimeMs: number;
+  }> = [];
+  const childKeys = new Set<string>();
+  const seenChildPaths = new Set<string>();
+  let unprovenChildren = 0;
   const baseWithoutExt = winner.filePath.replace(/\.jsonl$/i, "");
   const siblingDirsToCheck = [
     baseWithoutExt,
@@ -812,24 +945,61 @@ export async function discoverSession(
       if (st.kind !== "ok" || !st.stat.isFile() || st.stat.isSymbolicLink()) {
         continue;
       }
+      if (seenChildPaths.has(fullChild)) continue;
+      seenChildPaths.add(fullChild);
+      const header = await readSessionHeader(fullChild);
+      if (
+        !header.valid ||
+        header.sessionId === null ||
+        header.sessionId === winner.sessionId ||
+        !provesDeclaredParent(
+          header.parentSession,
+          winner.sessionId,
+          winner.filePath,
+        )
+      ) {
+        // Directory proximity is not parentage. Keep the actor out of the
+        // linked set so coverage stays partial instead of inventing lineage.
+        unprovenChildren += 1;
+        continue;
+      }
+      if (childKeys.has(header.sessionId)) {
+        continue;
+      }
+      childKeys.add(header.sessionId);
+      childSessions.push({
+        absolutePath: fullChild,
+        sessionId: header.sessionId,
+        size: Number(st.stat.size),
+        mtimeMs: st.stat.mtimeMs,
+      });
       if (!childFiles.includes(fullChild)) {
         childFiles.push(fullChild);
       }
     }
   }
 
-  childFiles.sort();
-
-  const unlinkedAgents = Math.max(
-    0,
-    winner.createdAgentsCount - childFiles.length,
+  childSessions.sort((left, right) =>
+    left.absolutePath < right.absolutePath
+      ? -1
+      : left.absolutePath > right.absolutePath
+        ? 1
+        : 0,
   );
+  childFiles.length = 0;
+  for (const child of childSessions) {
+    childFiles.push(path.resolve(child.absolutePath));
+  }
+
+  const unlinkedAgents =
+    Math.max(0, winner.createdAgentsCount - childSessions.length) +
+    unprovenChildren;
 
   const mainSessionId = winner.sessionId;
   const lastSubId = winner.lastSubstantiveEventId ?? mainSessionId;
   const checkpointId = crypto
     .createHash("sha256")
-    .update(`${mainSessionId}:${lastSubId}`)
+    .update(`${EVIDENCE_SEMANTICS_REVISION}:${mainSessionId}:${lastSubId}`)
     .digest("hex")
     .slice(0, 32);
 
@@ -848,15 +1018,14 @@ export async function discoverSession(
     },
   ];
 
-  for (const childPath of childFiles) {
-    const childName = path.basename(childPath, ".jsonl");
+  for (const child of childSessions) {
     manifestNodes.push({
-      key: { hostId, sessionId: childName },
+      key: { hostId, sessionId: child.sessionId },
       parent: { hostId, sessionId: mainSessionId },
       disposition: "local-allowed",
       source: {
         format: "omp",
-        absolutePath: path.resolve(childPath),
+        absolutePath: path.resolve(child.absolutePath),
       },
     });
   }
@@ -877,6 +1046,12 @@ export async function discoverSession(
     manifest,
     mainFile: path.resolve(winner.filePath),
     childFiles: childFiles.map((p) => path.resolve(p)),
+    childSessions: childSessions.map((child) => ({
+      absolutePath: path.resolve(child.absolutePath),
+      sessionId: child.sessionId,
+      size: child.size,
+      mtimeMs: child.mtimeMs,
+    })),
     unlinkedAgents,
     rootVerification: "unverified-root",
   };

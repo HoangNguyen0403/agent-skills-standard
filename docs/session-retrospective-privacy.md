@@ -108,6 +108,30 @@ tool output, and raw file contents are never read or retained.
 counts, the artifact id and the three file paths (`summary.md`, `ledger.json`, `report.html`). It never
 returns transcript text, a claim sentence or a report body.
 
+## Explicit manifest path (`ags retrospective prepare`)
+
+A manifest is supplied by the human, not discovered by the host. It is a declaration of scope, not
+authenticated inventory: `provenance` records the claim and never upgrades it.
+
+- **Only declared local sources are opened.** Each `local-allowed` absolute path must resolve inside
+  a consented source root, both lexically and after `realpath`. An outside path, a symlink alias, a
+  symlink leaf, or the same source declared twice is refused before any read (`UNSAFE_SOURCE_PATH`,
+  `DUPLICATE_SOURCE`). A manifest claiming `host-local` is refused
+  (`UNVERIFIED_MANIFEST_PROVENANCE`).
+- **No new fields are read.** Aggregation still reads only the allowlisted structural fields in the
+  table above; the manifest itself contributes keys, dispositions, optional labels and absolute
+  paths, not transcript content.
+- **Optional labels are report aliases.** A `label` is bounded to 24 safe characters, escaped in
+  HTML, and is never treated as an identity or a host-authenticated name. Without a label the report
+  uses a generated alias derived from a SHA-256 prefix of the session id; raw session ids are not
+  shown in the roster.
+- **Missing and unread actors are gaps, not zeros.** Their turns, cost and timing stay unknown, and
+  no `complete` coverage is shown while any declared actor is unread or unlinked.
+- **The CLI receipt stays minimal.** stdout carries the state, coverage, counts, artifact id and
+  store paths only; stderr carries a stable error code and never a filesystem message or content.
+- **The historical cutoff is an evidence boundary.** Rows after it are excluded before counting, so
+  a transcript that grew after a recorded run cannot change that run's historical baseline.
+
 ## Consent file (MCP-native opt-in)
 
 The MCP-native path is opt-in, once, by the human. `ags retrospective enable` requires an

@@ -73,8 +73,10 @@ const RULE_LABELS: Readonly<Record<string, string>> = Object.freeze({
   "unguarded-edits": "Edits without a file lookup",
   "lookup-misses": "Lookups that matched nothing",
   "human-intervention": "Human interventions",
+  "repeated-permission-requests": "Repeated permission requests",
   "agent-error-concentration": "Agents ending in errors",
   "coverage-gap": "Delegation not observable",
+  "permission-timing-unmeasured": "Permission wait time not measured",
   "tracker-not-measured": "Tracker numbers not measured",
 });
 
@@ -93,8 +95,10 @@ const RULE_DESTINATIONS: Readonly<Record<string, string>> = Object.freeze({
   "unguarded-edits": "agent-routing",
   "lookup-misses": "agent-routing",
   "human-intervention": "orchestration-config",
+  "repeated-permission-requests": "permission-setup",
   "agent-error-concentration": "provider-route-monitoring",
   "coverage-gap": "session-linkage",
+  "permission-timing-unmeasured": "tracker-binding",
   "tracker-not-measured": "tracker-binding",
 });
 

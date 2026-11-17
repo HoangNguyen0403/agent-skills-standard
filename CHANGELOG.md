@@ -34,6 +34,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 
+## [mcp-v0.8.5] - Unreleased
+
+**Category**: MCP Server
+
+### Added
+
+- Consent-bound `ags retrospective prepare --manifest <absolute>` for explicit local session inventories, with a full delegation roster and visible missing, restricted, unavailable, and remote actors.
+- Permission-friction reporting with deduplicated actor/request identities, cross-session answer joins, bounded timing evidence, and explicit unknown approver provenance.
+
+### Fixed
+
+- Recognize title-prefixed native OMP sessions; reject non-session journals and conflicting session identities, and require declared parent linkage rather than directory proximity.
+- Keep incomplete or unknown actor inventories and unsupported permission telemetry partial instead of reporting complete zero activity.
+- Align permission totals and breakdowns across the ledger, summary, and HTML report; distinguish raw command observations from unique requests.
+- Generate fresh immutable reports when inventory, source snapshots, cutoff, or evidence semantics change, while retaining historical-ledger readability.
+
+### Upgrade notes
+
+- Prepared version `0.8.5` and synchronized the CLI's default MCP pin. Publication is pending the `mcp-v0.8.5` release tag; installed servers require an upgrade and host restart to use the new code.
+- Automatic Paseo/OMP dispatcher capture is not included. Explicit manifests supply declared inventory; native discovery keeps unknown delegation scope visible.
+
+---
+
 ## [cli-v2.7.6] - 2026-11-12
 
 **Category**: CLI Tool

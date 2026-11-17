@@ -7,7 +7,10 @@ requests, zero automatic edits** to skills, workflows, memory or configuration.
 With the `agent-skills-standard` MCP server registered over stdio and a one-time human opt-in, the
 orchestrator calls `prepare_retrospective`. The server binds its own session file from its own
 recorded tool calls, counts what happened, and publishes `summary.md`, `ledger.json` and
-`report.html` into a private local store. No manifest is written or read.
+`report.html` into a private local store. Native discovery writes no manifest. An explicit,
+human-authored `LocalManifest` v1 can instead be supplied to the local CLI
+(`ags retrospective prepare --manifest <absolute>`); it is declared scope, not authenticated host
+inventory.
 
 It reads only explicitly authorized local sources, applies deterministic local rules, and publishes
 into a private local store. It neither rewrites a transcript, writes memory, changes a skill, nor
@@ -28,6 +31,8 @@ roots; commit messages, file names, and hashes are never stored); the full table
 > (`prepare_retrospective`, `get_retrospective_status`, `prepare_retrospective_index`) and the
 > `ags retrospective` CLI command (`enable`, `disable`, `status`, `index`) are included over stdio
 > in released `agent-skills-standard-mcp` 0.8.1.
+> `ags retrospective prepare --manifest` is unreleased source in the current change set; it reuses
+> the same consent, store and verifier.
 > The extended automatic completion preparation via `get_session_cost` (`completion` object with role and task counts)
 > is an unreleased source capability currently in PR #295.
 > Tracking entry: `CHANGELOG.md` → `[Unreleased]`.
@@ -133,6 +138,40 @@ builds a claim ledger of fixed-template observations, and runs a deterministic v
 pass before publication. Zero model calls, zero network requests. Revoking consent mid-run stops
 reads and publication.
 
+### Explicit manifest preparation (`ags retrospective prepare`)
+
+For a session that is already over, or for a declared multi-agent tree that native discovery cannot
+bind uniquely, a human can pass a `LocalManifest` v1 file to the local CLI:
+
+```bash
+ags retrospective prepare --manifest /absolute/path/manifest.json
+```
+
+The manifest declares `main`, `checkpointId`, `cutoff`, and one node per expected actor with a
+`disposition` (`local-allowed`, `restricted`, `unavailable`, `remote-not-authorized`), an optional
+declared `label` (a report alias, max 24 safe characters), and for `local-allowed` nodes an absolute
+`source` path. Rules, all fail-closed:
+
+- The file must declare `provenance: "user-supplied"`. A manifest claiming `host-local` is refused:
+  a provenance string never proves trusted host origin.
+- Every `local-allowed` source must resolve (lexically **and** after symlink canonicalization) inside
+  a consented source root. Outside paths, symlink aliases and duplicate sources are refused before
+  any read.
+- Every declared parent must also be declared; cycles, duplicate session keys, more than 128 nodes,
+  or depth over 16 are refused.
+- A `local-allowed` source that is confirmed absent stays a visible `missing` actor. Its turns,
+  usage and timing remain unknown, never zero. `restricted`, `unavailable` and
+  `remote-not-authorized` nodes are shown but never read.
+- The effective checkpoint is a digest of the declared nodes plus an evidence-semantics revision, so
+  adding, removing or relabelling a node publishes a fresh generation instead of returning an older
+  one.
+- `cutoff` is an evidence boundary, not report metadata: rows after it are excluded from every
+  count. A file that has grown since the run therefore does not inflate the historical baseline.
+
+The manifest is a declaration of scope, not inventory authenticated by the host. The report names
+the declaration provenance and does not claim complete delegation unless every declared actor was
+read.
+
 ### Result states
 
 | State | What it tells the operator |
@@ -156,10 +195,13 @@ Everything lands in the private store under the consented store root, in a `v2` 
 `summary.md`, `ledger.json`, `report.html` and `generation.json`. Nothing is uploaded; nothing opens
 automatically.
 
-Older generations written by earlier builds (two-file v2) and ledgers without the new fields are
-unreadable and fail closed with `STORED_LEDGER_INVALID` (intended; a test covers it).
+Older generations written by earlier builds (two-file v2) keep their original layout. A stored
+ledger that predates the `inventory` and `permissionFriction` fields still loads: those fields are
+optional on read, and the report shows the older evidence without inventing the missing roster or
+friction. Genuinely malformed stored ledgers still fail closed with `STORED_LEDGER_INVALID`.
 Earlier generations written by earlier builds (v1) stay readable and deletable via the store API,
-and are never rewritten by this path.
+and are never rewritten by this path. Every new run hashes an evidence-semantics revision into its
+checkpoint, so changed counting rules publish a new generation instead of joining an old one.
 
 ### Report layout
 
@@ -185,12 +227,21 @@ Scope: session <first 8 characters of session id> | folder <parent/name> | <firs
 If an optional title was passed to `prepare_retrospective`, an unverified title line follows:
 `Title: <title> (agent-supplied, unverified)`.
 
+When coverage is partial or any declared actor is unread, the next block is a coverage warning that
+names how many declared actors were read and how many are missing, restricted, unavailable, remote
+or unlinked. It qualifies every number that follows; a partial report never presents unqualified
+completeness. With a declared roster, `## Delegation` then lists every actor, its declared parent,
+its read state, and its turns (`unknown`, never zero, when unread).
+
 Then fixed second-level sections:
 
 - `## Bottom line` — summary clauses for observed agents, main cost and turns (with percentage share
   and cached token rates), permission answers (with denials), and AGS lookups by main vs. workers.
-- `## Scorecards` — compact scorecard lines covering Guardrails, Delegation & cost, Tool health, AGS
-  lookups, and Outcome.
+- `## Scorecards` — compact scorecard lines covering Guardrails, Permission friction, Delegation &
+  cost, Tool health, AGS lookups, and Outcome. The friction line reports observed requests,
+  answered/unanswered, repeated safe-category requests, coverage, and the measured answerer/wait
+  fields. Answerer provenance and wait time are omitted when structured evidence is absent; they are
+  never inferred as zero or split between human and orchestrator.
 - `## Do next` — prioritized, actionable next steps for the operator or manager.
 - `## For the maintainer` — structural coverage gaps (e.g. unlinked child agent sessions) and
   tracker-binding limitations, if present.
@@ -210,13 +261,14 @@ external URLs, and full HTML escaping:
     allowing only safe relative store paths with no scheme, query/fragment, control characters, or
     arbitrary `..` traversal). Omitted when rendered standalone without a valid `indexHref`.
   - *Section jump pills* — `#sec-*` anchor links for every rendered section with status badges/counts
-    (`Permissions`, `Outcome`, `Timeline`, `Cost`, `Tool failures`, `Error stops`, `Lookups`, `Trend`,
-    `Agents`, `Limits`, `Maintainer`); flagged `Permissions`, `Tool failures`, and `Error stops` pills
-    carry alert styling. Clicking a pill jumps to `<details id="sec-...">` and applies a `:target`
-    outline highlight.
+    (`Roster`, `Permissions`, `Friction`, `Outcome`, `Timeline`, `Cost`, `Tool failures`, `Error stops`,
+    `Lookups`, `Trend`, `Agents`, `Limits`, `Maintainer`); flagged `Roster`, `Permissions`,
+    `Tool failures`, `Error stops`, and unresolved-friction pills carry alert styling. Clicking a pill
+    jumps to `<details id="sec-...">` and applies a `:target` outline highlight.
 - **Header and Summary Tiles** — displays folder label `{name, parent}` (taken from the session header
   `cwd`; no raw absolute path is stored or shown), branch at report time, session id, time window,
-  coverage, delegation, and cutoff instant, followed by top-level summary metric tiles.
+  coverage, delegation, and cutoff instant, followed by top-level summary metric tiles. A partial
+  coverage warning is rendered first, immediately under `<h1>`.
 - **Decisions for you** — high-level decision guidance based on verified findings.
 - **Do next (ACT / WATCH cards)** — each card details:
   - *Saw*: the observed condition.

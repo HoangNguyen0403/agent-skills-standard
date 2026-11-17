@@ -3,14 +3,18 @@
  * Derives actionable manager and maintainer improvements from retrospective claims and agent tables.
  */
 
+import type { PermissionFriction } from "./permission-friction";
+
 export type ImprovementRuleId =
   | "guardrail-answers"
   | "cost-concentration"
   | "unguarded-edits"
   | "lookup-misses"
   | "human-intervention"
+  | "repeated-permission-requests"
   | "agent-error-concentration"
   | "coverage-gap"
+  | "permission-timing-unmeasured"
   | "tracker-not-measured";
 
 export type ImprovementDestination =
@@ -43,8 +47,14 @@ export type ImprovementInput = {
   agents: Array<{ label: string; turns: number; errorStops: number }>;
   agentsCreated: number;
   unlinkedAgents: number;
-  /** from the skill-usage claim's trackerWindow value, or null when there is no skill-usage claim */
+  /** Declared inventory entries not fully read, including unlinked entries. */
+  inventoryGaps?: number;
   trackerWindow: "matches-session" | "process-only" | null;
+  /**
+   * Observable permission friction from `buildPermissionFriction(tree)`, or
+   * null/absent when no event-level permission evidence exists.
+   */
+  permissionFriction?: PermissionFriction | null;
 };
 
 /**
@@ -70,11 +80,17 @@ export const IMPROVEMENT_THRESHOLDS = Object.freeze({
   LOOKUP_MISSES_NO_MATCH_MULTIPLIER: 4,
   /** human-intervention: (askCalls + abortedStops) per 100 turns threshold (>= 1 per 100 turns) */
   HUMAN_INTERVENTION_PER_100_TURNS: 1,
+  /** repeated-permission-requests: minimum observed requests required to fire */
+  REPEATED_PERMISSIONS_MIN_REQUESTS: 3,
+  /** repeated-permission-requests: minimum repeated requests required to fire */
+  REPEATED_PERMISSIONS_MIN_REPEATS: 2,
+  /** repeated-permission-requests: repeatedRequests multiplier vs requests (>= 25%) */
+  REPEATED_PERMISSIONS_SHARE_MULTIPLIER: 4,
   /** agent-error-concentration: minimum agent turns to qualify */
   AGENT_ERROR_CONCENTRATION_MIN_TURNS: 5,
   /** agent-error-concentration: errorStops multiplier vs turns (errorStops * 2 >= turns -> >= 50%) */
   AGENT_ERROR_CONCENTRATION_ERROR_SHARE_MULTIPLIER: 2,
-  /** coverage-gap: unlinkedAgents multiplier vs agentsCreated (unlinkedAgents * 4 >= agentsCreated -> >= 25%) */
+  /** coverage-gap: unlinked or declared unread actor scope */
   COVERAGE_GAP_UNLINKED_MULTIPLIER: 4,
 } as const);
 
@@ -109,6 +125,8 @@ export function deriveImprovements(
       claimsByTemplate.set(c.template, c);
     }
   }
+
+  const friction = input.permissionFriction ?? null;
 
   // 1. guardrail-answers
   // Audience: manager, Destination: permission-setup
@@ -382,7 +400,44 @@ export function deriveImprovements(
     }
   }
 
-  // 6. agent-error-concentration
+  // 6. repeated-permission-requests
+  // Observed rule: fires only on counted request/time evidence, never on tool
+  // category alone as proof of an identical command or avoidable prompt.
+  // Audience: manager, Destination: permission-setup.
+  // Fires when friction.requests >= 3, friction.repeatedRequests >= 2 and
+  // repeatedRequests*4 >= requests (>= 25%). level 'watch'.
+  // values: requests, answered, unanswered, repeatedRequests, repeatedPercent.
+  // claimIds: []; evidence: [].
+  if (
+    friction !== null &&
+    friction.requests >=
+      IMPROVEMENT_THRESHOLDS.REPEATED_PERMISSIONS_MIN_REQUESTS &&
+    friction.repeatedRequests >=
+      IMPROVEMENT_THRESHOLDS.REPEATED_PERMISSIONS_MIN_REPEATS &&
+    friction.repeatedRequests *
+      IMPROVEMENT_THRESHOLDS.REPEATED_PERMISSIONS_SHARE_MULTIPLIER >=
+      friction.requests
+  ) {
+    managerImprovements.push({
+      rule: "repeated-permission-requests",
+      level: "watch",
+      destination: "permission-setup",
+      audience: "manager",
+      claimIds: [],
+      evidence: [],
+      values: {
+        requests: friction.requests,
+        answered: friction.answered,
+        unanswered: friction.unanswered,
+        repeatedRequests: friction.repeatedRequests,
+        repeatedPercent: Math.round(
+          (friction.repeatedRequests * 100) / friction.requests,
+        ),
+      },
+    });
+  }
+
+  // 7. agent-error-concentration
   // Audience: manager, Destination: provider-route-monitoring
   // Fires when at least one entry of `agents` has turns >= 5 and errorStops*2 >= turns.
   // level 'watch'.
@@ -441,15 +496,17 @@ export function deriveImprovements(
     });
   }
 
-  // 7. coverage-gap
+  // 8. coverage-gap
   // Audience: maintainer, Destination: session-linkage, level: 'watch'
-  // Fires when agentsCreated > 0 and unlinkedAgents*4 >= agentsCreated.
-  // values: agentsCreated, unlinkedAgents. evidence: []; claimIds: the coverage claim id when present.
+  // Fires when declared inventory has unread actors or unlinked agents meet the 25% threshold.
+  // values: agentsCreated, unlinkedAgents, and inventoryGaps when nonzero.
+  const inventoryGaps = Math.max(0, input.inventoryGaps ?? 0);
   if (
-    input.agentsCreated > 0 &&
-    input.unlinkedAgents *
-      IMPROVEMENT_THRESHOLDS.COVERAGE_GAP_UNLINKED_MULTIPLIER >=
-      input.agentsCreated
+    inventoryGaps > 0 ||
+    (input.agentsCreated > 0 &&
+      input.unlinkedAgents *
+        IMPROVEMENT_THRESHOLDS.COVERAGE_GAP_UNLINKED_MULTIPLIER >=
+        input.agentsCreated)
   ) {
     const coverageClaim = claimsByTemplate.get("coverage");
     maintainerImprovements.push({
@@ -462,11 +519,36 @@ export function deriveImprovements(
       values: {
         agentsCreated: input.agentsCreated,
         unlinkedAgents: input.unlinkedAgents,
+        ...(inventoryGaps > 0 ? { inventoryGaps } : {}),
       },
     });
   }
 
-  // 8. tracker-not-measured
+  // 9. permission-timing-unmeasured
+  // Candidate measurement gap (not an observed burden claim): answered requests
+  // exist but no request/answer timestamp pair supports a wait measurement.
+  // Audience: maintainer, Destination: tracker-binding, level: 'watch'.
+  if (
+    friction !== null &&
+    friction.answered > 0 &&
+    friction.waitMeasuredRequests === 0
+  ) {
+    maintainerImprovements.push({
+      rule: "permission-timing-unmeasured",
+      level: "watch",
+      destination: "tracker-binding",
+      audience: "maintainer",
+      claimIds: [],
+      evidence: [],
+      values: {
+        requests: friction.requests,
+        answered: friction.answered,
+        waitMeasuredRequests: 0,
+      },
+    });
+  }
+
+  // 10. tracker-not-measured
   // Audience: maintainer, Destination: tracker-binding, level: 'watch'
   // Fires when trackerWindow === "process-only".
   // values: {}. claimIds: the skill-usage claim id when present.
@@ -484,7 +566,7 @@ export function deriveImprovements(
   }
 
   // Ordering:
-  // All manager rules first, in order of rules 1..6:
+  // All manager rules first, in order of rules 1..7:
   // Stable sort: 'act' before 'watch'
   const managerAct: LedgerImprovement[] = [];
   const managerWatch: LedgerImprovement[] = [];

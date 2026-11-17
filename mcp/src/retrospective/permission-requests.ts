@@ -2,7 +2,14 @@ import { createHash } from "node:crypto";
 
 export type ParsedPermissionRequest = {
   requestId: string;
+  /** Legacy display label (first 8 characters or `agent-<hash>`); never an identity. */
   agent: string;
+  /**
+   * Internal actor key derived from the full native agent id
+   * (`id-<sha256 first 16 hex>`), or null when the id is missing/invalid and the
+   * caller must scope the actor to its observation instead.
+   */
+  actorKey: string | null;
   tool: string;
   program: string | null;
   kind: string;
@@ -128,12 +135,62 @@ export function redactCommand(text: string): string {
 const SAFE_PROGRAM_REGEX = /^[a-z0-9][a-z0-9._+-]{0,31}$/;
 const ENV_ASSIGNMENT_REGEX = /^[A-Za-z_][A-Za-z0-9_]*=/;
 const REQUEST_ID_REGEX = /^[A-Za-z0-9-]{1,64}$/;
-const VALID_AGENT_ID_REGEX = /^[A-Za-z0-9-]{8,128}$/;
 const TOOL_NAME_REGEX = /^[A-Za-z0-9._ -]{1,32}$/;
 const DURATION_REGEX = /^[0-9]+(\.[0-9]+)?[smhd]?$/i;
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+const ACTOR_ID_REGEX = /^[A-Za-z0-9-]{8,128}$/;
+
+function actorIdDigest(rawAgentId: string): string {
+  return createHash("sha256").update(rawAgentId).digest("hex").slice(0, 16);
+}
+
+/**
+ * Internal actor key for joining request and answer observations.
+ * A full validated native id hashes to `id-<digest>`, so distinct ids that share
+ * a display prefix stay distinct. Unknown ids hash only the observation scope,
+ * so two unknown actors are never certified equal across session nodes.
+ */
+export function permissionActorKey(rawAgentId: unknown, scope: string): string {
+  if (typeof rawAgentId === "string" && ACTOR_ID_REGEX.test(rawAgentId)) {
+    return `id-${actorIdDigest(rawAgentId)}`;
+  }
+  const scopeDigest = createHash("sha256")
+    .update(scope)
+    .digest("hex")
+    .slice(0, 16);
+  return `unknown-${scopeDigest}`;
+}
+
+/**
+ * Legacy bounded display label for the actor that filed a permission request:
+ * the first 8 characters of a plain agent id, else `agent-<sha256 first 8 hex>`.
+ * Display only; never use it as an identity.
+ */
+export function permissionActorLabel(rawAgentId: unknown): string {
+  if (typeof rawAgentId === "string" && ACTOR_ID_REGEX.test(rawAgentId)) {
+    return rawAgentId.slice(0, 8);
+  }
+  const digest = createHash("sha256")
+    .update(String(rawAgentId))
+    .digest("hex")
+    .slice(0, 8);
+  return `agent-${digest}`;
+}
+
+/**
+ * Internal dedup identity for one actor's one request. Different actors that
+ * reuse a request id stay distinct; replayed observations of the same pair join.
+ * Never emitted in a friction summary.
+ */
+export function permissionRequestIdentity(
+  actorLabel: string,
+  requestId: string,
+): string {
+  return `${actorLabel}\u0000${requestId}`;
 }
 
 function stripDir(path: string): string {
@@ -352,17 +409,11 @@ export function parsePermissionRequestMessage(
     return null;
   }
 
-  let agent: string;
-  const rawAgentId = parsed.agentId;
-  if (typeof rawAgentId === "string" && VALID_AGENT_ID_REGEX.test(rawAgentId)) {
-    agent = rawAgentId.slice(0, 8);
-  } else {
-    const digest = createHash("sha256")
-      .update(String(rawAgentId))
-      .digest("hex")
-      .slice(0, 8);
-    agent = `agent-${digest}`;
-  }
+  const agent = permissionActorLabel(parsed.agentId);
+  const actorKey =
+    typeof parsed.agentId === "string" && ACTOR_ID_REGEX.test(parsed.agentId)
+      ? `id-${actorIdDigest(parsed.agentId)}`
+      : null;
 
   let tool = "other";
   if (
@@ -423,6 +474,7 @@ export function parsePermissionRequestMessage(
   return {
     requestId,
     agent,
+    actorKey,
     tool,
     program,
     kind,
