@@ -34,6 +34,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 
+## [mcp-v0.8.5] - Unreleased
+
+**Category**: MCP Server
+
+### Added
+
+- Consent-bound `ags retrospective prepare --manifest <absolute>` for explicit local session inventories, with a full delegation roster and visible missing, restricted, unavailable, and remote actors.
+- Permission-friction reporting with deduplicated actor/request identities, cross-session answer joins, bounded timing evidence, and explicit unknown approver provenance.
+
+### Fixed
+
+- Recognize title-prefixed native OMP sessions; reject non-session journals and conflicting session identities, and require declared parent linkage rather than directory proximity.
+- Keep incomplete or unknown actor inventories and unsupported permission telemetry partial instead of reporting complete zero activity.
+- Align permission totals and breakdowns across the ledger, summary, and HTML report; distinguish raw command observations from unique requests.
+- Generate fresh immutable reports when inventory, source snapshots, cutoff, or evidence semantics change, while retaining historical-ledger readability.
+
+### Upgrade notes
+
+- Prepared version `0.8.5` and synchronized the CLI's default MCP pin. Publication is pending the `mcp-v0.8.5` release tag; installed servers require an upgrade and host restart to use the new code.
+- Automatic Paseo/OMP dispatcher capture is not included. Explicit manifests supply declared inventory; native discovery keeps unknown delegation scope visible.
+
+---
+
 ## [cli-v2.7.6] - 2026-11-12
 
 **Category**: CLI Tool
@@ -115,7 +138,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **MCP Server (Session Retrospective Evidence Integrity)**: Added a consent-bound `ags retrospective prepare --manifest <absolute>` ingress that validates a user-supplied `LocalManifest` v1 against canonical consented roots (refusing symlink aliases, outside paths, duplicate sources, cycles and forged `host-local` provenance) and reads only declared local nodes; added an explicit `inventory` actor roster and coverage warning so missing, restricted, unavailable, remote and unlinked actors keep coverage partial with `turns: null` instead of a zero-turn claim; hardened native discovery to require a valid `session` header, reject duplicate/inconsistent session identities, and link children only through their own declared `parentSession` (directory proximity is not parentage, and non-session journals such as `changes.jsonl` never bind); wired the shared `permissionFriction` block into the ledger, verifier, stored-ledger reader, summary and CSP-safe HTML with null answerer/timing shown as unknown; hashed an evidence-semantics revision and the declared manifest nodes into checkpoints so inventory-only changes publish a fresh generation; and kept historical ledgers without the new fields readable. Verification is limited to the owned focused suites; full-suite/build/lint and the live historical replay remain integrator-owned and `NOT RUN` here.
 - **Evals (`evals:queue`, SL1 source candidate)**: Updated `buildRemediationQueue` to resolve each failed `eval` and `pressure` assertion against its case `prompt` and retained `expected_output` (empty when absent, preserving `contains_any` values containing commas) and flag task-unanchored `contains`/`contains_any` failures as `invalid/brittle assertion` after compromised-arm, trigger-boundary, `file_reference`, and `Priority:` checks; added `--out <file>` output selection with per-classification counts and generated `benchmarks/evals/assertion-triage-all-v2.6.0.json` without modifying `benchmarks/evals/remediation-queue.json`. This task-anchoring classification is a heuristic task-anchoring signal, not semantic assertion-invalidity proof, and inherited `regex`/`not_contains` guidance heuristics remain unchanged.
 - Added a deterministic learning-candidate ledger and proof-reference integrity check; references do not authenticate approval.
 - **Brainstorm research-quality preparation (source candidate)**: Added a demand-loaded direction-quality rubric, portable per-run cost schema with measured/unknown examples, and synthetic frozen scenarios with separate environment and grader guidance. Existing intake behaviour is unchanged; baseline evaluations and maintainer rubric acceptance remain pending.
