@@ -106,6 +106,18 @@ function createNodeUsage(
       byTarget: {},
       untrackedTargets: 0,
     },
+    permissionRequests: {
+      asked: 0,
+      answered: 0,
+      answeredWithoutRequest: 0,
+      agentsAsked: 0,
+      tools: {},
+      programs: {},
+      commands: {},
+      commandsOmitted: 0,
+    },
+    permissionCapture: "captured",
+    permissionRequestEvents: [],
     context: {
       maxCacheRead: 100,
       postCompactionTurns: 0,
@@ -3334,6 +3346,8 @@ describe("retrospective ledger", () => {
         tools: [],
         programs: [],
         distinctPrograms: 0,
+        requestCountsBasis: "raw-observations-may-duplicate",
+        commandCountsBasis: "raw-observations-may-duplicate",
         commands: [],
         distinctCommands: 0,
         commandsOmitted: 0,
@@ -3967,7 +3981,7 @@ describe("retrospective ledger", () => {
         allow: 3,
         deny: 1,
         other: 0,
-        unanswered: 1,
+        unmatchedObservations: 1,
       });
 
       // Remaining two have deny = 0 and asked = 1; "git status" < "src/index.ts"
@@ -3979,7 +3993,7 @@ describe("retrospective ledger", () => {
         allow: 1,
         deny: 0,
         other: 0,
-        unanswered: 0,
+        unmatchedObservations: 0,
       });
 
       expect(pr.commands[2]).toEqual({
@@ -3990,7 +4004,7 @@ describe("retrospective ledger", () => {
         allow: 1,
         deny: 0,
         other: 0,
-        unanswered: 0,
+        unmatchedObservations: 0,
       });
     });
 
@@ -4177,7 +4191,9 @@ describe("retrospective ledger", () => {
         kind: "aggregate",
         value: 0,
       });
-      expect(ledger.evidence["agg:permreq:command:0:unanswered"]).toEqual({
+      expect(
+        ledger.evidence["agg:permreq:command:0:unmatchedObservations"],
+      ).toEqual({
         kind: "aggregate",
         value: 0,
       });
@@ -4199,7 +4215,9 @@ describe("retrospective ledger", () => {
         kind: "aggregate",
         value: 0,
       });
-      expect(ledger.evidence["agg:permreq:command:1:unanswered"]).toEqual({
+      expect(
+        ledger.evidence["agg:permreq:command:1:unmatchedObservations"],
+      ).toEqual({
         kind: "aggregate",
         value: 1,
       });
@@ -4529,7 +4547,7 @@ describe("retrospective ledger", () => {
           allow: 1,
           deny: 0,
           other: 0,
-          unanswered: 0,
+          unmatchedObservations: 0,
         });
       }
       const tooManyCmds = {

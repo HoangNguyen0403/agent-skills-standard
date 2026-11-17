@@ -79,11 +79,29 @@ host can contribute to the analysis; Provider coverage above does that.
 
 | Surface | Invocation | Status |
 | --- | --- | --- |
-| Terminal / CLI | `ags retrospective enable`, `disable`, `status`, `index` after a source build or local tarball install | source build or local tarball; macOS-only verification |
+| Terminal / CLI | `ags retrospective enable`, `disable`, `status`, `index` and (source) `prepare --manifest` after a source build or local tarball install | source build or local tarball; macOS-only verification |
 | MCP-capable host (including OMP, Paseo) | `prepare_retrospective`, `get_retrospective_status`, `prepare_retrospective_index` via local stdio server | unreleased source; local stdio only |
 
 There are no host adapter packages. A host uses the MCP-native route over a local stdio
 server.
+
+## Multi-agent lineage and the host capture boundary
+
+Native discovery links a worker session to its parent only from the worker's own session header: its
+`parentSession` must name the bound main session id, the main file path, or the main file's stem.
+Being inside a sibling directory shaped like the main session is a *location*, not parentage. A
+worker file found there without that declared parent is counted as unlinked, so delegation coverage
+stays partial instead of inventing a family tree. A file without a valid native `session` header
+(for example a `changes.jsonl` journal) is not a session at all and can never bind or certify
+coverage.
+
+The real OMP/Paseo dispatcher that launches workers lives outside this repository. This repository
+does not intercept launches, parse Eval JavaScript, or read arbitrary tool output prose or titles to
+infer authority. A host that wants authenticated lineage must expose it structurally (a launch
+record or parent handle) to a future adapter; until then, host-provided parent labels remain
+declared evidence, and the report says so. For a historical or custom tree, the supported route is
+the explicit human-supplied manifest, which is still declared scope rather than host-authenticated
+inventory.
 
 ## What "unsupported" means
 

@@ -5,13 +5,23 @@ import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   CONSENT_TEXT_VERSION,
+  consentFilePath,
   removeConsent,
   writeConsent,
   type ConsentRecord,
 } from "../src/retrospective/consent";
 import { discoverSession } from "../src/retrospective/discovery";
 import { prepareV2 } from "../src/retrospective/prepare";
-import { runRetrospective, type RunDeps } from "../src/retrospective/run";
+import {
+  evidenceCheckpointId,
+  loadCommittedLedger,
+  runRetrospective,
+  type RunDeps,
+} from "../src/retrospective/run";
+import { buildLedger } from "../src/retrospective/ledger";
+import { renderSummary } from "../src/retrospective/views/summary";
+import { renderReportHtml } from "../src/retrospective/views/report-html";
+import { runRetrospectiveCli } from "../src/retrospective-cli";
 import { SessionTracker } from "../src/services/SessionTracker";
 import { readGitOutcome } from "../src/retrospective/outcome";
 import { loadPreviousReports } from "../src/retrospective/trend";
@@ -63,6 +73,7 @@ function sessionHeader(options: {
 }): string {
   return lineJson({
     type: "session",
+    version: 3,
     id: options.id,
     cwd: options.cwd,
     ...(options.parentSession ? { parentSession: options.parentSession } : {}),
@@ -315,11 +326,31 @@ async function publishManualGeneration(
   if (discovery.state !== "bound") {
     throw new Error(`Fixture did not bind a session: ${discovery.state}`);
   }
+  const checkpointId = evidenceCheckpointId({
+    mode: "native",
+    nodes: discovery.manifest.nodes.map((node) => ({
+      key: node.key,
+      parent: node.parent,
+      disposition: node.disposition,
+      label: node.label ?? null,
+      format: node.source?.format ?? null,
+      state: "read" as const,
+    })),
+    evidence: {
+      mainCheckpoint: discovery.manifest.checkpointId,
+      children: discovery.childSessions.map((child) => ({
+        sessionId: child.sessionId,
+        size: child.size,
+        mtimeMs: child.mtimeMs,
+      })),
+    },
+    unlinked: discovery.unlinkedAgents,
+  });
   await prepareV2(
     {
       root: fixture.storeRoot,
       main: discovery.manifest.main,
-      checkpointId: discovery.manifest.checkpointId,
+      checkpointId,
     },
     {
       summary: "# manual summary\n",
@@ -2544,5 +2575,1132 @@ describe("runRetrospective orchestration (Task S4b)", () => {
     // The program word (curl) may appear in summary.md; the command text may not.
     expect(summary).not.toContain(`curl ${secretPath}`);
     expect(summary).not.toContain("API_KEY");
+  });
+});
+
+describe("explicit manifest preparation ingress", () => {
+  type ManifestNode = {
+    key: { hostId: string; sessionId: string };
+    parent: { hostId: string; sessionId: string } | null;
+    disposition:
+      "local-allowed" | "restricted" | "unavailable" | "remote-not-authorized";
+    label?: string;
+    source: { format: "omp" | "codex"; absolutePath: string } | null;
+  };
+
+  function manifestFor(
+    mainId: string,
+    nodes: ManifestNode[],
+    overrides: { provenance?: string } = {},
+  ): Record<string, unknown> {
+    return {
+      schemaVersion: 1,
+      provenance: overrides.provenance ?? "user-supplied",
+      main: { hostId: "local", sessionId: mainId },
+      checkpointId: "manifest-test-checkpoint",
+      cutoff: "2026-11-16T17:24:09.386Z",
+      nodes,
+    };
+  }
+
+  async function writeTranscript(
+    filePath: string,
+    sessionId: string,
+    cwd: string,
+    parentSession?: string,
+  ): Promise<void> {
+    await fsp.mkdir(path.dirname(filePath), { recursive: true });
+    const lines = [
+      lineJson({
+        type: "title",
+        v: 1,
+        title: "synthetic title preamble",
+        updatedAt: "2026-11-16T15:22:00.000Z",
+      }),
+      sessionHeader({
+        id: sessionId,
+        cwd,
+        ...(parentSession === undefined ? {} : { parentSession }),
+      }),
+      ompMcpToolCall({
+        callId: "call-1",
+        tool: "load_skills_for_files",
+        timestamp: "2026-11-16T15:22:00.000Z",
+      }),
+      toolResult({ callId: "call-1", timestamp: "2026-11-16T15:22:00.500Z" }),
+    ].join("");
+    await fsp.writeFile(filePath, lines, { mode: 0o600 });
+  }
+
+  async function runCli(
+    root: string,
+    argv: readonly string[],
+  ): Promise<{ code: number; stdout: string; stderr: string }> {
+    return await runRetrospectiveCli(argv, {
+      isTTY: false,
+      ask: async () => "",
+      write: () => undefined,
+      env: {},
+      platform: "linux",
+      home: root,
+    });
+  }
+
+  it("persists every declared actor, including missing and restricted ones, from the real CLI", async () => {
+    const root = await makeTempDir("ags-manifest-ingress-");
+    const storeRoot = path.join(root, "store");
+    const sessionsDir = path.join(root, "sessions");
+    const workspaceDir = path.join(root, "workspace");
+    await fsp.mkdir(sessionsDir, { recursive: true, mode: 0o700 });
+    await fsp.mkdir(workspaceDir, { recursive: true });
+
+    const mainId = "main-session-1";
+    const mainFile = path.join(sessionsDir, "main-session-1.jsonl");
+    await writeTranscript(mainFile, mainId, workspaceDir);
+
+    const children: ManifestNode[] = [];
+    const labels = ["S1", "S1", "Reviewer", "ABCDEFGHIJKLMNOPQRSTUVWX"];
+    for (let index = 0; index < labels.length; index += 1) {
+      const id = `child-${index + 1}`;
+      const file = path.join(sessionsDir, `${id}.jsonl`);
+      await writeTranscript(file, id, workspaceDir, mainId);
+      children.push({
+        key: { hostId: "local", sessionId: id },
+        parent: { hostId: "local", sessionId: mainId },
+        disposition: "local-allowed",
+        label: labels[index],
+        source: { format: "omp", absolutePath: file },
+      });
+    }
+    children.push({
+      key: { hostId: "local", sessionId: "child-missing" },
+      parent: { hostId: "local", sessionId: mainId },
+      disposition: "local-allowed",
+      source: {
+        format: "omp",
+        absolutePath: path.join(sessionsDir, "never-written.jsonl"),
+      },
+    });
+    children.push({
+      key: { hostId: "local", sessionId: "child-restricted" },
+      parent: { hostId: "local", sessionId: mainId },
+      disposition: "restricted",
+      label: "ABCDEFGHIJKLMNOPQRSTUVWX",
+      source: null,
+    });
+
+    const manifest = manifestFor(mainId, [
+      {
+        key: { hostId: "local", sessionId: mainId },
+        parent: null,
+        disposition: "local-allowed",
+        source: { format: "omp", absolutePath: mainFile },
+      },
+      ...children,
+    ]);
+    const manifestPath = path.join(sessionsDir, "manifest.json");
+    await fsp.writeFile(manifestPath, JSON.stringify(manifest), {
+      mode: 0o600,
+    });
+
+    await writeConsent(
+      createConsentRecord(storeRoot, [sessionsDir]),
+      consentFilePath({}, "linux", root),
+    );
+
+    const outcome = await runCli(root, ["prepare", "--manifest", manifestPath]);
+    expect(outcome).toMatchObject({ code: 0, stderr: "" });
+    const payload = JSON.parse(outcome.stdout) as {
+      state: string;
+      coverage: string;
+      sessions: number;
+      fullyRead: number;
+      views: { summary: string; ledger: string; html: string };
+    };
+    expect(payload.state).toBe("prepared");
+    expect(payload.coverage).toBe("partial");
+    expect(payload.sessions).toBe(5);
+    expect(payload.fullyRead).toBe(5);
+
+    const ledger = JSON.parse(
+      await fsp.readFile(payload.views.ledger, "utf8"),
+    ) as {
+      coverage: string;
+      inventory: {
+        expected: number;
+        read: number;
+        missing: number;
+        restricted: number;
+        actors: Array<{ label: string; state: string; turns: number | null }>;
+      };
+      permissionFriction: {
+        coverage: string;
+        limitations: string[];
+      } | null;
+    };
+    expect(ledger.coverage).toBe("partial");
+    expect(ledger.inventory.expected).toBe(7);
+    expect(ledger.inventory.read).toBe(5);
+    expect(ledger.inventory.missing).toBe(1);
+    expect(ledger.inventory.restricted).toBe(1);
+    expect(ledger.inventory.actors).toHaveLength(7);
+    const actorLabels = ledger.inventory.actors.map((actor) => actor.label);
+    expect(new Set(actorLabels).size).toBe(actorLabels.length);
+    expect(actorLabels.every((label) => label.length <= 24)).toBe(true);
+    expect(actorLabels).toContain("Reviewer");
+    const missingActor = ledger.inventory.actors.find(
+      (actor) => actor.state === "missing",
+    );
+    expect(missingActor?.turns).toBeNull();
+    expect("permissionFriction" in ledger).toBe(true);
+    expect(ledger.permissionFriction?.coverage).toBe("partial");
+    expect(
+      ledger.permissionFriction?.limitations.some((item) =>
+        item.includes("Declared actor inventory"),
+      ),
+    ).toBe(true);
+
+    const summary = await fsp.readFile(payload.views.summary, "utf8");
+    expect(summary.split("\n")[0]).toContain("Coverage: partial");
+    expect(summary).toContain("Warning: evidence coverage is partial");
+    expect(summary).toContain("## Delegation");
+    expect(summary).toContain("Reviewer (parent main): read");
+
+    const html = await fsp.readFile(payload.views.html, "utf8");
+    expect(html).toContain("Delegation roster");
+    expect(html).toContain("Coverage warning");
+    expect(html).toContain("Reviewer");
+    expect(html).toContain("default-src 'none'; style-src 'unsafe-inline'");
+    expect(html).not.toContain("<script");
+    expect(html).not.toContain("main-session-1");
+  });
+
+  it("excludes rows appended after the manifest cutoff from every count", async () => {
+    const root = await makeTempDir("ags-manifest-cutoff-");
+    const storeRoot = path.join(root, "store");
+    const sessionsDir = path.join(root, "sessions");
+    await fsp.mkdir(sessionsDir, { recursive: true, mode: 0o700 });
+    const mainFile = path.join(sessionsDir, "main.jsonl");
+
+    await fsp.writeFile(
+      mainFile,
+      [
+        sessionHeader({ id: "main", cwd: root }),
+        lineJson({
+          type: "message",
+          id: "untimed-permission-request",
+          message: {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: '<paseo-system event="permission-required">\n<permission-request>\n{"requestId":"untimed-request","agentId":"agent-x","request":{"name":"bash","description":"Command: git status"}}\n</permission-request>\n</paseo-system>',
+              },
+            ],
+          },
+        }),
+        ompMcpToolCall({
+          callId: "pre-cutoff",
+          tool: "load_skills_for_files",
+          timestamp: "2026-11-16T15:22:00.000Z",
+        }),
+        toolResult({
+          callId: "pre-cutoff",
+          timestamp: "2026-11-16T15:22:00.500Z",
+        }),
+        lineJson({
+          type: "message",
+          id: "post-cutoff-error",
+          timestamp: "2026-11-16T18:00:00.000Z",
+          message: {
+            role: "assistant",
+            model: "post-cutoff-model",
+            stopReason: "error",
+            usage: {
+              input: 1000,
+              output: 1000,
+              cacheRead: 0,
+              cacheWrite: 0,
+              cost: { total: 0.5 },
+            },
+            content: [
+              {
+                type: "toolCall",
+                id: "post-call",
+                name: "write",
+                arguments: {
+                  path: "xd://mcp__agent_skills_standard_get_session_cost",
+                },
+              },
+            ],
+          },
+        }),
+      ].join(""),
+      { mode: 0o600 },
+    );
+
+    await writeConsent(
+      createConsentRecord(storeRoot, [sessionsDir]),
+      consentFilePath({}, "linux", root),
+    );
+
+    const manifestPath = path.join(sessionsDir, "manifest.json");
+    await fsp.writeFile(
+      manifestPath,
+      JSON.stringify(
+        manifestFor("main", [
+          {
+            key: { hostId: "local", sessionId: "main" },
+            parent: null,
+            disposition: "local-allowed",
+            source: { format: "omp", absolutePath: mainFile },
+          },
+        ]),
+      ),
+      { mode: 0o600 },
+    );
+
+    const outcome = await runCli(root, ["prepare", "--manifest", manifestPath]);
+    expect(outcome.code).toBe(0);
+    const payload = JSON.parse(outcome.stdout) as {
+      artifactId: string;
+      counts: { errorStops: number; failedToolCalls: number };
+      views: { ledger: string; summary: string };
+    };
+    expect(payload.counts.errorStops).toBe(0);
+    expect(payload.counts.failedToolCalls).toBe(0);
+
+    const ledger = JSON.parse(
+      await fsp.readFile(payload.views.ledger, "utf8"),
+    ) as {
+      coverage: string;
+      toolRows: Array<{ tool: string; calls: number }>;
+      agents: Array<{ turns: number }>;
+      permissionFriction: { coverage: string; requests: number } | null;
+    };
+    expect(ledger.coverage).toBe("partial");
+    expect(ledger.permissionFriction?.coverage).toBe("partial");
+    expect(ledger.permissionFriction?.requests).toBe(0);
+    expect(ledger.toolRows.some((row) => row.tool === "get_session_cost")).toBe(
+      false,
+    );
+    const firstTurns = ledger.agents.reduce(
+      (sum, agent) => sum + agent.turns,
+      0,
+    );
+    expect(firstTurns).toBeGreaterThan(0);
+
+    const predecessor = await fsp.readFile(payload.views.ledger, "utf8");
+    const manifest = JSON.parse(await fsp.readFile(manifestPath, "utf8")) as {
+      cutoff: string;
+    };
+    manifest.cutoff = "2026-11-16T15:21:00.000Z";
+    await fsp.writeFile(manifestPath, JSON.stringify(manifest), {
+      mode: 0o600,
+    });
+    const revised = await runCli(root, ["prepare", "--manifest", manifestPath]);
+    expect(revised.code).toBe(0);
+    const revisedPayload = JSON.parse(revised.stdout) as {
+      state: string;
+      artifactId: string;
+      views: { ledger: string; summary: string };
+    };
+    expect(revisedPayload.state).toBe("prepared");
+    expect(revisedPayload.artifactId).not.toBe(payload.artifactId);
+    const revisedLedger = JSON.parse(
+      await fsp.readFile(revisedPayload.views.ledger, "utf8"),
+    ) as {
+      coverage: string;
+      agents: Array<{ turns: number }>;
+      permissionFriction: { coverage: string } | null;
+    };
+    expect(
+      revisedLedger.agents.reduce((sum, agent) => sum + agent.turns, 0),
+    ).toBe(0);
+    expect(revisedLedger.coverage).toBe("partial");
+    expect(revisedLedger.permissionFriction?.coverage).toBe("partial");
+    expect(await fsp.readFile(payload.views.ledger, "utf8")).toBe(predecessor);
+    expect(await fsp.readFile(revisedPayload.views.summary, "utf8")).toContain(
+      "Warning: evidence coverage is partial",
+    );
+  });
+
+  it("refuses a manifest whose declared session id disagrees with the native header", async () => {
+    const root = await makeTempDir("ags-manifest-id-");
+    const sessionsDir = path.join(root, "sessions");
+    const storeRoot = path.join(root, "store");
+    await fsp.mkdir(sessionsDir, { recursive: true, mode: 0o700 });
+    const mainFile = path.join(sessionsDir, "main.jsonl");
+    await writeTranscript(mainFile, "real-session", root);
+    await writeConsent(
+      createConsentRecord(storeRoot, [sessionsDir]),
+      consentFilePath({}, "linux", root),
+    );
+
+    const manifestPath = path.join(sessionsDir, "manifest.json");
+    await fsp.writeFile(
+      manifestPath,
+      JSON.stringify(
+        manifestFor("declared-other", [
+          {
+            key: { hostId: "local", sessionId: "declared-other" },
+            parent: null,
+            disposition: "local-allowed",
+            source: { format: "omp", absolutePath: mainFile },
+          },
+        ]),
+      ),
+      { mode: 0o600 },
+    );
+
+    const outcome = await runCli(root, ["prepare", "--manifest", manifestPath]);
+    expect(outcome.code).toBe(1);
+    expect(JSON.parse(outcome.stderr)).toEqual({
+      schemaVersion: 1,
+      error: { code: "SESSION_ID_MISMATCH" },
+    });
+  });
+
+  it("keeps an empty declared source as a visible unread gap, never a zero-turn read", async () => {
+    const root = await makeTempDir("ags-manifest-empty-");
+    const sessionsDir = path.join(root, "sessions");
+    const storeRoot = path.join(root, "store");
+    await fsp.mkdir(sessionsDir, { recursive: true, mode: 0o700 });
+    const mainFile = path.join(sessionsDir, "main.jsonl");
+    const emptyFile = path.join(sessionsDir, "empty.jsonl");
+    await writeTranscript(mainFile, "main", root);
+    await fsp.writeFile(emptyFile, "", { mode: 0o600 });
+    await writeConsent(
+      createConsentRecord(storeRoot, [sessionsDir]),
+      consentFilePath({}, "linux", root),
+    );
+
+    const manifestPath = path.join(sessionsDir, "manifest.json");
+    await fsp.writeFile(
+      manifestPath,
+      JSON.stringify(
+        manifestFor("main", [
+          {
+            key: { hostId: "local", sessionId: "main" },
+            parent: null,
+            disposition: "local-allowed",
+            source: { format: "omp", absolutePath: mainFile },
+          },
+          {
+            key: { hostId: "local", sessionId: "empty" },
+            parent: { hostId: "local", sessionId: "main" },
+            disposition: "local-allowed",
+            source: { format: "omp", absolutePath: emptyFile },
+          },
+        ]),
+      ),
+      { mode: 0o600 },
+    );
+
+    const outcome = await runCli(root, ["prepare", "--manifest", manifestPath]);
+    expect(outcome.code).toBe(0);
+    const payload = JSON.parse(outcome.stdout) as {
+      coverage: string;
+      views: { ledger: string };
+    };
+    expect(payload.coverage).toBe("partial");
+    const ledger = JSON.parse(
+      await fsp.readFile(payload.views.ledger, "utf8"),
+    ) as {
+      inventory: {
+        unavailable: number;
+        actors: Array<{ state: string; turns: number | null }>;
+      };
+    };
+    expect(ledger.inventory.unavailable).toBe(1);
+    const emptyActor = ledger.inventory.actors.find(
+      (actor) => actor.state === "unavailable",
+    );
+    expect(emptyActor?.turns).toBeNull();
+  });
+
+  it("refuses a canonical symlink escape and a forged host provenance from the CLI", async () => {
+    const root = await makeTempDir("ags-manifest-refuse-");
+    const storeRoot = path.join(root, "store");
+    const sessionsDir = path.join(root, "sessions");
+    const outsideDir = path.join(root, "outside");
+    await fsp.mkdir(sessionsDir, { recursive: true, mode: 0o700 });
+    await fsp.mkdir(outsideDir, { recursive: true, mode: 0o700 });
+
+    const mainFile = path.join(sessionsDir, "main.jsonl");
+    await writeTranscript(mainFile, "main", root);
+    const outsideFile = path.join(outsideDir, "escape.jsonl");
+    await writeTranscript(outsideFile, "escape", root);
+    await fsp.symlink(outsideDir, path.join(sessionsDir, "linked-outside"));
+
+    await writeConsent(
+      createConsentRecord(storeRoot, [sessionsDir]),
+      consentFilePath({}, "linux", root),
+    );
+
+    const escaped = manifestFor("main", [
+      {
+        key: { hostId: "local", sessionId: "main" },
+        parent: null,
+        disposition: "local-allowed",
+        source: { format: "omp", absolutePath: mainFile },
+      },
+      {
+        key: { hostId: "local", sessionId: "escape" },
+        parent: { hostId: "local", sessionId: "main" },
+        disposition: "local-allowed",
+        source: {
+          format: "omp",
+          absolutePath: path.join(
+            sessionsDir,
+            "linked-outside",
+            "escape.jsonl",
+          ),
+        },
+      },
+    ]);
+    const escapedPath = path.join(sessionsDir, "escaped.json");
+    await fsp.writeFile(escapedPath, JSON.stringify(escaped), { mode: 0o600 });
+
+    const escapeOutcome = await runCli(root, [
+      "prepare",
+      "--manifest",
+      escapedPath,
+    ]);
+    expect(escapeOutcome.code).toBe(1);
+    expect(JSON.parse(escapeOutcome.stderr)).toEqual({
+      schemaVersion: 1,
+      error: { code: "UNSAFE_SOURCE_PATH" },
+    });
+
+    const forged = manifestFor(
+      "main",
+      [
+        {
+          key: { hostId: "local", sessionId: "main" },
+          parent: null,
+          disposition: "local-allowed",
+          source: { format: "omp", absolutePath: mainFile },
+        },
+      ],
+      { provenance: "host-local" },
+    );
+    const forgedPath = path.join(sessionsDir, "forged.json");
+    await fsp.writeFile(forgedPath, JSON.stringify(forged), { mode: 0o600 });
+
+    const forgedOutcome = await runCli(root, [
+      "prepare",
+      "--manifest",
+      forgedPath,
+    ]);
+    expect(forgedOutcome.code).toBe(1);
+    expect(JSON.parse(forgedOutcome.stderr)).toEqual({
+      schemaVersion: 1,
+      error: { code: "UNVERIFIED_MANIFEST_PROVENANCE" },
+    });
+  });
+
+  it("publishes a fresh generation when only the declared inventory changes", async () => {
+    const root = await makeTempDir("ags-manifest-checkpoint-");
+    const storeRoot = path.join(root, "store");
+    const sessionsDir = path.join(root, "sessions");
+    await fsp.mkdir(sessionsDir, { recursive: true, mode: 0o700 });
+    const mainFile = path.join(sessionsDir, "main.jsonl");
+    await writeTranscript(mainFile, "main", root);
+
+    await writeConsent(
+      createConsentRecord(storeRoot, [sessionsDir]),
+      consentFilePath({}, "linux", root),
+    );
+
+    const baseNode: ManifestNode = {
+      key: { hostId: "local", sessionId: "main" },
+      parent: null,
+      disposition: "local-allowed",
+      source: { format: "omp", absolutePath: mainFile },
+    };
+    const manifestPath = path.join(sessionsDir, "manifest.json");
+    await fsp.writeFile(
+      manifestPath,
+      JSON.stringify(manifestFor("main", [baseNode])),
+      { mode: 0o600 },
+    );
+
+    const first = await runCli(root, ["prepare", "--manifest", manifestPath]);
+    expect(first.code).toBe(0);
+    const firstPayload = JSON.parse(first.stdout) as {
+      state: string;
+      artifactId: string;
+    };
+    expect(firstPayload.state).toBe("prepared");
+
+    await fsp.writeFile(
+      manifestPath,
+      JSON.stringify(manifestFor("main", [{ ...baseNode, label: "Renamed" }])),
+      { mode: 0o600 },
+    );
+
+    const second = await runCli(root, ["prepare", "--manifest", manifestPath]);
+    expect(second.code).toBe(0);
+    const secondPayload = JSON.parse(second.stdout) as {
+      state: string;
+      artifactId: string;
+    };
+    expect(secondPayload.state).toBe("prepared");
+    expect(secondPayload.artifactId).not.toBe(firstPayload.artifactId);
+  });
+
+  it("publishes a fresh generation when a declared missing source appears and keeps the predecessor", async () => {
+    const root = await makeTempDir("ags-manifest-appear-");
+    const sessionsDir = path.join(root, "sessions");
+    const storeRoot = path.join(root, "store");
+    await fsp.mkdir(sessionsDir, { recursive: true, mode: 0o700 });
+    const mainFile = path.join(sessionsDir, "main.jsonl");
+    const childFile = path.join(sessionsDir, "child.jsonl");
+    await writeTranscript(mainFile, "main", root);
+    await writeConsent(
+      createConsentRecord(storeRoot, [sessionsDir]),
+      consentFilePath({}, "linux", root),
+    );
+
+    const manifestPath = path.join(sessionsDir, "manifest.json");
+    await fsp.writeFile(
+      manifestPath,
+      JSON.stringify(
+        manifestFor("main", [
+          {
+            key: { hostId: "local", sessionId: "main" },
+            parent: null,
+            disposition: "local-allowed",
+            source: { format: "omp", absolutePath: mainFile },
+          },
+          {
+            key: { hostId: "local", sessionId: "child" },
+            parent: { hostId: "local", sessionId: "main" },
+            disposition: "local-allowed",
+            source: { format: "omp", absolutePath: childFile },
+          },
+        ]),
+      ),
+      { mode: 0o600 },
+    );
+
+    const first = await runCli(root, ["prepare", "--manifest", manifestPath]);
+    expect(first.code).toBe(0);
+    const firstPayload = JSON.parse(first.stdout) as {
+      state: string;
+      artifactId: string;
+      views: { ledger: string };
+    };
+    const predecessor = await fsp.readFile(firstPayload.views.ledger, "utf8");
+
+    await writeTranscript(childFile, "child", root, "main");
+    const second = await runCli(root, ["prepare", "--manifest", manifestPath]);
+    expect(second.code).toBe(0);
+    const secondPayload = JSON.parse(second.stdout) as {
+      state: string;
+      artifactId: string;
+    };
+    expect(secondPayload.state).toBe("prepared");
+    expect(secondPayload.artifactId).not.toBe(firstPayload.artifactId);
+    expect(await fsp.readFile(firstPayload.views.ledger, "utf8")).toBe(
+      predecessor,
+    );
+  });
+
+  it("publishes a fresh native generation when a child session appears", async () => {
+    const fx = await setupBoundSession(
+      "ags-native-child-change-",
+      "sess-child-change",
+    );
+    const first = await runRetrospective(
+      {
+        tracker: fx.tracker,
+        workspace: fx.workspaceDir,
+        consentPath: fx.consentPath,
+      },
+      new AbortController().signal,
+    );
+    expect(first.state).toBe("prepared");
+    if (first.state !== "prepared") return;
+    const predecessor = await fsp.readFile(first.viewPaths.ledger, "utf8");
+
+    const siblingDir = path.join(fx.sessionsDir, "sess-child-change");
+    const childFile = path.join(siblingDir, "ChildOne.jsonl");
+    await fsp.mkdir(siblingDir, { recursive: true, mode: 0o700 });
+    await fsp.writeFile(
+      childFile,
+      [
+        sessionHeader({
+          id: "child-one",
+          cwd: fx.workspaceDir,
+          parentSession: "sess-child-change",
+        }),
+        ompMcpToolCall({
+          callId: "child-call",
+          tool: "get_skill",
+          timestamp: new Date().toISOString(),
+        }),
+        toolResult({
+          callId: "child-call",
+          timestamp: new Date(Date.now() + 50).toISOString(),
+        }),
+      ].join(""),
+      { mode: 0o600 },
+    );
+
+    const second = await runRetrospective(
+      {
+        tracker: fx.tracker,
+        workspace: fx.workspaceDir,
+        consentPath: fx.consentPath,
+      },
+      new AbortController().signal,
+    );
+    expect(second.state).toBe("prepared");
+    if (second.state !== "prepared") return;
+    expect(second.artifactId).not.toBe(first.artifactId);
+    expect(await fsp.readFile(first.viewPaths.ledger, "utf8")).toBe(
+      predecessor,
+    );
+  });
+
+  it("keeps native coverage partial when a created worker has no observable session file", async () => {
+    const fx = await setupBoundSession(
+      "ags-native-hidden-worker-",
+      "sess-hidden-worker",
+    );
+    await fsp.writeFile(
+      fx.mainFile,
+      lineJson({
+        type: "title",
+        v: 1,
+        title: "synthetic MAIN title preamble",
+        updatedAt: new Date().toISOString(),
+      }) + (await fsp.readFile(fx.mainFile, "utf8")),
+      { mode: 0o600 },
+    );
+    await fsp.appendFile(
+      fx.mainFile,
+      lineJson({
+        type: "message",
+        id: "hidden-task-row",
+        timestamp: new Date().toISOString(),
+        message: {
+          role: "assistant",
+          content: [
+            {
+              type: "toolCall",
+              id: "hidden-task-call",
+              name: "task",
+              arguments: { tasks: [{ name: "HiddenWorker" }] },
+            },
+          ],
+        },
+      }),
+    );
+
+    const res = await runRetrospective(
+      {
+        tracker: fx.tracker,
+        workspace: fx.workspaceDir,
+        consentPath: fx.consentPath,
+      },
+      new AbortController().signal,
+    );
+    expect(res.state).toBe("prepared");
+    if (res.state !== "prepared") return;
+    expect(res.coverage).toBe("partial");
+
+    const ledger = JSON.parse(
+      await fsp.readFile(res.viewPaths.ledger, "utf8"),
+    ) as {
+      counts: { agentsCreated: number; unlinkedAgents: number };
+      inventory: { known: boolean; unlinked: number };
+      permissionFriction: { coverage: string } | null;
+      improvements: Array<{ rule: string }>;
+    };
+    expect(ledger.inventory.known).toBe(false);
+    expect(ledger.inventory.unlinked).toBeGreaterThanOrEqual(1);
+    expect(ledger.counts.agentsCreated).toBeGreaterThanOrEqual(1);
+    expect(ledger.permissionFriction?.coverage).toBe("partial");
+    expect(
+      ledger.improvements.some((item) => item.rule === "coverage-gap"),
+    ).toBe(true);
+
+    const summary = await fsp.readFile(res.viewPaths.summary, "utf8");
+    expect(summary).toContain("Warning: evidence coverage is partial");
+  });
+
+  it("persists deduplicated permission totals and friction across joined actors", async () => {
+    const root = await makeTempDir("ags-manifest-friction-");
+    const sessionsDir = path.join(root, "sessions");
+    const storeRoot = path.join(root, "store");
+    await fsp.mkdir(sessionsDir, { recursive: true, mode: 0o700 });
+    const mainFile = path.join(sessionsDir, "main.jsonl");
+    await writeConsent(
+      createConsentRecord(storeRoot, [sessionsDir]),
+      consentFilePath({}, "linux", root),
+    );
+
+    const rows: string[] = [
+      lineJson({
+        type: "title",
+        v: 1,
+        title: "synthetic title preamble",
+        updatedAt: "2026-11-16T15:22:00.000Z",
+      }),
+      sessionHeader({ id: "main", cwd: root }),
+    ];
+    for (let index = 1; index <= 3; index += 1) {
+      const request = JSON.stringify({
+        requestId: `req-${index}`,
+        agentId: "agent-123",
+        request: { name: "bash", description: "Command: git status" },
+      });
+      rows.push(
+        lineJson({
+          type: "message",
+          id: `perm-row-${index}`,
+          timestamp: `2026-11-16T15:2${index}:00.000Z`,
+          message: {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: `<paseo-system event="permission-required">\n<permission-request>\n${request}\n</permission-request>\n</paseo-system>`,
+              },
+            ],
+          },
+        }),
+      );
+    }
+    await fsp.writeFile(mainFile, rows.join(""), { mode: 0o600 });
+
+    const duplicateFile = path.join(sessionsDir, "child-duplicate.jsonl");
+    const duplicateRequest = JSON.stringify({
+      requestId: "req-1",
+      agentId: "agent-123",
+      request: { name: "bash", description: "Command: git status" },
+    });
+    await fsp.writeFile(
+      duplicateFile,
+      sessionHeader({
+        id: "child-duplicate",
+        cwd: root,
+        parentSession: "main",
+      }) +
+        lineJson({
+          type: "message",
+          id: "duplicate-permission-row",
+          timestamp: "2026-11-16T15:21:10.000Z",
+          message: {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: `<paseo-system event="permission-required">\n<permission-request>\n${duplicateRequest}\n</permission-request>\n</paseo-system>`,
+              },
+            ],
+          },
+        }),
+      { mode: 0o600 },
+    );
+    const answerFile = path.join(sessionsDir, "child-answer.jsonl");
+    await fsp.writeFile(
+      answerFile,
+      sessionHeader({ id: "child-answer", cwd: root, parentSession: "main" }) +
+        lineJson({
+          type: "message",
+          id: "answer-before-request",
+          timestamp: "2026-11-16T15:20:00.000Z",
+          message: {
+            role: "assistant",
+            content: [
+              {
+                type: "toolCall",
+                id: "answer-call",
+                name: "respond_to_permission",
+                arguments: {
+                  agentId: "agent-123",
+                  requestId: "req-1",
+                  response: { behavior: "allow" },
+                },
+              },
+            ],
+          },
+        }),
+      { mode: 0o600 },
+    );
+
+    const manifestPath = path.join(sessionsDir, "manifest.json");
+    await fsp.writeFile(
+      manifestPath,
+      JSON.stringify(
+        manifestFor("main", [
+          {
+            key: { hostId: "local", sessionId: "main" },
+            parent: null,
+            disposition: "local-allowed",
+            source: { format: "omp", absolutePath: mainFile },
+          },
+          ...[
+            ["child-duplicate", duplicateFile],
+            ["child-answer", answerFile],
+          ].map(([sessionId, absolutePath]) => ({
+            key: { hostId: "local", sessionId: sessionId! },
+            parent: { hostId: "local", sessionId: "main" },
+            disposition: "local-allowed" as const,
+            source: { format: "omp" as const, absolutePath: absolutePath! },
+          })),
+          {
+            key: { hostId: "local", sessionId: "child-missing" },
+            parent: { hostId: "local", sessionId: "main" },
+            disposition: "local-allowed",
+            source: {
+              format: "omp",
+              absolutePath: path.join(sessionsDir, "missing.jsonl"),
+            },
+          },
+        ]),
+      ),
+      { mode: 0o600 },
+    );
+
+    const first = await runCli(root, ["prepare", "--manifest", manifestPath]);
+    expect(first.code).toBe(0);
+    const firstPayload = JSON.parse(first.stdout) as {
+      state: string;
+      views: { ledger: string; summary: string; html: string };
+    };
+    const ledger = JSON.parse(
+      await fsp.readFile(firstPayload.views.ledger, "utf8"),
+    ) as {
+      improvements: Array<{ rule: string }>;
+      permissionRequests: {
+        asked: number;
+        answered: number;
+        unanswered: number;
+        requestCountsBasis: string;
+        commandCountsBasis: string;
+        tools: Array<{
+          name: string;
+          asked: number;
+          allow: number;
+          deny: number;
+          other: number;
+          unanswered: number;
+        }>;
+        programs: Array<{
+          name: string;
+          asked: number;
+          allow: number;
+          deny: number;
+          other: number;
+          unanswered: number;
+        }>;
+      };
+      permissionFriction: {
+        requests: number;
+        answered: number;
+        unanswered: number;
+        repeatedRequests: number;
+        coverage: string;
+        waitMs: number | null;
+        humanAnswers: number | null;
+        orchestratorAnswers: number | null;
+      };
+    };
+    expect(ledger.permissionRequests).toMatchObject({
+      asked: 3,
+      answered: 1,
+      unanswered: 2,
+      agentsAsked: 1,
+      requestCountsBasis: "deduplicated-events",
+    });
+    expect(ledger.permissionRequests.commandCountsBasis).toBe(
+      "raw-observations-may-duplicate",
+    );
+    expect(ledger.permissionRequests.tools).toMatchObject([
+      {
+        name: "bash",
+        asked: 3,
+        allow: 1,
+        deny: 0,
+        other: 0,
+        unanswered: 2,
+      },
+    ]);
+    expect(ledger.permissionRequests.programs).toMatchObject([
+      {
+        name: "git",
+        asked: 3,
+        allow: 1,
+        deny: 0,
+        other: 0,
+        unanswered: 2,
+      },
+    ]);
+    expect(ledger.permissionFriction).toMatchObject({
+      requests: 3,
+      answered: 1,
+      unanswered: 2,
+      repeatedRequests: 2,
+      coverage: "partial",
+      waitMs: null,
+      humanAnswers: null,
+      orchestratorAnswers: null,
+    });
+    expect(
+      ledger.improvements.some(
+        (imp) => imp.rule === "repeated-permission-requests",
+      ),
+    ).toBe(true);
+    expect(ledger.improvements.some((imp) => imp.rule === "coverage-gap")).toBe(
+      true,
+    );
+    const summary = await fsp.readFile(firstPayload.views.summary, "utf8");
+    expect(summary).toContain("Permission requests: 3 requests");
+    expect(summary).toContain("1 answered");
+    expect(summary).toContain("deduplicated event counts");
+    const html = await fsp.readFile(firstPayload.views.html, "utf8");
+    expect(html).toContain("3 requests from 1 agent; 1 answered");
+    expect(html).toContain("deduplicated event identities");
+    expect(html).toContain("Raw command observations");
+    expect(html).toContain("Unmatched counts describe observations");
+
+    const second = await runCli(root, ["prepare", "--manifest", manifestPath]);
+    expect(second.code).toBe(0);
+    expect(JSON.parse(second.stdout).state).toBe("already-prepared");
+  });
+
+  it("records permission timing as unknown when structured request time is absent", async () => {
+    const fx = await setupBoundSession(
+      "ags-native-friction-timing-",
+      "sess-friction-timing",
+    );
+    for (let index = 1; index <= 2; index += 1) {
+      const request = JSON.stringify({
+        requestId: `timing-req-${index}`,
+        agentId: "agent-1",
+        request: { name: "bash", description: "Command: git status" },
+      });
+      await fsp.appendFile(
+        fx.mainFile,
+        lineJson({
+          type: "message",
+          id: `timing-request-${index}`,
+          message: {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: `<paseo-system event="permission-required">\n<permission-request>\n${request}\n</permission-request>\n</paseo-system>`,
+              },
+            ],
+          },
+        }),
+      );
+      await fsp.appendFile(
+        fx.mainFile,
+        lineJson({
+          type: "message",
+          id: `timing-answer-${index}`,
+          timestamp: new Date().toISOString(),
+          message: {
+            role: "assistant",
+            content: [
+              {
+                type: "toolCall",
+                id: `timing-answer-call-${index}`,
+                name: "respond_to_permission",
+                arguments: {
+                  agentId: "agent-1",
+                  requestId: `timing-req-${index}`,
+                  response: { behavior: "allow" },
+                },
+              },
+            ],
+          },
+        }),
+      );
+    }
+
+    const res = await runRetrospective(
+      {
+        tracker: fx.tracker,
+        workspace: fx.workspaceDir,
+        consentPath: fx.consentPath,
+      },
+      new AbortController().signal,
+    );
+    expect(res.state).toBe("prepared");
+    if (res.state !== "prepared") return;
+    const ledger = JSON.parse(
+      await fsp.readFile(res.viewPaths.ledger, "utf8"),
+    ) as {
+      permissionFriction: {
+        answered: number;
+        waitMs: number | null;
+        waitMeasuredRequests: number;
+      };
+      improvements: Array<{ rule: string }>;
+    };
+    expect(ledger.permissionFriction.waitMs).toBeNull();
+    expect(ledger.permissionFriction.waitMeasuredRequests).toBe(0);
+    expect(
+      ledger.improvements.some(
+        (imp) => imp.rule === "permission-timing-unmeasured",
+      ),
+    ).toBe(true);
+
+    const again = await runRetrospective(
+      {
+        tracker: fx.tracker,
+        workspace: fx.workspaceDir,
+        consentPath: fx.consentPath,
+      },
+      new AbortController().signal,
+    );
+    expect(again.state).toBe("already-prepared");
+  });
+
+  it("reads a historical ledger that predates inventory and friction fields", async () => {
+    const root = await makeTempDir("ags-manifest-history-");
+    const ledger = buildLedger({
+      tree: null,
+      mainSessionId: null,
+      cutoff: "2026-11-16T17:24:09.386Z",
+      evidenceMode: "tracker-only",
+      rootVerification: "not-applicable",
+      unlinkedAgents: 0,
+      agentsCreated: 0,
+      sessionsLinked: 0,
+      skillUsage: null,
+      trackerSince: null,
+      label: null,
+      outcome: { source: "unavailable", reason: "not-measured" },
+    });
+    const historical: Record<string, unknown> = { ...ledger };
+    delete historical.inventory;
+    delete historical.permissionFriction;
+    const ledgerPath = path.join(root, "ledger.json");
+    await fsp.writeFile(ledgerPath, JSON.stringify(historical), {
+      mode: 0o600,
+    });
+
+    const loaded = await loadCommittedLedger(ledgerPath);
+    expect(loaded.coverage).toBe("partial");
+    expect(loaded.sessions).toBe(0);
+    expect(loaded.counts.claims).toBeGreaterThan(0);
+
+    const historicalLedger = historical as unknown as typeof ledger;
+    const summary = renderSummary(historicalLedger);
+    expect(summary.split("\n")[0]).toContain("Coverage:");
+    expect(summary).not.toContain("undefined");
+    const html = renderReportHtml(historicalLedger, { previous: [] });
+    expect(html).toContain("default-src 'none'; style-src 'unsafe-inline'");
+    expect(html).not.toContain("undefined");
+    expect(html).not.toContain("<script");
   });
 });

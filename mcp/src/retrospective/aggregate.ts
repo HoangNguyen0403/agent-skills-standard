@@ -11,7 +11,11 @@ import {
   extractServerToolName,
 } from "./server-tools";
 import { parseLookupResult } from "./lookup-results";
-import { parsePermissionRequestMessage } from "./permission-requests";
+import {
+  parsePermissionRequestMessage,
+  permissionActorKey,
+  permissionRequestIdentity,
+} from "./permission-requests";
 
 export const LOOKUP_TOOLS = [
   "load_skills_for_files",
@@ -211,6 +215,31 @@ export type PermissionRequestStats = {
   commandsOmitted: number;
 };
 
+/**
+ * One observed permission request or answer with its internal join key and
+ * structured timing. `requestKey` joins every observation of the same
+ * actor+request, including a request seen in one session node and its answer in
+ * another. `actorKey` and `requestKey` are internal dedup support and are never
+ * emitted in a friction summary. No command text, prompt or path is carried
+ * here; those stay in `PermissionRequestStats`.
+ */
+export type PermissionRequestEvent = {
+  /** sha256(actorKey + "\u0000" + requestId) prefix; internal dedup key only. */
+  requestKey: string;
+  /** Full-id-derived or observation-scoped actor key; internal only. */
+  actorKey: string;
+  /** False for an answer observation whose request was not seen in its node. */
+  observedRequest: boolean;
+  tool: string;
+  program: string | null;
+  kind: string;
+  /** Epoch millis of the notification row, or null when no supported timestamp exists. */
+  requestedAtMs: number | null;
+  /** Epoch millis of the row carrying an answer record, or null. */
+  answeredAtMs: number | null;
+  verdict: "allow" | "deny" | "other" | null;
+};
+
 export function createEmptyPermissionRequestStats(): PermissionRequestStats {
   return {
     asked: 0,
@@ -302,12 +331,27 @@ export type SessionAggregate = {
   skillLoad: SessionSkillLoad;
   permissionAnswers: PermissionAnswers;
   permissionRequests: PermissionRequestStats;
+  /**
+   * Bounded event-level permission records (see `PermissionRequestEvent`).
+   * Optional so older fixtures and Codex-shaped aggregates stay valid; absent
+   * means no event capture, which friction reporting treats as partial.
+   */
+  permissionRequestEvents?: PermissionRequestEvent[];
+  /**
+   * Whether this format's permission ingress is measured at all. A zero count
+   * is only a measured zero when this is "captured".
+   */
+  permissionCapture?: "captured" | "unsupported";
   context: ContextStats;
   routing: RoutingOrder;
   lookups: LookupStats;
   folder: FolderLabel | null;
   coverage: "complete" | "partial";
-  partialReason?: "size-ceiling" | "time-ceiling" | "unreadable-lines";
+  partialReason?:
+    | "size-ceiling"
+    | "time-ceiling"
+    | "unreadable-lines"
+    | "unknown-time-exclusions";
   skippedLines: number;
 };
 
@@ -341,6 +385,12 @@ export type MetricCompleteness = Record<
 export type AggregateLimits = {
   maxBytes: number;
   maxMillis: number;
+  /**
+   * Optional inclusive upper bound (epoch millis). Rows carrying a parseable
+   * row timestamp after it are excluded before any aggregation; activity rows
+   * without one are omitted as unknown rather than assumed inside the window.
+   */
+  cutoffMs?: number;
 };
 
 export type NodeUsage = {
@@ -364,6 +414,10 @@ export type NodeUsage = {
   models: Record<string, number>;
   permissionAnswers: PermissionAnswers;
   permissionRequests: PermissionRequestStats;
+  /** Event-level permission records for this node; absent when none were captured. */
+  permissionRequestEvents?: PermissionRequestEvent[];
+  /** Permission ingress support for this node; absent on older captures. */
+  permissionCapture?: "captured" | "unsupported";
   context: ContextStats;
   routing: RoutingOrder;
   lookups: LookupStats;
@@ -376,7 +430,11 @@ export type TreeAggregate = {
   sessions: number;
   fullyRead: number;
   coverage: "complete" | "partial";
-  partialReason?: "size-ceiling" | "time-ceiling" | "unreadable-lines";
+  partialReason?:
+    | "size-ceiling"
+    | "time-ceiling"
+    | "unreadable-lines"
+    | "unknown-time-exclusions";
   first: string | null;
   last: string | null;
   assistantTurns: number;
@@ -434,6 +492,8 @@ export const MAX_TREE_NODES = 64;
 const VALID_TARGET_ID = /^[A-Za-z0-9-]{8,128}$/;
 const MAX_PERMISSION_TARGET_KEYS = 20;
 const MAX_REQUEST_VERDICTS_CAP = 20_000;
+// Event-level records kept per node; beyond this the node reports partial friction.
+const MAX_PERMISSION_EVENTS = 1_000;
 const MAX_DISTINCT_AGENTS_CAP = 500;
 const MAX_TOOL_TALLY_KEYS = 20;
 const MAX_PROGRAM_TALLY_KEYS = 60;
@@ -492,7 +552,10 @@ function buildPermissionRequestStats(
       command: string | null;
     }
   >,
-  verdicts: Map<string, "allow" | "deny" | "other">,
+  verdicts: Map<
+    string,
+    { verdict: "allow" | "deny" | "other"; answeredAtMs: number | null }
+  >,
 ): PermissionRequestStats {
   const tools: Record<string, PermissionRequestTally> = {};
   const programs: Record<string, PermissionRequestTally> = {};
@@ -511,7 +574,7 @@ function buildPermissionRequestStats(
     let verdictKey: "allow" | "deny" | "other" | "unanswered";
     if (verdict !== undefined) {
       answered += 1;
-      verdictKey = verdict;
+      verdictKey = verdict.verdict;
     } else {
       verdictKey = "unanswered";
     }
@@ -812,6 +875,10 @@ export async function aggregateSession(
   if (signal.aborted) {
     throw new RetrospectiveError("ABORTED", "Aggregate pass was aborted");
   }
+  const cutoffMs = limits.cutoffMs;
+  if (cutoffMs !== undefined && (!Number.isFinite(cutoffMs) || cutoffMs < 0)) {
+    throw new RangeError("cutoffMs must be a nonnegative finite number");
+  }
 
   let handle: FileHandle | undefined;
   let stream: Readable | undefined;
@@ -875,6 +942,7 @@ export async function aggregateSession(
     // Non-housekeeping tool calls seen so far, in file order.
     let callsSeen = 0;
     let skippedLines = 0;
+    let unknownTimeExclusions = false;
     const series: JointSeries = { byDayModel: {} };
     const permissionAnswers: PermissionAnswers = {
       allow: 0,
@@ -883,17 +951,28 @@ export async function aggregateSession(
       byTarget: {},
       untrackedTargets: 0,
     };
+    const permissionScope = `${source.node.hostId}\u0000${source.node.sessionId}`;
     const permissionRequestsMap = new Map<
       string,
       {
+        requestId: string;
         tool: string;
         program: string | null;
         agent: string;
+        actorKey: string;
         kind: string;
         command: string | null;
+        requestedAtMs: number | null;
       }
     >();
-    const permissionVerdictsMap = new Map<string, "allow" | "deny" | "other">();
+    const permissionVerdictsMap = new Map<
+      string,
+      {
+        verdict: "allow" | "deny" | "other";
+        answeredAtMs: number | null;
+        actorKey: string;
+      }
+    >();
     const context: ContextStats = {
       maxCacheRead: 0,
       postCompactionTurns: 0,
@@ -931,8 +1010,11 @@ export async function aggregateSession(
       }
     };
 
-    const processOmpRow = (row: Record<string, unknown>): void => {
-      updateTimestamps(row.timestamp);
+    const processOmpRow = (
+      row: Record<string, unknown>,
+      recordTimestamps: boolean,
+    ): void => {
+      if (recordTimestamps) updateTimestamps(row.timestamp);
       if (row.type === "session") {
         if (typeof row.cwd === "string") {
           folder = folderLabel(row.cwd);
@@ -1017,26 +1099,46 @@ export async function aggregateSession(
 
       if (row.type === "message" && isObject(row.message)) {
         const msg = row.message;
-        updateTimestamps(msg.timestamp);
+        if (recordTimestamps) updateTimestamps(msg.timestamp);
 
         if (msg.role === "user") {
           userMessages += 1;
           const text = extractTextContent(msg.content);
           if (text.includes("permission-required")) {
             const parsed = parsePermissionRequestMessage(text);
-            if (
-              parsed !== null &&
-              (permissionRequestsMap.size < MAX_REQUEST_VERDICTS_CAP ||
-                permissionRequestsMap.has(parsed.requestId))
-            ) {
-              if (!permissionRequestsMap.has(parsed.requestId)) {
-                permissionRequestsMap.set(parsed.requestId, {
-                  tool: parsed.tool,
-                  program: parsed.program,
-                  agent: parsed.agent,
-                  kind: parsed.kind,
-                  command: parsed.command,
-                });
+            if (parsed !== null) {
+              const actorKey =
+                parsed.actorKey ??
+                permissionActorKey(undefined, permissionScope);
+              const identity = permissionRequestIdentity(
+                actorKey,
+                parsed.requestId,
+              );
+              if (
+                permissionRequestsMap.size < MAX_REQUEST_VERDICTS_CAP ||
+                permissionRequestsMap.has(identity)
+              ) {
+                const requestedAtMs =
+                  toEpochMillis(msg.timestamp) ?? toEpochMillis(row.timestamp);
+                const existing = permissionRequestsMap.get(identity);
+                if (existing === undefined) {
+                  permissionRequestsMap.set(identity, {
+                    requestId: parsed.requestId,
+                    tool: parsed.tool,
+                    program: parsed.program,
+                    agent: parsed.agent,
+                    actorKey,
+                    kind: parsed.kind,
+                    command: parsed.command,
+                    requestedAtMs,
+                  });
+                } else if (
+                  requestedAtMs !== null &&
+                  (existing.requestedAtMs === null ||
+                    requestedAtMs < existing.requestedAtMs)
+                ) {
+                  existing.requestedAtMs = requestedAtMs;
+                }
               }
             }
           }
@@ -1358,11 +1460,36 @@ export async function aggregateSession(
                       typeof args.requestId === "string" &&
                       /^[A-Za-z0-9-]{1,64}$/.test(args.requestId)
                     ) {
+                      const actorKey = permissionActorKey(
+                        args.agentId,
+                        permissionScope,
+                      );
+                      const identity = permissionRequestIdentity(
+                        actorKey,
+                        args.requestId,
+                      );
                       if (
                         permissionVerdictsMap.size < MAX_REQUEST_VERDICTS_CAP ||
-                        permissionVerdictsMap.has(args.requestId)
+                        permissionVerdictsMap.has(identity)
                       ) {
-                        permissionVerdictsMap.set(args.requestId, behavior);
+                        const answeredAtMs =
+                          toEpochMillis(msg.timestamp) ??
+                          toEpochMillis(row.timestamp);
+                        const existing = permissionVerdictsMap.get(identity);
+                        // One selection rule everywhere: the earliest valid
+                        // observed answer record wins; ties keep the first seen.
+                        const shouldReplace =
+                          existing === undefined ||
+                          (answeredAtMs !== null &&
+                            (existing.answeredAtMs === null ||
+                              answeredAtMs < existing.answeredAtMs));
+                        if (shouldReplace) {
+                          permissionVerdictsMap.set(identity, {
+                            verdict: behavior,
+                            answeredAtMs,
+                            actorKey,
+                          });
+                        }
                       }
                     }
                   }
@@ -1374,8 +1501,11 @@ export async function aggregateSession(
       }
     };
 
-    const processCodexRow = (row: Record<string, unknown>): void => {
-      updateTimestamps(row.timestamp);
+    const processCodexRow = (
+      row: Record<string, unknown>,
+      recordTimestamps: boolean,
+    ): void => {
+      if (recordTimestamps) updateTimestamps(row.timestamp);
 
       if (row.type === "turn_context" && isObject(row.payload)) {
         if (typeof row.payload.model === "string") {
@@ -1640,10 +1770,33 @@ export async function aggregateSession(
         skippedLines += 1;
         return;
       }
+      let recordTimestamps = true;
+      if (cutoffMs !== undefined) {
+        const rowMillis = toEpochMillis(row.timestamp);
+        const isStructuralHeader =
+          source.format === "omp"
+            ? row.type === "session" || (row.type === "title" && row.v === 1)
+            : row.type === "session_meta";
+        if (rowMillis === null || rowMillis > cutoffMs) {
+          if (!isStructuralHeader) {
+            // Unknown-time activity is omitted rather than assumed inside the
+            // window; a parseable timestamp after the cutoff is simply outside
+            // the authorized window and is not counted as skipped.
+            if (rowMillis === null) {
+              skippedLines += 1;
+              unknownTimeExclusions = true;
+            }
+            return;
+          }
+          // Structural session metadata may still be read, but never moves the
+          // window's first/last bounds.
+          recordTimestamps = false;
+        }
+      }
       if (source.format === "omp") {
-        processOmpRow(row);
+        processOmpRow(row, recordTimestamps);
       } else {
-        processCodexRow(row);
+        processCodexRow(row, recordTimestamps);
       }
     };
 
@@ -1751,8 +1904,11 @@ export async function aggregateSession(
 
     let coverage: "complete" | "partial" = "complete";
     let partialReason:
-      "size-ceiling" | "time-ceiling" | "unreadable-lines" | undefined =
-      undefined;
+      | "size-ceiling"
+      | "time-ceiling"
+      | "unreadable-lines"
+      | "unknown-time-exclusions"
+      | undefined = undefined;
 
     if (sizeCeiling) {
       coverage = "partial";
@@ -1760,6 +1916,9 @@ export async function aggregateSession(
     } else if (timeCeiling) {
       coverage = "partial";
       partialReason = "time-ceiling";
+    } else if (unknownTimeExclusions) {
+      coverage = "partial";
+      partialReason = "unknown-time-exclusions";
     }
 
     const permissionRequests: PermissionRequestStats =
@@ -1769,6 +1928,56 @@ export async function aggregateSession(
             permissionRequestsMap,
             permissionVerdictsMap,
           );
+
+    // Event-level records are capped independently of the stats maps; a node
+    // that exceeds the cap reports partial coverage instead of silently
+    // dropping observations from friction counts. Answer observations without
+    // their request are retained so another node's request can join them.
+    const permissionRequestEvents: PermissionRequestEvent[] = [];
+    if (source.format === "omp") {
+      const requestKeys = new Set<string>();
+      for (const [identity, req] of permissionRequestsMap) {
+        if (permissionRequestEvents.length >= MAX_PERMISSION_EVENTS) break;
+        const answer = permissionVerdictsMap.get(identity);
+        const requestKey = crypto
+          .createHash("sha256")
+          .update(identity)
+          .digest("hex")
+          .slice(0, 16);
+        requestKeys.add(requestKey);
+        permissionRequestEvents.push({
+          requestKey,
+          actorKey: req.actorKey,
+          observedRequest: true,
+          tool: req.tool,
+          program: req.program,
+          kind: req.kind,
+          requestedAtMs: req.requestedAtMs,
+          answeredAtMs: answer?.answeredAtMs ?? null,
+          verdict: answer?.verdict ?? null,
+        });
+      }
+      for (const [identity, answer] of permissionVerdictsMap) {
+        if (permissionRequestEvents.length >= MAX_PERMISSION_EVENTS) break;
+        const requestKey = crypto
+          .createHash("sha256")
+          .update(identity)
+          .digest("hex")
+          .slice(0, 16);
+        if (requestKeys.has(requestKey)) continue;
+        permissionRequestEvents.push({
+          requestKey,
+          actorKey: answer.actorKey,
+          observedRequest: false,
+          tool: "other",
+          program: null,
+          kind: "other",
+          requestedAtMs: null,
+          answeredAtMs: answer.answeredAtMs,
+          verdict: answer.verdict,
+        });
+      }
+    }
 
     const completenessStatus =
       skippedLines > 0 ? "may-undercount-by-skipped-lines" : "complete";
@@ -1816,6 +2025,8 @@ export async function aggregateSession(
       permissionAnswers,
       context,
       permissionRequests,
+      permissionRequestEvents,
+      permissionCapture: source.format === "omp" ? "captured" : "unsupported",
       routing,
       lookups,
       folder,
@@ -1973,6 +2184,16 @@ export function rollUp(aggregates: AggregatedSession[]): TreeAggregate {
           untrackedTargets: agg.permissionAnswers.untrackedTargets,
         },
         permissionRequests: clonePermissionRequestStats(agg.permissionRequests),
+        ...(agg.permissionRequestEvents !== undefined
+          ? {
+              permissionRequestEvents: agg.permissionRequestEvents.map(
+                (event) => ({ ...event }),
+              ),
+            }
+          : {}),
+        ...(agg.permissionCapture !== undefined
+          ? { permissionCapture: agg.permissionCapture }
+          : {}),
         context: { ...agg.context },
         routing: { ...agg.routing },
         lookups: cloneLookupStats(agg.lookups),
@@ -2012,8 +2233,11 @@ export function rollUp(aggregates: AggregatedSession[]): TreeAggregate {
   }
 
   let partialReason:
-    "size-ceiling" | "time-ceiling" | "unreadable-lines" | undefined =
-    undefined;
+    | "size-ceiling"
+    | "time-ceiling"
+    | "unreadable-lines"
+    | "unknown-time-exclusions"
+    | undefined = undefined;
 
   if (hasPartial) {
     const reasons = new Set(
@@ -2025,6 +2249,8 @@ export function rollUp(aggregates: AggregatedSession[]): TreeAggregate {
       partialReason = "time-ceiling";
     } else if (reasons.has("unreadable-lines")) {
       partialReason = "unreadable-lines";
+    } else if (reasons.has("unknown-time-exclusions")) {
+      partialReason = "unknown-time-exclusions";
     }
   }
 
