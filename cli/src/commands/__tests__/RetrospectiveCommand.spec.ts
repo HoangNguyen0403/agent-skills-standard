@@ -204,6 +204,57 @@ describe('RetrospectiveCommand', () => {
       );
     });
 
+    it("forwards repeatable agent-record roots", async () => {
+      const command = new RetrospectiveCommand({
+        spawnFn: mockSpawn,
+        platform: "linux",
+        env: { AGS_MCP_PACKAGE_SPEC: "pkg@x" },
+      });
+
+      await command.run("enable", {
+        agentRecordRoot: ["/agents/a", "/agents/b"],
+      });
+
+      expect(mockSpawn).toHaveBeenCalledWith(
+        "npx",
+        [
+          "-y",
+          "--prefer-offline",
+          "pkg@x",
+          "retrospective",
+          "enable",
+          "--agent-record-root",
+          "/agents/a",
+          "--agent-record-root",
+          "/agents/b",
+        ],
+        { stdio: "inherit" },
+      );
+    });
+
+    it("forwards the agent-record opt-out flag", async () => {
+      const command = new RetrospectiveCommand({
+        spawnFn: mockSpawn,
+        platform: "linux",
+        env: { AGS_MCP_PACKAGE_SPEC: "pkg@x" },
+      });
+
+      await command.run("enable", { noAgentRecords: true });
+
+      expect(mockSpawn).toHaveBeenCalledWith(
+        "npx",
+        [
+          "-y",
+          "--prefer-offline",
+          "pkg@x",
+          "retrospective",
+          "enable",
+          "--no-agent-records",
+        ],
+        { stdio: "inherit" },
+      );
+    });
+
     it('forwards argv for index options', async () => {
       const command = new RetrospectiveCommand({
         spawnFn: mockSpawn,

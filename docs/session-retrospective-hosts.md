@@ -18,6 +18,12 @@ Everything reachable by the feature is reachable through the MCP server or from 
 > facts below come from installed binaries, released SDK packages and public host documentation — not
 > from a completed integration run. See `CHANGELOG.md` → `[Unreleased]`.
 
+Consent v5, ledger v2, diagnostic signals, `record_decision`, and the native secure-ingress
+package/CI configuration belong to unreleased source work. The approved artifact targets are Darwin
+arm64/x64 and GNU/Linux glibc arm64/x64; configured targets do not establish artifact availability,
+runtime support, or verification. They are not part of MCP 0.8.1; source parity and Gate-C execution
+remain pending.
+
 ## Transport rule
 
 The server registers these tools in guarded blocks, `if (transport === "stdio")` in
@@ -150,14 +156,19 @@ tools, and an empty nudge leaves the output byte-identical to the output without
 - Whether the server inherits `PI_SESSION_FILE` or Paseo's `PASEO_*` variables from the launching
   host is untested.
 - Codex gets structural counts only; Claude Code and Gemini have no reader in the engine yet.
-- Paseo agent sessions cannot be linked to the main session from session files alone (about 313 of
-  342 created agents in pilot data are unobservable); this is explicitly reported as delegation coverage.
-- Tracker-derived numbers (lookups that matched nothing, bodies returned) are "not measured" for
-  replayed sessions.
-- Consent text is version 4: an existing version 1, 2 or 3 consent record fails closed as disabled
-  (`version`); re-run `ags retrospective enable` to grant consent.
-- Older generations written by earlier builds (two-file v2) or ledgers lacking new fields fail closed
-  with `STORED_LEDGER_INVALID`.
+- Paseo host-agent linkage uses the optional, separately consented agent-record roots; only four
+  record fields are read. Missing or ambiguous links remain unlinked and keep tree coverage partial.
+- Consent text is version 5. Existing version 1–4 records fail closed and require human re-consent;
+  approval of the wording is not consent on an actual machine.
+- The decision tool is stateless: `record_decision` validates and returns a fixed receipt, while
+  retrospective decision counts come from the recording agent's own session transcript. This
+  requires a readable session source; tracker-only sources cannot supply decision events.
+- Decision figures and labels are agent-declared and unverified; labels remain in local ledger and
+  report, not tool receipts. A missing timestamp or unsupported field is not measured, never zero.
+- In the current store layout, ledger schema versions 1 and 2 are supported. Fields absent from a
+  schema-1 ledger read as not measured, never zero; stored files are not rewritten. Unsupported
+  historical store layouts (including earlier two-file v2 generations) fail closed with
+  `STORED_LEDGER_INVALID`.
 - Cost is an estimate based on a price table; "returned" skills does not mean "followed".
 - Nested workers beyond 256 per session are not scored.
 - Nothing is deleted automatically. Earlier reports remain in the store unless you delete them.

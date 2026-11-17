@@ -494,8 +494,8 @@
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 48,
-        "total_tokens": 53164,
-        "avg_tokens_per_skill": 1108,
+        "total_tokens": 53287,
+        "avg_tokens_per_skill": 1110,
         "largest_skill": "common-subagent-driven-development (2592 tokens)"
       },
       "owners": [

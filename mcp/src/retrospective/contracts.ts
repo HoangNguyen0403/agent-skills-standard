@@ -100,7 +100,7 @@ export type CoverageInventory = {
  * complete coverage). It is part of every checkpoint, so a semantic change can
  * never join a generation published under older rules.
  */
-export const EVIDENCE_SEMANTICS_REVISION = "retro-integrity-v4";
+export const EVIDENCE_SEMANTICS_REVISION = "retro-diagnostics-v5";
 
 export type EvidenceLimits = {
   sourceBytes: number;

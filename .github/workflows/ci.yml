@@ -133,6 +133,13 @@ jobs:
       - name: Run MCP command and service tests
         run: pnpm --filter ./cli exec vitest run src/commands/__tests__/McpCommand.spec.ts src/services/__tests__/McpConfigService.spec.ts
 
+  native-ingress:
+    name: Native ingress build and assembly
+    uses: ./.github/workflows/native-ingress.yml
+    permissions:
+      contents: read
+
+
   validate-skills:
     runs-on: ubuntu-latest
     needs: [lint-and-format, unit-tests]

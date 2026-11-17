@@ -289,7 +289,97 @@ describe("retrospective CLI consent commands", () => {
       state: "enabled",
       storeRoot: storeDir,
       allowedSourceRoots: [sourceDir],
+      allowedAgentRecordRoots: [],
     });
+  });
+
+  it("consents to repeatable agent-record roots and reports them in status", async () => {
+    const { tempHome, storeDir, sourceDir, createIo } = await setupHarness();
+    const firstRoot = path.join(tempHome, "agents-one");
+    const secondRoot = path.join(tempHome, "agents-two");
+    await fs.mkdir(firstRoot);
+    await fs.mkdir(secondRoot);
+    const { io, getWritten } = createIo();
+
+    const enabled = await runRetrospectiveCli(
+      [
+        "enable",
+        "--store-root",
+        storeDir,
+        "--source-root",
+        sourceDir,
+        "--agent-record-root",
+        firstRoot,
+        "--agent-record-root",
+        secondRoot,
+      ],
+      io,
+    );
+    const status = await runRetrospectiveCli(["consent-status"], io);
+
+    expect(enabled.code).toBe(0);
+    expect(getWritten()).toContain(
+      "Allowed agent-record roots (read after consent):",
+    );
+    expect(JSON.parse(status.stdout).allowedAgentRecordRoots).toEqual([
+      firstRoot,
+      secondRoot,
+    ]);
+  });
+
+  it("--no-agent-records stores an empty list and rejects a combined root flag", async () => {
+    const { tempHome, storeDir, sourceDir, createIo } = await setupHarness();
+    const agentRoot = path.join(tempHome, "agents");
+    await fs.mkdir(agentRoot);
+    const { io } = createIo();
+
+    const enabled = await runRetrospectiveCli(
+      [
+        "enable",
+        "--store-root",
+        storeDir,
+        "--source-root",
+        sourceDir,
+        "--no-agent-records",
+      ],
+      io,
+    );
+    const rejected = await runRetrospectiveCli(
+      [
+        "enable",
+        "--store-root",
+        storeDir,
+        "--source-root",
+        sourceDir,
+        "--agent-record-root",
+        agentRoot,
+        "--no-agent-records",
+      ],
+      io,
+    );
+
+    expect(enabled.code).toBe(0);
+    expect(rejected.code).toBe(2);
+    expect(JSON.parse((await runRetrospectiveCli(["consent-status"], io)).stdout)
+      .allowedAgentRecordRoots).toEqual([]);
+  });
+
+  it("proposes the Paseo default only when it is a real directory", async () => {
+    const { tempHome, storeDir, sourceDir, createIo } = await setupHarness();
+    const agentRoot = path.join(tempHome, ".paseo", "agents");
+    await fs.mkdir(agentRoot, { recursive: true });
+    const { io } = createIo();
+
+    const enabled = await runRetrospectiveCli(
+      ["enable", "--store-root", storeDir, "--source-root", sourceDir],
+      io,
+    );
+    const status = await runRetrospectiveCli(["consent-status"], io);
+
+    expect(enabled.code).toBe(0);
+    expect(JSON.parse(status.stdout).allowedAgentRecordRoots).toEqual([
+      agentRoot,
+    ]);
   });
 
   it("ask returning no / empty / YES please -> CONSENT_DECLINED, no file", async () => {
@@ -362,6 +452,7 @@ describe("retrospective CLI consent commands", () => {
       state: "enabled",
       storeRoot: storeDir,
       allowedSourceRoots: [src1, src2],
+      allowedAgentRecordRoots: [],
     });
   });
 
@@ -385,6 +476,7 @@ describe("retrospective CLI consent commands", () => {
       state: "enabled",
       storeRoot: storeDir,
       allowedSourceRoots: [defaultOmp, defaultCodex],
+      allowedAgentRecordRoots: [],
     });
   });
 
@@ -420,6 +512,7 @@ describe("retrospective CLI consent commands", () => {
       state: "enabled",
       storeRoot: storeDir,
       allowedSourceRoots: [defaultOmp],
+      allowedAgentRecordRoots: [],
     });
   });
 
@@ -701,6 +794,7 @@ describe("retrospective CLI consent commands", () => {
       state: "enabled",
       storeRoot: storeDir,
       allowedSourceRoots: [sourceDir],
+      allowedAgentRecordRoots: [],
     });
   });
 
@@ -720,7 +814,7 @@ describe("retrospective CLI consent commands", () => {
     expect(written).not.toContain("providers this build cannot read");
   });
 
-  it("an existing version 2 consent record is disabled until it is granted again", async () => {
+  it("an existing version 4 consent record is disabled until it is granted again", async () => {
     const { storeDir, sourceDir, targetConsentPath, createIo } =
       await setupHarness();
     await fs.mkdir(path.dirname(targetConsentPath), {
@@ -729,7 +823,7 @@ describe("retrospective CLI consent commands", () => {
     });
     const staleRecord = {
       schemaVersion: 1,
-      consentTextVersion: "2",
+      consentTextVersion: "4",
       grantedAt: "2026-11-01T12:00:00.000Z",
       storeRoot: storeDir,
       allowedSourceRoots: [sourceDir],
@@ -762,6 +856,7 @@ describe("retrospective CLI consent commands", () => {
       state: "enabled",
       storeRoot: storeDir,
       allowedSourceRoots: [sourceDir],
+      allowedAgentRecordRoots: [],
     });
   });
 

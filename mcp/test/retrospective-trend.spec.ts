@@ -463,6 +463,45 @@ describe("loadPreviousReports", () => {
       await loadPreviousReports(root, TARGET_FOLDER, "sess-1", -1),
     ).toEqual([]);
   });
+  it("reads version 1 and 2 ledgers while skipping unknown versions", async () => {
+    const root = await newRoot();
+    const version1 = makeSampleLedger(
+      "sess-v1",
+      TARGET_FOLDER,
+      "2026-10-01T08:00:00Z",
+    );
+    const version2 = {
+      ...makeSampleLedger(
+        "sess-v2",
+        TARGET_FOLDER,
+        "2026-10-01T10:00:00Z",
+      ),
+      schemaVersion: 2,
+    };
+    const unknown = {
+      ...makeSampleLedger(
+        "sess-v99",
+        TARGET_FOLDER,
+        "2026-10-01T12:00:00Z",
+      ),
+      schemaVersion: 99,
+    };
+    await publishTestLedger(root, "sess-v1", "cp-1", JSON.stringify(version1));
+    await publishTestLedger(root, "sess-v2", "cp-1", JSON.stringify(version2));
+    await publishTestLedger(root, "sess-v99", "cp-1", JSON.stringify(unknown));
+
+    const reports = await loadPreviousReports(
+      root,
+      TARGET_FOLDER,
+      "sess-current",
+      10,
+    );
+
+    expect(reports.map((report) => report.session)).toEqual([
+      "sess-v2",
+      "sess-v1",
+    ]);
+  });
 
   it("filters reports by same folder name and parent", async () => {
     const root = await newRoot();

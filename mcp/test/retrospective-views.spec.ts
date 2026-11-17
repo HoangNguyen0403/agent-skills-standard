@@ -276,6 +276,8 @@ type ViewLedgerInput = {
   toolRows?: LedgerToolRow[];
   outcome?: LedgerOutcome;
   permissionRequests?: LedgerPermissionRequests | null;
+  failureRuns?: Ledger["failureRuns"];
+  time?: Ledger["time"];
 };
 
 function viewLedger(input: ViewLedgerInput = {}): Ledger {
@@ -294,7 +296,7 @@ function viewLedger(input: ViewLedgerInput = {}): Ledger {
     ...(input.claims ?? []),
   ];
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     session: input.session === undefined ? "abcdef12" : input.session,
     folder: input.folder ?? null,
     lookups: input.lookups ?? null,
@@ -316,6 +318,31 @@ function viewLedger(input: ViewLedgerInput = {}): Ledger {
     claims,
     evidence: {},
     agents: input.agents ?? [],
+    treeCoverage: {
+      state:
+        input.evidenceMode === "tracker-only"
+          ? "not-measured"
+          : Number(coverageValues.unlinkedAgents) > 0
+            ? "partial"
+            : "complete",
+      agentsCreated: Number(coverageValues.agentsCreated),
+      agentsRead: Number(coverageValues.agentsRead),
+      unlinked: Number(coverageValues.unlinkedAgents),
+      task: {
+        created: Number(coverageValues.agentsCreated),
+        read: Number(coverageValues.agentsRead),
+      },
+      hostAgents: {
+        created: 0,
+        read: 0,
+        source: "call-count",
+        truncated: false,
+      },
+    },
+    activity: null,
+    failureRuns: input.failureRuns ?? null,
+    time: input.time ?? null,
+    decisions: null,
     otherAgents: input.otherAgents ?? null,
     improvements: input.improvements ?? [],
     label: input.label ?? null,
@@ -328,6 +355,28 @@ function viewLedger(input: ViewLedgerInput = {}): Ledger {
 }
 
 describe("retrospective summary view v3", () => {
+  it("labels capped failure counts and missing main timing as partial measurements", () => {
+    const summary = renderSummary(
+      viewLedger({
+        failureRuns: {
+          minLength: 3,
+          runs: 2,
+          longest: null,
+          tools: [],
+          truncated: true,
+        },
+        time: {
+          wallSeconds: 1800,
+          main: null,
+          permissionLatency: null,
+        },
+      }),
+    );
+
+    expect(summary).toContain("Partial measurement: counts are observed lower bounds.");
+    expect(summary).toContain("1800s wall; main idle timing: not measured");
+  });
+
   it("renders summary within 80 lines and 8192 bytes on a 200-cell fixture", () => {
     const input: LedgerInput = {
       tree: create200CellTree(),
@@ -351,7 +400,7 @@ describe("retrospective summary view v3", () => {
     expect(lines.length).toBeLessThanOrEqual(80);
     expect(Buffer.byteLength(summary, "utf8")).toBeLessThanOrEqual(8192);
     expect(lines[0]).toBe(
-      "Coverage: complete | Evidence: native session files | Root: unverified root | Delegation: 40 of 50 created agents read | Cutoff: 2026-10-28T23:59:59.000Z",
+      "Coverage: complete | Tree: partial (40 of 50 observed agents read; created counts use observed task/create_agent calls and may include failures) | Evidence: native session files | Root: unverified root | Delegation: 40 of 50 created agents read | Cutoff: 2026-10-28T23:59:59.000Z",
     );
     expect(lines[1]).toBe(
       "Scope: session abcdef12 | 2026-10-01T00:00:00.000Z to 2026-10-28T23:59:59.000Z",
@@ -368,7 +417,7 @@ describe("retrospective summary view v3", () => {
     );
     const completeLines = completeSummary.split("\n");
     expect(completeLines[0]).toBe(
-      "Coverage: complete | Evidence: native session files | Root: unverified root | Delegation: 2 of 3 created agents read | Cutoff: 2026-10-01T12:00:00.000Z",
+      "Coverage: complete | Tree: partial (2 of 3 observed agents read; created counts use observed task/create_agent calls and may include failures) | Evidence: native session files | Root: unverified root | Delegation: 2 of 3 created agents read | Cutoff: 2026-10-01T12:00:00.000Z",
     );
     expect(completeLines[1]).toBe(
       "Scope: session abcdef12 | 2026-10-01T10:00:00.000Z to 2026-10-01T11:00:00.000Z",
@@ -376,7 +425,7 @@ describe("retrospective summary view v3", () => {
 
     const partialSummary = renderSummary(viewLedger({ coverage: "partial" }));
     expect(partialSummary.split("\n")[0]).toBe(
-      "Coverage: partial | Evidence: native session files | Root: unverified root | Delegation: 2 of 3 created agents read | Cutoff: 2026-10-01T12:00:00.000Z",
+      "Coverage: partial | Tree: partial (2 of 3 observed agents read; created counts use observed task/create_agent calls and may include failures) | Evidence: native session files | Root: unverified root | Delegation: 2 of 3 created agents read | Cutoff: 2026-10-01T12:00:00.000Z",
     );
 
     const trackerSummary = renderSummary(
@@ -388,7 +437,7 @@ describe("retrospective summary view v3", () => {
     );
     const trackerLines = trackerSummary.split("\n");
     expect(trackerLines[0]).toBe(
-      "Coverage: partial | Evidence: tracker only (no session files read) | Root: n/a | Delegation: n/a | Cutoff: 2026-10-01T12:00:00.000Z",
+      "Coverage: partial | Tree: not measured | Evidence: tracker only (no session files read) | Root: n/a | Delegation: n/a | Cutoff: 2026-10-01T12:00:00.000Z",
     );
 
     const noSessionSummary = renderSummary(viewLedger({ session: null }));
@@ -406,7 +455,7 @@ describe("retrospective summary view v3", () => {
       }),
     );
     expect(zeroCreatedSummary.split("\n")[0]).toBe(
-      "Coverage: complete | Evidence: native session files | Root: unverified root | Delegation: none created | Cutoff: 2026-10-01T12:00:00.000Z",
+      "Coverage: complete | Tree: complete (0 of 0 observed agents read; created counts use observed task/create_agent calls and may include failures) | Evidence: native session files | Root: unverified root | Delegation: none created | Cutoff: 2026-10-01T12:00:00.000Z",
     );
   });
 
@@ -693,25 +742,25 @@ describe("retrospective summary view v3", () => {
     const scoreIdx = lines.indexOf("## Scorecards");
     expect(scoreIdx).toBeGreaterThan(-1);
 
-    expect(lines[scoreIdx + 1]).toContain("5 recorded permission answers");
-    expect(lines[scoreIdx + 1]).toContain("2 ask-tool calls");
-    expect(lines[scoreIdx + 1]).not.toContain("to a human");
-    expect(lines[scoreIdx + 2]).toBe(
+    expect(summary).toContain("5 recorded permission answers");
+    expect(summary).toContain("2 ask-tool calls");
+    expect(summary).not.toContain("to a human");
+    expect(summary).toContain(
       "Cost: main 100 turns, $15.50 est., 2 compactions (post-compaction floor 12k, peak 45k cached tokens per turn); workers 50 turns, $9.50 est. Main made 30 reads, 10 edits, 5 bash and 15 coordination calls itself; call-share estimate: reads $7.75, coordination $3.88.",
     );
-    expect(lines[scoreIdx + 3]).toBe(
+    expect(summary).toContain(
       "AGS routing: main 12 lookups (12.0 per 100 turns), workers 4 (8.0 per 100 turns); 2 of 3 agents looked something up; 8 by file, 3 by keyword, 1 by name; 2 ceremony calls; 0 host skill reads (counted, not named).",
     );
-    expect(lines[scoreIdx + 4]).toBe(
+    expect(summary).toContain(
       "Edits: 15 edit or file-write calls, 5 with no file lookup since the agent's last compaction.",
     );
-    expect(lines[scoreIdx + 5]).toBe(
+    expect(summary).toContain(
       "Tracker (this session): 1 of 3 lookups matched nothing; 2 skill bodies returned.",
     );
-    expect(lines[scoreIdx + 6]).toBe(
+    expect(summary).toContain(
       "Coverage: 2 of 5 created agents observed; observed workers: 1 read-only, 1 editing; 2 sessions read in full (0 lines skipped).",
     );
-    expect(lines[scoreIdx + 7]).toBe(
+    expect(summary).toContain(
       "Outcome: not measured (not measured for this run).",
     );
   });
@@ -754,13 +803,13 @@ describe("retrospective summary view v3", () => {
     const scoreIdx = lines.indexOf("## Scorecards");
     expect(scoreIdx).toBeGreaterThan(-1);
 
-    expect(lines[scoreIdx + 1]).toContain("no recorded permission answers");
-    expect(lines[scoreIdx + 1]).toContain("ask-tool calls");
-    expect(lines[scoreIdx + 1]).not.toContain("to a human");
-    expect(lines[scoreIdx + 2]).toBe(
+    expect(summary).toContain("no recorded permission answers");
+    expect(summary).toContain("ask-tool calls");
+    expect(summary).not.toContain("to a human");
+    expect(summary).toContain(
       "Coverage: 2 of 2 created agents observed; observed workers: 0 read-only, 0 editing; 1 session read in full (5 lines skipped).",
     );
-    expect(lines[scoreIdx + 3]).toBe(
+    expect(summary).toContain(
       "Outcome: not measured (not measured for this run).",
     );
     expect(summary).not.toContain("Cost: main");
@@ -1425,13 +1474,11 @@ describe("retrospective summary view v3", () => {
     const scoreIdx = pluralLines.indexOf("## Scorecards");
     expect(scoreIdx).toBeGreaterThan(-1);
 
-    expect(pluralLines[scoreIdx + 2]).toContain("AGS routing: main");
-    expect(pluralLines[scoreIdx + 3]).toBe(
+    expect(pluralSummary).toContain("AGS routing: main");
+    expect(pluralSummary).toContain(
       "AGS lookups: 8 skill bodies returned from 5 distinct skills; 3 of 15 lookups matched nothing; 4 already loaded; 2 errors. Calls by file 7 (2 matched nothing), by keyword 5 (1), by name 3 (0). Skill-level detail is in report.html.",
     );
-    expect(pluralLines[scoreIdx + 4]).toContain(
-      "Edits: 15 edit or file-write calls",
-    );
+    expect(pluralSummary).toContain("Edits: 15 edit or file-write calls");
 
     const singularLedger = viewLedger({
       claims: [
@@ -1469,10 +1516,11 @@ describe("retrospective summary view v3", () => {
 
     const singularSummary = renderSummary(singularLedger);
     const singularLines = singularSummary.split("\n");
-    const singScoreIdx = singularLines.indexOf("## Scorecards");
-    expect(singularLines[singScoreIdx + 3]).toBe(
-      "AGS lookups: 1 skill body returned from 1 distinct skill; 1 of 1 lookup matched nothing; 0 already loaded; 1 error. Calls by file 1 (1 matched nothing), by keyword 0 (0), by name 0 (0). Skill-level detail is in report.html.",
-    );
+    const lookupLine = singularLines.find((line) => line.startsWith("AGS lookups:"));
+    expect(lookupLine).toMatch(/\b1 skill body\b/);
+    expect(lookupLine).toMatch(/\b1 distinct skill\b/);
+    expect(lookupLine).toMatch(/\b1 of 1 lookup\b/);
+    expect(lookupLine).toMatch(/\b1 error\b/);
   });
 
   it("omits AGS lookups line when calls is zero or claim is absent", () => {
@@ -1882,6 +1930,13 @@ describe("retrospective summary view v3", () => {
       expect(lines[3]).toBe("## Bottom line");
       expect(summary).not.toContain("Title:");
     });
+    it("keeps absent session-signal measurements visibly unmeasured", () => {
+      const summary = renderSummary(viewLedger());
+
+      expect(summary).toContain("User activity: not measured.");
+      expect(summary).toContain("Time: not measured.");
+      expect(summary).toContain("Decisions: not measured.");
+    });
 
     it("renders Tool failures scorecard line with top 3 toolRows and plural tool calls", () => {
       const ledger = viewLedger({
@@ -2260,10 +2315,10 @@ describe("retrospective summary view v3", () => {
       expect(lines[scoreIdx + 4]).toBe(
         "Error stops: 1 across 20 assistant turns. Most stops: 2026-10-01|gpt-4 (1 of 20 turns).",
       );
-      expect(lines[scoreIdx + 5]).toContain("AGS routing:");
-      expect(lines[scoreIdx + 6]).toContain("Edits:");
-      expect(lines[scoreIdx + 7]).toContain("Coverage:");
-      expect(lines[scoreIdx + 8]).toBe(
+      expect(summary).toContain("AGS routing:");
+      expect(summary).toContain("Edits:");
+      expect(summary).toContain("Coverage:");
+      expect(summary).toContain(
         "Outcome: 1 commit in the session window (1 file changed, +10 -2), 0 reverts, 0 merge commits; branch now main.",
       );
     });

@@ -1,0 +1,158 @@
+name: Native ingress assets
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  build-linux:
+    name: Linux prebuild (${{ matrix.target }})
+    runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: read
+    container:
+      image: ${{ matrix.image }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: linux-x64-gnu
+            runner: ubuntu-24.04
+            image: quay.io/pypa/manylinux_2_28_x86_64:2026.10.21-1@sha256:b74a5b6f1705ecff17be8bd792589bef9b3b039766d12205720ecd2a9e919192
+          - target: linux-arm64-gnu
+            runner: ubuntu-24.04-arm
+            image: quay.io/pypa/manylinux_2_28_aarch64:2026.10.21-1@sha256:0333f44c4eb759ec8f47b27bc9dc27b1c929932a267cf13ce0cff1a4b758cccb
+    defaults:
+      run:
+        working-directory: mcp
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "20.x"
+      - name: Build and verify native Linux asset
+        env:
+          TARGET: ${{ matrix.target }}
+        run: |
+          NODE_INCLUDE="$(node -e '
+            const fs = require("node:fs");
+            const path = require("node:path");
+            const executable = fs.realpathSync(process.execPath);
+            const include = path.resolve(path.dirname(executable), "..", "include", "node");
+            const header = fs.readFileSync(path.join(include, "node_version.h"), "utf8");
+            const expected = process.versions.node.split(".").map(Number);
+            for (const [macro, index] of [["NODE_MAJOR_VERSION", 0], ["NODE_MINOR_VERSION", 1], ["NODE_PATCH_VERSION", 2]]) {
+              const line = header.split("\n").find((entry) => entry.startsWith("#define " + macro + " "));
+              const actual = line?.trim().split(/\s+/).at(-1);
+              if (!actual || Number(actual) !== expected[index]) throw new Error("Node headers do not match active runtime");
+            }
+            for (const name of ["node_api.h", "js_native_api.h", "js_native_api_types.h"]) {
+              if (!fs.existsSync(path.join(include, name))) throw new Error("Active Node SDK is missing " + name);
+            }
+            console.log(include);
+          ')"
+          node native/secure-ingress/build.mjs --target "$TARGET" --node-include "$NODE_INCLUDE"
+          node native/secure-ingress/verify-assets.mjs --target "$TARGET"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: native-ingress-${{ github.sha }}-${{ github.run_attempt }}-${{ matrix.target }}
+          path: |
+            mcp/prebuilds/${{ matrix.target }}/secure_ingress.node
+            mcp/prebuilds/${{ matrix.target }}/manifest.json
+          if-no-files-found: error
+          retention-days: 1
+
+  build-darwin:
+    name: Darwin prebuild (${{ matrix.target }})
+    runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: darwin-arm64
+            runner: macos-15
+          - target: darwin-x64
+            runner: macos-15-intel
+    defaults:
+      run:
+        working-directory: mcp
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "20.x"
+      - name: Build and verify native Darwin asset
+        env:
+          TARGET: ${{ matrix.target }}
+        run: |
+          NODE_INCLUDE="$(node -e '
+            const fs = require("node:fs");
+            const path = require("node:path");
+            const executable = fs.realpathSync(process.execPath);
+            const include = path.resolve(path.dirname(executable), "..", "include", "node");
+            const header = fs.readFileSync(path.join(include, "node_version.h"), "utf8");
+            const expected = process.versions.node.split(".").map(Number);
+            for (const [macro, index] of [["NODE_MAJOR_VERSION", 0], ["NODE_MINOR_VERSION", 1], ["NODE_PATCH_VERSION", 2]]) {
+              const line = header.split("\n").find((entry) => entry.startsWith("#define " + macro + " "));
+              const actual = line?.trim().split(/\s+/).at(-1);
+              if (!actual || Number(actual) !== expected[index]) throw new Error("Node headers do not match active runtime");
+            }
+            for (const name of ["node_api.h", "js_native_api.h", "js_native_api_types.h"]) {
+              if (!fs.existsSync(path.join(include, name))) throw new Error("Active Node SDK is missing " + name);
+            }
+            console.log(include);
+          ')"
+          node native/secure-ingress/build.mjs --target "$TARGET" --node-include "$NODE_INCLUDE"
+          node native/secure-ingress/verify-assets.mjs --target "$TARGET"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: native-ingress-${{ github.sha }}-${{ github.run_attempt }}-${{ matrix.target }}
+          path: |
+            mcp/prebuilds/${{ matrix.target }}/secure_ingress.node
+            mcp/prebuilds/${{ matrix.target }}/manifest.json
+          if-no-files-found: error
+          retention-days: 1
+
+  assemble:
+    name: Assemble current-run native assets
+    needs: [build-linux, build-darwin]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with:
+          name: native-ingress-${{ github.sha }}-${{ github.run_attempt }}-darwin-arm64
+          path: mcp/prebuilds/darwin-arm64
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with:
+          name: native-ingress-${{ github.sha }}-${{ github.run_attempt }}-darwin-x64
+          path: mcp/prebuilds/darwin-x64
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with:
+          name: native-ingress-${{ github.sha }}-${{ github.run_attempt }}-linux-arm64-gnu
+          path: mcp/prebuilds/linux-arm64-gnu
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with:
+          name: native-ingress-${{ github.sha }}-${{ github.run_attempt }}-linux-x64-gnu
+          path: mcp/prebuilds/linux-x64-gnu
+      - name: Verify the complete four-target package assets
+        working-directory: mcp
+        run: node native/secure-ingress/verify-assets.mjs
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: native-ingress-package-${{ github.sha }}-${{ github.run_attempt }}
+          path: mcp/prebuilds/
+          if-no-files-found: error
+          retention-days: 1

@@ -36,6 +36,7 @@ function createSampleRecord(dir: string): ConsentRecord {
     grantedAt: "2026-11-01T12:00:00.000Z",
     storeRoot: path.resolve(dir, "diagnostics"),
     allowedSourceRoots: [path.resolve(dir, "sessions", "omp")],
+    allowedAgentRecordRoots: [],
     storageRiskAcknowledged: true,
   };
 }
@@ -165,7 +166,7 @@ describe("retrospective readConsent fail-closed behavior", () => {
     });
   });
 
-  it.each(["1", "2", "3"])(
+  it.each(["1", "2", "3", "4"])(
     "returns version for the previous consentTextVersion %s",
     async (version) => {
       const dir = await temporaryDirectory();

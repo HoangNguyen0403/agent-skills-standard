@@ -296,6 +296,12 @@ program
   .option('--since <YYYY-MM-DD>', 'Index sessions since date')
   .option('--until <YYYY-MM-DD>', 'Index sessions until date')
   .option('--folder <name>', 'Index sessions from folder')
+  .option(
+    '--agent-record-root <path>',
+    'Override allowed Paseo agent-record roots (repeatable)',
+    (val: string, prev?: string[]) => (prev ? [...prev, val] : [val]),
+  )
+  .option('--no-agent-records', 'Do not read Paseo agent records')
   .action(
     async (
       action: string,
@@ -303,7 +309,12 @@ program
       options: Record<string, unknown> = {},
     ) => {
       const cmd = new RetrospectiveCommand();
-      await cmd.run(action, options, args);
+      const normalizedOptions = {
+        ...options,
+        noAgentRecords: options.agentRecords === false,
+      };
+      delete normalizedOptions.agentRecords;
+      await cmd.run(action, normalizedOptions, args);
     },
   );
 

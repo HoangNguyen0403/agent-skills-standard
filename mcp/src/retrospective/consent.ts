@@ -14,20 +14,19 @@ import {
 } from "./platform-private";
 
 /**
- * Version 4: the consent text now states that source-root and unsupported-store
- * paths are canonicalized (symlinks resolved, path metadata only) to refuse
- * aliases that would make an unsupported store readable. Version 3 added the
- * presence-only disclosure of unsupported provider stores. Every older record
- * fails closed and must be granted again.
+ * Version 5 adds the separately consented Paseo agent-record roots. Older
+ * records still parse, then fail closed with reason "version".
  */
-export const CONSENT_TEXT_VERSION = "4";
+export const CONSENT_TEXT_VERSION = "5";
 
 export const CONSENT_TEXT = `Retrospective collection runs entirely on your local machine.
 Zero model calls and zero network requests are made.
 All report files are stored with owner-only private permissions on disk.
 Transcripts and session events are read only from the explicitly listed source roots.
 Source root and unsupported-store paths are canonicalized (symlinks resolved) before consent, to refuse aliases that would make an unsupported store readable. This uses path metadata only; the check reads no transcript content.
-Reports include the commands agents asked permission to run, with secrets removed on a best-effort basis. Check them before sharing a report.
+Agent records are read only from the listed agent-record roots. Four fields of each record are kept: agent id, provider, session id and parent agent id. They are used to find which sessions belong to one run.
+Reports include decisions that agents recorded through this server's record_decision tool, with a short agent-written label. Secrets are removed from labels on a best-effort basis.
+Permission-request records include the requested command or title and its verdict. Command and label secret redaction is best-effort; unusual secrets can remain. Permission command text appears only in the ledger and HTML report, not in the summary or tool response.
 Reports also read commit and file counts from git in each session's working folder, which is outside the listed source roots. Commit messages, file names and file contents are not stored.
 You can revoke this consent and remove the record at any time by running:
   ags retrospective disable`;
@@ -38,6 +37,7 @@ export type ConsentRecord = {
   grantedAt: string;
   storeRoot: string;
   allowedSourceRoots: string[];
+  allowedAgentRecordRoots?: string[];
   storageRiskAcknowledged: true;
 };
 
@@ -84,6 +84,10 @@ export const consentRecordSchema = z.strictObject({
     .array(z.string().refine(isAbsolutePath))
     .min(1)
     .refine((roots) => new Set(roots).size === roots.length),
+  allowedAgentRecordRoots: z
+    .array(z.string().refine(isAbsolutePath))
+    .refine((roots) => new Set(roots).size === roots.length)
+    .optional(),
   storageRiskAcknowledged: z.literal(true),
 });
 

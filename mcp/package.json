@@ -30,11 +30,21 @@
   },
   "files": [
     "dist",
+    "native",
+    "prebuilds/darwin-arm64/secure_ingress.node",
+    "prebuilds/darwin-arm64/manifest.json",
+    "prebuilds/darwin-x64/secure_ingress.node",
+    "prebuilds/darwin-x64/manifest.json",
+    "prebuilds/linux-arm64-gnu/secure_ingress.node",
+    "prebuilds/linux-arm64-gnu/manifest.json",
+    "prebuilds/linux-x64-gnu/secure_ingress.node",
+    "prebuilds/linux-x64-gnu/manifest.json",
     "README.md",
     "SESSION_REPORT.md"
   ],
   "scripts": {
     "build": "tsup src/index.ts src/session-journal-cli.ts src/dispatch-usage-cli.ts --format cjs --target node20 --shims --clean && node -e \"require('node:fs').copyFileSync('src/retrospective/windows-private.ps1','dist/windows-private.ps1')\"",
+    "verify:native-assets": "node native/secure-ingress/verify-assets.mjs",
     "dev": "tsx src/index.ts",
     "start": "node dist/index.js",
     "retrospective": "tsx src/index.ts retrospective",

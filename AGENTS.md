@@ -29,6 +29,7 @@ If the `agent-skills-standard` MCP server is registered in your runtime (check y
 | `load_skills_for_files(files=[...])` | Before editing/reviewing any source file |
 | `load_skills_for_keywords(keywords=[...])` | Planning before files are chosen |
 | `get_skill(category, name)` | Direct lookup when you know the skill id |
+| `record_decision` | After choosing an outcome by a named pre-approved rule or permitted default; not for human-selected outcomes or routine tools. See decision-discipline guidance. Recording is not approval. |
 | `audit_session_compliance()` | Before declaring a task complete |
 
 > [!IMPORTANT] **Sub-agents don't inherit this `AGENTS.md` — they do inherit the MCP.** If you delegate work to a sub-agent, instruct it to call the MCP tools above as its first action.

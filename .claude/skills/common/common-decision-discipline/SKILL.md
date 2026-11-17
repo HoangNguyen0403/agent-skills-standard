@@ -14,7 +14,6 @@ metadata:
       - option trade-offs
       - shape a direction
 ---
-
 # Decision Discipline
 
 ## **Priority: P0 (CRITICAL)**
@@ -73,6 +72,10 @@ Trustworthy decisions are sized to the work, grounded in evidence, and approved 
 - After approval, continue through the accepted deliverable; do not ask to continue at each phase boundary.
 - For registry or export publication, verify canonical→host ID-set and resource parity and real consumer discovery. For general publication, review private paths/links and one-way manifests, and separate warnings/skips/NOT RUN from PASS.
 - Publication approval never grants merge, deploy, or runtime-change authority. Gate consequential actions on explicit matching approval and scope.
+
+## Record Decisions
+
+- Record a choice among materially different outcomes when you choose it by applying a named pre-approved rule (`rule`) or by using a default not covered by a rule (`default-pending-review`). Following an outcome explicitly selected by a human or using a routine tool is not a decision. Record only a permitted choice; the record never authorizes action or replaces a required human gate. See [Decision Record](references/decision-record.md) for the rubric and examples.
 
 ## Red Flags
 

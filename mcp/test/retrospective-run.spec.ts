@@ -3,6 +3,7 @@ import fsp from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import * as contracts from "../src/retrospective/contracts";
 import {
   CONSENT_TEXT_VERSION,
   consentFilePath,
@@ -449,11 +450,20 @@ describe("runRetrospective orchestration (Task S4b)", () => {
     const firstLine = summaryContent.split("\n")[0];
     expect(firstLine).toContain("tracker only (no session files read)");
     expect(firstLine).toContain("partial");
-
+    expect(firstLine).toContain("Tree: not measured");
     const ledgerContent = await fsp.readFile(result.viewPaths.ledger, "utf8");
     const parsedLedger = JSON.parse(ledgerContent);
     expect(parsedLedger.evidenceMode).toBe("tracker-only");
-    expect(result.viewPaths.reportHtml).toBeTruthy();
+    expect(parsedLedger.schemaVersion).toBe(2);
+    expect(parsedLedger.treeCoverage).toMatchObject({
+      state: "not-measured",
+      agentsCreated: 0,
+      agentsRead: 0,
+    });
+    expect(parsedLedger.activity).toBeNull();
+    expect(parsedLedger.failureRuns).toBeNull();
+    expect(parsedLedger.time).toBeNull();
+    expect(parsedLedger.decisions).toBeNull();
     expect(result.viewPaths.reportHtml.endsWith(".html")).toBe(true);
     const htmlContent = await fsp.readFile(result.viewPaths.reportHtml, "utf8");
     expect(htmlContent.length).toBeGreaterThan(0);
@@ -737,6 +747,117 @@ describe("runRetrospective orchestration (Task S4b)", () => {
     expect(res.state).toBe("prepared");
     if (res.state !== "prepared") return;
     expect(res.evidenceMode).toBe("native-files");
+  });
+
+  it("keeps a linked host session descriptor-pinned through aggregation", async () => {
+    const fixture = await setupBoundSession(
+      "ags-run-host-pinned-",
+      "main-pinned-host-0001",
+    );
+    const recordRoot = path.join(fixture.root, "agent-records");
+    const bucket = path.join(recordRoot, "bucket");
+    const childSessionId = "hostsession-0001";
+    const rootAgentId = "agentid-root-0001";
+    const childAgentId = "agentid-worker-0001";
+    await fsp.mkdir(bucket, { recursive: true, mode: 0o700 });
+    await writeConsent(
+      {
+        ...fixture.consentRecord,
+        allowedAgentRecordRoots: [recordRoot],
+      },
+      fixture.consentPath,
+    );
+    await fsp.writeFile(
+      path.join(bucket, `${rootAgentId}.json`),
+      JSON.stringify({
+        id: rootAgentId,
+        provider: "omp",
+        persistence: { sessionId: "main-pinned-host-0001" },
+        labels: {},
+      }),
+      { mode: 0o600 },
+    );
+    await fsp.writeFile(
+      path.join(bucket, `${childAgentId}.json`),
+      JSON.stringify({
+        id: childAgentId,
+        provider: "omp",
+        persistence: { sessionId: childSessionId },
+        labels: { "paseo.parent-agent-id": rootAgentId },
+      }),
+      { mode: 0o600 },
+    );
+
+    await fsp.writeFile(
+      path.join(bucket, "agentid-unreadable-0001.json"),
+      "{",
+      { mode: 0o600 },
+    );
+
+    const childFile = path.join(
+      fixture.sessionsDir,
+      `agent_${childSessionId}.jsonl`,
+    );
+    const movedChildFile = `${childFile}.moved`;
+    await fsp.writeFile(
+      childFile,
+      [
+        sessionHeader({ id: childSessionId, cwd: fixture.workspaceDir }),
+        lineJson({
+          type: "message",
+          id: "original-host-session-content",
+          timestamp: new Date().toISOString(),
+          message: { role: "assistant", content: "original" },
+        }),
+      ].join(""),
+      { mode: 0o600 },
+    );
+
+    const result = await runRetrospective(
+      {
+        tracker: fixture.tracker,
+        workspace: fixture.workspaceDir,
+        consentPath: fixture.consentPath,
+        afterSnapshot: async () => {
+          await fsp.rename(childFile, movedChildFile);
+          await fsp.writeFile(
+            childFile,
+            [
+              sessionHeader({ id: childSessionId, cwd: fixture.workspaceDir }),
+              lineJson({
+                type: "message",
+                id: "replacement-host-session-content",
+                timestamp: new Date().toISOString(),
+                message: {
+                  role: "assistant",
+                  stopReason: "error",
+                  content: "replacement",
+                },
+              }),
+            ].join(""),
+            { mode: 0o600 },
+          );
+        },
+      },
+      new AbortController().signal,
+    );
+
+    expect(result.state).toBe("prepared");
+    if (result.state !== "prepared") return;
+    const ledger = JSON.parse(
+      await fsp.readFile(result.viewPaths.ledger, "utf8"),
+    );
+    expect(ledger.treeCoverage.hostAgents).toEqual({
+      created: 1,
+      read: 1,
+      source: "agent-records",
+      truncated: true,
+    });
+    expect(ledger.treeCoverage.state).toBe("partial");
+    expect(result.fullyRead).toBe(2);
+    expect(ledger.counts.errorStops).toBe(0);
+    expect(ledger.inventory.known).toBe(false);
+    expect(ledger.coverage).toBe("partial");
   });
 
   it("aborted signal returns failed ABORTED and writes no generation", async () => {
@@ -1059,6 +1180,48 @@ describe("runRetrospective orchestration (Task S4b)", () => {
     expect(res2.sessions).toBe(res1.sessions);
     expect(res2.fullyRead).toBe(res1.fullyRead);
     expect(res2.coverage).toBe(res1.coverage);
+  });
+
+  it("does not join a generation from pre-diagnostics evidence semantics", async () => {
+    const fixture = await setupBoundSession(
+      "ags-run-semantics-upgrade-",
+      "session-semantics-upgrade",
+    );
+    const deps: RunDeps = {
+      tracker: fixture.tracker,
+      workspace: fixture.workspaceDir,
+      consentPath: fixture.consentPath,
+    };
+    vi.doMock("../src/retrospective/contracts", () => ({
+      ...contracts,
+      EVIDENCE_SEMANTICS_REVISION: "retro-integrity-v4",
+    }));
+    try {
+      vi.resetModules();
+      // Static imports cannot observe mocked revisions across module-load boundaries.
+      const previousRun = (await import("../src/retrospective/run"))
+        .runRetrospective;
+      const previous = await previousRun(deps, new AbortController().signal);
+      expect(previous.state).toBe("prepared");
+      if (previous.state !== "prepared") return;
+
+      vi.doUnmock("../src/retrospective/contracts");
+      vi.resetModules();
+      const currentRun = (await import("../src/retrospective/run"))
+        .runRetrospective;
+      const current = await currentRun(deps, new AbortController().signal);
+      expect(current.state).toBe("prepared");
+      if (current.state !== "prepared") return;
+      expect(current.artifactId).not.toBe(previous.artifactId);
+      const ledger = JSON.parse(
+        await fsp.readFile(current.viewPaths.ledger, "utf8"),
+      );
+      expect(ledger.schemaVersion).toBe(2);
+      expect(ledger.activity).not.toBeNull();
+    } finally {
+      vi.doUnmock("../src/retrospective/contracts");
+      vi.resetModules();
+    }
   });
 
   it("publishes tracker skill usage and keeps the committed numbers on a later call", async () => {

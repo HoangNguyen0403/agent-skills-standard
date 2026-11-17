@@ -265,6 +265,8 @@ const DESTINATION_LABELS: Record<string, string> = {
   "provider-route-monitoring": "provider route monitoring",
   "session-linkage": "session linkage",
   "tracker-binding": "tracker binding",
+  "tool-setup": "tool setup",
+  "decision-review": "decision review",
 };
 
 const DECISION_BY_RULE: Record<string, string> = {
@@ -282,6 +284,10 @@ const DECISION_BY_RULE: Record<string, string> = {
     "Decide: check the provider route before the next run?",
   "lookup-misses":
     "Decide: fix the trigger words and file patterns of the skills these lookups missed?",
+  "failure-run":
+    "Decide: inspect and fix the repeated tool failure source?",
+  "decision-review-backlog":
+    "Decide: who reviews the agent-declared pending decisions before action?",
 };
 
 const UNKNOWN_BY_RULE: Record<string, string> = {
@@ -295,8 +301,9 @@ const UNKNOWN_BY_RULE: Record<string, string> = {
     "whether the repeated safe-category requests were the same command or were avoidable",
   "agent-error-concentration": "the error category behind each stop",
   "lookup-misses": "which file types the empty lookups were for",
+  "failure-run": "whether repeated tool failures share a root cause",
+  "decision-review-backlog": "whether a decision is approved or whether the label is accurate",
 };
-
 export function formatTokensCompact(tokens: number): string {
   if (!Number.isFinite(tokens) || tokens <= 0) return "0";
   if (tokens >= 1_000_000) {
@@ -324,19 +331,19 @@ function countOf(values: Claim["values"] | undefined, key: string): number {
   return typeof value === "number" && !Number.isNaN(value) ? value : 0;
 }
 
-function renderDelegationSegment(
-  ledger: Ledger,
-  coverageClaim: Claim | undefined,
-): string {
-  if (ledger.evidenceMode === "tracker-only") return "n/a";
-  const agentsCreated = coverageClaim
-    ? countOf(coverageClaim.values, "agentsCreated")
-    : ledger.counts.agentsCreated;
-  if (agentsCreated === 0) return "none created";
-  const agentsRead = coverageClaim
-    ? countOf(coverageClaim.values, "agentsRead")
-    : 0;
-  return `${agentsRead} of ${plural(agentsCreated, "created agent")} read`;
+function renderDelegationSegment(ledger: Ledger): string {
+  const treeCoverage = ledger.treeCoverage;
+  if (treeCoverage.state === "not-measured") return "tree not measured";
+  const taskProvenance =
+    "task counts are observed task-call attempts (not guaranteed successful)";
+  const hostProvenance =
+    treeCoverage.hostAgents.source === "agent-records"
+      ? "host counts are observed descendant agent records"
+      : "host counts are observed create_agent call attempts (not guaranteed successful)";
+  return `${treeCoverage.state} (${treeCoverage.agentsRead} of ${plural(
+    treeCoverage.agentsCreated,
+    "counted agent item",
+  )} read; ${taskProvenance}; ${hostProvenance})`;
 }
 
 function renderCoverageWarningHtml(ledger: ViewLedger): string {
@@ -513,7 +520,7 @@ function renderHeader(
   metaParts.push(`Coverage: ${escapeHtml(ledger.coverage)}`);
   metaParts.push(`Evidence: ${escapeHtml(evidenceStr)}`);
   metaParts.push(
-    `Delegation: ${escapeHtml(renderDelegationSegment(ledger, coverageClaim))}`,
+    `Tree: ${escapeHtml(renderDelegationSegment(ledger))}`,
   );
   metaParts.push(`Cutoff: ${escapeHtml(ledger.cutoff)}`);
 
@@ -795,6 +802,22 @@ function renderManagerImprovementCard(imp: LedgerImprovement): string {
       valueStr = `${agentsCount}`;
       break;
     }
+    case "failure-run": {
+      title = `${val.runs ?? 0} same-tool failure runs; longest ${val.longest ?? 0}`;
+      saw = `the longest consecutive error-result streak was ${val.longest ?? 0} for ${val.tool ?? "an unknown tool"}.`;
+      change = "inspect the tool setup and error category before changing routing";
+      metric = "longest same-tool error run";
+      valueStr = `${val.longest ?? 0}`;
+      break;
+    }
+    case "decision-review-backlog": {
+      title = `${val.defaultPendingReview ?? 0} agent-declared decisions pending review`;
+      saw = `${val.highImpactDefaultPendingReview ?? 0} were marked high impact. These records do not establish authorization.`;
+      change = "review the declared defaults before taking consequential action";
+      metric = "high-impact pending decisions";
+      valueStr = `${val.highImpactDefaultPendingReview ?? 0}`;
+      break;
+    }
     default:
       return "";
   }
@@ -1059,6 +1082,121 @@ function renderPermissionRequests(
       label: "Permissions",
       badge,
       alert: denied > 0 || unanswered > 0,
+    },
+  };
+}
+
+function renderSessionSignals(ledger: Ledger): RenderedSection | null {
+  const sections: string[] = [];
+  if (ledger.activity !== null) {
+    const activity = ledger.activity;
+    const attribution = activity.userRows.byAttribution.length > 0
+      ? `<ul>${activity.userRows.byAttribution.map((entry) => `<li>${escapeHtml(entry.key)}: ${entry.count}</li>`).join("")}</ul>`
+      : "<p>No attribution keys recorded.</p>";
+    const stops = activity.stopReasons.length > 0
+      ? `<ul>${activity.stopReasons.map((entry) => `<li>${escapeHtml(entry.reason)}: ${entry.count}</li>`).join("")}</ul>`
+      : "<p>No stop reasons recorded.</p>";
+    const activityRate =
+      activity.userRowsPer100TurnsTenths === null
+        ? "not measured"
+        : `${formatRate(activity.userRowsPer100TurnsTenths)} per 100 main turns`;
+    sections.push(
+      `<h4>Main-session user rows</h4><p>${activity.userRows.total} total; ${activity.userRows.steering} steering; ${activity.userRows.permissionNotifications} permission notifications. ${activityRate}.</p>${attribution}<h4>Tree stop reasons</h4>${stops}`,
+    );
+  } else {
+    sections.push("<h4>Main-session user rows</h4><p>Not measured.</p>");
+  }
+  if (ledger.failureRuns !== null) {
+    const rows = ledger.failureRuns.tools.map(
+      (entry) => `<tr><td>${escapeHtml(entry.tool)}</td><td>${entry.runs}</td><td>${entry.longest}</td></tr>`,
+    ).join("");
+    const truncationNote = ledger.failureRuns.truncated
+      ? " Partial measurement: counts are observed lower bounds."
+      : "";
+    sections.push(
+      `<h4>Consecutive same-tool failures</h4><p>Runs require at least ${ledger.failureRuns.minLength} consecutive error results. ${ledger.failureRuns.runs} runs total; longest ${ledger.failureRuns.longest === null ? "none" : `${ledger.failureRuns.longest.length} for ${escapeHtml(ledger.failureRuns.longest.tool)} (${escapeHtml(ledger.failureRuns.longest.agent)})`}.${truncationNote}</p><div class="table-wrap"><table><thead><tr><th>Tool</th><th>Runs</th><th>Longest</th></tr></thead><tbody>${rows}</tbody></table></div>`,
+    );
+  }
+  if (ledger.time !== null) {
+    const time = ledger.time;
+    const wall = time.wallSeconds === null ? "not measured" : `${time.wallSeconds}s`;
+    const latency = time.permissionLatency === null
+      ? "Not measured: no valid matched request/response pairs."
+      : `${time.permissionLatency.timed} matched pairs; median ${time.permissionLatency.medianSeconds}s; max ${time.permissionLatency.maxSeconds}s.`;
+    const mainTime = time.main === null
+      ? "Main-session idle timing: not measured."
+      : `Main-session idle gaps of at least ${time.main.idleGapMinSeconds}s: ${time.main.idleGaps}, ${time.main.idleSeconds}s total, longest ${time.main.longestGapSeconds}s.`;
+    sections.push(
+      `<h4>Time and waits</h4><p>${wall} wall time. ${mainTime} Permission response latency: ${latency}</p>`,
+    );
+  } else {
+    sections.push("<h4>Time and waits</h4><p>Not measured.</p>");
+  }
+  if (sections.length === 0) return null;
+  return {
+    html: wrapCollapsed(
+      "<h3>Session signals</h3>",
+      "activity, failures, and timing",
+      sections.join("\\n"),
+      { id: "sec-signals", open: false },
+    ),
+    nav: { id: "sec-signals", label: "Session signals" },
+  };
+}
+
+function renderDecisionRecords(ledger: Ledger): RenderedSection | null {
+  const decisions = ledger.decisions;
+  if (decisions === null) {
+    return {
+      html: wrapCollapsed(
+        "<h3>Decision records</h3>",
+        "not measured",
+        "<p>Decision recording was not measured for this session.</p>",
+        { id: "sec-decisions", open: false },
+      ),
+      nav: {
+        id: "sec-decisions",
+        label: "Decisions",
+        badge: "not measured",
+        alert: false,
+      },
+    };
+  }
+  const impacts = ["high", "medium", "low"] as const;
+  const rows = impacts.map((impact) => {
+    const count = decisions.byImpact[impact];
+    return `<tr><td>${impact}</td><td>${count.rule}</td><td>${count.defaultPendingReview}</td></tr>`;
+  }).join("");
+  const refs = decisions.ruleRefs
+    .map((entry) => `<tr><td>${escapeHtml(entry.ref)}</td><td>${entry.count}</td></tr>`)
+    .join("");
+  const impactRank = { high: 0, medium: 1, low: 2 } as const;
+  const pendingItems = [...decisions.items]
+    .filter((item) => item.basis === "default-pending-review")
+    .sort(
+      (a, b) =>
+        impactRank[a.impact] - impactRank[b.impact] || a.at.localeCompare(b.at),
+    )
+    .slice(0, 50)
+    .map((item) => `<li><strong>${escapeHtml(item.impact)}</strong>, ${escapeHtml(item.agent)}, ${escapeHtml(item.at)}: ${escapeHtml(item.label)}</li>`)
+    .join("");
+  const highPending = decisions.byImpact.high.defaultPendingReview;
+  const body = `<p>Agent-declared and unverified records. The tool does not approve actions or prove authorization. ${decisions.total} recorded; ${decisions.irreversible} marked irreversible; ${decisions.rejected} rejected; ${decisions.unconfirmed} unconfirmed.</p>
+<h4>Basis by impact</h4><div class="table-wrap"><table><thead><tr><th>Impact</th><th>Named rule</th><th>Pending-review default</th></tr></thead><tbody>${rows}</tbody></table></div>
+<h4>Named rules</h4>${refs.length > 0 ? `<div class="table-wrap"><table><thead><tr><th>Rule reference</th><th>Count</th></tr></thead><tbody>${refs}</tbody></table></div>` : "<p>No named-rule decisions.</p>"}
+<h4>Pending-review defaults (first 50)</h4>${pendingItems.length > 0 ? `<ol>${pendingItems}</ol>` : "<p>None recorded; unrecorded decisions are not counted.</p>"}<p>${decisions.itemsOmitted} decision items omitted by storage cap.</p>`;
+  return {
+    html: wrapCollapsed(
+      "<h3>Decision records</h3>",
+      `${decisions.total} agent-declared, unverified`,
+      body,
+      { id: "sec-decisions", open: highPending > 0 },
+    ),
+    nav: {
+      id: "sec-decisions",
+      label: "Decisions",
+      badge: String(decisions.total),
+      alert: highPending > 0,
     },
   };
 }
@@ -1702,6 +1840,7 @@ function renderAgentsTable(
 <th>Kind</th>
 <th>Model</th>
 <th>Turns</th>
+<th>Active span</th>
 <th>Cost</th>
 <th>Cached/turn</th>
 <th>Compactions</th>
@@ -1714,11 +1853,13 @@ function renderAgentsTable(
   const displayed = agents.slice(0, 12);
   for (const a of displayed) {
     const trClass = a.label === "main" ? ' class="main"' : "";
-    body += `<tr${trClass}><td>${escapeHtml(a.label)}</td><td>${escapeHtml(a.kind)}</td><td>${escapeHtml(a.model)}</td><td>${a.turns}</td><td>${escapeHtml(formatMoney(a.costCents))}</td><td>${escapeHtml(formatTokensK(a.cacheReadPerTurn))}</td><td>${a.compactions}</td><td>${a.toolErrors}/${a.toolCalls}</td><td>${a.permissionAnswers}</td></tr>\n`;
+    const activeSpan =
+      a.activeSeconds === null ? "n/a" : `${a.activeSeconds}s`;
+    body += `<tr${trClass}><td>${escapeHtml(a.label)}</td><td>${escapeHtml(a.kind)}</td><td>${escapeHtml(a.model)}</td><td>${a.turns}</td><td>${escapeHtml(activeSpan)}</td><td>${escapeHtml(formatMoney(a.costCents))}</td><td>${escapeHtml(formatTokensK(a.cacheReadPerTurn))}</td><td>${a.compactions}</td><td>${a.toolErrors}/${a.toolCalls}</td><td>${a.permissionAnswers}</td></tr>\n`;
   }
 
   if (otherAgents && otherAgents.count > 0) {
-    body += `<tr><td>${otherAgents.count} more agents</td><td>-</td><td>-</td><td>${otherAgents.turns}</td><td>${escapeHtml(formatMoney(otherAgents.costCents))}</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>\n`;
+    body += `<tr><td>${otherAgents.count} more agents</td><td>-</td><td>-</td><td>${otherAgents.turns}</td><td>-</td><td>${escapeHtml(formatMoney(otherAgents.costCents))}</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>\n`;
   }
 
   body += `</tbody>
@@ -1909,6 +2050,8 @@ export function renderReportHtml(
       hasAct("guardrail-answers"),
     ),
     renderPermissionFriction(friction),
+    renderSessionSignals(ledger),
+    renderDecisionRecords(ledger),
     renderOutcome(vLedger.outcome),
     renderTimeline(vLedger.days),
     renderCostAndModels(

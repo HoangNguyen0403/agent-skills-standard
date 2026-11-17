@@ -6,6 +6,7 @@ import { buildServer } from "../src/server";
 import {
   auditSessionCompliance,
   getSessionCost,
+  automaticRetrospectiveText,
   prepareRetrospective,
   prepareRetrospectiveSchema,
   prepareRetrospectiveIndex,
@@ -14,6 +15,8 @@ import {
   getRetrospectiveStatus,
   retrospectiveNudge,
   DISABLED_RETROSPECTIVE_TEXT,
+  RECORD_DECISION_DESCRIPTION,
+  recordDecisionSchema,
   RETROSPECTIVE_NUDGE_TEXT,
   type ToolContext,
 } from "../src/tools";
@@ -668,6 +671,80 @@ describe("retrospective MCP tools and nudge", () => {
     expect(failedRes.content[0].text).not.toContain(sentinel);
   });
 
+  it("surfaces only fixed native loader diagnostics for retrospective failures", async () => {
+    const root = await temporaryDirectory();
+    const ctx: ToolContext = {
+      projectRoot: root,
+      index: new SkillIndex(root, null, { kind: "ready" }),
+      tracker: new SessionTracker(),
+      setup: { kind: "ready" },
+      policy: loadPolicyView(root),
+      transport: "stdio",
+      consentPath: path.join(root, "consent.json"),
+    };
+    const privateSentinel = "/private/native-ingress-secret";
+    const unsafeCode = `NATIVE_FILESYSTEM_ERROR:${privateSentinel}:Error: ${privateSentinel}`;
+    const cases = [
+      {
+        code: "NATIVE_UNSUPPORTED_TARGET",
+        manualText:
+          "Retrospective preparation failed: native ingress is unsupported on this runtime target (NATIVE_UNSUPPORTED_TARGET).",
+        automaticText:
+          "Automatic retrospective preparation failed: native ingress is unsupported on this runtime target (NATIVE_UNSUPPORTED_TARGET); no retrospective was published.",
+      },
+      {
+        code: "NATIVE_ARTIFACT_MISSING",
+        manualText:
+          "Retrospective preparation failed: native ingress artifact is missing (NATIVE_ARTIFACT_MISSING).",
+        automaticText:
+          "Automatic retrospective preparation failed: native ingress artifact is missing (NATIVE_ARTIFACT_MISSING); no retrospective was published.",
+      },
+      {
+        code: "NATIVE_LOAD_FAILED",
+        manualText:
+          "Retrospective preparation failed: native ingress could not be loaded (NATIVE_LOAD_FAILED).",
+        automaticText:
+          "Automatic retrospective preparation failed: native ingress could not be loaded (NATIVE_LOAD_FAILED); no retrospective was published.",
+      },
+      {
+        code: unsafeCode,
+        manualText: "Retrospective preparation failed.",
+        automaticText:
+          "Automatic retrospective preparation failed: no retrospective was published.",
+      },
+    ];
+    const runSpy = vi.spyOn(runModule, "runRetrospective");
+
+    for (const failure of cases) {
+      runSpy.mockResolvedValue({
+        resultVersion: 1,
+        state: "failed",
+        code: failure.code,
+      });
+
+      const manualResult = await prepareRetrospective(ctx);
+      expect(manualResult.isError).toBe(true);
+      expect(manualResult.content[0].text).toBe(failure.manualText);
+
+      const automaticText = await automaticRetrospectiveText(
+        {
+          workflow: "implement-feature",
+          outcome: "implemented",
+          completion: { role: "unassigned", activeTasks: 0, pendingTasks: 0 },
+        },
+        ctx,
+      );
+      expect(automaticText).toContain(failure.automaticText);
+      expect(automaticText).not.toContain(privateSentinel);
+      if (failure.code === unsafeCode) {
+        expect(manualResult.content[0].text).not.toContain(unsafeCode);
+        expect(automaticText).not.toContain(unsafeCode);
+      }
+    }
+
+    runSpy.mockRestore();
+  });
+
   it("consent revoked between nudge and call returns disabled text and writes nothing to store", async () => {
     const root = await temporaryDirectory();
     const projectRoot = path.join(root, "workspace");
@@ -873,6 +950,55 @@ describe("retrospective MCP tools and nudge", () => {
       "Pass `title` = one line saying what this session was for; it is shown as agent-supplied and unverified",
     );
   });
+  it("registers the agent-declared decision tool on stdio with strict input and fixed results", async () => {
+    const server = await buildServer(
+      {
+        projectRoot: "/tmp/project",
+        skillsDir: null,
+        setup: { kind: "ready" },
+      },
+      { transport: "stdio" },
+    );
+    interface RegisteredDecisionTool {
+      description: string;
+      inputSchema: unknown;
+      handler: (args: Record<string, unknown>) => Promise<{
+        content: Array<{ text: string }>;
+        isError?: boolean;
+      }>;
+    }
+    interface ServerWithDecision {
+      _registeredTools: Record<string, RegisteredDecisionTool>;
+    }
+    const tool = (server as unknown as ServerWithDecision)._registeredTools[
+      "record_decision"
+    ];
+    expect(tool).toBeDefined();
+    expect(tool.description).toBe(RECORD_DECISION_DESCRIPTION);
+    expect(tool.inputSchema).toBe(recordDecisionSchema);
+    expect(tool.description).toContain("not approval or proof");
+
+    const valid = await tool.handler({
+      basis: "default-pending-review",
+      impact: "high",
+      reversible: false,
+      label: "Defer the irreversible choice",
+    });
+    expect(valid.isError).toBeUndefined();
+    expect(valid.content[0].text).toBe("Decision recorded.");
+
+    const invalid = await tool.handler({
+      basis: "rule",
+      impact: "high",
+      reversible: false,
+      label: "Use a named rule",
+      extra: "rejected",
+    });
+    expect(invalid.isError).toBe(true);
+    expect(invalid.content[0].text).toContain("Invalid decision fields");
+    expect(invalid.content[0].text).not.toContain("rejected");
+  });
+
 
   it("retrospective nudge text contains the title instruction", () => {
     expect(RETROSPECTIVE_NUDGE_TEXT).toContain(
