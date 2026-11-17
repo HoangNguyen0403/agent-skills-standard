@@ -37,7 +37,8 @@ Review code diffs for missing tests, weak assertions, untested edge cases, and b
    - **Vacuous state & seed echoes:** BLoC `expect: () => [isA<BaseState>()]` without property predicates, or asserting only unmutated seed fields.
    - **Swallowed errors in Go (`GUARD-GO-SWALLOWED-ERR`):** Bare `if err != nil { return }` in tests instead of `t.Fatalf` or `require.NoError`.
    - **Static query/key pinning (`GUARD-TS-STATIC-PINNING`):** Tests asserting static `print(GQL)` query text regexes or iterating locale JSON keys instead of runtime behavior.
-   - **TS async & mock traps:** Unawaited floating promises (`GUARD-TS-FLOATING-ASSERT`), catch-only assertions (`GUARD-TS-CATCH-ONLY`), and test double self-mocking (`GUARD-TS-SELF-MOCK`).
+   - **Skipped & focused tests (`GUARD-UNIV-SKIP`, `GUARD-UNIV-FOCUS`):** Flag committed `it.skip`, `it.only`, `fit`, `fdescribe`, `@Ignore`, or unconditional `t.Skip`.
+   - **TS async, conditional & mock traps:** Unawaited floating promises (`GUARD-TS-FLOATING-ASSERT`), catch-only assertions (`GUARD-TS-CATCH-ONLY`), unverified conditional assertions (`GUARD-TS-CONDITIONAL-ASSERT`), and test double self-mocking (`GUARD-TS-SELF-MOCK`).
 5. Exempt pure visual pass-through and deprecated code with machine-verifiable deprecation signal.
 6. Suggest concrete test case names and layer, not full unverified code.
 ## Output

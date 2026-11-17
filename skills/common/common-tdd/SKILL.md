@@ -56,13 +56,12 @@ Create one Test Intent Record per behavior/risk (see `references/quality-contrac
 5. **Human Acceptance:** Explicit sign-off by human partner or authorized operator. Required for milestones/releases; agents cannot provide it.
 Later edits invalidate affected proof only; rerun affected gates without weakening checks. Inapplicable layers recorded `NOT APPLICABLE`.
 
-## Execution safety & Anti-Patterns
+## Execution Safety, Red Flags & Rationalizations
 
 - Honor project timeouts; fallback 120s to bound a focused command. On timeout, terminate only agent-owned process group and verify child cleanup.
 - Never watch, blanket-kill, or retry unchanged failure. Record new hypothesis first.
-- Risk-sensitive fault evidence: focus on plausible regressions in critical paths; use repository-configured coverage thresholds when they exist, or report risk gaps; never add padding tests for coverage percentages or blanket mutation scores.
-- Stop on: `add tests after`, `too small`, `passed first run`, `run the full suite again`, `mock every collaborator`, or `implementation is the oracle`. Urgency, manual testing, test count, or coverage target never bypasses intent record, expected RED, bounded command, or fault proof.
-
+- Risk-sensitive fault evidence: focus on plausible regressions in critical paths; keep only cases detecting a distinct fault or contract rule; use repository-configured coverage thresholds when they exist, or report risk gaps; never add padding tests for coverage percentages or blanket mutation scores.
+- Red flags and rationalizations to reject: `add tests after`, `too small`, `passed first run`, `run the full suite again`, `mock every collaborator`, or `implementation is the oracle`. Urgency, manual testing, test count, or coverage target never bypasses intent record, expected RED, bounded command, or fault proof.
 ## Core Rules & Banned Smells
 
 - Verify one logical contract per test; multiple assertions allowed for related aspects/side effects. Keep test names behavior-focused, without ticket IDs or TODO/FIXME markers.
