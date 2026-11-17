@@ -9,6 +9,7 @@ import {
   rollUp,
   type AggregateLimits,
   type AggregatedSession,
+  type SourceLocation,
   type SourceSnapshot,
 } from "./aggregate";
 import { readConsent, type ConsentRecord } from "./consent";
@@ -38,10 +39,15 @@ import { readGitOutcome } from "./outcome";
 import { loadPreviousReports, type SessionRates } from "./trend";
 import { prepareV2 } from "./prepare";
 import { RetrospectiveError } from "./errors";
+import type { ReadSource } from "./read-source";
 import { resolveArtifact, StoreError } from "./store";
 import { renderSummary } from "./views/summary";
 import { renderReportHtml } from "./views/report-html";
 import type { SessionTracker } from "../services/SessionTracker";
+import {
+  storedLedgerV2FieldsSchema,
+  type TreeCoverage,
+} from "./ledger-v2";
 
 export type RunDeps = {
   tracker: SessionTracker;
@@ -473,7 +479,7 @@ const storedLookupsSchema = z
   })
   .nullable();
 
-const storedLedgerSchema = z.strictObject({
+const storedLedgerV1Schema = z.strictObject({
   schemaVersion: z.literal(1),
   cutoff: z.string().min(1),
   session: z.string().min(1).nullable(),
@@ -514,6 +520,59 @@ const storedLedgerSchema = z.strictObject({
     }),
   ),
 });
+
+const storedLedgerV2Schema = storedLedgerV1Schema
+  .omit({
+    schemaVersion: true,
+    agents: true,
+    claims: true,
+    improvements: true,
+  })
+  .extend({
+    schemaVersion: z.literal(2),
+    agents: z.array(
+      storedAgentSchema.extend({
+        activeSeconds: z.number().nonnegative().nullable(),
+      }),
+    ),
+    claims: z
+      .array(
+        storedClaimSchema.extend({
+          template: z.enum([
+            ...storedClaimSchema.shape.template.options,
+            "turn-activity",
+            "failure-runs",
+            "decisions",
+          ]),
+        }),
+      )
+      .min(1),
+    improvements: z.array(
+      storedImprovementSchema.extend({
+        rule: z.enum([
+          ...storedImprovementSchema.shape.rule.options,
+          "failure-run",
+          "decision-review-backlog",
+        ]),
+        destination: z.enum([
+          "permission-setup",
+          "orchestration-config",
+          "agent-routing",
+          "provider-route-monitoring",
+          "session-linkage",
+          "tracker-binding",
+          "tool-setup",
+          "decision-review",
+        ]),
+      }),
+    ),
+    ...storedLedgerV2FieldsSchema.shape,
+  });
+
+const storedLedgerSchema = z.union([
+  storedLedgerV1Schema,
+  storedLedgerV2Schema,
+]);
 
 type CommittedLedgerSummary = {
   coverage: "complete" | "partial";
@@ -654,20 +713,26 @@ async function consentStillValid(
   const again = await readConsent(consentPath);
   if (again.state !== "enabled") return false;
   const next = again.record;
+  const originalAgentRoots = original.allowedAgentRecordRoots ?? [];
+  const nextAgentRoots = next.allowedAgentRecordRoots ?? [];
   if (
     next.grantedAt !== original.grantedAt ||
     next.storeRoot !== original.storeRoot ||
-    next.allowedSourceRoots.length !== original.allowedSourceRoots.length
+    next.allowedSourceRoots.length !== original.allowedSourceRoots.length ||
+    nextAgentRoots.length !== originalAgentRoots.length
   ) {
     return false;
   }
-  return next.allowedSourceRoots.every(
-    (root, index) => root === original.allowedSourceRoots[index],
+  return (
+    next.allowedSourceRoots.every(
+      (root, index) => root === original.allowedSourceRoots[index],
+    ) &&
+    nextAgentRoots.every((root, index) => root === originalAgentRoots[index])
   );
 }
 
 async function captureSnapshots(
-  nodeFiles: Array<{ node: NodeKey; absolutePath: string }>,
+  nodeFiles: Array<{ node: NodeKey } & SourceLocation>,
   maxBytes: number,
   signal: AbortSignal,
 ): Promise<SourceSnapshot[]> {
@@ -1119,6 +1184,7 @@ export async function runRetrospective(
   deps: RunDeps,
   signal: AbortSignal,
 ): Promise<RunResult> {
+  const sourceHandles = new Set<ReadSource>();
   try {
     // 1. Consent
     signal.throwIfAborted();
@@ -1155,6 +1221,7 @@ export async function runRetrospective(
       effectivePlatform,
       deps.discoveryLimits,
       signal,
+      sourceHandles,
     );
 
     signal.throwIfAborted();
@@ -1274,15 +1341,69 @@ export async function runRetrospective(
     const omittedChildFiles =
       discovery.childSessions.length - childSessions.length;
     const unlinkedAgents = discovery.unlinkedAgents + omittedChildFiles;
+    const taskAgentsRead = Math.min(
+      discovery.taskAgentsReadCount,
+      childSessions.length,
+    );
+    const hostAgentsRead = childSessions.length - taskAgentsRead;
+    const treeCoverage: Pick<TreeCoverage, "task" | "hostAgents"> = {
+      task: {
+        created: discovery.taskAgentsCreatedCount,
+        read: taskAgentsRead,
+      },
+      hostAgents: {
+        created: discovery.hostAgentsCreatedCount,
+        read: hostAgentsRead,
+        source: discovery.hostAgentsSource,
+        truncated:
+          discovery.hostAgentsTruncated ||
+          hostAgentsRead < discovery.hostAgentsReadCount,
+      },
+    };
 
-    // 1) Capture snapshot for all nodes
-    const nodeFiles: Array<{ node: NodeKey; absolutePath: string }> = [
-      { node: mainNode.key, absolutePath: discovery.mainFile },
+    // Node identity comes from discovery's validated manifest, not the
+    // filename: host agent session files may carry opaque worker labels.
+    const mainPath = path.resolve(discovery.mainFile);
+    const mainHandle = discovery.sourceHandles.get(mainPath);
+    if (!mainHandle) {
+      throw new RetrospectiveError(
+        "NATIVE_SOURCE_UNAVAILABLE",
+        "Discovered main source handle is missing",
+      );
+    }
+    const nodeFiles: Array<{
+      node: NodeKey;
+      handle: ReadSource;
+      expectedSessionId: string;
+    }> = [
+      {
+        node: mainNode.key,
+        handle: mainHandle,
+        expectedSessionId: mainNode.key.sessionId,
+      },
     ];
     for (const child of childSessions) {
+      const resolvedPath = path.resolve(child.absolutePath);
+      const childNode = discovery.manifest.nodes.find(
+        (node) => node.source?.absolutePath === resolvedPath,
+      );
+      if (!childNode) {
+        throw new RetrospectiveError(
+          "NATIVE_SOURCE_UNAVAILABLE",
+          "Discovered child manifest node is missing",
+        );
+      }
+      const handle = discovery.sourceHandles.get(resolvedPath);
+      if (!handle) {
+        throw new RetrospectiveError(
+          "NATIVE_SOURCE_UNAVAILABLE",
+          "Discovered child source handle is missing",
+        );
+      }
       nodeFiles.push({
-        node: { hostId: "local", sessionId: child.sessionId },
-        absolutePath: child.absolutePath,
+        node: childNode.key,
+        handle,
+        expectedSessionId: childNode.key.sessionId,
       });
     }
 
@@ -1313,8 +1434,14 @@ export async function runRetrospective(
       const remainingMillis = Math.max(0, deadline - Date.now());
       const nf = nodeFiles[i];
       const snap = snapshots[i];
+      const source = {
+        node: nf.node,
+        format: "omp" as const,
+        handle: nf.handle,
+        expectedSessionId: nf.expectedSessionId,
+      };
       const agg = await aggregateSession(
-        { node: nf.node, format: "omp", absolutePath: nf.absolutePath },
+        source,
         snap,
         {
           maxBytes: effectiveLimits.maxBytes,
@@ -1399,11 +1526,12 @@ export async function runRetrospective(
       mainSessionId: mainKey.sessionId,
       cutoff: discovery.manifest.cutoff,
       evidenceMode: "native-files",
-      rootVerification: "unverified-root",
       unlinkedAgents,
-      agentsCreated: discovery.childSessions.length + discovery.unlinkedAgents,
+      agentsCreated: discovery.createdAgentsCount,
       sessionsLinked: childSessions.length + 1,
+      treeCoverage,
       skillUsage,
+      rootVerification: "unverified-root",
       trackerSince: skillUsage !== null ? skillUsageSnapshot.since : null,
       label: sanitizeLabel(deps.title),
       outcome,
@@ -1488,5 +1616,12 @@ export async function runRetrospective(
       };
     }
     return { resultVersion: 1, state: "failed", code: "INTERNAL_ERROR" };
+  } finally {
+    await Promise.all(
+      [...sourceHandles].map((handle) =>
+        handle.close().catch(() => undefined),
+      ),
+    );
+    sourceHandles.clear();
   }
 }

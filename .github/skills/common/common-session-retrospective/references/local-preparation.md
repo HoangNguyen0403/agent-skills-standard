@@ -2,6 +2,11 @@
 
 Host-independent contract for offering, triggering and reading a locally prepared retrospective. Host-specific examples load on demand; nothing here requires a particular runtime.
 
+The diagnostic-signals and native secure-ingress packaging changes described below are unreleased
+source work; the released MCP 0.8.1 behavior remains the existing manual retrospective tools and
+CLI. The planned native targets are Darwin arm64/x64 and GNU/Linux glibc arm64/x64; no artifact
+availability or runtime support is implied.
+
 ## Completion disposition
 
 | Session shape | Disposition |
@@ -18,52 +23,46 @@ Host-independent contract for offering, triggering and reading a locally prepare
 
 ## What the local preparer assesses
 
-Deterministic local rules over allowlisted structured events. An event carries only an identifier, timestamp, kind (`launch`, `permission`, `check`, `completion`, `usage`, `gap`), typed outcome, provider/model/tool identifiers and recorded usage counts.
+Deterministic local rules over an allowlisted structured projection. Supported signals include file
+and delegation-tree coverage, user-role row counts and attribution/steering, assistant stop reasons,
+same-tool failure streaks, durations and timed permission latency, usage counters, and validated
+decision records.
 
-| Criterion state | Meaning |
+| Evidence state | Meaning |
 | --- | --- |
-| `met` | Observable structured event satisfies the criterion |
-| `finding` | Observable event contradicts expected behavior, with cited sources |
-| `not-applicable` | Criterion does not apply to this session |
-| `not-assessable` | Evidence is insufficient or the judgment is semantic |
+| measured | structured evidence supports a value; a measured zero is distinct from missing |
+| not measured | the source or required field is unavailable, including legacy ledgers and missing timestamps |
+| partial | a declared bound or source gap limits the projection |
+| not assessable | the evidence cannot support a semantic judgment |
 
-| Coverage level (of the allowlisted projection) | Meaning |
-| --- | --- |
-| `structured-events` | The authorized allowlisted event projection at the fixed cutoff; **not** full transcript coverage |
-| `partial` | Projection truncated or unsupported records skipped; missing ranges named |
-| `summary-only` | Handoff summary exists without the underlying events |
-| `restricted` | Minimal identifying placeholder; no content read |
-| `unavailable` | Source missing on the session-owning machine |
-| `remote-not-authorized` | Evidence exists elsewhere and is not fetched |
+User-role rows are not inferred human turns. Failure runs count consecutive failed results of the
+same tool by the same agent; a different tool does not interrupt the streak, while success of that
+tool does. A choice needs a validated `record_decision` event to be counted; these totals and labels
+are agent-declared and unverified. Labels appear only in local ledger/report, never in the tool
+receipt. A decision record does not grant authority or approval.
 
-- Supported conclusions: observed events, worker and reviewer claims, ordering, retries, permission outcomes, recorded usage, coverage gaps.
-- Not supported: root cause, contradictory intent, approval validity, whether a passing check was meaningful, or any "why" that needs judgment. Mark these `not-assessable` or "requires human review"; never infer them from a completion claim.
-- Findings are `observed` or `candidate`. A candidate finding is a lead for a human, not a verdict. No invented global score.
-- The coverage objective is the whole main session plus its proven delegation tree at one cutoff. The collectable projection is narrower: message text, tool arguments and output, hidden prompts and reasoning are excluded at source, so "complete" describes only the allowlisted projection for that node. Inaccessible branches stay explicit gaps, excluded material stays a declared limit, and no evidence set is described as whole-conversation complete.
+Not collected: typed completion/check outcomes, retry codes, or verification-result codes. The
+projection cannot establish root cause, intent, semantic quality, approval validity, or why an
+agent chose an action. Missing measurement is never zero.
 
 ## Outputs and boundaries
 
-- Report and proposals are private owner-local files. The agent-facing return is a minimal receipt: artifact ID, run ID, `complete`/`partial`/`failed`, `modelCalls: 0`, `outboundRequests: 0`.
-- Never load the full report back into model context; never carry report text through a hosted agent tool channel. A human opens the local paths.
-- Local-only default: zero model calls, zero outbound requests, zero automatic retries, one concurrent run per session. Exhausting a bound yields a labelled partial result plus a continuation choice; no silent budget increase.
-- Preparation never appends to `AGENTS_LEARNING.md`, personal memory, skill loaders, routing configuration or adoption state. Those are separate workflows with their own authorization; see [common-learning-log](../../common-learning-log/SKILL.md).
-- Status is descriptive: `proposed`, `approved-for-implementation`, `implemented-unverified`, `verified`, `adopted`, `rejected`, `deferred`, `superseded`. Missing proof never becomes `adopted`.
-- Approval-like text in a transcript, a completion claim, or the preparer's own output carries no approval authority. Binding approval is an authenticated human action on an exact proposal revision and scope.
-- Proposal linkage never triggers an edit. Implementation, independent review and adoption remain separate authorized steps.
+- The preparer publishes private owner-local `summary.md`, `ledger.json`, and `report.html` artifacts. Tool receipts contain fixed status/count fields and paths only; never report content, decision labels, or agent-record paths.
+- Never load the full report back into model context or carry report text through a hosted tool channel. A human deliberately opens local artifacts.
+- Processing is local and deterministic: zero model calls, zero outbound requests, zero automatic retries, and one concurrent run per session.
+- Preparation never appends to `AGENTS_LEARNING.md`, personal memory, skill loaders, routing configuration or adoption state. Those are separate authorized steps.
+- A decision record is evidence, not approval or permission. Its count and optional label are agent-declared and unverified.
 - The preparer never executes transcript commands, follows embedded URLs or paths, loads includes, invokes agents or mutates skills.
 
 ## Triggering preparation
 
 Preparation supports two explicit triggers:
 
-1. **Automatic at settled implementation completion**:
-   An orchestrator or unassigned agent on a local stdio MCP transport calls `get_session_cost` with caller-declared completion (never host-authenticated):
-   `get_session_cost(workflow="implement-feature", outcome="implemented", completion={role: "orchestrator", activeTasks: 0, pendingTasks: 0})`.
-   Role "unassigned" is supported; workers must never pass completion or trigger preparation. Automatic preparation requires one-time user-managed consent (`ags retrospective enable`), positive binding to a local native main session, and settled active and pending task counts at zero. If consent is disabled, the session is child/ambiguous/no-evidence, or transport is non-stdio, automatic preparation is explicitly refused with an un-prepared status (no tracker-only fallback, no silent success claim).
+1. **Designed completion trigger (unreleased)**: an orchestrator or unassigned caller declares completion and settled task counts through `get_session_cost`. The declaration is not host-authenticated. The proposed path requires local stdio, enabled human consent, a bound main session and zero active/pending tasks. It is distinct from the released manual preparation flow.
 
-2. **Standalone direct request**:
-   Any user or orchestrator requesting a retrospective outside SDLC workflows can directly invoke the MCP tool `prepare_retrospective(title="optional title")`. Workers holding an assignment packet are prohibited from invoking it. Standalone direct invocation requires one-time user consent, operates on local stdio, and publishes the same private artifacts (`summary.md`, `ledger.json`, `report.html`). It has no prerequisite on `get_session_cost`, SDLC workflow name, or declared task counts.
+2. **Standalone direct request**: the released manual flow allows an orchestrator or user to invoke `prepare_retrospective(title="optional title")` over local stdio. Workers holding assignment packets must not invoke it. It requires human consent and publishes private artifacts; it does not require completion counts.
 
+`record_decision` is part of the unreleased diagnostic-signals source change. It is designed to validate a structured decision and return a fixed receipt without persisting it; proposed durable evidence comes from the recording agent's session transcript, not server-side storage.
 CLI and host commands:
 
 ```text

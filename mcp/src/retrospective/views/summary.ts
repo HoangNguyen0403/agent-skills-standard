@@ -22,6 +22,7 @@ export type LedgerAgent = {
   agsLookups: number;
   permissionAnswers: number;
   model: string;
+  activeSeconds: number | null;
 };
 
 export type OtherAgentsSummary = {
@@ -116,6 +117,8 @@ const DESTINATION_LABELS: Record<string, string> = {
   "provider-route-monitoring": "provider route monitoring",
   "session-linkage": "session linkage",
   "tracker-binding": "tracker binding",
+  "tool-setup": "tool setup",
+  "decision-review": "decision review",
 };
 const OUTCOME_UNAVAILABLE_REASONS: Record<
   "folder-missing" | "not-a-repo" | "git-error" | "not-measured",
@@ -228,6 +231,22 @@ function renderManagerImprovement(imp: LedgerImprovement, k: number): string[] {
       change = `check the trigger words and file patterns of the skills these lookups should have found, and the file types the lookups were for`;
       metric = "lookups that matched nothing";
       valueStr = `${val.percent ?? 0}%`;
+      break;
+    }
+    case "failure-run": {
+      title = `${val.runs ?? 0} same-tool failure runs; longest ${val.longest ?? 0}`;
+      saw = `the longest consecutive error-result streak was ${val.longest ?? 0} for ${val.tool ?? "an unknown tool"}.`;
+      change = `inspect the tool setup and error category before changing routing`;
+      metric = "longest same-tool error run";
+      valueStr = `${val.longest ?? 0}`;
+      break;
+    }
+    case "decision-review-backlog": {
+      title = `${val.defaultPendingReview ?? 0} agent-declared decisions pending review`;
+      saw = `${val.highImpactDefaultPendingReview ?? 0} pending decisions were marked high impact.`;
+      change = `review the declared defaults; these records do not establish authorization`;
+      metric = "high-impact pending decisions";
+      valueStr = `${val.highImpactDefaultPendingReview ?? 0}`;
       break;
     }
     default: {
@@ -462,9 +481,15 @@ function renderLines(ledger: ViewLedger, options: RenderOptions): string[] {
     (c) => (c.template as string) === "ags-lookups",
   );
 
+  const treeCoverage = ledger.treeCoverage;
+  const treeHeader =
+    treeCoverage.state === "not-measured"
+      ? "Tree: not measured"
+      : `Tree: ${treeCoverage.state} (${treeCoverage.agentsRead} of ${treeCoverage.agentsCreated} observed agents read; created counts use observed task/create_agent calls and may include failures)`;
+
   // Line 1: Header
   lines.push(
-    `Coverage: ${ledger.coverage} | Evidence: ${evidenceStr} | Root: ${rootStr} | Delegation: ${renderDelegationSegment(
+    `Coverage: ${ledger.coverage} | ${treeHeader} | Evidence: ${evidenceStr} | Root: ${rootStr} | Delegation: ${renderDelegationSegment(
       ledger,
       coverageClaim,
     )} | Cutoff: ${ledger.cutoff}`,
@@ -680,6 +705,54 @@ function renderLines(ledger: ViewLedger, options: RenderOptions): string[] {
       }
       lines.push(line);
     }
+  }
+
+  if (ledger.activity !== null) {
+    const rows = ledger.activity.userRows;
+    const attribution = rows.byAttribution
+      .slice(0, 8)
+      .map((entry) => `${entry.key} ${entry.count}`)
+      .join(", ");
+    const activityRate =
+      ledger.activity.userRowsPer100TurnsTenths === null
+        ? "not measured"
+        : `${(ledger.activity.userRowsPer100TurnsTenths / 10).toFixed(1)} per 100 main turns`;
+    lines.push(
+      `User rows: ${rows.total}; ${rows.steering} steering; ${rows.permissionNotifications} permission notifications${attribution ? `; attribution ${attribution}` : ""}; ${activityRate}.`,
+    );
+  } else {
+    lines.push("User activity: not measured.");
+  }
+  if (ledger.failureRuns !== null) {
+    const topRuns = ledger.failureRuns.tools
+      .slice(0, 3)
+      .map((entry) => `${entry.tool} ${entry.runs} run(s), longest ${entry.longest}`)
+      .join("; ");
+    const truncationNote = ledger.failureRuns.truncated
+      ? " Partial measurement: counts are observed lower bounds."
+      : "";
+    lines.push(
+      `Same-tool failure runs (minimum ${ledger.failureRuns.minLength}): ${ledger.failureRuns.runs}${topRuns ? `; ${topRuns}` : ""}.${truncationNote}`,
+    );
+  }
+  if (ledger.time !== null) {
+    const timed = ledger.time.permissionLatency;
+    const mainTime = ledger.time.main === null
+      ? "main idle timing: not measured"
+      : `main idle gaps >=${ledger.time.main.idleGapMinSeconds}s: ${ledger.time.main.idleGaps} (${ledger.time.main.idleSeconds}s total)`;
+    lines.push(
+      `Time: ${ledger.time.wallSeconds === null ? "not measured" : `${ledger.time.wallSeconds}s`} wall; ${mainTime}; permission response timing: ${timed === null ? "not measured" : `${timed.timed} matched, median ${timed.medianSeconds}s, max ${timed.maxSeconds}s`}.`,
+    );
+  } else {
+    lines.push("Time: not measured.");
+  }
+  if (ledger.decisions !== null) {
+    const d = ledger.decisions;
+    lines.push(
+      `Decisions (agent-declared and unverified): ${d.total}; rule ${d.byBasis.rule}, pending-review default ${d.byBasis.defaultPendingReview}; high-impact defaults pending ${d.byImpact.high.defaultPendingReview}; ${d.rejected} rejected, ${d.unconfirmed} unconfirmed. Labels are in the detailed report only.`,
+    );
+  } else {
+    lines.push("Decisions: not measured.");
   }
 
   // AGS routing scorecard lines

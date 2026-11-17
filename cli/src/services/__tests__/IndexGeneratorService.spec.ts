@@ -959,15 +959,15 @@ describe('IndexGeneratorService', () => {
         expect(on).toContain('## 🔌 Runtime Enforcement via MCP');
       });
 
-      it('lists all 4 MCP tools in the table', async () => {
-        const result = await service.assembleRouterIndex(
-          '/skills',
-          undefined,
-          false,
-        );
+      it('lists all 5 MCP tools in the table, including decision recording', async () => {
+        const result = await service.assembleRouterIndex('/skills');
         expect(result).toContain('`load_skills_for_files(files=[...])`');
         expect(result).toContain('`load_skills_for_keywords(keywords=[...])`');
         expect(result).toContain('`get_skill(category, name)`');
+        expect(result).toContain('`record_decision`');
+        expect(result).toContain(
+          '| `record_decision` | After choosing an outcome by a named pre-approved rule or permitted default; not for human-selected outcomes or routine tools. See decision-discipline guidance. Recording is not approval. |',
+        );
         expect(result).toContain('`audit_session_compliance()`');
       });
 

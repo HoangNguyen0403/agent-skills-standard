@@ -100,6 +100,30 @@ function renderPrepared(
   ].join("\n\n");
 }
 
+function renderFailedRunResultText(
+  code: string | undefined,
+  automatic: boolean,
+): string {
+  switch (code) {
+    case "NATIVE_UNSUPPORTED_TARGET":
+      return automatic
+        ? "Automatic retrospective preparation failed: native ingress is unsupported on this runtime target (NATIVE_UNSUPPORTED_TARGET); no retrospective was published."
+        : "Retrospective preparation failed: native ingress is unsupported on this runtime target (NATIVE_UNSUPPORTED_TARGET).";
+    case "NATIVE_ARTIFACT_MISSING":
+      return automatic
+        ? "Automatic retrospective preparation failed: native ingress artifact is missing (NATIVE_ARTIFACT_MISSING); no retrospective was published."
+        : "Retrospective preparation failed: native ingress artifact is missing (NATIVE_ARTIFACT_MISSING).";
+    case "NATIVE_LOAD_FAILED":
+      return automatic
+        ? "Automatic retrospective preparation failed: native ingress could not be loaded (NATIVE_LOAD_FAILED); no retrospective was published."
+        : "Retrospective preparation failed: native ingress could not be loaded (NATIVE_LOAD_FAILED).";
+    default:
+      return automatic
+        ? "Automatic retrospective preparation failed: no retrospective was published."
+        : "Retrospective preparation failed.";
+  }
+}
+
 export function renderRunResultText(result: RunResult): string {
   switch (result.state) {
     case "prepared":
@@ -116,7 +140,7 @@ export function renderRunResultText(result: RunResult): string {
     case "no-native-evidence":
       return "Retrospective skipped: automatic preparation requires a positively bound native session.";
     case "failed":
-      return "Retrospective preparation failed.";
+      return renderFailedRunResultText(result.code, false);
   }
 }
 
@@ -190,8 +214,7 @@ export async function automaticRetrospectiveText(
     return `${header}\n\n${renderPrepared(result)}`;
   }
   if (result.state === "failed") {
-    const code = result.code ? ` (code: ${result.code})` : "";
-    return `Automatic retrospective preparation failed${code}: no retrospective was published.`;
+    return renderFailedRunResultText(result.code, true);
   }
   return `${header}\n\n${renderRunResultText(result)}`;
 }

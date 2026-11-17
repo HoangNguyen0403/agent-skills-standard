@@ -7,6 +7,10 @@ preparer can see, what it must never see, what leaves your machine and what it c
 > `agent-skills-standard-mcp` 0.8.1 over local stdio. Extended automatic preparation via `get_session_cost`
 > completion readiness is unreleased source in PR #295. See `CHANGELOG.md` → `[Unreleased]`.
 
+The consent-v5, ledger-v2, diagnostic-signal and native secure-ingress package/CI changes described
+below are unreleased source work, not part of MCP 0.8.1. They do not establish that consent is
+enabled on any machine or that native package artifacts are available or released.
+
 ## Processing model
 
 | Stage | Runs where | What it touches |
@@ -28,81 +32,62 @@ The agent-skills-standard MCP server registers `prepare_retrospective` (optional
 The path works with or without OMP or Paseo.
 
 Cross-session index generation (`ags retrospective index` and `prepare_retrospective_index`) reads
-**ONLY already-stored v2 ledgers** in the consented store root. It never opens session files, runs
-no git commands, and contains NO command text. No new consent text is needed (nothing is read outside
-the already-consented store root).
+only ledger schemas 1 and 2 in the supported current v2 store layout under the consented root. It
+never opens session files, runs git commands, or includes command text. Schema-1 fields that are
+absent remain not measured; stored files are never rewritten. Unsupported historical layouts,
+including earlier two-file v2 generations, fail closed with `STORED_LEDGER_INVALID`.
 
 Reading a session file is the most sensitive step in this feature, so the boundary is fixed.
 
-The agreed boundary approves allowlisted structural fields for session files, plus git outcome
-metrics and permission requests:
+The reader accepts only documented structural fields. New retrospective fields are listed explicitly:
 
 | Field | Source shape | Why it is needed | What is kept |
 | --- | --- | --- | --- |
-| Session id and parent session id | the `session` row's `id` and `parentSession`, or the `session_meta` payload's `id` | binds this file to a session and recognises a nested worker file | the identifiers, used for binding and child detection |
-| Model identifier | `message.model`, falling back to `row.model` | groups turns, cost and error stops by model | the bounded identifier |
-| Assistant stop reason | `message.stopReason` | counts error stops (the `error` value) in the per-day, per-model cells | the bounded identifier and its counts |
-| Tool name and tool-call id | the `toolCall` / `tool_use` part's `name` and `id`, and the matching `toolResult` row's `toolName`, `toolCallId` and failure flag | counts tool calls and failed calls without reading arguments, and feeds the `create_agent` / `task` agent counts | the tool name and per-tool counts; ids are tracked only to de-duplicate |
-| Server tool name for `write` calls to `xd://mcp__agent_skills_standard_<tool>` | the device path argument of this server's own tool calls | binds the session file to this server and counts skill lookups | the tool name only |
-| Sanitized skill id for `read` calls to `skill://...` | the URI argument | counts host skill reads on the OMP path | the sanitized skill id only, not checked against the registry |
-| Permission requests | `<permission-request>` JSON inside `permission-required` notification rows (orchestrator user rows only) | reviews tools and commands agents asked permission to run | opaque request id, tool name, kind, command text (or request title) after linear-time secret redaction (2000 chars ceiling), joined to `respond_to_permission` verdict |
-| Folder label | `cwd` in session header | identifies working directory without raw paths | `{name, parent}` folder label only; raw path is never stored or shown |
-| Optional title | optional `title` argument on `prepare_retrospective` | operator display | sanitized string up to 200 chars, displayed as "agent-supplied, unverified" |
-| Git outcome counts | git in session working folder | measures repository changes | commit and diff counts across all branches in window (commits, merge commits, reverts, files changed, insertions, deletions; branch now) |
+| Session and parent-session identifiers | session header/metadata | bind files and detect child sessions | identifiers |
+| Model, stop reason, tool name and tool-call id | structured event rows | group usage, failures and decisions | bounded identifiers; ids only for de-duplication |
+| Server tool name for this server's own MCP calls | `write` device path | bind and count lookups | tool name only |
+| Sanitized skill id | `read skill://...` URI | count host skill reads | sanitized id only |
+| Permission requests | structured permission notifications | count and review requests | opaque id, tool, kind, redacted command/title and verdict; command/title only in ledger and report |
+| Folder label and optional title | session header `cwd`; caller title | identify folder and report | `{name,parent}` only; title is agent-supplied and unverified |
+| Git outcome counts | bounded git calls in the session folder | measure repository changes | counts only; no names, messages, hashes or content |
+| User-row attribution and steering | structured user-role rows | distinguish row categories | bounded attribution bucket and boolean; user-role rows are not inferred human turns |
+| Row ordering and timestamps | structured rows | failure streaks, durations and permission latency | timestamps and derived counts; missing timestamps are not zero |
+| Decision record arguments | this server's own `record_decision` call, bounded input | report agent-recorded decisions | validated fields; label redacted/sanitized for the generated ledger/report only |
+| Paseo agent records | optionally consented agent-record roots | link sessions to agents | only `id`, `provider`, `persistence.sessionId`, and `labels["paseo.parent-agent-id"]` |
+
+The host normally writes original tool arguments into its session transcript before retrospective
+processing. The stored label in that source transcript may therefore remain unredacted. Redaction
+and sanitization apply to the generated ledger and report; they do not rewrite or sanitize source
+transcripts or other host copies. The decision tool records neither approval nor authorization.
 
 ### Permission request command redaction
 
-Permission request command text is read from `<permission-request>` JSON records in orchestrator
-`permission-required` notification messages. For `bash` calls this is the command; for other tools
-it is the request title (e.g. `Allow tool: write Path: xd://mcp__...`). Before storage or display,
-command text undergoes pure, linear-time, best-effort secret redaction:
-
-1. Input beyond 4,000 characters is cut first. Control characters (except `\n` and `\t`) are
-   replaced with a space.
-2. Environment variable assignments where the variable name contains `KEY`, `TOKEN`, `SECRET`,
-   `PASSWORD`, `PASSWD`, `CREDENTIAL`, `AUTH`, `COOKIE`, or `SESSION` become `NAME=[redacted]`.
-3. Sensitive flags (`--password`, `--passwd`, `--token`, `--secret`, `--api-key`, `--apikey`,
-   `--auth`, `--credentials`) have their values replaced with `[redacted]`.
-4. Sensitive HTTP headers (`Authorization`, `Cookie`, etc.) and `Bearer` tokens become `[redacted]`.
-5. URL userinfo (`scheme://user:pass@host`) becomes `scheme://[redacted]@host`.
-6. Known secret token shapes (`sk-`, GitHub tokens `gh[pousr]_` and `github_pat_`, AWS key IDs
-   `AKIA...`, Slack tokens `xox[abprs]-`, JWTs `eyJ...`) are replaced with `[redacted]`.
-7. Any other run of 40+ characters from `[A-Za-z0-9+_=-]` with a digit and either an uppercase letter
-   or pure hex is redacted (slash-separated paths and lowercase identifiers are kept so the command
-   remains reviewable).
-8. The sanitized text is capped at 2,000 characters (truncated with `…[truncated]`).
-
-**Display boundary:** Command text appears **ONLY** in `ledger.json` and `report.html` (the report
-displays up to 50 distinct requests, denied first, plus tool and program tables). `summary.md` shows
-only counts, tool names, and the derived program word (first word after wrappers like `rtk proxy`
-and `env`). Because redaction is best-effort, an unusual secret format can be missed; the report
-advises operators to check commands before sharing.
+Permission request commands are read only from structured permission records and redacted before storage or display. Redaction is best-effort; unusual secrets can remain. Command text is shown only in the ledger and HTML report, never in the summary or tool response.
 
 ### Git outcome safety and root boundary
 
-Git outcome metrics read repository activity from the session's working folder. **NOTE: this reads
-outside the listed source roots**, which is explicitly disclosed in the version 2 and 3 consent text.
+Git outcome metrics read repository activity from the session folder outside the listed source roots, as disclosed at consent. Safe bounded `execFile` calls collect counts only; commit messages, file names, hashes and contents are never stored or reported.
 
-The engine enforces strict execution boundaries:
+Everything else in session files remains unread: message text, reasoning, system/developer prompts, arbitrary tool arguments, tool output and raw file contents.
 
-- **`execFile` only** — git is invoked directly via `child_process.execFile`; no shell is ever spawned.
-- **Restricted arguments** — each git invocation prepends:
-  `-c core.fsmonitor=false -c core.hooksPath=<null device> -c core.pager=cat -c diff.external= -c core.untrackedCache=false -C <realpath>`.
-- **Scrubbed environment** — passes only `GIT_TERMINAL_PROMPT=0`, `GIT_OPTIONAL_LOCKS=0`,
-  `GIT_CONFIG_NOSYSTEM=1`, `GIT_CONFIG_GLOBAL=<null device>`, `LC_ALL=C`, plus `PATH` and (on
-  Windows) `SystemRoot`.
-- **Only safe subcommands** — only `rev-parse`, `symbolic-ref`, and `log` ever run.
-- **POSIX ownership check** — on POSIX systems, the real folder owner UID must match the running
-  process UID; a mismatch returns `git-error`.
-- **Resource limits** — execution has a 5,000 ms timeout and a 1 MiB (`1048576` bytes) output cap.
-- **Zero content storage** — commit subjects, commit messages, file names, file contents, and commit
-  hashes are **never** stored or reported. Commits are counted across all branches in the session
-  window; the reported branch is the branch at report time.
-- **Fail-closed unreachability** — when git metrics cannot be gathered, the reason is reported as
-  `folder-missing`, `not-a-repo`, `git-error`, or `not-measured`.
+**What the tool returns.** `prepare_retrospective` returns fixed receipt fields and artifact paths,
+never transcript text, a claim sentence, report body, decision label or agent-record path.
 
-Everything else in session files remains unread: message text, reasoning, unapproved tool arguments,
-tool output, and raw file contents are never read or retained.
+## Consent file (MCP-native opt-in)
+
+The MCP-native path is opt-in, once, by the human. `ags retrospective enable` requires an
+interactive terminal and prints the consent roots before accepting the exact word `yes`.
+Agent-record roots, when enabled, are disclosed separately and are not inferred as authorized by
+the session source roots.
+
+Session transcripts are read only inside the recorded source roots; optional Paseo records are read
+only inside the separately recorded agent-record roots. Repository activity metrics are read from
+git in the session folder outside source roots as disclosed at consent. The consent text is version
+`5`; existing version 1–4 records fail closed with reason `version` and require the human to enable
+again. Consent version 5 does not itself enable consent on any machine.
+
+The consent file remains owner-only and fail-closed. Missing, malformed, unknown-key, unsafe,
+permissive, linked or unsupported-version records never authorize reads.
 
 **What the tool returns.** `prepare_retrospective` returns a small fixed-text result: the state,
 counts, the artifact id and the three file paths (`summary.md`, `ledger.json`, `report.html`). It never
@@ -176,9 +161,9 @@ session files only inside the recorded source roots and writes only under the re
 Repository activity metrics (commit and file counts) are read from git in the session's working folder,
 which is outside the listed source roots, as explicitly disclosed in consent text version 2 and later.
 
-The consent text is version `4` (version 4 discloses canonicalization of source and store paths for
-alias checks, path metadata only). An existing record with version `1`, `2` or `3` is treated as
-disabled (reason `version`), requiring the user to run `ags retrospective enable` again to re-consent.
+The consent text is version `5`. Existing records at versions 1–4 are disabled with reason `version`
+and require a human to run `ags retrospective enable` again. Version 5 permits optional agent-record
+roots; it does not grant consent on a machine automatically.
 
 The file is owner-only, and the reader fails closed. Each of these is a disabled state, never an
 enabled state built from guessed data:
@@ -201,53 +186,47 @@ An agent cannot enable it: there is no terminal, no flag and no tool that grants
 
 ## What is collected
 
-The session reader is bounded by the allowlisted structural fields listed above plus event identity,
-timestamps and recorded usage numbers:
+The ledger records only measured fields: file coverage and separate delegation-tree counts; user-row
+counts and bounded attribution/steering; assistant stop-reason counts; per-tool failure streaks;
+durations and timed permission latencies; validated decision records; recorded usage; and declared
+coverage gaps. These fields are derived from allowlisted structured rows, timestamps, tool results,
+and the decision exception described above.
 
-- stable event and message identifiers, timestamps, event kinds;
-- launch settings: provider, model, tool identifiers;
-- typed outcomes: `claimed-complete`, `passed`, `failed`, `denied`, `canceled`, `unknown`;
-- permission decisions, error classes, retry and verification result codes;
-- recorded usage counters when the host recorded them (otherwise `null` — missing telemetry is
-  unknown, never inferred from model name or elapsed time);
-- coverage facts: node disposition, coverage level, truncation, gaps.
+**Missing measurement is never zero.** Unsupported sources, absent timestamps, tracker-only runs,
+older ledgers without a field, and truncated inputs remain explicitly not measured or partial.
+Failure streaks are consecutive failed results of the same tool by the same agent; calls to other
+tools do not break a streak, but a success of that tool does.
 
-## What is excluded at source
+`time.main` is independently unmeasured when main-session timestamps are absent, even if worker
+timestamps establish `time.wallSeconds`. When a bounded failure-state cap sets
+`failureRuns.truncated`, reported runs and longest streaks are observed lower bounds. That signal
+warning does not by itself make file or tree coverage partial.
+
+The engine does not collect typed completion/check outcomes, retry codes, or verification result
+codes. User-role message counts are not claims about human turns; rows may be host notifications.
 
 - Thinking, private reasoning, and system or developer prompt content.
-- All free-form tool arguments, commands, raw stdout/stderr, and full message text.
-- Credentials, environment dumps, and anything the source policy cannot classify.
+- Message bodies, raw stdout/stderr, and arbitrary tool arguments. The only argument exception is
+  the bounded `record_decision` contract; permission command text is separately allowlisted and
+  redacted.
+- Credentials, environment dumps, and values outside the structural allowlist.
 
-Non-negotiable consequences:
+Redaction is best-effort, not a guarantee that arbitrary text is secret-free. Metadata is untrusted;
+values outside known grammars are omitted or bucketed. Missing or unsupported evidence remains a
+declared gap.
 
-- **Redaction is imperfect.** Tool output, quoted text and message bodies routinely contain
-  excluded material, and roles alone do not prove safety. The preparer omits unclassifiable
-  fields and discloses the resulting coverage loss — it does not promise a secret-free output.
-- **Metadata values are themselves untrusted.** Only values matching known identifier grammars
-  are kept; uncertain values are omitted rather than propagated.
-- **A "full observable transcript" claim never includes private reasoning** or historical system
-  prompts that the source did not retain.
+## Delegation-tree coverage
 
-## Coverage of the delegation tree
+File coverage and tree coverage are separate. Task-agent creation counts come from observed task-call
+attempts, not confirmed child creation. For host agents, creation counts use the descendant record
+graph when the root matches; otherwise they use observed `create_agent` call attempts. These are
+evidence counts, not proof that an agent was instantiated. Read coverage and linkage gaps remain
+separate from file coverage; unlinked or unobserved agents can keep tree coverage partial even when
+every read file is complete. Paseo linkage is optional and limited to consented agent-record roots
+and the four fields listed above.
 
-The coverage *objective* is the whole main conversation plus every proven descendant, across
-repositories, workspaces and accounts. The *result* is frequently narrower:
-
-| Coverage | Meaning |
-| --- | --- |
-| `structured-events` | allowlisted events available for the requested range |
-| `partial` | available, but truncated, compacted or cut off by a declared bound |
-| `summary-only` | only a handoff summary survives; no events to re-derive |
-| `restricted` | exists but is not authorized for local reading |
-| `unavailable` | not present on this machine |
-
-`restricted` and `remote-not-authorized` nodes produce placeholders and gaps. An inaccessible
-branch is **never** reported as fully enumerated, and a summary inherits its source's
-restrictions — summarization is not declassification.
-
-Paths, URLs and filesystem references found inside transcript text are data, never instructions:
-they are not followed, fetched, opened or executed. Source transcripts are read-only and are never
-rewritten, moved or compacted.
+Paths and URLs found in transcript data are never followed, fetched, opened or executed. Source
+transcripts are read-only and never rewritten, moved or compacted.
 
 ## Egress: local processing versus return channels
 
@@ -336,8 +315,8 @@ MCP-native generations use store layout `v2`. A v2 generation directory holds fo
 
 - `summary.md` — the concise report a human or model can open. Numbers and fixed sentences only; no
   skill names or ids, no command text, no transcript text. Its first two lines state coverage,
-  evidence mode, root, delegation (how many created agents have a read session file) and the
-  session scope.
+  evidence mode, root, and delegation counts (read session files against evidence-based creation
+  counts) and the session scope.
 - `ledger.json` — verified facts, claims, evidence ids, day-model cells, and committed counts.
 - `report.html` — self-contained HTML report generated by the engine (never by a workflow or model;
   inline CSS, no `<script>`, no external URLs, CSP `default-src 'none'; style-src 'unsafe-inline'`,
@@ -363,7 +342,7 @@ is written directly into the store root:
 - **Not a generation:** the store does not count it as a generation and does not list it in
   generation listings; its size does count toward the store byte cap, because the cap measures the
   whole store root.
-- **Content & privacy:** reads only stored v2 ledgers. Self-contained HTML with inline CSS, zero
+- **Content & privacy:** reads only ledger schemas 1 and 2 in the supported current v2 store layout. Self-contained HTML with inline CSS, zero
   `<script>`, zero external URLs, strict CSP (`default-src 'none'; style-src 'unsafe-inline'`), and
   full HTML escaping. Contains folder `parent/name`, branch (from stored git outcome), agent-supplied
   title (unverified; escaped), outcome text, cost estimate, turns (all observed agents), `ACT` /
@@ -373,12 +352,10 @@ is written directly into the store root:
   non-wrapping date/money/count/action cells). It contains **no command text**. Checked structurally
   via unit tests and inspected in headless Chrome at 1280px desktop width on synthetic fixtures.
 
-Older generations written by earlier builds (two-file v2) and ledgers without the new fields are
-unreadable and fail closed with `STORED_LEDGER_INVALID` (intended; a test covers it).
-
-Earlier v1 generations keep their own four artifacts — `report.md`, `proposals.md`,
-`session.json` and `receipt.json` — and stay readable and deletable via the store API; they are
-never rewritten into v2. Earlier reports remain in the store unless you delete them.
+The current store layout accepts ledger schema versions 1 and 2. Schema-1 ledgers remain readable;
+fields they lack are shown as not measured, never zero, and stored files are never rewritten.
+Unsupported historical store layouts (including earlier two-file v2 generations) fail closed with
+`STORED_LEDGER_INVALID`.
 
 ## Retention, cancellation and deletion
 - **Retention is manual.** Nothing expires automatically. You delete; the store refuses to grow

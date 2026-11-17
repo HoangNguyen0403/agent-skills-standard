@@ -27,15 +27,17 @@ in the session's working folder to read commit and file counts (which reads outs
 roots; commit messages, file names, and hashes are never stored); the full table is in
 [`session-retrospective-privacy.md`](./session-retrospective-privacy.md).
 
-> **Status: capability release boundary.** The three MCP retrospective tools
-> (`prepare_retrospective`, `get_retrospective_status`, `prepare_retrospective_index`) and the
-> `ags retrospective` CLI command (`enable`, `disable`, `status`, `index`) are included over stdio
-> in released `agent-skills-standard-mcp` 0.8.1.
-> `ags retrospective prepare --manifest` is unreleased source in the current change set; it reuses
-> the same consent, store and verifier.
-> The extended automatic completion preparation via `get_session_cost` (`completion` object with role and task counts)
-> is an unreleased source capability currently in PR #295.
-> Tracking entry: `CHANGELOG.md` → `[Unreleased]`.
+> **Status: capability release boundary.** The three manual MCP retrospective tools and the
+> `ags retrospective` CLI commands shipped in `agent-skills-standard-mcp` 0.8.1 over stdio.
+> `ags retrospective prepare --manifest` is unreleased source using the same consent, store and verifier.
+> The automatic completion-preparation extension through `get_session_cost` is a separate
+> unreleased source capability tracked in PR #295.
+> This diagnostic-signals plan is also **unreleased source work**: consent version 5 and
+> agent-record flags, ledger version 2, new diagnostic signals, `record_decision`, and the
+> native secure-ingress package/CI candidate are not part of the released 0.8.1 capability.
+> Darwin arm64/x64 and GNU/Linux glibc arm64/x64 are planned artifact targets; configuration or
+> source does not establish artifact availability, runtime support, release, machine activation, or
+> verified behavior. Tracking: `CHANGELOG.md` → `[Unreleased]`.
 
 ## Getting started
 
@@ -57,7 +59,12 @@ A human runs this in an interactive terminal:
 
 ```bash
 ags retrospective enable [--store-root <abs>] [--source-root <abs>]...
+  [--agent-record-root <abs>]... [--no-agent-records]
 ```
+
+When no agent-record root is supplied, `~/.paseo/agents` is proposed only when a presence check
+finds a real directory. `--no-agent-records` opts out. The prompt discloses agent-record roots
+separately from transcript roots, and records only the roots that the human approved.
 
 - An interactive terminal is required. Without one the command refuses with `TTY_REQUIRED` and
   writes nothing.
@@ -98,15 +105,10 @@ The record is `retrospective-consent.json`: POSIX
 and absolute, else `~/.config/agent-skills-standard/retrospective-consent.json`; on Windows
 `%APPDATA%\agent-skills-standard\retrospective-consent.json`.
 
-The consent text is version `4` (version 2 added permission request command recording and git
-activity metrics read outside source roots; version 3 added the presence-only disclosure of local
-transcript folders for providers this build cannot read; version 4 discloses that source-root and
-unsupported-store paths are canonicalized for alias checks, using path metadata only, with no
-transcript content read by that check). An existing record with version `1`, `2` or `3` is treated as
-disabled (reason `version`), requiring the user to run `ags retrospective enable` again to re-consent;
-consent never expands silently. It is owner-only and read fail-closed: missing, empty, malformed,
-unknown-key, relative-path, wrong-version, group/other-readable, symlink and non-regular files all
-count as disabled (reasons `missing`, `invalid`, `permissive`, `symlink`, `version`).
+Consent text is version `5`. Version 5 permits optional Paseo agent-record roots and records four
+agent fields only (`id`, `provider`, `persistence.sessionId`, and
+`labels["paseo.parent-agent-id"]`). Existing version 1–4 records are disabled with reason `version`;
+the human must run `ags retrospective enable` again. Consent is not upgraded automatically.
 ### The nudge
 
 `audit_session_compliance` and `get_session_cost` append one fixed paragraph only when all three
@@ -195,13 +197,13 @@ Everything lands in the private store under the consented store root, in a `v2` 
 `summary.md`, `ledger.json`, `report.html` and `generation.json`. Nothing is uploaded; nothing opens
 automatically.
 
-Older generations written by earlier builds (two-file v2) keep their original layout. A stored
-ledger that predates the `inventory` and `permissionFriction` fields still loads: those fields are
-optional on read, and the report shows the older evidence without inventing the missing roster or
-friction. Genuinely malformed stored ledgers still fail closed with `STORED_LEDGER_INVALID`.
-Earlier generations written by earlier builds (v1) stay readable and deletable via the store API,
-and are never rewritten by this path. Every new run hashes an evidence-semantics revision into its
-checkpoint, so changed counting rules publish a new generation instead of joining an old one.
+The current v2 store accepts ledger schema versions 1 and 2 without rewriting historical
+generations. Older ledgers may omit `inventory`, `permissionFriction`, and new diagnostic fields;
+missing evidence is not measured, never zero. Earlier two-file generations retain their original
+layout, and v1-format generations remain readable and deletable through the store API.
+Genuinely malformed stored ledgers fail closed with `STORED_LEDGER_INVALID`. Every new run hashes
+an evidence-semantics revision into its checkpoint, so changed counting rules publish a new
+generation instead of joining an old one.
 
 ### Report layout
 
@@ -220,12 +222,15 @@ Each published generation in the v2 store produces **three local artifacts**:
 The header lines of `summary.md`:
 
 ```text
-Coverage: <complete|partial> | Evidence: <native session files|tracker only (no session files read)> | Root: <unverified root|n/a> | Delegation: <n/a|none created|K of N created agents read> | Cutoff: <iso>
+Files: <complete|partial> | Tree: <complete|partial|not-measured> (<agents read> of <created> agents read) | Cutoff: <iso>
 Scope: session <first 8 characters of session id> | folder <parent/name> | <first event time> to <last event time>
 ```
 
-If an optional title was passed to `prepare_retrospective`, an unverified title line follows:
-`Title: <title> (agent-supplied, unverified)`.
+The ledger distinguishes measured zero from not measured. User-role rows may include host
+notifications and are not human-turn counts. Recorded decisions are agent-declared and unverified.
+The `<created>` denominator is evidence-based, not confirmed process creation: task counts use
+observed task-call attempts; host counts use the descendant record graph when the root matches,
+otherwise observed `create_agent` call attempts.
 
 When coverage is partial or any declared actor is unread, the next block is a coverage warning that
 names how many declared actors were read and how many are missing, restricted, unavailable, remote
@@ -247,6 +252,12 @@ Then fixed second-level sections:
   tracker-binding limitations, if present.
 - `## Limits` — fixed caveats: counts show where to look, not why; cost is an estimate from a price
   table.
+`time.main` is not measured when main-session timestamps are absent, even if worker timestamps
+establish tree `time.wallSeconds`. If a bounded failure-state cap sets `failureRuns.truncated`,
+reported runs and longest streaks are observed lower bounds; this warning does not by itself make
+file or tree coverage partial. See
+[`session-retrospective-privacy.md`](./session-retrospective-privacy.md) for exact collection
+boundaries.
 
 #### `report.html` layout
 

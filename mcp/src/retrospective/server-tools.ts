@@ -1,10 +1,13 @@
+import { decisionInputSchema, type DecisionInput } from "./decision-contract";
+
 /**
  * Structural identity of this MCP server's own tool calls, shared by session
  * discovery (binding) and aggregation (skill-load accounting).
  *
  * OMP records a call to this server as a `write` whose `path` argument is
- * `xd://mcp__agent_skills_standard_<tool>`. Only the matched tool name leaves
- * this module: never the arguments body, never another path, never message text.
+ * `xd://mcp__agent_skills_standard_<tool>`. Aggregation records only the matched
+ * tool name; the validated payload of `record_decision` is the sole argument-body
+ * exception. Other argument bodies remain private.
  */
 export const SERVER_TOOL_DEVICE_PREFIX = "xd://mcp__agent_skills_standard_";
 
@@ -115,8 +118,45 @@ export function extractServerToolName(
     }
     return null;
   }
-  if (name !== "write") {
-    return name;
-  }
+  if (name !== "write") return name;
   return null;
+}
+
+/** Extracts only the bounded decision payload from this server's own tool. */
+export function extractDecisionArgs(
+  name: unknown,
+  args: unknown,
+): DecisionInput | null {
+  let raw: unknown;
+  if (name === "record_decision") {
+    if (typeof args === "string") {
+      if (args.length > 4096) return null;
+      try {
+        raw = JSON.parse(args);
+      } catch {
+        return null;
+      }
+    } else {
+      raw = args;
+    }
+  } else if (
+    name === "write" &&
+    typeof args === "object" &&
+    args !== null &&
+    "path" in args &&
+    args.path === `${SERVER_TOOL_DEVICE_PREFIX}record_decision` &&
+    "content" in args &&
+    typeof args.content === "string" &&
+    args.content.length <= 4096
+  ) {
+    try {
+      raw = JSON.parse(args.content);
+    } catch {
+      return null;
+    }
+  } else {
+    return null;
+  }
+  const parsed = decisionInputSchema.safeParse(raw);
+  return parsed.success ? parsed.data : null;
 }

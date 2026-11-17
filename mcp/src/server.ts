@@ -32,6 +32,9 @@ import {
   prepareRetrospectiveSchema,
   prepareRetrospectiveIndex,
   prepareRetrospectiveIndexSchema,
+  RECORD_DECISION_DESCRIPTION,
+  recordDecision,
+  recordDecisionSchema,
   ToolContext,
   ToolResult,
   verifyEvalRunTool,
@@ -170,6 +173,10 @@ direct file read (actual bodies, not names or stubs), then act. Do not repeat
 parent workflow discovery or global intake, and do not widen the assigned
 scope. Before writing, confirm the standards matched to the touched files;
 before completion, run the compliance audit.
+
+When a consequential choice is unresolved, do not imply approval: record it as
+default-pending-review with impact and reversibility; use a rule reference only
+when a named rule actually governed the choice.
 
 Each request is answered from the caller's own request: another context's
 earlier load does not supply your body. Selection or body-return counts do
@@ -415,6 +422,13 @@ export async function buildServer(
   });
 
   if (transport === "stdio") {
+    register(server, {
+      name: "record_decision",
+      title: "Record an agent-declared decision",
+      description: RECORD_DECISION_DESCRIPTION,
+      inputSchema: recordDecisionSchema,
+      handler: (args) => recordDecision(args),
+    });
     register(server, {
       name: "prepare_retrospective",
       title: "Prepare a local session retrospective",

@@ -15,7 +15,9 @@ export type ImprovementRuleId =
   | "agent-error-concentration"
   | "coverage-gap"
   | "permission-timing-unmeasured"
-  | "tracker-not-measured";
+  | "tracker-not-measured"
+  | "failure-run"
+  | "decision-review-backlog";
 
 export type ImprovementDestination =
   | "permission-setup"
@@ -23,7 +25,9 @@ export type ImprovementDestination =
   | "agent-routing"
   | "provider-route-monitoring"
   | "session-linkage"
-  | "tracker-binding";
+  | "tracker-binding"
+  | "tool-setup"
+  | "decision-review";
 
 export type LedgerImprovement = {
   rule: ImprovementRuleId;
@@ -92,6 +96,14 @@ export const IMPROVEMENT_THRESHOLDS = Object.freeze({
   AGENT_ERROR_CONCENTRATION_ERROR_SHARE_MULTIPLIER: 2,
   /** coverage-gap: unlinked or declared unread actor scope */
   COVERAGE_GAP_UNLINKED_MULTIPLIER: 4,
+  IDLE_GAP_MIN_SECONDS: 600,
+  /** Same-tool failed-result streak required to count a failure run. */
+  FAILURE_RUN_MIN_LENGTH: 3,
+  /** Failure run count or streak length that raises a manager item to act. */
+  FAILURE_RUN_ACT_LENGTH: 5,
+  FAILURE_RUN_ACT_COUNT: 3,
+  /** High-impact pending defaults require immediate review. */
+  DECISION_REVIEW_HIGH_IMPACT_ACT: 1,
 } as const);
 
 function getNumber(
@@ -563,6 +575,52 @@ export function deriveImprovements(
       evidence: [],
       values: {},
     });
+  }
+
+  const failureClaim = claimsByTemplate.get("failure-runs");
+  if (failureClaim) {
+    const runs = getNumber(failureClaim.values, "runs");
+    const longest = getNumber(failureClaim.values, "longest");
+    if (runs > 0) {
+      managerImprovements.push({
+        rule: "failure-run",
+        level:
+          longest >= IMPROVEMENT_THRESHOLDS.FAILURE_RUN_ACT_LENGTH ||
+          runs >= IMPROVEMENT_THRESHOLDS.FAILURE_RUN_ACT_COUNT
+            ? "act"
+            : "watch",
+        destination: "tool-setup",
+        audience: "manager",
+        claimIds: [failureClaim.id],
+        evidence: [
+          "agg:claim:failure-runs:runs",
+          "agg:claim:failure-runs:longest",
+        ],
+        values: { runs, longest },
+      });
+    }
+  }
+
+  const decisionClaim = claimsByTemplate.get("decisions");
+  if (decisionClaim) {
+    const pending = getNumber(decisionClaim.values, "defaultPendingReview");
+    const high = getNumber(decisionClaim.values, "highImpactDefaultPendingReview");
+    if (pending >= 1) {
+      managerImprovements.push({
+        rule: "decision-review-backlog",
+        level: high >= IMPROVEMENT_THRESHOLDS.DECISION_REVIEW_HIGH_IMPACT_ACT
+          ? "act"
+          : "watch",
+        destination: "decision-review",
+        audience: "manager",
+        claimIds: [decisionClaim.id],
+        evidence: [
+          "agg:claim:decisions:defaultPendingReview",
+          "agg:claim:decisions:highImpactDefaultPendingReview",
+        ],
+        values: { defaultPendingReview: pending, highImpactDefaultPendingReview: high },
+      });
+    }
   }
 
   // Ordering:

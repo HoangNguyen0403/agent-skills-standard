@@ -31,13 +31,29 @@ export type IndexRow = {
   branch: string | null;
   title: string | null; // agent-supplied, unverified; already sanitised by the ledger
   outcome: string; // short fixed text, e.g. "3 commits", "not a git repository", "folder missing", "not measured"
+  treeCoverage?: {
+    state: "complete" | "partial" | "not-measured";
+    agentsRead: number;
+    agentsCreated: number;
+  } | null;
   turns: number;
   costCents: number;
   act: number;
   watch: number;
   denied: number;
+  decisions?: IndexDecisionCounts | null;
+  decisionsHighPending?: number | null;
   generations: number; // how many reports exist for this session (latest is shown)
   reportHref: string | null; // relative URL from the index file to that generation's report.html, null when missing
+};
+
+export type IndexDecisionCounts = {
+  byBasis: { rule: number; defaultPendingReview: number };
+  byImpact: {
+    high: { rule: number; defaultPendingReview: number };
+    medium: { rule: number; defaultPendingReview: number };
+    low: { rule: number; defaultPendingReview: number };
+  };
 };
 
 export type IndexRecurring = {
@@ -61,6 +77,14 @@ export type IndexResult = {
     costCents: number;
     act: number;
     denied: number;
+    decisionsMeasuredSessions: number;
+    decisionsNotMeasuredSessions: number;
+    decisionsByBasis: { rule: number; defaultPendingReview: number };
+    decisionsByImpact: {
+      high: { rule: number; defaultPendingReview: number };
+      medium: { rule: number; defaultPendingReview: number };
+      low: { rule: number; defaultPendingReview: number };
+    };
   }; // over ALL matched sessions
   recurring: IndexRecurring[]; // over ALL matched sessions, sorted sessions desc, actSessions desc, rule asc
 };
@@ -78,6 +102,8 @@ const RULE_LABELS: Readonly<Record<string, string>> = Object.freeze({
   "coverage-gap": "Delegation not observable",
   "permission-timing-unmeasured": "Permission wait time not measured",
   "tracker-not-measured": "Tracker numbers not measured",
+  "failure-run": "Repeated tool failures",
+  "decision-review-backlog": "High-impact decisions pending review",
 });
 
 const DESTINATION_LABELS: Readonly<Record<string, string>> = Object.freeze({
@@ -87,6 +113,8 @@ const DESTINATION_LABELS: Readonly<Record<string, string>> = Object.freeze({
   "provider-route-monitoring": "provider route monitoring",
   "session-linkage": "session linkage",
   "tracker-binding": "tracker binding",
+  "tool-setup": "tool setup",
+  "decision-review": "decision review",
 });
 
 const RULE_DESTINATIONS: Readonly<Record<string, string>> = Object.freeze({
@@ -100,6 +128,8 @@ const RULE_DESTINATIONS: Readonly<Record<string, string>> = Object.freeze({
   "coverage-gap": "session-linkage",
   "permission-timing-unmeasured": "tracker-binding",
   "tracker-not-measured": "tracker-binding",
+  "failure-run": "tool-setup",
+  "decision-review-backlog": "decision-review",
 });
 
 function formatUtcDate(date: Date): string {
@@ -270,6 +300,14 @@ const looseLedgerSchema = z
     session: z.string().nullable().optional(),
     label: z.string().nullable().optional(),
     cutoff: z.string().optional(),
+    treeCoverage: z
+      .object({
+        state: z.enum(["complete", "partial", "not-measured"]),
+        agentsRead: z.number().int().nonnegative(),
+        agentsCreated: z.number().int().nonnegative(),
+      })
+      .passthrough()
+      .optional(),
     folder: z
       .object({
         name: z.string(),
@@ -289,6 +327,39 @@ const looseLedgerSchema = z
       .optional(),
     improvements: z.array(looseImprovementSchema).optional(),
     outcome: looseOutcomeSchema,
+    decisions: z
+      .object({
+        byBasis: z
+          .object({
+            rule: z.number().int().nonnegative(),
+            defaultPendingReview: z.number().int().nonnegative(),
+          })
+          .optional(),
+        byImpact: z
+          .object({
+            high: z
+              .object({
+                rule: z.number().int().nonnegative(),
+                defaultPendingReview: z.number().int().nonnegative(),
+              })
+              .optional(),
+            medium: z
+              .object({
+                rule: z.number().int().nonnegative(),
+                defaultPendingReview: z.number().int().nonnegative(),
+              })
+              .optional(),
+            low: z
+              .object({
+                rule: z.number().int().nonnegative(),
+                defaultPendingReview: z.number().int().nonnegative(),
+              })
+              .optional(),
+          })
+          .optional(),
+      })
+      .nullable()
+      .optional(),
   })
   .passthrough();
 
@@ -426,7 +497,21 @@ export async function collectIndex(
     storeSessions: 0,
     newestDay: null,
     unreadable: 0,
-    totals: { sessions: 0, turns: 0, costCents: 0, act: 0, denied: 0 },
+    totals: {
+      sessions: 0,
+      turns: 0,
+      costCents: 0,
+      act: 0,
+      denied: 0,
+      decisionsByBasis: { rule: 0, defaultPendingReview: 0 },
+      decisionsMeasuredSessions: 0,
+      decisionsNotMeasuredSessions: 0,
+      decisionsByImpact: {
+        high: { rule: 0, defaultPendingReview: 0 },
+        medium: { rule: 0, defaultPendingReview: 0 },
+        low: { rule: 0, defaultPendingReview: 0 },
+      },
+    },
     recurring: [],
   };
 
@@ -479,7 +564,11 @@ export async function collectIndex(
           continue;
         }
         const data = parsed.data;
-        if (data.schemaVersion !== 1) {
+        if (data.schemaVersion !== 1 && data.schemaVersion !== 2) {
+          unreadable++;
+          continue;
+        }
+        if (data.schemaVersion === 2 && !data.treeCoverage) {
           unreadable++;
           continue;
         }
@@ -644,6 +733,37 @@ export async function collectIndex(
 
       const outcomeData = formatOutcome(data.outcome);
 
+      const coverageClaim = (data.claims ?? []).find(
+        (claim) => claim.template === "coverage",
+      );
+      const legacyRead = asNumber(coverageClaim?.values.agentsRead);
+      const legacyCreated = asNumber(coverageClaim?.values.agentsCreated);
+      const legacyUnlinked = asNumber(coverageClaim?.values.unlinkedAgents);
+      const treeCoverage = data.treeCoverage
+        ? {
+            state: data.treeCoverage.state,
+            agentsRead: data.treeCoverage.agentsRead,
+            agentsCreated: data.treeCoverage.agentsCreated,
+          }
+        : legacyRead !== null &&
+            legacyCreated !== null &&
+            legacyUnlinked !== null &&
+            Number.isInteger(legacyRead) &&
+            legacyRead >= 0 &&
+            Number.isInteger(legacyCreated) &&
+            legacyCreated >= 0 &&
+            Number.isInteger(legacyUnlinked) &&
+            legacyUnlinked >= 0
+          ? {
+              state:
+                legacyUnlinked === 0
+                  ? "complete" as const
+                  : "partial" as const,
+              agentsRead: legacyRead,
+              agentsCreated: legacyCreated,
+            }
+          : null;
+
       const row: IndexRow = {
         session: report.sessionId,
         sessionShort:
@@ -658,6 +778,32 @@ export async function collectIndex(
         branch: outcomeData.branch,
         title: data.label ?? null,
         outcome: outcomeData.outcome,
+        treeCoverage,
+        decisions:
+          data.decisions?.byBasis && data.decisions.byImpact?.high
+            ? {
+                byBasis: {
+                  rule: data.decisions.byBasis.rule,
+                  defaultPendingReview: data.decisions.byBasis.defaultPendingReview,
+                },
+                byImpact: {
+                  high: { ...data.decisions.byImpact.high },
+                  medium: {
+                    ...(data.decisions.byImpact.medium ?? {
+                      rule: 0,
+                      defaultPendingReview: 0,
+                    }),
+                  },
+                  low: {
+                    ...(data.decisions.byImpact.low ?? {
+                      rule: 0,
+                      defaultPendingReview: 0,
+                    }),
+                  },
+                },
+              }
+            : null,
+        decisionsHighPending: data.decisions?.byImpact?.high?.defaultPendingReview ?? null,
         turns,
         costCents,
         act,
@@ -676,11 +822,32 @@ export async function collectIndex(
     let totalAct = 0;
     let totalDenied = 0;
 
+    let decisionsMeasuredSessions = 0;
+    let decisionsNotMeasuredSessions = 0;
+    const decisionsByBasis = { rule: 0, defaultPendingReview: 0 };
+    const decisionsByImpact = {
+      high: { rule: 0, defaultPendingReview: 0 },
+      medium: { rule: 0, defaultPendingReview: 0 },
+      low: { rule: 0, defaultPendingReview: 0 },
+    };
     for (const row of matchedRows) {
       totalTurns += row.turns;
       totalCostCents += row.costCents;
       totalAct += row.act;
       totalDenied += row.denied;
+      if (row.decisions !== null && row.decisions !== undefined) {
+        decisionsMeasuredSessions += 1;
+        decisionsByBasis.rule += row.decisions.byBasis.rule;
+        decisionsByBasis.defaultPendingReview +=
+          row.decisions.byBasis.defaultPendingReview;
+        for (const impact of ["high", "medium", "low"] as const) {
+          decisionsByImpact[impact].rule += row.decisions.byImpact[impact].rule;
+          decisionsByImpact[impact].defaultPendingReview +=
+            row.decisions.byImpact[impact].defaultPendingReview;
+        }
+      } else {
+        decisionsNotMeasuredSessions += 1;
+      }
     }
 
     const totals = {
@@ -689,6 +856,10 @@ export async function collectIndex(
       costCents: totalCostCents,
       act: totalAct,
       denied: totalDenied,
+      decisionsMeasuredSessions,
+      decisionsNotMeasuredSessions,
+      decisionsByBasis,
+      decisionsByImpact,
     };
 
     type RecurringStat = {
@@ -784,6 +955,12 @@ export function renderIndexHtml(result: IndexResult): string {
 <div class="tile${deniedClass}"><span>Permission denials</span><b>${result.totals.denied}</b></div>
 </div>`;
   parts.push(tilesHtml);
+  const measuredDecisionSessions = result.totals.decisionsMeasuredSessions;
+  const decisionCoverage =
+    measuredDecisionSessions === 0
+      ? `Decision totals: not measured (${plural(result.totals.decisionsNotMeasuredSessions, "session")} unmeasured); unrecorded decisions are not counted.`
+      : `Agent-declared and unverified decision counts (${measuredDecisionSessions} measured of ${result.totals.sessions} sessions; ${result.totals.decisionsNotMeasuredSessions} unmeasured, excluded): basis rule ${result.totals.decisionsByBasis.rule}, pending-review default ${result.totals.decisionsByBasis.defaultPendingReview}; impact high ${result.totals.decisionsByImpact.high.rule} rule / ${result.totals.decisionsByImpact.high.defaultPendingReview} default, medium ${result.totals.decisionsByImpact.medium.rule} / ${result.totals.decisionsByImpact.medium.defaultPendingReview}, low ${result.totals.decisionsByImpact.low.rule} / ${result.totals.decisionsByImpact.low.defaultPendingReview}.`;
+  parts.push(`<p class="hint">${decisionCoverage}</p>`);
 
   if (result.recurring.length > 0) {
     parts.push(renderRecurringTable(result.recurring, result.totals.sessions));
@@ -947,6 +1124,10 @@ function renderMonthlySections(rows: IndexRow[]): string {
           : "-";
 
       const branchContent = row.branch !== null ? escapeHtml(row.branch) : "-";
+      const treeContent =
+        row.treeCoverage == null || row.treeCoverage.state === "not-measured"
+          ? "not measured"
+          : `${row.treeCoverage.agentsRead}/${row.treeCoverage.agentsCreated}`;
 
       const rowClass = row.act > 0 ? "has-act" : "no-act";
       const actBadge =
@@ -965,8 +1146,12 @@ function renderMonthlySections(rows: IndexRow[]): string {
         row.reportHref !== null
           ? `<a class="open-btn" href="${escapeHtml(row.reportHref)}">Open report</a>`
           : '<span class="badge mute">missing</span>';
+      const decisionsContent =
+        row.decisionsHighPending == null
+          ? "not measured"
+          : String(row.decisionsHighPending);
 
-      tableRows += `<tr class="${rowClass}"><td class="date">${escapeHtml(row.day)}</td><td class="col-session">${sessionContent}</td><td class="col-folder">${folderContent}</td><td class="col-branch">${branchContent}</td><td class="outcome left">${escapeHtml(row.outcome)}</td><td class="money">${escapeHtml(formatMoney(row.costCents))} est.</td><td class="num">${actBadge}</td><td class="num">${watchBadge}</td><td class="num">${deniedBadge}</td><td class="action">${reportContent}</td></tr>\n`;
+      tableRows += `<tr class="${rowClass}"><td class="date">${escapeHtml(row.day)}</td><td class="col-session">${sessionContent}</td><td class="col-folder">${folderContent}</td><td class="col-branch">${branchContent}</td><td class="num">${treeContent}</td><td class="outcome left">${escapeHtml(row.outcome)}</td><td class="money">${escapeHtml(formatMoney(row.costCents))} est.</td><td class="num">${decisionsContent}</td><td class="num">${actBadge}</td><td class="num">${watchBadge}</td><td class="num">${deniedBadge}</td><td class="action">${reportContent}</td></tr>\n`;
     }
 
     sections.push(`<details class="sec"${isOpen ? " open" : ""}>
@@ -974,7 +1159,7 @@ function renderMonthlySections(rows: IndexRow[]): string {
 <div class="table-wrap">
 <table>
 <thead>
-<tr><th class="date">Date</th><th class="col-session">Session (agent-supplied)</th><th class="col-folder">Folder</th><th class="col-branch">Branch</th><th class="outcome left">Outcome</th><th class="money">Cost</th><th class="num">ACT</th><th class="num">WATCH</th><th class="num">Denied</th><th class="action">Report</th></tr>
+<tr><th class="date">Date</th><th class="col-session">Session (agent-supplied)</th><th class="col-folder">Folder</th><th class="col-branch">Branch</th><th class="num">Tree read/created</th><th class="outcome left">Outcome</th><th class="money">Cost</th><th class="num">High-impact default pending review</th><th class="num">ACT</th><th class="num">WATCH</th><th class="num">Denied</th><th class="action">Report</th></tr>
 </thead>
 <tbody>
 ${tableRows}</tbody>

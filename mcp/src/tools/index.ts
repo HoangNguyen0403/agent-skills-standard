@@ -1,3 +1,8 @@
+export {
+  RECORD_DECISION_DESCRIPTION,
+  recordDecision,
+  recordDecisionSchema,
+} from "./decision";
 import { createHash } from "node:crypto";
 import fs from "fs-extra";
 import path from "path";

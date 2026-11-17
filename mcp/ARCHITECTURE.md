@@ -181,6 +181,26 @@ Why no persistence:
 - Persisting would require a config dir, write permissions, and a privacy story we don't want to own.
 - `audit_session_compliance()` reads from RAM. Fast, accurate, scoped.
 
+### Opt-in retrospective (separate local store)
+
+The retrospective tools are an explicit exception to the server's ordinary project-file read-only
+behavior. With a human-managed consent record, they read allowlisted session data from consented
+roots, optionally read four fields from separately consented Paseo agent-record roots, and publish
+private report generations under the consented store root. Consent version 5 is required for the
+new agent-record read surface; existing older consent records fail closed until a human re-enables.
+This opt-in flow does not persist ordinary MCP session-tracker state.
+
+`record_decision` is stateless: its handler validates the structured input and returns a fixed
+receipt without writing a file or retaining arguments in process state. The host transcript is the
+durable source; retrospective aggregation reads and revalidates only this server's bounded
+`record_decision` call and its result from the recording agent's session file. No other tool
+arguments become readable through that exception. Reported decision counts are agent-declared and
+unverified; labels stay in the local ledger/report and never appear in tool receipts.
+
+The diagnostic-signals and native secure-ingress changes are unreleased source candidates, separate from the released manual retrospective tools. Native package assets are explicit per-target files for Darwin arm64/x64 and GNU/Linux glibc arm64/x64; no install/startup compilation or runtime download is configured. Target configuration is not a claim of artifact availability, release, or execution.
+
+The native asset verifier checks target binary format/architecture and the four target manifests, schema/API/N-API values, source and binary hashes, provenance fields, and declared compatibility metadata. A local reusable workflow builds the four targets in secretless, read-only jobs, keys each artifact to `github.sha` and `github.run_attempt`, assembles and verifies them in that run, then exposes one aggregate artifact. MCP tag publication downloads only that exact same-run aggregate before verification; existing publication authorization is unchanged. The frozen loader contract is lazy and leaves unrelated MCP tools usable when native ingress is unavailable. These are source/configuration boundaries, not a CI result or release claim.
+
 What is measured:
 
 - Exact MCP-observed session data: start time, elapsed seconds, tracked MCP tool calls, unique skills loaded, unique workflows loaded, no-match calls, per-tool call counts, and call timeline.

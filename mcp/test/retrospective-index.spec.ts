@@ -46,6 +46,12 @@ function makeMinimalLedger(options: {
   folder?: { name: string; parent: string | null } | null;
   from?: string;
   to?: string;
+  schemaVersion?: 1 | 2;
+  treeCoverage?: {
+    state: "complete" | "partial" | "not-measured";
+    agentsCreated: number;
+    agentsRead: number;
+  };
   outcome?:
     | {
         source: "git";
@@ -79,7 +85,15 @@ function makeMinimalLedger(options: {
   }> = [
     {
       template: "coverage",
-      values: {},
+      values: options.treeCoverage
+        ? {
+            agentsCreated: options.treeCoverage.agentsCreated,
+            agentsRead: options.treeCoverage.agentsRead,
+            unlinkedAgents:
+              options.treeCoverage.agentsCreated -
+              options.treeCoverage.agentsRead,
+          }
+        : {},
       scope: {
         nodes: [{ hostId: "test-host", sessionId: session ?? "anon" }],
         from,
@@ -118,7 +132,7 @@ function makeMinimalLedger(options: {
   }
 
   return {
-    schemaVersion: 1,
+    schemaVersion: options.schemaVersion ?? 1,
     cutoff: to,
     session,
     label: options.label ?? null,
@@ -134,8 +148,39 @@ function makeMinimalLedger(options: {
       branch: "main",
       commits: 2,
     },
+    ...(options.treeCoverage
+      ? {
+          treeCoverage: {
+            ...options.treeCoverage,
+            unlinked:
+              options.treeCoverage.agentsCreated -
+              options.treeCoverage.agentsRead,
+            task: {
+              created: options.treeCoverage.agentsCreated,
+              read: options.treeCoverage.agentsRead,
+            },
+            hostAgents: {
+              created: 0,
+              read: 0,
+              source: "call-count",
+              truncated: false,
+            },
+          },
+        }
+      : {}),
   };
 }
+const emptyDecisionTotals = {
+  decisionsMeasuredSessions: 0,
+  decisionsNotMeasuredSessions: 0,
+  decisionsByBasis: { rule: 0, defaultPendingReview: 0 },
+  decisionsByImpact: {
+    high: { rule: 0, defaultPendingReview: 0 },
+    medium: { rule: 0, defaultPendingReview: 0 },
+    low: { rule: 0, defaultPendingReview: 0 },
+  },
+};
+
 
 async function publishTestLedger(
   root: string,
@@ -662,12 +707,33 @@ describe("collectIndex", () => {
     const validLedger = makeMinimalLedger({
       session: "sess-valid",
       to: "2026-10-05T10:00:00.000Z",
+      treeCoverage: {
+        state: "partial",
+        agentsRead: 5,
+        agentsCreated: 24,
+      },
     });
     await publishTestLedger(
       root,
       "sess-valid",
       "cp-valid",
       JSON.stringify(validLedger),
+    );
+    const version2Ledger = makeMinimalLedger({
+      session: "sess-v2",
+      to: "2026-10-05T11:00:00.000Z",
+      schemaVersion: 2,
+      treeCoverage: {
+        state: "complete",
+        agentsRead: 2,
+        agentsCreated: 2,
+      },
+    });
+    await publishTestLedger(
+      root,
+      "sess-v2",
+      "cp-v2",
+      JSON.stringify(version2Ledger),
     );
 
     await publishTestLedger(
@@ -696,8 +762,13 @@ describe("collectIndex", () => {
     const result = await collectIndex(root, query);
 
     expect(result.unreadable).toBe(2);
-    expect(result.rows).toHaveLength(1);
-    expect(result.rows[0].session).toBe("sess-valid");
+    expect(result.rows).toHaveLength(2);
+    expect(
+      result.rows.find((row) => row.session === "sess-valid")?.treeCoverage,
+    ).toEqual({ state: "partial", agentsRead: 5, agentsCreated: 24 });
+    expect(
+      result.rows.find((row) => row.session === "sess-v2")?.treeCoverage,
+    ).toEqual({ state: "complete", agentsRead: 2, agentsCreated: 2 });
   });
 
   it("counts ledgers without a usable end date or without a schema version as unreadable", async () => {
@@ -938,6 +1009,14 @@ describe("collectIndex", () => {
       costCents: 550,
       act: 2,
       denied: 3,
+      decisionsMeasuredSessions: 0,
+      decisionsNotMeasuredSessions: 2,
+      decisionsByBasis: { rule: 0, defaultPendingReview: 0 },
+      decisionsByImpact: {
+        high: { rule: 0, defaultPendingReview: 0 },
+        medium: { rule: 0, defaultPendingReview: 0 },
+        low: { rule: 0, defaultPendingReview: 0 },
+      },
     });
   });
 
@@ -1006,6 +1085,7 @@ describe("renderIndexHtml", () => {
       newestDay: "2026-10-05",
       unreadable: 0,
       totals: {
+        ...emptyDecisionTotals,
         sessions: 1,
         turns: 10,
         costCents: 100,
@@ -1092,7 +1172,7 @@ describe("renderIndexHtml", () => {
       storeSessions: 2,
       newestDay: "2026-10-02",
       unreadable: 0,
-      totals: { sessions: 2, turns: 10, costCents: 100, act: 0, denied: 0 },
+      totals: { ...emptyDecisionTotals, sessions: 2, turns: 10, costCents: 100, act: 0, denied: 0 },
       recurring: [],
     };
 
@@ -1116,7 +1196,7 @@ describe("renderIndexHtml", () => {
       storeSessions: 4,
       newestDay: "2026-09-20",
       unreadable: 1,
-      totals: { sessions: 0, turns: 0, costCents: 0, act: 0, denied: 0 },
+      totals: { ...emptyDecisionTotals, sessions: 0, turns: 0, costCents: 0, act: 0, denied: 0 },
       recurring: [],
     };
 
@@ -1166,6 +1246,7 @@ describe("renderIndexHtml", () => {
       newestDay: "2026-10-05",
       unreadable: 0,
       totals: {
+        ...emptyDecisionTotals,
         sessions: 250,
         turns: 1000,
         costCents: 50000,
@@ -1210,7 +1291,7 @@ describe("renderIndexHtml", () => {
       storeSessions: 1,
       newestDay: "2026-10-05",
       unreadable: 0,
-      totals: { sessions: 1, turns: 12, costCents: 240, act: 1, denied: 1 },
+      totals: { ...emptyDecisionTotals, sessions: 1, turns: 12, costCents: 240, act: 1, denied: 1 },
       recurring: [
         {
           rule: "cost-concentration",
@@ -1242,6 +1323,11 @@ describe("renderIndexHtml", () => {
           title:
             "Investigate very-long-session-title-with-continuous-tokens-and-extra-context",
           outcome: "not measured",
+          treeCoverage: {
+            state: "not-measured",
+            agentsRead: 0,
+            agentsCreated: 0,
+          },
           turns: 42,
           costCents: 1566,
           act: 2,
@@ -1257,6 +1343,7 @@ describe("renderIndexHtml", () => {
       newestDay: "2026-10-28",
       unreadable: 0,
       totals: {
+        ...emptyDecisionTotals,
         sessions: 1,
         turns: 42,
         costCents: 1566,
@@ -1294,6 +1381,8 @@ describe("renderIndexHtml", () => {
     expect(html).toContain('<td class="col-folder">');
     expect(html).toContain('<td class="col-branch">');
     expect(html).toContain('<td class="outcome left">not measured</td>');
+    expect(html).toContain('<td class="num">not measured</td>');
+    expect(html).not.toContain('<td class="num">0/0</td>');
     expect(html).toContain('<td class="money">$15.66 est.</td>');
     expect(html).toContain(
       '<td class="action"><a class="open-btn" href="sessions/abc/generations/000001/report.html">Open report</a></td>',
@@ -1349,6 +1438,7 @@ describe("renderIndexHtml", () => {
       newestDay: "2026-10-29",
       unreadable: 0,
       totals: {
+        ...emptyDecisionTotals,
         sessions: 2,
         turns: 28,
         costCents: 570,
@@ -1405,6 +1495,193 @@ describe("renderIndexHtml", () => {
     expect(html).toContain('<span class="badge act">1</span>');
     expect(html).toContain('<span class="badge mute">0</span>');
     expect(html).not.toContain("<script");
+  });
+});
+
+describe("decision index aggregation", () => {
+  it("aggregates and renders the published agent-declared decision matrix", async () => {
+    const root = await newRoot();
+    const ledger = {
+      ...makeMinimalLedger({
+        session: "decision-session",
+        schemaVersion: 2,
+        to: "2026-10-05T10:00:00.000Z",
+        treeCoverage: {
+          state: "complete" as const,
+          agentsRead: 1,
+          agentsCreated: 1,
+        },
+      }),
+      decisions: {
+        total: 2,
+        byBasis: { rule: 1, defaultPendingReview: 1 },
+        byImpact: {
+          high: { rule: 0, defaultPendingReview: 1 },
+          medium: { rule: 1, defaultPendingReview: 0 },
+          low: { rule: 0, defaultPendingReview: 0 },
+        },
+        irreversible: 1,
+        rejected: 0,
+        unconfirmed: 0,
+        ruleRefs: [{ ref: "safe-change", count: 1 }],
+        otherRuleRefs: 0,
+        items: [],
+        itemsOmitted: 0,
+      },
+    };
+    await publishTestLedger(
+      root,
+      "decision-session",
+      "cp-decision",
+      JSON.stringify(ledger),
+    );
+
+    const result = await collectIndex(root, {
+      since: "2026-10-01",
+      until: "2026-10-10",
+      folder: null,
+    });
+    expect(result.rows).toHaveLength(1);
+    expect(result.rows[0].decisions).toEqual({
+      byBasis: ledger.decisions.byBasis,
+      byImpact: ledger.decisions.byImpact,
+    });
+    expect(result.rows[0].decisionsHighPending).toBe(1);
+    expect(result.totals.decisionsByBasis).toEqual({
+      rule: 1,
+      defaultPendingReview: 1,
+    });
+    expect(result.totals.decisionsByImpact.high.defaultPendingReview).toBe(1);
+    expect(result.totals.decisionsMeasuredSessions).toBe(1);
+    expect(result.totals.decisionsNotMeasuredSessions).toBe(0);
+    const html = renderIndexHtml(result);
+    expect(html).toContain("pending-review default 1");
+    expect(html).toContain('<th class="num">High-impact default pending review</th>');
+    expect(html).toContain('<td class="num">1</td>');
+  });
+  it("keeps missing legacy decision data distinct from measured zero", async () => {
+    const root = await newRoot();
+    await publishTestLedger(
+      root,
+      "legacy-unmeasured-decisions",
+      "cp-legacy-unmeasured",
+      JSON.stringify(
+        makeMinimalLedger({
+          session: "legacy-unmeasured-decisions",
+          schemaVersion: 1,
+        }),
+      ),
+    );
+    const result = await collectIndex(root, {
+      since: "2026-10-01",
+      until: "2026-10-10",
+      folder: null,
+    });
+    expect(result.rows[0].decisions).toBeNull();
+    expect(result.rows[0].decisionsHighPending).toBeNull();
+    expect(result.totals.decisionsMeasuredSessions).toBe(0);
+    expect(result.totals.decisionsNotMeasuredSessions).toBe(1);
+    expect(result.totals.decisionsByBasis).toEqual({
+      rule: 0,
+      defaultPendingReview: 0,
+    });
+    const html = renderIndexHtml(result);
+    expect(html).toContain("Decision totals: not measured (1 session unmeasured)");
+    expect(html).toContain('<td class="num">not measured</td>');
+  });
+  it("qualifies mixed decision totals by their measured subset", async () => {
+    const root = await newRoot();
+    await publishTestLedger(
+      root,
+      "mixed-legacy",
+      "cp-mixed-legacy",
+      JSON.stringify(
+        makeMinimalLedger({ session: "mixed-legacy", schemaVersion: 1 }),
+      ),
+    );
+    const measured = {
+      ...makeMinimalLedger({
+        session: "mixed-v2",
+        schemaVersion: 2,
+        treeCoverage: {
+          state: "not-measured",
+          agentsCreated: 0,
+          agentsRead: 0,
+        },
+      }),
+      activity: null,
+      failureRuns: {
+        minLength: 2,
+        runs: 0,
+        longest: null,
+        tools: [],
+        truncated: false,
+      },
+      time: null,
+      decisions: {
+        total: 0,
+        byBasis: { rule: 0, defaultPendingReview: 0 },
+        byImpact: {
+          high: { rule: 0, defaultPendingReview: 0 },
+          medium: { rule: 0, defaultPendingReview: 0 },
+          low: { rule: 0, defaultPendingReview: 0 },
+        },
+        irreversible: 0,
+        rejected: 0,
+        unconfirmed: 0,
+        ruleRefs: [],
+        otherRuleRefs: 0,
+        items: [],
+        itemsOmitted: 0,
+      },
+    };
+    await publishTestLedger(root, "mixed-v2", "cp-mixed-v2", JSON.stringify(measured));
+
+    const result = await collectIndex(root, {
+      since: "2026-10-01",
+      until: "2026-10-10",
+      folder: null,
+    });
+
+    expect(result.totals.decisionsMeasuredSessions).toBe(1);
+    expect(result.totals.decisionsNotMeasuredSessions).toBe(1);
+    expect(renderIndexHtml(result)).toContain(
+      "(1 measured of 2 sessions; 1 unmeasured, excluded)",
+    );
+  });
+});
+
+describe("legacy ledger read preservation", () => {
+  it("indexes a published schema-v1 ledger without rewriting its bytes", async () => {
+    const root = await newRoot();
+    const original = JSON.stringify(
+      makeMinimalLedger({
+        session: "legacy-v1",
+        schemaVersion: 1,
+        to: "2026-10-05T10:00:00.000Z",
+      }),
+    );
+    await publishTestLedger(root, "legacy-v1", "cp-legacy", original);
+
+    const page = await listPublished(root);
+    const ledgerEntry = page.entries.find(
+      (entry) => entry.kind === "ledger",
+    );
+    expect(ledgerEntry).toBeDefined();
+    if (!ledgerEntry) return;
+    const artifact = await resolveArtifact(root, ledgerEntry.artifactId);
+    const before = await fs.readFile(artifact.absolutePath, "utf8");
+
+    const result = await collectIndex(root, {
+      since: "2026-10-01",
+      until: "2026-10-10",
+      folder: null,
+    });
+
+    const after = await fs.readFile(artifact.absolutePath, "utf8");
+    expect(before).toBe(original);
+    expect(after).toBe(before);
+    expect(result.rows.map((row) => row.session)).toContain("legacy-v1");
   });
 });
 

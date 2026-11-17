@@ -79,4 +79,16 @@ describe('CLI entrypoint JSON output', () => {
     expect(result.stdout).not.toContain('injected env');
     expect(result.stderr).not.toContain('injected env');
   });
+  
+  it('exposes retrospective agent-record options on the real entrypoint', async () => {
+    const result = await runEntrypoint([
+      'retrospective',
+      'enable',
+      '--help',
+    ]);
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain('--agent-record-root <path>');
+    expect(result.stdout).toContain('--no-agent-records');
+  });
 });

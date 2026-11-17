@@ -78,7 +78,7 @@ describe("MCP HTTP surface and retrospective tools", () => {
     delete process.env.MCP_TRANSPORT;
 
     const names = await listToolNamesThroughHttp();
-    expect(names).toContain("list_categories");
+    expect(names).not.toContain("record_decision");
     expect(names).not.toContain("prepare_retrospective");
     expect(names).not.toContain("get_retrospective_status");
     expect(names).not.toContain("prepare_retrospective_index");
@@ -88,7 +88,7 @@ describe("MCP HTTP surface and retrospective tools", () => {
     process.env.MCP_TRANSPORT = "stdio";
 
     const names = await listToolNamesThroughHttp();
-    expect(names).toContain("list_categories");
+    expect(names).not.toContain("record_decision");
     expect(names).not.toContain("prepare_retrospective");
     expect(names).not.toContain("get_retrospective_status");
     expect(names).not.toContain("prepare_retrospective_index");

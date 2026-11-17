@@ -1,13 +1,22 @@
 import fs from "node:fs/promises";
+import fsNative from "node:fs";
+import { promisify } from "node:util";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import type { ConsentRecord } from "../src/retrospective/consent";
 import {
+  adoptNativeReadSource,
   discoverSession,
   isPathInside,
+  openRegularReadSource,
   type ServerObservation,
 } from "../src/retrospective/discovery";
+import type { ReadSource } from "../src/retrospective/read-source";
+
+const openDescriptor = promisify(fsNative.open);
+const statDescriptor = promisify(fsNative.fstat);
+const closeDescriptor = promisify(fsNative.close);
 
 const temporaryRoots: string[] = [];
 
@@ -70,6 +79,30 @@ async function writeSessionFile(
   }
   const mtime = options.mtime ?? deriveMtime(lines);
   await fs.utimes(filePath, mtime, mtime);
+}
+
+async function writeAgentRecord(
+  filePath: string,
+  options: {
+    id: string;
+    sessionId: string;
+    parentAgentId?: string;
+    provider?: string;
+  },
+): Promise<void> {
+  await fs.mkdir(path.dirname(filePath), { recursive: true });
+  await fs.writeFile(
+    filePath,
+    JSON.stringify({
+      id: options.id,
+      provider: options.provider ?? "omp",
+      persistence: { sessionId: options.sessionId },
+      labels: options.parentAgentId
+        ? { "paseo.parent-agent-id": options.parentAgentId }
+        : {},
+    }),
+    { mode: 0o600 },
+  );
 }
 
 function sessionHeader(options: {
@@ -157,7 +190,8 @@ describe("retrospective session discovery and binding", () => {
       }),
     ]);
 
-    const consent = createConsent([allowed], store);
+    const missingAllowed = path.join(root, "missing-sessions");
+    const consent = createConsent([missingAllowed, allowed], store);
     const observation: ServerObservation = {
       workspace,
       toolCalls: [
@@ -177,6 +211,10 @@ describe("retrospective session discovery and binding", () => {
       expect(result.manifest.provenance).toBe("host-local");
       expect(result.manifest.checkpointId).toMatch(/^[a-z0-9]{32}$/);
       expect(result.childFiles).toEqual([]);
+      expect(result.hostAgentsSource).toBe("call-count");
+      expect(result.hostAgentsCreatedCount).toBe(0);
+      expect(result.hostAgentsReadCount).toBe(0);
+      expect(result.hostAgentsTruncated).toBe(false);
       expect(result.unlinkedAgents).toBe(0);
     }
   });
@@ -495,7 +533,9 @@ describe("retrospective session discovery and binding", () => {
               type: "toolCall",
               id: "call-task",
               name: "task",
-              arguments: { tasks: [{ name: "ChildAgentA" }] },
+              arguments: {
+                tasks: [{ name: "ChildAgentA" }, { name: "UnlinkedTaskWorker" }],
+              },
             },
           ],
         },
@@ -528,7 +568,10 @@ describe("retrospective session discovery and binding", () => {
     expect(result.state).toBe("bound");
     if (result.state === "bound") {
       expect(result.childFiles).toEqual([path.resolve(childAFile)]);
-      expect(result.unlinkedAgents).toBe(1);
+      expect(result.unlinkedAgents).toBe(2);
+      expect(result.createdAgentsCount).toBe(3);
+      expect(result.taskAgentsCreatedCount).toBe(2);
+      expect(result.hostAgentsCreatedCount).toBe(1);
       expect(result.manifest.nodes).toHaveLength(2);
       expect(result.manifest.nodes[1].key.sessionId).toBe("child-agent-a");
       expect(result.manifest.nodes[1].parent).toEqual({
@@ -536,6 +579,70 @@ describe("retrospective session discovery and binding", () => {
         sessionId: "main-sess",
       });
     }
+  });
+
+  it("returns no-evidence for an absent allowed source root", async () => {
+    const root = await temporaryDirectory();
+    const missingAllowed = path.join(root, "missing-sessions");
+    const workspace = path.join(root, "my-workspace");
+
+    const result = await discoverSession(createConsent([missingAllowed], root), {
+      workspace,
+      toolCalls: [],
+    });
+
+    expect(result.state).toBe("no-evidence");
+  });
+
+  it("closes a descriptor when native open completes after cancellation", async () => {
+    const root = await temporaryDirectory();
+    const filePath = path.join(root, "session.jsonl");
+    await fs.writeFile(filePath, "session");
+    const fd = await openDescriptor(filePath, "r");
+    const controller = new AbortController();
+    let releaseOpen: (() => void) | undefined;
+    const openGate = new Promise<void>((resolve) => {
+      releaseOpen = resolve;
+    });
+    const pending = adoptNativeReadSource(
+      async () => {
+        await openGate;
+        return fd;
+      },
+      controller.signal,
+    );
+
+    controller.abort();
+    if (!releaseOpen) throw new Error("Native open gate was not initialized");
+    releaseOpen();
+
+    try {
+      await expect(pending).rejects.toMatchObject({ code: "ABORTED" });
+      await expect(statDescriptor(fd)).rejects.toMatchObject({ code: "EBADF" });
+    } finally {
+      await closeDescriptor(fd).catch(() => undefined);
+    }
+  });
+
+  it("closes a source whose stat fails during cancellation before abort propagates", async () => {
+    const controller = new AbortController();
+    const events: string[] = [];
+    const source: ReadSource = {
+      stat: async () => {
+        controller.abort();
+        events.push("stat-failed");
+        throw new Error("interrupted stat");
+      },
+      read: async (buffer) => ({ bytesRead: 0, buffer }),
+      close: async () => {
+        events.push("closed");
+      },
+    };
+
+    await expect(
+      openRegularReadSource(async () => source, controller.signal),
+    ).rejects.toMatchObject({ code: "ABORTED" });
+    expect(events).toEqual(["stat-failed", "closed"]);
   });
 
   it("returns no-evidence when no tool calls match", async () => {
@@ -1522,6 +1629,8 @@ describe("retrospective session discovery and binding", () => {
       expect(result.mainFile).toBe(path.resolve(parentFile));
       expect(result.childFiles).toEqual([path.resolve(workerFile)]);
       expect(result.unlinkedAgents).toBe(0);
+      expect(result.taskAgentsCreatedCount).toBe(1);
+      expect(result.hostAgentsCreatedCount).toBe(0);
       expect(result.manifest.nodes).toHaveLength(2);
       expect(result.manifest.nodes[1].key.sessionId).toBe("worker-delta");
       expect(result.manifest.nodes[1].parent).toEqual({
@@ -1529,6 +1638,173 @@ describe("retrospective session discovery and binding", () => {
         sessionId: "sess-parent",
       });
     }
+  });
+
+  it("links host-agent descendants through grandchild edges by real session ids", async () => {
+    const root = await temporaryDirectory();
+    const store = path.join(root, "store");
+    const allowed = path.join(root, "allowed-sessions");
+    const recordsRoot = path.join(root, "agent-records");
+    const workspace = path.join(root, "my-workspace");
+    const mainFile = path.join(allowed, "2026-11-01T12-00-00Z_main-session.jsonl");
+    const workerFile = path.join(allowed, "agent-worker.jsonl");
+    const grandchildFile = path.join(allowed, "agent-grandchild.jsonl");
+    const siblingFile = path.join(allowed, "agent-sibling.jsonl");
+    await writeSessionFile(mainFile, [
+      sessionHeader({ id: "main-session", cwd: workspace }),
+      ompMcpToolCall({
+        callId: "host-main-match",
+        tool: "load_skills_for_files",
+        timestamp: "2026-11-01T12:01:00.000Z",
+      }),
+      toolResult({
+        callId: "host-main-match",
+        timestamp: "2026-11-01T12:01:00.400Z",
+      }),
+    ]);
+    await writeSessionFile(workerFile, [
+      sessionHeader({ id: "agent-worker", cwd: workspace }),
+    ]);
+    await writeSessionFile(grandchildFile, [
+      sessionHeader({ id: "agent-grandchild", cwd: workspace }),
+    ]);
+    await writeSessionFile(siblingFile, [
+      sessionHeader({ id: "agent-sibling", cwd: workspace }),
+    ]);
+    await writeAgentRecord(
+      path.join(recordsRoot, "root", "root-agent-0001.json"),
+      { id: "root-agent-0001", sessionId: "main-session" },
+    );
+    await writeAgentRecord(
+      path.join(recordsRoot, "root", "worker-agent-0001.json"),
+      {
+        id: "worker-agent-0001",
+        sessionId: "agent-worker",
+        parentAgentId: "root-agent-0001",
+      },
+    );
+    await writeAgentRecord(
+      path.join(recordsRoot, "root", "grandchild-agent-0001.json"),
+      {
+        id: "grandchild-agent-0001",
+        sessionId: "agent-grandchild",
+        parentAgentId: "worker-agent-0001",
+      },
+    );
+    await writeAgentRecord(
+      path.join(recordsRoot, "root", "sibling-agent-0001.json"),
+      {
+        id: "sibling-agent-0001",
+        sessionId: "agent-sibling",
+        parentAgentId: "root-agent-0001",
+      },
+    );
+
+    const consent = {
+      ...createConsent([allowed], store),
+      allowedAgentRecordRoots: [recordsRoot],
+    };
+    const result = await discoverSession(consent, {
+      workspace,
+      toolCalls: [
+        {
+          tool: "load_skills_for_files",
+          at: "2026-11-01T12:01:00.200Z",
+        },
+      ],
+    });
+
+    expect(result.state).toBe("bound");
+    if (result.state !== "bound") return;
+    expect(result.hostAgentsSource).toBe("agent-records");
+    expect(result.hostAgentsCreatedCount).toBe(3);
+    expect(result.hostAgentsReadCount).toBe(3);
+    expect(result.hostAgentsTruncated).toBe(false);
+    expect(result.createdAgentsCount).toBe(3);
+    expect(result.manifest.nodes).toHaveLength(4);
+    const worker = result.manifest.nodes.find(
+      (node) => node.key.sessionId === "agent-worker",
+    );
+    const grandchild = result.manifest.nodes.find(
+      (node) => node.key.sessionId === "agent-grandchild",
+    );
+    const sibling = result.manifest.nodes.find(
+      (node) => node.key.sessionId === "agent-sibling",
+    );
+    expect(worker?.parent).toEqual({
+      hostId: "local",
+      sessionId: "main-session",
+    });
+    expect(grandchild?.parent).toEqual({
+      hostId: "local",
+      sessionId: "agent-worker",
+    });
+    expect(sibling?.parent).toEqual({
+      hostId: "local",
+      sessionId: "main-session",
+    });
+  });
+
+  it("does not link an unsupported provider through a colliding OMP session id", async () => {
+    const root = await temporaryDirectory();
+    const store = path.join(root, "store");
+    const allowed = path.join(root, "allowed-sessions");
+    const recordsRoot = path.join(root, "agent-records");
+    const workspace = path.join(root, "my-workspace");
+    await writeSessionFile(
+      path.join(allowed, "2026-11-01T12-00-00Z_main-session.jsonl"),
+      [
+        sessionHeader({ id: "main-session", cwd: workspace }),
+        ompMcpToolCall({
+          callId: "unsupported-provider-main",
+          tool: "load_skills_for_files",
+          timestamp: "2026-11-01T12:01:00.000Z",
+        }),
+        toolResult({
+          callId: "unsupported-provider-main",
+          timestamp: "2026-11-01T12:01:00.400Z",
+        }),
+      ],
+    );
+    await writeSessionFile(path.join(allowed, "agent_unsupported-worker.jsonl"), [
+      sessionHeader({ id: "unsupported-worker", cwd: workspace }),
+    ]);
+    await writeAgentRecord(
+      path.join(recordsRoot, "root", "root-agent-0001.json"),
+      { id: "root-agent-0001", sessionId: "main-session" },
+    );
+    await writeAgentRecord(
+      path.join(recordsRoot, "root", "worker-agent-0001.json"),
+      {
+        id: "worker-agent-0001",
+        sessionId: "unsupported-worker",
+        parentAgentId: "root-agent-0001",
+        provider: "other-provider",
+      },
+    );
+
+    const result = await discoverSession(
+      {
+        ...createConsent([allowed], store),
+        allowedAgentRecordRoots: [recordsRoot],
+      },
+      {
+        workspace,
+        toolCalls: [
+          {
+            tool: "load_skills_for_files",
+            at: "2026-11-01T12:01:00.200Z",
+          },
+        ],
+      },
+    );
+
+    expect(result.state).toBe("bound");
+    if (result.state !== "bound") return;
+    expect(result.hostAgentsCreatedCount).toBe(1);
+    expect(result.hostAgentsReadCount).toBe(0);
+    expect(result.hostAgentsTruncated).toBe(true);
+    expect(result.manifest.nodes).toHaveLength(1);
   });
 
   it("never scores a candidate modified before the earliest observed record", async () => {

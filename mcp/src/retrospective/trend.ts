@@ -77,7 +77,7 @@ const looseAgentSchema = z
 
 const looseLedgerSchema = z
   .object({
-    schemaVersion: z.number(),
+    schemaVersion: z.union([z.literal(1), z.literal(2)]),
     session: z.string().nullable(),
     folder: z
       .object({

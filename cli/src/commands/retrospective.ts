@@ -8,6 +8,8 @@ import { PACKAGE } from '../services/McpConfigService';
 export interface RetrospectiveOptions {
   storeRoot?: string;
   sourceRoot?: string | string[];
+  agentRecordRoot?: string | string[];
+  noAgentRecords?: boolean;
   since?: string;
   until?: string;
   folder?: string;
@@ -94,7 +96,12 @@ const ACTION_PATTERN = /^[A-Za-z0-9-]{1,30}$/;
 const WINDOWS_ARG_PATTERN = /^[A-Za-z0-9._:/\\@~=+ -]{1,260}$/;
 
 const ALLOWED_OPTIONS: Record<string, Record<string, true>> = {
-  enable: { storeRoot: true, sourceRoot: true },
+  enable: {
+    storeRoot: true,
+    sourceRoot: true,
+    agentRecordRoot: true,
+    noAgentRecords: true,
+  },
   index: { since: true, until: true, folder: true },
   disable: {},
   status: {},
@@ -135,7 +142,7 @@ export class RetrospectiveCommand {
           `Unknown action "${action}". Use: enable | disable | status | index`,
         );
       } else {
-        this.log('Unknown action. Use: enable | disable | status | index');
+        this.log("Unknown action. Use: enable | disable | status | index");
       }
       this.exit(2);
       return;
@@ -143,7 +150,7 @@ export class RetrospectiveCommand {
 
     if (extraArgs && extraArgs.length > 0) {
       this.log(
-        `Unexpected option or argument for action "${action}". Allowed options for "enable": --store-root, --source-root; for "index": --since, --until, --folder; "disable" and "status" take no options.`,
+        `Unexpected option or argument for action "${action}". Allowed options for "enable": --store-root, --source-root, --agent-record-root, --no-agent-records; for "index": --since, --until, --folder; "disable" and "status" take no options.`,
       );
       this.exit(2);
       return;
@@ -159,7 +166,7 @@ export class RetrospectiveCommand {
       }
       if (!allowed[key]) {
         this.log(
-          `Unexpected option or argument for action "${action}". Allowed options for "enable": --store-root, --source-root; for "index": --since, --until, --folder; "disable" and "status" take no options.`,
+          `Unexpected option or argument for action "${action}". Allowed options for "enable": --store-root, --source-root, --agent-record-root, --no-agent-records; for "index": --since, --until, --folder; "disable" and "status" take no options.`,
         );
         this.exit(2);
         return;
@@ -199,6 +206,19 @@ export class RetrospectiveCommand {
             forwarded.push('--source-root', root);
           }
         }
+      }
+      if (options.agentRecordRoot !== undefined) {
+        const roots = Array.isArray(options.agentRecordRoot)
+          ? options.agentRecordRoot
+          : [options.agentRecordRoot];
+        for (const root of roots) {
+          if (typeof root === "string" && root.length > 0) {
+            forwarded.push("--agent-record-root", root);
+          }
+        }
+      }
+      if (options.noAgentRecords === true) {
+        forwarded.push("--no-agent-records");
       }
     } else if (action === 'index') {
       if (typeof options.since === 'string' && options.since.length > 0) {

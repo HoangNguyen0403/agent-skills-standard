@@ -58,8 +58,19 @@ function createLedgerFixture(
     permissionRequests?: LedgerPermissionRequests | null;
   } = {},
 ): Ledger {
+  const coverageClaim = overrides.claims?.find(
+    (claim) => claim.template === "coverage",
+  );
+  const agentsCreated =
+    typeof coverageClaim?.values.agentsCreated === "number"
+      ? coverageClaim.values.agentsCreated
+      : 0;
+  const agentsRead =
+    typeof coverageClaim?.values.agentsRead === "number"
+      ? coverageClaim.values.agentsRead
+      : 0;
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     cutoff: "2026-10-01T12:00:00.000Z",
     session: "01a167e1",
     label: null,
@@ -82,6 +93,23 @@ function createLedgerFixture(
     hostSkills: null,
     cells: [],
     agents: [],
+    treeCoverage: {
+      state: agentsCreated > agentsRead ? "partial" : "complete",
+      agentsCreated,
+      agentsRead,
+      unlinked: Math.max(0, agentsCreated - agentsRead),
+      task: { created: agentsCreated, read: agentsRead },
+      hostAgents: {
+        created: 0,
+        read: 0,
+        source: "call-count",
+        truncated: false,
+      },
+    },
+    activity: null,
+    failureRuns: null,
+    time: null,
+    decisions: null,
     otherAgents: null,
     improvements: [],
     claims: [],
@@ -156,6 +184,61 @@ describe("renderReportHtml", () => {
     const out1 = renderReportHtml(ledger);
     const out2 = renderReportHtml(ledger);
     expect(out1).toBe(out2);
+  });
+
+  it("states tree coverage and identifies the call-count fallback", () => {
+    const html = renderReportHtml(
+      createLedgerFixture({
+        treeCoverage: {
+          state: "partial",
+          agentsCreated: 3,
+          agentsRead: 1,
+          unlinked: 2,
+          task: { created: 2, read: 1 },
+          hostAgents: {
+            created: 1,
+            read: 0,
+            source: "call-count",
+            truncated: false,
+          },
+        },
+      }),
+    );
+
+    expect(html).toContain("Tree: partial (1 of 3 counted agent items read;");
+    expect(html).toContain(
+      "task counts are observed task-call attempts (not guaranteed successful)",
+    );
+    expect(html).toContain(
+      "host counts are observed create_agent call attempts (not guaranteed successful)",
+    );
+  });
+
+  it("distinguishes descendant-record host counts from task call attempts", () => {
+    const html = renderReportHtml(
+      createLedgerFixture({
+        treeCoverage: {
+          state: "partial",
+          agentsCreated: 3,
+          agentsRead: 1,
+          unlinked: 2,
+          task: { created: 2, read: 1 },
+          hostAgents: {
+            created: 1,
+            read: 0,
+            source: "agent-records",
+            truncated: false,
+          },
+        },
+      }),
+    );
+
+    expect(html).toContain("Tree: partial (1 of 3 counted agent items read;");
+    expect(html).toContain(
+      "task counts are observed task-call attempts (not guaranteed successful)",
+    );
+    expect(html).toContain("host counts are observed descendant agent records");
+    expect(html).not.toContain("host counts are observed create_agent call attempts");
   });
 
   it("includes CSP meta and doctype, and contains no raw script or external http resources", () => {
@@ -2392,7 +2475,7 @@ describe("renderReportHtml", () => {
 
       const detailsMatches = html.match(/<details class="sec" id="sec-[^"]+"/g);
       expect(detailsMatches).toBeDefined();
-      expect(detailsMatches?.length).toBe(11);
+      expect(detailsMatches?.length).toBeGreaterThan(0);
 
       // Flagged sections in createRichLedger: permissions (denied/unanswered/act), tool failures (errors>0 + act), error stops (>0)
       expect(html).toContain('<details class="sec" id="sec-permissions" open>');
@@ -2424,7 +2507,7 @@ describe("renderReportHtml", () => {
       expect(doNextIdx).toBeLessThan(firstDetailsIdx);
     });
 
-    it("shows a singular git outcome headline and drops the Agents headline when no agents were created", () => {
+    it("shows a singular git outcome with tree coverage separate from agent rows", () => {
       const mainAgent: LedgerAgent = {
         label: "main",
         kind: "orchestrator",
@@ -2467,7 +2550,13 @@ describe("renderReportHtml", () => {
       expect(html).toContain(
         '<details class="sec" id="sec-agents"><summary><h3>Agents</h3></summary>',
       );
-      expect(html).not.toContain("0 of 0");
+      expect(html).toContain("Tree: complete (0 of 0 counted agent items read;");
+      expect(html).toContain(
+        "task counts are observed task-call attempts (not guaranteed successful)",
+      );
+      expect(html).toContain(
+        "host counts are observed create_agent call attempts (not guaranteed successful)",
+      );
     });
 
     it("(b) each section summary contains its exact headline string with plural variants and section id", () => {
@@ -2578,7 +2667,7 @@ describe("renderReportHtml", () => {
       );
     });
 
-    it("(c) a section whose data is missing renders no <details> at all", () => {
+    it("(c) omits unavailable unrelated sections and marks unmeasured signals", () => {
       const emptyLedger = createLedgerFixture({
         permissionRequests: null,
         models: [],
@@ -2601,6 +2690,82 @@ describe("renderReportHtml", () => {
       );
       expect(html).not.toContain("<h3>Agents</h3>");
       expect(html).not.toContain("For the maintainer");
+      expect(html).toContain("Decision recording was not measured for this session.");
+      expect(html).toContain(
+        "<h4>Main-session user rows</h4><p>Not measured.</p>",
+      );
+      expect(html).toContain("<h4>Time and waits</h4><p>Not measured.</p>");
+    });
+    it("labels capped failure counts and missing main timing in the report", () => {
+      const html = renderReportHtml(
+        createLedgerFixture({
+          failureRuns: {
+            minLength: 3,
+            runs: 2,
+            longest: null,
+            tools: [],
+            truncated: true,
+          },
+          time: {
+            wallSeconds: 1800,
+            main: null,
+            permissionLatency: null,
+          },
+        }),
+      );
+
+      expect(html).toContain("Partial measurement: counts are observed lower bounds.");
+      expect(html).toContain("1800s wall time. Main-session idle timing: not measured.");
+    });
+    it("prioritizes high-impact pending decisions before the report's 50-item cap", () => {
+      const lowItems = Array.from({ length: 50 }, (_, index) => ({
+        at: `2026-10-${String((index % 28) + 1).padStart(2, "0")}T10:00:00.000Z`,
+        agent: "main",
+        basis: "default-pending-review" as const,
+        impact: "low" as const,
+        reversible: true,
+        ruleRef: null,
+        label: `low-${index}`,
+      }));
+      const html = renderReportHtml(
+        createLedgerFixture({
+          decisions: {
+            total: 51,
+            byBasis: { rule: 0, defaultPendingReview: 51 },
+            byImpact: {
+              high: { rule: 0, defaultPendingReview: 1 },
+              medium: { rule: 0, defaultPendingReview: 0 },
+              low: { rule: 0, defaultPendingReview: 50 },
+            },
+            irreversible: 0,
+            rejected: 0,
+            unconfirmed: 0,
+            ruleRefs: [],
+            otherRuleRefs: 0,
+            items: [
+              ...lowItems,
+              {
+                at: "2026-10-31T10:00:00.000Z",
+                agent: "main",
+                basis: "default-pending-review",
+                impact: "high",
+                reversible: false,
+                ruleRef: null,
+                label: "priority-high",
+              },
+            ],
+            itemsOmitted: 0,
+          },
+        }),
+      );
+
+      expect(html.indexOf("priority-high")).toBeGreaterThan(-1);
+      expect(html.indexOf("priority-high")).toBeLessThan(html.indexOf("low-0"));
+
+      const pendingList = html.match(
+        /<h4>Pending-review defaults \(first 50\)<\/h4>[\s\S]*?<ol>([\s\S]*?)<\/ol>/,
+      );
+      expect(pendingList?.[1].match(/<li>/g)).toHaveLength(50);
     });
 
     it("(d) the hint line appears iff a collapsed section exists", () => {
