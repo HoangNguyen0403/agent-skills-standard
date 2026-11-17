@@ -21,7 +21,7 @@ metadata:
 ## Core Rule Anchors
 
 - **`[WEB-TEST-01..05]` Core Web Standards**: Tripartite naming (`Method_Scenario_ExpectedBehavior`), accessible roles (`getByRole`), no prop/state inspection, MSW network mocking, and bug-first regression reproduction.
-- **`[WEB-TEST-06]` Ban on Static Artifact Pinning & Twin `.test.js` Suites**: Never assert on static `print(GQL)` query text or `.loc.source.body` substring matches (`GUARD-TS-STATIC-PINNING`); test the hook or query component. Never loop `Object.keys(locales/*.json)` or assert `typeof en[k] === 'string'`; assert user-visible rendered text. Never create `<stem>.test.ts(x)` alongside legacy `<stem>.test.js(x)` (`GUARD-TS-DUAL-EXT`); migrate legacy files. Ban pass-through mock echoes (`expect(wrapper()).toBe(X)` without business transformations).
+- **`[WEB-TEST-06]` Ban on Static Artifact Pinning & Twin `.test.js` Suites**: Never assert on static `print(GQL)` query text or `.loc.source.body` substring matches (`GUARD-TS-STATIC-PINNING`); test the hook or query component. Never loop `Object.keys(locales/*.json)` or assert `typeof en[k] === 'string'`; assert user-visible rendered text via `findByText`/`getByRole`. Never create `<stem>.test.ts(x)` alongside legacy `<stem>.test.js(x)` (`GUARD-TS-DUAL-EXT`); migrate legacy files. Ban pass-through mock echoes (`expect(wrapper()).toBe(X)` without business transformations).
 
 ## Test Runner & Workflow
 

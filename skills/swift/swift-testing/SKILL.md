@@ -34,7 +34,7 @@ See [implementation examples](references/implementation.md) for XCTest setup/tea
 ## Test Async Code
 
 - **Async/Await**: Mark test methods as `async throws` and use `try await` directly inside them.
-- **Expectations (`GUARD-SWIFT-01`)**: Unit-test expectation wait timeouts must be $\le 2.0\text{s}$ to avoid stalling CI; prefer modern `await fulfillment(of: [exp], timeout: 2.0)` over blocking wait.
+- **Expectations (`GUARD-SWIFT-01`)**: For async callbacks, use `XCTestExpectation`: call `expectation`, `fulfill()`, then `wait(for: [exp], timeout: 2.0)` or prefer modern `await fulfillment(of: [exp], timeout: 2.0)` with timeout $\le 2.0\text{s}$ to avoid stalling CI.
 - **Timeout**: Always set bounded timeouts $\le 2.0\text{s}$ for unit test expectations.
 
 ## Organize Test Suites

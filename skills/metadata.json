@@ -398,9 +398,9 @@
       "tag_prefix": "react-v",
       "token_metrics": {
         "total_skills": 8,
-        "total_tokens": 5404,
-        "avg_tokens_per_skill": 676,
-        "largest_skill": "react-testing (1320 tokens)"
+        "total_tokens": 5412,
+        "avg_tokens_per_skill": 677,
+        "largest_skill": "react-testing (1328 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -446,9 +446,9 @@
       "tag_prefix": "nestjs-v",
       "token_metrics": {
         "total_skills": 21,
-        "total_tokens": 14033,
-        "avg_tokens_per_skill": 668,
-        "largest_skill": "nestjs-testing (1282 tokens)"
+        "total_tokens": 14164,
+        "avg_tokens_per_skill": 674,
+        "largest_skill": "nestjs-testing (1413 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -470,8 +470,8 @@
       "tag_prefix": "nextjs-v",
       "token_metrics": {
         "total_skills": 18,
-        "total_tokens": 12116,
-        "avg_tokens_per_skill": 673,
+        "total_tokens": 12123,
+        "avg_tokens_per_skill": 674,
         "largest_skill": "nextjs-architecture (1040 tokens)"
       },
       "owners": [
@@ -694,9 +694,9 @@
       "tag_prefix": "swift-v",
       "token_metrics": {
         "total_skills": 8,
-        "total_tokens": 4533,
-        "avg_tokens_per_skill": 567,
-        "largest_skill": "swift-testing (1002 tokens)"
+        "total_tokens": 4550,
+        "avg_tokens_per_skill": 569,
+        "largest_skill": "swift-testing (1019 tokens)"
       },
       "owners": [
         "HoangNguyen0403"

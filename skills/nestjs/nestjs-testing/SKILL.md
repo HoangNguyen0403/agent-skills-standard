@@ -37,7 +37,7 @@ test/**/*.e2e-spec.ts # E2E tests (full app flows)
 - **Setup & Mocks (`[BE-TEST-04]`, `GUARD-NEST-02`)**: Use `Test.createTestingModule()` with mocked providers. Mock repositories with `getRepositoryToken()`; never import live database modules (`GUARD-NEST-02`).
 - **No Controller Echoes (`GUARD-NEST-01`)**: Test validation pipes, guards, interceptors, or transformed response contracts rather than asserting identical mocked service returns.
 - **Pattern & Cleanup**: AAA (Arrange-Act-Assert). Call `jest.clearAllMocks()` in `afterEach`. Check companion files before creating new ones.
-- **TS Hygiene**: Always `await` promise assertions (`GUARD-TS-FLOATING-ASSERT`). Never assert only inside `catch` without an explicit failure guard in `try` (`GUARD-TS-CATCH-ONLY`). Ban self-mocking and mocking SUT (`GUARD-TS-SELF-MOCK`).
+- **TS Hygiene**: Always `await` promise assertions (`GUARD-TS-FLOATING-ASSERT`). Never assert only inside `catch` without an explicit failure guard in `try` (`GUARD-TS-CATCH-ONLY`). Never wrap assertions in unverified conditionals without `expect.hasAssertions()` (`GUARD-TS-CONDITIONAL-ASSERT`). Ban self-mocking and mocking SUT (`GUARD-TS-SELF-MOCK`, `GUARD-TS-MOCKED-SUT`).
 
 ## E2E Testing
 
@@ -45,6 +45,12 @@ test/**/*.e2e-spec.ts # E2E tests (full app flows)
 - **Cleanup**: Mandatory. Use transaction rollback or `TRUNCATE` in `afterEach`.
 - **App Init**: Create app in `beforeAll`, close in `afterAll`.
 - **Guards**: Override via `.overrideGuard(X).useValue({ canActivate: () => true })` ONLY for isolated business tests where authorization is out of scope. Dynamic security tests must exercise real guards (`[BE-TEST-06]`).
+
+## Strict TypeScript (MANDATORY)
+
+- **No any**: Use typed DTOs, `jest.Mocked<T>`, or `as unknown as T`. Never `as any`.
+- **No eslint-disable**: Fix underlying type issue. Verify DTO shapes before writing mock data.
+- **Cast Jest matchers**: Nested `expect.anything()` -> `expect.anything() as unknown`.
 
 ## Anti-Patterns
 
@@ -54,7 +60,7 @@ test/**/*.e2e-spec.ts # E2E tests (full app flows)
 - **`[BE-TEST-04]` Controller & mock echoing (`GUARD-NEST-01`)**: Ban 1:1 mock echoing and controller pass-through echoes.
 - **`[BE-TEST-05]` Bug fix without reproduction test**: Ban bug fixes without a reproduction test.
 - **`[BE-TEST-06]` Bypassed guards for security proof**: Ban overridden guards as security verification.
-- **TS hygiene violations**: Ban floating promises (`GUARD-TS-FLOATING-ASSERT`), catch-only tests (`GUARD-TS-CATCH-ONLY`), and self-mocking (`GUARD-TS-SELF-MOCK`).
+- **TS hygiene violations**: Ban floating promises (`GUARD-TS-FLOATING-ASSERT`), catch-only tests (`GUARD-TS-CATCH-ONLY`), unverified conditionals (`GUARD-TS-CONDITIONAL-ASSERT`), and self-mocking (`GUARD-TS-SELF-MOCK`, `GUARD-TS-MOCKED-SUT`).
 - **No Private Tests**: Test via public methods, not `service['privateMethod']`.
 - **No DB Mocks in E2E**: Use real DB with cleanup. Mocks defeat E2E purpose.
 - **No Shared State**: Call `jest.clearAllMocks()` in `afterEach`. Always close app and DB in `afterAll`.
