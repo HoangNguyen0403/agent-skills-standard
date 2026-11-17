@@ -320,6 +320,62 @@ rate against the most recent `history.json` record for the same category (exclud
 dated before it, reporting `improved`, `regressed`, `unchanged`, or `no-prior-data` — never just the
 absolute number, per the `common-sdlc-metrics` trend-over-snapshot rule.
 
+#### Per-case comparison against the declared baseline
+
+Each gated run also reports a report-only `caseComparison`. It compares every scored case-arm —
+identified by category, skill, case ID and arm — with the same case-arm in the run named by its own
+`results.json` `baselineRunId`. A baseline is never inferred from `history.json`; a run without
+`baselineRunId` reports `no-baseline` and compares nothing.
+
+The comparison carries exactly one state:
+
+- `compared` — the baseline run's `results.json`, `inputs.json` and `manifest.json` and the gated
+  run's own `inputs.json` and `manifest.json` were all read and the comparison ran.
+- `no-baseline` — the gated run declares no `baselineRunId`.
+- `unavailable` — some evidence could not be read; `reason` names the run and file (missing or
+  unparseable). Nothing is thrown.
+
+Every read and computation behind the comparison is contained: `ready`, `ok`, breaches, trend and
+the exit code are identical to a gate run without a baseline, including when the comparison's own
+evidence is missing or malformed.
+
+**Comparable** means: present in both runs, answered in both (`missingAnswer` false), not marked
+compromised for that skill and arm in either run, with an identical case definition and an
+identical, fully resolved effective protocol. A matched case-arm that is not comparable is counted
+under the first reason that applies:
+
+| Reason | Meaning |
+| --- | --- |
+| `excluded` | Missing answer in either run, or the skill and arm are compromised in either run. |
+| `protocol-mismatch` | Both runs resolve the effective protocol and the values differ. |
+| `protocol-unresolved` | A needed protocol value is undefined in either run. Two unresolved values are never treated as equal. |
+| `definition-changed` | The case identity matched but its definition differs, or a definition could not be resolved. |
+
+Case identity follows the manifest builder: `eval-<id>`, positional `trigger-<n>` counted across
+`should_trigger` then `should_not_trigger`, and positional `pressure-<index+1>`. A case definition
+is each run's own snapshot in `inputs.json`: prompt plus assertions for `eval`, prompt plus expected
+decision for `trigger`, prompt plus behaviour assertions for `pressure`. Trigger IDs are positional,
+so an ID match alone does not establish the same case.
+
+The effective protocol of a skill in a run is its instruction-protocol version, its
+assertion-semantics version and, for trigger cases, its activation-evidence version, resolved from
+that run's `manifest.json` by the same rules the scorer and impact planner apply (per-skill
+provenance first, then the manifest-level value). Composite runs do not fall back to a manifest-level
+instruction version.
+
+Output names every comparable pass-to-fail case-arm with its skill, case ID, arm and failed
+assertions, and gives counts for fail-to-pass, unchanged, each not-comparable reason, added
+(case-arms only in the gated run) and removed (only in the baseline run).
+
+Answers reused from an earlier compatible run — which need not be the declared baseline — are
+compared like any other case-arm; graded the same, they count as `unchanged` and are not a fresh
+trial.
+
+The comparison is a signal to inspect, not a verdict. Each arm is a single trial: a pass-to-fail
+entry can come from lexical assertion sensitivity or sampling noise, so treat it as a prompt to read
+the two transcripts rather than proof of worse skill behaviour. Nothing in this section fails the
+gate.
+
 `readiness.ts` previously also exported a one-time `finalManifestShapeErrors` check pinned to the
 exact `v2.6.0` remediation manifest shape (136 skills, 1221 cases). That check was only referenced
 by one now-obsolete guard in `evals:manifest -- --execute` for that single historical manifest; it
