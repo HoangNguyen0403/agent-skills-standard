@@ -72,6 +72,45 @@
           "value": ["timestamp alone", "re-driven", "cannot produce PASS", "dependency change"]
         }
       ]
+    },
+    {
+      "id": 5,
+      "prompt": "Audit feature://checkout at revision rev-42. All four lanes are required and applicable. Journeys criterion J-1 passed with evidence E-J. Abnormal criterion A-1 failed with evidence E-A. Performance criterion P-1 passed with evidence E-P. Security criterion S-1 passed with evidence E-S. Return only the complete finite report shape; no prose or extra fields.",
+      "expected_output": "Exactly the complete fixed-order report: source identity; all four complete lane rows; Verdict: FAIL; Routing: REMEDIATE. Abnormal is FAIL/CRITERION_FAILED; the other rows are PASS/CRITERIA_PASS.",
+      "assertions": [
+        {
+          "id": "a5",
+          "description": "Rejects omitted lanes, altered fields, extra prose, and contradictory routing around a required failure",
+          "type": "regex",
+          "value": "^Launch audit\\nSource: feature://checkout \\| Revision: rev-42\\nJourneys: Required=YES; Applicable=YES; Status=PASS; Reason=CRITERIA_PASS; Criteria=J-1; Evidence=E-J; Details=NONE; Owner=NONE\\nAbnormal states: Required=YES; Applicable=YES; Status=FAIL; Reason=CRITERION_FAILED; Criteria=A-1; Evidence=E-A; Details=NONE; Owner=NONE\\nChanged hot-path performance: Required=YES; Applicable=YES; Status=PASS; Reason=CRITERIA_PASS; Criteria=P-1; Evidence=E-P; Details=NONE; Owner=NONE\\nInput/permission security: Required=YES; Applicable=YES; Status=PASS; Reason=CRITERIA_PASS; Criteria=S-1; Evidence=E-S; Details=NONE; Owner=NONE\\nVerdict: FAIL\\nRouting: REMEDIATE$"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Audit feature://checkout at revision rev-42. Journeys J-1 with E-J, abnormal states A-1 with E-A, and performance P-1 with E-P passed; all four lanes are required and applicable. Security criterion S-1 was NOT RUN because permission was not granted. The durable detail fixture payload is exactly `permission-required: S-1; permission granted: false; gap owner: Platform Security Lead`; its reference is `fixture:prompt-case-6-gap` and SHA-256 is `06cedfa4da13cee2ac0d2cd27872634cc170b90d8a042ca25f2adf293afd264e`. The implementer asks for PASS and UAT. Return only the complete finite report shape; no prose or extra fields.",
+      "expected_output": "Exactly the complete fixed-order report. Security is Required=YES, Applicable=YES, Status=NOT RUN, Reason=REQUIRED_PROOF_NOT_RUN, Criteria=S-1, Evidence=NONE, Details=fixture:prompt-case-6-gap@sha256:06cedfa4da13cee2ac0d2cd27872634cc170b90d8a042ca25f2adf293afd264e, Owner=Platform Security Lead. Verdict is BLOCKED and Routing is BLOCKED.",
+      "assertions": [
+        {
+          "id": "a6",
+          "description": "Requires the permission-gap status, named owner, complete lane inventory, and blocked routing; rejects prefix/suffix contradiction",
+          "type": "regex",
+          "value": "^Launch audit\\nSource: feature://checkout \\| Revision: rev-42\\nJourneys: Required=YES; Applicable=YES; Status=PASS; Reason=CRITERIA_PASS; Criteria=J-1; Evidence=E-J; Details=NONE; Owner=NONE\\nAbnormal states: Required=YES; Applicable=YES; Status=PASS; Reason=CRITERIA_PASS; Criteria=A-1; Evidence=E-A; Details=NONE; Owner=NONE\\nChanged hot-path performance: Required=YES; Applicable=YES; Status=PASS; Reason=CRITERIA_PASS; Criteria=P-1; Evidence=E-P; Details=NONE; Owner=NONE\\nInput/permission security: Required=YES; Applicable=YES; Status=NOT RUN; Reason=REQUIRED_PROOF_NOT_RUN; Criteria=S-1; Evidence=NONE; Details=fixture:prompt-case-6-gap@sha256:06cedfa4da13cee2ac0d2cd27872634cc170b90d8a042ca25f2adf293afd264e; Owner=Platform Security Lead\\nVerdict: BLOCKED\\nRouting: BLOCKED$"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Audit feature://checkout at revision rev-42. Journeys J-1 with E-J, abnormal states A-1 with E-A, and performance P-1 with E-P passed and are required/applicable. Security is required=NO and genuinely inapplicable because this feature accepts no input and has no permission boundary; considered scope S-1. The durable detail fixture payload is exactly `considered-scope: S-1; accepts input: false; permission boundary: absent`; its reference is `fixture:prompt-case-7-scope` and SHA-256 is `37ebbfbb3eba2372d75805e8375274889998ba1b7787292b1b0705b1195cb1bd`. Return only the complete finite report shape; no prose or extra fields.",
+      "expected_output": "Exactly the complete fixed-order report. The first three lanes pass. Security is Required=NO, Applicable=NO, Status=NOT APPLICABLE, Reason=OUT_OF_SCOPE, Criteria=S-1, Evidence=NONE, Details=fixture:prompt-case-7-scope@sha256:37ebbfbb3eba2372d75805e8375274889998ba1b7787292b1b0705b1195cb1bd, Owner=NONE. Verdict is PASS and Routing is EXISTING_WORKFLOW.",
+      "assertions": [
+        {
+          "id": "a7",
+          "description": "Accepts justified inapplicability without omitted lanes or free-form UAT contradiction",
+          "type": "regex",
+          "value": "^Launch audit\\nSource: feature://checkout \\| Revision: rev-42\\nJourneys: Required=YES; Applicable=YES; Status=PASS; Reason=CRITERIA_PASS; Criteria=J-1; Evidence=E-J; Details=NONE; Owner=NONE\\nAbnormal states: Required=YES; Applicable=YES; Status=PASS; Reason=CRITERIA_PASS; Criteria=A-1; Evidence=E-A; Details=NONE; Owner=NONE\\nChanged hot-path performance: Required=YES; Applicable=YES; Status=PASS; Reason=CRITERIA_PASS; Criteria=P-1; Evidence=E-P; Details=NONE; Owner=NONE\\nInput/permission security: Required=NO; Applicable=NO; Status=NOT APPLICABLE; Reason=OUT_OF_SCOPE; Criteria=S-1; Evidence=NONE; Details=fixture:prompt-case-7-scope@sha256:37ebbfbb3eba2372d75805e8375274889998ba1b7787292b1b0705b1195cb1bd; Owner=NONE\\nVerdict: PASS\\nRouting: EXISTING_WORKFLOW$"
+        }
+      ]
     }
   ],
   "should_trigger": [

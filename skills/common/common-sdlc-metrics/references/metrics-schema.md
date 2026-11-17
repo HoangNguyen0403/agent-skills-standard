@@ -169,3 +169,47 @@ and raw customer data.
 
 New measurement rows do not enter control bands until a separately reviewed source and baseline
 definition exists in `docs/ops/bands.yaml`.
+
+## Independent trust observations (optional `trust` block)
+
+Old exports omit `trust`; existing delivery rows and values remain unchanged. Omission makes only the new trust rows unavailable. The block is schema version 1 with exactly `schema_version`, `records`, `populations`, and `coverage`:
+
+```json
+{
+  "trust": {
+    "schema_version": 1,
+    "records": [],
+    "populations": [],
+    "coverage": []
+  }
+}
+```
+
+Trust records are strict discriminated objects. Every record has `id`, `kind`, UTC `observed_at`, and `source_ref`; `observed_at` is export chronology only, never cohort time.
+
+| `kind` | Required domain fields |
+| --- | --- |
+| `revision-class` | `change_id`, `revision`, `change_class` (`trunk` / `shared` / `leaf` / `unknown`), `policy_ref`, `policy_digest` |
+| `agent-review` | `review_id`, exact `change_id` / `revision`, `completed_at`, terminal `verdict` (`approved` / `changes-requested` / `blocked`), actual `reviewer_configuration`, `evidence_ref`, `evidence_digest` |
+| `human-finding` | `finding_id`, `approval_review_id`, exact `change_id` / `revision`, `detected_at`, `severity` (`Blocker` / `Major` / `Nit`), `evidence_ref`, `evidence_digest` |
+| `seed-assignment` | `seed_run_id`, immutable `package_ref` / `package_digest`, `change_class`, `assigned_at`, `evaluation_cutoff`, `expected_defects` (`id` / `severity` pairs), `evidence_ref`, `evidence_digest` |
+| `seed-result` | `seed_run_id`, `completed_at`, `detected_seed_ids`, actual `reviewer_configuration`, `review_output_ref`, `review_output_digest` |
+| `grant-reference` | `grant_id`, `change_class`, exact `scope` object (`change_id`, `revision`), `evidence_cutoff`, `effective_from`, nullable `effective_until`, `revoked_at`, `suspended_at`, nullable `independent_validation_ref` |
+
+Each reviewer configuration has exactly `provider`, `model`, `effort`, `mode`, and `features`; values are observed labels or the literal `unknown`, never a requested profile. Do not export private reviewer identities or customer data.
+
+Population manifests have exactly `population_kind` (`agent-review`, `seed-assignment`, `production-deployment`), `population_id`, `scope_ref`, SHA-256 `inventory_digest`, half-open `from` / `through`, exhaustive `member_ids`, `complete`, and `source_ref`. Agent-review manifests may also declare boolean `first_approval_history_complete`; only explicit `true` establishes exhaustive first-approval history. Missing/false makes first-approval rates unavailable even with complete report-window coverage. Agent-review members are review IDs, seed members are seed-run IDs, and deployment members are deployment IDs. Their listed identities must match records/events in their interval.
+
+Coverage entries have exactly `kind`, `scope_ref`, `from`, `through`, `complete`, and `source_ref`. Kinds are trust record kinds plus `deployment` and `defect`. Merge complete intervals only when `scope_ref` matches the corresponding complete population manifest; grant history uses the global `all` scope. First-approval cohorts require explicit complete review history, continuous review/classification coverage from the manifest start, and finding coverage through `U`. Seed cohorts use their exhaustive cutoff manifest; each member requires assignment and result coverage from `assigned_at` through `evaluation_cutoff`, including pre-period time. A gap strictly after the last member cutoff does not invalidate recall. Deployment rates require their manifest scope plus continuous deployment, classification and defect coverage through `U`. Manifests, coverage and source references are declarations, not authenticated completeness.
+
+Domain identities are tuples: revision class `(change_id, revision)`, agent review `review_id`, human finding `finding_id`, seed assignment/result `seed_run_id` within its kind, and grant `grant_id`. Identical payload replays excluding transport `id` collapse; conflicting payloads, duplicate contradictory classifications, invalid references, impossible chronology or unexpected seed detection IDs reject the entire export. Findings must reference an approved review of the same exact revision and be detected after its completion. Missing class is `unknown`, never excluded.
+
+### Trust cohorts and outputs
+
+- **Agent-review escape share by class:** distinct revisions whose *first* approved technical review completed in `[S,U)`; denominator is those revisions, numerator is revisions with at least one exact-revision human Blocker/Major finding detected after first approval and before `U`. Later reapproval does not move the cohort. Rejected, unmerged and never-human-accepted revisions remain included. An explicitly complete first-approval-history declaration is required; report-window completeness alone cannot establish first-ever approval. This is an as-of horizon, not lifetime defect probability.
+- **Seeded-review recall by class:** assignments enter by `evaluation_cutoff` in `[S,U)`, independently of acceptance or merge. Report assigned packages and expected Blocker/Major defects separately. Recall is independently confirmed expected defects detected by cutoff / expected Blocker/Major defects. Completed empty detections are misses; absent, pending or late results make recall unavailable, and an empty expected-defect denominator is unavailable rather than 100%. Configuration strata come from actual result records or `unknown`.
+- **Production deployment escape measures by class:** select every production deployment by `deployed_at` in `[S,U)`, then join classification by exact deployed `change_id` / `revision`. Report escaped defect count (including `remediation: none`), affected deployment count, eligible deployment count, affected share, hotfix/rollback deployment count and rollback-only deployment count. Defects satisfy `deployed_at <= detected_at < U`; older deployments' events do not enter this period cohort.
+- **Coverage:** agent-review rates require exhaustive first-approval history plus continuous review/classification history and human-finding coverage through `U`. Seed rates require an exhaustive cutoff-cohort manifest and continuous assignment/result coverage for each member from `assigned_at` through `evaluation_cutoff`; gaps after the last included cutoff do not invalidate recall. Deployment rates require exhaustive production deployment inventory and continuous deployment, classification and defect coverage through `U`. A no-escape grant conclusion requires grant, deployment, defect and classification coverage from the earliest grant evidence cutoff through `U`, resolved exact class and grant-scope applicability for every potentially relevant deployment. An unresolved class/scope makes the negative conclusion unavailable; positive observed counts remain reportable as partial.
+- **Fresh grant escape:** a defect qualifies only when its exact deployment class and `(change_id, revision)` tuple match a grant, `detected_at > evidence_cutoff`, `effective_from <= detected_at < effective_until` (null is open), and neither revocation nor suspension is at/before detection. Emit `SUSPENSION_REQUIRED` with grant, defect and evidence references even when rate coverage is incomplete. Missing grant inventory, validation reference, class/scope, or applicability history is unavailable, not “no escape.” Expired/revoked/suspended grants do not trigger at or after the boundary.
+
+Each trust rate carries numerator, denominator, sample size, coverage, source, cohort, as-of horizon, and limitations/diagnostics in JSON and the conditional Markdown `## Trust Observations` table. Counts are separate from rates. Trust rows are optional and do not alter existing measurements. These declaration-only diagnostics do not authenticate approval, activate a grant, or enter control bands.

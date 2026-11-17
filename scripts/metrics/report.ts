@@ -174,6 +174,33 @@ export function renderMarkdown(report: MetricsReport): string {
     ),
     "",
   );
+  const trustRows = report.stageIndicators.filter((row) => row.stage === "Trust");
+  if (trustRows.length > 0) {
+    lines.push("## Trust Observations", "");
+    lines.push(
+      mdTable(
+        ["Indicator", "Value", "Numerator", "Denominator", "Sample", "Coverage", "Source", "Cohort", "As-of horizon", "Diagnostics / limitations"],
+        trustRows.map((row) => {
+          const result = row.metric_result;
+          const metadata = result.trust;
+          return [
+            row.indicator,
+            result.available ? result.value : `unavailable: ${result.reason}`,
+            String(metadata?.numerator ?? "n/a"),
+            String(metadata?.denominator ?? "n/a"),
+            String(metadata?.sampleSize ?? (result.available ? result.sampleSize ?? "n/a" : "n/a")),
+            metadata?.coverage ?? (result.available ? result.coverage : "unknown"),
+            metadata?.source ?? result.source ?? "n/a",
+            metadata?.cohort ?? "n/a",
+            metadata?.asOfHorizon ?? "n/a",
+            [...(metadata?.diagnostics ?? []), ...(metadata?.limitations ?? (result.available ? result.limitations : []))].join("; "),
+          ];
+        }),
+      ),
+      "",
+    );
+  }
+
 
   lines.push(...dispatchSection(report.dispatchOutcomes));
 

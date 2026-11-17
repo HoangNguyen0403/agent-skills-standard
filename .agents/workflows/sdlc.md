@@ -33,7 +33,8 @@ Goal: Select the next native workflow without loading every workflow body, while
    - Implementation GREEN but ACs lack executable E2E/mobile coverage, or an E2E suite is red after a previously green slice -> `test-loop`.
    - Code complete but unproven -> `verify-work`
    - Fix implemented and ticket has a UAT/Jira flow -> `verify-bug`
-   - `verify-work` PASS on a feature, business acceptance not yet granted -> `uat-signoff`
+   - `verify-work` PASS on a feature routes to `uat-signoff` only when any required medium/high launch audit has verdict PASS (all required applicable lanes PASS; justified N/A); low/brief work gains no audit gate.
+   - Required launch audit FAIL routes to remediation via `implement-feature` or `dev-fix`; required NOT RUN or missing required proof is BLOCKED, never UAT. Technical PASS does not grant acceptance or release authority.
    - Business acceptance granted and release window open -> `deploy-release`
    - Post-release observation window open, registered metric review, or value evaluation -> `review-product-value` (when selected/installed; else `publish-notes` with capability gap)
    - Deployed and needs user-facing communication -> `publish-notes`

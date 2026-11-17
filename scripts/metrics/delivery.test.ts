@@ -10,6 +10,8 @@ import path from "node:path";
 import test from "node:test";
 import { buildDeliveryIndicators, readDeliveryObservations } from "./delivery";
 import type { GitPeriod } from "./git";
+import { renderMarkdown } from "./report";
+import type { MetricsReport } from "./types";
 import type { DeliveryHealthRow, DeliveryIndicators, StageIndicatorRow } from "./types";
 
 const ALL_KINDS = ["review", "decision-wait", "submission", "correction", "acceptance", "deployment", "defect", "cost"];
@@ -963,4 +965,547 @@ test("VER-6: adding dispatch activity never changes legacy indicator output", ()
   const after = reads(fileWith(withDispatch, base.coverage as Record<string, unknown>[]));
 
   assert.deepEqual(after, before);
+});
+
+test("trust blocks are optional for legacy exports and malformed blocks reject the full export", () => {
+  const legacy = fileWith([], []);
+  const root = tmpRoot();
+  writeObservations(root, legacy);
+  assert.equal(readDeliveryObservations(root).observations?.trust, undefined);
+  const invalid = { ...legacy, trust: { schema_version: 1, records: [], populations: [], coverage: "unknown" } };
+  assert.match(rejected(invalid).join(" "), /trust\.coverage must be an array/);
+});
+function trustFixture(includeDeployment = false): Record<string, unknown> {
+  const jan = "2026-01-01T00:00:00Z";
+  const feb = "2026-02-01T00:00:00Z";
+  const mar = "2026-03-01T00:00:00Z";
+  const records = [
+    {
+      id: "class-r1", kind: "revision-class", observed_at: jan, source_ref: "policy-export",
+      change_id: "change-1", revision: "r1", change_class: "unknown", policy_ref: "policy",
+      policy_digest: "a".repeat(64),
+    },
+    {
+      id: "review-1", kind: "agent-review", observed_at: jan, source_ref: "review-export",
+      review_id: "review-1", change_id: "change-1", revision: "r1", completed_at: "2026-01-10T00:00:00Z",
+      verdict: "approved", reviewer_configuration: { provider: "unknown", model: "model-x", effort: "unknown", mode: "unknown", features: {} },
+      evidence_ref: "review-output", evidence_digest: "b".repeat(64),
+    },
+    {
+      id: "review-2", kind: "agent-review", observed_at: feb, source_ref: "review-export",
+      review_id: "review-2", change_id: "change-1", revision: "r1", completed_at: "2026-02-10T00:00:00Z",
+      verdict: "approved", reviewer_configuration: { provider: "provider-x", model: "model-x", effort: "high", mode: "review", features: {} },
+      evidence_ref: "review-output-2", evidence_digest: "c".repeat(64),
+    },
+    {
+      id: "finding-1", kind: "human-finding", observed_at: feb, source_ref: "finding-export",
+      finding_id: "finding-1", approval_review_id: "review-1", change_id: "change-1", revision: "r1",
+      detected_at: "2026-01-20T00:00:00Z", severity: "Major", evidence_ref: "finding", evidence_digest: "d".repeat(64),
+    },
+    {
+      id: "seed-1", kind: "seed-assignment", observed_at: jan, source_ref: "seed-export",
+      seed_run_id: "seed-1", package_ref: "package", package_digest: "e".repeat(64), change_class: "unknown",
+      assigned_at: "2026-01-05T00:00:00Z", evaluation_cutoff: "2026-01-20T00:00:00Z",
+      expected_defects: [{ id: "bug-1", severity: "Blocker" }], evidence_ref: "seed-assignment",
+      evidence_digest: "f".repeat(64),
+    },
+    {
+      id: "seed-result-1", kind: "seed-result", observed_at: feb, source_ref: "seed-export",
+      seed_run_id: "seed-1", completed_at: "2026-01-19T00:00:00Z", detected_seed_ids: [],
+      reviewer_configuration: { provider: "unknown", model: "unknown", effort: "unknown", mode: "unknown", features: {} },
+      review_output_ref: "seed-result", review_output_digest: "1".repeat(64),
+    },
+    {
+      id: "grant-1", kind: "grant-reference", observed_at: jan, source_ref: "grant-export",
+      grant_id: "grant-1", change_class: "unknown", scope: { change_id: "change-1", revision: "r1" }, evidence_cutoff: "2026-01-10T00:00:00Z",
+      effective_from: "2026-01-01T00:00:00Z", effective_until: null, revoked_at: null, suspended_at: null,
+      independent_validation_ref: "validation",
+    },
+  ];
+  if (includeDeployment) {
+    const classification = records.find((record) => record.kind === "revision-class");
+    const grant = records.find((record) => record.kind === "grant-reference");
+    if (classification) classification.change_class = "leaf";
+    if (grant) grant.change_class = "leaf";
+  }
+  const kinds = ["revision-class", "agent-review", "human-finding", "seed-assignment", "seed-result", "grant-reference", "deployment", "defect"];
+  const coverage = kinds.map((kind) => ({
+    kind, scope_ref: "all", from: jan, through: mar, complete: true, source_ref: "coverage-export",
+  }));
+  const populations = [
+    { population_kind: "agent-review", population_id: "reviews", scope_ref: "all", inventory_digest: "2".repeat(64), from: jan, through: mar, member_ids: ["review-1", "review-2"], complete: true, first_approval_history_complete: true, source_ref: "population-export" },
+    { population_kind: "seed-assignment", population_id: "seeds", scope_ref: "all", inventory_digest: "3".repeat(64), from: jan, through: mar, member_ids: ["seed-1"], complete: true, source_ref: "population-export" },
+    { population_kind: "production-deployment", population_id: "deployments", scope_ref: "all", inventory_digest: "4".repeat(64), from: jan, through: mar, member_ids: includeDeployment ? ["deployment-1"] : [], complete: true, source_ref: "population-export" },
+  ];
+  const events = includeDeployment
+    ? [deployment("deploy-event", "change-1", "deployment-1", "2026-01-15T00:00:00Z", "2026-01-01T00:00:00Z"),
+      defect("defect-event", "change-1", "deployment-1", "2026-01-20T00:00:00Z", "none", null)]
+    : [];
+  return { ...fileWith(events, []), trust: { schema_version: 1, records, populations, coverage } };
+}
+
+test("trust metrics use first approval revision cohorts, retain unknown class, and do not move on reapproval", () => {
+  const input = trustFixture();
+  const result = reads(input);
+  const row = stageRow(result, "agent-review approval escape rate for unknown");
+  assert.equal(row.metric_result.available, true);
+  if (row.metric_result.available) {
+    assert.match(row.metric_result.value, /1\/1/);
+    assert.equal(row.metric_result.sampleSize, 1);
+    assert.equal(row.metric_result.coverage, "complete");
+    assert.equal(row.metric_result.trust?.numerator, 1);
+    assert.equal(row.metric_result.trust?.denominator, 1);
+    assert.equal(row.metric_result.trust?.source, "artifacts/metrics/delivery-observations.json#trust");
+    assert.ok(row.metric_result.trust?.limitations?.length);
+  }
+  const grant = stageRow(result, "post-grant escape assessment").metric_result;
+  assert.equal(grant.available, false);
+  assert.equal(grant.trust?.sampleSize, 1);
+  assert.equal(grant.trust?.coverage, "unknown");
+});
+
+test("seed recall counts completed empty detection as a miss and reports actual unknown configuration", () => {
+  const result = reads(trustFixture());
+  const row = stageRow(result, "seeded-review recall for unknown");
+  assert.equal(row.metric_result.available, true);
+  if (row.metric_result.available) {
+    assert.match(row.metric_result.value, /0\/1/);
+    assert.match(row.metric_result.trust?.diagnostics?.join(" ") ?? "", /configuration.*unknown/i);
+  }
+});
+
+test("trust population coverage gaps make rates unavailable rather than zero", () => {
+  const input = trustFixture();
+  const trust = input.trust as Record<string, unknown>;
+  trust.coverage = (trust.coverage as Record<string, unknown>[]).filter((row) => row.kind !== "agent-review");
+  const result = reads(input);
+  const row = stageRow(result, "agent-review approval escape rate for unknown");
+  assert.equal(row.metric_result.available, false);
+});
+
+test("conflicting trust domain replays reject the full export", () => {
+  const input = trustFixture();
+  const trust = input.trust as Record<string, unknown>;
+  const records = trust.records as Record<string, unknown>[];
+  records.push({ ...records[1], id: "review-conflict", verdict: "changes-requested" });
+  assert.match(rejected(input).join(" "), /agent-review.*conflicting payload/i);
+});
+test("deployment/class rates join exact revisions, include remediation none, and diagnose escapes despite coverage gaps", () => {
+  const input = trustFixture(true);
+  const trust = input.trust as Record<string, unknown>;
+  trust.coverage = (trust.coverage as Record<string, unknown>[]).filter((row) => row.kind !== "defect");
+  const result = reads(input);
+  const rate = stageRow(result, "production deployment affected share for leaf");
+  assert.equal(rate.metric_result.available, false);
+  const grant = stageRow(result, "post-grant escape assessment");
+  assert.equal(grant.metric_result.available, true);
+  if (grant.metric_result.available) assert.match(grant.metric_result.value, /SUSPENSION_REQUIRED.*grant=grant-1.*defect=defect-event/);
+  const defects = stageRow(result, "production deployment escaped defects for leaf");
+  assert.equal(defects.metric_result.available, true);
+  if (defects.metric_result.available) {
+    assert.equal(defects.metric_result.coverage, "partial");
+    assert.match(defects.metric_result.value, /1 defect observation/);
+  }
+});
+
+test("seed assignments without a result stay unavailable rather than becoming empty misses", () => {
+  const input = trustFixture();
+  const trust = input.trust as Record<string, unknown>;
+  trust.records = (trust.records as Record<string, unknown>[]).filter((row) => row.kind !== "seed-result");
+  const row = stageRow(reads(input), "seeded-review recall for unknown");
+  assert.equal(row.metric_result.available, false);
+  if (!row.metric_result.available) assert.match(row.metric_result.reason, /lack a result/);
+});
+
+test("grant expiry equality suppresses suspension and missing validation evidence keeps assessment unavailable", () => {
+  const input = trustFixture(true);
+  const trust = input.trust as Record<string, unknown>;
+  const records = trust.records as Record<string, unknown>[];
+  const grant = records.find((record) => record.kind === "grant-reference");
+  assert.ok(grant);
+  grant.effective_until = "2026-01-20T00:00:00Z";
+  const expired = stageRow(reads(input), "post-grant escape assessment").metric_result;
+  assert.equal(expired.available, true);
+  if (expired.available) assert.doesNotMatch(expired.value, /SUSPENSION_REQUIRED/);
+
+  grant.effective_until = null;
+  grant.independent_validation_ref = null;
+  const unknownEvidence = stageRow(reads(input), "post-grant escape assessment").metric_result;
+  assert.equal(unknownEvidence.available, false);
+});
+
+test("first approval before the period excludes a later reapproval from the approval cohort", () => {
+  const input = trustFixture();
+  const trust = input.trust as Record<string, unknown>;
+  const records = trust.records as Record<string, unknown>[];
+  const firstApproval = records.find((record) => record.kind === "agent-review" && record.review_id === "review-1");
+  assert.ok(firstApproval);
+  firstApproval.completed_at = "2025-12-20T00:00:00Z";
+  const population = (trust.populations as Record<string, unknown>[]).find((row) => row.population_kind === "agent-review");
+  assert.ok(population);
+  population.from = "2025-12-01T00:00:00Z";
+  const reviewCoverage = (trust.coverage as Record<string, unknown>[]).find((row) => row.kind === "agent-review");
+  assert.ok(reviewCoverage);
+  reviewCoverage.from = "2025-12-01T00:00:00Z";
+  const classCoverage = (trust.coverage as Record<string, unknown>[]).find((row) => row.kind === "revision-class");
+  assert.ok(classCoverage);
+  classCoverage.from = "2025-12-01T00:00:00Z";
+  const metric = stageRow(reads(input), "agent-review approval escape rate for unknown").metric_result;
+  assert.equal(metric.available, false);
+  if (!metric.available) assert.match(metric.reason, /no first-approved revision/);
+  assert.equal(metric.trust?.sampleSize, 0);
+  assert.equal(metric.trust?.coverage, "complete");
+});
+
+test("identical domain replay collapses while strict nested configuration rejects extra fields", () => {
+  const replay = trustFixture();
+  const replayTrust = replay.trust as Record<string, unknown>;
+  const review = (replayTrust.records as Record<string, unknown>[]).find((record) => record.kind === "agent-review");
+  assert.ok(review);
+  (replayTrust.records as Record<string, unknown>[]).push({ ...review, id: "review-replay" });
+  const metric = stageRow(reads(replay), "agent-review approval escape rate for unknown").metric_result;
+  assert.equal(metric.available, true);
+  if (metric.available) assert.equal(metric.sampleSize, 1);
+
+  const malformed = trustFixture();
+  const malformedTrust = malformed.trust as Record<string, unknown>;
+  const malformedReview = (malformedTrust.records as Record<string, unknown>[]).find((record) => record.kind === "agent-review");
+  assert.ok(malformedReview);
+  (malformedReview.reviewer_configuration as Record<string, unknown>).requested_profile = "not-actual";
+  assert.match(rejected(malformed).join(" "), /agent-review record fields are invalid/);
+  const assignment = (malformedTrust.records as Record<string, unknown>[]).find((record) => record.kind === "seed-assignment");
+  assert.ok(assignment);
+  delete (malformedReview.reviewer_configuration as Record<string, unknown>).requested_profile;
+  (assignment.expected_defects as Record<string, unknown>[])[0].evidence = "unrecognized";
+  assert.match(rejected(malformed).join(" "), /expected_defects must contain id\/severity pairs/);
+});
+
+test("trust manifests and coverage identities reject malformed digest and string values", () => {
+  const cases: { collection: "population" | "coverage"; field: "inventory_digest" | "scope_ref" | "source_ref"; value: unknown }[] = [
+    { collection: "population", field: "inventory_digest", value: null },
+    { collection: "population", field: "inventory_digest", value: 17 },
+    { collection: "population", field: "inventory_digest", value: "" },
+    { collection: "population", field: "inventory_digest", value: "g".repeat(64) },
+    { collection: "population", field: "inventory_digest", value: "a".repeat(63) },
+    { collection: "coverage", field: "scope_ref", value: null },
+    { collection: "coverage", field: "scope_ref", value: 17 },
+    { collection: "coverage", field: "scope_ref", value: "" },
+    { collection: "coverage", field: "source_ref", value: null },
+    { collection: "coverage", field: "source_ref", value: 17 },
+    { collection: "coverage", field: "source_ref", value: "" },
+  ];
+  for (const testCase of cases) {
+    const input = trustFixture();
+    const trust = input.trust as Record<string, unknown>;
+    const rows = (testCase.collection === "population" ? trust.populations : trust.coverage) as Record<string, unknown>[];
+    const row = rows.find((item) => testCase.collection === "population" ? item.population_kind === "agent-review" : item.kind === "agent-review");
+    assert.ok(row);
+    row[testCase.field] = testCase.value;
+    assert.ok(rejected(input).length > 0, `${testCase.collection}.${testCase.field} should reject ${String(testCase.value)}`);
+  }
+});
+
+test("grant cutoff is strict, effective start is inclusive, and revocation or suspension equality suppresses escape", () => {
+  const input = trustFixture(true);
+  const trust = input.trust as Record<string, unknown>;
+  const grant = (trust.records as Record<string, unknown>[]).find((record) => record.kind === "grant-reference");
+  assert.ok(grant);
+  grant.evidence_cutoff = "2026-01-20T00:00:00Z";
+  let result = stageRow(reads(input), "post-grant escape assessment").metric_result;
+  assert.equal(result.available, true);
+  if (result.available) assert.doesNotMatch(result.value, /SUSPENSION_REQUIRED/);
+
+  grant.evidence_cutoff = "2026-01-19T00:00:00Z";
+  grant.effective_from = "2026-01-20T00:00:00Z";
+  result = stageRow(reads(input), "post-grant escape assessment").metric_result;
+  assert.equal(result.available, true);
+  if (result.available) assert.match(result.value, /SUSPENSION_REQUIRED/);
+
+  grant.revoked_at = "2026-01-20T00:00:00Z";
+  result = stageRow(reads(input), "post-grant escape assessment").metric_result;
+  assert.equal(result.available, true);
+  if (result.available) assert.doesNotMatch(result.value, /SUSPENSION_REQUIRED/);
+
+  grant.revoked_at = null;
+  grant.suspended_at = "2026-01-20T00:00:00Z";
+  result = stageRow(reads(input), "post-grant escape assessment").metric_result;
+  assert.equal(result.available, true);
+  if (result.available) assert.doesNotMatch(result.value, /SUSPENSION_REQUIRED/);
+});
+
+test("trust joins deployment classes by exact revision and excludes findings/deployments at the half-open end", () => {
+  const reviewBoundary = trustFixture();
+  const reviewTrust = reviewBoundary.trust as Record<string, unknown>;
+  const finding = (reviewTrust.records as Record<string, unknown>[]).find((record) => record.kind === "human-finding");
+  assert.ok(finding);
+  finding.detected_at = THROUGH;
+  const escape = stageRow(reads(reviewBoundary), "agent-review approval escape rate for unknown").metric_result;
+  assert.equal(escape.available, true);
+  if (escape.available) assert.match(escape.value, /0\/1/);
+
+  const deploymentBoundary = trustFixture(true);
+  const events = deploymentBoundary.events as Record<string, unknown>[];
+  events.push(deployment("deployment-boundary", "change-1", "deployment-boundary", THROUGH, "2026-01-01T00:00:00Z"));
+  events.push(defect("defect-boundary", "change-1", "deployment-1", THROUGH, "none", null));
+  const trust = deploymentBoundary.trust as Record<string, unknown>;
+  const population = (trust.populations as Record<string, unknown>[]).find((row) => row.population_kind === "production-deployment");
+  assert.ok(population);
+  population.member_ids = ["deployment-1", "deployment-boundary"];
+  const leafRate = stageRow(reads(deploymentBoundary), "production deployment affected share for leaf").metric_result;
+  assert.equal(leafRate.available, true);
+  if (leafRate.available) assert.match(leafRate.value, /^1\/1/);
+  const defects = stageRow(reads(deploymentBoundary), "production deployment escaped defects for leaf").metric_result;
+  assert.equal(defects.available, true);
+  if (defects.available) assert.match(defects.value, /^1 defect observation/);
+
+  const mismatchedRevision = trustFixture(true);
+  const classification = (mismatchedRevision.trust as Record<string, unknown>).records as Record<string, unknown>[];
+  const classRecord = classification.find((record) => record.kind === "revision-class");
+  assert.ok(classRecord);
+  classRecord.revision = "different-revision";
+  const unknownRate = stageRow(reads(mismatchedRevision), "production deployment affected share for unknown").metric_result;
+  assert.equal(unknownRate.available, true);
+  if (unknownRate.available) assert.match(unknownRate.value, /^1\/1/);
+});
+
+test("empty inventories with incomplete coverage never fabricate zero counts", () => {
+  const input = { ...fileWith([], []), trust: { schema_version: 1, records: [], populations: [], coverage: [] } };
+  const result = reads(input);
+  for (const indicator of [
+    "seeded-review packages for unknown",
+    "seeded-review expected defects for unknown",
+    "production deployment escaped defects for unknown",
+    "production deployment eligible count for unknown",
+  ]) {
+    const metric = stageRow(result, indicator).metric_result;
+    assert.equal(metric.available, false, `${indicator} must not become a measured zero without complete inventory`);
+  }
+});
+test("January reapproval with unknown pre-January history cannot define first approval", () => {
+  const input = trustFixture();
+  const trust = input.trust as Record<string, unknown>;
+  const population = (trust.populations as Record<string, unknown>[]).find((row) => row.population_kind === "agent-review");
+  assert.ok(population);
+  delete population.first_approval_history_complete;
+  const reapproval = (trust.records as Record<string, unknown>[]).find((row) => row.kind === "agent-review" && row.review_id === "review-2");
+  assert.ok(reapproval);
+  reapproval.completed_at = "2026-01-20T00:00:00Z";
+  population.from = "2025-12-01T00:00:00Z";
+  const coverage = trust.coverage as Record<string, unknown>[];
+  for (const kind of ["agent-review", "revision-class"]) {
+    const row = coverage.find((item) => item.kind === kind);
+    assert.ok(row);
+    row.from = "2025-12-01T00:00:00Z";
+  }
+  const metric = stageRow(reads(input), "agent-review approval escape rate for unknown").metric_result;
+  assert.equal(metric.available, false, "complete report-window coverage does not establish the first-ever approval");
+});
+
+test("seed recall uses assignment-to-cutoff evidence and ignores coverage gaps after the last cutoff", () => {
+  const input = trustFixture();
+  const trust = input.trust as Record<string, unknown>;
+  const assignment = (trust.records as Record<string, unknown>[]).find((row) => row.kind === "seed-assignment");
+  assert.ok(assignment);
+  assignment.assigned_at = "2025-12-20T00:00:00Z";
+  const cutoff = assignment.evaluation_cutoff as string;
+  const coverage = trust.coverage as Record<string, unknown>[];
+  for (const kind of ["seed-assignment", "seed-result"]) {
+    const row = coverage.find((item) => item.kind === kind);
+    assert.ok(row);
+    row.from = assignment.assigned_at;
+    row.through = cutoff;
+  }
+  const metric = stageRow(reads(input), "seeded-review recall for unknown").metric_result;
+  assert.equal(metric.available, true, "continuous evidence through cutoff suffices despite a later gap");
+  if (metric.available) assert.match(metric.value, /^0\/1/);
+});
+
+test("unresolved deployment class prevents a negative grant conclusion but preserves positive findings", () => {
+  const unknown = trustFixture(true);
+  const unknownTrust = unknown.trust as Record<string, unknown>;
+  const classification = (unknownTrust.records as Record<string, unknown>[]).find((row) => row.kind === "revision-class");
+  assert.ok(classification);
+  classification.revision = "unmatched";
+  const noEscape = stageRow(reads(unknown), "post-grant escape assessment").metric_result;
+  assert.equal(noEscape.available, false, "missing exact classification cannot establish no escape");
+
+  const positive = trustFixture(true);
+  const positiveTrust = positive.trust as Record<string, unknown>;
+  const population = (positiveTrust.populations as Record<string, unknown>[]).find((row) => row.population_kind === "production-deployment");
+  assert.ok(population);
+  population.member_ids = [...population.member_ids as string[], "deployment-unknown"];
+  (positive.events as Record<string, unknown>[]).push(
+    deployment("deploy-unknown-event", "change-unknown", "deployment-unknown", "2026-01-15T00:00:00Z", "2026-01-01T00:00:00Z"),
+    defect("defect-unknown-event", "change-unknown", "deployment-unknown", "2026-01-20T00:00:00Z", "none", null),
+  );
+  const partial = stageRow(reads(positive), "post-grant escape assessment").metric_result;
+  assert.equal(partial.available, true);
+  if (partial.available) {
+    assert.equal(partial.coverage, "partial");
+    assert.match(partial.value, /SUSPENSION_REQUIRED.*grant=grant-1.*defect=defect-event/);
+  }
+});
+
+test("grant scope tuples do not collide when identifiers contain slashes", () => {
+  const input = trustFixture(true);
+  const trust = input.trust as Record<string, unknown>;
+  const records = trust.records as Record<string, unknown>[];
+  const deploymentClass = records.find((row) => row.kind === "revision-class");
+  const grant = records.find((row) => row.kind === "grant-reference");
+  assert.ok(deploymentClass);
+  assert.ok(grant);
+  deploymentClass.change_id = "a";
+  deploymentClass.revision = "b/c";
+  records.push({
+    ...deploymentClass,
+    id: "class-grant-scope",
+    change_id: "a/b",
+    revision: "c",
+  });
+  grant.scope = { change_id: "a/b", revision: "c" };
+  const events = input.events as Record<string, unknown>[];
+  for (const item of events) {
+    if (item.kind === "deployment" || item.kind === "defect") {
+      item.change_id = "a";
+      item.revision = "b/c";
+    }
+  }
+  const assessment = stageRow(reads(input), "post-grant escape assessment").metric_result;
+  assert.equal(assessment.available, true);
+  if (assessment.available) assert.doesNotMatch(assessment.value, /SUSPENSION_REQUIRED/);
+});
+
+test("agent-review verdict arrays reject instead of coercing to an enum string", () => {
+  const input = trustFixture();
+  const trust = input.trust as Record<string, unknown>;
+  const records = trust.records as Record<string, unknown>[];
+  const review = records.find((row) => row.kind === "agent-review");
+  assert.ok(review);
+  const population = (trust.populations as Record<string, unknown>[]).find((row) => row.population_kind === "agent-review");
+  assert.ok(population);
+  population.member_ids = [...population.member_ids as string[], "review-array-verdict"];
+  records.push({
+    ...review,
+    id: "review-array-verdict-record",
+    review_id: "review-array-verdict",
+    verdict: ["approved"],
+  });
+  assert.match(rejected(input).join(" "), /agent-review record fields are invalid/);
+});
+
+test("missing trust population renders unknown counts while declared empty inventory renders observed zeroes", () => {
+  const missingRoot = tmpRoot();
+  const missing = buildDeliveryIndicators(readDeliveryObservations(missingRoot), PERIOD);
+  const missingMetric = stageRow(missing, "agent-review approval escape rate for unknown").metric_result;
+  assert.equal(missingMetric.available, false);
+  if (missingMetric.available) return;
+  assert.equal(missingMetric.trust?.numerator, undefined);
+  assert.equal(missingMetric.trust?.denominator, undefined);
+  assert.equal(missingMetric.trust?.sampleSize, null);
+
+  const missingReport: MetricsReport = {
+    scope: "missing-trust",
+    period: PERIOD.label,
+    generatedAt: "2026-01-01T00:00:00Z",
+    deliveryHealth: missing.deliveryHealth,
+    stageIndicators: missing.stageIndicators,
+    bandBreaches: [],
+    bandConfigErrors: [],
+    attribution: [],
+    unavailable: missing.unavailable,
+    followUps: [],
+  };
+  const missingJson = JSON.parse(JSON.stringify(missingReport)) as MetricsReport;
+  const missingSerialized = missingJson.stageIndicators.find((row) =>
+    row.indicator === "agent-review approval escape rate for unknown")?.metric_result;
+  assert.ok(missingSerialized && !missingSerialized.available);
+  if (missingSerialized && !missingSerialized.available) {
+    assert.equal(missingSerialized.trust?.numerator, undefined);
+    assert.equal(missingSerialized.trust?.denominator, undefined);
+    assert.equal(missingSerialized.trust?.sampleSize, null);
+  }
+  const missingMarkdown = renderMarkdown(missingReport);
+  assert.match(missingMarkdown, /\| agent-review approval escape rate for unknown \| unavailable:/);
+  assert.match(missingMarkdown, /\| agent-review approval escape rate for unknown \| unavailable:.*\| n\/a \| n\/a \| n\/a \|/);
+  assert.doesNotMatch(missingMarkdown, /\| agent-review approval escape rate for unknown \| unavailable:.*\| 0 \| 0 \| 0 \|/);
+
+  const emptyTrustExport = {
+    ...fileWith([], []),
+    trust: { schema_version: 1, records: [], populations: [], coverage: [] },
+  };
+  const emptyTrustIndicators = reads(emptyTrustExport);
+  const emptyTrustMetric = stageRow(
+    emptyTrustIndicators,
+    "agent-review approval escape rate for unknown",
+  ).metric_result;
+  assert.equal(emptyTrustMetric.available, false);
+  if (emptyTrustMetric.available) return;
+  assert.equal(emptyTrustMetric.trust?.numerator, undefined);
+  assert.equal(emptyTrustMetric.trust?.denominator, undefined);
+  assert.equal(emptyTrustMetric.trust?.sampleSize, null);
+  const emptyTrustReport: MetricsReport = {
+    ...missingReport,
+    scope: "empty-trust-export",
+    deliveryHealth: emptyTrustIndicators.deliveryHealth,
+    stageIndicators: emptyTrustIndicators.stageIndicators,
+    unavailable: emptyTrustIndicators.unavailable,
+  };
+  const emptyTrustJson = JSON.parse(JSON.stringify(emptyTrustReport)) as MetricsReport;
+  const emptyTrustSerialized = emptyTrustJson.stageIndicators.find((row) =>
+    row.indicator === "agent-review approval escape rate for unknown")?.metric_result;
+  assert.ok(emptyTrustSerialized && !emptyTrustSerialized.available);
+  if (emptyTrustSerialized && !emptyTrustSerialized.available) {
+    assert.equal(emptyTrustSerialized.trust?.numerator, undefined);
+    assert.equal(emptyTrustSerialized.trust?.denominator, undefined);
+    assert.equal(emptyTrustSerialized.trust?.sampleSize, null);
+  }
+  const emptyTrustMarkdown = renderMarkdown(emptyTrustReport);
+  assert.match(emptyTrustMarkdown, /\| agent-review approval escape rate for unknown \| unavailable:.*\| n\/a \| n\/a \| n\/a \|/);
+
+  const missingPopulation = trustFixture();
+  const missingTrust = missingPopulation.trust as Record<string, unknown>;
+  missingTrust.populations = [];
+  const missingPopulationMetric = stageRow(
+    reads(missingPopulation),
+    "agent-review approval escape rate for unknown",
+  ).metric_result;
+  assert.equal(missingPopulationMetric.available, false);
+  if (missingPopulationMetric.available) return;
+  assert.equal(missingPopulationMetric.trust?.numerator, undefined);
+  assert.equal(missingPopulationMetric.trust?.denominator, undefined);
+  assert.equal(missingPopulationMetric.trust?.sampleSize, null);
+  const empty = trustFixture();
+  const trust = empty.trust as Record<string, unknown>;
+  trust.records = (trust.records as Record<string, unknown>[]).filter((row) =>
+    row.kind !== "agent-review" && row.kind !== "human-finding");
+  const reviewPopulation = (trust.populations as Record<string, unknown>[]).find((row) =>
+    row.population_kind === "agent-review");
+  assert.ok(reviewPopulation);
+  reviewPopulation.member_ids = [];
+  const emptyIndicators = reads(empty);
+  const emptyMetric = stageRow(emptyIndicators, "agent-review approval escape rate for unknown").metric_result;
+  assert.equal(emptyMetric.available, false);
+  if (emptyMetric.available) return;
+  assert.equal(emptyMetric.trust?.numerator, 0);
+  assert.equal(emptyMetric.trust?.denominator, 0);
+  assert.equal(emptyMetric.trust?.sampleSize, 0);
+  assert.equal(emptyMetric.trust?.coverage, "complete");
+  const emptyReport: MetricsReport = {
+    ...missingReport,
+    scope: "declared-empty-trust",
+    deliveryHealth: emptyIndicators.deliveryHealth,
+    stageIndicators: emptyIndicators.stageIndicators,
+    unavailable: emptyIndicators.unavailable,
+  };
+  const emptyJson = JSON.parse(JSON.stringify(emptyReport)) as MetricsReport;
+  const emptySerialized = emptyJson.stageIndicators.find((row) =>
+    row.indicator === "agent-review approval escape rate for unknown")?.metric_result;
+  assert.ok(emptySerialized && !emptySerialized.available);
+  if (emptySerialized && !emptySerialized.available) {
+    assert.equal(emptySerialized.trust?.numerator, 0);
+    assert.equal(emptySerialized.trust?.denominator, 0);
+    assert.equal(emptySerialized.trust?.sampleSize, 0);
+  }
+  const emptyMarkdown = renderMarkdown(emptyReport);
+  assert.match(emptyMarkdown, /\| agent-review approval escape rate for unknown \| unavailable:.*\| 0 \| 0 \| 0 \| complete \|/);
 });

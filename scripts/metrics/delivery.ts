@@ -46,6 +46,14 @@ import type {
   ReviewEvent,
   StageIndicatorRow,
   SubmissionEvent,
+  TrustClass,
+  TrustCoverage,
+  TrustCoverageKind,
+  TrustObservationBlock,
+  TrustPopulation,
+  TrustPopulationKind,
+  TrustRecord,
+  ReviewerConfiguration,
   UnavailableMetric,
 } from "./types";
 
@@ -285,6 +293,238 @@ function withoutId(raw: Record<string, unknown>): Record<string, unknown> {
   return copy;
 }
 
+const TRUST_RECORD_KINDS: TrustRecord["kind"][] = ["revision-class", "agent-review", "human-finding", "seed-assignment", "seed-result", "grant-reference"];
+const TRUST_POPULATION_KINDS: TrustPopulationKind[] = ["agent-review", "seed-assignment", "production-deployment"];
+const TRUST_COVERAGE_KINDS: TrustCoverageKind[] = [...TRUST_RECORD_KINDS, "deployment", "defect"];
+const TRUST_CLASSES: TrustClass[] = ["trunk", "shared", "leaf", "unknown"];
+const TRUST_SEVERITIES = ["Blocker", "Major", "Nit"] as const;
+const DIGEST_RE = /^[a-f0-9]{64}$/i;
+function isTrustLiteral<T extends string>(value: unknown, values: readonly T[]): value is T {
+  return typeof value === "string" && values.includes(value as T);
+}
+
+function isTrustConfiguration(raw: unknown): raw is ReviewerConfiguration {
+  if (!isRecord(raw) || !hasExactKeys(raw, ["provider", "model", "effort", "mode", "features"]) || !isRecord(raw.features)) return false;
+  return ["provider", "model", "effort", "mode"].every((key) => nonEmptyString(raw[key])) &&
+    Object.values(raw.features).every(nonEmptyString);
+}
+function hasExactKeys(record: Record<string, unknown>, fields: string[]): boolean {
+  return fields.every((field) => Object.hasOwn(record, field)) && Object.keys(record).every((field) => fields.includes(field));
+}
+
+
+function validateTrustRecord(raw: unknown): string | undefined {
+  if (!isRecord(raw)) return "record must be an object";
+  if (!nonEmptyString(raw.id) || !nonEmptyString(raw.source_ref)) return "id and source_ref must be non-empty strings";
+  if (!utcDate(raw.observed_at)) return "observed_at must be a valid UTC ISO timestamp";
+  if (!isTrustLiteral(raw.kind, TRUST_RECORD_KINDS)) return "kind is not a supported trust record kind";
+  const fieldsByKind: Record<TrustRecord["kind"], string[]> = {
+    "revision-class": ["id", "kind", "observed_at", "source_ref", "change_id", "revision", "change_class", "policy_ref", "policy_digest"],
+    "agent-review": ["id", "kind", "observed_at", "source_ref", "review_id", "change_id", "revision", "completed_at", "verdict", "reviewer_configuration", "evidence_ref", "evidence_digest"],
+    "human-finding": ["id", "kind", "observed_at", "source_ref", "finding_id", "approval_review_id", "change_id", "revision", "detected_at", "severity", "evidence_ref", "evidence_digest"],
+    "seed-assignment": ["id", "kind", "observed_at", "source_ref", "seed_run_id", "package_ref", "package_digest", "change_class", "assigned_at", "evaluation_cutoff", "expected_defects", "evidence_ref", "evidence_digest"],
+    "seed-result": ["id", "kind", "observed_at", "source_ref", "seed_run_id", "completed_at", "detected_seed_ids", "reviewer_configuration", "review_output_ref", "review_output_digest"],
+    "grant-reference": ["id", "kind", "observed_at", "source_ref", "grant_id", "change_class", "scope", "evidence_cutoff", "effective_from", "effective_until", "revoked_at", "suspended_at", "independent_validation_ref"],
+  };
+  if (!hasExactKeys(raw, fieldsByKind[raw.kind as TrustRecord["kind"]])) return `${raw.kind} record has missing or unknown fields`;
+  const strings = (fields: string[]): boolean => fields.every((field) => nonEmptyString(raw[field]));
+  const dates = (fields: string[]): boolean => fields.every((field) => utcDate(raw[field]) !== undefined);
+  const digest = (field: string): boolean => typeof raw[field] === "string" && DIGEST_RE.test(raw[field] as string);
+  const validClass = (): boolean => isTrustLiteral(raw.change_class, TRUST_CLASSES);
+  switch (raw.kind) {
+    case "revision-class":
+      if (!strings(["change_id", "revision", "policy_ref"]) || !validClass() || !digest("policy_digest")) return "revision-class record fields are invalid";
+      return undefined;
+    case "agent-review":
+      if (!strings(["review_id", "change_id", "revision", "evidence_ref"]) || !dates(["completed_at"]) ||
+          !digest("evidence_digest") || !isTrustLiteral(raw.verdict, ["approved", "changes-requested", "blocked"]) ||
+          !isTrustConfiguration(raw.reviewer_configuration)) return "agent-review record fields are invalid";
+      return undefined;
+    case "human-finding":
+      if (!strings(["finding_id", "approval_review_id", "change_id", "revision", "evidence_ref"]) ||
+          !dates(["detected_at"]) || !digest("evidence_digest") ||
+          !isTrustLiteral(raw.severity, TRUST_SEVERITIES)) return "human-finding record fields are invalid";
+      return undefined;
+    case "seed-assignment": {
+      if (!strings(["seed_run_id", "package_ref", "evidence_ref"]) || !dates(["assigned_at", "evaluation_cutoff"]) ||
+          !digest("package_digest") || !digest("evidence_digest") || !validClass()) return "seed-assignment record fields are invalid";
+      if (Date.parse(raw.assigned_at as string) > Date.parse(raw.evaluation_cutoff as string)) return "assigned_at must not follow evaluation_cutoff";
+      if (!Array.isArray(raw.expected_defects) || !raw.expected_defects.every((item) =>
+        isRecord(item) && hasExactKeys(item, ["id", "severity"]) && nonEmptyString(item.id) &&
+        isTrustLiteral(item.severity, TRUST_SEVERITIES))) {
+        return "expected_defects must contain id/severity pairs";
+      }
+      const ids = (raw.expected_defects as { id: string }[]).map((item) => item.id);
+      return new Set(ids).size === ids.length ? undefined : "expected_defects ids must be unique";
+    }
+    case "seed-result":
+      if (!strings(["seed_run_id", "review_output_ref"]) || !dates(["completed_at"]) ||
+          !digest("review_output_digest") || !Array.isArray(raw.detected_seed_ids) ||
+          !raw.detected_seed_ids.every(nonEmptyString) || !isTrustConfiguration(raw.reviewer_configuration)) return "seed-result record fields are invalid";
+      return new Set(raw.detected_seed_ids as string[]).size === (raw.detected_seed_ids as string[]).length
+        ? undefined : "detected_seed_ids must be unique";
+    case "grant-reference":
+      if (!strings(["grant_id"]) || !isRecord(raw.scope) || !hasExactKeys(raw.scope, ["change_id", "revision"]) ||
+          !nonEmptyString(raw.scope.change_id) || !nonEmptyString(raw.scope.revision) ||
+          (raw.independent_validation_ref !== null && !nonEmptyString(raw.independent_validation_ref)) ||
+          !dates(["evidence_cutoff", "effective_from"]) || !validClass()) return "grant-reference record fields are invalid";
+      for (const field of ["effective_until", "revoked_at", "suspended_at"]) {
+        if (raw[field] !== null && !utcDate(raw[field])) return `${field} must be a UTC timestamp or null`;
+      }
+      for (const field of ["revoked_at", "suspended_at"]) {
+        if (raw[field] !== null && Date.parse(raw[field] as string) < Date.parse(raw.effective_from as string)) {
+          return `${field} must not precede effective_from`;
+        }
+      }
+      if (raw.effective_until !== null && Date.parse(raw.effective_from as string) >= Date.parse(raw.effective_until as string)) {
+        return "effective_from must precede effective_until";
+      }
+      return undefined;
+    default:
+      return "kind is not a supported trust record kind";
+  }
+}
+
+function validateTrustPopulation(raw: unknown): string | undefined {
+  if (!isRecord(raw)) return "population must be an object";
+  if (!isTrustLiteral(raw.population_kind, TRUST_POPULATION_KINDS)) return "population_kind is invalid";
+  if (!["population_id", "scope_ref", "source_ref"].every((field) => nonEmptyString(raw[field]))) return "population_id, scope_ref, and source_ref must be non-empty";
+  const fields = ["population_kind", "population_id", "scope_ref", "inventory_digest", "from", "through", "member_ids", "complete", "source_ref"];
+  if (raw.population_kind === "agent-review" && Object.hasOwn(raw, "first_approval_history_complete")) {
+    fields.push("first_approval_history_complete");
+    if (typeof raw.first_approval_history_complete !== "boolean") return "first_approval_history_complete must be a boolean";
+  }
+  if (!hasExactKeys(raw, fields)) return "population has missing or unknown fields";
+  if (typeof raw.inventory_digest !== "string" || !DIGEST_RE.test(raw.inventory_digest)) return "inventory_digest must be a SHA-256 digest";
+  const from = utcDate(raw.from);
+  const through = utcDate(raw.through);
+  if (!from || !through || from.getTime() >= through.getTime()) return "from/through must be valid increasing UTC timestamps";
+  if (!Array.isArray(raw.member_ids) || !raw.member_ids.every(nonEmptyString)) return "member_ids must be non-empty identities";
+  if (new Set(raw.member_ids as string[]).size !== (raw.member_ids as string[]).length) return "member_ids must be unique";
+  return typeof raw.complete === "boolean" ? undefined : "complete must be a boolean";
+}
+
+function validateTrustCoverage(raw: unknown): string | undefined {
+  if (!isRecord(raw)) return "coverage entry must be an object";
+  if (!hasExactKeys(raw, ["kind", "scope_ref", "from", "through", "complete", "source_ref"])) return "coverage entry has missing or unknown fields";
+  if (!nonEmptyString(raw.scope_ref) || !nonEmptyString(raw.source_ref)) return "scope_ref and source_ref must be non-empty strings";
+  if (!isTrustLiteral(raw.kind, TRUST_COVERAGE_KINDS)) return "kind is not a supported trust coverage kind";
+  const from = utcDate(raw.from);
+  const through = utcDate(raw.through);
+  if (!from || !through || from.getTime() >= through.getTime()) return "from/through must be valid increasing UTC timestamps";
+  return typeof raw.complete === "boolean" ? undefined : "complete must be a boolean";
+}
+
+function validateTrust(raw: unknown, events: DeliveryEvent[]): { trust?: TrustObservationBlock; problems: string[] } {
+  if (!isRecord(raw)) return { problems: ["trust must be an object"] };
+  const problems: string[] = [];
+  if (!hasExactKeys(raw, ["schema_version", "records", "populations", "coverage"])) problems.push("trust block has missing or unknown fields");
+  if (raw.schema_version !== 1) problems.push("trust.schema_version must be 1");
+  for (const field of ["records", "populations", "coverage"]) {
+    if (!Array.isArray(raw[field])) problems.push(`trust.${field} must be an array`);
+  }
+  if (problems.length > 0) return { problems };
+  const records: TrustRecord[] = [];
+  const populations: TrustPopulation[] = [];
+  const coverage: TrustCoverage[] = [];
+  (raw.records as unknown[]).forEach((item, index) => {
+    const problem = validateTrustRecord(item);
+    if (problem) problems.push(`trust.records[${index}]: ${problem}`);
+    else records.push(item as TrustRecord);
+  });
+  (raw.populations as unknown[]).forEach((item, index) => {
+    const problem = validateTrustPopulation(item);
+    if (problem) problems.push(`trust.populations[${index}]: ${problem}`);
+    else populations.push(item as TrustPopulation);
+  });
+  (raw.coverage as unknown[]).forEach((item, index) => {
+    const problem = validateTrustCoverage(item);
+    if (problem) problems.push(`trust.coverage[${index}]: ${problem}`);
+    else coverage.push(item as TrustCoverage);
+  });
+  const populationIds = new Map<string, string>();
+  for (const population of populations) {
+    const key = canonicalJson([population.population_kind, population.population_id]);
+    const payload = canonicalJson(population);
+    const previous = populationIds.get(key);
+    if (previous !== undefined && previous !== payload) problems.push(`trust population ${population.population_id} has a conflicting payload`);
+    populationIds.set(key, payload);
+  }
+  const ids = new Map<string, string>();
+  const domains = new Map<string, string>();
+  const canonical: TrustRecord[] = [];
+  for (const record of records) {
+    const payload = canonicalJson(withoutId(record as unknown as Record<string, unknown>));
+    const priorId = ids.get(record.id);
+    if (priorId !== undefined) {
+      if (priorId !== payload) problems.push(`trust record id ${record.id} has a conflicting payload`);
+      continue;
+    }
+    ids.set(record.id, payload);
+    const identity = (() => {
+      switch (record.kind) {
+        case "revision-class": return canonicalJson([record.kind, record.change_id, record.revision]);
+        case "agent-review": return canonicalJson([record.kind, record.review_id]);
+        case "human-finding": return canonicalJson([record.kind, record.finding_id]);
+        case "seed-assignment":
+        case "seed-result": return canonicalJson([record.kind, record.seed_run_id]);
+        case "grant-reference": return canonicalJson([record.kind, record.grant_id]);
+        default: return assertNever(record);
+      }
+    })();
+    const priorDomain = domains.get(identity);
+    if (priorDomain !== undefined) {
+      if (priorDomain !== payload) problems.push(`trust domain identity ${identity} has a conflicting payload`);
+      continue;
+    }
+    domains.set(identity, payload);
+    canonical.push(record);
+  }
+  const approvals = new Map(canonical.filter((record): record is Extract<TrustRecord, { kind: "agent-review" }> => record.kind === "agent-review").map((record) => [record.review_id, record]));
+  const assignments = new Map(canonical.filter((record): record is Extract<TrustRecord, { kind: "seed-assignment" }> => record.kind === "seed-assignment").map((record) => [record.seed_run_id, record]));
+  for (const record of canonical) {
+    if (record.kind === "human-finding") {
+      const approval = approvals.get(record.approval_review_id);
+      if (!approval || approval.verdict !== "approved" || approval.change_id !== record.change_id || approval.revision !== record.revision) {
+        problems.push(`trust finding ${record.finding_id} must reference an approval of the same exact revision`);
+      } else if (Date.parse(record.detected_at) < Date.parse(approval.completed_at)) problems.push(`trust finding ${record.finding_id} predates its approval`);
+    }
+    if (record.kind === "seed-result") {
+      const assignment = assignments.get(record.seed_run_id);
+      if (!assignment) problems.push(`trust seed result ${record.seed_run_id} has no assignment`);
+      else {
+        if (Date.parse(record.completed_at) < Date.parse(assignment.assigned_at)) {
+          problems.push(`trust seed result ${record.seed_run_id} predates its assignment`);
+        }
+        const expected = new Set(assignment.expected_defects.map((defect) => defect.id));
+        if (record.detected_seed_ids.some((id) => !expected.has(id))) problems.push(`trust seed result ${record.seed_run_id} contains unexpected detection ids`);
+      }
+    }
+  }
+  for (const population of populations) {
+    if (population.population_kind === "agent-review") {
+      const actual = canonical.filter((record): record is Extract<TrustRecord, { kind: "agent-review" }> =>
+        record.kind === "agent-review" && Date.parse(record.completed_at) >= Date.parse(population.from) && Date.parse(record.completed_at) < Date.parse(population.through))
+        .map((record) => record.review_id).sort();
+      if (canonicalJson([...population.member_ids].sort()) !== canonicalJson(actual)) problems.push(`trust population ${population.population_id} review inventory conflicts with records`);
+    }
+    if (population.population_kind === "seed-assignment") {
+      const actual = canonical.filter((record): record is Extract<TrustRecord, { kind: "seed-assignment" }> =>
+        record.kind === "seed-assignment" && Date.parse(record.evaluation_cutoff) >= Date.parse(population.from) && Date.parse(record.evaluation_cutoff) < Date.parse(population.through))
+        .map((record) => record.seed_run_id).sort();
+      if (canonicalJson([...population.member_ids].sort()) !== canonicalJson(actual)) problems.push(`trust population ${population.population_id} seed inventory conflicts with records`);
+    }
+    if (population.population_kind === "production-deployment") {
+      const actual = events.filter((event): event is DeploymentEvent => event.kind === "deployment" &&
+        Date.parse(event.deployed_at) >= Date.parse(population.from) && Date.parse(event.deployed_at) < Date.parse(population.through))
+        .map((event) => event.deployment_id).sort();
+      if (canonicalJson([...population.member_ids].sort()) !== canonicalJson(actual)) problems.push(`trust population ${population.population_id} deployment inventory conflicts with deployment records`);
+    }
+  }
+  if (problems.length > 0) return { problems };
+  return { trust: { schema_version: 1, records: canonical, populations, coverage }, problems };
+}
+
 function validateObservationFile(parsed: unknown): { file?: DeliveryObservationFile; problems: string[] } {
   if (!isRecord(parsed)) return { problems: ["root value must be a JSON object"] };
   const problems: string[] = [];
@@ -345,6 +585,9 @@ function validateObservationFile(parsed: unknown): { file?: DeliveryObservationF
   });
   if (problems.length > 0) return { problems };
 
+  const trustResult = parsed.trust === undefined ? undefined : validateTrust(parsed.trust, events);
+  if (trustResult) problems.push(...trustResult.problems.map((problem) => `trust: ${problem}`));
+  if (problems.length > 0) return { problems };
   // Cross-event references and chronology (M6).
   const submissions = new Map<string, SubmissionEvent>();
   for (const event of events) {
@@ -395,6 +638,7 @@ function validateObservationFile(parsed: unknown): { file?: DeliveryObservationF
       source_kind: parsed.source_kind as DeliveryObservationFile["source_kind"],
       coverage,
       events,
+      ...(trustResult?.trust ? { trust: trustResult.trust } : {}),
     },
     problems,
   };
@@ -421,6 +665,329 @@ export function readDeliveryObservations(root: string): DeliveryObservationSet {
     };
   }
   return { observations: file, issues: [] };
+}
+
+function trustCoverageComplete(trust: TrustObservationBlock, kind: TrustCoverageKind, start: number, end: number, scopeRef = "all"): boolean {
+  const intervals = trust.coverage.filter((row) => row.kind === kind && row.scope_ref === scopeRef && row.complete)
+    .map((row) => [Date.parse(row.from), Date.parse(row.through)] as const)
+    .sort((left, right) => left[0] - right[0]);
+  let cursor = start;
+  for (const [from, through] of intervals) {
+    if (from > cursor) return false;
+    if (through > cursor) cursor = through;
+    if (cursor >= end) return true;
+  }
+  return cursor >= end;
+}
+
+function trustPopulationComplete(trust: TrustObservationBlock, kind: TrustPopulationKind, start: number, end: number, scopeRef?: string): boolean {
+  return trust.populations.some((population) => population.population_kind === kind && population.complete &&
+    (scopeRef === undefined || population.scope_ref === scopeRef) &&
+    Date.parse(population.from) <= start && Date.parse(population.through) >= end);
+}
+
+function trustMetric(
+  value: string,
+  source: string,
+  sampleSize: number,
+  coverage: AvailableMetric["coverage"],
+  limitations: string[],
+  metadata: NonNullable<AvailableMetric["trust"]>,
+): AvailableMetric {
+  return {
+    available: true,
+    value,
+    trend: TREND,
+    source,
+    basis: "measured",
+    sampleSize,
+    coverage,
+    limitations,
+    trust: { ...metadata, sampleSize, coverage, source, limitations },
+  };
+}
+
+function trustCount(
+  value: string,
+  source: string,
+  sampleSize: number,
+  coverage: AvailableMetric["coverage"],
+  limitations: string[],
+  metadata: NonNullable<AvailableMetric["trust"]>,
+): StageIndicatorRow["metric_result"] {
+  if (sampleSize === 0 && coverage !== "complete") {
+    return trustUnavailable("an observed zero count is not established by incomplete coverage", {
+      ...metadata,
+      sampleSize: null,
+      coverage,
+      source,
+      limitations,
+      diagnostics: ["No observed events do not establish zero when inventory coverage is incomplete."],
+    });
+  }
+  return trustMetric(value, source, sampleSize, coverage, limitations, metadata);
+}
+
+function trustUnavailable(reason: string, metadata: NonNullable<UnavailableMetric["trust"]>): UnavailableMetric {
+  const source = metadata.source ?? OBS_SOURCE;
+  const limitations = metadata.limitations ?? [reason];
+  return {
+    available: false,
+    reason,
+    source,
+    trust: {
+      ...metadata,
+      sampleSize: metadata.sampleSize ?? null,
+      coverage: metadata.coverage ?? "unknown",
+      source,
+      limitations,
+    },
+  };
+}
+
+function trustRow(indicator: string, metric_result: StageIndicatorRow["metric_result"]): StageIndicatorRow {
+  return { stage: "Trust", indicator, metric_result };
+}
+
+function configurationStrata(configurations: ReviewerConfiguration[]): string {
+  const counts = new Map<string, number>();
+  for (const config of configurations) {
+    const label = `${config.provider}/${config.model}/${config.effort}/${config.mode};features=${canonicalJson(config.features)}`;
+    counts.set(label, (counts.get(label) ?? 0) + 1);
+  }
+  return [...counts].sort(([left], [right]) => left.localeCompare(right))
+    .map(([label, count]) => `${label} (${count})`).join("; ") || "unknown: no observed execution";
+}
+
+function buildTrustIndicators(obs: DeliveryObservationFile | null, period: GitPeriod): StageIndicatorRow[] {
+  const since = period.currentSince.getTime();
+  const until = period.currentUntil.getTime();
+  const cohort = `[${period.currentSince.toISOString()}, ${period.currentUntil.toISOString()})`;
+  const horizon = period.currentUntil.toISOString();
+  const classes: TrustClass[] = ["trunk", "shared", "leaf", "unknown"];
+  if (!obs?.trust) {
+    const missing = obs === null
+      ? "no artifacts/metrics/delivery-observations.json supplied"
+      : "trust block is missing from the authorized local delivery-observation export";
+    return [
+      ...classes.map((changeClass) => trustRow(`agent-review approval escape rate for ${changeClass}`,
+        trustUnavailable(missing, { cohort, asOfHorizon: horizon, diagnostics: [missing] }))),
+      ...classes.map((changeClass) => trustRow(`seeded-review recall for ${changeClass}`,
+        trustUnavailable(missing, { cohort, asOfHorizon: horizon, diagnostics: [missing] }))),
+      ...classes.map((changeClass) => trustRow(`production deployment affected share for ${changeClass}`,
+        trustUnavailable(missing, { cohort, asOfHorizon: horizon, diagnostics: [missing] }))),
+      trustRow("post-grant escape assessment", trustUnavailable(obs === null ? missing : "grant-reference inventory is missing; no escape conclusion is available",
+        { cohort, asOfHorizon: horizon, diagnostics: [obs === null ? missing : "grant-reference inventory is missing"] })),
+    ];
+  }
+  const trust = obs.trust;
+  const records = trust.records;
+  const classByRevision = new Map(records.filter((record): record is Extract<TrustRecord, { kind: "revision-class" }> =>
+    record.kind === "revision-class").map((record) => [canonicalJson([record.change_id, record.revision]), record.change_class]));
+  const klass = (changeId: string, revision: string): TrustClass =>
+    classByRevision.get(canonicalJson([changeId, revision])) ?? "unknown";
+  const source = `${OBS_SOURCE}#trust`;
+  const sharedLimitations = [
+    `Declared observation labels are attribution, not authenticated origin; cohort is ${cohort}.`,
+    "Trust records, population inventories, source references, and reviewer configuration remain unauthenticated declarations.",
+  ];
+  const rows: StageIndicatorRow[] = [];
+
+  const firstApprovals = new Map<string, Extract<TrustRecord, { kind: "agent-review" }>>();
+  for (const review of records) {
+    if (review.kind !== "agent-review" || review.verdict !== "approved") continue;
+    const key = canonicalJson([review.change_id, review.revision]);
+    const existing = firstApprovals.get(key);
+    if (!existing || Date.parse(review.completed_at) < Date.parse(existing.completed_at)) firstApprovals.set(key, review);
+  }
+  const approvalCohort = [...firstApprovals.values()].filter((review) =>
+    Date.parse(review.completed_at) >= since && Date.parse(review.completed_at) < until);
+  const findings = records.filter((record): record is Extract<TrustRecord, { kind: "human-finding" }> =>
+    record.kind === "human-finding" && (record.severity === "Blocker" || record.severity === "Major"));
+  const reviewPopulation = trust.populations.find((population) => population.population_kind === "agent-review" && population.complete &&
+    Date.parse(population.from) <= since && Date.parse(population.through) >= until);
+  const reviewHistoryCovered = reviewPopulation !== undefined &&
+    reviewPopulation.first_approval_history_complete === true &&
+    trustCoverageComplete(trust, "agent-review", Date.parse(reviewPopulation.from), until, reviewPopulation.scope_ref) &&
+    trustCoverageComplete(trust, "revision-class", Date.parse(reviewPopulation.from), until, reviewPopulation.scope_ref) &&
+    trustCoverageComplete(trust, "human-finding", since, until, reviewPopulation.scope_ref);
+  for (const changeClass of classes) {
+    const members = approvalCohort.filter((review) => klass(review.change_id, review.revision) === changeClass);
+    const numerator = members.filter((review) => findings.some((finding) =>
+      finding.change_id === review.change_id && finding.revision === review.revision &&
+      Date.parse(finding.detected_at) > Date.parse(review.completed_at) && Date.parse(finding.detected_at) < until)).length;
+    const configSummary = configurationStrata(members.map((review) => review.reviewer_configuration));
+    const historyCovered = reviewHistoryCovered;
+    const denominator = members.length;
+    const metadata = { ...(historyCovered ? { numerator, denominator, sampleSize: denominator } : {}),
+      coverage: historyCovered ? "complete" as const : "unknown" as const,
+      cohort, asOfHorizon: horizon,
+      diagnostics: [`Actual first-approval reviewer configuration strata: ${configSummary}.`,
+        "First technical approval per exact change revision; later reapproval does not reset cohort membership."] };
+    const metric = !historyCovered || denominator === 0
+      ? trustUnavailable(!historyCovered ? "complete first-approval history, review/finding inventory, and continuous per-kind coverage are required" : "no first-approved revision in this class and period", metadata)
+      : trustMetric(`${numerator}/${denominator} revisions with a post-approval Blocker/Major finding (${(numerator / denominator * 100).toFixed(1)}%)`,
+        source, denominator, "complete", [...sharedLimitations, "This is an as-of observed escape share, not lifetime defect probability."], metadata);
+    rows.push(trustRow(`agent-review approval escape rate for ${changeClass}`, metric));
+  }
+
+  const assignments = records.filter((record): record is Extract<TrustRecord, { kind: "seed-assignment" }> =>
+    record.kind === "seed-assignment" && Date.parse(record.evaluation_cutoff) >= since && Date.parse(record.evaluation_cutoff) < until);
+  const seedResults = new Map(records.filter((record): record is Extract<TrustRecord, { kind: "seed-result" }> =>
+    record.kind === "seed-result").map((record) => [record.seed_run_id, record]));
+  const seedPopulation = trust.populations.find((population) => population.population_kind === "seed-assignment" && population.complete &&
+    Date.parse(population.from) <= since && Date.parse(population.through) >= until);
+  for (const changeClass of classes) {
+    const members = assignments.filter((assignment) => assignment.change_class === changeClass);
+    const relevant = members.flatMap((assignment) => assignment.expected_defects
+      .filter((defect) => defect.severity === "Blocker" || defect.severity === "Major")
+      .map((defect) => ({ assignment, defect })));
+    const results = members.map((assignment) => ({ assignment, result: seedResults.get(assignment.seed_run_id) }));
+    const incomplete = results.filter(({ assignment, result }) =>
+      !result || Date.parse(result.completed_at) > Date.parse(assignment.evaluation_cutoff));
+    const numerator = relevant.filter(({ assignment, defect }) =>
+      seedResults.get(assignment.seed_run_id)?.detected_seed_ids.includes(defect.id)).length;
+    const configSummary = configurationStrata(results.flatMap(({ result }) =>
+      result ? [result.reviewer_configuration] : []));
+    const assignmentCovered = seedPopulation !== undefined &&
+      trustPopulationComplete(trust, "seed-assignment", since, until, seedPopulation.scope_ref);
+    const memberEvidenceCovered = seedPopulation !== undefined && members.every((assignment) =>
+      trustCoverageComplete(trust, "seed-assignment", Date.parse(assignment.assigned_at), Date.parse(assignment.evaluation_cutoff), seedPopulation.scope_ref) &&
+      trustCoverageComplete(trust, "seed-result", Date.parse(assignment.assigned_at), Date.parse(assignment.evaluation_cutoff), seedPopulation.scope_ref));
+    const covered = assignmentCovered && memberEvidenceCovered;
+    const denominator = relevant.length;
+    rows.push(trustRow(`seeded-review packages for ${changeClass}`, trustCount(
+      `${members.length} assigned package(s)`, source, members.length, assignmentCovered ? "complete" : "partial",
+      [...sharedLimitations, "Packages are counted by evaluation_cutoff, independently of acceptance or merge."],
+      { cohort, asOfHorizon: horizon, diagnostics: [`${members.length} assigned package(s).`] },
+    )));
+    rows.push(trustRow(`seeded-review expected defects for ${changeClass}`, trustCount(
+      `${denominator} expected Blocker/Major defect(s)`, source, denominator, assignmentCovered ? "complete" : "partial",
+      [...sharedLimitations, "The recall denominator excludes Nit findings and is unavailable when empty."],
+      { cohort, asOfHorizon: horizon, diagnostics: [`${denominator} expected Blocker/Major defect(s).`] },
+    )));
+    const metadata = { ...(assignmentCovered
+      ? { ...(incomplete.length === 0 ? { numerator } : {}), denominator, sampleSize: denominator }
+      : {}),
+      coverage: covered ? "complete" as const : "partial" as const, cohort, asOfHorizon: horizon,
+      diagnostics: [`Actual reviewer configuration strata: ${configSummary}.`, "Assignments enter by evaluation_cutoff; acceptance and merge are not required."] };
+    const metric = !covered || incomplete.length > 0 || denominator === 0
+      ? trustUnavailable(!covered ? "complete seed assignment inventory and continuous assignment/result coverage are required"
+        : incomplete.length > 0 ? `${incomplete.length} planned seed assignment(s) lack a result completed by cutoff`
+        : "no expected Blocker/Major seed defects; recall denominator is empty, not 100%", metadata)
+      : trustMetric(`${numerator}/${denominator} expected Blocker/Major defects detected (${(numerator / denominator * 100).toFixed(1)}%)`,
+        source, denominator, "complete", [...sharedLimitations, "A completed empty detection list is a miss; independent ground-truth confirmation is outside this script."], metadata);
+    rows.push(trustRow(`seeded-review recall for ${changeClass}`, metric));
+  }
+
+  const deployments = obs.events.filter((event): event is DeploymentEvent => event.kind === "deployment" &&
+    event.environment === "production" && Date.parse(event.deployed_at) >= since && Date.parse(event.deployed_at) < until);
+  const deploymentIds = new Set(deployments.map((deployment) => deployment.deployment_id));
+  const allDefects = obs.events.filter((event): event is DefectEvent => {
+    if (event.kind !== "defect" || Date.parse(event.detected_at) >= until) return false;
+    const deployment = obs.events.find((candidate): candidate is DeploymentEvent =>
+      candidate.kind === "deployment" && candidate.deployment_id === event.deployment_id);
+    return deployment !== undefined && Date.parse(event.detected_at) >= Date.parse(deployment.deployed_at);
+  });
+  const defects = allDefects.filter((event) => deploymentIds.has(event.deployment_id));
+  const deploymentPopulation = trust.populations.find((population) => population.population_kind === "production-deployment" && population.complete &&
+    Date.parse(population.from) <= since && Date.parse(population.through) >= until);
+  for (const changeClass of classes) {
+    const members = deployments.filter((deployment) => klass(deployment.change_id, deployment.revision) === changeClass);
+    const memberIds = new Set(members.map((deployment) => deployment.deployment_id));
+    const memberDefects = defects.filter((defect) => memberIds.has(defect.deployment_id));
+    const affected = new Set(memberDefects.map((defect) => defect.deployment_id)).size;
+    const deploymentCovered = deploymentPopulation !== undefined &&
+      trustCoverageComplete(trust, "deployment", since, until, deploymentPopulation.scope_ref) &&
+      trustCoverageComplete(trust, "revision-class", since, until, deploymentPopulation.scope_ref) &&
+      trustPopulationComplete(trust, "production-deployment", since, until, deploymentPopulation.scope_ref);
+    const covered = deploymentCovered &&
+      trustCoverageComplete(trust, "defect", since, until, deploymentPopulation.scope_ref);
+    const metadata = { ...(covered ? { numerator: affected, denominator: members.length, sampleSize: members.length } : {}),
+      coverage: covered ? "complete" as const : "partial" as const, cohort, asOfHorizon: horizon,
+      diagnostics: ["Deployment class joins the exact deployed change revision; remediation none remains an escape."] };
+    const rateMetric = !covered || members.length === 0
+      ? trustUnavailable(!covered ? "complete production-deployment inventory and continuous deployment/defect coverage are required" : "no production deployments in this class and period", metadata)
+      : trustMetric(`${affected}/${members.length} affected deployment(s) (${(affected / members.length * 100).toFixed(1)}%)`,
+        source, members.length, "complete", [...sharedLimitations, "The denominator includes every production deployment in this period, regardless of acceptance or review."], metadata);
+    const countCoverage: AvailableMetric["coverage"] = covered ? "complete" : "partial";
+    rows.push(trustRow(`production deployment affected share for ${changeClass}`, rateMetric));
+    rows.push(trustRow(`production deployment escaped defects for ${changeClass}`, trustCount(
+      `${memberDefects.length} defect observation(s)`, source, memberDefects.length, countCoverage,
+      [...sharedLimitations, "Observed count is partial unless declared deployment and incident populations are complete."],
+      { cohort, asOfHorizon: horizon, diagnostics: [`${memberDefects.length} defect observation(s).`] },
+    )));
+    rows.push(trustRow(`production deployment affected count for ${changeClass}`, trustCount(
+      `${affected} affected deployment(s)`, source, affected, countCoverage, sharedLimitations,
+      { cohort, asOfHorizon: horizon, diagnostics: [`${affected} affected deployment(s).`] },
+    )));
+    rows.push(trustRow(`production deployment eligible count for ${changeClass}`, trustCount(
+      `${members.length} eligible production deployment(s)`, source, members.length,
+      deploymentCovered ? "complete" : "partial", sharedLimitations,
+      { cohort, asOfHorizon: horizon, diagnostics: [`${members.length} eligible deployment(s).`] },
+    )));
+    const failedDeploymentCount = new Set(memberDefects.filter((defect) => defect.remediation !== "none").map((defect) => defect.deployment_id)).size;
+    const rollbackDeploymentCount = new Set(memberDefects.filter((defect) => defect.remediation === "rollback").map((defect) => defect.deployment_id)).size;
+    rows.push(trustRow(`production deployment hotfix/rollback count for ${changeClass}`, trustCount(
+      `${failedDeploymentCount} deployment(s)`, source, failedDeploymentCount, countCoverage,
+      [...sharedLimitations, "Count is by distinct deployment."],
+      { cohort, asOfHorizon: horizon, diagnostics: ["Only hotfix/rollback remediation qualifies."] },
+    )));
+    rows.push(trustRow(`production deployment rollback-only count for ${changeClass}`, trustCount(
+      `${rollbackDeploymentCount} deployment(s)`, source, rollbackDeploymentCount, countCoverage,
+      sharedLimitations, { cohort, asOfHorizon: horizon, diagnostics: ["Count is by distinct rollback deployment."] },
+    )));
+  }
+
+  const grants = records.filter((record): record is Extract<TrustRecord, { kind: "grant-reference" }> => record.kind === "grant-reference");
+  const allDeployments = obs.events.filter((event): event is DeploymentEvent => event.kind === "deployment");
+  const freshEscapes = allDefects.flatMap((defect) => {
+    const deployment = allDeployments.find((item) => item.deployment_id === defect.deployment_id);
+    if (!deployment) return [];
+    const detected = Date.parse(defect.detected_at);
+    return grants.filter((grant) => grant.independent_validation_ref !== null &&
+      grant.change_class !== "unknown" && klass(deployment.change_id, deployment.revision) !== "unknown" &&
+      grant.change_class === klass(deployment.change_id, deployment.revision) &&
+      grant.scope.change_id === deployment.change_id && grant.scope.revision === deployment.revision &&
+      detected > Date.parse(grant.evidence_cutoff) &&
+      detected >= Date.parse(grant.effective_from) &&
+      (grant.effective_until === null || detected < Date.parse(grant.effective_until)) &&
+      (grant.revoked_at === null || detected < Date.parse(grant.revoked_at)) &&
+      (grant.suspended_at === null || detected < Date.parse(grant.suspended_at))
+    ).map((grant) => `SUSPENSION_REQUIRED grant=${grant.grant_id} defect=${defect.id} evidence=${grant.independent_validation_ref}/${defect.id}`);
+  });
+  const earliestGrantCutoff = grants.reduce((earliest, grant) =>
+    Math.min(earliest, Date.parse(grant.evidence_cutoff)), until);
+  const potentiallyApplicableDeployments = allDeployments.filter((deployment) =>
+    Date.parse(deployment.deployed_at) < until &&
+    (Date.parse(deployment.deployed_at) >= earliestGrantCutoff ||
+      allDefects.some((defect) => defect.deployment_id === deployment.deployment_id &&
+        Date.parse(defect.detected_at) > earliestGrantCutoff)));
+  const applicabilityResolved = grants.every((grant) =>
+    grant.independent_validation_ref !== null && grant.change_class !== "unknown" &&
+    klass(grant.scope.change_id, grant.scope.revision) === grant.change_class) &&
+    potentiallyApplicableDeployments.every((deployment) =>
+      klass(deployment.change_id, deployment.revision) !== "unknown");
+  const grantHistory = grants.length > 0 && applicabilityResolved &&
+    trustCoverageComplete(trust, "grant-reference", earliestGrantCutoff, until) &&
+    trustCoverageComplete(trust, "deployment", earliestGrantCutoff, until) &&
+    trustCoverageComplete(trust, "defect", earliestGrantCutoff, until) &&
+    trustCoverageComplete(trust, "revision-class", earliestGrantCutoff, until);
+  const grantMetric = freshEscapes.length > 0
+    ? trustMetric(freshEscapes.join("; "), source, freshEscapes.length, grantHistory ? "complete" : "partial",
+      [...sharedLimitations, "Declaration-only diagnostic; no grant is created, authenticated, activated, or revoked."],
+      { numerator: freshEscapes.length, denominator: grants.length, cohort, asOfHorizon: horizon, diagnostics: freshEscapes })
+    : !grantHistory
+      ? trustUnavailable("grant-reference inventory, validation evidence, exact class/scope, or continuous applicability history is missing; no no-escape conclusion is available",
+        { ...(grants.length > 0 ? { sampleSize: grants.length } : {}),
+          cohort, asOfHorizon: horizon,
+          diagnostics: ["Historical grant declarations do not authorize report-only behavior."] })
+      : trustMetric("No post-evidence-cutoff active-grant escape observed", source, 0, "complete",
+        [...sharedLimitations, "Complete declared history yielded no qualifying active-grant escape; declarations remain unauthenticated and non-authoritative."],
+        { numerator: 0, denominator: grants.length, cohort, asOfHorizon: horizon,
+          diagnostics: ["No automatic grant change or activation occurs."] });
+  rows.push(trustRow("post-grant escape assessment", grantMetric));
+  return rows;
 }
 
 // ---------------------------------------------------------------------------
@@ -592,6 +1159,7 @@ export function buildDeliveryIndicators(input: DeliveryObservationSet, period: G
       { stage: "Review", indicator: "first-pass acceptance (measured)", metric_result: unavailable(reason) },
       { stage: "Maintain", indicator: "escaped defects and rollbacks (measured)", metric_result: unavailable(reason) },
       { stage: "Delivery", indicator: "cost per accepted change (measured)", metric_result: unavailable(reason) },
+      ...buildTrustIndicators(null, period),
     ];
     return { deliveryHealth, stageIndicators, unavailable: collectUnavailable(deliveryHealth, stageIndicators) };
   }
@@ -1185,6 +1753,7 @@ export function buildDeliveryIndicators(input: DeliveryObservationSet, period: G
     firstPassRow,
     defectRow,
     ...costRows,
+    ...buildTrustIndicators(obs, period),
   ];
   return { deliveryHealth, stageIndicators, unavailable: collectUnavailable(deliveryHealth, stageIndicators) };
 }
