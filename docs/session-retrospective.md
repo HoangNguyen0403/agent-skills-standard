@@ -217,14 +217,35 @@ Each published generation in the v2 store produces **three local artifacts**:
    no external URLs, strict CSP (`default-src 'none'; style-src 'unsafe-inline'`), and escapes all
    dynamic text. Note: rendering has been checked structurally only, not visually.
 
+#### How to read the counts
+
+These distinctions hold across `summary.md`, `report.html` and `ledger.json`. The reports are a
+presentation of the committed ledger; the ledger schema and the meaning of its fields are unchanged.
+
+- **Files read versus worker inventory.** Header evidence coverage and tree coverage describe distinct
+  evidence: observed task calls and host-agent records, or create_agent call attempts, do not prove
+  successful worker creation. Delegation coverage uses declared worker inventory when known and
+  labels fallback counts as estimates otherwise. Known inventory gaps remain explicit; estimates
+  cannot distinguish failed spawn attempts from worker sessions outside searched directories.
+- **Permission response attempts versus requests.** `permission-answers` counts recorded
+  `respond_to_permission` tool-call attempts; it does not establish that the host applied a response.
+  These attempt totals are separate from request-level counts.
+- **Request-count basis and category selection.** With complete event capture, request totals,
+  tool/program breakdowns and response categories deduplicate actor+request identities across nodes.
+  The earliest valid timestamped response supplies each category; ties keep the first observed
+  response. When capture is incomplete, those aggregate counts fall back to raw observations and
+  may duplicate. `answeredWithoutRequest` follows the same selected basis.
+- **Raw command observation rows.** Command rows always report raw per-node observation counts,
+  including unmatched observations, so their units can differ from aggregate request totals.
+  Unmatched observations are not unique unanswered requests.
+- **Every category stays visible.** Requested `allow`, requested `deny`, `other` and `unanswered`
+  remain distinct in summaries and tables. Zero means "none recorded in what was read," not "none
+  occurred"; partial reads may omit events or actors, and missing data proves neither global absence
+  nor successful enforcement.
+
 #### `summary.md` structure
 
-The header lines of `summary.md`:
-
-```text
-Files: <complete|partial> | Tree: <complete|partial|not-measured> (<agents read> of <created> agents read) | Cutoff: <iso>
-Scope: session <first 8 characters of session id> | folder <parent/name> | <first event time> to <last event time>
-```
+Summary header reports evidence coverage, tree coverage, evidence mode, root status, delegation coverage, and cutoff. Tree coverage counts observed task calls and host-agent records or create_agent call attempts; calls may fail and do not prove successful creation. Delegation coverage uses declared worker inventory when known and labels fallback counts as estimates.
 
 The ledger distinguishes measured zero from not measured. User-role rows may include host
 notifications and are not human-turn counts. Recorded decisions are agent-declared and unverified.
@@ -232,24 +253,18 @@ The `<created>` denominator is evidence-based, not confirmed process creation: t
 observed task-call attempts; host counts use the descendant record graph when the root matches,
 otherwise observed `create_agent` call attempts.
 
-When coverage is partial or any declared actor is unread, the next block is a coverage warning that
-names how many declared actors were read and how many are missing, restricted, unavailable, remote
-or unlinked. It qualifies every number that follows; a partial report never presents unqualified
-completeness. With a declared roster, `## Delegation` then lists every actor, its declared parent,
-its read state, and its turns (`unknown`, never zero, when unread).
+When coverage is partial or a declared actor is unread, the next block names how many declared
+actors were read and how many are missing, restricted, unavailable, remote or unlinked. Unknown
+inventory never certifies completeness; fallback worker linkage is labeled as an estimate. With a
+declared roster, `## Delegation` lists every actor, its declared parent, its read state, and its
+turns (`unknown`, never zero, when unread).
 
 Then fixed second-level sections:
 
-- `## Bottom line` — summary clauses for observed agents, main cost and turns (with percentage share
-  and cached token rates), permission answers (with denials), and AGS lookups by main vs. workers.
-- `## Scorecards` — compact scorecard lines covering Guardrails, Permission friction, Delegation &
-  cost, Tool health, AGS lookups, and Outcome. The friction line reports observed requests,
-  answered/unanswered, repeated safe-category requests, coverage, and the measured answerer/wait
-  fields. Answerer provenance and wait time are omitted when structured evidence is absent; they are
-  never inferred as zero or split between human and orchestrator.
+- `## Bottom line` — observed worker count and main cost, recorded response attempts, and AGS lookups.
 - `## Do next` — prioritized, actionable next steps for the operator or manager.
-- `## For the maintainer` — structural coverage gaps (e.g. unlinked child agent sessions) and
-  tracker-binding limitations, if present.
+- `## For the maintainer` — declared inventory gaps or worker-linkage lower bounds when inventory is
+  known; estimated linkage and tracker-binding limitations otherwise, if present.
 - `## Limits` — fixed caveats: counts show where to look, not why; cost is an estimate from a price
   table.
 `time.main` is not measured when main-session timestamps are absent, even if worker timestamps
@@ -292,12 +307,15 @@ external URLs, and full HTML escaping:
   title row and wrapping data tables in responsive `.table-wrap` horizontal-scroll containers
   (`.table-wrap.nowrap-first` for date/verdict first columns). Sections backing active findings expand
   automatically (`<details open>`); secondary or clean sections stay collapsed by default:
-  - *Permission requests* (`#sec-permissions`; headline: e.g. `X requests, Y denied, Z unanswered`) —
-    **expanded by default** when `denied > 0`, `unanswered > 0`, or the `guardrail-answers`
-    improvement has `level === "act"`; collapsed otherwise. Shows up to 50 distinct permission
-    requests, denied first, plus tool and program tables. Command text (or request title) undergoes
-    linear-time secret redaction (2000 chars ceiling); operators are advised to check commands before
-    sharing.
+  - *Permission requests* (`#sec-permissions`; headline: e.g. `X requests, Y requested deny, Z other,
+    U unanswered`) — **expanded by default** when `requested deny > 0`, `unanswered > 0`, or the
+    `guardrail-answers` improvement has `level === "act"`; collapsed otherwise. With complete event
+    capture, aggregate request/tool/program totals deduplicate actor+request identities across nodes
+    and use the earliest valid timestamped response (ties keep the first observed) for each category.
+    Incomplete capture falls back to raw observations, which may duplicate. Command rows show raw
+    per-node observation counts; unmatched observations are not unique unanswered requests. Command
+    text undergoes linear-time secret redaction (2000 chars ceiling); operators are advised to check
+    commands before sharing.
   - *Outcome* (`#sec-outcome`; headline: commit and file counts) — **collapsed by default**.
     Repository outcome metrics across all branches in the session window (commits, merge commits,
     reverts, files changed, insertions, deletions; branch now) read via `execFile` from the session
@@ -332,7 +350,8 @@ external URLs, and full HTML escaping:
   - *Agents* (`#sec-agents`; headline: e.g. `X of Y agents observed`) — **expanded by default** when
     `agent-error-concentration` or `human-intervention` improvement has `level === "act"`; collapsed
     otherwise. Table of up to 12 observed agents (plus an overflow summary row if more), kind, model,
-    turns, cost, cached tokens per turn, compactions, tool errors/calls, and permission answers.
+    turns, cost, cached tokens per turn, compactions, tool errors/calls, and permission-response
+    attempts.
   - *Limits* (`#sec-limits`) — **collapsed by default**. Fixed engine bounds, disclaimers, and
     pricing table notes.
   - *For the maintainer* (`#sec-maintainer`; headline: e.g. `X items`) — **collapsed by default**.
@@ -351,6 +370,14 @@ counts. Every numeric claim value is backed by an evidence entry:
   `ags-lookups`, `session-outcome`, and `permission-requests`.
 - Per-row evidence IDs back every value (e.g. `agg:permreq:tool:<name>:asked`, `agg:claim:<claim>:<value>`),
   which the deterministic verifier checks before publication.
+- `coverage` keeps `agentsCreated`, `sessionsLinked` and `unlinkedAgents`: when inventory is known,
+  worker totals derive from declared actors; otherwise they use an estimate. `permission-answers`
+  retains recorded tool-call attempt counts. `permission-requests` uses deduplicated actor+request
+  identities across nodes only with complete event capture, selecting the earliest valid
+  timestamped response (ties first seen); incomplete capture uses raw observations that may
+  duplicate. Command rows remain raw observation counts. `answeredWithoutRequest` follows the
+  selected aggregate basis. The renderer changes presentation only; no claim id, field, evidence id
+  or schema version changes.
 - Repeat calls read this committed ledger, allowing `already-prepared` to report published numbers.
 
 ### Cross-session index (`index.html`)
@@ -534,8 +561,160 @@ Failure output never echoes a filesystem or runtime message, a stack trace or fi
   `prepare_retrospective` on its own. That arrives after a value pilot, so today only this guide
   and the nudge point an agent at the tool.
 
+## Maintaining review follow-through (manual)
+
+A published generation records what happened. It never records what you decided to do about it, and
+this release adds no Review, Action or Benefit field, no lookup command, no schema validator, no
+`index.html` badge and no automatic freshness check. Follow-through is a **manual convention**: one
+private JSONL file you maintain, outside the worktree and outside the consented store root. Nothing
+in AGS writes, reads, validates or displays it.
+
+Proposed default location (not created by anything; make it yourself, owner-only, single writer):
+`~/ags/retrospective-reviews/<project>/review-register.jsonl`. One JSON object per line, scoped to one
+project, append-only. Deleting or rewriting the store never touches this file, and it never overrides
+a consent record, a host profile or a permission decision.
+
+### 1. Locate the exact generation first
+
+A review is only meaningful against a specific generation, so record the locator, not a date guess.
+`prepare_retrospective` returns the three artifact paths; the same generation sits at:
+
+```
+<storeRoot>/sessions/<sessionToken>/generations/<generationId>/{summary.md,ledger.json,report.html}
+```
+
+- `sessionToken` is 32 lowercase hex characters. `generationId` is **opaque**: copy the exact
+  directory name or path a tool handed you. The current generator emits a 6-digit ordinal, a
+  hyphen, then 12 hex characters (for example `000001-f4d32175d64f`), but that is one observed
+  shape — a register must accept any ID the store returns rather than enforce that format.
+- A v2 generation also holds `generation.json` with `generationId`, `runId`, `checkpointId` and
+  `publishedAt`. An older v1 generation has no `generation.json`; that absence is legacy, not damage.
+- The store's own index entry adds a `fence` value. An entry whose fence differs from the session's
+  current deletion fence predates the latest deletion and is **not authoritative for current use**,
+  even though the historical files may still be readable.
+- Engine `status` (`complete`, `partial`, `failed`) describes the run, not your review. Never copy it
+  into a review field.
+
+**Digest.** Record a SHA-256 of the exact file you read (`ledger.json`, `summary.md` or
+`report.html`), plus when and how you captured it. Compute it with your usual local tooling: no AGS
+command produces, validates or compares this digest. A digest captured later never retroactively
+proves the reviewed bytes: if capture time or provenance is unknown, the record cannot later claim
+`current` (see §4).
+
+### 2. Record grouping: one action, separate benefit
+
+Three record types, linked by ID. Every record carries `record_type` and a unique `record_id`, so a
+benefit — not only a review — can be superseded or replayed. Never store the action description
+twice.
+
+```jsonl
+{"record_type":"review","record_id":"rev-<yyyymmdd>-<slug>-1","source":{"project":"<project>","store_alias":"<alias>","session_token":"<32-hex>","generation":"<generation-id>"},"artifact":"ledger.json","digest_sha256":"<64-hex>","digest_captured":"<timestamp-or-unknown>","digest_provenance":"<who/how-or-unknown>","fence":"<observed-fence-or-unknown>","scope":"<what was inspected>","limits":"<what was not inspected>","reviewer":"<role; identity basis>","findings":["<finding>"],"evidence":["<project-relative path or alias>"],"action_refs":["act-<slug>"],"event_time":"<timestamp-or-unknown>","supersedes":null}
+{"record_type":"action","record_id":"act-<slug>-1","action_id":"act-<slug>","project":"<project>","description":"<change>","action_refs":["rev-<yyyymmdd>-<slug>-1"],"affected_generations":["<alias>/<session_token>/<generation-id>"],"state":"proposed","approval":"<actor, artifact revision, scope, or unknown>","implementation_evidence":["<path@revision>"],"verification":"<criteria and result, or NOT RUN>","limits":"<unverified boundaries>","release_state":"not_required","supersedes":null}
+{"record_type":"benefit","record_id":"ben-<slug>-1","action_ref":"act-<slug>","metric":"<what is measured>","scope":"<where>","comparator":"<baseline or none>","evidence":["<path@revision>"],"pricing":"<source or unavailable>","measurement_state":"unmeasured","note":"<why>","supersedes":null}
+```
+
+- Each `affected_generations` entry is `<store_alias>/<session_token>/<generation-id>`, with
+  `project` in the action context, so no generation ID is used alone as cross-session identity. An
+  action may also resolve its targets through `action_refs` to reviews whose `source` object carries
+  the same locator.
+- `action_refs` names the other side of the link: in a review it points to `action_id` values; in an
+  action it points to review `record_id` values. `benefit.action_ref` points to an `action_id`.
+- `action.state` is one of `proposed`, `approved`, `implemented`, `verified`, `rejected`, `reopened`.
+  `verified` only ever means the recorded criteria passed; unrecorded criteria remain unverified.
+- `release_state` is separate from implementation. A repository-only change may be
+  `not_required`; it is never `deployed` without matching evidence.
+- `measurement_state` is one of `measured`, `baseline-only`, `unmeasured`, `inconclusive`,
+  `not-applicable`. Fewer cached tokens alone is a proxy, not a saving. Without a comparator,
+  accepted outcomes and repair-inclusive cost evidence, record `baseline-only` or `unmeasured`;
+  never write a number as a saving.
+- `supersedes` may be null; when non-null, it names an existing `record_id`. Do not use `unknown`
+  as a `supersedes` value because it cannot identify a predecessor. Prefer `unknown` over a plausible
+  guess in descriptive fields, and leave a field out only when the record type does not apply.
+
+### 3. Independent reviews, corrections and conflicts
+
+- Two records with the **same** `record_id` and different content are a conflict: keep both lines and
+  add a correction record naming the conflict. Do not silently edit the earlier line.
+- Two **different** correction records that both `supersedes` the same prior `record_id` are
+  conflicting branches. Keep both; do not pick one. Treat the affected action or benefit's current
+  use as `conflict` or `unknown` until the register owner resolves it. These are derived/manual
+  current-use statuses, not values in the `action.state` or `measurement_state` vocabularies.
+- Two records with different `record_id` values, the same `digest_sha256` and different scope or
+  reviewer are **independent reviews, not duplicates**. An identical-ID replay with identical
+  content is a duplicate replay; flag it and move on.
+- Corrections append: a new record with its own `record_id` and `supersedes` naming the record it
+  corrects. `record_id`, source revision and declared scope — not timestamps alone — disambiguate
+  them.
+- Several reviews may share one `action_id`; one action may concern several generations
+  (`affected_generations`). Never attach an old review to a newer generation someone else produced.
+
+### 4. Currentness: current, stale, unavailable, unknown
+
+Check by hand, at read time. There is no automatic staleness detection.
+
+| Observation | What to record | What it means |
+| --- | --- | --- |
+| Reviewed-byte identity known (digest and capture provenance recorded), authorized source present and readable, recomputed digest matches, and the observed current fence equals the recorded fence | `current` | The review still describes the source it names. |
+| Source present but the digest differs | `stale` | The historical review stands; it is not current-use authority. |
+| Deletion, revocation or removal is known | `unavailable` | Historical review preserved; the source is not available for current use or access. |
+| Reviewed digest has unknown capture time or provenance, or the current fence cannot be observed | `unknown` | Unknown is not `current` and not `pass`. Re-read from a readable, authorized source before acting. |
+| No matching record at all | — | "No recorded review" — not proof that nobody reviewed it. |
+
+A digest captured after the fact never retroactively proves the reviewed bytes, and neither `stale` nor
+`unavailable` nor `unknown` grants access, authority or a fresh review. Where known removal is
+separated from unobserved evidence, keep them distinct: an unobservable fence is `unknown`, not
+`unavailable`.
+
+### 5. Privacy, ownership and retention
+
+- One writer: a named maintainer, on their own account. Concurrent writers, projections, validation
+  and index integration are out of scope and need their own design.
+- Keep the register outside both the worktree and the consented store root, mode `0600`, and never
+  inside generated HTML or a published generation.
+- Reference evidence by project-relative path or approved alias plus revision. A path alone is not
+  proof of content or freshness. Exclude raw host paths, real session ids, command text with
+  secrets, and anything the privacy guide excludes.
+- Retention is an explicit maintainer decision: keep a recoverable private copy before retiring a
+  worktree, and archive history rather than deleting it by default. Source deletion or privacy
+  policy outranks the register — drop removed payloads.
+
+### 6. From findings to the next task, using the existing routing rules
+
+Act on a finding by routing bounded work, not by restating routing rules here. The canonical contract
+lives in
+[`common-task-complexity-routing`](../skills/common/common-task-complexity-routing/references/routing-table.md#capability-and-effort-resolution)
+(capability and effort, per-slice sizing, dispatch receipt) and
+[`common-subagent-driven-development`](../skills/common/common-subagent-driven-development/SKILL.md)
+(placement, briefs, handoff, freeze). What the register adds is the evidence to reuse:
+
+- **Reuse before re-reading.** When approved evidence already answers the question, do not dispatch
+  another scout; size each slice on its own spread, novelty and centrality rather than inheriting a
+  parent's tier.
+- **Read narrow, delegate only for a named benefit.** When the main context needs exact known
+  content, read those paths directly. Use one bundled eligible extraction over known paths only
+  when it has a stated benefit — parallelism, context pressure, isolation; not "more thorough".
+  A `scout` label is not a guarantee of cheap routing.
+- **Keep required primary reads.** Independent review and security primary-source reads stay with an
+  independent actor, and host/profile/permission policy still governs routing. Register entries
+  never substitute for either.
+- **Record the route you actually got.** Capture the requested capability hint, the observable
+  provider/model/effort, the effort support (`applied`, `unsupported`, `unknown`), the eligibility
+  reference and the budget availability (`unknown` when the host does not expose it). Naming a
+  profile in prompt text is not configuration.
+- **Bind reuse to a revision.** Reuse discovery only while the named revision or digest is
+  unchanged; when the source changes or is disputed, re-read the primary evidence. Required
+  independent/security review reads are never replaced by register entries.
+- **Hand off the decision, not the transcript.** A phase handoff carries authority, accepted
+  criteria, open risks, owned paths and the freeze state. It carries no implied approval to widen
+  scope, spend, deploy or call premium.
+- **Account baseline-only.** Total cost includes parent, workers, independent review, repair and
+  failed attempts. Missing prices or token classes stay `unavailable`; unmeasured benefit stays
+  unmeasured.
+
 ## Next steps
 
 - Privacy, exclusions and retention: [`session-retrospective-privacy.md`](./session-retrospective-privacy.md)
 - Host coverage, transport, disabling and uninstall: [`session-retrospective-hosts.md`](./session-retrospective-hosts.md)
 - Operating the retrospective habit: `skills/common/common-session-retrospective/SKILL.md`
+- Recording review, action and benefit against a generation:
+  [Maintaining review follow-through (manual)](#maintaining-review-follow-through-manual)
