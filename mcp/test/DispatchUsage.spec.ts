@@ -422,6 +422,59 @@ describe("appendDispatchEvents", () => {
       appendDispatchEvents(tree.observationsPath, [victim], { lockTimeoutMs: 2_000 }),
     ).rejects.toThrow(/event-conflict/);
   });
+  it("detects replays by domain identity even when the stored id differs", async () => {
+    const tree = await fixture();
+    const plan = await planDispatchUsage(optionsFor(tree));
+    const original = plan.events[0];
+    if (!original) throw new Error("missing planned dispatch usage event");
+    const file = JSON.parse(await fs.readFile(tree.observationsPath, "utf8")) as {
+      events: Array<Record<string, unknown>>;
+    };
+    file.events.push({ ...original, id: "foreign-valid-id" });
+    await fs.writeFile(tree.observationsPath, JSON.stringify(file));
+    const seeded = await fs.readFile(tree.observationsPath, "utf8");
+
+    await expect(
+      appendDispatchEvents(
+        tree.observationsPath,
+        [{ ...original, turns: original.turns + 1 }],
+        { lockTimeoutMs: 2_000 },
+      ),
+    ).rejects.toThrow(/event-conflict/);
+    expect(await fs.readFile(tree.observationsPath, "utf8")).toBe(seeded);
+
+    expect(
+      await appendDispatchEvents(tree.observationsPath, [original], { lockTimeoutMs: 2_000 }),
+    ).toEqual({ written: 0, skipped: 1 });
+    expect((await readDeliveryObservations(tree.root)).issues).toEqual([]);
+  });
+
+
+  it.each([
+    ["dispatch-usage", "usage"],
+    ["dispatch-inventory", "inventory"],
+  ] as const)("treats equivalent %s windows as the same replay", async (kind, collection) => {
+    const tree = await fixture();
+    const plan = await planDispatchUsage(optionsFor(tree));
+    const original = (collection === "usage" ? plan.events[0] : plan.inventory[0]);
+    if (!original || original.kind !== kind) throw new Error(`missing ${kind} event`);
+    const stored = {
+      ...original,
+      id: "foreign-valid-id",
+      window_from: original.window_from.replace(".000Z", "Z"),
+      window_to: original.window_to.replace(".000Z", "Z"),
+    };
+    const file = JSON.parse(await fs.readFile(tree.observationsPath, "utf8")) as {
+      events: Array<Record<string, unknown>>;
+    };
+    file.events.push(stored);
+    await fs.writeFile(tree.observationsPath, JSON.stringify(file));
+
+    expect(
+      await appendDispatchEvents(tree.observationsPath, [original], { lockTimeoutMs: 2_000 }),
+    ).toEqual({ written: 0, skipped: 1 });
+    expect((await readDeliveryObservations(tree.root)).issues).toEqual([]);
+  });
 
   it("writes nothing and reports the lock age when the lock is held", async () => {
     const tree = await fixture();

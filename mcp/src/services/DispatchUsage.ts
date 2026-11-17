@@ -828,6 +828,8 @@ function withoutId(event: EmittedEvent): Record<string, unknown> {
 function replayPayload(event: EmittedEvent): string {
   const copy = withoutId(event);
   delete copy.observed_at;
+  copy.window_from = isoOrNull(event.window_from) ?? event.window_from;
+  copy.window_to = isoOrNull(event.window_to) ?? event.window_to;
   return canonical(copy);
 }
 
@@ -963,13 +965,17 @@ function mergeEvents(
 ): { append: EmittedEvent[]; skipped: number } {
   const byId = new Map<string, string>();
   const replayById = new Map<string, string>();
+  const replayByIdentity = new Map<string, string>();
   const identities = new Map<string, string | null>();
   const dispatches = new Map<string, RecordedDispatch>();
   for (const raw of existing) {
     byId.set(String(raw.id), canonical(raw));
     const known = asEvent(raw);
     identities.set(String(raw.id), known ? identityOf(known) : null);
-    if (known) replayById.set(String(raw.id), replayPayload(known));
+    if (known) {
+      replayById.set(String(raw.id), replayPayload(known));
+      replayByIdentity.set(identityOf(known), replayPayload(known));
+    }
     if (raw.kind !== "dispatch") continue;
     for (const dispatch of recordedDispatches({ schema_version: 1, source_kind: "host-export", coverage: [], events: [raw] })) {
       dispatches.set(dispatch.dispatch_id, dispatch);
@@ -997,6 +1003,14 @@ function mergeEvents(
       skipped += 1;
       continue;
     }
+    if (replayByIdentity.has(identity)) {
+      if (replayByIdentity.get(identity) !== replay) {
+        throw new Error(`event-conflict: ${event.id} already exists with a different payload`);
+      }
+      skipped += 1;
+      continue;
+    }
+
 
     if (event.kind === "dispatch-usage") {
       for (const raw of merged) {
@@ -1050,6 +1064,7 @@ function mergeEvents(
     append.push(event);
     byId.set(event.id, payload);
     replayById.set(event.id, replay);
+    replayByIdentity.set(identity, replay);
     identities.set(event.id, identity);
   }
   return { append, skipped };
