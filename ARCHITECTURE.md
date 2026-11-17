@@ -199,6 +199,119 @@ The opt-in `mcp-security-assessment` workflow (`.agents/workflows/mcp-security-a
 - **Coverage vs findings**: Category summaries (`MCP01`–`MCP10`, retaining `MCP06` Intent Flow Subversion as one category) score control-evidence coverage (`assessed`, `partial`, `not-assessed`, `not-applicable`) separately from canonical finding statuses (`confirmed`, `suspected`, `blocked`, `not-tested`, `false-positive`), with transport-aware auth rules (`stdio` vs remote HTTP), historical finding preservation across blocked retests, and no safe badges or numeric scores.
 - **Host & acceptance separation**: Markdown guidance does not supply host filesystem/network/process isolation or create-new no-clobber enforcement. Repository generation/local-consumer packaging parity is distinct from independent oracle grading and versioned native-host behavioral acceptance, which remain separately gated.
 
+### 3.7 Agent Review Trust (M1)
+
+M1 defines review procedure and delivery evidence; it does not change merge,
+release, or approval authority. The detailed contracts live in the
+[review protocol](skills/common/common-code-review/references/adversarial-review.md)
+and [delivery report](skills/common/common-subagent-driven-development/references/delivery-report.md);
+the [code-review workflow](.agents/workflows/code-review.md) links them for
+consumers.
+
+- **C2 gate declaration:** one unfenced, same-line `Gate / rollback` field
+  declares a named flag/version pin or `none: <reason>`, a nonempty control
+  invariant, rollback, and reversibility. `flag off` pairs with `gated`,
+  `revert` with `revertible`, and `one-way` with `one-way` plus a human
+  authorization reference. The declaration is not authenticated approval.
+- **C3 phases:** freeze the brief, cumulative diff, orchestrator-observed
+  deterministic receipt, source identity, and blind findings SHA-256 before
+  exposing author claims. Resume the same reviewer for reconciliation with
+  that frozen identity; unavailable resume blocks reconciliation, or a
+  replacement restarts the complete blind phase. Prompt sequencing is not
+  filesystem access control.
+- **Execution boundary:** reproduction is permitted only with verified
+  provenance, an orchestrator-published command, host-enforced isolation
+  without credentials or publication authority, default-deny egress, no
+  shared-worktree writes, and durable verifier-owned evidence. If any condition
+  is unknown, review stays static-only with an explicit gap. Never execute
+  author tests or commands in a privileged reviewer runtime.
+- **C4 report:** decision-first, report-local verdict and current-review
+  default `not-assessed; current human review applies`; record criterion
+  applicability/status, evidence references, human-attention coverage,
+  reproduction or its gap, findings, and residual risk. A report verdict,
+  lexical/structural check, or attention list grants no approval, narrows no
+  review authority, and proves no behavior. Unexecuted behavior remains
+  `NOT RUN`; no quality, trust, or savings uplift follows from lexical checks.
+
+### 3.8 Review Policy Gate Candidate (M2, C1/C5)
+
+The base-bound policy and read-only gate are candidate contracts, not
+authenticated authority or finalized acceptance. The detailed design is in
+[SRS-ART-05](docs/srs/srs-agent-review-trust.md#srs-art-05-base-bound-policy-classification-and-immutable-control-floors)
+and [SRS-ART-06](docs/srs/srs-agent-review-trust.md#srs-art-06-read-only-source-and-proof-identity).
+
+- **Classification:** the orchestrator independently selects and freezes a
+  full commit base before dispatch. Classification reads policy bytes and
+  digest from that base, never the candidate working tree. Missing policy or
+  map is `unclassified` and retains current human review; malformed policy is
+  distinct. Classes are `trunk | shared | leaf`; highest matching class wins,
+  unmatched paths are `shared`. Trunk controls include the selected policy,
+  canonical review policy, gate, recognized CODEOWNERS paths, and generated
+  integrity outputs such as `skills/metadata.json`. Trunk forces Centrality 2;
+  mixed changes take the strongest obligation. No hunk-review grant is active.
+- **Source identity:** read-only Git/filesystem evidence preserves actual HEAD,
+  base, index stages/modes/blob identities, and worktree bytes as separate
+  inputs. It unions base-to-HEAD, base-to-index, and base-to-filesystem changes,
+  including ignored and untracked source and both rename endpoints. Raw path
+  bytes are preserved in the identity. Exclude only the exact predeclared
+  artifact inventory; broad ignore, directory, or glob exclusions are not
+  source exclusions. Task 7's artifact/source-boundary correction is pending,
+  so this is the design contract, not a verified implementation claim.
+- **Gate result:** exit `0` means descriptive consistency only; `1` is a
+  named refusal; `2` is malformed input or unusable Git/policy input. No exit
+  authenticates actors, human approval, independence, chronology, isolation,
+  or host enforcement. Actor, grant, and chronology fields are declarations.
+  Report-only remains **ALWAYS DISABLED**, even with purported grants or
+  metrics; no report-only or hunk-review activation is part of this candidate.
+- **Verification boundary:** CI adds the Task 7 Python test directory beside
+  existing unit tests only. It does not run `review_gate.py check` as a
+  required policy check. Task 7 remains under correction and Task 8 policy
+  consumers remain in authoring; neither the gate nor this integration is
+  finally accepted here.
+
+### 3.9 Trust Measurements and Launch Audit (M3, C6)
+
+M3 adds optional trust observations and a medium/high-scope launch audit; neither
+changes existing delivery rows or grants release authority. Follow the
+[canonical trust schema](skills/common/common-sdlc-metrics/references/metrics-schema.md)
+and [launch audit contract](skills/common/common-project-verification/references/launch-audit.md).
+
+- **Trust observations:** the version-1 optional `trust` block holds records,
+  population manifests, and per-kind coverage. Exhaustive populations and
+  continuous applicable coverage are prerequisites for rates; agent-review
+  cohorts require complete first-approval history. Seed cohorts use assignments
+  and their evaluation cutoffs, independent of acceptance or merge. Missing
+  class remains `unknown`; structured tuple identities preserve scope and
+  conflicts. Reviewer configuration records actual provider/model/effort/mode/
+  features or `unknown`, never a requested profile. Missing or incomplete
+  coverage yields unavailable, not zero. Existing exports without `trust`
+  retain existing metrics while new trust rows are unavailable.
+- **Grant history:** `grant-reference` entries are historical declarations,
+  not authenticated grants or policy changes. A qualifying fresh escape may
+  emit `SUSPENSION_REQUIRED` with evidence references even when aggregate rates
+  are unavailable; this neither edits policy nor activates report-only.
+- **Launch audit:** apply only to medium/high work. Inventory the four canonical
+  lanes—journeys, abnormal states, changed hot-path performance, and
+  input/permission security—with requiredness, applicability, criteria, and
+  reasons. Required `FAIL` means audit `FAIL` and remediation; required
+  `NOT RUN` or missing proof means `BLOCKED`, never UAT as verified. Justified
+  `NOT APPLICABLE` is allowed. Low-tier and brief work gain no added audit
+  requirement. A declared rollout gate stages only under the existing bound
+  release-owner grant, with rollback rehearsal and smoke checks before
+  promotion; absent a gate, preserve the existing staging/smoke path.
+- **Evidence status:** Task 10's reconciled source receipt records 111 metrics
+  tests and the scoped consumer evidence; its CLI assertions found trust rows
+  unavailable for an uncovered fixture. Task 11 records 20/20 finite controls
+  and live model behavior `NOT RUN`; Task 12 records 19 structural tests and no
+  live launch/release proof. See the
+  [Task 10 reconciliation](artifacts/agent-review-trust/m3/task-10-reconciled-v3.md),
+  [Task 10 CLI assertions](artifacts/agent-review-trust/m3/task-10-parent-cli-assertions-v3.json),
+  [Task 11 reconciliation](artifacts/agent-review-trust/m3/task-11-reconciled-v4.md),
+  and [Task 12 reconciliation](artifacts/agent-review-trust/m3/task-12-reconciled-v2.md).
+  These are scoped source/structural evidence, not trust calibration, measured
+  trust rates, recall, quality or savings uplift, live evaluation, or release
+  behavior. This documentation checkpoint is not final integration acceptance.
+
 ## 4. Hook-Based Transparency
 
 Inspired by **Rust Token Killer (RTK)**, we aim for a zero-trust, low-overhead context model. This means:
