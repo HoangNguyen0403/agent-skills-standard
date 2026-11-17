@@ -200,7 +200,7 @@ pnpm build
 `pnpm check-alignment` checks lexical eval alignment (that eval `contains` anchors exist in the skill body); it is not export parity, native capability or runtime-success proof. Capability-table drift is checked separately by `pnpm docs:capabilities:check`, and generated mirrors must come from `pnpm generate-indices` rather than manual edits.
 
 
-`pnpm freshness:check` is the weekly upstream drift job (`.github/workflows/skill-freshness.yml`), not a PR gate: it needs a `GITHUB_TOKEN` (up to ~110 GitHub requests) and exits 1 whenever any upstream has shipped a new major, regardless of your change. Run it locally only when reviewing pins; see `docs/FRESHNESS.md`.
+`pnpm freshness:check` is the weekly upstream drift job (`.github/workflows/skill-freshness.yml`), not a PR gate: it needs a `GITHUB_TOKEN` (up to ~110 GitHub requests) and exits 1 whenever any upstream has shipped a new major, regardless of your change. Run it locally only when reviewing pins.
 
 `pnpm learning:ledger` prints the `AGENTS_LEARNING.md` candidate ledger (`--json` for JSON); `pnpm learning:check` gates CI on structural status and proof-reference integrity (mechanism, verification, review) without treating reference strings as human approval authentication.
 
