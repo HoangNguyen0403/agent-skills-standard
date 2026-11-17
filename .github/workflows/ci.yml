@@ -78,6 +78,7 @@ jobs:
         run: pnpm build
 
   unit-tests:
+    needs: native-ingress
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -102,6 +103,14 @@ jobs:
         run: python3 -B -m unittest discover -s scripts/skill-tests/common-review-policy -p 'test_*.py' -v
       - name: Run Generation Tests
         run: pnpm test:generation
+      - name: Download current-run native assets
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with:
+          name: native-ingress-package-${{ github.sha }}-${{ github.run_attempt }}
+          path: mcp/prebuilds
+      - name: Verify native assets for tests
+        working-directory: mcp
+        run: pnpm verify:native-assets
       - name: Run Unit Tests with Coverage
         run: pnpm test:cov
       - name: Run Eval/Outcome/Trace Script Tests
