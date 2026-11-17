@@ -51,6 +51,12 @@ Consequences: memory is ~1,000x faster than SSD based on the 100 ns memory and 1
 
 This is an uptime conversion, not CAP availability. For a serial request path, multiply component availabilities only under a stated independence assumption (e.g., three independent 99.9% dependencies give about 99.7%); correlated failures require the joint availability, not that product.
 
+## Cache Miss Burst
+
+For a hot key, estimate `concurrent fills ≈ key request rate × fill latency`, then compare the result and the per-instance fill demand with origin concurrency headroom.
+
+Synthetic example: a key receives 500 requests/s and takes 0.4 s to refill: 500 requests/s × 0.4 s ≈ 200 concurrent fills without protection. Across 30 instances, in-process coalescing still permits up to 30 fills (one per instance); if origin headroom is 20 concurrent fills, use a bounded cross-instance lease with expiry and version fencing. A low-traffic key whose one-per-instance fill demand fits headroom needs no cross-instance lease.
+
 ## Worked Example - Read-Heavy Feed
 
 Inputs: 10M DAU, 20 feed reads/user/day, 2 posts/user/day, 1KB per post, 12-month retention, 3x replication.

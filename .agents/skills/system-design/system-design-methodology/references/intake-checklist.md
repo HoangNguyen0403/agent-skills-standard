@@ -10,8 +10,9 @@ Classify mode, depth, and surface separately. Ask at most 3 blocking questions p
 | Quality matters to a design choice | Scenario trigger, environment, response, measurable condition, and owner; include latency, freshness, availability, or recovery only when relevant |
 | Data crosses ownership/trust boundaries | Source/sink, data purpose, transformations, authority, derived copies, tenant/auth/privacy boundary |
 | Capacity could change topology or cost | Workload shape, payload, fan-out, retention, concurrency, budget, team/on-call; mark each number target, estimated, or measured |
-| Existing system is under review | Current components and owners, actual traffic/volume/latency, incidents, pain, and the next binding constraint |
+| Existing system is under review | Current components and owners, actual traffic/volume/latency, incidents, pain, next binding constraint, and open postmortem actions |
 | Client or SDK surface is material | Client authority, offline need, lifecycle/device limits; SDK public behavior, compatibility, cancellation, host responsibilities |
+| Regulatory or contractual obligations apply | Data classes, residency, retention/deletion, audit evidence, and accountable owner |
 
 ## Surface prompts (conditional)
 
@@ -22,7 +23,7 @@ Classify mode, depth, and surface separately. Ask at most 3 blocking questions p
 
 ## Existing-system review
 
-Map current state and gather evidence before proposing changes. Distinguish documented evidence from runtime measurements; do not invent traffic or claim a planned measurement was run. Prefer the smallest change that moves the observed binding constraint.
+Map current state and gather evidence before proposing changes. Distinguish documented evidence from runtime measurements; do not invent traffic or claim a planned measurement was run. For broad read-only lookup, follow [common-subagent-driven-development §1](../../../common/common-subagent-driven-development/SKILL.md#1-placement-decision) and delegate only when a named benefit applies. Return a bounded summary with component, owner, edge, citation, `evidence_kind: code`, `evidence_confidence: documented`, and open questions; the lead retains scoring and decisions. Prefer the smallest change that moves the observed binding constraint.
 
 ## Parsing shortcut
 

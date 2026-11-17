@@ -75,6 +75,42 @@
           "value": "^(?![\\s\\S]*(?<!\\b(?:do\\s+not|don't|never|not|avoid)\\s+(?:to\\s+)?)\\b(?:put|use|add|keep|prefer|allow)\\b[^.\\n;]{0,20}\\bverbs?\\s+in\\s+(?:url\\s+|api\\s+)?(?:paths?|urls?|routes?|endpoints?)\\b(?![^.\\n;]{0,25}\\b(?:avoid|anti-?pattern|wrong|bad|never|not)\\b))(?![\\s\\S]*\\bverbs?\\s+in\\s+(?:url\\s+|api\\s+)?(?:paths?|urls?|routes?|endpoints?)\\b[^.\\n;]{0,45}\\b(?:make|makes|clearer|recommended|valid|preferred)\\b)(?![\\s\\S]*(?<!\\b(?:not|avoid|never|don't|do\\s+not|without|instead\\s+of|rather\\s+than|reject|ban|prohibit|forbid|disallow|discourage|anti-?patterns?|wrong|bad|❌)(?:(?!\\b(?:and|but)\\s+(?:use|prefer|expose|publish|choose|recommend)\\b)[^.\\n;]){0,60})(?<!(?::[a-z0-9_]+|\\{[a-z0-9_]+\\}|<[a-z0-9_]+>|\\d+))\\/(?:get|set|fetch|create|update|delete|remove|list|add|cancel|archive|capture|refund|send|submit|approve|reject|publish|ship|trigger|execute)(?!ers?\\b|ing\\b|es\\b|s\\b)[a-z0-9_-]{3,}\\b(?![^.\\n;]{0,45}(?:❌|anti-?pattern|avoid(?:ed)?|wrong|bad|rejected)))[\\s\\S]*$"
         }
       ]
+    },
+    {
+      "id": "ac-003",
+      "prompt": "Design a side-effecting POST endpoint whose clients may retry after a timeout. What contract should the API expose?",
+      "expected_output": "Use Idempotency-Key and link the authoritative idempotency contract; do not restate its scope, payload mismatch, duplicate handling, or retention rules.",
+      "assertions": [
+        { "id": "ac-003-key", "description": "Names the retry key", "type": "contains", "value": "Idempotency-Key" },
+        { "id": "ac-003-owner", "description": "Links the authoritative contract", "type": "contains", "value": "idempotency contract" }
+      ]
+    },
+    {
+      "id": "ac-004",
+      "prompt": "Design a read-then-update endpoint for a resource that may be edited concurrently. Specify conditional request behavior.",
+      "expected_output": "Use ETag and If-None-Match for GET validation (304); require strong If-Match validators on update/delete (412 on mismatch, 428 when required but absent); link concurrent writers.",
+      "assertions": [
+        { "id": "ac-004-read", "description": "Covers conditional reads", "type": "contains", "value": "If-None-Match" },
+        { "id": "ac-004-write", "description": "Covers conditional writes", "type": "contains", "value": "If-Match" },
+        { "id": "ac-004-conflict", "description": "Declares failed precondition response", "type": "contains", "value": "412" },
+        { "id": "ac-004-required", "description": "Declares missing precondition response", "type": "contains", "value": "428" },
+        { "id": "ac-004-etag", "description": "Names the entity tag validator", "type": "contains", "value": "ETag" },
+        { "id": "ac-004-not-modified", "description": "Declares unchanged representation response", "type": "contains", "value": "304" },
+        { "id": "ac-004-writer-link", "description": "Links concurrent writer rules", "type": "contains", "value": "concurrent writers" },
+        { "id": "ac-004-strong", "description": "Requires strong validators", "type": "contains", "value": "strong" }
+      ]
+    },
+    {
+      "id": "ac-005",
+      "prompt": "Review an API handler that returns a raw database row. What contract changes are needed?",
+      "expected_output": "Require explicit response mapping to an allow-listed representation, declare one casing convention, and enforce object-level authorization for every resource/action in the data-access predicate; link common-owasp as the security owner.",
+      "assertions": [
+        { "id": "ac-005-map", "description": "Requires explicit mapping", "type": "contains", "value": "explicit response mapping" },
+        { "id": "ac-005-casing", "description": "Requires one declared casing convention", "type": "contains", "value": "casing convention" },
+        { "id": "ac-005-auth", "description": "Requires object-level authorization", "type": "contains", "value": "object-level authorization" },
+        { "id": "ac-005-allow-list", "description": "Requires field allow-listing", "type": "contains", "value": "allow-listed" },
+        { "id": "ac-005-owner", "description": "Links the security owner", "type": "contains", "value": "common-owasp" }
+      ]
     }
   ],
   "should_not_trigger": [
@@ -83,5 +119,10 @@
     "What is common?",
     "Configure CI/CD for an unrelated platform"
   ],
-  "should_trigger": ["How should I implement common api design best practices?"]
+  "should_trigger": [
+    "How should I implement common api design best practices?",
+    "How should I design retry-safe POST requests with an idempotency key?",
+    "How do I add ETag conditional requests to an API?",
+    "How do I handle a conditional request?"
+  ]
 }

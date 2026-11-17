@@ -187,6 +187,103 @@
           "description": "Requires a bound type and a partition behavior"
         }
       ]
+    },
+    {
+      "id": 7,
+      "prompt": "A hot cache key gets 500 requests/s and a refill takes 0.4 s. There are 30 instances and origin headroom is 20 concurrent fills. Estimate the miss burst and choose protection.",
+      "expected_output": "Estimates 500 requests/s × 0.4 s at about 200 concurrent fills without protection. In-process coalescing allows one fill per instance, so 30 instances can still allow 30 fills, above the origin headroom of 20; choose a bounded cross-instance lease with expiry and version fencing. Keep stale responses within the declared freshness bound.",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "500[\\s\\S]{0,80}0\\.4[\\s\\S]{0,80}200\\s*(?:concurrent\\s*)?fills?"
+        },
+        {
+          "type": "regex",
+          "value": "(?:30[\\s\\S]{0,80}(?:above|exceeds|greater than)[\\s\\S]{0,80}20|20[\\s\\S]{0,80}(?:origin headroom|headroom)[\\s\\S]{0,80}30)"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "bounded cross-instance lease",
+            "cross-instance lease"
+          ]
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "version fencing",
+            "version fence"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "A coalesced cache refill can stall or fail after waiters have joined. What bounds must the design set, and how do you prevent a late result from replacing newer data?",
+      "expected_output": "Bounds waiters by count and deadline with an explicit overflow behavior; sets the fill timeout shorter than the waiter deadline; caps retries and limits owner-error negative caching to a short TTL. A late fill publishes only if its version is still current, preventing overwrite of newer data.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": [
+            "waiter count",
+            "waiter limit",
+            "bounds waiters"
+          ]
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "overflow behavior",
+            "fail fast",
+            "serve stale"
+          ]
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "fill timeout shorter than the waiter deadline",
+            "fill timeout before the waiter deadline"
+          ]
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "short negative TTL",
+            "retries are capped",
+            "caps retries"
+          ]
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "version is still current",
+            "late fill must not overwrite newer data",
+            "version fencing"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "One low-traffic key has an inexpensive refill and its traffic fits within origin concurrency headroom. Must we add a lease or request coalescing?",
+      "expected_output": "No. If the inexpensive one-per-instance fill demand fits origin headroom, accept the ordinary miss path; no lease or coalescing machinery is required. Keep the key's TTL tied to tolerable staleness and its invalidation trigger.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": [
+            "no lease",
+            "no coalescing",
+            "no miss-path machinery"
+          ]
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "origin headroom",
+            "fits headroom"
+          ]
+        }
+      ]
     }
   ],
   "should_trigger": [

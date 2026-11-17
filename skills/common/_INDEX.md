@@ -7,7 +7,7 @@
 | ----- | ------------ | -------- |
 | common-accessibility | `**/*.html`, `**/*.vue`, `**/*.component.html` | accessibility, a11y, wcag, aria, screen reader, focus, alt text |
 | common-agent-guardrails | `guardrails.yaml`, `hooks.json`, `.claude/settings.json`, `**/hooks/*.py`, `**/hooks/*.js` | guardrail, protected path, block edit, approval gate, hook policy, pretooluse |
-| common-api-design | `**/*.controller.ts`, `**/*.router.ts`, `**/*.routes.ts`, `**/routes/**`, `**/controllers/**`, `**/handlers/**` | rest api, endpoint, http method, status code, versioning, pagination, openapi, api design, api contract |
+| common-api-design | `**/*.controller.ts`, `**/*.router.ts`, `**/*.routes.ts`, `**/routes/**`, `**/controllers/**`, `**/handlers/**` | rest api, endpoint, http method, status code, versioning, pagination, openapi, api design, idempotency key, etag, conditional request, api contract |
 | common-architecture-audit | `package.json`, `pubspec.yaml`, `go.mod`, `pom.xml`, `nest-cli.json` | architecture audit, code review, tech debt, logic leakage, refactor |
 | common-architecture-diagramming | `ARCHITECTURE.md`, `**/*.drawio`, `**/*.mermaid`, `docs/architecture/**` | diagram, c4, drawio, mermaid, erd, entity relationship, schema diagram, aws, architecture diagram, solution architecture, system context, deployment diagram |
 | common-context-optimization | `*.log`, `chat-history.json` | reduce tokens, optimize context, summarize history, clear output, context management, prompt-cache, prompt caching, orchestration cost |

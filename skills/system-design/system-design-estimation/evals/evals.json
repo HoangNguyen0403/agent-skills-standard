@@ -110,6 +110,28 @@
           "description": "Maps the changed number to a changed design consequence"
         }
       ]
+    },
+    {
+      "id": 5,
+      "prompt": "A hot cache key receives 500 requests/s and takes 0.4 s to refill. There are 30 instances and origin concurrency headroom is 20 fills. What is the concurrent miss burst, and how does per-instance coalescing compare with origin headroom?",
+      "expected_output": "Computes 500 requests/s × 0.4 s ≈ 200 concurrent fills without protection. With 30 instances and one fill per instance, demand can still reach 30 concurrent fills; against origin headroom of 20, the shaping quantity exceeds the ceiling, so cross-instance bounded protection is needed.",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "500[\\s\\S]{0,80}0\\.4[\\s\\S]{0,80}200\\s*(?:concurrent\\s*)?fills?"
+        },
+        {
+          "type": "regex",
+          "value": "(?:30[\\s\\S]{0,80}(?:above|exceeds|greater than)[\\s\\S]{0,80}20|20[\\s\\S]{0,80}(?:origin headroom|headroom)[\\s\\S]{0,80}30)"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "cross-instance bounded protection",
+            "bounded cross-instance lease"
+          ]
+        }
+      ]
     }
   ],
   "should_trigger": [

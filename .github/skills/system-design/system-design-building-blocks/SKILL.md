@@ -13,6 +13,8 @@ metadata:
       - pub/sub
       - rate limiter
       - backpressure
+      - single-flight
+      - thundering herd
 ---
 
 # System Building Blocks
@@ -38,7 +40,7 @@ Add a component only to remove a named constraint. Every component adds failure 
 
 - Default to **cache-aside** for read-heavy paths; use write-through only when read-after-write must be exact.
 - Set TTL from tolerable staleness, not from convenience. Every cached key needs a stated TTL and an invalidation trigger.
-- Guard the miss path: single-flight or request coalescing prevents a stampede when a hot key expires.
+- Guard the miss path by scope: in-process single-flight or coalescing is one fill per instance; use bounded cross-instance protection only when sizing shows origin headroom requires it. See [Miss-Path Protection](references/building-blocks.md#miss-path-protection).
 - Never cache what you cannot invalidate. Never cache per-user data under a shared key.
 
 ## Queue Rules

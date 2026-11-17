@@ -132,3 +132,7 @@ must propagate the trace context from the producing request or the causal chain 
 - Always set a minimum (survives a cold spike) and a maximum (caps cost and protects downstream stores).
 - Add a scale-in cooldown so a spiky workload does not thrash.
 - Protect the data tier: an autoscaled app fleet can exhaust the database connection pool. Use a pooler and cap connections per instance.
+
+## Incident Feedback Loop {#incident-feedback-loop}
+
+For each contributing cause, record one disposition: a mechanism change; a detection gap with its alert and runbook owner; or an accepted risk with an owner and review trigger. A recurring cause class is a design finding, even when individual incidents were resolved.

@@ -1,6 +1,6 @@
 # System Design Framework Map
 
-Reviewed: 2026-11-07
+Reviewed: 2026-11-16
 
 ## Delivery Disclosure & Scope Boundary
 
@@ -46,3 +46,15 @@ Do not load every sibling skill upfront. Load conditionally when a surface or ri
 3. **Approved contract elaboration**: Approved PRD or delivery contract in place -> Route to `design-solution` respecting authority gates; do not blanket restart with methodology.
 4. **Existing diagram/visual**: Architecture image or diagram provided -> Load `system-design-artifact-intake`.
 5. **Post-design audit**: Completed design needing readiness scorecard -> Load `system-design-review`.
+
+## Cross-Category Routes
+
+| Concern | Owner | When |
+| --- | --- | --- |
+| API contracts | [`common-api-design`](../../common/common-api-design/SKILL.md) | Endpoint semantics, consumer compatibility, pagination, or HTTP contracts |
+| Threats and object-level authorization | [`common-owasp`](../../common/common-owasp/SKILL.md); [`common-security-standards`](../../common/common-security-standards/SKILL.md) | Trust boundaries, threat review, authorization, or security controls |
+| Schema and data modeling | [`database-schema-design`](../../database/database-schema-design/SKILL.md) | Entity shape, cardinality, ownership, or schema evolution |
+| Transactions | [`database-transactions`](../../database/database-transactions/SKILL.md) | Atomicity, locking, retries, or consistency boundaries |
+| Telemetry | [`common-observability`](../../common/common-observability/SKILL.md) | Logs, metrics, traces, SLOs, or alerts |
+| Production debugging | [`common-debugging`](../../common/common-debugging/SKILL.md) | Reproducing and diagnosing an observed failure |
+| Active incidents | [`incident-hotfix`](../../../.agents/workflows/incident-hotfix.md); [`monitor-respond`](../../../.agents/workflows/monitor-respond.md) | Containing an active incident or responding to a control-band breach |

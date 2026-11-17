@@ -62,8 +62,8 @@ Keep lifecycle (`proposed|implemented|retired`), evidence kind (`code|document|r
 
 ## Ground Truth
 - Traffic: [current QPS / DAU]
-- Data: [volume, growth rate]
 - Incidents: [recent, with cause class]
+- Open postmortem actions: [action, owner, due/review trigger, status]
 - Reported pain: [owner's own words]
 
 ## Scorecard

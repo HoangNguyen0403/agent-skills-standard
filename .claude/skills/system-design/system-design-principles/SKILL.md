@@ -15,6 +15,8 @@ metadata:
       - clean architecture
       - cap theorem
       - idempotency
+      - lost update
+      - optimistic concurrency
 ---
 
 # System Design Principles
@@ -60,6 +62,7 @@ See [implementation examples](references/implementation.md) for dependency flow 
 - **Idempotency**: Preserve one intended effect for retries of the same business operation. Use the [idempotency contract](references/idempotency-contract.md), not “without side effects” or a fresh key per transport attempt.
 - **Circuit Breaker**: Fail fast on failing services. See [Resilience Patterns](references/resilience-patterns.md).
 - **Eventual Consistency**: State a freshness/convergence objective, how it is measured, and behavior when it is missed; do not promise a generic convergence time.
+- **Concurrent writes**: Detect conflicting read-modify-write operations at the authoritative writer; a declared last-write-wins blind overwrite need not use versioning. See [Concurrent Writers](references/distributed-systems.md#concurrent-writers).
 
 ## Documentation & Evolution
 

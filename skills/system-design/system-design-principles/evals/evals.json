@@ -138,6 +138,55 @@
         { "type": "contains_any", "value": ["stale", "freshness"], "description": "Adapts read behavior to the changed constraint" },
         { "type": "contains_any", "value": ["transfer", "spend", "invariant"], "description": "Preserves the distinct write invariant" }
       ]
+    },
+    {
+      "id": 8,
+      "prompt": "Two clients read resource version 10 and both submit changes based on it. How should the writer prevent a lost update and tell the clients what happened?",
+      "expected_output": "Require a version or validator precondition checked atomically with the write at the authoritative writer. One update succeeds; the stale update is rejected with a declared conflict and leaves state unchanged. The client re-reads before merging or resubmitting.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": ["version precondition", "validator precondition", "If-Match"],
+          "description": "Uses a version or validator guard"
+        },
+        {
+          "type": "contains_any",
+          "value": ["atomically", "atomic conditional write", "checked with the write"],
+          "description": "Checks the guard at the authoritative write"
+        },
+        {
+          "type": "contains_any",
+          "value": ["one update succeeds", "one write succeeds", "single winner"],
+          "description": "Arbitrates the concurrent updates"
+        },
+        {
+          "type": "contains_any",
+          "value": ["state unchanged", "state remains unchanged", "no write is applied"],
+          "description": "Preserves state on conflict"
+        },
+        {
+          "type": "contains_any",
+          "value": ["re-read", "reread", "reads again"],
+          "description": "Requires fresh state before retry"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "A resource explicitly allows last-write-wins and has no invariant that depends on detecting stale edits. Must updates require versioning?",
+      "expected_output": "Accepts a blind overwrite under the declared last-write-wins policy and does not require a version precondition when no invariant is violated.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": ["blind overwrite", "last-write-wins"],
+          "description": "Accepts the declared overwrite policy"
+        },
+        {
+          "type": "contains_any",
+          "value": ["does not require a version", "versioning is unnecessary", "no version precondition"],
+          "description": "Does not mandate versioning"
+        }
+      ]
     }
   ],
   "should_not_trigger": [
@@ -149,6 +198,8 @@
   "should_trigger": [
     "What module boundaries and dependency direction should this service use?",
     "How do I stop a failing dependency from cascading through the checkout path?",
-    "Should these two microservices share a database or exchange events?"
+    "Should these two microservices share a database or exchange events?",
+    "How do I prevent a lost update when two clients edit the same resource?",
+    "Should this endpoint use optimistic concurrency or last-write-wins?"
   ]
 }

@@ -27,7 +27,7 @@ Score claims against evidence appropriate to the declared review scope. A propos
 | Capacity evidence | Peak QPS, storage, and bandwidth computed and current | Numbers absent or older than the last traffic change |
 | Redundancy | Failure domains, recovery mechanisms and ownership fit the stated objective; proposals include validation criteria, operations claims require measured drills when recovery is in scope | Critical SPOF or no viable recovery for the stated objective |
 | Data scaling | Access patterns mapped, ownership single, growth path stated; query amplification diagnosed via canonical database-query-performance; copies/authority checked | One shared store, no growth plan, unbounded tables, or an unmitigated amplification/copy risk |
-| Caching | Hot read paths cached with TTL and invalidation defined | No cache on a proven hot path, or uninvalidatable cache |
+| Caching | Hot read paths cached with TTL and invalidation defined; miss-path protection fits measured fill concurrency and origin headroom | No cache on a proven hot path, or uninvalidatable cache |
 | Async offload | Slow/bursty work is isolated when required by stated SLO or failure constraints, with bounded drain/recovery; bounded synchronous work is valid when it meets them | Required isolation is absent or synchronous coupling violates the stated constraints |
 | Observability | Journey indicators, signal/alert ownership, runbooks and validation fit declared scope; operations claims require observed SLO/telemetry | No relevant journey signals, owner or response path for a material risk |
 | Rollout | Canary or flag with metric rollback trigger and reversible migrations | Big-bang deploy, irreversible migration |

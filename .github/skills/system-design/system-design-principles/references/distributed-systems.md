@@ -15,6 +15,17 @@ Design rules:
 1. Define replay and conflict behavior for writes; use the [idempotency contract](idempotency-contract.md) where retries can repeat effects.
 2. Choose conflict resolution (for example, last-write-wins, versioning, CRDT merge, or application decision) from the business invariant.
 3. State read-your-writes and monotonic-read needs, and the mechanism or explicit limitation for each.
+## Concurrent Writers {#concurrent-writers}
+
+Classify each mutable write as a blind overwrite, where declared last-write-wins behavior is acceptable, or a read-modify-write, where conflicting changes must be detected.
+
+- For read-modify-write, check a version or validator precondition atomically with the write at the authoritative writer. A separate read-then-write check races. On conflict, reject the write and leave state unchanged; have the client re-read, then merge or resubmit. Silent merge is valid only under a declared field-level or CRDT rule.
+- A declared last-write-wins blind overwrite does not require versioning unless it violates another invariant.
+- Prefer optimistic control when contention is low and no lock should span a round trip. Use a serialized owner or atomic operation (such as decrement or conditional update) when contention or retry cost is high.
+- Concurrency control arbitrates different intents; [idempotency](idempotency-contract.md) deduplicates one intent. A request may need both.
+- For database mechanisms, see [transaction isolation levels](../../../database/database-transactions/references/isolation-levels.md); for HTTP validators, see the [consumer contract](../../../common/common-api-design/references/consumer-contract.md).
+
+Verify with two clients that read version 10: one write succeeds, the other receives a declared conflict, and state remains unchanged by the rejected write.
 
 ## Idempotency {#idempotency}
 

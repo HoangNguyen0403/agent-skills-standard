@@ -19,6 +19,9 @@ metadata:
     - pagination
     - openapi
     - api design
+    - idempotency key
+    - etag
+    - conditional request
     - api contract
 ---
 # Common API Design Standards
@@ -34,7 +37,7 @@ metadata:
 ## 📡 Status Code Correctness
 
 - `200` success; `201` created (add `Location` header); `204` no body.
-- `400` validation (with `details[]`); `401` unauthenticated; `403` unauthorized; `404` not found.
+- `400` validation (with `details[]`); `401` unauthenticated; `403` forbidden; `404` not found.
 - `409` conflict; `422` business rule violation; `429` rate limit (add `Retry-After`); `500` unhandled.
 
 ## 📦 URL Design Rules
@@ -50,7 +53,7 @@ metadata:
 - **Header versioning** (`Api-Version: 2`) acceptable for internal APIs.
 - Never mix versions in same controller — each version gets its own route module.
 - Support prev major ≥ 6 months after new release.
-- Deprecation: `Deprecation: true` + `Sunset: <date>` headers when version will be retired.
+- Deprecation: `Deprecation: @<unix-seconds>` (RFC 9745) and `Sunset: <HTTP-date>` (RFC 8594) when a version will be retired.
 
 ## 📄 Pagination
 
@@ -78,6 +81,10 @@ metadata:
 - **No 200 for errors**: `{ "success": false, "data": null }` with HTTP 200 breaks monitoring.
 - **No deeply nested URLs**: Hard to document, version, and cache.
 - **No breaking changes without versioning**: Removing/renaming fields in-place breaks consumers silently.
+
+## Consumer Contract
+
+- For representation, retry, conditional request, pagination, evolution, and authorization rules, follow the [consumer contract](references/consumer-contract.md).
 
 ## References
 

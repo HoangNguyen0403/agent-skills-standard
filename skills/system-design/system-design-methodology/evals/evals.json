@@ -306,6 +306,25 @@
         { "type": "contains_any", "value": ["adverse timeline", "acknowledgment", "counterexample"], "description": "Probes concrete failure" },
         { "type": "contains_any", "value": ["changed constraint", "revise", "mechanism"], "description": "Requires adaptation before evidence-based debrief" }
       ]
+    },
+    {
+      "id": 16,
+      "prompt": "A service has repeated incidents caused by the same expired-credential path. Review the postmortem evidence and state what the design review must record.",
+      "expected_output": "Treat the recurring cause class as a design finding and map every contributing cause to a mechanism change, a detection gap naming its alert and runbook owner, or an accepted risk naming its owner and review trigger.",
+      "assertions": [
+        { "type": "contains_any", "value": ["recurring cause class", "design finding"], "description": "Feeds recurring operational causes back into design findings" },
+        { "type": "contains_any", "value": ["mechanism change", "detection gap", "accepted risk"], "description": "Requires an accountable disposition for each cause" }
+      ]
+    },
+    {
+      "id": 17,
+      "prompt": "I need a broad read-only review of this repository's architecture. Should I ask someone to search it, and what must their handoff contain?",
+      "expected_output": "Use the placement decision in common-subagent-driven-development §1 and delegate only for a named benefit. The bounded summary carries component, owner, edge, citation, code evidence with documented confidence, and open questions; the lead retains scoring and decisions.",
+      "assertions": [
+        { "type": "contains_any", "value": ["common-subagent-driven-development", "placement decision"], "description": "Uses the established placement contract" },
+        { "type": "contains_any", "value": ["component", "edge", "citation"], "description": "Defines the bounded evidence summary fields" },
+        { "type": "contains_any", "value": ["lead", "scoring", "decisions"], "description": "Keeps scoring and decisions with the lead" }
+      ]
     }
   ],
   "should_trigger": [
