@@ -16,7 +16,13 @@ import { readRunRecords, buildStageIndicator } from "./runs";
 import { brdSurvivalRate, requirementCommitDeltas, requirementRework } from "./docs";
 import { benchmarkQualityIndicator, evalPassRateIndicator } from "./benchmarks";
 import { evaluateBands } from "./bands";
-import { buildDeliveryIndicators, readDeliveryObservations } from "./delivery";
+import { buildDispatchOutcomes } from "./dispatch";
+import {
+  DELIVERY_OBSERVATIONS_PATH,
+  buildDeliveryIndicators,
+  intervalCovered,
+  readDeliveryObservations,
+} from "./delivery";
 import { collectUnavailable, renderMarkdown } from "./report";
 import type { DeliveryHealthRow, MetricsReport } from "./types";
 
@@ -32,6 +38,14 @@ export function buildReport(root: string, sinceArg: string | undefined, now: Dat
   const flow = readFlowMetrics(root, sinceArg, now);
   const observations = readDeliveryObservations(root);
   const delivered = buildDeliveryIndicators(observations, flow.period);
+  const dispatchOutcomes = buildDispatchOutcomes(observations, {
+    period: flow.period,
+    observationsPath: DELIVERY_OBSERVATIONS_PATH,
+    intervalCovered: (changeId, kind, revision, startMs, endMs) =>
+      observations.observations
+        ? intervalCovered(observations.observations, changeId, kind, revision, startMs, endMs)
+        : false,
+  });
   const deliveryHealth: DeliveryHealthRow[] = [
     // Git-history rows are labeled proxies; measured delivery rows follow and never inherit their basis.
     { metric: "Deployment tag frequency (git proxy)", metric_result: flow.deploymentFrequency },
@@ -68,6 +82,7 @@ export function buildReport(root: string, sinceArg: string | undefined, now: Dat
     generatedAt: now.toISOString(),
     deliveryHealth,
     stageIndicators,
+    dispatchOutcomes,
     bandBreaches: bandEval.breaches,
     bandConfigErrors: bandEval.configErrors,
     // Author-name inference is removed: an identity class cannot be derived from a commit author.
@@ -78,6 +93,9 @@ export function buildReport(root: string, sinceArg: string | undefined, now: Dat
         metric: "delivery observations",
         reason: `${issue.file}: ${issue.message}`,
       })),
+      ...(dispatchOutcomes.available
+        ? []
+        : [{ metric: "Dispatch outcomes", reason: dispatchOutcomes.reason }]),
       ...malformedUnavailable,
       {
         metric: "Attribution: changes by identity class",

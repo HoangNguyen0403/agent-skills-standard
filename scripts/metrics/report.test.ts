@@ -25,6 +25,7 @@ function emptyReport(overrides: Partial<MetricsReport> = {}): MetricsReport {
     generatedAt: "2026-01-01T00:00:00Z",
     deliveryHealth: [],
     stageIndicators: [],
+    dispatchOutcomes: { available: false, reason: "no delivery observations supplied" },
     bandBreaches: [],
     bandConfigErrors: [],
     attribution: [],
