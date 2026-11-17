@@ -158,7 +158,6 @@ export async function openRegularReadSource(
 ): Promise<ReadSource | null> {
   let source: ReadSource | null = null;
   let transferred = false;
-  let failed = false;
   let failure: unknown;
   try {
     source = await open();
@@ -169,20 +168,15 @@ export async function openRegularReadSource(
     transferred = true;
     return source;
   } catch (error) {
-    failed = true;
     failure = error;
   } finally {
     if (source && !transferred) {
       await source.close().catch(() => undefined);
     }
   }
-  if (failed) {
-    throwIfAborted(signal);
-    throw failure;
-  }
-  return null;
+  throwIfAborted(signal);
+  throw failure;
 }
-
 
 type NativePathStat = {
   size: number;
@@ -212,7 +206,9 @@ class NativeTree {
     this.rootCapabilities.clear();
   }
 
-  async stat(target: string): Promise<
+  async stat(
+    target: string,
+  ): Promise<
     | { kind: "ok"; stat: NativePathStat }
     | { kind: "missing" }
     | { kind: "failed" }
@@ -322,7 +318,6 @@ class NativeTree {
     let opened: NativeDirectory[] = [];
     let source: ReadSource | null = null;
     let transferred = false;
-    let failed = false;
     let failure: unknown;
     try {
       const parsed = this.resolve(target);
@@ -335,7 +330,6 @@ class NativeTree {
       transferred = true;
       return source;
     } catch (error) {
-      failed = true;
       failure = error;
     } finally {
       if (source && !transferred) {
@@ -343,12 +337,9 @@ class NativeTree {
       }
       await this.closeOwnedDirectories(opened);
     }
-    if (failed) {
-      throwIfAborted(this.signal);
-      if (this.isMissing(failure)) return null;
-      throw failure;
-    }
-    return null;
+    throwIfAborted(this.signal);
+    if (this.isMissing(failure)) return null;
+    throw failure;
   }
 
   private isMissing(error: unknown): boolean {
@@ -391,7 +382,10 @@ class NativeTree {
       this.rootCapabilities.set(root, capability);
       if (this.signal?.aborted) {
         await this.close();
-        throw new RetrospectiveError("ABORTED", "Session discovery was aborted");
+        throw new RetrospectiveError(
+          "ABORTED",
+          "Session discovery was aborted",
+        );
       }
     }
     const owned: NativeDirectory[] = [];
@@ -420,14 +414,14 @@ class NativeTree {
     directories: readonly NativeDirectory[],
   ): Promise<void> {
     await Promise.all(
-      [...directories].reverse().map((directory) =>
-        this.api.closeDirectory(directory).catch(() => undefined),
-      ),
+      [...directories]
+        .reverse()
+        .map((directory) =>
+          this.api.closeDirectory(directory).catch(() => undefined),
+        ),
     );
   }
 }
-
-
 
 type CandidateCall = {
   tool: string;
@@ -786,7 +780,8 @@ async function findCandidateFiles(
       continue;
     }
     if (rootInfo.kind === "missing") continue;
-    if (!rootInfo.stat.isDirectory() || rootInfo.stat.isSymbolicLink()) continue;
+    if (!rootInfo.stat.isDirectory() || rootInfo.stat.isSymbolicLink())
+      continue;
 
     const dirents = await tree.readDirectory(root);
     if (dirents === null) {
@@ -935,7 +930,11 @@ async function findAgentSessionFiles(
     entry: NativeEntryView,
   ): Promise<void> => {
     const sessionId = AGENT_SESSION_SUFFIX.exec(entry.name)?.[1];
-    if (!sessionId || !sessionIds.has(sessionId) || ambiguousIds.has(sessionId)) {
+    if (
+      !sessionId ||
+      !sessionIds.has(sessionId) ||
+      ambiguousIds.has(sessionId)
+    ) {
       return;
     }
     const filePath = path.join(directory, entry.name);
@@ -1036,7 +1035,6 @@ async function findAgentSessionFiles(
   }
   return { files, ambiguousIds, truncated };
 }
-
 
 async function linkHostAgentSessions(
   tree: NativeTree,
@@ -1182,16 +1180,20 @@ async function linkHostAgentSessions(
       sessionFiles.files.delete(item.record.sessionId);
       let retained = false;
       try {
-        const parsed = await parseCandidateFile(openedFile.filePath, openedFile.handle, {
-          signal,
-          lineBytes: DEFAULT_LIMITS.lineBytes,
-          maxCallsPerFile: limits.maxCallsPerFile,
-          maxCandidateBytes: DEFAULT_LIMITS.sourceBytes,
-          remainingTotalBytes: Math.max(
-            0,
-            DEFAULT_LIMITS.sourceBytes - bytesRead,
-          ),
-        });
+        const parsed = await parseCandidateFile(
+          openedFile.filePath,
+          openedFile.handle,
+          {
+            signal,
+            lineBytes: DEFAULT_LIMITS.lineBytes,
+            maxCallsPerFile: limits.maxCallsPerFile,
+            maxCandidateBytes: DEFAULT_LIMITS.sourceBytes,
+            remainingTotalBytes: Math.max(
+              0,
+              DEFAULT_LIMITS.sourceBytes - bytesRead,
+            ),
+          },
+        );
         if (
           parsed.kind !== "parsed" ||
           parsed.candidate.sessionIdentity !== item.record.sessionId
@@ -1236,7 +1238,6 @@ async function linkHostAgentSessions(
   }
   return { linked, created, truncated, rootMatched: true };
 }
-
 
 /**
  * A child file is linked only when its own header names the bound main session
@@ -1432,7 +1433,8 @@ async function discoverSessionWithTree(
         lineBytes: DEFAULT_LIMITS.lineBytes,
         maxCallsPerFile: effectiveLimits.maxCallsPerFile,
         maxCandidateBytes: effectiveLimits.maxCandidateBytes,
-        remainingTotalBytes: effectiveLimits.maxTotalBytes - totalCandidateBytes,
+        remainingTotalBytes:
+          effectiveLimits.maxTotalBytes - totalCandidateBytes,
       });
       if (outcome.kind === "not-session") {
         sourceHandleRegistry.delete(source);
@@ -1777,7 +1779,8 @@ async function discoverSessionWithTree(
   };
 
   localManifestSchema.parse(manifest);
-  const childSessions: Extract<Discovery, { state: "bound" }>["childSessions"] = [];
+  const childSessions: Extract<Discovery, { state: "bound" }>["childSessions"] =
+    [];
   for (const childPath of childFiles) {
     const absolutePath = path.resolve(childPath);
     const source = sourceHandles.get(absolutePath);
@@ -1803,8 +1806,7 @@ async function discoverSessionWithTree(
     mainFile: path.resolve(winner.filePath),
     childFiles: childFiles.map((p) => path.resolve(p)),
     childSessions,
-    createdAgentsCount:
-      winner.taskAgentsCreatedCount + hostAgentsCreatedCount,
+    createdAgentsCount: winner.taskAgentsCreatedCount + hostAgentsCreatedCount,
     taskAgentsCreatedCount: winner.taskAgentsCreatedCount,
     hostAgentsCreatedCount,
     taskAgentsReadCount,

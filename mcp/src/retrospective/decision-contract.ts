@@ -15,8 +15,15 @@ export const decisionInputSchema = z
     if (value.basis === "rule" && value.ruleRef === undefined) {
       ctx.addIssue({ code: "custom", path: ["ruleRef"], message: "Required" });
     }
-    if (value.basis === "default-pending-review" && value.ruleRef !== undefined) {
-      ctx.addIssue({ code: "custom", path: ["ruleRef"], message: "Not allowed" });
+    if (
+      value.basis === "default-pending-review" &&
+      value.ruleRef !== undefined
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["ruleRef"],
+        message: "Not allowed",
+      });
     }
   });
 
@@ -25,14 +32,17 @@ export type DecisionInput = z.infer<typeof decisionInputSchema>;
 export function decisionInputIssues(value: unknown): string[] {
   const result = decisionInputSchema.safeParse(value);
   if (result.success) return [];
-  return [...new Set(result.error.issues.map((issue) =>
-    issue.path.length > 0 ? String(issue.path[0]) : "input",
-  ))].sort();
+  return [
+    ...new Set(
+      result.error.issues.map((issue) =>
+        issue.path.length > 0 ? String(issue.path[0]) : "input",
+      ),
+    ),
+  ].sort();
 }
 
 export function sanitizeDecisionLabel(raw: string): string {
   return redactCommand(raw)
-    .replace(/[\u0000-\u001f\u007f-\u009f]/g, " ")
     .replace(/[`<>]/g, "'")
     .replace(/\s+/g, " ")
     .trim()
