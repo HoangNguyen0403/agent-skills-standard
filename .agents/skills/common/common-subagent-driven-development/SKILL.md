@@ -69,6 +69,8 @@ Report current state read-only with `status --state <PATH> --revision <REV> --di
    - **Other runtime errors:** confirm terminal state and writer acknowledgement before failover or transferring write ownership. Retry count alone never authorizes premium without explicit human approval.
 6. **Integrate:** the orchestrator verifies the diff, runs required covering checks, and commits.
 
+Record each dispatch event as its step completes: [Dispatch Observations](references/dispatch-observations.md).
+
 ## 4. Failure-Specific Recovery
 
 | Observed failure | Route |

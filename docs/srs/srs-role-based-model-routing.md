@@ -229,7 +229,7 @@ Owner: requesting maintainer; independent validation: separate reviewer per feat
 
   Failing to acquire the lock within the bound exits 1 and writes nothing. A lock older than a bound is reported, never broken automatically.
 - **Behavior:**
-  - The event id is derived from its domain identity, so a replay is a no-op and a conflicting replay is an error. Ids join identity parts with `#`, because `|` is not allowed in a reference string (SRS-010). Window timestamps are canonicalized to `Date.toISOString()` form before they enter an id or identity. (Amended during FS-1 review.)
+  - The event id is derived from its domain identity, so a replay is a no-op and a conflicting replay is an error. The id is `<kind>#` followed by the first 32 hex characters of SHA-256 over the `|`-joined identity key. Window timestamps are canonicalized to `Date.toISOString()` form before they enter the key. This keeps ids bounded and free of collisions between components, which plain `#` joining was not. (Amended during the FS-1 and FS-2 reviews.)
   - The helper creates the file with `schema_version: 1` and `source_kind: operator-recorded` when it is absent.
 - **Failure:** exit 2 for usage errors; exit 1 for validation, conflict or lock failure. The file is never partially written.
 - **Verification:**
