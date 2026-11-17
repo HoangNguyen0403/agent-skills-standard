@@ -1409,6 +1409,7 @@ test("missing trust population renders unknown counts while declared empty inven
     generatedAt: "2026-01-01T00:00:00Z",
     deliveryHealth: missing.deliveryHealth,
     stageIndicators: missing.stageIndicators,
+    dispatchOutcomes: { available: false, reason: "no delivery observations supplied" },
     bandBreaches: [],
     bandConfigErrors: [],
     attribution: [],

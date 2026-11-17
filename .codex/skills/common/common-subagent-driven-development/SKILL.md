@@ -70,7 +70,6 @@ Report current state read-only with `status --state <PATH> --revision <REV> --di
 6. **Integrate:** the orchestrator verifies the diff, runs required covering checks, and commits.
 
 Record each dispatch event as its step completes: [Dispatch Observations](references/dispatch-observations.md).
-
 ## 4. Failure-Specific Recovery
 
 | Observed failure | Route |
