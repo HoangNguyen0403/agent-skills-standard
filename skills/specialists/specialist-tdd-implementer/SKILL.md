@@ -16,34 +16,36 @@ metadata:
 
 ## **Priority: P0 (CRITICAL)**
 
-Implement exactly one AC or bug-fix slice. Test count never establishes completion.
+Implement exactly one AC or bug-fix slice. Test count cannot establish completion.
 
-## Budget
+## Budget & Scope
 
-- Scope: one AC or bug-fix slice and its `ownedFiles` only.
-- No Git and no sub-agents; the orchestrator owns commits and delegation.
-
-## Contract
-
-- Modify only `ownedFiles`; no Git and no sub-agents.
+- Scope: one AC or bug-fix slice and its `ownedFiles` only. No Git and no sub-agents; the orchestrator owns commits and delegation.
 - Require owned files, AC/bug behavior, and a derivable focused test command. If scope or command cannot be established, return `BLOCKED`.
-- Use strict RED first for new behavior. For legacy code, characterize only when needed, then reproduce the intended change as RED without deleting unrelated implementation.
+- Use strict RED first for new behavior. In legacy mode, characterize only if needed, then reproduce the intended change as a failing regression (RED); preserve unrelated existing implementation.
 
-## Quality-first loop
+## Quality-First Loop (RED -> GREEN -> REFACTOR)
 
-1. Read nearby tests and repository runner configuration.
-2. Record `INTENT`: observable application-owned contract, distinct plausible fault, smallest honest layer, minimal cases/equivalence classes, and exact command.
-3. Run lint/type checks when configured, then one focused target in foreground, single-run, sequential mode.
-4. Record RED as `expected_red`, `invalid_red`, `unexpected_green`, or `verification_infra_failed`. Do not write production code for invalid or unexpected results.
-5. For `expected_red`, implement the smallest change and rerun the same command for GREEN.
-6. Refactor without behavior change and rerun for REFACTOR evidence.
-7. Record `QUALITY`: behavior assertions, distinct-fault check, layer decision, determinism, boundary/mocking rationale, and project-owned coverage status.
-8. Record `EXECUTION`: exact commands, exit status, timeout/cleanup status, and any justified escalation.
+0. **Companion check:** Inspect folder for existing test file. If present, append parameterized cases to that file; never create sidecar file. Replace legacy `<stem>.test.js` with `<stem>.test.ts` (`GUARD-TS-DUAL-EXT`).
+1. Read nearby tests and repository runner configuration. Record `INTENT`: observable contract, distinct fault, smallest honest layer, minimal cases, and focused command.
+2. Run lint/type checks when configured, then focused target in foreground, single-run, sequential mode.
+3. Record RED as `expected_red`, `invalid_red`, `unexpected_green`, or `verification_infra_failed`. Do not write production code for invalid or unexpected results.
+4. For `expected_red`, implement smallest change and rerun same command for GREEN.
+5. Refactor without behavior change and rerun for REFACTOR evidence.
+6. Record `QUALITY`: behavior assertions, anti-slop checklist, distinct-fault check, layer decision, determinism, boundary/mocking rationale, and coverage status.
+7. Record `EXECUTION`: exact commands, exit statuses, process group cleanup, timeout status, and justified escalation.
+
+## Anti-Slop Verification Checklist
+
+- Non-identity calculation fixtures (`GUARD-UNIV-IDENTITY-FIXTURE`): active operands (`discount`, `rebate`, `fee`, `tax`, `mov`) must not be `0`, `0.0`, `""`, or empty.
+- Compound guards: assert each clause (`&&`/`||`) independently flips outcome.
+- Ban tautologies (`GUARD-UNIV-TAUTOLOGY`) and skip/focus (`GUARD-UNIV-SKIP`, `GUARD-UNIV-FOCUS`).
+- TS async traps: `await` promises (`GUARD-TS-FLOATING-ASSERT`), no catch-only assertions (`GUARD-TS-CATCH-ONLY`), and ban self-mocking (`GUARD-TS-SELF-MOCK`, `GUARD-TS-MOCKED-SUT`).
 
 ## Execution guardrails
 
-- Use the project timeout or 120 seconds for a focused command. On timeout terminate only the agent-owned process group and verify child cleanup.
-- Never watch, blanket-kill, or retry an unchanged failure.
+- Use project timeout or 120s fallback for focused command. On timeout terminate only agent-owned process group and verify child cleanup.
+- Never watch, blanket-kill, or retry an unchanged failure (no blind retry).
 - Escalate to related unit or integration/contract tests only when evidence requires it; reserve full suites for explicit gates.
 
 ## Test conventions
@@ -57,7 +59,7 @@ Implement exactly one AC or bug-fix slice. Test count never establishes completi
 
 ```text
 AC: [text]
-INTENT: [contract, fault, layer, cases, command]
+INTENT: [contract, distinct fault, layer, minimal cases, focused command]
 RED: [status, test target, expected failure or classification]
 GREEN: [minimal implementation, command, pass result]
 REFACTOR: [behavior-preserving cleanup, command, pass result]
