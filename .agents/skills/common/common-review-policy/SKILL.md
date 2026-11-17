@@ -29,6 +29,13 @@ Every pull request gets the same passes in the same order. A review that varies 
 - Owned by the technical lead. Absent the file, the workflow defaults apply and the review says so.
 - Load `references/review-policy-template.md` when drafting or auditing the file.
 
+## 1.1 Class and Review Floors
+
+- Class comes from `docs/review-policy.md` at the independently selected base, never candidate policy bytes; unmatched paths are shared and absent policy/map stays unclassified with current human review.
+- Trunk controls (policy, gate, recognized CODEOWNERS), generated integrity paths, sensitive scope and one-way changes require line-review; skip rules cannot waive the floor, and mixed changes take the strongest obligation. See [policy template](references/review-policy-template.md).
+- This implementation ALWAYS keeps report-only disabled, even when complete metrics, owner thresholds, or a purported grant are supplied. Activation requires a separately approved contract change; this guidance adds no runtime conditional.
+
+
 ## 2. Required Passes
 
 Declare the passes and their order. Each pass names what it checks and what it explicitly ignores.
@@ -58,7 +65,7 @@ Declare the passes and their order. Each pass names what it checks and what it e
 ## 5. Tuning and Feedback
 
 - Review the policy monthly: rate a sample of findings as useful or noise, then adjust cap, skip list, and pass scope.
-- Recurring Blockers mean a missing standard. Route them to `retro-learn` so the preventing skill and its evals absorb the rule.
+- Recurring Blockers go to `retro-learn`: prefer a deterministic lint/type check, then a test, eval, or runtime control; guidance is last. Do not automatically re-report the same cause or edit policy.
 - Record each tuning change in the policy file so severity drift is visible.
 
 ## 6. Separation of Duties

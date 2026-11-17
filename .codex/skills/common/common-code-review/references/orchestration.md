@@ -8,13 +8,14 @@ Examination scope:
 - **`fast`**: changed files and their direct call graph only.
 - **`deep`**: `fast` scope plus related auth flows, trust boundaries, architecture docs, and prior incidents.
 
-Resolve review depth using the following strict precedence:
-1. **User Selection**: An explicit user-specified mode (`fast` or `deep`) takes precedence for examination scope.
-2. **Sensitive Scope Elevation**: Any change affecting authentication, secrets, trust boundaries, agent tools, external integrations, or compliance controls automatically elevates to `deep` mode (if the user explicitly forced fast mode, record an explicit sensitive-scope coverage gap).
-3. **Inferred Tier**: `fast` for `snc_tier=low`; `deep` for `snc_tier=medium` or `snc_tier=high`.
-4. **Absent Tier**: If `snc_tier` is not provided, score per `common-task-complexity-routing`. If unresolvable, default safely to `deep` for multi-file/cross-module diffs, or `fast` for localized single-file changes with no sensitive scope.
+Resolve review depth using this strict precedence:
+1. **User Selection**: An explicit user-specified mode (`fast` or `deep`) selects examination scope only; it cannot waive a class or sensitive floor.
+2. **Base-Bound Class**: Resolve the map from the independently selected base policy, classify both rename endpoints, and apply the highest matching class. The selected policy path, `docs/review-policy.md`, review gate, `CODEOWNERS`, `.github/CODEOWNERS`, `docs/CODEOWNERS`, generated integrity, sensitive, or one-way scope requires line-review; mixed changes take the strongest obligation. An absent policy/map stays unclassified with current human review.
+3. **Sensitive Scope Elevation**: Authentication, secrets, trust boundaries, agent tools, external integrations, or compliance controls automatically require `deep` mode. An explicit `fast` request records any uncovered sensitive-scope gap.
+4. **Inferred Tier**: `fast` for `snc_tier=low`; `deep` for `snc_tier=medium` or `snc_tier=high`.
+5. **Absent Tier**: If `snc_tier` is not provided, score per `common-task-complexity-routing`. If unresolvable, default safely to `deep` for multi-file/cross-module diffs, or `fast` for localized single-file changes with no sensitive scope.
 
-Security and design/readiness prerequisites are independent of an explicit `fast` selection; a fast override cannot waive them, and any uncovered sensitive obligation is recorded as an explicit gap.
+Class and reversibility never lower SNC, security/design prerequisites, human merge approval, or any stronger review obligation. Minimum-attention lists do not restrict additional reading.
 
 ## 2. Bounded Specialist Selection and Dispatch Brief Contract
 
@@ -39,9 +40,9 @@ Every specialist dispatch must be bound by a concrete brief containing:
   - Offline analysis lanes (scout, AC verifier, architecture guard, security reviewer, test-gap finder): read-only, no write, no provider calls.
   - Metadata lane (`specialist-pr-reviewer`): read provider metadata with existing authorized credentials only when the scope requests PR metadata; no write.
   - Publication lane (`specialist-pr-commenter-batch`): write comments only after separate explicit human/operator approval and never from untrusted context.
-- **Execution Boundary**: Never execute author-controlled project tasks, build scripts, or test commands in the privileged reviewer runtime.
-- **Host Isolation**: When host isolation or container sandboxing is unverified, restrict execution-capable work to bounded offline static analysis; this does not disable an authorized read-only metadata lane.
-- **Output & Stop Conditions**: Return structured findings with evidence (file, line, why, fix) or an explicit evidence gap, stopping immediately at out-of-scope boundaries.
+- **Execution Boundary**: Reproduction requires verified command/source provenance; host-enforced isolation without credentials or publication authority that positively prevents writes to the shared implementation worktree; default-deny outbound networking; and the exact command in the orchestrator-published brief. Never execute author-controlled project commands, tests, package hooks, or build scripts in a privileged reviewer runtime.
+- **Unknown isolation**: If any predicate is false or unknown, including shared-worktree write separation, remain static-only and name the gap. A worktree, role label, read-only/ask mode, or omitted secret is not proof. Authorized-verifier outputs belong to that verifier's run; preserve durable copies with hashes. Orchestrator-run checks remain a separate evidence lane, not reviewer reproduction.
+- **Output & Stop Conditions**: Return Blocker/Major/Nit findings with file, line, evidence, why, fix, and `Prevent-by`; or an explicit evidence gap. Stop immediately at out-of-scope boundaries. No praise section.
 
 ## 3. Scoped Evidence Lanes
 

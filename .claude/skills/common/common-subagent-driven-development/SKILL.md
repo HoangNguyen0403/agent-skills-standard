@@ -58,10 +58,10 @@ Report current state read-only with `status --state <PATH> --revision <REV> --di
 
 ## 3. Task Loop
 
-1. **Select placement and prepare:** apply Section 1, record the decision, and record `BASE=$(git rev-parse HEAD)`. Generate the brief from the repository root: `python3 skills/common/common-subagent-driven-development/scripts/task_brief.py <PLAN_FILE> <TASK_NUMBER> --assignment <ASSIGNMENT_JSON> [--out <BRIEF_FILE>]`. `--assignment` is required; `task_brief.py` validates the manifest and the selected task section's contract fields (scope/owned write set, inputs, outputs, real ingress, positive/negative invariants, verification owner, explicit handoff/freeze, correction route) before publishing, and rejects missing fields or fields that appear only inside code fences (exit 2).
-2. **Dispatch or execute:** one implementer per task when placement requires it, otherwise the recorded single context. Include exact cross-worktree input paths, provenance, and inclusive ranges for conversion tasks; preserve unaffected fields during correction.
-3. **Yield (no polling):** request a completion notification via `wait()` and yield control; never poll status or activity in a loop.
-4. **Scoped review package:** generate the cumulative package from `$BASE` over the owned paths: `python3 skills/common/common-subagent-driven-development/scripts/review_package.py <PLAN_FILE> $BASE WORKSPACE --paths <OWNED_PATHS...>`. Pass literal file paths or bounded owned directories (no pathspec magic, globs, `.`, or overlapping scopes); same-base/scope packages are cumulative, not fix-only. Dispatch an independent reviewer with `[BRIEF_FILE]`, `[REPORT_FILE]`, `[DIFF_FILE]`.
+1. **Select placement and prepare:** apply Section 1, record the decision and `BASE=$(git rev-parse HEAD)`. Generate the brief with `task_brief.py`; it validates required contract fields and parsed `Gate / rollback` semantics before publication (exit 2, no packet on invalid input).
+2. **Dispatch or execute:** one implementer per task where required; preserve provenance and unaffected fields during correction.
+3. **Yield:** request a completion event; never poll.
+4. **Review:** before any check/dispatch, load the full `delivery-report.md` Frozen Source Identity procedure. Freeze orchestrator-computed identity/scope digest across literal owned+dependency scope, ignored/untracked and index/worktree records, exact artifact exclusions, resolved BASE/actual HEAD, before/after checks and phase freeze. Mismatch is stale; recheck. Required current observed FAIL short-circuits semantic lenses to CHANGES REQUESTED. Unknown/NOT RUN/stale is a gap, never PASS; static review may continue without readiness. First dispatch only brief, cumulative diff, and receipt; freeze findings/digest before author claims. Reproduction stays static-only unless isolation, no-write shared-worktree boundary, and verifier-owned durable hashed artifacts are verified. See [templates.md](references/templates.md) and [delivery-report.md](references/delivery-report.md).
 5. **Fix loop and failure routing:**
    - **Host policy precedence:** correction counts, retry limits, and eligible routes come from active host/user policy, which overrides generic defaults.
    - **Quality failure:** send the authorized corrective follow-up naming the failed ACs; if unresolved, escalate that slice to the next authorized route. Re-prompt the same worker, regenerate from the original `$BASE` with identical owned paths, and re-review the latest cumulative state.
@@ -85,6 +85,8 @@ Retry count alone never authorizes premium, timeout and cancellation are not com
 ## 5. Final Review and Evidence
 
 Run whole-branch review from the repository root with `python3 skills/common/common-subagent-driven-development/scripts/review_package.py <PLAN_FILE> $MERGE_BASE HEAD`, dispatch an independent senior reviewer, then complete the branch.
+Describe the `delivery-report.json` v1 source/evidence bindings in [delivery-report.md](references/delivery-report.md); `READY` is not authorization.
+Before handoff, run `python3 skills/common/common-review-policy/scripts/review_gate.py check --report "$REPORT_JSON" --policy docs/review-policy.md --base "$BASE" --dispatch-receipt "$DISPATCH_RECEIPT"`; freeze the external scope/inventory receipt separately, and record its result (exit 0 means consistency only).
 
 **Cleanup needs a verified durable archive and ownership authority:** before deleting `<workspace>`, verify every report, diff, receipt, and evidence copy is archived outside the scratch directory. Never erase the only evidence copy; if archive verification fails or authority is missing, retain `<workspace>` and report the unarchived evidence. Once verified and authorized, delete `<workspace>`.
 

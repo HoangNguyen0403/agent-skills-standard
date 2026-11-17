@@ -82,7 +82,7 @@ Requested capability and effort follow `common-task-complexity-routing`; the sel
    - Record baseline: `BASE=$(git rev-parse HEAD)`.
 2. **Prepare the packet / brief:**
    - From the repository root: `python3 skills/common/common-subagent-driven-development/scripts/task_brief.py <PLAN_FILE> <TASK_NUMBER> --assignment <ASSIGNMENT_JSON> [--out <BRIEF_FILE>]`. `--assignment` is required; there is no unauthenticated extraction mode.
-   - **Brief Contract Validation:** `task_brief.py` validates required contract fields in the selected task section: scope/owned write set, inputs, outputs, real ingress, positive/negative invariants, verification owner, explicit handoff/freeze (FINAL), and correction route. Missing fields, or fields appearing only inside code fences, fail with exit 2 and publish nothing. It also validates manifest structure and content identity (plan, source and dependency digests), and refuses to overwrite an existing output file with different content (exit 3). Do not dispatch a bare extracted task section or infer authority from plan prose.
+   - `task_brief.py` validates the manifest, required task fields, and the single parsed `Gate / rollback` contract before publishing; absent, malformed, inconsistent, duplicate, or fenced-only fields refuse with exit 2 and no packet.
    - **Conversion handoffs:** For cross-worktree or multi-artifact conversion tasks, include exact cross-worktree input paths, source/user/project-authored provenance, and inclusive ranges; preserve unaffected fields during correction.
 3. **Dispatch one worker, when placement requires it:**
    - One non-overlapping implementation owner per slice.
@@ -97,7 +97,9 @@ Requested capability and effort follow `common-task-complexity-routing`; the sel
      `python3 skills/common/common-subagent-driven-development/scripts/review_package.py <PLAN_FILE> $BASE WORKSPACE --paths <OWNED_PATHS...>`.
    - Use explicit literal file paths or bounded owned directories; no globs, pathspec magic, or `.`.
    - The default filename includes the package-content digest; each changed fix round is retained as a separate snapshot.
-   - Dispatch an independent reviewer with `[BRIEF_FILE]`, `[REPORT_FILE]`, and `[DIFF_FILE]`. Implementer self-review and implementer verdicts cannot satisfy this gate, including when the implementer ran in the main loop.
+   - Before any check or reviewer dispatch, load the complete [Frozen Source Identity](delivery-report.md#frozen-source-identity) procedure. The orchestrator resolves full `BASE` and actual `HEAD`, validates the literal owned plus source/dependency scope (including ignored/untracked and index/worktree state), applies only its exact declared artifact exclusions, and freezes the manifest/digest before and after each check and phase freeze. Mismatch means stale proof and recheck, never PASS.
+   - Reproduction is permitted only when the exact command is explicitly authorized in the orchestrator-published task brief and source/command provenance is separately verified, plus host-enforced isolation without credentials/publication authority, default-deny egress, verified no-write-to-shared-worktree, and verifier-owned durable hashed artifacts. Any unknown predicate means static-only.
+   - Required current orchestrator-observed FAIL returns CHANGES REQUESTED before semantic lenses. Unknown, NOT RUN, and stale gaps are never PASS; static review may continue without readiness.
 6. **Fix loop & failure routing:**
    - **Host policy precedence:** Correction count, retry limits, and eligible implementation routes are resolved from active host/user policy, which overrides generic defaults.
    - **Quality failure vs. Quota failure:**

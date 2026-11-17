@@ -59,3 +59,4 @@ Applies to all project-level verification kits, journey mapping, and maintenance
 
 - [Kit Contract](references/kit-contract.md) — Discovery, README contract, journey mapping, and resource ownership.
 - [Maintenance & Freshness](references/maintenance.md) — Proof records, freshness rules, maintenance workflows, and gate integration.
+- **Launch audit**: For medium/high feature scope, follow the four-lane inventory, independent fresh-context, evidence, and fail-closed verdict contract in [Launch Audit](references/launch-audit.md). Never make these lanes mandatory for brief/low-tier work.

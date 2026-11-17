@@ -15,6 +15,15 @@
 - A missing mode is a routing decision from approved evidence and risk, never automatic permission for `brief`.
 - Each handoff carries `delivery_mode`, the authoritative work-item reference with its source revision, and the approval reference; downstream stages never re-infer authority.
 
+## Base-Bound Review Class Floors
+
+Resolve class from the criticality map in the policy blob at the independently selected base, never from candidate working-tree policy. Classify both rename endpoints. Unmatched paths are `shared`; absent policy/map is `unclassified` and retains current human review.
+
+The selected policy path, `docs/review-policy.md`, review gate, `CODEOWNERS`, `.github/CODEOWNERS`, and `docs/CODEOWNERS` are trunk controls. Generated integrity outputs (including `skills/metadata.json`) are `trunk` and Centrality C=2; skip-list rules cannot waive the floor. Sensitive and one-way changes require line-review. Mixed-class changes take the strongest review obligation while minimum-attention coverage retains every trunk unit, reviewer nomination, and findings-bearing file. Class/reversibility never lowers SNC.
+
+No owner-approved policy means current human review. This implementation activates no hunk-review or report-only grant; report-only remains disabled even when a purported grant is present. Any future report-only decision requires complete, independently checked M3 evidence, thresholds set by the policy owner, and an explicit human grant. See [review policy calibration](../../common-review-policy/references/trust-calibration.md).
+
+
 | Concern | `tier=low` (0-2) | `tier=medium` (3-4) | `tier=high` (5-6) |
 | --- | --- | --- | --- |
 | Autonomy | Autonomous; proceed without plan approval in autonomous mode | Guided; plan shared, self-review before handoff | Plan-first; **HARD STOP** for plan approval before any code |

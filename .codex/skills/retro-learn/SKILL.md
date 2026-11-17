@@ -34,7 +34,7 @@ Goal: Turn defects, missed expectations, and delivery friction into durable, ver
 2. Classify root cause, then choose the preventive mechanism:
    - Routing, procedure, example contradiction, workflow, test-flakiness, tool/adapter, evaluator, environment, or permission.
    - Separate project-local facts from reusable registry procedures; runtime permission failures require runtime fixes and never become guidance paragraphs.
-   - Mechanical violation a tool can decide → deterministic lint, schema, or static check; behavioral defect → regression test; judgment or authoring quality → held-out evaluation; permission/sandbox/tool-contract failure → runtime control; genuine knowledge gap → concise guidance, last resort.
+   - Use each finding's `Prevent-by` as the initial mechanism: `lint | type` → deterministic check; `test` → regression test; `eval` → held-out evaluation; `runtime` → runtime control; `guidance` → concise guidance, last resort; `none` → make no prevention claim. Preserve this mechanism order; extend/merge/retire existing guidance before adding a skill.
    - Extend, merge, or retire existing guidance before introducing a skill.
 3. Propose one improvement item per root cause:
    - Record redacted evidence, source revision, owner, candidate/improvement ID, chosen mechanism, verification/eval reference, and adoption status `proposed`.

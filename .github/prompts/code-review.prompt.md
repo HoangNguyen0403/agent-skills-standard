@@ -18,17 +18,19 @@ Goal: Evaluate diffs and PRs for security, logic, and architecture without treat
 
 2. Load review rules and orchestration:
    - Load `common-code-review`, `common-security-audit`, `common-owasp`, and `common-llm-security`.
-   - Load `docs/review-policy.md` when present; its severity ladder, skip list, and nit cap override workflow defaults.
+   - Load `docs/review-policy.md` when present; its severity ladder, skip list, and nit cap override workflow defaults. Classify only from policy bytes at the independently selected full BASE (`review_gate.py classify --policy docs/review-policy.md --base <full-base> --head <settled-head>`). `classify --paths` reads candidate bytes and is descriptive only; never use it to authorize a review decision. Missing policy/map is unclassified and retains current human line review; unmatched paths are shared, not permission to reduce review.
+   - Treat `review_gate.py check --report ... --policy ... --base ... --dispatch-receipt ...` as declaration consistency only. Exit 0 does not authenticate actors, approval, execution, isolation, chronology, or grants; it never approves or lowers human review. Do not infer report-only eligibility: it is always disabled.
    - Load framework P0/P1 skills from `AGENTS.md`.
    - When ticket/AC coverage, PR metadata/threads, or specialist lenses are needed, load `<SKILLS>/common/common-code-review/references/orchestration.md`.
 
+   - Before checks/review, load the full `skills/common/common-subagent-driven-development/references/delivery-report.md` procedure and freeze orchestrator-computed source identity. First phase receives brief, cumulative diff, and observed receipt only; freeze findings/digest before author claims, then reconcile with the same reviewer. Current observed required-check `FAIL` returns `CHANGES REQUESTED` before lenses; missing, unknown, `NOT RUN`, or stale is a gap, never `PASS`.
 3. Review mode and specialist lenses:
    - `fast`: changed files and their direct call graph only.
    - `deep`: fast scope plus related auth flows, trust boundaries, architecture docs, and prior incidents.
    - Mode precedence: (1) explicit user mode; (2) sensitive scope elevates to deep; (3) `fast` for `snc_tier=low`, `deep` for medium/high; (4) absent tier: score per `common-task-complexity-routing`, defaulting to deep for multi-file or fast for localized diffs.
    - Security and design/readiness prerequisites apply regardless of an explicit fast selection; record any uncovered sensitive obligation as an explicit gap.
    - Apply lenses: Security, Logic, Silent Failures, Type Design, AI Safety, Vibe Security, Testing.
-   - Dispatch bounded specialists with least privilege per lane: offline analysis is read-only, authorized provider metadata may be read with existing credentials when scoped, and publication may write only after separate operator approval. Never execute author-controlled project tasks in the reviewer runtime; no unconditional fanout.
+   - Dispatch bounded specialists with least privilege; publication needs separate operator approval. Never run author-controlled tasks in the reviewer runtime. A separate executor is eligible only when ALL are verified: provenance AND exact orchestrator-published command; host-enforced isolation without credentials/publication authority; default-deny egress; no shared-worktree writes; run-owned durable hashed outputs. Otherwise stay static-only; role/worktree/ask mode is not proof.
    - Compare security findings against existing secure patterns; validate exploitability.
    - Deduplicate findings by root cause; distinguish confirmed findings from `needs validation`.
 

@@ -17,18 +17,17 @@ metadata:
 
 ## Review Principles
 
-- **Substance > Style**: Ignore formatting. Find bugs, flaws, design errors.
-- **Questions > Commands**: " this handle null?" instead of "Fix this."
-- **Clarity**: Group by `[BLOCKER]`, `[MAJOR]`, `[NIT]`.
-- **Sync**: Enforce active framework P0 rules.
-- **Evidence First**: Findings need file, AC, test, or diff evidence.
-- **Findings First**: Lead with risks, not summary.
-- **Review completeness**: Include test coverage and edge-case coverage even when CI is green or the requester asks for a quick review.
-- **Test-Review Evidence Gate**: Before flagging a `[MAJOR]` missing-test finding, apply [../common-tdd/references/quality-contract.md](../common-tdd/references/quality-contract.md): explicitly name (1) the changed business contract, (2) the concrete plausible fault escaping to consumers, and (3) proof that nearby or upstream suites do not already cover it. Verify one logical contract per test; multiple assertions are allowed for related aspects/side effects. Do NOT demand a test per public symbol, private method, or trivial getter/echo.
-
-- **Independence**: Review must be independent of the change author; self-approval is forbidden and host controls/provenance must be verified separately.
-- **Scoped Evidence**: Diff-only review requires only diff/files. Missing optional metadata is a recorded gap, not a blocker; missing required scope evidence blocks approval.
-- **Orchestration**: When ticket/AC verification, PR metadata/threads, or specialist lenses are needed, load [references/orchestration.md](references/orchestration.md).
+- Substance > style. Find behavioral, security, and design defects; do not nitpick.
+- Findings first; no strengths or praise section. Every finding cites evidence and explains risk.
+- **Deterministic gate:** a current orchestrator-observed required-check `FAIL` returns `CHANGES REQUESTED` before semantic lens review. Missing, unknown, `NOT RUN`, or stale status is an evidence gap, never PASS.
+- **Blind first:** phase one receives only the brief, cumulative diff, and orchestrator-observed check receipt. Freeze findings and SHA-256 before author claims; this declared sequence is not filesystem isolation.
+- **Reproduce only when every provenance, host-enforced isolation, verified prevention of shared-worktree writes, no-credentials/no-publication, default-deny-network, and orchestrator-published-command predicate is verified.** Otherwise stay static-only and name the gap; never execute author-controlled commands in a privileged reviewer runtime.
+- Compare authorized reproduction command, output, and source identity with the receipt. Observed/claimed mismatch is a Blocker.
+- **Reconcile:** resume the same reviewer with frozen findings and digest plus author claims. If resume is unavailable, BLOCKED; replacement requires restarting the full blind phase.
+- Review completeness includes test and edge-case coverage even when CI is green or the request is quick.
+- **Test-Review Evidence Gate:** before a missing-test Major, identify the changed contract, plausible consumer-visible escaped fault, and evidence nearby/upstream suites do not cover it. One logical contract per test; do not demand tests per symbol.
+- Independence and host provenance are verified separately; self-approval is forbidden. Missing optional metadata is a recorded gap; missing required scope evidence blocks approval.
+- For complete phases and formats, load [Adversarial Review Protocol](references/adversarial-review.md). Load [orchestration](references/orchestration.md) when ticket/AC, PR metadata, or specialist lenses are needed.
 ## Review Checklist (Mandatory)
 
 - [ ] **Security**: No injection, secrets, auth leaks.
@@ -40,13 +39,7 @@ See [references/checklist.md](references/checklist.md).
 
 ## Output Format (Strict)
 
-```
-
-Every substantive finding must include the literal `Why:` field. If code or a diff is missing, state the evidence needed before offering a substantive finding.
-[SEVERITY] [File] Issue Description
-Why: Risk or impact description.
-Fix: 1-2 line code or action.
-```
+Use only `[Blocker]`, `[Major]`, or `[Nit]`. Each substantive finding has `Evidence:`, `Why:`, `Fix:`, and `Prevent-by: lint | type | test | eval | runtime | guidance | none`; missing code/diff means state the evidence needed. No praise section. See [finding template](references/output-format.md).
 
 ## Red Flags
 
