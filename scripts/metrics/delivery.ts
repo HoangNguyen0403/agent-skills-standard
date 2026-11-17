@@ -18,6 +18,15 @@
 
 import fs from "fs";
 import path from "path";
+import {
+  DISPATCH_KINDS,
+  canonicalizeDispatchEvent,
+  dispatchDomainIdentity,
+  isDispatchEvent,
+  isDispatchKind,
+  validateDispatchEvent,
+  validateDispatchInvariants,
+} from "./dispatch";
 import type { GitPeriod } from "./git";
 import type {
   AcceptanceEvent,
@@ -55,6 +64,7 @@ const EVENT_KINDS: DeliveryEventKind[] = [
   "deployment",
   "defect",
   "cost",
+  ...DISPATCH_KINDS,
 ];
 
 /** Kinds whose observations describe the pre-acceptance work lifecycle. */
@@ -124,6 +134,7 @@ function assertNever(value: never): never {
 
 /** Domain identity of an event: distinct IDs must not double-count the same real observation. */
 function domainIdentity(event: DeliveryEvent): { key: string; label: string } {
+  if (isDispatchEvent(event)) return dispatchDomainIdentity(event);
   switch (event.kind) {
     case "review":
       return { key: `review|${event.session_id}`, label: `review session "${event.session_id}"` };
@@ -182,6 +193,8 @@ function validateCoverage(raw: unknown): string | undefined {
 
 function validateEvent(raw: unknown): string[] {
   if (!isRecord(raw)) return ["must be an object"];
+  const dispatchProblems = validateDispatchEvent(raw, utcDate);
+  if (dispatchProblems) return dispatchProblems;
   const problems: string[] = [];
   for (const field of ["id", "change_id", "revision", "source_ref"]) {
     if (!nonEmptyString(raw[field])) problems.push(`${field} must be a non-empty string`);
@@ -296,13 +309,19 @@ function validateObservationFile(parsed: unknown): { file?: DeliveryObservationF
   (parsed.events as unknown[]).forEach((raw, index) => {
     const eventProblems = validateEvent(raw);
     if (eventProblems.length > 0) {
-      const label = isRecord(raw) && typeof raw.id === "string" ? ` (id ${raw.id})` : "";
+      // A rejected raw id may carry a path or secret: dispatch-scoped diagnostics use a fixed code.
+      const dispatchScoped = isRecord(raw) && typeof raw.kind === "string" && isDispatchKind(raw.kind);
+      const label = dispatchScoped
+        ? " (dispatch-scoped)"
+        : isRecord(raw) && typeof raw.id === "string"
+          ? ` (id ${raw.id})`
+          : "";
       problems.push(`events[${index}]${label}: ${eventProblems.join("; ")}`);
       return;
     }
-    const record = raw as Record<string, unknown>;
-    const event = record as unknown as DeliveryEvent;
-    const payload = canonicalJson(withoutId(record));
+    // Dispatch-scoped windows are canonicalized before identity and replay comparison (SRS-007).
+    const event = canonicalizeDispatchEvent(raw as unknown as DeliveryEvent);
+    const payload = canonicalJson(withoutId({ ...event } as unknown as Record<string, unknown>));
 
     const previousPayload = byId.get(event.id);
     if (previousPayload !== undefined) {
@@ -365,6 +384,9 @@ function validateObservationFile(parsed: unknown): { file?: DeliveryObservationF
       }
     }
   }
+  if (problems.length > 0) return { problems };
+
+  problems.push(...validateDispatchInvariants(events));
   if (problems.length > 0) return { problems };
 
   return {
@@ -453,7 +475,7 @@ function pointCovered(obs: DeliveryObservationFile, event: DeliveryEvent): boole
 }
 
 /** True when merged complete coverage intervals for one kind+revision span `[startMs, endMs]`. */
-function intervalCovered(
+export function intervalCovered(
   obs: DeliveryObservationFile,
   changeId: string,
   kind: DeliveryEventKind,

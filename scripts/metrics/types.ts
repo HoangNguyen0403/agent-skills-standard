@@ -73,6 +73,63 @@ export interface BandConfigError {
   problem: string;
 }
 
+/** One measured usage cell: the summed known values plus how many observations were unknown. */
+export interface DispatchUsageSummary {
+  events: number;
+  turns: number;
+  inputTokens: number;
+  cachedInputTokens: number;
+  cacheWriteTokens: number;
+  outputTokens: number;
+  recordedCost: number;
+  unknown: {
+    turns: number;
+    inputTokens: number;
+    cachedInputTokens: number;
+    cacheWriteTokens: number;
+    outputTokens: number;
+    recordedCost: number;
+  };
+  /** Expected (dispatch, actor) pairs in this row with no `dispatch-usage` event: unknown, never zero. */
+  missingPairs: number;
+  coverage: MetricCoverage;
+}
+
+/** One row of `## Dispatch outcomes`, keyed by (`role`, `actual.model`). */
+export interface DispatchOutcomeRow {
+  role: string;
+  model: string;
+  dispatches: number;
+  open: number;
+  completed: number;
+  cancelled: number;
+  failed: number;
+  errored: number;
+  /** Dispatches with a `dispatch-end`; the denominator for rounds, acceptance and first-round share. */
+  ended: number;
+  roundsMean: number | null;
+  roundsMedian: number | null;
+  accepted: number;
+  rejected: number;
+  acceptanceUnknown: number;
+  firstRoundAccepted: number;
+  coverage: MetricCoverage;
+  worker: DispatchUsageSummary;
+  supervision: DispatchUsageSummary;
+}
+
+/** SRS-006: the dispatch cohort, or a stated reason it cannot be shown. */
+export type DispatchOutcomes =
+  | {
+      available: true;
+      source: string;
+      rows: DispatchOutcomeRow[];
+      /** Distinct unrecorded workers, counted once per (orchestrator_ref, window) — never once per change. */
+      unrecorded: number;
+      limitations: string[];
+    }
+  | { available: false; reason: string };
+
 /** Full structured result for one `scripts/metrics/index.ts` run (also the `--json` shape). */
 export interface MetricsReport {
   scope: string;
@@ -80,6 +137,7 @@ export interface MetricsReport {
   generatedAt: string;
   deliveryHealth: DeliveryHealthRow[];
   stageIndicators: StageIndicatorRow[];
+  dispatchOutcomes: DispatchOutcomes;
   bandBreaches: BandBreach[];
   bandConfigErrors: BandConfigError[];
   attribution: AttributionRow[];
@@ -155,6 +213,99 @@ export interface CostEvent extends EventBase {
   component: "agent" | "human" | "tooling";
 }
 
+// ---------------------------------------------------------------------------
+// Dispatch-scoped events (SRS-001 to SRS-008). A separate cohort in the same
+// file, linked to a change only by `change_id`. No legacy indicator reads these
+// kinds and no dispatch metric reads a legacy kind.
+// ---------------------------------------------------------------------------
+
+export type DispatchCapabilityHint = "fast" | "standard" | "strong" | "unknown";
+
+export type DispatchEndState = "completed" | "cancelled" | "failed" | "errored";
+
+export type DispatchActor = "worker" | "supervision";
+
+/** Every free string is a reference string (SRS-010); `unknown` is itself one. */
+export interface DispatchActual {
+  provider: string;
+  model: string;
+  effort: string;
+}
+
+export interface DispatchEvent extends EventBase {
+  kind: "dispatch";
+  dispatch_id: string;
+  role: string;
+  capability_hint: DispatchCapabilityHint;
+  actual: DispatchActual;
+  authority_ref: string;
+  orchestrator_model: string;
+  orchestrator_ref: string;
+}
+
+export interface DispatchRoundEvent extends EventBase {
+  kind: "dispatch-round";
+  dispatch_id: string;
+  round: number;
+}
+
+export interface DispatchVerdictEvent extends EventBase {
+  kind: "dispatch-verdict";
+  dispatch_id: string;
+  round: number;
+  verdict: "approved" | "changes_requested";
+  reviewer_ref: string;
+}
+
+export interface DispatchAcceptanceEvent extends EventBase {
+  kind: "dispatch-acceptance";
+  dispatch_id: string;
+  round: number;
+  decision: "accepted" | "rejected";
+  authority_ref: string;
+}
+
+export interface DispatchEndEvent extends EventBase {
+  kind: "dispatch-end";
+  dispatch_id: string;
+  state: DispatchEndState;
+}
+
+export interface DispatchUsageEvent extends EventBase {
+  kind: "dispatch-usage";
+  dispatch_id: string;
+  actor: DispatchActor;
+  window_from: string;
+  window_to: string;
+  turns: number | null;
+  input_tokens: number | null;
+  cached_input_tokens: number | null;
+  cache_write_tokens: number | null;
+  output_tokens: number | null;
+  recorded_cost: number | null;
+  cost_basis: "host-recorded-estimate";
+  coverage_complete: boolean;
+  method_ref: string;
+  unavailable_code?: "no-adapter" | "unresolved" | "identity-mismatch";
+}
+
+export interface DispatchInventoryEvent extends EventBase {
+  kind: "dispatch-inventory";
+  orchestrator_ref: string;
+  window_from: string;
+  window_to: string;
+  unrecorded_count: number;
+}
+
+export type DispatchScopedEvent =
+  | DispatchEvent
+  | DispatchRoundEvent
+  | DispatchVerdictEvent
+  | DispatchAcceptanceEvent
+  | DispatchEndEvent
+  | DispatchUsageEvent
+  | DispatchInventoryEvent;
+
 export type DeliveryEvent =
   | ReviewEvent
   | DecisionWaitEvent
@@ -163,7 +314,8 @@ export type DeliveryEvent =
   | AcceptanceEvent
   | DeploymentEvent
   | DefectEvent
-  | CostEvent;
+  | CostEvent
+  | DispatchScopedEvent;
 
 export type DeliveryEventKind = DeliveryEvent["kind"];
 

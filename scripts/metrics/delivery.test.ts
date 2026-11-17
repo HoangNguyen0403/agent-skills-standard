@@ -903,3 +903,64 @@ test("a deployment without incident coverage keeps the failure rate unavailable"
   if (!cfr.metric_result.available) assert.match(cfr.metric_result.reason, /incident coverage/);
   assert.equal(stageRow(result, "escaped defects").metric_result.available, false);
 });
+
+// --- VER-6: isolation invariant ------------------------------------------
+
+test("VER-6: adding dispatch activity never changes legacy indicator output", () => {
+  const base = arithmeticFixture();
+  const before = reads(base);
+
+  const withDispatch = [
+    ...(base.events as Record<string, unknown>[]),
+    event("d-1", "change-a", "dispatch", "2026-01-02T00:00:00Z", {
+      dispatch_id: "dispatch-1",
+      role: "implementer",
+      capability_hint: "standard",
+      actual: { provider: "provider-a", model: "model-a", effort: "medium" },
+      authority_ref: "authority-1",
+      orchestrator_model: "model-orch",
+      orchestrator_ref: "orch-1",
+    }),
+    event("dr-1", "change-a", "dispatch-round", "2026-01-03T00:00:00Z", { dispatch_id: "dispatch-1", round: 1 }),
+    event("dv-1", "change-a", "dispatch-verdict", "2026-01-04T00:00:00Z", {
+      dispatch_id: "dispatch-1",
+      round: 1,
+      verdict: "approved",
+      reviewer_ref: "reviewer-1",
+    }),
+    event("da-1", "change-a", "dispatch-acceptance", "2026-01-05T00:00:00Z", {
+      dispatch_id: "dispatch-1",
+      round: 1,
+      decision: "accepted",
+      authority_ref: "authority-1",
+    }),
+    event("de-1", "change-a", "dispatch-end", "2026-01-06T00:00:00Z", {
+      dispatch_id: "dispatch-1",
+      state: "completed",
+    }),
+    event("du-1", "change-a", "dispatch-usage", "2026-01-06T01:00:00Z", {
+      dispatch_id: "dispatch-1",
+      actor: "worker",
+      window_from: "2026-01-02T00:00:00Z",
+      window_to: "2026-01-06T00:00:00Z",
+      turns: 4,
+      input_tokens: 900,
+      cached_input_tokens: 100,
+      cache_write_tokens: 0,
+      output_tokens: 300,
+      recorded_cost: 2.5,
+      cost_basis: "host-recorded-estimate",
+      coverage_complete: true,
+      method_ref: "method-v1",
+    }),
+    event("di-1", "change-a", "dispatch-inventory", "2026-01-06T02:00:00Z", {
+      orchestrator_ref: "orch-1",
+      window_from: "2026-01-01T00:00:00Z",
+      window_to: "2026-02-01T00:00:00Z",
+      unrecorded_count: 0,
+    }),
+  ];
+  const after = reads(fileWith(withDispatch, base.coverage as Record<string, unknown>[]));
+
+  assert.deepEqual(after, before);
+});

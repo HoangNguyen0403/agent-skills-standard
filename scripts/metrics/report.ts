@@ -6,7 +6,16 @@
 // its own source (AC-002); rows the producer could not derive land in the
 // `## Unavailable` table with a reason, never a guessed value (REQ-002).
 
-import type { BandBreach, BandConfigError, Metric, MetricsReport, StageIndicatorRow } from "./types";
+import type {
+  BandBreach,
+  BandConfigError,
+  DispatchOutcomeRow,
+  DispatchOutcomes,
+  DispatchUsageSummary,
+  Metric,
+  MetricsReport,
+  StageIndicatorRow,
+} from "./types";
 
 function cell(metric: Metric): {
   value: string;
@@ -60,6 +69,83 @@ function mdTable(header: string[], rows: string[][]): string {
   return lines.join("\n");
 }
 
+/** One usage cell: every column is a known subtotal plus its count of unknown observations. */
+function usageCell(summary: DispatchUsageSummary): string {
+  const parts = [
+    `turns ${summary.turns} (+${summary.unknown.turns} unknown)`,
+    `in ${summary.inputTokens} (+${summary.unknown.inputTokens} unknown)`,
+    `cached ${summary.cachedInputTokens} (+${summary.unknown.cachedInputTokens} unknown)`,
+    `cache-write ${summary.cacheWriteTokens} (+${summary.unknown.cacheWriteTokens} unknown)`,
+    `out ${summary.outputTokens} (+${summary.unknown.outputTokens} unknown)`,
+    `cost ${summary.recordedCost.toFixed(2)} (+${summary.unknown.recordedCost} unknown)`,
+    `missing pairs ${summary.missingPairs}`,
+    summary.coverage,
+  ];
+  return parts.join(", ");
+}
+
+function roundsCell(row: DispatchOutcomeRow): string {
+  if (row.roundsMean === null) return "n/a (no ended dispatch)";
+  const mean = row.roundsMean.toFixed(1);
+  return row.roundsMedian === null ? `${mean} (median n/a)` : `${mean} (median ${row.roundsMedian.toFixed(1)})`;
+}
+
+function dispatchSection(outcomes: DispatchOutcomes): string[] {
+  const lines: string[] = ["## Dispatch outcomes", ""];
+  if (!outcomes.available) {
+    lines.push(`Unavailable: ${outcomes.reason}`, "");
+    return lines;
+  }
+  lines.push(
+    mdTable(
+      [
+        "Role",
+        "Model",
+        "Dispatches",
+        "Open",
+        "Ended",
+        "completed",
+        "cancelled",
+        "failed",
+        "errored",
+        "Rounds/ended (mean; median)",
+        "Accepted",
+        "Rejected",
+        "Acceptance unknown",
+        "First-round share",
+        "Coverage",
+        "Worker usage",
+        "Supervision usage",
+      ],
+      outcomes.rows.map((row) => [
+        row.role,
+        row.model,
+        String(row.dispatches),
+        String(row.open),
+        String(row.ended),
+        String(row.completed),
+        String(row.cancelled),
+        String(row.failed),
+        String(row.errored),
+        roundsCell(row),
+        String(row.accepted),
+        String(row.rejected),
+        String(row.acceptanceUnknown),
+        `${row.firstRoundAccepted}/${row.ended}`,
+        row.coverage,
+        usageCell(row.worker),
+        usageCell(row.supervision),
+      ]),
+    ),
+    "",
+    `Source: ${outcomes.source}`,
+    `Unrecorded dispatches: ${outcomes.unrecorded}`,
+  );
+  for (const limitation of outcomes.limitations) lines.push(`- ${limitation}`);
+  lines.push("");
+  return lines;
+}
+
 export function renderMarkdown(report: MetricsReport): string {
   const lines: string[] = [];
   lines.push(`# SDLC Metrics: ${report.scope}`, "");
@@ -88,6 +174,8 @@ export function renderMarkdown(report: MetricsReport): string {
     ),
     "",
   );
+
+  lines.push(...dispatchSection(report.dispatchOutcomes));
 
   lines.push("## Control Bands", "");
   const bandRows = report.bandBreaches.map((b) => [b.metric, b.baselineWindow, b.tier, b.action, b.routedTo]);
