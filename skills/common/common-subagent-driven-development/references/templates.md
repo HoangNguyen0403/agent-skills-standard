@@ -15,6 +15,7 @@ Use this template when authoring tasks in implementation plans. `task_brief.py` 
 **Invariants:**
 - Positive: [Observable behavior that must occur under valid inputs]
 - Negative: [Boundary rejections, fail-closed errors, or forbidden state transitions]
+**Gate / rollback:** [named flag/version pin or `none: reason`]; control: [invariant]; rollback: [flag off | revert | one-way]; reversibility: [gated | revertible | one-way][; authorization: human reference for one-way]. A version pin maps to `revert` + `revertible`; prior-pin detail belongs in the control narrative.
 **Verification owner:** [parent orchestrator | implementer focused tests] via `[exact test/smoke command]`
 **Handoff / freeze:** report `task-N-report.md` marked FINAL; source freeze precedes review.
 **Correction route:** [e.g. host ladder: 1 corrective follow-up then escalate route; no automatic premium]
@@ -77,6 +78,7 @@ Worker dispatch (host binding):
     4. Do NOT commit your changes with git; orchestrator owns git integration and commits
     5. Conduct a self-review of your diff; it does not replace independent review
     6. Write your detailed report to [REPORT_FILE] and return the status contract
+    Delivery Report decision block: follow [delivery-report.md](delivery-report.md) and include it at the top of [REPORT_FILE].
 
     Work from: [directory]
 
@@ -111,128 +113,157 @@ Worker dispatch (host binding):
 
 ---
 
-## 2. Task Reviewer Prompt Template
+## 2. Blind Task Reviewer Prompt Template
 
-Use this template when dispatching a task reviewer. Dispatch it whenever the task has a required acceptance gate, whatever implementation placement was recorded. The reviewer reads the task's diff once and returns two verdicts: spec compliance and code quality.
+Dispatch a separate reviewer for every required task gate. Phase one is frozen before any author report is disclosed.
 
 ```markdown
-Independent reviewer dispatch (host binding):
-  description: "Review Task N (spec + quality)"
+Blind reviewer dispatch (host binding):
+  description: "Review Task N (blind phase one)"
   effort_hint: [fast | standard | strong — host maps to its model ladder]
   prompt: |
-    You are reviewing one task's implementation: first whether it matches its
-    requirements, then whether it is well-built. This is a task-scoped gate,
-    not a merge review. You are a separate owner/context from the implementer;
-    your verdict is required for acceptance. Placement does not change this:
-    an implementation prepared in the main loop needs the same separate
-    reviewer as one prepared by a bounded worker, and implementer self-review
-    never satisfies the gate.
+    Review task compliance and code quality from the supplied evidence. You are
+    separate from the implementer; your verdict is a required acceptance input.
 
-    ## What Was Requested
-    Read the task packet: [BRIEF_FILE]
+    ## Requested Work
+    Task packet: [BRIEF_FILE]
+    Work item: [ID/reference @ source revision]; `delivery_mode`: brief | standard | extended.
+    The carried record is authoritative. In brief mode its observable criteria
+    replace formal IDs. Do not infer approval from filenames or attribution.
+    Packet invariants: [PACKET_INVARIANTS]
+    Design constraints: [GLOBAL_CONSTRAINTS]
 
-    Review target: work item [ID/reference @ source revision]; `delivery_mode` brief | standard | extended.
-    The spec is that carried record. In brief mode its observable criteria replace formal
-    PRD/SRS/REQ/AC IDs; absent document IDs are not a compliance defect, and approval is
-    not re-inferred from filenames, status strings, or reviewer attribution.
+    ## Admissible Phase-One Inputs
+    Before preparing or checking evidence, load the full
+    [delivery-report.md](delivery-report.md) Frozen Source Identity procedure.
+    Orchestrator-frozen cumulative diff: [DIFF_FILE] (SHA-256: [DIFF_SHA256])
+    Orchestrator-observed deterministic receipt: [CHECK_RECEIPT_FILE]
+    Receipt includes command, cwd, exit code, raw-output path/digest, resolved BASE,
+    actual HEAD, scope manifest/digest, source revision and dirty identity. The
+    orchestrator computes and freezes scope/source identity before and after each
+    check and at phase freeze. Do not treat implementer claims as observed proof.
+    If a required current check is observed FAIL, return CHANGES REQUESTED before
+    semantic lenses. Unknown, NOT RUN, or stale/mismatched proof is an evidence gap,
+    never PASS; useful static-risk review may continue, but no READY claim follows.
+    Base: [BASE_REF]
+    Head/workspace: [HEAD_REF / WORKSPACE]
+    Owned paths: [OWNED_PATHS]
+    Scope digest: [SCOPE_DIGEST]
+    Read the diff once; do not crawl broader code except for a concrete contract risk.
+    Read only; do not mutate the workspace.
 
-    Global constraints from the packet binding this task:
-    [PACKET_INVARIANTS — do not add duplicate constraints that contradict the packet]
+    ## Reproduction Boundary
+    Reproduce only if the exact command is explicitly authorized in the
+    orchestrator-published task brief and its source/command provenance is
+    separately verified, alongside host-enforced isolation without credentials or
+    publication authority, default-deny outbound networking, and a verified
+    no-write boundary to the shared implementation worktree. The verifier must
+    retain durable, verifier-owned raw outputs/artifacts with SHA-256 digests.
+    Unknown predicates mean static-only plus a named gap; never execute
+    author-controlled commands in a privileged reviewer runtime. Prompt omission
+    is not access control.
 
-    Global constraints from the spec/design binding this task:
-    [GLOBAL_CONSTRAINTS]
+    ## Phase-One Findings
+    Report only Blocker, Major, or Nit findings. Each finding has evidence, Why,
+    Fix, and Prevent-by: lint | type | test | eval | runtime | guidance | none.
+    Include no strengths or praise section. Compare observed check output to its
+    receipt; a mismatch is a Blocker.
 
-    ## What the Implementer Claims They Built
-    Read the implementer's report: [REPORT_FILE]
+    Freeze this artifact before reconciliation:
+    - Phase-one artifact path: [PHASE_ONE_ARTIFACT]
+    - SHA-256: [PHASE_ONE_SHA256]
+    - Source/scope identity: [SOURCE_IDENTITY / SCOPE_DIGEST]
 
-    ## Diff Under Review
-    **Base:** [BASE_REF]
-    **Head:** [HEAD_REF / WORKSPACE]
-    **Scope / Owned paths:** [OWNED_PATHS]
-    **Diff file:** [DIFF_FILE]
 
-    A WORKSPACE package is cumulative from [BASE_REF] to the current workspace; it is not a fix-only delta. Assess the task-owned state shown by this snapshot.
-    Read the diff file once — it contains the file list, stat summary, and full diff.
-    Do not crawl the broader codebase unless checking a concrete contract risk at a callsite.
-    Your review is read-only. Do not mutate the working tree.
-
-    ## Tests
-    The implementer already ran tests and provided evidence in [REPORT_FILE].
-    Do not re-run full test suites. Run a focused test only if code reading raises a specific doubt.
-
-    ## Part 1: Spec Compliance
-    - **Missing:** Requirements skipped or claimed without implementation.
-    - **Extra:** Features not requested (YAGNI violation).
-    - **Misunderstood:** Built the wrong way or solved the wrong problem.
-
-    ## Part 2: Code Quality
-    - Clean separation of concerns, error handling, maintainability.
-    - Test rigor: verifies real behavior, edge cases covered.
-    - Code craftsmanship: zero noise comments, documented public boundaries.
-
-    ## Output Format
-
+    ## Output
     ### Spec Compliance
-    - ✅ Spec compliant | ❌ Issues found: [details with file:line]
-    - ⚠️ Cannot verify from diff: [items requiring orchestrator cross-check]
-
-    ### Strengths
-    [Concise bullet points]
-
+    [Compliant | Issues found with file:line | Cannot verify and why]
     ### Issues
-    #### Critical (Must Fix)
-    #### Important (Should Fix)
-    #### Minor (Nice to Have)
-
-    ### Assessment
-    **Task quality:** [Approved | Needs fixes]
-    **Evidence limit:** technical verification of this revision only — never business acceptance or release
-    **Reasoning:** [1-2 sentence technical summary]
+    #### Blocker
+    #### Major
+    #### Nit
+    ### Reproduction
+    [Verified command/output/identity | Static-only gap]
+    ### Phase-One Freeze
+    [Artifact path, digest, source revision, dirty identity]
 ```
 
 ---
 
-## 3. Scoped Re-Reviewer Prompt Template
+## 3. Reconciliation Prompt Template
 
-Use this template when re-reviewing a task after a fix round.
+Resume the same reviewer only after phase-one findings and source identity are frozen. If same-reviewer resume is unsupported, return `BLOCKED`; a replacement must restart the full blind phase.
 
 ```markdown
-Independent re-reviewer dispatch (host binding):
-  description: "Re-review Task N Fixes (scoped)"
-  effort_hint: [fast | standard | strong — host maps to its model ladder]
+Reconciliation dispatch (host binding):
+  description: "Reconcile Task N after blind phase one"
   prompt: |
-    You are re-reviewing Task N after a fix round.
-    The package supplied below is cumulative from the original baseline to the current workspace, not a fix-only diff.
+    Continue the same review using the frozen phase-one artifact below.
+    Do not rewrite or replace its findings. Compare author claims with that
+    frozen evidence; unsupported claims become explicit gaps or findings.
 
-    ## Open Findings Under Review
-    [LIST_OF_OPEN_FINDINGS]
+    Task packet: [BRIEF_FILE]
+    Cumulative diff: [DIFF_FILE] (SHA-256: [DIFF_SHA256])
+    Frozen phase-one artifact: [PHASE_ONE_ARTIFACT]
+    Frozen phase-one SHA-256: [PHASE_ONE_SHA256]
+    Phase-one source revision and dirty identity: [SOURCE_IDENTITY]
+    Orchestrator receipt: [CHECK_RECEIPT_FILE]
+    Author delivery report: [REPORT_FILE]
 
-    ## Context
-    - Task brief: [BRIEF_FILE]
-    - Implementer fix report: [REPORT_FILE]
-    - Prior package, if available: [PREVIOUS_DIFF_FILE]
+    Verify all supplied digests and source identities before reconciliation.
+    Changed source or phase-one bytes make the evidence stale; return BLOCKED.
+    Unsupported resume is BLOCKED. Do not substitute a new reviewer or invent
+    continuity. A replacement starts again with the blind template and receives
+    no author report until its new phase-one artifact is frozen.
 
-    ## Cumulative Task Package
-    **Base:** [BASE_REF]
-    **Head:** WORKSPACE (current uncommitted cumulative snapshot)
-    **Scope / Owned paths:** [OWNED_PATHS]
-    **Diff file:** [DIFF_FILE]
-
-    ## Instructions
-    1. Check each open finding against the current cumulative task-owned state.
-    2. Verdict each finding as ADDRESSED or NOT ADDRESSED.
-    3. Report regressions visible in the cumulative task-owned changes. Do not claim a regression was introduced in the latest fix round unless a prior snapshot supports that comparison.
-    4. Do not re-evaluate code outside the owned scope.
-
-    ## Output Format
-    ### Findings Verification
-    - [Finding 1 summary]: ADDRESSED (file:line) | NOT ADDRESSED (explanation)
-    - [Finding 2 summary]: ...
-
-    ### Regressions in Cumulative Task State
-    - [None | Details of Critical/Important issue]
-
+    ## Output
+    ### Claim Reconciliation
+    [Claim, evidence, status: confirmed | gap | finding]
+    ### Open Findings
+    [Blocker | Major | Nit; evidence; Why; Fix; Prevent-by]
     ### Verdict
-    [ALL FINDINGS ADDRESSED | FIXES INCOMPLETE]
+    [READY | NOT READY | BLOCKED]
+```
 
+---
+
+## 4. Fix-Round Review Route
+
+For each fix round, create a cumulative `BASE..WORKSPACE` package from the original baseline and recompute the receipt and frozen source/scope identity. Never reuse invalidated proof. Start blind with Section 2; disclose the fix report only through Section 3 after phase-one findings are frozen. Unsupported resume is `BLOCKED`; a replacement restarts the full blind phase.
+
+```markdown
+Fix-round review dispatch (host binding):
+  description: "Blind review Task N cumulative fix round"
+  prompt: |
+    Follow Sections 2 and 3 exactly. This is a new blind phase over the cumulative
+    task state, not a fix-only review. Keep the original baseline and task scope.
+    Do not receive the fix report before the new phase-one artifact is frozen.
+
+    Original BASE: [BASE_REF]
+    Current actual HEAD/workspace: [HEAD_REF / WORKSPACE]
+    Cumulative diff: [DIFF_FILE] (SHA-256: [DIFF_SHA256])
+    Current orchestrator receipt: [CHECK_RECEIPT_FILE]
+    Frozen scope/source identity and digest: [SOURCE_IDENTITY / SCOPE_DIGEST]
+    Prior findings to reconcile after freeze: [PRIOR_FINDINGS_FILE]
+
+    Before any review, load the complete Frozen Source Identity procedure in
+    [delivery-report.md](delivery-report.md) and record its exact manifest inventory.
+    First-phase verdicts: CHANGES REQUESTED | REVIEW COMPLETE | BLOCKED.
+    Required current-check FAIL returns CHANGES REQUESTED before semantic lenses.
+    Unknown, NOT RUN, or stale identity is a gap, never PASS; static-risk findings
+    may continue, but no READY claim follows.
+
+    Report findings only as Blocker, Major, or Nit; include evidence, Why, Fix,
+    and Prevent-by. Do not claim regressions were introduced in the latest fix
+    without a prior snapshot. Never write to the shared implementation worktree.
+
+    ## Output
+    ### Phase-One Freeze
+    [Artifact path, digest, current source/scope identity]
+    ### Findings
+    [Blocker | Major | Nit; evidence; Why; Fix; Prevent-by]
+    ### Reconciliation
+    [ADDRESSED | NOT ADDRESSED | BLOCKED per prior finding]
+    ### Verdict
+    [CHANGES REQUESTED | REVIEW COMPLETE | BLOCKED]
 ```
