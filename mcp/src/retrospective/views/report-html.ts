@@ -549,10 +549,12 @@ function renderBottomLine(
     const workersCount =
       (agentsList.length > 0 ? agentsList.length - 1 : 0) +
       (ledger.otherAgents?.count ?? 0);
-    const agentDetail =
-      created === 0
-        ? "no agents were created"
-        : `${observed} of ${plural(created, "created agent")}`;
+    const workerLabel =
+      ledger.inventory?.known === true ? "declared worker" : "estimated worker";
+    const agentDetail = `${observed} worker files read of ${plural(
+      created,
+      workerLabel,
+    )}`;
     bottomLineParts.push(
       `Observed: main + ${plural(workersCount, "worker")} (${agentDetail}).`,
     );
@@ -584,7 +586,7 @@ function renderBottomLine(
     const answers = countOf(permClaim.values, "answers");
     const deny = countOf(permClaim.values, "deny");
     bottomLineParts.push(
-      `${plural(answers, "permission answer")} (${deny} denied).`,
+      `${plural(answers, "recorded permission response attempt")} (${deny} requested deny).`,
     );
   }
 
@@ -626,7 +628,7 @@ function renderTiles(
     }
   }
 
-  // 2. Permission answers
+  // 2. Permission response attempts
   let permTileClass = "";
   let permAnswersFormatted = "0";
   let permDetailText = "none observed";
@@ -634,12 +636,24 @@ function renderTiles(
   if (permClaim) {
     const answers = countOf(permClaim.values, "answers");
     const deny = countOf(permClaim.values, "deny");
+    const other =
+      typeof permClaim.values.other === "number"
+        ? permClaim.values.other
+        : Math.max(
+            0,
+            answers -
+              countOf(permClaim.values, "allow") -
+              deny,
+          );
     const asks = countOf(permClaim.values, "askCalls");
     permAnswersFormatted = String(answers);
     if (answers === 0) {
       permDetailText = "none observed";
     } else {
-      permDetailText = `${deny} denied, ${plural(asks, "ask-tool call")}`;
+      permDetailText = `${deny} requested deny, ${other} other, ${plural(
+        asks,
+        "ask-tool call",
+      )}`;
     }
     if (deny > 0) {
       permTileClass = "red";
@@ -681,12 +695,17 @@ function renderTiles(
   if (coverageClaim) {
     const created = countOf(coverageClaim.values, "agentsCreated");
     const observed = countOf(coverageClaim.values, "agentsRead");
+    const workerLabel =
+      ledger.inventory?.known === true ? "declared worker" : "estimated worker";
     if (created > 0) {
       coverageFormatted = `${observed} of ${created}`;
-      coverageDetailText = "created agents observed";
+      coverageDetailText = `worker files read of ${plural(created, workerLabel)}`;
     } else {
-      coverageFormatted = "none created";
-      coverageDetailText = "no agents to observe";
+      coverageFormatted = "n/a";
+      coverageDetailText =
+        ledger.inventory?.known === true
+          ? "no declared workers"
+          : "no estimated workers";
     }
     if (created > 0 && observed * 4 < created) {
       coverageTileClass = "red";
@@ -699,7 +718,7 @@ function renderTiles(
 
   return `<div class="tiles">
 <div class="tile${costClassAttr}"><span>Estimated cost</span><b>${escapeHtml(costTotalFormatted)}</b><small>${escapeHtml(costShareText)}</small></div>
-<div class="tile${permClassAttr}"><span>Permission answers</span><b>${escapeHtml(permAnswersFormatted)}</b><small>${escapeHtml(permDetailText)}</small></div>
+<div class="tile${permClassAttr}"><span>Permission response attempts</span><b>${escapeHtml(permAnswersFormatted)}</b><small>${escapeHtml(permDetailText)}</small></div>
 <div class="tile"><span>AGS lookups</span><b>${escapeHtml(lookupsCallsFormatted)}</b><small>${escapeHtml(lookupsDetailText)}</small></div>
 <div class="tile${covClassAttr}"><span>Coverage</span><b>${escapeHtml(coverageFormatted)}</b><small>${escapeHtml(coverageDetailText)}</small></div>
 </div>`;
@@ -736,11 +755,20 @@ function renderManagerImprovementCard(imp: LedgerImprovement): string {
   switch (imp.rule) {
     case "guardrail-answers": {
       const per100 = formatRate(val.per100Tenths ?? 0);
-      title = `Permission answers: ${val.answers ?? 0} (${val.allow ?? 0} allowed, ${val.deny ?? 0} denied)`;
-      saw = `the report recorded ${val.answers ?? 0} respond_to_permission answer observations; ${plural(val.targetsAtLeast3 ?? 0, "agent")} had 3 or more; ${val.deny ?? 0} were denials. Answering actor and human provenance are not measured.`;
+      // Older ledgers carry no `other` value on this improvement; derive it from
+      // the recorded partition so the category is not silently reported as zero.
+      const other =
+        typeof val.other === "number"
+          ? val.other
+          : Math.max(
+              0,
+              (val.answers ?? 0) - (val.allow ?? 0) - (val.deny ?? 0),
+            );
+      title = `Permission response attempts: ${val.answers ?? 0} (${val.allow ?? 0} requested allow, ${val.deny ?? 0} requested deny, ${other} other)`;
+      saw = `the report recorded ${val.answers ?? 0} respond_to_permission call attempts; answering actor and human provenance are not measured, and host application is not recorded; ${val.targetsAtLeast3 ?? 0} agents were the target of 3 or more recorded attempts; ${val.deny ?? 0} were requested denials.`;
       change =
-        "review repeated requests and the existing approval policy; counts alone do not establish safety or justify allowlisting, and read each denial before any policy change";
-      metric = "permission answers per 100 turns";
+        "review repeated requested-allow entries and inspect each requested-deny entry under the existing approval policy; counts alone do not establish safety or justify allowlisting";
+      metric = "permission response attempts per 100 turns";
       valueStr = per100;
       break;
     }
@@ -861,6 +889,7 @@ function wrapCollapsed(
 
 function renderMaintainerImprovements(
   improvements: LedgerImprovement[] | undefined,
+  inventoryKnown: boolean,
 ): RenderedSection | null {
   const maintainerImps = (improvements ?? []).filter(
     (imp) => imp.audience === "maintainer",
@@ -873,10 +902,11 @@ function renderMaintainerImprovements(
       const inventoryGaps = imp.values.inventoryGaps ?? 0;
       const unlinkedAgents = imp.values.unlinkedAgents ?? 0;
       const agentsCreated = imp.values.agentsCreated ?? 0;
+      const workerLabel = inventoryKnown ? "declared worker" : "estimated worker";
       const text =
         inventoryGaps > 0
           ? `Declared inventory gap: ${plural(inventoryGaps, "entry unread or unlinked")}; created-agent linkage lower bound: ${unlinkedAgents} of ${agentsCreated} (session-linkage).`
-          : `${unlinkedAgents} of ${agentsCreated} created agents have no session file read; Paseo agent sessions cannot be linked from the session file alone (session-linkage).`;
+          : `${unlinkedAgents} of ${plural(agentsCreated, workerLabel)} have no session file read; Paseo agent sessions cannot be linked from the session file alone (session-linkage).`;
       body += `<li>${escapeHtml(text)}</li>\n`;
     } else if (imp.rule === "tracker-not-measured") {
       const text =
@@ -933,17 +963,20 @@ function renderPermissionRequests(
   const answeredWithoutRequest = permissionRequestsClaim
     ? countOf(permissionRequestsClaim.values, "answeredWithoutRequest")
     : permissionRequests.answeredWithoutRequest;
+  const other = permissionRequestsClaim
+    ? countOf(permissionRequestsClaim.values, "otherVerdict")
+    : permissionRequests.tools.reduce((sum, r) => sum + r.other, 0);
 
   let body =
-    "<p>What agents asked permission for, and what was answered. Commands are shown as recorded, after best-effort removal of secrets (tokens, keys, passwords, credentials in URLs). Review before sharing this report.</p>\n";
+    "<p>Captured permission requests and their recorded response categories. Categories are observed request/response intents, not verified host enforcement. Commands are shown after best-effort removal of secrets (tokens, keys, passwords, credentials in URLs). Review before sharing this report.</p>\n";
   if (permissionRequests.requestCountsBasis !== undefined) {
     const requestBasis =
       permissionRequests.requestCountsBasis === "deduplicated-events"
-        ? "Request totals and tool/program breakdowns use deduplicated event identities."
-        : "Request totals and tool/program breakdowns are raw observations and may include duplicate requests.";
+        ? "With complete event capture, request totals and tool/program breakdowns deduplicate actor+request identities across nodes; the earliest valid timestamped response supplies each category (ties keep the first observed response)."
+        : "Event capture was incomplete, so request totals and tool/program breakdowns use raw observations and may include duplicates; cross-node matching is unavailable.";
     body += `<p>${escapeHtml(requestBasis)}</p>\n`;
   }
-  body += `<p>${plural(asked, "request")} from ${plural(agentsAsked, "agent")}; ${answered} answered (${allowed} allowed, ${denied} denied), ${unanswered} unanswered.</p>\n`;
+  body += `<p>${plural(asked, "request")} from ${plural(agentsAsked, "agent")}; ${answered} with recorded responses (${allowed} requested allow, ${denied} requested deny, ${other} other), ${unanswered} unanswered.</p>\n`;
   body += `<h4>By tool</h4>
 <div class="table-wrap">
 <table>
@@ -951,8 +984,8 @@ function renderPermissionRequests(
 <tr>
 <th>Tool</th>
 <th>Asked</th>
-<th>Allowed</th>
-<th>Denied</th>
+<th>Requested allow</th>
+<th>Requested deny</th>
 <th>Other</th>
 <th>Unanswered</th>
 </tr>
@@ -972,11 +1005,11 @@ function renderPermissionRequests(
 <tr>
 <th>Program</th>
 <th>Asked</th>
-<th>Allowed</th>
-<th>Denied</th>
+<th>Requested allow</th>
+<th>Requested deny</th>
 <th>Other</th>
 <th>Unanswered</th>
-<th>Allowed share %</th>
+<th>Requested allow share %</th>
 </tr>
 </thead>
 <tbody>\n`;
@@ -998,7 +1031,7 @@ function renderPermissionRequests(
     const listStr = allowlistCandidates
       .map((name) => escapeHtml(name))
       .join(", ");
-    body += `<p>Programs with at least 5 requested observations, some allowed, and no recorded denials are review candidates under the existing approval policy; counts alone do not establish safety or justify allowlisting: ${listStr}.</p>\n`;
+    body += `<p>Programs with at least 5 requests, some requested allow entries, and no requested-deny entries are review candidates under the existing approval policy; counts alone do not establish safety or justify allowlisting: ${listStr}.</p>\n`;
   }
 
   const deniedPrograms: string[] = [];
@@ -1010,11 +1043,11 @@ function renderPermissionRequests(
   }
   if (deniedPrograms.length > 0) {
     const listStr = deniedPrograms.map((name) => escapeHtml(name)).join(", ");
-    body += `<p>Denied requests show where the setup said no; read them before widening the allowlist: ${listStr}.</p>\n`;
+    body += `<p>Programs with recorded requested-deny entries identify commands to inspect before any allowlist change; whether the host enforced a denial is not recorded: ${listStr}.</p>\n`;
   }
   if (permissionRequests.commands && permissionRequests.commands.length > 0) {
     body += `<h4>Raw command observations</h4>
-<p>These per-node command counts may include duplicate requests. Unmatched counts describe observations, not unique unanswered requests.</p>
+<p>These per-node command rows always show raw observations and may differ from aggregate request totals. Unmatched counts describe observations, not unique unanswered requests.</p>
 <div class="table-wrap nowrap-first">
 <table>
 <thead>
@@ -1027,7 +1060,7 @@ function renderPermissionRequests(
 </thead>
 <tbody>\n`;
     for (const r of permissionRequests.commands) {
-      let verdicts = `${r.allow} allowed, ${r.deny} denied`;
+      let verdicts = `${r.allow} allow, ${r.deny} deny`;
       if (r.other > 0) {
         verdicts += `, ${r.other} other`;
       }
@@ -1058,17 +1091,26 @@ function renderPermissionRequests(
   }
 
   if (answeredWithoutRequest > 0) {
-    body += `<p>${answeredWithoutRequest} answers had no matching request in this session file (answered through a pending-permissions list).</p>\n`;
+    const basisDescription =
+      permissionRequests.requestCountsBasis === "deduplicated-events"
+        ? "deduplicated request-count basis"
+        : permissionRequests.requestCountsBasis === "raw-observations-may-duplicate"
+          ? "raw observation basis (duplicates possible)"
+          : "reported request-count basis";
+    body += `<p>${plural(answeredWithoutRequest, "unmatched response request-ID entry", "unmatched response request-ID entries")} on the same ${basisDescription}; these do not represent unique unanswered requests.</p>\n`;
   }
 
   body +=
     "<p>Programs are the first word of the command (after wrappers such as rtk proxy and env). Redaction is best effort: check the commands before sharing this report.</p>\n";
 
-  const headline = `${plural(asked, "request")}, ${denied} denied, ${unanswered} unanswered`;
+  const headline = `${plural(
+    asked,
+    "request",
+  )}, ${denied} requested deny, ${other} other, ${unanswered} unanswered`;
   const shouldOpen = denied > 0 || unanswered > 0 || hasGuardrailAct;
   const badge =
     denied > 0
-      ? `${denied} denied`
+      ? `${denied} requested deny`
       : unanswered > 0
         ? `${unanswered} unanswered`
         : String(asked);
@@ -1737,7 +1779,7 @@ function renderTrend(
           : formatMoney(r.costCentsPer100Turns),
     },
     {
-      label: "Permission answers per 100 turns",
+      label: "Permission response attempts per 100 turns",
       formatter: (r) =>
         r.permissionAnswersPer100TurnsTenths === null ||
         r.permissionAnswersPer100TurnsTenths === undefined
@@ -1845,7 +1887,7 @@ function renderAgentsTable(
 <th>Cached/turn</th>
 <th>Compactions</th>
 <th>Tool errors/calls</th>
-<th>Permission answers</th>
+<th>Permission response attempts</th>
 </tr>
 </thead>
 <tbody>\n`;
@@ -2074,7 +2116,10 @@ export function renderReportHtml(
       hasAct("agent-error-concentration") || hasAct("human-intervention"),
     ),
     renderLimits(inventory, friction),
-    renderMaintainerImprovements(vLedger.improvements),
+    renderMaintainerImprovements(
+      vLedger.improvements,
+      vLedger.inventory?.known === true,
+    ),
   ].filter((sec): sec is RenderedSection => sec !== null);
 
   const topNavHtml = renderTopNav(

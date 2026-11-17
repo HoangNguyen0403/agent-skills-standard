@@ -153,11 +153,15 @@ function renderDelegationSegment(
   const agentsCreated = coverageClaim
     ? countOf(coverageClaim.values, "agentsCreated")
     : ledger.counts.agentsCreated;
-  if (agentsCreated === 0) return "none created";
   const agentsRead = coverageClaim
     ? countOf(coverageClaim.values, "agentsRead")
     : 0;
-  return `${agentsRead} of ${plural(agentsCreated, "created agent")} read`;
+  const workerLabel =
+    ledger.inventory?.known === true ? "declared worker" : "estimated worker";
+  return `${plural(agentsRead, "worker file")} read of ${plural(
+    agentsCreated,
+    workerLabel,
+  )}`;
 }
 
 function renderManagerImprovement(imp: LedgerImprovement, k: number): string[] {
@@ -174,10 +178,19 @@ function renderManagerImprovement(imp: LedgerImprovement, k: number): string[] {
   switch (imp.rule) {
     case "guardrail-answers": {
       const per100 = formatRate(val.per100Tenths ?? 0);
-      title = `Permission answers: ${val.answers ?? 0} (${val.allow ?? 0} allowed, ${val.deny ?? 0} denied)`;
-      saw = `the report recorded ${val.answers ?? 0} respond_to_permission answer observations; ${val.targetsAtLeast3 ?? 0} agents had 3 or more; ${val.deny ?? 0} were denials. Answering actor and human provenance are not measured.`;
-      change = `review repeated requests and the existing approval policy; counts alone do not establish safety or justify allowlisting, and read each denial before any policy change`;
-      metric = "permission answers per 100 turns";
+      // Older ledgers carry no `other` value on this improvement; derive it from
+      // the recorded partition so the category is not silently reported as zero.
+      const other =
+        typeof val.other === "number"
+          ? val.other
+          : Math.max(
+              0,
+              (val.answers ?? 0) - (val.allow ?? 0) - (val.deny ?? 0),
+            );
+      title = `Permission response attempts: ${val.answers ?? 0} (${val.allow ?? 0} requested allow, ${val.deny ?? 0} requested deny, ${other} other)`;
+      saw = `the report recorded ${val.answers ?? 0} respond_to_permission call attempts; answering actor and human provenance are not measured, and host application is not recorded; ${val.targetsAtLeast3 ?? 0} agents were the target of 3 or more recorded attempts; ${val.deny ?? 0} were requested denials.`;
+      change = `review repeated requested-allow entries and inspect each requested-deny entry under the existing approval policy; counts alone do not establish safety or justify allowlisting`;
+      metric = "permission response attempts per 100 turns";
       valueStr = per100;
       break;
     }
@@ -261,14 +274,18 @@ function renderManagerImprovement(imp: LedgerImprovement, k: number): string[] {
   ];
 }
 
-function renderMaintainerImprovement(imp: LedgerImprovement): string | null {
+function renderMaintainerImprovement(
+  imp: LedgerImprovement,
+  inventoryKnown: boolean,
+): string | null {
   switch (imp.rule) {
     case "coverage-gap": {
       const inventoryGaps = imp.values.inventoryGaps ?? 0;
       if (inventoryGaps > 0) {
         return `- Declared inventory gap: ${plural(inventoryGaps, "entry unread or unlinked")}; created-agent linkage lower bound: ${imp.values.unlinkedAgents ?? 0} of ${imp.values.agentsCreated ?? 0} (session-linkage).`;
       }
-      return `- ${imp.values.unlinkedAgents ?? 0} of ${imp.values.agentsCreated ?? 0} created agents have no session file read; Paseo agent sessions cannot be linked from the session file alone (session-linkage).`;
+      const workerLabel = inventoryKnown ? "declared worker" : "estimated worker";
+      return `- ${imp.values.unlinkedAgents ?? 0} of ${plural(imp.values.agentsCreated ?? 0, workerLabel)} have no session file read; Paseo agent sessions cannot be linked from the session file alone (session-linkage).`;
     }
     case "tracker-not-measured":
       return `- Server tracker numbers cover this process only, so lookups that matched nothing and bodies returned are not measured for this session (tracker-binding).`;
@@ -332,19 +349,30 @@ function renderPermissionRequestsLine(
   const denied = permReqClaim
     ? countOf(permReqClaim.values, "denied")
     : pr.tools.reduce((sum, t) => sum + t.deny, 0);
-
+  const other = permReqClaim
+    ? countOf(permReqClaim.values, "otherVerdict")
+    : pr.tools.reduce((sum, t) => sum + t.other, 0);
+  const unmatchedAnswers = permReqClaim
+    ? countOf(permReqClaim.values, "answeredWithoutRequest")
+    : pr.answeredWithoutRequest;
   const basis =
-    pr.requestCountsBasis === undefined
-      ? ""
-      : `; ${
-          pr.requestCountsBasis === "deduplicated-events"
-            ? "deduplicated event counts"
-            : "raw observation counts (duplicates possible)"
-        }`;
+    pr.requestCountsBasis === "deduplicated-events"
+      ? "request totals and tool/program breakdowns deduplicate actor+request identities across nodes; the earliest valid timestamped response supplies the category (ties keep the first observed)"
+      : pr.requestCountsBasis === "raw-observations-may-duplicate"
+        ? "event capture is incomplete, so request totals and tool/program breakdowns use raw observations and may duplicate"
+        : "request-count basis not recorded";
   let line = `Permission requests: ${plural(asked, "request")} from ${plural(
     agentsAsked,
     "agent",
-  )}; ${answered} answered (${allowed} allowed, ${denied} denied), ${unanswered} unanswered${basis}.`;
+  )}; ${answered} answered (${allowed} requested allow, ${denied} requested deny, ${other} other), ${unanswered} unanswered; ${basis}. Permission-response totals separately count tool-call attempts.`;
+
+  if (unmatchedAnswers > 0) {
+    line += ` ${plural(
+      unmatchedAnswers,
+      "unmatched response request-ID entry",
+      "unmatched response request-ID entries",
+    )} use the same request-count basis; they do not represent unique unanswered requests.`;
+  }
 
   if (pr.tools && pr.tools.length > 0) {
     const topTools = pr.tools.slice(0, 3);
@@ -355,7 +383,8 @@ function renderPermissionRequestsLine(
   if (pr.programs && pr.programs.length > 0) {
     const topPrograms = pr.programs.slice(0, 5);
     const progParts = topPrograms.map(
-      (p) => `${p.name} ${p.asked} (${p.allow} allowed, ${p.deny} denied)`,
+      (p) =>
+        `${p.name} ${p.asked} (${p.allow} requested allow, ${p.deny} requested deny)`,
     );
     line += ` Top programs: ${progParts.join(", ")}.`;
   }
@@ -540,10 +569,12 @@ function renderLines(ledger: ViewLedger, options: RenderOptions): string[] {
     const workersCount =
       (agentsList.length > 0 ? agentsList.length - 1 : 0) +
       (ledger.otherAgents?.count ?? 0);
-    const agentDetail =
-      created === 0
-        ? "no agents were created"
-        : `${observed} of ${plural(created, "created agent")}`;
+    const workerLabel =
+      ledger.inventory?.known === true ? "declared worker" : "estimated worker";
+    const agentDetail = `${observed} worker files read of ${plural(
+      created,
+      workerLabel,
+    )}`;
     bottomLineParts.push(
       `Observed: main + ${plural(workersCount, "worker")} (${agentDetail}).`,
     );
@@ -572,12 +603,12 @@ function renderLines(ledger: ViewLedger, options: RenderOptions): string[] {
     );
   }
 
-  // Clause 3: Permission answers (permission-answers)
+  // Clause 3: Permission response attempts (permission-answers)
   if (permClaim) {
     const answers = countOf(permClaim.values, "answers");
     const deny = countOf(permClaim.values, "deny");
     bottomLineParts.push(
-      `${plural(answers, "recorded permission answer")} (${deny} denied).`,
+      `${plural(answers, "recorded permission response attempt")} (${deny} requested deny).`,
     );
   }
 
@@ -598,11 +629,14 @@ function renderLines(ledger: ViewLedger, options: RenderOptions): string[] {
   lines.push("");
   lines.push("## Scorecards");
 
-  // Guardrails scorecard line
   if (permClaim) {
     const answers = countOf(permClaim.values, "answers");
     const allow = countOf(permClaim.values, "allow");
     const deny = countOf(permClaim.values, "deny");
+    const other =
+      typeof permClaim.values.other === "number"
+        ? permClaim.values.other
+        : Math.max(0, answers - allow - deny);
     const askCalls = countOf(permClaim.values, "askCalls");
     const abortedStops = countOf(permClaim.values, "abortedStops");
     const targetsAtLeast3 = countOf(permClaim.values, "targetsAtLeast3");
@@ -610,11 +644,14 @@ function renderLines(ledger: ViewLedger, options: RenderOptions): string[] {
     const per100Tenths = turns > 0 ? Math.round((answers * 1000) / turns) : 0;
     const per100 = formatRate(per100Tenths);
     lines.push(
-      `Guardrails: ${plural(answers, "recorded permission answer")} (${per100} per 100 turns; ${allow} allowed, ${deny} denied); ${plural(askCalls, "ask-tool call")}; ${plural(abortedStops, "aborted stop")}; ${plural(targetsAtLeast3, "agent")} had 3 or more recorded answers.`,
+      `Guardrails: ${plural(
+        answers,
+        "recorded permission response attempt",
+      )} (${per100} per 100 turns; ${allow} requested allow, ${deny} requested deny, ${other} other; host application is not recorded); ${plural(askCalls, "ask-tool call")}; ${plural(abortedStops, "aborted stop")}; ${targetsAtLeast3} agents were the target of 3 or more recorded response attempts.`,
     );
   } else {
     lines.push(
-      "Guardrails: no recorded permission answers, ask-tool calls or aborted stops observed.",
+      "Guardrails: no permission-response attempts, ask-tool calls or aborted stops observed.",
     );
   }
 
@@ -846,7 +883,10 @@ function renderLines(ledger: ViewLedger, options: RenderOptions): string[] {
     const files = countOf(coverageClaim.values, "sessions");
     const skipped = countOf(coverageClaim.values, "skippedLines");
     lines.push(
-      `Coverage: ${observed} of ${plural(created, "created agent")} observed; observed workers: ${n} read-only, ${m} editing; ${plural(files, "session")} read in full (${plural(skipped, "line")} skipped).`,
+      `Coverage: ${observed} worker files read of ${plural(
+        created,
+        ledger.inventory?.known === true ? "declared worker" : "estimated worker",
+      )}; observed workers: ${n} read-only, ${m} editing; ${plural(files, "session")} read in full (${plural(skipped, "line")} skipped).`,
     );
   }
   // Outcome scorecard line
@@ -906,7 +946,10 @@ function renderLines(ledger: ViewLedger, options: RenderOptions): string[] {
     lines.push("");
     lines.push("## For the maintainer");
     for (const imp of selectedMaintainer) {
-      const bullet = renderMaintainerImprovement(imp);
+      const bullet = renderMaintainerImprovement(
+        imp,
+        ledger.inventory?.known === true,
+      );
       if (bullet) lines.push(bullet);
     }
   }

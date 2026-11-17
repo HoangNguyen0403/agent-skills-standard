@@ -3725,10 +3725,16 @@ describe("explicit manifest preparation ingress", () => {
     const summary = await fsp.readFile(firstPayload.views.summary, "utf8");
     expect(summary).toContain("Permission requests: 3 requests");
     expect(summary).toContain("1 answered");
-    expect(summary).toContain("deduplicated event counts");
+    expect(summary).toMatch(
+      /deduplicate actor\+request identities across nodes/,
+    );
+    expect(summary).toMatch(/earliest valid timestamped response/);
     const html = await fsp.readFile(firstPayload.views.html, "utf8");
-    expect(html).toContain("3 requests from 1 agent; 1 answered");
-    expect(html).toContain("deduplicated event identities");
+    expect(html).toMatch(
+      /\b3 requests from 1 agent; 1 with recorded responses\b/,
+    );
+    expect(html).toMatch(/deduplicate actor\+request identities across nodes/);
+    expect(html).toMatch(/earliest valid timestamped response/);
     expect(html).toContain("Raw command observations");
     expect(html).toContain("Unmatched counts describe observations");
 
