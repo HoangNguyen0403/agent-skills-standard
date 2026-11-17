@@ -9,10 +9,13 @@
       "default": "./dist/index.js"
     },
     "./session-journal-cli": "./dist/session-journal-cli.js",
+    "./dispatch-usage-cli": "./dist/dispatch-usage-cli.js",
     "./dist/index": "./dist/index.js",
     "./dist/index.js": "./dist/index.js",
     "./dist/session-journal-cli": "./dist/session-journal-cli.js",
     "./dist/session-journal-cli.js": "./dist/session-journal-cli.js",
+    "./dist/dispatch-usage-cli": "./dist/dispatch-usage-cli.js",
+    "./dist/dispatch-usage-cli.js": "./dist/dispatch-usage-cli.js",
     "./dist/windows-private.ps1": "./dist/windows-private.ps1",
     "./package.json": "./package.json",
     "./README.md": "./README.md",
@@ -22,7 +25,8 @@
   "bin": {
     "agent-skills-standard-mcp": "dist/index.js",
     "ags-mcp": "dist/index.js",
-    "ags-mcp-session-report": "dist/session-journal-cli.js"
+    "ags-mcp-session-report": "dist/session-journal-cli.js",
+    "ags-mcp-dispatch-usage": "dist/dispatch-usage-cli.js"
   },
   "files": [
     "dist",
@@ -30,7 +34,7 @@
     "SESSION_REPORT.md"
   ],
   "scripts": {
-    "build": "tsup src/index.ts src/session-journal-cli.ts --format cjs --target node20 --shims --clean && node -e \"require('node:fs').copyFileSync('src/retrospective/windows-private.ps1','dist/windows-private.ps1')\"",
+    "build": "tsup src/index.ts src/session-journal-cli.ts src/dispatch-usage-cli.ts --format cjs --target node20 --shims --clean && node -e \"require('node:fs').copyFileSync('src/retrospective/windows-private.ps1','dist/windows-private.ps1')\"",
     "dev": "tsx src/index.ts",
     "start": "node dist/index.js",
     "retrospective": "tsx src/index.ts retrospective",

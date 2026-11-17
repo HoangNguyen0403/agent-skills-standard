@@ -29,6 +29,12 @@ export interface SessionManifest {
     auxiliaryPurpose?: string;
     taskId?: string;
     parentTaskId?: string;
+    /**
+     * Binds this one transcript to its own native identity, not merely to
+     * membership in `expectedSessionIds` (SRS-010). Absent keeps the previous
+     * behaviour: membership in the declared inventory is the only check.
+     */
+    expectedSessionId?: string;
   }>;
   expectedSessionIds: string[];
   expectedActors?: ExpectedActor[];
@@ -149,7 +155,7 @@ function object(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-async function* boundedLines(
+export async function* boundedLines(
   stream: AsyncIterable<Buffer>,
 ): AsyncGenerator<{ line: string | null; tooLong: boolean }> {
   const decoder = new StringDecoder("utf8");
@@ -195,6 +201,40 @@ async function* boundedLines(
   const trailing = decoder.end();
   if (trailing) append(trailing);
   if (length > 0 || fragments.length > 0 || tooLong) yield finish();
+}
+
+/**
+ * Reads the native session header of a transcript's first meaningful row. One
+ * implementation is shared by the journal and the dispatch importer, so a
+ * transcript is bound to its identity the same way in both readers (SRS-010).
+ */
+export interface NativeSessionHeader {
+  id: string;
+  cwd: string;
+}
+
+export function nativeSessionHeader(
+  row: unknown,
+  format: SessionFormat,
+): NativeSessionHeader {
+  if (!object(row))
+    throw new Error(
+      "Native session header does not match its declared format.",
+    );
+  const codexHeader =
+    row.type === "session_meta" && object(row.payload) ? row.payload : null;
+  const ompHeader = row.type === "session" && row.version === 3 ? row : null;
+  const nativeId = format === "codex" ? codexHeader?.id : ompHeader?.id;
+  const nativeCwd = format === "codex" ? codexHeader?.cwd : ompHeader?.cwd;
+  if (
+    typeof nativeId !== "string" ||
+    !nativeId ||
+    typeof nativeCwd !== "string"
+  )
+    throw new Error(
+      "Native session header does not match its declared format.",
+    );
+  return { id: nativeId, cwd: nativeCwd };
 }
 
 function safeModel(value: unknown): string | null {
@@ -263,6 +303,13 @@ function readManifest(value: unknown): SessionManifest {
       throw new Error("Auxiliary sessions require an auxiliaryPurpose label.");
     if (entry.role !== "auxiliary" && entry.auxiliaryPurpose !== undefined)
       throw new Error("auxiliaryPurpose is only valid for auxiliary sessions.");
+    if (
+      entry.expectedSessionId !== undefined &&
+      (typeof entry.expectedSessionId !== "string" || !entry.expectedSessionId)
+    )
+      throw new Error(
+        "A per-session expectedSessionId must be a non-empty native identity.",
+      );
     return {
       path: entry.path,
       format: entry.format as SessionFormat,
@@ -270,6 +317,9 @@ function readManifest(value: unknown): SessionManifest {
       attemptOutcome: entry.attemptOutcome as AttemptOutcome | null,
       ...(typeof entry.auxiliaryPurpose === "string"
         ? { auxiliaryPurpose: entry.auxiliaryPurpose }
+        : {}),
+      ...(typeof entry.expectedSessionId === "string"
+        ? { expectedSessionId: entry.expectedSessionId }
         : {}),
       taskId: readLabel(entry.taskId, "taskId") ?? undefined,
       parentTaskId: readLabel(entry.parentTaskId, "parentTaskId") ?? undefined,
@@ -861,24 +911,10 @@ export async function collectSessionJournal(
         )
           continue;
         if (sessionId === null) {
-          const codexHeader =
-            row.type === "session_meta" && object(row.payload)
-              ? row.payload
-              : null;
-          const ompHeader =
-            row.type === "session" && row.version === 3 ? row : null;
-          const nativeId =
-            session.format === "codex" ? codexHeader?.id : ompHeader?.id;
-          const nativeCwd =
-            session.format === "codex" ? codexHeader?.cwd : ompHeader?.cwd;
-          if (
-            typeof nativeId !== "string" ||
-            !nativeId ||
-            typeof nativeCwd !== "string"
-          )
-            throw new Error(
-              "Native session header does not match its declared format.",
-            );
+          const { id: nativeId, cwd: nativeCwd } = nativeSessionHeader(
+            row,
+            session.format,
+          );
           const nativeWorkspace = await realpath(nativeCwd).catch(() => null);
           if (nativeWorkspace !== workspace)
             throw new Error("Native session workspace mismatch with manifest.");
@@ -889,6 +925,13 @@ export async function collectSessionJournal(
           if (!manifest.expectedSessionIds.includes(nativeId))
             throw new Error(
               "Native session identity is not declared in expected inventory.",
+            );
+          if (
+            session.expectedSessionId !== undefined &&
+            session.expectedSessionId !== nativeId
+          )
+            throw new Error(
+              "Native session identity does not match its declared expected identity.",
             );
           selectedIds.add(nativeId);
           sessionId = nativeId;
