@@ -121,9 +121,9 @@ Type: feature slice. Estimate: S, confidence medium. Routing: tier=medium. Trace
 **Handoff / freeze:** the implementer's report marked FINAL freezes the owned writes and lists changed paths, RED and GREEN output, and remaining risks. Source freeze precedes review.
 **Correction route:** one corrective follow-up naming the failed AC; if that also fails, the slice moves to "Personal · Delivery". No automatic premium.
 
-- [ ] Write the failing tests for AC-001 to AC-014 with fixture runs in a temporary directory, and observe them fail for the expected reason.
-- [ ] Implement the comparison and its output.
-- [ ] Update `docs/EVALS.md` and `CHANGELOG.md`.
+- [x] Write the failing tests for AC-001 to AC-014 with fixture runs in a temporary directory, and observe them fail for the expected reason.
+- [x] Implement the comparison and its output.
+- [x] Update `docs/EVALS.md` and `CHANGELOG.md`.
 
 Error boundaries: every read and every computation added for the comparison is contained, so that a failure becomes state `unavailable` with a reason. A case definition that cannot be resolved makes that case-arm definition-changed, never comparable.
 
@@ -139,7 +139,7 @@ Decision boundary: if a requirement cannot be met without touching a path outsid
 
 - `feature_status`: implemented; local verification and independent technical review complete. Remote CI and human acceptance are not assessed.
 - Run record: not written. Packets, reports, review packages and command output are kept under `.agent/sdd/prd-agent-eval-trajectory-evidence/` (untracked).
-- Nothing is committed. No model call, eval run, merge, release or activation was performed.
+- Implementation commit: `98833a3f5839f0dedb87d5a91f146952ea1f8e15`. No model call, eval run, merge, release or activation was performed.
 
 ## Verified Delivery
 
