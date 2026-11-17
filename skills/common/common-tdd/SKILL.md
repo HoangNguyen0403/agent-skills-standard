@@ -50,7 +50,7 @@ Create one Test Intent Record per behavior/risk (see `references/quality-contrac
 ## Layered Acceptance Protocol
 
 1. **Source-Ready:** Complete owned source delivered at known source/build identity (`git rev-parse HEAD` + dirty identity). Build, lint, and typecheck recorded (`PASS`, `FAIL`, `NOT RUN`, `NOT APPLICABLE` with scope reasons).
-2. **Focused Checks:** Unit, component, or contract targets covering owned slices. Derive test count and membership from raw runner output. Reject early zero-exit completions and no-listener runs.
+2. **Focused Checks:** Unit, component, or contract targets covering owned slices. Derive test count and membership from raw runner output. Reject early zero-exit completions and no-listener runs (zero assertions executed).
 3. **Consumer-Smoke:** Actual producer-to-consumer integration verifying outward side effects through real entrypoints (not mock echoes). Required where scope touches service boundaries or consumer contracts.
 4. **Independent Review:** Separate task review checking specification compliance, code quality, boundaries, and security.
 5. **Human Acceptance:** Explicit sign-off by human partner or authorized operator. Required for milestones/releases; agents cannot provide it.
@@ -64,7 +64,7 @@ Later edits invalidate affected proof only; rerun affected gates without weakeni
 - Red flags and rationalizations to reject: `add tests after`, `too small`, `passed first run`, `run the full suite again`, `mock every collaborator`, or `implementation is the oracle`. Urgency, manual testing, test count, or coverage target never bypasses intent record, expected RED, bounded command, or fault proof.
 ## Core Rules & Banned Smells
 
-- Verify one logical contract per test; multiple assertions allowed for related aspects/side effects. Keep test names behavior-focused, without ticket IDs or TODO/FIXME markers.
+- Verify one logical contract per test; multiple assertions allowed for related aspects/side effects. Behavior-focused names; ban placeholder names like 'test 1' or 'sample' (`GUARD-UNIV-NAME`); no ticket IDs, TODO, or FIXME markers.
 - Assert observable outcomes and outward side effects, not mock choreography or call sequences. Mock external boundaries only when isolation requires it; prefer real pure/domain behavior and simple fakes.
 - Non-identity calculation fixtures (`GUARD-UNIV-IDENTITY-FIXTURE`): Never bind active operands (`discount`, `rebate`, `fee`, `tax`, `mov_threshold`) to `0`, `0.0`, `""`, or empty collections while asserting non-zero business outcomes.
 - Independent clause flipping: For compound `&&`/`||` guards (e.g. market checks + feature flags), assert each clause independently flips the result.

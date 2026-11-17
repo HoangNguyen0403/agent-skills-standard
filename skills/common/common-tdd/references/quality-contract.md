@@ -126,10 +126,10 @@ test('calculates final invoice total with discount', () => {
 });
 
 // ✅ GOOD: Distinct non-zero active operands detect sign and formula mutations
-test('calculates final invoice total with discount and tax', () => {
-  const order = { subtotal: 100, discount: 15, taxRate: 0.10 };
-  // (100 - 15) * 1.10 = 93.50
-  expect(calculateTotal(order)).toBe(93.50);
+test('calculates final invoice total with discount and delivery fee', () => {
+  const order = { subtotal: 100, discount: 15, deliveryFee: 10 };
+  // 100 - 15 + 10 = 95
+  expect(calculateTotal(order)).toBe(95);
 });
 ```
 
