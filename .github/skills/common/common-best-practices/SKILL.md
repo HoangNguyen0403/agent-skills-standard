@@ -39,6 +39,13 @@ metadata:
 - **Comments**: Explain **why**, not **what**. Refactor bad code; don't comment it.
 - **Input**: Validate/sanitize all external inputs.
 
+## Ownership Contract
+
+- Inside files you were assigned or changed: you own the code. Merge duplicates you touch, delete code your change orphans, fix defects in code you modify, leave it better-structured.
+- Outside those files: report with `path:line`; do not edit.
+- Do not change public API contracts, persisted schemas, or dependencies without a recorded decision; see [common-decision-discipline](../common-decision-discipline/SKILL.md).
+- Scope growth beyond roughly 2x the planned diff: stop and report.
+
 ## Anti-Patterns
 
 - **No Hardcoded Constants**: Use named config/env vars.

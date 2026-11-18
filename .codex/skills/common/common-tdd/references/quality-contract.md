@@ -81,6 +81,7 @@ Illustrative shape only matching SRS §4.1 `Intent` schema. The `sha256` digest 
 | `invalid_red` | Import, syntax, fixture, mock, or environment defect (setup failure is not behavioral RED) | Repair test setup; do not change production |
 | `unexpected_green` | Behavior already exists or test is redundant | Inspect existing coverage and revise/remove case |
 | `verification_infra_failed` | Runner missing, timeout, or orphaned process | Stop, clean owned processes, report exact command/error |
+
 ## Escalation ladder
 
 1. Lint/type preflight when configured.
@@ -100,6 +101,7 @@ Acceptance separates five independently tracked delivery layers whose applicabil
 5. **Human Acceptance:** Explicit sign-off by human partner or authorized business operator. Required for product milestones, external releases, or gated deployments. Where required, remains pending until an authorized human acts; agents cannot provide it.
 
 Each applicable layer requires: source/build identity, actual entrypoint/assertion, and result artifact. Inapplicable layers are recorded as `NOT APPLICABLE` with scope reasons, never marked `PASS` or silently dropped.
+
 ## Runner Output Parsing & Rejection Rules
 
 - **Derive Count and Membership from Output:** Test suite membership and test count must be derived directly from raw runner output. Never accept summary exit status or generic success banners alone.
@@ -108,135 +110,6 @@ Each applicable layer requires: source/build identity, actual entrypoint/asserti
 - **Actual Producer→Consumer Proof:** Verification must exercise the actual producer-to-consumer path and verify outward side effects, not mock choreography.
 - **Invalidation on Later Edits:** If source files are modified after focused checks or consumer smoke, only affected gates are invalidated and must be rerun on the final source revision; unrelated previous gates remain valid.
 
-## Universal Anti-Slop Rules & Code Examples
+## Universal Anti-Slop Rules
 
-### 1. Companion-File Reuse & Twin File Migration (`GUARD-TS-DUAL-EXT`)
-Before creating a new test file, inspect the folder for existing test files:
-- **Reuse Existing Test Suites:** If a test file exists (e.g. `pricing.test.ts`), add new parameterized test cases or describe blocks to that file rather than creating a separate sidecar (e.g. `pricing.spec.ts` or `pricing_v2.test.ts`) with duplicate mocks and fixtures.
-- **Migrate Twin Files:** Never leave `<stem>.test.js` and `<stem>.test.ts` coexisting in the same directory. When adding tests, migrate and replace the legacy `.js` test with `.ts` in the same change.
-
-### 2. Non-Identity Calculation Fixtures (`GUARD-UNIV-IDENTITY-FIXTURE`)
-When testing calculations, discount formulas, tax calculations, or minimum order value (MOV) thresholds, active operands must never be bound to identity or zero values (`0`, `0.0`, `""`, empty collection) unless explicitly testing that zero boundary.
-
-```typescript
-// ❌ BAD: Identity fixture masks mutant inverting operator (total = price - discount vs total = price + discount)
-test('calculates final invoice total with discount', () => {
-  const order = { subtotal: 100, discount: 0, tax: 0 };
-  expect(calculateTotal(order)).toBe(100);
-});
-
-// ✅ GOOD: Distinct non-zero active operands detect sign and formula mutations
-test('calculates final invoice total with discount and delivery fee', () => {
-  const order = { subtotal: 100, discount: 15, deliveryFee: 10 };
-  // 100 - 15 + 10 = 95
-  expect(calculateTotal(order)).toBe(95);
-});
-```
-
-### 3. Independent Clause Flipping for Compound Guards
-When a logical branch depends on compound clauses (`if (clauseA && clauseB)` or `if (clauseA || clauseB)`), such as market code checks combined with feature flags, tests must assert each clause independently flipping the result.
-
-```typescript
-// ❌ BAD: Holding one clause permanently true tests only one branch
-test('permits express shipping for SG market', () => {
-  expect(canExpressShip({ market: 'SG', flagEnabled: true })).toBe(true);
-  expect(canExpressShip({ market: 'MY', flagEnabled: false })).toBe(false); // Both flipped together!
-});
-
-// ✅ GOOD: Test each clause independently flipping the outcome
-test.each([
-  { market: 'SG', flagEnabled: true, expected: true },
-  { market: 'SG', flagEnabled: false, expected: false }, // Flag flips false
-  { market: 'MY', flagEnabled: true, expected: false },  // Market flips false
-  { market: 'MY', flagEnabled: false, expected: false },
-])('canExpressShip($market, $flagEnabled) -> $expected', ({ market, flagEnabled, expected }) => {
-  expect(canExpressShip({ market, flagEnabled })).toBe(expected);
-});
-```
-
-### 4. Ban Tautological Assertions (`GUARD-UNIV-TAUTOLOGY`)
-Assertions must compare actual system output against an independent expectation, never self-referential comparisons or constant evaluations.
-
-```typescript
-// ❌ BAD: Tautological assertions passing regardless of implementation
-expect(result).toBe(result);
-expect(result.status === 'OK').toBe(result.status === 'OK');
-expect(true).toBe(true);
-
-// ✅ GOOD: Assert against independent contract value
-expect(result.status).toBe('OK');
-```
-
-### 5. Ban Skipped and Focused Tests (`GUARD-UNIV-SKIP`, `GUARD-UNIV-FOCUS`)
-Never commit disabled or focused tests:
-- TypeScript: `it.skip`, `describe.skip`, `it.only`, `describe.only`, `fit`, `fdescribe`.
-- Go: unconditional `t.Skip("TODO")`.
-- Java/Kotlin: `@Ignore`, `@Disabled`.
-- Dart: `skip: true`, `solo: true`.
-
-### 6. TypeScript Async & Promise Trap Invariants
-
-#### Floating Promises (`GUARD-TS-FLOATING-ASSERT`)
-```typescript
-// ❌ BAD: Unawaited promise assertion runs floating; runner exits before promise resolves
-it('validates user token', () => {
-  expect(authService.verifyToken(token)).resolves.toEqual(user);
-});
-
-// ✅ GOOD: Await promise assertion
-it('validates user token', async () => {
-  await expect(authService.verifyToken(token)).resolves.toEqual(user);
-});
-```
-
-#### Catch-Only Assertions (`GUARD-TS-CATCH-ONLY`)
-```typescript
-// ❌ BAD: If processPayment() succeeds, catch block is skipped and test passes vacuously!
-it('throws on negative amount', async () => {
-  try {
-    await processPayment(-50);
-  } catch (err: any) {
-    expect(err.message).toMatch(/invalid amount/);
-  }
-});
-
-// ✅ GOOD: Use rejects matcher or explicit try failure guard
-it('throws on negative amount', async () => {
-  await expect(processPayment(-50)).rejects.toThrow(/invalid amount/);
-});
-```
-
-#### Conditional Assertions (`GUARD-TS-CONDITIONAL-ASSERT`)
-```typescript
-// ❌ BAD: If users array is empty, loop body and assertions never execute
-it('parses user list', async () => {
-  const users = await fetchUsers();
-  if (users.length > 0) {
-    expect(users[0].id).toBeDefined();
-  }
-});
-
-// ✅ GOOD: Assert collection length first, then check elements unconditionally
-it('parses user list', async () => {
-  const users = await fetchUsers();
-  expect(users).toHaveLength(1);
-  expect(users[0].id).toBe('user-123');
-});
-```
-
-#### Test Double Self-Mocking & Mocked SUT (`GUARD-TS-SELF-MOCK`, `GUARD-TS-MOCKED-SUT`)
-```typescript
-// ❌ BAD: Invoking mock directly just to assert it was called (tests nothing)
-const mockFn = jest.fn();
-mockFn('hello');
-expect(mockFn).toHaveBeenCalledWith('hello');
-
-// ❌ BAD: Auto-mocking the System Under Test (SUT)
-jest.mock('./OrderService'); // Mocking the very class being tested!
-
-// ✅ GOOD: Mock external collaborator, invoke real SUT, assert outward outcome
-const mockNotifier = { send: jest.fn() };
-const service = new OrderService(mockNotifier);
-await service.completeOrder(orderId);
-expect(mockNotifier.send).toHaveBeenCalledWith(expect.objectContaining({ orderId }));
-```
+Rule bodies, IDs, and examples live once in [anti-slop-rules.md](anti-slop-rules.md). Load it when writing or reviewing any test; do not restate its rules here or in stack skills.

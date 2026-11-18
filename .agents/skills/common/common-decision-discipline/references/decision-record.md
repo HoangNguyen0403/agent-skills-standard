@@ -44,3 +44,24 @@ record_decision({
 ```
 
 Use the MCP tool's structured arguments; include `basis`, `impact`, `reversible`, and `label` every time. Include `ruleRef` exactly for `rule` basis. The tool receipt confirms recording only; all figures remain agent-declared and unverified.
+
+## Supersede And Invalidate
+
+Specs are not frozen. When a decision changes approved scope, contract, or a requirement, record it ADR-lite:
+
+```text
+id: DEC-<n>                               # stable within the work item
+date: <YYYY-MM-DD>                        # bookkeeping only; never the ordering key
+decision: <one line: what changed and why>
+supersedes: [DEC-<id>]                    # prior decisions this replaces; [] when none
+supersedes_approval: <approval ref @ rev> # approval this decision supersedes
+invalidates: [REQ-<id>, AC-<id>, SRS-<id>] # approved items this voids; [] when none
+approver: <human>                         # human required for scope, contract, or safety changes
+```
+
+- `supersedes_approval`: the approval revision this decision retires. Ordering follows approval lineage, not dates or Git revisions, so same-day approval then invalidation stays detectable.
+- `supersedes`: listed decisions stop governing once this record is approved; later work cites the new id, never the old one.
+- `invalidates`: listed REQ/AC/SRS ids no longer hold. Every slice citing one is `BLOCKED-STALE` until a newer approval references this decision id as its resolution.
+- Resolution covers only the invalidated items; unaffected criteria keep their approved revision and need no re-plan.
+- An agent may draft such a record as pending approval; it never approves a scope or contract change itself.
+- Field semantics are defined here only. Workflows reference this section instead of restating it.
