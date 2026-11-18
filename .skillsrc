@@ -6,18 +6,18 @@ agents:
   - claude
 skills:
   typescript:
-    ref: typescript-v1.3.4
+    ref: typescript-v1.3.5
   common:
-    ref: common-v2.9.4
+    ref: common-v2.9.9
   product-management:
-    ref: product-management-v1.0.2
+    ref: product-management-v1.0.4
     include:
       - product-business-requirements
       - product-requirements
   quality-engineering:
-    ref: quality-engineering-v1.6.2
+    ref: quality-engineering-v1.6.4
   system-design:
-    ref: system-design-v1.2.5
+    ref: system-design-v1.2.8
   cybersecurity:
     ref: cybersecurity-v1.0.2
 custom_overrides: []
@@ -55,8 +55,8 @@ workflows:
   - cyber-triage
   - cyber-purple-validation
   - mcp-security-assessment
-workflows_ref: workflows-v2.1.1
-specialists_ref: specialists-v1.5.2
+workflows_ref: workflows-v2.1.5
+specialists_ref: specialists-v1.5.3
 mcp:
   enabled: true
   scope: project

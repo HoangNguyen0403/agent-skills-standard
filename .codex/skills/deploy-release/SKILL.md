@@ -41,7 +41,7 @@ Goal: Execute one authorized cloud operation, or ship verified work with explici
    - `release_confidence` is `high`, or `medium` with documented risk; `low` is NO-GO without a written release-owner override.
 4. Prepare, stage, promote, and inspect:
    - Identify version, environment, action set, artifact identity, owner, and rollback command or revert path; confirm secrets, config, queues, cron, and external services.
-   - Deploy to staging first when available, rehearse rollback there, and run smoke checks; promote only if smoke passes. For declared rollout gates, stage exposure only within the existing bound release-owner grant, check approved guardrails between stages, and stop/rollback on failure. Without a declared gate, retain this staging/smoke path; declaration grants no authority.
+   - Deploy to staging first when available, rehearse the rollback there, and run smoke checks; promote only when smoke passes.
    - Set a bounded post-release observation window; after promotion, inspect applicable provider logs, metrics, errors, latency, and core user flows. Record telemetry gaps explicitly; missing telemetry is not healthy. Failure signals stop rollout and route to `incident-hotfix`; roll back per defined criteria.
    - Recheck target, principal continuity, permission, approval expiry, and fresh harm immediately before promotion; reconcile actual resource state after any timeout before retrying; verify the live target origin, never a provider success flag alone.
 5. Stop on harm and route ownership:
