@@ -150,7 +150,15 @@ export interface Baseline {
   generatedPathGlobs: readonly string[];
   listUnavailable: string | null;
   prs: BaselinePr[];
+  /** Chronological authored-line series for `docs/ops/bands.yaml` (see `json-series.ts`). */
+  records: BaselineRecord[];
   summary: BaselineSummary;
+}
+
+/** One `{ records: [...] }` point: `json-series.ts` reads `date` by default. */
+export interface BaselineRecord {
+  date: string;
+  authoredLines: number;
 }
 
 export interface CliOptions {
@@ -274,8 +282,22 @@ function unavailableBaseline(window: BaselineWindow, reason: string, repo: strin
     generatedPathGlobs: GENERATED_PATH_GLOBS,
     listUnavailable: reason,
     prs: [],
+    records: [],
     summary: summarize([], false),
   };
+}
+
+/**
+ * Chronological `{ date, authoredLines }` points for control bands. An unavailable
+ * count is omitted from the series, never written as zero; `prs[]` still carries it.
+ */
+function baselineRecords(prs: readonly BaselinePr[]): BaselineRecord[] {
+  const records: BaselineRecord[] = [];
+  for (const pr of prs) {
+    if (typeof pr.authoredLines !== "number") continue;
+    records.push({ date: pr.mergedAt, authoredLines: pr.authoredLines });
+  }
+  return records.sort((left, right) => Date.parse(left.date) - Date.parse(right.date));
 }
 
 /**
@@ -328,6 +350,7 @@ export async function buildBaseline(
     generatedPathGlobs: GENERATED_PATH_GLOBS,
     listUnavailable: null,
     prs,
+    records: baselineRecords(prs),
     summary: summarize(prs),
   };
 }

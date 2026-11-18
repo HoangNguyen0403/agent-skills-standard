@@ -51,6 +51,7 @@
     "metrics:report": "tsx scripts/metrics/index.ts",
     "metrics:check": "tsx scripts/metrics/index.ts --check",
     "metrics:pr-baseline": "tsx scripts/metrics/pr-baseline.ts",
+    "metrics:github-export": "tsx scripts/metrics/github-export.ts",
     "test:cov": "pnpm -r test:cov",
     "release:manifest": "tsx scripts/release/build-manifest.ts",
     "release-all-skills": "tsx scripts/release-all-skills.ts",

@@ -24,6 +24,7 @@ import {
   type RawPullFile,
   type RawPullRequest,
 } from "./pr-baseline";
+import { readJsonRecordSeries } from "./json-series";
 
 const WINDOW: BaselineWindow = { mode: "limit", limit: 100 };
 
@@ -190,6 +191,51 @@ test("buildBaseline marks an unfetchable PR unavailable, never zero, and exclude
   assert.equal(baseline.summary.mergedUnder2h, 2);
 });
 
+test("buildBaseline emits a chronological records series for bands, omitting unavailable PRs", async () => {
+  const baseline = await buildBaseline(
+    "owner/repo",
+    WINDOW,
+    fakeFetcher({
+      list: {
+        available: true,
+        value: [
+          pull(2, "2026-01-02T00:00:00Z", "2026-01-03T00:00:00Z"),
+          pull(1, "2026-01-01T00:00:00Z", "2026-01-02T00:00:00Z"),
+          pull(3, "2026-01-03T00:00:00Z", "2026-01-04T00:00:00Z"),
+        ],
+      },
+      files: {
+        1: { available: true, value: [file("scripts/a.ts", 5)] },
+        2: { available: false, reason: "HTTP 502" },
+        3: { available: true, value: [file("scripts/c.ts", 0, 7)] },
+      },
+      reviews: {},
+    }),
+  );
+
+  assert.deepEqual(baseline.records, [
+    { date: "2026-01-02T00:00:00Z", authoredLines: 5 },
+    { date: "2026-01-04T00:00:00Z", authoredLines: 7 },
+  ]);
+  assert.equal(baseline.prs.length, 3, "the unavailable PR stays in prs[]");
+  assert.equal(baseline.summary.excludedFromMedians, 1);
+
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "pr-baseline-records-"));
+  const relative = path.join("artifacts", "agent-factory-controls", "baseline.json");
+  fs.mkdirSync(path.dirname(path.join(root, relative)), { recursive: true });
+  fs.writeFileSync(path.join(root, relative), JSON.stringify(baseline), "utf8");
+  assert.deepEqual(
+    readJsonRecordSeries(root, relative, "authoredLines")?.map((point) => ({
+      value: point.value,
+      date: point.date?.toISOString(),
+    })),
+    [
+      { value: 5, date: "2026-01-02T00:00:00.000Z" },
+      { value: 7, date: "2026-01-04T00:00:00.000Z" },
+    ],
+  );
+});
+
 test("buildBaseline keeps unavailable collection totals null", async () => {
   const unavailableList = await buildBaseline(
     "owner/repo",
@@ -203,6 +249,7 @@ test("buildBaseline keeps unavailable collection totals null", async () => {
 
   assert.equal(unavailableList.listUnavailable, "gh: not authenticated");
   assert.deepEqual(unavailableList.prs, []);
+  assert.deepEqual(unavailableList.records, []);
   assert.equal(unavailableList.summary.count, 0);
   assert.equal(unavailableList.summary.authoredLines.total, null);
   assert.equal(unavailableList.summary.generatedLines.total, null);
@@ -222,6 +269,7 @@ test("buildBaseline reports successful empty list as observed zero", async () =>
   );
 
   assert.equal(baseline.listUnavailable, null);
+  assert.deepEqual(baseline.records, []);
   assert.equal(baseline.summary.count, 0);
   assert.equal(baseline.summary.authoredLines.total, 0);
   assert.equal(baseline.summary.generatedLines.total, 0);
