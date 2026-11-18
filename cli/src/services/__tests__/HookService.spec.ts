@@ -24,6 +24,33 @@ describe('HookService', () => {
     await fs.remove(root);
   });
 
+  describe('embedded hook script sync', () => {
+    function findRepoRoot(start: string): string {
+      let dir = start;
+      for (;;) {
+        const hasHook = fs.existsSync(
+          path.join(dir, '.github/hooks/preedit-skill-loader.js'),
+        );
+        if (hasHook && fs.existsSync(path.join(dir, 'cli/package.json'))) {
+          return dir;
+        }
+        const parent = path.dirname(dir);
+        if (parent === dir) throw new Error(`repo root not found from ${start}`);
+        dir = parent;
+      }
+    }
+
+    it.each([
+      '.claude/hooks/preedit-skill-loader.js',
+      '.github/hooks/preedit-skill-loader.js',
+      '.codex/hooks/preedit-skill-loader.js',
+    ])('%s is byte-identical to the embedded script', (rel) => {
+      const repoRoot = findRepoRoot(process.cwd());
+      const installed = fs.readFileSync(path.join(repoRoot, rel), 'utf8');
+      expect(installed).toBe(UNIVERSAL_SKILL_LOADER_JS);
+    });
+  });
+
   // ── Claude Code ──────────────────────────────────────────────────────────────
 
   describe('install — Claude', () => {
@@ -718,7 +745,7 @@ describe('HookService', () => {
   describe('UNIVERSAL_SKILL_LOADER_JS enforce mode (real subprocess)', () => {
     function runHook(
       input: Record<string, unknown>,
-      env: Record<string, string>,
+      env: Record<string, string | undefined>,
     ): { code: number | null; stdout: string; stderr: string } {
       const result = spawnSync('node', ['-e', UNIVERSAL_SKILL_LOADER_JS], {
         input: JSON.stringify(input),
@@ -1021,6 +1048,359 @@ describe('HookService', () => {
       } finally {
         await fs.remove(projDir);
       }
+    });
+
+    describe('transcript enforcement', () => {
+      let projDir: string;
+
+      beforeEach(async () => {
+        projDir = await fs.mkdtemp(path.join(os.tmpdir(), 'hook-transcript-'));
+      });
+
+      afterEach(async () => {
+        await fs.remove(projDir);
+      });
+
+      function writeTranscript(entries: unknown[]): string {
+        const file = path.join(projDir, 'session.jsonl');
+        fs.writeFileSync(
+          file,
+          entries.map((e) => JSON.stringify(e)).join('\n') + '\n',
+        );
+        return file;
+      }
+
+      function skillCall(name: string, files: string[]) {
+        return {
+          type: 'assistant',
+          message: {
+            role: 'assistant',
+            content: [{ type: 'tool_use', id: 'toolu_1', name, input: { files } }],
+          },
+        };
+      }
+
+      it('allows the edit when the transcript has an exact-path MCP call', () => {
+        const target = path.join(projDir, 'src/app.ts');
+        const transcript = writeTranscript([
+          { type: 'user', message: { role: 'user', content: 'go' } },
+          skillCall('mcp__agent-skills-standard__load_skills_for_files', [
+            'src/app.ts',
+          ]),
+        ]);
+
+        const result = runHook(
+          {
+            tool_name: 'Edit',
+            tool_input: { file_path: target },
+            transcript_path: transcript,
+          },
+          { AGS_HOOK_ENFORCE: '1', CLAUDE_PROJECT_DIR: projDir },
+        );
+
+        expect(result.code).toBe(0);
+        expect(result.stdout).toContain('SKILL TRIGGER');
+        expect(result.stderr).not.toContain('AGS BLOCKED');
+      });
+
+      it('allows a same-extension edit from a relative transcript path', () => {
+        const target = path.join(projDir, 'src/other.ts');
+        const transcript = writeTranscript([
+          skillCall('load_skills_for_files', ['./src/app.ts']),
+        ]);
+
+        const result = runHook(
+          {
+            tool_name: 'Write',
+            tool_input: { file_path: target },
+            transcript_path: transcript,
+          },
+          { AGS_HOOK_ENFORCE: '1', CLAUDE_PROJECT_DIR: projDir },
+        );
+
+        expect(result.code).toBe(0);
+      });
+
+      it.each(['.github-extra', '.claude-foo'])(
+        'does not skip lookalike directory %s in enforce mode',
+        (dirName) => {
+          const target = path.join(projDir, dirName, 'app.ts');
+          const transcript = writeTranscript([{ type: 'user' }]);
+
+          const result = runHook(
+            {
+              tool_name: 'Edit',
+              tool_input: { file_path: target },
+              transcript_path: transcript,
+            },
+            { AGS_HOOK_ENFORCE: '1', CLAUDE_PROJECT_DIR: projDir },
+          );
+
+          expect(result.code).toBe(2);
+          expect(result.stderr).toContain('[AGS BLOCKED]');
+          expect(result.stdout).not.toContain('SKILL TRIGGER');
+        },
+      );
+
+      it('still applies the transcript gate when AGS_POLICY_BYPASS=1', async () => {
+        await fs.ensureDir(path.join(projDir, '.ags'));
+        await fs.writeJson(path.join(projDir, '.ags/policy.json'), {
+          schema_version: 1,
+          rules: [
+            {
+              id: 'no-gen',
+              kind: 'protected_path',
+              paths: ['internal/gen/**'],
+              action: 'block',
+              reason: 'Generated code',
+            },
+          ],
+        });
+        const target = path.join(projDir, 'internal/gen/x.ts');
+        const transcript = writeTranscript([{ type: 'user' }]);
+
+        const result = runHook(
+          {
+            tool_name: 'Edit',
+            tool_input: { file_path: target },
+            transcript_path: transcript,
+          },
+          {
+            AGS_HOOK_ENFORCE: '1',
+            AGS_POLICY_BYPASS: '1',
+            CLAUDE_PROJECT_DIR: projDir,
+          },
+        );
+
+        expect(result.code).toBe(2);
+        expect(result.stderr).toContain('bypass active: waived no-gen');
+        expect(result.stderr).toContain(
+          'No load_skills_for_files() call covering internal/gen/x.ts',
+        );
+      });
+
+      it('allows a bypassed edit once the transcript covers the file', async () => {
+        await fs.ensureDir(path.join(projDir, '.ags'));
+        await fs.writeJson(path.join(projDir, '.ags/policy.json'), {
+          schema_version: 1,
+          rules: [
+            {
+              id: 'no-gen',
+              kind: 'protected_path',
+              paths: ['internal/gen/**'],
+              action: 'block',
+              reason: 'Generated code',
+            },
+          ],
+        });
+        const target = path.join(projDir, 'internal/gen/x.ts');
+        const transcript = writeTranscript([
+          skillCall('load_skills_for_files', ['internal/gen/x.ts']),
+        ]);
+
+        const result = runHook(
+          {
+            tool_name: 'Edit',
+            tool_input: { file_path: target },
+            transcript_path: transcript,
+          },
+          {
+            AGS_HOOK_ENFORCE: '1',
+            AGS_POLICY_BYPASS: '1',
+            CLAUDE_PROJECT_DIR: projDir,
+          },
+        );
+
+        expect(result.code).toBe(0);
+        expect(result.stdout).toContain('SKILL TRIGGER');
+      });
+
+      it('matches dot-segment equivalent paths against a non-extension target', () => {
+        const target = path.join(projDir, 'Makefile');
+        const transcript = writeTranscript([
+          skillCall('load_skills_for_files', ['./build/../Makefile']),
+        ]);
+
+        const result = runHook(
+          {
+            tool_name: 'Edit',
+            tool_input: { file_path: target },
+            transcript_path: transcript,
+          },
+          { AGS_HOOK_ENFORCE: '1', CLAUDE_PROJECT_DIR: projDir },
+        );
+
+        expect(result.code).toBe(0);
+        expect(result.stderr).not.toContain('AGS BLOCKED');
+      });
+
+      it('blocks (exit 2) when the transcript has no covering call', () => {
+        const target = path.join(projDir, 'src/app.ts');
+        const transcript = writeTranscript([
+          { type: 'user', message: { role: 'user', content: 'go' } },
+          skillCall('mcp__agent-skills-standard__load_skills_for_files', [
+            'src/other.md',
+          ]),
+        ]);
+
+        const result = runHook(
+          {
+            tool_name: 'Edit',
+            tool_input: { file_path: target },
+            transcript_path: transcript,
+          },
+          { AGS_HOOK_ENFORCE: '1', CLAUDE_PROJECT_DIR: projDir },
+        );
+
+        expect(result.code).toBe(2);
+        expect(result.stderr).toContain('[AGS BLOCKED]');
+        expect(result.stderr).toContain(
+          'load_skills_for_files(files=[ "src/app.ts" ])',
+        );
+      });
+
+      it('fails open with a warning when stdin has no transcript_path', () => {
+        const result = runHook(
+          {
+            tool_name: 'Edit',
+            tool_input: { file_path: path.join(projDir, 'src/app.ts') },
+          },
+          {
+            AGS_HOOK_ENFORCE: '1',
+            CLAUDE_PROJECT_DIR: projDir,
+            AGS_POLICY_BYPASS: undefined,
+          },
+        );
+
+        expect(result.code).toBe(0);
+        expect(result.stderr).toContain('fail-open');
+        expect(result.stdout).toContain('SKILL TRIGGER');
+      });
+
+      it('fails open with a warning when the transcript is unreadable', () => {
+        const result = runHook(
+          {
+            tool_name: 'Edit',
+            tool_input: { file_path: path.join(projDir, 'src/app.ts') },
+            transcript_path: path.join(projDir, 'missing.jsonl'),
+          },
+          { AGS_HOOK_ENFORCE: '1', CLAUDE_PROJECT_DIR: projDir },
+        );
+
+        expect(result.code).toBe(0);
+        expect(result.stderr).toContain('fail-open');
+      });
+
+      it('advisory mode ignores transcript state (exit 0, unchanged output)', () => {
+        const target = path.join(projDir, 'src/app.ts');
+        const transcript = writeTranscript([{ type: 'user' }]);
+
+        const result = runHook(
+          {
+            tool_name: 'Edit',
+            tool_input: { file_path: target },
+            transcript_path: transcript,
+          },
+          {
+            AGS_HOOK_ENFORCE: undefined,
+            CLAUDE_PROJECT_DIR: projDir,
+            AGS_POLICY_BYPASS: undefined,
+          },
+        );
+
+        expect(result.code).toBe(0);
+        expect(result.stdout).toContain('SKILL TRIGGER');
+        expect(result.stderr).not.toContain('AGS BLOCKED');
+        expect(result.stderr).not.toContain('fail-open');
+      });
+    });
+
+    describe('harness path precedence', () => {
+      let projDir: string;
+
+      beforeEach(async () => {
+        projDir = await fs.mkdtemp(path.join(os.tmpdir(), 'hook-harness-'));
+      });
+
+      afterEach(async () => {
+        await fs.remove(projDir);
+      });
+
+      it('blocks a secret inside a skipped harness dir (.github)', () => {
+        const result = runHook(
+          {
+            tool_name: 'Edit',
+            tool_input: {
+              file_path: path.join(projDir, '.github/credentials.json'),
+            },
+          },
+          { AGS_HOOK_ENFORCE: '1', CLAUDE_PROJECT_DIR: projDir },
+        );
+
+        expect(result.code).toBe(2);
+        expect(result.stderr).toContain('[AGS BLOCKED] Refusing to edit');
+      });
+
+      it('blocks a .env inside .claude when enforced', () => {
+        const result = runHook(
+          {
+            tool_name: 'Write',
+            tool_input: { file_path: path.join(projDir, '.claude/.env') },
+          },
+          { AGS_HOOK_ENFORCE: '1', CLAUDE_PROJECT_DIR: projDir },
+        );
+
+        expect(result.code).toBe(2);
+        expect(result.stderr).toContain('[AGS BLOCKED] Refusing to edit');
+      });
+
+      it('skips the transcript gate for harness files with no transcript call', () => {
+        const result = runHook(
+          {
+            tool_name: 'Edit',
+            tool_input: {
+              file_path: path.join(projDir, '.github/workflows/ci.yml'),
+            },
+          },
+          { AGS_HOOK_ENFORCE: '1', CLAUDE_PROJECT_DIR: projDir },
+        );
+
+        expect(result.code).toBe(0);
+        expect(result.stdout).not.toContain('SKILL TRIGGER');
+        expect(result.stderr).not.toContain('fail-open');
+        expect(result.stderr).not.toContain('AGS BLOCKED');
+      });
+
+      it('lets a policy block rule protect a harness path', async () => {
+        await fs.ensureDir(path.join(projDir, '.ags'));
+        await fs.writeJson(path.join(projDir, '.ags/policy.json'), {
+          schema_version: 1,
+          rules: [
+            {
+              id: 'harness-block',
+              kind: 'protected_path',
+              paths: ['.github/**'],
+              action: 'block',
+              reason: 'Harness config is generated',
+            },
+          ],
+        });
+
+        const result = runHook(
+          {
+            tool_name: 'Edit',
+            tool_input: {
+              file_path: path.join(projDir, '.github/workflows/ci.yml'),
+            },
+          },
+          { AGS_HOOK_ENFORCE: '1', CLAUDE_PROJECT_DIR: projDir },
+        );
+
+        expect(result.code).toBe(2);
+        expect(result.stderr).toContain(
+          '[AGS BLOCKED] harness-block: Harness config is generated',
+        );
+      });
     });
   });
 });
