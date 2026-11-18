@@ -13,6 +13,10 @@
 
 - <!-- Detailed technical explanation of the fix or feature -->
 
+## Requirements
+
+- Requirement/AC IDs satisfied (for example `REQ-x / AC-y`), or the approved ticket/brief reference for brief-mode work; state the `delivery_mode`.
+
 ## Evidence
 
 - Verification performed and durable evidence references; distinguish author claims from independently observed results.

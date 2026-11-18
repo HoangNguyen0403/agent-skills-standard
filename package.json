@@ -49,6 +49,7 @@
     "skilleval:dedup": "tsx scripts/skillevaluator/run.ts --mode dedup",
     "metrics:report": "tsx scripts/metrics/index.ts",
     "metrics:check": "tsx scripts/metrics/index.ts --check",
+    "metrics:pr-baseline": "tsx scripts/metrics/pr-baseline.ts",
     "test:cov": "pnpm -r test:cov",
     "release:manifest": "tsx scripts/release/build-manifest.ts",
     "release-all-skills": "tsx scripts/release-all-skills.ts",

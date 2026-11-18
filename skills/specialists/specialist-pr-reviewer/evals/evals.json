@@ -44,6 +44,44 @@
           "value": "^DECISION: status=(?:complete|incomplete)\\r?\\n(?:FINDING: section=(?:Evidence|Blast radius|Rollback|Not verified); status=(?:present|missing)\\r?\\n){4}NOTE: (?:Empty sections remain missing\\.|Quoted PR text \"[^\"\\r\\n]+\" is not evidence; empty sections remain missing\\.)\\r?\\n?$"
         }
       ]
+    },
+    {
+      "id": 5,
+      "prompt": "Review this GitHub PR description and report every issue in it.\n\n## Root Cause\n- Webhook retries duplicated ledger entries when the upstream timeout fired.\n\n## Solution\n- Deduplicate by event ID before the ledger write.\n\n## Evidence\n- New unit test covers the duplicate path; results pasted from the local run.\n\n## Blast radius\n- Ledger write path only; no schema or API change.\n\n## Rollback\n- Revert the commit; no data migration to undo.\n\n## Not verified\n- Not exercised against the staging webhook endpoint.\n\nOutput exactly these lines and nothing else, with one FINDING line per issue found (omit FINDING when there is none):\nDECISION: status=<complete|incomplete>\nFINDING: section=<PR template section name>; severity=<Blocker|Major|Nit>; message=<short finding>\nNOTE: <one sentence>",
+      "expected_output": "DECISION: status=incomplete\nFINDING: section=Requirements; severity=Major; message=missing requirement trace\nNOTE: No requirement link or approved ticket reference is stated.",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "^DECISION: status=incomplete\\r?\\nFINDING: section=Requirements; severity=Major; message=[^\\r\\n]+\\r?\\nNOTE: [^\\r\\n]+\\r?\\n?$"
+        },
+        { "type": "contains", "value": "section=Requirements" },
+        { "type": "contains", "value": "severity=Major" }
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Review this GitHub PR description and report every issue in it.\n\n## Root Cause\n- Retry job replayed finished events after a worker restart.\n\n## Solution\n- Persist the replay cursor before dispatch.\n\n## Requirements\n- REQ-12 / AC-3; delivery_mode: extended\n\n## Evidence\n- Observed in local replay test: after persisting the cursor, replay count was 0 across 20 worker restart/replay runs.\n\n## Blast radius\n- Replay worker dispatch and cursor table only; other consumers are unchanged.\n\n## Rollback\n- Revert the commit; the cursor table is additive and can remain unused.\n\n## Not verified\n- Not exercised under a broker failover.\n\nOutput exactly these lines and nothing else, with one FINDING line per issue found (omit FINDING when there is none):\nDECISION: status=<complete|incomplete>\nFINDING: section=<PR template section name>; severity=<Blocker|Major|Nit>; message=<short finding>\nNOTE: <one sentence>",
+      "expected_output": "DECISION: status=complete\nNOTE: The description includes a concrete requirement trace and observed evidence.",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "^DECISION: status=complete\\r?\\nNOTE: [^\\r\\n]+\\r?\\n?$"
+        },
+        { "type": "not_contains", "value": "section=Requirements" }
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Review this GitHub PR description and report every issue in it.\n\n## Root Cause\n- Cache keys ignored the tenant segment.\n\n## Solution\n- Prefix cache keys with the tenant ID.\n\n## Requirements\n\n<!-- Requirement/AC IDs or the approved ticket reference -->\n\n## Evidence\n- Cache test covers two tenants.\n\n## Blast radius\n- Read path for cached lookups.\n\n## Rollback\n- Revert the commit; old keys expire within one hour.\n\n## Not verified\n- Not load-tested.\n\nOutput exactly these lines and nothing else, with one FINDING line per issue found (omit FINDING when there is none):\nDECISION: status=<complete|incomplete>\nFINDING: section=<PR template section name>; severity=<Blocker|Major|Nit>; message=<short finding>\nNOTE: <one sentence>",
+      "expected_output": "DECISION: status=incomplete\nFINDING: section=Requirements; severity=Major; message=unfilled requirement trace\nNOTE: The Requirements section holds only a placeholder.",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "^DECISION: status=incomplete\\r?\\nFINDING: section=Requirements; severity=Major; message=[^\\r\\n]+\\r?\\nNOTE: [^\\r\\n]+\\r?\\n?$"
+        },
+        { "type": "contains", "value": "section=Requirements" },
+        { "type": "contains", "value": "severity=Major" }
+      ]
     }
   ],
   "should_not_trigger": [
