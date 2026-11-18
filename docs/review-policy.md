@@ -95,3 +95,84 @@ Review a sample monthly for useful findings and noise; change the cap, skip list
 
 | Date | Change | Reason |
 | --- | --- | --- |
+| 2026-11-18 | Added the report-only `pr-gate` workflow (`.github/workflows/pr-gate.yml`, `PR_GATE_MODE=report`, `PR_GATE_MAX_AUTHORED_LINES=1000`), its two `## Evidence` placeholders in the PR templates, and the ruleset runbook below. No merge behavior change yet. | Measure review-evidence and authored-size signal on real PRs before any enforce decision; switching to `enforce` is a separate owner edit recorded in this table. |
+
+### Owner runbook: require the gate checks (AC-AFC-12)
+
+Agents never run these commands; the repository owner executes them. The
+`pr-gate` check is not required until the owner applies this ruleset change, so
+report-mode findings cannot block a merge.
+
+1. Confirm the check context names from a real PR (job `name:` values, not
+   workflow names) before editing the ruleset:
+
+   ```bash
+   gh pr checks <number> --repo HoangNguyen0403/agent-skills-standard
+   # expect: secret-scan, lint-and-format, unit-tests, validate-skills, pr-gate
+   ```
+
+2. Fetch the current ruleset and save the before-image. Every existing rule and
+   bypass actor is preserved; the five contexts are unioned into an existing
+   `required_status_checks` rule (keeping its existing entries, including
+   `integration_id`, and its `strict_required_status_checks_policy`) or, only
+   when that rule is absent, a new non-strict rule is appended. The read-only
+   fields the API returns are dropped so the PUT accepts the body:
+
+   ```bash
+   RULESET=<id>
+   REPO=HoangNguyen0403/agent-skills-standard
+   gh api "repos/$REPO/rulesets/$RULESET" > /tmp/ruleset.json
+   jq '
+     def wanted: ["secret-scan", "lint-and-format", "unit-tests", "validate-skills", "pr-gate"];
+     def merge_checks($existing):
+       reduce (wanted[] | {context: .}) as $new (
+         ($existing // []);
+         if any(.[]; .context == $new.context) then . else . + [$new] end
+       );
+     (.rules // []) as $rules
+     | ($rules | map(.type) | index("required_status_checks")) as $idx
+     | {
+         name, target, enforcement, bypass_actors, conditions,
+         rules:
+           (if $idx == null then
+              $rules + [{
+                type: "required_status_checks",
+                parameters: {
+                  strict_required_status_checks_policy: false,
+                  required_status_checks: (wanted | map({ context: . }))
+                }
+              }]
+            else
+              $rules
+              | to_entries
+              | map(if .key == $idx
+                    then .value
+                      | .parameters.required_status_checks =
+                          merge_checks(.parameters.required_status_checks)
+                    else .value
+                    end)
+            end)
+       }
+   ' /tmp/ruleset.json > /tmp/ruleset.patched.json
+   gh api --method PUT "repos/$REPO/rulesets/$RULESET" --input /tmp/ruleset.patched.json
+   ```
+
+3. Diff the before and after rule lists. The only expected hunk is the five
+   added contexts under `required_status_checks`; existing entries keep their
+   fields and the other rules' `parameters` are byte-identical:
+
+   ```bash
+   gh api "repos/$REPO/rulesets/$RULESET" > /tmp/ruleset.after.json
+   jq -S '[.rules[] | { type, parameters }]' /tmp/ruleset.json > /tmp/rules.before.json
+   jq -S '[.rules[] | { type, parameters }]' /tmp/ruleset.after.json > /tmp/rules.after.json
+   diff -u /tmp/rules.before.json /tmp/rules.after.json
+   diff <(jq -S '.bypass_actors' /tmp/ruleset.json) <(jq -S '.bypass_actors' /tmp/ruleset.after.json)
+   ```
+
+   The first `diff` exits 1 when the change landed (expected); the second must
+   print nothing. If any other rule or bypass actor changed, restore the
+   before-image with `gh api --method PUT "repos/$REPO/rulesets/$RULESET" --input`
+   using the original fields rather than editing rules individually.
+
+Ownership: the owner applies this after the report window, and records both the
+enforce switch and the ruleset change as rows in the table above.

@@ -17,7 +17,7 @@
 
 ## Architecture And Contract Delta
 
-- New: `scripts/pr-gate.ts` (+ test), job `pr-gate` in `.github/workflows/ci.yml`, `scripts/metrics/github-export.ts` (+ test), `docs/ops/bands.yaml`.
+- New: `scripts/pr-gate/pr-gate.ts` (+ test), job `pr-gate` in `.github/workflows/ci.yml`, `scripts/metrics/github-export.ts` (+ test), `docs/ops/bands.yaml`.
 - Reused, unchanged: `review_gate.py classify`, generated-glob constant exported by S0 `scripts/metrics/pr-baseline.ts`, `scripts/metrics/delivery.ts` validator, `scripts/metrics/bands.ts` reader.
 - Changed: PR templates (`.github/pull_request_template.md`, `skills/common/common-git-collaboration/references/pr-template.md`) gain two placeholder lines under `## Evidence` (S4 owns this edit after S1 lands).
 - Ownership: CI owner = S4 worker; metrics owner = S5 worker; orchestrator integrates generated mirrors.
@@ -26,36 +26,36 @@
 
 ### SRS-AFC-01: pr-gate inputs and isolation
 
-- Statement: job `pr-gate` (`name: pr-gate`, required-check context) runs only on `pull_request` with `permissions: contents: read`; reads PR body, labels and author from `$GITHUB_EVENT_PATH`; never interpolates `${{ github.event.pull_request.* }}` into `run:` (env/file only); writes no comments; uses no secrets. Must.
+- Statement: workflow `.github/workflows/pr-gate.yml`, job `pr-gate` (`name: pr-gate`, required-check context), triggers on `pull_request` types `opened, synchronize, reopened, edited, labeled, unlabeled` so body and label changes re-evaluate the gate without re-running all of CI; `permissions: contents: read`; reads PR body, labels and author from `$GITHUB_EVENT_PATH`; never interpolates `${{ github.event.pull_request.* }}` into `run:` (env/file only); writes no comments; uses no secrets. Must.
 - Source: AC-AFC-11.
-- Behavior / failure: checkout with `fetch-depth: 0`; base = `pull_request.base.sha`, head = `pull_request.head.sha`. Missing event file or SHAs => exit 2 (job fails in both modes; infrastructure error is never a pass).
-- NFR / security impact: fork PRs get a read-only token; untrusted body text is parsed, never executed or echoed unescaped into workflow commands (escape `%`, `\r`, `\n` per Actions command rules).
-- Verification: unit tests with fixture event payloads (incl. injection strings) — `rtk pnpm exec node --import tsx --test scripts/pr-gate.test.ts`; workflow review.
+- Behavior / failure: checkout with `fetch-depth: 0`; base = `git merge-base pull_request.base.sha pull_request.head.sha`, head = `pull_request.head.sha` (the PR base SHA itself is not an ancestor once the target branch advances). Missing event file, SHAs or merge base => exit 2 (job fails in both modes; infrastructure error is never a pass).
+- NFR / security impact: fork PRs get a read-only token; untrusted body text is parsed, never executed or echoed unescaped into workflow commands (escape `%`, `\r`, `\n` per Actions command rules). Paths rendered in the step summary are HTML-escaped inside `<code>` with control characters and backticks encoded.
+- Verification: unit tests with fixture event payloads (incl. injection strings) — `rtk pnpm test:pr-gate` (`node --import tsx --test scripts/pr-gate/*.test.ts`); workflow review.
 
 ### SRS-AFC-02: authored-size budget
 
-- Statement: authored lines = sum of `git diff --numstat base...head` additions+deletions over paths NOT matching the S0 generated-glob constant (imported, never duplicated). Breach when authored lines > `PR_GATE_MAX_AUTHORED_LINES` (D3) and no `size-exception` label. Must.
+- Statement: authored lines = sum of additions+deletions from `git diff --numstat -z -M <merge-base> <head>` over destination paths NOT matching the S0 generated-glob constant (imported, never duplicated). Unchanged moves count 0; edited moves count their changed lines, classified by destination path. Breach when authored lines > `PR_GATE_MAX_AUTHORED_LINES` (D3) and no `size-exception` label. Must.
 - Source: AC-AFC-09.
 - Behavior / failure: binary files (`-` numstat) count 0 and are listed. Label present => reported as "exception claimed", never a breach; the reason is the PR body text under `## Blast radius` (not validated).
-- Verification: unit tests: generated-only PR => 0 authored; mixed PR; label exemption; binary file.
+- Verification: unit tests: generated-only PR => 0 authored; mixed PR; label exemption; binary file; unchanged/edited/boundary moves; real-git divergent base/head integration test.
 
 ### SRS-AFC-03: review-evidence declaration check
 
-- Statement: PR body must contain non-empty `## Requirements` (S1), and under `## Evidence` the lines `Independent review: <reviewer/profile + verdict>` and `Gate check: <review_gate.py check output line or "not run: <reason>">`, and non-empty `## Not verified`. Each missing/empty item is one finding. Must.
+- Statement: PR body must contain non-empty `## Requirements` (S1), and under `## Evidence` the lines `Independent review: <reviewer/profile + verdict>` and `Gate check: <review_gate.py check output line or "not run: <reason>">`, and non-empty `## Not verified`. HTML-comment-only, `<...>`-only and punctuation-only values are empty. Each missing/empty item is one finding. Must.
 - Source: AC-AFC-10; D1.
-- Behavior / failure: author `dependabot[bot]` skips body checks (size still reported) — default pending owner confirmation. A `Gate check: not run` is reported, not a breach. Declarations are not authenticated (same limit as agent-review-trust).
-- Verification: unit tests per missing field, placeholder-only text (HTML comments) counted as empty, dependabot skip.
+- Behavior / failure: author with `login == "dependabot[bot]"` and `type == "Bot"` skips body checks (size still reported) — owner-approved. A `Gate check: not run` is reported, not a breach. Declarations are not authenticated (same limit as agent-review-trust).
+- Verification: unit tests per missing field, the shipped template with only Independent review filled, dependabot skip and login-spoof (type User) case.
 
 ### SRS-AFC-04: trunk-path attention list
 
-- Statement: run `python3 skills/common/common-review-policy/scripts/review_gate.py classify --policy docs/review-policy.md --base <base> --head <head> --json`; list every `trunk` path in the job summary as "line review required". Informational in both modes. Must.
+- Statement: run `python3 skills/common/common-review-policy/scripts/review_gate.py classify --policy docs/review-policy.md --base <merge-base> --head <head> --json`; list every `trunk` path in the job summary as "line review required". Informational in both modes. Must.
 - Source: AC-AFC-10.
 - Behavior / failure: classify exit 2 (malformed policy) => job fails in both modes.
 - Verification: unit test with stubbed classify output; one real run on a test PR touching `.github/workflows/ci.yml` shows it as trunk (same classification the agent-review-trust consumer smoke asserts).
 
 ### SRS-AFC-05: report vs enforce
 
-- Statement: mode from workflow env `PR_GATE_MODE` (`report` default). Report: findings as `::warning` + `$GITHUB_STEP_SUMMARY`, exit 0. Enforce: findings as `::error`, exit 1. Switching to enforce is a one-line owner edit to `ci.yml` (trunk) recorded in `docs/review-policy.md` tuning log. Must.
+- Statement: mode from workflow env `PR_GATE_MODE` (`report` default). Report: findings as `::warning` + `$GITHUB_STEP_SUMMARY`, exit 0. Enforce: findings as `::error`, exit 1. Switching to enforce is a one-line owner edit to `pr-gate.yml` (trunk) recorded in `docs/review-policy.md` tuning log. Must.
 - Source: AC-AFC-09, AC-AFC-10, D3.
 - Verification: unit tests for both modes; one real PR run in report mode.
 
