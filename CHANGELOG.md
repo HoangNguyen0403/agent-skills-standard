@@ -129,6 +129,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Stream**: Unreleased
 
+### Changed
+
+- **Process right-sizing (`dev-fix`, `implement-feature`, `common-task-complexity-routing`)**: `dev-fix` selects a `brief | standard | extended` lane from `delivery_mode`/`snc_tier`; the brief lane creates no `docs/` artifacts, worktree, or readiness gate but keeps `fast` code-review. Removed the consumer-irrelevant `git pull origin main` step. `implement-feature` adds a per-slice freshness check (`BLOCKED-STALE`) bound to `supersedes_approval` lineage in `common-decision-discipline`.
+- **Enforced skill loading (CLI hooks)**: With `ags hooks install --enforce` (Claude Code), the pre-edit hook blocks edits lacking a prior `load_skills_for_files` call in `transcript_path`; fails open with a warning when no transcript exists. Secret deny-list and policy rules now run before the harness-directory skip; `AGS_POLICY_BYPASS` waives policy rules only.
+- **Generated instructions**: Removed Zero-Trust/CRITICAL wording, the Pre-Write Audit Log ritual, and the mandatory state machine from `AGENTS.md`, category indices, and agent rule files.
+- **Testing skills dedupe (`common-tdd` + 15 stack testing skills)**: Anti-slop rules live once in `common-tdd/references/anti-slop-rules.md` (A1–A14); stack skills keep deltas only (8,430 → 5,898 words). All 78 prior rule IDs resolve.
+- **Learning log lifecycle (`common-learning-log`)**: Active `AGENTS_LEARNING.md` capped at 20 curated entries; all prior entries archived verbatim in `docs/learning/AGENTS_LEARNING_ARCHIVE.md`.
+
 ### Fixed
 
 - **API consumer contracts (`common` 2.9.9)**: Added representation boundaries, conditional reads and writes, retry identity, stable cursor ordering, object-level authorization, and compatible evolution guidance; corrected `403` terminology and RFC 9745 deprecation-header syntax.
@@ -137,6 +145,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Evals (`android` `1.5.3`, `common` `2.9.8`, SL2 assertion repair)**: Updated canonical eval assertions across seven cases (`android-testing` eval 1, `android-architecture` eval 1, `android-compose-migration` eval 1, `android-concurrency` eval 2, `common-api-design` evals 2–3, `common-architecture-diagramming` eval 1) to calibrate offline `checkAssertion` discrimination across compliant paraphrases, missing-obligation answers, and keyword-rich wrong answers (`sl2-android-discriminators.test.ts` and `sl2-common-discriminators.test.ts`); these checks establish finite control calibration under `v1`/`v2` scorer semantics only and do not establish model efficacy, mirror generation, or remote CI status, with skill bodies, triggers, pressure scenarios, scorer logic, and retained run artifacts unchanged.
 
 ### Added
+- **Ownership Contract (`common-best-practices`)** and an `ags init` `CONSTITUTION.md` template written only when absent.
+- **`pnpm snc:diff --declared <tier>`**: recomputes Spread/Novelty/Centrality from the real diff (incl. untracked files); exits 1 when computed tier exceeds the declared tier.
+- **Evals report**: separate "Executable (L3) outcome" headline group; never merged with transcript-assertion metrics.
 - **MCP retrospective diagnostic signals and native packaging (source candidate, unreleased)**: Consent text v5, optional Paseo agent-record roots, ledger v2, diagnostic signals, stateless `record_decision`, a pinned four-target native asset package/verifier, and secretless read-only native CI configuration. Darwin arm64/x64 and GNU/Linux glibc arm64/x64 are configured targets only; Gate-C platform/package execution, release, activation, adoption, and efficacy remain unverified or unauthorized. Older consent versions require human re-consent; schema-1 ledgers remain readable by the new reader in the supported store layout, with missing fields not measured and no rewrite; older readers may reject schema 2. No live evaluation or efficacy claim.
 
 - **Evals (`evals:gate` per-case flip report)**: The gate outcome now carries a report-only `caseComparison` against the run's own declared `baselineRunId`, naming every comparable case-arm that passed in the baseline and fails now, with arm and failed assertions, plus counts for fail-to-pass, unchanged, added, removed, excluded, protocol-mismatch, protocol-unresolved and definition-changed. States are `compared`, `no-baseline` and `unavailable` (with a reason naming unreadable evidence); every read is contained, so `ok`, breaches, trend and the exit code are unchanged for every input. Case identity and effective-protocol resolution reuse the manifest builder, scorer and impact planner rules instead of copying them. Each arm is one trial, so a flip is a signal to inspect, not a verdict.

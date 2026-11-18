@@ -297,8 +297,8 @@
   },
   "categories": {
     "flutter": {
-      "version": "1.8.5",
-      "last_updated": "2026-11-11",
+      "version": "1.8.6",
+      "last_updated": "2026-11-18",
       "tag_prefix": "flutter-v",
       "token_metrics": {
         "total_skills": 22,
@@ -393,8 +393,8 @@
       ]
     },
     "react": {
-      "version": "1.4.3",
-      "last_updated": "2026-11-11",
+      "version": "1.4.4",
+      "last_updated": "2026-11-18",
       "tag_prefix": "react-v",
       "token_metrics": {
         "total_skills": 8,
@@ -441,8 +441,8 @@
       ]
     },
     "nestjs": {
-      "version": "1.4.9",
-      "last_updated": "2026-11-11",
+      "version": "1.4.10",
+      "last_updated": "2026-11-18",
       "tag_prefix": "nestjs-v",
       "token_metrics": {
         "total_skills": 21,
@@ -465,8 +465,8 @@
       ]
     },
     "nextjs": {
-      "version": "1.4.8",
-      "last_updated": "2026-11-11",
+      "version": "1.4.9",
+      "last_updated": "2026-11-18",
       "tag_prefix": "nextjs-v",
       "token_metrics": {
         "total_skills": 18,
@@ -489,8 +489,8 @@
       ]
     },
     "common": {
-      "version": "2.9.9",
-      "last_updated": "2026-11-16",
+      "version": "2.9.11",
+      "last_updated": "2026-11-18",
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 48,
@@ -527,8 +527,8 @@
       ]
     },
     "specialists": {
-      "version": "1.5.3",
-      "last_updated": "2026-11-07",
+      "version": "1.5.4",
+      "last_updated": "2026-11-18",
       "tag_prefix": "specialists-v",
       "token_metrics": {
         "total_skills": 21,
@@ -541,8 +541,8 @@
       ]
     },
     "golang": {
-      "version": "1.3.10",
-      "last_updated": "2026-11-11",
+      "version": "1.3.11",
+      "last_updated": "2026-11-18",
       "tag_prefix": "golang-v",
       "token_metrics": {
         "total_skills": 11,
@@ -613,8 +613,8 @@
       ]
     },
     "java": {
-      "version": "1.3.6",
-      "last_updated": "2026-11-11",
+      "version": "1.3.7",
+      "last_updated": "2026-11-18",
       "tag_prefix": "java-v",
       "token_metrics": {
         "total_skills": 5,
@@ -637,8 +637,8 @@
       ]
     },
     "spring-boot": {
-      "version": "1.4.1",
-      "last_updated": "2026-10-01",
+      "version": "1.4.2",
+      "last_updated": "2026-11-18",
       "tag_prefix": "spring-boot-v",
       "token_metrics": {
         "total_skills": 10,
@@ -661,8 +661,8 @@
       ]
     },
     "android": {
-      "version": "1.5.3",
-      "last_updated": "2026-11-11",
+      "version": "1.5.4",
+      "last_updated": "2026-11-18",
       "tag_prefix": "android-v",
       "token_metrics": {
         "total_skills": 26,
@@ -689,8 +689,8 @@
       ]
     },
     "swift": {
-      "version": "1.3.9",
-      "last_updated": "2026-11-11",
+      "version": "1.3.10",
+      "last_updated": "2026-11-18",
       "tag_prefix": "swift-v",
       "token_metrics": {
         "total_skills": 8,
@@ -741,8 +741,8 @@
       ]
     },
     "php": {
-      "version": "1.3.8",
-      "last_updated": "2026-11-11",
+      "version": "1.3.9",
+      "last_updated": "2026-11-18",
       "tag_prefix": "php-v",
       "token_metrics": {
         "total_skills": 7,
@@ -765,8 +765,8 @@
       ]
     },
     "python": {
-      "version": "1.0.2",
-      "last_updated": "2026-11-11",
+      "version": "1.0.3",
+      "last_updated": "2026-11-18",
       "tag_prefix": "python-v",
       "token_metrics": {
         "total_skills": 9,
@@ -789,8 +789,8 @@
       ]
     },
     "laravel": {
-      "version": "1.4.3",
-      "last_updated": "2026-11-11",
+      "version": "1.4.4",
+      "last_updated": "2026-11-18",
       "tag_prefix": "laravel-v",
       "token_metrics": {
         "total_skills": 10,

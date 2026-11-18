@@ -4,7 +4,7 @@
     {
       "id": 1,
       "prompt": "I just finished implementing the feature. Can you verify it's done?",
-      "expected_output": "Run Red-Team Verification: 1) Adversarial Audit for Standard Defaults, 2) Protocol Check for Pre-Write Audit Log, 3) Execution Bias Check.",
+      "expected_output": "Run Red-Team Verification: 1) Adversarial Audit for Standard Defaults, 2) Protocol Check that active skills were loaded before writing, 3) Execution Bias Check.",
       "assertions": [
         {
           "type": "contains",
@@ -12,7 +12,7 @@
         },
         {
           "type": "contains",
-          "value": "Pre-Write"
+          "value": "loaded before"
         },
         {
           "type": "contains",
@@ -38,7 +38,7 @@
     {
       "id": 3,
       "prompt": "What should I check before marking a task complete?",
-      "expected_output": "Check for execution bias: local mocks instead of shared fakes, hardcoded styles instead of design tokens, missing Pre-Write Audit Log. Functional success does not equal protocol success.",
+      "expected_output": "Check for execution bias: local mocks instead of shared fakes, hardcoded styles instead of design tokens, edits made before skills were loaded. Functional success does not equal protocol success.",
       "assertions": [
         {
           "type": "contains",

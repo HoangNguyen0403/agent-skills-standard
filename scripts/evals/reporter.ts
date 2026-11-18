@@ -2,6 +2,7 @@ import fs from "fs-extra";
 import * as path from "path";
 import {
   ARCHIVE_DIR,
+  EVALS_DIR,
   EVALS_REPORT_MD,
   HISTORY_JSON,
   RESULTS_FILENAME,
@@ -391,10 +392,177 @@ export function resolveSkillProtocol(
   return "unknown";
 }
 
+const L3_RUNS_DIR = path.join(EVALS_DIR, "l3", "runs");
+const L3_BUILD_DIRNAME = "build";
+const L3_RECEIPT_FILENAME = "receipt.json";
+
+/**
+ * One executable (L3) terminal receipt, reduced to the fields the headline
+ * needs. Provenance stays on the receipt; nothing here is inferred from it.
+ */
+export interface L3AttemptOutcome {
+  readonly runId: string;
+  readonly caseId: string;
+  readonly armId: string;
+  readonly terminalState: string;
+  readonly verdictPass: boolean | null;
+}
+
+export interface L3RunOutcome {
+  readonly runId: string;
+  readonly cases: readonly string[];
+  readonly attempts: number;
+  readonly passed: number;
+  readonly failed: number;
+  readonly unverified: number;
+  readonly nonOutcome: number;
+}
+
+function collectWholeCasePass(value: unknown, out: boolean[]): void {
+  if (Array.isArray(value)) {
+    for (const item of value) collectWholeCasePass(item, out);
+    return;
+  }
+  if (value === null || typeof value !== "object") return;
+  for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
+    if (key === "whole_case_pass" && typeof child === "boolean") {
+      out.push(child);
+    } else {
+      collectWholeCasePass(child, out);
+    }
+  }
+}
+
+/**
+ * A case verdict passes only when every `whole_case_pass` flag it carries is
+ * true (the payment verdict nests one per schedule). No flag at all is
+ * `null`: unknown, never a pass.
+ */
+export function extractWholeCasePass(verdict: unknown): boolean | null {
+  const flags: boolean[] = [];
+  collectWholeCasePass(verdict, flags);
+  if (flags.length === 0) return null;
+  return flags.every(Boolean);
+}
+
+/**
+ * Reads artifact-v1 terminal receipts from `runs/<run_id>/<attempt_id>/` only.
+ * Malformed or incomplete receipts are skipped rather than guessed; a run with
+ * no readable receipt simply contributes nothing.
+ */
+export function loadL3AttemptOutcomes(
+  runsDir: string = L3_RUNS_DIR,
+): L3AttemptOutcome[] {
+  if (!fs.existsSync(runsDir)) return [];
+  const outcomes: L3AttemptOutcome[] = [];
+  const runIds = fs.readdirSync(runsDir).sort();
+  for (const runId of runIds) {
+    const runDir = path.join(runsDir, runId);
+    if (!fs.statSync(runDir).isDirectory()) continue;
+    for (const entry of fs.readdirSync(runDir).sort()) {
+      if (entry === L3_BUILD_DIRNAME) continue;
+      const receiptPath = path.join(runDir, entry, L3_RECEIPT_FILENAME);
+      if (!fs.existsSync(receiptPath)) continue;
+      let receipt: Record<string, unknown>;
+      try {
+        receipt = fs.readJSONSync(receiptPath) as Record<string, unknown>;
+      } catch {
+        continue;
+      }
+      if (
+        receipt === null ||
+        typeof receipt !== "object" ||
+        receipt.schema_version !== 1 ||
+        typeof receipt.run_id !== "string" ||
+        typeof receipt.case_id !== "string" ||
+        typeof receipt.terminal_state !== "string"
+      ) {
+        continue;
+      }
+      outcomes.push({
+        runId: receipt.run_id,
+        caseId: receipt.case_id,
+        armId: typeof receipt.arm_id === "string" ? receipt.arm_id : "unknown",
+        terminalState: receipt.terminal_state,
+        verdictPass: extractWholeCasePass(receipt.verdict),
+      });
+    }
+  }
+  return outcomes;
+}
+
+/** Disjoint buckets: a terminal `failed` is a failure even without a verdict. */
+export function summarizeL3Outcomes(
+  attempts: readonly L3AttemptOutcome[],
+): L3RunOutcome[] {
+  const byRun = new Map<string, L3AttemptOutcome[]>();
+  for (const attempt of attempts) {
+    const bucket = byRun.get(attempt.runId) ?? [];
+    bucket.push(attempt);
+    byRun.set(attempt.runId, bucket);
+  }
+  return [...byRun.entries()]
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([runId, runAttempts]) => {
+      let passed = 0;
+      let failed = 0;
+      let unverified = 0;
+      let nonOutcome = 0;
+      for (const attempt of runAttempts) {
+        if (attempt.terminalState === "failed") {
+          failed += 1;
+        } else if (attempt.terminalState === "passed") {
+          if (attempt.verdictPass === true) passed += 1;
+          else if (attempt.verdictPass === false) failed += 1;
+          else unverified += 1;
+        } else {
+          nonOutcome += 1;
+        }
+      }
+      return {
+        runId,
+        cases: [...new Set(runAttempts.map((attempt) => attempt.caseId))].sort(),
+        attempts: runAttempts.length,
+        passed,
+        failed,
+        unverified,
+        nonOutcome,
+      };
+    });
+}
+
+function buildL3OutcomeSection(runs: readonly L3RunOutcome[]): string[] {
+  const lines = [
+    "## 🧱 Executable (L3) outcome",
+    "",
+    "> Separate from the transcript assertions above and never merged with them. Counts come only from artifact-v1 terminal receipts under `benchmarks/evals/l3/runs/<run_id>/<attempt_id>/receipt.json`. A `passed` terminal state without a `whole_case_pass` verdict is counted `unverified`, not inferred as a pass.",
+    "",
+    "| L3 run | Cases | Attempts | Passed | Failed | Unverified | Non-outcome terminal | Pass rate (decided) |",
+    "| --- | --- | ---: | ---: | ---: | ---: | ---: | --- |",
+  ];
+  if (runs.length === 0) {
+    lines.push(
+      "| _none_ | _none_ | 0 | 0 | 0 | 0 | 0 | n/a |",
+      "",
+      "No L3 terminal receipts found. Executable outcome is unavailable, not passing.",
+      "",
+    );
+    return lines;
+  }
+  for (const run of runs) {
+    const decided = run.passed + run.failed;
+    lines.push(
+      `| ${markdownCell(run.runId)} | ${run.cases.map(markdownCell).join(", ") || "_none_"} | ${run.attempts} | ${run.passed} | ${run.failed} | ${run.unverified} | ${run.nonOutcome} | ${decided > 0 ? pct(run.passed / decided) : "n/a"} |`,
+    );
+  }
+  lines.push("");
+  return lines;
+}
+
 export function buildEvalsReportMarkdown(
   allResults: RunResults[],
   history?: EvalsHistory,
-  options: { includeSelective?: boolean } = {},
+  options: { includeSelective?: boolean; l3RunsDir?: string } = {},
 ): string {
   const lines: string[] = [
     "# 🧪 Live Skill Evals Report",
@@ -405,12 +573,16 @@ export function buildEvalsReportMarkdown(
     "> Activation metrics are omitted for legacy trigger evidence until a clean activation-evidence v2 run replaces it.",
     "",
   ];
+  const l3Section = buildL3OutcomeSection(
+    summarizeL3Outcomes(loadL3AttemptOutcomes(options.l3RunsDir)),
+  );
   if (allResults.length === 0) {
     lines.push(
       "## No runs yet",
       "",
       "No eligible eval runs have been committed under `benchmarks/evals/runs/`.",
       "",
+      ...l3Section,
     );
     return lines.join("\n");
   }
@@ -526,6 +698,8 @@ export function buildEvalsReportMarkdown(
       "",
     );
   }
+
+  lines.push(...l3Section);
 
   if (history && history.records.length > 0) {
     const physicalRuns = new Map(allResults.map((run) => [run.runId, run]));

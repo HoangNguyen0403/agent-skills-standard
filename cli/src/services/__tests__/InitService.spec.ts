@@ -173,6 +173,22 @@ describe('InitService', () => {
       );
     });
 
+    it('should scaffold CONSTITUTION.md during init when absent', async () => {
+      vi.mocked<(filePath: string) => Promise<boolean>>(
+        fs.pathExists,
+      ).mockResolvedValue(false);
+      const answers: InitAnswers = {
+        framework: 'flutter',
+        agents: [Agent.Cursor],
+        registry: 'url',
+      };
+      await initService.buildAndSaveConfig(answers, {}, '/tmp');
+      expect(fs.outputFile).toHaveBeenCalledWith(
+        expect.stringContaining('CONSTITUTION.md'),
+        expect.stringContaining('## Ownership contract'),
+      );
+    });
+
     it('should handle mcpScope when provided and mcpEnabled is false', async () => {
       const answers: InitAnswers = {
         framework: 'flutter',

@@ -2,7 +2,7 @@
 
 ## AGENTS_LEARNING.md Entry Template
 
-Append this block to the **bottom** of `AGENTS_LEARNING.md` for each new learning event.
+Append this block to the **bottom** of `AGENTS_LEARNING.md` for each new learning event. The active log holds at most 20 entries; promote or expire one first (see [Lifecycle](../SKILL.md#lifecycle)).
 
 ```markdown
 ---
@@ -80,18 +80,22 @@ If `AGENTS_LEARNING.md` does not exist, create it with this header first:
 ```markdown
 # Agent Learning Log
 
-This file is auto-maintained by AI agents as a self-improving mistake log.
-Each iteration captures a concrete mistake, the pattern to avoid, and the better approach.
-Do not edit past entries; append only.
+Active learning log, capped at 20 entries. Full history: `docs/learning/AGENTS_LEARNING_ARCHIVE.md`.
+
+- **ACTIVE** — still guides behavior; stays here.
+- **PROMOTED** — rule now lives in a named skill or workflow; archive it with that path.
+- **EXPIRED** — no recurrence in N sessions or 90 days; archive it.
+
+Add entries at the bottom. Do not delete history: move it to the archive first.
 
 ---
 ```
 
 ## Determining Iteration Number
 
-1. Read `AGENTS_LEARNING.md`
-2. Count lines matching `^## Agent Learning Log: Iteration #`
-3. New entry = count + 1
+1. Read `AGENTS_LEARNING.md` and `docs/learning/AGENTS_LEARNING_ARCHIVE.md`
+2. Take the highest `^## Agent Learning Log: Iteration #` number across both files
+3. New entry = highest + 1, so archived iterations are never reused
 
 ## Signal Taxonomy
 

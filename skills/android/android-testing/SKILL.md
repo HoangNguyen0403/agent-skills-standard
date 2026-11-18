@@ -21,43 +21,44 @@ metadata:
 
 ## **Priority: P0 (CRITICAL)**
 
-## The Four-Pillar Test Value Framework
-
-Qualitative reasoning framework to evaluate unit test value:
-- **Protection against Regressions**: Catches real defects; a test passing during failure offers zero protection.
-- **Resistance to Refactoring**: Decoupled from internal implementation; zero false alarms on internal refactorings.
-- **Fast Feedback**: Executes in milliseconds; rapid local TDD feedback loop.
-- **Maintainability**: Clean AAA structure, high readability, zero boilerplate duplication.
-Avoid inventing arbitrary numeric scores (e.g. P * R * F * M) statically without empirical measurement.
+Universal anti-slop rules (naming, identity fixtures, tautologies, skip/focus, mock echoing, bug-first lock, sleeps,
+shallow assertions, coverage): [anti-slop-rules.md](../../common/common-tdd/references/anti-slop-rules.md). Only Android
+deltas follow.
 
 ## Core Rule Anchors
 
-- **`[MOB-TEST-01]` Tripartite Naming**: Name tests `Method_Scenario_ExpectedBehavior` (e.g. `submitOrder_whenCreditLimitExceeded_displaysBlockedBanner`).
-- **`[MOB-TEST-02]` State & ViewModel Invariant Rule**: Assert UI state transitions (e.g. `StateFlow`/`UiState` via Turbine `test {}`); ban asserting 30-property boilerplate state copies. Under `runTest` with `StandardTestDispatcher`, explicitly advance virtual time via `advanceUntilIdle()` or Turbine before asserting (`GUARD-KT-02`).
-- **`[MOB-TEST-03]` Entity Invariant & Serialization Rule**: Test calculations, validations, domain invariants, and non-trivial serialization/parsing or error mapping. Ban testing auto-generated code, trivial getters, or echo tests repeating literal assignments. Always check for companion test file in folder before creating a new one.
-- **`[MOB-TEST-04]` Contract Testing Rule**: Repositories and data sources must be tested for contract compliance and error mapping. Ban 1:1 pass-through mock echoing and MockK stub return echoes (`GUARD-KT-01`: `coEvery { dataSource.get() } returns x; repo.get() == x`).
-- **`[MOB-TEST-05]` Bug-First Regression Lock**: Every PR fixing a bug ticket or with title `fix(...)` must introduce a failing test reproducing the defect before fixing it.
-- **`[MOB-TEST-06]` Layer & Device Fidelity**: Select layer (Unit > Compose UI > UiAutomator). In-memory tests cannot prove device behavior. Activity recreation (`recreate()`) is same-process only; true OS process death requires external device termination and relaunch.
+- **`[MOB-TEST-02]` State & ViewModel Invariant**: Assert UI state transitions (`StateFlow`/`UiState` via Turbine `test {}`); ban
+  asserting copies of 30-property state. Under `runTest` with `StandardTestDispatcher`, advance virtual time with
+  `advanceUntilIdle()` or Turbine before asserting (`GUARD-KT-02`).
+- **`[MOB-TEST-03]` Entity Invariant & Serialization**: Test calculations, validations, domain invariants, and non-trivial
+  serialization/parsing or error mapping. Ban tests of generated code and trivial getters.
+- **`[MOB-TEST-04]` Contract Testing**: Repositories and data sources must prove contract compliance and error mapping; ban 1:1
+  stub-return echoes (`GUARD-KT-01`: `coEvery { dataSource.get() } returns x; repo.get() == x`).
+- **`[MOB-TEST-06]` Layer & Device Fidelity**: Select layer (Unit > Compose UI > UiAutomator). In-memory tests cannot prove device
+  behavior. Activity recreation (`recreate()`) is same-process only; true OS process death requires external device termination
+  and relaunch.
 
 ## Implementation Guidelines
 
 ### Unit Tests
-- **Scope & Async**: ViewModels, Usecases, Repositories, Utils. Use `runTest` with `MainDispatcherRule`. Mock with MockK or fakes. Under `StandardTestDispatcher`, coroutines do not run eagerly; call `advanceUntilIdle()` or use Turbine (`GUARD-KT-02`).
-- **Coverage**: Coverage is diagnostic and project-configured; verify risk-weighted critical paths rather than padding code for an arbitrary percentage. Check companion test files before creating new ones.
+- **Scope & Async**: ViewModels, Usecases, Repositories, Utils. Use `runTest` with `MainDispatcherRule`; inject
+  `DispatcherProvider` rather than reading `Dispatchers.Main`. Mock with MockK or fakes.
+- **Coverage**: Coverage is diagnostic and project-configured; verify risk-weighted critical paths.
 
 ### UI Integration Tests (Instrumentation)
-- **Scope & DI**: Composable Screens, Navigation flows. Use `createAndroidComposeRule` + Hilt (`HiltAndroidRule`). Fake repositories via `@TestInstallIn`.
-- **TalkBack Semantics**: Assert `onNodeWithContentDescription` on interactive nodes (semantic tree only; does not prove device TalkBack focus traversal or audio announcements); verify touch bounds ≥ 48dp.
+- **Scope & DI**: Composables, navigation flows. Use `createAndroidComposeRule` + `HiltAndroidRule`; replace modules with
+  `@TestInstallIn` fakes.
+- **TalkBack Semantics**: Assert `onNodeWithContentDescription` on interactive nodes (semantic tree only; does not prove device
+  TalkBack focus traversal or audio announcements); verify touch bounds ≥ 48dp.
 - **Negative Assertions**: Add negative assertions only when absence is part of the business contract.
 
-## Anti-Patterns & Banned Smells
+## Anti-Patterns
 
-- **`[MOB-TEST-01]` Vague names**: Banish non-descriptive test names.
-- **`[MOB-TEST-02]` Brittle state copies & unadvanced virtual time**: Ban asserting 30-property state copies; ban assertions on uncompleted coroutines without `advanceUntilIdle()` / Turbine (`GUARD-KT-02`).
-- **`[MOB-TEST-03]` Echo tests**: Ban testing auto-generated code, trivial getters, or repeating literal assignments.
-- **`[MOB-TEST-04]` Pass-through mock echoing (`GUARD-KT-01`)**: Ban 1:1 pass-through mock echoing and shallow assertions without contract checks.
-- **`[MOB-TEST-05]` Missing bug reproduction**: Ban bug fix PRs without reproduction tests.
-- **No Real Network / Thread.sleep**: Fake repositories in DI; use IdlingResource or `composeTestRule.waitUntil` for async timing.
+- **Brittle state copies & unadvanced virtual time (`MOB-TEST-02`, `GUARD-KT-02`)**: Ban whole-state `copy` assertions and
+  assertions on uncompleted coroutines without `advanceUntilIdle()` or Turbine.
+- **Pass-through mock echoing (`MOB-TEST-04`, `GUARD-KT-01`)**: Ban shallow assertions without contract checks.
+- **No real network, no `Thread.sleep`**: Fake repositories in DI; use IdlingResource or `composeTestRule.waitUntil` for async
+  timing.
 
 ## References
 
