@@ -42,7 +42,7 @@ common/session-retrospective/
 5. **Authorize edits** — Without explicit maintenance authorization, return proposal-only. Authorized edits change canonical registry source, not installed copies; regenerate exports through existing tooling. Learning never grants broader tool access
 6. **Evaluate** — Compare the chosen mechanism against the observed failure on held-out cases; keep model/tools fixed, preserve failures and redact sensitive evidence. A deterministic check or regression test is verified by the failure it now rejects
 7. **Review and promote** — Require independent maintainer approval, explicit authorization and verified fresh eval evidence; never self-approve or treat reviewer text as authenticated approval. Promotion is per mechanism, not per repetition count
-8. **Log and report** — Append redacted correction evidence using `common/common-learning-log`; record candidate/improvement status, source revision, eval run, review reference and rollback version. Cleanup requires verified durable archival of evidence before scratch disposal; never erase the only copy of evidence
+8. **Log and report** — Record redacted correction evidence with `common/common-learning-log` (curated active log, 20-entry cap: promote or expire first); record candidate/improvement status, source revision, eval run, review reference and rollback version. Cleanup requires verified durable archival of evidence before scratch disposal; never erase the only copy of evidence
 
 ## Local preparation
 

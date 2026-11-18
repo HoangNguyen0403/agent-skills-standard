@@ -40,17 +40,17 @@ Sum the three, never average. Output line: `SNC: S=[0-2] N=[0-2] C=[0-2] total=[
 
 ## Tiers
 
-- `tier=low`: total 0-2
-- `tier=medium`: total 3-4
-- `tier=high`: total 5-6
+- `tier=low`: total 0-2; `tier=medium`: 3-4; `tier=high`: 5-6
 
 ## Routing
 
-| Tier | Autonomy | Verification | Review | Approval | `model_tier` |
-| --- | --- | --- | --- | --- | --- |
-| `tier=low` | autonomous | basic: focused tests + lint | `fast` code-review | none required | `fast` |
-| `tier=medium` | guided | TDD + self-review | `deep` code-review | plan reviewed, no HARD STOP | `standard` |
-| `tier=high` | plan-first | TDD + independent reviewers (`specialist-architecture-guard`, `specialist-security-reviewer` when relevant) | `deep` code-review | **HARD STOP** before code, human approval before merge | `strong` |
+| Tier | Autonomy | Verification | Review | Approval | Artifacts | `model_tier` |
+| --- | --- | --- | --- | --- | --- | --- |
+| `tier=low` | autonomous | basic: focused tests + lint | `fast` code-review | none required | none beyond PR/MR body | `fast` |
+| `tier=medium` | guided | TDD + self-review | `deep` code-review | plan reviewed, no HARD STOP | inline plan or one plan file | `standard` |
+| `tier=high` | plan-first | TDD + independent reviewers (`specialist-architecture-guard`, `specialist-security-reviewer` when relevant) | `deep` code-review | **HARD STOP** before code, human approval before merge | plan file + task list + walkthrough | `strong` |
+
+Readiness gate: `low`/`medium` run none unless requirements are ambiguous; `high` requires it before code.
 
 `fast | standard | strong` is a capability hint only. Each host maps it to its model ladder and binds the named review roles to its own invocation mechanism; the hint is not authorization: premium spend, account selection and execution mode remain host/human decisions.
 
