@@ -9,7 +9,7 @@ snc_tier: high (S=2 N=1 C=2; inference: CI gate, review policy and shared workfl
 model_tier: standard for M1 slices; strong for M2 gate design (capability hint only; host profiles resolve at dispatch)
 approval: maintainer accepted D1 (keep bypass + evidence), D2 (core checks), D3 (1,000 authored lines, report mode first), D4 (shipped ADR convention) and Subagent-Driven execution on 2026-11-18; no ruleset, branch-protection, publication or release authority
 owner: requesting maintainer (@HoangNguyen0403)
-repository_status: planned
+repository_status: implemented (1b76521959 M1, 958049b179 S4, c3b9a49977 S5; branch spiffy-quail)
 activation_status: not_assessed
 
 ## Decision Brief
@@ -20,7 +20,7 @@ activation_status: not_assessed
 - **Evidence and limitations:** see Evidence. S0 baseline (100 merged PRs; additions + deletions; generated mirrors excluded): authored median 1,386 / p75 3,910 / p90 12,627 lines; created→merged median 9.6 h; 88/100 with no recorded GitHub review; 32/100 merged within 2 hours. `reviewCount` counts review events, not approvals. Bypass actor role is inferred.
 - **Resolved decisions:** D1-D4 accepted by the maintainer (session 2026-11-18).
 - **Approval sought:** none open for S4/S5 — owner approved `docs/srs/srs-agent-factory-controls.md` (incl. dependabot body-check skip) on 2026-11-18. Enforce mode and the ruleset edit remain owner actions. No approval here grants report-only/hunk-review or authorizes publication.
-- **Independently ready slices:** M1 (S0-S3) implemented; S4 and S5 ready after design approval.
+- **Independently ready slices:** all slices implemented and independently approved; remaining steps are owner actions (see Next Workflow).
 ## Outcome And Guardrails
 
 Outcome: every merged change to `develop` carries a requirement link, independent review evidence and passing required checks; architectural decisions are durable and read before planning; delivery and review effort are measurable per accepted change.
@@ -143,10 +143,12 @@ Verification per slice: `rtk pnpm lint:check`, `rtk pnpm audit:sdlc`, `rtk pnpm 
 
 ## Status And Receipt
 
-- `feature_status`: M1 (S0-S3) implemented, in corrective review round; D1-D4 accepted; S4/S5 `design_ready` pending owner design approval.
+- `feature_status`: implemented; every slice independently reviewed to APPROVE. Not verified: live GitHub `pr-gate` run, ruleset application, live specialist evals, GitHub-rendered summary. Observed DORA rows stay unavailable because exported deployment coverage does not span the report period (fail-closed by design).
 - Run record: none written.
 
 ## Next Workflow
 
-- S4, S5: `implementation-readiness` after owner approval of `docs/srs/srs-agent-factory-controls.md`.
-- M1: independent re-review after the corrective round, then integration.
+- Owner: regenerate mirrors and `skills/metadata.json` in the main checkout (`pnpm generate-indices`; fixes pre-existing #308 drift); commits here skipped the generator pre-commit hook by owner instruction.
+- Owner: open a PR, confirm check contexts with `gh pr checks`, apply the ruleset runbook in `docs/review-policy.md`.
+- Owner: after the 2-week report window, decide `PR_GATE_MODE=enforce` and record it in the review-policy tuning log.
+- Later decision (M3 follow-on): hunk-review grant for one leaf `shared` class once ≥30 accepted changes carry observations.
