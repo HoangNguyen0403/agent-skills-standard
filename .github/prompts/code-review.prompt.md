@@ -45,6 +45,10 @@ Goal: Evaluate diffs and PRs for security, logic, and architecture without treat
    - `BLOCKED`: missing diff, safe runtime, or required scoped evidence. Request missing prerequisite; no mutation or fabricated downstream completion.
    - Lifecycle: preserve evidenced legal `feature_status` in Outcome Report; if lifecycle is unknown, emit Review Evidence Report outside feature RunRecord (do not invent RunRecord or invalid enums; escalate consumer schema conflicts).
 
+## Runtime Contract
+- Use for PR/diff, ticket-enriched, or scoped specialist review.
+- Load `common-decision-discipline` and apply its §8 continuation contract at entry and every handoff: the settled result selects the successor and specialized gates dominate.
+
 ## Output Template
 
 ```md

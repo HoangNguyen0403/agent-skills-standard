@@ -46,7 +46,7 @@ Goal: Build an approved feature through bounded TDD slices and route settled wor
 
 - Use for approved plans ready to build; TDD, bounded ownership, revision-bound evidence, independent review.
 - Required inputs: PRD/ticket with stable REQ/AC trace or an approved `brief` record with observable criteria; owner; required SRS/test lanes for triggered risk.
-- Choose placement per `common-subagent-driven-development` §1: delegate only for a named benefit or a host requirement. Plan approval does not authorize merge, deployment, premium spend, or a different execution mode.
+- Choose placement per `common-subagent-driven-development` §1: delegate only for a named benefit or a host requirement. Plan approval does not authorize merge, deployment, premium spend, or a different execution mode. Load `common-decision-discipline` and apply its §8 continuation contract at entry and every handoff: the settled result selects the successor and specialized gates dominate.
 - Required independent review and the final whole-branch review survive either placement; missing nesting support or missing isolation stops only the affected operation.
 - Return `needs_context` or `blocked` when required trace or brief criteria, owner, test lanes, authority, required standards, or enforceable isolation are missing.
 

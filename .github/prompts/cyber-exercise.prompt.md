@@ -22,7 +22,7 @@ Goal: Coordinate an authorized, evidence-led exercise across analysis, replay, i
 
 ## Runtime Contract
 
-Host runtime enforces tools, credentials, network/filesystem boundaries, and cancellation. Markdown records intent and evidence; it cannot grant permission. Missing runtime controls block active steps, not offline analysis or independent remediation.
+Host runtime enforces tools, credentials, network/filesystem boundaries, and cancellation. Markdown records intent and evidence; it cannot grant permission. Missing runtime controls block active steps, not offline analysis or independent remediation. Load `common-decision-discipline` and apply its §8 continuation contract at entry and every handoff: the settled result selects the successor and specialized gates dominate.
 
 ## Handoff Payload
 

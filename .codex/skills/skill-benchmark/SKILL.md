@@ -26,6 +26,11 @@ When the user asks to perform this workflow, execute the following steps:
 
 ---
 
+## Runtime Contract
+
+- Use for a scored skill-effectiveness comparison against legacy constraints.
+- Load `common-decision-discipline` and apply its §8 continuation contract at entry and every handoff: the settled result selects the successor and specialized gates dominate; a report is not remediation work.
+
 ## Step 1 — Project Context & Active Skills
 
 Identify the tech stack and all active skills in `AGENTS.md`.

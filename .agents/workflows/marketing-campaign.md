@@ -26,6 +26,7 @@ Goal: Coordinate evidence-based developer marketing campaigns with proof registe
 ## Runtime Contract
 
 - Use for coordinating evidence-grounded developer marketing campaigns across strategy, proof, copy, media, and measurement.
+- Load `common-decision-discipline` and apply its §8 continuation contract at entry and every handoff: the settled result selects the successor and specialized gates dominate.
 - Required inputs: initiative `slug`, target audience, proof register, capacity bounds; carry forward parent `operator_profile` (infer per `common-operator-profile` if unstated, never ask).
 - Return BLOCKED only when requested scope violates community policies, omits proof, or exceeds explicit safety limits. Missing optional packages produce proposal-only output with `missing_evidence`, not BLOCKED.
 

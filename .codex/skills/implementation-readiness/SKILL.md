@@ -56,6 +56,7 @@ Goal: Decide whether a planned change is ready for implementation or must return
    - Write run record to `artifacts/runs/[slug]/[compactISO]-implementation-readiness.json` when writes allowed.
 ## Runtime Contract
 - Use before implementation starts to gate go/no-go.
+- Load `common-decision-discipline` and apply its §8 continuation contract at entry and every handoff: the settled result selects the successor and specialized gates dominate.
 - Required inputs: matching approved task record/ticket or equivalent evidence, owner, testable ACs and design/test prerequisites applicable to each proposed slice. Missing filenames do not force repeat intake.
 - Return BLOCKED only when required authority/approval, owner, unclear AC, consequential design, environment, or risk remains unresolved.
 ## Handoff Payload

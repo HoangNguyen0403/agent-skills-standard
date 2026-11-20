@@ -37,7 +37,7 @@ Goal: Evaluate Stitch screens against human direction and the criteria the actua
    - Final human selection gate: record explicitly selected original or variant, or mark selection pending. Never auto-win by score; never imply handoff is accepted while selection is pending.
 ## Runtime Contract
 
-- Use when a Stitch project or screen needs review, feedback, or improvement.
+- Use when a Stitch project or screen needs review, feedback, or improvement. Load `common-decision-discipline` and apply its §8 continuation contract at entry and every handoff: the settled result selects the successor and specialized gates dominate.
 - Required inputs for a current-screen review: Stitch MCP access, project id or name, and a reachable author or an explicit instruction to proceed on defaults. A bounded historical critique instead requires the retained artifact plus its provenance, and still needs author reachability before any write.
 - Never edit, delete, or re-theme original screens; never call `delete_project`.
 - Block current-screen review, verification, and all writes (`BLOCKED (stitch-mcp)`) when Stitch MCP is missing, the project is not visible to the key, or no current screen artifact can be downloaded. Unresolved Blockers keep the design out of ready handoff.

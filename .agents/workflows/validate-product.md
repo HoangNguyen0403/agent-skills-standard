@@ -24,6 +24,7 @@ Goal: Validate prioritized product hypotheses through bounded experiments and pr
 ## Runtime Contract
 
 - Use when critical product hypotheses or assumptions must be tested before committing delivery capacity.
+- Load `common-decision-discipline` and apply its §8 continuation contract at entry and every handoff: the settled result selects the successor and specialized gates dominate.
 - Required inputs: initiative `slug`, scoped critical `HYP`, primary `MET`, finite bounds, and learning authorization; carry forward parent `operator_profile` (infer per `common-operator-profile` if unstated, never ask).
 - Return BLOCKED only when experiment bounds/stop rules are uncontainable or required host authorization is denied. Missing test execution or runtime packages yields proposal-only output with `missing_evidence`, not BLOCKED.
 

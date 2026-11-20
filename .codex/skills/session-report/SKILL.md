@@ -54,6 +54,7 @@ Goal: Preserve a concise artifact of what changed, how it was verified, and what
    - Release communication -> `publish-notes`.
 ## Runtime Contract
 - Use at the end of a work session to preserve evidence and follow-ups before context is lost.
+- Load `common-decision-discipline` and apply its §8 continuation contract at entry and every handoff: the settled result selects the successor and specialized gates dominate.
 - Required inputs: session goal plus changed files or commands run during the session.
 - Return BLOCKED only when no session evidence (changes, commands, or verification) exists to report.
 ## Handoff Payload

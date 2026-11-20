@@ -105,6 +105,7 @@ Rules:
 11. MCP workflow lookup reads the installed catalog from `.skills-lock.json`; if a lock exists but the catalog metadata is missing, lookup reports `unverified` and asks for a sync instead of falling back to local or native copies.
 12. Cloud operations stay on one entrypoint: `deploy-release` dispatches `setup|deploy|verify|monitor|diagnose|recover` (a genuinely omitted mode defaults to `deploy`) and the keyword-only `common-devops-operations` skill owns the shared MCP preflight, authorization, effect classification and reporting procedure. Provider MCP integrations are optional, consumer-owned setup described in `docs/mcp-integration-guide.md`; never add a provider-specific workflow, auto-install a provider driver or credential, or let guidance text stand in for host/IAM enforcement.
 13. Retiring a workflow ID requires migrating active callers, chaining and audit lists, and stating the explicit consumer configuration update with no forwarding alias. Historical reports, receipts and run records keep the retired ID unchanged; generated exports are regenerated through the normal sync/generation path, never hand-edited.
+14. Every consumer-facing workflow loads `common-decision-discipline` and applies its `§8` continuation contract at entry and every handoff; `evals-run` stays internal-only. Keep the normative contract self-contained in the skill body so `get_skill` alone suffices, and never encode continuation as a printed successor name.
 
 ## 5. Cybersecurity packages and governed evolution
 
@@ -372,6 +373,12 @@ The public `pnpm generate-indices` command uses the candidate coordinator. Run
 recursion.
 By default, unchanged existing outputs may be checked without creating an
 ownership manifest; differing outputs without trusted ownership are refused.
+Fresh checkouts carry no `.skills-lock.json` manifest, so when the public
+`pnpm calculate-tokens` metrics are stale, synchronize them before guarded
+generation so the owning script reconciles `skills/metadata.json`. That
+synchronization is a prerequisite only: it grants no ownership and does not
+authorize changed aggregates or configurations, and unchanged ownership guards
+still govern every generated aggregate update.
 For declared CLI-managed outputs, `pnpm generate-indices` accepts provenance
 when destination bytes match their recorded ownership digest or equal the
 repository `HEAD` blob, persisting refreshed digests into `.skills-lock.json`

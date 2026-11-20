@@ -39,6 +39,7 @@ Goal: Produce an evidence-qualified system design and handoff to `design-solutio
 ## Runtime Contract
 
 - Required input: product goal or existing system, plus scale parameters or explicit permission to use labeled assumptions.
+- Load `common-decision-discipline` and apply its §8 continuation contract at entry and every handoff: the settled result selects the successor and specialized gates dominate.
 - Never select physical components before relevant requirements/estimates exist or are explicitly assumed. Do not claim readiness with unresolved material gates or failed semantic evaluation.
 - Return `BLOCKED` for unresolved material ownership, invariant, compliance/residency, or topology-changing budget decisions that prevent a safe design commitment.
 

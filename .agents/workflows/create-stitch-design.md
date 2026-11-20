@@ -30,6 +30,7 @@ Goal: Turn a human-directed family product brief into a linted DESIGN.md, a Stit
 ## Runtime Contract
 
 - Use when a family product needs a new Stitch design or a new device class.
+- Load `common-decision-discipline` and apply its §8 continuation contract at entry and every handoff: the settled result selects the successor and specialized gates dominate.
 - Required inputs: Stitch MCP access and brief with surfaces, age band, locale, devices, and direction, or explicit instruction to proceed on defaults.
 - Never modify another project's screens or design systems; never overwrite originals.
 - Return BLOCKED when Stitch MCP is missing, DESIGN.md cannot pass lint, or the brief has no age band.
