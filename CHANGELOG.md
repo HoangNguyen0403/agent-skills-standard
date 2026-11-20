@@ -34,6 +34,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 
+## [cli-v2.7.7] - 2026-11-20
+
+**Category**: CLI Tool
+
+### Added
+- feat: right-size process and enforce skill loading (#343)
+- feat(retro): add retrospective diagnostics and safe agent lineage (#333)
+
+### Fixed
+- fix(mcp): preserve retrospective evidence integrity (#331)
+
+### Maintenance
+- chore(deps): consolidate dependabot minor/patch bumps with jsdom 31 and hono advisory fixes (#328)
+
 ## [mcp-v0.8.5] - Unreleased
 
 **Category**: MCP Server
