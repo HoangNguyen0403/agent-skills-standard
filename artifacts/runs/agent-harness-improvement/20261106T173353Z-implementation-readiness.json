@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "run_id": "readiness-agent-harness-improvement-20261106",
+  "slug": "agent-harness-improvement",
+  "workflow": "implementation-readiness",
+  "feature_status": "design_ready",
+  "started_at": "2026-11-06T17:33:53Z",
+  "completed_at": "2026-11-06T17:35:17Z",
+  "requirement_trace": {
+    "brd_objectives": ["BRD-OBJ-001"],
+    "requirements": ["REQ-001"],
+    "acceptance_criteria": ["AC-001", "AC-002", "AC-003", "AC-004", "AC-005", "AC-006"],
+    "srs": ["SRS-001", "SRS-002", "SRS-003", "SRS-004", "SRS-005", "SRS-006"]
+  },
+  "completed_evidence": [
+    "Technical design approval recorded from operator on 2026-11-06",
+    "docs/validation/readiness-agent-harness-improvement.md: execution blocked by unselected approach; A/B technically preparable, C/D scoped blockers retained",
+    "Four V-model levels assessed; UI/mobile/migration inapplicability scoped explicitly",
+    "Safe task_brief.py --help and sdd_progress.py --help entrypoint smoke passed",
+    "Installed validate-product workflow observed; source validation resources distinguished from unestablished installed advanced resources"
+  ],
+  "missing_evidence": [
+    "Operator-selected execution approach and concrete bounded A/B assignments",
+    "C/D safe actual-boundary interface, authenticated authority and finite limits",
+    "C/D pre-execution validation and authorized usage sources/actor correlation",
+    "Capability gap: advanced product-evidence/experimentation resources not established in inspected configured host roots; optional reviewed-ref opt-in/sync remains unauthorized",
+    "Actual lifecycle walkthrough, independent technical acceptance and human baseline disposition"
+  ],
+  "decision_needed": [
+    "Select Subagent-Driven A/B artifact delivery only, or hold execution; C/D remain excluded"
+  ],
+  "recommended_next_workflow": "plan-feature",
+  "cost": {"source": "unavailable"},
+  "agent": {"identity": "OMP orchestrator", "model": "openai-codex/gpt-6.1-sol"}
+}

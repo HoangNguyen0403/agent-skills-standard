@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "run_id": "design-agent-harness-improvement-20261106",
+  "slug": "agent-harness-improvement",
+  "workflow": "design-solution",
+  "feature_status": "design_ready",
+  "started_at": "2026-11-06T16:59:11Z",
+  "completed_at": "2026-11-06T17:05:31Z",
+  "requirement_trace": {
+    "brd_objectives": ["BRD-OBJ-001"],
+    "requirements": ["REQ-001"],
+    "acceptance_criteria": ["AC-001", "AC-002", "AC-003", "AC-004", "AC-005", "AC-006"],
+    "srs": ["SRS-001", "SRS-002", "SRS-003", "SRS-004", "SRS-005", "SRS-006"]
+  },
+  "completed_evidence": [
+    "Operator approved delivery plan and technical-design progression on 2026-11-06",
+    "docs/srs/srs-agent-harness-improvement.md defines existing-interface reuse, six technical requirements and bounded execution prerequisites",
+    "docs/srs/srs-walkthrough-agent-harness-improvement.md distinguishes design checks from NOT RUN runtime scenarios",
+    "Paseo/OMP qualification incompatibility and SessionJournal/taskUsage differences resolved without new runtime or converter",
+    "Independent technical design review completed; cancellation acknowledgement corrected to require cessation evidence",
+    "Unchanged repository RunRecord validator, exact scope, six SRS/VER mappings, local references and source-digest binding passed"
+  ],
+  "missing_evidence": [
+    "Operator approval of technical design and selection of execution approach",
+    "Pre-execution validation, authentic host authority and finite limits for C/D",
+    "Safe actual-boundary denial ingress and live lifecycle evidence",
+    "Authorized native session selection, complete actor accounting and realized ROI"
+  ],
+  "decision_needed": ["Approve technical design for implementation-readiness assessment only"],
+  "recommended_next_workflow": "implementation-readiness",
+  "cost": {"source": "unavailable"},
+  "agent": {"identity": "OMP orchestrator", "model": "openai-codex/gpt-6.1-sol"}
+}

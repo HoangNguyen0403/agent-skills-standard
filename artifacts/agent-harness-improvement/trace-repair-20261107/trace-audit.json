@@ -1,0 +1,25 @@
+{
+  "observed_at": "2026-11-07T01:35:52.043Z",
+  "entrypoint": "scripts/trace/index.ts",
+  "args": [
+    "--slug",
+    "agent-harness-improvement",
+    "--required",
+    "--json"
+  ],
+  "exitCode": 0,
+  "output": {
+    "ok": true,
+    "assurance_kind": "document_links",
+    "execution_evidence": "not_evaluated",
+    "assurance": "document-links-only",
+    "requested_scope": "agent-harness-improvement",
+    "required": true,
+    "slugs": [
+      "agent-harness-improvement"
+    ],
+    "issues": []
+  },
+  "runtime": "v26.0.0",
+  "limits": "Unchanged entrypoint with installed-dependency and relative-TS resolution adapter; assurance limited to auditor output, not runtime enforcement or approval."
+}

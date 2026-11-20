@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "run_id": "implement-agent-harness-ab-20261106",
+  "slug": "agent-harness-improvement",
+  "workflow": "implement-feature",
+  "feature_status": "partially_implemented",
+  "started_at": "2026-11-06T17:36:54Z",
+  "completed_at": "2026-11-07T01:24:02Z",
+  "requirement_trace": {
+    "brd_objectives": ["BRD-OBJ-001"],
+    "requirements": ["REQ-001"],
+    "acceptance_criteria": ["AC-001", "AC-002"],
+    "srs": ["SRS-001", "SRS-002"]
+  },
+  "completed_evidence": [
+    "Operator selected Subagent-Driven A/B evidence delivery only",
+    "Both standalone packets passed existing task_brief.py validation",
+    "artifacts/agent-harness-improvement/ab-20261106/capabilities.md: seven-area report with explicit tools subrecord and configuration limitations",
+    "artifacts/agent-harness-improvement/ab-20261106/dispatch-boundaries.md: six-surface actual-ingress/source boundary map",
+    "artifacts/agent-harness-improvement/ab-20261106/baseline.md: partial reuse, risk, ROI-hypothesis and no-build integration",
+    "B exhaustion preserved; same profile resumed after explicit operator confirmation of quota reset",
+    "Independent architecture/security reviewer accepted exact frozen A/B and integration bytes; no open content findings; review.md retains receipt and hashes",
+    "Unchanged required outcome audit passed: 4 records checked, exactly 1 matching implement-feature record, no issues",
+    "artifacts/agent-harness-improvement/ab-20261106/handoff.md records partial scope, actual checks and remaining trace/live-execution gates"
+  ],
+  "missing_evidence": [
+    "Required document-link trace audit failed exit 1: canonical HAR identifiers and numeric serialization aliases do not satisfy parser declaration grammar",
+    "Standard cumulative review package failed exit 3 because artifacts root is gitignored; direct byte-scoped review used instead",
+    "C/D live boundary and lifecycle/accounting evidence not authorized and NOT RUN",
+    "Human final baseline disposition and full comparable workflow economics unavailable"
+  ],
+  "decision_needed": [
+    "Resolve governed trace-identity compatibility without silently renumbering approved criteria or changing audit policy"
+  ],
+  "recommended_next_workflow": "plan-feature",
+  "cost": {"source": "unavailable"},
+  "agent": {"identity": "OMP orchestrator", "model": "openai-codex/gpt-6.1-sol"}
+}

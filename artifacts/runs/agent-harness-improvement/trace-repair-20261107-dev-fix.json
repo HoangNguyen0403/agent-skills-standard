@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "run_id": "repair-agent-harness-trace-20261107",
+  "slug": "agent-harness-improvement",
+  "workflow": "dev-fix",
+  "feature_status": "partially_implemented",
+  "started_at": "2026-11-07T01:25:48Z",
+  "completed_at": "2026-11-07T01:38:57Z",
+  "requirement_trace": {
+    "brd_objectives": ["BRD-OBJ-001"],
+    "requirements": ["REQ-001"],
+    "acceptance_criteria": ["AC-001", "AC-002", "AC-003", "AC-004", "AC-005", "AC-006"],
+    "srs": ["SRS-001", "SRS-002", "SRS-003", "SRS-004", "SRS-005", "SRS-006"]
+  },
+  "completed_evidence": [
+    "Operator authorized bounded trace identity repair; existing Subagent-Driven approach retained",
+    "artifacts/agent-harness-improvement/trace-repair-20261107/identity-mapping.md: all eight legacy identities mapped to promoted numeric declarations",
+    "artifacts/agent-harness-improvement/trace-repair-20261107/freeze.json: original preimage hashes and accepted A/B evidence unchanged; auditor source hashes unchanged",
+    "artifacts/agent-harness-improvement/trace-repair-20261107/trace-audit.json: unchanged required trace consumer passed, zero issues, document-links-only assurance",
+    "artifacts/agent-harness-improvement/trace-repair-20261107/changes.diff: bounded preimage-to-current document changes",
+    "artifacts/agent-harness-improvement/trace-repair-20261107/review.md: separate reviewer accepted frozen editorial-only migration, no findings; independently recomputed current/preimage/source/A-B hashes",
+    "artifacts/agent-harness-improvement/trace-repair-20261107/outcome-audit.json: required outcome consumer passed, five records checked, exactly one matching repair record, zero issues",
+    "Bounded trace repair complete; feature_status remains partially_implemented for the full assurance baseline, not incomplete repair work"
+  ],
+  "missing_evidence": [
+    "C/D execution remains unauthorized and NOT RUN; full lifecycle and complete economics proof unavailable",
+    "Generated cumulative git review-package limitation retained; ignored artifacts reviewed as direct frozen bytes",
+    "Full assurance baseline human disposition pending"
+  ],
+  "decision_needed": [],
+  "recommended_next_workflow": "verify-work",
+  "cost": {"source": "unavailable"},
+  "agent": {"identity": "OMP orchestrator", "model": "openai-codex/gpt-6.1-sol"}
+}
