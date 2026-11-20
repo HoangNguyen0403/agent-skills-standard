@@ -113,13 +113,3 @@ Task 0 (Prerequisite): Restore locked development dependencies
   - Consumers: Task 1 (requires tsx runner for outcome CLI).
   - Justification: Tooling prerequisite; no feature demo possible or demanded.
 ```
-
-## 5. Gate, Control, and Rollback Per Slice
-
-For every implementation slice, state its gate, the control invariant that must remain true, and its rollback action. Set reversibility to `gated`, `revertible`, or `one-way`; this classification never lowers review depth.
-
-- Gate: name the flag/version pin, or write `none:` followed by a justification when no gate applies.
-- Control: state the invariant that must hold before and after the slice.
-- Rollback: `flag off` pairs only with a named flag and `gated`; `revert` pairs with `revertible`; `one-way` pairs with `one-way` and a human authorization reference.
-- Version pins use `rollback: revert` and `reversibility: revertible`; record the prior pin in the control/plan narrative. Follow the canonical same-line field grammar in the [shipped SDD task brief contract](../../../common/common-subagent-driven-development/references/templates.md#0-task-brief-contract-template).
-- A one-way slice without its authorization reference is blocked. A missing gate is valid only with a reason and rollback; it does not waive the control invariant.

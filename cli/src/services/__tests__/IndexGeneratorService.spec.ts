@@ -145,20 +145,24 @@ describe('IndexGeneratorService', () => {
       expect(dataRows.length).toBe(0);
     });
 
-    it('should instruct loading matched skills without an audit ritual', async () => {
+    it('should include the mandatory Pre-Write Audit Log section', async () => {
       (fs.pathExists as any).mockResolvedValue(false);
       const result = await service.generate('/skills');
-      expect(result).toContain('Load the `SKILL.md` for every matched skill');
-      expect(result).toContain('load_skills_for_files');
-      expect(result).not.toContain('Pre-Write Audit Log');
-      expect(result).not.toContain('Self-Scan');
-      expect(result).not.toContain('Zero-Trust');
+      expect(result).toContain(
+        '### **1. The Pre-Write Audit Log (Mandatory)**',
+      );
+      expect(result).toContain('Before invoking any file-editing tool');
+      expect(result).toContain('1. **Skills Identified**');
+      expect(result).toContain('2. **Explicit Audit**');
+      expect(result).toContain('3. **No-Skill Justification**');
     });
 
-    it('should include the action table in the header', async () => {
+    it('should include the mandatory action table in the header', async () => {
       (fs.pathExists as any).mockResolvedValue(false);
       const result = await service.generate('/skills');
-      expect(result).toContain('## ⚡ How to Find and Use This Index');
+      expect(result).toContain(
+        '## ⚡ How to Find and Use This Index (Mandatory)',
+      );
       expect(result).toContain(
         '> [!IMPORTANT] PATH RESOLUTION (Cross-Platform)',
       );
@@ -852,18 +856,14 @@ describe('IndexGeneratorService', () => {
       expect(result).toContain('common/_INDEX.md');
     });
 
-    it('should state the load-before-edit rule without prompt-only shouting', async () => {
+    it('should contain Zero-Trust directive', async () => {
       (fs.pathExists as any).mockResolvedValue(true);
       (fs.readdir as any).mockResolvedValue(['common']);
       (fs.readFile as any).mockRejectedValue(new Error('ENOENT'));
 
       const result = await service.assembleRouterIndex('/skills');
-      expect(result).toContain('before editing');
+      expect(result).toContain('Zero-Trust');
       expect(result).toContain('SKILL.md');
-      expect(result).toContain('No project-specific skills applicable');
-      expect(result).not.toContain('Zero-Trust');
-      expect(result).not.toContain('Pre-Write Audit Log');
-      expect(result).not.toContain('[!CRITICAL]');
     });
 
     it('should contain Global Token Optimization directive', async () => {

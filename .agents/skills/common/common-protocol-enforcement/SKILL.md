@@ -62,4 +62,4 @@ Look for:
 - Local mocks instead of shared fakes.
 - Hardcoded styles instead of design tokens.
 - Try-catch blocks without standard error handling.
-- Edits to a file before any `load_skills_for_files` call covering it.
+- Missing `Pre-Write Audit Log` in thoughts.

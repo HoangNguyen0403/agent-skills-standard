@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 // ags-hook-version: 2.7.6
 /**
- * PreToolUse hook: require load_skills_for_files() before any code edit.
+ * PreToolUse hook: remind AI agent to call load_skills_for_files() before any code edit.
  * Installed by agent-skills-standard (ags sync). Remove via: ags hooks uninstall
- * Advisory by default (exits 0). With AGS_HOOK_ENFORCE=1 (opt-in via
- * `ags hooks install --enforce`) it exits 2 when either:
- *   1. the target file matches the fixed identity/secret deny-list below, or
- *   2. the session transcript has no load_skills_for_files() call covering
- *      this file. Enforcement reads Claude Code's `transcript_path` from hook
- *      stdin; hosts that do not send it fail open with a warning.
+ * Guaranteed to execute on any system with Node.js. Always exits 0 to never block work,
+ * UNLESS AGS_HOOK_ENFORCE=1 is set in the environment (opt-in via
+ * `ags hooks install --enforce`) AND the target file matches the small,
+ * fixed, skill-agnostic deny-list below — see installStandardHookConfig's
+ * doc comment in HookService.ts for why this can't be a per-skill
+ * permissions.filesystem.deny check.
  */
 const fs = require('fs');
 const path = require('path');
@@ -37,8 +37,7 @@ const SKIP_FILES = [
 function shouldSkip(filePath) {
   try {
     const real = path.resolve(filePath);
-    // Boundary-aware: '.github-extra' must not match '.github'.
-    if (SKIP_DIRS.some(d => real === d || real.startsWith(d + path.sep))) return true;
+    if (SKIP_DIRS.some(d => real.startsWith(d))) return true;
     if (SKIP_FILES.includes(real)) return true;
     return false;
   } catch {
@@ -108,90 +107,13 @@ function matchesPattern(pattern, relPath) {
 let input = '';
 process.stdin.setEncoding('utf8');
 process.stdin.on('data', chunk => { input += chunk; });
-
-// ── Enforce mode: transcript verification ────────────────────────────────────
-// Claude Code sends `transcript_path` (session JSONL) on hook stdin. A target
-// file is covered when an assistant tool_use named *load_skills_for_files*
-// listed a file that either equals the target's normalized project-relative
-// path or shares its extension. Extension matching is deliberately lenient:
-// loading rules for one *.ts file covers sibling *.ts edits. Only the last
-// 5 MB is read, keeping the 5s hook timeout safe.
-const TRANSCRIPT_MAX_BYTES = 5 * 1024 * 1024;
-
-function readTranscriptTail(file) {
-  const fd = fs.openSync(file, 'r');
-  try {
-    const size = fs.fstatSync(fd).size;
-    const start = Math.max(0, size - TRANSCRIPT_MAX_BYTES);
-    const buf = Buffer.alloc(size - start);
-    fs.readSync(fd, buf, 0, buf.length, start);
-    return buf.toString('utf8');
-  } finally {
-    fs.closeSync(fd);
-  }
-}
-
-function toRelPath(p, projectDir) {
-  // Resolve first so 'src/../Makefile' and 'Makefile' compare equal.
-  return normalizePath(path.relative(projectDir, path.resolve(projectDir, p)));
-}
-
-function fileExtension(p) {
-  const base = p.slice(p.lastIndexOf('/') + 1);
-  const dot = base.lastIndexOf('.');
-  return dot > 0 ? base.slice(dot).toLowerCase() : '';
-}
-
-function toolUseBlocks(entry) {
-  const blocks = [];
-  if (entry && entry.message && Array.isArray(entry.message.content)) {
-    blocks.push(...entry.message.content);
-  }
-  if (entry && Array.isArray(entry.content)) blocks.push(...entry.content);
-  return blocks;
-}
-
-// true = covering call found, false = readable but absent, null = unusable.
-function transcriptCoversFile(transcriptPath, filePath, projectDir) {
-  if (typeof transcriptPath !== 'string' || transcriptPath === '') return null;
-  let text;
-  try {
-    text = readTranscriptTail(transcriptPath);
-  } catch {
-    return null;
-  }
-  const target = toRelPath(filePath, projectDir);
-  const targetExt = fileExtension(target);
-  const lines = text.split('\n');
-  for (let i = 0; i < lines.length; i++) {
-    if (lines[i].indexOf('load_skills_for_files') === -1) continue;
-    let entry;
-    try { entry = JSON.parse(lines[i]); } catch { continue; }
-    const blocks = toolUseBlocks(entry);
-    for (let j = 0; j < blocks.length; j++) {
-      const block = blocks[j];
-      if (!block || block.type !== 'tool_use') continue;
-      const name = typeof block.name === 'string' ? block.name : '';
-      if (!name.endsWith('load_skills_for_files')) continue;
-      const files = block.input && Array.isArray(block.input.files) ? block.input.files : [];
-      for (let k = 0; k < files.length; k++) {
-        if (typeof files[k] !== 'string') continue;
-        const candidate = toRelPath(files[k], projectDir);
-        if (candidate === target) return true;
-        if (targetExt !== '' && fileExtension(candidate) === targetExt) return true;
-      }
-    }
-  }
-  return false;
-}
-
 process.stdin.on('end', () => {
   try {
     const data = JSON.parse(input);
     if (!EDIT_TOOLS.has(data.tool_name)) process.exit(0);
 
     const filePath = data.tool_input?.file_path || '';
-    if (!filePath) process.exit(0);
+    if (!filePath || shouldSkip(filePath)) process.exit(0);
     const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
     const policyFile = path.join(projectDir, '.ags/policy.json');
     let policyDoc = null;
@@ -252,25 +174,25 @@ process.stdin.on('end', () => {
       if (matched.length > 0) {
         const BYPASS = process.env.AGS_POLICY_BYPASS === '1' || process.env.AGS_POLICY_BYPASS === 'true';
         if (BYPASS) {
-          // Waives policy rules only; deny-list and transcript gates still apply.
           const waived = matched.map(function(m) { return m.id; }).join(', ');
           console.error('[AGS POLICY] bypass active: waived ' + waived);
-        } else {
-          const blockRule = matched.find(function(m) { return (m.action || 'warn') === 'block'; });
-          if (blockRule) {
-            if (ENFORCE) {
-              console.error('[AGS BLOCKED] ' + blockRule.id + ': ' + blockRule.reason);
-              process.exit(2);
-            } else {
-              console.error('[AGS POLICY WARN] ' + blockRule.id + ': ' + blockRule.reason);
-            }
-          }
+          process.exit(0);
+        }
 
-          for (let i = 0; i < matched.length; i++) {
-            const m = matched[i];
-            if ((m.action || 'warn') === 'warn') {
-              console.error('[AGS POLICY WARN] ' + m.id + ': ' + m.reason);
-            }
+        const blockRule = matched.find(function(m) { return (m.action || 'warn') === 'block'; });
+        if (blockRule) {
+          if (ENFORCE) {
+            console.error('[AGS BLOCKED] ' + blockRule.id + ': ' + blockRule.reason);
+            process.exit(2);
+          } else {
+            console.error('[AGS POLICY WARN] ' + blockRule.id + ': ' + blockRule.reason);
+          }
+        }
+
+        for (let i = 0; i < matched.length; i++) {
+          const m = matched[i];
+          if ((m.action || 'warn') === 'warn') {
+            console.error('[AGS POLICY WARN] ' + m.id + ': ' + m.reason);
           }
         }
       }
@@ -283,30 +205,6 @@ process.stdin.on('end', () => {
         'If this edit is intentional, re-run `ags hooks install` (without --enforce) to return to advisory-only mode.'
       );
       process.exit(2);
-    }
-
-    // Harness / agent-config paths (.claude, .github, .codex, .agents, AGENTS.md,
-    // CLAUDE.md, ...) skip only the skill-loading gate and the reminder below:
-    // they are agent configuration, not skill-governed source. Policy rules and
-    // the secret deny-list above already ran, so they still protect these paths.
-    if (shouldSkip(filePath)) process.exit(0);
-
-    if (ENFORCE) {
-      const relTarget = toRelPath(filePath, projectDir);
-      const covered = transcriptCoversFile(data.transcript_path, filePath, projectDir);
-      if (covered === null) {
-        console.error(
-          '[AGS HOOK] No readable transcript_path on hook stdin; cannot verify ' +
-          'load_skills_for_files(). Allowing this edit (fail-open).'
-        );
-      } else if (covered === false) {
-        console.error(
-          '[AGS BLOCKED] No load_skills_for_files() call covering ' + relTarget + ' in this session transcript.\n' +
-          '-> Call load_skills_for_files(files=[ "' + relTarget + '" ]) on the agent-skills-standard MCP, then retry.\n' +
-          '-> To return to advisory-only mode, re-run `ags hooks install` (without --enforce).'
-        );
-        process.exit(2);
-      }
     }
 
     const fileName = path.basename(filePath);

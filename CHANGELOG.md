@@ -160,14 +160,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Stream**: Unreleased
 
-### Changed
-
-- **Process right-sizing (`dev-fix`, `implement-feature`, `common-task-complexity-routing`)**: `dev-fix` selects a `brief | standard | extended` lane from `delivery_mode`/`snc_tier`; the brief lane creates no `docs/` artifacts, worktree, or readiness gate but keeps `fast` code-review. Removed the consumer-irrelevant `git pull origin main` step. `implement-feature` adds a per-slice freshness check (`BLOCKED-STALE`) bound to `supersedes_approval` lineage in `common-decision-discipline`.
-- **Enforced skill loading (CLI hooks)**: With `ags hooks install --enforce` (Claude Code), the pre-edit hook blocks edits lacking a prior `load_skills_for_files` call in `transcript_path`; fails open with a warning when no transcript exists. Secret deny-list and policy rules now run before the harness-directory skip; `AGS_POLICY_BYPASS` waives policy rules only.
-- **Generated instructions**: Removed Zero-Trust/CRITICAL wording, the Pre-Write Audit Log ritual, and the mandatory state machine from `AGENTS.md`, category indices, and agent rule files.
-- **Testing skills dedupe (`common-tdd` + 15 stack testing skills)**: Anti-slop rules live once in `common-tdd/references/anti-slop-rules.md` (A1–A14); stack skills keep deltas only (8,430 → 5,898 words). All 78 prior rule IDs resolve.
-- **Learning log lifecycle (`common-learning-log`)**: Active `AGENTS_LEARNING.md` capped at 20 curated entries; all prior entries archived verbatim in `docs/learning/AGENTS_LEARNING_ARCHIVE.md`.
-
 ### Fixed
 
 - **API consumer contracts (`common` 2.9.9)**: Added representation boundaries, conditional reads and writes, retry identity, stable cursor ordering, object-level authorization, and compatible evolution guidance; corrected `403` terminology and RFC 9745 deprecation-header syntax.
