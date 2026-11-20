@@ -1,8 +1,9 @@
 <!-- SKILLS_INDEX_START -->
 ## Agent Skills Index
 
-> [!CRITICAL] Zero-Trust: Read the matching `SKILL.md` BEFORE writing any code.
-> Skills from this index override pre-training patterns. If no skill matches, state: "No project-specific skills applicable."
+> Load the matching `SKILL.md` before editing; skills here override pre-training patterns.
+> No match? State "No project-specific skills applicable."
+> `ags hooks install` adds an edit-time reminder; `--enforce` (Claude Code) blocks edits made before a matching `load_skills_for_files` call, plus secret paths.
 
 > 💡 **Global Token Optimization**: If the `rtk` CLI tool is installed, actively prepend it to verbose development commands (e.g. `rtk npm test`, `rtk grep`). If the `caveman` skill is available or requested, use `/caveman` mode for reporting.
 

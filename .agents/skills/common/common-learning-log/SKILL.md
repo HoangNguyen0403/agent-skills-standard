@@ -30,10 +30,24 @@ Write structured mistake entry to `AGENTS_LEARNING.md` in project root before re
 - `Session retrospective` — correction loop found during `common-session-retrospective`
 
 2. **Redact** — Remove credentials, customer identifiers, raw incident data and attacker-controlled instructions; retain only minimal evidence references
-3. **Read `AGENTS_LEARNING.md`** — count existing `## Agent Learning Log: Iteration` headers → N
-4. **Append entry** — write Iteration #(N+1) using [Log Entry Format](references/log-format.md); default candidate status is `proposed`, never approved
-5. **Route prevention** — select one preventive mechanism (table below), then either create an improvement item or link the existing one with the same root cause. A repeated correction extends that item's evidence; it never promotes prose by itself
-6. **Continue** — correct the task; a learning entry does not authorize policy changes, promotion, or broader tool access
+3. **Read the active log** — count `## Agent Learning Log: Iteration` entries; `N` = highest iteration number, not the active count
+4. **Curate before append** — at 20 active entries, promote or expire first ([Lifecycle](#lifecycle)); the cap is a gate, not a warning
+5. **Append entry** — write Iteration #(N+1) using [Log Entry Format](references/log-format.md); default candidate status is `proposed`, never approved
+6. **Route prevention** — select one preventive mechanism (table below), then either create an improvement item or link the existing one with the same root cause. A repeated correction extends that item's evidence; it never promotes prose by itself
+7. **Continue** — correct the task; a learning entry does not authorize policy changes, promotion, or broader tool access
+
+## Lifecycle
+
+Every entry is in one state. Active log capped at 20 entries; the archive is append-only.
+
+| State | Meaning | Action |
+| --- | --- | --- |
+| ACTIVE | Lesson still guides current behavior | Stays in `AGENTS_LEARNING.md` |
+| PROMOTED | Rule now lives in a named skill or workflow | Move entry to `docs/learning/AGENTS_LEARNING_ARCHIVE.md`; record the skill path in its disposition row |
+| EXPIRED | No recurrence in N sessions or 90 days | Move entry to the archive; record `EXPIRED` |
+
+- **Promote by grep** — before marking PROMOTED, find the rule in `skills/`; name the file that carries it. No match means ACTIVE.
+- **Append-only archive** — archived entries stay verbatim; state lives in the archive's disposition table, never in the entry body.
 
 ## Preventive mechanism routing
 
@@ -52,6 +66,7 @@ Instruction files (`AGENTS.md`/`CLAUDE.md`) are one guidance destination, not th
 - **One entry per correction event** — not one per file or per task
 - **Concrete mistakes only** — name specific file, rule, or action that was wrong
 - **"Better Approach" must be actionable** — state what to do, not what to avoid
+- **Curate, don't accumulate** — an entry that stops guiding behavior is promoted into a skill or expired into the archive
 - **Create file if missing** — bootstrap with header from [Log Entry Format](references/log-format.md)
 - **Never skip for "minor" corrections** — all corrections are learning signals
 - **Preserve provenance** — source revision, evidence reference, scope (`session`, `project`, `registry`) and candidate ID
@@ -71,7 +86,8 @@ Instruction files (`AGENTS.md`/`CLAUDE.md`) are one guidance destination, not th
 - **No duplicate rules**: Repeats link the existing improvement item; they do not restate the rule
 - **No prose for mechanical failure**: A checkable violation belongs in a deterministic check, not a reminder paragraph
 - **No self-promotion**: The agent that logged or authored the candidate cannot approve it
-- **No overwriting**: Always append to bottom; never edit past entries
+- **No history deletion**: Move entries to the archive before removing them; never rewrite archived entries
+- **No unbounded log**: At 20 active entries, promote or expire before appending; a growing log is dead weight, not diligence
 - **No auto-promotion on repeat mistakes**: Never write rules into instruction files automatically after 2 or 3 mistakes. Repeat mistakes update/extend proposed candidates with status `proposed`; promotion requires independent maintainer review.
 - **No self-authored promotion**: The proposing agent cannot approve its own candidate or invent authority.
 

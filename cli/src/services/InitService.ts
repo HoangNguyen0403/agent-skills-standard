@@ -10,6 +10,7 @@ import {
 import { RegistryMetadata } from '../models/types';
 import { ConfigService } from './ConfigService';
 import { DetectionService } from './DetectionService';
+import { renderConstitution } from './install/ConstitutionTemplate';
 
 /**
  * Contextual data gathered during project discovery to inform the initialization prompt.
@@ -145,5 +146,20 @@ export class InitService {
 `;
     const configPath = path.join(cwd, '.skillsrc');
     await fs.outputFile(configPath, commentHeader + yaml.dump(config));
+
+    await this.scaffoldConstitution(frameworkId, cwd);
+  }
+
+  /**
+   * Creates an optional `CONSTITUTION.md` scaffold when the project has none.
+   * An existing file is never read, written, or reformatted.
+   */
+  async scaffoldConstitution(
+    frameworkId: string,
+    cwd: string = process.cwd(),
+  ): Promise<void> {
+    const constitutionPath = path.join(cwd, 'CONSTITUTION.md');
+    if (await fs.pathExists(constitutionPath)) return;
+    await fs.outputFile(constitutionPath, renderConstitution(frameworkId));
   }
 }

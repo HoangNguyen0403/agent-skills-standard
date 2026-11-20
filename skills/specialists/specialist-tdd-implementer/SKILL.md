@@ -37,11 +37,12 @@ Implement exactly one AC or bug-fix slice. Test count cannot establish completio
 
 ## Anti-Slop Verification Checklist
 
-- Assertion integrity: no assertion-free tests (`GUARD-UNIV-ZERO`), ban tautologies (`GUARD-UNIV-TAUTOLOGY`), and ban skip/focus (`GUARD-UNIV-SKIP`, `GUARD-UNIV-FOCUS`).
-- Non-identity calculation fixtures (`GUARD-UNIV-IDENTITY-FIXTURE`): active operands (`discount`, `rebate`, `fee`, `tax`, `mov`) must not be `0`, `0.0`, `""`, or empty.
-- Compound guards: assert each clause (`&&`/`||`) independently flips outcome.
-- Multi-return payload verification (`GUARD-GO-EXISTENCE-ONLY`): multi-return `(T, error)` functions must assert payload fields/invariants; bare `NoError` + `NotNil` banned.
-- TS async & conditional traps: `await` promises (`GUARD-TS-FLOATING-ASSERT`), no catch-only assertions (`GUARD-TS-CATCH-ONLY`), ban unverified conditional assertions (`GUARD-TS-CONDITIONAL-ASSERT`), and ban self-mocking (`GUARD-TS-SELF-MOCK`, `GUARD-TS-MOCKED-SUT`).
+Apply canonical rules A1–A14 in [anti-slop-rules.md](../../common/common-tdd/references/anti-slop-rules.md): assertion
+integrity (`GUARD-UNIV-ZERO`, `GUARD-UNIV-TAUTOLOGY`), non-identity calculation fixtures (`GUARD-UNIV-IDENTITY-FIXTURE`),
+independent clause flipping, payload assertions instead of existence checks, skip/focus bans (`GUARD-UNIV-SKIP`,
+`GUARD-UNIV-FOCUS`), and TS traps (`GUARD-TS-FLOATING-ASSERT`, `GUARD-TS-CATCH-ONLY`, `GUARD-TS-CONDITIONAL-ASSERT`,
+`GUARD-TS-SELF-MOCK`, `GUARD-TS-MOCKED-SUT`).
+
 ## Execution guardrails
 
 - Use project timeout or 120s fallback for focused command. On timeout terminate only agent-owned process group and verify child cleanup.
