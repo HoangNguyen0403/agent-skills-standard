@@ -19,5 +19,8 @@
 __pycache__/
 *.pyc
 
+# NVIDIA SkillEvaluator key (local only; see .env.skillevaluator.example)
+.env.skillevaluator
+
 # freshness audit output; the weekly workflow uploads it as an artifact
 /benchmarks/freshness/

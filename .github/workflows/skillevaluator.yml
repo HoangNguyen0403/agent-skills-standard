@@ -1,0 +1,77 @@
+name: SkillEvaluator Audit
+
+# Manual, opt-in audit only. No PR/push/schedule trigger: this job runs
+# third-party evaluator code and (for llm/dedup) spends model quota.
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Evaluator mode'
+        required: true
+        default: static
+        type: choice
+        options:
+          - static
+          - llm
+          - dedup
+      path:
+        description: 'Path to evaluate (relative to repo root)'
+        required: false
+        default: skills
+      checks:
+        description: 'Tier 1 check subset, e.g. schema,quality,unicode (static/llm only)'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '20.x'
+
+      - uses: pnpm/action-setup@v6
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run SkillEvaluator
+        env:
+          MODE: ${{ inputs.mode }}
+          TARGET_PATH: ${{ inputs.path }}
+          CHECKS: ${{ inputs.checks }}
+          # Key is exposed on this step only, and only for keyed modes.
+          NVIDIA_API_KEY: ${{ inputs.mode != 'static' && secrets.NVIDIA_API_KEY || '' }}
+        run: |
+          set -euo pipefail
+          if [ "$MODE" != "static" ] && [ -z "${NVIDIA_API_KEY:-}" ]; then
+            echo "::error::mode '$MODE' needs the NVIDIA_API_KEY repository secret (free key: https://build.nvidia.com)"
+            exit 1
+          fi
+          case "$MODE" in
+            static) SCRIPT=skilleval ;;
+            llm) SCRIPT=skilleval:llm ;;
+            dedup) SCRIPT=skilleval:dedup ;;
+          esac
+          ARGS=(--path "$TARGET_PATH")
+          if [ -n "$CHECKS" ] && [ "$MODE" != "dedup" ]; then
+            ARGS+=(--checks "$CHECKS")
+          fi
+          pnpm "$SCRIPT" -- "${ARGS[@]}"
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: skillevaluator-${{ inputs.mode }}-${{ github.run_id }}
+          path: artifacts/skillevaluator/**
+          if-no-files-found: warn
