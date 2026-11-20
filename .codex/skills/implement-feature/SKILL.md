@@ -61,8 +61,9 @@ Goal: Build an approved feature through bounded TDD slices and route settled wor
 - Load `common-decision-discipline` §8 at entry and every handoff: settled results select successors; specialized gates dominate.
 ## Handoff Payload
 
-- `slug`, `operator_profile`, `delivery_mode`, work item @ revision, approval, tiers, slices, tests, contracts, trace, packets, evidence lanes, risks, outcome, next workflow.
-- `repository_status` and `activation_status` stay separate; publication approval does not grant deployment authority.
+- `slug`, carried `operator_profile`, `delivery_mode`, work-item reference plus source revision, approval reference, `snc_tier`, `model_tier`, completed slices, tests run, changed contracts, requirement trace, delegation packets, evidence-lane refs (technical/acceptance/release), risks, outcome report, next workflow.
+- Carry `repository_status` and `activation_status` separately; include authorized next action, settled revision, and evidence links. Publication approval does not grant deployment authority.
+
 ## Blocking Questions
 
 - Resolve discoverable facts from the packet, repository, and named standards first; ask max 3 only when the answer changes the result or safety boundary; give a recommended default plus 2–3 options.
@@ -74,18 +75,25 @@ Goal: Build an approved feature through bounded TDD slices and route settled wor
 - Mode: brief | standard | extended; work item + revision: [ref @ rev]; owner: [owner]; approval: [ref]
 - Evidence lanes: technical [verify receipt ref], acceptance [not assessed], release [not assessed]
 ## Completed Slices
+
 ## Tests Run
+
 ## Changed Contracts
+
 ## Requirement Trace Updates
 ## Evidence
+
 ### Layered Acceptance
-- **Source-Ready:** [Git SHA + dirty-identity; build/lint/typecheck as PASS | FAIL | NOT RUN | NOT APPLICABLE]
-- **Focused Checks:** [Runner command, raw count/membership, RED status (expected_red | frozen_snapshot_red | not_run), GREEN result]
+- **Source-Ready:** [Git SHA + dirty-identity; check statuses explicitly recorded: build/lint/typecheck as PASS | FAIL | NOT RUN | NOT APPLICABLE]
+- **Focused Checks:** [Test runner command, raw test count/membership from runner output, RED status (expected_red | frozen_snapshot_red | not_run), GREEN result]
 - **Consumer-Smoke:** [Real producer→consumer entrypoint, outward side effects verified | NOT APPLICABLE with scope reason]
 - **Independent Review:** [Reviewer identity, spec compliance and code quality verdicts | NOT APPLICABLE with scope reason]
-- **Human Acceptance:** [Sign-off status (Approved | Pending | NOT APPLICABLE with scope reason)]
+- **Human Acceptance:** [Human partner / operator sign-off status (Approved | Pending | NOT APPLICABLE with scope reason)]
+
 ## Known Risks
+
 ## Delegation Packets
+
 ## Outcome Report
 {schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: implement-feature, started_at: "[timestamp]",
  completed_at: "[timestamp]", feature_status: "[evidence-derived status]", requirement_trace: {brd_objectives: [], requirements: [],
@@ -94,6 +102,8 @@ Goal: Build an approved feature through bounded TDD slices and route settled wor
 ## Next Workflow
 verify-work when the settled evidence proves the approved criteria; dev-fix for an observed defect; null when the slice is not settled.
 ```
+
 ## Cost Report
-Call `get_session_cost(workflow="implement-feature")` before handoff; workers never pass `completion`, and orchestrators add it only when tasks are settled and consent is enabled.
+
+Call `get_session_cost(workflow="implement-feature")` before handoff (or with `outcome="implemented"`, `completion={role: "orchestrator", activeTasks: 0, pendingTasks: 0}` when orchestrator/unassigned on local stdio with workers/checks settled and consent enabled to trigger preparation; workers never pass completion).
 

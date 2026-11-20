@@ -79,14 +79,14 @@ describe('AgentBridgeService', () => {
       );
       // Ensure proper newlines (not literal \n strings) for readability
       expect(copilotCall![1]).toMatch(/\n## Self-Learning Protocol/);
+      expect(copilotCall![1]).toMatch(/\n## 🔄 The Mandatory State Machine/);
       expect(copilotCall![1]).toContain(
-        'Before editing source files, load the applicable skill rules',
+        'Your first action in ANY session MUST be a tool call',
       );
-      expect(copilotCall![1]).toContain('load_skills_for_files');
-      expect(copilotCall![1]).toContain('AGENTS.md');
-      expect(copilotCall![1]).not.toContain('Pre-Write Audit Log');
-      expect(copilotCall![1]).not.toContain('Zero-Trust');
-      expect(copilotCall![1]).not.toContain('State Machine');
+      expect(copilotCall![1]).toContain(
+        'State 1: Discovery (Tool Call Required)',
+      );
+      expect(copilotCall![1]).toContain('State 4: Execution & Audit Log');
 
       // Check remaining
       expect(findCall('.windsurf/rules')).toBeDefined();

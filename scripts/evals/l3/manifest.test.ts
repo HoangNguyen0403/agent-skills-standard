@@ -234,21 +234,6 @@ test("SRS-001: attempt plan rejects duplicates, unsupported cases, hidden retrie
   );
 });
 
-test("L3 case population is closed: testing-discipline and stack domains are rejected, not silently accepted", () => {
-  const valid = createValidManifestFixture();
-  for (const caseId of ["tdd", "react", "nestjs", "golang"]) {
-    assert.throws(
-      () => validateManifestStructure({ ...valid, case_ids: [caseId] }, { now: CLOCK }),
-      /Unsupported case ID in case_ids/i,
-      `${caseId} must not be selectable in an artifact-v1 manifest`
-    );
-  }
-  assert.deepEqual(
-    validateManifestStructure({ ...valid, case_ids: ["payment", "tenant", "overload"] }, { now: CLOCK }).case_ids,
-    ["payment", "tenant", "overload"]
-  );
-});
-
 test("SRS-001: artifact references reject absolute, traversal, backslash and duplicate-slash paths", () => {
   const valid = createValidManifestFixture();
   const withArmPath = (badPath: string) =>

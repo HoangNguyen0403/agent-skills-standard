@@ -1,16 +1,59 @@
 # Agent Learning Log
 
-Active learning log. Curated, capped at 20 entries; the full history is append-only in
-`docs/learning/AGENTS_LEARNING_ARCHIVE.md`.
+This file is auto-maintained by AI agents as a self-improving mistake log.
+Each iteration captures a concrete mistake, the pattern to avoid, and the better approach.
+Do not edit past entries; append only.
 
-Lifecycle (`skills/common/common-learning-log`):
+---
 
-- **ACTIVE** — current, still guiding behavior; stays here.
-- **PROMOTED** — rule now lives in a named skill or workflow; append to the archive with the skill path.
-- **EXPIRED** — no recurrence in N sessions or 90 days; append to the archive, drop here.
+## Agent Learning Log: Iteration #1
 
-Add new entries at the bottom; when the log exceeds 20 entries, promote or expire before appending.
-Do not delete history: move it to the archive.
+**Date**: 2026-05-08 | **Task**: Consolidate Antigravity folders and fix sync issues.
+**Signal**: User correction
+
+### ❌ Mistake Made
+- Refactored `.antigravity/mcp_config.json` to `.agents/mcp_config.json` without confirming if the original path was a requirement for the Antigravity agent.
+- Implemented a destructive cleanup of the `.agent` folder using `fs.remove` without migrating existing user content (custom skills) first.
+
+### 🚫 Pattern to Avoid
+- **No arbitrary path consolidation**: Do not change agent-specific configuration paths based on naming "consistency" assumptions without verifying requirements.
+- **No destructive cleanup without migration**: Never delete folders that could contain unique user-created content (e.g., custom skills) without a merge/migration step.
+
+### ✅ Better Approach
+Verify agent configuration paths against documentation or current user state before refactoring. Implement a "Migrate and Clean" protocol: check for source existence, merge non-duplicate items to the destination, and only then perform the deletion.
+
+---
+
+## Agent Learning Log: Iteration #2
+
+**Date**: 2026-07-12 | **Task**: Improve live skill evaluation quality.
+**Signal**: User correction
+
+### ❌ Mistake Made
+I reported evaluator safety and incremental-run improvements without making the remaining skills-improvement work equally explicit. That risked treating measurement infrastructure as completion while the report still showed below-gate skills.
+
+### 🚫 Pattern to Avoid
+- **No infrastructure-as-outcome reporting**: A safer runner does not prove that skill bodies, activation boundaries, or live outcomes meet the stated quality gate.
+
+### ✅ Better Approach
+Track source repair, fresh evidence, and category promotion as separate deliverables. Report the remaining below-gate skills and continue the remediation waves until current evidence proves the release gate.
+
+---
+
+## Agent Learning Log: Iteration #3
+
+**Date**: 2026-07-13 | **Task**: Verify the skill-remediation eval runs.
+**Signal**: User correction
+
+### ❌ Mistake Made
+I repeatedly asked for a run after the user had already completed `all-v2.6.0-2026-07-12T15-40-45-083Z-1d558d66`. I inspected incomplete prepared manifests before checking the newest completed `results.json`, then continued changing sources after the completed run without clearly freezing the verification batch.
+
+### 🚫 Pattern to Avoid
+- **No run-state assumptions**: Never ask for execution, quota approval, or reruns before enumerating and verifying the newest completed eval run.
+- **No moving verification target**: Freeze a remediation batch before a user runs it; do not silently add more source changes and then describe a new run as the same required step.
+
+### ✅ Better Approach
+At each user update, inspect `manifest.json`, `results.json`, and `completedAt` first. Treat the latest completed run as authoritative, finish analysis against that immutable evidence, and present any later verification as a separately named, one-time frozen batch with its exact scope.
 
 ---
 
@@ -27,6 +70,35 @@ I used minor version bumps for small additive workflow and skill guidance change
 
 ### ✅ Better Approach
 Classify the user-visible change by its actual impact and follow repository release conventions; use patch bumps for small compatible corrections, and align category/workflow metadata with the changelog.
+
+---
+
+## Agent Learning Log: Iteration #5
+
+**Date**: 2026-10-06 | **Task**: Resolve the bounded-worker deployment prerequisite.
+**Signal**: Session retrospective
+**Skills**: common/common-decision-discipline, common/common-session-retrospective
+**Scope**: project
+**Candidate**: bcd-runtime-prerequisite-communication | **Status**: proposed
+**Provenance**: BASE `1fb0537c339c1e135167f4c15ba603b8849da5bc`; deployment-choice exchange and `docs/srs/srs-provisioning-recommendation-bounded-context-delegation.md`.
+**Evaluation**: not-run
+**Review**: pending; no registry-maintenance or promotion authorization
+**Rollback**: not-applicable; proposal only
+
+### Mistake Made
+I repeatedly requested an Apple-entitled executable or alternative containment owner before presenting a plain-language provisioning recommendation. The user asked “what you need?” and selected “Unsure / neither available”; generic continuation replies could not resolve the technical prerequisite.
+
+### Pattern to Avoid
+- **No operator implementation quiz**: A missing deployment environment requires an evidence-backed recommendation and a bounded owner decision, not repeated requests for technical artifacts the owner may not possess.
+- **No ambiguous approval escalation**: A general “yes” does not authorize a new signed runtime, installation, account change or deployment.
+
+### Better Approach
+Explain the missing guarantee, present the smallest supported candidate with explicit unknowns, and distinguish recommendation approval from exact provisioning/qualification authority. Propose extending the existing decision-discipline examples with this scenario; preserve the security gate, and evaluate/review the proposal before any canonical skill change.
+
+### Trigger Miss
+```json
+{"skill":"common/common-decision-discipline","indirect_phrase":"what you need?","root_cause":"routing","source_revision":"1fb0537c339c1e135167f4c15ba603b8849da5bc","proposed_change":"Add a missing-environment prerequisite example that routes to an operator-answerable recommendation before requesting deployment artifacts.","status":"proposed"}
+```
 
 ---
 
@@ -54,6 +126,35 @@ Freeze the user-selected PR scope, prove its behavior and exact commit identity,
 
 ### Trigger Miss
 None established: applicable guidance was loaded; this was a workflow/scope application error, not a missing keyword alias.
+
+---
+
+## Agent Learning Log: Iteration #7
+
+**Date**: 2026-10-07 | **Task**: Audit coordinator cost, context replay and delivery friction.
+**Signal**: User correction
+**Skills**: common/common-context-optimization, common/common-session-retrospective
+**Scope**: project
+**Candidate**: ags-bounded-coordinator-context | **Status**: proposed
+**Provenance**: source revision `a9f7ba3bc1bbefceaf847334d9cce240261abd61`; `artifacts/runs/ags-session-retrospective/20261007T013618Z-metrics.json` and linked retrospective report. Historical cutoff excludes retrospective usage.
+**Evaluation**: not-run; historical accounting reconciled independently, no candidate/no-skill comparison
+**Review**: pending; no maintainer promotion authorization
+**Rollback**: not-applicable; canonical guidance/runtime settings unchanged
+
+### Mistake Made
+I delegated coding to Luna but retained hundreds of coordinator steps, detailed source/review material and repeated gates on Sol. Recorded coordinator cost was 60.0% of observed session estimates despite 96.1% cache-read input: high cache hit rate did not make the large repeated context economical.
+
+### Pattern to Avoid
+- **No worker-only savings claim**: Measure coordinator, reviewer, retry and auxiliary usage together.
+- **No cache-hit-as-efficiency proxy**: Track replay volume, context size, output and phase costs as well as hit rate.
+
+### Better Approach
+Use bounded phase packets, complete slice ownership, concise revision-bound receipts and deterministic check collection. Preserve required safety/independent review; rerun only evidence invalidated by the actual change. Extend existing context/implementation guidance through the report's held-out evaluations before promotion; permission/profile fixes belong to their host/account owners.
+
+### Trigger Miss
+```json
+{"skill":"common/common-context-optimization","indirect_phrase":"caching, context management, main-model cost","root_cause":"routing","source_revision":"a9f7ba3bc1bbefceaf847334d9cce240261abd61","proposed_change":"Add prompt-cache and orchestration-cost activation cases while retaining framework-context negative cases; reconcile history masking with append-only caching.","status":"proposed"}
+```
 
 ---
 
@@ -182,6 +283,33 @@ Give every cross-worktree input its exact absolute path, allowed section and own
 
 ### Trigger Miss
 None established: applicable workflow/file standards were loaded; the concrete failure was brief-path procedure, with a separate tool/adapter range-exposure defect reported for review.
+
+---
+
+## Agent Learning Log: Iteration #13
+
+**Date**: 2026-10-11 | **Task**: Classify second-project discovery boundaries.
+**Signal**: Session retrospective
+**Skills**: common/common-session-retrospective, common/common-learning-log
+**Scope**: session
+**Candidate**: control-claims-require-action-observation-proof | **Status**: proposed
+**Provenance**: parent plan revision `b529c2d99112db2af63aa2c32365a37759613cc6`; sanitized readiness record `artifacts/runs/cross-project-harness-pilot/20261011T145308Z-implementation-readiness.json`, guidance correction.
+**Evaluation**: not-run; no denial/write/egress exercise authorized
+**Review**: pending; corrected analysis is not shared-guidance approval
+**Rollback**: not-applicable; proposal only
+
+### Mistake Made
+Delegated guidance analysis classified documented hook presence and successful allowed metadata commands as active enforcement, and tool availability as proof of absent OS write protection. One bounded follow-up corrected those claims without generating unauthorized control probes.
+
+### Pattern to Avoid
+- **No declaration as observed control**: Source/configuration or successful allowed actions do not prove blocking behavior.
+- **No tool presence as absent protection**: Advertised write tools do not establish actual filesystem enforcement either way.
+
+### Better Approach
+Separate instructions, approval metadata, documented mechanisms and action-observation enforcement receipts. If no authorized denial/protection exercise exists, leave enforcement unknown/unverified. Keep any host-redesign proposal distinct from binding task requirements and approval.
+
+### Trigger Miss
+None established: this was evidence-classification procedure, not proof of missing control tooling.
 
 ---
 
@@ -395,6 +523,33 @@ Publish complete neutral maps by allocation/root, exact consumed/current artifac
 
 ### Trigger Miss
 None established: revision/state bookkeeping, not a model/quota failure.
+
+---
+
+## Agent Learning Log: Iteration #22
+
+**Date**: 2026-10-12 | **Task**: Qualify the final peer's audit and completion claims.
+**Signal**: Session retrospective
+**Skills**: common/common-session-retrospective, common/common-learning-log
+**Scope**: session
+**Candidate**: control-claims-require-action-observation-proof | **Status**: proposed
+**Provenance**: reviewed Personal study base `b529c2d99112db2af63aa2c32365a37759613cc6`; same delivery record, initial/final independent review and paired closure digests.
+**Evaluation**: not-run; no host-denial or egress exercise authorized
+**Review**: pending; extends Iteration13's existing proposal, no automatic promotion
+**Rollback**: not-applicable; no instruction/skill/control changes
+
+### Mistake Made
+The final independent peer's header called loaded standards actively enforced and initially blurred four accepted deliveries with whole-study completion. One metadata-only qualification preserved the successful 22-assertion source-bound lane while distinguishing pending synthesis/review/human adoption and unverified host controls.
+
+### Pattern to Avoid
+- **No lookup audit as behavioral or technical enforcement proof**: Returned bodies are consultation evidence.
+- **No delivery denominator as whole workflow**: Four accepted candidates do not complete final synthesis, review or human adoption.
+
+### Better Approach
+State separately loaded guidance, independent scoped assessment, actual consumer evidence, observed individual tool approvals and unverified OS/network/alternate-route guarantees. Bind corrected own artifacts without rerunning passing code, retain earlier overclaims, and require explicit maintenance authority/evaluation/independent approval before any repeated-rule promotion.
+
+### Trigger Miss
+None established: recurring evidence/template procedure. Existing guidance proposal extended; no canonical edits or held-out evaluation claimed.
 
 ---
 
