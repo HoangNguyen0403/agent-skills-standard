@@ -473,3 +473,28 @@ pnpm evals:l3 run --manifest <path/to/manifest.json> --grant <path/to/host-grant
 - `build` and `run` require independent host authority grants supplied outside the manifest via `--grant <path>`; self-granting from manifest fields is forbidden.
 - Without live D5 hypervisor execution, `build` and `run` engage D2 runtime adapter preflight. `build` stages `runs/<run_id>/build/` and publishes `build-receipt.json`; `run` stages an exclusive attempt directory (`runs/<run_id>/<attempt_id>/`), publishes an atomic terminal receipt (`preflight_failed` or `infrastructure_error`), and removes the `interrupted.json` marker. Both exit non-zero. `build` then `run` on the same manifest never collides. Overwriting existing attempt directories, build directories, or receipts is strictly refused.
 - Reviewer bundle export blinds all protocol arms (`A0`, `A1`, `A2`), machine paths, and structured verdict/reason metadata. It returns only scrubbed views plus exact per-artifact SHA-256 digests and byte counts; no raw artifact bytes leave the manager, so arm labels and host paths cannot leak through the export.
+
+### Supported case population
+
+The artifact-v1 manifest accepts exactly three case IDs — `payment`, `tenant` and `overload` — and the
+guest controller dispatches no others. Executable cases for testing discipline (`common-tdd`: a bug fix
+must add a failing regression test that passes after the fix) and for the `react`, `nestjs` and `golang`
+stacks are **not supported**: the frozen D1 wire schema has no test-execution surface, so those domains
+cannot be expressed as an artifact-v1 attempt. `validateManifestStructure` rejects them with
+`Unsupported case ID in case_ids`, and `manifest.test.ts` locks that closure so partial wiring cannot
+ship silently. Never substitute a transcript assertion for an executable claim.
+
+### Headline reporting
+
+`pnpm evals:report` renders an `## 🧱 Executable (L3) outcome` group after the transcript Executive
+Summary. Receipts are read only from `benchmarks/evals/l3/runs/<run_id>/<attempt_id>/receipt.json`
+(overridable with `buildEvalsReportMarkdown(results, history, { l3RunsDir })`). Counts are never merged
+with transcript assertions: `passed` requires the receipt's own `whole_case_pass` evidence, a `passed`
+terminal without it counts `unverified`, and a missing receipts directory reports the group as
+unavailable rather than passing.
+
+### Gate insertion point
+
+L3 is not a release gate yet. Insert an executable gate at one of:
+- `scripts/evals/index.ts:431` — the `case "gate":` dispatch, beside the transcript gate.
+- `.github/workflows/ci.yml:237` — immediately after the `pnpm evals:gate -- --all` step.

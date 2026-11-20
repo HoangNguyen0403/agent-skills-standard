@@ -31,12 +31,14 @@ A passing test is insufficient; the test must prove an owned behavior and a dist
 - **Legacy or bug fix:** characterize only when needed, then reproduce the intended change as a failing regression (RED). Frozen old-revision proof against a pre-repair snapshot is valid regression evidence when explicitly labeled as `frozen_snapshot_red`. Preserve unrelated existing code; do not delete it merely because it predates the test.
 ## Before writing a test
 
-Before writing tests for any file, check if a test file already exists in the folder. If it does, add new parameterized test cases to that file. Never generate a separate sidecar file with identical mock setups.
-If `<stem>.test.js` exists, migrate and replace it with `<stem>.test.ts` instead of coexisting (`GUARD-TS-DUAL-EXT`). Compare against existing suite; ensure scenario is not already covered upstream or in nearby layers. Preserve justified cross-layer tests when layers catch distinct regression risks.
+Apply A1 (companion-file reuse, twin-extension migration) from `references/anti-slop-rules.md`: add cases to an existing
+test file; never create a sidecar with duplicated mocks. Compare against the existing suite; ensure the scenario is not
+already covered upstream or in nearby layers. Preserve justified cross-layer tests when layers catch distinct regression
+risks.
 
 Create one Test Intent Record per behavior/risk (see `references/quality-contract.md` for schema):
 - Fields: `id`, `requirements`, `owner`, `contract` (observable contract — outward side effect), `fault` (distinct plausible fault, risk-sensitive), `layer` (smallest honest layer: `unit`, `integration`, `contract`, `e2e`), `cases` (minimal equivalence classes; use a parameterized test for equivalent inputs), `command` (exact focused single-run command), `oracle` (independent oracle ref, basis, owner, rationale; never copied solely from implementation), `boundaries` (real vs mocked).
-- Reject tests that duplicate existing coverage without distinct risk, assert internal mock choreography, copy expected output from implementation, or invent numeric four-pillar scores. Evidence receipts bind local consistency under `local-untrusted` trust; they cannot replace human review of oracle independence.
+- Reject tests that duplicate existing coverage without distinct risk, assert internal mock choreography, or copy expected output from implementation (A7, A12). Evidence receipts bind local consistency under `local-untrusted` trust; they cannot replace human review of oracle independence.
 
 ## Bounded loop
 
@@ -64,12 +66,8 @@ Later edits invalidate affected proof only; rerun affected gates without weakeni
 - Red flags and rationalizations to reject: `add tests after`, `too small`, `passed first run`, `run the full suite again`, `mock every collaborator`, or `implementation is the oracle`. Urgency, manual testing, test count, or coverage target never bypasses intent record, expected RED, bounded command, or fault proof.
 ## Core Rules & Banned Smells
 
-- Verify one logical contract per test; multiple assertions allowed for related aspects/side effects. Behavior-focused names; ban placeholder names like 'test 1' or 'sample' (`GUARD-UNIV-NAME`); no ticket IDs, TODO, or FIXME markers.
-- Assert observable outcomes and outward side effects, not mock choreography or call sequences. Mock external boundaries only when isolation requires it; prefer real pure/domain behavior and simple fakes.
-- Non-identity calculation fixtures (`GUARD-UNIV-IDENTITY-FIXTURE`): Never bind active operands (`discount`, `rebate`, `fee`, `tax`, `mov_threshold`) to `0`, `0.0`, `""`, or empty collections while asserting non-zero business outcomes.
-- Independent clause flipping: For compound `&&`/`||` guards (e.g. market checks + feature flags), assert each clause independently flips the result.
-- Ban tautologies (`GUARD-UNIV-TAUTOLOGY`): `expect(x).toBe(x)`, `assert.Equal(t, x, x)`, boolean literals.
-- Ban skip and focus (`GUARD-UNIV-SKIP`, `GUARD-UNIV-FOCUS`): Never commit `it.skip`, `it.only`, `fit`, `fdescribe`, or `@Ignore`.
-- Ban TS traps: Always `await` promise assertions (`GUARD-TS-FLOATING-ASSERT`), never assert only in `catch` without `try` failure guard (`GUARD-TS-CATCH-ONLY`), never wrap assertions in unverified conditionals (`GUARD-TS-CONDITIONAL-ASSERT`), and ban test double self-mocking (`GUARD-TS-SELF-MOCK`, `GUARD-TS-MOCKED-SUT`).
+Apply the universal anti-slop rules A1–A14 in `references/anti-slop-rules.md` (companion reuse, identity fixtures, clause
+flipping, tautologies, skip/focus, TS traps, mock echoing, bug-first lock, sleeps, shallow assertions, naming, coverage).
+Assert observable outcomes and outward side effects, never mock choreography.
 
-See `references/quality-contract.md` for full taxonomy, schemas, and anti-pattern examples.
+See `references/quality-contract.md` for the intent record schema, RED taxonomy, and escalation ladder.

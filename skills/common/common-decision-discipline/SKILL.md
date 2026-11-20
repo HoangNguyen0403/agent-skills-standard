@@ -75,7 +75,7 @@ Trustworthy decisions are sized to the work, grounded in evidence, and approved 
 
 ## Record Decisions
 
-- Record a choice among materially different outcomes when you choose it by applying a named pre-approved rule (`rule`) or by using a default not covered by a rule (`default-pending-review`). Following an outcome explicitly selected by a human or using a routine tool is not a decision. Record only a permitted choice; the record never authorizes action or replaces a required human gate. See [Decision Record](references/decision-record.md) for the rubric and examples.
+- Record a choice among materially different outcomes when you choose it by applying a named pre-approved rule (`rule`) or by using a default not covered by a rule (`default-pending-review`). Following an outcome explicitly selected by a human or using a routine tool is not a decision. Record only a permitted choice; the record never authorizes action or replaces a required human gate. Decisions that change approved scope or contract use the ADR-lite form (`supersedes:` decision ids, `supersedes_approval:` approval revision, `invalidates:` REQ-/AC-/SRS- ids, human approver); field semantics live only in [Decision Record](references/decision-record.md).
 
 ## Red Flags
 

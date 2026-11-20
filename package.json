@@ -106,6 +106,7 @@
     "docs:capabilities": "tsx scripts/generate-capabilities-doc.ts",
     "docs:capabilities:check": "tsx scripts/generate-capabilities-doc.ts --check",
     "audit:outcome": "tsx scripts/outcome/index.ts",
+    "snc:diff": "tsx scripts/snc-from-diff.ts",
     "audit:trace": "tsx scripts/trace/index.ts",
     "audit:test-assurance": "node --import tsx scripts/test-assurance/index.ts",
     "test:e2e": "tsx scripts/test-e2e.ts",

@@ -18,34 +18,46 @@ metadata:
 
 ## **Priority: P1 (HIGH)**
 
+Universal anti-slop rules (naming, identity fixtures, tautologies, skip/focus, mock echoing, bug-first lock, sleeps,
+shallow assertions, coverage): [anti-slop-rules.md](../../common/common-tdd/references/anti-slop-rules.md). Only Next.js
+deltas follow.
+
 ## Core Rule Anchors
 
-- **`[WEB-TEST-01..05]` Core Web Standards**: Tripartite naming (`Method_Scenario_ExpectedBehavior`), accessible roles (`getByRole`), no prop/state inspection, MSW network mocking, and bug-first regression reproduction.
-- **`[WEB-TEST-06]` Ban on Static Artifact Pinning & Twin `.test.js` Suites**: Never assert on static `print(GQL)` query text or `.loc.source.body` substring matches (`GUARD-TS-STATIC-PINNING`); test the hook or query component. Never loop `Object.keys(locales/*.json)` or assert `typeof en[k] === 'string'`; assert user-visible rendered text via `findByText`/`getByRole`. Never create `<stem>.test.ts(x)` alongside legacy `<stem>.test.js(x)` (`GUARD-TS-DUAL-EXT`); migrate legacy files. Ban pass-through mock echoes (`expect(wrapper()).toBe(X)` without business transformations).
+- **`[WEB-TEST-02..04]` Core Web Standards**: Accessible roles (`getByRole`), no prop/state inspection, and MSW network mocking
+  are owned by the canonical web rules in `react-testing`; naming is canonical A11.
+- **`[WEB-TEST-06]` Ban Static Artifact Pinning & Twin `.test.js` Suites**: Never assert static `print(GQL)` query text or
+  `.loc.source.body` substrings (`GUARD-TS-STATIC-PINNING`); test the hook or query component. Never loop
+  `Object.keys(locales/*.json)` or assert `typeof en[k] === 'string'`; assert rendered text via `findByText`/`getByRole`.
+  Never keep `<stem>.test.ts(x)` beside a legacy `<stem>.test.js(x)` (`GUARD-TS-DUAL-EXT`); migrate it. Ban pass-through mock
+  echoes (`expect(wrapper()).toBe(X)` without business transformations).
 
 ## Test Runner & Workflow
 
-- **Existing projects (Pages Router / legacy)**: Use **Jest** (`jest@29` + `babel-jest` + `jest-environment-jsdom`).
-- **New projects (App Router)**: Use **Vitest** for speed and native ESM support.
-- **E2E Testing**: Use **Playwright** for full user flow validation (login, checkout).
+- **Existing projects (Pages Router / legacy)**: **Jest** (`jest@29` + `babel-jest` + `jest-environment-jsdom`).
+- **New projects (App Router)**: **Vitest** for speed and native ESM.
+- **E2E Testing**: **Playwright** for full user flows (login, checkout).
 
 ## Implementation Guidelines
 
-- **Unit & Component Testing**: Use **Jest** or **Vitest** with **React Testing Library (RTL)**. Follow Arrange-Act-Assert (AAA). Check for existing companion test files before creating new ones.
-- **Interactions & Selectors**: Use `userEvent` (async) for user actions. Favor `getByRole` / `findByRole` to test accessibility; `data-testid` only as fallback.
-- **Networking**: Intercept API boundaries using **MSW** handlers for isolated component/unit tests to guarantee deterministic fixtures; reserve real network for dedicated Playwright E2E suites.
-- **TS Hygiene Invariants**: Always `await` promise assertions (`GUARD-TS-FLOATING-ASSERT`). Never assert only inside `catch` without an explicit failure guard in `try` (`GUARD-TS-CATCH-ONLY`). Never wrap assertions in unverified conditionals without `expect.hasAssertions()` (`GUARD-TS-CONDITIONAL-ASSERT`). Ban self-mocking and mocking the SUT (`GUARD-TS-SELF-MOCK`).
-- **No Hard Timeouts**: Ban `setTimeout` in unit tests (`GUARD-REACT-02`); ban `page.waitForTimeout` hard sleeps in Playwright (`GUARD-E2E-01`). Use web-first assertions (`await expect(locator).toBeVisible()`) or `findBy*`.
-- **Reporting**: Ensure tests generate JSON coverage reports for CI gates. Verify risk-weighted behavioral paths rather than padding code to reach arbitrary percentage targets.
+- **Unit & Component**: Jest or Vitest with RTL, AAA; reuse existing companion test files.
+- **Interactions & Selectors**: `userEvent` (async) for actions; `getByRole`/`findByRole` for accessibility; `data-testid` only
+  as fallback.
+- **Networking**: MSW handlers at API boundaries for deterministic component/unit tests; real network only in Playwright E2E.
+- **TS Hygiene**: Apply canonical rule A6 (`GUARD-TS-FLOATING-ASSERT`, `GUARD-TS-CATCH-ONLY`,
+  `GUARD-TS-CONDITIONAL-ASSERT`, `GUARD-TS-SELF-MOCK`).
+- **No Hard Timeouts**: Ban `setTimeout` in unit tests (`GUARD-REACT-02`); ban `page.waitForTimeout` in Playwright
+  (`GUARD-E2E-01`). Use web-first assertions (`await expect(locator).toBeVisible()`) or `findBy*`.
+- **Reporting**: Generate JSON coverage reports for CI gates; verify risk-weighted behavioral paths, not percentage padding.
 
 ## Anti-Patterns
 
-- **`[WEB-TEST-06]` Static pinning & twin suites**: Ban `print(GQL)` regex pinning (`GUARD-TS-STATIC-PINNING`), locale JSON key loops, twin `.test.js` sidecars (`GUARD-TS-DUAL-EXT`), and pass-through mock echoes.
-- **TS hygiene violations**: Ban floating promises (`GUARD-TS-FLOATING-ASSERT`), catch-only tests (`GUARD-TS-CATCH-ONLY`), unverified conditionals (`GUARD-TS-CONDITIONAL-ASSERT`), and self-mocking (`GUARD-TS-SELF-MOCK`).
-- **Hard sleep calls (`GUARD-REACT-02` / `GUARD-E2E-01`)**: Ban `setTimeout` in unit tests and `page.waitForTimeout` in E2E.
-- **No unisolated network in unit tests**: Use MSW handlers; do not call external network in unit suites.
-- **No implementation testing**: Test user behavior, not internal component methods.
-- **No global state leakage**: Reset MSW handlers and mocks after each test.
+- **Static pinning & twin suites (`[WEB-TEST-06]`)**: `GUARD-TS-STATIC-PINNING` regex pinning, locale JSON key loops,
+  `GUARD-TS-DUAL-EXT` sidecars, and pass-through mock echoes.
+- **Hard sleep calls (`GUARD-REACT-02` / `GUARD-E2E-01`)**: `setTimeout` in unit tests, `page.waitForTimeout` in E2E.
+- **Unisolated network in unit tests**: Use MSW handlers; no external network.
+- **Implementation testing**: Test user behavior, not internal component methods.
+- **Global state leakage**: Reset MSW handlers and mocks after each test.
 
 ## References
 
