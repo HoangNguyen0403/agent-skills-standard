@@ -24,7 +24,7 @@ Goal: Produce a build-ready technical design with explicit boundaries, contracts
 ## Steps
 
 1. Load inputs:
-   - Load baseline SRS/FRS, requirements guidance, authoritative work-item/source reference + approved revision + scope owner + prior scoped-approval reference, inherited risk/operator metadata, implementation plan, matched skills, architecture docs, and trace source; report unavailable inputs without guessing.
+   - Load baseline SRS/FRS, requirements guidance, authoritative work-item/source reference + approved revision + scope owner + prior scoped-approval reference, inherited risk/operator metadata, implementation plan, matched skills, architecture docs, `docs/adr/README.md` when present (absent log is not a blocker), and trace source; report unavailable inputs without guessing.
    - Carry `delivery_mode` and sensitivity: `brief` uses its approved ticket and writes no SRS; `standard`/`extended` design only where technical decisions or contracts need it.
 2. Define architecture:
    - Name bounded contexts, module/data owners, migration needs; select technical contracts/views without inventing product scope. Consume or create HLD trace: requirements, audience, scope, shaping constraints, lifecycle status, ownership, failure domains, decisions; define dependency direction, component RACI, and sync/async/hybrid communication.
@@ -38,7 +38,7 @@ Goal: Produce a build-ready technical design with explicit boundaries, contracts
 4. Plan verification:
    - Unit, integration, E2E, visual, mobile, security, and migration checks; failure mode analysis for dependencies, fallbacks, retries, and rollback/degradation. Save to `docs/srs/srs-[slug].md` when file writes are allowed; record evidence in `docs/srs/srs-walkthrough-[slug].md`.
 5. Record ADR and route:
-   - Write one concise ADR when architecture or a public contract changes; continue when patterns are inferable; return BLOCKED for missing authority inputs, cross-team contracts, migrations, permissions, or NFR uncertainty; route next step to `implementation-readiness` or `dev-fix`.
+   - Write one concise ADR at `docs/adr/NNNN-<slug>.md` from `common-documentation/references/adr.md`, appending one row to `docs/adr/README.md`, when architecture or a public contract changes; continue when patterns are inferable; return BLOCKED for missing authority inputs, cross-team contracts, migrations, permissions, or NFR uncertainty; route next step to `implementation-readiness` or `dev-fix`.
 
 ## Runtime Contract
 - Use after PRD or approved implementation when design is needed. Required: original work-item/source reference, approved revision, scope owner, prior scoped-approval reference, and enough PRD/ticket context for contracts. Return BLOCKED for missing authority inputs or cross-team contracts, migrations, permissions, or NFR uncertainty. Load `common-decision-discipline` and apply its §8 continuation contract at entry and every handoff: the settled result selects the successor and specialized gates dominate.

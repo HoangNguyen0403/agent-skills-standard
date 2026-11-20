@@ -1,0 +1,67 @@
+# Control bands (REQ-AFC-08 / AC-AFC-14). Detection is deterministic
+# (`scripts/metrics/bands.ts`) and runs before any agent reads the signal.
+# Tiers escalate by evidence: log, then read-only diagnose, then propose (a PR
+# only — no direct push or deploy). A band's owner is the maintainer.
+#
+# Sources must name an artifact in the `<file>.json (<field> field)` form that
+# `bands.ts` can resolve. A source the evaluator cannot resolve is reported
+# `unavailable` with a reason in `rtk pnpm metrics:report --json`; it is never
+# dropped.
+
+version: 1
+
+defaults:
+  baseline: rolling_30d
+  rules: western_electric
+  owner: maintainer
+
+bands:
+  # Authored PR size from the local `pr-baseline` records series
+  # (`records[].authoredLines`, one point per merged PR). Refresh it with
+  # `pnpm metrics:pr-baseline`; the artifact lives under gitignored `artifacts/`,
+  # so a clean CI checkout evaluates this band as `unavailable` until it is
+  # regenerated — the band is declared, never silently dropped.
+  - metric: authored lines per merged pull request
+    source: "artifacts/agent-factory-controls/baseline.json (authoredLines field)"
+    baseline: rolling_30d
+    owner: maintainer
+    tiers:
+      1sigma:
+        action: log
+      2sigma:
+        action: diagnose
+        tools: [read, grep, glob]
+      3sigma:
+        action: propose
+        routes: [pull_request]
+    harm_check: >-
+      Authored size grows past the reviewed budget and a consumer-visible defect
+      ships in a published skill bundle before the maintainer reviews the diff.
+    dismissals: []
+
+  # Benchmark savings gate. `rules: fixed_gate_threshold` looks the metric name
+  # up in `bands.ts`'s gate table, so it keeps the gate's exact signal name; the
+  # rule compares the latest record against the most recent different-version
+  # record using `scripts/benchmark/gate.ts` thresholds (10-point drop allowed).
+  # A drop means every `ags sync` consumer gets less context compression than the
+  # previous release promised. The declared `rolling_30d` does not apply to this
+  # rule; its baseline is the previous release record.
+  - metric: savingsPctHeavy
+    source: "benchmarks/history.json (savingsPctHeavy field)"
+    baseline: rolling_30d
+    rules: fixed_gate_threshold
+    owner: maintainer
+    tiers:
+      1sigma:
+        action: log
+      2sigma:
+        action: diagnose
+        tools: [read, grep, glob]
+      3sigma:
+        action: propose
+        routes: [pull_request]
+    harm_check: >-
+      A published release drops below the savings gate, so every consumer's
+      `ags sync` ships a materially larger skill context than the previous
+      release for the same skills.
+    dismissals: []

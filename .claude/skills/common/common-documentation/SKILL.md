@@ -30,7 +30,7 @@ metadata:
 
 ## 3. ADRs & Architecture
 
-- **ADRs**: Document rationale for system changes in `docs/adr/`.
+- **ADRs**: Document rationale for system changes in `docs/adr/`; template, numbering, index, and supersede rules in [adr.md](references/adr.md).
 - **Docstrings**: Include Args, Returns, and Usage examples (`>>>`).
 - **Diagrams**: Use Mermaid.js inside Markdown.
 

@@ -285,7 +285,7 @@ Start with any practice that has no prerequisite, then follow the arrows.
 
 ## Anti-Patterns Worth Naming
 
-- **No line-by-line human review of agent-written diffs**: Move human attention to intent, risk, and the gates.
+- **No line-by-line human review of agent-written diffs** (target, not current rule): Move human attention to intent, risk, and the gates; line-review remains the default until an owner grant under `docs/review-policy.md`.
 - **No editing the failing test to close a bug**: Lock test paths for the duration of the fix.
 - **No component-specific logic in a shared skill**: Keep it in the project instruction file or the prompt.
 - **No agent-config change without an eval**: Gate skill, workflow, and hook edits on the eval suite.

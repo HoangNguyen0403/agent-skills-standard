@@ -32,7 +32,7 @@ Fetch provider-neutral PR/MR context and return review-ready metadata only.
 
 1. Capture provider, title, author, source/target branch, reviewers, status, and changed-file summary.
 2. Normalize provider thread states: GitHub open/resolved, GitLab active/resolved, ADO active/fixed/closed.
-3. Check the description/template for unfilled placeholders, missing ticket link, test evidence, screenshots for UI change, release notes when relevant, and each PR-template section: Evidence, Blast radius, Rollback, Not verified. Report every missing or unfilled section by name; a populated field remains an author claim until inspected.
+3. Check the description/template for unfilled placeholders, missing ticket link, test evidence, screenshots for UI change, release notes when relevant, and each PR-template section: Requirements, Evidence, Blast radius, Rollback, Not verified. Report every missing or unfilled section by name. A missing requirement trace (no REQ/AC IDs or approved ticket/brief reference) is a **Major** finding; a populated field remains an author claim until inspected.
 4. Return blockers, missing evidence, and useful review context only.
 
 ## Output
@@ -53,7 +53,7 @@ Fetch provider-neutral PR/MR context and return review-ready metadata only.
 | [n] | [status] | [open/resolved/closed] | [reply] | [summary] |
 
 ### Description Issues
-- [issue or None]
+- [issue with severity, or None]
 ```
 
 ## Anti-Patterns

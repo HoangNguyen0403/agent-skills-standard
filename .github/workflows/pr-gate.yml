@@ -1,0 +1,45 @@
+name: PR Gate
+
+# SRS-AFC-01..05: report-mode merge gate. Its own workflow so body edits and
+# label changes re-evaluate the gate without re-running the whole CI matrix.
+#
+# Reads the pull_request payload from $GITHUB_EVENT_PATH only (no event field is
+# interpolated into `run:`), holds no secrets, writes no PR comments, and runs
+# with a read-only token on fork PRs. Findings annotate the job summary and only
+# fail the check when PR_GATE_MODE=enforce; switching modes is an owner action
+# recorded in docs/review-policy.md.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited, labeled, unlabeled]
+    branches: [main, develop]
+
+permissions:
+  contents: read
+
+jobs:
+  pr-gate:
+    name: pr-gate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      PR_GATE_MODE: report
+      PR_GATE_MAX_AUTHORED_LINES: "1000"
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # merge base, numstat and review_gate.py classify need both commits
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22.x"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run pr-gate
+        run: node --import tsx scripts/pr-gate/pr-gate.ts
