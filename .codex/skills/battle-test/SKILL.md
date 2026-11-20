@@ -68,6 +68,11 @@ Evaluate skills against `<SKILLS>/common/common-skill-creator/references/rubric.
 Output the report using the **Battle Test Report** and **Phased Plan** templates in:
 `<SKILLS>/common/common-skill-creator/references/rubric.md` when synced.
 
+## Runtime Contract
+
+- Use for a scored audit of a skills directory against the skill-creator standard.
+- Load `common-decision-discipline` and apply its §8 continuation contract at entry and every handoff: the settled result selects the successor and specialized gates dominate; a remediation plan is not executed work.
+
 ## Step 5 — Interactive Follow-up
 
 1. "Generate a `task.md` for Phase 1 remediation?"

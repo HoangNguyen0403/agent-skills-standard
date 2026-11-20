@@ -45,6 +45,7 @@ Goal: Stop user-facing harm immediately, then hand off to root-cause discipline 
 
 ## Runtime Contract
 - Use only for production incidents or urgent regressions with active user-facing harm; non-urgent bugs go directly to `dev-fix`.
+- Load `common-decision-discipline` and apply its §8 continuation contract at entry and every handoff: the settled result selects the successor and specialized gates dominate.
 - Required inputs: incident signal (alert, report, or error spike) plus a proposed mitigation path (rollback, flag, or config revert).
 - Block the mutation — while continuing safe scoped analysis and escalation — when identity is unresolved, organizational authority or an unexpired approval grant is missing, the required MCP capability is absent or disconnected, the grant is expired or revoked, or host enforcement of the approved scope cannot be verified. Never invent an emergency exception, self-approve, broaden a role, or retry an uncertain write without reconciling state.
 - Security-forensic and containment work retains `cyber-triage` authority and custody requirements.

@@ -47,6 +47,7 @@ Goal: Convert a `verify-work` PASS into an explicit, evidence-linked business ac
 
 ## Runtime Contract
 - Use after `verify-work` PASS on a feature, before `deploy-release`.
+- Load `common-decision-discipline` and apply its §8 continuation contract at entry and every handoff: the settled result selects the successor and specialized gates dominate.
 - Required inputs: a PASS verification report with criteria to demo against, plus the reviewed work-item revision and the acceptance authority. A prior acceptance policy applies only when its authorized owner supplied that scoped grant; otherwise the human gate applies.
 - Return BLOCKED only when no verification report exists or the approver is unavailable in autonomous/channel mode.
 ## Handoff Payload

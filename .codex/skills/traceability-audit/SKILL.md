@@ -52,6 +52,7 @@ Goal: Prove every acceptance criterion has implementation and verification evide
 
 ## Runtime Contract
 - Use pre-release or handoff to prove requirement-to-evidence coverage.
+- Load `common-decision-discipline` and apply its §8 continuation contract at entry and every handoff: the settled result selects the successor and specialized gates dominate.
 - Required inputs: PRD/SRS with AC list plus implementation, test, and release artifacts to map against.
 - Return BLOCKED only when no requirement or AC list exists to trace.
 ## Handoff Payload

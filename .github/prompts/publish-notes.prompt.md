@@ -27,7 +27,9 @@ Goal: Convert verified changes into accurate user-facing and internal release no
    - Separate delivery proof from customer ROI. Feature `feature_status=released` preserved when product value observations are pending.
    - Write run record to `artifacts/runs/[slug]/[compactISO]-publish-notes.json` when allowed.
    - Route process lessons, defect escapes, and release gaps to `retro-learn`.
+## Runtime Contract
 - Use after `deploy-release` or `uat-signoff` to draft user-facing and internal release communication.
+- Load `common-decision-discipline` and apply its §8 continuation contract at entry and every handoff: the settled result selects the successor and specialized gates dominate.
 - Required inputs: shipped diff/commits plus verification or deployment report to cross-check against.
 - Return BLOCKED only when no verified shipped scope exists to draft notes from. Feature released status is retained when product value is pending or inconclusive.
 ## Handoff Payload

@@ -44,7 +44,7 @@ Goal: Produce a build-ready technical design with explicit boundaries, contracts
    - Write one concise ADR when architecture or a public contract changes; continue when patterns are inferable; return BLOCKED for missing authority inputs, cross-team contracts, migrations, permissions, or NFR uncertainty; route next step to `implementation-readiness` or `dev-fix`.
 
 ## Runtime Contract
-- Use after PRD or approved implementation when design is needed. Required: original work-item/source reference, approved revision, scope owner, prior scoped-approval reference, and enough PRD/ticket context for contracts. Return BLOCKED for missing authority inputs or cross-team contracts, migrations, permissions, or NFR uncertainty.
+- Use after PRD or approved implementation when design is needed. Required: original work-item/source reference, approved revision, scope owner, prior scoped-approval reference, and enough PRD/ticket context for contracts. Return BLOCKED for missing authority inputs or cross-team contracts, migrations, permissions, or NFR uncertainty. Load `common-decision-discipline` and apply its §8 continuation contract at entry and every handoff: the settled result selects the successor and specialized gates dominate.
 
 ## Handoff Payload
 - `slug`, `delivery_mode`, authoritative original work-item/source reference + approved revision + scope owner + prior scoped-approval reference, inherited risk/operator metadata, design artifact path/revision (SRS; approved source ticket only for brief), requirement trace, architecture decisions, diagram paths, contracts, data/migration plan, NFR thresholds, verification matrix, ADR, separate pending design approval, run record path, next workflow.

@@ -2,6 +2,16 @@
 
 Agent Skills Standard syncs workflows into each agent's native surface. Run `ags sync`, then invoke the synced workflow from Claude, Codex, Cursor, Gemini, Copilot, Kiro, or another configured runtime.
 
+## Workflow Continuation
+
+Every consumer-facing workflow loads `common-decision-discipline` at entry and applies its `§8` continuation contract at each handoff.
+
+- Automatic chaining needs `mode=autonomous|channel` plus explicit `auto_continue=true`; `interactive`, absent, or `false` opts out, and unknown/conflicting values pause.
+- The successor comes from the actual settled result, not a fixed chain. The agent validates the task work-item/revision, scope fence, authority, prerequisites, and specialized gates, then executes the eligible workflow and records its outcome.
+- `recommended_next_workflow` alone, or a retrieved workflow body, is not execution.
+- Terminal/null results finish; missing authority or capability pauses with owner/input; repeated unresolved states pause; uncertain effects are reconciled before any replay.
+- Specialized approvals, terminal branches, and caller-return contracts always dominate.
+
 | Requirement Layer      | Core Question                                    | Workflow                   | Use When                                                               | Primary Output                        |
 | ---------------------- | ------------------------------------------------ | -------------------------- | ---------------------------------------------------------------------- | ------------------------------------- |
 | Route                  | Which workflow now?                              | `sdlc`                     | Unsure what to run next                                                | next workflow                         |

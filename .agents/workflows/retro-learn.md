@@ -38,6 +38,7 @@ Goal: Turn defects, missed expectations, and delivery friction into durable, ver
 
 ## Runtime Contract
 - Use after delivery findings, corrections, or friction need converting into durable, verified prevention. Findings remain proposals; negative product results never grant autonomous registry edits or rollout authority.
+- Load `common-decision-discipline` and apply its §8 continuation contract at entry and every handoff: the settled result selects the successor and specialized gates dominate.
 - Required inputs: review findings, verification results, or session-report artifacts to classify.
 - Return BLOCKED only when no evidence exists to classify.
 ## Handoff Payload

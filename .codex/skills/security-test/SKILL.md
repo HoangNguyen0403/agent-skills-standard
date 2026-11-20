@@ -50,6 +50,10 @@ When the user asks to perform this workflow, execute the following steps:
    - Fail the check for hardcoded secrets, auth bypass, SQLi/RCE-class sinks, or unresolved Blockers.
    - Provide exact remediation diffs, not generic advice.
 
+## Runtime Contract
+- Use for a fast SAST/SCA/secrets gate on a PR or active branch delta.
+- Load `common-decision-discipline` and apply its §8 continuation contract at entry and every handoff: the settled result selects the successor and specialized gates dominate.
+
 ### Output Template
 
 ```markdown

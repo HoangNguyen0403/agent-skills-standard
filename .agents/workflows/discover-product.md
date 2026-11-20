@@ -25,6 +25,7 @@ Goal: Frame evidence-grounded product opportunities and falsifiable hypotheses f
 ## Runtime Contract
 
 - Use for early product discovery, problem validation, and opportunity framing before feature specification.
+- Load `common-decision-discipline` and apply its §8 continuation contract at entry and every handoff: the settled result selects the successor and specialized gates dominate.
 - Required inputs: initiative `slug`, target scope, problem context, and strategic authority or gap; carry forward parent `operator_profile` (infer per `common-operator-profile` if unstated, never ask).
 - Return BLOCKED only when requested scope violates privacy/consent or operator rejects mandatory non-goals. Missing customer access or optional packages produce proposal-only output with `missing_evidence`, not BLOCKED.
 

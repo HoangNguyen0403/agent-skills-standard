@@ -6,7 +6,7 @@ description: Evidence-led blue incident triage with authorization, runtime gates
 Goal: Triage incidents from supplied evidence, isolate blocked actions, and optionally validate findings in isolated lab environments without expanding production authority.
 
 ## Runtime Contract
-Use `cyber-incident-triage` with `cyber-authorization`, `cyber-evidence`, `cyber-framework-mapping`, and optionally `cyber-lab-validation`. Offline synthetic analysis is standard. Active collection, containment, or production modification require documented scope, approved operation, accountable owner, and runtime-proven controls. Independent approval is required for containment. Markdown does not enforce permissions.
+Use `cyber-incident-triage` with `cyber-authorization`, `cyber-evidence`, `cyber-framework-mapping`, and optionally `cyber-lab-validation`. Offline synthetic analysis is standard. Active collection, containment, or production modification require documented scope, approved operation, accountable owner, and runtime-proven controls. Independent approval is required for containment. Markdown does not enforce permissions. Load `common-decision-discipline` and apply its §8 continuation contract at entry and every handoff: the settled result selects the successor and specialized gates dominate.
 
 ## Handoff Payload
 Return an evidence record containing engagement/scope reference, mode, finding status (`confirmed`, `suspected`, `blocked`, `not-tested`, `false-positive`), step dispositions (`step_state`, `block_reason`), evidence references, limitations, and accountable owner. Preserve originals and custody details. Keep suspected, blocked, and not-tested findings visible.

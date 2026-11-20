@@ -26,6 +26,7 @@ Goal: Evaluate post-release product value by comparing observed outcomes against
 ## Runtime Contract
 
 - Use for post-release value review after the comparison window has elapsed.
+- Load `common-decision-discipline` and apply its §8 continuation contract at entry and every handoff: the settled result selects the successor and specialized gates dominate.
 - Required inputs: initiative `slug`, original investment `DEC` ref, registered `MET` contracts, and observed evidence; carry forward parent `operator_profile` (infer per `common-operator-profile` if unstated, never ask).
 - Return BLOCKED only when requested scope has no registered measurement contract or authority. Immature data or missing analytics produces an `inconclusive` review with `missing_evidence`, not BLOCKED.
 

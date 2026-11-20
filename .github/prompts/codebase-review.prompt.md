@@ -47,6 +47,7 @@ description: "Review an entire codebase for architecture, engineering health, an
 
 ## Runtime Contract
 - Use for repo-wide health, architecture, or exploitable-risk review with no single feature in scope.
+- Load `common-decision-discipline` and apply its §8 continuation contract at entry and every handoff: the settled result selects the successor and specialized gates dominate.
 - Required inputs: repo access plus stack markers to map components, boundaries, and entry points.
 - Return BLOCKED only when the codebase cannot be read or no evidence source is reachable.
 ## Handoff Payload
