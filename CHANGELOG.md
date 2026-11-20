@@ -57,6 +57,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [common-v2.9.10] / [workflows-v2.1.6] - Unreleased
+
+**Category**: Common Skills / Workflow Pack
+
+### Added
+
+- `common-decision-discipline` §8 Continuation: one self-contained, once-per-run handoff contract returned in the skill body, covering opt-in precedence (`autonomous|channel` plus explicit `auto_continue=true`), actual-result successor selection, task/scope/authority and specialized-gate validation, `continue | paused | terminal | stage_only` outcomes, carried task context, capability-gap pauses, no-progress detection, recovery reconciliation, and evidence honesty.
+- Canonical entry/handoff reference to that contract in every consumer-facing workflow except the internal-only `evals-run`.
+
+### Changed
+
+- A successor named only in `recommended_next_workflow`, or whose body was read but not executed, is no longer treated as continuation; eligible successors are executed and their settled outcome recorded.
+
+### Upgrade notes
+
+- Generated native mirrors were regenerated through the configured public producers and unchanged ownership guards, with the strict adoption independently proving a retained local producer base; ownership checks and canonical skill/workflow semantics are unchanged. Verification is tracked in PR #340.
+
 ## [cli-v2.7.6] - 2026-11-12
 
 **Category**: CLI Tool

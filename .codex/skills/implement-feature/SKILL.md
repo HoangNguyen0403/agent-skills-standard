@@ -54,11 +54,11 @@ Goal: Build an approved feature through bounded TDD slices and route settled wor
     `rtk pnpm audit:trace --slug <slug> --required`; run records `rtk pnpm audit:outcome --records --required --slug <slug> --workflow <workflow> --run-id <run-id>`).
     Brief tickets take no document-trace gate. Human acceptance stays pending until an authorized human acts; technical verification, business acceptance, and release are separate.
 ## Runtime Contract
-
 - **Use for**: approved plans ready to build; TDD, bounded ownership, revision-bound evidence, independent review.
-- **Required inputs**: REQ/AC trace or approved `brief` criteria, owner, triggered SRS/test lanes, authority, enforceable isolation.
+- **Required inputs**: REQ/AC trace or approved `brief` criteria, owner, triggered SRS/test lanes, authority, required standards, enforceable isolation.
 - **Missing input** → `needs_context` or `blocked`; plan approval never authorizes merge, deploy, premium spend, or a mode change.
-- Independent review and the whole-branch review survive either placement; missing isolation stops only that operation.
+- Independent review and the whole-branch review survive either placement; missing nesting support or isolation stops only that operation.
+- Load `common-decision-discipline` §8 at entry and every handoff: settled results select successors; specialized gates dominate.
 ## Handoff Payload
 
 - `slug`, `operator_profile`, `delivery_mode`, work item @ revision, approval, tiers, slices, tests, contracts, trace, packets, evidence lanes, risks, outcome, next workflow.

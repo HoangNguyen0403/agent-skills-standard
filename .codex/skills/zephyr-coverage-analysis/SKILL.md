@@ -24,6 +24,11 @@ When the user asks to perform this workflow, execute the following steps:
 
 // turbo-all
 
+## Runtime Contract
+
+- Use for a read-only Zephyr coverage audit that produces a report; it never creates or modifies test cases unless the operator selects that next step.
+- Load `common-decision-discipline` and apply its §8 continuation contract at entry and every handoff: the settled result selects the successor and specialized gates dominate.
+
 ## 1. Gather Input
 
 If the Jira Issue Key is not provided, ask for it.

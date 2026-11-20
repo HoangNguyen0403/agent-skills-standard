@@ -6,7 +6,7 @@ description: Controlled purple validation using paired action-observation eviden
 Goal: Validate detection and defense controls using paired action-observation evidence across replay, offline analysis, or isolated lab validation.
 
 ## Runtime Contract
-Compose `cyber-detection-validation`, `cyber-authorization`, `cyber-evidence`, `cyber-framework-mapping`, and optionally `cyber-lab-validation`. Controlled synthetic/offline fixtures only. Active operations require documented scope, approved action, accountable owner, and runtime-proven controls. No Markdown claim is enforcement or production efficacy.
+Compose `cyber-detection-validation`, `cyber-authorization`, `cyber-evidence`, `cyber-framework-mapping`, and optionally `cyber-lab-validation`. Controlled synthetic/offline fixtures only. Active operations require documented scope, approved action, accountable owner, and runtime-proven controls. No Markdown claim is enforcement or production efficacy. Load `common-decision-discipline` and apply its §8 continuation contract at entry and every handoff: the settled result selects the successor and specialized gates dominate.
 
 ## Steps
 1. **Hypothesis and Mode**: Define control hypothesis, entity, time window, expected observation, and stop condition. Classify step mode as `analysis`, `replay`, `isolated-lab-validation`, or `defensive-verification`.

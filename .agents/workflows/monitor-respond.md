@@ -32,7 +32,7 @@ Goal: Convert a deterministic statistical signal into the smallest sanctioned ac
    - Repeated dismissals -> recalibrate the band before responding again.
 
 ## Runtime Contract
-- Use when a statistical control band breaches or a scheduled scan completes; reactive incidents with active harm go to `incident-hotfix`.
+- Use when a statistical control band breaches or a scheduled scan completes; reactive incidents with active harm go to `incident-hotfix`. Load `common-decision-discipline` and apply its §8 continuation contract at entry and every handoff: the settled result selects the successor and specialized gates dominate.
 - Required inputs: bands file with baseline and tiers, plus the measured signal or scan artifact.
 - Missing telemetry is not health. An incident-owned execution grant is a procedure call returning once, not fresh intake, and a terminal observation emits no handoff.
 - Preserve the prior evidenced lifecycle; a monitor receipt is never a deployment, rollback, or release record and never advances, downgrades, or manufactures `feature_status`.

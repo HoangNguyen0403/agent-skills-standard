@@ -26,6 +26,7 @@ Goal: Turn approved ACs into an executable, traced E2E suite, and classify any f
    - Calculate Automation Health (`quality-engineering-automation-health`), carry `release_confidence`, open defects, and residual risks per `skills/quality-engineering/quality-engineering-test-plan-authoring/references/lifecycle-and-roles.md`. Technical PASS validates test suite only; route to `verify-work`.
 ## Runtime Contract
 - Use after `implement-feature` reaches GREEN, or whenever ACs have E2E/mobile lanes without executable coverage.
+- Load `common-decision-discipline` and apply its §8 continuation contract at entry and every handoff: the settled result selects the successor and specialized gates dominate.
 - Required inputs: slug, stable `AC-*` trace, a runnable build/app target.
 - Return BLOCKED (no build target or AC trace) only when the build target cannot be established or `AC-*` is missing.
 ## Handoff Payload

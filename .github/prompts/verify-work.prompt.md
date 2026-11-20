@@ -20,6 +20,7 @@ Goal: Prove the delivered change works against explicit acceptance criteria befo
 ## Runtime Contract
 - Use after implementation, before handoff, or when validating a bug fix.
 - Required inputs: explicit scope plus acceptance criteria or expected behavior.
+- Load `common-decision-discipline` and apply its §8 continuation contract at entry and every handoff: the settled result selects the successor and specialized gates dominate.
 - Return BLOCKED when a required lane lacks its driver or evidence, or when
   environment, credentials, or approval prevents proof; return FAIL for an
   observed defect or missed requirement. Feature verified status is retained

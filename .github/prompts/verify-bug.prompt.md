@@ -60,6 +60,7 @@ If the verdict is NOT PASS:
 
 ## Runtime Contract
 - Use for post-merge UAT verification of a bug fix against JIRA reproduce steps.
+- Load `common-decision-discipline` and apply its §8 continuation contract at entry and every handoff: the settled result selects the successor and specialized gates dominate.
 - Required inputs: JIRA URL/key or exported ticket text with reproduce steps and expected result.
 - Return NEEDS-HUMAN only when the end-state deviates from both expected and original-bug behavior.
 

@@ -34,7 +34,7 @@ Goal: Inventory declared MCP integrations, evaluate supplied static and runtime 
 
 ## Runtime Contract
 
-- Supplied-artifact assessment only (`active: false`); Markdown guidance never grants host authorization or filesystem/network/process enforcement.
+- Supplied-artifact assessment only (`active: false`); Markdown guidance never grants host authorization or filesystem/network/process enforcement. Load `common-decision-discipline` and apply its §8 continuation contract at entry and every handoff: the settled result selects the successor and specialized gates dominate.
 - Missing inputs, stale/error scanner checks, or unavailable host persistence yield explicit gaps or unpersisted status, never synthetic PASS or silent overwrite.
 
 ## Handoff Payload

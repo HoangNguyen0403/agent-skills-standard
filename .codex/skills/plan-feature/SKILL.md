@@ -48,7 +48,7 @@ Goal: Produce a PM-owned decision-complete PRD, delivery plan, and IT Department
 6. Route:
    - Continue when assumptions are non-critical; return BLOCKED for missing owner, untestable AC, approval, or release constraint. Empirical hypothesis testing needed -> `validate-product` (when selected/installed; else record capability gap and route to `implementation-readiness`); architecture/contracts unclear -> `design-solution`; approved plan with trace and testable ACs -> `implementation-readiness`.
 ## Runtime Contract
-- Use after BRD-lite or when clear feature intent exists but the PRD does not. Brief approval does not grant deployment, spend, or runtime exposure authority. Required inputs: BRD-lite or equivalent intent, plus enough context to name users, goals, and constraints. Return BLOCKED only for missing owner, untestable AC, approval, or release constraint.
+- Use after BRD-lite or when clear feature intent exists but the PRD does not. Brief approval does not grant deployment, spend, or runtime exposure authority. Required inputs: BRD-lite or equivalent intent, plus enough context to name users, goals, and constraints. Return BLOCKED only for missing owner, untestable AC, approval, or release constraint. Load `common-decision-discipline` and apply its §8 continuation contract at entry and every handoff: the settled result selects the successor and specialized gates dominate.
 ## Handoff Payload
 - `slug`, `operator_profile`, `lane`, `snc_tier`, `delivery_mode`, `approval`, PRD or approved ticket path/revision, source IDs, decisions, RACI, rollout notes, task slices, delivery estimate, verification plan, run record path, next workflow.
 ## Blocking Questions

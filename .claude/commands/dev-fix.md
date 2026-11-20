@@ -77,6 +77,7 @@ Do not propose code changes until repro steps, expected result, and root cause h
 
 ## Runtime Contract
 - Use for bug tickets that need root-cause remediation and a PR/MR.
+- Load `common-decision-discipline` and apply its §8 continuation contract at entry and every handoff: the settled result selects the successor and specialized gates dominate.
 - Required inputs: issue URL/key or exported ticket text with reproduce steps.
 - Lane defaults: `brief` = failing test + focused verification + PR/MR body evidence; `standard` = self-reviewed inline plan; `extended` = full plan, readiness, task list, walkthrough.
 - Accepts a `test-loop` `REAL_BUG_DO_NOT_HEAL` handoff as the ticket input: the healer's `TEST:` and `EVIDENCE:` lines plus the failing AC are the reproduce steps.

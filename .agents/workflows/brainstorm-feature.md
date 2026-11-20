@@ -36,6 +36,7 @@ Goal: Turn rough intent into an approved, evidence-backed brief sized to the tas
 ## Runtime Contract
 
 - Use for rough feature, ops, process, or technical-direction ideas before a PRD exists.
+- Load `common-decision-discipline` and apply its §8 continuation contract at entry and every handoff: the settled result selects the successor and specialized gates dominate.
 - Required inputs: rough intent; missing owner, metric, or scope fence get drafted defaults, not a block. Return BLOCKED only when operator rejects drafted defaults for owner, value, or scope.
 
 ## Blocking Questions
