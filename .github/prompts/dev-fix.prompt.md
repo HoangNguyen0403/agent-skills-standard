@@ -4,7 +4,7 @@ description: "Unified developer workflow for fixing bugs. Analyzes issue-tracker
 
 # Dev-Fix — Bug Remediation
 
-Goal: Take a bug ticket from root-cause analysis through a locally-verified PR/MR, scaling process to the lane's `delivery_mode` and `snc_tier`.
+Goal: Take a bug ticket from root-cause analysis through a locally-verified PR/MR, enforcing a strict **Propose -> Approve -> Verify** cycle.
 
 ## Input
 
@@ -43,12 +43,11 @@ verify-work | verify-bug | null
 - Use for bug tickets that need root-cause remediation and a PR/MR.
 - Load `common-decision-discipline` and apply its §8 continuation contract at entry and every handoff: the settled result selects the successor and specialized gates dominate.
 - Required inputs: issue URL/key or exported ticket text with reproduce steps.
-- Lane defaults: `brief` = failing test + focused verification + PR/MR body evidence; `standard` = self-reviewed inline plan; `extended` = full plan, readiness, task list, walkthrough.
 - Accepts a `test-loop` `REAL_BUG_DO_NOT_HEAL` handoff as the ticket input: the healer's `TEST:` and `EVIDENCE:` lines plus the failing AC are the reproduce steps.
 - Return BLOCKED only when repro steps, expected result, or root-cause hypothesis cannot be established.
 
 ## Handoff Payload
-- `slug`, `operator_profile` (carried, not re-inferred), `delivery_mode`, `snc_tier`, `model_tier`, plan/task-list/walkthrough paths (omit paths the lane does not create), PR/MR link, outcome report, next workflow.
+- `slug`, `operator_profile` (carried, not re-inferred), `snc_tier`, `model_tier`, implementation plan path, task list path, walkthrough path, PR/MR link, outcome report, next workflow.
 
 ## Blocking Questions
 - Ask max 3 at a time with a recommended default and 2-3 options.

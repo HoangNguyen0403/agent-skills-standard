@@ -41,11 +41,39 @@ export class AgentBridgeService {
       const prefix = relativeSkillsPath ? `${relativeSkillsPath}/` : '';
 
       const commonBody = [
-        '# 🛠 Agent Skills Routing Protocol',
+        '# 🛠 Agent Skills Routing Protocol (CRITICAL)',
         '',
-        'Before editing source files, load the applicable skill rules: prefer the',
-        '`load_skills_for_files` MCP tool; otherwise read `AGENTS.md` and follow its router.',
-        'Loaded skills override baseline pre-training for architecture, styling, tests, and code patterns.',
+        'You are operating in a Zero-Trust environment. You are strictly forbidden from relying on your baseline pre-training for architecture, styling, testing, or code patterns in this repository.',
+        '',
+        '> [!CRITICAL] GATEKEEPER CONSTRAINT',
+        '> **Your first action in ANY session MUST be a tool call to read `AGENTS.md`.**',
+        '> You must NOT write code, suggest solutions, or output text explanations until you have completed the State Machine below.',
+        '',
+        '## 🔄 The Mandatory State Machine',
+        '',
+        'You must execute these states sequentially. Do not proceed to the next state until the current one is satisfied.',
+        '',
+        '### State 1: Discovery (Tool Call Required)',
+        '',
+        '- **Action:** Execute a file-reading tool (e.g., `view_file`, `read_file`, `cat`) targeting the exact path: `AGENTS.md` (located in the project root).',
+        '- **Condition to pass:** You have successfully read the `<!-- SKILLS_INDEX_START -->` block.',
+        '',
+        '### State 2: Trigger Matching (Internal Thought)',
+        '',
+        "- **Action:** Analyze the user's prompt (keywords) and the files involved in the task (globs).",
+        '- **Condition to pass:** Cross-reference them against the `(triggers: ...)` list inside `AGENTS.md`. Identify all matching Skills and note their exact file paths.',
+        '',
+        '### State 3: Context Loading (Tool Call Required)',
+        '',
+        `- **Action:** Execute file-reading tools to read the \`SKILL.md\` files at the exact paths identified in State 2.`,
+        '- **Condition to pass:** You have ingested the specific guidelines for the task. If no skills matched in State 2, you may skip this state.',
+        '',
+        '### State 4: Execution & Audit Log (Output Generation)',
+        '',
+        '- **Action:**',
+        '  - **Multi-task implementation plan (new or existing):** Do NOT edit files directly in the orchestrator session. Present the execution confirmation gate (Subagent-Driven vs. Inline) and use `subagent-driven-development`.',
+        '  - **Analysis, review, or single-file fix:** You may begin answering the user or implementing.',
+        '- **Constraint:** Your very first text output MUST be a "Pre-Write Audit Log" confirming which skills were loaded, or explicitly stating "No project-specific skills applicable."',
         '',
         '## Self-Learning Protocol',
         '',
@@ -93,7 +121,7 @@ export class AgentBridgeService {
           '',
           '## Agent Protocol',
           '',
-          'See `AGENTS.md` for the skill loading protocol (applies to all AI agents) and the MCP runtime-enforcement section (when enabled).',
+          'See `AGENTS.md` for the Zero-Trust skill loading protocol (applies to all AI agents) and the MCP runtime-enforcement section (when enabled).',
           '',
           '## Self-Learning Protocol',
           '',
@@ -113,7 +141,9 @@ export class AgentBridgeService {
         } else {
           await fs.outputFile(claudePath, claudeProtocol.trimStart());
         }
-        // Claude reads CLAUDE.md as its rule file; point it at AGENTS.md.
+        // Also write the full Zero-Trust rules to the rule directory if it's not the root
+        // But for Claude, CLAUDE.md IS the rule file.
+        // The user wants CLAUDE.md to refer to AGENTS.md.
         continue;
       }
 
