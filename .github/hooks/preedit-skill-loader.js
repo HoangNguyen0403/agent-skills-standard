@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// ags-hook-version: 2.7.6
+// ags-hook-version: 2.7.7
 /**
  * PreToolUse hook: require load_skills_for_files() before any code edit.
  * Installed by agent-skills-standard (ags sync). Remove via: ags hooks uninstall

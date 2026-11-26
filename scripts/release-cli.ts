@@ -3,10 +3,10 @@ import fs from 'fs-extra';
 import inquirer from 'inquirer';
 import path from 'path';
 import pc from 'picocolors';
+import { prepareCliReleaseVersion } from './release/prepare-cli-release';
 import {
   getGitLogs,
   getSmartChangelog,
-  updateCLIVersion,
   updateChangelog,
 } from './release-utils';
 
@@ -145,6 +145,7 @@ async function main() {
   console.log(pc.bold('1. Update Versions:'));
   console.log(pc.dim(`   - cli/package.json`));
   console.log(pc.dim(`   - cli/src/index.ts`));
+  console.log(pc.dim('   - generated hooks (.claude, .github, .codex)'));
   console.log(`   Version: ${currentVersion} -> ${pc.green(finalVersion)}`);
 
   console.log(pc.bold('\n2. Update Changelog:'));
@@ -199,7 +200,12 @@ async function main() {
 
   // Execute
   try {
-    await updateCLIVersion(ROOT_DIR, finalVersion);
+    const hookSync = await prepareCliReleaseVersion(ROOT_DIR, finalVersion);
+    console.log(
+      pc.green(
+        `✅ Synchronized generated hooks (${hookSync.written.length} written, ${hookSync.unchanged.length} unchanged)`,
+      ),
+    );
 
     console.log(pc.cyan('\n🏗️  Building CLI...'));
     execFileSync('pnpm', ['--filter', './cli', 'build'], {
