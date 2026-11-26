@@ -489,8 +489,8 @@
       ]
     },
     "common": {
-      "version": "2.9.11",
-      "last_updated": "2026-11-18",
+      "version": "2.9.12",
+      "last_updated": "2026-11-26",
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 48,
@@ -503,8 +503,8 @@
       ]
     },
     "quality-engineering": {
-      "version": "1.6.4",
-      "last_updated": "2026-11-11",
+      "version": "1.6.5",
+      "last_updated": "2026-11-26",
       "tag_prefix": "quality-engineering-v",
       "token_metrics": {
         "total_skills": 17,
@@ -885,7 +885,7 @@
   },
   "releases": {
     "workflows": {
-      "version": "2.1.6",
+      "version": "2.1.7",
       "tag_prefix": "workflows-v"
     }
   },

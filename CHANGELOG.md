@@ -48,6 +48,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Maintenance
 - chore(deps): consolidate dependabot minor/patch bumps with jsdom 31 and hono advisory fixes (#328)
 
+## [cli-v2.7.8] - Unreleased
+
+**Category**: CLI Tool
+
+### Changed
+
+- Default workflow discovery, CLI registry constants, and generated client surfaces follow the `brainstorm-feature` → `sdlc-intake` cutover and the new standalone `brainstorm` workflow. See the `[Unreleased]` workflow-identity entry below for the full change contract.
+
+### Maintenance
+
+- Patch version bump for the workflow-identity cutover; no other CLI behavior change.
+
 ## [mcp-v0.8.5] - Unreleased
 
 **Category**: MCP Server
@@ -68,6 +80,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Prepared version `0.8.5` and synchronized the CLI's default MCP pin. Publication is pending the `mcp-v0.8.5` release tag; installed servers require an upgrade and host restart to use the new code.
 - Automatic Paseo/OMP dispatcher capture is not included. Explicit manifests supply declared inventory; native discovery keeps unknown delegation scope visible.
+
+---
+
+## [common-v2.9.12] / [workflows-v2.1.7] - Unreleased
+
+**Category**: Common Skills / Workflow Pack
+
+### Maintenance
+
+- Patch versions bumped for the `brainstorm-feature` → `sdlc-intake` cutover and standalone `brainstorm` workflow; see the `[Unreleased]` workflow-identity entry. `common` and workflow bodies keep their prior obligations; behavioral qualification is tracked separately.
 
 ---
 

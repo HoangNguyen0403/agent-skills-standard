@@ -61,7 +61,7 @@ npx agent-skills-standard@latest sync
 ```
 
 > [!TIP]
-> **Published Version vs. Source Target**: The published `@latest` package may differ from source development (`2.7.4` in this repository checkout). Verify your installed build with `ags --version` and review [Release & PATH Notes](cli/README.md#release-and-path-notes). In supported CLI builds, use `ags skills` for interactive category management.
+> **Published Version vs. Source Target**: The published `@latest` package may differ from source development (`2.7.8` in this repository checkout). Verify your installed build with `ags --version` and review [Release & PATH Notes](cli/README.md#release-and-path-notes). In supported CLI builds, use `ags skills` for interactive category management.
 
 ---
 
