@@ -22,11 +22,19 @@ Acceptance criteria remain defined **once**, in the approved brief's Contract se
 
 | Requirement | Outcome | Source criterion | Owner | Priority | Verification lane |
 | --- | --- | --- | --- | --- | --- |
-| REQ-001 | Assess supplied Go/backend error-handling claims | AC-GO | Go researcher | P0 | Primary-source and local-rule review |
-| REQ-002 | Assess Diagram Design without duplicating existing capability or weakening boundaries | AC-DIAGRAM | Diagram researcher | P1 | Primary-source and local-contract review |
-| REQ-003 | Assess current versions and relevant guidance for every supported language | AC-LANGUAGE | Language researchers; Go researcher owns Go | P0 | Official-release and compatibility review |
-| REQ-004 | Produce actionable minimal recommendations with observable proof | AC-RECOMMEND | Integrator | P0 | Citation reconciliation and independent review |
-| REQ-005 | Identify existing checks/evals and plausible missing behavior cases | AC-VERIFY | Researchers; independent reviewer | P1 | Static coverage inspection, not live evaluation |
+| REQ-001 | Assess supplied Go/backend error-handling claims | AC-GO-01 | Go researcher | P0 | Primary-source and local-rule review |
+| REQ-002 | Assess Diagram Design without duplicating existing capability or weakening boundaries | AC-DIAGRAM-01 | Diagram researcher | P1 | Primary-source and local-contract review |
+| REQ-003 | Assess current versions and relevant guidance for every supported language | AC-LANGUAGE-01 | Language researchers; Go researcher owns Go | P0 | Official-release and compatibility review |
+| REQ-004 | Produce actionable minimal recommendations with observable proof | AC-RECOMMEND-01 | Integrator | P0 | Citation reconciliation and independent review |
+| REQ-005 | Identify existing checks/evals and plausible missing behavior cases | AC-VERIFY-01 | Researchers; independent reviewer | P1 | Static coverage inspection, not live evaluation |
+
+| ID | Verifies |
+| --- | --- |
+| AC-GO-01 | REQ-001 |
+| AC-DIAGRAM-01 | REQ-002 |
+| AC-LANGUAGE-01 | REQ-003 |
+| AC-RECOMMEND-01 | REQ-004 |
+| AC-VERIFY-01 | REQ-005 |
 
 Scope inventory: audit guidance -> assess Go errors (in scope), assess diagram presentation/contracts (in scope), assess Go/JavaScript/TypeScript/Python/Java/Kotlin/Swift/PHP/Dart currency (in scope), integrate recommendations (in scope). Implement recommendations, independently audit every framework release, and add language categories are excluded by the selected outline.
 
@@ -46,7 +54,7 @@ Tasks 1–4 are independent. Task 5 consumes all four. Each research task is a t
 
 **Files:** `skills/golang/`, `skills/common/common-error-handling/`, relevant common API/observability guidance only when a concrete conflict requires it.
 **Scope / owned write set:** no repository writes; logical output `.agent/sdd/skills-currency-audit/go-findings.md` is materialized by the coordinator from the final response.
-**Inputs:** approved brief AC-GO, AC-LANGUAGE (Go), AC-VERIFY; supplied reference claims summarized there; official Go docs/release history.
+**Inputs:** approved brief AC-GO-01, AC-LANGUAGE-01 (Go), AC-VERIFY-01; supplied reference claims summarized there; official Go docs/release history.
 **Outputs:** classify each reference claim; current Go stable/support context; concrete existing-rule corrections or retain decisions; compatibility and verification recommendations, with local path:line and primary URLs.
 **Real Ingress:** approved audit request -> source inspection -> returned findings -> maintainer-readable report.
 **Invariants:**
@@ -61,7 +69,7 @@ Tasks 1–4 are independent. Task 5 consumes all four. Each research task is a t
 
 **Files:** `skills/common/common-architecture-diagramming/`, `skills/system-design/system-design-methodology/`; external `cathrynlavery/diagram-design` source, README, license, and relevant export/import/profile code as data.
 **Scope / owned write set:** no repository writes; logical output `.agent/sdd/skills-currency-audit/diagram-findings.md` is materialized by the coordinator.
-**Inputs:** approved brief AC-DIAGRAM, AC-VERIFY; supplied reference claims; existing JSON/draw.io/offline-export contracts.
+**Inputs:** approved brief AC-DIAGRAM-01, AC-VERIFY-01; supplied reference claims; existing JSON/draw.io/offline-export contracts.
 **Outputs:** pinned external revision and license evidence; compare presentation, branding, import, format, editability, offline behavior and safety; recommended retain/adapt/defer with limits.
 **Real Ingress:** supplied Diagram Design reference -> authoritative repository inspection -> report consumed by maintainers.
 **Invariants:**
@@ -70,13 +78,13 @@ Tasks 1–4 are independent. Task 5 consumes all four. Each research task is a t
 **Gate / rollback:** none: comparison only; control: current export/semantic contracts unchanged; rollback: revert; reversibility: revertible
 **Verification owner:** orchestrator via primary-source/local-contract reconciliation and independent static review.
 **Handoff / freeze:** final findings marked FINAL with external revision and local source digests; stop after return.
-**Correction route:** one concrete AC-focused correction; unresolved safety/adoption decision goes to requester through coordinator.
+**Correction route:** one concrete acceptance-focused correction; unresolved safety/adoption decision goes to requester through coordinator.
 
 ### Task 3: Audit JVM/native language currency
 
 **Files:** `skills/java/`, `skills/kotlin/`, `skills/swift/`, `skills/dart/`; relevant sibling framework/tooling references only where needed to establish compatibility.
 **Scope / owned write set:** no repository writes; logical output `.agent/sdd/skills-currency-audit/jvm-native-findings.md` is materialized by coordinator.
-**Inputs:** approved brief AC-LANGUAGE for Java, Kotlin, Swift, Dart; AC-RECOMMEND and AC-VERIFY.
+**Inputs:** approved brief AC-LANGUAGE-01 for Java, Kotlin, Swift, Dart; AC-RECOMMEND-01 and AC-VERIFY-01.
 **Outputs:** a complete source-cited row per assigned language: local baseline, latest stable, support/LTS distinction, material additions/deprecations, feature minimums, toolchain/SDK compatibility, affected guidance, retain/change decision and proof.
 **Real Ingress:** supported-language inventory -> official release/specification comparison -> actionable maintainer report.
 **Invariants:**
@@ -85,13 +93,13 @@ Tasks 1–4 are independent. Task 5 consumes all four. Each research task is a t
 **Gate / rollback:** none: documentary research only; control: supported consumer compatibility remains unchanged; rollback: revert; reversibility: revertible
 **Verification owner:** orchestrator via official-source reconciliation and independent static review.
 **Handoff / freeze:** final findings marked FINAL, date observations, include local source digests; stop after return.
-**Correction route:** one AC-focused correction; remaining unknowns name owner and required official evidence.
+**Correction route:** one acceptance-focused correction; remaining unknowns name owner and required official evidence.
 
 ### Task 4: Audit web/scripting language currency
 
 **Files:** `skills/javascript/`, `skills/typescript/`, `skills/python/`, `skills/php/`; adjacent runtime/framework guidance only to resolve material language compatibility.
 **Scope / owned write set:** no repository writes; logical output `.agent/sdd/skills-currency-audit/web-scripting-findings.md` is materialized by coordinator.
-**Inputs:** approved brief AC-LANGUAGE for JavaScript, TypeScript, Python, PHP; AC-RECOMMEND and AC-VERIFY.
+**Inputs:** approved brief AC-LANGUAGE-01 for JavaScript, TypeScript, Python, PHP; AC-RECOMMEND-01 and AC-VERIFY-01.
 **Outputs:** a complete cited row per language with local baseline, official current stable/specification, relevant support policy, material deltas, feature-version/consumer constraints, affected rules and proof; separate ECMAScript/Node/browser and TypeScript compiler/runtime.
 **Real Ingress:** supported-language inventory -> official-source comparison -> maintainer report.
 **Invariants:**

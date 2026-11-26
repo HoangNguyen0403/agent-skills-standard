@@ -55,11 +55,11 @@ The language set is Go, JavaScript, TypeScript, Python, Java, Kotlin, Swift, PHP
 
 These operational criteria are agent-proposed and therefore **(assumed)**:
 
-- **AC-GO:** Classify each supplied error-handling claim as covered, incomplete, incorrect/overbroad, version-gated, or unresolved, with local citations and authoritative upstream evidence. Include multi-error validation, nil behavior and traversal, useful wrapping versus unnecessary wrapping, error exposure as a caller contract, logging ownership, redaction, and client-safe translation. Do not infer a mandatory handler/service/middleware location for every application.
-- **AC-DIAGRAM:** Separate semantic correctness from presentation quality. Compare HTML/SVG, branding, import fidelity, editability, offline behavior, readability, and export safety against the existing pipeline. Preserve semantic-source ownership and document trust-boundary differences before recommending any new output format. Source/license/revision verification is required before any reuse; no import is authorized here.
-- **AC-LANGUAGE:** Give each in-scope language a dated, source-cited row: local baseline or unknown; current stable upstream version/specification; support-policy status where applicable; relevant additions/deprecations; minimum version for recommended features; compatibility with associated runtime/SDK/compiler; affected skill/reference/eval paths; action or justified no-change. “Old minimum version” alone is not an actionable defect.
-- **AC-RECOMMEND:** Each proposed change has impact/rationale, evidence, compatibility gate, affected owner/component, and observable proof. Distinguish correctness risks from useful modernization and optional presentation improvements; retain already-covered guidance without duplication.
-- **AC-VERIFY:** Identify existing checks/evals that cover the proposed behavior and material gaps. Any later rule changes require behavior-oriented verification rather than keyword-presence alone. Runtime experiments, live consumer tests, paid evaluations, and implementation are not performed by approving this brief.
+- **AC-GO-01:** Classify each supplied error-handling claim as covered, incomplete, incorrect/overbroad, version-gated, or unresolved, with local citations and authoritative upstream evidence. Include multi-error validation, nil behavior and traversal, useful wrapping versus unnecessary wrapping, error exposure as a caller contract, logging ownership, redaction, and client-safe translation. Do not infer a mandatory handler/service/middleware location for every application.
+- **AC-DIAGRAM-01:** Separate semantic correctness from presentation quality. Compare HTML/SVG, branding, import fidelity, editability, offline behavior, readability, and export safety against the existing pipeline. Preserve semantic-source ownership and document trust-boundary differences before recommending any new output format. Source/license/revision verification is required before any reuse; no import is authorized here.
+- **AC-LANGUAGE-01:** Give each in-scope language a dated, source-cited row: local baseline or unknown; current stable upstream version/specification; support-policy status where applicable; relevant additions/deprecations; minimum version for recommended features; compatibility with associated runtime/SDK/compiler; affected skill/reference/eval paths; action or justified no-change. “Old minimum version” alone is not an actionable defect.
+- **AC-RECOMMEND-01:** Each proposed change has impact/rationale, evidence, compatibility gate, affected owner/component, and observable proof. Distinguish correctness risks from useful modernization and optional presentation improvements; retain already-covered guidance without duplication.
+- **AC-VERIFY-01:** Identify existing checks/evals that cover the proposed behavior and material gaps. Any later rule changes require behavior-oriented verification rather than keyword-presence alone. Runtime experiments, live consumer tests, paid evaluations, and implementation are not performed by approving this brief.
 
 ### Constraints and non-goals
 
@@ -86,7 +86,7 @@ These operational criteria are agent-proposed and therefore **(assumed)**:
 | First failure | Findings do not identify concrete affected guidance and proof | A proposed rule conflicts with a supported consumer or existing semantic/export contract |
 | Worst plausible outcome | An unhelpful inventory consumes review attention without resolving priorities | Published skills direct agents toward incompatible APIs or unsafe exports |
 | Cost to abandon | Retain useful evidence and stop before implementation; resource cost unknown | Revert affected guidance and invalidate derived copies/evals; resource cost unknown |
-| Proof | Complete AC-GO, AC-DIAGRAM, AC-LANGUAGE and AC-RECOMMEND with cited evidence and explicit unknowns | The same criteria plus verified compatibility for every changed rule; that proof does not exist in this intake |
+| Proof | Complete AC-GO-01, AC-DIAGRAM-01, AC-LANGUAGE-01 and AC-RECOMMEND-01 with cited evidence and explicit unknowns | The same criteria plus verified compatibility for every changed rule; that proof does not exist in this intake |
 
 Strongest objection: a broad currency audit could delay small, already-obvious corrections. Reversal condition: a locally isolated defect is proven against its independent upstream contract and can be scoped into a separate approved maintenance task without waiting for unrelated lanes.
 
@@ -163,7 +163,7 @@ reopen: affected scope, language coverage, compatibility policy, or any proposed
 ## Outcome Report
 
 - `feature_status`: `requirements_ready` (audit brief approved for planning handoff; audit execution has not started).
-- Trace seed: supplied Go reference -> AC-GO; supplied Diagram Design reference -> AC-DIAGRAM; supported-language review -> AC-LANGUAGE; actionable improvements -> AC-RECOMMEND / AC-VERIFY. No PRD/SRS IDs assigned.
+- Trace seed: supplied Go reference -> AC-GO-01; supplied Diagram Design reference -> AC-DIAGRAM-01; supported-language review -> AC-LANGUAGE-01; actionable improvements -> AC-RECOMMEND-01 / AC-VERIFY-01. No PRD/SRS IDs assigned.
 - Completed evidence: inspected local skills/eval, language inventory, advertised external diagram capability, official Go release history.
 - Missing evidence: complete official API/version/support comparisons; pinned third-party source/license review if reuse is proposed; runtime/consumer/eval evidence. Brief approval does not validate these evidence lanes.
 - Evidence lanes: technical = source inspection only; acceptance = not assessed; release = not assessed. No PASS implied by an unrun check.

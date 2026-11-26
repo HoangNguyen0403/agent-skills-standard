@@ -302,7 +302,7 @@ python3 skills/common/common-architecture-diagramming/scripts/render_drawio.py s
 python3 skills/common/common-architecture-diagramming/scripts/export_html.py skills/common/common-architecture-diagramming/assets/fixtures/component.spec.json --output-dir /tmp/component-package/
 ```
 
-Inspect the rendered image in draw.io and open `/tmp/component-package/index.html` locally to visually inspect both light and dark themes at 100% zoom, not only XML or geometry checks. Refresh golden files only after an intentional renderer change (`UPDATE_GOLDEN=1 python3 -m unittest test_fixtures` from the scripts directory), then verify without the update flag. Never acknowledge overwriting a manually edited diagram without first reconciling its semantic changes into the spec. Detailed offline bundle specifications and security boundaries are documented in `skills/common/common-architecture-diagramming/references/offline-export.md`.
+Inspect the rendered image in draw.io and open `/tmp/component-package/index.html` locally to visually inspect both light and dark themes at 100% zoom, not only XML or geometry checks. Confirm the escaped semantic transcript keeps node ids, sublabels, group labels and relationship direction readable with images disabled, at a narrow viewport and in print/PDF projection; split views rather than shrink labels. When mapping an imported source, state selected pages/layers, source-to-spec identities, preserved direction and grouping, and explicit omissions; unresolved items stay listed instead of pruned and no conversion is described as lossless. Refresh golden files only after an intentional renderer change (`UPDATE_GOLDEN=1 python3 -m unittest test_fixtures` from the scripts directory), then verify without the update flag. Never acknowledge overwriting a manually edited diagram without first reconciling its semantic changes into the spec. Detailed offline bundle specifications and security boundaries are documented in `skills/common/common-architecture-diagramming/references/offline-export.md`.
 
 For database query performance and N+1 query amplification changes, run the stdlib Python regression suite and real SQLite smoke fixture:
 
@@ -460,7 +460,7 @@ Host-level actor-scoped tool authorization, task/turn ownership, process managem
 
 We use specialized scripts for releasing components independently:
 
-- `pnpm release-cli`: Bumps `cli/package.json` and updates `CHANGELOG.md`.
+- `pnpm release-cli`: Bumps the CLI version surfaces (`cli/package.json`, `cli/src/index.ts`), regenerates the three tracked `preedit-skill-loader.js` hook copies (`.claude/`, `.github/`, `.codex/`) from the canonical `UNIVERSAL_SKILL_LOADER_JS` template, and updates `CHANGELOG.md`. Version preparation fails closed when the template has no `ags-hook-version` marker; `pnpm exec tsx scripts/release/sync-generated-hooks.cli.ts` repairs stale copies to the version in `cli/package.json` without a release.
 - `pnpm release-all-skills`: Syncs and pushes git tags for newly bumped versions in `skills/metadata.json` (`categories` and `releases`).
 - `pnpm release-server`: Releases the backend component.
 - `pnpm release:manifest --tag <tag> [--out <file>]`: Rebuilds the deterministic `MANIFEST.json` locally for any release tag.
