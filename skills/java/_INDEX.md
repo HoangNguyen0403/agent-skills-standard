@@ -14,6 +14,6 @@
 | Skill | Associated concept |
 | ----- | ----------------------- |
 | java-best-practices | refactor, SOLID, builder, factory, composition, immutable, Optional, checked exception, clean code |
-| java-concurrency | Thread, Executor, synchronized, lock, CompletableFuture, StructuredTaskScope, VirtualThread, AtomicInteger, async, race condition |
+| java-concurrency | Thread, Executor, synchronized, lock, CompletableFuture, StructuredTaskScope, VirtualThread, AtomicInteger, java async, race condition |
 
 > Load matched skills: `<SKILLS>/java/<skill>/SKILL.md`. Load ALL that match — the tier model already filters irrelevant ones.

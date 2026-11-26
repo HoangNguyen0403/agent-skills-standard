@@ -88,11 +88,11 @@ Goal: Build an approved feature through bounded TDD slices and route settled wor
 ## Delegation Packets
 ## Outcome Report
 {schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: implement-feature, started_at: "[timestamp]",
- completed_at: "[timestamp]", feature_status: implemented, requirement_trace: {brd_objectives: [], requirements: [],
+ completed_at: "[timestamp]", feature_status: "[evidence-derived status]", requirement_trace: {brd_objectives: [], requirements: [],
  acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [],
- recommended_next_workflow: verify-work, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
+ recommended_next_workflow: "[evidence-selected workflow or null]", cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
 ## Next Workflow
-verify-work
+verify-work when the settled evidence proves the approved criteria; dev-fix for an observed defect; null when the slice is not settled.
 ```
 ## Cost Report
 Call `get_session_cost(workflow="implement-feature")` before handoff; workers never pass `completion`, and orchestrators add it only when tasks are settled and consent is enabled.

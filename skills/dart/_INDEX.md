@@ -5,7 +5,7 @@
 
 | Skill | File pattern | Keywords |
 | ----- | ------------ | -------- |
-| **dart-language** | `**/*.dart` | sealed, record, switch, pattern, !, late, async, extension |
+| **dart-language** | `**/*.dart` | sealed, record, switch, pattern, !, late, dart async, extension |
 | dart-tooling | `analysis_options.yaml`, `build.yaml`, `lefthook.yml` | build_runner, dart format, dart_code_metrics |
 
 ## Keyword Match (associated concepts in requested work)

@@ -14,7 +14,7 @@
 | Skill | Associated concept |
 | ----- | ----------------------- |
 | php-best-practices | psr-12, camelCase, PascalCase, dry, solid |
-| php-concurrency | Fiber, suspend, resume, non-blocking, async |
+| php-concurrency | Fiber, suspend, resume, non-blocking, php async |
 | **php-error-handling** | try, catch, finally, Throwable, set_exception_handler |
 | **php-security** | pdo, password_hash, htmlentities, filter_var, php security, sql injection, xss php, prepared statement, csrf, sanitize input, password storage |
 

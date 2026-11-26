@@ -77,7 +77,7 @@ Goal: Stop user-facing harm immediately, then hand off to root-cause discipline 
 <!-- Emit the record below only for feature-linked work, replacing `feature_status` with the prior evidenced value; omit it when lifecycle is unknown. Choose routing from the actual outcome; a blocked or unstable incident uses `null` and records the pending action in `next_action`. -->
 
 ## Outcome Report
-{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: incident-hotfix, feature_status: partially_implemented, started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: dev-fix, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
+{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: incident-hotfix, feature_status: "[prior evidenced status]", started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: "[evidence-selected workflow or null]", cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
 
 ## Next Workflow
 dev-fix | verify-work | retro-learn

@@ -12,7 +12,7 @@
 
 | Skill | Associated concept |
 | ----- | ----------------------- |
-| typescript-best-practices | class, function, module, import, export, async, promise |
+| typescript-best-practices | class, function, module, import, export, typescript async, typescript promise |
 | **typescript-security** | validate, sanitize, xss, injection, auth, password, secret, token |
 
 > Load matched skills: `<SKILLS>/typescript/<skill>/SKILL.md`. Load ALL that match — the tier model already filters irrelevant ones.

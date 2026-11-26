@@ -31,16 +31,12 @@ A senior Application Security Red Teamer focusing exclusively on complex Busines
 
 ```text
 ### Business Logic Exploit: [Vulnerability Name]
-
 #### Vulnerability Description
 [Detailed explanation of the logic flaw]
-
 #### Reproducible Exploit Harness (Python/Playwright)
 [Code block with the executable harness]
-
 #### Execution Evidence
 [Output from running the harness showing successful exploitation]
-
 #### Code-Level Remediation
 [Specific code changes required to fix the logic flaw]
 ```

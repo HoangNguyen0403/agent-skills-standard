@@ -16,7 +16,7 @@
 
 | Skill | Associated concept |
 | ----- | ----------------------- |
-| python-async-runtime | asyncio, async, await, background task, cancellation, timeout |
+| python-async-runtime | asyncio, python async, python await, background task, cancellation, timeout |
 | python-best-practices | refactor, clean code, readability, guard clause, composition |
 | python-error-handling | except, exception, retry, rollback, blocker, error handling |
 

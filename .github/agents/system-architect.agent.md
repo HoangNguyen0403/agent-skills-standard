@@ -36,11 +36,13 @@ Design one named component or flow to production depth. One brief, one component
 ```text
 ### Deep Dive: [component]
 **Constraint:** [the numbers and requirement received]
-
 #### Options Considered
 | Option | Fits constraint | Rejected because |
 | --- | --- | --- |
 *(State viable or genuinely considered options; name rejection reasons for any rejected alternatives. Do not pad artificial options if only one path is viable.)*
+```
+
+```text
 #### Recommendation
 - Approach: [choice]
 - State ownership: [owner + consistency class]
@@ -50,7 +52,9 @@ Design one named component or flow to production depth. One brief, one component
 #### Failure Modes
 | Trigger | Breaks at | Symptom | Containment |
 | --- | --- | --- | --- |
+```
 
+```text
 #### Irreversible Decision
 - [decision needing an ADR, or None]
 

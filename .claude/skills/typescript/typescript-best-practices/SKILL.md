@@ -12,8 +12,8 @@ metadata:
     - module
     - import
     - export
-    - async
-    - promise
+    - typescript async
+    - typescript promise
 ---
 # TypeScript Best Practices
 
