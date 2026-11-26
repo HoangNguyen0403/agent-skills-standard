@@ -14,9 +14,9 @@
 | react-native-platform-specific | `**/*.ios.*`, `**/*.android.*` | Platform, Platform.select, native-module, ios, android |
 | react-native-testing | `**/*.test.tsx`, `**/*.spec.tsx`, `__tests__/**` | react native e2e test, test, testing, jest, render, fireEvent, waitFor |
 
-## Keyword Match (only when user's request mentions these)
+## Keyword Match (associated concepts in requested work)
 
-| Skill | Match when user mentions |
+| Skill | Associated concept |
 | ----- | ----------------------- |
 | **react-native-components** | component, props, children, composition, presentational, container |
 | **react-native-performance** | FlatList, memo, useMemo, useCallback, performance, optimization |

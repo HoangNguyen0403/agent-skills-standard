@@ -92,6 +92,46 @@
           "value": "User Intent"
         }
       ]
+    },
+    {
+      "id": 5,
+      "evidence_tier": "finite-decision-contract",
+      "prompt": "Drafting a SKILL.md for a React hooks skill produced 120 lines. Return exactly these lines, in order, then optionally one final `NOTES:` line:\nSKILL VIOLATION DETECTED\nAuto-fixed: YES|NO\nRoot Cause: AMBIGUOUS_RULE|MISSING_COVERAGE|OUTDATED_GUIDANCE|COMPETING_RULES|PATTERN_MISMATCH\nLimit: <breached limit>\nExtract To: <reference path>\nUser Intent: <one sentence>\nSkill Gap: <one or two sentences>\nArtifact: report_only|written",
+      "expected_output": "SKILL VIOLATION DETECTED\nAuto-fixed: YES\nRoot Cause: MISSING_COVERAGE\nLimit: 100-line limit\nExtract To: references/examples.md\nUser Intent: Add a React hooks skill covering detailed examples and explanations.\nSkill Gap: Add an explicit example budget so large samples move to references/ before the draft exceeds 100 lines.\nArtifact: report_only",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "^\\s*SKILL VIOLATION DETECTED[ \\t]*\\r?\\n[ \\t]*Auto-fixed:[ \\t]*(?:YES|NO)[ \\t]*\\r?\\n[ \\t]*Root Cause:[ \\t]*(?:AMBIGUOUS_RULE|MISSING_COVERAGE|OUTDATED_GUIDANCE|COMPETING_RULES|PATTERN_MISMATCH)[ \\t]*\\r?\\n[ \\t]*Limit:[ \\t]*[1-9]\\d*-line limit[ \\t]*\\r?\\n[ \\t]*Extract To:[ \\t]*references/(?![^\\r\\n]*\\.\\.)\\S[^\\r\\n]*[ \\t]*\\r?\\n[ \\t]*User Intent:[ \\t]*\\S[^\\r\\n]{0,299}[ \\t]*\\r?\\n[ \\t]*Skill Gap:[ \\t]*\\S[^\\r\\n]{0,299}[ \\t]*(?=\\r?\\n|$)[ \\t]*\\r?\\n[ \\t]*Artifact:[ \\t]*(?:report_only|written)(?:\\r?\\n[ \\t]*NOTES:[^\\r\\n]{0,300})?\\s*$"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*Auto-fixed:[ \\t]*YES[ \\t]*(?=\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*Root Cause:[ \\t]*(?:AMBIGUOUS_RULE|MISSING_COVERAGE|OUTDATED_GUIDANCE|COMPETING_RULES|PATTERN_MISMATCH)[ \\t]*(?=\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*Limit:[ \\t]*100-line limit[ \\t]*(?=\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*Extract To:[ \\t]*references/[^ \\t\\r\\n][^\\r\\n]*[ \\t]*(?=\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*User Intent:[ \\t]*\\S[^\\r\\n]{0,299}[ \\t]*(?=\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*Skill Gap:[ \\t]*\\S[^\\r\\n]{0,299}[ \\t]*(?=\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*Artifact:[ \\t]*report_only[ \\t]*(?=\\r?\\n|$)"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

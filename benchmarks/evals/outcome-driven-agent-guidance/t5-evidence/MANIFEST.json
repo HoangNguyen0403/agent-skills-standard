@@ -1,0 +1,44 @@
+{
+  "generated_at": "2026-11-26T03:45:14Z",
+  "base_commit": "c679e0032fbebf4eed90db0f2fc4f52541a3f23d",
+  "authorization": "Explicit user authorization for this correction only; adheres to the 43 reviewed header outputs + engine-owned .skills-lock.json.",
+  "frozen_brief": {
+    "path": "benchmarks/evals/outcome-driven-agent-guidance/t5-correction-brief.md",
+    "sha256": "4331f01aa5c34186c3b225e737d8a3b0649f7fc77130af2586a80e22333c03ac"
+  },
+  "source": {
+    "cli/src/services/IndexGeneratorServiceImpl.ts": "37f3894201914570d8fb82beaaa623fdc650ce9c3a56d74fd476e2878942d3e5"
+  },
+  "report": {
+    "path": "benchmarks/evals/outcome-driven-agent-guidance/t5-correction-report.md",
+    "sha256": "9da2097ed212a1fbcc3e15b370937c1a9f15cf264e044e79e0c69241ebb2c857"
+  },
+  "lock": {
+    "sha256": "6f144726992826b49d5d87b067863da8182094c8ba2c2cc15da571d7be6b1886",
+    "cli_entries": 2437,
+    "generation_entries": 25,
+    "workflows": 33
+  },
+  "artifacts": [
+    {
+      "artifact": "benchmarks/evals/outcome-driven-agent-guidance/t5-evidence/adoption-receipt.json",
+      "sha256": "8d36e0d9b1b5ec6e42b73f48dc456e9829e8fc2c1cec99acf4e18a973534f61e",
+      "bytes": 201407
+    },
+    {
+      "artifact": "benchmarks/evals/outcome-driven-agent-guidance/t5-evidence/parity-summary.json",
+      "sha256": "72ff0a270c00d7ef07b236be4cf8c0bf2a0726ad02f901e80bd298dfc5983839",
+      "bytes": 6070
+    },
+    {
+      "artifact": "benchmarks/evals/outcome-driven-agent-guidance/t5-evidence/refusal-receipt.json",
+      "sha256": "4f7d7f80151f6068618916767915366769438b02568cf2d4c70fd651c33bae2c",
+      "bytes": 2684
+    },
+    {
+      "artifact": "benchmarks/evals/outcome-driven-agent-guidance/t5-evidence/settled-check-receipt.json",
+      "sha256": "269de8889c54ca6f74a35f187f1ae00441a5e2db78517bbfc0b0b0ff79d32aa6",
+      "bytes": 197991
+    }
+  ]
+}

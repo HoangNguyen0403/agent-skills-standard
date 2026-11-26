@@ -1,0 +1,37 @@
+{
+  "kind": "pre-normalized-routing-source",
+  "files": [
+    {
+      "path": "skills/flutter/flutter-cicd/SKILL.md",
+      "sha256": "0c42e0d65365c2fe63cbde26801e4ae01e8c7af6bba352149cab0b872f49a557"
+    },
+    {
+      "path": "mcp/src/tools/index.ts",
+      "sha256": "624975cf868238f1161a0a2b41756a4c484502b5cc30179b6ea213531c1f80e6"
+    },
+    {
+      "path": "mcp/src/server.ts",
+      "sha256": "08530bb8b7432fdc0be8339a192c8d823c268352b01d3f4a20f8a2f2d1cfaf59"
+    },
+    {
+      "path": "cli/src/services/IndexContentBuilder.ts",
+      "sha256": "ce4ae484997b8fadb5c092d1778f54a1a41377773ddbf5aefcd6d62d0de5d9b5"
+    },
+    {
+      "path": "mcp/test/SkillIndex.spec.ts",
+      "sha256": "066ed378c68bfda3cc124a8237eac561c78958a9e04a11b3520215e43df9a9a6"
+    },
+    {
+      "path": "docs/prd/prd-outcome-driven-agent-guidance.md",
+      "sha256": "dd917ef867156ca970762092d178f5b9acc58a78b8b044bf08c400dfee933529"
+    },
+    {
+      "path": "docs/srs/srs-outcome-driven-agent-guidance.md",
+      "sha256": "c1f674e389e14252f308e08e3a53c98b9cde710609025d8652be1c1a06ca436c"
+    },
+    {
+      "path": "benchmarks/evals/outcome-driven-agent-guidance/caller-selection-protocol.md",
+      "sha256": "b7bdbac428a70010bbdce7abdb362ac3f6b2ae6b0a9a04410333ceb8fb45280b"
+    }
+  ]
+}

@@ -16,9 +16,9 @@
 | **ios-swiftui** | `**/*View.swift` | View, SwiftUI @State, SwiftUI State, Binding, EnvironmentObject |
 | **ios-ui-navigation** | `**/*View.swift`, `**/*.xib`, `**/*.storyboard` | NSLayoutConstraint, UIStackView, SnapKit, layoutSubviews |
 
-## Keyword Match (only when user's request mentions these)
+## Keyword Match (associated concepts in requested work)
 
-| Skill | Match when user mentions |
+| Skill | Associated concept |
 | ----- | ----------------------- |
 | **ios-dependency-injection** | @Injected, Resolver, Container, Swinject, register, resolve |
 | ios-deployment | Fastfile, Appfile, Matchfile, ios_bundle_id, provisioning_profile, testflight |

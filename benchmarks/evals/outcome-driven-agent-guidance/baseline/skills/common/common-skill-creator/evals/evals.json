@@ -1,0 +1,84 @@
+{
+  "skill_name": "common-skill-creator",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Create a new skill for handling GraphQL subscriptions in a NestJS backend.",
+      "expected_output": "Follow skill creation workflow: (1) Research best practices for NestJS WebSockets/PubSub. (2) Capture: what it does (subscription resolvers, PubSub patterns), when it triggers (*.resolver.ts, subscription, pubsub, websocket). (3) Write SKILL.md using TEMPLATE.md — ≤100 lines, description ≤100 words. (4) Extract code blocks >10 lines to references/. (5) Create evals/evals.json with 3 should-trigger and 3 should-not-trigger.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "TEMPLATE"
+        },
+        {
+          "type": "contains",
+          "value": "evals"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Audit this SKILL.md — it's 150 lines long with a 20-line code block in the body.",
+      "expected_output": "Quality violations: (1) SKILL.md >100 lines — extract content to references/. (2) Code block >10 lines — move to references/example.md. (3) Check description is ≤100 words with What+When structure. (4) Verify anti-patterns follow 'No X: Do Y' format. (5) Check triggers are specific globs/keywords, not **/*. Fix each violation.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "100 lines"
+        },
+        {
+          "type": "contains",
+          "value": "references/"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "The skill I created has low trigger accuracy — it only fires 40% of the time when it should.",
+      "expected_output": "Optimize description for trigger accuracy: (1) Add missing keywords to triggers list. (2) Add scenario-based phrases to description (what situations trigger this). (3) Run trigger eval queries. (4) Target ≥90% recall and specificity, matching the release readiness gate. (5) Spawn parallel subagents: with-skill vs without-skill (baseline). Grade assertions, iterate description until target met.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "trigger"
+        },
+        {
+          "type": "contains",
+          "value": "90%"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Audit a project-local maintenance skill refocus. Its old non-slug name is replaced with a valid kebab-case name under .github/skills. The external installer scans agent skill directories and excludes metadata.internal: true; the public catalog must contain canonical registry skills only. The renamed local skill has no internal metadata and now appears as an extra installer entry. Keep the local maintenance role, but correct its distribution boundary.",
+      "expected_output": "Mark the repository-only maintenance skill metadata.internal: true so the installer excludes it. Preserve the valid name and canonical authoring references. Do not add it to the public registry expectation merely to silence discovery failure; verify actual installer discovery against the unchanged canonical catalog.",
+      "assertions": [
+        { "type": "contains", "value": "internal" },
+        { "type": "contains", "value": "installer" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Write a Python web scraper",
+    "Set up a Redis pub/sub system",
+    "Configure Kubernetes horizontal pod autoscaling"
+  ],
+  "pressure_scenarios": [
+    {
+      "prompt": "This skill is simple. Skip the baseline run and just write the SKILL.md fast.",
+      "failure_mode": "Agent skips before/after evidence and writes an untested guardrail.",
+      "behavior_assertions": ["baseline", "pressure", "rationalization"]
+    },
+    {
+      "prompt": "The description already sounds good enough. Do not spend time on trigger testing.",
+      "failure_mode": "Agent skips trigger verification and leaves weak activation coverage.",
+      "behavior_assertions": ["trigger", "90%", "should_not_trigger"]
+    }
+  ],
+  "rationalizations": [
+    "The skill is obvious so I do not need a baseline.",
+    "This is just documentation, not something to test."
+  ],
+  "red_flags": ["skip the baseline run", "just write the SKILL.md fast"],
+  "should_trigger": [
+    "Create a new skill for handling GraphQL subscriptions in a NestJS backend."
+  ]
+}

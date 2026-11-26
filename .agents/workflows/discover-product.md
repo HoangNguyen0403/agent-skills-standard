@@ -50,7 +50,7 @@ Goal: Frame evidence-grounded product opportunities and falsifiable hypotheses f
 ## Falsifiable Hypotheses
 ## Proposed Decision & Learning Plan
 ## Outcome Report
-{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: discover-product, feature_status: requirements_ready, started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: validate-product, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
+{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: discover-product, feature_status: "[carried from parent handoff]", started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: "[evidence-selected workflow or null]", cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
 ## Next Workflow
 validate-product | plan-feature | incident-hotfix
 ## Cost Report

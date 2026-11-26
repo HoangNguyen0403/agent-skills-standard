@@ -1,0 +1,96 @@
+{
+  "skill_name": "common-workflow-writing",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Write a workflow for the code review process that includes all the detailed steps and examples.",
+      "expected_output": "Apply workflow writing rules: (1) Goal in 1 sentence. (2) Steps as imperative commands. (3) Output as template headers only — no pre-filled rows. No prose explanations. No pre-answered questions. No example data in tables. Merge any sequential steps that always happen together. Stay under 80 lines.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "template"
+        },
+        {
+          "type": "contains",
+          "value": "80 lines"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "The workflow I created has detailed explanation paragraphs before each step explaining why we do it.",
+      "expected_output": "Violation: No verbose step preambles. Delete all 'Before we start, it's important to understand...' prose. Replace with imperative command: 'Run security scan' not 'Before running the security scan, it's important to note that...'. If a bullet achieves the same result, delete the paragraph. Check: would cutting this in half still give the agent enough to act on?",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "imperative"
+        },
+        {
+          "type": "contains",
+          "value": "delete"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Update this SKILL.md — it has an inline code block of 15 lines showing an example configuration.",
+      "expected_output": "Violation: Inline code block >10 lines must be extracted to references/. Create references/example.md (or references/config-example.md) and move the 15-line block there. Replace inline block with a link: 'See [Configuration Example](references/config-example.md)'. SKILL.md must stay ≤100 lines.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "references/"
+        },
+        {
+          "type": "contains",
+          "value": "references/"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Write a portable SDLC workflow that reports feature status when verification is blocked by runtime access.",
+      "expected_output": "Use an adapter-neutral Outcome Report with feature_status separate from missing_evidence and decision_needed. Red flags: runtime-specific tool names, chat channel IDs, containers, sandbox paths, and abstract artifact paths without concrete repo location.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "feature_status"
+        },
+        {
+          "type": "contains",
+          "value": "runtime-specific"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Apply an implementation-to-verification workflow to both cases. Case A: a routine code/test-only defect has an approved in-chat brief with expected behavior, decisions, and checks; it is not sensitive or governed. The existing verifier template asks for PRD/SRS trace updates and a walkthrough. The bug is fixed, but verification discovers unrelated behavior outside the approved brief. Case B: a governed authorization change crosses a sensitive trust boundary. State each case's implementation handoff, verification/evidence record, scope-drift handling, and required gates.",
+      "expected_output": "Case A: carry the approved brief and its acceptance criteria into verify-work, keep TDD, applicable test/driver lanes and before-failure/after-success proof, and hand off evidence location. Do not require new BRD/PRD/SRS, task-list, REQ/AC IDs, trace, or walkthrough; record results/evidence in chat or the task report. Do not silently accept unrelated behavior drift: route the scope decision to the owner and verify only after the contract is resolved. Case B: preserve governed PRD/SRS and task-list trace, stable IDs, decision history and updates; retain the sensitive minimum-medium/high risk floor, TDD, verification, required human approvals, independent review, and governed walkthrough/evidence.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "chat or the task report"
+        },
+        {
+          "type": "contains",
+          "value": "before-failure/after-success"
+        },
+        {
+          "type": "contains",
+          "value": "route the scope decision to the owner"
+        },
+        {
+          "type": "contains",
+          "value": "independent review"
+        }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Build a REST API endpoint for user registration",
+    "Implement a Redis caching layer",
+    "Write SQL queries for a reporting dashboard"
+  ],
+  "should_trigger": [
+    "Write a workflow for the code review process that includes all the detailed steps and examples."
+  ]
+}

@@ -31,12 +31,10 @@ Find relevant docs and related issues, then summarize decisions, conflicts, and 
 | Page | Relevance | Key Takeaway |
 | --- | --- | --- |
 | [title] | [High/Med/Low] | [summary] |
-
 ### Related Issues
 | Key | Status | Relationship |
 | --- | --- | --- |
 | [key] | [status] | [relationship] |
-
 ### Conflicts or Gaps
 - [item or None]
 ```

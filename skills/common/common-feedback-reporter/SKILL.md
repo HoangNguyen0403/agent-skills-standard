@@ -28,7 +28,7 @@ Apply the same contract to these cases:
 - If a draft `SKILL.md` exceeds the 100-line limit, report the `100`-line violation, move large examples to `references/`, and include `Root Cause`, `User Intent`, and `Skill Gap` before rewriting it.
 - If a skill recommends an obsolete framework path or API, report `OUTDATED_GUIDANCE` and include `User Intent` and `Skill Gap` before giving the current replacement.
 
-For the oversized-draft case, include this exact sentence pattern before the rewrite: `SKILL.md is 100+ lines; extract large examples to references/. Root Cause: ... User Intent: ... Skill Gap: ...`.
+For the oversized-draft case, state the breached limit and the extraction target, and populate `Root Cause`, `User Intent`, and `Skill Gap` before the rewrite. The violation block is a report, not evidence that the corrected file was written; record the actual write separately.
 
 ## 🚨 Checkpoint: Before File Writes
 

@@ -7,8 +7,8 @@ metadata:
       - "**/*.py"
     keywords:
       - asyncio
-      - async
-      - await
+      - python async
+      - python await
       - background task
       - cancellation
       - timeout

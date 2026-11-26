@@ -5,12 +5,12 @@
 
 | Skill | File pattern | Keywords |
 | ----- | ------------ | -------- |
-| **javascript-language** | `**/*.js`, `**/*.mjs`, `**/*.cjs` | const, let, arrow, async, await, promise, destructuring, spread, class |
+| **javascript-language** | `**/*.js`, `**/*.mjs`, `**/*.cjs` | const, let, arrow, javascript async, javascript await, javascript promise, destructuring, spread, class |
 | javascript-tooling | `.eslintrc.*`, `jest.config.*`, `package.json` | eslint, prettier, jest, test, lint, build |
 
-## Keyword Match (only when user's request mentions these)
+## Keyword Match (associated concepts in requested work)
 
-| Skill | Match when user mentions |
+| Skill | Associated concept |
 | ----- | ----------------------- |
 | javascript-best-practices | module, import, export, error, validation |
 

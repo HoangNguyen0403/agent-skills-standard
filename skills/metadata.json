@@ -302,7 +302,7 @@
       "tag_prefix": "flutter-v",
       "token_metrics": {
         "total_skills": 22,
-        "total_tokens": 12505,
+        "total_tokens": 12485,
         "avg_tokens_per_skill": 568,
         "largest_skill": "flutter-testing (1058 tokens)"
       },
@@ -326,9 +326,9 @@
       "tag_prefix": "dart-v",
       "token_metrics": {
         "total_skills": 3,
-        "total_tokens": 1987,
-        "avg_tokens_per_skill": 662,
-        "largest_skill": "dart-language (902 tokens)"
+        "total_tokens": 1988,
+        "avg_tokens_per_skill": 663,
+        "largest_skill": "dart-language (903 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -350,8 +350,8 @@
       "tag_prefix": "typescript-v",
       "token_metrics": {
         "total_skills": 4,
-        "total_tokens": 3035,
-        "avg_tokens_per_skill": 759,
+        "total_tokens": 3040,
+        "avg_tokens_per_skill": 760,
         "largest_skill": "typescript-language (859 tokens)"
       },
       "owners": [
@@ -374,9 +374,9 @@
       "tag_prefix": "javascript-v",
       "token_metrics": {
         "total_skills": 3,
-        "total_tokens": 1349,
-        "avg_tokens_per_skill": 450,
-        "largest_skill": "javascript-language (638 tokens)"
+        "total_tokens": 1357,
+        "avg_tokens_per_skill": 452,
+        "largest_skill": "javascript-language (646 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -398,8 +398,8 @@
       "tag_prefix": "react-v",
       "token_metrics": {
         "total_skills": 8,
-        "total_tokens": 5001,
-        "avg_tokens_per_skill": 625,
+        "total_tokens": 4991,
+        "avg_tokens_per_skill": 624,
         "largest_skill": "react-testing (917 tokens)"
       },
       "owners": [
@@ -494,8 +494,8 @@
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 48,
-        "total_tokens": 55387,
-        "avg_tokens_per_skill": 1154,
+        "total_tokens": 56168,
+        "avg_tokens_per_skill": 1170,
         "largest_skill": "common-decision-discipline (3243 tokens)"
       },
       "owners": [
@@ -532,9 +532,9 @@
       "tag_prefix": "specialists-v",
       "token_metrics": {
         "total_skills": 21,
-        "total_tokens": 13172,
+        "total_tokens": 13177,
         "avg_tokens_per_skill": 627,
-        "largest_skill": "specialist-system-architect (1120 tokens)"
+        "largest_skill": "specialist-system-architect (1126 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -594,7 +594,7 @@
       "tag_prefix": "kotlin-v",
       "token_metrics": {
         "total_skills": 4,
-        "total_tokens": 2171,
+        "total_tokens": 2172,
         "avg_tokens_per_skill": 543,
         "largest_skill": "kotlin-language (618 tokens)"
       },
@@ -618,7 +618,7 @@
       "tag_prefix": "java-v",
       "token_metrics": {
         "total_skills": 5,
-        "total_tokens": 3058,
+        "total_tokens": 3060,
         "avg_tokens_per_skill": 612,
         "largest_skill": "java-language (728 tokens)"
       },
@@ -666,7 +666,7 @@
       "tag_prefix": "android-v",
       "token_metrics": {
         "total_skills": 26,
-        "total_tokens": 12035,
+        "total_tokens": 12027,
         "avg_tokens_per_skill": 463,
         "largest_skill": "android-testing (850 tokens)"
       },
@@ -694,9 +694,9 @@
       "tag_prefix": "swift-v",
       "token_metrics": {
         "total_skills": 8,
-        "total_tokens": 5321,
-        "avg_tokens_per_skill": 665,
-        "largest_skill": "swift-concurrency (927 tokens)"
+        "total_tokens": 5324,
+        "avg_tokens_per_skill": 666,
+        "largest_skill": "swift-concurrency (930 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -746,7 +746,7 @@
       "tag_prefix": "php-v",
       "token_metrics": {
         "total_skills": 7,
-        "total_tokens": 3816,
+        "total_tokens": 3817,
         "avg_tokens_per_skill": 545,
         "largest_skill": "php-language (615 tokens)"
       },
@@ -770,8 +770,8 @@
       "tag_prefix": "python-v",
       "token_metrics": {
         "total_skills": 9,
-        "total_tokens": 3945,
-        "avg_tokens_per_skill": 438,
+        "total_tokens": 3948,
+        "avg_tokens_per_skill": 439,
         "largest_skill": "python-language (675 tokens)"
       },
       "owners": [

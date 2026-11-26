@@ -30,13 +30,10 @@ Review code diffs for architecture and design violations only. Skip security, te
 ### Architecture Review Findings
 **Tech Stack:** [stack]
 **Layers Touched:** [layers]
-
 #### Violations
 - [Severity] [file:line] - [issue + fix]
-
 #### Design Simplicity
 - [Severity] [file:line] - [issue + fix]
-
 #### What Looks Good
 - [observation]
 ```

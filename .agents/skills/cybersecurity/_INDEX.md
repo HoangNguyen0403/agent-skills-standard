@@ -1,9 +1,9 @@
 <!-- AUTO-GENERATED from SKILL.md frontmatters — do not edit manually -->
 # cybersecurity Skills Index
 
-## Keyword Match (only when user's request mentions these)
+## Keyword Match (associated concepts in requested work)
 
-| Skill | Match when user mentions |
+| Skill | Associated concept |
 | ----- | ----------------------- |
 | **cyber-authorization** | exercise authorization, rules of engagement, scope drift, authorization expiry, runtime controls, stop condition |
 | **cyber-detection-engineering** | detection engineering, detection rule, Sigma rule, analytic coverage, telemetry prerequisite, false positive tuning |

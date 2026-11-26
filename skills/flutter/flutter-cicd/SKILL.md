@@ -9,14 +9,7 @@ metadata:
     - 'android/fastlane/**'
     - 'ios/fastlane/**'
     keywords:
-    - ci
-    - cd
-    - pipeline
-    - build
-    - deploy
-    - release
-    - action
-    - workflow
+    - flutter cicd
 ---
 # CI/CD Standards
 

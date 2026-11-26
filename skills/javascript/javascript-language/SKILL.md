@@ -11,9 +11,9 @@ metadata:
     - const
     - let
     - arrow
-    - async
-    - await
-    - promise
+    - javascript async
+    - javascript await
+    - javascript promise
     - destructuring
     - spread
     - class

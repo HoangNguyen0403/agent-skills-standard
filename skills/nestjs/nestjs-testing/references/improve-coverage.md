@@ -63,11 +63,11 @@ description: Systematic workflow for improving test coverage to a target thresho
 
 - **No Coverage Padding**: Don't add meaningless `toBeDefined()` tests for coverage
 - **No Shape Guessing**: Always verify actual DTO/entity structure before mocking
-- **No eslint-disable**: Fix type issues properly per [strict-typescript-testing](../skills/nestjs/testing/references/strict-typescript-testing.md)
+- **No eslint-disable**: Fix type issues properly per [strict-typescript-testing](./strict-typescript-testing.md)
 - **No Batch-and-Pray**: Lint-check after EACH file, not at the end
 
 ## Key Skill Dependencies
 
-- [nestjs/testing](../skills/nestjs/testing/SKILL.md) — Test patterns and structure
-- [typescript/best-practices](../skills/typescript/best-practices/SKILL.md) — No `any`, no lint-disable
-- [common/tdd](../skills/common/tdd/SKILL.md) — Red-Green-Refactor cycle
+- [nestjs-testing](../SKILL.md) — Test patterns and structure
+- [typescript-best-practices](../../../typescript/typescript-best-practices/SKILL.md) — No `any`, no lint-disable
+- [common-tdd](../../../common/common-tdd/SKILL.md) — Red-Green-Refactor cycle

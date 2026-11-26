@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "task_id": "T2-normalized-routing",
+  "task_number": 2,
+  "goal": "Implement approved normalized associated-concept retrieval and caller guidance without semantic matcher or qualification overclaims",
+  "owner": "Personal · Delivery normalized-routing implementation owner",
+  "project_domain": "Personal open-source agent-skills-standard",
+  "workspace_root": "/Users/nguyenhuyhoang/.paseo/worktrees/3hvsfnnw/illegal-platypus",
+  "plan_sha256": "c40ec9266b8b420c65abaaf49ab26bc7ac7989093fdb327cd4b30d277e06993d",
+  "non_goals": [
+    "raw-prose semantic matching",
+    "parser/schema/ranking changes",
+    "paid/model/sandbox trials",
+    "generated distribution or activation"
+  ],
+  "authority": {
+    "allowed_operations": [
+      "edit five declared source files",
+      "write declared FINAL report",
+      "one final focused check"
+    ],
+    "forbidden_actions": [
+      "commit",
+      "recursive delegation",
+      "new runtime or schema",
+      "paid calls",
+      "host policy changes",
+      "generated mirror edits"
+    ],
+    "required_approvals": [
+      "independent cumulative source review before acceptance",
+      "separate grants for caller/model qualification and distribution"
+    ]
+  },
+  "global_invariants": [
+    "Host policy and matching user authorization outrank packet",
+    "No fabricated proof; caller association remains AC15 NOT RUN",
+    "Preserve unrelated literal routing, file declarations, composites and raw failure evidence"
+  ],
+  "owned_paths": [
+    "skills/flutter/flutter-cicd/SKILL.md",
+    "mcp/src/tools/index.ts",
+    "mcp/src/server.ts",
+    "cli/src/services/IndexContentBuilder.ts",
+    "mcp/test/SkillIndex.spec.ts",
+    "benchmarks/evals/outcome-driven-agent-guidance/t2-normalized-report.md"
+  ],
+  "acceptance_criteria": [
+    {
+      "id": "AC-09",
+      "expectation": "Unrelated normalized prompting/authoring concepts do not induce Flutter CI/CD or its solely induced composite"
+    },
+    {
+      "id": "AC-10",
+      "expectation": "Atomic flutter cicd selects real skill/composites; unrelated literal matching and file declarations unchanged"
+    },
+    {
+      "id": "AC-15-boundary",
+      "expectation": "Caller association remains unexecuted; no hand-normalized fixture or raw-query result called caller proof"
+    }
+  ],
+  "verification": [
+    {
+      "command": "rtk pnpm --filter ./mcp exec vitest run test/SkillIndex.spec.ts",
+      "cwd": ".",
+      "expected": "nonzero actual assertions, focused suite passes; source-only result not semantic efficacy"
+    }
+  ],
+  "required_standards": [
+    {
+      "id": "common/common-skill-creator",
+      "path": "skills/common/common-skill-creator/SKILL.md",
+      "revision": "dbe56fa9d09335b88ee121a27c074d6aeb8c3312dc97c796b23f4385a88a779f"
+    },
+    {
+      "id": "common/common-workflow-writing",
+      "path": "skills/common/common-workflow-writing/SKILL.md",
+      "revision": "2a87e5dd6ed78fcee8b032e07d857ba2af3b5800247e5d45327374eb46f0c02f"
+    },
+    {
+      "id": "common/common-tdd",
+      "path": "skills/common/common-tdd/SKILL.md",
+      "revision": "a0169ce237f6cd2e5156b29140ba6ff8a7926abe1af2d2fac86203881d8afdbc"
+    },
+    {
+      "id": "common/common-best-practices",
+      "path": "skills/common/common-best-practices/SKILL.md",
+      "revision": "6f41ba6229992ecf9ff77bc54295d752c055fb705f403e021ef996d38910773a"
+    },
+    {
+      "id": "common/common-feedback-reporter",
+      "path": "skills/common/common-feedback-reporter/SKILL.md",
+      "revision": "62bc5913c92f3b426c31b52d26f73d99f20dd6e71389c58159f39d46cf87de35"
+    },
+    {
+      "id": "typescript/typescript-language",
+      "path": "skills/typescript/typescript-language/SKILL.md",
+      "revision": "769fe6884d693ee08d5e75da506351b5d88844b38cd6e251f2c6b526e7e54ac7"
+    }
+  ],
+  "source_revision": "c679e0032fbebf4eed90db0f2fc4f52541a3f23d (original pilot base; current sources bound below)",
+  "dirty_identity": {
+    "algorithm": "sha256 ordered path/digest list",
+    "digest": "04ef45b6703377bc50dd25d99e7abe40b374710077956a3b9a21dd1c93e79ddb"
+  },
+  "source_files": [
+    {
+      "path": "skills/flutter/flutter-cicd/SKILL.md",
+      "sha256": "0c42e0d65365c2fe63cbde26801e4ae01e8c7af6bba352149cab0b872f49a557"
+    },
+    {
+      "path": "mcp/src/tools/index.ts",
+      "sha256": "624975cf868238f1161a0a2b41756a4c484502b5cc30179b6ea213531c1f80e6"
+    },
+    {
+      "path": "mcp/src/server.ts",
+      "sha256": "08530bb8b7432fdc0be8339a192c8d823c268352b01d3f4a20f8a2f2d1cfaf59"
+    },
+    {
+      "path": "cli/src/services/IndexContentBuilder.ts",
+      "sha256": "ce4ae484997b8fadb5c092d1778f54a1a41377773ddbf5aefcd6d62d0de5d9b5"
+    },
+    {
+      "path": "mcp/test/SkillIndex.spec.ts",
+      "sha256": "066ed378c68bfda3cc124a8237eac561c78958a9e04a11b3520215e43df9a9a6"
+    },
+    {
+      "path": "docs/prd/prd-outcome-driven-agent-guidance.md",
+      "sha256": "dd917ef867156ca970762092d178f5b9acc58a78b8b044bf08c400dfee933529"
+    },
+    {
+      "path": "docs/srs/srs-outcome-driven-agent-guidance.md",
+      "sha256": "c1f674e389e14252f308e08e3a53c98b9cde710609025d8652be1c1a06ca436c"
+    },
+    {
+      "path": "benchmarks/evals/outcome-driven-agent-guidance/caller-selection-protocol.md",
+      "sha256": "b7bdbac428a70010bbdce7abdb362ac3f6b2ae6b0a9a04410333ceb8fb45280b"
+    }
+  ],
+  "dependencies": [],
+  "output_contract": {
+    "receipt_destination": "benchmarks/evals/outcome-driven-agent-guidance/t2-normalized-report.md",
+    "status_vocabulary": [
+      "DONE",
+      "DONE_WITH_CONCERNS",
+      "BLOCKED",
+      "NEEDS_CONTEXT"
+    ],
+    "stop_conditions": [
+      "frozen source and FINAL evidence",
+      "missing authority or materially enlarged contract",
+      "no extra retries without new evidence"
+    ]
+  },
+  "limits": {
+    "corrective_followups": 1,
+    "focused_check_timeout_seconds": 120
+  }
+}

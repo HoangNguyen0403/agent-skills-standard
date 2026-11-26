@@ -1,0 +1,111 @@
+{
+  "skill_name": "common-context-optimization",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "The context window is full. The verification receipt exists only in a tool output that has not been persisted. Return exactly these lines, in order, then optionally one final `NOTES:` line:\nCOMPACT: now|after_archive\nEVIDENCE: retained|discarded\nCLAIM: measured|unverified",
+      "expected_output": "COMPACT: after_archive\nEVIDENCE: retained\nCLAIM: unverified",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "^\\s*COMPACT:[ \\t]*(?:now|after_archive)[ \\t]*\\r?\\n[ \\t]*EVIDENCE:[ \\t]*(?:retained|discarded)[ \\t]*\\r?\\n[ \\t]*CLAIM:[ \\t]*(?:measured|unverified)(?:\\r?\\n[ \\t]*NOTES:[^\\r\\n]{0,300})?\\s*$"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*COMPACT:[ \\t]*after_archive[ \\t]*(?=\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*EVIDENCE:[ \\t]*retained[ \\t]*(?=\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*CLAIM:[ \\t]*unverified[ \\t]*(?=\\r?\\n|$)"
+        }
+      ],
+      "evidence_tier": "finite-decision-contract"
+    },
+    {
+      "id": 2,
+      "prompt": "You observed cache reads and total input for this task but have no comparable baseline. Return exactly these lines, in order, then optionally one final `NOTES:` line:\nSAVINGS: claimed|not_claimed\nBASIS: measured_comparable|absent",
+      "expected_output": "SAVINGS: not_claimed\nBASIS: absent",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "^\\s*SAVINGS:[ \\t]*(?:claimed|not_claimed)[ \\t]*\\r?\\n[ \\t]*BASIS:[ \\t]*(?:measured_comparable|absent)(?:\\r?\\n[ \\t]*NOTES:[^\\r\\n]{0,300})?\\s*$"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*SAVINGS:[ \\t]*not_claimed[ \\t]*(?=\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*BASIS:[ \\t]*absent[ \\t]*(?=\\r?\\n|$)"
+        }
+      ],
+      "evidence_tier": "finite-decision-contract"
+    },
+    {
+      "id": 3,
+      "prompt": "Should I compact every conversation at 80k tokens to control cost?",
+      "expected_output": "No fixed threshold; compact from observed context pressure and task needs, preserving decisions, evidence, blockers, and next action.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": [
+            "fixed threshold",
+            "observed"
+          ]
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "evidence"
+          ]
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "next action"
+          ]
+        }
+      ],
+      "evidence_tier": "text-transcript"
+    },
+    {
+      "id": 4,
+      "prompt": "To cut tokens, I plan to stop loading the required instruction bodies and call that a savings. Is that valid?",
+      "expected_output": "No. Never claim savings from suppressing required instruction bodies; selection or body-return counts are not acknowledgment or enforcement.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": [
+            "instruction bodies",
+            "required"
+          ]
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "savings"
+          ]
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "acknowledgment",
+            "enforcement"
+          ]
+        }
+      ],
+      "evidence_tier": "text-transcript"
+    }
+  ],
+  "should_not_trigger": [
+    "Explain how HTTP caching works.",
+    "Write a Python web scraper for product prices."
+  ],
+  "should_trigger": [
+    "Our agent loses task state in long conversations and token cost is high; how should we manage context?"
+  ]
+}

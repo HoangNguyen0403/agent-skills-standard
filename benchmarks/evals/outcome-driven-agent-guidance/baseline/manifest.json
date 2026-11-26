@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "kind": "frozen-source-baseline",
+  "base_revision": "c679e0032fbebf4eed90db0f2fc4f52541a3f23d",
+  "approval": "operator: Start implement the plan; 2026-11-26",
+  "execution": "subagent-driven",
+  "qualification": "not run; budget and bundle capability pending",
+  "files": [
+    {
+      "path": "skills/common/common-skill-creator/SKILL.md",
+      "sha256": "a15c8d84dd8e4044475a373e32211983575758e8d3026193ff09f018fd14627b",
+      "bytes": 7612
+    },
+    {
+      "path": "skills/common/common-skill-creator/evals/evals.json",
+      "sha256": "dde9e917648c4caebc528c1c326e9d9005eab4ee7dd51e7e5ea377229c3ad94e",
+      "bytes": 4323
+    },
+    {
+      "path": "skills/common/common-workflow-writing/SKILL.md",
+      "sha256": "21a72b6e67d650b56ba96d16c53924e1dcf4eea120bd07e789f11d11c429762d",
+      "bytes": 2510
+    },
+    {
+      "path": "skills/common/common-workflow-writing/evals/evals.json",
+      "sha256": "b9e81f40360322d853b230a4b1400a754ebe741b512757483fd4a622a26a5af0",
+      "bytes": 4858
+    },
+    {
+      "path": ".agents/workflows/implement-feature.md",
+      "sha256": "d62961e4b9316bca601038100bf19999c37ed6b6de2d517058fa81c3be776d2a",
+      "bytes": 7520
+    },
+    {
+      "path": "skills/common/common-subagent-driven-development/references/templates.md",
+      "sha256": "4b20e2da6d2143d31ed668002edcffa759f822b2825cf3f348079d966f401495",
+      "bytes": 14818
+    },
+    {
+      "path": "skills/flutter/flutter-cicd/SKILL.md",
+      "sha256": "c654e752ab28c1795d0e23c89d0d03e60c42f571f9f0200162af14706bcc50dd",
+      "bytes": 2131
+    },
+    {
+      "path": "mcp/test/SkillIndex.spec.ts",
+      "sha256": "a9eddb849d08138611b9bcec80888814e6f9b3218749d90ef83b1464135f0198",
+      "bytes": 51763
+    }
+  ]
+}

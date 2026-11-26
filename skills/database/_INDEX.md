@@ -13,9 +13,9 @@
 | **database-redis** | `**/redis.config.ts` | redis, cache, ttl, eviction |
 | **database-schema-design** | `**/*.entity.ts`, `prisma/schema.prisma`, `**/*.json` | schema, data model, cardinality, embed, normalize |
 
-## Keyword Match (only when user's request mentions these)
+## Keyword Match (associated concepts in requested work)
 
-| Skill | Match when user mentions |
+| Skill | Associated concept |
 | ----- | ----------------------- |
 | **database-transactions** | transaction, consistency, idempotency, lock, concurrent write |
 

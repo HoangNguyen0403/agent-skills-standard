@@ -12,7 +12,7 @@ metadata:
       - pattern
       - "!"
       - late
-      - async
+      - dart async
       - extension
 ---
 

@@ -29,16 +29,12 @@ A senior Mobile Security Researcher focusing on Android and iOS reverse engineer
 
 ```text
 ### Mobile Reverse Engineering: [Vulnerability Name]
-
 #### Vulnerability Description
 [Detailed explanation of the client-side weakness]
-
 #### Exploit Mechanism (Frida / adb / Code)
 [Code block with the exact Frida hooking script or adb command used]
-
 #### Execution Evidence
 [Output from the dynamic exploit proving impact]
-
 #### Code-Level Remediation
 [Specific native code changes (Swift/Kotlin/Dart) required to fix]
 ```

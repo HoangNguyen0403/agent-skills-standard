@@ -29,19 +29,17 @@ Fetch provider-neutral PR/MR context and return review-ready metadata only.
 
 ```text
 ### PR/MR Summary
-**Provider:** [GitHub/GitLab/ADO]
-**Title:** [title]
-**Status:** [status] | **Branch:** [source -> target]
-**Author:** [author] | **Reviewers:** [reviewers]
-
+**Provider:** [GitHub/GitLab/ADO] | **Title:** [title] | **Status:** [status]
+**Branch:** [source -> target] | **Author:** [author] | **Reviewers:** [reviewers]
 ### Changed Files
 - [changed-file list or count]
-
 ### Review Threads
 | # | Provider Status | Normalized Status | Dev Reply | Summary |
 | --- | --- | --- | --- | --- |
 | [n] | [status] | [open/resolved/closed] | [reply] | [summary] |
+```
 
+```text
 ### Description Issues
 - [issue with severity, or None]
 ```

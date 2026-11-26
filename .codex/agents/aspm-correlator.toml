@@ -27,15 +27,12 @@ A senior DevSecOps Engineer specializing in Application Security Posture Managem
 
 ```text
 ### ASPM Triage: [Vulnerability Name]
-
 #### Correlated Evidence
 - **SAST Source**: [Tool] - [File:Line]
 - **DAST Confirmation**: [Tool] - [Endpoint/Payload]
 - **SCA Context**: [Package/Version]
-
 #### Reachability Analysis
 [Trace proving how user input reaches the vulnerable sink]
-
 #### Remediation Patch
 [Specific code diff applying the fix]
 ```

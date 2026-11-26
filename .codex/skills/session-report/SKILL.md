@@ -89,7 +89,7 @@ Goal: Preserve a concise artifact of what changed, how it was verified, and what
 ## Skill Feedback Candidates
 
 ## Outcome Report
-{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: session-report, feature_status: implemented, started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: retro-learn, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
+{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: session-report, feature_status: "[evidence-derived status]", started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: "[evidence-selected workflow or null]", cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
 
 ## Next Workflow
 

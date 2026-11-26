@@ -7,9 +7,9 @@
 | ----- | ------------ | -------- |
 | **system-design-document** | `docs/**/*-design.md`, `docs/superpowers/specs/*.md` | hld, high level design, architecture document, design document, solution options, option comparison, etl options, architecture review comments |
 
-## Keyword Match (only when user's request mentions these)
+## Keyword Match (associated concepts in requested work)
 
-| Skill | Match when user mentions |
+| Skill | Associated concept |
 | ----- | ----------------------- |
 | system-design-artifact-intake | review this design, review this diagram, review this architecture, drawio, excalidraw, plantuml, structurizr, design screenshot, whiteboard photo, architecture image |
 | system-design-building-blocks | load balancer, cache strategy, message queue, cdn, api gateway, consistent hashing, pub/sub, rate limiter, backpressure, single-flight, thundering herd |

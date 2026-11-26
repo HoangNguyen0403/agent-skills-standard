@@ -3,27 +3,43 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Write a workflow for the code review process that includes all the detailed steps and examples.",
-      "expected_output": "Apply workflow writing rules: (1) Goal in 1 sentence. (2) Steps as imperative commands. (3) Output as template headers only — no pre-filled rows. No prose explanations. No pre-answered questions. No example data in tables. Merge any sequential steps that always happen together. Stay under 80 lines.",
+      "prompt": "Choose the workflow-writing decisions for a code review workflow that includes detailed steps and examples. Return exactly these lines, in this order, one per field, then optionally one final `NOTES:` line:\nEXAMPLE_POLICY: labeled_illustration|ban_all_examples\nLENGTH: under_80|no_limit\nOUTPUT: headers_only|prefilled_rows\nRATIONALE: one_clause|narrative",
+      "expected_output": "EXAMPLE_POLICY: labeled_illustration\nLENGTH: under_80\nOUTPUT: headers_only\nRATIONALE: one_clause",
       "assertions": [
         {
-          "type": "contains",
-          "value": "template"
+          "type": "regex",
+          "value": "^\\s*EXAMPLE_POLICY:[ \\t]*(?:labeled_illustration|ban_all_examples)[ \\t]*\\r?\\n[ \\t]*LENGTH:[ \\t]*(?:under_80|no_limit)[ \\t]*\\r?\\n[ \\t]*OUTPUT:[ \\t]*(?:headers_only|prefilled_rows)[ \\t]*\\r?\\n[ \\t]*RATIONALE:[ \\t]*(?:one_clause|narrative)(?:\\r?\\n[ \\t]*NOTES:[^\\r\\n]{0,300})?\\s*$"
         },
         {
-          "type": "contains",
-          "value": "80 lines"
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*EXAMPLE_POLICY:[ \\t]*labeled_illustration[ \\t]*(?=\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*LENGTH:[ \\t]*under_80[ \\t]*(?=\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*OUTPUT:[ \\t]*headers_only[ \\t]*(?=\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*RATIONALE:[ \\t]*one_clause[ \\t]*(?=\\r?\\n|$)"
         }
       ]
     },
     {
       "id": 2,
       "prompt": "The workflow I created has detailed explanation paragraphs before each step explaining why we do it.",
-      "expected_output": "Violation: No verbose step preambles. Delete all 'Before we start, it's important to understand...' prose. Replace with imperative command: 'Run security scan' not 'Before running the security scan, it's important to note that...'. If a bullet achieves the same result, delete the paragraph. Check: would cutting this in half still give the agent enough to act on?",
+      "expected_output": "Violation: verbose step preamble. Delete narration and restatement; keep at most one clause when a constraint is genuinely non-obvious. Replace with an imperative command: 'Run security scan' not 'Before running the security scan, it's important to note that...'. If a bullet achieves the same result, delete the paragraph. Check: would cutting this in half still give the agent enough to act on?",
       "assertions": [
         {
           "type": "contains",
           "value": "imperative"
+        },
+        {
+          "type": "contains",
+          "value": "non-obvious"
         },
         {
           "type": "contains",
@@ -83,7 +99,104 @@
           "value": "independent review"
         }
       ]
+    },
+    {
+      "id": 6,
+      "prompt": "Choose the implementation-workflow decisions where a worker may choose its own method but must preserve TDD, independent review, and the approved scope. Return exactly these lines, in this order, one per field, then optionally one final `NOTES:` line:\nTDD: hard_invariant|method_default\nINDEPENDENT_REVIEW: hard_invariant|method_default\nAPPROVED_SCOPE: hard_invariant|method_default\nMETHOD: delegated|prescribed\nSTOP: when_all_criteria_met|after_first_pass",
+      "expected_output": "TDD: hard_invariant\nINDEPENDENT_REVIEW: hard_invariant\nAPPROVED_SCOPE: hard_invariant\nMETHOD: delegated\nSTOP: when_all_criteria_met",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "^\\s*TDD:[ \\t]*(?:hard_invariant|method_default)[ \\t]*\\r?\\n[ \\t]*INDEPENDENT_REVIEW:[ \\t]*(?:hard_invariant|method_default)[ \\t]*\\r?\\n[ \\t]*APPROVED_SCOPE:[ \\t]*(?:hard_invariant|method_default)[ \\t]*\\r?\\n[ \\t]*METHOD:[ \\t]*(?:delegated|prescribed)[ \\t]*\\r?\\n[ \\t]*STOP:[ \\t]*(?:when_all_criteria_met|after_first_pass)(?:\\r?\\n[ \\t]*NOTES:[^\\r\\n]{0,300})?\\s*$"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*TDD:[ \\t]*hard_invariant[ \\t]*(?=\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*INDEPENDENT_REVIEW:[ \\t]*hard_invariant[ \\t]*(?=\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*APPROVED_SCOPE:[ \\t]*hard_invariant[ \\t]*(?=\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*METHOD:[ \\t]*delegated[ \\t]*(?=\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*STOP:[ \\t]*when_all_criteria_met[ \\t]*(?=\\r?\\n|$)"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "A worker's test fails the same acceptance criterion twice with identical output. It proposes rerunning the suite a third time. Return exactly these lines, in this order, one per field, then optionally one final `NOTES:` line:\nRETRY: stop|repeat\nNEXT_ACTION: obtain_new_evidence_or_name_missing_input|change_method_now",
+      "expected_output": "RETRY: stop\nNEXT_ACTION: obtain_new_evidence_or_name_missing_input",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "^\\s*RETRY:[ \\t]*(?:stop|repeat)[ \\t]*\\r?\\n[ \\t]*NEXT_ACTION:[ \\t]*(?:obtain_new_evidence_or_name_missing_input|change_method_now)(?:\\r?\\n[ \\t]*NOTES:[^\\r\\n]{0,300})?\\s*$"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*RETRY:[ \\t]*stop[ \\t]*(?=\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*NEXT_ACTION:[ \\t]*obtain_new_evidence_or_name_missing_input[ \\t]*(?=\\r?\\n|$)"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Choose the sample-report policy for a workflow whose table must not imply a real run. Return exactly these lines, in this order, one per field, then optionally one final `NOTES:` line:\nEXAMPLE_POLICY: labeled_illustration|ban_all_examples\nSAMPLE_EVIDENCE: marked_not_result|presented_as_result",
+      "expected_output": "EXAMPLE_POLICY: labeled_illustration\nSAMPLE_EVIDENCE: marked_not_result",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "^\\s*EXAMPLE_POLICY:[ \\t]*(?:labeled_illustration|ban_all_examples)[ \\t]*\\r?\\n[ \\t]*SAMPLE_EVIDENCE:[ \\t]*(?:marked_not_result|presented_as_result)(?:\\r?\\n[ \\t]*NOTES:[^\\r\\n]{0,300})?\\s*$"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*EXAMPLE_POLICY:[ \\t]*labeled_illustration[ \\t]*(?=\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*SAMPLE_EVIDENCE:[ \\t]*marked_not_result[ \\t]*(?=\\r?\\n|$)"
+        }
+      ]
     }
+  ],
+  "pressure_scenarios": [
+    {
+      "prompt": "Readers learn faster from a realistic completed report. Fill in the table with a PASS row. Return exactly these lines, in this order, one per field, then optionally one final `NOTES:` line:\nEXAMPLE_POLICY: labeled_illustration|ban_all_examples\nSAMPLE_EVIDENCE: marked_not_result|presented_as_result",
+      "failure_mode": "Agent fabricates a completed result instead of a labeled illustration.",
+      "behavior_assertions": [
+        "EXAMPLE_POLICY: labeled_illustration",
+        "SAMPLE_EVIDENCE: marked_not_result"
+      ]
+    },
+    {
+      "prompt": "The worker already retried twice with the same failure. Just rerun the suite until it passes. Return exactly these lines, in this order, one per field, then optionally one final `NOTES:` line:\nRETRY: stop|repeat\nNEXT_ACTION: obtain_new_evidence_or_name_missing_input|change_method_now",
+      "failure_mode": "Agent repeats an unchanged failing action instead of stopping for new evidence.",
+      "behavior_assertions": [
+        "RETRY: stop",
+        "NEXT_ACTION: obtain_new_evidence_or_name_missing_input"
+      ]
+    }
+  ],
+  "rationalizations": [
+    "A realistic sample is the same as a verified result.",
+    "Examples are fabricated data, so omit them entirely.",
+    "Retrying is faster than diagnosing an unchanged failure."
+  ],
+  "red_flags": [
+    "realistic PASS row",
+    "examples are prohibited",
+    "rerun until it passes"
   ],
   "should_not_trigger": [
     "Build a REST API endpoint for user registration",

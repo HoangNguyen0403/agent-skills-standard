@@ -13,22 +13,22 @@ Goal: Build an approved feature through bounded TDD slices and route settled wor
    Sensitive or scope-grown change reopens only affected slices and restores the design/approval floor; high tier adds architecture-guard and security-reviewer before `verify-work`.
 2. **Prepare workspace**: Confirm clean or intentional dirty state; create a branch/worktree only when expected; provision lockfile deps before tests.
    Report install failures exactly; never claim skipped checks passed.
-3. **Bound ownership**: Give each slice an owner, files, goal, in/out scope, authority, criteria refs (REQ/AC or brief criteria), lane, approval, receipt;
+3. **Bound ownership**: Give each slice an owner, files, observable outcome, acceptance criteria, in/out scope, authority, delegated method choices, criteria refs (REQ/AC or brief criteria), required evidence, stop condition, lane, approval, receipt;
    record the work item @ revision once and link criteria/lanes instead of restating them. Standalone packet, never inferred plan authority.
    Blocked slices name blocker, owner, and required input while ready slices proceed.
 4. **Check slice freshness** before starting any slice: a recorded decision whose `invalidates:` list intersects the slice's REQ/AC/SRS ids and that no newer approval has resolved
    marks it `BLOCKED-STALE`. Invalidation binds to the approval it supersedes (`supersedes_approval:`), not a calendar date; semantics live only in `common-decision-discipline` → Decision Record.
    Route only the invalidated items to `plan-feature`/`design-solution`; unaffected slices keep their approved revision and continue. No full re-plan.
 5. **Implement slices**: Take placement from `common-subagent-driven-development` §1; delegate only for a named benefit or host requirement, and keep coupled sequential work in one context.
-   Dispatch one owner per disjoint, dependency-ready slice; workers bootstrap from their packet and request only the standards it names.
+   Dispatch one owner per disjoint, dependency-ready slice; workers bootstrap from their packet and request only the standards it names. Resolve discoverable facts from the packet, repository, and named standards before asking; ask only a material decision tools cannot resolve. Choose method inside the packet's delegated choices; an unrelated improvement is a proposal, not scope expansion.
    TDD: record contract, distinct fault, smallest honest layer, minimal cases, and focused command; write the failing test first and observe expected RED.
    Setup errors (compile, syntax, fixtures) are `invalid_red`, never behavioral RED; a pre-repair snapshot alone is `frozen_snapshot_red`; tests after code leave original RED `NOT RUN`.
    Implement the smallest passing change without scope expansion; run focused checks foreground, single-run, no peer mutation.
    Derive counts from raw runner output; reject early zero-exit completions and no-listener runs (zero assertions executed).
    Keep revision-bound receipts for applicable gates (source-ready, focused, consumer-smoke, review, acceptance): contract, RED/GREEN, smoke, command/result, limits; unexecuted checks are `NOT RUN`.
 6. **Independent review**: Review each slice in a fresh owner/context against its ACs and evidence; implementer self-review never satisfies this gate. Record review mode, findings, settled revision.
-7. **Recover by cause**: Missing prerequisite → `needs_context`/`blocked` with the exact item; defective output → one corrective assignment naming the failed AC;
-   exhaustion → only an eligible, already-authorized fallback with evidence recorded; safety or design conflict → human decision. Retries never authorize premium.
+7. **Recover by cause**: Missing prerequisite → `needs_context`/`blocked` with the exact item; defective output → one corrective assignment naming the cited evidence, failed AC, repair boundary, and required verification;
+   unchanged evidence → stop and name the missing input instead of retrying or switching method; exhaustion → only an eligible, already-authorized fallback with evidence recorded; safety or design conflict → human decision. Retries never authorize premium.
 8. **Preserve context**: Carry decisions, owner, active slice, and evidence links in the plan artifact; summarize logs; archive packets, reports, and receipts at durable refs before cleanup.
 9. **Settle before shared checks**: Every owner pauses edits and reports a settled revision; run one final covering gate including real producer→consumer smoke for boundary slices.
    Run the whole-branch review (either placement) and `pnpm snc:diff --declared <snc_tier>`; apply a higher tier's gates. Later edits invalidate affected evidence; cancelled runs never pass.
@@ -47,7 +47,7 @@ Goal: Build an approved feature through bounded TDD slices and route settled wor
 - `repository_status` and `activation_status` stay separate; publication approval does not grant deployment authority.
 ## Blocking Questions
 
-- Ask max 3 only when the answer changes the result or safety boundary; give a recommended default plus 2–3 options.
+- Resolve discoverable facts from the packet, repository, and named standards first; ask max 3 only when the answer changes the result or safety boundary; give a recommended default plus 2–3 options.
 
 ## Output Template
 ```md
@@ -70,11 +70,11 @@ Goal: Build an approved feature through bounded TDD slices and route settled wor
 ## Delegation Packets
 ## Outcome Report
 {schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: implement-feature, started_at: "[timestamp]",
- completed_at: "[timestamp]", feature_status: implemented, requirement_trace: {brd_objectives: [], requirements: [],
+ completed_at: "[timestamp]", feature_status: "[evidence-derived status]", requirement_trace: {brd_objectives: [], requirements: [],
  acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [],
- recommended_next_workflow: verify-work, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
+ recommended_next_workflow: "[evidence-selected workflow or null]", cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
 ## Next Workflow
-verify-work
+verify-work when the settled evidence proves the approved criteria; dev-fix for an observed defect; null when the slice is not settled.
 ```
 ## Cost Report
 Call `get_session_cost(workflow="implement-feature")` before handoff; workers never pass `completion`, and orchestrators add it only when tasks are settled and consent is enabled.

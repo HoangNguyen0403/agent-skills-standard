@@ -18,11 +18,12 @@ metadata:
 
 ## Core Rules
 
-- **Templates, not examples**: Workflows define _structure_, not pre-filled data. agent generates data at runtime.
-- **No example rows in tables**: Include headers + 1 skeleton row only. Never populate with fake data.
-- **No prose explanations**: If bullet or command achieves same result, delete paragraph.
+- **Outcome before procedure**: State outcome, acceptance criteria, scope/authority, delegated method, required evidence, and stop condition. Prescribe exact order only where dependency, auditability, or safety requires it.
+- **Templates for results, labels for illustrations**: Never pre-fill result rows with fictional data; report tables use headers plus at most one skeleton row. When an ambiguous output shape needs a sample, label it `Illustrative`, keep it distinct from reported results, and never present it as an observed run.
+- **Concise rationale for non-obvious constraints**: One clause is allowed when it improves generalization. Delete narrative preambles, restatement, and "how to X" sections a command or bullet already covers.
 - **No pre-answered questions**: Don't document what agent _will_ output — let it output it.
-- **Merge sequential steps**: If two steps always happen together, they one step.
+- **Evidence-driven correction**: mismatch → cited evidence → failed criterion → repair boundary → focused verification. On unchanged evidence, stop and name the missing evidence/input before any retry or method change.
+- **Merge sequential steps**: If two steps always happen together, they are one step.
 
 ## Size Limits
 
@@ -38,21 +39,24 @@ metadata:
 ```
 1. Goal (1 sentence)
 2. Steps (imperative verb → command or checklist)
-3. Output template (headers only, no pre-filled rows)
+3. Output template (headers only; mark any `Illustrative` sample as not a result)
+4. Stop or escalation (only when a criterion cannot be met)
 ```
 
 ## Anti-Patterns
 
-- **No verbose step preambles**: `"Before we start, it's important to understand..."` → Delete
-- **No pre-filled report rows**: `| Security | P0 | ✅ PASS | CLIENT_ID moved to env |` → Delete
+- **No verbose step preambles**: `"Before we start, it's important to understand..."` → Delete; keep one clause only for a genuinely non-obvious constraint
+- **No fabricated results**: `| Security | P0 | ✅ PASS | CLIENT_ID moved to env |` → Delete; a labeled illustration is not a result row
 - **No repeated examples**: Same concept shown twice in different formats → Keep one
 - **No "How to X" sections**: step instruction
 - **No caution blocks for obvious rules**: Reserve `> ⚠️` for genuinely non-obvious risks
+- **No blind retries**: unchanged evidence → stop and name the missing input; do not retry or switch method without new evidence
 - **Portable output contracts**: Use `feature_status`, missing evidence, decision needed, and adapter-neutral language; avoid runtime-specific tool names, chat channels, containers, and mount paths in canonical workflows.
 
 ## Quick Self-Check Before Saving
 
 - [ ] Can agent reconstruct any removed content at runtime from context? If yes → remove it
-- [ ] every table row real structure, not example data?
+- [ ] every table row real structure, not example data; illustration clearly labeled?
 - [ ] there any paragraphs bullet list could replace?
 - [ ] Would cutting this in half still give agent enough to act on?
+- [ ] Can the agent choose method inside the stated constraints without losing a required gate?

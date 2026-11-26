@@ -9,11 +9,11 @@
 | **java-testing** | `**/*Test.java`, `**/*IT.java` | @Test, @ParameterizedTest, Mockito, AssertJ, assertThat, JUnit, Testcontainers |
 | java-tooling | `pom.xml`, `build.gradle`, `build.gradle.kts`, `.sdkmanrc` | mvnw, gradlew, spotbugs, checkstyle, spotless, eclipse-temurin |
 
-## Keyword Match (only when user's request mentions these)
+## Keyword Match (associated concepts in requested work)
 
-| Skill | Match when user mentions |
+| Skill | Associated concept |
 | ----- | ----------------------- |
 | java-best-practices | refactor, SOLID, builder, factory, composition, immutable, Optional, checked exception, clean code |
-| java-concurrency | Thread, Executor, synchronized, lock, CompletableFuture, StructuredTaskScope, VirtualThread, AtomicInteger, async, race condition |
+| java-concurrency | Thread, Executor, synchronized, lock, CompletableFuture, StructuredTaskScope, VirtualThread, AtomicInteger, java async, race condition |
 
 > Load matched skills: `<SKILLS>/java/<skill>/SKILL.md`. Load ALL that match — the tier model already filters irrelevant ones.

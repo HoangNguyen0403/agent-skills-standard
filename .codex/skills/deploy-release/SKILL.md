@@ -84,7 +84,7 @@ GO | NO-GO | ROLLED-BACK
 ## Rollback
 
 ## Outcome Report
-{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: deploy-release, feature_status: released, started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: publish-notes, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
+{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: deploy-release, feature_status: "[verified released status or prior evidenced status]", started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: "[evidence-selected workflow or null]", cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
 
 ## Next Workflow
 

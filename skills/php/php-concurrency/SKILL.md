@@ -10,7 +10,7 @@ metadata:
     - suspend
     - resume
     - non-blocking
-    - async
+    - php async
 ---
 # PHP Concurrency
 

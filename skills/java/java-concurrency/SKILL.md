@@ -14,7 +14,7 @@ metadata:
     - StructuredTaskScope
     - VirtualThread
     - AtomicInteger
-    - async
+    - java async
     - race condition
 ---
 # Java Concurrency

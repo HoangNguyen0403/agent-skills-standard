@@ -9,9 +9,9 @@
 | **product-evidence** | `docs/product/*/evidence.json` | product evidence ledger, product decision authority, product evidence freshness |
 | **product-requirements** | `PRD.md`, `docs/prd/prd-*.md`, `specs/*.md` | create prd, product requirements, draft requirements, new feature spec, acceptance criteria |
 
-## Keyword Match (only when user's request mentions these)
+## Keyword Match (associated concepts in requested work)
 
-| Skill | Match when user mentions |
+| Skill | Associated concept |
 | ----- | ----------------------- |
 | **product-customer-discovery** | product customer discovery, product research synthesis |
 | **product-experimentation** | product hypothesis validation, product experiment design |

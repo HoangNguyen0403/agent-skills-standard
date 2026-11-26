@@ -10,7 +10,7 @@ Goal: Turn rough intent into an approved, evidence-backed brief sized to the tas
 
 1. Frame:
    - Load `common-decision-discipline`, `common-operator-profile`, `common-task-complexity-routing`; load `product-management/product-business-requirements` for Why lane.
-   - Infer `operator_profile` (never ask). Score SNC: `tier=low` -> Quick (chat contract), `tier=medium` -> Standard, `tier=high` -> Deep. Sensitive-change risk floor applies. Tier only rises. Route capability/effort per `common-task-complexity-routing/references/routing-table.md#capability-and-effort-resolution`.
+   - Infer `operator_profile` (never ask). Score SNC: `tier=low` -> Quick (chat contract), `tier=medium` -> Standard, `tier=high` -> Deep. Sensitive-change risk floor applies. Reassess a tier in either direction only on shared, documented evidence, carry the settled value into every later handoff, and never let a downward reassessment bypass unresolved risk, required approvals, or the sensitive-change floor. Route capability/effort per `common-task-complexity-routing/references/routing-table.md#capability-and-effort-resolution`.
    - Lane: `business` -> Why (solution-free BRD-lite); `technical` or unclear direction -> Direction (delivery contract); `hybrid` -> both, compact. Substantial discovery warrants a compact verb-object capability inventory; keep Why solution-free. Mint/reuse the delivery slug here; standalone `brainstorm` never mints one. When the operator is still exploring, follow `references/explore-facilitation.md` before narrowing; begin intake only on delivery intent.
    - Bug symptom without root cause -> stop and route to `dev-fix`. Multi-subsystem idea -> list slices, brainstorm first only.
 2. Ground:
@@ -30,8 +30,8 @@ Goal: Turn rough intent into an approved, evidence-backed brief sized to the tas
    - Interactive: end with "Reply ok or corrections"; approval applies only to this brief. Autonomous/channel mode: `approval: assumed-autonomous`; `tier=high` still requires explicit human sign-off.
    - Pending or high-tier awaiting sign-off: hold planning and execution; no downstream authority/readiness. Quick carries the concise contract in chat/payload; Standard/Deep save `docs/brd/brd-[slug].md`.
    - Recommend `plan-feature` only after scoped approval; brief approval grants no implementation, spend, release, deployment, runtime exposure, or activation authority.
-   - Lifecycle: pending brief uses `not_started` (or preserves existing lifecycle); never grants `requirements_ready`. Approved brief uses `requirements_ready`.
-   - Route to `plan-feature`; when critical value hypotheses require bounded empirical testing, route to `validate-product` (when selected/installed; otherwise record exact capability gap, e.g. `product-management/product-experimentation not installed; opt in at a reviewed ref and sync`, keep hypothesis as unvalidated assumption, and route to `plan-feature`; recommendation grants no paid eval/execution authority).
+   - Lifecycle: derive status from the settled brief and evidence; pending approval preserves an evidenced prior lifecycle, using `not_started` only when none exists. Approved status is `requirements_ready` only when the approved brief supports it; otherwise retain the evidenced status.
+   - Route selection: pending approval or high-tier sign-off -> `null`; after scoped approval -> `plan-feature`, except a recorded critical value hypothesis requiring bounded empirical testing may select `validate-product` when eligible/installed. Use this same settled rule for the human `## Next Workflow` and machine `recommended_next_workflow`; neither route grants spend/execution authority or lowers the sensitive-change floor.
 
 ## Runtime Contract
 
@@ -43,7 +43,7 @@ Goal: Turn rough intent into an approved, evidence-backed brief sized to the tas
 
 - Ask only questions whose answer changes outcome, safety boundary, or public contract; highest-impact first, max 3 independent, never re-ask settled facts.
 - State the exact decision needed, its owner, and affected scope. Surface a visible recommended default and proposed owner/metric/scope; never silently decide a consequential operator-owned choice.
-- `feature_status=blocked` only when the operator rejects drafted owner, value, or scope defaults. Pending approval or `tier=high` sign-off is not BLOCKED: hold the affected downstream action, set `approval: pending` and `decision_needed`, and keep `not_started` or the preserved lifecycle.
+- `feature_status=blocked` only when the operator rejects drafted owner, value, or scope defaults. Pending approval or `tier=high` sign-off is not BLOCKED: hold downstream action, set `approval: pending` and `decision_needed`, and preserve an evidenced lifecycle (use `not_started` only if no prior lifecycle exists).
 
 ## Handoff Payload
 
@@ -71,10 +71,10 @@ Why lane only: business objective; SMART metric; users; problem; AS-IS to TO-BE;
 approval: [state]; scope: this brief only; reopen: [affected section]
 authority: [pending or awaiting high-tier human sign-off: none; scoped approved brief: planning handoff only; never implementation, spend, release, runtime activation]
 ## Outcome Report
-#Machine handoff only; never part of any human reply (Quick or Standard/Deep). Unknown fields stay `unknown`/null. While approval is pending or high-tier sign-off is outstanding, `recommended_next_workflow` is `null`; use `plan-feature` only after scoped approval allows planning.
-{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: sdlc-intake, feature_status: not_started, started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: null, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
+#Machine handoff only; never part of any human reply. Status and successor are evidence-derived, not defaults. Apply the same route rule as step 4 and `## Next Workflow`: pending approval/high-tier sign-off -> null; after scoped approval -> plan-feature, or validate-product only for the recorded critical-hypothesis condition when eligible/installed.
+{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: sdlc-intake, feature_status: "[evidence-derived status]", started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: "[evidence-selected workflow or null]", cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
 ## Next Workflow
-`plan-feature` only after allowed scoped approval; otherwise `null`.
+`plan-feature` | `validate-product` | null (pending approval or required high tier approval -> null; after scoped approval, use `validate-product` only for an eligible recorded critical value hypothesis; otherwise use `plan-feature`)
 ## Cost Report
 Call `get_session_cost(workflow="sdlc-intake")` before final handoff.
 ```
