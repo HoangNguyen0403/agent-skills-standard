@@ -16,9 +16,9 @@
 | **golang-testing** | `**/*_test.go` | testing, unit tests, go test, mocking, testify |
 | golang-tooling | `golangci.yml` | gopls, golangci-lint, go vet, goimports, staticcheck, go tooling, go lint |
 
-## Keyword Match (only when user's request mentions these)
+## Keyword Match (associated concepts in requested work)
 
-| Skill | Match when user mentions |
+| Skill | Associated concept |
 | ----- | ----------------------- |
 | **golang-concurrency** | goroutine, go keyword, channel, mutex, waitgroup, Go context, context in Go, context.Context, errgroup, race condition |
 

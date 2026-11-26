@@ -7,7 +7,7 @@
 | ----- | ------------ | -------- |
 | flutter-auto-route-navigation | `**/router.dart`, `**/app_router.dart` | AutoRoute, AutoRouter, router, guards, navigate, push |
 | **flutter-bloc-state-management** | `**_bloc.dart`, `**_cubit.dart`, `**_state.dart`, `**_event.dart` | BlocProvider, BlocBuilder, BlocListener, Cubit, Emitter |
-| flutter-cicd | `.github/workflows/**.yml`, `fastlane/**`, `android/fastlane/**`, `ios/fastlane/**` | ci, cd, pipeline, build, deploy, release, action, workflow |
+| flutter-cicd | `.github/workflows/**.yml`, `fastlane/**`, `android/fastlane/**`, `ios/fastlane/**` | flutter cicd |
 | flutter-concurrency | `**/*isolate*.dart`, `**/*worker*.dart` | Isolate, compute, Isolate.run, Isolate.spawn, ReceivePort, SendPort, background |
 | flutter-dependency-injection | `**/injection.dart`, `**/locator.dart` | GetIt, injectable, singleton, module, lazySingleton, factory |
 | **flutter-design-system** | `**/theme/**`, `**/*_theme.dart`, `**/*_colors.dart`, `**/*_dls/**`, `**/foundation/**`, `**/presentation/**`, `**/ui/**`, `**/widgets/**` | ThemeData, ColorScheme, AppColors, VColors, VSpacing, AppTheme, design token |

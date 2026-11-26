@@ -1,0 +1,1177 @@
+export {
+  RECORD_DECISION_DESCRIPTION,
+  recordDecision,
+  recordDecisionSchema,
+} from "./decision";
+import { createHash } from "node:crypto";
+import fs from "fs-extra";
+import path from "path";
+import { z } from "zod";
+import { SetupHint } from "../config";
+import { SessionTracker, type LoadEvent } from "../services/SessionTracker";
+import { MatchResult, SkillIndex } from "../services/SkillIndex";
+import { summarizeSessionCostCoverage } from "../services/WorkflowTelemetry";
+import {
+  scanWorkflows,
+  lookupWorkflow,
+  listInstalledWorkflows,
+} from "../services/WorkflowIndex";
+import {
+  listEvalRuns,
+  readEvalsReport,
+  verifyEvalRun,
+} from "../services/EvalsIndex";
+import { PolicyView } from "../services/PolicyIndex";
+
+import {
+  automaticRetrospectiveText,
+  retrospectiveNudge,
+} from "./retrospective";
+
+export interface ToolContext {
+  projectRoot: string;
+  index: SkillIndex;
+  tracker: SessionTracker;
+  setup: SetupHint;
+  policy: PolicyView;
+  transport?: "stdio" | "sse";
+  retrospectiveMark?: { preparedAtProgress: number };
+  consentPath?: string;
+}
+
+export interface ToolResult {
+  content: Array<{ type: "text"; text: string }>;
+  isError?: boolean;
+  [key: string]: unknown;
+}
+
+function formatConsultationEvent(event: LoadEvent): string {
+  const observations: string[] = [];
+  if (event.discovered?.length) {
+    observations.push(`discovered ${event.discovered.join(", ")}`);
+  }
+  if (event.loaded.length) {
+    observations.push(`body returned ${event.loaded.join(", ")}`);
+  }
+  const unreturned = (event.selected ?? []).filter(
+    (skill) => !event.loaded.includes(skill),
+  );
+  if (unreturned.length) {
+    observations.push(
+      `selected but body not returned ${unreturned.join(", ")}`,
+    );
+  }
+  if (event.loadedGuides?.length) {
+    observations.push(`guide body returned ${event.loadedGuides.join(", ")}`);
+  }
+  const result = observations.join("; ") || "(no body returned)";
+  return `- ${event.at} — ${event.via}(${event.input.join(", ")}) → ${result}`;
+}
+
+function setupGuidance(setup: SetupHint): string {
+  switch (setup.kind) {
+    case "no-agents-md":
+      return [
+        "No `AGENTS.md` was found by walking up from the current directory.",
+        "This MCP needs to be launched from inside a project initialized with agent-skills-standard.",
+        "",
+        "To set up:",
+        "  1. cd into your project root",
+        "  2. Run `npx agent-skills-standard@latest init`  (creates .skillsrc)",
+        "  3. Run `npx agent-skills-standard@latest sync`  (installs skills)",
+        "  4. Restart this MCP server",
+      ].join("\n");
+    case "no-skills-dir":
+      return [
+        "No skills are installed in this project yet.",
+        "",
+        "To install skills:",
+        "  Run `npx agent-skills-standard@latest sync` from the project root.",
+        "",
+        "After running `sync`, restart this MCP server (or reload your AI tool) so it can pick up the new skills.",
+      ].join("\n");
+    case "invalid-root":
+      return [
+        `SKILLS_PROJECT_ROOT is set to "${setup.requested}", which is not usable:`,
+        `  ${setup.reason}`,
+        "",
+        "Unset SKILLS_PROJECT_ROOT to auto-detect the project root, or point it at a specific project directory.",
+      ].join("\n");
+    case "ready":
+      return "";
+  }
+}
+
+/** If the project is not yet initialized, return a guided ToolResult instead of failing. */
+function maybeEmptyState(ctx: ToolContext): ToolResult | null {
+  if (ctx.setup.kind !== "ready" || ctx.index.isEmpty()) {
+    const guidance = setupGuidance(ctx.setup);
+    if (guidance) {
+      return { content: [{ type: "text", text: guidance }] };
+    }
+    return {
+      content: [
+        {
+          type: "text",
+          text: "No skills are loaded in this project. Run `npx agent-skills-standard@latest sync` to install standard skills, then restart the MCP server.",
+        },
+      ],
+    };
+  }
+  return null;
+}
+
+// ---------- load_skills_for_files ----------
+
+export const loadSkillsForFilesSchema = z.object({
+  files: z
+    .array(z.string().min(1))
+    .min(1)
+    .describe(
+      'Project-relative file paths the agent is about to read or modify (e.g. ["src/cart.dart", "internal/auth.go"]).',
+    ),
+});
+
+function renderPolicySection(
+  files: string[],
+  policy: PolicyView,
+): string | null {
+  if (!policy.loaded) {
+    if (policy.problem) {
+      return `Project policy not loaded: ${policy.problem}`;
+    }
+    return null;
+  }
+
+  const pathMatches: Array<{
+    file: string;
+    id: string;
+    action: string;
+    reason: string;
+  }> = [];
+  for (const file of files) {
+    for (const rule of policy.pathRules(file)) {
+      pathMatches.push({
+        file,
+        id: rule.id,
+        action: rule.action,
+        reason: rule.reason,
+      });
+    }
+  }
+  const checks = policy.requiredChecks(files);
+
+  if (pathMatches.length === 0 && checks.length === 0) {
+    return null;
+  }
+
+  const lines: string[] = ["## Project policy for these files"];
+  for (const m of pathMatches) {
+    lines.push(`- ${m.file}: ${m.id} (${m.action}) — ${m.reason}`);
+  }
+  if (checks.length > 0) {
+    lines.push("- Required checks:");
+    for (const c of checks) {
+      lines.push(
+        `  - ${c.id} (${c.action}) — ${c.reason}: ${c.checks.join(", ")}`,
+      );
+    }
+  }
+
+  return lines.join("\n");
+}
+
+export async function loadSkillsForFiles(
+  args: { files: string[] },
+  ctx: ToolContext,
+): Promise<ToolResult> {
+  const empty = maybeEmptyState(ctx);
+  if (empty) return empty;
+
+  const matches = ctx.index.matchFiles(args.files);
+  const result = await finalize(
+    "load_skills_for_files",
+    args.files,
+    matches,
+    ctx,
+  );
+
+  const policyText = renderPolicySection(args.files, ctx.policy);
+  if (policyText) {
+    if (result.content.length > 0) {
+      result.content[0].text += `\n\n${policyText}`;
+    } else {
+      result.content.push({ type: "text", text: policyText });
+    }
+  }
+
+  return result;
+}
+
+// ---------- load_skills_for_keywords ----------
+
+export const loadSkillsForKeywordsSchema = z.object({
+  keywords: z
+    .array(z.string().min(1))
+    .min(1)
+    .describe(
+      'Concept words from the user request (e.g. ["auth", "performance", "migration"]). Matched against each skill\'s keyword triggers.',
+    ),
+});
+
+export async function loadSkillsForKeywords(
+  args: { keywords: string[] },
+  ctx: ToolContext,
+): Promise<ToolResult> {
+  const empty = maybeEmptyState(ctx);
+  if (empty) return empty;
+
+  const matches = ctx.index.matchKeywords(args.keywords);
+  return await finalize(
+    "load_skills_for_keywords",
+    args.keywords,
+    matches,
+    ctx,
+  );
+}
+
+// ---------- get_skill ----------
+
+export const getSkillSchema = z.object({
+  category: z
+    .string()
+    .min(1)
+    .describe('Skill category (e.g. "flutter", "golang").'),
+  name: z
+    .string()
+    .min(1)
+    .describe("Skill id — the directory name under the category."),
+});
+
+export async function getSkill(
+  args: { category: string; name: string },
+  ctx: ToolContext,
+): Promise<ToolResult> {
+  const empty = maybeEmptyState(ctx);
+  if (empty) return empty;
+
+  const skill = ctx.index.findSkill(args.category, args.name);
+  const skillKey = `${args.category}/${args.name}`;
+  if (!skill) {
+    ctx.tracker.record({
+      via: "get_skill",
+      input: [skillKey],
+      selected: [],
+      loaded: [],
+    });
+    return alternativeSkillSuggestion(args, ctx);
+  }
+  const canonicalKey = `${skill.category}/${skill.id}`;
+  const body = await fs.readFile(skill.path, "utf8").catch(() => null);
+  if (!body) {
+    // Don't leak filesystem paths — describe the gap functionally.
+    ctx.tracker.record({
+      via: "get_skill",
+      input: [canonicalKey],
+      selected: [canonicalKey],
+      loaded: [],
+    });
+    return {
+      content: [
+        {
+          type: "text",
+          text: [
+            `The skill index references "${args.category}/${args.name}" but its SKILL.md is missing.`,
+            "This usually means the skill was deleted or moved after the server started.",
+            "Restart the MCP server, or run `npx agent-skills-standard@latest sync` to reinstall skills.",
+          ].join("\n"),
+        },
+      ],
+    };
+  }
+  ctx.tracker.record({
+    via: "get_skill",
+    input: [canonicalKey],
+    selected: [canonicalKey],
+    loaded: [canonicalKey],
+    bodyDigests: {
+      [canonicalKey]: createHash("sha256").update(body).digest("hex"),
+    },
+    estimatedTokens: estimateTokens(body),
+  });
+  return {
+    content: [
+      {
+        type: "text",
+        text: renderSkill(skill.category, skill.id, body, "direct"),
+      },
+    ],
+  };
+}
+
+// ---------- get_category_guide ----------
+
+export const getCategoryGuideSchema = z.object({
+  category: z
+    .string()
+    .min(1)
+    .describe(
+      'Framework or category name (e.g. "nextjs", "react", "nestjs", "golang", "database").',
+    ),
+});
+
+export async function getCategoryGuide(
+  args: { category: string },
+  ctx: ToolContext,
+): Promise<ToolResult> {
+  const empty = maybeEmptyState(ctx);
+  if (empty) return empty;
+
+  const categories = ctx.index.listCategories();
+  const categoryHit = categories.find(
+    (category) => category.toLowerCase() === args.category.toLowerCase(),
+  );
+  if (!categoryHit) {
+    ctx.tracker.record({
+      via: "get_category_guide",
+      input: [args.category],
+      loaded: [],
+    });
+    return {
+      content: [
+        {
+          type: "text",
+          text: [
+            `Category "${args.category}" does not exist in this project.`,
+            "",
+            `**Available categories:** ${categories.join(", ")}`,
+          ].join("\n"),
+        },
+      ],
+    };
+  }
+
+  const guidePath = ctx.index.getCategoryGuidePath(categoryHit);
+  if (!guidePath || !(await fs.pathExists(guidePath))) {
+    ctx.tracker.record({
+      via: "get_category_guide",
+      input: [args.category],
+      loaded: [],
+    });
+    return {
+      content: [
+        {
+          type: "text",
+          text: [
+            `Category "${categoryHit}" is installed, but it does not provide a category guide yet.`,
+            "",
+            "Use `list_categories`, `load_skills_for_files`, or `load_skills_for_keywords` to keep routing through the category normally.",
+          ].join("\n"),
+        },
+      ],
+    };
+  }
+
+  const body = await fs.readFile(guidePath, "utf8");
+  const skills = ctx.index
+    .listSkillsInCategory(categoryHit)
+    .map((skill) => `${skill.category}/${skill.id}`)
+    .sort();
+  const routing = Object.entries(ctx.index.getRouting())
+    .filter(([, cats]) => cats.includes(categoryHit))
+    .map(([ext]) => `.${ext}`);
+
+  ctx.tracker.record({
+    via: "get_category_guide",
+    input: [args.category],
+    loaded: [],
+    loadedGuides: [`category/${categoryHit}`],
+  });
+
+  const lines = [
+    `<!-- Provenance: Loaded category/${categoryHit} via get_category_guide -->`,
+    "",
+    `# Category Guide: ${categoryHit}`,
+    routing.length
+      ? `Routed file types: ${routing.join(", ")}`
+      : "Routed file types: keyword-driven or category-local only",
+    "",
+    "## Skills In Category",
+    ...skills.map((skill) => `- ${skill}`),
+    "",
+    body,
+  ];
+  return { content: [{ type: "text", text: lines.join("\n") }] };
+}
+
+// ---------- list_categories ----------
+
+export const listCategoriesSchema = z.object({});
+
+export async function listCategories(
+  _args: Record<string, never>,
+  ctx: ToolContext,
+): Promise<ToolResult> {
+  const empty = maybeEmptyState(ctx);
+  if (empty) return empty;
+
+  const categories = ctx.index.listCategories();
+  const routing = ctx.index.getRouting();
+  ctx.tracker.record({
+    via: "list_categories",
+    input: [],
+    loaded: [],
+    discovered: categories.map((category) => `category/${category}`),
+  });
+  const lines: string[] = ["# Skill categories", ""];
+  for (const cat of categories) {
+    const skills = ctx.index.listSkillsInCategory(cat);
+    const exts = Object.entries(routing)
+      .filter(([, cats]) => cats.includes(cat))
+      .map(([ext]) => `.${ext}`);
+    lines.push(
+      `- **${cat}** — ${skills.length} skill(s)${exts.length ? ` — files: ${exts.join(", ")}` : ""}`,
+    );
+  }
+  return { content: [{ type: "text", text: lines.join("\n") }] };
+}
+
+// ---------- audit_session_compliance ----------
+
+export const auditSessionComplianceSchema = z.object({});
+
+export async function auditSessionCompliance(
+  _args: Record<string, never>,
+  ctx: ToolContext,
+): Promise<ToolResult> {
+  const loaded = ctx.tracker.loadedSkills();
+  const selected = ctx.tracker.selectedSkills();
+  const bodyReturns = ctx.tracker.skillContextCost().bodyReturnCount;
+  const digests = Object.entries(ctx.tracker.bodyDigests()).sort(([a], [b]) =>
+    a.localeCompare(b),
+  );
+  const workflows = ctx.tracker.loadedWorkflows();
+  const guides = ctx.tracker.loadedGuides();
+  const events = ctx.tracker.events_();
+  const gaps = complianceGaps(ctx);
+  const lines: string[] = [
+    "# Session compliance",
+    "",
+    `Session started: ${ctx.tracker.startedAt_()}`,
+    "AGS consultation/body-return observations are limited to this MCP session. They do not establish fresh-worker delivery or observed edits, checks, or enforcement.",
+    `Skills loaded: ${loaded.length}`,
+    `Skill matches selected: ${selected.length} unique`,
+    `Skill bodies returned: ${bodyReturns} total, ${loaded.length} unique`,
+    `Workflow bodies returned: ${workflows.length}`,
+    `Category-guide bodies returned: ${guides.length}`,
+    "",
+    "## Loaded skills",
+    ...(loaded.length ? loaded.map((s) => `- ${s}`) : ["_(none yet)_"]),
+    "",
+    "## Body content digests (SHA-256)",
+    ...(digests.length
+      ? digests.map(([skill, digest]) => `- ${skill}: ${digest}`)
+      : ["_(none)_"]),
+    "",
+    "## Returned workflow bodies",
+    ...(workflows.length
+      ? workflows.map((workflow) => `- ${workflow}`)
+      : ["_(none)_"]),
+    "",
+    "## Returned category-guide bodies",
+    ...(guides.length ? guides.map((guide) => `- ${guide}`) : ["_(none)_"]),
+    "",
+    "## Coverage gaps",
+    ...(gaps.length
+      ? gaps.map((g) => `- ⚠️  ${g}`)
+      : ["_(none — every routed category loaded at least one skill)_"]),
+    "",
+    "## Tool calls",
+    ...(events.length ? events.map(formatConsultationEvent) : ["_(none yet)_"]),
+  ];
+  const lookupFiles = ctx.tracker.loadedFiles();
+  const candidateChecks = ctx.policy.loaded
+    ? ctx.policy.requiredChecks(lookupFiles)
+    : [];
+  if (candidateChecks.length > 0) {
+    lines.push(
+      "",
+      "## Policy-declared candidate checks for lookup paths",
+      "These checks are conditional on actual file changes; lookup inputs do not establish edits or check execution.",
+      ...candidateChecks.map(
+        (check) =>
+          `- ${check.id} (${check.action}) — ${check.reason}: ${check.checks.join(", ")}`,
+      ),
+    );
+  }
+  let text = lines.join("\n");
+  const nudge = await retrospectiveNudge(ctx);
+  if (nudge) {
+    text = `${text}\n\n${nudge}`;
+  }
+  return { content: [{ type: "text", text }] };
+}
+
+/**
+ * Flags categories probed through file lookup without a returned skill body.
+ */
+function complianceGaps(ctx: ToolContext): string[] {
+  const routing = ctx.index.getRouting();
+  const loadedCategories = new Set(
+    ctx.tracker.loadedSkills().map((skill) => skill.split("/")[0]),
+  );
+  const probedCategories = new Map<string, Set<string>>();
+
+  for (const event of ctx.tracker.events_()) {
+    if (event.via !== "load_skills_for_files") continue;
+    for (const lookupPath of event.input) {
+      const match = /\.([a-zA-Z0-9]+)$/.exec(lookupPath);
+      if (!match) continue;
+      for (const category of routing[match[1]] ?? []) {
+        if (!probedCategories.has(category)) {
+          probedCategories.set(category, new Set());
+        }
+        probedCategories.get(category)?.add(`.${match[1]}`);
+      }
+    }
+  }
+
+  const gaps: string[] = [];
+  for (const [category, extensions] of probedCategories) {
+    if (!loadedCategories.has(category)) {
+      gaps.push(
+        `Lookup paths with ${[...extensions].join(", ")} route to "${category}", but no ${category} skill body was returned this session.`,
+      );
+    }
+  }
+  return gaps;
+}
+
+// ---------- get_session_cost ----------
+
+export const getSessionCostSchema = z.object({
+  workflow: z
+    .string()
+    .min(1)
+    .optional()
+    .describe("Workflow name being finalized, e.g. 'plan-feature'."),
+  slug: z
+    .string()
+    .min(1)
+    .optional()
+    .describe(
+      "User-authored feature/workspace slug for per-feature cost attribution, when this call finalizes a workflow.",
+    ),
+  outcome: z
+    .string()
+    .min(1)
+    .optional()
+    .describe(
+      "Workflow's terminal feature_status (e.g. 'verified', 'blocked'), when this call finalizes a workflow.",
+    ),
+  model: z
+    .string()
+    .min(1)
+    .optional()
+    .describe("Model used by the host runtime, if known."),
+  promptTokens: z
+    .number()
+    .int()
+    .nonnegative()
+    .optional()
+    .describe(
+      "Uncached prompt/input tokens from the host runtime, if available.",
+    ),
+  cachedPromptTokens: z
+    .number()
+    .int()
+    .nonnegative()
+    .optional()
+    .describe(
+      "Cached prompt/input tokens from the host runtime, if available.",
+    ),
+  completionTokens: z
+    .number()
+    .int()
+    .nonnegative()
+    .optional()
+    .describe("Completion/output tokens from the host runtime, if available."),
+  reasoningTokens: z
+    .number()
+    .int()
+    .nonnegative()
+    .optional()
+    .describe(
+      "Reasoning tokens from the host runtime, if reported separately.",
+    ),
+  reasoningBilling: z
+    .enum(["separate", "included-in-output"])
+    .optional()
+    .describe(
+      "Whether reasoning tokens are billed separately or already included in output tokens. Required when reasoningTokens, reasoningCostPer1M, and a positive reasoning rate are all supplied; there is no default. reasoningCostPer1M is only required for `separate` billing: with `included-in-output` the reasoning cost is already inside outputCostPer1M, so cost coverage stays exact without a separate rate. If omitted while reasoning billing is ambiguous, provenance falls back to unavailable and reasoningBilling is listed as a missing host field.",
+    ),
+  inputCostPer1M: z
+    .number()
+    .nonnegative()
+    .optional()
+    .describe(
+      "Uncached input-token price per 1M tokens for the selected model.",
+    ),
+  cachedInputCostPer1M: z
+    .number()
+    .nonnegative()
+    .optional()
+    .describe("Cached input-token price per 1M tokens for the selected model."),
+  outputCostPer1M: z
+    .number()
+    .nonnegative()
+    .optional()
+    .describe("Output-token price per 1M tokens for the selected model."),
+  reasoningCostPer1M: z
+    .number()
+    .nonnegative()
+    .optional()
+    .describe("Reasoning-token price per 1M tokens when billed separately."),
+  otherCost: z
+    .number()
+    .nonnegative()
+    .optional()
+    .describe(
+      "Any additional runtime/tooling/provider cost in the target currency.",
+    ),
+  currency: z
+    .string()
+    .min(1)
+    .default("USD")
+    .describe("Currency label for estimated cost."),
+  costSource: z
+    .enum(["host", "agent-estimate"])
+    .optional()
+    .describe(
+      "Caller-declared source for the token/pricing fields above ('host' or 'agent-estimate'). Host authenticity is unverified by this MCP server.",
+    ),
+  completion: z
+    .strictObject({
+      role: z.enum(["orchestrator", "unassigned", "worker"]),
+      activeTasks: z.number().int().nonnegative(),
+      pendingTasks: z.number().int().nonnegative(),
+    })
+    .optional()
+    .describe(
+      "Caller-declared completion readiness. Supply only at the final cost call for an implement-feature plan whose outcome is 'implemented' and whose tasks are all settled: role of the calling agent, plus the counts of active and pending plan tasks. This is a claim, not host-authenticated proof; a worker or an unsettled plan must leave it out. When eligible on stdio, local retrospective preparation runs once through the same consented engine as prepare_retrospective.",
+    ),
+});
+
+export async function getSessionCost(
+  args: {
+    workflow?: string;
+    slug?: string;
+    outcome?: string;
+    model?: string;
+    promptTokens?: number;
+    cachedPromptTokens?: number;
+    completionTokens?: number;
+    reasoningTokens?: number;
+    reasoningBilling?: "separate" | "included-in-output";
+    inputCostPer1M?: number;
+    cachedInputCostPer1M?: number;
+    outputCostPer1M?: number;
+    reasoningCostPer1M?: number;
+    otherCost?: number;
+    currency?: string;
+    costSource?: "host" | "agent-estimate";
+    completion?: {
+      role: "orchestrator" | "unassigned" | "worker";
+      activeTasks: number;
+      pendingTasks: number;
+    };
+  },
+  ctx: ToolContext,
+): Promise<ToolResult> {
+  const empty = maybeEmptyState(ctx);
+  if (empty) return empty;
+
+  ctx.tracker.record({
+    via: "get_session_cost",
+    input: args.workflow ? [args.workflow] : [],
+    loaded: [],
+  });
+  ctx.tracker.setCostContext({
+    workflow: args.workflow,
+    slug: args.slug,
+    outcome: args.outcome,
+  });
+
+  const loaded = ctx.tracker.loadedSkills();
+  const selectedSkills = ctx.tracker.selectedSkills();
+  const workflows = ctx.tracker.loadedWorkflows();
+  const guides = ctx.tracker.loadedGuides();
+  const events = ctx.tracker.events_();
+  const summary = ctx.tracker.summary();
+  const costCoverage = summarizeSessionCostCoverage(args);
+  const skillCost = ctx.tracker.skillContextCost();
+  const skillShareOfPrompt =
+    args.promptTokens && args.promptTokens > 0
+      ? `${Math.round((skillCost.totalEstimatedTokens / args.promptTokens) * 100)}%`
+      : "[Agent: provide promptTokens to compute share]";
+  const unavailableMsg = "unavailable (host did not expose token usage)";
+
+  const lines: string[] = [
+    "# Session Telemetry",
+    "",
+    "Exact LLM token usage depends on the host runtime. MCP-observed fields below are measured directly; token and cost fields carry caller-declared source labels; host authenticity is unverified.",
+    "AGS consultation/body-return observations are limited to this MCP session. They do not establish fresh-worker delivery or observed edits, checks, or enforcement.",
+    "Mounted MCP deployment identity is unknown to this stdio process; callers cannot restart or reconfigure the live service.",
+    "| Metric | Value |",
+    "|---|---|",
+    `| **Workflow** | ${args.workflow ?? "[Agent: fill workflow name]"} |`,
+    `| **Session Started** | ${summary.startedAt} |`,
+    `| **Elapsed Seconds** | ${summary.elapsedSeconds} |`,
+    `| **MCP Tool Calls** | ${summary.toolCalls} |`,
+    `| **Skills Loaded** | ${loaded.length} |`,
+    `| **Category Guide Bodies Returned** | ${guides.length} |`,
+    `| **Workflow Bodies Returned** | ${workflows.length} |`,
+    `| **No-Match Calls** | ${summary.noMatchCalls} |`,
+    `| **Model** | ${args.model ?? unavailableMsg} |`,
+    `| **Prompt Tokens** | ${args.promptTokens ?? unavailableMsg} |`,
+    `| **Cached Prompt Tokens** | ${args.cachedPromptTokens ?? unavailableMsg} |`,
+    `| **Completion Tokens** | ${args.completionTokens ?? unavailableMsg} |`,
+    `| **Reasoning Tokens** | ${args.reasoningTokens ?? unavailableMsg} |`,
+    `| **Other Runtime Cost** | ${formatOtherCost(args.otherCost, args.currency) ?? unavailableMsg} |`,
+    `| **Cost Provenance** | ${costCoverage.costSource} |`,
+    `| **Cost Status** | ${costCoverage.exactCostAvailable ? "Exact estimate available" : "Partial - host usage or pricing fields missing"} |`,
+    `| **Estimated Cost** | ${costCoverage.estimatedCost ?? unavailableMsg} |`,
+    `| **Missing Host Fields** | ${costCoverage.missingHostFields.length ? costCoverage.missingHostFields.join(", ") : "_(none)_"} |`,
+    "",
+    "## Skill Context Cost",
+    "",
+    "Estimated from skill body size (chars/4) — not exact tokenizer output, but a stable relative signal for how much of the prompt budget skill loading consumed.",
+    "",
+    "| Metric | Value |",
+    "|---|---|",
+    `| **Est. Skill Context Tokens (this session)** | ${skillCost.totalEstimatedTokens} |`,
+    `| **Skill Matches Selected (unique)** | ${selectedSkills.length} |`,
+    `| **Skill Bodies Returned (total)** | ${skillCost.bodyReturnCount} |`,
+    `| **Skill Context Share of Prompt Tokens** | ${skillShareOfPrompt} |`,
+    `| **No-Match Calls (wasted lookups)** | ${summary.noMatchCalls} |`,
+    "",
+    "## Calls By Tool",
+    "",
+    "| Tool | Calls |",
+    "|---|---:|",
+    ...Object.entries(summary.callsByTool).map(
+      ([tool, calls]) => `| ${tool} | ${calls} |`,
+    ),
+    "",
+    "## Loaded Skills",
+    "",
+    ...(loaded.length ? loaded.map((skill) => `- ${skill}`) : ["_(none)_"]),
+    "",
+    "## Returned Workflow Bodies",
+    ...(workflows.length
+      ? workflows.map((workflow) => `- ${workflow}`)
+      : ["_(none)_"]),
+    "",
+    "## Returned Category-Guide Bodies",
+    "",
+    ...(guides.length ? guides.map((guide) => `- ${guide}`) : ["_(none)_"]),
+    "",
+    "## Tool Call Timeline",
+    "",
+    ...(events.length ? events.map(formatConsultationEvent) : ["_(none)_"]),
+  ];
+  let text = lines.join("\n");
+  // A completion call owns retrospective disposition: the automatic result
+  // (success or refusal) must never be paired with a "prepare now" nudge.
+  if (args.completion === undefined) {
+    const nudge = await retrospectiveNudge(ctx);
+    if (nudge) {
+      text = `${text}\n\n${nudge}`;
+    }
+  }
+  const automatic = await automaticRetrospectiveText(args, ctx);
+  if (automatic) {
+    text = `${text}\n\n${automatic}`;
+  }
+  return { content: [{ type: "text", text }] };
+}
+
+// ---------- list_workflows ----------
+
+export const listWorkflowsSchema = z.object({});
+
+export async function listWorkflows(
+  _args: Record<string, never>,
+  ctx: ToolContext,
+): Promise<ToolResult> {
+  const installed = await listInstalledWorkflows(ctx.projectRoot);
+  const workflows =
+    installed ??
+    (await scanWorkflows(ctx.projectRoot)).map((workflow) => ({
+      name: workflow.name,
+      description: workflow.description,
+    }));
+  ctx.tracker.record({
+    via: "list_workflows",
+    input: [],
+    loaded: [],
+    discovered: workflows.map((workflow) => `workflow/${workflow.name}`),
+  });
+  if (workflows.length === 0) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: "No workflows found in `.agents/workflows`.",
+        },
+      ],
+    };
+  }
+
+  const lines: string[] = ["# Available Workflows", ""];
+  for (const wf of workflows) {
+    lines.push(
+      `- **${wf.name}**${wf.description ? `: ${wf.description}` : ""}`,
+    );
+  }
+
+  return { content: [{ type: "text", text: lines.join("\n") }] };
+}
+
+// ---------- get_workflow ----------
+
+export const getWorkflowSchema = z.object({
+  name: z
+    .string()
+    .describe(
+      "The exact name of the workflow (without extension, e.g. 'dev-fix')",
+    ),
+});
+
+export async function getWorkflow(
+  args: { name: string },
+  ctx: ToolContext,
+): Promise<ToolResult> {
+  const result = await lookupWorkflow(ctx.projectRoot, args.name);
+
+  if (
+    (result.status === "managed" || result.status === "local_source") &&
+    result.body !== undefined
+  ) {
+    ctx.tracker.record({
+      via: "get_workflow",
+      input: [args.name],
+      loaded: [`workflow/${result.name}`],
+    });
+
+    const header = `<!-- Provenance: Loaded workflow/${result.name} via get_workflow -->`;
+    return {
+      content: [
+        {
+          type: "text",
+          text: `${header}\n\n# Workflow: ${result.name}\n${result.description ? `> [!IMPORTANT]\n> ${result.description}\n` : ""}\n${result.body}`,
+        },
+      ],
+    };
+  }
+
+  ctx.tracker.record({
+    via: "get_workflow",
+    input: [args.name],
+    loaded: [],
+  });
+
+  const hasLock = await fs.pathExists(
+    path.join(ctx.projectRoot, ".skills-lock.json"),
+  );
+  if (!hasLock) {
+    const workflows = await scanWorkflows(ctx.projectRoot);
+    return {
+      isError: true,
+      content: [
+        {
+          type: "text",
+          text: `Workflow '${args.name}' not found. Available workflows:\n${workflows.map((w) => `  - ${w.name}`).join("\n")}`,
+        },
+      ],
+    };
+  }
+
+  return {
+    isError: true,
+    content: [
+      {
+        type: "text",
+        text: `Workflow '${args.name}' is unavailable: ${result.reason ?? result.status}.`,
+      },
+    ],
+  };
+}
+
+// ---------- verify_eval_run ----------
+
+export const verifyEvalRunSchema = z.object({
+  run_id: z
+    .string()
+    .optional()
+    .describe(
+      "A specific run id under benchmarks/evals/runs/ (e.g. 'dart-v2.6.0-2026-07-10'). Omit to verify all committed runs.",
+    ),
+});
+
+export async function verifyEvalRunTool(
+  args: { run_id?: string },
+  ctx: ToolContext,
+): Promise<ToolResult> {
+  const runIds = args.run_id ? [args.run_id] : listEvalRuns(ctx.projectRoot);
+
+  if (runIds.length === 0) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: "No eval runs found under `benchmarks/evals/runs/`. Run the `evals-run` workflow first (see docs/EVALS.md) to produce one.",
+        },
+      ],
+    };
+  }
+
+  const outcomes = runIds.map((id: string) =>
+    verifyEvalRun(ctx.projectRoot, id),
+  );
+  const lines: string[] = ["# Eval Run Verification", ""];
+  let anyFailed = false;
+  for (const o of outcomes) {
+    if (o.ok) {
+      lines.push(
+        `✅ \`${o.runId}\`: verified — committed results.json matches recomputed scores.`,
+      );
+    } else {
+      anyFailed = true;
+      lines.push(`❌ \`${o.runId}\`: ${o.reason}`);
+      for (const d of o.diffs || []) lines.push(`   - ${d}`);
+    }
+  }
+
+  return {
+    content: [{ type: "text", text: lines.join("\n") }],
+    isError: anyFailed,
+  };
+}
+
+// ---------- get_eval_report ----------
+
+export const getEvalReportSchema = z.object({});
+
+export async function getEvalReport(
+  _args: Record<string, never>,
+  ctx: ToolContext,
+): Promise<ToolResult> {
+  const report = readEvalsReport(ctx.projectRoot);
+  if (!report) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: "No `evals-report.md` found at the project root yet. Run the `evals-run` workflow (see docs/EVALS.md) and then `pnpm evals:report` to generate one.",
+        },
+      ],
+    };
+  }
+  return { content: [{ type: "text", text: report }] };
+}
+
+// ---------- helpers ----------
+
+async function finalize(
+  via: "load_skills_for_files" | "load_skills_for_keywords",
+  input: string[],
+  matches: MatchResult[],
+  ctx: ToolContext,
+): Promise<ToolResult> {
+  if (matches.length === 0) {
+    ctx.tracker.record({ via, input, selected: [], loaded: [] });
+    return noMatchGuidance(via, input, ctx);
+  }
+
+  const blocks: string[] = [];
+  const selected: string[] = [];
+  const loaded: string[] = [];
+  const bodyDigests: Record<string, string> = {};
+  let estimatedTokens = 0;
+
+  for (const match of matches) {
+    const key = `${match.skill.category}/${match.skill.id}`;
+    const why = `${match.matchedBy}:${match.reason}`;
+    selected.push(key);
+    try {
+      const body = await fs.readFile(match.skill.path, "utf8");
+      blocks.push(renderSkill(match.skill.category, match.skill.id, body, why));
+      loaded.push(key);
+      bodyDigests[key] = createHash("sha256").update(body).digest("hex");
+      estimatedTokens += estimateTokens(body);
+    } catch {
+      // Don't leak filesystem paths on error.
+      blocks.push(`### ERROR: Could not read skill content for ${key}`);
+    }
+  }
+  ctx.tracker.record({
+    via,
+    input,
+    selected,
+    loaded,
+    bodyDigests,
+    estimatedTokens,
+  });
+  return { content: [{ type: "text", text: blocks.join("\n\n---\n\n") }] };
+}
+
+/** Rough token estimate (chars/4) — good enough for relative cost reporting. */
+function estimateTokens(text: string): number {
+  return Math.ceil(text.length / 4);
+}
+
+/**
+ * Best-practice 1.4 (avoid "not found"): when a load returns no match, return
+ * what's available so the LLM can pick the next useful action instead of giving up.
+ */
+function noMatchGuidance(
+  via: "load_skills_for_files" | "load_skills_for_keywords",
+  input: string[],
+  ctx: ToolContext,
+): ToolResult {
+  const categories = ctx.index.listCategories();
+  const routing = ctx.index.getRouting();
+
+  const lines: string[] = [];
+  if (via === "load_skills_for_files") {
+    const exts = Array.from(
+      new Set(
+        input
+          .map((f) => {
+            const m = /\.([a-zA-Z0-9]+)$/.exec(f);
+            return m ? m[1] : "";
+          })
+          .filter(Boolean),
+      ),
+    );
+    if (exts.length) {
+      const routed = exts.filter((e) => Boolean(routing[e]));
+      const unrouted = exts.filter((e) => !routing[e]);
+      if (unrouted.length) {
+        lines.push(
+          `No skills are routed to file extensions: ${unrouted.map((e) => "." + e).join(", ")}.`,
+        );
+      }
+      if (routed.length) {
+        lines.push(
+          `Files with extensions ${routed.map((e) => "." + e).join(", ")} did not match any tier-eligible skill (broad-glob skills are demoted unless they are the registered base-language skill for the category).`,
+        );
+      }
+    } else {
+      lines.push("Files have no extensions, so no router rules apply.");
+    }
+  } else {
+    lines.push(
+      `No skill keyword triggers matched: ${input.join(", ")}. Keyword matches are case-insensitive substring matches against each skill's declared triggers.`,
+    );
+  }
+
+  lines.push("");
+  lines.push(
+    `**Available categories** (${categories.length}): ${categories.join(", ")}`,
+  );
+  lines.push("");
+  lines.push(
+    "Try `load_skills_for_keywords` with concept words from the user request, `list_categories` to see coverage, or `get_category_guide` when you already know the framework/category.",
+  );
+
+  return { content: [{ type: "text", text: lines.join("\n") }] };
+}
+
+/**
+ * Best-practice 1.4: when get_skill misses, suggest alternatives instead of
+ * a flat "not found". Returns up to 5 nearest matches by category + name overlap.
+ */
+function alternativeSkillSuggestion(
+  args: { category: string; name: string },
+  ctx: ToolContext,
+): ToolResult {
+  const categories = ctx.index.listCategories();
+  const categoryHit = categories.find(
+    (c) => c.toLowerCase() === args.category.toLowerCase(),
+  );
+
+  const lines: string[] = [];
+  if (categoryHit) {
+    const sibs = ctx.index.listSkillsInCategory(categoryHit).map((s) => s.id);
+    const close = sibs
+      .map((id) => ({ id, score: similarity(id, args.name) }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 5)
+      .map((s) => `${categoryHit}/${s.id}`);
+    lines.push(
+      `Category "${categoryHit}" exists, but it does not contain a skill named "${args.name}".`,
+    );
+    if (close.length) {
+      lines.push("", "**Closest matches in this category:**");
+      lines.push(...close.map((s) => `- ${s}`));
+    }
+  } else {
+    lines.push(`Category "${args.category}" does not exist in this project.`);
+    lines.push("", `**Available categories:** ${categories.join(", ")}`);
+    lines.push(
+      "",
+      "Use `list_categories` for a fuller view, or call `load_skills_for_files` / `load_skills_for_keywords` to let the router pick.",
+    );
+  }
+  return { content: [{ type: "text", text: lines.join("\n") }] };
+}
+
+function similarity(a: string, b: string): number {
+  const al = a.toLowerCase();
+  const bl = b.toLowerCase();
+  if (al === bl) return 1;
+  if (al.includes(bl) || bl.includes(al)) return 0.7;
+  // Cheap token-overlap score
+  const at = new Set(al.split(/[-_/]/));
+  const bt = new Set(bl.split(/[-_/]/));
+  const overlap = [...at].filter((t) => bt.has(t)).length;
+  return overlap / Math.max(at.size, bt.size, 1);
+}
+
+function formatOtherCost(
+  otherCost: number | undefined,
+  currency: string | undefined,
+): string | null {
+  if (otherCost === undefined) return null;
+  return `${currency ?? "USD"} ${otherCost.toFixed(6)}`;
+}
+
+function renderSkill(
+  category: string,
+  id: string,
+  body: string,
+  why: string,
+): string {
+  return `<!-- skill: ${category}/${id} | matched: ${why} -->\n${body}`;
+}
+
+export {
+  prepareRetrospective,
+  prepareRetrospectiveSchema,
+  prepareRetrospectiveIndex,
+  prepareRetrospectiveIndexSchema,
+  getRetrospectiveStatus,
+  getRetrospectiveStatusSchema,
+  retrospectiveNudge,
+  automaticRetrospectiveText,
+  DISABLED_RETROSPECTIVE_TEXT,
+  RETROSPECTIVE_NUDGE_TEXT,
+  AUTO_RETROSPECTIVE_WORKFLOW_SKIPPED_TEXT,
+  AUTO_RETROSPECTIVE_WORKER_SKIPPED_TEXT,
+  AUTO_RETROSPECTIVE_TASKS_SKIPPED_TEXT,
+  AUTO_RETROSPECTIVE_TRANSPORT_SKIPPED_TEXT,
+  renderRunResultText,
+  renderIndexQueryErrorText,
+} from "./retrospective";

@@ -168,7 +168,10 @@ describe('IndexGeneratorService', () => {
       expect(result).toContain(
         'Call `view_file` on `<BASE_DIR>/[Skill ID]/SKILL.md`',
       );
-      expect(result).toContain('Indirect phrasing still counts');
+      expect(result).toContain(
+        'The caller associates concepts with requested work; the registry matches declared phrases and does not infer relationships between separate terms.',
+      );
+      expect(result).toContain('keep each multiword concept atomic');
     });
 
     it('should skip if parsing fails', async () => {

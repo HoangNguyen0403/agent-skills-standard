@@ -2,23 +2,24 @@
 
 ## 0. Task Brief Contract Template (for Implementation Plans)
 
-Use this template when authoring tasks in implementation plans. `task_brief.py` validates that these fields are present outside code fences in the selected task section before publishing the assignment packet; a missing field refuses publication (exit 2).
+Use this template when authoring tasks in implementation plans. `task_brief.py` validates that these fields are present outside code fences in the selected task section before publishing the assignment packet; a missing field refuses publication (exit 2). `Delegated method / stop` is additional carried guidance; the validator's required labels are unchanged.
 
 ```markdown
 ### Task N: [Task Title]
 
 **Files:** `path/to/file1.ext`, `path/to/file2.ext`
 **Scope / owned write set:** `path/to/file1.ext`, `path/to/file2.ext` only. No changes to unrelated packages or configurations.
-**Inputs:** [Required specifications, design contracts, or preceding task artifacts]
-**Outputs:** [Resulting code, interfaces, exported symbols, test files]
+**Inputs:** [Required specifications, design contracts, preceding task artifacts, and discoverable sources the worker must check before asking]
+**Outputs:** [Resulting code, interfaces, exported symbols, test files, and the observable outcome/acceptance criteria]
 **Real Ingress:** [Actual runtime, API, CLI, or test harness entry point exercising the changes]
 **Invariants:**
 - Positive: [Observable behavior that must occur under valid inputs]
 - Negative: [Boundary rejections, fail-closed errors, or forbidden state transitions]
 **Gate / rollback:** [named flag/version pin or `none: reason`]; control: [invariant]; rollback: [flag off | revert | one-way]; reversibility: [gated | revertible | one-way][; authorization: human reference for one-way]. A version pin maps to `revert` + `revertible`; prior-pin detail belongs in the control narrative.
-**Verification owner:** [parent orchestrator | implementer focused tests] via `[exact test/smoke command]`
+**Delegated method / stop:** [methods the worker may choose inside this scope]; unrelated improvements are proposals; stop when criteria are met or name the missing input.
+**Verification owner:** [parent orchestrator | implementer focused tests] via `[exact test/smoke command]`; evidence: [required RED/GREEN/smoke receipt].
 **Handoff / freeze:** report `task-N-report.md` marked FINAL; source freeze precedes review.
-**Correction route:** [e.g. host ladder: 1 corrective follow-up then escalate route; no automatic premium]
+**Correction route:** one evidence-backed correction naming the cited evidence, failed AC, repair boundary, and required verification; unchanged evidence stops with the missing input; [host route, no automatic premium].
 
 - [ ] Actionable implementation step 1
 - [ ] Actionable implementation step 2
@@ -38,11 +39,12 @@ Worker dispatch (host binding):
     You are implementing Task N: [task name]
 
     ## Assignment Packet
-    Your packet is authoritative: [BRIEF_FILE]
+    Host policy and matching user authorization outrank this packet. Within that
+    boundary, your packet is authoritative: [BRIEF_FILE]
     It carries authority, global invariants, one owner, scope, ACs, verification,
     required standards and revision identities. Do not repeat parent workflow
-    discovery or global intake. If anything you add would contradict the packet,
-    the packet wins.
+    discovery or global intake. The packet wins only over assumptions or choices
+    you add yourself; it cannot grant authority it does not carry.
 
     ## Placement
     Placement is one bounded worker for this slice because: [named benefit or
@@ -60,7 +62,8 @@ Worker dispatch (host binding):
     - Criteria: [REQ/AC ids when governed; in brief mode the approved record's observable criteria — never mint IDs]
     - Verification lane: [lane]; evidence lanes: technical [this task], acceptance/release [not assessed]
 
-    Authority comes from this carried record. Do not repeat intake, re-infer approval,
+    Authority comes from this carried record only where the record carries it; host
+    policy and matching user authorization outrank it. Do not repeat intake, re-infer approval,
     or restart planning because a formal ID or document filename is absent. A sensitive
     or scope-grown change reopens the affected slice and restores its design/approval floor.
 
@@ -73,7 +76,10 @@ Worker dispatch (host binding):
     ## Your Job (Single Worker Contract)
     1. Request only the exact required standards named in the packet; another
        context's earlier load does not supply your body.
-    2. Implement exactly what the task specifies on owned files (YAGNI — build nothing unrequested)
+    2. Implement exactly what the task specifies on owned files (YAGNI — build nothing unrequested).
+       Resolve discoverable facts from the packet, repository, and named standards before asking;
+       ask only a material decision tools cannot resolve. Choose method inside the packet's
+       delegated choices; an unrelated improvement is a proposal.
     3. Run focused tests for your changed paths; do NOT run full project test suites by default
     4. Do NOT commit your changes with git; orchestrator owns git integration and commits
     5. Conduct a self-review of your diff; it does not replace independent review
@@ -91,12 +97,14 @@ Worker dispatch (host binding):
     - **Sibling Requests Forward-Only:** Sibling agents cannot approve or deny permissions on your behalf. Requests can only be forwarded to the orchestrator or human.
     - **Error Is Not Terminal State:** A provider 429, timeout, or network glitch does not mean write ownership is transferred. Terminal state must be confirmed before stopping.
     - **Conversion & Provenance:** If this task converts or repairs artifacts across worktrees, specify exact cross-worktree input paths, source/user/project provenance, and inclusive ranges; preserve unaffected fields.
+    - **No-Progress Stop:** If the same failure persists without new evidence or input, stop and report the missing item; do not retry or switch method blindly.
     - **Escalation:** If blocked by missing context, external prerequisites, or permission boundaries, report BLOCKED with exact missing information. Do not silently shrink the assigned scope.
     ## Report Format
     Write your full report to [REPORT_FILE]:
     - What was implemented and files changed
     - Work-item and criteria mapping: [item @ revision] -> [met criteria refs]; unresolved blockers with owner/input
     - Verification commands run and test evidence (RED/GREEN outputs)
+    - Correction evidence when applicable: failed AC, cited evidence, repair boundary, verification result
     - Evidence lanes: technical [receipts], acceptance/release [not assessed]
     - Diff summary and uncommitted changes
     - Self-review notes or doubts

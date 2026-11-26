@@ -1,9 +1,9 @@
 <!-- AUTO-GENERATED from SKILL.md frontmatters — do not edit manually -->
 # marketing Skills Index
 
-## Keyword Match (only when user's request mentions these)
+## Keyword Match (associated concepts in requested work)
 
-| Skill | Match when user mentions |
+| Skill | Associated concept |
 | ----- | ----------------------- |
 | **marketing-audience-research** | marketing audience research, developer audience discovery, audience problem mapping, customer research synthesis |
 | marketing-community | community engagement plan, developer forum participation, channel rules compliance, open-source community outreach |

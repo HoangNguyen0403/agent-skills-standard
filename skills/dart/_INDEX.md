@@ -8,9 +8,9 @@
 | **dart-language** | `**/*.dart` | sealed, record, switch, pattern, !, late, async, extension |
 | dart-tooling | `analysis_options.yaml`, `build.yaml`, `lefthook.yml` | build_runner, dart format, dart_code_metrics |
 
-## Keyword Match (only when user's request mentions these)
+## Keyword Match (associated concepts in requested work)
 
-| Skill | Match when user mentions |
+| Skill | Associated concept |
 | ----- | ----------------------- |
 | dart-best-practices | naming, convention, trailing comma, import, tear-off |
 

@@ -9,9 +9,9 @@
 | react-testing | `**/*.test.tsx`, `**/*.spec.tsx` | render, screen, userEvent, expect |
 | react-tooling | `package.json` | devtool, bundle, strict mode, React DevTools Profiler, profile React, React profile |
 
-## Keyword Match (only when user's request mentions these)
+## Keyword Match (associated concepts in requested work)
 
-| Skill | Match when user mentions |
+| Skill | Associated concept |
 | ----- | ----------------------- |
 | **react-hooks** | useEffect, useCallback, useMemo, useState, useRef, useContext, useReducer, useLayoutEffect, custom hook |
 | **react-performance** | waterfall, bundle, lazy, suspense, dynamic |

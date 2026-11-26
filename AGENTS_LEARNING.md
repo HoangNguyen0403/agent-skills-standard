@@ -503,3 +503,30 @@ Inspect `process.execArgv` for declared old-space limits or allow a calibrated y
 
 ### Trigger Miss
 None established. The issues involved runtime V8 heap semantics, protocol boundary enforcement, and integration lifecycle rather than an unavailable skill.
+
+---
+
+## Agent Learning Log: Iteration #27
+
+**Date**: 2026-11-26 | **Task**: Verify normalized guidance routing through the changed MCP server entrypoint.
+**Signal**: Session retrospective
+**Skills**: common/common-tdd, common/common-session-retrospective, common/common-learning-log
+**Scope**: project
+**Candidate**: ags-changed-entrypoint-consumer-proof | **Status**: proposed
+**Improvement**: IMP-changed-entrypoint-consumer-proof-1 | **Prevention**: regression-test
+**Verification**: existing `mcp/test/http-transport.spec.ts`; parent observed server parse failure before any tests; corrected consumer verification pending
+**Provenance**: pilot base `c679e0032fbebf4eed90db0f2fc4f52541a3f23d`; `benchmarks/evals/outcome-driven-agent-guidance/t2-normalized-review-package.md`, `parent-verification.md`; initial `mcp/src/server.ts` SHA-256 `3493c3fdf675095fa08e9899c8d263d58a4eb0f6922c3ca556a424fe00287b9f`
+**Evaluation**: no held-out caller/model trial; registry passes do not qualify caller association
+**Review**: independent source reviewer confirmed the syntax blocker; prevention proposal has no maintainer adoption approval
+**Rollback**: pre-normalization bytes retained in the pilot `normalized-baseline/manifest.json`; no policy or registry-guidance promotion
+
+### Mistake Made
+The worker froze a five-file routing candidate after 92 SkillIndex tests passed, but that suite never loaded the changed MCP server description. Unescaped example backticks terminated its enclosing TypeScript template literal; the existing server consumer test failed during import.
+
+### Pattern to Avoid
+- **No leaf-suite pass as entrypoint proof**: Routing metadata tests cannot establish that a separately edited tool-registration module loads.
+
+### Better Approach
+Use the existing import/consumer test covering the changed server entrypoint alongside the routing suite; preserve the failing consumer receipt and require its post-correction pass before source acceptance. This correction uses an existing deterministic check, not another prompting rule or a new test that merely echoes source text. No trigger miss is established; the failure was verification selection. Correction dispatch preceded this log entry; the parent retry remains pending.
+
+**Verification update**: After the source correction, the parent ran the existing HTTP lifecycle test together with SkillIndex: 2 files and 93 tests passed (516ms). `benchmarks/evals/outcome-driven-agent-guidance/parent-verification.md` preserves both the initial parse failure and corrected run. Candidate/improvement adoption remains `proposed`; using this existing check is not approval to promote new instruction text.

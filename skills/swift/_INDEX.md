@@ -9,9 +9,9 @@
 | **swift-testing** | `**/*Tests.swift` | XCTestCase, XCTestExpectation, XCTAssert, ios ui test |
 | **swift-tooling** | `Package.swift`, `.swiftlint.yml` | package, target, dependency |
 
-## Keyword Match (only when user's request mentions these)
+## Keyword Match (associated concepts in requested work)
 
-| Skill | Match when user mentions |
+| Skill | Associated concept |
 | ----- | ----------------------- |
 | **swift-best-practices** | guard, let, struct, final, swift idiomatic, swift naming, swift best practice, swift conventions, value type, immutability swift, guard let |
 | **swift-concurrency** | async, await, actor, Swift concurrency Task, Swift Task, MainActor |

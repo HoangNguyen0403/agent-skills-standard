@@ -17,9 +17,9 @@
 | angular-testing | `**/*.spec.ts` | TestBed, ComponentFixture, TestHarness, provideHttpClientTesting |
 | angular-tooling | `angular.json` | ng generate, ng build, ng serve, ng test, ng add, angular cli, bundle analysis |
 
-## Keyword Match (only when user's request mentions these)
+## Keyword Match (associated concepts in requested work)
 
-| Skill | Match when user mentions |
+| Skill | Associated concept |
 | ----- | ----------------------- |
 | angular-forms | FormBuilder, FormGroup, FormControl, Validators, reactive forms, typed forms |
 | angular-rxjs-interop | toSignal, toObservable, takeUntilDestroyed, rxjs angular |

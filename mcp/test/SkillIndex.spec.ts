@@ -680,6 +680,77 @@ describe("SkillIndex — repository trigger routing", () => {
     expect(ids).toContain("system-design-methodology");
     expect(ids).toContain("specialist-system-architect");
   });
+
+  it("does not route the observed authoring query to Flutter CI/CD", () => {
+    const ids = registryIndex
+      .matchKeywords([
+        "prompt engineering",
+        "agent autonomy",
+        "workflow",
+        "skill authoring",
+      ])
+      .map((match) => match.skill.id);
+
+    expect(ids).not.toContain("flutter-cicd");
+    expect(ids).not.toContain("common-tdd");
+  });
+
+  it("does not route authoring paraphrases with generic pipeline vocabulary to Flutter CI/CD", () => {
+    const cases = [
+      ["workflow", "prompt design", "skill authoring"],
+      ["agent autonomy", "authoring workflow"],
+      ["build an agent workflow guidance"],
+      ["delivery pipeline for skill authoring"],
+      ["prompt engineering", "release and workflow docs"],
+    ];
+
+    for (const query of cases) {
+      const ids = registryIndex
+        .matchKeywords(query)
+        .map((match) => match.skill.id);
+
+      expect(ids, query.join(" | ")).not.toContain("flutter-cicd");
+    }
+  });
+
+  it("routes the atomic Flutter CI/CD concept to its skill and composite", () => {
+    const ids = registryIndex
+      .matchKeywords(["flutter cicd"])
+      .map((match) => match.skill.id);
+
+    expect(ids).toContain("flutter-cicd");
+    expect(ids).toContain("common-tdd");
+  });
+
+  it("does not join split Flutter CI/CD tokens or unrelated concepts", () => {
+    for (const concepts of [
+      ["flutter", "cicd"],
+      ["flutter navigation", "workflow authoring"],
+      ["prompt engineering", "skill authoring"],
+    ]) {
+      const ids = registryIndex
+        .matchKeywords(concepts)
+        .map((match) => match.skill.id);
+
+      expect(ids, concepts.join(" | ")).not.toContain("flutter-cicd");
+      expect(ids, concepts.join(" | ")).not.toContain("common-tdd");
+    }
+  });
+
+
+  it("keeps the Flutter workflow file route discoverable", async () => {
+    const derivedIndex = new SkillIndex(
+      repositorySkillsDir,
+      path.join(repositorySkillsDir, "absent-derived-routing-metadata.json"),
+    );
+    await derivedIndex.load();
+
+    const ids = derivedIndex
+      .matchFiles([".github/workflows/flutter-release.yml"])
+      .map((match) => match.skill.id);
+
+    expect(ids).toContain("flutter-cicd");
+  });
 });
 
 // ---------- composite-trigger expansion ----------

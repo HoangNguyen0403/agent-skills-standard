@@ -12,9 +12,9 @@
 | **python-testing** | `tests/**/*.py`, `pytest.ini`, `**/conftest.py`, `**/test_*.py`, `**/*_test.py` | pytest, monkeypatch, fixture, async test, regression test |
 | python-tooling | `pyproject.toml`, `requirements.txt`, `pytest.ini`, `ruff.toml`, `.ruff.toml`, `mypy.ini`, `uv.lock`, `poetry.lock` | ruff, pyright, basedpyright, pip-audit, compileall, pytest.ini |
 
-## Keyword Match (only when user's request mentions these)
+## Keyword Match (associated concepts in requested work)
 
-| Skill | Match when user mentions |
+| Skill | Associated concept |
 | ----- | ----------------------- |
 | python-async-runtime | asyncio, async, await, background task, cancellation, timeout |
 | python-best-practices | refactor, clean code, readability, guard clause, composition |

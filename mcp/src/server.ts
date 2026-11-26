@@ -246,14 +246,16 @@ export async function buildServer(
   register(server, {
     name: "load_skills_for_keywords",
     title: "Load skills for keywords",
-    description: `<use_case>Load skills by matching concept words from the user's request, when no specific file is in scope yet. Useful at the planning stage of a task ("add JWT auth", "speed up homepage", "migrate schema").</use_case>
+    description: `<use_case>Load skills by matching normalized concepts associated with the user's requested work, when no specific file is in scope yet. Useful at the planning stage of a task ("add JWT auth", "speed up homepage", "migrate schema").</use_case>
 
 <aliases>"what does our team say about X", "rules around the topic Y", "best practices for concept Z", "team approach to authentication/performance/migrations"</aliases>
 
 <important_notes>
 - Use this BEFORE you decide which files to edit. Once files are known, switch to load_skills_for_files for tighter routing.
-- Keywords are case-insensitive substring matches against each skill's declared keyword triggers.
-- Returns full SKILL.md content with provenance comment showing which keyword matched.
+- Choose concepts that are associated with the requested work. Keep each multiword concept atomic (for Flutter CI/CD, pass \`keywords: ["flutter cicd"]\`), rather than splitting it into separate tokens.
+- Keyword matching checks declared trigger phrases case-insensitively, exactly or at word boundaries; separate entries are not combined and the registry does not infer semantic associations.
+- Quoted or background mentions alone do not establish that work is requested.
+- Returns full SKILL.md content with provenance comment showing which keyword trigger matched.
 - If no match, the response lists available categories — pick one and call list_categories or load_skills_for_files next.
 </important_notes>`,
     inputSchema: loadSkillsForKeywordsSchema,

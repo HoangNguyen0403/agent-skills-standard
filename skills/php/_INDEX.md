@@ -9,9 +9,9 @@
 | php-testing | `tests/**/*.php`, `phpunit.xml` | phpunit, pest, mock, assert, tdd |
 | php-tooling | `composer.json` | composer, lock, phpstan, xdebug |
 
-## Keyword Match (only when user's request mentions these)
+## Keyword Match (associated concepts in requested work)
 
-| Skill | Match when user mentions |
+| Skill | Associated concept |
 | ----- | ----------------------- |
 | php-best-practices | psr-12, camelCase, PascalCase, dry, solid |
 | php-concurrency | Fiber, suspend, resume, non-blocking, async |

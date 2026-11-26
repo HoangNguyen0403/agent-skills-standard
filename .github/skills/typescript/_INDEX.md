@@ -8,9 +8,9 @@
 | **typescript-language** | `**/*.ts`, `**/*.tsx`, `tsconfig.json` | type, interface, generic, enum, union, intersection, readonly, const, namespace |
 | typescript-tooling | `tsconfig.json`, `.eslintrc.*`, `jest.config.*`, `package.json` | eslint, prettier, jest, vitest, build, compile, lint |
 
-## Keyword Match (only when user's request mentions these)
+## Keyword Match (associated concepts in requested work)
 
-| Skill | Match when user mentions |
+| Skill | Associated concept |
 | ----- | ----------------------- |
 | typescript-best-practices | class, function, module, import, export, async, promise |
 | **typescript-security** | validate, sanitize, xss, injection, auth, password, secret, token |

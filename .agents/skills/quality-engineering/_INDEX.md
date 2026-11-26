@@ -18,9 +18,9 @@
 | quality-engineering-zephyr-coverage-analysis | `coverage_analysis_report.md` | coverage analysis, test coverage, coverage gaps, QE debt, QE audit, pre-release readiness, sprint readiness, zephyr coverage, test gap, AC coverage, test-ready |
 | quality-engineering-zephyr-test-generation | `**/user_story.md` | generate test cases, zephyr, impact analysis, create test case |
 
-## Keyword Match (only when user's request mentions these)
+## Keyword Match (associated concepts in requested work)
 
-| Skill | Match when user mentions |
+| Skill | Associated concept |
 | ----- | ----------------------- |
 | quality-engineering-appium-mcp | appium, appium-mcp, appium doctor, android emulator, ios simulator, select_device, mobile verify, android verify, ios verify, lambdatest, real device cloud, flutter widget tap |
 | quality-engineering-automation-health | automation health, release confidence, suite reliability, flaky rate, feedback loop, escape rate, automation roi, suite value |

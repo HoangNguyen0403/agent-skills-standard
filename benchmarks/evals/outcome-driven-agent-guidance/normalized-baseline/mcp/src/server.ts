@@ -1,0 +1,482 @@
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { z } from "zod";
+import pkg from "../package.json";
+import { ResolvedConfig } from "./config";
+import { SessionTracker } from "./services/SessionTracker";
+import { loadPolicyView } from "./services/PolicyIndex";
+import { SkillIndex } from "./services/SkillIndex";
+import {
+  auditSessionCompliance,
+  auditSessionComplianceSchema,
+  getCategoryGuide,
+  getCategoryGuideSchema,
+  getEvalReport,
+  getEvalReportSchema,
+  getRetrospectiveStatus,
+  getRetrospectiveStatusSchema,
+  getSessionCost,
+  getSessionCostSchema,
+  getSkill,
+  getSkillSchema,
+  getWorkflow,
+  getWorkflowSchema,
+  listCategories,
+  listCategoriesSchema,
+  listWorkflows,
+  listWorkflowsSchema,
+  loadSkillsForFiles,
+  loadSkillsForFilesSchema,
+  loadSkillsForKeywords,
+  loadSkillsForKeywordsSchema,
+  prepareRetrospective,
+  prepareRetrospectiveSchema,
+  prepareRetrospectiveIndex,
+  prepareRetrospectiveIndexSchema,
+  RECORD_DECISION_DESCRIPTION,
+  recordDecision,
+  recordDecisionSchema,
+  ToolContext,
+  ToolResult,
+  verifyEvalRunTool,
+  verifyEvalRunSchema,
+} from "./tools";
+
+interface ToolDef {
+  name: string;
+  title: string;
+  description: string;
+  inputSchema: z.ZodObject<any>;
+  handler: (args: Record<string, unknown>) => Promise<ToolResult>;
+}
+
+/**
+ * Wrapper that erases the SDK's deeply-recursive `registerTool` generic, which
+ * trips TypeScript's instantiation-depth limit (TS2589). The runtime contract
+ * is unchanged — only the static type is loosened at this seam.
+ */
+function register(server: McpServer, tool: ToolDef): void {
+  (server as any).registerTool(
+    tool.name,
+    {
+      title: tool.title,
+      description: tool.description,
+      inputSchema: tool.inputSchema,
+    },
+    tool.handler,
+  );
+}
+
+/**
+ * MCP server version, shared with telemetry records and `--version`.
+ * Read from `mcp/package.json` at build time (the bundler inlines the JSON),
+ * so `dist/` alone stays the single source of truth — never hardcode a
+ * semver literal here.
+ */
+export const SERVER_VERSION: string = pkg.version;
+
+/**
+ * Server-level instructions. Pinned to the McpServer constructor so every
+ * connecting client (and every sub-agent of that client) sees the same
+ * authoritative usage guide. Best practice §2.1 — "Provide Rich Server
+ * Instructions" (https://github.com/lirantal/awesome-mcp-best-practices).
+ */
+export const SERVER_INSTRUCTIONS = `
+You are connected to the agent-skills-standard MCP server. It serves
+project-specific coding-standard rules ("skills") on demand from this
+project's local skill registry.
+
+# WHEN TO CALL THIS SERVER
+
+Discovery and selection branch by role. An orchestrator or unassigned agent
+performs workflow discovery and broad file/keyword routing. A worker holding
+a valid assignment packet skips discovery and loads the exact required
+standards the packet names (via \`get_skill\` or direct file read as
+applicable), requesting actual bodies. Both roles must resolve the standards
+matched to any file they will touch before writing, and both still run the
+required compliance audit.
+
+Orchestrators and unassigned agents call \`load_skills_for_files\` BEFORE they:
+  • Edit, write, or modify any source file selected by file routing
+  • Review a PR diff or critique code
+  • Answer "how should I implement X" / "what's the convention for X"
+
+Call \`load_skills_for_keywords\` BEFORE you:
+  • Plan or design work where files are not yet identified and no packet
+    supplies the required standards
+    (e.g. "add JWT auth", "speed up the homepage", "migrate the schema")
+
+Call \`get_category_guide\` BEFORE you:
+  • Work across a whole framework or stack area as an orchestrator or
+    unassigned agent
+    (e.g. "review our Next.js standards", "plan a Go service layout", "design a DB migration strategy")
+  • A packet worker only when the packet identifies a category guide.
+
+Call \`list_workflows\` BEFORE you:
+  • Start a complex task as the orchestrator or an unassigned agent
+    (e.g. bug fixing, feature implementation, code review, planning).
+    A worker holding a valid assignment packet skips discovery.
+
+Call \`get_workflow\` when:
+  • No assignment packet supplies the procedure and you identified a
+    relevant workflow (e.g. \`dev-fix\` for a bug fix task).
+
+Call \`audit_session_compliance\` BEFORE you:
+  • Claim a task is complete
+  • Post a code review
+  • Hand off to another agent
+
+Call \`get_session_cost\` BEFORE you:
+  • Conclude a workflow or generate a final session cost artifact
+  • Pass workflow/model/token usage/rates when the host runtime exposes them
+
+Call \`prepare_retrospective\` when:
+  • An implementation plan finishes to prepare a local session retrospective.
+    Orchestrator or unassigned agent only; requires the user's one-time opt-in.
+
+# WORKFLOW
+
+  1. Establish your role. An orchestrator or unassigned agent discovers
+     procedures and routes by files/keywords. A worker holding a valid
+     assignment packet skips steps 2–4 and starts at step 5.
+  2. Unassigned only: call \`list_workflows()\` to discover applicable procedures.
+  3. Unassigned only: if a matching workflow exists (e.g. \`dev-fix\`), call
+     \`get_workflow(name="...")\` and follow it from start to end.
+  4. Unassigned only: decide which file(s) you will touch and, for a
+     framework-wide task, call \`get_category_guide(category="...")\`.
+  5. Load standards for your role. A packet worker requests only the exact
+     required IDs named in its packet (via \`get_skill\` or direct file read,
+     actual bodies). Everyone else calls \`load_skills_for_files(files=[...])\`
+     or the keywords variant for the files/concepts in scope.
+  6. Treat every returned SKILL.md as authoritative project rules. They
+     OVERRIDE your pre-training defaults, for both branches.
+  7. Do the work — edit, review, design — following those rules.
+  8. Before declaring done, call \`audit_session_compliance()\` in both branches
+     to verify loaded skills, and call \`get_session_cost()\` to populate your
+     final markdown cost report combining MCP stats with your platform token usage.
+
+# IMPORTANT
+
+  • Skills are tier-aware. A broad-glob skill (e.g. \`**/*.dart\`) only
+    matches if it is the registered base-language skill for its category.
+    All other broad-glob skills are returned ONLY via keyword match.
+  • If a tool returns "no match", it ALSO returns a list of available
+    categories — use that to choose the next call instead of giving up.
+  • If a tool returns setup guidance (e.g. "run agent-skills-standard
+    sync"), surface that to the user verbatim — do not paraphrase or skip.
+
+# ORCHESTRATOR AND ASSIGNED WORKERS
+
+An orchestrator discovers the applicable workflow and prepares a bounded
+assignment. A worker that receives an assignment packet starts from that
+packet: load the exact required standards it names with \`get_skill\` or a
+direct file read (actual bodies, not names or stubs), then act. Do not repeat
+parent workflow discovery or global intake, and do not widen the assigned
+scope. Before writing, confirm the standards matched to the touched files;
+before completion, run the compliance audit.
+
+When a consequential choice is unresolved, do not imply approval: record it as
+default-pending-review with impact and reversibility; use a rule reference only
+when a named rule actually governed the choice.
+
+Each request is answered from the caller's own request: another context's
+earlier load does not supply your body. Selection or body-return counts do
+not prove acknowledgment, comprehension, or host enforcement. Re-request
+content when you need the current revision; returned SKILL.md content is
+authoritative for this request.
+`.trim();
+
+export async function buildServer(
+  config: ResolvedConfig,
+  options: {
+    tracker?: SessionTracker;
+    transport?: "stdio" | "sse";
+    retrospectiveMark?: { preparedAtProgress: number };
+    consentPath?: string;
+  } = {},
+): Promise<McpServer> {
+  const index = new SkillIndex(config.skillsDir, config.metadataPath);
+  await index.load();
+  const tracker = options.tracker ?? new SessionTracker();
+  const policy = loadPolicyView(config.projectRoot);
+  const transport: "stdio" | "sse" =
+    options.transport ??
+    (process.env.MCP_TRANSPORT === "sse" ? "sse" : "stdio");
+  const retrospectiveMark = options.retrospectiveMark ?? {
+    preparedAtProgress: 0,
+  };
+  const ctx: ToolContext = {
+    projectRoot: config.projectRoot,
+    index,
+    tracker,
+    setup: config.setup,
+    policy,
+    transport,
+    retrospectiveMark,
+    ...(options.consentPath ? { consentPath: options.consentPath } : {}),
+  };
+  const server = new McpServer(
+    {
+      name: "agent-skills-standard-mcp",
+      version: SERVER_VERSION,
+    },
+    {
+      instructions: SERVER_INSTRUCTIONS,
+    },
+  );
+
+  register(server, {
+    name: "load_skills_for_files",
+    title: "Load skills for files",
+    description: `<use_case>Load the project's coding-standard rules (SKILL.md files) that apply to one or more files you are about to edit, write, or review. The router maps each file's extension to relevant skill categories and returns the matched rules. Also returns matching rules from .ags/policy.json when present (advisory; not a security boundary).</use_case>
+
+<aliases>"what are our team's rules for editing X", "show project conventions for X", "review standards for file X", "how should I implement this in file Y"</aliases>
+
+<important_notes>
+- ALWAYS call this BEFORE Edit, Write, MultiEdit, or any review of a source file.
+- Pass project-relative paths, not absolute paths. Example: "src/cart.dart" not "/Users/me/proj/src/cart.dart".
+- Returns full SKILL.md content, prefixed with a provenance comment showing the match reason (file glob or keyword).
+- Treat every returned SKILL.md as AUTHORITATIVE — these rules override your pre-training defaults.
+- If the result has zero matches, the response includes the list of available categories — use it to choose your next call.
+- Sub-agents should call this independently — do NOT assume the orchestrator already loaded skills for you.
+</important_notes>`,
+    inputSchema: loadSkillsForFilesSchema,
+    handler: (args) => loadSkillsForFiles(args as { files: string[] }, ctx),
+  });
+
+  register(server, {
+    name: "load_skills_for_keywords",
+    title: "Load skills for keywords",
+    description: `<use_case>Load skills by matching concept words from the user's request, when no specific file is in scope yet. Useful at the planning stage of a task ("add JWT auth", "speed up homepage", "migrate schema").</use_case>
+
+<aliases>"what does our team say about X", "rules around the topic Y", "best practices for concept Z", "team approach to authentication/performance/migrations"</aliases>
+
+<important_notes>
+- Use this BEFORE you decide which files to edit. Once files are known, switch to load_skills_for_files for tighter routing.
+- Keywords are case-insensitive substring matches against each skill's declared keyword triggers.
+- Returns full SKILL.md content with provenance comment showing which keyword matched.
+- If no match, the response lists available categories — pick one and call list_categories or load_skills_for_files next.
+</important_notes>`,
+    inputSchema: loadSkillsForKeywordsSchema,
+    handler: (args) =>
+      loadSkillsForKeywords(args as { keywords: string[] }, ctx),
+  });
+
+  register(server, {
+    name: "get_skill",
+    title: "Get a specific skill by category and name",
+    description: `<use_case>Direct lookup for a single skill when you already know exactly which one you need (e.g. you saw it referenced in another skill's "References" section, or in a previous load_skills_for_files response).</use_case>
+
+<aliases>"open the X skill", "show me the X/Y rule", "fetch the rules for category X skill Y"</aliases>
+
+<important_notes>
+- "category" is the directory name (e.g. "flutter", "golang", "common").
+- "name" is the skill id, also the directory name (e.g. "flutter-bloc-state-management", "golang-clean-architecture").
+- If the exact name is wrong, the response suggests the closest matches in the same category — try those.
+- For routine work, prefer load_skills_for_files (smarter routing) over this direct lookup.
+</important_notes>`,
+    inputSchema: getSkillSchema,
+    handler: (args) =>
+      getSkill(args as { category: string; name: string }, ctx),
+  });
+
+  register(server, {
+    name: "get_category_guide",
+    title: "Get a framework or category guide",
+    description: `<use_case>Load a category-level guide such as a framework map for a whole stack area (for example Next.js, React, NestJS, Go, or Database) before planning or reviewing broad work.</use_case>
+
+<aliases>"show me our Next.js guide", "what are our Go standards", "open the database framework map", "framework best practices for NestJS"</aliases>
+
+<important_notes>
+- Use this when the task spans a whole framework, not just one file.
+- The response includes the category guide plus the list of skills available in that category.
+- After reading the guide, still call load_skills_for_files or load_skills_for_keywords for the narrower task-specific rules.
+</important_notes>`,
+    inputSchema: getCategoryGuideSchema,
+    handler: (args) => getCategoryGuide(args as { category: string }, ctx),
+  });
+
+  register(server, {
+    name: "list_categories",
+    title: "List all skill categories available in this project",
+    description: `<use_case>Discover what skill categories are installed in this project, the file extensions each handles, and how many skills are in each. Use to scope work or to pick a category for follow-up tool calls.</use_case>
+
+<aliases>"what skills do we have", "show me all categories", "what frameworks are covered", "list the project rules"</aliases>
+
+<important_notes>
+- Returns: category name, skill count per category, and routed file extensions.
+- Use this once at the start of complex work (PR review, large feature) to understand scope.
+- For per-file rule loading, use load_skills_for_files — it's already aware of categories.
+</important_notes>`,
+    inputSchema: listCategoriesSchema,
+    handler: () => listCategories({}, ctx),
+  });
+
+  register(server, {
+    name: "audit_session_compliance",
+    title: "Audit which skills were loaded in this session",
+    description: `<use_case>Return the list of skills loaded so far in this session, plus the tool calls that loaded them. Use this BEFORE claiming a task is complete or posting a code review, so you can verify the relevant rules were actually consulted. Also returns matching rules from .ags/policy.json when present (advisory; not a security boundary).</use_case>
+
+<aliases>"which rules did I load", "what skills are active", "show my compliance log", "did I check the right standards", "audit my work"</aliases>
+- For PR reviews, paste the loaded-skills list into the review header so the author can verify.
+- Each session's audit log is in-memory and resets when the MCP server restarts.
+</important_notes>`,
+    inputSchema: auditSessionComplianceSchema,
+    handler: () => auditSessionCompliance({}, ctx),
+  });
+
+  register(server, {
+    name: "list_workflows",
+    title: "List all available workflows in the project",
+    description: `<use_case>Discover what standard procedural workflows (e.g., dev-fix, plan-feature, code-review) are available in this repository. Use this at the start of any task or session to find standard operating procedures.</use_case>
+
+<aliases>"what workflows do we have", "show available workflows", "list standard operating procedures"</aliases>
+
+<important_notes>
+</important_notes>`,
+    inputSchema: listWorkflowsSchema,
+    handler: () => listWorkflows({}, ctx),
+  });
+
+  register(server, {
+    name: "get_workflow",
+    title: "Get a specific workflow by name",
+    description: `<use_case>Retrieve the exact markdown instructions for a specific workflow (e.g., 'dev-fix'). Use this once you know which workflow applies to your task so you can follow its step-by-step procedure exactly.</use_case>
+
+<aliases>"open workflow X", "show me how to execute workflow Y", "get procedure Z"</aliases>
+
+<important_notes>
+</important_notes>`,
+    inputSchema: getWorkflowSchema,
+    handler: (args) => getWorkflow(args as { name: string }, ctx),
+  });
+
+  register(server, {
+    name: "get_session_cost",
+    title: "Get token usage and estimated cost for the current session",
+    description: `<use_case>Return a markdown template summarizing the current session's tool calls, skills loaded, token usage, and cost. Use this as the final step in workflows to report cost.</use_case>
+
+<aliases>"what is the cost of this run", "show token usage", "session telemetry"</aliases>
+
+<important_notes>
+- At the end of an \`implement-feature\` plan, pass \`completion\` only when the outcome is \`implemented\` and every plan task is settled (zero active, zero pending). On stdio this runs the consented local retrospective engine once; the result is reported alongside the cost table.
+- The completion object is caller-declared readiness, not host-authenticated proof. Workers and unsettled plans omit it.
+</important_notes>`,
+    inputSchema: getSessionCostSchema,
+    handler: (args) =>
+      getSessionCost(
+        args as {
+          workflow?: string;
+          slug?: string;
+          outcome?: string;
+          model?: string;
+          promptTokens?: number;
+          cachedPromptTokens?: number;
+          completionTokens?: number;
+          reasoningTokens?: number;
+          inputCostPer1M?: number;
+          cachedInputCostPer1M?: number;
+          outputCostPer1M?: number;
+          reasoningCostPer1M?: number;
+          otherCost?: number;
+          currency?: string;
+          costSource?: "host" | "agent-estimate";
+          completion?: {
+            role: "orchestrator" | "unassigned" | "worker";
+            activeTasks: number;
+            pendingTasks: number;
+          };
+        },
+        ctx,
+      ),
+  });
+
+  register(server, {
+    name: "verify_eval_run",
+    title: "Verify a committed live eval run",
+    description: `<use_case>Re-score the committed answer transcripts for a live skill-eval run (produced by the \`evals-run\` workflow) and diff the result against the committed results.json. Use this to check whether a run's numbers are trustworthy — tampered, stale, or scored with a different assertion set — without needing an API key or re-running any agent.</use_case>
+
+<aliases>"verify this eval run", "check the evals report is trustworthy", "did anyone tamper with the eval results", "re-score the dart eval run"</aliases>
+
+<important_notes>
+- Reads from \`benchmarks/evals/runs/<runId>/\` under the project root. If \`run_id\` is omitted, verifies every run found there.
+- Fully deterministic and local — no network calls, no API key.
+- A failure means either the committed transcripts changed after scoring, or the committed results.json doesn't match what the assertions in evals/evals.json actually say.
+</important_notes>`,
+    inputSchema: verifyEvalRunSchema,
+    handler: (args) => verifyEvalRunTool(args as { run_id?: string }, ctx),
+  });
+
+  register(server, {
+    name: "get_eval_report",
+    title: "Get the latest Live Evals Report",
+    description: `<use_case>Return the project's \`evals-report.md\` — the measured, with-skill-vs-without-skill pass-rate results from live eval runs (as opposed to the structural benchmark-report.md). Use this when asked about actual measured skill effectiveness rather than skill size/token savings.</use_case>
+
+<aliases>"show me the evals report", "what's the measured skill effectiveness", "did skills actually improve behavior", "live eval results"</aliases>
+
+<important_notes>
+- If no report exists yet, the response explains how to produce one via the \`evals-run\` workflow.
+- This is distinct from the benchmark report: benchmark-report.md is structural (token size, rubric score); evals-report.md is measured (actual pass-rate deltas from running eval prompts through an agent).
+</important_notes>`,
+    inputSchema: getEvalReportSchema,
+    handler: () => getEvalReport({}, ctx),
+  });
+
+  if (transport === "stdio") {
+    register(server, {
+      name: "record_decision",
+      title: "Record an agent-declared decision",
+      description: RECORD_DECISION_DESCRIPTION,
+      inputSchema: recordDecisionSchema,
+      handler: (args) => recordDecision(args),
+    });
+    register(server, {
+      name: "prepare_retrospective",
+      title: "Prepare a local session retrospective",
+      description: `<use_case>Prepare a local, evidence-linked retrospective analysis for the completed session. Pass \`title\` = one line saying what this session was for; it is shown as agent-supplied and unverified. Orchestrator or unassigned agent only. Workers holding an assignment packet must not call this.</use_case>
+
+<important_notes>
+- Orchestrator or unassigned agent only. Workers holding an assignment packet must not call this.
+- Pass \`title\` = one line saying what this session was for; it is shown as agent-supplied and unverified.
+- Requires the user's one-time opt-in via \`ags retrospective enable\`.
+- Zero model calls, zero outbound network requests.
+- Returns only fixed counts and view file paths (summary, ledger and HTML report); never transcript text.
+</important_notes>`,
+      inputSchema: prepareRetrospectiveSchema,
+      handler: (args) => prepareRetrospective(args as { title?: string }, ctx),
+    });
+
+    register(server, {
+      name: "get_retrospective_status",
+      title: "Get local session retrospective consent status",
+      description: `<use_case>Check whether local session retrospective preparation is enabled or disabled.</use_case>
+
+<important_notes>
+- Returns the current consent state (enabled/disabled and reason code).
+- Retrospective collection requires the user's one-time opt-in via \`ags retrospective enable\`.
+</important_notes>`,
+      inputSchema: getRetrospectiveStatusSchema,
+      handler: () => getRetrospectiveStatus(ctx),
+    });
+    register(server, {
+      name: "prepare_retrospective_index",
+      title: "Prepare a cross-session retrospective index",
+      description: `<use_case>Build a cross-session HTML index from stored retrospective reports with an optional date window and folder filter. Reads stored reports only, never session files.</use_case>
+
+<important_notes>
+- Reads stored reports only, never session files.
+- Stdio transport only (absent on HTTP/SSE).
+- Requires the user's one-time opt-in via \`ags retrospective enable\`.
+- Zero model calls, zero outbound network requests.
+- Returns fixed summary text and the index file path; never transcript text, titles, or folder filter values.
+</important_notes>`,
+      inputSchema: prepareRetrospectiveIndexSchema,
+      handler: (args) =>
+        prepareRetrospectiveIndex(
+          args as { since?: string; until?: string; folder?: string },
+          ctx,
+        ),
+    });
+  }
+
+  return server;
+}

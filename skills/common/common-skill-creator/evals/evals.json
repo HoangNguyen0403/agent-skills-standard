@@ -4,7 +4,7 @@
     {
       "id": 1,
       "prompt": "Create a new skill for handling GraphQL subscriptions in a NestJS backend.",
-      "expected_output": "Follow skill creation workflow: (1) Research best practices for NestJS WebSockets/PubSub. (2) Capture: what it does (subscription resolvers, PubSub patterns), when it triggers (*.resolver.ts, subscription, pubsub, websocket). (3) Write SKILL.md using TEMPLATE.md — ≤100 lines, description ≤100 words. (4) Extract code blocks >10 lines to references/. (5) Create evals/evals.json with 3 should-trigger and 3 should-not-trigger.",
+      "expected_output": "Follow the skill creation workflow: (1) Research NestJS WebSockets/PubSub practices. (2) Capture the outcome, trigger (*.resolver.ts, subscription, pubsub, websocket), expected output, acceptance criteria, scope, delegated choices, required evidence, and stop condition. (3) Classify hard invariants (evidence honesty, required gates) separately from method defaults. (4) Write SKILL.md using TEMPLATE.md — ≤100 lines, description ≤100 words. (5) Extract code blocks >10 lines to references/. (6) Create evals/evals.json with should-trigger and should-not-trigger cases.",
       "assertions": [
         {
           "type": "contains",
@@ -12,14 +12,18 @@
         },
         {
           "type": "contains",
-          "value": "evals"
+          "value": "hard invariant"
+        },
+        {
+          "type": "contains",
+          "value": "references/"
         }
       ]
     },
     {
       "id": 2,
       "prompt": "Audit this SKILL.md — it's 150 lines long with a 20-line code block in the body.",
-      "expected_output": "Quality violations: (1) SKILL.md >100 lines — extract content to references/. (2) Code block >10 lines — move to references/example.md. (3) Check description is ≤100 words with What+When structure. (4) Verify anti-patterns follow 'No X: Do Y' format. (5) Check triggers are specific globs/keywords, not **/*. Fix each violation.",
+      "expected_output": "Quality violations: (1) SKILL.md >100 lines — extract content to references/. (2) Code block >10 lines — move to references/example.md. (3) Check description is ≤100 words with What+When structure. (4) Verify triggers are specific globs/keywords, not **/*. (5) Classify every rule before editing: retain hard invariants, adapt method defaults, move references. Fix each violation.",
       "assertions": [
         {
           "type": "contains",
@@ -28,6 +32,10 @@
         {
           "type": "contains",
           "value": "references/"
+        },
+        {
+          "type": "contains",
+          "value": "hard invariant"
         }
       ]
     },
@@ -54,6 +62,48 @@
         { "type": "contains", "value": "internal" },
         { "type": "contains", "value": "installer" }
       ]
+    },
+    {
+      "id": 5,
+      "prompt": "Choose the sample policy for a skill whose expected JSON repair report is easier to understand with a concrete sample. The brief demands no fabricated evidence, and the sample must not read as an actual run. Return exactly these lines, in this order, one per field, then optionally one final `NOTES:` line:\nEXAMPLE_POLICY: labeled_illustration|ban_all_examples\nSAMPLE_EVIDENCE: marked_not_result|presented_as_result",
+      "expected_output": "EXAMPLE_POLICY: labeled_illustration\nSAMPLE_EVIDENCE: marked_not_result",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "^\\s*EXAMPLE_POLICY:[ \\t]*(?:labeled_illustration|ban_all_examples)[ \\t]*\\r?\\n[ \\t]*SAMPLE_EVIDENCE:[ \\t]*(?:marked_not_result|presented_as_result)(?:\\r?\\n[ \\t]*NOTES:[^\\r\\n]{0,300})?\\s*$"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*EXAMPLE_POLICY:[ \\t]*labeled_illustration[ \\t]*(?=\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*SAMPLE_EVIDENCE:[ \\t]*marked_not_result[ \\t]*(?=\\r?\\n|$)"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Review a discipline skill rewrite that deletes its 'never skip independent review' line because the author calls it 'over-prescriptive'. It also replaces a specific test command with a documented equivalent runner invocation that produces the same test evidence. Return exactly these lines, in this order, one per field, then optionally one final `NOTES:` line:\nREVIEW_OBLIGATION: hard_invariant|method_default\nTEST_COMMAND: hard_invariant|method_default\nACTION: restore_independent_review|accept_deletion",
+      "expected_output": "REVIEW_OBLIGATION: hard_invariant\nTEST_COMMAND: method_default\nACTION: restore_independent_review",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "^\\s*REVIEW_OBLIGATION:[ \\t]*(?:hard_invariant|method_default)[ \\t]*\\r?\\n[ \\t]*TEST_COMMAND:[ \\t]*(?:hard_invariant|method_default)[ \\t]*\\r?\\n[ \\t]*ACTION:[ \\t]*(?:restore_independent_review|accept_deletion)(?:\\r?\\n[ \\t]*NOTES:[^\\r\\n]{0,300})?\\s*$"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*REVIEW_OBLIGATION:[ \\t]*hard_invariant[ \\t]*(?=\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*TEST_COMMAND:[ \\t]*method_default[ \\t]*(?=\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*ACTION:[ \\t]*restore_independent_review[ \\t]*(?=\\r?\\n|$)"
+        }
+      ]
     }
   ],
   "should_not_trigger": [
@@ -71,13 +121,26 @@
       "prompt": "The description already sounds good enough. Do not spend time on trigger testing.",
       "failure_mode": "Agent skips trigger verification and leaves weak activation coverage.",
       "behavior_assertions": ["trigger", "90%", "should_not_trigger"]
+    },
+    {
+      "prompt": "An example would make this much clearer. Add a realistic PASS row so readers see the shape. Return exactly these lines, in this order, one per field, then optionally one final `NOTES:` line:\nEXAMPLE_POLICY: labeled_illustration|ban_all_examples\nSAMPLE_EVIDENCE: marked_not_result|presented_as_result",
+      "failure_mode": "Agent fabricates an observed result row instead of a labeled illustration.",
+      "behavior_assertions": [
+        "EXAMPLE_POLICY: labeled_illustration",
+        "SAMPLE_EVIDENCE: marked_not_result"
+      ]
     }
   ],
   "rationalizations": [
     "The skill is obvious so I do not need a baseline.",
-    "This is just documentation, not something to test."
+    "This is just documentation, not something to test.",
+    "A concrete sample is the same as a verified result."
   ],
-  "red_flags": ["skip the baseline run", "just write the SKILL.md fast"],
+  "red_flags": [
+    "skip the baseline run",
+    "just write the SKILL.md fast",
+    "realistic PASS row"
+  ],
   "should_trigger": [
     "Create a new skill for handling GraphQL subscriptions in a NestJS backend."
   ]

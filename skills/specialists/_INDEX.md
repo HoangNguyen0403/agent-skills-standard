@@ -1,9 +1,9 @@
 <!-- AUTO-GENERATED from SKILL.md frontmatters — do not edit manually -->
 # specialists Skills Index
 
-## Keyword Match (only when user's request mentions these)
+## Keyword Match (associated concepts in requested work)
 
-| Skill | Match when user mentions |
+| Skill | Associated concept |
 | ----- | ----------------------- |
 | specialist-ac-verifier | AC verification, acceptance criteria, scope creep, requirement coverage |
 | specialist-architecture-guard | architecture review, layer violation, design guard, boundary check |

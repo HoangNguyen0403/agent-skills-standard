@@ -457,7 +457,7 @@ _Date: 2026-04-04_
 ### ADR-004: Three-Tier Trigger Model
 
 _Date: 2026-04-04_
-**Decision**: In `_INDEX.md`, skills are classified into File Match (auto-check against edited file) and Keyword Match (only when user's request mentions the concept). Broad globs are stripped from non-base skills.
+**Decision**: In `_INDEX.md`, skills are classified into File Match (auto-check against edited file) and Keyword Match (associated concepts in the requested work). Broad globs are stripped from non-base skills.
 **Reason**: Without tiering, editing a `*.ts` file matched 27+ skills simultaneously. With tiering, only 6 genuinely relevant skills match via file pattern. Cross-cutting skills (best-practices, security, performance) activate only when the user explicitly mentions them.
 
 ### ADR-005: Standards Registry, Not Command Runtime

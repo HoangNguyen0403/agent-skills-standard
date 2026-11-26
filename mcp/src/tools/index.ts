@@ -215,7 +215,7 @@ export const loadSkillsForKeywordsSchema = z.object({
     .array(z.string().min(1))
     .min(1)
     .describe(
-      'Concept words from the user request (e.g. ["auth", "performance", "migration"]). Matched against each skill\'s keyword triggers.',
+      'Normalized concepts associated with requested work (e.g. ["flutter cicd"]). Keep each multiword concept atomic; do not split it into separate tokens. Matched against declared keyword trigger phrases.',
     ),
 });
 

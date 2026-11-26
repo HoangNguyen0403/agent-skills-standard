@@ -36,7 +36,7 @@ Each `_INDEX.md` has two sections - follow both:
 1. **Match file type** -> find the category index in the router table below.
 2. **Read the `_INDEX.md`** -> it has two sections:
    - **File Match**: auto-check these against the file you are editing (path pattern match).
-   - **Keyword Match**: only check if the user's request mentions these concepts.
+   - **Keyword Match**: associate the concepts in the user's requested work; literal wording need not appear.
 3. **Load ALL matched `SKILL.md`** -> read every matched skill before writing code. The tier model keeps matches focused.
 
 > `<SKILLS>` = your agent's skill directory (e.g., `.claude/skills/`, `.cursor/skills/`, `.gemini/skills/`).
@@ -54,6 +54,6 @@ Each `_INDEX.md` has two sections - follow both:
 
 > [!NOTE] **Test/spec file precedence:** `.spec.ts`, `.test.ts` -> use the `common` row (takes precedence over the generic `*.ts` row). `.spec.tsx`, `.test.tsx` -> use the `react` row (takes precedence over the generic `*.tsx` row).
 
-> [!TIP] **Indirect phrasing counts.** "make it faster" -> performance, "broken query" -> database, "login flow" -> auth.
+> [!TIP] **Associated concepts, atomic values.** Supply the requested work as one atomic keyword value, e.g. `keywords: ["flutter cicd"]`; do not split it into separate tokens or treat unrelated, background, or quoted mentions as requested intent. Indirect intent still counts ("make it faster" -> performance, "broken query" -> database, "login flow" -> auth); registry matching is literal and does not infer relationships.
 
 <!-- SKILLS_INDEX_END -->
