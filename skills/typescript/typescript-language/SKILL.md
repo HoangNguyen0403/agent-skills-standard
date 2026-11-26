@@ -31,7 +31,7 @@ metadata:
 - **Generics**: Reusable, type-safe code.
 - **Type Guards**: `typeof`, `instanceof`, predicates.
 - **Utility Types**: `Partial`, `Pick`, `Omit`, `Record`.
-- **Immutability**: `readonly` arrays/objects. Const Assertions: `as const`, `satisfies`.
+- **Immutability**: `readonly` arrays/objects. Const Assertions: `as const`; `satisfies` requires TS ≥ 4.9.
 - **Template Literals**: `on${Capitalize<string>}`.
 - **Discriminated Unions**: Literal kind property to narrow type safely. Switch on discriminant.
 - **Advanced**: Mapped, Conditional, Indexed types.
@@ -65,12 +65,21 @@ const cfg = { port: 3000 } satisfies Record<string, number>;
 type Result<T> = { kind: 'ok'; data: T } | { kind: 'err'; error: Error };
 ```
 
+## Compatibility Preflight
+
+Before emitting newer syntax or changing the compiler, state the checked facts:
+
+- **Compiler**: locked version (`tsc --version`, lockfile). Gate `satisfies` at ≥ 4.9.
+- **Config**: `target`, `lib`, `module`/`moduleResolution`, `types`, `rootDir`. TS 7 defaults differ: `strict` true, `module` `esnext`, `types` `[]`, `rootDir` `./`.
+- **Runtime**: emitted syntax and APIs must run on the declared Node/browser floor.
+- **Tool peers**: plugins, `typescript-eslint`, test transforms, compiler-API consumers. TS 7.0 ships no compiler API; keep TS 6 available when a peer needs one.
+
 ## Verification
 
-After any type change that crosses module boundaries or involves generics, unions, conditional types, or branded types: call `getDiagnostics` (typescript-lsp MCP tool) to confirm no type errors before finalizing.
+After a type change that crosses module boundaries or involves generics, unions, conditional or branded types: run the project's own check (`tsc --noEmit`, CI typecheck, or configured editor diagnostics). Use a `getDiagnostics` LSP tool only when one is actually installed; never assume availability.
 
 ## References
 
-For advanced type patterns and utility types:
+For advanced type patterns, utility types, and the compatibility matrix:
 See [references/REFERENCE.md](references/REFERENCE.md).
 

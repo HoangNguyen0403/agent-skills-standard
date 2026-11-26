@@ -42,17 +42,38 @@
     {
       "id": 3,
       "prompt": "There's a nullable String? in my code and I'm using the ! operator to force-unwrap it everywhere. What's the safer approach?",
-      "expected_output": "Replace ! with ?. (null-aware access), ?? (default value), early return with if (value == null) return, or pattern matching. Only use ! when non-nullability is proven via assert or type narrowing.",
+      "expected_output": "Replace ! with ?. (null-aware access), ?? (default value), early return with if (value == null) return, pattern matching, or a thrown error at the boundary. Keep ! only under control-flow narrowing or an invariant enforced at the boundary. assert is stripped in production builds and is never sufficient proof.",
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["proven", "non-nullability", "only use !", "type narrowing"]
+          "value": ["control-flow narrowing", "invariant enforced at the boundary"]
         },
         {
-          "id": "a1",
-          "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": ["null-aware"]
+          "value": ["?.", "short-circuiting"]
+        },
+        {
+          "type": "contains_any",
+          "value": ["stripped in production builds", "never sufficient proof"]
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Can I declare `class Point(var int x, var int y);` in our Flutter app?",
+      "expected_output": "Only with language version 3.13 or newer, derived from the SDK constraint lower bound (or Flutter's bundled Dart). var/final declaring parameters induce fields; without a modifier the parameter declares nothing. Below 3.13 keep the traditional constructor.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "3.13"
+        },
+        {
+          "type": "contains_any",
+          "value": ["language version", "SDK constraint", "bundled Dart"]
+        },
+        {
+          "type": "contains_any",
+          "value": ["var", "final"]
         }
       ]
     }

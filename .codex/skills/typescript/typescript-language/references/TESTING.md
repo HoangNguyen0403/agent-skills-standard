@@ -3,7 +3,7 @@
 ## Testing Patterns
 
 - **Mock Types**: Use `jest.Mocked<T>` or `as unknown as T`. Never use `any`.
-- **Enum Usage**: Always use enum values (`Status.UPCOMING`) instead of string literals.
+- **Enum Usage**: When the code under test consumes an existing runtime `enum` (third-party or legacy contract), assert with its members (`Status.UPCOMING`), not string literals. New project types should use literal unions or `as const` instead of runtime enums.
 - **DTO Validation**: Ensure test data includes all required fields to match DTO validation.
 - **Repository Mocks**: Mock all repository methods used by services (`findOne`, `create`, `save`, `findAndCount`).
 

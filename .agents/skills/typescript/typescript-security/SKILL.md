@@ -41,7 +41,7 @@ See [references/REFERENCE.md](references/REFERENCE.md) for Zod validation schema
 
 ## Verification
 
-After typing validation schemas (Zod/joi) or auth guards, call `getDiagnostics` (typescript-lsp) to confirm type narrowing correct before finalizing.
+After typing validation schemas (Zod/joi) or auth guards, run the project typecheck (`tsc --noEmit`) — or `getDiagnostics` when a TypeScript LSP tool is configured — to confirm narrowing before finalizing.
 
 ## Anti-Patterns
 

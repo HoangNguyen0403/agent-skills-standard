@@ -1,4 +1,7 @@
 # Error Response Envelope
+
+Canonical shape for new endpoints; existing consumer responses remain a compatibility contract.
+
 ```json
 {
   "error": {
@@ -9,6 +12,8 @@
   }
 }
 ```
+
+Internal error text, SQL, stack traces, and secrets are never serialized. `message` is client-safe; `code` is the stable machine-readable identifier.
 
 ## Classification
 | Layer          | Code                  | Strategy                                 |

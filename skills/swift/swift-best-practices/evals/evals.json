@@ -24,7 +24,7 @@
     {
       "id": 2,
       "prompt": "Should I use struct or class in Swift?",
-      "expected_output": "Default to struct for value semantics and thread safety. Use class only for reference identity or inheritance.",
+      "expected_output": "Default to struct for value semantics: independent copies and no accidental shared mutation. Value semantics are not thread safety — the struct is Sendable only if all stored properties are Sendable, and mutable value-typed properties such as var value: Int are fine because each copy owns them; a stored mutable class is shared, not automatically Sendable. Use class only for reference identity or inheritance.",
       "assertions": [
         {
           "type": "contains_any",
@@ -43,7 +43,7 @@
     {
       "id": 3,
       "prompt": "How do I make my Swift code more idiomatic?",
-      "expected_output": "Prefer compactMap, filter, or reduce for collection transformations; keep names clear; default to let unless mutation is required.",
+      "expected_output": "Prefer compactMap, filter, or reduce for collection transformations; use descriptive camelCase names per the Swift API Design Guidelines; default to let unless mutation is required.",
       "assertions": [
         {
           "type": "contains_any",
@@ -51,15 +51,11 @@
         },
         {
           "type": "contains_any",
-          "value": [
-            "descriptive camelCase",
-            "Swift API Design Guidelines",
-            "PascalCase"
-          ]
+          "value": ["descriptive camelCase", "Swift API Design Guidelines"]
         },
         {
           "type": "contains_any",
-          "value": ["Default to `let`", "prefer `let`", "let, structs"]
+          "value": ["default to let", "prefer let"]
         }
       ]
     },
@@ -70,7 +66,7 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["is`, `has`, or `can`", "isVerified", "hasPremiumAccess"]
+          "value": ["is, has, or can", "isValid", "isVerified"]
         },
         {
           "type": "contains_any",
@@ -78,7 +74,7 @@
         },
         {
           "type": "contains_any",
-          "value": ["canDelete", "canEdit"]
+          "value": ["canEdit"]
         }
       ]
     }

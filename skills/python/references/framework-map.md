@@ -1,6 +1,6 @@
 # Python Framework Map
 
-Reviewed: 2026-06-29
+Reviewed: 2026-11-26
 
 Official sources:
 

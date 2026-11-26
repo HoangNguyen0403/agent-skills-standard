@@ -35,7 +35,6 @@ metadata:
    ```go
    sem := make(chan struct{}, maxWorkers)
    for _, task := range tasks {
-       task := task // prevent loop pointer capture
        sem <- struct{}{}
        g.Go(func() error {
            defer func() { <-sem }()
@@ -43,8 +42,9 @@ metadata:
        })
    }
    ```
+   Each iteration declares its own loop variable under Go 1.22+ language semantics. For older modules/files, capture it with `task := task` before the closure.
 3. **Respect Context Cancellation** — Goroutines performing I/O must honor `ctx.Done()`.
-4. **Avoid Loop Pointer Capture** — Capture iteration variables explicitly before launching goroutines.
+4. **Loop Variable Semantics** — Inspect the module's `go` directive. Go 1.22+ gives each iteration its own variable, so the copy is unnecessary noise; older semantics need the copy. A variable declared outside the loop and reassigned inside still needs synchronization or a copy. Never raise the module's Go version just to avoid a copy.
 5. **Test with race detector** — Run `go test -race` in local dev and CI.
 
 See [ErrGroup and concurrency patterns](references/concurrency-patterns.md) and [context timeout examples](references/context-usage.md)
@@ -53,7 +53,8 @@ See [ErrGroup and concurrency patterns](references/concurrency-patterns.md) and 
 
 - **No DB connection spam**: avoid spawning unbounded goroutines to query the database in parallel.
 - **No goroutine leaks**: ensure every goroutine has an exit path via `ctx.Done()` or channel closure.
-- **No loop variable pointer trap**: never pass the address of a loop variable (`&item`) into a concurrent closure.
+- **No stale loop variable reference**: below Go 1.22 language semantics, do not capture the iteration variable or pass its address (`&item`) into a goroutine; shadow or copy it first.
+- **No unconditional `task := task`**: add the copy only for pre-1.22 semantics or a variable reassigned outside the loop.
 - **No unbuffered goroutine spawn storms**: always cap concurrency with worker pools or semaphores.
 - **No bare goroutines**: use `errgroup` or `sync.WaitGroup` for lifecycle tracking.
 

@@ -33,7 +33,8 @@ metadata:
 - **Classes**: Use `data class` for DTOs. Use `sealed interface/class` for state hierarchies (e.g., `Success`, `Error`, `Loading`). Access members as computed property rather than function.
 - **Extension Functions**: Prefer over utility classes (`StringUtil`). Keep private/internal if module-specific.
 - **Named Arguments**: Use for clarity, especially with booleans or multiple same-type params.
-- **String Templates**: Use `"$var"` over concatenation. Use `""` for multiline strings (SQL/JSON).
+- **String Templates**: Use `"$var"` over concatenation. Use `"""` raw strings for multiline SQL/JSON, normalizing indentation with `trimIndent()` or `trimMargin()`.
+- **Version Gates**: Features above the project's `languageVersion` need a pinned compiler and explicit opt-in; before emitting newer syntax check the Kotlin compiler/KGP, Gradle/AGP, compiler plugins and JVM target ([tooling preflight](../kotlin-tooling/SKILL.md)).
 
 ## Anti-Patterns
 

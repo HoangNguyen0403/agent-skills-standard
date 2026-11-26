@@ -39,7 +39,8 @@ metadata:
 
 ## Anti-Patterns
 
-- **No ! Operator**: not use bang operator `!` unless you can prove value non-null via `if` or `assert`.
+- **No ! Operator**: don't use the bang operator `!` unless non-nullness is established by control-flow narrowing or an invariant enforced at the boundary. `assert` is stripped from production builds and is not proof.
+- **Language Version Gates**: Constructs follow the package's language version (SDK constraint lower bound; Flutter bundles its own Dart). Wildcards need 3.7+, primary constructors need 3.13+ — check before emitting either.
 - **No var for members**: not use `var` for class members; use `final` or explicit types.
 - **No logic in constructors**: not perform complex calculations or async work inside constructors.
 - **No zero-arg methods for pure computations**: Use a getter. `int get invoiceType =>` not `int toInvoiceType()`.
@@ -61,9 +62,11 @@ String message(Result r) => switch (r) {
 
 ## References
 
+- [Primary Constructors (3.13+)](references/primary-constructors.md) — gated syntax and compatibility rules.
 - feature-based-clean-architecture | tooling
 
 ## Null-safety checklist
 
-- Replace `!` with `?`-aware access, explicit narrowing, or a guard clause; do not silence nullability with a force unwrap.
+- Replace `!` with `?`-aware access, explicit narrowing, a guard clause, or `throw` on the boundary; do not silence nullability with a force unwrap.
+- Never cite `assert` as the reason a `!` is safe: assertions do not run in production.
 

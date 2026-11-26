@@ -85,7 +85,7 @@
     {
       "id": 5,
       "prompt": "When should I use struct vs class in Swift?",
-      "expected_output": "Default to struct for value semantics and thread safety. Use class only when reference identity is necessary or for inheritance. Structs are copied; classes are shared.",
+      "expected_output": "Default to struct for value semantics: copies are independent, so no accidental shared mutation. Use class only when reference identity is necessary or for inheritance. Value semantics are not thread safety — a struct is Sendable when every stored property is Sendable, and mutable value-typed properties such as var value: Int are fine because each copy owns them; a stored mutable class is shared and not automatically Sendable.",
       "assertions": [
         {
           "type": "contains",
@@ -98,6 +98,46 @@
         {
           "type": "contains",
           "value": "reference identity"
+        },
+        {
+          "type": "contains",
+          "value": "Sendable"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Our Xcode toolchain builds with Swift 5.9. Can I write optional protocol returns as `some View?` without parentheses?",
+      "expected_output": "No — the optional `some View?` shorthand is a Swift 6.4 syntax addition. Keep the parenthesized form `(some View)?` on a 5.9 toolchain. The syntax needs a 6.4 compiler and a language mode that admits it; it does not require a deployment-target bump, because deployment availability constrains library APIs, not this syntax.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "6.4"
+        },
+        {
+          "type": "regex",
+          "value": "\\b(no|not|cannot|can't)\\b(?![^.]{0,12}\\b(problem|issue|need|longer)\\b)[\\s\\S]{0,120}6\\.4",
+          "description": "Rejects the shorthand for a 5.9 toolchain without accepting a false negation"
+        },
+        {
+          "type": "regex",
+          "value": "parenthesized[\\s\\S]{0,120}5\\.9|5\\.9[\\s\\S]{0,120}parenthesized",
+          "description": "Pairs the parenthesized fallback with the older toolchain"
+        },
+        {
+          "type": "not_contains",
+          "value": "shorthand works on 5.9",
+          "description": "Rejects claiming the 6.4 syntax works on a 5.9 toolchain"
+        },
+        {
+          "type": "not_contains",
+          "value": "shorthand is available in Swift 5.9",
+          "description": "Rejects the availability claim for 5.9"
+        },
+        {
+          "type": "not_contains",
+          "value": "shorthand compiles with Swift 5.9",
+          "description": "Rejects the compilation claim for 5.9"
         }
       ]
     }

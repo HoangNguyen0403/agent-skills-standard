@@ -40,7 +40,7 @@
     {
       "id": 3,
       "prompt": "How do I handle asynchronous code in modern JavaScript?",
-      "expected_output": "async/await + try/catch. Promisify everything. No callbacks. ESM import/export.",
+      "expected_output": "async/await + try/catch. Prefer native Promise APIs; use util.promisify only for callback APIs that lack a native promise version (one-shot error-first callbacks), and bind receiver methods. Do not blanket-promisify. Preserve the existing module loader: .cjs stays CommonJS, .mjs uses ESM.",
       "assertions": [
         {
           "type": "contains",
@@ -52,11 +52,42 @@
         },
         {
           "type": "contains",
-          "value": "No Callbacks"
+          "value": "promisify"
         },
         {
-          "type": "contains",
-          "value": "ESM import/export"
+          "type": "contains_any",
+          "value": ["CommonJS", ".cjs"]
+        },
+        {
+          "type": "contains_any",
+          "value": ["native Promise", "avoid promisifying"]
+        },
+        {
+          "type": "not_contains",
+          "value": "promisify everything"
+        },
+        {
+          "type": "not_contains",
+          "value": "promisify all callbacks"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "A shared library still ships a .cjs file that several CommonJS services require. Can I convert it to ESM import/export while I'm in there?",
+      "expected_output": "No implicit migration. Preserve the .cjs/CommonJS loader and its exported shape unless every consumer can load ESM; treat conversion as an explicit, separately verified migration. New modules may use ESM when the package type and Node floor allow it.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": ["preserve", "keep", "still loads"]
+        },
+        {
+          "type": "contains_any",
+          "value": ["CommonJS", "cjs"]
+        },
+        {
+          "type": "contains_any",
+          "value": ["explicit", "consumer", "migration"]
         }
       ]
     }

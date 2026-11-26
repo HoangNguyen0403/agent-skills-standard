@@ -4,15 +4,23 @@
     {
       "id": 1,
       "prompt": "My controller is catching a database error and returning the raw Postgres error message to the client.",
-      "expected_output": "Violation: leaking raw DB errors to API. Fix: (1) Wrap DB error in infrastructure layer with context. (2) Map to domain error (e.g., ResourceNotFoundError). (3) API layer maps to HTTP 404 with standardized JSON envelope: { error: { code: 'USER_NOT_FOUND', message: '...' } }. Never expose stack traces.",
+      "expected_output": "Violation: leaking raw DB errors to API. Fix: (1) Wrap DB error in infrastructure layer with context. (2) Map to domain error (e.g., ResourceNotFoundError). (3) API layer maps to HTTP 404 with standardized JSON envelope: { error: { code: 'USER_NOT_FOUND', message: '...' } }. Never expose stack traces or raw SQL; the response carries a client-safe message and stable code only.",
       "assertions": [
         {
           "type": "contains",
           "value": "domain"
         },
         {
-          "type": "contains",
-          "value": "stack"
+          "type": "contains_any",
+          "value": ["never expose stack traces", "client-safe"]
+        },
+        {
+          "type": "not_contains",
+          "value": "expose stack traces to the client"
+        },
+        {
+          "type": "not_contains",
+          "value": "include the raw database error message"
         }
       ]
     },
@@ -34,7 +42,7 @@
     {
       "id": 3,
       "prompt": "I have multiple catch blocks that just silently ignore errors: catch(e) {}",
-      "expected_output": "Violation: swallowing errors. Never use empty catch blocks. Fix: always log, handle, or rethrow. Options: (1) Log and rethrow: logger.error(e); throw e. (2) Transform: throw new AppError('OPERATION_FAILED', { cause: e }). (3) Return error type (Go-style). An empty catch hides bugs and makes debugging impossible.",
+      "expected_output": "Violation: swallowing errors. Never use empty catch blocks. Fix with one owner per failure: (1) Handle it: log once at the layer that handles or translates the request/job. (2) Transform: throw new AppError('OPERATION_FAILED', { cause: e }) at the boundary. (3) Return or rethrow it to a caller that will handle it. Do not log and then rethrow into another boundary that logs the same failure again. An empty catch hides bugs and makes debugging impossible.",
       "assertions": [
         {
           "type": "contains",
@@ -49,6 +57,33 @@
             "empty catch",
             "swallowing"
           ]
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "What JSON error envelope should a new HTTP endpoint return?",
+      "expected_output": "Return the canonical nested envelope: { error: { code: 'USER_NOT_FOUND', message: 'The requested user does not exist.', traceId: '...', details: [] } }. Use SCREAMING_SNAKE_CASE codes and client-safe messages. Never include stack traces, SQL, or secrets in the response, and do not change existing client contracts just to match the doc.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "traceId"
+        },
+        {
+          "type": "contains",
+          "value": "code"
+        },
+        {
+          "type": "contains_any",
+          "value": ["client-safe messages", "never include stack traces"]
+        },
+        {
+          "type": "not_contains",
+          "value": "include SQL in the response"
+        },
+        {
+          "type": "not_contains",
+          "value": "stack traces in the response"
         }
       ]
     }

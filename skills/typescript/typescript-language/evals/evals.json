@@ -45,6 +45,25 @@
           "value": "__brand"
         }
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "Our monorepo wants to adopt `satisfies` and move to TypeScript 7. What compatibility should we check first?",
+      "expected_output": "Gate satisfies at TS 4.9. Check the locked compiler, target/lib, module resolution, the runtime floor for emitted code, and tool peers such as typescript-eslint and plugins. TS 7 changes defaults and ships no compiler API, so keep TS 6 available for compiler-API consumers instead of forcing the upgrade.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "4.9"
+        },
+        {
+          "type": "contains_any",
+          "value": ["compiler API", "typescript-eslint", "plugins"]
+        },
+        {
+          "type": "contains_any",
+          "value": ["locked compiler", "tsc --version", "runtime floor"]
+        }
+      ]
     }
   ],
   "should_not_trigger": [

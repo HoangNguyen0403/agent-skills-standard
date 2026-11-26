@@ -45,6 +45,24 @@
           "value": "CI"
         }
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "My go.mod says go 1.22. Do I still need `task := task` before launching a goroutine inside a range loop?",
+      "expected_output": "No. With Go 1.22+ language semantics each iteration declares its own loop variable, so the closure sees the intended task and the copy is unnecessary. Keep the copy for modules or files using older language semantics, or when the closure reads a variable declared outside the loop that is later reassigned. Inspect the module's go directive; do not raise it just to avoid a copy.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "1.22"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "each iteration",
+            "own loop variable"
+          ]
+        }
+      ]
     }
   ],
   "should_not_trigger": [

@@ -191,6 +191,123 @@ def write_all_bytes(fd: int, payload: bytes) -> None:
         total_written += n
 
 
+def _escaped_line_breaks(value: str) -> str:
+    """Escape text for element content, keeping hostile markup literal."""
+    return html.escape(value, quote=True).replace("\n", "<br>")
+
+
+def build_semantic_transcript(spec: dict[str, Any]) -> str:
+    """Derive an escaped node/relationship transcript from the canonical spec.
+
+    The transcript is plain text and tables inside the existing static page: it exposes
+    node identity/label/grouping, relationship source-target direction, and unresolved
+    or omitted semantics without adding a renderer, active markup, or resource loads.
+    """
+    nodes = spec.get("nodes") or []
+    edges = spec.get("edges") or []
+    nodes = nodes if isinstance(nodes, list) else []
+    edges = edges if isinstance(edges, list) else []
+
+    group_labels: dict[str, str] = {}
+    raw_groups = spec.get("groups")
+    if isinstance(raw_groups, list):
+        for group in raw_groups:
+            if isinstance(group, dict) and isinstance(group.get("id"), str):
+                label = group.get("label")
+                group_labels[group["id"]] = str(label) if isinstance(label, str) and label else group["id"]
+
+    node_rows: list[str] = []
+    unresolved: list[str] = []
+    for node in nodes:
+        if not isinstance(node, dict):
+            continue
+        node_id = str(node.get("id", ""))
+        label = str(node.get("label", ""))
+        sublabel = node.get("sublabel")
+        if isinstance(sublabel, str) and sublabel:
+            label = f"{label} — {sublabel}"
+        group_id = node.get("group") if isinstance(node.get("group"), str) else ""
+        if group_id:
+            group_label = group_labels.get(group_id)
+            group_text = (
+                f"{group_label} ({group_id})"
+                if group_label and group_label != group_id
+                else group_id
+            )
+        else:
+            group_text = "no group"
+        row = (
+            "<tr>"
+            f"<td><code>{_escaped_line_breaks(node_id)}</code></td>"
+            f"<td>{_escaped_line_breaks(label)}</td>"
+            f"<td>{_escaped_line_breaks(str(node.get('kind', '')))}</td>"
+            f"<td>{_escaped_line_breaks(group_text)}</td>"
+            "</tr>"
+        )
+        node_rows.append(row)
+        confidence = node.get("evidence_confidence")
+        if not isinstance(confidence, str) or confidence not in ("documented", "observed"):
+            stated = confidence if isinstance(confidence, str) and confidence else "unspecified"
+            unresolved.append(f"node {node_id} ({label}) confidence: {stated}")
+
+    edge_rows: list[str] = []
+    for edge in edges:
+        if not isinstance(edge, dict):
+            continue
+        source = str(edge.get("from", ""))
+        target = str(edge.get("to", ""))
+        label = str(edge.get("label", ""))
+        style = str(edge.get("style", "sync"))
+        cardinality = edge.get("cardinality")
+        if isinstance(cardinality, str) and cardinality:
+            style = f"{style}, {cardinality}"
+        edge_rows.append(
+            "<tr>"
+            f"<td><code>{_escaped_line_breaks(source)}</code> → "
+            f"<code>{_escaped_line_breaks(target)}</code></td>"
+            f"<td>{_escaped_line_breaks(label)}</td>"
+            f"<td>{_escaped_line_breaks(style)}</td>"
+            "</tr>"
+        )
+        confidence = edge.get("evidence_confidence")
+        if not isinstance(confidence, str) or confidence not in ("documented", "observed"):
+            stated = confidence if isinstance(confidence, str) and confidence else "unspecified"
+            unresolved.append(
+                f"relationship {source} → {target} ({label}) confidence: {stated}"
+            )
+
+    view_contract = spec.get("view") or spec.get("view_contract")
+    if isinstance(view_contract, dict):
+        omissions = view_contract.get("omissions") or []
+        if isinstance(omissions, list):
+            for omission in omissions:
+                unresolved.append(f"omitted: {omission}")
+
+    node_table = (
+        "<table>"
+        "<caption>Nodes (identity, label, kind, group)</caption>"
+        "<thead><tr><th>ID</th><th>Label</th><th>Kind</th><th>Group</th></tr></thead>"
+        f"<tbody>{''.join(node_rows) or '<tr><td colspan=\"4\">None</td></tr>'}</tbody>"
+        "</table>"
+    )
+    edge_table = (
+        "<table>"
+        "<caption>Relationships (direction source → target, label, style/cardinality)</caption>"
+        "<thead><tr><th>From → To</th><th>Label</th><th>Style</th></tr></thead>"
+        f"<tbody>{''.join(edge_rows) or '<tr><td colspan=\"3\">None</td></tr>'}</tbody>"
+        "</table>"
+    )
+    unresolved_html = (
+        "<ul>" + "".join(f"<li>{_escaped_line_breaks(item)}</li>" for item in unresolved) + "</ul>"
+        if unresolved else "<p>None declared.</p>"
+    )
+    return (
+        f"{node_table}\n{edge_table}\n"
+        "<h3>Unresolved or omitted semantics</h3>\n"
+        f"{unresolved_html}"
+    )
+
+
 def build_html_page(
     spec: dict[str, Any],
     source_digest: str,
@@ -248,6 +365,8 @@ def build_html_page(
         cit_esc = html.escape(cit, quote=True)
         citation_items_html.append(f"<code>{cit_esc}</code>")
     citations_html = ", ".join(citation_items_html) if citation_items_html else "None"
+
+    semantic_html = build_semantic_transcript(spec)
 
     # View contract details if present (accepts both spec['view'] and spec['view_contract'])
     view_section = ""
@@ -468,6 +587,31 @@ def build_html_page(
       margin: 0;
       padding-left: 20px;
     }}
+    table {{
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0 0 16px 0;
+      font-size: 0.9rem;
+    }}
+    caption {{
+      caption-side: top;
+      text-align: left;
+      font-weight: 600;
+      padding-bottom: 6px;
+    }}
+    th, td {{
+      border: 1px solid var(--border);
+      padding: 6px 8px;
+      text-align: left;
+      vertical-align: top;
+      overflow-wrap: anywhere;
+    }}
+    th {{
+      background: var(--card-bg);
+    }}
+    .transcript-section {{
+      grid-column: 1 / -1;
+    }}
     .badge {{
       display: inline-block;
       font-weight: 600;
@@ -530,6 +674,12 @@ def build_html_page(
     </section>
 
     {view_section}
+
+    <section class="meta-section transcript-section">
+      <h2>Semantic Transcript</h2>
+      <p>Derived from the canonical JSON specification; readable when images are disabled.</p>
+      {semantic_html}
+    </section>
   </div>
 </body>
 </html>

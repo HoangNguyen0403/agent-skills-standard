@@ -23,7 +23,7 @@
     {
       "id": 2,
       "prompt": "Add readonly properties in PHP 8.1",
-      "expected_output": "class User { public function __construct(public readonly string $name, public readonly string $email) {} }; property set once at construction; any reassignment throws Error; combine with constructor promotion",
+      "expected_output": "class User { public function __construct(public readonly string $name, public readonly string $email) {} }; readonly blocks modification after initialization, not merely constructor-only assignment; 8.1–8.3 allow the initializing write from the declaring class, 8.4+ from child classes; any later write throws Error; combine with constructor promotion. Defaults on readonly properties require 8.6.",
       "assertions": [
         {
           "type": "contains",
@@ -32,6 +32,10 @@
         {
           "type": "contains",
           "value": "__construct"
+        },
+        {
+          "type": "contains_any",
+          "value": ["after initialization", "later write", "modification after"]
         }
       ]
     },
@@ -72,7 +76,7 @@
     {
       "id": 5,
       "prompt": "Union types and intersection types in PHP 8",
-      "expected_output": "function process(int|string $id): User|null; PHP 8.1+ intersection: function accepts(Countable&Traversable $c); never-type for functions that always throw; use for flexible type-safe APIs",
+      "expected_output": "function process(int|string $id): User|null (8.0 union); PHP 8.1+ intersection takes class/interface types only, e.g. function accepts(Countable&Traversable $c); scalar intersections such as string&Countable are invalid; combine union and intersection only with DNF parentheses in 8.2; never-type for functions that always throw",
       "assertions": [
         {
           "type": "contains",
@@ -81,6 +85,10 @@
         {
           "type": "contains",
           "value": "Countable&Traversable"
+        },
+        {
+          "type": "contains_any",
+          "value": ["class/interface types only", "class types only", "scalar intersection"]
         }
       ]
     },

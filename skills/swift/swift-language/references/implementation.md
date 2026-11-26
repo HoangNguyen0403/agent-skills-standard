@@ -67,6 +67,29 @@ struct LoadingState {
 }
 ```
 
+## Sendability and Value Types
+
+Value semantics remove accidental shared mutation; they do not make a type safe to pass across isolation domains by themselves. `Sendable` depends on the stored properties, not on `let` versus `var`.
+
+```swift
+// ✅ GOOD: all stored properties Sendable — mutable value-type storage is fine
+struct Counter: Sendable {
+    var value: Int
+}
+
+struct User: Sendable {
+    let id: String
+    let name: String
+}
+
+// ❌ AVOID: a struct wrapping mutable reference state is not automatically Sendable
+struct Cache {                       // no Sendable conformance is derivable here
+    var storage: NSMutableDictionary   // shared class instance, not Sendable
+}
+```
+
+A `struct` is `Sendable` when every stored property is `Sendable`; each copy owns its own `var` of a value type. It is not `Sendable` merely because it is a struct: a mutable reference-typed property is shared by every copy. Use `@unchecked Sendable` only with internal locking you can point to in review. Prefer an `actor` for shared mutable state.
+
 ## Generics & Type Constraints
 
 ```swift

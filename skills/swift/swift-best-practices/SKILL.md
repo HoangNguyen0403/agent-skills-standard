@@ -33,7 +33,7 @@ metadata:
 
 ### Value Types & Immutability
 
-- **Prefer Structs**: **Default to struct** for **value semantics** and thread safety. Use `class` only when reference identity or **inheritance** required.
+- **Prefer Structs**: **Default to struct** for **value semantics** — independent copies, no accidental shared mutation. Use `class` only when reference identity or **inheritance** required. Value semantics do not make a struct thread-safe or `Sendable`; `Sendable` needs every stored property `Sendable` (a `var value: Int` is fine — each copy owns it; a stored mutable class is shared, not automatically `Sendable`).
 - **Immutability**: Always **default to let** for all properties and constants. Use `var` only when change required.
 - **Modifiers**: Use **`final`** for all classes that not intended to subclassed to improve performance (static dispatch).
 - **Static Dispatch**: Favor methods in structs and `final` classes.

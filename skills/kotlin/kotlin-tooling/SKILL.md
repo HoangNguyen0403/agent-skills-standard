@@ -22,6 +22,7 @@ metadata:
 
 - **Gradle DSL**: Use Kotlin DSL (`build.gradle.kts`) exclusively — type safety and better IDE support.
 - **Version Management**: Use Version Catalogs (`libs.versions.toml`).
+- **Compatibility Preflight**: Before raising `languageVersion`/`apiVersion` or adding a compiler plugin, check the Kotlin compiler and KGP version, Gradle, AGP (Android), compiler plugins (Compose, KSP, kapt, serialization), JVM target and aligned stdlib. A newer Kotlin release is not proof the consumer supports it.
 - **Linter**: Use **Ktlint** for formatting and **Detekt** for complexity/code-smell analysis.
 - **Testing**: Use **MockK** for mocking (first-class Kotlin support). Use **JUnit 5**.
 - **Assertions**: Use **Truth** or **Kotest Assertions** for fluent, readable test output.

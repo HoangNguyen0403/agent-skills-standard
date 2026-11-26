@@ -321,14 +321,14 @@
       ]
     },
     "dart": {
-      "version": "1.3.7",
-      "last_updated": "2026-11-11",
+      "version": "1.3.8",
+      "last_updated": "2026-11-26",
       "tag_prefix": "dart-v",
       "token_metrics": {
         "total_skills": 3,
-        "total_tokens": 1754,
-        "avg_tokens_per_skill": 585,
-        "largest_skill": "dart-language (762 tokens)"
+        "total_tokens": 1987,
+        "avg_tokens_per_skill": 662,
+        "largest_skill": "dart-language (902 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -338,21 +338,21 @@
           "name": "dart",
           "source": "github",
           "repo": "dart-lang/sdk",
-          "pinned": "3.8.0",
+          "pinned": "3.14.1",
           "tag_pattern": "^(\\d+\\.\\d+\\.\\d+)$",
-          "reviewed": "2026-07-15"
+          "reviewed": "2026-11-26"
         }
       ]
     },
     "typescript": {
-      "version": "1.3.5",
-      "last_updated": "2026-11-11",
+      "version": "1.3.6",
+      "last_updated": "2026-11-26",
       "tag_prefix": "typescript-v",
       "token_metrics": {
         "total_skills": 4,
-        "total_tokens": 2749,
-        "avg_tokens_per_skill": 687,
-        "largest_skill": "typescript-security (775 tokens)"
+        "total_tokens": 3035,
+        "avg_tokens_per_skill": 759,
+        "largest_skill": "typescript-language (859 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -362,21 +362,21 @@
           "name": "typescript",
           "source": "github",
           "repo": "microsoft/TypeScript",
-          "pinned": "5.8.0",
+          "pinned": "7.0.2",
           "tag_pattern": "^v(\\d+\\.\\d+\\.\\d+)$",
-          "reviewed": "2026-07-15"
+          "reviewed": "2026-11-26"
         }
       ]
     },
     "javascript": {
-      "version": "1.3.6",
-      "last_updated": "2026-11-11",
+      "version": "1.3.7",
+      "last_updated": "2026-11-26",
       "tag_prefix": "javascript-v",
       "token_metrics": {
         "total_skills": 3,
-        "total_tokens": 1169,
-        "avg_tokens_per_skill": 390,
-        "largest_skill": "javascript-language (458 tokens)"
+        "total_tokens": 1349,
+        "avg_tokens_per_skill": 450,
+        "largest_skill": "javascript-language (638 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -386,9 +386,9 @@
           "name": "node",
           "source": "github",
           "repo": "nodejs/node",
-          "pinned": "22.0.0",
+          "pinned": "26.13.1",
           "tag_pattern": "^v(\\d+\\.\\d+\\.\\d+)$",
-          "reviewed": "2026-07-15"
+          "reviewed": "2026-11-26"
         }
       ]
     },
@@ -494,8 +494,8 @@
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 48,
-        "total_tokens": 55163,
-        "avg_tokens_per_skill": 1149,
+        "total_tokens": 55387,
+        "avg_tokens_per_skill": 1154,
         "largest_skill": "common-decision-discipline (3243 tokens)"
       },
       "owners": [
@@ -541,13 +541,13 @@
       ]
     },
     "golang": {
-      "version": "1.3.11",
-      "last_updated": "2026-11-18",
+      "version": "1.3.12",
+      "last_updated": "2026-11-26",
       "tag_prefix": "golang-v",
       "token_metrics": {
         "total_skills": 11,
-        "total_tokens": 6626,
-        "avg_tokens_per_skill": 602,
+        "total_tokens": 7449,
+        "avg_tokens_per_skill": 677,
         "largest_skill": "golang-testing (937 tokens)"
       },
       "owners": [
@@ -558,9 +558,9 @@
           "name": "go",
           "source": "github",
           "repo": "golang/go",
-          "pinned": "1.24.0",
+          "pinned": "1.27.4",
           "tag_pattern": "^go(\\d+\\.\\d+(?:\\.\\d+)?)$",
-          "reviewed": "2026-06-17"
+          "reviewed": "2026-11-26"
         }
       ]
     },
@@ -589,14 +589,14 @@
       ]
     },
     "kotlin": {
-      "version": "1.3.5",
-      "last_updated": "2026-11-11",
+      "version": "1.3.6",
+      "last_updated": "2026-11-26",
       "tag_prefix": "kotlin-v",
       "token_metrics": {
         "total_skills": 4,
-        "total_tokens": 1775,
-        "avg_tokens_per_skill": 444,
-        "largest_skill": "kotlin-language (534 tokens)"
+        "total_tokens": 2171,
+        "avg_tokens_per_skill": 543,
+        "largest_skill": "kotlin-language (618 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -606,21 +606,21 @@
           "name": "kotlin",
           "source": "github",
           "repo": "JetBrains/kotlin",
-          "pinned": "2.1.0",
+          "pinned": "2.4.21",
           "tag_pattern": "^v(\\d+\\.\\d+\\.\\d+)$",
-          "reviewed": "2026-07-15"
+          "reviewed": "2026-11-26"
         }
       ]
     },
     "java": {
-      "version": "1.3.7",
-      "last_updated": "2026-11-18",
+      "version": "1.3.8",
+      "last_updated": "2026-11-26",
       "tag_prefix": "java-v",
       "token_metrics": {
         "total_skills": 5,
-        "total_tokens": 2569,
-        "avg_tokens_per_skill": 514,
-        "largest_skill": "java-testing (603 tokens)"
+        "total_tokens": 3058,
+        "avg_tokens_per_skill": 612,
+        "largest_skill": "java-language (728 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -630,9 +630,9 @@
           "name": "java",
           "source": "github",
           "repo": "openjdk/jdk",
-          "pinned": "21",
+          "pinned": "27",
           "tag_pattern": "^jdk-(\\d+)-ga$",
-          "reviewed": "2026-07-15"
+          "reviewed": "2026-11-26"
         }
       ]
     },
@@ -689,14 +689,14 @@
       ]
     },
     "swift": {
-      "version": "1.3.10",
-      "last_updated": "2026-11-18",
+      "version": "1.3.11",
+      "last_updated": "2026-11-26",
       "tag_prefix": "swift-v",
       "token_metrics": {
         "total_skills": 8,
-        "total_tokens": 4426,
-        "avg_tokens_per_skill": 553,
-        "largest_skill": "swift-testing (895 tokens)"
+        "total_tokens": 5321,
+        "avg_tokens_per_skill": 665,
+        "largest_skill": "swift-concurrency (927 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -706,9 +706,9 @@
           "name": "swift",
           "source": "github",
           "repo": "swiftlang/swift",
-          "pinned": "6.1.0",
+          "pinned": "6.4.3",
           "tag_pattern": "^swift-(\\d+\\.\\d+(?:\\.\\d+)?)-RELEASE$",
-          "reviewed": "2026-07-15"
+          "reviewed": "2026-11-26"
         }
       ]
     },
@@ -741,14 +741,14 @@
       ]
     },
     "php": {
-      "version": "1.3.9",
-      "last_updated": "2026-11-18",
+      "version": "1.3.10",
+      "last_updated": "2026-11-26",
       "tag_prefix": "php-v",
       "token_metrics": {
         "total_skills": 7,
-        "total_tokens": 3673,
-        "avg_tokens_per_skill": 525,
-        "largest_skill": "php-security (604 tokens)"
+        "total_tokens": 3816,
+        "avg_tokens_per_skill": 545,
+        "largest_skill": "php-language (615 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -758,21 +758,21 @@
           "name": "php",
           "source": "github",
           "repo": "php/php-src",
-          "pinned": "8.4.0",
+          "pinned": "8.6.0",
           "tag_pattern": "^php-(\\d+\\.\\d+\\.\\d+)$",
-          "reviewed": "2026-05-16"
+          "reviewed": "2026-11-26"
         }
       ]
     },
     "python": {
-      "version": "1.0.3",
-      "last_updated": "2026-11-18",
+      "version": "1.0.4",
+      "last_updated": "2026-11-26",
       "tag_prefix": "python-v",
       "token_metrics": {
         "total_skills": 9,
-        "total_tokens": 3741,
-        "avg_tokens_per_skill": 416,
-        "largest_skill": "python-testing (573 tokens)"
+        "total_tokens": 3945,
+        "avg_tokens_per_skill": 438,
+        "largest_skill": "python-language (675 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -782,9 +782,9 @@
           "name": "python",
           "source": "github",
           "repo": "python/cpython",
-          "pinned": "3.13.0",
+          "pinned": "3.15.2",
           "tag_pattern": "^v(\\d+\\.\\d+\\.\\d+)$",
-          "reviewed": "2026-06-29"
+          "reviewed": "2026-11-26"
         }
       ]
     },

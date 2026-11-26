@@ -4,11 +4,11 @@
     {
       "id": 1,
       "prompt": "Set up analysis_options.yaml to enforce trailing commas, single quotes, and treat missing required parameters as errors. Also integrate dart_code_metrics.",
-      "expected_output": "analysis_options.yaml with linter rules (require_trailing_commas, prefer_single_quotes), analyzer errors (missing_required_param: error), dart_code_metrics config with max-complexity: 15",
+      "expected_output": "analysis_options.yaml with linter rules (require_trailing_commas, prefer_single_quotes), analyzer errors (missing_required_argument: error; older analyzers may use missing_required_param), dart_code_metrics config with max-complexity: 15",
       "assertions": [
         {
           "type": "contains",
-          "value": "missing_required_param: error"
+          "value": "missing_required_argument: error"
         },
         {
           "id": "a1",

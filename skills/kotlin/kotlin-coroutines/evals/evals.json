@@ -69,6 +69,31 @@
           "value": "test"
         }
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "My Kotlin ViewModel wraps the repository call in runCatching. When the screen closes, the coroutine is cancelled but my UI still shows an error state. What is wrong?",
+      "expected_output": "runCatching catches CancellationException, so cancellation is being mapped to an error state. Rethrow the CancellationException before converting genuine operational exceptions, or use try/catch with a dedicated CancellationException branch first. Cancellation must propagate to the scope; a CoroutineExceptionHandler does not replace local recovery.",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Identifies the caught cancellation",
+          "type": "contains",
+          "value": "CancellationException"
+        },
+        {
+          "id": "a2",
+          "description": "Requires rethrowing it",
+          "type": "contains",
+          "value": "Rethrow"
+        },
+        {
+          "id": "a3",
+          "description": "Requires cancellation to propagate",
+          "type": "contains",
+          "value": "propagate"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

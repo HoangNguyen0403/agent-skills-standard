@@ -36,7 +36,7 @@
     {
       "id": 3,
       "prompt": "My Go function returns an error but I'm ignoring it with _. Is this ever acceptable?",
-      "expected_output": "Rarely. Ignoring errors silently swallows failures. Always handle, log, or wrap and return. If ignoring is intentional, add a comment explaining why.",
+      "expected_output": "Rarely. Ignoring an error can hide failures. Handle it, propagate it, or log it once at the owner. If the discard is deliberate and safe (for example best-effort cleanup), add a comment explaining why.",
       "assertions": [
         {
           "type": "contains",
@@ -45,6 +45,61 @@
         {
           "type": "contains",
           "value": "log"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "How do I return all independent field validation errors from a Go function?",
+      "expected_output": "Use errors.Join (Go 1.20+): collect the non-nil wrapped errors in a slice and return errors.Join(errs...). Join discards nil entries and returns nil for empty/all-nil input; the result unwraps via Unwrap() []error, so errors.Is and errors.As traverse joined children while errors.Unwrap alone does not. Keep it an aggregation of errors, not a field-level API response or concurrent execution.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "errors.Join"
+        },
+        {
+          "type": "contains",
+          "value": "nil"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "Unwrap() []error",
+            "joined children"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "My Go module is on Go 1.26. Can I extract a typed error without declaring a target variable?",
+      "expected_output": "Yes. Go 1.26 adds errors.AsType, for example: if pathErr, ok := errors.AsType[*fs.PathError](err); ok { ... }. It returns the first match and false when absent. Keep errors.As for modules below Go 1.26 or code that must compile on older toolchains; inspect the module's go directive and do not raise the baseline just for the example.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "AsType"
+        },
+        {
+          "type": "contains",
+          "value": "1.26"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "My repository wraps sql.ErrNoRows and the handler returns the wrapped error to the client. What is wrong?",
+      "expected_output": "Wrapping preserves error identity but also carries internal text, so the client must not receive it. Wrap with %w so internal callers can still use errors.Is(err, sql.ErrNoRows), then translate to a domain error at the API boundary and return a client-safe message. Do not expose SQL, and do not use %v expecting redaction.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "errors.Is"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "translate",
+            "boundary"
+          ]
         }
       ]
     }

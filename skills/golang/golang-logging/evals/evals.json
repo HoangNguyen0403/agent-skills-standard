@@ -47,6 +47,28 @@
           "value": "Error"
         }
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "How should a Go HTTP handler pass a trace ID from context into slog logs?",
+      "expected_output": "Store the value in middleware with a private typed key (type ctxKey string) and read it with the same key through an accessor, then attach it with slog.With(\"trace_id\", TraceID(ctx)). Use InfoContext or ErrorContext to pass the request context; context alone does not add attributes unless the handler supports it. Never read it back with ctx.Value(\"trace_id\").",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "typed key"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "accessor",
+            "ctxKey"
+          ]
+        },
+        {
+          "type": "contains",
+          "value": "InfoContext"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

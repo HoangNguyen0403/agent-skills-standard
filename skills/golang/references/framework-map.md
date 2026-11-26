@@ -1,6 +1,6 @@
 # Go Framework Map
 
-Reviewed: 2026-06-17
+Reviewed: 2026-11-26
 
 Official sources:
 - https://go.dev/doc/

@@ -583,5 +583,128 @@ class TestExportHtmlExecution(unittest.TestCase):
         self.assertNotIn(str(Path.home()), html_text)
 
 
+    @mock.patch("render_drawio.render", return_value="<mxfile></mxfile>")
+    @mock.patch("export_drawio.export")
+    def test_export_html_semantic_transcript_preserves_direction_grouping_and_hostile_labels(
+        self, mock_export, mock_render
+    ):
+        """Image-disabled reading exposes ids, groups and edge direction; hostile labels stay literal."""
+        mock_export.side_effect = self._mock_desktop_export
+
+        spec_data = make_valid_spec(
+            title="Transcript Fidelity",
+            groups=[{"id": "boundary", "label": "<img src=x onerror=alert(1)> Zone"}],
+        )
+        spec_data["nodes"] = [
+            {
+                "id": "gateway",
+                "label": "<script>alert('node')</script> Gateway",
+                "sublabel": "edge &amp; proxy",
+                "kind": "container",
+                "group": "boundary",
+            },
+            {
+                "id": "ledger",
+                "label": "General Ledger",
+                "kind": "db",
+                "evidence": "schema.sql:40",
+                "evidence_kind": "code",
+                "evidence_confidence": "documented",
+                "lifecycle": "implemented",
+            },
+        ]
+        spec_data["edges"] = [
+            {
+                "from": "gateway",
+                "to": "ledger",
+                "label": "Writes <b>settlement</b> / gRPC",
+                "style": "async",
+                "evidence_confidence": "assumed",
+            }
+        ]
+
+        spec_file = self._write_spec(spec_data)
+        out_dir = self.root / "pkg_out"
+        code = export_html.export_package(spec_file, out_dir)
+        self.assertEqual(code, 0)
+
+        html_text = (out_dir / "index.html").read_text(encoding="utf-8")
+
+        # Direction is preserved as source -> target with both node ids.
+        self.assertIn("<code>gateway</code> → <code>ledger</code>", html_text)
+        # Group identity resolves to its canonical label.
+        self.assertIn("&lt;img src=x onerror=alert(1)&gt; Zone", html_text)
+        # Hostile node and edge labels remain literal escaped text, never markup.
+        self.assertIn("&lt;script&gt;alert(&#x27;node&#x27;)&lt;/script&gt; Gateway", html_text)
+        self.assertIn("Writes &lt;b&gt;settlement&lt;/b&gt; / gRPC", html_text)
+        self.assertNotIn("<script>alert('node')</script>", html_text)
+        self.assertNotIn("<img src=x onerror=alert(1)>", html_text)
+        # Relationship semantics are readable without the raster images.
+        self.assertIn("async", html_text)
+        self.assertNotIn("data:image/svg", html_text)
+
+        # Unspecified confidence and assumed relationships surface as unresolved, not pruned.
+        self.assertIn("node gateway", html_text)
+        self.assertIn("confidence: unspecified", html_text)
+        self.assertIn("relationship gateway → ledger", html_text)
+
+    @mock.patch("render_drawio.render", return_value="<mxfile></mxfile>")
+    @mock.patch("export_drawio.export")
+    def test_export_html_semantic_transcript_distinguishes_duplicate_group_labels_and_ungrouped(
+        self, mock_export, mock_render
+    ):
+        """Group IDs remain visible when labels collide; ungrouped nodes say so explicitly."""
+        mock_export.side_effect = self._mock_desktop_export
+        spec_data = make_valid_spec(
+            title="Group Identity",
+            groups=[
+                {"id": "east", "label": "Production"},
+                {"id": "west", "label": "Production"},
+            ],
+        )
+        spec_data["nodes"] = [
+            {"id": "east_app", "label": "East App", "kind": "container", "group": "east"},
+            {"id": "west_app", "label": "West App", "kind": "container", "group": "west"},
+            {"id": "shared_app", "label": "Shared App", "kind": "container"},
+        ]
+        spec_data["edges"] = [
+            {"from": "east_app", "to": "west_app", "label": "Replicates / gRPC"},
+            {"from": "west_app", "to": "shared_app", "label": "Calls / HTTPS"},
+        ]
+
+        spec_file = self._write_spec(spec_data)
+        out_dir = self.root / "pkg_out"
+        code = export_html.export_package(spec_file, out_dir)
+        self.assertEqual(code, 0)
+
+        html_text = (out_dir / "index.html").read_text(encoding="utf-8")
+
+        def node_row(node_id: str) -> str:
+            start = html_text.index(f"<td><code>{node_id}</code></td>")
+            return html_text[start:html_text.index("</tr>", start)]
+
+        east_row = node_row("east_app")
+        west_row = node_row("west_app")
+        shared_row = node_row("shared_app")
+
+        self.assertIn("<td>Production (east)</td>", east_row)
+        self.assertNotIn("(west)", east_row)
+        self.assertIn("<td>Production (west)</td>", west_row)
+        self.assertNotIn("(east)", west_row)
+        self.assertIn("<td>no group</td>", shared_row)
+        self.assertNotIn("Production", shared_row)
+
+    def test_build_semantic_transcript_reports_omissions_as_unresolved(self):
+        spec = {
+            "nodes": [{"id": "api", "label": "<em>API</em>", "kind": "component"}],
+            "edges": [],
+            "view": {"omissions": ["deployment <health>", "runtime failover state"]},
+        }
+        transcript = export_html.build_semantic_transcript(spec)
+        self.assertIn("omitted: deployment &lt;health&gt;", transcript)
+        self.assertIn("omitted: runtime failover state", transcript)
+        self.assertIn("&lt;em&gt;API&lt;/em&gt;", transcript)
+
+
 if __name__ == "__main__":
     unittest.main()
