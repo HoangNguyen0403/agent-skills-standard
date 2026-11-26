@@ -53,10 +53,9 @@ Classify every normative instruction before writing, auditing, or rewriting it. 
 ## Content Quality (Implementation)
 
 - **No Redundant Knowledge**: Do NOT explain concepts AI already knows (standard HTTP codes, language syntax, basic SOLID). Focus on project-specific rules and constraints.
-- **Readable Compact Style**: Size is an editorial budget, not a behavioral quality claim; prefer compact imperative language over filler or speculative prose.
+- **Readable Compact Style**: Size is an editorial budget, not a behavioral quality claim; prefer compact imperative language over filler or speculative prose. One clause of rationale for a non-obvious constraint is allowed when it improves generalization; delete ceremony and restatement.
 - **Actionability**: Commands and snippets must be runnable; prose must state a concrete decision or check.
 - **Labeled Illustrations**: When an ambiguous output shape needs an example, mark it `Illustrative` and keep it structurally distinct from reported results. Never fabricate result rows, verification output, or evidence.
-- **Concise Rationale**: One clause explaining a non-obvious constraint is allowed when it improves generalization; delete ceremony and restatement.
 - **Progressive Disclosure**: Move code blocks >10 lines to `references/`; prescribe sequence only where dependency, auditability, or safety requires it.
 - **Pressure Hardening**: Discipline skills must name red flags, common excuses, and exact stop/restart conditions.
 
