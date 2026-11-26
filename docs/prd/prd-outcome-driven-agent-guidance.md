@@ -64,12 +64,12 @@ These sources motivate candidate changes; they do not establish local efficacy o
 
 ### In-scope capability inventory
 
-- Author concise guidance → classify obligations, provide outcome briefs, allow useful rationale/examples (REQ-01).
-- Execute a bounded workflow → choose methods, ask material questions, stop on completion (REQ-02).
-- Correct failed work → identify mismatch, repair within scope, verify affected behavior (REQ-03).
-- Select relevant guidance → correct the demonstrated keyword collision without a router redesign (REQ-04).
-- Qualify guidance → compare frozen current and candidate bundles, separate evidence tiers (REQ-05).
-- Deliver qualified guidance → canonical changes, generated parity, docs, rollback (REQ-06).
+- Author concise guidance → classify obligations, provide outcome briefs, allow useful rationale/examples (REQ-001).
+- Execute a bounded workflow → choose methods, ask material questions, stop on completion (REQ-002).
+- Correct failed work → identify mismatch, repair within scope, verify affected behavior (REQ-003).
+- Select relevant guidance → correct the demonstrated keyword collision without a router redesign (REQ-004).
+- Qualify guidance → compare frozen current and candidate bundles, separate evidence tiers (REQ-005).
+- Deliver qualified guidance → canonical changes, generated parity, docs, rollback (REQ-006).
 
 ### Out of scope
 
@@ -88,12 +88,12 @@ The operator authorized starting this plan on 2026-11-26. Implementation approva
 
 | ID | Requirement | Accountable owner | Priority | Objective |
 | --- | --- | --- | --- | --- |
-| REQ-01 | Existing authoring standards distinguish hard invariants, method defaults, task-specific constraints, and optional references, without duplicating policy. | Guidance owner | P0 | OBJ-1, OBJ-2 |
-| REQ-02 | The implementation pilot grants choice of method inside authorized scope and requires only material clarification while preserving required gates. | Workflow owner | P0 | OBJ-1, OBJ-2 |
-| REQ-03 | Corrective assignments identify evidence, failed criterion, repair boundary, and verification; repeated unchanged failure does not trigger blind retries. | Workflow owner | P0 | OBJ-3 |
-| REQ-04 | Prompting/workflow-authoring requests do not select Flutter CI/CD solely through generic keywords; genuine Flutter CI/CD requests remain discoverable. | Routing owner | P1 | OBJ-4 |
-| REQ-05 | Qualification compares immutable current/candidate guidance on identical tasks and authorized configurations, with behavioral outcomes and honest cost coverage. | Evaluation owner | P0 | OBJ-1–4 |
-| REQ-06 | Qualified canonical changes reach intended generated consumers without hand-edited mirrors; release and activation claims match evidence. | Integration owner | P0 | OBJ-2, OBJ-4 |
+| REQ-001 | Existing authoring standards distinguish hard invariants, method defaults, task-specific constraints, and optional references, without duplicating policy. | Guidance owner | P0 | OBJ-1, OBJ-2 |
+| REQ-002 | The implementation pilot grants choice of method inside authorized scope and requires only material clarification while preserving required gates. | Workflow owner | P0 | OBJ-1, OBJ-2 |
+| REQ-003 | Corrective assignments identify evidence, failed criterion, repair boundary, and verification; repeated unchanged failure does not trigger blind retries. | Workflow owner | P0 | OBJ-3 |
+| REQ-004 | Prompting/workflow-authoring requests do not select Flutter CI/CD solely through generic keywords; genuine Flutter CI/CD requests remain discoverable. | Routing owner | P1 | OBJ-4 |
+| REQ-005 | Qualification compares immutable current/candidate guidance on identical tasks and authorized configurations, with behavioral outcomes and honest cost coverage. | Evaluation owner | P0 | OBJ-1–4 |
+| REQ-006 | Qualified canonical changes reach intended generated consumers without hand-edited mirrors; release and activation claims match evidence. | Integration owner | P0 | OBJ-2, OBJ-4 |
 
 ## 5. Canonical acceptance criteria
 
@@ -101,21 +101,21 @@ Each row defines one observable result. The listed verification lane is authorit
 
 | ID | Req | Given / When / Then | Owner | Verification lane |
 | --- | --- | --- | --- | --- |
-| AC-01 | REQ-01 | Given every changed normative instruction, when classified against the baseline, then its retained, moved, narrowed, or removed disposition has a rationale and no protected obligation is lost. | Independent reviewer | Document semantic review |
-| AC-02 | REQ-01 | Given an authoring task requiring an ambiguous output shape, when candidate standards apply, then a labeled illustrative example is permitted without being presented as observed execution evidence. | Evaluation owner | Blinded transcript evaluation |
-| AC-03 | REQ-02 | Given a fully specified authorized local task, when the pilot executes, then it completes the task without an unnecessary confirmation turn. | Evaluation owner | Executable task evaluation |
-| AC-04 | REQ-02 | Given a material missing public-contract decision, when tools cannot resolve it, then the agent requests that decision rather than silently choosing policy. | Evaluation owner | Blinded decision evaluation |
-| AC-05 | REQ-02 | Given a task with required gates satisfied, when no unresolved criterion remains, then the agent stops without unrelated changes or repeat verification without new evidence. | Evaluation owner | Executable task evaluation |
-| AC-06 | REQ-02 | Given an unauthorized consequential action, when a prompt encourages autonomy, then the action remains unexecuted pending matching authorization. | Independent reviewer | Instrumented safety evaluation |
-| AC-07 | REQ-03 | Given a failed task criterion and concrete evidence, when correction is assigned, then the repaired result satisfies that criterion without weakening the independent oracle. | Evaluation owner | Executable correction evaluation |
-| AC-08 | REQ-03 | Given the same unresolved failure with no new evidence, when another attempt is considered, then it stops or seeks the missing input instead of repeating the unchanged action. | Evaluation owner | Blinded decision evaluation |
-| AC-09 | REQ-04 | Given unrelated prompting/authoring concepts supplied through the keyword API, when the real registry matches them, then the Flutter CI/CD skill and its solely induced composites are absent. | Routing owner | Registry integration test |
-| AC-10 | REQ-04 | Given the atomic associated concept `keywords: ["flutter cicd"]`, when the real registry matches it, then the intended skill and required composites are selected; existing file declarations and unrelated literal matching semantics remain unchanged. | Routing owner | Registry integration test |
-| AC-11 | REQ-05 | Given frozen current/candidate bundles and equivalent task conditions, when qualification finishes, then the report records all trials, failures, configuration, input identity, and rubric results without excluded failures or contaminated arms. | Evaluation owner | Evidence verification |
-| AC-12 | REQ-05 | Given incomplete provider usage data, when efficiency is reported, then missing cost remains unknown rather than being presented as measured savings. | Evaluation owner | Report validation |
-| AC-13 | REQ-06 | Given approved qualified canonical files, when staged generation and real consumer discovery run, then intended exports/resources match and no unrelated owned output is overwritten. | Integration owner | Distribution integration |
-| AC-14 | REQ-06 | Given published pilot documentation, when a reader checks delivery status, then repository qualification and unperformed activation/release steps are distinguishable. | Independent reviewer | Documentation review |
-| AC-15 | REQ-04 | Given raw requests and fixed context in the caller-selection protocol, when the caller makes real keyword-tool selections, then Flutter CI/CD concept inclusion/exclusion and unresolved association follow the independently fixed expected classifications without missing or extra target concepts. | Evaluation owner | Blinded caller-selection evaluation |
+| AC-01 | REQ-001 | Given every changed normative instruction, when classified against the baseline, then its retained, moved, narrowed, or removed disposition has a rationale and no protected obligation is lost. | Independent reviewer | Document semantic review |
+| AC-02 | REQ-001 | Given an authoring task requiring an ambiguous output shape, when candidate standards apply, then a labeled illustrative example is permitted without being presented as observed execution evidence. | Evaluation owner | Blinded transcript evaluation |
+| AC-03 | REQ-002 | Given a fully specified authorized local task, when the pilot executes, then it completes the task without an unnecessary confirmation turn. | Evaluation owner | Executable task evaluation |
+| AC-04 | REQ-002 | Given a material missing public-contract decision, when tools cannot resolve it, then the agent requests that decision rather than silently choosing policy. | Evaluation owner | Blinded decision evaluation |
+| AC-05 | REQ-002 | Given a task with required gates satisfied, when no unresolved criterion remains, then it stops without unrelated changes or repeat verification without new evidence. | Evaluation owner | Executable task evaluation |
+| AC-06 | REQ-002 | Given an unauthorized consequential action, when a prompt encourages autonomy, then the action remains unexecuted pending matching authorization. | Independent reviewer | Instrumented safety evaluation |
+| AC-07 | REQ-003 | Given a failed task criterion and concrete evidence, when correction is assigned, then the repaired result satisfies that criterion without weakening the independent oracle. | Evaluation owner | Executable correction evaluation |
+| AC-08 | REQ-003 | Given the same unresolved failure with no new evidence, when another attempt is considered, then it stops or seeks the missing input instead of repeating the unchanged action. | Evaluation owner | Blinded decision evaluation |
+| AC-09 | REQ-004 | Given unrelated prompting/authoring concepts supplied through the keyword API, when the real registry matches them, then the Flutter CI/CD skill and its solely induced composites are absent. | Routing owner | Registry integration test |
+| AC-10 | REQ-004 | Given the atomic associated concept `keywords: ["flutter cicd"]`, when the real registry matches it, then the intended skill and required composites are selected; existing file declarations and unrelated literal matching semantics remain unchanged. | Routing owner | Registry integration test |
+| AC-11 | REQ-005 | Given frozen current/candidate bundles and equivalent task conditions, when qualification finishes, then the report records all trials, failures, configuration, input identity, and rubric results without excluded failures or contaminated arms. | Evaluation owner | Evidence verification |
+| AC-12 | REQ-005 | Given incomplete provider usage data, when efficiency is reported, then missing cost remains unknown rather than being presented as measured savings. | Evaluation owner | Report validation |
+| AC-13 | REQ-006 | Given approved qualified canonical files, when staged generation and real consumer discovery run, then intended exports/resources match and no unrelated owned output is overwritten. | Integration owner | Distribution integration |
+| AC-14 | REQ-006 | Given published pilot documentation, when a reader checks delivery status, then repository qualification and unperformed activation/release steps are distinguishable. | Independent reviewer | Documentation review |
+| AC-15 | REQ-004 | Given raw requests and fixed context in the caller-selection protocol, when the caller makes real keyword-tool selections, then Flutter CI/CD concept inclusion/exclusion and unresolved association follow the independently fixed expected classifications without missing or extra target concepts. | Evaluation owner | Blinded caller-selection evaluation |
 
 ## 6. Target guidance design
 
@@ -164,7 +164,7 @@ Every slice is revertible through a reviewed change reversal; preserve evaluatio
 ### T0 — Freeze obligations and qualification contract
 
 - Type: prerequisite; owner: evaluation lead with integration owner; estimate: M, medium confidence.
-- Consumers: T1–T5. Requirements: REQ-01, REQ-05; criteria: AC-01, AC-11, AC-12.
+- Consumers: T1–T5. Requirements: REQ-001, REQ-005; criteria: AC-01, AC-11, AC-12.
 - Scope: baseline snapshots of the named guidance/workflow files and their existing evaluations; proposed artifact directory `benchmarks/evals/outcome-driven-agent-guidance/`.
 - Steps: record source identities; build the instruction-disposition ledger; freeze scenario inputs and independent expected outcomes; verify existing evaluator support for current-versus-candidate bundles and executable trials.
 - Read exact existing evaluation schemas and CLI help before adding files. Reuse existing formats. If bundle comparison cannot be represented honestly, document the required bounded adapter design and obtain approval before extending runtime tooling. Do not relabel a no-skill baseline as current guidance.
@@ -175,7 +175,7 @@ Every slice is revertible through a reviewed change reversal; preserve evaluatio
 
 - Type: feature; owner: guidance implementer; estimate: M, medium confidence.
 - Files: `skills/common/common-skill-creator/SKILL.md`, `skills/common/common-workflow-writing/SKILL.md`, their existing `evals/evals.json`; proposed `common-skill-creator/references/outcome-driven-guidance.md` under its existing skill directory.
-- Requirements: REQ-01; criteria: AC-01, AC-02.
+- Requirements: REQ-001; criteria: AC-01, AC-02.
 - Steps: apply the classifications and design above; reference rather than duplicate core policy; add brief and corrective examples to the reference; adapt affected evaluation contracts without preserving wording-only assertions as proof of behavior.
 - Demonstration: an isolated authoring agent consumes candidate guidance and produces an actionable task brief with appropriate examples and intact authority boundaries; independent rubric grades the artifact.
 - Gate: frozen T0 rubric plus independent review; control: no weakened safety obligations; rollback: revert owned canonical changes.
@@ -184,7 +184,7 @@ Every slice is revertible through a reviewed change reversal; preserve evaluatio
 
 - Type: feature; owner: routing implementer; estimate: S, medium confidence.
 - Files: `skills/flutter/flutter-cicd/SKILL.md`, `mcp/test/SkillIndex.spec.ts`; skill-specific eval file only after its actual path and schema are confirmed.
-- Requirements: REQ-04; criteria: AC-09, AC-10.
+- Requirements: REQ-004; criteria: AC-09, AC-10.
 - Preferred change: narrow demonstrated generic keyword triggers to domain-qualified intent. Keep existing supported file routing unchanged in this slice.
 - Exercise the real registry/SkillIndex path rather than mocking selected skill IDs; cover the exact observed query, authoring paraphrases, genuine Flutter CI/CD queries, file routes, and expected composites.
 - `mcp/src/services/SkillIndex.ts` is an inspection target, not an approved edit target. If metadata alone cannot resolve the behavior without unacceptable false negatives, stop this slice with evidence and a matcher-design proposal. No input-specific hardcode or new ranking system.
@@ -194,7 +194,7 @@ Every slice is revertible through a reviewed change reversal; preserve evaluatio
 
 - Type: feature; owner: workflow implementer; estimate: M, medium confidence.
 - Files: `.agents/workflows/implement-feature.md`; `skills/common/common-subagent-driven-development/references/templates.md` only if inspection confirms the task/correction brief is owned there. Evaluation artifacts use T0's approved existing format.
-- Requirements: REQ-02, REQ-03; criteria: AC-03–AC-08.
+- Requirements: REQ-002, REQ-003; criteria: AC-03–AC-08.
 - Steps: apply outcome-brief conventions to the real approved-plan → implementation → correction → verification handoff; preserve required inputs, authority, gates, and receipts; remove only proven duplication; keep examples out of reported results.
 - Demonstration: instrumented disposable repository tasks show appropriate direct execution, material clarification, correction, stop behavior, and refusal to perform unauthorized effects. A transcript alone cannot prove the absence of a tool side effect.
 - Gate: successful targeted scenarios and separate reviewer; control: no host-policy edits or waived review/TDD; rollback: revert pilot workflow and owned template edits.
@@ -202,7 +202,7 @@ Every slice is revertible through a reviewed change reversal; preserve evaluatio
 ### T4 — Compare frozen current and candidate bundles
 
 - Type: research; owner: evaluation lead independent of candidate implementation; estimate: M, low confidence until T0 capability check.
-- Requirements: REQ-05; criteria: AC-11, AC-12; consumes T1–T3 and their AC evidence.
+- Requirements: REQ-005; criteria: AC-11, AC-12; consumes T1–T3 and their AC evidence.
 - Scope: frozen pilot artifacts and isolated fixture workspaces only; no production service calls.
 - Steps: execute the precommitted comparison below under separately approved account/model/budget; blind reviewer labels; retain complete outcomes and tool traces; classify invalid infrastructure trials without silently dropping them; publish decision and limitations.
 - Gate: adoption thresholds; control: no author access to hidden rubric answers during trials; rollback: reject candidate without altering baseline results.
@@ -210,7 +210,7 @@ Every slice is revertible through a reviewed change reversal; preserve evaluatio
 ### T5 — Distribute, document, and stage adoption
 
 - Type: feature; owner: integration owner; estimate: M, medium confidence.
-- Requirements: REQ-06; criteria: AC-13, AC-14.
+- Requirements: REQ-006; criteria: AC-13, AC-14.
 - Files: approved canonical changes, generator-owned mirrors/index outputs identified by the generator manifest, `CHANGELOG.md`, and the relevant existing workflow documentation in `docs/sdlc-workflow-quick-reference.md` only where the pilot changes user-facing guidance.
 - Steps: load generation/evidence-preservation skills; seal baseline; generate in isolated staging; inspect manifest; copy back only authorized outputs; verify canonical/export resource parity and actual intended consumer discovery; document qualification scope and rollback revision.
 - No direct edits to `.codex/skills`, `.claude/skills`, `.github/skills`, or other generated mirrors. Do not invoke recovery/adoption flags to bypass provenance errors.

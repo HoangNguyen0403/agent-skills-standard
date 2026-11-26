@@ -25,7 +25,7 @@ Impact if wrong: irrelevant/missed skill delivery; contaminated comparisons; pri
 
 ## Trace and existing baseline
 
-REQ-04 / AC-09–10 govern routing. REQ-05 / AC-02–08, AC-11–12 govern the qualification inputs and evidence. REQ-06 / AC-13–14 governs later distribution/status. The definitions remain in the PRD; this document does not narrow them to current passing cases.
+REQ-004 / AC-09–10 govern routing. REQ-005 / AC-02–08, AC-11–12 govern the qualification inputs and evidence. REQ-006 / AC-13–14 governs later distribution/status. The definitions remain in the PRD; this document does not narrow them to current passing cases.
 
 Retained source/evidence: `benchmarks/evals/outcome-driven-agent-guidance/baseline/manifest.json`, `t0-review.md`, `t2-review.md`, `design-review.md`, `parent-verification.md`, `runtime-design-proposal.md`.
 
@@ -42,7 +42,7 @@ Existing public interfaces keep their semantics until a reviewed explicit delta 
 
 ### SRS-001 — Routing representation preserves intent boundaries
 
-- Source: REQ-04, AC-09–10, AC-15. Priority: Must. Status: Approved for normalized retrieval source implementation; caller qualification pending.
+- Source: REQ-004, AC-09–10, AC-15. Priority: Must. Status: Approved for normalized retrieval source implementation; caller qualification pending.
 - Behavior: callers supply the associated concept as `keywords: ["flutter cicd"]`; the real index retrieves Flutter CI/CD with composites while unrelated concepts do not trigger it. Raw-request association is separately evaluated under the caller-selection protocol, not implemented by phrase enumeration, split-token joining or a semantic matcher.
 - Failure: if association cannot be inferred under that contract, report the limitation; do not silently claim broad semantic recall or narrow AC-10 to observed positives. Literal keyword matching for other skills is unchanged. Canonical retrieval tests alone never prove caller association; qualification follows the separate frozen caller-selection protocol.
 - Security/compatibility: selection never grants tool authority. No parser, schema or ranking change is proposed; existing literal matching for unrelated skills remains unchanged.
@@ -50,7 +50,7 @@ Existing public interfaces keep their semantics until a reviewed explicit delta 
 
 ### SRS-002 — Frozen bundles are delivered without oracle exposure
 
-- Source: REQ-05, AC-11. Priority: Must. Status: Draft.
+- Source: REQ-005, AC-11. Priority: Must. Status: Draft.
 - Behavior: current/candidate bundles have ordered allowlisted resource paths, byte counts/digests and a fixed source identity. Every trial records what was delivered separately from observed loads, under identical discovery rules.
 - Failure: missing/different bytes or incomplete load coverage prevents a qualified comparison. Bundles exclude answer transcripts, hidden rubric/oracle material, expected-observation manifests and unrelated repository resources.
 - Security: worker has no write access to evidence, grant, hidden oracle or sibling trial state. Predeclare which loads must be observed; an intentionally unopened on-demand reference is not a missing load. Missing capture for an actual or required load invalidates that coverage claim.
@@ -58,7 +58,7 @@ Existing public interfaces keep their semantics until a reviewed explicit delta 
 
 ### SRS-003 — Tool execution has a proved host boundary
 
-- Source: REQ-02, REQ-05, AC-03, AC-05–07, AC-11. Priority: Must. Status: Blocked on host mechanism.
+- Source: REQ-002, REQ-005, AC-03, AC-04, AC-05–07, AC-11. Priority: Must. Status: Blocked on host mechanism.
 - Behavior: an explicitly approved mechanism confines actual worker tools to the trial fixture; provider calls/credentials belong to a host-mediated route unavailable to worker code. Worker-tool egress is separately restricted and observed. Only scope-authorized effects are possible.
 - Failure: no launch if the necessary capabilities, provider route or resource grant are absent. Read-only flags, a working-directory setting, prompts and process-group controls cannot substitute for proof.
 - Security: no host policy changes, credential copying, broad shell execution or unreviewed new guest communications. Existing L3's no-channel invariant remains unchanged.
@@ -66,7 +66,7 @@ Existing public interfaces keep their semantics until a reviewed explicit delta 
 
 ### SRS-004 — Observations survive failure and cancellation
 
-- Source: REQ-05, AC-06–08, AC-11. Priority: Must. Status: Draft.
+- Source: REQ-005, AC-06–08, AC-07, AC-11. Priority: Must. Status: Draft.
 - Behavior: actual actions and independent expected/final state bind to trial/input/configuration identity. On timeout, cancellation or capture loss, stop owned execution, retain partial evidence and reconcile protected target state before replacement.
 - Failure: incomplete observation coverage yields unknown/infrastructure-invalid coverage status, never proof that no unauthorized effect occurred. A task failure cannot disappear through invalidity classification.
 - Security: evidence is written by the host observer, not supplied as a generated transcript by the model. Cleanup cannot erase the sole copy or affect unrelated processes.
@@ -74,7 +74,7 @@ Existing public interfaces keep their semantics until a reviewed explicit delta 
 
 ### SRS-005 — Qualification retains all attempts and honest usage
 
-- Source: REQ-05, AC-11–12. Priority: Must. Status: Draft.
+- Source: REQ-005, AC-11–12. Priority: Must. Status: Draft.
 - Behavior: predeclare 144 planned slots separately from the maximum launched-attempt count, repeat/replacement rules, model/profile/effort, order/blinding, resource caps and independent rubric. Count every launched task failure/timeout/incompletion; disclose justified infrastructure invalidity separately. Publish both all-attempt and valid-task success rates.
 - Failure: no launch or promotion with missing authorization; no after-results threshold changes or silent dropped arms. Unknown pricing/usage remains unknown; worker/reviewer actor costs must not be omitted from savings claims.
 - Security/compatibility: do not rename prompt-only as current-guidance baseline or treat textual checks as artifact/safety evidence. Existing evaluator reports remain readable unchanged.
@@ -82,7 +82,7 @@ Existing public interfaces keep their semantics until a reviewed explicit delta 
 
 ### SRS-006 — Promotion is independent of source acceptance
 
-- Source: REQ-06, AC-13–14. Priority: Must. Status: Draft.
+- Source: REQ-006, AC-13–14. Priority: Must. Status: Draft.
 - Behavior: only qualified approved canonical revisions enter staged generation/copyback. Preserve manifests and independently verify intended consumer discovery and parity. Record repository, activation, acceptance and release separately.
 - Failure: T4 blocked/inconclusive or a known acceptance regression holds T5. No handwritten mirrors or recovery flags to bypass ownership/provenance.
 - Security/compatibility: rollback is reviewed reversal of owned canonical/export changes while retaining evidence; no destructive worktree reset or broad cleanup.
