@@ -33,6 +33,21 @@ relationship IDs; treat changed captures as `review-needed`, not proof of runtim
 - [ ] Confirm that a stateless path may require no store or queue, and a flow view is optional when prose or a table answers the question.
 
 The validator checks shape, metadata, supported kinds, edges, and layout; it cannot judge transformations, authoritative ownership, freshness, lifecycle, or whether a flow is plausible.
+
+## Destination readability (review the actual consumption surface)
+
+- [ ] Name the intended destination before judging: deck slide, printed page, wiki/README
+      page, or a narrow browser viewport. A render that works only at the author's zoom is not verified.
+- [ ] Check both light and dark themes at normal reading size on the intended destination.
+- [ ] Check the narrow viewport and the print/PDF projection separately; both can collapse
+      margins or clip the title block that looked fine full-screen.
+- [ ] When labels stop being legible at the destination, split the view or move detail to a
+      second view. Never shrink labels or boxes to force everything onto one page.
+- [ ] Open the offline package with images disabled: the semantic transcript must still show
+      node ids/labels/groups and relationship direction without relying on the raster.
+
+That last check is the destination's accessibility smoke, not a WCAG conformance claim.
+
 ## Judgement (yours)
 
 - [ ] **One question.** Can you state in a sentence what this diagram answers?

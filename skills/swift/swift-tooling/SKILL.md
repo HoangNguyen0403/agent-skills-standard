@@ -20,6 +20,7 @@ metadata:
 - **Package.swift**: Define clear targets, products, and dependencies.
 - **Modularization**: Break large projects into local packages for faster builds.
 - **Versioning**: Use semantic versioning (Major.Minor.Patch) for shared packages.
+- **Compatibility Preflight**: Keep four contracts separate — compiler version, Swift language mode (`-swift-version` 5/6 and strict-concurrency settings), SDK/Xcode version, and deployment targets (per-API availability). `swift-tools-version` is not a fifth "manifest-only" knob: in SwiftPM, tools-version **6.0+ makes Swift 6 language mode the default for the package's targets** (override with `swiftLanguageModes` or `.swiftLanguageMode` per target), so bumping it silently enables full concurrency checking. Xcode targets use `SWIFT_VERSION` instead. Swift 6.4-only syntax needs a 6.4 compiler and matching SDK — see [6.4 gated features](../swift-language/references/swift-6.4-features.md).
 
 See [implementation examples](references/implementation.md) for Package.swift structure, SwiftLint config, and environment-specific code.
 

@@ -44,8 +44,11 @@ so diagrams stay identical across authors, repositories, and sessions.
    For self-contained offline delivery with coordinated light and dark themes, use
    `python3 scripts/export_html.py spec.json --output-dir docs/architecture/<slug>-package/ [--manifest view-manifest.json]`.
    See [offline export](references/offline-export.md).
-6. Inspect the exported image or static package at normal reading size; strict validation or zero exit
-   codes cannot prove labels and edges are legible or semantically correct. Fix the spec and re-export before handoff.
+6. Inspect the exported image or static package at normal reading size and at the intended
+   destination (slide, print, narrow viewport) in both themes; strict validation or zero exit
+   codes cannot prove labels and edges are legible or semantically correct. Fix the spec and
+   re-export before handoff. For an offline package, also confirm the semantic transcript still
+   exposes ids, grouping, and relationship direction when images are disabled.
 The JSON spec is the semantic source of truth; `.drawio` is the editable presentation and the
 image is a copy for a deck. Generated XML records its own baseline; regeneration protects
 manual edits by default. Use `--acknowledge-manual-edits` only after returning semantic changes to the spec.

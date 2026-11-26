@@ -38,12 +38,15 @@ metadata:
 analyzer:
   errors:
     todo: ignore
-    missing_required_param: error
+    # Omitted required named argument (diagnostic code in current analyzers)
+    missing_required_argument: error
 linter:
   rules:
     - prefer_single_quotes
     - unawaited_futures
 ```
+
+Older analyzers and third-party docs may show `missing_required_param`; use the diagnostic code your installed analyzer reports rather than assuming either key is universal. The behavior to enforce is: omitting a required named argument fails analysis, supplying it clears that diagnostic.
 
 ## Anti-Patterns
 

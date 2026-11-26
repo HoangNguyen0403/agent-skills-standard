@@ -18,16 +18,29 @@ func main() {
 
 ## Contextual Logging
 
-Extract TraceID from context and add to logs.
+Store request values with a private typed key and read them with the same accessor.
 
 ```go
-func (h *Handler) Handle(ctx context.Context) {
-    // Assuming context has values
-    logger := slog.With("trace_id", ctx.Value("trace_id"))
+type ctxKey string
 
-    logger.Info("Processing request", "user_id", 123)
+const traceIDKey ctxKey = "trace_id"
+
+func WithTraceID(ctx context.Context, id string) context.Context {
+    return context.WithValue(ctx, traceIDKey, id)
+}
+
+func TraceID(ctx context.Context) string {
+    id, _ := ctx.Value(traceIDKey).(string)
+    return id
+}
+
+func (h *Handler) Handle(ctx context.Context) {
+    logger := slog.With("trace_id", TraceID(ctx))
+    logger.InfoContext(ctx, "processing request", "user_id", 123)
 }
 ```
+
+Passing `ctx` to `InfoContext` does not add attributes by itself; handlers ignore context unless they are built to read these typed values. See [Custom Handler](#custom-handler) for that path.
 
 ## Custom Handler
 
@@ -56,7 +69,7 @@ func main() {
 // Per-request logging with correlation ID
 func handler(w http.ResponseWriter, r *http.Request) {
     reqLog := slog.With(
-        slog.String("traceId", r.Header.Get("X-Request-Id")),
+        slog.String("trace_id", r.Header.Get("X-Request-Id")),
         slog.String("method", r.Method),
         slog.String("path", r.URL.Path),
     )

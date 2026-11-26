@@ -50,6 +50,23 @@ The export tool operates under strict local security boundaries:
 - **PNG Validation**: Exported images are validated for the 8-byte PNG signature (`\x89PNG\r\n\x1a\n`) and positive IHDR dimensions. Any disguised SVG or HTML markup is rejected.
 - **Boundary Separation**: HTML CSP does not govern draw.io Desktop. Testing in a network-disabled environment is not proof of CSP enforcement or absence of egress attempts. Browser consumption and Desktop export must be evaluated as separate trust boundaries.
 
+## Semantic Transcript
+
+`index.html` also carries a plain-text **Semantic Transcript** derived from the canonical JSON,
+not from the rendered raster. It lists:
+
+- every node's `id`, label (with `sublabel`), `kind`, and group as its label plus canonical
+  group ID (`Production (east)`), with ungrouped nodes marked `no group`; group IDs stay
+  distinguishable even when labels repeat;
+- every relationship as `from` → `to` with its label and `style` (plus `cardinality` for ERD);
+- unresolved semantics: nodes and relationships without `documented`/`observed` confidence and
+  every `view.omissions` entry, listed instead of silently pruned.
+
+All values pass through HTML escaping; hostile labels remain literal text. The transcript makes
+the diagram's meaning inspectable when images are disabled or unreadable and is the text proof
+that source/target direction and grouping survived export. It is not a WCAG conformance claim
+and does not replace visual inspection.
+
 ## Manifest Binding
 
 When `--manifest MANIFEST.json` is provided:

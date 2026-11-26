@@ -19,9 +19,10 @@ metadata:
 ## Principles
 
 - **Structured Logging**: Use JSON or structured key-value attributes. Machine-readable and filterable.
-- **Strict Single-Log Boundary**: Log errors once where they are handled or translated at the boundary (service or handler level). **Never double-log** in repository, utility, or deep helper functions—wrap and return errors instead.
-- **Typed Context Keys**: Always use private typed keys (`type ctxKey string`) for storing and retrieving request-scoped logger attributes.
-- **Business Traceability vs PII Redaction**: Include non-sensitive business identifiers (e.g. tenant ID, organization code, order number) for traceability. Strictly redact credentials, API tokens, passwords, and sensitive PII.
+- **One Log Owner**: Each request, job, or CLI invocation has exactly one boundary that logs its failures—usually where the error is handled or translated. Choose it by responsibility, not a fixed layer. Deeper helpers wrap and return without logging.
+- **Typed Context Keys**: Use a private typed key (`type ctxKey string`) and an accessor for both storing and reading request-scoped values. Never mix string and typed keys for the same value.
+- **Context-Aware Logging**: Pass `ctx` to `InfoContext`/`ErrorContext`/`WarnContext`. Context alone does not add attributes unless the handler is built to read them; attach correlation IDs with `slog.With` from the typed accessor.
+- **Business Traceability vs PII Redaction**: Include only approved non-sensitive identifiers (e.g. tenant ID, organization code, order number). Strictly redact credentials, API tokens, passwords, and sensitive PII. Free-form and joined error text is not automatically scrubbed.
 - **Leveled Logging**: Debug, Info, Warn, Error.
 - **No `log.Fatal`**: Avoid terminating apps inside libraries. Return errors instead; only `main()` should handle process exit.
 
@@ -36,15 +37,16 @@ metadata:
 1. Initialize structured logger at startup in `main()` with standard JSON output.
 2. Inject request correlation IDs (TraceID, RequestID) via middleware using typed context keys.
 3. Pass logger via context (`logger.FromContext(ctx)`) or constructor injection.
-4. Log at the application boundary on error; wrap errors upstream without intermediate logging.
+4. Log once at the chosen owner; wrap errors in helpers without intermediate logging.
 
 See [slog setup and usage examples](references/slog-patterns.md)
 
 ## Anti-Patterns
 
-- **No Double-Logging**: Do not log an error in the repository/database helper AND log it again in the service/handler.
+- **No Double-Logging**: Do not log an error in a repository/database helper AND log it again at the owner.
+- **No log-and-rethrow into another logger**: If a boundary logs, do not pass the same failure to a layer that logs it again.
 - **No fmt.Println in production**: Use structured, leveled loggers.
-- **No Untyped Context Keys**: Avoid `context.WithValue(ctx, "logger", l)` with raw string keys.
+- **No Untyped Context Keys**: Avoid `context.WithValue(ctx, "logger", l)` and `ctx.Value("trace_id")` with raw string keys.
 - **No Secrets in Logs**: Redact bearer tokens, passwords, and sensitive personal info.
 - **No log.Fatal in libraries**: Return errors; only `main()` should call `os.Exit`.
 

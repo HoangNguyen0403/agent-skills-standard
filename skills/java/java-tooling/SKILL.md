@@ -23,7 +23,8 @@ metadata:
 
 ## Implementation Guidelines
 
-- **JDK Setup**: Use **`.sdkmanrc`** or **`.java-version`** to lock project to **LTS Support (17 or 21)**. Configure Gradle toolchain via `java { toolchain { languageVersion = JavaLanguageVersion.of(21) } }` for reproducible builds.
+- **JDK Setup**: Use **`.sdkmanrc`** or **`.java-version`** to lock the project to one JDK. LTS releases are **17, 21 and 25** (25 is the current LTS; 27 is non-LTS). Configure Gradle toolchain via `java { toolchain { languageVersion = JavaLanguageVersion.of(21) } }` for reproducible builds.
+- **Compatibility Preflight**: Before raising the language level or adding APIs, check the pinned JDK and vendor, toolchain/language level, preview flag policy (`--enable-preview` on compile **and** runtime), build plugins (Spring Boot, annotation processors, static analysis), and the deployed runtime image. A new JDK is not a reason to move a consumer.
 - **Maven & Wrapper**: Use **`pom.xml`** with **`<dependencyManagement>`**. ALWAYS use **`mvnw`** wrapper.
 - **Gradle & Catalog**: Prefer **`build.gradle.kts`** (Kotlin DSL) with **`libs.versions.toml`** (Version Catalog). Use **`gradlew`** wrapper.
 - **Formatting**: Enforce **Google Style Guide** using **`Spotless`** (`googleJavaFormat()` plugin) or **`Checkstyle`**.

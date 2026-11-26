@@ -124,6 +124,31 @@
           "value": "withTaskGroup"
         }
       ]
+    },
+    {
+      "id": 6,
+      "prompt": "I cancelled the parent task when the Swift view disappeared, but work started with Task { } keeps running. Why?",
+      "expected_output": "Task { } is unstructured: it inherits actor isolation, priority and task-local values, but it is not a child task, so parent cancellation does not cancel it and its errors do not propagate. Keep the Task handle and cancel it explicitly (onDisappear or an explicit teardown call), or use structured concurrency (async let, task group) so cancellation propagates by construction.",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Names the unstructured lifetime",
+          "type": "contains",
+          "value": "unstructured"
+        },
+        {
+          "id": "a2",
+          "description": "Requires owning the handle",
+          "type": "contains",
+          "value": "handle"
+        },
+        {
+          "id": "a3",
+          "description": "Offers the structured alternative",
+          "type": "contains_any",
+          "value": ["async let", "task group"]
+        }
+      ]
     }
   ],
   "should_not_trigger": [

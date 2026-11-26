@@ -37,10 +37,11 @@ src/
 
 - **Match Expressions**: Prefer **`match($status)`** over `switch` for value returns. It provides strict comparison and exhaustive by default.
 - **Default Case**: Use **`default => throw new InvalidArgumentException($status)`** to handle unknown states.
-- **Read-only**: Use **`public readonly string $name`** for properties set once at construction.
+- **Read-only**: Use **`public readonly string $name`** (8.1+) for properties that must not be modified after initialization. Readonly is not "constructor-only": 8.1–8.3 allow a write only from the declaring class scope, 8.4+ widens that to `protected(set)`, and 8.6 allows declaration defaults.
 - **Property Promotion**: Use **`public function __construct(public string $name) {}`** to reduce boilerplate.
 - **Named Arguments**: Call functions with **`name: 'John', age: 25`** to skip optional parameters.
-- **Flexible Types**: Use **Union types (`int|string`)** and **Intersection types (`Countable&Traversable`)**.
+- **Flexible Types**: Union types (`int|string`, 8.0). Intersection types take class/interface types only (`Countable&Traversable`, 8.1); `string&Countable` is invalid. Combine union with intersection only via DNF parentheses (`(Countable&Traversable)|null`, 8.2).
+- **Version Minima**: State the engine minimum before newer syntax: union types/`match`/promotion/named arguments 8.0; intersection/`readonly`/`never` 8.1; DNF types/`readonly` classes 8.2; readonly property defaults 8.6.
 
 ## Anti-Patterns
 

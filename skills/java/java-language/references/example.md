@@ -1,6 +1,6 @@
 # Java Language — Examples
 
-## Records + Pattern Matching (Java 21)
+## Records + Pattern Matching (Java 21+)
 
 ```java
 // Record: immutable DTO, no boilerplate
@@ -37,14 +37,64 @@ String message = switch (result) {
 };
 ```
 
-## Virtual Threads + Structured Concurrency (Java 21)
+## Virtual Threads (stable, Java 21+)
 
 ```java
-try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
-    var userTask = scope.fork(() -> userService.findById(userId));
-    var ordersTask = scope.fork(() -> orderService.findByUser(userId));
-    scope.join().throwIfFailed();
+// Stable since Java 21: take completions in arrival order, so a failure in either call is
+// observed immediately; cancel unfinished siblings (interrupt) and rethrow.
+@SuppressWarnings("unchecked") // the completion service erases the List<Order> type
+DashboardData load(String userId) throws InterruptedException, ExecutionException {
+    try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+        var completion = new ExecutorCompletionService<Object>(executor);
+        Future<Object> userTask = completion.submit(() -> userService.findById(userId));
+        Future<Object> ordersTask = completion.submit(() -> orderService.findByUser(userId));
 
+        for (int i = 0; i < 2; i++) {
+            try {
+                completion.take().get();   // returns on the first finished task, success or failure
+            } catch (ExecutionException | InterruptedException e) {
+                userTask.cancel(true);     // interrupt the outstanding sibling
+                ordersTask.cancel(true);
+                throw e;                   // interruption still reaches the caller
+            }
+        }
+        return new DashboardData((User) userTask.get(), (List<Order>) ordersTask.get());
+    }
+}
+```
+
+## Text Blocks (Java 15+)
+
+```java
+// The opening """ must be followed by a line terminator;
+// the closing delimiter position controls incidental indentation.
+String sql = """
+    SELECT id, name
+    FROM users
+    WHERE active = true
+    """;
+
+String json = """
+    {"id": "%s", "active": true}
+    """.formatted(userId);
+```
+
+## StructuredTaskScope (preview only — JDK 21 shape)
+
+```java
+// PREVIEW: requires an exact JDK pin plus --enable-preview for both compilation and runtime.
+// This is the JDK 21 preview API; later previews changed the types and method shapes.
+import java.util.concurrent.StructuredTaskScope;
+import java.util.concurrent.StructuredTaskScope.Subtask;
+
+try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
+    Subtask<User> userTask = scope.fork(() -> userService.findById(userId));
+    Subtask<List<Order>> ordersTask = scope.fork(() -> orderService.findByUser(userId));
+    // join() returns when all tasks finish or the scope has shut down;
+    // in ShutdownOnFailure a failing task has already initiated that shutdown.
+    scope.join();          // throws InterruptedException
+    // throwIfFailed() reports the recorded failure; cancellation already happened.
+    scope.throwIfFailed(); // throws ExecutionException
     return new DashboardData(userTask.get(), ordersTask.get());
 }
 ```

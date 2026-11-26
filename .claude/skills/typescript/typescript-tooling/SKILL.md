@@ -42,13 +42,18 @@ See [reference](references/REFERENCE.md) for common linting issues (request typi
 
 After editing any `.ts` / `.tsx` file:
 
-1. Call `getDiagnostics` (typescript-lsp MCP tool) — surfaces type errors in real time.
-2. Run `tsc --noEmit` in CI — catches project-wide errors LSP may miss.
+1. Prefer a TypeScript LSP `getDiagnostics` tool when the host provides one — real-time type errors.
+2. Run `tsc --noEmit` in CI — catches project-wide errors the editor may miss.
 3. Run `eslint --fix` — auto-fix formatting and lint violations.
 
-> **Fallback when typescript-lsp MCP unconfigured**: run `tsc --noEmit` directly.
+> **Without typescript-lsp MCP**: `tsc --noEmit` is the check; do not block on an unavailable tool.
 
-`getDiagnostics` fastest feedback loop. Use it before every commit on modified files. Use `getHover` to inspect inferred types, `getReferences` before renaming symbols.
+Use `getHover`/`getReferences` only when an LSP tool is actually configured.
+
+## Compiler Compatibility
+
+- Pin `typescript` in the lockfile; check `tsc --version` before adopting newer syntax.
+- TS 7 defaults differ (`strict` true, `module` `esnext`, `types` `[]`, `rootDir` `./`) and it ships no compiler API. A peer needing the API (`typescript-eslint`, plugins, custom transformers) must stay on TS 6, e.g. via the `@typescript/typescript6` alias — do not force the upgrade.
 
 ## Anti-Patterns
 

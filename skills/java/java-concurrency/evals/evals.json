@@ -4,25 +4,61 @@
     {
       "id": 1,
       "prompt": "I have a Java service that makes 3 API calls and I want them to run in parallel. What's the modern Java 21 way to do this?",
-      "expected_output": "Use StructuredTaskScope.ShutdownOnFailure(). Fork each call, scope.join().throwIfFailed(), then get results. Treats all tasks as a single logical unit with automatic cancellation on failure.",
+      "expected_output": "On a stock Java 21, virtual threads are the stable primitive: submit the calls to Executors.newVirtualThreadPerTaskExecutor(), collect the Futures, and cancel the siblings yourself if one fails. StructuredTaskScope is a preview API — it needs an exact JDK pin plus --enable-preview at compile and runtime, and its API changed between previews, so recommend it only when the project opts in.",
       "assertions": [
         {
           "id": "a1",
-          "description": "Uses StructuredTaskScope",
+          "description": "Recommends the stable virtual-thread lane",
           "type": "contains",
-          "value": "StructuredTaskScope"
+          "value": "Virtual Thread"
         },
         {
           "id": "a2",
-          "description": "Uses scope.fork()",
-          "type": "contains",
-          "value": "fork"
+          "description": "Pairs StructuredTaskScope with its preview status across a sentence",
+          "type": "regex",
+          "value": "StructuredTaskScope[\\s\\S]{0,120}preview"
         },
         {
           "id": "a3",
-          "description": "Calls join().throwIfFailed()",
-          "type": "contains",
-          "value": "join"
+          "description": "Requires the opt-in / enable-preview gate",
+          "type": "regex",
+          "value": "(--enable-preview|\\benable-preview\\b|\\bopt-in\\b|\\bopt in\\b|\\bopts in\\b)"
+        },
+        {
+          "id": "a4",
+          "description": "Rejects claiming the preview API is stable in Java 21",
+          "type": "not_contains",
+          "value": "StructuredTaskScope is stable in Java 21"
+        },
+        {
+          "id": "a5",
+          "description": "Rejects claiming it is the default API in Java 21",
+          "type": "not_contains",
+          "value": "StructuredTaskScope is the default in Java 21"
+        },
+        {
+          "id": "a6",
+          "description": "Rejects the inverted preview claim",
+          "type": "not_contains",
+          "value": "StructuredTaskScope is not preview"
+        },
+        {
+          "id": "a7",
+          "description": "Rejects 'no longer preview'",
+          "type": "not_contains",
+          "value": "no longer preview"
+        },
+        {
+          "id": "a8",
+          "description": "Rejects 'needs no opt-in'",
+          "type": "not_contains",
+          "value": "StructuredTaskScope needs no opt-in"
+        },
+        {
+          "id": "a9",
+          "description": "Rejects 'no need to opt in'",
+          "type": "not_contains",
+          "value": "no need to opt in"
         }
       ]
     },
@@ -54,7 +90,7 @@
     {
       "id": 3,
       "prompt": "I'm using synchronized blocks with blocking I/O inside a Java Virtual Thread app. My colleague says this is a problem. Why?",
-      "expected_output": "Blocking inside synchronized pins the carrier thread in Loom — defeats the purpose of virtual threads. Use ReentrantLock instead of synchronized when blocking I/O is needed inside a lock.",
+      "expected_output": "On JDK 21–23 a virtual thread that blocks inside a synchronized monitor pins its carrier thread, which defeats the point of virtual threads; JEP 491 in JDK 24 removes monitor pinning, so the same code is fine there. Use ReentrantLock when you need timed, interruptible or fair locking, and measure before claiming a performance problem.",
       "assertions": [
         {
           "id": "a1",
@@ -64,9 +100,9 @@
         },
         {
           "id": "a2",
-          "description": "Recommends ReentrantLock",
+          "description": "Distinguishes the JDK 24 change",
           "type": "contains",
-          "value": "ReentrantLock"
+          "value": "24"
         }
       ]
     }

@@ -30,9 +30,9 @@ metadata:
  - `let`: Null checks (`?.let`) or mapping (returns result).
  - `run`: Object configuration and mapping (returns result).
  - `with`: Grouping multiple method calls on object (returns result).
-- **Backing Properties**: Use `_state` (private mutable, e.g., `private val _state = MutableStateFlow(initial)`) exposed as `val state = _state.asStateFlow()` (public read-only). Pattern: `_prop` private, `prop` public.
+- **Backing Properties**: Use `_state` (private mutable, e.g., `private val _state = MutableStateFlow(initial)`) exposed as `val state = _state.asStateFlow()` (public read-only). Pattern: `_prop` private, `prop` public. On Kotlin 2.4+ an explicit backing field (`val state: StateFlow<…> field = MutableStateFlow(…)`) is a stable alternative — see [Kotlin 2.4 features](references/kotlin-2.4.md). Keep the `_prop` idiom for older `languageVersion`s.
 - **Collections**: Expose `List`/`Map` (read-only) publicly; keep `MutableList` internal.
-- **Error Handling**: Use `runCatching` for simple error handling over try/catch blocks.
+- **Error Handling**: Use `runCatching` for simple, non-suspending recovery over try/catch. In coroutines it also catches `CancellationException` — rethrow it before mapping a failure (see [kotlin-coroutines](../kotlin-coroutines/SKILL.md)).
 - **Visibility**: Default to `private` or `internal`. Minimize `public` surface area.
 - **Top-Level**: Prefer top-level functions/constants over implementation-less `object` singletons.
 
@@ -45,3 +45,4 @@ metadata:
 ## References
 
 - [Backing Property & Scope Function Examples](references/example.md)
+- [Kotlin 2.4 Gated Features](references/kotlin-2.4.md) — load only for 2.4+ projects

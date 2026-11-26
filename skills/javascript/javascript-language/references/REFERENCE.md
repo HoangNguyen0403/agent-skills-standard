@@ -22,12 +22,59 @@ class Service {
 }
 ```
 
-## Advanced patterns and functional programming techniques
+## Module Loaders
 
-## References
+Decide by the consumer, not by preference:
 
-- [**Functional Programming**](functional-programming.md) - Immutability and pure functions.
-- [**Promises & Async**](promises-async.md) - Advanced async patterns.
+| Existing artifact | Keep loading as | Do not |
+| --- | --- | --- |
+| `.cjs` file | CommonJS (`require`, `module.exports`) | Rename to `.mjs` or convert exports in place |
+| `.js` under `"type": "commonjs"` | CommonJS | Add `import`/`export` syntax |
+| `.js` under `"type": "module"` | ESM | Add `require`/`module.exports` |
+| `.mjs` file | ESM | — |
+
+```javascript
+// CommonJS module preserved for existing consumers
+const { readFile } = require('node:fs/promises');
+exports.loadConfig = (path) => readFile(path, 'utf8').then(JSON.parse);
+```
+
+New modules: use ESM with named exports when the package's `type` and Node floor allow it.
+
+```javascript
+import { readFile } from 'node:fs/promises';
+
+export async function loadConfig(path) {
+  const text = await readFile(path, 'utf8');
+  return JSON.parse(text);
+}
+```
+
+## Callback Interop (selective promisification)
+
+`util.promisify` requires a one-shot error-first callback as the **last** argument. It forwards `this`, so unbound receiver methods must be bound first.
+
+```javascript
+const { promisify } = require('node:util');
+
+// One-shot error-first callback: safe to promisify
+const readFileAsync = promisify(require('node:fs').readFile);
+
+// Receiver-dependent method: bind before promisifying
+class Repo {
+  #rows = [];
+  find(id, callback) { callback(null, this.#rows.find((r) => r.id === id)); }
+}
+const repo = new Repo();
+const findAsync = promisify(repo.find).bind(repo);
+
+// Non-standard callback shape: define promisify.custom
+function onEvent(name, onSuccess, onError) { /* ... */ }
+onEvent[promisify.custom] = (name) =>
+  new Promise((resolve, reject) => onEvent(name, resolve, reject));
+```
+
+Do **not** promisify: functions that already return a Promise (deprecated since Node 20.8.0), repeated-event callbacks (`on('data')`), synchronous callbacks, or signatures where the callback is not last. Use native Promise APIs, async iterators, or an explicit `new Promise` wrapper instead.
 
 ## Functional Programming Patterns
 

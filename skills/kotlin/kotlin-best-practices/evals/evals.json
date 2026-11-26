@@ -69,6 +69,55 @@
           "value": "MutableList"
         }
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "We are on Kotlin 1.9. Can I switch our ViewModel state to explicit backing fields so the mutable field stays private?",
+      "expected_output": "No — explicit backing fields are stable only from Kotlin 2.4. On 1.9 keep the backing property pattern: private _state plus val state = _state.asStateFlow(). Emit the field form only when the compiler and KGP are 2.4+, languageVersion and plugins agree, and the project opts in; languageVersion gates the syntax, not just the stdlib.",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Gates the feature at 2.4",
+          "type": "contains",
+          "value": "2.4"
+        },
+        {
+          "id": "a2",
+          "description": "Rejects the request without a false negation ('no problem', 'no need', 'no longer')",
+          "type": "regex",
+          "value": "\\b(no|not|cannot|can't)\\b(?![^.]{0,12}\\b(problem|issue|need|longer)\\b)[\\s\\S]{0,120}2\\.4"
+        },
+        {
+          "id": "a3",
+          "description": "Requires the existing backing property",
+          "type": "contains",
+          "value": "backing property"
+        },
+        {
+          "id": "a4",
+          "description": "Requires a gate on compiler/plugins/languageVersion before the 2.4 form",
+          "type": "regex",
+          "value": "2\\.4[\\s\\S]{0,160}(languageVersion|KGP|compiler|opt-in|opt in|opts in)"
+        },
+        {
+          "id": "a5",
+          "description": "Rejects claiming the syntax is available on a 1.9 consumer",
+          "type": "not_contains",
+          "value": "explicit backing fields are available in Kotlin 1.9"
+        },
+        {
+          "id": "a6",
+          "description": "Rejects claiming the syntax is stable on a 1.9 consumer",
+          "type": "not_contains",
+          "value": "explicit backing fields are stable in Kotlin 1.9"
+        },
+        {
+          "id": "a7",
+          "description": "Rejects the short-form 1.9 availability claim",
+          "type": "not_contains",
+          "value": "explicit backing fields are available in 1.9"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

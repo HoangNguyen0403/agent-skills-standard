@@ -22,22 +22,32 @@ class UserViewModel(
         viewModelScope.launch {
             _uiState.value = UiState.Loading
 
-            // withContext for main-safety
-            val result = runCatching {
-                withContext(dispatcher) {
-                    repo.fetchUser(userId)
-                }
-            }
-
-            result.onSuccess { user ->
+            try {
+                // withContext for main-safety
+                val user = withContext(dispatcher) { repo.fetchUser(userId) }
                 _uiState.value = UiState.Success(user)
-            }.onFailure { e ->
+            } catch (e: CancellationException) {
+                throw e // cancellation must stay observable to the scope
+            } catch (e: Exception) {
                 _uiState.value = UiState.Error(e.message ?: "Unknown Error")
             }
         }
     }
 }
 ```
+
+`runCatching` is fine only when cancellation is rethrown before mapping: `runCatching { ... }.onFailure { if (it is CancellationException) throw it }`. A `CoroutineExceptionHandler` sees uncaught failures of root `launch` coroutines only; it is not local recovery.
+
+## Cancellation Propagation with runCatching
+
+```kotlin
+suspend fun loadProfile(id: String): Profile? =
+    runCatching { repo.fetchProfile(id) }
+        .onFailure { if (it is CancellationException) throw it }  // cancellation stays observable
+        .getOrNull()                                              // genuine failure → null
+```
+
+`runCatching` collapses every non-cancellation failure into `Result`; prefer an explicit `try`/`catch` when you need to map exception types individually.
 
 ## Parallel Execution with Async
 

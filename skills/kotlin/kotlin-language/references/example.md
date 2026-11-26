@@ -44,6 +44,22 @@ private fun String.toSlug(): String =
 fun String?.orDefault(default: String) = this?.takeIf { it.isNotBlank() } ?: default
 ```
 
+## Multiline Strings
+
+```kotlin
+// Triple quotes; trimIndent() removes the common leading whitespace
+val query = """
+    SELECT id, name
+    FROM users
+    WHERE active = true
+    """.trimIndent()
+
+// trimMargin() for explicit margin control
+val json = """
+    |{"id": "$id", "active": true}
+    """.trimMargin()
+```
+
 ## data class for DTOs
 
 ```kotlin

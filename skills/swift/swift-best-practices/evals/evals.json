@@ -24,7 +24,7 @@
     {
       "id": 2,
       "prompt": "Should I use struct or class in Swift?",
-      "expected_output": "Default to struct for value semantics and thread safety. Use class only for reference identity or inheritance.",
+      "expected_output": "Default to struct for value semantics: independent copies and no accidental shared mutation. Value semantics are not thread safety — the struct is Sendable only if all stored properties are Sendable, and mutable value-typed properties such as var value: Int are fine because each copy owns them; a stored mutable class is shared, not automatically Sendable. Use class only for reference identity or inheritance.",
       "assertions": [
         {
           "type": "contains_any",

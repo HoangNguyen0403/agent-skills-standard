@@ -29,7 +29,7 @@
     {
       "id": 2,
       "prompt": "My team uses different Java versions locally and on CI. How do I lock the JDK version for my Java project?",
-      "expected_output": "Use a Gradle Java toolchain or .sdkmanrc file to declare the target JDK version (e.g., Java 21). The toolchain downloads the correct JDK automatically in Gradle. Use sdkman to enforce locally.",
+      "expected_output": "Use a Gradle Java toolchain or .sdkmanrc file to declare one LTS JDK version (17, 21 or 25). The toolchain downloads the correct JDK automatically in Gradle. Use sdkman to enforce it locally, and keep the compile toolchain, language level and runtime image on the same LTS.",
       "assertions": [
         {
           "id": "a1",
@@ -39,9 +39,9 @@
         },
         {
           "id": "a2",
-          "description": "Specifies Java version",
+          "description": "Specifies an LTS JDK",
           "type": "contains",
-          "value": "21"
+          "value": "LTS"
         }
       ]
     },

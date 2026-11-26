@@ -2,11 +2,18 @@
 
 Advanced type patterns and utility implementations.
 
-## References
+## Compatibility Matrix
 
-- [**Advanced Types**](advanced-types.md) - Conditional types, mapped types, and template literals.
-- [**Type Guards**](type-guards.md) - Custom type guard patterns.
-- [**Utility Types**](utility-types.md) - Custom utility type implementations.
+| Construct | Minimum | Check before use |
+| --- | --- | --- |
+| `satisfies` | TS 4.9 | locked compiler version |
+| `const` type parameters | TS 5.0 | locked compiler version |
+| `import type`/`export type` | TS 3.8 | — |
+| `verbatimModuleSyntax` | TS 5.0 | emit/module resolution |
+| TS 7 default changes (`strict`, `module`, `types`, `rootDir`) | TS 7.0 | per-project tsconfig overrides |
+| Programmatic compiler API (plugins, `typescript-eslint`, custom transformers) | TS ≤ 6 | TS 7.0 has no compiler API |
+
+Pin the compiler in the lockfile, not by range. A newer `typescript` release is not a reason to lift the project's runtime floor.
 
 ## Advanced Generic Patterns
 

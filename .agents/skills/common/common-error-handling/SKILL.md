@@ -26,16 +26,17 @@ metadata:
 
 ## Error Architecture
 
-- **API Layer**: Map domain errors to HTTP responses globally.
+- **API Layer**: Map domain errors to HTTP responses globally using the canonical [error envelope](references/api-error-contract.md).
 - **Domain Layer**: Throw pure business errors. NO HTTP status codes here.
 - **Infra Layer**: Wrap 3rd-party exceptions. NOT leak raw DB errors to API.
-- **Standard Shape**: APIs must return standardized JSON envelope:
+- **Standard Shape**: APIs return `{ "error": { "code", "message", "traceId", "details" } }`.
 
-See [implementation examples](references/implementation.md) for standard error response shape.
+See [implementation examples](references/implementation.md) for the standard error response shape.
 
 ## Error Mechanics
 
-- **Wrap**: Add context (`fmt.Errorf("process: %w", err)`, `new Error('msg', { cause })`).
+- **Wrap**: Add context that helps the caller; preserve the cause where callers must match it (`fmt.Errorf("process: %w", err)`, `new Error('msg', { cause })`). Direct propagation or boundary translation is valid when wrapping exposes internals or adds nothing.
+- **Log Once**: Choose one owner per failure—the layer that handles or translates the request/job/CLI. Log there; layers beneath propagate without logging. Log-and-rethrow is duplicate when the next boundary logs again.
 - **Replace**: Only when original error leaks sensitive details.
 - **Error Codes**: Use `SCREAMING_SNAKE_CASE` IDs (`ORDER_PAYMENT_FAILED`).
 
@@ -43,6 +44,7 @@ See [implementation examples](references/implementation.md) for standard error r
 
 - **Swallowing Errors**: Never `catch(e) {}` without logging or re-throwing.
 - Never silently ignore an error: an empty catch must become an explicit log, handling branch, returned error, or rethrow.
+- **Double Logging**: Do not log a failure in a helper and again at the boundary, nor log-and-rethrow into a boundary that logs again.
 - **Stack Traces**: Never expose stack traces in API responses.
 - **Generic 500s**: Use `400` with specific details for validation instead of 500.
 
@@ -51,4 +53,4 @@ See [implementation examples](references/implementation.md) for standard error r
 
 ## Failure-handling checklist
 
-- Never swallow errors: do not use an empty `catch` or silently ignore a failure. Log, wrap, rethrow, or map it deliberately at the correct boundary.
+- Never swallow errors: do not use an empty `catch` or silently ignore a failure. Log once at the owner, wrap or propagate beneath it, or map it deliberately at the correct boundary.

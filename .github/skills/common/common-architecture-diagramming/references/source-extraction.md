@@ -50,6 +50,26 @@ Anything you cannot map to a catalogue kind, raise rather than silently approxim
 Re-rendering discards manual layout done in the draw.io editor. Say so before overwriting
 a file someone has hand-tuned.
 
+### Import fidelity accounting
+
+An import is a bounded conversion, not a lossless claim. Before rendering, record what the
+source contained and what the spec now represents:
+
+- **Selected pages/layers/tabs.** Name the exact page(s) read; unselected pages are omissions,
+  not empty content.
+- **Source-to-spec identities.** Map each imported `mxCell`/row to its resulting node or edge
+  `id`, and list source artifacts that produced no node (title blocks, legends, notes).
+- **Direction and grouping.** Preserve `source`/`target` on every edge and the enclosing
+  group/boundary for every node. A reversed arrow or dropped frame is a fidelity defect, not a
+  cosmetic choice.
+- **Explicit omissions.** Record unsupported kinds, merged cells, collapsed containers, dangling
+  edges, and unlabeled relationships as `view.omissions` or in the handoff report. Never prune
+  them silently and never invent a replacement.
+
+If any of these cannot be determined, mark the affected node or relationship unresolved
+(no `documented` `evidence_confidence`) so the rendered artifact and the offline transcript
+surface it. Make no lossless-conversion claim.
+
 ## Naming
 
 Node ids are short, stable, lowercase slugs (`order`, `sap`, `web`). They appear in every

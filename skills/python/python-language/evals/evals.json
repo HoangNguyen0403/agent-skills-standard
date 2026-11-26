@@ -30,6 +30,44 @@
           "value": "Path"
         }
       ]
+    },
+    {
+      "id": 3,
+      "prompt": "Should I add `from __future__ import annotations` to a new module that only needs to run on Python 3.14?",
+      "expected_output": "Not required on 3.14+: annotations are deferred by default (PEP 649), and forward references no longer need string quoting. Keep the future import only for modules that must also run on 3.11–3.13 and need unevaluated forward references, and not where runtime annotation consumers (pydantic, get_type_hints, dataclass introspection) rely on the current eager or stringized behavior.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": ["PEP 649", "deferred"]
+        },
+        {
+          "type": "contains_any",
+          "value": ["3.11–3.13", "3.11-3.13", "3.13"]
+        },
+        {
+          "type": "contains_any",
+          "value": ["get_type_hints", "pydantic", "runtime annotation consumers"]
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Our service reads and writes UTF-8 JSON files. Python 3.15 changed the default encoding — what should we check?",
+      "expected_output": "Pass encoding explicitly on every text boundary: open(..., encoding=\"utf-8\"), Path.read_text(encoding=\"utf-8\"), Path.write_text(text, encoding=\"utf-8\"). Do not rely on the platform default, which stays locale-dependent on 3.11–3.14 and became UTF-8 only in 3.15.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "encoding"
+        },
+        {
+          "type": "contains_any",
+          "value": ["utf-8", "UTF-8"]
+        },
+        {
+          "type": "contains_any",
+          "value": ["read_text", "write_text", "open("]
+        }
+      ]
     }
   ],
   "should_not_trigger": [
