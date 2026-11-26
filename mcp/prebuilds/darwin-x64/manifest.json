@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "apiVersion": 1,
+  "napiVersion": 8,
+  "target": "darwin-x64",
+  "sourceSha256": "16f543081f72e230a5cfa25a98705997015a700f9faccaf4b7bafbb4b1417208",
+  "binarySha256": "76e0379e5fd246383a90c522c8347de31da0632e1de37c05c220d904fbbe1ba0",
+  "compiler": {
+    "name": "Apple clang",
+    "version": "17.0.0 (clang-1700.0.13.5)"
+  },
+  "sdk": {
+    "name": "macOS SDK",
+    "version": "15.5"
+  },
+  "compatibility": {
+    "minimumOsVersion": "10.15",
+    "minimumGlibcVersion": null,
+    "minimumKernelVersion": null
+  },
+  "buildFlags": [
+    "-std=c11",
+    "-O2",
+    "-fPIC",
+    "-bundle",
+    "-undefined",
+    "dynamic_lookup",
+    "-pthread",
+    "-mmacosx-version-min=10.15",
+    "-DNAPI_VERSION=8",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "arch=x64",
+    "sdk=15.5"
+  ]
+}

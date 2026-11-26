@@ -43,7 +43,7 @@
     {
       "id": 3,
       "prompt": "How do I make my Swift code more idiomatic?",
-      "expected_output": "Prefer compactMap, filter, or reduce for collection transformations; keep names clear; default to let unless mutation is required.",
+      "expected_output": "Prefer compactMap, filter, or reduce for collection transformations; use descriptive camelCase names per the Swift API Design Guidelines; default to let unless mutation is required.",
       "assertions": [
         {
           "type": "contains_any",
@@ -51,15 +51,11 @@
         },
         {
           "type": "contains_any",
-          "value": [
-            "descriptive camelCase",
-            "Swift API Design Guidelines",
-            "PascalCase"
-          ]
+          "value": ["descriptive camelCase", "Swift API Design Guidelines"]
         },
         {
           "type": "contains_any",
-          "value": ["Default to `let`", "prefer `let`", "let, structs"]
+          "value": ["default to let", "prefer let"]
         }
       ]
     },
@@ -70,7 +66,7 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["is`, `has`, or `can`", "isVerified", "hasPremiumAccess"]
+          "value": ["is, has, or can", "isValid", "isVerified"]
         },
         {
           "type": "contains_any",
@@ -78,7 +74,7 @@
         },
         {
           "type": "contains_any",
-          "value": ["canDelete", "canEdit"]
+          "value": ["canEdit"]
         }
       ]
     }
