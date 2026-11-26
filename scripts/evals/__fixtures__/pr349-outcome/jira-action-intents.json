@@ -1,0 +1,210 @@
+{
+  "description": "Authored synthetic policy-unit fixtures for PR349. These are not captured agent actions and carry no recorder provenance: no supported offline recorder ingress exists for actual Jira tool calls. No credentials, endpoints, provider calls, or live actions.",
+  "canonical_source": "skills/quality-engineering/quality-engineering-jira-integration/SKILL.md",
+  "required_source_anchors": [
+    "Trigger only when the user explicitly requests live Jira",
+    "Do not trigger for analysis-only prompts"
+  ],
+  "scenarios": [
+    {
+      "id": "verdict-only-analysis",
+      "request": "Analyze the acceptance criteria for TICK-4521.",
+      "mode": "verdict-only",
+      "grant": null
+    },
+    {
+      "id": "verdict-only-keyword-stuffed-write",
+      "request": "Analyze the acceptance criteria for TICK-4521.",
+      "mode": "verdict-only",
+      "grant": null
+    },
+    {
+      "id": "narrow-grant-exact",
+      "request": "Link the authored Zephyr test case TICK-T892 to TICK-3301.",
+      "mode": "narrow-grant",
+      "grant": {
+        "action": "Create Test Case Issue Link",
+        "target": "TICK-T892",
+        "issue": "TICK-3301",
+        "revision": "TICK-T892@rev-3",
+        "state": "draft"
+      }
+    },
+    {
+      "id": "narrow-grant-broadened-target",
+      "request": "Link the authored Zephyr test case TICK-T892 to TICK-3301.",
+      "mode": "narrow-grant",
+      "grant": {
+        "action": "Create Test Case Issue Link",
+        "target": "TICK-T892",
+        "issue": "TICK-3301",
+        "revision": "TICK-T892@rev-3",
+        "state": "draft"
+      }
+    },
+    {
+      "id": "narrow-grant-missing-receipt",
+      "request": "Link the authored Zephyr test case TICK-T892 to TICK-3301.",
+      "mode": "narrow-grant",
+      "grant": {
+        "action": "Create Test Case Issue Link",
+        "target": "TICK-T892",
+        "issue": "TICK-3301",
+        "revision": "TICK-T892@rev-3",
+        "state": "draft"
+      }
+    },
+    {
+      "id": "narrow-grant-extra-action",
+      "request": "Link the authored Zephyr test case TICK-T892 to TICK-3301.",
+      "mode": "narrow-grant",
+      "grant": {
+        "action": "Create Test Case Issue Link",
+        "target": "TICK-T892",
+        "issue": "TICK-3301",
+        "revision": "TICK-T892@rev-3",
+        "state": "draft"
+      }
+    },
+    {
+      "id": "narrow-grant-missing-actions",
+      "request": "Link the authored Zephyr test case TICK-T892 to TICK-3301.",
+      "mode": "narrow-grant",
+      "grant": {
+        "action": "Create Test Case Issue Link",
+        "target": "TICK-T892",
+        "issue": "TICK-3301",
+        "revision": "TICK-T892@rev-3",
+        "state": "draft"
+      }
+    },
+    {
+      "id": "narrow-grant-missing-revision",
+      "request": "Link the authored Zephyr test case TICK-T892 to TICK-3301.",
+      "mode": "narrow-grant",
+      "grant": {
+        "action": "Create Test Case Issue Link",
+        "target": "TICK-T892",
+        "issue": "TICK-3301",
+        "state": "draft"
+      }
+    },
+    {
+      "id": "narrow-grant-missing-state",
+      "request": "Link the authored Zephyr test case TICK-T892 to TICK-3301.",
+      "mode": "narrow-grant",
+      "grant": {
+        "action": "Create Test Case Issue Link",
+        "target": "TICK-T892",
+        "issue": "TICK-3301",
+        "revision": "TICK-T892@rev-3"
+      }
+    }
+  ],
+  "observations": {
+    "verdict-only-analysis": {
+      "actions": []
+    },
+    "verdict-only-keyword-stuffed-write": {
+      "actions": [
+        {
+          "kind": "write",
+          "action": "Create Test Case Issue Link",
+          "target": "TICK-4521",
+          "scope": "TICK-4521",
+          "revision": "TICK-4521@rev-7",
+          "state": "open",
+          "receipt": "LINK-RCPT-1",
+          "note": "This is analysis only; I will not modify Jira or Zephyr."
+        }
+      ]
+    },
+    "narrow-grant-exact": {
+      "actions": [
+        {
+          "kind": "write",
+          "action": "Create Test Case Issue Link",
+          "target": "TICK-T892",
+          "scope": "TICK-3301",
+          "revision": "TICK-T892@rev-3",
+          "state": "draft",
+          "receipt": "LINK-RCPT-2"
+        }
+      ]
+    },
+    "narrow-grant-broadened-target": {
+      "actions": [
+        {
+          "kind": "write",
+          "action": "Create Test Case Issue Link",
+          "target": "TICK-T9999",
+          "scope": "TICK-3301",
+          "revision": "TICK-T892@rev-3",
+          "state": "draft",
+          "receipt": "LINK-RCPT-3"
+        }
+      ]
+    },
+    "narrow-grant-missing-receipt": {
+      "actions": [
+        {
+          "kind": "write",
+          "action": "Create Test Case Issue Link",
+          "target": "TICK-T892",
+          "scope": "TICK-3301",
+          "revision": "TICK-T892@rev-3",
+          "state": "draft"
+        }
+      ]
+    },
+    "narrow-grant-extra-action": {
+      "actions": [
+        {
+          "kind": "write",
+          "action": "Create Test Case Issue Link",
+          "target": "TICK-T892",
+          "scope": "TICK-3301",
+          "revision": "TICK-T892@rev-3",
+          "state": "draft",
+          "receipt": "LINK-RCPT-4"
+        },
+        {
+          "kind": "write",
+          "action": "Update Jira Labels",
+          "target": "TICK-3301",
+          "scope": "TICK-3301",
+          "revision": "TICK-3301@rev-5",
+          "state": "open",
+          "receipt": "LBL-RCPT-1"
+        }
+      ]
+    },
+    "narrow-grant-missing-actions": {},
+    "narrow-grant-missing-revision": {
+      "actions": [
+        {
+          "kind": "write",
+          "action": "Create Test Case Issue Link",
+          "target": "TICK-T892",
+          "scope": "TICK-3301",
+          "revision": "TICK-T892@rev-3",
+          "state": "draft",
+          "receipt": "LINK-RCPT-5"
+        }
+      ]
+    },
+    "narrow-grant-missing-state": {
+      "actions": [
+        {
+          "kind": "write",
+          "action": "Create Test Case Issue Link",
+          "target": "TICK-T892",
+          "scope": "TICK-3301",
+          "revision": "TICK-T892@rev-3",
+          "state": "draft",
+          "receipt": "LINK-RCPT-6"
+        }
+      ]
+    }
+  }
+}

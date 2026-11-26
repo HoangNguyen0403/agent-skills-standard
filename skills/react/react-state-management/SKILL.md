@@ -35,21 +35,10 @@ metadata:
 > **Boundary note**: `hooks` skill covers primitive API usage (`useMemo`, `useCallback` rules). This skill covers _architectural_ state decisions — which tool to use for which state scope.
 
 ```tsx
-function LikeButton({
-  postId,
-  initialLiked,
-}: {
-  postId: string;
-  initialLiked: boolean;
-}) {
+function LikeButton({ postId, initialLiked }: { postId: string; initialLiked: boolean }) {
   const [optimisticLiked, setOptimisticLiked] = useOptimistic(initialLiked);
   return (
-    <button
-      onClick={async () => {
-        setOptimisticLiked(!optimisticLiked);
-        await toggleLike(postId);
-      }}
-    >
+    <button onClick={async () => { setOptimisticLiked(!optimisticLiked); await toggleLike(postId); }}>
       {optimisticLiked ? "Liked" : "Like"}
     </button>
   );

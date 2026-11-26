@@ -228,6 +228,21 @@ describe("SkillIndex", () => {
 describe("SkillIndex — repository trigger routing", () => {
   let registryIndex: SkillIndex;
 
+  // Stack-specific async runtimes. Each declares only stack-qualified async
+  // concepts, so a normalized stack concept selects its own runtime and no
+  // sibling stack. Bare async/await/promise are ambiguous across stacks and
+  // must not be declared by any of them.
+  const stackAsyncSkillIds = [
+    "dart-language",
+    "java-concurrency",
+    "javascript-language",
+    "kotlin-coroutines",
+    "php-concurrency",
+    "python-async-runtime",
+    "swift-concurrency",
+    "typescript-best-practices",
+  ];
+
   beforeAll(async () => {
     registryIndex = new SkillIndex(
       repositorySkillsDir,
@@ -303,6 +318,72 @@ describe("SkillIndex — repository trigger routing", () => {
       .map((match) => match.skill.id);
 
     expect(ids).not.toContain("swift-concurrency");
+  });
+
+  it("does not route bare async vocabulary to stack-specific runtimes", () => {
+    for (const concept of ["async", "await", "promise"]) {
+      const ids = registryIndex
+        .matchKeywords([concept])
+        .map((match) => match.skill.id);
+
+      for (const stackId of stackAsyncSkillIds) {
+        expect(ids, `${concept} → ${stackId}`).not.toContain(stackId);
+      }
+    }
+  });
+
+  it("routes a normalized stack async concept to exactly its own runtime", () => {
+    const cases: Array<[string, string]> = [
+      ["dart async", "dart-language"],
+      ["java async", "java-concurrency"],
+      ["javascript async", "javascript-language"],
+      ["javascript await", "javascript-language"],
+      ["javascript promise", "javascript-language"],
+      ["kotlin async", "kotlin-coroutines"],
+      ["php async", "php-concurrency"],
+      ["python async", "python-async-runtime"],
+      ["python await", "python-async-runtime"],
+      ["swift async", "swift-concurrency"],
+      ["swift await", "swift-concurrency"],
+      ["typescript async", "typescript-best-practices"],
+      ["typescript promise", "typescript-best-practices"],
+    ];
+
+    for (const [concept, expectedId] of cases) {
+      const ids = registryIndex
+        .matchKeywords([concept])
+        .map((match) => match.skill.id);
+
+      expect(ids, concept).toContain(expectedId);
+      for (const stackId of stackAsyncSkillIds) {
+        if (stackId !== expectedId) {
+          expect(ids, `${concept} → ${stackId}`).not.toContain(stackId);
+        }
+      }
+    }
+  });
+
+  it("keeps async runtime routing additive across contrasting stacks", () => {
+    const ids = registryIndex
+      .matchKeywords(["javascript async", "python async", "swift async"])
+      .map((match) => match.skill.id);
+
+    expect(ids).toContain("javascript-language");
+    expect(ids).toContain("python-async-runtime");
+    expect(ids).toContain("swift-concurrency");
+    expect(ids).not.toContain("kotlin-coroutines");
+    expect(ids).not.toContain("php-concurrency");
+  });
+
+  it("keeps file routing on the registered base-language skills only", () => {
+    const ids = registryIndex
+      .matchFiles(["src/worker.ts", "app/worker.py"])
+      .map((match) => match.skill.id);
+
+    expect(ids).toContain("typescript-language");
+    expect(ids).toContain("python-language");
+    expect(ids).not.toContain("typescript-best-practices");
+    expect(ids).not.toContain("python-async-runtime");
   });
 
   it("keeps a SwiftUI @State request on the SwiftUI skill", () => {

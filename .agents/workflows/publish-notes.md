@@ -13,6 +13,7 @@ Goal: Convert verified changes into accurate user-facing and internal release no
    - Product/store constraints, mobile platform/OS versions, and artifact build digest.
    - Product evidence contracts (`docs/product/<slug>/evidence.json`: measurement owner, MET baseline, instrumentation, guardrails).
    - Load `common-operator-profile`; carry inherited `operator_profile` without re-inferring.
+2. Classify the change to report:
    - User-facing change
    - Bug fix
    - Security or privacy note
@@ -51,11 +52,11 @@ Goal: Convert verified changes into accurate user-facing and internal release no
 ## Verification Source
 
 ## Outcome Report
-{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: publish-notes, feature_status: released, started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: retro-learn, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
+{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: publish-notes, feature_status: "[evidence-derived status]", started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: "[evidence-selected workflow or null]", cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
 
 ## Next Workflow
 
-retro-learn
+retro-learn | null when no lesson is actionable
 
 ## Cost Report
 Call `get_session_cost(workflow="publish-notes")` before final handoff.

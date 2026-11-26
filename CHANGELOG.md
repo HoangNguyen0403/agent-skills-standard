@@ -196,6 +196,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Workflow prompt audit**: `verify-bug` can finish with a verdict alone and requires scoped authorization and a fresh issue-state check for each Jira write. Workflow reports derive status and successors from evidence, and `sdlc-intake` aligns its machine and human routes. Async keyword aliases are stack-qualified; affected prompt budgets and NestJS reference links are repaired. Offline controls check selected decisions and skill artifacts; they do not establish live model behavior or captured Jira actions.
+
 - **Offline diagram export (`common-architecture-diagramming`)**: `export_html.py` now renders an escaped semantic transcript (node id/label/sublabel/kind/resolved group, `from → to` relationships with label/style/cardinality, and an unresolved/omitted list) inside the existing CSP-constrained `index.html`; import fidelity accounting and destination-readability checks are documented, and package contents (spec.json, light/dark drawio, raster-only HTML) are unchanged.
 - **API consumer contracts (`common` 2.9.9)**: Added representation boundaries, conditional reads and writes, retry identity, stable cursor ordering, object-level authorization, and compatible evolution guidance; corrected `403` terminology and RFC 9745 deprecation-header syntax.
 - **System-design contracts (`system-design` 1.2.8)**: Added concurrent-writer arbitration, bounded cache refill/waiter behavior and sizing, cross-category ownership routes, compliance intake, incident feedback, bounded delegated evidence, and review hooks. Candidate eval fixtures do not establish live model efficacy.

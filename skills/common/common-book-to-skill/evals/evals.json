@@ -1,0 +1,115 @@
+{
+  "skill_name": "common-book-to-skill",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Source rights: local reading and private notes are allowed; provider processing and public redistribution are undecided. The converter is MIT-licensed. Return exactly these lines, in order, then optionally one final `NOTES:` line:\nREAD: allowed|blocked\nPROVIDER: allowed|blocked|undecided\nREDISTRIBUTE: allowed|blocked|undecided",
+      "expected_output": "READ: allowed\nPROVIDER: undecided\nREDISTRIBUTE: undecided",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "^\\s*READ:[ \\t]*(?:allowed|blocked)[ \\t]*\\r?\\n[ \\t]*PROVIDER:[ \\t]*(?:allowed|blocked|undecided)[ \\t]*\\r?\\n[ \\t]*REDISTRIBUTE:[ \\t]*(?:allowed|blocked|undecided)(?:\\r?\\n[ \\t]*NOTES:[^\\r\\n]{0,300})?\\s*$"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*PROVIDER:[ \\t]*undecided[ \\t]*(?=\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*REDISTRIBUTE:[ \\t]*undecided[ \\t]*(?=\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*READ:[ \\t]*allowed[ \\t]*(?=\\r?\\n|$)"
+        }
+      ],
+      "evidence_tier": "finite-decision-contract"
+    },
+    {
+      "id": 2,
+      "prompt": "Handoff evidence: candidate hashes and anchors are verified; the appendix is reference-only; exactly one section was sampled for fidelity; publication rights are unresolved. Return exactly these lines, in order, then optionally one final `NOTES:` line:\nFIDELITY: accepted|limited|not_established\nPUBLICATION: allowed|blocked|undecided\nNEXT_ACTION: publish|hold",
+      "expected_output": "FIDELITY: limited\nPUBLICATION: undecided\nNEXT_ACTION: hold",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "^\\s*FIDELITY:[ \\t]*(?:accepted|limited|not_established)[ \\t]*\\r?\\n[ \\t]*PUBLICATION:[ \\t]*(?:allowed|blocked|undecided)[ \\t]*\\r?\\n[ \\t]*NEXT_ACTION:[ \\t]*(?:publish|hold)(?:\\r?\\n[ \\t]*NOTES:[^\\r\\n]{0,300})?\\s*$"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*FIDELITY:[ \\t]*limited[ \\t]*(?=\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*NEXT_ACTION:[ \\t]*hold[ \\t]*(?=\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*PUBLICATION:[ \\t]*undecided[ \\t]*(?=\\r?\\n|$)"
+        }
+      ],
+      "evidence_tier": "finite-decision-contract"
+    },
+    {
+      "id": 3,
+      "prompt": "Every page hash matches and all links resolve. Only one chapter was sampled for fidelity. Can I report complete semantic conversion?",
+      "expected_output": "No. Integrity is not fidelity approval; report limited sampling and any unresolved sections instead of complete semantic conversion.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": [
+            "integrity",
+            "hash"
+          ]
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "fidelity"
+          ]
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "sampl"
+          ]
+        }
+      ],
+      "evidence_tier": "text-transcript"
+    },
+    {
+      "id": 4,
+      "prompt": "The converter project is MIT-licensed. Does that let me redistribute the source book?",
+      "expected_output": "No. A converter's software license grants no rights to the source book; resolve redistribution separately.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": [
+            "software license",
+            "converter"
+          ]
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "redistribut"
+          ]
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "separately",
+            "source-book rights"
+          ]
+        }
+      ],
+      "evidence_tier": "text-transcript"
+    }
+  ],
+  "should_not_trigger": [
+    "Summarize this blog post for me.",
+    "Design a bookstore inventory schema."
+  ],
+  "should_trigger": [
+    "Convert this authorized book into a portable skill with rights scoping and fidelity checks."
+  ]
+}

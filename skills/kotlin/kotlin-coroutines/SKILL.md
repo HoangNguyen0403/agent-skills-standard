@@ -9,7 +9,7 @@ metadata:
     - suspend
     - CoroutineScope
     - launch
-    - async
+    - kotlin async
     - Flow
     - StateFlow
     - SharedFlow

@@ -104,6 +104,30 @@
           "value": "(?:^|\\r?\\n)[ \\t]*ACTION:[ \\t]*restore_independent_review[ \\t]*(?=\\r?\\n|$)"
         }
       ]
+    },
+    {
+      "id": 7,
+      "evidence_tier": "finite-decision-contract",
+      "prompt": "A candidate SKILL.md is 118 lines and contains one 16-line fenced code block in the body. Return exactly these lines, in order, then optionally one final `NOTES:` line:\nDECISION: accept|reject\nLIMIT: line_limit|block_limit|both|none\nACTION: extract|rewrite|none",
+      "expected_output": "DECISION: reject\nLIMIT: both\nACTION: extract",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "^\\s*DECISION:[ \\t]*(?:accept|reject)[ \\t]*\\r?\\n[ \\t]*LIMIT:[ \\t]*(?:line_limit|block_limit|both|none)[ \\t]*\\r?\\n[ \\t]*ACTION:[ \\t]*(?:extract|rewrite|none)(?:\\r?\\n[ \\t]*NOTES:[^\\r\\n]{0,300})?\\s*$"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*DECISION:[ \\t]*reject[ \\t]*(?=\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*LIMIT:[ \\t]*both[ \\t]*(?=\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)[ \\t]*ACTION:[ \\t]*extract[ \\t]*(?=\\r?\\n|$)"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

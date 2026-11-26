@@ -6,8 +6,8 @@ metadata:
     files:
     - '**/*.swift'
     keywords:
-    - async
-    - await
+    - swift async
+    - swift await
     - actor
     - Swift concurrency Task
     - Swift Task

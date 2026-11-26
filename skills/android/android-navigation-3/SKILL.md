@@ -33,17 +33,14 @@ Navigation 3 replaces the previous `NavHost`/`NavController` pattern with a simp
 
 ```kotlin
 val backStack = remember { mutableStateListOf<Any>(RouteHome) }
-
 NavDisplay(
     backStack = backStack,
     onBack = { backStack.removeLastOrNull() },
-    entryProvider = { key ->
-        when (key) {
-            is RouteHome -> NavEntry(key) { HomeScreen(onNavigate = { backStack.add(it) }) }
-            is RouteDetail -> NavEntry(key) { DetailScreen(key.id) }
-            else -> error("Unknown route: $key")
-        }
-    }
+    entryProvider = { key -> when (key) {
+        is RouteHome -> NavEntry(key) { HomeScreen(onNavigate = { backStack.add(it) }) }
+        is RouteDetail -> NavEntry(key) { DetailScreen(key.id) }
+        else -> error("Unknown route: $key")
+    } }
 )
 ```
 
