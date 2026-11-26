@@ -157,7 +157,11 @@ test("auditOptionalWorkflow: rejects corrupted Outcome Report block", async () =
 
 test("auditOptionalWorkflow: rejects missing required key in Outcome Report block", async () => {
   const content = await readWorkflow("discover-product");
-  const mutated = content.replace(/feature_status: requirements_ready,/, "");
+  const mutated = content.replace(
+    /^(## Outcome Report[ \t]*\r?\n[^\n]*?)\bfeature_status:\s*(?:"[^"]*"|'[^']*'|[^,\n]+),\s*/m,
+    "$1",
+  );
+  assert.notEqual(mutated, content, "Mutation must remove the required key");
   const issues = auditOptionalWorkflow("discover-product", mutated);
   assert.ok(
     issues.some((issue) => issue.includes('missing required key "feature_status"')),
