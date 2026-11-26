@@ -3044,16 +3044,26 @@ interface OwnedRetirementCandidate {
   /**
    * `export` authorizes an actual file deletion for an output produced by a
    * current generation target. `entry` only drops an already-absent shared
-   * canonical workflow record and never touches a file.
+   * canonical workflow record and never touches a file. `catalog` drops a
+   * prior-only workflow record whose canonical body and every recorded
+   * binding/conflict are verified absent under bounded selection authority.
    */
-  kind: "export" | "entry";
+  kind: "export" | "entry" | "catalog";
+  /** Workflow catalog key for `catalog` retirement. */
+  catalogName?: string;
+  /** Absent native binding/conflict paths guarded against concurrent creation. */
+  guardPaths?: string[];
 }
 
 interface ConfirmedRetirement {
   relPath: string;
   /** Digest of the file this run deletes; null when the destination was already absent. */
   deleteDigest: string | null;
-  kind: "export" | "entry";
+  kind: "export" | "entry" | "catalog";
+  /** Workflow catalog key for `catalog` retirement. */
+  catalogName?: string;
+  /** Verified-absent native paths guarded by a `catalog` retirement. */
+  guardPaths?: string[];
 }
 
 /**
@@ -3103,14 +3113,41 @@ async function selectedWorkflowNames(
 }
 
 /**
+ * Verifies that a repository-relative path is absent without following a
+ * symlink. Present regular files and unsafe path shapes are never treated as
+ * absence; symlink/non-file destinations fail closed.
+ */
+async function verifiedAbsentPath(
+  repoRoot: string,
+  relPath: string,
+): Promise<boolean> {
+  assertSafeDeclaredPath(relPath);
+  await assertNoSymlinksUnderRoot(repoRoot, path.join(repoRoot, relPath));
+  const stat = await fs
+    .lstat(path.join(repoRoot, relPath))
+    .catch((error: unknown) => {
+      if (errorCode(error) === "ENOENT") return null;
+      throw error;
+    });
+  if (!stat) return true;
+  if (stat.isSymbolicLink() || !stat.isFile()) {
+    throw new Error(
+      `Catalog retirement path "${relPath}" is not a regular file; refusing retirement.`,
+    );
+  }
+  return false;
+}
+
+/**
  * Bounds the CLI-owned outputs that the current plan no longer declares.
  * Deletion authority is limited to exports of the *current* generation
  * targets: an agent outside `plan.targetAgents` may own an unrelated active
  * file whose lifecycle this generator does not control, so it is preserved
  * with its ledger record. A shared canonical workflow body is never deleted;
- * only its already-absent ownership record may be dropped once the consumer
- * configuration stops selecting it. The final prune decision still belongs to
- * the real ownership lifecycle inside the isolated stage.
+ * only an already-absent catalog record with no retained binding or conflict
+ * may be dropped once the consumer configuration stops selecting it. The final
+ * prune decision still belongs to the real ownership lifecycle inside the
+ * isolated stage.
  */
 async function collectOwnedRetirementCandidates(
   repoRoot: string,
@@ -3175,6 +3212,45 @@ async function collectOwnedRetirementCandidates(
       kind: "export",
     });
   }
+
+  for (const [name, workflow] of Object.entries(
+    currentLock.workflowCatalog?.workflows ?? {},
+  ).sort(([left], [right]) => left.localeCompare(right))) {
+    if (workflowNames.includes(name)) continue;
+    if (
+      workflow.path !== path.posix.join(".agents", "workflows", `${name}.md`)
+    ) {
+      continue;
+    }
+    if (candidates.some((candidate) => candidate.relPath === workflow.path)) {
+      continue;
+    }
+    if (isOverriddenRel(workflow.path, overrides)) continue;
+    if (!(await verifiedAbsentPath(repoRoot, workflow.path))) continue;
+    const guardedPaths = [
+      ...workflow.nativeBindings.map((binding) => binding.path),
+      ...(workflow.nativeConflicts ?? []).map((conflict) => conflict.path),
+    ];
+    if (guardedPaths.some((relPath) => isOverriddenRel(relPath, overrides))) {
+      continue;
+    }
+    let retained = false;
+    for (const relPath of guardedPaths) {
+      if (!(await verifiedAbsentPath(repoRoot, relPath))) {
+        retained = true;
+        break;
+      }
+    }
+    if (retained) continue;
+    candidates.push({
+      relPath: workflow.path,
+      baselineDigest: null,
+      previousDigest: workflow.digest,
+      kind: "catalog",
+      catalogName: name,
+      guardPaths: guardedPaths,
+    });
+  }
   return candidates;
 }
 
@@ -3195,6 +3271,45 @@ async function confirmOwnedRetirements(
   const preserved: string[] = [];
   for (const candidate of candidates) {
     const { relPath } = candidate;
+    if (candidate.kind === "catalog") {
+      if (stagedLock?.workflowCatalog?.workflows?.[candidate.catalogName!]) {
+        preserved.push(relPath);
+        await appendLog(
+          `Preserved workflow catalog record "${candidate.catalogName}": the staged catalog still owns it.\n`,
+        );
+        continue;
+      }
+      let guardFailed = false;
+      for (const guardPath of candidate.guardPaths ?? []) {
+        if (
+          (await currentDestinationDigest(repoRoot, guardPath)) !== null ||
+          Boolean(stagedLock?.entries[guardPath])
+        ) {
+          guardFailed = true;
+          break;
+        }
+      }
+      if (guardFailed) {
+        preserved.push(relPath);
+        await appendLog(
+          `Preserved workflow catalog record "${candidate.catalogName}": a binding or conflict path reappeared or is still staged.\n`,
+        );
+        continue;
+      }
+      if ((await currentDestinationDigest(repoRoot, relPath)) !== null) {
+        throw new Error(
+          `Canonical workflow record "${relPath}" reappeared before catalog retirement.`,
+        );
+      }
+      confirmed.push({
+        relPath,
+        deleteDigest: null,
+        kind: "catalog",
+        catalogName: candidate.catalogName,
+        guardPaths: candidate.guardPaths,
+      });
+      continue;
+    }
     const stagedPresent = await fs.pathExists(path.join(stageRoot, relPath));
     const stagedStillOwned = Boolean(stagedLock?.entries[relPath]);
     if (stagedPresent || stagedStillOwned) {
@@ -3345,9 +3460,10 @@ async function verifiedStageCatalog(
 
 /**
  * Mirrors confirmed retirements into the workflow catalog without re-stamping
- * anything: a workflow entry is dropped only when its canonical body ownership
- * was retired in this run, and bindings for retired exports are removed.
- * Returns the previous catalog unchanged when nothing was retired.
+ * anything: a workflow entry is dropped only when its canonical body is gone
+ * from the staged workspace or owned exports were retired, and bindings for
+ * retired exports are removed. Returns the previous catalog unchanged when
+ * nothing was retired.
  */
 function reconcileRetiredWorkflowCatalog(
   previous: WorkflowCatalog | undefined,
@@ -4337,6 +4453,9 @@ export async function runIsolatedGeneration(
         candidate.relPath,
         candidate.baselineDigest,
       );
+      for (const guardPath of candidate.guardPaths ?? []) {
+        expectedDestinationDigests.set(guardPath, null);
+      }
     }
     const metadataDigest = baselineDigests.get("skills/metadata.json") ?? null;
     const metadataBaselineBytes =

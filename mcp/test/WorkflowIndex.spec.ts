@@ -48,6 +48,7 @@ describe("WorkflowIndex and Workflow Tools", () => {
     expect(wfs[1].description).toBe("Feature planning workflow");
   });
 
+
   it("reads workflow body correctly after frontmatter", async () => {
     const wfs = await scanWorkflows(root);
     const body = await readWorkflowBody(wfs[0].path);

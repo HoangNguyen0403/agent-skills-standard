@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "title": "Synthetic Task Evidence",
+  "tasks": [
+    {
+      "task_id": "task-init-01",
+      "summary": "Completed agent-skills-standard CLI setup and smoke run.",
+      "verified_at": "2026-09-02T12:00:00Z"
+    },
+    {
+      "task_id": "task-repeat-01",
+      "summary": "Completed secondary skill creation workflow on subsequent day.",
+      "verified_at": "2026-09-05T15:30:00Z"
+    }
+  ]
+}

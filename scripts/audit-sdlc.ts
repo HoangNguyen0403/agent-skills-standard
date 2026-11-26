@@ -19,7 +19,7 @@ const REQUIRED_WORKFLOWS = [...new Set(DEFAULT_WORKFLOWS)];
 const REQUIRED_REQUIREMENT_TERMS = ["BRD-lite", "PRD", "SRS/FRS"];
 const AGENTIC_RUNTIME_WORKFLOWS = [
   "sdlc",
-  "brainstorm-feature",
+  "sdlc-intake",
   "plan-feature",
   "system-design-session",
   "design-solution",
@@ -237,7 +237,8 @@ export function validateOptionalWorkflowReachability(
 // carry the key without register rules and are not required to declare it explicitly.
 const OPERATOR_FACING_WORKFLOWS = [
   "sdlc",
-  "brainstorm-feature",
+  "brainstorm",
+  "sdlc-intake",
   "plan-feature",
   "system-design-session",
   "verify-work",
@@ -273,11 +274,18 @@ const WORKFLOW_RULES: Record<string, WorkflowRule> = {
     requireOutputTemplate: true,
     notes: "Router must enumerate the full workflow graph incl. post-verify tail (uat-signoff, deploy-release, incident-hotfix, traceability-audit, session-report, retro-learn, codebase-review).",
   },
-  "brainstorm-feature": {
+  "sdlc-intake": {
     maxLines: 80,
     requireGoal: true,
     requireOutputTemplate: true,
     requireTemplateTokens: ["## Approval", "## Evidence", "approval:", "lane:"],
+  },
+  brainstorm: {
+    maxLines: 80,
+    requireGoal: true,
+    requireOutputTemplate: false,
+    notes:
+      "Standalone exploration: terminal without delivery state, run record, or automatic successor; excluded from the core SDLC chain.",
   },
   "plan-feature": {
     maxLines: 80,
@@ -414,7 +422,7 @@ const WORKFLOW_RULES: Record<string, WorkflowRule> = {
     requireGoal: true,
     requireOutputTemplate: true,
     notes:
-      "Proactive maintain-stage loop for control-band breaches and scheduled scan triage; routes to incident-hotfix, brainstorm-feature, or retro-learn rather than fixing in place.",
+      "Proactive maintain-stage loop for control-band breaches and scheduled scan triage; routes to incident-hotfix, sdlc-intake, or retro-learn rather than fixing in place.",
   },
 };
 

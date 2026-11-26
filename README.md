@@ -61,7 +61,7 @@ npx agent-skills-standard@latest sync
 ```
 
 > [!TIP]
-> **Published Version vs. Source Target**: The published `@latest` package may differ from source development (`2.7.4` in this repository checkout). Verify your installed build with `ags --version` and review [Release & PATH Notes](cli/README.md#release-and-path-notes). In supported CLI builds, use `ags skills` for interactive category management.
+> **Published Version vs. Source Target**: The published `@latest` package may differ from source development (`2.7.8` in this repository checkout). Verify your installed build with `ags --version` and review [Release & PATH Notes](cli/README.md#release-and-path-notes). In supported CLI builds, use `ags skills` for interactive category management.
 
 ---
 
@@ -114,7 +114,7 @@ Agent Skills Standard syncs native slash commands, prompts, and agent configurat
 
 | Stage | Workflow | Primary Output |
 | :--- | :--- | :--- |
-| **Route & Plan** | `sdlc`, `brainstorm-feature`, `plan-feature` | Direction briefs, PRDs, task slices |
+| **Explore, Route & Plan** | `brainstorm`, `sdlc`, `sdlc-intake`, `plan-feature` | Exploratory synthesis, direction briefs, PRDs, task slices |
 | **Design & Architecture** | `design-solution`, `review-system-design` | Architecture specs, contracts, ADRs |
 | **Readiness & Code** | `implementation-readiness`, `implement-feature`, `dev-fix` | Verified prerequisites, TDD implementation |
 | **Review & Security** | `code-review`, `security-test`, `pentest` | Security findings, review handoffs |

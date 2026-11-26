@@ -30,6 +30,65 @@ const CANONICAL_PLAN_FEATURE = '.agents/workflows/plan-feature.md';
 const CLAUDE_DEV_FIX = '.claude/commands/dev-fix.md';
 const CODEX_DEV_FIX = '.codex/skills/dev-fix/SKILL.md';
 
+const REPO_ROOT = path.resolve(__dirname, '../../../..');
+const PRIOR_WORKFLOW_FIXTURE = path.join(
+  __dirname,
+  'fixtures',
+  'brainstorm-feature.pre-refactor.md',
+);
+const PRIOR_WORKFLOW_SHA256 =
+  '68168c26fa1ab3faeb12626cff819240d78643643c67cbcb63153aa2b25633f6';
+
+/** Real candidate bytes from this checkout, not a placeholder fixture. */
+function repoWorkflow(name: string): string {
+  return fs.readFileSync(
+    path.join(REPO_ROOT, '.agents', 'workflows', `${name}.md`),
+    'utf8',
+  );
+}
+
+function repoDecisionDisciplineSkill(): CollectedSkill {
+  const packageRoot = path.join(
+    REPO_ROOT,
+    'skills',
+    'common',
+    'common-decision-discipline',
+  );
+  return {
+    category: 'common',
+    skill: 'common-decision-discipline',
+    files: ['SKILL.md', 'references/explore-facilitation.md'].map((name) => ({
+      name,
+      content: fs.readFileSync(path.join(packageRoot, name), 'utf8'),
+    })),
+  };
+}
+
+const BRAINSTORM_LAYOUTS = [
+  {
+    provider: Agent.Claude,
+    packagePath: '.claude/skills/common/common-decision-discipline',
+  },
+  {
+    provider: Agent.Codex,
+    packagePath: '.codex/skills/common/common-decision-discipline',
+  },
+  {
+    provider: Agent.Kiro,
+    packagePath: '.kiro/skills/common-common-decision-discipline',
+  },
+] as const;
+
+
+/** Checked-in predecessor bytes; no git history or network dependency. */
+function priorWorkflow(): string {
+  const content = fs.readFileSync(PRIOR_WORKFLOW_FIXTURE, 'utf8');
+  if (sha256(content) !== PRIOR_WORKFLOW_SHA256) {
+    throw new Error('predecessor workflow fixture digest mismatch');
+  }
+  return content;
+}
+
 function workflowFixture(name: string, content: string): CollectedSkill {
   return {
     category: '.agents',
@@ -132,6 +191,56 @@ describe('WorkflowCatalogInstall', () => {
     });
   });
 
+  it.each(BRAINSTORM_LAYOUTS)(
+    'installs the brainstorm workflow and facilitation resource for $provider',
+    async ({ provider, packagePath }) => {
+      const config = makeConfig({
+        agents: [provider],
+        skills: { common: { ref: 'common-v1' } },
+        workflows: ['brainstorm'],
+      });
+      const skill = repoDecisionDisciplineSkill();
+      const workflows = [workflowFixture('brainstorm', repoWorkflow('brainstorm'))];
+
+      await syncService.beginInstall(config, { dryRun: false, force: [] });
+      await syncService.writeSkills([skill], config);
+      await syncService.writeWorkflows(workflows, config);
+      await syncService.completeInstall(config, {
+        skills: [skill],
+        workflows,
+        specialistsOk: true,
+        workflowAcquisition: complete(workflows),
+      });
+
+      const installedWorkflow = await fs.readFile(
+        path.join(tempDir, '.agents/workflows/brainstorm.md'),
+        'utf8',
+      );
+      expect(installedWorkflow).toContain('references/explore-facilitation.md');
+      expect(installedWorkflow).toContain(
+        packagePath.endsWith('/common-common-decision-discipline')
+          ? 'common-common-decision-discipline'
+          : 'common/common-decision-discipline',
+      );
+      expect(
+        await fs.readFile(
+          path.join(tempDir, packagePath, 'references/explore-facilitation.md'),
+          'utf8',
+        ),
+      ).toBe(
+        fs.readFileSync(
+          path.join(
+            REPO_ROOT,
+            'skills/common/common-decision-discipline/references/explore-facilitation.md',
+          ),
+          'utf8',
+        ),
+      );
+      expect(await fs.pathExists(path.join(tempDir, 'skills'))).toBe(false);
+    },
+  );
+
+
   it('writes a shared canonical/native path once while recording every provider binding', async () => {
     const config = makeConfig({ agents: [Agent.Antigravity, Agent.Kiro] });
     const plan = await runSync(config, [devFix], complete([devFix]));
@@ -184,6 +293,139 @@ describe('WorkflowCatalogInstall', () => {
     expect(await fs.pathExists(path.join(tempDir, CANONICAL_DEV_FIX))).toBe(
       true,
     );
+  });
+
+  it('migrates a real prior default workflow set to sdlc-intake and brainstorm without retaining the retired command', async () => {
+    const provenance = await fs.readJson(
+      path.join(
+        __dirname,
+        'fixtures',
+        'brainstorm-feature.pre-refactor.provenance.json',
+      ),
+    );
+    expect(provenance).toMatchObject({
+      sourcePath: '.agents/workflows/brainstorm-feature.md',
+      sourceRevision: 'c679e0032fbebf4eed90db0f2fc4f52541a3f23d',
+      sha256: PRIOR_WORKFLOW_SHA256,
+    });
+    const oldCanonical = '.agents/workflows/brainstorm-feature.md';
+    const oldNative = '.claude/commands/brainstorm-feature.md';
+    const retired = workflowFixture('brainstorm-feature', priorWorkflow());
+    await runSync(
+      makeConfig({ workflows: ['brainstorm-feature'] }),
+      [retired],
+      complete([retired]),
+    );
+    expect(await fs.pathExists(path.join(tempDir, oldCanonical))).toBe(true);
+    expect(await fs.pathExists(path.join(tempDir, oldNative))).toBe(true);
+
+    // A consumer config can still name the retired workflow explicitly; the
+    // migrated defaults are added alongside it. Complete acquisition evidence
+    // of the retired body is the safe retirement signal, with no alias.
+    const sdlcIntake = workflowFixture(
+      'sdlc-intake',
+      repoWorkflow('sdlc-intake'),
+    );
+    const brainstorm = workflowFixture(
+      'brainstorm',
+      repoWorkflow('brainstorm'),
+    );
+    const migratedConfig = makeConfig({
+      workflows: ['brainstorm-feature', 'sdlc-intake', 'brainstorm'],
+    });
+    const plan = await runSync(
+      migratedConfig,
+      [sdlcIntake, brainstorm],
+      complete([sdlcIntake, brainstorm]),
+    );
+
+    expect(plan.pruned).toContain(oldCanonical);
+    expect(plan.pruned).toContain(oldNative);
+    expect(await fs.pathExists(path.join(tempDir, oldCanonical))).toBe(false);
+    expect(await fs.pathExists(path.join(tempDir, oldNative))).toBe(false);
+    expect(
+      await fs.readFile(
+        path.join(tempDir, '.agents/workflows/sdlc-intake.md'),
+        'utf8',
+      ),
+    ).toBe(repoWorkflow('sdlc-intake'));
+    expect(
+      await fs.readFile(
+        path.join(tempDir, '.agents/workflows/brainstorm.md'),
+        'utf8',
+      ),
+    ).toBe(repoWorkflow('brainstorm'));
+
+    const lock = await readLock();
+    expect(
+      lock.workflowCatalog.workflows['brainstorm-feature'],
+    ).toBeUndefined();
+    expect(lock.entries[oldCanonical]).toBeUndefined();
+    expect(lock.entries[oldNative]).toBeUndefined();
+    expect(lock.workflowCatalog.workflows['sdlc-intake'].digest).toBe(
+      sha256(repoWorkflow('sdlc-intake')),
+    );
+    expect(lock.workflowCatalog.workflows['brainstorm'].digest).toBe(
+      sha256(repoWorkflow('brainstorm')),
+    );
+  });
+
+  it('keeps edited retiring canonical and native exports with a visible conflict and no aligned catalog entry', async () => {
+    const oldCanonical = '.agents/workflows/brainstorm-feature.md';
+    const oldNative = '.claude/commands/brainstorm-feature.md';
+    const retired = workflowFixture('brainstorm-feature', priorWorkflow());
+    await runSync(
+      makeConfig({ workflows: ['brainstorm-feature'] }),
+      [retired],
+      complete([retired]),
+    );
+
+    await fs.writeFile(
+      path.join(tempDir, oldCanonical),
+      'user-edited retiring canonical',
+    );
+    await fs.writeFile(
+      path.join(tempDir, oldNative),
+      'user-edited retiring export',
+    );
+
+    const sdlcIntake = workflowFixture(
+      'sdlc-intake',
+      repoWorkflow('sdlc-intake'),
+    );
+    const brainstorm = workflowFixture(
+      'brainstorm',
+      repoWorkflow('brainstorm'),
+    );
+    const plan = await runSync(
+      makeConfig({ workflows: ['sdlc-intake', 'brainstorm'] }),
+      [sdlcIntake, brainstorm],
+      complete([sdlcIntake, brainstorm]),
+    );
+
+    expect(plan.keptOrphans).toContain(oldCanonical);
+    expect(plan.keptOrphans).toContain(oldNative);
+    expect(plan.pruned).not.toContain(oldCanonical);
+    expect(plan.pruned).not.toContain(oldNative);
+    expect(await fs.readFile(path.join(tempDir, oldCanonical), 'utf8')).toBe(
+      'user-edited retiring canonical',
+    );
+    expect(await fs.readFile(path.join(tempDir, oldNative), 'utf8')).toBe(
+      'user-edited retiring export',
+    );
+
+    const lock = await readLock();
+    expect(
+      lock.workflowCatalog.workflows['brainstorm-feature'],
+    ).toBeUndefined();
+    expect(lock.entries[oldCanonical]).toBeUndefined();
+    expect(lock.entries[oldNative]).toBeUndefined();
+    expect(
+      lock.workflowCatalog.workflows['sdlc-intake'].nativeBindings,
+    ).toHaveLength(1);
+    expect(
+      lock.workflowCatalog.workflows['brainstorm'].nativeBindings,
+    ).toHaveLength(1);
   });
 
   it('a deliberate empty selection prunes owned workflows', async () => {

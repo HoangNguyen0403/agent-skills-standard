@@ -21,9 +21,9 @@ npx agent-skills-standard@latest sync   # install skills
 ### Release and PATH Notes
 
 - **Published version:** Read it from the [npm package page](https://www.npmjs.com/package/agent-skills-standard) badge or your installed binary (`ags --version`). That is the version consumers get from `@latest`.
-- **Source target:** This checkout's CLI manifest (`cli/package.json`) is at `2.7.4` (see [CHANGELOG.md](../CHANGELOG.md)). A source version is a development target, not evidence that the same build is published to npm.
+- **Source target:** This checkout's CLI manifest (`cli/package.json`) is at `2.7.8` (see [CHANGELOG.md](../CHANGELOG.md)). A source version is a development target, not evidence that the same build is published to npm.
 - If `ags -V` still shows an older version after reinstalling, verify your shell's PATH order (e.g. `~/Library/pnpm` before `~/Library/pnpm/bin`), run `hash -r`, and verify with `ags -V` again.
-- **`ags skills` command availability:** `ags skills` exists in source (`cli-v2.7.0`+; `2.7.4` in this checkout) and is **not** available in every published release. The published `agent-skills-standard@2.6.6` package (installed from `@latest` during the 2026-11-03 verification) exposes `init`, `sync`, `verify`, and other commands, but no `skills` subcommand. Run `ags --help` against your installed build before relying on this step; if it is absent, edit `.skillsrc` directly.
+- **`ags skills` command availability:** `ags skills` exists in source (`cli-v2.7.0`+; `2.7.8` in this checkout) and is **not** available in every published release. The published `agent-skills-standard@2.6.6` package (installed from `@latest` during the 2026-11-03 verification) exposes `init`, `sync`, `verify`, and other commands, but no `skills` subcommand. Run `ags --help` against your installed build before relying on this step; if it is absent, edit `.skillsrc` directly.
 
 ---
 
@@ -178,7 +178,8 @@ custom_skills:
 # Workflows synced to native agent surfaces (.agents/workflows/, .codex/skills/, etc.)
 workflows:
   - sdlc
-  - brainstorm-feature
+  - brainstorm
+  - sdlc-intake
   - plan-feature
   - design-solution
   - implement-feature

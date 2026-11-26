@@ -73,7 +73,8 @@ export const DEFAULT_REGISTER =
 
 export const DEFAULT_WORKFLOWS = [
   'sdlc',
-  'brainstorm-feature',
+  'brainstorm',
+  'sdlc-intake',
   'code-review',
   'codebase-review',
   'system-design-session',

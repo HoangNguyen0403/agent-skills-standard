@@ -120,6 +120,28 @@ test("validateRunRecord rejects an unknown feature_status", () => {
   assert.ok(issues.some((issue) => issue.message.startsWith("feature_status must be one of")));
 });
 
+test("validateRunRecord keeps historical retired workflow identifiers readable without an active alias", () => {
+  const record = validRecord({
+    workflow: "brainstorm-feature",
+    recommended_next_workflow: "brainstorm-feature",
+  });
+  assert.deepEqual(validateRunRecord(record, "fixture.json"), []);
+  assert.equal(
+    fs.existsSync(path.join(__dirname, "..", "..", ".agents", "workflows", "brainstorm-feature.md")),
+    false,
+  );
+});
+
+test("validateRunRecord does not accept inherited object keys as historical workflow IDs", () => {
+  const record = validRecord({ recommended_next_workflow: "toString" });
+  const issues = validateRunRecord(record, "fixture.json");
+  assert.ok(
+    issues.some((issue) =>
+      issue.message.includes("does not name a file in .agents/workflows/"),
+    ),
+  );
+});
+
 test("validateRunRecord rejects recommended_next_workflow naming a non-existent workflow", () => {
   const record = validRecord({ recommended_next_workflow: "not-a-real-workflow" });
   const issues = validateRunRecord(record, "fixture.json");

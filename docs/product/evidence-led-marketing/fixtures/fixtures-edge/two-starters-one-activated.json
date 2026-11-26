@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "revision": "syn-edge-half-01",
+  "ledger": {
+    "path": "evidence.json",
+    "sha256": "68b3fb0520c91caf87b2700f95011e3ef258c0c98612d62b5beb3c76e6732517"
+  },
+  "campaign": {
+    "id": "standards-demo-01",
+    "context_revision": "camp-r1",
+    "assets": [
+      {
+        "id": "demo-01",
+        "revision": "v1",
+        "channel": "github"
+      }
+    ],
+    "acquisition_window": {
+      "start": "2026-09-01T00:00:00Z",
+      "end": "2026-10-01T00:00:00Z"
+    },
+    "cost_window": {
+      "start": "2026-09-01T00:00:00Z",
+      "end": "2026-10-01T00:00:00Z"
+    },
+    "owner": "campaign-owner",
+    "state": "prepared",
+    "authorization": null
+  },
+  "cohort": {
+    "source": {
+      "id": "SRC-001",
+      "revision": "r1"
+    },
+    "coverage_end": "2026-10-25T00:00:00Z",
+    "participants": [
+      {
+        "participant_key": "p1",
+        "role": "external",
+        "consent": "granted"
+      },
+      {
+        "participant_key": "p2",
+        "role": "external",
+        "consent": "granted"
+      }
+    ],
+    "reports": [
+      {
+        "report_id": "rep-s1",
+        "participant_key": "p1",
+        "kind": "starter",
+        "occurred_at": "2026-09-02T10:00:00Z",
+        "reported_at": "2026-09-02T10:00:00Z",
+        "task_ref": null
+      },
+      {
+        "report_id": "rep-a1",
+        "participant_key": "p1",
+        "kind": "activation",
+        "occurred_at": "2026-09-02T12:00:00Z",
+        "reported_at": "2026-09-02T12:00:00Z",
+        "task_ref": {
+          "id": "SRC-003",
+          "revision": "r1"
+        }
+      },
+      {
+        "report_id": "rep-s2",
+        "participant_key": "p2",
+        "kind": "starter",
+        "occurred_at": "2026-09-03T10:00:00Z",
+        "reported_at": "2026-09-03T10:00:00Z",
+        "task_ref": null
+      }
+    ]
+  },
+  "investment": null,
+  "sources": [
+    {
+      "ref": {
+        "id": "SRC-001",
+        "revision": "r1"
+      },
+      "path": "fixtures/synthetic-cohort-source.json",
+      "sha256": "163c0a827e7be8cfac5d3a0a72b9302f6d10c1a6515a1ce3a0a88527ed7b85ed"
+    },
+    {
+      "ref": {
+        "id": "SRC-003",
+        "revision": "r1"
+      },
+      "path": "fixtures/synthetic-task-evidence.json",
+      "sha256": "884e1156daf1594827d322a6bd66468d63c4ab09546b5cf27db1eb16070509f4"
+    }
+  ],
+  "metric_bindings": {
+    "activation": {
+      "id": "MET-001",
+      "revision": "r1"
+    },
+    "repeat_rate": {
+      "id": "MET-002",
+      "revision": "r1"
+    },
+    "cash_per_activation": {
+      "id": "MET-003",
+      "revision": "r1"
+    },
+    "cash_per_repeat": {
+      "id": "MET-004",
+      "revision": "r1"
+    },
+    "hours_per_repeat": {
+      "id": "MET-005",
+      "revision": "r1"
+    }
+  },
+  "limitations": [
+    "Two starters one activated edge fixture."
+  ],
+  "cost_mapping": null,
+  "public_projection": {
+    "campaign_id": "standards-demo-01",
+    "input_revision": "syn-edge-half-01",
+    "source_aliases": [
+      {
+        "ref": {
+          "id": "SRC-001",
+          "revision": "r1"
+        },
+        "alias": "cohort-origin"
+      },
+      {
+        "ref": {
+          "id": "SRC-003",
+          "revision": "r1"
+        },
+        "alias": "task-origin"
+      }
+    ]
+  }
+}

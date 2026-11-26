@@ -12,11 +12,13 @@ That's enough to start. You don't need to name a sponsor, a metric, a tech stack
 
 ## What happens next
 
-The agent runs `sdlc`, its built-in router, and walks the idea through a clear lifecycle:
+You can start by exploring or by asking for delivery directly. To riff, compare possibilities, or think out loud without committing to a brief, use `brainstorm`: it stays in chat, creates no delivery state, and can end with a parked idea. Only an explicit request to turn a direction into a delivery brief moves on to intake.
+
+For a delivery request, the agent runs `sdlc`, its built-in router, and walks the idea through a clear lifecycle:
 
 1. **Discover** (`discover-product`, optional / opt-in) — when you need to understand customer friction, market alternatives, and problem framing before committing to a feature.
 2. **Validate** (`validate-product`, optional / opt-in) — when an idea hinges on an unverified critical assumption; the agent designs a bounded experiment with predeclared stop rules, never exposing users or spending budget without your explicit host authorization.
-3. **Why** (`brainstorm-feature`) — a one-page brief on the business goal, measurable target, and what success looks like.
+3. **Why** (`sdlc-intake`) — a one-page brief on the business goal, measurable target, and what success looks like.
 4. **What** (`plan-feature`) — the feature scope, personas, and testable acceptance criteria you can react to.
 5. **Build & Verify** (`implement-feature`, `verify-work`) — the agent implements the feature with tests, proving it against fresh evidence before handoff.
 6. **Your Decision** (`uat-signoff`, `deploy-release`) — you review a plain-language walkthrough of delivered behavior and approve release to production.
@@ -34,7 +36,7 @@ At every step, technical detail (file paths, commands, framework choices) is kep
 
 Product discovery, validation, and value-review workflows are optional opt-in capabilities that rely on specialized packages (the opt-in skills in `product-management`, including `product-evidence`, and Node >= 20). If your workspace has not opted into those packages, the agent will never fake validation or get stuck:
 - It records a concrete capability gap in `missing_evidence` (e.g. `Capability gap: product-management/product-investment not installed; opt in at a reviewed ref and sync`).
-- It continues safely as an unvalidated proposal or directs you to standard planning (`brainstorm-feature` / `plan-feature`).
+- It continues safely as an unvalidated proposal or directs you to standard planning (`sdlc-intake` / `plan-feature`).
 - Missing financial numbers never block qualitative opportunity decisions: you can evaluate customer desirability even before monetary ROI is modeled.
 
 ## Fast paths and context reuse
