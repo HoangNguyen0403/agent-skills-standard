@@ -4,20 +4,24 @@ description: Route a task to the next synced SDLC workflow based on current arti
 # SDLC Router Workflow
 Goal: Select the next native workflow without loading every workflow body, while preserving a traceable BA -> PM -> IT Department handoff for offshore delivery.
 ## Steps
-1. Inspect state:
+1. Pre-route before inspection:
+   - Exploration-only request (riff, compare possibilities, or think without a delivery commitment) -> route to `brainstorm` and stop; do not inspect or mint a slug, work item, owner, trace, artifact, or delivery output.
+   - Active harm still gives `incident-hotfix` policy ownership first.
+2. Inspect state (delivery intent only):
    - User request & sizing: infer `operator_profile` (business | hybrid | technical) per `common-operator-profile` (carried in every Handoff Payload) and SNC tier per `common-task-complexity-routing` or the scout `SNC:` line (label as inference until scouted).
-   - Search for the requested task's linked brief/ticket using its stable slug; do not select an unrelated newest document or infer task authority/approval from `git status`. If no matching approved task record exists, identify the missing authority/input and route to the appropriate intake. Record the authoritative work-item reference and its approved revision once; carry `delivery_mode` (`brief | standard | extended`), owner, approval reference, and evidence-lane refs instead of letting later stages re-infer authority. Slug = lowercase kebab-case, minted once at `brainstorm-feature`, reused verbatim downstream; never re-derived.
+   - Search for the requested task's linked brief/ticket using its stable slug; do not select an unrelated newest document or infer task authority/approval from `git status`. If no matching approved task record exists, identify the missing authority/input and route to the appropriate intake. Record the authoritative work-item reference and its approved revision once; carry `delivery_mode` (`brief | standard | extended`), owner, approval reference, and evidence-lane refs instead of letting later stages re-infer authority. Slug = lowercase kebab-case, minted once at `sdlc-intake`, reused verbatim downstream; never re-derived.
    - If multiple candidates exist, list them and ask whether to focus, consolidate, or sequence.
    - Artifacts & repo/system state (baseline: `common-software-requirements/references/requirements-standards-baseline.md`, ships with the skill): existing ticket, BRD-lite brief, PRD, SRS/FRS design, implementation plan, task list, walkthrough, UAT signoff, deployment report, release notes, retro; configured system context (Jira, ADO, Zephyr, or other MCP), changed files, and current test status.
    - Offshore delivery context: business owner, product owner, implementation owners, QA owner, timezone/cadence constraints, environments, release window, and dependency teams
    - Requirement trace health: `BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> test evidence`
-2. Choose next workflow (apply tie-break order):
+3. Choose next workflow (apply tie-break order):
    1) Explicit operator request or latest approved/recommended stage, unless a safety prerequisite blocks affected scope.
    2) Fresh task-linked active harm gives `incident-hotfix` policy ownership before any ordinary mode execution, even for an explicit diagnose or recover request and even if product learning is stale; do not load an unrelated incident as task context.
    3) Earliest missing required decision or task-linked authority/input—not a missing filename—except sufficiently specified low-risk maintenance with approved evidence; reused approved context skips rediscovery.
    4) Cross-cutting audits only on request or as a pre-release gate.
-   - Unclear idea, missing business case, owner, or measurable value (Why lane), or unclear technical direction without BRD/PRD (Direction lane; exempts routine low-risk maintenance) -> `brainstorm-feature`
-   - Task-linked unmet customer-evidence/problem/market gap that the decision depends on -> `discover-product` (when selected/installed; else `brainstorm-feature` with capability gap)
+   - Exploratory intent without a delivery commitment -> `brainstorm` (terminal; creates no delivery state or artifact)
+   - Unclear idea, missing business case, owner, or measurable value (Why lane), or unclear technical direction without BRD/PRD (Direction lane; exempts routine low-risk maintenance) -> `sdlc-intake`
+   - Task-linked unmet customer-evidence/problem/market gap that the decision depends on -> `discover-product` (when selected/installed; else `sdlc-intake` with capability gap)
    - Material unresolved critical value hypothesis or assumption needing empirical test -> `validate-product` (when selected/installed; else `plan-feature` with capability gap)
    - BRD-lite exists or business direction clear but product scope, priorities, ACs, rollout, delivery plan unclear -> `plan-feature` (explicitly loads `product-management/product-requirements` and on-demand `references/requirements-modeling.md`)
    - Scale, topology, capacity, or store choice unsettled, or existing system needs architecture audit -> `system-design-session`
@@ -41,7 +45,7 @@ Goal: Select the next native workflow without loading every workflow body, while
    - Session ending with unfinished work or context handoff -> `session-report`
    - Deployed or communicated, capture standards/process lessons -> `retro-learn`
    - Repo-wide health/debt question with no single feature in scope -> `codebase-review`
-3. Enforce handoff quality:
+4. Enforce handoff quality:
    - Governed/high-risk delivery requires full traceability: BA output links business objectives; PM links requirements/ACs in `docs/prd/`; IT handoff defines architecture in `docs/srs/`.
    - Low-risk maintenance exception: Sufficiently specified routine fixes/maintenance with approved in-chat/brief contract route directly to `dev-fix` or `implement-feature` without creating separate BRD/PRD/SRS files or restarting intake; set `delivery_mode: brief` and carry outcome, scope fence, owner, observable criteria, approval reference, and verification lane. Never waives behavioral ACs, owner, approval, scope fence, or verification lane, and never lowers the sensitive-change floor. Negative or inconclusive product evidence requires no-build, pivot, or bounded learning—never unconditional full build.
    - Evidence lanes stay separate: technical verification (`verify-work`), business acceptance (`uat-signoff`), and release (`deploy-release`) are distinct referenced decisions.
@@ -50,7 +54,7 @@ Goal: Select the next native workflow without loading every workflow body, while
    - Reopen affected scope only: a stale or disputed decision blocks only its consuming action, unaffected approved decisions and independent scopes stay reusable without global reset, and changing requirements review affected ACs, contracts, approvals, and evidence without reopening settled decisions; product scope gaps route to planning and technical contract uncertainty routes to design.
    - Changes touching auth, payments, data integrity, secrets, or trust boundaries enforce minimum `tier=medium` (or `tier=high`), requiring `design-solution` and human approval before coding.
    - Downstream specialist workers execute assigned briefs without repeating parent intake; keep payloads runtime-neutral so adapters may map them to task boards, MCP, Jira, GitHub, ADO, Zephyr, or local files.
-4. Set autonomy by tier: low -> autonomous + `fast` review; medium -> TDD + self-review + `deep` review; high -> plan-first HARD STOP, independent reviewers, human merge approval.
+5. Set autonomy by tier: low -> autonomous + `fast` review; medium -> TDD + self-review + `deep` review; high -> plan-first HARD STOP, independent reviewers, human merge approval.
 ## Runtime Contract
 - Use to select the next workflow without loading every workflow body; inputs are the user request plus repo/artifact state. Return BLOCKED only in autonomous/channel mode when required artifacts or owners are unknown; in autonomous/channel mode, continue only when required artifacts and owners are known and emit next workflow, handoff payload, verification command, and owner. Load `common-decision-discipline` and apply its §8 continuation contract at entry and every handoff: when continuation is enabled and the route is eligible, execute the selected workflow and record its settled outcome rather than leaving a recommendation; specialized gates dominate.
 ## Handoff Payload
@@ -72,7 +76,7 @@ Goal: Select the next native workflow without loading every workflow body, while
 ## Blocking Gaps
 ## Offshore Delivery Notes
 ## Outcome Report
-{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: sdlc, feature_status: not_started, started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: brainstorm-feature, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
+{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: sdlc, feature_status: not_started, started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: sdlc-intake, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
 ## Next Workflow
 ## Verification Command
 ## Cost Report

@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "analysis_id": "synthetic-campaign-inv-zero-cash",
+  "currency": "USD",
+  "money_scale": 2,
+  "price_basis": "nominal",
+  "price_date": "2026-09-01",
+  "horizon": {
+    "start_date": "2026-09-01",
+    "period": "month",
+    "periods": 1
+  },
+  "cohort": "standards-demo-01-cohort",
+  "counterfactual": "do_nothing",
+  "accounting_boundary": "incremental campaign spend",
+  "discount": null,
+  "scenarios": [
+    {
+      "id": "base",
+      "label": "Base Scenario",
+      "assumptions": ["Zero cash spend and 6 preparation hours"],
+      "items": [
+        {
+          "id": "cost-cash-zero-01",
+          "side": "cost",
+          "category": "acquisition",
+          "mechanism_id": "campaign-ad",
+          "period": 0,
+          "amount": "0.00",
+          "currency": "USD",
+          "basis": "cash_cost",
+          "netted_cost_categories": [],
+          "rationale": "Zero cash ad cost",
+          "evidence_ids": ["SRC-002"]
+        },
+        {
+          "id": "cost-hours-prep-01",
+          "side": "capacity",
+          "category": "capacity",
+          "mechanism_id": "campaign-prep",
+          "period": 0,
+          "amount": "6.00",
+          "currency": null,
+          "basis": "capacity_hours",
+          "netted_cost_categories": [],
+          "rationale": "Preparation labor",
+          "evidence_ids": ["SRC-002"]
+        }
+      ],
+      "nonmonetary": []
+    }
+  ]
+}

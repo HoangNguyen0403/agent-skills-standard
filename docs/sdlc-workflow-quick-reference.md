@@ -2,9 +2,16 @@
 
 Agent Skills Standard syncs workflows into each agent's native surface. Run `ags sync`, then invoke the synced workflow from Claude, Codex, Cursor, Gemini, Copilot, Kiro, or another configured runtime.
 
+## Explore Or Deliver?
+
+- **Explore, riff, compare possibilities, or think without committing** -> `brainstorm`. Chat synthesis is the default, a parked idea is a valid ending, and no BRD, slug, feature status, or successor is created.
+- **Turn a selected direction into a delivery brief** -> `sdlc-intake`, carrying only the context that actually exists. A bare "looks good" is not promotion authority.
+- **Ask for a routine delivery directly** -> `sdlc-intake` directly; brainstorming is not a prerequisite.
+- **Migration**: `/brainstorm-feature` is retired with no forwarding alias. Use `/sdlc-intake` for requirement intake or `/brainstorm` for exploration. Historical briefs, run records, and sealed evidence keep the old identifier unchanged.
+
 ## Workflow Continuation
 
-Every consumer-facing workflow loads `common-decision-discipline` at entry and applies its `§8` continuation contract at each handoff.
+Every delivery workflow loads `common-decision-discipline` at entry and applies its `§8` continuation contract at each handoff. Standalone `brainstorm` is the explicit exception: it consumes only the lifecycle-neutral `references/explore-facilitation.md` reference and carries no approval, card, artifact, or continuation obligation.
 
 - Automatic chaining needs `mode=autonomous|channel` plus explicit `auto_continue=true`; `interactive`, absent, or `false` opts out, and unknown/conflicting values pause.
 - The successor comes from the actual settled result, not a fixed chain. The agent validates the task work-item/revision, scope fence, authority, prerequisites, and specialized gates, then executes the eligible workflow and records its outcome.
@@ -14,8 +21,9 @@ Every consumer-facing workflow loads `common-decision-discipline` at entry and a
 
 | Requirement Layer      | Core Question                                    | Workflow                   | Use When                                                               | Primary Output                        |
 | ---------------------- | ------------------------------------------------ | -------------------------- | ---------------------------------------------------------------------- | ------------------------------------- |
+| Explore                | What could this become?                          | `brainstorm`               | Riffing, comparing possibilities, or thinking without a delivery commitment | chat synthesis; optional neutral note |
 | Route                  | Which workflow now?                              | `sdlc`                     | Unsure what to run next                                                | next workflow                         |
-| BRD-lite / Direction   | Why are we doing this, and which way?            | `brainstorm-feature`       | Idea, business case, or technical direction unclear                    | `docs/brd/brd-[slug].md`              |
+| BRD-lite / Direction   | Why are we doing this, and which way?            | `sdlc-intake`              | Idea, business case, or technical direction unclear                    | `docs/brd/brd-[slug].md`              |
 | PRD                    | What are we building, and what decision is needed? | `plan-feature`           | Feature needs outcome, scope, and acceptance criteria                  | `docs/prd/prd-[slug].md` or approved brief |
 | Architecture           | How big and what shape?                          | `system-design-session`    | Scale, topology, or store choice is unsettled                          | `docs/design/system-design-[slug].md` |
 | SRS/FRS                | How will it work technically?                    | `design-solution`          | Contracts, behavior, or architecture are unclear                       | `docs/srs/srs-[slug].md`              |
@@ -248,7 +256,7 @@ arriving with the other vocabulary. Do not rename our artifacts to match it.
 
 | Playbook stage | Playbook artifact     | This standard                                    | Our artifact                                           |
 | -------------- | --------------------- | ------------------------------------------------ | ------------------------------------------------------ |
-| Plan           | `intent.md`           | `brainstorm-feature`                             | `docs/brd/brd-[slug].md`                               |
+| Plan           | `intent.md`           | `sdlc-intake`                                    | `docs/brd/brd-[slug].md`                               |
 | Design         | `spec.md`             | `plan-feature`, `design-solution`                | `docs/prd/prd-[slug].md`, `docs/srs/srs-[slug].md`     |
 | Build          | `plan.md`             | `implementation-readiness`, `implement-feature`  | readiness verdict, `docs/srs/srs-task-list-[slug].md`  |
 | Test           | test + eval evidence  | `test-loop`, `verify-work`, `evals-run`          | `docs/srs/srs-walkthrough-[slug].md`, eval run results |
@@ -275,7 +283,7 @@ Authority concentrates at gates. Automation runs freely between them.
 
 Start with any practice that has no prerequisite, then follow the arrows.
 
-- No prerequisite: `common-agent-guardrails`, `brainstorm-feature`, `common-tdd` feedback loop, instruction-file hygiene.
+- No prerequisite: `common-agent-guardrails`, `brainstorm`, `sdlc-intake`, `common-tdd` feedback loop, instruction-file hygiene.
 - `plan-feature`, `design-solution` <- task-linked approved intent or product evidence (sufficiently specified low-risk maintenance with approved task tickets may proceed without a separate BRD-lite).
 - `implementation-readiness`, `implement-feature` <- behavioral ACs, accountable owner, approved scope fence, and verification lane plus applicable design/test prerequisites (supplied by PRD and SRS or an equivalent approved low-risk record); sensitive changes still require technical design and human/governance approval per [requirements modeling §1](../skills/product-management/product-requirements/references/requirements-modeling.md#1-applicability--sizing-gate), and PARTIAL authorizes ready slices only.
 - `code-review` <- `docs/review-policy.md` and the framework skills; requested ticket/AC or PR-metadata lanes use its orchestration reference.
@@ -330,7 +338,7 @@ requirement_trace:
 completed_evidence: []
 missing_evidence: []
 decision_needed: []
-recommended_next_workflow: brainstorm-feature | plan-feature | design-solution | implementation-readiness | implement-feature | verify-work
+recommended_next_workflow: sdlc-intake | plan-feature | design-solution | implementation-readiness | implement-feature | verify-work
 cost: { source: host | agent-estimate | unavailable }
 agent: { identity: "<omp/provider/model>", model: "<model>" }
 ```
@@ -357,7 +365,7 @@ parse the `Outcome Report` block and validate run records against this schema.
 
 When users ask for BRD, PRD, or SRS:
 
-- BRD-lite -> run `brainstorm-feature`
+- BRD-lite -> run `sdlc-intake` (standalone `brainstorm` first only when the idea is still exploratory)
 - PRD -> run `plan-feature`
 - SRS/FRS -> run `design-solution`
 
@@ -367,7 +375,7 @@ Use `skills/common/common-software-requirements/references/requirements-standard
 
 ## Requirement Quality Rule
 
-- BRD: SMART objective, stakeholders, AS-IS/TO-BE, cost-benefit, glossary, validation owner; `brainstorm-feature` intake provides intent playback, anti-goals, consequential questions, challenge/reversal conditions, a compact ≤250-word approval card, and preapproval planner-critical guess checks.
+- BRD: SMART objective, stakeholders, AS-IS/TO-BE, cost-benefit, glossary, validation owner; `sdlc-intake` provides intent playback, anti-goals, consequential questions, challenge/reversal conditions, a compact ≤250-word approval card, and preapproval planner-critical guess checks.
 - PRD: decision brief first, then outcome/guardrails, scope/non-goals, canonical `REQ-*`/`AC-*` rows carrying owner, priority, and the single verification lane, open consequential decisions, references. Personas, use cases, Gherkin, analytics, risks, and rollout are conditional extensions: add the ones the change actually triggers.
 - SRS/FRS: `BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> evidence`, one card per technical requirement with its only verification mapping, NFR measurement where a threshold is committed, failure modes where the behavior has a fallback.
 - Every level: define each requirement and criterion once; a second verification matrix or restated AC row is a defect, not extra rigor.
@@ -402,7 +410,7 @@ Jira, GitHub, GitLab, Azure DevOps, Zephyr, and similar MCPs are optional integr
 
 ## Implicit Workflow Continuity (The "Slug" protocol)
 
-When running workflows in sequence (e.g., `brainstorm` -> `plan` -> `implement`):
+When running workflows in sequence (e.g., `sdlc-intake` -> `plan-feature` -> `implement-feature`):
 
 1. **The Slug**: Workflows use a consistent `[slug]` in the filename (e.g., `brd-payment.md`, `prd-payment.md`).
 2. **Context Resolution**: In follow-ups without an explicit feature name, the agent resolves context using the current task's established slug and its linked authoritative record. If the link is missing or ambiguous, the agent identifies the owned missing input or asks which matching record is authoritative; it never infers authority or approval from timestamps, `git status`, or the newest artifact.
@@ -413,7 +421,7 @@ When running workflows in sequence (e.g., `brainstorm` -> `plan` -> `implement`)
 | Role     | Recommended Surfaces                                             |
 | -------- | ---------------------------------------------------------------- |
 | EM       | `sdlc`                                                           |
-| PM/BA    | `brainstorm-feature`, `plan-feature`, `implementation-readiness` |
+| PM/BA    | `brainstorm`, `sdlc-intake`, `plan-feature`, `implementation-readiness` |
 | Engineer | `dev-fix`, `implement-feature`, `code-review`, `verify-work`        |
 | QA       | `zephyr-coverage-analysis`, `verify-bug`                         |
 

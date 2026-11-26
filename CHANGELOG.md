@@ -48,6 +48,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Maintenance
 - chore(deps): consolidate dependabot minor/patch bumps with jsdom 31 and hono advisory fixes (#328)
 
+## [cli-v2.7.8] - Unreleased
+
+**Category**: CLI Tool
+
+### Changed
+
+- Default workflow discovery, CLI registry constants, and generated client surfaces follow the `brainstorm-feature` → `sdlc-intake` cutover and the new standalone `brainstorm` workflow. See the `[Unreleased]` workflow-identity entry below for the full change contract.
+
+### Maintenance
+
+- Patch version bump for the workflow-identity cutover; no other CLI behavior change.
+
 ## [mcp-v0.8.5] - Unreleased
 
 **Category**: MCP Server
@@ -68,6 +80,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Prepared version `0.8.5` and synchronized the CLI's default MCP pin. Publication is pending the `mcp-v0.8.5` release tag; installed servers require an upgrade and host restart to use the new code.
 - Automatic Paseo/OMP dispatcher capture is not included. Explicit manifests supply declared inventory; native discovery keeps unknown delegation scope visible.
+
+---
+
+## [common-v2.9.12] / [workflows-v2.1.7] - Unreleased
+
+**Category**: Common Skills / Workflow Pack
+
+### Maintenance
+
+- Patch versions bumped for the `brainstorm-feature` → `sdlc-intake` cutover and standalone `brainstorm` workflow; see the `[Unreleased]` workflow-identity entry. `common` and workflow bodies keep their prior obligations; behavioral qualification is tracked separately.
 
 ---
 
@@ -164,6 +186,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Language and backend currency remediation (`golang` 1.3.12, `common` 2.9.12, `java` 1.3.8, `kotlin` 1.3.6, `swift` 1.3.11, `javascript` 1.3.7, `typescript` 1.3.6, `php` 1.3.10, `python` 1.0.4, `dart` 1.3.8; reviewed 2026-11-26)**: Currencies are reviewed upstream references, not consumer minimums, and no category floor was raised. Go wrapping is a caller-contract decision with `errors.Join`/`AsType` version gates and typed context keys; `common` aligns the nested error envelope and export semantics. Java separates stable virtual threads from opt-in preview `StructuredTaskScope`, corrects monitor-pinning guidance and the LTS set; Kotlin stops swallowing cancellation and gates 2.4 backing fields; Swift drops the value-type/thread-safety implication, requires `Sendable` stored-property review and describes `Task { }` as unstructured. JavaScript preserves `.cjs`/ESM loader contracts and selective promisification; TypeScript adds a compiler/runtime/tool-peer preflight and stops assuming an LSP diagnostic tool. Python separates 3.14 deferred annotations from future-stringized ones and requires explicit text encodings; PHP replaces the invalid scalar intersection example and separates readonly/version semantics; Dart removes `assert` as production null proof and gates primary constructors at 3.13.
 - **Dependency consolidation and release automation (tooling)**: Merged the requested Dependabot patch bumps (#346, including the #345 subset) with one reviewed lockfile (eslint 10.15.0, typescript-eslint 8.73.0, vitest 5.1.1, `@nestjs/*` 12.5.1, minimatch 11.0.9, `@playwright/test` 1.65.1, jsdom 31.0.1, serve 14.2.8). `setup-uv` is pinned to v10.4.0. `server/tsconfig.build.json` pins `rootDir: "./src"` and `server/tsconfig.json` drops the unused `baseUrl` so TS 6 emits `dist/main.js`. `pnpm release-cli` now regenerates the three tracked `preedit-skill-loader.js` copies from the canonical hook template at the new CLI version, with a repair entry (`scripts/release/sync-generated-hooks.cli.ts`).
+- **Workflow identity (`brainstorm-feature` -> `sdlc-intake`, new `brainstorm`; `workflows`)**: Renamed the SDLC initiation workflow to `sdlc-intake` with unchanged BRD-lite/Direction authority, and added standalone `brainstorm` for lifecycle-neutral exploration with no mandatory artifact, feature status, or automatic successor. The old command is retired with no forwarding alias; active routes, audit lists, CLI defaults, docs, and generated exports move in one cutover. Historical briefs, run records, and sealed evidence keep the retired identifier and remain readable; explicit consumer configurations must replace `brainstorm-feature` during upgrade. Generated exports were not hand-edited.
 - **Process right-sizing (`dev-fix`, `implement-feature`, `common-task-complexity-routing`)**: `dev-fix` selects a `brief | standard | extended` lane from `delivery_mode`/`snc_tier`; the brief lane creates no `docs/` artifacts, worktree, or readiness gate but keeps `fast` code-review. Removed the consumer-irrelevant `git pull origin main` step. `implement-feature` adds a per-slice freshness check (`BLOCKED-STALE`) bound to `supersedes_approval` lineage in `common-decision-discipline`.
 - **Enforced skill loading (CLI hooks)**: With `ags hooks install --enforce` (Claude Code), the pre-edit hook blocks edits lacking a prior `load_skills_for_files` call in `transcript_path`; fails open with a warning when no transcript exists. Secret deny-list and policy rules now run before the harness-directory skip; `AGS_POLICY_BYPASS` waives policy rules only.
 - **Generated instructions**: Removed Zero-Trust/CRITICAL wording, the Pre-Write Audit Log ritual, and the mandatory state machine from `AGENTS.md`, category indices, and agent rule files.

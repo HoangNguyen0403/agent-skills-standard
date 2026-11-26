@@ -91,7 +91,8 @@ Canonical lifecycle workflows live in `.agents/workflows`:
 
 ```mermaid
 graph LR
-  A[sdlc] --> B[brainstorm-feature]
+  A[sdlc] --> B[sdlc-intake]
+  X[brainstorm] -. explicit promotion .-> B
   B --> C[plan-feature]
   C --> D[design-solution]
   D --> E[implement-feature]
@@ -112,11 +113,12 @@ Workflow export still follows the agent integration taxonomy:
 
 Sync installs each selected canonical workflow once at `.agents/workflows/<name>.md` for every configured provider, including provider-only installations, then derives native exports from that same content. `.skills-lock.json` v2 carries an optional versioned `workflowCatalog` section (canonical path/digest, registry identity, requested ref, resolved commit, and per-binding output paths/digests). Antigravity and Kiro resolve to the same canonical path, so that pair produces one write and one binding rather than a duplicate writer. A native output whose actual bytes differ from the deterministic export (user-edited, unowned, or written by another alias) is recorded as a `nativeConflicts` entry rather than a verified binding, so parity is never certified from the remaining bindings; the catalog entry and canonical body survive while any binding or conflict still references them, and are dropped only when all are removed. The lock is validated before publication and replaced atomically; an incomplete acquisition suppresses pruning and retains the previous catalog instead of certifying a partial set. Workflows authored in the registry without an installation lock remain readable as `local_source` with no native-parity claim.
 
-Workflow continuation is agent-owned, not a runtime service. Every consumer-facing canonical workflow loads `skills/common/common-decision-discipline/SKILL.md` at entry and applies its `§8 Continuation` contract at each handoff. The normative rules live in the returned skill body, so installed-file consumers and MCP-only consumers of `get_skill` receive the same complete contract; workflow bodies only reference it. Opt-in requires `mode=autonomous|channel` with explicit `auto_continue=true`; the agent resolves the actual settled result, validates task/scope/authority and specialized gates, loads the eligible successor, performs its work, and records the settled outcome. No CLI, MCP, or scheduler component executes successors, and `evals-run` stays internal-only.
+Workflow continuation is agent-owned, not a runtime service. Every delivery canonical workflow loads `skills/common/common-decision-discipline/SKILL.md` at entry and applies its `§8 Continuation` contract at each handoff. Standalone `brainstorm` is the explicit exception: it consumes only `references/explore-facilitation.md` and creates no approval, artifact, phase, or continuation obligation. The normative rules live in the returned skill body, so installed-file consumers and MCP-only consumers of `get_skill` receive the same complete contract; workflow bodies only reference it. Opt-in requires `mode=autonomous|channel` with explicit `auto_continue=true`; the agent resolves the actual settled result, validates task/scope/authority and specialized gates, loads the eligible successor, performs its work, and records the settled outcome. No CLI, MCP, or scheduler component executes successors, and `evals-run` stays internal-only.
 
 Requirement layering is explicit in the SDLC workflow names and outputs:
 
-- `brainstorm-feature` = BRD-lite ("Why")
+- `brainstorm` = standalone exploration; no BRD, slug, lifecycle state, or automatic successor
+- `sdlc-intake` = BRD-lite ("Why")
 - `plan-feature` = PRD ("What")
 - `design-solution` = SRS/FRS ("How")
 - `implementation-readiness` and later phases enforce living traceability updates across BRD-lite -> PRD -> SRS/FRS -> verification evidence
@@ -133,7 +135,7 @@ Canonical guidance remains host-neutral; provider, account, profile, model, and 
 
 Initiatives requiring rigorous, audit-grade decision backing can opt into the product evidence lifecycle. This introduces three optional workflows without altering default sync or core chain reachability:
 
-- **`discover-product`**: Frames evidence-grounded product opportunities, verified problem context, non-goals, and falsifiable hypotheses upstream of or alongside `brainstorm-feature`/`plan-feature`.
+- **`discover-product`**: Frames evidence-grounded product opportunities, verified problem context, non-goals, and falsifiable hypotheses upstream of or alongside `sdlc-intake`/`plan-feature`.
 - **`validate-product`**: Validates prioritized hypotheses through bounded experiments, precommitted thresholds, and host authorization gates before committing implementation capacity.
 - **`review-product-value`**: Audits realized post-release product value against registered measurement contracts and baseline evidence, decoupling delivery completion from causal ROI.
 

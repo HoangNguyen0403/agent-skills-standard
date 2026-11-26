@@ -11,7 +11,7 @@
  * update-docs, zephyr-coverage-analysis) are invoked directly and are not routed by sdlc.
  */
 export const CORE_SDLC_CHAIN = [
-  "brainstorm-feature",
+  "sdlc-intake",
   "review-system-design",
   "plan-feature",
   "system-design-session",

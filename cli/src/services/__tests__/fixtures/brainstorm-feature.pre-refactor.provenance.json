@@ -1,0 +1,8 @@
+{
+  "fixture": "brainstorm-feature.pre-refactor.md",
+  "sourcePath": ".agents/workflows/brainstorm-feature.md",
+  "sourceRevision": "c679e0032fbebf4eed90db0f2fc4f52541a3f23d",
+  "sha256": "68168c26fa1ab3faeb12626cff819240d78643643c67cbcb63153aa2b25633f6",
+  "bytes": 10543,
+  "purpose": "Byte-bound predecessor bytes for the brainstorm-feature -> sdlc-intake migration regression. Read from the recorded revision; never fetched from git history or the network at test time."
+}

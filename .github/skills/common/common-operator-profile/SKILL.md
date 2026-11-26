@@ -1,6 +1,6 @@
 ---
 name: common-operator-profile
-description: Infer the requesting operator's technical fluency from message content (never ask directly) and adapt register — business, hybrid, or technical — across SDLC workflow output. Use when starting sdlc, brainstorm-feature, plan-feature, verify-work, publish-notes, or session-report, or whenever a request's phrasing signals a non-technical or cross-stack operator.
+description: Infer the requesting operator's technical fluency from message content (never ask directly) and adapt register — business, hybrid, or technical — across SDLC workflow output. Use when starting sdlc, brainstorm, sdlc-intake, plan-feature, verify-work, publish-notes, or session-report, or whenever a request's phrasing signals a non-technical or cross-stack operator.
 metadata:
   triggers:
     files: []

@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "title": "Synthetic Cohort Query Origin Data",
+  "campaign_id": "standards-demo-01",
+  "origin_revision": "syn-origin-r1",
+  "generated_at": "2026-10-25T00:00:00Z",
+  "description": "Synthetic normalized cohort observation log for testing offline measurement contracts."
+}

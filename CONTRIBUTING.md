@@ -96,7 +96,7 @@ Rules:
 2. Use the order: goal, steps, output template.
 3. Do not pre-fill example data.
 4. Put heavy examples or checklists in `references/`.
-5. Keep requirement naming explicit: BRD-lite (`brainstorm-feature`), PRD (`plan-feature`), SRS/FRS (`design-solution`).
+5. Keep requirement naming explicit: BRD-lite (`sdlc-intake`), PRD (`plan-feature`), SRS/FRS (`design-solution`). `brainstorm` is standalone exploration and produces no BRD-lite or delivery state.
 6. Add to `DEFAULT_WORKFLOWS` only for the standard SDLC spine; add canonical source at `.agents/workflows/<name>.md`.
 7. Core SDLC workflows expose `Runtime Contract`, `Handoff Payload`, `Blocking Questions`, and `Next Workflow`.
 8. Run `pnpm audit:sdlc` after changes.
@@ -105,7 +105,7 @@ Rules:
 11. MCP workflow lookup reads the installed catalog from `.skills-lock.json`; if a lock exists but the catalog metadata is missing, lookup reports `unverified` and asks for a sync instead of falling back to local or native copies.
 12. Cloud operations stay on one entrypoint: `deploy-release` dispatches `setup|deploy|verify|monitor|diagnose|recover` (a genuinely omitted mode defaults to `deploy`) and the keyword-only `common-devops-operations` skill owns the shared MCP preflight, authorization, effect classification and reporting procedure. Provider MCP integrations are optional, consumer-owned setup described in `docs/mcp-integration-guide.md`; never add a provider-specific workflow, auto-install a provider driver or credential, or let guidance text stand in for host/IAM enforcement.
 13. Retiring a workflow ID requires migrating active callers, chaining and audit lists, and stating the explicit consumer configuration update with no forwarding alias. Historical reports, receipts and run records keep the retired ID unchanged; generated exports are regenerated through the normal sync/generation path, never hand-edited.
-14. Every consumer-facing workflow loads `common-decision-discipline` and applies its `§8` continuation contract at entry and every handoff; `evals-run` stays internal-only. Keep the normative contract self-contained in the skill body so `get_skill` alone suffices, and never encode continuation as a printed successor name.
+14. Every delivery consumer-facing workflow loads `common-decision-discipline` and applies its `§8` continuation contract at entry and every handoff; `evals-run` stays internal-only. Standalone `brainstorm` instead consumes only `common-decision-discipline/references/explore-facilitation.md` so exploration never inherits approval, artifact, or continuation obligations. Keep the normative contract self-contained in the skill body so `get_skill` alone suffices, and never encode continuation as a printed successor name.
 
 ## 5. Cybersecurity packages and governed evolution
 
