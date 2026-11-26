@@ -1,6 +1,6 @@
 ---
 name: common-decision-discipline
-description: Right-size, ground, gate, and continue SDLC work — SNC-sized depth, said-vs-assumed write-back, evidence ledger, honest option cards, recorded approval, self-review, and once-per-run workflow handoff. Use in any SDLC workflow, including brainstorm-feature, plan-feature, design-solution, system-design-session, and at every handoff.
+description: Right-size, ground, gate, and continue SDLC work — SNC-sized depth, said-vs-assumed write-back, evidence ledger, honest option cards, recorded approval, self-review, and once-per-run workflow handoff. Use in any SDLC workflow, including sdlc-intake, plan-feature, design-solution, system-design-session, and at every handoff. Standalone `brainstorm` uses only `references/explore-facilitation.md` from this skill.
 guardrail: true
 metadata:
   triggers:

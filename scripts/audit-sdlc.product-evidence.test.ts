@@ -211,7 +211,7 @@ test("validateOptionalWorkflowReachability: passes for real canonical workflows 
   const canonicalWorkflows = new Set([
     ...OPTIONAL_PRODUCT_WORKFLOWS,
     "sdlc",
-    "brainstorm-feature",
+    "sdlc-intake",
     "plan-feature",
   ]);
   const issues = validateOptionalWorkflowReachability(

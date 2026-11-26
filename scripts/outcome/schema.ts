@@ -30,6 +30,17 @@ export type FeatureStatus = (typeof FEATURE_STATUS_VALUES)[number];
 export const COST_SOURCE_VALUES = ["host", "agent-estimate", "unavailable"] as const;
 export type CostSource = (typeof COST_SOURCE_VALUES)[number];
 
+/**
+ * Retired workflow IDs that immutable historical run records may still name.
+ *
+ * These are record-reading allowances only: no canonical file, routing alias,
+ * or successor exists for them. Never add a retired ID here to make it
+ * runnable again.
+ */
+export const HISTORICAL_WORKFLOW_IDS: Readonly<Record<string, true>> = {
+  "brainstorm-feature": true,
+};
+
 export interface RequirementTrace {
   brd_objectives: string[];
   requirements: string[];
@@ -336,7 +347,10 @@ export function validateRunRecord(value: unknown, sourcePath: string): Validatio
           file: sourcePath,
           message: "recommended_next_workflow must be null or a non-empty string",
         });
-      } else if (!fs.existsSync(path.join(WORKFLOWS_DIR, `${next}.md`))) {
+      } else if (
+        !fs.existsSync(path.join(WORKFLOWS_DIR, `${next}.md`)) &&
+        !Object.prototype.hasOwnProperty.call(HISTORICAL_WORKFLOW_IDS, next)
+      ) {
         issues.push({
           severity: "error",
           file: sourcePath,

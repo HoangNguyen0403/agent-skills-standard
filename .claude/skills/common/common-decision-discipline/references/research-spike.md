@@ -1,6 +1,6 @@
 # Research Spike (Bounded Outside Grounding)
 
-Demand-loaded reference for `.agents/workflows/brainstorm-feature.md` and `skills/common/common-decision-discipline/SKILL.md`.
+Demand-loaded reference for `.agents/workflows/sdlc-intake.md` and `skills/common/common-decision-discipline/SKILL.md`.
 
 ## 1. Gating & Applicability (When to Trigger)
 

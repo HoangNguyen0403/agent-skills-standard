@@ -45,7 +45,7 @@ Goal: Convert a deterministic statistical signal into the smallest sanctioned ac
    - For each new finding, either act or dismiss with a recorded reason; both outcomes tune the band.
    - Carry unchanged findings forward without re-reporting them.
 5. Route the outcome:
-   - Diagnosis worth acting on -> `brainstorm-feature` with `source: control-band | security-scan`, so it enters the normal requirement chain.
+   - Diagnosis worth acting on -> `sdlc-intake` with `source: control-band | security-scan`, so it enters the normal requirement chain.
    - Shipped fix -> `retro-learn` to add a permanent eval case for the class.
    - Repeated dismissals -> recalibrate the band before responding again.
 
@@ -86,11 +86,11 @@ Goal: Convert a deterministic statistical signal into the smallest sanctioned ac
 <!-- Emit the record below only for feature-linked work, replacing `feature_status` with the prior evidenced value; omit it when lifecycle is unknown. Choose routing from the actual outcome: use `null` and `next_action: none` when no further work is warranted. -->
 
 ## Outcome Report
-{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: monitor-respond, feature_status: partially_implemented, started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: brainstorm-feature, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
+{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: monitor-respond, feature_status: partially_implemented, started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: sdlc-intake, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
 
 ## Next Workflow
 
-brainstorm-feature | incident-hotfix | retro-learn
+sdlc-intake | incident-hotfix | retro-learn
 - Terminal observation: `recommended_next_workflow: null`, `next_action: none`
 
 ## Cost Report

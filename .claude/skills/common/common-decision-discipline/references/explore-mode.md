@@ -1,6 +1,6 @@
 # Explore Mode (Open, Novel, or Solution-Biased Intake)
 
-Demand-loaded reference for `.agents/workflows/brainstorm-feature.md` and `skills/common/common-decision-discipline/SKILL.md`.
+Demand-loaded reference for `.agents/workflows/sdlc-intake.md` and `skills/common/common-decision-discipline/SKILL.md`.
 
 ## 1. Gating Rule (When to Trigger)
 
@@ -21,7 +21,7 @@ Activate Explore mode **only** when all of the following conditions hold:
 
 ## 2. Core Exploration Protocol
 
-When Explore mode is active, execute the following five steps before finalizing the brief or approval card:
+Shared lifecycle-neutral facilitation (follow the requested activity, one useful open question, evidence honesty) lives in `explore-facilitation.md`; the steps below add intake-specific divergence and option-card obligations. When Explore mode is active, execute the following five steps before finalizing the brief or approval card:
 
 ### Step 1: Reframe the Problem Statement
 - Separate the underlying customer job or engineering friction from the user's proposed mechanism.

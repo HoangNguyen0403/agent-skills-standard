@@ -3945,6 +3945,188 @@ test("removing the canonical workflow source also drops its stale ownership entr
   });
 });
 
+test("a prior catalog record for an absent canonical workflow is dropped without an ownership entry", async () => {
+  await withFixture({}, async (root) => {
+    const lockPath = path.join(root, ".skills-lock.json");
+    const lock = await fs.readJson(lockPath);
+    const ghostPath = ".agents/workflows/ghost.md";
+    lock.workflowCatalog.workflows.ghost = {
+      path: ghostPath,
+      digest: sha256("absent ghost workflow"),
+      registry: "https://example.invalid/registry",
+      requestedRef: "workflows-v1.0.0",
+      resolvedCommit: null,
+      nativeBindings: [],
+    };
+    await fs.writeJson(lockPath, lock, { spaces: 2 });
+
+    await selectFixtureWorkflows(root, []);
+
+    const applied = await runIsolatedGeneration({ repoRoot: root });
+    assert.equal(applied.success, true, applied.error ?? "");
+
+    const lockAfter = await fs.readJson(lockPath);
+    assert.equal(lockAfter.workflowCatalog.workflows.ghost, undefined);
+    assert.equal(lockAfter.entries[ghostPath], undefined);
+  });
+});
+test("an absent canonical override keeps a catalog-only workflow and its provenance", async () => {
+  await withFixture({}, async (root) => {
+    const lockPath = path.join(root, ".skills-lock.json");
+    const lock = await fs.readJson(lockPath);
+    const ghostPath = ".agents/workflows/ghost.md";
+    const ghost = {
+      path: ghostPath,
+      digest: sha256("absent ghost workflow"),
+      registry: "https://example.invalid/registry",
+      requestedRef: "workflows-v1.0.0",
+      resolvedCommit: null,
+      nativeBindings: [],
+    };
+    lock.workflowCatalog.workflows.ghost = ghost;
+    await fs.writeJson(lockPath, lock, { spaces: 2 });
+    await fs.outputFile(
+      path.join(root, ".skillsrc"),
+      [
+        "registry: https://example.invalid/registry",
+        "agents:",
+        "  - copilot",
+        "skills:",
+        "  common:",
+        "    ref: common-v1",
+        "workflows: []",
+        "custom_overrides:",
+        `  - ${ghostPath}`,
+        "",
+      ].join("\n"),
+    );
+
+    const applied = await runIsolatedGeneration({ repoRoot: root });
+    assert.equal(applied.success, true, applied.error ?? "");
+
+    const lockAfter = await fs.readJson(lockPath);
+    assert.deepEqual(lockAfter.workflowCatalog.workflows.ghost, ghost);
+    assert.equal(lockAfter.entries[ghostPath], undefined);
+    assert.equal(await fs.pathExists(path.join(root, ghostPath)), false);
+  });
+});
+
+
+test("an absent canonical workflow with a retained non-target binding keeps its catalog record", async () => {
+  await withFixture({}, async (root) => {
+    const lockPath = path.join(root, ".skills-lock.json");
+    const lock = await fs.readJson(lockPath);
+    const ghostPath = ".agents/workflows/ghost.md";
+    const bindingPath = ".codex/skills/ghost/SKILL.md";
+    await fs.outputFile(path.join(root, bindingPath), "retained non-target export\n");
+    const ghost = {
+      path: ghostPath,
+      digest: sha256("absent ghost workflow"),
+      registry: "https://example.invalid/registry",
+      requestedRef: "workflows-v1.0.0",
+      resolvedCommit: null,
+      nativeBindings: [
+        {
+          agent: "codex",
+          path: bindingPath,
+          outputDigest: sha256("retained non-target export\n"),
+          canonicalDigest: sha256("absent ghost workflow"),
+        },
+      ],
+    };
+    lock.workflowCatalog.workflows.ghost = ghost;
+    await fs.writeJson(lockPath, lock, { spaces: 2 });
+
+    await selectFixtureWorkflows(root, []);
+
+    const applied = await runIsolatedGeneration({ repoRoot: root });
+    assert.equal(applied.success, true, applied.error ?? "");
+
+    const lockAfter = await fs.readJson(lockPath);
+    assert.deepEqual(lockAfter.workflowCatalog.workflows.ghost, ghost);
+    assert.equal(await fs.readFile(path.join(root, bindingPath), "utf8"), "retained non-target export\n");
+  });
+});
+
+test("an absent canonical workflow with an overridden export keeps its catalog record", async () => {
+  await withFixture({}, async (root) => {
+    const lockPath = path.join(root, ".skills-lock.json");
+    const lock = await fs.readJson(lockPath);
+    const ghostPath = ".agents/workflows/ghost.md";
+    const bindingPath = ".codex/skills/ghost/SKILL.md";
+    await fs.outputFile(path.join(root, bindingPath), "user-owned override\n");
+    const ghost = {
+      path: ghostPath,
+      digest: sha256("absent ghost workflow"),
+      registry: "https://example.invalid/registry",
+      requestedRef: "workflows-v1.0.0",
+      resolvedCommit: null,
+      nativeBindings: [
+        {
+          agent: "codex",
+          path: bindingPath,
+          outputDigest: sha256("user-owned override\n"),
+          canonicalDigest: sha256("absent ghost workflow"),
+        },
+      ],
+    };
+    lock.workflowCatalog.workflows.ghost = ghost;
+    await fs.writeJson(lockPath, lock, { spaces: 2 });
+    await fs.outputFile(
+      path.join(root, ".skillsrc"),
+      [
+        "registry: https://example.invalid/registry",
+        "agents:",
+        "  - copilot",
+        "skills:",
+        "  common:",
+        "    ref: common-v1",
+        "workflows: []",
+        "custom_overrides:",
+        `  - ${bindingPath}`,
+        "",
+      ].join("\n"),
+    );
+
+    const applied = await runIsolatedGeneration({ repoRoot: root });
+    assert.equal(applied.success, true, applied.error ?? "");
+
+    const lockAfter = await fs.readJson(lockPath);
+    assert.deepEqual(lockAfter.workflowCatalog.workflows.ghost, ghost);
+    assert.equal(await fs.readFile(path.join(root, bindingPath), "utf8"), "user-owned override\n");
+  });
+});
+
+test("an absent canonical workflow with a retained conflict keeps its catalog record", async () => {
+  await withFixture({}, async (root) => {
+    const lockPath = path.join(root, ".skills-lock.json");
+    const lock = await fs.readJson(lockPath);
+    const ghostPath = ".agents/workflows/ghost.md";
+    const conflictPath = ".codex/skills/ghost/SKILL.md";
+    await fs.outputFile(path.join(root, conflictPath), "user-edited conflicting export\n");
+    const ghost = {
+      path: ghostPath,
+      digest: sha256("absent ghost workflow"),
+      registry: "https://example.invalid/registry",
+      requestedRef: "workflows-v1.0.0",
+      resolvedCommit: null,
+      nativeBindings: [],
+      nativeConflicts: [{ agent: "codex", path: conflictPath }],
+    };
+    lock.workflowCatalog.workflows.ghost = ghost;
+    await fs.writeJson(lockPath, lock, { spaces: 2 });
+
+    await selectFixtureWorkflows(root, []);
+
+    const applied = await runIsolatedGeneration({ repoRoot: root });
+    assert.equal(applied.success, true, applied.error ?? "");
+
+    const lockAfter = await fs.readJson(lockPath);
+    assert.deepEqual(lockAfter.workflowCatalog.workflows.ghost, ghost);
+    assert.equal(await fs.readFile(path.join(root, conflictPath), "utf8"), "user-edited conflicting export\n");
+  });
+});
+
 test("a failing parent-directory cleanup restores every retirement already unlinked", async (t) => {
   await withFixture({}, async (root) => {
     const physicalRoot = await fs.realpath(root);

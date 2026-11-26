@@ -178,7 +178,8 @@ custom_skills:
 # Workflows synced to native agent surfaces (.agents/workflows/, .codex/skills/, etc.)
 workflows:
   - sdlc
-  - brainstorm-feature
+  - brainstorm
+  - sdlc-intake
   - plan-feature
   - design-solution
   - implement-feature

@@ -114,7 +114,7 @@ Agent Skills Standard syncs native slash commands, prompts, and agent configurat
 
 | Stage | Workflow | Primary Output |
 | :--- | :--- | :--- |
-| **Route & Plan** | `sdlc`, `brainstorm-feature`, `plan-feature` | Direction briefs, PRDs, task slices |
+| **Explore, Route & Plan** | `brainstorm`, `sdlc`, `sdlc-intake`, `plan-feature` | Exploratory synthesis, direction briefs, PRDs, task slices |
 | **Design & Architecture** | `design-solution`, `review-system-design` | Architecture specs, contracts, ADRs |
 | **Readiness & Code** | `implementation-readiness`, `implement-feature`, `dev-fix` | Verified prerequisites, TDD implementation |
 | **Review & Security** | `code-review`, `security-test`, `pentest` | Security findings, review handoffs |
