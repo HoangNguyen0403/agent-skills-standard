@@ -302,9 +302,9 @@
       "tag_prefix": "flutter-v",
       "token_metrics": {
         "total_skills": 22,
-        "total_tokens": 12485,
-        "avg_tokens_per_skill": 568,
-        "largest_skill": "flutter-testing (1058 tokens)"
+        "total_tokens": 13120,
+        "avg_tokens_per_skill": 596,
+        "largest_skill": "flutter-testing (1693 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -398,9 +398,9 @@
       "tag_prefix": "react-v",
       "token_metrics": {
         "total_skills": 8,
-        "total_tokens": 4991,
-        "avg_tokens_per_skill": 624,
-        "largest_skill": "react-testing (917 tokens)"
+        "total_tokens": 5402,
+        "avg_tokens_per_skill": 675,
+        "largest_skill": "react-testing (1328 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -494,9 +494,9 @@
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 48,
-        "total_tokens": 56168,
-        "avg_tokens_per_skill": 1170,
-        "largest_skill": "common-decision-discipline (3243 tokens)"
+        "total_tokens": 55918,
+        "avg_tokens_per_skill": 1165,
+        "largest_skill": "common-decision-discipline (3195 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -532,8 +532,8 @@
       "tag_prefix": "specialists-v",
       "token_metrics": {
         "total_skills": 21,
-        "total_tokens": 13177,
-        "avg_tokens_per_skill": 627,
+        "total_tokens": 13333,
+        "avg_tokens_per_skill": 635,
         "largest_skill": "specialist-system-architect (1126 tokens)"
       },
       "owners": [
@@ -546,9 +546,9 @@
       "tag_prefix": "golang-v",
       "token_metrics": {
         "total_skills": 11,
-        "total_tokens": 7449,
-        "avg_tokens_per_skill": 677,
-        "largest_skill": "golang-testing (937 tokens)"
+        "total_tokens": 7715,
+        "avg_tokens_per_skill": 701,
+        "largest_skill": "golang-testing (1203 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -618,9 +618,9 @@
       "tag_prefix": "java-v",
       "token_metrics": {
         "total_skills": 5,
-        "total_tokens": 3060,
-        "avg_tokens_per_skill": 612,
-        "largest_skill": "java-language (728 tokens)"
+        "total_tokens": 3498,
+        "avg_tokens_per_skill": 700,
+        "largest_skill": "java-testing (1041 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -666,9 +666,9 @@
       "tag_prefix": "android-v",
       "token_metrics": {
         "total_skills": 26,
-        "total_tokens": 12027,
-        "avg_tokens_per_skill": 463,
-        "largest_skill": "android-testing (850 tokens)"
+        "total_tokens": 12368,
+        "avg_tokens_per_skill": 476,
+        "largest_skill": "android-testing (1191 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -694,9 +694,9 @@
       "tag_prefix": "swift-v",
       "token_metrics": {
         "total_skills": 8,
-        "total_tokens": 5324,
-        "avg_tokens_per_skill": 666,
-        "largest_skill": "swift-concurrency (930 tokens)"
+        "total_tokens": 5448,
+        "avg_tokens_per_skill": 681,
+        "largest_skill": "swift-testing (1019 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -746,9 +746,9 @@
       "tag_prefix": "php-v",
       "token_metrics": {
         "total_skills": 7,
-        "total_tokens": 3817,
-        "avg_tokens_per_skill": 545,
-        "largest_skill": "php-language (615 tokens)"
+        "total_tokens": 4262,
+        "avg_tokens_per_skill": 609,
+        "largest_skill": "php-testing (892 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -770,9 +770,9 @@
       "tag_prefix": "python-v",
       "token_metrics": {
         "total_skills": 9,
-        "total_tokens": 3948,
-        "avg_tokens_per_skill": 439,
-        "largest_skill": "python-language (675 tokens)"
+        "total_tokens": 4226,
+        "avg_tokens_per_skill": 470,
+        "largest_skill": "python-testing (851 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
