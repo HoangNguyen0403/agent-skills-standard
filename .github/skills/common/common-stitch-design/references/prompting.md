@@ -12,6 +12,15 @@ Refinement mode is an orchestration contract (`mode != creativeRange`); see [Hum
 | **Tablet Class** | Responsive layout adaptation (rail/two-pane) preserving data | `generate_variants` | `deviceType: TABLET`, `creativeRange: EXPLORE` |
 | **Justified No-Change** | Current screen satisfies direction; keep original | *(None)* | No variant generation or asset writes required |
 
+## Compare Before Generating
+
+Shared sketch method: [Explore Facilitation](../../common-decision-discipline/references/explore-facilitation.md#sketches-and-settled-direction); UI-specific fields stay in this reference.
+
+- UI sketch: entry screen, primary action, the result it proves, decisive assumption. A sketch is text, not a render; choose / combine / keep current / defer precedes generation, and a chosen direction still needs explicit authorization to generate.
+- Layout comparisons: hold task, content, requested device, and the `assets/<id>` design system constant; vary only the named layout or flow variable (e.g. navigation model, task order, density). One variable per comparison, labelled on every screen, and no unrequested device.
+- Visual direction is not a layout variable: it needs separate labelled design system assets, never a colour or font in one generation prompt.
+- Compare each requested device separately: a phone pair and a tablet pair are different comparisons with their own baseline; never judge a tablet against a phone.
+
 ## Prompt Rules
 
 - **Generation prompts**: Layout and content only. Never specify colours, hex codes, or fonts in generation; appearance is governed entirely by `DESIGN.md`.
