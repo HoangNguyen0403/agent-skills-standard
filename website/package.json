@@ -26,19 +26,19 @@
     "react-dom": "19.3.1"
   },
   "devDependencies": {
-    "@axe-core/playwright": "4.14.0",
+    "@axe-core/playwright": "4.14.1",
     "@eslint/js": "^10.0.1",
     "@playwright/test": "1.65.1",
     "@resvg/resvg-js": "2.6.2",
     "@testing-library/dom": "10.4.2",
     "@testing-library/jest-dom": "7.0.1",
     "@testing-library/react": "16.3.3",
-    "@testing-library/user-event": "14.6.12",
-    "@types/node": "^26.6.6",
-    "@types/react": "19.3.0",
+    "@testing-library/user-event": "14.6.13",
+    "@types/node": "^26.6.10",
+    "@types/react": "19.3.3",
     "@types/react-dom": "19.3.0",
-    "@vitest/coverage-v8": "5.1.1",
-    "@vitest/expect": "5.1.1",
+    "@vitest/coverage-v8": "5.1.2",
+    "@vitest/expect": "5.1.2",
     "chrome-launcher": "1.2.3",
     "eslint": "^10.15.0",
     "globals": "17.14.0",
@@ -48,7 +48,7 @@
     "prettier": "^3.10.0",
     "serve": "14.2.8",
     "typescript": "^5.8.2",
-    "typescript-eslint": "^8.73.0",
-    "vitest": "5.1.1"
+    "typescript-eslint": "^8.74.0",
+    "vitest": "5.1.2"
   }
 }
