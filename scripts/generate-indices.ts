@@ -183,21 +183,32 @@ async function generate() {
     `✅ Generated _INDEX.md for ${Object.keys(categoryIndices).length} categories`,
   );
 
-  // Generate AGENTS.md — router-style index (compact, scalable)
-  const routerIndexContent = await generator.assembleRouterIndex(skillsDir);
-  await MarkdownUtils.injectIndex(repoRoot, ["AGENTS.md"], routerIndexContent);
-
-  console.log("✅ Updated AGENTS.md in repo root (Router-style)");
-
   const configService = new ConfigService();
   const syncService = new SyncService();
   const config = await configService.loadConfig();
-  const localMetadata = (await fs.readJson(
-    path.join(skillsDir, "metadata.json"),
-  )) as RegistryMetadata;
 
   // Use the same resolution logic as the CLI (config > detection > empty)
   const agents = config ? await syncService.resolveTargetAgents(config) : [];
+
+  // Fallback AGENTS.md — unfiltered router for checkouts with no active
+  // configuration. An active install publishes the selected-config router
+  // (filtered categories, MCP note from `.skillsrc`) through the ownership
+  // lifecycle in applyIndices. Injecting this fallback first would leave rows
+  // for unselected categories and the MCP-disabled note staged whenever that
+  // non-strict index write warns instead of throwing.
+  if (agents.length === 0) {
+    const routerIndexContent = await generator.assembleRouterIndex(skillsDir);
+    await MarkdownUtils.injectIndex(repoRoot, ["AGENTS.md"], routerIndexContent);
+    console.log("✅ Updated AGENTS.md in repo root (Router-style)");
+  } else {
+    console.log(
+      "ℹ️ Active configuration detected; AGENTS.md router is written by install.",
+    );
+  }
+
+  const localMetadata = (await fs.readJson(
+    path.join(skillsDir, "metadata.json"),
+  )) as RegistryMetadata;
 
   if (agents.length > 0) {
     const bridgeService = new AgentBridgeService();
@@ -313,17 +324,17 @@ async function generate() {
   // These native indices are tracked generator outputs, not lockfile-owned
   // consumer files. Refresh them before ownership starts; the owned pass below
   // records their resulting bytes without forcing unknown files.
+  //
+  // `applyIndices` already writes the selected-config router (filtered
+  // categories, MCP note from `.skillsrc`, root and server/AGENTS.md). The
+  // unfiltered `routerIndexContent` fallback above is only for checkouts with
+  // no active configuration, so it must not overwrite that router here.
   if (
     agents.length > 0 &&
     config &&
     !(await fs.pathExists(path.join(repoRoot, ".skills-lock.json")))
   ) {
     await syncService.applyIndices(config, agents, localMetadata);
-    await MarkdownUtils.injectIndex(
-      repoRoot,
-      ["AGENTS.md"],
-      routerIndexContent,
-    );
   }
 
   // Local Sync Phase: sync through the ownership lifecycle so removed members
@@ -488,11 +499,11 @@ async function generate() {
         // entries must not claim the configured registry/ref as acquisition.
         workflowProvenance: 'local-authoring',
       });
-      await MarkdownUtils.injectIndex(
-        repoRoot,
-        ["AGENTS.md"],
-        routerIndexContent,
-      );
+      // `completeInstall(..., { refreshIndices: true })` published the
+      // selected-config router to AGENTS.md and server/AGENTS.md through the
+      // ownership lifecycle. Re-injecting the unfiltered fallback here would
+      // replace it with rows for unselected categories and the MCP-disabled
+      // note, so the generator leaves the completed install bytes in place.
     } catch (error) {
       console.error("❌ Failed to sync local skills/workflows:", error);
       throw error;

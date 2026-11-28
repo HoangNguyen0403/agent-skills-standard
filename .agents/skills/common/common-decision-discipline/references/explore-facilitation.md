@@ -19,6 +19,11 @@ Shared, demand-loaded reference for `brainstorm` and `sdlc-intake`. It describes
 7. Finish with useful understanding: a sharper framing, promising directions, an unresolved question, a proposed learning experiment, or a decision to park or stop.
 8. Keep claims honest and effects authorized. No product code, scaffolding, paid experiments, or external side effects; a proposed spike needs a separately authorized execution task.
 
+## Sketches And Settled Direction
+
+- A sketch is a few plain sentences: entry point, main action, result, and the assumption it bets on. Offer sketches when a real choice is open; state a settled direction or a single evidenced path once, with no alternatives.
+- Let the operator choose, combine, keep current, or defer. A sketch, a preference, or a chosen direction is input to a decision, not evidence that it works, and it authorizes no write, spend, or lifecycle transition.
+
 ## Promotion Boundary
 
 - Only an explicit request to turn a selected direction into a delivery brief starts `sdlc-intake`.
