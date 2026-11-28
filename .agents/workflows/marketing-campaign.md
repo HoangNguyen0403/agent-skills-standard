@@ -16,6 +16,8 @@ Goal: Coordinate evidence-based developer marketing campaigns with proof registe
    - Select bounded channel mix within explicit maintainer capacity and cash limits; record rejected channels with reasons. Enforce community anti-spam and disclosure policies.
 3. Prepare campaign collateral (proposal-only):
    - Draft content assets using the intent-channel-action triad, preserving all proof qualifications and caveats.
+   - Open positioning or copy choice: compare the real draft messages for the same audience and next action, holding supported facts and caveats constant. State what each emphasizes, what it omits, and the proof each still needs; DIY/no action is the audience baseline, not a mandatory headline. Remove unsupported public-facing language before comparing. Settled or single-evidenced copy is stated once without alternatives; a chosen draft substantiates no claim and authorizes no posting, spend, or campaign state change.
+   - Example (Illustrative, not a result): same audience and next action; both drafts state the same verified fact (`<CLM-id>`: the command reports a pass or fail result) and the same caveat (`<CLM-id>` limitation: documented platforms only). Draft A leads with that pass/fail result; draft B leads with what the maintainer does when it fails. Neither draft adds a claim the other lacks.
    - Script accessible product/terminal demos with verified commands, WebVTT captions, rights assertions, and zero mandatory provider fees.
    - Gate collateral: set `state: "prepared"`, `outcome: "propose"`. Public posting, spend, or launch requires explicit human `DEC` host approval; proposal is not host authorization (`AUTHORIZATION_REQUIRED`).
 4. Offline measurement and outcome routing:

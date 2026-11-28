@@ -13,13 +13,14 @@ Goal: Evaluate Stitch screens against human direction and the criteria the actua
    - Always load `common-stitch-design` and `common-ui-design`. Load `common-family-ux` only when the product, audience, or content is for children or families; `common-mobile-ux-core` only when a mobile, tablet, or touch surface is in scope; `common-accessibility` only when an accessibility review lane is requested or a rendered/dom defect requires it. Do not load unrelated rubrics to fill a review.
 2. Scope & Direction:
    - `list_projects`, then `list_screens`; group by title and pick current version per title with author (default: most recent).
-   - Identify audience, primary task, and devices in scope. Record an age band only when the product targets one; record surfaces (parent, child) and locale where relevant.
+   - Identify audience, primary task, and devices in scope. Record an age band only when the product targets one; never infer one from content or existing samples. Record surfaces (parent, child) and locale where relevant.
    - Establish human direction: select mode (default `polish`; `restyle` or `rethink` only on explicit human choice), define `keep / change / avoid` boundaries (see `common-ui-design/references/human-direction.md`). References: borrow vs avoid (optional).
 3. Collect:
    - Download selected screenshot and HTML to `.stitch/review/<YYYY-MM-DD>/`. Inspect screenshots only via bounded preview procedure in `common-stitch-design/references/stitch-mcp.md` (verified <=1600 px longest edge).
    - Verify identity, currentness, media type, decoded dimensions, on-disk bytes, SHA-256 binding, and evidence limits per `common-stitch-design/references/review-evidence.md`; the project thumbnail is not current-screen evidence. If only historical evidence exists, label the review historical and state that currentness is not established.
    - Run `node <common-stitch-design>/scripts/audit_html.js .stitch/review/<YYYY-MM-DD>/` only when valid HTML actually arrived; otherwise report the audit check as `NOT RUN (HTML unavailable)` and the DOM lane as `NOT ASSESSED`. Read `list_design_systems`.
 4. Critique & Coverage:
+   - Open with a first look: what a newcomer notices first, the action the screen invites, and the trade-off that buys it. It frames the review; it is not evidence or a score.
    - Cover the criteria the task justifies — product proof and claim accuracy, copy clarity, composition and evidence hierarchy, plus the loaded family/mobile/accessibility rubrics only where in scope. Report per-criterion findings instead of a fabricated aggregate score; never invent numeric weights or a universal family/mobile pass mark.
    - Follow `observation -> impact -> smallest change -> preservation`. Classify findings: defect (objective rule/contrast failure), context concern (usability/task fit), or taste (preference). Distinguish observed proof from preference, and mark lanes that could not be assessed.
    - Allow familiar patterns, cards, and brand colours where the task justifies them; do not flag justified conventions as generic. Record owner preference separately from reviewer evidence.
@@ -28,6 +29,7 @@ Goal: Evaluate Stitch screens against human direction and the criteria the actua
    - Present findings, selected mode, and ready-to-run prompt without geometry locks.
    - If original satisfies direction or author elects to keep it, branch to justified no-change: skip variant and new design system writes completely, but retain any unresolved objective blockers in findings and handoff (unresolved Blockers keep design out of ready handoff; declining a fix does not imply accessible/ready).
    - Human taste can prefer variant without objective proof; record as preference, not measured quality. Explicit approval required before any write.
+   - Preference or selection is not readiness: it clears no unresolved blocker and authorizes no write; the write still needs its own explicit approval.
 6. Improve (When Approved & Changes Needed):
    - If styling changes: update `DESIGN.md`, lint to 0 errors/0 warnings (`npx @google/design.md lint`), create new design system asset.
    - `generate_variants` with `creativeRange: REFINE`, `variantCount: 1` per approved screen (`EXPLORE` only for missing tablet class or explicit rethink mode). Prompt with `keep / change / avoid`.

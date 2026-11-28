@@ -2456,6 +2456,270 @@ test("the public entrypoint check leaves a no-change real-producer fixture and i
   });
 });
 
+/** Returns the bytes between a document's index markers, markers excluded. */
+function injectedRouter(relPath: string, content: string): string {
+  const startMarker = "<!-- SKILLS_INDEX_START -->";
+  const endMarker = "<!-- SKILLS_INDEX_END -->";
+  const start = content.indexOf(startMarker);
+  const end = content.indexOf(endMarker);
+  assert.ok(
+    start !== -1 && end > start,
+    `${relPath} lost its ordered index markers`,
+  );
+  return content.slice(start + startMarker.length, end);
+}
+
+test("the real producer keeps the selected-config router instead of the unfiltered fallback", async () => {
+  await withFixture({}, async (root) => {
+    // A second canonical category that the consumer does not select, and a
+    // file route shared with the selected one: the unfiltered fallback would
+    // advertise it, the install-completed router must not.
+    const metadataPath = path.join(root, "skills", "metadata.json");
+    const metadata = await fs.readJson(metadataPath);
+    metadata.file_routing = { alpha: ["common", "specialists"] };
+    await fs.writeJson(metadataPath, metadata, { spaces: 2 });
+    await fs.outputFile(
+      path.join(root, ".skillsrc"),
+      [
+        "registry: https://example.invalid/registry",
+        "agents:",
+        "  - copilot",
+        "mcp:",
+        "  enabled: true",
+        "  scope: project",
+        "  prompted: true",
+        "skills:",
+        "  common:",
+        "    ref: common-v1",
+        "workflows:",
+        "  - demo",
+        "",
+      ].join("\n"),
+    );
+    await fs.outputFile(
+      path.join(root, "server", "AGENTS.md"),
+      "# Server Agents\n\n<!-- SKILLS_INDEX_START -->\nold router\n<!-- SKILLS_INDEX_END -->\n",
+    );
+
+    const result = await runInStage(
+      "node",
+      ["--import", "tsx", path.join(root, "scripts", "generate-indices.ts")],
+      root,
+    );
+    assert.equal(result.exitCode, 0, result.stderr || result.stdout);
+
+    const rootRouter = injectedRouter(
+      "AGENTS.md",
+      await fs.readFile(path.join(root, "AGENTS.md"), "utf8"),
+    );
+    const serverRouter = injectedRouter(
+      "server/AGENTS.md",
+      await fs.readFile(path.join(root, "server", "AGENTS.md"), "utf8"),
+    );
+
+    // `completeInstall` writes the same router to both documents; the root
+    // must keep it rather than the producer's pre-install fallback.
+    assert.equal(
+      rootRouter,
+      serverRouter,
+      "root AGENTS.md diverged from the install-completed router",
+    );
+    assert.ok(
+      rootRouter.includes(
+        "This project has the MCP server enabled in `.skillsrc`",
+      ),
+      `root router lost the MCP-enabled note:\n${rootRouter}`,
+    );
+    assert.ok(
+      !rootRouter.includes("ags mcp enable"),
+      `root router regressed to the MCP-disabled fallback note:\n${rootRouter}`,
+    );
+    assert.ok(
+      !rootRouter.includes("specialists/_INDEX.md"),
+      `root router advertised the unselected specialists category:\n${rootRouter}`,
+    );
+    assert.ok(
+      rootRouter.includes("`<SKILLS>/common/_INDEX.md`"),
+      `root router lost the selected common category:\n${rootRouter}`,
+    );
+  });
+});
+
+test("the real producer falls back to the unfiltered router when no configuration is active", async () => {
+  await withFixture({}, async (root) => {
+    const metadataPath = path.join(root, "skills", "metadata.json");
+    const metadata = await fs.readJson(metadataPath);
+    metadata.file_routing = { alpha: ["common", "specialists"] };
+    await fs.writeJson(metadataPath, metadata, { spaces: 2 });
+    await fs.remove(path.join(root, ".skillsrc"));
+
+    const result = await runInStage(
+      "node",
+      ["--import", "tsx", path.join(root, "scripts", "generate-indices.ts")],
+      root,
+    );
+    assert.equal(result.exitCode, 0, result.stderr || result.stdout);
+
+    const router = injectedRouter(
+      "AGENTS.md",
+      await fs.readFile(path.join(root, "AGENTS.md"), "utf8"),
+    );
+    // No install ran, so the router must describe every canonical category
+    // and point at the opt-in MCP flow.
+    assert.ok(
+      router.includes("`<SKILLS>/specialists/_INDEX.md`"),
+      `fallback router lost an unselected canonical category:\n${router}`,
+    );
+    assert.ok(
+      router.includes("ags mcp enable"),
+      `fallback router lost the MCP opt-in note:\n${router}`,
+    );
+  });
+});
+
+/** Configures the fixture for an active Copilot install with MCP enabled. */
+async function writeActiveMcpConfig(root: string): Promise<void> {
+  await fs.outputFile(
+    path.join(root, ".skillsrc"),
+    [
+      "registry: https://example.invalid/registry",
+      "agents:",
+      "  - copilot",
+      "mcp:",
+      "  enabled: true",
+      "  scope: project",
+      "  prompted: true",
+      "skills:",
+      "  common:",
+      "    ref: common-v1",
+      "workflows:",
+      "  - demo",
+      "",
+    ].join("\n"),
+  );
+}
+
+/** Routes a shared extension at an unselected canonical category too. */
+async function writeSharedFileRouting(root: string): Promise<void> {
+  const metadataPath = path.join(root, "skills", "metadata.json");
+  const metadata = await fs.readJson(metadataPath);
+  metadata.file_routing = { alpha: ["common", "specialists"] };
+  await fs.writeJson(metadataPath, metadata, { spaces: 2 });
+}
+
+test("a configured fresh checkout installs the selected router during bootstrap", async () => {
+  await withFixture({}, async (root) => {
+    await writeSharedFileRouting(root);
+    await writeActiveMcpConfig(root);
+    // Fresh consumer: no installation provenance and no installed mirrors yet.
+    await fs.remove(path.join(root, ".skills-lock.json"));
+    await fs.remove(path.join(root, ".github", "skills"));
+    await fs.outputFile(
+      path.join(root, "server", "AGENTS.md"),
+      "# Server Agents\n\n<!-- SKILLS_INDEX_START -->\nold router\n<!-- SKILLS_INDEX_END -->\n",
+    );
+
+    const result = await runInStage(
+      "node",
+      ["--import", "tsx", path.join(root, "scripts", "generate-indices.ts")],
+      root,
+    );
+    assert.equal(result.exitCode, 0, result.stderr || result.stdout);
+
+    const rootRouter = injectedRouter(
+      "AGENTS.md",
+      await fs.readFile(path.join(root, "AGENTS.md"), "utf8"),
+    );
+    const serverRouter = injectedRouter(
+      "server/AGENTS.md",
+      await fs.readFile(path.join(root, "server", "AGENTS.md"), "utf8"),
+    );
+
+    assert.equal(
+      rootRouter,
+      serverRouter,
+      "bootstrap left root AGENTS.md without the install-completed router",
+    );
+    assert.ok(
+      rootRouter.includes(
+        "This project has the MCP server enabled in `.skillsrc`",
+      ),
+      `bootstrap router lost the MCP-enabled note:\n${rootRouter}`,
+    );
+    assert.ok(
+      !rootRouter.includes("specialists/_INDEX.md"),
+      `bootstrap router advertised the unselected specialists category:\n${rootRouter}`,
+    );
+    assert.ok(
+      rootRouter.includes("`<SKILLS>/common/_INDEX.md`"),
+      `bootstrap router lost the selected common category:\n${rootRouter}`,
+    );
+  });
+});
+
+test("a warned configured index refresh never stages the unfiltered router", async () => {
+  await withFixture({}, async (root) => {
+    await writeSharedFileRouting(root);
+    await writeActiveMcpConfig(root);
+    // Establish the installed router under the active configuration first.
+    const installed = await runInStage(
+      "node",
+      ["--import", "tsx", path.join(root, "scripts", "generate-indices.ts")],
+      root,
+    );
+    assert.equal(installed.exitCode, 0, installed.stderr || installed.stdout);
+
+    const agentsPath = path.join(root, "AGENTS.md");
+    const before = await fs.readFile(agentsPath, "utf8");
+    assert.ok(
+      before.includes(
+        "This project has the MCP server enabled in `.skillsrc`",
+      ),
+      `installed router lost the MCP-enabled note:\n${before}`,
+    );
+    assert.ok(
+      !before.includes("specialists/_INDEX.md"),
+      `installed router advertises specialists:\n${before}`,
+    );
+
+    // Non-strict policy keeps a failed index write at a warning. Make that
+    // write fail so the only router that could reach AGENTS.md is the
+    // producer's own pre-install injection.
+    const categoryIndexPath = path.join(
+      root,
+      ".github",
+      "skills",
+      "common",
+      "_INDEX.md",
+    );
+    await fs.remove(categoryIndexPath);
+    await fs.ensureDir(categoryIndexPath);
+
+    const result = await runInStage(
+      "node",
+      ["--import", "tsx", path.join(root, "scripts", "generate-indices.ts")],
+      root,
+    );
+    assert.equal(result.exitCode, 0, result.stderr || result.stdout);
+    assert.match(result.stdout, /Failed to update index/);
+
+    const after = await fs.readFile(agentsPath, "utf8");
+    assert.equal(
+      after,
+      before,
+      "a warned configured refresh replaced the installed router with the fallback",
+    );
+    assert.ok(
+      !after.includes("specialists/_INDEX.md"),
+      `a warned configured refresh staged an unselected category:\n${after}`,
+    );
+    assert.ok(
+      !after.includes("ags mcp enable"),
+      `a warned configured refresh staged the MCP-disabled note:\n${after}`,
+    );
+  });
+});
+
 test("public pnpm command forwards stale-check, apply, and passing-check with receipts", async () => {
   await withFixture({}, async (root) => {
     const betaPath = ".github/skills/common/common-beta/SKILL.md";
