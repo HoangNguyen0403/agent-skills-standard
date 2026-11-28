@@ -126,7 +126,7 @@
     "@types/fs-extra": "^11.0.4",
     "@types/inquirer": "^10.0.0",
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "^26.6.6",
+    "@types/node": "^26.6.10",
     "eslint": "^10.15.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.5.7",
@@ -134,13 +134,13 @@
     "globals": "^17.14.0",
     "gpt-tokenizer": "^4.1.2",
     "husky": "^9.1.7",
-    "inquirer": "^14.3.0",
+    "inquirer": "^14.3.1",
     "jiti": "^2.7.0",
     "js-yaml": "^5.4.3",
     "picocolors": "^1.1.1",
     "prettier": "^3.10.0",
     "tsx": "^4.23.15",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.73.0"
+    "typescript-eslint": "^8.74.0"
   }
 }
